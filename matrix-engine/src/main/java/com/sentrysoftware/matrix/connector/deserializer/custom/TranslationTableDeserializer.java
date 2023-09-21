@@ -1,39 +1,42 @@
 package com.sentrysoftware.matrix.connector.deserializer.custom;
 
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TRANSLATION_REF_PATTERN;
-
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.sentrysoftware.matrix.connector.model.common.ITranslationTable;
-import com.sentrysoftware.matrix.connector.model.common.InlineTranslationTable;
 import com.sentrysoftware.matrix.connector.model.common.ReferenceTranslationTable;
+import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import java.io.IOException;
-import java.util.regex.Matcher;
+import java.util.Map;
 
 public class TranslationTableDeserializer extends JsonDeserializer<ITranslationTable> {
 
 	@Override
-	public ITranslationTable deserialize(JsonParser parser, DeserializationContext ctxt)
-		throws IOException, JacksonException {
+	public ITranslationTable deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException {
 		if (parser == null) {
 			return null;
 		}
 
-		final String str = parser.getValueAsString();
-		if (str == null) {
-			return null;
+		final String key = parser.getCurrentName();
+		final JsonNode node = parser.readValueAsTree();
+
+		if (node != null) {
+			if (node.isTextual()) {
+				return new ReferenceTranslationTable(node.asText());
+			} else if (node.isObject()) {
+				return new TranslationTable(new ObjectMapper().convertValue(node, new TypeReference<Map<String, String>>() {}));
+			}
 		}
 
-		final Matcher matcher = TRANSLATION_REF_PATTERN.matcher(str);
-
-		// In case of a ReferenceTranslationTable, the value is like: ${translation::<translationTableName>}
-		if (matcher.find()) {
-			return ReferenceTranslationTable.builder().name(matcher.group(1)).build();
-		} else { // In case of a InlineTranslationTable, the value is a JsonNode
-			return InlineTranslationTable.builder().translationsNode(parser.readValueAs(JsonNode.class)).build();
-		}
+		throw new InvalidFormatException(
+			parser,
+			String.format("Invalid translation table value encountered for property '%s'.", key),
+			node,
+			JsonNode.class
+		);
 	}
 }

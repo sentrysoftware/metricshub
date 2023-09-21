@@ -5,13 +5,13 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COMMA;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DOUBLE_PATTERN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.LOG_COMPUTE_KEY_SUFFIX_TEMPLATE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TRANSLATION_REF_PATTERN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.VERTICAL_BAR;
 
 import com.sentrysoftware.matrix.common.helpers.StringHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.ITranslationTable;
 import com.sentrysoftware.matrix.connector.model.common.ReferenceTranslationTable;
+import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.AbstractConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.And;
@@ -785,36 +785,22 @@ public class ComputeProcessor implements IComputeProcessor {
 	 * @param translationTable
 	 * @return
 	 */
-	public Map<String, String> findTranslations(final ITranslationTable translationTable) {
+	public Map<String, String> findTranslations(final ITranslationTable translation) {
 		// In case of a ReferenceTranslationTable, we try to find its TranslationTable in the connector if the translations Map has not already been found.
 		// In case of an InLineTranslationTable, the Map retrieved through translationTable.getTranslations()
-		if (translationTable instanceof ReferenceTranslationTable) {
-			final Map<String, String> translations = translationTable.getTranslations();
-			if (translations == null || translations.isEmpty()) {
-				final String name = ((ReferenceTranslationTable) translationTable).getName();
-				final Matcher matcher = TRANSLATION_REF_PATTERN.matcher(name);
-
-				if (matcher.find()) {
-					final String arrayTranslateKey = matcher.group(1);
-
-					final Connector connector = telemetryManager.getConnectorStore().getStore().get(connectorName);
-					if (connector != null && connector.getTranslations() != null) {
-						final ITranslationTable connectorTranslation = connector.getTranslations().get(arrayTranslateKey);
-						if (connectorTranslation != null) {
-							// We set the translationMap in the ReferenceTranslationTable so we don't have to look for it again
-							((ReferenceTranslationTable) translationTable).setTranslations(connectorTranslation.getTranslations());
-						}
-					}
-				} else {
-					log.warn(
-						"Hostname {} - Error while looking for the Translation Table {}, the array translate computation cannot be performed.",
-						hostname,
-						name
-					);
+		if (translation instanceof ReferenceTranslationTable referenceTranslationTable) {
+			final Connector connector = telemetryManager.getConnectorStore().getStore().get(connectorName);
+			if (connector != null && connector.getTranslations() != null) {
+				final TranslationTable translationTable = connector
+					.getTranslations()
+					.get(referenceTranslationTable.getTableId());
+				if (translationTable == null) {
+					return null;
 				}
+				return translationTable.getTranslations();
 			}
 		}
 
-		return translationTable.getTranslations();
+		return ((TranslationTable) translation).getTranslations();
 	}
 }

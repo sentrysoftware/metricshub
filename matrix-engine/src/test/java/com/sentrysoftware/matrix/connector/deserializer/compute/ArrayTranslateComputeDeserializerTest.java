@@ -35,7 +35,7 @@ class ArrayTranslateComputeDeserializerTest extends DeserializerTest {
 				.column(1)
 				.arraySeparator("arraySeparatorTest")
 				.resultSeparator("resultSeparatorTest")
-				.translationTable(ReferenceTranslationTable.builder().name("${translation::translationTableTest}").build())
+				.translationTable(new ReferenceTranslationTable("${translation::translationTableTest}"))
 				.build()
 		);
 

@@ -6,8 +6,8 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.sentrysoftware.matrix.connector.model.common.InlineTranslationTable;
 import com.sentrysoftware.matrix.connector.model.common.ReferenceTranslationTable;
+import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.And;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ArrayTranslate;
@@ -84,11 +84,11 @@ class ComputeUpdaterProcessorTest {
 	void testProcessArrayTranslate() {
 		doNothing().when(computeProcessor).process(any(ArrayTranslate.class));
 		computeUpdaterProcessor.process(
-			ArrayTranslate.builder().column(1).translationTable(new ReferenceTranslationTable()).build()
+			ArrayTranslate.builder().column(1).translationTable(new TranslationTable()).build()
 		);
 
 		computeUpdaterProcessor.process(
-			ArrayTranslate.builder().column(1).translationTable(new InlineTranslationTable()).build()
+			ArrayTranslate.builder().column(1).translationTable(new ReferenceTranslationTable()).build()
 		);
 
 		verify(computeProcessor, times(2)).process(any(ArrayTranslate.class));

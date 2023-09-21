@@ -1,12 +1,9 @@
 package com.sentrysoftware.matrix.connector.model.common;
 
 import java.io.Serializable;
-import java.util.Map;
 import java.util.function.UnaryOperator;
 
 public interface ITranslationTable extends Serializable {
-	Map<String, String> getTranslations();
-
 	/**
 	 * Copy the {@link ITranslationTable} instance
 	 *

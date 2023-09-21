@@ -12,15 +12,13 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
-import com.sentrysoftware.matrix.connector.model.common.InlineTranslationTable;
 import com.sentrysoftware.matrix.connector.model.common.ReferenceTranslationTable;
+import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.And;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ArrayTranslate;
@@ -34,7 +32,6 @@ import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -954,6 +951,42 @@ class ComputeProcessorTest {
 			Arrays.asList(ID3, null, TYPE3)
 		);
 
+		List<List<String>> result = Arrays.asList(
+			Arrays.asList(ID1, "TRANSLATED_STATUS11|TRANSLATED_STATUS12|TRANSLATED_STATUS13", TYPE1),
+			Arrays.asList(ID2, "NO_VALUE|TRANSLATED_STATUS22", TYPE2),
+			Arrays.asList(ID3, "TRANSLATED_STATUS31", TYPE3)
+		);
+
+		final Map<String, String> translations = Maps.of(
+			"",
+			"NO_VALUE",
+			"status11",
+			"TRANSLATED_STATUS11",
+			"status12",
+			"TRANSLATED_STATUS12",
+			"status13",
+			"TRANSLATED_STATUS13",
+			"status22",
+			"TRANSLATED_STATUS22", // No translation for STATUS22
+			"status31",
+			"TRANSLATED_STATUS31"
+		);
+		final String translationTableName = "translationTableName";
+		final TranslationTable connectorTranslationTable = TranslationTable.builder().translations(translations).build();
+		final String connectorName = "connectorName";
+		final Connector connector = Connector
+			.builder()
+			.translations(Collections.singletonMap(translationTableName, connectorTranslationTable))
+			.build();
+
+		Map<String, Connector> store = Maps.of(connectorName, connector);
+
+		final TelemetryManager telemetryManager = TelemetryManager.builder().connectorStore(connectorStoreMock).build();
+
+		doReturn(store).when(connectorStoreMock).getStore();
+		computeProcessor.setConnectorName(connectorName);
+		computeProcessor.setTelemetryManager(telemetryManager);
+
 		sourceTable.setTable(table);
 
 		// ArrayTranslate is null
@@ -967,8 +1000,8 @@ class ComputeProcessorTest {
 
 		// ArrayTranslate is not null, translationTable is not null, translations is not null,
 		// column < 1
-		ReferenceTranslationTable referenceTranslationTable = ReferenceTranslationTable.builder().name("").build();
-		arrayTranslate.setTranslationTable(referenceTranslationTable);
+		ReferenceTranslationTable translationTable = new ReferenceTranslationTable("");
+		arrayTranslate.setTranslationTable(translationTable);
 		arrayTranslate.setColumn(0);
 		computeProcessor.process(arrayTranslate);
 		assertEquals(table, sourceTable.getTable());
@@ -1003,52 +1036,8 @@ class ComputeProcessorTest {
 
 		sourceTable.setTable(table);
 
-		final Map<String, String> translations = Maps.of(
-			"",
-			"NO_VALUE",
-			"status11",
-			"TRANSLATED_STATUS11",
-			"status12",
-			"TRANSLATED_STATUS12",
-			"status13",
-			"TRANSLATED_STATUS13",
-			"status22",
-			"TRANSLATED_STATUS22", // No translation for STATUS22
-			"status31",
-			"TRANSLATED_STATUS31"
-		);
-
-		referenceTranslationTable =
-			ReferenceTranslationTable.builder().name("${translation::translationTableName}").build();
-		arrayTranslate.setTranslationTable(referenceTranslationTable);
-
-		final String translationTableName = "translationTableName";
-		final ReferenceTranslationTable connectorTranslationTable = ReferenceTranslationTable
-			.builder()
-			.name(translationTableName)
-			.translations(translations)
-			.build();
-
-		final String connectorName = "connectorName";
-		final Connector connector = Connector
-			.builder()
-			.translations(Collections.singletonMap(translationTableName, connectorTranslationTable))
-			.build();
-
-		Map<String, Connector> store = Maps.of(connectorName, connector);
-
-		final TelemetryManager telemetryManager = TelemetryManager.builder().connectorStore(connectorStoreMock).build();
-
-		List<List<String>> result = Arrays.asList(
-			Arrays.asList(ID1, "TRANSLATED_STATUS11|TRANSLATED_STATUS12|TRANSLATED_STATUS13", TYPE1),
-			Arrays.asList(ID2, "NO_VALUE|TRANSLATED_STATUS22", TYPE2),
-			Arrays.asList(ID3, "TRANSLATED_STATUS31", TYPE3)
-		);
-
-		computeProcessor.setConnectorName(connectorName);
-		computeProcessor.setTelemetryManager(telemetryManager);
-
-		doReturn(store).when(connectorStoreMock).getStore();
+		translationTable = new ReferenceTranslationTable("${translation::translationTableName}");
+		arrayTranslate.setTranslationTable(translationTable);
 
 		computeProcessor.process(arrayTranslate);
 		assertEquals(result, sourceTable.getTable());
@@ -1069,14 +1058,24 @@ class ComputeProcessorTest {
 				Arrays.asList(ID3, "TRANSLATED_STATUS31", TYPE3)
 			);
 
-		final JsonNode translationsNode = JsonHelper
-			.buildYamlMapper()
-			.readTree(Path.of("src/test/resources/test-files/translations/translationsNode.yaml").toFile());
-		final InlineTranslationTable inlineTranslationTable = InlineTranslationTable
+		final TranslationTable referenceTranslationTable = TranslationTable
 			.builder()
-			.translationsNode(translationsNode)
+			.translations(
+				Map.of(
+					"status11",
+					"TRANSLATED_STATUS11",
+					"status12",
+					"TRANSLATED_STATUS12",
+					"status13",
+					"TRANSLATED_STATUS13",
+					"status22",
+					"TRANSLATED_STATUS22",
+					"status31",
+					"TRANSLATED_STATUS31"
+				)
+			)
 			.build();
-		arrayTranslate.setTranslationTable(inlineTranslationTable);
+		arrayTranslate.setTranslationTable(referenceTranslationTable);
 
 		computeProcessor.process(arrayTranslate);
 		assertEquals(result, sourceTable.getTable());
