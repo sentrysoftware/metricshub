@@ -933,15 +933,15 @@ class ComputeProcessorTest {
 
 	@Test
 	void testExcludeMatchingLines() {
-		List<String> line1 = Arrays.asList(FOO, "1", "2", "3");
-		List<String> line2 = Arrays.asList(BAR, "10", "20", "30");
-		List<String> line3 = Arrays.asList(BAZ, "100", "200", "300");
-		List<List<String>> table = Arrays.asList(line1, line2, line3);
+		final List<String> line1 = Arrays.asList(FOO, "1", "2", "3");
+		final List<String> line2 = Arrays.asList(BAR, "10", "20", "30");
+		final List<String> line3 = Arrays.asList(BAZ, "100", "200", "300");
+		final List<List<String>> table = Arrays.asList(line1, line2, line3);
 
 		computeProcessor.setSourceTable(SourceTable.builder().table(table).build());
 
 		// regexp is null, valueSet is null
-		ExcludeMatchingLines excludeMatchingLines = ExcludeMatchingLines
+		final ExcludeMatchingLines excludeMatchingLines = ExcludeMatchingLines
 			.builder()
 			.column(1)
 			.regExp(null)
