@@ -1,6 +1,6 @@
 package com.sentrysoftware.matrix.agent.process.io;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import com.sentrysoftware.matrix.agent.process.config.Slf4jLevel;
 import org.junit.jupiter.api.Test;

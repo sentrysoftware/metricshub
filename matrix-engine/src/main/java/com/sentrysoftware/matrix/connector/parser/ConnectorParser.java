@@ -100,6 +100,20 @@ public class ConnectorParser {
 		final ConnectorParser connectorParser = withNodeProcessor(connectorDirectory);
 
 		// Create the update objects
+		final ConnectorUpdateChain updateChain = createUpdateChain();
+
+		// Set the first update chain
+		connectorParser.setConnectorUpdateChain(updateChain);
+
+		return connectorParser;
+	}
+
+	/**
+	 * Create the update chain for this connector
+	 *
+	 * @return {@link ConnectorUpdateChain} instance
+	 */
+	public static ConnectorUpdateChain createUpdateChain() {
 		final ConnectorUpdateChain availableSource = new AvailableSourceUpdate();
 		final ConnectorUpdateChain preSourceDepUpdate = new PreSourceDepUpdate();
 		final ConnectorUpdateChain monitorTaskSourceDepUpdate = new MonitorTaskSourceDepUpdate();
@@ -107,11 +121,7 @@ public class ConnectorParser {
 		// Create the chain
 		availableSource.setNextUpdateChain(preSourceDepUpdate);
 		preSourceDepUpdate.setNextUpdateChain(monitorTaskSourceDepUpdate);
-
-		// Set the first update chain
-		connectorParser.setConnectorUpdateChain(availableSource);
-
-		return connectorParser;
+		return availableSource;
 	}
 
 	/**

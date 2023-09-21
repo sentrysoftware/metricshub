@@ -19,7 +19,7 @@ public class AlertingSystemConfig {
 		"Problem on ${FQDN} with ${MONITOR_NAME}.${NEWLINE}${NEWLINE}${ALERT_DETAILS}${NEWLINE}${NEWLINE}${FULLREPORT}";
 
 	@Default
-	private boolean disable = false;
+	private Boolean disable = false;
 
 	@Default
 	@JsonSetter(nulls = SKIP)

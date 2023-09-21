@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.agent.process.runtime;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 
 import com.sentrysoftware.matrix.agent.process.io.CustomInputStream;
