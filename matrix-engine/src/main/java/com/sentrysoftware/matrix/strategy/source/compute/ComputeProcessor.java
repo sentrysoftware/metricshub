@@ -378,10 +378,91 @@ public class ComputeProcessor implements IComputeProcessor {
 		// TODO Auto-generated method stub
 	}
 
+	/**
+	 * This method processes the replace compute
+	 * @param replace
+	 */
 	@Override
 	@WithSpan("Compute Replace Exec")
 	public void process(@SpanAttribute("compute.definition") final Replace replace) {
-		// TODO Auto-generated method stub
+		if (replace == null) {
+			log.warn("Hostname {} - Compute Operation (Replace) is null, the table remains unchanged.", hostname);
+			return;
+		}
+
+		final Integer columnToReplace = replace.getColumn();
+		final String strToReplace = replace.getExistingValue();
+		final String replacement = replace.getNewValue();
+
+		if (columnToReplace == null || strToReplace == null || replacement == null) {
+			log.warn(
+				"Hostname {} - Arguments in Compute Operation (Replace): {} are wrong, the table remains unchanged.",
+				hostname,
+				replace
+			);
+			return;
+		}
+
+		if (columnToReplace < 1) {
+			log.warn(
+				"Hostname {} - The index of the column to replace cannot be < 1, the replacement computation cannot be performed.",
+				hostname
+			);
+			return;
+		}
+
+		int columnIndex = columnToReplace - 1;
+
+		// If replacement is like "Column(n)", we replace the strToReplace by the content of the column n.
+		if (COLUMN_PATTERN.matcher(replacement).matches()) {
+			final int replacementColumnIndex = getColumnIndex(replacement);
+
+			if (!sourceTable.getTable().isEmpty() && replacementColumnIndex < sourceTable.getTable().get(0).size()) {
+				// If strToReplace is like "Column(n)", the strToReplace is actually the content of the column n.
+				if (COLUMN_PATTERN.matcher(strToReplace).matches()) {
+					final int strToReplaceColumnIndex = getColumnIndex(strToReplace);
+					if (strToReplaceColumnIndex < sourceTable.getTable().get(0).size()) {
+						sourceTable
+							.getTable()
+							.forEach(column ->
+								column.set(
+									columnIndex,
+									column
+										.get(columnIndex)
+										.replace(column.get(strToReplaceColumnIndex), column.get(replacementColumnIndex))
+								)
+							);
+					}
+				} else {
+					sourceTable
+						.getTable()
+						.forEach(column ->
+							column.set(columnIndex, column.get(columnIndex).replace(strToReplace, column.get(replacementColumnIndex)))
+						);
+				}
+			}
+		} else {
+			// If strToReplace is like "Column(n)", the strToReplace is actually the content of the column n.
+			if (COLUMN_PATTERN.matcher(strToReplace).matches()) {
+				final int strToReplaceColumnIndex = getColumnIndex(strToReplace);
+				if (!sourceTable.getTable().isEmpty() && strToReplaceColumnIndex < sourceTable.getTable().get(0).size()) {
+					sourceTable
+						.getTable()
+						.forEach(column ->
+							column.set(columnIndex, column.get(columnIndex).replace(column.get(strToReplaceColumnIndex), replacement))
+						);
+				}
+			} else {
+				sourceTable
+					.getTable()
+					.forEach(column -> column.set(columnIndex, column.get(columnIndex).replace(strToReplace, replacement)));
+			}
+		}
+
+		sourceTable.setTable(
+			SourceTable.csvToTable(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false), TABLE_SEP)
+		);
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	@Override
