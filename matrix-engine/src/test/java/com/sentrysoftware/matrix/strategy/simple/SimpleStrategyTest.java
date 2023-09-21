@@ -1,14 +1,15 @@
-package com.sentrysoftware.matrix.strategy.collect;
+package com.sentrysoftware.matrix.strategy.simple;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IS_ENDPOINT;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
 import static com.sentrysoftware.matrix.constants.Constants.CONNECTOR;
+import static com.sentrysoftware.matrix.constants.Constants.DISK_CONTROLLER;
+import static com.sentrysoftware.matrix.constants.Constants.ENCLOSURE;
 import static com.sentrysoftware.matrix.constants.Constants.HOST;
 import static com.sentrysoftware.matrix.constants.Constants.HOST_ID;
 import static com.sentrysoftware.matrix.constants.Constants.HOST_NAME;
 import static com.sentrysoftware.matrix.constants.Constants.ID;
 import static com.sentrysoftware.matrix.constants.Constants.MONITOR_ID_ATTRIBUTE_VALUE;
-import static com.sentrysoftware.matrix.constants.Constants.TEST_CONNECTOR_FILE_NAME;
+import static com.sentrysoftware.matrix.constants.Constants.TEST_CONNECTOR_WITH_SIMPLE_FILE_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -23,7 +24,6 @@ import com.sentrysoftware.matrix.connector.model.ConnectorStore;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.telemetry.Monitor;
-import com.sentrysoftware.matrix.telemetry.MonitorFactory;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
 import java.nio.file.Path;
@@ -38,7 +38,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class CollectStrategyTest {
+class SimpleStrategyTest {
 
 	private static final Path TEST_CONNECTOR_PATH = Paths.get(
 		"src",
@@ -46,16 +46,14 @@ public class CollectStrategyTest {
 		"resources",
 		"test-files",
 		"strategy",
-		"TestConnector.yaml"
+		"TestConnectorWithSimple.yaml"
 	);
-	private static final String HEALTHY = "healthy";
-	private static final String STATUS_INFORMATION = "StatusInformation";
 
 	@Mock
 	private MatsyaClientsExecutor matsyaClientsExecutorMock;
 
 	@InjectMocks
-	private CollectStrategy collectStrategy;
+	private SimpleStrategy simpleStrategy;
 
 	static Long strategyTime = new Date().getTime();
 
@@ -63,13 +61,15 @@ public class CollectStrategyTest {
 	void testRun() throws Exception {
 		// Create host and connector monitors and set them in the telemetry manager
 		final Monitor hostMonitor = Monitor.builder().type(KnownMonitorType.HOST.getKey()).build();
+		hostMonitor.getAttributes().put(IS_ENDPOINT, "true");
+
 		final Monitor connectorMonitor = Monitor.builder().type(KnownMonitorType.CONNECTOR.getKey()).build();
 		final Map<String, Map<String, Monitor>> monitors = new HashMap<>(
 			Map.of(
 				HOST,
 				Map.of(MONITOR_ID_ATTRIBUTE_VALUE, hostMonitor),
 				CONNECTOR,
-				Map.of(TEST_CONNECTOR_FILE_NAME, connectorMonitor)
+				Map.of(TEST_CONNECTOR_WITH_SIMPLE_FILE_NAME, connectorMonitor)
 			)
 		);
 
@@ -89,43 +89,21 @@ public class CollectStrategyTest {
 			)
 			.build();
 
-		final String connectorId = TEST_CONNECTOR_FILE_NAME.split("\\.")[0];
-
-		MonitorFactory monitorFactory = MonitorFactory
-			.builder()
-			.monitorType("enclosure")
-			.telemetryManager(telemetryManager)
-			.connectorId(connectorId)
-			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "enclosure-1")))
-			.build();
-		final Monitor enclosure = monitorFactory.createOrUpdateMonitor();
-
-		monitorFactory =
-			MonitorFactory
-				.builder()
-				.monitorType("disk_controller")
-				.telemetryManager(telemetryManager)
-				.connectorId(connectorId)
-				.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "1")))
-				.build();
-		final Monitor diskController = monitorFactory.createOrUpdateMonitor();
-
-		hostMonitor.getAttributes().put(IS_ENDPOINT, "true");
-
-		connectorMonitor.getAttributes().put(ID, TEST_CONNECTOR_FILE_NAME);
+		connectorMonitor.getAttributes().put(ID, TEST_CONNECTOR_WITH_SIMPLE_FILE_NAME);
 
 		// Create the connector store
 		final ConnectorStore connectorStore = new ConnectorStore(TEST_CONNECTOR_PATH);
 		telemetryManager.setConnectorStore(connectorStore);
 
-		collectStrategy.setTelemetryManager(telemetryManager);
-		collectStrategy.setStrategyTime(strategyTime);
+		// Set simple strategy information
+		simpleStrategy.setTelemetryManager(telemetryManager);
+		simpleStrategy.setStrategyTime(strategyTime);
 
 		// Mock source table information for enclosure
 		doReturn(SourceTable.csvToTable("enclosure-1;1;healthy", MatrixConstants.TABLE_SEP))
 			.when(matsyaClientsExecutorMock)
 			.executeSNMPTable(
-				eq("1.3.6.1.4.1.795.10.1.1.30.1"),
+				eq("1.3.6.1.4.1.795.10.1.1.3.1"),
 				any(String[].class),
 				any(SnmpConfiguration.class),
 				anyString(),
@@ -136,22 +114,32 @@ public class CollectStrategyTest {
 		doReturn(SourceTable.csvToTable("1;1;healthy", MatrixConstants.TABLE_SEP))
 			.when(matsyaClientsExecutorMock)
 			.executeSNMPTable(
-				eq("1.3.6.1.4.1.795.10.1.1.31.1"),
+				eq("1.3.6.1.4.1.795.10.1.1.4.1"),
 				any(String[].class),
 				any(SnmpConfiguration.class),
 				anyString(),
 				eq(true)
 			);
+		simpleStrategy.run();
 
-		collectStrategy.run();
+		// Check processed monitors
+		final Map<String, Map<String, Monitor>> processedMonitors = telemetryManager.getMonitors();
 
-		// Check metrics
+		final Map<String, Monitor> enclosureMonitors = processedMonitors.get(ENCLOSURE);
+		final Map<String, Monitor> diskControllerMonitors = processedMonitors.get(DISK_CONTROLLER);
+
+		assertEquals(4, processedMonitors.size());
+		assertEquals(1, enclosureMonitors.size());
+		assertEquals(1, diskControllerMonitors.size());
+
+		// Check processed monitors metrics
+		final Monitor enclosure = enclosureMonitors.get("TestConnectorWithSimple_enclosure_enclosure-1");
+		final Monitor diskController = diskControllerMonitors.get("TestConnectorWithSimple_disk_controller_1");
+
+		assertEquals(1.0, enclosure.getMetric("hw.status{hw.type=\"enclosure\"}", NumberMetric.class).getValue());
 		assertEquals(
 			1.0,
 			diskController.getMetric("hw.status{hw.type=\"disk_controller\"}", NumberMetric.class).getValue()
 		);
-		assertEquals(HEALTHY, diskController.getLegacyTextParameters().get(STATUS_INFORMATION));
-		assertEquals(1.0, enclosure.getMetric("hw.status{hw.type=\"enclosure\"}", NumberMetric.class).getValue());
-		assertEquals(HEALTHY, enclosure.getLegacyTextParameters().get(STATUS_INFORMATION));
 	}
 }

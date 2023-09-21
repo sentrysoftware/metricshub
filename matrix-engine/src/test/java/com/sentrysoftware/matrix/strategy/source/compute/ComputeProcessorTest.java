@@ -1,14 +1,16 @@
 package com.sentrysoftware.matrix.strategy.source.compute;
 
 import static com.sentrysoftware.matrix.constants.Constants.EMPTY;
+import static com.sentrysoftware.matrix.constants.Constants.LOCALHOST;
 import static com.sentrysoftware.matrix.constants.Constants.SINGLE_SPACE;
 import static com.sentrysoftware.matrix.constants.Constants.VALUE_VAL1;
 import static com.sentrysoftware.matrix.constants.Constants.VALUE_VAL2;
 import static com.sentrysoftware.matrix.constants.Constants.VALUE_VAL3;
-import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+<<<<<<< HEAD
 import static org.mockito.Mockito.doReturn;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -17,18 +19,29 @@ import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.common.InlineTranslationTable;
 import com.sentrysoftware.matrix.connector.model.common.ReferenceTranslationTable;
+=======
+
+import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
+import com.sentrysoftware.matrix.configuration.HostConfiguration;
+import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
+>>>>>>> origin/develop
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.And;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ArrayTranslate;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Divide;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Json2Csv;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.LeftConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Multiply;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.RightConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Subtract;
+import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+<<<<<<< HEAD
 import java.io.IOException;
 import java.nio.file.Path;
+=======
+>>>>>>> origin/develop
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,14 +51,25 @@ import org.apache.groovy.util.Maps;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+<<<<<<< HEAD
 import org.mockito.Mock;
+=======
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
+>>>>>>> origin/develop
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class ComputeProcessorTest {
 
-	SourceTable sourceTable;
-	ComputeProcessor computeProcessor;
+	private SourceTable sourceTable;
+
+	@InjectMocks
+	private ComputeProcessor computeProcessor;
+
+	@Spy
+	private MatsyaClientsExecutor matsyaClientsExecutorMock;
 
 	@Mock
 	private ConnectorStore connectorStoreMock;
@@ -133,11 +157,23 @@ class ComputeProcessorTest {
 	private static final List<String> LINE_2_ONE_COLUMN = new ArrayList<>(Collections.singletonList(ID2));
 	private static final List<String> LINE_3_ONE_COLUMN = new ArrayList<>(Collections.singletonList(ID3));
 
+	private TelemetryManager telemetryManager;
+
 	@BeforeEach
 	void setUp() {
 		computeProcessor = new ComputeProcessor();
 		sourceTable = new SourceTable();
 		computeProcessor.setSourceTable(sourceTable);
+		computeProcessor.setHostname(LOCALHOST);
+		telemetryManager =
+			TelemetryManager
+				.builder()
+				.hostConfiguration(
+					HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.WINDOWS).build()
+				)
+				.build();
+		matsyaClientsExecutorMock.setTelemetryManager(telemetryManager);
+		computeProcessor.setMatsyaClientsExecutor(matsyaClientsExecutorMock);
 	}
 
 	private void initializeSourceTable() {
@@ -890,6 +926,7 @@ class ComputeProcessorTest {
 	}
 
 	@Test
+<<<<<<< HEAD
 	void testProcessArrayTranslate() throws IOException {
 		List<List<String>> table = Arrays.asList(
 			Arrays.asList(ID1, null, TYPE1),
@@ -1023,5 +1060,36 @@ class ComputeProcessorTest {
 
 		computeProcessor.process(arrayTranslate);
 		assertEquals(result, sourceTable.getTable());
+=======
+	void testJson2Csv() {
+		// Retrieve the Json file and extract its content as String
+		final String rawData = ResourceHelper
+			.getResourceAsString("/test-files/compute/json2Csv/json2CsvSample.json", ComputeProcessor.class)
+			.replaceAll("\\s", "");
+
+		// Set the extracted rawData in the source table
+		sourceTable.setRawData(rawData);
+
+		// Check the case of a null {@link Json2Csv} instance
+		Json2Csv jsonToCsv = null;
+		computeProcessor.process(jsonToCsv);
+		assertEquals(rawData, sourceTable.getRawData());
+
+		// Check the case of an empty {@link Json2Csv} instance
+		jsonToCsv = Json2Csv.builder().build();
+		computeProcessor.process(jsonToCsv);
+		assertEquals(rawData, sourceTable.getRawData());
+
+		// Check the case of a non-null {@link Json2Csv} instance
+		jsonToCsv =
+			Json2Csv.builder().entryKey("/monitors").separator(";").properties("id,name,monitorType,hostId").build();
+
+		computeProcessor.process(jsonToCsv);
+
+		final String expectedRawDataResult =
+			"/monitors[0];enclosure-1;enclosure-1;ENCLOSURE;hostId;\n" +
+			"/monitors[1];enclosure-2;enclosure-2;ENCLOSURE;hostId;\n";
+		assertEquals(expectedRawDataResult, sourceTable.getRawData());
+>>>>>>> origin/develop
 	}
 }

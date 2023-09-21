@@ -1,7 +1,9 @@
 package com.sentrysoftware.matrix.strategy.source.compute;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COLUMN_PATTERN;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COMMA;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DOUBLE_PATTERN;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.LOG_COMPUTE_KEY_SUFFIX_TEMPLATE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TRANSLATION_REF_PATTERN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.VERTICAL_BAR;
@@ -9,6 +11,7 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.VERTICAL_
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.ITranslationTable;
 import com.sentrysoftware.matrix.connector.model.common.ReferenceTranslationTable;
+import com.sentrysoftware.matrix.common.helpers.StringHelper;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.AbstractConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.And;
@@ -64,7 +67,7 @@ public class ComputeProcessor implements IComputeProcessor {
 	private String sourceKey;
 	private String hostname;
 	private SourceTable sourceTable;
-
+	private Integer index;
 	private static final Map<Class<? extends Compute>, BiFunction<String, String, String>> MATH_FUNCTIONS_MAP;
 
 	static {
@@ -334,10 +337,80 @@ public class ComputeProcessor implements IComputeProcessor {
 		// TODO Auto-generated method stub
 	}
 
+	/**
+	 * This method processes Json2Csv compute
+	 * @param json2csv {@link Json2Csv} instance
+	 */
 	@Override
 	@WithSpan("Compute Json2Csv Exec")
 	public void process(@SpanAttribute("compute.definition") final Json2Csv json2csv) {
-		// TODO Auto-generated method stub
+		if (json2csv == null) {
+			log.warn("Hostname {} - Compute Operation (Json2CSV) is null, the table remains unchanged.", hostname);
+			return;
+		}
+
+		try {
+			final List<String> jsonToCsvProperties = new ArrayList<>(Arrays.asList(json2csv.getProperties().split(COMMA)));
+			final String json2csvResult = matsyaClientsExecutor.executeJson2Csv(
+				sourceTable.getRawData(),
+				json2csv.getEntryKey(),
+				jsonToCsvProperties,
+				json2csv.getSeparator()
+			);
+
+			if (json2csvResult != null && !json2csvResult.isEmpty()) {
+				sourceTable.setRawData(json2csvResult);
+				sourceTable.setTable(SourceTable.csvToTable(json2csvResult, json2csv.getSeparator()));
+			}
+		} catch (Exception e) {
+			logComputeError(
+				connectorName,
+				String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, this.index),
+				"Json2CSV",
+				e,
+				hostname
+			);
+		}
+	}
+
+	/**
+	 * Log the given throwable
+	 *
+	 * @param connectorName The name of the connector defining the compute
+	 * @param computeKey    The key of the compute
+	 * @param context       Additional information about the operation
+	 * @param throwable     The caught throwable to log
+	 */
+	private static void logComputeError(
+		final String connectorName,
+		final String computeKey,
+		final String context,
+		final Throwable throwable,
+		final String hostname
+	) {
+		if (log.isErrorEnabled()) {
+			log.error(
+				"Hostname {} - Compute Operation [{}] has failed. Context [{}]. Connector [{}]. Errors:\n{}\n",
+				hostname,
+				computeKey,
+				context,
+				connectorName,
+				StringHelper.getStackMessages(throwable)
+			);
+		}
+
+		if (log.isDebugEnabled()) {
+			log.debug(
+				String.format(
+					"Hostname %s - Compute Operation [%s] has failed. Context [%s]. Connector [%s]. Stack trace:",
+					hostname,
+					computeKey,
+					context,
+					connectorName
+				),
+				throwable
+			);
+		}
 	}
 
 	@Override
@@ -689,12 +762,12 @@ public class ComputeProcessor implements IComputeProcessor {
 	 * with the given {@link AbstractConcat}'s <i>getString()</i> value,
 	 * and stores the result at <i>columnIndex</i>.<br>
 	 *
-	 * Whether {@link AbstractConcat#getString()} goes to the left or to the right of the value at <i>columnIndex</i>
+	 * Whether {@link AbstractConcat#toString()} ()} goes to the left or to the right of the value at <i>columnIndex</i>
 	 * depends on the type of {@link AbstractConcat}.
 	 *
 	 * @param line				The line on which the concatenation will be performed.
 	 * @param columnIndex		The index of the column
-	 *                          holding the value that should be concatenated to {@link AbstractConcat#getString()}.
+	 *                          holding the value that should be concatenated to {@link AbstractConcat#toString()} ()}.
 	 *                          The result will be stored at <i>columnIndex</i>.
 	 * @param abstractConcat	The {@link AbstractConcat} used to determine
 	 *                          whether the concatenation should be a left concatenation or a right concatenation.

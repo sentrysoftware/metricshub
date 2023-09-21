@@ -1,7 +1,7 @@
-package com.sentrysoftware.matrix.strategy.discovery;
+package com.sentrysoftware.matrix.strategy.simple;
 
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorJob;
-import com.sentrysoftware.matrix.connector.model.monitor.StandardMonitorJob;
+import com.sentrysoftware.matrix.connector.model.monitor.SimpleMonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.task.AbstractMonitorTask;
 import com.sentrysoftware.matrix.strategy.AbstractAllAtOnceStrategy;
 import lombok.EqualsAndHashCode;
@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class DiscoveryStrategy extends AbstractAllAtOnceStrategy {
+public class SimpleStrategy extends AbstractAllAtOnceStrategy {
 
-	private static final String JOB_NAME = "discovery";
+	private static final String JOB_NAME = "simple";
 
 	@Override
 	protected String getJobName() {
@@ -20,8 +20,8 @@ public class DiscoveryStrategy extends AbstractAllAtOnceStrategy {
 
 	@Override
 	protected AbstractMonitorTask retrieveTask(MonitorJob monitorJob) {
-		if (monitorJob instanceof StandardMonitorJob standardMonitorJob) {
-			return standardMonitorJob.getDiscovery();
+		if (monitorJob instanceof SimpleMonitorJob simpleMonitorJob) {
+			return simpleMonitorJob.getSimple();
 		}
 		return null;
 	}

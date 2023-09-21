@@ -43,15 +43,15 @@ class ConfigHelperTest {
 
 				mockedResourceHelper
 					.when(() -> ResourceHelper.findSourceDirectory(ConfigHelper.class))
-					.thenAnswer(invocation -> tempDir.resolve("matrix/app/jar").toFile());
+					.thenAnswer(invocation -> tempDir.resolve("metricshub/app/jar").toFile());
 
 				final Path configFileOnWindows = ConfigHelper.getProgramDataConfigFile("config", DEFAULT_CONFIG_FILENAME);
 
-				final String expectedPath = "matrix\\app\\..\\config\\" + DEFAULT_CONFIG_FILENAME;
+				final String expectedPath = "metricshub\\app\\..\\config\\" + DEFAULT_CONFIG_FILENAME;
 
 				assertNotNull(configFileOnWindows);
 				assertTrue(
-					() -> configFileOnWindows.endsWith("matrix\\app\\..\\config\\" + DEFAULT_CONFIG_FILENAME),
+					() -> configFileOnWindows.endsWith("metricshub\\app\\..\\config\\" + DEFAULT_CONFIG_FILENAME),
 					String.format("Found path %s. Expected path ends with %s.", configFileOnWindows.toString(), expectedPath)
 				);
 			}
@@ -69,7 +69,7 @@ class ConfigHelperTest {
 
 				final Path configFileOnWindows = ConfigHelper.getProgramDataConfigFile("config", DEFAULT_CONFIG_FILENAME);
 
-				final String expectedPath = "matrix\\config\\" + DEFAULT_CONFIG_FILENAME;
+				final String expectedPath = "metricshub\\config\\" + DEFAULT_CONFIG_FILENAME;
 
 				assertNotNull(configFileOnWindows);
 				assertTrue(
@@ -84,7 +84,7 @@ class ConfigHelperTest {
 	void testGetDefaultConfigFilePermission() throws IOException {
 		try (final MockedStatic<ConfigHelper> mockedConfigHelper = mockStatic(ConfigHelper.class)) {
 			// Build a config directory
-			final Path configDir = Files.createDirectories(tempDir.resolve("matrix\\config").toAbsolutePath());
+			final Path configDir = Files.createDirectories(tempDir.resolve("metricshub\\config").toAbsolutePath());
 
 			// Create the example file
 			final Path examplePath = Path.of(configDir + "\\" + CONFIG_EXAMPLE_FILENAME);
