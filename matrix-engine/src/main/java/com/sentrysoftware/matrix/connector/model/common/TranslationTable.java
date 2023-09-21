@@ -1,9 +1,10 @@
 package com.sentrysoftware.matrix.connector.model.common;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DEFAULT;
+
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.UnaryOperator;
@@ -18,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TranslationTable implements Serializable {
+public class TranslationTable implements ITranslationTable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -59,7 +60,7 @@ public class TranslationTable implements Serializable {
 
 	@JsonAnySetter
 	public void setTranslation(String key, String value) {
-		translations.put(key, value);
+		translations.put(key.equalsIgnoreCase(DEFAULT) ? DEFAULT : key, value);
 	}
 
 	@JsonAnyGetter

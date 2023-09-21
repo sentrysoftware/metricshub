@@ -11,12 +11,18 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doReturn;
 
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
+import com.sentrysoftware.matrix.connector.model.common.ReferenceTranslationTable;
+import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.And;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ArrayTranslate;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Divide;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Json2Csv;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.LeftConcat;
@@ -27,14 +33,18 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Sub
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import org.apache.groovy.util.Maps;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -48,6 +58,9 @@ class ComputeProcessorTest {
 
 	@Spy
 	private MatsyaClientsExecutor matsyaClientsExecutorMock;
+
+	@Mock
+	private ConnectorStore connectorStoreMock;
 
 	private static final String DOLLAR_1 = "$1";
 	private static final String UNDERSCORE_DOLLAR_1 = "_$1";
@@ -100,6 +113,9 @@ class ComputeProcessorTest {
 	private static final String NUMBER_OF_DISKS3 = "NUMBER_OF_DISKS3";
 	private static final String PREFIX = "prefix_";
 	private static final String SUFFIX = "_suffix";
+	private static final String TYPE1 = "TYPE1";
+	private static final String TYPE2 = "TYPE2";
+	private static final String TYPE3 = "TYPE3";
 
 	private static final List<String> LINE_1 = Arrays.asList(ID1, NAME1, MANUFACTURER1, NUMBER_OF_DISKS1);
 	private static final List<String> LINE_2 = Arrays.asList(ID2, NAME2, MANUFACTURER2, NUMBER_OF_DISKS2);
@@ -953,11 +969,11 @@ class ComputeProcessorTest {
 
 	@Test
 	void testCheckSubstring() {
-		assertTrue(computeProcessor.checkSubstring(Substring.builder().column(2).start("1").length("4").build()));
-		assertFalse(computeProcessor.checkSubstring(Substring.builder().column(-2).start("1").length("4").build()));
-		assertFalse(computeProcessor.checkSubstring(Substring.builder().column(-1).start("1").length("4").build()));
-		assertFalse(computeProcessor.checkSubstring(Substring.builder().column(-1).start("-1").length("-1").build()));
-		assertFalse(computeProcessor.checkSubstring(null));
+		assertTrue(ComputeProcessor.checkSubstring(Substring.builder().column(2).start("1").length("4").build()));
+		assertFalse(ComputeProcessor.checkSubstring(Substring.builder().column(-2).start("1").length("4").build()));
+		assertFalse(ComputeProcessor.checkSubstring(Substring.builder().column(-1).start("1").length("4").build()));
+		assertFalse(ComputeProcessor.checkSubstring(Substring.builder().column(-1).start("-1").length("-1").build()));
+		assertFalse(ComputeProcessor.checkSubstring(null));
 	}
 
 	@Test
@@ -1056,43 +1072,181 @@ class ComputeProcessorTest {
 
 	@Test
 	void testCheckSubstringArguments() {
-		assertTrue(computeProcessor.checkSubstringArguments(1, 3, 3));
+		assertTrue(ComputeProcessor.checkSubstringArguments(1, 3, 3));
 
 		//noinspection ConstantConditions
-		assertFalse(computeProcessor.checkSubstringArguments(null, 3, 3));
+		assertFalse(ComputeProcessor.checkSubstringArguments(null, 3, 3));
 
 		//noinspection ConstantConditions
-		assertFalse(computeProcessor.checkSubstringArguments(1, null, 3));
+		assertFalse(ComputeProcessor.checkSubstringArguments(1, null, 3));
 
-		assertFalse(computeProcessor.checkSubstringArguments(0, 3, 3));
-		assertFalse(computeProcessor.checkSubstringArguments(2, 0, 3));
-		assertFalse(computeProcessor.checkSubstringArguments(1, 4, 3));
+		assertFalse(ComputeProcessor.checkSubstringArguments(0, 3, 3));
+		assertFalse(ComputeProcessor.checkSubstringArguments(2, 0, 3));
+		assertFalse(ComputeProcessor.checkSubstringArguments(1, 4, 3));
 	}
 
 	@Test
 	void testTransformToIntegerValue() {
-		assertNull(computeProcessor.transformToIntegerValue(null));
-		assertNull(computeProcessor.transformToIntegerValue("a"));
-		assertEquals(1, computeProcessor.transformToIntegerValue("1"));
+		assertNull(ComputeProcessor.transformToIntegerValue(null));
+		assertNull(ComputeProcessor.transformToIntegerValue("a"));
+		assertEquals(1, ComputeProcessor.transformToIntegerValue("1"));
 	}
 
 	@Test
 	void testGetValueFunction() {
-		assertNotNull(computeProcessor.getValueFunction(-1));
-		assertNotNull(computeProcessor.getValueFunction(0));
+		assertNotNull(ComputeProcessor.getValueFunction(-1));
+		assertNotNull(ComputeProcessor.getValueFunction(0));
 	}
 
 	@Test
 	void testCheckValueAndColumnIndexConsistency() {
-		assertTrue(computeProcessor.checkValueAndColumnIndexConsistency("1", -1));
-		assertFalse(computeProcessor.checkValueAndColumnIndexConsistency("Column(0)", -1));
-		assertTrue(computeProcessor.checkValueAndColumnIndexConsistency("Column(1)", 0));
-		assertTrue(computeProcessor.checkValueAndColumnIndexConsistency("1", 1));
+		assertTrue(ComputeProcessor.checkValueAndColumnIndexConsistency("1", -1));
+		assertFalse(ComputeProcessor.checkValueAndColumnIndexConsistency("Column(0)", -1));
+		assertTrue(ComputeProcessor.checkValueAndColumnIndexConsistency("Column(1)", 0));
+		assertTrue(ComputeProcessor.checkValueAndColumnIndexConsistency("1", 1));
 	}
 
 	@Test
 	void testGetColumnIndex() {
-		assertEquals(1, computeProcessor.getColumnIndex(" $2 "));
-		assertEquals(-1, computeProcessor.getColumnIndex("2"));
+		assertEquals(1, ComputeProcessor.getColumnIndex(" $2 "));
+		assertEquals(-1, ComputeProcessor.getColumnIndex("2"));
+	}
+
+	@Test
+	void testProcessArrayTranslate() throws IOException {
+		List<List<String>> table = Arrays.asList(
+			Arrays.asList(ID1, null, TYPE1),
+			Arrays.asList(ID2, null, TYPE2),
+			Arrays.asList(ID3, null, TYPE3)
+		);
+
+		List<List<String>> result = Arrays.asList(
+			Arrays.asList(ID1, "TRANSLATED_STATUS11|TRANSLATED_STATUS12|TRANSLATED_STATUS13", TYPE1),
+			Arrays.asList(ID2, "NO_VALUE|TRANSLATED_STATUS22", TYPE2),
+			Arrays.asList(ID3, "TRANSLATED_STATUS31", TYPE3)
+		);
+
+		final Map<String, String> translations = Maps.of(
+			"",
+			"NO_VALUE",
+			"status11",
+			"TRANSLATED_STATUS11",
+			"status12",
+			"TRANSLATED_STATUS12",
+			"status13",
+			"TRANSLATED_STATUS13",
+			"status22",
+			"TRANSLATED_STATUS22", // No translation for STATUS22
+			"status31",
+			"TRANSLATED_STATUS31"
+		);
+		final String translationTableName = "translationTableName";
+		final TranslationTable connectorTranslationTable = TranslationTable.builder().translations(translations).build();
+		final String connectorName = "connectorName";
+		final Connector connector = Connector
+			.builder()
+			.translations(Collections.singletonMap(translationTableName, connectorTranslationTable))
+			.build();
+
+		Map<String, Connector> store = Maps.of(connectorName, connector);
+
+		final TelemetryManager telemetryManager = TelemetryManager.builder().connectorStore(connectorStoreMock).build();
+
+		doReturn(store).when(connectorStoreMock).getStore();
+		computeProcessor.setConnectorName(connectorName);
+		computeProcessor.setTelemetryManager(telemetryManager);
+
+		sourceTable.setTable(table);
+
+		// ArrayTranslate is null
+		computeProcessor.process((ArrayTranslate) null);
+		assertEquals(table, sourceTable.getTable());
+
+		// ArrayTranslate is not null, translationTable is null
+		ArrayTranslate arrayTranslate = new ArrayTranslate();
+		computeProcessor.process(arrayTranslate);
+		assertEquals(table, sourceTable.getTable());
+
+		// ArrayTranslate is not null, translationTable is not null, translations is not null,
+		// column < 1
+		ReferenceTranslationTable translationTable = new ReferenceTranslationTable("");
+		arrayTranslate.setTranslationTable(translationTable);
+		arrayTranslate.setColumn(0);
+		computeProcessor.process(arrayTranslate);
+		assertEquals(table, sourceTable.getTable());
+
+		// ArrayTranslate is not null, translationTable is not null, translations is not null,
+		// column >= 1, arraySeparator is null, resultSeparator is null, columnIndex >= row size
+		arrayTranslate.setColumn(4);
+		computeProcessor.process(arrayTranslate);
+		assertEquals(table, sourceTable.getTable());
+
+		// ArrayTranslate is not null, translationTable is not null, translations is not null,
+		// column >= 1, arraySeparator is not null, resultSeparator is not null, columnIndex >= row size
+		arrayTranslate.setArraySeparator(",");
+		arrayTranslate.setResultSeparator("|");
+		computeProcessor.process(arrayTranslate);
+		assertEquals(table, sourceTable.getTable());
+
+		// ArrayTranslate is not null, translationTable is not null, translations is not null,
+		// column >= 1, arraySeparator is not null, resultSeparator is not null, columnIndex < row size,
+		// arrayValue is null
+		arrayTranslate.setColumn(2);
+		computeProcessor.process(arrayTranslate);
+		assertEquals(table, sourceTable.getTable());
+
+		// Test ReferenceTranslationTable OK
+		table =
+			Arrays.asList(
+				Arrays.asList(ID1, "STATUS11,STATUS12,STATUS13", TYPE1),
+				Arrays.asList(ID2, ",STATUS22,STATUS23,", TYPE2),
+				Arrays.asList(ID3, "STATUS31", TYPE3)
+			);
+
+		sourceTable.setTable(table);
+
+		translationTable = new ReferenceTranslationTable("${translation::translationTableName}");
+		arrayTranslate.setTranslationTable(translationTable);
+
+		computeProcessor.process(arrayTranslate);
+		assertEquals(result, sourceTable.getTable());
+
+		// Test ReferenceTranslationTable OK
+		sourceTable.setTable(
+			Arrays.asList(
+				Arrays.asList(ID1, "STATUS11,STATUS12,STATUS13", TYPE1),
+				Arrays.asList(ID2, "STATUS22,STATUS23,", TYPE2),
+				Arrays.asList(ID3, "STATUS31", TYPE3)
+			)
+		);
+
+		result =
+			Arrays.asList(
+				Arrays.asList(ID1, "TRANSLATED_STATUS11|TRANSLATED_STATUS12|TRANSLATED_STATUS13", TYPE1),
+				Arrays.asList(ID2, "TRANSLATED_STATUS22", TYPE2),
+				Arrays.asList(ID3, "TRANSLATED_STATUS31", TYPE3)
+			);
+
+		final TranslationTable referenceTranslationTable = TranslationTable
+			.builder()
+			.translations(
+				Map.of(
+					"status11",
+					"TRANSLATED_STATUS11",
+					"status12",
+					"TRANSLATED_STATUS12",
+					"status13",
+					"TRANSLATED_STATUS13",
+					"status22",
+					"TRANSLATED_STATUS22",
+					"status31",
+					"TRANSLATED_STATUS31"
+				)
+			)
+			.build();
+		arrayTranslate.setTranslationTable(referenceTranslationTable);
+
+		computeProcessor.process(arrayTranslate);
+		assertEquals(result, sourceTable.getTable());
 	}
 }
