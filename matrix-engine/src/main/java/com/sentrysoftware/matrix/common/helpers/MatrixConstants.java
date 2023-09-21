@@ -165,4 +165,9 @@ public class MatrixConstants {
 	public static final Pattern COLUMN_PATTERN = Pattern.compile("^\\s*\\$(\\d+)\\s*$");
 	public static final Pattern DOUBLE_PATTERN = Pattern.compile("\\d+(\\.\\d+)?");
 	public static final Pattern TRANSLATION_REF_PATTERN = Pattern.compile("\\$\\{translation::([^\\s]+)\\}");
+
+	/**
+	 * Translations
+	 **/
+	public static final String DEFAULT = "default";
 }

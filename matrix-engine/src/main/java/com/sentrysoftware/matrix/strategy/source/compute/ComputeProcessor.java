@@ -2,6 +2,7 @@ package com.sentrysoftware.matrix.strategy.source.compute;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COLUMN_PATTERN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COMMA;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DEFAULT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DOUBLE_PATTERN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.LOG_COMPUTE_KEY_SUFFIX_TEMPLATE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
@@ -141,7 +142,7 @@ public class ComputeProcessor implements IComputeProcessor {
 			resultSeparator = VERTICAL_BAR;
 		}
 
-		final String defaultTranslation = translations.get("default");
+		final String defaultTranslation = translations.get(DEFAULT);
 
 		final List<List<String>> resultTable = new ArrayList<>();
 		List<String> resultRow;

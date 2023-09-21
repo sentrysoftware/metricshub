@@ -1,5 +1,7 @@
 package com.sentrysoftware.matrix.connector.model.common;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DEFAULT;
+
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -58,7 +60,7 @@ public class TranslationTable implements ITranslationTable {
 
 	@JsonAnySetter
 	public void setTranslation(String key, String value) {
-		translations.put(key, value);
+		translations.put(key.equalsIgnoreCase(DEFAULT) ? DEFAULT : key, value);
 	}
 
 	@JsonAnyGetter
