@@ -7,6 +7,7 @@ import static com.sentrysoftware.matrix.constants.Constants.VALUE_VAL1;
 import static com.sentrysoftware.matrix.constants.Constants.VALUE_VAL2;
 import static com.sentrysoftware.matrix.constants.Constants.VALUE_VAL3;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -17,6 +18,7 @@ import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.And;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Divide;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ExcludeMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Json2Csv;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.LeftConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Multiply;
@@ -33,7 +35,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -80,6 +81,8 @@ class ComputeProcessorTest {
 	private static final String ID2_SUFFIX = "ID2_suffix";
 	private static final String ID3_SUFFIX = "ID3_suffix";
 	private static final String FOO = "FOO";
+	private static final String BAR = "BAR";
+	private static final String BAZ = "BAZ";
 	private static final String MANUFACTURER1 = "MANUFACTURER1";
 	private static final String MANUFACTURER2 = "MANUFACTURER2";
 	private static final String MANUFACTURER3 = "MANUFACTURER3";
@@ -926,5 +929,70 @@ class ComputeProcessorTest {
 			"/monitors[0];enclosure-1;enclosure-1;ENCLOSURE;hostId;\n" +
 			"/monitors[1];enclosure-2;enclosure-2;ENCLOSURE;hostId;\n";
 		assertEquals(expectedRawDataResult, sourceTable.getRawData());
+	}
+
+	@Test
+	void testExcludeMatchingLines() {
+		List<String> line1 = Arrays.asList(FOO, "1", "2", "3");
+		List<String> line2 = Arrays.asList(BAR, "10", "20", "30");
+		List<String> line3 = Arrays.asList(BAZ, "100", "200", "300");
+		List<List<String>> table = Arrays.asList(line1, line2, line3);
+
+		computeProcessor.setSourceTable(SourceTable.builder().table(table).build());
+
+		// regexp is null, valueSet is null
+		ExcludeMatchingLines excludeMatchingLines = ExcludeMatchingLines
+			.builder()
+			.column(1)
+			.regExp(null)
+			.valueList(null)
+			.build();
+		computeProcessor.process(excludeMatchingLines);
+		assertEquals(table, computeProcessor.getSourceTable().getTable());
+
+		// regexp is empty, valueSet is null
+		excludeMatchingLines.setRegExp("");
+		computeProcessor.process(excludeMatchingLines);
+		assertEquals(table, computeProcessor.getSourceTable().getTable());
+
+		// regexp is empty, valueSet is empty
+		excludeMatchingLines.setValueList(EMPTY);
+		computeProcessor.process(excludeMatchingLines);
+		assertEquals(table, computeProcessor.getSourceTable().getTable());
+
+		// regex is not null, not empty
+		excludeMatchingLines.setRegExp("^B.*");
+		computeProcessor.process(excludeMatchingLines);
+		assertNotEquals(table, computeProcessor.getSourceTable().getTable());
+		List<List<String>> resultTable = computeProcessor.getSourceTable().getTable();
+		assertNotNull(resultTable);
+		assertEquals(1, resultTable.size());
+		assertEquals(line1, resultTable.get(0));
+
+		// regex is null,
+		// valueSet is not null, not empty
+		computeProcessor.getSourceTable().setTable(table);
+		excludeMatchingLines.setRegExp(null);
+		excludeMatchingLines.setValueList("3,300");
+		excludeMatchingLines.setColumn(4);
+		computeProcessor.process(excludeMatchingLines);
+		assertNotEquals(table, computeProcessor.getSourceTable().getTable());
+		resultTable = computeProcessor.getSourceTable().getTable();
+		assertNotNull(resultTable);
+		assertEquals(1, resultTable.size());
+		assertEquals(line2, resultTable.get(0));
+
+		// regex is not null, not empty
+		// valueSet is not null, not empty
+		computeProcessor.getSourceTable().setTable(table);
+		excludeMatchingLines.setColumn(1);
+		excludeMatchingLines.setRegExp(".*R.*"); // Applying only the regex would exclude line2
+		excludeMatchingLines.setValueList("FOO,BAR,BAB"); // Applying only the valueSet would exclude line1 and line2
+		computeProcessor.process(excludeMatchingLines);
+		assertNotEquals(table, computeProcessor.getSourceTable().getTable());
+		resultTable = computeProcessor.getSourceTable().getTable();
+		assertNotNull(resultTable);
+		assertEquals(1, resultTable.size()); // Applying both the regex and the valueSet leaves only line3
+		assertEquals(line3, resultTable.get(0));
 	}
 }
