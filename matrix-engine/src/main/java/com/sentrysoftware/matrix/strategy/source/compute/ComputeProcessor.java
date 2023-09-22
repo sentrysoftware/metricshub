@@ -939,10 +939,38 @@ public class ComputeProcessor implements IComputeProcessor {
 		// TODO Auto-generated method stub
 	}
 
+	/**
+	 * This method processes {@link Xml2Csv} compute
+	 * @param xml2csv {@link Xml2Csv} instance
+	 */
 	@Override
 	@WithSpan("Compute Xml2Csv Exec")
 	public void process(@SpanAttribute("compute.definition") final Xml2Csv xml2csv) {
-		// TODO Auto-generated method stub
+		if (xml2csv == null) {
+			log.warn("Hostname {} - Compute Operation (Xml2Csv) is null, the table remains unchanged.", hostname);
+			return;
+		}
+
+		try {
+			final List<List<String>> xmlResult = matsyaClientsExecutor.executeXmlParsing(
+				sourceTable.getRawData(),
+				xml2csv.getProperties(),
+				xml2csv.getRecordTag()
+			);
+
+			if (xmlResult != null && !xmlResult.isEmpty()) {
+				sourceTable.setTable(xmlResult);
+				sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
+			}
+		} catch (Exception e) {
+			logComputeError(
+				connectorName,
+				String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, this.index),
+				"Xml2Csv",
+				e,
+				hostname
+			);
+		}
 	}
 
 	/**
