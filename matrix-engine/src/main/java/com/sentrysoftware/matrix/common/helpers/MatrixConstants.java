@@ -29,6 +29,7 @@ public class MatrixConstants {
 	public static final String NEW_LINE = "\n";
 	public static final String TAB = "\t";
 	public static final String UNDERSCORE = "_";
+	public static final String VERTICAL_BAR = "|";
 
 	/**
 	 * Monitors information
@@ -163,4 +164,10 @@ public class MatrixConstants {
 	public static final Pattern SOURCE_REF_PATTERN = Pattern.compile("\\$\\{source::([^\\s]+)\\}");
 	public static final Pattern COLUMN_PATTERN = Pattern.compile("^\\s*\\$(\\d+)\\s*$");
 	public static final Pattern DOUBLE_PATTERN = Pattern.compile("\\d+(\\.\\d+)?");
+	public static final Pattern TRANSLATION_REF_PATTERN = Pattern.compile("\\$\\{translation::([^\\s]+)\\}");
+
+	/**
+	 * Translations
+	 **/
+	public static final String DEFAULT = "default";
 }

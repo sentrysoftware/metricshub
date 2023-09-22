@@ -2,12 +2,19 @@ package com.sentrysoftware.matrix.strategy.source.compute;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COLUMN_PATTERN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COMMA;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DEFAULT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DOUBLE_PATTERN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.LOG_COMPUTE_KEY_SUFFIX_TEMPLATE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.VERTICAL_BAR;
 
 import com.sentrysoftware.matrix.common.helpers.StringHelper;
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.common.ITranslationTable;
+import com.sentrysoftware.matrix.connector.model.common.ReferenceTranslationTable;
+import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.AbstractConcat;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.AbstractMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.And;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ArrayTranslate;
@@ -39,13 +46,20 @@ import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -64,6 +78,18 @@ public class ComputeProcessor implements IComputeProcessor {
 	private SourceTable sourceTable;
 	private Integer index;
 	private static final Map<Class<? extends Compute>, BiFunction<String, String, String>> MATH_FUNCTIONS_MAP;
+
+	private static final Pattern NUMBER_PATTERN = Pattern.compile("\\d+");
+
+	private static final Function<ComputeValue, String> GET_VALUE_FROM_ROW = computeValue -> {
+		if (computeValue.getColumnIndex() < computeValue.getRow().size()) {
+			return computeValue.getRow().get(computeValue.getColumnIndex());
+		}
+		log.warn("Cannot get value at index {} from the row {}.", computeValue.getColumnIndex(), computeValue.getRow());
+		return null;
+	};
+
+	private static final Function<ComputeValue, String> GET_VALUE = ComputeValue::getValue;
 
 	static {
 		MATH_FUNCTIONS_MAP =
@@ -88,7 +114,91 @@ public class ComputeProcessor implements IComputeProcessor {
 	@Override
 	@WithSpan("Compute ArrayTranslate Exec")
 	public void process(@SpanAttribute("compute.definition") final ArrayTranslate arrayTranslate) {
-		// TODO Auto-generated method stub
+		if (arrayTranslate == null) {
+			log.warn(
+				"Hostname {} - The Source (Array Translate) to visit is null, the array translate computation cannot be performed.",
+				hostname
+			);
+			return;
+		}
+
+		final ITranslationTable translationTable = arrayTranslate.getTranslationTable();
+		if (translationTable == null) {
+			log.warn(
+				"Hostname {} - Translation Table is null, the array translate computation cannot be performed.",
+				hostname
+			);
+			return;
+		}
+
+		final Map<String, String> translations = findTranslations(translationTable);
+
+		if (translations == null) {
+			log.warn(
+				"Hostname {} - The Translation Map is null, the array translate computation cannot be performed.",
+				hostname
+			);
+			return;
+		}
+
+		final int column = arrayTranslate.getColumn();
+		if (column < 1) {
+			log.warn(
+				"Hostname {} - The column number to translate cannot be < 1, the translate computation cannot be performed.",
+				hostname
+			);
+			return;
+		}
+
+		final int columnIndex = column - 1;
+
+		String arraySeparator = arrayTranslate.getArraySeparator();
+		if (arraySeparator == null || VERTICAL_BAR.equals(arraySeparator)) {
+			arraySeparator = "\\|";
+		}
+
+		String resultSeparator = arrayTranslate.getResultSeparator();
+		if (resultSeparator == null) {
+			resultSeparator = VERTICAL_BAR;
+		}
+
+		final String defaultTranslation = translations.get(DEFAULT);
+
+		final List<List<String>> resultTable = new ArrayList<>();
+		List<String> resultRow;
+
+		for (List<String> row : sourceTable.getTable()) {
+			if (columnIndex >= row.size()) {
+				log.warn(
+					"Hostname {} - The index of the column is {} but the row size is {}, the translate computation cannot be performed.",
+					hostname,
+					column,
+					row.size()
+				);
+
+				return;
+			}
+
+			resultRow = new ArrayList<>(row);
+
+			final String arrayValue = row.get(columnIndex);
+			if (arrayValue != null) {
+				final String[] splitArrayValue = arrayValue.split(arraySeparator);
+
+				final String translatedArrayValue = Arrays
+					.stream(splitArrayValue)
+					.map(value -> translations.getOrDefault(value.toLowerCase(), defaultTranslation))
+					.filter(value -> value != null && !value.isBlank())
+					.collect(Collectors.joining(resultSeparator));
+
+				resultRow.set(columnIndex, translatedArrayValue);
+			}
+
+			resultTable.add(resultRow);
+		}
+
+		sourceTable.setTable(resultTable);
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	@Override
@@ -231,7 +341,106 @@ public class ComputeProcessor implements IComputeProcessor {
 	@Override
 	@WithSpan("Compute ExcludeMatchingLines Exec")
 	public void process(@SpanAttribute("compute.definition") final ExcludeMatchingLines excludeMatchingLines) {
-		// TODO Auto-generated method stub
+		processAbstractMatchingLines(excludeMatchingLines);
+	}
+
+	/**
+	 * Updates the {@link SourceTable}
+	 * by keeping or removing lines
+	 * according to the definition of the given {@link AbstractMatchingLines}.
+	 *
+	 * @param abstractMatchingLines	The {@link AbstractMatchingLines}
+	 *                              describing the rules
+	 *                              regarding which lines should be kept or removed in/from the {@link SourceTable}.
+	 */
+	private void processAbstractMatchingLines(AbstractMatchingLines abstractMatchingLines) {
+		if (isConsistentMatchingLinesInfo(abstractMatchingLines)) {
+			final int columnIndex = abstractMatchingLines.getColumn() - 1;
+			final String abstractMatchingLinesValueList = abstractMatchingLines.getValueList();
+			Set<String> valueSet = null;
+
+			if (abstractMatchingLinesValueList != null) {
+				valueSet = new HashSet<>(Arrays.asList(abstractMatchingLinesValueList.split(COMMA)));
+			}
+
+			final String pslRegexp = abstractMatchingLines.getRegExp();
+
+			final Predicate<String> pslPredicate = pslRegexp != null && !pslRegexp.isEmpty()
+				? getPredicate(pslRegexp, abstractMatchingLines)
+				: null;
+
+			final Predicate<String> valuePredicate = valueSet != null && !valueSet.isEmpty()
+				? getPredicate(valueSet, abstractMatchingLines)
+				: null;
+
+			// If there are both a regex and a valueList, both are applied, one after the other.
+			final List<List<String>> filteredTable = sourceTable
+				.getTable()
+				.stream()
+				.filter(line ->
+					columnIndex < line.size() &&
+					(pslPredicate == null || pslPredicate.test(line.get(columnIndex))) &&
+					(valuePredicate == null || valuePredicate.test(line.get(columnIndex)))
+				)
+				.collect(Collectors.toList());
+
+			sourceTable.setTable(filteredTable);
+			sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
+		}
+	}
+
+	/**
+	 * This method checks whether matching lines info is consistent
+	 * @param abstractMatchingLines {@link AbstractMatchingLines} instance
+	 * @return boolean
+	 */
+	private boolean isConsistentMatchingLinesInfo(AbstractMatchingLines abstractMatchingLines) {
+		// CHECKSTYLE:OFF
+		return (
+			abstractMatchingLines != null &&
+			abstractMatchingLines.getColumn() != null &&
+			abstractMatchingLines.getColumn() > 0 &&
+			sourceTable != null &&
+			sourceTable.getTable() != null &&
+			!sourceTable.getTable().isEmpty()
+		);
+		// CHECKSTYLE:ON
+	}
+
+	/**
+	 * @param pslRegexp				The PSL regular expression used to filter the lines in the {@link SourceTable}.
+	 * @param abstractMatchingLines	The {@link AbstractMatchingLines}
+	 *                              describing the rules
+	 *                              regarding which lines should be kept or removed in/from the {@link SourceTable}.
+	 *
+	 * @return						A {@link Predicate},
+	 * 								based on the given regular expression
+	 * 								and the concrete type of the given {@link AbstractMatchingLines},
+	 * 								that can be used to filter the lines in the {@link SourceTable}.
+	 */
+	private Predicate<String> getPredicate(String pslRegexp, AbstractMatchingLines abstractMatchingLines) {
+		Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(pslRegexp), Pattern.CASE_INSENSITIVE);
+
+		return abstractMatchingLines instanceof KeepOnlyMatchingLines
+			? value -> pattern.matcher(value).find()
+			: value -> !pattern.matcher(value).find();
+	}
+
+	/**
+	 * @param valueSet				The set of values used to filter the lines in the {@link SourceTable}.
+	 * @param abstractMatchingLines	The {@link AbstractMatchingLines}
+	 *                              describing the rules
+	 *                              regarding which lines should be kept or removed in/from the {@link SourceTable}.
+	 *
+	 * @return						A {@link Predicate},
+	 * 								based on the given list of values
+	 * 								and the concrete type of the given {@link AbstractMatchingLines},
+	 * 								that can be used to filter the lines in the {@link SourceTable}.
+	 */
+	private Predicate<String> getPredicate(Set<String> valueSet, AbstractMatchingLines abstractMatchingLines) {
+		return abstractMatchingLines instanceof KeepOnlyMatchingLines
+			? value -> value != null && valueSet.contains(value)
+			: value -> value != null && !valueSet.contains(value);
 	}
 
 	/**
@@ -480,7 +689,158 @@ public class ComputeProcessor implements IComputeProcessor {
 	@Override
 	@WithSpan("Compute Substring Exec")
 	public void process(@SpanAttribute("compute.definition") final Substring substring) {
-		// TODO Auto-generated method stub
+		if (!checkSubstring(substring)) {
+			log.warn("Hostname {} - The substring {} is not valid, the table remains unchanged.", hostname, substring);
+			return;
+		}
+
+		final String start = substring.getStart();
+		final String length = substring.getLength();
+
+		final Integer startColumnIndex = getColumnIndex(start);
+		if (!checkValueAndColumnIndexConsistency(start, startColumnIndex)) {
+			log.warn("Hostname {} - Inconsistent substring start value {}, the table remains unchanged.", hostname, start);
+			return;
+		}
+
+		final Integer lengthColumnIndex = getColumnIndex(length);
+		if (!checkValueAndColumnIndexConsistency(length, lengthColumnIndex)) {
+			log.warn("Hostname {} - Inconsistent substring length value {}, the table remains unchanged.", hostname, length);
+			return;
+		}
+
+		performSubstring(substring.getColumn() - 1, start, startColumnIndex, length, lengthColumnIndex);
+	}
+
+	/**
+	 * Check value and column index consistency. At least we need one data available
+	 *
+	 * @param value              The string value as a number
+	 * @param foreignColumnIndex The index of the column already extracted from a value expected as <em>Column($index)</em>
+	 * @return <code>true</code> if data is consistent
+	 */
+	static boolean checkValueAndColumnIndexConsistency(final String value, final Integer foreignColumnIndex) {
+		return foreignColumnIndex >= 0 || NUMBER_PATTERN.matcher(value).matches();
+	}
+
+	/**
+	 * Check the given {@link Substring} instance
+	 *
+	 * @param substring The substring instance we wish to check
+	 * @return true if the substring is valid
+	 */
+	static boolean checkSubstring(final Substring substring) {
+		return substring != null && substring.getColumn() >= 1;
+	}
+
+	/**
+	 * Perform a substring operation on the column identified by the given <code>columnIndex</code>
+	 *
+	 * @param columnIndex      The column number in the current {@link SourceTable}
+	 * @param start            The begin index, inclusive and starts at 1
+	 * @param startColumnIndex The column index, so that we extract the start index. If equals -1 then it is not used
+	 * @param end              The ending index, exclusive
+	 * @param endColumnIndex   The column index, so that we extract the length index. If equals -1 then it is not used
+	 */
+	void performSubstring(
+		final int columnIndex,
+		final String start,
+		final int startColumnIndex,
+		final String end,
+		final int endColumnIndex
+	) {
+		final Function<ComputeValue, String> startFunction = getValueFunction(startColumnIndex);
+		final Function<ComputeValue, String> endFunction = getValueFunction(endColumnIndex);
+
+		sourceTable
+			.getTable()
+			.forEach(row -> {
+				if (columnIndex < row.size()) {
+					final String columnValue = row.get(columnIndex);
+
+					final Integer beginIndex = transformToIntegerValue(
+						startFunction.apply(new ComputeValue(row, startColumnIndex, start))
+					);
+
+					final Integer endIndex = transformToIntegerValue(
+						endFunction.apply(new ComputeValue(row, endColumnIndex, end))
+					);
+
+					if (checkSubstringArguments(beginIndex, endIndex, columnValue.length())) {
+						// No need to put endIndex -1 as the String substring end index is exclusive
+						// PSL substr(1,3) is equivalent to Java String substring(0, 3)
+						row.set(columnIndex, columnValue.substring(beginIndex - 1, endIndex));
+						return;
+					}
+					log.warn(
+						"Hostname {} - Substring arguments are not valid: start={}, end={}," +
+						" startColumnIndex={}, endColumnIndex={}," +
+						" computed beginIndex={}, computed endIndex={}," +
+						" row={}, columnValue={}",
+						hostname,
+						start,
+						end,
+						startColumnIndex,
+						endColumnIndex,
+						beginIndex,
+						endIndex,
+						row,
+						columnValue
+					);
+				}
+
+				log.warn("Hostname {} - Cannot perform substring on row {} on column index {}", hostname, row, columnIndex);
+			});
+
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
+	}
+
+	/**
+	 * Check the substring argument to avoid the {@link StringIndexOutOfBoundsException}
+	 *
+	 * @param begin  Starts from 1
+	 * @param end    The end index of the string
+	 * @param length The length of the {@link String}
+	 * @return <code>true</code> if a {@link String} substring can be performed
+	 */
+	static boolean checkSubstringArguments(final Integer begin, final Integer end, final int length) {
+		return begin != null && end != null && (begin - 1) >= 0 && (begin - 1) <= end && end <= length;
+	}
+
+	/**
+	 * Return the right {@link Function} based on the <code>foreignColumnIndex</code>
+	 *
+	 * @param foreignColumnIndex The index of the column we wish to check so that we choose the right function to return
+	 * @return {@link Function} used to get the value
+	 */
+	static Function<ComputeValue, String> getValueFunction(final int foreignColumnIndex) {
+		return (foreignColumnIndex >= 0) ? GET_VALUE_FROM_ROW : GET_VALUE;
+	}
+
+	/**
+	 * Transform the given {@link String} value to an {@link Integer} value
+	 *
+	 * @param value The value we wish to parse
+	 * @return {@link Integer} value
+	 */
+	static Integer transformToIntegerValue(final String value) {
+		if (value != null && DOUBLE_PATTERN.matcher(value).matches()) {
+			return (int) Double.parseDouble(value);
+		}
+		return null;
+	}
+
+	@AllArgsConstructor
+	private static class ComputeValue {
+
+		@Getter
+		private final List<String> row;
+
+		@Getter
+		private final int columnIndex;
+
+		@Getter
+		private final String value;
 	}
 
 	@Override
@@ -744,5 +1104,29 @@ public class ComputeProcessor implements IComputeProcessor {
 			: line.get(columnIndex).concat(abstractConcat.getValue());
 
 		line.set(columnIndex, result);
+	}
+
+	/**
+	 * Find the translation map associated with the {@link ITranslationTable} in parameter.
+	 * @param translation
+	 * @return
+	 */
+	public Map<String, String> findTranslations(final ITranslationTable translation) {
+		// In case of a ReferenceTranslationTable, we try to find its TranslationTable in the connector if the translations Map has not already been found.
+		// In case of an InLineTranslationTable, the Map retrieved through translationTable.getTranslations()
+		if (translation instanceof ReferenceTranslationTable referenceTranslationTable) {
+			final Connector connector = telemetryManager.getConnectorStore().getStore().get(connectorName);
+			if (connector != null && connector.getTranslations() != null) {
+				final TranslationTable translationTable = connector
+					.getTranslations()
+					.get(referenceTranslationTable.getTableId());
+				if (translationTable == null) {
+					return null;
+				}
+				return translationTable.getTranslations();
+			}
+		}
+
+		return ((TranslationTable) translation).getTranslations();
 	}
 }

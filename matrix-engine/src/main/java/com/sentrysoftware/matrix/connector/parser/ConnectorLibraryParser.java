@@ -42,10 +42,9 @@ public class ConnectorLibraryParser {
 				return FileVisitResult.CONTINUE;
 			}
 			final ConnectorParser connectorParser = ConnectorParser.withNodeProcessorAndUpdateChain(file.getParent());
-			final String fileName = file.getFileName().toString();
 
 			final Connector connector = connectorParser.parse(file.toFile());
-			connectorsMap.put(fileName, connector);
+			connectorsMap.put(file.getFileName().toString(), connector);
 
 			return FileVisitResult.CONTINUE;
 		}
