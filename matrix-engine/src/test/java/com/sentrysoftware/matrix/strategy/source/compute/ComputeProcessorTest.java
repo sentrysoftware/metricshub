@@ -11,18 +11,22 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mockStatic;
 
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
+import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.connector.model.common.ReferenceTranslationTable;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.And;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ArrayTranslate;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Awk;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Divide;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Json2Csv;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.LeftConcat;
@@ -32,6 +36,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Sub
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Subtract;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.strategy.utils.EmbeddedFileHelper;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,6 +50,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -70,6 +76,7 @@ class ComputeProcessorTest {
 	private static final String ZERO = "0";
 	private static final String ZERO_POINT_ZERO = "0.0";
 	private static final String ONE = "1";
+	private static final String ONE_TWO_THREE = "1, 2, 3";
 	private static final String TWO = "2";
 	private static final String FOUR_POINT_ZERO = "4.0";
 	private static final String FIVE = "5";
@@ -94,6 +101,8 @@ class ComputeProcessorTest {
 	private static final String ID2_SUFFIX = "ID2_suffix";
 	private static final String ID3_SUFFIX = "ID3_suffix";
 	private static final String FOO = "FOO";
+	private static final String BAR = "BAR";
+	private static final String BAZ = "BAZ";
 	private static final String MANUFACTURER1 = "MANUFACTURER1";
 	private static final String MANUFACTURER2 = "MANUFACTURER2";
 	private static final String MANUFACTURER3 = "MANUFACTURER3";
@@ -144,6 +153,8 @@ class ComputeProcessorTest {
 	private static final List<String> LINE_1_ONE_COLUMN = new ArrayList<>(Collections.singletonList(ID1));
 	private static final List<String> LINE_2_ONE_COLUMN = new ArrayList<>(Collections.singletonList(ID2));
 	private static final List<String> LINE_3_ONE_COLUMN = new ArrayList<>(Collections.singletonList(ID3));
+
+	private static final String TABLE_SEP = ";";
 
 	private TelemetryManager telemetryManager;
 
@@ -473,7 +484,7 @@ class ComputeProcessorTest {
 
 		sourceTable.setTable(table);
 
-		// test null source to visit
+		// test null source to process
 		computeProcessor.process((And) null);
 		assertEquals(tableResult, sourceTable.getTable());
 
@@ -1248,5 +1259,112 @@ class ComputeProcessorTest {
 
 		computeProcessor.process(arrayTranslate);
 		assertEquals(result, sourceTable.getTable());
+	}
+
+	@Test
+	void testProcessAwk() throws Exception {
+		List<List<String>> table = Arrays.asList(LINE_1, LINE_2, LINE_3);
+
+		sourceTable.setTable(table);
+		Awk awkNull = null;
+		computeProcessor.process(awkNull);
+		assertEquals(table, sourceTable.getTable());
+
+		sourceTable.setTable(null);
+		sourceTable.setRawData(null);
+		final String embeddedFileName = "${file::embeddedFile-1}";
+		Awk awkOK = Awk
+			.builder()
+			.script(embeddedFileName)
+			.keep("^" + FOO)
+			.exclude("^" + BAR)
+			.separators(TABLE_SEP)
+			.selectColumns(ONE_TWO_THREE)
+			.build();
+		final Map<String, EmbeddedFile> embeddedFileMap = Collections.singletonMap(
+			embeddedFileName,
+			EmbeddedFile.builder().content(BAZ).build()
+		);
+
+		doReturn(
+			"FOO;ID1;NAME1;MANUFACTURER1;NUMBER_OF_DISKS1\nBAR;ID2;NAME2;MANUFACTURER2;NUMBER_OF_DISKS2\nBAZ;ID3;NAME3;MANUFACTURER3;NUMBER_OF_DISKS3"
+		)
+			.when(matsyaClientsExecutorMock)
+			.executeAwkScript(any(), any());
+		try (final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)) {
+			mockedEmbeddedFileHelper
+				.when(() -> EmbeddedFileHelper.findEmbeddedFiles(embeddedFileName))
+				.thenReturn(embeddedFileMap);
+			computeProcessor.process(awkOK);
+			String expectedRawData = "FOO;ID1;NAME1;";
+			List<List<String>> expectedTable = Arrays.asList(Arrays.asList(FOO, ID1, NAME1));
+			assertEquals(expectedTable, sourceTable.getTable());
+			assertEquals(expectedRawData, sourceTable.getRawData());
+		}
+
+		final List<List<String>> osCommandResultTable = List.of(List.of("OS command result"));
+		sourceTable.setTable(osCommandResultTable);
+		sourceTable.setRawData(null);
+		awkOK =
+			Awk
+				.builder()
+				.script(embeddedFileName)
+				.keep("^" + FOO)
+				.exclude("^" + BAR)
+				.separators(TABLE_SEP)
+				.selectColumns(ONE_TWO_THREE)
+				.build();
+		doReturn(null).when(matsyaClientsExecutorMock).executeAwkScript(any(), any());
+
+		try (final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)) {
+			mockedEmbeddedFileHelper
+				.when(() -> EmbeddedFileHelper.findEmbeddedFiles(embeddedFileName))
+				.thenReturn(embeddedFileMap);
+			computeProcessor.process(awkOK);
+			assertEquals(Collections.emptyList(), sourceTable.getTable());
+		}
+
+		sourceTable.setTable(osCommandResultTable);
+		sourceTable.setRawData(null);
+		awkOK =
+			Awk
+				.builder()
+				.script(embeddedFileName)
+				.keep("^" + FOO)
+				.exclude("^" + BAR)
+				.separators(TABLE_SEP)
+				.selectColumns(ONE_TWO_THREE)
+				.build();
+		doReturn(EMPTY).when(matsyaClientsExecutorMock).executeAwkScript(any(), any());
+		try (final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)) {
+			mockedEmbeddedFileHelper
+				.when(() -> EmbeddedFileHelper.findEmbeddedFiles(embeddedFileName))
+				.thenReturn(embeddedFileMap);
+			computeProcessor.process(awkOK);
+			assertEquals(Collections.emptyList(), sourceTable.getTable());
+		}
+
+		sourceTable.setRawData(null);
+		sourceTable.setTable(table);
+		doReturn(SourceTable.tableToCsv(table, TABLE_SEP, true))
+			.when(matsyaClientsExecutorMock)
+			.executeAwkScript(any(), any());
+		try (final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)) {
+			mockedEmbeddedFileHelper
+				.when(() -> EmbeddedFileHelper.findEmbeddedFiles(embeddedFileName))
+				.thenReturn(embeddedFileMap);
+			computeProcessor.process(
+				Awk
+					.builder()
+					.script(embeddedFileName)
+					.exclude(ID1)
+					.keep(ID2)
+					.separators(TABLE_SEP)
+					.selectColumns("2, 3")
+					.build()
+			);
+			assertEquals("NAME2;MANUFACTURER2;", sourceTable.getRawData());
+			assertEquals(Arrays.asList(Arrays.asList(NAME2, MANUFACTURER2)), sourceTable.getTable());
+		}
 	}
 }

@@ -11,6 +11,7 @@ import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.And;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ArrayTranslate;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Awk;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Divide;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.LeftConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Multiply;
@@ -92,5 +93,12 @@ class ComputeUpdaterProcessorTest {
 		);
 
 		verify(computeProcessor, times(2)).process(any(ArrayTranslate.class));
+	}
+
+	@Test
+	void testProcessAwk() {
+		doNothing().when(computeProcessor).process(any(Awk.class));
+		computeUpdaterProcessor.process(Awk.builder().script("script").build());
+		verify(computeProcessor, times(1)).process(any(Awk.class));
 	}
 }
