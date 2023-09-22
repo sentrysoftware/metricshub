@@ -443,10 +443,74 @@ public class ComputeProcessor implements IComputeProcessor {
 			: value -> value != null && !valueSet.contains(value);
 	}
 
+	/**
+	 * This method processes {@link Extract} compute
+	 * @param extract {@link Extract} compute
+	 */
 	@Override
 	@WithSpan("Compute Extract Exec")
 	public void process(@SpanAttribute("compute.definition") final Extract extract) {
-		// TODO Auto-generated method stub
+		if (extract == null) {
+			log.warn("Hostname {} - Extract object is null, the table remains unchanged.", hostname);
+			return;
+		}
+
+		Integer column = extract.getColumn();
+		if (column == null || column < 1) {
+			log.warn(
+				"Hostname {} - The column number in Extract cannot be {}, the table remains unchanged.",
+				hostname,
+				column
+			);
+			return;
+		}
+
+		Integer subColumn = extract.getSubColumn();
+		if (subColumn == null || subColumn < 1) {
+			log.warn(
+				"Hostname {} - The sub-column number in Extract cannot be {}, the table remains unchanged.",
+				hostname,
+				subColumn
+			);
+			return;
+		}
+
+		String subSeparators = extract.getSubSeparators();
+		if (subSeparators == null || subSeparators.isEmpty()) {
+			log.warn(
+				"Hostname {} - The sub-columns separators in Extract cannot be null or empty, the table remains unchanged.",
+				hostname
+			);
+			return;
+		}
+
+		int columnIndex = column - 1;
+
+		String text;
+		List<List<String>> resultTable = new ArrayList<>();
+		List<String> resultRow;
+		for (List<String> row : sourceTable.getTable()) {
+			if (columnIndex >= row.size()) {
+				log.warn("Hostname {} - Invalid column index: {}. The table remains unchanged.", hostname, column);
+				return;
+			}
+
+			text = row.get(columnIndex);
+			if (text == null) {
+				log.warn("Hostname {} - Value at column {} cannot be null, the table remains unchanged.", hostname, column);
+				return;
+			}
+
+			String extractedValue = PslUtils.nthArgf(text, String.valueOf(subColumn), subSeparators, null);
+
+			resultRow = new ArrayList<>(row);
+			resultRow.set(columnIndex, extractedValue);
+
+			resultTable.add(resultRow);
+		}
+
+		sourceTable.setTable(resultTable);
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	@Override
