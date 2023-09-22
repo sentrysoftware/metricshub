@@ -8,7 +8,7 @@
 
 	<artifactId>matrix-agent</artifactId>
 
-	<name>Matrix Agent</name>
+	<name>MetricsHub Agent</name>
 	<description>Matrix Monitoring Agent</description>
 
 	<properties>
@@ -66,10 +66,6 @@
 		<dependency>
 			<groupId>io.opentelemetry</groupId>
 			<artifactId>opentelemetry-sdk-common</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.opentelemetry</groupId>
-			<artifactId>opentelemetry-exporter-otlp-logs</artifactId>
 		</dependency>
 
 		<!-- gRPC -->

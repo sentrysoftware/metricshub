@@ -56,8 +56,8 @@ resourceGroups:
             port: 443
             username: username
             password: password
-          selectConnectors:
-          - PureStorageREST
+        selectConnectors:
+        - PureStorageREST
        # Resource configuration
       snmp-resources: 
         # Adds additional static attributes to the resource.

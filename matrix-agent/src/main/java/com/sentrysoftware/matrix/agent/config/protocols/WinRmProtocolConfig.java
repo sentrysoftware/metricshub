@@ -49,7 +49,7 @@ public class WinRmProtocolConfig extends AbstractProtocolConfig {
 	 * @return The {@link WinRmConfiguration} instance
 	 */
 	@Override
-	public IConfiguration toProtocol() {
+	public IConfiguration toConfigurartion() {
 		return WinRmConfiguration
 			.builder()
 			.username(username)

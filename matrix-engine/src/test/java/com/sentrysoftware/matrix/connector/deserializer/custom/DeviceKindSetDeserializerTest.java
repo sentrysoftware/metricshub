@@ -86,7 +86,8 @@ class DeviceKindSetDeserializerTest {
 				"tru64",
 				"hpux",
 				"aix",
-				"solaris"
+				"solaris",
+				"other"
 			);
 			doReturn(true).when(yamlParser).isExpectedStartArrayToken();
 			doReturn(osTypes).when(yamlParser).readValueAs(any(TypeReference.class));
@@ -156,7 +157,8 @@ class DeviceKindSetDeserializerTest {
 					"sunos",
 					"SunOS",
 					"Sun Solaris",
-					"Oracle Solaris"
+					"Oracle Solaris",
+					"Other"
 				)
 			)
 				.when(yamlParser)

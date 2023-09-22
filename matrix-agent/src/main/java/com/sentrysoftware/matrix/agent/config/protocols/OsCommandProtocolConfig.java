@@ -38,7 +38,7 @@ public class OsCommandProtocolConfig extends AbstractProtocolConfig {
 	 * @return The {@link OsCommandConfiguration} instance
 	 */
 	@Override
-	public IConfiguration toProtocol() {
+	public IConfiguration toConfigurartion() {
 		return OsCommandConfiguration
 			.builder()
 			.useSudo(useSudo)

@@ -42,7 +42,7 @@ public class SshProtocolConfig extends AbstractProtocolConfig {
 	 * @return The {@link SshConfiguration} instance
 	 */
 	@Override
-	public IConfiguration toProtocol() {
+	public IConfiguration toConfigurartion() {
 		return SshConfiguration
 			.sshConfigurationBuilder()
 			.username(username)

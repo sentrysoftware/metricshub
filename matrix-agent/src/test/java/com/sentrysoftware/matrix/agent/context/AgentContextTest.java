@@ -9,16 +9,21 @@ import static com.sentrysoftware.matrix.agent.helper.TestConstants.HTTP_ACCEPT_H
 import static com.sentrysoftware.matrix.agent.helper.TestConstants.HTTP_KEY_TYPE;
 import static com.sentrysoftware.matrix.agent.helper.TestConstants.HTTP_SERVICE_URL;
 import static com.sentrysoftware.matrix.agent.helper.TestConstants.ID_ATTRIBUTE_KEY;
+import static com.sentrysoftware.matrix.agent.helper.TestConstants.SENTRY_PARIS_RESOURCE_GROUP_KEY;
 import static com.sentrysoftware.matrix.agent.helper.TestConstants.SENTRY_PARIS_SITE_VALUE;
+import static com.sentrysoftware.matrix.agent.helper.TestConstants.SERVER_1_RESOURCE_GROUP_KEY;
 import static com.sentrysoftware.matrix.agent.helper.TestConstants.SERVICE_VERSION_ATTRIBUTE_KEY;
 import static com.sentrysoftware.matrix.agent.helper.TestConstants.SITE_ATTRIBUTE_KEY;
+import static com.sentrysoftware.matrix.agent.helper.TestConstants.TEST_CONFIG_FILE_PATH;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.sentrysoftware.matrix.agent.config.AgentConfig;
 import com.sentrysoftware.matrix.agent.config.ResourceConfig;
 import com.sentrysoftware.matrix.agent.config.ResourceGroupConfig;
+import com.sentrysoftware.matrix.common.helpers.MapHelper;
 import com.sentrysoftware.matrix.connector.model.common.HttpMethod;
 import com.sentrysoftware.matrix.connector.model.common.ResultContent;
 import com.sentrysoftware.matrix.connector.model.monitor.SimpleMonitorJob;
@@ -36,23 +41,22 @@ class AgentContextTest {
 
 	@Test
 	void testInitialize() throws IOException {
-		AgentContext.initialize("src/test/resources/config/metricshub.yaml");
+		final AgentContext agentContext = new AgentContext(TEST_CONFIG_FILE_PATH);
 
-		final AgentContext agentContextSingleton = AgentContext.getInstance();
-		assertNotNull(agentContextSingleton.getAgentInfo());
-		assertNotNull(agentContextSingleton.getConfigFile());
-		assertNotNull(agentContextSingleton.getPid());
+		assertNotNull(agentContext.getAgentInfo());
+		assertNotNull(agentContext.getConfigFile());
+		assertNotNull(agentContext.getPid());
 
-		final AgentConfig agentConfig = agentContextSingleton.getAgentConfig();
+		final AgentConfig agentConfig = agentContext.getAgentConfig();
 		assertNotNull(agentConfig);
 
 		final Map<String, ResourceGroupConfig> resourceGroupsConfig = agentConfig.getResourceGroups();
 		assertNotNull(resourceGroupsConfig);
-		final ResourceGroupConfig resourceGroupConfig = resourceGroupsConfig.get("sentry-paris");
+		final ResourceGroupConfig resourceGroupConfig = resourceGroupsConfig.get(SENTRY_PARIS_RESOURCE_GROUP_KEY);
 		assertNotNull(resourceGroupConfig);
 		final Map<String, ResourceConfig> resourcesConfigInTheGroup = resourceGroupConfig.getResources();
 		assertNotNull(resourcesConfigInTheGroup);
-		assertNotNull(resourcesConfigInTheGroup.get("server-1"));
+		assertNotNull(resourcesConfigInTheGroup.get(SERVER_1_RESOURCE_GROUP_KEY));
 		final ResourceConfig grafanaServiceResourceConfig = resourcesConfigInTheGroup.get(
 			GRAFANA_SERVICE_RESOURCE_CONFIG_KEY
 		);
@@ -104,5 +108,28 @@ class AgentContextTest {
 		final ResourceConfig server3ResourceConfig = resourcesConfigInTheGroup.get("snmp-resources-server-3");
 		assertEquals("server-3", server3ResourceConfig.getAttributes().get(HOST_NAME));
 		assertNotNull(server3ResourceConfig);
+
+		// Check the TelemetryManager map is correctly created
+		assertEquals(3, agentContext.getTelemetryManagers().get(SENTRY_PARIS_RESOURCE_GROUP_KEY).size());
+
+		// Check the OpenTelemetry SDK configuration is correctly created
+		final Map<String, String> expectedOtelSdkConfiguration = Map.of(
+			"otel.logs.exporter",
+			"otlp",
+			"otel.exporter.otlp.endpoint",
+			"https://localhost:4317",
+			"otel.exporter.otlp.headers",
+			"Authorization=Basic aHdzOlNlbnRyeVNvZnR3YXJlMSE=",
+			"otel.metric.export.interval",
+			"315360000000",
+			"otel.metrics.exporter",
+			"otlp"
+		);
+		final Map<String, String> otelSdkConfiguration = agentContext.getOtelSdkConfiguration();
+
+		assertTrue(
+			MapHelper.areEqual(expectedOtelSdkConfiguration, agentContext.getOtelSdkConfiguration()),
+			() -> String.format("expected %s but was: %s", expectedOtelSdkConfiguration, otelSdkConfiguration)
+		);
 	}
 }

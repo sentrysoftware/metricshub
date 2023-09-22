@@ -36,7 +36,7 @@ public class IpmiProtocolConfig extends AbstractProtocolConfig {
 	 * @return The {@link IpmiConfiguration} instance
 	 */
 	@Override
-	public IConfiguration toProtocol() {
+	public IConfiguration toConfigurartion() {
 		return IpmiConfiguration
 			.builder()
 			.username(username)

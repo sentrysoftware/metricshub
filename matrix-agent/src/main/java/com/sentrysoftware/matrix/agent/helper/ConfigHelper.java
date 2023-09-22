@@ -16,13 +16,29 @@ import com.sentrysoftware.matrix.agent.config.AgentConfig;
 import com.sentrysoftware.matrix.agent.config.AlertingSystemConfig;
 import com.sentrysoftware.matrix.agent.config.ResourceConfig;
 import com.sentrysoftware.matrix.agent.config.ResourceGroupConfig;
-import com.sentrysoftware.matrix.agent.context.AgentContext;
+import com.sentrysoftware.matrix.agent.config.protocols.AbstractProtocolConfig;
+import com.sentrysoftware.matrix.agent.config.protocols.HttpProtocolConfig;
+import com.sentrysoftware.matrix.agent.config.protocols.IpmiProtocolConfig;
+import com.sentrysoftware.matrix.agent.config.protocols.OsCommandProtocolConfig;
+import com.sentrysoftware.matrix.agent.config.protocols.ProtocolsConfig;
+import com.sentrysoftware.matrix.agent.config.protocols.SnmpProtocolConfig;
+import com.sentrysoftware.matrix.agent.config.protocols.SshProtocolConfig;
+import com.sentrysoftware.matrix.agent.config.protocols.WbemProtocolConfig;
+import com.sentrysoftware.matrix.agent.config.protocols.WinRmProtocolConfig;
+import com.sentrysoftware.matrix.agent.config.protocols.WmiProtocolConfig;
 import com.sentrysoftware.matrix.agent.security.PasswordEncrypt;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
+import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
+import com.sentrysoftware.matrix.configuration.HostConfiguration;
+import com.sentrysoftware.matrix.configuration.IConfiguration;
+import com.sentrysoftware.matrix.configuration.SnmpConfiguration.SnmpVersion;
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.ConnectorStore;
+import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.connector.model.identity.ConnectorIdentity;
 import com.sentrysoftware.matrix.security.SecurityManager;
+import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -34,10 +50,19 @@ import java.nio.file.attribute.AclEntryPermission;
 import java.nio.file.attribute.AclEntryType;
 import java.nio.file.attribute.AclFileAttributeView;
 import java.nio.file.attribute.GroupPrincipal;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -48,6 +73,27 @@ import org.apache.logging.log4j.ThreadContext;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Slf4j
 public class ConfigHelper {
+
+	private static final String OS_COMMAND = "OSCommand";
+	private static final String HTTP_PROTOCOL = "HTTP";
+	private static final String WMI_PROTOCOL = "WMI";
+	private static final String WBEM_PROTOCOL = "WBEM";
+	private static final String SSH_PROTOCOL = "SSH";
+	private static final String IPMI_PROTOCOL = "IPMI";
+	private static final String WIN_RM_PROTOCOL = "WinRM";
+	private static final String TIMEOUT_ERROR =
+		"Resource %s - Timeout value is invalid for protocol %s." +
+		" Timeout value returned: %s. This resource will not be monitored. Please verify the configured timeout value.";
+	private static final String PORT_ERROR =
+		"Resource %s - Invalid port configured for protocol %s. Port value returned: %s." +
+		" This resource will not be monitored. Please verify the configured port value.";
+	private static final String USERNAME_ERROR =
+		"Resource %s - No username configured for protocol %s." +
+		" This resource will not be monitored. Please verify the configured username.";
+	private static final Predicate<String> INVALID_STRING_CHECKER = attr -> attr == null || attr.isBlank();
+	private static final Predicate<Integer> INVALID_PORT_CHECKER = attr -> attr == null || attr < 1 || attr > 65535;
+	private static final Predicate<Long> INVALID_TIMEOUT_CHECKER = attr -> attr == null || attr < 0L;
+	private static final Predicate<String> EMPTY_STRING_CHECKER = attr -> attr != null && attr.isBlank();
 
 	/**
 	 * Get the default output directory for logging.<br>
@@ -387,9 +433,10 @@ public class ConfigHelper {
 	 * Normalizes the agent configuration and sets global values if no specific
 	 * values are specified on the resource groups or resources
 	 *
-	 * @param agentConfig The whole configuration the MetricsHub agent
+	 * @param agentConfig    The whole configuration of the MetricsHub agent
+	 * @param connectorStore Wraps all the connectors
 	 */
-	public static void normalizeAgentConfiguration(final AgentConfig agentConfig) {
+	public static void normalizeAgentConfiguration(final AgentConfig agentConfig, final ConnectorStore connectorStore) {
 		agentConfig
 			.getResourceGroups()
 			.entrySet()
@@ -399,7 +446,9 @@ public class ConfigHelper {
 				resourceGroupConfig
 					.getResources()
 					.entrySet()
-					.forEach(resourceConfigEntry -> normalizeResourceConfig(resourceGroupConfigEntry, resourceConfigEntry));
+					.forEach(resourceConfigEntry ->
+						normalizeResourceConfig(resourceGroupConfigEntry, resourceConfigEntry, connectorStore)
+					);
 			});
 	}
 
@@ -410,10 +459,12 @@ public class ConfigHelper {
 	 *
 	 * @param resourceGroupConfigEntry The resource group configuration entry
 	 * @param resourceConfigEntry      The individual resource configuration entry
+	 * @param connectorStore           Wraps all the connectors
 	 */
 	private static void normalizeResourceConfig(
 		final Entry<String, ResourceGroupConfig> resourceGroupConfigEntry,
-		final Entry<String, ResourceConfig> resourceConfigEntry
+		final Entry<String, ResourceConfig> resourceConfigEntry,
+		final ConnectorStore connectorStore
 	) {
 		final ResourceGroupConfig resourceGroupConfig = resourceGroupConfigEntry.getValue();
 		final ResourceConfig resourceConfig = resourceConfigEntry.getValue();
@@ -483,7 +534,7 @@ public class ConfigHelper {
 			identity.setCompiledFilename(compiledFileName);
 
 			// Add it to the store
-			AgentContext.getInstance().getConnectorStore().addOne(compiledFileName, connector);
+			connectorStore.addOne(compiledFileName, connector);
 		}
 	}
 
@@ -557,7 +608,10 @@ public class ConfigHelper {
 	 * @param parentAttributes Map of key-pair values defining the attributes at the parent level
 	 * @param childAttributes  Map of key-pair values defining the attributes at the child level
 	 */
-	private static void mergeAttributes(Map<String, String> parentAttributes, Map<String, String> childAttributes) {
+	public static void mergeAttributes(
+		final Map<String, String> parentAttributes,
+		final Map<String, String> childAttributes
+	) {
 		childAttributes.putAll(parentAttributes);
 	}
 
@@ -589,5 +643,545 @@ public class ConfigHelper {
 		final Level level = loggerLevel != null ? Level.getLevel(loggerLevel.toUpperCase()) : null;
 
 		return level != null ? level : Level.OFF;
+	}
+
+	/**
+	 * Build the {@link TelemetryManager} map.
+	 *
+	 * @param agentConfig    Wraps the agent configuration for all the resources
+	 * @param connectorStore Wraps all the connectors
+	 * @return Map of {@link TelemetryManager} instances indexed by group id then by resource id
+	 */
+	public static Map<String, Map<String, TelemetryManager>> buildTelemetryManagers(
+		@NonNull final AgentConfig agentConfig,
+		@NonNull final ConnectorStore connectorStore
+	) {
+		final Map<String, Map<String, TelemetryManager>> telemetryManagers = new HashMap<>();
+
+		agentConfig
+			.getResourceGroups()
+			.forEach((resourceGroupKey, resourceKeyGroupConfig) -> {
+				final Map<String, TelemetryManager> resourceGroupTelemetryManagers = new HashMap<>();
+				telemetryManagers.put(resourceGroupKey, resourceGroupTelemetryManagers);
+				resourceKeyGroupConfig
+					.getResources()
+					.forEach((resourceKey, resourceConfig) ->
+						updateResourceGroupTelemetryManagers(
+							resourceGroupTelemetryManagers,
+							resourceGroupKey,
+							resourceKey,
+							resourceConfig,
+							connectorStore
+						)
+					);
+			});
+		return telemetryManagers;
+	}
+
+	/**
+	 * Update the given resource group {@link TelemetryManager} map if the configuration is valid
+	 *
+	 * @param resourceGroupTelemetryManagers {@link Map} of {@link TelemetryManager} per resource group configuration
+	 * @param resourceGroupKey               The unique identifier of the resource group
+	 * @param resourceKey                    The unique identifier of the resource
+	 * @param resourceConfig                 The resource configuration
+	 * @param connectorStore                 Wraps all the connectors
+	 */
+	private static void updateResourceGroupTelemetryManagers(
+		@NonNull final Map<String, TelemetryManager> resourceGroupTelemetryManagers,
+		@NonNull final String resourceGroupKey,
+		@NonNull final String resourceKey,
+		final ResourceConfig resourceConfig,
+		@NonNull final ConnectorStore connectorStore
+	) {
+		if (resourceConfig == null) {
+			return;
+		}
+
+		try {
+			// Validate protocols
+			validateProtocols(resourceKey, resourceConfig);
+
+			final Map<String, Connector> connectors = connectorStore.getStore();
+			final Set<String> connectorIds = connectors.keySet();
+
+			final Set<String> selectedConnectors = validateAndGetConnectors(
+				connectorIds,
+				resourceConfig.getSelectConnectors(),
+				resourceKey,
+				false
+			);
+
+			final Set<String> excludedConnectors = validateAndGetConnectors(
+				connectorIds,
+				resourceConfig.getExcludeConnectors(),
+				resourceKey,
+				true
+			);
+
+			final HostConfiguration hostConfiguration = buildHostConfiguration(
+				resourceConfig,
+				selectedConnectors,
+				excludedConnectors,
+				resourceKey
+			);
+
+			resourceGroupTelemetryManagers.putIfAbsent(
+				resourceKey,
+				TelemetryManager.builder().connectorStore(connectorStore).hostConfiguration(hostConfiguration).build()
+			);
+		} catch (Exception e) {
+			log.warn(
+				"Resource {} - Under the resource group configuration {}, the resource configuration {}" +
+				" has been staged as invalid. Reason: {}",
+				resourceKey,
+				resourceGroupKey,
+				resourceKey,
+				e.getMessage()
+			);
+		}
+	}
+
+	/**
+	 * Validate the protocols configured under the given {@link ResourceConfig} instance
+	 *
+	 * @param resourceKey    Resource unique identifier
+	 * @param resourceConfig {@link ResourceConfig} instance configured by the user
+	 */
+	private static void validateProtocols(@NonNull final String resourceKey, final ResourceConfig resourceConfig) {
+		final ProtocolsConfig protocolsConfig = resourceConfig.getProtocols();
+		if (protocolsConfig == null) {
+			return;
+		}
+
+		final WinRmProtocolConfig winRmConfig = protocolsConfig.getWinRm();
+		if (winRmConfig != null) {
+			validateWinRmInfo(resourceKey, winRmConfig.getPort(), winRmConfig.getTimeout(), winRmConfig.getUsername());
+		}
+
+		final SnmpProtocolConfig snmpConfig = protocolsConfig.getSnmp();
+		if (snmpConfig != null) {
+			validateSnmpInfo(resourceKey, snmpConfig);
+		}
+
+		final IpmiProtocolConfig ipmiConfig = protocolsConfig.getIpmi();
+		if (ipmiConfig != null) {
+			validateIpmiInfo(resourceKey, ipmiConfig.getUsername(), ipmiConfig.getTimeout());
+		}
+
+		final SshProtocolConfig sshConfig = protocolsConfig.getSsh();
+		if (sshConfig != null) {
+			validateSshInfo(resourceKey, sshConfig.getUsername(), sshConfig.getTimeout());
+		}
+
+		final WbemProtocolConfig wbemConfig = protocolsConfig.getWbem();
+		if (wbemConfig != null) {
+			validateWbemInfo(
+				resourceKey,
+				wbemConfig.getUsername(),
+				wbemConfig.getTimeout(),
+				wbemConfig.getPort(),
+				wbemConfig.getVCenter()
+			);
+		}
+
+		final WmiProtocolConfig wmiConfig = protocolsConfig.getWmi();
+		if (wmiConfig != null) {
+			validateWmiInfo(resourceKey, wmiConfig.getTimeout());
+		}
+
+		final HttpProtocolConfig httpConfig = protocolsConfig.getHttp();
+		if (httpConfig != null) {
+			validateHttpInfo(resourceKey, httpConfig.getTimeout(), httpConfig.getPort());
+		}
+
+		final OsCommandProtocolConfig osCommandConfig = protocolsConfig.getOsCommand();
+		if (osCommandConfig != null) {
+			validateOsCommandInfo(resourceKey, osCommandConfig.getTimeout());
+		}
+	}
+
+	/**
+	 * Return configured connector names. This method throws an {@link IllegalStateException} if
+	 * we encounter an unknown connector
+	 *
+	 * @param acceptedConnectorNames Known connector names (connector compiled file names)
+	 * @param configConnectors       User's selected or excluded connectors
+	 * @param resourceKey            Resource unique identifier
+	 * @param isExcluded             Specifies if we are validating excluded or selected connectors
+	 *
+	 * @return {@link Set} containing the validated connector names
+	 * @throws IllegalStateException
+	 */
+	static Set<String> validateAndGetConnectors(
+		final @NonNull Set<String> acceptedConnectorNames,
+		final Set<String> configConnectors,
+		final String resourceKey,
+		final boolean isExcluded
+	) {
+		if (configConnectors == null || configConnectors.isEmpty()) {
+			return Collections.emptySet();
+		}
+
+		// Get unknown connectors
+		final Set<String> unknownConnectors = configConnectors
+			.stream()
+			.filter(compiledFileName -> !acceptedConnectorNames.contains(compiledFileName))
+			.collect(Collectors.toSet());
+
+		// Check unknown connectors
+		if (unknownConnectors.isEmpty()) {
+			return configConnectors;
+		}
+
+		final String message;
+		configConnectors.removeAll(unknownConnectors);
+
+		if (isExcluded) {
+			message =
+				String.format(
+					"Resource %s - Configured unknown excluded connector(s): %s. This resource will be monitored, but the unknown connectors will be ignored.",
+					String.join(", ", unknownConnectors),
+					resourceKey
+				);
+
+			log.error(message);
+
+			return configConnectors;
+		} else if (!configConnectors.isEmpty()) {
+			message =
+				String.format(
+					"Resource %s - Configured unknown selected connector(s): %s. This resource will be monitored, but the unknown connectors will be ignored.",
+					resourceKey,
+					String.join(", ", unknownConnectors)
+				);
+
+			log.error(message);
+
+			return configConnectors;
+		} else {
+			message =
+				String.format(
+					"Resource %s - Selected connectors are not valid. This resource will not be monitored.",
+					resourceKey
+				);
+
+			// Throw the bad configuration exception
+			throw new IllegalStateException(message);
+		}
+	}
+
+	/**
+	 * Validate the attribute against a predetermined test
+	 *
+	 * @param attribute       Value getting compared
+	 * @param errorChecker    Logic test comparing our value
+	 * @param messageSupplier error message supplier
+	 * @throws IllegalStateException in case the validation fail
+	 */
+	private static <T> void validateAttribute(
+		final T attribute,
+		final Predicate<T> errorChecker,
+		final Supplier<String> messageSupplier
+	) {
+		if (errorChecker.test(attribute)) {
+			log.error(messageSupplier.get());
+			throw new IllegalStateException(messageSupplier.get());
+		}
+	}
+
+	/**
+	 * Validate the given WinRM information (port, timeout, username and command)
+	 *
+	 * @param resourceKey  Resource unique identifier
+	 * @param port         The port number used to perform WQL queries and commands
+	 * @param timeout      How long until the WinRM request times out
+	 * @param username	   Name used to establish the connection with the host via the WinRM protocol
+	 */
+	static void validateWinRmInfo(
+		final String resourceKey,
+		final Integer port,
+		final Long timeout,
+		final String username
+	) {
+		validateAttribute(port, INVALID_PORT_CHECKER, () -> String.format(PORT_ERROR, resourceKey, WIN_RM_PROTOCOL, port));
+
+		validateAttribute(
+			timeout,
+			INVALID_TIMEOUT_CHECKER,
+			() -> String.format(TIMEOUT_ERROR, resourceKey, WIN_RM_PROTOCOL, timeout)
+		);
+
+		validateAttribute(
+			username,
+			INVALID_STRING_CHECKER,
+			() -> String.format(USERNAME_ERROR, resourceKey, WIN_RM_PROTOCOL)
+		);
+	}
+
+	/**
+	 * Validate the given SNMP information (resourceKey, snmpConfig)
+	 *
+	 * @param resourceKey Resource unique identifier
+	 * @param snmpConfig  {@link SnmpProtocolConfig} object of the {@link ResourceConfig} instance
+	 */
+	static void validateSnmpInfo(final String resourceKey, SnmpProtocolConfig snmpConfig) {
+		final SnmpVersion snmpVersion = snmpConfig.getVersion();
+
+		final String displayName = snmpVersion.getDisplayName();
+		final int intVersion = snmpVersion.getIntVersion();
+
+		if (intVersion != 3) {
+			validateAttribute(
+				snmpConfig.getCommunity(),
+				attr -> attr == null || attr.length == 0,
+				() ->
+					String.format(
+						"Resource %s - No community string configured for %s. This resource will not be monitored.",
+						resourceKey,
+						displayName
+					)
+			);
+		}
+
+		validateAttribute(
+			snmpConfig.getPort(),
+			INVALID_PORT_CHECKER,
+			() -> String.format(PORT_ERROR, resourceKey, displayName, snmpConfig.getPort())
+		);
+
+		validateAttribute(
+			snmpConfig.getTimeout(),
+			INVALID_TIMEOUT_CHECKER,
+			() -> String.format(TIMEOUT_ERROR, resourceKey, displayName, snmpConfig.getTimeout())
+		);
+
+		if (intVersion == 3 && snmpVersion.getAuthType() != null) {
+			validateAttribute(
+				snmpConfig.getUsername(),
+				INVALID_STRING_CHECKER,
+				() -> String.format(USERNAME_ERROR, resourceKey, displayName)
+			);
+		}
+	}
+
+	/**
+	 * Validate the given IPMI information (username and timeout)
+	 *
+	 * @param resourceKey Resource unique identifier
+	 * @param username    Name used to establish the connection with the host via the IPMI protocol
+	 * @param timeout     How long until the IPMI request times out
+	 */
+	static void validateIpmiInfo(final String resourceKey, final String username, final Long timeout) {
+		validateAttribute(
+			username,
+			INVALID_STRING_CHECKER,
+			() -> String.format(USERNAME_ERROR, resourceKey, IPMI_PROTOCOL)
+		);
+
+		validateAttribute(
+			timeout,
+			INVALID_TIMEOUT_CHECKER,
+			() -> String.format(TIMEOUT_ERROR, resourceKey, IPMI_PROTOCOL, timeout)
+		);
+	}
+
+	/**
+	 * Validate the given SSH information (username, timeout)
+	 *
+	 * @param resourceKey Resource unique identifier
+	 * @param username    Name to use for performing the SSH query
+	 * @param timeout     How long until the command times out
+	 */
+	static void validateSshInfo(final String resourceKey, final String username, final Long timeout) {
+		validateAttribute(username, INVALID_STRING_CHECKER, () -> String.format(USERNAME_ERROR, resourceKey, SSH_PROTOCOL));
+
+		validateAttribute(
+			timeout,
+			INVALID_TIMEOUT_CHECKER,
+			() -> String.format(TIMEOUT_ERROR, resourceKey, SSH_PROTOCOL, timeout)
+		);
+	}
+
+	/**
+	 * Validate the given WBEM information (username, timeout, port and vCenter)
+	 *
+	 * @param resourceKey Resource unique identifier
+	 * @param username    Name used to establish the connection with the host via the WBEM protocol
+	 * @param timeout     How long until the WBEM request times out
+	 * @param port        The HTTP/HTTPS port number used to perform WBEM queries
+	 * @param vCenter     vCenter hostname providing the authentication ticket, if applicable
+	 */
+	static void validateWbemInfo(
+		final String resourceKey,
+		final String username,
+		final Long timeout,
+		final Integer port,
+		final String vCenter
+	) {
+		validateAttribute(
+			timeout,
+			INVALID_TIMEOUT_CHECKER,
+			() -> String.format(TIMEOUT_ERROR, resourceKey, WBEM_PROTOCOL, timeout)
+		);
+
+		validateAttribute(port, INVALID_PORT_CHECKER, () -> String.format(PORT_ERROR, resourceKey, WBEM_PROTOCOL, port));
+
+		validateAttribute(
+			username,
+			INVALID_STRING_CHECKER,
+			() -> String.format(USERNAME_ERROR, resourceKey, WBEM_PROTOCOL)
+		);
+
+		validateAttribute(
+			vCenter,
+			EMPTY_STRING_CHECKER,
+			() ->
+				String.format(
+					"Resource %s - Empty vCenter hostname configured for protocol %s." +
+					" This resource will not be monitored. Please verify the configured vCenter hostname.",
+					resourceKey,
+					WBEM_PROTOCOL
+				)
+		);
+	}
+
+	/**
+	 * Validate the given WMI information: timeout
+	 *
+	 * @param resourceKey Resource unique identifier
+	 * @param timeout     How long until the WMI request times out
+	 */
+	static void validateWmiInfo(final String resourceKey, final Long timeout) {
+		validateAttribute(
+			timeout,
+			INVALID_TIMEOUT_CHECKER,
+			() -> String.format(TIMEOUT_ERROR, resourceKey, WMI_PROTOCOL, timeout)
+		);
+	}
+
+	/**
+	 * Validate the given HTTP information (timeout and port)
+	 *
+	 * @param resourceKey Resource unique identifier
+	 * @param timeout     How long until the HTTP request times out
+	 * @param port        The HTTP port number used to perform REST queries
+	 */
+	static void validateHttpInfo(final String resourceKey, final Long timeout, final Integer port) {
+		validateAttribute(
+			timeout,
+			INVALID_TIMEOUT_CHECKER,
+			() -> String.format(TIMEOUT_ERROR, resourceKey, HTTP_PROTOCOL, timeout)
+		);
+
+		validateAttribute(port, INVALID_PORT_CHECKER, () -> String.format(PORT_ERROR, resourceKey, HTTP_PROTOCOL, port));
+	}
+
+	/**
+	 * Validate the given OS Command information: timeout
+	 *
+	 * @param resourceKey Resource unique identifier
+	 * @param timeout     How long until the command times out
+	 */
+	static void validateOsCommandInfo(final String resourceKey, final Long timeout) {
+		validateAttribute(
+			timeout,
+			INVALID_TIMEOUT_CHECKER,
+			() -> String.format(TIMEOUT_ERROR, resourceKey, OS_COMMAND, timeout)
+		);
+	}
+
+	/**
+	 * Build the {@link HostConfiguration} expected by the internal engine
+	 *
+	 * @param resourceConfig     User's resource configuration
+	 * @param selectedConnectors User's selected connectors
+	 * @param excludedConnectors User's excluded connectors
+	 * @param resourceKey        Resource unique identifier
+	 * @return new {@link HostConfiguration} instance
+	 */
+	private static HostConfiguration buildHostConfiguration(
+		final ResourceConfig resourceConfig,
+		final Set<String> selectedConnectors,
+		final Set<String> excludedConnectors,
+		final String resourceKey
+	) {
+		final ProtocolsConfig protocols = resourceConfig.getProtocols();
+
+		final Map<Class<? extends IConfiguration>, IConfiguration> protocolConfigurations = protocols == null
+			? new HashMap<>()
+			: new HashMap<>(
+				Stream
+					.of(
+						protocols.getSnmp(),
+						protocols.getSsh(),
+						protocols.getHttp(),
+						protocols.getWbem(),
+						protocols.getWmi(),
+						protocols.getOsCommand(),
+						protocols.getIpmi(),
+						protocols.getWinRm()
+					)
+					.filter(Objects::nonNull)
+					.map(AbstractProtocolConfig::toConfigurartion)
+					.filter(Objects::nonNull)
+					.collect(Collectors.toMap(IConfiguration::getClass, Function.identity()))
+			);
+
+		final Map<String, String> attributes = resourceConfig.getAttributes();
+
+		String hostname = attributes.get(MatrixConstants.HOST_NAME);
+		if (hostname == null) {
+			hostname = resourceKey;
+		}
+
+		String hostId = attributes.get("host.id");
+		if (hostId == null) {
+			hostId = resourceKey;
+		}
+
+		final DeviceKind hostType;
+		String hostTypeAttribute = attributes.get("host.type");
+		if (hostTypeAttribute == null) {
+			hostType = DeviceKind.OTHER;
+		} else {
+			hostType = detectHostTypeFromAttribute(hostTypeAttribute);
+		}
+
+		return HostConfiguration
+			.builder()
+			.strategyTimeout(resourceConfig.getJobTimeout())
+			.configurations(protocolConfigurations)
+			.selectedConnectors(selectedConnectors)
+			.excludedConnectors(excludedConnectors)
+			.hostname(hostname)
+			.hostId(hostId)
+			.hostType(hostType)
+			.sequential(Boolean.TRUE.equals(resourceConfig.getSequential()))
+			.build();
+	}
+
+	/**
+	 * Try to detect the {@link DeviceKind} from the user input
+	 *
+	 * @param hostTypeAttribute
+	 * @return {@link DeviceKind} enumeration value
+	 */
+	private static DeviceKind detectHostTypeFromAttribute(String hostTypeAttribute) {
+		try {
+			return DeviceKind.detect(hostTypeAttribute);
+		} catch (Exception e) {
+			return DeviceKind.OTHER;
+		}
+	}
+
+	/**
+	 * Get the directory path of the given file
+	 *
+	 * @param file
+	 * @return {@link Path} instance
+	 */
+	public static Path getDirectoryPath(final File file) {
+		return file.getAbsoluteFile().toPath().getParent();
 	}
 }

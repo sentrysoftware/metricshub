@@ -16,7 +16,14 @@ public class TestConstants {
 	public static final String ID_ATTRIBUTE_KEY = "id";
 	public static final String HTTP_KEY_TYPE = "http";
 	public static final String SENTRY_PARIS_SITE_VALUE = "Sentry-Paris";
+	public static final String SENTRY_OTTAWA_SITE_VALUE = "Sentry-Ottawa";
 	public static final String GRAFANA_SERVICE_RESOURCE_CONFIG_KEY = "grafana-service";
 	public static final String SITE_ATTRIBUTE_KEY = "site";
 	public static final String SERVICE_VERSION_ATTRIBUTE_KEY = "service.version";
+	public static final String SENTRY_PARIS_RESOURCE_GROUP_KEY = "sentry-paris";
+	public static final String SENTRY_OTTAWA_RESOURCE_GROUP_KEY = "sentry-ottawa";
+	public static final String SERVER_1_RESOURCE_GROUP_KEY = "server-1";
+	public static final String TEST_CONFIG_FILE_PATH = "src/test/resources/config/metricshub.yaml";
+	public static final String COMPANY_ATTRIBUTE_VALUE = "Sentry Software";
+	public static final String COMPANY_ATTRIBUTE_KEY = "company";
 }

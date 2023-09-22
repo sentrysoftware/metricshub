@@ -31,6 +31,13 @@ import org.springframework.core.io.ClassPathResource;
 @Slf4j
 public class AgentInfo {
 
+	public static final String AGENT_INFO_OTEL_VERSION_NUMBER_ATTRIBUTE_KEY = "otel_version";
+	public static final String AGENT_INFO_HC_VERSION_NUMBER_ATTRIBUTE_KEY = "hc_version";
+	public static final String AGENT_INFO_BUILD_DATE_NUMBER_ATTRIBUTE_KEY = "build_date";
+	public static final String AGENT_INFO_BUILD_NUMBER_ATTRIBUTE_KEY = "build_number";
+	public static final String AGENT_INFO_VERSION_ATTRIBUTE_KEY = "version";
+	public static final String AGENT_INFO_NAME_ATTRIBUTE_KEY = "name";
+
 	public static final ObjectMapper OBJECT_MAPPER = ConfigHelper.newObjectMapper();
 
 	public static final String METRICS_HUB_AGENT_METRIC_NAME = "metricshub.agent.info";
@@ -89,12 +96,12 @@ public class AgentInfo {
 		// @formatter:off
 		metricAttributes =
 			Map.of(
-				"name", project.name(),
-				"version", project.version(),
-				"build_number", applicationProperties.buildNumber(),
-				"build_date", applicationProperties.buildDate(),
-				"hc_version", applicationProperties.hcVersion(),
-				"otel_version", applicationProperties.otelVersion()
+				AGENT_INFO_NAME_ATTRIBUTE_KEY, project.name(),
+				AGENT_INFO_VERSION_ATTRIBUTE_KEY, project.version(),
+				AGENT_INFO_BUILD_NUMBER_ATTRIBUTE_KEY, applicationProperties.buildNumber(),
+				AGENT_INFO_BUILD_DATE_NUMBER_ATTRIBUTE_KEY, applicationProperties.buildDate(),
+				AGENT_INFO_HC_VERSION_NUMBER_ATTRIBUTE_KEY, applicationProperties.hcVersion(),
+				AGENT_INFO_OTEL_VERSION_NUMBER_ATTRIBUTE_KEY, applicationProperties.otelVersion()
 			);
 		// @formatter:on
 
