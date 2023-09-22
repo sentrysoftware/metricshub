@@ -687,12 +687,12 @@ public class ComputeProcessor implements IComputeProcessor {
 
 		final int columnIndex = columnToReplace - 1;
 
-		// If replacement is like "Column(n)", we replace the strToReplace by the content of the column n.
+		// If replacement is like "$n", we replace the strToReplace by the content of the column n.
 		if (COLUMN_PATTERN.matcher(replacement).matches()) {
 			final int replacementColumnIndex = getColumnIndex(replacement);
 
 			if (!sourceTable.getTable().isEmpty() && replacementColumnIndex < sourceTable.getTable().get(0).size()) {
-				// If strToReplace is like "Column(n)", the strToReplace is actually the content of the column n.
+				// If strToReplace is like "$n", the strToReplace is actually the content of the column n.
 				if (COLUMN_PATTERN.matcher(strToReplace).matches()) {
 					final int strToReplaceColumnIndex = getColumnIndex(strToReplace);
 					if (strToReplaceColumnIndex < sourceTable.getTable().get(0).size()) {
@@ -806,7 +806,7 @@ public class ComputeProcessor implements IComputeProcessor {
 	 * Check value and column index consistency. At least we need one data available
 	 *
 	 * @param value              The string value as a number
-	 * @param foreignColumnIndex The index of the column already extracted from a value expected as <em>Column($index)</em>
+	 * @param foreignColumnIndex The index of the column already extracted from a value expected as <em>$index</em>
 	 * @return <code>true</code> if data is consistent
 	 */
 	static boolean checkValueAndColumnIndexConsistency(final String value, final Integer foreignColumnIndex) {
