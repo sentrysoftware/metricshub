@@ -8,6 +8,7 @@ import static com.sentrysoftware.matrix.constants.Constants.VALUE_VAL2;
 import static com.sentrysoftware.matrix.constants.Constants.VALUE_VAL3;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -28,9 +29,12 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.And
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ArrayTranslate;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Awk;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Divide;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ExcludeMatchingLines;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Extract;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Json2Csv;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.LeftConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Multiply;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Replace;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.RightConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Substring;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Subtract;
@@ -1259,6 +1263,318 @@ class ComputeProcessorTest {
 
 		computeProcessor.process(arrayTranslate);
 		assertEquals(result, sourceTable.getTable());
+	}
+
+	@Test
+	void testExcludeMatchingLines() {
+		final List<String> line1 = Arrays.asList(FOO, "1", "2", "3");
+		final List<String> line2 = Arrays.asList(BAR, "10", "20", "30");
+		final List<String> line3 = Arrays.asList(BAZ, "100", "200", "300");
+		final List<List<String>> table = Arrays.asList(line1, line2, line3);
+
+		computeProcessor.setSourceTable(SourceTable.builder().table(table).build());
+
+		// regexp is null, valueSet is null
+		final ExcludeMatchingLines excludeMatchingLines = ExcludeMatchingLines
+			.builder()
+			.column(1)
+			.regExp(null)
+			.valueList(null)
+			.build();
+		computeProcessor.process(excludeMatchingLines);
+		assertEquals(table, computeProcessor.getSourceTable().getTable());
+
+		// regexp is empty, valueSet is null
+		excludeMatchingLines.setRegExp("");
+		computeProcessor.process(excludeMatchingLines);
+		assertEquals(table, computeProcessor.getSourceTable().getTable());
+
+		// regexp is empty, valueSet is empty
+		excludeMatchingLines.setValueList(EMPTY);
+		computeProcessor.process(excludeMatchingLines);
+		assertEquals(table, computeProcessor.getSourceTable().getTable());
+
+		// regex is not null, not empty
+		excludeMatchingLines.setRegExp("^B.*");
+		computeProcessor.process(excludeMatchingLines);
+		assertNotEquals(table, computeProcessor.getSourceTable().getTable());
+		List<List<String>> resultTable = computeProcessor.getSourceTable().getTable();
+		assertNotNull(resultTable);
+		assertEquals(1, resultTable.size());
+		assertEquals(line1, resultTable.get(0));
+
+		// regex is null,
+		// valueSet is not null, not empty
+		computeProcessor.getSourceTable().setTable(table);
+		excludeMatchingLines.setRegExp(null);
+		excludeMatchingLines.setValueList("3,300");
+		excludeMatchingLines.setColumn(4);
+		computeProcessor.process(excludeMatchingLines);
+		assertNotEquals(table, computeProcessor.getSourceTable().getTable());
+		resultTable = computeProcessor.getSourceTable().getTable();
+		assertNotNull(resultTable);
+		assertEquals(1, resultTable.size());
+		assertEquals(line2, resultTable.get(0));
+
+		// regex is not null, not empty
+		// valueSet is not null, not empty
+		computeProcessor.getSourceTable().setTable(table);
+		excludeMatchingLines.setColumn(1);
+		excludeMatchingLines.setRegExp(".*R.*"); // Applying only the regex would exclude line2
+		excludeMatchingLines.setValueList("FOO,BAR,BAB"); // Applying only the valueSet would exclude line1 and line2
+		computeProcessor.process(excludeMatchingLines);
+		assertNotEquals(table, computeProcessor.getSourceTable().getTable());
+		resultTable = computeProcessor.getSourceTable().getTable();
+		assertNotNull(resultTable);
+		assertEquals(1, resultTable.size()); // Applying both the regex and the valueSet leaves only line3
+		assertEquals(line3, resultTable.get(0));
+	}
+
+	@Test
+	void testExtract() {
+		List<List<String>> table = Arrays.asList(
+			Arrays.asList("ID1", "STATUS1", "TYPE1", null, "NAME1"),
+			Arrays.asList("ID2", "STATUS2", "TYPE2", null, "NAME2"),
+			Arrays.asList("ID3", "STATUS3", "TYPE3", null, "NAME3")
+		);
+
+		sourceTable.setTable(table);
+
+		// Extract is null
+		computeProcessor.process((Extract) null);
+		assertEquals(table, sourceTable.getTable());
+
+		// Extract is not null, column is not valid, subColumn is not valid
+		Extract extract = Extract.builder().column(-1).subColumn(-1).build();
+		computeProcessor.process(extract);
+		assertEquals(table, sourceTable.getTable());
+
+		// Extract is not null, column < 1
+		extract.setColumn(0);
+		computeProcessor.process(extract);
+		assertEquals(table, sourceTable.getTable());
+
+		// Extract is not null, column >= 1, subColumn is null
+		extract.setColumn(1);
+		computeProcessor.process(extract);
+		assertEquals(table, sourceTable.getTable());
+
+		// Extract is not null, column >= 1, subColumn < 1
+		extract.setSubColumn(-1);
+		computeProcessor.process(extract);
+		assertEquals(table, sourceTable.getTable());
+
+		// Extract is not null, column >= 1, subColumn >= 1, subSeparators is null
+		extract.setSubColumn(1);
+		computeProcessor.process(extract);
+		assertEquals(table, sourceTable.getTable());
+
+		// Extract is not null, column >= 1, subColumn >= 1, subSeparators is empty
+		extract.setSubSeparators("");
+		computeProcessor.process(extract);
+		assertEquals(table, sourceTable.getTable());
+
+		// Extract is not null, column >= 1, subColumn >= 1, subSeparators is not null and not empty,
+		// column > row size
+		extract.setSubSeparators("|");
+		extract.setColumn(6);
+		computeProcessor.process(extract);
+		assertEquals(table, sourceTable.getTable());
+
+		// Extract is not null, column >= 1, subColumn >= 1, subSeparators is not null and not empty,
+		// column is valid, text is null
+		extract.setColumn(4);
+		computeProcessor.process(extract);
+		assertEquals(table, sourceTable.getTable());
+
+		// Extract is not null, column >= 1, subColumn >= 1, subSeparators is not null and not empty,
+		// column is valid, text is not null, subColumn < 1
+		table.get(0).set(3, "|OK|1");
+		table.get(1).set(3, "|OK|2");
+		table.get(2).set(3, "|OK|3");
+		extract.setSubColumn(0);
+		computeProcessor.process(extract);
+		assertEquals(table, sourceTable.getTable());
+
+		// Extract is not null, column >= 1, subColumn >= 1, subSeparators is not null and not empty,
+		// column is valid, text is not null, subColumn > text.length()
+		extract.setSubColumn(4);
+		computeProcessor.process(extract);
+		List<List<String>> expected = Arrays.asList(
+			Arrays.asList("ID1", "STATUS1", "TYPE1", "", "NAME1"),
+			Arrays.asList("ID2", "STATUS2", "TYPE2", "", "NAME2"),
+			Arrays.asList("ID3", "STATUS3", "TYPE3", "", "NAME3")
+		);
+		assertEquals(expected, sourceTable.getTable());
+
+		// Test OK, subSeparators is a single character
+		List<List<String>> result = Arrays.asList(
+			Arrays.asList("ID1", "STATUS1", "TYPE1", "1", "NAME1"),
+			Arrays.asList("ID2", "STATUS2", "TYPE2", "2", "NAME2"),
+			Arrays.asList("ID3", "STATUS3", "TYPE3", "3", "NAME3")
+		);
+		extract.setSubColumn(3);
+		computeProcessor.process(extract);
+		assertEquals(expected, sourceTable.getTable());
+
+		// Test OK, subSeparators is "()"
+		table.get(0).set(3, "STATUS1 (1)");
+		table.get(1).set(3, "STATUS2 (2)");
+		table.get(2).set(3, "STATUS3 (3)");
+		sourceTable.setTable(table);
+		extract.setSubColumn(2);
+		extract.setSubSeparators("()");
+		computeProcessor.process(extract);
+		assertEquals(result, sourceTable.getTable());
+
+		// Test OK, subSeparators is "%%"
+		table.get(0).set(3, "1% of maximum");
+		table.get(1).set(3, "2% of maximum");
+		table.get(2).set(3, "3% of maximum");
+		sourceTable.setTable(table);
+		extract.setSubColumn(1);
+		extract.setSubSeparators("%%");
+		computeProcessor.process(extract);
+		assertEquals(result, sourceTable.getTable());
+	}
+
+	@Test
+	void testReplace() {
+		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID1", "val1", "1value1")));
+		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID2", "val2", "1value11")));
+		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID3", "val3", "va1lue12")));
+
+		// Check the case of a null {@link Replace} object
+		computeProcessor.process((Replace) null);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "val1", "1value1"),
+				Arrays.asList("ID2", "val2", "1value11"),
+				Arrays.asList("ID3", "val3", "va1lue12")
+			),
+			sourceTable.getTable()
+		);
+
+		// // Check the case of an invalid column index
+		final Replace replace = Replace.builder().column(-1).build();
+		computeProcessor.process(replace);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "val1", "1value1"),
+				Arrays.asList("ID2", "val2", "1value11"),
+				Arrays.asList("ID3", "val3", "va1lue12")
+			),
+			sourceTable.getTable()
+		);
+
+		replace.setColumn(2);
+		computeProcessor.process(replace);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "val1", "1value1"),
+				Arrays.asList("ID2", "val2", "1value11"),
+				Arrays.asList("ID3", "val3", "va1lue12")
+			),
+			sourceTable.getTable()
+		);
+
+		replace.setExistingValue("al");
+		computeProcessor.process(replace);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "val1", "1value1"),
+				Arrays.asList("ID2", "val2", "1value11"),
+				Arrays.asList("ID3", "val3", "va1lue12")
+			),
+			sourceTable.getTable()
+		);
+
+		replace.setExistingValue(null);
+		replace.setNewValue("");
+		computeProcessor.process(replace);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "val1", "1value1"),
+				Arrays.asList("ID2", "val2", "1value11"),
+				Arrays.asList("ID3", "val3", "va1lue12")
+			),
+			sourceTable.getTable()
+		);
+
+		replace.setExistingValue("al");
+		computeProcessor.process(replace);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "v1", "1value1"),
+				Arrays.asList("ID2", "v2", "1value11"),
+				Arrays.asList("ID3", "v3", "va1lue12")
+			),
+			sourceTable.getTable()
+		);
+
+		replace.setColumn(3);
+		replace.setExistingValue("1");
+		replace.setNewValue("f");
+		computeProcessor.process(replace);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "v1", "fvaluef"),
+				Arrays.asList("ID2", "v2", "fvalueff"),
+				Arrays.asList("ID3", "v3", "vafluef2")
+			),
+			sourceTable.getTable()
+		);
+
+		replace.setExistingValue("ue");
+		replace.setNewValue("$2");
+		computeProcessor.process(replace);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "v1", "fvalv1f"),
+				Arrays.asList("ID2", "v2", "fvalv2ff"),
+				Arrays.asList("ID3", "v3", "vaflv3f2")
+			),
+			sourceTable.getTable()
+		);
+
+		// Check the case when both existing and new values match COLUMN_PATTERN regex
+		replace.setExistingValue("lv");
+		replace.setNewValue("val1;val2");
+		computeProcessor.process(replace);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "v1", "fvaval1", "val21f"),
+				Arrays.asList("ID2", "v2", "fvaval1", "val22ff"),
+				Arrays.asList("ID3", "v3", "vafval1", "val23f2")
+			),
+			sourceTable.getTable()
+		);
+
+		// Check the case when existing value matches COLUMN_PATTERN regex and the new value is hard-coded
+		replace.setExistingValue("$3");
+		replace.setNewValue("v1v2");
+		computeProcessor.process(replace);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "v1", "v1v2", "val21f"),
+				Arrays.asList("ID2", "v2", "v1v2", "val22ff"),
+				Arrays.asList("ID3", "v3", "v1v2", "val23f2")
+			),
+			sourceTable.getTable()
+		);
+
+		// Check the case when both existing value and new value match COLUMN_PATTERN regex
+		replace.setExistingValue("$2");
+		replace.setNewValue("$1");
+		computeProcessor.process(replace);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "v1", "ID1v2", "val21f"),
+				Arrays.asList("ID2", "v2", "v1ID2", "val22ff"),
+				Arrays.asList("ID3", "v3", "v1v2", "val23f2")
+			),
+			sourceTable.getTable()
+		);
 	}
 
 	@Test

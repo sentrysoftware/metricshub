@@ -17,6 +17,7 @@ import com.sentrysoftware.matrix.connector.model.common.ITranslationTable;
 import com.sentrysoftware.matrix.connector.model.common.ReferenceTranslationTable;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.AbstractConcat;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.AbstractMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.And;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ArrayTranslate;
@@ -43,6 +44,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Xml
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.strategy.utils.EmbeddedFileHelper;
+import com.sentrysoftware.matrix.strategy.utils.PslUtils;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
@@ -50,10 +52,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -421,13 +426,176 @@ public class ComputeProcessor implements IComputeProcessor {
 	@Override
 	@WithSpan("Compute ExcludeMatchingLines Exec")
 	public void process(@SpanAttribute("compute.definition") final ExcludeMatchingLines excludeMatchingLines) {
-		// TODO Auto-generated method stub
+		processAbstractMatchingLines(excludeMatchingLines);
 	}
 
+	/**
+	 * Updates the {@link SourceTable}
+	 * by keeping or removing lines
+	 * according to the definition of the given {@link AbstractMatchingLines}.
+	 *
+	 * @param abstractMatchingLines	The {@link AbstractMatchingLines}
+	 *                              describing the rules
+	 *                              regarding which lines should be kept or removed in/from the {@link SourceTable}.
+	 */
+	private void processAbstractMatchingLines(AbstractMatchingLines abstractMatchingLines) {
+		if (isConsistentMatchingLinesInfo(abstractMatchingLines)) {
+			final int columnIndex = abstractMatchingLines.getColumn() - 1;
+			final String abstractMatchingLinesValueList = abstractMatchingLines.getValueList();
+			Set<String> valueSet = null;
+
+			if (abstractMatchingLinesValueList != null) {
+				valueSet = new HashSet<>(Arrays.asList(abstractMatchingLinesValueList.split(COMMA)));
+			}
+
+			final String pslRegexp = abstractMatchingLines.getRegExp();
+
+			final Predicate<String> pslPredicate = pslRegexp != null && !pslRegexp.isEmpty()
+				? getPredicate(pslRegexp, abstractMatchingLines)
+				: null;
+
+			final Predicate<String> valuePredicate = valueSet != null && !valueSet.isEmpty()
+				? getPredicate(valueSet, abstractMatchingLines)
+				: null;
+
+			// If there are both a regex and a valueList, both are applied, one after the other.
+			final List<List<String>> filteredTable = sourceTable
+				.getTable()
+				.stream()
+				.filter(line ->
+					columnIndex < line.size() &&
+					(pslPredicate == null || pslPredicate.test(line.get(columnIndex))) &&
+					(valuePredicate == null || valuePredicate.test(line.get(columnIndex)))
+				)
+				.collect(Collectors.toList());
+
+			sourceTable.setTable(filteredTable);
+			sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
+		}
+	}
+
+	/**
+	 * This method checks whether matching lines info is consistent
+	 * @param abstractMatchingLines {@link AbstractMatchingLines} instance
+	 * @return boolean
+	 */
+	private boolean isConsistentMatchingLinesInfo(AbstractMatchingLines abstractMatchingLines) {
+		// CHECKSTYLE:OFF
+		return (
+			abstractMatchingLines != null &&
+			abstractMatchingLines.getColumn() != null &&
+			abstractMatchingLines.getColumn() > 0 &&
+			sourceTable != null &&
+			sourceTable.getTable() != null &&
+			!sourceTable.getTable().isEmpty()
+		);
+		// CHECKSTYLE:ON
+	}
+
+	/**
+	 * @param pslRegexp				The PSL regular expression used to filter the lines in the {@link SourceTable}.
+	 * @param abstractMatchingLines	The {@link AbstractMatchingLines}
+	 *                              describing the rules
+	 *                              regarding which lines should be kept or removed in/from the {@link SourceTable}.
+	 *
+	 * @return						A {@link Predicate},
+	 * 								based on the given regular expression
+	 * 								and the concrete type of the given {@link AbstractMatchingLines},
+	 * 								that can be used to filter the lines in the {@link SourceTable}.
+	 */
+	private Predicate<String> getPredicate(String pslRegexp, AbstractMatchingLines abstractMatchingLines) {
+		Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(pslRegexp), Pattern.CASE_INSENSITIVE);
+
+		return abstractMatchingLines instanceof KeepOnlyMatchingLines
+			? value -> pattern.matcher(value).find()
+			: value -> !pattern.matcher(value).find();
+	}
+
+	/**
+	 * @param valueSet				The set of values used to filter the lines in the {@link SourceTable}.
+	 * @param abstractMatchingLines	The {@link AbstractMatchingLines}
+	 *                              describing the rules
+	 *                              regarding which lines should be kept or removed in/from the {@link SourceTable}.
+	 *
+	 * @return						A {@link Predicate},
+	 * 								based on the given list of values
+	 * 								and the concrete type of the given {@link AbstractMatchingLines},
+	 * 								that can be used to filter the lines in the {@link SourceTable}.
+	 */
+	private Predicate<String> getPredicate(Set<String> valueSet, AbstractMatchingLines abstractMatchingLines) {
+		return abstractMatchingLines instanceof KeepOnlyMatchingLines
+			? value -> value != null && valueSet.contains(value)
+			: value -> value != null && !valueSet.contains(value);
+	}
+
+	/**
+	 * This method processes {@link Extract} compute
+	 * @param extract {@link Extract} compute
+	 */
 	@Override
 	@WithSpan("Compute Extract Exec")
 	public void process(@SpanAttribute("compute.definition") final Extract extract) {
-		// TODO Auto-generated method stub
+		if (extract == null) {
+			log.warn("Hostname {} - Extract object is null, the table remains unchanged.", hostname);
+			return;
+		}
+
+		Integer column = extract.getColumn();
+		if (column == null || column < 1) {
+			log.warn(
+				"Hostname {} - The column number in Extract cannot be {}, the table remains unchanged.",
+				hostname,
+				column
+			);
+			return;
+		}
+
+		Integer subColumn = extract.getSubColumn();
+		if (subColumn == null || subColumn < 1) {
+			log.warn(
+				"Hostname {} - The sub-column number in Extract cannot be {}, the table remains unchanged.",
+				hostname,
+				subColumn
+			);
+			return;
+		}
+
+		String subSeparators = extract.getSubSeparators();
+		if (subSeparators == null || subSeparators.isEmpty()) {
+			log.warn(
+				"Hostname {} - The sub-columns separators in Extract cannot be null or empty, the table remains unchanged.",
+				hostname
+			);
+			return;
+		}
+
+		int columnIndex = column - 1;
+
+		String text;
+		List<List<String>> resultTable = new ArrayList<>();
+		List<String> resultRow;
+		for (List<String> row : sourceTable.getTable()) {
+			if (columnIndex >= row.size()) {
+				log.warn("Hostname {} - Invalid column index: {}. The table remains unchanged.", hostname, column);
+				return;
+			}
+
+			text = row.get(columnIndex);
+			if (text == null) {
+				log.warn("Hostname {} - Value at column {} cannot be null, the table remains unchanged.", hostname, column);
+				return;
+			}
+
+			String extractedValue = PslUtils.nthArgf(text, String.valueOf(subColumn), subSeparators, null);
+
+			resultRow = new ArrayList<>(row);
+			resultRow.set(columnIndex, extractedValue);
+
+			resultTable.add(resultRow);
+		}
+
+		sourceTable.setTable(resultTable);
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	@Override
@@ -569,10 +737,91 @@ public class ComputeProcessor implements IComputeProcessor {
 		// TODO Auto-generated method stub
 	}
 
+	/**
+	 * This method processes the replace compute
+	 * @param replace
+	 */
 	@Override
 	@WithSpan("Compute Replace Exec")
 	public void process(@SpanAttribute("compute.definition") final Replace replace) {
-		// TODO Auto-generated method stub
+		if (replace == null) {
+			log.warn("Hostname {} - Compute Operation (Replace) is null, the table remains unchanged.", hostname);
+			return;
+		}
+
+		final Integer columnToReplace = replace.getColumn();
+		final String strToReplace = replace.getExistingValue();
+		final String replacement = replace.getNewValue();
+
+		if (columnToReplace == null || strToReplace == null || replacement == null) {
+			log.warn(
+				"Hostname {} - Arguments in Compute Operation (Replace): {} are wrong, the table remains unchanged.",
+				hostname,
+				replace
+			);
+			return;
+		}
+
+		if (columnToReplace < 1) {
+			log.warn(
+				"Hostname {} - The index of the column to replace cannot be < 1, the replacement computation cannot be performed.",
+				hostname
+			);
+			return;
+		}
+
+		final int columnIndex = columnToReplace - 1;
+
+		// If replacement is like "$n", we replace the strToReplace by the content of the column n.
+		if (COLUMN_PATTERN.matcher(replacement).matches()) {
+			final int replacementColumnIndex = getColumnIndex(replacement);
+
+			if (!sourceTable.getTable().isEmpty() && replacementColumnIndex < sourceTable.getTable().get(0).size()) {
+				// If strToReplace is like "$n", the strToReplace is actually the content of the column n.
+				if (COLUMN_PATTERN.matcher(strToReplace).matches()) {
+					final int strToReplaceColumnIndex = getColumnIndex(strToReplace);
+					if (strToReplaceColumnIndex < sourceTable.getTable().get(0).size()) {
+						sourceTable
+							.getTable()
+							.forEach(column ->
+								column.set(
+									columnIndex,
+									column
+										.get(columnIndex)
+										.replace(column.get(strToReplaceColumnIndex), column.get(replacementColumnIndex))
+								)
+							);
+					}
+				} else {
+					sourceTable
+						.getTable()
+						.forEach(column ->
+							column.set(columnIndex, column.get(columnIndex).replace(strToReplace, column.get(replacementColumnIndex)))
+						);
+				}
+			}
+		} else {
+			// If strToReplace is like "$n", the strToReplace is actually the content of the column n.
+			if (COLUMN_PATTERN.matcher(strToReplace).matches()) {
+				final int strToReplaceColumnIndex = getColumnIndex(strToReplace);
+				if (!sourceTable.getTable().isEmpty() && strToReplaceColumnIndex < sourceTable.getTable().get(0).size()) {
+					sourceTable
+						.getTable()
+						.forEach(column ->
+							column.set(columnIndex, column.get(columnIndex).replace(column.get(strToReplaceColumnIndex), replacement))
+						);
+				}
+			} else {
+				sourceTable
+					.getTable()
+					.forEach(column -> column.set(columnIndex, column.get(columnIndex).replace(strToReplace, replacement)));
+			}
+		}
+
+		sourceTable.setTable(
+			SourceTable.csvToTable(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false), TABLE_SEP)
+		);
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	@Override
@@ -642,7 +891,7 @@ public class ComputeProcessor implements IComputeProcessor {
 	 * Check value and column index consistency. At least we need one data available
 	 *
 	 * @param value              The string value as a number
-	 * @param foreignColumnIndex The index of the column already extracted from a value expected as <em>Column($index)</em>
+	 * @param foreignColumnIndex The index of the column already extracted from a value expected as <em>$index</em>
 	 * @return <code>true</code> if data is consistent
 	 */
 	static boolean checkValueAndColumnIndexConsistency(final String value, final Integer foreignColumnIndex) {
@@ -1034,7 +1283,7 @@ public class ComputeProcessor implements IComputeProcessor {
 
 	/**
 	 * Find the translation map associated with the {@link ITranslationTable} in parameter.
-	 * @param translationTable
+	 * @param translation
 	 * @return
 	 */
 	public Map<String, String> findTranslations(final ITranslationTable translation) {

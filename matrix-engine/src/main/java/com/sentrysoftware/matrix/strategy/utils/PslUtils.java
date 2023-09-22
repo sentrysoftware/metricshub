@@ -15,9 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PslUtils {
 
-	private static final String SEPARATORS_SPECIAL_CHARACTERS = "([()\\[\\]{}\\\\^\\-$|?*+.])";
-	private static final String ESCAPED_FIRST_MATCHING_GROUP = "\\\\$1";
-	private static final String FIRST_MATCHING_GROUP = "$1";
 	private static final String SPECIAL_CHARACTERS = "^$.*+?[]\\";
 	private static final String BACKSLASH_B = "\\b";
 	private static final String DOT_PLUS = ".+";
@@ -32,7 +29,6 @@ public class PslUtils {
 	private static final char CLOSING_SQUARE_BRACKET_CHAR = ']';
 	private static final char LOWER_THAN_CHAR = '<';
 	private static final char GREATER_THAN_CHAR = '>';
-	private static final char DASH_CHAR = '-';
 
 	// Private constructor to prevent instantiation of PslUtils
 	private PslUtils() {}
@@ -150,7 +146,7 @@ public class PslUtils {
 	 * 		}
 	 * 	}
 	 *
-	 * @param entry The row of values.
+	 * @param row The row of values.
 	 * @param tableResult The output returned by the SourceVisitor.
 	 * @return String value
 	 */
@@ -219,6 +215,7 @@ public class PslUtils {
 	 * @return					The nth group in the given text,
 	 * 							as formatted according to the given separators and column numbers.
 	 */
+	// CHECKSTYLE:OFF
 	private static String nthArgCommon(
 		String text,
 		String selectColumns,
@@ -239,14 +236,14 @@ public class PslUtils {
 		}
 
 		// Replace special chars with their literal equivalents
-		String separatorsRegExp = String.format(
+		final String separatorsRegExp = String.format(
 			"[%s]",
-			separators.replaceAll(SEPARATORS_SPECIAL_CHARACTERS, ESCAPED_FIRST_MATCHING_GROUP)
+			separators.replaceAll("([()\\[\\]{}\\\\^\\-$|?*+.])", "\\\\$1")
 		);
 
 		if (isNthArg) {
 			// Remove redundant separators
-			text = text.replaceAll(String.format("(%s)(%s)+", separatorsRegExp, separatorsRegExp), FIRST_MATCHING_GROUP);
+			text = text.replaceAll(String.format("(%s)(%s)+", separatorsRegExp, separatorsRegExp), "$1");
 			// Remove leading separators
 			text = text.replaceAll("^" + separatorsRegExp + "+", "");
 		}
@@ -257,10 +254,10 @@ public class PslUtils {
 		}
 
 		// The list holding the final result
-		List<String> finalResult = new ArrayList<>();
+		final List<String> finalResult = new ArrayList<>();
 
 		// Split the text value using the new line separator
-		String[] textArray = text.split(NEW_LINE);
+		final String[] textArray = text.split(NEW_LINE);
 		for (String line : textArray) {
 			processText(line, selectColumns, separatorsRegExp, resultSeparator, finalResult, isNthArg);
 		}
@@ -319,6 +316,7 @@ public class PslUtils {
 		}
 	}
 
+	// CHECKSTYLE:ON
 	/**
 	 * @param columns       The {@link String} denoting the range of columns, in one of the following forms:
 	 *                      "m-n", "m-" or "-n".
@@ -335,20 +333,23 @@ public class PslUtils {
 		int toColumnNumber;
 
 		try {
-			int dashIndex = columns.indexOf(DASH_CHAR);
+			int dashIndex = columns.indexOf("-");
 			int columnsLength = columns.length();
 
 			// If it is a simple number, we'll retrieve only that column number
 			if (dashIndex == -1) {
 				fromColumnNumber = Integer.parseInt(columns);
 				toColumnNumber = fromColumnNumber;
-			} else if (dashIndex == 0) { // If it is "-n", then we'll retrieve all columns until number n
+			} else if (dashIndex == 0) {
+				// If it is "-n", then we'll retrieve all columns til number n
 				fromColumnNumber = 1;
 				toColumnNumber = Integer.parseInt(columns.substring(1));
-			} else if (dashIndex == columnsLength - 1) { // If it is "n-", then we'll retrieve all columns starting from n
+			} else if (dashIndex == columnsLength - 1) {
+				// If it is "n-", then we'll retrieve all columns starting from n
 				fromColumnNumber = Integer.parseInt(columns.substring(0, columnsLength - 1));
 				toColumnNumber = columnCount;
-			} else { // Else, if it is "m-n", we'll retrieve all columns starting from m to n
+			} else {
+				// Else, if it is "m-n", we'll retrieve all columns starting from m til n
 				fromColumnNumber = Integer.parseInt(columns.substring(0, dashIndex));
 				toColumnNumber = Integer.parseInt(columns.substring(dashIndex + 1));
 				if (toColumnNumber > columnCount) {
