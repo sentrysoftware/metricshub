@@ -360,7 +360,7 @@ public class ComputeProcessor implements IComputeProcessor {
 			Set<String> valueSet = null;
 
 			if (abstractMatchingLinesValueList != null) {
-				valueSet = new HashSet<String>(Arrays.asList(abstractMatchingLinesValueList.split(COMMA)));
+				valueSet = new HashSet<>(Arrays.asList(abstractMatchingLinesValueList.split(COMMA)));
 			}
 
 			final String pslRegexp = abstractMatchingLines.getRegExp();
