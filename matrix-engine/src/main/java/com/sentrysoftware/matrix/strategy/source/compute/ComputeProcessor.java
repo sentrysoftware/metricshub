@@ -14,6 +14,7 @@ import com.sentrysoftware.matrix.connector.model.common.ITranslationTable;
 import com.sentrysoftware.matrix.connector.model.common.ReferenceTranslationTable;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.AbstractConcat;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.AbstractMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.And;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ArrayTranslate;
@@ -39,15 +40,19 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Tra
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Xml2Csv;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.strategy.utils.PslUtils;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -336,7 +341,106 @@ public class ComputeProcessor implements IComputeProcessor {
 	@Override
 	@WithSpan("Compute ExcludeMatchingLines Exec")
 	public void process(@SpanAttribute("compute.definition") final ExcludeMatchingLines excludeMatchingLines) {
-		// TODO Auto-generated method stub
+		processAbstractMatchingLines(excludeMatchingLines);
+	}
+
+	/**
+	 * Updates the {@link SourceTable}
+	 * by keeping or removing lines
+	 * according to the definition of the given {@link AbstractMatchingLines}.
+	 *
+	 * @param abstractMatchingLines	The {@link AbstractMatchingLines}
+	 *                              describing the rules
+	 *                              regarding which lines should be kept or removed in/from the {@link SourceTable}.
+	 */
+	private void processAbstractMatchingLines(AbstractMatchingLines abstractMatchingLines) {
+		if (isConsistentMatchingLinesInfo(abstractMatchingLines)) {
+			final int columnIndex = abstractMatchingLines.getColumn() - 1;
+			final String abstractMatchingLinesValueList = abstractMatchingLines.getValueList();
+			Set<String> valueSet = null;
+
+			if (abstractMatchingLinesValueList != null) {
+				valueSet = new HashSet<>(Arrays.asList(abstractMatchingLinesValueList.split(COMMA)));
+			}
+
+			final String pslRegexp = abstractMatchingLines.getRegExp();
+
+			final Predicate<String> pslPredicate = pslRegexp != null && !pslRegexp.isEmpty()
+				? getPredicate(pslRegexp, abstractMatchingLines)
+				: null;
+
+			final Predicate<String> valuePredicate = valueSet != null && !valueSet.isEmpty()
+				? getPredicate(valueSet, abstractMatchingLines)
+				: null;
+
+			// If there are both a regex and a valueList, both are applied, one after the other.
+			final List<List<String>> filteredTable = sourceTable
+				.getTable()
+				.stream()
+				.filter(line ->
+					columnIndex < line.size() &&
+					(pslPredicate == null || pslPredicate.test(line.get(columnIndex))) &&
+					(valuePredicate == null || valuePredicate.test(line.get(columnIndex)))
+				)
+				.collect(Collectors.toList());
+
+			sourceTable.setTable(filteredTable);
+			sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
+		}
+	}
+
+	/**
+	 * This method checks whether matching lines info is consistent
+	 * @param abstractMatchingLines {@link AbstractMatchingLines} instance
+	 * @return boolean
+	 */
+	private boolean isConsistentMatchingLinesInfo(AbstractMatchingLines abstractMatchingLines) {
+		// CHECKSTYLE:OFF
+		return (
+			abstractMatchingLines != null &&
+			abstractMatchingLines.getColumn() != null &&
+			abstractMatchingLines.getColumn() > 0 &&
+			sourceTable != null &&
+			sourceTable.getTable() != null &&
+			!sourceTable.getTable().isEmpty()
+		);
+		// CHECKSTYLE:ON
+	}
+
+	/**
+	 * @param pslRegexp				The PSL regular expression used to filter the lines in the {@link SourceTable}.
+	 * @param abstractMatchingLines	The {@link AbstractMatchingLines}
+	 *                              describing the rules
+	 *                              regarding which lines should be kept or removed in/from the {@link SourceTable}.
+	 *
+	 * @return						A {@link Predicate},
+	 * 								based on the given regular expression
+	 * 								and the concrete type of the given {@link AbstractMatchingLines},
+	 * 								that can be used to filter the lines in the {@link SourceTable}.
+	 */
+	private Predicate<String> getPredicate(String pslRegexp, AbstractMatchingLines abstractMatchingLines) {
+		Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(pslRegexp), Pattern.CASE_INSENSITIVE);
+
+		return abstractMatchingLines instanceof KeepOnlyMatchingLines
+			? value -> pattern.matcher(value).find()
+			: value -> !pattern.matcher(value).find();
+	}
+
+	/**
+	 * @param valueSet				The set of values used to filter the lines in the {@link SourceTable}.
+	 * @param abstractMatchingLines	The {@link AbstractMatchingLines}
+	 *                              describing the rules
+	 *                              regarding which lines should be kept or removed in/from the {@link SourceTable}.
+	 *
+	 * @return						A {@link Predicate},
+	 * 								based on the given list of values
+	 * 								and the concrete type of the given {@link AbstractMatchingLines},
+	 * 								that can be used to filter the lines in the {@link SourceTable}.
+	 */
+	private Predicate<String> getPredicate(Set<String> valueSet, AbstractMatchingLines abstractMatchingLines) {
+		return abstractMatchingLines instanceof KeepOnlyMatchingLines
+			? value -> value != null && valueSet.contains(value)
+			: value -> value != null && !valueSet.contains(value);
 	}
 
 	@Override
@@ -949,7 +1053,7 @@ public class ComputeProcessor implements IComputeProcessor {
 
 	/**
 	 * Find the translation map associated with the {@link ITranslationTable} in parameter.
-	 * @param translationTable
+	 * @param translation
 	 * @return
 	 */
 	public Map<String, String> findTranslations(final ITranslationTable translation) {
