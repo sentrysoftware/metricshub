@@ -5,13 +5,12 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WHITE_SPACE;
 
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class PslUtils {
@@ -189,7 +188,6 @@ public class PslUtils {
 	 * 							as formatted according to the given separators and column numbers.
 	 */
 	public static String nthArgf(String text, String selectColumns, String separators, String resultSeparator) {
-
 		return nthArgCommon(text, selectColumns, separators, resultSeparator, false);
 	}
 
@@ -204,21 +202,33 @@ public class PslUtils {
 	 * @return					The nth group in the given text,
 	 * 							as formatted according to the given separators and column numbers.
 	 */
-	private static String nthArgCommon(String text, String selectColumns, String separators, String resultSeparator,
-									   boolean isNthArg) {
-
+	// CHECKSTYLE:OFF
+	private static String nthArgCommon(
+		String text,
+		String selectColumns,
+		String separators,
+		String resultSeparator,
+		boolean isNthArg
+	) {
 		// If any arg is null, then return empty String
-		if (text == null || selectColumns == null || separators == null
-				|| text.isEmpty() || selectColumns.isEmpty() || separators.isEmpty()) {
-
+		if (
+			text == null ||
+			selectColumns == null ||
+			separators == null ||
+			text.isEmpty() ||
+			selectColumns.isEmpty() ||
+			separators.isEmpty()
+		) {
 			return "";
 		}
 
 		// Replace special chars with their literal equivalents
-		String separatorsRegExp = String.format("[%s]", separators.replaceAll("([()\\[\\]{}\\\\^\\-$|?*+.])", "\\\\$1"));
+		final String separatorsRegExp = String.format(
+			"[%s]",
+			separators.replaceAll("([()\\[\\]{}\\\\^\\-$|?*+.])", "\\\\$1")
+		);
 
 		if (isNthArg) {
-
 			// Remove redundant separators
 			text = text.replaceAll(String.format("(%s)(%s)+", separatorsRegExp, separatorsRegExp), "$1");
 			// Remove leading separators
@@ -231,10 +241,10 @@ public class PslUtils {
 		}
 
 		// The list holding the final result
-		List<String> finalResult = new ArrayList<>();
+		final List<String> finalResult = new ArrayList<>();
 
 		// Split the text value using the new line separator
-		String [] textArray = text.split(NEW_LINE);
+		final String[] textArray = text.split(NEW_LINE);
 		for (String line : textArray) {
 			processText(line, selectColumns, separatorsRegExp, resultSeparator, finalResult, isNthArg);
 		}
@@ -253,13 +263,14 @@ public class PslUtils {
 	 * @param finalResult      The final result as {@link List}
 	 * @param isNthArg         Indicate whether we want ntharg or nthargf.
 	 */
-	static void processText(final String text,
-							final String selectColumns,
-							final String separatorsRegExp,
-							final String resultSeparator,
-							final List<String> finalResult,
-							final boolean isNthArg) {
-
+	static void processText(
+		final String text,
+		final String selectColumns,
+		final String separatorsRegExp,
+		final String resultSeparator,
+		final List<String> finalResult,
+		final boolean isNthArg
+	) {
 		// Split the input text into a String array thanks to the separatorsRegExp
 		final String[] splitText = text.split(separatorsRegExp, -1);
 
@@ -273,7 +284,6 @@ public class PslUtils {
 		int fromColumnNumber;
 		int toColumnNumber;
 		for (String columns : columnsArray) {
-
 			// Get the columns range
 			columnsRange = getColumnsRange(columns, splitText.length);
 			fromColumnNumber = columnsRange[0];
@@ -282,8 +292,8 @@ public class PslUtils {
 			// If we have valid fromColumnNumber and toColumnNumber, then retrieve these columns
 			// which are actually items in the splitText array
 			if (fromColumnNumber > 0 && fromColumnNumber <= toColumnNumber) {
-
-				result = Arrays
+				result =
+					Arrays
 						.stream(splitText, fromColumnNumber - 1, toColumnNumber)
 						.filter(value -> !isNthArg || !value.trim().isEmpty())
 						.collect(Collectors.joining(resultSeparator));
@@ -293,6 +303,7 @@ public class PslUtils {
 		}
 	}
 
+	// CHECKSTYLE:ON
 	/**
 	 * @param columns       The {@link String} denoting the range of columns, in one of the following forms:
 	 *                      "m-n", "m-" or "-n".
@@ -305,39 +316,27 @@ public class PslUtils {
 	 * 						</ul>
 	 */
 	private static int[] getColumnsRange(String columns, int columnCount) {
-
 		int fromColumnNumber;
 		int toColumnNumber;
 
 		try {
-
 			int dashIndex = columns.indexOf("-");
 			int columnsLength = columns.length();
 
 			// If it is a simple number, we'll retrieve only that column number
 			if (dashIndex == -1) {
-
 				fromColumnNumber = Integer.parseInt(columns);
 				toColumnNumber = fromColumnNumber;
-			}
-
-			// If it is "-n", then we'll retrieve all columns til number n
-			else if (dashIndex == 0) {
-
+			} else if (dashIndex == 0) {
+				// If it is "-n", then we'll retrieve all columns til number n
 				fromColumnNumber = 1;
 				toColumnNumber = Integer.parseInt(columns.substring(1));
-			}
-
-			// If it is "n-", then we'll retrieve all columns starting from n
-			else if (dashIndex == columnsLength - 1) {
-
+			} else if (dashIndex == columnsLength - 1) {
+				// If it is "n-", then we'll retrieve all columns starting from n
 				fromColumnNumber = Integer.parseInt(columns.substring(0, columnsLength - 1));
 				toColumnNumber = columnCount;
-			}
-
-			// Else, if it is "m-n", we'll retrieve all columns starting from m til n
-			else {
-
+			} else {
+				// Else, if it is "m-n", we'll retrieve all columns starting from m til n
 				fromColumnNumber = Integer.parseInt(columns.substring(0, dashIndex));
 				toColumnNumber = Integer.parseInt(columns.substring(dashIndex + 1));
 				if (toColumnNumber > columnCount) {
@@ -346,23 +345,23 @@ public class PslUtils {
 			}
 
 			if (fromColumnNumber > columnCount || toColumnNumber > columnCount) {
-
-				log.warn("getColumnRange: Invalid range for a {}-length array: [{}-{}].",
-						columnCount, fromColumnNumber, toColumnNumber);
+				log.warn(
+					"getColumnRange: Invalid range for a {}-length array: [{}-{}].",
+					columnCount,
+					fromColumnNumber,
+					toColumnNumber
+				);
 
 				fromColumnNumber = 0;
 				toColumnNumber = 0;
 			}
-
 		} catch (NumberFormatException e) {
-
-			log.warn("getColumnRange: Could not determine the range denoted by {}: {}.",
-					columns, e.getMessage());
+			log.warn("getColumnRange: Could not determine the range denoted by {}: {}.", columns, e.getMessage());
 
 			fromColumnNumber = 0;
 			toColumnNumber = 0;
 		}
 
-		return new int[]{fromColumnNumber, toColumnNumber};
+		return new int[] { fromColumnNumber, toColumnNumber };
 	}
 }

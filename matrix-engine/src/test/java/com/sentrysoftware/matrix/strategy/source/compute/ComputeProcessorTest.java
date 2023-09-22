@@ -1322,11 +1322,10 @@ class ComputeProcessorTest {
 
 	@Test
 	void testExtract() {
-
 		List<List<String>> table = Arrays.asList(
-				Arrays.asList("ID1", "STATUS1", "TYPE1", null, "NAME1"),
-				Arrays.asList("ID2", "STATUS2", "TYPE2", null, "NAME2"),
-				Arrays.asList("ID3", "STATUS3", "TYPE3", null, "NAME3")
+			Arrays.asList("ID1", "STATUS1", "TYPE1", null, "NAME1"),
+			Arrays.asList("ID2", "STATUS2", "TYPE2", null, "NAME2"),
+			Arrays.asList("ID3", "STATUS3", "TYPE3", null, "NAME3")
 		);
 
 		sourceTable.setTable(table);
@@ -1392,17 +1391,17 @@ class ComputeProcessorTest {
 		extract.setSubColumn(4);
 		computeProcessor.process(extract);
 		List<List<String>> expected = Arrays.asList(
-				Arrays.asList("ID1", "STATUS1", "TYPE1", "", "NAME1"),
-				Arrays.asList("ID2", "STATUS2", "TYPE2", "", "NAME2"),
-				Arrays.asList("ID3", "STATUS3", "TYPE3", "", "NAME3")
+			Arrays.asList("ID1", "STATUS1", "TYPE1", "", "NAME1"),
+			Arrays.asList("ID2", "STATUS2", "TYPE2", "", "NAME2"),
+			Arrays.asList("ID3", "STATUS3", "TYPE3", "", "NAME3")
 		);
 		assertEquals(expected, sourceTable.getTable());
 
 		// Test OK, subSeparators is a single character
 		List<List<String>> result = Arrays.asList(
-				Arrays.asList("ID1", "STATUS1", "TYPE1", "1", "NAME1"),
-				Arrays.asList("ID2", "STATUS2", "TYPE2", "2", "NAME2"),
-				Arrays.asList("ID3", "STATUS3", "TYPE3", "3", "NAME3")
+			Arrays.asList("ID1", "STATUS1", "TYPE1", "1", "NAME1"),
+			Arrays.asList("ID2", "STATUS2", "TYPE2", "2", "NAME2"),
+			Arrays.asList("ID3", "STATUS3", "TYPE3", "3", "NAME3")
 		);
 		extract.setSubColumn(3);
 		computeProcessor.process(extract);

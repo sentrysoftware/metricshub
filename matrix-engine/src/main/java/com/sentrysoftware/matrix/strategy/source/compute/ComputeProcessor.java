@@ -457,20 +457,30 @@ public class ComputeProcessor implements IComputeProcessor {
 
 		Integer column = extract.getColumn();
 		if (column == null || column < 1) {
-			log.warn("Hostname {} - The column number in Extract cannot be {}, the table remains unchanged.", hostname, column);
+			log.warn(
+				"Hostname {} - The column number in Extract cannot be {}, the table remains unchanged.",
+				hostname,
+				column
+			);
 			return;
 		}
 
 		Integer subColumn = extract.getSubColumn();
 		if (subColumn == null || subColumn < 1) {
-			log.warn("Hostname {} - The sub-column number in Extract cannot be {}, the table remains unchanged.", hostname, subColumn);
+			log.warn(
+				"Hostname {} - The sub-column number in Extract cannot be {}, the table remains unchanged.",
+				hostname,
+				subColumn
+			);
 			return;
 		}
 
 		String subSeparators = extract.getSubSeparators();
 		if (subSeparators == null || subSeparators.isEmpty()) {
-			log.warn("Hostname {} - The sub-columns separators in Extract cannot be null or empty, the table remains unchanged.",
-					hostname);
+			log.warn(
+				"Hostname {} - The sub-columns separators in Extract cannot be null or empty, the table remains unchanged.",
+				hostname
+			);
 			return;
 		}
 
@@ -480,7 +490,6 @@ public class ComputeProcessor implements IComputeProcessor {
 		List<List<String>> resultTable = new ArrayList<>();
 		List<String> resultRow;
 		for (List<String> row : sourceTable.getTable()) {
-
 			if (columnIndex >= row.size()) {
 				log.warn("Hostname {} - Invalid column index: {}. The table remains unchanged.", hostname, column);
 				return;
