@@ -30,6 +30,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Ext
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Json2Csv;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.LeftConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Multiply;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Replace;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.RightConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Substring;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Subtract;
@@ -1426,5 +1427,144 @@ class ComputeProcessorTest {
 		extract.setSubSeparators("%%");
 		computeProcessor.process(extract);
 		assertEquals(result, sourceTable.getTable());
+	}
+
+	@Test
+	void testReplace() {
+		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID1", "val1", "1value1")));
+		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID2", "val2", "1value11")));
+		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID3", "val3", "va1lue12")));
+
+		// Check the case of a null {@link Replace} object
+		computeProcessor.process((Replace) null);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "val1", "1value1"),
+				Arrays.asList("ID2", "val2", "1value11"),
+				Arrays.asList("ID3", "val3", "va1lue12")
+			),
+			sourceTable.getTable()
+		);
+
+		// // Check the case of an invalid column index
+		final Replace replace = Replace.builder().column(-1).build();
+		computeProcessor.process(replace);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "val1", "1value1"),
+				Arrays.asList("ID2", "val2", "1value11"),
+				Arrays.asList("ID3", "val3", "va1lue12")
+			),
+			sourceTable.getTable()
+		);
+
+		replace.setColumn(2);
+		computeProcessor.process(replace);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "val1", "1value1"),
+				Arrays.asList("ID2", "val2", "1value11"),
+				Arrays.asList("ID3", "val3", "va1lue12")
+			),
+			sourceTable.getTable()
+		);
+
+		replace.setExistingValue("al");
+		computeProcessor.process(replace);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "val1", "1value1"),
+				Arrays.asList("ID2", "val2", "1value11"),
+				Arrays.asList("ID3", "val3", "va1lue12")
+			),
+			sourceTable.getTable()
+		);
+
+		replace.setExistingValue(null);
+		replace.setNewValue("");
+		computeProcessor.process(replace);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "val1", "1value1"),
+				Arrays.asList("ID2", "val2", "1value11"),
+				Arrays.asList("ID3", "val3", "va1lue12")
+			),
+			sourceTable.getTable()
+		);
+
+		replace.setExistingValue("al");
+		computeProcessor.process(replace);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "v1", "1value1"),
+				Arrays.asList("ID2", "v2", "1value11"),
+				Arrays.asList("ID3", "v3", "va1lue12")
+			),
+			sourceTable.getTable()
+		);
+
+		replace.setColumn(3);
+		replace.setExistingValue("1");
+		replace.setNewValue("f");
+		computeProcessor.process(replace);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "v1", "fvaluef"),
+				Arrays.asList("ID2", "v2", "fvalueff"),
+				Arrays.asList("ID3", "v3", "vafluef2")
+			),
+			sourceTable.getTable()
+		);
+
+		replace.setExistingValue("ue");
+		replace.setNewValue("$2");
+		computeProcessor.process(replace);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "v1", "fvalv1f"),
+				Arrays.asList("ID2", "v2", "fvalv2ff"),
+				Arrays.asList("ID3", "v3", "vaflv3f2")
+			),
+			sourceTable.getTable()
+		);
+
+		// Check the case when both existing and new values match COLUMN_PATTERN regex
+		replace.setExistingValue("lv");
+		replace.setNewValue("val1;val2");
+		computeProcessor.process(replace);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "v1", "fvaval1", "val21f"),
+				Arrays.asList("ID2", "v2", "fvaval1", "val22ff"),
+				Arrays.asList("ID3", "v3", "vafval1", "val23f2")
+			),
+			sourceTable.getTable()
+		);
+
+		// Check the case when existing value matches COLUMN_PATTERN regex and the new value is hard-coded
+		replace.setExistingValue("$3");
+		replace.setNewValue("v1v2");
+		computeProcessor.process(replace);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "v1", "v1v2", "val21f"),
+				Arrays.asList("ID2", "v2", "v1v2", "val22ff"),
+				Arrays.asList("ID3", "v3", "v1v2", "val23f2")
+			),
+			sourceTable.getTable()
+		);
+
+		// Check the case when both existing value and new value match COLUMN_PATTERN regex
+		replace.setExistingValue("$2");
+		replace.setNewValue("$1");
+		computeProcessor.process(replace);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "v1", "ID1v2", "val21f"),
+				Arrays.asList("ID2", "v2", "v1ID2", "val22ff"),
+				Arrays.asList("ID3", "v3", "v1v2", "val23f2")
+			),
+			sourceTable.getTable()
+		);
 	}
 }
