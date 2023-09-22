@@ -7,15 +7,24 @@ import static com.sentrysoftware.matrix.agent.helper.AgentConstants.FILE_PATH_FO
 import static com.sentrysoftware.matrix.agent.helper.AgentConstants.LOG_DIRECTORY_NAME;
 import static com.sentrysoftware.matrix.agent.helper.AgentConstants.PRODUCT_CODE;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.sentrysoftware.matrix.agent.config.AgentConfig;
+import com.sentrysoftware.matrix.agent.config.AlertingSystemConfig;
+import com.sentrysoftware.matrix.agent.config.ResourceConfig;
+import com.sentrysoftware.matrix.agent.config.ResourceGroupConfig;
 import com.sentrysoftware.matrix.agent.context.AgentContext;
 import com.sentrysoftware.matrix.agent.security.PasswordEncrypt;
-import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
 import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.identity.ConnectorIdentity;
 import com.sentrysoftware.matrix.security.SecurityManager;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,32 +35,19 @@ import java.nio.file.attribute.AclEntryType;
 import java.nio.file.attribute.AclFileAttributeView;
 import java.nio.file.attribute.GroupPrincipal;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.ThreadContext;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Slf4j
 public class ConfigHelper {
-
-	/**
-	 * Deserialize YAML configuration file
-	 *
-	 * @param <T>
-	 *
-	 * @param inputStream YAML file as {@link InputStream}
-	 * @param type        The value type to return
-	 *
-	 * @return new instance of type T
-	 *
-	 * @throws IOException
-	 *
-	 */
-	public static <T> T deserializeYamlFile(final InputStream inputStream, final Class<T> type) throws IOException {
-		return JsonHelper.deserialize(AgentContext.OBJECT_MAPPER, inputStream, type);
-	}
 
 	/**
 	 * Get the default output directory for logging.<br>
@@ -292,14 +288,14 @@ public class ConfigHelper {
 		if (!Files.exists(exampleConfigPath)) {
 			throw new IllegalStateException(
 				String.format(
-					"Cannot find '%s' . Please create the configuration file '%s' before starting the Hardware Sentry Agent.",
+					"Cannot find '%s' . Please create the configuration file '%s' before starting the MetricsHub Agent.",
 					exampleConfigPath.toAbsolutePath(),
 					configPath.toAbsolutePath()
 				)
 			);
 		}
 
-		File configFile = Files.copy(exampleConfigPath, configPath, StandardCopyOption.REPLACE_EXISTING).toFile();
+		final File configFile = Files.copy(exampleConfigPath, configPath, StandardCopyOption.REPLACE_EXISTING).toFile();
 
 		setUserPermissionsOnWindows(configPath, true);
 
@@ -369,5 +365,229 @@ public class ConfigHelper {
 				log.info("Could not set write permissions to file: {}. Message: {}", configPath.toString(), e.getMessage());
 			}
 		}
+	}
+
+	/**
+	 * Creates and configures a new instance of the Jackson ObjectMapper for handling YAML data.
+	 *
+	 * @return A configured ObjectMapper instance.
+	 */
+	public static JsonMapper newObjectMapper() {
+		return JsonMapper
+			.builder(new YAMLFactory())
+			.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+			.enable(SerializationFeature.INDENT_OUTPUT)
+			.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+			.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false)
+			.build();
+	}
+
+	/**
+	 * Normalizes the agent configuration and sets global values if no specific
+	 * values are specified on the resource groups or resources
+	 *
+	 * @param agentConfig The whole configuration the MetricsHub agent
+	 */
+	public static void normalizeAgentConfiguration(final AgentConfig agentConfig) {
+		agentConfig
+			.getResourceGroups()
+			.entrySet()
+			.forEach(resourceGroupConfigEntry -> {
+				final ResourceGroupConfig resourceGroupConfig = resourceGroupConfigEntry.getValue();
+				normalizeResourceGroupConfig(agentConfig, resourceGroupConfig);
+				resourceGroupConfig
+					.getResources()
+					.entrySet()
+					.forEach(resourceConfigEntry -> normalizeResourceConfig(resourceGroupConfigEntry, resourceConfigEntry));
+			});
+	}
+
+	/**
+	 * Normalizes the resource configuration and sets resource group configuration values if no specific
+	 * values are specified on this resource configuration.<br>
+	 * If a new connector is configured then it is automatically added to the connector store.
+	 *
+	 * @param resourceGroupConfigEntry The resource group configuration entry
+	 * @param resourceConfigEntry      The individual resource configuration entry
+	 */
+	private static void normalizeResourceConfig(
+		final Entry<String, ResourceGroupConfig> resourceGroupConfigEntry,
+		final Entry<String, ResourceConfig> resourceConfigEntry
+	) {
+		final ResourceGroupConfig resourceGroupConfig = resourceGroupConfigEntry.getValue();
+		final ResourceConfig resourceConfig = resourceConfigEntry.getValue();
+
+		// Set resource group configuration's collect period if there is no specific collect period on the resource configuration
+		if (resourceConfig.getCollectPeriod() == null) {
+			resourceConfig.setCollectPeriod(resourceGroupConfig.getCollectPeriod());
+		}
+
+		// Set resource group configuration's discovery cycle if there is no specific collect period on the resource group
+		if (resourceConfig.getDiscoveryCycle() == null) {
+			resourceConfig.setDiscoveryCycle(resourceGroupConfig.getDiscoveryCycle());
+		}
+
+		// Set resource group configuration's logger level in the resource configuration
+		if (resourceConfig.getLoggerLevel() == null) {
+			resourceConfig.setLoggerLevel(resourceGroupConfig.getLoggerLevel());
+		}
+
+		// Set resource group configuration's output directory in the resource configuration
+		if (resourceConfig.getOutputDirectory() == null) {
+			resourceConfig.setOutputDirectory(resourceGroupConfig.getOutputDirectory());
+		}
+
+		// Set resource group configuration's sequential flag in the resource configuration
+		if (resourceConfig.getSequential() == null) {
+			resourceConfig.setSequential(resourceGroupConfig.getSequential());
+		}
+
+		final AlertingSystemConfig resourceGroupAlertingSystemConfig = resourceGroupConfig.getAlertingSystemConfig();
+
+		final AlertingSystemConfig alertingSystemConfig = resourceConfig.getAlertingSystemConfig();
+		// Set resource group configuration's alerting system in the resource configuration
+		if (alertingSystemConfig == null) {
+			resourceConfig.setAlertingSystemConfig(resourceGroupAlertingSystemConfig);
+		} else if (alertingSystemConfig.getProblemTemplate() == null) {
+			// Set the problem template of the alerting system
+			alertingSystemConfig.setProblemTemplate(resourceGroupAlertingSystemConfig.getProblemTemplate());
+		} else if (alertingSystemConfig.getDisable() == null) {
+			// Set the disable flag of the altering system
+			alertingSystemConfig.setDisable(resourceGroupAlertingSystemConfig.getDisable());
+		}
+
+		// Set the resolve host name to FQDN flag
+		if (resourceConfig.getResolveHostnameToFqdn() == null) {
+			resourceConfig.setResolveHostnameToFqdn(resourceGroupConfig.getResolveHostnameToFqdn());
+		}
+
+		// Set the job timeout value
+		if (resourceConfig.getJobTimeout() == null) {
+			resourceConfig.setJobTimeout(resourceGroupConfig.getJobTimeout());
+		}
+
+		// Set agent attributes in the resource group attributes map
+		mergeAttributes(resourceGroupConfig.getAttributes(), resourceConfig.getAttributes());
+
+		// Do we have a connector?
+		final Connector connector = resourceConfig.getConnector();
+		if (connector != null) {
+			// Create its identity
+			final ConnectorIdentity identity = connector.getOrCreateConnectorIdentity();
+			final String compiledFileName = String.format(
+				"Custom-%s-%s",
+				resourceGroupConfigEntry.getKey(),
+				resourceConfigEntry.getKey()
+			);
+			identity.setCompiledFilename(compiledFileName);
+
+			// Add it to the store
+			AgentContext.getInstance().getConnectorStore().addOne(compiledFileName, connector);
+		}
+	}
+
+	/**
+	 * Normalizes the resource group configuration and sets agent configuration's values if no specific
+	 * values are specified on this resource group configuration
+	 *
+	 * @param agentConfig         The whole configuration the MetricsHub agent
+	 * @param resourceGroupConfig The individual resource group configuration
+	 */
+	private static void normalizeResourceGroupConfig(
+		final AgentConfig agentConfig,
+		final ResourceGroupConfig resourceGroupConfig
+	) {
+		// Set global collect period if there is no specific collect period on the resource group configuration
+		if (resourceGroupConfig.getCollectPeriod() == null) {
+			resourceGroupConfig.setCollectPeriod(agentConfig.getCollectPeriod());
+		}
+
+		// Set global discovery cycle if there is no specific collect period on the resource group configuration
+		if (resourceGroupConfig.getDiscoveryCycle() == null) {
+			resourceGroupConfig.setDiscoveryCycle(agentConfig.getDiscoveryCycle());
+		}
+
+		// Set the global level in the resource group configuration
+		if (resourceGroupConfig.getLoggerLevel() == null) {
+			resourceGroupConfig.setLoggerLevel(agentConfig.getLoggerLevel());
+		}
+
+		// Set the global output directory in the resource group configuration
+		if (resourceGroupConfig.getOutputDirectory() == null) {
+			resourceGroupConfig.setOutputDirectory(agentConfig.getOutputDirectory());
+		}
+
+		// Set global sequential flag in the resource group configuration
+		if (resourceGroupConfig.getSequential() == null) {
+			resourceGroupConfig.setSequential(agentConfig.isSequential());
+		}
+
+		final AlertingSystemConfig alertingSystemConfig = resourceGroupConfig.getAlertingSystemConfig();
+		final AlertingSystemConfig globalAlertingSystemConfig = agentConfig.getAlertingSystemConfig();
+
+		// Set global configuration's alerting system in the resource group configuration
+		if (alertingSystemConfig == null) {
+			resourceGroupConfig.setAlertingSystemConfig(globalAlertingSystemConfig);
+		} else if (alertingSystemConfig.getProblemTemplate() == null) {
+			// Set the problem template of the alerting system
+			alertingSystemConfig.setProblemTemplate(globalAlertingSystemConfig.getProblemTemplate());
+		} else if (alertingSystemConfig.getDisable() == null) {
+			// Set the disable flag of the altering system
+			alertingSystemConfig.setDisable(globalAlertingSystemConfig.getDisable());
+		}
+
+		// Set the resolve host name to FQDN flag
+		if (resourceGroupConfig.getResolveHostnameToFqdn() == null) {
+			resourceGroupConfig.setResolveHostnameToFqdn(agentConfig.isResolveHostnameToFqdn());
+		}
+
+		// Set the job timeout value
+		if (resourceGroupConfig.getJobTimeout() == null) {
+			resourceGroupConfig.setJobTimeout(agentConfig.getJobTimeout());
+		}
+
+		// Set agent attributes in the resource group attributes map
+		mergeAttributes(agentConfig.getAttributes(), resourceGroupConfig.getAttributes());
+	}
+
+	/**
+	 * Merge parent attributes into the child attributes
+	 *
+	 * @param parentAttributes Map of key-pair values defining the attributes at the parent level
+	 * @param childAttributes  Map of key-pair values defining the attributes at the child level
+	 */
+	private static void mergeAttributes(Map<String, String> parentAttributes, Map<String, String> childAttributes) {
+		childAttributes.putAll(parentAttributes);
+	}
+
+	/**
+	 * Configure the 'com.sentrysoftware' logger based on the user's command.<br>
+	 * See src/main/resources/log4j2.xml
+	 *
+	 * @param loggerLevel     Logger level from the configuration as {@link String}
+	 * @param outputDirectory The output directory as String
+	 */
+	public static void configureGlobalLogger(final String loggerLevelStr, final String outputDirectory) {
+		final Level loggerLevel = getLoggerLevel(loggerLevelStr);
+
+		ThreadContext.put("logId", "metricshub-agent-global");
+		ThreadContext.put("loggerLevel", loggerLevel.toString());
+
+		if (outputDirectory != null) {
+			ThreadContext.put("outputDirectory", outputDirectory);
+		}
+	}
+
+	/**
+	 * Get the Log4j log level from the configured logLevel string
+	 *
+	 * @param loggerLevel string value from the configuration (e.g. off, debug, info, warn, error, trace, all)
+	 * @return log4j {@link Level} instance
+	 */
+	public static Level getLoggerLevel(final String loggerLevel) {
+		final Level level = loggerLevel != null ? Level.getLevel(loggerLevel.toUpperCase()) : null;
+
+		return level != null ? level : Level.OFF;
 	}
 }

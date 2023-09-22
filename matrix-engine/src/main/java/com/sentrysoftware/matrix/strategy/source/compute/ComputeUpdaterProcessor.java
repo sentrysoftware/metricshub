@@ -43,7 +43,7 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 
 	@Override
 	public void process(final ArrayTranslate arrayTranslate) {
-		// TODO Auto-generated method stub
+		arrayTranslate.accept(computeProcessor);
 	}
 
 	@Override

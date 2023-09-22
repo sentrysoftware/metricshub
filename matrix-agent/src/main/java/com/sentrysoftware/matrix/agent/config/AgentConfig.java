@@ -5,7 +5,9 @@ import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.matrix.agent.config.exporter.ExporterConfig;
+import com.sentrysoftware.matrix.agent.config.exporter.OtlpExporterConfig;
 import com.sentrysoftware.matrix.agent.config.otel.OtelCollectorConfig;
+import com.sentrysoftware.matrix.agent.deserialization.AttributesDeserializer;
 import com.sentrysoftware.matrix.agent.deserialization.TimeDeserializer;
 import com.sentrysoftware.matrix.agent.helper.AgentConstants;
 import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
@@ -58,6 +60,7 @@ public class AgentConfig {
 
 	@Default
 	@JsonSetter(nulls = SKIP)
+	@JsonDeserialize(using = TimeDeserializer.class)
 	private long jobTimeout = MatrixConstants.DEFAULT_JOB_TIMEOUT;
 
 	@Default
@@ -67,6 +70,15 @@ public class AgentConfig {
 	@Default
 	@JsonSetter(nulls = SKIP)
 	private ExporterConfig exporter = ExporterConfig.builder().build();
+
+	@Default
+	@JsonSetter(nulls = SKIP)
+	@JsonDeserialize(using = AttributesDeserializer.class)
+	private Map<String, String> attributes = new HashMap<>();
+
+	@Default
+	@JsonSetter(nulls = SKIP)
+	private Map<String, Double> metrics = new HashMap<>();
 
 	@Default
 	@JsonSetter(nulls = SKIP)
