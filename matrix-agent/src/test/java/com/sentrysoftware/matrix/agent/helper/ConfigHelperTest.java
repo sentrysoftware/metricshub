@@ -1,7 +1,9 @@
 package com.sentrysoftware.matrix.agent.helper;
 
-import static com.sentrysoftware.matrix.agent.helper.AgentConstants.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static com.sentrysoftware.matrix.agent.helper.AgentConstants.CONFIG_EXAMPLE_FILENAME;
+import static com.sentrysoftware.matrix.agent.helper.AgentConstants.DEFAULT_CONFIG_FILENAME;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mockStatic;

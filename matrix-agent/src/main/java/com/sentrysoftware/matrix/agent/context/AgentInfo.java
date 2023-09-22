@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.agent.context;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_NAME;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OTEL_AIX_OS_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OTEL_FREE_BSD_OS_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OTEL_HPUX_OS_TYPE;
@@ -11,9 +12,10 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OTEL_SOLA
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OTEL_SUN_OS_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OTEL_WINDOWS_OS_TYPE;
 
-import com.sentrysoftware.matrix.agent.data.ApplicationProperties;
-import com.sentrysoftware.matrix.agent.data.ApplicationProperties.Project;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sentrysoftware.matrix.agent.context.ApplicationProperties.Project;
 import com.sentrysoftware.matrix.agent.helper.ConfigHelper;
+import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
 import com.sentrysoftware.matrix.common.helpers.LocalOsHandler.ILocalOs;
 import com.sentrysoftware.matrix.common.helpers.StringHelper;
@@ -28,6 +30,8 @@ import org.springframework.core.io.ClassPathResource;
 
 @Slf4j
 public class AgentInfo {
+
+	public static final ObjectMapper OBJECT_MAPPER = ConfigHelper.newObjectMapper();
 
 	public static final String METRICS_HUB_AGENT_METRIC_NAME = "metricshub.agent.info";
 
@@ -72,7 +76,7 @@ public class AgentInfo {
 		final ClassPathResource classPathResource = new ClassPathResource(APPLICATION_YAML_FILE_NAME);
 		try {
 			applicationProperties =
-				ConfigHelper.deserializeYamlFile(classPathResource.getInputStream(), ApplicationProperties.class);
+				JsonHelper.deserialize(OBJECT_MAPPER, classPathResource.getInputStream(), ApplicationProperties.class);
 		} catch (IOException e) {
 			log.error("Cannot read internal application configuration file: {}", classPathResource.getPath());
 			log.debug("Exception: ", e);
@@ -100,7 +104,7 @@ public class AgentInfo {
 			Map.of(
 				"service.name", project.name(),
 				"host.id", AGENT_HOSTNAME,
-				"host.name", AGENT_HOSTNAME,
+				HOST_NAME, AGENT_HOSTNAME,
 				"agent.host.name", AGENT_HOSTNAME,
 				"host.type", "compute",
 				"os.type", OTEL_LOCAL_OS_TYPE

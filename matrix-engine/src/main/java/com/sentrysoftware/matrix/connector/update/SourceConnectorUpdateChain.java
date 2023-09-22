@@ -1,5 +1,7 @@
 package com.sentrysoftware.matrix.connector.update;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.VERTICAL_BAR;
+
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -220,6 +222,6 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 	 * @return String value
 	 */
 	protected String getSourceIdentifiersRegex(final Map<String, Source> sources) {
-		return sources.keySet().stream().map(Pattern::quote).collect(Collectors.joining("|"));
+		return sources.keySet().stream().map(Pattern::quote).collect(Collectors.joining(VERTICAL_BAR));
 	}
 }

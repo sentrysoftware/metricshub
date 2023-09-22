@@ -1,0 +1,16 @@
+grafana:
+  simple: # simple job. Creates monitors and collects assicated metrics. 
+    sources:
+      grafanaHealth:
+        type: http
+        url: https://hws-demo.sentrysoftware.com/api/health
+        method: GET
+        header: "Accept: application/json"
+        resultContent: body
+    mapping:
+      source: ${source::monitors.grafana.simple.sources.grafanaHealth}
+      attributes:
+        id: $1
+        service.version: $3
+      metrics:
+        grafana.db.state: $2
