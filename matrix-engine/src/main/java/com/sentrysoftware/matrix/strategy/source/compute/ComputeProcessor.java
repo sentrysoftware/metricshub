@@ -442,7 +442,7 @@ public class ComputeProcessor implements IComputeProcessor {
 				}
 			}
 		} else {
-			// If strToReplace is like "Column(n)", the strToReplace is actually the content of the column n.
+			// If strToReplace is like "$n", the strToReplace is actually the content of the column n.
 			if (COLUMN_PATTERN.matcher(strToReplace).matches()) {
 				final int strToReplaceColumnIndex = getColumnIndex(strToReplace);
 				if (!sourceTable.getTable().isEmpty() && strToReplaceColumnIndex < sourceTable.getTable().get(0).size()) {
