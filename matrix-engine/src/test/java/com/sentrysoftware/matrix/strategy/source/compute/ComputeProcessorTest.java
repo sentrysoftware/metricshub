@@ -28,6 +28,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Div
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ExcludeMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Extract;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Json2Csv;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.KeepColumns;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.LeftConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Multiply;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Replace;
@@ -1861,5 +1862,58 @@ class ComputeProcessorTest {
 		computeProcessor.process(Xml2Csv.builder().properties(properties).build());
 		assertEquals(expected, sourceTable.getTable());
 		assertEquals(expectedCsvResult, sourceTable.getRawData());
+	}
+
+	@Test
+	void testKeepColumns() {
+		List<List<String>> table = Arrays.asList(LINE_1, LINE_2, LINE_3);
+
+		sourceTable.setTable(table);
+
+		// KeepColumns is null
+		computeProcessor.process((KeepColumns) null);
+		assertEquals(table, sourceTable.getTable());
+
+		// KeepColumns is null, keepColumns.getColumnNumbers() is invalid
+		KeepColumns keepColumns = KeepColumns.builder().columnNumbers("-1").build();
+		computeProcessor.process(keepColumns);
+		assertEquals(table, sourceTable.getTable());
+
+		// KeepColumns is null, keepColumns.getColumnNumbers() is not null and not empty,
+		// 1 column number is lower than 1
+		keepColumns.setColumnNumbers("1,0,3");
+		computeProcessor.process(keepColumns);
+		assertEquals(table, sourceTable.getTable());
+
+		// KeepColumns is null, keepColumns.getColumnNumbers() is not null and not empty,
+		// 1 column number is greater than the rows' size
+		keepColumns.setColumnNumbers("1,5,3");
+		computeProcessor.process(keepColumns);
+		assertEquals(table, sourceTable.getTable());
+
+		// KeepColumns is null, keepColumns.getColumnNumbers() is not null and not empty,
+		// 1 column number is not valid
+		keepColumns.setColumnNumbers("1,-1,3");
+		computeProcessor.process(keepColumns);
+		List<List<String>> expectedTable = Arrays.asList(LINE_1, LINE_2, LINE_3);
+		assertEquals(expectedTable, sourceTable.getTable()); // null index will be skipped
+
+		// test OK
+		sourceTable.setTable(table);
+		List<List<String>> result = Arrays.asList(
+			Arrays.asList(LINE_1.get(0), LINE_1.get(1), LINE_1.get(3)),
+			Arrays.asList(LINE_2.get(0), LINE_2.get(1), LINE_2.get(3)),
+			Arrays.asList(LINE_3.get(0), LINE_3.get(1), LINE_3.get(3))
+		);
+
+		keepColumns.setColumnNumbers("1,2,4");
+		computeProcessor.process(keepColumns);
+		assertEquals(result, sourceTable.getTable());
+
+		// test OK but index are not sorted
+		sourceTable.setTable(table);
+		keepColumns.setColumnNumbers("1,4,2");
+		computeProcessor.process(keepColumns);
+		assertEquals(result, sourceTable.getTable());
 	}
 }

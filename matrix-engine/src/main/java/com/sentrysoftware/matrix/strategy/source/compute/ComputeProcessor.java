@@ -49,6 +49,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -56,6 +57,7 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -600,7 +602,49 @@ public class ComputeProcessor implements IComputeProcessor {
 	@Override
 	@WithSpan("Compute KeepColumns Exec")
 	public void process(@SpanAttribute("compute.definition") final KeepColumns keepColumns) {
-		// TODO Auto-generated method stub
+		if (keepColumns == null) {
+			log.warn("Hostname {} - KeepColumns object is null, the table remains unchanged.", hostname);
+			return;
+		}
+
+		List<Integer> columnNumbers = Stream
+			.of(keepColumns.getColumnNumbers().split(","))
+			.map(columnNumber -> Integer.parseInt(columnNumber))
+			.collect(Collectors.toList());
+
+		if (columnNumbers == null || columnNumbers.isEmpty()) {
+			log.warn(
+				"Hostname {} - The column number list in KeepColumns cannot be null or empty. The table remains unchanged.",
+				hostname
+			);
+			return;
+		}
+
+		List<List<String>> resultTable = new ArrayList<>();
+		List<String> resultRow;
+		columnNumbers = columnNumbers.stream().filter(Objects::nonNull).sorted().collect(Collectors.toList());
+		for (List<String> row : sourceTable.getTable()) {
+			resultRow = new ArrayList<>();
+			for (Integer columnIndex : columnNumbers) {
+				if (columnIndex < 1 || columnIndex > row.size()) {
+					log.warn(
+						"Hostname {} - Invalid index for a {}-sized row: {}. The table remains unchanged.",
+						hostname,
+						row.size(),
+						columnIndex
+					);
+
+					return;
+				}
+
+				resultRow.add(row.get(columnIndex - 1));
+			}
+
+			resultTable.add(resultRow);
+		}
+
+		sourceTable.setTable(resultTable);
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	@Override
