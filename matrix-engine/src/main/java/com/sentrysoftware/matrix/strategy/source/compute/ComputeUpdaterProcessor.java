@@ -73,7 +73,7 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 
 	@Override
 	public void process(final DuplicateColumn duplicateColumn) {
-		// TODO Auto-generated method stub
+		processCompute(duplicateColumn);
 	}
 
 	@Override

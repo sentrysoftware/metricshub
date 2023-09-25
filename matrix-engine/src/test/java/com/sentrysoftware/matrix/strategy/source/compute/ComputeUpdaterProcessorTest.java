@@ -12,6 +12,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Add
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.And;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ArrayTranslate;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Divide;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.DuplicateColumn;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ExcludeMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Extract;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Json2Csv;
@@ -35,13 +36,8 @@ class ComputeUpdaterProcessorTest {
 	@Mock
 	private ComputeProcessor computeProcessor;
 
-	@Mock
-	private Monitor monitor;
-
 	@InjectMocks
 	private ComputeUpdaterProcessor computeUpdaterProcessor;
-
-	private static final String DEVICE_ID = "deviceId";
 
 	@Test
 	void testProcessAdd() {
@@ -152,5 +148,13 @@ class ComputeUpdaterProcessorTest {
 		doNothing().when(computeProcessor).process(any(Xml2Csv.class));
 		computeUpdaterProcessor.process(xml2Csv);
 		verify(computeProcessor, times(1)).process(any(Xml2Csv.class));
+	}
+
+	@Test
+	void testVisitDuplicateColumn() {
+		final DuplicateColumn duplicateColumn = DuplicateColumn.builder().column(-1).build();
+		doNothing().when(computeProcessor).process(any(DuplicateColumn.class));
+		computeUpdaterProcessor.process(duplicateColumn);
+		verify(computeProcessor, times(1)).process(any(DuplicateColumn.class));
 	}
 }

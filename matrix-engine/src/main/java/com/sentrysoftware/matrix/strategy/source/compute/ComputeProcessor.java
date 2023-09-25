@@ -332,10 +332,35 @@ public class ComputeProcessor implements IComputeProcessor {
 		performMathematicalOperation(divide, columnIndex, divideBy);
 	}
 
+	/**
+	 * This method processes {@link DuplicateColumn} compute
+	 * @param duplicateColumn {@link DuplicateColumn} instance
+	 */
 	@Override
 	@WithSpan("Compute DuplicateColumn Exec")
 	public void process(@SpanAttribute("compute.definition") final DuplicateColumn duplicateColumn) {
-		// TODO Auto-generated method stub
+		if (duplicateColumn == null) {
+			log.warn("Hostname {} - Duplicate Column object is null, the table remains unchanged.", hostname);
+			return;
+		}
+
+		if (duplicateColumn.getColumn() == null || duplicateColumn.getColumn() == 0) {
+			log.warn(
+				"Hostname {} - The column index in DuplicateColumn cannot be null or 0, the table remains unchanged.",
+				hostname
+			);
+			return;
+		}
+
+		// for each list in the list, duplicate the column of the given index
+		int columnIndex = duplicateColumn.getColumn() - 1;
+
+		for (List<String> elementList : sourceTable.getTable()) {
+			if (columnIndex >= 0 && columnIndex < elementList.size()) {
+				elementList.add(columnIndex, elementList.get(columnIndex));
+			}
+		}
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	@Override
