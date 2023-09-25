@@ -218,10 +218,10 @@ public class PslUtils {
 	// CHECKSTYLE:OFF
 	private static String nthArgCommon(
 		String text,
-		String selectColumns,
-		String separators,
+		final String selectColumns,
+		final String separators,
 		String resultSeparator,
-		boolean isNthArg
+		final boolean isNthArg
 	) {
 		// If any arg is null, then return empty String
 		if (
@@ -296,7 +296,7 @@ public class PslUtils {
 		int[] columnsRange;
 		int fromColumnNumber;
 		int toColumnNumber;
-		for (String columns : columnsArray) {
+		for (final String columns : columnsArray) {
 			// Get the columns range
 			columnsRange = getColumnsRange(columns, splitText.length);
 			fromColumnNumber = columnsRange[0];
@@ -328,13 +328,13 @@ public class PslUtils {
 	 * 							<li>A[1] being the end of the range, inclusive</li>
 	 * 						</ul>
 	 */
-	private static int[] getColumnsRange(String columns, int columnCount) {
+	private static int[] getColumnsRange(final String columns, final int columnCount) {
 		int fromColumnNumber;
 		int toColumnNumber;
 
 		try {
-			int dashIndex = columns.indexOf("-");
-			int columnsLength = columns.length();
+			final int dashIndex = columns.indexOf("-");
+			final int columnsLength = columns.length();
 
 			// If it is a simple number, we'll retrieve only that column number
 			if (dashIndex == -1) {

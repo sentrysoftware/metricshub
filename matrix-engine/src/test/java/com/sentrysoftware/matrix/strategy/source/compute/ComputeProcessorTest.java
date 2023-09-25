@@ -80,7 +80,7 @@ class ComputeProcessorTest {
 	private static final String ZERO = "0";
 	private static final String ZERO_POINT_ZERO = "0.0";
 	private static final String ONE = "1";
-	private static final String ONE_TWO_THREE = "1, 2, 3";
+	private static final String ONE_TWO_THREE = "1,2,3";
 	private static final String TWO = "2";
 	private static final String FOUR_POINT_ZERO = "4.0";
 	private static final String FIVE = "5";
@@ -1662,6 +1662,21 @@ class ComputeProcessorTest {
 
 		sourceTable.setRawData(null);
 		sourceTable.setTable(table);
+		doReturn(SourceTable.tableToCsv(table, TABLE_SEP, true))
+			.when(matsyaClientsExecutorMock)
+			.executeAwkScript(any(), any());
+		try (final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)) {
+			mockedEmbeddedFileHelper
+				.when(() -> EmbeddedFileHelper.findEmbeddedFiles(embeddedFileName))
+				.thenReturn(embeddedFileMap);
+			computeProcessor.process(
+				Awk.builder().script(embeddedFileName).exclude(ID1).keep(ID2).separators(TABLE_SEP).selectColumns("2,3").build()
+			);
+			assertEquals("NAME2;MANUFACTURER2;", sourceTable.getRawData());
+			assertEquals(Arrays.asList(Arrays.asList(NAME2, MANUFACTURER2)), sourceTable.getTable());
+		}
+
+		// Let's try with a space character in the selectColumns list
 		doReturn(SourceTable.tableToCsv(table, TABLE_SEP, true))
 			.when(matsyaClientsExecutorMock)
 			.executeAwkScript(any(), any());

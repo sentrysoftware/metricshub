@@ -325,11 +325,11 @@ public class ComputeProcessor implements IComputeProcessor {
 			return;
 		}
 
-		String input = (sourceTable.getRawData() == null || sourceTable.getRawData().isEmpty())
+		final String input = (sourceTable.getRawData() == null || sourceTable.getRawData().isEmpty())
 			? SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, true)
 			: sourceTable.getRawData();
 
-		String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, this.index);
+		final String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, this.index);
 
 		log.debug("Hostname {} - Compute Operation [{}]. AWK Script:\n{}\n", hostname, computeKey, awkScript.getContent());
 
@@ -364,7 +364,7 @@ public class ComputeProcessor implements IComputeProcessor {
 			final List<String> awkResultLines = FilterResultHelper.selectedColumns(
 				filterLines,
 				awk.getSeparators(),
-				awk.getSelectColumns()
+				awk.getSelectColumns().replaceAll(" ", "")
 			);
 			awkResult =
 				awkResultLines
