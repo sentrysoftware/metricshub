@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.strategy.source.compute;
 import static com.sentrysoftware.matrix.constants.Constants.EMPTY;
 import static com.sentrysoftware.matrix.constants.Constants.LOCALHOST;
 import static com.sentrysoftware.matrix.constants.Constants.SINGLE_SPACE;
+import static com.sentrysoftware.matrix.constants.Constants.TABLE_SEP;
 import static com.sentrysoftware.matrix.constants.Constants.VALUE_VAL1;
 import static com.sentrysoftware.matrix.constants.Constants.VALUE_VAL2;
 import static com.sentrysoftware.matrix.constants.Constants.VALUE_VAL3;
@@ -158,8 +159,6 @@ class ComputeProcessorTest {
 	private static final List<String> LINE_1_ONE_COLUMN = new ArrayList<>(Collections.singletonList(ID1));
 	private static final List<String> LINE_2_ONE_COLUMN = new ArrayList<>(Collections.singletonList(ID2));
 	private static final List<String> LINE_3_ONE_COLUMN = new ArrayList<>(Collections.singletonList(ID3));
-
-	private static final String TABLE_SEP = ";";
 
 	private TelemetryManager telemetryManager;
 
