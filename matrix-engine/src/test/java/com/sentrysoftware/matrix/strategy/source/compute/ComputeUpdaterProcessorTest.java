@@ -13,10 +13,17 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.And
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ArrayTranslate;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Awk;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Divide;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ExcludeMatchingLines;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Extract;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Json2Csv;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.LeftConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Multiply;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Replace;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.RightConcat;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Substring;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Subtract;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Xml2Csv;
+import com.sentrysoftware.matrix.telemetry.Monitor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,6 +35,9 @@ class ComputeUpdaterProcessorTest {
 
 	@Mock
 	private ComputeProcessor computeProcessor;
+
+	@Mock
+	private Monitor monitor;
 
 	@InjectMocks
 	private ComputeUpdaterProcessor computeUpdaterProcessor;
@@ -93,6 +103,54 @@ class ComputeUpdaterProcessorTest {
 		);
 
 		verify(computeProcessor, times(2)).process(any(ArrayTranslate.class));
+	}
+
+	@Test
+	void testProcessJson2CSV() {
+		final Json2Csv json2Csv = Json2Csv.builder().build();
+		doNothing().when(computeProcessor).process(any(Json2Csv.class));
+		computeUpdaterProcessor.process(json2Csv);
+		verify(computeProcessor, times(1)).process(any(Json2Csv.class));
+	}
+
+	@Test
+	void testProcessExcludeMatchingLines() {
+		final ExcludeMatchingLines excludeMatchingLines = ExcludeMatchingLines.builder().column(-1).build();
+		doNothing().when(computeProcessor).process(any(ExcludeMatchingLines.class));
+		computeUpdaterProcessor.process(excludeMatchingLines);
+		verify(computeProcessor, times(1)).process(any(ExcludeMatchingLines.class));
+	}
+
+	@Test
+	void testProcessExtract() {
+		final Extract extract = Extract.builder().column(-1).subColumn(-1).build();
+		doNothing().when(computeProcessor).process(any(Extract.class));
+		computeUpdaterProcessor.process(extract);
+		verify(computeProcessor, times(1)).process(any(Extract.class));
+	}
+
+	@Test
+	void testProcessReplace() {
+		final Replace replace = Replace.builder().column(-1).build();
+		doNothing().when(computeProcessor).process(any(Replace.class));
+		computeUpdaterProcessor.process(replace);
+		verify(computeProcessor, times(1)).process(any(Replace.class));
+	}
+
+	@Test
+	void testProcessSubstring() {
+		final Substring substring = Substring.builder().column(-1).start("-1").length("-1").build();
+		doNothing().when(computeProcessor).process(any(Substring.class));
+		computeUpdaterProcessor.process(substring);
+		verify(computeProcessor, times(1)).process(any(Substring.class));
+	}
+
+	@Test
+	void testProcessXML2CSV() {
+		final Xml2Csv xml2Csv = Xml2Csv.builder().build();
+		doNothing().when(computeProcessor).process(any(Xml2Csv.class));
+		computeUpdaterProcessor.process(xml2Csv);
+		verify(computeProcessor, times(1)).process(any(Xml2Csv.class));
 	}
 
 	@Test

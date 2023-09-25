@@ -78,12 +78,12 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 
 	@Override
 	public void process(final ExcludeMatchingLines excludeMatchingLines) {
-		// TODO Auto-generated method stub
+		processCompute(excludeMatchingLines);
 	}
 
 	@Override
 	public void process(final Extract extract) {
-		// TODO Auto-generated method stub
+		processCompute(extract);
 	}
 
 	@Override
@@ -93,7 +93,7 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 
 	@Override
 	public void process(final Json2Csv json2csv) {
-		// TODO Auto-generated method stub
+		processCompute(json2csv);
 	}
 
 	@Override
@@ -123,7 +123,7 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 
 	@Override
 	public void process(final Replace replace) {
-		// TODO Auto-generated method stub
+		processCompute(replace);
 	}
 
 	@Override
@@ -138,7 +138,7 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 
 	@Override
 	public void process(final Substring substring) {
-		// TODO Auto-generated method stub
+		processCompute(substring);
 	}
 
 	@Override
@@ -148,7 +148,7 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 
 	@Override
 	public void process(final Xml2Csv xml2csv) {
-		// TODO Auto-generated method stub
+		processCompute(xml2csv);
 	}
 
 	/**

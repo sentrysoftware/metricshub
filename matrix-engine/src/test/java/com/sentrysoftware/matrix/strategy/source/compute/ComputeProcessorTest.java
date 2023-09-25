@@ -38,6 +38,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Rep
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.RightConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Substring;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Subtract;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Xml2Csv;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.strategy.utils.EmbeddedFileHelper;
@@ -1575,6 +1576,300 @@ class ComputeProcessorTest {
 			),
 			sourceTable.getTable()
 		);
+	}
+
+	@Test
+	void testXml2Csv() {
+		final String xml = ResourceHelper.getResourceAsString("/test-files/compute/xml2Csv/xml2Csv.xml", this.getClass());
+		sourceTable.setRawData(xml);
+
+		final String properties =
+			">classId;" +
+			"outConfigs/equipmentFan>dn;" +
+			"outConfigs/equipmentFan>serial;" +
+			"outConfigs/equipmentFan>model;" +
+			"outConfigs/equipmentFan>vendor;" +
+			"outConfigs/equipmentFan>operState";
+
+		final String recordTag = "/configResolveClass";
+
+		computeProcessor.process((Xml2Csv) null);
+		assertEquals(Collections.emptyList(), sourceTable.getTable());
+		assertEquals(xml, sourceTable.getRawData());
+
+		computeProcessor.process(Xml2Csv.builder().build());
+		assertEquals(Collections.emptyList(), sourceTable.getTable());
+		assertEquals(xml, sourceTable.getRawData());
+
+		computeProcessor.process(Xml2Csv.builder().recordTag(recordTag).build());
+		assertEquals(Collections.emptyList(), sourceTable.getTable());
+		assertEquals(xml, sourceTable.getRawData());
+
+		computeProcessor.process(Xml2Csv.builder().properties(properties).recordTag(recordTag).build());
+
+		final List<List<String>> expected = List.of(
+			List.of(
+				"equipmentFan",
+				"sys/switch-A/fan-module-1-1/fan-1",
+				"N/A",
+				"N10-FAN1",
+				"Cisco Systems, Inc.",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/switch-A/fan-module-1-1/fan-2",
+				"N/A",
+				"N10-FAN1",
+				"Cisco Systems, Inc.",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/switch-A/fan-module-1-1/fan-3",
+				"N/A",
+				"N10-FAN1",
+				"Cisco Systems, Inc.",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/switch-A/fan-module-1-1/fan-4",
+				"N/A",
+				"N10-FAN1",
+				"Cisco Systems, Inc.",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/switch-A/fan-module-1-1/fan-5",
+				"N/A",
+				"N10-FAN1",
+				"Cisco Systems, Inc.",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/switch-A/fan-module-1-1/fan-6",
+				"N/A",
+				"N10-FAN1",
+				"Cisco Systems, Inc.",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/switch-A/fan-module-1-2/fan-1",
+				"N/A",
+				"N10-FAN1",
+				"Cisco Systems, Inc.",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/switch-A/fan-module-1-2/fan-2",
+				"N/A",
+				"N10-FAN1",
+				"Cisco Systems, Inc.",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/switch-A/fan-module-1-2/fan-3",
+				"N/A",
+				"N10-FAN1",
+				"Cisco Systems, Inc.",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/switch-A/fan-module-1-2/fan-4",
+				"N/A",
+				"N10-FAN1",
+				"Cisco Systems, Inc.",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/switch-A/fan-module-1-2/fan-5",
+				"N/A",
+				"N10-FAN1",
+				"Cisco Systems, Inc.",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/switch-A/fan-module-1-2/fan-6",
+				"N/A",
+				"N10-FAN1",
+				"Cisco Systems, Inc.",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-1/fan-1",
+				"NWG15030613",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-1/fan-2",
+				"NWG15030613",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-2/fan-1",
+				"NWG150305AQ",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-2/fan-2",
+				"NWG150305AQ",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-3/fan-1",
+				"NWG15030653",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-3/fan-2",
+				"NWG15030653",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-4/fan-1",
+				"NWG1503055C",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-4/fan-2",
+				"NWG1503055C",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-5/fan-1",
+				"NWG150305CM",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-5/fan-2",
+				"NWG150305CM",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-6/fan-1",
+				"NWG150306ZR",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-6/fan-2",
+				"NWG150306ZR",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-7/fan-1",
+				"NWG150305QP",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-7/fan-2",
+				"NWG150305QP",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-8/fan-1",
+				"NWG150306VZ",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-8/fan-2",
+				"NWG150306VZ",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			)
+		);
+
+		assertEquals(expected, sourceTable.getTable());
+		assertNotNull(sourceTable.getRawData());
+
+		final String expectedCsvResult =
+			"equipmentFan;sys/switch-A/fan-module-1-1/fan-1;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
+			"equipmentFan;sys/switch-A/fan-module-1-1/fan-2;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
+			"equipmentFan;sys/switch-A/fan-module-1-1/fan-3;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
+			"equipmentFan;sys/switch-A/fan-module-1-1/fan-4;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
+			"equipmentFan;sys/switch-A/fan-module-1-1/fan-5;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
+			"equipmentFan;sys/switch-A/fan-module-1-1/fan-6;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
+			"equipmentFan;sys/switch-A/fan-module-1-2/fan-1;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
+			"equipmentFan;sys/switch-A/fan-module-1-2/fan-2;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
+			"equipmentFan;sys/switch-A/fan-module-1-2/fan-3;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
+			"equipmentFan;sys/switch-A/fan-module-1-2/fan-4;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
+			"equipmentFan;sys/switch-A/fan-module-1-2/fan-5;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
+			"equipmentFan;sys/switch-A/fan-module-1-2/fan-6;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-1/fan-1;NWG15030613;N20-FAN5;Cisco Systems Inc;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-1/fan-2;NWG15030613;N20-FAN5;Cisco Systems Inc;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-2/fan-1;NWG150305AQ;N20-FAN5;Cisco Systems Inc;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-2/fan-2;NWG150305AQ;N20-FAN5;Cisco Systems Inc;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-3/fan-1;NWG15030653;N20-FAN5;Cisco Systems Inc;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-3/fan-2;NWG15030653;N20-FAN5;Cisco Systems Inc;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-4/fan-1;NWG1503055C;N20-FAN5;Cisco Systems Inc;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-4/fan-2;NWG1503055C;N20-FAN5;Cisco Systems Inc;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-5/fan-1;NWG150305CM;N20-FAN5;Cisco Systems Inc;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-5/fan-2;NWG150305CM;N20-FAN5;Cisco Systems Inc;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-6/fan-1;NWG150306ZR;N20-FAN5;Cisco Systems Inc;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-6/fan-2;NWG150306ZR;N20-FAN5;Cisco Systems Inc;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-7/fan-1;NWG150305QP;N20-FAN5;Cisco Systems Inc;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-7/fan-2;NWG150305QP;N20-FAN5;Cisco Systems Inc;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-8/fan-1;NWG150306VZ;N20-FAN5;Cisco Systems Inc;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-8/fan-2;NWG150306VZ;N20-FAN5;Cisco Systems Inc;operable;";
+
+		computeProcessor.process(Xml2Csv.builder().properties(properties).build());
+		assertEquals(expected, sourceTable.getTable());
+		assertEquals(expectedCsvResult, sourceTable.getRawData());
 	}
 
 	@Test
