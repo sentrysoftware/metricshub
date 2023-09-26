@@ -619,7 +619,14 @@ public class ComputeProcessor implements IComputeProcessor {
 			columnNumbers =
 				Stream.of(keepColumns.getColumnNumbers().split(COMMA)).map(Integer::parseInt).collect(Collectors.toList());
 		} catch (NumberFormatException numberFormatException) {
-			log.error("The column number list in KeepColumns should contain only numbers");
+			logComputeError(
+				connectorName,
+				String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, this.index),
+				"KeepColumns",
+				numberFormatException,
+				hostname
+			);
+			return;
 		}
 
 		if (columnNumbers == null || columnNumbers.isEmpty()) {
