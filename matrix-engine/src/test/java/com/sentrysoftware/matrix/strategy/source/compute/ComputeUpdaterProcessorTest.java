@@ -16,6 +16,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Div
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ExcludeMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Extract;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Json2Csv;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.KeepColumns;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.KeepOnlyMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.LeftConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Multiply;
@@ -24,7 +25,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Rig
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Substring;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Subtract;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Xml2Csv;
-import com.sentrysoftware.matrix.telemetry.Monitor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -36,9 +36,6 @@ class ComputeUpdaterProcessorTest {
 
 	@Mock
 	private ComputeProcessor computeProcessor;
-
-	@Mock
-	private Monitor monitor;
 
 	@InjectMocks
 	private ComputeUpdaterProcessor computeUpdaterProcessor;
@@ -152,6 +149,14 @@ class ComputeUpdaterProcessorTest {
 		doNothing().when(computeProcessor).process(any(Xml2Csv.class));
 		computeUpdaterProcessor.process(xml2Csv);
 		verify(computeProcessor, times(1)).process(any(Xml2Csv.class));
+	}
+
+	@Test
+	void testProcessKeepColumns() {
+		final KeepColumns keepColumns = KeepColumns.builder().columnNumbers("-1").build();
+		doNothing().when(computeProcessor).process(any(KeepColumns.class));
+		computeUpdaterProcessor.process(keepColumns);
+		verify(computeProcessor, times(1)).process(any(KeepColumns.class));
 	}
 
 	@Test
