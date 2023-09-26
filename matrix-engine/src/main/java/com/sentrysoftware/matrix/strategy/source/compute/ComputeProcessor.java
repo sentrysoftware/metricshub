@@ -607,10 +607,14 @@ public class ComputeProcessor implements IComputeProcessor {
 			return;
 		}
 
-		List<Integer> columnNumbers = Stream
-			.of(keepColumns.getColumnNumbers().split(","))
-			.map(columnNumber -> Integer.parseInt(columnNumber))
-			.collect(Collectors.toList());
+		List<Integer> columnNumbers = null;
+
+		try {
+			columnNumbers =
+				Stream.of(keepColumns.getColumnNumbers().split(COMMA)).map(Integer::parseInt).collect(Collectors.toList());
+		} catch (NumberFormatException numberFormatException) {
+			log.error("The column number list in KeepColumns should contain only numbers");
+		}
 
 		if (columnNumbers == null || columnNumbers.isEmpty()) {
 			log.warn(

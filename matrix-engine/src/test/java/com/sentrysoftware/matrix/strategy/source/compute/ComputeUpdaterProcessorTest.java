@@ -23,7 +23,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Rig
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Substring;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Subtract;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Xml2Csv;
-import com.sentrysoftware.matrix.telemetry.Monitor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -36,13 +35,8 @@ class ComputeUpdaterProcessorTest {
 	@Mock
 	private ComputeProcessor computeProcessor;
 
-	@Mock
-	private Monitor monitor;
-
 	@InjectMocks
 	private ComputeUpdaterProcessor computeUpdaterProcessor;
-
-	private static final String DEVICE_ID = "deviceId";
 
 	@Test
 	void testProcessAdd() {
