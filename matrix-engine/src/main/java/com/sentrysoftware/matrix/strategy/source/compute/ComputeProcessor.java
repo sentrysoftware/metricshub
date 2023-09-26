@@ -453,7 +453,13 @@ public class ComputeProcessor implements IComputeProcessor {
 			Set<String> valueSet = null;
 
 			if (abstractMatchingLinesValueList != null) {
-				valueSet = new HashSet<>(Arrays.asList(abstractMatchingLinesValueList.split(COMMA)));
+				if (abstractMatchingLinesValueList.isEmpty()) {
+					valueSet = new HashSet<>();
+				} else if (abstractMatchingLinesValueList.indexOf(COMMA) >= 0) {
+					valueSet = new HashSet<>(Arrays.asList(abstractMatchingLinesValueList.split(COMMA)));
+				} else {
+					valueSet = new HashSet<>(Arrays.asList(abstractMatchingLinesValueList));
+				}
 			}
 
 			final String pslRegexp = abstractMatchingLines.getRegExp();
@@ -696,10 +702,14 @@ public class ComputeProcessor implements IComputeProcessor {
 		// TODO Auto-generated method stub
 	}
 
+	/**
+	 * This method processes the {@link KeepOnlyMatchingLines} compute
+	 * @param keepOnlyMatchingLines {@link KeepOnlyMatchingLines} instance
+	 */
 	@Override
 	@WithSpan("Compute KeepOnlyMatchingLines Exec")
 	public void process(@SpanAttribute("compute.definition") final KeepOnlyMatchingLines keepOnlyMatchingLines) {
-		// TODO Auto-generated method stub
+		processAbstractMatchingLines(keepOnlyMatchingLines);
 	}
 
 	@Override
