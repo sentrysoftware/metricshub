@@ -58,7 +58,7 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 
 	@Override
 	public void process(final Awk awk) {
-		// TODO Auto-generated method stub
+		processCompute(awk);
 	}
 
 	@Override
