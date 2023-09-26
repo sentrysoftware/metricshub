@@ -94,11 +94,11 @@ class ComputeUpdaterProcessorTest {
 	void testProcessArrayTranslate() {
 		doNothing().when(computeProcessor).process(any(ArrayTranslate.class));
 		computeUpdaterProcessor.process(
-				ArrayTranslate.builder().column(1).translationTable(new TranslationTable()).build()
+			ArrayTranslate.builder().column(1).translationTable(new TranslationTable()).build()
 		);
 
 		computeUpdaterProcessor.process(
-				ArrayTranslate.builder().column(1).translationTable(new ReferenceTranslationTable()).build()
+			ArrayTranslate.builder().column(1).translationTable(new ReferenceTranslationTable()).build()
 		);
 
 		verify(computeProcessor, times(2)).process(any(ArrayTranslate.class));

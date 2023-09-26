@@ -141,23 +141,23 @@ class ComputeProcessorTest {
 	private static final List<String> LINE_3 = Arrays.asList(ID3, NAME3, MANUFACTURER3, NUMBER_OF_DISKS3);
 
 	private static final List<String> LINE_1_RESULT_LEFT = new ArrayList<>(
-			Arrays.asList(ID1, NAME1, PREFIX_MANUFACTURER1, NUMBER_OF_DISKS1)
+		Arrays.asList(ID1, NAME1, PREFIX_MANUFACTURER1, NUMBER_OF_DISKS1)
 	);
 	private static final List<String> LINE_2_RESULT_LEFT = new ArrayList<>(
-			Arrays.asList(ID2, NAME2, PREFIX_MANUFACTURER2, NUMBER_OF_DISKS2)
+		Arrays.asList(ID2, NAME2, PREFIX_MANUFACTURER2, NUMBER_OF_DISKS2)
 	);
 	private static final List<String> LINE_3_RESULT_LEFT = new ArrayList<>(
-			Arrays.asList(ID3, NAME3, PREFIX_MANUFACTURER3, NUMBER_OF_DISKS3)
+		Arrays.asList(ID3, NAME3, PREFIX_MANUFACTURER3, NUMBER_OF_DISKS3)
 	);
 
 	private static final List<String> LINE_1_RESULT_RIGHT = new ArrayList<>(
-			Arrays.asList(ID1, NAME1, MANUFACTURER1_SUFFIX, NUMBER_OF_DISKS1)
+		Arrays.asList(ID1, NAME1, MANUFACTURER1_SUFFIX, NUMBER_OF_DISKS1)
 	);
 	private static final List<String> LINE_2_RESULT_RIGHT = new ArrayList<>(
-			Arrays.asList(ID2, NAME2, MANUFACTURER2_SUFFIX, NUMBER_OF_DISKS2)
+		Arrays.asList(ID2, NAME2, MANUFACTURER2_SUFFIX, NUMBER_OF_DISKS2)
 	);
 	private static final List<String> LINE_3_RESULT_RIGHT = new ArrayList<>(
-			Arrays.asList(ID3, NAME3, MANUFACTURER3_SUFFIX, NUMBER_OF_DISKS3)
+		Arrays.asList(ID3, NAME3, MANUFACTURER3_SUFFIX, NUMBER_OF_DISKS3)
 	);
 
 	private static final List<String> LINE_1_ONE_COLUMN = new ArrayList<>(Collections.singletonList(ID1));
@@ -173,12 +173,12 @@ class ComputeProcessorTest {
 		computeProcessor.setSourceTable(sourceTable);
 		computeProcessor.setHostname(LOCALHOST);
 		telemetryManager =
-				TelemetryManager
-						.builder()
-						.hostConfiguration(
-								HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.WINDOWS).build()
-						)
-						.build();
+			TelemetryManager
+				.builder()
+				.hostConfiguration(
+					HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.WINDOWS).build()
+				)
+				.build();
 		matsyaClientsExecutorMock.setTelemetryManager(telemetryManager);
 		computeProcessor.setMatsyaClientsExecutor(matsyaClientsExecutorMock);
 	}
@@ -193,9 +193,9 @@ class ComputeProcessorTest {
 	@Test
 	void testProcessAdd() {
 		List<List<String>> table = Arrays.asList(
-				Arrays.asList(ID1, FIVE_HUNDRED, TWO, VALUE_VAL1),
-				Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED, FIVE, VALUE_VAL2),
-				Arrays.asList(ID1, TWO_HUNDRED, TWO, VALUE_VAL3)
+			Arrays.asList(ID1, FIVE_HUNDRED, TWO, VALUE_VAL1),
+			Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED, FIVE, VALUE_VAL2),
+			Arrays.asList(ID1, TWO_HUNDRED, TWO, VALUE_VAL3)
 		);
 
 		sourceTable.setTable(table);
@@ -216,9 +216,9 @@ class ComputeProcessorTest {
 		assertEquals(table, sourceTable.getTable());
 
 		final List<List<String>> result = Arrays.asList(
-				Arrays.asList(ID1, "502.0", TWO, VALUE_VAL1),
-				Arrays.asList(ID2, "1505.0", FIVE, VALUE_VAL2),
-				Arrays.asList(ID1, "202.0", TWO, VALUE_VAL3)
+			Arrays.asList(ID1, "502.0", TWO, VALUE_VAL1),
+			Arrays.asList(ID2, "1505.0", FIVE, VALUE_VAL2),
+			Arrays.asList(ID1, "202.0", TWO, VALUE_VAL3)
 		);
 
 		Add addColumn = Add.builder().column(2).value(DOLLAR_3).build();
@@ -236,21 +236,21 @@ class ComputeProcessorTest {
 		final Add addValue = Add.builder().column(2).value(TEN).build();
 		computeProcessor.process(addValue);
 		assertEquals(
-				Arrays.asList(
-						Arrays.asList(ID1, "512.0", TWO, VALUE_VAL1),
-						Arrays.asList(ID2, "1515.0", FIVE, VALUE_VAL2),
-						Arrays.asList(ID1, "212.0", TWO, VALUE_VAL3)
-				),
-				sourceTable.getTable()
+			Arrays.asList(
+				Arrays.asList(ID1, "512.0", TWO, VALUE_VAL1),
+				Arrays.asList(ID2, "1515.0", FIVE, VALUE_VAL2),
+				Arrays.asList(ID1, "212.0", TWO, VALUE_VAL3)
+			),
+			sourceTable.getTable()
 		);
 
 		Add emptyAdd = Add.builder().column(4).value(FIVE).build();
 		table =
-				Arrays.asList(
-						Arrays.asList(ID1, FIVE_HUNDRED, TWO, EMPTY),
-						Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED, FIVE, EMPTY),
-						Arrays.asList(ID1, TWO_HUNDRED, TWO, EMPTY)
-				);
+			Arrays.asList(
+				Arrays.asList(ID1, FIVE_HUNDRED, TWO, EMPTY),
+				Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED, FIVE, EMPTY),
+				Arrays.asList(ID1, TWO_HUNDRED, TWO, EMPTY)
+			);
 		sourceTable.setTable(table);
 		computeProcessor.process(emptyAdd);
 		assertEquals(table, sourceTable.getTable());
@@ -263,9 +263,9 @@ class ComputeProcessorTest {
 	@Test
 	void testProcessDivide() {
 		final List<List<String>> table = Arrays.asList(
-				Arrays.asList(ID1, FIVE_HUNDRED, TWO, VALUE_VAL1),
-				Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED, FIVE, VALUE_VAL2),
-				Arrays.asList(ID1, TWO_HUNDRED, TWO, VALUE_VAL3)
+			Arrays.asList(ID1, FIVE_HUNDRED, TWO, VALUE_VAL1),
+			Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED, FIVE, VALUE_VAL2),
+			Arrays.asList(ID1, TWO_HUNDRED, TWO, VALUE_VAL3)
 		);
 
 		sourceTable.setTable(table);
@@ -290,9 +290,9 @@ class ComputeProcessorTest {
 		assertEquals(table, sourceTable.getTable());
 
 		final List<List<String>> result1 = Arrays.asList(
-				Arrays.asList(ID1, "250.0", TWO, VALUE_VAL1),
-				Arrays.asList(ID2, "300.0", FIVE, VALUE_VAL2),
-				Arrays.asList(ID1, "100.0", TWO, VALUE_VAL3)
+			Arrays.asList(ID1, "250.0", TWO, VALUE_VAL1),
+			Arrays.asList(ID2, "300.0", FIVE, VALUE_VAL2),
+			Arrays.asList(ID1, "100.0", TWO, VALUE_VAL3)
 		);
 
 		Divide valueColumn = Divide.builder().column(2).value(DOLLAR_3).build();
@@ -308,9 +308,9 @@ class ComputeProcessorTest {
 		assertEquals(result1, sourceTable.getTable());
 
 		final List<List<String>> result2 = Arrays.asList(
-				Arrays.asList(ID1, "25.0", TWO, VALUE_VAL1),
-				Arrays.asList(ID2, "30.0", FIVE, VALUE_VAL2),
-				Arrays.asList(ID1, "10.0", TWO, VALUE_VAL3)
+			Arrays.asList(ID1, "25.0", TWO, VALUE_VAL1),
+			Arrays.asList(ID2, "30.0", FIVE, VALUE_VAL2),
+			Arrays.asList(ID1, "10.0", TWO, VALUE_VAL3)
 		);
 
 		Divide valueValue = Divide.builder().column(2).value(TEN).build();
@@ -325,9 +325,9 @@ class ComputeProcessorTest {
 	@Test
 	void testProcessMultiply() {
 		final List<List<String>> table = Arrays.asList(
-				Arrays.asList(ID1, FIVE_HUNDRED, TWO, VALUE_VAL1),
-				Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED, FIVE, VALUE_VAL2),
-				Arrays.asList(ID1, TWO_HUNDRED, TWO, VALUE_VAL3)
+			Arrays.asList(ID1, FIVE_HUNDRED, TWO, VALUE_VAL1),
+			Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED, FIVE, VALUE_VAL2),
+			Arrays.asList(ID1, TWO_HUNDRED, TWO, VALUE_VAL3)
 		);
 
 		sourceTable.setTable(table);
@@ -348,9 +348,9 @@ class ComputeProcessorTest {
 		assertEquals(table, sourceTable.getTable());
 
 		final List<List<String>> result = Arrays.asList(
-				Arrays.asList(ID1, "1000.0", TWO, VALUE_VAL1),
-				Arrays.asList(ID2, "7500.0", FIVE, VALUE_VAL2),
-				Arrays.asList(ID1, "400.0", TWO, VALUE_VAL3)
+			Arrays.asList(ID1, "1000.0", TWO, VALUE_VAL1),
+			Arrays.asList(ID2, "7500.0", FIVE, VALUE_VAL2),
+			Arrays.asList(ID1, "400.0", TWO, VALUE_VAL3)
 		);
 
 		Multiply multiByColumn = Multiply.builder().column(2).value(DOLLAR_3).build();
@@ -368,32 +368,32 @@ class ComputeProcessorTest {
 		Multiply valueValue = Multiply.builder().column(2).value(TEN).build();
 		computeProcessor.process(valueValue);
 		assertEquals(
-				Arrays.asList(
-						Arrays.asList(ID1, "10000.0", TWO, VALUE_VAL1),
-						Arrays.asList(ID2, "75000.0", FIVE, VALUE_VAL2),
-						Arrays.asList(ID1, "4000.0", TWO, VALUE_VAL3)
-				),
-				sourceTable.getTable()
+			Arrays.asList(
+				Arrays.asList(ID1, "10000.0", TWO, VALUE_VAL1),
+				Arrays.asList(ID2, "75000.0", FIVE, VALUE_VAL2),
+				Arrays.asList(ID1, "4000.0", TWO, VALUE_VAL3)
+			),
+			sourceTable.getTable()
 		);
 
 		valueValue = Multiply.builder().column(2).value(ZERO).build();
 		computeProcessor.process(valueValue);
 		assertEquals(
-				Arrays.asList(
-						Arrays.asList(ID1, ZERO_POINT_ZERO, TWO, VALUE_VAL1),
-						Arrays.asList(ID2, ZERO_POINT_ZERO, FIVE, VALUE_VAL2),
-						Arrays.asList(ID1, ZERO_POINT_ZERO, TWO, VALUE_VAL3)
-				),
-				sourceTable.getTable()
+			Arrays.asList(
+				Arrays.asList(ID1, ZERO_POINT_ZERO, TWO, VALUE_VAL1),
+				Arrays.asList(ID2, ZERO_POINT_ZERO, FIVE, VALUE_VAL2),
+				Arrays.asList(ID1, ZERO_POINT_ZERO, TWO, VALUE_VAL3)
+			),
+			sourceTable.getTable()
 		);
 	}
 
 	@Test
 	void testProcessSubtract() {
 		final List<List<String>> table = Arrays.asList(
-				Arrays.asList(ID1, FIVE_HUNDRED, TWO, VALUE_VAL1),
-				Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED, FIVE, VALUE_VAL2),
-				Arrays.asList(ID1, TWO_HUNDRED, TWO, VALUE_VAL3)
+			Arrays.asList(ID1, FIVE_HUNDRED, TWO, VALUE_VAL1),
+			Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED, FIVE, VALUE_VAL2),
+			Arrays.asList(ID1, TWO_HUNDRED, TWO, VALUE_VAL3)
 		);
 
 		sourceTable.setTable(table);
@@ -414,9 +414,9 @@ class ComputeProcessorTest {
 		assertEquals(table, sourceTable.getTable());
 
 		final List<List<String>> result = Arrays.asList(
-				Arrays.asList(ID1, "498.0", TWO, VALUE_VAL1),
-				Arrays.asList(ID2, "1495.0", FIVE, VALUE_VAL2),
-				Arrays.asList(ID1, "198.0", TWO, VALUE_VAL3)
+			Arrays.asList(ID1, "498.0", TWO, VALUE_VAL1),
+			Arrays.asList(ID2, "1495.0", FIVE, VALUE_VAL2),
+			Arrays.asList(ID1, "198.0", TWO, VALUE_VAL3)
 		);
 
 		Subtract substractColumn = Subtract.builder().column(2).value(DOLLAR_3).build();
@@ -434,12 +434,12 @@ class ComputeProcessorTest {
 		final Subtract substractValue = Subtract.builder().column(2).value(TEN).build();
 		computeProcessor.process(substractValue);
 		assertEquals(
-				Arrays.asList(
-						Arrays.asList(ID1, "488.0", TWO, VALUE_VAL1),
-						Arrays.asList(ID2, "1485.0", FIVE, VALUE_VAL2),
-						Arrays.asList(ID1, "188.0", TWO, VALUE_VAL3)
-				),
-				sourceTable.getTable()
+			Arrays.asList(
+				Arrays.asList(ID1, "488.0", TWO, VALUE_VAL1),
+				Arrays.asList(ID2, "1485.0", FIVE, VALUE_VAL2),
+				Arrays.asList(ID1, "188.0", TWO, VALUE_VAL3)
+			),
+			sourceTable.getTable()
 		);
 	}
 
@@ -479,15 +479,15 @@ class ComputeProcessorTest {
 	@Test
 	void testProcessAnd() {
 		List<List<String>> table = Arrays.asList(
-				Arrays.asList(ID1, NAME1, MANUFACTURER1, ONE), // 0000 0001
-				Arrays.asList(ID2, NAME2, MANUFACTURER2, FOURTEEN), // 0000 1110
-				Arrays.asList(ID3, NAME3, MANUFACTURER3, TWO_HUNDRED_AND_FIFTY_FIVE)
+			Arrays.asList(ID1, NAME1, MANUFACTURER1, ONE), // 0000 0001
+			Arrays.asList(ID2, NAME2, MANUFACTURER2, FOURTEEN), // 0000 1110
+			Arrays.asList(ID3, NAME3, MANUFACTURER3, TWO_HUNDRED_AND_FIFTY_FIVE)
 		); // 1111 1110
 
 		List<List<String>> tableResult = Arrays.asList(
-				Arrays.asList(ID1, NAME1, MANUFACTURER1, ONE),
-				Arrays.asList(ID2, NAME2, MANUFACTURER2, FOURTEEN),
-				Arrays.asList(ID3, NAME3, MANUFACTURER3, TWO_HUNDRED_AND_FIFTY_FIVE)
+			Arrays.asList(ID1, NAME1, MANUFACTURER1, ONE),
+			Arrays.asList(ID2, NAME2, MANUFACTURER2, FOURTEEN),
+			Arrays.asList(ID3, NAME3, MANUFACTURER3, TWO_HUNDRED_AND_FIFTY_FIVE)
 		);
 
 		sourceTable.setTable(table);
@@ -509,50 +509,50 @@ class ComputeProcessorTest {
 		// tests OK
 		and.setColumn(4);
 		tableResult =
-				Arrays.asList(
-						Arrays.asList(ID1, NAME1, MANUFACTURER1, ONE),
-						Arrays.asList(ID2, NAME2, MANUFACTURER2, ZERO),
-						Arrays.asList(ID3, NAME3, MANUFACTURER3, ONE)
-				);
+			Arrays.asList(
+				Arrays.asList(ID1, NAME1, MANUFACTURER1, ONE),
+				Arrays.asList(ID2, NAME2, MANUFACTURER2, ZERO),
+				Arrays.asList(ID3, NAME3, MANUFACTURER3, ONE)
+			);
 		computeProcessor.process(and);
 		assertEquals(tableResult, sourceTable.getTable());
 
 		table =
-				Arrays.asList(
-						Arrays.asList(ID1, NAME1, MANUFACTURER1, ONE), // 0000 0001
-						Arrays.asList(ID2, NAME2, MANUFACTURER2, FOURTEEN), // 0000 1110
-						Arrays.asList(ID3, NAME3, MANUFACTURER3, TWO_HUNDRED_AND_FIFTY_FIVE)
-				); // 1111 1110
+			Arrays.asList(
+				Arrays.asList(ID1, NAME1, MANUFACTURER1, ONE), // 0000 0001
+				Arrays.asList(ID2, NAME2, MANUFACTURER2, FOURTEEN), // 0000 1110
+				Arrays.asList(ID3, NAME3, MANUFACTURER3, TWO_HUNDRED_AND_FIFTY_FIVE)
+			); // 1111 1110
 		and.setValue(THIRTY); // and:0001 1110
 
 		sourceTable.setTable(table);
 
 		tableResult =
-				Arrays.asList(
-						Arrays.asList(ID1, NAME1, MANUFACTURER1, ZERO), // 0000 0001
-						Arrays.asList(ID2, NAME2, MANUFACTURER2, FOURTEEN), // 0000 1110
-						Arrays.asList(ID3, NAME3, MANUFACTURER3, THIRTY)
-				); // 0001 1110
+			Arrays.asList(
+				Arrays.asList(ID1, NAME1, MANUFACTURER1, ZERO), // 0000 0001
+				Arrays.asList(ID2, NAME2, MANUFACTURER2, FOURTEEN), // 0000 1110
+				Arrays.asList(ID3, NAME3, MANUFACTURER3, THIRTY)
+			); // 0001 1110
 		computeProcessor.process(and);
 		assertEquals(tableResult, sourceTable.getTable());
 
 		// test with column
 		table =
-				Arrays.asList(
-						Arrays.asList(ID1, NAME1, TWO_HUNDRED_AND_FIFTY_FOUR, ONE), // 1111 1110 & 0000 0001
-						Arrays.asList(ID2, NAME2, THIRTY_SIX, FOURTEEN), // 0010 0100 & 0000 1110
-						Arrays.asList(ID3, NAME3, FORTY_ONE, TWO_HUNDRED_AND_FIFTY_FIVE)
-				); // 0010 1001 & 1111 1111
+			Arrays.asList(
+				Arrays.asList(ID1, NAME1, TWO_HUNDRED_AND_FIFTY_FOUR, ONE), // 1111 1110 & 0000 0001
+				Arrays.asList(ID2, NAME2, THIRTY_SIX, FOURTEEN), // 0010 0100 & 0000 1110
+				Arrays.asList(ID3, NAME3, FORTY_ONE, TWO_HUNDRED_AND_FIFTY_FIVE)
+			); // 0010 1001 & 1111 1111
 		and.setValue(DOLLAR_3);
 
 		sourceTable.setTable(table);
 
 		tableResult =
-				Arrays.asList(
-						Arrays.asList(ID1, NAME1, TWO_HUNDRED_AND_FIFTY_FOUR, ZERO), // 0000 0000
-						Arrays.asList(ID2, NAME2, THIRTY_SIX, "4"), // 0000 0100
-						Arrays.asList(ID3, NAME3, FORTY_ONE, FORTY_ONE)
-				); // 0010 1001
+			Arrays.asList(
+				Arrays.asList(ID1, NAME1, TWO_HUNDRED_AND_FIFTY_FOUR, ZERO), // 0000 0000
+				Arrays.asList(ID2, NAME2, THIRTY_SIX, "4"), // 0000 0100
+				Arrays.asList(ID3, NAME3, FORTY_ONE, FORTY_ONE)
+			); // 0010 1001
 		computeProcessor.process(and);
 		assertEquals(tableResult, sourceTable.getTable());
 	}
@@ -676,16 +676,16 @@ class ComputeProcessorTest {
 		final List<List<String>> table = sourceTable.getTable();
 
 		assertEquals(
-				new ArrayList<>(Arrays.asList(ID1, NAME1, NEW_COMMA_COLUMN, PREFIX_MANUFACTURER1, NUMBER_OF_DISKS1)),
-				table.get(0)
+			new ArrayList<>(Arrays.asList(ID1, NAME1, NEW_COMMA_COLUMN, PREFIX_MANUFACTURER1, NUMBER_OF_DISKS1)),
+			table.get(0)
 		);
 		assertEquals(
-				new ArrayList<>(Arrays.asList(ID2, NAME2, NEW_COMMA_COLUMN, PREFIX_MANUFACTURER2, NUMBER_OF_DISKS2)),
-				table.get(1)
+			new ArrayList<>(Arrays.asList(ID2, NAME2, NEW_COMMA_COLUMN, PREFIX_MANUFACTURER2, NUMBER_OF_DISKS2)),
+			table.get(1)
 		);
 		assertEquals(
-				new ArrayList<>(Arrays.asList(ID3, NAME3, NEW_COMMA_COLUMN, PREFIX_MANUFACTURER3, NUMBER_OF_DISKS3)),
-				table.get(2)
+			new ArrayList<>(Arrays.asList(ID3, NAME3, NEW_COMMA_COLUMN, PREFIX_MANUFACTURER3, NUMBER_OF_DISKS3)),
+			table.get(2)
 		);
 	}
 
@@ -700,22 +700,22 @@ class ComputeProcessorTest {
 		final List<List<String>> table = sourceTable.getTable();
 
 		assertEquals(
-				new ArrayList<>(
-						Arrays.asList(NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, PREFIX_ID1, NAME1, MANUFACTURER1, NUMBER_OF_DISKS1)
-				),
-				table.get(0)
+			new ArrayList<>(
+				Arrays.asList(NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, PREFIX_ID1, NAME1, MANUFACTURER1, NUMBER_OF_DISKS1)
+			),
+			table.get(0)
 		);
 		assertEquals(
-				new ArrayList<>(
-						Arrays.asList(NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, PREFIX_ID2, NAME2, MANUFACTURER2, NUMBER_OF_DISKS2)
-				),
-				table.get(1)
+			new ArrayList<>(
+				Arrays.asList(NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, PREFIX_ID2, NAME2, MANUFACTURER2, NUMBER_OF_DISKS2)
+			),
+			table.get(1)
 		);
 		assertEquals(
-				new ArrayList<>(
-						Arrays.asList(NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, PREFIX_ID3, NAME3, MANUFACTURER3, NUMBER_OF_DISKS3)
-				),
-				table.get(2)
+			new ArrayList<>(
+				Arrays.asList(NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, PREFIX_ID3, NAME3, MANUFACTURER3, NUMBER_OF_DISKS3)
+			),
+			table.get(2)
 		);
 	}
 
@@ -826,16 +826,16 @@ class ComputeProcessorTest {
 		final List<List<String>> table = sourceTable.getTable();
 
 		assertEquals(
-				new ArrayList<>(Arrays.asList(ID1, NAME1, MANUFACTURER1_SUFFIX, NEW_COMMA_COLUMN, NUMBER_OF_DISKS1)),
-				table.get(0)
+			new ArrayList<>(Arrays.asList(ID1, NAME1, MANUFACTURER1_SUFFIX, NEW_COMMA_COLUMN, NUMBER_OF_DISKS1)),
+			table.get(0)
 		);
 		assertEquals(
-				new ArrayList<>(Arrays.asList(ID2, NAME2, MANUFACTURER2_SUFFIX, NEW_COMMA_COLUMN, NUMBER_OF_DISKS2)),
-				table.get(1)
+			new ArrayList<>(Arrays.asList(ID2, NAME2, MANUFACTURER2_SUFFIX, NEW_COMMA_COLUMN, NUMBER_OF_DISKS2)),
+			table.get(1)
 		);
 		assertEquals(
-				new ArrayList<>(Arrays.asList(ID3, NAME3, MANUFACTURER3_SUFFIX, NEW_COMMA_COLUMN, NUMBER_OF_DISKS3)),
-				table.get(2)
+			new ArrayList<>(Arrays.asList(ID3, NAME3, MANUFACTURER3_SUFFIX, NEW_COMMA_COLUMN, NUMBER_OF_DISKS3)),
+			table.get(2)
 		);
 	}
 
@@ -850,22 +850,22 @@ class ComputeProcessorTest {
 		final List<List<String>> table = sourceTable.getTable();
 
 		assertEquals(
-				new ArrayList<>(
-						Arrays.asList(ID1_SUFFIX, NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, NAME1, MANUFACTURER1, NUMBER_OF_DISKS1)
-				),
-				table.get(0)
+			new ArrayList<>(
+				Arrays.asList(ID1_SUFFIX, NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, NAME1, MANUFACTURER1, NUMBER_OF_DISKS1)
+			),
+			table.get(0)
 		);
 		assertEquals(
-				new ArrayList<>(
-						Arrays.asList(ID2_SUFFIX, NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, NAME2, MANUFACTURER2, NUMBER_OF_DISKS2)
-				),
-				table.get(1)
+			new ArrayList<>(
+				Arrays.asList(ID2_SUFFIX, NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, NAME2, MANUFACTURER2, NUMBER_OF_DISKS2)
+			),
+			table.get(1)
 		);
 		assertEquals(
-				new ArrayList<>(
-						Arrays.asList(ID3_SUFFIX, NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, NAME3, MANUFACTURER3, NUMBER_OF_DISKS3)
-				),
-				table.get(2)
+			new ArrayList<>(
+				Arrays.asList(ID3_SUFFIX, NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, NAME3, MANUFACTURER3, NUMBER_OF_DISKS3)
+			),
+			table.get(2)
 		);
 	}
 
@@ -914,7 +914,7 @@ class ComputeProcessorTest {
 		// computeProcessor.getSourceTable().getTable() is not empty,
 		// RightConcat.getColumn() > sourceTable.getTable().get(0).size()
 		computeProcessor.setSourceTable(
-				SourceTable.builder().table(Collections.singletonList(Collections.singletonList(FOO))).build()
+			SourceTable.builder().table(Collections.singletonList(Collections.singletonList(FOO))).build()
 		);
 		rightConcat.setColumn(5);
 		computeProcessor.process(rightConcat);
@@ -936,8 +936,8 @@ class ComputeProcessorTest {
 	void testJson2Csv() {
 		// Retrieve the Json file and extract its content as String
 		final String rawData = ResourceHelper
-				.getResourceAsString("/test-files/compute/json2Csv/json2CsvSample.json", ComputeProcessor.class)
-				.replaceAll("\\s", "");
+			.getResourceAsString("/test-files/compute/json2Csv/json2CsvSample.json", ComputeProcessor.class)
+			.replaceAll("\\s", "");
 
 		// Set the extracted rawData in the source table
 		sourceTable.setRawData(rawData);
@@ -954,22 +954,22 @@ class ComputeProcessorTest {
 
 		// Check the case of a non-null {@link Json2Csv} instance
 		jsonToCsv =
-				Json2Csv.builder().entryKey("/monitors").separator(";").properties("id,name,monitorType,hostId").build();
+			Json2Csv.builder().entryKey("/monitors").separator(";").properties("id,name,monitorType,hostId").build();
 
 		computeProcessor.process(jsonToCsv);
 
 		final String expectedRawDataResult =
-				"/monitors[0];enclosure-1;enclosure-1;ENCLOSURE;hostId;\n" +
-						"/monitors[1];enclosure-2;enclosure-2;ENCLOSURE;hostId;\n";
+			"/monitors[0];enclosure-1;enclosure-1;ENCLOSURE;hostId;\n" +
+			"/monitors[1];enclosure-2;enclosure-2;ENCLOSURE;hostId;\n";
 		assertEquals(expectedRawDataResult, sourceTable.getRawData());
 	}
 
 	@Test
 	void visitSubstringNOK() {
 		final List<List<String>> table = Arrays.asList(
-				Arrays.asList("ID1", "Dell+1"),
-				Arrays.asList("ID2", "Dell+33"),
-				Arrays.asList("ID3", "Dell+xyz")
+			Arrays.asList("ID1", "Dell+1"),
+			Arrays.asList("ID2", "Dell+33"),
+			Arrays.asList("ID3", "Dell+xyz")
 		);
 
 		sourceTable.setTable(table);
@@ -998,9 +998,9 @@ class ComputeProcessorTest {
 	@Test
 	void testProcessSubstring() {
 		final List<List<String>> table = Arrays.asList(
-				Arrays.asList("ID1", "Dell+1"),
-				Arrays.asList("ID2", "Dell+33"),
-				Arrays.asList("ID3", "Dell+xyz")
+			Arrays.asList("ID1", "Dell+1"),
+			Arrays.asList("ID2", "Dell+33"),
+			Arrays.asList("ID3", "Dell+xyz")
 		);
 
 		sourceTable.setTable(table);
@@ -1010,9 +1010,9 @@ class ComputeProcessorTest {
 		computeProcessor.process(substring);
 
 		final List<List<String>> expected = Arrays.asList(
-				Arrays.asList("ID1", "Dell"),
-				Arrays.asList("ID2", "Dell"),
-				Arrays.asList("ID3", "Dell")
+			Arrays.asList("ID1", "Dell"),
+			Arrays.asList("ID2", "Dell"),
+			Arrays.asList("ID3", "Dell")
 		);
 		assertEquals(expected, sourceTable.getTable());
 	}
@@ -1020,9 +1020,9 @@ class ComputeProcessorTest {
 	@Test
 	void testProcessSubstringViaColumn() {
 		final List<List<String>> table = Arrays.asList(
-				Arrays.asList("ID1", "Dell+1", "4"),
-				Arrays.asList("ID2", "Dell+33", "4"),
-				Arrays.asList("ID3", "Dell+xyz", "4")
+			Arrays.asList("ID1", "Dell+1", "4"),
+			Arrays.asList("ID2", "Dell+33", "4"),
+			Arrays.asList("ID3", "Dell+xyz", "4")
 		);
 
 		sourceTable.setTable(table);
@@ -1032,9 +1032,9 @@ class ComputeProcessorTest {
 		computeProcessor.process(substring);
 
 		final List<List<String>> expected = Arrays.asList(
-				Arrays.asList("ID1", "Dell", "4"),
-				Arrays.asList("ID2", "Dell", "4"),
-				Arrays.asList("ID3", "Dell", "4")
+			Arrays.asList("ID1", "Dell", "4"),
+			Arrays.asList("ID2", "Dell", "4"),
+			Arrays.asList("ID3", "Dell", "4")
 		);
 		assertEquals(expected, sourceTable.getTable());
 	}
@@ -1042,9 +1042,9 @@ class ComputeProcessorTest {
 	@Test
 	void testPerformSubstringWrongBeginIndex() {
 		final List<List<String>> table = Arrays.asList(
-				Arrays.asList("ID1", "Dell+1"),
-				Arrays.asList("ID2", "Dell+33"),
-				Arrays.asList("ID3", "Dell+xyz")
+			Arrays.asList("ID1", "Dell+1"),
+			Arrays.asList("ID2", "Dell+33"),
+			Arrays.asList("ID3", "Dell+xyz")
 		);
 
 		sourceTable.setTable(table);
@@ -1057,9 +1057,9 @@ class ComputeProcessorTest {
 	@Test
 	void testPerformSubstringWrongColumnIndex() {
 		final List<List<String>> table = Arrays.asList(
-				Arrays.asList("ID1", "Dell+1"),
-				Arrays.asList("ID2", "Dell+33"),
-				Arrays.asList("ID3", "Dell+xyz")
+			Arrays.asList("ID1", "Dell+1"),
+			Arrays.asList("ID2", "Dell+33"),
+			Arrays.asList("ID3", "Dell+xyz")
 		);
 
 		sourceTable.setTable(table);
@@ -1072,9 +1072,9 @@ class ComputeProcessorTest {
 	@Test
 	void testPerformSubstring() {
 		final List<List<String>> table = Arrays.asList(
-				Arrays.asList("ID1", "Dell+1"),
-				Arrays.asList("ID2", "Dell+33"),
-				Arrays.asList("ID3", "Dell+xyz")
+			Arrays.asList("ID1", "Dell+1"),
+			Arrays.asList("ID2", "Dell+33"),
+			Arrays.asList("ID3", "Dell+xyz")
 		);
 
 		sourceTable.setTable(table);
@@ -1082,9 +1082,9 @@ class ComputeProcessorTest {
 		computeProcessor.performSubstring(1, "1", -1, "4", -1);
 
 		final List<List<String>> expected = Arrays.asList(
-				Arrays.asList("ID1", "Dell"),
-				Arrays.asList("ID2", "Dell"),
-				Arrays.asList("ID3", "Dell")
+			Arrays.asList("ID1", "Dell"),
+			Arrays.asList("ID2", "Dell"),
+			Arrays.asList("ID3", "Dell")
 		);
 		assertEquals(expected, sourceTable.getTable());
 	}
@@ -1134,38 +1134,38 @@ class ComputeProcessorTest {
 	@Test
 	void testProcessArrayTranslate() throws IOException {
 		List<List<String>> table = Arrays.asList(
-				Arrays.asList(ID1, null, TYPE1),
-				Arrays.asList(ID2, null, TYPE2),
-				Arrays.asList(ID3, null, TYPE3)
+			Arrays.asList(ID1, null, TYPE1),
+			Arrays.asList(ID2, null, TYPE2),
+			Arrays.asList(ID3, null, TYPE3)
 		);
 
 		List<List<String>> result = Arrays.asList(
-				Arrays.asList(ID1, "TRANSLATED_STATUS11|TRANSLATED_STATUS12|TRANSLATED_STATUS13", TYPE1),
-				Arrays.asList(ID2, "NO_VALUE|TRANSLATED_STATUS22", TYPE2),
-				Arrays.asList(ID3, "TRANSLATED_STATUS31", TYPE3)
+			Arrays.asList(ID1, "TRANSLATED_STATUS11|TRANSLATED_STATUS12|TRANSLATED_STATUS13", TYPE1),
+			Arrays.asList(ID2, "NO_VALUE|TRANSLATED_STATUS22", TYPE2),
+			Arrays.asList(ID3, "TRANSLATED_STATUS31", TYPE3)
 		);
 
 		final Map<String, String> translations = Maps.of(
-				"",
-				"NO_VALUE",
-				"status11",
-				"TRANSLATED_STATUS11",
-				"status12",
-				"TRANSLATED_STATUS12",
-				"status13",
-				"TRANSLATED_STATUS13",
-				"status22",
-				"TRANSLATED_STATUS22", // No translation for STATUS22
-				"status31",
-				"TRANSLATED_STATUS31"
+			"",
+			"NO_VALUE",
+			"status11",
+			"TRANSLATED_STATUS11",
+			"status12",
+			"TRANSLATED_STATUS12",
+			"status13",
+			"TRANSLATED_STATUS13",
+			"status22",
+			"TRANSLATED_STATUS22", // No translation for STATUS22
+			"status31",
+			"TRANSLATED_STATUS31"
 		);
 		final String translationTableName = "translationTableName";
 		final TranslationTable connectorTranslationTable = TranslationTable.builder().translations(translations).build();
 		final String connectorName = "connectorName";
 		final Connector connector = Connector
-				.builder()
-				.translations(Collections.singletonMap(translationTableName, connectorTranslationTable))
-				.build();
+			.builder()
+			.translations(Collections.singletonMap(translationTableName, connectorTranslationTable))
+			.build();
 
 		Map<String, Connector> store = Maps.of(connectorName, connector);
 
@@ -1216,11 +1216,11 @@ class ComputeProcessorTest {
 
 		// Test ReferenceTranslationTable OK
 		table =
-				Arrays.asList(
-						Arrays.asList(ID1, "STATUS11,STATUS12,STATUS13", TYPE1),
-						Arrays.asList(ID2, ",STATUS22,STATUS23,", TYPE2),
-						Arrays.asList(ID3, "STATUS31", TYPE3)
-				);
+			Arrays.asList(
+				Arrays.asList(ID1, "STATUS11,STATUS12,STATUS13", TYPE1),
+				Arrays.asList(ID2, ",STATUS22,STATUS23,", TYPE2),
+				Arrays.asList(ID3, "STATUS31", TYPE3)
+			);
 
 		sourceTable.setTable(table);
 
@@ -1232,37 +1232,37 @@ class ComputeProcessorTest {
 
 		// Test ReferenceTranslationTable OK
 		sourceTable.setTable(
-				Arrays.asList(
-						Arrays.asList(ID1, "STATUS11,STATUS12,STATUS13", TYPE1),
-						Arrays.asList(ID2, "STATUS22,STATUS23,", TYPE2),
-						Arrays.asList(ID3, "STATUS31", TYPE3)
-				)
+			Arrays.asList(
+				Arrays.asList(ID1, "STATUS11,STATUS12,STATUS13", TYPE1),
+				Arrays.asList(ID2, "STATUS22,STATUS23,", TYPE2),
+				Arrays.asList(ID3, "STATUS31", TYPE3)
+			)
 		);
 
 		result =
-				Arrays.asList(
-						Arrays.asList(ID1, "TRANSLATED_STATUS11|TRANSLATED_STATUS12|TRANSLATED_STATUS13", TYPE1),
-						Arrays.asList(ID2, "TRANSLATED_STATUS22", TYPE2),
-						Arrays.asList(ID3, "TRANSLATED_STATUS31", TYPE3)
-				);
+			Arrays.asList(
+				Arrays.asList(ID1, "TRANSLATED_STATUS11|TRANSLATED_STATUS12|TRANSLATED_STATUS13", TYPE1),
+				Arrays.asList(ID2, "TRANSLATED_STATUS22", TYPE2),
+				Arrays.asList(ID3, "TRANSLATED_STATUS31", TYPE3)
+			);
 
 		final TranslationTable referenceTranslationTable = TranslationTable
-				.builder()
-				.translations(
-						Map.of(
-								"status11",
-								"TRANSLATED_STATUS11",
-								"status12",
-								"TRANSLATED_STATUS12",
-								"status13",
-								"TRANSLATED_STATUS13",
-								"status22",
-								"TRANSLATED_STATUS22",
-								"status31",
-								"TRANSLATED_STATUS31"
-						)
+			.builder()
+			.translations(
+				Map.of(
+					"status11",
+					"TRANSLATED_STATUS11",
+					"status12",
+					"TRANSLATED_STATUS12",
+					"status13",
+					"TRANSLATED_STATUS13",
+					"status22",
+					"TRANSLATED_STATUS22",
+					"status31",
+					"TRANSLATED_STATUS31"
 				)
-				.build();
+			)
+			.build();
 		arrayTranslate.setTranslationTable(referenceTranslationTable);
 
 		computeProcessor.process(arrayTranslate);
@@ -1280,11 +1280,11 @@ class ComputeProcessorTest {
 
 		// regexp is null, valueSet is null
 		final ExcludeMatchingLines excludeMatchingLines = ExcludeMatchingLines
-				.builder()
-				.column(1)
-				.regExp(null)
-				.valueList(null)
-				.build();
+			.builder()
+			.column(1)
+			.regExp(null)
+			.valueList(null)
+			.build();
 		computeProcessor.process(excludeMatchingLines);
 		assertEquals(table, computeProcessor.getSourceTable().getTable());
 
@@ -1337,9 +1337,9 @@ class ComputeProcessorTest {
 	@Test
 	void testExtract() {
 		List<List<String>> table = Arrays.asList(
-				Arrays.asList("ID1", "STATUS1", "TYPE1", null, "NAME1"),
-				Arrays.asList("ID2", "STATUS2", "TYPE2", null, "NAME2"),
-				Arrays.asList("ID3", "STATUS3", "TYPE3", null, "NAME3")
+			Arrays.asList("ID1", "STATUS1", "TYPE1", null, "NAME1"),
+			Arrays.asList("ID2", "STATUS2", "TYPE2", null, "NAME2"),
+			Arrays.asList("ID3", "STATUS3", "TYPE3", null, "NAME3")
 		);
 
 		sourceTable.setTable(table);
@@ -1405,17 +1405,17 @@ class ComputeProcessorTest {
 		extract.setSubColumn(4);
 		computeProcessor.process(extract);
 		List<List<String>> expected = Arrays.asList(
-				Arrays.asList("ID1", "STATUS1", "TYPE1", "", "NAME1"),
-				Arrays.asList("ID2", "STATUS2", "TYPE2", "", "NAME2"),
-				Arrays.asList("ID3", "STATUS3", "TYPE3", "", "NAME3")
+			Arrays.asList("ID1", "STATUS1", "TYPE1", "", "NAME1"),
+			Arrays.asList("ID2", "STATUS2", "TYPE2", "", "NAME2"),
+			Arrays.asList("ID3", "STATUS3", "TYPE3", "", "NAME3")
 		);
 		assertEquals(expected, sourceTable.getTable());
 
 		// Test OK, subSeparators is a single character
 		List<List<String>> result = Arrays.asList(
-				Arrays.asList("ID1", "STATUS1", "TYPE1", "1", "NAME1"),
-				Arrays.asList("ID2", "STATUS2", "TYPE2", "2", "NAME2"),
-				Arrays.asList("ID3", "STATUS3", "TYPE3", "3", "NAME3")
+			Arrays.asList("ID1", "STATUS1", "TYPE1", "1", "NAME1"),
+			Arrays.asList("ID2", "STATUS2", "TYPE2", "2", "NAME2"),
+			Arrays.asList("ID3", "STATUS3", "TYPE3", "3", "NAME3")
 		);
 		extract.setSubColumn(3);
 		computeProcessor.process(extract);
@@ -1451,69 +1451,69 @@ class ComputeProcessorTest {
 		// Check the case of a null {@link Replace} object
 		computeProcessor.process((Replace) null);
 		assertEquals(
-				Arrays.asList(
-						Arrays.asList("ID1", "val1", "1value1"),
-						Arrays.asList("ID2", "val2", "1value11"),
-						Arrays.asList("ID3", "val3", "va1lue12")
-				),
-				sourceTable.getTable()
+			Arrays.asList(
+				Arrays.asList("ID1", "val1", "1value1"),
+				Arrays.asList("ID2", "val2", "1value11"),
+				Arrays.asList("ID3", "val3", "va1lue12")
+			),
+			sourceTable.getTable()
 		);
 
 		// // Check the case of an invalid column index
 		final Replace replace = Replace.builder().column(-1).build();
 		computeProcessor.process(replace);
 		assertEquals(
-				Arrays.asList(
-						Arrays.asList("ID1", "val1", "1value1"),
-						Arrays.asList("ID2", "val2", "1value11"),
-						Arrays.asList("ID3", "val3", "va1lue12")
-				),
-				sourceTable.getTable()
+			Arrays.asList(
+				Arrays.asList("ID1", "val1", "1value1"),
+				Arrays.asList("ID2", "val2", "1value11"),
+				Arrays.asList("ID3", "val3", "va1lue12")
+			),
+			sourceTable.getTable()
 		);
 
 		replace.setColumn(2);
 		computeProcessor.process(replace);
 		assertEquals(
-				Arrays.asList(
-						Arrays.asList("ID1", "val1", "1value1"),
-						Arrays.asList("ID2", "val2", "1value11"),
-						Arrays.asList("ID3", "val3", "va1lue12")
-				),
-				sourceTable.getTable()
+			Arrays.asList(
+				Arrays.asList("ID1", "val1", "1value1"),
+				Arrays.asList("ID2", "val2", "1value11"),
+				Arrays.asList("ID3", "val3", "va1lue12")
+			),
+			sourceTable.getTable()
 		);
 
 		replace.setExistingValue("al");
 		computeProcessor.process(replace);
 		assertEquals(
-				Arrays.asList(
-						Arrays.asList("ID1", "val1", "1value1"),
-						Arrays.asList("ID2", "val2", "1value11"),
-						Arrays.asList("ID3", "val3", "va1lue12")
-				),
-				sourceTable.getTable()
+			Arrays.asList(
+				Arrays.asList("ID1", "val1", "1value1"),
+				Arrays.asList("ID2", "val2", "1value11"),
+				Arrays.asList("ID3", "val3", "va1lue12")
+			),
+			sourceTable.getTable()
 		);
 
 		replace.setExistingValue(null);
 		replace.setNewValue("");
 		computeProcessor.process(replace);
 		assertEquals(
-				Arrays.asList(
-						Arrays.asList("ID1", "val1", "1value1"),
-						Arrays.asList("ID2", "val2", "1value11"),
-						Arrays.asList("ID3", "val3", "va1lue12")
-				),
-				sourceTable.getTable()
+			Arrays.asList(
+				Arrays.asList("ID1", "val1", "1value1"),
+				Arrays.asList("ID2", "val2", "1value11"),
+				Arrays.asList("ID3", "val3", "va1lue12")
+			),
+			sourceTable.getTable()
 		);
 
 		replace.setExistingValue("al");
 		computeProcessor.process(replace);
 		assertEquals(
-				Arrays.asList(
-						Arrays.asList("ID1", "v1", "1value1"),
-						Arrays.asList("ID2", "v2", "1value11"),
-						Arrays.asList("ID3", "v3", "va1lue12")
-				),
-				sourceTable.getTable()
+			Arrays.asList(
+				Arrays.asList("ID1", "v1", "1value1"),
+				Arrays.asList("ID2", "v2", "1value11"),
+				Arrays.asList("ID3", "v3", "va1lue12")
+			),
+			sourceTable.getTable()
 		);
 
 		replace.setColumn(3);
@@ -1521,24 +1521,24 @@ class ComputeProcessorTest {
 		replace.setNewValue("f");
 		computeProcessor.process(replace);
 		assertEquals(
-				Arrays.asList(
-						Arrays.asList("ID1", "v1", "fvaluef"),
-						Arrays.asList("ID2", "v2", "fvalueff"),
-						Arrays.asList("ID3", "v3", "vafluef2")
-				),
-				sourceTable.getTable()
+			Arrays.asList(
+				Arrays.asList("ID1", "v1", "fvaluef"),
+				Arrays.asList("ID2", "v2", "fvalueff"),
+				Arrays.asList("ID3", "v3", "vafluef2")
+			),
+			sourceTable.getTable()
 		);
 
 		replace.setExistingValue("ue");
 		replace.setNewValue("$2");
 		computeProcessor.process(replace);
 		assertEquals(
-				Arrays.asList(
-						Arrays.asList("ID1", "v1", "fvalv1f"),
-						Arrays.asList("ID2", "v2", "fvalv2ff"),
-						Arrays.asList("ID3", "v3", "vaflv3f2")
-				),
-				sourceTable.getTable()
+			Arrays.asList(
+				Arrays.asList("ID1", "v1", "fvalv1f"),
+				Arrays.asList("ID2", "v2", "fvalv2ff"),
+				Arrays.asList("ID3", "v3", "vaflv3f2")
+			),
+			sourceTable.getTable()
 		);
 
 		// Check the case when both existing and new values match COLUMN_PATTERN regex
@@ -1546,12 +1546,12 @@ class ComputeProcessorTest {
 		replace.setNewValue("val1;val2");
 		computeProcessor.process(replace);
 		assertEquals(
-				Arrays.asList(
-						Arrays.asList("ID1", "v1", "fvaval1", "val21f"),
-						Arrays.asList("ID2", "v2", "fvaval1", "val22ff"),
-						Arrays.asList("ID3", "v3", "vafval1", "val23f2")
-				),
-				sourceTable.getTable()
+			Arrays.asList(
+				Arrays.asList("ID1", "v1", "fvaval1", "val21f"),
+				Arrays.asList("ID2", "v2", "fvaval1", "val22ff"),
+				Arrays.asList("ID3", "v3", "vafval1", "val23f2")
+			),
+			sourceTable.getTable()
 		);
 
 		// Check the case when existing value matches COLUMN_PATTERN regex and the new value is hard-coded
@@ -1559,12 +1559,12 @@ class ComputeProcessorTest {
 		replace.setNewValue("v1v2");
 		computeProcessor.process(replace);
 		assertEquals(
-				Arrays.asList(
-						Arrays.asList("ID1", "v1", "v1v2", "val21f"),
-						Arrays.asList("ID2", "v2", "v1v2", "val22ff"),
-						Arrays.asList("ID3", "v3", "v1v2", "val23f2")
-				),
-				sourceTable.getTable()
+			Arrays.asList(
+				Arrays.asList("ID1", "v1", "v1v2", "val21f"),
+				Arrays.asList("ID2", "v2", "v1v2", "val22ff"),
+				Arrays.asList("ID3", "v3", "v1v2", "val23f2")
+			),
+			sourceTable.getTable()
 		);
 
 		// Check the case when both existing value and new value match COLUMN_PATTERN regex
@@ -1572,12 +1572,12 @@ class ComputeProcessorTest {
 		replace.setNewValue("$1");
 		computeProcessor.process(replace);
 		assertEquals(
-				Arrays.asList(
-						Arrays.asList("ID1", "v1", "ID1v2", "val21f"),
-						Arrays.asList("ID2", "v2", "v1ID2", "val22ff"),
-						Arrays.asList("ID3", "v3", "v1v2", "val23f2")
-				),
-				sourceTable.getTable()
+			Arrays.asList(
+				Arrays.asList("ID1", "v1", "ID1v2", "val21f"),
+				Arrays.asList("ID2", "v2", "v1ID2", "val22ff"),
+				Arrays.asList("ID3", "v3", "v1v2", "val23f2")
+			),
+			sourceTable.getTable()
 		);
 	}
 
@@ -1587,12 +1587,12 @@ class ComputeProcessorTest {
 		sourceTable.setRawData(xml);
 
 		final String properties =
-				">classId;" +
-						"outConfigs/equipmentFan>dn;" +
-						"outConfigs/equipmentFan>serial;" +
-						"outConfigs/equipmentFan>model;" +
-						"outConfigs/equipmentFan>vendor;" +
-						"outConfigs/equipmentFan>operState";
+			">classId;" +
+			"outConfigs/equipmentFan>dn;" +
+			"outConfigs/equipmentFan>serial;" +
+			"outConfigs/equipmentFan>model;" +
+			"outConfigs/equipmentFan>vendor;" +
+			"outConfigs/equipmentFan>operState";
 
 		final String recordTag = "/configResolveClass";
 
@@ -1611,264 +1611,264 @@ class ComputeProcessorTest {
 		computeProcessor.process(Xml2Csv.builder().properties(properties).recordTag(recordTag).build());
 
 		final List<List<String>> expected = List.of(
-				List.of(
-						"equipmentFan",
-						"sys/switch-A/fan-module-1-1/fan-1",
-						"N/A",
-						"N10-FAN1",
-						"Cisco Systems, Inc.",
-						"operable"
-				),
-				List.of(
-						"equipmentFan",
-						"sys/switch-A/fan-module-1-1/fan-2",
-						"N/A",
-						"N10-FAN1",
-						"Cisco Systems, Inc.",
-						"operable"
-				),
-				List.of(
-						"equipmentFan",
-						"sys/switch-A/fan-module-1-1/fan-3",
-						"N/A",
-						"N10-FAN1",
-						"Cisco Systems, Inc.",
-						"operable"
-				),
-				List.of(
-						"equipmentFan",
-						"sys/switch-A/fan-module-1-1/fan-4",
-						"N/A",
-						"N10-FAN1",
-						"Cisco Systems, Inc.",
-						"operable"
-				),
-				List.of(
-						"equipmentFan",
-						"sys/switch-A/fan-module-1-1/fan-5",
-						"N/A",
-						"N10-FAN1",
-						"Cisco Systems, Inc.",
-						"operable"
-				),
-				List.of(
-						"equipmentFan",
-						"sys/switch-A/fan-module-1-1/fan-6",
-						"N/A",
-						"N10-FAN1",
-						"Cisco Systems, Inc.",
-						"operable"
-				),
-				List.of(
-						"equipmentFan",
-						"sys/switch-A/fan-module-1-2/fan-1",
-						"N/A",
-						"N10-FAN1",
-						"Cisco Systems, Inc.",
-						"operable"
-				),
-				List.of(
-						"equipmentFan",
-						"sys/switch-A/fan-module-1-2/fan-2",
-						"N/A",
-						"N10-FAN1",
-						"Cisco Systems, Inc.",
-						"operable"
-				),
-				List.of(
-						"equipmentFan",
-						"sys/switch-A/fan-module-1-2/fan-3",
-						"N/A",
-						"N10-FAN1",
-						"Cisco Systems, Inc.",
-						"operable"
-				),
-				List.of(
-						"equipmentFan",
-						"sys/switch-A/fan-module-1-2/fan-4",
-						"N/A",
-						"N10-FAN1",
-						"Cisco Systems, Inc.",
-						"operable"
-				),
-				List.of(
-						"equipmentFan",
-						"sys/switch-A/fan-module-1-2/fan-5",
-						"N/A",
-						"N10-FAN1",
-						"Cisco Systems, Inc.",
-						"operable"
-				),
-				List.of(
-						"equipmentFan",
-						"sys/switch-A/fan-module-1-2/fan-6",
-						"N/A",
-						"N10-FAN1",
-						"Cisco Systems, Inc.",
-						"operable"
-				),
-				List.of(
-						"equipmentFan",
-						"sys/chassis-1/fan-module-1-1/fan-1",
-						"NWG15030613",
-						"N20-FAN5",
-						"Cisco Systems Inc",
-						"operable"
-				),
-				List.of(
-						"equipmentFan",
-						"sys/chassis-1/fan-module-1-1/fan-2",
-						"NWG15030613",
-						"N20-FAN5",
-						"Cisco Systems Inc",
-						"operable"
-				),
-				List.of(
-						"equipmentFan",
-						"sys/chassis-1/fan-module-1-2/fan-1",
-						"NWG150305AQ",
-						"N20-FAN5",
-						"Cisco Systems Inc",
-						"operable"
-				),
-				List.of(
-						"equipmentFan",
-						"sys/chassis-1/fan-module-1-2/fan-2",
-						"NWG150305AQ",
-						"N20-FAN5",
-						"Cisco Systems Inc",
-						"operable"
-				),
-				List.of(
-						"equipmentFan",
-						"sys/chassis-1/fan-module-1-3/fan-1",
-						"NWG15030653",
-						"N20-FAN5",
-						"Cisco Systems Inc",
-						"operable"
-				),
-				List.of(
-						"equipmentFan",
-						"sys/chassis-1/fan-module-1-3/fan-2",
-						"NWG15030653",
-						"N20-FAN5",
-						"Cisco Systems Inc",
-						"operable"
-				),
-				List.of(
-						"equipmentFan",
-						"sys/chassis-1/fan-module-1-4/fan-1",
-						"NWG1503055C",
-						"N20-FAN5",
-						"Cisco Systems Inc",
-						"operable"
-				),
-				List.of(
-						"equipmentFan",
-						"sys/chassis-1/fan-module-1-4/fan-2",
-						"NWG1503055C",
-						"N20-FAN5",
-						"Cisco Systems Inc",
-						"operable"
-				),
-				List.of(
-						"equipmentFan",
-						"sys/chassis-1/fan-module-1-5/fan-1",
-						"NWG150305CM",
-						"N20-FAN5",
-						"Cisco Systems Inc",
-						"operable"
-				),
-				List.of(
-						"equipmentFan",
-						"sys/chassis-1/fan-module-1-5/fan-2",
-						"NWG150305CM",
-						"N20-FAN5",
-						"Cisco Systems Inc",
-						"operable"
-				),
-				List.of(
-						"equipmentFan",
-						"sys/chassis-1/fan-module-1-6/fan-1",
-						"NWG150306ZR",
-						"N20-FAN5",
-						"Cisco Systems Inc",
-						"operable"
-				),
-				List.of(
-						"equipmentFan",
-						"sys/chassis-1/fan-module-1-6/fan-2",
-						"NWG150306ZR",
-						"N20-FAN5",
-						"Cisco Systems Inc",
-						"operable"
-				),
-				List.of(
-						"equipmentFan",
-						"sys/chassis-1/fan-module-1-7/fan-1",
-						"NWG150305QP",
-						"N20-FAN5",
-						"Cisco Systems Inc",
-						"operable"
-				),
-				List.of(
-						"equipmentFan",
-						"sys/chassis-1/fan-module-1-7/fan-2",
-						"NWG150305QP",
-						"N20-FAN5",
-						"Cisco Systems Inc",
-						"operable"
-				),
-				List.of(
-						"equipmentFan",
-						"sys/chassis-1/fan-module-1-8/fan-1",
-						"NWG150306VZ",
-						"N20-FAN5",
-						"Cisco Systems Inc",
-						"operable"
-				),
-				List.of(
-						"equipmentFan",
-						"sys/chassis-1/fan-module-1-8/fan-2",
-						"NWG150306VZ",
-						"N20-FAN5",
-						"Cisco Systems Inc",
-						"operable"
-				)
+			List.of(
+				"equipmentFan",
+				"sys/switch-A/fan-module-1-1/fan-1",
+				"N/A",
+				"N10-FAN1",
+				"Cisco Systems, Inc.",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/switch-A/fan-module-1-1/fan-2",
+				"N/A",
+				"N10-FAN1",
+				"Cisco Systems, Inc.",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/switch-A/fan-module-1-1/fan-3",
+				"N/A",
+				"N10-FAN1",
+				"Cisco Systems, Inc.",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/switch-A/fan-module-1-1/fan-4",
+				"N/A",
+				"N10-FAN1",
+				"Cisco Systems, Inc.",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/switch-A/fan-module-1-1/fan-5",
+				"N/A",
+				"N10-FAN1",
+				"Cisco Systems, Inc.",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/switch-A/fan-module-1-1/fan-6",
+				"N/A",
+				"N10-FAN1",
+				"Cisco Systems, Inc.",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/switch-A/fan-module-1-2/fan-1",
+				"N/A",
+				"N10-FAN1",
+				"Cisco Systems, Inc.",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/switch-A/fan-module-1-2/fan-2",
+				"N/A",
+				"N10-FAN1",
+				"Cisco Systems, Inc.",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/switch-A/fan-module-1-2/fan-3",
+				"N/A",
+				"N10-FAN1",
+				"Cisco Systems, Inc.",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/switch-A/fan-module-1-2/fan-4",
+				"N/A",
+				"N10-FAN1",
+				"Cisco Systems, Inc.",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/switch-A/fan-module-1-2/fan-5",
+				"N/A",
+				"N10-FAN1",
+				"Cisco Systems, Inc.",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/switch-A/fan-module-1-2/fan-6",
+				"N/A",
+				"N10-FAN1",
+				"Cisco Systems, Inc.",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-1/fan-1",
+				"NWG15030613",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-1/fan-2",
+				"NWG15030613",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-2/fan-1",
+				"NWG150305AQ",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-2/fan-2",
+				"NWG150305AQ",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-3/fan-1",
+				"NWG15030653",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-3/fan-2",
+				"NWG15030653",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-4/fan-1",
+				"NWG1503055C",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-4/fan-2",
+				"NWG1503055C",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-5/fan-1",
+				"NWG150305CM",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-5/fan-2",
+				"NWG150305CM",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-6/fan-1",
+				"NWG150306ZR",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-6/fan-2",
+				"NWG150306ZR",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-7/fan-1",
+				"NWG150305QP",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-7/fan-2",
+				"NWG150305QP",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-8/fan-1",
+				"NWG150306VZ",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			),
+			List.of(
+				"equipmentFan",
+				"sys/chassis-1/fan-module-1-8/fan-2",
+				"NWG150306VZ",
+				"N20-FAN5",
+				"Cisco Systems Inc",
+				"operable"
+			)
 		);
 
 		assertEquals(expected, sourceTable.getTable());
 		assertNotNull(sourceTable.getRawData());
 
 		final String expectedCsvResult =
-				"equipmentFan;sys/switch-A/fan-module-1-1/fan-1;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
-						"equipmentFan;sys/switch-A/fan-module-1-1/fan-2;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
-						"equipmentFan;sys/switch-A/fan-module-1-1/fan-3;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
-						"equipmentFan;sys/switch-A/fan-module-1-1/fan-4;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
-						"equipmentFan;sys/switch-A/fan-module-1-1/fan-5;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
-						"equipmentFan;sys/switch-A/fan-module-1-1/fan-6;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
-						"equipmentFan;sys/switch-A/fan-module-1-2/fan-1;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
-						"equipmentFan;sys/switch-A/fan-module-1-2/fan-2;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
-						"equipmentFan;sys/switch-A/fan-module-1-2/fan-3;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
-						"equipmentFan;sys/switch-A/fan-module-1-2/fan-4;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
-						"equipmentFan;sys/switch-A/fan-module-1-2/fan-5;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
-						"equipmentFan;sys/switch-A/fan-module-1-2/fan-6;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
-						"equipmentFan;sys/chassis-1/fan-module-1-1/fan-1;NWG15030613;N20-FAN5;Cisco Systems Inc;operable;\n" +
-						"equipmentFan;sys/chassis-1/fan-module-1-1/fan-2;NWG15030613;N20-FAN5;Cisco Systems Inc;operable;\n" +
-						"equipmentFan;sys/chassis-1/fan-module-1-2/fan-1;NWG150305AQ;N20-FAN5;Cisco Systems Inc;operable;\n" +
-						"equipmentFan;sys/chassis-1/fan-module-1-2/fan-2;NWG150305AQ;N20-FAN5;Cisco Systems Inc;operable;\n" +
-						"equipmentFan;sys/chassis-1/fan-module-1-3/fan-1;NWG15030653;N20-FAN5;Cisco Systems Inc;operable;\n" +
-						"equipmentFan;sys/chassis-1/fan-module-1-3/fan-2;NWG15030653;N20-FAN5;Cisco Systems Inc;operable;\n" +
-						"equipmentFan;sys/chassis-1/fan-module-1-4/fan-1;NWG1503055C;N20-FAN5;Cisco Systems Inc;operable;\n" +
-						"equipmentFan;sys/chassis-1/fan-module-1-4/fan-2;NWG1503055C;N20-FAN5;Cisco Systems Inc;operable;\n" +
-						"equipmentFan;sys/chassis-1/fan-module-1-5/fan-1;NWG150305CM;N20-FAN5;Cisco Systems Inc;operable;\n" +
-						"equipmentFan;sys/chassis-1/fan-module-1-5/fan-2;NWG150305CM;N20-FAN5;Cisco Systems Inc;operable;\n" +
-						"equipmentFan;sys/chassis-1/fan-module-1-6/fan-1;NWG150306ZR;N20-FAN5;Cisco Systems Inc;operable;\n" +
-						"equipmentFan;sys/chassis-1/fan-module-1-6/fan-2;NWG150306ZR;N20-FAN5;Cisco Systems Inc;operable;\n" +
-						"equipmentFan;sys/chassis-1/fan-module-1-7/fan-1;NWG150305QP;N20-FAN5;Cisco Systems Inc;operable;\n" +
-						"equipmentFan;sys/chassis-1/fan-module-1-7/fan-2;NWG150305QP;N20-FAN5;Cisco Systems Inc;operable;\n" +
-						"equipmentFan;sys/chassis-1/fan-module-1-8/fan-1;NWG150306VZ;N20-FAN5;Cisco Systems Inc;operable;\n" +
-						"equipmentFan;sys/chassis-1/fan-module-1-8/fan-2;NWG150306VZ;N20-FAN5;Cisco Systems Inc;operable;";
+			"equipmentFan;sys/switch-A/fan-module-1-1/fan-1;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
+			"equipmentFan;sys/switch-A/fan-module-1-1/fan-2;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
+			"equipmentFan;sys/switch-A/fan-module-1-1/fan-3;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
+			"equipmentFan;sys/switch-A/fan-module-1-1/fan-4;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
+			"equipmentFan;sys/switch-A/fan-module-1-1/fan-5;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
+			"equipmentFan;sys/switch-A/fan-module-1-1/fan-6;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
+			"equipmentFan;sys/switch-A/fan-module-1-2/fan-1;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
+			"equipmentFan;sys/switch-A/fan-module-1-2/fan-2;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
+			"equipmentFan;sys/switch-A/fan-module-1-2/fan-3;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
+			"equipmentFan;sys/switch-A/fan-module-1-2/fan-4;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
+			"equipmentFan;sys/switch-A/fan-module-1-2/fan-5;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
+			"equipmentFan;sys/switch-A/fan-module-1-2/fan-6;N/A;N10-FAN1;Cisco Systems, Inc.;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-1/fan-1;NWG15030613;N20-FAN5;Cisco Systems Inc;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-1/fan-2;NWG15030613;N20-FAN5;Cisco Systems Inc;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-2/fan-1;NWG150305AQ;N20-FAN5;Cisco Systems Inc;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-2/fan-2;NWG150305AQ;N20-FAN5;Cisco Systems Inc;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-3/fan-1;NWG15030653;N20-FAN5;Cisco Systems Inc;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-3/fan-2;NWG15030653;N20-FAN5;Cisco Systems Inc;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-4/fan-1;NWG1503055C;N20-FAN5;Cisco Systems Inc;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-4/fan-2;NWG1503055C;N20-FAN5;Cisco Systems Inc;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-5/fan-1;NWG150305CM;N20-FAN5;Cisco Systems Inc;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-5/fan-2;NWG150305CM;N20-FAN5;Cisco Systems Inc;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-6/fan-1;NWG150306ZR;N20-FAN5;Cisco Systems Inc;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-6/fan-2;NWG150306ZR;N20-FAN5;Cisco Systems Inc;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-7/fan-1;NWG150305QP;N20-FAN5;Cisco Systems Inc;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-7/fan-2;NWG150305QP;N20-FAN5;Cisco Systems Inc;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-8/fan-1;NWG150306VZ;N20-FAN5;Cisco Systems Inc;operable;\n" +
+			"equipmentFan;sys/chassis-1/fan-module-1-8/fan-2;NWG150306VZ;N20-FAN5;Cisco Systems Inc;operable;";
 
 		computeProcessor.process(Xml2Csv.builder().properties(properties).build());
 		assertEquals(expected, sourceTable.getTable());
@@ -1923,7 +1923,7 @@ class ComputeProcessorTest {
 		// computeVisitor.getSourceTable().getTable() is not empty,
 		// keepOnlyMatchingLines.getColumn() > sourceTable.getTable().get(0).size()
 		computeProcessor.setSourceTable(
-				SourceTable.builder().table(Collections.singletonList(Collections.singletonList(FOO))).build()
+			SourceTable.builder().table(Collections.singletonList(Collections.singletonList(FOO))).build()
 		);
 		keepOnlyMatchingLines.setColumn(2);
 		computeProcessor.process(keepOnlyMatchingLines);
@@ -1941,11 +1941,11 @@ class ComputeProcessorTest {
 
 		// regexp is null, valueList is null
 		KeepOnlyMatchingLines keepOnlyMatchingLines = KeepOnlyMatchingLines
-				.builder()
-				.column(1)
-				.regExp(null)
-				.valueList(null)
-				.build();
+			.builder()
+			.column(1)
+			.regExp(null)
+			.valueList(null)
+			.build();
 		computeProcessor.process(keepOnlyMatchingLines);
 		assertEquals(table, computeProcessor.getSourceTable().getTable());
 
@@ -2007,11 +2007,11 @@ class ComputeProcessorTest {
 
 		computeProcessor.setSourceTable(SourceTable.builder().table(table).build());
 		KeepOnlyMatchingLines keepOnlyMatchingLines = KeepOnlyMatchingLines
-				.builder()
-				.column(1)
-				.regExp("^B")
-				.valueList(null)
-				.build();
+			.builder()
+			.column(1)
+			.regExp("^B")
+			.valueList(null)
+			.build();
 		computeProcessor.process(keepOnlyMatchingLines);
 		// check regex column 1 starts with B
 		List<List<String>> resultTable = computeProcessor.getSourceTable().getTable();
@@ -2107,27 +2107,27 @@ class ComputeProcessorTest {
 		sourceTable.setRawData(null);
 		final String embeddedFileName = "${file::embeddedFile-1}";
 		Awk awkOK = Awk
-				.builder()
-				.script(embeddedFileName)
-				.keep("^" + FOO)
-				.exclude("^" + BAR)
-				.separators(TABLE_SEP)
-				.selectColumns(ONE_TWO_THREE)
-				.build();
+			.builder()
+			.script(embeddedFileName)
+			.keep("^" + FOO)
+			.exclude("^" + BAR)
+			.separators(TABLE_SEP)
+			.selectColumns(ONE_TWO_THREE)
+			.build();
 		final Map<String, EmbeddedFile> embeddedFileMap = Collections.singletonMap(
-				embeddedFileName,
-				EmbeddedFile.builder().content(BAZ).build()
+			embeddedFileName,
+			EmbeddedFile.builder().content(BAZ).build()
 		);
 
 		doReturn(
-				"FOO;ID1;NAME1;MANUFACTURER1;NUMBER_OF_DISKS1\nBAR;ID2;NAME2;MANUFACTURER2;NUMBER_OF_DISKS2\nBAZ;ID3;NAME3;MANUFACTURER3;NUMBER_OF_DISKS3"
+			"FOO;ID1;NAME1;MANUFACTURER1;NUMBER_OF_DISKS1\nBAR;ID2;NAME2;MANUFACTURER2;NUMBER_OF_DISKS2\nBAZ;ID3;NAME3;MANUFACTURER3;NUMBER_OF_DISKS3"
 		)
-				.when(matsyaClientsExecutorMock)
-				.executeAwkScript(any(), any());
+			.when(matsyaClientsExecutorMock)
+			.executeAwkScript(any(), any());
 		try (final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)) {
 			mockedEmbeddedFileHelper
-					.when(() -> EmbeddedFileHelper.findEmbeddedFiles(embeddedFileName))
-					.thenReturn(embeddedFileMap);
+				.when(() -> EmbeddedFileHelper.findEmbeddedFiles(embeddedFileName))
+				.thenReturn(embeddedFileMap);
 			computeProcessor.process(awkOK);
 			String expectedRawData = "FOO;ID1;NAME1;";
 			List<List<String>> expectedTable = Arrays.asList(Arrays.asList(FOO, ID1, NAME1));
@@ -2139,20 +2139,20 @@ class ComputeProcessorTest {
 		sourceTable.setTable(osCommandResultTable);
 		sourceTable.setRawData(null);
 		awkOK =
-				Awk
-						.builder()
-						.script(embeddedFileName)
-						.keep("^" + FOO)
-						.exclude("^" + BAR)
-						.separators(TABLE_SEP)
-						.selectColumns(ONE_TWO_THREE)
-						.build();
+			Awk
+				.builder()
+				.script(embeddedFileName)
+				.keep("^" + FOO)
+				.exclude("^" + BAR)
+				.separators(TABLE_SEP)
+				.selectColumns(ONE_TWO_THREE)
+				.build();
 		doReturn(null).when(matsyaClientsExecutorMock).executeAwkScript(any(), any());
 
 		try (final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)) {
 			mockedEmbeddedFileHelper
-					.when(() -> EmbeddedFileHelper.findEmbeddedFiles(embeddedFileName))
-					.thenReturn(embeddedFileMap);
+				.when(() -> EmbeddedFileHelper.findEmbeddedFiles(embeddedFileName))
+				.thenReturn(embeddedFileMap);
 			computeProcessor.process(awkOK);
 			assertEquals(Collections.emptyList(), sourceTable.getTable());
 		}
@@ -2160,19 +2160,19 @@ class ComputeProcessorTest {
 		sourceTable.setTable(osCommandResultTable);
 		sourceTable.setRawData(null);
 		awkOK =
-				Awk
-						.builder()
-						.script(embeddedFileName)
-						.keep("^" + FOO)
-						.exclude("^" + BAR)
-						.separators(TABLE_SEP)
-						.selectColumns(ONE_TWO_THREE)
-						.build();
+			Awk
+				.builder()
+				.script(embeddedFileName)
+				.keep("^" + FOO)
+				.exclude("^" + BAR)
+				.separators(TABLE_SEP)
+				.selectColumns(ONE_TWO_THREE)
+				.build();
 		doReturn(EMPTY).when(matsyaClientsExecutorMock).executeAwkScript(any(), any());
 		try (final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)) {
 			mockedEmbeddedFileHelper
-					.when(() -> EmbeddedFileHelper.findEmbeddedFiles(embeddedFileName))
-					.thenReturn(embeddedFileMap);
+				.when(() -> EmbeddedFileHelper.findEmbeddedFiles(embeddedFileName))
+				.thenReturn(embeddedFileMap);
 			computeProcessor.process(awkOK);
 			assertEquals(Collections.emptyList(), sourceTable.getTable());
 		}
@@ -2180,14 +2180,14 @@ class ComputeProcessorTest {
 		sourceTable.setRawData(null);
 		sourceTable.setTable(table);
 		doReturn(SourceTable.tableToCsv(table, TABLE_SEP, true))
-				.when(matsyaClientsExecutorMock)
-				.executeAwkScript(any(), any());
+			.when(matsyaClientsExecutorMock)
+			.executeAwkScript(any(), any());
 		try (final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)) {
 			mockedEmbeddedFileHelper
-					.when(() -> EmbeddedFileHelper.findEmbeddedFiles(embeddedFileName))
-					.thenReturn(embeddedFileMap);
+				.when(() -> EmbeddedFileHelper.findEmbeddedFiles(embeddedFileName))
+				.thenReturn(embeddedFileMap);
 			computeProcessor.process(
-					Awk.builder().script(embeddedFileName).exclude(ID1).keep(ID2).separators(TABLE_SEP).selectColumns("2,3").build()
+				Awk.builder().script(embeddedFileName).exclude(ID1).keep(ID2).separators(TABLE_SEP).selectColumns("2,3").build()
 			);
 			assertEquals("NAME2;MANUFACTURER2;", sourceTable.getRawData());
 			assertEquals(Arrays.asList(Arrays.asList(NAME2, MANUFACTURER2)), sourceTable.getTable());
@@ -2195,21 +2195,21 @@ class ComputeProcessorTest {
 
 		// Let's try with a space character in the selectColumns list
 		doReturn(SourceTable.tableToCsv(table, TABLE_SEP, true))
-				.when(matsyaClientsExecutorMock)
-				.executeAwkScript(any(), any());
+			.when(matsyaClientsExecutorMock)
+			.executeAwkScript(any(), any());
 		try (final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)) {
 			mockedEmbeddedFileHelper
-					.when(() -> EmbeddedFileHelper.findEmbeddedFiles(embeddedFileName))
-					.thenReturn(embeddedFileMap);
+				.when(() -> EmbeddedFileHelper.findEmbeddedFiles(embeddedFileName))
+				.thenReturn(embeddedFileMap);
 			computeProcessor.process(
-					Awk
-							.builder()
-							.script(embeddedFileName)
-							.exclude(ID1)
-							.keep(ID2)
-							.separators(TABLE_SEP)
-							.selectColumns("2, 3")
-							.build()
+				Awk
+					.builder()
+					.script(embeddedFileName)
+					.exclude(ID1)
+					.keep(ID2)
+					.separators(TABLE_SEP)
+					.selectColumns("2, 3")
+					.build()
 			);
 			assertEquals("NAME2;MANUFACTURER2;", sourceTable.getRawData());
 			assertEquals(Arrays.asList(Arrays.asList(NAME2, MANUFACTURER2)), sourceTable.getTable());
@@ -2224,17 +2224,17 @@ class ComputeProcessorTest {
 		sourceTable.setRawData(null);
 
 		final Awk awkOK = Awk
-				.builder()
-				.script("""
+			.builder()
+			.script("""
 						BEGIN { FS = ";"; }
 						{
 							print $1 ";" $2 ";" $3 ";"
 						}
 					""")
-				.keep("^" + ID1)
-				.separators(TABLE_SEP)
-				.selectColumns(ONE_TWO_THREE)
-				.build();
+			.keep("^" + ID1)
+			.separators(TABLE_SEP)
+			.selectColumns(ONE_TWO_THREE)
+			.build();
 
 		doCallRealMethod().when(matsyaClientsExecutorMock).executeAwkScript(any(), any());
 
@@ -2282,9 +2282,9 @@ class ComputeProcessorTest {
 		// test OK
 		sourceTable.setTable(table);
 		List<List<String>> result = Arrays.asList(
-				Arrays.asList(LINE_1.get(0), LINE_1.get(1), LINE_1.get(3)),
-				Arrays.asList(LINE_2.get(0), LINE_2.get(1), LINE_2.get(3)),
-				Arrays.asList(LINE_3.get(0), LINE_3.get(1), LINE_3.get(3))
+			Arrays.asList(LINE_1.get(0), LINE_1.get(1), LINE_1.get(3)),
+			Arrays.asList(LINE_2.get(0), LINE_2.get(1), LINE_2.get(3)),
+			Arrays.asList(LINE_3.get(0), LINE_3.get(1), LINE_3.get(3))
 		);
 
 		keepColumns.setColumnNumbers("1,2,4");
@@ -2304,47 +2304,47 @@ class ComputeProcessorTest {
 		// test null arg
 		computeProcessor.process((DuplicateColumn) null);
 		assertEquals(
-				Collections.singletonList(Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")),
-				sourceTable.getTable()
+			Collections.singletonList(Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")),
+			sourceTable.getTable()
 		);
 
 		// test out of bounds
 		DuplicateColumn duplicateColumn = new DuplicateColumn("1", 0);
 		computeProcessor.process(duplicateColumn);
 		assertEquals(
-				Collections.singletonList(Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")),
-				sourceTable.getTable()
+			Collections.singletonList(Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")),
+			sourceTable.getTable()
 		);
 
 		duplicateColumn = new DuplicateColumn("10", 10);
 		computeProcessor.process(duplicateColumn);
 		assertEquals(
-				Collections.singletonList(Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")),
-				sourceTable.getTable()
+			Collections.singletonList(Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")),
+			sourceTable.getTable()
 		);
 
 		// test actual index
 		duplicateColumn = new DuplicateColumn("1", 1);
 		computeProcessor.process(duplicateColumn);
 		assertEquals(
-				Collections.singletonList(Arrays.asList("ID1", "ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")),
-				sourceTable.getTable()
+			Collections.singletonList(Arrays.asList("ID1", "ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")),
+			sourceTable.getTable()
 		);
 
 		duplicateColumn = new DuplicateColumn("2", 2);
 		computeProcessor.process(duplicateColumn);
 		assertEquals(
-				Collections.singletonList(Arrays.asList("ID1", "ID1", "ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")),
-				sourceTable.getTable()
+			Collections.singletonList(Arrays.asList("ID1", "ID1", "ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")),
+			sourceTable.getTable()
 		);
 
 		duplicateColumn = new DuplicateColumn("3", 6);
 		computeProcessor.process(duplicateColumn);
 		assertEquals(
-				Collections.singletonList(
-						Arrays.asList("ID1", "ID1", "ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1", "NUMBER_OF_DISKS1")
-				),
-				sourceTable.getTable()
+			Collections.singletonList(
+				Arrays.asList("ID1", "ID1", "ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1", "NUMBER_OF_DISKS1")
+			),
+			sourceTable.getTable()
 		);
 
 		// test multiple lines
@@ -2353,45 +2353,45 @@ class ComputeProcessorTest {
 		duplicateColumn = new DuplicateColumn("13", 3);
 		computeProcessor.process(duplicateColumn);
 		assertEquals(
-				Arrays.asList(
-						Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
-						Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
-						Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "MANUFACTURER3", "NUMBER_OF_DISKS3")
-				),
-				sourceTable.getTable()
+			Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "MANUFACTURER3", "NUMBER_OF_DISKS3")
+			),
+			sourceTable.getTable()
 		);
 
 		duplicateColumn = new DuplicateColumn("13", 7);
 		computeProcessor.process(duplicateColumn);
 		assertEquals(
-				Arrays.asList(
-						Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
-						Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
-						Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "MANUFACTURER3", "NUMBER_OF_DISKS3")
-				),
-				sourceTable.getTable()
+			Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "MANUFACTURER3", "NUMBER_OF_DISKS3")
+			),
+			sourceTable.getTable()
 		);
 
 		duplicateColumn = new DuplicateColumn("13", -1);
 		computeProcessor.process(duplicateColumn);
 		assertEquals(
-				Arrays.asList(
-						Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
-						Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
-						Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "MANUFACTURER3", "NUMBER_OF_DISKS3")
-				),
-				sourceTable.getTable()
+			Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "MANUFACTURER3", "NUMBER_OF_DISKS3")
+			),
+			sourceTable.getTable()
 		);
 
 		duplicateColumn = new DuplicateColumn("13", 0);
 		computeProcessor.process(duplicateColumn);
 		assertEquals(
-				Arrays.asList(
-						Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
-						Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
-						Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "MANUFACTURER3", "NUMBER_OF_DISKS3")
-				),
-				sourceTable.getTable()
+			Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "MANUFACTURER3", "NUMBER_OF_DISKS3")
+			),
+			sourceTable.getTable()
 		);
 	}
 }
