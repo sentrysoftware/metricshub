@@ -11,7 +11,7 @@ import lombok.NonNull;
 public class OtelTestHelper {
 
 	/**
-	 * Initializes a Metrics SDK with a Resource and an instance of IntervalMetricReader.
+	 * Initializes a Metrics SDK with a Resource and an instance of {@link InMemoryMetricReader}.
 	 *
 	 * @param resource the resource used for the SdkMeterProvider
 	 * @param inMemoryReader the periodic reader running the metrics collect then the OTLP metrics export
