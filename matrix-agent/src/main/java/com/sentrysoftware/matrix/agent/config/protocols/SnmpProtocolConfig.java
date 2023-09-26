@@ -51,7 +51,7 @@ public class SnmpProtocolConfig extends AbstractProtocolConfig {
 	 * @return The {@link SnmpConfiguration} instance
 	 */
 	@Override
-	public IConfiguration toConfigurartion() {
+	public IConfiguration toConfiguration() {
 		return SnmpConfiguration
 			.builder()
 			.version(version)

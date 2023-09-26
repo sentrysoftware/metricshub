@@ -34,7 +34,7 @@ public class WmiProtocolConfig extends AbstractProtocolConfig {
 	 * @return The {@link WmiConfiguration} instance
 	 */
 	@Override
-	public IConfiguration toConfigurartion() {
+	public IConfiguration toConfiguration() {
 		return WmiConfiguration
 			.builder()
 			.namespace(namespace)

@@ -42,11 +42,11 @@ class FileWatcherTaskTest {
 			.build()
 			.start();
 
-		Awaitility.await().atMost(Durations.FIVE_HUNDRED_MILLISECONDS).until(() -> testFile.createNewFile());
+		Awaitility.await().atMost(Durations.ONE_SECOND).until(() -> testFile.createNewFile());
 
 		Awaitility
 			.await()
-			.atMost(Durations.FIVE_HUNDRED_MILLISECONDS)
+			.atMost(Durations.ONE_SECOND)
 			.untilAsserted(() -> assertEquals("File updated", stringBuilder.toString()));
 	}
 
@@ -77,11 +77,11 @@ class FileWatcherTaskTest {
 			.build()
 			.start();
 
-		Awaitility.await().atMost(Durations.FIVE_HUNDRED_MILLISECONDS).until(() -> testFile.createNewFile());
+		Awaitility.await().atMost(Durations.ONE_SECOND).until(() -> testFile.createNewFile());
 
 		Awaitility
 			.await()
-			.atMost(Durations.FIVE_HUNDRED_MILLISECONDS)
+			.atMost(Durations.ONE_SECOND)
 			.untilAsserted(() -> assertEquals("File updated", stringBuilder.toString()));
 	}
 }

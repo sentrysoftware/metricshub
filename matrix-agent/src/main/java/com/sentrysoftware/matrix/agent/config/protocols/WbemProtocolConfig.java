@@ -47,7 +47,7 @@ public class WbemProtocolConfig extends AbstractProtocolConfig {
 	 * @return The {@link WbemConfiguration} instance
 	 */
 	@Override
-	public IConfiguration toConfigurartion() {
+	public IConfiguration toConfiguration() {
 		return WbemConfiguration
 			.builder()
 			.namespace(namespace)

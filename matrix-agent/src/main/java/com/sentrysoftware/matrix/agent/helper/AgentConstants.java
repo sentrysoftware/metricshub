@@ -19,4 +19,12 @@ public class AgentConstants {
 	public static final String SECURITY_DIRECTORY_NAME = "security";
 	public static final Path DEFAULT_OUTPUT_DIRECTORY = ConfigHelper.getDefaultOutputDirectory();
 	public static final String FILE_PATH_FORMAT = "%s/%s";
+
+	// Agent attribute information constants
+	public static final String AGENT_INFO_OTEL_VERSION_NUMBER_ATTRIBUTE_KEY = "otel_version";
+	public static final String AGENT_INFO_HC_VERSION_NUMBER_ATTRIBUTE_KEY = "hc_version";
+	public static final String AGENT_INFO_BUILD_DATE_NUMBER_ATTRIBUTE_KEY = "build_date";
+	public static final String AGENT_INFO_BUILD_NUMBER_ATTRIBUTE_KEY = "build_number";
+	public static final String AGENT_INFO_VERSION_ATTRIBUTE_KEY = "version";
+	public static final String AGENT_INFO_NAME_ATTRIBUTE_KEY = "name";
 }

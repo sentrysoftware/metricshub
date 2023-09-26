@@ -1,5 +1,11 @@
 package com.sentrysoftware.matrix.agent.context;
 
+import static com.sentrysoftware.matrix.agent.helper.AgentConstants.AGENT_INFO_BUILD_DATE_NUMBER_ATTRIBUTE_KEY;
+import static com.sentrysoftware.matrix.agent.helper.AgentConstants.AGENT_INFO_BUILD_NUMBER_ATTRIBUTE_KEY;
+import static com.sentrysoftware.matrix.agent.helper.AgentConstants.AGENT_INFO_HC_VERSION_NUMBER_ATTRIBUTE_KEY;
+import static com.sentrysoftware.matrix.agent.helper.AgentConstants.AGENT_INFO_NAME_ATTRIBUTE_KEY;
+import static com.sentrysoftware.matrix.agent.helper.AgentConstants.AGENT_INFO_OTEL_VERSION_NUMBER_ATTRIBUTE_KEY;
+import static com.sentrysoftware.matrix.agent.helper.AgentConstants.AGENT_INFO_VERSION_ATTRIBUTE_KEY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_NAME;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OTEL_AIX_OS_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OTEL_FREE_BSD_OS_TYPE;
@@ -30,13 +36,6 @@ import org.springframework.core.io.ClassPathResource;
 
 @Slf4j
 public class AgentInfo {
-
-	public static final String AGENT_INFO_OTEL_VERSION_NUMBER_ATTRIBUTE_KEY = "otel_version";
-	public static final String AGENT_INFO_HC_VERSION_NUMBER_ATTRIBUTE_KEY = "hc_version";
-	public static final String AGENT_INFO_BUILD_DATE_NUMBER_ATTRIBUTE_KEY = "build_date";
-	public static final String AGENT_INFO_BUILD_NUMBER_ATTRIBUTE_KEY = "build_number";
-	public static final String AGENT_INFO_VERSION_ATTRIBUTE_KEY = "version";
-	public static final String AGENT_INFO_NAME_ATTRIBUTE_KEY = "name";
 
 	public static final ObjectMapper OBJECT_MAPPER = ConfigHelper.newObjectMapper();
 

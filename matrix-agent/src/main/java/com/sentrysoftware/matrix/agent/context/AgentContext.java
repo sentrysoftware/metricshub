@@ -46,7 +46,7 @@ public class AgentContext {
 	 * @throws IOException
 	 */
 	public AgentContext(final String alternateConfigFile) throws IOException {
-		long startTime = System.nanoTime();
+		final long startTime = System.nanoTime();
 
 		// Set the current PID
 		pid = findPid();

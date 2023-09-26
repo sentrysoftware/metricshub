@@ -1123,7 +1123,7 @@ public class ConfigHelper {
 						protocols.getWinRm()
 					)
 					.filter(Objects::nonNull)
-					.map(AbstractProtocolConfig::toConfigurartion)
+					.map(AbstractProtocolConfig::toConfiguration)
 					.filter(Objects::nonNull)
 					.collect(Collectors.toMap(IConfiguration::getClass, Function.identity()))
 			);

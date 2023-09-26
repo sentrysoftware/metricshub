@@ -20,5 +20,5 @@ public abstract class AbstractProtocolConfig {
 	 *
 	 * @return {@link IConfiguration} instance
 	 */
-	public abstract IConfiguration toConfigurartion();
+	public abstract IConfiguration toConfiguration();
 }

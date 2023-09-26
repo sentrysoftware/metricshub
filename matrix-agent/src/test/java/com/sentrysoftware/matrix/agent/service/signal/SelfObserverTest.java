@@ -1,11 +1,11 @@
 package com.sentrysoftware.matrix.agent.service.signal;
 
-import static com.sentrysoftware.matrix.agent.context.AgentInfo.AGENT_INFO_BUILD_DATE_NUMBER_ATTRIBUTE_KEY;
-import static com.sentrysoftware.matrix.agent.context.AgentInfo.AGENT_INFO_BUILD_NUMBER_ATTRIBUTE_KEY;
-import static com.sentrysoftware.matrix.agent.context.AgentInfo.AGENT_INFO_HC_VERSION_NUMBER_ATTRIBUTE_KEY;
-import static com.sentrysoftware.matrix.agent.context.AgentInfo.AGENT_INFO_NAME_ATTRIBUTE_KEY;
-import static com.sentrysoftware.matrix.agent.context.AgentInfo.AGENT_INFO_OTEL_VERSION_NUMBER_ATTRIBUTE_KEY;
-import static com.sentrysoftware.matrix.agent.context.AgentInfo.AGENT_INFO_VERSION_ATTRIBUTE_KEY;
+import static com.sentrysoftware.matrix.agent.helper.AgentConstants.AGENT_INFO_BUILD_DATE_NUMBER_ATTRIBUTE_KEY;
+import static com.sentrysoftware.matrix.agent.helper.AgentConstants.AGENT_INFO_BUILD_NUMBER_ATTRIBUTE_KEY;
+import static com.sentrysoftware.matrix.agent.helper.AgentConstants.AGENT_INFO_HC_VERSION_NUMBER_ATTRIBUTE_KEY;
+import static com.sentrysoftware.matrix.agent.helper.AgentConstants.AGENT_INFO_NAME_ATTRIBUTE_KEY;
+import static com.sentrysoftware.matrix.agent.helper.AgentConstants.AGENT_INFO_OTEL_VERSION_NUMBER_ATTRIBUTE_KEY;
+import static com.sentrysoftware.matrix.agent.helper.AgentConstants.AGENT_INFO_VERSION_ATTRIBUTE_KEY;
 import static com.sentrysoftware.matrix.agent.helper.TestConstants.COMPANY_ATTRIBUTE_KEY;
 import static com.sentrysoftware.matrix.agent.helper.TestConstants.COMPANY_ATTRIBUTE_VALUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
