@@ -398,7 +398,7 @@ public class MatsyaClientsExecutor {
 		throws InterruptedException, ExecutionException, TimeoutException {
 		trace(() ->
 			log.trace(
-				"Executing JSON to CSV conversion:\n- Json-source:\n{}\n- Json-entry-key: {}\n" +
+				"Executing JSON to CSV conversion:\n- Json-source:\n{}\n- Json-entry-key: {}\n" + // NOSONAR
 				"- Property-list: {}\n- Separator: {}\n",
 				jsonSource,
 				jsonEntryKey,
@@ -434,7 +434,7 @@ public class MatsyaClientsExecutor {
 
 		trace(() ->
 			log.trace(
-				"Executed JSON to CSV conversion:\n- Json-source:\n{}\n- Json-entry-key: {}\n" +
+				"Executed JSON to CSV conversion:\n- Json-source:\n{}\n- Json-entry-key: {}\n" + // NOSONAR
 				"- Property-list: {}\n- Separator: {}\n- Result:\n{}\n",
 				jsonSource,
 				jsonEntryKey,
@@ -721,7 +721,7 @@ public class MatsyaClientsExecutor {
 
 			trace(() ->
 				log.trace(
-					"Executing WBEM request:\n- Hostname: {}\n- Port: {}\n- Protocol: {}\n- URL: {}\n" +
+					"Executing WBEM request:\n- Hostname: {}\n- Port: {}\n- Protocol: {}\n- URL: {}\n" + // NOSONAR
 					"- Username: {}\n- Query: {}\n- Namespace: {}\n- Timeout: {} s\n",
 					hostname,
 					wbemConfig.getPort(),
@@ -752,7 +752,7 @@ public class MatsyaClientsExecutor {
 
 			trace(() ->
 				log.trace(
-					"Executed WBEM request:\n- Hostname: {}\n- Port: {}\n- Protocol: {}\n- URL: {}\n" +
+					"Executed WBEM request:\n- Hostname: {}\n- Port: {}\n- Protocol: {}\n- URL: {}\n" + // NOSONAR
 					"- Username: {}\n- Query: {}\n- Namespace: {}\n- Timeout: {} s\n- Result:\n{}\n- response-time: {}\n",
 					hostname,
 					wbemConfig.getPort(),
@@ -798,7 +798,7 @@ public class MatsyaClientsExecutor {
 
 		trace(() ->
 			log.trace(
-				"Executing WMI request:\n- Hostname: {}\n- Network-resource: {}\n- Username: {}\n- Query: {}\n" +
+				"Executing WMI request:\n- Hostname: {}\n- Network-resource: {}\n- Username: {}\n- Query: {}\n" + // NOSONAR
 				"- Namespace: {}\n- Timeout: {} s\n",
 				hostname,
 				networkResource,
@@ -832,7 +832,7 @@ public class MatsyaClientsExecutor {
 
 			trace(() ->
 				log.trace(
-					"Executed WMI request:\n- Hostname: {}\n- Network-resource: {}\n- Username: {}\n- Query: {}\n" +
+					"Executed WMI request:\n- Hostname: {}\n- Network-resource: {}\n- Username: {}\n- Query: {}\n" + // NOSONAR
 					"- Namespace: {}\n- Timeout: {} s\n- Result:\n{}\n- response-time: {}\n",
 					hostname,
 					networkResource,
@@ -876,7 +876,7 @@ public class MatsyaClientsExecutor {
 		try {
 			trace(() ->
 				log.trace(
-					"Executing WMI remote command:\n- Command: {}\n- Hostname: {}\n- Username: {}\n" +
+					"Executing WMI remote command:\n- Command: {}\n- Hostname: {}\n- Username: {}\n" + // NOSONAR
 					"- Timeout: {} s\n- Local-files: {}\n",
 					command,
 					hostname,
@@ -905,7 +905,7 @@ public class MatsyaClientsExecutor {
 
 			trace(() ->
 				log.trace(
-					"Executed WMI remote command:\n- Command: {}\n- Hostname: {}\n- Username: {}\n" +
+					"Executed WMI remote command:\n- Command: {}\n- Hostname: {}\n- Username: {}\n" + // NOSONAR
 					"- Timeout: {} s\n- Local-files: {}\n- Result:\n{}\n- response-time: {}\n",
 					command,
 					hostname,
@@ -1025,7 +1025,7 @@ public class MatsyaClientsExecutor {
 
 		trace(() ->
 			log.trace(
-				"Executing HTTP request: {} {}\n- hostname: {}\n- url: {}\n- Protocol: {}\n- Port: {}\n" +
+				"Executing HTTP request: {} {}\n- hostname: {}\n- url: {}\n- Protocol: {}\n- Port: {}\n" + // NOSONAR
 				"- Request-headers:\n{}\n- Request-body:\n{}\n- Timeout: {} s\n- Get-result-content: {}\n",
 				method,
 				fullUrl,
@@ -1158,7 +1158,7 @@ public class MatsyaClientsExecutor {
 
 			trace(() ->
 				log.trace(
-					"Executed HTTP request: {} {}\n- Hostname: {}\n- Url: {}\n- Protocol: {}\n- Port: {}\n" +
+					"Executed HTTP request: {} {}\n- Hostname: {}\n- Url: {}\n- Protocol: {}\n- Port: {}\n" + // NOSONAR
 					"- Request-headers:\n{}\n- Request-body:\n{}\n- Timeout: {} s\n" +
 					"- get-result-content: {}\n- response-status: {}\n- response-headers:\n{}\n" +
 					"- response-body:\n{}\n- response-time: {}\n",
@@ -1262,7 +1262,7 @@ public class MatsyaClientsExecutor {
 	) throws MatsyaException {
 		trace(() ->
 			log.trace(
-				"Executing Remote SSH command:\n- hostname: {}\n- username: {}\n- key-file-path: {}\n" +
+				"Executing Remote SSH command:\n- hostname: {}\n- username: {}\n- key-file-path: {}\n" + // NOSONAR
 				"- command: {}\n- timeout: {} s\n- local-files: {}\n",
 				hostname,
 				username,
@@ -1324,7 +1324,7 @@ public class MatsyaClientsExecutor {
 
 			trace(() ->
 				log.trace(
-					"Executed Remote SSH command:\n- Hostname: {}\n- Username: {}\n- Key-file-path: {}\n" +
+					"Executed Remote SSH command:\n- Hostname: {}\n- Username: {}\n- Key-file-path: {}\n" + // NOSONAR
 					"- Command: {}\n- Timeout: {} s\n- Local-files: {}\n- Result:\n{}\n- response-time: {}\n",
 					hostname,
 					username,
@@ -1497,7 +1497,7 @@ public class MatsyaClientsExecutor {
 	) throws InterruptedException, ExecutionException, TimeoutException {
 		trace(() ->
 			log.trace(
-				"Executing IPMI detection request:\n- Hostname: {}\n- Username: {}\n- SkipAuth: {}\n" + "- Timeout: {} s\n",
+				"Executing IPMI detection request:\n- Hostname: {}\n- Username: {}\n- SkipAuth: {}\n" + "- Timeout: {} s\n", // NOSONAR
 				hostname,
 				ipmiConfiguration.getUsername(),
 				ipmiConfiguration.isSkipAuth(),
@@ -1515,7 +1515,7 @@ public class MatsyaClientsExecutor {
 
 		trace(() ->
 			log.trace(
-				"Executed IPMI detection request:\n- Hostname: {}\n- Username: {}\n- SkipAuth: {}\n" +
+				"Executed IPMI detection request:\n- Hostname: {}\n- Username: {}\n- SkipAuth: {}\n" + // NOSONAR
 				"- Timeout: {} s\n- Result:\n{}\n- response-time: {}\n",
 				hostname,
 				ipmiConfiguration.getUsername(),
@@ -1575,7 +1575,7 @@ public class MatsyaClientsExecutor {
 	) throws InterruptedException, ExecutionException, TimeoutException {
 		trace(() ->
 			log.trace(
-				"Executing IPMI FRUs and Sensors request:\n- Hostname: {}\n- Username: {}\n- SkipAuth: {}\n" +
+				"Executing IPMI FRUs and Sensors request:\n- Hostname: {}\n- Username: {}\n- SkipAuth: {}\n" + // NOSONAR
 				"- Timeout: {} s\n",
 				hostname,
 				ipmiConfiguration.getUsername(),
@@ -1594,7 +1594,7 @@ public class MatsyaClientsExecutor {
 
 		trace(() ->
 			log.trace(
-				"Executed IPMI FRUs and Sensors request:\n- Hostname: {}\n- Username: {}\n- SkipAuth: {}\n" +
+				"Executed IPMI FRUs and Sensors request:\n- Hostname: {}\n- Username: {}\n- SkipAuth: {}\n" + // NOSONAR
 				"- Timeout: {} s\n- Result:\n{}\n- response-time: {}\n",
 				hostname,
 				ipmiConfiguration.getUsername(),
@@ -1635,7 +1635,7 @@ public class MatsyaClientsExecutor {
 
 		trace(() ->
 			log.trace(
-				"Executing WinRM WQL request:\n- hostname: {}\n- username: {}\n- query: {}\n" +
+				"Executing WinRM WQL request:\n- hostname: {}\n- username: {}\n- query: {}\n" + // NOSONAR
 				"- protocol: {}\n- port: {}\n- authentications: {}\n- timeout: {}\n- namespace: {}\n",
 				hostname,
 				username,
@@ -1671,7 +1671,7 @@ public class MatsyaClientsExecutor {
 
 			trace(() ->
 				log.trace(
-					"Executed WinRM WQL request:\n- hostname: {}\n- username: {}\n- query: {}\n" +
+					"Executed WinRM WQL request:\n- hostname: {}\n- username: {}\n- query: {}\n" + // NOSONAR
 					"- protocol: {}\n- port: {}\n- authentications: {}\n- timeout: {}\n- namespace: {}\n- Result:\n{}\n- response-time: {}\n",
 					hostname,
 					username,
@@ -1718,7 +1718,7 @@ public class MatsyaClientsExecutor {
 
 		trace(() ->
 			log.trace(
-				"Executing WinRM remote command:\n- hostname: {}\n- username: {}\n- command: {}\n" +
+				"Executing WinRM remote command:\n- hostname: {}\n- username: {}\n- command: {}\n" + // NOSONAR
 				"- protocol: {}\n- port: {}\n- authentications: {}\n- timeout: {}\n",
 				hostname,
 				username,
@@ -1759,7 +1759,7 @@ public class MatsyaClientsExecutor {
 
 			trace(() ->
 				log.trace(
-					"Executed WinRM remote command:\n- hostname: {}\n- username: {}\n- command: {}\n" +
+					"Executed WinRM remote command:\n- hostname: {}\n- username: {}\n- command: {}\n" + // NOSONAR
 					"- protocol: {}\n- port: {}\n- authentications: {}\n- timeout: {}\n- Result:\n{}\n- response-time: {}\n",
 					hostname,
 					username,
