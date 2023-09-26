@@ -1874,7 +1874,7 @@ class ComputeProcessorTest {
 	}
 
 	@Test
-		void testKeepOnlyMatchingLinesNoOperation() {
+	void testKeepOnlyMatchingLinesNoOperation() {
 		// KeepOnlyMatchingLines is null
 		computeProcessor.setSourceTable(SourceTable.empty());
 		computeProcessor.process((KeepOnlyMatchingLines) null);
