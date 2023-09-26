@@ -5,17 +5,22 @@ import com.sentrysoftware.matrix.agent.config.AgentConfig;
 import com.sentrysoftware.matrix.agent.context.ApplicationProperties.Project;
 import com.sentrysoftware.matrix.agent.deserialization.PostConfigDeserializer;
 import com.sentrysoftware.matrix.agent.helper.ConfigHelper;
+import com.sentrysoftware.matrix.agent.helper.OtelConfigHelper;
 import com.sentrysoftware.matrix.agent.helper.PostConfigDeserializeHelper;
+import com.sentrysoftware.matrix.agent.service.OtelCollectorProcessService;
+import com.sentrysoftware.matrix.agent.service.TaskSchedulingService;
 import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
 import com.sentrysoftware.matrix.connector.model.ConnectorStore;
+import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Data;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Data
@@ -24,45 +29,43 @@ public class AgentContext {
 
 	public static final ObjectMapper AGENT_CONFIG_OBJECT_MAPPER = newAgentConfigObjectMapper();
 
-	@Getter
-	private static AgentContext instance = new AgentContext();
-
 	private AgentInfo agentInfo;
 	private File configFile;
 	private AgentConfig agentConfig;
 	private ConnectorStore connectorStore;
 	private String pid;
+	private Map<String, String> otelSdkConfiguration;
+	private Map<String, Map<String, TelemetryManager>> telemetryManagers;
+	private OtelCollectorProcessService otelCollectorProcessService;
+	private TaskSchedulingService taskSchedulingService;
 
 	/**
-	 * Read the agent configuration file
+	 * Instantiate the global context
 	 *
 	 * @param alternateConfigFile Alternation configuration file passed by the user.
 	 * @throws IOException
 	 */
-	public static void initialize(final String alternateConfigFile) throws IOException {
-		long startTime = System.nanoTime();
+	public AgentContext(final String alternateConfigFile) throws IOException {
+		final long startTime = System.nanoTime();
 
 		// Set the current PID
-		instance.pid = findPid();
+		pid = findPid();
 
 		// Parse the connector store
-		instance.connectorStore = new ConnectorStore(ConfigHelper.getSubDirectory("connectors", false));
+		connectorStore = new ConnectorStore(ConfigHelper.getSubDirectory("connectors", false));
 
 		// Initialize agent information
-		instance.agentInfo = new AgentInfo();
+		agentInfo = new AgentInfo();
 
 		// Find the configuration file
-		instance.configFile = ConfigHelper.findConfigFile(alternateConfigFile);
+		configFile = ConfigHelper.findConfigFile(alternateConfigFile);
 
 		// Read the agent configuration file (Default: metricshub.yaml)
-		instance.agentConfig =
-			JsonHelper.deserialize(AGENT_CONFIG_OBJECT_MAPPER, new FileInputStream(instance.configFile), AgentConfig.class);
+		agentConfig =
+			JsonHelper.deserialize(AGENT_CONFIG_OBJECT_MAPPER, new FileInputStream(configFile), AgentConfig.class);
 
 		// Configure the global logger
-		ConfigHelper.configureGlobalLogger(
-			instance.agentConfig.getLoggerLevel(),
-			instance.agentConfig.getOutputDirectory()
-		);
+		ConfigHelper.configureGlobalLogger(agentConfig.getLoggerLevel(), agentConfig.getOutputDirectory());
 
 		log.info("Starting MetricsHub Agent...");
 
@@ -70,7 +73,30 @@ public class AgentContext {
 
 		// Normalizes the agent configuration, configurations from parent will be set in children configuration
 		// to ease data retrieval in the scheduler
-		ConfigHelper.normalizeAgentConfiguration(instance.agentConfig);
+		ConfigHelper.normalizeAgentConfiguration(agentConfig, connectorStore);
+
+		telemetryManagers = ConfigHelper.buildTelemetryManagers(agentConfig, connectorStore);
+
+		// Build OpenTelemetry SDK configuration
+		otelSdkConfiguration = OtelConfigHelper.buildOtelSdkConfiguration(agentConfig);
+
+		// Build the OpenTelemetry Collector Service
+		otelCollectorProcessService = new OtelCollectorProcessService(agentConfig);
+
+		// Build the TaskScheduling Service
+		taskSchedulingService =
+			TaskSchedulingService
+				.builder()
+				.withAgentConfig(agentConfig)
+				.withAgentInfo(agentInfo)
+				.withConfigFile(configFile)
+				.withConnectorStore(connectorStore)
+				.withOtelCollectorProcessService(otelCollectorProcessService)
+				.withTaskScheduler(TaskSchedulingService.newScheduler(agentConfig.getJobPoolSize()))
+				.withTelemetryManagers(telemetryManagers)
+				.withResourceSchedules(new HashMap<>())
+				.withOtelSdkConfiguration(otelSdkConfiguration)
+				.build();
 
 		final Duration startupDuration = Duration.ofNanos(System.nanoTime() - startTime);
 
@@ -94,10 +120,10 @@ public class AgentContext {
 	/**
 	 * Log information about MetricsHub application
 	 */
-	public static void logProductInformation() {
+	public void logProductInformation() {
 		if (isLogInfoEnabled()) {
 			// Log product information
-			final ApplicationProperties applicationProperties = instance.agentInfo.getApplicationProperties();
+			final ApplicationProperties applicationProperties = agentInfo.getApplicationProperties();
 
 			final Project project = applicationProperties.project();
 
@@ -125,7 +151,7 @@ public class AgentContext {
 				System.getProperty("os.name"),
 				System.getProperty("os.arch"),
 				System.getProperty("user.dir"),
-				instance.pid
+				pid
 			);
 		}
 	}

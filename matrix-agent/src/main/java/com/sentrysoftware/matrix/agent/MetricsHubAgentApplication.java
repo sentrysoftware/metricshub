@@ -36,7 +36,13 @@ public class MetricsHubAgentApplication implements Runnable {
 	public void run() {
 		try {
 			// Initialize the application context
-			AgentContext.initialize(alternateConfigFile);
+			final AgentContext agentContext = new AgentContext(alternateConfigFile);
+
+			// Start OpenTelemetry Collector process
+			agentContext.getOtelCollectorProcessService().launch();
+
+			// Start the Scheduler
+			agentContext.getTaskSchedulingService().start();
 		} catch (Exception e) {
 			configureGlobalErrorLogger();
 			log.error("Failed to start MetricsHub Agent.", e);
