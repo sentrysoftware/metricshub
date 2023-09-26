@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mockStatic;
 
@@ -1991,5 +1992,34 @@ class ComputeProcessorTest {
 			assertEquals("NAME2;MANUFACTURER2;", sourceTable.getRawData());
 			assertEquals(Arrays.asList(Arrays.asList(NAME2, MANUFACTURER2)), sourceTable.getTable());
 		}
+	}
+
+	@Test
+	void testProcessInlineAwk() throws Exception {
+		List<List<String>> table = Arrays.asList(LINE_1, LINE_2, LINE_3);
+
+		sourceTable.setTable(table);
+		sourceTable.setRawData(null);
+
+		final Awk awkOK = Awk
+			.builder()
+			.script("""
+						BEGIN { FS = ";"; }
+						{
+							print $1 ";" $2 ";" $3 ";"
+						}
+					""")
+			.keep("^" + ID1)
+			.separators(TABLE_SEP)
+			.selectColumns(ONE_TWO_THREE)
+			.build();
+
+		doCallRealMethod().when(matsyaClientsExecutorMock).executeAwkScript(any(), any());
+
+		computeProcessor.process(awkOK);
+		final List<List<String>> expectedTable = Arrays.asList(Arrays.asList(ID1, NAME1, MANUFACTURER1));
+		String expectedRawData = SourceTable.tableToCsv(expectedTable, ";", false);
+		assertEquals(expectedTable, sourceTable.getTable());
+		assertEquals(expectedRawData, sourceTable.getRawData());
 	}
 }

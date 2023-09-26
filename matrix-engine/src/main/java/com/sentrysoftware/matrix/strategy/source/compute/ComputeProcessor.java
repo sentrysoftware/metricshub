@@ -4,6 +4,8 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COLUMN_PA
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COMMA;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DEFAULT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DOUBLE_PATTERN;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.FILE_PATTERN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.LOG_COMPUTE_KEY_SUFFIX_TEMPLATE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
@@ -302,18 +304,24 @@ public class ComputeProcessor implements IComputeProcessor {
 			log.warn("Hostname {} - Compute Operation (Awk) is null, the table remains unchanged.", hostname);
 			return;
 		}
+		final String script = awk.getScript();
 
 		// An Awk Script is supposed to be only the reference to the EmbeddedFile, so the map contains only one item which is our EmbeddedFile
 		final EmbeddedFile awkScript;
-		try {
-			awkScript = EmbeddedFileHelper.findEmbeddedFiles(awk.getScript()).get(awk.getScript());
-		} catch (IOException exception) {
-			log.warn(
-				"Hostname {} - Compute Operation (Awk) script {} has not been set correctly, the table remains unchanged.",
-				hostname,
-				awk
-			);
-			return;
+
+		if (!FILE_PATTERN.matcher(script).find()) {
+			awkScript = EmbeddedFile.builder().content(script).reference("inline-awk").build();
+		} else {
+			try {
+				awkScript = EmbeddedFileHelper.findEmbeddedFiles(awk.getScript()).get(script);
+			} catch (IOException exception) {
+				log.warn(
+					"Hostname {} - Compute Operation (Awk) script {} has not been set correctly, the table remains unchanged.",
+					hostname,
+					awk
+				);
+				return;
+			}
 		}
 
 		if (awkScript == null) {
@@ -364,7 +372,7 @@ public class ComputeProcessor implements IComputeProcessor {
 			final List<String> awkResultLines = FilterResultHelper.selectedColumns(
 				filterLines,
 				awk.getSeparators(),
-				awk.getSelectColumns().replaceAll(" ", "")
+				awk.getSelectColumns().replaceAll("\\s+", EMPTY)
 			);
 			awkResult =
 				awkResultLines
