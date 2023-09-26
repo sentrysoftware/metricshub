@@ -29,6 +29,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Exc
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Extract;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Json2Csv;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.KeepColumns;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.KeepOnlyMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.LeftConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Multiply;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Replace;
@@ -1862,6 +1863,225 @@ class ComputeProcessorTest {
 		computeProcessor.process(Xml2Csv.builder().properties(properties).build());
 		assertEquals(expected, sourceTable.getTable());
 		assertEquals(expectedCsvResult, sourceTable.getRawData());
+	}
+
+	@Test
+	void testKeepOnlyMatchingLinesNoOperation() {
+		// KeepOnlyMatchingLines is null
+		computeProcessor.setSourceTable(SourceTable.empty());
+		computeProcessor.process((KeepOnlyMatchingLines) null);
+		assertNotNull(computeProcessor.getSourceTable().getTable());
+		assertTrue(computeProcessor.getSourceTable().getTable().isEmpty());
+
+		// KeepOnlyMatchingLines is not null, keepOnlyMatchingLines.getColumn() is null
+		KeepOnlyMatchingLines keepOnlyMatchingLines = KeepOnlyMatchingLines.builder().column(-1).build();
+		computeProcessor.process(keepOnlyMatchingLines);
+		assertTrue(computeProcessor.getSourceTable().getTable().isEmpty());
+
+		// KeepOnlyMatchingLines is not null, keepOnlyMatchingLines.getColumn() is not null,
+		// keepOnlyMatchingLines.getColumn() <= 0
+		keepOnlyMatchingLines.setColumn(0);
+		computeProcessor.process(keepOnlyMatchingLines);
+		assertTrue(computeProcessor.getSourceTable().getTable().isEmpty());
+
+		// KeepOnlyMatchingLines is not null, keepOnlyMatchingLines.getColumn() is not null,
+		// keepOnlyMatchingLines.getColumn() > 0,
+		// computeVisitor.getSourceTable() is null
+		keepOnlyMatchingLines.setColumn(1);
+		computeProcessor.setSourceTable(null);
+		computeProcessor.process(keepOnlyMatchingLines);
+		assertNull(computeProcessor.getSourceTable());
+
+		// KeepOnlyMatchingLines is not null, keepOnlyMatchingLines.getColumn() is not null,
+		// keepOnlyMatchingLines.getColumn() > 0,
+		// computeVisitor.getSourceTable() is not null, computeVisitor.getSourceTable().getTable() is null
+		computeProcessor.setSourceTable(SourceTable.builder().table(null).build());
+		computeProcessor.process(keepOnlyMatchingLines);
+		assertNull(computeProcessor.getSourceTable().getTable());
+
+		// KeepOnlyMatchingLines is not null, keepOnlyMatchingLines.getColumn() is not null,
+		// keepOnlyMatchingLines.getColumn() > 0,
+		// computeVisitor.getSourceTable() is not null, computeVisitor.getSourceTable().getTable() is not null,
+		// computeVisitor.getSourceTable().getTable().isEmpty()
+		computeProcessor.setSourceTable(SourceTable.empty());
+		computeProcessor.process(keepOnlyMatchingLines);
+		assertTrue(computeProcessor.getSourceTable().getTable().isEmpty());
+
+		// KeepOnlyMatchingLines is not null, keepOnlyMatchingLines.getColumn() is not null,
+		// keepOnlyMatchingLines.getColumn() > 0,
+		// computeVisitor.getSourceTable() is not null, computeVisitor.getSourceTable().getTable() is not null,
+		// computeVisitor.getSourceTable().getTable() is not empty,
+		// keepOnlyMatchingLines.getColumn() > sourceTable.getTable().get(0).size()
+		computeProcessor.setSourceTable(
+			SourceTable.builder().table(Collections.singletonList(Collections.singletonList(FOO))).build()
+		);
+		keepOnlyMatchingLines.setColumn(2);
+		computeProcessor.process(keepOnlyMatchingLines);
+		assertTrue(computeProcessor.getSourceTable().getTable().isEmpty());
+	}
+
+	@Test
+	void testKeepOnlyMatchingLines() {
+		final List<String> line1 = Arrays.asList(FOO, "1", "2", "3");
+		final List<String> line2 = Arrays.asList(BAR, "10", "20", "30");
+		final List<String> line3 = Arrays.asList(BAZ, "100", "200", "300");
+		final List<List<String>> table = Arrays.asList(line1, line2, line3);
+
+		computeProcessor.setSourceTable(SourceTable.builder().table(table).build());
+
+		// regexp is null, valueList is null
+		KeepOnlyMatchingLines keepOnlyMatchingLines = KeepOnlyMatchingLines
+			.builder()
+			.column(1)
+			.regExp(null)
+			.valueList(null)
+			.build();
+		computeProcessor.process(keepOnlyMatchingLines);
+		assertEquals(table, computeProcessor.getSourceTable().getTable());
+
+		// regexp is empty, valueSet is null
+		keepOnlyMatchingLines.setRegExp("");
+		computeProcessor.process(keepOnlyMatchingLines);
+		assertEquals(table, computeProcessor.getSourceTable().getTable());
+
+		// regexp is empty, valueSet is empty
+		keepOnlyMatchingLines.setValueList(EMPTY);
+		computeProcessor.process(keepOnlyMatchingLines);
+		assertEquals(table, computeProcessor.getSourceTable().getTable());
+
+		// regex is not null, not empty
+		keepOnlyMatchingLines.setRegExp("^B.*");
+		computeProcessor.process(keepOnlyMatchingLines);
+		assertNotEquals(table, computeProcessor.getSourceTable().getTable());
+		List<List<String>> resultTable = computeProcessor.getSourceTable().getTable();
+		assertNotNull(resultTable);
+		assertEquals(2, resultTable.size());
+		assertEquals(line2, resultTable.get(0));
+		assertEquals(line3, resultTable.get(1));
+
+		// regex is null,
+		// valueSet is not null, not empty
+		computeProcessor.getSourceTable().setTable(table);
+		keepOnlyMatchingLines.setRegExp(null);
+		keepOnlyMatchingLines.setValueList("3,300");
+		keepOnlyMatchingLines.setColumn(4);
+		computeProcessor.process(keepOnlyMatchingLines);
+		assertNotEquals(table, computeProcessor.getSourceTable().getTable());
+		resultTable = computeProcessor.getSourceTable().getTable();
+		assertNotNull(resultTable);
+		assertEquals(2, resultTable.size());
+		assertEquals(line1, resultTable.get(0));
+		assertEquals(line3, resultTable.get(1));
+
+		// regex is not null, not empty
+		// valueSet is not null, not empty
+		computeProcessor.getSourceTable().setTable(table);
+		keepOnlyMatchingLines.setColumn(1);
+		keepOnlyMatchingLines.setRegExp("^B.*"); // Applying only the regex would match line2 and line3
+		keepOnlyMatchingLines.setValueList("FOO,BAR,BAB"); // Applying only the valueSet would match line1 and line2
+		computeProcessor.process(keepOnlyMatchingLines);
+		assertNotEquals(table, computeProcessor.getSourceTable().getTable());
+		resultTable = computeProcessor.getSourceTable().getTable();
+		assertNotNull(resultTable);
+		assertEquals(1, resultTable.size()); // Applying both the regex and the valueList matches only line2
+		assertEquals(line2, resultTable.get(0));
+	}
+
+	@Test
+	void testGetPredicate() {
+		List<String> line1 = Arrays.asList(FOO, "1", "2", "3");
+		List<String> line2 = Arrays.asList(BAR, "10", "20", "30");
+		List<String> line3 = Arrays.asList(BAZ, "100", "2", "300");
+		List<String> line4 = Arrays.asList(BAZ + FOO, FOO, "2000", "3000");
+		List<List<String>> table = Arrays.asList(line1, line2, line3, line4);
+
+		computeProcessor.setSourceTable(SourceTable.builder().table(table).build());
+		KeepOnlyMatchingLines keepOnlyMatchingLines = KeepOnlyMatchingLines
+			.builder()
+			.column(1)
+			.regExp("^B")
+			.valueList(null)
+			.build();
+		computeProcessor.process(keepOnlyMatchingLines);
+		// check regex column 1 starts with B
+		List<List<String>> resultTable = computeProcessor.getSourceTable().getTable();
+		assertNotNull(resultTable);
+		assertEquals(3, resultTable.size());
+		assertEquals(line2, resultTable.get(0));
+		assertEquals(line3, resultTable.get(1));
+		assertEquals(line4, resultTable.get(2));
+
+		keepOnlyMatchingLines.setColumn(2);
+		keepOnlyMatchingLines.setRegExp("[1-9]");
+		computeProcessor.process(keepOnlyMatchingLines);
+		// check regex column 2 is numeric value
+		resultTable = computeProcessor.getSourceTable().getTable();
+		assertNotNull(resultTable);
+		assertEquals(2, resultTable.size());
+		assertEquals(line2, resultTable.get(0));
+		assertEquals(line3, resultTable.get(1));
+
+		keepOnlyMatchingLines.setColumn(3);
+		keepOnlyMatchingLines.setRegExp("^.$");
+		computeProcessor.process(keepOnlyMatchingLines);
+		// check regex column 3 contains only one character
+		resultTable = computeProcessor.getSourceTable().getTable();
+		assertNotNull(resultTable);
+		assertEquals(1, resultTable.size());
+		assertEquals(line3, resultTable.get(0));
+
+		keepOnlyMatchingLines.setRegExp("blabla");
+		computeProcessor.process(keepOnlyMatchingLines);
+		// nothing matches with blabla
+		assertTrue(computeProcessor.getSourceTable().getTable().isEmpty());
+
+		table = Arrays.asList(line1, line2, line3, line4);
+
+		computeProcessor.setSourceTable(SourceTable.builder().table(table).build());
+		final ExcludeMatchingLines excludeMatchingLines = ExcludeMatchingLines.builder().column(1).regExp("^B").build();
+		// exclude lines starting with B
+		computeProcessor.process(excludeMatchingLines);
+		resultTable = computeProcessor.getSourceTable().getTable();
+		assertNotNull(resultTable);
+		assertEquals(1, resultTable.size());
+		assertEquals(line1, resultTable.get(0));
+
+		table = Arrays.asList(line1, line2, line3, line4);
+
+		// exclude lines with column 2 is numeric value
+		computeProcessor.setSourceTable(SourceTable.builder().table(table).build());
+		excludeMatchingLines.setRegExp("[1-9]");
+		excludeMatchingLines.setColumn(2);
+		computeProcessor.process(excludeMatchingLines);
+		resultTable = computeProcessor.getSourceTable().getTable();
+		assertEquals(1, resultTable.size());
+		assertEquals(line4, resultTable.get(0));
+
+		excludeMatchingLines.setRegExp("blabla"); // unchanged result
+		computeProcessor.process(excludeMatchingLines);
+		resultTable = computeProcessor.getSourceTable().getTable();
+		assertEquals(1, resultTable.size());
+		assertEquals(line4, resultTable.get(0));
+
+		// check regex ignoreCase
+		line1 = Arrays.asList("A", "temperature", "motherboard");
+		line2 = Arrays.asList("A", "Fan", "fan3");
+		line3 = Arrays.asList("B", "temperature", "bp-temp2   ");
+		line4 = Arrays.asList("B", "fan", "fan2");
+		table = Arrays.asList(line1, line2, line3, line4);
+
+		computeProcessor.setSourceTable(SourceTable.builder().table(table).build());
+		keepOnlyMatchingLines = KeepOnlyMatchingLines.builder().column(2).regExp("fan").build();
+		computeProcessor.process(keepOnlyMatchingLines);
+		final List<List<String>> expectedTableResult = Arrays.asList(line2, line4);
+		assertEquals(expectedTableResult, computeProcessor.getSourceTable().getTable());
+
+		// check valueSet ignoreCase
+		table = Arrays.asList(line1, line2, line3, line4);
+		computeProcessor.setSourceTable(SourceTable.builder().table(table).build());
+		keepOnlyMatchingLines = KeepOnlyMatchingLines.builder().column(2).valueList("fan,Fan").build();
+		computeProcessor.process(keepOnlyMatchingLines);
+		assertEquals(expectedTableResult, computeProcessor.getSourceTable().getTable());
 	}
 
 	@Test

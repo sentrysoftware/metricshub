@@ -16,6 +16,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Exc
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Extract;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Json2Csv;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.KeepColumns;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.KeepOnlyMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.LeftConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Multiply;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Replace;
@@ -150,10 +151,18 @@ class ComputeUpdaterProcessorTest {
 	}
 
 	@Test
-	void testVisitKeepColumns() {
+	void testProcessKeepColumns() {
 		final KeepColumns keepColumns = KeepColumns.builder().columnNumbers("-1").build();
 		doNothing().when(computeProcessor).process(any(KeepColumns.class));
 		computeUpdaterProcessor.process(keepColumns);
 		verify(computeProcessor, times(1)).process(any(KeepColumns.class));
+	}
+
+	@Test
+	void testProcessKeepOnlyMatchingLines() {
+		final KeepOnlyMatchingLines keepOnlyMatchingLines = KeepOnlyMatchingLines.builder().column(-1).build();
+		doNothing().when(computeProcessor).process(any(KeepOnlyMatchingLines.class));
+		computeUpdaterProcessor.process(keepOnlyMatchingLines);
+		verify(computeProcessor, times(1)).process(any(KeepOnlyMatchingLines.class));
 	}
 }

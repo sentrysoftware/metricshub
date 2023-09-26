@@ -103,7 +103,7 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 
 	@Override
 	public void process(final KeepOnlyMatchingLines keepOnlyMatchingLines) {
-		// TODO Auto-generated method stub
+		processCompute(keepOnlyMatchingLines);
 	}
 
 	@Override
