@@ -11,6 +11,7 @@ import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.And;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ArrayTranslate;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Awk;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Divide;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ExcludeMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Extract;
@@ -164,5 +165,12 @@ class ComputeUpdaterProcessorTest {
 		doNothing().when(computeProcessor).process(any(KeepOnlyMatchingLines.class));
 		computeUpdaterProcessor.process(keepOnlyMatchingLines);
 		verify(computeProcessor, times(1)).process(any(KeepOnlyMatchingLines.class));
+	}
+
+	@Test
+	void testProcessAwk() {
+		doNothing().when(computeProcessor).process(any(Awk.class));
+		computeUpdaterProcessor.process(Awk.builder().script("script").build());
+		verify(computeProcessor, times(1)).process(any(Awk.class));
 	}
 }

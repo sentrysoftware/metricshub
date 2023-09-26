@@ -148,6 +148,7 @@ public class Constants {
 	public static final String SNMP_SELECTED_COLUMNS = "ID, 9, 11, 49";
 	public static final List<String> SNMP_SELECTED_COLUMNS_LIST = Arrays.asList("ID", "9", "11", "49");
 	public static final String TAB1_REF = "${source::monitors.cpu.discovery.sources.tab1}";
+	public static final String TABLE_SEP = ";";
 
 	// Embedded files
 	public static final String TEMP_EMBEDDED_1 = "/tmp/SEN_Embedded_1.bat";
