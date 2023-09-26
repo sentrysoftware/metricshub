@@ -22,6 +22,7 @@ import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.ConnectorStore;
+import com.sentrysoftware.matrix.connector.model.common.ConversionType;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.connector.model.common.ReferenceTranslationTable;
@@ -30,6 +31,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Add
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.And;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ArrayTranslate;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Awk;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Convert;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Divide;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ExcludeMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Extract;
@@ -2241,5 +2243,52 @@ class ComputeProcessorTest {
 		String expectedRawData = SourceTable.tableToCsv(expectedTable, ";", false);
 		assertEquals(expectedTable, sourceTable.getTable());
 		assertEquals(expectedRawData, sourceTable.getRawData());
+	}
+
+	@Test
+	void testProcessConvert() {
+		{
+			final List<List<String>> table = Arrays.asList(
+				Arrays.asList("ID1", "ff: dd:11"),
+				Arrays.asList("ID2", "aa:: dd: 22"),
+				Arrays.asList("ID3", " bb:cc:22 ")
+			);
+
+			sourceTable.setTable(table);
+
+			final Convert convert = Convert.builder().column(2).conversion(ConversionType.HEX_2_DEC).build();
+
+			computeProcessor.process(convert);
+
+			final List<List<String>> expected = Arrays.asList(
+				Arrays.asList("ID1", "16768273"),
+				Arrays.asList("ID2", "11197730"),
+				Arrays.asList("ID3", "12307490")
+			);
+
+			assertEquals(expected, table);
+		}
+
+		{
+			final List<List<String>> table = Arrays.asList(
+				Arrays.asList("ID1", "ok|ok"),
+				Arrays.asList("ID2", "ok|\n|degraded|"),
+				Arrays.asList("ID3", "ok|degraded\n|ok|failed")
+			);
+
+			sourceTable.setTable(table);
+
+			final Convert convert = Convert.builder().column(2).conversion(ConversionType.ARRAY_2_SIMPLE_STATUS).build();
+
+			computeProcessor.process(convert);
+
+			final List<List<String>> expected = Arrays.asList(
+				Arrays.asList("ID1", "ok"),
+				Arrays.asList("ID2", "degraded"),
+				Arrays.asList("ID3", "failed")
+			);
+
+			assertEquals(expected, table);
+		}
 	}
 }

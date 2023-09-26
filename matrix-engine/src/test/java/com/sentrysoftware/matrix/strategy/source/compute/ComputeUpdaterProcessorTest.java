@@ -6,12 +6,14 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.sentrysoftware.matrix.connector.model.common.ConversionType;
 import com.sentrysoftware.matrix.connector.model.common.ReferenceTranslationTable;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.And;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ArrayTranslate;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Awk;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Convert;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Divide;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ExcludeMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Extract;
@@ -167,5 +169,14 @@ class ComputeUpdaterProcessorTest {
 		doNothing().when(computeProcessor).process(any(Awk.class));
 		computeUpdaterProcessor.process(Awk.builder().script("script").build());
 		verify(computeProcessor, times(1)).process(any(Awk.class));
+	}
+
+	@Test
+	void testProcessConvert() {
+		doNothing().when(computeProcessor).process(any(Convert.class));
+		computeUpdaterProcessor.process(
+			Convert.builder().column(1).conversion(ConversionType.ARRAY_2_SIMPLE_STATUS).build()
+		);
+		verify(computeProcessor, times(1)).process(any(Convert.class));
 	}
 }

@@ -63,7 +63,7 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 
 	@Override
 	public void process(final Convert convert) {
-		// TODO Auto-generated method stub
+		processCompute(convert);
 	}
 
 	@Override
