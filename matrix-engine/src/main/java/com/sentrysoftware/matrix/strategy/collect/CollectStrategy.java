@@ -184,7 +184,7 @@ public class CollectStrategy extends AbstractStrategy {
 				.sources(collect.getSources(), collect.getExecutionOrder().stream().toList(), collect.getSourceDep(), jobInfo)
 				.build();
 
-			if (collect instanceof MultiInstanceCollect) {
+			if (collect instanceof MultiInstanceCollect multiInstanceCollect) {
 				final Map<String, Monitor> monitors = telemetryManager.findMonitorByType(monitorType);
 				if (monitors == null) {
 					return;
@@ -193,7 +193,13 @@ public class CollectStrategy extends AbstractStrategy {
 				// Create the sources and the computes for a connector
 				processSourcesAndComputes(orderedSources.getSources(), jobInfo);
 
-				processMonitors(monitorType, collect.getMapping(), currentConnector, hostname, null);
+				processMonitors(
+					monitorType,
+					multiInstanceCollect.getMapping(),
+					currentConnector,
+					hostname,
+					multiInstanceCollect.getKeys()
+				);
 			} else {
 				// Get monitors by type and connectorId (connector id attribute)
 				final Map<String, Monitor> sameTypeMonitors = telemetryManager.findMonitorByType(monitorType);
@@ -226,19 +232,62 @@ public class CollectStrategy extends AbstractStrategy {
 	}
 
 	/**
-	 * This method processes multi instances (all at once) or mono instance monitors
-	 * @param monitorType type of the monitor
-	 * @param mapping the collect mapping
-	 * @param connector a given connector
-	 * @param hostname the host name
-	 * @param monitor to process : null in case of multi-instance processing
+	 * This method processes multi instances collect
+	 *
+	 * @param monitorType Type of the monitor
+	 * @param mapping     The collect's mapping used to collect metrics
+	 * @param connector   The current connector instance
+	 * @param hostname    The host name we currently monitor
+	 * @param keys        {@link Set} of attribute keys used to find the monitor to collect
 	 */
 	private void processMonitors(
 		final String monitorType,
 		final Mapping mapping,
 		final Connector connector,
 		final String hostname,
-		Monitor monitor
+		final Set<String> keys
+	) {
+		processMonitors(monitorType, mapping, connector, hostname, Optional.empty(), keys);
+	}
+
+	/**
+	 * This method processes a mono instance collect
+	 *
+	 * @param monitorType Type of the monitor
+	 * @param mapping     The collect's mapping used to collect metrics
+	 * @param connector   The current connector instance
+	 * @param hostname    The host name we currently monitor
+	 * @param monitor     {@link Monitor} instance collect (mono instance)
+	 */
+	private void processMonitors(
+		final String monitorType,
+		final Mapping mapping,
+		final Connector connector,
+		final String hostname,
+		final Monitor monitor
+	) {
+		processMonitors(monitorType, mapping, connector, hostname, Optional.of(monitor), null);
+	}
+
+	/**
+	 * This method processes multi instances or mono instance monitor collect
+	 *
+	 * @param monitorType     type of the monitor
+	 * @param mapping         the collect's mapping used to collect metrics
+	 * @param connector       a given connector
+	 * @param hostname        the host name we currently monitor
+	 * @param maybeMonitor    empty in case of multi-instance processing otherwise an {@link Optional} of an existing
+	 *                        {@link Monitor} instance used to process the mono instance collect
+	 * @param attributeKeys  null in case of mono-instance processing  otherwise a {@link Set} of attribute keys
+	 *                       used to find the monitor to collect in multi-instance mode
+	 */
+	private void processMonitors(
+		final String monitorType,
+		final Mapping mapping,
+		final Connector connector,
+		final String hostname,
+		final Optional<Monitor> maybeMonitor,
+		final Set<String> attributeKeys
 	) {
 		if (mapping == null) {
 			return;
@@ -273,7 +322,7 @@ public class CollectStrategy extends AbstractStrategy {
 
 		// If we process single monitor (monoInstance), we loop until first row.
 		// Otherwise, (in case of multi-instance processing), we loop over all the source table rows
-		final int rowCountLimit = monitor == null ? table.size() : 1;
+		final int rowCountLimit = maybeMonitor.isEmpty() ? table.size() : 1;
 
 		final Map<String, Monitor> sameTypeMonitors = telemetryManager.findMonitorByType(monitorType);
 
@@ -299,58 +348,104 @@ public class CollectStrategy extends AbstractStrategy {
 				.row(row)
 				.build();
 
-			// In case of multi-instance, this method argument "monitor" is null. So, we try to find it by type and connector
-			if (monitor == null) {
-				// Use the mapping processor to extract attributes and resource
-				final Map<String, String> noContextAttributeInterpretedValues = mappingProcessor.interpretNonContextMappingAttributes();
-
-				final String monitorId = noContextAttributeInterpretedValues.get(MONITOR_ATTRIBUTE_ID);
-				if (monitorId == null) {
-					continue;
-				}
-
-				if (sameTypeMonitors == null) {
-					continue;
-				}
-
-				final Optional<Monitor> maybeMonitor = sameTypeMonitors
-					.values()
-					.stream()
-					.filter(currentMonitor ->
-						monitorId.equals(currentMonitor.getAttribute(MONITOR_ATTRIBUTE_ID)) &&
-						connectorId.equals(currentMonitor.getAttribute(MONITOR_ATTRIBUTE_CONNECTOR_ID))
+			// In case of multi-instance, maybeMonitor is empty. So, we try to find it by type, connector id and attribute keys
+			maybeMonitor
+				.or(() ->
+					findMonitor(
+						connectorId,
+						sameTypeMonitors,
+						mappingProcessor.interpretNonContextMappingAttributes(),
+						attributeKeys
 					)
-					.findFirst();
+				)
+				.ifPresent(monitor -> {
+					// Collect metrics
+					final Map<String, String> metrics = mappingProcessor.interpretNonContextMappingMetrics();
 
-				// If no monitor matches the search criteria, continue
-				if (maybeMonitor.isEmpty()) {
-					continue;
-				}
-				monitor = maybeMonitor.get();
-			}
+					metrics.putAll(mappingProcessor.interpretContextMappingMetrics(monitor));
 
-			// Collect metrics
-			final Map<String, String> metrics = mappingProcessor.interpretNonContextMappingMetrics();
+					final MetricFactory metricFactory = new MetricFactory(telemetryManager);
 
-			metrics.putAll(mappingProcessor.interpretContextMappingMetrics(monitor));
+					metricFactory.collectMonitorMetrics(
+						monitorType,
+						connector,
+						hostname,
+						monitor,
+						connectorId,
+						metrics,
+						strategyTime,
+						false
+					);
 
-			final MetricFactory metricFactory = new MetricFactory(telemetryManager);
-
-			metricFactory.collectMonitorMetrics(
-				monitorType,
-				connector,
-				hostname,
-				monitor,
-				connectorId,
-				metrics,
-				strategyTime,
-				false
-			);
-
-			// Collect legacy parameters
-			monitor.addLegacyParameters(mappingProcessor.interpretNonContextMappingLegacyTextParameters());
-			monitor.addLegacyParameters(mappingProcessor.interpretContextMappingLegacyTextParameters(monitor));
+					// Collect legacy parameters
+					monitor.addLegacyParameters(mappingProcessor.interpretNonContextMappingLegacyTextParameters());
+					monitor.addLegacyParameters(mappingProcessor.interpretContextMappingLegacyTextParameters(monitor));
+				});
 		}
+	}
+
+	/**
+	 * Find monitor by attributes keys and connector identifier
+	 *
+	 * @param connectorId               Unique connector identifier used to find the monitor
+	 * @param sameTypeMonitors          {@link Monitor} instances having the same type
+	 * @param collectedAttributeValues  The collected attributes during the current cycle
+	 * @param attributeKeys             The attribute keys used to find the monitor
+	 * @return {@link Optional} instance containing the monitor
+	 */
+	private Optional<Monitor> findMonitor(
+		final String connectorId,
+		final Map<String, Monitor> sameTypeMonitors,
+		final Map<String, String> collectedAttributeValues,
+		final Set<String> attributeKeys
+	) {
+		return sameTypeMonitors
+			.values()
+			.stream()
+			.filter(monitor ->
+				matchMonitorAttributes(monitor, collectedAttributeValues, attributeKeys) &&
+				connectorId.equals(monitor.getAttribute(MONITOR_ATTRIBUTE_CONNECTOR_ID))
+			)
+			.findFirst();
+	}
+
+	/**
+	 * Checks if the attribute values of the given monitor match the collected attribute values.
+	 *
+	 * @param monitor                  The monitor instance we wish to verify its attributes
+	 * @param collectedAttributeValues The collected attribute values
+	 * @param attributeKeys            The attribute keys defined by the monitor job
+	 * @return <code>true</code> if the monitor's attribute values identified by
+	 *         the <em>attributeKeys</em> match the current collected attribute
+	 *         values otherwise <code>false</code>
+	 */
+	private boolean matchMonitorAttributes(
+		final Monitor monitor,
+		final Map<String, String> collectedAttributeValues,
+		final Set<String> attributeKeys
+	) {
+		return attributeKeys
+			.stream()
+			.allMatch(key -> {
+				// Get the existing monitor attribute value that should be set at the discovery
+				final String monitorAttributeValue = monitor.getAttribute(key);
+
+				// The absence of the value prevents us from progressing any further
+				if (monitorAttributeValue == null) {
+					return false;
+				}
+
+				// Get the collected attribute value
+				final String collectedAttributeValue = collectedAttributeValues.get(key);
+
+				// The absence of the value prevents us from progressing any further
+				if (collectedAttributeValue == null) {
+					return false;
+				}
+
+				// Compares the existing monitor attribute value to the collected attribute value
+				return monitorAttributeValue.equals(collectedAttributeValue);
+			});
 	}
 
 	/**

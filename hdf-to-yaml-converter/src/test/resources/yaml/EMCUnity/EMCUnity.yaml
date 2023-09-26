@@ -76,6 +76,8 @@ monitors:
     collect:
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = CIM_ComputerSystem
@@ -101,7 +103,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.enclosure.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="enclosure"}: $2
         legacyTextParameters:
@@ -178,6 +181,8 @@ monitors:
     collect:
       # The NetworkCard collect is a "MultiInstance" collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = CIM_FCPort
@@ -275,7 +280,8 @@ monitors:
       mapping:
         # ValueTable = Source(3)
         source: "${source::monitors.network.collect.sources.source(3)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="network"}: $5
           hw.network.bandwidth.limit: megaBit2Bit($4)
@@ -302,6 +308,8 @@ monitors:
     collect:
       # The Fan collect is a "MultiInstance" collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = CIM_Fan
@@ -327,7 +335,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="fan"}: $2
         legacyTextParameters:
@@ -352,6 +361,8 @@ monitors:
     collect:
       # The PowerSupply collect is a "MultiInstance" collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = CIM_PowerSupply
@@ -377,7 +388,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
@@ -404,6 +416,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = CIM_ComputerSystem
@@ -429,7 +443,8 @@ monitors:
       mapping:
         # Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
         source: "${source::monitors.other_device.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="other_device"}: $2
         legacyTextParameters:
@@ -530,6 +545,8 @@ monitors:
     collect:
       # The physical disk collect is a "MultiInstance" collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the only source = CIM_DiskDrive
@@ -555,7 +572,8 @@ monitors:
       mapping:
         # Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
@@ -602,6 +620,8 @@ monitors:
     collect:
       # The LogicalDisk  collect is a "MultiInstance" collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(2) = CIM_StoragePool
@@ -612,7 +632,8 @@ monitors:
       mapping:
         # Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
         source: "${source::monitors.logical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.logical_disk.usage{state="free"}: $2
           hw.logical_disk.usage{state="used"}: collectAllocatedSpace()

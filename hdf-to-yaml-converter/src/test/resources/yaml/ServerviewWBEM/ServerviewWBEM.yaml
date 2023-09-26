@@ -92,6 +92,8 @@ monitors:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($1)
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = The Processor WBEM class
@@ -124,7 +126,8 @@ monitors:
         # Value Table
         # CurrentClockSpeed,DeviceID,PATROLStatus,StatusInformation
         source: "${source::monitors.cpu.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.cpu.speed: megaHertz2Hertz($1)
           hw.status{hw.type="cpu"}: $3
@@ -167,6 +170,8 @@ monitors:
           hw.memory.limit: mebiByte2Byte($1)
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = The Processor WBEM class
@@ -199,7 +204,8 @@ monitors:
         # Value Table
         # CurrentClockSpeed,DeviceID,PATROLStatus,StatusInformation
         source: "${source::monitors.memory.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="memory"}: $2
         legacyTextParameters:
@@ -243,6 +249,8 @@ monitors:
           name: $1
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = The Processor WBEM class
@@ -293,7 +301,8 @@ monitors:
         # Value Table
         # DeviceID,PATROLStatus,StatusInformation,DeviceID
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="fan"}: $2
         legacyTextParameters:
@@ -336,6 +345,8 @@ monitors:
           name: $1
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = The Processor WBEM class
@@ -386,7 +397,8 @@ monitors:
         # Value Table
         # CurrentClockSpeed,DeviceID,PATROLStatus,StatusInformation
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
@@ -432,6 +444,8 @@ monitors:
     collect:
       # Like all WBEM collects, this one is \"MultiInstance\"
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the SVS_PGYTemperatureSensor WBEM class
@@ -460,7 +474,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.temperature: $1
   voltage:
@@ -502,6 +517,8 @@ monitors:
     collect:
       # Like all WBEM collects, this one is \"MultiInstance\"
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the HP_NumericSensor WBEM class
@@ -550,7 +567,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.voltage.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.voltage: $1
           hw.status{hw.type="voltage"}: $3

@@ -144,6 +144,8 @@ monitors:
     collect:
       # Collect type is mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Get the Sensor Type table.
@@ -261,7 +263,8 @@ monitors:
         # ValueTable = Source(1)
         # MSHW_ENC;SensorID;Name;Firmware;SerialNumber;Manufacturer;Model;PatrolStatus;StatusInformation;SensorList;MSHWNUMERIC[ID];PowerConsumption;
         source: "${source::monitors.enclosure.collect.sources.source(10)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="enclosure"}: $8
           hw.enclosure.power: $12
@@ -300,6 +303,8 @@ monitors:
     collect:
       # Collect type is mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Make a copy for Enclosure Collect
@@ -326,7 +331,8 @@ monitors:
         # ValueTable = Source(1)
         # MSHW_TEMP;SensorID;Name;CurrentValue;UpperNC;UpperC;Status;StatusInformation;SensorList;
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.temperature: $4
           hw.status{hw.type="temperature"}: $7
@@ -364,6 +370,8 @@ monitors:
     collect:
       # Collect type is mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Make a copy for Enclosure Collect
@@ -390,7 +398,8 @@ monitors:
         # ValueTable = Source(1)
         # MSHW_FAN;SensorID;Name;Status;StatusInformation;SensorList;CurrentValue;LowerNC;LowerC;
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.fan.speed: $7
           hw.status{hw.type="fan"}: $4
@@ -430,6 +439,8 @@ monitors:
     collect:
       # Collect type is mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Make a copy for Enclosure Collect
@@ -456,7 +467,8 @@ monitors:
         # ValueTable = Source(1)
         # MSHW_PSU;SensorID;Name;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="power_supply"}: $7
         legacyTextParameters:
@@ -493,6 +505,8 @@ monitors:
     collect:
       # Collect type is mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Make a copy for Enclosure Collect
@@ -519,7 +533,8 @@ monitors:
         # ValueTable = Source(1)
         # MSHW_VOLT;SensorID;Name;CurrentValue;LowerNC;UpperNC;Status;StatusInformation;SensorList;
         source: "${source::monitors.voltage.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.voltage: $4
           hw.status{hw.type="voltage"}: $7
@@ -556,6 +571,8 @@ monitors:
     collect:
       # Collect type is mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Make a copy for Enclosure Collect
@@ -582,7 +599,8 @@ monitors:
         # ValueTable = Source(1)
         # MSHW_MEM;SensorID;Name;Size;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
         source: "${source::monitors.memory.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="memory"}: $8
         legacyTextParameters:
@@ -613,6 +631,8 @@ monitors:
     collect:
       # Collect type is mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Make a copy for Enclosure Collect
@@ -639,7 +659,8 @@ monitors:
         # ValueTable = Source(1)
         # MSHW_CPU;SensorID;Name;Status;StatusInformation;SensorList;
         source: "${source::monitors.cpu.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="cpu"}: $4
         legacyTextParameters:
@@ -671,6 +692,8 @@ monitors:
     collect:
       # Collect type is mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Make a copy for Enclosure Collect
@@ -697,7 +720,8 @@ monitors:
         # ValueTable = Source(1)
         # MSHW_OTHER;PhysDesc;SensorID;Name;Status;StatusInformation;SensorList;
         source: "${source::monitors.other_device.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="other_device"}: $5
         legacyTextParameters:
@@ -730,6 +754,8 @@ monitors:
     collect:
       # Collect type is mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Make a copy for Enclosure Collect
@@ -756,7 +782,8 @@ monitors:
         # ValueTable = Source(1)
         # MSHW_PHYDISK;SensorID;Name;SerialNumber;Manufacturer;Model;Status;StatusInformation;SensorList;
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="physical_disk"}: $7
         legacyTextParameters:

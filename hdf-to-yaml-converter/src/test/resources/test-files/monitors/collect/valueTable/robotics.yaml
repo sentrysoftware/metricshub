@@ -15,7 +15,8 @@
             _comment: DeviceID;Status;StatusInformation;Moves;Errors
             legacyTextParameters:
               StatusInformation: $3
-            deviceId: $1
+            attributes:
+              id: $1
             source: ${source::monitors.robotics.collect.sources.source(1)}
             metrics:
               hw.status{hw.type="robotics"}: $2

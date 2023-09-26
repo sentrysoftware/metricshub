@@ -43,6 +43,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = svrCtrlTable controllers table
@@ -59,7 +61,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.disk_controller.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
   physical_disk:
     discovery:
       sources:
@@ -95,6 +98,8 @@ monitors:
     collect:
       # This is a multi-instance collect (execute the collect for each disk)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = svrPhysicalDevice SNMP table
@@ -125,7 +130,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="physical_disk"}: $4
           hw.errors{hw.type="physical_disk"}: $2
@@ -166,6 +172,8 @@ monitors:
     collect:
       # Type = MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the svrLogicalDrive SNMP table
@@ -191,7 +199,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.logical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="logical_disk"}: $2
         legacyTextParameters:

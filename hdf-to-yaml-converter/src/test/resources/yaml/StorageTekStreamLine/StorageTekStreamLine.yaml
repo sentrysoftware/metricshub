@@ -98,6 +98,8 @@ monitors:
     collect:
       # Collect type is "multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = slDriveTable
@@ -123,7 +125,8 @@ monitors:
       mapping:
         # ValueTable = Source(3)
         source: "${source::monitors.tape_drive.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="tape_drive"}: $2
           hw.tape_drive.operations{type="mount"}: $4
@@ -176,6 +179,8 @@ monitors:
       # Collect
       # Collect-type = mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Robotic Status Table
@@ -202,7 +207,8 @@ monitors:
         # ValueTable = Source(1)
         # ElementID;PatrolStatus;StatusInformation;
         source: "${source::monitors.robotics.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="robotics"}: $2
         legacyTextParameters:

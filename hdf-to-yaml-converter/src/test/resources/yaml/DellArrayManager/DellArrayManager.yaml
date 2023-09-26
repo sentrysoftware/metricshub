@@ -132,6 +132,8 @@ monitors:
     collect:
       # Collect type = mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = SNMP Get on the arrayDiskState value of the arrayDiskTable SNMP table
@@ -153,7 +155,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="physical_disk"}: $3
         legacyTextParameters:

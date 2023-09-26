@@ -38,7 +38,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class CollectStrategyTest {
+class CollectStrategyTest {
 
 	private static final Path TEST_CONNECTOR_PATH = Paths.get(
 		"src",
@@ -61,16 +61,13 @@ public class CollectStrategyTest {
 
 	@Test
 	void testRun() throws Exception {
+		final String connectorId = TEST_CONNECTOR_FILE_NAME.split("\\.")[0];
+
 		// Create host and connector monitors and set them in the telemetry manager
 		final Monitor hostMonitor = Monitor.builder().type(KnownMonitorType.HOST.getKey()).build();
 		final Monitor connectorMonitor = Monitor.builder().type(KnownMonitorType.CONNECTOR.getKey()).build();
 		final Map<String, Map<String, Monitor>> monitors = new HashMap<>(
-			Map.of(
-				HOST,
-				Map.of(MONITOR_ID_ATTRIBUTE_VALUE, hostMonitor),
-				CONNECTOR,
-				Map.of(TEST_CONNECTOR_FILE_NAME, connectorMonitor)
-			)
+			Map.of(HOST, Map.of(MONITOR_ID_ATTRIBUTE_VALUE, hostMonitor), CONNECTOR, Map.of(connectorId, connectorMonitor))
 		);
 
 		final SnmpConfiguration snmpConfig = SnmpConfiguration.builder().community("public").build();
@@ -88,8 +85,6 @@ public class CollectStrategyTest {
 					.build()
 			)
 			.build();
-
-		final String connectorId = TEST_CONNECTOR_FILE_NAME.split("\\.")[0];
 
 		MonitorFactory monitorFactory = MonitorFactory
 			.builder()
@@ -110,9 +105,9 @@ public class CollectStrategyTest {
 				.build();
 		final Monitor diskController = monitorFactory.createOrUpdateMonitor();
 
-		hostMonitor.getAttributes().put(IS_ENDPOINT, "true");
+		hostMonitor.addAttribute(IS_ENDPOINT, "true");
 
-		connectorMonitor.getAttributes().put(ID, TEST_CONNECTOR_FILE_NAME);
+		connectorMonitor.addAttribute(ID, TEST_CONNECTOR_FILE_NAME);
 
 		// Create the connector store
 		final ConnectorStore connectorStore = new ConnectorStore(TEST_CONNECTOR_PATH);

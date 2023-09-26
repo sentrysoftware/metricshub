@@ -70,6 +70,8 @@ monitors:
     collect:
       # The DiskController collect is a "MultiInstance" collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Get a list of discrete sensors
@@ -108,7 +110,8 @@ monitors:
         # ValueTable = Source(1)
         # DeviceID,StatusInformation,PatrolStatus
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="physical_disk"}: $3
         legacyTextParameters:

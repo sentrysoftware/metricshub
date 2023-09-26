@@ -90,7 +90,8 @@ monitors:
           rightKeyColumn: 1
       mapping:
         source: "${source::monitors.enclosure.collect.sources.source(5)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="enclosure"}: $4
           hw.enclosure.power: $7
@@ -162,6 +163,8 @@ monitors:
           name: "${awk::sprintf(\"%s (%s)\", $2, \"PDU\")}"
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: snmpGet
@@ -219,7 +222,8 @@ monitors:
           - "${source::monitors.power_supply.collect.sources.source(5)}"
       mapping:
         source: "${source::monitors.power_supply.collect.sources.source(6)}"
-        deviceId: $4
+        attributes:
+          id: $4
         metrics:
           hw.status{hw.type="power_supply"}: $5
         legacyTextParameters:
@@ -276,7 +280,8 @@ monitors:
             translationTable: "${translation::tempStatusInfoTranslationTable}"
       mapping:
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.temperature: $2
           hw.status{hw.type="temperature"}: $3

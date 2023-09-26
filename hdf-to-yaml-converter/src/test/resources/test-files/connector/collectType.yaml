@@ -9,6 +9,7 @@
           _comment: |-
             Collect type is: multi-instance
           type: multiInstance
+          keys: ["id"]
 
 - name: otherCollect
   input: |

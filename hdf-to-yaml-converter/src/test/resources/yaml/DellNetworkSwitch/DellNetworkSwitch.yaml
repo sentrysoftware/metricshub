@@ -100,6 +100,8 @@ monitors:
           hw.enclosure.power: $10
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: snmpTable
@@ -148,7 +150,8 @@ monitors:
         # Value Table
         # MSHW;EnclosureID;PATROLStatus;StatusInformation;MSHW;PowerConsumption;
         source: "${source::monitors.enclosure.collect.sources.source(3)}"
-        deviceId: DellSwitch
+        attributes:
+          id: DellSwitch
         metrics:
           hw.status{hw.type="enclosure"}: $3
           hw.enclosure.power: $6
@@ -180,6 +183,8 @@ monitors:
           name: $2
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: snmpTable
@@ -204,7 +209,8 @@ monitors:
         # Value Table
         # EnclosureID;PATROLStatus;StatusInformation;
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="fan"}: $3
           hw.fan.speed: $2
@@ -235,6 +241,8 @@ monitors:
           name: $2
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: snmpTable
@@ -259,7 +267,8 @@ monitors:
         # Value Table
         # EnclosureID;PATROLStatus;StatusInformation;
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:

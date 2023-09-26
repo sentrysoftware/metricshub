@@ -149,6 +149,8 @@ monitors:
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the output of "/usr/sbin/prtpicl -v -c fan;/usr/sbin/prtpicl -v -c rpm-sensor"
@@ -202,7 +204,8 @@ monitors:
         # CollectTable = Source(1)
         # DeviceID;Speed;SpeedPercent;PATROLStatus;StatusInformation;SpeedHex;SpeedPercentHex;DeviceID;Class;DevicePath;
         source: "${source::monitors.fan.collect.sources.source(2)}"
-        deviceId: $10
+        attributes:
+          id: $10
         metrics:
           hw.fan.speed: $2
           hw.fan.speed_ratio: percent2Ratio($3)
@@ -277,6 +280,8 @@ monitors:
     collect:
       # Collect type is all instances in one single shot
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the output of "/usr/sbin/prtpicl -v -c temperature-sensor"
@@ -332,7 +337,8 @@ monitors:
       mapping:
         # Collect table = Source(1)
         source: "${source::monitors.temperature.collect.sources.source(4)}"
-        deviceId: $7
+        attributes:
+          id: $7
         metrics:
           hw.temperature: $2
           hw.status{hw.type="temperature"}: $3
@@ -417,6 +423,8 @@ monitors:
     collect:
       # Collect type is all instances in one single shot
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the output of "/usr/sbin/prtpicl -v -c voltage-sensor"
@@ -477,7 +485,8 @@ monitors:
       mapping:
         # Collect table = Source(1)
         source: "${source::monitors.voltage.collect.sources.source(4)}"
-        deviceId: $7
+        attributes:
+          id: $7
         metrics:
           hw.voltage: $2
           hw.status{hw.type="voltage"}: $3
@@ -553,6 +562,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the output of "/usr/sbin/prtpicl -v -c led"
@@ -587,7 +598,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.led.collect.sources.source(2)}"
-        deviceId: $6
+        attributes:
+          id: $6
         metrics:
           hw.status{hw.type="led"}: legacyLedStatus($2)
         legacyTextParameters:

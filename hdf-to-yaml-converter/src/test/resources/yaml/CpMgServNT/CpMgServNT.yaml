@@ -146,6 +146,8 @@ monitors:
     collect:
       # Collect type is mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Get a list of Enclosures
@@ -195,7 +197,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;ID;CurrentReading;
         source: "${source::monitors.enclosure.collect.sources.source(5)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.enclosure.power: $3
           hw.enclosure.energy: fakeCounter($3)
@@ -268,6 +271,8 @@ monitors:
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = cpqSeCpuTable SNMP table
@@ -298,7 +303,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.cpu.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.cpu.speed: megaHertz2Hertz($2)
           hw.status{hw.type="cpu"}: $3
@@ -501,6 +507,8 @@ monitors:
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = temperature SNMP table
@@ -526,7 +534,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.temperature: $2
           hw.status{hw.type="temperature"}: $3
@@ -635,6 +644,8 @@ monitors:
       # Source(1) = cpqHeFltTolPowerSupplyTable SNMP table
       # DeviceID;Status;CapacityUsed;condition
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: snmpTable
@@ -667,7 +678,8 @@ monitors:
       mapping:
         # ValueTable
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:

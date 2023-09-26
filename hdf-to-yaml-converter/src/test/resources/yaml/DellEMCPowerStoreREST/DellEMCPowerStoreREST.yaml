@@ -79,6 +79,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: http
@@ -112,7 +114,8 @@ monitors:
       mapping:
         # Enclosure Value Table
         source: "${source::monitors.enclosure.collect.sources.source(3)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="enclosure"}: $4
         legacyTextParameters:
@@ -172,11 +175,14 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       mapping:
         # Memory Value Table
         # JSON;id;type;lifecycle_state;lifecycle_state;appliance_id;
         source: "${source::monitors.enclosure.collect.sources.source(2)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="memory"}: $4
         legacyTextParameters:
@@ -224,11 +230,14 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       mapping:
         # Fan Value Table
         # JSON;id;type;lifecycle_state;lifecycle_state;appliance_id;
         source: "${source::monitors.enclosure.collect.sources.source(2)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="fan"}: $4
         legacyTextParameters:
@@ -308,11 +317,14 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       mapping:
         # PhysicalDisk Value Table
         # JSON;id;type;lifecycle_state;lifecycle_state;appliance_id;
         source: "${source::monitors.enclosure.collect.sources.source(2)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="physical_disk"}: $4
         legacyTextParameters:
@@ -364,11 +376,14 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       mapping:
         # PowerSupply Value Table
         # JSON;id;type;lifecycle_state;lifecycle_state;appliance_id;
         source: "${source::monitors.enclosure.collect.sources.source(2)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="power_supply"}: $4
         legacyTextParameters:
@@ -415,11 +430,14 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       mapping:
         # Battery Value Table
         # JSON;id;type;lifecycle_state;lifecycle_state;appliance_id;
         source: "${source::monitors.enclosure.collect.sources.source(2)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="battery"}: $4
         legacyTextParameters:
@@ -511,6 +529,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Get SASPorts
@@ -565,7 +585,8 @@ monitors:
         # NetworkCard Value Table
         # JSON;id;type;lifecycle_state;lifecycle_state;appliance_id;
         source: "${source::monitors.network.collect.sources.source(4)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="network"}: $3
           hw.network.up: legacyLinkStatus($5)

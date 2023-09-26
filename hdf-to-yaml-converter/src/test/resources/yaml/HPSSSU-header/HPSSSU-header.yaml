@@ -49,6 +49,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           computes:
@@ -60,7 +62,8 @@ monitors:
       mapping:
         # The value table (taken from enclosure.discovery, since we don't actually want to collect anything.
         source: "${source::monitors.enclosure.discovery.sources.source(2)}"
-        deviceId: $2
+        attributes:
+          id: $2
   blade:
     discovery:
       sources:
@@ -91,6 +94,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Enclosure Collect 1
@@ -115,7 +120,8 @@ monitors:
       mapping:
         # The value table
         source: "${source::monitors.blade.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="blade"}: $5
         legacyTextParameters:
@@ -159,6 +165,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Enclosure Collect 1
@@ -186,7 +194,8 @@ monitors:
         # The value table
         # MSHW_FAN;Enclosure;Name-(Controller Name-Fan Name);Status;Speed;DeviceID;InstallStatus;SystemName;
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $7
+        attributes:
+          id: $7
         metrics:
           hw.status{hw.type="fan"}: $4
           hw.fan.speed: $6
@@ -224,6 +233,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Enclosure Collect 1
@@ -249,7 +260,8 @@ monitors:
         # The value table
         # MSHW_BATTERY;Enclosure;Name - (Controller Name - Battery Name);Status;Status Information;BatteryType;SystemName;
         source: "${source::monitors.battery.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="battery"}: $4
         legacyTextParameters:
@@ -314,6 +326,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           computes:
@@ -360,7 +374,8 @@ monitors:
         # The value table
         # MSHW_LOGICALDISK;Enclosure;Disk Group/VirtualDisk;Location;Name;Status;Status Information;Size GB;Unallocated Space;AddInfo2 (Disk Group Type);UseForCapacityReport;
         source: "${source::monitors.logical_disk.collect.sources.source(3)}"
-        deviceId: $4
+        attributes:
+          id: $4
         metrics:
           hw.status{hw.type="logical_disk"}: $6
           hw.logical_disk.usage{state="free"}: $9
@@ -397,6 +412,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Enclosure Collect 1
@@ -426,7 +443,8 @@ monitors:
         # The value table
         # MSHW_MEMORY;Enclosure;MemoryType(cachememory);Name(Controller Name);Status;SystemName;
         source: "${source::monitors.memory.collect.sources.source(1)}"
-        deviceId: $4
+        attributes:
+          id: $4
         metrics:
           hw.status{hw.type="memory"}: $5
         legacyTextParameters:
@@ -465,6 +483,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Enclosure Collect 1
@@ -490,7 +510,8 @@ monitors:
         # The value table
         # MSHW_NETWORKCARD;Enclosure;NcType(hostport);Name;WWN;Status;Speed Mbit;LinkStatus; SystemName;
         source: "${source::monitors.network.collect.sources.source(1)}"
-        deviceId: $4
+        attributes:
+          id: $4
         metrics:
           hw.network.bandwidth.limit: megaBit2Bit($7)
           hw.network.up: legacyLinkStatus($8)
@@ -558,6 +579,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Enclosure Collect 1
@@ -589,7 +612,8 @@ monitors:
         #     1         2         3     4     5        #  6        #        7        #     8         9        #   10         11     12    13        #     14        15        #   16        ;
         # MSHW_DISK;Enclosure;Location;Name;Status;Status Information;Shelf - Disk Bay;Disk Group;Size GB;failurepredicted;Vendor;Model;firmwareversion;disktype;Serial Number;diskgroupname;SystemName;
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="physical_disk"}: $5
           hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($10)
@@ -626,6 +650,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Enclosure Collect 1
@@ -646,7 +672,8 @@ monitors:
         # The value table
         # MSHW_PSU; Enclosure ;Name - (Controller Name - PSU Name);   Status       ;SystemName;
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="power_supply"}: $4
   temperature:
@@ -678,6 +705,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Enclosure Collect 1
@@ -698,7 +727,8 @@ monitors:
         # The value table
         # MSHW_TEMP;Enclosure;Name;Temperature;Status;
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="temperature"}: $5
           hw.temperature: $4
@@ -733,6 +763,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Enclosure Collect 1
@@ -758,7 +790,8 @@ monitors:
         # The value table
         # MSWH_OTHERDEVICE;Enclosure;Type;Name;status;OpState;SystemName;
         source: "${source::monitors.other_device.collect.sources.source(1)}"
-        deviceId: $4
+        attributes:
+          id: $4
         metrics:
           hw.status{hw.type="other_device"}: $5
         legacyTextParameters:

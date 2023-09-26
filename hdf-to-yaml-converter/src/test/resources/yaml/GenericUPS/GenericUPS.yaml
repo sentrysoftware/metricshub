@@ -154,7 +154,8 @@ monitors:
           defaultRightLine: ;
       mapping:
         source: "${source::monitors.battery.collect.sources.source(5)}"
-        deviceId: UPS Battery
+        attributes:
+          id: UPS Battery
         metrics:
           hw.status{hw.type="battery"}: $2
           hw.battery.charge: percent2Ratio($5)
@@ -246,6 +247,8 @@ monitors:
     collect:
       # Voltage Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: snmpGet
@@ -305,7 +308,8 @@ monitors:
         # ValueTable = Source(5)
         # MSHW;ID;Voltage;
         source: "${source::monitors.voltage.collect.sources.source(5)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.voltage: $3
   temperature:
@@ -328,13 +332,16 @@ monitors:
     collect:
       # Temperature Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: snmpGet
           oid: 1.3.6.1.2.1.33.1.2.7.0
       mapping:
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: UPS Battery Temperature
+        attributes:
+          id: UPS Battery Temperature
         metrics:
           hw.temperature: $1
 translations:

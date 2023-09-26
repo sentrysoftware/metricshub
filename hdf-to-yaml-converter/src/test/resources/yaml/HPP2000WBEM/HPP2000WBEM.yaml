@@ -125,6 +125,8 @@ monitors:
     collect:
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = CIM_ComputerSystem
@@ -157,7 +159,8 @@ monitors:
         # ValueTable = Source(1)
         # Name;PATROLStatus;StatusDescriptions;
         source: "${source::monitors.enclosure.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="enclosure"}: $2
         legacyTextParameters:
@@ -239,6 +242,8 @@ monitors:
     collect:
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = HP_PSU
@@ -271,7 +276,8 @@ monitors:
         # ValueTable = Source(1)
         # DeviceID;PATROLStatus;StatusDescriptions;
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
@@ -298,6 +304,8 @@ monitors:
     collect:
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = HP_PSU
@@ -330,7 +338,8 @@ monitors:
         # ValueTable = Source(1)
         # DeviceID;PATROLStatus;StatusDescriptions;
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
@@ -357,6 +366,8 @@ monitors:
     collect:
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = HP_OverallTempSensor
@@ -389,7 +400,8 @@ monitors:
         # ValueTable = Source(1)
         # DeviceID;PATROLStatus;StatusDescriptions;
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="temperature"}: $2
         legacyTextParameters:
@@ -422,6 +434,8 @@ monitors:
     collect:
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = CIM_ComputerSystem
@@ -454,7 +468,8 @@ monitors:
         # ValueTable = Source(1)
         # DeviceID;PATROLStatus;StatusDescriptions;
         source: "${source::monitors.voltage.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="voltage"}: $2
         legacyTextParameters:
@@ -481,6 +496,8 @@ monitors:
     collect:
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = HP_PSUFan
@@ -513,7 +530,8 @@ monitors:
         # ValueTable = Source(1)
         # DeviceID;PATROLStatus;StatusDescriptions;
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="fan"}: $2
         legacyTextParameters:
@@ -644,6 +662,8 @@ monitors:
     collect:
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = HP_ControllerDevice
@@ -696,7 +716,8 @@ monitors:
         # ValueTable = Source(1)
         # DeviceID;PATROLStatus;StatusDescriptions;
         source: "${source::monitors.other_device.collect.sources.source(4)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="other_device"}: $2
         legacyTextParameters:
@@ -725,6 +746,8 @@ monitors:
     collect:
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = CIM_StoragePool
@@ -757,7 +780,8 @@ monitors:
         # ValueTable = Source(1)
         # InstanceID;PATROLStatus;StatusDescriptions;
         source: "${source::monitors.logical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="logical_disk"}: $2
         legacyTextParameters:
@@ -825,6 +849,8 @@ monitors:
     collect:
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = HP_ControllerDevice
@@ -879,7 +905,8 @@ monitors:
         # ValueTable = Source(1)
         # DeviceID;PATROLStatus;StatusDescriptions;LinkStatus;Speed;
         source: "${source::monitors.network.collect.sources.source(3)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="network"}: $2
           hw.network.up: legacyLinkStatus($4)

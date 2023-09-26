@@ -152,9 +152,9 @@ public class OtherDeviceConverter extends AbstractMappingConverter {
 			sprintfArgs.add(additionalLabelNode.asText());
 		}
 
-		// Join the arguments: $column(1), $column(2), $column(3))
+		// Join the arguments: $1, $2, $3)
 		// append the result to our format variable in order to get something like
-		// sprint("%s: %s (%s)", $column(1), $column(2), $column(3))
+		// sprint("%s: %s (%s)", $1, $2, $3)
 		return format
 			.append("\", ") // Here we will have a string like sprintf("%s: %s (%s)",
 			.append(sprintfArgs.stream().map(this::getFunctionArgument).collect(Collectors.joining(", ", "", ")")))

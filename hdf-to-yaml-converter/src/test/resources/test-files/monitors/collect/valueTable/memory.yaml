@@ -15,7 +15,8 @@
             _comment: DeviceID;Status;StatusInformation;PredictedFailure;ErrorCount
             legacyTextParameters:
               StatusInformation: $3
-            deviceId: $1
+            attributes:
+              id: $1
             source: ${source::monitors.memory.collect.sources.source(1)}
             metrics:
               hw.status{hw.type="memory"}: $2

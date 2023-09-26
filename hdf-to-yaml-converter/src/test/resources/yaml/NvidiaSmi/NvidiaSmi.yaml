@@ -56,6 +56,8 @@ monitors:
           hw.gpu.memory.limit: mebiByte2Byte($20)
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: osCommand
@@ -69,7 +71,8 @@ monitors:
             regExp: ^MSHW_GPU
       mapping:
         source: "${source::monitors.gpu.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.gpu.utilization{task="general"}: percent2Ratio($5)
           hw.gpu.memory.utilization: percent2Ratio($6)
@@ -102,6 +105,8 @@ monitors:
           hw.temperature.limit{limit_type="high.critical"}: $5
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: osCommand
@@ -115,7 +120,8 @@ monitors:
             regExp: ^MSHW_TEMP
       mapping:
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.temperature: $3
   voltage:
@@ -138,6 +144,8 @@ monitors:
           name: "${awk::sprintf(\"%s (%s)\", $2, \"gpu\")}"
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: osCommand
@@ -151,7 +159,8 @@ monitors:
             regExp: ^MSHW_VOLTAGE
       mapping:
         source: "${source::monitors.voltage.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.voltage: $3
   fan:
@@ -177,6 +186,8 @@ monitors:
           hw.fan.speed_ratio.limit{limit_type="low.critical"}: percent2Ratio("0")
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: osCommand
@@ -190,6 +201,7 @@ monitors:
             regExp: ^MSHW_FAN
       mapping:
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.fan.speed_ratio: percent2Ratio($3)

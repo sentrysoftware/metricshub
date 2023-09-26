@@ -69,6 +69,8 @@ monitors:
     collect:
       # Collect type is multiinstance (acutally it's no-instance, but nevermind...)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(2) = lsenclosure & lsenclosurecanister
@@ -142,6 +144,8 @@ monitors:
       # Battery
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = lsenclosurebattery
@@ -252,7 +256,8 @@ monitors:
         # ValueTable = Source(1)
         # enclosure_id;battery_id;PatrolStatus;StatusInformation;
         source: "${source::monitors.battery.collect.sources.source(2)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="battery"}: $3
         legacyTextParameters:
@@ -355,6 +360,8 @@ monitors:
     collect:
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = lsdrive
@@ -396,7 +403,8 @@ monitors:
         # ValueTable = Source(1)
         # id;status;error_sequence_number;enclosure_id;slot_id;
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $5
+        attributes:
+          id: $5
         metrics:
           hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
@@ -453,6 +461,8 @@ monitors:
     collect:
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = lsdrive
@@ -489,7 +499,8 @@ monitors:
         # ValueTable = Source(1)
         # enclosure_id:PSU_id:Patrolstatus
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="power_supply"}: $3
   other_device:
@@ -545,6 +556,8 @@ monitors:
     collect:
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = lsdrive
@@ -581,7 +594,8 @@ monitors:
         # ValueTable = Source(1)
         # enclosure_id:Canister_id:Patrolstatus
         source: "${source::monitors.other_device.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="other_device"}: $3
   led:
@@ -613,6 +627,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source (1) = Enclosure Collect Source (1)
@@ -642,7 +658,8 @@ monitors:
         # ValueTable = Source(1)
         # MS_HW_LED;ID;PatrolStatus;StatusInformation;OnStatus;BlinkingStatus;OffStatus;AttachToDeviceID;
         source: "${source::monitors.led.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="led"}: legacyLedStatus($3)
         legacyTextParameters:
@@ -673,6 +690,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source (1) = Enclosure Collect Source (1)
@@ -688,7 +707,8 @@ monitors:
         # ValueTable = Source(1)
         # MS_HW_TEMPERATURE;ID;Temperature;AttachToDeviceID
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.temperature: $3
 translations:

@@ -99,6 +99,8 @@ monitors:
     collect:
       # Collection Type (Multi-instance)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Nodes
@@ -163,7 +165,8 @@ monitors:
         # Enclosure Value Table
         # MSHW;node;node-model;node-serial;product-version;cup-firmware-version;is-node-healthy
         source: "${source::monitors.enclosure.collect.sources.source(5)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="enclosure"}: $7
   power_supply:
@@ -236,6 +239,8 @@ monitors:
     collect:
       # Collection Type (Multi-instance)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Nodes
@@ -292,7 +297,8 @@ monitors:
         # PowerSupply Value Table
         # MSHW;unique-id;PatrolStatus;StatusInformation
         source: "${source::monitors.power_supply.collect.sources.source(3)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="power_supply"}: $3
         legacyTextParameters:
@@ -366,6 +372,8 @@ monitors:
     collect:
       # Collection Type (Multi-instance)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Nodes
@@ -421,7 +429,8 @@ monitors:
         # Fan Value Table
         # MSHW;unique-id;PatrolStatus;StatusInformation
         source: "${source::monitors.fan.collect.sources.source(3)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="fan"}: $3
         legacyTextParameters:
@@ -481,7 +490,8 @@ monitors:
         # Battery Value Table
         # MSHW;node;PatrolStatus;StatusInformation
         source: "${source::monitors.battery.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="battery"}: $3
         legacyTextParameters:
@@ -554,6 +564,8 @@ monitors:
     collect:
       # Collection Type (Multi-instance)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Nodes
@@ -607,7 +619,8 @@ monitors:
         # Temperature Value Table
         # MSHW;unique-id;PatrolStatus;StatusInformation
         source: "${source::monitors.temperature.collect.sources.source(3)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="temperature"}: $3
         legacyTextParameters:
@@ -654,6 +667,8 @@ monitors:
     collect:
       # Collection Type (Multi-Instance)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Shelves
@@ -683,7 +698,8 @@ monitors:
         # Voltage value Table
         # MSHW;shelf;unique-id;voltage-id;op-status;
         source: "${source::monitors.voltage.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="voltage"}: $4
         legacyTextParameters:
@@ -788,6 +804,8 @@ monitors:
       # Collect
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = PhysicalDisks
@@ -825,7 +843,8 @@ monitors:
         # PhysicalDisk Value Table
         # MSHW;shelf;unique-id;bay-has-disk;bay-type;PatrolStatus;
         source: "${source::monitors.physical_disk.collect.sources.source(2)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="physical_disk"}: $6
   network:
@@ -934,6 +953,8 @@ monitors:
     collect:
       # Collection type (Multi-instance)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = NetworkCards
@@ -1017,7 +1038,8 @@ monitors:
         # NetworkCard Value Table
         # MSHW;node;unique-id;PatrolStatus;link-status;health-status;mac-address;operational-speed
         source: "${source::monitors.network.collect.sources.source(5)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="network"}: $4
           hw.network.up: legacyLinkStatus($5)
@@ -1086,6 +1108,8 @@ monitors:
     collect:
       # CollectionType (Multi-instance)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Aggregate (raid) information
@@ -1141,7 +1165,8 @@ monitors:
         # LogicalDisk Value Table
         # MSHW;aggregate-uuid;PatrolStatus;StatusInformation;
         source: "${source::monitors.logical_disk.collect.sources.source(3)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="logical_disk"}: $3
         legacyTextParameters:
@@ -1197,6 +1222,8 @@ monitors:
     collect:
       # Collection Type (Multi-instance)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Environment Sensors
@@ -1233,7 +1260,8 @@ monitors:
       mapping:
         # DiskController Value Table
         source: "${source::monitors.disk_controller.collect.sources.source(2)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="disk_controller"}: $4
         legacyTextParameters:

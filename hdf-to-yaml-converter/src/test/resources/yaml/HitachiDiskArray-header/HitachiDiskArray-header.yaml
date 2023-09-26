@@ -119,6 +119,8 @@ monitors:
     collect:
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = CIM_ComputerSystem
@@ -161,7 +163,8 @@ monitors:
         # ValueTable = Source(1)
         # Name;PATROLStatus;StatusDescriptions;HealthState
         source: "${source::monitors.enclosure.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="enclosure"}: $2
         legacyTextParameters:
@@ -250,6 +253,8 @@ monitors:
     collect:
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = HITACHI_DiskDrive
@@ -296,7 +301,8 @@ monitors:
         # ValueTable = Source(1)
         # SystemName,Caption,PATROLStatus,StatusDescriptions
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="physical_disk"}: $3
         legacyTextParameters:
@@ -394,6 +400,8 @@ monitors:
     collect:
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = HITACHI_FCPort
@@ -471,7 +479,8 @@ monitors:
         # DeviceWWNID,Speed,PATROLStatus,StatusInformation,DeviceWWNID,DisplayID,DeviceID,SpeedMBps,PermanentAddress,StorageProcessorSystemTag,PortNumber,UsageRestriction,PortType,StorageProcessorSystemTag,StorageSystemName
         # DeviceWWNID,Speed,linkstatus,PATROLStatus,StatusInformation,healthstate,DeviceWWNID,DisplayID,DeviceID,SpeedMBps,PermanentAddress,StorageProcessorSystemTag,PortNumber,UsageRestriction,PortType,mac/wwn,StorageProcessorSystemTag,StorageSystemName
         source: "${source::monitors.network.collect.sources.source(4)}"
-        deviceId: $9
+        attributes:
+          id: $9
         metrics:
           hw.network.bandwidth.limit: megaBit2Bit($2)
           hw.network.up: legacyLinkStatus($3)
@@ -513,6 +522,8 @@ monitors:
     collect:
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = HITACHI_Fan
@@ -559,7 +570,8 @@ monitors:
         # ValueTable = Source(1)
         # SystemName,Caption,PATROLStatus,StatusDescriptions
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="fan"}: $3
         legacyTextParameters:
@@ -599,6 +611,8 @@ monitors:
     collect:
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = HITACHI_PowerSupply
@@ -645,7 +659,8 @@ monitors:
         # ValueTable = Source(1)
         # SystemName,Caption,PATROLStatus,StatusDescriptions
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="power_supply"}: $3
         legacyTextParameters:
@@ -685,6 +700,8 @@ monitors:
     collect:
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = HITACHI_CacheMemory
@@ -731,7 +748,8 @@ monitors:
         # ValueTable = Source(1)
         # SystemName,Caption,PATROLStatus,StatusDescriptions
         source: "${source::monitors.memory.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="memory"}: $3
         legacyTextParameters:
@@ -771,6 +789,8 @@ monitors:
     collect:
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = HITACHI_Battery
@@ -817,7 +837,8 @@ monitors:
         # ValueTable = Source(1)
         # SystemName,Caption,PATROLStatus,StatusDescriptions
         source: "${source::monitors.battery.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="battery"}: $3
         legacyTextParameters:
@@ -865,6 +886,8 @@ monitors:
     collect:
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = HITACHI_Fan
@@ -911,7 +934,8 @@ monitors:
         # ValueTable = Source(1)
         # SystemName,Caption,PATROLStatus,StatusDescriptions
         source: "${source::monitors.logical_disk.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="logical_disk"}: $3
         legacyTextParameters:
@@ -995,6 +1019,8 @@ monitors:
     collect:
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = HITACHI_StorageProcessorSystem
@@ -1071,7 +1097,8 @@ monitors:
         # ValueTable = Source(1)
         # DeviceID,PATROLStatus,StatusDescriptions,healthstate,SystemName
         source: "${source::monitors.other_device.collect.sources.source(4)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="other_device"}: $2
         legacyTextParameters:

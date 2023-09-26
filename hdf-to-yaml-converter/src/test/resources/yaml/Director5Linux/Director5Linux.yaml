@@ -127,6 +127,8 @@ monitors:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($1)
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = The IBMPSG_Processor WBEM class
@@ -144,7 +146,8 @@ monitors:
             translationTable: "${translation::cpuStatusInformationTranslationTable}"
       mapping:
         source: "${source::monitors.cpu.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="cpu"}: $2
         legacyTextParameters:
@@ -182,6 +185,8 @@ monitors:
           hw.memory.limit: mebiByte2Byte($1)
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = The IBMPSG_Processor WBEM class
@@ -194,7 +199,8 @@ monitors:
             translationTable: "${translation::memoryStatusTranslationTable}"
       mapping:
         source: "${source::monitors.memory.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="memory"}: $1
   fan:
@@ -224,6 +230,8 @@ monitors:
     collect:
       # The collect (as all WBEM-based collects) is "MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = The IBMPSG_Tachometer WBEM class
@@ -233,7 +241,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.fan.speed: $1
   temperature:
@@ -263,6 +272,8 @@ monitors:
     collect:
       # Like all WBEM collects, this one is \"MultiInstance\"
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the IBMPSG_TemperatureSensor WBEM class
@@ -272,7 +283,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.temperature: $1
   voltage:
@@ -303,6 +315,8 @@ monitors:
     collect:
       # It's a "MultiInstance" collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the IBMPSG_VoltageSensor class
@@ -312,7 +326,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.voltage.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.voltage: $1
   power_supply:
@@ -334,6 +349,8 @@ monitors:
     collect:
       # Collect type : multi instance (one source for several instances)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the simple IBMPSG_PowerSupply table/class
@@ -359,7 +376,8 @@ monitors:
       mapping:
         # The ValueTable = Source(1)
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
@@ -499,6 +517,8 @@ monitors:
       # Only ONE WBEM query will be done in order to get the information for all physical disks
       # Less WBEM queries gives faster results
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the only source = the IBMPSG_RAIDDiskDrive table
@@ -520,7 +540,8 @@ monitors:
       mapping:
         # Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
@@ -570,6 +591,8 @@ monitors:
       # One WBEM query will be executed in order to get the info for all the logical drives
       # Much faster!
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the only source = the IBMPSG_RAIDLogicalDrive table
@@ -591,7 +614,8 @@ monitors:
       mapping:
         # Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
         source: "${source::monitors.logical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="logical_disk"}: $2
         legacyTextParameters:

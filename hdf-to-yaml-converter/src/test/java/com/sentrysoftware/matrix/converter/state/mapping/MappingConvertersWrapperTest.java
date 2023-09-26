@@ -21,8 +21,8 @@ class MappingConvertersWrapperTest {
 	private static final String HDF_ATTR_1 = "attr1";
 	private static final String YAML_ATTR_2 = "attr_2";
 	private static final String HDF_ATTR_2 = "attr2";
-	private static final String COLUMN_1 = "$column(1)";
-	private static final String COLUMN_2 = "$column(2)";
+	private static final String COLUMN_1 = "$1";
+	private static final String COLUMN_2 = "$2";
 	private static final String HDF_STATUS = "status";
 	private static final String YAML_STATUS = "hw.status{hw.type=\"enclosure\"}";
 

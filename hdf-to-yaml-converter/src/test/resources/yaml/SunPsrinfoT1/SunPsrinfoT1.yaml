@@ -52,6 +52,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = psrinfo -vp
@@ -68,7 +70,8 @@ monitors:
       mapping:
         # ValueTable = source(1)
         source: "${source::monitors.cpu.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
 translations:
   cpuStatusInformationTranslationTable:
     powered: Powered off

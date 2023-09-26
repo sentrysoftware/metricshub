@@ -62,6 +62,8 @@ monitors:
           name: "${awk::sprintf(\"%s (%s)\", $5, $6)}"
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Query /Chassis/?/
@@ -83,7 +85,8 @@ monitors:
         # Battery Value Table
         # JsonID;PatrolStatus;StatusInformation
         source: "${source::monitors.battery.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="battery"}: $3
           hw.battery.charge: percent2Ratio($5)
@@ -307,6 +310,8 @@ monitors:
       # Collect
       # EthernetInterfaces
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: http
@@ -372,7 +377,8 @@ monitors:
         # NetworkCard Value Table
         # JSON/ID/NetworkCardStatus/LinkStatus/StatusInformation;Speed;
         source: "${source::monitors.network.collect.sources.source(4)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.network.up: legacyLinkStatus($3)
           hw.status{hw.type="network"}: $4

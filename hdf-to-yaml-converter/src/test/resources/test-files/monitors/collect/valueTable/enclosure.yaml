@@ -16,7 +16,8 @@
             _comment: DeviceID;Status;StatusInformation;IntrusionStatus;EnergyUsage;PowerConsumption
             legacyTextParameters:
               StatusInformation: $3
-            deviceId: $1
+            attributes:
+              id: $1
             source: ${source::monitors.enclosure.collect.sources.source(1)}
             metrics:
               hw.status{hw.type="enclosure"}: $2
@@ -40,7 +41,8 @@
             _comment: DeviceID;Status;StatusInformation;IntrusionStatus;EnergyUsage
             legacyTextParameters:
               StatusInformation: $3
-            deviceId: $1
+            attributes:
+              id: $1
             source: ${source::monitors.enclosure.collect.sources.source(1)}
             metrics:
               hw.status{hw.type="enclosure"}: $2
@@ -64,7 +66,8 @@
             _comment: DeviceID;Status;StatusInformation;IntrusionStatus;PowerConsumption
             legacyTextParameters:
               StatusInformation: $3
-            deviceId: $1
+            attributes:
+              id: $1
             source: ${source::monitors.enclosure.collect.sources.source(1)}
             metrics:
               hw.status{hw.type="enclosure"}: $2

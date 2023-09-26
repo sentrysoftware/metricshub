@@ -52,6 +52,11 @@ public class CollectTypeProcessor extends AbstractStateConverter {
 		}
 
 		createTextNode("type", collectype, collectJob);
+
+		if (MULTI_INSTANCE_CAMEL_CASE.equals(collectype)) {
+			createStringArrayNode("keys", new String[] { "id" }, collectJob);
+		}
+
 	}
 
 	/**

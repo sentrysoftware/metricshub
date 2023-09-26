@@ -142,6 +142,8 @@ monitors:
     collect:
       # Collect type is: multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = deviceTable SNMP table
@@ -228,7 +230,8 @@ monitors:
       mapping:
         # The collect table = Source(1)
         source: "${source::monitors.physical_disk.collect.sources.source(5)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="physical_disk"}: $7
           hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($9)

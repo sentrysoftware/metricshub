@@ -112,6 +112,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Run isi status -w
@@ -204,7 +206,8 @@ monitors:
         # The value table
         # MSHW_ENCLOSURE;Class;nodeName;PatrolStatus;StatusInformation;IPAddress;
         source: "${source::monitors.enclosure.collect.sources.source(4)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="enclosure"}: $4
         legacyTextParameters:
@@ -238,6 +241,8 @@ monitors:
       # Collect
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Enclosure Collect 1
@@ -253,7 +258,8 @@ monitors:
         # The value table
         # MSHW;ID;Value;
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.fan.speed: $3
   voltage:
@@ -294,6 +300,8 @@ monitors:
       # Collect
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Enclosure Collect 1
@@ -314,7 +322,8 @@ monitors:
         # The value table
         # MSHW;ID;Value;
         source: "${source::monitors.voltage.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.voltage: $3
   temperature:
@@ -346,6 +355,8 @@ monitors:
       # Collect
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Enclosure Collect 1
@@ -361,7 +372,8 @@ monitors:
         # The value table
         # MSHW;ID;Value;
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.temperature: $3
   power_supply:
@@ -391,6 +403,8 @@ monitors:
       # Collect
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Enclosure Collect 1
@@ -415,7 +429,8 @@ monitors:
         # The value table
         # MSHW;ID;Value;
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="power_supply"}: $3
         legacyTextParameters:
@@ -447,6 +462,8 @@ monitors:
       # Collect
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Enclosure Collect 1
@@ -471,7 +488,8 @@ monitors:
         # The value table
         # MSHW;ID;Value;
         source: "${source::monitors.cpu.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="cpu"}: $3
         legacyTextParameters:
@@ -508,6 +526,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Run isi batterystatus
@@ -534,7 +554,8 @@ monitors:
         # The ValueTable = Source(1)
         # MSHW_BATTERY;ChassisID;DeviceID;DisplayID;Patrolstatus;status;
         source: "${source::monitors.battery.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="battery"}: $5
         legacyTextParameters:
@@ -596,6 +617,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Run isi devices
@@ -627,7 +650,8 @@ monitors:
         # The ValueTable = Source(1)
         # MSHW_PhysicalDisk;ChassisID;DeviceID;DisplayID;Lnum;SerialNumber;Status;Status;
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="physical_disk"}: $7
         legacyTextParameters:
@@ -677,6 +701,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Run isi networks list interfaces --verbose --wide --show-inactive
@@ -731,7 +757,8 @@ monitors:
         # The ValueTable = Source(1)
         # MSHW;DeviceID;PatrolStatus;Status;LinkStatus;
         source: "${source::monitors.network.collect.sources.source(2)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="network"}: $3
           hw.network.up: legacyLinkStatus($5)
@@ -806,6 +833,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Run isi devices
@@ -837,7 +866,8 @@ monitors:
         # The ValueTable = Source(1)
         # MSHW;ID;Status;AdditionalInformation;StatusInformation;
         source: "${source::monitors.logical_disk.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="logical_disk"}: $3
         legacyTextParameters:

@@ -17,7 +17,8 @@
             _comment: DeviceID;Status;StatusInformation;Mount;Unmount;Errors;NeedsCleaning
             legacyTextParameters:
               StatusInformation: $3
-            deviceId: $1
+            attributes:
+              id: $1
             source: ${source::monitors.tape_drive.collect.sources.source(1)}
             metrics:
               hw.status{hw.type="tape_drive"}: $2

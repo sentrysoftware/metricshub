@@ -38,6 +38,8 @@ monitors:
           name: "${awk::sprintf(\"Enclosure: (%s %s)\", \"Hitachi\", $1)}"
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Get the various enclosures (Chassis)
@@ -53,7 +55,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.enclosure.collect.sources.source(1)}"
-        deviceId: Hitachi Blade Chassis
+        attributes:
+          id: Hitachi Blade Chassis
         metrics:
           hw.enclosure.power: $1
           hw.enclosure.energy: fakeCounter($1)
@@ -167,6 +170,8 @@ monitors:
     collect:
       # Collect type is "multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Blade Status Table
@@ -216,7 +221,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.blade.collect.sources.source(4)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="blade"}: $2
           hw.blade.power_state: $4
@@ -319,6 +325,8 @@ monitors:
     collect:
       # Collect type is "multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = fanStatusEntry
@@ -379,7 +387,8 @@ monitors:
         # ValueTable = Source(4)
         # FanSlot;Fan Speed;PatrolStatus;
         source: "${source::monitors.fan.collect.sources.source(4)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.fan.speed: $2
           hw.status{hw.type="fan"}: $3
@@ -436,6 +445,8 @@ monitors:
     collect:
       # Collect type is "multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = psStatusEntry
@@ -453,7 +464,8 @@ monitors:
         # ValueTable = Source(4)
         # Slot;PatrolStatus;
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
   temperature:
@@ -609,6 +621,8 @@ monitors:
     collect:
       # Collect type is "multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source (1) =Get the Chassis Ambient
@@ -730,7 +744,8 @@ monitors:
         # Value Table
         # ID;PatrolStatus;StatusInformation;Temp;
         source: "${source::monitors.temperature.collect.sources.source(8)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="temperature"}: $2
           hw.temperature: $4
@@ -967,6 +982,8 @@ monitors:
     collect:
       # Collect type is "multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = mmStatusEntry
@@ -1034,7 +1051,8 @@ monitors:
       mapping:
         # The ValueTable
         source: "${source::monitors.other_device.collect.sources.source(5)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="other_device"}: $2
   led:
@@ -1136,6 +1154,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source (1) = Node LED OID
@@ -1222,7 +1242,8 @@ monitors:
       mapping:
         # ValueTable = Source(8)
         source: "${source::monitors.led.collect.sources.source(8)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="led"}: legacyLedStatus($2)
 translations:

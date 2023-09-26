@@ -146,6 +146,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = cpqNicIfLogMapTable\nFull path:\tiso(1).org(3).dod(6).internet(1).private(4).enterprises(1).compaq(232).cpqNic(18).cpqNicComponent(2).cpqNicIfLogMap(2).cpqNicIfLogMapTable(1)\nID;Count;SpeedMbps;Status;Condition;\n\"ID,5,19,10,11\"
@@ -231,7 +233,8 @@ monitors:
         # source(1) ID;SpeedMbps;StatusInformation;PATROLStatus;
         # source(2) ID;SpeedMbps;StatusInformation;PATROLStatus;LinkStatus;DuplexState;GoodTransmits;GoodReceives;TotalError;BadReceives;InOctets;OutOctets;
         source: Collect_source
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.network.bandwidth.limit: megaBit2Bit($2)
           hw.status{hw.type="network"}: $4

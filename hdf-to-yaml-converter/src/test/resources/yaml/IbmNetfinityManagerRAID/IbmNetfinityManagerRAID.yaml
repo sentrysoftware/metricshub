@@ -63,6 +63,8 @@ monitors:
     collect:
       # Collect-type = mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the tRaidPhysicalDriveInformation SNMP table
@@ -125,7 +127,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.physical_disk.collect.sources.source(3)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="physical_disk"}: $6
         legacyTextParameters:
@@ -158,6 +161,8 @@ monitors:
     collect:
       # Collect type is: mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the tRaidVirtualDrivesInformation table
@@ -215,7 +220,8 @@ monitors:
       mapping:
         # The ValueTable = Source(3)
         source: "${source::monitors.logical_disk.collect.sources.source(3)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="logical_disk"}: $5
         legacyTextParameters:

@@ -48,6 +48,8 @@ monitors:
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = output of iostat
@@ -64,6 +66,7 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.tape_drive.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.errors{hw.type="tape_drive"}: $2

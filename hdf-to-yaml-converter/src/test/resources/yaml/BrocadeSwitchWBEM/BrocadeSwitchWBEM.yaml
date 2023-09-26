@@ -208,6 +208,8 @@ monitors:
     collect:
       # The Temperature collect is a "MultiInstance" collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Brocade_Blade
@@ -240,7 +242,8 @@ monitors:
         # ValueTable = Source(1)
         # DeviceID,PATROLStatus,StatusInformation
         source: "${source::monitors.blade.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="blade"}: $2
         legacyTextParameters:
@@ -692,6 +695,8 @@ monitors:
     collect:
       # The NetworkCard collect is a "MultiInstance" collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Brocade_SwitchFCPort
@@ -841,7 +846,8 @@ monitors:
         #     1        #     2      3        #    4        #       5        # 6        #   7        #         # 8        #      9        #       10        # 11        # 12        #    13
         # PermanentAddress,Speed,PATROLStatus,StatusInformation,LinkStatus,BytesReceived,BytesTransmitted,PacketsReceived,PacketsTransmitted,BBCreditZero,ErrorCount,PermanentAddress,DeviceID
         source: "${source::monitors.network.collect.sources.source(8)}"
-        deviceId: $13
+        attributes:
+          id: $13
         metrics:
           hw.status{hw.type="network"}: $3
           hw.network.up: legacyLinkStatus($5)
@@ -951,6 +957,8 @@ monitors:
     collect:
       # The Temperature collect is a "MultiInstance" collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Brocade_PortModule
@@ -1014,7 +1022,8 @@ monitors:
         # ValueTable
         # SystemName,DeviceID,PATROLStatus,StatusInformation
         source: "${source::monitors.other_device.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="other_device"}: $3
         legacyTextParameters:
@@ -1056,6 +1065,8 @@ monitors:
     collect:
       # The Temperature collect is a "MultiInstance" collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = CIM_NumericSensor
@@ -1096,7 +1107,8 @@ monitors:
         # SystemName,DeviceID,Speed,PATROLStatus,StatusInformation
         # ValueTable = Source(1)
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.fan.speed: $3
           hw.status{hw.type="fan"}: $4
@@ -1137,6 +1149,8 @@ monitors:
     collect:
       # The Temperature collect is a "MultiInstance" collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = CIM_NumericSensor
@@ -1177,7 +1191,8 @@ monitors:
         # ValueTable = Source(1)
         # SystemName,DeviceID,PATROLStatus,StatusInformation
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="power_supply"}: $3
         legacyTextParameters:
@@ -1219,6 +1234,8 @@ monitors:
     collect:
       # The Temperature collect is a "MultiInstance" collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Brocade_TemperatureSensor
@@ -1259,7 +1276,8 @@ monitors:
         # SystemName,DeviceID,Speed,PATROLStatus,StatusInformation
         # ValueTable = Source(1)
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.temperature: $3
           hw.status{hw.type="temperature"}: $4

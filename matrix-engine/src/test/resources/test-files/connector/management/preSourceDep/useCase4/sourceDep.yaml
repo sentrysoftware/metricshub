@@ -29,17 +29,18 @@ monitors:
       mapping:
         source: ${source::pre.source(2)}
         attributes:
-          id: buildId($column(1))
+          id: $1
           parent: ""
-          name: buildName(Storage, EMC, $column(2), (, $column(4), ))
+          name: buildName(Storage, EMC, $2, (, $4, ))
           vendor: EMC
-          model: $column(2)
-          serial_number: $column(5)
+          model: $2
+          serial_number: $5
           type: Storage
         conditionalCollection:
-          hw.status: $column(5)
+          hw.status: $5
     collect:
       type: multiInstance
+      keys: [ id ]
       sources:
         source(1):
           type: wmi
@@ -53,7 +54,8 @@ monitors:
             source: ${source::monitors.enclosure.collect.sources.source(1)}
             concatMethod: list
       mapping:
-        deviceId: $column(1) 
+        attributes:
+          id: $1 
         source: ${source::monitors.enclosure.collect.sources.source(2)}
         metrics:
-          hw.status: $column(2)
+          hw.status: $2

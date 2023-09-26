@@ -116,6 +116,8 @@ monitors:
       # Collect
       # MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: http
@@ -166,7 +168,8 @@ monitors:
         # ValueTable
         # json;PatrolStatus;StatusInformation;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
         source: "${source::monitors.enclosure.collect.sources.source(1)}"
-        deviceId: $5
+        attributes:
+          id: $5
         metrics:
           hw.status{hw.type="enclosure"}: $2
         legacyTextParameters:
@@ -204,6 +207,8 @@ monitors:
       # Collect
       # MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: copy
@@ -212,7 +217,8 @@ monitors:
         # InstanceTable
         # json;PatrolStatus;StatusInformation;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
         source: "${source::monitors.blade.collect.sources.source(1)}"
-        deviceId: $5
+        attributes:
+          id: $5
         metrics:
           hw.status{hw.type="blade"}: $2
         legacyTextParameters:
@@ -244,11 +250,14 @@ monitors:
       # Collect
       # MultiInstance
       type: multiInstance
+      keys:
+      - id
       mapping:
         # ValueTable
         # JSONID;status;status;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
         source: "${source::monitors.enclosure.collect.sources.source(1)}"
-        deviceId: $5
+        attributes:
+          id: $5
         metrics:
           hw.temperature: $6
           hw.status{hw.type="temperature"}: $2
@@ -281,11 +290,14 @@ monitors:
       # Collect
       # MultiInstance
       type: multiInstance
+      keys:
+      - id
       mapping:
         # ValueTable
         # JSONID;status;status;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
         source: "${source::monitors.enclosure.collect.sources.source(1)}"
-        deviceId: $5
+        attributes:
+          id: $5
         metrics:
           hw.status{hw.type="fan"}: $2
         legacyTextParameters:
@@ -324,11 +336,14 @@ monitors:
       # Collect
       # MultiInstance
       type: multiInstance
+      keys:
+      - id
       mapping:
         # ValueTable
         # JSONID;status;status;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
         source: "${source::monitors.enclosure.collect.sources.source(1)}"
-        deviceId: $5
+        attributes:
+          id: $5
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
@@ -395,6 +410,8 @@ monitors:
       # Collect
       # MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # JSONID;status;status;slot;name;temperature;index;identify;voltage;model;speed;serial;details;
@@ -440,7 +457,8 @@ monitors:
         # ValueTable
         # PatrolStatus;StatusInformation;name;json;name;speed;
         source: "${source::monitors.network.collect.sources.source(3)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="network"}: $1
           hw.network.bandwidth.limit: megaBit2Bit($6)
@@ -480,11 +498,14 @@ monitors:
       # Collect
       # MultiInstance
       type: multiInstance
+      keys:
+      - id
       mapping:
         # ValueTable
         # JSON;name;PatrolStatus;StatusInformation;
         source: "${source::monitors.enclosure.collect.sources.source(2)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="physical_disk"}: $3
         legacyTextParameters:
@@ -518,11 +539,14 @@ monitors:
       # Collect
       # MultiInstance
       type: multiInstance
+      keys:
+      - id
       mapping:
         # ValueTable
         # JSON;name;PatrolStatus;StatusInformation;
         source: "${source::monitors.enclosure.collect.sources.source(2)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="other_device"}: $3
         legacyTextParameters:

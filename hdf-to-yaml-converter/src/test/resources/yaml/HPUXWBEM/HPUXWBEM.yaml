@@ -77,6 +77,8 @@ monitors:
           hw.cpu.speed: $4
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # DeviceID,CurrentClockSpeed,OperationalStatus
@@ -107,7 +109,8 @@ monitors:
         # Instance ,Table
         # DeviceID,CurrentClockSpeed,PatrolStatus,StatusInformation
         source: "${source::monitors.cpu.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="cpu"}: $3
           hw.cpu.speed: megaHertz2Hertz($2)
@@ -174,6 +177,8 @@ monitors:
           hw.memory.limit: mebiByte2Byte($3)
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # DeviceID,OperationalStatus
@@ -204,7 +209,8 @@ monitors:
         # Instance Table
         # DeviceID,PatrolStatus,StatusInformation
         source: "${source::monitors.memory.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="memory"}: $2
         legacyTextParameters:
@@ -248,6 +254,8 @@ monitors:
           name: $2
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # DeviceID,OperationalStatus
@@ -278,7 +286,8 @@ monitors:
         # Instance Table
         # DeviceID,PatrolStatus,StatusInformation
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
@@ -346,6 +355,8 @@ monitors:
           hw.status{hw.type="temperature"}: $4
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # DeviceID,CurrentReading,OperationalStatus,SensorType
@@ -381,7 +392,8 @@ monitors:
         # Instance Table
         # DeviceID,CurrentReading,PatrolStatus,StatusInformation,SensorType
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.temperature: $2
           hw.status{hw.type="temperature"}: $3
@@ -406,6 +418,8 @@ monitors:
           name: $2
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # DeviceID,OperationalStatus
@@ -436,7 +450,8 @@ monitors:
         # Instance Table
         # DeviceID,PatrolStatus,StatusInformation
         source: "${source::monitors.voltage.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="voltage"}: $2
         legacyTextParameters:
@@ -486,6 +501,8 @@ monitors:
           name: $3
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # DeviceID,OperationalStatus
@@ -516,7 +533,8 @@ monitors:
         # Instance Table
         # DeviceID,PatrolStatus,StatusInformation
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="fan"}: $2
         legacyTextParameters:
@@ -567,6 +585,8 @@ monitors:
     collect:
       # The DiskController collect is a "MultiInstance" collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) =  VMWare_HHRCController
@@ -594,7 +614,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.disk_controller.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="disk_controller"}: $1
         legacyTextParameters:
@@ -639,6 +660,8 @@ monitors:
     collect:
       # The DiskController collect is a "MultiInstance" collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) =  HP_DiskDrive
@@ -666,7 +689,8 @@ monitors:
         # ValueTable = Source(1)
         # DeviceID,PatrolStatus,StatusInformation
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
@@ -692,6 +716,8 @@ monitors:
     collect:
       # The DiskController collect is a "MultiInstance" collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) =  HPUX_PhysicalVolume
@@ -719,7 +745,8 @@ monitors:
         # ValueTable = Source(1)
         # DeviceID,PatrolStatus,StatusInformation
         source: "${source::monitors.logical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="logical_disk"}: $2
         legacyTextParameters:

@@ -100,6 +100,8 @@ monitors:
           name: "${awk::sprintf(\"Enclosure: %s (%s %s)\", $4, $7, $5)}"
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # For each Chassis found; Query it's specific address.
@@ -161,7 +163,8 @@ monitors:
         # Enclosure Value Table
         # JSONID;ChassisID;Status;Status;JSONID;ChassisID;PowerConsumption;
         source: "${source::monitors.enclosure.collect.sources.source(4)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="enclosure"}: $3
           hw.enclosure.power: $7
@@ -231,6 +234,8 @@ monitors:
           hw.memory.limit: mebiByte2Byte($8)
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Query /Systems/?/Memory/?
@@ -255,7 +260,8 @@ monitors:
             translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
         source: "${source::monitors.memory.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="memory"}: $3
         legacyTextParameters:
@@ -277,6 +283,8 @@ monitors:
           name: "${awk::sprintf(\"Disk Controller: %s (%s)\", $6, $7)}"
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: http
@@ -303,7 +311,8 @@ monitors:
         # DiskController Value Table
         # JsonID;Id;PatrolStatus;StatusInformation;
         source: "${source::monitors.disk_controller.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="disk_controller"}: $3
         legacyTextParameters:
@@ -381,6 +390,8 @@ monitors:
           hw.physical_disk.size: $9
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Query /Systems/?/SmartStorage/ArrayControllers/?/DiskDrives
@@ -416,7 +427,8 @@ monitors:
         # PhysicalDisk Value Table
         # JsonID;Name;PatrolStatus;StatusInformation;
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="physical_disk"}: $3
           hw.physical_disk.endurance_utilization{state="remaining"}: percent2Ratio($6)
@@ -479,6 +491,8 @@ monitors:
           hw.logical_disk.limit: $6
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Query /Systems/?/SmartStorage/ArrayControllers/?/DiskDrives/?
@@ -506,7 +520,8 @@ monitors:
         # LogicalDisk Value Table
         # JsonID;Name;PatrolStatus;StatusInformation;
         source: "${source::monitors.logical_disk.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="logical_disk"}: $3
         legacyTextParameters:
@@ -566,6 +581,8 @@ monitors:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($7)
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Query Systems/?/Processors
@@ -594,7 +611,8 @@ monitors:
         # CPU collect value table
         # JsonId;Id;PatrolStatus;StatusInformation;
         source: "${source::monitors.cpu.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="cpu"}: $3
         legacyTextParameters:
@@ -631,6 +649,8 @@ monitors:
           name: $3
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: copy
@@ -652,7 +672,8 @@ monitors:
         # Fan Value Table
         # JsonID;PatrolStatus;StatusInformation
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="fan"}: $3
         legacyTextParameters:
@@ -699,6 +720,8 @@ monitors:
           hw.temperature: $8
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: copy
@@ -720,7 +743,8 @@ monitors:
         # Temperature Value Table
         # JsonID;PatrolStatus;StatusInformation
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="temperature"}: $3
           hw.temperature: $5
@@ -773,6 +797,8 @@ monitors:
           hw.power_supply.limit: $8
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: copy
@@ -788,7 +814,8 @@ monitors:
         # Power Supply Value Table
         # JsonID;PatrolStatus;StatusInformation;
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $4
+        attributes:
+          id: $4
         metrics:
           hw.status{hw.type="power_supply"}: $5
         legacyTextParameters:

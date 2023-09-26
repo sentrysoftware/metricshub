@@ -132,22 +132,22 @@ class MonitorsDeserializerTest extends DeserializerTest {
 			.attributes(
 				Map.of(
 					"id",
-					"buildId($column(6))",
+					"$6",
 					"parent",
 					"",
 					"name",
-					"buildName(Storage, EMC, $column(2), (, $column(7), ))",
+					"${awk::sprintf(\"Storage EMC %s (%s)\", $2, $7)}",
 					"model",
-					"$column(2)",
+					"$2",
 					"vendor",
 					"EMC",
 					"serial_number",
-					"$column(3)",
+					"$3",
 					"type",
 					"Storage"
 				)
 			)
-			.conditionalCollection(Map.of("hw.status", "$column(10)"))
+			.conditionalCollection(Map.of("hw.status", "$10"))
 			.build();
 
 		assertEquals(expectedMapping, mapping);
@@ -188,10 +188,10 @@ class MonitorsDeserializerTest extends DeserializerTest {
 
 		final Mapping expectedMapping = Mapping
 			.builder()
-			.deviceId("$column(1)")
 			.source("${source::monitors.enclosure.collect.sources.Source(1)}")
-			.metrics(Map.of("hw.status", "$column(2)"))
-			.legacyTextParameters(Map.of("StatusInformation", "$column(3)"))
+			.metrics(Map.of("hw.status", "$2"))
+			.attributes(Map.of("id", "$1"))
+			.legacyTextParameters(Map.of("StatusInformation", "$3"))
 			.build();
 
 		assertEquals(expectedMapping, mapping);
@@ -233,7 +233,7 @@ class MonitorsDeserializerTest extends DeserializerTest {
 		final Mapping expectedMapping = Mapping
 			.builder()
 			.source("${source::monitors.enclosure.collect.sources.Source(1)}")
-			.metrics(Map.of("hw.status", "$column(2)"))
+			.metrics(Map.of("hw.status", "$2"))
 			.build();
 
 		assertEquals(expectedMapping, mapping);
@@ -340,23 +340,23 @@ class MonitorsDeserializerTest extends DeserializerTest {
 			.attributes(
 				Map.of(
 					"id",
-					"buildId($column(6))",
+					"$6",
 					"parent",
 					"",
 					"name",
-					"buildName(Storage, EMC, $column(2), (, $column(7), ))",
+					"${awk::sprintf(\"Storage EMC %s (%s)\", $2, $7)}",
 					"model",
-					"$column(2)",
+					"$2",
 					"vendor",
 					"EMC",
 					"serial_number",
-					"$column(3)",
+					"$3",
 					"type",
 					"Storage"
 				)
 			)
-			.conditionalCollection(Map.of("hw.status", "$column(10)"))
-			.metrics(Map.of("hw.status", "$column(10)"))
+			.conditionalCollection(Map.of("hw.status", "$10"))
+			.metrics(Map.of("hw.status", "$10"))
 			.build();
 
 		assertEquals(expectedMapping, mapping);

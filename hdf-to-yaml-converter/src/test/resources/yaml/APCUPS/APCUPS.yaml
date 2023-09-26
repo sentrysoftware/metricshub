@@ -122,6 +122,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Capacity;RuntimeRemaining_100th_s;Status;
@@ -157,7 +159,8 @@ monitors:
         # ValueTable = Source(1)
         # DeviceID;Capacity;RuntimeRemaining_minutes;Status;StatusInformation;
         source: "${source::monitors.battery.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.battery.time_left: $3
           hw.battery.charge: percent2Ratio($2)
@@ -270,6 +273,8 @@ monitors:
     collect:
       # Collect type: Multi-Instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = SNMP Get of voltage in
@@ -310,7 +315,8 @@ monitors:
         # ValueTable = Source(3)
         # DeviceID;Voltage_mV
         source: "${source::monitors.voltage.collect.sources.source(3)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.voltage: $2
   temperature:
@@ -335,6 +341,8 @@ monitors:
     collect:
       # Collect Type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Temperature_10th_C
@@ -355,7 +363,8 @@ monitors:
         # ValueTable = Source(3)
         # DeviceID;Temperature
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.temperature: $2
 translations:

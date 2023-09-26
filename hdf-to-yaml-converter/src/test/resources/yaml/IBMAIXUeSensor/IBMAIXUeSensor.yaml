@@ -49,6 +49,8 @@ monitors:
     collect:
       # Collect type = multi-instance (one pass for all temperatures)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = usensor -a, again
@@ -60,7 +62,8 @@ monitors:
       mapping:
         # ValueTable = Source(1) (easy enough)
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.temperature: $2
   fan:
@@ -87,6 +90,8 @@ monitors:
     collect:
       # Collect type = multi-instance (one pass for all fans)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = usensor -a, again
@@ -98,7 +103,8 @@ monitors:
       mapping:
         # ValueTable = Source(1) (easy enough)
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.fan.speed: $2
   voltage:
@@ -122,6 +128,8 @@ monitors:
     collect:
       # Collect type = multi-instance (one pass for all voltages)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = usensor -a, again
@@ -149,7 +157,8 @@ monitors:
       mapping:
         # ValueTable = Source(1) (easy enough)
         source: "${source::monitors.voltage.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="voltage"}: $2
           hw.voltage: $4
@@ -176,6 +185,8 @@ monitors:
     collect:
       # Collect type = multi-instance (one pass for all power supplies)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = uesensor -a, again
@@ -203,7 +214,8 @@ monitors:
       mapping:
         # ValueTable = Source(1) (easy enough)
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:

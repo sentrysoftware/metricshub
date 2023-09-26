@@ -36,6 +36,8 @@ monitors:
           name: "${awk::sprintf(\"Storage: (%s %s)\", $1, $3)}"
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: snmpGet
@@ -57,7 +59,8 @@ monitors:
             translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
         source: "${source::monitors.enclosure.collect.sources.source(1)}"
-        deviceId: Quantum Library
+        attributes:
+          id: Quantum Library
         metrics:
           hw.status{hw.type="enclosure"}: $1
         legacyTextParameters:
@@ -91,6 +94,8 @@ monitors:
           name: "${awk::sprintf(\"%s (%s)\", $1, \"Overall Cooling Status\")}"
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: snmpGet
@@ -112,7 +117,8 @@ monitors:
             translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: Overall Cooling Status
+        attributes:
+          id: Overall Cooling Status
         metrics:
           hw.status{hw.type="fan"}: $1
         legacyTextParameters:
@@ -144,6 +150,8 @@ monitors:
           name: "${awk::sprintf(\"%s (%s)\", $1, \"Overall Power Status\")}"
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: snmpGet
@@ -165,7 +173,8 @@ monitors:
             translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: Overall Power Status
+        attributes:
+          id: Overall Power Status
         metrics:
           hw.status{hw.type="power_supply"}: $1
         legacyTextParameters:
@@ -199,6 +208,8 @@ monitors:
           name: "${awk::sprintf(\"%s (%s)\", $1, \"Overall Robotics Status\")}"
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Get the Robotics status
@@ -222,7 +233,8 @@ monitors:
       mapping:
         # Value Table
         source: "${source::monitors.robotics.collect.sources.source(1)}"
-        deviceId: Overall Cassette Robotics Status
+        attributes:
+          id: Overall Cassette Robotics Status
         metrics:
           hw.status{hw.type="robotics"}: $1
         legacyTextParameters:
@@ -248,6 +260,8 @@ monitors:
           name: "${awk::sprintf(\"%s (%s %s)\", $4, $3, $2)}"
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = \tphysicalDriveEntry SNMP table\nphDriveLocation;RAS Status;Cleaning Status;Loads
@@ -292,7 +306,8 @@ monitors:
         # Value Table
         # deviceID;PATROLStatus;Status Information (incl cleaning);Cleaning Status (0,1,2);Cleaning Status Information;Loads
         source: "${source::monitors.tape_drive.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="tape_drive"}: $2
           hw.status{hw.type="tape_drive", state="needs_cleaning"}: legacyNeedsCleaning($4)

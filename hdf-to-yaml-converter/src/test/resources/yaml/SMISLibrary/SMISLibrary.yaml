@@ -64,6 +64,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = CIM_TapeDrive
@@ -100,7 +102,8 @@ monitors:
       mapping:
         # Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
         source: "${source::monitors.tape_drive.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="tape_drive"}: $2
           hw.tape_drive.operations{type="mount"}: $4
@@ -142,6 +145,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = CIM_MediaTransferDevice
@@ -173,7 +178,8 @@ monitors:
       mapping:
         # Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
         source: "${source::monitors.robotics.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="robotics"}: $2
         legacyTextParameters:
