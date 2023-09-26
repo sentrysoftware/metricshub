@@ -32,7 +32,7 @@ class ResourceGroupObserverTest {
 	void testInit() {
 		final AgentInfo agentInfo = new AgentInfo();
 		final Resource resource = OtelHelper.createServiceResource(agentInfo.getResourceAttributes());
-		InMemoryMetricReader inMemoryReader = InMemoryMetricReader.create();
+		final InMemoryMetricReader inMemoryReader = InMemoryMetricReader.create();
 		final SdkMeterProvider sdkMeterProvider = OtelTestHelper.initOpenTelemetryMetrics(resource, inMemoryReader);
 
 		final ResourceGroupConfig resourceGroupConfig = ResourceGroupConfig
