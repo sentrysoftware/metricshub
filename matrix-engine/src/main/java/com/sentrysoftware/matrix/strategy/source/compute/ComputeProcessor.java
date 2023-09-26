@@ -4,12 +4,17 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COLUMN_PA
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COMMA;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DEFAULT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DOUBLE_PATTERN;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.FILE_PATTERN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.LOG_COMPUTE_KEY_SUFFIX_TEMPLATE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.VERTICAL_BAR;
 
+import com.sentrysoftware.matrix.common.helpers.FilterResultHelper;
 import com.sentrysoftware.matrix.common.helpers.StringHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.connector.model.common.ITranslationTable;
 import com.sentrysoftware.matrix.connector.model.common.ReferenceTranslationTable;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
@@ -40,15 +45,19 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Tra
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Xml2Csv;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.strategy.utils.EmbeddedFileHelper;
 import com.sentrysoftware.matrix.strategy.utils.PslUtils;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -56,6 +65,7 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -292,7 +302,92 @@ public class ComputeProcessor implements IComputeProcessor {
 	@Override
 	@WithSpan("Compute Awk Exec")
 	public void process(@SpanAttribute("compute.definition") final Awk awk) {
-		// TODO Auto-generated method stub
+		if (awk == null) {
+			log.warn("Hostname {} - Compute Operation (Awk) is null, the table remains unchanged.", hostname);
+			return;
+		}
+		final String script = awk.getScript();
+
+		// An Awk Script is supposed to be only the reference to the EmbeddedFile, so the map contains only one item which is our EmbeddedFile
+		final EmbeddedFile awkScript;
+
+		if (!FILE_PATTERN.matcher(script).find()) {
+			awkScript = EmbeddedFile.builder().content(script).reference("inline-awk").build();
+		} else {
+			try {
+				awkScript = EmbeddedFileHelper.findEmbeddedFiles(awk.getScript()).get(script);
+			} catch (IOException exception) {
+				log.warn(
+					"Hostname {} - Compute Operation (Awk) script {} has not been set correctly, the table remains unchanged.",
+					hostname,
+					awk
+				);
+				return;
+			}
+		}
+
+		if (awkScript == null) {
+			log.warn(
+				"Hostname {} - Compute Operation (Awk) script {} embedded file can't be found, the table remains unchanged.",
+				hostname,
+				awk
+			);
+			return;
+		}
+
+		final String input = (sourceTable.getRawData() == null || sourceTable.getRawData().isEmpty())
+			? SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, true)
+			: sourceTable.getRawData();
+
+		final String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, this.index);
+
+		log.debug("Hostname {} - Compute Operation [{}]. AWK Script:\n{}\n", hostname, computeKey, awkScript.getContent());
+
+		try {
+			String awkResult = matsyaClientsExecutor.executeAwkScript(awkScript.getContent(), input);
+
+			if (awkResult == null || awkResult.isEmpty()) {
+				log.warn(
+					"Hostname {} - {} Compute Operation (Awk) result is {}, the table will be empty.",
+					hostname,
+					computeKey,
+					(awkResult == null ? "null" : "empty")
+				);
+				sourceTable.setTable(Collections.emptyList());
+				return;
+			}
+
+			final List<String> lines = SourceTable.lineToList(awkResult, NEW_LINE);
+
+			final List<String> filterLines = FilterResultHelper.filterLines(
+				lines,
+				null,
+				null,
+				awk.getExclude(),
+				awk.getKeep()
+			);
+
+			if (awk.getSeparators() == null || awk.getSeparators().isEmpty()) {
+				log.info("Hostname {} - No separators indicated in Awk operation, the result remains unchanged.", hostname);
+			}
+
+			final List<String> awkResultLines = FilterResultHelper.selectedColumns(
+				filterLines,
+				awk.getSeparators(),
+				awk.getSelectColumns().replaceAll("\\s+", EMPTY)
+			);
+			awkResult =
+				awkResultLines
+					.stream()
+					// add the TABLE_SEP at the end of each lines.
+					.map(line -> line.endsWith(TABLE_SEP) ? line : line + TABLE_SEP)
+					.collect(Collectors.joining(NEW_LINE));
+
+			sourceTable.setRawData(awkResult);
+			sourceTable.setTable(SourceTable.csvToTable(awkResult, TABLE_SEP));
+		} catch (Exception e) {
+			logComputeError(connectorName, computeKey, "AWK: " + awkScript.description(), e, hostname);
+		}
 	}
 
 	@Override
@@ -385,7 +480,13 @@ public class ComputeProcessor implements IComputeProcessor {
 			Set<String> valueSet = null;
 
 			if (abstractMatchingLinesValueList != null) {
-				valueSet = new HashSet<>(Arrays.asList(abstractMatchingLinesValueList.split(COMMA)));
+				if (abstractMatchingLinesValueList.isEmpty()) {
+					valueSet = new HashSet<>();
+				} else if (abstractMatchingLinesValueList.indexOf(COMMA) >= 0) {
+					valueSet = new HashSet<>(Arrays.asList(abstractMatchingLinesValueList.split(COMMA)));
+				} else {
+					valueSet = new HashSet<>(Arrays.asList(abstractMatchingLinesValueList));
+				}
 			}
 
 			final String pslRegexp = abstractMatchingLines.getRegExp();
@@ -625,13 +726,70 @@ public class ComputeProcessor implements IComputeProcessor {
 	@Override
 	@WithSpan("Compute KeepColumns Exec")
 	public void process(@SpanAttribute("compute.definition") final KeepColumns keepColumns) {
-		// TODO Auto-generated method stub
+		if (keepColumns == null) {
+			log.warn("Hostname {} - KeepColumns object is null, the table remains unchanged.", hostname);
+			return;
+		}
+
+		List<Integer> columnNumbers = null;
+
+		try {
+			columnNumbers =
+				Stream.of(keepColumns.getColumnNumbers().split(COMMA)).map(Integer::parseInt).collect(Collectors.toList());
+		} catch (NumberFormatException numberFormatException) {
+			logComputeError(
+				connectorName,
+				String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, this.index),
+				"KeepColumns",
+				numberFormatException,
+				hostname
+			);
+			return;
+		}
+
+		if (columnNumbers == null || columnNumbers.isEmpty()) {
+			log.warn(
+				"Hostname {} - The column number list in KeepColumns cannot be null or empty. The table remains unchanged.",
+				hostname
+			);
+			return;
+		}
+
+		List<List<String>> resultTable = new ArrayList<>();
+		List<String> resultRow;
+		columnNumbers = columnNumbers.stream().filter(Objects::nonNull).sorted().collect(Collectors.toList());
+		for (List<String> row : sourceTable.getTable()) {
+			resultRow = new ArrayList<>();
+			for (Integer columnIndex : columnNumbers) {
+				if (columnIndex < 1 || columnIndex > row.size()) {
+					log.warn(
+						"Hostname {} - Invalid index for a {}-sized row: {}. The table remains unchanged.",
+						hostname,
+						row.size(),
+						columnIndex
+					);
+
+					return;
+				}
+
+				resultRow.add(row.get(columnIndex - 1));
+			}
+
+			resultTable.add(resultRow);
+		}
+
+		sourceTable.setTable(resultTable);
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
+	/**
+	 * This method processes the {@link KeepOnlyMatchingLines} compute
+	 * @param keepOnlyMatchingLines {@link KeepOnlyMatchingLines} instance
+	 */
 	@Override
 	@WithSpan("Compute KeepOnlyMatchingLines Exec")
 	public void process(@SpanAttribute("compute.definition") final KeepOnlyMatchingLines keepOnlyMatchingLines) {
-		// TODO Auto-generated method stub
+		processAbstractMatchingLines(keepOnlyMatchingLines);
 	}
 
 	@Override

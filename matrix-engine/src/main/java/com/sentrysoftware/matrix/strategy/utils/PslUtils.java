@@ -196,6 +196,19 @@ public class PslUtils {
 	 * @param selectColumns		The list/range(s) of columns that should be extracted from the text.
 	 * @param separators		The set of characters used to split the given text.
 	 * @param resultSeparator	The separator used to join the resulting elements.
+	 *
+	 * @return					The nth group in the given text,
+	 * 							as formatted according to the given separators and column numbers.
+	 */
+	public static String nthArg(String text, String selectColumns, String separators, String resultSeparator) {
+		return nthArgCommon(text, selectColumns, separators, resultSeparator, true);
+	}
+
+	/**
+	 * @param text				The text that should be parsed.
+	 * @param selectColumns		The list/range(s) of columns that should be extracted from the text.
+	 * @param separators		The set of characters used to split the given text.
+	 * @param resultSeparator	The separator used to join the resulting elements.
 	 * @param isNthArg			Indicates whether an <em>nthArg</em> operation should be performed
 	 *                          (as opposed to a <em>nthArgf</em> operation).
 	 *
@@ -205,10 +218,10 @@ public class PslUtils {
 	// CHECKSTYLE:OFF
 	private static String nthArgCommon(
 		String text,
-		String selectColumns,
-		String separators,
+		final String selectColumns,
+		final String separators,
 		String resultSeparator,
-		boolean isNthArg
+		final boolean isNthArg
 	) {
 		// If any arg is null, then return empty String
 		if (
@@ -283,7 +296,7 @@ public class PslUtils {
 		int[] columnsRange;
 		int fromColumnNumber;
 		int toColumnNumber;
-		for (String columns : columnsArray) {
+		for (final String columns : columnsArray) {
 			// Get the columns range
 			columnsRange = getColumnsRange(columns, splitText.length);
 			fromColumnNumber = columnsRange[0];
@@ -315,13 +328,13 @@ public class PslUtils {
 	 * 							<li>A[1] being the end of the range, inclusive</li>
 	 * 						</ul>
 	 */
-	private static int[] getColumnsRange(String columns, int columnCount) {
+	private static int[] getColumnsRange(final String columns, final int columnCount) {
 		int fromColumnNumber;
 		int toColumnNumber;
 
 		try {
-			int dashIndex = columns.indexOf("-");
-			int columnsLength = columns.length();
+			final int dashIndex = columns.indexOf("-");
+			final int columnsLength = columns.length();
 
 			// If it is a simple number, we'll retrieve only that column number
 			if (dashIndex == -1) {
