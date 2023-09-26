@@ -13,6 +13,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.And
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ArrayTranslate;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Awk;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Divide;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.DuplicateColumn;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ExcludeMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Extract;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Json2Csv;
@@ -172,5 +173,13 @@ class ComputeUpdaterProcessorTest {
 		doNothing().when(computeProcessor).process(any(Awk.class));
 		computeUpdaterProcessor.process(Awk.builder().script("script").build());
 		verify(computeProcessor, times(1)).process(any(Awk.class));
+	}
+
+	@Test
+	void testVisitDuplicateColumn() {
+		final DuplicateColumn duplicateColumn = DuplicateColumn.builder().column(-1).build();
+		doNothing().when(computeProcessor).process(any(DuplicateColumn.class));
+		computeUpdaterProcessor.process(duplicateColumn);
+		verify(computeProcessor, times(1)).process(any(DuplicateColumn.class));
 	}
 }
