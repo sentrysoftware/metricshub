@@ -15,6 +15,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Div
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ExcludeMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Extract;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Json2Csv;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.KeepOnlyMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.LeftConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Multiply;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Replace;
@@ -152,5 +153,13 @@ class ComputeUpdaterProcessorTest {
 		doNothing().when(computeProcessor).process(any(Xml2Csv.class));
 		computeUpdaterProcessor.process(xml2Csv);
 		verify(computeProcessor, times(1)).process(any(Xml2Csv.class));
+	}
+
+	@Test
+	void testProcessKeepOnlyMatchingLines() {
+		final KeepOnlyMatchingLines keepOnlyMatchingLines = KeepOnlyMatchingLines.builder().column(-1).build();
+		doNothing().when(computeProcessor).process(any(KeepOnlyMatchingLines.class));
+		computeUpdaterProcessor.process(keepOnlyMatchingLines);
+		verify(computeProcessor, times(1)).process(any(KeepOnlyMatchingLines.class));
 	}
 }
