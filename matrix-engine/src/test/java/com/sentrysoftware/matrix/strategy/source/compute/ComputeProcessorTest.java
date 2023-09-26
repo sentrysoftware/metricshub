@@ -33,9 +33,11 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Arr
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Awk;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Convert;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Divide;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.DuplicateColumn;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ExcludeMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Extract;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Json2Csv;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.KeepColumns;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.KeepOnlyMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.LeftConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Multiply;
@@ -2243,6 +2245,156 @@ class ComputeProcessorTest {
 		String expectedRawData = SourceTable.tableToCsv(expectedTable, ";", false);
 		assertEquals(expectedTable, sourceTable.getTable());
 		assertEquals(expectedRawData, sourceTable.getRawData());
+	}
+
+	@Test
+	void testKeepColumns() {
+		List<List<String>> table = Arrays.asList(LINE_1, LINE_2, LINE_3);
+
+		sourceTable.setTable(table);
+
+		// KeepColumns is null
+		computeProcessor.process((KeepColumns) null);
+		assertEquals(table, sourceTable.getTable());
+
+		// KeepColumns is null, keepColumns.getColumnNumbers() is invalid
+		KeepColumns keepColumns = KeepColumns.builder().columnNumbers("-1").build();
+		computeProcessor.process(keepColumns);
+		assertEquals(table, sourceTable.getTable());
+
+		// KeepColumns is null, keepColumns.getColumnNumbers() is not null and not empty,
+		// 1 column number is lower than 1
+		keepColumns.setColumnNumbers("1,0,3");
+		computeProcessor.process(keepColumns);
+		assertEquals(table, sourceTable.getTable());
+
+		// KeepColumns is null, keepColumns.getColumnNumbers() is not null and not empty,
+		// 1 column number is greater than the rows' size
+		keepColumns.setColumnNumbers("1,5,3");
+		computeProcessor.process(keepColumns);
+		assertEquals(table, sourceTable.getTable());
+
+		// KeepColumns is null, keepColumns.getColumnNumbers() is not null and not empty,
+		// 1 column number is not valid
+		keepColumns.setColumnNumbers("1,-1,3");
+		computeProcessor.process(keepColumns);
+		List<List<String>> expectedTable = Arrays.asList(LINE_1, LINE_2, LINE_3);
+		assertEquals(expectedTable, sourceTable.getTable()); // null index will be skipped
+
+		// test OK
+		sourceTable.setTable(table);
+		List<List<String>> result = Arrays.asList(
+			Arrays.asList(LINE_1.get(0), LINE_1.get(1), LINE_1.get(3)),
+			Arrays.asList(LINE_2.get(0), LINE_2.get(1), LINE_2.get(3)),
+			Arrays.asList(LINE_3.get(0), LINE_3.get(1), LINE_3.get(3))
+		);
+
+		keepColumns.setColumnNumbers("1,2,4");
+		computeProcessor.process(keepColumns);
+		assertEquals(result, sourceTable.getTable());
+
+		// test OK but index are not sorted
+		sourceTable.setTable(table);
+		keepColumns.setColumnNumbers("1,4,2");
+		computeProcessor.process(keepColumns);
+		assertEquals(result, sourceTable.getTable());
+	}
+
+	@Test
+	void testDuplicateColumn() {
+		sourceTable.getTable().add(new ArrayList<>(LINE_1));
+		// test null arg
+		computeProcessor.process((DuplicateColumn) null);
+		assertEquals(
+			Collections.singletonList(Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")),
+			sourceTable.getTable()
+		);
+
+		// test out of bounds
+		DuplicateColumn duplicateColumn = new DuplicateColumn("1", 0);
+		computeProcessor.process(duplicateColumn);
+		assertEquals(
+			Collections.singletonList(Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")),
+			sourceTable.getTable()
+		);
+
+		duplicateColumn = new DuplicateColumn("10", 10);
+		computeProcessor.process(duplicateColumn);
+		assertEquals(
+			Collections.singletonList(Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")),
+			sourceTable.getTable()
+		);
+
+		// test actual index
+		duplicateColumn = new DuplicateColumn("1", 1);
+		computeProcessor.process(duplicateColumn);
+		assertEquals(
+			Collections.singletonList(Arrays.asList("ID1", "ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")),
+			sourceTable.getTable()
+		);
+
+		duplicateColumn = new DuplicateColumn("2", 2);
+		computeProcessor.process(duplicateColumn);
+		assertEquals(
+			Collections.singletonList(Arrays.asList("ID1", "ID1", "ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1")),
+			sourceTable.getTable()
+		);
+
+		duplicateColumn = new DuplicateColumn("3", 6);
+		computeProcessor.process(duplicateColumn);
+		assertEquals(
+			Collections.singletonList(
+				Arrays.asList("ID1", "ID1", "ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1", "NUMBER_OF_DISKS1")
+			),
+			sourceTable.getTable()
+		);
+
+		// test multiple lines
+		initializeSourceTable();
+
+		duplicateColumn = new DuplicateColumn("13", 3);
+		computeProcessor.process(duplicateColumn);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "MANUFACTURER3", "NUMBER_OF_DISKS3")
+			),
+			sourceTable.getTable()
+		);
+
+		duplicateColumn = new DuplicateColumn("13", 7);
+		computeProcessor.process(duplicateColumn);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "MANUFACTURER3", "NUMBER_OF_DISKS3")
+			),
+			sourceTable.getTable()
+		);
+
+		duplicateColumn = new DuplicateColumn("13", -1);
+		computeProcessor.process(duplicateColumn);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "MANUFACTURER3", "NUMBER_OF_DISKS3")
+			),
+			sourceTable.getTable()
+		);
+
+		duplicateColumn = new DuplicateColumn("13", 0);
+		computeProcessor.process(duplicateColumn);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "MANUFACTURER3", "NUMBER_OF_DISKS3")
+			),
+			sourceTable.getTable()
+		);
 	}
 
 	@Test

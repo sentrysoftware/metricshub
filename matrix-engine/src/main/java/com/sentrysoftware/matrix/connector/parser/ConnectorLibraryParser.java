@@ -24,7 +24,7 @@ public class ConnectorLibraryParser {
 	 */
 	private class ConnectorFileVisitor extends SimpleFileVisitor<Path> {
 
-		private final Map<String, Connector> connectorsMap = new TreeMap<>();
+		private final Map<String, Connector> connectorsMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		public Map<String, Connector> getConnectorsMap() {
 			return connectorsMap;
