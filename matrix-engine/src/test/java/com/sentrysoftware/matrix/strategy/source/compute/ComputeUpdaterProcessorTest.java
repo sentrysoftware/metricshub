@@ -6,15 +6,21 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.sentrysoftware.matrix.connector.model.common.ConversionType;
 import com.sentrysoftware.matrix.connector.model.common.ReferenceTranslationTable;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Add;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.And;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ArrayTranslate;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Awk;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Convert;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Divide;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.DuplicateColumn;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ExcludeMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Extract;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Json2Csv;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.KeepColumns;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.KeepOnlyMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.LeftConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Multiply;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Replace;
@@ -23,7 +29,6 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Sub
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Subtract;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Translate;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Xml2Csv;
-import com.sentrysoftware.matrix.telemetry.Monitor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -36,13 +41,8 @@ class ComputeUpdaterProcessorTest {
 	@Mock
 	private ComputeProcessor computeProcessor;
 
-	@Mock
-	private Monitor monitor;
-
 	@InjectMocks
 	private ComputeUpdaterProcessor computeUpdaterProcessor;
-
-	private static final String DEVICE_ID = "deviceId";
 
 	@Test
 	void testProcessAdd() {
@@ -153,6 +153,46 @@ class ComputeUpdaterProcessorTest {
 		doNothing().when(computeProcessor).process(any(Xml2Csv.class));
 		computeUpdaterProcessor.process(xml2Csv);
 		verify(computeProcessor, times(1)).process(any(Xml2Csv.class));
+	}
+
+	@Test
+	void testProcessKeepColumns() {
+		final KeepColumns keepColumns = KeepColumns.builder().columnNumbers("-1").build();
+		doNothing().when(computeProcessor).process(any(KeepColumns.class));
+		computeUpdaterProcessor.process(keepColumns);
+		verify(computeProcessor, times(1)).process(any(KeepColumns.class));
+	}
+
+	@Test
+	void testProcessKeepOnlyMatchingLines() {
+		final KeepOnlyMatchingLines keepOnlyMatchingLines = KeepOnlyMatchingLines.builder().column(-1).build();
+		doNothing().when(computeProcessor).process(any(KeepOnlyMatchingLines.class));
+		computeUpdaterProcessor.process(keepOnlyMatchingLines);
+		verify(computeProcessor, times(1)).process(any(KeepOnlyMatchingLines.class));
+	}
+
+	@Test
+	void testProcessAwk() {
+		doNothing().when(computeProcessor).process(any(Awk.class));
+		computeUpdaterProcessor.process(Awk.builder().script("script").build());
+		verify(computeProcessor, times(1)).process(any(Awk.class));
+	}
+
+	@Test
+	void testVisitDuplicateColumn() {
+		final DuplicateColumn duplicateColumn = DuplicateColumn.builder().column(-1).build();
+		doNothing().when(computeProcessor).process(any(DuplicateColumn.class));
+		computeUpdaterProcessor.process(duplicateColumn);
+		verify(computeProcessor, times(1)).process(any(DuplicateColumn.class));
+	}
+
+	@Test
+	void testProcessConvert() {
+		doNothing().when(computeProcessor).process(any(Convert.class));
+		computeUpdaterProcessor.process(
+			Convert.builder().column(1).conversion(ConversionType.ARRAY_2_SIMPLE_STATUS).build()
+		);
+		verify(computeProcessor, times(1)).process(any(Convert.class));
 	}
 
 	@Test

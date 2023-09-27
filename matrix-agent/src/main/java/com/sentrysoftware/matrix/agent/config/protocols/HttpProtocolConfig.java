@@ -38,7 +38,7 @@ public class HttpProtocolConfig extends AbstractProtocolConfig {
 	 * @return The {@link HttpConfiguration} instance
 	 */
 	@Override
-	public IConfiguration toProtocol() {
+	public IConfiguration toConfiguration() {
 		return HttpConfiguration
 			.builder()
 			.https(https)

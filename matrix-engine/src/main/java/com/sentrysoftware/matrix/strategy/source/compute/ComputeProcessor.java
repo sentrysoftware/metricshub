@@ -4,12 +4,19 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COLUMN_PA
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COMMA;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DEFAULT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DOUBLE_PATTERN;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.FILE_PATTERN;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HEXA_PATTERN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.LOG_COMPUTE_KEY_SUFFIX_TEMPLATE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.VERTICAL_BAR;
 
+import com.sentrysoftware.matrix.common.helpers.FilterResultHelper;
 import com.sentrysoftware.matrix.common.helpers.StringHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.common.ConversionType;
+import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.connector.model.common.ITranslationTable;
 import com.sentrysoftware.matrix.connector.model.common.ReferenceTranslationTable;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
@@ -40,15 +47,19 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Tra
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Xml2Csv;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.strategy.utils.EmbeddedFileHelper;
 import com.sentrysoftware.matrix.strategy.utils.PslUtils;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -56,6 +67,7 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -292,13 +304,193 @@ public class ComputeProcessor implements IComputeProcessor {
 	@Override
 	@WithSpan("Compute Awk Exec")
 	public void process(@SpanAttribute("compute.definition") final Awk awk) {
-		// TODO Auto-generated method stub
+		if (awk == null) {
+			log.warn("Hostname {} - Compute Operation (Awk) is null, the table remains unchanged.", hostname);
+			return;
+		}
+		final String script = awk.getScript();
+
+		// An Awk Script is supposed to be only the reference to the EmbeddedFile, so the map contains only one item which is our EmbeddedFile
+		final EmbeddedFile awkScript;
+
+		if (!FILE_PATTERN.matcher(script).find()) {
+			awkScript = EmbeddedFile.builder().content(script).reference("inline-awk").build();
+		} else {
+			try {
+				awkScript = EmbeddedFileHelper.findEmbeddedFiles(awk.getScript()).get(script);
+			} catch (IOException exception) {
+				log.warn(
+					"Hostname {} - Compute Operation (Awk) script {} has not been set correctly, the table remains unchanged.",
+					hostname,
+					awk
+				);
+				return;
+			}
+		}
+
+		if (awkScript == null) {
+			log.warn(
+				"Hostname {} - Compute Operation (Awk) script {} embedded file can't be found, the table remains unchanged.",
+				hostname,
+				awk
+			);
+			return;
+		}
+
+		final String input = (sourceTable.getRawData() == null || sourceTable.getRawData().isEmpty())
+			? SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, true)
+			: sourceTable.getRawData();
+
+		final String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, this.index);
+
+		log.debug("Hostname {} - Compute Operation [{}]. AWK Script:\n{}\n", hostname, computeKey, awkScript.getContent());
+
+		try {
+			String awkResult = matsyaClientsExecutor.executeAwkScript(awkScript.getContent(), input);
+
+			if (awkResult == null || awkResult.isEmpty()) {
+				log.warn(
+					"Hostname {} - {} Compute Operation (Awk) result is {}, the table will be empty.",
+					hostname,
+					computeKey,
+					(awkResult == null ? "null" : "empty")
+				);
+				sourceTable.setTable(Collections.emptyList());
+				return;
+			}
+
+			final List<String> lines = SourceTable.lineToList(awkResult, NEW_LINE);
+
+			final List<String> filterLines = FilterResultHelper.filterLines(
+				lines,
+				null,
+				null,
+				awk.getExclude(),
+				awk.getKeep()
+			);
+
+			if (awk.getSeparators() == null || awk.getSeparators().isEmpty()) {
+				log.info("Hostname {} - No separators indicated in Awk operation, the result remains unchanged.", hostname);
+			}
+
+			final List<String> awkResultLines = FilterResultHelper.selectedColumns(
+				filterLines,
+				awk.getSeparators(),
+				awk.getSelectColumns().replaceAll("\\s+", EMPTY)
+			);
+			awkResult =
+				awkResultLines
+					.stream()
+					// add the TABLE_SEP at the end of each lines.
+					.map(line -> line.endsWith(TABLE_SEP) ? line : line + TABLE_SEP)
+					.collect(Collectors.joining(NEW_LINE));
+
+			sourceTable.setRawData(awkResult);
+			sourceTable.setTable(SourceTable.csvToTable(awkResult, TABLE_SEP));
+		} catch (Exception e) {
+			logComputeError(connectorName, computeKey, "AWK: " + awkScript.description(), e, hostname);
+		}
 	}
 
 	@Override
 	@WithSpan("Compute Convert Exec")
 	public void process(@SpanAttribute("compute.definition") final Convert convert) {
-		// TODO Auto-generated method stub
+		if (!checkConvert(convert)) {
+			log.warn("Hostname {} - The convert {} is not valid, the table remains unchanged.", hostname, convert);
+			return;
+		}
+
+		final Integer columnIndex = convert.getColumn() - 1;
+		final ConversionType conversionType = convert.getConversion();
+
+		if (ConversionType.HEX_2_DEC.equals(conversionType)) {
+			convertHex2Dec(columnIndex);
+		} else if (ConversionType.ARRAY_2_SIMPLE_STATUS.equals(conversionType)) {
+			convertArray2SimpleStatus(columnIndex);
+		}
+	}
+
+	/**
+	 * Check the given {@link Convert} instance
+	 *
+	 * @param convert The instance we wish to check
+	 * @return <code>true</code> if the {@link Convert} instance is valid
+	 */
+	static boolean checkConvert(final Convert convert) {
+		return (convert != null && convert.getColumn() >= 1);
+	}
+
+	/**
+	 * Convert the column value at the given columnIndex from hexadecimal to decimal
+	 *
+	 * @param columnIndex The column number
+	 */
+	void convertHex2Dec(final Integer columnIndex) {
+		sourceTable
+			.getTable()
+			.forEach(row -> {
+				if (columnIndex < row.size()) {
+					final String value = row.get(columnIndex).replace("0x", EMPTY).replace(":", EMPTY).replaceAll("\\s*", EMPTY);
+					if (HEXA_PATTERN.matcher(value).matches()) {
+						row.set(columnIndex, String.valueOf(Long.parseLong(value, 16)));
+						return;
+					}
+				}
+
+				log.warn(
+					"Hostname {} - Could not perform Hex2Dec conversion compute on row {} at index {}.",
+					hostname,
+					row,
+					columnIndex
+				);
+			});
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
+	}
+
+	/**
+	 * Covert the array located in the cell indexed by columnIndex to a simple status OK, WARN, ALARM or UNKNOWN
+	 *
+	 * @param columnIndex The column number
+	 */
+	void convertArray2SimpleStatus(final Integer columnIndex) {
+		sourceTable
+			.getTable()
+			.forEach(row -> {
+				if (columnIndex < row.size()) {
+					final String value = PslUtils.nthArg(row.get(columnIndex), "1-", VERTICAL_BAR, NEW_LINE);
+					row.set(columnIndex, getWorstStatus(value.split(NEW_LINE)));
+				}
+
+				log.warn(
+					"Hostname {} - Could not perform Array2SimpleStatus conversion compute on row {} at index {}.",
+					hostname,
+					row,
+					columnIndex
+				);
+			});
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
+	}
+
+	/**
+	 * Get the worst status of the given values.
+	 *
+	 * @param values The array of string statuses to check, expected values are 'ok', 'degraded', 'failed'
+	 *
+	 * @return String value: ok, degraded, failed or unknown
+	 */
+	static String getWorstStatus(final String[] values) {
+		String status = "UNKNOWN";
+		for (final String value : values) {
+			if ("failed".equalsIgnoreCase(value)) {
+				return "failed";
+			} else if ("degraded".equalsIgnoreCase(value)) {
+				status = "degraded";
+			} else if ("ok".equalsIgnoreCase(value) && "UNKNOWN".equals(status)) {
+				status = "ok";
+			}
+		}
+
+		return status;
 	}
 
 	@Override
@@ -332,10 +524,35 @@ public class ComputeProcessor implements IComputeProcessor {
 		performMathematicalOperation(divide, columnIndex, divideBy);
 	}
 
+	/**
+	 * This method processes {@link DuplicateColumn} compute
+	 * @param duplicateColumn {@link DuplicateColumn} instance
+	 */
 	@Override
 	@WithSpan("Compute DuplicateColumn Exec")
 	public void process(@SpanAttribute("compute.definition") final DuplicateColumn duplicateColumn) {
-		// TODO Auto-generated method stub
+		if (duplicateColumn == null) {
+			log.warn("Hostname {} - Duplicate Column object is null, the table remains unchanged.", hostname);
+			return;
+		}
+
+		if (duplicateColumn.getColumn() == null || duplicateColumn.getColumn() == 0) {
+			log.warn(
+				"Hostname {} - The column index in DuplicateColumn cannot be null or 0, the table remains unchanged.",
+				hostname
+			);
+			return;
+		}
+
+		// for each list in the list, duplicate the column of the given index
+		int columnIndex = duplicateColumn.getColumn() - 1;
+
+		for (List<String> elementList : sourceTable.getTable()) {
+			if (columnIndex >= 0 && columnIndex < elementList.size()) {
+				elementList.add(columnIndex, elementList.get(columnIndex));
+			}
+		}
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	@Override
@@ -360,7 +577,13 @@ public class ComputeProcessor implements IComputeProcessor {
 			Set<String> valueSet = null;
 
 			if (abstractMatchingLinesValueList != null) {
-				valueSet = new HashSet<>(Arrays.asList(abstractMatchingLinesValueList.split(COMMA)));
+				if (abstractMatchingLinesValueList.isEmpty()) {
+					valueSet = new HashSet<>();
+				} else if (abstractMatchingLinesValueList.indexOf(COMMA) >= 0) {
+					valueSet = new HashSet<>(Arrays.asList(abstractMatchingLinesValueList.split(COMMA)));
+				} else {
+					valueSet = new HashSet<>(Arrays.asList(abstractMatchingLinesValueList));
+				}
 			}
 
 			final String pslRegexp = abstractMatchingLines.getRegExp();
@@ -600,13 +823,70 @@ public class ComputeProcessor implements IComputeProcessor {
 	@Override
 	@WithSpan("Compute KeepColumns Exec")
 	public void process(@SpanAttribute("compute.definition") final KeepColumns keepColumns) {
-		// TODO Auto-generated method stub
+		if (keepColumns == null) {
+			log.warn("Hostname {} - KeepColumns object is null, the table remains unchanged.", hostname);
+			return;
+		}
+
+		List<Integer> columnNumbers = null;
+
+		try {
+			columnNumbers =
+				Stream.of(keepColumns.getColumnNumbers().split(COMMA)).map(Integer::parseInt).collect(Collectors.toList());
+		} catch (NumberFormatException numberFormatException) {
+			logComputeError(
+				connectorName,
+				String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, this.index),
+				"KeepColumns",
+				numberFormatException,
+				hostname
+			);
+			return;
+		}
+
+		if (columnNumbers == null || columnNumbers.isEmpty()) {
+			log.warn(
+				"Hostname {} - The column number list in KeepColumns cannot be null or empty. The table remains unchanged.",
+				hostname
+			);
+			return;
+		}
+
+		List<List<String>> resultTable = new ArrayList<>();
+		List<String> resultRow;
+		columnNumbers = columnNumbers.stream().filter(Objects::nonNull).sorted().collect(Collectors.toList());
+		for (List<String> row : sourceTable.getTable()) {
+			resultRow = new ArrayList<>();
+			for (Integer columnIndex : columnNumbers) {
+				if (columnIndex < 1 || columnIndex > row.size()) {
+					log.warn(
+						"Hostname {} - Invalid index for a {}-sized row: {}. The table remains unchanged.",
+						hostname,
+						row.size(),
+						columnIndex
+					);
+
+					return;
+				}
+
+				resultRow.add(row.get(columnIndex - 1));
+			}
+
+			resultTable.add(resultRow);
+		}
+
+		sourceTable.setTable(resultTable);
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
+	/**
+	 * This method processes the {@link KeepOnlyMatchingLines} compute
+	 * @param keepOnlyMatchingLines {@link KeepOnlyMatchingLines} instance
+	 */
 	@Override
 	@WithSpan("Compute KeepOnlyMatchingLines Exec")
 	public void process(@SpanAttribute("compute.definition") final KeepOnlyMatchingLines keepOnlyMatchingLines) {
-		// TODO Auto-generated method stub
+		processAbstractMatchingLines(keepOnlyMatchingLines);
 	}
 
 	@Override
@@ -944,19 +1224,16 @@ public class ComputeProcessor implements IComputeProcessor {
 			return;
 		}
 
-		TranslationTable translationTable = (TranslationTable) translate.getTranslationTable();
+		final ITranslationTable translationTable = translate.getTranslationTable();
 		if (translationTable == null) {
-			log.warn("Hostname {} - TranslationTable is null, the translate computation cannot be performed.", hostname);
+			log.warn("Hostname {} - Translation Table is null, the translate computation cannot be performed.", hostname);
 			return;
 		}
 
-		Map<String, String> translations = translationTable.getTranslations();
+		final Map<String, String> translations = findTranslations(translationTable);
+
 		if (translations == null) {
-			log.warn(
-				"Hostname {} - The Translation Map {} is null, the translate computation cannot be performed.",
-				hostname,
-				translationTable
-			);
+			log.warn("Hostname {} - The Translation Map is null, the translate computation cannot be performed.", hostname);
 			return;
 		}
 

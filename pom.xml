@@ -43,8 +43,7 @@
 		<commons-lang3.version>3.12.0</commons-lang3.version>
 		<slf4j-simple.version>2.0.6</slf4j-simple.version>
 		<emulation.version>3-SNAPSHOT</emulation.version>
-		<openTelemetryVersion>1.21.0</openTelemetryVersion>
-		<openTelemetryAlphaVersion>1.21.0-alpha</openTelemetryAlphaVersion>
+		<openTelemetryVersion>1.30.0</openTelemetryVersion>
 		<grpcVersion>1.47.0</grpcVersion>
 		<protobufVersion>3.11.4</protobufVersion>
 		<protocVersion>${protobufVersion}</protocVersion>
@@ -288,7 +287,7 @@
 			<dependency>
 				<groupId>io.opentelemetry</groupId>
 				<artifactId>opentelemetry-sdk-extension-autoconfigure</artifactId>
-				<version>${openTelemetryAlphaVersion}</version>
+				<version>${openTelemetryVersion}</version>
 			</dependency>
 			<dependency>
 				<groupId>io.opentelemetry</groupId>
@@ -300,11 +299,6 @@
 				<groupId>io.opentelemetry</groupId>
 				<artifactId>opentelemetry-sdk-common</artifactId>
 				<version>${openTelemetryVersion}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.opentelemetry</groupId>
-				<artifactId>opentelemetry-exporter-otlp-logs</artifactId>
-				<version>${openTelemetryAlphaVersion}</version>
 			</dependency>
 			<dependency>
 				<groupId>io.grpc</groupId>
