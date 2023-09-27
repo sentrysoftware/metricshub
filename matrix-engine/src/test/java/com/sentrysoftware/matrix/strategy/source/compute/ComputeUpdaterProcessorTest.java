@@ -18,6 +18,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Div
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.DuplicateColumn;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ExcludeMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Extract;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ExtractPropertyFromWbemPath;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Json2Csv;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.KeepColumns;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.KeepOnlyMatchingLines;
@@ -178,7 +179,7 @@ class ComputeUpdaterProcessorTest {
 	}
 
 	@Test
-	void testVisitDuplicateColumn() {
+	void testProcessDuplicateColumn() {
 		final DuplicateColumn duplicateColumn = DuplicateColumn.builder().column(-1).build();
 		doNothing().when(computeProcessor).process(any(DuplicateColumn.class));
 		computeUpdaterProcessor.process(duplicateColumn);
@@ -192,5 +193,17 @@ class ComputeUpdaterProcessorTest {
 			Convert.builder().column(1).conversion(ConversionType.ARRAY_2_SIMPLE_STATUS).build()
 		);
 		verify(computeProcessor, times(1)).process(any(Convert.class));
+	}
+
+	@Test
+	void testProcessExtractPropertyFromWbemPath() {
+		final ExtractPropertyFromWbemPath extractPropertyFromWbemPath = ExtractPropertyFromWbemPath
+			.builder()
+			.property("property")
+			.column(-1)
+			.build();
+		doNothing().when(computeProcessor).process(any(ExtractPropertyFromWbemPath.class));
+		computeUpdaterProcessor.process(extractPropertyFromWbemPath);
+		verify(computeProcessor, times(1)).process(any(ExtractPropertyFromWbemPath.class));
 	}
 }
