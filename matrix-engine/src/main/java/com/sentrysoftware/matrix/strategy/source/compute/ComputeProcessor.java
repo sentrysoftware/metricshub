@@ -6,6 +6,7 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DEFAULT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DOUBLE_PATTERN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.FILE_PATTERN;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HEXA_PATTERN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.LOG_COMPUTE_KEY_SUFFIX_TEMPLATE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
@@ -14,6 +15,7 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.VERTICAL_
 import com.sentrysoftware.matrix.common.helpers.FilterResultHelper;
 import com.sentrysoftware.matrix.common.helpers.StringHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.common.ConversionType;
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
 import com.sentrysoftware.matrix.connector.model.common.ITranslationTable;
 import com.sentrysoftware.matrix.connector.model.common.ReferenceTranslationTable;
@@ -393,7 +395,102 @@ public class ComputeProcessor implements IComputeProcessor {
 	@Override
 	@WithSpan("Compute Convert Exec")
 	public void process(@SpanAttribute("compute.definition") final Convert convert) {
-		// TODO Auto-generated method stub
+		if (!checkConvert(convert)) {
+			log.warn("Hostname {} - The convert {} is not valid, the table remains unchanged.", hostname, convert);
+			return;
+		}
+
+		final Integer columnIndex = convert.getColumn() - 1;
+		final ConversionType conversionType = convert.getConversion();
+
+		if (ConversionType.HEX_2_DEC.equals(conversionType)) {
+			convertHex2Dec(columnIndex);
+		} else if (ConversionType.ARRAY_2_SIMPLE_STATUS.equals(conversionType)) {
+			convertArray2SimpleStatus(columnIndex);
+		}
+	}
+
+	/**
+	 * Check the given {@link Convert} instance
+	 *
+	 * @param convert The instance we wish to check
+	 * @return <code>true</code> if the {@link Convert} instance is valid
+	 */
+	static boolean checkConvert(final Convert convert) {
+		return (convert != null && convert.getColumn() >= 1);
+	}
+
+	/**
+	 * Convert the column value at the given columnIndex from hexadecimal to decimal
+	 *
+	 * @param columnIndex The column number
+	 */
+	void convertHex2Dec(final Integer columnIndex) {
+		sourceTable
+			.getTable()
+			.forEach(row -> {
+				if (columnIndex < row.size()) {
+					final String value = row.get(columnIndex).replace("0x", EMPTY).replace(":", EMPTY).replaceAll("\\s*", EMPTY);
+					if (HEXA_PATTERN.matcher(value).matches()) {
+						row.set(columnIndex, String.valueOf(Long.parseLong(value, 16)));
+						return;
+					}
+				}
+
+				log.warn(
+					"Hostname {} - Could not perform Hex2Dec conversion compute on row {} at index {}.",
+					hostname,
+					row,
+					columnIndex
+				);
+			});
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
+	}
+
+	/**
+	 * Covert the array located in the cell indexed by columnIndex to a simple status OK, WARN, ALARM or UNKNOWN
+	 *
+	 * @param columnIndex The column number
+	 */
+	void convertArray2SimpleStatus(final Integer columnIndex) {
+		sourceTable
+			.getTable()
+			.forEach(row -> {
+				if (columnIndex < row.size()) {
+					final String value = PslUtils.nthArg(row.get(columnIndex), "1-", VERTICAL_BAR, NEW_LINE);
+					row.set(columnIndex, getWorstStatus(value.split(NEW_LINE)));
+				}
+
+				log.warn(
+					"Hostname {} - Could not perform Array2SimpleStatus conversion compute on row {} at index {}.",
+					hostname,
+					row,
+					columnIndex
+				);
+			});
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
+	}
+
+	/**
+	 * Get the worst status of the given values. Changing this method requires an update on the {@link IState} implementations
+	 *
+	 * @param values The array of string statuses to check, expected values are 'ok', 'degraded', 'failed'
+	 *
+	 * @return String value: ok, degraded, failed or unknown
+	 */
+	static String getWorstStatus(final String[] values) {
+		String status = "UNKNOWN";
+		for (final String value : values) {
+			if ("failed".equalsIgnoreCase(value)) {
+				return "failed";
+			} else if ("degraded".equalsIgnoreCase(value)) {
+				status = "degraded";
+			} else if ("ok".equalsIgnoreCase(value) && "UNKNOWN".equals(status)) {
+				status = "ok";
+			}
+		}
+
+		return status;
 	}
 
 	@Override
