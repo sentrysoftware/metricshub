@@ -88,7 +88,7 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 
 	@Override
 	public void process(final ExtractPropertyFromWbemPath extractPropertyFromWbemPath) {
-		// TODO Auto-generated method stub
+		processCompute(extractPropertyFromWbemPath);
 	}
 
 	@Override
