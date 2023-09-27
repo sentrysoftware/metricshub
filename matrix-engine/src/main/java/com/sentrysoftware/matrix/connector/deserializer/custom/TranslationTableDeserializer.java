@@ -11,12 +11,12 @@ import com.sentrysoftware.matrix.connector.model.common.ITranslationTable;
 import com.sentrysoftware.matrix.connector.model.common.ReferenceTranslationTable;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import java.io.IOException;
-import java.util.Map;
+import java.util.TreeMap;
 
 public class TranslationTableDeserializer extends JsonDeserializer<ITranslationTable> {
 
 	@Override
-	public ITranslationTable deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException {
+	public ITranslationTable deserialize(JsonParser parser, DeserializationContext context) throws IOException {
 		if (parser == null) {
 			return null;
 		}
@@ -28,7 +28,9 @@ public class TranslationTableDeserializer extends JsonDeserializer<ITranslationT
 			if (node.isTextual()) {
 				return new ReferenceTranslationTable(node.asText());
 			} else if (node.isObject()) {
-				return new TranslationTable(new ObjectMapper().convertValue(node, new TypeReference<Map<String, String>>() {}));
+				return new TranslationTable(
+					new ObjectMapper().convertValue(node, new TypeReference<TreeMap<String, String>>() {})
+				);
 			}
 		}
 

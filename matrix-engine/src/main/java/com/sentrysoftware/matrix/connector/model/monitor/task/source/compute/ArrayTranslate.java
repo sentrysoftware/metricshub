@@ -84,6 +84,7 @@ public class ArrayTranslate extends Compute {
 	public void update(UnaryOperator<String> updater) {
 		arraySeparator = updater.apply(arraySeparator);
 		resultSeparator = updater.apply(resultSeparator);
+		translationTable.update(updater);
 	}
 
 	@Override
