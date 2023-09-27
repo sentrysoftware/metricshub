@@ -34,6 +34,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Rep
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.RightConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Substring;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Subtract;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Translate;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Xml2Csv;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
@@ -1861,5 +1862,218 @@ class ComputeProcessorTest {
 		computeProcessor.process(Xml2Csv.builder().properties(properties).build());
 		assertEquals(expected, sourceTable.getTable());
 		assertEquals(expectedCsvResult, sourceTable.getRawData());
+	}
+
+	@Test
+	void testTranslation() {
+		final Map<String, String> translationMap = Map.of(
+			"name1",
+			"NAME1_resolved",
+			"name2",
+			"NAME2_resolved",
+			"name3",
+			"NAME3_resolved",
+			"id1",
+			"ID1_resolved",
+			"id2",
+			"ID2_resolved",
+			"id3",
+			"ID3_resolved",
+			"number_of_disks1",
+			"NUMBER_OF_DISKS1_resolved",
+			"number_of_disks2",
+			"NUMBER_OF_DISKS2_resolved",
+			"number_of_disks3",
+			"NUMBER_OF_DISKS3_resolved"
+		);
+
+		// test null source to visit
+		initializeSourceTable();
+		computeProcessor.process((Translate) null);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3")
+			),
+			sourceTable.getTable()
+		);
+
+		// test TranslationTable is null
+		initializeSourceTable();
+		Translate translate = Translate
+			.builder()
+			.column(0)
+			.translationTable(TranslationTable.builder().translations(Collections.emptyMap()).build())
+			.build();
+		computeProcessor.process(translate);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3")
+			),
+			sourceTable.getTable()
+		);
+
+		initializeSourceTable();
+		translate = Translate.builder().column(0).translationTable(TranslationTable.builder().build()).build();
+		computeProcessor.process(translate);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3")
+			),
+			sourceTable.getTable()
+		);
+
+		// test index out of bounds
+		initializeSourceTable();
+		translate =
+			Translate
+				.builder()
+				.column(0)
+				.translationTable(TranslationTable.builder().translations(translationMap).build())
+				.build();
+		computeProcessor.process(translate);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3")
+			),
+			sourceTable.getTable()
+		);
+
+		initializeSourceTable();
+		translate =
+			Translate
+				.builder()
+				.column(10)
+				.translationTable(TranslationTable.builder().translations(translationMap).build())
+				.build();
+		computeProcessor.process(translate);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3")
+			),
+			sourceTable.getTable()
+		);
+
+		// test 1st index
+		initializeSourceTable();
+		translate =
+			Translate
+				.builder()
+				.column(1)
+				.translationTable(TranslationTable.builder().translations(translationMap).build())
+				.build();
+		computeProcessor.process(translate);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1_resolved", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
+				Arrays.asList("ID2_resolved", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3_resolved", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3")
+			),
+			sourceTable.getTable()
+		);
+
+		// test intermediate index
+		initializeSourceTable();
+		translate =
+			Translate
+				.builder()
+				.column(2)
+				.translationTable(TranslationTable.builder().translations(translationMap).build())
+				.build();
+		computeProcessor.process(translate);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "NAME1_resolved", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
+				Arrays.asList("ID2", "NAME2_resolved", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3_resolved", "MANUFACTURER3", "NUMBER_OF_DISKS3")
+			),
+			sourceTable.getTable()
+		);
+
+		// test last index
+		initializeSourceTable();
+		translate =
+			Translate
+				.builder()
+				.column(4)
+				.translationTable(TranslationTable.builder().translations(translationMap).build())
+				.build();
+		computeProcessor.process(translate);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1_resolved"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2_resolved"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3_resolved")
+			),
+			sourceTable.getTable()
+		);
+
+		// test unknown value
+		initializeSourceTable();
+		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID", "NAME", "MANUFACTURER", "NUMBER_OF_DISKS")));
+		translate =
+			Translate
+				.builder()
+				.column(1)
+				.translationTable(TranslationTable.builder().translations(translationMap).build())
+				.build();
+		computeProcessor.process(translate);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1_resolved", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
+				Arrays.asList("ID2_resolved", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3_resolved", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3"),
+				Arrays.asList("ID", "NAME", "MANUFACTURER", "NUMBER_OF_DISKS")
+			),
+			sourceTable.getTable()
+		);
+
+		// test with semi colon
+		final Map<String, String> translationMapSemiColon = Map.of(
+			"name1",
+			"NAME1_resolved",
+			"name2",
+			"NAME2_resolved",
+			"name3",
+			"NAME3_resolved",
+			"id1",
+			"ID1_resolved",
+			"id2",
+			"ID2_resolved",
+			"id3",
+			"ID3_resolved",
+			"number_of_disks1",
+			"NUMBER_OF_DISKS1_resolved;new_column_1",
+			"number_of_disks2",
+			"NUMBER_OF_DISKS2_resolved;new_column_2",
+			"number_of_disks3",
+			"NUMBER_OF_DISKS3_resolved;new_column_3"
+		);
+
+		initializeSourceTable();
+		translate =
+			Translate
+				.builder()
+				.column(4)
+				.translationTable(TranslationTable.builder().translations(translationMapSemiColon).build())
+				.build();
+		computeProcessor.process(translate);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1_resolved", "new_column_1"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2_resolved", "new_column_2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3_resolved", "new_column_3")
+			),
+			sourceTable.getTable()
+		);
 	}
 }
