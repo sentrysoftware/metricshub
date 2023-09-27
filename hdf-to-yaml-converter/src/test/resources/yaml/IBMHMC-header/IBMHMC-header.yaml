@@ -36,6 +36,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = lssvcevents output
@@ -85,7 +87,8 @@ monitors:
       mapping:
         # ValueTable = Source(2)
         source: "${source::monitors.enclosure.collect.sources.source(2)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="enclosure"}: $6
         legacyTextParameters:
@@ -114,6 +117,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = result of lsled for each monitored physical system
@@ -132,7 +137,8 @@ monitors:
       mapping:
         # CollectTable = Source(1)
         source: "${source::monitors.led.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="led"}: legacyLedStatus($2)
 translations:

@@ -77,6 +77,8 @@ monitors:
           name: "${awk::sprintf(\"%s (%s)\", $5, $2)}"
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = The Processor WMI class
@@ -94,7 +96,8 @@ monitors:
         # Value Table
         # Identifier, Value
         source: "${source::monitors.voltage.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.voltage: $2
   temperature:
@@ -139,6 +142,8 @@ monitors:
           hw.temperature.limit{limit_type="high.critical"}: $4
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = The Processor WMI class
@@ -150,7 +155,8 @@ monitors:
         # Value Table
         # Identifier, Value
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.temperature: $2
   physical_disk:
@@ -195,6 +201,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source 1 = Storage Sensor
@@ -216,7 +224,8 @@ monitors:
         # Instance table
         # SensorIdentifier, SensorParent, SensorValue, SensorName, HardwareIdentifier,  HardwareName, HardwareType
         source: "${source::monitors.physical_disk.collect.sources.source(2)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.physical_disk.endurance_utilization{state="remaining"}: percent2Ratio($3)
   fan:
@@ -258,6 +267,8 @@ monitors:
           name: $5
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = The Processor WMI class
@@ -269,7 +280,8 @@ monitors:
         # Value Table
         # Identifier, Value
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.fan.speed: $2
   cpu:
@@ -328,6 +340,8 @@ monitors:
           hw.power{hw.type="cpu"}: $6
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Sensor type 'Clock'
@@ -363,7 +377,8 @@ monitors:
         # The Collect Table
         # CpuDeviceID;AverageClock;SensorName;CpuDeviceID;CPUPowerConsumption
         source: "${source::monitors.cpu.collect.sources.source(3)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.cpu.speed: megaHertz2Hertz($2)
           hw.power{hw.type="cpu"}: $5
@@ -504,6 +519,8 @@ monitors:
           hw.gpu.memory.limit: mebiByte2Byte($6)
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = The Processor WMI class
@@ -522,7 +539,8 @@ monitors:
         # Value Table
         # gpuID, VideoDecode, VideoEncode, Memory, PowerConsumption, ReveivedBytes, TransmittedBytes, UsedTimePercent
         source: "${source::monitors.gpu.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.gpu.utilization{task="decoder"}: percent2Ratio($2)
           hw.gpu.utilization{task="encoder"}: percent2Ratio($3)

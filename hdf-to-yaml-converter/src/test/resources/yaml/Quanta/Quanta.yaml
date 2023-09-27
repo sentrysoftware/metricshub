@@ -143,6 +143,8 @@ monitors:
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # ID;Speed;Status
@@ -171,7 +173,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.cpu.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.cpu.speed: megaHertz2Hertz($2)
           hw.status{hw.type="cpu"}: $3
@@ -217,6 +220,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # ID;memoryStatus;
@@ -241,7 +246,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.memory.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="memory"}: $2
         legacyTextParameters:
@@ -349,7 +355,8 @@ monitors:
         # InstanceTable = Source(3)
         # PATROLStatus;StatusInformation;displayname;
         source: "${source::monitors.power_supply.collect.sources.source(3)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="power_supply"}: $1
         legacyTextParameters:
@@ -384,6 +391,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1)
@@ -410,7 +419,8 @@ monitors:
         # The ValueTable = Source(1)
         # ID;CurrentReading;PATROLStatus;StatusInformation;
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.temperature: $2
           hw.status{hw.type="temperature"}: $3
@@ -446,6 +456,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1)
@@ -472,7 +484,8 @@ monitors:
         # The ValueTable = Source(1)
         # ID;FanSpeed;PATROLStatus;StatusInformation;
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.fan.speed: $2
           hw.status{hw.type="fan"}: $3
@@ -508,6 +521,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1)
@@ -534,7 +549,8 @@ monitors:
         # The ValueTable = Source(1)
         # ID;VoltageReading;PATROLStatus;StatusInformation;
         source: "${source::monitors.voltage.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.voltage: $2
           hw.status{hw.type="voltage"}: $3

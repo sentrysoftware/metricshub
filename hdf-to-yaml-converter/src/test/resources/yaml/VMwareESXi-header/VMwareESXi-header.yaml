@@ -64,6 +64,8 @@ monitors:
           hw.enclosure.power: $8
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # 
@@ -82,7 +84,8 @@ monitors:
             value: 100
       mapping:
         source: "${source::monitors.enclosure.collect.sources.source(1)}"
-        deviceId: ESX4iServer
+        attributes:
+          id: ESX4iServer
         metrics:
           hw.enclosure.power: $2
           hw.enclosure.energy: fakeCounter($2)
@@ -114,6 +117,8 @@ monitors:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($2)
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Caption,HealthState
@@ -134,7 +139,8 @@ monitors:
             translationTable: "${translation::statusInformationTranslationTable}"
       mapping:
         source: "${source::monitors.cpu.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="cpu"}: $2
         legacyTextParameters:
@@ -265,6 +271,8 @@ monitors:
           name: $3
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source (1)
@@ -349,7 +357,8 @@ monitors:
         # Instance Table
         # MonitoredDeviceID,StatusInformation,PatrolStatus
         source: "${source::monitors.memory.collect.sources.source(5)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="memory"}: $3
         legacyTextParameters:
@@ -380,6 +389,8 @@ monitors:
           name: $1
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # DeviceID,HealthState,Availability
@@ -427,7 +438,8 @@ monitors:
         # Value Table
         # DeviceID,PatrolStatus,StatusInformation
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
@@ -557,6 +569,8 @@ monitors:
           hw.temperature: $4
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # BaseUnits,DeviceID,CurrentReading,HealthState
@@ -614,7 +628,8 @@ monitors:
         # Value Table
         # BaseUnits,DeviceID,CurrentReading,PatrolStatus,StatusInformation
         source: "${source::monitors.temperature.collect.sources.source(3)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="temperature"}: $4
           hw.temperature: $3
@@ -786,6 +801,8 @@ monitors:
           hw.fan.speed_ratio: $3
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # BaseUnits,DeviceID,CurrentReading,DeviceID,FanSpeedThreshold
@@ -853,7 +870,8 @@ monitors:
         # Value Table
         # BaseUnits,DeviceID,FanPercent,Speed,PatrolStatus,StatusInformation
         source: "${source::monitors.fan.collect.sources.source(3)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="fan"}: $5
           hw.fan.speed: $4
@@ -965,6 +983,8 @@ monitors:
           hw.voltage: $3
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # BaseUnits,DeviceID,CurrentReading,HealthState
@@ -1021,7 +1041,8 @@ monitors:
         # Value Table
         # BaseUnits,DeviceID,CurrentReading,PatrolStatus,StatusInformation
         source: "${source::monitors.voltage.collect.sources.source(3)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="voltage"}: $4
           hw.voltage: $3
@@ -1072,6 +1093,8 @@ monitors:
     collect:
       # The NetworkCard collect is a "MultiInstance" collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = CIM_FCPort
@@ -1125,7 +1148,8 @@ monitors:
         # PortID;PortTypeCode;EnabledState;Speed;LinkStatus;PATROLStatusArray;Status
         # ValueTable = Source(1)
         source: "${source::monitors.network.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="network"}: $6
           hw.network.bandwidth.limit: megaBit2Bit($4)
@@ -1165,6 +1189,8 @@ monitors:
           name: $2
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # DeviceID,HealthState,IpmiSensorType,Caption,deviceID
@@ -1192,7 +1218,8 @@ monitors:
         # Instance Table
         # DeviceID,PatrolStatus,StatusInformation
         source: "${source::monitors.battery.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="battery"}: $2
         legacyTextParameters:

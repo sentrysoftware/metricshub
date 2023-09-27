@@ -109,6 +109,8 @@ monitors:
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: osCommand
@@ -125,7 +127,8 @@ monitors:
         # ValueTable = Source(1)
         # ControllerNumber;PatrolStatus;
         source: "${source::monitors.disk_controller.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
   physical_disk:
     discovery:
       sources:
@@ -168,6 +171,8 @@ monitors:
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = lsiutil output
@@ -189,7 +194,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="physical_disk"}: $1
         legacyTextParameters:
@@ -230,6 +236,8 @@ monitors:
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = lsiutil output
@@ -252,7 +260,8 @@ monitors:
         # ValueTable = Source(1)
         # deviceID;Patrolstatus;statusinformation;
         source: "${source::monitors.logical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="logical_disk"}: $2
         legacyTextParameters:

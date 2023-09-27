@@ -14,7 +14,8 @@
             _comment: DeviceID;Status;StatusInformation;Voltage
             legacyTextParameters:
               StatusInformation: $3
-            deviceId: $1
+            attributes:
+              id: $1
             source: ${source::monitors.voltage.collect.sources.source(1)}
             metrics:
               hw.status{hw.type="voltage"}: $2

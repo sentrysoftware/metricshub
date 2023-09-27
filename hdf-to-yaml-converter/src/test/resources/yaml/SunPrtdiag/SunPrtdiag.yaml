@@ -87,6 +87,8 @@ monitors:
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the ${file::embeddedFile-1} fan OSCommand
@@ -115,7 +117,8 @@ monitors:
       mapping:
         # CollectTable = Source(1)
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="fan"}: $2
         legacyTextParameters:
@@ -157,6 +160,8 @@ monitors:
     collect:
       # Collect type is all instances in one single shot
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = stdout of ${file::embeddedFile-1} temperature
@@ -185,7 +190,8 @@ monitors:
       mapping:
         # Collect table = Source(1)
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.temperature: $2
           hw.status{hw.type="temperature"}: $3
@@ -236,6 +242,8 @@ monitors:
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = stdout of "${file::embeddedFile-1} voltage"
@@ -267,7 +275,8 @@ monitors:
       mapping:
         # Collect table = Source(1)
         source: "${source::monitors.voltage.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.voltage: $2
           hw.status{hw.type="voltage"}: $3
@@ -295,6 +304,8 @@ monitors:
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = stdout of "${file::embeddedFile-1} powersupply"
@@ -332,7 +343,8 @@ monitors:
       mapping:
         # Collect table = Source(1)
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
@@ -367,6 +379,8 @@ monitors:
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = stdout of "${file::embeddedFile-1} powersupply"
@@ -404,7 +418,8 @@ monitors:
       mapping:
         # Collect table = Source(1)
         source: "${source::monitors.memory.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="memory"}: $2
         legacyTextParameters:

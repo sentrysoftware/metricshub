@@ -72,7 +72,8 @@ monitors:
         # ValueTable = Source(1)
         # MSHW;ID;Status;StatusInformation;
         source: "${source::monitors.other_device.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="other_device"}: $3
         legacyTextParameters:

@@ -198,6 +198,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the MSFT_PhysicalDisk table
@@ -270,7 +272,8 @@ monitors:
         # ValueTable = Source(3)
         # __PATH;DeviceId;Status;StatusInformation;OperationalStatus;DeviceId;TotalErrors;EnduranceRemaing;WriteErrors;
         source: "${source::monitors.physical_disk.collect.sources.source(3)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="physical_disk"}: $3
           hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($5)
@@ -315,6 +318,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = MSFT_Volume
@@ -347,7 +352,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.logical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="logical_disk"}: $2
           hw.logical_disk.usage{state="free"}: $4
@@ -403,6 +409,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = ASSOCIATORS of each MSFT_PhysicalDisk, from the MSFT_StorageReliabilityCounter table
@@ -416,7 +424,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.temperature: $2
 translations:

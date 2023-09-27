@@ -101,6 +101,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: http
@@ -153,7 +155,8 @@ monitors:
         # Enclosure Value Table
         # JsonID;<System>;PatrolStatus;StatusInformation
         source: "${source::monitors.enclosure.collect.sources.source(4)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="enclosure"}: $3
           hw.enclosure.power: $7
@@ -209,6 +212,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: http
@@ -234,7 +239,8 @@ monitors:
         # CPU collect value table
         # JsonId;Id;PatrolStatus;StatusInformation;
         source: "${source::monitors.cpu.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="cpu"}: $3
         legacyTextParameters:
@@ -289,6 +295,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: http
@@ -314,7 +322,8 @@ monitors:
         # Memory Value Table
         # JsonID;PatrolStatus;StatusInformation;
         source: "${source::monitors.memory.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="memory"}: $3
         legacyTextParameters:
@@ -361,6 +370,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: http
@@ -386,7 +397,8 @@ monitors:
         # Fan Value Table
         # JsonID;PatrolStatus;StatusInformation
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="fan"}: $3
         legacyTextParameters:
@@ -442,6 +454,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: http
@@ -467,7 +481,8 @@ monitors:
         # DiskController Value Table
         # JsonID;<System>;PatrolStatus;StatusInformation;
         source: "${source::monitors.disk_controller.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="disk_controller"}: $3
         legacyTextParameters:
@@ -539,6 +554,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: http
@@ -564,7 +581,8 @@ monitors:
         # PhysicalDisk Value Table
         # JsonID;Name;PatrolStatus;StatusInformation;
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="physical_disk"}: $3
         legacyTextParameters:
@@ -607,6 +625,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: copy
@@ -622,7 +642,8 @@ monitors:
         # Power Supply Value Table
         # JsonID;PatrolStatus;StatusInformation;
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="power_supply"}: $4
         legacyTextParameters:
@@ -670,6 +691,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: http
@@ -695,7 +718,8 @@ monitors:
         # Battery Value Table
         # JsonID;PatrolStatus;StatusInformation
         source: "${source::monitors.battery.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="battery"}: $4
         legacyTextParameters:
@@ -743,6 +767,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: http
@@ -768,7 +794,8 @@ monitors:
         # Temperature Value Table
         # JsonID;PatrolStatus;StatusInformation;ReadingCelsius;
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="temperature"}: $3
           hw.temperature: $5
@@ -927,6 +954,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: http
@@ -973,7 +1002,8 @@ monitors:
         # NetworkCard Value Table
         # JSON/ID/NetworkCardStatus/LinkStatus/StatusInformation;Speed;
         source: "${source::monitors.network.collect.sources.source(3)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="network"}: $3
           hw.network.up: legacyLinkStatus($4)

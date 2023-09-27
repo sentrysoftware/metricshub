@@ -195,22 +195,22 @@ class ConnectorLibrarySerializerTest {
 			.attributes(
 				Map.of(
 					"id",
-					"buildId($column(6))",
+					"$6",
 					"parent",
 					"",
 					"name",
-					"buildName(Storage, EMC, $column(2), (, $column(7), ))",
+					"${awk::sprintf(\"Storage EMC %s (%s)\", $2, $7)}",
 					"model",
-					"$column(2)",
+					"$2",
 					"vendor",
 					"EMC",
 					"serial_number",
-					"$column(3)",
+					"$3",
 					"type",
 					"Storage"
 				)
 			)
-			.conditionalCollection(Map.of("hw.status", "$column(10)"))
+			.conditionalCollection(Map.of("hw.status", "$10"))
 			.build();
 
 		assertEquals(expectedMapping, mapping);

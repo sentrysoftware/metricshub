@@ -76,6 +76,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = tierTable SNMP Table
@@ -112,7 +114,8 @@ monitors:
         # DiskEnclosure;DiskID;PatrolStatus;StatusInformation;
         # ValueTable = Source(1)
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="physical_disk"}: $3
         legacyTextParameters:
@@ -150,6 +153,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) =  SNMP Table
@@ -177,7 +182,8 @@ monitors:
         # DiskEnclosure;DiskID;PatrolStatus;StatusInformation;
         # ValueTable = Source(1)
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="power_supply"}: $3
   fan:
@@ -213,6 +219,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) =  SNMP Table
@@ -240,7 +248,8 @@ monitors:
         # DiskEnclosure;DiskID;PatrolStatus;StatusInformation;
         # ValueTable = Source(1)
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="fan"}: $3
   temperature:
@@ -276,6 +285,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) =  SNMP Table
@@ -303,7 +314,8 @@ monitors:
         # DiskEnclosure;DiskID;PatrolStatus;StatusInformation;
         # ValueTable = Source(1)
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="temperature"}: $3
 translations:

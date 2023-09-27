@@ -25,8 +25,6 @@ public class Mapping implements Serializable {
 
 	private String source;
 
-	private String deviceId;
-
 	@Default
 	@JsonDeserialize(using = CaseInsensitiveTreeMapDeserializer.class)
 	@JsonSetter(nulls = SKIP)

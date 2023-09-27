@@ -86,7 +86,8 @@ monitors:
           rightKeyColumn: 1
       mapping:
         source: "${source::monitors.enclosure.collect.sources.source(5)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="enclosure"}: $3
           hw.enclosure.power: $6
@@ -152,7 +153,8 @@ monitors:
             value: 10
       mapping:
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.temperature: $2
   voltage:
@@ -236,6 +238,8 @@ monitors:
           hw.voltage.limit{limit_type="high.degraded"}: $7
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: snmpGet
@@ -273,7 +277,8 @@ monitors:
           - "${source::monitors.voltage.collect.sources.source(4)}"
       mapping:
         source: "${source::monitors.voltage.collect.sources.source(5)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.voltage: $4
 translations:

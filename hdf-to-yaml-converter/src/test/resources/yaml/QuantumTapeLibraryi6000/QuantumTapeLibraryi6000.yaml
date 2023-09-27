@@ -74,6 +74,8 @@ monitors:
           name: "${awk::sprintf(\"Storage: (%s %s)\", $6, $5)}"
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: snmpTable
@@ -98,7 +100,8 @@ monitors:
         # Value Table
         # EnclosureID;PATROLStatus;StatusInformation;
         source: "${source::monitors.enclosure.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="enclosure"}: $2
         legacyTextParameters:
@@ -142,6 +145,8 @@ monitors:
           hw.status{hw.type="tape_drive", state="needs_cleaning"}: $5
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = \tphysicalDriveEntry SNMP table\nTapeDriveID;NeedsCleaning;ReadErrors;WriteErrors;RASStatus;Loads;
@@ -191,7 +196,8 @@ monitors:
         # Value Table
         # TapeDriveID;CleaningStatus;CleaningStatusInformation;ReadErrors;WriteErrors;PATROLStatus;StatusInformation;Loads;
         source: "${source::monitors.tape_drive.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="tape_drive"}: $6
           hw.status{hw.type="tape_drive", state="needs_cleaning"}: legacyNeedsCleaning($2)
@@ -240,6 +246,8 @@ monitors:
           name: $1
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = \t\tGlobal RAS SNMP table\nDeviceID;Status;
@@ -276,7 +284,8 @@ monitors:
         # Value Table
         # DeviceID;PATROLStatus;StatusInformation;
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
@@ -322,6 +331,8 @@ monitors:
           name: $1
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = \t\tGlobal RAS SNMP table\nDeviceID;Status;
@@ -358,7 +369,8 @@ monitors:
         # Value Table
         # DeviceID;PATROLStatus;StatusInformation;
         source: "${source::monitors.robotics.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="robotics"}: $2
         legacyTextParameters:
@@ -411,6 +423,8 @@ monitors:
           name: "${awk::sprintf(\"%s: %s\", $1, $3)}"
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = \t\tGlobal RAS SNMP table\nDeviceID;Status;
@@ -463,7 +477,8 @@ monitors:
         # Value Table
         # DeviceID;PATROLStatus;StatusInformation;
         source: "${source::monitors.other_device.collect.sources.source(3)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="other_device"}: $2
         legacyTextParameters:
@@ -512,6 +527,8 @@ monitors:
           hw.voltage.limit{limit_type="low.critical"}: $3
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = \tVoltage Table\nDeviceID;Status;Voltage;
@@ -536,7 +553,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.voltage.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.voltage: $4
           hw.status{hw.type="voltage"}: $2
@@ -613,6 +631,8 @@ monitors:
           hw.temperature.limit{limit_type="high.degraded"}: $6
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = \tTemperature Table\nDeviceID;Status;Temperature;
@@ -637,7 +657,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.temperature: $4
           hw.status{hw.type="temperature"}: $2
@@ -714,6 +735,8 @@ monitors:
           hw.fan.speed.limit{limit_type="low.degraded"}: $6
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = \tFan Table\nDeviceID;Status;Speed;
@@ -738,7 +761,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.fan.speed: $4
           hw.status{hw.type="fan"}: $2

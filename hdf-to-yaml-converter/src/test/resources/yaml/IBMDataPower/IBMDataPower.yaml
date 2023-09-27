@@ -89,6 +89,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = connUnitSensorTable SNMP Table
@@ -107,7 +109,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;Value;
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.temperature: $2
   voltage:
@@ -141,6 +144,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = connUnitSensorTable SNMP Table
@@ -159,7 +164,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;Value;
         source: "${source::monitors.voltage.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.voltage: $2
   fan:
@@ -196,6 +202,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = connUnitSensorTable SNMP Table
@@ -213,7 +221,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;Value;
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.fan.speed: $2
   physical_disk:
@@ -245,6 +254,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = connUnitSensorTable SNMP Table
@@ -276,7 +287,8 @@ monitors:
         # ValueTable = Source(1)
         # Location;PATROLStatus;StatusInformation;
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
@@ -303,6 +315,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: snmpGet
@@ -315,7 +329,8 @@ monitors:
         # ValueTable = Source(1)
         # Location;PATROLStatus;StatusInformation;
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:

@@ -99,6 +99,8 @@ monitors:
     collect:
       # Collection Type
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Queries the REST interface for Enclosure information
@@ -149,7 +151,8 @@ monitors:
         # Enclosure Value Table
         # JsonID;PatrolStatus;StatusInformation
         source: "${source::monitors.enclosure.collect.sources.source(4)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="enclosure"}: $6
         legacyTextParameters:
@@ -199,6 +202,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # PhysicalDisk Source(1) = HardwareInventory
@@ -219,7 +224,8 @@ monitors:
         # PhysicalDisk Value Table
         # JsonID;PatrolStatus;StatusInformation;EnduranceRemaining
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="physical_disk"}: $2
           hw.physical_disk.endurance_utilization{state="remaining"}: percent2Ratio($4)
@@ -265,6 +271,8 @@ monitors:
     collect:
       # Collection Type
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # PowerSupply Source(1) = HardwareInventory
@@ -285,7 +293,8 @@ monitors:
         # PowerSupply Value Table
         # JsonID;PatrolStatus;StatusInformation
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
@@ -320,6 +329,8 @@ monitors:
     collect:
       # Collection type
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Fan Source(1) = HardwareInventory
@@ -340,7 +351,8 @@ monitors:
         # Fan Value Table
         # JsonID;PatrolStatus;StatusInformation
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="fan"}: $2
         legacyTextParameters:
@@ -378,6 +390,8 @@ monitors:
     collect:
       # Collection type
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Battery Source(1) = HardwareInventory
@@ -398,7 +412,8 @@ monitors:
         # Battery Value Table
         # JsonID;PatrolStatus;StatusInformation
         source: "${source::monitors.battery.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="battery"}: $2
         legacyTextParameters:
@@ -437,6 +452,8 @@ monitors:
     collect:
       # Collection type
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # DiskController Source(1) = HardwareInventory
@@ -456,7 +473,8 @@ monitors:
       mapping:
         # DiskController Value Table
         source: "${source::monitors.disk_controller.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="disk_controller"}: $2
         legacyTextParameters:
@@ -489,6 +507,8 @@ monitors:
     collect:
       # Collection Type
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Temperature Source(1) = HardwareInventory
@@ -509,7 +529,8 @@ monitors:
         # Temperature Value Table
         # JsonID;PatrolStatus;StatusInformation;
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="temperature"}: $2
         legacyTextParameters:
@@ -547,6 +568,8 @@ monitors:
     collect:
       # Collection type
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Memory Source(1) = HardwareInventory
@@ -567,7 +590,8 @@ monitors:
         # Memory Value Table
         # JsonID;PatrolStatus;StatusInformation
         source: "${source::monitors.memory.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="memory"}: $2
         legacyTextParameters:
@@ -711,6 +735,8 @@ monitors:
     collect:
       # Collection type
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Ethernet (hardware-inventory) [Controller[0]]
@@ -767,7 +793,8 @@ monitors:
         # NetworkCard Value Table
         # JsonID;PatrolStatus;LinkStatus;StatusInformation
         source: "${source::monitors.network.collect.sources.source(5)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="network"}: $2
           hw.network.up: legacyLinkStatus($3)
@@ -814,6 +841,8 @@ monitors:
     collect:
       # Collection type
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: copy
@@ -833,7 +862,8 @@ monitors:
         # OtherDevice Value Table
         # JsonID;PatrolStatus;StatusInformation
         source: "${source::monitors.other_device.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="other_device"}: $2
         legacyTextParameters:
@@ -897,6 +927,8 @@ monitors:
     collect:
       # Collection type
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Queries the REST interface for volume information
@@ -919,7 +951,8 @@ monitors:
         # LogicalDisk Value Table
         # JsonID;PatrolStatus;StatusInformation
         source: "${source::monitors.logical_disk.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="logical_disk"}: $3
         legacyTextParameters:

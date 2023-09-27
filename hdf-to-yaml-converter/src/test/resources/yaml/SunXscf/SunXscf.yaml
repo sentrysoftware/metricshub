@@ -63,6 +63,8 @@ monitors:
     collect:
       # Collect type is multi-instance (of course)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = output of hte showhardconf command
@@ -97,7 +99,8 @@ monitors:
       mapping:
         # The ValueTable
         source: "${source::monitors.enclosure.collect.sources.source(2)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="enclosure"}: $2
         legacyTextParameters:
@@ -140,6 +143,8 @@ monitors:
     collect:
       # Collet type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = copy of enclosure.collect.source(1) (output of the showhardconf command)
@@ -165,7 +170,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.cpu.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="cpu"}: $2
         legacyTextParameters:
@@ -200,6 +206,8 @@ monitors:
     collect:
       # Collet type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = copy of enclosure.collect.source(1) (output of the showhardconf command)
@@ -225,7 +233,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.memory.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="memory"}: $2
         legacyTextParameters:
@@ -265,6 +274,8 @@ monitors:
     collect:
       # Collet type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = copy of enclosure.collect.source(1) (output of the showhardconf command)
@@ -290,7 +301,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
@@ -322,6 +334,8 @@ monitors:
     collect:
       # Collet type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = copy of enclosure.collect.source(1) (output of the showhardconf command)
@@ -347,7 +361,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="fan"}: $2
         legacyTextParameters:
@@ -382,6 +397,8 @@ monitors:
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = output of showenvironment
@@ -398,7 +415,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.voltage.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.voltage: $2
   temperature:
@@ -431,6 +449,8 @@ monitors:
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = output of showenvironment
@@ -448,7 +468,8 @@ monitors:
         # ValueTable = Source(1)
         # SensorID;Temperature
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.temperature: $2
   other_device:
@@ -507,6 +528,8 @@ monitors:
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = output of showdomains -a
@@ -560,7 +583,8 @@ monitors:
       mapping:
         # ValueTable = Source(3)
         source: "${source::monitors.other_device.collect.sources.source(3)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="other_device"}: $2
           hw.power{hw.type="other_device"}: $4

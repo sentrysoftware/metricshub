@@ -16,7 +16,8 @@
             legacyTextParameters:
               StatusInformation: $3
               AvailablePathInformation: $5
-            deviceId: $1
+            attributes:
+              id: $1
             source: ${source::monitors.lun.collect.sources.source(1)}
             metrics:
               hw.status{hw.type="lun"}: $2

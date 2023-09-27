@@ -22,7 +22,8 @@
           mapping:
             _comment: DeviceID;Status;StatusInformation;PredictedFailure;Errors;Endurance
             source: ${source::monitors.physical_disk.collect.sources.source(1)}
-            deviceId: $1
+            attributes:
+              id: $1
             metrics:
               hw.status{hw.type="physical_disk"}: $2
               hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($4)

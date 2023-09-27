@@ -129,9 +129,9 @@ public class DiskControllerConverter extends AbstractMappingConverter {
 		// Add the first argument at the beginning of the list
 		sprintfArgs.add(0, firstArg);
 
-		// Join the arguments, example: $column(1), $column(2), $column(3)
+		// Join the arguments, example: $1, $2, $3
 		// Append the result to our format variable in order to get something like
-		// sprintf("Disk Controller: %s (%s %s)", $column(1), $column(2), $column(3))
+		// sprintf("Disk Controller: %s (%s %s)", $1, $2, $3)
 		return format
 			.append("\", ") // Here we will have a string like sprintf("Disk Controller: %s (%s %s)",
 			.append(sprintfArgs.stream().map(this::getFunctionArgument).collect(Collectors.joining(", ", "", ")")))

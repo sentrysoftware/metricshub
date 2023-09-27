@@ -59,6 +59,8 @@ monitors:
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = EF4
@@ -86,7 +88,8 @@ monitors:
         # ValueTable = Source(1)
         # controllerID;Patrolstatus;status;PatrolBatteryStatus;batteryStatus;
         source: "${source::monitors.disk_controller.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="disk_controller"}: $2
   physical_disk:
@@ -126,6 +129,8 @@ monitors:
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = EF1
@@ -157,7 +162,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
@@ -197,6 +203,8 @@ monitors:
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = EF5
@@ -219,7 +227,8 @@ monitors:
         # ValueTable = Source(1)
         # logicaldriveID;Patrolstatus;status;
         source: "${source::monitors.logical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="logical_disk"}: $2
         legacyTextParameters:

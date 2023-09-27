@@ -60,6 +60,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Get a list of Enclosures
@@ -103,7 +105,8 @@ monitors:
         # Value Table
         # ServerID;ServerID;Power Consumption;
         source: "${source::monitors.enclosure.collect.sources.source(3)}"
-        deviceId: BladeCenter
+        attributes:
+          id: BladeCenter
         metrics:
           hw.enclosure.power: $3
           hw.enclosure.energy: fakeCounter($3)
@@ -200,6 +203,8 @@ monitors:
           hw.status{hw.type="temperature"}: $5
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = mmTemp
@@ -278,7 +283,8 @@ monitors:
         # Instance Table
         # ID;PatrolStatus;Temperature;
         source: "${source::monitors.temperature.collect.sources.source(6)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.temperature: $3
           hw.status{hw.type="temperature"}: $2
@@ -583,6 +589,8 @@ monitors:
     collect:
       # Collect-type
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = blower1speed
@@ -876,7 +884,8 @@ monitors:
       mapping:
         # ValueTable = Source(20)
         source: "${source::monitors.fan.collect.sources.source(20)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.fan.speed_ratio: percent2Ratio($3)
           hw.status{hw.type="fan"}: $5
@@ -1109,6 +1118,8 @@ monitors:
     collect:
       # Collect type is "multi-instance" (one collect for all instances)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = SNMP bladeSystemStatusTable
@@ -1164,7 +1175,8 @@ monitors:
       mapping:
         # ValueTable = Source(3)
         source: "${source::monitors.blade.collect.sources.source(3)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="blade"}: $3
           hw.blade.power_state: $2
@@ -1329,6 +1341,8 @@ monitors:
     collect:
       # Collect type is "multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = smControlEntry SNMP table
@@ -1395,7 +1409,8 @@ monitors:
           - "${source::monitors.other_device.collect.sources.source(3)}"
       mapping:
         source: "${source::monitors.other_device.collect.sources.source(4)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="other_device"}: $2
 translations:

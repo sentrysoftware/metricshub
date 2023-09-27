@@ -54,17 +54,18 @@ monitors:
       mapping:
         source: ${source::monitors.host.discovery.sources.source(7)}
         attributes:
-          id: buildId($column(6))
+          id: $6
           parent: ""
-          name: buildName(Storage, EMC, $column(2), (, $column(7), ))
+          name: ${awk::sprintf("Storage EMC %s (%s)", $2, $7)}
           vendor: EMC
-          model: $column(2)
-          serial_number: $column(3)
+          model: $2
+          serial_number: $3
           type: Storage
         conditionalCollection:
-          hw.status: $column(10)
+          hw.status: $10
     collect:
       type: multiInstance
+      keys: [ id ]
       sources:
         source(2):
           type: copy
@@ -82,10 +83,11 @@ monitors:
           keyType: WBEM
           defaultRightLine: ;;;;
       mapping:
-        deviceId: $column(1) 
+        attributes:
+          id: $1 
         source: ${source::monitors.host.collect.sources.source(2)}
         metrics:
-          hw.status: $column(2)
+          hw.status: $2
   enclosure:
     discovery:
       sources:
@@ -129,17 +131,18 @@ monitors:
       mapping:
         source: ${source::monitors.enclosure.discovery.sources.source(7)}
         attributes:
-          id: buildId($column(6))
+          id: $6
           parent: ""
-          name: buildName(Storage, EMC, $column(2), (, $column(7), ))
+          name: ${awk::sprintf("Storage EMC %s (%s)", $2, $7)}
           vendor: EMC
-          model: $column(2)
-          serial_number: $column(3)
+          model: $2
+          serial_number: $3
           type: Storage
         conditionalCollection:
-          hw.status: $column(10)
+          hw.status: $10
     collect:
       type: multiInstance
+      keys: [ id ]
       sources:
         myUnionSource:
           type: tableUnion
@@ -166,7 +169,8 @@ monitors:
           keyType: WBEM
           defaultRightLine: ;;;;
       mapping:
-        deviceId: $column(1) 
+        attributes:
+          id: $1 
         source: ${source::monitors.enclosure.collect.sources.source(2)}
         metrics:
-          hw.status: $column(2)
+          hw.status: $2

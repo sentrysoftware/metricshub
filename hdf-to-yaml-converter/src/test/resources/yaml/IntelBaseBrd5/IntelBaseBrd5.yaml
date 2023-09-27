@@ -60,6 +60,8 @@ monitors:
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = processorDeviceTable SNMP table
@@ -83,7 +85,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;StatusInformation;PatrolStatus;CurrentSpeed
         source: "${source::monitors.cpu.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="cpu"}: $3
         legacyTextParameters:
@@ -148,6 +151,8 @@ monitors:
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = cpqSeMemoryTable SNMP table
@@ -189,7 +194,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;StatusInformation;PatrolStatus;CurrentSpeed
         source: "${source::monitors.memory.collect.sources.source(3)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="memory"}: $3
         legacyTextParameters:
@@ -285,6 +291,8 @@ monitors:
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = cpqSeMemoryTable SNMP table
@@ -313,7 +321,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;StatusInformation;Status;CurrentReading
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="temperature"}: $3
           hw.temperature: $4
@@ -353,6 +362,8 @@ monitors:
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = coolingDeviceTable SNMP table
@@ -376,7 +387,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;StatusInformation;Status;CurrentReading
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="fan"}: $3
           hw.fan.speed: $4
@@ -416,6 +428,8 @@ monitors:
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = voltageProbeTableEntry SNMP table
@@ -439,7 +453,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;StatusInformation;Status;CurrentReading
         source: "${source::monitors.voltage.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="voltage"}: $3
           hw.voltage: $4

@@ -94,6 +94,8 @@ monitors:
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = output of iostat
@@ -126,7 +128,8 @@ monitors:
       mapping:
         # ValueTable = Source(3)
         source: "${source::monitors.physical_disk.collect.sources.source(3)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.errors{hw.type="physical_disk"}: $2
           hw.errors{hw.type="physical_disk", hw.error.type="hard"}: $3

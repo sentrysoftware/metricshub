@@ -143,6 +143,8 @@ monitors:
           name: "${awk::sprintf(\"Enclosure: %s (%s %s)\", $12, \"Nimble\", $6)}"
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Get SystemInfo
@@ -211,7 +213,8 @@ monitors:
         # Instance Table
         # JSONIndex;ID;Status;StatusInformation;FanStatus;TemperatureStatus;
         source: "${source::monitors.enclosure.collect.sources.source(2)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="enclosure"}: $3
         legacyTextParameters:
@@ -293,6 +296,8 @@ monitors:
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: copy
@@ -329,7 +334,8 @@ monitors:
         # ValueTable
         # JSONIndex;CtrlAddress;Type;ID;PatrolStatus;StatusInformation;Value;
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $4
+        attributes:
+          id: $4
         metrics:
           hw.temperature: $7
           hw.status{hw.type="temperature"}: $5
@@ -381,6 +387,8 @@ monitors:
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: copy
@@ -417,7 +425,8 @@ monitors:
         # ValueTable
         # JSONIndex;CtrlAddress;Type;ID;PatrolStatus;StatusInformation;Value;
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $4
+        attributes:
+          id: $4
         metrics:
           hw.fan.speed: $7
           hw.status{hw.type="fan"}: $5
@@ -469,6 +478,8 @@ monitors:
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: copy
@@ -505,7 +516,8 @@ monitors:
         # ValueTable
         # JSONIndex;CtrlAddress;Type;ID;PatrolStatus;StatusInformation;Value;
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $4
+        attributes:
+          id: $4
         metrics:
           hw.status{hw.type="power_supply"}: $5
         legacyTextParameters:
@@ -572,6 +584,8 @@ monitors:
           hw.physical_disk.size: $10
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Get PhysicalDisk
@@ -629,7 +643,8 @@ monitors:
         # ValueTable = Source(2)
         # JSONIndex;ID;StatusArray;StatusInformation;
         source: "${source::monitors.physical_disk.collect.sources.source(2)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="physical_disk"}: $3
         legacyTextParameters:
@@ -681,6 +696,8 @@ monitors:
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: copy
@@ -713,7 +730,8 @@ monitors:
         # ValueTable
         # JSONIndex;CtrlAddress;PatrolStatus;Status;ID;
         source: "${source::monitors.other_device.collect.sources.source(1)}"
-        deviceId: $5
+        attributes:
+          id: $5
         metrics:
           hw.status{hw.type="other_device"}: $3
         legacyTextParameters:
@@ -800,6 +818,8 @@ monitors:
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Get NetworkCard
@@ -914,7 +934,8 @@ monitors:
         # Value Table
         # JSONIndex;ControllerName;PortName;linkspeed;linkstatus;portstatus;portstatusinformation;
         source: "${source::monitors.network.collect.sources.source(3)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.network.up: legacyLinkStatus($5)
           hw.network.bandwidth.limit: megaBit2Bit($4)

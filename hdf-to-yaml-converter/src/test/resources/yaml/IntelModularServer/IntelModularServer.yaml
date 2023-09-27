@@ -69,6 +69,8 @@ monitors:
     collect:
       # Collect type is "multi-instance" (one collect for all instances)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = SNMP bladeEntryTable
@@ -86,7 +88,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;StatusLED
         source: "${source::monitors.blade.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="blade"}: $2
   disk_controller:
@@ -131,6 +134,8 @@ monitors:
     collect:
       # Collect type is "multi-instance" (one collect for all instances)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the SCM Table
@@ -148,7 +153,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;StatusLED
         source: "${source::monitors.disk_controller.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="disk_controller"}: $2
   physical_disk:
@@ -187,6 +193,8 @@ monitors:
     collect:
       # Collect type is "multi-instance" (one collect for all instances)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Shared Drives Table
@@ -209,7 +217,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;PatrolOperationalStatus;PatrolPFA;
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="physical_disk"}: $2
           hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($3)
@@ -298,6 +307,8 @@ monitors:
     collect:
       # Collect type is "multi-instance" (one collect for all instances)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Fan Fru Table  (FAN Controllers / Modules)
@@ -357,7 +368,8 @@ monitors:
         # ValueTable = Source(4)
         # ID;FaultLEDStatus;Speed;
         source: "${source::monitors.fan.collect.sources.source(4)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="fan"}: $2
           hw.fan.speed: $3
@@ -398,6 +410,8 @@ monitors:
     collect:
       # Collect type is "multi-instance" (one collect for all instances)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = PowerSupply Fru Table
@@ -415,7 +429,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;FaultLEDStatus;Speed;
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
   other_device:
@@ -481,6 +496,8 @@ monitors:
     collect:
       # Collect type is "multi-instance" (one collect for all instances)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = OtherDevice Fru Table
@@ -523,7 +540,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;FaultLED;
         source: "${source::monitors.other_device.collect.sources.source(3)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="other_device"}: $2
   network:
@@ -570,6 +588,8 @@ monitors:
     collect:
       # Collect type is "multi-instance" (one collect for all instances)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = switchIfEntry
@@ -605,7 +625,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;Speed;receivedbytes;transmittedbytes;operationalStatus;linkStatus;ErrorCount;outErrorCount
         source: "${source::monitors.network.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="network"}: $5
           hw.network.up: legacyLinkStatus($6)

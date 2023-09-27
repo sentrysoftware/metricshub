@@ -62,6 +62,8 @@ monitors:
           hw.memory.limit: mebiByte2Byte($2)
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = The cpqSiMemModuleTable (for older HP ProLiant systems)
@@ -88,7 +90,8 @@ monitors:
         # ValueTable = Source(1)
         # DeviceID;PATROLStatus;statusInformation
         source: "${source::monitors.memory.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="memory"}: $2
         legacyTextParameters:

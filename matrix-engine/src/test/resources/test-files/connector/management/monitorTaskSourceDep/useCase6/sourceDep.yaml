@@ -54,13 +54,13 @@ monitors:
       mapping:
         source: ${source::monitors.enclosure.simple.sources.source(7)}
         attributes:
-          id: buildId($column(6))
+          id: $6
           parent: ""
-          name: buildName(Storage, EMC, $column(2), (, $column(7), ))
+          name: ${awk::sprintf("Storage EMC %s (%s)", $2, $7)}
           vendor: EMC
-          model: $column(2)
-          serial_number: $column(3)
+          model: $2
+          serial_number: $3
           type: Storage
         metrics:
-          hw.status: $column(10)
+          hw.status: $10
 

@@ -14,7 +14,8 @@
             _comment: DeviceID;Status;StatusInformation;Utilization
             legacyTextParameters:
               StatusInformation: $3
-            deviceId: $1
+            attributes:
+              id: $1
             source: ${source::monitors.power_supply.collect.sources.source(1)}
             metrics:
               hw.status{hw.type="power_supply"}: $2
@@ -35,7 +36,8 @@
             _comment: DeviceID;Status;StatusInformation;UsedWatts
             legacyTextParameters:
               StatusInformation: $3
-            deviceId: $1
+            attributes:
+              id: $1
             source: ${source::monitors.power_supply.collect.sources.source(1)}
             metrics:
               hw.status{hw.type="power_supply"}: $2

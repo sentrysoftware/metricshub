@@ -206,6 +206,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = list of components
@@ -263,7 +265,8 @@ monitors:
         # ValueTable = Source(1)
         # Name;PATROLStatus;StatusDescriptions;
         source: "${source::monitors.enclosure.collect.sources.source(4)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="enclosure"}: $2
         legacyTextParameters:
@@ -306,6 +309,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Copy Enclosure Collect
@@ -315,7 +320,8 @@ monitors:
         # ValueTable = Source(1)
         # Name;PATROLStatus;StatusDescriptions;
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
@@ -352,6 +358,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Copy Enclosure Collect
@@ -361,7 +369,8 @@ monitors:
         # ValueTable = Source(1)
         # Name;PATROLStatus;StatusDescriptions;
         source: "${source::monitors.memory.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="memory"}: $2
         legacyTextParameters:
@@ -393,6 +402,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Copy Enclosure Collect
@@ -402,7 +413,8 @@ monitors:
         # ValueTable = Source(1)
         # Name;PATROLStatus;StatusDescriptions;
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="fan"}: $2
         legacyTextParameters:
@@ -435,6 +447,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Copy Enclosure Collect
@@ -444,7 +458,8 @@ monitors:
         # ValueTable = Source(1)
         # Name;PATROLStatus;StatusDescriptions;
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
@@ -519,6 +534,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Copy Enclosure Collect
@@ -528,7 +545,8 @@ monitors:
         # ValueTable = Source(1)
         # Name;PATROLStatus;StatusDescriptions;
         source: "${source::monitors.other_device.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="other_device"}: $2
         legacyTextParameters:
@@ -594,6 +612,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # List of Cards
@@ -648,7 +668,8 @@ monitors:
         # ValueTable = Source(1)
         # DeviceID;Speed;Status;LinkStatus;
         source: "${source::monitors.network.collect.sources.source(4)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="network"}: $3
           hw.network.up: legacyLinkStatus($4)

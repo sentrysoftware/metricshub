@@ -29,7 +29,8 @@
               EncoderUsedTimePercent;MemoryUtilization;ReceivedBytes;ReceivedBytesRate;TransmittedBytes;TransmittedBytesRate;PowerConsumption
             legacyTextParameters:
               StatusInformation: $3
-            deviceId: $1
+            attributes:
+              id: $1
             source: ${source::monitors.gpu.collect.sources.source(1)}
             metrics:
               hw.status{hw.type="gpu"}: $2
@@ -75,7 +76,8 @@
               EncoderUsedTimePercent;MemoryUtilization;ReceivedBytes;ReceivedBytesRate;TransmittedBytes;TransmittedBytesRate;PowerConsumption
             legacyTextParameters:
               StatusInformation: $3
-            deviceId: $1
+            attributes:
+              id: $1
             source: ${source::monitors.gpu.collect.sources.source(1)}
             metrics:
               hw.status{hw.type="gpu"}: $2

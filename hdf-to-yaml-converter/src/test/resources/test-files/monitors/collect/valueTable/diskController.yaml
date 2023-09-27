@@ -12,7 +12,8 @@
           mapping:
             _comment: DeviceID;Status;StatusInformation
             source: ${source::monitors.disk_controller.collect.sources.source(1)}
-            deviceId: $1
+            attributes:
+              id: $1
             legacyTextParameters:
               StatusInformation: $3
             metrics:
@@ -31,7 +32,8 @@
           mapping:
             _comment: DeviceID;Status;StatusInformation
             source: ${source::monitors.disk_controller.collect.sources.source(1)}
-            deviceId: $1
+            attributes:
+              id: $1
             legacyTextParameters:
               StatusInformation: $3
             metrics:

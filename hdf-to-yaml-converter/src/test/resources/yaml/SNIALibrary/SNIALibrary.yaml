@@ -64,7 +64,8 @@ monitors:
             translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
         source: "${source::monitors.enclosure.collect.sources.source(1)}"
-        deviceId: SNIA Library
+        attributes:
+          id: SNIA Library
         metrics:
           hw.status{hw.type="enclosure"}: $1
         legacyTextParameters:
@@ -97,6 +98,8 @@ monitors:
           name: "${awk::sprintf(\"%s (%s %s)\", $1, $2, $3)}"
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Collect Tape Drive Status\nSource(1) = \tmediaAccessDeviceTable SNMP table\nID;CleaningStatus;MountCount;Status
@@ -127,7 +130,8 @@ monitors:
         # Value Table
         # ID;PatrolCleaningStatus;MountCount;PatrolStatus;StatusInformation;
         source: "${source::monitors.tape_drive.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="tape_drive"}: $4
           hw.status{hw.type="tape_drive", state="needs_cleaning"}: legacyNeedsCleaning($2)
@@ -152,6 +156,8 @@ monitors:
           name: "${awk::sprintf(\"%s (%s)\", $1, \"Cassette Robot\")}"
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Collect Robotics Status\nSource(2) = \tchangerDeviceTable SNMP table\nID;Status
@@ -177,7 +183,8 @@ monitors:
         # Value Table
         # ID;PatrolStatus;StatusInformation;
         source: "${source::monitors.robotics.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="robotics"}: $2
         legacyTextParameters:

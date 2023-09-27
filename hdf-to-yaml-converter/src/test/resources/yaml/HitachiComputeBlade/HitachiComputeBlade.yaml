@@ -73,6 +73,8 @@ monitors:
           name: "${awk::sprintf(\"Enclosure: (%s %s)\", $2, $3)}"
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Get the various enclosures (Chassis)
@@ -99,7 +101,8 @@ monitors:
         #   1    2     3        #    4        # 5        6        7
         # MSHW;Name;ModelNumber;SerialNumber;ChassisID;MSHW;PowerConsumptionKW;
         source: "${source::monitors.enclosure.collect.sources.source(2)}"
-        deviceId: $5
+        attributes:
+          id: $5
         metrics:
           hw.enclosure.power: $7
           hw.enclosure.energy: fakeCounter($7)
@@ -392,6 +395,8 @@ monitors:
     collect:
       # Collect type is "multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Blade 1
@@ -521,7 +526,8 @@ monitors:
         # ValueTable = Source(10)
         # ID;PowerState;HealthState;
         source: "${source::monitors.blade.collect.sources.source(10)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="blade"}: $3
           hw.blade.power_state: $2
@@ -928,6 +934,8 @@ monitors:
     collect:
       # Collect type is "multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source 1 = Management Module 1
@@ -1134,7 +1142,8 @@ monitors:
         # The ValueTable
         # DeviceID;HealthState;
         source: "${source::monitors.other_device.collect.sources.source(19)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="other_device"}: $2
   fan:
@@ -1349,6 +1358,8 @@ monitors:
     collect:
       # Collect type is "multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source 1 = Fan Module 1
@@ -1541,7 +1552,8 @@ monitors:
         # ValueTable = Source(17)
         # ID;PatrolStatus;
         source: "${source::monitors.fan.collect.sources.source(17)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="fan"}: $2
   power_supply:
@@ -1617,6 +1629,8 @@ monitors:
     collect:
       # Collect type is "multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source 1 = PowerSupply Module 1
@@ -1681,7 +1695,8 @@ monitors:
         # ValueTable = Source(4)
         # ID;PatrolStatus;
         source: "${source::monitors.power_supply.collect.sources.source(5)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
   voltage:
@@ -1921,6 +1936,8 @@ monitors:
     collect:
       # Collect type is "multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Blade Voltage
@@ -2135,7 +2152,8 @@ monitors:
         # ValueTable = Source(18)
         # ID;PatrolStatus;
         source: "${source::monitors.voltage.collect.sources.source(18)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="voltage"}: $2
           hw.voltage: $3
@@ -2376,6 +2394,8 @@ monitors:
     collect:
       # Collect type is "multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Blade Temperature
@@ -2590,7 +2610,8 @@ monitors:
         # ValueTable = Source(18)
         # ID;PatrolStatus;
         source: "${source::monitors.temperature.collect.sources.source(18)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="temperature"}: $2
           hw.temperature: $3

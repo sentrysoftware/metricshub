@@ -99,6 +99,8 @@ monitors:
     collect:
       # Collect type is: multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the cpqIdeAtaDiskTable snmp table
@@ -133,7 +135,8 @@ monitors:
       mapping:
         # The ValueTable = source(1)
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="physical_disk"}: $2
           hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($4)
@@ -179,6 +182,8 @@ monitors:
     collect:
       # Collect type = MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the cpqIdeLogicalDriveTable snmp table
@@ -204,7 +209,8 @@ monitors:
       mapping:
         # The ValueTable = source(1)
         source: "${source::monitors.logical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="logical_disk"}: $2
         legacyTextParameters:

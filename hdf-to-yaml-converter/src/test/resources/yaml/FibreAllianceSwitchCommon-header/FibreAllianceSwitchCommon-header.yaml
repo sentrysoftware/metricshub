@@ -62,6 +62,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = connUnitSensorTable SNMP Table
@@ -78,7 +80,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="temperature"}: $2
         legacyTextParameters:
@@ -181,6 +184,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = connUnitPortTable SNMP Table
@@ -370,7 +375,8 @@ monitors:
         #   1        2        3      4         5        #       6        # 7         8        #   9      10       11        #         12        13        #      14         15        #       16        #   17
         # PortID;PortIndex;SpeedKB;Status;StatusInformation;LinkStatus;PortIndex;SpeedMbps;ErrorCount;Status;StatusInformation;LinkStatus;PortIndex;TransmittedPackets;ReceivedPackets;TransmittedBytes;ReceivedBytes;
         source: "${source::monitors.network.collect.sources.source(8)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="network"}: $10
           hw.network.up: legacyLinkStatus($12)

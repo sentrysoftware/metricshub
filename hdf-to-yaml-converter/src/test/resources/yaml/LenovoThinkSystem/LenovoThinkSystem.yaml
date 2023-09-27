@@ -62,6 +62,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = SystemHealth
@@ -100,7 +102,8 @@ monitors:
         # Value Table
         # ID;PATROLStatus;StatusInformation;ID;PowerInUse
         source: "${source::monitors.enclosure.collect.sources.source(3)}"
-        deviceId: Server
+        attributes:
+          id: Server
         metrics:
           hw.status{hw.type="enclosure"}: $2
           hw.enclosure.power: $5
@@ -156,6 +159,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Description,Status
@@ -175,7 +180,8 @@ monitors:
       mapping:
         # The ValueTable = Source(1)
         source: "${source::monitors.memory.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="memory"}: $2
         legacyTextParameters:
@@ -207,6 +213,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1)
@@ -233,7 +241,8 @@ monitors:
       mapping:
         # The ValueTable = Source(1)
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="fan"}: $2
         legacyTextParameters:
@@ -283,6 +292,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1)
@@ -304,7 +315,8 @@ monitors:
         # The ValueTable = Source(1)
         # Description;CurrentReading;Status
         source: "${source::monitors.voltage.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.voltage: $2
           hw.status{hw.type="voltage"}: $3
@@ -342,6 +354,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1)
@@ -362,7 +376,8 @@ monitors:
       mapping:
         # The ValueTable = Source(1)
         source: "${source::monitors.cpu.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="cpu"}: $2
         legacyTextParameters:
@@ -401,6 +416,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1)
@@ -421,7 +438,8 @@ monitors:
       mapping:
         # The ValueTable = Source(1)
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
@@ -468,6 +486,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1)
@@ -488,7 +508,8 @@ monitors:
       mapping:
         # The ValueTable = Source(1)
         source: "${source::monitors.disk_controller.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="disk_controller"}: $2
         legacyTextParameters:
@@ -533,6 +554,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1)
@@ -553,7 +576,8 @@ monitors:
       mapping:
         # The ValueTable = Source(1)
         source: "${source::monitors.logical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="logical_disk"}: $2
         legacyTextParameters:
@@ -649,6 +673,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1)
@@ -669,7 +695,8 @@ monitors:
       mapping:
         # The ValueTable = Source(1)
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
@@ -714,6 +741,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1)
@@ -734,7 +763,8 @@ monitors:
       mapping:
         # The ValueTable = Source(1)
         source: "${source::monitors.battery.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="battery"}: $2
         legacyTextParameters:
@@ -774,6 +804,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1)
@@ -791,7 +823,8 @@ monitors:
         # ValueTable = Source(1)
         # Description;State;
         source: "${source::monitors.led.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="led"}: legacyLedStatus($2)
   temperature:
@@ -837,6 +870,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1)
@@ -864,7 +899,8 @@ monitors:
         # The ValueTable = Source(1)
         # Description;CurrentReading;PATROLStatus;Status;
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.temperature: $2
           hw.status{hw.type="temperature"}: $3

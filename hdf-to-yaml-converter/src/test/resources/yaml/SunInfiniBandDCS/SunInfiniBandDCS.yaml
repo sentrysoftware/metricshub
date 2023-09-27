@@ -55,6 +55,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = ibSmaPortInfoEntry SNMP Table
@@ -78,7 +80,8 @@ monitors:
         # ValueTable
         # PortID;WidthActive;LinkState;Speed;
         source: "${source::monitors.network.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.network.up: legacyLinkStatus($3)
           hw.network.bandwidth.limit: megaBit2Bit($4)

@@ -172,6 +172,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source (1) = MPIO_DISK_INFO
@@ -191,6 +193,7 @@ monitors:
         # ValueTable = Source(1)
         # LUNID;NumberPaths
         source: "${source::monitors.lun.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.lun.paths: $2

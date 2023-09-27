@@ -111,6 +111,8 @@ monitors:
     collect:
       # Collect type = MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = List all logical drives and status of those
@@ -140,7 +142,8 @@ monitors:
       mapping:
         # The ValueTable = source(1)
         source: "${source::monitors.logical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="logical_disk"}: $2
         legacyTextParameters:
@@ -185,6 +188,8 @@ monitors:
     collect:
       # Collect type = MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = List all physical disks and  their status
@@ -214,7 +219,8 @@ monitors:
       mapping:
         # The ValueTable = source(1)
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="physical_disk"}: $3
         legacyTextParameters:

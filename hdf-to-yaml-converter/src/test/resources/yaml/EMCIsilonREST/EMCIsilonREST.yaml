@@ -79,6 +79,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # JSON Output
@@ -189,7 +191,8 @@ monitors:
         # Value Table
         # JsonID;LNN;PatrolStatus;StatusInformation;
         source: "${source::monitors.enclosure.collect.sources.source(4)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="enclosure"}: $3
         legacyTextParameters:
@@ -238,6 +241,8 @@ monitors:
       # Collect
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Json Output
@@ -252,7 +257,8 @@ monitors:
       mapping:
         # Value Table
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.fan.speed: $2
   voltage:
@@ -302,6 +308,8 @@ monitors:
       # Collect
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Json Ouput
@@ -323,7 +331,8 @@ monitors:
       mapping:
         # Value Table
         source: "${source::monitors.voltage.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.voltage: $2
   temperature:
@@ -368,6 +377,8 @@ monitors:
       # Collect
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # JSON Output
@@ -381,7 +392,8 @@ monitors:
             properties: /value;
       mapping:
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.temperature: $2
   power_supply:
@@ -415,6 +427,8 @@ monitors:
       # Collect
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: copy
@@ -434,7 +448,8 @@ monitors:
       mapping:
         # The Value table
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
@@ -466,6 +481,8 @@ monitors:
       # Collect
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: copy
@@ -481,7 +498,8 @@ monitors:
       mapping:
         # The value table
         source: "${source::monitors.cpu.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="cpu"}: $2
   physical_disk:
@@ -537,6 +555,8 @@ monitors:
       # Collect
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: copy
@@ -557,7 +577,8 @@ monitors:
         # The value table
         # JsonID;patrolStatus;ui_state;serial
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $4
+        attributes:
+          id: $4
         metrics:
           hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
@@ -595,6 +616,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Json Output
@@ -630,7 +653,8 @@ monitors:
         # Value Table
         # JsonID;NetworkcardStatus;LinkStatus;statusInformation
         source: "${source::monitors.network.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="network"}: $2
           hw.network.up: legacyLinkStatus($3)
@@ -708,6 +732,8 @@ monitors:
     collect:
       # ' Collect'
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Json Output
@@ -761,7 +787,8 @@ monitors:
         # Value Table
         # JsonID;patrolStatus;status;
         source: "${source::monitors.battery.collect.sources.source(4)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="battery"}: $2
         legacyTextParameters:
@@ -800,6 +827,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Json Output
@@ -875,7 +904,8 @@ monitors:
         # The Value Table
         # JsonID;PatrolStatus;StatusInformation;
         source: "${source::monitors.logical_disk.collect.sources.source(2)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="logical_disk"}: $2
         legacyTextParameters:

@@ -41,6 +41,8 @@ monitors:
     collect:
       # Collect type is mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Get a list of Enclosures
@@ -67,7 +69,8 @@ monitors:
         # ValueTable = Source(1)
         # PatrolStatus;StatusInformation;PowerConsumption;DeviceSlotID;
         source: "${source::monitors.enclosure.collect.sources.source(1)}"
-        deviceId: $4
+        attributes:
+          id: $4
         metrics:
           hw.enclosure.power: $3
           hw.enclosure.energy: fakeCounter($3)
@@ -132,6 +135,8 @@ monitors:
     collect:
       # Collect type is mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Get a list of CPUs
@@ -158,7 +163,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;PatrolStatus;StatusInformation;
         source: "${source::monitors.cpu.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="cpu"}: $2
         legacyTextParameters:
@@ -196,6 +202,8 @@ monitors:
     collect:
       # Collect type is mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Get a list of PowerSupplys
@@ -222,7 +230,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;PatrolStatus;StatusInformation;
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
@@ -253,6 +262,8 @@ monitors:
     collect:
       # Collect type is mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Get a list of Fans
@@ -279,7 +290,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;Speed;PatrolStatus;StatusInformation;
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="fan"}: $3
           hw.fan.speed: $2
@@ -323,6 +335,8 @@ monitors:
     collect:
       # Collect type is mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Get a list of Memorys
@@ -349,7 +363,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;PatrolStatus;StatusInformation;
         source: "${source::monitors.memory.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="memory"}: $2
         legacyTextParameters:
@@ -460,6 +475,8 @@ monitors:
     collect:
       # Collect type is mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = TemperatureDescriptionEntry SNMP table
@@ -490,7 +507,8 @@ monitors:
         # ValueTable = Source(1)
         # ObjectID;Reading;
         source: "${source::monitors.temperature.collect.sources.source(3)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.temperature: $2
   physical_disk:
@@ -519,6 +537,8 @@ monitors:
     collect:
       # Collect type is mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Get a list of PhysicalDisks
@@ -545,7 +565,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;PatrolStatus;StatusInformation;
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
@@ -581,6 +602,8 @@ monitors:
     collect:
       # Collect type is mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Get a list of OtherDevices
@@ -607,7 +630,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;PatrolStatus;StatusInformation;
         source: "${source::monitors.other_device.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="other_device"}: $2
         legacyTextParameters:

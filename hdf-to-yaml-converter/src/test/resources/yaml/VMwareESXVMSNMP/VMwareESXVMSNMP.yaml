@@ -40,6 +40,8 @@ monitors:
     collect:
       # Collect type is: multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # ID, Vcpu (for powershare),Power state
@@ -55,7 +57,8 @@ monitors:
       mapping:
         # / ID, Vcpu (for powershare),Power state
         source: "${source::monitors.vm.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.vm.power_ratio: computePowerShareRatio($2)
           hw.vm.power_state: $3

@@ -15,8 +15,9 @@
             _comment: DeviceID;Capacity;RuntimeRemaining_minutes;Status;StatusInformation;
             legacyTextParameters:
               StatusInformation: $5
-            deviceId: $1
             source: ${source::monitors.battery.collect.sources.source(1)}
+            attributes:
+              id: $1
             metrics:
               hw.status{hw.type="battery"}: $4
               hw.battery.time_left: $3

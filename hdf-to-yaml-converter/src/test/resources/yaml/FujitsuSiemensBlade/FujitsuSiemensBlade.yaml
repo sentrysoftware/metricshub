@@ -90,6 +90,8 @@ monitors:
       # Source(1) = same SNMP table as in discovery
       # DeviceID;Status;Speed
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: snmpTable
@@ -110,7 +112,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="fan"}: $2
           hw.fan.speed: $4

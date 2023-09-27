@@ -104,6 +104,8 @@ monitors:
     collect:
       # Collect type is multi-instance (execute once)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # RaidList Table
@@ -183,7 +185,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.enclosure.collect.sources.source(2)}"
-        deviceId: $1
+        attributes:
+          id: $1
   temperature:
     discovery:
       sources:
@@ -211,6 +214,8 @@ monitors:
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: copy
@@ -219,7 +224,8 @@ monitors:
         # ValueTable = Source(1)
         # DeviceClass;AttachedTo;DeviceID;DisplayID;PATROLStatus;StatusInformation;
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="temperature"}: $5
         legacyTextParameters:
@@ -251,6 +257,8 @@ monitors:
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: copy
@@ -259,7 +267,8 @@ monitors:
         # ValueTable = Source(1)
         # DeviceClass;AttachedTo;DeviceID;DisplayID;PATROLStatus;StatusInformation;
         source: "${source::monitors.cpu.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="cpu"}: $5
         legacyTextParameters:
@@ -291,6 +300,8 @@ monitors:
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: copy
@@ -299,7 +310,8 @@ monitors:
         # ValueTable = Source(1)
         # DeviceClass;AttachedTo;DeviceID;DisplayID;PATROLStatus;StatusInformation;
         source: "${source::monitors.battery.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="battery"}: $5
         legacyTextParameters:
@@ -331,6 +343,8 @@ monitors:
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: copy
@@ -339,7 +353,8 @@ monitors:
         # ValueTable = Source(1)
         # DeviceClass;AttachedTo;DeviceID;DisplayID;PATROLStatus;StatusInformation;
         source: "${source::monitors.memory.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="memory"}: $5
         legacyTextParameters:
@@ -371,6 +386,8 @@ monitors:
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: copy
@@ -379,7 +396,8 @@ monitors:
         # ValueTable = Source(1)
         # DeviceClass;AttachedTo;DeviceID;DisplayID;PATROLStatus;StatusInformation;
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="physical_disk"}: $5
         legacyTextParameters:
@@ -411,6 +429,8 @@ monitors:
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: copy
@@ -419,7 +439,8 @@ monitors:
         # ValueTable = Source(1)
         # DeviceClass;AttachedTo;DeviceID;DisplayID;PATROLStatus;StatusInformation;
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="power_supply"}: $5
         legacyTextParameters:
@@ -451,6 +472,8 @@ monitors:
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: copy
@@ -459,7 +482,8 @@ monitors:
         # ValueTable = Source(1)
         # DeviceClass;AttachedTo;DeviceID;DisplayID;PATROLStatus;StatusInformation;
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="fan"}: $5
         legacyTextParameters:
@@ -491,6 +515,8 @@ monitors:
     collect:
       # Collect is multi-instance (all instances in one shot)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: copy
@@ -499,7 +525,8 @@ monitors:
         # ValueTable = Source(1)
         # DeviceClass;AttachedTo;DeviceID;DisplayID;PATROLStatus;StatusInformation;
         source: "${source::monitors.other_device.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="other_device"}: $5
         legacyTextParameters:

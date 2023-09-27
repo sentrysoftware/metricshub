@@ -81,6 +81,8 @@ monitors:
           hw.power{hw.type="vm"}: $3
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: http
@@ -115,7 +117,8 @@ monitors:
             translationTable: "${translation::StatusTranslationTable}"
       mapping:
         source: "${source::monitors.vm.collect.sources.source(3)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.vm.power_ratio: computePowerShareRatio($3)
           hw.vm.power_state: $4

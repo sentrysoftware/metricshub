@@ -70,6 +70,8 @@ monitors:
     collect:
       # The NetworkCard collect is a "MultiInstance" collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Get the list of Ports and Status from SCLI -i -x2
@@ -113,7 +115,8 @@ monitors:
         # ValueTable = Source(1)
         # PortID;Speed;PatrolStatus;StatusInformation;LinkStatus;
         source: "${source::monitors.network.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.network.bandwidth.limit: megaBit2Bit($2)
           hw.status{hw.type="network"}: $3

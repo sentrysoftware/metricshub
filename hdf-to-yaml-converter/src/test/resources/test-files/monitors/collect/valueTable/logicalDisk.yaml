@@ -15,7 +15,8 @@
             _comment: DeviceID;Status;StatusInformation;ErrorCount;UnallocatedSpace
             legacyTextParameters:
               StatusInformation: $3
-            deviceId: $1
+            attributes:
+              id: $1
             source: ${source::monitors.logical_disk.collect.sources.source(1)}
             metrics:
               hw.status{hw.type="logical_disk"}: $2

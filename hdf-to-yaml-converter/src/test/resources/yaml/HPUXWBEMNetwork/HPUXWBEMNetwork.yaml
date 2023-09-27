@@ -47,6 +47,8 @@ monitors:
     collect:
       # The NetworkCard collect is a "MultiInstance" collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = HPUX_EthernetPort
@@ -92,7 +94,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.network.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="network"}: $3
           hw.network.up: legacyLinkStatus($5)

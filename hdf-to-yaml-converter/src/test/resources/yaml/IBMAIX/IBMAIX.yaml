@@ -179,6 +179,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = lsdev -c processor
@@ -206,7 +208,8 @@ monitors:
       mapping:
         # ValueTable = source(1)
         source: "${source::monitors.cpu.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="cpu"}: $2
         legacyTextParameters:
@@ -268,6 +271,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = output of entstat -d for each card
@@ -294,7 +299,8 @@ monitors:
         # Value table = Source(1)
         # DeviceID;Model;NicType;MACAddress;HWLocationCode;DeviceID;Status;LinkStatus;ErrorCount;TransmitPackets;ReceivePackets;TransmitBytes;ReceiveBytes;LinkSpeed;DuplexMode;
         source: "${source::monitors.network.collect.sources.source(2)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="network"}: $7
           hw.network.up: legacyLinkStatus($8)
@@ -362,6 +368,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = output of lscfg -vp -l sysplanar0
@@ -403,7 +411,8 @@ monitors:
       mapping:
         # Value table = Source(1)
         source: "${source::monitors.memory.collect.sources.source(3)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="memory"}: $2
           hw.errors{hw.type="memory"}: $4

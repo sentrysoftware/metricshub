@@ -179,9 +179,9 @@ public class EnclosureConverter extends AbstractMappingConverter {
 		// Add vendor and model arguments
 		sprintfArgs.addAll(vendorAndModelArgs);
 
-		// Join the arguments: $column(1), $column(2), $column(3))
+		// Join the arguments: $1, $2, $3)
 		// append the result to our format variable in order to get something like
-		// sprintf("Computer: %s (%s %s)", $column(1), $column(2), $column(3))
+		// sprintf("Computer: %s (%s %s)", $1, $2, $3)
 		return format
 			.append("\", ") // Here we will have a string like sprintf("Computer: %s (%s %s)",
 			.append(sprintfArgs.stream().map(this::getFunctionArgument).collect(Collectors.joining(", ", "", ")")))

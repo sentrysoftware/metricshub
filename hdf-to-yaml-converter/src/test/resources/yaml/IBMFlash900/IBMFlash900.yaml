@@ -112,6 +112,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = PhysicalDisk Table
@@ -133,7 +135,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;PatrolStatus;StatusInformation;
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
@@ -189,6 +192,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = LogicalDisk Table
@@ -210,7 +215,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;PatrolStatus;StatusInformation;
         source: "${source::monitors.logical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="logical_disk"}: $2
         legacyTextParameters:
@@ -242,6 +248,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Blade Table
@@ -263,7 +271,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;PatrolStatus;StatusInformation;
         source: "${source::monitors.blade.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="blade"}: $2
         legacyTextParameters:
@@ -342,6 +351,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = FC Port Table
@@ -398,7 +409,8 @@ monitors:
         # ValueTable = Source(3)
         # ID;LinkStatus;Speed;
         source: "${source::monitors.network.collect.sources.source(5)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.network.up: legacyLinkStatus($2)
           hw.network.bandwidth.limit: megaBit2Bit($3)
@@ -423,6 +435,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = PowerSupply Table
@@ -462,7 +476,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;PatrolStatus;StatusInformation;
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
@@ -580,6 +595,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Fan Table
@@ -677,7 +694,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;FanSpeed;FanPercent;
         source: "${source::monitors.fan.collect.sources.source(8)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.fan.speed_ratio: percent2Ratio($3)
           hw.fan.speed: $2

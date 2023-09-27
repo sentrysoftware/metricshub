@@ -21,7 +21,8 @@
           mapping:
             _comment: DeviceID;Status;StatusInformation;NetworkUp;NetworkDuplex;ZeroBufferCredit;ErrorCount;ReceivedBytes;TransmittedBytes;ReceivedPackets;TransmittedPackets;LinkSpeed
             source: ${source::monitors.network.collect.sources.source(1)}
-            deviceId: $1
+            attributes:
+              id: $1
             metrics:
               hw.status{hw.type="network"}: $2
               hw.network.up: legacyLinkStatus($4)

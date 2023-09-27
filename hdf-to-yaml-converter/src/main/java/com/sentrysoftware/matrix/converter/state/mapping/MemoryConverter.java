@@ -156,9 +156,9 @@ public class MemoryConverter extends AbstractMappingConverter {
 		// Add the first argument at the beginning of the list
 		sprintfArgs.add(0, firstArg);
 
-		// Join the arguments: $column(1), $column(2), $column(3))
+		// Join the arguments: $1, $2, $3)
 		// append the result to our format variable in order to get something like
-		// sprintf("%s (%s - %s - %s MB)", $column(1), $column(2), $column(3))
+		// sprintf("%s (%s - %s - %s MB)", $1, $2, $3)
 		return format
 			.append("\", ") // Here we will have a string like sprintf("%s (%s %s - %s MB)",
 			.append(sprintfArgs.stream().map(this::getFunctionArgument).collect(Collectors.joining(", ", "", ")")))

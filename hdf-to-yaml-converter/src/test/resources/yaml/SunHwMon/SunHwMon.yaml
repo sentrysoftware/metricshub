@@ -101,6 +101,8 @@ monitors:
     collect:
       # Collect type is mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Get a list of Enclosures
@@ -164,7 +166,8 @@ monitors:
         # ValueTable = Source(3)
         # ServerID;FruType;PATROLStatus;StatusInformation;ServerID;CurrentReading;
         source: "${source::monitors.enclosure.collect.sources.source(3)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="enclosure"}: $3
           hw.enclosure.power: $6
@@ -361,6 +364,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Do an SNMP get directly on the status
@@ -386,7 +391,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.disk_controller.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="disk_controller"}: $2
         legacyTextParameters:
@@ -641,6 +647,8 @@ monitors:
     collect:
       # Collect type = mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the voltageProbeTable
@@ -677,7 +685,8 @@ monitors:
         # ValueTable = source(1)
         # ID;PATROLStatus;statusInformation;VoltageReading;Exponent;
         source: "${source::monitors.voltage.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.voltage: $4
           hw.status{hw.type="voltage"}: $2
@@ -703,6 +712,8 @@ monitors:
     collect:
       # Collect type = mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the FanProbeTable
@@ -729,7 +740,8 @@ monitors:
         # ValueTable = source(1)
         # ID;PATROLStatus;statusInformation;FanReading;
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.fan.speed: $4
           hw.status{hw.type="fan"}: $2
@@ -755,6 +767,8 @@ monitors:
     collect:
       # Collect type = mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the TemperatureProbeTable
@@ -781,7 +795,8 @@ monitors:
         # ValueTable = source(1)
         # ID;PATROLStatus;statusInformation;TemperatureReading;
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.temperature: $4
           hw.status{hw.type="temperature"}: $2
