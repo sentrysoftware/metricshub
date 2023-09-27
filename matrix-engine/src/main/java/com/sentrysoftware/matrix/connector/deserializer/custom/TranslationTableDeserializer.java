@@ -11,6 +11,7 @@ import com.sentrysoftware.matrix.connector.model.common.ITranslationTable;
 import com.sentrysoftware.matrix.connector.model.common.ReferenceTranslationTable;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import java.io.IOException;
+import java.util.Map;
 import java.util.TreeMap;
 
 public class TranslationTableDeserializer extends JsonDeserializer<ITranslationTable> {
@@ -28,9 +29,11 @@ public class TranslationTableDeserializer extends JsonDeserializer<ITranslationT
 			if (node.isTextual()) {
 				return new ReferenceTranslationTable(node.asText());
 			} else if (node.isObject()) {
-				return new TranslationTable(
-					new ObjectMapper().convertValue(node, new TypeReference<TreeMap<String, String>>() {})
-				);
+				final Map<String, String> map = new ObjectMapper()
+					.convertValue(node, new TypeReference<Map<String, String>>() {});
+				final Map<String, String> caseInsensitiveTreeMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+				caseInsensitiveTreeMap.putAll(map);
+				return new TranslationTable(caseInsensitiveTreeMap);
 			}
 		}
 
