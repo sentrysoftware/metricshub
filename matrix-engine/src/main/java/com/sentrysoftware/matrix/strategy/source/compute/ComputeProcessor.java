@@ -741,7 +741,53 @@ public class ComputeProcessor implements IComputeProcessor {
 	public void process(
 		@SpanAttribute("compute.definition") final ExtractPropertyFromWbemPath extractPropertyFromWbemPath
 	) {
-		// TODO Auto-generated method stub
+		if (extractPropertyFromWbemPath == null) {
+			log.warn(
+				"Hostname {} - Compute Operation (ExtractPropertyFromWbemPath) is null, the table remains unchanged.",
+				hostname
+			);
+			return;
+		}
+
+		Integer columnIndex = extractPropertyFromWbemPath.getColumn();
+		final String property = extractPropertyFromWbemPath.getProperty();
+
+		if (columnIndex < 1) {
+			log.warn(
+				"Hostname {} - Arguments in Compute Operation (ExtractPropertyFromWbemPath) : {} are wrong, the table remains unchanged.",
+				hostname,
+				extractPropertyFromWbemPath
+			);
+
+			return;
+		}
+
+		columnIndex--;
+
+		for (final List<String> line : sourceTable.getTable()) {
+			if (columnIndex < line.size()) {
+				final String columnValue = line.get(columnIndex);
+
+				for (final String objectPath : columnValue.split(COMMA)) {
+					// objectPath here should look like "<key>=<value>".
+					final String[] splitedValue = objectPath.split("=", 2);
+
+					final String key = splitedValue[0];
+					/*
+					 * The key we are looking for can either be like "<propertyName>" or "<systemName>.<propertyName>".
+					 * So we add a dot at the beginning of the key and see if it ends with ".<propertyName>".
+					 */
+					if (
+						key.length() >= property.length() &&
+						".".concat(key).toLowerCase().endsWith(".".concat(property).toLowerCase())
+					) {
+						line.set(columnIndex, splitedValue[1].replace("\"", EMPTY).trim());
+						break;
+					}
+				}
+			}
+		}
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	/**

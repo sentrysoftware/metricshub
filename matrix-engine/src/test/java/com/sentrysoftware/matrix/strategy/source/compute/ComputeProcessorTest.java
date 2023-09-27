@@ -37,6 +37,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Div
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.DuplicateColumn;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ExcludeMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Extract;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.ExtractPropertyFromWbemPath;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Json2Csv;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.KeepColumns;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.KeepOnlyMatchingLines;
@@ -167,6 +168,44 @@ class ComputeProcessorTest {
 	private static final List<String> LINE_1_ONE_COLUMN = new ArrayList<>(Collections.singletonList(ID1));
 	private static final List<String> LINE_2_ONE_COLUMN = new ArrayList<>(Collections.singletonList(ID2));
 	private static final List<String> LINE_3_ONE_COLUMN = new ArrayList<>(Collections.singletonList(ID3));
+
+	private static final List<String> LINE_WBEM_PATH_1 = Arrays.asList(
+		ID1,
+		NAME1,
+		MANUFACTURER1,
+		"Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Name=\"SYMMETRIX-+-NAME1\""
+	);
+	private static final List<String> LINE_WBEM_PATH_2 = Arrays.asList(
+		ID2,
+		NAME2,
+		MANUFACTURER2,
+		"Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",Symm_StorageSystem.Name=\"SYMMETRIX-+-NAME2\""
+	);
+	private static final List<String> LINE_WBEM_PATH_3 = Arrays.asList(
+		ID3,
+		NAME3,
+		MANUFACTURER3,
+		"Symm_StorageSystem.CreationClassName=\"Symm_StorageSystem\",NotAName=\"NotAName\",Name=\"SYMMETRIX-+-NAME3\""
+	);
+
+	private static final List<String> LINE_WBEM_PATH_1_RESULT = Arrays.asList(
+		ID1,
+		NAME1,
+		MANUFACTURER1,
+		"SYMMETRIX-+-NAME1"
+	);
+	private static final List<String> LINE_WBEM_PATH_2_RESULT = Arrays.asList(
+		ID2,
+		NAME2,
+		MANUFACTURER2,
+		"SYMMETRIX-+-NAME2"
+	);
+	private static final List<String> LINE_WBEM_PATH_3_RESULT = Arrays.asList(
+		ID3,
+		NAME3,
+		MANUFACTURER3,
+		"SYMMETRIX-+-NAME3"
+	);
 
 	private TelemetryManager telemetryManager;
 
@@ -2685,7 +2724,7 @@ class ComputeProcessorTest {
 			.translations(Collections.singletonMap(translationTableName, connectorTranslationTable))
 			.build();
 
-		Map<String, Connector> store = Maps.of(connectorName, connector);
+		final Map<String, Connector> store = Maps.of(connectorName, connector);
 
 		final TelemetryManager telemetryManager = TelemetryManager.builder().connectorStore(connectorStoreMock).build();
 
@@ -2701,5 +2740,24 @@ class ComputeProcessorTest {
 			),
 			sourceTable.getTable()
 		);
+	}
+
+	@Test
+	void testProcessExtractPropertyFromWbemPath() {
+		final List<List<String>> table = Arrays.asList(LINE_WBEM_PATH_1, LINE_WBEM_PATH_2, LINE_WBEM_PATH_3);
+
+		sourceTable.setTable(table);
+		ExtractPropertyFromWbemPath extractPropertyFromWbemPath = null;
+		computeProcessor.process(extractPropertyFromWbemPath);
+		assertEquals(table, sourceTable.getTable());
+
+		extractPropertyFromWbemPath = ExtractPropertyFromWbemPath.builder().property("name").column(4).build();
+		final List<List<String>> tableResult = Arrays.asList(
+			LINE_WBEM_PATH_1_RESULT,
+			LINE_WBEM_PATH_2_RESULT,
+			LINE_WBEM_PATH_3_RESULT
+		);
+		computeProcessor.process(extractPropertyFromWbemPath);
+		assertEquals(tableResult, sourceTable.getTable());
 	}
 }
