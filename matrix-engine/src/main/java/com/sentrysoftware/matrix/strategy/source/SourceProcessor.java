@@ -1,11 +1,13 @@
 package com.sentrysoftware.matrix.strategy.source;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.AUTOMATIC_NAMESPACE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SEMICOLON;
 
 import com.sentrysoftware.matrix.common.helpers.StringHelper;
 import com.sentrysoftware.matrix.common.helpers.TextTableHelper;
 import com.sentrysoftware.matrix.configuration.HttpConfiguration;
+import com.sentrysoftware.matrix.configuration.IWinConfiguration;
 import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.CopySource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.HttpSource;
@@ -547,11 +549,80 @@ public class SourceProcessor implements ISourceProcessor {
 		return null;
 	}
 
+	/**
+	 * Get the namespace to use for the execution of the given {@link WmiSource} instance
+	 *
+	 * @param wmiSource {@link WmiSource} instance from which we want to extract the namespace. Expected "automatic", null or <em>any
+	 *                  string</em>
+	 * @return {@link String} value
+	 */
+	String getNamespace(final WmiSource wmiSource) {
+
+		final String sourceNamespace = wmiSource.getNamespace();
+
+		if (sourceNamespace == null) {
+			return "root\\cimv2";
+		}
+
+		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(sourceNamespace)) {
+			// The namespace should be detected correctly in the detection strategy phase
+			return telemetryManager.getHostProperties().getConnectorNamespace(connectorName)
+					.getAutomaticWmiNamespace();
+		}
+
+		return sourceNamespace;
+
+	}
+
 	@WithSpan("Source WMI Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final WmiSource wmiSource) {
-		// TODO Auto-generated method stub
-		return null;
+		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+
+		if (wmiSource == null || wmiSource.getQuery() == null) {
+			log.warn("Hostname {} - Malformed WMI source {}. Returning an empty table.", hostname, wmiSource);
+			return SourceTable.empty();
+		}
+
+		// Find the configured protocol (WinRM or WMI)
+		final IWinConfiguration protocol = telemetryManager.getWinConfiguration();
+
+		if (protocol == null) {
+			log.debug("Hostname {} - Neither WMI nor WinRM credentials are configured for this host. Returning an empty table for WMI source {}.",
+					hostname, wmiSource.getKey());
+			return SourceTable.empty();
+		}
+
+		// Get the namespace
+		final String namespace = getNamespace(wmiSource);
+
+		if (namespace == null) {
+			log.error("Hostname {} - Failed to retrieve the WMI namespace to run the WMI source {}. Returning an empty table.",
+					hostname, wmiSource.getKey());
+			return SourceTable.empty();
+		}
+
+		try {
+
+			final List<List<String>> table =
+					matsyaClientsExecutor.executeWql(hostname, protocol, wmiSource.getQuery(), namespace);
+
+			return SourceTable
+					.builder()
+					.table(table)
+					.build();
+
+
+		} catch (Exception e) {
+
+			logSourceError(connectorName, wmiSource.getKey(),
+					String.format("WMI query=%s, Username=%s, Timeout=%d, Namespace=%s",
+							wmiSource.getQuery(), protocol.getUsername(), protocol.getTimeout(),
+							namespace),
+					hostname, e);
+
+			return SourceTable.empty();
+		}
 	}
 
 	/**
