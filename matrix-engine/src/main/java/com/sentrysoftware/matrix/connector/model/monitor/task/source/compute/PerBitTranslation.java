@@ -7,6 +7,9 @@ import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.sentrysoftware.matrix.connector.deserializer.custom.TranslationTableDeserializer;
+import com.sentrysoftware.matrix.connector.model.common.ITranslationTable;
 import com.sentrysoftware.matrix.strategy.source.compute.IComputeProcessor;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
@@ -33,7 +36,8 @@ public class PerBitTranslation extends Compute {
 
 	@NonNull
 	@JsonSetter(nulls = FAIL)
-	private String translationTable;
+	@JsonDeserialize(using = TranslationTableDeserializer.class)
+	private ITranslationTable translationTable;
 
 	@Builder
 	@JsonCreator
@@ -41,7 +45,7 @@ public class PerBitTranslation extends Compute {
 		@JsonProperty("type") String type,
 		@JsonProperty(value = "column", required = true) @NonNull Integer column,
 		@JsonProperty(value = "bitList", required = true) @NonNull String bitList,
-		@JsonProperty(value = "translationTable", required = true) @NonNull String translationTable
+		@JsonProperty(value = "translationTable", required = true) @NonNull ITranslationTable translationTable
 	) {
 		super(type);
 		this.column = column;
@@ -75,7 +79,7 @@ public class PerBitTranslation extends Compute {
 
 	@Override
 	public void update(UnaryOperator<String> updater) {
-		translationTable = updater.apply(translationTable);
+		translationTable.update(updater);
 	}
 
 	@Override

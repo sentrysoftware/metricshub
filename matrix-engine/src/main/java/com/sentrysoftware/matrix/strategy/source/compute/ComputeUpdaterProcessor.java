@@ -118,7 +118,7 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 
 	@Override
 	public void process(final PerBitTranslation perBitTranslation) {
-		// TODO Auto-generated method stub
+		processCompute(perBitTranslation);
 	}
 
 	@Override

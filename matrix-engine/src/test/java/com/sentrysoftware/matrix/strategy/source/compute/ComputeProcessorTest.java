@@ -43,6 +43,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Kee
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.KeepOnlyMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.LeftConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Multiply;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.PerBitTranslation;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Replace;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.RightConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Substring;
@@ -2759,5 +2760,88 @@ class ComputeProcessorTest {
 		);
 		computeProcessor.process(extractPropertyFromWbemPath);
 		assertEquals(tableResult, sourceTable.getTable());
+	}
+
+	@Test
+	void testPerBitTranslation() {
+		final Map<String, String> translationMap = Map.of(
+			"0,1",
+			"No Network",
+			"1,0",
+			"Authentication Failure",
+			"1,1",
+			"Not Ready",
+			"2,1",
+			"Fan Failure",
+			"3,1",
+			"AC Switch On",
+			"4,1",
+			"AC Power On",
+			"5,1",
+			"Ready",
+			"6,1",
+			"Failed",
+			"7,1",
+			"Predicted Failure"
+		);
+
+		final String bitList = "0,1,2,3,4,5,6,7";
+
+		List<List<String>> table = Arrays.asList(
+			Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "1"),
+			Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "2"),
+			Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "255")
+		);
+
+		sourceTable.setTable(table);
+
+		// test null source to visit
+		computeProcessor.process((PerBitTranslation) null);
+		assertEquals(table, sourceTable.getTable());
+
+		final PerBitTranslation translate = PerBitTranslation
+			.builder()
+			.column(0)
+			.bitList(EMPTY)
+			.translationTable(TranslationTable.builder().build())
+			.build();
+
+		// test translations is null
+		translate.setTranslationTable(TranslationTable.builder().translations(null).build());
+		computeProcessor.process(translate);
+		assertEquals(table, sourceTable.getTable());
+
+		// test column index out of bounds
+		final TranslationTable translationTable = (TranslationTable) (translate.getTranslationTable());
+		translationTable.setTranslations(translationMap);
+		computeProcessor.process(translate);
+		assertEquals(table, sourceTable.getTable());
+
+		translate.setColumn(10);
+		computeProcessor.process(translate);
+		assertEquals(table, sourceTable.getTable());
+
+		// test column value is not an integer
+		translate.setBitList(EMPTY);
+		translate.setColumn(3);
+		computeProcessor.process(translate);
+		assertEquals(table, sourceTable.getTable());
+
+		// test OK
+		translate.setColumn(4);
+		translate.setBitList(bitList);
+		table =
+			Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "No Network - Authentication Failure"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "Not Ready"),
+				Arrays.asList(
+					"ID3",
+					"NAME3",
+					"MANUFACTURER3",
+					"No Network - Not Ready - Fan Failure - AC Switch On - AC Power On - Ready - Failed - Predicted Failure"
+				)
+			);
+		computeProcessor.process(translate);
+		assertEquals(table, sourceTable.getTable());
 	}
 }
