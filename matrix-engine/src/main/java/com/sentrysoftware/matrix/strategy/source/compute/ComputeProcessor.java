@@ -979,10 +979,13 @@ public class ComputeProcessor implements IComputeProcessor {
 	@Override
 	@WithSpan("Compute PerBitTranslation Exec")
 	public void process(@SpanAttribute("compute.definition") final PerBitTranslation perBitTranslation) {
-		if (!perBitTranslationCheck(perBitTranslation)) {
+		if (perBitTranslation == null) {
+			log.warn(
+				"Hostname {} - The Source (Per Bit Translation) to visit is null, the Per Bit Translation computation cannot be performed.",
+				hostname
+			);
 			return;
 		}
-
 		final ITranslationTable translationTable = perBitTranslation.getTranslationTable();
 		if (translationTable == null) {
 			log.warn(
@@ -1003,6 +1006,14 @@ public class ComputeProcessor implements IComputeProcessor {
 		}
 
 		int columnIndex = perBitTranslation.getColumn() - 1;
+
+		if (columnIndex < 0) {
+			log.warn(
+				"Hostname {} - The index of the column to translate cannot be < 1, the Per Bit Translation computation cannot be performed.",
+				hostname
+			);
+			return;
+		}
 		List<Integer> bitList = null;
 
 		try {
@@ -1020,6 +1031,12 @@ public class ComputeProcessor implements IComputeProcessor {
 				exception,
 				hostname
 			);
+			return;
+		}
+
+		if (bitList == null) {
+			log.warn("Hostname {} - Bit List is null, the Per Bit Translation computation cannot be performed.", hostname);
+			return;
 		}
 
 		for (List<String> line : sourceTable.getTable()) {
@@ -1045,77 +1062,6 @@ public class ComputeProcessor implements IComputeProcessor {
 			}
 		}
 		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
-	}
-
-	/**
-	 * PerBitTranslation visit check.
-	 *
-	 * @param perBitTranslation	The {@link PerBitTranslation} being checked.
-	 *
-	 * @return					<b>true</b> if the given {@link PerBitTranslation} is well-formed.<br>
-	 * 							<b>false</b> otherwise.
-	 */
-	private boolean perBitTranslationCheck(final PerBitTranslation perBitTranslation) {
-		if (perBitTranslation == null) {
-			log.warn(
-				"Hostname {} - The Source (Per Bit Translation) to visit is null, the Per Bit Translation computation cannot be performed.",
-				hostname
-			);
-			return false;
-		}
-
-		ITranslationTable bitTranslationTable = perBitTranslation.getTranslationTable();
-		if (bitTranslationTable == null) {
-			log.warn(
-				"Hostname {} - Translation Table is null, the Per Bit Translation computation cannot be performed.",
-				hostname
-			);
-			return false;
-		}
-
-		final Map<String, String> translations = findTranslations(bitTranslationTable);
-		if (translations == null) {
-			log.warn(
-				"Hostname {} - The Translation Map {} is null, the Per Bit Translation computation cannot be performed.",
-				hostname,
-				bitTranslationTable
-			);
-			return false;
-		}
-
-		int columnIndex = perBitTranslation.getColumn() - 1;
-		if (columnIndex < 0) {
-			log.warn(
-				"Hostname {} - The index of the column to translate cannot be < 1, the Per Bit Translation computation cannot be performed.",
-				hostname
-			);
-			return false;
-		}
-
-		List<Integer> bitList = null;
-
-		try {
-			bitList =
-				Arrays
-					.asList(perBitTranslation.getBitList().split(COMMA))
-					.stream()
-					.map(bit -> Integer.parseInt(bit))
-					.collect(Collectors.toList());
-		} catch (Exception exception) {
-			logComputeError(
-				connectorName,
-				String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, this.index),
-				"PerBitTranslation",
-				exception,
-				hostname
-			);
-		}
-		if (bitList == null) {
-			log.warn("Hostname {} - Bit List is null, the Per Bit Translation computation cannot be performed.", hostname);
-			return false;
-		}
-
-		return true;
 	}
 
 	/**
