@@ -557,7 +557,6 @@ public class SourceProcessor implements ISourceProcessor {
 	 * @return {@link String} value
 	 */
 	String getNamespace(final WmiSource wmiSource) {
-
 		final String sourceNamespace = wmiSource.getNamespace();
 
 		if (sourceNamespace == null) {
@@ -566,14 +565,17 @@ public class SourceProcessor implements ISourceProcessor {
 
 		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(sourceNamespace)) {
 			// The namespace should be detected correctly in the detection strategy phase
-			return telemetryManager.getHostProperties().getConnectorNamespace(connectorName)
-					.getAutomaticWmiNamespace();
+			return telemetryManager.getHostProperties().getConnectorNamespace(connectorName).getAutomaticWmiNamespace();
 		}
 
 		return sourceNamespace;
-
 	}
 
+	/**
+	 * This method processes {@link WmiSource} source
+	 * @param wmiSource {@link WmiSource} source instance
+	 * @return {@link SourceTable} instance
+	 */
 	@WithSpan("Source WMI Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final WmiSource wmiSource) {
@@ -588,8 +590,11 @@ public class SourceProcessor implements ISourceProcessor {
 		final IWinConfiguration protocol = telemetryManager.getWinConfiguration();
 
 		if (protocol == null) {
-			log.debug("Hostname {} - Neither WMI nor WinRM credentials are configured for this host. Returning an empty table for WMI source {}.",
-					hostname, wmiSource.getKey());
+			log.debug(
+				"Hostname {} - Neither WMI nor WinRM credentials are configured for this host. Returning an empty table for WMI source {}.",
+				hostname,
+				wmiSource.getKey()
+			);
 			return SourceTable.empty();
 		}
 
@@ -597,29 +602,37 @@ public class SourceProcessor implements ISourceProcessor {
 		final String namespace = getNamespace(wmiSource);
 
 		if (namespace == null) {
-			log.error("Hostname {} - Failed to retrieve the WMI namespace to run the WMI source {}. Returning an empty table.",
-					hostname, wmiSource.getKey());
+			log.error(
+				"Hostname {} - Failed to retrieve the WMI namespace to run the WMI source {}. Returning an empty table.",
+				hostname,
+				wmiSource.getKey()
+			);
 			return SourceTable.empty();
 		}
 
 		try {
+			final List<List<String>> table = matsyaClientsExecutor.executeWql(
+				hostname,
+				protocol,
+				wmiSource.getQuery(),
+				namespace
+			);
 
-			final List<List<String>> table =
-					matsyaClientsExecutor.executeWql(hostname, protocol, wmiSource.getQuery(), namespace);
-
-			return SourceTable
-					.builder()
-					.table(table)
-					.build();
-
-
+			return SourceTable.builder().table(table).build();
 		} catch (Exception e) {
-
-			logSourceError(connectorName, wmiSource.getKey(),
-					String.format("WMI query=%s, Username=%s, Timeout=%d, Namespace=%s",
-							wmiSource.getQuery(), protocol.getUsername(), protocol.getTimeout(),
-							namespace),
-					hostname, e);
+			logSourceError(
+				connectorName,
+				wmiSource.getKey(),
+				String.format(
+					"WMI query=%s, Username=%s, Timeout=%d, Namespace=%s",
+					wmiSource.getQuery(),
+					protocol.getUsername(),
+					protocol.getTimeout(),
+					namespace
+				),
+				hostname,
+				e
+			);
 
 			return SourceTable.empty();
 		}

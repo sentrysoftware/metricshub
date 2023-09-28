@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.strategy.source;
 
+import static com.sentrysoftware.matrix.constants.Constants.AUTOMATIC;
 import static com.sentrysoftware.matrix.constants.Constants.ECS1_01;
 import static com.sentrysoftware.matrix.constants.Constants.EXPECTED_SNMP_TABLE_DATA;
 import static com.sentrysoftware.matrix.constants.Constants.MY_CONNECTOR_1_NAME;
@@ -15,16 +16,21 @@ import static com.sentrysoftware.matrix.constants.Constants.USERNAME;
 import static com.sentrysoftware.matrix.constants.Constants.VALUE_VAL1;
 import static com.sentrysoftware.matrix.constants.Constants.VALUE_VAL2;
 import static com.sentrysoftware.matrix.constants.Constants.VALUE_VAL3;
+import static com.sentrysoftware.matrix.constants.Constants.WBEM_QUERY;
+import static com.sentrysoftware.matrix.constants.Constants.WMI_NAMESPACE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.configuration.HttpConfiguration;
 import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
+import com.sentrysoftware.matrix.configuration.WmiConfiguration;
+import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.connector.model.common.HttpMethod;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.CopySource;
@@ -34,6 +40,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpTableSo
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.StaticSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableJoinSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableUnionSource;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.WmiSource;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.telemetry.ConnectorNamespace;
 import com.sentrysoftware.matrix.telemetry.HostProperties;
@@ -45,6 +52,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -55,6 +63,15 @@ class SourceProcessorTest {
 
 	@Mock
 	private MatsyaClientsExecutor matsyaClientsExecutorMock;
+
+	@Mock
+	private TelemetryManager telemetryManagerMock;
+
+	@Mock
+	private HostProperties hostPropertiesMock;
+
+	@Mock
+	private Connector connectorMock;
 
 	private static final String LOWERCASE_A = "a";
 	private static final String LOWERCASE_B = "b";
@@ -87,6 +104,13 @@ class SourceProcessorTest {
 	private static final String VALUE_LIST = "a1;b1;c1";
 
 	private static final String CAMELCASE_NOT_WBEM = "notWbem";
+
+	private static final String CONNECTOR_NAME = "myConnector";
+
+	@BeforeEach
+	void beforeEeach() {
+		lenient().doReturn(CONNECTOR_NAME).when(connectorMock).getCompiledFilename();
+	}
 
 	@Test
 	void testProcessHttpSourceOK() {
@@ -696,5 +720,160 @@ class SourceProcessorTest {
 		staticSource = StaticSource.builder().value(VALUE_LIST).build();
 
 		assertEquals(expectedTable, sourceProcessor.process(staticSource).getTable());
+	}
+
+	@Test
+	void testProcessWmiSourceMalformed() {
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
+			.builder()
+			.community("public")
+			.version(SnmpConfiguration.SnmpVersion.V1)
+			.port(161)
+			.timeout(120L)
+			.build();
+		final HttpConfiguration httpConfiguration = HttpConfiguration
+			.builder()
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
+			.port(161)
+			.timeout(120L)
+			.build();
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostname(ECS1_01)
+					.hostId(ECS1_01)
+					.hostType(DeviceKind.LINUX)
+					.configurations(
+						Map.of(SnmpConfiguration.class, snmpConfiguration, HttpConfiguration.class, httpConfiguration)
+					)
+					.build()
+			)
+			.build();
+		final SourceProcessor sourceProcessor = SourceProcessor
+			.builder()
+			.telemetryManager(telemetryManager)
+			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.build();
+		assertEquals(SourceTable.empty(), sourceProcessor.process((WmiSource) null));
+		assertEquals(SourceTable.empty(), sourceProcessor.process(WmiSource.builder().query(WBEM_QUERY).build()));
+	}
+
+	@Test
+	void testProcessWmiSourceButWmiNotConfigured() {
+		final WmiSource wmiSource = WmiSource.builder().query(WBEM_QUERY).build();
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostname(ECS1_01)
+					.hostId(ECS1_01)
+					.hostType(DeviceKind.LINUX)
+					.configurations(Collections.emptyMap())
+					.build()
+			)
+			.build();
+		final SourceProcessor sourceProcessor = SourceProcessor
+			.builder()
+			.telemetryManager(telemetryManager)
+			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.build();
+		assertEquals(SourceTable.empty(), sourceProcessor.process(wmiSource));
+	}
+
+	@Test
+	void testProcessWmiSourceNoNamespace() {
+		final WmiSource wmiSource = WmiSource.builder().query(WBEM_QUERY).namespace(AUTOMATIC).build();
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostname(ECS1_01)
+					.hostId(ECS1_01)
+					.hostType(DeviceKind.LINUX)
+					.configurations(
+						Map.of(
+							WmiConfiguration.class,
+							WmiConfiguration.builder().username(ECS1_01 + "\\" + USERNAME).password(PASSWORD.toCharArray()).build()
+						)
+					)
+					.build()
+			)
+			.build();
+		final SourceProcessor sourceProcessor = SourceProcessor
+			.builder()
+			.telemetryManager(telemetryManager)
+			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.connectorName(CONNECTOR_NAME)
+			.build();
+		assertEquals(SourceTable.empty(), sourceProcessor.process(wmiSource));
+	}
+
+	@Test
+	void testProcessWmiSource() throws Exception {
+		final WmiSource wmiSource = WmiSource.builder().query(WBEM_QUERY).namespace(WMI_NAMESPACE).build();
+		final WmiConfiguration wmiConfiguration = WmiConfiguration
+			.builder()
+			.username(ECS1_01 + "\\" + USERNAME)
+			.password(PASSWORD.toCharArray())
+			.build();
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostname(ECS1_01)
+					.hostId(ECS1_01)
+					.hostType(DeviceKind.LINUX)
+					.configurations(Map.of(WmiConfiguration.class, wmiConfiguration))
+					.build()
+			)
+			.build();
+		final List<List<String>> expected = Arrays.asList(
+			Arrays.asList("1.1", "0|4587"),
+			Arrays.asList("1.2", "2|4587"),
+			Arrays.asList("1.3", "1|4587")
+		);
+		doReturn(expected).when(matsyaClientsExecutorMock).executeWql(ECS1_01, wmiConfiguration, WBEM_QUERY, WMI_NAMESPACE);
+		final SourceProcessor sourceProcessor = SourceProcessor
+			.builder()
+			.telemetryManager(telemetryManager)
+			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.connectorName(CONNECTOR_NAME)
+			.build();
+		assertEquals(SourceTable.builder().table(expected).build(), sourceProcessor.process(wmiSource));
+	}
+
+	@Test
+	void testProcessWmiSourceTimeout() {
+		final WmiSource wmiSource = WmiSource.builder().query(WBEM_QUERY).namespace(AUTOMATIC).build();
+		final WmiConfiguration wmiConfiguration = WmiConfiguration
+			.builder()
+			.username(ECS1_01 + "\\" + USERNAME)
+			.password(PASSWORD.toCharArray())
+			.build();
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostname(ECS1_01)
+					.hostId(ECS1_01)
+					.hostType(DeviceKind.LINUX)
+					.configurations(Map.of(WmiConfiguration.class, wmiConfiguration))
+					.build()
+			)
+			.build();
+		final SourceProcessor sourceProcessor = SourceProcessor
+			.builder()
+			.telemetryManager(telemetryManager)
+			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.connectorName(CONNECTOR_NAME)
+			.build();
+		assertEquals(SourceTable.empty(), sourceProcessor.process(wmiSource));
 	}
 }
