@@ -352,7 +352,7 @@ monitors:
             # associationType;diskOID;stateOID (one line)
           - type: keepOnlyMatchingLines
             column: 2
-            valueList: "${logical_disk::id}"
+            valueList: "${attribute::id}"
         source(2):
           # Source(2) = the operationalStateTable
           # stateID;operationalCurrentErrorStatus

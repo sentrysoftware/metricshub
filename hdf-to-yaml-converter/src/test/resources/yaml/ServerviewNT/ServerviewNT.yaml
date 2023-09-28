@@ -127,7 +127,7 @@ monitors:
         source(1):
           # Source(1) = snmp get directly on the tempCurrentValue OID
           type: snmpGet
-          oid: "1.3.6.1.4.1.231.2.10.2.2.5.2.1.1.11.${temperature::id}"
+          oid: "1.3.6.1.4.1.231.2.10.2.2.5.2.1.1.11.${attribute::id}"
           computes:
           # Replaces collect values of 4294967295 with blank.  This will result in a no collect value, but will not generate any alarms
           - type: replace
@@ -418,7 +418,7 @@ monitors:
           # Source(1) = SNMP get on the powerSupplyUnitStatus OID
           # powerSupplyUnitStatus
           type: snmpGet
-          oid: "1.3.6.1.4.1.231.2.10.2.2.5.11.2.1.3.${power_supply::id}"
+          oid: "1.3.6.1.4.1.231.2.10.2.2.5.11.2.1.3.${attribute::id}"
           computes:
             # Duplicate the powerSupplyUnitStatus
             # powerSupplyUnitStatus;powerSupplyUnitStatus
@@ -574,7 +574,7 @@ monitors:
           # Source(1) = SNMP Get of the memModuleStatus of the SNMP memModulesTable table
           # Status;
           type: snmpGet
-          oid: "1.3.6.1.4.1.231.2.10.2.2.5.4.1.1.6.${cpu::id}"
+          oid: "1.3.6.1.4.1.231.2.10.2.2.5.4.1.1.6.${attribute::id}"
           computes:
             # Duplicate the status column
             # Status;Status

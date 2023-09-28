@@ -31,6 +31,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Sub
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Subtract;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Translate;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Xml2Csv;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -42,6 +43,9 @@ class ComputeUpdaterProcessorTest {
 
 	@Mock
 	private ComputeProcessor computeProcessor;
+
+	@Mock
+	private Map<String, String> attributes;
 
 	@InjectMocks
 	private ComputeUpdaterProcessor computeUpdaterProcessor;
