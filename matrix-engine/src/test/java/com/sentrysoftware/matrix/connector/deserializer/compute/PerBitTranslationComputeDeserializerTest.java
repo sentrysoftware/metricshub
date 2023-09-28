@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.sentrysoftware.matrix.connector.deserializer.DeserializerTest;
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.common.ReferenceTranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.HttpSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Compute;
@@ -33,7 +34,7 @@ class PerBitTranslationComputeDeserializerTest extends DeserializerTest {
 				.type("perBitTranslation")
 				.column(1)
 				.bitList("1,2,3,4")
-				.translationTable("${translation::translationTableTest}")
+				.translationTable(new ReferenceTranslationTable("${translation::translationTableTest}"))
 				.build()
 		);
 
