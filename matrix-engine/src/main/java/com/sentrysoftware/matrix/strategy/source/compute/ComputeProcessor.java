@@ -1034,11 +1034,6 @@ public class ComputeProcessor implements IComputeProcessor {
 			return;
 		}
 
-		if (bitList == null) {
-			log.warn("Hostname {} - Bit List is null, the Per Bit Translation computation cannot be performed.", hostname);
-			return;
-		}
-
 		for (List<String> line : sourceTable.getTable()) {
 			if (columnIndex < line.size()) {
 				long valueToBeReplacedLong;
