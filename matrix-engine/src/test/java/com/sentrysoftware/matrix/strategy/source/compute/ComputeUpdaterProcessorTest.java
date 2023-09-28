@@ -24,6 +24,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Kee
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.KeepOnlyMatchingLines;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.LeftConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Multiply;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.PerBitTranslation;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Replace;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.RightConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Substring;
@@ -218,5 +219,18 @@ class ComputeUpdaterProcessorTest {
 		doNothing().when(computeProcessor).process(any(ExtractPropertyFromWbemPath.class));
 		computeUpdaterProcessor.process(extractPropertyFromWbemPath);
 		verify(computeProcessor, times(1)).process(any(ExtractPropertyFromWbemPath.class));
+	}
+
+	@Test
+	void testProcessPerBitTranslation() {
+		final PerBitTranslation perBitTranslation = PerBitTranslation
+			.builder()
+			.column(-1)
+			.bitList(EMPTY)
+			.translationTable(TranslationTable.builder().build())
+			.build();
+		doNothing().when(computeProcessor).process(any(PerBitTranslation.class));
+		computeUpdaterProcessor.process(perBitTranslation);
+		verify(computeProcessor, times(1)).process(any(PerBitTranslation.class));
 	}
 }
