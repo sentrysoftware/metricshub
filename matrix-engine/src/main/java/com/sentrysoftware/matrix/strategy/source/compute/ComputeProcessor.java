@@ -1014,7 +1014,7 @@ public class ComputeProcessor implements IComputeProcessor {
 			);
 			return;
 		}
-		List<Integer> bitList = null;
+		final List<Integer> bitList;
 
 		try {
 			bitList =
