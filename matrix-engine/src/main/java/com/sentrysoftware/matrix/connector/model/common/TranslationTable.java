@@ -1,12 +1,11 @@
 package com.sentrysoftware.matrix.connector.model.common;
 
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DEFAULT;
-
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -25,7 +24,7 @@ public class TranslationTable implements ITranslationTable {
 
 	@Default
 	@JsonIgnore
-	private Map<String, String> translations = new HashMap<>();
+	private Map<String, String> translations = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 	/**
 	 * Copy the {@link TranslationTable} instance
@@ -60,7 +59,7 @@ public class TranslationTable implements ITranslationTable {
 
 	@JsonAnySetter
 	public void setTranslation(String key, String value) {
-		translations.put(key.equalsIgnoreCase(DEFAULT) ? DEFAULT : key, value);
+		translations.put(key.toLowerCase(), value);
 	}
 
 	@JsonAnyGetter

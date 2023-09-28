@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.sentrysoftware.matrix.connector.deserializer.DeserializerTest;
 import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.common.ReferenceTranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.HttpSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Compute;
@@ -28,7 +29,12 @@ class TranslateComputeDeserializerTest extends DeserializerTest {
 
 		final List<Compute> computes = new ArrayList<>();
 		computes.add(
-			Translate.builder().type("translate").column(1).translationTable("${translation::translationTableTest}").build()
+			Translate
+				.builder()
+				.type("translate")
+				.column(1)
+				.translationTable(new ReferenceTranslationTable("${translation::translationTableTest}"))
+				.build()
 		);
 
 		final Map<String, Source> expected = new LinkedHashMap<>(

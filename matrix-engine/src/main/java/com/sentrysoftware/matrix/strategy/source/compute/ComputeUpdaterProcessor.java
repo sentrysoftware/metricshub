@@ -143,7 +143,7 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 
 	@Override
 	public void process(final Translate translate) {
-		// TODO Auto-generated method stub
+		processCompute(translate);
 	}
 
 	@Override

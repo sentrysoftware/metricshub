@@ -25,6 +25,7 @@ import com.sentrysoftware.matrix.connector.model.ConnectorStore;
 import com.sentrysoftware.matrix.connector.model.common.ConversionType;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
+import com.sentrysoftware.matrix.connector.model.common.ITranslationTable;
 import com.sentrysoftware.matrix.connector.model.common.ReferenceTranslationTable;
 import com.sentrysoftware.matrix.connector.model.common.TranslationTable;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Add;
@@ -46,6 +47,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Rep
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.RightConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Substring;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Subtract;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Translate;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Xml2Csv;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
@@ -1271,7 +1273,7 @@ class ComputeProcessorTest {
 		computeProcessor.process(arrayTranslate);
 		assertEquals(result, sourceTable.getTable());
 
-		// Test ReferenceTranslationTable OK
+		// Test Inline TranslationTable OK
 		sourceTable.setTable(
 			Arrays.asList(
 				Arrays.asList(ID1, "STATUS11,STATUS12,STATUS13", TYPE1),
@@ -2484,8 +2486,265 @@ class ComputeProcessorTest {
 	}
 
 	@Test
+	void testTranslate() {
+		// Test translate with inline TranslationTable
+		final Map<String, String> translationMap = Map.of(
+			"name1",
+			"NAME1_resolved",
+			"name2",
+			"NAME2_resolved",
+			"name3",
+			"NAME3_resolved",
+			"id1",
+			"ID1_resolved",
+			"id2",
+			"ID2_resolved",
+			"id3",
+			"ID3_resolved",
+			"number_of_disks1",
+			"NUMBER_OF_DISKS1_resolved",
+			"number_of_disks2",
+			"NUMBER_OF_DISKS2_resolved",
+			"number_of_disks3",
+			"NUMBER_OF_DISKS3_resolved"
+		);
+
+		// test null source to visit
+		initializeSourceTable();
+		computeProcessor.process((Translate) null);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3")
+			),
+			sourceTable.getTable()
+		);
+
+		// test TranslationTable is null
+		initializeSourceTable();
+		Translate translate = Translate
+			.builder()
+			.column(0)
+			.translationTable(TranslationTable.builder().translations(Collections.emptyMap()).build())
+			.build();
+		computeProcessor.process(translate);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3")
+			),
+			sourceTable.getTable()
+		);
+
+		initializeSourceTable();
+		translate = Translate.builder().column(0).translationTable(TranslationTable.builder().build()).build();
+		computeProcessor.process(translate);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3")
+			),
+			sourceTable.getTable()
+		);
+
+		// test index out of bounds
+		initializeSourceTable();
+		translate =
+			Translate
+				.builder()
+				.column(0)
+				.translationTable(TranslationTable.builder().translations(translationMap).build())
+				.build();
+		computeProcessor.process(translate);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3")
+			),
+			sourceTable.getTable()
+		);
+
+		initializeSourceTable();
+		translate =
+			Translate
+				.builder()
+				.column(10)
+				.translationTable(TranslationTable.builder().translations(translationMap).build())
+				.build();
+		computeProcessor.process(translate);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3")
+			),
+			sourceTable.getTable()
+		);
+
+		// test 1st index
+		initializeSourceTable();
+		translate =
+			Translate
+				.builder()
+				.column(1)
+				.translationTable(TranslationTable.builder().translations(translationMap).build())
+				.build();
+		computeProcessor.process(translate);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1_resolved", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
+				Arrays.asList("ID2_resolved", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3_resolved", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3")
+			),
+			sourceTable.getTable()
+		);
+
+		// test intermediate index
+		initializeSourceTable();
+		translate =
+			Translate
+				.builder()
+				.column(2)
+				.translationTable(TranslationTable.builder().translations(translationMap).build())
+				.build();
+		computeProcessor.process(translate);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "NAME1_resolved", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
+				Arrays.asList("ID2", "NAME2_resolved", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3", "NAME3_resolved", "MANUFACTURER3", "NUMBER_OF_DISKS3")
+			),
+			sourceTable.getTable()
+		);
+
+		// test last index
+		initializeSourceTable();
+		translate =
+			Translate
+				.builder()
+				.column(4)
+				.translationTable(TranslationTable.builder().translations(translationMap).build())
+				.build();
+		computeProcessor.process(translate);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1_resolved"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2_resolved"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3_resolved")
+			),
+			sourceTable.getTable()
+		);
+
+		// test unknown value
+		initializeSourceTable();
+		sourceTable.getTable().add(new ArrayList<>(Arrays.asList("ID", "NAME", "MANUFACTURER", "NUMBER_OF_DISKS")));
+		translate =
+			Translate
+				.builder()
+				.column(1)
+				.translationTable(TranslationTable.builder().translations(translationMap).build())
+				.build();
+		computeProcessor.process(translate);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1_resolved", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1"),
+				Arrays.asList("ID2_resolved", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2"),
+				Arrays.asList("ID3_resolved", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3"),
+				Arrays.asList("ID", "NAME", "MANUFACTURER", "NUMBER_OF_DISKS")
+			),
+			sourceTable.getTable()
+		);
+
+		// test with semicolon
+		final Map<String, String> translationMapSemiColon = Map.of(
+			"name1",
+			"NAME1_resolved",
+			"name2",
+			"NAME2_resolved",
+			"name3",
+			"NAME3_resolved",
+			"id1",
+			"ID1_resolved",
+			"id2",
+			"ID2_resolved",
+			"id3",
+			"ID3_resolved",
+			"number_of_disks1",
+			"NUMBER_OF_DISKS1_resolved;new_column_1",
+			"number_of_disks2",
+			"NUMBER_OF_DISKS2_resolved;new_column_2",
+			"number_of_disks3",
+			"NUMBER_OF_DISKS3_resolved;new_column_3"
+		);
+
+		initializeSourceTable();
+		translate =
+			Translate
+				.builder()
+				.column(4)
+				.translationTable(TranslationTable.builder().translations(translationMapSemiColon).build())
+				.build();
+		computeProcessor.process(translate);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1_resolved", "new_column_1"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2_resolved", "new_column_2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3_resolved", "new_column_3")
+			),
+			sourceTable.getTable()
+		);
+
+		// Test translate with  ReferenceTranslationTable
+
+		final ITranslationTable translationTable = new ReferenceTranslationTable("${translation::translationTableName}");
+		translate.setTranslationTable(translationTable);
+		final Map<String, String> translations = Maps.of(
+			"",
+			"NO_VALUE",
+			"status11",
+			"TRANSLATED_STATUS11",
+			"status12",
+			"TRANSLATED_STATUS12",
+			"status13",
+			"TRANSLATED_STATUS13",
+			"status22",
+			"TRANSLATED_STATUS22", // No translation for STATUS22
+			"status31",
+			"TRANSLATED_STATUS31"
+		);
+		final String translationTableName = "translationTableName";
+		final TranslationTable connectorTranslationTable = TranslationTable.builder().translations(translations).build();
+		final String connectorName = "connectorName";
+		final Connector connector = Connector
+			.builder()
+			.translations(Collections.singletonMap(translationTableName, connectorTranslationTable))
+			.build();
+
+		final Map<String, Connector> store = Maps.of(connectorName, connector);
+
+		final TelemetryManager telemetryManager = TelemetryManager.builder().connectorStore(connectorStoreMock).build();
+
+		doReturn(store).when(connectorStoreMock).getStore();
+		computeProcessor.setConnectorName(connectorName);
+		computeProcessor.setTelemetryManager(telemetryManager);
+		computeProcessor.process(translate);
+		assertEquals(
+			Arrays.asList(
+				Arrays.asList("ID1", "NAME1", "MANUFACTURER1", "NUMBER_OF_DISKS1_resolved", "new_column_1"),
+				Arrays.asList("ID2", "NAME2", "MANUFACTURER2", "NUMBER_OF_DISKS2_resolved", "new_column_2"),
+				Arrays.asList("ID3", "NAME3", "MANUFACTURER3", "NUMBER_OF_DISKS3_resolved", "new_column_3")
+			),
+			sourceTable.getTable()
+		);
+	}
+
+	@Test
 	void testProcessExtractPropertyFromWbemPath() {
-		List<List<String>> table = Arrays.asList(LINE_WBEM_PATH_1, LINE_WBEM_PATH_2, LINE_WBEM_PATH_3);
+		final List<List<String>> table = Arrays.asList(LINE_WBEM_PATH_1, LINE_WBEM_PATH_2, LINE_WBEM_PATH_3);
 
 		sourceTable.setTable(table);
 		ExtractPropertyFromWbemPath extractPropertyFromWbemPath = null;
@@ -2493,7 +2752,7 @@ class ComputeProcessorTest {
 		assertEquals(table, sourceTable.getTable());
 
 		extractPropertyFromWbemPath = ExtractPropertyFromWbemPath.builder().property("name").column(4).build();
-		List<List<String>> tableResult = Arrays.asList(
+		final List<List<String>> tableResult = Arrays.asList(
 			LINE_WBEM_PATH_1_RESULT,
 			LINE_WBEM_PATH_2_RESULT,
 			LINE_WBEM_PATH_3_RESULT

@@ -472,7 +472,7 @@ public class ComputeProcessor implements IComputeProcessor {
 	}
 
 	/**
-	 * Get the worst status of the given values. Changing this method requires an update on the {@link IState} implementations
+	 * Get the worst status of the given values.
 	 *
 	 * @param values The array of string statuses to check, expected values are 'ok', 'degraded', 'failed'
 	 *
@@ -1262,7 +1262,67 @@ public class ComputeProcessor implements IComputeProcessor {
 	@Override
 	@WithSpan("Compute Translate Exec")
 	public void process(@SpanAttribute("compute.definition") final Translate translate) {
-		// TODO Auto-generated method stub
+		if (translate == null) {
+			log.warn(
+				"Hostname {} - The Source (Translate) to visit is null, the translate computation cannot be performed.",
+				hostname
+			);
+			return;
+		}
+
+		final ITranslationTable translationTable = translate.getTranslationTable();
+		if (translationTable == null) {
+			log.warn("Hostname {} - Translation Table is null, the translate computation cannot be performed.", hostname);
+			return;
+		}
+
+		final Map<String, String> translations = findTranslations(translationTable);
+
+		if (translations == null) {
+			log.warn("Hostname {} - The Translation Map is null, the translate computation cannot be performed.", hostname);
+			return;
+		}
+
+		int columnIndex = translate.getColumn() - 1;
+		if (columnIndex < 0) {
+			log.warn(
+				"Hostname {} - The index of the column to translate cannot be < 1, the translate computation cannot be performed.",
+				hostname
+			);
+			return;
+		}
+
+		boolean needSerialization = false;
+
+		final String defaultTranslation = translations.get(DEFAULT);
+
+		for (List<String> line : sourceTable.getTable()) {
+			if (columnIndex < line.size()) {
+				final String valueToBeReplaced = line.get(columnIndex).toLowerCase();
+				final String newValue = translations.getOrDefault(valueToBeReplaced, defaultTranslation);
+
+				if (newValue != null) {
+					line.set(columnIndex, newValue);
+
+					needSerialization = needSerialization || newValue.contains(TABLE_SEP);
+				} else {
+					log.warn(
+						"Hostname {} - The Translation Map {} does not contain the following value {} or default.",
+						hostname,
+						translationTable,
+						valueToBeReplaced
+					);
+				}
+			}
+		}
+
+		if (needSerialization) {
+			sourceTable.setTable(
+				SourceTable.csvToTable(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false), TABLE_SEP)
+			);
+		}
+
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	/**

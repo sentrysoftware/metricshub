@@ -28,6 +28,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Rep
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.RightConcat;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Substring;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Subtract;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Translate;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Xml2Csv;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -193,6 +194,18 @@ class ComputeUpdaterProcessorTest {
 			Convert.builder().column(1).conversion(ConversionType.ARRAY_2_SIMPLE_STATUS).build()
 		);
 		verify(computeProcessor, times(1)).process(any(Convert.class));
+	}
+
+	@Test
+	void testProcessTranslate() {
+		final Translate translate = Translate
+			.builder()
+			.column(-1)
+			.translationTable(TranslationTable.builder().build())
+			.build();
+		doNothing().when(computeProcessor).process(any(Translate.class));
+		computeUpdaterProcessor.process(translate);
+		verify(computeProcessor, times(1)).process(any(Translate.class));
 	}
 
 	@Test
