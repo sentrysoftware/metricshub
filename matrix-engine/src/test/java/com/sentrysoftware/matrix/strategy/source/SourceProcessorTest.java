@@ -9,6 +9,7 @@ import static com.sentrysoftware.matrix.constants.Constants.SNMP_SELECTED_COLUMN
 import static com.sentrysoftware.matrix.constants.Constants.SNMP_SELECTED_COLUMNS_LIST;
 import static com.sentrysoftware.matrix.constants.Constants.SNMP_WRONG_COLUMNS;
 import static com.sentrysoftware.matrix.constants.Constants.SNMP_WRONG_COLUMNS_LIST;
+import static com.sentrysoftware.matrix.constants.Constants.STRATEGY_TIMEOUT;
 import static com.sentrysoftware.matrix.constants.Constants.TAB1_REF;
 import static com.sentrysoftware.matrix.constants.Constants.URL;
 import static com.sentrysoftware.matrix.constants.Constants.USERNAME;
@@ -20,24 +21,33 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
+import com.sentrysoftware.matrix.common.exception.NoCredentialProvidedException;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.configuration.HttpConfiguration;
 import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
+import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.connector.model.common.HttpMethod;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.CopySource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.HttpSource;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.OsCommandSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpGetSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpTableSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.StaticSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableJoinSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableUnionSource;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.strategy.utils.OsCommandHelper;
+import com.sentrysoftware.matrix.strategy.utils.OsCommandResult;
 import com.sentrysoftware.matrix.telemetry.ConnectorNamespace;
 import com.sentrysoftware.matrix.telemetry.HostProperties;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,9 +55,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -55,6 +68,12 @@ class SourceProcessorTest {
 
 	@Mock
 	private MatsyaClientsExecutor matsyaClientsExecutorMock;
+
+	@Mock
+	private Connector connectorMock;
+
+	@Mock
+	private TelemetryManager telemetryManagerMock;
 
 	private static final String LOWERCASE_A = "a";
 	private static final String LOWERCASE_B = "b";
@@ -87,6 +106,12 @@ class SourceProcessorTest {
 	private static final String VALUE_LIST = "a1;b1;c1";
 
 	private static final String CAMELCASE_NOT_WBEM = "notWbem";
+	private static final String CONNECTOR_NAME = "myConnector";
+	@BeforeEach
+	void beforeEeach() {
+		lenient().doReturn(CONNECTOR_NAME).when(connectorMock).getCompiledFilename();
+	}
+
 
 	@Test
 	void testProcessHttpSourceOK() {
@@ -696,5 +721,108 @@ class SourceProcessorTest {
 		staticSource = StaticSource.builder().value(VALUE_LIST).build();
 
 		assertEquals(expectedTable, sourceProcessor.process(staticSource).getTable());
+	}
+
+	@Test
+	void testProcessOsCommandSource() {
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
+				.builder()
+				.community("public")
+				.version(SnmpConfiguration.SnmpVersion.V1)
+				.port(161)
+				.timeout(120L)
+				.build();
+		final HttpConfiguration httpConfiguration = HttpConfiguration
+				.builder()
+				.username(USERNAME)
+				.password(PASSWORD.toCharArray())
+				.port(161)
+				.timeout(120L)
+				.build();
+		final TelemetryManager telemetryManager = TelemetryManager
+				.builder()
+				.hostConfiguration(
+						HostConfiguration
+								.builder()
+								.hostname(ECS1_01)
+								.hostId(ECS1_01)
+								.hostType(DeviceKind.LINUX)
+								.configurations(
+										Map.of(SnmpConfiguration.class, snmpConfiguration, HttpConfiguration.class, httpConfiguration)
+								)
+								.build()
+				)
+				.build();
+		final SourceProcessor sourceProcessor = SourceProcessor
+				.builder()
+				.telemetryManager(telemetryManager)
+				.matsyaClientsExecutor(matsyaClientsExecutorMock)
+				.build();
+		assertEquals(SourceTable.empty(), sourceProcessor.process((OsCommandSource) null));
+		assertEquals(SourceTable.empty(), sourceProcessor.process(new OsCommandSource()));
+		assertEquals(SourceTable.empty(), sourceProcessor.process(OsCommandSource.builder().commandLine("").build()));
+
+		final String commandLine = "/usr/sbin/ioscan -kFC ext_bus";
+		final String keepOnlyRegExp = ":ext_bus:";
+		final String separators = ":";
+		final String selectColumns = "2-4,5,6";
+
+		final OsCommandSource commandSource = new OsCommandSource();
+		commandSource.setCommandLine(commandLine);
+		commandSource.setKeep(keepOnlyRegExp);
+		commandSource.setSeparators(separators);
+		commandSource.setSelectColumns(selectColumns);
+
+		final HostProperties hostProperties = new HostProperties();
+		hostProperties.setLocalhost(true);
+
+		doReturn(hostProperties).when(telemetryManagerMock).getHostProperties();
+		doReturn(null).when(connectorMock).getExtendsConnectors();
+
+		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
+			mockedOsCommandHelper.when(() -> OsCommandHelper.runOsCommand(
+					commandLine,
+					telemetryManager,
+					STRATEGY_TIMEOUT,
+					false,
+					hostProperties.isLocalhost())).thenThrow(NoCredentialProvidedException.class);
+
+			assertEquals(SourceTable.empty(), sourceProcessor.process(commandSource));
+		}
+
+		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
+			mockedOsCommandHelper.when(() -> OsCommandHelper.runOsCommand(
+					commandLine,
+					telemetryManager,
+					STRATEGY_TIMEOUT,
+					false,
+					hostProperties.isLocalhost())).thenThrow(IOException.class);
+
+			assertEquals(SourceTable.empty(), sourceProcessor.process(commandSource));
+		}
+
+		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
+
+			final String result =
+					"xxxxxx\n"
+							+ "xxxxxx\n"
+							+ "0:1:ext_bus:3:4:5:6:7:8\n"
+							+ "xxxxxx\n"
+							+ "xxxxxx\n";
+			final OsCommandResult commandResult = new OsCommandResult(result, commandLine);
+
+			mockedOsCommandHelper.when(() -> OsCommandHelper.runOsCommand(
+					commandLine,
+					telemetryManager,
+					STRATEGY_TIMEOUT,
+					true,
+					hostProperties.isLocalhost())).thenReturn(commandResult);
+
+			final SourceTable expected = SourceTable.builder()
+					.rawData("1;ext_bus;3;4;5")
+					.table(List.of(List.of("1", "ext_bus", "3", "4", "5")))
+					.build();
+			assertEquals(expected, sourceProcessor.process(commandSource));
+		}
 	}
 }
