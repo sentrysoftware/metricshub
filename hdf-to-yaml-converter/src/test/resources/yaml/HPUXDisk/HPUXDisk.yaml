@@ -91,7 +91,7 @@ monitors:
         source(1):
           # Source(1) = output of the pvdisplay command
           type: osCommand
-          commandLine: "/usr/sbin/pvdisplay /dev/dsk/${physical_disk::id}"
+          commandLine: "/usr/sbin/pvdisplay /dev/dsk/${attribute::id}"
           computes:
             # Process output of pvdisplay through a awk script
             # PV Status

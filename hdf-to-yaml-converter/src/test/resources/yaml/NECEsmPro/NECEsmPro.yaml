@@ -61,7 +61,7 @@ monitors:
       sources:
         source(1):
           type: snmpGet
-          oid: "1.3.6.1.4.1.119.2.2.4.4.2.2.1.22.1.12.${cpu::id}"
+          oid: "1.3.6.1.4.1.119.2.2.4.4.2.2.1.22.1.12.${attribute::id}"
           computes:
           # Duplicate this status, because we will translate it two times
           - type: duplicateColumn
@@ -115,7 +115,7 @@ monitors:
       sources:
         source(1):
           type: snmpGet
-          oid: "1.3.6.1.4.1.119.2.2.4.4.4.2.1.9.1.5.${memory::id}"
+          oid: "1.3.6.1.4.1.119.2.2.4.4.4.2.1.9.1.5.${attribute::id}"
           computes:
           - type: duplicateColumn
             column: 1
@@ -168,7 +168,7 @@ monitors:
       sources:
         source(1):
           type: snmpGet
-          oid: "1.3.6.1.4.1.119.2.2.4.4.10.2.1.2.1.3.${temperature::id}"
+          oid: "1.3.6.1.4.1.119.2.2.4.4.10.2.1.2.1.3.${attribute::id}"
       mapping:
         source: "${source::monitors.temperature.collect.sources.source(1)}"
         metrics:
@@ -198,7 +198,7 @@ monitors:
       sources:
         source(1):
           type: snmpGet
-          oid: "1.3.6.1.4.1.119.2.2.4.4.10.2.3.2.1.3.${fan::id}"
+          oid: "1.3.6.1.4.1.119.2.2.4.4.10.2.3.2.1.3.${attribute::id}"
           computes:
           - type: duplicateColumn
             column: 1
@@ -267,7 +267,7 @@ monitors:
       sources:
         source(1):
           type: snmpGet
-          oid: "1.3.6.1.4.1.119.2.2.4.4.10.2.2.2.1.3.${voltage::id}"
+          oid: "1.3.6.1.4.1.119.2.2.4.4.10.2.2.2.1.3.${attribute::id}"
       mapping:
         source: "${source::monitors.voltage.collect.sources.source(1)}"
         metrics:
@@ -292,7 +292,7 @@ monitors:
       sources:
         source(1):
           type: snmpGet
-          oid: "1.3.6.1.4.1.119.2.2.4.4.11.2.3.3.1.2.${power_supply::id}"
+          oid: "1.3.6.1.4.1.119.2.2.4.4.11.2.3.3.1.2.${attribute::id}"
           computes:
           - type: duplicateColumn
             column: 1

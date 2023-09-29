@@ -44,7 +44,7 @@ monitors:
           # Get the Enclosure Status
           # Status;
           type: snmpGet
-          oid: "1.3.6.1.4.1.6574.1.1.${enclosure::id}"
+          oid: "1.3.6.1.4.1.6574.1.1.${attribute::id}"
           computes:
             # Duplicate the State
             # Status;StatusInfo;

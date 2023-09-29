@@ -88,7 +88,7 @@ monitors:
           # Source(1) = output of the pvdisplay command
           # ErrorCount;LastError;
           type: osCommand
-          commandLine: "/bin/sh ${file::embeddedFile-4} ${disk_controller::id}"
+          commandLine: "/bin/sh ${file::embeddedFile-4} ${attribute::id}"
           keep: ^MSHW;
           separators: ;
           selectColumns: "2,3,4,5"
@@ -202,7 +202,7 @@ monitors:
           # Source(1) = output of the pvdisplay command
           # Status;StatusInformation;ErrorCount;LastError
           type: osCommand
-          commandLine: "/bin/sh ${file::embeddedFile-3} ${physical_disk::id}"
+          commandLine: "/bin/sh ${file::embeddedFile-3} ${attribute::id}"
           keep: ^MSHW;
           separators: ;
           selectColumns: "2,3,4,5"
