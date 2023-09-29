@@ -38,6 +38,7 @@ import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
 import com.sentrysoftware.matrix.connector.model.common.HttpMethod;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.CopySource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.HttpSource;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.OsCommandSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpGetSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpTableSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.StaticSource;
@@ -431,5 +432,21 @@ class SourceUpdaterProcessorTest {
 			"show disk 1",
 			SourceUpdaterProcessor.replaceAttributeReferences(command, Map.of("id", "1", "type", "disk"))
 		);
+	}
+
+	@Test
+	void testProcessOSCommandSource() {
+
+		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(OsCommandSource.class));
+
+		assertEquals(
+				SourceTable.empty(),
+				new SourceUpdaterProcessor(
+						sourceProcessor,
+						TelemetryManager.builder().build(),
+						MY_CONNECTOR_1_NAME,
+						Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
+				).process(OsCommandSource.builder()
+						.commandLine("/usr/sbin/pvdisplay /dev/dsk/%PhysicalDisk.Collect.DeviceID%").build()));
 	}
 }

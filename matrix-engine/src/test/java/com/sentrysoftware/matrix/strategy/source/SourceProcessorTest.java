@@ -9,7 +9,6 @@ import static com.sentrysoftware.matrix.constants.Constants.SNMP_SELECTED_COLUMN
 import static com.sentrysoftware.matrix.constants.Constants.SNMP_SELECTED_COLUMNS_LIST;
 import static com.sentrysoftware.matrix.constants.Constants.SNMP_WRONG_COLUMNS;
 import static com.sentrysoftware.matrix.constants.Constants.SNMP_WRONG_COLUMNS_LIST;
-import static com.sentrysoftware.matrix.constants.Constants.STRATEGY_TIMEOUT;
 import static com.sentrysoftware.matrix.constants.Constants.TAB1_REF;
 import static com.sentrysoftware.matrix.constants.Constants.URL;
 import static com.sentrysoftware.matrix.constants.Constants.USERNAME;
@@ -21,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
@@ -29,7 +27,6 @@ import com.sentrysoftware.matrix.common.exception.NoCredentialProvidedException;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.configuration.HttpConfiguration;
 import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
-import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.connector.model.common.HttpMethod;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.CopySource;
@@ -56,7 +53,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -68,12 +64,6 @@ class SourceProcessorTest {
 
 	@Mock
 	private MatsyaClientsExecutor matsyaClientsExecutorMock;
-
-	@Mock
-	private Connector connectorMock;
-
-	@Mock
-	private TelemetryManager telemetryManagerMock;
 
 	private static final String LOWERCASE_A = "a";
 	private static final String LOWERCASE_B = "b";
@@ -106,12 +96,6 @@ class SourceProcessorTest {
 	private static final String VALUE_LIST = "a1;b1;c1";
 
 	private static final String CAMELCASE_NOT_WBEM = "notWbem";
-	private static final String CONNECTOR_NAME = "myConnector";
-	@BeforeEach
-	void beforeEeach() {
-		lenient().doReturn(CONNECTOR_NAME).when(connectorMock).getCompiledFilename();
-	}
-
 
 	@Test
 	void testProcessHttpSourceOK() {
@@ -739,6 +723,8 @@ class SourceProcessorTest {
 				.port(161)
 				.timeout(120L)
 				.build();
+		final HostProperties hostProperties = HostProperties.builder().isLocalhost(true).build();
+
 		final TelemetryManager telemetryManager = TelemetryManager
 				.builder()
 				.hostConfiguration(
@@ -752,6 +738,7 @@ class SourceProcessorTest {
 								)
 								.build()
 				)
+				.hostProperties(hostProperties)
 				.build();
 		final SourceProcessor sourceProcessor = SourceProcessor
 				.builder()
@@ -772,19 +759,14 @@ class SourceProcessorTest {
 		commandSource.setKeep(keepOnlyRegExp);
 		commandSource.setSeparators(separators);
 		commandSource.setSelectColumns(selectColumns);
-
-		final HostProperties hostProperties = new HostProperties();
-		hostProperties.setLocalhost(true);
-
-		doReturn(hostProperties).when(telemetryManagerMock).getHostProperties();
-		doReturn(null).when(connectorMock).getExtendsConnectors();
+		commandSource.setExecuteLocally(true);
 
 		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
 			mockedOsCommandHelper.when(() -> OsCommandHelper.runOsCommand(
 					commandLine,
 					telemetryManager,
-					STRATEGY_TIMEOUT,
-					false,
+					commandSource.getTimeout(),
+					commandSource.getExecuteLocally(),
 					hostProperties.isLocalhost())).thenThrow(NoCredentialProvidedException.class);
 
 			assertEquals(SourceTable.empty(), sourceProcessor.process(commandSource));
@@ -794,8 +776,8 @@ class SourceProcessorTest {
 			mockedOsCommandHelper.when(() -> OsCommandHelper.runOsCommand(
 					commandLine,
 					telemetryManager,
-					STRATEGY_TIMEOUT,
-					false,
+					commandSource.getTimeout(),
+					commandSource.getExecuteLocally(),
 					hostProperties.isLocalhost())).thenThrow(IOException.class);
 
 			assertEquals(SourceTable.empty(), sourceProcessor.process(commandSource));
@@ -814,8 +796,8 @@ class SourceProcessorTest {
 			mockedOsCommandHelper.when(() -> OsCommandHelper.runOsCommand(
 					commandLine,
 					telemetryManager,
-					STRATEGY_TIMEOUT,
-					true,
+					commandSource.getTimeout(),
+					commandSource.getExecuteLocally(),
 					hostProperties.isLocalhost())).thenReturn(commandResult);
 
 			final SourceTable expected = SourceTable.builder()

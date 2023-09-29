@@ -80,8 +80,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 
 	@Override
 	public SourceTable process(final OsCommandSource osCommandSource) {
-		// TODO Auto-generated method stub
-		return null;
+		return processSource(osCommandSource.copy());
 	}
 
 	@Override

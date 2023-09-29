@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.strategy.detection;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.AUTOMATIC_NAMESPACE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SUCCESSFUL_OS_DETECTION_MESSAGE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
 
@@ -71,7 +72,6 @@ public class CriterionProcessor implements ICriterionProcessor {
 	private static final String SNMP_GETNEXT_SUCCESSFUL_MESSAGE =
 		"Hostname %s - Successful SNMP GetNext of %s. Returned result: %s.";
 	private static final String HTTP_TEST_SUCCESS = "Hostname %s - HTTP test succeeded. Returned result: %s.";
-	private static final String AUTOMATIC_NAMESPACE = "automatic";
 	private static final Pattern SNMP_GET_NEXT_VALUE_PATTERN = Pattern.compile("\\w+\\s+\\w+\\s+(.*)");
 
 	private MatsyaClientsExecutor matsyaClientsExecutor;
