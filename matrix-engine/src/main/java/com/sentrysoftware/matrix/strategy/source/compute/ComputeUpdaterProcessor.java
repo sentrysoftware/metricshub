@@ -25,6 +25,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Tra
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Xml2Csv;
 import com.sentrysoftware.matrix.strategy.source.SourceUpdaterProcessor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -39,7 +40,7 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 	private IComputeProcessor computeProcessor;
 	private TelemetryManager telemetryManager;
 	private String connectorName;
-	private String monitorId;
+	private Map<String, String> attributes;
 
 	@Override
 	public void process(final ArrayTranslate arrayTranslate) {
@@ -162,7 +163,7 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 		final Compute copy = origin.copy();
 
 		// Replace device id (mono instance)
-		copy.update(value -> SourceUpdaterProcessor.replaceDeviceId(value, monitorId));
+		copy.update(value -> SourceUpdaterProcessor.replaceAttributeReferences(value, attributes));
 
 		// Replace source reference
 		copy.update(value -> replaceSourceReference(value, copy));

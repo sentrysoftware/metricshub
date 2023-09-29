@@ -115,8 +115,8 @@ monitors:
           # Source(1) = output of cstm echo ""selclass type Disk;wait;information;wait;infolog""|stm -c
           type: osCommand
           commandLine: |-
-            /bin/echo "select path ${physical_disk::id};wait;information;wait;infolog"|/usr/bin/stm -c
-            /bin/echo "select path ${physical_disk::id};wait;veroptions execctrl iterations 1 behavior errorcount 10 testcoverage mincoverage gentactlog no reporterrors reportwarnings queries querynondes;verify;wait;currdevstatus"|/usr/bin/stm -c
+            /bin/echo "select path ${attribute::id};wait;information;wait;infolog"|/usr/bin/stm -c
+            /bin/echo "select path ${attribute::id};wait;veroptions execctrl iterations 1 behavior errorcount 10 testcoverage mincoverage gentactlog no reporterrors reportwarnings queries querynondes;verify;wait;currdevstatus"|/usr/bin/stm -c
           timeout: 60
           forceSerialization: true
           computes:

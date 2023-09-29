@@ -253,15 +253,14 @@ public class ConversionHelper {
 	/**
 	 * Convert mono instance reference. E.g.
 	 * <b><u>%NetworkCard.Collect.DeviceID%</u></b> becomes
-	 * <b><u>${network::id}</u></b>
+	 * <b><u>${attribute::id}</u></b>
 	 *
 	 * @param matcher matcher used to find groups
 	 * @param input   input value to be replaced
 	 * @return updated string value
 	 */
 	private static String convertMonoInstanceReference(final Matcher matcher, final String input) {
-		final String monitorName = getYamlMonitorName(matcher.group(1));
-		return input.replace(matcher.group(), String.format("${%s::id}", monitorName));
+		return input.replace(matcher.group(), "${attribute::id}");
 	}
 
 	/**

@@ -59,7 +59,7 @@ monitors:
         source(1):
           # Source(1) = output of fcmsutil %hbaID%
           type: osCommand
-          commandLine: "%{SUDO:/opt/fcms/bin/fcmsutil} /opt/fcms/bin/fcmsutil /dev/${network::id}"
+          commandLine: "%{SUDO:/opt/fcms/bin/fcmsutil} /opt/fcms/bin/fcmsutil /dev/${attribute::id}"
           computes:
             # AWK the output to get the speed and status table
             # speed;status;

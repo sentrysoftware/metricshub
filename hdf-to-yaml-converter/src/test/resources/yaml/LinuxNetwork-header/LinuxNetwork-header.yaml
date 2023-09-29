@@ -59,7 +59,7 @@ monitors:
         source(2):
           # Source(2) = output of ethtool
           type: osCommand
-          commandLine: "%{SUDO:ethtool}/usr/sbin/ethtool ${network::id}"
+          commandLine: "%{SUDO:ethtool}/usr/sbin/ethtool ${attribute::id}"
           computes:
             # Process the output of ethtool through an AWK script
             # DeviceID;LinkStatus;LinkSpeed;DuplexMode;

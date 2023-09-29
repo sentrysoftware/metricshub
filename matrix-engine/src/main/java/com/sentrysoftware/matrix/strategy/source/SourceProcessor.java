@@ -558,9 +558,9 @@ public class SourceProcessor implements ISourceProcessor {
 			return SourceTable.empty();
 		}
 
-		final WbemConfiguration configuration = (WbemConfiguration) telemetryManager.getHostConfiguration().getConfigurations().get(WbemConfiguration.class);
+		final WbemConfiguration wbemConfiguration = (WbemConfiguration) telemetryManager.getHostConfiguration().getConfigurations().get(WbemConfiguration.class);
 
-		if (configuration == null) {
+		if (wbemConfiguration == null) {
 			log.debug("Hostname {} - The WBEM credentials are not configured. Returning an empty table for WBEM source {}.",
 					hostname, wbemSource.getKey());
 			return SourceTable.empty();
@@ -593,12 +593,12 @@ public class SourceProcessor implements ISourceProcessor {
 				log.error("Hostname {} - No hostname indicated, the URL cannot be built.", hostname);
 				return SourceTable.empty();
 			}
-			if (configuration.getPort() == null || configuration.getPort() == 0) {
+			if (wbemConfiguration.getPort() == null || wbemConfiguration.getPort() == 0) {
 				log.error("Hostname {} - No port indicated to connect to the host", hostname);
 				return SourceTable.empty();
 			}
 
-			final List<List<String>> table = matsyaClientsExecutor.executeWbem(hostname, configuration, wbemSource.getQuery(), namespace);
+			final List<List<String>> table = matsyaClientsExecutor.executeWbem(hostname, wbemConfiguration, wbemSource.getQuery(), namespace);
 
 			return SourceTable.builder().table(table).build();
 
@@ -606,7 +606,7 @@ public class SourceProcessor implements ISourceProcessor {
 
 			logSourceError(connectorName, wbemSource.getKey(),
 					String.format("WBEM query=%s, Username=%s, Timeout=%d, Namespace=%s",
-							wbemSource.getQuery(), configuration.getUsername(), configuration.getTimeout(),
+							wbemSource.getQuery(), wbemConfiguration.getUsername(), wbemConfiguration.getTimeout(),
 							namespace),
 					hostname, e);
 
