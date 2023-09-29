@@ -9,8 +9,12 @@ import com.sentrysoftware.matrix.common.helpers.StringHelper;
 import com.sentrysoftware.matrix.common.helpers.TextTableHelper;
 import com.sentrysoftware.matrix.configuration.HttpConfiguration;
 import com.sentrysoftware.matrix.configuration.IWinConfiguration;
+import com.sentrysoftware.matrix.configuration.IpmiConfiguration;
+import com.sentrysoftware.matrix.configuration.OsCommandConfiguration;
 import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
+import com.sentrysoftware.matrix.configuration.SshConfiguration;
 import com.sentrysoftware.matrix.configuration.WbemConfiguration;
+import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.CopySource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.HttpSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.IpmiSource;
@@ -24,12 +28,15 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.WbemSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.WmiSource;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.matsya.http.HttpRequest;
+import com.sentrysoftware.matrix.strategy.utils.IpmiHelper;
+import com.sentrysoftware.matrix.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -167,8 +174,262 @@ public class SourceProcessor implements ISourceProcessor {
 	@WithSpan("Source IPMI Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final IpmiSource ipmiSource) {
-		// TODO Auto-generated method stub
-		return null;
+		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+
+		if (ipmiSource == null) {
+			log.error("Hostname {} - IPMI Source cannot be null, the IPMI operation will return an empty result.", hostname);
+			return SourceTable.empty();
+		}
+
+		String sourceKey = ipmiSource.getKey();
+		final DeviceKind hostType = telemetryManager.getHostConfiguration().getHostType();
+
+		if (DeviceKind.WINDOWS.equals(hostType)) {
+			return processWindowsIpmiSource(sourceKey);
+		} else if (DeviceKind.LINUX.equals(hostType) || DeviceKind.SOLARIS.equals(hostType)) {
+			return processUnixIpmiSource(sourceKey);
+		} else if (DeviceKind.OOB.equals(hostType)) {
+			return processOutOfBandIpmiSource(sourceKey);
+		}
+
+		log.info(
+			"Hostname {} - Failed to process IPMI source. {} is an unsupported OS for IPMI. Returning an empty table.",
+			hostname,
+			hostType.name()
+		);
+
+		return SourceTable.empty();
+	}
+
+	/**
+	 * Process IPMI source via IPMI Over-LAN
+	 *
+	 * @param sourceKey The key of the source
+	 *
+	 * @return {@link SourceTable} containing the IPMI result expected by the IPMI connector embedded AWK script
+	 */
+	SourceTable processOutOfBandIpmiSource(final String sourceKey) {
+		final IpmiConfiguration ipmiConfiguration = (IpmiConfiguration) telemetryManager
+			.getHostConfiguration()
+			.getConfigurations()
+			.get(IpmiConfiguration.class);
+
+		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+
+		if (ipmiConfiguration == null) {
+			log.warn("Hostname {} - The IPMI credentials are not configured. Cannot process IPMI-over-LAN source.", hostname);
+			return SourceTable.empty();
+		}
+
+		try {
+			final String result = matsyaClientsExecutor.executeIpmiGetSensors(hostname, ipmiConfiguration);
+
+			if (result != null) {
+				return SourceTable.builder().rawData(result).build();
+			} else {
+				log.error("Hostname {} - IPMI-over-LAN request returned <null> result. Returning an empty table.", hostname);
+			}
+		} catch (Exception e) {
+			logSourceError(connectorName, sourceKey, "IPMI-over-LAN", hostname, e);
+		}
+
+		return SourceTable.empty();
+	}
+
+	/**
+	 * Process IPMI Source for the Unix system
+	 *
+	 * @param sourceKey The key of the source
+	 *
+	 * @return {@link SourceTable} containing the IPMI result expected by the IPMI connector embedded AWK script
+	 */
+	SourceTable processUnixIpmiSource(final String sourceKey) {
+		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+
+		// get the ipmiTool command to execute
+		String ipmitoolCommand = telemetryManager.getHostProperties().getIpmitoolCommand();
+		if (ipmitoolCommand == null || ipmitoolCommand.isEmpty()) {
+			final String message = String.format(
+				"Hostname %s - IPMI tool command cannot be found. Returning an empty result.",
+				hostname
+			);
+			log.error(message);
+			return SourceTable.empty();
+		}
+
+		final boolean isLocalHost = telemetryManager.getHostProperties().isLocalhost();
+
+		final SshConfiguration sshConfiguration = (SshConfiguration) telemetryManager
+			.getHostConfiguration()
+			.getConfigurations()
+			.get(SshConfiguration.class);
+
+		final OsCommandConfiguration osCommandConfiguration = (OsCommandConfiguration) telemetryManager
+			.getHostConfiguration()
+			.getConfigurations()
+			.get(OsCommandConfiguration.class);
+
+		final int defaultTimeout = osCommandConfiguration != null
+			? osCommandConfiguration.getTimeout().intValue()
+			: OsCommandConfiguration.DEFAULT_TIMEOUT.intValue();
+
+		// fru command
+		String fruCommand = ipmitoolCommand + "fru";
+		String fruResult;
+		try {
+			if (isLocalHost) {
+				fruResult = OsCommandHelper.runLocalCommand(fruCommand, defaultTimeout, null);
+			} else if (sshConfiguration != null) {
+				fruResult = OsCommandHelper.runSshCommand(fruCommand, hostname, sshConfiguration, defaultTimeout, null, null);
+			} else {
+				log.warn("Hostname {} - Could not process UNIX IPMI Source. SSH protocol credentials are missing.", hostname);
+				return SourceTable.empty();
+			}
+
+			log.debug("Hostname {} - IPMI OS command: {}:\n{}", hostname, fruCommand, fruResult);
+		} catch (Exception e) {
+			logSourceError(connectorName, sourceKey, String.format("IPMI OS command: %s.", fruCommand), hostname, e);
+
+			Thread.currentThread().interrupt();
+
+			return SourceTable.empty();
+		}
+
+		// "-v sdr elist all"
+		String sdrCommand = ipmitoolCommand + "-v sdr elist all";
+		String sensorResult;
+		try {
+			if (isLocalHost) {
+				sensorResult = OsCommandHelper.runLocalCommand(sdrCommand, defaultTimeout, null);
+			} else {
+				sensorResult =
+					OsCommandHelper.runSshCommand(sdrCommand, hostname, sshConfiguration, defaultTimeout, null, null);
+			}
+			log.debug("Hostname {} - IPMI OS command: {}:\n{}", hostname, sdrCommand, sensorResult);
+		} catch (Exception e) {
+			logSourceError(connectorName, sourceKey, String.format("IPMI OS command: %s.", sdrCommand), hostname, e);
+
+			Thread.currentThread().interrupt();
+
+			return SourceTable.empty();
+		}
+
+		return SourceTable.builder().table(IpmiHelper.ipmiTranslateFromIpmitool(fruResult, sensorResult)).build();
+	}
+
+	/**
+	 * Process IPMI source for the Windows (NT) system
+	 *
+	 * @param sourceKey The key of the source
+	 *
+	 * @return {@link SourceTable} containing the IPMI result expected by the IPMI connector embedded AWK script
+	 */
+	SourceTable processWindowsIpmiSource(final String sourceKey) {
+		// Find the configured protocol (WinRM or WMI)
+
+		final IWinConfiguration winConfiguration = (IWinConfiguration) telemetryManager
+			.getHostConfiguration()
+			.getWinConfiguration();
+
+		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+
+		if (winConfiguration == null) {
+			log.warn(
+				"Hostname {} - The Windows protocols credentials are not configured. Cannot process Windows IPMI source.",
+				hostname
+			);
+			return SourceTable.empty();
+		}
+
+		final String nameSpaceRootCimv2 = "root/cimv2";
+		final String nameSpaceRootHardware = "root/hardware";
+
+		String wmiQuery = "SELECT IdentifyingNumber,Name,Vendor FROM Win32_ComputerSystemProduct";
+		List<List<String>> wmiCollection1 = executeIpmiWmiRequest(
+			hostname,
+			winConfiguration,
+			wmiQuery,
+			nameSpaceRootCimv2,
+			sourceKey
+		);
+
+		wmiQuery =
+			"SELECT BaseUnits,CurrentReading,Description,LowerThresholdCritical,LowerThresholdNonCritical,SensorType,UnitModifier,UpperThresholdCritical,UpperThresholdNonCritical" +
+			" FROM NumericSensor";
+		List<List<String>> wmiCollection2 = executeIpmiWmiRequest(
+			hostname,
+			winConfiguration,
+			wmiQuery,
+			nameSpaceRootHardware,
+			sourceKey
+		);
+
+		wmiQuery = "SELECT CurrentState,Description FROM Sensor";
+		List<List<String>> wmiCollection3 = executeIpmiWmiRequest(
+			hostname,
+			winConfiguration,
+			wmiQuery,
+			nameSpaceRootHardware,
+			sourceKey
+		);
+
+		return SourceTable
+			.builder()
+			.table(IpmiHelper.ipmiTranslateFromWmi(wmiCollection1, wmiCollection2, wmiCollection3))
+			.build();
+	}
+
+	/**
+	 * Call the matsya client executor to execute a WMI request.
+	 *
+	 * @param hostname		The host against the query will be run.
+	 * @param winConfiguration	The information used to connect to the host and perform the query.
+	 * @param wmiQuery		The query that will be executed.
+	 * @param namespace		The namespace in which the query will be executed.
+	 * @param sourceKey		The key of the source.
+	 *
+	 * @return				The result of the execution of the query.
+	 */
+	private List<List<String>> executeIpmiWmiRequest(
+		final String hostname,
+		final IWinConfiguration winConfiguration,
+		final String wmiQuery,
+		final String namespace,
+		final String sourceKey
+	) {
+		log.info("Hostname {} - Executing IPMI Query for source [{}]:\nWMI Query: {}:\n", hostname, sourceKey, wmiQuery);
+
+		List<List<String>> result;
+
+		try {
+			result = matsyaClientsExecutor.executeWql(hostname, winConfiguration, wmiQuery, namespace);
+		} catch (Exception exception) {
+			logSourceError(
+				connectorName,
+				sourceKey,
+				String.format(
+					"IPMI WMI query=%s, Hostname=%s, Username=%s, Timeout=%d, Namespace=%s",
+					wmiQuery,
+					hostname,
+					winConfiguration.getUsername(),
+					winConfiguration.getTimeout(),
+					namespace
+				),
+				hostname,
+				exception
+			);
+
+			result = Collections.emptyList();
+		}
+
+		log.info(
+			"Hostname {} - IPMI query for [{}] result:\n{}\n",
+			hostname,
+			sourceKey,
+			TextTableHelper.generateTextTable(result)
+		);
+
+		return result;
 	}
 
 	@WithSpan("Source OS Command Exec")
