@@ -72,7 +72,6 @@ public class CriterionProcessor implements ICriterionProcessor {
 	private static final String SNMP_GETNEXT_SUCCESSFUL_MESSAGE =
 		"Hostname %s - Successful SNMP GetNext of %s. Returned result: %s.";
 	private static final String HTTP_TEST_SUCCESS = "Hostname %s - HTTP test succeeded. Returned result: %s.";
-
 	private static final Pattern SNMP_GET_NEXT_VALUE_PATTERN = Pattern.compile("\\w+\\s+\\w+\\s+(.*)");
 
 	private MatsyaClientsExecutor matsyaClientsExecutor;
