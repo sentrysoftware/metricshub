@@ -10,6 +10,22 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.USERNAME_
 import static org.springframework.util.Assert.isTrue;
 import static org.springframework.util.Assert.state;
 
+import com.sentrysoftware.matrix.common.exception.ControlledSshException;
+import com.sentrysoftware.matrix.common.exception.MatsyaException;
+import com.sentrysoftware.matrix.common.exception.MatsyaRuntimeException;
+import com.sentrysoftware.matrix.common.exception.NoCredentialProvidedException;
+import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
+import com.sentrysoftware.matrix.configuration.IConfiguration;
+import com.sentrysoftware.matrix.configuration.IWinConfiguration;
+import com.sentrysoftware.matrix.configuration.OsCommandConfiguration;
+import com.sentrysoftware.matrix.configuration.SshConfiguration;
+import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
+import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
+import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.telemetry.SshSemaphoreFactory;
+import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -37,32 +53,18 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import com.sentrysoftware.matrix.common.exception.ControlledSshException;
-import com.sentrysoftware.matrix.common.exception.MatsyaException;
-import com.sentrysoftware.matrix.common.exception.MatsyaRuntimeException;
-import com.sentrysoftware.matrix.common.exception.NoCredentialProvidedException;
-import com.sentrysoftware.matrix.common.helpers.LocalOsHandler;
-import com.sentrysoftware.matrix.configuration.IConfiguration;
-import com.sentrysoftware.matrix.configuration.IWinConfiguration;
-import com.sentrysoftware.matrix.configuration.OsCommandConfiguration;
-import com.sentrysoftware.matrix.configuration.SshConfiguration;
-import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
-import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
-import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
-import com.sentrysoftware.matrix.telemetry.SshSemaphoreFactory;
-import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-
-import io.opentelemetry.instrumentation.annotations.SpanAttribute;
-import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OsCommandHelper {
+
 	private static final String NEGATIVE_TIMEOUT = "timeout mustn't be negative nor zero.";
-	private static final Pattern SUDO_COMMAND_PATTERN = Pattern.compile("%\\{SUDO:([^\\}]*)\\}", Pattern.CASE_INSENSITIVE);
+	private static final Pattern SUDO_COMMAND_PATTERN = Pattern.compile(
+		"%\\{SUDO:([^\\}]*)\\}",
+		Pattern.CASE_INSENSITIVE
+	);
 	static final Function<String, File> TEMP_FILE_CREATOR = OsCommandHelper::createEmbeddedTempFile;
 
 	/**
@@ -80,12 +82,10 @@ public class OsCommandHelper {
 		@NonNull final Map<String, EmbeddedFile> commandLineEmbeddedFiles,
 		final Function<String, File> tempFileCreator
 	) throws IOException {
-
 		final Map<String, File> embeddedTempFiles = new HashMap<>();
 		try {
 			final Matcher matcher = FILE_PATTERN.matcher(commandLine);
 			while (matcher.find()) {
-
 				// ${file::file-absolute-path} fileName is file-absolute-path // NOSONAR on comment
 				final String fileName = matcher.group(1);
 
@@ -114,7 +114,6 @@ public class OsCommandHelper {
 				);
 			}
 			return Collections.unmodifiableMap(embeddedTempFiles);
-
 		} catch (final Exception e) {
 			//noinspection ResultOfMethodCallIgnored
 			embeddedTempFiles.values().forEach(File::delete);
@@ -139,18 +138,17 @@ public class OsCommandHelper {
 		final OsCommandConfiguration osCommandConfiguration,
 		Function<String, File> tempFileCreator
 	) throws IOException {
-
-		final String extension = embeddedFile.getType() != null ?
-			"." + embeddedFile.getType() :
-				EMPTY;
+		final String extension = embeddedFile.getType() != null ? "." + embeddedFile.getType() : EMPTY;
 
 		final File tempFile = tempFileCreator.apply(extension);
 
-		try (final BufferedWriter bufferedWriter = Files.newBufferedWriter(
-			Paths.get(tempFile.getAbsolutePath()),
-			StandardCharsets.UTF_8)) {
-			bufferedWriter.write(
-				replaceSudo(embeddedFile.getContent(), osCommandConfiguration));
+		try (
+			BufferedWriter bufferedWriter = Files.newBufferedWriter(
+				Paths.get(tempFile.getAbsolutePath()),
+				StandardCharsets.UTF_8
+			)
+		) {
+			bufferedWriter.write(replaceSudo(embeddedFile.getContent(), osCommandConfiguration));
 		}
 		return tempFile;
 	}
@@ -185,16 +183,15 @@ public class OsCommandHelper {
 
 		final Optional<String> maybeSudoFile = getFileNameFromSudoCommand(text);
 
-		final String sudoReplace =
-			maybeSudoFile.isPresent()
-			&& osCommandConfiguration != null
-			&& osCommandConfiguration.isUseSudo()
-			&& osCommandConfiguration.getUseSudoCommands().contains(maybeSudoFile.get()) ? osCommandConfiguration.getSudoCommand() : EMPTY;
+		final String sudoReplace = maybeSudoFile.isPresent() &&
+			osCommandConfiguration != null &&
+			osCommandConfiguration.isUseSudo() &&
+			osCommandConfiguration.getUseSudoCommands().contains(maybeSudoFile.get())
+			? osCommandConfiguration.getSudoCommand()
+			: EMPTY;
 
 		return maybeSudoFile
-			.map(fileName -> text.replaceAll(
-				toCaseInsensitiveRegex(String.format("%%{SUDO:%s}", fileName)),
-				sudoReplace))
+			.map(fileName -> text.replaceAll(toCaseInsensitiveRegex(String.format("%%{SUDO:%s}", fileName)), sudoReplace))
 			.orElse(text);
 	}
 
@@ -213,8 +210,8 @@ public class OsCommandHelper {
 	public static String runLocalCommand(
 		@NonNull final String command,
 		@SpanAttribute("OSCommand.timeout") final long timeout,
-		@SpanAttribute("OSCommand.command") final String noPasswordCommand)
-			throws InterruptedException, IOException, TimeoutException {
+		@SpanAttribute("OSCommand.command") final String noPasswordCommand
+	) throws InterruptedException, IOException, TimeoutException {
 		isTrue(timeout > 0, NEGATIVE_TIMEOUT);
 
 		final String cmd = LocalOsHandler.isWindows() ? "CMD.EXE /C " + command : command;
@@ -227,9 +224,10 @@ public class OsCommandHelper {
 		final ExecutorService executor = Executors.newSingleThreadExecutor();
 
 		final Future<String> future = executor.submit(() -> {
-
-			try (final InputStreamReader inputStreamReader = new InputStreamReader(process.getInputStream());
-				final BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
+			try (
+				InputStreamReader inputStreamReader = new InputStreamReader(process.getInputStream());
+				BufferedReader bufferedReader = new BufferedReader(inputStreamReader)
+			) {
 				final StringJoiner stringJoiner = new StringJoiner(NEW_LINE);
 				String line;
 				while ((line = bufferedReader.readLine()) != null) {
@@ -244,21 +242,21 @@ public class OsCommandHelper {
 
 		try {
 			return future.get(timeout, TimeUnit.SECONDS);
-
 		} catch (final TimeoutException exception) {
 			future.cancel(true);
 
-			throw new TimeoutException(String.format(
-				"Command \"%s\" execution has timed out after %d s",
-				noPasswordCommand != null ? noPasswordCommand : command, timeout)
+			throw new TimeoutException(
+				String.format(
+					"Command \"%s\" execution has timed out after %d s",
+					noPasswordCommand != null ? noPasswordCommand : command,
+					timeout
+				)
 			);
-
 		} catch (final ExecutionException exception) {
 			if (exception.getCause() instanceof IOException ioException) {
 				throw ioException;
 			}
 			return null;
-
 		} finally {
 			executor.shutdownNow();
 		}
@@ -283,15 +281,15 @@ public class OsCommandHelper {
 		@NonNull final SshConfiguration sshConfiguration,
 		final long timeout,
 		final List<File> localFiles,
-		final String noPasswordCommand) throws MatsyaException, InterruptedException, ControlledSshException {
+		final String noPasswordCommand
+	) throws MatsyaException, InterruptedException, ControlledSshException {
 		isTrue(timeout > 0, NEGATIVE_TIMEOUT);
 
 		try {
-
-			return runControlledSshCommand(() -> {
-				try {
-					return MatsyaClientsExecutor
-						.runRemoteSshCommand(
+			return runControlledSshCommand(
+				() -> {
+					try {
+						return MatsyaClientsExecutor.runRemoteSshCommand(
 							hostname,
 							sshConfiguration.getUsername(),
 							sshConfiguration.getPassword(),
@@ -301,15 +299,14 @@ public class OsCommandHelper {
 							localFiles,
 							noPasswordCommand
 						);
-				} catch (MatsyaException e) {
-					throw new MatsyaRuntimeException(e);
-				}
-			},
+					} catch (MatsyaException e) {
+						throw new MatsyaRuntimeException(e);
+					}
+				},
 				hostname,
 				DEFAULT_LOCK_TIMEOUT
 			);
-		}
-		catch (final MatsyaRuntimeException e) {
+		} catch (final MatsyaRuntimeException e) {
 			throw (MatsyaException) e.getCause();
 		}
 	}
@@ -325,24 +322,21 @@ public class OsCommandHelper {
 	 * @throws InterruptedException
 	 * @throws ControlledSshException
 	 */
-	static <T> T runControlledSshCommand(
-		Supplier<T> executable,
-		String hostname,
-		int timeout) throws InterruptedException, ControlledSshException {
-
+	static <T> T runControlledSshCommand(Supplier<T> executable, String hostname, int timeout)
+		throws InterruptedException, ControlledSshException {
 		final Semaphore semaphore = SshSemaphoreFactory.getInstance().createOrGetSempahore(hostname);
 
 		try {
 			if (semaphore.tryAcquire(timeout, TimeUnit.SECONDS)) {
-
 				return executable.get();
-
 			}
 
-			final String message = String.format("Failed to run SSH command on %s. Timed out trying to get ssh semaphore permit.", hostname);
+			final String message = String.format(
+				"Failed to run SSH command on %s. Timed out trying to get ssh semaphore permit.",
+				hostname
+			);
 
 			throw new ControlledSshException(message);
-
 		} finally {
 			semaphore.release();
 		}
@@ -357,9 +351,7 @@ public class OsCommandHelper {
 	 */
 	static Optional<String> getFileNameFromSudoCommand(@NonNull final String command) {
 		final Matcher matcher = SUDO_COMMAND_PATTERN.matcher(command);
-		return matcher.find() ?
-			Optional.ofNullable(matcher.group(1)) :
-				Optional.empty();
+		return matcher.find() ? Optional.ofNullable(matcher.group(1)) : Optional.empty();
 	}
 
 	/**
@@ -390,8 +382,8 @@ public class OsCommandHelper {
 		final Long commandTimeout,
 		final OsCommandConfiguration osCommandConfiguration,
 		final IConfiguration configuration,
-		final long defaultTimeout) {
-
+		final long defaultTimeout
+	) {
 		if (commandTimeout != null) {
 			return commandTimeout.intValue();
 		}
@@ -404,9 +396,9 @@ public class OsCommandHelper {
 			return defaultTimeout;
 		}
 
-		final Long timeout = configuration instanceof IWinConfiguration winConfiguration ?
-			winConfiguration.getTimeout() :
-			((SshConfiguration) configuration).getTimeout();
+		final Long timeout = configuration instanceof IWinConfiguration winConfiguration
+			? winConfiguration.getTimeout()
+			: ((SshConfiguration) configuration).getTimeout();
 
 		return timeout != null ? timeout : defaultTimeout;
 	}
@@ -475,16 +467,11 @@ public class OsCommandHelper {
 		final Long commandTimeout,
 		final boolean isExecuteLocally,
 		final boolean isLocalhost
-	) throws IOException,
-		MatsyaException,
-		InterruptedException,
-		TimeoutException,
-		NoCredentialProvidedException,
-		ControlledSshException {
-
+	)
+		throws IOException, MatsyaException, InterruptedException, TimeoutException, NoCredentialProvidedException, ControlledSshException {
 		final IConfiguration configuration;
 
-		if(!isLocalhost && telemetryManager.getHostConfiguration().getHostType() == DeviceKind.WINDOWS) {
+		if (!isLocalhost && telemetryManager.getHostConfiguration().getHostType() == DeviceKind.WINDOWS) {
 			configuration = telemetryManager.getWinConfiguration();
 		} else {
 			configuration = telemetryManager.getHostConfiguration().getConfigurations().get(SshConfiguration.class);
@@ -493,8 +480,7 @@ public class OsCommandHelper {
 		final Optional<String> maybeUsername = getUsername(configuration);
 
 		// If remote command and no username
-		if ((maybeUsername.isEmpty() || maybeUsername.get().isBlank()) &&
-			!isExecuteLocally && !isLocalhost) {
+		if ((maybeUsername.isEmpty() || maybeUsername.get().isBlank()) && !isExecuteLocally && !isLocalhost) {
 			throw new NoCredentialProvidedException();
 		}
 
@@ -515,20 +501,23 @@ public class OsCommandHelper {
 		);
 
 		final String updatedUserCommand = maybeUsername
-			.map(username -> commandLine.replaceAll(
-				toCaseInsensitiveRegex(USERNAME_MACRO), username))
+			.map(username -> commandLine.replaceAll(toCaseInsensitiveRegex(USERNAME_MACRO), username))
 			.orElse(commandLine);
 
 		final String updatedHostnameCommand = updatedUserCommand.replaceAll(
-			toCaseInsensitiveRegex(HOSTNAME_MACRO), hostname);
+			toCaseInsensitiveRegex(HOSTNAME_MACRO),
+			hostname
+		);
 
 		final String updatedSudoCommand = replaceSudo(updatedHostnameCommand, osCommandConfiguration);
 
-		final String updatedEmbeddedFilesCommand = embeddedTempFiles.entrySet().stream()
+		final String updatedEmbeddedFilesCommand = embeddedTempFiles
+			.entrySet()
+			.stream()
 			.reduce(
 				updatedSudoCommand,
-				(s, entry) -> s
-					.replaceAll(
+				(s, entry) ->
+					s.replaceAll(
 						toCaseInsensitiveRegex(entry.getKey()),
 						Matcher.quoteReplacement(entry.getValue().getAbsolutePath())
 					),
@@ -536,17 +525,13 @@ public class OsCommandHelper {
 			);
 
 		final String command = maybePassword
-			.map(password -> updatedEmbeddedFilesCommand
-				.replaceAll(
-					toCaseInsensitiveRegex(PASSWORD_MACRO),
-					String.valueOf(password)
-				)
+			.map(password ->
+				updatedEmbeddedFilesCommand.replaceAll(toCaseInsensitiveRegex(PASSWORD_MACRO), String.valueOf(password))
 			)
 			.orElse(updatedEmbeddedFilesCommand);
 
 		final String noPasswordCommand = maybePassword
-			.map(password -> updatedEmbeddedFilesCommand.replaceAll(
-				toCaseInsensitiveRegex(PASSWORD_MACRO), "********"))
+			.map(password -> updatedEmbeddedFilesCommand.replaceAll(toCaseInsensitiveRegex(PASSWORD_MACRO), "********"))
 			.orElse(updatedEmbeddedFilesCommand);
 
 		try {
@@ -561,35 +546,28 @@ public class OsCommandHelper {
 
 			// Case local execution or command intended for a remote host but executed locally
 			if (isLocalhost || isExecuteLocally) {
-				final String localCommandResult = runLocalCommand(
-					command,
-					timeout,
-					noPasswordCommand
-				);
+				final String localCommandResult = runLocalCommand(command, timeout, noPasswordCommand);
 				commandResult = localCommandResult != null ? localCommandResult : EMPTY;
-
 				// Case Windows Remote
 			} else if (DeviceKind.WINDOWS.equals(telemetryManager.getHostConfiguration().getHostType())) {
-				commandResult = MatsyaClientsExecutor.executeWinRemoteCommand(
-					hostname,
-					configuration,
-					command,
-					embeddedTempFiles
-						.values()
-						.stream()
-						.map(File::getAbsolutePath)
-						.collect(Collectors.toList()) // NOSONAR
-				);
+				commandResult =
+					MatsyaClientsExecutor.executeWinRemoteCommand(
+						hostname,
+						configuration,
+						command,
+						embeddedTempFiles.values().stream().map(File::getAbsolutePath).collect(Collectors.toList()) // NOSONAR
+					);
 				// Case others (Linux) Remote
 			} else {
-				commandResult = runSshCommand(
-					command,
-					hostname,
-					(SshConfiguration) configuration,
-					timeout,
-					new ArrayList<>(embeddedTempFiles.values()),
-					noPasswordCommand
-				);
+				commandResult =
+					runSshCommand(
+						command,
+						hostname,
+						(SshConfiguration) configuration,
+						timeout,
+						new ArrayList<>(embeddedTempFiles.values()),
+						noPasswordCommand
+					);
 			}
 
 			return new OsCommandResult(commandResult, noPasswordCommand);
@@ -604,11 +582,11 @@ public class OsCommandHelper {
 	 * implementations used to create embedded temporary files.
 	 */
 	static class TempFileCreationException extends RuntimeException {
+
 		private static final long serialVersionUID = 1L;
 
-		public TempFileCreationException(final IOException cause) {
+		TempFileCreationException(final IOException cause) {
 			super(cause);
 		}
 	}
-
 }

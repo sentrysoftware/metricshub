@@ -159,6 +159,8 @@ monitors:
     collect:
       # This a multi-instance collect (please minimize the number of wbem queries...)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the Win32_DiskDrive table
@@ -208,7 +210,8 @@ monitors:
       mapping:
         # And here is the ValueTable
         source: "${source::monitors.physical_disk.collect.sources.source(4)}"
-        deviceId: $6
+        attributes:
+          id: $6
         metrics:
           hw.status{hw.type="physical_disk"}: $3
           hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($8)

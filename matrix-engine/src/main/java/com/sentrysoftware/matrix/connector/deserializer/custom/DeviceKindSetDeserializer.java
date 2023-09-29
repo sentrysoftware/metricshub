@@ -1,12 +1,11 @@
 package com.sentrysoftware.matrix.connector.deserializer.custom;
 
+import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-
-import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 
 public class DeviceKindSetDeserializer extends AbstractCollectionDeserializer<DeviceKind> {
 

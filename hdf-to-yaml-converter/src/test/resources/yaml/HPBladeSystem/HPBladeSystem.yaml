@@ -88,6 +88,8 @@ monitors:
           hw.enclosure.power: $9
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Get the various enclosures (server and power supply enclosures)
@@ -144,7 +146,8 @@ monitors:
       mapping:
         # ValueTable = Source(3)
         source: "${source::monitors.enclosure.collect.sources.source(3)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="enclosure"}: $3
           hw.enclosure.power: $6
@@ -257,6 +260,8 @@ monitors:
     collect:
       # Collect type is "multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = cpqRackCommonEnclosureTempTable SNMP table
@@ -282,7 +287,8 @@ monitors:
       mapping:
         # The ValueTable
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.temperature: $2
           hw.status{hw.type="temperature"}: $3
@@ -324,6 +330,8 @@ monitors:
     collect:
       # Collect type is "multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = cpqRackCommonEnclosureFanTable SNMP table
@@ -349,7 +357,8 @@ monitors:
       mapping:
         # The ValueTable
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="fan"}: $2
         legacyTextParameters:
@@ -396,6 +405,8 @@ monitors:
     collect:
       # Collect type is "multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = cpqRackPowerSupplyEntry SNMP table
@@ -422,7 +433,8 @@ monitors:
       mapping:
         # The ValueTable
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $4
         legacyTextParameters:
@@ -464,6 +476,8 @@ monitors:
     collect:
       # Collect type is "multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = cqpRackServerBladeTable SNMP Table
@@ -494,7 +508,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.blade.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="blade"}: $2
           hw.blade.power_state: $4
@@ -592,6 +607,8 @@ monitors:
     collect:
       # Collect type is "multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = cpqRackCommonEnclosureFuseTable SNMP table
@@ -655,7 +672,8 @@ monitors:
       mapping:
         # The ValueTable
         source: "${source::monitors.other_device.collect.sources.source(3)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="other_device"}: $2
         legacyTextParameters:

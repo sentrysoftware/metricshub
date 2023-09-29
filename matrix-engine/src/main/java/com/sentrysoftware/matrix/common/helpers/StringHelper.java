@@ -1,7 +1,10 @@
 package com.sentrysoftware.matrix.common.helpers;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COMMA;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.StringJoiner;
@@ -9,7 +12,6 @@ import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -19,7 +21,7 @@ public class StringHelper {
 
 	/**
 	 * Execute the given callable to get the resulting Object as String value
-	 * 
+	 *
 	 * @param call         Callable providing a value
 	 * @param defaultValue The default value to return if the callable returns null
 	 *                     or empty
@@ -36,7 +38,7 @@ public class StringHelper {
 
 	/**
 	 * Call the callable and return the result. Return <code>null</code> if an exception occurs
-	 * 
+	 *
 	 * @param call callback to run
 	 * @return Object value
 	 */
@@ -50,7 +52,7 @@ public class StringHelper {
 
 	/**
 	 * Iterates over all the throwable causes and extract all the messages.
-	 * 
+	 *
 	 * @param throwable The {@link Throwable} instance we wish to process
 	 * @return String value
 	 */
@@ -63,14 +65,14 @@ public class StringHelper {
 			.append(": ")
 			.append(throwable.getMessage())
 			.append("\n")
-			.append(Stream
+			.append(
+				Stream
 					.iterate(throwable, Objects::nonNull, Throwable::getCause)
 					.filter(th -> th != throwable)
 					.map(th -> String.format("Caused by %s: %s", th.getClass().getSimpleName(), th.getMessage()))
 					.collect(Collectors.joining("\n"))
 			)
 			.toString();
-
 	}
 
 	/**
@@ -79,7 +81,7 @@ public class StringHelper {
 	 * Content-Type: application/json<br>
 	 * Connection: keep-alive
 	 * </code>
-	 * 
+	 *
 	 * @param headers Key-Value collection
 	 * @return String value
 	 */
@@ -98,16 +100,18 @@ public class StringHelper {
 
 	/**
 	 * Add the given prefix and value to the {@link StringJoiner} instance. <code>null</code> value is not added.
-	 * 
+	 *
 	 * @param <T>
 	 * @param stringJoiner {@link StringJoiner} instance used to append the prefix
 	 *                     and the value
 	 * @param prefix       The value prefix
 	 * @param value        The value to add
 	 */
-	public static <T> void addNonNull(@NonNull final StringJoiner stringJoiner,
-			@NonNull final String prefix, final T value) {
-
+	public static <T> void addNonNull(
+		@NonNull final StringJoiner stringJoiner,
+		@NonNull final String prefix,
+		final T value
+	) {
 		if (value != null) {
 			stringJoiner.add(new StringBuilder(prefix).append(value));
 		}
@@ -116,16 +120,17 @@ public class StringHelper {
 	/**
 	 * Replace each substring of the <code>template</code> that matches the literal
 	 * <code>macro</code> sequence with the value specified by the <code>replacementSupplier</code>.
-	 * 
+	 *
 	 * @param macro               The sequence of char values to be replaced
 	 * @param replacementSupplier The supplier of the replacement sequence
 	 * @param template            The template to replace
 	 * @return String value
 	 */
-	public static String replace(@NonNull final String macro,
-			@NonNull final Supplier<String> replacementSupplier,
-			@NonNull final String template) {
-
+	public static String replace(
+		@NonNull final String macro,
+		@NonNull final Supplier<String> replacementSupplier,
+		@NonNull final String template
+	) {
 		if (template.contains(macro)) {
 			return template.replace(macro, getValue(replacementSupplier::get, macro));
 		}
@@ -137,20 +142,44 @@ public class StringHelper {
 	 * Replace each substring of the <code>template</code> that matches the
 	 * literal <code>macro</code> sequence with the specified literal
 	 * <code>replacement</code> sequence.
-	 * 
+	 *
 	 * @param macro       The sequence of char values to be replaced
 	 * @param replacement The replacement sequence
 	 * @param template    The template to replace
 	 * @return String value
 	 */
-	public static String replace(@NonNull final String macro,
-			final String replacement,
-			@NonNull final String template) {
-
+	public static String replace(@NonNull final String macro, final String replacement, @NonNull final String template) {
 		if (template.contains(macro) && replacement != null) {
 			return template.replace(macro, replacement);
 		}
 
 		return template;
+	}
+
+	/**
+	 * Convert the given value to a string representation. If the value is a collection or an array,
+	 * it is transformed into a CSV (Comma-Separated Values) string.
+	 *
+	 * @param value The value to be converted to a string.
+	 * @return The string representation of the value, or a CSV string if the value is a collection or an array.
+	 */
+	public static String stringify(final Object value) {
+		if (value == null) {
+			// Handle null input
+			return EMPTY;
+		} else if (value instanceof Collection<?> collection) {
+			// If the input is a List, convert it to a CSV string
+			return collection.stream().map(item -> item != null ? item.toString() : EMPTY).collect(Collectors.joining(COMMA));
+		} else if (value.getClass().isArray()) {
+			// If the input is an array, convert it to a CSV string
+			Object[] array = (Object[]) value;
+			return Arrays
+				.stream(array)
+				.map(item -> item != null ? item.toString() : EMPTY)
+				.collect(Collectors.joining(COMMA));
+		} else {
+			// For any other type of value, simply convert it to a string
+			return value.toString();
+		}
 	}
 }

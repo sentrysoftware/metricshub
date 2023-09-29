@@ -65,6 +65,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = tierTable SNMP Table
@@ -97,7 +99,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
@@ -122,6 +125,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = powerTable SNMP table (like discovery)
@@ -147,7 +152,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
@@ -172,6 +178,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = powerTable SNMP table (like discovery)
@@ -197,7 +205,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="fan"}: $2
         legacyTextParameters:

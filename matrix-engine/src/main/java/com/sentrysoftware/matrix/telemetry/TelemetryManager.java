@@ -5,16 +5,14 @@ import com.sentrysoftware.matrix.configuration.IWinConfiguration;
 import com.sentrysoftware.matrix.configuration.WinRmConfiguration;
 import com.sentrysoftware.matrix.configuration.WmiConfiguration;
 import com.sentrysoftware.matrix.connector.model.ConnectorStore;
-
+import java.util.HashMap;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Data
 @Builder
@@ -24,13 +22,15 @@ public class TelemetryManager {
 
 	@Default
 	private Map<String, Map<String, Monitor>> monitors = new HashMap<>();
+
 	@Default
 	private HostProperties hostProperties = new HostProperties();
+
 	private HostConfiguration hostConfiguration;
 	private ConnectorStore connectorStore;
 
 	public synchronized void run() {
-		// Implement the code here 
+		// Implement the code here
 	}
 
 	/**
@@ -41,7 +41,9 @@ public class TelemetryManager {
 	 */
 	public IWinConfiguration getWinConfiguration() {
 		// We prioritize WinRM over WMI as it's more efficient.
-		final IWinConfiguration winConfiguration = (WinRmConfiguration) this.getHostConfiguration().getConfigurations().get(WinRmConfiguration.class);
+		final IWinConfiguration winConfiguration = (WinRmConfiguration) this.getHostConfiguration()
+			.getConfigurations()
+			.get(WinRmConfiguration.class);
 
 		// Let's try WMI if the WinRM is not available
 		if (winConfiguration == null) {
@@ -71,13 +73,13 @@ public class TelemetryManager {
 	 * @param monitorsMap
 	 * @return Monitor instance
 	 */
-	public Monitor findMonitorById(final String id, final  Map<String, Monitor> monitorsMap){
+	public Monitor findMonitorById(final String id, final Map<String, Monitor> monitorsMap) {
 		return monitorsMap.get(id);
 	}
 
 	/**
 	 * Finds a monitor using its type
-	 * 
+	 *
 	 * @param type
 	 * @return Monitor instance
 	 */
@@ -87,23 +89,20 @@ public class TelemetryManager {
 
 	/**
 	 * Add a new monitor instance
-	 * 
+	 *
 	 * @param monitor     Monitor instance we wish to add
 	 * @param monitorType The type of the monitor
 	 * @param id          The monitor's identifier
 	 * @return added {@link Monitor} instance
 	 */
 	public Monitor addNewMonitor(
-		@NonNull final  Monitor monitor,
+		@NonNull final Monitor monitor,
 		@NonNull final String monitorType,
 		@NonNull final String id
 	) {
-
 		synchronized (monitors) {
 			monitors.computeIfAbsent(monitorType, t -> new HashMap<>()).put(id, monitor);
 			return monitor;
 		}
-
 	}
-
 }

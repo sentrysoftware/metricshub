@@ -72,6 +72,8 @@ monitors:
       # Collect type: MultiInstance (of course, one MBMClient call is enough to get
       # all the hardware information
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the Temperatures lines of MS_HW_MBMClient.exe
@@ -84,7 +86,8 @@ monitors:
       mapping:
         # The value table
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.temperature: $2
   voltage:
@@ -124,6 +127,8 @@ monitors:
       # Collect type: MultiInstance (of course, one MBMClient call is enough to get
       # all the hardware information
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the Voltage lines of MS_HW_MBMClient.exe
@@ -141,7 +146,8 @@ monitors:
       mapping:
         # The value table
         source: "${source::monitors.voltage.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.voltage: $2
   fan:
@@ -172,6 +178,8 @@ monitors:
       # Collect type: MultiInstance (of course, one MBMClient call is enough to get
       # all the hardware information
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the Fan lines of MS_HW_MBMClient.exe
@@ -184,7 +192,8 @@ monitors:
       mapping:
         # The value table
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.fan.speed: $2
   power_supply:

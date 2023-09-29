@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.it.snmp;
 
+import com.sentrysoftware.matrix.it.job.ITJobUtils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,7 +17,7 @@ import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
+import lombok.Getter;
 import org.snmp4j.CommandResponder;
 import org.snmp4j.MessageDispatcher;
 import org.snmp4j.MessageDispatcherImpl;
@@ -54,22 +55,26 @@ import org.snmp4j.smi.VariableBinding;
 import org.snmp4j.transport.TransportMappings;
 import org.snmp4j.util.ThreadPool;
 
-import com.sentrysoftware.matrix.it.job.ITJobUtils;
-
-import lombok.Getter;
-
 public class SnmpAgent implements VariableProvider {
-
 	static {
 		Locale.setDefault(Locale.US);
 	}
 
 	private static final String CONFIG_FILE_PATH = "src/it/resources/snmp/SampleAgentConfig.properties";
 
-	private static final Pattern SNMP_LINE_REGEX = Pattern.compile("(.*)\\s+(ASN_INTEGER|ASN_OCTET_STR|" + "ASN_NULL|ASN_OBJECT_ID|"
-			+ "IPADDRESS|COUNTER|" + "COUNTER64|GAUGE|" + "TIMETICKS|OPAQUE)\\s+(.*)", Pattern.MULTILINE);
+	private static final Pattern SNMP_LINE_REGEX = Pattern.compile(
+		"(.*)\\s+(ASN_INTEGER|ASN_OCTET_STR|" +
+		"ASN_NULL|ASN_OBJECT_ID|" +
+		"IPADDRESS|COUNTER|" +
+		"COUNTER64|GAUGE|" +
+		"TIMETICKS|OPAQUE)\\s+(.*)",
+		Pattern.MULTILINE
+	);
 
-	private static final Pattern HEX_OCTET_STR_PATTERN = Pattern.compile("^[0-9a-f][0-9a-f]( [0-9a-f][0-9a-f])*$", Pattern.CASE_INSENSITIVE);
+	private static final Pattern HEX_OCTET_STR_PATTERN = Pattern.compile(
+		"^[0-9a-f][0-9a-f]( [0-9a-f][0-9a-f])*$",
+		Pattern.CASE_INSENSITIVE
+	);
 
 	/**
 	 * ASN_TYPE returned by MATSYA SNMP client to their corresponding function which creates a new {@link MOScalar} object
@@ -79,7 +84,6 @@ public class SnmpAgent implements VariableProvider {
 	public static final Map<String, MOScalar<? extends Variable>> MANAGED_OBJECTS = new HashMap<>();
 
 	static {
-
 		final Map<String, BiFunction<String, String, MOScalar<? extends Variable>>> map = new HashMap<>();
 		map.put("ASN_INTEGER", SnmpAgent::createInteger32Object);
 		map.put("ASN_OCTET_STR", SnmpAgent::createOctetStringObject);
@@ -134,10 +138,17 @@ public class SnmpAgent implements VariableProvider {
 		threadPool = ThreadPool.create("snmp4JAgent", 3);
 
 		// Create the AgentConfigManager, this is the overridden default instance
-		agent = new AgentConfigurationManager(new OctetString(MPv3.createLocalEngineID()), messageDispatcher, null, moServers, threadPool,
-				configurationFactory, new DefaultMOPersistenceProvider(moServers, configFile.getAbsolutePath()),
-				new EngineBootsCounterFile(bootCounterFile));
-
+		agent =
+			new AgentConfigurationManager(
+				new OctetString(MPv3.createLocalEngineID()),
+				messageDispatcher,
+				null,
+				moServers,
+				threadPool,
+				configurationFactory,
+				new DefaultMOPersistenceProvider(moServers, configFile.getAbsolutePath()),
+				new EngineBootsCounterFile(bootCounterFile)
+			);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -175,7 +186,7 @@ public class SnmpAgent implements VariableProvider {
 
 	/**
 	 * Add the list of listen addresses to the {@link MessageDispatcher} instance
-	 * 
+	 *
 	 * @param md        The MessageDispatcher interface defining common services that process incoming SNMP messages and dispatch them to
 	 *                  interested {@link CommandResponder} instances.
 	 * @param addresses Listener address e.g. udp:0.0.0.0/161
@@ -190,7 +201,7 @@ public class SnmpAgent implements VariableProvider {
 
 	/**
 	 * Register the managed objects located in the given SNMP walk file paths
-	 * 
+	 *
 	 * @param snmpWalkFilePaths Paths to the SNMP Walk input files
 	 * @throws IOException
 	 */
@@ -202,27 +213,27 @@ public class SnmpAgent implements VariableProvider {
 
 	/**
 	 * Register the managed objects located in the given SNMP walk file path
-	 * 
+	 *
 	 * @param snmpWalkFilePath Path to the SNMP Walk input file
 	 * @throws IOException
 	 */
 	private void registerManagedObjects(String snmpWalkFilePath) throws IOException {
-
-		try (BufferedReader reader = new BufferedReader(
-				new InputStreamReader(new FileInputStream(new File(ITJobUtils.getItResourcePath(snmpWalkFilePath)))))) {
-
+		try (
+			BufferedReader reader = new BufferedReader(
+				new InputStreamReader(new FileInputStream(new File(ITJobUtils.getItResourcePath(snmpWalkFilePath))))
+			)
+		) {
 			processManagedObjects(reader.lines().collect(Collectors.joining("\n")));
 		}
 	}
 
 	/**
 	 * Start the SNMP Agent and register the managed objects for the specified context from the given dataPaths
-	 * 
+	 *
 	 * @param snmpWalkFilePaths Paths of the files containing managed objects
 	 * @throws IOException
 	 */
 	public void start(String... snmpWalkFilePaths) throws IOException {
-
 		SecurityProtocols.getInstance().addDefaultProtocols();
 
 		MANAGED_OBJECTS.clear();
@@ -239,7 +250,6 @@ public class SnmpAgent implements VariableProvider {
 	}
 
 	public void stop() {
-
 		agent.shutdown();
 		threadPool.stop();
 		started = false;
@@ -254,7 +264,7 @@ public class SnmpAgent implements VariableProvider {
 
 	/**
 	 * Create a {@link Counter32} scalar managed object
-	 * 
+	 *
 	 * @param oid   The Object Identifier
 	 * @param value The value of the OID
 	 * @return {@link MOScalar} wrapping a {@link Counter32}
@@ -265,7 +275,7 @@ public class SnmpAgent implements VariableProvider {
 
 	/**
 	 * Create a {@link Counter64} scalar managed object
-	 * 
+	 *
 	 * @param oid   The Object Identifier
 	 * @param value The value of the OID
 	 * @return {@link MOScalar} wrapping a {@link Counter64}
@@ -276,7 +286,7 @@ public class SnmpAgent implements VariableProvider {
 
 	/**
 	 * Create a {@link Gauge32} scalar managed object
-	 * 
+	 *
 	 * @param oid   The Object Identifier
 	 * @param value The value of the OID
 	 * @return {@link MOScalar} wrapping a {@link Gauge32}
@@ -287,7 +297,7 @@ public class SnmpAgent implements VariableProvider {
 
 	/**
 	 * Create a {@link Integer32} scalar managed object
-	 * 
+	 *
 	 * @param oid   The Object Identifier
 	 * @param value The value of the OID
 	 * @return {@link MOScalar} wrapping a {@link Integer32}
@@ -298,7 +308,7 @@ public class SnmpAgent implements VariableProvider {
 
 	/**
 	 * Create an {@link IpAddress} scalar managed object
-	 * 
+	 *
 	 * @param oid   The Object Identifier
 	 * @param value The value of the OID
 	 * @return {@link MOScalar} wrapping a {@link IpAddress}
@@ -309,7 +319,7 @@ public class SnmpAgent implements VariableProvider {
 
 	/**
 	 * Create a {@link Null} scalar managed object
-	 * 
+	 *
 	 * @param oid   The Object Identifier
 	 * @param value The value of the OID
 	 * @return {@link MOScalar} wrapping a {@link Null}
@@ -320,7 +330,7 @@ public class SnmpAgent implements VariableProvider {
 
 	/**
 	 * Create an {@link OctetString} scalar managed object
-	 * 
+	 *
 	 * @param oid   The Object Identifier
 	 * @param value The value of the OID
 	 * @return {@link MOScalar} wrapping a {@link OctetString}
@@ -331,7 +341,7 @@ public class SnmpAgent implements VariableProvider {
 
 	/**
 	 * Create an {@link OID} scalar managed object
-	 * 
+	 *
 	 * @param oid   The Object Identifier
 	 * @param value The value of the OID
 	 * @return {@link MOScalar} wrapping a {@link OID}
@@ -342,7 +352,7 @@ public class SnmpAgent implements VariableProvider {
 
 	/**
 	 * Create an {@link Opaque} scalar managed object
-	 * 
+	 *
 	 * @param oid   The Object Identifier
 	 * @param value The value of the OID
 	 * @return {@link MOScalar} wrapping a {@link Opaque}
@@ -353,7 +363,7 @@ public class SnmpAgent implements VariableProvider {
 
 	/**
 	 * Create an {@link TimeTicks} scalar managed object
-	 * 
+	 *
 	 * @param oid   The Object Identifier
 	 * @param value The value of the OID
 	 * @return {@link MOScalar} wrapping a {@link TimeTicks}
@@ -364,12 +374,11 @@ public class SnmpAgent implements VariableProvider {
 
 	/**
 	 * Build the {@link OctetString} and decide whether we should consider it as Hexadecimal String or normal String
-	 * 
+	 *
 	 * @param value The {@link String} value we wish to process
 	 * @return {@link OctetString}
 	 */
 	public static OctetString buildOctetString(String value) {
-
 		// Check whether we should create the hex from string
 		if (HEX_OCTET_STR_PATTERN.matcher(value).matches()) {
 			return OctetString.fromHexString(value.replace(' ', ':'));
@@ -380,11 +389,10 @@ public class SnmpAgent implements VariableProvider {
 
 	/**
 	 * Line by line read the walk and register the managed objects in the server registry.
-	 * 
+	 *
 	 * @param walk SNMP walk
 	 */
 	private void processManagedObjects(String walk) {
-
 		final Matcher snmpResultMatcher = SNMP_LINE_REGEX.matcher(walk);
 
 		while (snmpResultMatcher.find()) {
@@ -394,8 +402,10 @@ public class SnmpAgent implements VariableProvider {
 			final String value = snmpResultMatcher.group(3);
 
 			// Get the function, default OctetString
-			final BiFunction<String, String, MOScalar<? extends Variable>> function = ASN_TYPE_FUNCTIONS.getOrDefault(type,
-					SnmpAgent::createOctetStringObject);
+			final BiFunction<String, String, MOScalar<? extends Variable>> function = ASN_TYPE_FUNCTIONS.getOrDefault(
+				type,
+				SnmpAgent::createOctetStringObject
+			);
 
 			try {
 				final MOScalar<? extends Variable> scalar = function.apply(oid, value);
@@ -404,18 +414,15 @@ public class SnmpAgent implements VariableProvider {
 				MANAGED_OBJECTS.put(oid, scalar);
 
 				register(scalar);
-
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-
 		}
-
 	}
 
 	/**
 	 * Register the given {@link ManagedObject} in the {@link MOServer} registry
-	 * 
+	 *
 	 * @param mo {@link ManagedObject} instance we wish to register
 	 */
 	private void register(ManagedObject<?> mo) {

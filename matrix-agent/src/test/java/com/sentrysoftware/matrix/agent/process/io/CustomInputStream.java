@@ -23,5 +23,4 @@ public class CustomInputStream extends InputStream {
 
 		return data[cursor++];
 	}
-
 }

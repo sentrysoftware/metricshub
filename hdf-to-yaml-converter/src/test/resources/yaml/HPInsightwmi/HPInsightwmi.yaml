@@ -85,6 +85,8 @@ monitors:
           hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($1)
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = The IBMPSG_Processor WBEM class
@@ -102,7 +104,8 @@ monitors:
             translationTable: "${translation::genStatusInformationTranslationTable}"
       mapping:
         source: "${source::monitors.cpu.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.cpu.speed: megaHertz2Hertz($1)
           hw.status{hw.type="cpu"}: $3
@@ -140,6 +143,8 @@ monitors:
           hw.memory.limit: mebiByte2Byte($1)
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = The IBMPSG_Processor WBEM class
@@ -157,7 +162,8 @@ monitors:
             translationTable: "${translation::genStatusInformationTranslationTable}"
       mapping:
         source: "${source::monitors.memory.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="memory"}: $1
         legacyTextParameters:
@@ -186,6 +192,8 @@ monitors:
           name: "${awk::sprintf(\"%s (%s)\", $1, $2)}"
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # ID, status
@@ -203,7 +211,8 @@ monitors:
             translationTable: "${translation::genStatusInformationTranslationTable}"
       mapping:
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="fan"}: $2
         legacyTextParameters:
@@ -250,6 +259,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # ID, status
@@ -267,7 +278,8 @@ monitors:
             translationTable: "${translation::genStatusInformationTranslationTable}"
       mapping:
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
@@ -371,6 +383,8 @@ monitors:
     collect:
       # Like all WBEM collects, this one is \"MultiInstance\"
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the HP_NumericSensor WBEM class
@@ -393,7 +407,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.temperature: $1
           hw.status{hw.type="temperature"}: $3
@@ -421,6 +436,8 @@ monitors:
     collect:
       # Collect type is: multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: wmi
@@ -438,7 +455,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.other_device.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="other_device"}: $2
         legacyTextParameters:
@@ -467,6 +485,8 @@ monitors:
     collect:
       # Collect type is "multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the HP_ManagementProcessor WMI Table
@@ -506,7 +526,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.network.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="network"}: $2
           hw.network.up: legacyLinkStatus($4)

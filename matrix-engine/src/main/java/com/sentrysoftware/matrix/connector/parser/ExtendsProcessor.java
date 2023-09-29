@@ -1,14 +1,12 @@
 package com.sentrysoftware.matrix.connector.parser;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.Iterator;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Iterator;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,14 +19,15 @@ public class ExtendsProcessor implements NodeProcessor {
 
 	@NonNull
 	private Path connectorDirectory;
+
 	@NonNull
 	private NodeProcessor destination;
+
 	@NonNull
 	private ObjectMapper mapper;
 
 	@Override
 	public JsonNode process(JsonNode node) throws IOException {
-
 		final JsonNode result = doMerge(node);
 
 		// Call next processor
@@ -59,7 +58,7 @@ public class ExtendsProcessor implements NodeProcessor {
 			JsonNode extended = null;
 			if (iter.hasNext()) {
 				extended = doMerge(getJsonNode(iter));
-				while(iter.hasNext()) {
+				while (iter.hasNext()) {
 					final JsonNode extendedNext = doMerge(getJsonNode(iter));
 					merge(extended, extendedNext);
 				}
@@ -76,18 +75,13 @@ public class ExtendsProcessor implements NodeProcessor {
 
 	/**
 	 * Gets the next {@link JsonNode} from the iterator
-	 * 
+	 *
 	 * @param iter {@link Iterator} over a collection of {@link JsonNode}
 	 * @return {@link JsonNode} object
 	 * @throws IOException
 	 */
 	private JsonNode getJsonNode(Iterator<JsonNode> iter) throws IOException {
-		return mapper
-			.readTree(
-				connectorDirectory
-					.resolve(iter.next().asText() + ".yaml")
-					.toFile()
-			);
+		return mapper.readTree(connectorDirectory.resolve(iter.next().asText() + ".yaml").toFile());
 	}
 
 	/**
@@ -98,7 +92,7 @@ public class ExtendsProcessor implements NodeProcessor {
 	 *   <li>Arrays of simple values from <code>updateNode</code> erase the ones in <code>mainNode</code>.</li>
 	 *   <li><code>updateNode</code> object values overwrite <code>mainNode</code> object values.<li>
 	 * </ol>
-	 * 
+	 *
 	 * @param mainNode
 	 * @param updateNode
 	 * @return {@link JsonNode} merged
@@ -127,7 +121,7 @@ public class ExtendsProcessor implements NodeProcessor {
 
 	/**
 	 * Handles the specific merge logic for arrays
-	 * 
+	 *
 	 * @param updateNode
 	 * @param fieldName
 	 * @param jsonNode
@@ -141,7 +135,6 @@ public class ExtendsProcessor implements NodeProcessor {
 			for (int i = 0; i < extendedArray.size(); i++) {
 				mainArray.add(extendedArray.get(i));
 			}
-
 		} else {
 			// Simple array gets overwritten
 			mainArray.removeAll();

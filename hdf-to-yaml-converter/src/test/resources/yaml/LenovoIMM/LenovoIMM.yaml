@@ -82,6 +82,8 @@ monitors:
     collect:
       # Collect type is mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # CurrentReading;
@@ -93,7 +95,8 @@ monitors:
         # ValueTable = Source(1)
         # CurrentReading;
         source: "${source::monitors.enclosure.collect.sources.source(1)}"
-        deviceId: Server
+        attributes:
+          id: Server
         metrics:
           hw.enclosure.power: $1
           hw.enclosure.energy: fakeCounter($1)
@@ -217,6 +220,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1)
@@ -245,7 +250,8 @@ monitors:
         # The ValueTable = Source(1)
         # Description;CurrentReading;PATROLStatus;Status;
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.temperature: $2
           hw.status{hw.type="temperature"}: $3
@@ -364,6 +370,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1)
@@ -405,7 +413,8 @@ monitors:
       mapping:
         # The ValueTable = Source(1)
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="fan"}: $2
           hw.fan.speed_ratio: percent2Ratio($4)
@@ -462,6 +471,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1)
@@ -473,7 +484,8 @@ monitors:
       mapping:
         # The ValueTable = Source(1)
         source: "${source::monitors.voltage.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.voltage: $2
   cpu:
@@ -518,6 +530,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1)
@@ -539,7 +553,8 @@ monitors:
       mapping:
         # The ValueTable = Source(1)
         source: "${source::monitors.cpu.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="cpu"}: $2
         legacyTextParameters:
@@ -589,6 +604,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1)
@@ -610,7 +627,8 @@ monitors:
       mapping:
         # The ValueTable = Source(1)
         source: "${source::monitors.memory.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="memory"}: $2
         legacyTextParameters:
@@ -655,6 +673,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1)
@@ -676,7 +696,8 @@ monitors:
       mapping:
         # The ValueTable = Source(1)
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
@@ -716,6 +737,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1)
@@ -737,7 +760,8 @@ monitors:
       mapping:
         # The ValueTable = Source(1)
         source: "${source::monitors.disk_controller.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="disk_controller"}: $2
         legacyTextParameters:
@@ -783,6 +807,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1)
@@ -804,7 +830,8 @@ monitors:
       mapping:
         # The ValueTable = Source(1)
         source: "${source::monitors.logical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="logical_disk"}: $2
         legacyTextParameters:
@@ -908,6 +935,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1)
@@ -929,7 +958,8 @@ monitors:
       mapping:
         # The ValueTable = Source(1)
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
@@ -973,6 +1003,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1)
@@ -994,7 +1026,8 @@ monitors:
       mapping:
         # The ValueTable = Source(1)
         source: "${source::monitors.battery.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="battery"}: $2
         legacyTextParameters:
@@ -1035,6 +1068,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1)
@@ -1053,7 +1088,8 @@ monitors:
         # ValueTable = Source(1)
         # Description;State;
         source: "${source::monitors.led.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="led"}: legacyLedStatus($2)
 translations:

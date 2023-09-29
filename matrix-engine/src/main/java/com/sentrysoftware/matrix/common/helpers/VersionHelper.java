@@ -1,23 +1,20 @@
 package com.sentrysoftware.matrix.common.helpers;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.ClassPathResource;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.ENGINE_PROPERTIES_FILE_NAME;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.ENGINE_VERSION_PROPERTY;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.ENGINE_PROPERTIES_FILE_NAME;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.ENGINE_VERSION_PROPERTY;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ClassPathResource;
 
 @Slf4j
 public class VersionHelper {
 
 	private static final String VERSION_REGEX_DELIMITER = "\\.";
 
-
-	private VersionHelper() {
-	}
+	private VersionHelper() {}
 
 	/**
 	 * Returns the project version
@@ -46,7 +43,6 @@ public class VersionHelper {
 	 * <code>otherVersion</code> otherwise <code>false</code>
 	 */
 	public static boolean isVersionLessThanOtherVersion(String version, String otherVersion) {
-
 		return compareVersions(version, otherVersion) < 0;
 	}
 
@@ -59,7 +55,6 @@ public class VersionHelper {
 	 * than <code>version2</code>
 	 */
 	public static int compareVersions(String version1, String version2) {
-
 		version1 = normalizeVersion(version1);
 		version2 = normalizeVersion(version2);
 
@@ -88,7 +83,6 @@ public class VersionHelper {
 	 * @return normalized version
 	 */
 	private static String normalizeVersion(final String version) {
-
 		if (version == null) {
 			return "0";
 		}

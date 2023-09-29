@@ -1,10 +1,8 @@
 package com.sentrysoftware.matrix.converter.state.monitors.discovery.instance;
 
-import java.io.IOException;
-
-import org.junit.jupiter.api.Test;
-
 import com.sentrysoftware.matrix.converter.AbstractConnectorPropertyConverterTest;
+import java.io.IOException;
+import org.junit.jupiter.api.Test;
 
 class MemoryDiscoveryInstanceTest extends AbstractConnectorPropertyConverterTest {
 

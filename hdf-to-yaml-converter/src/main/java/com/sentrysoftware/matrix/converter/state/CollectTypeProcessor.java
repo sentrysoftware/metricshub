@@ -7,27 +7,27 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.MONO_INSTAN
 import static com.sentrysoftware.matrix.converter.ConverterConstants.MULTI_INSTANCE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.MULTI_INSTANCE_CAMEL_CASE;
 
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CollectTypeProcessor extends AbstractStateConverter {
 
 	private static final Map<String, String> COLLECT_TYPE_MAP = Map.of(
-		MONO_INSTANCE, MONO_INSTANCE_CAMEL_CASE,
-		MULTI_INSTANCE, MULTI_INSTANCE_CAMEL_CASE
+		MONO_INSTANCE,
+		MONO_INSTANCE_CAMEL_CASE,
+		MULTI_INSTANCE,
+		MULTI_INSTANCE_CAMEL_CASE
 	);
 
 	private static final Pattern PATTERN = Pattern.compile(
 		"^\\s*(([a-z]+)\\.(collect)\\.(type))\\s*$",
 		Pattern.CASE_INSENSITIVE
 	);
-
 
 	@Override
 	protected Matcher getMatcher(String key) {
@@ -36,9 +36,7 @@ public class CollectTypeProcessor extends AbstractStateConverter {
 
 	@Override
 	public boolean detect(String key, String value, JsonNode connector) {
-		return value != null
-			&& key != null
-			&& getMatcher(key).matches();
+		return value != null && key != null && getMatcher(key).matches();
 	}
 
 	@Override
@@ -54,18 +52,22 @@ public class CollectTypeProcessor extends AbstractStateConverter {
 		}
 
 		createTextNode("type", collectype, collectJob);
+
+		if (MULTI_INSTANCE_CAMEL_CASE.equals(collectype)) {
+			createStringArrayNode("keys", new String[] { "id" }, collectJob);
+		}
+
 	}
 
 	/**
 	 * Create collect job for the given monitor (and create the correct hierarchy if not
 	 * exists)
-	 * 
+	 *
 	 * @param matcher
 	 * @param connector
 	 * @return {@link ObjectNode} instance
 	 */
 	private ObjectNode getOrCreateMonitorCollectJob(final String key, final JsonNode connector) {
-
 		final Matcher matcher = getMatcher(key);
 		if (!matcher.matches()) {
 			throw new IllegalStateException(String.format(INVALID_KEY_MESSAGE_FORMAT, key));
@@ -78,15 +80,11 @@ public class CollectTypeProcessor extends AbstractStateConverter {
 
 		if (monitors == null) {
 			// Create the whole hierarchy
-			((ObjectNode) connector)
-				.set(
+			((ObjectNode) connector).set(
 					MONITORS,
-					JsonNodeFactory.instance.objectNode()
-						.set(
-							monitorName,
-							JsonNodeFactory.instance.objectNode()
-								.set(COLLECT, collectJob)
-						)
+					JsonNodeFactory.instance
+						.objectNode()
+						.set(monitorName, JsonNodeFactory.instance.objectNode().set(COLLECT, collectJob))
 				);
 			return collectJob;
 		}
@@ -94,12 +92,7 @@ public class CollectTypeProcessor extends AbstractStateConverter {
 		// Check the monitor
 		final JsonNode monitor = monitors.get(monitorName);
 		if (monitor == null) {
-			((ObjectNode) monitors)
-				.set(
-					monitorName,
-					JsonNodeFactory.instance.objectNode()
-						.set(COLLECT, collectJob)
-				);
+			((ObjectNode) monitors).set(monitorName, JsonNodeFactory.instance.objectNode().set(COLLECT, collectJob));
 			return collectJob;
 		}
 
@@ -113,5 +106,4 @@ public class CollectTypeProcessor extends AbstractStateConverter {
 		// Otherwise a collect already exists for this monitor, so return the object
 		return (ObjectNode) monitor.get(COLLECT);
 	}
-
 }

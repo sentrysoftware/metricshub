@@ -47,6 +47,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Now discover information for other discoveries
@@ -66,7 +68,8 @@ monitors:
       mapping:
         # The value table (taken from enclosure.discovery, since we don't actually want to collect anything.
         source: "${source::monitors.enclosure.discovery.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
   physical_disk:
     discovery:
       sources:
@@ -113,6 +116,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = audrive -status
@@ -137,7 +142,8 @@ monitors:
         # The value table
         # MSHW;DeviceID;Status;StatusInformation;
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="physical_disk"}: $3
         legacyTextParameters:
@@ -214,6 +220,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = auluref -m
@@ -260,7 +268,8 @@ monitors:
         # The value table
         # MSHW;systemName;DeviceID;DisplayID;CapacityGB;StripeSize;RAIDGroup;RaidLevel;DiskType;Status;StatusInformation;LogicalDiskType;UseInCapacity;CapacityFreeGB;
         source: "${source::monitors.logical_disk.collect.sources.source(3)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="logical_disk"}: $10
           hw.logical_disk.usage{state="free"}: $14
@@ -294,6 +303,8 @@ monitors:
       # Collect
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Enclosure Collect 1
@@ -314,7 +325,8 @@ monitors:
         # The value table
         # MSHW_Fan;systemName;deviceID;displayID;PatrolStatus;Status;
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="fan"}: $5
         legacyTextParameters:
@@ -346,6 +358,8 @@ monitors:
       # Collect
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Enclosure Collect 1
@@ -366,7 +380,8 @@ monitors:
         # The value table
         # MSHW_OtherDevice;systemName;deviceID;displayID;PatrolStatus;Status;
         source: "${source::monitors.other_device.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="other_device"}: $5
         legacyTextParameters:
@@ -398,6 +413,8 @@ monitors:
       # Collect
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Enclosure Collect 1
@@ -418,7 +435,8 @@ monitors:
         # The value table
         # MSHW_Memory;systemName;deviceID;displayID;PatrolStatus;Status;
         source: "${source::monitors.memory.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="memory"}: $5
         legacyTextParameters:
@@ -450,6 +468,8 @@ monitors:
       # Collect
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Enclosure Collect 1
@@ -470,7 +490,8 @@ monitors:
         # The value table
         # MSHW_NetworkCard;systemName;deviceID;displayID;PatrolStatus;Status;
         source: "${source::monitors.network.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="network"}: $5
         legacyTextParameters:
@@ -502,6 +523,8 @@ monitors:
       # Collect
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Enclosure Collect 1
@@ -522,7 +545,8 @@ monitors:
         # The value table
         # MSHW_Battery;systemName;deviceID;displayID;PatrolStatus;Status;
         source: "${source::monitors.battery.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="battery"}: $5
         legacyTextParameters:
@@ -554,6 +578,8 @@ monitors:
       # Collect
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Enclosure Collect 1
@@ -574,7 +600,8 @@ monitors:
         # The value table
         # MSHW_PowerSupply;systemName;deviceID;displayID;PatrolStatus;Status;
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="power_supply"}: $5
         legacyTextParameters:

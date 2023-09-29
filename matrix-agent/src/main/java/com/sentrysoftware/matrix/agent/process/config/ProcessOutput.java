@@ -1,19 +1,17 @@
 package com.sentrysoftware.matrix.agent.process.config;
 
-import org.slf4j.Logger;
-
 import com.sentrysoftware.matrix.agent.process.io.ProcessorHelper;
 import com.sentrysoftware.matrix.agent.process.io.StreamProcessor;
 import com.sentrysoftware.matrix.agent.process.runtime.AbstractProcess;
-
 import lombok.Builder;
 import lombok.Data;
+import org.slf4j.Logger;
 
 /**
  * Defines how to process the STDOUT and STDERR.<br> The
  * {@link StreamProcessor} of the STDOUT is mandatory, if you don't define the
  * {@link StreamProcessor} of the STDERR, a redirection will take place and
- * the standard error and standard output will be merged. You can change this behavior by overriding 
+ * the standard error and standard output will be merged. You can change this behavior by overriding
  * the {@link AbstractProcess#onBeforeProcessStart(ProcessBuilder)}.
  */
 @Data
@@ -25,21 +23,19 @@ public class ProcessOutput {
 
 	/**
 	 * Builds a {@link ProcessOutput} which prints the process standard output only
-	 * 
-	 * @param label The keyword used in the beginning of each printed line 
+	 *
+	 * @param label The keyword used in the beginning of each printed line
 	 * @return a new {@link ProcessOutput}
 	 */
 	public static ProcessOutput namedConsoleOutput(final String label) {
-		return builder()
-			.outputProcessor(ProcessorHelper.namedConsole(String.format("[%s output]", label), false))
-			.build();
+		return builder().outputProcessor(ProcessorHelper.namedConsole(String.format("[%s output]", label), false)).build();
 	}
 
 	/**
 	 * Builds a {@link ProcessOutput} which prints the process standard output
 	 * and standard error to the console.
-	 * 
-	 * @param label The keyword used in the beginning of each printed line 
+	 *
+	 * @param label The keyword used in the beginning of each printed line
 	 * @return a new {@link ProcessOutput}
 	 */
 	public static ProcessOutput namedConsole(final String label) {
@@ -52,7 +48,7 @@ public class ProcessOutput {
 	/**
 	 * Builds a {@link ProcessOutput} which ignores the process standard output
 	 * and standard error.
-	 * 
+	 *
 	 * @return a new {@link ProcessOutput}
 	 */
 	public static ProcessOutput silent() {
@@ -62,7 +58,7 @@ public class ProcessOutput {
 	/**
 	 * Builds a {@link ProcessOutput} which prints the process standard output and
 	 * standard error using the Slf4j {@link Logger}.
-	 * 
+	 *
 	 * @param logger Slf4j logger interface
 	 * @return a new {@link ProcessOutput}
 	 */
@@ -76,14 +72,11 @@ public class ProcessOutput {
 	/**
 	 * Builds a {@link ProcessOutput} which prints the process standard output only
 	 * using the Slf4j {@link Logger}.
-	 * 
+	 *
 	 * @param logger Slf4j logger interface
 	 * @return a new {@link ProcessOutput}
 	 */
 	public static ProcessOutput logOutput(final Logger logger) {
-		return builder()
-			.outputProcessor(ProcessorHelper.logger(logger, Slf4jLevel.DEBUG))
-			.build();
+		return builder().outputProcessor(ProcessorHelper.logger(logger, Slf4jLevel.DEBUG)).build();
 	}
-
 }

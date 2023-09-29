@@ -14,6 +14,7 @@ public class NamedStreamProcessor implements StreamProcessor {
 
 	@NonNull
 	private final String name;
+
 	@NonNull
 	private final StreamProcessor destination;
 
@@ -22,5 +23,4 @@ public class NamedStreamProcessor implements StreamProcessor {
 		// Next processing
 		destination.process(String.format("%s %s", name, block));
 	}
-
 }

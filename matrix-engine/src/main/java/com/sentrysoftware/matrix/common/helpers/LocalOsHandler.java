@@ -2,12 +2,11 @@ package com.sentrysoftware.matrix.common.helpers;
 
 import java.util.List;
 import java.util.Optional;
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor (access=AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LocalOsHandler {
 
 	public static final ILocalOs WINDOWS = new Windows();
@@ -21,11 +20,23 @@ public class LocalOsHandler {
 	public static final ILocalOs NET_BSD = new NetBsd();
 	public static final ILocalOs MAC_OS_X = new MacOsx();
 
-	private static final List<ILocalOs> OS_LIST = List.of(WINDOWS, LINUX, AIX, SUN, HP, MAC_OS_X, SOLARIS, FREE_BSD, OPEN_BSD, NET_BSD);
+	private static final List<ILocalOs> OS_LIST = List.of(
+		WINDOWS,
+		LINUX,
+		AIX,
+		SUN,
+		HP,
+		MAC_OS_X,
+		SOLARIS,
+		FREE_BSD,
+		OPEN_BSD,
+		NET_BSD
+	);
 
 	@Getter
-	private static final Optional<ILocalOs> Os = detectOs();
-	private static final boolean IS_WINDOWS = Os.isPresent() && Os.get().equals(WINDOWS);
+	private static final Optional<ILocalOs> OS = detectOs();
+
+	private static final boolean IS_WINDOWS = OS.isPresent() && OS.get().equals(WINDOWS);
 
 	/**
 	 * Detect the current Local OS.
@@ -33,13 +44,13 @@ public class LocalOsHandler {
 	 */
 	static Optional<ILocalOs> detectOs() {
 		return getSystemOsName()
-				.map(String::toLowerCase)
-				.map(name -> OS_LIST.stream().filter(os -> name.startsWith(os.getOsTag())).findFirst().orElse(null));
+			.map(String::toLowerCase)
+			.map(name -> OS_LIST.stream().filter(os -> name.startsWith(os.getOsTag())).findFirst().orElse(null));
 	}
-	
+
 	/**
 	 * Check if the Local OS is a Windows.
-	 * 
+	 *
 	 * @return true if Windows false otherwise.
 	 */
 	public static boolean isWindows() {
@@ -62,17 +73,17 @@ public class LocalOsHandler {
 		return Optional.ofNullable(System.getProperty("os.version"));
 	}
 
-	public static interface ILocalOsVisitor {
-		void visit(final Windows os);
-		void visit(final Linux os);
-		void visit(final Sun os);
-		void visit(final Hp os);
-		void visit(final Solaris os);
-		void visit(final Aix os);
-		void visit(final FreeBsd os);
-		void visit(final OpenBsd os);
-		void visit(final NetBsd os);
-		void visit(final MacOsx os);
+	public interface ILocalOsVisitor {
+		void visit(Windows os);
+		void visit(Linux os);
+		void visit(Sun os);
+		void visit(Hp os);
+		void visit(Solaris os);
+		void visit(Aix os);
+		void visit(FreeBsd os);
+		void visit(OpenBsd os);
+		void visit(NetBsd os);
+		void visit(MacOsx os);
 	}
 
 	@Getter
@@ -81,10 +92,11 @@ public class LocalOsHandler {
 		protected String osTag;
 		protected boolean unix;
 
-		public abstract void accept(final ILocalOsVisitor visitor);
+		public abstract void accept(ILocalOsVisitor visitor);
 	}
 
 	public static class Windows extends ILocalOs {
+
 		Windows() {
 			osTag = "windows";
 			unix = false;
@@ -97,6 +109,7 @@ public class LocalOsHandler {
 	}
 
 	public static class Linux extends ILocalOs {
+
 		Linux() {
 			osTag = "linux";
 			unix = true;
@@ -109,6 +122,7 @@ public class LocalOsHandler {
 	}
 
 	public static class Sun extends ILocalOs {
+
 		Sun() {
 			osTag = "sunos";
 			unix = true;
@@ -121,6 +135,7 @@ public class LocalOsHandler {
 	}
 
 	public static class Hp extends ILocalOs {
+
 		Hp() {
 			osTag = "hp-ux";
 			unix = true;
@@ -133,6 +148,7 @@ public class LocalOsHandler {
 	}
 
 	public static class Solaris extends ILocalOs {
+
 		Solaris() {
 			osTag = "solaris";
 			unix = true;
@@ -145,6 +161,7 @@ public class LocalOsHandler {
 	}
 
 	public static class Aix extends ILocalOs {
+
 		Aix() {
 			osTag = "aix";
 			unix = true;
@@ -181,6 +198,7 @@ public class LocalOsHandler {
 	}
 
 	public static class OpenBsd extends BsdOs {
+
 		OpenBsd() {
 			super();
 			osTag = "openbsd";
@@ -193,6 +211,7 @@ public class LocalOsHandler {
 	}
 
 	public static class NetBsd extends BsdOs {
+
 		NetBsd() {
 			super();
 			osTag = "netbsd";
@@ -205,6 +224,7 @@ public class LocalOsHandler {
 	}
 
 	public static class MacOsx extends ILocalOs {
+
 		MacOsx() {
 			osTag = "mac os x";
 			unix = true;

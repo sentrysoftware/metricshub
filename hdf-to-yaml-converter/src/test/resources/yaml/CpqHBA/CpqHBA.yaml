@@ -55,6 +55,8 @@ monitors:
           name: "${awk::sprintf(\"%s (%s - %s)\", $1, \"FC Port\", $2)}"
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the cpqFcaHostCntlr snmp table
@@ -87,7 +89,8 @@ monitors:
       mapping:
         # The ValueTable = source(1)
         source: "${source::monitors.network.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="network"}: $2
           hw.network.up: legacyLinkStatus($4)

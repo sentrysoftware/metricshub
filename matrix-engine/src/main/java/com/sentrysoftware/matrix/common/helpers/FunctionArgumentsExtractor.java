@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -17,7 +16,7 @@ public class FunctionArgumentsExtractor {
 	/**
 	 * Extracts the arguments from a function like<br>
 	 * lookup("disk_controller", "id", "controller_number", $2)
-	 * 
+	 *
 	 * @param functionCode function code definition
 	 * @return captured arguments
 	 */
@@ -53,7 +52,7 @@ public class FunctionArgumentsExtractor {
 	/**
 	 * Transforms the argument builder to a string value, trims white spaces
 	 * from the string and removes trailing and leading double quotes
-	 * 
+	 *
 	 * @param argumentBuilder {@link StringBuilder} instance wrapping one
 	 * function argument
 	 * @return normalized argument
@@ -68,5 +67,4 @@ public class FunctionArgumentsExtractor {
 
 		return value;
 	}
-
 }

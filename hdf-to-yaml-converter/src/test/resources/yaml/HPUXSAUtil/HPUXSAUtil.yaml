@@ -127,6 +127,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Runs /opt/raidsa/bin/sautil /dev/cissx -s
@@ -161,7 +163,8 @@ monitors:
         # The ValueTable = source(1)
         #  DeviceID;PatrolStatus;StatusInformation;
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
@@ -206,6 +209,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Collect type = Source(1) = Runs /opt/raidsa/bin/sautil /dev/cissx -s
@@ -239,7 +244,8 @@ monitors:
         # The ValueTable = source(1)
         # deviceID;Patrolstatus;StatusInformation
         source: "${source::monitors.logical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="logical_disk"}: $2
         legacyTextParameters:
@@ -273,6 +279,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Runs /opt/raidsa/bin/sautil /dev/cissx -s
@@ -306,7 +314,8 @@ monitors:
         # The ValueTable = source(1)
         #  DeviceID;PatrolStatus;StatusInformation;
         source: "${source::monitors.battery.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="battery"}: $2
         legacyTextParameters:

@@ -4,12 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.stream.Stream;
-
-import org.junit.jupiter.api.Test;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -20,6 +14,10 @@ import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.converter.ConnectorConverter;
 import com.sentrysoftware.matrix.converter.ConnectorLibraryConverter;
 import com.sentrysoftware.matrix.converter.PreConnector;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.Test;
 
 class ConnectorSimplePropertyTest {
 
@@ -33,8 +31,7 @@ class ConnectorSimplePropertyTest {
 		// detect the node connector -> displayName
 		boolean result = new ConnectorSimpleProperty.DisplayNameProcessor().detect(hdfProperty, expected, connector);
 		assertTrue(result);
-		new ConnectorSimpleProperty.DisplayNameProcessor().convert(hdfProperty, expected, connector,
-				new PreConnector()); // convert/create YAML node
+		new ConnectorSimpleProperty.DisplayNameProcessor().convert(hdfProperty, expected, connector, new PreConnector()); // convert/create YAML node
 		JsonNode connectorNode = connector.get("connector");
 		assertNotNull(connectorNode);
 		JsonNode displayNameNode = connectorNode.get("displayName");
@@ -46,11 +43,10 @@ class ConnectorSimplePropertyTest {
 		ObjectNode connector = JsonNodeFactory.instance.objectNode();
 		String expected = "Dell PowerEdge";
 		String hdfProperty = "hdf.TypicalPlatform";
-		boolean result = new ConnectorSimpleProperty.TypicalPlatformProcessor().detect(hdfProperty, expected,
-				connector);
+		boolean result = new ConnectorSimpleProperty.TypicalPlatformProcessor().detect(hdfProperty, expected, connector);
 		assertTrue(result);
-		new ConnectorSimpleProperty.TypicalPlatformProcessor().convert(hdfProperty, expected, connector,
-				new PreConnector());
+		new ConnectorSimpleProperty.TypicalPlatformProcessor()
+			.convert(hdfProperty, expected, connector, new PreConnector());
 		JsonNode connectorNode = connector.get("connector");
 		assertNotNull(connectorNode);
 		JsonNode platformsNode = connectorNode.get("platforms");
@@ -108,8 +104,7 @@ class ConnectorSimplePropertyTest {
 		String hdfProperty = "hdf.LocalSupport";
 		boolean result = new ConnectorSimpleProperty.LocalSupportProcessor().detect(hdfProperty, expected, connector);
 		assertTrue(result);
-		new ConnectorSimpleProperty.LocalSupportProcessor().convert(hdfProperty, expected, connector,
-				new PreConnector());
+		new ConnectorSimpleProperty.LocalSupportProcessor().convert(hdfProperty, expected, connector, new PreConnector());
 		JsonNode connectorNode = connector.get("connector");
 		assertNotNull(connectorNode);
 
@@ -126,8 +121,7 @@ class ConnectorSimplePropertyTest {
 		String hdfProperty = "hdf.RemoteSupport";
 		boolean result = new ConnectorSimpleProperty.RemoteSupportProcessor().detect(hdfProperty, expected, connector);
 		assertTrue(result);
-		new ConnectorSimpleProperty.RemoteSupportProcessor().convert(hdfProperty, expected, connector,
-				new PreConnector());
+		new ConnectorSimpleProperty.RemoteSupportProcessor().convert(hdfProperty, expected, connector, new PreConnector());
 		JsonNode connectorNode = connector.get("connector");
 		assertNotNull(connectorNode);
 
@@ -146,10 +140,10 @@ class ConnectorSimplePropertyTest {
 		assertTrue(new ConnectorSimpleProperty.RemoteSupportProcessor().detect(hdfPropertyRemote, "true", connector));
 		assertTrue(new ConnectorSimpleProperty.LocalSupportProcessor().detect(hdfPropertyLocal, "true", connector));
 		// convert
-		new ConnectorSimpleProperty.RemoteSupportProcessor().convert(hdfPropertyRemote, "true", connector,
-				new PreConnector());
-		new ConnectorSimpleProperty.LocalSupportProcessor().convert(hdfPropertyLocal, "true", connector,
-				new PreConnector());
+		new ConnectorSimpleProperty.RemoteSupportProcessor()
+			.convert(hdfPropertyRemote, "true", connector, new PreConnector());
+		new ConnectorSimpleProperty.LocalSupportProcessor()
+			.convert(hdfPropertyLocal, "true", connector, new PreConnector());
 		JsonNode connectorNode = connector.get("connector");
 		assertNotNull(connectorNode);
 
@@ -169,10 +163,10 @@ class ConnectorSimplePropertyTest {
 		assertTrue(new ConnectorSimpleProperty.RemoteSupportProcessor().detect(hdfPropertyRemote, "true", connector));
 		assertTrue(new ConnectorSimpleProperty.LocalSupportProcessor().detect(hdfPropertyLocal, "false", connector));
 		// convert
-		new ConnectorSimpleProperty.RemoteSupportProcessor().convert(hdfPropertyRemote, "true", connector,
-				new PreConnector());
-		new ConnectorSimpleProperty.LocalSupportProcessor().convert(hdfPropertyLocal, "false", connector,
-				new PreConnector());
+		new ConnectorSimpleProperty.RemoteSupportProcessor()
+			.convert(hdfPropertyRemote, "true", connector, new PreConnector());
+		new ConnectorSimpleProperty.LocalSupportProcessor()
+			.convert(hdfPropertyLocal, "false", connector, new PreConnector());
 		JsonNode connectorNode = connector.get("connector");
 		assertNotNull(connectorNode);
 
@@ -188,16 +182,15 @@ class ConnectorSimplePropertyTest {
 		String input = "MS_HW_IpmiTool.hdf,MS_HW_VMwareESX4i.hdf"; // value in the hdf file
 		String hdfProperty = "hdf.Supersedes"; // property name as defined in the hdf file
 		// check that the property is correctly detected
-		boolean result = new ConnectorSimpleProperty.SupersedesProcessor().detect(hdfProperty, input, connector); 
+		boolean result = new ConnectorSimpleProperty.SupersedesProcessor().detect(hdfProperty, input, connector);
 		assertTrue(result);
-		// convert the property to a JSON node 
-		new ConnectorSimpleProperty.SupersedesProcessor().convert(hdfProperty, input, connector, new PreConnector()); 
+		// convert the property to a JSON node
+		new ConnectorSimpleProperty.SupersedesProcessor().convert(hdfProperty, input, connector, new PreConnector());
 		JsonNode connectorNode = connector.get("connector");
 		assertNotNull(connectorNode);
 
 		final ArrayNode expected = JsonNodeFactory.instance.arrayNode();
-		Stream.of(input.split(",")).map(ConnectorLibraryConverter::getConnectorFilenameNoExtension)
-				.forEach(expected::add);
+		Stream.of(input.split(",")).map(ConnectorLibraryConverter::getConnectorFilenameNoExtension).forEach(expected::add);
 
 		final JsonNode detection = connectorNode.get(DETECTION);
 		assertNotNull(detection);
@@ -211,10 +204,9 @@ class ConnectorSimplePropertyTest {
 		ObjectNode connector = JsonNodeFactory.instance.objectNode(); // root node
 		String expected = "NT,Linux";
 		String hdfProperty = "hdf.AppliesToOS"; // property name as defined in the hdf file
-		boolean result = new ConnectorSimpleProperty.AppliesToOsProcessor().detect(hdfProperty, expected, connector); 
+		boolean result = new ConnectorSimpleProperty.AppliesToOsProcessor().detect(hdfProperty, expected, connector);
 		assertTrue(result);
-		new ConnectorSimpleProperty.AppliesToOsProcessor().convert(hdfProperty, expected, connector,
-				new PreConnector()); // convert the property to a yaml node
+		new ConnectorSimpleProperty.AppliesToOsProcessor().convert(hdfProperty, expected, connector, new PreConnector()); // convert the property to a yaml node
 		JsonNode connectorNode = connector.get("connector");
 		assertNotNull(connectorNode);
 
@@ -230,18 +222,19 @@ class ConnectorSimplePropertyTest {
 		ObjectNode connector = JsonNodeFactory.instance.objectNode();
 		String expected = "false";
 		String hdfProperty = "hdf.noautodetection";
-		boolean result = new ConnectorSimpleProperty.NoAutoDetectionProcessor().detect(hdfProperty, expected,
-				connector);
+		boolean result = new ConnectorSimpleProperty.NoAutoDetectionProcessor().detect(hdfProperty, expected, connector);
 		assertTrue(result);
-		new ConnectorSimpleProperty.NoAutoDetectionProcessor().convert(hdfProperty, expected, connector,
-				new PreConnector());
+		new ConnectorSimpleProperty.NoAutoDetectionProcessor()
+			.convert(hdfProperty, expected, connector, new PreConnector());
 		JsonNode connectorNode = connector.get("connector");
 		assertNotNull(connectorNode);
 
 		BooleanNode expectedNodeValue = JsonNodeFactory.instance.booleanNode(false);
 
-		assertEquals(expectedNodeValue.booleanValue(),
-				connectorNode.get(DETECTION).get("disableAutoDetection").booleanValue());
+		assertEquals(
+			expectedNodeValue.booleanValue(),
+			connectorNode.get(DETECTION).get("disableAutoDetection").booleanValue()
+		);
 	}
 
 	@Test
@@ -251,8 +244,7 @@ class ConnectorSimplePropertyTest {
 		String hdfProperty = "hdf.onLastResort";
 		boolean result = new ConnectorSimpleProperty.OnLastResortProcessor().detect(hdfProperty, expected, connector);
 		assertTrue(result);
-		new ConnectorSimpleProperty.OnLastResortProcessor().convert(hdfProperty, expected, connector,
-				new PreConnector());
+		new ConnectorSimpleProperty.OnLastResortProcessor().convert(hdfProperty, expected, connector, new PreConnector());
 		JsonNode connectorNode = connector.get("connector");
 		assertNotNull(connectorNode);
 		assertEquals(expected, connectorNode.get(DETECTION).get("onLastResort").textValue());
@@ -260,40 +252,41 @@ class ConnectorSimplePropertyTest {
 
 	@Test
 	void test() throws IOException {
-		String input = """
-					hdf.DisplayName="Dell OpenManage Server Administrator"
-					hdf.TypicalPlatform="Dell PowerEdge"
-					hdf.ReliesOn="Dell OpenManage Server Administrator"
-					hdf.Version="1.0"
-					hdf.Comments="This connector provides hardware monitoring through the Dell OpenManage Server Administrator SNMP agent which supports almost all Dell PowerEdge servers."
-					hdf.RemoteSupport="true"
-					hdf.LocalSupport="true"
-					hdf.NoAutoDetection="true"
-					hdf.AppliesToOS="NT,Linux"
-					hdf.Supersedes="MS_HW_IpmiTool.hdf,MS_HW_VMwareESX4i.hdf,MS_HW_VMwareESXi.hdf,MS_HW_VMwareESXiDisksIPMI.hdf,MS_HW_VMwareESXiDisksStorage.hdf"
-				""";
+		String input =
+			"""
+				hdf.DisplayName="Dell OpenManage Server Administrator"
+				hdf.TypicalPlatform="Dell PowerEdge"
+				hdf.ReliesOn="Dell OpenManage Server Administrator"
+				hdf.Version="1.0"
+				hdf.Comments="This connector provides hardware monitoring through the Dell OpenManage Server Administrator SNMP agent which supports almost all Dell PowerEdge servers."
+				hdf.RemoteSupport="true"
+				hdf.LocalSupport="true"
+				hdf.NoAutoDetection="true"
+				hdf.AppliesToOS="NT,Linux"
+				hdf.Supersedes="MS_HW_IpmiTool.hdf,MS_HW_VMwareESX4i.hdf,MS_HW_VMwareESXi.hdf,MS_HW_VMwareESXiDisksIPMI.hdf,MS_HW_VMwareESXiDisksStorage.hdf"
+			""";
 
 		PreConnector preConnector = new PreConnector();
 		preConnector.load(new ByteArrayInputStream(input.getBytes()));
 		ConnectorConverter connectorConverter = new ConnectorConverter(preConnector);
 		JsonNode connector = connectorConverter.convert();
-		String yaml = """
-				           connector:
-				             displayName: Dell OpenManage Server Administrator
-				             platforms: Dell PowerEdge
-				             reliesOn: Dell OpenManage Server Administrator
-				             version: "1.0"
-				             information: This connector provides hardware monitoring through the Dell OpenManage Server Administrator SNMP agent which supports almost all Dell PowerEdge servers.
+		String yaml =
+			"""
+			           connector:
+			             displayName: Dell OpenManage Server Administrator
+			             platforms: Dell PowerEdge
+			             reliesOn: Dell OpenManage Server Administrator
+			             version: "1.0"
+			             information: This connector provides hardware monitoring through the Dell OpenManage Server Administrator SNMP agent which supports almost all Dell PowerEdge servers.
 
-				             detection:
-				                connectionTypes: [remote, local]
-				                disableAutoDetection: true
-				                appliesTo: [ NT,Linux ]
-				                supersedes: [IpmiTool, VMwareESX4i, VMwareESXi, VMwareESXiDisksIPMI, VMwareESXiDisksStorage]
-				""";
+			             detection:
+			                connectionTypes: [remote, local]
+			                disableAutoDetection: true
+			                appliesTo: [ NT,Linux ]
+			                supersedes: [IpmiTool, VMwareESX4i, VMwareESXi, VMwareESXiDisksIPMI, VMwareESXiDisksStorage]
+			""";
 		ObjectMapper mapper = JsonHelper.buildYamlMapper();
 		JsonNode expected = mapper.readTree(yaml);
 		assertEquals(expected, connector);
 	}
-
 }

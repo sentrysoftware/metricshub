@@ -84,6 +84,8 @@ monitors:
     collect:
       # Collect type is multi-instance (execute once)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: osCommand
@@ -130,7 +132,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.enclosure.collect.sources.source(6)}"
-        deviceId: $4
+        attributes:
+          id: $4
         metrics:
           hw.status{hw.type="enclosure"}: $6
         legacyTextParameters:
@@ -163,6 +166,8 @@ monitors:
     collect:
       # Collect type is multi-instance (execute once)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: osCommand
@@ -203,7 +208,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.temperature.collect.sources.source(5)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="temperature"}: $6
           hw.temperature: $5
@@ -237,6 +243,8 @@ monitors:
     collect:
       # Collect type is multi-instance (execute once)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: osCommand
@@ -282,7 +290,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.voltage.collect.sources.source(5)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="voltage"}: $6
           hw.voltage: $5
@@ -314,6 +323,8 @@ monitors:
     collect:
       # Collect type is multi-instance (execute once)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: osCommand
@@ -354,7 +365,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.memory.collect.sources.source(5)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="memory"}: $6
         legacyTextParameters:
@@ -387,6 +399,8 @@ monitors:
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: osCommand
@@ -427,7 +441,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.fan.collect.sources.source(5)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="fan"}: $6
           hw.fan.speed: $5
@@ -459,6 +474,8 @@ monitors:
     collect:
       # Collect type is multi-instance (execute once)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: osCommand
@@ -499,7 +516,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.power_supply.collect.sources.source(5)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="power_supply"}: $6
         legacyTextParameters:
@@ -530,6 +548,8 @@ monitors:
     collect:
       # Collect type is multi-instance (execute once)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: osCommand
@@ -570,7 +590,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.battery.collect.sources.source(5)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="battery"}: $6
         legacyTextParameters:
@@ -601,6 +622,8 @@ monitors:
     collect:
       # Collect type is multi-instance (execute once)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: osCommand
@@ -641,7 +664,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.disk_controller.collect.sources.source(5)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="disk_controller"}: $6
         legacyTextParameters:
@@ -679,6 +703,8 @@ monitors:
     collect:
       # Collect type is multi-instance (execute once)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: osCommand
@@ -720,7 +746,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.physical_disk.collect.sources.source(5)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="physical_disk"}: $6
         legacyTextParameters:
@@ -758,6 +785,8 @@ monitors:
     collect:
       # Collect type is multi-instance (execute once)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: osCommand
@@ -798,7 +827,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.logical_disk.collect.sources.source(5)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="logical_disk"}: $6
         legacyTextParameters:
@@ -829,6 +859,8 @@ monitors:
     collect:
       # Collect type is multi-instance (execute once)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: osCommand
@@ -869,7 +901,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.other_device.collect.sources.source(5)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="other_device"}: $6
         legacyTextParameters:
@@ -915,6 +948,8 @@ monitors:
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1)
@@ -947,7 +982,8 @@ monitors:
       mapping:
         # And here is the ValueTable
         source: "${source::monitors.network.collect.sources.source(4)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.network.packets{direction="receive"}: $5
           hw.network.packets{direction="transmit"}: $6

@@ -1,15 +1,14 @@
 package com.sentrysoftware.matrix.connector.model.common;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
 public enum DeviceKind {
-
 	VMS("HP Open VMS"),
 	TRU64("HP Tru64"),
 	HPUX("HP-UX"),
@@ -19,7 +18,8 @@ public enum DeviceKind {
 	WINDOWS("Microsoft Windows"),
 	NETWORK("Network"),
 	STORAGE("Storage"),
-	SOLARIS("Oracle Solaris");
+	SOLARIS("Oracle Solaris"),
+	OTHER("Other");
 
 	@Getter
 	private String displayName;
@@ -29,17 +29,18 @@ public enum DeviceKind {
 	/**
 	 * Map each OsType with a regular expression that detects it
 	 */
-	private static final Map<DeviceKind, Pattern> DETECTORS = Map.of(
-		LINUX, Pattern.compile("^linux$"),
-		WINDOWS, Pattern.compile("^(microsoft\\s*)?windows$|^win$|^nt$"),
-		OOB, Pattern.compile("^management\\s*card$|^out-of-band$|^out\\s*of\\s*band$|^oob$"),
-		NETWORK, Pattern.compile("^network$|^switch$"),
-		STORAGE, Pattern.compile("^storage$|^san$|^library$|^array$"),
-		VMS, Pattern.compile("^vms$|^(hp\\s*)?open\\s*vms$"),
-		TRU64, Pattern.compile("^tru64$|^osf1$|^hp\\s*tru64\\s*unix$"),
-		HPUX, Pattern.compile("^hp-ux$|^hpux$|^hp$"),
-		AIX, Pattern.compile("^ibm(\\s*|-)aix$|^aix$|^rs6000$"),
-		SOLARIS, Pattern.compile("^((sun|oracle)\\s*)?solaris$|^sunos$")
+	private static final Map<DeviceKind, Pattern> DETECTORS = Map.ofEntries(
+		new SimpleEntry<>(LINUX, Pattern.compile("^linux$")),
+		new SimpleEntry<>(WINDOWS, Pattern.compile("^(microsoft\\s*)?windows$|^win$|^nt$")),
+		new SimpleEntry<>(OOB, Pattern.compile("^management\\s*card$|^out-of-band$|^out\\s*of\\s*band$|^oob$")),
+		new SimpleEntry<>(NETWORK, Pattern.compile("^network$|^switch$")),
+		new SimpleEntry<>(STORAGE, Pattern.compile("^storage$|^san$|^library$|^array$")),
+		new SimpleEntry<>(VMS, Pattern.compile("^vms$|^(hp\\s*)?open\\s*vms$")),
+		new SimpleEntry<>(TRU64, Pattern.compile("^tru64$|^osf1$|^hp\\s*tru64\\s*unix$")),
+		new SimpleEntry<>(HPUX, Pattern.compile("^hp-ux$|^hpux$|^hp$")),
+		new SimpleEntry<>(AIX, Pattern.compile("^ibm(\\s*|-)aix$|^aix$|^rs6000$")),
+		new SimpleEntry<>(SOLARIS, Pattern.compile("^((sun|oracle)\\s*)?solaris$|^sunos$")),
+		new SimpleEntry<>(OTHER, Pattern.compile("^other$"))
 	);
 
 	/**
@@ -65,5 +66,4 @@ public enum DeviceKind {
 		// No match => Exception
 		throw new IllegalArgumentException("'" + value + "' is not a supported device kind.");
 	}
-
 }

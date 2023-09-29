@@ -2,18 +2,15 @@ package com.sentrysoftware.matrix.connector.model.monitor.task.source.compute;
 
 import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
-
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
-
-import java.util.StringJoiner;
-import java.util.function.UnaryOperator;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.sentrysoftware.matrix.connector.model.common.ConversionType;
 import com.sentrysoftware.matrix.strategy.source.compute.IComputeProcessor;
-
+import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -38,7 +35,7 @@ public class Convert extends Compute {
 	@Builder
 	@JsonCreator
 	public Convert(
-		@JsonProperty("type") String type, 
+		@JsonProperty("type") String type,
 		@JsonProperty(value = "column", required = true) @NonNull Integer column,
 		@JsonProperty(value = "conversion", required = true) @NonNull ConversionType conversion
 	) {
@@ -61,12 +58,7 @@ public class Convert extends Compute {
 
 	@Override
 	public Convert copy() {
-		return Convert
-			.builder()
-			.type(type)
-			.column(column)
-			.conversion(conversion)
-			.build();
+		return Convert.builder().type(type).column(column).conversion(conversion).build();
 	}
 
 	@Override

@@ -1,9 +1,5 @@
 package com.sentrysoftware.matrix.converter.state.source;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import com.sentrysoftware.matrix.converter.state.IConnectorStateConverter;
 import com.sentrysoftware.matrix.converter.state.source.http.ConnectorHttpProperty;
 import com.sentrysoftware.matrix.converter.state.source.ipmi.ConnectorIpmiProperty;
@@ -15,7 +11,9 @@ import com.sentrysoftware.matrix.converter.state.source.tablejoin.ConnectorTable
 import com.sentrysoftware.matrix.converter.state.source.tableunion.ConnectorTableUnionProperty;
 import com.sentrysoftware.matrix.converter.state.source.wbem.ConnectorWbemProperty;
 import com.sentrysoftware.matrix.converter.state.source.wmi.ConnectorWmiProperty;
-
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -23,21 +21,21 @@ import lombok.NoArgsConstructor;
 public class ConnectorSourceProperty {
 
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
-
-		return Stream.of(
-			ConnectorWmiProperty.getConnectorProperties(),
-			ConnectorWbemProperty.getConnectorProperties(),
-			ConnectorSnmpTableProperty.getConnectorProperties(),
-			ConnectorSnmpGetProperty.getConnectorProperties(),
-			ConnectorTableJoinProperty.getConnectorProperties(),
-			ConnectorTableUnionProperty.getConnectorProperties(),
-			ConnectorHttpProperty.getConnectorProperties(),
-			ConnectorOsCommandProperty.getConnectorProperties(),
-			ConnectorReferenceProperty.getConnectorProperties(),
-			ConnectorOsCommandProperty.getConnectorProperties(),
-			ConnectorIpmiProperty.getConnectorProperties()
-		)
-		.flatMap(Set::stream)
-		.collect(Collectors.toSet());
+		return Stream
+			.of(
+				ConnectorWmiProperty.getConnectorProperties(),
+				ConnectorWbemProperty.getConnectorProperties(),
+				ConnectorSnmpTableProperty.getConnectorProperties(),
+				ConnectorSnmpGetProperty.getConnectorProperties(),
+				ConnectorTableJoinProperty.getConnectorProperties(),
+				ConnectorTableUnionProperty.getConnectorProperties(),
+				ConnectorHttpProperty.getConnectorProperties(),
+				ConnectorOsCommandProperty.getConnectorProperties(),
+				ConnectorReferenceProperty.getConnectorProperties(),
+				ConnectorOsCommandProperty.getConnectorProperties(),
+				ConnectorIpmiProperty.getConnectorProperties()
+			)
+			.flatMap(Set::stream)
+			.collect(Collectors.toSet());
 	}
 }

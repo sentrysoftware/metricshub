@@ -12,16 +12,19 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_STATUS_
 import static com.sentrysoftware.matrix.converter.ConverterConstants.LEGACY_TEXT_PARAMETERS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.METRICS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BLADE_NAME;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BLADE_POWER_STATE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BLADE_STATUS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_DISPLAY_ID;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ID;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_MODEL;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_NAME;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_BLADE_POWER_STATE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_SERIAL_NUMBER;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_STATUS_INFORMATION;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.*;
+import static com.sentrysoftware.matrix.converter.state.ConversionHelper.wrapInAwkRefIfFunctionDetected;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,13 +35,10 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-
 public class BladeConverter extends AbstractMappingConverter {
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_ATTRIBUTES_MAPPING;
+
 	static {
 		final Map<String, Entry<String, IMappingKey>> attributesMap = new HashMap<>();
 		attributesMap.put(HDF_DEVICE_ID, IMappingKey.of(ATTRIBUTES, YAML_ID));
@@ -51,8 +51,8 @@ public class BladeConverter extends AbstractMappingConverter {
 	}
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_METRICS_MAPPING;
+
 	static {
-		
 		final Map<String, Entry<String, IMappingKey>> metricsMap = new HashMap<>();
 		metricsMap.put(HDF_STATUS, IMappingKey.of(METRICS, YAML_BLADE_STATUS));
 		metricsMap.put(HDF_STATUS_INFORMATION, IMappingKey.of(LEGACY_TEXT_PARAMETERS, YAML_STATUS_INFORMATION));
@@ -71,8 +71,7 @@ public class BladeConverter extends AbstractMappingConverter {
 	}
 
 	@Override
-	protected void convertAttributesSpecific(JsonNode mapping, ObjectNode existingAttributes,
-			ObjectNode newAttributes) {
+	protected void convertAttributesSpecific(JsonNode mapping, ObjectNode existingAttributes, ObjectNode newAttributes) {
 		// Not implemented
 	}
 
@@ -94,11 +93,7 @@ public class BladeConverter extends AbstractMappingConverter {
 
 		newAttributes.set(
 			YAML_NAME,
-			new TextNode(
-				wrapInAwkRefIfFunctionDetected(
-					buildNameValue(firstDisplayArgument, bladeName, bladeModel)
-				)
-			)
+			new TextNode(wrapInAwkRefIfFunctionDetected(buildNameValue(firstDisplayArgument, bladeName, bladeModel)))
 		);
 	}
 
@@ -115,7 +110,6 @@ public class BladeConverter extends AbstractMappingConverter {
 		final JsonNode bladeName,
 		final JsonNode bladeModel
 	) {
-
 		final String firstArg = firstDisplayArgument.asText();
 		if (bladeName == null && bladeModel == null) {
 			return firstArg;
@@ -126,45 +120,27 @@ public class BladeConverter extends AbstractMappingConverter {
 
 		// Build the list of arguments non-null
 		final List<String> sprintfArgs = new ArrayList<>();
-		sprintfArgs.addAll(
-			Stream
-				.of(bladeName, bladeModel)
-				.filter(Objects::nonNull)
-				.map(JsonNode::asText)
-				.toList()
-		);
+		sprintfArgs.addAll(Stream.of(bladeName, bladeModel).filter(Objects::nonNull).map(JsonNode::asText).toList());
 
 		// Means we have bladeName or bladeModel
 		if (!sprintfArgs.isEmpty()) {
-			format.append(
-				sprintfArgs
-					.stream()
-					.map(v -> "%s")
-					.collect(Collectors.joining(" - ", " (", ")"))
-			);
+			format.append(sprintfArgs.stream().map(v -> "%s").collect(Collectors.joining(" - ", " (", ")")));
 		}
 
-		// Add the first argument at the beginning of the list 
+		// Add the first argument at the beginning of the list
 		sprintfArgs.add(0, firstArg);
 
-		// Join the arguments: $column(1), $column(2), $column(3)) 
+		// Join the arguments: $1, $2, $3)
 		// append the result to our format variable in order to get something like
-		// sprintf("%s (%s - %s)", $column(1), $column(2), $column(3))
+		// sprintf("%s (%s - %s)", $1, $2, $3)
 		return format
-			.append("\", ") // Here we will have a string like sprintf("%s (%s - %s)", 
-			.append(
-				sprintfArgs
-					.stream()
-					.map(this::getFunctionArgument)
-					.collect(Collectors.joining(", ", "", ")"))
-			)
+			.append("\", ") // Here we will have a string like sprintf("%s (%s - %s)",
+			.append(sprintfArgs.stream().map(this::getFunctionArgument).collect(Collectors.joining(", ", "", ")")))
 			.toString();
-
 	}
 
 	@Override
 	protected Map<String, Entry<String, IMappingKey>> getOneToOneMetricsMapping() {
 		return ONE_TO_ONE_METRICS_MAPPING;
 	}
-
 }

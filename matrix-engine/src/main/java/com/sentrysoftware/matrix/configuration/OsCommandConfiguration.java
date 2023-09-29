@@ -1,11 +1,10 @@
 package com.sentrysoftware.matrix.configuration;
 
+import java.util.HashSet;
+import java.util.Set;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.HashSet;
-import java.util.Set;
 
 @Data
 @NoArgsConstructor

@@ -127,6 +127,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) =
@@ -144,7 +146,8 @@ monitors:
         # The value table
         # ID;Value;Status;
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="fan"}: $3
           hw.fan.speed: $2
@@ -222,6 +225,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) =
@@ -252,7 +257,8 @@ monitors:
         # The value table
         # ID;Value;Status;
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="temperature"}: $3
           hw.temperature: $2
@@ -312,6 +318,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) =
@@ -338,7 +346,8 @@ monitors:
         # The value table
         # ID;Value;Status;
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
@@ -414,6 +423,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) =
@@ -440,7 +451,8 @@ monitors:
         # The value table
         # ID;Status;StatusInformation;ErrorCount;
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="physical_disk"}: $2
           hw.errors{hw.type="physical_disk"}: $4
@@ -477,6 +489,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) =
@@ -503,7 +517,8 @@ monitors:
         # The value table
         # ID;Status;StatusInformation;
         source: "${source::monitors.logical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="logical_disk"}: $2
         legacyTextParameters:
@@ -610,6 +625,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) =
@@ -674,7 +691,8 @@ monitors:
         # The value table
         # ID;Status;StatusInformation;
         source: "${source::monitors.battery.collect.sources.source(3)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="battery"}: $2
         legacyTextParameters:

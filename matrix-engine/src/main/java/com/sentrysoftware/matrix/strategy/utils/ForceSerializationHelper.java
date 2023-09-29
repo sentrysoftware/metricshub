@@ -3,14 +3,12 @@ package com.sentrysoftware.matrix.strategy.utils;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DEFAULT_LOCK_TIMEOUT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOSTNAME_EXCEPTION_MESSAGE;
 
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Supplier;
-
 import com.sentrysoftware.matrix.strategy.detection.CriterionTestResult;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Supplier;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -45,7 +43,6 @@ public class ForceSerializationHelper {
 		@NonNull final String description,
 		@NonNull final T defaultValue
 	) {
-
 		final ReentrantLock forceSerializationLock = getForceSerializationLock(telemetryManager, connectorName);
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
@@ -54,7 +51,6 @@ public class ForceSerializationHelper {
 			// Try to get the lock
 			isLockAcquired = forceSerializationLock.tryLock(DEFAULT_LOCK_TIMEOUT, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
-
 			log.error(
 				"Hostname {} - Interrupted exception detected when trying to acquire the force serialization lock to process {} {}. Connector: {}.",
 				hostname,
@@ -71,7 +67,6 @@ public class ForceSerializationHelper {
 		}
 
 		if (isLockAcquired) {
-
 			try {
 				return executable.get();
 			} finally {
@@ -89,7 +84,6 @@ public class ForceSerializationHelper {
 
 			return defaultValue;
 		}
-
 	}
 
 	/**
@@ -109,5 +103,4 @@ public class ForceSerializationHelper {
 			.get(connectorCompiledFilename)
 			.getForceSerializationLock();
 	}
-
 }

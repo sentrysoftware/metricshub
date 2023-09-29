@@ -15,14 +15,19 @@ public class SnmpConfiguration implements IConfiguration {
 
 	private static final String INVALID_SNMP_VERSION_EXCEPTION_MESSAGE = "Invalid SNMP version: ";
 	private static final String INVALID_PRIVACY_VALUE_EXCEPTION_MESSAGE = " Invalid Privacy value: ";
+
 	@Builder.Default
 	private final SnmpVersion version = SnmpVersion.V1;
+
 	@Builder.Default
 	private final String community = "public";
+
 	@Builder.Default
 	private final Integer port = 161;
+
 	@Builder.Default
 	private final Long timeout = 120L;
+
 	private Privacy privacy;
 	private char[] privacyPassword;
 	private String username;
@@ -49,7 +54,6 @@ public class SnmpConfiguration implements IConfiguration {
 	 */
 	@AllArgsConstructor
 	public enum SnmpVersion {
-
 		V1(1, null, "SNMP v1"),
 		V2C(2, null, "SNMP v2c"),
 		V3_NO_AUTH(3, null, "SNMP v3"),
@@ -72,7 +76,6 @@ public class SnmpConfiguration implements IConfiguration {
 		 * @return Corresponding {@link SnmpVersion} value
 		 */
 		public static SnmpVersion interpretValueOf(@NonNull final String version) {
-
 			final String lowerCaseVersion = version.toLowerCase();
 
 			if ("1".equals(lowerCaseVersion) || "v1".equals(lowerCaseVersion)) {
@@ -94,7 +97,6 @@ public class SnmpConfiguration implements IConfiguration {
 			}
 
 			throw new IllegalArgumentException(INVALID_SNMP_VERSION_EXCEPTION_MESSAGE + version);
-
 		}
 	}
 
@@ -103,8 +105,9 @@ public class SnmpConfiguration implements IConfiguration {
 	 * in SNMP v3 connections.
 	 */
 	public enum Privacy {
-
-		NO_ENCRYPTION, AES, DES;
+		NO_ENCRYPTION,
+		AES,
+		DES;
 
 		/**
 		 * Interpret the specified label and returns corresponding value.
@@ -113,7 +116,6 @@ public class SnmpConfiguration implements IConfiguration {
 		 * @return Corresponding {@link Privacy} value
 		 */
 		public static Privacy interpretValueOf(@NonNull final String privacy) {
-
 			final String lowerCasePrivacy = privacy.toLowerCase();
 
 			if (lowerCasePrivacy.equals("des")) {
@@ -128,6 +130,5 @@ public class SnmpConfiguration implements IConfiguration {
 
 			throw new IllegalArgumentException(INVALID_PRIVACY_VALUE_EXCEPTION_MESSAGE + privacy);
 		}
-
 	}
 }

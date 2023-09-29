@@ -59,6 +59,8 @@ monitors:
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Get IPMI, will be re-used by all other collects
@@ -89,7 +91,8 @@ monitors:
       mapping:
         # ValueTable = Source(2)
         source: "${source::monitors.enclosure.collect.sources.source(2)}"
-        deviceId: IPMI
+        attributes:
+          id: IPMI
         metrics:
           hw.status{hw.type="enclosure"}: $5
           hw.enclosure.power: $7
@@ -166,6 +169,8 @@ monitors:
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = copy of Enclosure.Collect.Source(1)
@@ -223,7 +228,8 @@ monitors:
         # CollectTable = Source(3)
         # Fan;DeviceID;SensorName;Status;StatusInformation;AdditionalInformation1;FanSpeed;WarningThreshold;AlarmThreshold
         source: "${source::monitors.fan.collect.sources.source(3)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.fan.speed: $7
           hw.status{hw.type="fan"}: $4
@@ -259,6 +265,8 @@ monitors:
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = copy of Enclosure.Collect.Source(1)
@@ -274,7 +282,8 @@ monitors:
       mapping:
         # CollectTable = Source(1)
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.temperature: $5
   voltage:
@@ -307,6 +316,8 @@ monitors:
     collect:
       # Collect type is "all instances in one shot
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = copy of Enclosure.Collect.Source(1)
@@ -322,7 +333,8 @@ monitors:
       mapping:
         # CollectTable = Source(1)
         source: "${source::monitors.voltage.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.voltage: $5
   power_supply:
@@ -356,6 +368,8 @@ monitors:
     collect:
       # Collect type is: multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = copy of Enclosure.Collect.Source(1)
@@ -375,7 +389,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="power_supply"}: $7
         legacyTextParameters:
@@ -410,6 +425,8 @@ monitors:
     collect:
       # Collect type is: multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = copy of Enclosure.Collect.Source(1)
@@ -429,7 +446,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.cpu.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="cpu"}: $7
         legacyTextParameters:
@@ -481,6 +499,8 @@ monitors:
     collect:
       # Collect type is: multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = copy of Enclosure.Collect.Source(1)
@@ -500,7 +520,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.memory.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="memory"}: $7
         legacyTextParameters:
@@ -533,6 +554,8 @@ monitors:
     collect:
       # Collect type is: multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = copy of Enclosure.Collect.Source(1)
@@ -552,7 +575,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="physical_disk"}: $7
         legacyTextParameters:
@@ -586,6 +610,8 @@ monitors:
     collect:
       # Collect type is: multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = copy of Enclosure.Collect.Source(1)
@@ -603,7 +629,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.led.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="led"}: legacyLedStatus($9)
         legacyTextParameters:
@@ -639,6 +666,8 @@ monitors:
     collect:
       # Collect type is: multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = copy of Enclosure.Collect.Source(1)
@@ -658,7 +687,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.other_device.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="other_device"}: $7
         legacyTextParameters:
@@ -690,6 +720,8 @@ monitors:
     collect:
       # Collect type is: multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = copy of Enclosure.Collect.Source(1)
@@ -709,7 +741,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.blade.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="blade"}: $7
         legacyTextParameters:
@@ -744,6 +777,8 @@ monitors:
     collect:
       # Collect type is: multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = copy of Enclosure.Collect.Source(1)
@@ -763,7 +798,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.battery.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="battery"}: $7
         legacyTextParameters:

@@ -5,11 +5,6 @@ import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringJoiner;
-import java.util.function.UnaryOperator;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
@@ -18,7 +13,10 @@ import com.sentrysoftware.matrix.connector.model.common.ResultContent;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Compute;
 import com.sentrysoftware.matrix.strategy.source.ISourceProcessor;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
-
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -34,18 +32,21 @@ public class HttpSource extends Source {
 
 	@JsonSetter(nulls = SKIP)
 	private HttpMethod method = HttpMethod.GET;
+
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	private String url;
+
 	// String or EmbeddedFile reference
 	private String header;
 	private String body;
 	private String authenticationToken;
+
 	@JsonSetter(nulls = SKIP)
 	private ResultContent resultContent = ResultContent.BODY;
 
 	@Builder
-	public HttpSource( // NOSONAR on constructor
+	public HttpSource(
 		@JsonProperty("type") String type,
 		@JsonProperty("computes") List<Compute> computes,
 		@JsonProperty("forceSerialization") boolean forceSerialization,
@@ -58,9 +59,7 @@ public class HttpSource extends Source {
 		@JsonProperty("key") String key,
 		@JsonProperty("executeForEachEntryOf") ExecuteForEachEntryOf executeForEachEntryOf
 	) {
-
 		super(type, computes, forceSerialization, key, executeForEachEntryOf);
-
 		this.method = method;
 		this.url = url;
 		this.header = header;
@@ -70,7 +69,8 @@ public class HttpSource extends Source {
 	}
 
 	public HttpSource copy() {
-		return HttpSource.builder()
+		return HttpSource
+			.builder()
 			.type(type)
 			.key(key)
 			.forceSerialization(forceSerialization)
@@ -95,7 +95,6 @@ public class HttpSource extends Source {
 
 	@Override
 	public String toString() {
-
 		final StringJoiner stringJoiner = new StringJoiner(NEW_LINE);
 
 		stringJoiner.add(super.toString());
@@ -114,5 +113,4 @@ public class HttpSource extends Source {
 	public SourceTable accept(final ISourceProcessor sourceProcessor) {
 		return sourceProcessor.process(this);
 	}
-
 }

@@ -10,8 +10,9 @@ public class TimeoutDeserializer extends JsonDeserializer<Long> {
 
 	@Override
 	public Long deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException {
-		if (parser == null)
+		if (parser == null) {
 			return null;
+		}
 
 		final String key = parser.getCurrentName();
 

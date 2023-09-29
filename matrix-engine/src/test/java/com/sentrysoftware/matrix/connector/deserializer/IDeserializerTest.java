@@ -1,12 +1,10 @@
 package com.sentrysoftware.matrix.connector.deserializer;
 
-import java.io.IOException;
-
 import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
+import java.io.IOException;
 
 interface IDeserializerTest {
-
 	public Connector getConnector(String file) throws IOException;
 
 	public String getResourcePath();
@@ -20,5 +18,4 @@ interface IDeserializerTest {
 	static final String IO_EXCEPTION_MSG = "Expected an IOException to be thrown";
 
 	static final ConnectorDeserializer deserializer = new ConnectorDeserializer(JsonHelper.buildYamlMapper());
-
 }

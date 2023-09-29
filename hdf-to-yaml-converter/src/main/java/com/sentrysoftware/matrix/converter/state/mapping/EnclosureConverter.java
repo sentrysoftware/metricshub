@@ -31,8 +31,11 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_SERIAL
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_STATUS_INFORMATION;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TYPE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VENDOR;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.*;
+import static com.sentrysoftware.matrix.converter.state.ConversionHelper.wrapInAwkRefIfFunctionDetected;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,13 +46,10 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-
 public class EnclosureConverter extends AbstractMappingConverter {
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_ATTRIBUTES_MAPPING;
+
 	static {
 		final Map<String, Entry<String, IMappingKey>> attributesMap = new HashMap<>();
 		attributesMap.put(HDF_DEVICE_ID, IMappingKey.of(ATTRIBUTES, YAML_ID));
@@ -66,12 +66,19 @@ public class EnclosureConverter extends AbstractMappingConverter {
 	}
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_METRICS_MAPPING;
+
 	static {
 		final Map<String, Entry<String, IMappingKey>> metricsMap = new HashMap<>();
 		metricsMap.put(HDF_STATUS, IMappingKey.of(METRICS, YAML_ENCLOSURE_STATUS));
 		metricsMap.put(HDF_STATUS_INFORMATION, IMappingKey.of(LEGACY_TEXT_PARAMETERS, YAML_STATUS_INFORMATION));
-		metricsMap.put(HDF_INTRUSION_STATUS, IMappingKey.of(METRICS, YAML_ENCLOSURE_INTRUSION_STATUS,
-				AbstractMappingConverter::buildLegacyIntrusionStatusFunction));
+		metricsMap.put(
+			HDF_INTRUSION_STATUS,
+			IMappingKey.of(
+				METRICS,
+				YAML_ENCLOSURE_INTRUSION_STATUS,
+				AbstractMappingConverter::buildLegacyIntrusionStatusFunction
+			)
+		);
 		metricsMap.put(HDF_ENERGY_USAGE, IMappingKey.of(METRICS, YAML_ENCLOSURE_ENERGY));
 		metricsMap.put(HDF_POWER_CONSUMPTION, IMappingKey.of(METRICS, YAML_ENCLOSURE_POWER));
 		ONE_TO_ONE_METRICS_MAPPING = Collections.unmodifiableMap(metricsMap);
@@ -89,7 +96,6 @@ public class EnclosureConverter extends AbstractMappingConverter {
 
 	@Override
 	protected void setName(ObjectNode existingAttributes, ObjectNode newAttributes) {
-
 		final JsonNode deviceId = existingAttributes.get(HDF_DEVICE_ID);
 		if (deviceId == null) {
 			return;
@@ -104,9 +110,7 @@ public class EnclosureConverter extends AbstractMappingConverter {
 		newAttributes.set(
 			YAML_NAME,
 			new TextNode(
-				wrapInAwkRefIfFunctionDetected(
-					buildNameValue(displayId, deviceId, new JsonNode[] { vendor, model }, type)
-				)
+				wrapInAwkRefIfFunctionDetected(buildNameValue(displayId, deviceId, new JsonNode[] { vendor, model }, type))
 			)
 		);
 	}
@@ -127,24 +131,23 @@ public class EnclosureConverter extends AbstractMappingConverter {
 		final JsonNode[] vendorAndModel,
 		final JsonNode typeNode
 	) {
-
 		String enclosureType = "Enclosure";
 		if (typeNode != null) {
 			switch (typeNode.asText().toLowerCase()) {
-			case "", "computer":
-				enclosureType = "Computer";
-				break;
-			case "storage":
-				enclosureType = "Storage";
-				break;
-			case "blade":
-				enclosureType = "Blade Enclosure";
-				break;
-			case "switch":
-				enclosureType = "Switch";
-				break;
-			default:
-				enclosureType = "Enclosure";
+				case "", "computer":
+					enclosureType = "Computer";
+					break;
+				case "storage":
+					enclosureType = "Storage";
+					break;
+				case "blade":
+					enclosureType = "Blade Enclosure";
+					break;
+				case "switch":
+					enclosureType = "Switch";
+					break;
+				default:
+					enclosureType = "Enclosure";
 			}
 		}
 
@@ -170,29 +173,19 @@ public class EnclosureConverter extends AbstractMappingConverter {
 
 		// Means vendor or model is not null
 		if (!vendorAndModelArgs.isEmpty()) {
-			format.append(
-				vendorAndModelArgs
-				.stream()
-				.map(v -> "%s")
-				.collect(Collectors.joining(" ", " (", ")"))
-			);
+			format.append(vendorAndModelArgs.stream().map(v -> "%s").collect(Collectors.joining(" ", " (", ")")));
 		}
 
 		// Add vendor and model arguments
 		sprintfArgs.addAll(vendorAndModelArgs);
 
-		// Join the arguments: $column(1), $column(2), $column(3))
+		// Join the arguments: $1, $2, $3)
 		// append the result to our format variable in order to get something like
-		// sprintf("Computer: %s (%s %s)", $column(1), $column(2), $column(3))
+		// sprintf("Computer: %s (%s %s)", $1, $2, $3)
 		return format
 			.append("\", ") // Here we will have a string like sprintf("Computer: %s (%s %s)",
-			.append(
-				sprintfArgs
-					.stream()
-					.map(this::getFunctionArgument)
-					.collect(Collectors.joining(", ", "", ")")))
+			.append(sprintfArgs.stream().map(this::getFunctionArgument).collect(Collectors.joining(", ", "", ")")))
 			.toString();
-
 	}
 
 	@Override
@@ -209,26 +202,21 @@ public class EnclosureConverter extends AbstractMappingConverter {
 		final JsonNode metrics = mapping.get(METRICS);
 
 		if (metrics != null) {
-
 			final JsonNode energy = metrics.get(YAML_ENCLOSURE_ENERGY);
 			final JsonNode power = metrics.get(YAML_ENCLOSURE_POWER);
 
 			if (power == null && energy != null && !energy.asText().contains("rate")) {
 				((ObjectNode) metrics).set(
 						YAML_ENCLOSURE_POWER,
-						new TextNode(
-								buildRateFunction(
-										getFunctionArgument(
-												energy.asText()))));
+						new TextNode(buildRateFunction(getFunctionArgument(energy.asText())))
+					);
 			}
 
 			if (energy == null && power != null && !power.asText().contains("fakeCounter")) {
 				((ObjectNode) metrics).set(
 						YAML_ENCLOSURE_ENERGY,
-						new TextNode(
-								buildFakeCounterFunction(
-										getFunctionArgument(
-												power.asText()))));
+						new TextNode(buildFakeCounterFunction(getFunctionArgument(power.asText())))
+					);
 			}
 		}
 	}

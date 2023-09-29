@@ -2,17 +2,15 @@ package com.sentrysoftware.matrix.connector.deserializer.source;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import org.junit.jupiter.api.Test;
-
 import com.sentrysoftware.matrix.connector.deserializer.DeserializerTest;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.CopySource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import org.junit.jupiter.api.Test;
 
 class CopySourceDeserializerTest extends DeserializerTest {
 
@@ -27,15 +25,17 @@ class CopySourceDeserializerTest extends DeserializerTest {
 		final Connector connector = getConnector(testResource);
 
 		final Map<String, Source> expected = new LinkedHashMap<String, Source>(
-				Map.of("testCopySource",
-					CopySource.builder()
-						.key("${source::pre.testCopySource}")
-						.type("copy")
-						.from("${source::pre.anotherSource}")
-						.computes(Collections.emptyList())
-						.build()
-					)
-				);
+			Map.of(
+				"testCopySource",
+				CopySource
+					.builder()
+					.key("${source::pre.testCopySource}")
+					.type("copy")
+					.from("${source::pre.anotherSource}")
+					.computes(Collections.emptyList())
+					.build()
+			)
+		);
 
 		assertEquals(expected, connector.getPre());
 	}

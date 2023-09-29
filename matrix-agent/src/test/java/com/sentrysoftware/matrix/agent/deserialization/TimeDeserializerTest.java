@@ -4,14 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 
+import com.fasterxml.jackson.dataformat.yaml.YAMLParser;
 import java.io.IOException;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import com.fasterxml.jackson.dataformat.yaml.YAMLParser;
 
 @ExtendWith(MockitoExtension.class)
 class TimeDeserializerTest {
@@ -20,7 +18,7 @@ class TimeDeserializerTest {
 	private YAMLParser yamlParserMock;
 
 	@Test
-	void testDeserialize()  throws IOException {
+	void testDeserialize() throws IOException {
 		doReturn("5s").when(yamlParserMock).getValueAsString();
 		assertEquals(5L, new TimeDeserializer().deserialize(yamlParserMock, null));
 	}
@@ -29,7 +27,7 @@ class TimeDeserializerTest {
 	void testInterpretValueOf() {
 		// null timeout.
 		assertThrows(IllegalArgumentException.class, () -> TimeDeserializer.interpretValueOf(null));
-		
+
 		// wrong timeout
 		assertThrows(IllegalArgumentException.class, () -> TimeDeserializer.interpretValueOf("1dy"));
 

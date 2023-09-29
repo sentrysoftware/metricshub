@@ -79,6 +79,8 @@ monitors:
       # COLLECT
       # Collect type is "multi-instance"
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Main Collect via SSH
@@ -117,7 +119,8 @@ monitors:
         # The ValueTable
         # ID;type;PATROLStatus;numericalSensorValue;
         source: "${source::monitors.enclosure.collect.sources.source(2)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="enclosure"}: $3
   temperature:
@@ -180,6 +183,8 @@ monitors:
       # COLLECT
       # Collect type is "multi-instance"
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Take a copy for the enclosure value table
@@ -206,7 +211,8 @@ monitors:
         # The ValueTable
         # ID;type;PATROLStatus;numericalSensorValue;
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.temperature: $4
           hw.status{hw.type="temperature"}: $3
@@ -283,6 +289,8 @@ monitors:
       # COLLECT
       # Collect type is "multi-instance"
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Take a copy for the enclosure value table
@@ -314,7 +322,8 @@ monitors:
         # The ValueTable
         # ID;type;PATROLStatus;
         source: "${source::monitors.voltage.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.voltage: $4
           hw.status{hw.type="voltage"}: $3
@@ -360,6 +369,8 @@ monitors:
       # COLLECT
       # Collect type is "multi-instance"
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Take a copy for the Enclosure value table
@@ -386,7 +397,8 @@ monitors:
         # The ValueTable
         # ID;type;PATROLStatus;numericalSensorValue;
         source: "${source::monitors.cpu.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="cpu"}: $3
   memory:
@@ -422,6 +434,8 @@ monitors:
       # COLLECT
       # Collect type is "multi-instance"
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Take a copy for the Enclosure value table
@@ -448,7 +462,8 @@ monitors:
         # The ValueTable
         # ID;type;PATROLStatus;numericalSensorValue;
         source: "${source::monitors.memory.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="memory"}: $3
   physical_disk:
@@ -515,6 +530,8 @@ monitors:
       # COLLECT
       # Collect type is "multi-instance"
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Take a copy for the Enclosure value table
@@ -571,7 +588,8 @@ monitors:
         # The ValueTable
         # ID;type;PATROLStatus;ID;type;PFPATROLStatus;
         source: "${source::monitors.physical_disk.collect.sources.source(3)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="physical_disk"}: $3
           hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($7)

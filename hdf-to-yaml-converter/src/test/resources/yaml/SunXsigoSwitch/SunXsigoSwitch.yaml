@@ -49,6 +49,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Get the Enclosure Status
@@ -75,7 +77,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;PatrolStatus;Value;
         source: "${source::monitors.enclosure.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="enclosure"}: $2
         legacyTextParameters:
@@ -120,6 +123,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = xsigoTemperatureProbeTable SNMP Table
@@ -131,7 +136,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;PatrolStatus;Value;
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.temperature: $2
   fan:
@@ -164,6 +170,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = xsigoFanTableEntry SNMP Table
@@ -190,7 +198,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;Speed;PatrolStatus;StatusInformation;
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="fan"}: $3
           hw.fan.speed: $2
@@ -224,6 +233,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = xsigoPowerSupplyTableEntry SNMP Table
@@ -250,7 +261,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;PatrolStatus;StatusInformation;
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
@@ -291,6 +303,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = xsigoCardTableEntry SNMP Table
@@ -317,7 +331,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;PatrolStatus;StatusInformation;
         source: "${source::monitors.other_device.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="other_device"}: $2
         legacyTextParameters:
@@ -374,6 +389,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = xsigoPortTableEntry SNMP Table
@@ -442,7 +459,8 @@ monitors:
         #  1   2        3        #     4        #      5        # 6         7     8        #  9        #     10        #        11        #         12
         # ID;Speed;PatrolStatus;StatusInformation;LinkStatus;Location;Location;SpeedMBs;ReceivedBytes64;ReceivedPackets64;TransmittedBytes64;TransmittedPackets64;
         source: "${source::monitors.network.collect.sources.source(3)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.network.bandwidth.limit: megaBit2Bit($2)
           hw.status{hw.type="network"}: $3

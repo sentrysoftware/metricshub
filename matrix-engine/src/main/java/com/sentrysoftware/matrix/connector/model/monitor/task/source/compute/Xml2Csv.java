@@ -4,14 +4,12 @@ import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
-import java.util.StringJoiner;
-import java.util.function.UnaryOperator;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.sentrysoftware.matrix.strategy.source.compute.IComputeProcessor;
-
+import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -32,16 +30,14 @@ public class Xml2Csv extends Compute {
 	@Builder
 	@JsonCreator
 	public Xml2Csv(
-		@JsonProperty("type") String type, 
+		@JsonProperty("type") String type,
 		@JsonProperty("recordTag") String recordTag,
 		@JsonProperty("properties") String properties
 	) {
-
 		super(type);
 		this.recordTag = recordTag == null ? "/" : recordTag;
 		this.properties = properties;
 	}
-
 
 	@Override
 	public String toString() {
@@ -57,12 +53,7 @@ public class Xml2Csv extends Compute {
 
 	@Override
 	public Xml2Csv copy() {
-		return Xml2Csv
-			.builder()
-			.type(type)
-			.recordTag(recordTag)
-			.properties(properties)
-			.build();
+		return Xml2Csv.builder().type(type).recordTag(recordTag).properties(properties).build();
 	}
 
 	@Override

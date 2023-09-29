@@ -2,20 +2,18 @@ package com.sentrysoftware.matrix.connector.deserializer.source;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import org.junit.jupiter.api.Test;
-
 import com.sentrysoftware.matrix.connector.deserializer.DeserializerTest;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpTableSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import org.junit.jupiter.api.Test;
 
-class SnmpTableSourceDeserializerTest extends DeserializerTest{
-	
+class SnmpTableSourceDeserializerTest extends DeserializerTest {
+
 	@Override
 	public String getResourcePath() {
 		return "src/test/resources/test-files/source/snmpTable/";
@@ -23,11 +21,11 @@ class SnmpTableSourceDeserializerTest extends DeserializerTest{
 
 	@Test
 	void testDeserializeSnmpTable() throws IOException {
-
 		final Connector connector = getConnector("snmpTable");
 
 		Map<String, Source> expected = new LinkedHashMap<>();
-		expected.put("snmpTable1",
+		expected.put(
+			"snmpTable1",
 			SnmpTableSource
 				.builder()
 				.key("${source::pre.snmpTable1}")
@@ -41,5 +39,4 @@ class SnmpTableSourceDeserializerTest extends DeserializerTest{
 
 		assertEquals(expected, connector.getPre());
 	}
-
 }

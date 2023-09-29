@@ -74,6 +74,8 @@ monitors:
     collect:
       # The NetworkCard collect is a "MultiInstance" collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = CIM_FCPort
@@ -96,7 +98,8 @@ monitors:
         # ValueTable = Source(1)
         # InstanceID;Speed;PatrolLinkStatus;
         source: "${source::monitors.network.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.network.up: legacyLinkStatus($3)
           hw.network.bandwidth.limit: megaBit2Bit($2)

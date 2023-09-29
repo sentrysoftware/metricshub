@@ -2,13 +2,11 @@ package com.sentrysoftware.matrix.common.helpers.state;
 
 import java.util.Map;
 import java.util.Optional;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
 public enum IntrusionStatus implements IState {
-
 	CLOSED(0),
 	OPEN(1);
 
@@ -19,14 +17,22 @@ public enum IntrusionStatus implements IState {
 	 * Map each state value to a {@link IntrusionStatus}
 	 */
 	private static final Map<String, IntrusionStatus> INTRUSION_STATUS_MAP = Map.of(
-		"0", CLOSED,
-		"ok", CLOSED,
-		"closed", CLOSED,
-		"1", OPEN,
-		"degraded", OPEN,
-		"2", OPEN,
-		"failed", OPEN,
-		"open", OPEN
+		"0",
+		CLOSED,
+		"ok",
+		CLOSED,
+		"closed",
+		CLOSED,
+		"1",
+		OPEN,
+		"degraded",
+		OPEN,
+		"2",
+		OPEN,
+		"failed",
+		OPEN,
+		"open",
+		OPEN
 	);
 
 	/**

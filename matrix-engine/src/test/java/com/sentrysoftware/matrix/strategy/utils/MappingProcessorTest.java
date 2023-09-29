@@ -30,11 +30,7 @@ class MappingProcessorTest {
 			.builder()
 			.jobInfo(JobInfo.builder().connectorName(MY_CONNECTOR_1_NAME).build())
 			.telemetryManager(telemetryManager)
-			.mapping(Mapping
-				.builder()
-				.source(HARDCODED_SOURCE)
-				.build()
-			)
+			.mapping(Mapping.builder().source(HARDCODED_SOURCE).build())
 			.row(row)
 			.build();
 
@@ -231,27 +227,18 @@ class MappingProcessorTest {
 		);
 
 		mappingProcessor.interpretNonContextMappingMetrics();
-		
+
 		assertEquals(expected, mappingProcessor.interpretContextMappingMetrics(monitor));
 	}
 
 	@Test
 	void testInterpretNonContextMappingFakeCounter() {
-		
+
 	}
 
 	@Test
 	void testInterpretNonContextMappingLookup() {
-
-		Monitor monitor = Monitor
-			.builder()
-			.attributes(
-				Map.of(
-					"id", "3",
-					"controller_number", "2"
-				)
-			)
-			.build();
+		Monitor monitor = Monitor.builder().attributes(Map.of("id", "3", "controller_number", "2")).build();
 
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
@@ -264,17 +251,16 @@ class MappingProcessorTest {
 			.builder()
 			.jobInfo(JobInfo.builder().connectorName(MY_CONNECTOR_1_NAME).build())
 			.telemetryManager(telemetryManager)
-			.mapping(Mapping
-				.builder()
-				.source(HARDCODED_SOURCE)
-				.build()
-			)
+			.mapping(Mapping.builder().source(HARDCODED_SOURCE).build())
 			.row(row)
 			.build();
 
 		final Map<String, String> expected = Map.of("hw.parent.id", "3");
 
-		final Map<String, String> keyValuePairs = Map.of("hw.parent.id", "lookup(\"disk_controller\", \"id\", \"controller_number\", $2)");
+		final Map<String, String> keyValuePairs = Map.of(
+			"hw.parent.id",
+			"lookup(\"disk_controller\", \"id\", \"controller_number\", $2)"
+		);
 
 		assertEquals(expected, mappingProcessor.interpretNonContextMapping(keyValuePairs));
 
@@ -283,32 +269,56 @@ class MappingProcessorTest {
 		final Map<String, String> expectedNull = new HashMap<>();
 		expectedNull.put("hw.parent.id", null);
 
-		final Map<String, String> keyValuePairsTooManyArguments = Map.of("hw.parent.id", "lookup(\"disk_controller\", \"id\", \"controller_number\", $2, \"extraValue\")");
+		final Map<String, String> keyValuePairsTooManyArguments = Map.of(
+			"hw.parent.id",
+			"lookup(\"disk_controller\", \"id\", \"controller_number\", $2, \"extraValue\")"
+		);
 
 		assertEquals(expectedNull, mappingProcessor.interpretNonContextMapping(keyValuePairsTooManyArguments));
 
-		final Map<String, String> keyValuePairsInvalidFirstArgument = Map.of("hw.parent.id", "lookup(\"$11\", \"id\", \"controller_number\", $2)");
+		final Map<String, String> keyValuePairsInvalidFirstArgument = Map.of(
+			"hw.parent.id",
+			"lookup(\"$11\", \"id\", \"controller_number\", $2)"
+		);
 
 		assertEquals(expectedNull, mappingProcessor.interpretNonContextMapping(keyValuePairsInvalidFirstArgument));
 
-		final Map<String, String> keyValuePairsInvalidSecondArgument = Map.of("hw.parent.id", "lookup(\"disk_controller\", $11, \"controller_number\", $2)");
+		final Map<String, String> keyValuePairsInvalidSecondArgument = Map.of(
+			"hw.parent.id",
+			"lookup(\"disk_controller\", $11, \"controller_number\", $2)"
+		);
 
 		assertEquals(expectedNull, mappingProcessor.interpretNonContextMapping(keyValuePairsInvalidSecondArgument));
 
-		final Map<String, String> keyValuePairsInvalidThirdArgument = Map.of("hw.parent.id", "lookup(\"disk_controller\", \"id\", $11, $2)");
+		final Map<String, String> keyValuePairsInvalidThirdArgument = Map.of(
+			"hw.parent.id",
+			"lookup(\"disk_controller\", \"id\", $11, $2)"
+		);
 
 		assertEquals(expectedNull, mappingProcessor.interpretNonContextMapping(keyValuePairsInvalidThirdArgument));
 
-		final Map<String, String> keyValuePairsInvalidFourthArgument = Map.of("hw.parent.id", "lookup(\"disk_controller\", \"id\", \"controller_number\", $11)");
+		final Map<String, String> keyValuePairsInvalidFourthArgument = Map.of(
+			"hw.parent.id",
+			"lookup(\"disk_controller\", \"id\", \"controller_number\", $11)"
+		);
 
 		assertEquals(expectedNull, mappingProcessor.interpretNonContextMapping(keyValuePairsInvalidFourthArgument));
 
-		final Map<String, String> keyValuePairsMonitorTypeNotFound = Map.of("hw.parent.id", "lookup(\"enclosure\", \"id\", \"controller_number\", $2)");
+		final Map<String, String> keyValuePairsMonitorTypeNotFound = Map.of(
+			"hw.parent.id",
+			"lookup(\"enclosure\", \"id\", \"controller_number\", $2)"
+		);
 
 		assertEquals(expectedNull, mappingProcessor.interpretNonContextMapping(keyValuePairsMonitorTypeNotFound));
 
-		final Map<String, String> keyValuePairsMonitorWithAttributeValueNotFound = Map.of("hw.parent.id", "lookup(\"disk_controller\", \"id\", \"wrongAttribute\", $2)");
+		final Map<String, String> keyValuePairsMonitorWithAttributeValueNotFound = Map.of(
+			"hw.parent.id",
+			"lookup(\"disk_controller\", \"id\", \"wrongAttribute\", $2)"
+		);
 
-		assertEquals(expectedNull, mappingProcessor.interpretNonContextMapping(keyValuePairsMonitorWithAttributeValueNotFound));
+		assertEquals(
+			expectedNull,
+			mappingProcessor.interpretNonContextMapping(keyValuePairsMonitorWithAttributeValueNotFound)
+		);
 	}
 }

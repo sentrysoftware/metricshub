@@ -1,13 +1,5 @@
 package com.sentrysoftware.matrix.strategy.detection;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.ConnectorStore;
@@ -16,7 +8,13 @@ import com.sentrysoftware.matrix.connector.model.identity.ConnectionType;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +32,6 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 
 	@Override
 	public List<ConnectorTestResult> run() {
-
 		final HostConfiguration hostConfiguration = telemetryManager.getHostConfiguration();
 		if (hostConfiguration == null) {
 			log.error("Empty host configuration, aborting detection job.");
@@ -71,7 +68,9 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 			return new ArrayList<>();
 		}
 
-		final List<Connector> connectors = connectorStore.values().stream()
+		final List<Connector> connectors = connectorStore
+			.values()
+			.stream()
 			.filter(connector -> connector.getOrCreateConnectorIdentity().getDetection() != null)
 			// No Auto Detection Filtering
 			.filter(connector -> !connector.getOrCreateConnectorIdentity().getDetection().isDisableAutoDetection())
@@ -84,11 +83,10 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 			.collect(Collectors.toList()); //NOSONAR
 
 		final Set<String> supersedes = new HashSet<>();
-		List<ConnectorTestResult> connectorTestResults = 
-			runAllConnectorsDetectionCriteria(
-				connectors.stream(),
-				hostConfiguration
-			)
+		List<ConnectorTestResult> connectorTestResults = runAllConnectorsDetectionCriteria(
+			connectors.stream(),
+			hostConfiguration
+		)
 			// Keep Only Success Connectors
 			.filter(ConnectorTestResult::isSuccess)
 			.collect(Collectors.toList()); //NOSONAR
@@ -97,18 +95,15 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 		connectorTestResults.forEach(connectorTestResult -> updateSupersedes(supersedes, connectorTestResult));
 
 		// Filter Superseded connectors
-		connectorTestResults = connectorTestResults
-			.stream()
-			.filter(connectorTestResult -> !supersedes
-				.contains(
-					connectorTestResult
-						.getConnector()
-						.getConnectorIdentity()
-						.getCompiledFilename()
-						.toLowerCase()
+		connectorTestResults =
+			connectorTestResults
+				.stream()
+				.filter(connectorTestResult ->
+					!supersedes.contains(
+						connectorTestResult.getConnector().getConnectorIdentity().getCompiledFilename().toLowerCase()
+					)
 				)
-			)
-			.collect(Collectors.toList()); //NOSONAR
+				.collect(Collectors.toList()); //NOSONAR
 
 		// Filter onLastResort Connectors
 		return filterLastResort(connectorTestResults);
@@ -117,12 +112,15 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 	/**
 	 * Return true if the connector has the same type of connection as the host (local or remote)
 	 * @param connector   The connector to test
-	 * @param isLocalHost True if 
+	 * @param isLocalHost True if
 	 * @return boolean value
 	 */
 	private boolean connectionTypesFiltering(final Connector connector, final boolean isLocalHost) {
-		return connector.getConnectorIdentity().getDetection().getConnectionTypes().contains(
-				isLocalHost ? ConnectionType.LOCAL : ConnectionType.REMOTE);
+		return connector
+			.getConnectorIdentity()
+			.getDetection()
+			.getConnectionTypes()
+			.contains(isLocalHost ? ConnectionType.LOCAL : ConnectionType.REMOTE);
 	}
 
 	/**
@@ -131,7 +129,10 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 	 * @param acceptedSources
 	 * @return boolean value
 	 */
-	private boolean anyMatch(final Set<Class<? extends Source>> sourceTypes, final Set<Class<? extends Source>> acceptedSources) {
+	private boolean anyMatch(
+		final Set<Class<? extends Source>> sourceTypes,
+		final Set<Class<? extends Source>> acceptedSources
+	) {
 		for (Class<? extends Source> source : acceptedSources) {
 			if (sourceTypes.contains(source)) {
 				return true;

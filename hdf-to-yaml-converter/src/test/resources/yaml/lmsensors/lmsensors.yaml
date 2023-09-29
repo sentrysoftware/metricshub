@@ -92,6 +92,8 @@ monitors:
     collect:
       # Collection Type
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: osCommand
@@ -105,7 +107,8 @@ monitors:
         # Temperature Value Table
         # "MSHW;"Name";"Type";"Value";"Max";"Critical";"
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.temperature: $4
   voltage:
@@ -137,6 +140,8 @@ monitors:
     collect:
       # Collection Type
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: osCommand
@@ -150,7 +155,8 @@ monitors:
         # Voltage Value Table
         # "MSHW;"Name";"Type";"Value";
         source: "${source::monitors.voltage.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.voltage: $4
   fan:
@@ -182,6 +188,8 @@ monitors:
     collect:
       # Collection Type
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: osCommand
@@ -195,6 +203,7 @@ monitors:
         # Voltage Value Table
         # "MSHW;"Name";"Type";"Value";
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.fan.speed: $3

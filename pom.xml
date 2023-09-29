@@ -43,8 +43,7 @@
 		<commons-lang3.version>3.12.0</commons-lang3.version>
 		<slf4j-simple.version>2.0.6</slf4j-simple.version>
 		<emulation.version>3-SNAPSHOT</emulation.version>
-		<openTelemetryVersion>1.21.0</openTelemetryVersion>
-		<openTelemetryAlphaVersion>1.21.0-alpha</openTelemetryAlphaVersion>
+		<openTelemetryVersion>1.30.0</openTelemetryVersion>
 		<grpcVersion>1.47.0</grpcVersion>
 		<protobufVersion>3.11.4</protobufVersion>
 		<protocVersion>${protobufVersion}</protocVersion>
@@ -52,6 +51,8 @@
 		<ddog.version>1.0.00</ddog.version>
 		<hwgraf.version>4</hwgraf.version>
 		<otelColContribBaseUrl>https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v${otelVersion}</otelColContribBaseUrl>
+		<prettier-maven-plugin.version>0.21</prettier-maven-plugin.version>
+		<prettierJava.version>2.0.0</prettierJava.version>
 	</properties>
 
 	<modules>
@@ -286,7 +287,7 @@
 			<dependency>
 				<groupId>io.opentelemetry</groupId>
 				<artifactId>opentelemetry-sdk-extension-autoconfigure</artifactId>
-				<version>${openTelemetryAlphaVersion}</version>
+				<version>${openTelemetryVersion}</version>
 			</dependency>
 			<dependency>
 				<groupId>io.opentelemetry</groupId>
@@ -298,11 +299,6 @@
 				<groupId>io.opentelemetry</groupId>
 				<artifactId>opentelemetry-sdk-common</artifactId>
 				<version>${openTelemetryVersion}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.opentelemetry</groupId>
-				<artifactId>opentelemetry-exporter-otlp-logs</artifactId>
-				<version>${openTelemetryAlphaVersion}</version>
 			</dependency>
 			<dependency>
 				<groupId>io.grpc</groupId>
@@ -394,6 +390,20 @@
 					<groupId>com.sentrysoftware.maven</groupId>
 					<artifactId>hdf-maven-plugin</artifactId>
 					<version>5.0</version>
+				</plugin>
+				<plugin>
+					<groupId>com.hubspot.maven.plugins</groupId>
+					<artifactId>prettier-maven-plugin</artifactId>
+					<version>${prettier-maven-plugin.version}</version>
+					<configuration>
+						<prettierJavaVersion>${prettierJava.version}</prettierJavaVersion>
+						<ignoreConfigFile>false</ignoreConfigFile>
+						<ignoreEditorConfig>false</ignoreEditorConfig>
+						<inputGlobs>
+							<inputGlob>src/main/java/**/*.java</inputGlob>
+							<inputGlob>src/test/java/**/*.java</inputGlob>
+						</inputGlobs>
+					</configuration>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -535,6 +545,38 @@
 					<formatMinor>%d</formatMinor>
 					<formatIncremental>%02d</formatIncremental>
 				</configuration>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>3.3.0</version>
+				<configuration>
+					<sourceEncoding>${project.build.sourceEncoding}</sourceEncoding>
+					<configLocation>checkstyle.xml</configLocation>
+				</configuration>
+				<executions>
+					<execution>
+						<id>validate</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>checkstyle</goal>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>com.hubspot.maven.plugins</groupId>
+				<artifactId>prettier-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>validate</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 
 		</plugins>

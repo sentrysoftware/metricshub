@@ -10,7 +10,6 @@ import com.sentrysoftware.matrix.connector.model.common.HttpMethod;
 import com.sentrysoftware.matrix.connector.model.common.ResultContent;
 import com.sentrysoftware.matrix.strategy.detection.CriterionTestResult;
 import com.sentrysoftware.matrix.strategy.detection.ICriterionProcessor;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -28,25 +27,29 @@ public class HttpCriterion extends Criterion {
 
 	@JsonSetter(nulls = SKIP)
 	private HttpMethod method = HttpMethod.GET;
+
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	private String url;
+
 	// String or EmbeddedFile reference
 	private String header;
 	private String body;
 	private String expectedResult;
 	private String errorMessage;
+
 	@JsonSetter(nulls = SKIP)
 	private ResultContent resultContent = ResultContent.BODY;
+
 	private String authenticationToken;
 
 	@Builder
 	@JsonCreator
-	public HttpCriterion( // NOSONAR
+	public HttpCriterion(
 		@JsonProperty("type") String type,
 		@JsonProperty("forceSerialization") boolean forceSerialization,
 		@JsonProperty("method") HttpMethod method,
-		@JsonProperty(value = "url", required =  true) @NonNull String url,
+		@JsonProperty(value = "url", required = true) @NonNull String url,
 		@JsonProperty("header") String header,
 		@JsonProperty("body") String body,
 		@JsonProperty("expectedResult") String expectedResult,
@@ -54,7 +57,6 @@ public class HttpCriterion extends Criterion {
 		@JsonProperty("resultContent") ResultContent resultContent,
 		@JsonProperty("authenticationToken") String authenticationToken
 	) {
-
 		super(type, forceSerialization);
 		this.method = method == null ? HttpMethod.GET : method;
 		this.url = url;
@@ -70,5 +72,4 @@ public class HttpCriterion extends Criterion {
 	public CriterionTestResult accept(ICriterionProcessor criterionProcessor) {
 		return criterionProcessor.process(this);
 	}
-
 }

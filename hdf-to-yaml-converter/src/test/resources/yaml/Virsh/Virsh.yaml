@@ -40,6 +40,8 @@ monitors:
           hw.power{hw.type="vm"}: 0
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: osCommand
@@ -52,7 +54,8 @@ monitors:
             translationTable: "${translation::stateTranslationTable}"
       mapping:
         source: "${source::monitors.vm.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.vm.power_state: $2
           hw.vm.power_ratio: computePowerShareRatio($3)

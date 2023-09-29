@@ -1,12 +1,11 @@
 package com.sentrysoftware.matrix.constants;
 
+import com.sentrysoftware.matrix.common.helpers.StringHelper;
 import java.net.InetAddress;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
-
-import com.sentrysoftware.matrix.common.helpers.StringHelper;
 
 public class Constants {
 
@@ -17,7 +16,7 @@ public class Constants {
 	public static final String WBEM_NAMESPACE = "testWbemNamespace";
 	public static final String WINRM_NAMESPACE = "testWinRmNamespace";
 	public static final String WBEM_VCENTER = "testWbemVCenter";
-	public static final byte[] BMC_KEY = new byte[]{0x06, 0x66};
+	public static final byte[] BMC_KEY = new byte[] { 0x06, 0x66 };
 	public static final Long SSH_CONFIGURATION_TIMEOUT = 50L;
 	public static final Long STRATEGY_TIMEOUT = 100L;
 	public static final Long RETRY_DELAY = 30L;
@@ -29,43 +28,50 @@ public class Constants {
 	public static final String HTTP_GET = "GET";
 	public static final String MY_CONNECTOR_1_NAME = "myConnector1";
 	public static final String NO_TEST_WILL_BE_PERFORMED_MESSAGE = "Process presence check: No test will be performed.";
-	public static final String NO_TEST_WILL_BE_PERFORMED_UNKNOWN_OS_MESSAGE = "Process presence check: OS unknown, no test will be performed.";
-	public static final String NO_TEST_WILL_BE_PERFORMED_AIX_MESSAGE = "Process presence check: No tests will be performed for OS: aix.";
-	public static final String NO_TEST_WILL_BE_PERFORMED_REMOTELY_MESSAGE = "Process presence check: No test will be performed remotely.";
+	public static final String NO_TEST_WILL_BE_PERFORMED_UNKNOWN_OS_MESSAGE =
+		"Process presence check: OS unknown, no test will be performed.";
+	public static final String NO_TEST_WILL_BE_PERFORMED_AIX_MESSAGE =
+		"Process presence check: No tests will be performed for OS: aix.";
+	public static final String NO_TEST_WILL_BE_PERFORMED_REMOTELY_MESSAGE =
+		"Process presence check: No test will be performed remotely.";
 	public static final String PROCESS_CRITERION_COMMAND_LINE = "MBM[5-9]\\.exe";
-	public static final String WMI_QUERY_EMPTY_VALUE_MESSAGE = "WMI query \"SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process\" " +
-			"returned empty value.";
+	public static final String WMI_QUERY_EMPTY_VALUE_MESSAGE =
+		"WMI query \"SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process\" " + "returned empty value.";
 	public static final String WBEM_QUERY = "SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process";
 	public static final String WEBM_CRITERION_SUCCESS_EXPECTED_RESULT = "^Some Res[aeiouy]lt";
 	public static final String WEBM_CRITERION_FAILURE_EXPECTED_RESULT = "^S Res[aeiouy]lt";
 	public static final String WMI_NAMESPACE = "root\\cimv2";
-	public static final String RUNNING_PROCESS_MATCH_REGEX_MESSAGE = "One or more currently running processes match the following regular expression:\n- " +
-			"Regexp (should match with the command-line): MBM[5-9]\\.exe";
-	public static final String NO_RUNNING_PROCESS_MATCH_REGEX_MESSAGE = "No currently running processes match the following regular expression:\n" +
-			"- Regexp (should match with the command-line): MBM[5-9]\\.exe\n" +
-			"- Currently running process list:\n" +
-			"1;ps;root;0;ps -A -o pid,comm,ruser,ppid,args\n" +
-			"10564;eclipse.exe;user;11068;\"C:\\Users\\huan\\eclipse\\eclipse.exe\"";
-	public static final String WMI_CRITERION_TEST_SUCCEED_MESSAGE = """
-			WmiCriterion test succeeded:
-			- WQL Query: SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process
-			- Namespace: root\\cimv2
-			- Expected Result: MBM[5-9]\\.exe
-					
-			Result: MBM6.exe""";
+	public static final String RUNNING_PROCESS_MATCH_REGEX_MESSAGE =
+		"One or more currently running processes match the following regular expression:\n- " +
+		"Regexp (should match with the command-line): MBM[5-9]\\.exe";
+	public static final String NO_RUNNING_PROCESS_MATCH_REGEX_MESSAGE =
+		"No currently running processes match the following regular expression:\n" +
+		"- Regexp (should match with the command-line): MBM[5-9]\\.exe\n" +
+		"- Currently running process list:\n" +
+		"1;ps;root;0;ps -A -o pid,comm,ruser,ppid,args\n" +
+		"10564;eclipse.exe;user;11068;\"C:\\Users\\huan\\eclipse\\eclipse.exe\"";
+	public static final String WMI_CRITERION_TEST_SUCCEED_MESSAGE =
+		"""
+		WmiCriterion test succeeded:
+		- WQL Query: SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process
+		- Namespace: root\\cimv2
+		- Expected Result: MBM[5-9]\\.exe
+
+		Result: MBM6.exe""";
 	public static final List<List<String>> EXECUTE_WMI_RESULT = List.of(
-			List.of("0", "System Idle Process", "0", ""),
-			List.of("2", "MBM6.exe", "0", "MBM6.exe arg1 arg2"),
-			List.of("10564", "eclipse.exe", "11068", "\"C:\\Users\\huan\\eclipse\\eclipse.exe\""));
-	public static final List<List<String>> EXCUTE_WBEM_RESULT = List.of(
-			List.of("some result"));
+		List.of("0", "System Idle Process", "0", ""),
+		List.of("2", "MBM6.exe", "0", "MBM6.exe arg1 arg2"),
+		List.of("10564", "eclipse.exe", "11068", "\"C:\\Users\\huan\\eclipse\\eclipse.exe\"")
+	);
+	public static final List<List<String>> EXCUTE_WBEM_RESULT = List.of(List.of("some result"));
 	public static final String WBEM_CRITERION_UNEXPECTED_RESULT_MESSAGE = "WbemCriterion test ran but failed";
 	public static final String WBEM_MALFORMED_CRITERION_MESSAGE = "Malformed criterion. Cannot perform detection";
 	public static final String WBEM_CRITERION_NO_RESULT_MESSAGE = "No result.";
 	public static final String WBEM_CREDENTIALS_NOT_CONFIGURED = "The WBEM credentials are not configured for this host.";
 	public static final List<List<String>> LIST_ALL_LINUX_PROCESSES_RESULT = List.of(
-			List.of("1", "ps", "root", "0", "ps -A -o pid,comm,ruser,ppid,args"),
-			List.of("10564", "eclipse.exe", "user", "11068", "\"C:\\Users\\huan\\eclipse\\eclipse.exe\""));
+		List.of("1", "ps", "root", "0", "ps -A -o pid,comm,ruser,ppid,args"),
+		List.of("10564", "eclipse.exe", "user", "11068", "\"C:\\Users\\huan\\eclipse\\eclipse.exe\"")
+	);
 	public static final String OID = "1.3.6.1.4.1.674.10893.1.20";
 	public static final String EMPTY = "";
 	public static final String SINGLE_SPACE = " ";
@@ -79,7 +85,8 @@ public class Constants {
 	public static final String ARCCONF_PATH = "/[opt|usr]/StorMan/arcconf";
 	public static final String PWD_COMMAND = "pwd";
 	public static final String AGENT_REV_RESULT = "Agent Rev:";
-	public static final String NAVISECCLI_COMMAND = "%{SUDO:naviseccli} naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent";
+	public static final String NAVISECCLI_COMMAND =
+		"%{SUDO:naviseccli} naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent";
 	public static final String ECHO_HELLO_WORLD = "echo Hello World";
 	public static final String WINDOWS_NT_HELLO_WORLD = "Windows_NT\nHello World";
 	public static final String END_OF_LINE = "\n";
@@ -114,7 +121,8 @@ public class Constants {
 	public static final String EXPECTED_VAL_2 = "expectedVal2";
 	public static final String EXPECTED_VAL_1_AND_2 = "expectedVal1\nexpectedVal2";
 	public static final String EXPECTED_VAL_1_AND_2_ARRAY = "[expectedVal1,\nexpectedVal2]";
-	public static final String EXPECTED_RESULT = "[{\n" +
+	public static final String EXPECTED_RESULT =
+		"[{\n" +
 		"\"Entry\":{\n" +
 		"\"Full\":\"val1,val2,val3\",\n" +
 		"\"Column(1)\":\"val1\",\n" +
@@ -134,16 +142,19 @@ public class Constants {
 		"}]";
 	public static final String SNMP_WRONG_COLUMNS = "ID, ID9, ID11, ID49";
 	public static final List<String> SNMP_WRONG_COLUMNS_LIST = Arrays.asList("ID", "ID9", "ID11", "ID49");
-	public static final List<List<String>> EXPECTED_SNMP_TABLE_DATA = Arrays.asList(Arrays.asList("1", "PowerEdge R630", "FSJR3N2", "34377965102"));
+	public static final List<List<String>> EXPECTED_SNMP_TABLE_DATA = Arrays.asList(
+		Arrays.asList("1", "PowerEdge R630", "FSJR3N2", "34377965102")
+	);
 	public static final String SNMP_SELECTED_COLUMNS = "ID, 9, 11, 49";
 	public static final List<String> SNMP_SELECTED_COLUMNS_LIST = Arrays.asList("ID", "9", "11", "49");
 	public static final String TAB1_REF = "${source::monitors.cpu.discovery.sources.tab1}";
-
+	public static final String TABLE_SEP = ";";
 
 	// Embedded files
 	public static final String TEMP_EMBEDDED_1 = "/tmp/SEN_Embedded_1.bat";
 	public static final String TEMP_EMBEDDED_2 = "/tmp/SEN_Embedded_2";
-	public static final String AWK_EMBEDDED_CONTENT_PERCENT_SUDO = "# Awk (or nawk)\n" +
+	public static final String AWK_EMBEDDED_CONTENT_PERCENT_SUDO =
+		"# Awk (or nawk)\n" +
 		"if [ -f /usr/xpg4/bin/awk ]; then\n" +
 		"	AWK=\"/usr/xpg4/bin/awk\";\n" +
 		"elif [ -f /usr/bin/nawk ]; then\n" +
@@ -164,57 +175,64 @@ public class Constants {
 		"                echo MSHWController $CTRL\n" +
 		"                %{SUDO:/[opt|usr]/StorMan/arcconf} $STORMAN/arcconf getconfig $CTRL PD\n" +
 		"                done";
-	public static final String AWK_EMBEDDED_CONTENT_SUDO = "# Awk (or nawk)\n" +
-			"if [ -f /usr/xpg4/bin/awk ]; then\n" +
-			"	AWK=\"/usr/xpg4/bin/awk\";\n" +
-			"elif [ -f /usr/bin/nawk ]; then\n" +
-			"	AWK=\"/usr/bin/nawk\";\n" +
-			"else\n" +
-			"	AWK=\"awk\";\n" +
-			"fi\n" +
-			"if [ -f /opt/StorMan/arcconf ]; then\n" +
-			"       STORMAN=\"/opt/StorMan\";\n" +
-			"elif [ -f /usr/StorMan/arcconf ]; then\n" +
-			"       STORMAN=\"/usr/StorMan\";\n" +
-			"else\n" +
-			"	echo No Storman Installed; exit;\n" +
-			"fi\n" +
-			"DEVICES=`sudo $STORMAN/arcconf getversion | $AWK '($1 ~ /Controller/ && $2 ~ /#[0-9]/) {controller=$2;gsub(/#/,\"\",controller);print(controller)}'`\n" +
-			"for CTRL in $DEVICES\n" +
-			"                do\n" +
-			"                echo MSHWController $CTRL\n" +
-			"                sudo $STORMAN/arcconf getconfig $CTRL PD\n" +
-			"                done";
+	public static final String AWK_EMBEDDED_CONTENT_SUDO =
+		"# Awk (or nawk)\n" +
+		"if [ -f /usr/xpg4/bin/awk ]; then\n" +
+		"	AWK=\"/usr/xpg4/bin/awk\";\n" +
+		"elif [ -f /usr/bin/nawk ]; then\n" +
+		"	AWK=\"/usr/bin/nawk\";\n" +
+		"else\n" +
+		"	AWK=\"awk\";\n" +
+		"fi\n" +
+		"if [ -f /opt/StorMan/arcconf ]; then\n" +
+		"       STORMAN=\"/opt/StorMan\";\n" +
+		"elif [ -f /usr/StorMan/arcconf ]; then\n" +
+		"       STORMAN=\"/usr/StorMan\";\n" +
+		"else\n" +
+		"	echo No Storman Installed; exit;\n" +
+		"fi\n" +
+		"DEVICES=`sudo $STORMAN/arcconf getversion | $AWK '($1 ~ /Controller/ && $2 ~ /#[0-9]/) {controller=$2;gsub(/#/,\"\",controller);print(controller)}'`\n" +
+		"for CTRL in $DEVICES\n" +
+		"                do\n" +
+		"                echo MSHWController $CTRL\n" +
+		"                sudo $STORMAN/arcconf getconfig $CTRL PD\n" +
+		"                done";
 	public static final String SH_EMBEDDED_FILE_1 = "/bin/sh ${file::EmbeddedFile(1)}";
 	public static final String EMBEDDED_FILE_1_REF = "${file::EmbeddedFile(1)}";
 	public static final String EMBEDDED_FILE_2_REF = "${file::EmbeddedFile(2)}";
-	public static final String EMBEDDED_FILE_1_COPY_COMMAND_LINE = "copy ${file::EmbeddedFile(1)} ${file::EmbeddedFile(1)}.bat > NUL & ${file::EmbeddedFile(1)}.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q ${file::EmbeddedFile(1)}.bat & del /F /Q ${file::EmbeddedFile(2)}.bat ";
+	public static final String EMBEDDED_FILE_1_COPY_COMMAND_LINE =
+		"copy ${file::EmbeddedFile(1)} ${file::EmbeddedFile(1)}.bat > NUL & ${file::EmbeddedFile(1)}.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q ${file::EmbeddedFile(1)}.bat & del /F /Q ${file::EmbeddedFile(2)}.bat ";
 	public static final String CMD_COMMAND = "CMD.EXE /C cmd";
-	public static final String NO_PASSWORD_COMMAND = " naviseccli -User testUser -Password ******** -Address host -Scope 1 getagent";
-	public static final String CLEAR_PASSWORD_COMMAND = " naviseccli -User testUser -Password pwd -Address host -Scope 1 getagent";
+	public static final String NO_PASSWORD_COMMAND =
+		" naviseccli -User testUser -Password ******** -Address host -Scope 1 getagent";
+	public static final String CLEAR_PASSWORD_COMMAND =
+		" naviseccli -User testUser -Password pwd -Address host -Scope 1 getagent";
 	public static final String COMMAND_TO_UPDATE =
-		"copy ${file::EmbeddedFile(2)} ${file::EmbeddedFile(2)}.bat > NUL"
-			+ " & ${file::EmbeddedFile(1)}"
-			+ " & ${file::EmbeddedFile(2)}.bat"
-			+ " & del /F /Q ${file::EmbeddedFile(1)}"
-			+ " & del /F /Q ${file::EmbeddedFile(2)}.bat";
+		"copy ${file::EmbeddedFile(2)} ${file::EmbeddedFile(2)}.bat > NUL" +
+		" & ${file::EmbeddedFile(1)}" +
+		" & ${file::EmbeddedFile(2)}.bat" +
+		" & del /F /Q ${file::EmbeddedFile(1)}" +
+		" & del /F /Q ${file::EmbeddedFile(2)}.bat";
 	public static final String UPDATED_COMMAND =
-		"copy /tmp/SEN_Embedded_2 /tmp/SEN_Embedded_2.bat > NUL"
-			+ " & /tmp/SEN_Embedded_1.bat"
-			+ " & /tmp/SEN_Embedded_2.bat"
-			+ " & del /F /Q /tmp/SEN_Embedded_1.bat"
-			+ " & del /F /Q /tmp/SEN_Embedded_2.bat";
+		"copy /tmp/SEN_Embedded_2 /tmp/SEN_Embedded_2.bat > NUL" +
+		" & /tmp/SEN_Embedded_1.bat" +
+		" & /tmp/SEN_Embedded_2.bat" +
+		" & del /F /Q /tmp/SEN_Embedded_1.bat" +
+		" & del /F /Q /tmp/SEN_Embedded_2.bat";
 	public static final String RAIDCTL_COMMAND = "/usr/sbin/raidctl -S";
 	public static final String SUDO_RAIDCTL_COMMAND = "%{SUDO:/usr/sbin/raidctl} /usr/sbin/raidctl -S";
-	public static final String SUDO_NAVISECCLI_COMMAND = "%{Sudo:NaviSecCli} NaviSecCli -User %{USERNAME} -Password %{PASSWORD} -Address host -Scope 1 getagent";
+	public static final String SUDO_NAVISECCLI_COMMAND =
+		"%{Sudo:NaviSecCli} NaviSecCli -User %{USERNAME} -Password %{PASSWORD} -Address host -Scope 1 getagent";
 	public static final String SEN_EMBEDDED_0001_PATH = "/tmp/SEN_Embedded_0001";
 	public static final String SH_SEN_EMBEDDED_0001_PATH = "/bin/sh /tmp/SEN_Embedded_0001";
 
 	public static final String MONITOR_ID_ATTRIBUTE_VALUE = "anyMonitorId";
 
 	public static final String UNKNOWN = "unknown";
-	public static final String AGENT_HOSTNAME_VALUE = StringHelper
-			.getValue(() -> InetAddress.getLocalHost().getCanonicalHostName(), UNKNOWN);
+	public static final String AGENT_HOSTNAME_VALUE = StringHelper.getValue(
+		() -> InetAddress.getLocalHost().getCanonicalHostName(),
+		UNKNOWN
+	);
 	public static final String AGENT_HOSTNAME_ATTRIBUTE = "agent.host.name";
 	public static final String LOCATION = "location";
 	public static final String COMPUTE = "compute";
@@ -222,7 +240,7 @@ public class Constants {
 	public static final String HOST_TYPE = "host.type";
 	public static final String OS_TYPE = "os.type";
 	public static final String HOST_NAME = "host.name";
-	public static final String[] STATE_SET = {"ok", "degraded", "failed"};
+	public static final String[] STATE_SET = { "ok", "degraded", "failed" };
 	public static final String HARDCODED_SOURCE = "Hardcoded Source";
 	public static final String SOURCE_REF_KEY = "${source::monitors.cpu.discovery.sources.source5}";
 	public static final String DISK_CONTROLLER = "disk_controller";
@@ -235,11 +253,20 @@ public class Constants {
 	public static final String YAML_TEST_FILE_NAME = "AAC";
 	public static final String YAML_TEST_FILE_NAME_WITH_EXTENSION = YAML_TEST_FILE_NAME + ".yaml";
 	public static final String TEST_CONNECTOR_FILE_NAME = "TestConnector.yaml";
-	public static final String COMMAND_FILE_ABSOLUTE_PATH = "${file::src\\test\\resources\\test-files\\embedded\\connector2\\command.txt}";
+	public static final String TEST_CONNECTOR_WITH_SIMPLE_FILE_NAME = "TestConnectorWithSimple.yaml";
+	public static final String COMMAND_FILE_ABSOLUTE_PATH =
+		"${file::src\\test\\resources\\test-files\\embedded\\connector2\\command.txt}";
 	public static final String EMBEDDED_TEMP_FILE_PREFIX = "SEN_Embedded_";
 	public static final String TXT_FILE_EXTENSION = "txt";
 	public static final String BAT_FILE_EXTENSION = "\\w+\\.bat";
-	public static final Path YAML_TEST_PATH = Paths.get("src", "test", "resources", "test-files", "connector", "connectorLibraryParser");
+	public static final Path YAML_TEST_PATH = Paths.get(
+		"src",
+		"test",
+		"resources",
+		"test-files",
+		"connector",
+		"connectorLibraryParser"
+	);
 
 	// Host information
 	public static final String LOCALHOST = "localhost";
@@ -262,29 +289,39 @@ public class Constants {
 	public static final String SNMP_CONFIGURATION_V2C_TO_STRING = "SNMP v2c (public)";
 	public static final String SNMP_CONFIGURATION_ENCRYPTED_TO_STRING = "SNMP v3 with MD5 auth (AES-encrypted)";
 	public static final String SNMP_CONFIGURATION_NO_PRIVACY_TO_STRING = "SNMP v3 with MD5 auth";
-	public static final String SNMP_CONFIGURATION_NO_PRIVACY_WITH_USERNAME_TO_STRING = "SNMP v3 with MD5 auth as testUser";
-	public static final String HOST_CONFIGURATION_TO_STRING = "HostConfiguration(hostname=localhost," +
-			" hostId=localhost, hostType=LINUX, strategyTimeout=100, selectedConnectors=null, excludedConnectors=null, sequential=false," +
-			" alertTrigger=null, retryDelay=30, connectorVariables=null, configurations={})";
-	public static final String IPMI_RESULT_EXAMPLE = "Device ID                 : 3\r\n" + "Device Revision           : 3\r\n"
-			+ "Firmware Revision         : 4.10\r\n" + "IPMI Version              : 2.0\r\n"
-			+ "Manufacturer ID           : 10368\r\n" + "Manufacturer Name         : Fujitsu Siemens\r\n"
-			+ "Product ID                : 790 (0x0316)\r\n" + "Product Name              : Unknown (0x316)";
+	public static final String SNMP_CONFIGURATION_NO_PRIVACY_WITH_USERNAME_TO_STRING =
+		"SNMP v3 with MD5 auth as testUser";
+	public static final String HOST_CONFIGURATION_TO_STRING =
+		"HostConfiguration(hostname=localhost," +
+		" hostId=localhost, hostType=LINUX, strategyTimeout=100, selectedConnectors=null, excludedConnectors=null, sequential=false," +
+		" alertTrigger=null, retryDelay=30, connectorVariables=null, configurations={})";
+	public static final String IPMI_RESULT_EXAMPLE =
+		"Device ID                 : 3\r\n" +
+		"Device Revision           : 3\r\n" +
+		"Firmware Revision         : 4.10\r\n" +
+		"IPMI Version              : 2.0\r\n" +
+		"Manufacturer ID           : 10368\r\n" +
+		"Manufacturer Name         : Fujitsu Siemens\r\n" +
+		"Product ID                : 790 (0x0316)\r\n" +
+		"Product Name              : Unknown (0x316)";
 	public static final String SUDO_KEYWORD = "sudo";
 	public static final String INVALID_SSH_RESPONSE = "Wrong result";
 
-	public static final String OOB_NULL_RESULT_MESSAGE = "Received <null> result after connecting to the IPMI BMC chip with the IPMI-over-LAN interface.";
+	public static final String OOB_NULL_RESULT_MESSAGE =
+		"Received <null> result after connecting to the IPMI BMC chip with the IPMI-over-LAN interface.";
 	public static final String SYSTEM_POWER_UP_MESSAGE = "System power state is up";
-	public static final String IPMI_CONNECTION_SUCCESS_WITH_IMPI_OVER_LAN_MESSAGE = "Successfully connected to the IPMI BMC chip with the IPMI-over-LAN " +
-			"interface.";
-	public static final String IPMI_CONNECTION_SUCCESS_WITH_IN_BAND_DRIVER_MESSAGE = "Successfully connected to the IPMI BMC chip with the in-band driver" +
-			" interface.";
+	public static final String IPMI_CONNECTION_SUCCESS_WITH_IMPI_OVER_LAN_MESSAGE =
+		"Successfully connected to the IPMI BMC chip with the IPMI-over-LAN " + "interface.";
+	public static final String IPMI_CONNECTION_SUCCESS_WITH_IN_BAND_DRIVER_MESSAGE =
+		"Successfully connected to the IPMI BMC chip with the in-band driver" + " interface.";
 	public static final String PATH = "PATH";
-	public static final String NO_OS_CONFIGURATION_MESSAGE = " - No OS command configuration for this host. Returning an empty result";
+	public static final String NO_OS_CONFIGURATION_MESSAGE =
+		" - No OS command configuration for this host. Returning an empty result";
 	public static final String IPMI_TOOL_COMMAND = "ipmitoolCommand ";
 	public static final String BMC = "bmc";
 	public static final String LIPMI = "lipmi";
-	public static final String LINUX_BUILD_IPMI_COMMAND = "PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;ipmitool -I open bmc info";
+	public static final String LINUX_BUILD_IPMI_COMMAND =
+		"PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;ipmitool -I open bmc info";
 	public static final String TWGIPC = "TWGIPC";
 	public static final String SERVICE_NAME_NOT_SPECIFIED_MESSAGE = "Service name is not specified";
 
@@ -309,20 +346,24 @@ public class Constants {
 	public static final String EXECUTE_SNMP_GET_RESULT = "CMC DELL";
 	public static final String EXPECTED_SNMP_RESULT = "CMC";
 	public static final String SNMP_CONFIGURATION_COMMUNITY = "public";
-	public static final String SNMP_GET_EXPECTED_RESULT_MATCHES_MESSAGE = "Hostname host-win - Successful SNMP Get of 1.3.6.1.4.1.674.10893.1.20. " +
-			"Returned result: CMC DELL";
-	public static final String SNMP_GET_EXPECTED_RESULT_NOT_MATCHES_MESSAGE = "Hostname host-win - SNMP test failed - " +
-			"SNMP Get of 1.3.6.1.4.1.674.10893.1.20 was successful but the value of the returned " +
-			"OID did not match with the expected result. Expected value: 2.4.6 - returned value CMC DELL.";
-	public static final String SNMP_GET_SUCCESS_WITH_NO_EXPECTED_RESULT_MESSAGE = "Hostname host-win - Successful SNMP Get " +
-			"of 1.3.6.1.4.1.674.10893.1.20. Returned result: CMC DELL.";
-	public static final String SNMP_GET_EMPTY_RESULT_MESSAGE = "Hostname host-win - SNMP test failed - SNMP Get " +
-			"of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful due to an empty result.";
-	public static final String SNMP_GET_NULL_RESULT_MESSAGE = "Hostname host-win - SNMP test failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 was " +
-			"unsuccessful due to a null result";
-	public static final String SNMP_GET_EXCEPTION_MESSAGE = "Hostname host-win - SNMP test failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful " +
-			"due to an exception. " +
-			"Message: SNMPGet timeout";
+	public static final String SNMP_GET_EXPECTED_RESULT_MATCHES_MESSAGE =
+		"Hostname host-win - Successful SNMP Get of 1.3.6.1.4.1.674.10893.1.20. " + "Returned result: CMC DELL";
+	public static final String SNMP_GET_EXPECTED_RESULT_NOT_MATCHES_MESSAGE =
+		"Hostname host-win - SNMP test failed - " +
+		"SNMP Get of 1.3.6.1.4.1.674.10893.1.20 was successful but the value of the returned " +
+		"OID did not match with the expected result. Expected value: 2.4.6 - returned value CMC DELL.";
+	public static final String SNMP_GET_SUCCESS_WITH_NO_EXPECTED_RESULT_MESSAGE =
+		"Hostname host-win - Successful SNMP Get " + "of 1.3.6.1.4.1.674.10893.1.20. Returned result: CMC DELL.";
+	public static final String SNMP_GET_EMPTY_RESULT_MESSAGE =
+		"Hostname host-win - SNMP test failed - SNMP Get " +
+		"of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful due to an empty result.";
+	public static final String SNMP_GET_NULL_RESULT_MESSAGE =
+		"Hostname host-win - SNMP test failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 was " +
+		"unsuccessful due to a null result";
+	public static final String SNMP_GET_EXCEPTION_MESSAGE =
+		"Hostname host-win - SNMP test failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful " +
+		"due to an exception. " +
+		"Message: SNMPGet timeout";
 	public static final String SNMP_GET_TIMEOUT_MESSAGE = "SNMPGet timeout";
 	public static final String SNMP_GET_NEXT_FIRST_RESULT = "1.3.6.1.4.1.674.99999.1.20.1 ASN_INTEGER 1";
 	public static final String SNMP_GET_NEXT_SECOND_RESULT = "1.3.6.1.4.1.674.10893.1.20.1 ASN_INTEGER 1";
@@ -330,29 +371,37 @@ public class Constants {
 	public static final String SNMP_GET_NEXT_FOURTH_RESULT = "1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT";
 	public static final String SNMP_GET_NEXT_CRITERION_VERSION = "2.4.6";
 	public static final String SNMP_GET_NEXT_TIMEOUT_EXCEPTION_MESSAGE = "SNMPGetNext timeout";
-	public static final String SNMP_GET_NEXT_TIMEOUT_MESSAGE = "Hostname host-win - SNMP test failed - SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 " +
-			"was unsuccessful due to an exception. " +
-			"Message: SNMPGetNext timeout";
-	public static final String FAILED_SNMP_GET_NEXT_NULL_MESSAGE = "Hostname host-win - SNMP test failed - SNMP GetNext " +
-			"of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful " +
-			"due to a null result.";
-	public static final String FAILED_SNMP_GET_NEXT_EMPTY_MESSAGE = "Hostname host-win - SNMP test failed - SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 " +
-			"was unsuccessful due to an empty result.";
-	public static final String FAILED_SNMP_GET_NEXT_WRONG_OID_MESSAGE = "Hostname host-win - SNMP test failed - SNMP " +
-			"GetNext of 1.3.6.1.4.1.674.10893.1.20 was successful but the returned OID is" +
-			" not under the same tree. Returned OID: 1.3.6.1.4.1.674.99999.1.20.1.";
-	public static final String SUCCESSFUL_SNMP_GET_NEXT_WITHOUT_EXPECTED_RESULT_MESSAGE = "Hostname host-win - Successful SNMP GetNext of " +
-			"1.3.6.1.4.1.674.10893.1.20. Returned result: " +
-			"1.3.6.1.4.1.674.10893.1.20.1 ASN_INTEGER 1.";
-	public static final String FAILED_SNMP_GET_NEXT_OID_NOT_MATCHING_MESSAGE = "Hostname host-win - SNMP test failed - " +
-			"SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 was successful but the value of " +
-			"the returned OID did not match with the expected result. Expected value: 2.4.6 - returned value 1.";
-	public static final String SUCCESSFUL_SNMP_GET_NEXT_MATCHING_EXPECTED_RESULT_MESSAGE = "Hostname host-win - Successful SNMP GetNext of " +
-			"1.3.6.1.4.1.674.10893.1.20. " +
-			"Returned result: 1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT 2.4.6.";
-	public static final String FAILED_SNMP_GET_NEXT_WRONG_EXTRACTED_VALUE_MESSAGE = "Hostname host-win - SNMP test failed - SNMP GetNext " +
-			"of 1.3.6.1.4.1.674.10893.1.20 was successful " +
-			"but the value cannot be extracted. Returned result: 1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT.";
+	public static final String SNMP_GET_NEXT_TIMEOUT_MESSAGE =
+		"Hostname host-win - SNMP test failed - SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 " +
+		"was unsuccessful due to an exception. " +
+		"Message: SNMPGetNext timeout";
+	public static final String FAILED_SNMP_GET_NEXT_NULL_MESSAGE =
+		"Hostname host-win - SNMP test failed - SNMP GetNext " +
+		"of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful " +
+		"due to a null result.";
+	public static final String FAILED_SNMP_GET_NEXT_EMPTY_MESSAGE =
+		"Hostname host-win - SNMP test failed - SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 " +
+		"was unsuccessful due to an empty result.";
+	public static final String FAILED_SNMP_GET_NEXT_WRONG_OID_MESSAGE =
+		"Hostname host-win - SNMP test failed - SNMP " +
+		"GetNext of 1.3.6.1.4.1.674.10893.1.20 was successful but the returned OID is" +
+		" not under the same tree. Returned OID: 1.3.6.1.4.1.674.99999.1.20.1.";
+	public static final String SUCCESSFUL_SNMP_GET_NEXT_WITHOUT_EXPECTED_RESULT_MESSAGE =
+		"Hostname host-win - Successful SNMP GetNext of " +
+		"1.3.6.1.4.1.674.10893.1.20. Returned result: " +
+		"1.3.6.1.4.1.674.10893.1.20.1 ASN_INTEGER 1.";
+	public static final String FAILED_SNMP_GET_NEXT_OID_NOT_MATCHING_MESSAGE =
+		"Hostname host-win - SNMP test failed - " +
+		"SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 was successful but the value of " +
+		"the returned OID did not match with the expected result. Expected value: 2.4.6 - returned value 1.";
+	public static final String SUCCESSFUL_SNMP_GET_NEXT_MATCHING_EXPECTED_RESULT_MESSAGE =
+		"Hostname host-win - Successful SNMP GetNext of " +
+		"1.3.6.1.4.1.674.10893.1.20. " +
+		"Returned result: 1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT 2.4.6.";
+	public static final String FAILED_SNMP_GET_NEXT_WRONG_EXTRACTED_VALUE_MESSAGE =
+		"Hostname host-win - SNMP test failed - SNMP GetNext " +
+		"of 1.3.6.1.4.1.674.10893.1.20 was successful " +
+		"but the value cannot be extracted. Returned result: 1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT.";
 	public static final String CRITERION_WMI_NAMESPACE = "root\\cimv2";
 	public static final String WMI_EXCEPTION_OTHER_MESSAGE = "other";
 
@@ -365,10 +414,12 @@ public class Constants {
 	public static final String TIMEOUT_EXCEPTION = "TimeoutException";
 	public static final String WMI_COM_EXCEPTION_MESSAGE = "WBEM_E_INVALID_NAMESPACE";
 	public static final String WEBM_CRITERION_NOT_MATCHING_EXPECTED_RESULT = "^Some Res[^aeiouy]lt";
-	public static final String WMI_CREDENTIALS_NOT_CONFIGURED = "Neither WMI nor WinRM credentials are configured for this host.";
+	public static final String WMI_CREDENTIALS_NOT_CONFIGURED =
+		"Neither WMI nor WinRM credentials are configured for this host.";
 	public static final String FORCED_NAMESPACE = "forced";
 	public static final String WBEM_NAMESPACE_TIMEOUT_MESSAGE = "very long";
-	public static final String WBEM_NAMESPACE_TIMEOUT_ERROR_MESSAGE = "Error message must contain the cause of the problem";
+	public static final String WBEM_NAMESPACE_TIMEOUT_ERROR_MESSAGE =
+		"Error message must contain the cause of the problem";
 	public static final String MATSYA_NO_RESPONSE_EXCEPTION_MESSAGE = "no response";
 	public static final String FIRST_NAMESPACE = "namespace1";
 	public static final String SECOND_NAMESPACE = "namespace2";
@@ -409,6 +460,7 @@ public class Constants {
 	// Version Number
 	public static final String LOW_VERSION_NUMBER = "0.0.1";
 	public static final String HIGH_VERSION_NUMBER = "1000.0.1";
-	public static final String NEITHER_WMI_NOR_WINRM_ERROR = "Neither WMI nor WinRM credentials are configured for this host.";
+	public static final String NEITHER_WMI_NOR_WINRM_ERROR =
+		"Neither WMI nor WinRM credentials are configured for this host.";
 	public static final String HOST_OS_IS_NOT_WINDOWS_MESSAGE = "Host OS is not Windows";
 }

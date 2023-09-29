@@ -2,7 +2,6 @@ package com.sentrysoftware.matrix.agent.process.io;
 
 import java.io.BufferedReader;
 import java.io.Reader;
-
 import lombok.NonNull;
 
 /**
@@ -18,7 +17,6 @@ public class LineReaderProcessor extends AbstractReaderProcessor {
 
 	@Override
 	public void run() {
-
 		try (BufferedReader br = new BufferedReader(reader)) {
 			String line;
 			while ((line = br.readLine()) != null) {
@@ -27,7 +25,5 @@ public class LineReaderProcessor extends AbstractReaderProcessor {
 		} catch (Exception e) {
 			// Probably an IO error
 		}
-
 	}
 }
-

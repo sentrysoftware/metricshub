@@ -44,6 +44,8 @@ monitors:
           name: "${awk::sprintf(\"Switch: %s (%s)\", $2, \"Extreme Networks\")}"
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: snmpTable
@@ -61,7 +63,8 @@ monitors:
       mapping:
         # ID;PatrolStatus;StatusInformation;
         source: "${source::monitors.enclosure.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="enclosure"}: $2
         legacyTextParameters:
@@ -128,6 +131,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: snmpTable
@@ -145,7 +150,8 @@ monitors:
       mapping:
         # ID;PatrolStatus;StatusInformation
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
@@ -172,6 +178,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: snmpTable
@@ -187,7 +195,8 @@ monitors:
       mapping:
         # ID;PatrolStatus;StatusInformation
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="fan"}: $2
           hw.fan.speed: $4
@@ -210,6 +219,8 @@ monitors:
     collect:
       # Collect type = mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: snmpTable
@@ -232,7 +243,8 @@ monitors:
       mapping:
         # ValueTable
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="temperature"}: $2
           hw.temperature: $4

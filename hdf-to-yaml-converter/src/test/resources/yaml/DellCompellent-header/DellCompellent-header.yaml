@@ -60,6 +60,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # 
@@ -83,7 +85,8 @@ monitors:
         # ValueTable = Source(1)
         # tableID;ID;PatrolStatus;Value;
         source: "${source::monitors.enclosure.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="enclosure"}: $3
         legacyTextParameters:
@@ -131,6 +134,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # 
@@ -155,7 +160,8 @@ monitors:
         # ValueTable = Source(1)
         # tableID;ID;PatrolStatus;Value;
         source: "${source::monitors.blade.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="blade"}: $3
         legacyTextParameters:
@@ -234,6 +240,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # 
@@ -258,7 +266,8 @@ monitors:
         # ValueTable = Source(1)
         # tableID;ID;PatrolStatus;Value;
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="physical_disk"}: $3
         legacyTextParameters:
@@ -349,6 +358,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # collect enclosure's power supplies
@@ -412,7 +423,8 @@ monitors:
         # ValueTable = Source(1)
         # tableID;ID;PatrolStatus;Value;
         source: "${source::monitors.power_supply.collect.sources.source(4)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="power_supply"}: $3
         legacyTextParameters:
@@ -511,6 +523,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # collect enclosure's fans
@@ -575,7 +589,8 @@ monitors:
         # ValueTable = Source(1)
         # tableID;ID;PatrolStatus;Value;Speed
         source: "${source::monitors.fan.collect.sources.source(4)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="fan"}: $3
           hw.fan.speed: $5
@@ -652,6 +667,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # collect enclosure's temperature
@@ -698,7 +715,8 @@ monitors:
         # ValueTable = Source(1)
         # tableID;ID;DisplayName;objectType;currentTemperature;location;lowerCriticalThreshold;lowerWarningThreshold;upperNormalThreshold;upperWarningThresholdD
         source: "${source::monitors.temperature.collect.sources.source(3)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.temperature: $5
   voltage:
@@ -747,6 +765,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # source 1 is controller voltage sensors
@@ -776,7 +796,8 @@ monitors:
         # ValueTable = Source(1)
         # tableid;ID;PatrolStatus;Value;currentVoltage
         source: "${source::monitors.voltage.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="voltage"}: $3
           hw.voltage: $5
@@ -863,6 +884,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # collect enclosure's IoModules
@@ -939,7 +962,8 @@ monitors:
         # ValueTable = Source(4)
         # tableID;ID;PatrolStatus;Value;
         source: "${source::monitors.other_device.collect.sources.source(4)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="other_device"}: $3
         legacyTextParameters:
@@ -1018,6 +1042,8 @@ monitors:
           name: "${awk::sprintf(\"%s (%s - %s)\", $3, $4, $12)}"
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: http
@@ -1107,7 +1133,8 @@ monitors:
         # ValueTable = Source(1)
         # tableID;instanceId;cabled;status;statusMessage;tableID;instanceId;speed;description;
         source: "${source::monitors.network.collect.sources.source(6)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="network"}: $4
           hw.network.bandwidth.limit: megaBit2Bit($8)
@@ -1153,6 +1180,8 @@ monitors:
           name: $3
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # collect UPS
@@ -1173,7 +1202,8 @@ monitors:
         # ValueTable = Source(1)
         # tableID;ID;PatrolStatus;Value;BatteryLife
         source: "${source::monitors.battery.collect.sources.source(3)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="battery"}: $3
           hw.battery.time_left: $5

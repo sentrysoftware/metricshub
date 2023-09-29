@@ -1,22 +1,19 @@
 package com.sentrysoftware.matrix.converter.state.mapping;
 
-
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ENCLOSURE;
 import static com.sentrysoftware.matrix.converter.state.ConversionHelper.performValueConversions;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sentrysoftware.matrix.converter.ConverterConstants;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import org.junit.jupiter.api.Test;
 
 class MappingConvertersWrapperTest {
 
@@ -24,21 +21,24 @@ class MappingConvertersWrapperTest {
 	private static final String HDF_ATTR_1 = "attr1";
 	private static final String YAML_ATTR_2 = "attr_2";
 	private static final String HDF_ATTR_2 = "attr2";
-	private static final String COLUMN_1 = "$column(1)";
-	private static final String COLUMN_2 = "$column(2)";
+	private static final String COLUMN_1 = "$1";
+	private static final String COLUMN_2 = "$2";
 	private static final String HDF_STATUS = "status";
 	private static final String YAML_STATUS = "hw.status{hw.type=\"enclosure\"}";
 
-	private static final Map<String, IMappingConverter> CONVERTERS = Map.of(
-		YAML_ENCLOSURE, new TestMappingConverter()
-	);
+	private static final Map<String, IMappingConverter> CONVERTERS = Map.of(YAML_ENCLOSURE, new TestMappingConverter());
 
-	private static final MappingConvertersWrapper MAPPING_CONVERTERS_WRAPPER  = new MappingConvertersWrapper(CONVERTERS);
+	private static final MappingConvertersWrapper MAPPING_CONVERTERS_WRAPPER = new MappingConvertersWrapper(CONVERTERS);
 
 	@Test
 	void testConvertParameterActivation() {
 		final JsonNode conditionalCollection = JsonNodeFactory.instance.objectNode();
-		MAPPING_CONVERTERS_WRAPPER.convertParameterActivation("parameteractivation.status", COLUMN_1, YAML_ENCLOSURE, conditionalCollection);
+		MAPPING_CONVERTERS_WRAPPER.convertParameterActivation(
+			"parameteractivation.status",
+			COLUMN_1,
+			YAML_ENCLOSURE,
+			conditionalCollection
+		);
 		final ObjectNode expected = JsonNodeFactory.instance.objectNode();
 		expected.set(YAML_STATUS, new TextNode(COLUMN_1));
 		assertEquals(expected, conditionalCollection);
@@ -104,11 +104,7 @@ class MappingConvertersWrapperTest {
 		public void convertCollectProperty(String key, String value, JsonNode node) {
 			final String newKey = METRICS_MAPPING.get(key);
 			assertNotNull(newKey);
-			((ObjectNode) node)
-				.set(
-					newKey,
-					JsonNodeFactory.instance.textNode(performValueConversions(value))
-				);
+			((ObjectNode) node).set(newKey, JsonNodeFactory.instance.textNode(performValueConversions(value)));
 		}
 	}
 }

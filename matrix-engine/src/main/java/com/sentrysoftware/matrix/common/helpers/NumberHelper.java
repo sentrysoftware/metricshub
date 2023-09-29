@@ -7,7 +7,6 @@ import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import lombok.NonNull;
 
 public class NumberHelper {
@@ -15,6 +14,7 @@ public class NumberHelper {
 	public static final Pattern INTEGER_DETECT_PATTERN = Pattern.compile("^(-?\\d+)(\\.0*)$");
 
 	private static final DecimalFormat DECIMAL_FORMAT;
+
 	static {
 		// By default we use the US Locale.
 		DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
@@ -24,20 +24,18 @@ public class NumberHelper {
 
 		// Create the decimalFormat
 		DECIMAL_FORMAT = new DecimalFormat("#########.###", symbols);
-
 	}
 
 	private NumberHelper() {}
 
 	/**
 	 * Parse the given double value, if the parsing fails return the default value
-	 * 
+	 *
 	 * @param value        The value we wish to parse
 	 * @param defaultValue The default value to return if the parsing fails
 	 * @return {@link Double} value
 	 */
 	public static Double parseDouble(String value, Double defaultValue) {
-
 		try {
 			return Double.parseDouble(value);
 		} catch (Exception e) {
@@ -47,13 +45,12 @@ public class NumberHelper {
 
 	/**
 	 * Parse the given integer value, if the parsing fails return the default value
-	 * 
+	 *
 	 * @param value        The value we wish to parse
 	 * @param defaultValue The default value to return if the parsing fails
 	 * @return {@link Integer} value
 	 */
 	public static Integer parseInt(String value, Integer defaultValue) {
-
 		try {
 			return Integer.parseInt(value);
 		} catch (Exception e) {
@@ -63,31 +60,29 @@ public class NumberHelper {
 
 	/**
 	 * Round the given double value using the specified decimal places
-	 * 
+	 *
 	 * @param value        The value we wish to round
 	 * @param places       The required decimal places expected as positive
 	 * @param roundingMode The rounding behavior used by the {@link BigDecimal} object for the numerical operations
 	 * @return double value
 	 */
 	public static double round(final double value, final int places, final RoundingMode roundingMode) {
-		if (places < 0)
+		if (places < 0) {
 			throw new IllegalArgumentException();
+		}
 
-		 return BigDecimal.valueOf(value)
-				 .setScale(places, roundingMode)
-				 .doubleValue();
+		return BigDecimal.valueOf(value).setScale(places, roundingMode).doubleValue();
 	}
 
 	/**
 	 * Removes the fractional part and the decimal point of the given state if the
 	 * fractional part contains only 0 after the decimal point. The state is trimmed
 	 * and converted to lower case
-	 * 
+	 *
 	 * @param state the value we wish to process
 	 * @return String value
 	 */
 	public static String cleanUpEnumInput(String state) {
-
 		if (state == null) {
 			return null;
 		}
@@ -105,7 +100,7 @@ public class NumberHelper {
 
 	/**
 	 * Format the given value as String
-	 * 
+	 *
 	 * @param n      numeric value to format
 	 * @param format string format used to format decimal parts
 	 * @return {@link String} value
@@ -120,12 +115,11 @@ public class NumberHelper {
 
 	/**
 	 * Format the given value as String
-	 * 
+	 *
 	 * @param n numeric value to format
 	 * @return {@link String} value
 	 */
 	public static String formatNumber(final Number n) {
 		return DECIMAL_FORMAT.format(n);
 	}
-
 }

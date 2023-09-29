@@ -25,14 +25,12 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_TEMPER
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VM;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VOLTAGE;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -72,7 +70,7 @@ public class MappingConvertersWrapper {
 
 	/**
 	 * Convert the HDF parameter activation key-value pair and set it under the <em>conditionalCollection</em> section
-	 * 
+	 *
 	 * @param key                   HDF parameter activation key to be converted.
 	 * @param value                 The value to be set in a new {@link TextNode}.<br>
 	 *                              Depending on the conversion specifications this value may change.
@@ -103,7 +101,7 @@ public class MappingConvertersWrapper {
 
 	/**
 	 * Get the converter for the given monitor type
-	 * 
+	 *
 	 * @param monitorType The type of the monitor used to get the corresponding converter
 	 * @return {@link IMappingConverter} instance
 	 */
@@ -113,7 +111,7 @@ public class MappingConvertersWrapper {
 
 	/**
 	 * Convert HDF parameter key-value pair and set it under the <em>metrics</em> section
-	 * 
+	 *
 	 * @param key         HDF parameter key to be converted.
 	 * @param value       The value to be set in a new {@link TextNode}.<br>
 	 *                    Depending on the conversion specifications this value may change.
@@ -131,7 +129,7 @@ public class MappingConvertersWrapper {
 
 	/**
 	 * Post conversion of the HDF discovery properties to YAML discovery properties
-	 * 
+	 *
 	 * @param connector The hardware connector object node
 	 */
 	public void postConvertDiscovery(final JsonNode connector) {
@@ -153,7 +151,7 @@ public class MappingConvertersWrapper {
 
 	/**
 	 * Discovery attributes post conversion
-	 * 
+	 *
 	 * @param monitorType The type of the monitor we wish to get its converter
 	 * @param discovery   The discovery job we wish to get its mapping section
 	 */
@@ -166,7 +164,7 @@ public class MappingConvertersWrapper {
 
 	/**
 	 * Get the mapping converter for the given monitor name
-	 * 
+	 *
 	 * @param monitorName The YAML monitor name
 	 * @return {@link IMappingConverter} instance
 	 */

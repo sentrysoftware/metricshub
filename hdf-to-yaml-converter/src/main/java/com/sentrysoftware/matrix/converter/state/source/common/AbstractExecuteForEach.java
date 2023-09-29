@@ -12,7 +12,7 @@ public abstract class AbstractExecuteForEach extends AbstractStateConverter {
 
 	/**
 	 * Get or create the executeForEachEntryOf {@link ObjectNode}
-	 * 
+	 *
 	 * @param key The key used to extract the source
 	 * @param connector The global connector object
 	 * @return {@link ObjectNode} instance
@@ -33,7 +33,7 @@ public abstract class AbstractExecuteForEach extends AbstractStateConverter {
 
 	/**
 	 * Get or create the concatMethod as {@link ObjectNode} in the given connector
-	 * 
+	 *
 	 * @param key The key used to extract the source
 	 * @param connector The global connector object
 	 * @return {@link ObjectNode} instance
@@ -46,7 +46,7 @@ public abstract class AbstractExecuteForEach extends AbstractStateConverter {
 
 	/**
 	 * Get or create the custom concatMethod in the given executeForEachEntryOf node
-	 * 
+	 *
 	 * @param executeForEachEntryOf The {@link ObjectNode} instance
 	 * @return {@link ObjectNode} instance
 	 */

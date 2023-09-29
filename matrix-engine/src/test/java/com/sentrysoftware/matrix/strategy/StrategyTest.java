@@ -1,28 +1,24 @@
 package com.sentrysoftware.matrix.strategy;
 
-
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-
 import static com.sentrysoftware.matrix.constants.Constants.THREAD_SLEEP_DURATION;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 class StrategyTest implements IStrategy {
+
 	private long threadSleepDuration = 0L;
 
 	private ContextExecutor contextExecutor = null;
 
 	@Override
-	public void prepare() {
-
-	}
+	public void prepare() {}
 
 	@Override
-	public void post() {
-
-	}
+	public void post() {}
 
 	@Override
 	public void run() {
@@ -50,10 +46,13 @@ class StrategyTest implements IStrategy {
 	@Test
 	public void testContextExecutorWithInterruptedThread() {
 		contextExecutor = new ContextExecutor(this);
-		assertThrows(InterruptedException.class, () -> {
-			Thread.currentThread().interrupt();
-			contextExecutor.execute();
-		});
+		assertThrows(
+			InterruptedException.class,
+			() -> {
+				Thread.currentThread().interrupt();
+				contextExecutor.execute();
+			}
+		);
 	}
 
 	/**
@@ -74,5 +73,4 @@ class StrategyTest implements IStrategy {
 		// ExecutorService.awaitTermination returns false if strategy timeout is elapsed before the executor termination
 		assertFalse(contextExecutor.execute());
 	}
-
 }

@@ -78,6 +78,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = systemStateTable SNMP Table
@@ -145,7 +147,8 @@ monitors:
       mapping:
         # The ValueTable = Source(5)
         source: "${source::monitors.enclosure.collect.sources.source(5)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="enclosure"}: $2
           hw.status{hw.type="enclosure", state="open"}: legacyIntrusionStatus($5)
@@ -200,6 +203,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = temperatureProbeTable SNMP Table
@@ -230,7 +235,8 @@ monitors:
       mapping:
         # The ValueTable = Source(1)
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="temperature"}: $2
           hw.temperature: $4
@@ -286,6 +292,8 @@ monitors:
     collect:
       # Collect type = mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = coolingDeviceTable SNMP Tabl
@@ -311,7 +319,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="fan"}: $2
           hw.fan.speed: $4
@@ -342,6 +351,8 @@ monitors:
     collect:
       # Collect type = mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the voltageProbeTable
@@ -367,7 +378,8 @@ monitors:
       mapping:
         # ValueTable = source(1)
         source: "${source::monitors.voltage.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.voltage: $4
           hw.status{hw.type="voltage"}: $2
@@ -406,6 +418,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = powerSupplyTable SNMP table
@@ -436,7 +450,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $3
         legacyTextParameters:
@@ -495,6 +510,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = memoryDeviceTable SNMP table
@@ -525,7 +542,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.memory.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="memory"}: $2
           hw.errors{hw.type="memory"}: $4
@@ -618,6 +636,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = processorDeviceTable SNMP table
@@ -656,7 +676,8 @@ monitors:
       mapping:
         # ValueTable = Source(3)
         source: "${source::monitors.cpu.collect.sources.source(3)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="cpu"}: $2
           hw.cpu.speed: megaHertz2Hertz($3)
@@ -751,6 +772,8 @@ monitors:
     collect:
       # Collect type is mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = systemStateTable SNMP table
@@ -815,7 +838,8 @@ monitors:
       mapping:
         # ValueTable = Source(5)
         source: "${source::monitors.other_device.collect.sources.source(5)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="other_device"}: $2
         legacyTextParameters:
@@ -841,6 +865,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = batteryTable SNMP table
@@ -862,7 +888,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.battery.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="battery"}: $2
         legacyTextParameters:

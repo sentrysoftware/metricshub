@@ -1,13 +1,10 @@
 package com.sentrysoftware.matrix.strategy.source;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOURCE_REF_PATTERN;
+
 import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Builder.Default;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -15,10 +12,11 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SOURCE_REF_PATTERN;
-
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
@@ -28,12 +26,12 @@ public class SourceTable {
 
 	private static final String ALTERNATE_COLUMN_SEPARATOR = ",";
 
-
 	@Default
 	private List<List<String>> table = new ArrayList<>();
 
 	@Default
 	private List<String> headers = new ArrayList<>();
+
 	private String rawData;
 
 	/**
@@ -57,12 +55,11 @@ public class SourceTable {
 			return table
 				.stream()
 				.filter(Objects::nonNull)
-				.map(line -> replaceSeparator
-					? line
-						.stream()
-						.map(val -> val.replace(separator, ALTERNATE_COLUMN_SEPARATOR))
-						.collect(Collectors.toList()) // NOSONAR
-						: line)
+				.map(line ->
+					replaceSeparator
+						? line.stream().map(val -> val.replace(separator, ALTERNATE_COLUMN_SEPARATOR)).collect(Collectors.toList()) // NOSONAR
+						: line
+				)
 				.map(line -> String.join(separator, line) + separator)
 				.collect(Collectors.joining(NEW_LINE));
 		}
@@ -106,10 +103,7 @@ public class SourceTable {
 
 			// Make sure we don't change the integrity of the line with the split in case of empty cells
 			final String[] split = line.split(separator, -1);
-			return Stream
-				.of(split)
-				.limit(split.length - 1L)
-				.collect(Collectors.toList()); //NOSONAR
+			return Stream.of(split).limit(split.length - 1L).collect(Collectors.toList()); //NOSONAR
 		}
 		return new ArrayList<>();
 	}
@@ -144,24 +138,17 @@ public class SourceTable {
 		final String connectorId,
 		final TelemetryManager telemetryManager
 	) {
-
 		final Matcher matcher = SOURCE_REF_PATTERN.matcher(sourceKey);
 
 		if (matcher.find()) {
 			return Optional.ofNullable(
-				telemetryManager
-					.getHostProperties()
-					.getConnectorNamespace(connectorId)
-					.getSourceTable(matcher.group())
+				telemetryManager.getHostProperties().getConnectorNamespace(connectorId).getSourceTable(matcher.group())
 			);
 		}
 
 		// Hard-coded source
 		return Optional.of(
-			SourceTable
-				.builder()
-				.table(SourceTable.csvToTable(sourceKey, MatrixConstants.TABLE_SEP))
-				.build()
+			SourceTable.builder().table(SourceTable.csvToTable(sourceKey, MatrixConstants.TABLE_SEP)).build()
 		);
 	}
 }

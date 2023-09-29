@@ -1,7 +1,6 @@
 package com.sentrysoftware.matrix.configuration;
 
 public enum TransportProtocols {
-
 	HTTP,
 	HTTPS;
 
@@ -12,7 +11,6 @@ public enum TransportProtocols {
 	 * @return Corresponding {@link TransportProtocols} value
 	 */
 	public static TransportProtocols interpretValueOf(final String label) {
-
 		if ("http".equalsIgnoreCase(label)) {
 			return HTTP;
 		}

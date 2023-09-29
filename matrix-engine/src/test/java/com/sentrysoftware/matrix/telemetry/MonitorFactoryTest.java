@@ -1,21 +1,5 @@
 package com.sentrysoftware.matrix.telemetry;
 
-import com.sentrysoftware.matrix.common.HostLocation;
-import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
-import com.sentrysoftware.matrix.configuration.HostConfiguration;
-import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
-import com.sentrysoftware.matrix.telemetry.metric.AbstractMetric;
-import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
-import com.sentrysoftware.matrix.telemetry.metric.StateSetMetric;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CONNECTOR_STATUS_METRIC_KEY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DEFAULT_JOB_TIMEOUT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_NAME;
@@ -38,8 +22,24 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.doReturn;
 
+import com.sentrysoftware.matrix.common.HostLocation;
+import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
+import com.sentrysoftware.matrix.configuration.HostConfiguration;
+import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
+import com.sentrysoftware.matrix.telemetry.metric.AbstractMetric;
+import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
+import com.sentrysoftware.matrix.telemetry.metric.StateSetMetric;
+import java.util.HashMap;
+import java.util.Map;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 @ExtendWith(MockitoExtension.class)
 class MonitorFactoryTest {
+
 	@Mock
 	private TelemetryManager telemetryManagerMock;
 
@@ -59,10 +59,20 @@ class MonitorFactoryTest {
 		final Monitor monitor = Monitor.builder().attributes(monitorAttributes).build();
 
 		// Mock findMonitorByTypeAndId response
-		doReturn(monitor).when(telemetryManagerMock).findMonitorByTypeAndId(KnownMonitorType.CONNECTOR.getKey(), MONITOR_ID_ATTRIBUTE_VALUE);
+		doReturn(monitor)
+			.when(telemetryManagerMock)
+			.findMonitorByTypeAndId(KnownMonitorType.CONNECTOR.getKey(), MONITOR_ID_ATTRIBUTE_VALUE);
 
 		// Call method createOrUpdateMonitor in MonitorFactory
-		assertEquals(monitor, monitorFactory.createOrUpdateMonitor(monitorAttributes, null, KnownMonitorType.CONNECTOR.getKey(), MONITOR_ID_ATTRIBUTE_VALUE));
+		assertEquals(
+			monitor,
+			monitorFactory.createOrUpdateMonitor(
+				monitorAttributes,
+				null,
+				KnownMonitorType.CONNECTOR.getKey(),
+				MONITOR_ID_ATTRIBUTE_VALUE
+			)
+		);
 
 		// Check the found monitor
 		assertEquals(KnownMonitorType.CONNECTOR.getKey(), monitor.getType());
@@ -75,10 +85,17 @@ class MonitorFactoryTest {
 		monitorAttributes.put(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE);
 
 		// Mock findMonitorByTypeAndId response
-		doReturn(null).when(telemetryManagerMock).findMonitorByTypeAndId(KnownMonitorType.CONNECTOR.getKey(), MONITOR_ID_ATTRIBUTE_VALUE);
+		doReturn(null)
+			.when(telemetryManagerMock)
+			.findMonitorByTypeAndId(KnownMonitorType.CONNECTOR.getKey(), MONITOR_ID_ATTRIBUTE_VALUE);
 
 		// Call method createOrUpdateMonitor in MonitorFactory and retrieve the created monitor
-		final Monitor createdMonitor = monitorFactory.createOrUpdateMonitor(monitorAttributes, null, KnownMonitorType.CONNECTOR.getKey(), MONITOR_ID_ATTRIBUTE_VALUE);
+		final Monitor createdMonitor = monitorFactory.createOrUpdateMonitor(
+			monitorAttributes,
+			null,
+			KnownMonitorType.CONNECTOR.getKey(),
+			MONITOR_ID_ATTRIBUTE_VALUE
+		);
 
 		// Check the created monitor
 		assertEquals(monitorAttributes, createdMonitor.getAttributes());
@@ -92,10 +109,17 @@ class MonitorFactoryTest {
 		monitorAttributes.put(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE);
 
 		// Mock findMonitorByTypeAndId response
-		doReturn(null).when(telemetryManagerMock).findMonitorByTypeAndId(KnownMonitorType.CONNECTOR.getKey(), MONITOR_ID_ATTRIBUTE_VALUE);
+		doReturn(null)
+			.when(telemetryManagerMock)
+			.findMonitorByTypeAndId(KnownMonitorType.CONNECTOR.getKey(), MONITOR_ID_ATTRIBUTE_VALUE);
 
 		// Create the monitor and check its attributes
-		final Monitor createdMonitor = monitorFactory.createOrUpdateMonitor(monitorAttributes, null, KnownMonitorType.CONNECTOR.getKey(), MONITOR_ID_ATTRIBUTE_VALUE);
+		final Monitor createdMonitor = monitorFactory.createOrUpdateMonitor(
+			monitorAttributes,
+			null,
+			KnownMonitorType.CONNECTOR.getKey(),
+			MONITOR_ID_ATTRIBUTE_VALUE
+		);
 		assertEquals(monitorAttributes, createdMonitor.getAttributes());
 
 		// Call method collectNumberMetric in MonitorFactory
@@ -121,10 +145,17 @@ class MonitorFactoryTest {
 
 		// Create the monitor
 		final Monitor monitor = Monitor.builder().attributes(monitorAttributes).metrics(monitorMetrics).build();
-		doReturn(monitor).when(telemetryManagerMock).findMonitorByTypeAndId(KnownMonitorType.CONNECTOR.getKey(), MONITOR_ID_ATTRIBUTE_VALUE);
+		doReturn(monitor)
+			.when(telemetryManagerMock)
+			.findMonitorByTypeAndId(KnownMonitorType.CONNECTOR.getKey(), MONITOR_ID_ATTRIBUTE_VALUE);
 
 		// Call method createOrUpdateMonitor in MonitorFactory, retrieve the created monitor then check its attributes
-		final Monitor createdMonitor = monitorFactory.createOrUpdateMonitor(monitorAttributes, null, KnownMonitorType.CONNECTOR.getKey(), MONITOR_ID_ATTRIBUTE_VALUE);
+		final Monitor createdMonitor = monitorFactory.createOrUpdateMonitor(
+			monitorAttributes,
+			null,
+			KnownMonitorType.CONNECTOR.getKey(),
+			MONITOR_ID_ATTRIBUTE_VALUE
+		);
 		assertEquals(monitorAttributes, createdMonitor.getAttributes());
 
 		// Call method collectNumberMetric in MonitorFactory
@@ -145,14 +176,27 @@ class MonitorFactoryTest {
 		monitorAttributes.put(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE);
 
 		// Mock findMonitorByTypeAndId response
-		doReturn(null).when(telemetryManagerMock).findMonitorByTypeAndId(KnownMonitorType.CONNECTOR.getKey(), MONITOR_ID_ATTRIBUTE_VALUE);
+		doReturn(null)
+			.when(telemetryManagerMock)
+			.findMonitorByTypeAndId(KnownMonitorType.CONNECTOR.getKey(), MONITOR_ID_ATTRIBUTE_VALUE);
 
 		// Create the monitor and check its attributes
-		final Monitor createdMonitor = monitorFactory.createOrUpdateMonitor(monitorAttributes, null, KnownMonitorType.CONNECTOR.getKey(), MONITOR_ID_ATTRIBUTE_VALUE);
+		final Monitor createdMonitor = monitorFactory.createOrUpdateMonitor(
+			monitorAttributes,
+			null,
+			KnownMonitorType.CONNECTOR.getKey(),
+			MONITOR_ID_ATTRIBUTE_VALUE
+		);
 		assertEquals(monitorAttributes, createdMonitor.getAttributes());
 
 		// Call collectStateSetMetric in MonitorFactory
-		metricFactoryMock.collectStateSetMetric(createdMonitor, CONNECTOR_STATUS_METRIC_KEY, STATE_SET_METRIC_OK, STATE_SET,DEFAULT_JOB_TIMEOUT);
+		metricFactoryMock.collectStateSetMetric(
+			createdMonitor,
+			CONNECTOR_STATUS_METRIC_KEY,
+			STATE_SET_METRIC_OK,
+			STATE_SET,
+			DEFAULT_JOB_TIMEOUT
+		);
 
 		// Retrieve the resulting stateSet metric
 		final StateSetMetric stateSetMetric = createdMonitor.getMetric(CONNECTOR_STATUS_METRIC_KEY, StateSetMetric.class);
@@ -174,14 +218,27 @@ class MonitorFactoryTest {
 
 		// Mock findMonitorByTypeAndId response
 		final Monitor monitor = Monitor.builder().attributes(monitorAttributes).metrics(monitorMetrics).build();
-		doReturn(monitor).when(telemetryManagerMock).findMonitorByTypeAndId(KnownMonitorType.CONNECTOR.getKey(), MONITOR_ID_ATTRIBUTE_VALUE);
+		doReturn(monitor)
+			.when(telemetryManagerMock)
+			.findMonitorByTypeAndId(KnownMonitorType.CONNECTOR.getKey(), MONITOR_ID_ATTRIBUTE_VALUE);
 
 		// Create the monitor and check its attributes
-		final Monitor createdMonitor = monitorFactory.createOrUpdateMonitor(monitorAttributes, null, KnownMonitorType.CONNECTOR.getKey(), MONITOR_ID_ATTRIBUTE_VALUE);
+		final Monitor createdMonitor = monitorFactory.createOrUpdateMonitor(
+			monitorAttributes,
+			null,
+			KnownMonitorType.CONNECTOR.getKey(),
+			MONITOR_ID_ATTRIBUTE_VALUE
+		);
 		assertEquals(monitorAttributes, createdMonitor.getAttributes());
 
 		// Call collectStateSetMetric in MonitorFactory
-		metricFactoryMock.collectStateSetMetric(createdMonitor, CONNECTOR_STATUS_METRIC_KEY, STATE_SET_METRIC_OK, STATE_SET, DEFAULT_JOB_TIMEOUT);
+		metricFactoryMock.collectStateSetMetric(
+			createdMonitor,
+			CONNECTOR_STATUS_METRIC_KEY,
+			STATE_SET_METRIC_OK,
+			STATE_SET,
+			DEFAULT_JOB_TIMEOUT
+		);
 
 		// Retrieve the resulting stateSet metric
 		final StateSetMetric stateSetMetric = createdMonitor.getMetric(CONNECTOR_STATUS_METRIC_KEY, StateSetMetric.class);
@@ -194,9 +251,13 @@ class MonitorFactoryTest {
 	@Test
 	void testCreateHostMonitor() {
 		// Create a telemetry manager instance with necessary information in host configuration and host properties
-		final TelemetryManager telemetryManager = TelemetryManager.builder()
-				.hostConfiguration(HostConfiguration.builder().hostId(HOST_ID).hostname(HOST_NAME).hostType(DeviceKind.LINUX).build())
-				.hostProperties(HostProperties.builder().isLocalhost(Boolean.TRUE).build()).build();
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(
+				HostConfiguration.builder().hostId(HOST_ID).hostname(HOST_NAME).hostType(DeviceKind.LINUX).build()
+			)
+			.hostProperties(HostProperties.builder().isLocalhost(Boolean.TRUE).build())
+			.build();
 
 		// Mock host configuration and host properties
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
@@ -227,25 +288,16 @@ class MonitorFactoryTest {
 
 	@Test
 	void testExtractAttributesFromMetricName() {
+		assertEquals(Map.of("hw.type", "cpu"), MetricFactory.extractAttributesFromMetricName("hw.metric{hw.type=\"cpu\"}"));
+
 		assertEquals(
-				Map.of("hw.type", "cpu"),
-				MetricFactory.extractAttributesFromMetricName("hw.metric{hw.type=\"cpu\"}")
+			Map.of("hw.type", "cpu", "host.id", "host"),
+			MetricFactory.extractAttributesFromMetricName("hw.metric{hw.type=\"cpu\", host.id=\"host\"}")
 		);
 
 		assertEquals(
-				Map.of(
-						"hw.type", "cpu",
-						"host.id", "host"
-				),
-				MetricFactory.extractAttributesFromMetricName("hw.metric{hw.type=\"cpu\", host.id=\"host\"}")
-		);
-
-		assertEquals(
-				Map.of(
-						"hw.type", "cpu",
-						"host.id", "host"
-				),
-				MetricFactory.extractAttributesFromMetricName("hw.metric{hw.type=\"cpu\",host.id=\"host\"}")
+			Map.of("hw.type", "cpu", "host.id", "host"),
+			MetricFactory.extractAttributesFromMetricName("hw.metric{hw.type=\"cpu\",host.id=\"host\"}")
 		);
 	}
 }

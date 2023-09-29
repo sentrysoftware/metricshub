@@ -3,19 +3,17 @@ package com.sentrysoftware.matrix.converter;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.junit.jupiter.api.Assertions;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.sentrysoftware.matrix.common.helpers.JsonHelper;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import org.junit.jupiter.api.Assertions;
 
 public abstract class AbstractConnectorPropertyConverterTest {
 
@@ -30,53 +28,52 @@ public abstract class AbstractConnectorPropertyConverterTest {
 	 * finds the specified key in the %{EXPECTED} file and compares the input to the
 	 * expected result.
 	 */
-	protected void testConversion(String key)
-			throws IOException, JsonProcessingException, JsonMappingException {
-
+	protected void testConversion(String key) throws IOException, JsonProcessingException, JsonMappingException {
 		final ObjectMapper mapper = JsonHelper.buildYamlMapper();
 		final ArrayNode expectedArray = (ArrayNode) mapper.readTree(new File(getResourcePath() + EXPECTED_YAML));
 		final AtomicBoolean found = new AtomicBoolean(false);
-		expectedArray.elements().forEachRemaining(x -> {
-			if (x.get(NAME).asText().equals(key)) {
+		expectedArray
+			.elements()
+			.forEachRemaining(x -> {
+				if (x.get(NAME).asText().equals(key)) {
+					final PreConnector preConnector = new PreConnector();
+					try {
+						preConnector.load(new ByteArrayInputStream(x.get(INPUT).asText().getBytes()));
+					} catch (IOException e) {
+						Assertions.fail(String.format("input for %s not found", key));
+					}
+					final ConnectorConverter connectorConverter = new ConnectorConverter(preConnector);
+					final JsonNode connector = connectorConverter.convert();
 
-				final PreConnector preConnector = new PreConnector();
-				try {
-					preConnector.load(new ByteArrayInputStream(x.get(INPUT).asText().getBytes()));
-				} catch (IOException e) {
-					Assertions.fail(String.format("input for %s not found", key));
+					assertEquals(x.get(EXPECTED), connector);
+					found.set(true);
 				}
-				final ConnectorConverter connectorConverter = new ConnectorConverter(preConnector);
-				final JsonNode connector = connectorConverter.convert();
-
-				assertEquals(x.get(EXPECTED), connector);
-				found.set(true);
-			}
-		});
+			});
 		assertTrue(found.get(), "Cannot find test for: " + key);
 	}
 
 	/**
 	 * Checks all keys in %{EXPECTED} file and compares the input against the expected result.
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	protected void testAll() throws IOException {
 		final ObjectMapper mapper = JsonHelper.buildYamlMapper();
 		final ArrayNode expectedArray = (ArrayNode) mapper.readTree(new File(getResourcePath() + EXPECTED_YAML));
-		expectedArray.elements().forEachRemaining(x -> {
+		expectedArray
+			.elements()
+			.forEachRemaining(x -> {
+				final PreConnector preConnector = new PreConnector();
+				try {
+					preConnector.load(new ByteArrayInputStream(x.get(INPUT).asText().getBytes()));
+				} catch (IOException e) {
+					Assertions.fail("input for test was not found");
+				}
 
-			final PreConnector preConnector = new PreConnector();
-			try {
-				preConnector.load(new ByteArrayInputStream(x.get(INPUT).asText().getBytes()));
-			} catch (IOException e) {
-				Assertions.fail("input for test was not found");
-			}
+				final ConnectorConverter connectorConverter = new ConnectorConverter(preConnector);
+				final JsonNode connector = connectorConverter.convert();
 
-			final ConnectorConverter connectorConverter = new ConnectorConverter(preConnector);
-			final JsonNode connector = connectorConverter.convert();
-
-			assertEquals(x.get(EXPECTED), connector);
-
-		});
+				assertEquals(x.get(EXPECTED), connector);
+			});
 	}
 }

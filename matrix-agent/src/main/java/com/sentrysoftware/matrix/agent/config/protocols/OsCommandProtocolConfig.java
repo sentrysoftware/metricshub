@@ -1,13 +1,11 @@
 package com.sentrysoftware.matrix.agent.config.protocols;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.matrix.agent.deserialization.TimeDeserializer;
 import com.sentrysoftware.matrix.configuration.IConfiguration;
 import com.sentrysoftware.matrix.configuration.OsCommandConfiguration;
-
+import java.util.HashSet;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -23,10 +21,10 @@ import lombok.NoArgsConstructor;
 public class OsCommandProtocolConfig extends AbstractProtocolConfig {
 
 	private boolean useSudo;
-	
+
 	@Default
 	private Set<String> useSudoCommands = new HashSet<>();
-	
+
 	@Default
 	private String sudoCommand = "sudo";
 
@@ -40,7 +38,7 @@ public class OsCommandProtocolConfig extends AbstractProtocolConfig {
 	 * @return The {@link OsCommandConfiguration} instance
 	 */
 	@Override
-	public IConfiguration toProtocol() {
+	public IConfiguration toConfiguration() {
 		return OsCommandConfiguration
 			.builder()
 			.useSudo(useSudo)

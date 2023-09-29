@@ -4,14 +4,12 @@ import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
-import java.util.StringJoiner;
-import java.util.function.UnaryOperator;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.sentrysoftware.matrix.strategy.source.compute.IComputeProcessor;
-
+import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -40,12 +38,11 @@ public class Substring extends Compute {
 	@Builder
 	@JsonCreator
 	public Substring(
-		@JsonProperty("type") String type, 
+		@JsonProperty("type") String type,
 		@JsonProperty(value = "column", required = true) @NonNull Integer column,
 		@JsonProperty(value = "start", required = true) @NonNull String start,
 		@JsonProperty(value = "length", required = true) @NonNull String length
 	) {
-
 		super(type);
 		this.column = column;
 		this.start = start;
@@ -54,16 +51,11 @@ public class Substring extends Compute {
 
 	/**
 	 * Copy the current instance
-	 * 
+	 *
 	 * @return new {@link Substring} instance
 	 */
 	public Substring copy() {
-		return Substring.builder()
-				.type(type)
-				.column(column)
-				.start(start)
-				.length(length)
-				.build();
+		return Substring.builder().type(type).column(column).start(start).length(length).build();
 	}
 
 	@Override

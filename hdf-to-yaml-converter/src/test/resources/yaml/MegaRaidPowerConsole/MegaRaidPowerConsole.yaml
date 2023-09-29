@@ -84,6 +84,8 @@ monitors:
     collect:
       # This is a multi-instance collect (execute the collect for each disk)
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the physical disk table
@@ -107,7 +109,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
@@ -138,6 +141,8 @@ monitors:
     collect:
       # Type = MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the status of the drive in the logical drive snmp table
@@ -159,7 +164,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.logical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="logical_disk"}: $2
         legacyTextParameters:

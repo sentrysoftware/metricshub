@@ -50,6 +50,8 @@ monitors:
     collect:
       # Collect type is mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source (1) Overall Status
@@ -75,7 +77,8 @@ monitors:
         # Value Table
         # PATROLStatus;StatusInformation;
         source: "${source::monitors.enclosure.collect.sources.source(1)}"
-        deviceId: IBM FlashSystem
+        attributes:
+          id: IBM FlashSystem
         metrics:
           hw.status{hw.type="enclosure"}: $1
         legacyTextParameters:
@@ -129,6 +132,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Fan Table
@@ -192,7 +197,8 @@ monitors:
         # ValueTable = Source(4)
         # ID;Percent;Speed;Units;PatrolStatus;StatusInformation;
         source: "${source::monitors.fan.collect.sources.source(4)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="fan"}: $5
           hw.fan.speed: $3
@@ -246,6 +252,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Temperature Table
@@ -272,7 +280,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;Value;PatrolStatus;StatusInformation;
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="temperature"}: $3
           hw.temperature: $2
@@ -319,6 +328,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = PowerSupply Table
@@ -345,7 +356,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;PatrolStatus;StatusInformation;
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
@@ -410,6 +422,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Voltage Table
@@ -455,7 +469,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;PatrolStatus;StatusInformation;
         source: "${source::monitors.voltage.collect.sources.source(3)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="voltage"}: $2
         legacyTextParameters:
@@ -492,6 +507,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Battery Table
@@ -518,7 +535,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;Value;PatrolStatus;StatusInformation;
         source: "${source::monitors.battery.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="battery"}: $2
         legacyTextParameters:
@@ -552,6 +570,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = PhysicalDisk Table
@@ -578,7 +598,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;Value;PatrolStatus;StatusInformation;
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
@@ -631,6 +652,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = FC Port Table
@@ -673,7 +696,8 @@ monitors:
         # ValueTable = Source(3)
         # ID;LinkStatus;Speed;
         source: "${source::monitors.network.collect.sources.source(3)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.network.up: legacyLinkStatus($2)
           hw.network.bandwidth.limit: megaBit2Bit($3)

@@ -5,11 +5,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PasswordProtection;
-
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
-
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -17,23 +15,95 @@ import lombok.NonNull;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SecurityManager {
 
-	private static final char[] KEY_STORE_PASSWORD = new char[] { 'M', 'a', 't', 'r', 'i', 'x', ',', ' ', 'C', 'r', 'e', 'd',
-			'i', 't', 's', ':', ' ', 'B', 'e', 'r', 't', 'r', 'a', 'n', 'd', ',', ' ', 'E', 'l', 'v', 'i', 's', ',',
-			' ', 'F', 'a', 'd', 'h', 'e', 'l', 'a', ',', ' ', 'H', 'u', 'a', 'n', ',', ' ', 'N', 'a', 's', 's', 'i',
-			'm', ',', ' ', 'R', 'a', 'm', 'a', 's', 's', 'h', ' ', 'a', 'n', 'd', ' ', 'T', 'h', 'o', 'm', 'a', 's' };
+	private static final char[] KEY_STORE_PASSWORD = new char[] {
+		'M',
+		'a',
+		't',
+		'r',
+		'i',
+		'x',
+		',',
+		' ',
+		'C',
+		'r',
+		'e',
+		'd',
+		'i',
+		't',
+		's',
+		':',
+		' ',
+		'B',
+		'e',
+		'r',
+		't',
+		'r',
+		'a',
+		'n',
+		'd',
+		',',
+		' ',
+		'E',
+		'l',
+		'v',
+		'i',
+		's',
+		',',
+		' ',
+		'F',
+		'a',
+		'd',
+		'h',
+		'e',
+		'l',
+		'a',
+		',',
+		' ',
+		'H',
+		'u',
+		'a',
+		'n',
+		',',
+		' ',
+		'N',
+		'a',
+		's',
+		's',
+		'i',
+		'm',
+		',',
+		' ',
+		'R',
+		'a',
+		'm',
+		'a',
+		's',
+		's',
+		'h',
+		' ',
+		'a',
+		'n',
+		'd',
+		' ',
+		'T',
+		'h',
+		'o',
+		'm',
+		'a',
+		's'
+	};
 	private static final String MASTER_KEY_ALIAS = "masterKey";
 	public static final String MATRIX_KEY_STORE_FILE_NAME = "matrix-keystore.p12";
 
 	/**
 	 * Encrypt the given password
-	 * 
+	 *
 	 * @param passwd       Password to encrypt
 	 * @param keyStoreFile The key store holding secret information
 	 * @return char array
 	 * @throws MatrixSecurityException
 	 */
 	public static char[] encrypt(final char[] passwd, @NonNull final File keyStoreFile) throws MatrixSecurityException {
-
 		if (passwd == null) {
 			return passwd;
 		}
@@ -43,16 +113,14 @@ public class SecurityManager {
 
 	/**
 	 * Decrypt the password
-	 * 
+	 *
 	 * @param encrypted    The encrypted text
 	 * @param keyStoreFile The key store holding the secret information
 	 * @return char array
 	 * @throws MatrixSecurityException
 	 */
 	public static char[] decrypt(final char[] encrypted, final File keyStoreFile) throws MatrixSecurityException {
-
 		if (encrypted != null && keyStoreFile != null && keyStoreFile.exists()) {
-
 			return CryptoCipher.decrypt(encrypted, getSecretKey(keyStoreFile));
 		}
 
@@ -61,14 +129,13 @@ public class SecurityManager {
 
 	/**
 	 * Get the secret key from the KeyStore
-	 * 
+	 *
 	 * @param keyStoreFile The key store file
-	 * 
+	 *
 	 * @return {@link SecretKey} instance
 	 * @throws MatrixSecurityException
 	 */
 	private static SecretKey getSecretKey(@NonNull final File keyStoreFile) throws MatrixSecurityException {
-
 		// Load the keyStore
 		final KeyStore ks = loadKeyStore(keyStoreFile);
 
@@ -90,30 +157,27 @@ public class SecurityManager {
 
 	/**
 	 * Load the PRODUCT-CODE-keystore.p12 file, if the keyStore file doesn't exist then it is created
-	 * 
+	 *
 	 * @param keyStoreFile The key store file
 	 * @throws MatrixSecurityException
 	 */
 	public static KeyStore loadKeyStore(@NonNull final File keyStoreFile) throws MatrixSecurityException {
-
 		try {
 			final KeyStore ks = KeyStore.getInstance("PKCS12");
 
 			if (keyStoreFile.exists()) {
 				// if exists, load
-				try(FileInputStream stream = new FileInputStream(keyStoreFile)) {
+				try (FileInputStream stream = new FileInputStream(keyStoreFile)) {
 					ks.load(stream, KEY_STORE_PASSWORD);
 				}
-
 			} else {
 				// if not exists, create
 				ks.load(null, null);
 
 				// Store the key store password
-				try(FileOutputStream stream = new FileOutputStream(keyStoreFile)) {
+				try (FileOutputStream stream = new FileOutputStream(keyStoreFile)) {
 					ks.store(stream, KEY_STORE_PASSWORD);
 				}
-
 			}
 
 			return ks;
@@ -124,15 +188,17 @@ public class SecurityManager {
 
 	/**
 	 * Generate and save a new master key in the given {@link KeyStore}
-	 * 
+	 *
 	 * @param ks           The keyStore holding the secret key
 	 * @param password     The password used to protect the {@link KeyStore}
 	 * @param keyStoreFile The key store file (PRODUCT-CODE-keystore.p12)
 	 * @throws Exception
 	 */
-	public static SecretKey generateMasterKey(@NonNull final KeyStore ks, @NonNull final char[] password,
-			@NonNull final File keyStoreFile) throws MatrixSecurityException {
-
+	public static SecretKey generateMasterKey(
+		@NonNull final KeyStore ks,
+		@NonNull final char[] password,
+		@NonNull final File keyStoreFile
+	) throws MatrixSecurityException {
 		try {
 			// Random master key
 			char[] masterKey = CryptoCipher.generateRandomMasterKey();
@@ -159,7 +225,5 @@ public class SecurityManager {
 		} catch (Exception e) {
 			throw new MatrixSecurityException("Error detected when generating the master key", e);
 		}
-
 	}
-
 }

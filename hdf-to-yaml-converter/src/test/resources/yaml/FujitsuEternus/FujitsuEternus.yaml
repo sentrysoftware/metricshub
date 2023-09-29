@@ -160,6 +160,8 @@ monitors:
     collect:
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = CIM_ComputerSystem (what else? we're looking for logical devices that have
@@ -192,7 +194,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.enclosure.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="enclosure"}: $2
         legacyTextParameters:
@@ -287,6 +290,8 @@ monitors:
     collect:
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = HITACHI_DiskDrive
@@ -327,7 +332,8 @@ monitors:
         # ValueTable = Source(1)
         # SystemName,DeviceID,PATROLStatus,StatusDescriptions
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="physical_disk"}: $3
         legacyTextParameters:
@@ -390,6 +396,8 @@ monitors:
     collect:
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = HITACHI_FCPort
@@ -435,7 +443,8 @@ monitors:
         # ValueTable = Source(1)
         # DeviceID,Speed,PATROLStatus,StatusInformation,SystemName
         source: "${source::monitors.network.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.network.bandwidth.limit: megaBit2Bit($2)
           hw.status{hw.type="network"}: $3
@@ -496,6 +505,8 @@ monitors:
     collect:
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = FUJITSU_FAN
@@ -556,7 +567,8 @@ monitors:
         # ValueTable = Source(1)
         # DeviceID,PATROLStatus,StatusInformation,SystemName;
         source: "${source::monitors.fan.collect.sources.source(2)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="fan"}: $2
         legacyTextParameters:
@@ -662,6 +674,8 @@ monitors:
     collect:
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = FUJITSU_BTU
@@ -784,7 +798,8 @@ monitors:
         # ValueTable = Source(1)
         # DeviceID,PATROLStatus,StatusInformation,SystemName;
         source: "${source::monitors.battery.collect.sources.source(5)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="battery"}: $2
         legacyTextParameters:
@@ -870,6 +885,8 @@ monitors:
     collect:
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = FUJITSU_PhysicalMemory
@@ -948,7 +965,8 @@ monitors:
         # ValueTable = Source(1)
         # DeviceID,PATROLStatus,StatusInformation,SystemName;
         source: "${source::monitors.memory.collect.sources.source(4)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="memory"}: $2
         legacyTextParameters:
@@ -1109,6 +1127,8 @@ monitors:
     collect:
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = FUJITSU_IOM
@@ -1275,7 +1295,8 @@ monitors:
         # ValueTable = Source(1)
         # Type;DeviceID,DisplayID,PATROLStatus,StatusInformation,SystemName
         source: "${source::monitors.other_device.collect.sources.source(8)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="other_device"}: $4
         legacyTextParameters:
@@ -1335,6 +1356,8 @@ monitors:
     collect:
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = FUJITSU_PSU
@@ -1395,7 +1418,8 @@ monitors:
         # ValueTable = Source(1)
         # DeviceID,PATROLStatus,StatusInformation,SystemName;
         source: "${source::monitors.power_supply.collect.sources.source(2)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
@@ -1532,6 +1556,8 @@ monitors:
     collect:
       # Collect type is multiinstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = FUJITSU_StorageVolume
@@ -1605,7 +1631,8 @@ monitors:
         # Value Table
         # ElementName,PATROLStatusArray,StatusInformation,RemainingManagedSpace,SystemID
         source: "${source::monitors.logical_disk.collect.sources.source(4)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="logical_disk"}: $2
           hw.logical_disk.usage{state="free"}: $4

@@ -2,13 +2,11 @@ package com.sentrysoftware.matrix.common.helpers.state;
 
 import java.util.Map;
 import java.util.Optional;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
 public enum DuplexMode implements IState {
-
 	HALF(0),
 	FULL(1);
 
@@ -19,14 +17,22 @@ public enum DuplexMode implements IState {
 	 * Map each state value to a {@link DuplexMode}
 	 */
 	private static final Map<String, DuplexMode> DUPLEX_MODE_MAP = Map.of(
-		"0", HALF,
-		"no", HALF,
-		"half", HALF,
-		"degraded", HALF,
-		"1", FULL,
-		"yes", FULL,
-		"full", FULL,
-		"ok", FULL
+		"0",
+		HALF,
+		"no",
+		HALF,
+		"half",
+		HALF,
+		"degraded",
+		HALF,
+		"1",
+		FULL,
+		"yes",
+		FULL,
+		"full",
+		FULL,
+		"ok",
+		FULL
 	);
 
 	/**

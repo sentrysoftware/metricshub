@@ -60,6 +60,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Collect all values for other class' collects
@@ -85,7 +87,8 @@ monitors:
         # Enclosure Instance Table - Source(2)
         # JSON_ID; ID; status
         source: "${source::monitors.enclosure.collect.sources.source(2)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.enclosure.power: $3
           hw.enclosure.energy: fakeCounter($3)
@@ -156,6 +159,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Copy the enclosure component collect
@@ -204,7 +209,8 @@ monitors:
         # Battery value table - Source(3)
         # JSON_ID; enclosureID; DeviceID; status; status information; charge
         source: "${source::monitors.battery.collect.sources.source(3)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="battery"}: $4
           hw.battery.charge: percent2Ratio($6)
@@ -241,6 +247,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Copy the enclosure component collect
@@ -264,7 +272,8 @@ monitors:
         # Disk controller instance table - Source(1)
         # JSON_ID; enclosureID; deviceID; status; status information
         source: "${source::monitors.disk_controller.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="disk_controller"}: $4
         legacyTextParameters:
@@ -300,6 +309,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Copy the enclosure component collect
@@ -323,7 +334,8 @@ monitors:
         # Fan instance table - Source(1)
         # JSON_ID; enclosureID; deviceID; status; status information
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="fan"}: $4
         legacyTextParameters:
@@ -361,6 +373,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Copy the enclosure component collect
@@ -380,7 +394,8 @@ monitors:
         # Led instance table - Source(1)
         # JSON_ID; enclosureID; DeviceID; status
         source: "${source::monitors.led.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="led"}: legacyLedStatus($4)
   memory:
@@ -449,6 +464,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Copy the enclosure component collect
@@ -497,7 +514,8 @@ monitors:
         # Memory instance table - Source(3)
         # JSON_ID; enclosureID; deviceID; status; status information
         source: "${source::monitors.memory.collect.sources.source(3)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="memory"}: $4
         legacyTextParameters:
@@ -539,6 +557,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: http
@@ -577,7 +597,8 @@ monitors:
         # NetworkCard instance table - Source(1)
         # JSON_ID; enclosureID; deviceID; status; status information
         source: "${source::monitors.network.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.network.bandwidth.limit: megaBit2Bit($4)
   other_device:
@@ -621,6 +642,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Copy the enclosure component collect
@@ -648,7 +671,8 @@ monitors:
         # OtherDevice instance table - Source(1)
         # JSON_ID; enclosureID; DeviceID; status; status information
         source: "${source::monitors.other_device.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="other_device"}: $4
         legacyTextParameters:
@@ -696,6 +720,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: http
@@ -728,7 +754,8 @@ monitors:
         # PhysicalDisk instance table - Source(1)
         # JSON_ID; enclosureID; DeviceID; status; status information
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="physical_disk"}: $4
         legacyTextParameters:
@@ -819,6 +846,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Copy the enclosure component collect
@@ -889,7 +918,8 @@ monitors:
         # PowerSupply instance table - Source(4)
         # JSON_ID; enclosureID; deviceID; status; status information
         source: "${source::monitors.power_supply.collect.sources.source(4)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="power_supply"}: $4
         legacyTextParameters:
@@ -926,6 +956,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Copy the enclosure component collect
@@ -949,7 +981,8 @@ monitors:
         # Temperature instance table - Source(1)
         # JSON_ID; enclosureID; deviceID; status; status information; temperature
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="temperature"}: $4
           hw.temperature: $6

@@ -4,11 +4,9 @@ import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
-
-import com.fasterxml.jackson.annotation.JsonSetter;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -31,9 +29,7 @@ public abstract class AbstractMatchingLines extends Compute {
 	protected String valueList;
 
 	protected AbstractMatchingLines(String type, Integer column, String regExp, String valueList) {
-
 		super(type);
-
 		this.column = column;
 		this.regExp = regExp;
 		this.valueList = valueList;
@@ -41,7 +37,6 @@ public abstract class AbstractMatchingLines extends Compute {
 
 	@Override
 	public String toString() {
-
 		final StringJoiner stringJoiner = new StringJoiner(NEW_LINE);
 
 		stringJoiner.add(super.toString());

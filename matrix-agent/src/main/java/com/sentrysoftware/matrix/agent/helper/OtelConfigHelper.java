@@ -1,17 +1,15 @@
 package com.sentrysoftware.matrix.agent.helper;
 
-import static com.sentrysoftware.matrix.agent.helper.AgentConstants.*;
+import static com.sentrysoftware.matrix.agent.helper.AgentConstants.DEFAULT_OTEL_CRT_FILENAME;
 
+import com.sentrysoftware.matrix.agent.config.AgentConfig;
+import com.sentrysoftware.matrix.agent.config.exporter.OtlpExporterConfig;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
-import com.sentrysoftware.matrix.agent.config.AgentConfig;
-import com.sentrysoftware.matrix.agent.config.exporter.OtlpExporterConfig;
-
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -23,7 +21,7 @@ public class OtelConfigHelper {
 
 	/**
 	 * Get security file path. E.g certificate or key file path
-	 * 
+	 *
 	 * @param securityFileDir         The directory of the security file
 	 * @param defaultSecurityFilename The default security filename
 	 * @param securityFile            Defines the security file
@@ -36,13 +34,13 @@ public class OtelConfigHelper {
 		final String securityFile,
 		@NonNull final String otlpEndpoint
 	) {
-
 		final Path securityFilePath;
 		// No security file path? we will use the default one
 		if (securityFile == null || securityFile.isBlank()) {
-			securityFilePath = ConfigHelper.getSubPath(
-				String.format(AgentConstants.FILE_PATH_FORMAT, securityFileDir, defaultSecurityFilename)
-			);
+			securityFilePath =
+				ConfigHelper.getSubPath(
+					String.format(AgentConstants.FILE_PATH_FORMAT, securityFileDir, defaultSecurityFilename)
+				);
 		} else {
 			securityFilePath = Path.of(securityFile);
 		}
@@ -51,7 +49,8 @@ public class OtelConfigHelper {
 		if (otlpEndpoint.toLowerCase().startsWith("http://")) {
 			log.debug(
 				"There is no Otel security file to load for the gRPC OTLP exporter[endpoint: {}]. The security file {} is loaded only for https connections.",
-				otlpEndpoint, securityFilePath
+				otlpEndpoint,
+				securityFilePath
 			);
 			return Optional.empty();
 		}
@@ -67,12 +66,11 @@ public class OtelConfigHelper {
 
 	/**
 	 * Build OpenTelemetry configuration properties from the given agent configuration
-	 * 
+	 *
 	 * @param agentConfig The agent's configuration where the exporter's configuration can be overridden
 	 * @return Map of key-value pair used to configure the OpenTelemetry Java SDK exporter
 	 */
 	public static Map<String, String> buildOtelSdkConfiguration(final AgentConfig agentConfig) {
-
 		final Map<String, String> properties = new HashMap<>();
 
 		// Default OTLP endpoint
@@ -87,7 +85,6 @@ public class OtelConfigHelper {
 
 		// Does the user configured OTLP?
 		if (agentConfig.hasOtlpExporterConfig()) {
-
 			final OtlpExporterConfig otlpExporterConfig = agentConfig.getExporter().getOtlp();
 
 			// Endpoint overridden?
@@ -97,17 +94,21 @@ public class OtelConfigHelper {
 			}
 
 			// Headers
-			otlpExporterConfig.getHeadersInOtlpFormat()
+			otlpExporterConfig
+				.getHeadersInOtlpFormat()
 				.ifPresent(headers -> properties.put("otel.exporter.otlp.headers", headers));
 
 			certificatesFileToTrust = otlpExporterConfig.getTrustedCertificatesFile();
 		}
 
 		// Certificate file path
-		getSecurityFilePath(AgentConstants.SECURITY_DIRECTORY_NAME, DEFAULT_OTEL_CRT_FILENAME, certificatesFileToTrust, otlpEndpoint)
-			.ifPresent(
-				trustedCertificatesFile -> properties.put("otel.exporter.otlp.certificate", trustedCertificatesFile)
-			);
+		getSecurityFilePath(
+			AgentConstants.SECURITY_DIRECTORY_NAME,
+			DEFAULT_OTEL_CRT_FILENAME,
+			certificatesFileToTrust,
+			otlpEndpoint
+		)
+			.ifPresent(trustedCertificatesFile -> properties.put("otel.exporter.otlp.certificate", trustedCertificatesFile));
 
 		return properties;
 	}

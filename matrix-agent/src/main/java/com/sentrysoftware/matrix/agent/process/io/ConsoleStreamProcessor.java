@@ -23,7 +23,6 @@ public class ConsoleStreamProcessor implements StreamProcessor {
 	public void process(final String block) {
 		// Print the block
 		printStream.println(block);
-		printStream.flush(); 
+		printStream.flush();
 	}
-
 }

@@ -3,12 +3,10 @@ package com.sentrysoftware.matrix.connector.deserializer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.io.IOException;
-
-import org.junit.jupiter.api.Test;
-
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.identity.ConnectorIdentity;
+import java.io.IOException;
+import org.junit.jupiter.api.Test;
 
 class ConnectorDeserializerTest extends DeserializerTest {
 
@@ -16,7 +14,7 @@ class ConnectorDeserializerTest extends DeserializerTest {
 	public String getResourcePath() {
 		return "src/test/resources/test-files/connector/";
 	}
-	
+
 	@Test
 	void testDeserializeConnector() throws IOException {
 		final Connector connector = getConnector("connector");

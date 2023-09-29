@@ -86,6 +86,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Get the list of Ports from multipath -l
@@ -104,6 +106,7 @@ monitors:
         # ValueTable = Source(1)
         # LunName;NumberPaths;LunStatus;LunStatusInfo;AvailablePathInformation;
         source: "${source::monitors.lun.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.lun.paths: $2

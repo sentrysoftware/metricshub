@@ -4,14 +4,15 @@ import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
-import java.util.StringJoiner;
-import java.util.function.UnaryOperator;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.sentrysoftware.matrix.connector.deserializer.custom.TranslationTableDeserializer;
+import com.sentrysoftware.matrix.connector.model.common.ITranslationTable;
 import com.sentrysoftware.matrix.strategy.source.compute.IComputeProcessor;
-
+import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -31,7 +32,8 @@ public class ArrayTranslate extends Compute {
 
 	@NonNull
 	@JsonSetter(nulls = FAIL)
-	private String translationTable;
+	@JsonDeserialize(using = TranslationTableDeserializer.class)
+	private ITranslationTable translationTable;
 
 	private String arraySeparator;
 	private String resultSeparator;
@@ -41,11 +43,10 @@ public class ArrayTranslate extends Compute {
 	public ArrayTranslate(
 		@JsonProperty("type") String type,
 		@JsonProperty(value = "column", required = true) @NonNull Integer column,
-		@JsonProperty(value = "translationTable", required = true) @NonNull String translationTable,
+		@JsonProperty(value = "translationTable", required = true) @NonNull ITranslationTable translationTable,
 		@JsonProperty("arraySeparator") String arraySeparator,
 		@JsonProperty("resultSeparator") String resultSeparator
 	) {
-
 		super(type);
 		this.column = column;
 		this.translationTable = translationTable;
@@ -83,12 +84,11 @@ public class ArrayTranslate extends Compute {
 	public void update(UnaryOperator<String> updater) {
 		arraySeparator = updater.apply(arraySeparator);
 		resultSeparator = updater.apply(resultSeparator);
-		translationTable = updater.apply(translationTable);
+		translationTable.update(updater);
 	}
 
 	@Override
 	public void accept(IComputeProcessor computeProcessor) {
 		computeProcessor.process(this);
 	}
-
 }

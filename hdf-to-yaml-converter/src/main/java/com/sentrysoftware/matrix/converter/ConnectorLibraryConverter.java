@@ -1,5 +1,14 @@
 package com.sentrysoftware.matrix.converter;
 
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature;
+import com.sentrysoftware.matrix.common.helpers.FileHelper;
+import com.sentrysoftware.matrix.common.helpers.JsonHelper;
+import com.sentrysoftware.matrix.converter.exception.ConnectorConverterException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,17 +20,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature;
-import com.sentrysoftware.matrix.common.helpers.FileHelper;
-import com.sentrysoftware.matrix.common.helpers.JsonHelper;
-import com.sentrysoftware.matrix.converter.exception.ConnectorConverterException;
-
 import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +43,7 @@ public class ConnectorLibraryConverter {
 	 * Get all .hdfs and .hhdf files from the connectorDirectory and process them
 	 * using
 	 * ConnectorConverter to build .yaml file
-	 * 
+	 *
 	 * @throws IOException
 	 *
 	 * @throws ConnectorConverterException when anything wrong happens (so this
@@ -68,18 +66,16 @@ public class ConnectorLibraryConverter {
 		for (final String connectorName : connectorNameList) {
 			process(connectorName, new HashSet<>());
 		}
-
 	}
 
 	/**
 	 * Process the given connector
-	 * 
+	 *
 	 * @param connectorName unique name of the connector
-	 * @param parents       all parents encountered for the given connector 
+	 * @param parents       all parents encountered for the given connector
 	 * @throws IOException
 	 */
 	private void process(final String connectorName, Set<String> parents) throws IOException {
-
 		// Full path of the connector
 		Path connectorPath = sourceDirectory.resolve(connectorName);
 
@@ -91,7 +87,7 @@ public class ConnectorLibraryConverter {
 
 		final Set<String> extendedConnectors = preConnector.getExtendedConnectors();
 
-		// Start processing the parent first so that embedded files will already be extracted at the 
+		// Start processing the parent first so that embedded files will already be extracted at the
 		// externalization level
 		for (final String extended : extendedConnectors) {
 			process(extended, parents);
@@ -157,12 +153,11 @@ public class ConnectorLibraryConverter {
 
 	/**
 	 * Reads the yaml files and replaces any comment nodes with real comments
-	 * 
+	 *
 	 * @param serializePath
 	 * @throws IOException
 	 */
 	private void writeComments(Path serializePath) throws IOException {
-
 		// READ the yaml as text
 		List<String> yamlAsText = Files.readAllLines(serializePath);
 
@@ -193,18 +188,22 @@ public class ConnectorLibraryConverter {
 	 * _comment:
 	 * or
 	 * - _comment:
-	 * 
+	 *
 	 * @param yamlWithComments
 	 * @param iterator
 	 * @param maybeComment
 	 */
-	private void treatSingleLineComment(List<String> yamlWithComments, final Iterator<String> iterator, String maybeComment) {
+	private void treatSingleLineComment(
+		List<String> yamlWithComments,
+		final Iterator<String> iterator,
+		String maybeComment
+	) {
 		// remove yaml formatting and key and replace with #
 		String comment = maybeComment.replace("_comment: ", "# ");
 		comment = comment.replace("- #", "#");
 		comment = comment.replace("# \"", "# ");
-		if(comment.lastIndexOf("\"") == comment.length() -1) {
-			comment = comment.substring(0, comment.length() -1);
+		if (comment.lastIndexOf("\"") == comment.length() - 1) {
+			comment = comment.substring(0, comment.length() - 1);
 		}
 
 		yamlWithComments.add(comment);
@@ -219,13 +218,16 @@ public class ConnectorLibraryConverter {
 	 * _comment: |-
 	 * or
 	 * - _comment: |-
-	 * 
+	 *
 	 * @param yamlWithComments
 	 * @param iterator
 	 * @param commentHeader
 	 */
-	private void treatMultiLineComment(List<String> yamlWithComments, final Iterator<String> iterator,
-			String commentHeader) {
+	private void treatMultiLineComment(
+		List<String> yamlWithComments,
+		final Iterator<String> iterator,
+		String commentHeader
+	) {
 		String maybeComment = null;
 
 		// create store
@@ -258,7 +260,7 @@ public class ConnectorLibraryConverter {
 		String node = maybeComment;
 
 		// more blank lines
-		while(node.isEmpty() && iterator.hasNext()){
+		while (node.isEmpty() && iterator.hasNext()) {
 			node = iterator.next();
 		}
 
@@ -272,7 +274,6 @@ public class ConnectorLibraryConverter {
 		} else {
 			yamlWithComments.add(node);
 		}
-
 	}
 
 	private void moveDashToPosition(List<String> yamlWithComments, String maybeComment, String node, String s) {
@@ -313,7 +314,7 @@ public class ConnectorLibraryConverter {
 
 	/**
 	 * Add the .yaml extension
-	 * 
+	 *
 	 * @param filename
 	 * @return String value
 	 */
@@ -325,21 +326,19 @@ public class ConnectorLibraryConverter {
 	/**
 	 * Make sure the specified directory exists and create it if it doesn't.
 	 * <p>
-	 * 
+	 *
 	 * @param dir Directory to be tested
 	 * @throws ConnectorConverterException if specified directory is not a directory
 	 *                                     or cannot be created
 	 * @throws IllegalArgumentException    if specified directory is null
 	 */
 	public static void validateOutputDirectory(@NonNull final Path dir) {
-
 		// If it already exists
 		if (Files.exists(dir)) {
 			// But it's not a directory
 			if (!Files.isDirectory(dir)) {
 				// Throw an exception
-				throw new ConnectorConverterException(
-						"outputDirectory " + dir.toString() + " must be a directory, not a file");
+				throw new ConnectorConverterException("outputDirectory " + dir.toString() + " must be a directory, not a file");
 			}
 			// Or else do nothing
 			return;
@@ -351,7 +350,7 @@ public class ConnectorLibraryConverter {
 
 	/**
 	 * Creates a directory by creating all nonexistent parent directories first.
-	 * 
+	 *
 	 * @param directoryPath The directory hierarchy path
 	 */
 	private static void createDirectories(final Path directoryPath) {
@@ -365,7 +364,7 @@ public class ConnectorLibraryConverter {
 	/**
 	 * Get the list of connector source files in the specified directory
 	 * <p>
-	 * 
+	 *
 	 * @param sourceDirectory The directory to search for files
 	 * @return List of matching {@link File} objects
 	 * @throws IOException              on directory listing issues
@@ -373,7 +372,6 @@ public class ConnectorLibraryConverter {
 	 *
 	 */
 	public static List<String> getConnectorList(@NonNull final Path sourceDirectory) throws IOException {
-
 		try (Stream<Path> fileStream = Files.list(sourceDirectory)) {
 			return fileStream
 				.filter(Objects::nonNull)
@@ -387,7 +385,7 @@ public class ConnectorLibraryConverter {
 
 	/**
 	 * Whether the connector is HDFS or HHDF
-	 * 
+	 *
 	 * @param name
 	 * @return boolean value
 	 */
@@ -395,5 +393,4 @@ public class ConnectorLibraryConverter {
 		String lowerCaseName = name.toLowerCase();
 		return lowerCaseName.endsWith(".hdfs") || lowerCaseName.endsWith(".hhdf");
 	}
-
 }

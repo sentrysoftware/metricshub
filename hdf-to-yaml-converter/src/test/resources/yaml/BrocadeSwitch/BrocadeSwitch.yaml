@@ -85,6 +85,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = connUnitSensorTable SNMP Table
@@ -102,7 +104,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;PatrolStatus;Value;
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="temperature"}: $2
           hw.temperature: $3
@@ -146,6 +149,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = connUnitSensorTable SNMP Table
@@ -163,7 +168,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;PatrolStatus;Value;
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="fan"}: $2
           hw.fan.speed: $3
@@ -199,6 +205,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = connUnitSensorTable SNMP Table
@@ -216,7 +224,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;PatrolStatus;
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
   network:
@@ -366,6 +375,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = connUnitPortTable SNMP Table
@@ -476,7 +487,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;Name;PATROLStatus;StatusInformation;LinkStatus;WWN;WWN;SpeedMB;PortIndex;ErrorCount;TransmittedPackets;ReceivedPackets;TransmittedBytes;ReceivedBytes;
         source: "${source::monitors.network.collect.sources.source(5)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="network"}: $3
           hw.network.up: legacyLinkStatus($5)
@@ -527,6 +539,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = fruTable
@@ -553,7 +567,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;PatrolStatus;
         source: "${source::monitors.other_device.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="other_device"}: $2
         legacyTextParameters:

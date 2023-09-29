@@ -2,7 +2,6 @@ package com.sentrysoftware.matrix.connector.model.identity.criterion;
 
 import com.sentrysoftware.matrix.strategy.detection.CriterionTestResult;
 import com.sentrysoftware.matrix.strategy.detection.ICriterionProcessor;
-
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -15,7 +14,6 @@ public class IpmiCriterion extends Criterion {
 
 	@Builder
 	public IpmiCriterion(String type, boolean forceSerialization) {
-
 		super(type, forceSerialization);
 	}
 

@@ -8,10 +8,10 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_DISPLAY
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_POWER_CONSUMPTION;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_STATUS;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_STATUS_INFORMATION;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_VALUE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_USAGE_COUNT;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_USAGE_COUNT_ALARM_THRESHOLD;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_USAGE_COUNT_WARNING_THRESHOLD;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_VALUE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_VALUE_ALARM_THRESHOLD;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_VALUE_WARNING_THRESHOLD;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.LEGACY_TEXT_PARAMETERS;
@@ -24,15 +24,18 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_NAME;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_OTHER_DEVICE_ENERGY;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_OTHER_DEVICE_POWER;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_OTHER_DEVICE_STATUS;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_STATUS_INFORMATION;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_OTHER_DEVICE_USAGE_COUNT;
-import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_OTHER_DEVICE_VALUE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_OTHER_DEVICE_USAGE_COUNT_ALARM_THRESHOLD;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_OTHER_DEVICE_USAGE_COUNT_WARNING_THRESHOLD;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_OTHER_DEVICE_VALUE;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_OTHER_DEVICE_VALUE_ALARM_THRESHOLD;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_OTHER_DEVICE_VALUE_WARNING_THRESHOLD;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.*;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_STATUS_INFORMATION;
+import static com.sentrysoftware.matrix.converter.state.ConversionHelper.wrapInAwkRefIfFunctionDetected;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -41,13 +44,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-
 public class OtherDeviceConverter extends AbstractMappingConverter {
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_ATTRIBUTES_MAPPING;
+
 	static {
 		final Map<String, Entry<String, IMappingKey>> attributesMap = new HashMap<>();
 		attributesMap.put(HDF_DEVICE_ID, IMappingKey.of(ATTRIBUTES, YAML_ID));
@@ -56,14 +56,20 @@ public class OtherDeviceConverter extends AbstractMappingConverter {
 		attributesMap.put(HDF_ADDITIONAL_LABEL, IMappingKey.of(ATTRIBUTES, YAML_ADDITIONAL_LABEL));
 		attributesMap.put(HDF_VALUE_WARNING_THRESHOLD, IMappingKey.of(METRICS, YAML_OTHER_DEVICE_VALUE_WARNING_THRESHOLD));
 		attributesMap.put(HDF_VALUE_ALARM_THRESHOLD, IMappingKey.of(METRICS, YAML_OTHER_DEVICE_VALUE_ALARM_THRESHOLD));
-		attributesMap.put(HDF_USAGE_COUNT_WARNING_THRESHOLD, IMappingKey.of(METRICS, YAML_OTHER_DEVICE_USAGE_COUNT_WARNING_THRESHOLD));
-		attributesMap.put(HDF_USAGE_COUNT_ALARM_THRESHOLD, IMappingKey.of(METRICS, YAML_OTHER_DEVICE_USAGE_COUNT_ALARM_THRESHOLD));
+		attributesMap.put(
+			HDF_USAGE_COUNT_WARNING_THRESHOLD,
+			IMappingKey.of(METRICS, YAML_OTHER_DEVICE_USAGE_COUNT_WARNING_THRESHOLD)
+		);
+		attributesMap.put(
+			HDF_USAGE_COUNT_ALARM_THRESHOLD,
+			IMappingKey.of(METRICS, YAML_OTHER_DEVICE_USAGE_COUNT_ALARM_THRESHOLD)
+		);
 		ONE_TO_ONE_ATTRIBUTES_MAPPING = Collections.unmodifiableMap(attributesMap);
 	}
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_METRICS_MAPPING;
-	static {
 
+	static {
 		final Map<String, Entry<String, IMappingKey>> metricsMap = new HashMap<>();
 		metricsMap.put(HDF_STATUS, IMappingKey.of(METRICS, YAML_OTHER_DEVICE_STATUS));
 		metricsMap.put(HDF_STATUS_INFORMATION, IMappingKey.of(LEGACY_TEXT_PARAMETERS, YAML_STATUS_INFORMATION));
@@ -101,11 +107,7 @@ public class OtherDeviceConverter extends AbstractMappingConverter {
 
 		newAttributes.set(
 			YAML_NAME,
-			new TextNode(
-				wrapInAwkRefIfFunctionDetected(
-					buildNameValue(firstDisplayArgument, additionalLabel, deviceType)
-				)
-			)
+			new TextNode(wrapInAwkRefIfFunctionDetected(buildNameValue(firstDisplayArgument, additionalLabel, deviceType)))
 		);
 	}
 
@@ -123,7 +125,6 @@ public class OtherDeviceConverter extends AbstractMappingConverter {
 		final JsonNode additionalLabelNode,
 		final JsonNode deviceTypeNode
 	) {
-
 		final String firstArg = firstDisplayArgument.asText();
 		if (additionalLabelNode == null && deviceTypeNode == null) {
 			return firstArg;
@@ -141,7 +142,7 @@ public class OtherDeviceConverter extends AbstractMappingConverter {
 			sprintfArgs.add(deviceTypeNode.asText());
 		}
 
-		// Add the ID 
+		// Add the ID
 		format.append("%s");
 		sprintfArgs.add(firstArg);
 
@@ -151,19 +152,13 @@ public class OtherDeviceConverter extends AbstractMappingConverter {
 			sprintfArgs.add(additionalLabelNode.asText());
 		}
 
-		// Join the arguments: $column(1), $column(2), $column(3)) 
+		// Join the arguments: $1, $2, $3)
 		// append the result to our format variable in order to get something like
-		// sprint("%s: %s (%s)", $column(1), $column(2), $column(3))
+		// sprint("%s: %s (%s)", $1, $2, $3)
 		return format
-			.append("\", ") // Here we will have a string like sprintf("%s: %s (%s)", 
-			.append(
-				sprintfArgs
-					.stream()
-					.map(this::getFunctionArgument)
-					.collect(Collectors.joining(", ", "", ")"))
-			)
+			.append("\", ") // Here we will have a string like sprintf("%s: %s (%s)",
+			.append(sprintfArgs.stream().map(this::getFunctionArgument).collect(Collectors.joining(", ", "", ")")))
 			.toString();
-
 	}
 
 	@Override
@@ -183,17 +178,10 @@ public class OtherDeviceConverter extends AbstractMappingConverter {
 			final JsonNode powerConsumption = metrics.get(YAML_OTHER_DEVICE_POWER);
 			if (powerConsumption != null) {
 				((ObjectNode) metrics).set(
-					YAML_OTHER_DEVICE_ENERGY,
-					new TextNode(
-						buildFakeCounterFunction(
-							getFunctionArgument(
-								powerConsumption.asText()
-							)
-						)
-					)
-				);
+						YAML_OTHER_DEVICE_ENERGY,
+						new TextNode(buildFakeCounterFunction(getFunctionArgument(powerConsumption.asText())))
+					);
 			}
 		}
 	}
-
 }

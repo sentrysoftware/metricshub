@@ -4,13 +4,11 @@ import static com.sentrysoftware.matrix.constants.Constants.MY_CONNECTOR_1_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.junit.jupiter.api.Test;
-
 import com.sentrysoftware.matrix.telemetry.HostProperties;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import java.util.List;
+import java.util.Optional;
+import org.junit.jupiter.api.Test;
 
 class SourceTableTest {
 
@@ -19,18 +17,17 @@ class SourceTableTest {
 
 	@Test
 	void testLookupSourceTableFromHardcodedSource() {
-		final HostProperties hostProperties = HostProperties
-			.builder()
-			.build();
+		final HostProperties hostProperties = HostProperties.builder().build();
 
 		hostProperties.getConnectorNamespace(MY_CONNECTOR_1_NAME);
 
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostProperties(hostProperties)
-			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostProperties(hostProperties).build();
 
-		Optional<SourceTable> sourceTableOpt = SourceTable.lookupSourceTable(HARDCODED_SOURCE, MY_CONNECTOR_1_NAME, telemetryManager);
+		Optional<SourceTable> sourceTableOpt = SourceTable.lookupSourceTable(
+			HARDCODED_SOURCE,
+			MY_CONNECTOR_1_NAME,
+			telemetryManager
+		);
 		assertTrue(sourceTableOpt.isPresent());
 
 		assertEquals(HARDCODED_SOURCE, sourceTableOpt.get().getTable().get(0).get(0));
@@ -38,25 +35,19 @@ class SourceTableTest {
 
 	@Test
 	void testLookupSourceTableFromReferencedSource() {
-		final HostProperties hostProperties = HostProperties
-			.builder()
-			.build();
+		final HostProperties hostProperties = HostProperties.builder().build();
 
-		final SourceTable expected = SourceTable
-			.builder()
-			.table(List.of(List.of("value")))
-			.build();
+		final SourceTable expected = SourceTable.builder().table(List.of(List.of("value"))).build();
 
-		hostProperties
-			.getConnectorNamespace(MY_CONNECTOR_1_NAME)
-			.addSourceTable(SOURCE_REF_KEY,	expected);
+		hostProperties.getConnectorNamespace(MY_CONNECTOR_1_NAME).addSourceTable(SOURCE_REF_KEY, expected);
 
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostProperties(hostProperties)
-			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostProperties(hostProperties).build();
 
-		final Optional<SourceTable> sourceTableOpt = SourceTable.lookupSourceTable(SOURCE_REF_KEY, MY_CONNECTOR_1_NAME, telemetryManager);
+		final Optional<SourceTable> sourceTableOpt = SourceTable.lookupSourceTable(
+			SOURCE_REF_KEY,
+			MY_CONNECTOR_1_NAME,
+			telemetryManager
+		);
 		assertTrue(sourceTableOpt.isPresent());
 
 		assertEquals(expected, sourceTableOpt.get());
@@ -64,25 +55,12 @@ class SourceTableTest {
 
 	@Test
 	void testLookupSourceTableFromReferencedSourceNotFound() {
-		final HostProperties hostProperties = HostProperties
-			.builder()
-			.build();
+		final HostProperties hostProperties = HostProperties.builder().build();
 
 		hostProperties.getConnectorNamespace(MY_CONNECTOR_1_NAME);
 
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostProperties(hostProperties)
-			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostProperties(hostProperties).build();
 
-		assertTrue(
-			SourceTable.lookupSourceTable(
-				SOURCE_REF_KEY,
-				MY_CONNECTOR_1_NAME,
-				telemetryManager
-			)
-			.isEmpty()
-		);
-
+		assertTrue(SourceTable.lookupSourceTable(SOURCE_REF_KEY, MY_CONNECTOR_1_NAME, telemetryManager).isEmpty());
 	}
 }

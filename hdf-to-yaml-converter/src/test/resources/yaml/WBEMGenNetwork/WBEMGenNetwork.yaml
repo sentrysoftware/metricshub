@@ -106,6 +106,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Status
@@ -279,7 +281,8 @@ monitors:
       mapping:
         # And here is the ValueTable (at last!)
         source: "${source::monitors.network.collect.sources.source(15)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="network"}: $4
           hw.network.up: legacyLinkStatus($2)

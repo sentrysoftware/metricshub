@@ -34,6 +34,8 @@ monitors:
           name: "${awk::sprintf(\"Storage: %s (%s %s)\", \"_LIBRARY_ID\", $3, $2)}"
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = \tibm3100StatusGlobalStatus SNMP OID\nStatus
@@ -56,7 +58,8 @@ monitors:
             translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
         source: "${source::monitors.enclosure.collect.sources.source(1)}"
-        deviceId: _LIBRARY_ID
+        attributes:
+          id: _LIBRARY_ID
         metrics:
           hw.status{hw.type="enclosure"}: $1
         legacyTextParameters:
@@ -89,6 +92,8 @@ monitors:
           name: "${awk::sprintf(\"%s (%s %s - %s)\", $1, $2, $3, \"Media Transfer\")}"
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Get the Robotics status 3100
@@ -105,7 +110,8 @@ monitors:
       mapping:
         # Value Table
         source: "${source::monitors.robotics.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="robotics"}: $2
         legacyTextParameters:
@@ -136,6 +142,8 @@ monitors:
           name: "${awk::sprintf(\"%s (%s %s)\", $1, $2, $3)}"
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = \tphysicalDriveEntry SNMP table 3100\nID;Loads;HardWriteErrorCount;HardReadErrorCount;
@@ -152,7 +160,8 @@ monitors:
         # Value Table
         # ID;Loads;HardErrorCount;HardReadErrorCount;
         source: "${source::monitors.tape_drive.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.errors{hw.type="tape_drive"}: $3
           hw.tape_drive.operations{type="mount"}: $2

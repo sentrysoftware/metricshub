@@ -15,10 +15,6 @@ public class AlertCondition {
 	private Double threshold;
 
 	public AlertCondition copy() {
-		return AlertCondition.builder()
-			.operator(operator)
-			.threshold(threshold)
-			.build();
+		return AlertCondition.builder().operator(operator).threshold(threshold).build();
 	}
-
 }

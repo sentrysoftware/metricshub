@@ -51,7 +51,6 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -64,6 +63,7 @@ public class ConversionHelper {
 	 * HDF Device name to YAML connector Monitor name
 	 */
 	public static final Map<String, String> HDF_TO_YAML_MONITOR_NAME;
+
 	static {
 		Map<String, String> hdfToYamlMonitor = new HashMap<>();
 		hdfToYamlMonitor.put(HDF_BATTERY, YAML_BATTERY);
@@ -89,7 +89,6 @@ public class ConversionHelper {
 		hdfToYamlMonitor.put(HDF_VOLTAGE, YAML_VOLTAGE);
 
 		HDF_TO_YAML_MONITOR_NAME = Collections.unmodifiableMap(hdfToYamlMonitor);
-
 	}
 
 	/**
@@ -98,7 +97,7 @@ public class ConversionHelper {
 	 */
 	public static final Pattern SOURCE_REF_PATTERN = Pattern.compile(
 		"%\\s*(\\w+)\\.(discovery|collect)\\.(source\\(\\d+\\))\\s*%",
-		Pattern.CASE_INSENSITIVE | Pattern.MULTILINE 
+		Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
 	);
 
 	/**
@@ -107,7 +106,7 @@ public class ConversionHelper {
 	 */
 	private static final Pattern SOURCE_ENTRY_PATTERN = Pattern.compile(
 		"%\\s*entry\\.column\\((\\d+)\\)\\s*%",
-		Pattern.CASE_INSENSITIVE | Pattern.MULTILINE 
+		Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
 	);
 
 	/**
@@ -116,7 +115,7 @@ public class ConversionHelper {
 	 */
 	private static final Pattern COLUMN_REF_PATTERN = Pattern.compile(
 		"^column\\((\\d+)\\)$",
-		Pattern.CASE_INSENSITIVE | Pattern.MULTILINE 
+		Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
 	);
 
 	/**
@@ -170,20 +169,17 @@ public class ConversionHelper {
 
 	/**
 	 * Perform value conversions
-	 * 
+	 *
 	 * @param input
 	 * @return updated string value
 	 */
 	public static String performValueConversions(final String input) {
-
-		return getYamlMonitorNameOptional(input)
-			.orElseGet(() -> performPatternConversions(input));
-
+		return getYamlMonitorNameOptional(input).orElseGet(() -> performPatternConversions(input));
 	}
 
 	/**
 	 * Perform value conversions using pattern function converters
-	 * 
+	 *
 	 * @param input
 	 * @return updated string value
 	 */
@@ -200,7 +196,6 @@ public class ConversionHelper {
 				// Convert the input value
 				input = converter.apply(matcher, input);
 			}
-
 		}
 
 		return input;
@@ -210,7 +205,7 @@ public class ConversionHelper {
 	 * Convert source reference. E.g.
 	 * <b><u>%Enclosure.Discovery.Source(2)%</u></b> becomes
 	 * <b><u>${source::monitors.enclosure.discovery.sources.source(2)}</u></b>
-	 * 
+	 *
 	 * @param matcher matcher used to find groups
 	 * @param input   input value to be replaced
 	 * @return updated string value
@@ -220,10 +215,7 @@ public class ConversionHelper {
 		final String job = matcher.group(2).toLowerCase();
 		final String source = matcher.group(3).toLowerCase();
 
-		return input.replace(
-			matcher.group(),
-			String.format("${source::monitors.%s.%s.sources.%s}", monitor, job, source)
-		);
+		return input.replace(matcher.group(), String.format("${source::monitors.%s.%s.sources.%s}", monitor, job, source));
 	}
 
 	/**
@@ -241,49 +233,39 @@ public class ConversionHelper {
 	 */
 	private static String convertColumnReference(final Matcher matcher, final String input, final int group) {
 		final String column = matcher.group(group).toLowerCase();
-		return input.replace(
-			matcher.group(),
-			String.format("$%s", column)
-		);
+		return input.replace(matcher.group(), String.format("$%s", column));
 	}
 
 	/**
 	 * Convert embedded file reference. E.g.
 	 * <b><u>%EmbeddedFile(1)%</u></b> becomes
 	 * <b><u>$embedded.EmbeddedFile(1)$</u></b>
-	 * 
+	 *
 	 * @param matcher matcher used to find groups
 	 * @param input   input value to be replaced
 	 * @return updated string value
 	 */
 	private static String convertEmbeddedFileReference(final Matcher matcher, final String input) {
 		final String index = matcher.group(1);
-		return input.replace(
-			matcher.group(),
-			String.format("$embedded.EmbeddedFile(%s)$", index)
-		);
+		return input.replace(matcher.group(), String.format("$embedded.EmbeddedFile(%s)$", index));
 	}
 
 	/**
 	 * Convert mono instance reference. E.g.
 	 * <b><u>%NetworkCard.Collect.DeviceID%</u></b> becomes
-	 * <b><u>${network::id}</u></b>
-	 * 
+	 * <b><u>${attribute::id}</u></b>
+	 *
 	 * @param matcher matcher used to find groups
 	 * @param input   input value to be replaced
 	 * @return updated string value
 	 */
 	private static String convertMonoInstanceReference(final Matcher matcher, final String input) {
-		final String monitorName = getYamlMonitorName(matcher.group(1));
-		return input.replace(
-			matcher.group(),
-			String.format("${%s::id}", monitorName)
-		);
+		return input.replace(matcher.group(), "${attribute::id}");
 	}
 
 	/**
 	 * Build a source key regex
-	 * 
+	 *
 	 * @param regex Keyword or regular expression used to build the final regex
 	 * @return String value
 	 */
@@ -293,7 +275,7 @@ public class ConversionHelper {
 
 	/**
 	 * Build a criteria key regex
-	 * 
+	 *
 	 * @param regex Keyword or regular expression used to build the final regex
 	 * @return String value
 	 */
@@ -303,36 +285,35 @@ public class ConversionHelper {
 
 	/**
 	 * Build a compute key regex
-	 * 
+	 *
 	 * @param regex Keyword or regular expression used to build the final regex
 	 * @return String value
 	 */
 	public static String buildComputeKeyRegex(final String regex) {
-		return String.format("^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\))\\.compute\\(([1-9]\\d*)\\)\\.%s\\s*$", regex);
+		return String.format(
+			"^\\s*((.*)\\.(discovery|collect)\\.source\\(([1-9]\\d*)\\))\\.compute\\(([1-9]\\d*)\\)\\.%s\\s*$",
+			regex
+		);
 	}
 
 	/**
-	* Get the corresponding YAML monitor name for the given HDF monitor name
-	 * 
+	 * Get the corresponding YAML monitor name for the given HDF monitor name
+	 *
 	 * @param monitorName
 	 * @return String value
 	 */
 	public static String getYamlMonitorName(final String hdfMonitorName) {
 		return getYamlMonitorNameOptional(hdfMonitorName)
-			.orElseThrow(
-				() -> 
-					new IllegalStateException(
-						String.format(
-							"Could not find corresponding Monitor name for the HDF device name '%s'",
-							hdfMonitorName
-					)
-			)
-		);
+			.orElseThrow(() ->
+				new IllegalStateException(
+					String.format("Could not find corresponding Monitor name for the HDF device name '%s'", hdfMonitorName)
+				)
+			);
 	}
 
 	/**
 	 * Try to get the YAML monitor name for the given HDF value
-	 * 
+	 *
 	 * @param value
 	 * @return {@link Optional} of {@link String} value
 	 */
@@ -343,7 +324,7 @@ public class ConversionHelper {
 	/**
 	 * Wrap this value in AWK reference ${awk::value} if the awk function is
 	 * detected
-	 * 
+	 *
 	 * @param value to wrap
 	 * @return String value
 	 */
@@ -356,8 +337,10 @@ public class ConversionHelper {
 
 	@AllArgsConstructor
 	static class PatternFunctionConverter {
+
 		@Getter
 		private Pattern pattern;
+
 		@Getter
 		private BiFunction<Matcher, String, String> converter;
 	}

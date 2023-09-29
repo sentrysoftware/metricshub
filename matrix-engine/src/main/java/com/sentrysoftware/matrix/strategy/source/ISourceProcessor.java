@@ -16,7 +16,7 @@ public interface ISourceProcessor {
 	SourceTable process(CopySource copySource);
 
 	SourceTable process(HttpSource httpSource);
-	
+
 	SourceTable process(IpmiSource ipmiSource);
 
 	SourceTable process(OsCommandSource osCommandSource);

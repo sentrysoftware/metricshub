@@ -1,16 +1,5 @@
 package com.sentrysoftware.matrix.connector.parser;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -23,7 +12,16 @@ import com.sentrysoftware.matrix.connector.update.CompiledFilenameUpdate;
 import com.sentrysoftware.matrix.connector.update.ConnectorUpdateChain;
 import com.sentrysoftware.matrix.connector.update.MonitorTaskSourceDepUpdate;
 import com.sentrysoftware.matrix.connector.update.PreSourceDepUpdate;
-
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -39,13 +37,12 @@ public class ConnectorParser {
 
 	/**
 	 * Parse the given connector file
-	 * 
+	 *
 	 * @param file
 	 * @return new {@link Connector} object
 	 * @throws IOException
 	 */
 	public Connector parse(final File file) throws IOException {
-
 		JsonNode node = deserializer.getMapper().readTree(file);
 
 		// PRE-Processing
@@ -76,7 +73,7 @@ public class ConnectorParser {
 	/**
 	 * Creates a new {@link ConnectorParser} with extends and constants
 	 * {@link NodeProcessor}
-	 * 
+	 *
 	 * @param connectorDirectory
 	 * @return new instance of {@link ConnectorParser}
 	 */
@@ -85,7 +82,8 @@ public class ConnectorParser {
 
 		PostDeserializeHelper.addPostDeserializeSupport(mapper);
 
-		return ConnectorParser.builder()
+		return ConnectorParser
+			.builder()
 			.deserializer(new ConnectorDeserializer(mapper))
 			.processor(NodeProcessorHelper.withExtendsAndConstantsProcessor(connectorDirectory, mapper))
 			.build();
@@ -94,7 +92,7 @@ public class ConnectorParser {
 	/**
 	 * Creates a new {@link ConnectorParser} with extends and constants
 	 * {@link NodeProcessor} and with a {@link ConnectorUpdateChain}
-	 * 
+	 *
 	 * @param connectorDirectory
 	 * @return new instance of {@link ConnectorParser}
 	 */
@@ -102,6 +100,20 @@ public class ConnectorParser {
 		final ConnectorParser connectorParser = withNodeProcessor(connectorDirectory);
 
 		// Create the update objects
+		final ConnectorUpdateChain updateChain = createUpdateChain();
+
+		// Set the first update chain
+		connectorParser.setConnectorUpdateChain(updateChain);
+
+		return connectorParser;
+	}
+
+	/**
+	 * Create the update chain for this connector
+	 *
+	 * @return {@link ConnectorUpdateChain} instance
+	 */
+	public static ConnectorUpdateChain createUpdateChain() {
 		final ConnectorUpdateChain availableSource = new AvailableSourceUpdate();
 		final ConnectorUpdateChain preSourceDepUpdate = new PreSourceDepUpdate();
 		final ConnectorUpdateChain monitorTaskSourceDepUpdate = new MonitorTaskSourceDepUpdate();
@@ -109,16 +121,12 @@ public class ConnectorParser {
 		// Create the chain
 		availableSource.setNextUpdateChain(preSourceDepUpdate);
 		preSourceDepUpdate.setNextUpdateChain(monitorTaskSourceDepUpdate);
-
-		// Set the first update chain
-		connectorParser.setConnectorUpdateChain(availableSource);
-
-		return connectorParser;
+		return availableSource;
 	}
 
 	/**
 	 * Resolve connector parent paths
-	 * 
+	 *
 	 * @param connector    The connector object as {@link JsonNode}
 	 * @param connectorDir The connector directory
 	 * @param parents      The parents map to resolve
@@ -126,7 +134,6 @@ public class ConnectorParser {
 	 */
 	private void resolveParents(final JsonNode connector, final Path connectorDir, final Map<Path, JsonNode> parents)
 		throws IOException {
-
 		final ArrayNode extended = (ArrayNode) connector.get("extends");
 		if (extended == null || extended.isNull() || extended.isEmpty()) {
 			return;
@@ -148,7 +155,7 @@ public class ConnectorParser {
 	/**
 	 * Get a connector entry where the entry key is the connector path and the value
 	 * is the connector as {@link JsonNode}
-	 * 
+	 *
 	 * @param connectorCurrentDir   The current directory of the connector which extends the parent
 	 * @param connectorRelativePath The relative path of the connector parent
 	 * @return a Map entry defining the path as key and the {@link JsonNode} parent connector as value
@@ -156,13 +163,15 @@ public class ConnectorParser {
 	 */
 	private Entry<Path, JsonNode> getConnectorParentEntry(
 		final Path connectorCurrentDir,
-		final String connectorRelativePath) throws IOException {
+		final String connectorRelativePath
+	) throws IOException {
 		final Path connectorPath = connectorCurrentDir.resolve(connectorRelativePath + ".yaml");
 		if (!Files.exists(connectorPath)) {
 			throw new IllegalStateException("Cannot find extended connector " + connectorPath.toString());
 		}
 		return new AbstractMap.SimpleEntry<>(
 			connectorPath.getParent(),
-			deserializer.getMapper().readTree(connectorPath.toFile()));
+			deserializer.getMapper().readTree(connectorPath.toFile())
+		);
 	}
 }

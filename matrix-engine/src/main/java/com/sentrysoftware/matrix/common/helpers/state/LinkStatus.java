@@ -2,13 +2,11 @@ package com.sentrysoftware.matrix.common.helpers.state;
 
 import java.util.Map;
 import java.util.Optional;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
 public enum LinkStatus implements IState {
-
 	PLUGGED(1),
 	UNPLUGGED(0);
 
@@ -19,14 +17,22 @@ public enum LinkStatus implements IState {
 	 * Map each state value to a {@link LinkStatus}
 	 */
 	private static final Map<String, LinkStatus> LINK_STATUS_MAP = Map.of(
-		"0", PLUGGED,
-		"ok", PLUGGED,
-		"plugged", PLUGGED,
-		"1", UNPLUGGED,
-		"degraded", UNPLUGGED,
-		"2", UNPLUGGED,
-		"failed", UNPLUGGED,
-		"unplugged", UNPLUGGED
+		"0",
+		PLUGGED,
+		"ok",
+		PLUGGED,
+		"plugged",
+		PLUGGED,
+		"1",
+		UNPLUGGED,
+		"degraded",
+		UNPLUGGED,
+		"2",
+		UNPLUGGED,
+		"failed",
+		UNPLUGGED,
+		"unplugged",
+		UNPLUGGED
 	);
 
 	/**
@@ -41,5 +47,4 @@ public enum LinkStatus implements IState {
 	public static Optional<LinkStatus> interpret(final String state) {
 		return IState.interpret(state, LINK_STATUS_MAP, LinkStatus.class);
 	}
-
 }

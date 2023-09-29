@@ -50,6 +50,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = psrinfo -v
@@ -80,7 +82,8 @@ monitors:
       mapping:
         # ValueTable = source(1)
         source: "${source::monitors.cpu.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="cpu"}: $2
         legacyTextParameters:

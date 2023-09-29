@@ -14,7 +14,8 @@
             _comment: DeviceID;Status;StatusInformation
             legacyTextParameters:
               StatusInformation: $3
-            deviceId: $1
+            attributes:
+              id: $1
             source: ${source::monitors.led.collect.sources.source(1)}
             metrics:
               hw.status{hw.type="led"}: legacyLedStatus($2)

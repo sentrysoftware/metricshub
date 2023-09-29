@@ -4,10 +4,9 @@ import java.io.Serializable;
 import java.util.function.UnaryOperator;
 
 public interface Body extends Serializable {
-
 	/**
 	 * Gets the HTTP body content as string and performs macro replacements
-	 * 
+	 *
 	 * @param username            HTTP username
 	 * @param password            HTTP password
 	 * @param authenticationToken HTTP authentication token
@@ -18,21 +17,21 @@ public interface Body extends Serializable {
 
 	/**
 	 * Performs a deep copy
-	 * 
+	 *
 	 * @return new {@link Body} instance
 	 */
 	Body copy();
 
 	/**
 	 * Updates the actual body attributes
-	 * 
+	 *
 	 * @param updater updater function
 	 */
 	void update(UnaryOperator<String> updater);
 
 	/**
 	 * Gets the HTTP body string description
-	 * 
+	 *
 	 * @return string value
 	 */
 	String description();

@@ -50,6 +50,8 @@ monitors:
           name: $2
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: snmpTable
@@ -64,7 +66,8 @@ monitors:
             translationTable: "${translation::StatusInformationTranslationTable}"
       mapping:
         source: "${source::monitors.other_device.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="other_device"}: $2
         legacyTextParameters:
@@ -92,6 +95,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: snmpTable
@@ -107,7 +112,8 @@ monitors:
       mapping:
         # Instance Table
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
@@ -131,6 +137,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: snmpTable
@@ -146,7 +154,8 @@ monitors:
       mapping:
         # Instance Table
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="fan"}: $2
         legacyTextParameters:
@@ -170,6 +179,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # ID;Status;Description
@@ -179,7 +190,8 @@ monitors:
       mapping:
         # Instance Table
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.temperature: $2
   battery:
@@ -203,7 +215,7 @@ monitors:
       sources:
         source(1):
           type: snmpGet
-          oid: "1.3.6.1.4.1.3224.21.3.${battery::id}"
+          oid: "1.3.6.1.4.1.3224.21.3.${attribute::id}"
           computes:
           - type: duplicateColumn
             column: 1

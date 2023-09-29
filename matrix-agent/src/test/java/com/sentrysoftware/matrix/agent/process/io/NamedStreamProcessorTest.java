@@ -1,6 +1,6 @@
 package com.sentrysoftware.matrix.agent.process.io;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -20,6 +20,5 @@ class NamedStreamProcessorTest {
 		public void process(String block) {
 			assertTrue(block.startsWith(TAG));
 		}
-
 	}
 }

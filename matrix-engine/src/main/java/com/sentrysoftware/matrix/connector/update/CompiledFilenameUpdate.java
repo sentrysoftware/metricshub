@@ -1,7 +1,6 @@
 package com.sentrysoftware.matrix.connector.update;
 
 import com.sentrysoftware.matrix.connector.model.Connector;
-
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -18,11 +17,6 @@ public class CompiledFilenameUpdate extends AbstractConnectorUpdateChain {
 
 	@Override
 	void doUpdate(Connector connector) {
-		connector
-			.getOrCreateConnectorIdentity()
-			.setCompiledFilename(
-				filename.substring(0, filename.lastIndexOf('.'))
-			);
+		connector.getOrCreateConnectorIdentity().setCompiledFilename(filename.substring(0, filename.lastIndexOf('.')));
 	}
-
 }

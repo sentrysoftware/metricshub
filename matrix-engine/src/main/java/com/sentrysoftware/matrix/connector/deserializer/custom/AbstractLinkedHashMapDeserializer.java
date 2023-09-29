@@ -16,8 +16,7 @@ public abstract class AbstractLinkedHashMapDeserializer<T> extends AbstractMapDe
 	}
 
 	@Override
-	protected boolean isExpectedInstance(Map<String, T> map) { 
+	protected boolean isExpectedInstance(Map<String, T> map) {
 		return map instanceof LinkedHashMap;
 	}
-
 }

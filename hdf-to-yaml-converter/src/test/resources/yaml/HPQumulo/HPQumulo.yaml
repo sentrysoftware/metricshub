@@ -68,7 +68,8 @@ monitors:
       mapping:
         # ID;displayId;model;serial;uuid;status;statusInformation
         source: "${source::monitors.enclosure.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="enclosure"}: $6
         legacyTextParameters:
@@ -124,7 +125,8 @@ monitors:
       mapping:
         # ID;nodeId;model;serial;slot;slotType;size;status;statusInformation
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="physical_disk"}: $8
         legacyTextParameters:
@@ -185,7 +187,8 @@ monitors:
       mapping:
         # ID;nodeId;ip;mac;speed;bytesSent;bytesReceived;linkStatus;status;status
         source: "${source::monitors.network.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.network.io{direction="transmit"}: $6
           hw.network.io{direction="receive"}: $7

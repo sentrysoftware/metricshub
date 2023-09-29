@@ -4,17 +4,15 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.dataformat.yaml.YAMLParser;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.dataformat.yaml.YAMLParser;
 
 @ExtendWith(MockitoExtension.class)
 class NonBlankInLinkedHashSetDeserializerTest {
@@ -26,7 +24,6 @@ class NonBlankInLinkedHashSetDeserializerTest {
 
 	@Test
 	void testNull() throws IOException {
-
 		{
 			assertEquals(Collections.emptySet(), DESERIALIZER.deserialize(null, null));
 		}
@@ -50,7 +47,6 @@ class NonBlankInLinkedHashSetDeserializerTest {
 
 	@Test
 	void testBadValue() throws IOException {
-
 		{
 			doReturn(false).when(yamlParser).isExpectedStartArrayToken();
 			doReturn("").when(yamlParser).getValueAsString();
@@ -62,7 +58,6 @@ class NonBlankInLinkedHashSetDeserializerTest {
 			doReturn(Set.of("   ")).when(yamlParser).readValueAs(any(TypeReference.class));
 			assertThrows(IOException.class, () -> DESERIALIZER.deserialize(yamlParser, null));
 		}
-
 	}
 
 	@Test

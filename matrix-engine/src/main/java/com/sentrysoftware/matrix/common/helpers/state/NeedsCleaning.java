@@ -2,13 +2,11 @@ package com.sentrysoftware.matrix.common.helpers.state;
 
 import java.util.Map;
 import java.util.Optional;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
 public enum NeedsCleaning implements IState {
-
 	OK(0),
 	NEEDED(1),
 	NEEDED_IMMEDIATELY(1);
@@ -20,9 +18,12 @@ public enum NeedsCleaning implements IState {
 	 * Map each state value to a {@link NeedsCleaning}
 	 */
 	private static final Map<String, NeedsCleaning> NEEDS_CLEANING_MAP = Map.of(
-		"0", OK,
-		"1", NEEDED,
-		"2", NEEDED_IMMEDIATELY
+		"0",
+		OK,
+		"1",
+		NEEDED,
+		"2",
+		NEEDED_IMMEDIATELY
 	);
 
 	/**

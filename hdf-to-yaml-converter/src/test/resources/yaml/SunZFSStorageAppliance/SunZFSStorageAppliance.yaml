@@ -68,6 +68,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Run the maintenance hardware show command
@@ -102,7 +104,8 @@ monitors:
         # ValueTable = Source(1)
         # chassis;id;PATROLStatus;state;rpm;
         source: "${source::monitors.enclosure.collect.sources.source(2)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="enclosure"}: $3
         legacyTextParameters:
@@ -145,6 +148,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Take the component status list from Enclosure 1
@@ -166,7 +171,8 @@ monitors:
         # ValueTable = Source(1)
         # chassis;id;PATROLStatus;state;rpm;
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="fan"}: $3
         legacyTextParameters:
@@ -215,6 +221,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Take the component status list from Enclosure 1
@@ -236,7 +244,8 @@ monitors:
         # ValueTable = Source(1)
         # chassis;id;PATROLStatus;state;rpm;
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="power_supply"}: $3
         legacyTextParameters:
@@ -284,6 +293,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Take the component status list from Enclosure 1
@@ -305,7 +316,8 @@ monitors:
         # ValueTable = Source(1)
         # chassis;id;PATROLStatus;state;rpm;
         source: "${source::monitors.other_device.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="other_device"}: $3
         legacyTextParameters:
@@ -344,6 +356,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Take the component status list from Enclosure 1
@@ -365,7 +379,8 @@ monitors:
         # ValueTable = Source(1)
         # chassis;id;PATROLStatus;state;rpm;
         source: "${source::monitors.cpu.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="cpu"}: $3
         legacyTextParameters:
@@ -405,6 +420,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Take the component status list from Enclosure 1
@@ -426,7 +443,8 @@ monitors:
         # ValueTable = Source(1)
         # chassis;id;PATROLStatus;state;rpm;
         source: "${source::monitors.memory.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="memory"}: $3
         legacyTextParameters:
@@ -479,6 +497,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Take the component status list from Enclosure 1
@@ -500,7 +520,8 @@ monitors:
         # ValueTable = Source(1)
         # chassis;id;PATROLStatus;state;rpm;
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="physical_disk"}: $3
         legacyTextParameters:
@@ -580,6 +601,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Run the maintenance hardware show command
@@ -608,7 +631,8 @@ monitors:
         # ValueTable = Source(1)
         # pool;PatrolStatus;State;Free;
         source: "${source::monitors.logical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="logical_disk"}: $2
           hw.logical_disk.usage{state="free"}: $4
@@ -683,6 +707,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Run the configuration san targets fc list command
@@ -731,7 +757,8 @@ monitors:
         # ValueTable = 3(1)
         # ID;speed;LinkStatus;
         source: "${source::monitors.network.collect.sources.source(3)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.network.up: legacyLinkStatus($3)
           hw.network.bandwidth.limit: megaBit2Bit($2)

@@ -6,9 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-
 import org.junit.jupiter.api.Test;
-
 
 class ResourceHelperTest {
 
@@ -33,7 +31,10 @@ class ResourceHelperTest {
 
 	@Test
 	void testGetResourceAsStringFileNotFound() {
-		assertThrows(IllegalStateException.class, () -> ResourceHelper.getResourceAsString(DATA_FILE_NOT_FOUND_TXT, ResourceHelper.class));
+		assertThrows(
+			IllegalStateException.class,
+			() -> ResourceHelper.getResourceAsString(DATA_FILE_NOT_FOUND_TXT, ResourceHelper.class)
+		);
 	}
 
 	@Test
@@ -45,5 +46,4 @@ class ResourceHelperTest {
 	void testFindSource() throws IOException, URISyntaxException {
 		assertNotNull(ResourceHelper.findSourceDirectory(ResourceHelper.class));
 	}
-
 }

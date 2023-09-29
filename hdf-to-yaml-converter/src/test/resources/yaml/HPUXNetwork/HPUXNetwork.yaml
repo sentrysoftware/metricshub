@@ -51,6 +51,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Ouput of lanadmin for all lan adapters listed by lanscan
@@ -98,7 +100,8 @@ monitors:
         #     1      2        # 3        #     4        #          5        #  6        #   7        #         8        #      9        #    10
         # DeviceID;Speed; Patrol Status; Status Information ; Link Status; ErrorCount; Inbound Packets; outboundPackets; inboundOctet; outboundOctet;
         source: "${source::monitors.network.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="network"}: $3
           hw.network.up: legacyLinkStatus($5)

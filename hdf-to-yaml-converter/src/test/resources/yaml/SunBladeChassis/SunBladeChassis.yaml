@@ -102,6 +102,8 @@ monitors:
       # COLLECT
       # Collect type is "multi-instance"
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = sunPlatNumericSensorTable
@@ -121,7 +123,8 @@ monitors:
         # The ValueTable
         # ID;Temperature;ID;Sensor Type;ID;Warn Threshold;Alarm Threshold;ID;Name
         source: "${source::monitors.temperature.collect.sources.source(2)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.temperature: $2
   fan:
@@ -257,6 +260,8 @@ monitors:
       # COLLECT
       # Collect type is "multi-instance"
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           #  INDIVIDUAL FANS
@@ -330,7 +335,8 @@ monitors:
         # The ValueTable
         # ID;Speed;Name
         source: "${source::monitors.fan.collect.sources.source(5)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.fan.speed: $2
           hw.status{hw.type="fan"}: $4
@@ -395,6 +401,8 @@ monitors:
       # COLLECT
       # Collect type is "Multi-instance"
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = sunPlatSensorTable
@@ -465,7 +473,8 @@ monitors:
         # The ValueTable
         # ID;PATROLStatus;Status Information;
         source: "${source::monitors.power_supply.collect.sources.source(3)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
@@ -511,7 +520,7 @@ monitors:
         source(1):
           # Getting each Voltage's Status
           type: snmpGet
-          oid: "1.3.6.1.4.1.42.2.70.101.1.1.2.1.3.${voltage::id}"
+          oid: "1.3.6.1.4.1.42.2.70.101.1.1.2.1.3.${attribute::id}"
           computes:
             # Add Fake ID
             # Status;ID;
@@ -521,7 +530,7 @@ monitors:
         source(2):
           # Getting each Voltage's Voltage
           type: snmpGet
-          oid: "1.3.6.1.4.1.42.2.70.101.1.1.8.1.4.${voltage::id}"
+          oid: "1.3.6.1.4.1.42.2.70.101.1.1.8.1.4.${attribute::id}"
           computes:
             # Add Fake ID
             # Voltage;ID;

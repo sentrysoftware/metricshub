@@ -1,8 +1,35 @@
 package com.sentrysoftware.matrix.converter.state.mapping;
 
-import static com.sentrysoftware.matrix.converter.ConverterConstants.*;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.*;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.ATTRIBUTES;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_ARRAY_NAME;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_AVAILABLE_PATH_COUNT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_AVAILABLE_PATH_INFORMATION;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_AVAILABLE_PATH_WARNING;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_DEVICE_ID;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_DISPLAY_ID;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_LOCAL_DEVICE_NAME;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_REMOTE_DEVICE_NAME;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_STATUS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_STATUS_INFORMATION;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_WWN;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.LEGACY_TEXT_PARAMETERS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.METRICS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ARRAY_NAME;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_AVAILABLE_PATH_INFORMATION;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_DISPLAY_ID;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ID;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_LOCAL_DEVICE_NAME;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_LUN_PATHS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_LUN_PATHS_LIMIT_LOW_DEGRADED;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_LUN_STATUS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_NAME;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_REMOTE_DEVICE_NAME;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_STATUS_INFORMATION;
+import static com.sentrysoftware.matrix.converter.state.ConversionHelper.wrapInAwkRefIfFunctionDetected;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,13 +40,10 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-
 public class LunConverter extends AbstractMappingConverter {
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_ATTRIBUTES_MAPPING;
+
 	static {
 		final Map<String, Entry<String, IMappingKey>> attributesMap = new HashMap<>();
 		attributesMap.put(HDF_DEVICE_ID, IMappingKey.of(ATTRIBUTES, YAML_ID));
@@ -33,11 +57,15 @@ public class LunConverter extends AbstractMappingConverter {
 	}
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_METRICS_MAPPING;
+
 	static {
 		final Map<String, Entry<String, IMappingKey>> metricsMap = new HashMap<>();
 		metricsMap.put(HDF_STATUS, IMappingKey.of(METRICS, YAML_LUN_STATUS));
 		metricsMap.put(HDF_STATUS_INFORMATION, IMappingKey.of(LEGACY_TEXT_PARAMETERS, YAML_STATUS_INFORMATION));
-		metricsMap.put(HDF_AVAILABLE_PATH_INFORMATION, IMappingKey.of(LEGACY_TEXT_PARAMETERS, YAML_AVAILABLE_PATH_INFORMATION));
+		metricsMap.put(
+			HDF_AVAILABLE_PATH_INFORMATION,
+			IMappingKey.of(LEGACY_TEXT_PARAMETERS, YAML_AVAILABLE_PATH_INFORMATION)
+		);
 		metricsMap.put(HDF_AVAILABLE_PATH_COUNT, IMappingKey.of(METRICS, YAML_LUN_PATHS));
 
 		ONE_TO_ONE_METRICS_MAPPING = Collections.unmodifiableMap(metricsMap);
@@ -72,9 +100,7 @@ public class LunConverter extends AbstractMappingConverter {
 		newAttributes.set(
 			YAML_NAME,
 			new TextNode(
-				wrapInAwkRefIfFunctionDetected(
-					buildNameValue(firstDisplayArgument, new JsonNode[] { local, remote })
-				)
+				wrapInAwkRefIfFunctionDetected(buildNameValue(firstDisplayArgument, new JsonNode[] { local, remote }))
 			)
 		);
 	}
@@ -83,12 +109,11 @@ public class LunConverter extends AbstractMappingConverter {
 	 * Joins the given non-empty text nodes to build the LUN name value
 	 *
 	 * @param firstDisplayArgument {@link JsonNode} representing the display name
-	 * @param localAndRemote       {@link JsonNode} array of local and remote to be joined 
+	 * @param localAndRemote       {@link JsonNode} array of local and remote to be joined
 	 *
 	 * @return {@link String} Joined text nodes
 	 */
 	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode[] localAndRemote) {
-
 		final String firstArg = firstDisplayArgument.asText();
 		if (Stream.of(localAndRemote).allMatch(Objects::isNull)) {
 			return firstArg;
@@ -99,40 +124,23 @@ public class LunConverter extends AbstractMappingConverter {
 
 		// Build the list of arguments non-null
 		final List<String> sprintfArgs = new ArrayList<>();
-		sprintfArgs.addAll(
-			Stream
-				.of(localAndRemote)
-				.filter(Objects::nonNull)
-				.map(JsonNode::asText)
-				.toList()
-		);
+		sprintfArgs.addAll(Stream.of(localAndRemote).filter(Objects::nonNull).map(JsonNode::asText).toList());
 
 		// Means local or remote is not empty
 		if (!sprintfArgs.isEmpty()) {
-			format.append(
-				sprintfArgs
-				.stream()
-				.map(v -> "%s")
-				.collect(Collectors.joining(" - "," (",")"))
-			);
+			format.append(sprintfArgs.stream().map(v -> "%s").collect(Collectors.joining(" - ", " (", ")")));
 		}
 
-		// Add the first argument at the beginning of the list 
+		// Add the first argument at the beginning of the list
 		sprintfArgs.add(0, firstArg);
 
-		// Join the arguments: $column(1), $column(2), $column(3)) 
+		// Join the arguments: $1, $2, $3)
 		// append the result to our format variable in order to get something like
-		// sprintf("%s (%s - %s)", $column(1), $column(2), $column(3))
+		// sprintf("%s (%s - %s)", $1, $2, $3)
 		return format
-			.append("\", ") // Here we will have a string like sprintf("%s (%s - %s)", 
-			.append(
-				sprintfArgs
-					.stream()
-					.map(this::getFunctionArgument)
-					.collect(Collectors.joining(", ", "", ")"))
-			)
+			.append("\", ") // Here we will have a string like sprintf("%s (%s - %s)",
+			.append(sprintfArgs.stream().map(this::getFunctionArgument).collect(Collectors.joining(", ", "", ")")))
 			.toString();
-
 	}
 
 	@Override

@@ -12,7 +12,8 @@
         collect:
           mapping:
             _comment: DeviceID;Status;PowerShare;Power
-            deviceId: $1
+            attributes:
+              id: $1
             source: ${source::monitors.vm.collect.sources.source(1)}
             metrics:
               hw.vm.power_state: $2

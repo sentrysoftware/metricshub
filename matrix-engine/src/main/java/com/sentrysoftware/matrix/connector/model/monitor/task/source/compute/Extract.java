@@ -4,14 +4,12 @@ import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
-import java.util.StringJoiner;
-import java.util.function.UnaryOperator;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.sentrysoftware.matrix.strategy.source.compute.IComputeProcessor;
-
+import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -64,13 +62,7 @@ public class Extract extends Compute {
 
 	@Override
 	public Extract copy() {
-		return Extract
-			.builder()
-			.type(type)
-			.column(column)
-			.subColumn(subColumn)
-			.subSeparators(subSeparators)
-			.build();
+		return Extract.builder().type(type).column(column).subColumn(subColumn).subSeparators(subSeparators).build();
 	}
 
 	@Override

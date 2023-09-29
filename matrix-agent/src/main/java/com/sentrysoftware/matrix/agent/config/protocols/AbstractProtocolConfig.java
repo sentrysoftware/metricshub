@@ -7,7 +7,7 @@ public abstract class AbstractProtocolConfig {
 
 	/**
 	 * Decrypt the given encrypted password.
-	 * 
+	 *
 	 * @param encrypted
 	 * @return char array
 	 */
@@ -16,9 +16,9 @@ public abstract class AbstractProtocolConfig {
 	}
 
 	/**
-	 * Convert the configuration to the matrix {@link IConfiguration}
-	 * 
+	 * Convert the configuration to the engine {@link IConfiguration}
+	 *
 	 * @return {@link IConfiguration} instance
 	 */
-	abstract IConfiguration toProtocol();
+	public abstract IConfiguration toConfiguration();
 }

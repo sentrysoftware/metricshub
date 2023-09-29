@@ -7,12 +7,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
-
-import org.springframework.util.Assert;
-
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.Assert;
 
 /**
  * This class controls the process through the start, stop and addShutdownHook
@@ -23,8 +21,10 @@ public class ProcessControl {
 
 	@Getter
 	private final Process process;
+
 	@Getter
 	private InputStreamReader reader;
+
 	@Getter
 	private InputStreamReader error;
 
@@ -42,7 +42,7 @@ public class ProcessControl {
 
 	/**
 	 * Create a new instance of the {@link ProcessBuilder} used to start the process
-	 * 
+	 *
 	 * @param commandLine         The process command line
 	 * @param environment         The process environment map
 	 * @param workingDir          The process working directory
@@ -50,11 +50,11 @@ public class ProcessControl {
 	 * @return {@link ProcessBuilder} instance
 	 */
 	public static ProcessBuilder newProcessBuilder(
-			@NonNull final List<String> commandLine,
-			@NonNull final Map<String, String> environment,
-			final File workingDir,
-			final boolean redirectErrorStream) {
-
+		@NonNull final List<String> commandLine,
+		@NonNull final Map<String, String> environment,
+		final File workingDir,
+		final boolean redirectErrorStream
+	) {
 		Assert.isTrue(!commandLine.isEmpty(), "Command line cannot be empty.");
 
 		final ProcessBuilder processBuilder = new ProcessBuilder(commandLine);
@@ -65,7 +65,7 @@ public class ProcessControl {
 			processBuilder.directory(workingDir);
 		}
 
-		// Sets the process builder's redirectErrorStream property. 
+		// Sets the process builder's redirectErrorStream property.
 		// This makes it easier to correlate error messages with the corresponding output.
 		// The ProcessBuilder's initial value is false
 		processBuilder.redirectErrorStream(redirectErrorStream);
@@ -75,7 +75,7 @@ public class ProcessControl {
 
 	/**
 	 * Starts a process and builds the {@link ProcessControl} instance
-	 * 
+	 *
 	 * @param processBuilder
 	 * @return {@link ProcessControl} instance
 	 * @throws IOException
@@ -96,7 +96,6 @@ public class ProcessControl {
 
 			// Destroy the process
 			process.destroy();
-
 		} catch (Exception e) {
 			log.error("Error detected when terminating the process. Message {}.", e.getMessage());
 			log.debug("Exception: ", e);
@@ -107,7 +106,7 @@ public class ProcessControl {
 
 	/**
 	 * Close the closable and avoid any null pointer exception if the argument is <code>null</code>
-	 * 
+	 *
 	 * @param closable
 	 * @throws IOException
 	 */
@@ -118,8 +117,8 @@ public class ProcessControl {
 	}
 
 	/**
-	 * Registers a new virtual-machine shutdown hook. 
-	 * 
+	 * Registers a new virtual-machine shutdown hook.
+	 *
 	 * @param runnable
 	 */
 	public static void addShutdownHook(Runnable runnable) {

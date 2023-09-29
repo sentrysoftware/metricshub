@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
-
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -21,7 +20,6 @@ public class FileHelper {
 	 * @throws IllegalArgumentException if specified path is null
 	 */
 	public static long getLastModifiedTime(@NonNull Path path) {
-
 		try {
 			return Files.getLastModifiedTime(path, LinkOption.NOFOLLOW_LINKS).toMillis();
 		} catch (IOException e) {

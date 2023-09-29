@@ -1,12 +1,5 @@
 package com.sentrysoftware.matrix.common.helpers;
 
-import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-
-import java.util.Map;
-import java.util.regex.Pattern;
-
 import static com.sentrysoftware.matrix.connector.model.common.DeviceKind.AIX;
 import static com.sentrysoftware.matrix.connector.model.common.DeviceKind.HPUX;
 import static com.sentrysoftware.matrix.connector.model.common.DeviceKind.LINUX;
@@ -15,6 +8,12 @@ import static com.sentrysoftware.matrix.connector.model.common.DeviceKind.SOLARI
 import static com.sentrysoftware.matrix.connector.model.common.DeviceKind.TRU64;
 import static com.sentrysoftware.matrix.connector.model.common.DeviceKind.VMS;
 import static com.sentrysoftware.matrix.connector.model.common.DeviceKind.WINDOWS;
+
+import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
+import java.util.Map;
+import java.util.regex.Pattern;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MatrixConstants {
@@ -30,6 +29,7 @@ public class MatrixConstants {
 	public static final String NEW_LINE = "\n";
 	public static final String TAB = "\t";
 	public static final String UNDERSCORE = "_";
+	public static final String VERTICAL_BAR = "|";
 
 	/**
 	 * Monitors information
@@ -43,6 +43,7 @@ public class MatrixConstants {
 	public static final String OTHER_MONITOR_JOB_TYPES = "otherMonitorJobTypes";
 
 	// Map monitor job types to their priorities
+	// @formatter:off
 	public static final Map<String, Integer> MONITOR_JOBS_PRIORITY = Map.of(
 		KnownMonitorType.HOST.getKey(), 1,
 		KnownMonitorType.ENCLOSURE.getKey(), 2,
@@ -51,6 +52,9 @@ public class MatrixConstants {
 		KnownMonitorType.CPU.getKey(), 5,
 		OTHER_MONITOR_JOB_TYPES, 6
 	);
+	// @formatter:on
+
+	public static final String LOG_COMPUTE_KEY_SUFFIX_TEMPLATE = "%s -> computes[%d]";
 
 	/**
 	 * Macros
@@ -76,29 +80,51 @@ public class MatrixConstants {
 	public static final String HOST_TYPE_COMPUTE = "compute";
 	public static final String NETWORK = "network";
 
+	// @formatter:off
 	public static final Map<DeviceKind, String> HOST_TYPE_TO_OTEL_HOST_TYPE = Map.of(
-			VMS, HOST_TYPE_COMPUTE,
-			TRU64, HOST_TYPE_COMPUTE,
-			HPUX, HOST_TYPE_COMPUTE,
-			AIX, HOST_TYPE_COMPUTE,
-			LINUX, HOST_TYPE_COMPUTE,
-			OOB, HOST_TYPE_COMPUTE,
-			WINDOWS, HOST_TYPE_COMPUTE,
-			DeviceKind.NETWORK, NETWORK,
-			DeviceKind.STORAGE, STORAGE,
-			SOLARIS, HOST_TYPE_COMPUTE);
+		VMS, HOST_TYPE_COMPUTE,
+		TRU64, HOST_TYPE_COMPUTE,
+		HPUX, HOST_TYPE_COMPUTE,
+		AIX, HOST_TYPE_COMPUTE,
+		LINUX, HOST_TYPE_COMPUTE,
+		OOB, HOST_TYPE_COMPUTE,
+		WINDOWS, HOST_TYPE_COMPUTE,
+		DeviceKind.NETWORK, NETWORK,
+		DeviceKind.STORAGE, STORAGE,
+		SOLARIS, HOST_TYPE_COMPUTE
+	);
+	// @formatter:on
 
+	public static final String OTEL_HPUX_OS_TYPE = "hpux";
+	public static final String OTEL_TRUE64_OS_TYPE = "true64";
+	public static final String OTEL_OPENVMS_OS_TYPE = "openvms";
+	public static final String OTEL_NETWORK_OS_TYPE = NETWORK;
+	public static final String OTEL_STORAGE_OS_TYPE = STORAGE;
+	public static final String OTEL_SOLARIS_OS_TYPE = "solaris";
+	public static final String OTEL_WINDOWS_OS_TYPE = "windows";
+	public static final String OTEL_MANAGEMENT_OS_TYPE = "management";
+	public static final String OTEL_LINUX_OS_TYPE = "linux";
+	public static final String OTEL_AIX_OS_TYPE = "aix";
+	public static final String OTEL_MAC_OS_X_OS_TYPE = "macosx";
+	public static final String OTEL_OPEN_BSD_OS_TYPE = "openbsd";
+	public static final String OTEL_NET_BSD_OS_TYPE = "netbsd";
+	public static final String OTEL_FREE_BSD_OS_TYPE = "freebsd";
+	public static final String OTEL_SUN_OS_TYPE = "sun";
+
+	// @formatter:off
 	public static final Map<DeviceKind, String> HOST_TYPE_TO_OTEL_OS_TYPE = Map.of(
-			VMS, "openvms",
-			TRU64, "true64",
-			HPUX, "hpux",
-			AIX, "aix",
-			LINUX, "linux",
-			OOB, "management",
-			WINDOWS, "windows",
-			DeviceKind.NETWORK, NETWORK,
-			DeviceKind.STORAGE, STORAGE,
-			SOLARIS, "solaris");
+		VMS, OTEL_OPENVMS_OS_TYPE,
+		TRU64, OTEL_TRUE64_OS_TYPE,
+		HPUX, OTEL_HPUX_OS_TYPE,
+		AIX, OTEL_AIX_OS_TYPE,
+		LINUX, OTEL_LINUX_OS_TYPE,
+		OOB, OTEL_MANAGEMENT_OS_TYPE,
+		WINDOWS, OTEL_WINDOWS_OS_TYPE,
+		DeviceKind.NETWORK, OTEL_NETWORK_OS_TYPE,
+		DeviceKind.STORAGE, OTEL_STORAGE_OS_TYPE,
+		SOLARIS, OTEL_SOLARIS_OS_TYPE
+	);
+	// @formatter:on
 
 	/**
 	 * Metrics
@@ -128,6 +154,8 @@ public class MatrixConstants {
 	public static final String WMI_PROCESS_QUERY = "SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process";
 	public static final String WMI_DEFAULT_NAMESPACE = "root\\cimv2";
 
+	public static final String AUTOMATIC_NAMESPACE = "automatic";
+
 	/**
 	 * Files
 	 **/
@@ -138,5 +166,11 @@ public class MatrixConstants {
 	public static final Pattern SOURCE_REF_PATTERN = Pattern.compile("\\$\\{source::([^\\s]+)\\}");
 	public static final Pattern COLUMN_PATTERN = Pattern.compile("^\\s*\\$(\\d+)\\s*$");
 	public static final Pattern DOUBLE_PATTERN = Pattern.compile("\\d+(\\.\\d+)?");
+	public static final Pattern TRANSLATION_REF_PATTERN = Pattern.compile("\\$\\{translation::([^\\s]+)\\}");
+	public static final Pattern HEXA_PATTERN = Pattern.compile("^[0-9A-Fa-f]+$");
 
+	/**
+	 * Translations
+	 **/
+	public static final String DEFAULT = "default";
 }

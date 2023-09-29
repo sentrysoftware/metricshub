@@ -2,17 +2,20 @@ package com.sentrysoftware.matrix.agent.config;
 
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.sentrysoftware.matrix.agent.config.protocols.ProtocolsConfig;
+import com.sentrysoftware.matrix.agent.deserialization.AttributesDeserializer;
+import com.sentrysoftware.matrix.agent.deserialization.MonitorJobsDeserializer;
+import com.sentrysoftware.matrix.agent.deserialization.TimeDeserializer;
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.model.monitor.MonitorJob;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.sentrysoftware.matrix.agent.config.protocols.ProtocolsConfig;
-import com.sentrysoftware.matrix.agent.deserialization.TimeDeserializer;
-import com.sentrysoftware.matrix.connector.model.Connector;
-
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -27,9 +30,11 @@ public class ResourceConfig {
 
 	private String loggerLevel;
 	private String outputDirectory;
+
 	@JsonDeserialize(using = TimeDeserializer.class)
-	private long collectPeriod;
-	private int discoveryCycle;
+	private Long collectPeriod;
+
+	private Integer discoveryCycle;
 	private AlertingSystemConfig alertingSystemConfig;
 	private Boolean sequential;
 	private Boolean resolveHostnameToFqdn;
@@ -37,6 +42,7 @@ public class ResourceConfig {
 
 	@Default
 	@JsonSetter(nulls = SKIP)
+	@JsonDeserialize(using = AttributesDeserializer.class)
 	private Map<String, String> attributes = new HashMap<>();
 
 	@Default
@@ -53,5 +59,44 @@ public class ResourceConfig {
 	@JsonSetter(nulls = SKIP)
 	private Set<String> excludeConnectors = new HashSet<>();
 
+	@JsonSetter(nulls = SKIP)
+	@JsonDeserialize(using = MonitorJobsDeserializer.class)
+	@Default
+	private Map<String, MonitorJob> monitors = new HashMap<>();
+
+	@JsonIgnore
 	private Connector connector;
+
+	/**
+	 * Creates and returns a shallow copy of all the fields in this
+	 * ResourceConfig object except the attributes map which is deeply copied.
+	 *
+	 * @return A new ResourceConfig object with the same property values as this one.
+	 */
+	public ResourceConfig copy() {
+		return ResourceConfig
+			.builder()
+			.loggerLevel(loggerLevel)
+			.outputDirectory(outputDirectory)
+			.collectPeriod(collectPeriod)
+			.discoveryCycle(discoveryCycle)
+			.alertingSystemConfig(alertingSystemConfig)
+			.sequential(sequential)
+			.resolveHostnameToFqdn(resolveHostnameToFqdn)
+			.jobTimeout(jobTimeout)
+			.attributes(
+				attributes
+					.entrySet()
+					.stream()
+					.collect(
+						Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, HashMap::new)
+					)
+			)
+			.metrics(metrics)
+			.protocols(protocols)
+			.selectConnectors(selectConnectors)
+			.excludeConnectors(excludeConnectors)
+			.connector(connector)
+			.build();
+	}
 }

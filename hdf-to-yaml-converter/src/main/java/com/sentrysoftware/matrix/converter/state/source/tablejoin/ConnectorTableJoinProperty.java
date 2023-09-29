@@ -1,7 +1,5 @@
 package com.sentrysoftware.matrix.converter.state.source.tablejoin;
 
-import java.util.Set;
-
 import com.sentrysoftware.matrix.converter.state.IConnectorStateConverter;
 import com.sentrysoftware.matrix.converter.state.source.common.EntryConcatEndProcessor;
 import com.sentrysoftware.matrix.converter.state.source.common.EntryConcatMethodProcessor;
@@ -9,7 +7,7 @@ import com.sentrysoftware.matrix.converter.state.source.common.EntryConcatStartP
 import com.sentrysoftware.matrix.converter.state.source.common.ExecuteForEachEntryOfProcessor;
 import com.sentrysoftware.matrix.converter.state.source.common.ForceSerializationProcessor;
 import com.sentrysoftware.matrix.converter.state.source.common.TypeProcessor;
-
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -20,7 +18,6 @@ public class ConnectorTableJoinProperty {
 	private static final String YAML_TYPE_VALUE = "tableJoin";
 
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
-
 		return Set.of(
 			new TypeProcessor(HDF_TYPE_VALUE, YAML_TYPE_VALUE),
 			new ForceSerializationProcessor(),

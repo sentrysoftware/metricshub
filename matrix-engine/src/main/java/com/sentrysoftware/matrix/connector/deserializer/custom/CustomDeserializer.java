@@ -1,12 +1,5 @@
 package com.sentrysoftware.matrix.connector.deserializer.custom;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -14,6 +7,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.DelegatingDeserializer;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 /**
  * Class implementing the functionality of the Post deserialization
@@ -26,10 +25,10 @@ public class CustomDeserializer extends DelegatingDeserializer {
 	 * Source reference pattern
 	 */
 	private static final Pattern REFERENCE_PATTERN = Pattern.compile(
-			"\\s*(\\$\\{source::((monitors)\\.(.*)\\.(.*)\\.sources\\.(.*))|(pre\\.(.*))\\})\\s*",
-			Pattern.MULTILINE | Pattern.CASE_INSENSITIVE
-		);
-	
+		"\\s*(\\$\\{source::((monitors)\\.(.*)\\.(.*)\\.sources\\.(.*))|(pre\\.(.*))\\})\\s*",
+		Pattern.MULTILINE | Pattern.CASE_INSENSITIVE
+	);
+
 	private static final long serialVersionUID = 1L;
 
 	public CustomDeserializer(JsonDeserializer<?> delegate) {
@@ -43,7 +42,6 @@ public class CustomDeserializer extends DelegatingDeserializer {
 
 	@Override
 	public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-
 		final Object deserializedObject = super.deserialize(p, ctxt);
 
 		callPostDeserialize(deserializedObject);
@@ -53,12 +51,11 @@ public class CustomDeserializer extends DelegatingDeserializer {
 
 	/**
 	 * Post deserialization of the given object
-	 * 
+	 *
 	 * @param deserializedObject
 	 */
 	private void callPostDeserialize(final Object deserializedObject) {
 		if (deserializedObject instanceof Source source) {
-
 			final Set<String> refs = new HashSet<>();
 
 			references(
@@ -68,13 +65,12 @@ public class CustomDeserializer extends DelegatingDeserializer {
 			);
 
 			source.setReferences(refs);
-
 		}
 	}
 
 	/**
 	 * Traverse the given {@link JsonNode} and update the given reference collection
-	 * 
+	 *
 	 * @param jsonNode  node we wish to traverse
 	 * @param refs      references collection to update
 	 * @param predicate predicate function used to check the reference value

@@ -1,22 +1,20 @@
 package com.sentrysoftware.matrix.connector.update;
 
-import java.util.Map;
-import java.util.regex.Pattern;
-
 import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.model.monitor.SimpleMonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.MonitorJob;
+import com.sentrysoftware.matrix.connector.model.monitor.SimpleMonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.StandardMonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.task.AbstractCollect;
-import com.sentrysoftware.matrix.connector.model.monitor.task.Simple;
 import com.sentrysoftware.matrix.connector.model.monitor.task.Discovery;
+import com.sentrysoftware.matrix.connector.model.monitor.task.Simple;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.Source;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 public class MonitorTaskSourceDepUpdate extends SourceConnectorUpdateChain {
 
 	@Override
 	void doUpdate(Connector connector) {
-
 		for (Map.Entry<String, MonitorJob> entry : connector.getMonitors().entrySet()) {
 			final String jobName = entry.getKey();
 			final MonitorJob job = entry.getValue();
@@ -60,7 +58,6 @@ public class MonitorTaskSourceDepUpdate extends SourceConnectorUpdateChain {
 						)
 					);
 				}
-
 			}
 
 			if (job instanceof SimpleMonitorJob simpleMonitorJob) {

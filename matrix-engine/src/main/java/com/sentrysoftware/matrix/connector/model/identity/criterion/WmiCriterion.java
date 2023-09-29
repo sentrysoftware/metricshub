@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sentrysoftware.matrix.strategy.detection.CriterionTestResult;
 import com.sentrysoftware.matrix.strategy.detection.ICriterionProcessor;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -23,26 +22,24 @@ public class WmiCriterion extends WqlCriterion {
 	public WmiCriterion(
 		@JsonProperty("type") String type,
 		@JsonProperty("forceSerialization") boolean forceSerialization,
-		@JsonProperty(value = "query", required =  true) @NonNull String query,
+		@JsonProperty(value = "query", required = true) @NonNull String query,
 		@JsonProperty(value = "namespace") String namespace,
 		@JsonProperty(value = "expectedResult") String expectedResult,
 		@JsonProperty(value = "errorMessage") String errorMessage
 	) {
-
 		super(type, forceSerialization, query, namespace, expectedResult, errorMessage);
 	}
-
 
 	@Override
 	public WmiCriterion copy() {
 		return WmiCriterion
-				.builder()
-				.query(getQuery())
-				.namespace(getNamespace())
-				.expectedResult(getExpectedResult())
-				.errorMessage(getErrorMessage())
-				.forceSerialization(isForceSerialization())
-				.build();
+			.builder()
+			.query(getQuery())
+			.namespace(getNamespace())
+			.expectedResult(getExpectedResult())
+			.errorMessage(getErrorMessage())
+			.forceSerialization(isForceSerialization())
+			.build();
 	}
 
 	@Override

@@ -8,6 +8,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class JobInfo {
+
 	private String hostname;
 	private String connectorName;
 	private String monitorType;

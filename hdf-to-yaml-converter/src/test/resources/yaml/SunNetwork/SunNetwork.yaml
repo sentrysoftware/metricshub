@@ -122,8 +122,8 @@ monitors:
           # Source(1) = output of the embedded script 2 (ifconfig output)
           # DeviceID;ifconfigFlags
           type: osCommand
-          commandLine: "if /usr/sbin/ifconfig ${network::id}; then /usr/bin/echo; else /usr/bin/echo \"${network::id}: flags=00000000:UNPLUMBED\"; fi"
-          keep: "^${network::id}: flags="
+          commandLine: "if /usr/sbin/ifconfig ${attribute::id}; then /usr/bin/echo; else /usr/bin/echo \"${attribute::id}: flags=00000000:UNPLUMBED\"; fi"
+          keep: "^${attribute::id}: flags="
           separators: :<>
           selectColumns: "1,3"
           computes:
@@ -146,7 +146,7 @@ monitors:
         source(2):
           # Source(2) = output of embedded script 4 (complicated shell script)
           type: osCommand
-          commandLine: "/bin/sh ${file::embeddedFile-2} ${network::id}"
+          commandLine: "/bin/sh ${file::embeddedFile-2} ${attribute::id}"
           computes:
             # Process the output of this script through a smart AWK script
             # DeviceID;LinkStatus;LinkSpeed;DuplexMode;ReceivedPacket;TransmittedPackets;Errors;ReceivedBytes;TransmittedBytes;

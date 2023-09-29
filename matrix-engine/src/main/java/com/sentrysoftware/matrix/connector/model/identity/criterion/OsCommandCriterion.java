@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.connector.model.identity.criterion;
 
-import java.util.StringJoiner;
+import static com.fasterxml.jackson.annotation.Nulls.FAIL;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -11,10 +12,7 @@ import com.sentrysoftware.matrix.connector.deserializer.custom.NonBlankDeseriali
 import com.sentrysoftware.matrix.connector.deserializer.custom.TimeoutDeserializer;
 import com.sentrysoftware.matrix.strategy.detection.CriterionTestResult;
 import com.sentrysoftware.matrix.strategy.detection.ICriterionProcessor;
-
-import static com.fasterxml.jackson.annotation.Nulls.FAIL;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
-
+import java.util.StringJoiner;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -32,24 +30,27 @@ public class OsCommandCriterion extends Criterion {
 	@JsonSetter(nulls = FAIL)
 	@JsonDeserialize(using = NonBlankDeserializer.class)
 	private String commandLine;
+
 	private String errorMessage;
 	private String expectedResult;
+
 	@JsonDeserialize(using = BooleanDeserializer.class)
 	private Boolean executeLocally;
+
 	@JsonDeserialize(using = TimeoutDeserializer.class)
 	private Long timeout;
 
 	@Builder
 	@JsonCreator
 	public OsCommandCriterion(
-			@JsonProperty("type") String type,
-			@JsonProperty("forceSerialization") boolean forceSerialization,
-			@JsonProperty(value = "commandLine", required = true) @NonNull String commandLine,
-			@JsonProperty("errorMessage") String errorMessage,
-			@JsonProperty("expectedResult") String expectedResult,
-			@JsonProperty("executeLocally") Boolean executeLocally,
-			@JsonProperty("timeout") Long timeout) {
-
+		@JsonProperty("type") String type,
+		@JsonProperty("forceSerialization") boolean forceSerialization,
+		@JsonProperty(value = "commandLine", required = true) @NonNull String commandLine,
+		@JsonProperty("errorMessage") String errorMessage,
+		@JsonProperty("expectedResult") String expectedResult,
+		@JsonProperty("executeLocally") Boolean executeLocally,
+		@JsonProperty("timeout") Long timeout
+	) {
 		super(type, forceSerialization);
 		this.commandLine = commandLine;
 		this.errorMessage = errorMessage;

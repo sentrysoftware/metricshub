@@ -1,12 +1,11 @@
 package com.sentrysoftware.matrix.connector.deserializer.custom;
 
+import com.sentrysoftware.matrix.connector.model.identity.ConnectionType;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-
-import com.sentrysoftware.matrix.connector.model.identity.ConnectionType;
 
 public class ConnectionTypeSetDeserializer extends AbstractCollectionDeserializer<ConnectionType> {
 
@@ -29,5 +28,4 @@ public class ConnectionTypeSetDeserializer extends AbstractCollectionDeserialize
 	protected Collection<ConnectionType> fromCollection(Collection<ConnectionType> collection) {
 		return new HashSet<>(collection);
 	}
-
 }

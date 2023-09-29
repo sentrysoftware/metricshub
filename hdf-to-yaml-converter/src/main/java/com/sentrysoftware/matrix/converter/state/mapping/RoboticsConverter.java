@@ -1,8 +1,38 @@
 package com.sentrysoftware.matrix.converter.state.mapping;
 
-import static com.sentrysoftware.matrix.converter.ConverterConstants.*;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.*;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.ATTRIBUTES;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_CORRECTED_ERROR_ALARM_THRESHOLD;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_CORRECTED_ERROR_WARNING_THRESHOLD;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_DEVICE_ID;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_DISPLAY_ID;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_ERROR_COUNT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_MODEL;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_MOVE_COUNT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_ROBOTIC_TYPE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_SERIAL_NUMBER;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_STATUS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_STATUS_INFORMATION;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_VENDOR;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.LEGACY_TEXT_PARAMETERS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.METRICS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_DISPLAY_ID;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ID;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_MODEL;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_NAME;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ROBOTICS_ERRORS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ROBOTICS_ERRORS_LIMIT_CRITICAL;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ROBOTICS_ERRORS_LIMIT_DEGRADED;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ROBOTICS_MOVES;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ROBOTICS_STATUS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ROBOTICS_TYPE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_SERIAL_NUMBER;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_STATUS_INFORMATION;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VENDOR;
+import static com.sentrysoftware.matrix.converter.state.ConversionHelper.wrapInAwkRefIfFunctionDetected;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,13 +43,10 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-
 public class RoboticsConverter extends AbstractMappingConverter {
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_ATTRIBUTES_MAPPING;
+
 	static {
 		final Map<String, Entry<String, IMappingKey>> attributesMap = new HashMap<>();
 		attributesMap.put(HDF_DEVICE_ID, IMappingKey.of(ATTRIBUTES, YAML_ID));
@@ -28,14 +55,20 @@ public class RoboticsConverter extends AbstractMappingConverter {
 		attributesMap.put(HDF_MODEL, IMappingKey.of(ATTRIBUTES, YAML_MODEL));
 		attributesMap.put(HDF_SERIAL_NUMBER, IMappingKey.of(ATTRIBUTES, YAML_SERIAL_NUMBER));
 		attributesMap.put(HDF_ROBOTIC_TYPE, IMappingKey.of(ATTRIBUTES, YAML_ROBOTICS_TYPE));
-		attributesMap.put(HDF_CORRECTED_ERROR_WARNING_THRESHOLD, IMappingKey.of(METRICS, YAML_ROBOTICS_ERRORS_LIMIT_DEGRADED));
-		attributesMap.put(HDF_CORRECTED_ERROR_ALARM_THRESHOLD, IMappingKey.of(METRICS, YAML_ROBOTICS_ERRORS_LIMIT_CRITICAL));
+		attributesMap.put(
+			HDF_CORRECTED_ERROR_WARNING_THRESHOLD,
+			IMappingKey.of(METRICS, YAML_ROBOTICS_ERRORS_LIMIT_DEGRADED)
+		);
+		attributesMap.put(
+			HDF_CORRECTED_ERROR_ALARM_THRESHOLD,
+			IMappingKey.of(METRICS, YAML_ROBOTICS_ERRORS_LIMIT_CRITICAL)
+		);
 		ONE_TO_ONE_ATTRIBUTES_MAPPING = Collections.unmodifiableMap(attributesMap);
 	}
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_METRICS_MAPPING;
-	static {
 
+	static {
 		final Map<String, Entry<String, IMappingKey>> metricsMap = new HashMap<>();
 		metricsMap.put(HDF_STATUS, IMappingKey.of(METRICS, YAML_ROBOTICS_STATUS));
 		metricsMap.put(HDF_STATUS_INFORMATION, IMappingKey.of(LEGACY_TEXT_PARAMETERS, YAML_STATUS_INFORMATION));
@@ -50,8 +83,7 @@ public class RoboticsConverter extends AbstractMappingConverter {
 	}
 
 	@Override
-	protected void convertAttributesSpecific(JsonNode mapping, ObjectNode existingAttributes,
-			ObjectNode newAttributes) {
+	protected void convertAttributesSpecific(JsonNode mapping, ObjectNode existingAttributes, ObjectNode newAttributes) {
 		// No specific attributes to convert
 	}
 
@@ -86,7 +118,7 @@ public class RoboticsConverter extends AbstractMappingConverter {
 	 * Joins the given non-empty text nodes to build the robotics name value
 	 *
 	 * @param firstDisplayArgument {@link JsonNode} representing the display name
-	 * @param vendorAndModel       {@link JsonNode} array of vendor and model to be joined 
+	 * @param vendorAndModel       {@link JsonNode} array of vendor and model to be joined
 	 * @param typeNode             {@link JsonNode} representing the type of the robotics
 	 *
 	 * @return {@link String} Joined text nodes
@@ -96,7 +128,6 @@ public class RoboticsConverter extends AbstractMappingConverter {
 		final JsonNode[] vendorAndModel,
 		final JsonNode typeNode
 	) {
-
 		final String firstArg = firstDisplayArgument.asText();
 		if (typeNode == null && Stream.of(vendorAndModel).allMatch(Objects::isNull)) {
 			return firstArg;
@@ -107,13 +138,7 @@ public class RoboticsConverter extends AbstractMappingConverter {
 
 		// Build the list of arguments non-null
 		final List<String> sprintfArgs = new ArrayList<>();
-		sprintfArgs.addAll(
-			Stream
-				.of(vendorAndModel)
-				.filter(Objects::nonNull)
-				.map(JsonNode::asText)
-				.toList()
-		);
+		sprintfArgs.addAll(Stream.of(vendorAndModel).filter(Objects::nonNull).map(JsonNode::asText).toList());
 
 		// Means we have model or vendor but we don't know if have the type
 		if (sprintfArgs.size() == 1) {
@@ -125,7 +150,6 @@ public class RoboticsConverter extends AbstractMappingConverter {
 
 		// Do we have the type?
 		if (typeNode != null) {
-
 			// Without vendor and model?
 			if (sprintfArgs.isEmpty()) {
 				// We append the type format only
@@ -137,28 +161,21 @@ public class RoboticsConverter extends AbstractMappingConverter {
 
 			// Add the type to our list of arguments
 			sprintfArgs.add(typeNode.asText());
-
 		} else if (!sprintfArgs.isEmpty()) {
 			// We have at least one of { vendor, model, type } let's close the parenthesis
 			format.append(")");
 		}
 
-		// Add the first argument at the beginning of the list 
+		// Add the first argument at the beginning of the list
 		sprintfArgs.add(0, firstArg);
 
-		// Join the arguments: $column(1), $column(2), $column(3), $column(4)) 
+		// Join the arguments: $1, $2, $3, $4)
 		// append the result to our format variable in order to get something like
-		// sprintf("%s (%s %s - %s)", $column(1), $column(2), $column(3), $column(4))
+		// sprintf("%s (%s %s - %s)", $1, $2, $3, $4)
 		return format
-			.append("\", ") // Here we will have a string like sprintf("%s (%s %s - %s)", 
-			.append(
-				sprintfArgs
-					.stream()
-					.map(this::getFunctionArgument)
-					.collect(Collectors.joining(", ", "", ")"))
-			)
+			.append("\", ") // Here we will have a string like sprintf("%s (%s %s - %s)",
+			.append(sprintfArgs.stream().map(this::getFunctionArgument).collect(Collectors.joining(", ", "", ")")))
 			.toString();
-
 	}
 
 	@Override

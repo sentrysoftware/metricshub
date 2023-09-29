@@ -5,18 +5,16 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.dataformat.yaml.YAMLParser;
+import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.dataformat.yaml.YAMLParser;
-import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 
 @ExtendWith(MockitoExtension.class)
 class DeviceKindSetDeserializerTest {
@@ -28,7 +26,6 @@ class DeviceKindSetDeserializerTest {
 
 	@Test
 	void testNull() throws IOException {
-
 		{
 			assertEquals(Collections.emptySet(), DEVICE_KIND_DESERIALIZER.deserialize(null, null));
 		}
@@ -74,13 +71,24 @@ class DeviceKindSetDeserializerTest {
 			doReturn(Set.of("")).when(yamlParser).readValueAs(any(TypeReference.class));
 			assertThrows(IOException.class, () -> DEVICE_KIND_DESERIALIZER.deserialize(yamlParser, null));
 		}
-
 	}
 
 	@Test
 	void testDeserializeArray() throws IOException {
 		{
-			final Set<String> osTypes = Set.of("linux", "windows", "oob", "network", "storage", "vms", "tru64", "hpux", "aix", "solaris");
+			final Set<String> osTypes = Set.of(
+				"linux",
+				"windows",
+				"oob",
+				"network",
+				"storage",
+				"vms",
+				"tru64",
+				"hpux",
+				"aix",
+				"solaris",
+				"other"
+			);
 			doReturn(true).when(yamlParser).isExpectedStartArrayToken();
 			doReturn(osTypes).when(yamlParser).readValueAs(any(TypeReference.class));
 			assertEquals(DeviceKind.DEVICE_KINDS, DEVICE_KIND_DESERIALIZER.deserialize(yamlParser, null));
@@ -90,20 +98,71 @@ class DeviceKindSetDeserializerTest {
 			doReturn(true).when(yamlParser).isExpectedStartArrayToken();
 			doReturn(
 				Set.of(
-					"linux", "LINUX", "Linux",
-					"windows", "Windows", "NT", "Nt", "nt", "WIN", "win",
-					"Microsoft Windows", "microsoft	 windows", "MicrosoftWindows",
-					"oob", "management card", "out of band", "out-of-band",
-					"network", "NETWORK", "Network", "Switch", "SWITCH", "switch",
-					"storage", "Storage", "san", "SAN", "library", "array",
-					"vms", "OpenVms", "HP  OpenVms", "openvms", "HpOpenVms", "HP Open Vms",
-					"tru64", "Tru64", "osf1", "OSF1", "hp tru64 unix", "HPTru64Unix",
-					"hpux", "hp-ux", "hp", "HPUX", "HP-UX", "HP",
-					"aix", "ibm aix", "rs6000", "ibm-aix", "IBM AIX", "RS6000", "IBM-AIX",
-					"solaris", "Solaris", "sunos", "SunOS", "Sun Solaris", "Oracle Solaris"
+					"linux",
+					"LINUX",
+					"Linux",
+					"windows",
+					"Windows",
+					"NT",
+					"Nt",
+					"nt",
+					"WIN",
+					"win",
+					"Microsoft Windows",
+					"microsoft	 windows",
+					"MicrosoftWindows",
+					"oob",
+					"management card",
+					"out of band",
+					"out-of-band",
+					"network",
+					"NETWORK",
+					"Network",
+					"Switch",
+					"SWITCH",
+					"switch",
+					"storage",
+					"Storage",
+					"san",
+					"SAN",
+					"library",
+					"array",
+					"vms",
+					"OpenVms",
+					"HP  OpenVms",
+					"openvms",
+					"HpOpenVms",
+					"HP Open Vms",
+					"tru64",
+					"Tru64",
+					"osf1",
+					"OSF1",
+					"hp tru64 unix",
+					"HPTru64Unix",
+					"hpux",
+					"hp-ux",
+					"hp",
+					"HPUX",
+					"HP-UX",
+					"HP",
+					"aix",
+					"ibm aix",
+					"rs6000",
+					"ibm-aix",
+					"IBM AIX",
+					"RS6000",
+					"IBM-AIX",
+					"solaris",
+					"Solaris",
+					"sunos",
+					"SunOS",
+					"Sun Solaris",
+					"Oracle Solaris",
+					"Other"
 				)
 			)
-			.when(yamlParser).readValueAs(any(TypeReference.class));
+				.when(yamlParser)
+				.readValueAs(any(TypeReference.class));
 			assertEquals(DeviceKind.DEVICE_KINDS, DEVICE_KIND_DESERIALIZER.deserialize(yamlParser, null));
 		}
 
@@ -130,7 +189,5 @@ class DeviceKindSetDeserializerTest {
 			doReturn("solaris").when(yamlParser).getValueAsString();
 			assertEquals(Set.of(DeviceKind.SOLARIS), DEVICE_KIND_DESERIALIZER.deserialize(yamlParser, null));
 		}
-
 	}
-
 }

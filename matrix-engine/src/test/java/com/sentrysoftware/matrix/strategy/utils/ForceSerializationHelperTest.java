@@ -10,18 +10,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
-
-import org.junit.jupiter.api.Test;
-
 import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
@@ -32,6 +20,16 @@ import com.sentrysoftware.matrix.strategy.source.ISourceProcessor;
 import com.sentrysoftware.matrix.strategy.source.SourceProcessor;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
+import org.junit.jupiter.api.Test;
 
 class ForceSerializationHelperTest {
 
@@ -47,19 +45,14 @@ class ForceSerializationHelperTest {
 
 	@Test
 	void testForceSerializationNullArguments() {
-
 		final SourceTable emptySourceTable = SourceTable.empty();
 		final TelemetryManager telemetryManager = new TelemetryManager();
-		final Source snmpTableSource = SnmpTableSource
-			.builder()
-			.oid("1.2.3.4")
-			.selectColumns(SELECT_COLUMNS)
-			.build();
+		final Source snmpTableSource = SnmpTableSource.builder().oid("1.2.3.4").selectColumns(SELECT_COLUMNS).build();
 
 		assertThrows(
 			IllegalArgumentException.class,
-			() -> ForceSerializationHelper
-				.forceSerialization(
+			() ->
+				ForceSerializationHelper.forceSerialization(
 					null,
 					telemetryManager,
 					CONNECTOR_NAME,
@@ -71,8 +64,8 @@ class ForceSerializationHelperTest {
 
 		assertThrows(
 			IllegalArgumentException.class,
-			() -> ForceSerializationHelper
-				.forceSerialization(
+			() ->
+				ForceSerializationHelper.forceSerialization(
 					() -> emptySourceTable,
 					null,
 					CONNECTOR_NAME,
@@ -84,8 +77,8 @@ class ForceSerializationHelperTest {
 
 		assertThrows(
 			IllegalArgumentException.class,
-			() -> ForceSerializationHelper
-				.forceSerialization(
+			() ->
+				ForceSerializationHelper.forceSerialization(
 					() -> emptySourceTable,
 					telemetryManager,
 					null,
@@ -97,8 +90,8 @@ class ForceSerializationHelperTest {
 
 		assertThrows(
 			IllegalArgumentException.class,
-			() -> ForceSerializationHelper
-				.forceSerialization(
+			() ->
+				ForceSerializationHelper.forceSerialization(
 					() -> emptySourceTable,
 					telemetryManager,
 					CONNECTOR_NAME,
@@ -110,8 +103,8 @@ class ForceSerializationHelperTest {
 
 		assertThrows(
 			IllegalArgumentException.class,
-			() -> ForceSerializationHelper
-				.forceSerialization(
+			() ->
+				ForceSerializationHelper.forceSerialization(
 					() -> emptySourceTable,
 					telemetryManager,
 					CONNECTOR_NAME,
@@ -127,21 +120,11 @@ class ForceSerializationHelperTest {
 		final ReentrantLock spyLock = spy(ReentrantLock.class);
 		final SourceTable emptySourceTable = SourceTable.empty();
 		final TelemetryManager telemetryManager = new TelemetryManager();
-		final Source snmpTableSource = SnmpTableSource
-			.builder()
-			.oid("1.2.3.4")
-			.selectColumns(SELECT_COLUMNS)
-			.build();
+		final Source snmpTableSource = SnmpTableSource.builder().oid("1.2.3.4").selectColumns(SELECT_COLUMNS).build();
 
-		telemetryManager
-			.setHostConfiguration(
-				HostConfiguration.builder().hostname(HOST_NAME).build()
-			);
+		telemetryManager.setHostConfiguration(HostConfiguration.builder().hostname(HOST_NAME).build());
 
-		telemetryManager
-			.getHostProperties()
-			.getConnectorNamespace(CONNECTOR_NAME)
-			.setForceSerializationLock(spyLock);
+		telemetryManager.getHostProperties().getConnectorNamespace(CONNECTOR_NAME).setForceSerializationLock(spyLock);
 
 		doThrow(InterruptedException.class).when(spyLock).tryLock(anyLong(), any(TimeUnit.class));
 
@@ -160,25 +143,14 @@ class ForceSerializationHelperTest {
 
 	@Test
 	void testForceSerializationCouldNotAcquireLock() throws InterruptedException {
-
 		final ReentrantLock spyLock = spy(ReentrantLock.class);
 		final SourceTable emptySourceTable = SourceTable.empty();
 		final TelemetryManager telemetryManager = new TelemetryManager();
-		final Source snmpTableSource = SnmpTableSource
-			.builder()
-			.oid("1.2.3.4")
-			.selectColumns(SELECT_COLUMNS)
-			.build();
+		final Source snmpTableSource = SnmpTableSource.builder().oid("1.2.3.4").selectColumns(SELECT_COLUMNS).build();
 
-		telemetryManager
-			.setHostConfiguration(
-				HostConfiguration.builder().hostname(HOST_NAME).build()
-			);
+		telemetryManager.setHostConfiguration(HostConfiguration.builder().hostname(HOST_NAME).build());
 
-		telemetryManager
-			.getHostProperties()
-			.getConnectorNamespace(CONNECTOR_NAME)
-			.setForceSerializationLock(spyLock);
+		telemetryManager.getHostProperties().getConnectorNamespace(CONNECTOR_NAME).setForceSerializationLock(spyLock);
 
 		doReturn(false).when(spyLock).tryLock(anyLong(), any(TimeUnit.class));
 
@@ -197,7 +169,6 @@ class ForceSerializationHelperTest {
 
 	@Test
 	void testForceSerializationLockAcquired() throws Exception {
-
 		final Source snmpTableSource = SnmpTableSource
 			.builder()
 			.oid("1.2.3.4")
@@ -212,18 +183,12 @@ class ForceSerializationHelperTest {
 				HostConfiguration
 					.builder()
 					.hostname(HOST_NAME)
-					.configurations(
-						Map.of(
-							SnmpConfiguration.class,
-							SnmpConfiguration.builder().build()
-						)
-					)
-					.build())
+					.configurations(Map.of(SnmpConfiguration.class, SnmpConfiguration.builder().build()))
+					.build()
+			)
 			.build();
 
-		telemetryManager
-			.getHostProperties()
-			.getConnectorNamespace(CONNECTOR_NAME);
+		telemetryManager.getHostProperties().getConnectorNamespace(CONNECTOR_NAME);
 
 		doReturn(EXPECTED_SNMP_TABLE_DATA)
 			.when(matsyaClientsExecutor)
@@ -236,7 +201,8 @@ class ForceSerializationHelperTest {
 			.telemetryManager(telemetryManager)
 			.build();
 
-		assertEquals(EXPECTED_SOURCE_TABLE, 
+		assertEquals(
+			EXPECTED_SOURCE_TABLE,
 			ForceSerializationHelper.forceSerialization(
 				() -> snmpTableSource.accept(processor),
 				telemetryManager,
@@ -250,7 +216,6 @@ class ForceSerializationHelperTest {
 
 	@Test
 	void testForceSerializationMultiThreads() throws Exception {
-
 		final Source snmpTableSource = SnmpTableSource
 			.builder()
 			.oid("1.2.3.4")
@@ -265,18 +230,12 @@ class ForceSerializationHelperTest {
 				HostConfiguration
 					.builder()
 					.hostname(HOST_NAME)
-					.configurations(
-						Map.of(
-							SnmpConfiguration.class,
-							SnmpConfiguration.builder().build()
-						)
-					)
-					.build())
+					.configurations(Map.of(SnmpConfiguration.class, SnmpConfiguration.builder().build()))
+					.build()
+			)
 			.build();
 
-		telemetryManager
-			.getHostProperties()
-			.getConnectorNamespace(CONNECTOR_NAME);
+		telemetryManager.getHostProperties().getConnectorNamespace(CONNECTOR_NAME);
 
 		doReturn(EXPECTED_SNMP_TABLE_DATA)
 			.when(matsyaClientsExecutor)
@@ -291,23 +250,25 @@ class ForceSerializationHelperTest {
 
 		final ExecutorService threadsPool = Executors.newFixedThreadPool(2);
 
-		final Callable<SourceTable> callable1 = () -> ForceSerializationHelper.forceSerialization(
-			() -> snmpTableSource.accept(processor),
-			telemetryManager,
-			CONNECTOR_NAME,
-			snmpTableSource,
-			DESCRIPTION,
-			SourceTable.empty()
-		);
+		final Callable<SourceTable> callable1 = () ->
+			ForceSerializationHelper.forceSerialization(
+				() -> snmpTableSource.accept(processor),
+				telemetryManager,
+				CONNECTOR_NAME,
+				snmpTableSource,
+				DESCRIPTION,
+				SourceTable.empty()
+			);
 
-		final Callable<SourceTable> callable2 = () -> ForceSerializationHelper.forceSerialization(
-			() -> snmpTableSource.accept(processor),
-			telemetryManager,
-			CONNECTOR_NAME,
-			snmpTableSource,
-			DESCRIPTION,
-			SourceTable.empty()
-		);
+		final Callable<SourceTable> callable2 = () ->
+			ForceSerializationHelper.forceSerialization(
+				() -> snmpTableSource.accept(processor),
+				telemetryManager,
+				CONNECTOR_NAME,
+				snmpTableSource,
+				DESCRIPTION,
+				SourceTable.empty()
+			);
 
 		// This only checks the behavior for two parallel threads to validate there is no crash.
 

@@ -1,5 +1,11 @@
 package com.sentrysoftware.matrix.connector;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sentrysoftware.matrix.common.helpers.FileHelper;
+import com.sentrysoftware.matrix.common.helpers.JsonHelper;
+import com.sentrysoftware.matrix.connector.model.Connector;
+import com.sentrysoftware.matrix.connector.parser.ConnectorParser;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -13,14 +19,6 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sentrysoftware.matrix.common.helpers.FileHelper;
-import com.sentrysoftware.matrix.common.helpers.JsonHelper;
-import com.sentrysoftware.matrix.connector.model.Connector;
-import com.sentrysoftware.matrix.connector.parser.ConnectorParser;
-
 import lombok.NonNull;
 
 /**
@@ -52,9 +50,7 @@ public class ConnectorLibrarySerializer {
 	 * @param args sourceDirectory and targetDirectory as an array of String
 	 */
 	public static void main(String[] args) {
-
 		serializeConnectorSources(Paths.get(args[0]), Paths.get(args[1]));
-
 	}
 
 	/**
@@ -66,7 +62,6 @@ public class ConnectorLibrarySerializer {
 	 * @throws ConnectorSerializationException when anything wrong happens (so this interrupts the build)
 	 */
 	static void serializeConnectorSources(final Path sourceDirectory, final Path outputDirectory) {
-
 		if (!Files.isDirectory(sourceDirectory)) {
 			throw new ConnectorSerializationException("sourceDirectory must be a directory");
 		}
@@ -86,7 +81,6 @@ public class ConnectorLibrarySerializer {
 		int count = 0;
 
 		for (final String connectorName : connectorNameList) {
-
 			// Full path of the connector
 			Path connectorPath = sourceDirectory.resolve(connectorName);
 
@@ -110,7 +104,9 @@ public class ConnectorLibrarySerializer {
 			}
 
 			// Serialize
-			try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(serializePath.toFile()))) {
+			try (
+				ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(serializePath.toFile()))
+			) {
 				objectOutputStream.writeObject(connector);
 			} catch (IOException e) {
 				throw new ConnectorSerializationException("Failed to serialize connector: " + connectorName, e);
@@ -120,11 +116,10 @@ public class ConnectorLibrarySerializer {
 		}
 
 		if (count > 0) {
-			OUT.format("Successfully parsed and serialized %d connector%s.%n", count, count > 1 ? "s": "");
+			OUT.format("Successfully parsed and serialized %d connector%s.%n", count, count > 1 ? "s" : "");
 		} else {
 			OUT.println("No connector to parse.");
 		}
-
 	}
 
 	/**
@@ -135,13 +130,14 @@ public class ConnectorLibrarySerializer {
 	 * @throws IllegalArgumentException if specified directory is null
 	 */
 	public static void validateOutputDirectory(@NonNull final Path dir) {
-
 		// If it already exists
 		if (Files.exists(dir)) {
 			// But it's not a directory
 			if (!Files.isDirectory(dir)) {
 				// Throw an exception
-				throw new ConnectorSerializationException("outputDirectory " + dir.toString() + " must be a directory, not a file");
+				throw new ConnectorSerializationException(
+					"outputDirectory " + dir.toString() + " must be a directory, not a file"
+				);
 			}
 			// Or else do nothing
 			return;
@@ -153,7 +149,6 @@ public class ConnectorLibrarySerializer {
 		} catch (IOException e) {
 			throw new ConnectorSerializationException("Could not create outputDirectory: " + dir.toString());
 		}
-
 	}
 
 	/**
@@ -166,22 +161,21 @@ public class ConnectorLibrarySerializer {
 	 *
 	 */
 	public static List<String> getConnectorList(@NonNull final Path sourceDirectory) throws IOException {
-
 		try (Stream<Path> fileStream = Files.list(sourceDirectory)) {
 			return fileStream
-					.filter(Objects::nonNull)
-					.filter(path -> !Files.isDirectory(path))
-					.filter(path -> path.toString().endsWith(".yaml"))
-					.filter(ConnectorLibrarySerializer::isConnectorSource)
-					.map(path -> path.getFileName().toString())
-					.sorted(String::compareToIgnoreCase)
-					.collect(Collectors.toList()); //NOSONAR
+				.filter(Objects::nonNull)
+				.filter(path -> !Files.isDirectory(path))
+				.filter(path -> path.toString().endsWith(".yaml"))
+				.filter(ConnectorLibrarySerializer::isConnectorSource)
+				.map(path -> path.getFileName().toString())
+				.sorted(String::compareToIgnoreCase)
+				.collect(Collectors.toList()); //NOSONAR
 		}
 	}
 
 	/**
 	 * Check if the given file path is a YAML connector source
-	 * 
+	 *
 	 * @param path
 	 * @return boolean value
 	 */
@@ -198,13 +192,12 @@ public class ConnectorLibrarySerializer {
 
 	/**
 	 * Check if the keys provided in the given array have values in the {@link JsonNode}
-	 * 
+	 *
 	 * @param keys
 	 * @param jsonNode
 	 * @return boolean value
 	 */
 	public static boolean keyValuePairExistsByKeys(final String[] keys, final JsonNode jsonNode) {
-
 		if (jsonNode == null) {
 			return false;
 		}
@@ -221,5 +214,4 @@ public class ConnectorLibrarySerializer {
 
 		return !node.isMissingNode();
 	}
-
 }

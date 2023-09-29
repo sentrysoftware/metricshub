@@ -7,5 +7,4 @@ package com.sentrysoftware.matrix.common.exception;
 public class RetryableException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
-
 }

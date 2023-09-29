@@ -1,16 +1,15 @@
 package com.sentrysoftware.matrix.converter.state.source.common;
 
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sentrysoftware.matrix.connector.model.common.EntryConcatMethod;
 import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.ConversionHelper;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class EntryConcatMethodProcessor extends AbstractExecuteForEach {
 
@@ -19,8 +18,7 @@ public class EntryConcatMethodProcessor extends AbstractExecuteForEach {
 		Pattern.CASE_INSENSITIVE
 	);
 
-	private static final Map<String, String> CONVERSIONS = EntryConcatMethod
-		.ENUM_VALUES
+	private static final Map<String, String> CONVERSIONS = EntryConcatMethod.ENUM_VALUES
 		.stream()
 		.collect(Collectors.toMap(k -> k.getName().toLowerCase(), v -> v.name().toLowerCase()));
 
@@ -43,5 +41,4 @@ public class EntryConcatMethodProcessor extends AbstractExecuteForEach {
 			throw new IllegalStateException(String.format("Cannot determine the concatMethod identified with %s", value));
 		}
 	}
-
 }

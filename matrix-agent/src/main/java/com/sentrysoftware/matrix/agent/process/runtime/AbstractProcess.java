@@ -1,11 +1,9 @@
 package com.sentrysoftware.matrix.agent.process.runtime;
 
-import java.io.IOException;
-import java.io.Reader;
-
 import com.sentrysoftware.matrix.agent.process.config.ProcessConfig;
 import com.sentrysoftware.matrix.agent.process.config.ProcessOutput;
-
+import java.io.IOException;
+import java.io.Reader;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,8 +27,10 @@ public abstract class AbstractProcess implements IStoppable {
 
 	@Getter
 	protected final ProcessConfig processConfig;
+
 	@Getter
 	protected ProcessControl processControl;
+
 	@Getter
 	protected boolean stopped;
 
@@ -40,12 +40,11 @@ public abstract class AbstractProcess implements IStoppable {
 
 	/**
 	 * Starts the process
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public void start() throws IOException {
 		try {
-
 			onBeforeProcess();
 
 			// Get the process output to check if we should redirect STDERR
@@ -72,7 +71,6 @@ public abstract class AbstractProcess implements IStoppable {
 			stopped = false;
 
 			log.info("Started process with command line: {}", processConfig.getCommandLine());
-
 		} catch (Exception e) {
 			log.error("Cannot start the process due to an exception: {}", e.getMessage());
 			log.debug("Exception: ", e);
@@ -84,7 +82,6 @@ public abstract class AbstractProcess implements IStoppable {
 	@Override
 	public void stop() {
 		if (!stopped) {
-
 			onBeforeProcessStop();
 
 			stopInternal();
@@ -113,7 +110,7 @@ public abstract class AbstractProcess implements IStoppable {
 
 	/**
 	 * Updates the process builder before starting the process
-	 * 
+	 *
 	 * @param processBuilder This object is used to create operating system processes.
 	 */
 	protected abstract void onBeforeProcessStart(ProcessBuilder processBuilder);
@@ -140,7 +137,7 @@ public abstract class AbstractProcess implements IStoppable {
 
 	/**
 	 * Get the STDOUT reader
-	 * 
+	 *
 	 * @return {@link Reader} instance
 	 */
 	protected Reader getReader() {
@@ -149,11 +146,10 @@ public abstract class AbstractProcess implements IStoppable {
 
 	/**
 	 * Get the STDERR reader
-	 * 
+	 *
 	 * @return {@link Reader} instance
 	 */
 	protected Reader getError() {
 		return processControl.getError();
 	}
-
 }

@@ -1,8 +1,8 @@
 package com.sentrysoftware.matrix.connector.model.identity;
 
 public enum ConnectionType {
-
-	REMOTE, LOCAL;
+	REMOTE,
+	LOCAL;
 
 	/**
 	 * Detect {@link ConnectionType} using the value defined in the connector code
@@ -22,11 +22,10 @@ public enum ConnectionType {
 			// No match => Exception
 			throw new IllegalArgumentException(
 				"'" +
-				value + 
-				"' is not a supported connection type." + 
+				value +
+				"' is not a supported connection type." +
 				"ConnectionType must be a known connection type (local, remote)."
 			);
 		}
-
 	}
 }

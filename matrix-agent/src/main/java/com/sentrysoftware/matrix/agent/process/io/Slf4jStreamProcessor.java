@@ -1,11 +1,9 @@
 package com.sentrysoftware.matrix.agent.process.io;
 
-import org.slf4j.Logger;
-
 import com.sentrysoftware.matrix.agent.process.config.Slf4jLevel;
-
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import org.slf4j.Logger;
 
 /**
  * Use this {@link StreamProcessor} in order to consume process output blocks
@@ -16,6 +14,7 @@ public class Slf4jStreamProcessor implements StreamProcessor {
 
 	@NonNull
 	private final Logger logger;
+
 	@NonNull
 	private final Slf4jLevel level;
 
@@ -28,5 +27,4 @@ public class Slf4jStreamProcessor implements StreamProcessor {
 	public void onProcessed() {
 		// Nothing
 	}
-
 }

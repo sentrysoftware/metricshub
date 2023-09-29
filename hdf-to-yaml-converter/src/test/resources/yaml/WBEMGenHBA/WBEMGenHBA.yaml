@@ -138,6 +138,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source (1) = MSFC_FibrePortHBAAttributes
@@ -197,7 +199,8 @@ monitors:
         # INSTANCE TABLE
         # AdapterID;Status;StatusInformation;LinkStatus;PortSpeed;PortWWN-Decimal;InstanceName;TxFrames;RxFrames;ErrorCount;
         source: "${source::monitors.network.collect.sources.source(3)}"
-        deviceId: $6
+        attributes:
+          id: $6
         metrics:
           hw.status{hw.type="network"}: $2
           hw.network.up: legacyLinkStatus($4)

@@ -1,12 +1,11 @@
 package com.sentrysoftware.matrix.converter.state.source.common;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
 import com.sentrysoftware.matrix.converter.state.ConversionHelper;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ExecuteForEachEntryOfProcessor extends AbstractExecuteForEach {
 
@@ -25,5 +24,4 @@ public class ExecuteForEachEntryOfProcessor extends AbstractExecuteForEach {
 		final ObjectNode executeForEachEntryOf = getOrCreateExecuteForEachEntryOf(key, connector);
 		createTextNode("source", value, executeForEachEntryOf);
 	}
-
 }

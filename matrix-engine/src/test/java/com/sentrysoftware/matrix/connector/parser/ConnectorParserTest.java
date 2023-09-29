@@ -2,14 +2,6 @@ package com.sentrysoftware.matrix.connector.parser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.junit.jupiter.api.Test;
-
 import com.sentrysoftware.matrix.connector.model.Connector;
 import com.sentrysoftware.matrix.connector.model.monitor.SimpleMonitorJob;
 import com.sentrysoftware.matrix.connector.model.monitor.StandardMonitorJob;
@@ -17,6 +9,12 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableJoinSo
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableUnionSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.WbemSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.WmiSource;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import org.junit.jupiter.api.Test;
 
 class ConnectorParserTest {
 
@@ -68,217 +66,222 @@ class ConnectorParserTest {
 
 	@Test
 	void testAvailableSourceUpdate() throws IOException {
-		final Connector connector = new ConnectorParserUpdateManagement("connector/management/availableUpdate").parse("availableSources");
+		final Connector connector = new ConnectorParserUpdateManagement("connector/management/availableUpdate")
+			.parse("availableSources");
 		assertEquals(
-			Set.of(
-				WmiSource.class,
-				WbemSource.class,
-				TableJoinSource.class,
-				TableUnionSource.class
-			),
+			Set.of(WmiSource.class, WbemSource.class, TableJoinSource.class, TableUnionSource.class),
 			connector.getSourceTypes()
 		);
 	}
 
 	@Test
 	void testMonitorTaskSourceDepUpdateUseCase1() throws IOException {
-		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase1").parse("sourceDep");
+		final Connector connector = new ConnectorParserUpdateManagement(
+			"connector/management/monitorTaskSourceDep/useCase1"
+		)
+			.parse("sourceDep");
 
-		final StandardMonitorJob monitorJob = (StandardMonitorJob) connector
-			.getMonitors()
-			.get("enclosure");
+		final StandardMonitorJob monitorJob = (StandardMonitorJob) connector.getMonitors().get("enclosure");
 
 		final List<Set<String>> expected = buildUseCase1Dependency();
 
-		assertEquals(expected,  monitorJob.getDiscovery().getSourceDep());
+		assertEquals(expected, monitorJob.getDiscovery().getSourceDep());
 
 		assertEquals(List.of(Set.of("source(1)")), monitorJob.getCollect().getSourceDep());
 	}
 
 	@Test
 	void testMonitorTaskSourceDepUpdateUseCase2() throws IOException {
-		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase2").parse("sourceDep");
+		final Connector connector = new ConnectorParserUpdateManagement(
+			"connector/management/monitorTaskSourceDep/useCase2"
+		)
+			.parse("sourceDep");
 
-		final StandardMonitorJob monitorJob = (StandardMonitorJob) connector
-			.getMonitors()
-			.get("enclosure");
+		final StandardMonitorJob monitorJob = (StandardMonitorJob) connector.getMonitors().get("enclosure");
 
 		final List<Set<String>> expected = buildUseCase2Dependency();
 
-		assertEquals(expected,  monitorJob.getDiscovery().getSourceDep());
-
+		assertEquals(expected, monitorJob.getDiscovery().getSourceDep());
 	}
 
 	@Test
 	void testMonitorTaskSourceDepUpdateUseCase3() throws IOException {
-		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase3").parse("sourceDep");
+		final Connector connector = new ConnectorParserUpdateManagement(
+			"connector/management/monitorTaskSourceDep/useCase3"
+		)
+			.parse("sourceDep");
 
-		final StandardMonitorJob monitorJob = (StandardMonitorJob) connector
-			.getMonitors()
-			.get("enclosure");
+		final StandardMonitorJob monitorJob = (StandardMonitorJob) connector.getMonitors().get("enclosure");
 
 		final List<Set<String>> expected = buildUseCase3Dependency();
 
-		assertEquals(expected,  monitorJob.getDiscovery().getSourceDep());
+		assertEquals(expected, monitorJob.getDiscovery().getSourceDep());
 	}
 
 	@Test
 	void testMonitorTaskSourceDepUpdateUseCase4() throws IOException {
-		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase4").parse("sourceDep");
+		final Connector connector = new ConnectorParserUpdateManagement(
+			"connector/management/monitorTaskSourceDep/useCase4"
+		)
+			.parse("sourceDep");
 
-		final StandardMonitorJob monitorJob = (StandardMonitorJob) connector
-			.getMonitors()
-			.get("enclosure");
+		final StandardMonitorJob monitorJob = (StandardMonitorJob) connector.getMonitors().get("enclosure");
 
 		final List<Set<String>> expected = buildUseCase4Dependency();
 
-		assertEquals(expected,  monitorJob.getDiscovery().getSourceDep());
+		assertEquals(expected, monitorJob.getDiscovery().getSourceDep());
 	}
 
 	@Test
 	void testMonitorTaskSourceDepUpdateUseCase5() throws IOException {
-		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase5").parse("sourceDep");
+		final Connector connector = new ConnectorParserUpdateManagement(
+			"connector/management/monitorTaskSourceDep/useCase5"
+		)
+			.parse("sourceDep");
 
-		final StandardMonitorJob monitorJob = (StandardMonitorJob) connector
-			.getMonitors()
-			.get("enclosure");
+		final StandardMonitorJob monitorJob = (StandardMonitorJob) connector.getMonitors().get("enclosure");
 
 		final List<Set<String>> expected = buildUseCase5MultiCollectDependency();
 
-		assertEquals(expected,  monitorJob.getCollect().getSourceDep());
+		assertEquals(expected, monitorJob.getCollect().getSourceDep());
 	}
 
 	@Test
 	void testMonitorTaskSourceDepUpdateUseCase6() throws IOException {
-		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase6").parse("sourceDep");
+		final Connector connector = new ConnectorParserUpdateManagement(
+			"connector/management/monitorTaskSourceDep/useCase6"
+		)
+			.parse("sourceDep");
 
-		final SimpleMonitorJob monitorJob = (SimpleMonitorJob) connector
-			.getMonitors()
-			.get("enclosure");
+		final SimpleMonitorJob monitorJob = (SimpleMonitorJob) connector.getMonitors().get("enclosure");
 
 		final List<Set<String>> expected = buildUseCase6Dependency();
 
-		assertEquals(expected,  monitorJob.getSimple().getSourceDep());
-
+		assertEquals(expected, monitorJob.getSimple().getSourceDep());
 	}
 
 	@Test
 	void testMonitorTaskSourceDepUpdateUseCase7() throws IOException {
-		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase7").parse("sourceDep");
+		final Connector connector = new ConnectorParserUpdateManagement(
+			"connector/management/monitorTaskSourceDep/useCase7"
+		)
+			.parse("sourceDep");
 
-		final StandardMonitorJob monitorJob = (StandardMonitorJob) connector
-			.getMonitors()
-			.get("enclosure");
+		final StandardMonitorJob monitorJob = (StandardMonitorJob) connector.getMonitors().get("enclosure");
 
 		final List<Set<String>> expected = buildUseCase7MultiCollectDependency();
 
-		assertEquals(expected,  monitorJob.getCollect().getSourceDep());
+		assertEquals(expected, monitorJob.getCollect().getSourceDep());
 	}
 
 	@Test
 	void testMonitorTaskSourceDepUpdateUseCase8() throws IOException {
-		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase8").parse("sourceDep");
+		final Connector connector = new ConnectorParserUpdateManagement(
+			"connector/management/monitorTaskSourceDep/useCase8"
+		)
+			.parse("sourceDep");
 
-		final StandardMonitorJob monitorJob = (StandardMonitorJob) connector
-			.getMonitors()
-			.get("enclosure");
+		final StandardMonitorJob monitorJob = (StandardMonitorJob) connector.getMonitors().get("enclosure");
 
 		final List<Set<String>> expected = buildUseCase8MultiCollectDependency();
 
-		assertEquals(expected,  monitorJob.getCollect().getSourceDep());
+		assertEquals(expected, monitorJob.getCollect().getSourceDep());
 	}
 
 	@Test
 	void testMonitorTaskSourceDepUpdateUseCase9() throws IOException {
-		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase9").parse("sourceDep");
+		final Connector connector = new ConnectorParserUpdateManagement(
+			"connector/management/monitorTaskSourceDep/useCase9"
+		)
+			.parse("sourceDep");
 
-		final StandardMonitorJob monitorJob = (StandardMonitorJob) connector
-			.getMonitors()
-			.get("enclosure");
+		final StandardMonitorJob monitorJob = (StandardMonitorJob) connector.getMonitors().get("enclosure");
 
 		final List<Set<String>> expected = buildUseCase9MultiCollectDependency();
 
-		assertEquals(expected,  monitorJob.getCollect().getSourceDep());
+		assertEquals(expected, monitorJob.getCollect().getSourceDep());
 	}
 
 	@Test
 	void testMonitorTaskSourceDepUpdateUseCase10() throws IOException {
-		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase10").parse("sourceDep");
+		final Connector connector = new ConnectorParserUpdateManagement(
+			"connector/management/monitorTaskSourceDep/useCase10"
+		)
+			.parse("sourceDep");
 
-		final StandardMonitorJob monitorJob = (StandardMonitorJob) connector
-			.getMonitors()
-			.get("enclosure");
+		final StandardMonitorJob monitorJob = (StandardMonitorJob) connector.getMonitors().get("enclosure");
 
 		final List<Set<String>> expected = buildUseCase10MultiCollectDependency();
 
-		assertEquals(expected,  monitorJob.getCollect().getSourceDep());
+		assertEquals(expected, monitorJob.getCollect().getSourceDep());
 	}
 
 	@Test
 	void testMonitorTaskSourceDepUpdateUseCase11() throws IOException {
-		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase11").parse("sourceDep");
+		final Connector connector = new ConnectorParserUpdateManagement(
+			"connector/management/monitorTaskSourceDep/useCase11"
+		)
+			.parse("sourceDep");
 
-		final StandardMonitorJob monitorJob = (StandardMonitorJob) connector
-			.getMonitors()
-			.get("enclosure");
+		final StandardMonitorJob monitorJob = (StandardMonitorJob) connector.getMonitors().get("enclosure");
 
 		final List<Set<String>> expected = buildUseCase11MultiCollectDependency();
 
-		assertEquals(expected,  monitorJob.getCollect().getSourceDep());
+		assertEquals(expected, monitorJob.getCollect().getSourceDep());
 	}
 
 	@Test
 	void testMonitorTaskSourceDepUpdateUseCase12() throws IOException {
+		final Connector connector = new ConnectorParserUpdateManagement(
+			"connector/management/monitorTaskSourceDep/useCase12"
+		)
+			.parse("sourceDep");
 
-		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase12").parse("sourceDep");
-
-		final StandardMonitorJob monitorJob = (StandardMonitorJob) connector
-			.getMonitors()
-			.get("enclosure");
+		final StandardMonitorJob monitorJob = (StandardMonitorJob) connector.getMonitors().get("enclosure");
 
 		final List<Set<String>> expected = buildUseCase12Dependency();
 
-		assertEquals(expected,  monitorJob.getDiscovery().getSourceDep());
+		assertEquals(expected, monitorJob.getDiscovery().getSourceDep());
 	}
-
 
 	@Test
 	void testMonitorTaskSourceDepUpdateUseCase13() throws IOException {
-		final Connector connector = new ConnectorParserUpdateManagement("connector/management/monitorTaskSourceDep/useCase13").parse("sourceDep");
+		final Connector connector = new ConnectorParserUpdateManagement(
+			"connector/management/monitorTaskSourceDep/useCase13"
+		)
+			.parse("sourceDep");
 
-		final StandardMonitorJob monitorJob = (StandardMonitorJob) connector
-			.getMonitors()
-			.get("enclosure");
+		final StandardMonitorJob monitorJob = (StandardMonitorJob) connector.getMonitors().get("enclosure");
 
 		final List<Set<String>> expected = buildUseCase13Dependency();
 
-		assertEquals(expected,  monitorJob.getDiscovery().getSourceDep());
-
+		assertEquals(expected, monitorJob.getDiscovery().getSourceDep());
 	}
 
 	@Test
 	void testPreSourceDepUpdateUseCase1() throws IOException {
-		final Connector connector = new ConnectorParserUpdateManagement("connector/management/preSourceDep/useCase1").parse("sourceDep");
+		final Connector connector = new ConnectorParserUpdateManagement("connector/management/preSourceDep/useCase1")
+			.parse("sourceDep");
 
 		final List<Set<String>> expected = buildUseCase1Dependency();
 
 		assertEquals(expected, connector.getPreSourceDep());
-
 	}
 
 	@Test
 	void testPreSourceDepUpdateUseCase2() throws IOException {
-		final Connector connector = new ConnectorParserUpdateManagement("connector/management/preSourceDep/useCase2").parse("sourceDep");
+		final Connector connector = new ConnectorParserUpdateManagement("connector/management/preSourceDep/useCase2")
+			.parse("sourceDep");
 
 		final List<Set<String>> expected = buildUseCase2Dependency();
 
 		assertEquals(expected, connector.getPreSourceDep());
-
 	}
 
 	@Test
 	void testPreSourceDepUpdateUseCase3() throws IOException {
-		final Connector connector = new ConnectorParserUpdateManagement("connector/management/preSourceDep/useCase3").parse("sourceDep");
+		final Connector connector = new ConnectorParserUpdateManagement("connector/management/preSourceDep/useCase3")
+			.parse("sourceDep");
 
 		final List<Set<String>> expected = buildUseCase3Dependency();
 		assertEquals(expected, connector.getPreSourceDep());
@@ -286,7 +289,8 @@ class ConnectorParserTest {
 
 	@Test
 	void testPreSourceDepUpdateUseCase4() throws IOException {
-		final Connector connector = new ConnectorParserUpdateManagement("connector/management/preSourceDep/useCase4").parse("sourceDep");
+		final Connector connector = new ConnectorParserUpdateManagement("connector/management/preSourceDep/useCase4")
+			.parse("sourceDep");
 
 		final List<Set<String>> expected = new ArrayList<>();
 		final Set<String> level1 = new HashSet<>();
@@ -354,7 +358,7 @@ class ConnectorParserTest {
 		level4.add("source(7)");
 
 		final Set<String> level5 = new HashSet<>();
-		// tableJoin of source(6) and source(7) 
+		// tableJoin of source(6) and source(7)
 		level5.add("source(8)");
 
 		expected.add(level1);
@@ -394,7 +398,7 @@ class ConnectorParserTest {
 		// TableJoin of source(10) and source(9)
 		level4.add("source(11)");
 
-		final Set<String> level5 =  new HashSet<>();
+		final Set<String> level5 = new HashSet<>();
 		// TableUnion of source(11) and source(8)
 		level5.add("source(12)");
 
@@ -452,7 +456,7 @@ class ConnectorParserTest {
 	private List<Set<String>> buildUseCase8MultiCollectDependency() {
 		final List<Set<String>> expected = new ArrayList<>();
 		final Set<String> level1 = new HashSet<>();
-		// Copy from a host job source(6) 
+		// Copy from a host job source(6)
 		level1.add("myExternalSource");
 		// Copy of discovery source(6)
 		level1.add("source(2)");
@@ -479,7 +483,7 @@ class ConnectorParserTest {
 		final Set<String> level1 = new HashSet<>();
 		// TableUnion from foreign discovery sources
 		level1.add("myUnionSource2");
-		// Copy from a host job source(6) 
+		// Copy from a host job source(6)
 		level1.add("myExternalSource");
 		// Copy of discovery source(6)
 		level1.add("source(2)");
@@ -506,7 +510,7 @@ class ConnectorParserTest {
 		final Set<String> level1 = new HashSet<>();
 		// TableJoin from foreign discovery sources
 		level1.add("tableJoin");
-		// Copy from a host job source(6) 
+		// Copy from a host job source(6)
 		level1.add("myExternalSource");
 		// Copy of discovery source(6)
 		level1.add("source(2)");
@@ -531,7 +535,7 @@ class ConnectorParserTest {
 	private List<Set<String>> buildUseCase11MultiCollectDependency() {
 		final List<Set<String>> expected = new ArrayList<>();
 		final Set<String> level1 = new HashSet<>();
-		// Copy from a host job source(6) 
+		// Copy from a host job source(6)
 		level1.add("myExternalSource");
 		// Copy of discovery source(6)
 		level1.add("source(2)");
@@ -575,7 +579,7 @@ class ConnectorParserTest {
 		level3.add("source(7)");
 
 		final Set<String> level4 = new HashSet<>();
-		// tableJoin of source(6) and source(7) 
+		// tableJoin of source(6) and source(7)
 		level4.add("source(8)");
 
 		expected.add(level1);

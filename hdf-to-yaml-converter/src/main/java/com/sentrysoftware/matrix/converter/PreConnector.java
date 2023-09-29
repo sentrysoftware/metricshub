@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.converter;
 
+import com.sentrysoftware.matrix.converter.exception.ConnectorConverterException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,9 +22,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-
-import com.sentrysoftware.matrix.converter.exception.ConnectorConverterException;
-
 import lombok.Data;
 import lombok.Getter;
 import lombok.NonNull;
@@ -38,16 +36,22 @@ public class PreConnector {
 
 	@Getter
 	private Map<String, String> codeMap = new LinkedHashMap<>();
+
 	@Getter
 	private Map<String, String> embeddedFiles = new HashMap<>();
+
 	@Getter
 	private Map<String, Map<String, String>> translationTables = new HashMap<>();
+
 	@Getter
 	private List<String> problemList = new ArrayList<>();
+
 	@Getter
 	private Map<String, String> constants = new HashMap<>();
+
 	@Getter
 	private Set<String> extendedConnectors = new LinkedHashSet<>();
+
 	@Getter
 	private Map<String, List<String>> comments = new HashMap<>();
 
@@ -56,7 +60,10 @@ public class PreConnector {
 	 * <li>group(1): whole statement
 	 * <li>group(2): included file
 	 */
-	private static final Pattern INCLUDE_PATTERN = Pattern.compile("^(\\s*#include\\s+\"?(\\S+?)\"?\\s*)$", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+	private static final Pattern INCLUDE_PATTERN = Pattern.compile(
+		"^(\\s*#include\\s+\"?(\\S+?)\"?\\s*)$",
+		Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
+	);
 
 	/**
 	 * Pattern to detect <code>#define</code> statements
@@ -64,20 +71,29 @@ public class PreConnector {
 	 * <li>group(3): constant value without trailing and leading double quotes.
 	 * <li>group(4): constant value.
 	 */
-	private static final Pattern DEFINE_PATTERN = Pattern.compile("^\\s*#define\\s+(\\w+)\\s+(\"(.+?)\"|(.+?))\\s*$", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+	private static final Pattern DEFINE_PATTERN = Pattern.compile(
+		"^\\s*#define\\s+(\\w+)\\s+(\"(.+?)\"|(.+?))\\s*$",
+		Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
+	);
 
 	/**
 	 * Pattern to detect <code>EmbeddedFile(n):</code> blocks
 	 * <li>group(1): embedded file number
 	 * <li>group(2): embedded file content
 	 */
-	private static final Pattern EMBEDDEDFILE_PATTERN = Pattern.compile("\\n\\s*EmbeddedFile\\((\\d+)\\):\\s*\\n(.*)\\n\\s*EmbeddedFile\\(\\1\\)\\.End", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+	private static final Pattern EMBEDDEDFILE_PATTERN = Pattern.compile(
+		"\\n\\s*EmbeddedFile\\((\\d+)\\):\\s*\\n(.*)\\n\\s*EmbeddedFile\\(\\1\\)\\.End",
+		Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL
+	);
 
 	/**
 	 * Pattern to detect broken <code>EmbeddedFile</code> blocks
 	 * <li>group(1): mismatching embedded file reference
 	 */
-	private static final Pattern MISMATCHING_EMBEDDEDFILE_PATTERN = Pattern.compile("\\n\\s*(EmbeddedFile\\(\\d+\\))(:|\\.End)", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+	private static final Pattern MISMATCHING_EMBEDDEDFILE_PATTERN = Pattern.compile(
+		"\\n\\s*(EmbeddedFile\\(\\d+\\))(:|\\.End)",
+		Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
+	);
 
 	/**
 	 * Pattern to detect {@code <entry>=<value>} entries
@@ -89,14 +105,20 @@ public class PreConnector {
 	/**
 	 * Pattern to detect translation table names
 	 */
-	private static final Pattern TRANSLATION_TABLE_NAME_PATTERN = Pattern.compile("^\\s*(\\w+)\\((.*?)\\)\\s*=\\s*(.*?)\\s*$", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+	private static final Pattern TRANSLATION_TABLE_NAME_PATTERN = Pattern.compile(
+		"^\\s*(\\w+)\\((.*?)\\)\\s*=\\s*(.*?)\\s*$",
+		Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
+	);
 
 	/**
 	 * Pattern to remove comments (see https://regex101.com/r/QtclAQ/1)
-	 * 
-	 * Pattern to detect comments located before empty line and before a key-value pair (connector code) 
+	 *
+	 * Pattern to detect comments located before empty line and before a key-value pair (connector code)
 	 */
-	private static final Pattern CODE_COMMENT_PATTERN = Pattern.compile("(((['\"])(?:(?!\\2|\\\\).|\\\\.)*+\\2)|\\/\\/[^\\n]*|\\/\\*(?:[^*]|\\*(?!\\/))*+\\*\\/)|(^\\s*$)|^\\s*(.*?)\\s*=\\s*(.*?)\\s*$", Pattern.MULTILINE);
+	private static final Pattern CODE_COMMENT_PATTERN = Pattern.compile(
+		"(((['\"])(?:(?!\\2|\\\\).|\\\\.)*+\\2)|\\/\\/[^\\n]*|\\/\\*(?:[^*]|\\*(?!\\/))*+\\*\\/)|(^\\s*$)|^\\s*(.*?)\\s*=\\s*(.*?)\\s*$",
+		Pattern.MULTILINE
+	);
 
 	/**
 	 * Pattern to remove comments (see https://regex101.com/r/vI2iW5/1)
@@ -104,15 +126,20 @@ public class PreConnector {
 	 * Usage:
 	 * {@code REMOVE_COMMENTS_PATTERN.matcher(code).replaceAll("$1")}
 	 */
-	private static final Pattern REMOVE_COMMENTS_PATTERN = Pattern.compile("((['\"])(?:(?!\\2|\\\\).|\\\\.)*\\2)|\\/\\/[^\\n]*|\\/\\*(?:[^*]|\\*(?!\\/))*\\*\\/");
+	private static final Pattern REMOVE_COMMENTS_PATTERN = Pattern.compile(
+		"((['\"])(?:(?!\\2|\\\\).|\\\\.)*\\2)|\\/\\/[^\\n]*|\\/\\*(?:[^*]|\\*(?!\\/))*\\*\\/"
+	);
 
 	/**
 	 * Map each HDF status value with the corresponding OpenTelemetry state
 	 */
 	private static final Map<String, String> HDF_STATUS_TO_OTEL_STATE = Map.of(
-		"OK", "ok",
-		"WARN", "degraded",
-		"ALARM", "failed"
+		"OK",
+		"ok",
+		"WARN",
+		"degraded",
+		"ALARM",
+		"failed"
 	);
 
 	/**
@@ -126,7 +153,6 @@ public class PreConnector {
 	 *                                  Connector file
 	 */
 	public void load(String filePath) throws IOException {
-
 		load(new File(filePath));
 	}
 
@@ -141,10 +167,11 @@ public class PreConnector {
 	 *                                     Connector file
 	 */
 	public void load(@NonNull File hdfFile) throws IOException {
-
 		// Sanity check
 		if (!hdfFile.exists()) {
-			throw new ConnectorConverterException(String.format("Specified file %s does not exist", hdfFile.getAbsolutePath()));
+			throw new ConnectorConverterException(
+				String.format("Specified file %s does not exist", hdfFile.getAbsolutePath())
+			);
 		}
 
 		// Get an InputStream from the specified File, and load
@@ -161,9 +188,7 @@ public class PreConnector {
 	 * @throws IOException              when there is a problem while reading the
 	 *                                  Connector file
 	 */
-	public void load(@NonNull InputStream hdfStream)
-			throws IOException {
-
+	public void load(@NonNull InputStream hdfStream) throws IOException {
 		String rawCode = buildRawCode(hdfStream);
 
 		// Process code comments
@@ -195,7 +220,6 @@ public class PreConnector {
 	}
 
 	private String buildRawCode(InputStream hdfStream) throws IOException {
-
 		try (BufferedReader sourceReader = new BufferedReader(new InputStreamReader(hdfStream))) {
 			return sourceReader.lines().collect(Collectors.joining("\n"));
 		}
@@ -204,7 +228,7 @@ public class PreConnector {
 	/**
 	 * Search the <em>#include key</em> entries and update the extendedConnector set. This method discards the
 	 * <em>#include</em> entry from the resulting raw code.
-	 * 
+	 *
 	 * @param rawCode Connector's raw code
 	 * @return raw code as string value
 	 */
@@ -224,12 +248,11 @@ public class PreConnector {
 	 * Search the <em>#define key value</em> entries and update the constants key-value pair. This method discards the
 	 * <em>#define</em> entry from the resulting raw code.<br>
 	 * This method discards trailing and leading double quotes that could be defined in the constant value.
-	 * 
+	 *
 	 * @param rawCode Connector's raw code
 	 * @return raw code as string value
 	 */
 	String processDefineDirectives(String rawCode) {
-
 		Matcher defineMatcher = DEFINE_PATTERN.matcher(rawCode);
 		StringBuffer tempRawCode = new StringBuffer();
 
@@ -252,21 +275,17 @@ public class PreConnector {
 	 * Processes each value to replace <em>\\n</em> and <em>\\t</em> with <em>\n</em> and <em>\t</em>.<br>
 	 * Processes each value to replace two double quotes <em>""</em> with only one double quotes
 	 * <em>"</em>.
-	 * 
+	 *
 	 * @param rawCode Connector's raw code
 	 */
 	void processCode(String rawCode) {
-
 		Matcher codeMatcher = CODE_PATTERN.matcher(rawCode);
 
 		while (codeMatcher.find()) {
 			String value = codeMatcher.group(2).trim();
 
 			value = replaceQuotes(value);
-			value = value
-				.replace("\\t", "\t")
-				.replace("\\n", "\n")
-				.replace("\"\"", "\"");
+			value = value.replace("\\t", "\t").replace("\\n", "\n").replace("\"\"", "\"");
 
 			put(codeMatcher.group(1), value);
 		}
@@ -274,7 +293,7 @@ public class PreConnector {
 
 	/**
 	 * Removes leading and following quotes.
-	 * 
+	 *
 	 * @param value
 	 * @return String without leading and following quotes.
 	 */
@@ -293,12 +312,11 @@ public class PreConnector {
 	 * Process code comments.<br>
 	 * Only comments stacked on a code entry are considered.<br>
 	 * Comments are removed at the end.
-	 * 
+	 *
 	 * @param rawCode
 	 * @return {@link String} value
 	 */
 	String processComments(String rawCode) {
-
 		List<String> list = new LinkedList<>();
 
 		Matcher defineMatcher = CODE_COMMENT_PATTERN.matcher(rawCode);
@@ -313,11 +331,12 @@ public class PreConnector {
 			if (group0 != null && group4 == null && group5 == null) {
 				final List<String> lines = Stream
 					.of(group0.split("\n"))
-					.map(line -> line
-						.replaceAll("^\\s*\\/\\/\\s?", "")
-						.replaceAll("^\\s*\\/\\*+\\s?", "")
-						.replaceAll("\\s?\\*+\\/\\s*$", "")
-						.replaceAll("^\\s*\\*+\\s?", "")
+					.map(line ->
+						line
+							.replaceAll("^\\s*\\/\\/\\s?", "")
+							.replaceAll("^\\s*\\/\\*+\\s?", "")
+							.replaceAll("\\s?\\*+\\/\\s*$", "")
+							.replaceAll("^\\s*\\*+\\s?", "")
 					)
 					.toList();
 
@@ -342,17 +361,15 @@ public class PreConnector {
 
 	/**
 	 * Remove any comment
-	 * 
+	 *
 	 * @param rawCode
 	 * @return code without comments
 	 */
 	private String removeComments(String rawCode) {
-
 		return REMOVE_COMMENTS_PATTERN.matcher(rawCode).replaceAll("$1");
 	}
 
 	void detectRemainingEmbeddedFiles(String rawCode) {
-
 		Matcher remainingEmbeddedFileMatcher = MISMATCHING_EMBEDDEDFILE_PATTERN.matcher(rawCode);
 
 		while (remainingEmbeddedFileMatcher.find()) {
@@ -361,7 +378,6 @@ public class PreConnector {
 	}
 
 	private String processEmbeddedFiles(String rawCode) {
-
 		Matcher embeddedFileMatcher = EMBEDDEDFILE_PATTERN.matcher(rawCode);
 		StringBuffer tempRawCode = new StringBuffer();
 
@@ -372,7 +388,7 @@ public class PreConnector {
 			embeddedFileContent = embeddedFileContent.replace("\t", "    ");
 
 			// EmbeddedFiles index is the key
-			embeddedFiles.put(String.format("EmbeddedFile(%s)",embeddedFileIndex) , embeddedFileContent);
+			embeddedFiles.put(String.format("EmbeddedFile(%s)", embeddedFileIndex), embeddedFileContent);
 
 			embeddedFileMatcher.appendReplacement(tempRawCode, "");
 		}
@@ -382,12 +398,11 @@ public class PreConnector {
 
 	/**
 	 * Parse each translationTable line and build corresponding global translationTable map.
-	 * 
+	 *
 	 * @param rawCode
 	 * @return String
 	 */
 	private String processTranslationTables(String rawCode) {
-
 		Matcher matcher = TRANSLATION_TABLE_NAME_PATTERN.matcher(rawCode);
 
 		StringBuffer tempRawCode = new StringBuffer();
@@ -395,9 +410,10 @@ public class PreConnector {
 		while (matcher.find()) {
 			String tableName = matcher.group(1);
 			translationTables.computeIfAbsent(tableName, k -> new HashMap<>());
-			translationTables.get(tableName).put(replaceQuotes(matcher.group(2)), convertHdfStatusToOtelState(replaceQuotes(matcher.group(3))));
+			translationTables
+				.get(tableName)
+				.put(replaceQuotes(matcher.group(2)), convertHdfStatusToOtelState(replaceQuotes(matcher.group(3))));
 			matcher.appendReplacement(tempRawCode, "");
-
 		}
 
 		return matcher.appendTail(tempRawCode).toString();
@@ -405,15 +421,12 @@ public class PreConnector {
 
 	/**
 	 * Converts status values from HDF semantics to OpenTelemetry semantics.
-	 * 
+	 *
 	 * @param translatedValue
 	 * @return OpenTelemetry status values if applicable, otherwise retain original translation value.
 	 */
 	private String convertHdfStatusToOtelState(String translatedValue) {
-		return HDF_STATUS_TO_OTEL_STATE.getOrDefault(
-			translatedValue,
-			translatedValue
-		);
+		return HDF_STATUS_TO_OTEL_STATE.getOrDefault(translatedValue, translatedValue);
 	}
 
 	/**
@@ -426,7 +439,6 @@ public class PreConnector {
 	 * @return The value of the specified key
 	 */
 	public String get(String key) {
-
 		return codeMap.get(key.toLowerCase());
 	}
 
@@ -446,7 +458,6 @@ public class PreConnector {
 	 *         not found
 	 */
 	public String getOrDefault(String key, String defaultValue) {
-
 		return codeMap.getOrDefault(key.toLowerCase(), defaultValue);
 	}
 
@@ -459,7 +470,6 @@ public class PreConnector {
 	 *              The value to set for the specified key
 	 */
 	public void put(String key, String value) {
-
 		codeMap.put(key.toLowerCase(), value);
 	}
 
@@ -469,7 +479,6 @@ public class PreConnector {
 	 * @return a the entire code map
 	 */
 	public Set<Entry<String, String>> entrySet() {
-
 		return codeMap.entrySet();
 	}
 
@@ -523,7 +532,6 @@ public class PreConnector {
 	 * @return The sorted code map.
 	 */
 	static Map<String, String> sortCodeMap(final Map<String, String> codeMap) {
-
 		if (codeMap == null || codeMap.isEmpty()) {
 			return codeMap;
 		}
@@ -531,25 +539,29 @@ public class PreConnector {
 		final Map<String, List<ConnectorEntry>> connectorEntries = new LinkedHashMap<>();
 
 		final String[] keys = codeMap.keySet().toArray(new String[0]);
-		
+
 		// Group all by the entry types.
-		IntStream.range(0, keys.length)
-		.mapToObj(index -> new ConnectorEntry(index, keys[index], codeMap.get(keys[index])))
-		.forEach(connectorEntry -> 
-			connectorEntries.computeIfAbsent(connectorEntry.extractEntryType(), key -> new ArrayList<>())
-			.add(connectorEntry)
-		);
+		IntStream
+			.range(0, keys.length)
+			.mapToObj(index -> new ConnectorEntry(index, keys[index], codeMap.get(keys[index])))
+			.forEach(connectorEntry ->
+				connectorEntries
+					.computeIfAbsent(connectorEntry.extractEntryType(), key -> new ArrayList<>())
+					.add(connectorEntry)
+			);
 
 		// Sort the code map with the keys sorted inside the entry type groups
 		return connectorEntries
 			.entrySet()
 			.stream()
 			.flatMap(entry -> entry.getValue().stream().sorted(PreConnector::compareCodeMap))
-			.collect(Collectors.toMap(
-				connectorEntry -> connectorEntry.getKey(),
-				connectorEntry -> connectorEntry.getValue(),
-				(connectorEntry1, connectorEntry2) -> connectorEntry1,
-				LinkedHashMap::new)
+			.collect(
+				Collectors.toMap(
+					connectorEntry -> connectorEntry.getKey(),
+					connectorEntry -> connectorEntry.getValue(),
+					(connectorEntry1, connectorEntry2) -> connectorEntry1,
+					LinkedHashMap::new
+				)
 			);
 	}
 
@@ -601,13 +613,12 @@ public class PreConnector {
 	 * </p>
 	 * @param connectorEntry1
 	 * @param connectorEntry2
-	 * @return 
+	 * @return
 	 * 		<li>Inferior to zero if connectorEntry1 is before connectorEntry2</li>
 	 * 		<li>Superior to zero if connectorEntry1 is after connectorEntry2</li>
 	 * 		<li>Zero if both are equals</li>
 	 */
 	static int compareCodeMap(final ConnectorEntry connectorEntry1, final ConnectorEntry connectorEntry2) {
-
 		if (connectorEntry1 == null && connectorEntry2 == null) {
 			return IS_EQUAL;
 		}
@@ -631,10 +642,9 @@ public class PreConnector {
 
 		// Case Detection
 		final OptionalInt maybeDetection = compareDetectionConnectorEntries(connectorEntry1, connectorEntry2);
-		return maybeDetection.isPresent() ?
-			maybeDetection.getAsInt() :
-			// Case Source
-			compareSourceConnectorEntries(connectorEntry1, connectorEntry2);
+		return maybeDetection.isPresent()
+			? maybeDetection.getAsInt()
+			: compareSourceConnectorEntries(connectorEntry1, connectorEntry2); // Case Source
 	}
 
 	/**
@@ -658,10 +668,10 @@ public class PreConnector {
 	 * 		</ul>
 	 * 		<li>An Empty optional otherwise if it's not a Detection entry type</li>
 	 */
-	static OptionalInt compareDetectionConnectorEntries( // NOSONAR
-			final ConnectorEntry connectorEntry1,
-			final ConnectorEntry connectorEntry2) {
-
+	static OptionalInt compareDetectionConnectorEntries(
+		final ConnectorEntry connectorEntry1,
+		final ConnectorEntry connectorEntry2
+	) {
 		final OptionalInt maybeDetection1 = connectorEntry1.extractDetectionIndex();
 		final OptionalInt maybeDetection2 = connectorEntry2.extractDetectionIndex();
 
@@ -698,11 +708,9 @@ public class PreConnector {
 		}
 
 		if (maybeDetectionStep1.isPresent() && maybeDetectionStep2.isPresent()) {
-
 			// step index different => compare step index
 			if (maybeDetectionStep1.getAsInt() != maybeDetectionStep2.getAsInt()) {
-				return OptionalInt.of(Integer.compare(maybeDetectionStep1.getAsInt(), maybeDetectionStep2.getAsInt())
-				);
+				return OptionalInt.of(Integer.compare(maybeDetectionStep1.getAsInt(), maybeDetectionStep2.getAsInt()));
 			}
 
 			//type before
@@ -739,13 +747,12 @@ public class PreConnector {
 	 * </p>
 	 * @param connectorEntry1
 	 * @param connectorEntry2
-	 * @return 
+	 * @return
 	 * 		<li>Inferior to zero if connectorEntry1 is before connectorEntry2</li>
 	 * 		<li>Superior to zero if connectorEntry1 is after connectorEntry2</li>
 	 * 		<li>Zero if both are equals</li>
 	 */
 	static int compareSourceConnectorEntries(final ConnectorEntry connectorEntry1, final ConnectorEntry connectorEntry2) { //NOSONAR
-
 		final boolean hasDiscovery1 = connectorEntry1.hasDiscovery();
 		final boolean hasDiscovery2 = connectorEntry2.hasDiscovery();
 		final boolean hasCollect1 = connectorEntry1.hasCollect();
@@ -790,8 +797,9 @@ public class PreConnector {
 		final OptionalInt maybeCompute2 = connectorEntry2.extractComputeIndex();
 
 		// Only source
-		if (maybeSourceStep1.isEmpty() && maybeSourceStep2.isEmpty() && maybeCompute1.isEmpty() && maybeCompute2.isEmpty()) {
-
+		if (
+			maybeSourceStep1.isEmpty() && maybeSourceStep2.isEmpty() && maybeCompute1.isEmpty() && maybeCompute2.isEmpty()
+		) {
 			// Reference before
 			final boolean hasSourceReference1 = connectorEntry1.hasSourceReference();
 			final boolean hasSourceReference2 = connectorEntry2.hasSourceReference();
@@ -805,7 +813,6 @@ public class PreConnector {
 			}
 
 			return Integer.compare(connectorEntry1.getOriginalIndex(), connectorEntry2.getOriginalIndex());
-
 		}
 
 		if (maybeSourceStep1.isEmpty() && maybeCompute1.isEmpty()) {
@@ -818,7 +825,6 @@ public class PreConnector {
 
 		// Source Step
 		if (maybeSourceStep1.isPresent() && maybeSourceStep2.isPresent()) {
-
 			// step index different => compare step index
 			if (maybeSourceStep1.getAsInt() != maybeSourceStep2.getAsInt()) {
 				return Integer.compare(maybeSourceStep1.getAsInt(), maybeSourceStep2.getAsInt());
@@ -826,11 +832,10 @@ public class PreConnector {
 
 			// Type before
 			if (hasType1 ^ hasType2) {
-				return hasType1? IS_BEFORE : IS_AFTER;
+				return hasType1 ? IS_BEFORE : IS_AFTER;
 			}
 
 			return Integer.compare(connectorEntry1.getOriginalIndex(), connectorEntry2.getOriginalIndex());
-
 		}
 
 		if (maybeSourceStep1.isPresent()) {
@@ -841,7 +846,7 @@ public class PreConnector {
 			return IS_AFTER;
 		}
 
-		// Source Compute	
+		// Source Compute
 
 		// compute index different => compare compute index
 		if (maybeCompute1.getAsInt() != maybeCompute2.getAsInt()) {
@@ -863,10 +868,7 @@ public class PreConnector {
 		private final String key;
 		private final String value;
 
-		private static final Pattern HDF_PATTERN = Pattern.compile(
-			"^\\s*Hdf\\..+\\s*$",
-			Pattern.CASE_INSENSITIVE
-		);
+		private static final Pattern HDF_PATTERN = Pattern.compile("^\\s*Hdf\\..+\\s*$", Pattern.CASE_INSENSITIVE);
 
 		private static final Pattern DISCOVERY_PATTERN = Pattern.compile(
 			"^\\s*.+\\.Discovery\\..+\\s*$",
@@ -878,10 +880,7 @@ public class PreConnector {
 			Pattern.CASE_INSENSITIVE
 		);
 
-		private static final Pattern TYPE_PATTERN = Pattern.compile(
-			"^\\s*.+\\.Type\\s*$",
-			Pattern.CASE_INSENSITIVE
-		);
+		private static final Pattern TYPE_PATTERN = Pattern.compile("^\\s*.+\\.Type\\s*$", Pattern.CASE_INSENSITIVE);
 
 		private static final Pattern DETECTION_PATTERN = Pattern.compile(
 			"^\\s*Detection\\.Criteria\\(([1-9]\\d*)\\).*\\s*$",
@@ -978,7 +977,7 @@ public class PreConnector {
 		OptionalInt extractDetectionStepIndex() {
 			return extractIndex(DETECTION_STEP_PATTERN);
 		}
-	
+
 		/**
 		 * Extract the source index from the key.
 		 * @return An Optional with the source index. Optional empty if the index has not been found.
@@ -986,7 +985,7 @@ public class PreConnector {
 		OptionalInt extractSourceIndex() {
 			return extractIndex(SOURCE_PATTERN);
 		}
-		
+
 		/**
 		 * Extract the source step index from the key.
 		 * @return An Optional with the source step index. Optional empty if the index has not been found.
@@ -994,7 +993,7 @@ public class PreConnector {
 		OptionalInt extractSourceStepIndex() {
 			return extractIndex(SOURCE_STEP_PATTERN);
 		}
-		
+
 		/**
 		 * Extract the compute index from the key.
 		 * @return An Optional with the compute index. Optional empty if the index has not been found.
@@ -1018,11 +1017,8 @@ public class PreConnector {
 		 * @return An Optional with the index. Optional empty if the index has not been found.
 		 */
 		private OptionalInt extractIndex(final Pattern pattern) {
-			final Matcher matcher =  pattern.matcher(key);
-			return matcher.find() ?
-				OptionalInt.of(Integer.parseInt(matcher.group(1))) :
-				OptionalInt.empty();
+			final Matcher matcher = pattern.matcher(key);
+			return matcher.find() ? OptionalInt.of(Integer.parseInt(matcher.group(1))) : OptionalInt.empty();
 		}
 	}
-
 }

@@ -4,14 +4,12 @@ import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
-import java.util.StringJoiner;
-import java.util.function.UnaryOperator;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.sentrysoftware.matrix.strategy.source.compute.IComputeProcessor;
-
+import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -29,7 +27,7 @@ public class Add extends Compute {
 	@JsonSetter(nulls = FAIL)
 	private Integer column;
 
-	// Number value or Column(n), hence the String type 
+	// Number value or Column(n), hence the String type
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	private String value;
@@ -37,11 +35,10 @@ public class Add extends Compute {
 	@Builder
 	@JsonCreator
 	public Add(
-		@JsonProperty("type") String type, 
+		@JsonProperty("type") String type,
 		@JsonProperty(value = "column", required = true) @NonNull Integer column,
 		@JsonProperty(value = "value", required = true) @NonNull String value
 	) {
-
 		super(type);
 		this.column = column;
 		this.value = value;
@@ -61,12 +58,7 @@ public class Add extends Compute {
 
 	@Override
 	public Add copy() {
-		return Add
-			.builder()
-			.type(type)
-			.column(column)
-			.value(value)
-			.build();
+		return Add.builder().type(type).column(column).value(value).build();
 	}
 
 	@Override
@@ -78,5 +70,4 @@ public class Add extends Compute {
 	public void accept(IComputeProcessor computeProcessor) {
 		computeProcessor.process(this);
 	}
-
 }

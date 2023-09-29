@@ -4,14 +4,12 @@ import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
-import java.util.StringJoiner;
-import java.util.function.UnaryOperator;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.sentrysoftware.matrix.strategy.source.compute.IComputeProcessor;
-
+import java.util.StringJoiner;
+import java.util.function.UnaryOperator;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -32,10 +30,9 @@ public class DuplicateColumn extends Compute {
 	@Builder
 	@JsonCreator
 	public DuplicateColumn(
-		@JsonProperty("type") String type, 
+		@JsonProperty("type") String type,
 		@JsonProperty(value = "column", required = true) @NonNull Integer column
 	) {
-
 		super(type);
 		this.column = column;
 	}
@@ -53,11 +50,7 @@ public class DuplicateColumn extends Compute {
 
 	@Override
 	public DuplicateColumn copy() {
-		return DuplicateColumn
-			.builder()
-			.type(type)
-			.column(column)
-			.build();
+		return DuplicateColumn.builder().type(type).column(column).build();
 	}
 
 	@Override

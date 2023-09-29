@@ -1,7 +1,6 @@
 package com.sentrysoftware.matrix.strategy;
 
-import java.util.List;
-import java.util.function.Supplier;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.LOG_COMPUTE_KEY_SUFFIX_TEMPLATE;
 
 import com.sentrysoftware.matrix.common.JobInfo;
 import com.sentrysoftware.matrix.common.exception.RetryableException;
@@ -18,7 +17,9 @@ import com.sentrysoftware.matrix.strategy.source.compute.ComputeUpdaterProcessor
 import com.sentrysoftware.matrix.strategy.utils.ForceSerializationHelper;
 import com.sentrysoftware.matrix.strategy.utils.RetryOperation;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-
+import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -33,13 +34,14 @@ public abstract class AbstractStrategy implements IStrategy {
 
 	@NonNull
 	protected TelemetryManager telemetryManager;
+
 	protected long strategyTime;
+
 	@NonNull
 	protected MatsyaClientsExecutor matsyaClientsExecutor;
 
 	private static final String COMPUTE = "compute";
 	private static final String SOURCE = "source";
-	private static final String LOG_COMPUTE_KEY_SUFFIX_TEMPLATE = "%s -> computes[%d]";
 
 	/**
 	 * Execute each source in the given list of sources then for each source table apply all the attached computes.
@@ -48,45 +50,40 @@ public abstract class AbstractStrategy implements IStrategy {
 	 * @param sources The {@link List} of {@link Source} instances we wish to execute
 	 * @param jobInfo Information about the job such as hostname, monitorType, job name and connectorName.
 	 */
-	protected void processSourcesAndComputes(
-		final List<Source> sources,
-		final JobInfo jobInfo
-	) {
-
-		processSourcesAndComputes(
-			sources,
-			null,
-			jobInfo
-		);
+	protected void processSourcesAndComputes(final List<Source> sources, final JobInfo jobInfo) {
+		processSourcesAndComputes(sources, null, jobInfo);
 	}
 
 	/**
 	 * Execute each source in the given list of sources then for each source table apply all the attached computes.
 	 * When the {@link SourceTable} is ready it is added to {@link TelemetryManager}
 	 *
-	 * @param sources   The {@link List} of {@link Source} instances we wish to execute
-	 * @param monitorId The monitor identifier used in the mono instance processing
-	 * @param jobInfo   Information about the job such as hostname, monitorType, job name and connectorName.
+	 * @param sources    The {@link List} of {@link Source} instances we wish to execute
+	 * @param attributes Key-value pairs of the monitor's attributes used in the mono instance processing
+	 * @param jobInfo    Information about the job such as hostname, monitorType, job name and connectorName.
 	 */
 	protected void processSourcesAndComputes(
 		final List<Source> sources,
-		final String monitorId,
+		final Map<String, String> attributes,
 		final JobInfo jobInfo
 	) {
-
 		final String connectorName = jobInfo.getConnectorName();
 		final String monitorType = jobInfo.getMonitorType();
 		final String hostname = jobInfo.getHostname();
 
 		if (sources == null || sources.isEmpty()) {
-			log.debug("Hostname {} - No sources found from connector {} with monitor {}.", hostname, connectorName , monitorType);
+			log.debug(
+				"Hostname {} - No sources found from connector {} with monitor {}.",
+				hostname,
+				connectorName,
+				monitorType
+			);
 			return;
 		}
 
 		// Loop over all the sources and accept the SourceProcessor which is going to
 		// process the source
 		for (final Source source : sources) {
-
 			final String sourceKey = source.getKey();
 
 			logBeginOperation(SOURCE, source, sourceKey, connectorName, hostname);
@@ -106,10 +103,11 @@ public abstract class AbstractStrategy implements IStrategy {
 				.withDescription(String.format("%s [%s]", SOURCE, sourceKey))
 				.withHostname(hostname)
 				.build()
-				.run(() -> runSource(connectorName, monitorId, source, previousSourceTable));
+				.run(() -> runSource(connectorName, attributes, source, previousSourceTable));
 
 			if (sourceTable == null) {
-				log.warn("Hostname {} - Received null source table for Source key {} - Connector {} - Monitor {}.",
+				log.warn(
+					"Hostname {} - Received null source table for Source key {} - Connector {} - Monitor {}.",
 					hostname,
 					sourceKey,
 					connectorName,
@@ -119,14 +117,7 @@ public abstract class AbstractStrategy implements IStrategy {
 			}
 
 			// log the source table
-			logSourceTable(
-				SOURCE,
-				source.getClass().getSimpleName(),
-				sourceKey,
-				connectorName,
-				sourceTable,
-				hostname
-			);
+			logSourceTable(SOURCE, source.getClass().getSimpleName(), sourceKey, connectorName, sourceTable, hostname);
 
 			final List<Compute> computes = source.getComputes();
 
@@ -152,29 +143,19 @@ public abstract class AbstractStrategy implements IStrategy {
 			final ComputeUpdaterProcessor computeUpdaterProcessor = ComputeUpdaterProcessor
 				.builder()
 				.computeProcessor(computeProcessor)
-				.monitorId(monitorId)
+				.attributes(attributes)
 				.connectorName(connectorName)
 				.telemetryManager(telemetryManager)
 				.build();
 
 			// Loop over the computes to process each compute
 			for (int index = 0; index < computes.size(); index++) {
-
 				final Compute compute = computes.get(index);
+				computeProcessor.setIndex(index);
 
-				final String computeKey = String.format(
-					LOG_COMPUTE_KEY_SUFFIX_TEMPLATE,
-					sourceKey,
-					index
-				);
+				final String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, index);
 
-				logBeginOperation(
-					COMPUTE,
-					compute,
-					computeKey,
-					connectorName,
-					hostname
-				);
+				logBeginOperation(COMPUTE, compute, computeKey, connectorName, hostname);
 
 				// process the compute
 				compute.accept(computeUpdaterProcessor);
@@ -194,14 +175,12 @@ public abstract class AbstractStrategy implements IStrategy {
 				.getHostProperties()
 				.getConnectorNamespace(connectorName)
 				.addSourceTable(sourceKey, computeProcessor.getSourceTable());
-
 		}
-
 	}
 
 	/**
 	 * Whether the given source table is empty or not
-	 * 
+	 *
 	 * @param sourceTable The result produced after executing a source
 	 * @return boolean value
 	 */
@@ -213,20 +192,20 @@ public abstract class AbstractStrategy implements IStrategy {
 	 * Execute the given source. If the source is marked as serializable
 	 * (ForceSerialization) The execution will be performed through
 	 * <code>forceSerialization(...)</code> method.
-	 * 
+	 *
 	 * @param connectorCompiledFilename The connector compiled filename we currently process
-	 * @param monitorId                 The monitor identifier used in the mono instance processing
+	 * @param attributes                Key-value pairs of the monitor's attributes used
+	 *                                  in the mono instance processing
 	 * @param source                    The source we want to run
 	 * @param previousSourceTable       The source result produced in the past
 	 * @return new {@link SourceTable} instance
 	 */
 	private SourceTable runSource(
 		final String connectorCompiledFilename,
-		final String monitorId,
+		final Map<String, String> attributes,
 		final Source source,
 		final SourceTable previousSourceTable
 	) {
-
 		final ISourceProcessor sourceProcessor = SourceProcessor
 			.builder()
 			.connectorName(connectorCompiledFilename)
@@ -234,23 +213,24 @@ public abstract class AbstractStrategy implements IStrategy {
 			.telemetryManager(telemetryManager)
 			.build();
 
-		final Supplier<SourceTable> executable = () -> source.accept(
-			SourceUpdaterProcessor
-				.builder()
-				.connectorName(connectorCompiledFilename)
-				.sourceProcessor(sourceProcessor)
-				.telemetryManager(telemetryManager)
-				.monitorId(monitorId)
-				.build()
-		);
+		final Supplier<SourceTable> executable = () ->
+			source.accept(
+				SourceUpdaterProcessor
+					.builder()
+					.connectorName(connectorCompiledFilename)
+					.sourceProcessor(sourceProcessor)
+					.telemetryManager(telemetryManager)
+					.attributes(attributes)
+					.build()
+			);
 
 		// Process the source to get a source table
 
 		final SourceTable sourceTable;
 
 		if (source.isForceSerialization()) {
-			sourceTable = ForceSerializationHelper
-				.forceSerialization(
+			sourceTable =
+				ForceSerializationHelper.forceSerialization(
 					executable,
 					telemetryManager,
 					connectorCompiledFilename,
@@ -268,7 +248,6 @@ public abstract class AbstractStrategy implements IStrategy {
 		}
 
 		return sourceTable;
-
 	}
 
 	/**
@@ -289,12 +268,12 @@ public abstract class AbstractStrategy implements IStrategy {
 		final String connectorName,
 		final String hostname
 	) {
-
 		if (!log.isInfoEnabled()) {
 			return;
 		}
 
-		log.info("Hostname {} - Begin {} [{} {}] for hardware connector [{}]:\n{}\n",
+		log.info(
+			"Hostname {} - Begin {} [{} {}] for hardware connector [{}]:\n{}\n",
 			hostname,
 			operationTag,
 			execution.getClass().getSimpleName(),
@@ -322,14 +301,14 @@ public abstract class AbstractStrategy implements IStrategy {
 		final SourceTable sourceTable,
 		final String hostname
 	) {
-
 		if (!log.isInfoEnabled()) {
 			return;
 		}
 
 		// Is there any raw data to log?
 		if (sourceTable.getRawData() != null && (sourceTable.getTable() == null || sourceTable.getTable().isEmpty())) {
-			log.info("Hostname {} - End of {} [{} {}] for hardware connector [{}].\nRaw result:\n{}\n",
+			log.info(
+				"Hostname {} - End of {} [{} {}] for hardware connector [{}].\nRaw result:\n{}\n",
 				hostname,
 				operationTag,
 				executionClassName,
@@ -341,7 +320,8 @@ public abstract class AbstractStrategy implements IStrategy {
 		}
 
 		if (sourceTable.getRawData() == null) {
-			log.info("Hostname {} - End of {} [{} {}] for hardware connector [{}].\nTable result:\n{}\n",
+			log.info(
+				"Hostname {} - End of {} [{} {}] for hardware connector [{}].\nTable result:\n{}\n",
 				hostname,
 				operationTag,
 				executionClassName,
@@ -352,7 +332,8 @@ public abstract class AbstractStrategy implements IStrategy {
 			return;
 		}
 
-		log.info("Hostname {} - End of {} [{} {}] for hardware connector [{}].\nRaw result:\n{}\nTable result:\n{}\n",
+		log.info(
+			"Hostname {} - End of {} [{} {}] for hardware connector [{}].\nRaw result:\n{}\nTable result:\n{}\n",
 			hostname,
 			operationTag,
 			executionClassName,
@@ -361,7 +342,5 @@ public abstract class AbstractStrategy implements IStrategy {
 			sourceTable.getRawData(),
 			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable())
 		);
-
 	}
-
 }

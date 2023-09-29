@@ -90,6 +90,8 @@ monitors:
     collect:
       # The physical disk collect is a "MultiInstance" collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the only source = CIM_DiskDrive
@@ -121,7 +123,8 @@ monitors:
       mapping:
         # Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="physical_disk"}: $2
         legacyTextParameters:
@@ -279,6 +282,8 @@ monitors:
     collect:
       # The LogicalDisk  collect is a "MultiInstance" collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the only source = CIM_StorageVolume
@@ -330,7 +335,8 @@ monitors:
       mapping:
         # Now, here is the ValueTable: DeviceID;OK/WARN/ALARM;Status information
         source: "${source::monitors.logical_disk.collect.sources.source(3)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="logical_disk"}: $2
           hw.logical_disk.usage{state="free"}: $4

@@ -56,18 +56,18 @@ monitors:
         source: ${source::monitors.enclosure.discovery.sources.Source(7)}
         attributes:
           # Enclosure.Discovery.Instance.DeviceID=InstanceTable.Column(6)
-          id: buildId($column(6))
+          id: $6
           parent: ""
           # Enclosure.Discovery.Instance.DisplayID=InstanceTable.Column(7)
-          name:  buildName(Storage, EMC, $column(2), (, $column(7), )) # Optional # buildName("EMC", $column(2)) # Generic name builder that concatenates the arguments using white space separator, removed duplicates and blank arguments. 
+          name:  ${awk::sprintf("Storage EMC %s (%s)", $2, $7)} # Optional # buildName("EMC", $2) # Generic name builder that concatenates the arguments using white space separator, removed duplicates and blank arguments. 
           # for the converter we reconstruct buildname based on MonitorNameBuilder function.
           vendor: EMC
-          model: $column(2)
-          serial_number: $column(3)
+          model: $2
+          serial_number: $3
           type: Storage
         conditionalCollection:
           # Enclosure.Discovery.Instance.ParameterActivation.Status=InstanceTable.Column(10)
-          hw.status: $column(10)
+          hw.status: $10
     collect:
       type: monoInstance
       sources:
@@ -78,4 +78,4 @@ monitors:
       mapping:
         source: ${source::monitors.enclosure.collect.sources.Source(1)}
         metrics:
-          hw.status: $column(2)
+          hw.status: $2

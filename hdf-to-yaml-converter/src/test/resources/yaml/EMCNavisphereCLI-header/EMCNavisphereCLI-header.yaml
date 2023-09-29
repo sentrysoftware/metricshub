@@ -35,6 +35,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(3):
           computes:
@@ -74,7 +76,8 @@ monitors:
       mapping:
         # ValueTable = Source(2)
         source: "${source::monitors.enclosure.collect.sources.source(4)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="enclosure"}: $5
         legacyTextParameters:
@@ -120,6 +123,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: copy
@@ -139,7 +144,8 @@ monitors:
         # Value Table
         # MSHW_PHYDISK;DiskID;DiskVendor;DiskState;DiskStatusInformation;DiskModel;DiskRevision;DiskTLAPartNumber;DiskPartNumber;Size;
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="physical_disk"}: $4
         legacyTextParameters:
@@ -181,6 +187,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: copy
@@ -204,7 +212,8 @@ monitors:
         # Value Table
         # MSHW_OTHER;Type;ComponentID;PatrolStatus;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="power_supply"}: $4
         legacyTextParameters:
@@ -256,6 +265,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: copy
@@ -279,7 +290,8 @@ monitors:
         # Value Table
         # MSHW_OTHER;Type;ComponentID;PatrolStatus;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
         source: "${source::monitors.memory.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="memory"}: $4
         legacyTextParameters:
@@ -324,6 +336,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: copy
@@ -347,7 +361,8 @@ monitors:
         # Value Table
         # MSHW_OTHER;Type;ComponentID;PatrolStatus;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
         source: "${source::monitors.cpu.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="cpu"}: $4
         legacyTextParameters:
@@ -395,6 +410,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: copy
@@ -418,7 +435,8 @@ monitors:
         # Value Table
         # MSHW_OTHER;Type;ComponentID;PatrolStatus;Status;ComponentPartNumber;ComponentSerialNumber;ComponentRevision;ComponentDescription;
         source: "${source::monitors.other_device.collect.sources.source(1)}"
-        deviceId: $3
+        attributes:
+          id: $3
         metrics:
           hw.status{hw.type="other_device"}: $4
         legacyTextParameters:
@@ -448,6 +466,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Split LogicalDisks into NaviSphereCLI Warnings (From Celerra Connector and Real Logical Disks)
@@ -520,7 +540,8 @@ monitors:
         # Value Table
         # MSHW_LOGICALDISK;ID;Status;StatusInformation;RaidLevel;Name;
         source: "${source::monitors.logical_disk.collect.sources.source(4)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="logical_disk"}: $3
         legacyTextParameters:
@@ -567,6 +588,8 @@ monitors:
     collect:
       # Collect type: MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Enclosure Collect 1
@@ -623,7 +646,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.network.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.network.up: legacyLinkStatus($3)
           hw.network.bandwidth.limit: megaBit2Bit($7)

@@ -41,6 +41,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = the controllerTable SNMP Table
@@ -66,7 +68,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.disk_controller.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="disk_controller"}: $2
         legacyTextParameters:
@@ -147,6 +150,8 @@ monitors:
     collect:
       # Collect type = mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = SNMP Get on the arrayDiskState value of the arrayDiskTable SNMP table
@@ -184,7 +189,8 @@ monitors:
         # ValueTable = Source(1)
         # ID;patrolStatus;statusInformation;NexusID;PredictedFailure
         source: "${source::monitors.physical_disk.collect.sources.source(1)}"
-        deviceId: $4
+        attributes:
+          id: $4
         metrics:
           hw.status{hw.type="physical_disk"}: $2
           hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($5)
@@ -272,7 +278,7 @@ monitors:
           # Source(1) = SNMP Get on the virtualDiskState value of the virtualDiskTable SNMP table
           # virtualDiskState
           type: snmpGet
-          oid: "1.3.6.1.4.1.674.10893.1.20.140.1.1.4.${logical_disk::id}"
+          oid: "1.3.6.1.4.1.674.10893.1.20.140.1.1.4.${attribute::id}"
           computes:
             # Duplicate this status, because we will translate it two times
             # virtualDiskState;virtualDiskState
@@ -332,6 +338,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = batteryTable SNMP Table
@@ -353,7 +361,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.battery.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="battery"}: $3
         legacyTextParameters:
@@ -405,6 +414,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # / Source(1) = cpqSsDrvBoxTable
@@ -436,7 +447,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.enclosure.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="enclosure"}: $2
         legacyTextParameters:
@@ -483,6 +495,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Fan.Entry
@@ -514,7 +528,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="fan"}: $2
           hw.fan.speed: $4
@@ -562,6 +577,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = PowerSupply.Entry
@@ -593,7 +610,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
@@ -634,6 +652,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Temperature.Entry
@@ -665,7 +685,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="temperature"}: $2
           hw.temperature: $4
@@ -719,6 +740,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = OtherDevice.Entry
@@ -750,7 +773,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.other_device.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="other_device"}: $2
         legacyTextParameters:

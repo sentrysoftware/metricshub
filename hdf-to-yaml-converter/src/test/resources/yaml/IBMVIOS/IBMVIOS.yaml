@@ -105,6 +105,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: osCommand
@@ -130,7 +132,8 @@ monitors:
       mapping:
         # ' "ValueTable = source(1)'
         source: "${source::monitors.cpu.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="cpu"}: $2
         legacyTextParameters:
@@ -194,6 +197,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = output of ioscli lsdev -vpd
@@ -227,7 +232,8 @@ monitors:
       mapping:
         # Value table = Source(1)
         source: "${source::monitors.memory.collect.sources.source(3)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="memory"}: $2
           hw.errors{hw.type="memory"}: $4
@@ -303,6 +309,8 @@ monitors:
     collect:
       # Collect type = multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Table Join Discovery Source (3) - Instance Table, with Discovery Table (4) - Errorcounts
@@ -336,7 +344,8 @@ monitors:
           hw.status{hw.type="disk_controller"}: $6
         legacyTextParameters:
           StatusInformation: $7
-        deviceId: $2
+        attributes:
+          id: $2
   physical_disk:
     discovery:
       sources:
@@ -398,6 +407,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: osCommand
@@ -433,7 +444,8 @@ monitors:
         #  "ValueTable = source(1)
         # PhysicalDiskID;PATROLStatus;statusInformation;DeviceID;ErrorCount;
         source: "${source::monitors.physical_disk.collect.sources.source(2)}"
-        deviceId: $1
+        attributes:
+          id: $1
         legacyTextParameters:
           StatusInformation: $3
         metrics:
@@ -502,6 +514,8 @@ monitors:
     collect:
       # The NetworkCard collect is a "MultiInstance" collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = output of fcstat (Fiber Cards)
@@ -536,7 +550,8 @@ monitors:
         # ValueTable = Source(1)
         # MSHW;portID;;linkStatus;ErrorCountFrames;TxPackets;RxPackets;TxBytes;RxBytes;speed;Full;PortType;WWPN;AddressType;SerialNumber;
         source: "${source::monitors.network.collect.sources.source(3)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.network.bandwidth.limit: megaBit2Bit($10)
           hw.network.up: legacyLinkStatus($4)
@@ -572,6 +587,8 @@ monitors:
     collect:
       # Collect type is multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Get the list of Ports from multipath -l
@@ -589,7 +606,8 @@ monitors:
         # ValueTable = Source(1)
         # LunName;NumberPaths;LunStatus;LunStatusInfo;AvailablePathInformation;
         source: "${source::monitors.lun.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.lun.paths: $2
 translations:

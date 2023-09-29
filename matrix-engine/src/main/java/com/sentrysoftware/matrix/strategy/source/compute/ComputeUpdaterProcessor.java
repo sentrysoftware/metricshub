@@ -25,7 +25,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Tra
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.compute.Xml2Csv;
 import com.sentrysoftware.matrix.strategy.source.SourceUpdaterProcessor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -40,11 +40,11 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 	private IComputeProcessor computeProcessor;
 	private TelemetryManager telemetryManager;
 	private String connectorName;
-	private String monitorId;
+	private Map<String, String> attributes;
 
 	@Override
 	public void process(final ArrayTranslate arrayTranslate) {
-		// TODO Auto-generated method stub
+		arrayTranslate.accept(computeProcessor);
 	}
 
 	@Override
@@ -59,12 +59,12 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 
 	@Override
 	public void process(final Awk awk) {
-		// TODO Auto-generated method stub
+		processCompute(awk);
 	}
 
 	@Override
 	public void process(final Convert convert) {
-		// TODO Auto-generated method stub
+		processCompute(convert);
 	}
 
 	@Override
@@ -74,37 +74,37 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 
 	@Override
 	public void process(final DuplicateColumn duplicateColumn) {
-		// TODO Auto-generated method stub
+		processCompute(duplicateColumn);
 	}
 
 	@Override
 	public void process(final ExcludeMatchingLines excludeMatchingLines) {
-		// TODO Auto-generated method stub
+		processCompute(excludeMatchingLines);
 	}
 
 	@Override
 	public void process(final Extract extract) {
-		// TODO Auto-generated method stub
+		processCompute(extract);
 	}
 
 	@Override
 	public void process(final ExtractPropertyFromWbemPath extractPropertyFromWbemPath) {
-		// TODO Auto-generated method stub
+		processCompute(extractPropertyFromWbemPath);
 	}
 
 	@Override
 	public void process(final Json2Csv json2csv) {
-		// TODO Auto-generated method stub
+		processCompute(json2csv);
 	}
 
 	@Override
 	public void process(final KeepColumns keepColumns) {
-		// TODO Auto-generated method stub
+		processCompute(keepColumns);
 	}
 
 	@Override
 	public void process(final KeepOnlyMatchingLines keepOnlyMatchingLines) {
-		// TODO Auto-generated method stub
+		processCompute(keepOnlyMatchingLines);
 	}
 
 	@Override
@@ -119,12 +119,12 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 
 	@Override
 	public void process(final PerBitTranslation perBitTranslation) {
-		// TODO Auto-generated method stub
+		processCompute(perBitTranslation);
 	}
 
 	@Override
 	public void process(final Replace replace) {
-		// TODO Auto-generated method stub
+		processCompute(replace);
 	}
 
 	@Override
@@ -139,17 +139,17 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 
 	@Override
 	public void process(final Substring substring) {
-		// TODO Auto-generated method stub
+		processCompute(substring);
 	}
 
 	@Override
 	public void process(final Translate translate) {
-		// TODO Auto-generated method stub
+		processCompute(translate);
 	}
 
 	@Override
 	public void process(final Xml2Csv xml2csv) {
-		// TODO Auto-generated method stub
+		processCompute(xml2csv);
 	}
 
 	/**
@@ -159,12 +159,11 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 	 * @param origin original compute instance
 	 */
 	private void processCompute(final Compute origin) {
-
 		// Deep copy
 		final Compute copy = origin.copy();
 
 		// Replace device id (mono instance)
-		copy.update(value -> SourceUpdaterProcessor.replaceDeviceId(value, monitorId));
+		copy.update(value -> SourceUpdaterProcessor.replaceAttributeReferences(value, attributes));
 
 		// Replace source reference
 		copy.update(value -> replaceSourceReference(value, copy));
@@ -181,7 +180,6 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 	 * @return String value
 	 */
 	private String replaceSourceReference(final String value, final Compute compute) {
-
 		// Null check
 		if (value == null) {
 			return value;
@@ -194,6 +192,5 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 			compute.getClass().getSimpleName(),
 			compute.getType()
 		);
-
 	}
 }

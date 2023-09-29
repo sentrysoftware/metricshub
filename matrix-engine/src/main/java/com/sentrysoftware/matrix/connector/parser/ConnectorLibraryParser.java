@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.connector.model.Connector;
-import lombok.extern.slf4j.Slf4j;
-
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -14,6 +12,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Map;
 import java.util.TreeMap;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ConnectorLibraryParser {
@@ -25,7 +24,7 @@ public class ConnectorLibraryParser {
 	 */
 	private class ConnectorFileVisitor extends SimpleFileVisitor<Path> {
 
-		private final Map<String, Connector> connectorsMap = new TreeMap<>();
+		private final Map<String, Connector> connectorsMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 		public Map<String, Connector> getConnectorsMap() {
 			return connectorsMap;
@@ -43,10 +42,9 @@ public class ConnectorLibraryParser {
 				return FileVisitResult.CONTINUE;
 			}
 			final ConnectorParser connectorParser = ConnectorParser.withNodeProcessorAndUpdateChain(file.getParent());
-			final String fileName = file.getFileName().toString();
 
 			final Connector connector = connectorParser.parse(file.toFile());
-			connectorsMap.put(fileName, connector);
+			connectorsMap.put(file.getFileName().toString(), connector);
 
 			return FileVisitResult.CONTINUE;
 		}
@@ -58,7 +56,6 @@ public class ConnectorLibraryParser {
 		 * @return <code>true</code> if the {@link JsonNode} is a final connector, otherwise false.
 		 */
 		private boolean isConnector(final JsonNode connector) {
-
 			final JsonNode connectorNode = connector.get("connector");
 			if (connectorNode != null && !connectorNode.isNull()) {
 				final JsonNode displayName = connectorNode.get("displayName");

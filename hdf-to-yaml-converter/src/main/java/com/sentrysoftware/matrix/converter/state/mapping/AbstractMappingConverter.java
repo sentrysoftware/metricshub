@@ -1,7 +1,33 @@
 package com.sentrysoftware.matrix.converter.state.mapping;
 
-import static com.sentrysoftware.matrix.converter.ConverterConstants.*;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.ATTRIBUTES;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.BOOLEAN_FORMAT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.COMPUTE_POWER_SHARE_RATIO_FORMAT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.CONDITIONAL_COLLECTION;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.FAKE_COUNTER_FORMAT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.FULL_DUPLEX_FORMAT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.LEGACY_INTRUSION_STATUS_FORMAT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.LEGACY_LED_STATUS_FORMAT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.LEGACY_NEEDS_CLEANING_FORMAT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.LEGACY_POWER_SUPPLY_UTILIZATION_FORMAT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.LEGACY_PREDICTED_FAILURE_FORMAT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.LINK_STATUS_FORMAT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.MEBI_BYTE_2_BYTE_FORMAT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.MEGA_BIT_2_BIT_FORMAT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.MEGA_HERTZ_2_HERTZ_FORMAT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.METRICS;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.PERCENT_2_RATIO_FORMAT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.RATE_FORMAT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_DISK_CONTROLLER;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ENCLOSURE;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_HW_PARENT_ID;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_HW_PARENT_TYPE;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -11,12 +37,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-import com.sentrysoftware.matrix.converter.state.ConversionHelper;
 
 public abstract class AbstractMappingConverter implements IMappingConverter {
 
@@ -29,27 +49,27 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 
 	/**
 	 * Get one to one attributes mapping
-	 * 
+	 *
 	 * @return key-pair values as {@link Map}
 	 */
 	protected abstract Map<String, Entry<String, IMappingKey>> getOneToOneAttributesMapping();
 
 	/**
 	 * Apply specific conversions of the given mapping attributes
-	 * 
-	 * @param mapping            The mapping object node defining the <em>attributes</em> section 
+	 *
+	 * @param mapping            The mapping object node defining the <em>attributes</em> section
 	 * @param existingAttributes Hardware Connector job's mapping existing temporary attributes
 	 * @param newttributes       Hardware Connector job's mapping existing temporary attributes
 	 */
 	protected abstract void convertAttributesSpecific(
-			final JsonNode mapping,
-			final ObjectNode existingAttributes,
-			final ObjectNode newAttributes
+		JsonNode mapping,
+		ObjectNode existingAttributes,
+		ObjectNode newAttributes
 	);
 
 	/**
 	 * Set the name property in <code>newAttributes</code>
-	 * 
+	 *
 	 * @param existingAttributes Hardware Connector job's mapping existing temporary attributes
 	 * @param newttributes       Hardware Connector job's mapping existing temporary attributes
 	 */
@@ -57,7 +77,7 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 
 	/**
 	 * Get one to one metrics mapping
-	 * 
+	 *
 	 * @return key-pair values as {@link Map}
 	 */
 	protected abstract Map<String, Entry<String, IMappingKey>> getOneToOneMetricsMapping();
@@ -65,13 +85,16 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 	/**
 	 * Convert the attributes section based on the one to one attribute mapping
 	 * implemented in the concrete converter
-	 * 
+	 *
 	 * @param mapping Mapping node used to create metrics
 	 * @param existingAttributes Hardware Connector job's mapping existing temporary attributes
 	 * @param newttributes Hardware Connector job's mapping existing temporary attributes
 	 */
-	private void convertOneToOneAttributes(final ObjectNode mapping, final ObjectNode existingAttributes, final ObjectNode newAttributes) {
-
+	private void convertOneToOneAttributes(
+		final ObjectNode mapping,
+		final ObjectNode existingAttributes,
+		final ObjectNode newAttributes
+	) {
 		final Iterator<Entry<String, JsonNode>> iter = existingAttributes.fields();
 
 		while (iter.hasNext()) {
@@ -93,7 +116,7 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 
 	@Override
 	public void postConvertDiscoveryProperties(final JsonNode mapping) {
-		final ObjectNode  existingAttributes = (ObjectNode) mapping.get(ATTRIBUTES);
+		final ObjectNode existingAttributes = (ObjectNode) mapping.get(ATTRIBUTES);
 		final ObjectNode newAttributes = JsonNodeFactory.instance.objectNode();
 
 		convertOneToOneAttributes((ObjectNode) mapping, existingAttributes, newAttributes);
@@ -144,7 +167,7 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 			return;
 		}
 
-		if(!(this instanceof EnclosureConverter)) {
+		if (!(this instanceof EnclosureConverter)) {
 			if (attachedToDeviceType == null) {
 				newAttributes.set(YAML_HW_PARENT_TYPE, new TextNode(YAML_ENCLOSURE));
 			} else {
@@ -155,7 +178,7 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 				}
 				newAttributes.set(YAML_HW_PARENT_TYPE, new TextNode(parentType));
 			}
-	
+
 			if (attachedToDeviceId != null) {
 				newAttributes.set(YAML_HW_PARENT_ID, new TextNode(attachedToDeviceId.asText()));
 			}
@@ -169,24 +192,17 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 	 *    <li>If only additional information 1 and 2 are provided, build value: <em>join(" ", AdditionalInformation1, AdditionalInformation2)</em></li>
 	 *    <li>If only the first additional information is provided, set the additional information value as is.</li>
 	 * </ol>
-	 * 
+	 *
 	 * @param existingAttributes
 	 * @param newAttributes
 	 */
-	private void convertAdditionalInformationToInfo(
-		final ObjectNode existingAttributes,
-		final ObjectNode newAttributes
-	) {
-
+	private void convertAdditionalInformationToInfo(final ObjectNode existingAttributes, final ObjectNode newAttributes) {
 		final JsonNode additionalInfo1 = existingAttributes.get("additionalinformation1");
 		final JsonNode additionalInfo2 = existingAttributes.get("additionalinformation2");
 		final JsonNode additionalInfo3 = existingAttributes.get("additionalinformation3");
 
-		final List<JsonNode> infoList = Stream.of(
-				additionalInfo1,
-				additionalInfo2,
-				additionalInfo3
-			)
+		final List<JsonNode> infoList = Stream
+			.of(additionalInfo1, additionalInfo2, additionalInfo3)
 			.filter(Objects::nonNull)
 			.toList();
 
@@ -203,7 +219,7 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 				.map(this::getFunctionArgument)
 				.collect(Collectors.joining(", ", "${awk::join(\" \", ", ")}"));
 
-			info = new TextNode(function); 
+			info = new TextNode(function);
 		} else {
 			info = new TextNode(infoList.get(0).asText());
 		}
@@ -214,7 +230,7 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 	/**
 	 * The value is concatenated with the opening and closing quotation marks in
 	 * case it doesn't match $\d+ pattern
-	 * 
+	 *
 	 * @param value to update
 	 * @return String value
 	 */
@@ -224,13 +240,12 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 
 	/**
 	 * Get or create the sub node under the given mapping node
-	 * 
+	 *
 	 * @param subNodeKey The  key of the sub node
 	 * @param mapping    The mapping node
- 	 * @return sub node as {@link ObjectNode}. Never <code>null</code>
+	 * @return sub node as {@link ObjectNode}. Never <code>null</code>
 	 */
 	protected ObjectNode getOrCreateSubNode(final String subNodeKey, final ObjectNode mapping) {
-
 		final JsonNode existingSubNode = mapping.get(subNodeKey);
 
 		if (existingSubNode == null) {
@@ -262,17 +277,12 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 
 	/**
 	 * Convert the given mapping key-value in the given node
-	 * 
+	 *
 	 * @param mappingKey
 	 * @param value
 	 * @param node
 	 */
-	private void convertKeyValueInNode(
-		final IMappingKey mappingKey,
-		String value,
-		final ObjectNode node
-		) {
-
+	private void convertKeyValueInNode(final IMappingKey mappingKey, String value, final ObjectNode node) {
 		if (mappingKey instanceof MappingKeyWithValueConverter mkwvc) {
 			value = getFunctionArgument(value);
 			node.set(mkwvc.getKey(), new TextNode(mkwvc.getValueConverter().apply(value)));
@@ -281,7 +291,6 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 		} else {
 			throw new IllegalArgumentException("Unrecognized IMappingKey");
 		}
-
 	}
 
 	/**
@@ -298,10 +307,7 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 	 * @param mapping
 	 * @param existingAttributes
 	 */
-	private void convertParameterActivation(
-			final ObjectNode mapping,
-			final ObjectNode existingAttributes
-	) {
+	private void convertParameterActivation(final ObjectNode mapping, final ObjectNode existingAttributes) {
 		final Iterator<Entry<String, JsonNode>> iter = existingAttributes.fields();
 
 		while (iter.hasNext()) {
@@ -317,10 +323,7 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 				String metric = matcher.group(2);
 				Entry<String, IMappingKey> mappingKey = getOneToOneMetricsMapping().get(metric);
 				if (mappingKey != null) {
-					conditionalCollection.set(
-						mappingKey.getValue().getKey(),
-						(TextNode) attributeEntry.getValue()
-					);
+					conditionalCollection.set(mappingKey.getValue().getKey(), (TextNode) attributeEntry.getValue());
 				} else {
 					conditionalCollection.set(metric, (TextNode) attributeEntry.getValue());
 				}
@@ -330,7 +333,7 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 
 	/**
 	 * Build percent2Ratio(...) function
-	 * 
+	 *
 	 * @param value
 	 * @return String value
 	 */
@@ -340,7 +343,7 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 
 	/**
 	 * Build megaHertz2Hertz(...) function
-	 * 
+	 *
 	 * @param value
 	 * @return String value
 	 */
@@ -350,7 +353,7 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 
 	/**
 	 * Build boolean(...) function
-	 * 
+	 *
 	 * @param value
 	 * @return String value
 	 */
@@ -360,7 +363,7 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 
 	/**
 	 * Build fakeCounter(...) function
-	 * 
+	 *
 	 * @param value
 	 * @return String value
 	 */
@@ -370,7 +373,7 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 
 	/**
 	 * Build legacyIntrusionStatus(...) function
-	 * 
+	 *
 	 */
 	public static String buildLegacyIntrusionStatusFunction(final String value) {
 		return String.format(LEGACY_INTRUSION_STATUS_FORMAT, value);
@@ -387,7 +390,7 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 
 	/**
 	 * Build mebiByte2Byte(...) function
-	 * 
+	 *
 	 * @param value
 	 * @return String value
 	 */
@@ -397,7 +400,7 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 
 	/**
 	 * Build legacyPredictedFailure(...) function
-	 * 
+	 *
 	 * @param value
 	 * @return String value
 	 */
@@ -407,7 +410,7 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 
 	/**
 	 * Build legacyPowerSupplyUtilization(...) function
-	 * 
+	 *
 	 * @param value
 	 * @return String value
 	 */
@@ -423,12 +426,11 @@ public abstract class AbstractMappingConverter implements IMappingConverter {
 	 */
 	public static String buildLegacyNeedsCleaningFunction(final String value) {
 		return String.format(LEGACY_NEEDS_CLEANING_FORMAT, value);
-
 	}
 
 	/**
 	 * Build computePowerShareRatio(...) function
-	 * 
+	 *
 	 * @param value
 	 * @return String value
 	 */

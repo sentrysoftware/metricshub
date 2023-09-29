@@ -47,6 +47,8 @@ monitors:
     collect:
       # COLLECT
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # BatteryStatus, DeviceID, Charge remaining, time left and status
@@ -81,7 +83,8 @@ monitors:
       mapping:
         # Battery StatusInformation (not used anymore at this point), DeviceID, Charge, Time Left (mins), Status, StatusInformation
         source: "${source::monitors.battery.collect.sources.source(1)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="battery"}: $5
           hw.battery.charge: percent2Ratio($3)

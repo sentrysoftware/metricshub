@@ -233,6 +233,8 @@ monitors:
           name: "${awk::sprintf(\"Storage: %s (%s %s)\", $3, \"Huawei\", $4)}"
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: http
@@ -311,7 +313,8 @@ monitors:
           header: "${source::monitors.enclosure.collect.sources.source(5)}"
       mapping:
         source: "${source::monitors.enclosure.collect.sources.source(6)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="enclosure"}: $3
         legacyTextParameters:
@@ -343,6 +346,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: http
@@ -421,7 +426,8 @@ monitors:
           header: "${source::monitors.cpu.collect.sources.source(5)}"
       mapping:
         source: "${source::monitors.cpu.collect.sources.source(6)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="cpu"}: $3
           hw.cpu.speed: megaHertz2Hertz($5)
@@ -519,6 +525,8 @@ monitors:
           hw.temperature: $5
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # cpu
@@ -665,7 +673,8 @@ monitors:
           header: "${source::monitors.temperature.collect.sources.source(5)}"
       mapping:
         source: "${source::monitors.temperature.collect.sources.source(11)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="temperature"}: $3
           hw.temperature: $5
@@ -719,6 +728,8 @@ monitors:
           name: "${awk::sprintf(\"%s (%s)\", $4, $5)}"
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # cpu
@@ -824,7 +835,8 @@ monitors:
           header: "${source::monitors.voltage.collect.sources.source(5)}"
       mapping:
         source: "${source::monitors.voltage.collect.sources.source(8)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="voltage"}: $3
           hw.voltage: $5
@@ -852,6 +864,8 @@ monitors:
           name: "${awk::sprintf(\"Disk Controller: %s\", $4)}"
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: http
@@ -929,7 +943,8 @@ monitors:
           header: "${source::monitors.disk_controller.collect.sources.source(5)}"
       mapping:
         source: "${source::monitors.disk_controller.collect.sources.source(6)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="disk_controller"}: $3
         legacyTextParameters:
@@ -954,6 +969,8 @@ monitors:
           name: $4
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: http
@@ -1031,7 +1048,8 @@ monitors:
           header: "${source::monitors.power_supply.collect.sources.source(5)}"
       mapping:
         source: "${source::monitors.power_supply.collect.sources.source(6)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="power_supply"}: $3
         legacyTextParameters:
@@ -1059,6 +1077,8 @@ monitors:
           name: $4
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: http
@@ -1139,7 +1159,8 @@ monitors:
           header: "${source::monitors.battery.collect.sources.source(5)}"
       mapping:
         source: "${source::monitors.battery.collect.sources.source(6)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="battery"}: $3
         legacyTextParameters:
@@ -1171,6 +1192,8 @@ monitors:
           name: $5
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: http
@@ -1248,7 +1271,8 @@ monitors:
           header: "${source::monitors.fan.collect.sources.source(5)}"
       mapping:
         source: "${source::monitors.fan.collect.sources.source(6)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="fan"}: $3
         legacyTextParameters:
@@ -1287,6 +1311,8 @@ monitors:
           hw.physical_disk.size: $10
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: http
@@ -1371,7 +1397,8 @@ monitors:
           header: "${source::monitors.physical_disk.collect.sources.source(5)}"
       mapping:
         source: "${source::monitors.physical_disk.collect.sources.source(6)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="physical_disk"}: $3
           hw.physical_disk.endurance_utilization{state="remaining"}: percent2Ratio($6)
@@ -1483,7 +1510,8 @@ monitors:
           header: "${source::monitors.logical_disk.collect.sources.source(5)}"
       mapping:
         source: "${source::monitors.logical_disk.collect.sources.source(6)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="logical_disk"}: $3
         legacyTextParameters:
@@ -1555,6 +1583,8 @@ monitors:
           name: "${awk::sprintf(\"%s (%s)\", $4, $6)}"
     collect:
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           type: http
@@ -1672,7 +1702,8 @@ monitors:
           header: "${source::monitors.network.collect.sources.source(5)}"
       mapping:
         source: "${source::monitors.network.collect.sources.source(9)}"
-        deviceId: $2
+        attributes:
+          id: $2
         metrics:
           hw.status{hw.type="network"}: $3
           hw.network.up: legacyLinkStatus($5)

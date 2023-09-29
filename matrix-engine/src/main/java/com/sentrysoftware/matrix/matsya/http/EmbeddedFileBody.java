@@ -1,16 +1,14 @@
 package com.sentrysoftware.matrix.matsya.http;
 
-import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
 
+import com.sentrysoftware.matrix.connector.model.common.EmbeddedFile;
+import java.util.function.UnaryOperator;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-
-import java.util.function.UnaryOperator;
-
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
 
 @Data
 @NoArgsConstructor
@@ -24,18 +22,11 @@ public class EmbeddedFileBody implements Body {
 
 	@Override
 	public String getContent(String username, char[] password, String authenticationToken, @NonNull String hostname) {
-
 		if (body == null) {
 			return EMPTY;
 		}
 
-		return HttpMacrosUpdater.update(
-			body.getContent(),
-			username,
-			password,
-			authenticationToken,
-			hostname
-		);
+		return HttpMacrosUpdater.update(body.getContent(), username, password, authenticationToken, hostname);
 	}
 
 	@Override

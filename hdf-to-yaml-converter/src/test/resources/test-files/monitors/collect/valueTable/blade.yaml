@@ -14,7 +14,8 @@
             _comment: DeviceID;Status;StatusInformation;PowerState
             legacyTextParameters:
               StatusInformation: $3
-            deviceId: $1
+            attributes:
+              id: $1
             source: ${source::monitors.blade.collect.sources.source(1)}
             metrics:
               hw.status{hw.type="blade"}: $2

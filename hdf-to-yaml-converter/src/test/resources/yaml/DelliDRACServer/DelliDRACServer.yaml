@@ -64,6 +64,8 @@ monitors:
     collect:
       # Collect
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # ChassisID;Status;
@@ -110,7 +112,8 @@ monitors:
         # The ValueTable = Source(3)
         # ChassisID;PATROLStatus;statusInformation;ChassisID;PowerConsumption;SensorType;
         source: "${source::monitors.enclosure.collect.sources.source(3)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="enclosure"}: $2
           hw.enclosure.power: $5
@@ -155,6 +158,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # TemperatureID;Status;Temperature;
@@ -184,7 +189,8 @@ monitors:
       mapping:
         # The ValueTable = Source(1)
         source: "${source::monitors.temperature.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="temperature"}: $2
           hw.temperature: $4
@@ -219,6 +225,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # FanID;Status;Speed
@@ -243,7 +251,8 @@ monitors:
       mapping:
         # The ValueTable = Source(1)
         source: "${source::monitors.fan.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="fan"}: $2
           hw.fan.speed: $4
@@ -272,6 +281,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # VoltageID;Status;
@@ -296,7 +307,8 @@ monitors:
       mapping:
         # The ValueTable = Source(1)
         source: "${source::monitors.voltage.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="voltage"}: $2
         legacyTextParameters:
@@ -324,6 +336,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # BatteryID;Status;
@@ -348,7 +362,8 @@ monitors:
       mapping:
         # The ValueTable = Source(1)
         source: "${source::monitors.battery.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="battery"}: $2
         legacyTextParameters:
@@ -376,6 +391,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # PowerSupplyID;Status;
@@ -400,7 +417,8 @@ monitors:
       mapping:
         # The ValueTable = Source(1)
         source: "${source::monitors.power_supply.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="power_supply"}: $2
         legacyTextParameters:
@@ -444,6 +462,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # CPUID;Status;
@@ -468,7 +488,8 @@ monitors:
       mapping:
         # The ValueTable = Source(1)
         source: "${source::monitors.cpu.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="cpu"}: $2
         legacyTextParameters:
@@ -521,6 +542,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # MemoryID;Status;
@@ -545,7 +568,8 @@ monitors:
       mapping:
         # The ValueTable = Source(1)
         source: "${source::monitors.memory.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="memory"}: $2
         legacyTextParameters:
@@ -578,6 +602,8 @@ monitors:
     collect:
       # Collect type is MultiInstance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # NetworkID;Status;LinkStatus;FQDD
@@ -608,7 +634,8 @@ monitors:
         # The ValueTable = Source(1)
         # NetworkID;PATROLStatus;statusInformation;LinkStatus;FQDD
         source: "${source::monitors.network.collect.sources.source(1)}"
-        deviceId: $5
+        attributes:
+          id: $5
         metrics:
           hw.status{hw.type="network"}: $2
           hw.network.up: legacyLinkStatus($4)
@@ -723,6 +750,8 @@ monitors:
     collect:
       # Collect type is mono-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = systemStateTable SNMP table
@@ -837,7 +866,8 @@ monitors:
       mapping:
         # ValueTable = Source(3)
         source: "${source::monitors.other_device.collect.sources.source(6)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="other_device"}: $2
         legacyTextParameters:

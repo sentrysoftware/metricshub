@@ -1,11 +1,15 @@
 package com.sentrysoftware.matrix.converter.state.valuetable;
 
-import static com.sentrysoftware.matrix.converter.ConverterConstants.*;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.ATTRIBUTES;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.COLLECT;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.HDF_DEVICE_ID;
+import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_ID;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sentrysoftware.matrix.converter.PreConnector;
@@ -17,14 +21,13 @@ import com.sentrysoftware.matrix.converter.state.mapping.MappingConvertersWrappe
 public class CollectParameterProcessor extends AbstractStateConverter {
 
 	private static final Pattern COLLECT_PARAMETER_KEY_PATTERN = Pattern.compile(
-			"^\\s*(([a-z]+)\\.collect\\.(?!(type|valuetable))([a-z]+))\\s*$",
-			Pattern.CASE_INSENSITIVE);
+		"^\\s*(([a-z]+)\\.collect\\.(?!(type|valuetable))([a-z]+))\\s*$",
+		Pattern.CASE_INSENSITIVE
+	);
 
 	@Override
 	public boolean detect(String key, String value, JsonNode connector) {
-		return value != null
-				&& key != null
-				&& getMatcher(key).matches();
+		return value != null && key != null && getMatcher(key).matches();
 	}
 
 	@Override
@@ -41,7 +44,15 @@ public class CollectParameterProcessor extends AbstractStateConverter {
 		final String property = matcher.group(4);
 
 		if (property.equalsIgnoreCase(HDF_DEVICE_ID)) {
-			mapping.set("deviceId", new TextNode(ConversionHelper.performValueConversions(value)));
+			JsonNode attributes = mapping.get(ATTRIBUTES);
+
+			if (attributes == null) {
+				attributes = JsonNodeFactory.instance.objectNode();
+				mapping.set(ATTRIBUTES, attributes);
+			}
+
+			((ObjectNode) attributes).set(YAML_ID, new TextNode(ConversionHelper.performValueConversions(value)));
+
 		} else {
 			IMappingConverter m = new MappingConvertersWrapper().getConverter(monitorName);
 			if (m != null) {
@@ -54,5 +65,4 @@ public class CollectParameterProcessor extends AbstractStateConverter {
 	protected Matcher getMatcher(String key) {
 		return COLLECT_PARAMETER_KEY_PATTERN.matcher(key);
 	}
-
 }

@@ -1,6 +1,8 @@
 package com.sentrysoftware.matrix.strategy.source;
 
+import static com.sentrysoftware.matrix.constants.Constants.AUTOMATIC;
 import static com.sentrysoftware.matrix.constants.Constants.ECS1_01;
+import static com.sentrysoftware.matrix.constants.Constants.EMPTY;
 import static com.sentrysoftware.matrix.constants.Constants.EXPECTED_SNMP_TABLE_DATA;
 import static com.sentrysoftware.matrix.constants.Constants.MY_CONNECTOR_1_NAME;
 import static com.sentrysoftware.matrix.constants.Constants.OID;
@@ -15,29 +17,22 @@ import static com.sentrysoftware.matrix.constants.Constants.USERNAME;
 import static com.sentrysoftware.matrix.constants.Constants.VALUE_VAL1;
 import static com.sentrysoftware.matrix.constants.Constants.VALUE_VAL2;
 import static com.sentrysoftware.matrix.constants.Constants.VALUE_VAL3;
+import static com.sentrysoftware.matrix.constants.Constants.WBEM_QUERY;
+import static com.sentrysoftware.matrix.constants.Constants.WMI_NAMESPACE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeoutException;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
+import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.configuration.HttpConfiguration;
 import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
+import com.sentrysoftware.matrix.configuration.WbemConfiguration;
+import com.sentrysoftware.matrix.configuration.WmiConfiguration;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.connector.model.common.HttpMethod;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.CopySource;
@@ -47,10 +42,23 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpTableSo
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.StaticSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableJoinSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableUnionSource;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.WbemSource;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.WmiSource;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.telemetry.ConnectorNamespace;
 import com.sentrysoftware.matrix.telemetry.HostProperties;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeoutException;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class SourceProcessorTest {
@@ -89,16 +97,19 @@ class SourceProcessorTest {
 	private static final String VALUE_LIST = "a1;b1;c1";
 
 	private static final String CAMELCASE_NOT_WBEM = "notWbem";
+	private static final String CONNECTOR_NAME = "myConnector";
 
 	@Test
 	void testProcessHttpSourceOK() {
-		final HttpConfiguration httpConfiguration = HttpConfiguration.builder()
+		final HttpConfiguration httpConfiguration = HttpConfiguration
+			.builder()
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
 			.port(161)
 			.timeout(120L)
 			.build();
-		final HostConfiguration hostConfiguration = HostConfiguration.builder()
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
 			.hostname(ECS1_01)
 			.hostId(ECS1_01)
 			.hostType(DeviceKind.LINUX)
@@ -106,16 +117,14 @@ class SourceProcessorTest {
 			.build();
 
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
-		final SourceProcessor sourceProcessor = SourceProcessor.builder()
+		final SourceProcessor sourceProcessor = SourceProcessor
+			.builder()
 			.telemetryManager(telemetryManager)
 			.matsyaClientsExecutor(matsyaClientsExecutorMock)
 			.build();
 
 		doReturn(ECS1_01).when(matsyaClientsExecutorMock).executeHttp(any(), eq(true));
-		final SourceTable actual = sourceProcessor.process(HttpSource.builder()
-			.url(URL)
-			.method(HttpMethod.GET)
-			.build());
+		final SourceTable actual = sourceProcessor.process(HttpSource.builder().url(URL).method(HttpMethod.GET).build());
 
 		final SourceTable expected = SourceTable.builder().rawData(ECS1_01).build();
 		assertEquals(expected, actual);
@@ -123,7 +132,8 @@ class SourceProcessorTest {
 
 	@Test
 	void testProcessHttpSourceNoHttpConfiguration() {
-		final HostConfiguration hostConfiguration = HostConfiguration.builder()
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
 			.hostname(ECS1_01)
 			.hostId(ECS1_01)
 			.hostType(DeviceKind.LINUX)
@@ -132,16 +142,20 @@ class SourceProcessorTest {
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 		final SourceProcessor sourceProcessor = SourceProcessor.builder().telemetryManager(telemetryManager).build();
 
-		assertEquals(SourceTable.empty(), sourceProcessor.process(HttpSource.builder()
-			.url("my/url")
-			.method(HttpMethod.GET)
-			.build()));
+		assertEquals(
+			SourceTable.empty(),
+			sourceProcessor.process(HttpSource.builder().url("my/url").method(HttpMethod.GET).build())
+		);
 	}
 
 	@Test
 	void testProcessSnmpGetSource() throws Exception {
-		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(HostConfiguration.builder().build()).build();
-		final SourceProcessor sourceProcessor = SourceProcessor.builder()
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(HostConfiguration.builder().build())
+			.build();
+		final SourceProcessor sourceProcessor = SourceProcessor
+			.builder()
 			.telemetryManager(telemetryManager)
 			.matsyaClientsExecutor(matsyaClientsExecutorMock)
 			.build();
@@ -150,7 +164,8 @@ class SourceProcessorTest {
 		assertEquals(SourceTable.empty(), sourceProcessor.process(new SnmpGetSource()));
 
 		// no snmp protocol
-		HostConfiguration hostConfigurationNoProtocol = HostConfiguration.builder()
+		HostConfiguration hostConfigurationNoProtocol = HostConfiguration
+			.builder()
 			.hostname(ECS1_01)
 			.hostId(ECS1_01)
 			.hostType(DeviceKind.LINUX)
@@ -159,13 +174,15 @@ class SourceProcessorTest {
 		assertEquals(SourceTable.empty(), sourceProcessor.process(SnmpGetSource.builder().oid(OID).build()));
 
 		// classic case
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder()
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
+			.builder()
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
 			.port(161)
 			.timeout(120L)
 			.build();
-		final HostConfiguration hostConfiguration = HostConfiguration.builder()
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
 			.hostname(ECS1_01)
 			.hostId(ECS1_01)
 			.hostType(DeviceKind.LINUX)
@@ -184,15 +201,23 @@ class SourceProcessorTest {
 
 	@Test
 	void testProcessSnmpGetTableExpectedResultNotMatches() throws Exception {
-		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(HostConfiguration.builder().build()).build();
-		final SourceProcessor sourceProcessor = SourceProcessor.builder()
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(HostConfiguration.builder().build())
+			.build();
+		final SourceProcessor sourceProcessor = SourceProcessor
+			.builder()
 			.telemetryManager(telemetryManager)
 			.matsyaClientsExecutor(matsyaClientsExecutorMock)
 			.build();
-		assertEquals(SourceTable.empty(), sourceProcessor.process(SnmpTableSource.builder().oid(OID).selectColumns(SNMP_WRONG_COLUMNS).build()));
+		assertEquals(
+			SourceTable.empty(),
+			sourceProcessor.process(SnmpTableSource.builder().oid(OID).selectColumns(SNMP_WRONG_COLUMNS).build())
+		);
 
 		// no snmp protocol
-		HostConfiguration hostConfigurationNoProtocol = HostConfiguration.builder()
+		HostConfiguration hostConfigurationNoProtocol = HostConfiguration
+			.builder()
 			.hostname(ECS1_01)
 			.hostId(ECS1_01)
 			.hostType(DeviceKind.LINUX)
@@ -201,13 +226,15 @@ class SourceProcessorTest {
 		assertEquals(SourceTable.empty(), sourceProcessor.process(SnmpGetSource.builder().oid(OID).build()));
 
 		// no matches
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder()
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
+			.builder()
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
 			.port(161)
 			.timeout(120L)
 			.build();
-		final HostConfiguration hostConfiguration = HostConfiguration.builder()
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
 			.hostname(ECS1_01)
 			.hostId(ECS1_01)
 			.hostType(DeviceKind.LINUX)
@@ -215,46 +242,64 @@ class SourceProcessorTest {
 			.build();
 		telemetryManager.setHostConfiguration(hostConfiguration);
 		doReturn(new ArrayList<>()).when(matsyaClientsExecutorMock).executeSNMPTable(any(), any(), any(), any(), eq(true));
-		final SourceTable actual = sourceProcessor.process(SnmpTableSource.builder().oid(OID).selectColumns(SNMP_WRONG_COLUMNS).build());
-		final SourceTable expected = SourceTable.builder().table(new ArrayList<>()).headers(SNMP_WRONG_COLUMNS_LIST).build();
+		final SourceTable actual = sourceProcessor.process(
+			SnmpTableSource.builder().oid(OID).selectColumns(SNMP_WRONG_COLUMNS).build()
+		);
+		final SourceTable expected = SourceTable
+			.builder()
+			.table(new ArrayList<>())
+			.headers(SNMP_WRONG_COLUMNS_LIST)
+			.build();
 		assertEquals(expected, actual);
 	}
 
 	@Test
 	void testProcessSbmpGetTableExpectedResultMatches() throws Exception {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder()
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
+			.builder()
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
 			.port(161)
 			.timeout(120L)
 			.build();
-		final HostConfiguration hostConfiguration = HostConfiguration.builder()
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
 			.hostname(ECS1_01)
 			.hostId(ECS1_01)
 			.hostType(DeviceKind.LINUX)
 			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
 			.build();
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
-		final SourceProcessor sourceProcessor = SourceProcessor.builder()
+		final SourceProcessor sourceProcessor = SourceProcessor
+			.builder()
 			.telemetryManager(telemetryManager)
 			.matsyaClientsExecutor(matsyaClientsExecutorMock)
 			.build();
-		doReturn(EXPECTED_SNMP_TABLE_DATA).when(matsyaClientsExecutorMock).executeSNMPTable(any(), any(), any(), any(), eq(true));
-		final SourceTable actual = sourceProcessor.process(SnmpTableSource.builder().oid(OID).selectColumns(SNMP_SELECTED_COLUMNS).build());
-		final SourceTable expected = SourceTable.builder().table(EXPECTED_SNMP_TABLE_DATA)
-			.headers(SNMP_SELECTED_COLUMNS_LIST).build();
+		doReturn(EXPECTED_SNMP_TABLE_DATA)
+			.when(matsyaClientsExecutorMock)
+			.executeSNMPTable(any(), any(), any(), any(), eq(true));
+		final SourceTable actual = sourceProcessor.process(
+			SnmpTableSource.builder().oid(OID).selectColumns(SNMP_SELECTED_COLUMNS).build()
+		);
+		final SourceTable expected = SourceTable
+			.builder()
+			.table(EXPECTED_SNMP_TABLE_DATA)
+			.headers(SNMP_SELECTED_COLUMNS_LIST)
+			.build();
 		assertEquals(expected, actual);
 	}
 
 	@Test
 	void testProcessTableJoinSource() {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder()
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
+			.builder()
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
 			.port(161)
 			.timeout(120L)
 			.build();
-		final HostConfiguration hostConfiguration = HostConfiguration.builder()
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
 			.hostname(ECS1_01)
 			.hostId(ECS1_01)
 			.hostType(DeviceKind.LINUX)
@@ -262,53 +307,77 @@ class SourceProcessorTest {
 			.build();
 
 		final Map<String, SourceTable> mapSources = new HashMap<>();
-		SourceTable tabl1 = SourceTable.builder().table(Arrays.asList(
-			Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1),
-			Arrays.asList(VALUE_VAL1, VALUE_VAL2, VALUE_VAL3),
-			Arrays.asList(UPPERCASE_V1, UPPERCASE_V2, UPPERCASE_V3),
-			Arrays.asList(LOWERCASE_X, LOWERCASE_Y, LOWERCASE_Z)))
+		SourceTable tabl1 = SourceTable
+			.builder()
+			.table(
+				Arrays.asList(
+					Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1),
+					Arrays.asList(VALUE_VAL1, VALUE_VAL2, VALUE_VAL3),
+					Arrays.asList(UPPERCASE_V1, UPPERCASE_V2, UPPERCASE_V3),
+					Arrays.asList(LOWERCASE_X, LOWERCASE_Y, LOWERCASE_Z)
+				)
+			)
 			.build();
-		SourceTable tabl2 = SourceTable.builder().table(Arrays.asList(
-			Arrays.asList(LOWERCASE_A1, LOWERCASE_B2, LOWERCASE_C2),
-			Arrays.asList(LOWERCASE_V1, LOWERCASE_V2, LOWERCASE_V3),
-			Arrays.asList(CAMELCASE_VAL1, UPPERCASE_B2, UPPERCASE_C2),
-			Arrays.asList(LOWERCASE_T, LOWERCASE_U, LOWERCASE_V)))
+		SourceTable tabl2 = SourceTable
+			.builder()
+			.table(
+				Arrays.asList(
+					Arrays.asList(LOWERCASE_A1, LOWERCASE_B2, LOWERCASE_C2),
+					Arrays.asList(LOWERCASE_V1, LOWERCASE_V2, LOWERCASE_V3),
+					Arrays.asList(CAMELCASE_VAL1, UPPERCASE_B2, UPPERCASE_C2),
+					Arrays.asList(LOWERCASE_T, LOWERCASE_U, LOWERCASE_V)
+				)
+			)
 			.build();
 		mapSources.put(TAB1_REF, tabl1);
 		mapSources.put(TAB2_REF, tabl2);
 		ConnectorNamespace connectorNamespace = ConnectorNamespace.builder().sourceTables(mapSources).build();
 
-		Map<String,ConnectorNamespace> connectorNamespaces = new HashMap<>();
+		Map<String, ConnectorNamespace> connectorNamespaces = new HashMap<>();
 		connectorNamespaces.put(MY_CONNECTOR_1_NAME, connectorNamespace);
 		HostProperties hostProperties = HostProperties.builder().connectorNamespaces(connectorNamespaces).build();
 
-		final TelemetryManager telemetryManager = TelemetryManager.builder()
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
 			.hostConfiguration(hostConfiguration)
 			.hostProperties(hostProperties)
 			.build();
-		final SourceProcessor sourceProcessor = SourceProcessor.builder()
+		final SourceProcessor sourceProcessor = SourceProcessor
+			.builder()
 			.telemetryManager(telemetryManager)
 			.matsyaClientsExecutor(matsyaClientsExecutorMock)
 			.connectorName(MY_CONNECTOR_1_NAME)
 			.build();
 
 		// standard
-		List<List<String>> expectedJoin = Arrays.asList(Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1, LOWERCASE_A1, LOWERCASE_B2, LOWERCASE_C2),
+		List<List<String>> expectedJoin = Arrays.asList(
+			Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1, LOWERCASE_A1, LOWERCASE_B2, LOWERCASE_C2),
 			Arrays.asList(VALUE_VAL1, VALUE_VAL2, VALUE_VAL3, CAMELCASE_VAL1, UPPERCASE_B2, UPPERCASE_C2),
 			Arrays.asList(UPPERCASE_V1, UPPERCASE_V2, UPPERCASE_V3, CAMELCASE_VAL1, UPPERCASE_B2, UPPERCASE_C2),
-			Arrays.asList(LOWERCASE_X, LOWERCASE_Y, LOWERCASE_Z, LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1));
+			Arrays.asList(LOWERCASE_X, LOWERCASE_Y, LOWERCASE_Z, LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1)
+		);
 		SourceTable expectedResult = SourceTable.builder().table(expectedJoin).build();
 
 		List<List<String>> matsyaReturn = Arrays.asList(
 			Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1, LOWERCASE_A1, LOWERCASE_B2, LOWERCASE_C2),
-			Arrays.asList(VALUE_VAL1, VALUE_VAL2,VALUE_VAL3, CAMELCASE_VAL1, UPPERCASE_B2, UPPERCASE_C2),
+			Arrays.asList(VALUE_VAL1, VALUE_VAL2, VALUE_VAL3, CAMELCASE_VAL1, UPPERCASE_B2, UPPERCASE_C2),
 			Arrays.asList(UPPERCASE_V1, UPPERCASE_V2, UPPERCASE_V3, CAMELCASE_VAL1, UPPERCASE_B2, UPPERCASE_C2),
-			Arrays.asList(LOWERCASE_X, LOWERCASE_Y, LOWERCASE_Z, LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1));
+			Arrays.asList(LOWERCASE_X, LOWERCASE_Y, LOWERCASE_Z, LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1)
+		);
 		doReturn(matsyaReturn)
-		.when(matsyaClientsExecutorMock)
-		.executeTableJoin(tabl1.getTable(), tabl2.getTable(), 1, 1, Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1), false, true);
+			.when(matsyaClientsExecutorMock)
+			.executeTableJoin(
+				tabl1.getTable(),
+				tabl2.getTable(),
+				1,
+				1,
+				Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1),
+				false,
+				true
+			);
 
-		TableJoinSource tableJoinExample = TableJoinSource.builder()
+		TableJoinSource tableJoinExample = TableJoinSource
+			.builder()
 			.keyType(CAMELCASE_NOT_WBEM)
 			.leftTable(TAB1_REF)
 			.rightTable(TAB2_REF)
@@ -317,119 +386,163 @@ class SourceProcessorTest {
 			.defaultRightLine(VALUE_LIST)
 			.build();
 		assertEquals(expectedJoin, sourceProcessor.process(tableJoinExample).getTable());
-		assertTrue(expectedJoin.size() == sourceProcessor.process(tableJoinExample).getTable().size()
-			&& expectedJoin.containsAll(sourceProcessor.process(tableJoinExample).getTable())
-			&& sourceProcessor.process(tableJoinExample).getTable().containsAll(expectedJoin));
+		assertTrue(
+			expectedJoin.size() == sourceProcessor.process(tableJoinExample).getTable().size() &&
+			expectedJoin.containsAll(sourceProcessor.process(tableJoinExample).getTable()) &&
+			sourceProcessor.process(tableJoinExample).getTable().containsAll(expectedJoin)
+		);
 		assertEquals(new ArrayList<>(), sourceProcessor.process(tableJoinExample).getHeaders());
 		assertEquals(expectedResult.getHeaders(), sourceProcessor.process(tableJoinExample).getHeaders());
 		assertEquals(expectedResult.getTable(), sourceProcessor.process(tableJoinExample).getTable());
 
 		// no default right line
-		expectedJoin = Arrays.asList(Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1, LOWERCASE_A1, LOWERCASE_B2, LOWERCASE_C2));
+		expectedJoin =
+			Arrays.asList(Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1, LOWERCASE_A1, LOWERCASE_B2, LOWERCASE_C2));
 		expectedResult = SourceTable.builder().table(expectedJoin).build();
-		doReturn(expectedJoin).when(matsyaClientsExecutorMock).executeTableJoin(tabl1.getTable(), tabl2.getTable(), 1, 1, null, false, true);
-		tableJoinExample = TableJoinSource.builder()
-			.keyType(CAMELCASE_NOT_WBEM)
-			.leftTable(TAB1_REF)
-			.rightTable(TAB2_REF)
-			.leftKeyColumn(1)
-			.rightKeyColumn(1)
-			.defaultRightLine(null)
-			.build();
+		doReturn(expectedJoin)
+			.when(matsyaClientsExecutorMock)
+			.executeTableJoin(tabl1.getTable(), tabl2.getTable(), 1, 1, null, false, true);
+		tableJoinExample =
+			TableJoinSource
+				.builder()
+				.keyType(CAMELCASE_NOT_WBEM)
+				.leftTable(TAB1_REF)
+				.rightTable(TAB2_REF)
+				.leftKeyColumn(1)
+				.rightKeyColumn(1)
+				.defaultRightLine(null)
+				.build();
 		assertEquals(expectedResult.getTable(), sourceProcessor.process(tableJoinExample).getTable());
 		assertEquals(new ArrayList<>(), sourceProcessor.process(tableJoinExample).getHeaders());
 		assertEquals(expectedResult.getHeaders(), sourceProcessor.process(tableJoinExample).getHeaders());
 		assertEquals(expectedResult.getTable(), sourceProcessor.process(tableJoinExample).getTable());
 
 		// no matches
-		SourceTable tabl3 = SourceTable.builder()
-			.table(Arrays.asList(Arrays.asList(LOWERCASE_A, LOWERCASE_B, LOWERCASE_C), Arrays.asList(LOWERCASE_V10, LOWERCASE_V20, LOWERCASE_V30)))
+		SourceTable tabl3 = SourceTable
+			.builder()
+			.table(
+				Arrays.asList(
+					Arrays.asList(LOWERCASE_A, LOWERCASE_B, LOWERCASE_C),
+					Arrays.asList(LOWERCASE_V10, LOWERCASE_V20, LOWERCASE_V30)
+				)
+			)
 			.build();
 		mapSources.put(TAB3_REF, tabl3);
 		connectorNamespace = ConnectorNamespace.builder().sourceTables(mapSources).build();
 		expectedJoin = Arrays.asList(Arrays.asList(LOWERCASE_A, LOWERCASE_B, LOWERCASE_C));
 		expectedResult = SourceTable.builder().table(expectedJoin).build();
-		doReturn(expectedJoin).when(matsyaClientsExecutorMock).executeTableJoin(tabl1.getTable(), tabl3.getTable(), 1, 1, null, false, true);
-		tableJoinExample = TableJoinSource.builder()
-			.keyType(CAMELCASE_NOT_WBEM)
-			.leftTable(TAB1_REF)
-			.rightTable(TAB3_REF)
-			.leftKeyColumn(1)
-			.rightKeyColumn(1)
-			.defaultRightLine(null)
-			.build();
+		doReturn(expectedJoin)
+			.when(matsyaClientsExecutorMock)
+			.executeTableJoin(tabl1.getTable(), tabl3.getTable(), 1, 1, null, false, true);
+		tableJoinExample =
+			TableJoinSource
+				.builder()
+				.keyType(CAMELCASE_NOT_WBEM)
+				.leftTable(TAB1_REF)
+				.rightTable(TAB3_REF)
+				.leftKeyColumn(1)
+				.rightKeyColumn(1)
+				.defaultRightLine(null)
+				.build();
 		assertEquals(expectedResult.getTable(), sourceProcessor.process(tableJoinExample).getTable());
 
 		// wrong column key
-		tabl3 = SourceTable.builder()
-			.table(Arrays.asList(Arrays.asList(LOWERCASE_A, LOWERCASE_B, LOWERCASE_C), Arrays.asList(LOWERCASE_V10, LOWERCASE_V20, LOWERCASE_V30)))
-			.build();
-		mapSources.put(TAB3_REF, tabl3 );
+		tabl3 =
+			SourceTable
+				.builder()
+				.table(
+					Arrays.asList(
+						Arrays.asList(LOWERCASE_A, LOWERCASE_B, LOWERCASE_C),
+						Arrays.asList(LOWERCASE_V10, LOWERCASE_V20, LOWERCASE_V30)
+					)
+				)
+				.build();
+		mapSources.put(TAB3_REF, tabl3);
 		connectorNamespace = ConnectorNamespace.builder().sourceTables(mapSources).build();
-		tableJoinExample = TableJoinSource.builder()
-			.keyType(CAMELCASE_NOT_WBEM)
-			.leftTable(TAB1_REF)
-			.rightTable(TAB3_REF)
-			.leftKeyColumn(0)
-			.rightKeyColumn(1)
-			.defaultRightLine(null)
-			.build();
+		tableJoinExample =
+			TableJoinSource
+				.builder()
+				.keyType(CAMELCASE_NOT_WBEM)
+				.leftTable(TAB1_REF)
+				.rightTable(TAB3_REF)
+				.leftKeyColumn(0)
+				.rightKeyColumn(1)
+				.defaultRightLine(null)
+				.build();
 		assertEquals(SourceTable.empty(), sourceProcessor.process(tableJoinExample));
 
 		// null args
-		tableJoinExample = TableJoinSource.builder()
-			.keyType(CAMELCASE_NOT_WBEM)
-			.leftTable(null)
-			.rightTable(TAB3_REF)
-			.leftKeyColumn(1)
-			.rightKeyColumn(1)
-			.defaultRightLine(null)
-			.build();
+		tableJoinExample =
+			TableJoinSource
+				.builder()
+				.keyType(CAMELCASE_NOT_WBEM)
+				.leftTable(null)
+				.rightTable(TAB3_REF)
+				.leftKeyColumn(1)
+				.rightKeyColumn(1)
+				.defaultRightLine(null)
+				.build();
 		assertEquals(new ArrayList<>(), sourceProcessor.process(tableJoinExample).getTable());
-		tableJoinExample = TableJoinSource.builder()
-			.keyType(CAMELCASE_NOT_WBEM)
-			.leftTable(TAB1_REF)
-			.rightTable(null)
-			.leftKeyColumn(1)
-			.rightKeyColumn(1)
-			.defaultRightLine(null)
-			.build();
+		tableJoinExample =
+			TableJoinSource
+				.builder()
+				.keyType(CAMELCASE_NOT_WBEM)
+				.leftTable(TAB1_REF)
+				.rightTable(null)
+				.leftKeyColumn(1)
+				.rightKeyColumn(1)
+				.defaultRightLine(null)
+				.build();
 		// table not in sources
 		assertEquals(new ArrayList<>(), sourceProcessor.process(tableJoinExample).getTable());
-		tableJoinExample = TableJoinSource.builder()
-			.keyType(CAMELCASE_NOT_WBEM)
-			.leftTable(TAB1_REF)
-			.rightTable("blabla")
-			.leftKeyColumn(1)
-			.rightKeyColumn(1)
-			.defaultRightLine(null)
-			.build();
+		tableJoinExample =
+			TableJoinSource
+				.builder()
+				.keyType(CAMELCASE_NOT_WBEM)
+				.leftTable(TAB1_REF)
+				.rightTable("blabla")
+				.leftKeyColumn(1)
+				.rightKeyColumn(1)
+				.defaultRightLine(null)
+				.build();
 		assertEquals(new ArrayList<>(), sourceProcessor.process(tableJoinExample).getTable());
 
-		tableJoinExample = TableJoinSource.builder()
-			.keyType(CAMELCASE_NOT_WBEM)
-			.leftTable(TAB1_REF)
-			.rightTable(TAB2_REF)
-			.leftKeyColumn(1)
-			.rightKeyColumn(1)
-			.defaultRightLine(null)
-			.build();
-		assertEquals(Arrays.asList(Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1, LOWERCASE_A1, LOWERCASE_B2, LOWERCASE_C2)),
-			sourceProcessor.process(tableJoinExample).getTable());
+		tableJoinExample =
+			TableJoinSource
+				.builder()
+				.keyType(CAMELCASE_NOT_WBEM)
+				.leftTable(TAB1_REF)
+				.rightTable(TAB2_REF)
+				.leftKeyColumn(1)
+				.rightKeyColumn(1)
+				.defaultRightLine(null)
+				.build();
+		assertEquals(
+			Arrays.asList(Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1, LOWERCASE_A1, LOWERCASE_B2, LOWERCASE_C2)),
+			sourceProcessor.process(tableJoinExample).getTable()
+		);
 	}
 
 	@Test
 	void testProcessTableUnionSourceTest() {
-		SourceTable tabl1 = SourceTable.builder()
-			.table(Arrays.asList(
-				Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1),
-				Arrays.asList(VALUE_VAL1, VALUE_VAL2, VALUE_VAL3)))
+		SourceTable tabl1 = SourceTable
+			.builder()
+			.table(
+				Arrays.asList(
+					Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1),
+					Arrays.asList(VALUE_VAL1, VALUE_VAL2, VALUE_VAL3)
+				)
+			)
 			.rawData(LOWERCASE_A1)
 			.build();
-		SourceTable tabl2 = SourceTable.builder()
-			.table(Arrays.asList(
-				Arrays.asList(LOWERCASE_A1, LOWERCASE_B2, LOWERCASE_C2),
-				Arrays.asList(LOWERCASE_V1, LOWERCASE_V2, LOWERCASE_V3)))
+		SourceTable tabl2 = SourceTable
+			.builder()
+			.table(
+				Arrays.asList(
+					Arrays.asList(LOWERCASE_A1, LOWERCASE_B2, LOWERCASE_C2),
+					Arrays.asList(LOWERCASE_V1, LOWERCASE_V2, LOWERCASE_V3)
+				)
+			)
 			.rawData(TAB1_REF)
 			.build();
 
@@ -442,15 +555,18 @@ class SourceProcessorTest {
 			Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1),
 			Arrays.asList(VALUE_VAL1, VALUE_VAL2, VALUE_VAL3),
 			Arrays.asList(LOWERCASE_A1, LOWERCASE_B2, LOWERCASE_C2),
-			Arrays.asList(LOWERCASE_V1, LOWERCASE_V2, LOWERCASE_V3));
+			Arrays.asList(LOWERCASE_V1, LOWERCASE_V2, LOWERCASE_V3)
+		);
 
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder()
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
+			.builder()
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
 			.port(161)
 			.timeout(120L)
 			.build();
-		final HostConfiguration hostConfiguration = HostConfiguration.builder()
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
 			.hostname(ECS1_01)
 			.hostId(ECS1_01)
 			.hostType(DeviceKind.LINUX)
@@ -458,15 +574,17 @@ class SourceProcessorTest {
 			.build();
 		ConnectorNamespace connectorNamespace = ConnectorNamespace.builder().sourceTables(mapSources).build();
 
-		Map<String,ConnectorNamespace> connectorNamespaces = new HashMap<>();
+		Map<String, ConnectorNamespace> connectorNamespaces = new HashMap<>();
 		connectorNamespaces.put(MY_CONNECTOR_1_NAME, connectorNamespace);
 		HostProperties hostProperties = HostProperties.builder().connectorNamespaces(connectorNamespaces).build();
 
-		final TelemetryManager telemetryManager = TelemetryManager.builder()
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
 			.hostConfiguration(hostConfiguration)
 			.hostProperties(hostProperties)
 			.build();
-		final SourceProcessor sourceProcessor = SourceProcessor.builder()
+		final SourceProcessor sourceProcessor = SourceProcessor
+			.builder()
 			.telemetryManager(telemetryManager)
 			.matsyaClientsExecutor(matsyaClientsExecutorMock)
 			.connectorName(MY_CONNECTOR_1_NAME)
@@ -475,24 +593,23 @@ class SourceProcessorTest {
 		TableUnionSource tableUnionExample = TableUnionSource.builder().tables(Arrays.asList()).build();
 		assertEquals(new ArrayList<>(), sourceProcessor.process(tableUnionExample).getTable());
 
-		tableUnionExample = TableUnionSource.builder()
-			.tables(Arrays.asList(TAB1_REF, TAB2_REF, TAB3_REF))
-			.build();
+		tableUnionExample = TableUnionSource.builder().tables(Arrays.asList(TAB1_REF, TAB2_REF, TAB3_REF)).build();
 
 		assertEquals(expectedUnion, sourceProcessor.process(tableUnionExample).getTable());
-		assertEquals(LOWERCASE_A1 +"\n"+ TAB1_REF, sourceProcessor.process(tableUnionExample).getRawData());
-
+		assertEquals(LOWERCASE_A1 + "\n" + TAB1_REF, sourceProcessor.process(tableUnionExample).getRawData());
 	}
 
 	@Test
 	void testProcessCopySource() {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder()
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
+			.builder()
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
 			.port(161)
 			.timeout(120L)
 			.build();
-		final HostConfiguration hostConfiguration = HostConfiguration.builder()
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
 			.hostname(ECS1_01)
 			.hostId(ECS1_01)
 			.hostType(DeviceKind.LINUX)
@@ -506,13 +623,10 @@ class SourceProcessorTest {
 			)
 		);
 
-		SourceTable table = SourceTable.builder()
-			.table(expectedTable)
-			.rawData("rawData")
-			.build();
+		SourceTable table = SourceTable.builder().table(expectedTable).rawData("rawData").build();
 
 		ConnectorNamespace namespace = ConnectorNamespace.builder().sourceTables(Map.of(TAB1_REF, table)).build();
-		Map<String,ConnectorNamespace> connectorNamespaces = new HashMap<>();
+		Map<String, ConnectorNamespace> connectorNamespaces = new HashMap<>();
 		connectorNamespaces.put(MY_CONNECTOR_1_NAME, namespace);
 		HostProperties hostProperties = HostProperties.builder().connectorNamespaces(connectorNamespaces).build();
 
@@ -521,7 +635,8 @@ class SourceProcessorTest {
 			.hostConfiguration(hostConfiguration)
 			.hostProperties(hostProperties)
 			.build();
-		final SourceProcessor sourceProcessor = SourceProcessor.builder()
+		final SourceProcessor sourceProcessor = SourceProcessor
+			.builder()
 			.telemetryManager(telemetryManager)
 			.matsyaClientsExecutor(matsyaClientsExecutorMock)
 			.connectorName(MY_CONNECTOR_1_NAME)
@@ -554,20 +669,23 @@ class SourceProcessorTest {
 
 	@Test
 	void testProcessStaticSource() {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder()
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
+			.builder()
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
 			.port(161)
 			.timeout(120L)
 			.build();
-		final HostConfiguration hostConfiguration = HostConfiguration.builder()
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
 			.hostname(ECS1_01)
 			.hostId(ECS1_01)
 			.hostType(DeviceKind.LINUX)
 			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
 			.build();
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
-		final SourceProcessor sourceProcessor = SourceProcessor.builder()
+		final SourceProcessor sourceProcessor = SourceProcessor
+			.builder()
 			.telemetryManager(telemetryManager)
 			.matsyaClientsExecutor(matsyaClientsExecutorMock)
 			.build();
@@ -577,8 +695,7 @@ class SourceProcessorTest {
 		staticSource = new StaticSource();
 		assertEquals(SourceTable.empty(), sourceProcessor.process(staticSource));
 
-		List<List<String>> expectedTable = Arrays.asList(
-			Arrays.asList(LOWERCASE_A1));
+		List<List<String>> expectedTable = Arrays.asList(Arrays.asList(LOWERCASE_A1));
 
 		staticSource = StaticSource.builder().value(LOWERCASE_A1).build();
 
@@ -590,5 +707,285 @@ class SourceProcessorTest {
 		staticSource = StaticSource.builder().value(VALUE_LIST).build();
 
 		assertEquals(expectedTable, sourceProcessor.process(staticSource).getTable());
+	}
+
+	@Test
+	void testProcessWbemSource() throws MatsyaException {
+		final WbemConfiguration wbemConfiguration = WbemConfiguration
+			.builder()
+			.username(ECS1_01 + "\\" + USERNAME)
+			.password(PASSWORD.toCharArray())
+			.build();
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostname(ECS1_01)
+					.hostId(ECS1_01)
+					.hostType(DeviceKind.LINUX)
+					.configurations(Map.of(WbemConfiguration.class, wbemConfiguration))
+					.build()
+			)
+			.build();
+		final SourceProcessor sourceProcessor = SourceProcessor
+			.builder()
+			.telemetryManager(telemetryManager)
+			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.connectorName(CONNECTOR_NAME)
+			.build();
+		assertEquals(SourceTable.empty(), sourceProcessor.process((WbemSource) null));
+		assertEquals(SourceTable.empty(), sourceProcessor.process(WbemSource.builder().query(EMPTY).build()));
+
+		final WbemSource wbemSource = WbemSource.builder().query(WBEM_QUERY).build();
+		telemetryManager.setHostConfiguration(HostConfiguration.builder().configurations(Collections.emptyMap()).build());
+
+		// no wbem configuration
+		assertEquals(SourceTable.empty(), sourceProcessor.process(wbemSource));
+
+		telemetryManager.setHostConfiguration(
+			HostConfiguration
+				.builder()
+				.configurations(Map.of(WbemConfiguration.class, WbemConfiguration.builder().build()))
+				.build()
+		);
+
+		// empty configuration
+		assertEquals(SourceTable.empty(), sourceProcessor.process(wbemSource));
+
+		telemetryManager.setHostConfiguration(
+			HostConfiguration
+				.builder()
+				.configurations(
+					Map.of(
+						WbemConfiguration.class,
+						WbemConfiguration.builder().username(USERNAME).password(PASSWORD.toCharArray()).build()
+					)
+				)
+				.build()
+		);
+
+		// no namespace
+		assertEquals(SourceTable.empty(), sourceProcessor.process(wbemSource));
+
+		telemetryManager.setHostConfiguration(
+			HostConfiguration
+				.builder()
+				.configurations(
+					Map.of(
+						WbemConfiguration.class,
+						WbemConfiguration
+							.builder()
+							.username(USERNAME)
+							.password(PASSWORD.toCharArray())
+							.namespace(WMI_NAMESPACE)
+							.build()
+					)
+				)
+				.build()
+		);
+
+		// unable to build URL : no port
+		assertEquals(SourceTable.empty(), sourceProcessor.process(wbemSource));
+
+		telemetryManager.setHostConfiguration(
+			HostConfiguration
+				.builder()
+				.hostname(null)
+				.configurations(
+					Map.of(
+						WbemConfiguration.class,
+						WbemConfiguration
+							.builder()
+							.username(USERNAME)
+							.password(PASSWORD.toCharArray())
+							.namespace(WMI_NAMESPACE)
+							.port(5989)
+							.build()
+					)
+				)
+				.build()
+		);
+
+		// unable to build URL : no hostname
+		assertEquals(SourceTable.empty(), sourceProcessor.process(wbemSource));
+
+		telemetryManager.setHostConfiguration(
+			HostConfiguration
+				.builder()
+				.hostname(ECS1_01)
+				.hostId(ECS1_01)
+				.strategyTimeout(120L)
+				.hostType(DeviceKind.LINUX)
+				.configurations(Map.of(WbemConfiguration.class, wbemConfiguration))
+				.build()
+		);
+
+		final List<List<String>> listValues = Arrays.asList(
+			Arrays.asList("a1", "b2", "c2"),
+			Arrays.asList("v1", "v2", "v3")
+		);
+
+		doReturn(listValues).when(matsyaClientsExecutorMock).executeWbem(any(), any(), any(), any());
+		assertEquals(listValues, sourceProcessor.process(wbemSource).getTable());
+
+		// handle exception
+		doThrow(new MatsyaException()).when(matsyaClientsExecutorMock).executeWbem(any(), any(), any(), any());
+		assertEquals(SourceTable.empty(), sourceProcessor.process(wbemSource));
+	}
+
+	@Test
+	void testProcessWmiSourceMalformed() {
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
+			.builder()
+			.community("public")
+			.version(SnmpConfiguration.SnmpVersion.V1)
+			.port(161)
+			.timeout(120L)
+			.build();
+		final HttpConfiguration httpConfiguration = HttpConfiguration
+			.builder()
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
+			.port(161)
+			.timeout(120L)
+			.build();
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostname(ECS1_01)
+					.hostId(ECS1_01)
+					.hostType(DeviceKind.LINUX)
+					.configurations(
+						Map.of(SnmpConfiguration.class, snmpConfiguration, HttpConfiguration.class, httpConfiguration)
+					)
+					.build()
+			)
+			.build();
+		final SourceProcessor sourceProcessor = SourceProcessor
+			.builder()
+			.telemetryManager(telemetryManager)
+			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.build();
+		assertEquals(SourceTable.empty(), sourceProcessor.process((WmiSource) null));
+		assertEquals(SourceTable.empty(), sourceProcessor.process(WmiSource.builder().query(WBEM_QUERY).build()));
+	}
+
+	@Test
+	void testProcessWmiSourceButWmiNotConfigured() {
+		final WmiSource wmiSource = WmiSource.builder().query(WBEM_QUERY).build();
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostname(ECS1_01)
+					.hostId(ECS1_01)
+					.hostType(DeviceKind.LINUX)
+					.configurations(Collections.emptyMap())
+					.build()
+			)
+			.build();
+		final SourceProcessor sourceProcessor = SourceProcessor
+			.builder()
+			.telemetryManager(telemetryManager)
+			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.build();
+		assertEquals(SourceTable.empty(), sourceProcessor.process(wmiSource));
+	}
+
+	@Test
+	void testProcessWmiSourceNoNamespace() {
+		final WmiSource wmiSource = WmiSource.builder().query(WBEM_QUERY).namespace(AUTOMATIC).build();
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostname(ECS1_01)
+					.hostId(ECS1_01)
+					.hostType(DeviceKind.LINUX)
+					.configurations(
+						Map.of(
+							WmiConfiguration.class,
+							WmiConfiguration.builder().username(ECS1_01 + "\\" + USERNAME).password(PASSWORD.toCharArray()).build()
+						)
+					)
+					.build()
+			)
+			.build();
+		final SourceProcessor sourceProcessor = SourceProcessor
+			.builder()
+			.telemetryManager(telemetryManager)
+			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.connectorName(CONNECTOR_NAME)
+			.build();
+		assertEquals(SourceTable.empty(), sourceProcessor.process(wmiSource));
+	}
+
+	@Test
+	void testProcessWmiSource() throws Exception {
+		final WmiSource wmiSource = WmiSource.builder().query(WBEM_QUERY).namespace(WMI_NAMESPACE).build();
+		final WmiConfiguration wmiConfiguration = WmiConfiguration
+			.builder()
+			.username(ECS1_01 + "\\" + USERNAME)
+			.password(PASSWORD.toCharArray())
+			.build();
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostname(ECS1_01)
+					.hostId(ECS1_01)
+					.hostType(DeviceKind.LINUX)
+					.configurations(Map.of(WmiConfiguration.class, wmiConfiguration))
+					.build()
+			)
+			.build();
+		final List<List<String>> expected = Arrays.asList(
+			Arrays.asList("1.1", "0|4587"),
+			Arrays.asList("1.2", "2|4587"),
+			Arrays.asList("1.3", "1|4587")
+		);
+		doReturn(expected).when(matsyaClientsExecutorMock).executeWql(ECS1_01, wmiConfiguration, WBEM_QUERY, WMI_NAMESPACE);
+		final SourceProcessor sourceProcessor = SourceProcessor
+			.builder()
+			.telemetryManager(telemetryManager)
+			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.connectorName(CONNECTOR_NAME)
+			.build();
+		assertEquals(SourceTable.builder().table(expected).build(), sourceProcessor.process(wmiSource));
+	}
+
+	@Test
+	void testProcessWmiSourceTimeout() {
+		final WmiSource wmiSource = WmiSource.builder().query(WBEM_QUERY).namespace(AUTOMATIC).build();
+		final WmiConfiguration wmiConfiguration = WmiConfiguration
+			.builder()
+			.username(ECS1_01 + "\\" + USERNAME)
+			.password(PASSWORD.toCharArray())
+			.build();
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostname(ECS1_01)
+					.hostId(ECS1_01)
+					.hostType(DeviceKind.LINUX)
+					.configurations(Map.of(WmiConfiguration.class, wmiConfiguration))
+					.build()
+			)
+			.build();
+		final SourceProcessor sourceProcessor = SourceProcessor
+			.builder()
+			.telemetryManager(telemetryManager)
+			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.connectorName(CONNECTOR_NAME)
+			.build();
+		assertEquals(SourceTable.empty(), sourceProcessor.process(wmiSource));
 	}
 }

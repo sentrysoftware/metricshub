@@ -27,8 +27,11 @@ import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_NAME;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_SERIAL_NUMBER;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_STATUS_INFORMATION;
 import static com.sentrysoftware.matrix.converter.ConverterConstants.YAML_VENDOR;
-import static com.sentrysoftware.matrix.converter.state.ConversionHelper.*;
+import static com.sentrysoftware.matrix.converter.state.ConversionHelper.wrapInAwkRefIfFunctionDetected;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,13 +42,10 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-
 public class DiskControllerConverter extends AbstractMappingConverter {
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_ATTRIBUTES_MAPPING;
+
 	static {
 		final Map<String, Entry<String, IMappingKey>> attributesMap = new HashMap<>();
 		attributesMap.put(HDF_DEVICE_ID, IMappingKey.of(ATTRIBUTES, YAML_ID));
@@ -61,8 +61,8 @@ public class DiskControllerConverter extends AbstractMappingConverter {
 	}
 
 	private static final Map<String, Entry<String, IMappingKey>> ONE_TO_ONE_METRICS_MAPPING;
-	static {
 
+	static {
 		final Map<String, Entry<String, IMappingKey>> metricsMap = new HashMap<>();
 		metricsMap.put(HDF_STATUS, IMappingKey.of(METRICS, YAML_DISK_CONTROLLER_STATUS));
 		metricsMap.put(HDF_CONTROLLER_STATUS, IMappingKey.of(METRICS, YAML_DISK_CONTROLLER_STATUS));
@@ -100,14 +100,7 @@ public class DiskControllerConverter extends AbstractMappingConverter {
 		final JsonNode vendor = existingAttributes.get(HDF_VENDOR);
 		final JsonNode model = existingAttributes.get(HDF_MODEL);
 
-		newAttributes.set(
-			YAML_NAME,
-			new TextNode(
-				wrapInAwkRefIfFunctionDetected(
-					buildNameValue(deviceId, vendor, model)
-				)
-			)
-		);
+		newAttributes.set(YAML_NAME, new TextNode(wrapInAwkRefIfFunctionDetected(buildNameValue(deviceId, vendor, model))));
 	}
 
 	/**
@@ -119,7 +112,6 @@ public class DiskControllerConverter extends AbstractMappingConverter {
 	 * @return {@link String} Joined text nodes
 	 */
 	private String buildNameValue(final JsonNode firstDisplayArgument, final JsonNode... vendorAndModel) {
-
 		final String firstArg = firstDisplayArgument.asText();
 
 		// Create the function with the first format for the first argument
@@ -127,40 +119,23 @@ public class DiskControllerConverter extends AbstractMappingConverter {
 
 		// Build the list of arguments non-null
 		final List<String> sprintfArgs = new ArrayList<>();
-		sprintfArgs.addAll(
-			Stream
-				.of(vendorAndModel)
-				.filter(Objects::nonNull)
-				.map(JsonNode::asText)
-				.toList()
-		);
+		sprintfArgs.addAll(Stream.of(vendorAndModel).filter(Objects::nonNull).map(JsonNode::asText).toList());
 
 		// Means vendor or model is not null
 		if (!sprintfArgs.isEmpty()) {
-			format.append(
-				sprintfArgs
-					.stream()
-					.map(v -> "%s")
-					.collect(Collectors.joining(" ", " (", ")"))
-			);
+			format.append(sprintfArgs.stream().map(v -> "%s").collect(Collectors.joining(" ", " (", ")")));
 		}
 
-		// Add the first argument at the beginning of the list 
+		// Add the first argument at the beginning of the list
 		sprintfArgs.add(0, firstArg);
 
-		// Join the arguments, example: $column(1), $column(2), $column(3)
+		// Join the arguments, example: $1, $2, $3
 		// Append the result to our format variable in order to get something like
-		// sprintf("Disk Controller: %s (%s %s)", $column(1), $column(2), $column(3))
+		// sprintf("Disk Controller: %s (%s %s)", $1, $2, $3)
 		return format
-			.append("\", ") // Here we will have a string like sprintf("Disk Controller: %s (%s %s)", 
-			.append(
-				sprintfArgs
-					.stream()
-					.map(this::getFunctionArgument)
-					.collect(Collectors.joining(", ", "", ")"))
-			)
+			.append("\", ") // Here we will have a string like sprintf("Disk Controller: %s (%s %s)",
+			.append(sprintfArgs.stream().map(this::getFunctionArgument).collect(Collectors.joining(", ", "", ")")))
 			.toString();
-
 	}
 
 	@Override
@@ -172,5 +147,4 @@ public class DiskControllerConverter extends AbstractMappingConverter {
 	public void convertCollectProperty(final String key, final String value, final JsonNode node) {
 		convertOneToOneMetrics(key, value, (ObjectNode) node);
 	}
-
 }

@@ -13,6 +13,7 @@ public class IpmiConfiguration implements IConfiguration {
 
 	@Builder.Default
 	private final Long timeout = 120L;
+
 	private String username;
 	private char[] password;
 	private byte[] bmcKey;

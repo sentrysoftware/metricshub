@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sentrysoftware.matrix.strategy.detection.CriterionTestResult;
 import com.sentrysoftware.matrix.strategy.detection.ICriterionProcessor;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -23,11 +22,11 @@ public class SnmpGetNextCriterion extends SnmpCriterion {
 	@Builder
 	@JsonCreator
 	public SnmpGetNextCriterion(
-			@JsonProperty("type") String type, 
-			@JsonProperty("forceSerialization") boolean forceSerialization, 
-			@JsonProperty(value = "oid", required = true) @NonNull String oid, 
-			@JsonProperty("expectedResult") String expectedResult) {
-
+		@JsonProperty("type") String type,
+		@JsonProperty("forceSerialization") boolean forceSerialization,
+		@JsonProperty(value = "oid", required = true) @NonNull String oid,
+		@JsonProperty("expectedResult") String expectedResult
+	) {
 		super(type, forceSerialization, oid, expectedResult);
 	}
 

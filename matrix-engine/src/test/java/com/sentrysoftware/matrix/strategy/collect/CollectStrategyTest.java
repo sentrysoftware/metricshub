@@ -1,28 +1,5 @@
 package com.sentrysoftware.matrix.strategy.collect;
 
-import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
-import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
-import com.sentrysoftware.matrix.configuration.HostConfiguration;
-import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
-import com.sentrysoftware.matrix.connector.model.ConnectorStore;
-import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
-import com.sentrysoftware.matrix.strategy.source.SourceTable;
-import com.sentrysoftware.matrix.telemetry.Monitor;
-import com.sentrysoftware.matrix.telemetry.MonitorFactory;
-import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IS_ENDPOINT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
 import static com.sentrysoftware.matrix.constants.Constants.CONNECTOR;
@@ -38,10 +15,39 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 
-@ExtendWith(MockitoExtension.class)
-public class CollectStrategyTest {
+import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
+import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
+import com.sentrysoftware.matrix.configuration.HostConfiguration;
+import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
+import com.sentrysoftware.matrix.connector.model.ConnectorStore;
+import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.telemetry.Monitor;
+import com.sentrysoftware.matrix.telemetry.MonitorFactory;
+import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-	private static final Path TEST_CONNECTOR_PATH = Paths.get("src", "test", "resources", "test-files", "strategy");
+@ExtendWith(MockitoExtension.class)
+class CollectStrategyTest {
+
+	private static final Path TEST_CONNECTOR_PATH = Paths.get(
+		"src",
+		"test",
+		"resources",
+		"test-files",
+		"strategy",
+		"TestConnector.yaml"
+	);
 	private static final String HEALTHY = "healthy";
 	private static final String STATUS_INFORMATION = "StatusInformation";
 
@@ -51,63 +57,57 @@ public class CollectStrategyTest {
 	@InjectMocks
 	private CollectStrategy collectStrategy;
 
-
 	static Long strategyTime = new Date().getTime();
 
 	@Test
 	void testRun() throws Exception {
+		final String connectorId = TEST_CONNECTOR_FILE_NAME.split("\\.")[0];
+
 		// Create host and connector monitors and set them in the telemetry manager
 		final Monitor hostMonitor = Monitor.builder().type(KnownMonitorType.HOST.getKey()).build();
 		final Monitor connectorMonitor = Monitor.builder().type(KnownMonitorType.CONNECTOR.getKey()).build();
 		final Map<String, Map<String, Monitor>> monitors = new HashMap<>(
-			Map.of(
-				HOST,
-				Map.of(MONITOR_ID_ATTRIBUTE_VALUE, hostMonitor),
-				CONNECTOR,
-				Map.of(TEST_CONNECTOR_FILE_NAME, connectorMonitor)
-			)
+			Map.of(HOST, Map.of(MONITOR_ID_ATTRIBUTE_VALUE, hostMonitor), CONNECTOR, Map.of(connectorId, connectorMonitor))
 		);
 
-		final SnmpConfiguration snmpConfig = SnmpConfiguration
-			.builder()
-			.community("public")
-			.build();
+		final SnmpConfiguration snmpConfig = SnmpConfiguration.builder().community("public").build();
 
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
 			.monitors(monitors)
-			.hostConfiguration(HostConfiguration
-				.builder()
-				.hostId(HOST_ID)
-				.hostname(HOST_NAME)
-				.sequential(false)
-				.configurations(
-					Map.of(
-						SnmpConfiguration.class,
-						snmpConfig
-					)
-				)
-				.build()
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostId(HOST_ID)
+					.hostname(HOST_NAME)
+					.sequential(false)
+					.configurations(Map.of(SnmpConfiguration.class, snmpConfig))
+					.build()
 			)
 			.build();
 
-		final String connectorId = TEST_CONNECTOR_FILE_NAME.split("\\.")[0];
-
-		MonitorFactory monitorFactory = MonitorFactory.builder().monitorType("enclosure").telemetryManager(telemetryManager)
+		MonitorFactory monitorFactory = MonitorFactory
+			.builder()
+			.monitorType("enclosure")
+			.telemetryManager(telemetryManager)
 			.connectorId(connectorId)
 			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "enclosure-1")))
 			.build();
 		final Monitor enclosure = monitorFactory.createOrUpdateMonitor();
 
-		monitorFactory = MonitorFactory.builder().monitorType("disk_controller").telemetryManager(telemetryManager)
-			.connectorId(connectorId)
-			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "1")))
-			.build();
+		monitorFactory =
+			MonitorFactory
+				.builder()
+				.monitorType("disk_controller")
+				.telemetryManager(telemetryManager)
+				.connectorId(connectorId)
+				.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "1")))
+				.build();
 		final Monitor diskController = monitorFactory.createOrUpdateMonitor();
 
-		hostMonitor.getAttributes().put(IS_ENDPOINT, "true");
+		hostMonitor.addAttribute(IS_ENDPOINT, "true");
 
-		connectorMonitor.getAttributes().put(ID, TEST_CONNECTOR_FILE_NAME);
+		connectorMonitor.addAttribute(ID, TEST_CONNECTOR_FILE_NAME);
 
 		// Create the connector store
 		final ConnectorStore connectorStore = new ConnectorStore(TEST_CONNECTOR_PATH);
@@ -141,7 +141,10 @@ public class CollectStrategyTest {
 		collectStrategy.run();
 
 		// Check metrics
-		assertEquals(1.0, diskController.getMetric("hw.status{hw.type=\"disk_controller\"}", NumberMetric.class).getValue());
+		assertEquals(
+			1.0,
+			diskController.getMetric("hw.status{hw.type=\"disk_controller\"}", NumberMetric.class).getValue()
+		);
 		assertEquals(HEALTHY, diskController.getLegacyTextParameters().get(STATUS_INFORMATION));
 		assertEquals(1.0, enclosure.getMetric("hw.status{hw.type=\"enclosure\"}", NumberMetric.class).getValue());
 		assertEquals(HEALTHY, enclosure.getLegacyTextParameters().get(STATUS_INFORMATION));

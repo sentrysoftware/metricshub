@@ -1,14 +1,13 @@
 package com.sentrysoftware.matrix.alert;
 
+import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
+
 import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
+import java.util.StringJoiner;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.StringJoiner;
-
-import static com.sentrysoftware.matrix.common.helpers.StringHelper.addNonNull;
 
 @Data
 @AllArgsConstructor
@@ -30,5 +29,4 @@ public class AlertDetails {
 
 		return stringJoiner.toString();
 	}
-
 }

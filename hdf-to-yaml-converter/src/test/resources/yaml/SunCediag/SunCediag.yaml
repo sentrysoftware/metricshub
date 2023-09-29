@@ -53,6 +53,8 @@ monitors:
     collect:
       # Collect type is "multi-instance
       type: multiInstance
+      keys:
+      - id
       sources:
         source(1):
           # Source(1) = Memory.Discovery.Source(1)
@@ -66,7 +68,8 @@ monitors:
       mapping:
         # ValueTable = Source(1)
         source: "${source::monitors.memory.collect.sources.source(1)}"
-        deviceId: $1
+        attributes:
+          id: $1
         metrics:
           hw.status{hw.type="memory", state="predicted_failure"}: boolean($2)
           hw.status{hw.type="memory"}: $3
