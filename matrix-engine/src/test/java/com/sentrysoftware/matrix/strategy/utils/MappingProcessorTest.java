@@ -1,19 +1,22 @@
 package com.sentrysoftware.matrix.strategy.utils;
 
-import com.sentrysoftware.matrix.common.JobInfo;
-import com.sentrysoftware.matrix.connector.model.monitor.task.Mapping;
-import com.sentrysoftware.matrix.telemetry.Monitor;
-import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-import org.junit.jupiter.api.Test;
+import static com.sentrysoftware.matrix.constants.Constants.HARDCODED_SOURCE;
+import static com.sentrysoftware.matrix.constants.Constants.MY_CONNECTOR_1_NAME;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.sentrysoftware.matrix.constants.Constants.HARDCODED_SOURCE;
-import static com.sentrysoftware.matrix.constants.Constants.MY_CONNECTOR_1_NAME;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
+
+import com.sentrysoftware.matrix.common.JobInfo;
+import com.sentrysoftware.matrix.connector.model.monitor.task.Mapping;
+import com.sentrysoftware.matrix.telemetry.MetricFactory;
+import com.sentrysoftware.matrix.telemetry.Monitor;
+import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
 
 class MappingProcessorTest {
 
@@ -21,31 +24,19 @@ class MappingProcessorTest {
 	void testInterpretNonContextMapping() {
 		final TelemetryManager telemetryManager = new TelemetryManager();
 
-		final List<String> row = List.of(
-				"1",
-				"1",
-				"1",
-				"10",
-				"10",
-				"1",
-				"1",
-				"1",
-				"1",
-				"2",
-				"1"
-		);
+		final List<String> row = List.of("1", "1", "1", "10", "10", "1", "1", "1", "1", "2", "1");
 
 		final MappingProcessor mappingProcessor = MappingProcessor
+			.builder()
+			.jobInfo(JobInfo.builder().connectorName(MY_CONNECTOR_1_NAME).build())
+			.telemetryManager(telemetryManager)
+			.mapping(Mapping
 				.builder()
-				.jobInfo(JobInfo.builder().connectorName(MY_CONNECTOR_1_NAME).build())
-				.telemetryManager(telemetryManager)
-				.mapping(Mapping
-						.builder()
-						.source(HARDCODED_SOURCE)
-						.build()
-				)
-				.row(row)
-				.build();
+				.source(HARDCODED_SOURCE)
+				.build()
+			)
+			.row(row)
+			.build();
 
 		// Value conversion tests, basic value and invalid value
 		{
@@ -64,12 +55,12 @@ class MappingProcessorTest {
 			expected.put("testInvalidValue", null);
 
 			final Map<String, String> keyValuePairs = Map.of(
-					"testMebiByte2Byte", "mebibyte2byte(1)",
-					"testMegaHertz2Hertz", "megahertz2hertz(1)",
-					"testMegaBit2Bit", "megabit2bit(1)",
-					"testPercent2Ratio", "percent2ratio(10)",
-					"testValue", "10",
-					"testInvalidValue", "percent2ratio(ten)"
+				"testMebiByte2Byte", "mebibyte2byte(1)",
+				"testMegaHertz2Hertz", "megahertz2hertz(1)",
+				"testMegaBit2Bit", "megabit2bit(1)",
+				"testPercent2Ratio", "percent2ratio(10)",
+				"testValue", "10",
+				"testInvalidValue", "percent2ratio(ten)"
 			);
 
 			assertEquals(expected, mappingProcessor.interpretNonContextMapping(keyValuePairs));
@@ -78,19 +69,19 @@ class MappingProcessorTest {
 		// Value conversion tests and basic value
 		{
 			final Map<String, String> expected = Map.of(
-					"testMebiByte2Byte", "1048576.0",
-					"testMegaHertz2Hertz", "1000000.0",
-					"testMegaBit2Bit", "1000000.0",
-					"testPercent2Ratio", "0.1",
-					"testValue", "10"
+				"testMebiByte2Byte", "1048576.0",
+				"testMegaHertz2Hertz", "1000000.0",
+				"testMegaBit2Bit", "1000000.0",
+				"testPercent2Ratio", "0.1",
+				"testValue", "10"
 			);
 
 			final Map<String, String> keyValuePairs = Map.of(
-					"testMebiByte2Byte", "mebibyte2byte($1)",
-					"testMegaHertz2Hertz", "megahertz2hertz($2)",
-					"testMegaBit2Bit", "megabit2bit($3)",
-					"testPercent2Ratio", "percent2ratio($4)",
-					"testValue", "$5"
+				"testMebiByte2Byte", "mebibyte2byte($1)",
+				"testMegaHertz2Hertz", "megahertz2hertz($2)",
+				"testMegaBit2Bit", "megabit2bit($3)",
+				"testPercent2Ratio", "percent2ratio($4)",
+				"testValue", "$5"
 			);
 
 			assertEquals(expected, mappingProcessor.interpretNonContextMapping(keyValuePairs));
@@ -99,21 +90,21 @@ class MappingProcessorTest {
 		// Legacy conversion tests with correct values
 		{
 			final Map<String, String> expected = Map.of(
-					"testLegacyFullDuplex", "1",
-					"testLegacyPredictedFailure", "1",
-					"testLegacyIntrusionStatus", "1",
-					"testLegacyNeedsCleaning", "1",
-					"testLegacyLinkStatus", "0",
-					"testBoolean", "1"
+				"testLegacyFullDuplex", "1",
+				"testLegacyPredictedFailure", "1",
+				"testLegacyIntrusionStatus", "1",
+				"testLegacyNeedsCleaning", "1",
+				"testLegacyLinkStatus", "0",
+				"testBoolean", "1"
 			);
 
 			final Map<String, String> keyValuePairs = Map.of(
-					"testLegacyFullDuplex", "legacyfullduplex(1)",
-					"testLegacyPredictedFailure", "legacypredictedfailure(1)",
-					"testLegacyIntrusionStatus", "legacyintrusionstatus(1)",
-					"testLegacyNeedsCleaning", "legacyneedscleaning(1)",
-					"testLegacyLinkStatus", "legacylinkstatus(2)",
-					"testBoolean", "boolean(true)"
+				"testLegacyFullDuplex", "legacyfullduplex(1)",
+				"testLegacyPredictedFailure", "legacypredictedfailure(1)",
+				"testLegacyIntrusionStatus", "legacyintrusionstatus(1)",
+				"testLegacyNeedsCleaning", "legacyneedscleaning(1)",
+				"testLegacyLinkStatus", "legacylinkstatus(2)",
+				"testBoolean", "boolean(true)"
 			);
 
 			assertEquals(expected, mappingProcessor.interpretNonContextMapping(keyValuePairs));
@@ -122,21 +113,21 @@ class MappingProcessorTest {
 		// Legacy conversion tests with column references
 		{
 			final Map<String, String> expected = Map.of(
-					"testLegacyFullDuplex", "1",
-					"testLegacyPredictedFailure", "1",
-					"testLegacyIntrusionStatus", "1",
-					"testLegacyNeedsCleaning", "1",
-					"testLegacyLinkStatus", "0",
-					"testBoolean", "1"
+				"testLegacyFullDuplex", "1",
+				"testLegacyPredictedFailure", "1",
+				"testLegacyIntrusionStatus", "1",
+				"testLegacyNeedsCleaning", "1",
+				"testLegacyLinkStatus", "0",
+				"testBoolean", "1"
 			);
 
 			final Map<String, String> keyValuePairs = Map.of(
-					"testLegacyFullDuplex", "legacyfullduplex($6)",
-					"testLegacyPredictedFailure", "legacypredictedfailure($7)",
-					"testLegacyIntrusionStatus", "legacyintrusionstatus($8)",
-					"testLegacyNeedsCleaning", "legacyneedscleaning($9)",
-					"testLegacyLinkStatus", "legacylinkstatus($10)",
-					"testBoolean", "boolean($11)"
+				"testLegacyFullDuplex", "legacyfullduplex($6)",
+				"testLegacyPredictedFailure", "legacypredictedfailure($7)",
+				"testLegacyIntrusionStatus", "legacyintrusionstatus($8)",
+				"testLegacyNeedsCleaning", "legacyneedscleaning($9)",
+				"testLegacyLinkStatus", "legacylinkstatus($10)",
+				"testBoolean", "boolean($11)"
 			);
 
 			assertEquals(expected, mappingProcessor.interpretNonContextMapping(keyValuePairs));
@@ -153,12 +144,12 @@ class MappingProcessorTest {
 			expected.put("testBoolean", "0");
 
 			final Map<String, String> keyValuePairs = Map.of(
-					"testLegacyFullDuplex", "legacyfullduplex(invalid)",
-					"testLegacyPredictedFailure", "legacypredictedfailure(invalid)",
-					"testLegacyIntrusionStatus", "legacyintrusionstatus(invalid)",
-					"testLegacyNeedsCleaning", "legacyneedscleaning(invalid)",
-					"testLegacyLinkStatus", "legacylinkstatus(invalid)",
-					"testBoolean", "boolean(invalid)"
+				"testLegacyFullDuplex", "legacyfullduplex(invalid)",
+				"testLegacyPredictedFailure", "legacypredictedfailure(invalid)",
+				"testLegacyIntrusionStatus", "legacyintrusionstatus(invalid)",
+				"testLegacyNeedsCleaning", "legacyneedscleaning(invalid)",
+				"testLegacyLinkStatus", "legacylinkstatus(invalid)",
+				"testBoolean", "boolean(invalid)"
 			);
 
 			assertEquals(expected, mappingProcessor.interpretNonContextMapping(keyValuePairs));
@@ -166,36 +157,120 @@ class MappingProcessorTest {
 	}
 
 	@Test
+	void testInterpretNonContextMappingAwk() {
+		final TelemetryManager telemetryManager = new TelemetryManager();
+
+		final List<String> row = List.of("arg1", "arg2", "arg3", "arg4", "arg5", "1000000000");
+
+		final MappingProcessor mappingProcessor = MappingProcessor
+			.builder()
+			.jobInfo(JobInfo.builder().connectorName(MY_CONNECTOR_1_NAME).build())
+			.telemetryManager(telemetryManager)
+			.mapping(Mapping
+				.builder()
+				.source(HARDCODED_SOURCE)
+				.build()
+			)
+			.row(row)
+			.build();
+
+		{
+			final Map<String, String> expected = Map.of(
+				"bytes2HumanFormatBase2", "953.67 MiB",
+				"bytes2HumanFormatBase10", "1.00 GB",
+				"mebiBytes2HumanFormat", "953.67 TiB",
+				"megaHertz2HumanFormat", "1.00 GHz",
+				"join", "arg1 arg2 arg3",
+				"failed", "",
+				"outOfBounds", ""
+			);
+
+			final Map<String, String> keyValuePairs = Map.of(
+				"bytes2HumanFormatBase2", "${awk::bytes2HumanFormatBase2($6)}",
+				"bytes2HumanFormatBase10", "${awk::bytes2HumanFormatBase10($6)}",
+				"mebiBytes2HumanFormat", "${awk::mebiBytes2HumanFormat($6)}",
+				"megaHertz2HumanFormat", "${awk::megaHertz2HumanFormat($6)}",
+				"join", "${awk::join(\" \", $1, $2, $3)}",
+				"failed", "${awk::asdbytes2HumanFormatBase2($6)}",
+				"outOfBounds", "${awk::bytes2HumanFormatBase2($7)}"
+			);
+
+			assertEquals(expected, mappingProcessor.interpretNonContextMapping(keyValuePairs));
+		}
+	}
+
+	@Test
+	void testInterpretNonContextMappingRate() {
+		Monitor monitor = Monitor.builder().build();
+
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.monitors(Map.of("enclosure", Map.of("monitor", monitor)))
+			.build();
+
+		final MetricFactory metricFactory = new MetricFactory(telemetryManager);
+		metricFactory.collectNumberMetric(monitor, "__hw.enclosure.power.rate_from", 1000.0, 120000L);
+		monitor.getMetric("__hw.enclosure.power.rate_from", NumberMetric.class).save();
+
+		final MappingProcessor mappingProcessor = MappingProcessor
+			.builder()
+			.jobInfo(JobInfo.builder().connectorName(MY_CONNECTOR_1_NAME).build())
+			.telemetryManager(telemetryManager)
+			.mapping(Mapping
+				.builder()
+				.source(HARDCODED_SOURCE)
+				.build()
+			)
+			.mapping(Mapping.builder().metrics(Map.of("hw.enclosure.power", "rate($1)")).build())
+			.row(List.of("2000"))
+			.collectTime(240000)
+			.build();
+
+		final Map<String, String> expected = Map.of(
+			"hw.enclosure.power", Double.valueOf(1000.0 / 120.0).toString()
+		);
+
+		mappingProcessor.interpretNonContextMappingMetrics();
+		
+		assertEquals(expected, mappingProcessor.interpretContextMappingMetrics(monitor));
+	}
+
+	@Test
+	void testInterpretNonContextMappingFakeCounter() {
+		
+	}
+
+	@Test
 	void testInterpretNonContextMappingLookup() {
 
 		Monitor monitor = Monitor
-				.builder()
-				.attributes(
-						Map.of(
-								"id", "3",
-								"controller_number", "2"
-						)
+			.builder()
+			.attributes(
+				Map.of(
+					"id", "3",
+					"controller_number", "2"
 				)
-				.build();
+			)
+			.build();
 
 		final TelemetryManager telemetryManager = TelemetryManager
-				.builder()
-				.monitors(Map.of("disk_controller", Map.of("monitor", monitor)))
-				.build();
+			.builder()
+			.monitors(Map.of("disk_controller", Map.of("monitor", monitor)))
+			.build();
 
 		final List<String> row = List.of("randomValue", "2");
 
 		final MappingProcessor mappingProcessor = MappingProcessor
+			.builder()
+			.jobInfo(JobInfo.builder().connectorName(MY_CONNECTOR_1_NAME).build())
+			.telemetryManager(telemetryManager)
+			.mapping(Mapping
 				.builder()
-				.jobInfo(JobInfo.builder().connectorName(MY_CONNECTOR_1_NAME).build())
-				.telemetryManager(telemetryManager)
-				.mapping(Mapping
-						.builder()
-						.source(HARDCODED_SOURCE)
-						.build()
-				)
-				.row(row)
-				.build();
+				.source(HARDCODED_SOURCE)
+				.build()
+			)
+			.row(row)
+			.build();
 
 		final Map<String, String> expected = Map.of("hw.parent.id", "3");
 
