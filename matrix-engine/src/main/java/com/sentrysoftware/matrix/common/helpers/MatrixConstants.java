@@ -154,6 +154,8 @@ public class MatrixConstants {
 	public static final String WMI_PROCESS_QUERY = "SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process";
 	public static final String WMI_DEFAULT_NAMESPACE = "root\\cimv2";
 
+	public static final String AUTOMATIC_NAMESPACE = "automatic";
+
 	/**
 	 * Files
 	 **/

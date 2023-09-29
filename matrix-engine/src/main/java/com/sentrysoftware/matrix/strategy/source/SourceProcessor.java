@@ -1,12 +1,15 @@
 package com.sentrysoftware.matrix.strategy.source;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.AUTOMATIC_NAMESPACE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SEMICOLON;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WMI_DEFAULT_NAMESPACE;
 
 import com.sentrysoftware.matrix.common.helpers.StringHelper;
 import com.sentrysoftware.matrix.common.helpers.TextTableHelper;
 import com.sentrysoftware.matrix.configuration.HttpConfiguration;
 import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
+import com.sentrysoftware.matrix.configuration.WbemConfiguration;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.CopySource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.HttpSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.IpmiSource;
@@ -541,10 +544,73 @@ public class SourceProcessor implements ISourceProcessor {
 		return sourceTable;
 	}
 
+	/**
+	 * This method processes {@link WbemSource} instance
+	 * @param wbemSource {@link WbemSource} instance
+	 * @return {@link SourceTable} instance
+	 */
+
 	@WithSpan("Source WBEM HTTP Exec")
 	public SourceTable process(@SpanAttribute("source.definition") final WbemSource wbemSource) {
-		// TODO Auto-generated method stub
-		return null;
+		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+
+		if (wbemSource == null || wbemSource.getQuery() == null) {
+			log.error("Hostname {} - Malformed WBEM Source {}. Returning an empty table.", hostname, wbemSource);
+			return SourceTable.empty();
+		}
+
+		final WbemConfiguration wbemConfiguration = (WbemConfiguration) telemetryManager
+			.getHostConfiguration()
+			.getConfigurations()
+			.get(WbemConfiguration.class);
+
+		if (wbemConfiguration == null) {
+			log.debug(
+				"Hostname {} - The WBEM credentials are not configured. Returning an empty table for WBEM source {}.",
+				hostname,
+				wbemSource.getKey()
+			);
+			return SourceTable.empty();
+		}
+
+		// Get the namespace, the default one is : root/cimv2
+		final String namespace = getNamespace(wbemSource);
+
+		try {
+			if (hostname == null) {
+				log.error("Hostname {} - No hostname indicated, the URL cannot be built.", hostname);
+				return SourceTable.empty();
+			}
+			if (wbemConfiguration.getPort() == null || wbemConfiguration.getPort() == 0) {
+				log.error("Hostname {} - No port indicated to connect to the host", hostname);
+				return SourceTable.empty();
+			}
+
+			final List<List<String>> table = matsyaClientsExecutor.executeWbem(
+				hostname,
+				wbemConfiguration,
+				wbemSource.getQuery(),
+				namespace
+			);
+
+			return SourceTable.builder().table(table).build();
+		} catch (Exception e) {
+			logSourceError(
+				connectorName,
+				wbemSource.getKey(),
+				String.format(
+					"WBEM query=%s, Username=%s, Timeout=%d, Namespace=%s",
+					wbemSource.getQuery(),
+					wbemConfiguration.getUsername(),
+					wbemConfiguration.getTimeout(),
+					namespace
+				),
+				hostname,
+				e
+			);
+
+			return SourceTable.empty();
+		}
 	}
 
 	@WithSpan("Source WMI Exec")
@@ -650,5 +716,21 @@ public class SourceProcessor implements ISourceProcessor {
 			sourceTable.getRawData(),
 			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable())
 		);
+	}
+
+	/**
+	 * Get the namespace to use for the execution of the given {@link WbemSource} instance
+	 *
+	 * @param wbemSource {@link WbemSource} instance from which we want to extract the namespace. Expected "automatic", null or <em>any string</em>
+	 * @return {@link String} value
+	 */
+	String getNamespace(final WbemSource wbemSource) {
+		String namespace = wbemSource.getNamespace();
+		if (namespace == null) {
+			namespace = WMI_DEFAULT_NAMESPACE;
+		} else if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(namespace)) {
+			namespace = telemetryManager.getHostProperties().getConnectorNamespace(connectorName).getAutomaticWbemNamespace();
+		}
+		return namespace;
 	}
 }

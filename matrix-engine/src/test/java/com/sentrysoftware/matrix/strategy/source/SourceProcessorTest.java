@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.strategy.source;
 
 import static com.sentrysoftware.matrix.constants.Constants.ECS1_01;
+import static com.sentrysoftware.matrix.constants.Constants.EMPTY;
 import static com.sentrysoftware.matrix.constants.Constants.EXPECTED_SNMP_TABLE_DATA;
 import static com.sentrysoftware.matrix.constants.Constants.MY_CONNECTOR_1_NAME;
 import static com.sentrysoftware.matrix.constants.Constants.OID;
@@ -15,16 +16,21 @@ import static com.sentrysoftware.matrix.constants.Constants.USERNAME;
 import static com.sentrysoftware.matrix.constants.Constants.VALUE_VAL1;
 import static com.sentrysoftware.matrix.constants.Constants.VALUE_VAL2;
 import static com.sentrysoftware.matrix.constants.Constants.VALUE_VAL3;
+import static com.sentrysoftware.matrix.constants.Constants.WBEM_QUERY;
+import static com.sentrysoftware.matrix.constants.Constants.WMI_NAMESPACE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
+import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.configuration.HttpConfiguration;
 import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
+import com.sentrysoftware.matrix.configuration.WbemConfiguration;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.connector.model.common.HttpMethod;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.CopySource;
@@ -34,6 +40,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpTableSo
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.StaticSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableJoinSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableUnionSource;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.WbemSource;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.telemetry.ConnectorNamespace;
 import com.sentrysoftware.matrix.telemetry.HostProperties;
@@ -87,6 +94,7 @@ class SourceProcessorTest {
 	private static final String VALUE_LIST = "a1;b1;c1";
 
 	private static final String CAMELCASE_NOT_WBEM = "notWbem";
+	private static final String CONNECTOR_NAME = "myConnector";
 
 	@Test
 	void testProcessHttpSourceOK() {
@@ -696,5 +704,130 @@ class SourceProcessorTest {
 		staticSource = StaticSource.builder().value(VALUE_LIST).build();
 
 		assertEquals(expectedTable, sourceProcessor.process(staticSource).getTable());
+	}
+
+	@Test
+	void testProcessWbemSource() throws MatsyaException {
+		final WbemConfiguration wbemConfiguration = WbemConfiguration
+			.builder()
+			.username(ECS1_01 + "\\" + USERNAME)
+			.password(PASSWORD.toCharArray())
+			.build();
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostname(ECS1_01)
+					.hostId(ECS1_01)
+					.hostType(DeviceKind.LINUX)
+					.configurations(Map.of(WbemConfiguration.class, wbemConfiguration))
+					.build()
+			)
+			.build();
+		final SourceProcessor sourceProcessor = SourceProcessor
+			.builder()
+			.telemetryManager(telemetryManager)
+			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.connectorName(CONNECTOR_NAME)
+			.build();
+		assertEquals(SourceTable.empty(), sourceProcessor.process((WbemSource) null));
+		assertEquals(SourceTable.empty(), sourceProcessor.process(WbemSource.builder().query(EMPTY).build()));
+
+		final WbemSource wbemSource = WbemSource.builder().query(WBEM_QUERY).build();
+		telemetryManager.setHostConfiguration(HostConfiguration.builder().configurations(Collections.emptyMap()).build());
+
+		// no wbem configuration
+		assertEquals(SourceTable.empty(), sourceProcessor.process(wbemSource));
+
+		telemetryManager.setHostConfiguration(
+			HostConfiguration
+				.builder()
+				.configurations(Map.of(WbemConfiguration.class, WbemConfiguration.builder().build()))
+				.build()
+		);
+
+		// empty configuration
+		assertEquals(SourceTable.empty(), sourceProcessor.process(wbemSource));
+
+		telemetryManager.setHostConfiguration(
+			HostConfiguration
+				.builder()
+				.configurations(
+					Map.of(
+						WbemConfiguration.class,
+						WbemConfiguration.builder().username(USERNAME).password(PASSWORD.toCharArray()).build()
+					)
+				)
+				.build()
+		);
+
+		// no namespace
+		assertEquals(SourceTable.empty(), sourceProcessor.process(wbemSource));
+
+		telemetryManager.setHostConfiguration(
+			HostConfiguration
+				.builder()
+				.configurations(
+					Map.of(
+						WbemConfiguration.class,
+						WbemConfiguration
+							.builder()
+							.username(USERNAME)
+							.password(PASSWORD.toCharArray())
+							.namespace(WMI_NAMESPACE)
+							.build()
+					)
+				)
+				.build()
+		);
+
+		// unable to build URL : no port
+		assertEquals(SourceTable.empty(), sourceProcessor.process(wbemSource));
+
+		telemetryManager.setHostConfiguration(
+			HostConfiguration
+				.builder()
+				.hostname(null)
+				.configurations(
+					Map.of(
+						WbemConfiguration.class,
+						WbemConfiguration
+							.builder()
+							.username(USERNAME)
+							.password(PASSWORD.toCharArray())
+							.namespace(WMI_NAMESPACE)
+							.port(5989)
+							.build()
+					)
+				)
+				.build()
+		);
+
+		// unable to build URL : no hostname
+		assertEquals(SourceTable.empty(), sourceProcessor.process(wbemSource));
+
+		telemetryManager.setHostConfiguration(
+			HostConfiguration
+				.builder()
+				.hostname(ECS1_01)
+				.hostId(ECS1_01)
+				.strategyTimeout(120L)
+				.hostType(DeviceKind.LINUX)
+				.configurations(Map.of(WbemConfiguration.class, wbemConfiguration))
+				.build()
+		);
+
+		final List<List<String>> listValues = Arrays.asList(
+			Arrays.asList("a1", "b2", "c2"),
+			Arrays.asList("v1", "v2", "v3")
+		);
+
+		doReturn(listValues).when(matsyaClientsExecutorMock).executeWbem(any(), any(), any(), any());
+		assertEquals(listValues, sourceProcessor.process(wbemSource).getTable());
+
+		// handle exception
+		doThrow(new MatsyaException()).when(matsyaClientsExecutorMock).executeWbem(any(), any(), any(), any());
+		assertEquals(SourceTable.empty(), sourceProcessor.process(wbemSource));
 	}
 }

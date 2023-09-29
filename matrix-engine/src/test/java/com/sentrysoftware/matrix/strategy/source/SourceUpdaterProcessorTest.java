@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.strategy.source;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
+import static com.sentrysoftware.matrix.constants.Constants.EMPTY;
 import static com.sentrysoftware.matrix.constants.Constants.ENCLOSURE_COLLECT_SOURCE_1;
 import static com.sentrysoftware.matrix.constants.Constants.EXPECTED_RESULT;
 import static com.sentrysoftware.matrix.constants.Constants.EXPECTED_SNMP_TABLE_DATA;
@@ -43,6 +44,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpTableSo
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.StaticSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableJoinSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableUnionSource;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.WbemSource;
 import com.sentrysoftware.matrix.telemetry.HostProperties;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import java.util.ArrayList;
@@ -430,6 +432,25 @@ class SourceUpdaterProcessorTest {
 		assertEquals(
 			"show disk 1",
 			SourceUpdaterProcessor.replaceAttributeReferences(command, Map.of("id", "1", "type", "disk"))
+		);
+	}
+
+	@Test
+	void testProcessWbemSource() {
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(HostConfiguration.builder().build())
+			.build();
+		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(WbemSource.class));
+		assertEquals(
+			SourceTable.empty(),
+			new SourceUpdaterProcessor(
+				sourceProcessor,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
+			)
+				.process(WbemSource.builder().query(EMPTY).build())
 		);
 	}
 }
