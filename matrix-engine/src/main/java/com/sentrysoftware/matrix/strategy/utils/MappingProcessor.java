@@ -100,7 +100,7 @@ public class MappingProcessor {
 		Pattern.CASE_INSENSITIVE
 	);
 	private static final Pattern LEGACY_LED_STATUS_PATTERN = Pattern.compile(
-		"legacyledstatus\\((.+)\\)"
+		"legacyledstatus\\((.+)\\)",
 		Pattern.CASE_INSENSITIVE
 	);
 	private static final Pattern LOOKUP_PATTERN = Pattern.compile("lookup\\((.+)\\)", Pattern.CASE_INSENSITIVE);
