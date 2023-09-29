@@ -110,14 +110,17 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 
 	@Override
 	public SourceTable process(final WbemSource wbemSource) {
-		// TODO Auto-generated method stub
-		return null;
+		return processSource(wbemSource.copy());
 	}
 
+	/**
+	 * This method processes {@link WmiSource} source
+	 * @param wmiSource {@link WmiSource} instance
+	 * @return {@link SourceTable} instance
+	 */
 	@Override
 	public SourceTable process(final WmiSource wmiSource) {
-		// TODO Auto-generated method stub
-		return null;
+		return processSource(wmiSource.copy());
 	}
 
 	/**
