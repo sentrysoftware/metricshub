@@ -558,11 +558,17 @@ public class SourceProcessor implements ISourceProcessor {
 			return SourceTable.empty();
 		}
 
-		final WbemConfiguration wbemConfiguration = (WbemConfiguration) telemetryManager.getHostConfiguration().getConfigurations().get(WbemConfiguration.class);
+		final WbemConfiguration wbemConfiguration = (WbemConfiguration) telemetryManager
+			.getHostConfiguration()
+			.getConfigurations()
+			.get(WbemConfiguration.class);
 
 		if (wbemConfiguration == null) {
-			log.debug("Hostname {} - The WBEM credentials are not configured. Returning an empty table for WBEM source {}.",
-					hostname, wbemSource.getKey());
+			log.debug(
+				"Hostname {} - The WBEM credentials are not configured. Returning an empty table for WBEM source {}.",
+				hostname,
+				wbemSource.getKey()
+			);
 			return SourceTable.empty();
 		}
 
@@ -571,18 +577,15 @@ public class SourceProcessor implements ISourceProcessor {
 		if (namespace == null) {
 			namespace = "root/cimv2";
 		} else if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(namespace)) {
-			namespace = telemetryManager
-					.getHostProperties()
-					.getConnectorNamespace(connectorName)
-					.getAutomaticWbemNamespace();
+			namespace = telemetryManager.getHostProperties().getConnectorNamespace(connectorName).getAutomaticWbemNamespace();
 		}
 
 		// Replace the automatic namespace
 		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(namespace)) {
 			final String cachedNamespace = telemetryManager
-					.getHostProperties()
-					.getConnectorNamespace(connectorName)
-					.getAutomaticWbemNamespace();
+				.getHostProperties()
+				.getConnectorNamespace(connectorName)
+				.getAutomaticWbemNamespace();
 
 			// Update the namespace with the cached namespace
 			namespace = cachedNamespace;
@@ -598,17 +601,28 @@ public class SourceProcessor implements ISourceProcessor {
 				return SourceTable.empty();
 			}
 
-			final List<List<String>> table = matsyaClientsExecutor.executeWbem(hostname, wbemConfiguration, wbemSource.getQuery(), namespace);
+			final List<List<String>> table = matsyaClientsExecutor.executeWbem(
+				hostname,
+				wbemConfiguration,
+				wbemSource.getQuery(),
+				namespace
+			);
 
 			return SourceTable.builder().table(table).build();
-
 		} catch (Exception e) {
-
-			logSourceError(connectorName, wbemSource.getKey(),
-					String.format("WBEM query=%s, Username=%s, Timeout=%d, Namespace=%s",
-							wbemSource.getQuery(), wbemConfiguration.getUsername(), wbemConfiguration.getTimeout(),
-							namespace),
-					hostname, e);
+			logSourceError(
+				connectorName,
+				wbemSource.getKey(),
+				String.format(
+					"WBEM query=%s, Username=%s, Timeout=%d, Namespace=%s",
+					wbemSource.getQuery(),
+					wbemConfiguration.getUsername(),
+					wbemConfiguration.getTimeout(),
+					namespace
+				),
+				hostname,
+				e
+			);
 
 			return SourceTable.empty();
 		}

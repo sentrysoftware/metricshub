@@ -709,28 +709,28 @@ class SourceProcessorTest {
 	@Test
 	void testProcessWbemSource() throws MatsyaException {
 		final WbemConfiguration wbemConfiguration = WbemConfiguration
-				.builder()
-				.username(ECS1_01 + "\\" + USERNAME)
-				.password(PASSWORD.toCharArray())
-				.build();
+			.builder()
+			.username(ECS1_01 + "\\" + USERNAME)
+			.password(PASSWORD.toCharArray())
+			.build();
 		final TelemetryManager telemetryManager = TelemetryManager
-				.builder()
-				.hostConfiguration(
-						HostConfiguration
-								.builder()
-								.hostname(ECS1_01)
-								.hostId(ECS1_01)
-								.hostType(DeviceKind.LINUX)
-								.configurations(Map.of(WbemConfiguration.class, wbemConfiguration))
-								.build()
-				)
-				.build();
+			.builder()
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostname(ECS1_01)
+					.hostId(ECS1_01)
+					.hostType(DeviceKind.LINUX)
+					.configurations(Map.of(WbemConfiguration.class, wbemConfiguration))
+					.build()
+			)
+			.build();
 		final SourceProcessor sourceProcessor = SourceProcessor
-				.builder()
-				.telemetryManager(telemetryManager)
-				.matsyaClientsExecutor(matsyaClientsExecutorMock)
-				.connectorName(CONNECTOR_NAME)
-				.build();
+			.builder()
+			.telemetryManager(telemetryManager)
+			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.connectorName(CONNECTOR_NAME)
+			.build();
 		assertEquals(SourceTable.empty(), sourceProcessor.process((WbemSource) null));
 		assertEquals(SourceTable.empty(), sourceProcessor.process(WbemSource.builder().query(EMPTY).build()));
 
@@ -740,52 +740,88 @@ class SourceProcessorTest {
 		// no wbem configuration
 		assertEquals(SourceTable.empty(), sourceProcessor.process(wbemSource));
 
-
-		telemetryManager.setHostConfiguration(HostConfiguration.builder().configurations(Map.of(WbemConfiguration.class, WbemConfiguration.builder()
-				.build())).build());
+		telemetryManager.setHostConfiguration(
+			HostConfiguration
+				.builder()
+				.configurations(Map.of(WbemConfiguration.class, WbemConfiguration.builder().build()))
+				.build()
+		);
 
 		// empty configuration
 		assertEquals(SourceTable.empty(), sourceProcessor.process(wbemSource));
 
-		telemetryManager.setHostConfiguration(HostConfiguration.builder().configurations(Map.of(WbemConfiguration.class, WbemConfiguration.builder()
-								.username(USERNAME)
-								.password(PASSWORD.toCharArray()).build())).build());
+		telemetryManager.setHostConfiguration(
+			HostConfiguration
+				.builder()
+				.configurations(
+					Map.of(
+						WbemConfiguration.class,
+						WbemConfiguration.builder().username(USERNAME).password(PASSWORD.toCharArray()).build()
+					)
+				)
+				.build()
+		);
 
 		// no namespace
 		assertEquals(SourceTable.empty(), sourceProcessor.process(wbemSource));
 
-
-		telemetryManager.setHostConfiguration(HostConfiguration.builder().configurations(Map.of(WbemConfiguration.class, WbemConfiguration.builder()
-				.username(USERNAME)
-				.password(PASSWORD.toCharArray())
-				.namespace(WMI_NAMESPACE).build())).build());
+		telemetryManager.setHostConfiguration(
+			HostConfiguration
+				.builder()
+				.configurations(
+					Map.of(
+						WbemConfiguration.class,
+						WbemConfiguration
+							.builder()
+							.username(USERNAME)
+							.password(PASSWORD.toCharArray())
+							.namespace(WMI_NAMESPACE)
+							.build()
+					)
+				)
+				.build()
+		);
 
 		// unable to build URL : no port
 		assertEquals(SourceTable.empty(), sourceProcessor.process(wbemSource));
 
-		telemetryManager.setHostConfiguration(HostConfiguration.builder().hostname(null).configurations(Map.of(WbemConfiguration.class, WbemConfiguration.builder()
-				.username(USERNAME)
-				.password(PASSWORD.toCharArray())
-				.namespace(WMI_NAMESPACE)
-				.port(5989).build())).build());
+		telemetryManager.setHostConfiguration(
+			HostConfiguration
+				.builder()
+				.hostname(null)
+				.configurations(
+					Map.of(
+						WbemConfiguration.class,
+						WbemConfiguration
+							.builder()
+							.username(USERNAME)
+							.password(PASSWORD.toCharArray())
+							.namespace(WMI_NAMESPACE)
+							.port(5989)
+							.build()
+					)
+				)
+				.build()
+		);
 
 		// unable to build URL : no hostname
 		assertEquals(SourceTable.empty(), sourceProcessor.process(wbemSource));
 
 		telemetryManager.setHostConfiguration(
-				HostConfiguration
-						.builder()
-						.hostname(ECS1_01)
-						.hostId(ECS1_01)
-						.strategyTimeout(120L)
-						.hostType(DeviceKind.LINUX)
-						.configurations(Map.of(WbemConfiguration.class, wbemConfiguration))
-						.build()
+			HostConfiguration
+				.builder()
+				.hostname(ECS1_01)
+				.hostId(ECS1_01)
+				.strategyTimeout(120L)
+				.hostType(DeviceKind.LINUX)
+				.configurations(Map.of(WbemConfiguration.class, wbemConfiguration))
+				.build()
 		);
 
 		final List<List<String>> listValues = Arrays.asList(
-				Arrays.asList("a1", "b2", "c2"),
-				Arrays.asList("v1", "v2", "v3"));
+			Arrays.asList("a1", "b2", "c2"),
+			Arrays.asList("v1", "v2", "v3")
+		);
 
 		doReturn(listValues).when(matsyaClientsExecutorMock).executeWbem(any(), any(), any(), any());
 		assertEquals(listValues, sourceProcessor.process(wbemSource).getTable());
