@@ -587,9 +587,9 @@ public class SourceProcessor implements ISourceProcessor {
 		}
 
 		// Find the configured protocol (WinRM or WMI)
-		final IWinConfiguration protocol = telemetryManager.getWinConfiguration();
+		final IWinConfiguration winConfiguration = telemetryManager.getWinConfiguration();
 
-		if (protocol == null) {
+		if (winConfiguration == null) {
 			log.debug(
 				"Hostname {} - Neither WMI nor WinRM credentials are configured for this host. Returning an empty table for WMI source {}.",
 				hostname,
@@ -613,7 +613,7 @@ public class SourceProcessor implements ISourceProcessor {
 		try {
 			final List<List<String>> table = matsyaClientsExecutor.executeWql(
 				hostname,
-				protocol,
+				winConfiguration,
 				wmiSource.getQuery(),
 				namespace
 			);
@@ -626,8 +626,8 @@ public class SourceProcessor implements ISourceProcessor {
 				String.format(
 					"WMI query=%s, Username=%s, Timeout=%d, Namespace=%s",
 					wmiSource.getQuery(),
-					protocol.getUsername(),
-					protocol.getTimeout(),
+					winConfiguration.getUsername(),
+					winConfiguration.getTimeout(),
 					namespace
 				),
 				hostname,

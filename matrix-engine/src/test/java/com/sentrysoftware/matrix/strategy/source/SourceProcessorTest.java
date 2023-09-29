@@ -65,12 +65,6 @@ class SourceProcessorTest {
 	private MatsyaClientsExecutor matsyaClientsExecutorMock;
 
 	@Mock
-	private TelemetryManager telemetryManagerMock;
-
-	@Mock
-	private HostProperties hostPropertiesMock;
-
-	@Mock
 	private Connector connectorMock;
 
 	private static final String LOWERCASE_A = "a";
@@ -762,7 +756,7 @@ class SourceProcessorTest {
 	}
 
 	@Test
-	void testProcessWmiSourceButWmiNotConfigured() {
+	void testProcessWmiSourceWmiNotConfigured() {
 		final WmiSource wmiSource = WmiSource.builder().query(WBEM_QUERY).build();
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()

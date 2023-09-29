@@ -66,9 +66,9 @@ monitors:
         source(1):
           # Source(1) = output of fcstat %hbaID%
           # Moved to Embedded file (3)
-          # NetworkCard.Collect.Source(1).CommandLine="/usr/sbin/fcstat ${network::id}"
+          # NetworkCard.Collect.Source(1).CommandLine="/usr/sbin/fcstat ${attribute::id}"
           type: osCommand
-          commandLine: "/bin/sh ${file::embeddedFile-2} ${network::id}"
+          commandLine: "/bin/sh ${file::embeddedFile-2} ${attribute::id}"
           keep: ^MSHW;
           separators: ;
           selectColumns: "2,3,4,5,6,7,8,9"

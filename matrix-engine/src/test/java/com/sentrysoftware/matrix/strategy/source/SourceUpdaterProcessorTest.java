@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.strategy.source;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
 import static com.sentrysoftware.matrix.constants.Constants.EMPTY;
 import static com.sentrysoftware.matrix.constants.Constants.ENCLOSURE_COLLECT_SOURCE_1;
 import static com.sentrysoftware.matrix.constants.Constants.EXPECTED_RESULT;
@@ -25,6 +26,7 @@ import static com.sentrysoftware.matrix.constants.Constants.VALUE_VAL1;
 import static com.sentrysoftware.matrix.constants.Constants.VALUE_VAL2;
 import static com.sentrysoftware.matrix.constants.Constants.VALUE_VAL3;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 
@@ -49,6 +51,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -81,7 +84,12 @@ class SourceUpdaterProcessorTest {
 		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(HttpSource.class));
 		assertEquals(
 			SourceTable.empty(),
-			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
+			new SourceUpdaterProcessor(
+				sourceProcessor,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
+			)
 				.process(HttpSource.builder().url(URL).method(HttpMethod.GET).build())
 		);
 
@@ -108,7 +116,7 @@ class SourceUpdaterProcessorTest {
 			sourceProcessor,
 			telemetryManager,
 			MY_CONNECTOR_1_NAME,
-			MONITOR_ID_ATTRIBUTE_VALUE
+			Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
 		)
 			.process(httpSource);
 		assertEquals(EXPECTED_VAL_1_AND_2, result.getRawData());
@@ -118,7 +126,12 @@ class SourceUpdaterProcessorTest {
 		);
 		doReturn(expected1, expected2).when(sourceProcessor).process(any(HttpSource.class));
 		result =
-			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
+			new SourceUpdaterProcessor(
+				sourceProcessor,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
+			)
 				.process(httpSource);
 		assertEquals(EXPECTED_VAL_1_AND_2, result.getRawData());
 
@@ -131,7 +144,12 @@ class SourceUpdaterProcessorTest {
 		);
 		doReturn(expected1, expected2).when(sourceProcessor).process(any(HttpSource.class));
 		result =
-			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
+			new SourceUpdaterProcessor(
+				sourceProcessor,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
+			)
 				.process(httpSource);
 		assertEquals(EXPECTED_VAL_1_AND_2_ARRAY, result.getRawData());
 
@@ -144,7 +162,12 @@ class SourceUpdaterProcessorTest {
 		);
 		doReturn(expected1, expected2).when(sourceProcessor).process(any(HttpSource.class));
 		result =
-			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
+			new SourceUpdaterProcessor(
+				sourceProcessor,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
+			)
 				.process(httpSource);
 
 		assertEquals(EXPECTED_RESULT, result.getRawData());
@@ -171,7 +194,12 @@ class SourceUpdaterProcessorTest {
 		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(SnmpGetSource.class));
 		assertEquals(
 			SourceTable.empty(),
-			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
+			new SourceUpdaterProcessor(
+				sourceProcessor,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
+			)
 				.process(SnmpGetSource.builder().oid(OID).build())
 		);
 
@@ -180,7 +208,12 @@ class SourceUpdaterProcessorTest {
 		doReturn(expected1).when(sourceProcessor).process(any(SnmpGetSource.class));
 		assertEquals(
 			expected1,
-			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
+			new SourceUpdaterProcessor(
+				sourceProcessor,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
+			)
 				.process(SnmpGetSource.builder().oid(OID).build())
 		);
 	}
@@ -205,7 +238,12 @@ class SourceUpdaterProcessorTest {
 		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(SnmpTableSource.class));
 		assertEquals(
 			SourceTable.empty(),
-			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
+			new SourceUpdaterProcessor(
+				sourceProcessor,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
+			)
 				.process(SnmpTableSource.builder().oid(OID).selectColumns(SNMP_SELECTED_COLUMNS).build())
 		);
 
@@ -217,7 +255,12 @@ class SourceUpdaterProcessorTest {
 		doReturn(expected).when(sourceProcessor).process(any(SnmpTableSource.class));
 		assertEquals(
 			expected,
-			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
+			new SourceUpdaterProcessor(
+				sourceProcessor,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
+			)
 				.process(SnmpTableSource.builder().oid(OID).selectColumns(SNMP_SELECTED_COLUMNS).build())
 		);
 	}
@@ -242,7 +285,12 @@ class SourceUpdaterProcessorTest {
 		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(TableJoinSource.class));
 		assertEquals(
 			SourceTable.empty(),
-			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
+			new SourceUpdaterProcessor(
+				sourceProcessor,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
+			)
 				.process(TableJoinSource.builder().build())
 		);
 	}
@@ -267,7 +315,12 @@ class SourceUpdaterProcessorTest {
 		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(TableUnionSource.class));
 		assertEquals(
 			SourceTable.empty(),
-			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
+			new SourceUpdaterProcessor(
+				sourceProcessor,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
+			)
 				.process(TableUnionSource.builder().tables(new ArrayList<>()).build())
 		);
 	}
@@ -292,7 +345,12 @@ class SourceUpdaterProcessorTest {
 		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(CopySource.class));
 		assertEquals(
 			SourceTable.empty(),
-			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
+			new SourceUpdaterProcessor(
+				sourceProcessor,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
+			)
 				.process(CopySource.builder().from(TAB1_REF).build())
 		);
 
@@ -307,14 +365,24 @@ class SourceUpdaterProcessorTest {
 		doReturn(expectedSnmp).when(sourceProcessor).process(any(SnmpGetSource.class));
 		assertEquals(
 			expectedSnmp,
-			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
+			new SourceUpdaterProcessor(
+				sourceProcessor,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
+			)
 				.process(snmpGetSource)
 		);
 
 		doReturn(expected).when(sourceProcessor).process(any(CopySource.class));
 		assertEquals(
 			expected,
-			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
+			new SourceUpdaterProcessor(
+				sourceProcessor,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
+			)
 				.process(copySource)
 		);
 	}
@@ -343,13 +411,32 @@ class SourceUpdaterProcessorTest {
 		doReturn(expected).when(sourceProcessor).process(any(StaticSource.class));
 		assertEquals(
 			expected,
-			new SourceUpdaterProcessor(sourceProcessor, telemetryManager, MY_CONNECTOR_1_NAME, MONITOR_ID_ATTRIBUTE_VALUE)
+			new SourceUpdaterProcessor(
+				sourceProcessor,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
+			)
 				.process(staticSource)
 		);
 	}
 
 	@Test
-	void testProcessWMISource() {
+	void testReplaceAttributeReferences() {
+		String command = "show ${attribute::id}";
+		assertEquals("show disk1", SourceUpdaterProcessor.replaceAttributeReferences(command, Map.of("id", "disk1")));
+		assertEquals(command, SourceUpdaterProcessor.replaceAttributeReferences(command, Map.of()));
+		assertEquals(command, SourceUpdaterProcessor.replaceAttributeReferences(command, null));
+		assertNull(SourceUpdaterProcessor.replaceAttributeReferences(null, Map.of()));
+		command = "show ${attribute::type} ${attribute::id}";
+		assertEquals(
+			"show disk 1",
+			SourceUpdaterProcessor.replaceAttributeReferences(command, Map.of("id", "1", "type", "disk"))
+		);
+	}
+
+	@Test
+	void testProcessWmiSource() {
 		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(WmiSource.class));
 		assertEquals(
 			SourceTable.empty(),
@@ -357,7 +444,7 @@ class SourceUpdaterProcessorTest {
 				sourceProcessor,
 				TelemetryManager.builder().build(),
 				MY_CONNECTOR_1_NAME,
-				MONITOR_ID_ATTRIBUTE_VALUE
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
 			)
 				.process(WmiSource.builder().query(EMPTY).build())
 		);

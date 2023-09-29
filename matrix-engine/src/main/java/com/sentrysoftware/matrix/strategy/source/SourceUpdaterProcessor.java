@@ -22,6 +22,7 @@ import com.sentrysoftware.matrix.strategy.utils.PslUtils;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -44,14 +45,14 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 
 	private static final Pattern COLUMN_REF_PATTERN = Pattern.compile("\\$([1-9]\\d*)", Pattern.CASE_INSENSITIVE);
 	private static final Pattern MONO_INSTANCE_REPLACEMENT_PATTERN = Pattern.compile(
-		"\\$\\{([^\\s]+)::([^\\s]+)\\}",
+		"\\$\\{attribute::(\\w+)\\}",
 		Pattern.CASE_INSENSITIVE
 	);
 
 	private ISourceProcessor sourceProcessor;
 	private TelemetryManager telemetryManager;
 	private String connectorName;
-	private String monitorId;
+	private Map<String, String> attributes;
 
 	@Override
 	public SourceTable process(final HttpSource httpSource) {
@@ -135,7 +136,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 			return runExecuteForEachEntryOf(copy);
 		}
 
-		copy.update(value -> replaceDeviceId(value, monitorId));
+		copy.update(value -> replaceAttributeReferences(value, attributes));
 
 		copy.update(value -> replaceSourceReference(value, copy));
 
@@ -240,14 +241,15 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 	}
 
 	/**
-	 * Replace the deviceId in the key by the monitorId.
+	 * Replace the attribute identifiers referenced in the key
+	 * with the attribute values that need to be retrieved from the given attributes lookup.
 	 *
-	 * @param key       The key where to replace the deviceId.
-	 * @param monitorId Can be null, in that case key is directly returned.
+	 * @param key        The key where to replace the deviceId.
+	 * @param attributes Key-value pairs of the monitor's attributes
 	 * @return String value
 	 */
-	public static String replaceDeviceId(final String key, final String monitorId) {
-		if (monitorId == null || key == null) {
+	public static String replaceAttributeReferences(final String key, final Map<String, String> attributes) {
+		if (attributes == null || key == null) {
 			return key;
 		}
 
@@ -255,7 +257,10 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 
 		final StringBuffer sb = new StringBuffer();
 		while (matcher.find()) {
-			matcher.appendReplacement(sb, Matcher.quoteReplacement(monitorId));
+			final String attributesValue = attributes.get(matcher.group(1));
+			if (attributesValue != null) {
+				matcher.appendReplacement(sb, Matcher.quoteReplacement(attributesValue));
+			}
 		}
 		matcher.appendTail(sb);
 
@@ -469,7 +474,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 				continue;
 			}
 
-			copy.update(dataValue -> replaceDeviceId(dataValue, monitorId));
+			copy.update(dataValue -> replaceAttributeReferences(dataValue, attributes));
 
 			copy.update(value -> replaceSourceReference(value, copy));
 

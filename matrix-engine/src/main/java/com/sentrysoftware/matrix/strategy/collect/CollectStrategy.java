@@ -151,9 +151,9 @@ public class CollectStrategy extends AbstractStrategy {
 	/**
 	 * This method processes a monitor job
 	 *
-	 * @param currentConnector
-	 * @param hostname
-	 * @param monitorJob
+	 * @param currentConnector The current connector we process its monitor job
+	 * @param hostname         The host name we currently monitor
+	 * @param monitorJob       The monitor job instance we wish to process
 	 */
 	private void processMonitorJob(
 		final Connector currentConnector,
@@ -224,7 +224,7 @@ public class CollectStrategy extends AbstractStrategy {
 					.values()
 					.stream()
 					.forEach(monitor -> {
-						processSourcesAndComputes(orderedSources.getSources(), monitor.getAttribute(MONITOR_ATTRIBUTE_ID), jobInfo);
+						processSourcesAndComputes(orderedSources.getSources(), monitor.getAttributes(), jobInfo);
 						processMonitors(monitorType, collect.getMapping(), currentConnector, hostname, monitor);
 					});
 			}

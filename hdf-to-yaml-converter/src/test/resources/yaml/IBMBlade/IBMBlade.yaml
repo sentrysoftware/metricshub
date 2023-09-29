@@ -953,7 +953,7 @@ monitors:
         source(1):
           # Source(1) = SNMP Get on the voltageThresholdsEntryCurrentValue OID
           type: snmpGet
-          oid: "1.3.6.1.4.1.2.3.51.2.2.20.2.1.1.3.${voltage::id}"
+          oid: "1.3.6.1.4.1.2.3.51.2.2.20.2.1.1.3.${attribute::id}"
           computes:
           # Remove the " Volts" stanza
           - type: replace
@@ -1021,7 +1021,7 @@ monitors:
           # Extract the digit that concerns our power module
           - type: substring
             column: 1
-            start: "${power_supply::id}"
+            start: "${attribute::id}"
             length: 1
           # Duplicate this digit column
           - type: duplicateColumn

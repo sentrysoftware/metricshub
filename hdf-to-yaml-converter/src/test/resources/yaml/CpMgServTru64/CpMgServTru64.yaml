@@ -57,7 +57,7 @@ monitors:
           # Collect the status of the fan
           # fanStatus
           type: snmpGet
-          oid: "1.3.6.1.4.1.232.6.2.6.6.1.5.${fan::id}"
+          oid: "1.3.6.1.4.1.232.6.2.6.6.1.5.${attribute::id}"
           computes:
             # Duplicate the fanStatus column
             # fanStatus;fanStatus
@@ -110,7 +110,7 @@ monitors:
           # Source(1) = snmpget of the global power supply condition
           # Condition
           type: snmpGet
-          oid: "1.3.6.1.4.1.232.6.2.9.1.${power_supply::id}"
+          oid: "1.3.6.1.4.1.232.6.2.9.1.${attribute::id}"
           computes:
             # Duplicate the condition column
             # Condition;Condition

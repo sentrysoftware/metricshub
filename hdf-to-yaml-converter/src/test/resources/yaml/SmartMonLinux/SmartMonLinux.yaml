@@ -69,7 +69,7 @@ monitors:
         source(1):
           # Source(1) = output of smartctl
           type: osCommand
-          commandLine: "%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartctl -H ${physical_disk::id}"
+          commandLine: "%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartctl -H ${attribute::id}"
           computes:
             # Process smartctl's output through awk EmbeddedFile(4)
             # SMARTstatus
@@ -87,7 +87,7 @@ monitors:
           # Source(2) = output of the shell script based on dd
           # 1;Status;StatusInformation
           type: osCommand
-          commandLine: "/bin/sh ${file::embeddedFile-5} ${physical_disk::id}"
+          commandLine: "/bin/sh ${file::embeddedFile-5} ${attribute::id}"
           keep: ^MSHW;
           separators: ;
           selectColumns: "2,3,4"
@@ -135,7 +135,7 @@ monitors:
         source(1):
           # Source(1) = output of smartctl
           type: osCommand
-          commandLine: "%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartctl -a ${physical_disk::id}"
+          commandLine: "%{SUDO:/usr/sbin/smartctl}/usr/sbin/smartctl -a ${attribute::id}"
           computes:
             # Process smartctl's output through awk EmbeddedFile(3)
             # Temperature
