@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.strategy.source;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.AUTOMATIC_NAMESPACE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SEMICOLON;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WMI_DEFAULT_NAMESPACE;
 
 import com.sentrysoftware.matrix.common.helpers.StringHelper;
 import com.sentrysoftware.matrix.common.helpers.TextTableHelper;
@@ -573,23 +574,7 @@ public class SourceProcessor implements ISourceProcessor {
 		}
 
 		// Get the namespace, the default one is : root/cimv2
-		String namespace = wbemSource.getNamespace();
-		if (namespace == null) {
-			namespace = "root/cimv2";
-		} else if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(namespace)) {
-			namespace = telemetryManager.getHostProperties().getConnectorNamespace(connectorName).getAutomaticWbemNamespace();
-		}
-
-		// Replace the automatic namespace
-		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(namespace)) {
-			final String cachedNamespace = telemetryManager
-				.getHostProperties()
-				.getConnectorNamespace(connectorName)
-				.getAutomaticWbemNamespace();
-
-			// Update the namespace with the cached namespace
-			namespace = cachedNamespace;
-		}
+		final String namespace = getNamespace(wbemSource);
 
 		try {
 			if (hostname == null) {
@@ -731,5 +716,21 @@ public class SourceProcessor implements ISourceProcessor {
 			sourceTable.getRawData(),
 			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable())
 		);
+	}
+
+	/**
+	 * Get the namespace to use for the execution of the given {@link WbemSource} instance
+	 *
+	 * @param wbemSource {@link WbemSource} instance from which we want to extract the namespace. Expected "automatic", null or <em>any string</em>
+	 * @return {@link String} value
+	 */
+	String getNamespace(final WbemSource wbemSource) {
+		String namespace = wbemSource.getNamespace();
+		if (namespace == null) {
+			namespace = WMI_DEFAULT_NAMESPACE;
+		} else if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(namespace)) {
+			namespace = telemetryManager.getHostProperties().getConnectorNamespace(connectorName).getAutomaticWbemNamespace();
+		}
+		return namespace;
 	}
 }
