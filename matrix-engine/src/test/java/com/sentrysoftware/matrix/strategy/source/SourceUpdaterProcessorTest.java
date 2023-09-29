@@ -45,6 +45,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.source.StaticSourc
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableJoinSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.TableUnionSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.WbemSource;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.WmiSource;
 import com.sentrysoftware.matrix.telemetry.HostProperties;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import java.util.ArrayList;
@@ -451,6 +452,21 @@ class SourceUpdaterProcessorTest {
 				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
 			)
 				.process(WbemSource.builder().query(EMPTY).build())
+		);
+	}
+
+	@Test
+	void testProcessWmiSource() {
+		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(WmiSource.class));
+		assertEquals(
+			SourceTable.empty(),
+			new SourceUpdaterProcessor(
+				sourceProcessor,
+				TelemetryManager.builder().build(),
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
+			)
+				.process(WmiSource.builder().query(EMPTY).build())
 		);
 	}
 }
