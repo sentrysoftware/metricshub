@@ -3,21 +3,6 @@ package com.sentrysoftware.matrix.strategy.utils;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.COLUMN_PATTERN;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.BiFunction;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.springframework.core.io.ClassPathResource;
-
 import com.sentrysoftware.matrix.common.JobInfo;
 import com.sentrysoftware.matrix.common.helpers.FunctionArgumentsExtractor;
 import com.sentrysoftware.matrix.common.helpers.state.DuplexMode;
@@ -33,13 +18,25 @@ import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.Resource;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
-
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ClassPathResource;
 
 @Data
 @AllArgsConstructor
@@ -105,10 +102,16 @@ public class MappingProcessor {
 	);
 	private static final Pattern LOOKUP_PATTERN = Pattern.compile("lookup\\((.+)\\)", Pattern.CASE_INSENSITIVE);
 	private static final Pattern BOOLEAN_PATTERN = Pattern.compile("boolean\\((.+)\\)", Pattern.CASE_INSENSITIVE);
-	private static final Pattern FAKE_COUNTER_PATTERN = Pattern.compile("fakecounter\\((.+)\\)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern FAKE_COUNTER_PATTERN = Pattern.compile(
+		"fakecounter\\((.+)\\)",
+		Pattern.CASE_INSENSITIVE
+	);
 	private static final Pattern RATE_PATTERN = Pattern.compile("rate\\((.+)\\)", Pattern.CASE_INSENSITIVE);
-	private static final Pattern COMPUTE_POWER_SHARE_PATTERN = Pattern.compile("computepowershare\\((.+)\\)", Pattern.CASE_INSENSITIVE);
-	private static final Pattern AWK_SCRIPT_PATTERN = Pattern.compile("\\$\\{awk::.+\\}");	
+	private static final Pattern COMPUTE_POWER_SHARE_RATIO_PATTERN = Pattern.compile(
+		"computepowershareratio\\((.+)\\)",
+		Pattern.CASE_INSENSITIVE
+	);
+	private static final Pattern AWK_SCRIPT_PATTERN = Pattern.compile("\\$\\{awk::.+\\}");
 
 	private TelemetryManager telemetryManager;
 	private Mapping mapping;
@@ -181,21 +184,21 @@ public class MappingProcessor {
 			} else if (isBooleanFunction(value)) {
 				result.put(key, booleanFunction(value, key));
 			} else if (isLegacyLedStatusFunction(value)) {
-				result.put(key, legacyLedStatus(value, key));
+				result.put(key, legacyLedStatus(value));
 			} else if (isLegacyIntrusionStatusFunction(value)) {
 				result.put(key, legacyIntrusionStatus(value, key));
 			} else if (isLegacyPredictedFailureFunction(value)) {
 				result.put(key, legacyPredictedFailure(value, key));
 			} else if (islegacyNeedsCleaningFunction(value)) {
 				result.put(key, legacyNeedsCleaning(value, key));
-			} else if (isComputePowerShareRatioFunction(value)) {
-				result.put(String.format("%s.raw", key), computePowerShareRatio(value));
 			} else if (isLegacyLinkStatusFunction(value)) {
 				result.put(key, legacyLinkStatusFunction(value, key));
 			} else if (isLegacyFullDuplex(value)) {
 				result.put(key, legacyFullDuplex(value, key));
 			} else if (isLookupFunction(value)) {
 				result.put(key, lookup(value, key));
+			} else if (isComputePowerShareRatioFunction(value)) {
+				result.put(String.format("%s.raw", key), computePowerShareRatio(value, key));
 			} else if (isLegacyPowerSupplyUtilization(value)) {
 				computationFunctions.put(key, this::legacyPowerSupplyUtilization);
 			} else if (isFakeCounterFunction(value)) {
@@ -316,10 +319,6 @@ public class MappingProcessor {
 		}
 
 		final Double powerLimit = metric.getValue();
-
-		if (powerLimit == null) {
-			return EMPTY;
-		}
 
 		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
 		final String extracted = functionArguments.get(0);
@@ -463,19 +462,9 @@ public class MappingProcessor {
 		final Double deltaTime = deltaTimeMs != null ? deltaTimeMs / 1000.0 : null;
 		final Double previousValue = MappingProcessorHelper.getNumberMetricValue(monitor, metricRateName, true);
 
-		final Double deltaCounter = MappingProcessorHelper.subtract(
-			metricRateName,
-			rawValue,
-			previousValue,
-			hostname
-		);
+		final Double deltaCounter = MappingProcessorHelper.subtract(metricRateName, rawValue, previousValue, hostname);
 
-		Double result = MappingProcessorHelper.divide(
-				metricName,
-				deltaCounter,
-				deltaTime,
-				hostname
-			);
+		Double result = MappingProcessorHelper.divide(metricName, deltaCounter, deltaTime, hostname);
 
 		if (result != null) {
 			return result.toString();
@@ -634,9 +623,31 @@ public class MappingProcessor {
 		return LEGACY_LINK_STATUS_PATTERN.matcher(value).find();
 	}
 
-	private String computePowerShareRatio(String value) {
-		//TODO New metric : hw.power_share
-		return EMPTY;
+	/**
+	 * Creates a metric for this monitor with the power share value
+	 *
+	 * @param value	The power share value (weight)
+	 * @param key	The attribute key
+	 * @return		Double value representing power share weight
+	 */
+	private String computePowerShareRatio(final String value, final String key) {
+		// Extract the function argument. E.g. from rate($1) extract $1
+		final String functionArgument = FunctionArgumentsExtractor.extractArguments(value).get(0);
+
+		// Extract the double value from the current row
+		final Optional<Double> maybeRawPowerRatioValue = extractDoubleValue(functionArgument, key);
+
+		if (maybeRawPowerRatioValue.isEmpty()) {
+			log.warn(
+				"Hostname {} - Unable to extract the 1st argument value passed to the computePowerRatio function." +
+				RESULT_MESSAGE,
+				jobInfo.getHostname(),
+				key
+			);
+			return EMPTY;
+		}
+
+		return maybeRawPowerRatioValue.get().toString();
 	}
 
 	/**
@@ -646,7 +657,7 @@ public class MappingProcessor {
 	 * @return 			Returns true if the function is found
 	 */
 	private boolean isComputePowerShareRatioFunction(String value) {
-		return COMPUTE_POWER_SHARE_PATTERN.matcher(value).find();
+		return COMPUTE_POWER_SHARE_RATIO_PATTERN.matcher(value).find();
 	}
 
 	/**
@@ -764,14 +775,16 @@ public class MappingProcessor {
 	 * @param key		The attribute key
 	 * @return			String representing a current a current status
 	 */
-	private String legacyLedStatus(String value, String key) {
+	private String legacyLedStatus(String value) {
 		final Map<String, Monitor> typedMonitors = telemetryManager.findMonitorByType("led");
 		Monitor monitor = typedMonitors.get("discovery");
-		String valueToProcess = extractColumnValueOrTextValue(value, key);
 		Map<String, String> monitorAttributes = monitor.getAttributes();
 
+		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
+		final String extracted = functionArguments.get(0);
+
 		String status = null;
-		switch(valueToProcess.toLowerCase()) {
+		switch (extracted.toLowerCase()) {
 			case "on":
 				status = monitorAttributes.get("__on_status"); // ok, failed
 				break;
@@ -924,7 +937,7 @@ public class MappingProcessor {
 	 */
 	private String executeAwkScript(String value, String key) {
 		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor();
-		final String function = value.replace("${awk::", "").replace("}", "");
+		final String function = value.trim().replace("${awk::", "").replace("}", "");
 		final ClassPathResource resource = new ClassPathResource("internalAwk.awk");
 		final String awkTemplate;
 
@@ -937,7 +950,12 @@ public class MappingProcessor {
 		try {
 			return matsyaClientsExecutor.executeAwkScript(awkTemplate, String.join(";", row));
 		} catch (Exception e) {
-			log.error("Hostname {} - Error while running awk function {} for parameter {}.", jobInfo.getHostname(), value, key);
+			log.error(
+				"Hostname {} - Error while running awk function {} for parameter {}.",
+				jobInfo.getHostname(),
+				value,
+				key
+			);
 			log.debug("Hostname {} - Exception: {}", jobInfo.getHostname(), e);
 			return EMPTY;
 		}
