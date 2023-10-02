@@ -3,8 +3,10 @@ package com.sentrysoftware.matrix.strategy.source;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.AUTOMATIC_NAMESPACE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.NEW_LINE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.SEMICOLON;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.TABLE_SEP;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.WMI_DEFAULT_NAMESPACE;
 
+import com.sentrysoftware.matrix.common.helpers.FilterResultHelper;
 import com.sentrysoftware.matrix.common.helpers.StringHelper;
 import com.sentrysoftware.matrix.common.helpers.TextTableHelper;
 import com.sentrysoftware.matrix.configuration.HttpConfiguration;
@@ -30,6 +32,7 @@ import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.matsya.http.HttpRequest;
 import com.sentrysoftware.matrix.strategy.utils.IpmiHelper;
 import com.sentrysoftware.matrix.strategy.utils.OsCommandHelper;
+import com.sentrysoftware.matrix.strategy.utils.OsCommandResult;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
@@ -435,8 +438,62 @@ public class SourceProcessor implements ISourceProcessor {
 	@WithSpan("Source OS Command Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final OsCommandSource osCommandSource) {
-		// TODO Auto-generated method stub
-		return null;
+		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+
+		if (
+			osCommandSource == null || osCommandSource.getCommandLine() == null || osCommandSource.getCommandLine().isEmpty()
+		) {
+			log.error("Hostname {} - Malformed OS command source.", hostname);
+			return SourceTable.empty();
+		}
+
+		try {
+			final OsCommandResult osCommandResult = OsCommandHelper.runOsCommand(
+				osCommandSource.getCommandLine(),
+				telemetryManager,
+				osCommandSource.getTimeout(),
+				osCommandSource.getExecuteLocally(),
+				telemetryManager.getHostProperties().isLocalhost()
+			);
+
+			// transform to lines
+			final List<String> resultLines = SourceTable.lineToList(osCommandResult.getResult(), NEW_LINE);
+
+			final List<String> filteredLines = FilterResultHelper.filterLines(
+				resultLines,
+				osCommandSource.getBeginAtLineNumber(),
+				osCommandSource.getEndAtLineNumber(),
+				osCommandSource.getExclude(),
+				osCommandSource.getKeep()
+			);
+
+			final List<String> selectedColumnsLines = FilterResultHelper.selectedColumns(
+				filteredLines,
+				osCommandSource.getSeparators(),
+				osCommandSource.getSelectColumns()
+			);
+
+			return SourceTable
+				.builder()
+				.rawData(selectedColumnsLines.stream().collect(Collectors.joining(NEW_LINE)))
+				.table(
+					selectedColumnsLines
+						.stream()
+						.map(line -> Stream.of(line.split(TABLE_SEP)).collect(Collectors.toList()))
+						.collect(Collectors.toList())
+				)
+				.build();
+		} catch (Exception e) {
+			logSourceError(
+				connectorName,
+				osCommandSource.getKey(),
+				String.format("OS command: %s.", osCommandSource.getCommandLine()),
+				hostname,
+				e
+			);
+
+			return SourceTable.empty();
+		}
 	}
 
 	@WithSpan("Source SNMP Get Exec")
