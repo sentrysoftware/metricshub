@@ -2,8 +2,6 @@ package com.sentrysoftware.matrix.telemetry;
 
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.configuration.IWinConfiguration;
-import com.sentrysoftware.matrix.configuration.WinRmConfiguration;
-import com.sentrysoftware.matrix.configuration.WmiConfiguration;
 import com.sentrysoftware.matrix.connector.model.ConnectorStore;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,17 +38,7 @@ public class TelemetryManager {
 	 * @return {@link com.sentrysoftware.matrix.configuration.IWinConfiguration} instance.
 	 */
 	public IWinConfiguration getWinConfiguration() {
-		// We prioritize WinRM over WMI as it's more efficient.
-		final IWinConfiguration winConfiguration = (WinRmConfiguration) this.getHostConfiguration()
-			.getConfigurations()
-			.get(WinRmConfiguration.class);
-
-		// Let's try WMI if the WinRM is not available
-		if (winConfiguration == null) {
-			return (WmiConfiguration) this.getHostConfiguration().getConfigurations().get(WmiConfiguration.class);
-		}
-
-		return winConfiguration;
+		return hostConfiguration.getWinConfiguration();
 	}
 
 	/**
