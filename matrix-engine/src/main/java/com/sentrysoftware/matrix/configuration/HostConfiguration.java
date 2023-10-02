@@ -119,4 +119,22 @@ public class HostConfiguration {
 
 		return sources;
 	}
+
+	/**
+	 * Get the protocol configuration used to execute requests on Windows machines.
+	 *  (WinRM or WMI)<br> WinRM is prioritized.
+	 *
+	 * @return {@link IWinProtocol} instance.
+	 */
+	public IWinConfiguration getWinConfiguration() {
+		// We prioritize WinRM over WMI as it's more efficient.
+		final IWinConfiguration protocol = (IWinConfiguration) this.getConfigurations().get(WinRmConfiguration.class);
+
+		// Let's try WMI if the WinRM is not available
+		if (protocol == null) {
+			return (IWinConfiguration) this.getConfigurations().get(WmiConfiguration.class);
+		}
+
+		return protocol;
+	}
 }

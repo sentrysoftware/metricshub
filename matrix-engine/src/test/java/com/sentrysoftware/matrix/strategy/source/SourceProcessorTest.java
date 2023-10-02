@@ -22,23 +22,32 @@ import static com.sentrysoftware.matrix.constants.Constants.WMI_NAMESPACE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.when;
 
 import com.sentrysoftware.matrix.common.exception.MatsyaException;
+import com.sentrysoftware.matrix.common.exception.MatsyaException;
 import com.sentrysoftware.matrix.common.exception.NoCredentialProvidedException;
+import com.sentrysoftware.matrix.common.helpers.ResourceHelper;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.configuration.HttpConfiguration;
+import com.sentrysoftware.matrix.configuration.IWinConfiguration;
+import com.sentrysoftware.matrix.configuration.IpmiConfiguration;
+import com.sentrysoftware.matrix.configuration.OsCommandConfiguration;
 import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
+import com.sentrysoftware.matrix.configuration.SshConfiguration;
 import com.sentrysoftware.matrix.configuration.WbemConfiguration;
 import com.sentrysoftware.matrix.configuration.WmiConfiguration;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.connector.model.common.HttpMethod;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.CopySource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.HttpSource;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.IpmiSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.OsCommandSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpGetSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpTableSource;
@@ -60,7 +69,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -83,6 +94,7 @@ class SourceProcessorTest {
 	private static final String LOWERCASE_C2 = "c2";
 	private static final String UPPERCASE_B2 = "B2";
 	private static final String UPPERCASE_C2 = "C2";
+	private static final String PC14 = "pc14";
 	private static final String LOWERCASE_T = "t";
 	private static final String LOWERCASE_U = "u";
 	private static final String LOWERCASE_V = "v";
@@ -735,6 +747,7 @@ class SourceProcessorTest {
 					.build()
 			)
 			.build();
+
 		final SourceProcessor sourceProcessor = SourceProcessor
 			.builder()
 			.telemetryManager(telemetryManager)
@@ -1104,5 +1117,341 @@ class SourceProcessorTest {
 				.build();
 			assertEquals(expected, sourceProcessor.process(commandSource));
 		}
+	}
+
+	@Test
+	void testProcessIpmiSourceStorageHost() {
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.hostname(ECS1_01)
+			.hostId(ECS1_01)
+			.hostType(DeviceKind.STORAGE)
+			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
+		final SourceProcessor sourceProcessor = SourceProcessor
+			.builder()
+			.telemetryManager(telemetryManager)
+			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.build();
+		assertEquals(SourceTable.empty(), sourceProcessor.process(new IpmiSource()));
+	}
+
+	@Test
+	void testProcessIpmiSourceOobHostNoIpmiConfig() {
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.hostname(ECS1_01)
+			.hostId(ECS1_01)
+			.hostType(DeviceKind.OOB)
+			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
+
+		final SourceProcessor sourceProcessor = SourceProcessor
+			.builder()
+			.telemetryManager(telemetryManager)
+			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.build();
+		assertEquals(SourceTable.empty(), sourceProcessor.process(new IpmiSource()));
+	}
+
+	@Test
+	void testProcessIpmiSourceOob() throws Exception {
+		final IpmiConfiguration ipmiConfiguration = IpmiConfiguration
+			.builder()
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
+			.build();
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.hostname(ECS1_01)
+			.hostId(ECS1_01)
+			.hostType(DeviceKind.OOB)
+			.configurations(Collections.singletonMap(IpmiConfiguration.class, ipmiConfiguration))
+			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
+		final SourceProcessor sourceProcessor = SourceProcessor
+			.builder()
+			.telemetryManager(telemetryManager)
+			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.build();
+		String ipmiResult =
+			"FRU;IBM;System x3650 M2;KD9098C - 794722G\n" +
+			"System Board;1;System Board 1;IBM;System x3650 M2;KD9098C - 794722G;Base board 1=Device Present";
+		doReturn(ipmiResult)
+			.when(matsyaClientsExecutorMock)
+			.executeIpmiGetSensors(eq(ECS1_01), any(IpmiConfiguration.class));
+		assertEquals(SourceTable.builder().rawData(ipmiResult).build(), sourceProcessor.process(new IpmiSource()));
+	}
+
+	@Test
+	void testProessIpmiSourceOobNullResult() throws Exception {
+		final IpmiConfiguration ipmiConfiguration = IpmiConfiguration
+			.builder()
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
+			.build();
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.hostname(ECS1_01)
+			.hostId(ECS1_01)
+			.hostType(DeviceKind.OOB)
+			.configurations(Collections.singletonMap(IpmiConfiguration.class, ipmiConfiguration))
+			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
+		final SourceProcessor sourceProcessor = SourceProcessor
+			.builder()
+			.telemetryManager(telemetryManager)
+			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.build();
+		doReturn(null).when(matsyaClientsExecutorMock).executeIpmiGetSensors(eq(ECS1_01), any(IpmiConfiguration.class));
+		assertEquals(SourceTable.empty(), sourceProcessor.process(new IpmiSource()));
+	}
+
+	@Test
+	void testVisitIpmiSourceOobException() throws Exception {
+		final IpmiConfiguration ipmiConfiguration = IpmiConfiguration
+			.builder()
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
+			.build();
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.hostname(ECS1_01)
+			.hostId(ECS1_01)
+			.hostType(DeviceKind.OOB)
+			.configurations(Collections.singletonMap(IpmiConfiguration.class, ipmiConfiguration))
+			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
+
+		final SourceProcessor sourceProcessor = SourceProcessor
+			.builder()
+			.telemetryManager(telemetryManager)
+			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.build();
+		doThrow(new ExecutionException(new Exception("Exception from tests")))
+			.when(matsyaClientsExecutorMock)
+			.executeIpmiGetSensors(eq(ECS1_01), any(IpmiConfiguration.class));
+		assertEquals(SourceTable.empty(), sourceProcessor.process(new IpmiSource()));
+	}
+
+	@Test
+	void testProcessWindowsIpmiSource() throws Exception {
+		final IWinConfiguration wmiConfiguration = WmiConfiguration
+			.builder()
+			.username(PC14 + "\\" + "Administrator")
+			.password("password".toCharArray())
+			.timeout(120L)
+			.build();
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.hostname(PC14)
+			.hostId(PC14)
+			.hostType(DeviceKind.WINDOWS)
+			.configurations(Collections.singletonMap(WmiConfiguration.class, wmiConfiguration))
+			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
+		final SourceProcessor sourceProcessor = SourceProcessor
+			.builder()
+			.telemetryManager(telemetryManager)
+			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.build();
+		final List<List<String>> wmiResult1 = Arrays.asList(Arrays.asList("IdentifyingNumber", "Name", "Vendor"));
+		doReturn(wmiResult1)
+			.when(matsyaClientsExecutorMock)
+			.executeWql(
+				PC14,
+				wmiConfiguration,
+				"SELECT IdentifyingNumber,Name,Vendor FROM Win32_ComputerSystemProduct",
+				"root/cimv2"
+			);
+
+		final List<List<String>> wmiResult2 = Arrays.asList(
+			Arrays.asList("2", "20", "sensorName(sensorId):description for deviceId", "10", "15", "2", "0", "30", "25")
+		);
+		doReturn(wmiResult2)
+			.when(matsyaClientsExecutorMock)
+			.executeWql(
+				PC14,
+				wmiConfiguration,
+				"SELECT BaseUnits,CurrentReading,Description,LowerThresholdCritical,LowerThresholdNonCritical,SensorType,UnitModifier,UpperThresholdCritical,UpperThresholdNonCritical FROM NumericSensor",
+				"root/hardware"
+			);
+
+		final List<List<String>> wmiResult3 = Arrays.asList(
+			Arrays.asList("state", "sensorName(sensorId):description for deviceType deviceId")
+		);
+		doReturn(wmiResult3)
+			.when(matsyaClientsExecutorMock)
+			.executeWql(PC14, wmiConfiguration, "SELECT CurrentState,Description FROM Sensor", "root/hardware");
+
+		final List<List<String>> expected = Arrays.asList(
+			Arrays.asList("FRU", "Vendor", "Name", "IdentifyingNumber"),
+			Arrays.asList("Temperature", "sensorId", "sensorName", "deviceId", "20.0", "25.0", "30.0"),
+			Arrays.asList("deviceType", "deviceId", "deviceType deviceId", EMPTY, EMPTY, EMPTY, "sensorName=state")
+		);
+		SourceTable result = sourceProcessor.process(new IpmiSource());
+		assertEquals(SourceTable.builder().table(expected).build(), result);
+	}
+
+	@Test
+	void testProcessWindowsIpmiSourceWmiException() throws Exception {
+		final IWinConfiguration wmiConfiguration = WmiConfiguration
+			.builder()
+			.username(PC14 + "\\" + "Administrator")
+			.password("password".toCharArray())
+			.timeout(120L)
+			.build();
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.hostname(PC14)
+			.hostId(PC14)
+			.hostType(DeviceKind.WINDOWS)
+			.configurations(Collections.singletonMap(WmiConfiguration.class, wmiConfiguration))
+			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
+		final SourceProcessor sourceProcessor = SourceProcessor
+			.builder()
+			.telemetryManager(telemetryManager)
+			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.build();
+		doThrow(MatsyaException.class)
+			.when(matsyaClientsExecutorMock)
+			.executeWql(
+				PC14,
+				wmiConfiguration,
+				"SELECT IdentifyingNumber,Name,Vendor FROM Win32_ComputerSystemProduct",
+				"root/cimv2"
+			);
+		assertEquals(SourceTable.empty(), sourceProcessor.process(new IpmiSource()));
+	}
+
+	@Test
+	void testProcessWindowsIpmiSourceWmiProtocolNull() throws Exception {
+		final HttpConfiguration httpConfiguration = HttpConfiguration
+			.builder()
+			.username("username")
+			.password("password".toCharArray())
+			.port(161)
+			.timeout(120L)
+			.build();
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.hostname(ECS1_01)
+			.hostId(ECS1_01)
+			.hostType(DeviceKind.WINDOWS)
+			.configurations(Collections.singletonMap(HttpConfiguration.class, httpConfiguration))
+			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
+		final SourceProcessor sourceProcessor = SourceProcessor
+			.builder()
+			.telemetryManager(telemetryManager)
+			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.build();
+
+		assertEquals(SourceTable.empty(), sourceProcessor.process(new IpmiSource()));
+	}
+
+	@Test
+	void testProcessUnixIpmiSource() {
+		// classic case
+		final SshConfiguration sshConfiguration = SshConfiguration
+			.sshConfigurationBuilder()
+			.username("root")
+			.password("nationale".toCharArray())
+			.build();
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.hostname("localhost")
+			.hostId("localhost")
+			.hostType(DeviceKind.LINUX)
+			.configurations(
+				Map.of(
+					HttpConfiguration.class,
+					OsCommandConfiguration.builder().build(),
+					SshConfiguration.class,
+					sshConfiguration
+				)
+			)
+			.build();
+
+		final HostProperties hostProperties = HostProperties
+			.builder()
+			.isLocalhost(true)
+			.ipmitoolCommand("ipmiCommand")
+			.build();
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(hostConfiguration)
+			.hostProperties(hostProperties)
+			.build();
+		final SourceProcessor sourceProcessor = SourceProcessor
+			.builder()
+			.telemetryManager(telemetryManager)
+			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.build();
+
+		// local
+		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
+			oscmd
+				.when(() -> OsCommandHelper.runLocalCommand(eq("ipmiCommandfru"), anyLong(), eq(null)))
+				.thenReturn("impiResultFru");
+			oscmd
+				.when(() -> OsCommandHelper.runLocalCommand(eq("ipmiCommand-v sdr elist all"), anyLong(), eq(null)))
+				.thenReturn("impiResultSdr");
+			final SourceTable ipmiResult = sourceProcessor.process(new IpmiSource());
+			assertEquals(SourceTable.empty(), ipmiResult);
+		}
+
+		String fru = "/data/IpmiFruBabbage";
+		String sensor = "/data/IpmiSensorBabbage";
+		String expected = "/data/ipmiProcessingResult";
+		String fruResult = ResourceHelper.getResourceAsString(fru, this.getClass());
+		String sensorResult = ResourceHelper.getResourceAsString(sensor, this.getClass());
+
+		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
+			oscmd
+				.when(() -> OsCommandHelper.runLocalCommand(eq("ipmiCommand" + "fru"), anyLong(), any()))
+				.thenReturn(fruResult);
+			oscmd
+				.when(() -> OsCommandHelper.runLocalCommand(eq("ipmiCommand" + "-v sdr elist all"), anyLong(), any()))
+				.thenReturn(sensorResult);
+			final SourceTable ipmiResult = sourceProcessor.process(new IpmiSource());
+			String expectedResult = ResourceHelper.getResourceAsString(expected, this.getClass());
+			List<List<String>> result = new ArrayList<>();
+			Stream.of(expectedResult.split("\n")).forEach(line -> result.add(Arrays.asList(line.split(";"))));
+			assertEquals(result, ipmiResult.getTable());
+		}
+
+		// remote
+		hostProperties.setLocalhost(false);
+
+		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
+			oscmd
+				.when(() -> OsCommandHelper.runSshCommand(eq("ipmiCommand" + "fru"), any(), any(), anyLong(), any(), any()))
+				.thenReturn("impiResultFru");
+			oscmd
+				.when(() ->
+					OsCommandHelper.runSshCommand(eq("ipmiCommand" + "-v sdr elist all"), any(), any(), anyLong(), any(), any())
+				)
+				.thenReturn("impiResultSdr");
+			final SourceTable ipmiResult = sourceProcessor.process(new IpmiSource());
+			assertEquals(SourceTable.empty(), ipmiResult);
+		}
+
+		// ipmiToolCommand is empty
+		hostProperties.setIpmitoolCommand("");
+		SourceTable ipmiResultEmpty = sourceProcessor.process(new IpmiSource());
+		assertEquals(SourceTable.empty(), ipmiResultEmpty);
+
+		// ipmiToolCommand is null
+		hostProperties.setIpmitoolCommand(null);
+		ipmiResultEmpty = sourceProcessor.process(new IpmiSource());
+		assertEquals(SourceTable.empty(), ipmiResultEmpty);
+
+		// osCommandConfig is null
+		hostProperties.setLocalhost(true);
+		hostProperties.setIpmitoolCommand("ipmiCommand");
+		ipmiResultEmpty = sourceProcessor.process(new IpmiSource());
+		assertEquals(SourceTable.empty(), ipmiResultEmpty);
 	}
 }

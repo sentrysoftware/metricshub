@@ -32,6 +32,7 @@ import static org.mockito.Mockito.doReturn;
 
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.configuration.HttpConfiguration;
+import com.sentrysoftware.matrix.configuration.IpmiConfiguration;
 import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.connector.model.common.EntryConcatMethod;
@@ -39,6 +40,7 @@ import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
 import com.sentrysoftware.matrix.connector.model.common.HttpMethod;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.CopySource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.HttpSource;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.IpmiSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.OsCommandSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpGetSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpTableSource;
@@ -486,6 +488,21 @@ class SourceUpdaterProcessorTest {
 				.process(
 					OsCommandSource.builder().commandLine("/usr/sbin/pvdisplay /dev/dsk/%PhysicalDisk.Collect.DeviceID%").build()
 				)
+		);
+	}
+
+	@Test
+	void testProcessIpmiSource() {
+		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(IpmiSource.class));
+		assertEquals(
+			SourceTable.empty(),
+			new SourceUpdaterProcessor(
+				sourceProcessor,
+				TelemetryManager.builder().build(),
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
+			)
+				.process(IpmiSource.builder().build())
 		);
 	}
 }
