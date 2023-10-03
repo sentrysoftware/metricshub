@@ -5,7 +5,11 @@ import static com.sentrysoftware.matrix.constants.Constants.MY_CONNECTOR_1_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.sentrysoftware.matrix.common.JobInfo;
+import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
+import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.connector.model.monitor.task.Mapping;
+import com.sentrysoftware.matrix.strategy.source.SourceTable;
+import com.sentrysoftware.matrix.telemetry.ConnectorNamespace;
 import com.sentrysoftware.matrix.telemetry.MetricFactory;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
@@ -21,8 +25,12 @@ class MappingProcessorTest {
 	@Test
 	void testInterpretNonContextMapping() {
 		final TelemetryManager telemetryManager = new TelemetryManager();
+		telemetryManager.setHostConfiguration(HostConfiguration.builder().hostname("hostname").build());
 
 		final List<String> row = List.of("1", "1", "1", "10", "10", "1", "1", "1", "1", "2", "1");
+
+		final String vendorSource1Ref = "${source::monitors.cpu.discovery.sources.vendor}";
+		final String vendorIdSource1Ref = "${source::monitors.cpu.discovery.sources.id}";
 
 		final MappingProcessor mappingProcessor = MappingProcessor
 			.builder()
@@ -32,6 +40,18 @@ class MappingProcessorTest {
 			.row(row)
 			.build();
 
+		final ConnectorNamespace connectorNamespace = telemetryManager
+			.getHostProperties()
+			.getConnectorNamespace(MY_CONNECTOR_1_NAME);
+		connectorNamespace.addSourceTable(
+			vendorSource1Ref,
+			SourceTable.builder().table(SourceTable.csvToTable("vendor", MatrixConstants.TABLE_SEP)).build()
+		);
+		connectorNamespace.addSourceTable(
+			vendorIdSource1Ref,
+			SourceTable.builder().table(SourceTable.csvToTable("1", MatrixConstants.TABLE_SEP)).build()
+		);
+
 		// Value conversion tests, basic value and invalid value
 		{
 			final Map<String, String> expected = new LinkedHashMap<>();
@@ -40,13 +60,8 @@ class MappingProcessorTest {
 			expected.put("testMegaBit2Bit", "1000000.0");
 			expected.put("testPercent2Ratio", "0.1");
 			expected.put("testValue", "10");
-			expected.put("testInvalidValue", null);
-
-			expected.put("testMegaHertz2Hertz", "1000000.0");
-			expected.put("testMegaBit2Bit", "1000000.0");
-			expected.put("testPercent2Ratio", "0.1");
-			expected.put("testValue", "10");
-			expected.put("testInvalidValue", null);
+			expected.put("testSourceReferenceKey", "vendor1");
+			expected.put("testInvalidValue", "");
 
 			final Map<String, String> keyValuePairs = Map.of(
 				"testMebiByte2Byte",
@@ -59,6 +74,8 @@ class MappingProcessorTest {
 				"percent2ratio(10)",
 				"testValue",
 				"10",
+				"testSourceReferenceKey",
+				vendorSource1Ref + vendorIdSource1Ref,
 				"testInvalidValue",
 				"percent2ratio(ten)"
 			);
@@ -542,8 +559,7 @@ class MappingProcessorTest {
 
 	@Test
 	void testInterpretNonContextMappingComputePowerShareRatio() {
-		//TODO
-		Monitor monitor = new Monitor();
+		final Monitor monitor = new Monitor();
 
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
@@ -559,14 +575,14 @@ class MappingProcessorTest {
 
 		{
 			final Map<String, String> keyValuePairs = Map.of("hw.vm.power_ratio", "computePowerShareRatio(10)");
-			final Map<String, String> expected = Map.of("hw.vm.power_ratio.raw", "10.0");
+			final Map<String, String> expected = Map.of("hw.vm.power_ratio.raw_power_share", "10.0");
 
 			assertEquals(expected, mappingProcessor.interpretNonContextMapping(keyValuePairs));
 		}
 
 		{
 			final Map<String, String> keyValuePairs = Map.of("hw.vm.power_ratio", "computePowerShareRatio(ten)");
-			final Map<String, String> expected = Map.of("hw.vm.power_ratio.raw", "");
+			final Map<String, String> expected = Map.of("hw.vm.power_ratio.raw_power_share", "");
 
 			assertEquals(expected, mappingProcessor.interpretNonContextMapping(keyValuePairs));
 		}
