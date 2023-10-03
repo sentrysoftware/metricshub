@@ -308,6 +308,13 @@ public class MappingProcessor {
 		return monitor.getAttributes().get(attributeValueToExtract);
 	}
 
+	/**
+	 * Performs a legacyPowerSupplyUtilization operation where we calculate the ratio of the power supply used.
+	 *
+	 * @param functionCode	legacyPowerSupplyUtilization function code definition.
+	 * @param key			A key associated with the legacyPowerSupplyUtilization operation.
+	 * @return				String representing the ratio of PowerSupplyUtilization.
+	 */
 	private String legacyPowerSupplyUtilization(final KeyValuePair keyValuePair, final Monitor monitor) {
 		final String key = keyValuePair.getKey();
 		final String value = keyValuePair.getValue();
