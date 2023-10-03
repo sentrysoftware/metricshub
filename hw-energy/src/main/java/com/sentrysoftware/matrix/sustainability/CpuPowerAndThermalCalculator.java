@@ -13,23 +13,25 @@ import lombok.extern.slf4j.Slf4j;
 @Builder
 @Slf4j
 public class CpuPowerAndThermalCalculator {
+
 	private TelemetryManager telemetryManager;
 
-	static Double estimateAverageTemperature(){
+	static Double estimateAverageTemperature() {
 		//TODO
 		return null;
 	}
 
-	static Double estimateTemperatureWarningThresholdAverage(){
+	static Double estimateTemperatureWarningThresholdAverage() {
 		//TODO
 		return null;
 	}
 
-	static Double estimateThermalDissipationRate(){
+	static Double estimateThermalDissipationRate() {
 		//TODO
 		return null;
 	}
-	static Double estimateCpuPowerConsumption(){
+
+	static Double estimateCpuPowerConsumption() {
 		//TODO
 		return null;
 	}

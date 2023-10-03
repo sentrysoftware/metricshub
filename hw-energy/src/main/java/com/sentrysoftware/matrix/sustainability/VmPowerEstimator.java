@@ -12,11 +12,11 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor
 @Builder
 @Slf4j
-public class VmPowerEstimator{
+public class VmPowerEstimator {
 
 	private TelemetryManager telemetryManager;
 
-	static Double estimatePower(){
+	static Double estimatePower() {
 		// TODO
 		return null;
 	}

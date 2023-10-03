@@ -15,46 +15,53 @@ import lombok.extern.slf4j.Slf4j;
 public class HardwarePowerAndEnergyEstimator {
 
 	private TelemetryManager telemetryManager;
-	public static Double estimateFanPower(){
+
+	public static Double estimateFanPower() {
 		//TODO
 		return null;
 	}
 
-	public static Double estimateNetworkPower(){
-		//TODO
-		return null;
-	}
-	public static Double estimateRoboticsPower(){
-		//TODO
-		return null;
-	}
-	public static Double estimateTapeDrivePower(){
-		//TODO
-		return null;
-	}
-	public static Double estimateDiskControllerPower(){
+	public static Double estimateNetworkPower() {
 		//TODO
 		return null;
 	}
 
-	public static Double estimateFanEnergy(){
+	public static Double estimateRoboticsPower() {
 		//TODO
 		return null;
 	}
 
-	public static Double estimateNetworkEnergy(){
+	public static Double estimateTapeDrivePower() {
 		//TODO
 		return null;
 	}
-	public static Double estimateRoboticsEnergy(){
+
+	public static Double estimateDiskControllerPower() {
 		//TODO
 		return null;
 	}
-	public static Double estimateTapeDriveEnergy(){
+
+	public static Double estimateFanEnergy() {
 		//TODO
 		return null;
 	}
-	public static Double estimateDiskControllerEnergy(){
+
+	public static Double estimateNetworkEnergy() {
+		//TODO
+		return null;
+	}
+
+	public static Double estimateRoboticsEnergy() {
+		//TODO
+		return null;
+	}
+
+	public static Double estimateTapeDriveEnergy() {
+		//TODO
+		return null;
+	}
+
+	public static Double estimateDiskControllerEnergy() {
 		//TODO
 		return null;
 	}
