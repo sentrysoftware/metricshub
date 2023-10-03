@@ -1,0 +1,26 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.sentrysoftware.matrix</groupId>
+        <artifactId>matrix-parent</artifactId>
+        <version>1.0.00-SNAPSHOT</version>
+    </parent>
+    <artifactId>hw-energy</artifactId>
+    <name>Hardware Energy and Sustainability Module</name>
+    <description>Hardware Energy and Sustainability Post Processing Module</description>
+    <url>http://maven.apache.org</url>
+    <dependencies>
+        <!-- Matrix Engine -->
+        <dependency>
+            <groupId>com.sentrysoftware.matrix</groupId>
+            <artifactId>matrix-engine</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+</project>
