@@ -338,7 +338,7 @@ public class MappingProcessor {
 	 *
 	 * @param keyValuePair	Key-value defining the field key and its value we wish to interpret.
 	 * @param monitor		The monitor from which we want to extract the metric.
-	 * @return String representing the ratio of PowerSupplyUtilization.
+	 * @return 				String representing the ratio of PowerSupplyUtilization.
 	 */
 	private String legacyPowerSupplyUtilization(final KeyValuePair keyValuePair, final Monitor monitor) {
 		final String key = keyValuePair.getKey();
