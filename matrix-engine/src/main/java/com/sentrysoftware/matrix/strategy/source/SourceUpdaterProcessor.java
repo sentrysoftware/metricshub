@@ -307,7 +307,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 	/**
 	 * Replace source reference content in the given value
 	 *
-	 * @param value            The value containing source key such as %Enclosure.Discovery.Source(1)%
+	 * @param value            The value containing source key such as ${source::monitors.cpu.discovery.sources.source1}
 	 * @param telemetryManager The current {@link TelemetryManager} instance wrapping the host configuration and the host monitoring instance
 	 * @param connectorName    The connector's name
 	 * @param operationType    The type of the operation required for debug purpose. E.g. Substring, SnmpGetTableSource, ...
@@ -326,7 +326,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 		final StringBuffer sb = new StringBuffer();
 
 		while (matcher.find()) {
-			final String sourceKey = matcher.group(1);
+			final String sourceKey = matcher.group();
 			final String sourceReferenceContent = extractSourceReferenceContent(
 				telemetryManager,
 				connectorName,

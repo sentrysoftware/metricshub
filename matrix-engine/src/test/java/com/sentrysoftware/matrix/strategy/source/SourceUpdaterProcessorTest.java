@@ -30,9 +30,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 
+import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.configuration.HttpConfiguration;
-import com.sentrysoftware.matrix.configuration.IpmiConfiguration;
 import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.connector.model.common.EntryConcatMethod;
@@ -504,5 +504,72 @@ class SourceUpdaterProcessorTest {
 			)
 				.process(IpmiSource.builder().build())
 		);
+	}
+
+	@Test
+	void testReplaceSourceReferenceContent() {
+		final TelemetryManager telemetryManager = new TelemetryManager();
+		telemetryManager.setHostConfiguration(HostConfiguration.builder().hostname("hostname").build());
+
+		final String vendorSource1Ref = "${source::monitors.cpu.discovery.sources.vendor}";
+
+		{
+			final String value = String.format("%s value", vendorSource1Ref);
+			telemetryManager
+				.getHostProperties()
+				.getConnectorNamespace(MY_CONNECTOR_1_NAME)
+				.addSourceTable(
+					vendorSource1Ref,
+					SourceTable.builder().table(SourceTable.csvToTable("vendor", MatrixConstants.TABLE_SEP)).build()
+				);
+
+			final String result = SourceUpdaterProcessor.replaceSourceReferenceContent(
+				value,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME,
+				"source",
+				"object"
+			);
+			assertEquals("vendor value", result);
+		}
+
+		{
+			final String value = String.format("%s %s value", vendorSource1Ref, vendorSource1Ref);
+			telemetryManager
+				.getHostProperties()
+				.getConnectorNamespace(MY_CONNECTOR_1_NAME)
+				.addSourceTable(
+					vendorSource1Ref,
+					SourceTable.builder().table(SourceTable.csvToTable("vendor", MatrixConstants.TABLE_SEP)).build()
+				);
+
+			final String result = SourceUpdaterProcessor.replaceSourceReferenceContent(
+				value,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME,
+				"source",
+				"object"
+			);
+			assertEquals("vendor vendor value", result);
+		}
+		{
+			final String value = String.format("%s%s value", vendorSource1Ref, vendorSource1Ref);
+			telemetryManager
+				.getHostProperties()
+				.getConnectorNamespace(MY_CONNECTOR_1_NAME)
+				.addSourceTable(
+					vendorSource1Ref,
+					SourceTable.builder().table(SourceTable.csvToTable("vendor", MatrixConstants.TABLE_SEP)).build()
+				);
+
+			final String result = SourceUpdaterProcessor.replaceSourceReferenceContent(
+				value,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME,
+				"source",
+				"object"
+			);
+			assertEquals("vendorvendor value", result);
+		}
 	}
 }
