@@ -16,7 +16,7 @@ public class VmPowerEstimator {
 
 	private TelemetryManager telemetryManager;
 
-	static Double estimatePower() {
+	public static Double estimatePower() {
 		// TODO
 		return null;
 	}

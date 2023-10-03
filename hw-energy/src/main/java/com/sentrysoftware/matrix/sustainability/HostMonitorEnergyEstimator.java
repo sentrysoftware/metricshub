@@ -16,32 +16,32 @@ public class HostMonitorEnergyEstimator {
 
 	private TelemetryManager telemetryManager;
 
-	static Double computeHeatingMargin() {
+	public static Double computeHeatingMargin() {
 		// TODO
 		return null;
 	}
 
-	static Double computeAmbientTemperature() {
+	public static Double computeAmbientTemperature() {
 		// TODO
 		return null;
 	}
 
-	static Double computeEstimatedPower() {
+	public static Double computeEstimatedPower() {
 		// TODO
 		return null;
 	}
 
-	static Double computeEstimatedEnergy() {
+	public static Double computeEstimatedEnergy() {
 		// TODO
 		return null;
 	}
 
-	static Double computeMeasuredEnergy() {
+	public static Double computeMeasuredEnergy() {
 		// TODO
 		return null;
 	}
 
-	static Double computeMeasuredPower() {
+	public static Double computeMeasuredPower() {
 		// TODO
 		return null;
 	}

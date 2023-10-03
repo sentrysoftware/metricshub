@@ -16,22 +16,22 @@ public class CpuPowerAndThermalCalculator {
 
 	private TelemetryManager telemetryManager;
 
-	static Double estimateAverageTemperature() {
+	public static Double estimateAverageTemperature() {
 		//TODO
 		return null;
 	}
 
-	static Double estimateTemperatureWarningThresholdAverage() {
+	public static Double estimateTemperatureWarningThresholdAverage() {
 		//TODO
 		return null;
 	}
 
-	static Double estimateThermalDissipationRate() {
+	public static Double estimateThermalDissipationRate() {
 		//TODO
 		return null;
 	}
 
-	static Double estimateCpuPowerConsumption() {
+	public static Double estimateCpuPowerConsumption() {
 		//TODO
 		return null;
 	}
