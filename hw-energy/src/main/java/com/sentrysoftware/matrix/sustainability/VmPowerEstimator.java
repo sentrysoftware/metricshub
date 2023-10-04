@@ -16,7 +16,11 @@ public class VmPowerEstimator {
 
 	private TelemetryManager telemetryManager;
 
-	public static Double estimatePower() {
+	/**
+	 * Estimates the power consumption of the VM monitor
+	 * @return
+	 */
+	public Double estimatePower() {
 		// TODO
 		return null;
 	}

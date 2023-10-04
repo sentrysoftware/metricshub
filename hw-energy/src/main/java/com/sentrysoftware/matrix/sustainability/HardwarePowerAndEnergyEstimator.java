@@ -12,57 +12,19 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor
 @Builder
 @Slf4j
-public class HardwarePowerAndEnergyEstimator {
+public abstract class HardwarePowerAndEnergyEstimator {
 
 	private TelemetryManager telemetryManager;
 
-	public static Double estimateFanPower() {
-		//TODO
-		return null;
-	}
+	/**
+	 * Estimates the power consumption of a hardware monitor
+	 * @return Double
+	 */
+	abstract Double estimatePower();
 
-	public static Double estimateNetworkPower() {
-		//TODO
-		return null;
-	}
-
-	public static Double estimateRoboticsPower() {
-		//TODO
-		return null;
-	}
-
-	public static Double estimateTapeDrivePower() {
-		//TODO
-		return null;
-	}
-
-	public static Double estimateDiskControllerPower() {
-		//TODO
-		return null;
-	}
-
-	public static Double estimateFanEnergy() {
-		//TODO
-		return null;
-	}
-
-	public static Double estimateNetworkEnergy() {
-		//TODO
-		return null;
-	}
-
-	public static Double estimateRoboticsEnergy() {
-		//TODO
-		return null;
-	}
-
-	public static Double estimateTapeDriveEnergy() {
-		//TODO
-		return null;
-	}
-
-	public static Double estimateDiskControllerEnergy() {
-		//TODO
-		return null;
-	}
+	/**
+	 * Estimates the energy consumption of a hardware monitor
+	 * @return Double
+	 */
+	abstract Double estimateEnergy();
 }

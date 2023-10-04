@@ -12,35 +12,41 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor
 @Builder
 @Slf4j
-public class HostMonitorEnergyEstimator {
+public class HostMonitorEnergyAndPowerEstimator {
 
 	private TelemetryManager telemetryManager;
 
-	public static Double computeHeatingMargin() {
-		// TODO
-		return null;
-	}
-
-	public static Double computeAmbientTemperature() {
-		// TODO
-		return null;
-	}
-
+	/**
+	 * Estimates the power consumption of the host monitor
+	 * @return Double
+	 */
 	public static Double computeEstimatedPower() {
 		// TODO
 		return null;
 	}
 
+	/**
+	 * Estimates the energy consumption of the host monitor
+	 * @return Double
+	 */
 	public static Double computeEstimatedEnergy() {
 		// TODO
 		return null;
 	}
 
+	/**
+	 * Computes the real energy consumption of the host monitor
+	 * @return Double
+	 */
 	public static Double computeMeasuredEnergy() {
 		// TODO
 		return null;
 	}
 
+	/**
+	 * Computes the real power consumption of the host monitor
+	 * @return Double
+	 */
 	public static Double computeMeasuredPower() {
 		// TODO
 		return null;
