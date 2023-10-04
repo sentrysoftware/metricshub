@@ -20,7 +20,7 @@ public class VmPowerEstimator {
 	 * Estimates the power consumption of the VM monitor
 	 * @return
 	 */
-	public Double estimatePower() {
+	public static Double estimatePower() {
 		// TODO
 		return null;
 	}
