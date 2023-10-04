@@ -19,7 +19,7 @@ public class CpuPowerEstimator extends HardwarePowerAndEnergyEstimator {
 	 * @return Double
 	 */
 	@Override
-	public Double estimatePower() {
+	Double estimatePower() {
 		//TODO
 		return null;
 	}
