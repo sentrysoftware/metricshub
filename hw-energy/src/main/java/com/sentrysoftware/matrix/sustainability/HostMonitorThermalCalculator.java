@@ -42,4 +42,22 @@ public class HostMonitorThermalCalculator {
 		//TODO
 		return null;
 	}
+
+	/**
+	 * Estimates temperature warning threshold average
+	 * @return Double
+	 */
+	public static Double estimateTemperatureWarningThresholdAverage() {
+		//TODO
+		return null;
+	}
+
+	/**
+	 * Estimates thermal dissipation rate
+	 * @return Double
+	 */
+	public static Double estimateThermalDissipationRate() {
+		//TODO
+		return null;
+	}
 }

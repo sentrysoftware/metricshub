@@ -1,27 +1,35 @@
 package com.sentrysoftware.matrix.sustainability;
 
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
-@Slf4j
-public class VmPowerEstimator {
+@EqualsAndHashCode(callSuper = true)
+public class VmPowerEstimator extends HardwarePowerAndEnergyEstimator {
 
-	private TelemetryManager telemetryManager;
+	public VmPowerEstimator(final TelemetryManager telemetryManager) {
+		super(telemetryManager);
+	}
 
 	/**
 	 * Estimates the power consumption of the VM monitor
-	 * @return
+	 * @return Double
 	 */
-	public static Double estimatePower() {
+	@Override
+	Double estimatePower() {
 		// TODO
+		return null;
+	}
+
+	/**
+	 * Estimates the energy consumption of the VM monitor
+	 * @return Double
+	 */
+	@Override
+	Double estimateEnergy() {
 		return null;
 	}
 }
