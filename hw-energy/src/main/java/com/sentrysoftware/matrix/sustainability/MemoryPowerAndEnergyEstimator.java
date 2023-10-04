@@ -1,15 +1,18 @@
 package com.sentrysoftware.matrix.sustainability;
 
-import lombok.AllArgsConstructor;
+import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class MemoryPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimator {
+
+	public MemoryPowerAndEnergyEstimator(final TelemetryManager telemetryManager) {
+		super(telemetryManager);
+	}
 
 	/**
 	 * Estimates the power consumption of the Memory monitor
