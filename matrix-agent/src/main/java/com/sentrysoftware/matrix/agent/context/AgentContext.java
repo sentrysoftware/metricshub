@@ -94,7 +94,7 @@ public class AgentContext {
 				.withOtelCollectorProcessService(otelCollectorProcessService)
 				.withTaskScheduler(TaskSchedulingService.newScheduler(agentConfig.getJobPoolSize()))
 				.withTelemetryManagers(telemetryManagers)
-				.withResourceSchedules(new HashMap<>())
+				.withSchedules(new HashMap<>())
 				.withOtelSdkConfiguration(otelSdkConfiguration)
 				.build();
 

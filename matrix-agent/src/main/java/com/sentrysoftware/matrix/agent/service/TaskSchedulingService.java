@@ -1,45 +1,36 @@
 package com.sentrysoftware.matrix.agent.service;
 
 import com.sentrysoftware.matrix.agent.config.AgentConfig;
+import com.sentrysoftware.matrix.agent.config.ResourceConfig;
 import com.sentrysoftware.matrix.agent.config.ResourceGroupConfig;
 import com.sentrysoftware.matrix.agent.context.AgentInfo;
-import com.sentrysoftware.matrix.agent.helper.ConfigHelper;
-import com.sentrysoftware.matrix.agent.helper.OtelHelper;
+import com.sentrysoftware.matrix.agent.service.scheduling.ResourceGroupScheduling;
+import com.sentrysoftware.matrix.agent.service.scheduling.ResourceScheduling;
+import com.sentrysoftware.matrix.agent.service.scheduling.SelfObserverScheduling;
 import com.sentrysoftware.matrix.agent.service.signal.ResourceGroupMetricsObserver;
 import com.sentrysoftware.matrix.agent.service.signal.SelfObserver;
 import com.sentrysoftware.matrix.connector.model.ConnectorStore;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-import io.opentelemetry.sdk.autoconfigure.AutoConfiguredOpenTelemetrySdk;
-import io.opentelemetry.sdk.metrics.SdkMeterProvider;
-import io.opentelemetry.sdk.resources.Resource;
 import java.io.File;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.concurrent.ScheduledFuture;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
-import org.springframework.scheduling.support.PeriodicTrigger;
 
 @Data
 @Builder(setterPrefix = "with")
 @Slf4j
 public class TaskSchedulingService {
 
-	static final String METRICSHUB_RESOURCE_GROUP_KEY_FORMAT = "metricshub-resource-group-%s";
-	static final String METRICSHUB_OVERALL_SELF_TASK_KEY = "metricshub-overall-self-task";
-
 	private ConnectorStore connectorStore;
 	private File configFile;
 	private AgentConfig agentConfig;
 	private AgentInfo agentInfo;
 	private ThreadPoolTaskScheduler taskScheduler;
-	private Map<String, ScheduledFuture<?>> resourceSchedules;
+	private Map<String, ScheduledFuture<?>> schedules;
 	private OtelCollectorProcessService otelCollectorProcessService;
 	private Map<String, Map<String, TelemetryManager>> telemetryManagers;
 	private Map<String, String> otelSdkConfiguration;
@@ -56,110 +47,112 @@ public class TaskSchedulingService {
 	}
 
 	/**
+	 * Initialize the {@link SelfObserverScheduling} to schedule {@link SelfObserver}
+	 * which triggers a periodic task to flush metrics
+	 */
+	void scheduleSelfObserver() {
+		SelfObserverScheduling
+			.builder()
+			.withAgentConfig(agentConfig)
+			.withAgentInfo(agentInfo)
+			.withOtelSdkConfiguration(otelSdkConfiguration)
+			.withSchedules(schedules)
+			.withTaskScheduler(taskScheduler)
+			.build()
+			.schedule();
+	}
+
+	/**
 	 * Initialize the {@link ResourceGroupMetricsObserver} for each resource group and
 	 * trigger a periodic task to flush metrics
 	 */
 	void scheduleResourceGroupObservers() {
-		log.info("Scheduling Resource Group Observers.");
-
 		agentConfig
 			.getResourceGroups()
 			.entrySet()
 			.stream()
 			.filter(entry -> Objects.nonNull(entry.getValue()))
-			.forEach(this::scheduleResourceGroup);
+			.forEach(entry -> {
+				final ResourceGroupConfig resourceGroupConfig = entry.getValue();
+				final String resourceGroupKey = entry.getKey();
+				scheduleResourceGroup(resourceGroupKey, resourceGroupConfig);
+				scheduleResourcesInResourceGroups(resourceGroupKey, resourceGroupConfig);
+			});
 
 		log.info("Resource Group Observers scheduled.");
 	}
 
 	/**
-	 * Initialize the {@link ResourceGroupMetricsObserver} for the given resource group
-	 * entry and trigger a periodic task to flush metrics
+	 * Initialize the {@link ResourceGroupScheduling} to schedule {@link ResourceGroupMetricsObserver}
+	 * for the given resource group configuration
 	 *
-	 * @param resourceGroupConfigEntry Key-value defining the {@link ResourceGroupConfig} instance
+	 * @param resourceGroupKey    unique key of the resource group configuration.
+	 * @param resourceGroupConfig {@link ResourceGroupConfig} instance configured by the user.
 	 */
-	void scheduleResourceGroup(final Entry<String, ResourceGroupConfig> resourceGroupConfigEntry) {
-		final ResourceGroupConfig resourceGroupConfig = resourceGroupConfigEntry.getValue();
-		final String resourceGroupKey = resourceGroupConfigEntry.getKey();
-
-		// Create the service resource
-		final Resource resource = OtelHelper.createServiceResource(resourceGroupConfig.getAttributes());
-
-		final AutoConfiguredOpenTelemetrySdk autoConfiguredOpenTelemetrySdk = OtelHelper.initOpenTelemetrySdk(
-			resource,
-			otelSdkConfiguration
-		);
-
-		// Need a periodic trigger because we need the job to be scheduled based on the configured collect period
-		final PeriodicTrigger trigger = new PeriodicTrigger(
-			Duration.of(agentConfig.getCollectPeriod(), ChronoUnit.SECONDS)
-		);
-
-		// Get the SDK Meter provider
-		final SdkMeterProvider meterProvider = autoConfiguredOpenTelemetrySdk.getOpenTelemetrySdk().getSdkMeterProvider();
-
-		// Initialize the Observer
-		ResourceGroupMetricsObserver
+	void scheduleResourceGroup(final String resourceGroupKey, final ResourceGroupConfig resourceGroupConfig) {
+		ResourceGroupScheduling
 			.builder()
-			.resourceGroupKey(resourceGroupKey)
-			.resourceGroupConfig(resourceGroupConfig)
-			.sdkMeterProvider(meterProvider)
+			.withAgentConfig(agentConfig)
+			.withOtelSdkConfiguration(otelSdkConfiguration)
+			.withSchedules(schedules)
+			.withTaskScheduler(taskScheduler)
+			.withResourceGroupKey(resourceGroupKey)
+			.withResourceGroupConfig(resourceGroupConfig)
 			.build()
-			.init();
-
-		// Schedule the flush task
-		final ScheduledFuture<?> scheduledFuture = taskScheduler.schedule(meterProvider::forceFlush, trigger);
-
-		// Save the delayed result-bearing action that can be cancelled
-		resourceSchedules.put(String.format(METRICSHUB_RESOURCE_GROUP_KEY_FORMAT, resourceGroupKey), scheduledFuture);
+			.schedule();
 	}
 
 	/**
-	 * Initialize the {@link SelfObserver} and trigger a periodic task to flush metrics
+	 * Schedule each resource configured in the given {@link ResourceGroupConfig} instance
+	 *
+	 * @param resourceGroupKey    The key of the resource group defining the {@link ResourceGroupConfig} instance
+	 * @param resourceGroupConfig {@link ResourceGroupConfig} instance defining resource configurations
 	 */
-	void scheduleSelfObserver() {
-		log.info("Scheduling Self Observer.");
+	void scheduleResourcesInResourceGroups(final String resourceGroupKey, final ResourceGroupConfig resourceGroupConfig) {
+		resourceGroupConfig
+			.getResources()
+			.entrySet()
+			.stream()
+			.filter(entry -> Objects.nonNull(entry.getValue()))
+			.forEach(entry -> scheduleResource(resourceGroupKey, entry.getKey(), entry.getValue()));
+	}
 
-		final Map<String, String> resourceAttributes = new HashMap<>();
+	/**
+	 * Initialize the {@link ResourceScheduling} that schedules
+	 * a monitoring task for the given resource configuration entry
+	 *
+	 * @param resourceGroupKey The key of the parent resource group configuration.
+	 * @param resourceKey      The unique key of the resource configuration.
+	 * @param resourceConfig   The {@link ResourceConfig} instance configured by the user.
+	 */
+	void scheduleResource(final String resourceGroupKey, final String resourceKey, final ResourceConfig resourceConfig) {
+		// Get the TelemetryManager instance
+		final Map<String, TelemetryManager> perGroupTelemetryManagers = telemetryManagers.get(resourceGroupKey);
+		if (perGroupTelemetryManagers == null) {
+			log.info("The resource group {} has been removed from the configuration.", resourceGroupKey);
+			return;
+		}
 
-		// Add our attributes
-		ConfigHelper.mergeAttributes(agentInfo.getResourceAttributes(), resourceAttributes);
+		// The resource TelemetryManager instance
+		final TelemetryManager telemetryManager = perGroupTelemetryManagers.get(resourceKey);
 
-		// Override with the user's attributes
-		ConfigHelper.mergeAttributes(agentConfig.getAttributes(), resourceAttributes);
+		if (telemetryManager == null) {
+			log.info("The resource {} has been removed from the configuration.", resourceKey);
+			return;
+		}
 
-		// Create the service resource
-		final Resource resource = OtelHelper.createServiceResource(resourceAttributes);
-
-		final AutoConfiguredOpenTelemetrySdk autoConfiguredOpenTelemetrySdk = OtelHelper.initOpenTelemetrySdk(
-			resource,
-			otelSdkConfiguration
-		);
-
-		// Need a periodic trigger because we need the job to be scheduled based on the configured collect period
-		final PeriodicTrigger trigger = new PeriodicTrigger(
-			Duration.of(agentConfig.getCollectPeriod(), ChronoUnit.SECONDS)
-		);
-
-		// Get the SDK Meter provider
-		final SdkMeterProvider meterProvider = autoConfiguredOpenTelemetrySdk.getOpenTelemetrySdk().getSdkMeterProvider();
-
-		// Initialize the observer
-		SelfObserver
+		// Schedule monitoring of the current resource configuration
+		ResourceScheduling
 			.builder()
-			.metricAttributes(agentInfo.getMetricAttributes())
-			.userAttributes(agentConfig.getAttributes())
-			.sdkMeterProvider(meterProvider)
+			.withOtelSdkConfiguration(otelSdkConfiguration)
+			.withSchedules(schedules)
+			.withTaskScheduler(taskScheduler)
+			.withResourceGroupKey(resourceGroupKey)
+			.withResourceKey(resourceKey)
+			.withResourceConfig(resourceConfig)
+			.withTelemetryManager(telemetryManager)
 			.build()
-			.init();
-
-		// Here we go
-		final ScheduledFuture<?> scheduledFuture = taskScheduler.schedule(meterProvider::forceFlush, trigger);
-
-		// Save the delayed result-bearing action that can be cancelled
-		resourceSchedules.put(METRICSHUB_OVERALL_SELF_TASK_KEY, scheduledFuture);
-
-		log.info("Self Observer scheduled.");
+			.schedule();
 	}
 
 	/**

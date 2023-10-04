@@ -343,4 +343,9 @@ public abstract class AbstractStrategy implements IStrategy {
 			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable())
 		);
 	}
+
+	@Override
+	public long getStrategyTimeout() {
+		return telemetryManager.getHostConfiguration().getStrategyTimeout();
+	}
 }
