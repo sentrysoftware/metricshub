@@ -137,7 +137,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 
 		copy.update(value -> replaceSourceReference(value, copy));
 
-		copy.update(value -> value.replace("$$", "$"));
+		copy.update(value -> value == null ? value : value.replace("$$", "$"));
 
 		return copy.accept(sourceProcessor);
 	}
