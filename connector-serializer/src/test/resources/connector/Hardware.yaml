@@ -1,52 +1,76 @@
 metrics:
-  hardware_sentry.agent.info:
+  metricshub.agent.info:
     description: Hardware Sentry Agent information.
     type: Gauge
-
-  hw.battery.charge:
-    description: Battery charge ratio.
-    type: Gauge
-
-  hw.battery.time_left:
-    description: Number of seconds left before recharging the battery when state is discharging.
-    type: Gauge
-    unit: s
-
-  hw.blade.power_state:
-    description: Blade power state. Each of the possible states (off, on and suspended) will either take the value 1 (true) or 0 (false).
-    type: UpDownCounter
-
-  hardware_sentry.connector.status:
-    description: Connector operational status. Each of the possible states (degraded, failed and ok) will either take the value 1 (true) or 0 (false).
-    type: UpDownCounter
-
-  hw.errors:
-    description: Number of detected and corrected errors.
-    type: Counter
-
-  hw.errors.limit:
-    description: Number of detected and corrected errors that will generate a warning or an alarm when limit_type is degraded or critical.
-    type: Gauge
-
-  hw.cpu.speed:
-    description: CPU current speed.
-    type: Gauge
-    unit: Hz
-
-  hw.cpu.speed.limit:
-    description: CPU maximum speed.
-    type: Gauge
-    unit: Hz
 
   hw.energy:
     description: Energy consumed by the monitor since the start of the Hardware Sentry Agent.
     type: Counter
     unit: J
+  
+  hw.errors:
+    description: Number of errors encountered by the component.
+    type: Counter
+    unit: {error}
 
   hw.power:
-    description: Energy consumed by the monitor.
+    description: Instantaneous power consumed by the component, in Watts (hw.energy is preferred)
     type: Gauge
     unit: W
+  
+  hw.status:
+    description: Operational status: 1 (true) or 0 (false) for each of the possible states
+    type:
+      stateSet:
+        - degraded
+        - failed
+        - ok  
+
+  hw.battery.charge:
+    description: Remaining fraction of battery charge
+    type: Gauge
+    unit: 1
+  
+  hw.battery.charge.limit:
+    description: Lower limit of battery charge fraction to ensure proper operation
+    type: Gauge
+    unit: 1
+
+  hw.battery.time_left:
+    description: Number of seconds left before recharging the battery when state is discharging
+    type: Gauge
+    unit: s
+
+  hw.blade.power_state:
+    description: Blade power state.
+    type:
+      stateSet:
+        - off
+        - on
+        - suspended
+
+  metricshub.connector.status:
+    description: Connector operational status.
+    type:
+      stateSet:
+        - degraded
+        - failed
+        - ok
+        
+  hw.errors.limit:
+    description: Number of detected and corrected errors that will generate a warning or an alarm when limit_type is degraded or critical.
+    type: Gauge
+    unit: {errors}
+  
+  hw.cpu.speed:
+    description: CPU current frequency.
+    type: Gauge
+    unit: Hz
+
+  hw.cpu.speed.limit:
+    description: CPU maximum frequency.
+    type: Gauge
+    unit: Hz
 
   hw.fan.speed:
     description: Fan speed.
@@ -59,67 +83,177 @@ metrics:
     unit: rpm
 
   hw.fan.speed_ratio:
-    description: Fan speed ratio.
+    description: Fan speed expressed as a fraction of its maximum speed
     type: Gauge
+    unit: 1
 
   hw.fan.speed_ratio.limit:
     description: Fan speed ratio that will generate a warning or an alarm when limit_type is low.degraded or low.critical.
     type: Gauge
+    unit: 1
 
-  hw.memory.utilization:
-    description: Ratio of memory utilization.
+  hw.gpu.io:
+    description: Received and transmitted bytes by the GPU
+    type: Counter
+    unit: By
+  
+  hw.gpu.memory.limit:
+    description: Size of the GPU memory	
+    type: UpDownCounter
+    unit: By
+    
+  hw.gpu.memory.utilization:
+    description: Fraction of GPU memory used	
     type: Gauge
+    unit: 1
+    
+  hw.gpu.memory.utilization.limit:
+    description: GPU memory utilization ratio that will generate a warning or an alarm when limit_type is degraded or critical
+    type: Gauge
+    unit: 1
+    
+  hw.gpu.memory.usage:
+    description: GPU memory used
+    type: UpDownCounter
+    unit: By
+    
+  hw.gpu.power:
+    description: GPU instantaneous power consumption in Watts
+    type: Gauge
+    unit: W
+
+  hw.gpu.utilization:
+    description: Ratio of time spent by the GPU for each task (decoder, encoder and general).
+    type: Gauge
+    unit: 1
+
+  hw.gpu.utilization.limit:
+    description: GPU used time ratio that will generate a warning or an alarm when limit_type is degraded or critical.
+    type: Gauge
+    unit: 1
+
+  metricshub.host.configured:
+    description: Whether the host is configured or not.
+    type:
+      stateSet:
+        - true
+        - false
+
+  metricshub.host.up:
+    description: Whether the configured protocol (http, ipmi, snmp, ssh, wbem, winrm and wmi) is up (1) or not (0).	
+    type:
+      stateSet:
+        - up
+        - down
+
+  hw.host.ambient_temperature:
+    description: Host's current ambient temperature in degrees Celsius (°C). This metric is only reported if the value is between 5°C and 35°C.
+    type: Gauge
+    unit: Cal
+
+  hw.logical_disk.limit:
+    description: Size of the logical disk
+    type: UpDownCounter
+    unit: By
+
+  hw.logical_disk.usage:
+    description: Logical disk space usage
+    type: UpDownCounter
+    unit: By
+
+  hw.logical_disk.utilization:
+    description: Logical disk space utilization as a fraction
+    type: Gauge
+    unit: 1
 
   hw.memory.size:
     description: Memory module size.
     type: Gauge
-    unit: B
+    unit: By
 
-  hw.network.speed:
-    description: Network speed.
-    type: Gauge
-    unit: bps
+  hw.network.bandwidth.limit:
+    description: Link speed
+    type: UpDownCounter
+    unit: By
 
-  hw.network.speed.limit:
-    description: Network speed (in bits/second) that will generate a warning or an alarm when limit_type is low.degraded or low.critical.
+  hw.network.bandwidth.utilization:
+    description: Utilization of the network bandwidth as a fraction
     type: Gauge
-    unit: bps
+    unit: 1
+
+  hw.network.io:
+    description: Received and transmitted network traffic in bytes
+    type: Counter
+    unit: By
+
+  hw.network.packets:
+    description: Received and transmitted network traffic in packets (or frames)
+    type: {packet}
+    unit: Counter
+
+  hw.network.up:
+    description: Link status
+    type:
+      stateSet:
+        - up
+        - down
+
+  hw.physical_disk.endurance_utilization:
+    description: Endurance remaining for this SSD disk
+    type: Gauge
+    unit: 1
+  
+  hw.physical_disk.size:
+    description: Size of the disk
+    type: UpDownCounter
+    unit: By
+  
+  hw.physical_disk.smart:
+    description: Value of the corresponding S.M.A.R.T. attribute
+    type: Gauge
+    unit: 1
+  
+  hw.power_supply.limit:
+    description: Maximum power output of the power supply
+    type: Gauge
+    unit: 1
+
+  hw.power_supply.utilization:
+    description: Utilization of the power supply as a fraction of its maximum output
+    type: Gauge
+    unit: 1
+
+  hw.tape_drive.operations:
+    description: Operations performed by the tape drive
+    type: Counter
+    unit: {operation}
+
+  hw.temperature:
+    description: Temperature of the monitor
+    type: Gauge
+    unit: Cel
+
+  hw.temperature.limit:
+    description: Temperature of the corresponding monitor that will generate a warning or an alarm when limit_type is high.degraded or high.critical.
+    type: Gauge
+    unit: Cel
+
+  hw.voltage.limit:
+    description: Voltage limit in Volts
+    type: Gauge
+    unit: V
+
+  hw.voltage.limit:
+    description: Nominal (expected) voltage
+    type: Gauge
+    unit: V
+
+  hw.voltage:
+    description: Voltage measured by the sensor
+    type: Gauge
+    unit: V
 
   hw.power.limit:
     description: Energy consumption of the corresponding monitor that will generate a warning or an alarm when limit_type is high.degraded or high.critical.
     type: Gauge
     unit: W
-
-  hw.temperature:
-    description: Temperature of the monitor
-    type: Gauge
-    unit: °C
-
-  hw.temperature.limit:
-    description: Temperature of the corresponding monitor that will generate a warning or an alarm when limit_type is high.degraded or high.critical.
-    type: Gauge
-    unit: °C
-
-  hw.fan.speed:
-    description: Fan speed of the monitor.
-    type: Gauge
-    unit: rpm
-
-  hw.fan.speed.limit:
-    description: Fan speed of the corresponding monitor (in revolutions/minute) that will generate a warning or an alarm when limit_type is low.degraded or low.critical.
-    type: Gauge
-    unit: rpm
-
-  hw.voltage:
-    description: Voltage of the monitor.
-    type: Gauge
-    unit: V
-
-  - name: hw.voltage.limit
-    description: Voltage of the corresponding monitor that will generate a warning or an alarm when limit_type is high.degraded or high.critical.
-    type: Gauge
-    unit: V
-
-  - name: hw.status
-    description: Operational status of the monitor. Each of the possible states (degraded, failed, ok, predicted_failure and present) will either take the value 1 (true) or 0 (false).
-    type: UpDownCounter
