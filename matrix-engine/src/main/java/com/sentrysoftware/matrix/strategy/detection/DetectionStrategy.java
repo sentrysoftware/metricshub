@@ -129,11 +129,12 @@ public class DetectionStrategy extends AbstractStrategy {
 			.monitorType(KnownMonitorType.CONNECTOR.getKey())
 			.attributes(monitorAttributes)
 			.connectorId(connectorId)
+			.discoveryTime(strategyTime)
 			.build();
 
 		// Create or update the monitor by calling monitor factory
 		final Monitor monitor = monitorFactory.createOrUpdateMonitor(
-			String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), connectorId)
+			String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), connectorId, strategyTime)
 		);
 
 		// Get monitor metrics from connector
