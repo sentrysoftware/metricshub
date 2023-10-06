@@ -44,7 +44,7 @@ class MonitorFactoryTest {
 	private TelemetryManager telemetryManagerMock;
 
 	@InjectMocks
-	private MonitorFactory monitorFactory;
+	private MonitorFactory monitorFactory = MonitorFactory.builder().discoveryTime(System.currentTimeMillis()).build();
 
 	@InjectMocks
 	private MetricFactory metricFactoryMock;

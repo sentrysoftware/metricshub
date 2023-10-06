@@ -5,6 +5,7 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_A
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_JOBS_PRIORITY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OTHER_MONITOR_JOB_TYPES;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.PRESENT_STATUS;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.THREAD_TIMEOUT;
 
 import com.sentrysoftware.matrix.common.ConnectorMonitorTypeComparator;
@@ -26,6 +27,7 @@ import com.sentrysoftware.matrix.telemetry.MetricFactory;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import com.sentrysoftware.matrix.telemetry.metric.AbstractMetric;
+import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -362,12 +364,11 @@ public class CollectStrategy extends AbstractStrategy {
 
 					metrics.putAll(mappingProcessor.interpretContextMappingMetrics(monitor));
 
-					final MetricFactory metricFactory = new MetricFactory(telemetryManager);
+					final MetricFactory metricFactory = new MetricFactory(hostname);
 
 					metricFactory.collectMonitorMetrics(
 						monitorType,
 						connector,
-						hostname,
 						monitor,
 						connectorId,
 						metrics,
@@ -514,6 +515,29 @@ public class CollectStrategy extends AbstractStrategy {
 
 	@Override
 	public void post() {
-		// Call post execution
+		telemetryManager
+			.getMonitors()
+			.values()
+			.stream()
+			.map(Map::values)
+			.flatMap(Collection::stream)
+			.forEach(this::refreshCollectTime);
+	}
+
+	/**
+	 * Refresh the collect time of the {@link Monitor}'s
+	 * hw.status{hw.type="<monitor-type>", state="present"} metric
+	 * and set it to the current strategy time.
+	 *
+	 * @param monitor The {@link Monitor} to refresh
+	 */
+	private void refreshCollectTime(final Monitor monitor) {
+		final String presentMetricName = String.format(PRESENT_STATUS, monitor.getType());
+
+		final NumberMetric presentMetric = monitor.getMetric(presentMetricName, NumberMetric.class);
+
+		if (presentMetric != null) {
+			presentMetric.setCollectTime(strategyTime);
+		}
 	}
 }

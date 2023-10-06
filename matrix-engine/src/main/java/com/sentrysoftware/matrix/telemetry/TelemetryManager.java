@@ -205,6 +205,7 @@ public class TelemetryManager {
 
 	/**
 	 * Return the root host monitor instance
+	 *
 	 * @return {@link Monitor} object representing the root insance
 	 */
 	public Monitor getHostMonitor() {
@@ -222,5 +223,14 @@ public class TelemetryManager {
 			.filter(hostMonitor -> "true".equals(hostMonitor.getAttributes().get(IS_ENDPOINT)))
 			.findFirst()
 			.orElse(null);
+	}
+
+	/**
+	 * Return the configured hostname
+	 *
+	 * @return {@link String} value
+	 */
+	public String getHostname() {
+		return hostConfiguration.getHostname();
 	}
 }

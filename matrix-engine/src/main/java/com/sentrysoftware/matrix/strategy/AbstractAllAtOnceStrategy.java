@@ -25,6 +25,7 @@ import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.MonitorFactory;
 import com.sentrysoftware.matrix.telemetry.Resource;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -260,6 +261,7 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 				.attributes(noContextAttributeInterpretedValues)
 				.resource(resource)
 				.connectorId(connectorId)
+				.discoveryTime(strategyTime)
 				.build();
 
 			// Create or update the monitor
@@ -279,18 +281,9 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 
 			metrics.putAll(mappingProcessor.interpretContextMappingMetrics(monitor));
 
-			final MetricFactory metricFactory = new MetricFactory(telemetryManager);
+			final MetricFactory metricFactory = new MetricFactory(hostname);
 
-			metricFactory.collectMonitorMetrics(
-				monitorType,
-				connector,
-				hostname,
-				monitor,
-				connectorId,
-				metrics,
-				strategyTime,
-				true
-			);
+			metricFactory.collectMonitorMetrics(monitorType, connector, monitor, connectorId, metrics, strategyTime, true);
 
 			// Collect legacy parameters
 			monitor.addLegacyParameters(mappingProcessor.interpretNonContextMappingLegacyTextParameters());
@@ -381,11 +374,18 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 
 	@Override
 	public void prepare() {
-		// TODO Auto-generated method stub
+		// Not implemented
 	}
 
 	@Override
 	public void post() {
-		// TODO Auto-generated method stub
+		telemetryManager
+			.getMonitors()
+			.values()
+			.stream()
+			.map(Map::values)
+			.flatMap(Collection::stream)
+			.filter(monitor -> strategyTime != monitor.getDiscoveryTime())
+			.forEach(monitor -> monitor.setAsMissing(telemetryManager.getHostname()));
 	}
 }
