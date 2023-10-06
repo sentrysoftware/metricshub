@@ -6,7 +6,6 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MAX_THREA
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_JOBS_PRIORITY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.OTHER_MONITOR_JOB_TYPES;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.PRESENT_STATUS;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.THREAD_TIMEOUT;
 
 import com.sentrysoftware.matrix.common.ConnectorMonitorTypeComparator;
@@ -28,7 +27,7 @@ import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.MonitorFactory;
 import com.sentrysoftware.matrix.telemetry.Resource;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -284,25 +283,13 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 
 			metrics.putAll(mappingProcessor.interpretContextMappingMetrics(monitor));
 
-			final MetricFactory metricFactory = new MetricFactory(telemetryManager);
+			final MetricFactory metricFactory = new MetricFactory(hostname);
 
-			metricFactory.collectMonitorMetrics(
-				monitorType,
-				connector,
-				hostname,
-				monitor,
-				connectorId,
-				metrics,
-				strategyTime,
-				true
-			);
+			metricFactory.collectMonitorMetrics(monitorType, connector, monitor, connectorId, metrics, strategyTime, true);
 
 			// Collect legacy parameters
 			monitor.addLegacyParameters(mappingProcessor.interpretNonContextMappingLegacyTextParameters());
 			monitor.addLegacyParameters(mappingProcessor.interpretContextMappingLegacyTextParameters(monitor));
-
-			// Set state present of the monitor to 1
-			monitor.addAttribute(String.format("hw.status{hw.type=\"%s\", state=\"present\"}", monitor.getType()), "1");
 		}
 	}
 
@@ -315,10 +302,9 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 
 		// Get host monitors
 		final Map<String, Monitor> hostMonitors = telemetryManager.getMonitors().get(HOST.getKey());
-		final String jobName = getJobName();
 
 		if (hostMonitors == null) {
-			log.error("Hostname {} - No host found. Stopping {} strategy.", hostname, jobName);
+			log.error("Hostname {} - No host found. Stopping {} strategy.", hostname, getJobName());
 			return;
 		}
 
@@ -331,7 +317,7 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 			.orElse(null);
 
 		if (host == null) {
-			log.error("Hostname {} - No host found. Stopping {} strategy.", hostname, jobName);
+			log.error("Hostname {} - No host found. Stopping {} strategy.", hostname, getJobName());
 			return;
 		}
 
@@ -385,42 +371,6 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 
 		// Process each connector
 		sortedConnectors.forEach(connector -> process(connector, hostname));
-
-		// Set the monitors as missing when discoveryTime is different than strategyTime
-		if ("simple".equals(jobName) || "discovery".equals(jobName)) {
-			telemetryManager
-				.getMonitors()
-				.values()
-				.stream()
-				.forEach(monitors -> monitors.values().stream().forEach(monitor -> checkMonitorPresence(monitor)));
-		}
-	}
-
-	/**
-	 * Check if the monitor's discovery time is equal to the strategy time and update its present status in consequence
-	 * @param monitor
-	 */
-	private void checkMonitorPresence(final Monitor monitor) {
-		final long discoveryTime = monitor.getDiscoveryTime();
-
-		final String presentMetricName = String.format(PRESENT_STATUS, monitor.getType());
-
-		final NumberMetric presentMetric = monitor.getMetric(presentMetricName, NumberMetric.class);
-
-		if (presentMetric != null) {
-			presentMetric.setValue(discoveryTime != strategyTime ? 0.0 : 1.0);
-			presentMetric.setCollectTime(strategyTime);
-		} else {
-			monitor.addMetric(
-				presentMetricName,
-				NumberMetric
-					.builder()
-					.collectTime(strategyTime)
-					.name(presentMetricName)
-					.value(discoveryTime != strategyTime ? 0.0 : 1.0)
-					.build()
-			);
-		}
 	}
 
 	/**
@@ -440,11 +390,18 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 
 	@Override
 	public void prepare() {
-		// TODO Auto-generated method stub
+		// Not implemented
 	}
 
 	@Override
 	public void post() {
-		// TODO Auto-generated method stub
+		telemetryManager
+			.getMonitors()
+			.values()
+			.stream()
+			.map(Map::values)
+			.flatMap(Collection::stream)
+			.filter(monitor -> strategyTime != monitor.getDiscoveryTime())
+			.forEach(monitor -> monitor.setAsMissing(telemetryManager.getHostname()));
 	}
 }

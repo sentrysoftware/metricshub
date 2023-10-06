@@ -93,4 +93,13 @@ public class TelemetryManager {
 			return monitor;
 		}
 	}
+
+	/**
+	 * Return the configured hostname
+	 *
+	 * @return {@link String} value
+	 */
+	public String getHostname() {
+		return hostConfiguration.getHostname();
+	}
 }

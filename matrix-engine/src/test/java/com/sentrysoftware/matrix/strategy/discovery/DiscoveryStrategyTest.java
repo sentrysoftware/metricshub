@@ -125,6 +125,7 @@ class DiscoveryStrategyTest {
 
 		// Call DiscoveryStrategy to discover the monitors
 		discoveryStrategy.run();
+		discoveryStrategy.post();
 
 		// Check discovered monitors
 		final Map<String, Map<String, Monitor>> discoveredMonitors = telemetryManager.getMonitors();
@@ -166,9 +167,7 @@ class DiscoveryStrategyTest {
 				.getValue()
 		);
 
-		// Wait 5 seconds and start a new discovery job with the new strategy time
-		Thread.sleep(5000);
-		discoveryStrategy.setStrategyTime(new Date().getTime());
+		discoveryStrategy.setStrategyTime(strategyTime + 60 * 60 * 1000);
 
 		// Mock source table with no information for disk controller
 		doReturn(SourceTable.csvToTable("", MatrixConstants.TABLE_SEP))
@@ -203,6 +202,7 @@ class DiscoveryStrategyTest {
 				eq(true)
 			);
 		discoveryStrategy.run();
+		discoveryStrategy.post();
 
 		// Check that the monitors are set to missing as they are not present in the previous discovery job
 		assertEquals(

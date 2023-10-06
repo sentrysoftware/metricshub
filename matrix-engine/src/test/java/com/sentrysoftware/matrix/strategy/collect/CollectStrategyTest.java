@@ -9,7 +9,6 @@ import static com.sentrysoftware.matrix.constants.Constants.HOST_NAME;
 import static com.sentrysoftware.matrix.constants.Constants.ID;
 import static com.sentrysoftware.matrix.constants.Constants.MONITOR_ID_ATTRIBUTE_VALUE;
 import static com.sentrysoftware.matrix.constants.Constants.TEST_CONNECTOR_FILE_NAME;
-import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -94,6 +93,7 @@ class CollectStrategyTest {
 			.telemetryManager(telemetryManager)
 			.connectorId(connectorId)
 			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "enclosure-1")))
+			.discoveryTime(strategyTime - 30 * 60 * 1000)
 			.build();
 		final Monitor enclosure = monitorFactory.createOrUpdateMonitor();
 
@@ -104,6 +104,7 @@ class CollectStrategyTest {
 				.telemetryManager(telemetryManager)
 				.connectorId(connectorId)
 				.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "1")))
+				.discoveryTime(strategyTime - 30 * 60 * 1000)
 				.build();
 		final Monitor diskController = monitorFactory.createOrUpdateMonitor();
 
@@ -179,12 +180,15 @@ class CollectStrategyTest {
 			)
 			.build();
 
+		final long discoveryTime = strategyTime - 60 * 60 * 1000;
+
 		MonitorFactory monitorFactory = MonitorFactory
 			.builder()
 			.monitorType("enclosure")
 			.telemetryManager(telemetryManager)
 			.connectorId(connectorId)
 			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "enclosure-1")))
+			.discoveryTime(discoveryTime)
 			.build();
 		final Monitor enclosure = monitorFactory.createOrUpdateMonitor();
 
@@ -195,6 +199,7 @@ class CollectStrategyTest {
 				.telemetryManager(telemetryManager)
 				.connectorId(connectorId)
 				.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "1")))
+				.discoveryTime(discoveryTime)
 				.build();
 		final Monitor diskController = monitorFactory.createOrUpdateMonitor();
 
@@ -242,15 +247,21 @@ class CollectStrategyTest {
 		assertEquals(1.0, enclosure.getMetric("hw.status{hw.type=\"enclosure\"}", NumberMetric.class).getValue());
 		assertEquals(HEALTHY, enclosure.getLegacyTextParameters().get(STATUS_INFORMATION));
 
-		// The metric is not set during the run, but during the post
-		assertNull(enclosure.getMetric("hw.status{hw.type=\"enclosure\", state=\"present\"}", NumberMetric.class));
+		// The metric is created when we create the monitor using the MonitorFactory
+		final NumberMetric enclosurePresentMetric = enclosure.getMetric(
+			"hw.status{hw.type=\"enclosure\", state=\"present\"}",
+			NumberMetric.class
+		);
+		assertNotNull(enclosurePresentMetric);
+		assertEquals(discoveryTime, enclosurePresentMetric.getCollectTime());
 
 		collectStrategy.post();
 
-		assertNotNull(enclosure.getMetric("hw.status{hw.type=\"enclosure\", state=\"present\"}", NumberMetric.class));
+		assertNotNull(enclosurePresentMetric);
 		assertEquals(
 			1.0,
 			enclosure.getMetric("hw.status{hw.type=\"enclosure\", state=\"present\"}", NumberMetric.class).getValue()
 		);
+		assertEquals(strategyTime, enclosurePresentMetric.getCollectTime());
 	}
 }

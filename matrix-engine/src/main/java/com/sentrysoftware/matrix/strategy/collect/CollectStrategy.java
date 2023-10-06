@@ -366,12 +366,11 @@ public class CollectStrategy extends AbstractStrategy {
 
 					metrics.putAll(mappingProcessor.interpretContextMappingMetrics(monitor));
 
-					final MetricFactory metricFactory = new MetricFactory(telemetryManager);
+					final MetricFactory metricFactory = new MetricFactory(hostname);
 
 					metricFactory.collectMonitorMetrics(
 						monitorType,
 						connector,
-						hostname,
 						monitor,
 						connectorId,
 						metrics,
@@ -533,25 +532,20 @@ public class CollectStrategy extends AbstractStrategy {
 
 	@Override
 	public void post() {
-		// Get the host name from telemetry manager
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		// Get host monitors
-		final Map<String, Map<String, Monitor>> monitorsMap = telemetryManager.getMonitors();
-
-		if (monitorsMap == null) {
-			log.error("Hostname {} - No host found. Stopping collect strategy.", hostname);
-			return;
-		}
-		for (Map<String, Monitor> monitors : monitorsMap.values()) {
-			if (monitors != null && !monitors.isEmpty()) {
-				monitors.values().stream().forEach(monitor -> refreshCollectTime(monitor));
-			}
-		}
+		telemetryManager
+			.getMonitors()
+			.values()
+			.stream()
+			.map(Map::values)
+			.flatMap(Collection::stream)
+			.forEach(this::refreshCollectTime);
 	}
 
 	/**
-	 * Refresh the collect time of the {@link Monitor}'s hw.status{hw.type="<monitor-type>", state="present"} metric and set it to the current strategy time.
+	 * Refresh the collect time of the {@link Monitor}'s
+	 * hw.status{hw.type="<monitor-type>", state="present"} metric
+	 * and set it to the current strategy time.
+	 *
 	 * @param monitor The {@link Monitor} to refresh
 	 */
 	private void refreshCollectTime(final Monitor monitor) {
@@ -561,11 +555,6 @@ public class CollectStrategy extends AbstractStrategy {
 
 		if (presentMetric != null) {
 			presentMetric.setCollectTime(strategyTime);
-		} else {
-			monitor.addMetric(
-				presentMetricName,
-				NumberMetric.builder().collectTime(strategyTime).name(presentMetricName).value(1.0).build()
-			);
 		}
 	}
 }

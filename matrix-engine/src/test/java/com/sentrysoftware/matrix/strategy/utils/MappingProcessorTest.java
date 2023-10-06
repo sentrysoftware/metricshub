@@ -8,6 +8,7 @@ import com.sentrysoftware.matrix.common.JobInfo;
 import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.connector.model.monitor.task.Mapping;
+import com.sentrysoftware.matrix.constants.Constants;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.telemetry.ConnectorNamespace;
 import com.sentrysoftware.matrix.telemetry.MetricFactory;
@@ -275,7 +276,7 @@ class MappingProcessorTest {
 			.monitors(Map.of("enclosure", Map.of("monitor", monitor)))
 			.build();
 
-		final MetricFactory metricFactory = new MetricFactory(telemetryManager);
+		final MetricFactory metricFactory = new MetricFactory(Constants.HOSTNAME);
 		metricFactory.collectNumberMetric(monitor, "__hw.enclosure.power.rate_from", 1000.0, 120000L);
 		monitor.getMetric("__hw.enclosure.power.rate_from", NumberMetric.class).save();
 
@@ -345,7 +346,7 @@ class MappingProcessorTest {
 			.monitors(Map.of("enclosure", Map.of("monitor", monitor)))
 			.build();
 
-		final MetricFactory metricFactory = new MetricFactory(telemetryManager);
+		final MetricFactory metricFactory = new MetricFactory(Constants.HOSTNAME);
 		metricFactory.collectNumberMetric(monitor, "__hw.enclosure.energy.fake_counter_from", 1000.0, 120000L);
 		monitor.getMetric("__hw.enclosure.energy.fake_counter_from", NumberMetric.class).save();
 
@@ -439,7 +440,7 @@ class MappingProcessorTest {
 				.monitors(Map.of("enclosure", Map.of("monitor", monitor)))
 				.build();
 
-			final MetricFactory metricFactory = new MetricFactory(telemetryManager);
+			final MetricFactory metricFactory = new MetricFactory(Constants.HOSTNAME);
 			metricFactory.collectNumberMetric(monitor, "hw.power_supply.limit", 1000.0, 120000L);
 			monitor.getMetric("hw.power_supply.limit", NumberMetric.class).save();
 
@@ -471,7 +472,7 @@ class MappingProcessorTest {
 				.monitors(Map.of("enclosure", Map.of("monitor", monitor)))
 				.build();
 
-			final MetricFactory metricFactory = new MetricFactory(telemetryManager);
+			final MetricFactory metricFactory = new MetricFactory(Constants.HOSTNAME);
 			metricFactory.collectNumberMetric(monitor, "hw.power_supply.limit", 1000.0, 120000L);
 			monitor.getMetric("hw.power_supply.limit", NumberMetric.class).save();
 

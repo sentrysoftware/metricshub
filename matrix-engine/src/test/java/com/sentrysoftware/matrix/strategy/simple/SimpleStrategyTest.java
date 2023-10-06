@@ -121,6 +121,7 @@ class SimpleStrategyTest {
 				eq(true)
 			);
 		simpleStrategy.run();
+		simpleStrategy.post();
 
 		// Check processed monitors
 		final Map<String, Map<String, Monitor>> processedMonitors = telemetryManager.getMonitors();
@@ -154,9 +155,7 @@ class SimpleStrategyTest {
 				.getValue()
 		);
 
-		// Wait 5 seconds and start a new simple job with the new strategy time
-		Thread.sleep(5000);
-		simpleStrategy.setStrategyTime(new Date().getTime());
+		simpleStrategy.setStrategyTime(strategyTime + 2 * 60 * 1000);
 
 		// Mock source table with no information for enclosure
 		doReturn(SourceTable.csvToTable("", MatrixConstants.TABLE_SEP))
@@ -180,6 +179,7 @@ class SimpleStrategyTest {
 				eq(true)
 			);
 		simpleStrategy.run();
+		simpleStrategy.post();
 
 		// Check that the monitors are set to missing when they are not present in the previous simple job
 		assertEquals(
