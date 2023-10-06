@@ -403,7 +403,7 @@ public class MappingProcessor {
 		// Build the metric where we need to store the raw value
 		final String metricRateName = String.format("__%s.fake_counter_from", metricName);
 
-		final MetricFactory metricFactory = new MetricFactory(telemetryManager);
+		final MetricFactory metricFactory = new MetricFactory(hostname);
 
 		// Collect the metric raw value
 		final Double rawValue = maybeMetricRateValue.get();
@@ -483,7 +483,7 @@ public class MappingProcessor {
 		// Build the metrics where we need to store the raw value
 		final String metricRateName = String.format("__%s.rate_from", metricName);
 
-		final MetricFactory metricFactory = new MetricFactory(telemetryManager);
+		final MetricFactory metricFactory = new MetricFactory(hostname);
 
 		// Collect the metric raw value
 		final Double rawValue = maybeMetricCounterValue.get();

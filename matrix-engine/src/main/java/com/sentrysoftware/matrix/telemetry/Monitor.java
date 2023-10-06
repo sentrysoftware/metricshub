@@ -1,5 +1,7 @@
 package com.sentrysoftware.matrix.telemetry;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.PRESENT_STATUS;
+
 import com.sentrysoftware.matrix.alert.AlertRule;
 import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
 import com.sentrysoftware.matrix.telemetry.metric.AbstractMetric;
@@ -112,5 +114,19 @@ public class Monitor {
 	 */
 	public boolean isMetricDeactivated(final String key) {
 		return MatrixConstants.EMPTY.equals(conditionalCollection.get(key));
+	}
+
+	/**
+	 * Set the current monitor as missing
+	 */
+	public void setAsMissing(final String hostname) {
+		new MetricFactory(hostname).collectNumberMetric(this, String.format(PRESENT_STATUS, type), 0.0, discoveryTime);
+	}
+
+	/**
+	 * Set the current monitor as present
+	 */
+	public void setAsPresent(final String hostname) {
+		new MetricFactory(hostname).collectNumberMetric(this, String.format(PRESENT_STATUS, type), 1.0, discoveryTime);
 	}
 }

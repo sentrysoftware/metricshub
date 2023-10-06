@@ -121,6 +121,7 @@ class SimpleStrategyTest {
 				eq(true)
 			);
 		simpleStrategy.run();
+		simpleStrategy.post();
 
 		// Check processed monitors
 		final Map<String, Map<String, Monitor>> processedMonitors = telemetryManager.getMonitors();
@@ -140,6 +141,56 @@ class SimpleStrategyTest {
 		assertEquals(
 			1.0,
 			diskController.getMetric("hw.status{hw.type=\"disk_controller\"}", NumberMetric.class).getValue()
+		);
+
+		// Check that the monitors' present status are set to 1
+		assertEquals(
+			1.0,
+			enclosure.getMetric("hw.status{hw.type=\"enclosure\", state=\"present\"}", NumberMetric.class).getValue()
+		);
+		assertEquals(
+			1.0,
+			diskController
+				.getMetric("hw.status{hw.type=\"disk_controller\", state=\"present\"}", NumberMetric.class)
+				.getValue()
+		);
+
+		simpleStrategy.setStrategyTime(strategyTime + 2 * 60 * 1000);
+
+		// Mock source table with no information for enclosure
+		doReturn(SourceTable.csvToTable("", MatrixConstants.TABLE_SEP))
+			.when(matsyaClientsExecutorMock)
+			.executeSNMPTable(
+				eq("1.3.6.1.4.1.795.10.1.1.3.1"),
+				any(String[].class),
+				any(SnmpConfiguration.class),
+				anyString(),
+				eq(true)
+			);
+
+		// Mock source table with no information for disk_controller
+		doReturn(SourceTable.csvToTable("", MatrixConstants.TABLE_SEP))
+			.when(matsyaClientsExecutorMock)
+			.executeSNMPTable(
+				eq("1.3.6.1.4.1.795.10.1.1.4.1"),
+				any(String[].class),
+				any(SnmpConfiguration.class),
+				anyString(),
+				eq(true)
+			);
+		simpleStrategy.run();
+		simpleStrategy.post();
+
+		// Check that the monitors are set to missing when they are not present in the previous simple job
+		assertEquals(
+			0.0,
+			enclosure.getMetric("hw.status{hw.type=\"enclosure\", state=\"present\"}", NumberMetric.class).getValue()
+		);
+		assertEquals(
+			0.0,
+			diskController
+				.getMetric("hw.status{hw.type=\"disk_controller\", state=\"present\"}", NumberMetric.class)
+				.getValue()
 		);
 	}
 }
