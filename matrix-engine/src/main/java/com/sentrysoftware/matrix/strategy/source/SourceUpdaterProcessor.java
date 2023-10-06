@@ -43,7 +43,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SourceUpdaterProcessor implements ISourceProcessor {
 
-	private static final Pattern COLUMN_REF_PATTERN = Pattern.compile("\\$([1-9]\\d*)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern COLUMN_REF_PATTERN = Pattern.compile("(?<!\\$)\\$([1-9]\\d*)", Pattern.CASE_INSENSITIVE);
 	private static final Pattern MONO_INSTANCE_REPLACEMENT_PATTERN = Pattern.compile(
 		"\\$\\{attribute::(\\w+)\\}",
 		Pattern.CASE_INSENSITIVE
@@ -136,6 +136,8 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 		copy.update(value -> replaceAttributeReferences(value, attributes));
 
 		copy.update(value -> replaceSourceReference(value, copy));
+
+		copy.update(value -> value == null ? value : value.replace("$$", "$"));
 
 		return copy.accept(sourceProcessor);
 	}
@@ -504,7 +506,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 
 		matcher.appendTail(sb);
 
-		return sb.toString();
+		return sb.toString().replace("$$", "$");
 	}
 
 	/**
