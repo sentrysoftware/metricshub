@@ -19,6 +19,8 @@ public class Constants {
 	public static final byte[] BMC_KEY = new byte[] { 0x06, 0x66 };
 	public static final Long SSH_CONFIGURATION_TIMEOUT = 50L;
 	public static final Long STRATEGY_TIMEOUT = 100L;
+	public static final Long STRATEGY_TIME = 100L;
+
 	public static final Long RETRY_DELAY = 30L;
 	public static final String SSH_SUDO_COMMAND = "sudo pwd";
 	public static final String DETECTION_FOLDER = "src/test/resources/test-files/connector/detection";

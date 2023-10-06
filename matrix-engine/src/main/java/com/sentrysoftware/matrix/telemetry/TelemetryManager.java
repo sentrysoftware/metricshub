@@ -26,6 +26,7 @@ public class TelemetryManager {
 
 	private HostConfiguration hostConfiguration;
 	private ConnectorStore connectorStore;
+	private Long strategyTime;
 
 	public synchronized void run() {
 		// Implement the code here

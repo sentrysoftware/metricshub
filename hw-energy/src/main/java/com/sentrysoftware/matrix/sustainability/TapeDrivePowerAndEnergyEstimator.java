@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.sustainability;
 
+import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -10,8 +11,8 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 public class TapeDrivePowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimator {
 
-	public TapeDrivePowerAndEnergyEstimator(final TelemetryManager telemetryManager) {
-		super(telemetryManager);
+	public TapeDrivePowerAndEnergyEstimator(final Monitor monitor, final TelemetryManager telemetryManager) {
+		super(monitor, telemetryManager);
 	}
 
 	/**
@@ -19,7 +20,7 @@ public class TapeDrivePowerAndEnergyEstimator extends HardwarePowerAndEnergyEsti
 	 * @return Double
 	 */
 	@Override
-	Double estimatePower() {
+	public Double estimatePower() {
 		// TODO
 		return null;
 	}
@@ -29,7 +30,7 @@ public class TapeDrivePowerAndEnergyEstimator extends HardwarePowerAndEnergyEsti
 	 * @return Double
 	 */
 	@Override
-	Double estimateEnergy() {
+	public Double estimateEnergy() {
 		// TODO
 		return null;
 	}

@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.strategy.detection;
 import static com.sentrysoftware.matrix.constants.Constants.CONNECTOR_YAML;
 import static com.sentrysoftware.matrix.constants.Constants.DETECTION_FOLDER;
 import static com.sentrysoftware.matrix.constants.Constants.LOCALHOST;
+import static com.sentrysoftware.matrix.constants.Constants.STRATEGY_TIME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -79,7 +80,8 @@ class AutomaticDetectionTest {
 			monitors,
 			hostProperties,
 			hostConfiguration,
-			connectorStore
+			connectorStore,
+			STRATEGY_TIME
 		);
 		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
 		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, matsyaClientsExecutor).run());
@@ -132,7 +134,8 @@ class AutomaticDetectionTest {
 			monitors,
 			hostProperties,
 			hostConfiguration,
-			connectorStore
+			connectorStore,
+			STRATEGY_TIME
 		);
 		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
 		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, matsyaClientsExecutor).run());
@@ -185,7 +188,8 @@ class AutomaticDetectionTest {
 			monitors,
 			hostProperties,
 			hostConfiguration,
-			connectorStore
+			connectorStore,
+			STRATEGY_TIME
 		);
 		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
 		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, matsyaClientsExecutor).run());
@@ -238,7 +242,8 @@ class AutomaticDetectionTest {
 			monitors,
 			hostProperties,
 			hostConfiguration,
-			connectorStore
+			connectorStore,
+			STRATEGY_TIME
 		);
 		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
 		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, matsyaClientsExecutor).run());
@@ -291,7 +296,8 @@ class AutomaticDetectionTest {
 			monitors,
 			hostProperties,
 			hostConfiguration,
-			connectorStore
+			connectorStore,
+			STRATEGY_TIME
 		);
 		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
 		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, matsyaClientsExecutor).run());
