@@ -51,7 +51,7 @@ class RoboticsPowerAndEnergyEstimatorTest {
 		assertEquals(154.0, roboticsPowerAndEnergyEstimator.estimatePower());
 
 		// If moveCount metric value is null
-		monitor.setMetrics(Collections.EMPTY_MAP);
+		monitor.setMetrics(Collections.emptyMap());
 		assertEquals(48.0, roboticsPowerAndEnergyEstimator.estimatePower());
 	}
 

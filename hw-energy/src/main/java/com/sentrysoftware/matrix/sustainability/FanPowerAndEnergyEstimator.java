@@ -7,12 +7,10 @@ import com.sentrysoftware.matrix.util.HwCollectHelper;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@Slf4j
 public class FanPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimator {
 
 	public FanPowerAndEnergyEstimator(final Monitor monitor, final TelemetryManager telemetryManager) {
@@ -21,6 +19,7 @@ public class FanPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimator 
 
 	/**
 	 * Estimates the power consumption of Fan monitor
+	 *
 	 * @return Double value
 	 */
 	@Override
@@ -34,8 +33,8 @@ public class FanPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimator 
 			// 1000 RPM = 1 Watt
 			return fanSpeed / 1000.0;
 		} else {
-			if (HwCollectHelper.isValidPercentage(fanSpeedRatio)) {
-				// Approximately 5 Watt for 100%
+			if (HwCollectHelper.isValidRatio(fanSpeedRatio)) {
+				// Approximately 5 Watt for a ratio of 1 (I.e. 5 Watt for 100%)
 				return fanSpeedRatio * 5;
 			}
 		}
@@ -46,7 +45,8 @@ public class FanPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimator 
 
 	/**
 	 * Estimates the energy consumption of Fan monitor
-	 * @return Double
+	 *
+	 * @return Double values
 	 */
 	@Override
 	public Double estimateEnergy() {

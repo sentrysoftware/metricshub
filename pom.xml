@@ -60,8 +60,8 @@
 		<module>hdf-to-yaml-converter</module>
 		<module>connector-serializer</module>
 		<module>matrix-agent</module>
-        <module>hw-energy</module>
-    </modules>
+		<module>hw-energy</module>
+	</modules>
 
 	<dependencyManagement>
 		<dependencies>

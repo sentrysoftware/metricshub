@@ -7,12 +7,10 @@ import com.sentrysoftware.matrix.util.HwCollectHelper;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@Slf4j
 public class RoboticsPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimator {
 
 	public RoboticsPowerAndEnergyEstimator(final Monitor monitor, final TelemetryManager telemetryManager) {
@@ -23,6 +21,7 @@ public class RoboticsPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstim
 	 * Calculate the approximate power consumption of the media changer.<br>
 	 * If it moved, 154W, if not, 48W Source:
 	 * https://docs.oracle.com/en/storage/tape-storage/sl4000/slklg/calculate-total-power-consumption.html
+	 *
 	 * @return Double value.
 	 */
 	@Override
@@ -37,7 +36,8 @@ public class RoboticsPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstim
 
 	/**
 	 * Estimates the energy consumption of Robotics monitor
-	 * @return Double
+	 *
+	 * @return Double value.
 	 */
 	@Override
 	public Double estimateEnergy() {
