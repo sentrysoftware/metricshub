@@ -6,6 +6,7 @@ import static com.sentrysoftware.matrix.common.Constants.FAN_SPEED_METRIC;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.sentrysoftware.matrix.HardwareEnergyPostExecutionService;
+import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
@@ -19,14 +20,14 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class HardwareEnergyPostExecutionServiceTest {
+class HardwareEnergyPostExecutionServiceTest {
 
 	@InjectMocks
 	private HardwareEnergyPostExecutionService hardwareEnergyPostExecutionService;
 
 	private TelemetryManager telemetryManager = null;
 
-	private static final String FAN = "fan";
+	private static final String FAN = KnownMonitorType.FAN.getKey();
 
 	@BeforeEach
 	void init() {

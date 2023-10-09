@@ -34,6 +34,7 @@ public class CollectHelper {
 	 * @param telemetryManager the telemetry manager
 	 * @param estimatedPower the previously estimated power consumption
 	 * @param metricName the metricName to estimate e.g: hw.energy{hw.type="fan"} or hw.energy{hw.type="fan"} ...
+	 * @param collectTime the current collect time in milliseconds
 	 * @return estimated Double energy value
 	 */
 	public static Double estimateEnergyUsingPower(

@@ -12,6 +12,8 @@ public class PowerAndEnergyCollectHelper {
 	 * @param monitor the monitor to collect
 	 * @param powerMetricName the power metric name e.g: "hw.power{hw.type=\"fan\"}"
 	 * @param energyMetricName the energy metric name e.g: "hw.energy{hw.type=\"fan\"}"
+	 * @param telemetryManager the telemetry manager {@link TelemetryManager}
+	 * @param hardwarePowerAndEnergyEstimator generic estimator class which can used by the different hardware {@link HardwarePowerAndEnergyEstimator}
 	 */
 	public static void collectPowerAndEnergy(
 		final Monitor monitor,
@@ -24,7 +26,7 @@ public class PowerAndEnergyCollectHelper {
 		final Double estimatedPower = hardwarePowerAndEnergyEstimator.estimatePower();
 
 		// Create metricFactory and collect power
-		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostConfiguration().getHostname());
+		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
 		metricFactory.collectNumberMetric(monitor, powerMetricName, estimatedPower, telemetryManager.getStrategyTime());
 
 		// Compute the estimated energy consumption

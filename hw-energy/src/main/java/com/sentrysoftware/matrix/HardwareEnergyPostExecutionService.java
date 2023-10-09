@@ -27,7 +27,7 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 		final Map<String, Monitor> fanMonitors = telemetryManager.getMonitors().get("fan");
 
 		if (fanMonitors == null) {
-			log.error("Host {} does not contain Fan monitors", telemetryManager.getHostConfiguration().getHostname());
+			log.error("Host {} does not contain Fan monitors", telemetryManager.getHostname());
 		} else {
 			// For each fan monitor estimate and collect power and energy consumption metrics
 			fanMonitors
