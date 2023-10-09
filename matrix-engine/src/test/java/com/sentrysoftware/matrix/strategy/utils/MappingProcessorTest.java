@@ -129,6 +129,8 @@ class MappingProcessorTest {
 				"testLegacyLinkStatus",
 				"0",
 				"testBoolean",
+				"1",
+				"testBooleanUpperCase",
 				"1"
 			);
 
@@ -144,7 +146,9 @@ class MappingProcessorTest {
 				"testLegacyLinkStatus",
 				"legacylinkstatus(2)",
 				"testBoolean",
-				"boolean(true)"
+				"boolean(true)",
+				"testBooleanUpperCase",
+				"boolean(TRUE)"
 			);
 
 			assertEquals(expected, mappingProcessor.interpretNonContextMapping(keyValuePairs));
