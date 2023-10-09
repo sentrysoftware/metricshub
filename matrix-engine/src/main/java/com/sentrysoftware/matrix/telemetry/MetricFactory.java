@@ -33,7 +33,7 @@ public class MetricFactory {
 
 	private static final Pattern METRIC_ATTRIBUTES_PATTERN = Pattern.compile("\\{(.*?)\\}");
 
-	private TelemetryManager telemetryManager;
+	private String hostname;
 
 	/**
 	 * This method sets a stateSet metric in the monitor
@@ -163,7 +163,7 @@ public class MetricFactory {
 		} catch (Exception e) {
 			log.warn(
 				"Hostname {} - Cannot parse the {} value '{}' for monitor id {}. {} won't be collected",
-				telemetryManager.getHostConfiguration().getHostname(),
+				hostname,
 				name,
 				value,
 				monitor.getAttributes().get(MONITOR_ATTRIBUTE_ID),
@@ -185,7 +185,7 @@ public class MetricFactory {
 		final Monitor monitor,
 		final long strategyTime
 	) {
-		final MetricFactory metricFactory = new MetricFactory(telemetryManager);
+		final MetricFactory metricFactory = new MetricFactory(hostname);
 		if (connectorTestResult.isSuccess()) {
 			metricFactory.collectNumberMetric(monitor, CONNECTOR_STATUS_METRIC_KEY, 1.0, strategyTime);
 		} else {
@@ -292,7 +292,6 @@ public class MetricFactory {
 	public void collectMonitorMetrics(
 		final String monitorType,
 		final Connector connector,
-		final String hostname,
 		final Monitor monitor,
 		final String connectorId,
 		final Map<String, String> metrics,
