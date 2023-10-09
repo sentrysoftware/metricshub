@@ -1,7 +1,6 @@
 package com.sentrysoftware.matrix.util;
 
 import com.sentrysoftware.matrix.strategy.utils.MathOperationsHelper;
-import com.sentrysoftware.matrix.telemetry.MetricFactory;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import lombok.extern.slf4j.Slf4j;
@@ -46,8 +45,6 @@ public class CollectHelper {
 	) {
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
-		final MetricFactory metricFactory = new MetricFactory(telemetryManager);
-
 		final Double collectTimePrevious = com.sentrysoftware.matrix.strategy.utils.CollectHelper.getNumberMetricCollectTime(
 			monitor,
 			metricName,
@@ -87,7 +84,7 @@ public class CollectHelper {
 			return counter;
 		} else {
 			log.debug(
-				"Hostname {} - Cannot calculate fake counter {} for monitor {}. Current raw value {} - Current time {} - Previous time {}.",
+				"Hostname {} - Cannot calculate energy {} for monitor {}. Current raw value {} - Current time {} - Previous time {}.",
 				hostname,
 				metricName,
 				monitor.getId(),

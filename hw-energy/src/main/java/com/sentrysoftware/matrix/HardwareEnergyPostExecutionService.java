@@ -26,17 +26,21 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 		// Find fan monitors
 		final Map<String, Monitor> fanMonitors = telemetryManager.getMonitors().get("fan");
 
-		// For each fan monitor estimate and collect power and energy consumption metrics
-		fanMonitors
-			.values()
-			.forEach(monitor -> {
-				PowerAndEnergyCollectHelper.collectPowerAndEnergy(
-					monitor,
-					"hw.power{hw.type=\"fan\"}",
-					"hw.energy{hw.type=\"fan\"}",
-					telemetryManager,
-					new FanPowerAndEnergyEstimator(monitor, telemetryManager)
-				);
-			});
+		if (fanMonitors == null) {
+			log.error("Host {} does not contain Fan monitors", telemetryManager.getHostConfiguration().getHostname());
+		} else {
+			// For each fan monitor estimate and collect power and energy consumption metrics
+			fanMonitors
+				.values()
+				.forEach(monitor -> {
+					PowerAndEnergyCollectHelper.collectPowerAndEnergy(
+						monitor,
+						"hw.power{hw.type=\"fan\"}",
+						"hw.energy{hw.type=\"fan\"}",
+						telemetryManager,
+						new FanPowerAndEnergyEstimator(monitor, telemetryManager)
+					);
+				});
+		}
 	}
 }
