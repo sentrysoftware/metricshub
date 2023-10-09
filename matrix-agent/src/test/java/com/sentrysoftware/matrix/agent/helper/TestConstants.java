@@ -26,4 +26,10 @@ public class TestConstants {
 	public static final String TEST_CONFIG_FILE_PATH = "src/test/resources/config/metricshub.yaml";
 	public static final String COMPANY_ATTRIBUTE_VALUE = "Sentry Software";
 	public static final String COMPANY_ATTRIBUTE_KEY = "company";
+	public static final String HOST_TYPE_ATTRIBUTE_KEY = "host.type";
+	public static final String OS_TYPE_ATTRIBUTE_KEY = "os.type";
+	public static final String HOST_ID_ATTRIBUTE_KEY = "host.id";
+	public static final String OS_LINUX = "linux";
+	public static final String COMPUTE_HOST_TYPE = "compute";
+	public static final String HOSTNAME = "host.my.domain.net";
 }

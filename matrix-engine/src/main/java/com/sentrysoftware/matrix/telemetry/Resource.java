@@ -1,8 +1,10 @@
 package com.sentrysoftware.matrix.telemetry;
 
+import java.util.HashMap;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,5 +15,7 @@ import lombok.NoArgsConstructor;
 public class Resource {
 
 	private String type;
-	private Map<String, String> attributes;
+
+	@Default
+	private Map<String, String> attributes = new HashMap<>();
 }

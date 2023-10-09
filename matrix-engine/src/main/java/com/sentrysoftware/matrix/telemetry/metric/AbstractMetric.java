@@ -1,5 +1,7 @@
 package com.sentrysoftware.matrix.telemetry.metric;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Data;
@@ -7,6 +9,13 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type")
+@JsonSubTypes(
+	{
+		@JsonSubTypes.Type(value = StateSetMetric.class, name = StateSetMetric.STATE_SET_METRIC_TYPE),
+		@JsonSubTypes.Type(value = NumberMetric.class, name = NumberMetric.NUMBER_METRIC_TYPE)
+	}
+)
 public abstract class AbstractMetric {
 
 	private String name;
@@ -41,4 +50,11 @@ public abstract class AbstractMetric {
 
 		return collectTime != previousCollectTime;
 	}
+
+	/**
+	 * Get the metric type as String value
+	 *
+	 * @return {@link String} value
+	 */
+	public abstract String getType();
 }

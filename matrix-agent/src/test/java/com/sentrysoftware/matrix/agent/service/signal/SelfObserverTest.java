@@ -33,7 +33,7 @@ class SelfObserverTest {
 	@Test
 	void testInit() {
 		final AgentInfo agentInfo = new AgentInfo();
-		final Resource resource = OtelHelper.createServiceResource(agentInfo.getResourceAttributes());
+		final Resource resource = OtelHelper.createOpenTelemetryResource(agentInfo.getResourceAttributes());
 		final InMemoryMetricReader inMemoryReader = InMemoryMetricReader.create();
 		final SdkMeterProvider sdkMeterProvider = OtelTestHelper.initOpenTelemetryMetrics(resource, inMemoryReader);
 

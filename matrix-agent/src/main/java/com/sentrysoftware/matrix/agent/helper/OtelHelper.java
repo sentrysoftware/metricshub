@@ -1,9 +1,12 @@
 package com.sentrysoftware.matrix.agent.helper;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_NAME;
+
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.sdk.autoconfigure.AutoConfiguredOpenTelemetrySdk;
 import io.opentelemetry.sdk.resources.Resource;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import lombok.AccessLevel;
@@ -13,13 +16,15 @@ import lombok.NonNull;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OtelHelper {
 
+	public static final String FQDN_ATTRIBUTE_KEY = "fqdn";
+
 	/**
-	 * Create a Service resource
+	 * Create an OTEL Resource
 	 *
 	 * @param attributeMap key-value pairs of attributes that describe the resource.
-	 * @return Resource capturing identifying information about the service
+	 * @return Resource capturing identifying information about service, host, etc.
 	 */
-	public static Resource createServiceResource(@NonNull final Map<String, String> attributeMap) {
+	public static Resource createOpenTelemetryResource(@NonNull final Map<String, String> attributeMap) {
 		return Resource.create(buildOtelAttributesFromMap(attributeMap));
 	}
 
@@ -59,5 +64,75 @@ public class OtelHelper {
 			// appropriate. By default, the shutdown hook is registered.
 			.disableShutdownHook()
 			.build();
+	}
+
+	/**
+	 * Create the host resource based on the given attributes
+	 *
+	 * @param hostAttributes        Host attributes: host.id, host.name, os.type, host.type, etc
+	 *                              collected by the engine
+	 * @param userAttributes        User configured attributes
+	 * @param resolveHostnameToFqdn Whether we must resolve the hostname of the host to a
+	 *                              Fully Qualified Domain Name (FQDN)
+	 * @return OTEL {@link Resource} instance
+	 */
+	public static Resource createHostResource(
+		@NonNull final Map<String, String> hostAttributes,
+		@NonNull final Map<String, String> userAttributes,
+		final boolean resolveHostnameToFqdn
+	) {
+		// Get the resource host.name attribute value
+		final String hostname = resolveResourceHostname(
+			hostAttributes.get(HOST_NAME),
+			userAttributes.get(HOST_NAME),
+			resolveHostnameToFqdn,
+			userAttributes.get(FQDN_ATTRIBUTE_KEY)
+		);
+
+		// Prepare the resource attributes
+		final Map<String, String> attributes = new HashMap<>();
+		attributes.putAll(hostAttributes);
+		attributes.put(HOST_NAME, hostname);
+
+		// Add user attributes
+		userAttributes.entrySet().stream().forEach(entry -> attributes.putIfAbsent(entry.getKey(), entry.getValue()));
+
+		return createOpenTelemetryResource(attributes);
+	}
+
+	/**
+	 * Resolve the resource hostname.
+	 *
+	 * Priority
+	 * <ol>
+	 *   <li>User's attribute <code>fqdn</code> with <code>resolveHostnameToFqdn=true</code></li>
+	 *   <li>Collected <code>fqdn</code> when the <code>resolveHostnameToFqdn=true</code></li>
+	 *   <li>Configured host name attribute <code>host.name</code></li>
+	 * </ol>
+	 *
+	 * @param collectedFqdn         Collected fqdn
+	 * @param configuredHostname    Configured host's host.name
+	 * @param resolveHostnameToFqdn Whether we must resolve host.name value to a fully qualified domain name.
+	 * @param userFqdn              FQDN attribute value
+	 * @return String value
+	 */
+	static String resolveResourceHostname(
+		final String collectedFqdn,
+		final String configuredHostname,
+		final boolean resolveHostnameToFqdn,
+		final String userFqdn
+	) {
+		if (resolveHostnameToFqdn) {
+			// User's Fqdn?
+			if (userFqdn != null) {
+				return userFqdn;
+			} else {
+				// Collected Fqdn
+				return collectedFqdn;
+			}
+		}
+
+		// Finally we keep the configured host.name
+		return configuredHostname;
 	}
 }

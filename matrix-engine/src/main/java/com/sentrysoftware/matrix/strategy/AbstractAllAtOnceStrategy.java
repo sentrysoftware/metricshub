@@ -1,7 +1,5 @@
 package com.sentrysoftware.matrix.strategy;
 
-import static com.sentrysoftware.matrix.common.helpers.KnownMonitorType.HOST;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IS_ENDPOINT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MAX_THREADS_COUNT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_JOBS_PRIORITY;
@@ -50,7 +48,7 @@ import lombok.extern.slf4j.Slf4j;
 @EqualsAndHashCode(callSuper = true)
 public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 
-	AbstractAllAtOnceStrategy(
+	protected AbstractAllAtOnceStrategy(
 		@NonNull final TelemetryManager telemetryManager,
 		final long strategyTime,
 		@NonNull final MatsyaClientsExecutor matsyaClientsExecutor
@@ -300,22 +298,8 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 		// Get the host name from telemetry manager
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
-		// Get host monitors
-		final Map<String, Monitor> hostMonitors = telemetryManager.getMonitors().get(HOST.getKey());
-
-		if (hostMonitors == null) {
-			log.error("Hostname {} - No host found. Stopping {} strategy.", hostname, getJobName());
-			return;
-		}
-
-		// Get the endpoint host
-		final Monitor host = hostMonitors
-			.values()
-			.stream()
-			.filter(hostMonitor -> "true".equals(hostMonitor.getAttributes().get(IS_ENDPOINT)))
-			.findFirst()
-			.orElse(null);
-
+		// Get host monitor
+		final Monitor host = telemetryManager.getHostMonitor();
 		if (host == null) {
 			log.error("Hostname {} - No host found. Stopping {} strategy.", hostname, getJobName());
 			return;

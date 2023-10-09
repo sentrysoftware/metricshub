@@ -13,6 +13,8 @@ import lombok.ToString;
 @ToString(callSuper = true)
 public class NumberMetric extends AbstractMetric {
 
+	public static final String NUMBER_METRIC_TYPE = "NumberMetric";
+
 	private Double value;
 	private Double previousValue;
 
@@ -26,5 +28,10 @@ public class NumberMetric extends AbstractMetric {
 	public void save() {
 		super.save();
 		previousValue = value;
+	}
+
+	@Override
+	public String getType() {
+		return NUMBER_METRIC_TYPE;
 	}
 }

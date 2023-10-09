@@ -13,6 +13,8 @@ import lombok.ToString;
 @ToString(callSuper = true)
 public class StateSetMetric extends AbstractMetric {
 
+	public static final String STATE_SET_METRIC_TYPE = "StateSetMetric";
+
 	private String value;
 	private String previousValue;
 	private String[] stateSet;
@@ -34,5 +36,10 @@ public class StateSetMetric extends AbstractMetric {
 	public void save() {
 		super.save();
 		previousValue = value;
+	}
+
+	@Override
+	public String getType() {
+		return STATE_SET_METRIC_TYPE;
 	}
 }

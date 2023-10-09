@@ -2,14 +2,19 @@ package com.sentrysoftware.matrix.agent.service;
 
 import static com.sentrysoftware.matrix.agent.helper.TestConstants.COMPANY_ATTRIBUTE_KEY;
 import static com.sentrysoftware.matrix.agent.helper.TestConstants.COMPANY_ATTRIBUTE_VALUE;
+import static com.sentrysoftware.matrix.agent.helper.TestConstants.HOST_ID_ATTRIBUTE_KEY;
+import static com.sentrysoftware.matrix.agent.helper.TestConstants.HOST_TYPE_ATTRIBUTE_KEY;
+import static com.sentrysoftware.matrix.agent.helper.TestConstants.OS_LINUX;
 import static com.sentrysoftware.matrix.agent.helper.TestConstants.SENTRY_OTTAWA_RESOURCE_GROUP_KEY;
 import static com.sentrysoftware.matrix.agent.helper.TestConstants.SENTRY_OTTAWA_SITE_VALUE;
 import static com.sentrysoftware.matrix.agent.helper.TestConstants.SENTRY_PARIS_RESOURCE_GROUP_KEY;
 import static com.sentrysoftware.matrix.agent.helper.TestConstants.SENTRY_PARIS_SITE_VALUE;
 import static com.sentrysoftware.matrix.agent.helper.TestConstants.SITE_ATTRIBUTE_KEY;
-import static com.sentrysoftware.matrix.agent.service.TaskSchedulingService.METRICSHUB_OVERALL_SELF_TASK_KEY;
-import static com.sentrysoftware.matrix.agent.service.TaskSchedulingService.METRICSHUB_RESOURCE_GROUP_KEY_FORMAT;
+import static com.sentrysoftware.matrix.agent.service.scheduling.ResourceGroupScheduling.METRICSHUB_RESOURCE_GROUP_KEY_FORMAT;
+import static com.sentrysoftware.matrix.agent.service.scheduling.ResourceScheduling.METRICSHUB_RESOURCE_KEY_FORMAT;
+import static com.sentrysoftware.matrix.agent.service.scheduling.SelfObserverScheduling.METRICSHUB_OVERALL_SELF_TASK_KEY;
 import static com.sentrysoftware.matrix.agent.service.signal.ResourceGroupMetricsObserver.HW_SITE_PUE_METRIC;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -19,11 +24,16 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.sentrysoftware.matrix.agent.config.AgentConfig;
+import com.sentrysoftware.matrix.agent.config.ResourceConfig;
 import com.sentrysoftware.matrix.agent.config.ResourceGroupConfig;
+import com.sentrysoftware.matrix.agent.config.protocols.ProtocolsConfig;
+import com.sentrysoftware.matrix.agent.config.protocols.SnmpProtocolConfig;
 import com.sentrysoftware.matrix.agent.context.AgentInfo;
 import com.sentrysoftware.matrix.agent.helper.OtelConfigHelper;
+import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ScheduledFuture;
 import org.junit.jupiter.api.Test;
 import org.springframework.scheduling.Trigger;
@@ -52,7 +62,7 @@ class TaskSchedulingServiceTest {
 			.withAgentConfig(agentConfig)
 			.withAgentInfo(agentInfo)
 			.withOtelSdkConfiguration(OtelConfigHelper.buildOtelSdkConfiguration(agentConfig))
-			.withResourceSchedules(new HashMap<>())
+			.withSchedules(new HashMap<>())
 			.withTaskScheduler(taskSchedulerMock)
 			.build();
 
@@ -60,10 +70,7 @@ class TaskSchedulingServiceTest {
 
 		verify(taskSchedulerMock, times(1)).schedule(any(Runnable.class), any(Trigger.class));
 
-		assertEquals(
-			scheduledFutureMock,
-			taskSchedulingService.getResourceSchedules().get(METRICSHUB_OVERALL_SELF_TASK_KEY)
-		);
+		assertEquals(scheduledFutureMock, taskSchedulingService.getSchedules().get(METRICSHUB_OVERALL_SELF_TASK_KEY));
 	}
 
 	@Test
@@ -98,7 +105,7 @@ class TaskSchedulingServiceTest {
 			.builder()
 			.withAgentConfig(agentConfig)
 			.withOtelSdkConfiguration(OtelConfigHelper.buildOtelSdkConfiguration(agentConfig))
-			.withResourceSchedules(new HashMap<>())
+			.withSchedules(new HashMap<>())
 			.withTaskScheduler(taskSchedulerMock)
 			.build();
 
@@ -109,21 +116,95 @@ class TaskSchedulingServiceTest {
 		assertEquals(
 			scheduledFutureMock,
 			taskSchedulingService
-				.getResourceSchedules()
+				.getSchedules()
 				.get(String.format(METRICSHUB_RESOURCE_GROUP_KEY_FORMAT, SENTRY_PARIS_RESOURCE_GROUP_KEY))
 		);
 
 		assertEquals(
 			scheduledFutureMock,
 			taskSchedulingService
-				.getResourceSchedules()
+				.getSchedules()
 				.get(String.format(METRICSHUB_RESOURCE_GROUP_KEY_FORMAT, SENTRY_OTTAWA_RESOURCE_GROUP_KEY))
 		);
 
 		assertNull(
 			taskSchedulingService
-				.getResourceSchedules()
+				.getSchedules()
 				.get(String.format(METRICSHUB_RESOURCE_GROUP_KEY_FORMAT, NO_CONFIG_RESOURCE_GROUP_KEY))
+		);
+	}
+
+	@Test
+	void testScheduleResourcesInResourceGroups() {
+		final Map<String, ResourceConfig> resourceConfigMap = new HashMap<>();
+		final String resourceKey1 = UUID.randomUUID().toString();
+		resourceConfigMap.put(
+			resourceKey1,
+			ResourceConfig
+				.builder()
+				.attributes(
+					Map.of(HOST_NAME, resourceKey1, HOST_ID_ATTRIBUTE_KEY, resourceKey1, HOST_TYPE_ATTRIBUTE_KEY, OS_LINUX)
+				)
+				.protocols(ProtocolsConfig.builder().snmp(SnmpProtocolConfig.builder().build()).build())
+				.collectPeriod(AgentConfig.DEFAULT_COLLECT_PERIOD)
+				.build()
+		);
+
+		final String resourceKey2 = UUID.randomUUID().toString();
+		resourceConfigMap.put(
+			resourceKey2,
+			ResourceConfig
+				.builder()
+				.attributes(
+					Map.of(HOST_NAME, resourceKey2, HOST_ID_ATTRIBUTE_KEY, resourceKey2, HOST_TYPE_ATTRIBUTE_KEY, OS_LINUX)
+				)
+				.protocols(ProtocolsConfig.builder().snmp(SnmpProtocolConfig.builder().build()).build())
+				.collectPeriod(AgentConfig.DEFAULT_COLLECT_PERIOD)
+				.build()
+		);
+
+		final ResourceGroupConfig resourceGroupConfig = ResourceGroupConfig.builder().resources(resourceConfigMap).build();
+
+		final AgentConfig agentConfig = AgentConfig
+			.builder()
+			.resourceGroups(Map.of(SENTRY_PARIS_RESOURCE_GROUP_KEY, resourceGroupConfig))
+			.build();
+
+		final ThreadPoolTaskScheduler taskSchedulerMock = spy(ThreadPoolTaskScheduler.class);
+		final ScheduledFuture<?> scheduledFutureMock = spy(ScheduledFuture.class);
+
+		doReturn(scheduledFutureMock).when(taskSchedulerMock).schedule(any(Runnable.class), any(Trigger.class));
+
+		final TaskSchedulingService taskSchedulingService = TaskSchedulingService
+			.builder()
+			.withAgentConfig(agentConfig)
+			.withOtelSdkConfiguration(OtelConfigHelper.buildOtelSdkConfiguration(agentConfig))
+			.withSchedules(new HashMap<>())
+			.withTaskScheduler(taskSchedulerMock)
+			.withTelemetryManagers(
+				Map.of(
+					SENTRY_PARIS_RESOURCE_GROUP_KEY,
+					Map.of(resourceKey1, new TelemetryManager(), resourceKey2, new TelemetryManager())
+				)
+			)
+			.build();
+
+		taskSchedulingService.scheduleResourcesInResourceGroups(SENTRY_PARIS_RESOURCE_GROUP_KEY, resourceGroupConfig);
+
+		verify(taskSchedulerMock, times(2)).schedule(any(Runnable.class), any(Trigger.class));
+
+		assertEquals(
+			scheduledFutureMock,
+			taskSchedulingService
+				.getSchedules()
+				.get(String.format(METRICSHUB_RESOURCE_KEY_FORMAT, SENTRY_PARIS_RESOURCE_GROUP_KEY, resourceKey1))
+		);
+
+		assertEquals(
+			scheduledFutureMock,
+			taskSchedulingService
+				.getSchedules()
+				.get(String.format(METRICSHUB_RESOURCE_KEY_FORMAT, SENTRY_PARIS_RESOURCE_GROUP_KEY, resourceKey2))
 		);
 	}
 }
