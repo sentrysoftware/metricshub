@@ -3,7 +3,7 @@ package com.sentrysoftware.matrix.sustainability;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
-import com.sentrysoftware.matrix.util.CollectHelper;
+import com.sentrysoftware.matrix.util.HwCollectHelper;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -47,7 +47,7 @@ public class FanPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimator 
 		}
 
 		// Compute the power consumption based on fanSpeed value
-		if (CollectHelper.isValidPositive(fanSpeed)) {
+		if (HwCollectHelper.isValidPositive(fanSpeed)) {
 			// 1000 RPM = 1 Watt
 			powerConsumption = fanSpeed / 1000.0;
 		} else {
@@ -56,7 +56,7 @@ public class FanPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimator 
 			if (fanSpeedRatioMetric != null) {
 				fanSpeedPercent = fanSpeedRatioMetric.getValue();
 			}
-			if (CollectHelper.isValidPercentage(fanSpeedPercent)) {
+			if (HwCollectHelper.isValidPercentage(fanSpeedPercent)) {
 				// Approximately 5 Watt for 100%
 				powerConsumption = fanSpeedPercent * 0.05;
 			}
@@ -71,7 +71,7 @@ public class FanPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimator 
 	@Override
 	public Double estimateEnergy() {
 		final Double estimatedPower = estimatePower();
-		return CollectHelper.estimateEnergyUsingPower(
+		return HwCollectHelper.estimateEnergyUsingPower(
 			getMonitor(),
 			getTelemetryManager(),
 			estimatedPower,

@@ -3,7 +3,7 @@ package com.sentrysoftware.matrix.sustainability;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
-import com.sentrysoftware.matrix.util.CollectHelper;
+import com.sentrysoftware.matrix.util.HwCollectHelper;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -50,7 +50,7 @@ public class RoboticsPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstim
 	@Override
 	public Double estimateEnergy() {
 		final Double estimatedPower = estimatePower();
-		return CollectHelper.estimateEnergyUsingPower(
+		return HwCollectHelper.estimateEnergyUsingPower(
 			getMonitor(),
 			getTelemetryManager(),
 			estimatedPower,

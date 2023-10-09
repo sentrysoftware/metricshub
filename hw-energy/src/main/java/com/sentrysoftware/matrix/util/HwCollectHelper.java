@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class CollectHelper {
+public class HwCollectHelper {
 
 	/**
 	 * Check if the given value is a valid positive

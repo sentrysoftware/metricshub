@@ -44,7 +44,7 @@ class HardwareEnergyPostExecutionServiceTest {
 	}
 
 	@Test
-	void testRun() {
+	void testRunWithFanMonitor() {
 		// Create a fan monitor
 		final Monitor fanMonitor = Monitor
 			.builder()
@@ -65,7 +65,10 @@ class HardwareEnergyPostExecutionServiceTest {
 
 		// Check the computed and collected energy metric
 		assertNotNull(fanMonitor.getMetric(FAN_ENERGY_METRIC, NumberMetric.class));
+	}
 
+	@Test
+	void testRunWithRoboticsMonitor() {
 		// Create a robotics monitor
 		final Monitor roboticsMonitor = Monitor
 			.builder()
@@ -78,6 +81,7 @@ class HardwareEnergyPostExecutionServiceTest {
 		telemetryManager.setMonitors(new HashMap<>(Map.of(ROBOTICS, roboticsMonitors)));
 
 		// Call run method in HardwareEnergyPostExecutionService
+		hardwareEnergyPostExecutionService = new HardwareEnergyPostExecutionService(telemetryManager);
 		hardwareEnergyPostExecutionService.run();
 
 		// Check the computed and collected power metric
