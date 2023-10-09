@@ -21,7 +21,6 @@ public class HostMonitorThermalCalculator {
 	 * @return Double
 	 */
 	public static Double computeHeatingMargin() {
-		// TODO
 		return null;
 	}
 
@@ -30,7 +29,6 @@ public class HostMonitorThermalCalculator {
 	 * @return Double
 	 */
 	public static Double computeAmbientTemperature() {
-		// TODO
 		return null;
 	}
 

@@ -21,7 +21,6 @@ public class HostMonitorEnergyAndPowerEstimator {
 	 * @return Double
 	 */
 	public static Double computeEstimatedPower() {
-		// TODO
 		return null;
 	}
 
@@ -30,7 +29,6 @@ public class HostMonitorEnergyAndPowerEstimator {
 	 * @return Double
 	 */
 	public static Double computeEstimatedEnergy() {
-		// TODO
 		return null;
 	}
 
@@ -39,7 +37,6 @@ public class HostMonitorEnergyAndPowerEstimator {
 	 * @return Double
 	 */
 	public static Double computeMeasuredEnergy() {
-		// TODO
 		return null;
 	}
 
@@ -48,7 +45,6 @@ public class HostMonitorEnergyAndPowerEstimator {
 	 * @return Double
 	 */
 	public static Double computeMeasuredPower() {
-		// TODO
 		return null;
 	}
 }

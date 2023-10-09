@@ -30,7 +30,7 @@ public class CollectHelper {
 	 * Get the {@link NumberMetric} collect time
 	 *
 	 * @param monitor       The {@link Monitor} instance we wish to extract the {@link NumberMetric} collect time
-	 * @param metricName The name of the {@link NumberMetric} instance
+	 * @param metricRateName The name of the {@link NumberMetric} instance
 	 * @param previous      Indicate whether we should return the <code>collectTime</code> or the <code>previousCollectTime</code>.
 	 * @return a {@link Double} value
 	 */

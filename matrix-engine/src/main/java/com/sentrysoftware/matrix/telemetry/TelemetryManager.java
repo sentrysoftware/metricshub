@@ -42,6 +42,7 @@ public class TelemetryManager {
 
 	private HostConfiguration hostConfiguration;
 	private ConnectorStore connectorStore;
+	private Long strategyTime;
 
 	/**
 	 * Executes the given {@link IStrategy} instances.
