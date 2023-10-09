@@ -867,7 +867,7 @@ public class MappingProcessor {
 			extractedValue = extractColumnValue(extracted, key);
 		}
 
-		if (ONE.equals(extractedValue) || TRUE.equals(extractedValue)) {
+		if (ONE.equals(extractedValue) || TRUE.equalsIgnoreCase(extractedValue)) {
 			return ONE;
 		}
 
