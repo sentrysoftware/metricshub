@@ -21,7 +21,7 @@ public class FanPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimator 
 
 	/**
 	 * Estimates the power consumption of Fan monitor
-	 * @return Double
+	 * @return Double value
 	 */
 	@Override
 	public Double estimatePower() {
@@ -36,12 +36,12 @@ public class FanPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimator 
 		} else {
 			if (HwCollectHelper.isValidPercentage(fanSpeedRatio)) {
 				// Approximately 5 Watt for 100%
-				return fanSpeedRatio * 100 * 0.05;
+				return fanSpeedRatio * 5;
 			}
 		}
 
 		// Approximately 5 Watt for standard fan
-		return fanSpeedRatio * 5;
+		return 5.0;
 	}
 
 	/**
