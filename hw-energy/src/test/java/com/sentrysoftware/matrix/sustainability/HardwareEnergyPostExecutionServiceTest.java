@@ -3,6 +3,9 @@ package com.sentrysoftware.matrix.sustainability;
 import static com.sentrysoftware.matrix.common.Constants.FAN_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.FAN_POWER_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.FAN_SPEED_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.ROBOTICS_ENERGY_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.ROBOTICS_MOVE_COUNT_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.ROBOTICS_POWER_METRIC;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.sentrysoftware.matrix.HardwareEnergyPostExecutionService;
@@ -28,6 +31,7 @@ class HardwareEnergyPostExecutionServiceTest {
 	private TelemetryManager telemetryManager = null;
 
 	private static final String FAN = KnownMonitorType.FAN.getKey();
+	private static final String ROBOTICS = KnownMonitorType.ROBOTICS.getKey();
 
 	@BeforeEach
 	void init() {
@@ -61,5 +65,25 @@ class HardwareEnergyPostExecutionServiceTest {
 
 		// Check the computed and collected energy metric
 		assertNotNull(fanMonitor.getMetric(FAN_ENERGY_METRIC, NumberMetric.class));
+
+		// Create a robotics monitor
+		final Monitor roboticsMonitor = Monitor
+				.builder()
+				.type(ROBOTICS)
+				.metrics(new HashMap<>(Map.of(ROBOTICS_MOVE_COUNT_METRIC, NumberMetric.builder().value(0.7).build())))
+				.build();
+
+		// Set the previously created robotics monitor in telemetryManager
+		final Map<String, Monitor> roboticsMonitors = new HashMap<>(Map.of("monitor2", roboticsMonitor));
+		telemetryManager.setMonitors(new HashMap<>(Map.of(ROBOTICS, roboticsMonitors)));
+
+		// Call run method in HardwareEnergyPostExecutionService
+		hardwareEnergyPostExecutionService.run();
+
+		// Check the computed and collected power metric
+		assertNotNull(roboticsMonitor.getMetric(ROBOTICS_POWER_METRIC, NumberMetric.class));
+
+		// Check the computed and collected energy metric
+		assertNotNull(roboticsMonitor.getMetric(ROBOTICS_ENERGY_METRIC, NumberMetric.class));
 	}
 }
