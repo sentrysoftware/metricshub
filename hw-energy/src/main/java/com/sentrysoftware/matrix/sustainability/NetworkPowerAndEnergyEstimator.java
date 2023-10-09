@@ -21,7 +21,6 @@ public class NetworkPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstima
 	 */
 	@Override
 	public Double estimatePower() {
-		// TODO
 		return null;
 	}
 
@@ -31,7 +30,6 @@ public class NetworkPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstima
 	 */
 	@Override
 	public Double estimateEnergy() {
-		// TODO
 		return null;
 	}
 }

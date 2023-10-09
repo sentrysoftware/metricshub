@@ -4,7 +4,10 @@ import com.sentrysoftware.matrix.sustainability.HardwarePowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.telemetry.MetricFactory;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PowerAndEnergyCollectHelper {
 
 	/**

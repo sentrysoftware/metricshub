@@ -21,7 +21,6 @@ public class RoboticsPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstim
 	 */
 	@Override
 	public Double estimatePower() {
-		// TODO
 		return null;
 	}
 
@@ -31,7 +30,6 @@ public class RoboticsPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstim
 	 */
 	@Override
 	public Double estimateEnergy() {
-		// TODO
 		return null;
 	}
 }

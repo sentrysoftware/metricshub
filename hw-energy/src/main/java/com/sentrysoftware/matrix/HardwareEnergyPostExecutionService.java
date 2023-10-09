@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix;
 
+import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
 import com.sentrysoftware.matrix.delegate.IPostExecutionService;
 import com.sentrysoftware.matrix.sustainability.FanPowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.telemetry.Monitor;
@@ -24,7 +25,7 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 	@Override
 	public void run() {
 		// Find fan monitors
-		final Map<String, Monitor> fanMonitors = telemetryManager.getMonitors().get("fan");
+		final Map<String, Monitor> fanMonitors = telemetryManager.findMonitorByType(KnownMonitorType.FAN.getKey());
 
 		if (fanMonitors == null) {
 			log.info("Host {} does not contain Fan monitors", telemetryManager.getHostname());
@@ -32,15 +33,15 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 			// For each fan monitor estimate and collect power and energy consumption metrics
 			fanMonitors
 				.values()
-				.forEach(monitor -> {
+				.forEach(monitor ->
 					PowerAndEnergyCollectHelper.collectPowerAndEnergy(
 						monitor,
 						"hw.power{hw.type=\"fan\"}",
 						"hw.energy{hw.type=\"fan\"}",
 						telemetryManager,
 						new FanPowerAndEnergyEstimator(monitor, telemetryManager)
-					);
-				});
+					)
+				);
 		}
 	}
 }

@@ -21,7 +21,6 @@ public class VmPowerEstimator extends HardwarePowerAndEnergyEstimator {
 	 */
 	@Override
 	public Double estimatePower() {
-		// TODO
 		return null;
 	}
 

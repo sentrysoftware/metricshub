@@ -21,7 +21,6 @@ public class PhysicalDiskPowerAndEnergyEstimator extends HardwarePowerAndEnergyE
 	 */
 	@Override
 	public Double estimatePower() {
-		// TODO
 		return null;
 	}
 
@@ -31,7 +30,6 @@ public class PhysicalDiskPowerAndEnergyEstimator extends HardwarePowerAndEnergyE
 	 */
 	@Override
 	public Double estimateEnergy() {
-		// TODO
 		return null;
 	}
 }

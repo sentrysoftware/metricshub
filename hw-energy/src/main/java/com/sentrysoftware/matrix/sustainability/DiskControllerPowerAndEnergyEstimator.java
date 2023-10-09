@@ -21,7 +21,6 @@ public class DiskControllerPowerAndEnergyEstimator extends HardwarePowerAndEnerg
 	 */
 	@Override
 	public Double estimatePower() {
-		// TODO
 		return null;
 	}
 
@@ -31,7 +30,6 @@ public class DiskControllerPowerAndEnergyEstimator extends HardwarePowerAndEnerg
 	 */
 	@Override
 	public Double estimateEnergy() {
-		// TODO
 		return null;
 	}
 }
