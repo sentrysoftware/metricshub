@@ -5,13 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Slf4j
 public class HostMonitorThermalCalculator {
 
 	private TelemetryManager telemetryManager;
@@ -37,7 +35,6 @@ public class HostMonitorThermalCalculator {
 	 * @return Double
 	 */
 	public static Double estimateAverageTemperature() {
-		//TODO
 		return null;
 	}
 
@@ -46,7 +43,6 @@ public class HostMonitorThermalCalculator {
 	 * @return Double
 	 */
 	public static Double estimateTemperatureWarningThresholdAverage() {
-		//TODO
 		return null;
 	}
 
@@ -55,7 +51,6 @@ public class HostMonitorThermalCalculator {
 	 * @return Double
 	 */
 	public static Double estimateThermalDissipationRate() {
-		//TODO
 		return null;
 	}
 }

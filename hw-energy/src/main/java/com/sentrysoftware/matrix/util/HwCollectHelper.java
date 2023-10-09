@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class CollectHelper {
+public class HwCollectHelper {
 
 	/**
 	 * Check if the given value is a valid positive
@@ -22,13 +22,13 @@ public class CollectHelper {
 	}
 
 	/**
-	 * Check if the given percentage value is not null and greater than equals 0 and latest than equals 100
+	 * Check if the given ratio value is not null and greater than or equals 0 and less than or equals 1
 	 *
-	 * @param percent The percentage value to check
-	 * @return boolean value, <code>true</code> if the percentage is valid otherwise <code>false</code>
+	 * @param ratio The ratio value to check
+	 * @return boolean value, <code>true</code> if the ratio is valid otherwise <code>false</code>
 	 */
-	public static boolean isValidPercentage(final Double percent) {
-		return percent != null && percent >= 0 && percent <= 100;
+	public static boolean isValidRatio(final Double ratio) {
+		return ratio != null && ratio >= 0 && ratio <= 1;
 	}
 
 	/**

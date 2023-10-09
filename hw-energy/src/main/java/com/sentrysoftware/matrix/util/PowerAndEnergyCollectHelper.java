@@ -12,6 +12,7 @@ public class PowerAndEnergyCollectHelper {
 
 	/**
 	 * Computes the estimated energy using two calls to power estimation then collects both power and energy in the monitor
+	 *
 	 * @param monitor the monitor to collect
 	 * @param powerMetricName the power metric name e.g: "hw.power{hw.type=\"fan\"}"
 	 * @param energyMetricName the energy metric name e.g: "hw.energy{hw.type=\"fan\"}"
