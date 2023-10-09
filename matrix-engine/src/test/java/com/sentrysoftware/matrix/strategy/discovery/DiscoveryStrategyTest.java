@@ -27,6 +27,7 @@ import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -124,6 +125,7 @@ class DiscoveryStrategyTest {
 
 		// Call DiscoveryStrategy to discover the monitors
 		discoveryStrategy.run();
+		discoveryStrategy.post();
 
 		// Check discovered monitors
 		final Map<String, Map<String, Monitor>> discoveredMonitors = telemetryManager.getMonitors();
@@ -138,5 +140,88 @@ class DiscoveryStrategyTest {
 		// Check discovered monitors order
 		final Set<String> expectedOrder = Set.of(HOST, DISK_CONTROLLER, CONNECTOR, LOGICAL_DISK, PHYSICAL_DISK);
 		assertEquals(expectedOrder, discoveredMonitors.keySet());
+
+		final Monitor diskControllerMonitor = discoveredMonitors
+			.get(DISK_CONTROLLER)
+			.get("AAC_disk_controller_controller-1");
+		final Monitor logicalDiskCMonitor = discoveredMonitors.get(LOGICAL_DISK).get("AAC_logical_disk_logical-disk-1");
+		final Monitor physicalDiskMonitor = discoveredMonitors.get(PHYSICAL_DISK).get("AAC_physical_disk_disk-1");
+
+		// Check that the monitors' present status are set to 1
+		assertEquals(
+			1.0,
+			diskControllerMonitor
+				.getMetric("hw.status{hw.type=\"disk_controller\", state=\"present\"}", NumberMetric.class)
+				.getValue()
+		);
+		assertEquals(
+			1.0,
+			logicalDiskCMonitor
+				.getMetric("hw.status{hw.type=\"logical_disk\", state=\"present\"}", NumberMetric.class)
+				.getValue()
+		);
+		assertEquals(
+			1.0,
+			physicalDiskMonitor
+				.getMetric("hw.status{hw.type=\"physical_disk\", state=\"present\"}", NumberMetric.class)
+				.getValue()
+		);
+
+		discoveryStrategy.setStrategyTime(strategyTime + 60 * 60 * 1000);
+
+		// Mock source table with no information for disk controller
+		doReturn(SourceTable.csvToTable("", MatrixConstants.TABLE_SEP))
+			.when(matsyaClientsExecutorMock)
+			.executeSNMPTable(
+				eq("1.3.6.1.4.1.795.10.1.1.3.1"),
+				any(String[].class),
+				any(SnmpConfiguration.class),
+				anyString(),
+				eq(true)
+			);
+
+		// Mock source table with no information for physical_disk
+		doReturn(SourceTable.csvToTable("", MatrixConstants.TABLE_SEP))
+			.when(matsyaClientsExecutorMock)
+			.executeSNMPTable(
+				eq("1.3.6.1.4.1.795.10.1.1.5.1"),
+				any(String[].class),
+				any(SnmpConfiguration.class),
+				anyString(),
+				eq(true)
+			);
+
+		// Mock source table with no information for logical_disk
+		doReturn(SourceTable.csvToTable("", MatrixConstants.TABLE_SEP))
+			.when(matsyaClientsExecutorMock)
+			.executeSNMPTable(
+				eq("1.3.6.1.4.1.795.10.1.1.4.1"),
+				any(String[].class),
+				any(SnmpConfiguration.class),
+				anyString(),
+				eq(true)
+			);
+		discoveryStrategy.run();
+		discoveryStrategy.post();
+
+		// Check that the monitors are set to missing as they are not present in the previous discovery job
+		assertEquals(
+			0.0,
+			diskControllerMonitor
+				.getMetric("hw.status{hw.type=\"disk_controller\", state=\"present\"}", NumberMetric.class)
+				.getValue()
+		);
+		assertEquals(
+			0.0,
+			logicalDiskCMonitor
+				.getMetric("hw.status{hw.type=\"logical_disk\", state=\"present\"}", NumberMetric.class)
+				.getValue()
+		);
+		assertEquals(
+			0.0,
+			physicalDiskMonitor
+				.getMetric("hw.status{hw.type=\"physical_disk\", state=\"present\"}", NumberMetric.class)
+				.getValue()
+		);
 	}
 }

@@ -48,6 +48,9 @@ public class MonitorFactory {
 
 	private String connectorId;
 
+	@NonNull
+	private Long discoveryTime;
+
 	/**
 	 * This method creates or updates the monitor
 	 *
@@ -85,12 +88,35 @@ public class MonitorFactory {
 		final String monitorType,
 		final String id
 	) {
+		return createOrUpdateMonitor(attributes, resource, monitorType, id, discoveryTime);
+	}
+
+	/**
+	 * This method creates or updates the monitor
+	 *
+	 * @param attributes    monitor attributes
+	 * @param resource      monitor resource
+	 * @param monitorType   the type of the monitor
+	 * @param id            unique identifier of the monitor
+	 * @param discoveryTime The time of discovery
+	 * @return Monitor instance
+	 */
+	Monitor createOrUpdateMonitor(
+		final Map<String, String> attributes,
+		final Resource resource,
+		final String monitorType,
+		final String id,
+		final long discoveryTime
+	) {
 		final Monitor foundMonitor = telemetryManager.findMonitorByTypeAndId(monitorType, id);
+		final String hostname = telemetryManager.getHostname();
 
 		if (foundMonitor != null) {
 			foundMonitor.setAttributes(attributes);
 			foundMonitor.setResource(resource);
 			foundMonitor.setType(monitorType);
+
+			foundMonitor.setAsPresent(hostname);
 			return foundMonitor;
 		} else {
 			final Monitor newMonitor = Monitor
@@ -99,7 +125,11 @@ public class MonitorFactory {
 				.attributes(attributes)
 				.type(monitorType)
 				.id(id)
+				.discoveryTime(discoveryTime)
 				.build();
+
+			newMonitor.setAsPresent(hostname);
+
 			if (connectorId != null) {
 				newMonitor.addAttribute(MatrixConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID, connectorId);
 			}

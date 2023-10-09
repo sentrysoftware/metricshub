@@ -12,9 +12,15 @@ import com.sentrysoftware.matrix.common.helpers.state.NeedsCleaning;
 import com.sentrysoftware.matrix.common.helpers.state.PredictedFailure;
 import com.sentrysoftware.matrix.connector.model.monitor.mapping.MappingResource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.Mapping;
+import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.strategy.source.SourceUpdaterProcessor;
+import com.sentrysoftware.matrix.telemetry.MetricFactory;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.Resource;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +29,7 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,6 +37,7 @@ import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ClassPathResource;
 
 @Data
 @AllArgsConstructor
@@ -85,8 +93,26 @@ public class MappingProcessor {
 		"legacyintrusionstatus\\((.+)\\)",
 		Pattern.CASE_INSENSITIVE
 	);
+	private static final Pattern LEGACY_POWER_SUPPLY_UTILIZATION_PATTERN = Pattern.compile(
+		"legacypowersupplyutilization\\((.+)\\)",
+		Pattern.CASE_INSENSITIVE
+	);
+	private static final Pattern LEGACY_LED_STATUS_PATTERN = Pattern.compile(
+		"legacyledstatus\\((.+)\\)",
+		Pattern.CASE_INSENSITIVE
+	);
 	private static final Pattern LOOKUP_PATTERN = Pattern.compile("lookup\\((.+)\\)", Pattern.CASE_INSENSITIVE);
 	private static final Pattern BOOLEAN_PATTERN = Pattern.compile("boolean\\((.+)\\)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern FAKE_COUNTER_PATTERN = Pattern.compile(
+		"fakecounter\\((.+)\\)",
+		Pattern.CASE_INSENSITIVE
+	);
+	private static final Pattern RATE_PATTERN = Pattern.compile("rate\\((.+)\\)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern COMPUTE_POWER_SHARE_RATIO_PATTERN = Pattern.compile(
+		"computepowershareratio\\((.+)\\)",
+		Pattern.CASE_INSENSITIVE
+	);
+	private static final Pattern AWK_SCRIPT_PATTERN = Pattern.compile("\\$\\{awk::.+\\}");
 
 	private TelemetryManager telemetryManager;
 	private Mapping mapping;
@@ -94,9 +120,6 @@ public class MappingProcessor {
 	private long collectTime;
 	private List<String> row;
 	private JobInfo jobInfo;
-
-	@Default
-	private Map<String, BiFunction<String, Monitor, String>> legacyPowerSupplyFunctions = new HashMap<>();
 
 	@Default
 	private Map<String, BiFunction<KeyValuePair, Monitor, String>> computationFunctions = new HashMap<>();
@@ -147,48 +170,72 @@ public class MappingProcessor {
 		final Map<String, String> result = new HashMap<>();
 
 		keyValuePairs.forEach((key, value) -> {
-			if (isColumnExtraction(value)) {
-				result.put(key, extractColumnValue(value, key));
-			} else if (isAwkScript(value)) {
-				result.put(key, executeAwkScript(value));
-			} else if (isMegaBit2Bit(value)) {
-				result.put(key, megaBit2bit(value, key));
-			} else if (isPercentToRatioFunction(value)) {
-				result.put(key, percent2Ratio(value, key));
-			} else if (isMegaHertz2HertzFunction(value)) {
-				result.put(key, megaHertz2Hertz(value, key));
-			} else if (isMebiByte2ByteFunction(value)) {
-				result.put(key, mebiByte2Byte(value, key));
-			} else if (isBooleanFunction(value)) {
-				result.put(key, booleanFunction(value, key));
-			} else if (isLegacyLedStatusFunction(value)) {
-				result.put(key, legacyLedStatus(value));
-			} else if (isLegacyIntrusionStatusFunction(value)) {
-				result.put(key, legacyIntrusionStatus(value, key));
-			} else if (isLegacyPredictedFailureFunction(value)) {
-				result.put(key, legacyPredictedFailure(value, key));
-			} else if (islegacyNeedsCleaningFunction(value)) {
-				result.put(key, legacyNeedsCleaning(value, key));
-			} else if (isComputePowerShareRatioFunction(value)) {
-				result.put(String.format("%s.raw", key), computePowerShareRatio(value));
-			} else if (isLegacyLinkStatusFunction(value)) {
-				result.put(key, legacyLinkStatusFunction(value, key));
-			} else if (isLegacyFullDuplex(value)) {
-				result.put(key, legacyFullDuplex(value, key));
-			} else if (isLookupFunction(value)) {
-				result.put(key, lookup(value, key));
-			} else if (isLegacyPowerSupplyUtilization(value)) {
-				legacyPowerSupplyFunctions.put(key, this::legacyPowerSupplyUtilization);
-			} else if (isFakeCounterFunction(value)) {
-				computationFunctions.put(key, this::fakeCounter);
-			} else if (isRateFunction(value)) {
-				computationFunctions.put(key, this::rate);
-			} else {
-				result.put(key, value);
-			}
+			// Replace source reference content in the given value
+			final String updatedValue = SourceUpdaterProcessor.replaceSourceReferenceContent(
+				value,
+				telemetryManager,
+				jobInfo.getConnectorName(),
+				"mapping",
+				key
+			);
+
+			processKeyValue(key, updatedValue, result);
 		});
 
 		return result;
+	}
+
+	/**
+	 * Process the given key-value then update the final interpreted value in the result map
+	 *
+	 * @param key		Unique key of the attribute or metric
+	 * @param value		Value directive we wish to process
+	 * @param result	Key-value map in which we append the interpreted value
+	 */
+	private void processKeyValue(final String key, final String value, final Map<String, String> result) {
+		if (value == null) {
+			return;
+		}
+
+		if (isColumnExtraction(value)) {
+			result.put(key, extractColumnValue(value, key));
+		} else if (isAwkScript(value)) {
+			result.put(key, executeAwkScript(value, key));
+		} else if (isMegaBit2Bit(value)) {
+			result.put(key, megaBit2bit(value, key));
+		} else if (isPercentToRatioFunction(value)) {
+			result.put(key, percent2Ratio(value, key));
+		} else if (isMegaHertz2HertzFunction(value)) {
+			result.put(key, megaHertz2Hertz(value, key));
+		} else if (isMebiByte2ByteFunction(value)) {
+			result.put(key, mebiByte2Byte(value, key));
+		} else if (isBooleanFunction(value)) {
+			result.put(key, booleanFunction(value, key));
+		} else if (isLegacyLedStatusFunction(value)) {
+			result.put(key, legacyLedStatus(value));
+		} else if (isLegacyIntrusionStatusFunction(value)) {
+			result.put(key, legacyIntrusionStatus(value, key));
+		} else if (isLegacyPredictedFailureFunction(value)) {
+			result.put(key, legacyPredictedFailure(value, key));
+		} else if (islegacyNeedsCleaningFunction(value)) {
+			result.put(key, legacyNeedsCleaning(value, key));
+		} else if (isLegacyLinkStatusFunction(value)) {
+			result.put(key, legacyLinkStatusFunction(value, key));
+		} else if (isLegacyFullDuplex(value)) {
+			result.put(key, legacyFullDuplex(value, key));
+		} else if (isLookupFunction(value)) {
+			result.put(key, lookup(value, key));
+		} else if (isComputePowerShareRatioFunction(value)) {
+			result.put(String.format("%s.raw_power_share", key), computePowerShareRatio(value, key));
+		} else if (isLegacyPowerSupplyUtilization(value)) {
+			computationFunctions.put(key, this::legacyPowerSupplyUtilization);
+		} else if (isFakeCounterFunction(value)) {
+			computationFunctions.put(key, this::fakeCounter);
+		} else if (isRateFunction(value)) {
+			computationFunctions.put(key, this::rate);
+		} else {
+			result.put(key, value);
+		}
 	}
 
 	/**
@@ -286,26 +333,214 @@ public class MappingProcessor {
 		return monitor.getAttributes().get(attributeValueToExtract);
 	}
 
-	private String legacyPowerSupplyUtilization(final String value, final Monitor monitor) {
-		return null;
+	/**
+	 * Performs a legacyPowerSupplyUtilization operation where we calculate the ratio of the power supply used.
+	 *
+	 * @param keyValuePair	Key-value defining the field key and its value we wish to interpret.
+	 * @param monitor		The monitor from which we want to extract the metric.
+	 * @return 				String representing the ratio of PowerSupplyUtilization.
+	 */
+	private String legacyPowerSupplyUtilization(final KeyValuePair keyValuePair, final Monitor monitor) {
+		final String key = keyValuePair.getKey();
+		final String value = keyValuePair.getValue();
+		final String hostname = jobInfo.getHostname();
+		final NumberMetric metric;
+		try {
+			metric = monitor.getMetric("hw.power_supply.limit", NumberMetric.class);
+		} catch (Exception e) {
+			return EMPTY;
+		}
+
+		if (metric == null) {
+			return EMPTY;
+		}
+
+		final Double powerLimit = metric.getValue();
+
+		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
+		final String extracted = functionArguments.get(0);
+		final Optional<Double> maybePower = extractDoubleValue(extracted, key);
+
+		if (maybePower.isPresent()) {
+			final Double result = MathOperationsHelper.divide(key, maybePower.get(), powerLimit, hostname);
+			if (result != null) {
+				return result.toString();
+			}
+		}
+
+		return EMPTY;
 	}
 
+	/**
+	 * Execute a fake counter operation based on the value which is expressed as
+	 * rate
+	 *
+	 * @param keyValuePair key-value where the key is the metric name and the value is function call
+	 * @param monitor The monitor we currently collect.
+	 * @return String value
+	 */
 	private String fakeCounter(final KeyValuePair keyValuePair, final Monitor monitor) {
-		return null;
+		final String hostname = jobInfo.getHostname();
+
+		// Get the metric name. E.g. hw.energy
+		final String metricName = keyValuePair.getKey();
+
+		// Extract the function argument. E.g. from fakeCounter($1) extract $1
+		final String functionArgument = FunctionArgumentsExtractor.extractArguments(keyValuePair.getValue()).get(0);
+
+		// Extract the double value from the current row
+		final Optional<Double> maybeMetricRateValue = extractDoubleValue(functionArgument, metricName);
+
+		if (maybeMetricRateValue.isEmpty()) {
+			log.warn(
+				"Hostname {} - Unable to extract the 1st argument value passed to the fakeCounter function." + RESULT_MESSAGE,
+				hostname,
+				metricName
+			);
+			return EMPTY;
+		}
+
+		// Build the metric where we need to store the raw value
+		final String metricRateName = String.format("__%s.fake_counter_from", metricName);
+
+		final MetricFactory metricFactory = new MetricFactory(hostname);
+
+		// Collect the metric raw value
+		final Double rawValue = maybeMetricRateValue.get();
+		metricFactory.collectNumberMetric(monitor, metricRateName, rawValue, collectTime);
+
+		final Double collectTimePrevious = CollectHelper.getNumberMetricCollectTime(monitor, metricRateName, true);
+
+		final Double deltaTimeMs = MathOperationsHelper.subtract(
+			metricRateName,
+			Double.valueOf(collectTime),
+			collectTimePrevious,
+			hostname
+		);
+
+		// Convert deltaTimeMs from milliseconds (ms) to seconds
+		final Double deltaTime = deltaTimeMs != null ? deltaTimeMs / 1000.0 : null;
+
+		// Calculate the usage over time. E.g from Power Consumption: E = P * T
+		final Double usageDelta = MathOperationsHelper.multiply(metricRateName, rawValue, deltaTime, hostname);
+
+		if (usageDelta != null) {
+			// The counter will start from the usage delta
+			Double counter = usageDelta;
+
+			// The previous counter is needed to make a sum with the delta counter value on this collect
+			Double previousCounter = CollectHelper.getNumberMetricValue(monitor, metricName, true);
+
+			// Ok, we have the previous counter value ? sum the previous counter and the current delta counter
+			if (previousCounter != null) {
+				counter += previousCounter;
+			}
+
+			// Everything is good return the counter metric
+			return counter.toString();
+		} else {
+			log.debug(
+				"Hostname {} - Cannot calculate fake counter {} for monitor {}. Current raw value {} - Current time {} - Previous time {}.",
+				hostname,
+				metricName,
+				monitor.getId(),
+				rawValue,
+				collectTime,
+				collectTimePrevious
+			);
+		}
+		return EMPTY;
 	}
 
+	/**
+	 * Calculate a rate from counter values
+	 *
+	 * @param keyValuePair key-value where the key is the metric name and the value is function call
+	 * @param monitor The monitor we currently collect.
+	 * @return String value
+	 */
 	private String rate(final KeyValuePair keyValuePair, final Monitor monitor) {
-		return null;
+		final String hostname = jobInfo.getHostname();
+
+		// Get the metric name. E.g. hw.power
+		final String metricName = keyValuePair.getKey();
+
+		// Extract the function argument. E.g. from rate($1) extract $1
+		final String functionArgument = FunctionArgumentsExtractor.extractArguments(keyValuePair.getValue()).get(0);
+
+		// Extract the double value from the current row
+		final Optional<Double> maybeMetricCounterValue = extractDoubleValue(functionArgument, metricName);
+
+		if (maybeMetricCounterValue.isEmpty()) {
+			log.warn(
+				"Hostname {} - Unable to extract the 1st argument value passed to the rate function." + RESULT_MESSAGE,
+				hostname,
+				metricName
+			);
+			return EMPTY;
+		}
+
+		// Build the metrics where we need to store the raw value
+		final String metricRateName = String.format("__%s.rate_from", metricName);
+
+		final MetricFactory metricFactory = new MetricFactory(hostname);
+
+		// Collect the metric raw value
+		final Double rawValue = maybeMetricCounterValue.get();
+		metricFactory.collectNumberMetric(monitor, metricRateName, rawValue, collectTime);
+
+		final Double collectTimePrevious = CollectHelper.getNumberMetricCollectTime(monitor, metricRateName, true);
+
+		final Double deltaTimeMs = MathOperationsHelper.subtract(
+			metricRateName,
+			Double.valueOf(collectTime),
+			collectTimePrevious,
+			hostname
+		);
+
+		// Convert deltaTimeMs from milliseconds (ms) to seconds
+		final Double deltaTime = deltaTimeMs != null ? deltaTimeMs / 1000.0 : null;
+		final Double previousValue = CollectHelper.getNumberMetricValue(monitor, metricRateName, true);
+
+		final Double deltaCounter = MathOperationsHelper.subtract(metricRateName, rawValue, previousValue, hostname);
+
+		final Double result = MathOperationsHelper.divide(metricName, deltaCounter, deltaTime, hostname);
+
+		if (result != null) {
+			return result.toString();
+		} else {
+			log.debug(
+				"Hostname {} - Cannot create rate {} for monitor {}. Current raw value {} - Current time {} - Previous time {}.",
+				hostname,
+				metricName,
+				monitor.getId(),
+				rawValue,
+				collectTime,
+				collectTimePrevious
+			);
+			return EMPTY;
+		}
 	}
+
+	/**
+	 * Checks to see if the value contains a fakeCounter function "fakeCounter()"
+	 *
+	 * @param value		Value to be parsed
+	 * @return 			Returns true if the function is found
+	 */
 
 	private boolean isFakeCounterFunction(String value) {
-		// TODO Auto-generated method stub
-		return false;
+		return FAKE_COUNTER_PATTERN.matcher(value).find();
 	}
 
+	/**
+	 * Checks to see if the value contains a legacyPowerSupplyUtilization function "legacyPowerSupplyUtilization()"
+	 *
+	 * @param value		Value to be parsed
+	 * @return 			Returns true if the function is found
+	 */
 	private boolean isLegacyPowerSupplyUtilization(String value) {
-		// TODO Auto-generated method stub
-		return false;
+		return LEGACY_POWER_SUPPLY_UTILIZATION_PATTERN.matcher(value).find();
 	}
 
 	/**
@@ -318,9 +553,14 @@ public class MappingProcessor {
 		return LOOKUP_PATTERN.matcher(value).find();
 	}
 
+	/**
+	 * Checks to see if the value contains a rate function "rate()"
+	 *
+	 * @param value		Value to be parsed
+	 * @return 			Returns true if the function is found
+	 */
 	private boolean isRateFunction(String value) {
-		// TODO Auto-generated method stub
-		return false;
+		return RATE_PATTERN.matcher(value).find();
 	}
 
 	/**
@@ -332,13 +572,13 @@ public class MappingProcessor {
 	 */
 	private String megaBit2bit(String value, String key) {
 		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
-		final String extracted = functionArguments.get(0);
 
-		if (isColumnExtraction(extracted)) {
-			return multiplyValueByFactor(extractColumnValue(extracted, key), key, MEGABIT_2_BIT_FACTOR);
+		final Optional<Double> maybeDoubleValue = extractDoubleValue(functionArguments.get(0), key);
+		if (maybeDoubleValue.isPresent()) {
+			return multiplyValueByFactor(maybeDoubleValue.get(), MEGABIT_2_BIT_FACTOR);
 		}
 
-		return multiplyValueByFactor(extracted, key, MEGABIT_2_BIT_FACTOR);
+		return EMPTY;
 	}
 
 	/**
@@ -423,14 +663,41 @@ public class MappingProcessor {
 		return LEGACY_LINK_STATUS_PATTERN.matcher(value).find();
 	}
 
-	private String computePowerShareRatio(String value) {
-		// TODO Auto-generated method stub
-		return null;
+	/**
+	 * Creates a metric for this monitor with the power share value
+	 *
+	 * @param value	The power share value (weight)
+	 * @param key	The attribute key
+	 * @return		Double value representing power share weight
+	 */
+	private String computePowerShareRatio(final String value, final String key) {
+		// Extract the function argument. E.g. from rate($1) extract $1
+		final String functionArgument = FunctionArgumentsExtractor.extractArguments(value).get(0);
+
+		// Extract the double value from the current row
+		final Optional<Double> maybeRawPowerRatioValue = extractDoubleValue(functionArgument, key);
+
+		if (maybeRawPowerRatioValue.isEmpty()) {
+			log.warn(
+				"Hostname {} - Unable to extract the 1st argument value passed to the computePowerRatio function." +
+				RESULT_MESSAGE,
+				jobInfo.getHostname(),
+				key
+			);
+			return EMPTY;
+		}
+
+		return maybeRawPowerRatioValue.get().toString();
 	}
 
+	/**
+	 * Checks to see if the value contains a computePowerShareRatio function "computePowerShareRatio()"
+	 *
+	 * @param value		Value to be parsed
+	 * @return 			Returns true if the function is found
+	 */
 	private boolean isComputePowerShareRatioFunction(String value) {
-		// TODO Auto-generated method stub
-		return false;
+		return COMPUTE_POWER_SHARE_RATIO_PATTERN.matcher(value).find();
 	}
 
 	/**
@@ -541,14 +808,47 @@ public class MappingProcessor {
 		return LEGACY_INTRUSION_STATUS_PATTERN.matcher(value).find();
 	}
 
+	/**
+	 * Converts legacyledstatus status into a current status
+	 *
+	 * @param value		String representing a legacyledstatus function with a legacy status
+	 * @param key		The attribute key
+	 * @return			String representing a current a current status
+	 */
 	private String legacyLedStatus(String value) {
-		// TODO Auto-generated method stub
-		return null;
+		final Map<String, Monitor> typedMonitors = telemetryManager.findMonitorByType("led");
+		Monitor monitor = typedMonitors.get("discovery");
+		Map<String, String> monitorAttributes = monitor.getAttributes();
+
+		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
+		final String extracted = functionArguments.get(0);
+
+		String status = null;
+		switch (extracted.toLowerCase()) {
+			case "on":
+				status = monitorAttributes.get("__on_status"); // ok, failed
+				break;
+			case "off":
+				status = monitorAttributes.get("__off_status"); // ok, failed
+				break;
+			case "blinking":
+				status = monitorAttributes.get("__blinking_status"); // ok, failed
+				break;
+			default:
+				status = EMPTY;
+		}
+
+		return status.toLowerCase();
 	}
 
+	/**
+	 * Checks to see if the value contains a legacyledstatus function "legacyledstatus()"
+	 *
+	 * @param value		Value to be parsed
+	 * @return 			Returns true if the function is found
+	 */
 	private boolean isLegacyLedStatusFunction(String value) {
-		// TODO Auto-generated method stub
-		return false;
+		return LEGACY_LED_STATUS_PATTERN.matcher(value).find();
 	}
 
 	/**
@@ -593,13 +893,13 @@ public class MappingProcessor {
 	 */
 	private String mebiByte2Byte(String value, String key) {
 		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
-		final String extracted = functionArguments.get(0);
 
-		if (isColumnExtraction(extracted)) {
-			return multiplyValueByFactor(extractColumnValue(extracted, key), key, MEBIBYTE_2_BYTE_FACTOR);
+		final Optional<Double> maybeDoubleValue = extractDoubleValue(functionArguments.get(0), key);
+		if (maybeDoubleValue.isPresent()) {
+			return multiplyValueByFactor(maybeDoubleValue.get(), MEBIBYTE_2_BYTE_FACTOR);
 		}
 
-		return multiplyValueByFactor(extracted, key, MEBIBYTE_2_BYTE_FACTOR);
+		return EMPTY;
 	}
 
 	/**
@@ -621,13 +921,13 @@ public class MappingProcessor {
 	 */
 	private String megaHertz2Hertz(String value, String key) {
 		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
-		final String extracted = functionArguments.get(0);
 
-		if (isColumnExtraction(extracted)) {
-			return multiplyValueByFactor(extractColumnValue(extracted, key), key, MEGAHERTZ_2_HERTZ_FACTOR);
+		final Optional<Double> maybeDoubleValue = extractDoubleValue(functionArguments.get(0), key);
+		if (maybeDoubleValue.isPresent()) {
+			return multiplyValueByFactor(maybeDoubleValue.get(), MEGAHERTZ_2_HERTZ_FACTOR);
 		}
 
-		return multiplyValueByFactor(extracted, key, MEGAHERTZ_2_HERTZ_FACTOR);
+		return EMPTY;
 	}
 
 	/**
@@ -649,13 +949,13 @@ public class MappingProcessor {
 	 */
 	private String percent2Ratio(String value, String key) {
 		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
-		final String extracted = functionArguments.get(0);
 
-		if (isColumnExtraction(extracted)) {
-			return multiplyValueByFactor(extractColumnValue(extracted, key), key, PERCENT_2_RATIO_FACTOR);
+		final Optional<Double> maybeDoubleValue = extractDoubleValue(functionArguments.get(0), key);
+		if (maybeDoubleValue.isPresent()) {
+			return multiplyValueByFactor(maybeDoubleValue.get(), PERCENT_2_RATIO_FACTOR);
 		}
 
-		return multiplyValueByFactor(extracted, key, PERCENT_2_RATIO_FACTOR);
+		return EMPTY;
 	}
 
 	/**
@@ -668,28 +968,64 @@ public class MappingProcessor {
 		return PERCENT_2_RATIO_PATTERN.matcher(value).find();
 	}
 
-	private String executeAwkScript(String value) {
-		// TODO Auto-generated method stub
-		return null;
+	/**
+	 * Executes an awk function
+	 *
+	 * @param value		String representing an awk function
+	 * @param key		The attribute key
+	 * @return			Result of awk function
+	 */
+	private String executeAwkScript(String value, String key) {
+		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor();
+		final String function = value.trim().replace("${awk::", "").replace("}", "");
+		final ClassPathResource resource = new ClassPathResource("internalAwk.awk");
+		final String awkTemplate;
+
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
+			awkTemplate = reader.lines().collect(Collectors.joining("\n")).replace("SCRIPT_PLACEHOLDER", function);
+		} catch (Exception e) {
+			return EMPTY;
+		}
+
+		try {
+			return matsyaClientsExecutor.executeAwkScript(awkTemplate, String.join(";", row));
+		} catch (Exception e) {
+			log.error(
+				"Hostname {} - Error while running awk function {} for parameter {}.",
+				jobInfo.getHostname(),
+				value,
+				key
+			);
+			log.debug("Hostname {} - Exception: {}", jobInfo.getHostname(), e);
+			return EMPTY;
+		}
+	}
+
+	/**
+	 * Extract double value from the given
+	 *
+	 * @param value Value to extract and format
+	 * @param key The key defined by the mapping section
+	 * @return {@link Optional} of {@link Double} value
+	 */
+	private Optional<Double> extractDoubleValue(final String value, final String key) {
+		try {
+			return Optional.of(Double.parseDouble(extractColumnValueOrTextValue(value, key)));
+		} catch (Exception e) {
+			return Optional.empty();
+		}
 	}
 
 	/**
 	 * We multiply the value by a predetermined factor, usually for unit conversion
 	 *
-	 * @param value		A string with an already extracted value
-	 * @param key
+	 * @param value		An already extracted double value
+	 * @param key		The key used for debug purpose
 	 * @param factor	Double value to be multiplied to the value
 	 * @return			A String containing only the new value
 	 */
-	private String multiplyValueByFactor(final String value, String key, final double factor) {
-		try {
-			double doubleValue = Double.parseDouble(value);
-			return Double.toString(doubleValue * factor);
-		} catch (Exception e) {
-			log.error("Hostname {} - Value expected, but got {} for parameter {}.", jobInfo.getHostname(), value, key);
-			log.debug("Hostname {} - Exception: {}", jobInfo.getHostname(), e);
-			return null;
-		}
+	private String multiplyValueByFactor(final Double value, final double factor) {
+		return Double.toString(value * factor);
 	}
 
 	/**
@@ -719,9 +1055,14 @@ public class MappingProcessor {
 		}
 	}
 
-	private boolean isAwkScript(String value) {
-		// TODO Auto-generated method stub
-		return false;
+	/**
+	 * Whether the given value defines an AWK script
+	 *
+	 * @param value String to check
+	 * @return boolean value
+	 */
+	private boolean isAwkScript(final String value) {
+		return AWK_SCRIPT_PATTERN.matcher(value).find();
 	}
 
 	/**
@@ -827,24 +1168,22 @@ public class MappingProcessor {
 
 		final Map<String, String> result = new HashMap<>();
 
-		legacyPowerSupplyFunctions
-			.entrySet()
-			.forEach(entry -> {
-				final String attributeKey = entry.getKey();
-				result.put(attributeKey, entry.getValue().apply(keyValuePairs.get(attributeKey), monitor));
-			});
-
 		computationFunctions
 			.entrySet()
 			.forEach(entry -> {
 				final String attributeKey = entry.getKey();
-				result.put(
-					attributeKey,
-					entry.getValue().apply(new KeyValuePair(attributeKey, keyValuePairs.get(attributeKey)), monitor)
+				final String value = keyValuePairs.get(attributeKey);
+
+				final String attributeValue = SourceUpdaterProcessor.replaceSourceReferenceContent(
+					value,
+					telemetryManager,
+					jobInfo.getConnectorName(),
+					"mapping",
+					attributeKey
 				);
+				result.put(attributeKey, entry.getValue().apply(new KeyValuePair(attributeKey, attributeValue), monitor));
 			});
 
-		legacyPowerSupplyFunctions.clear();
 		computationFunctions.clear();
 
 		return result;

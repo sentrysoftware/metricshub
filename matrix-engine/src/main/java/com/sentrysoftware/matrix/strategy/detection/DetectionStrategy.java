@@ -72,7 +72,7 @@ public class DetectionStrategy extends AbstractStrategy {
 		}
 
 		// Create Host monitor
-		final MonitorFactory monitorFactory = new MonitorFactory();
+		final MonitorFactory monitorFactory = MonitorFactory.builder().discoveryTime(strategyTime).build();
 		monitorFactory.createHostMonitor(hostProperties.isLocalhost());
 
 		// Create monitors
@@ -129,18 +129,19 @@ public class DetectionStrategy extends AbstractStrategy {
 			.monitorType(KnownMonitorType.CONNECTOR.getKey())
 			.attributes(monitorAttributes)
 			.connectorId(connectorId)
+			.discoveryTime(strategyTime)
 			.build();
 
 		// Create or update the monitor by calling monitor factory
 		final Monitor monitor = monitorFactory.createOrUpdateMonitor(
-			String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), connectorId)
+			String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), connectorId, strategyTime)
 		);
 
 		// Get monitor metrics from connector
 		final Map<String, MetricDefinition> metricDefinitionMap = connector.getMetrics();
 
 		// Init the metric factory to collect metrics
-		final MetricFactory metricFactory = new MetricFactory(telemetryManager);
+		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
 
 		if (metricDefinitionMap == null) {
 			metricFactory.collectConnectorStatusNumberMetric(connectorTestResult, monitor, strategyTime);

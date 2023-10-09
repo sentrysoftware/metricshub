@@ -132,6 +132,7 @@ public class MatrixConstants {
 	public static final String CONNECTOR_STATUS_METRIC_KEY = "mtx_sentry.connector.status";
 	public static final String STATE_SET_METRIC_OK = "ok";
 	public static final String STATE_SET_METRIC_FAILED = "failed";
+	public static final String PRESENT_STATUS = "hw.status{hw.type=\"%s\", state=\"present\"}";
 
 	/**
 	 * Host information
@@ -163,7 +164,7 @@ public class MatrixConstants {
 
 	//A compiled representation of a file converter. We attempt to match input like ${file::path} // NOSONAR on comment
 	public static final Pattern FILE_PATTERN = Pattern.compile("\\$\\{file::(.*?)\\}", Pattern.CASE_INSENSITIVE);
-	public static final Pattern SOURCE_REF_PATTERN = Pattern.compile("\\$\\{source::([^\\s]+)\\}");
+	public static final Pattern SOURCE_REF_PATTERN = Pattern.compile("\\$\\{source::([^\\s\\}]+)\\}");
 	public static final Pattern COLUMN_PATTERN = Pattern.compile("^\\s*\\$(\\d+)\\s*$");
 	public static final Pattern DOUBLE_PATTERN = Pattern.compile("\\d+(\\.\\d+)?");
 	public static final Pattern TRANSLATION_REF_PATTERN = Pattern.compile("\\$\\{translation::([^\\s]+)\\}");

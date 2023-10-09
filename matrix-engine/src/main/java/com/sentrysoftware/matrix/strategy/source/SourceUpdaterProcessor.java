@@ -43,7 +43,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SourceUpdaterProcessor implements ISourceProcessor {
 
-	private static final Pattern COLUMN_REF_PATTERN = Pattern.compile("\\$([1-9]\\d*)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern COLUMN_REF_PATTERN = Pattern.compile("(?<!\\$)\\$([1-9]\\d*)", Pattern.CASE_INSENSITIVE);
 	private static final Pattern MONO_INSTANCE_REPLACEMENT_PATTERN = Pattern.compile(
 		"\\$\\{attribute::(\\w+)\\}",
 		Pattern.CASE_INSENSITIVE
@@ -74,14 +74,12 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 
 	@Override
 	public SourceTable process(final IpmiSource ipmiSource) {
-		// TODO Auto-generated method stub
-		return null;
+		return processSource(ipmiSource.copy());
 	}
 
 	@Override
 	public SourceTable process(final OsCommandSource osCommandSource) {
-		// TODO Auto-generated method stub
-		return null;
+		return processSource(osCommandSource.copy());
 	}
 
 	@Override
@@ -138,6 +136,8 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 		copy.update(value -> replaceAttributeReferences(value, attributes));
 
 		copy.update(value -> replaceSourceReference(value, copy));
+
+		copy.update(value -> value == null ? value : value.replace("$$", "$"));
 
 		return copy.accept(sourceProcessor);
 	}
@@ -309,7 +309,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 	/**
 	 * Replace source reference content in the given value
 	 *
-	 * @param value            The value containing source key such as %Enclosure.Discovery.Source(1)%
+	 * @param value            The value containing source key such as ${source::monitors.cpu.discovery.sources.source1}
 	 * @param telemetryManager The current {@link TelemetryManager} instance wrapping the host configuration and the host monitoring instance
 	 * @param connectorName    The connector's name
 	 * @param operationType    The type of the operation required for debug purpose. E.g. Substring, SnmpGetTableSource, ...
@@ -328,7 +328,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 		final StringBuffer sb = new StringBuffer();
 
 		while (matcher.find()) {
-			final String sourceKey = matcher.group(1);
+			final String sourceKey = matcher.group();
 			final String sourceReferenceContent = extractSourceReferenceContent(
 				telemetryManager,
 				connectorName,
@@ -506,7 +506,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 
 		matcher.appendTail(sb);
 
-		return sb.toString();
+		return sb.toString().replace("$$", "$");
 	}
 
 	/**

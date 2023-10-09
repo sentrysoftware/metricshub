@@ -30,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 
+import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.configuration.HttpConfiguration;
 import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
@@ -39,6 +40,8 @@ import com.sentrysoftware.matrix.connector.model.common.ExecuteForEachEntryOf;
 import com.sentrysoftware.matrix.connector.model.common.HttpMethod;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.CopySource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.HttpSource;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.IpmiSource;
+import com.sentrysoftware.matrix.connector.model.monitor.task.source.OsCommandSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpGetSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.SnmpTableSource;
 import com.sentrysoftware.matrix.connector.model.monitor.task.source.StaticSource;
@@ -468,5 +471,105 @@ class SourceUpdaterProcessorTest {
 			)
 				.process(WmiSource.builder().query(EMPTY).build())
 		);
+	}
+
+	@Test
+	void testProcessOSCommandSource() {
+		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(OsCommandSource.class));
+
+		assertEquals(
+			SourceTable.empty(),
+			new SourceUpdaterProcessor(
+				sourceProcessor,
+				TelemetryManager.builder().build(),
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
+			)
+				.process(
+					OsCommandSource.builder().commandLine("/usr/sbin/pvdisplay /dev/dsk/%PhysicalDisk.Collect.DeviceID%").build()
+				)
+		);
+	}
+
+	@Test
+	void testProcessIpmiSource() {
+		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(IpmiSource.class));
+		assertEquals(
+			SourceTable.empty(),
+			new SourceUpdaterProcessor(
+				sourceProcessor,
+				TelemetryManager.builder().build(),
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
+			)
+				.process(IpmiSource.builder().build())
+		);
+	}
+
+	@Test
+	void testReplaceSourceReferenceContent() {
+		final TelemetryManager telemetryManager = new TelemetryManager();
+		telemetryManager.setHostConfiguration(HostConfiguration.builder().hostname("hostname").build());
+
+		final String vendorSource1Ref = "${source::monitors.cpu.discovery.sources.vendor}";
+
+		{
+			final String value = String.format("%s value", vendorSource1Ref);
+			telemetryManager
+				.getHostProperties()
+				.getConnectorNamespace(MY_CONNECTOR_1_NAME)
+				.addSourceTable(
+					vendorSource1Ref,
+					SourceTable.builder().table(SourceTable.csvToTable("vendor", MatrixConstants.TABLE_SEP)).build()
+				);
+
+			final String result = SourceUpdaterProcessor.replaceSourceReferenceContent(
+				value,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME,
+				"source",
+				"object"
+			);
+			assertEquals("vendor value", result);
+		}
+
+		{
+			final String value = String.format("%s %s value", vendorSource1Ref, vendorSource1Ref);
+			telemetryManager
+				.getHostProperties()
+				.getConnectorNamespace(MY_CONNECTOR_1_NAME)
+				.addSourceTable(
+					vendorSource1Ref,
+					SourceTable.builder().table(SourceTable.csvToTable("vendor", MatrixConstants.TABLE_SEP)).build()
+				);
+
+			final String result = SourceUpdaterProcessor.replaceSourceReferenceContent(
+				value,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME,
+				"source",
+				"object"
+			);
+			assertEquals("vendor vendor value", result);
+		}
+		{
+			final String value = String.format("%s%s value", vendorSource1Ref, vendorSource1Ref);
+			telemetryManager
+				.getHostProperties()
+				.getConnectorNamespace(MY_CONNECTOR_1_NAME)
+				.addSourceTable(
+					vendorSource1Ref,
+					SourceTable.builder().table(SourceTable.csvToTable("vendor", MatrixConstants.TABLE_SEP)).build()
+				);
+
+			final String result = SourceUpdaterProcessor.replaceSourceReferenceContent(
+				value,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME,
+				"source",
+				"object"
+			);
+			assertEquals("vendorvendor value", result);
+		}
 	}
 }
