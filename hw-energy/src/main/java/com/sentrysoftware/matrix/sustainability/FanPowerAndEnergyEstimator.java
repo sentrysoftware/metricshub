@@ -34,7 +34,7 @@ public class FanPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimator 
 		final NumberMetric fanSpeedRatioMetric = monitor.getMetric("hw.fan.speed_ratio", NumberMetric.class);
 
 		if (fanSpeedMetric == null && fanSpeedRatioMetric == null) {
-			log.error(
+			log.warn(
 				"Could not estimate power of Fan monitor {} since hw.fan.speed and hw.fan.speed_ratio metrics are both null",
 				monitor.getId()
 			);

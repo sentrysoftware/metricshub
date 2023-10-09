@@ -72,7 +72,7 @@ public class FanPowerAndEnergyEstimatorTest {
 		Double estimatedPower = fanPowerAndEnergyEstimator.estimatePower();
 
 		// Create metricFactory and collect power
-		final MetricFactory metricFactory = new MetricFactory(telemetryManager);
+		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
 		final NumberMetric collectedPowerMetric = metricFactory.collectNumberMetric(
 			monitor,
 			FAN_POWER_METRIC,

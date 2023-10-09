@@ -24,7 +24,7 @@ public class PowerAndEnergyCollectHelper {
 		final Double estimatedPower = hardwarePowerAndEnergyEstimator.estimatePower();
 
 		// Create metricFactory and collect power
-		final MetricFactory metricFactory = new MetricFactory(telemetryManager);
+		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostConfiguration().getHostname());
 		metricFactory.collectNumberMetric(monitor, powerMetricName, estimatedPower, telemetryManager.getStrategyTime());
 
 		// Compute the estimated energy consumption
