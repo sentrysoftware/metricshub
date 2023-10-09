@@ -22,13 +22,13 @@ public class HwCollectHelper {
 	}
 
 	/**
-	 * Check if the given percentage value is not null and greater than equals 0 and latest than equals 100
+	 * Check if the given percentage value is not null and greater than or equals 0 and less than or equals 1
 	 *
 	 * @param percent The percentage value to check
 	 * @return boolean value, <code>true</code> if the percentage is valid otherwise <code>false</code>
 	 */
 	public static boolean isValidPercentage(final Double percent) {
-		return percent != null && percent >= 0 && percent <= 100;
+		return percent != null && percent >= 0 && percent <= 1;
 	}
 
 	/**

@@ -13,8 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class HardwarePowerAndEnergyEstimator {
 
-	private Monitor monitor;
-	private TelemetryManager telemetryManager;
+	protected Monitor monitor;
+	protected TelemetryManager telemetryManager;
 
 	/**
 	 * Estimates the power consumption of a hardware monitor

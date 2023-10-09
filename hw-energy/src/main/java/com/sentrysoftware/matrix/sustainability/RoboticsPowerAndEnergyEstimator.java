@@ -1,8 +1,8 @@
 package com.sentrysoftware.matrix.sustainability;
 
+import com.sentrysoftware.matrix.strategy.utils.CollectHelper;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
 import com.sentrysoftware.matrix.util.HwCollectHelper;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,27 +20,19 @@ public class RoboticsPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstim
 	}
 
 	/**
-	 * Estimates the power consumption of Robotics monitor
-	 * @return Double
+	 * Calculate the approximate power consumption of the media changer.<br>
+	 * If it moved, 154W, if not, 48W Source:
+	 * https://docs.oracle.com/en/storage/tape-storage/sl4000/slklg/calculate-total-power-consumption.html
+	 * @return Double value.
 	 */
 	@Override
 	public Double estimatePower() {
-		Double powerConsumption = null;
-		final Monitor monitor = super.getMonitor();
-		final NumberMetric moveCountMetric = monitor.getMetric("hw.robotics.moves", NumberMetric.class);
-		if (moveCountMetric == null) {
-			log.warn(
-				"Could not estimate power of Robotics monitor {} since hw.robotics.moves metric is null",
-				monitor.getId()
-			);
-		} else {
-			if (moveCountMetric != null && moveCountMetric.getValue() > 0.0) {
-				powerConsumption = 154.0;
-			} else {
-				powerConsumption = 48.0;
-			}
+		final Double moveCount = CollectHelper.getNumberMetricValue(monitor, "hw.robotics.moves", false);
+		if (moveCount != null && moveCount > 0.0) {
+			return 154.0;
 		}
-		return powerConsumption;
+
+		return 48.0;
 	}
 
 	/**
@@ -51,11 +43,11 @@ public class RoboticsPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstim
 	public Double estimateEnergy() {
 		final Double estimatedPower = estimatePower();
 		return HwCollectHelper.estimateEnergyUsingPower(
-			getMonitor(),
-			getTelemetryManager(),
+			monitor,
+			telemetryManager,
 			estimatedPower,
 			"hw.power{hw.type=\"robotics\"}",
-			getTelemetryManager().getStrategyTime()
+			telemetryManager.getStrategyTime()
 		);
 	}
 }

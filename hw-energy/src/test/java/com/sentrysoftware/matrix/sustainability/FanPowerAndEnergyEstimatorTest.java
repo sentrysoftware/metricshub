@@ -60,7 +60,7 @@ class FanPowerAndEnergyEstimatorTest {
 
 		// If fanSpeed metric value is not a valid positive number
 		monitor.getMetric(FAN_SPEED_METRIC, NumberMetric.class).setValue(-7000.0);
-		assertEquals(0.010000000000000002, fanPowerAndEnergyEstimator.estimatePower());
+		assertEquals(1.0, fanPowerAndEnergyEstimator.estimatePower());
 	}
 
 	@Test
