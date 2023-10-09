@@ -68,10 +68,10 @@ class HardwareEnergyPostExecutionServiceTest {
 
 		// Create a robotics monitor
 		final Monitor roboticsMonitor = Monitor
-				.builder()
-				.type(ROBOTICS)
-				.metrics(new HashMap<>(Map.of(ROBOTICS_MOVE_COUNT_METRIC, NumberMetric.builder().value(0.7).build())))
-				.build();
+			.builder()
+			.type(ROBOTICS)
+			.metrics(new HashMap<>(Map.of(ROBOTICS_MOVE_COUNT_METRIC, NumberMetric.builder().value(0.7).build())))
+			.build();
 
 		// Set the previously created robotics monitor in telemetryManager
 		final Map<String, Monitor> roboticsMonitors = new HashMap<>(Map.of("monitor2", roboticsMonitor));

@@ -30,8 +30,8 @@ public class RoboticsPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstim
 		final NumberMetric moveCountMetric = monitor.getMetric("hw.robotics.moves", NumberMetric.class);
 		if (moveCountMetric == null) {
 			log.warn(
-					"Could not estimate power of Robotics monitor {} since hw.robotics.moves metric is null",
-					monitor.getId()
+				"Could not estimate power of Robotics monitor {} since hw.robotics.moves metric is null",
+				monitor.getId()
 			);
 		} else {
 			if (moveCountMetric != null && moveCountMetric.getValue() > 0.0) {
@@ -39,7 +39,6 @@ public class RoboticsPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstim
 			} else {
 				powerConsumption = 48.0;
 			}
-
 		}
 		return powerConsumption;
 	}
@@ -52,11 +51,11 @@ public class RoboticsPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstim
 	public Double estimateEnergy() {
 		final Double estimatedPower = estimatePower();
 		return CollectHelper.estimateEnergyUsingPower(
-				getMonitor(),
-				getTelemetryManager(),
-				estimatedPower,
-				"hw.power{hw.type=\"robotics\"}",
-				getTelemetryManager().getStrategyTime()
+			getMonitor(),
+			getTelemetryManager(),
+			estimatedPower,
+			"hw.power{hw.type=\"robotics\"}",
+			getTelemetryManager().getStrategyTime()
 		);
 	}
 }
