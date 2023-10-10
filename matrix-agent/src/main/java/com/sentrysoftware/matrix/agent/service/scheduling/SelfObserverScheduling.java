@@ -4,7 +4,8 @@ import com.sentrysoftware.matrix.agent.config.AgentConfig;
 import com.sentrysoftware.matrix.agent.context.AgentInfo;
 import com.sentrysoftware.matrix.agent.helper.ConfigHelper;
 import com.sentrysoftware.matrix.agent.helper.OtelHelper;
-import com.sentrysoftware.matrix.agent.service.signal.SelfObserver;
+import com.sentrysoftware.matrix.agent.service.signal.SimpleGaugeMetricObserver;
+import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.sdk.autoconfigure.AutoConfiguredOpenTelemetrySdk;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import io.opentelemetry.sdk.resources.Resource;
@@ -23,6 +24,7 @@ import org.springframework.scheduling.support.PeriodicTrigger;
 public class SelfObserverScheduling extends AbstractScheduling {
 
 	public static final String METRICSHUB_OVERALL_SELF_TASK_KEY = "metricshub-overall-self-task";
+	private static final String METRICS_HUB_AGENT_INFORMATION = "MetricsHub agent information.";
 
 	@NonNull
 	private AgentInfo agentInfo;
@@ -69,12 +71,25 @@ public class SelfObserverScheduling extends AbstractScheduling {
 		// Get the SDK Meter provider
 		final SdkMeterProvider meterProvider = autoConfiguredOpenTelemetrySdk.getOpenTelemetrySdk().getSdkMeterProvider();
 
+		final Map<String, String> attributeMap = new HashMap<>();
+
+		// Add our attributes
+		ConfigHelper.mergeAttributes(agentInfo.getMetricAttributes(), attributeMap);
+
+		// Override with the user's attributes
+		ConfigHelper.mergeAttributes(agentConfig.getAttributes(), attributeMap);
+
+		// Build the OTEL attributes instance
+		final Attributes attributes = OtelHelper.buildOtelAttributesFromMap(attributeMap);
+
 		// Initialize the observer
-		SelfObserver
+		SimpleGaugeMetricObserver
 			.builder()
-			.metricAttributes(agentInfo.getMetricAttributes())
-			.userAttributes(agentConfig.getAttributes())
-			.sdkMeterProvider(meterProvider)
+			.withDescription(METRICS_HUB_AGENT_INFORMATION)
+			.withMeter(meterProvider.get("com.sentrysoftware.metricshub.agent"))
+			.withMetricValue(1.0)
+			.withAttributes(attributes)
+			.withMetricName(AgentInfo.METRICS_HUB_AGENT_METRIC_NAME)
 			.build()
 			.init();
 

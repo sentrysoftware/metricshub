@@ -465,4 +465,21 @@ public class Constants {
 	public static final String NEITHER_WMI_NOR_WINRM_ERROR =
 		"Neither WMI nor WinRM credentials are configured for this host.";
 	public static final String HOST_OS_IS_NOT_WINDOWS_MESSAGE = "Host OS is not Windows";
+
+	// Connector path
+	public static final Path TEST_CONNECTOR_PATH = Paths.get(
+		"src",
+		"test",
+		"resources",
+		"test-files",
+		"strategy",
+		"TestConnector.yaml"
+	);
+
+	public static final String HEALTHY = "healthy";
+	public static final String STATUS_INFORMATION = "StatusInformation";
+
+	public static final String ENCLOSURE_PRESENT_METRIC = "hw.status{hw.type=\"enclosure\", state=\"present\"}";
+	public static final String DISK_CONTROLLER_PRESENT_METRIC =
+		"hw.status{hw.type=\"disk_controller\", state=\"present\"}";
 }

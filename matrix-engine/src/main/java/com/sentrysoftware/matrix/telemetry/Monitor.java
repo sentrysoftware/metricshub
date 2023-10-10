@@ -1,8 +1,10 @@
 package com.sentrysoftware.matrix.telemetry;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IS_ENDPOINT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.PRESENT_STATUS;
 
 import com.sentrysoftware.matrix.alert.AlertRule;
+import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
 import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
 import com.sentrysoftware.matrix.telemetry.metric.AbstractMetric;
 import java.util.HashMap;
@@ -128,5 +130,23 @@ public class Monitor {
 	 */
 	public void setAsPresent(final String hostname) {
 		new MetricFactory(hostname).collectNumberMetric(this, String.format(PRESENT_STATUS, type), 1.0, discoveryTime);
+	}
+
+	/**
+	 * Whether the monitor is a host and an endpoint or not
+	 *
+	 * @return boolean value.
+	 */
+	public boolean isHostEndpoint() {
+		return KnownMonitorType.HOST.getKey().equals(type) && isEndpoint();
+	}
+
+	/**
+	 * Whether the monitor is an endpoint or not
+	 *
+	 * @return boolean value.
+	 */
+	public boolean isEndpoint() {
+		return "true".equals(attributes.get(IS_ENDPOINT));
 	}
 }

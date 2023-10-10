@@ -10,10 +10,10 @@ import static com.sentrysoftware.matrix.agent.helper.TestConstants.SENTRY_OTTAWA
 import static com.sentrysoftware.matrix.agent.helper.TestConstants.SENTRY_PARIS_RESOURCE_GROUP_KEY;
 import static com.sentrysoftware.matrix.agent.helper.TestConstants.SENTRY_PARIS_SITE_VALUE;
 import static com.sentrysoftware.matrix.agent.helper.TestConstants.SITE_ATTRIBUTE_KEY;
+import static com.sentrysoftware.matrix.agent.service.scheduling.ResourceGroupScheduling.HW_SITE_PUE_METRIC;
 import static com.sentrysoftware.matrix.agent.service.scheduling.ResourceGroupScheduling.METRICSHUB_RESOURCE_GROUP_KEY_FORMAT;
 import static com.sentrysoftware.matrix.agent.service.scheduling.ResourceScheduling.METRICSHUB_RESOURCE_KEY_FORMAT;
 import static com.sentrysoftware.matrix.agent.service.scheduling.SelfObserverScheduling.METRICSHUB_OVERALL_SELF_TASK_KEY;
-import static com.sentrysoftware.matrix.agent.service.signal.ResourceGroupMetricsObserver.HW_SITE_PUE_METRIC;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -28,9 +28,11 @@ import com.sentrysoftware.matrix.agent.config.ResourceConfig;
 import com.sentrysoftware.matrix.agent.config.ResourceGroupConfig;
 import com.sentrysoftware.matrix.agent.config.protocols.ProtocolsConfig;
 import com.sentrysoftware.matrix.agent.config.protocols.SnmpProtocolConfig;
+import com.sentrysoftware.matrix.agent.context.AgentContext;
 import com.sentrysoftware.matrix.agent.context.AgentInfo;
 import com.sentrysoftware.matrix.agent.helper.OtelConfigHelper;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -135,7 +137,7 @@ class TaskSchedulingServiceTest {
 	}
 
 	@Test
-	void testScheduleResourcesInResourceGroups() {
+	void testScheduleResourcesInResourceGroups() throws IOException {
 		final Map<String, ResourceConfig> resourceConfigMap = new HashMap<>();
 		final String resourceKey1 = UUID.randomUUID().toString();
 		resourceConfigMap.put(
@@ -187,6 +189,7 @@ class TaskSchedulingServiceTest {
 					Map.of(resourceKey1, new TelemetryManager(), resourceKey2, new TelemetryManager())
 				)
 			)
+			.withHostMetricDefinitions(AgentContext.readHostMetricDefinitions())
 			.build();
 
 		taskSchedulingService.scheduleResourcesInResourceGroups(SENTRY_PARIS_RESOURCE_GROUP_KEY, resourceGroupConfig);

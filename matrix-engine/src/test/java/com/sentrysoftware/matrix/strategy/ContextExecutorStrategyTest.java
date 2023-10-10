@@ -12,12 +12,6 @@ class ContextExecutorStrategyTest implements IStrategy {
 	private ContextExecutor contextExecutor = null;
 
 	@Override
-	public void prepare() {}
-
-	@Override
-	public void post() {}
-
-	@Override
 	public void run() {}
 
 	/**
@@ -64,19 +58,14 @@ class ContextExecutorStrategyTest implements IStrategy {
 					}
 
 					@Override
-					public void prepare() {
-						// not implemented
-					}
-
-					@Override
-					public void post() {
-						// not implemented
-					}
-
-					@Override
 					public long getStrategyTimeout() {
 						// One second
 						return 1;
+					}
+
+					@Override
+					public Long getStrategyTime() {
+						return System.currentTimeMillis();
 					}
 				}
 			);
@@ -88,5 +77,10 @@ class ContextExecutorStrategyTest implements IStrategy {
 	@Override
 	public long getStrategyTimeout() {
 		return DEFAULT_JOB_TIMEOUT;
+	}
+
+	@Override
+	public Long getStrategyTime() {
+		return System.currentTimeMillis();
 	}
 }

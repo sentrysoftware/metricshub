@@ -1,7 +1,6 @@
 package com.sentrysoftware.matrix.telemetry;
 
 import static com.sentrysoftware.matrix.common.helpers.KnownMonitorType.HOST;
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IS_ENDPOINT;
 
 import com.sentrysoftware.matrix.common.helpers.JsonHelper;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
@@ -76,6 +75,8 @@ public class TelemetryManager {
 	 */
 	void runStrategy(final IStrategy strategy) {
 		final String hostname = hostConfiguration.getHostname();
+		strategyTime = strategy.getStrategyTime();
+
 		try {
 			new ContextExecutor(strategy).execute();
 		} catch (ExecutionException e) {
@@ -218,12 +219,7 @@ public class TelemetryManager {
 		}
 
 		// Get the endpoint host
-		return hostMonitors
-			.values()
-			.stream()
-			.filter(hostMonitor -> "true".equals(hostMonitor.getAttributes().get(IS_ENDPOINT)))
-			.findFirst()
-			.orElse(null);
+		return hostMonitors.values().stream().filter(Monitor::isEndpoint).findFirst().orElse(null);
 	}
 
 	/**

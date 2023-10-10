@@ -1,14 +1,16 @@
 package com.sentrysoftware.matrix.agent.helper;
 
 import static com.sentrysoftware.matrix.agent.helper.OtelHelper.FQDN_ATTRIBUTE_KEY;
+import static com.sentrysoftware.matrix.agent.helper.TestConstants.*;
 import static com.sentrysoftware.matrix.agent.helper.TestConstants.COMPUTE_HOST_TYPE;
 import static com.sentrysoftware.matrix.agent.helper.TestConstants.HOSTNAME;
-import static com.sentrysoftware.matrix.agent.helper.TestConstants.HOST_TYPE_ATTRIBUTE_KEY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_NAME;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.sdk.resources.Resource;
@@ -86,5 +88,19 @@ class OtelHelperTest {
 
 			assertEquals(expected, resource);
 		}
+	}
+
+	@Test
+	void testIsAcceptedKey() {
+		assertFalse(OtelHelper.isAcceptedKey("__key"));
+		assertTrue(OtelHelper.isAcceptedKey("key"));
+	}
+
+	@Test
+	void testBuildOtelAttributesFromMap() {
+		assertEquals(
+			ATTRIBUTES,
+			OtelHelper.buildOtelAttributesFromMap(Map.of(COMPANY_ATTRIBUTE_KEY, COMPANY_ATTRIBUTE_VALUE))
+		);
 	}
 }

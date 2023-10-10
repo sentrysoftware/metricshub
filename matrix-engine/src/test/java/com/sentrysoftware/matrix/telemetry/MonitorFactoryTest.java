@@ -4,6 +4,7 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.CONNECTOR
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.DEFAULT_JOB_TIMEOUT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_NAME;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_NAME;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.STATE_SET_METRIC_OK;
 import static com.sentrysoftware.matrix.constants.Constants.AGENT_HOSTNAME_ATTRIBUTE;
 import static com.sentrysoftware.matrix.constants.Constants.AGENT_HOSTNAME_VALUE;
@@ -259,8 +260,9 @@ class MonitorFactoryTest {
 			.hostProperties(HostProperties.builder().isLocalhost(Boolean.TRUE).build())
 			.build();
 
-		// Mock host configuration and host properties
+		// Mock host configuration, hostname and host properties
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(HOST_NAME).when(telemetryManagerMock).getHostname();
 
 		// Call create host monitor
 		final Monitor hostMonitor = monitorFactory.createHostMonitor(Boolean.TRUE);
@@ -271,6 +273,7 @@ class MonitorFactoryTest {
 		// Check host monitor attributes
 		assertEquals(HOST_ID, hostMonitor.getAttributes().get(ID));
 		assertEquals(HostLocation.LOCAL.getKey(), hostMonitor.getAttributes().get(LOCATION));
+		assertEquals(HOST_NAME, hostMonitor.getAttributes().get(MONITOR_ATTRIBUTE_NAME));
 
 		// Retrieve host monitor resource
 		final Resource hostMonitorResource = hostMonitor.getResource();

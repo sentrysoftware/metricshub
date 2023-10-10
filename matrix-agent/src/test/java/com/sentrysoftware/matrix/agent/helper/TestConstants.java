@@ -1,5 +1,7 @@
 package com.sentrysoftware.matrix.agent.helper;
 
+import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.api.common.Attributes;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -32,4 +34,13 @@ public class TestConstants {
 	public static final String OS_LINUX = "linux";
 	public static final String COMPUTE_HOST_TYPE = "compute";
 	public static final String HOSTNAME = "host.my.domain.net";
+	public static final String METRIC_DESCRIPTION = "Description";
+	public static final String METRIC_INSTRUMENTATION_SCOPE = "com.sentrysoftware.metricshub.hw.metric";
+	public static final String HW_METRIC = "hw.metric";
+	public static final String METRIC_UNIT = "{unit}";
+	public static final String METRIC_STATE_OK = "ok";
+	public static final String METRIC_STATE_DEGRADED = "degraded";
+	public static final String METRIC_STATE_FAILED = "failed";
+	public static final AttributeKey<String> OTEL_COMPANY_ATTRIBUTE_KEY = AttributeKey.stringKey(COMPANY_ATTRIBUTE_KEY);
+	public static final Attributes ATTRIBUTES = Attributes.of(OTEL_COMPANY_ATTRIBUTE_KEY, COMPANY_ATTRIBUTE_VALUE);
 }

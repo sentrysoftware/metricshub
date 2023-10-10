@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -40,9 +41,10 @@ public class DetectionStrategy extends AbstractStrategy {
 	 */
 	static final String CONNECTOR_ID_FORMAT = "%s_%s";
 
+	@Builder
 	public DetectionStrategy(
 		@NonNull final TelemetryManager telemetryManager,
-		final long strategyTime,
+		@NonNull final Long strategyTime,
 		@NonNull final MatsyaClientsExecutor matsyaClientsExecutor
 	) {
 		super(telemetryManager, strategyTime, matsyaClientsExecutor);
@@ -77,18 +79,6 @@ public class DetectionStrategy extends AbstractStrategy {
 
 		// Create monitors
 		createMonitors(connectorTestResults);
-	}
-
-	@Override
-	public void prepare() {
-		// Not implemented
-
-	}
-
-	@Override
-	public void post() {
-		// Not implemented
-
 	}
 
 	/**

@@ -1,6 +1,7 @@
 package com.sentrysoftware.matrix.agent.service.scheduling;
 
 import com.sentrysoftware.matrix.agent.config.ResourceConfig;
+import com.sentrysoftware.matrix.agent.context.MetricDefinitions;
 import com.sentrysoftware.matrix.agent.service.task.MonitoringTask;
 import com.sentrysoftware.matrix.agent.service.task.MonitoringTaskInfo;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
@@ -31,6 +32,9 @@ public class ResourceScheduling extends AbstractScheduling {
 	@NonNull
 	private TelemetryManager telemetryManager;
 
+	@NonNull
+	private MetricDefinitions hostMetricDefinitions;
+
 	@Builder(setterPrefix = "with")
 	public ResourceScheduling(
 		@NonNull final TaskScheduler taskScheduler,
@@ -39,13 +43,15 @@ public class ResourceScheduling extends AbstractScheduling {
 		@NonNull final String resourceGroupKey,
 		@NonNull final String resourceKey,
 		@NonNull final ResourceConfig resourceConfig,
-		@NonNull final TelemetryManager telemetryManager
+		@NonNull final TelemetryManager telemetryManager,
+		@NonNull final MetricDefinitions hostMetricDefinitions
 	) {
 		super(taskScheduler, schedules, otelSdkConfiguration);
 		this.resourceGroupKey = resourceGroupKey;
 		this.resourceKey = resourceKey;
 		this.resourceConfig = resourceConfig;
 		this.telemetryManager = telemetryManager;
+		this.hostMetricDefinitions = hostMetricDefinitions;
 	}
 
 	@Override
@@ -64,6 +70,7 @@ public class ResourceScheduling extends AbstractScheduling {
 				.resourceGroupKey(resourceGroupKey)
 				.resourceKey(resourceKey)
 				.otelSdkConfiguration(otelSdkConfiguration)
+				.hostMetricDefinitions(hostMetricDefinitions)
 				.build()
 		);
 

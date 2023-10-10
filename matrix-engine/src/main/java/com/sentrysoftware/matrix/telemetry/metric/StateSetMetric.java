@@ -21,11 +21,11 @@ public class StateSetMetric extends AbstractMetric {
 
 	@Builder
 	public StateSetMetric(
-		String name,
-		long collectTime,
-		Map<String, String> attributes,
-		String value,
-		String[] stateSet
+		final String name,
+		final Long collectTime,
+		final Map<String, String> attributes,
+		final String value,
+		final String[] stateSet
 	) {
 		super(name, collectTime, attributes);
 		this.value = value;

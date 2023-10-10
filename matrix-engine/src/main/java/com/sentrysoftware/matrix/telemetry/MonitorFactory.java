@@ -6,6 +6,7 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_TYPE
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_TYPE_TO_OTEL_OS_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IS_ENDPOINT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_NAME;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.UNDERSCORE;
 
 import com.sentrysoftware.matrix.alert.AlertRule;
@@ -115,8 +116,9 @@ public class MonitorFactory {
 			foundMonitor.setAttributes(attributes);
 			foundMonitor.setResource(resource);
 			foundMonitor.setType(monitorType);
-
 			foundMonitor.setAsPresent(hostname);
+			foundMonitor.setDiscoveryTime(discoveryTime);
+
 			return foundMonitor;
 		} else {
 			final Monitor newMonitor = Monitor
@@ -159,7 +161,9 @@ public class MonitorFactory {
 			"location",
 			isLocalhost ? HostLocation.LOCAL.getKey() : HostLocation.REMOTE.getKey(),
 			IS_ENDPOINT,
-			"true"
+			"true",
+			MONITOR_ATTRIBUTE_NAME,
+			telemetryManager.getHostname()
 		);
 
 		final DeviceKind deviceKind = hostConfiguration.getHostType();

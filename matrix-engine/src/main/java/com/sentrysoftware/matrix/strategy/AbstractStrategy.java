@@ -35,7 +35,8 @@ public abstract class AbstractStrategy implements IStrategy {
 	@NonNull
 	protected TelemetryManager telemetryManager;
 
-	protected long strategyTime;
+	@NonNull
+	protected Long strategyTime;
 
 	@NonNull
 	protected MatsyaClientsExecutor matsyaClientsExecutor;

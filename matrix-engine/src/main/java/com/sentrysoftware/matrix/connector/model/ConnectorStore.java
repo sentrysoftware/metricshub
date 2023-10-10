@@ -6,13 +6,17 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@NoArgsConstructor
 public class ConnectorStore {
 
 	@Getter
+	@Setter
 	private Map<String, Connector> store;
 
 	@Getter
