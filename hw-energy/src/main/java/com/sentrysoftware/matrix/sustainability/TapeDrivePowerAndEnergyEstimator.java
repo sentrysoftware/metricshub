@@ -46,7 +46,7 @@ public class TapeDrivePowerAndEnergyEstimator extends HardwarePowerAndEnergyEsti
 	/**
 	 * Estimates the tape drive power consumption based on its name and its activity
 	 * @param isActive      Whether the tape drive is active or not
-	 * @param lowerCaseName The name of the tape drive in lower cas
+	 * @param lowerCaseName The name of the tape drive in lower case
 	 * @return double value
 	 */
 	double estimatePowerHelper(final boolean isActive, final String lowerCaseName) {
