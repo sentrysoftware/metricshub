@@ -1,5 +1,8 @@
 package com.sentrysoftware.matrix.sustainability;
 
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_NAME;
+
 import com.sentrysoftware.matrix.strategy.utils.CollectHelper;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
@@ -35,19 +38,15 @@ public class TapeDrivePowerAndEnergyEstimator extends HardwarePowerAndEnergyEsti
 		unmountCount = unmountCount != null ? unmountCount : 0.0;
 
 		final boolean isActive = mountCount + unmountCount > 0;
-		final String monitorName = monitor.getAttribute("name");
-		final String lowerCaseName = monitorName == null ? "" : monitorName.toLowerCase();
-
-		final Double powerConsumption = estimatePowerHelper(isActive, lowerCaseName);
-
-		return powerConsumption;
+		final String monitorName = monitor.getAttribute(MONITOR_ATTRIBUTE_NAME);
+		final String lowerCaseName = monitorName == null ? EMPTY : monitorName.toLowerCase();
+		return estimatePowerHelper(isActive, lowerCaseName);
 	}
 
 	/**
 	 * Estimates the tape drive power consumption based on its name and its activity
-	 *
-	 * @param isActive        Whether the tape drive is active or not
-	 * @param lowerCaseName The name of the tape drive in lower case
+	 * @param isActive      Whether the tape drive is active or not
+	 * @param lowerCaseName The name of the tape drive in lower cas
 	 * @return double value
 	 */
 	double estimatePowerHelper(final boolean isActive, final String lowerCaseName) {
