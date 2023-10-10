@@ -1,5 +1,7 @@
 package com.sentrysoftware.matrix.sustainability;
 
+import static com.sentrysoftware.matrix.common.Constants.DISK_CONTROLLER_ENERGY_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.DISK_CONTROLLER_POWER_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.FAN_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.FAN_POWER_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.FAN_SPEED_METRIC;
@@ -38,6 +40,7 @@ class HardwareEnergyPostExecutionServiceTest {
 	private static final String ROBOTICS = KnownMonitorType.ROBOTICS.getKey();
 
 	private static final String TAPE_DRIVE = KnownMonitorType.TAPE_DRIVE.getKey();
+	private static final String DISK_CONTROLLER = KnownMonitorType.DISK_CONTROLLER.getKey();
 
 	@BeforeEach
 	void init() {
@@ -129,5 +132,25 @@ class HardwareEnergyPostExecutionServiceTest {
 
 		// Check the computed and collected energy metric
 		assertNotNull(tapeDriveMonitor.getMetric(TAPE_DRIVE_ENERGY_METRIC, NumberMetric.class));
+	}
+
+	@Test
+	void testRunWithDiskControllerMonitor() {
+		// Create a disk controller monitor
+		final Monitor diskControllerMonitor = Monitor.builder().type(DISK_CONTROLLER).build();
+
+		// Set the previously created disk controller monitor in telemetryManager
+		final Map<String, Monitor> diskControllerMonitors = new HashMap<>(Map.of("monitor4", diskControllerMonitor));
+		telemetryManager.setMonitors(new HashMap<>(Map.of(DISK_CONTROLLER, diskControllerMonitors)));
+
+		// Call run method in HardwareEnergyPostExecutionService
+		hardwareEnergyPostExecutionService = new HardwareEnergyPostExecutionService(telemetryManager);
+		hardwareEnergyPostExecutionService.run();
+
+		// Check the computed and collected power metric
+		assertNotNull(diskControllerMonitor.getMetric(DISK_CONTROLLER_POWER_METRIC, NumberMetric.class));
+
+		// Check the computed and collected energy metric
+		assertNotNull(diskControllerMonitor.getMetric(DISK_CONTROLLER_ENERGY_METRIC, NumberMetric.class));
 	}
 }

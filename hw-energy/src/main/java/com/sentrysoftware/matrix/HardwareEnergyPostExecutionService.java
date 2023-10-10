@@ -2,6 +2,7 @@ package com.sentrysoftware.matrix;
 
 import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
 import com.sentrysoftware.matrix.delegate.IPostExecutionService;
+import com.sentrysoftware.matrix.sustainability.DiskControllerPowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.sustainability.FanPowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.sustainability.HardwarePowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.sustainability.RoboticsPowerAndEnergyEstimator;
@@ -89,6 +90,13 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 			"hw.power{hw.type=\"tape_drive\"}",
 			"hw.energy{hw.type=\"tape_drive\"}",
 			TapeDrivePowerAndEnergyEstimator::new
+		);
+
+		estimateAndCollectPowerAndEnergyForMonitorType(
+			KnownMonitorType.DISK_CONTROLLER,
+			"hw.power{hw.type=\"disk_controller\"}",
+			"hw.energy{hw.type=\"disk_controller\"}",
+			DiskControllerPowerAndEnergyEstimator::new
 		);
 	}
 }
