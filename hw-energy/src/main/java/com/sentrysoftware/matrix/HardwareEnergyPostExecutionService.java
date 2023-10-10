@@ -5,6 +5,7 @@ import com.sentrysoftware.matrix.delegate.IPostExecutionService;
 import com.sentrysoftware.matrix.sustainability.FanPowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.sustainability.HardwarePowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.sustainability.RoboticsPowerAndEnergyEstimator;
+import com.sentrysoftware.matrix.sustainability.TapeDrivePowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import com.sentrysoftware.matrix.util.PowerAndEnergyCollectHelper;
@@ -81,6 +82,13 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 			"hw.power{hw.type=\"robotics\"}",
 			"hw.energy{hw.type=\"robotics\"}",
 			RoboticsPowerAndEnergyEstimator::new
+		);
+
+		estimateAndCollectPowerAndEnergyForMonitorType(
+			KnownMonitorType.TAPE_DRIVE,
+			"hw.power{hw.type=\"tape_drive\"}",
+			"hw.energy{hw.type=\"tape_drive\"}",
+			TapeDrivePowerAndEnergyEstimator::new
 		);
 	}
 }

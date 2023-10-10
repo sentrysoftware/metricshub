@@ -6,6 +6,10 @@ import static com.sentrysoftware.matrix.common.Constants.FAN_SPEED_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.ROBOTICS_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.ROBOTICS_MOVE_COUNT_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.ROBOTICS_POWER_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.TAPE_DRIVE_ENERGY_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.TAPE_DRIVE_MOUNT_COUNT_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.TAPE_DRIVE_POWER_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.TAPE_DRIVE_UNMOUNT_COUNT_METRIC;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.sentrysoftware.matrix.HardwareEnergyPostExecutionService;
@@ -32,6 +36,8 @@ class HardwareEnergyPostExecutionServiceTest {
 
 	private static final String FAN = KnownMonitorType.FAN.getKey();
 	private static final String ROBOTICS = KnownMonitorType.ROBOTICS.getKey();
+
+	private static final String TAPE_DRIVE = KnownMonitorType.TAPE_DRIVE.getKey();
 
 	@BeforeEach
 	void init() {
@@ -89,5 +95,39 @@ class HardwareEnergyPostExecutionServiceTest {
 
 		// Check the computed and collected energy metric
 		assertNotNull(roboticsMonitor.getMetric(ROBOTICS_ENERGY_METRIC, NumberMetric.class));
+	}
+
+	@Test
+	void testRunWithTapeDriveMonitor() {
+		// Create a tape drive monitor
+		final Monitor tapeDriveMonitor = Monitor
+			.builder()
+			.type(TAPE_DRIVE)
+			.metrics(
+				new HashMap<>(
+					Map.of(
+						TAPE_DRIVE_MOUNT_COUNT_METRIC,
+						NumberMetric.builder().value(0.7).build(),
+						TAPE_DRIVE_UNMOUNT_COUNT_METRIC,
+						NumberMetric.builder().value(0.1).build()
+					)
+				)
+			)
+			.attributes(new HashMap<>(Map.of("name", "lto123")))
+			.build();
+
+		// Set the previously created tape drive monitor in telemetryManager
+		final Map<String, Monitor> tapeDriveMonitors = new HashMap<>(Map.of("monitor3", tapeDriveMonitor));
+		telemetryManager.setMonitors(new HashMap<>(Map.of(TAPE_DRIVE, tapeDriveMonitors)));
+
+		// Call run method in HardwareEnergyPostExecutionService
+		hardwareEnergyPostExecutionService = new HardwareEnergyPostExecutionService(telemetryManager);
+		hardwareEnergyPostExecutionService.run();
+
+		// Check the computed and collected power metric
+		assertNotNull(tapeDriveMonitor.getMetric(TAPE_DRIVE_POWER_METRIC, NumberMetric.class));
+
+		// Check the computed and collected energy metric
+		assertNotNull(tapeDriveMonitor.getMetric(TAPE_DRIVE_ENERGY_METRIC, NumberMetric.class));
 	}
 }
