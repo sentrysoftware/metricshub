@@ -21,7 +21,7 @@ public class MemoryPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimat
 	 * @return Double
 	 */
 	@Override
-	public Double estimatePower() {
+	protected Double doPowerEstimation() {
 		// The power consumption of a memory module is always assumed to be 4 watts.
 		return 4.0;
 	}
