@@ -92,7 +92,7 @@ public class HwCollectHelper {
 			log.debug(
 				"Hostname {} - Cannot calculate energy {} for monitor {}. Current raw value {} - Current time {} - Previous time {}.",
 				hostname,
-				powerMetricName,
+				energyMetricName,
 				monitor.getId(),
 				estimatedPower,
 				collectTime,
