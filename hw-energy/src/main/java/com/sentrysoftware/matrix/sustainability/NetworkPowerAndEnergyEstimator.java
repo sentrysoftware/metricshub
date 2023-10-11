@@ -22,7 +22,7 @@ public class NetworkPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstima
 	 * @return Double
 	 */
 	@Override
-	public Double estimatePower() {
+	protected Double doPowerEstimation() {
 		final String name = monitor.getAttribute("name");
 
 		// If the network card's display name contains "wan" or "virt" it's a virtual card, its power consumption is 0.

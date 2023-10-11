@@ -1,5 +1,8 @@
 package com.sentrysoftware.matrix.sustainability;
 
+import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_ROBOTICS_METRIC;
+import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_ROBOTICS_METRIC;
+
 import com.sentrysoftware.matrix.strategy.utils.CollectHelper;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
@@ -25,7 +28,7 @@ public class RoboticsPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstim
 	 * @return Double value.
 	 */
 	@Override
-	public Double estimatePower() {
+	protected Double doPowerEstimation() {
 		final Double moveCount = CollectHelper.getNumberMetricValue(monitor, "hw.robotics.moves", false);
 		if (moveCount != null && moveCount > 0.0) {
 			return 154.0;
@@ -41,12 +44,12 @@ public class RoboticsPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstim
 	 */
 	@Override
 	public Double estimateEnergy() {
-		final Double estimatedPower = estimatePower();
 		return HwCollectHelper.estimateEnergyUsingPower(
 			monitor,
 			telemetryManager,
 			estimatedPower,
-			"hw.power{hw.type=\"robotics\"}",
+			HW_POWER_ROBOTICS_METRIC,
+			HW_ENERGY_ROBOTICS_METRIC,
 			telemetryManager.getStrategyTime()
 		);
 	}
