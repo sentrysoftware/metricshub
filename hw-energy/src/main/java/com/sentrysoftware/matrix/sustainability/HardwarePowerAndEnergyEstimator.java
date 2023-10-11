@@ -21,10 +21,21 @@ public abstract class HardwarePowerAndEnergyEstimator {
 	protected Double estimatedPower;
 
 	/**
-	 * Estimates the power consumption of a hardware monitor
+	 * Estimates the power consumption of a hardware monitor then set the estimatedPower field
+	 *
 	 * @return Double
 	 */
-	public abstract Double estimatePower();
+	public Double estimatePower() {
+		estimatedPower = doPowerEstimation();
+		return estimatedPower;
+	}
+
+	/**
+	 * Estimates the power consumption of a hardware monitor
+	 *
+	 * @return Double
+	 */
+	protected abstract Double doPowerEstimation();
 
 	/**
 	 * Estimates the energy consumption of a hardware monitor

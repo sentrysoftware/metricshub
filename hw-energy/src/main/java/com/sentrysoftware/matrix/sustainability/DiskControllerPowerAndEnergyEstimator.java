@@ -1,5 +1,8 @@
 package com.sentrysoftware.matrix.sustainability;
 
+import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_DISK_CONTROLLER_METRIC;
+import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_DISK_CONTROLLER_METRIC;
+
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import com.sentrysoftware.matrix.util.HwCollectHelper;
@@ -23,7 +26,7 @@ public class DiskControllerPowerAndEnergyEstimator extends HardwarePowerAndEnerg
 	 *
 	 */
 	@Override
-	public Double estimatePower() {
+	protected Double doPowerEstimation() {
 		return 15.0;
 	}
 
@@ -33,13 +36,12 @@ public class DiskControllerPowerAndEnergyEstimator extends HardwarePowerAndEnerg
 	 */
 	@Override
 	public Double estimateEnergy() {
-		final Double estimatedPower = estimatePower();
 		return HwCollectHelper.estimateEnergyUsingPower(
 			monitor,
 			telemetryManager,
 			estimatedPower,
-			"hw.power{hw.type=\"disk_controller\"}",
-			"hw.energy{hw.type=\"disk_controller\"}",
+			HW_POWER_DISK_CONTROLLER_METRIC,
+			HW_ENERGY_DISK_CONTROLLER_METRIC,
 			telemetryManager.getStrategyTime()
 		);
 	}

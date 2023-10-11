@@ -2,6 +2,8 @@ package com.sentrysoftware.matrix.sustainability;
 
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.EMPTY;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_NAME;
+import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_TAPE_DRIVE_METRIC;
+import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_TAPE_DRIVE_METRIC;
 
 import com.sentrysoftware.matrix.strategy.utils.CollectHelper;
 import com.sentrysoftware.matrix.telemetry.Monitor;
@@ -25,7 +27,7 @@ public class TapeDrivePowerAndEnergyEstimator extends HardwarePowerAndEnergyEsti
 	 * @return Double
 	 */
 	@Override
-	public Double estimatePower() {
+	protected Double doPowerEstimation() {
 		Double mountCount = CollectHelper.getNumberMetricValue(monitor, "hw.tape_drive.operations{type=\"mount\"}", false);
 
 		mountCount = mountCount != null ? mountCount : 0.0;
@@ -69,13 +71,12 @@ public class TapeDrivePowerAndEnergyEstimator extends HardwarePowerAndEnergyEsti
 	 */
 	@Override
 	public Double estimateEnergy() {
-		final Double estimatedPower = estimatePower();
 		return HwCollectHelper.estimateEnergyUsingPower(
 			monitor,
 			telemetryManager,
 			estimatedPower,
-			"hw.power{hw.type=\"tape_drive\"}",
-			"hw.energy{hw.type=\"tape_drive\"}",
+			HW_POWER_TAPE_DRIVE_METRIC,
+			HW_ENERGY_TAPE_DRIVE_METRIC,
 			telemetryManager.getStrategyTime()
 		);
 	}

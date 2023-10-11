@@ -1,5 +1,8 @@
 package com.sentrysoftware.matrix.sustainability;
 
+import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_FAN_METRIC;
+import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_FAN_METRIC;
+
 import com.sentrysoftware.matrix.strategy.utils.CollectHelper;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
@@ -23,26 +26,23 @@ public class FanPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimator 
 	 * @return Double value
 	 */
 	@Override
-	public Double estimatePower() {
+	protected Double doPowerEstimation() {
 		// Get the metrics hw.fan.speed and hw.fan.speed_ratio
 		final Double fanSpeed = CollectHelper.getNumberMetricValue(monitor, "hw.fan.speed", false);
 		final Double fanSpeedRatio = CollectHelper.getNumberMetricValue(monitor, "hw.fan.speed_ratio", false);
 		// Compute the power consumption based on fanSpeed value
 		if (HwCollectHelper.isValidPositive(fanSpeed)) {
 			// 1000 RPM = 1 Watt
-			estimatedPower = fanSpeed / 1000.0;
-			return estimatedPower;
+			return fanSpeed / 1000.0;
 		} else {
 			if (HwCollectHelper.isValidRatio(fanSpeedRatio)) {
 				// Approximately 5 Watt for a ratio of 1 (I.e. 5 Watt for 100%)
-				estimatedPower = fanSpeedRatio * 5;
-				return estimatedPower;
+				return fanSpeedRatio * 5;
 			}
 		}
 
 		// Approximately 5 Watt for standard fan
-		estimatedPower = 5.0;
-		return estimatedPower;
+		return 5.0;
 	}
 
 	/**
@@ -56,8 +56,8 @@ public class FanPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimator 
 			monitor,
 			telemetryManager,
 			estimatedPower,
-			"hw.power{hw.type=\"fan\"}",
-			"hw.energy{hw.type=\"fan\"}",
+			HW_POWER_FAN_METRIC,
+			HW_ENERGY_FAN_METRIC,
 			telemetryManager.getStrategyTime()
 		);
 	}

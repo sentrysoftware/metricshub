@@ -1,5 +1,14 @@
 package com.sentrysoftware.matrix;
 
+import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_DISK_CONTROLLER_METRIC;
+import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_FAN_METRIC;
+import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_ROBOTICS_METRIC;
+import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_TAPE_DRIVE_METRIC;
+import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_DISK_CONTROLLER_METRIC;
+import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_FAN_METRIC;
+import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_ROBOTICS_METRIC;
+import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_TAPE_DRIVE_METRIC;
+
 import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
 import com.sentrysoftware.matrix.delegate.IPostExecutionService;
 import com.sentrysoftware.matrix.sustainability.DiskControllerPowerAndEnergyEstimator;
@@ -73,29 +82,29 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 	public void run() {
 		estimateAndCollectPowerAndEnergyForMonitorType(
 			KnownMonitorType.FAN,
-			"hw.power{hw.type=\"fan\"}",
-			"hw.energy{hw.type=\"fan\"}",
+			HW_POWER_FAN_METRIC,
+			HW_ENERGY_FAN_METRIC,
 			FanPowerAndEnergyEstimator::new
 		);
 
 		estimateAndCollectPowerAndEnergyForMonitorType(
 			KnownMonitorType.ROBOTICS,
-			"hw.power{hw.type=\"robotics\"}",
-			"hw.energy{hw.type=\"robotics\"}",
+			HW_POWER_ROBOTICS_METRIC,
+			HW_ENERGY_ROBOTICS_METRIC,
 			RoboticsPowerAndEnergyEstimator::new
 		);
 
 		estimateAndCollectPowerAndEnergyForMonitorType(
 			KnownMonitorType.TAPE_DRIVE,
-			"hw.power{hw.type=\"tape_drive\"}",
-			"hw.energy{hw.type=\"tape_drive\"}",
+			HW_POWER_TAPE_DRIVE_METRIC,
+			HW_ENERGY_TAPE_DRIVE_METRIC,
 			TapeDrivePowerAndEnergyEstimator::new
 		);
 
 		estimateAndCollectPowerAndEnergyForMonitorType(
 			KnownMonitorType.DISK_CONTROLLER,
-			"hw.power{hw.type=\"disk_controller\"}",
-			"hw.energy{hw.type=\"disk_controller\"}",
+			HW_POWER_DISK_CONTROLLER_METRIC,
+			HW_ENERGY_DISK_CONTROLLER_METRIC,
 			DiskControllerPowerAndEnergyEstimator::new
 		);
 	}
