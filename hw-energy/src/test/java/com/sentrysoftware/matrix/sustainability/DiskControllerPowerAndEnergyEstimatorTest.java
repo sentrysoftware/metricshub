@@ -1,9 +1,7 @@
 package com.sentrysoftware.matrix.sustainability;
 
-import static com.sentrysoftware.matrix.common.Constants.FAN_ENERGY_METRIC;
-import static com.sentrysoftware.matrix.common.Constants.FAN_POWER_METRIC;
-import static com.sentrysoftware.matrix.common.Constants.FAN_SPEED_METRIC;
-import static com.sentrysoftware.matrix.common.Constants.FAN_SPEED_RATIO_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.DISK_CONTROLLER_ENERGY_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.DISK_CONTROLLER_POWER_METRIC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -12,67 +10,47 @@ import com.sentrysoftware.matrix.telemetry.MetricFactory;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class FanPowerAndEnergyEstimatorTest {
+class DiskControllerPowerAndEnergyEstimatorTest {
 
-	private FanPowerAndEnergyEstimator fanPowerAndEnergyEstimator;
+	private DiskControllerPowerAndEnergyEstimator diskControllerPowerAndEnergyEstimator;
 
 	private Monitor monitor = null;
 	private TelemetryManager telemetryManager = null;
 
 	@BeforeEach
 	void init() {
-		monitor =
-			Monitor
-				.builder()
-				.metrics(
-					new HashMap<>(
-						Map.of(
-							FAN_SPEED_METRIC,
-							NumberMetric.builder().value(7.0).build(),
-							FAN_SPEED_RATIO_METRIC,
-							NumberMetric.builder().value(0.2).build()
-						)
-					)
-				)
-				.build();
+		monitor = Monitor.builder().build();
 		telemetryManager =
 			TelemetryManager
 				.builder()
 				.strategyTime(1696597422644L)
 				.hostConfiguration(HostConfiguration.builder().hostname("localhost").build())
 				.build();
-		fanPowerAndEnergyEstimator = new FanPowerAndEnergyEstimator(monitor, telemetryManager);
+		diskControllerPowerAndEnergyEstimator = new DiskControllerPowerAndEnergyEstimator(monitor, telemetryManager);
 	}
 
 	@Test
 	void testEstimatePower() {
-		// If fanSpeed metric value is a valid positive number
-		assertEquals(0.007, fanPowerAndEnergyEstimator.estimatePower());
-
-		// If fanSpeed metric value is not a valid positive number
-		monitor.getMetric(FAN_SPEED_METRIC, NumberMetric.class).setValue(-7000.0);
-		assertEquals(1.0, fanPowerAndEnergyEstimator.estimatePower());
+		assertEquals(15.0, diskControllerPowerAndEnergyEstimator.estimatePower());
 	}
 
 	@Test
 	void testEstimateEnergy() {
 		// Estimate energy consumption, no previous collect time
-		assertNull(fanPowerAndEnergyEstimator.estimateEnergy());
+		assertNull(diskControllerPowerAndEnergyEstimator.estimateEnergy());
 
 		// Estimate power consumption
-		Double estimatedPower = fanPowerAndEnergyEstimator.estimatePower();
-		Double estimatedEnergy = fanPowerAndEnergyEstimator.estimateEnergy();
+		Double estimatedPower = diskControllerPowerAndEnergyEstimator.estimatePower();
+		Double estimatedEnergy = diskControllerPowerAndEnergyEstimator.estimateEnergy();
 		assertNull(estimatedEnergy);
 		// Create metricFactory and collect power
 		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
 		final NumberMetric collectedPowerMetric = metricFactory.collectNumberMetric(
 			monitor,
-			FAN_POWER_METRIC,
+			DISK_CONTROLLER_POWER_METRIC,
 			estimatedPower,
 			telemetryManager.getStrategyTime()
 		);
@@ -82,17 +60,22 @@ class FanPowerAndEnergyEstimatorTest {
 		telemetryManager.setStrategyTime(telemetryManager.getStrategyTime() + 2 * 60 * 1000);
 
 		// Estimate power consumption again
-		estimatedPower = fanPowerAndEnergyEstimator.estimatePower();
+		estimatedPower = diskControllerPowerAndEnergyEstimator.estimatePower();
 
 		// Collect the new power consumption metric
-		metricFactory.collectNumberMetric(monitor, FAN_POWER_METRIC, estimatedPower, telemetryManager.getStrategyTime());
+		metricFactory.collectNumberMetric(
+			monitor,
+			DISK_CONTROLLER_POWER_METRIC,
+			estimatedPower,
+			telemetryManager.getStrategyTime()
+		);
 
 		// Estimate the energy
-		estimatedEnergy = fanPowerAndEnergyEstimator.estimateEnergy();
-		assertEquals(0.84, estimatedEnergy);
+		estimatedEnergy = diskControllerPowerAndEnergyEstimator.estimateEnergy();
+		assertEquals(1800, estimatedEnergy);
 		final NumberMetric collectedEnergyMetric = metricFactory.collectNumberMetric(
 			monitor,
-			FAN_ENERGY_METRIC,
+			DISK_CONTROLLER_ENERGY_METRIC,
 			estimatedEnergy,
 			telemetryManager.getStrategyTime()
 		);
@@ -102,12 +85,17 @@ class FanPowerAndEnergyEstimatorTest {
 		telemetryManager.setStrategyTime(telemetryManager.getStrategyTime() + 2 * 60 * 1000);
 
 		// Estimate power consumption again
-		estimatedPower = fanPowerAndEnergyEstimator.estimatePower();
+		estimatedPower = diskControllerPowerAndEnergyEstimator.estimatePower();
 
 		// Collect the new power consumption metric
-		metricFactory.collectNumberMetric(monitor, FAN_POWER_METRIC, estimatedPower, telemetryManager.getStrategyTime());
+		metricFactory.collectNumberMetric(
+			monitor,
+			DISK_CONTROLLER_POWER_METRIC,
+			estimatedPower,
+			telemetryManager.getStrategyTime()
+		);
 
 		// Estimate the energy
-		assertEquals(1.68, fanPowerAndEnergyEstimator.estimateEnergy());
+		assertEquals(3600, diskControllerPowerAndEnergyEstimator.estimateEnergy());
 	}
 }

@@ -20,7 +20,7 @@ public class NetworkPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstima
 	 * @return Double
 	 */
 	@Override
-	public Double estimatePower() {
+	protected Double doPowerEstimation() {
 		return null;
 	}
 

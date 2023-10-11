@@ -36,7 +36,8 @@ public class HwCollectHelper {
 	 * @param monitor the monitor to collect
 	 * @param telemetryManager the telemetry manager
 	 * @param estimatedPower the previously estimated power consumption
-	 * @param metricName the metricName to estimate e.g: hw.energy{hw.type="fan"} or hw.energy{hw.type="fan"} ...
+	 * @param powerMetricName the metricName to estimate e.g: hw.power{hw.type="fan"} or hw.power{hw.type="fan"}
+	 * @param energyMetricName the metricName to estimate e.g: hw.energy{hw.type="fan"} or hw.energy{hw.type="fan"}
 	 * @param collectTime the current collect time in milliseconds
 	 * @return estimated Double energy value
 	 */
@@ -44,19 +45,20 @@ public class HwCollectHelper {
 		final Monitor monitor,
 		final TelemetryManager telemetryManager,
 		final Double estimatedPower,
-		final String metricName,
+		final String powerMetricName,
+		final String energyMetricName,
 		final Long collectTime
 	) {
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
 		final Double collectTimePrevious = com.sentrysoftware.matrix.strategy.utils.CollectHelper.getNumberMetricCollectTime(
 			monitor,
-			metricName,
+			powerMetricName,
 			true
 		);
 
 		final Double deltaTimeMs = MathOperationsHelper.subtract(
-			metricName,
+			powerMetricName,
 			Double.valueOf(collectTime),
 			collectTimePrevious,
 			hostname
@@ -66,7 +68,7 @@ public class HwCollectHelper {
 		final Double deltaTime = deltaTimeMs != null ? deltaTimeMs / 1000.0 : null;
 
 		// Calculate the usage over time. e.g from Power Consumption: E = P * T
-		final Double usageDelta = MathOperationsHelper.multiply(metricName, estimatedPower, deltaTime, hostname);
+		final Double usageDelta = MathOperationsHelper.multiply(powerMetricName, estimatedPower, deltaTime, hostname);
 
 		if (usageDelta != null) {
 			// The counter will start from the usage delta
@@ -75,7 +77,7 @@ public class HwCollectHelper {
 			// The previous counter is needed to make a sum with the delta counter value on this collect
 			final Double previousCounter = com.sentrysoftware.matrix.strategy.utils.CollectHelper.getNumberMetricValue(
 				monitor,
-				metricName,
+				energyMetricName,
 				true
 			);
 
@@ -90,7 +92,7 @@ public class HwCollectHelper {
 			log.debug(
 				"Hostname {} - Cannot calculate energy {} for monitor {}. Current raw value {} - Current time {} - Previous time {}.",
 				hostname,
-				metricName,
+				energyMetricName,
 				monitor.getId(),
 				estimatedPower,
 				collectTime,

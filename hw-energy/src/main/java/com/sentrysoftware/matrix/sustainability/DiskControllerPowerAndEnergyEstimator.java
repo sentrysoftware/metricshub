@@ -1,7 +1,11 @@
 package com.sentrysoftware.matrix.sustainability;
 
+import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_DISK_CONTROLLER_METRIC;
+import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_DISK_CONTROLLER_METRIC;
+
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import com.sentrysoftware.matrix.util.HwCollectHelper;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -16,12 +20,14 @@ public class DiskControllerPowerAndEnergyEstimator extends HardwarePowerAndEnerg
 	}
 
 	/**
-	 * Estimates the power consumption of the disk controller
+	 * Sets the power consumption (15W by default for disk controllers)
+	 * (Source: https://forums.servethehome.com/index.php?threads/raid-controllers-power-consumption.9189/)
 	 * @return Double
+	 *
 	 */
 	@Override
-	public Double estimatePower() {
-		return null;
+	protected Double doPowerEstimation() {
+		return 15.0;
 	}
 
 	/**
@@ -30,6 +36,13 @@ public class DiskControllerPowerAndEnergyEstimator extends HardwarePowerAndEnerg
 	 */
 	@Override
 	public Double estimateEnergy() {
-		return null;
+		return HwCollectHelper.estimateEnergyUsingPower(
+			monitor,
+			telemetryManager,
+			estimatedPower,
+			HW_POWER_DISK_CONTROLLER_METRIC,
+			HW_ENERGY_DISK_CONTROLLER_METRIC,
+			telemetryManager.getStrategyTime()
+		);
 	}
 }

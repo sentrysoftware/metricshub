@@ -1,5 +1,8 @@
 package com.sentrysoftware.matrix.sustainability;
 
+import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_FAN_METRIC;
+import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_FAN_METRIC;
+
 import com.sentrysoftware.matrix.strategy.utils.CollectHelper;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
@@ -23,11 +26,10 @@ public class FanPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimator 
 	 * @return Double value
 	 */
 	@Override
-	public Double estimatePower() {
+	protected Double doPowerEstimation() {
 		// Get the metrics hw.fan.speed and hw.fan.speed_ratio
 		final Double fanSpeed = CollectHelper.getNumberMetricValue(monitor, "hw.fan.speed", false);
 		final Double fanSpeedRatio = CollectHelper.getNumberMetricValue(monitor, "hw.fan.speed_ratio", false);
-
 		// Compute the power consumption based on fanSpeed value
 		if (HwCollectHelper.isValidPositive(fanSpeed)) {
 			// 1000 RPM = 1 Watt
@@ -50,12 +52,12 @@ public class FanPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimator 
 	 */
 	@Override
 	public Double estimateEnergy() {
-		final Double estimatedPower = estimatePower();
 		return HwCollectHelper.estimateEnergyUsingPower(
 			monitor,
 			telemetryManager,
 			estimatedPower,
-			"hw.power{hw.type=\"fan\"}",
+			HW_POWER_FAN_METRIC,
+			HW_ENERGY_FAN_METRIC,
 			telemetryManager.getStrategyTime()
 		);
 	}
