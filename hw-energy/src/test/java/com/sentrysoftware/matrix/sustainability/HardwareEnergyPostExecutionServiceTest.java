@@ -5,6 +5,8 @@ import static com.sentrysoftware.matrix.common.Constants.DISK_CONTROLLER_POWER_M
 import static com.sentrysoftware.matrix.common.Constants.FAN_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.FAN_POWER_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.FAN_SPEED_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.PHYSICAL_DISK_ENERGY_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.PHYSICAL_DISK_POWER_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.ROBOTICS_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.ROBOTICS_MOVE_COUNT_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.ROBOTICS_POWER_METRIC;
@@ -36,6 +38,8 @@ class HardwareEnergyPostExecutionServiceTest {
 
 	private static final String TAPE_DRIVE = KnownMonitorType.TAPE_DRIVE.getKey();
 	private static final String DISK_CONTROLLER = KnownMonitorType.DISK_CONTROLLER.getKey();
+
+	private static final String PHYSICAL_DISK = KnownMonitorType.PHYSICAL_DISK.getKey();
 
 	@BeforeEach
 	void init() {
@@ -147,5 +151,25 @@ class HardwareEnergyPostExecutionServiceTest {
 
 		// Check the computed and collected energy metric
 		assertNotNull(diskControllerMonitor.getMetric(DISK_CONTROLLER_ENERGY_METRIC, NumberMetric.class));
+	}
+
+	@Test
+	void testRunWithPhysicalDiskMonitor() {
+		// Create a physical disk monitor
+		final Monitor physicalDiskMonitor = Monitor.builder().type(PHYSICAL_DISK).build();
+
+		// Set the previously created physical disk monitor in telemetryManager
+		final Map<String, Monitor> physicalDiskMonitors = new HashMap<>(Map.of("monitor5", physicalDiskMonitor));
+		telemetryManager.setMonitors(new HashMap<>(Map.of(PHYSICAL_DISK, physicalDiskMonitors)));
+
+		// Call run method in HardwareEnergyPostExecutionService
+		hardwareEnergyPostExecutionService = new HardwareEnergyPostExecutionService(telemetryManager);
+		hardwareEnergyPostExecutionService.run();
+
+		// Check the computed and collected power metric
+		assertNotNull(physicalDiskMonitor.getMetric(PHYSICAL_DISK_POWER_METRIC, NumberMetric.class));
+
+		// Check the computed and collected energy metric
+		assertNotNull(physicalDiskMonitor.getMetric(PHYSICAL_DISK_ENERGY_METRIC, NumberMetric.class));
 	}
 }
