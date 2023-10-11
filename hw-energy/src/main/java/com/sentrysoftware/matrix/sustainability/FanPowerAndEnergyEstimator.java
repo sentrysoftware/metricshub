@@ -27,20 +27,22 @@ public class FanPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimator 
 		// Get the metrics hw.fan.speed and hw.fan.speed_ratio
 		final Double fanSpeed = CollectHelper.getNumberMetricValue(monitor, "hw.fan.speed", false);
 		final Double fanSpeedRatio = CollectHelper.getNumberMetricValue(monitor, "hw.fan.speed_ratio", false);
-
 		// Compute the power consumption based on fanSpeed value
 		if (HwCollectHelper.isValidPositive(fanSpeed)) {
 			// 1000 RPM = 1 Watt
-			return fanSpeed / 1000.0;
+			estimatedPower = fanSpeed / 1000.0;
+			return estimatedPower;
 		} else {
 			if (HwCollectHelper.isValidRatio(fanSpeedRatio)) {
 				// Approximately 5 Watt for a ratio of 1 (I.e. 5 Watt for 100%)
-				return fanSpeedRatio * 5;
+				estimatedPower = fanSpeedRatio * 5;
+				return estimatedPower;
 			}
 		}
 
 		// Approximately 5 Watt for standard fan
-		return 5.0;
+		estimatedPower = 5.0;
+		return estimatedPower;
 	}
 
 	/**
@@ -50,12 +52,12 @@ public class FanPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimator 
 	 */
 	@Override
 	public Double estimateEnergy() {
-		final Double estimatedPower = estimatePower();
 		return HwCollectHelper.estimateEnergyUsingPower(
 			monitor,
 			telemetryManager,
 			estimatedPower,
 			"hw.power{hw.type=\"fan\"}",
+			"hw.energy{hw.type=\"fan\"}",
 			telemetryManager.getStrategyTime()
 		);
 	}

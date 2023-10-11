@@ -47,6 +47,7 @@ public class RoboticsPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstim
 			telemetryManager,
 			estimatedPower,
 			"hw.power{hw.type=\"robotics\"}",
+			"hw.energy{hw.type=\"robotics\"}",
 			telemetryManager.getStrategyTime()
 		);
 	}

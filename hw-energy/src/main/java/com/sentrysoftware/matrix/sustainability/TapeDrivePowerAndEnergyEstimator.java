@@ -75,6 +75,7 @@ public class TapeDrivePowerAndEnergyEstimator extends HardwarePowerAndEnergyEsti
 			telemetryManager,
 			estimatedPower,
 			"hw.power{hw.type=\"tape_drive\"}",
+			"hw.energy{hw.type=\"tape_drive\"}",
 			telemetryManager.getStrategyTime()
 		);
 	}

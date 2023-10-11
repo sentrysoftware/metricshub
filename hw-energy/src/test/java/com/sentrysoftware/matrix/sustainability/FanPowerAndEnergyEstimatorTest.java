@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.sustainability;
 
+import static com.sentrysoftware.matrix.common.Constants.FAN_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.FAN_POWER_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.FAN_SPEED_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.FAN_SPEED_RATIO_METRIC;
@@ -15,14 +16,9 @@ import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class)
 class FanPowerAndEnergyEstimatorTest {
 
-	@InjectMocks
 	private FanPowerAndEnergyEstimator fanPowerAndEnergyEstimator;
 
 	private Monitor monitor = null;
@@ -70,7 +66,8 @@ class FanPowerAndEnergyEstimatorTest {
 
 		// Estimate power consumption
 		Double estimatedPower = fanPowerAndEnergyEstimator.estimatePower();
-
+		Double estimatedEnergy = fanPowerAndEnergyEstimator.estimateEnergy();
+		assertNull(estimatedEnergy);
 		// Create metricFactory and collect power
 		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
 		final NumberMetric collectedPowerMetric = metricFactory.collectNumberMetric(
@@ -82,6 +79,7 @@ class FanPowerAndEnergyEstimatorTest {
 
 		// Save the collected power metric
 		collectedPowerMetric.save();
+		telemetryManager.setStrategyTime(telemetryManager.getStrategyTime() + 2 * 60 * 1000);
 
 		// Estimate power consumption again
 		estimatedPower = fanPowerAndEnergyEstimator.estimatePower();
@@ -90,6 +88,26 @@ class FanPowerAndEnergyEstimatorTest {
 		metricFactory.collectNumberMetric(monitor, FAN_POWER_METRIC, estimatedPower, telemetryManager.getStrategyTime());
 
 		// Estimate the energy
-		assertEquals(0.007, fanPowerAndEnergyEstimator.estimateEnergy());
+		estimatedEnergy = fanPowerAndEnergyEstimator.estimateEnergy();
+		assertEquals(0.84, estimatedEnergy);
+		final NumberMetric collectedEnergyMetric = metricFactory.collectNumberMetric(
+			monitor,
+			FAN_ENERGY_METRIC,
+			estimatedEnergy,
+			telemetryManager.getStrategyTime()
+		);
+		collectedEnergyMetric.save();
+		collectedPowerMetric.save();
+
+		telemetryManager.setStrategyTime(telemetryManager.getStrategyTime() + 2 * 60 * 1000);
+
+		// Estimate power consumption again
+		estimatedPower = fanPowerAndEnergyEstimator.estimatePower();
+
+		// Collect the new power consumption metric
+		metricFactory.collectNumberMetric(monitor, FAN_POWER_METRIC, estimatedPower, telemetryManager.getStrategyTime());
+
+		// Estimate the energy
+		assertEquals(1.68, fanPowerAndEnergyEstimator.estimateEnergy());
 	}
 }

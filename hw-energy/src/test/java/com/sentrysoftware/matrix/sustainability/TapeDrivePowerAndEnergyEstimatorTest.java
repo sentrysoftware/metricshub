@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.sustainability;
 
+import static com.sentrysoftware.matrix.common.Constants.TAPE_DRIVE_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.TAPE_DRIVE_MOUNT_COUNT_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.TAPE_DRIVE_POWER_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.TAPE_DRIVE_UNMOUNT_COUNT_METRIC;
@@ -15,11 +16,9 @@ import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 
 class TapeDrivePowerAndEnergyEstimatorTest {
 
-	@InjectMocks
 	private TapeDrivePowerAndEnergyEstimator tapeDrivePowerAndEnergyEstimator;
 
 	private Monitor monitor = null;
@@ -63,7 +62,8 @@ class TapeDrivePowerAndEnergyEstimatorTest {
 
 		// Estimate power consumption
 		Double estimatedPower = tapeDrivePowerAndEnergyEstimator.estimatePower();
-
+		Double estimatedEnergy = tapeDrivePowerAndEnergyEstimator.estimateEnergy();
+		assertNull(estimatedEnergy);
 		// Create metricFactory and collect power
 		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
 		final NumberMetric collectedPowerMetric = metricFactory.collectNumberMetric(
@@ -75,6 +75,7 @@ class TapeDrivePowerAndEnergyEstimatorTest {
 
 		// Save the collected power metric
 		collectedPowerMetric.save();
+		telemetryManager.setStrategyTime(telemetryManager.getStrategyTime() + 2 * 60 * 1000);
 
 		// Estimate power consumption again
 		estimatedPower = tapeDrivePowerAndEnergyEstimator.estimatePower();
@@ -88,6 +89,31 @@ class TapeDrivePowerAndEnergyEstimatorTest {
 		);
 
 		// Estimate the energy
-		assertEquals(46, tapeDrivePowerAndEnergyEstimator.estimateEnergy());
+		estimatedEnergy = tapeDrivePowerAndEnergyEstimator.estimateEnergy();
+		assertEquals(5520.0, estimatedEnergy);
+		final NumberMetric collectedEnergyMetric = metricFactory.collectNumberMetric(
+			monitor,
+			TAPE_DRIVE_ENERGY_METRIC,
+			estimatedEnergy,
+			telemetryManager.getStrategyTime()
+		);
+		collectedEnergyMetric.save();
+		collectedPowerMetric.save();
+
+		telemetryManager.setStrategyTime(telemetryManager.getStrategyTime() + 2 * 60 * 1000);
+
+		// Estimate power consumption again
+		estimatedPower = tapeDrivePowerAndEnergyEstimator.estimatePower();
+
+		// Collect the new power consumption metric
+		metricFactory.collectNumberMetric(
+			monitor,
+			TAPE_DRIVE_POWER_METRIC,
+			estimatedPower,
+			telemetryManager.getStrategyTime()
+		);
+
+		// Estimate the energy
+		assertEquals(11040.0, tapeDrivePowerAndEnergyEstimator.estimateEnergy());
 	}
 }

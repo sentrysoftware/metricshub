@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.sustainability;
 
+import static com.sentrysoftware.matrix.common.Constants.DISK_CONTROLLER_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.DISK_CONTROLLER_POWER_METRIC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -11,11 +12,9 @@ import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 
 class DiskControllerPowerAndEnergyEstimatorTest {
 
-	@InjectMocks
 	private DiskControllerPowerAndEnergyEstimator diskControllerPowerAndEnergyEstimator;
 
 	private Monitor monitor = null;
@@ -45,7 +44,8 @@ class DiskControllerPowerAndEnergyEstimatorTest {
 
 		// Estimate power consumption
 		Double estimatedPower = diskControllerPowerAndEnergyEstimator.estimatePower();
-
+		Double estimatedEnergy = diskControllerPowerAndEnergyEstimator.estimateEnergy();
+		assertNull(estimatedEnergy);
 		// Create metricFactory and collect power
 		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
 		final NumberMetric collectedPowerMetric = metricFactory.collectNumberMetric(
@@ -57,6 +57,7 @@ class DiskControllerPowerAndEnergyEstimatorTest {
 
 		// Save the collected power metric
 		collectedPowerMetric.save();
+		telemetryManager.setStrategyTime(telemetryManager.getStrategyTime() + 2 * 60 * 1000);
 
 		// Estimate power consumption again
 		estimatedPower = diskControllerPowerAndEnergyEstimator.estimatePower();
@@ -70,6 +71,31 @@ class DiskControllerPowerAndEnergyEstimatorTest {
 		);
 
 		// Estimate the energy
-		assertEquals(15.0, diskControllerPowerAndEnergyEstimator.estimateEnergy());
+		estimatedEnergy = diskControllerPowerAndEnergyEstimator.estimateEnergy();
+		assertEquals(1800, estimatedEnergy);
+		final NumberMetric collectedEnergyMetric = metricFactory.collectNumberMetric(
+			monitor,
+			DISK_CONTROLLER_ENERGY_METRIC,
+			estimatedEnergy,
+			telemetryManager.getStrategyTime()
+		);
+		collectedEnergyMetric.save();
+		collectedPowerMetric.save();
+
+		telemetryManager.setStrategyTime(telemetryManager.getStrategyTime() + 2 * 60 * 1000);
+
+		// Estimate power consumption again
+		estimatedPower = diskControllerPowerAndEnergyEstimator.estimatePower();
+
+		// Collect the new power consumption metric
+		metricFactory.collectNumberMetric(
+			monitor,
+			DISK_CONTROLLER_POWER_METRIC,
+			estimatedPower,
+			telemetryManager.getStrategyTime()
+		);
+
+		// Estimate the energy
+		assertEquals(3600, diskControllerPowerAndEnergyEstimator.estimateEnergy());
 	}
 }

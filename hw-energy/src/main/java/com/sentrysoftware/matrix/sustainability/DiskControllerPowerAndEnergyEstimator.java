@@ -39,6 +39,7 @@ public class DiskControllerPowerAndEnergyEstimator extends HardwarePowerAndEnerg
 			telemetryManager,
 			estimatedPower,
 			"hw.power{hw.type=\"disk_controller\"}",
+			"hw.energy{hw.type=\"disk_controller\"}",
 			telemetryManager.getStrategyTime()
 		);
 	}

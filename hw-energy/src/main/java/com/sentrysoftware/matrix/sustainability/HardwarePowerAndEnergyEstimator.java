@@ -2,17 +2,23 @@ package com.sentrysoftware.matrix.sustainability;
 
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 @Data
-@AllArgsConstructor
+@RequiredArgsConstructor
 @NoArgsConstructor
 public abstract class HardwarePowerAndEnergyEstimator {
 
+	@NonNull
 	protected Monitor monitor;
+
+	@NonNull
 	protected TelemetryManager telemetryManager;
+
+	protected Double estimatedPower;
 
 	/**
 	 * Estimates the power consumption of a hardware monitor
