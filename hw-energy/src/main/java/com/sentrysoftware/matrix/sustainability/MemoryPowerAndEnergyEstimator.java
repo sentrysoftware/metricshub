@@ -1,5 +1,8 @@
 package com.sentrysoftware.matrix.sustainability;
 
+import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_MEMORY_METRIC;
+import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_MEMORY_METRIC;
+
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import com.sentrysoftware.matrix.util.HwCollectHelper;
@@ -37,7 +40,8 @@ public class MemoryPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimat
 			monitor,
 			telemetryManager,
 			estimatedPower,
-			"hw.power{hw.type=\"memory\"}",
+			HW_POWER_MEMORY_METRIC,
+			HW_ENERGY_MEMORY_METRIC,
 			telemetryManager.getStrategyTime()
 		);
 	}

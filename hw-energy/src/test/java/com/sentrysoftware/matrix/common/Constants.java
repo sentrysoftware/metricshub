@@ -15,5 +15,8 @@ public class Constants {
 	public static final String TAPE_DRIVE_ENERGY_METRIC = "hw.energy{hw.type=\"tape_drive\"}";
 	public static final String DISK_CONTROLLER_POWER_METRIC = "hw.power{hw.type=\"disk_controller\"}";
 	public static final String DISK_CONTROLLER_ENERGY_METRIC = "hw.energy{hw.type=\"disk_controller\"}";
+	public static final String MEMORY_ENERGY_METRIC = "hw.energy{hw.type=\"memory\"}";
 	public static final String MEMORY_POWER_METRIC = "hw.power{hw.type=\"memory\"}";
+
+	public static final String LOCALHOST = "localhost";
 }
