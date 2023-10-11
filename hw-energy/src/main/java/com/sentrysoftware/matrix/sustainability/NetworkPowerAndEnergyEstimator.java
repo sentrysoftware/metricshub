@@ -1,5 +1,8 @@
 package com.sentrysoftware.matrix.sustainability;
 
+import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_NETWORK_METRIC;
+import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_NETWORK_METRIC;
+
 import com.sentrysoftware.matrix.strategy.utils.CollectHelper;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
@@ -86,7 +89,8 @@ public class NetworkPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstima
 			monitor,
 			telemetryManager,
 			estimatedPower,
-			"hw.power{hw.type=\"network\"}",
+			HW_POWER_NETWORK_METRIC,
+			HW_ENERGY_NETWORK_METRIC,
 			telemetryManager.getStrategyTime()
 		);
 	}

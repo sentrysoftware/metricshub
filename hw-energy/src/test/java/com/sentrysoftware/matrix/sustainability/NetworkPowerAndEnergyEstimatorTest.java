@@ -1,5 +1,9 @@
 package com.sentrysoftware.matrix.sustainability;
 
+import static com.sentrysoftware.matrix.common.Constants.NETWORK_BANDWIDTH_UTILIZATION_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.NETWORK_ENERGY_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.NETWORK_LINK_SPEED_ATTRIBUTE;
+import static com.sentrysoftware.matrix.common.Constants.NETWORK_LINK_STATUS_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.NETWORK_POWER_METRIC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -33,33 +37,33 @@ class NetworkPowerAndEnergyEstimatorTest {
 
 		// Not virtual network card, linkStatus = 0.0 -> estimated power consumption is 1.0
 		monitor.addAttribute("name", "real_network_card");
-		monitor.addMetric("hw.network.up", NumberMetric.builder().value(0.0).build());
+		monitor.addMetric(NETWORK_LINK_STATUS_METRIC, NumberMetric.builder().value(0.0).build());
 		assertEquals(1.0, networkPowerAndEnergyEstimator.estimatePower());
 
 		// linkStatus is up, bandwidthUtilization and linkSpeed are null
 		// estimated power consumption is 10.0
-		monitor.addMetric("hw.network.up", NumberMetric.builder().value(1.0).build());
+		monitor.addMetric(NETWORK_LINK_STATUS_METRIC, NumberMetric.builder().value(1.0).build());
 		assertEquals(10.0, networkPowerAndEnergyEstimator.estimatePower());
 
 		// linkStatus is up, bandwidthUtilization is null and linkSpeed = 100.0
 		// estimated power consumption is 7.5
-		monitor.addAttribute("bandwidth", "100.0");
+		monitor.addAttribute(NETWORK_LINK_SPEED_ATTRIBUTE, "100.0");
 		assertEquals(7.5, networkPowerAndEnergyEstimator.estimatePower());
 
 		// linkStatus is up, bandwidthUtilization is null and linkSpeed = 5.0
 		// estimated power consumption is 2.0
-		monitor.addAttribute("bandwidth", "5.0");
+		monitor.addAttribute(NETWORK_LINK_SPEED_ATTRIBUTE, "5.0");
 		assertEquals(2.0, networkPowerAndEnergyEstimator.estimatePower());
 
 		// linkStatus is up, bandwidthUtilization = 10.0, linkSpeed = 100.0
 		// estimated power consumption is 5.5
-		monitor.addMetric("hw.network.bandwidth.limit", NumberMetric.builder().value(10.0).build());
-		monitor.addAttribute("bandwidth", "100.0");
+		monitor.addMetric(NETWORK_BANDWIDTH_UTILIZATION_METRIC, NumberMetric.builder().value(10.0).build());
+		monitor.addAttribute(NETWORK_LINK_SPEED_ATTRIBUTE, "100.0");
 		assertEquals(5.5, networkPowerAndEnergyEstimator.estimatePower());
 
 		// linkStatus is up, bandwidthUtilization = 10.0, linkSpeed = 5.0
 		// estimated power consumption is 2.75
-		monitor.addAttribute("bandwidth", "5.0");
+		monitor.addAttribute(NETWORK_LINK_SPEED_ATTRIBUTE, "5.0");
 		assertEquals(2.75, networkPowerAndEnergyEstimator.estimatePower());
 	}
 
@@ -67,13 +71,13 @@ class NetworkPowerAndEnergyEstimatorTest {
 	void testEstimateEnergy() {
 		Monitor monitor = Monitor
 			.builder()
-			.attributes(new HashMap<>(Map.of("name", "real_network_card", "bandwidth", "100.0")))
+			.attributes(new HashMap<>(Map.of("name", "real_network_card", NETWORK_LINK_SPEED_ATTRIBUTE, "100.0")))
 			.metrics(
 				new HashMap<>(
 					Map.of(
-						"hw.network.up",
+						NETWORK_LINK_STATUS_METRIC,
 						NumberMetric.builder().value(1.0).build(),
-						"hw.network.bandwidth.limit",
+						NETWORK_BANDWIDTH_UTILIZATION_METRIC,
 						NumberMetric.builder().value(10.0).build()
 					)
 				)
@@ -92,9 +96,10 @@ class NetworkPowerAndEnergyEstimatorTest {
 		// Estimate energy consumption, no previous collect time
 		assertNull(networkPowerAndEnergyEstimator.estimateEnergy());
 
-		// Estimate power consumption: 5.5
+		// Estimate power consumption
 		Double estimatedPower = networkPowerAndEnergyEstimator.estimatePower();
-
+		Double estimatedEnergy = networkPowerAndEnergyEstimator.estimateEnergy();
+		assertNull(estimatedEnergy);
 		// Create metricFactory and collect power
 		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
 		final NumberMetric collectedPowerMetric = metricFactory.collectNumberMetric(
@@ -106,8 +111,9 @@ class NetworkPowerAndEnergyEstimatorTest {
 
 		// Save the collected power metric
 		collectedPowerMetric.save();
+		telemetryManager.setStrategyTime(telemetryManager.getStrategyTime() + 2 * 60 * 1000);
 
-		// Estimate power consumption again: still 5.5
+		// Estimate power consumption again
 		estimatedPower = networkPowerAndEnergyEstimator.estimatePower();
 
 		// Collect the new power consumption metric
@@ -119,6 +125,31 @@ class NetworkPowerAndEnergyEstimatorTest {
 		);
 
 		// Estimate the energy
-		assertEquals(5.5, networkPowerAndEnergyEstimator.estimateEnergy());
+		estimatedEnergy = networkPowerAndEnergyEstimator.estimateEnergy();
+		assertEquals(660.0, estimatedEnergy);
+		final NumberMetric collectedEnergyMetric = metricFactory.collectNumberMetric(
+			monitor,
+			NETWORK_ENERGY_METRIC,
+			estimatedEnergy,
+			telemetryManager.getStrategyTime()
+		);
+		collectedEnergyMetric.save();
+		collectedPowerMetric.save();
+
+		telemetryManager.setStrategyTime(telemetryManager.getStrategyTime() + 2 * 60 * 1000);
+
+		// Estimate power consumption again
+		estimatedPower = networkPowerAndEnergyEstimator.estimatePower();
+
+		// Collect the new power consumption metric
+		metricFactory.collectNumberMetric(
+			monitor,
+			NETWORK_POWER_METRIC,
+			estimatedPower,
+			telemetryManager.getStrategyTime()
+		);
+
+		// Estimate the energy
+		assertEquals(1320.0, networkPowerAndEnergyEstimator.estimateEnergy());
 	}
 }

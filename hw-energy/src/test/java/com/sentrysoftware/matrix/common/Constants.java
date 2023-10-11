@@ -16,4 +16,8 @@ public class Constants {
 	public static final String DISK_CONTROLLER_POWER_METRIC = "hw.power{hw.type=\"disk_controller\"}";
 	public static final String DISK_CONTROLLER_ENERGY_METRIC = "hw.energy{hw.type=\"disk_controller\"}";
 	public static final String NETWORK_POWER_METRIC = "hw.power{hw.type=\"network\"}";
+	public static final String NETWORK_ENERGY_METRIC = "hw.energy{hw.type=\"network\"}";
+	public static final String NETWORK_LINK_STATUS_METRIC = "hw.network.up";
+	public static final String NETWORK_LINK_SPEED_ATTRIBUTE = "bandwidth";
+	public static final String NETWORK_BANDWIDTH_UTILIZATION_METRIC = "hw.network.bandwidth.limit";
 }
