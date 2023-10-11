@@ -2,6 +2,7 @@ package com.sentrysoftware.matrix.sustainability;
 
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import com.sentrysoftware.matrix.util.HwCollectHelper;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -21,7 +22,8 @@ public class MemoryPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimat
 	 */
 	@Override
 	public Double estimatePower() {
-		return null;
+		// The power consumption of a memory module is always assumed to be 4 watts.
+		return 4.0;
 	}
 
 	/**
@@ -30,6 +32,13 @@ public class MemoryPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimat
 	 */
 	@Override
 	public Double estimateEnergy() {
-		return null;
+		final Double estimatedPower = estimatePower();
+		return HwCollectHelper.estimateEnergyUsingPower(
+			monitor,
+			telemetryManager,
+			estimatedPower,
+			"hw.power{hw.type=\"memory\"}",
+			telemetryManager.getStrategyTime()
+		);
 	}
 }
