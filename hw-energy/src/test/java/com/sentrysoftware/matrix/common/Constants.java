@@ -14,4 +14,6 @@ public class Constants {
 	public static final String TAPE_DRIVE_UNMOUNT_COUNT_METRIC = "hw.tape_drive.operations{type=\"unmount\"}";
 	public static final String TAPE_DRIVE_POWER_METRIC = "hw.power{hw.type=\"tape_drive\"}";
 	public static final String TAPE_DRIVE_ENERGY_METRIC = "hw.energy{hw.type=\"tape_drive\"}";
+
+	public static final String NETWORK_POWER_METRIC = "hw.power{hw.type=\"network\"}";
 }
