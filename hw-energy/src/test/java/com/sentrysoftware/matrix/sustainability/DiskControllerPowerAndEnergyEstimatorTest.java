@@ -2,6 +2,7 @@ package com.sentrysoftware.matrix.sustainability;
 
 import static com.sentrysoftware.matrix.common.Constants.DISK_CONTROLLER_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.DISK_CONTROLLER_POWER_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.LOCALHOST;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -27,7 +28,7 @@ class DiskControllerPowerAndEnergyEstimatorTest {
 			TelemetryManager
 				.builder()
 				.strategyTime(1696597422644L)
-				.hostConfiguration(HostConfiguration.builder().hostname("localhost").build())
+				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).build())
 				.build();
 		diskControllerPowerAndEnergyEstimator = new DiskControllerPowerAndEnergyEstimator(monitor, telemetryManager);
 	}
