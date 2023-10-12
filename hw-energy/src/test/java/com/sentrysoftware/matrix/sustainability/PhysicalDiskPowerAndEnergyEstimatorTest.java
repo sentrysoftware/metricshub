@@ -22,7 +22,7 @@ class PhysicalDiskPowerAndEnergyEstimatorTest {
 
 	private Monitor monitor = null;
 	private TelemetryManager telemetryManager = null;
-	private static final String PARENT_MONITOR_ID = "monitor2";
+	private static final String PARENT_MONITOR_ID_ATTRIBUTE_VALUE = "monitorTwo";
 
 	@BeforeEach
 	void init() {
@@ -316,15 +316,31 @@ class PhysicalDiskPowerAndEnergyEstimatorTest {
 	void testEstimatePowerWithParentMonitorData() {
 		final Monitor parentMonitor = Monitor
 			.builder()
-			.id(PARENT_MONITOR_ID)
+			.id("monitorOne")
 			.type(KnownMonitorType.DISK_CONTROLLER.getKey())
-			.attributes(new HashMap<>(Map.of("name", "parentName5400")))
+			.attributes(
+				new HashMap<>(
+					Map.of(
+						"name",
+						"parentName5400",
+						"id",
+						PARENT_MONITOR_ID_ATTRIBUTE_VALUE,
+						"type",
+						KnownMonitorType.PHYSICAL_DISK.getKey()
+					)
+				)
+			)
 			.build();
-		final Map<String, Monitor> diskControllerMonitorsMap = new HashMap<>(Map.of(PARENT_MONITOR_ID, parentMonitor));
+		final Map<String, Monitor> diskControllerMonitorsMap = new HashMap<>(Map.of("monitorOneParent", parentMonitor));
 		telemetryManager.getMonitors().put(KnownMonitorType.DISK_CONTROLLER.getKey(), diskControllerMonitorsMap);
 		monitor.setAttributes(
 			new HashMap<>(
-				Map.of("hw.parent.id", PARENT_MONITOR_ID, "hw.parent.type", KnownMonitorType.DISK_CONTROLLER.getKey())
+				Map.of(
+					"hw.parent.id",
+					PARENT_MONITOR_ID_ATTRIBUTE_VALUE,
+					"hw.parent.type",
+					KnownMonitorType.DISK_CONTROLLER.getKey()
+				)
 			)
 		);
 		// SATA is selected here, since the parent's name attribute contains the string "5400", the estimated power value is 7.0
@@ -335,15 +351,31 @@ class PhysicalDiskPowerAndEnergyEstimatorTest {
 	void testEstimateEnergyWithParentMonitorData() {
 		final Monitor parentMonitor = Monitor
 			.builder()
-			.id(PARENT_MONITOR_ID)
+			.id("monitor1")
 			.type(KnownMonitorType.DISK_CONTROLLER.getKey())
-			.attributes(new HashMap<>(Map.of("name", "parentName5400")))
+			.attributes(
+				new HashMap<>(
+					Map.of(
+						"name",
+						"parentName5400",
+						"id",
+						PARENT_MONITOR_ID_ATTRIBUTE_VALUE,
+						"type",
+						KnownMonitorType.PHYSICAL_DISK.getKey()
+					)
+				)
+			)
 			.build();
-		final Map<String, Monitor> diskControllerMonitorsMap = new HashMap<>(Map.of(PARENT_MONITOR_ID, parentMonitor));
+		final Map<String, Monitor> diskControllerMonitorsMap = new HashMap<>(Map.of("parentMonitor", parentMonitor));
 		telemetryManager.getMonitors().put(KnownMonitorType.DISK_CONTROLLER.getKey(), diskControllerMonitorsMap);
 		monitor.setAttributes(
 			new HashMap<>(
-				Map.of("hw.parent.id", PARENT_MONITOR_ID, "hw.parent.type", KnownMonitorType.DISK_CONTROLLER.getKey())
+				Map.of(
+					"hw.parent.id",
+					PARENT_MONITOR_ID_ATTRIBUTE_VALUE,
+					"hw.parent.type",
+					KnownMonitorType.DISK_CONTROLLER.getKey()
+				)
 			)
 		);
 

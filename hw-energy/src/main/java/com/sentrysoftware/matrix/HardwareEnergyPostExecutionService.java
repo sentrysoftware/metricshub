@@ -66,6 +66,8 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 		// For each monitor, estimate and collect power and energy consumption metrics
 		sameTypeMonitors
 			.values()
+			.stream()
+			.filter(monitor -> monitor != null)
 			.forEach(monitor ->
 				PowerAndEnergyCollectHelper.collectPowerAndEnergy(
 					monitor,

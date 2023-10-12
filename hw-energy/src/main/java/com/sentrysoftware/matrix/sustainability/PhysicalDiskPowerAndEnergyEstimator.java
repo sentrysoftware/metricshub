@@ -5,11 +5,14 @@ import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_PHYSICAL_DISK
 import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_PHYSICAL_DISK_METRIC;
 
 import com.sentrysoftware.matrix.common.helpers.ArrayHelper;
+import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import com.sentrysoftware.matrix.util.HwCollectHelper;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -36,17 +39,21 @@ public class PhysicalDiskPowerAndEnergyEstimator extends HardwarePowerAndEnergyE
 		monitorDataList.add(monitor.getAttribute("model"));
 		monitorDataList.add(monitor.getAttribute("info"));
 
-		final String hwParentIdAttributeKey = monitor.getAttribute("hw.parent.id");
-		final String hwParentTypeAttributeKey = monitor.getAttribute("hw.parent.type");
+		final String hwParentId = monitor.getAttribute("hw.parent.id");
+		final String hwParentType = monitor.getAttribute("hw.parent.type");
 
-		if (hwParentTypeAttributeKey != null && hwParentIdAttributeKey != null) {
-			final Monitor parentMonitor = telemetryManager.findMonitorByTypeAndId(
-				hwParentTypeAttributeKey,
-				hwParentIdAttributeKey
-			);
-			if (parentMonitor != null) {
-				monitorDataList.add(parentMonitor.getAttribute("name"));
-			}
+		if (hwParentType != null && hwParentId != null) {
+			Optional
+				.ofNullable(telemetryManager.findMonitorByType(hwParentType))
+				.ifPresent(sameTypeMonitors ->
+					sameTypeMonitors
+						.entrySet()
+						.stream()
+						.filter(entry -> hwParentId.equals(entry.getValue().getAttribute(MatrixConstants.MONITOR_ATTRIBUTE_ID)))
+						.map(Map.Entry::getValue)
+						.findFirst()
+						.ifPresent(parent -> monitorDataList.add(parent.getAttribute(MONITOR_ATTRIBUTE_NAME)))
+				);
 		}
 
 		final String[] monitorData = monitorDataList.toArray(new String[0]);
