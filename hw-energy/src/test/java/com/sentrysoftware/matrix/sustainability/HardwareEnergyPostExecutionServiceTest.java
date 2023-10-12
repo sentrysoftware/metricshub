@@ -5,14 +5,14 @@ import static com.sentrysoftware.matrix.common.Constants.DISK_CONTROLLER_POWER_M
 import static com.sentrysoftware.matrix.common.Constants.FAN_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.FAN_POWER_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.FAN_SPEED_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.LOCALHOST;
+import static com.sentrysoftware.matrix.common.Constants.MEMORY_ENERGY_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.MEMORY_POWER_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.NETWORK_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.NETWORK_LINK_SPEED_ATTRIBUTE;
 import static com.sentrysoftware.matrix.common.Constants.NETWORK_LINK_STATUS_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.NETWORK_POWER_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.NETWORK_TRANSMTTED_BANDWIDTH_UTILIZATION_METRIC;
-import static com.sentrysoftware.matrix.common.Constants.LOCALHOST;
-import static com.sentrysoftware.matrix.common.Constants.MEMORY_ENERGY_METRIC;
-import static com.sentrysoftware.matrix.common.Constants.MEMORY_POWER_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.ROBOTICS_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.ROBOTICS_MOVE_COUNT_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.ROBOTICS_POWER_METRIC;
