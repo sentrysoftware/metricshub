@@ -18,6 +18,7 @@ public class Constants {
 	public static final String NETWORK_POWER_METRIC = "hw.power{hw.type=\"network\"}";
 	public static final String NETWORK_ENERGY_METRIC = "hw.energy{hw.type=\"network\"}";
 	public static final String NETWORK_LINK_STATUS_METRIC = "hw.network.up";
-	public static final String NETWORK_LINK_SPEED_ATTRIBUTE = "bandwidth";
-	public static final String NETWORK_BANDWIDTH_UTILIZATION_METRIC = "hw.network.bandwidth.limit";
+	public static final String NETWORK_LINK_SPEED_ATTRIBUTE = "hw.network.bandwidth.limit";
+	public static final String NETWORK_TRANSMTTED_BANDWIDTH_UTILIZATION_METRIC =
+		"hw.network.bandwidth.utilization{direction=\"transmit\"}";
 }

@@ -33,31 +33,30 @@ public class NetworkPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstima
 			return 0.0;
 		}
 
-		// If the Link Status value is '1' (unplugged), the power consumption is 1 watt.
+		// If the Link Status value is '1' (unplugged), the power consumption is 1 Watt.
 		final Double linkStatus = CollectHelper.getNumberMetricValue(monitor, "hw.network.up", false);
-		if (linkStatus != null && Double.valueOf(1.0).compareTo(linkStatus) != 0) {
+		if (linkStatus != null && linkStatus == 1.0) {
 			return 1.0;
 		}
 
-		final Double bandwidthUtilization = CollectHelper.getNumberMetricValue(
+		final Double linkSpeed = CollectHelper.getNumberMetricValue(monitor, "hw.network.bandwidth.limit", false);
+
+		final Double transmittedBandwidthUtilization = CollectHelper.getNumberMetricValue(
 			monitor,
-			"hw.network.bandwidth.limit",
+			"hw.network.bandwidth.utilization{direction=\"transmit\"}",
 			false
 		);
-		final Double linkSpeed = monitor.getAttribute("bandwidth") != null
-			? Double.valueOf(monitor.getAttribute("bandwidth"))
-			: null;
 
 		/*
 		 * If Bandwidth Utilization is provided:
-		 * Link Speed > 10: (0.5 + 0.5 * Bandwidth Utilization / 100) * 5 * log10(Link Speed)
-		 * Default: (0.5 + 0.5 * bandwidth Utilization / 100) * 5
+		 * Link Speed > 10: (0.5 + 0.5 * Bandwidth Utilization) * 5 * log10(Link Speed)
+		 * Default: (0.5 + 0.5 * bandwidth Utilization) * 5
 		 */
-		if (bandwidthUtilization != null) {
-			if (linkSpeed != null && linkSpeed.compareTo(10.0) > 0) {
-				return (0.5 + 0.5 * bandwidthUtilization / 100) * 5 * Math.log10(linkSpeed);
+		if (HwCollectHelper.isValidRatio(transmittedBandwidthUtilization)) {
+			if (HwCollectHelper.isValidPositive(linkSpeed) && linkSpeed > 10) {
+				return (0.5 + 0.5 * transmittedBandwidthUtilization) * 5 * Math.log10(linkSpeed);
 			} else {
-				return (0.5 + 0.5 * bandwidthUtilization / 100) * 5;
+				return (0.5 + 0.5 * transmittedBandwidthUtilization) * 5;
 			}
 		}
 
@@ -67,14 +66,14 @@ public class NetworkPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstima
 		 * Default: 2
 		 */
 		if (linkSpeed != null) {
-			if (linkSpeed.compareTo(10.0) > 0) {
+			if (linkSpeed > 10) {
 				return 0.75 * 5 * Math.log10(linkSpeed);
 			} else {
 				return 2.0;
 			}
 		}
 
-		// In any other case, assume 10 watts.
+		// If we don't have the linkSpeed, we can't compute the bandwidthUtilization and assume the power is 10 Watts
 		return 10.0;
 	}
 
@@ -84,7 +83,6 @@ public class NetworkPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstima
 	 */
 	@Override
 	public Double estimateEnergy() {
-		final Double estimatedPower = estimatePower();
 		return HwCollectHelper.estimateEnergyUsingPower(
 			monitor,
 			telemetryManager,
