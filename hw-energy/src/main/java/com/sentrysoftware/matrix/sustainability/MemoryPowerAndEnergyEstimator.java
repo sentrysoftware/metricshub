@@ -21,6 +21,7 @@ public class MemoryPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimat
 
 	/**
 	 * Estimates the power consumption of the Memory monitor
+	 *
 	 * @return Double
 	 */
 	@Override
@@ -31,11 +32,11 @@ public class MemoryPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimat
 
 	/**
 	 * Estimates the energy consumption of the Memory monitor
+	 *
 	 * @return Double
 	 */
 	@Override
 	public Double estimateEnergy() {
-		final Double estimatedPower = estimatePower();
 		return HwCollectHelper.estimateEnergyUsingPower(
 			monitor,
 			telemetryManager,
