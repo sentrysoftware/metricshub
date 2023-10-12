@@ -5,6 +5,9 @@ import static com.sentrysoftware.matrix.common.Constants.DISK_CONTROLLER_POWER_M
 import static com.sentrysoftware.matrix.common.Constants.FAN_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.FAN_POWER_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.FAN_SPEED_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.LOCALHOST;
+import static com.sentrysoftware.matrix.common.Constants.MEMORY_ENERGY_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.MEMORY_POWER_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.PHYSICAL_DISK_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.PHYSICAL_DISK_POWER_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.ROBOTICS_ENERGY_METRIC;
@@ -33,32 +36,31 @@ class HardwareEnergyPostExecutionServiceTest {
 
 	private TelemetryManager telemetryManager = null;
 
-	private static final String FAN = KnownMonitorType.FAN.getKey();
-	private static final String ROBOTICS = KnownMonitorType.ROBOTICS.getKey();
-
-	private static final String TAPE_DRIVE = KnownMonitorType.TAPE_DRIVE.getKey();
 	private static final String DISK_CONTROLLER = KnownMonitorType.DISK_CONTROLLER.getKey();
-
+	private static final String FAN = KnownMonitorType.FAN.getKey();
+	private static final String MEMORY = KnownMonitorType.MEMORY.getKey();
+	private static final String ROBOTICS = KnownMonitorType.ROBOTICS.getKey();
+	private static final String TAPE_DRIVE = KnownMonitorType.TAPE_DRIVE.getKey();
 	private static final String PHYSICAL_DISK = KnownMonitorType.PHYSICAL_DISK.getKey();
 
 	@BeforeEach
 	void init() {
 		telemetryManager =
-			TelemetryManager
-				.builder()
-				.strategyTime(1696597422644L)
-				.hostConfiguration(HostConfiguration.builder().hostname("localhost").build())
-				.build();
+				TelemetryManager
+						.builder()
+						.strategyTime(1696597422644L)
+						.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).build())
+						.build();
 	}
 
 	@Test
 	void testRunWithFanMonitor() {
 		// Create a fan monitor
 		final Monitor fanMonitor = Monitor
-			.builder()
-			.type(FAN)
-			.metrics(new HashMap<>(Map.of(FAN_SPEED_METRIC, NumberMetric.builder().value(0.7).build())))
-			.build();
+				.builder()
+				.type(FAN)
+				.metrics(new HashMap<>(Map.of(FAN_SPEED_METRIC, NumberMetric.builder().value(0.7).build())))
+				.build();
 
 		// Set the previously created fan monitor in telemetryManager
 		final Map<String, Monitor> fanMonitors = new HashMap<>(Map.of("monitor1", fanMonitor));
@@ -79,10 +81,10 @@ class HardwareEnergyPostExecutionServiceTest {
 	void testRunWithRoboticsMonitor() {
 		// Create a robotics monitor
 		final Monitor roboticsMonitor = Monitor
-			.builder()
-			.type(ROBOTICS)
-			.metrics(new HashMap<>(Map.of(ROBOTICS_MOVE_COUNT_METRIC, NumberMetric.builder().value(0.7).build())))
-			.build();
+				.builder()
+				.type(ROBOTICS)
+				.metrics(new HashMap<>(Map.of(ROBOTICS_MOVE_COUNT_METRIC, NumberMetric.builder().value(0.7).build())))
+				.build();
 
 		// Set the previously created robotics monitor in telemetryManager
 		final Map<String, Monitor> roboticsMonitors = new HashMap<>(Map.of("monitor2", roboticsMonitor));
@@ -103,20 +105,20 @@ class HardwareEnergyPostExecutionServiceTest {
 	void testRunWithTapeDriveMonitor() {
 		// Create a tape drive monitor
 		final Monitor tapeDriveMonitor = Monitor
-			.builder()
-			.type(TAPE_DRIVE)
-			.metrics(
-				new HashMap<>(
-					Map.of(
-						TAPE_DRIVE_MOUNT_COUNT_METRIC,
-						NumberMetric.builder().value(0.7).build(),
-						TAPE_DRIVE_UNMOUNT_COUNT_METRIC,
-						NumberMetric.builder().value(0.1).build()
-					)
+				.builder()
+				.type(TAPE_DRIVE)
+				.metrics(
+						new HashMap<>(
+								Map.of(
+										TAPE_DRIVE_MOUNT_COUNT_METRIC,
+										NumberMetric.builder().value(0.7).build(),
+										TAPE_DRIVE_UNMOUNT_COUNT_METRIC,
+										NumberMetric.builder().value(0.1).build()
+								)
+						)
 				)
-			)
-			.attributes(new HashMap<>(Map.of("name", "lto123")))
-			.build();
+				.attributes(new HashMap<>(Map.of("name", "lto123")))
+				.build();
 
 		// Set the previously created tape drive monitor in telemetryManager
 		final Map<String, Monitor> tapeDriveMonitors = new HashMap<>(Map.of("monitor3", tapeDriveMonitor));
@@ -151,6 +153,26 @@ class HardwareEnergyPostExecutionServiceTest {
 
 		// Check the computed and collected energy metric
 		assertNotNull(diskControllerMonitor.getMetric(DISK_CONTROLLER_ENERGY_METRIC, NumberMetric.class));
+	}
+
+	@Test
+	void testRunWithMemoryMonitor() {
+		// Create a fan monitor
+		final Monitor monitor = Monitor.builder().type(MEMORY).build();
+
+		// Set the previously created monitor in telemetryManager
+		final Map<String, Monitor> monitors = new HashMap<>(Map.of("monitor1", monitor));
+		telemetryManager.setMonitors(new HashMap<>(Map.of(MEMORY, monitors)));
+
+		// Call run method in HardwareEnergyPostExecutionService
+		hardwareEnergyPostExecutionService = new HardwareEnergyPostExecutionService(telemetryManager);
+		hardwareEnergyPostExecutionService.run();
+
+		// Check the computed and collected power metric
+		assertNotNull(monitor.getMetric(MEMORY_POWER_METRIC, NumberMetric.class));
+
+		// Check the computed and collected energy metric
+		assertNotNull(monitor.getMetric(MEMORY_ENERGY_METRIC, NumberMetric.class));
 	}
 
 	@Test

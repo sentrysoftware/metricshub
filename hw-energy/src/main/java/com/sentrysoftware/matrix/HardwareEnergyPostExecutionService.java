@@ -2,11 +2,13 @@ package com.sentrysoftware.matrix;
 
 import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_DISK_CONTROLLER_METRIC;
 import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_FAN_METRIC;
+import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_MEMORY_METRIC;
 import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_PHYSICAL_DISK_METRIC;
 import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_ROBOTICS_METRIC;
 import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_TAPE_DRIVE_METRIC;
 import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_DISK_CONTROLLER_METRIC;
 import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_FAN_METRIC;
+import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_MEMORY_METRIC;
 import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_PHYSICAL_DISK_METRIC;
 import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_ROBOTICS_METRIC;
 import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_TAPE_DRIVE_METRIC;
@@ -16,6 +18,7 @@ import com.sentrysoftware.matrix.delegate.IPostExecutionService;
 import com.sentrysoftware.matrix.sustainability.DiskControllerPowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.sustainability.FanPowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.sustainability.HardwarePowerAndEnergyEstimator;
+import com.sentrysoftware.matrix.sustainability.MemoryPowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.sustainability.PhysicalDiskPowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.sustainability.RoboticsPowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.sustainability.TapeDrivePowerAndEnergyEstimator;
@@ -48,10 +51,10 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 	 * @param estimatorGenerator Function that generates the estimator
 	 */
 	private void estimateAndCollectPowerAndEnergyForMonitorType(
-		final KnownMonitorType monitorType,
-		final String powerMetricName,
-		final String energyMetricName,
-		final BiFunction<Monitor, TelemetryManager, HardwarePowerAndEnergyEstimator> estimatorGenerator
+			final KnownMonitorType monitorType,
+			final String powerMetricName,
+			final String energyMetricName,
+			final BiFunction<Monitor, TelemetryManager, HardwarePowerAndEnergyEstimator> estimatorGenerator
 	) {
 		// Find monitors having the selected monitor type
 		final String monitorTypeKey = monitorType.getKey();
@@ -65,18 +68,16 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 
 		// For each monitor, estimate and collect power and energy consumption metrics
 		sameTypeMonitors
-			.values()
-			.stream()
-			.filter(monitor -> monitor != null)
-			.forEach(monitor ->
-				PowerAndEnergyCollectHelper.collectPowerAndEnergy(
-					monitor,
-					powerMetricName,
-					energyMetricName,
-					telemetryManager,
-					estimatorGenerator.apply(monitor, telemetryManager)
-				)
-			);
+				.values()
+				.forEach(monitor ->
+						PowerAndEnergyCollectHelper.collectPowerAndEnergy(
+								monitor,
+								powerMetricName,
+								energyMetricName,
+								telemetryManager,
+								estimatorGenerator.apply(monitor, telemetryManager)
+						)
+				);
 	}
 
 	/**
@@ -86,38 +87,45 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 	@Override
 	public void run() {
 		estimateAndCollectPowerAndEnergyForMonitorType(
-			KnownMonitorType.FAN,
-			HW_POWER_FAN_METRIC,
-			HW_ENERGY_FAN_METRIC,
-			FanPowerAndEnergyEstimator::new
+				KnownMonitorType.FAN,
+				HW_POWER_FAN_METRIC,
+				HW_ENERGY_FAN_METRIC,
+				FanPowerAndEnergyEstimator::new
 		);
 
 		estimateAndCollectPowerAndEnergyForMonitorType(
-			KnownMonitorType.ROBOTICS,
-			HW_POWER_ROBOTICS_METRIC,
-			HW_ENERGY_ROBOTICS_METRIC,
-			RoboticsPowerAndEnergyEstimator::new
+				KnownMonitorType.ROBOTICS,
+				HW_POWER_ROBOTICS_METRIC,
+				HW_ENERGY_ROBOTICS_METRIC,
+				RoboticsPowerAndEnergyEstimator::new
 		);
 
 		estimateAndCollectPowerAndEnergyForMonitorType(
-			KnownMonitorType.TAPE_DRIVE,
-			HW_POWER_TAPE_DRIVE_METRIC,
-			HW_ENERGY_TAPE_DRIVE_METRIC,
-			TapeDrivePowerAndEnergyEstimator::new
+				KnownMonitorType.TAPE_DRIVE,
+				HW_POWER_TAPE_DRIVE_METRIC,
+				HW_ENERGY_TAPE_DRIVE_METRIC,
+				TapeDrivePowerAndEnergyEstimator::new
 		);
 
 		estimateAndCollectPowerAndEnergyForMonitorType(
-			KnownMonitorType.DISK_CONTROLLER,
-			HW_POWER_DISK_CONTROLLER_METRIC,
-			HW_ENERGY_DISK_CONTROLLER_METRIC,
-			DiskControllerPowerAndEnergyEstimator::new
+				KnownMonitorType.DISK_CONTROLLER,
+				HW_POWER_DISK_CONTROLLER_METRIC,
+				HW_ENERGY_DISK_CONTROLLER_METRIC,
+				DiskControllerPowerAndEnergyEstimator::new
 		);
 
 		estimateAndCollectPowerAndEnergyForMonitorType(
-			KnownMonitorType.PHYSICAL_DISK,
-			HW_POWER_PHYSICAL_DISK_METRIC,
-			HW_ENERGY_PHYSICAL_DISK_METRIC,
-			PhysicalDiskPowerAndEnergyEstimator::new
+				KnownMonitorType.MEMORY,
+				HW_POWER_MEMORY_METRIC,
+				HW_ENERGY_MEMORY_METRIC,
+				MemoryPowerAndEnergyEstimator::new
+		);
+
+		estimateAndCollectPowerAndEnergyForMonitorType(
+				KnownMonitorType.PHYSICAL_DISK,
+				HW_POWER_PHYSICAL_DISK_METRIC,
+				HW_ENERGY_PHYSICAL_DISK_METRIC,
+				PhysicalDiskPowerAndEnergyEstimator::new
 		);
 	}
 }

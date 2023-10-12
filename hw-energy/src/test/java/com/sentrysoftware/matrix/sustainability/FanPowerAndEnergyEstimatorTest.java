@@ -4,6 +4,7 @@ import static com.sentrysoftware.matrix.common.Constants.FAN_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.FAN_POWER_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.FAN_SPEED_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.FAN_SPEED_RATIO_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.LOCALHOST;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -44,7 +45,7 @@ class FanPowerAndEnergyEstimatorTest {
 			TelemetryManager
 				.builder()
 				.strategyTime(1696597422644L)
-				.hostConfiguration(HostConfiguration.builder().hostname("localhost").build())
+				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).build())
 				.build();
 		fanPowerAndEnergyEstimator = new FanPowerAndEnergyEstimator(monitor, telemetryManager);
 	}
