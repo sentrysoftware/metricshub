@@ -8,6 +8,8 @@ import com.sentrysoftware.matrix.common.helpers.ArrayHelper;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import com.sentrysoftware.matrix.util.HwCollectHelper;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -29,11 +31,25 @@ public class PhysicalDiskPowerAndEnergyEstimator extends HardwarePowerAndEnergyE
 	protected Double doPowerEstimation() {
 		final double powerConsumption;
 
-		final String[] monitorData = {
-			monitor.getAttribute(MONITOR_ATTRIBUTE_NAME),
-			monitor.getAttribute("model"),
-			monitor.getAttribute("info")
-		};
+		final List<String> monitorDataList = new ArrayList<String>();
+		monitorDataList.add(monitor.getAttribute(MONITOR_ATTRIBUTE_NAME));
+		monitorDataList.add(monitor.getAttribute("model"));
+		monitorDataList.add(monitor.getAttribute("info"));
+
+		final String hwParentIdAttributeKey = monitor.getAttribute("hw.parent.id");
+		final String hwParentTypeAttributeKey = monitor.getAttribute("hw.parent.type");
+
+		if (hwParentTypeAttributeKey != null && hwParentIdAttributeKey != null) {
+			final Monitor parentMonitor = telemetryManager.findMonitorByTypeAndId(
+				hwParentTypeAttributeKey,
+				hwParentIdAttributeKey
+			);
+			if (parentMonitor != null) {
+				monitorDataList.add(parentMonitor.getAttribute("name"));
+			}
+		}
+
+		final String[] monitorData = monitorDataList.toArray(new String[0]);
 
 		// SSD
 		if (ArrayHelper.anyMatchLowerCase(str -> str.contains("ssd") || str.contains("solid"), monitorData)) {

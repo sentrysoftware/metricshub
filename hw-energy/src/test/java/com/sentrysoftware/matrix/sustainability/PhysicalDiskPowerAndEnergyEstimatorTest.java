@@ -5,6 +5,7 @@ import static com.sentrysoftware.matrix.common.Constants.PHYSICAL_DISK_POWER_MET
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.telemetry.MetricFactory;
 import com.sentrysoftware.matrix.telemetry.Monitor;
@@ -21,6 +22,7 @@ class PhysicalDiskPowerAndEnergyEstimatorTest {
 
 	private Monitor monitor = null;
 	private TelemetryManager telemetryManager = null;
+	private static final String PARENT_MONITOR_ID = "monitor2";
 
 	@BeforeEach
 	void init() {
@@ -308,5 +310,101 @@ class PhysicalDiskPowerAndEnergyEstimatorTest {
 
 		// Estimate the energy
 		assertEquals(2640.0, physicalDiskPowerAndEnergyEstimator.estimateEnergy());
+	}
+
+	@Test
+	void testEstimatePowerWithParentMonitorData() {
+		final Monitor parentMonitor = Monitor
+			.builder()
+			.id(PARENT_MONITOR_ID)
+			.type(KnownMonitorType.DISK_CONTROLLER.getKey())
+			.attributes(new HashMap<>(Map.of("name", "parentName5400")))
+			.build();
+		final Map<String, Monitor> diskControllerMonitorsMap = new HashMap<>(Map.of(PARENT_MONITOR_ID, parentMonitor));
+		telemetryManager.getMonitors().put(KnownMonitorType.DISK_CONTROLLER.getKey(), diskControllerMonitorsMap);
+		monitor.setAttributes(
+			new HashMap<>(
+				Map.of("hw.parent.id", PARENT_MONITOR_ID, "hw.parent.type", KnownMonitorType.DISK_CONTROLLER.getKey())
+			)
+		);
+		// SATA is selected here, since the parent's name attribute contains the string "5400", the estimated power value is 7.0
+		assertEquals(7.0, physicalDiskPowerAndEnergyEstimator.estimatePower());
+	}
+
+	@Test
+	void testEstimateEnergyWithParentMonitorData() {
+		final Monitor parentMonitor = Monitor
+			.builder()
+			.id(PARENT_MONITOR_ID)
+			.type(KnownMonitorType.DISK_CONTROLLER.getKey())
+			.attributes(new HashMap<>(Map.of("name", "parentName5400")))
+			.build();
+		final Map<String, Monitor> diskControllerMonitorsMap = new HashMap<>(Map.of(PARENT_MONITOR_ID, parentMonitor));
+		telemetryManager.getMonitors().put(KnownMonitorType.DISK_CONTROLLER.getKey(), diskControllerMonitorsMap);
+		monitor.setAttributes(
+			new HashMap<>(
+				Map.of("hw.parent.id", PARENT_MONITOR_ID, "hw.parent.type", KnownMonitorType.DISK_CONTROLLER.getKey())
+			)
+		);
+
+		// Estimate energy consumption, no previous collect time
+		// SATA is selected here, since the parent's name attribute contains the string "5400", the estimated power value is 7.0
+		assertNull(physicalDiskPowerAndEnergyEstimator.estimateEnergy());
+
+		// Estimate power consumption
+		Double estimatedPower = physicalDiskPowerAndEnergyEstimator.estimatePower();
+		Double estimatedEnergy = physicalDiskPowerAndEnergyEstimator.estimateEnergy();
+		assertNull(estimatedEnergy);
+		// Create metricFactory and collect power
+		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
+		final NumberMetric collectedPowerMetric = metricFactory.collectNumberMetric(
+			monitor,
+			PHYSICAL_DISK_POWER_METRIC,
+			estimatedPower,
+			telemetryManager.getStrategyTime()
+		);
+
+		// Save the collected power metric
+		collectedPowerMetric.save();
+		telemetryManager.setStrategyTime(telemetryManager.getStrategyTime() + 2 * 60 * 1000);
+
+		// Estimate power consumption again
+		estimatedPower = physicalDiskPowerAndEnergyEstimator.estimatePower();
+
+		// Collect the new power consumption metric
+		metricFactory.collectNumberMetric(
+			monitor,
+			PHYSICAL_DISK_POWER_METRIC,
+			estimatedPower,
+			telemetryManager.getStrategyTime()
+		);
+
+		// Estimate the energy
+		estimatedEnergy = physicalDiskPowerAndEnergyEstimator.estimateEnergy();
+		assertEquals(840.0, estimatedEnergy);
+		final NumberMetric collectedEnergyMetric = metricFactory.collectNumberMetric(
+			monitor,
+			PHYSICAL_DISK_ENERGY_METRIC,
+			estimatedEnergy,
+			telemetryManager.getStrategyTime()
+		);
+		collectedEnergyMetric.save();
+		collectedPowerMetric.save();
+
+		telemetryManager.setStrategyTime(telemetryManager.getStrategyTime() + 2 * 60 * 1000);
+
+		// Estimate power consumption again
+		estimatedPower = physicalDiskPowerAndEnergyEstimator.estimatePower();
+
+		// Collect the new power consumption metric
+		metricFactory.collectNumberMetric(
+			monitor,
+			PHYSICAL_DISK_POWER_METRIC,
+			estimatedPower,
+			telemetryManager.getStrategyTime()
+		);
+
+		// Estimate the energy
+		assertEquals(1680.0, physicalDiskPowerAndEnergyEstimator.estimateEnergy());
 	}
 }
