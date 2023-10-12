@@ -34,7 +34,7 @@ public class PhysicalDiskPowerAndEnergyEstimator extends HardwarePowerAndEnergyE
 	protected Double doPowerEstimation() {
 		final double powerConsumption;
 
-		final List<String> monitorDataList = new ArrayList<String>();
+		final List<String> monitorDataList = new ArrayList<>();
 		monitorDataList.add(monitor.getAttribute(MONITOR_ATTRIBUTE_NAME));
 		monitorDataList.add(monitor.getAttribute("model"));
 		monitorDataList.add(monitor.getAttribute("info"));

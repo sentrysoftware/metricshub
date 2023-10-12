@@ -46,21 +46,21 @@ class HardwareEnergyPostExecutionServiceTest {
 	@BeforeEach
 	void init() {
 		telemetryManager =
-				TelemetryManager
-						.builder()
-						.strategyTime(1696597422644L)
-						.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).build())
-						.build();
+			TelemetryManager
+				.builder()
+				.strategyTime(1696597422644L)
+				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).build())
+				.build();
 	}
 
 	@Test
 	void testRunWithFanMonitor() {
 		// Create a fan monitor
 		final Monitor fanMonitor = Monitor
-				.builder()
-				.type(FAN)
-				.metrics(new HashMap<>(Map.of(FAN_SPEED_METRIC, NumberMetric.builder().value(0.7).build())))
-				.build();
+			.builder()
+			.type(FAN)
+			.metrics(new HashMap<>(Map.of(FAN_SPEED_METRIC, NumberMetric.builder().value(0.7).build())))
+			.build();
 
 		// Set the previously created fan monitor in telemetryManager
 		final Map<String, Monitor> fanMonitors = new HashMap<>(Map.of("monitor1", fanMonitor));
@@ -81,10 +81,10 @@ class HardwareEnergyPostExecutionServiceTest {
 	void testRunWithRoboticsMonitor() {
 		// Create a robotics monitor
 		final Monitor roboticsMonitor = Monitor
-				.builder()
-				.type(ROBOTICS)
-				.metrics(new HashMap<>(Map.of(ROBOTICS_MOVE_COUNT_METRIC, NumberMetric.builder().value(0.7).build())))
-				.build();
+			.builder()
+			.type(ROBOTICS)
+			.metrics(new HashMap<>(Map.of(ROBOTICS_MOVE_COUNT_METRIC, NumberMetric.builder().value(0.7).build())))
+			.build();
 
 		// Set the previously created robotics monitor in telemetryManager
 		final Map<String, Monitor> roboticsMonitors = new HashMap<>(Map.of("monitor2", roboticsMonitor));
@@ -105,20 +105,20 @@ class HardwareEnergyPostExecutionServiceTest {
 	void testRunWithTapeDriveMonitor() {
 		// Create a tape drive monitor
 		final Monitor tapeDriveMonitor = Monitor
-				.builder()
-				.type(TAPE_DRIVE)
-				.metrics(
-						new HashMap<>(
-								Map.of(
-										TAPE_DRIVE_MOUNT_COUNT_METRIC,
-										NumberMetric.builder().value(0.7).build(),
-										TAPE_DRIVE_UNMOUNT_COUNT_METRIC,
-										NumberMetric.builder().value(0.1).build()
-								)
-						)
+			.builder()
+			.type(TAPE_DRIVE)
+			.metrics(
+				new HashMap<>(
+					Map.of(
+						TAPE_DRIVE_MOUNT_COUNT_METRIC,
+						NumberMetric.builder().value(0.7).build(),
+						TAPE_DRIVE_UNMOUNT_COUNT_METRIC,
+						NumberMetric.builder().value(0.1).build()
+					)
 				)
-				.attributes(new HashMap<>(Map.of("name", "lto123")))
-				.build();
+			)
+			.attributes(new HashMap<>(Map.of("name", "lto123")))
+			.build();
 
 		// Set the previously created tape drive monitor in telemetryManager
 		final Map<String, Monitor> tapeDriveMonitors = new HashMap<>(Map.of("monitor3", tapeDriveMonitor));
