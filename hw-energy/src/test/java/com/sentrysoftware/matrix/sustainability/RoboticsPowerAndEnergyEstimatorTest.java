@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.sustainability;
 
+import static com.sentrysoftware.matrix.common.Constants.LOCALHOST;
 import static com.sentrysoftware.matrix.common.Constants.ROBOTICS_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.ROBOTICS_MOVE_COUNT_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.ROBOTICS_POWER_METRIC;
@@ -35,7 +36,7 @@ class RoboticsPowerAndEnergyEstimatorTest {
 			TelemetryManager
 				.builder()
 				.strategyTime(1696597422644L)
-				.hostConfiguration(HostConfiguration.builder().hostname("localhost").build())
+				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).build())
 				.build();
 		roboticsPowerAndEnergyEstimator = new RoboticsPowerAndEnergyEstimator(monitor, telemetryManager);
 	}

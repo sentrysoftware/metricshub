@@ -20,6 +20,9 @@ public class HwConstants {
 	public static final String HW_ENERGY_TAPE_DRIVE_METRIC = "hw.energy{hw.type=\"tape_drive\"}";
 	public static final String HW_POWER_TAPE_DRIVE_METRIC = "hw.power{hw.type=\"tape_drive\"}";
 
+	public static final String HW_ENERGY_MEMORY_METRIC = "hw.energy{hw.type=\"memory\"}";
+	public static final String HW_POWER_MEMORY_METRIC = "hw.power{hw.type=\"memory\"}";
+
 	public static final String HW_ENERGY_NETWORK_METRIC = "hw.energy{hw.type=\"network\"}";
 	public static final String HW_POWER_NETWORK_METRIC = "hw.power{hw.type=\"network\"}";
 }

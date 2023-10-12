@@ -3,11 +3,13 @@ package com.sentrysoftware.matrix;
 import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_DISK_CONTROLLER_METRIC;
 import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_FAN_METRIC;
 import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_NETWORK_METRIC;
+import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_MEMORY_METRIC;
 import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_ROBOTICS_METRIC;
 import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_TAPE_DRIVE_METRIC;
 import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_DISK_CONTROLLER_METRIC;
 import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_FAN_METRIC;
 import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_NETWORK_METRIC;
+import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_MEMORY_METRIC;
 import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_ROBOTICS_METRIC;
 import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_TAPE_DRIVE_METRIC;
 
@@ -18,6 +20,7 @@ import com.sentrysoftware.matrix.sustainability.DiskControllerPowerAndEnergyEsti
 import com.sentrysoftware.matrix.sustainability.FanPowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.sustainability.HardwarePowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.sustainability.NetworkPowerAndEnergyEstimator;
+import com.sentrysoftware.matrix.sustainability.MemoryPowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.sustainability.RoboticsPowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.sustainability.TapeDrivePowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.telemetry.Monitor;
@@ -105,6 +108,12 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 			HW_ENERGY_DISK_CONTROLLER_METRIC,
 			DiskControllerPowerAndEnergyEstimator::new
 		);
+
+		estimateAndCollectPowerAndEnergyForMonitorType(
+			KnownMonitorType.MEMORY,
+			HW_POWER_MEMORY_METRIC,
+			HW_ENERGY_MEMORY_METRIC,
+			MemoryPowerAndEnergyEstimator::new
 
 		collectNetworkMetrics(
 			KnownMonitorType.NETWORK,

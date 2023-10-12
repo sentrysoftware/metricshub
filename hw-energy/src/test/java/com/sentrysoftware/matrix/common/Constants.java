@@ -15,10 +15,14 @@ public class Constants {
 	public static final String TAPE_DRIVE_ENERGY_METRIC = "hw.energy{hw.type=\"tape_drive\"}";
 	public static final String DISK_CONTROLLER_POWER_METRIC = "hw.power{hw.type=\"disk_controller\"}";
 	public static final String DISK_CONTROLLER_ENERGY_METRIC = "hw.energy{hw.type=\"disk_controller\"}";
+	public static final String MEMORY_ENERGY_METRIC = "hw.energy{hw.type=\"memory\"}";
+	public static final String MEMORY_POWER_METRIC = "hw.power{hw.type=\"memory\"}";
 	public static final String NETWORK_POWER_METRIC = "hw.power{hw.type=\"network\"}";
 	public static final String NETWORK_ENERGY_METRIC = "hw.energy{hw.type=\"network\"}";
 	public static final String NETWORK_LINK_STATUS_METRIC = "hw.network.up";
 	public static final String NETWORK_LINK_SPEED_ATTRIBUTE = "hw.network.bandwidth.limit";
 	public static final String NETWORK_TRANSMTTED_BANDWIDTH_UTILIZATION_METRIC =
 		"hw.network.bandwidth.utilization{direction=\"transmit\"}";
+
+	public static final String LOCALHOST = "localhost";
 }

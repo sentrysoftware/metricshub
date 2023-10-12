@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.sustainability;
 
+import static com.sentrysoftware.matrix.common.Constants.LOCALHOST;
 import static com.sentrysoftware.matrix.common.Constants.TAPE_DRIVE_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.TAPE_DRIVE_MOUNT_COUNT_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.TAPE_DRIVE_POWER_METRIC;
@@ -45,7 +46,7 @@ class TapeDrivePowerAndEnergyEstimatorTest {
 			TelemetryManager
 				.builder()
 				.strategyTime(1696597422644L)
-				.hostConfiguration(HostConfiguration.builder().hostname("localhost").build())
+				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).build())
 				.build();
 		tapeDrivePowerAndEnergyEstimator = new TapeDrivePowerAndEnergyEstimator(monitor, telemetryManager);
 	}
