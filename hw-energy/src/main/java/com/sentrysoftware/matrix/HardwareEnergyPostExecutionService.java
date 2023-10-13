@@ -23,9 +23,9 @@ import com.sentrysoftware.matrix.sustainability.MemoryPowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.sustainability.NetworkPowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.sustainability.RoboticsPowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.sustainability.TapeDrivePowerAndEnergyEstimator;
+import com.sentrysoftware.matrix.telemetry.MetricFactory;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
 import com.sentrysoftware.matrix.util.HwCollectHelper;
 import com.sentrysoftware.matrix.util.PowerAndEnergyCollectHelper;
 import java.util.Map;
@@ -167,6 +167,9 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 		final BiFunction<Monitor, TelemetryManager, HardwarePowerAndEnergyEstimator> estimatorGenerator,
 		Monitor monitor
 	) {
+		final String telemetryHostString = telemetryManager.getHostname();
+		final Long telemetryTimeLong = telemetryManager.getStrategyTime();
+
 		final Double linkSpeed = CollectHelper.getNumberMetricValue(monitor, "hw.network.bandwidth.limit", false);
 
 		// If we don't have the linkSpeed, we can't compute the bandwidthUtilizations
@@ -175,14 +178,14 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 				monitor,
 				"hw.network.io{direction=\"transmit\"}",
 				"hw.network.bandwidth.utilization{direction=\"transmit\"}",
-				telemetryManager.getHostname()
+				telemetryHostString
 			);
 
 			final Double receivedByteRate = HwCollectHelper.calculateMetricRate(
 				monitor,
 				"hw.network.io{direction=\"receive\"}",
 				"hw.network.bandwidth.utilization{direction=\"receive\"}",
-				telemetryManager.getHostname()
+				telemetryHostString
 			);
 
 			// The bandwidths are 'byteRate * 8 / linkSpeed (in Bit/s)'
@@ -193,33 +196,19 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 				? receivedByteRate * 8 / linkSpeed
 				: 0.0;
 
-			monitor.addMetric(
-				"hw.network.bandwidth.utilization{direction=\"transmit\"}",
-				NumberMetric
-					.builder()
-					.name("hw.network.bandwidth.utilization{direction=\"transmit\"}")
-					.value(bandwidthUtilizationTransmitted)
-					.collectTime(telemetryManager.getStrategyTime())
-					.build()
-			);
 
-			monitor.addMetric(
-				"hw.network.bandwidth.utilization{direction=\"receive\"}",
-				NumberMetric
-					.builder()
-					.name("hw.network.bandwidth.utilization{direction=\"receive\"}")
-					.value(bandwidthUtilizationReceived)
-					.collectTime(telemetryManager.getStrategyTime())
-					.build()
+			final MetricFactory metricFactory = new MetricFactory(telemetryHostString);
+
+			metricFactory.collectNumberMetric(monitor, "hw.network.bandwidth.utilization{direction=\"transmit\"}", bandwidthUtilizationTransmitted, telemetryTimeLong);
+			metricFactory.collectNumberMetric(monitor, "hw.network.bandwidth.utilization{direction=\"receive\"}", bandwidthUtilizationReceived, telemetryTimeLong);
+
+			PowerAndEnergyCollectHelper.collectPowerAndEnergy(
+				monitor,
+				powerMetricName,
+				energyMetricName,
+				telemetryManager,
+				estimatorGenerator.apply(monitor, telemetryManager)
 			);
 		}
-
-		PowerAndEnergyCollectHelper.collectPowerAndEnergy(
-			monitor,
-			powerMetricName,
-			energyMetricName,
-			telemetryManager,
-			estimatorGenerator.apply(monitor, telemetryManager)
-		);
 	}
 }
