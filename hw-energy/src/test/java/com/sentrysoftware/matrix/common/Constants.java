@@ -19,4 +19,6 @@ public class Constants {
 	public static final String MEMORY_POWER_METRIC = "hw.power{hw.type=\"memory\"}";
 
 	public static final String LOCALHOST = "localhost";
+	public static final String PHYSICAL_DISK_POWER_METRIC = "hw.power{hw.type=\"physical_disk\"}";
+	public static final String PHYSICAL_DISK_ENERGY_METRIC = "hw.energy{hw.type=\"physical_disk\"}";
 }
