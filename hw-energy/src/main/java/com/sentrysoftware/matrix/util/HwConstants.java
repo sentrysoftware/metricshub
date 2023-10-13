@@ -23,6 +23,9 @@ public class HwConstants {
 	public static final String HW_ENERGY_MEMORY_METRIC = "hw.energy{hw.type=\"memory\"}";
 	public static final String HW_POWER_MEMORY_METRIC = "hw.power{hw.type=\"memory\"}";
 
+	public static final String HW_ENERGY_PHYSICAL_DISK_METRIC = "hw.energy{hw.type=\"physical_disk\"}";
+	public static final String HW_POWER_PHYSICAL_DISK_METRIC = "hw.power{hw.type=\"physical_disk\"}";
+
 	public static final String HW_ENERGY_NETWORK_METRIC = "hw.energy{hw.type=\"network\"}";
 	public static final String HW_POWER_NETWORK_METRIC = "hw.power{hw.type=\"network\"}";
 }
