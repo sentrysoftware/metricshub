@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.sustainability;
+package com.sentrysoftware.matrix;
 
 import static com.sentrysoftware.matrix.common.Constants.DISK_CONTROLLER_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.DISK_CONTROLLER_POWER_METRIC;
@@ -13,6 +13,8 @@ import static com.sentrysoftware.matrix.common.Constants.NETWORK_LINK_SPEED_ATTR
 import static com.sentrysoftware.matrix.common.Constants.NETWORK_LINK_STATUS_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.NETWORK_POWER_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.NETWORK_TRANSMTTED_BANDWIDTH_UTILIZATION_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.PHYSICAL_DISK_ENERGY_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.PHYSICAL_DISK_POWER_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.ROBOTICS_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.ROBOTICS_MOVE_COUNT_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.ROBOTICS_POWER_METRIC;
@@ -22,7 +24,6 @@ import static com.sentrysoftware.matrix.common.Constants.TAPE_DRIVE_POWER_METRIC
 import static com.sentrysoftware.matrix.common.Constants.TAPE_DRIVE_UNMOUNT_COUNT_METRIC;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import com.sentrysoftware.matrix.HardwareEnergyPostExecutionService;
 import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.telemetry.Monitor;
@@ -56,16 +57,6 @@ class HardwareEnergyPostExecutionServiceTest {
 				.strategyTime(1696597422644L)
 				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).build())
 				.build();
-	}
-
-	@Test
-	void testRunWithPhysicalDiskMonitor() {
-		// Create a physical disk monitor
-		final Monitor physicalDiskMonitor = Monitor.builder().type(PHYSICAL_DISK).build();
-
-		// Set the previously created physical disk monitor in telemetryManager
-		final Map<String, Monitor> physicalDiskMonitors = new HashMap<>(Map.of("monitor5", physicalDiskMonitor));
-		telemetryManager.setMonitors(new HashMap<>(Map.of(PHYSICAL_DISK, physicalDiskMonitors)));
 	}
 
 	@Test
@@ -188,6 +179,26 @@ class HardwareEnergyPostExecutionServiceTest {
 
 		// Check the computed and collected energy metric
 		assertNotNull(monitor.getMetric(MEMORY_ENERGY_METRIC, NumberMetric.class));
+	}
+
+	@Test
+	void testRunWithPhysicalDiskMonitor() {
+		// Create a physical disk monitor
+		final Monitor physicalDiskMonitor = Monitor.builder().type(PHYSICAL_DISK).build();
+
+		// Set the previously created physical disk monitor in telemetryManager
+		final Map<String, Monitor> physicalDiskMonitors = new HashMap<>(Map.of("monitor5", physicalDiskMonitor));
+		telemetryManager.setMonitors(new HashMap<>(Map.of(PHYSICAL_DISK, physicalDiskMonitors)));
+
+		// Call run method in HardwareEnergyPostExecutionService
+		hardwareEnergyPostExecutionService = new HardwareEnergyPostExecutionService(telemetryManager);
+		hardwareEnergyPostExecutionService.run();
+
+		// Check the computed and collected power metric
+		assertNotNull(physicalDiskMonitor.getMetric(PHYSICAL_DISK_POWER_METRIC, NumberMetric.class));
+
+		// Check the computed and collected energy metric
+		assertNotNull(physicalDiskMonitor.getMetric(PHYSICAL_DISK_ENERGY_METRIC, NumberMetric.class));
 	}
 
 	@Test
