@@ -125,7 +125,7 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 	}
 
 	/**
-	 * Estimates and collects power and energy consumption for a given Network monitor type e.g: FAN, ROBOTICS, NETWORK, etc ..
+	 * Estimates and collects power and energy consumption for a given Network monitor
 	 *
 	 * @param monitorType        a given monitor type {@link KnownMonitorType}
 	 * @param powerMetricName    the name of the power metric of the given monitor type
