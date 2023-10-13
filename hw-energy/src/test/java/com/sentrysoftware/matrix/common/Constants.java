@@ -25,4 +25,6 @@ public class Constants {
 		"hw.network.bandwidth.utilization{direction=\"transmit\"}";
 
 	public static final String LOCALHOST = "localhost";
+	public static final String PHYSICAL_DISK_POWER_METRIC = "hw.power{hw.type=\"physical_disk\"}";
+	public static final String PHYSICAL_DISK_ENERGY_METRIC = "hw.energy{hw.type=\"physical_disk\"}";
 }
