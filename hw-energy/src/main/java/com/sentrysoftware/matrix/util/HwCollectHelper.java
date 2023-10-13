@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.util;
 
+import com.sentrysoftware.matrix.strategy.utils.CollectHelper;
 import com.sentrysoftware.matrix.strategy.utils.MathOperationsHelper;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
@@ -100,5 +101,27 @@ public class HwCollectHelper {
 			);
 		}
 		return null;
+	}
+
+	/**
+	 * Calculate a rate for the given metric between the current collect and the previous collect
+	 * @param monitor           The monitor from which to retrieve the metric value
+	 * @param counterMetricName The name of the counter metric we want to calculate the rate from
+	 * @param rateMetricName    The name of the rate metric we are caculating
+	 * @param hostname          The hostname
+	 * @return the calculated rate
+	 */
+	public static Double calculateMetricRate(
+		final Monitor monitor,
+		final String counterMetricName,
+		final String rateMetricName,
+		final String hostname
+	) {
+		final Double value = CollectHelper.getNumberMetricValue(monitor, counterMetricName, false);
+		final Double previousValue = CollectHelper.getNumberMetricValue(monitor, counterMetricName, true);
+		final Double collectTime = CollectHelper.getNumberMetricCollectTime(monitor, counterMetricName, false);
+		final Double previousCollectTime = CollectHelper.getNumberMetricCollectTime(monitor, counterMetricName, true);
+
+		return MathOperationsHelper.rate(rateMetricName, value, previousValue, collectTime, previousCollectTime, hostname);
 	}
 }
