@@ -8,11 +8,11 @@ import static com.sentrysoftware.matrix.common.Constants.FAN_SPEED_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.LOCALHOST;
 import static com.sentrysoftware.matrix.common.Constants.MEMORY_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.MEMORY_POWER_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.NETWORK_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.NETWORK_LINK_SPEED_ATTRIBUTE;
 import static com.sentrysoftware.matrix.common.Constants.NETWORK_LINK_STATUS_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.NETWORK_POWER_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.NETWORK_TRANSMTTED_BANDWIDTH_UTILIZATION_METRIC;
-import static com.sentrysoftware.matrix.common.Constants.PHYSICAL_DISK_ENERGY_METRIC;
-import static com.sentrysoftware.matrix.common.Constants.PHYSICAL_DISK_POWER_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.ROBOTICS_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.ROBOTICS_MOVE_COUNT_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.ROBOTICS_POWER_METRIC;
@@ -44,7 +44,6 @@ class HardwareEnergyPostExecutionServiceTest {
 	private static final String MEMORY = KnownMonitorType.MEMORY.getKey();
 	private static final String ROBOTICS = KnownMonitorType.ROBOTICS.getKey();
 	private static final String TAPE_DRIVE = KnownMonitorType.TAPE_DRIVE.getKey();
-	private static final String PHYSICAL_DISK = KnownMonitorType.PHYSICAL_DISK.getKey();
 
 	private static final String NETWORK = KnownMonitorType.NETWORK.getKey();
 
@@ -182,6 +181,7 @@ class HardwareEnergyPostExecutionServiceTest {
 
 	@Test
 	void testRunWithNetworkMonitor() {
+		// Create a robotics monitor
 		final Monitor networkMonitor = Monitor
 			.builder()
 			.type(NETWORK)
@@ -201,24 +201,14 @@ class HardwareEnergyPostExecutionServiceTest {
 		// Set the previously created robotics monitor in telemetryManager
 		final Map<String, Monitor> networkMonitors = new HashMap<>(Map.of("monitor2", networkMonitor));
 		telemetryManager.setMonitors(new HashMap<>(Map.of(NETWORK, networkMonitors)));
-	}
-
-	void testRunWithPhysicalDiskMonitor() {
-		// Create a physical disk monitor
-		final Monitor physicalDiskMonitor = Monitor.builder().type(PHYSICAL_DISK).build();
-
-		// Set the previously created physical disk monitor in telemetryManager
-		final Map<String, Monitor> physicalDiskMonitors = new HashMap<>(Map.of("monitor5", physicalDiskMonitor));
-		telemetryManager.setMonitors(new HashMap<>(Map.of(PHYSICAL_DISK, physicalDiskMonitors)));
-
 		// Call run method in HardwareEnergyPostExecutionService
 		hardwareEnergyPostExecutionService = new HardwareEnergyPostExecutionService(telemetryManager);
 		hardwareEnergyPostExecutionService.run();
 
-		// Check the computed and collected energy metric
-		assertNotNull(physicalDiskMonitor.getMetric(PHYSICAL_DISK_POWER_METRIC, NumberMetric.class));
+		// Check the computed and collected power metric
+		assertNotNull(networkMonitor.getMetric(NETWORK_POWER_METRIC, NumberMetric.class));
 
 		// Check the computed and collected energy metric
-		assertNotNull(physicalDiskMonitor.getMetric(PHYSICAL_DISK_ENERGY_METRIC, NumberMetric.class));
+		assertNotNull(networkMonitor.getMetric(NETWORK_ENERGY_METRIC, NumberMetric.class));
 	}
 }
