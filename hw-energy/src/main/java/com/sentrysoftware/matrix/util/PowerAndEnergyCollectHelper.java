@@ -6,8 +6,10 @@ import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Slf4j
 public class PowerAndEnergyCollectHelper {
 
 	/**
@@ -28,20 +30,35 @@ public class PowerAndEnergyCollectHelper {
 	) {
 		// Estimate power consumption
 		final Double estimatedPower = hardwarePowerAndEnergyEstimator.estimatePower();
+		if (estimatedPower == null) {
+			log.warn(
+				"Hostname {} - Received null value for power consumption. Consequently, the metric '{}' will not be collected on monitor '{}' (ID: {})",
+				telemetryManager.getHostname(),
+				powerMetricName,
+				monitor.getType(),
+				monitor.getId()
+			);
+			return;
+		}
 
 		// Create metricFactory and collect power
 		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
-
-		if (estimatedPower != null) {
-			metricFactory.collectNumberMetric(monitor, powerMetricName, estimatedPower, telemetryManager.getStrategyTime());
-		}
+		metricFactory.collectNumberMetric(monitor, powerMetricName, estimatedPower, telemetryManager.getStrategyTime());
 
 		// Compute the estimated energy consumption
 		final Double estimatedEnergy = hardwarePowerAndEnergyEstimator.estimateEnergy();
-
-		if (estimatedEnergy != null) {
-			// Collect the estimated energy consumption metric
-			metricFactory.collectNumberMetric(monitor, energyMetricName, estimatedEnergy, telemetryManager.getStrategyTime());
+		if (estimatedEnergy == null) {
+			log.info(
+				"Hostname {} - Received null value for energy. Consequently, the metric '{}' will not be collected during this cycle on monitor '{}' (ID: {})",
+				telemetryManager.getHostname(),
+				energyMetricName,
+				monitor.getType(),
+				monitor.getId()
+			);
+			return;
 		}
+
+		// Collect the estimated energy consumption metric
+		metricFactory.collectNumberMetric(monitor, energyMetricName, estimatedEnergy, telemetryManager.getStrategyTime());
 	}
 }

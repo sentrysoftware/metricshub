@@ -23,6 +23,7 @@ import com.sentrysoftware.matrix.sustainability.FanPowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.sustainability.HardwarePowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.sustainability.MemoryPowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.sustainability.NetworkPowerAndEnergyEstimator;
+import com.sentrysoftware.matrix.sustainability.PhysicalDiskPowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.sustainability.RoboticsPowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.sustainability.TapeDrivePowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.telemetry.MetricFactory;
@@ -130,15 +131,10 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 			KnownMonitorType.PHYSICAL_DISK,
 			HW_POWER_PHYSICAL_DISK_METRIC,
 			HW_ENERGY_PHYSICAL_DISK_METRIC,
-			MemoryPowerAndEnergyEstimator::new
+			PhysicalDiskPowerAndEnergyEstimator::new
 		);
 
-		collectNetworkMetrics(
-			KnownMonitorType.NETWORK,
-			HW_POWER_NETWORK_METRIC,
-			HW_ENERGY_NETWORK_METRIC,
-			NetworkPowerAndEnergyEstimator::new
-		);
+		collectNetworkMetrics();
 	}
 
 	/**
@@ -149,14 +145,9 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 	 * @param energyMetricName   the name of the energy metric of the given monitor type
 	 * @param estimatorGenerator Function that generates the estimator
 	 */
-	private void collectNetworkMetrics(
-		final KnownMonitorType monitorType,
-		final String powerMetricName,
-		final String energyMetricName,
-		final BiFunction<Monitor, TelemetryManager, HardwarePowerAndEnergyEstimator> estimatorGenerator
-	) {
+	private void collectNetworkMetrics() {
 		// Find monitors having the selected monitor type
-		final String monitorTypeKey = monitorType.getKey();
+		final String monitorTypeKey = KnownMonitorType.NETWORK.getKey();
 		final Map<String, Monitor> sameTypeMonitors = telemetryManager.findMonitorByType(monitorTypeKey);
 
 		// If no monitors are found, log a message
@@ -165,59 +156,36 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 			return;
 		}
 
-		// // For each monitor, estimate and collect power and energy consumption metrics
-		// sameTypeMonitors
-		// 	.values()
-		// 	.forEach(monitor -> collectNetworkMonitorMetric(powerMetricName, energyMetricName, estimatorGenerator, monitor));
-
 		// For each monitor, estimate and collect power and energy consumption metrics
-		sameTypeMonitors
-			.values()
-			.forEach(monitor ->
-				PowerAndEnergyCollectHelper.collectPowerAndEnergy(
-					monitor,
-					powerMetricName,
-					energyMetricName,
-					telemetryManager,
-					estimatorGenerator.apply(monitor, telemetryManager)
-				)
-			);
+		sameTypeMonitors.values().forEach(this::collectNetworkMonitorMetrics);
 	}
 
 	/**
 	 * Collect a Network Monitor bandwidthUtilization metric and estimate its power
 	 * and energy consumption
 	 *
-	 * @param powerMetricName
-	 * @param energyMetricName
-	 * @param estimatorGenerator
-	 * @param monitor
+	 * @param monitor network {@link Monitor} instance
 	 */
-	private void collectNetworkMonitorMetric(
-		final String powerMetricName,
-		final String energyMetricName,
-		final BiFunction<Monitor, TelemetryManager, HardwarePowerAndEnergyEstimator> estimatorGenerator,
-		Monitor monitor
-	) {
-		final String telemetryHostString = telemetryManager.getHostname();
-		final Long telemetryTimeLong = telemetryManager.getStrategyTime();
+	private void collectNetworkMonitorMetrics(final Monitor monitor) {
+		final String hostname = telemetryManager.getHostname();
+		final Long strategyTime = telemetryManager.getStrategyTime();
 
 		final Double linkSpeed = CollectHelper.getNumberMetricValue(monitor, "hw.network.bandwidth.limit", false);
 
 		// If we don't have the linkSpeed, we can't compute the bandwidthUtilizations
-		if (linkSpeed != null) {
+		if (linkSpeed != null && linkSpeed != 0) {
 			final Double transmittedByteRate = HwCollectHelper.calculateMetricRate(
 				monitor,
 				"hw.network.io{direction=\"transmit\"}",
-				"hw.network.bandwidth.utilization{direction=\"transmit\"}",
-				telemetryHostString
+				"__hw.network.io.rate{direction=\"transmit\"}",
+				hostname
 			);
 
 			final Double receivedByteRate = HwCollectHelper.calculateMetricRate(
 				monitor,
 				"hw.network.io{direction=\"receive\"}",
-				"hw.network.bandwidth.utilization{direction=\"receive\"}",
-				telemetryHostString
+				"__hw.network.io.rate{direction=\"receive\"}",
+				hostname
 			);
 
 			// The bandwidths are 'byteRate * 8 / linkSpeed (in Bit/s)'
@@ -228,14 +196,14 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 				? receivedByteRate * 8 / linkSpeed
 				: null;
 
-			final MetricFactory metricFactory = new MetricFactory(telemetryHostString);
+			final MetricFactory metricFactory = new MetricFactory(hostname);
 
 			if (bandwidthUtilizationTransmitted != null) {
 				metricFactory.collectNumberMetric(
 					monitor,
 					"hw.network.bandwidth.utilization{direction=\"transmit\"}",
 					bandwidthUtilizationTransmitted,
-					telemetryTimeLong
+					strategyTime
 				);
 			}
 
@@ -244,17 +212,17 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 					monitor,
 					"hw.network.bandwidth.utilization{direction=\"receive\"}",
 					bandwidthUtilizationReceived,
-					telemetryTimeLong
+					strategyTime
 				);
 			}
-
-			PowerAndEnergyCollectHelper.collectPowerAndEnergy(
-				monitor,
-				powerMetricName,
-				energyMetricName,
-				telemetryManager,
-				estimatorGenerator.apply(monitor, telemetryManager)
-			);
 		}
+
+		PowerAndEnergyCollectHelper.collectPowerAndEnergy(
+			monitor,
+			HW_POWER_NETWORK_METRIC,
+			HW_ENERGY_NETWORK_METRIC,
+			telemetryManager,
+			new NetworkPowerAndEnergyEstimator(monitor, telemetryManager)
+		);
 	}
 }
