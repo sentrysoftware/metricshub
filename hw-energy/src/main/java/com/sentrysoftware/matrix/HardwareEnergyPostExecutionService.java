@@ -155,18 +155,19 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 	}
 
 	/**
-	 * Collect a Network Monitor bandwidthUtilization metric and estimate its power and energy consumption
+	 * Collect a Network Monitor bandwidthUtilization metric and estimate its power
+	 * and energy consumption
+	 * 
 	 * @param powerMetricName
 	 * @param energyMetricName
 	 * @param estimatorGenerator
 	 * @param monitor
 	 */
 	private void collectNetworkMonitorMetric(
-		final String powerMetricName,
-		final String energyMetricName,
-		final BiFunction<Monitor, TelemetryManager, HardwarePowerAndEnergyEstimator> estimatorGenerator,
-		Monitor monitor
-	) {
+			final String powerMetricName,
+			final String energyMetricName,
+			final BiFunction<Monitor, TelemetryManager, HardwarePowerAndEnergyEstimator> estimatorGenerator,
+			Monitor monitor) {
 		final String telemetryHostString = telemetryManager.getHostname();
 		final Long telemetryTimeLong = telemetryManager.getStrategyTime();
 
@@ -175,40 +176,38 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 		// If we don't have the linkSpeed, we can't compute the bandwidthUtilizations
 		if (linkSpeed != null) {
 			final Double transmittedByteRate = HwCollectHelper.calculateMetricRate(
-				monitor,
-				"hw.network.io{direction=\"transmit\"}",
-				"hw.network.bandwidth.utilization{direction=\"transmit\"}",
-				telemetryHostString
-			);
+					monitor,
+					"hw.network.io{direction=\"transmit\"}",
+					"hw.network.bandwidth.utilization{direction=\"transmit\"}",
+					telemetryHostString);
 
 			final Double receivedByteRate = HwCollectHelper.calculateMetricRate(
-				monitor,
-				"hw.network.io{direction=\"receive\"}",
-				"hw.network.bandwidth.utilization{direction=\"receive\"}",
-				telemetryHostString
-			);
+					monitor,
+					"hw.network.io{direction=\"receive\"}",
+					"hw.network.bandwidth.utilization{direction=\"receive\"}",
+					telemetryHostString);
 
 			// The bandwidths are 'byteRate * 8 / linkSpeed (in Bit/s)'
 			final Double bandwidthUtilizationTransmitted = HwCollectHelper.isValidPositive(transmittedByteRate)
-				? transmittedByteRate * 8 / linkSpeed
-				: 0.0;
+					? transmittedByteRate * 8 / linkSpeed
+					: 0.0;
 			final Double bandwidthUtilizationReceived = HwCollectHelper.isValidPositive(receivedByteRate)
-				? receivedByteRate * 8 / linkSpeed
-				: 0.0;
-
+					? receivedByteRate * 8 / linkSpeed
+					: 0.0;
 
 			final MetricFactory metricFactory = new MetricFactory(telemetryHostString);
 
-			metricFactory.collectNumberMetric(monitor, "hw.network.bandwidth.utilization{direction=\"transmit\"}", bandwidthUtilizationTransmitted, telemetryTimeLong);
-			metricFactory.collectNumberMetric(monitor, "hw.network.bandwidth.utilization{direction=\"receive\"}", bandwidthUtilizationReceived, telemetryTimeLong);
+			metricFactory.collectNumberMetric(monitor, "hw.network.bandwidth.utilization{direction=\"transmit\"}",
+					bandwidthUtilizationTransmitted, telemetryTimeLong);
+			metricFactory.collectNumberMetric(monitor, "hw.network.bandwidth.utilization{direction=\"receive\"}",
+					bandwidthUtilizationReceived, telemetryTimeLong);
 
 			PowerAndEnergyCollectHelper.collectPowerAndEnergy(
-				monitor,
-				powerMetricName,
-				energyMetricName,
-				telemetryManager,
-				estimatorGenerator.apply(monitor, telemetryManager)
-			);
+					monitor,
+					powerMetricName,
+					energyMetricName,
+					telemetryManager,
+					estimatorGenerator.apply(monitor, telemetryManager));
 		}
 	}
 }
