@@ -1,5 +1,8 @@
 package com.sentrysoftware.matrix.sustainability;
 
+import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_NETWORK_METRIC;
+import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_NETWORK_METRIC;
+
 import com.sentrysoftware.matrix.strategy.utils.CollectHelper;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
@@ -74,8 +77,19 @@ public class NetworkPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstima
 		return 10.0;
 	}
 
+	/**
+	 * Estimates the energy consumption of the Network monitor
+	 * @return Double
+	 */
 	@Override
 	public Double estimateEnergy() {
-		return null;
+		return HwCollectHelper.estimateEnergyUsingPower(
+			monitor,
+			telemetryManager,
+			estimatedPower,
+			HW_POWER_NETWORK_METRIC,
+			HW_ENERGY_NETWORK_METRIC,
+			telemetryManager.getStrategyTime()
+		);
 	}
 }

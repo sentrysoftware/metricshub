@@ -74,7 +74,15 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 		// For each monitor, estimate and collect power and energy consumption metrics
 		sameTypeMonitors
 			.values()
-			.forEach(monitor -> collectNetworkMonitorMetric(powerMetricName, energyMetricName, estimatorGenerator, monitor));
+			.forEach(monitor ->
+				PowerAndEnergyCollectHelper.collectPowerAndEnergy(
+					monitor,
+					powerMetricName,
+					energyMetricName,
+					telemetryManager,
+					estimatorGenerator.apply(monitor, telemetryManager)
+				)
+			);
 	}
 
 	/**
@@ -157,10 +165,23 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 			return;
 		}
 
+		// // For each monitor, estimate and collect power and energy consumption metrics
+		// sameTypeMonitors
+		// 	.values()
+		// 	.forEach(monitor -> collectNetworkMonitorMetric(powerMetricName, energyMetricName, estimatorGenerator, monitor));
+
 		// For each monitor, estimate and collect power and energy consumption metrics
 		sameTypeMonitors
 			.values()
-			.forEach(monitor -> collectNetworkMonitorMetric(powerMetricName, energyMetricName, estimatorGenerator, monitor));
+			.forEach(monitor ->
+				PowerAndEnergyCollectHelper.collectPowerAndEnergy(
+					monitor,
+					powerMetricName,
+					energyMetricName,
+					telemetryManager,
+					estimatorGenerator.apply(monitor, telemetryManager)
+				)
+			);
 	}
 
 	/**

@@ -192,7 +192,7 @@ class HardwareEnergyPostExecutionServiceTest {
 
 	@Test
 	void testRunWithNetworkMonitor() {
-		// Create a robotics monitor
+		// Create a network monitor
 		final Monitor networkMonitor = Monitor
 			.builder()
 			.type(NETWORK)
@@ -209,7 +209,7 @@ class HardwareEnergyPostExecutionServiceTest {
 			)
 			.build();
 
-		// Set the previously created robotics monitor in telemetryManager
+		// Set the previously created network monitor in telemetryManager
 		final Map<String, Monitor> networkMonitors = new HashMap<>(Map.of("monitor2", networkMonitor));
 		telemetryManager.setMonitors(new HashMap<>(Map.of(NETWORK, networkMonitors)));
 		// Call run method in HardwareEnergyPostExecutionService

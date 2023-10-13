@@ -31,12 +31,17 @@ public class PowerAndEnergyCollectHelper {
 
 		// Create metricFactory and collect power
 		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
-		metricFactory.collectNumberMetric(monitor, powerMetricName, estimatedPower, telemetryManager.getStrategyTime());
+
+		if (estimatedPower != null) {
+			metricFactory.collectNumberMetric(monitor, powerMetricName, estimatedPower, telemetryManager.getStrategyTime());
+		}
 
 		// Compute the estimated energy consumption
 		final Double estimatedEnergy = hardwarePowerAndEnergyEstimator.estimateEnergy();
 
-		// Collect the estimated energy consumption metric
-		metricFactory.collectNumberMetric(monitor, energyMetricName, estimatedEnergy, telemetryManager.getStrategyTime());
+		if (estimatedEnergy != null) {
+			// Collect the estimated energy consumption metric
+			metricFactory.collectNumberMetric(monitor, energyMetricName, estimatedEnergy, telemetryManager.getStrategyTime());
+		}
 	}
 }
