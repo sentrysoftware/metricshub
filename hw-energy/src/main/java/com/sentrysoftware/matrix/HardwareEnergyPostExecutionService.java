@@ -4,12 +4,14 @@ import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_DISK_CONTROLL
 import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_FAN_METRIC;
 import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_MEMORY_METRIC;
 import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_NETWORK_METRIC;
+import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_PHYSICAL_DISK_METRIC;
 import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_ROBOTICS_METRIC;
 import static com.sentrysoftware.matrix.util.HwConstants.HW_ENERGY_TAPE_DRIVE_METRIC;
 import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_DISK_CONTROLLER_METRIC;
 import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_FAN_METRIC;
 import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_MEMORY_METRIC;
 import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_NETWORK_METRIC;
+import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_PHYSICAL_DISK_METRIC;
 import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_ROBOTICS_METRIC;
 import static com.sentrysoftware.matrix.util.HwConstants.HW_POWER_TAPE_DRIVE_METRIC;
 
@@ -113,6 +115,13 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 			KnownMonitorType.MEMORY,
 			HW_POWER_MEMORY_METRIC,
 			HW_ENERGY_MEMORY_METRIC,
+			MemoryPowerAndEnergyEstimator::new
+		);
+
+		estimateAndCollectPowerAndEnergyForMonitorType(
+			KnownMonitorType.PHYSICAL_DISK,
+			HW_POWER_PHYSICAL_DISK_METRIC,
+			HW_ENERGY_PHYSICAL_DISK_METRIC,
 			MemoryPowerAndEnergyEstimator::new
 		);
 

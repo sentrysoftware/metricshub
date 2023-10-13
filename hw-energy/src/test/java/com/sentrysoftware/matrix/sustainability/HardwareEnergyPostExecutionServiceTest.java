@@ -45,6 +45,7 @@ class HardwareEnergyPostExecutionServiceTest {
 	private static final String ROBOTICS = KnownMonitorType.ROBOTICS.getKey();
 	private static final String TAPE_DRIVE = KnownMonitorType.TAPE_DRIVE.getKey();
 
+	private static final String PHYSICAL_DISK = KnownMonitorType.PHYSICAL_DISK.getKey();
 	private static final String NETWORK = KnownMonitorType.NETWORK.getKey();
 
 	@BeforeEach
@@ -55,6 +56,16 @@ class HardwareEnergyPostExecutionServiceTest {
 				.strategyTime(1696597422644L)
 				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).build())
 				.build();
+	}
+
+	@Test
+	void testRunWithPhysicalDiskMonitor() {
+		// Create a physical disk monitor
+		final Monitor physicalDiskMonitor = Monitor.builder().type(PHYSICAL_DISK).build();
+
+		// Set the previously created physical disk monitor in telemetryManager
+		final Map<String, Monitor> physicalDiskMonitors = new HashMap<>(Map.of("monitor5", physicalDiskMonitor));
+		telemetryManager.setMonitors(new HashMap<>(Map.of(PHYSICAL_DISK, physicalDiskMonitors)));
 	}
 
 	@Test
