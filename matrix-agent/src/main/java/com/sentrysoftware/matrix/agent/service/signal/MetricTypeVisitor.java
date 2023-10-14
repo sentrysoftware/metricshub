@@ -72,7 +72,7 @@ public class MetricTypeVisitor implements IMetricTypeVisitor {
 	 * @return OTEL SDK {@link Meter} instance
 	 */
 	private Meter getNumberMetricMeter(final String metricKey) {
-		return sdkMeterProvider.get(String.format("%s.%s.%s.%s", monitorId, resourceKey, resourceGroupKey, metricKey));
+		return sdkMeterProvider.get(String.format("%s.%s.%s.%s", resourceGroupKey, resourceKey, monitorId, metricKey));
 	}
 
 	/**
@@ -84,7 +84,7 @@ public class MetricTypeVisitor implements IMetricTypeVisitor {
 	 */
 	private Meter getStateSetMetricMeter(final String metricKey, final String state) {
 		return sdkMeterProvider.get(
-			String.format("%s.%s.%s.%s.%s", monitorId, resourceKey, resourceGroupKey, metricKey, state)
+			String.format("%s.%s.%s.%s.%s", resourceGroupKey, resourceKey, monitorId, metricKey, state)
 		);
 	}
 

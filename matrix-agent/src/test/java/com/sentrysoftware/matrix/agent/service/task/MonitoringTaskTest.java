@@ -90,7 +90,7 @@ class MonitoringTaskTest {
 		final TelemetryManager telemetryManagerMock = spy(TelemetryManager.class);
 
 		doReturn(telemetryManagerMock).when(monitoringTaskInfo).getTelemetryManager();
-		doReturn(host).when(telemetryManagerMock).getHostMonitor();
+		doReturn(host).when(telemetryManagerMock).getEndpointHostMonitor();
 		doReturn(
 			ResourceConfig
 				.builder()

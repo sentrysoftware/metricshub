@@ -1,6 +1,5 @@
 package com.sentrysoftware.matrix.telemetry;
 
-import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IS_ENDPOINT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.PRESENT_STATUS;
 
 import com.sentrysoftware.matrix.alert.AlertRule;
@@ -42,6 +41,7 @@ public class Monitor {
 	private long discoveryTime;
 	private String type;
 	private String id;
+	private boolean endpoint;
 
 	/**
 	 * Get a metric by type
@@ -133,20 +133,11 @@ public class Monitor {
 	}
 
 	/**
-	 * Whether the monitor is a host and an endpoint or not
+	 * This method checks if the monitor type is {@code host} and represents an endpoint.
 	 *
-	 * @return boolean value.
+	 * @return {@code true} if the monitor is of type "host" and is an endpoint; {@code false} otherwise.
 	 */
-	public boolean isHostEndpoint() {
+	public boolean isEndpointHost() {
 		return KnownMonitorType.HOST.getKey().equals(type) && isEndpoint();
-	}
-
-	/**
-	 * Whether the monitor is an endpoint or not
-	 *
-	 * @return boolean value.
-	 */
-	public boolean isEndpoint() {
-		return "true".equals(attributes.get(IS_ENDPOINT));
 	}
 }

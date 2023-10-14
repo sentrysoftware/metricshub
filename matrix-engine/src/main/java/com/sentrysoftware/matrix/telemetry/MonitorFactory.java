@@ -143,12 +143,12 @@ public class MonitorFactory {
 	}
 
 	/**
-	 * Creates the Host monitor
+	 * Creates the endpoint Host monitor
 	 *
 	 * @param isLocalhost Whether the host should be localhost or not.
 	 * @return Monitor instance
 	 */
-	public Monitor createHostMonitor(final boolean isLocalhost) {
+	public Monitor createEndpointHostMonitor(final boolean isLocalhost) {
 		// Get the host configuration
 		final HostConfiguration hostConfiguration = telemetryManager.getHostConfiguration();
 
@@ -199,7 +199,10 @@ public class MonitorFactory {
 			telemetryManager.getHostConfiguration().getHostId()
 		);
 
-		log.debug("Hostname {} - Created host ID: {} ", hostname, hostConfiguration.getHostId());
+		// Flag the host as endpoint
+		monitor.setEndpoint(true);
+
+		log.debug("Hostname {} - Created endpoint host ID: {} ", hostname, hostConfiguration.getHostId());
 
 		return monitor;
 	}

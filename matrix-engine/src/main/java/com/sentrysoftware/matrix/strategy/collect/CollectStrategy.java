@@ -435,14 +435,6 @@ public class CollectStrategy extends AbstractStrategy {
 		// Get the host name from telemetry manager
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
-		// Get host monitor
-		final Monitor host = telemetryManager.getHostMonitor();
-
-		if (host == null) {
-			log.error("Hostname {} - No host found. Stopping collect strategy.", hostname);
-			return;
-		}
-
 		//Retrieve connector Monitor instances from TelemetryManager
 		final Map<String, Monitor> connectorMonitors = telemetryManager
 			.getMonitors()

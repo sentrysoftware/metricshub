@@ -208,9 +208,9 @@ public class TelemetryManager {
 	/**
 	 * Return the root host monitor instance
 	 *
-	 * @return {@link Monitor} object representing the root insance
+	 * @return {@link Monitor} object representing the root instance
 	 */
-	public Monitor getHostMonitor() {
+	public Monitor getEndpointHostMonitor() {
 		// Get host monitors
 		final Map<String, Monitor> hostMonitors = findMonitorByType(HOST.getKey());
 
