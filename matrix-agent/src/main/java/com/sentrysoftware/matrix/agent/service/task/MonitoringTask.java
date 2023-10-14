@@ -167,6 +167,10 @@ public class MonitoringTask implements Runnable {
 		final Monitor host,
 		final Optional<Map<String, MetricDefinition>> maybeHostMetricDefinitions
 	) {
+		if (!isMetricObserverNotInitialized(host.getId(), HOST_CONFIGURED_METRIC_NAME)) {
+			return;
+		}
+
 		// Get the metric definition from the metric definition map
 		final MetricDefinition metricDefinition = lookupMetricDefinition(
 			HOST_CONFIGURED_METRIC_NAME,
@@ -203,6 +207,11 @@ public class MonitoringTask implements Runnable {
 			.withDescription(metricDefinition.getDescription())
 			.build()
 			.init();
+
+		// Set the metric's observer as initialized
+		initializedMetricsPerMonitorId
+			.computeIfAbsent(host.getId(), id -> new HashSet<>())
+			.add(HOST_CONFIGURED_METRIC_NAME);
 	}
 
 	/**
