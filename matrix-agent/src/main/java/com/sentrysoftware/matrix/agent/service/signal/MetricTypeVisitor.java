@@ -9,10 +9,10 @@ import com.sentrysoftware.matrix.connector.model.metric.MetricType.UpDownCounter
 import com.sentrysoftware.matrix.telemetry.metric.AbstractMetric;
 import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
 import com.sentrysoftware.matrix.telemetry.metric.StateSetMetric;
+import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.metrics.Meter;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
-import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -162,7 +162,7 @@ public class MetricTypeVisitor implements IMetricTypeVisitor {
 	Attributes addStateAttribute(final Attributes attributes, final String stateValue) {
 		return OtelHelper.mergeOtelAttributes(
 			attributes,
-			OtelHelper.buildOtelAttributesFromMap(Map.of(METRIC_STATE_ATTRIBUTE, stateValue))
+			Attributes.of(AttributeKey.stringKey(METRIC_STATE_ATTRIBUTE), stateValue)
 		);
 	}
 }
