@@ -9,7 +9,6 @@ import com.sentrysoftware.matrix.strategy.utils.CollectHelper;
 import com.sentrysoftware.matrix.telemetry.MetricFactory;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
 import java.math.RoundingMode;
 import java.util.Map;
 import lombok.AllArgsConstructor;
@@ -29,34 +28,31 @@ public class HostMonitorThermalCalculator {
 	private static final String TEMPERATURE_METRIC = "hw.temperature";
 	private static final String IS_CPU_SENSOR = "__is_cpu_sensor";
 	private static final String HW_HOST_AVERAGE_CPU_TEMPERATURE = "__hw.host.average_cpu_temperature";
-	private static final String HW_HOST_AMBIENT_TEMPERATURE = "__hw.host.ambient_temperature";
+	private static final String HW_HOST_AMBIENT_TEMPERATURE = "hw.host.ambient_temperature";
 	private static final String TRUE_STRING = "true";
-
-	/**
-	 * Computes the heating margin of the host monitor
-	 * @return Double
-	 */
-	public static Double computeHeatingMargin() {
-		return null;
-	}
+	private static final String HW_HOST_CPU_THERMAL_DISSIPATION_RATE = "__hw.host.cpu.thermal_dissipation_rate";
 
 	/**
 	 * Compute temperature metrics for the current host monitor:
 	 * <ul>
-	 * <li><b>ambientTemperature</b>: the minimum temperature between 5 and 100 degrees Celsius</li>
-	 * <li><b>cpuTemperature</b>: the average CPU temperatures</li>
-	 * <li><b>cpuThermalDissipationRate</b>: the heat dissipation rate of the processors (as a fraction of the maximum heat/power they can emit)</li>
+	 * <li><b>{@value #HW_HOST_AMBIENT_TEMPERATURE}</b> the minimum temperature between 5 and 100 degrees Celsius</li>
+	 * <li><b>{@value #HW_HOST_AVERAGE_CPU_TEMPERATURE}</b>: the average CPU temperatures</li>
+	 * <li><b>{@value #HW_HOST_CPU_THERMAL_DISSIPATION_RATE}</b>: the heat dissipation rate of the processors (as a fraction of the maximum heat/power they can emit)</li>
 	 * </ul>
 	 */
 	public void computeHostTemperatureMetrics() {
 		final Map<String, Monitor> temperatureMonitors = telemetryManager
 			.getMonitors()
 			.get(KnownMonitorType.TEMPERATURE.getKey());
+
 		// No temperatures then no computation
 		if (temperatureMonitors == null || temperatureMonitors.isEmpty()) {
 			log.debug(
-				"Hostname {} - Could not compute temperature metrics (ambientTemperature, cpuTemperature, cpuThermalDissipationRate)",
-				telemetryManager.getHostname()
+				"Hostname {} - Could not compute temperature metrics ({}, {}, {})",
+				telemetryManager.getHostname(),
+				HW_HOST_AVERAGE_CPU_TEMPERATURE,
+				HW_HOST_CPU_THERMAL_DISSIPATION_RATE,
+				HW_HOST_CPU_THERMAL_DISSIPATION_RATE
 			);
 			return;
 		}
@@ -68,17 +64,16 @@ public class HostMonitorThermalCalculator {
 		// Loop over all the temperature monitors to compute the ambient temperature, cpuTemperatureCount and cpuTemperatureAverage
 		for (final Monitor temperatureMonitor : temperatureMonitors.values()) {
 			// Get the temperature value
-			final Double temperatureValue = CollectHelper.getNumberMetricValue(temperatureMonitor, TEMPERATURE_METRIC, false);
+			final Double temperature = CollectHelper.getUpdatedNumberMetricValue(temperatureMonitor, TEMPERATURE_METRIC);
 
 			// If there is no temperature value, no need to continue process this monitor
-			final NumberMetric temperatureMetric = temperatureMonitor.getMetric(TEMPERATURE_METRIC, NumberMetric.class);
-			if (temperatureMetric == null || !temperatureMetric.isUpdated() || temperatureValue == null) {
+			if (temperature == null) {
 				continue;
 			}
 
 			// Is this the ambient temperature? (which should be the lowest measured temperature... except if it's less than 5°)
-			if (temperatureValue < ambientTemperature && temperatureValue > 5) {
-				ambientTemperature = temperatureValue;
+			if (temperature < ambientTemperature && temperature > 5) {
+				ambientTemperature = temperature;
 			}
 			final Double warningThreshold = CollectHelper.getNumberMetricValue(
 				temperatureMonitor,
@@ -88,23 +83,22 @@ public class HostMonitorThermalCalculator {
 
 			// Get the isCpuSensor flag
 			boolean isCpuSensor = false;
-			if (!TRUE_STRING.equals(temperatureMonitor.getAttribute(IS_CPU_SENSOR))) {
+			final String isCpuSensorString = temperatureMonitor.getAttribute(IS_CPU_SENSOR);
+			if (isCpuSensorString == null) {
 				isCpuSensor =
 					isCpuSensor(
 						warningThreshold,
 						temperatureMonitor.getAttribute(MONITOR_ATTRIBUTE_NAME),
 						temperatureMonitor.getAttribute("info")
 					);
-				if (isCpuSensor) {
-					temperatureMonitor.getAttributes().put(IS_CPU_SENSOR, TRUE_STRING);
-				}
+				temperatureMonitor.addAttribute(IS_CPU_SENSOR, String.valueOf(isCpuSensor));
 			} else {
-				isCpuSensor = true;
+				isCpuSensor = Boolean.parseBoolean(isCpuSensorString);
 			}
 
 			// Is this a CPU sensor?
-			if (isCpuSensor && temperatureValue > 5) {
-				cpuTemperatureAverage += temperatureValue;
+			if (isCpuSensor && temperature > 5) {
+				cpuTemperatureAverage += temperature;
 				cpuTemperatureCount++;
 			}
 		}
@@ -170,7 +164,7 @@ public class HostMonitorThermalCalculator {
 				cpuThermalDissipationRate = NumberHelper.round(cpuThermalDissipationRate, 2, RoundingMode.HALF_UP);
 				metricFactory.collectNumberMetric(
 					hostMonitor,
-					"__hw.host.cpu.thermal_dissipation_rate",
+					HW_HOST_CPU_THERMAL_DISSIPATION_RATE,
 					cpuThermalDissipationRate,
 					telemetryManager.getStrategyTime()
 				);
@@ -205,29 +199,5 @@ public class HostMonitorThermalCalculator {
 	 */
 	static boolean matchesCpuSensor(final String value) {
 		return value.contains("cpu") || value.contains("proc");
-	}
-
-	/**
-	 * Estimates the overall average temperature
-	 * @return Double
-	 */
-	public static Double estimateAverageTemperature() {
-		return null;
-	}
-
-	/**
-	 * Estimates temperature warning threshold average
-	 * @return Double
-	 */
-	public static Double estimateTemperatureWarningThresholdAverage() {
-		return null;
-	}
-
-	/**
-	 * Estimates thermal dissipation rate
-	 * @return Double
-	 */
-	public static Double estimateThermalDissipationRate() {
-		return null;
 	}
 }

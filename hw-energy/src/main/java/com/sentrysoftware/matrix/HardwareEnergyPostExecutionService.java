@@ -138,10 +138,7 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 		collectNetworkMetrics();
 
 		// Compute host temperature metrics (ambientTemperature, cpuTemperature, cpuThermalDissipationRate)
-		final HostMonitorThermalCalculator hostMonitorThermalCalculator = new HostMonitorThermalCalculator(
-			telemetryManager
-		);
-		hostMonitorThermalCalculator.computeHostTemperatureMetrics();
+		new HostMonitorThermalCalculator(telemetryManager).computeHostTemperatureMetrics();
 	}
 
 	/**
