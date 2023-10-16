@@ -19,4 +19,7 @@ public class Constants {
 	public static final String MEMORY_POWER_METRIC = "hw.power{hw.type=\"memory\"}";
 
 	public static final String LOCALHOST = "localhost";
+	public static final String HW_HOST_AVERAGE_CPU_TEMPERATURE = "__hw.host.average_cpu_temperature";
+	public static final String HW_HOST_AMBIENT_TEMPERATURE = "__hw.host.ambient_temperature";
+	public static final String TEMPERATURE_METRIC = "hw.temperature";
 }

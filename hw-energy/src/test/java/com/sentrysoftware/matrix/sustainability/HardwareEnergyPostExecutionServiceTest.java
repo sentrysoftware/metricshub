@@ -5,6 +5,8 @@ import static com.sentrysoftware.matrix.common.Constants.DISK_CONTROLLER_POWER_M
 import static com.sentrysoftware.matrix.common.Constants.FAN_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.FAN_POWER_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.FAN_SPEED_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.HW_HOST_AMBIENT_TEMPERATURE;
+import static com.sentrysoftware.matrix.common.Constants.HW_HOST_AVERAGE_CPU_TEMPERATURE;
 import static com.sentrysoftware.matrix.common.Constants.LOCALHOST;
 import static com.sentrysoftware.matrix.common.Constants.MEMORY_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.MEMORY_POWER_METRIC;
@@ -15,11 +17,14 @@ import static com.sentrysoftware.matrix.common.Constants.TAPE_DRIVE_ENERGY_METRI
 import static com.sentrysoftware.matrix.common.Constants.TAPE_DRIVE_MOUNT_COUNT_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.TAPE_DRIVE_POWER_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.TAPE_DRIVE_UNMOUNT_COUNT_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.TEMPERATURE_METRIC;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.sentrysoftware.matrix.HardwareEnergyPostExecutionService;
 import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
+import com.sentrysoftware.matrix.telemetry.MetricFactory;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
@@ -39,6 +44,8 @@ class HardwareEnergyPostExecutionServiceTest {
 	private static final String MEMORY = KnownMonitorType.MEMORY.getKey();
 	private static final String ROBOTICS = KnownMonitorType.ROBOTICS.getKey();
 	private static final String TAPE_DRIVE = KnownMonitorType.TAPE_DRIVE.getKey();
+	private static final String TEMPERATURE = KnownMonitorType.TEMPERATURE.getKey();
+	private static final String HOST = KnownMonitorType.HOST.getKey();
 
 	@BeforeEach
 	void init() {
@@ -154,7 +161,7 @@ class HardwareEnergyPostExecutionServiceTest {
 
 	@Test
 	void testRunWithMemoryMonitor() {
-		// Create a fan monitor
+		// Create a Memory monitor
 		final Monitor monitor = Monitor.builder().type(MEMORY).build();
 
 		// Set the previously created monitor in telemetryManager
@@ -170,5 +177,31 @@ class HardwareEnergyPostExecutionServiceTest {
 
 		// Check the computed and collected energy metric
 		assertNotNull(monitor.getMetric(MEMORY_ENERGY_METRIC, NumberMetric.class));
+	}
+
+	@Test
+	void testComputeHostTemperatureMetrics() {
+		// Create a host monitor
+		final Monitor hostMonitor = Monitor.builder().type(HOST).build();
+		hostMonitor.setAttributes(new HashMap<>(Map.of("is_endpoint", "true")));
+
+		// Create a temperature monitor
+		final Monitor temperatureMonitor = Monitor.builder().type(TEMPERATURE).build();
+
+		// Set the previously created monitor in telemetryManager
+		telemetryManager.addNewMonitor(hostMonitor, KnownMonitorType.HOST.getKey(), "monitor0");
+		telemetryManager.addNewMonitor(temperatureMonitor, KnownMonitorType.TEMPERATURE.getKey(), "monitor1");
+
+		// Check the computed and collected metrics
+		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
+		metricFactory.collectNumberMetric(temperatureMonitor, TEMPERATURE_METRIC, 10.0, telemetryManager.getStrategyTime());
+
+		// Call run method in HardwareEnergyPostExecutionService
+		hardwareEnergyPostExecutionService = new HardwareEnergyPostExecutionService(telemetryManager);
+		hardwareEnergyPostExecutionService.run();
+
+		//  Check the computed and collected temperature metrics (the host is not a cpu sensor)
+		assertNotNull(hostMonitor.getMetric(HW_HOST_AMBIENT_TEMPERATURE, NumberMetric.class));
+		assertNull(hostMonitor.getMetric(HW_HOST_AVERAGE_CPU_TEMPERATURE, NumberMetric.class));
 	}
 }

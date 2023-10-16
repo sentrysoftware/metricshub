@@ -16,6 +16,7 @@ import com.sentrysoftware.matrix.delegate.IPostExecutionService;
 import com.sentrysoftware.matrix.sustainability.DiskControllerPowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.sustainability.FanPowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.sustainability.HardwarePowerAndEnergyEstimator;
+import com.sentrysoftware.matrix.sustainability.HostMonitorThermalCalculator;
 import com.sentrysoftware.matrix.sustainability.MemoryPowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.sustainability.RoboticsPowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.sustainability.TapeDrivePowerAndEnergyEstimator;
@@ -117,5 +118,11 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 			HW_ENERGY_MEMORY_METRIC,
 			MemoryPowerAndEnergyEstimator::new
 		);
+
+		// Computes host temperature metrics (ambientTemperature, cpuTemperature, cpuThermalDissipationRate)
+		final HostMonitorThermalCalculator hostMonitorThermalCalculator = new HostMonitorThermalCalculator(
+			telemetryManager
+		);
+		hostMonitorThermalCalculator.computeHostTemperatureMetrics();
 	}
 }

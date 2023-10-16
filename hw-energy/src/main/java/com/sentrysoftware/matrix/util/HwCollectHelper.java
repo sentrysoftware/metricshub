@@ -1,5 +1,6 @@
 package com.sentrysoftware.matrix.util;
 
+import com.sentrysoftware.matrix.strategy.utils.CollectHelper;
 import com.sentrysoftware.matrix.strategy.utils.MathOperationsHelper;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
@@ -51,11 +52,7 @@ public class HwCollectHelper {
 	) {
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
-		final Double collectTimePrevious = com.sentrysoftware.matrix.strategy.utils.CollectHelper.getNumberMetricCollectTime(
-			monitor,
-			powerMetricName,
-			true
-		);
+		final Double collectTimePrevious = CollectHelper.getNumberMetricCollectTime(monitor, powerMetricName, true);
 
 		final Double deltaTimeMs = MathOperationsHelper.subtract(
 			powerMetricName,
@@ -75,11 +72,7 @@ public class HwCollectHelper {
 			Double counter = usageDelta;
 
 			// The previous counter is needed to make a sum with the delta counter value on this collect
-			final Double previousCounter = com.sentrysoftware.matrix.strategy.utils.CollectHelper.getNumberMetricValue(
-				monitor,
-				energyMetricName,
-				true
-			);
+			final Double previousCounter = CollectHelper.getNumberMetricValue(monitor, energyMetricName, true);
 
 			// Ok, we have the previous counter value ? sum the previous counter and the current delta counter
 			if (previousCounter != null) {
