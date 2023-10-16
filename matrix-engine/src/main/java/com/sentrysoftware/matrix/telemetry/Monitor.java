@@ -38,10 +38,10 @@ public class Monitor {
 	private Map<String, List<AlertRule>> alertRules = new HashMap<>();
 
 	private Resource resource;
-	private long discoveryTime;
+	private Long discoveryTime;
 	private String type;
 	private String id;
-	private boolean endpoint;
+	private boolean isEndpoint;
 
 	/**
 	 * Get a metric by type
@@ -139,5 +139,21 @@ public class Monitor {
 	 */
 	public boolean isEndpointHost() {
 		return KnownMonitorType.HOST.getKey().equals(type) && isEndpoint();
+	}
+
+	/**
+	 * Set isEndpoint to <code>true</code> or <code>false</code>
+	 *
+	 * @param isEndpoint boolean value
+	 */
+	public void setIsEndpoint(final boolean isEndpoint) {
+		this.isEndpoint = isEndpoint;
+	}
+
+	/**
+	 * Set the current monitor as endpoint
+	 */
+	public void setAsEndpoint() {
+		setIsEndpoint(true);
 	}
 }

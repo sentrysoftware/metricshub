@@ -200,7 +200,7 @@ public class MonitorFactory {
 		);
 
 		// Flag the host as endpoint
-		monitor.setEndpoint(true);
+		monitor.setAsEndpoint();
 
 		log.debug("Hostname {} - Created endpoint host ID: {} ", hostname, hostConfiguration.getHostId());
 

@@ -29,7 +29,7 @@ public class PostDiscoveryStrategy extends AbstractStrategy {
 			.stream()
 			.map(Map::values)
 			.flatMap(Collection::stream)
-			.filter(monitor -> strategyTime != monitor.getDiscoveryTime())
+			.filter(monitor -> !strategyTime.equals(monitor.getDiscoveryTime()))
 			.forEach(monitor -> monitor.setAsMissing(telemetryManager.getHostname()));
 	}
 }
