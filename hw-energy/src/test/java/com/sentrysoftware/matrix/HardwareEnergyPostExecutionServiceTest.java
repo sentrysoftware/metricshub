@@ -1,4 +1,4 @@
-package com.sentrysoftware.matrix.sustainability;
+package com.sentrysoftware.matrix;
 
 import static com.sentrysoftware.matrix.common.Constants.DISK_CONTROLLER_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.DISK_CONTROLLER_POWER_METRIC;
@@ -10,6 +10,13 @@ import static com.sentrysoftware.matrix.common.Constants.HW_HOST_AVERAGE_CPU_TEM
 import static com.sentrysoftware.matrix.common.Constants.LOCALHOST;
 import static com.sentrysoftware.matrix.common.Constants.MEMORY_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.MEMORY_POWER_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.NETWORK_ENERGY_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.NETWORK_LINK_SPEED_ATTRIBUTE;
+import static com.sentrysoftware.matrix.common.Constants.NETWORK_LINK_STATUS_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.NETWORK_POWER_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.NETWORK_TRANSMITTED_BANDWIDTH_UTILIZATION_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.PHYSICAL_DISK_ENERGY_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.PHYSICAL_DISK_POWER_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.ROBOTICS_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.ROBOTICS_MOVE_COUNT_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.ROBOTICS_POWER_METRIC;
@@ -21,7 +28,6 @@ import static com.sentrysoftware.matrix.common.Constants.TEMPERATURE_METRIC;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import com.sentrysoftware.matrix.HardwareEnergyPostExecutionService;
 import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.telemetry.MetricFactory;
@@ -46,6 +52,8 @@ class HardwareEnergyPostExecutionServiceTest {
 	private static final String TAPE_DRIVE = KnownMonitorType.TAPE_DRIVE.getKey();
 	private static final String TEMPERATURE = KnownMonitorType.TEMPERATURE.getKey();
 	private static final String HOST = KnownMonitorType.HOST.getKey();
+	private static final String PHYSICAL_DISK = KnownMonitorType.PHYSICAL_DISK.getKey();
+	private static final String NETWORK = KnownMonitorType.NETWORK.getKey();
 
 	@BeforeEach
 	void init() {
@@ -161,7 +169,7 @@ class HardwareEnergyPostExecutionServiceTest {
 
 	@Test
 	void testRunWithMemoryMonitor() {
-		// Create a Memory monitor
+		// Create a fan monitor
 		final Monitor monitor = Monitor.builder().type(MEMORY).build();
 
 		// Set the previously created monitor in telemetryManager
@@ -177,6 +185,59 @@ class HardwareEnergyPostExecutionServiceTest {
 
 		// Check the computed and collected energy metric
 		assertNotNull(monitor.getMetric(MEMORY_ENERGY_METRIC, NumberMetric.class));
+	}
+
+	@Test
+	void testRunWithPhysicalDiskMonitor() {
+		// Create a physical disk monitor
+		final Monitor physicalDiskMonitor = Monitor.builder().type(PHYSICAL_DISK).build();
+
+		// Set the previously created physical disk monitor in telemetryManager
+		final Map<String, Monitor> physicalDiskMonitors = new HashMap<>(Map.of("monitor5", physicalDiskMonitor));
+		telemetryManager.setMonitors(new HashMap<>(Map.of(PHYSICAL_DISK, physicalDiskMonitors)));
+
+		// Call run method in HardwareEnergyPostExecutionService
+		hardwareEnergyPostExecutionService = new HardwareEnergyPostExecutionService(telemetryManager);
+		hardwareEnergyPostExecutionService.run();
+
+		// Check the computed and collected power metric
+		assertNotNull(physicalDiskMonitor.getMetric(PHYSICAL_DISK_POWER_METRIC, NumberMetric.class));
+
+		// Check the computed and collected energy metric
+		assertNotNull(physicalDiskMonitor.getMetric(PHYSICAL_DISK_ENERGY_METRIC, NumberMetric.class));
+	}
+
+	@Test
+	void testRunWithNetworkMonitor() {
+		// Create a network monitor
+		final Monitor networkMonitor = Monitor
+			.builder()
+			.type(NETWORK)
+			.attributes(new HashMap<>(Map.of("name", "real_network_card", NETWORK_LINK_SPEED_ATTRIBUTE, "100.0")))
+			.metrics(
+				new HashMap<>(
+					Map.of(
+						NETWORK_LINK_STATUS_METRIC,
+						NumberMetric.builder().value(1.0).build(),
+						NETWORK_TRANSMITTED_BANDWIDTH_UTILIZATION_METRIC,
+						NumberMetric.builder().value(10.0).build()
+					)
+				)
+			)
+			.build();
+
+		// Set the previously created network monitor in telemetryManager
+		final Map<String, Monitor> networkMonitors = new HashMap<>(Map.of("monitor2", networkMonitor));
+		telemetryManager.setMonitors(new HashMap<>(Map.of(NETWORK, networkMonitors)));
+		// Call run method in HardwareEnergyPostExecutionService
+		hardwareEnergyPostExecutionService = new HardwareEnergyPostExecutionService(telemetryManager);
+		hardwareEnergyPostExecutionService.run();
+
+		// Check the computed and collected power metric
+		assertNotNull(networkMonitor.getMetric(NETWORK_POWER_METRIC, NumberMetric.class));
+
+		// Check the computed and collected energy metric
+		assertNotNull(networkMonitor.getMetric(NETWORK_ENERGY_METRIC, NumberMetric.class));
 	}
 
 	@Test
