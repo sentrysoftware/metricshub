@@ -4,7 +4,7 @@ import static com.sentrysoftware.matrix.common.Constants.NETWORK_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.NETWORK_LINK_SPEED_ATTRIBUTE;
 import static com.sentrysoftware.matrix.common.Constants.NETWORK_LINK_STATUS_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.NETWORK_POWER_METRIC;
-import static com.sentrysoftware.matrix.common.Constants.NETWORK_TRANSMTTED_BANDWIDTH_UTILIZATION_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.NETWORK_TRANSMITTED_BANDWIDTH_UTILIZATION_METRIC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -57,7 +57,7 @@ class NetworkPowerAndEnergyEstimatorTest {
 
 		// linkStatus is up, bandwidthUtilization = 0.5, linkSpeed = 100.0
 		// estimated power consumption is 7.5
-		monitor.addMetric(NETWORK_TRANSMTTED_BANDWIDTH_UTILIZATION_METRIC, NumberMetric.builder().value(0.5).build());
+		monitor.addMetric(NETWORK_TRANSMITTED_BANDWIDTH_UTILIZATION_METRIC, NumberMetric.builder().value(0.5).build());
 		monitor.addMetric(NETWORK_LINK_SPEED_ATTRIBUTE, NumberMetric.builder().value(100.0).build());
 		assertEquals(7.5, networkPowerAndEnergyEstimator.estimatePower());
 
@@ -77,7 +77,7 @@ class NetworkPowerAndEnergyEstimatorTest {
 					Map.of(
 						NETWORK_LINK_STATUS_METRIC,
 						NumberMetric.builder().value(1.0).build(),
-						NETWORK_TRANSMTTED_BANDWIDTH_UTILIZATION_METRIC,
+						NETWORK_TRANSMITTED_BANDWIDTH_UTILIZATION_METRIC,
 						NumberMetric.builder().value(0.1).build()
 					)
 				)

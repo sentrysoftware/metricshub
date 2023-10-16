@@ -61,4 +61,21 @@ public class CollectHelper {
 
 		return number.doubleValue();
 	}
+
+	/**
+	 * Get the updated {@link NumberMetric} value
+	 *
+	 * @param monitor    The {@link Monitor} instance we wish to extract the {@link NumberMetric} value
+	 * @param metricName The name of the {@link NumberMetric} instance
+	 * @return a {@link Double} value
+	 */
+	public static Double getUpdatedNumberMetricValue(final Monitor monitor, final String metricName) {
+		final NumberMetric metric = monitor.getMetric(metricName, NumberMetric.class);
+
+		if (metric == null) {
+			return null;
+		}
+
+		return metric.isUpdated() ? getDoubleValue(metric.getValue()) : null;
+	}
 }

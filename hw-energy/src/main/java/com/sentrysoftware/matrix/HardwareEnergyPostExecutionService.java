@@ -21,6 +21,7 @@ import com.sentrysoftware.matrix.strategy.utils.CollectHelper;
 import com.sentrysoftware.matrix.sustainability.DiskControllerPowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.sustainability.FanPowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.sustainability.HardwarePowerAndEnergyEstimator;
+import com.sentrysoftware.matrix.sustainability.HostMonitorThermalCalculator;
 import com.sentrysoftware.matrix.sustainability.MemoryPowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.sustainability.NetworkPowerAndEnergyEstimator;
 import com.sentrysoftware.matrix.sustainability.PhysicalDiskPowerAndEnergyEstimator;
@@ -121,29 +122,27 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 		);
 
 		estimateAndCollectPowerAndEnergyForMonitorType(
-			KnownMonitorType.MEMORY,
-			HW_POWER_MEMORY_METRIC,
-			HW_ENERGY_MEMORY_METRIC,
-			MemoryPowerAndEnergyEstimator::new
-		);
-
-		estimateAndCollectPowerAndEnergyForMonitorType(
 			KnownMonitorType.PHYSICAL_DISK,
 			HW_POWER_PHYSICAL_DISK_METRIC,
 			HW_ENERGY_PHYSICAL_DISK_METRIC,
 			PhysicalDiskPowerAndEnergyEstimator::new
 		);
 
+		estimateAndCollectPowerAndEnergyForMonitorType(
+			KnownMonitorType.MEMORY,
+			HW_POWER_MEMORY_METRIC,
+			HW_ENERGY_MEMORY_METRIC,
+			MemoryPowerAndEnergyEstimator::new
+		);
+
 		collectNetworkMetrics();
+
+		// Compute host temperature metrics (ambientTemperature, cpuTemperature, cpuThermalDissipationRate)
+		new HostMonitorThermalCalculator(telemetryManager).computeHostTemperatureMetrics();
 	}
 
 	/**
 	 * Estimates and collects power and energy consumption for a given Network monitor
-	 *
-	 * @param monitorType        a given monitor type {@link KnownMonitorType}
-	 * @param powerMetricName    the name of the power metric of the given monitor type
-	 * @param energyMetricName   the name of the energy metric of the given monitor type
-	 * @param estimatorGenerator Function that generates the estimator
 	 */
 	private void collectNetworkMetrics() {
 		// Find monitors having the selected monitor type

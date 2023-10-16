@@ -5,6 +5,8 @@ import static com.sentrysoftware.matrix.common.Constants.DISK_CONTROLLER_POWER_M
 import static com.sentrysoftware.matrix.common.Constants.FAN_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.FAN_POWER_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.FAN_SPEED_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.HW_HOST_AMBIENT_TEMPERATURE;
+import static com.sentrysoftware.matrix.common.Constants.HW_HOST_AVERAGE_CPU_TEMPERATURE;
 import static com.sentrysoftware.matrix.common.Constants.LOCALHOST;
 import static com.sentrysoftware.matrix.common.Constants.MEMORY_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.MEMORY_POWER_METRIC;
@@ -12,7 +14,7 @@ import static com.sentrysoftware.matrix.common.Constants.NETWORK_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.NETWORK_LINK_SPEED_ATTRIBUTE;
 import static com.sentrysoftware.matrix.common.Constants.NETWORK_LINK_STATUS_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.NETWORK_POWER_METRIC;
-import static com.sentrysoftware.matrix.common.Constants.NETWORK_TRANSMTTED_BANDWIDTH_UTILIZATION_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.NETWORK_TRANSMITTED_BANDWIDTH_UTILIZATION_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.PHYSICAL_DISK_ENERGY_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.PHYSICAL_DISK_POWER_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.ROBOTICS_ENERGY_METRIC;
@@ -22,11 +24,13 @@ import static com.sentrysoftware.matrix.common.Constants.TAPE_DRIVE_ENERGY_METRI
 import static com.sentrysoftware.matrix.common.Constants.TAPE_DRIVE_MOUNT_COUNT_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.TAPE_DRIVE_POWER_METRIC;
 import static com.sentrysoftware.matrix.common.Constants.TAPE_DRIVE_UNMOUNT_COUNT_METRIC;
+import static com.sentrysoftware.matrix.common.Constants.TEMPERATURE_METRIC;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
 import com.sentrysoftware.matrix.configuration.HostConfiguration;
+import com.sentrysoftware.matrix.telemetry.MetricFactory;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import com.sentrysoftware.matrix.telemetry.metric.NumberMetric;
@@ -37,8 +41,8 @@ import org.junit.jupiter.api.Test;
 
 class HardwareEnergyPostExecutionServiceTest {
 
-	private static final long STRATEGY_TIME = 1696597422644L;
-	private static final long NEXT_STRATEGY_TIME = STRATEGY_TIME + 2 * 60 * 1000;
+	private static final Long STRATEGY_TIME = 1696597422644L;
+	private static final Long NEXT_STRATEGY_TIME = STRATEGY_TIME + 2 * 60 * 1000;
 
 	private HardwareEnergyPostExecutionService hardwareEnergyPostExecutionService;
 
@@ -49,6 +53,8 @@ class HardwareEnergyPostExecutionServiceTest {
 	private static final String MEMORY = KnownMonitorType.MEMORY.getKey();
 	private static final String ROBOTICS = KnownMonitorType.ROBOTICS.getKey();
 	private static final String TAPE_DRIVE = KnownMonitorType.TAPE_DRIVE.getKey();
+	private static final String TEMPERATURE = KnownMonitorType.TEMPERATURE.getKey();
+	private static final String HOST = KnownMonitorType.HOST.getKey();
 	private static final String PHYSICAL_DISK = KnownMonitorType.PHYSICAL_DISK.getKey();
 	private static final String NETWORK = KnownMonitorType.NETWORK.getKey();
 
@@ -270,7 +276,7 @@ class HardwareEnergyPostExecutionServiceTest {
 					Map.of(
 						NETWORK_LINK_STATUS_METRIC,
 						NumberMetric.builder().value(1.0).build(),
-						NETWORK_TRANSMTTED_BANDWIDTH_UTILIZATION_METRIC,
+						NETWORK_TRANSMITTED_BANDWIDTH_UTILIZATION_METRIC,
 						NumberMetric.builder().value(10.0).build()
 					)
 				)
@@ -298,5 +304,33 @@ class HardwareEnergyPostExecutionServiceTest {
 
 		// Check the computed and collected energy metric
 		assertNotNull(networkMonitor.getMetric(NETWORK_ENERGY_METRIC, NumberMetric.class));
+	}
+
+	@Test
+	void testComputeHostTemperatureMetrics() {
+		// Create a host monitor
+		final Monitor hostMonitor = Monitor.builder().type(HOST).build();
+
+		// Set the host as endpoint
+		hostMonitor.setAsEndpoint();
+
+		// Create a temperature monitor
+		final Monitor temperatureMonitor = Monitor.builder().type(TEMPERATURE).build();
+
+		// Set the previously created monitor in telemetryManager
+		telemetryManager.addNewMonitor(hostMonitor, KnownMonitorType.HOST.getKey(), "monitor0");
+		telemetryManager.addNewMonitor(temperatureMonitor, KnownMonitorType.TEMPERATURE.getKey(), "monitor1");
+
+		// Check the computed and collected metrics
+		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
+		metricFactory.collectNumberMetric(temperatureMonitor, TEMPERATURE_METRIC, 10.0, telemetryManager.getStrategyTime());
+
+		// Call run method in HardwareEnergyPostExecutionService
+		hardwareEnergyPostExecutionService = new HardwareEnergyPostExecutionService(telemetryManager);
+		hardwareEnergyPostExecutionService.run();
+
+		//  Check the computed and collected temperature metrics (the host is not a cpu sensor)
+		assertNotNull(hostMonitor.getMetric(HW_HOST_AMBIENT_TEMPERATURE, NumberMetric.class));
+		assertNull(hostMonitor.getMetric(HW_HOST_AVERAGE_CPU_TEMPERATURE, NumberMetric.class));
 	}
 }
