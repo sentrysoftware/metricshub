@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ClassPathResource;
 
 @Data
 @Slf4j
@@ -38,6 +39,7 @@ public class AgentContext {
 	private Map<String, Map<String, TelemetryManager>> telemetryManagers;
 	private OtelCollectorProcessService otelCollectorProcessService;
 	private TaskSchedulingService taskSchedulingService;
+	private MetricDefinitions hostMetricDefinitions;
 
 	/**
 	 * Instantiate the global context
@@ -83,6 +85,9 @@ public class AgentContext {
 		// Build the OpenTelemetry Collector Service
 		otelCollectorProcessService = new OtelCollectorProcessService(agentConfig);
 
+		// Build the Host Metric Definitions
+		hostMetricDefinitions = readHostMetricDefinitions();
+
 		// Build the TaskScheduling Service
 		taskSchedulingService =
 			TaskSchedulingService
@@ -96,11 +101,27 @@ public class AgentContext {
 				.withTelemetryManagers(telemetryManagers)
 				.withSchedules(new HashMap<>())
 				.withOtelSdkConfiguration(otelSdkConfiguration)
+				.withHostMetricDefinitions(hostMetricDefinitions)
 				.build();
 
 		final Duration startupDuration = Duration.ofNanos(System.nanoTime() - startTime);
 
 		log.info("Started MetricsHub Agent in {} seconds.", startupDuration.toMillis() / 1000.0);
+	}
+
+	/**
+	 * Read {@link MetricDefinitions} for the root monitor instance (Endpoint)
+	 * which is automatically created by the MetricsHub engine
+	 *
+	 * @return new {@link MetricDefinitions} instance
+	 * @throws IOException
+	 */
+	public static MetricDefinitions readHostMetricDefinitions() throws IOException {
+		return JsonHelper.deserialize(
+			ConfigHelper.newObjectMapper(),
+			new ClassPathResource("metricshub-host-metrics.yaml").getInputStream(),
+			MetricDefinitions.class
+		);
 	}
 
 	/**

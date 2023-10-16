@@ -39,9 +39,22 @@ public class OtelHelper {
 			.entrySet()
 			.stream()
 			.filter(entry -> Objects.nonNull(entry.getValue()))
+			.filter(entry -> isAcceptedKey(entry.getKey()))
 			.map(entry -> Attributes.of(AttributeKey.stringKey(entry.getKey()), entry.getValue()))
 			.reduce((attributes1, attributes2) -> Attributes.builder().putAll(attributes1).putAll(attributes2).build())
 			.orElseGet(() -> Attributes.builder().build());
+	}
+
+	/**
+	 * Whether this key should be accepted or not.<br>
+	 * If the key starts with '__' then it is not accepted.
+	 *
+	 * @param entry string key
+	 *
+	 * @return boolean value
+	 */
+	public static boolean isAcceptedKey(final String key) {
+		return !key.startsWith("__");
 	}
 
 	/**
@@ -134,5 +147,18 @@ public class OtelHelper {
 
 		// Finally we keep the configured host.name
 		return configuredHostname;
+	}
+
+	/**
+	 * Merge the given OTEL SDK attributes
+	 *
+	 *
+	 * @param firstAttributes  First {@link Attributes} instance to merge
+	 * @param secondAttributes Second  {@link Attributes} instance to merge
+	 *
+	 * @return new {@link Attributes} instance
+	 */
+	public static Attributes mergeOtelAttributes(final Attributes firstAttributes, final Attributes secondAttributes) {
+		return Attributes.builder().putAll(firstAttributes).putAll(secondAttributes).build();
 	}
 }

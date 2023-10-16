@@ -3,6 +3,7 @@ package com.sentrysoftware.matrix.telemetry;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.PRESENT_STATUS;
 
 import com.sentrysoftware.matrix.alert.AlertRule;
+import com.sentrysoftware.matrix.common.helpers.KnownMonitorType;
 import com.sentrysoftware.matrix.common.helpers.MatrixConstants;
 import com.sentrysoftware.matrix.telemetry.metric.AbstractMetric;
 import java.util.HashMap;
@@ -37,9 +38,10 @@ public class Monitor {
 	private Map<String, List<AlertRule>> alertRules = new HashMap<>();
 
 	private Resource resource;
-	private long discoveryTime;
+	private Long discoveryTime;
 	private String type;
 	private String id;
+	private boolean isEndpoint;
 
 	/**
 	 * Get a metric by type
@@ -128,5 +130,30 @@ public class Monitor {
 	 */
 	public void setAsPresent(final String hostname) {
 		new MetricFactory(hostname).collectNumberMetric(this, String.format(PRESENT_STATUS, type), 1.0, discoveryTime);
+	}
+
+	/**
+	 * This method checks if the monitor type is {@code host} and represents an endpoint.
+	 *
+	 * @return {@code true} if the monitor is of type "host" and is an endpoint; {@code false} otherwise.
+	 */
+	public boolean isEndpointHost() {
+		return KnownMonitorType.HOST.getKey().equals(type) && isEndpoint();
+	}
+
+	/**
+	 * Set isEndpoint to <code>true</code> or <code>false</code>
+	 *
+	 * @param isEndpoint boolean value
+	 */
+	public void setIsEndpoint(final boolean isEndpoint) {
+		this.isEndpoint = isEndpoint;
+	}
+
+	/**
+	 * Set the current monitor as endpoint
+	 */
+	public void setAsEndpoint() {
+		setIsEndpoint(true);
 	}
 }

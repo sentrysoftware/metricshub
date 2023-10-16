@@ -30,13 +30,9 @@ public class ContextExecutor {
 	public void execute() throws InterruptedException, ExecutionException, TimeoutException {
 		final ExecutorService executorService = Executors.newSingleThreadExecutor();
 		try {
-			strategy.prepare();
-
 			final Future<?> handler = executorService.submit(strategy);
 
 			handler.get(strategy.getStrategyTimeout(), TimeUnit.SECONDS);
-
-			strategy.post();
 		} finally {
 			executorService.shutdownNow();
 		}

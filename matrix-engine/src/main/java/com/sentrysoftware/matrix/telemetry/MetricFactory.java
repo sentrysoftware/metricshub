@@ -260,10 +260,12 @@ public class MetricFactory {
 
 	/**
 	 * This method removes attribute parts from the metric name
+	 *
 	 * @param name metric name with or without attributes
+	 *
 	 * @return metric name without attributes
 	 */
-	private String extractName(final String name) {
+	public static final String extractName(final String name) {
 		final int openBracketPosition = name.indexOf("{");
 		if (openBracketPosition >= 0) {
 			return name.substring(0, openBracketPosition);

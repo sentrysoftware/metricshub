@@ -6,6 +6,7 @@ import com.sentrysoftware.matrix.connector.model.monitor.task.AbstractMonitorTas
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.matrix.strategy.AbstractAllAtOnceStrategy;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -16,9 +17,10 @@ public class SimpleStrategy extends AbstractAllAtOnceStrategy {
 
 	private static final String JOB_NAME = "simple";
 
+	@Builder
 	public SimpleStrategy(
 		@NonNull final TelemetryManager telemetryManager,
-		final long strategyTime,
+		@NonNull final Long strategyTime,
 		@NonNull final MatsyaClientsExecutor matsyaClientsExecutor
 	) {
 		super(telemetryManager, strategyTime, matsyaClientsExecutor);

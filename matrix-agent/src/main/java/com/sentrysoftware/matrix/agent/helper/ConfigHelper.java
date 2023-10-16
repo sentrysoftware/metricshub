@@ -603,16 +603,16 @@ public class ConfigHelper {
 	}
 
 	/**
-	 * Merge parent attributes into the child attributes
+	 * Merge the given attributes into the destination attributes
 	 *
-	 * @param parentAttributes Map of key-pair values defining the attributes at the parent level
-	 * @param childAttributes  Map of key-pair values defining the attributes at the child level
+	 * @param attributes            Map of key-pair values defining the attributes at a certain level
+	 * @param destinationAttributes Map of key-pair values defining the destination
 	 */
 	public static void mergeAttributes(
-		final Map<String, String> parentAttributes,
-		final Map<String, String> childAttributes
+		final Map<String, String> attributes,
+		final Map<String, String> destinationAttributes
 	) {
-		childAttributes.putAll(parentAttributes);
+		destinationAttributes.putAll(attributes);
 	}
 
 	/**

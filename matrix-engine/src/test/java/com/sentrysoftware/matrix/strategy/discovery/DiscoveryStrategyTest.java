@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -44,10 +43,9 @@ class DiscoveryStrategyTest {
 	@Mock
 	private MatsyaClientsExecutor matsyaClientsExecutorMock;
 
-	@InjectMocks
-	private DiscoveryStrategy discoveryStrategy;
-
 	static Long strategyTime = new Date().getTime();
+
+	private DiscoveryStrategy discoveryStrategy;
 
 	@Test
 	void testRun() throws Exception {
@@ -87,8 +85,13 @@ class DiscoveryStrategyTest {
 		final ConnectorStore connectorStore = new ConnectorStore(YAML_TEST_PATH);
 		telemetryManager.setConnectorStore(connectorStore);
 
-		discoveryStrategy.setTelemetryManager(telemetryManager);
-		discoveryStrategy.setStrategyTime(strategyTime);
+		discoveryStrategy =
+			DiscoveryStrategy
+				.builder()
+				.matsyaClientsExecutor(matsyaClientsExecutorMock)
+				.strategyTime(strategyTime)
+				.telemetryManager(telemetryManager)
+				.build();
 
 		// Mock source table information for disk controller
 		doReturn(SourceTable.csvToTable("controller-1;1;Adaptec1;bios53v2;firmware32", MatrixConstants.TABLE_SEP))
@@ -125,7 +128,7 @@ class DiscoveryStrategyTest {
 
 		// Call DiscoveryStrategy to discover the monitors
 		discoveryStrategy.run();
-		discoveryStrategy.post();
+		new PostDiscoveryStrategy(telemetryManager, strategyTime, matsyaClientsExecutorMock).run();
 
 		// Check discovered monitors
 		final Map<String, Map<String, Monitor>> discoveredMonitors = telemetryManager.getMonitors();
@@ -167,7 +170,8 @@ class DiscoveryStrategyTest {
 				.getValue()
 		);
 
-		discoveryStrategy.setStrategyTime(strategyTime + 60 * 60 * 1000);
+		final long nextDiscoveryTime = strategyTime + 60 * 60 * 1000;
+		discoveryStrategy.setStrategyTime(nextDiscoveryTime);
 
 		// Mock source table with no information for disk controller
 		doReturn(SourceTable.csvToTable("", MatrixConstants.TABLE_SEP))
@@ -202,7 +206,7 @@ class DiscoveryStrategyTest {
 				eq(true)
 			);
 		discoveryStrategy.run();
-		discoveryStrategy.post();
+		new PostDiscoveryStrategy(telemetryManager, nextDiscoveryTime, matsyaClientsExecutorMock).run();
 
 		// Check that the monitors are set to missing as they are not present in the previous discovery job
 		assertEquals(

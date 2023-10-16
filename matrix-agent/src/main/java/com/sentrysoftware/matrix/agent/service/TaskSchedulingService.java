@@ -4,11 +4,11 @@ import com.sentrysoftware.matrix.agent.config.AgentConfig;
 import com.sentrysoftware.matrix.agent.config.ResourceConfig;
 import com.sentrysoftware.matrix.agent.config.ResourceGroupConfig;
 import com.sentrysoftware.matrix.agent.context.AgentInfo;
+import com.sentrysoftware.matrix.agent.context.MetricDefinitions;
 import com.sentrysoftware.matrix.agent.service.scheduling.ResourceGroupScheduling;
 import com.sentrysoftware.matrix.agent.service.scheduling.ResourceScheduling;
 import com.sentrysoftware.matrix.agent.service.scheduling.SelfObserverScheduling;
-import com.sentrysoftware.matrix.agent.service.signal.ResourceGroupMetricsObserver;
-import com.sentrysoftware.matrix.agent.service.signal.SelfObserver;
+import com.sentrysoftware.matrix.agent.service.signal.SimpleGaugeMetricObserver;
 import com.sentrysoftware.matrix.connector.model.ConnectorStore;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
 import java.io.File;
@@ -34,6 +34,7 @@ public class TaskSchedulingService {
 	private OtelCollectorProcessService otelCollectorProcessService;
 	private Map<String, Map<String, TelemetryManager>> telemetryManagers;
 	private Map<String, String> otelSdkConfiguration;
+	private MetricDefinitions hostMetricDefinitions;
 
 	/**
 	 * Start scheduling
@@ -63,7 +64,7 @@ public class TaskSchedulingService {
 	}
 
 	/**
-	 * Initialize the {@link ResourceGroupMetricsObserver} for each resource group and
+	 * Initialize the {@link SimpleGaugeMetricObserver} for each resource group and
 	 * trigger a periodic task to flush metrics
 	 */
 	void scheduleResourceGroupObservers() {
@@ -83,7 +84,7 @@ public class TaskSchedulingService {
 	}
 
 	/**
-	 * Initialize the {@link ResourceGroupScheduling} to schedule {@link ResourceGroupMetricsObserver}
+	 * Initialize the {@link ResourceGroupScheduling} to schedule {@link SimpleGaugeMetricObserver}
 	 * for the given resource group configuration
 	 *
 	 * @param resourceGroupKey    unique key of the resource group configuration.
@@ -151,6 +152,7 @@ public class TaskSchedulingService {
 			.withResourceKey(resourceKey)
 			.withResourceConfig(resourceConfig)
 			.withTelemetryManager(telemetryManager)
+			.withHostMetricDefinitions(hostMetricDefinitions)
 			.build()
 			.schedule();
 	}

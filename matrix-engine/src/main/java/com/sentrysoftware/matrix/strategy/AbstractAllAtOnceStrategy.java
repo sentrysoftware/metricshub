@@ -25,7 +25,6 @@ import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.MonitorFactory;
 import com.sentrysoftware.matrix.telemetry.Resource;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -298,14 +297,13 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 		// Get the host name from telemetry manager
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
-		// Get host monitor
-		final Monitor host = telemetryManager.getHostMonitor();
-		if (host == null) {
-			log.error("Hostname {} - No host found. Stopping {} strategy.", hostname, getJobName());
-			return;
+		// Get the endpoint host monitor
+		final Monitor endpointHost = telemetryManager.getEndpointHostMonitor();
+		if (endpointHost == null) {
+			log.info("Hostname {} - No endpoint host found during {} strategy.", hostname, getJobName());
+		} else {
+			endpointHost.setDiscoveryTime(strategyTime);
 		}
-
-		host.setDiscoveryTime(strategyTime);
 
 		//Retrieve connector Monitor instances from TelemetryManager
 		final Map<String, Monitor> connectorMonitors = telemetryManager
@@ -371,21 +369,4 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 	 * @return The {@link AbstractMonitorTask} implementation
 	 */
 	protected abstract AbstractMonitorTask retrieveTask(MonitorJob monitorJob);
-
-	@Override
-	public void prepare() {
-		// Not implemented
-	}
-
-	@Override
-	public void post() {
-		telemetryManager
-			.getMonitors()
-			.values()
-			.stream()
-			.map(Map::values)
-			.flatMap(Collection::stream)
-			.filter(monitor -> strategyTime != monitor.getDiscoveryTime())
-			.forEach(monitor -> monitor.setAsMissing(telemetryManager.getHostname()));
-	}
 }
