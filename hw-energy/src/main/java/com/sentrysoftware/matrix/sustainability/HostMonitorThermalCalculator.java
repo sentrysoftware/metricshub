@@ -110,7 +110,7 @@ public class HostMonitorThermalCalculator {
 		}
 
 		// Find the host monitor
-		final Monitor hostMonitor = telemetryManager.getHostMonitor();
+		final Monitor hostMonitor = telemetryManager.getEndpointHostMonitor();
 
 		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
 

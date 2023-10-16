@@ -19,12 +19,12 @@ import lombok.NoArgsConstructor;
 public abstract class AbstractMetric {
 
 	private String name;
-	private long collectTime;
-	private long previousCollectTime;
+	private Long collectTime;
+	private Long previousCollectTime;
 	private Map<String, String> attributes = new HashMap<>();
 	private boolean resetMetricTime;
 
-	AbstractMetric(String name, long collectTime, Map<String, String> attributes) {
+	AbstractMetric(final String name, final Long collectTime, final Map<String, String> attributes) {
 		this.name = name;
 		this.collectTime = collectTime;
 		this.attributes = attributes == null ? new HashMap<>() : attributes;
@@ -44,11 +44,11 @@ public abstract class AbstractMetric {
 	 * previous collect time otherwise <code>false</code>
 	 */
 	public boolean isUpdated() {
-		if (collectTime == 0) {
+		if (collectTime == null) {
 			return false;
 		}
 
-		return collectTime != previousCollectTime;
+		return !collectTime.equals(previousCollectTime);
 	}
 
 	/**

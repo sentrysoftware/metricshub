@@ -3,7 +3,9 @@ package com.sentrysoftware.matrix.strategy.simple;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IS_ENDPOINT;
 import static com.sentrysoftware.matrix.constants.Constants.CONNECTOR;
 import static com.sentrysoftware.matrix.constants.Constants.DISK_CONTROLLER;
+import static com.sentrysoftware.matrix.constants.Constants.DISK_CONTROLLER_PRESENT_METRIC;
 import static com.sentrysoftware.matrix.constants.Constants.ENCLOSURE;
+import static com.sentrysoftware.matrix.constants.Constants.ENCLOSURE_PRESENT_METRIC;
 import static com.sentrysoftware.matrix.constants.Constants.HOST;
 import static com.sentrysoftware.matrix.constants.Constants.HOST_ID;
 import static com.sentrysoftware.matrix.constants.Constants.HOST_NAME;
@@ -22,6 +24,7 @@ import com.sentrysoftware.matrix.configuration.HostConfiguration;
 import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
 import com.sentrysoftware.matrix.connector.model.ConnectorStore;
 import com.sentrysoftware.matrix.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.matrix.strategy.discovery.PostDiscoveryStrategy;
 import com.sentrysoftware.matrix.strategy.source.SourceTable;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
@@ -33,7 +36,6 @@ import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -52,10 +54,9 @@ class SimpleStrategyTest {
 	@Mock
 	private MatsyaClientsExecutor matsyaClientsExecutorMock;
 
-	@InjectMocks
-	private SimpleStrategy simpleStrategy;
-
 	static Long strategyTime = new Date().getTime();
+
+	private SimpleStrategy simpleStrategy;
 
 	@Test
 	void testRun() throws Exception {
@@ -96,8 +97,13 @@ class SimpleStrategyTest {
 		telemetryManager.setConnectorStore(connectorStore);
 
 		// Set simple strategy information
-		simpleStrategy.setTelemetryManager(telemetryManager);
-		simpleStrategy.setStrategyTime(strategyTime);
+		simpleStrategy =
+			SimpleStrategy
+				.builder()
+				.matsyaClientsExecutor(matsyaClientsExecutorMock)
+				.strategyTime(strategyTime)
+				.telemetryManager(telemetryManager)
+				.build();
 
 		// Mock source table information for enclosure
 		doReturn(SourceTable.csvToTable("enclosure-1;1;healthy", MatrixConstants.TABLE_SEP))
@@ -121,7 +127,7 @@ class SimpleStrategyTest {
 				eq(true)
 			);
 		simpleStrategy.run();
-		simpleStrategy.post();
+		new PostDiscoveryStrategy(telemetryManager, strategyTime, matsyaClientsExecutorMock).run();
 
 		// Check processed monitors
 		final Map<String, Map<String, Monitor>> processedMonitors = telemetryManager.getMonitors();
@@ -144,18 +150,11 @@ class SimpleStrategyTest {
 		);
 
 		// Check that the monitors' present status are set to 1
-		assertEquals(
-			1.0,
-			enclosure.getMetric("hw.status{hw.type=\"enclosure\", state=\"present\"}", NumberMetric.class).getValue()
-		);
-		assertEquals(
-			1.0,
-			diskController
-				.getMetric("hw.status{hw.type=\"disk_controller\", state=\"present\"}", NumberMetric.class)
-				.getValue()
-		);
+		assertEquals(1.0, enclosure.getMetric(ENCLOSURE_PRESENT_METRIC, NumberMetric.class).getValue());
+		assertEquals(1.0, diskController.getMetric(DISK_CONTROLLER_PRESENT_METRIC, NumberMetric.class).getValue());
 
-		simpleStrategy.setStrategyTime(strategyTime + 2 * 60 * 1000);
+		final long nextDiscoveryTime = strategyTime + 2 * 60 * 1000;
+		simpleStrategy.setStrategyTime(nextDiscoveryTime);
 
 		// Mock source table with no information for enclosure
 		doReturn(SourceTable.csvToTable("", MatrixConstants.TABLE_SEP))
@@ -179,18 +178,10 @@ class SimpleStrategyTest {
 				eq(true)
 			);
 		simpleStrategy.run();
-		simpleStrategy.post();
+		new PostDiscoveryStrategy(telemetryManager, nextDiscoveryTime, matsyaClientsExecutorMock).run();
 
 		// Check that the monitors are set to missing when they are not present in the previous simple job
-		assertEquals(
-			0.0,
-			enclosure.getMetric("hw.status{hw.type=\"enclosure\", state=\"present\"}", NumberMetric.class).getValue()
-		);
-		assertEquals(
-			0.0,
-			diskController
-				.getMetric("hw.status{hw.type=\"disk_controller\", state=\"present\"}", NumberMetric.class)
-				.getValue()
-		);
+		assertEquals(0.0, enclosure.getMetric(ENCLOSURE_PRESENT_METRIC, NumberMetric.class).getValue());
+		assertEquals(0.0, diskController.getMetric(DISK_CONTROLLER_PRESENT_METRIC, NumberMetric.class).getValue());
 	}
 }

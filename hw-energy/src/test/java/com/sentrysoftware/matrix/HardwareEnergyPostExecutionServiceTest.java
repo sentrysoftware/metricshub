@@ -41,6 +41,9 @@ import org.junit.jupiter.api.Test;
 
 class HardwareEnergyPostExecutionServiceTest {
 
+	private static final Long STRATEGY_TIME = 1696597422644L;
+	private static final Long NEXT_STRATEGY_TIME = STRATEGY_TIME + 2 * 60 * 1000;
+
 	private HardwareEnergyPostExecutionService hardwareEnergyPostExecutionService;
 
 	private TelemetryManager telemetryManager = null;
@@ -60,8 +63,8 @@ class HardwareEnergyPostExecutionServiceTest {
 		telemetryManager =
 			TelemetryManager
 				.builder()
-				.strategyTime(1696597422644L)
 				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).build())
+				.strategyTime(STRATEGY_TIME)
 				.build();
 	}
 
@@ -83,7 +86,16 @@ class HardwareEnergyPostExecutionServiceTest {
 		hardwareEnergyPostExecutionService.run();
 
 		// Check the computed and collected power metric
-		assertNotNull(fanMonitor.getMetric(FAN_POWER_METRIC, NumberMetric.class));
+		final NumberMetric power = fanMonitor.getMetric(FAN_POWER_METRIC, NumberMetric.class);
+		assertNotNull(power);
+
+		// Check the computed and collected energy metric
+		assertNull(fanMonitor.getMetric(FAN_ENERGY_METRIC, NumberMetric.class));
+
+		// Next collect
+		telemetryManager.setStrategyTime(NEXT_STRATEGY_TIME);
+		power.save();
+		hardwareEnergyPostExecutionService.run();
 
 		// Check the computed and collected energy metric
 		assertNotNull(fanMonitor.getMetric(FAN_ENERGY_METRIC, NumberMetric.class));
@@ -107,7 +119,16 @@ class HardwareEnergyPostExecutionServiceTest {
 		hardwareEnergyPostExecutionService.run();
 
 		// Check the computed and collected power metric
-		assertNotNull(roboticsMonitor.getMetric(ROBOTICS_POWER_METRIC, NumberMetric.class));
+		final NumberMetric power = roboticsMonitor.getMetric(ROBOTICS_POWER_METRIC, NumberMetric.class);
+		assertNotNull(power);
+
+		// Check the computed and collected energy metric
+		assertNull(roboticsMonitor.getMetric(ROBOTICS_ENERGY_METRIC, NumberMetric.class));
+
+		// Next collect
+		telemetryManager.setStrategyTime(NEXT_STRATEGY_TIME);
+		power.save();
+		hardwareEnergyPostExecutionService.run();
 
 		// Check the computed and collected energy metric
 		assertNotNull(roboticsMonitor.getMetric(ROBOTICS_ENERGY_METRIC, NumberMetric.class));
@@ -141,7 +162,16 @@ class HardwareEnergyPostExecutionServiceTest {
 		hardwareEnergyPostExecutionService.run();
 
 		// Check the computed and collected power metric
-		assertNotNull(tapeDriveMonitor.getMetric(TAPE_DRIVE_POWER_METRIC, NumberMetric.class));
+		final NumberMetric power = tapeDriveMonitor.getMetric(TAPE_DRIVE_POWER_METRIC, NumberMetric.class);
+		assertNotNull(power);
+
+		// Check the computed and collected energy metric
+		assertNull(tapeDriveMonitor.getMetric(TAPE_DRIVE_ENERGY_METRIC, NumberMetric.class));
+
+		// Next collect
+		telemetryManager.setStrategyTime(NEXT_STRATEGY_TIME);
+		power.save();
+		hardwareEnergyPostExecutionService.run();
 
 		// Check the computed and collected energy metric
 		assertNotNull(tapeDriveMonitor.getMetric(TAPE_DRIVE_ENERGY_METRIC, NumberMetric.class));
@@ -161,7 +191,16 @@ class HardwareEnergyPostExecutionServiceTest {
 		hardwareEnergyPostExecutionService.run();
 
 		// Check the computed and collected power metric
-		assertNotNull(diskControllerMonitor.getMetric(DISK_CONTROLLER_POWER_METRIC, NumberMetric.class));
+		final NumberMetric power = diskControllerMonitor.getMetric(DISK_CONTROLLER_POWER_METRIC, NumberMetric.class);
+		assertNotNull(power);
+
+		// Check the computed and collected energy metric
+		assertNull(diskControllerMonitor.getMetric(DISK_CONTROLLER_ENERGY_METRIC, NumberMetric.class));
+
+		// Next collect
+		telemetryManager.setStrategyTime(NEXT_STRATEGY_TIME);
+		power.save();
+		hardwareEnergyPostExecutionService.run();
 
 		// Check the computed and collected energy metric
 		assertNotNull(diskControllerMonitor.getMetric(DISK_CONTROLLER_ENERGY_METRIC, NumberMetric.class));
@@ -170,10 +209,10 @@ class HardwareEnergyPostExecutionServiceTest {
 	@Test
 	void testRunWithMemoryMonitor() {
 		// Create a fan monitor
-		final Monitor monitor = Monitor.builder().type(MEMORY).build();
+		final Monitor memoryMonitor = Monitor.builder().type(MEMORY).build();
 
 		// Set the previously created monitor in telemetryManager
-		final Map<String, Monitor> monitors = new HashMap<>(Map.of("monitor1", monitor));
+		final Map<String, Monitor> monitors = new HashMap<>(Map.of("monitor1", memoryMonitor));
 		telemetryManager.setMonitors(new HashMap<>(Map.of(MEMORY, monitors)));
 
 		// Call run method in HardwareEnergyPostExecutionService
@@ -181,10 +220,19 @@ class HardwareEnergyPostExecutionServiceTest {
 		hardwareEnergyPostExecutionService.run();
 
 		// Check the computed and collected power metric
-		assertNotNull(monitor.getMetric(MEMORY_POWER_METRIC, NumberMetric.class));
+		final NumberMetric power = memoryMonitor.getMetric(MEMORY_POWER_METRIC, NumberMetric.class);
+		assertNotNull(power);
 
 		// Check the computed and collected energy metric
-		assertNotNull(monitor.getMetric(MEMORY_ENERGY_METRIC, NumberMetric.class));
+		assertNull(memoryMonitor.getMetric(MEMORY_ENERGY_METRIC, NumberMetric.class));
+
+		// Next collect
+		telemetryManager.setStrategyTime(NEXT_STRATEGY_TIME);
+		power.save();
+		hardwareEnergyPostExecutionService.run();
+
+		// Check the computed and collected energy metric
+		assertNotNull(memoryMonitor.getMetric(MEMORY_ENERGY_METRIC, NumberMetric.class));
 	}
 
 	@Test
@@ -201,7 +249,16 @@ class HardwareEnergyPostExecutionServiceTest {
 		hardwareEnergyPostExecutionService.run();
 
 		// Check the computed and collected power metric
-		assertNotNull(physicalDiskMonitor.getMetric(PHYSICAL_DISK_POWER_METRIC, NumberMetric.class));
+		final NumberMetric power = physicalDiskMonitor.getMetric(PHYSICAL_DISK_POWER_METRIC, NumberMetric.class);
+		assertNotNull(power);
+
+		// Check the computed and collected energy metric
+		assertNull(physicalDiskMonitor.getMetric(PHYSICAL_DISK_ENERGY_METRIC, NumberMetric.class));
+
+		// Next collect
+		telemetryManager.setStrategyTime(NEXT_STRATEGY_TIME);
+		power.save();
+		hardwareEnergyPostExecutionService.run();
 
 		// Check the computed and collected energy metric
 		assertNotNull(physicalDiskMonitor.getMetric(PHYSICAL_DISK_ENERGY_METRIC, NumberMetric.class));
@@ -234,7 +291,16 @@ class HardwareEnergyPostExecutionServiceTest {
 		hardwareEnergyPostExecutionService.run();
 
 		// Check the computed and collected power metric
-		assertNotNull(networkMonitor.getMetric(NETWORK_POWER_METRIC, NumberMetric.class));
+		final NumberMetric power = networkMonitor.getMetric(NETWORK_POWER_METRIC, NumberMetric.class);
+		assertNotNull(power);
+
+		// Check the computed and collected energy metric
+		assertNull(networkMonitor.getMetric(NETWORK_ENERGY_METRIC, NumberMetric.class));
+
+		// Next collect
+		telemetryManager.setStrategyTime(NEXT_STRATEGY_TIME);
+		power.save();
+		hardwareEnergyPostExecutionService.run();
 
 		// Check the computed and collected energy metric
 		assertNotNull(networkMonitor.getMetric(NETWORK_ENERGY_METRIC, NumberMetric.class));
@@ -244,7 +310,9 @@ class HardwareEnergyPostExecutionServiceTest {
 	void testComputeHostTemperatureMetrics() {
 		// Create a host monitor
 		final Monitor hostMonitor = Monitor.builder().type(HOST).build();
-		hostMonitor.setAttributes(new HashMap<>(Map.of("is_endpoint", "true")));
+
+		// Set the host as endpoint
+		hostMonitor.setAsEndpoint();
 
 		// Create a temperature monitor
 		final Monitor temperatureMonitor = Monitor.builder().type(TEMPERATURE).build();

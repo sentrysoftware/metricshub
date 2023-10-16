@@ -19,7 +19,12 @@ public class NumberMetric extends AbstractMetric {
 	private Double previousValue;
 
 	@Builder
-	public NumberMetric(String name, long collectTime, Map<String, String> attributes, Double value) {
+	public NumberMetric(
+		final String name,
+		final Long collectTime,
+		final Map<String, String> attributes,
+		final Double value
+	) {
 		super(name, collectTime, attributes);
 		this.value = value;
 	}

@@ -6,6 +6,7 @@ import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_TYPE
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.HOST_TYPE_TO_OTEL_OS_TYPE;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.IS_ENDPOINT;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_ID;
+import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.MONITOR_ATTRIBUTE_NAME;
 import static com.sentrysoftware.matrix.common.helpers.MatrixConstants.UNDERSCORE;
 
 import com.sentrysoftware.matrix.alert.AlertRule;
@@ -115,8 +116,9 @@ public class MonitorFactory {
 			foundMonitor.setAttributes(attributes);
 			foundMonitor.setResource(resource);
 			foundMonitor.setType(monitorType);
-
 			foundMonitor.setAsPresent(hostname);
+			foundMonitor.setDiscoveryTime(discoveryTime);
+
 			return foundMonitor;
 		} else {
 			final Monitor newMonitor = Monitor
@@ -141,12 +143,12 @@ public class MonitorFactory {
 	}
 
 	/**
-	 * Creates the Host monitor
+	 * Creates the endpoint Host monitor
 	 *
 	 * @param isLocalhost Whether the host should be localhost or not.
 	 * @return Monitor instance
 	 */
-	public Monitor createHostMonitor(final boolean isLocalhost) {
+	public Monitor createEndpointHostMonitor(final boolean isLocalhost) {
 		// Get the host configuration
 		final HostConfiguration hostConfiguration = telemetryManager.getHostConfiguration();
 
@@ -159,7 +161,9 @@ public class MonitorFactory {
 			"location",
 			isLocalhost ? HostLocation.LOCAL.getKey() : HostLocation.REMOTE.getKey(),
 			IS_ENDPOINT,
-			"true"
+			"true",
+			MONITOR_ATTRIBUTE_NAME,
+			telemetryManager.getHostname()
 		);
 
 		final DeviceKind deviceKind = hostConfiguration.getHostType();
@@ -195,7 +199,10 @@ public class MonitorFactory {
 			telemetryManager.getHostConfiguration().getHostId()
 		);
 
-		log.debug("Hostname {} - Created host ID: {} ", hostname, hostConfiguration.getHostId());
+		// Flag the host as endpoint
+		monitor.setAsEndpoint();
+
+		log.debug("Hostname {} - Created endpoint host ID: {} ", hostname, hostConfiguration.getHostId());
 
 		return monitor;
 	}

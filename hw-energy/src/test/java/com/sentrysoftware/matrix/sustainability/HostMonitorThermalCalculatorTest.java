@@ -41,12 +41,10 @@ class HostMonitorThermalCalculatorTest {
 
 	@Test
 	void testRunWithComputeTemperatureMetrics() {
-		final Monitor host = Monitor
-			.builder()
-			.id(HOST_ID)
-			.type(KnownMonitorType.HOST.getKey())
-			.attributes(new HashMap<>(Map.of("is_endpoint", TRUE_STRING)))
-			.build();
+		final Monitor host = Monitor.builder().id(HOST_ID).type(KnownMonitorType.HOST.getKey()).build();
+
+		// Set host as endpoint
+		host.setAsEndpoint();
 
 		// temperatureMonitors is null
 

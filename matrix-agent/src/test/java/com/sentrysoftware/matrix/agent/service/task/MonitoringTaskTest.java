@@ -24,8 +24,11 @@ import com.sentrysoftware.matrix.configuration.SnmpConfiguration;
 import com.sentrysoftware.matrix.connector.model.common.DeviceKind;
 import com.sentrysoftware.matrix.strategy.IStrategy;
 import com.sentrysoftware.matrix.strategy.collect.CollectStrategy;
+import com.sentrysoftware.matrix.strategy.collect.PostCollectStrategy;
+import com.sentrysoftware.matrix.strategy.collect.PrepareCollectStrategy;
 import com.sentrysoftware.matrix.strategy.detection.DetectionStrategy;
 import com.sentrysoftware.matrix.strategy.discovery.DiscoveryStrategy;
+import com.sentrysoftware.matrix.strategy.discovery.PostDiscoveryStrategy;
 import com.sentrysoftware.matrix.strategy.simple.SimpleStrategy;
 import com.sentrysoftware.matrix.telemetry.Monitor;
 import com.sentrysoftware.matrix.telemetry.TelemetryManager;
@@ -87,7 +90,7 @@ class MonitoringTaskTest {
 		final TelemetryManager telemetryManagerMock = spy(TelemetryManager.class);
 
 		doReturn(telemetryManagerMock).when(monitoringTaskInfo).getTelemetryManager();
-		doReturn(host).when(telemetryManagerMock).getHostMonitor();
+		doReturn(host).when(telemetryManagerMock).getEndpointHostMonitor();
 		doReturn(
 			ResourceConfig
 				.builder()
@@ -100,8 +103,9 @@ class MonitoringTaskTest {
 			.when(monitoringTaskInfo)
 			.getResourceConfig();
 		doReturn(hostConfiguration).when(telemetryManagerMock).getHostConfiguration();
-		doNothing().when(telemetryManagerMock).run(any(IStrategy.class), any(IStrategy.class), any(IStrategy.class));
-		doNothing().when(telemetryManagerMock).run(any(IStrategy.class), any(IStrategy.class));
+		doNothing()
+			.when(telemetryManagerMock)
+			.run(any(IStrategy.class), any(IStrategy.class), any(IStrategy.class), any(IStrategy.class));
 
 		try (MockedStatic<OtelHelper> otelHelperMockedStatic = mockStatic(OtelHelper.class)) {
 			otelHelperMockedStatic
@@ -130,8 +134,19 @@ class MonitoringTaskTest {
 			monitoringTask.run(); // Collect
 
 			verify(telemetryManagerMock, times(1))
-				.run(any(DetectionStrategy.class), any(DiscoveryStrategy.class), any(SimpleStrategy.class));
-			verify(telemetryManagerMock, times(4)).run(any(CollectStrategy.class), any(SimpleStrategy.class));
+				.run(
+					any(DetectionStrategy.class),
+					any(DiscoveryStrategy.class),
+					any(SimpleStrategy.class),
+					any(PostDiscoveryStrategy.class)
+				);
+			verify(telemetryManagerMock, times(4))
+				.run(
+					any(PrepareCollectStrategy.class),
+					any(CollectStrategy.class),
+					any(SimpleStrategy.class),
+					any(PostCollectStrategy.class)
+				);
 		}
 	}
 }
