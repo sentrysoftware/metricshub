@@ -32,6 +32,26 @@
 			<artifactId>metricshub-engine</artifactId>
 		</dependency>
 
+		<!-- Hardware -->
+		<dependency>
+			<groupId>com.sentrysoftware.metricshub</groupId>
+			<artifactId>hardware</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<!-- Connector Library -->
+		<dependency>
+			<groupId>com.sentrysoftware.shared</groupId>
+			<artifactId>hardware-connectors</artifactId>
+			<classifier>sources</classifier>
+			<exclusions>
+				<exclusion>
+					<groupId>com.bmc.patrol</groupId>
+					<artifactId>default-image</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
 		<!-- Jackson -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
@@ -169,6 +189,27 @@
 				</configuration>
 			</plugin>
 
+			<!-- Unpack Connector Library -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>unpack-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>unpack-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/connectors</outputDirectory>
+							<includeGroupIds>com.sentrysoftware.shared</includeGroupIds>
+							<includeArtifactIds>hardware-connectors</includeArtifactIds>
+							<classifier>sources</classifier>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
 			<!-- surefire -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -264,7 +305,48 @@
 			</plugin>
 
 			<!-- assembly -->
-
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>metricshub-jar</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>src/assembly/metricshub-jar.xml</descriptor>
+							</descriptors>
+							<appendAssemblyId>false</appendAssemblyId>
+							<archive>
+								<manifest>
+									<mainClass>com.sentrysoftware.metricshub.agent.MetricsHubAgentApplication</mainClass>
+									<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+									<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+								</manifest>
+								<manifestSections>
+									<manifestSection>
+										<name>com/sentrysoftware/metricshub</name>
+									</manifestSection>
+								</manifestSections>
+							</archive>
+						</configuration>
+					</execution>
+					<execution>
+						<id>distributable-package</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>src/assembly/dist.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 
