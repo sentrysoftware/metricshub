@@ -13,7 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
-public class TypeProcessor extends AbstractStateConverter {
+public class CriterionTypeProcessor extends AbstractStateConverter {
 
 	@Getter
 	private final String hdfType;

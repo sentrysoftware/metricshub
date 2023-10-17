@@ -6,7 +6,7 @@ import com.sentrysoftware.metricshub.converter.state.source.common.EntryConcatMe
 import com.sentrysoftware.metricshub.converter.state.source.common.EntryConcatStartProcessor;
 import com.sentrysoftware.metricshub.converter.state.source.common.ExecuteForEachEntryOfProcessor;
 import com.sentrysoftware.metricshub.converter.state.source.common.ForceSerializationProcessor;
-import com.sentrysoftware.metricshub.converter.state.source.common.TypeProcessor;
+import com.sentrysoftware.metricshub.converter.state.source.common.SourceTypeProcessor;
 import java.util.Set;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -19,7 +19,7 @@ public class ConnectorHttpProperty {
 
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
 		return Set.of(
-			new TypeProcessor(HDF_TYPE_VALUE, YAML_TYPE_VALUE),
+			new SourceTypeProcessor(HDF_TYPE_VALUE, YAML_TYPE_VALUE),
 			new ForceSerializationProcessor(),
 			new ExecuteForEachEntryOfProcessor(),
 			new EntryConcatMethodProcessor(),

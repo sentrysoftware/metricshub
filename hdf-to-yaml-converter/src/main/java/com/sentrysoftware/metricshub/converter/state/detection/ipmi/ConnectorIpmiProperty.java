@@ -2,7 +2,7 @@ package com.sentrysoftware.metricshub.converter.state.detection.ipmi;
 
 import com.sentrysoftware.metricshub.converter.state.IConnectorStateConverter;
 import com.sentrysoftware.metricshub.converter.state.detection.common.ForceSerializationProcessor;
-import com.sentrysoftware.metricshub.converter.state.detection.common.TypeProcessor;
+import com.sentrysoftware.metricshub.converter.state.detection.common.CriterionTypeProcessor;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -17,7 +17,7 @@ public class ConnectorIpmiProperty {
 
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
 		return Stream
-			.of(new TypeProcessor(IPMI_HDF_TYPE_VALUE, IPMI_YAML_TYPE_VALUE), new ForceSerializationProcessor())
+			.of(new CriterionTypeProcessor(IPMI_HDF_TYPE_VALUE, IPMI_YAML_TYPE_VALUE), new ForceSerializationProcessor())
 			.collect(Collectors.toSet());
 	}
 }

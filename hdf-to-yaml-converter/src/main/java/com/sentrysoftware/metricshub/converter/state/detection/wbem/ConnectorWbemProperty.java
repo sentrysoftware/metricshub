@@ -4,7 +4,7 @@ import com.sentrysoftware.metricshub.converter.state.IConnectorStateConverter;
 import com.sentrysoftware.metricshub.converter.state.detection.common.ErrorMessageProcessor;
 import com.sentrysoftware.metricshub.converter.state.detection.common.ExpectedResultProcessor;
 import com.sentrysoftware.metricshub.converter.state.detection.common.ForceSerializationProcessor;
-import com.sentrysoftware.metricshub.converter.state.detection.common.TypeProcessor;
+import com.sentrysoftware.metricshub.converter.state.detection.common.CriterionTypeProcessor;
 import com.sentrysoftware.metricshub.converter.state.detection.common.WbemNameSpaceProcessor;
 import com.sentrysoftware.metricshub.converter.state.detection.common.WbemQueryProcessor;
 import java.util.Set;
@@ -22,7 +22,7 @@ public class ConnectorWbemProperty {
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
 		return Stream
 			.of(
-				new TypeProcessor(WBEM_HDF_TYPE_VALUE, WBEM_YAML_TYPE_VALUE),
+				new CriterionTypeProcessor(WBEM_HDF_TYPE_VALUE, WBEM_YAML_TYPE_VALUE),
 				new ForceSerializationProcessor(),
 				new ExpectedResultProcessor(),
 				new WbemNameSpaceProcessor(),

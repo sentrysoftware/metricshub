@@ -2,7 +2,7 @@ package com.sentrysoftware.metricshub.converter.state.detection.devicetype;
 
 import com.sentrysoftware.metricshub.converter.state.IConnectorStateConverter;
 import com.sentrysoftware.metricshub.converter.state.detection.common.ForceSerializationProcessor;
-import com.sentrysoftware.metricshub.converter.state.detection.common.TypeProcessor;
+import com.sentrysoftware.metricshub.converter.state.detection.common.CriterionTypeProcessor;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -18,7 +18,7 @@ public class ConnectorDeviceTypeProperty {
 	public static Set<IConnectorStateConverter> getConnectorProperties() {
 		return Stream
 			.of(
-				new TypeProcessor(DEVICETYPE_HDF_TYPE_VALUE, DEVICETYPE_YAML_TYPE_VALUE),
+				new CriterionTypeProcessor(DEVICETYPE_HDF_TYPE_VALUE, DEVICETYPE_YAML_TYPE_VALUE),
 				new ForceSerializationProcessor(),
 				new KeepOnlyProcessor(),
 				new ExcludeProcessor()

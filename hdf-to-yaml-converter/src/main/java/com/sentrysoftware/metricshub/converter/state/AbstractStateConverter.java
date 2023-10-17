@@ -19,7 +19,11 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sentrysoftware.metricshub.converter.PreConnector;
+import com.sentrysoftware.metricshub.converter.state.computes.common.ComputeTypeProcessor;
+import com.sentrysoftware.metricshub.converter.state.detection.common.CriterionTypeProcessor;
 import com.sentrysoftware.metricshub.converter.state.detection.snmp.OidProcessor;
+import com.sentrysoftware.metricshub.converter.state.source.common.SourceTypeProcessor;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -83,18 +87,18 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 	/**
 	 * @param value		The value of the source type,
-	 *                  in case <i>this</i> is a <i>TypeProcessor</i>
+	 *                  in case <i>this</i> is a <i>SourceTypeProcessor</i>
 	 * @param matcher   The {@link Matcher} used to determine the context of the source.
 	 * @param connector	The connector used to retrieve the source
-	 * 					in case <i>this</i> is not a <i>TypeProcessor</i>
+	 * 					in case <i>this</i> is not a <i>SourceTypeProcessor</i>
 	 *
 	 * @return			<ul>
 	 * 						<li>
 	 * 							<b>true</b> if:
 	 * 							<ul>
-	 * 								<li><i>this</i> is a <i>TypeProcessor</i> whose type matches the given value.</li>
+	 * 								<li><i>this</i> is a <i>SourceTypeProcessor</i> whose type matches the given value.</li>
 	 * 								<li>
-	 * 									<i>this</i> is not a <i>TypeProcessor</i>
+	 * 									<i>this</i> is not a <i>SourceTypeProcessor</i>
 	 * 									and there is a source in the given connector
 	 * 									matching the given {@link Matcher}.
 	 * 								</li>
@@ -104,8 +108,8 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	 *					</ul>
 	 */
 	private boolean isSourceContext(final String value, final Matcher matcher, final JsonNode connector) {
-		if (this instanceof com.sentrysoftware.metricshub.converter.state.source.common.TypeProcessor typeProcessor) {
-			return typeProcessor.getHdfType().equalsIgnoreCase(value);
+		if (this instanceof SourceTypeProcessor sourceTypeProcessor) {
+			return sourceTypeProcessor.getHdfType().equalsIgnoreCase(value);
 		}
 
 		return getSource(matcher, connector) != null;
@@ -280,18 +284,18 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 
 	/**
 	 * @param value		The value of the compute type,
-	 *                  in case <i>this</i> is a <i>TypeProcessor</i>
+	 *                  in case <i>this</i> is a <i>CriterionTypeProcessor</i>
 	 * @param matcher   The {@link Matcher} used to determine the compute context
 	 * @param connector	The {@link @JsonNode} used to retrieve the compute
-	 * 					in case <i>this</i> is not a <i>TypeProcessor</i>
+	 * 					in case <i>this</i> is not a <i>CriterionTypeProcessor</i>
 	 *
 	 * @return			<ul>
 	 * 						<li>
 	 * 							<b>true</b> if:
 	 * 							<ul>
-	 * 								<li><i>this</i> is a <i>TypeProcessor</i> whose type matches the given value.</li>
+	 * 								<li><i>this</i> is a <i>CriterionTypeProcessor</i> whose type matches the given value.</li>
 	 * 								<li>
-	 * 									<i>this</i> is not a <i>TypeProcessor</i>
+	 * 									<i>this</i> is not a <i>CriterionTypeProcessor</i>
 	 * 									and there is a current compute in the given {@link @JsonNode} under the computes section
 	 * 								</li>
 	 * 							</ul>
@@ -300,8 +304,8 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	 *					</ul>
 	 */
 	private boolean isComputeContext(final String value, final Matcher matcher, final JsonNode connector) {
-		if (this instanceof com.sentrysoftware.metricshub.converter.state.computes.common.ComputeTypeProcessor typeProcessor) {
-			return typeProcessor.getHdfType().equalsIgnoreCase(value);
+		if (this instanceof ComputeTypeProcessor computeTypeProcessor) {
+			return computeTypeProcessor.getHdfType().equalsIgnoreCase(value);
 		}
 
 		return getLastCompute(matcher, connector) != null;
@@ -310,7 +314,7 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	/**
 	 *
 	 * @param value		The value of the criterion type,
-	 *                  in case <i>this</i> is a <i>TypeProcessor</i>
+	 *                  in case <i>this</i> is a <i>CriterionTypeProcessor</i>
 	 * @param connector The {@link JsonNode} used to retrieve the criterion
 	 * 					in case <i>this</i> is not an <i>OidProcessor</i>
 	 *
@@ -318,10 +322,10 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	 * 						<li>
 	 * 							<b>true</b> if:
 	 * 							<ul>
-	 * 								<li><i>this</i> is a <i>TypeProcessor</i> whose HDF type matches the given value.</li>
+	 * 								<li><i>this</i> is a <i>CriterionTypeProcessor</i> whose HDF type matches the given value.</li>
 	 * 								<li><i>this</i> is an <i>OidProcessor</i> that manages <i>SNMPGet</i> and <i>SNMPGetNext</i> creation.</li>
 	 * 								<li>
-	 * 									<i>this</i> is neither a <i>TypeProcessor</i> nor an <i>OidProcessor</i>
+	 * 									<i>this</i> is neither a <i>CriterionTypeProcessor</i> nor an <i>OidProcessor</i>
 	 * 									and there is a last criterion in the criteria section of the given connector
 	 *									{@link JsonNode}
 	 * 								</li>
@@ -331,8 +335,8 @@ public abstract class AbstractStateConverter implements IConnectorStateConverter
 	 *					</ul>
 	 */
 	private boolean isCriterionContext(final String value, final JsonNode connector) {
-		if (this instanceof com.sentrysoftware.metricshub.converter.state.detection.common.TypeProcessor typeProcessor) {
-			return typeProcessor.getHdfType().equalsIgnoreCase(value);
+		if (this instanceof CriterionTypeProcessor criterionTypeProcessor) {
+			return criterionTypeProcessor.getHdfType().equalsIgnoreCase(value);
 		}
 
 		return (this instanceof OidProcessor) || getLastCriterion(connector) != null;
