@@ -10,13 +10,13 @@
 		<version>13</version>
 	</parent>
 
-	<groupId>com.sentrysoftware.matrix</groupId>
-	<artifactId>matrix-parent</artifactId>
+	<groupId>com.sentrysoftware.metricshub</groupId>
+	<artifactId>metricshub-parent</artifactId>
 	<version>1.0.00-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
 
-	<name>Matrix Parent</name>
+	<name>MetricsHub</name>
 
 	<issueManagement>
 		<system>JIRA</system>
@@ -31,7 +31,7 @@
 		<jupiter.version>5.9.2</jupiter.version>
 		<mockito.version>5.0.0</mockito.version>
 		<groovy.version>3.0.13</groovy.version>
-		<hardware-connectors.version>31-SNAPSHOT</hardware-connectors.version>
+		<hardware-connectors.version>36-SNAPSHOT</hardware-connectors.version>
 		<spring.version>6.0.3</spring.version>
 		<matsya.version>3.16.00</matsya.version>
 		<picocli.version>4.6.2</picocli.version>
@@ -56,27 +56,27 @@
 	</properties>
 
 	<modules>
-		<module>matrix-engine</module>
+		<module>metricshub-engine</module>
 		<module>hdf-to-yaml-converter</module>
 		<module>connector-serializer</module>
-		<module>matrix-agent</module>
-		<module>hw-energy</module>
+		<module>metricshub-agent</module>
+		<module>hardware</module>
 	</modules>
 
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>com.sentrysoftware.matrix</groupId>
-				<artifactId>matrix-engine</artifactId>
+				<groupId>com.sentrysoftware.metricshub</groupId>
+				<artifactId>metricshub-engine</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.sentrysoftware.matrix</groupId>
+				<groupId>com.sentrysoftware.metricshub</groupId>
 				<artifactId>connector-serializer</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.sentrysoftware.matrix</groupId>
+				<groupId>com.sentrysoftware.metricshub</groupId>
 				<artifactId>hdf-to-yaml-converter</artifactId>
 				<version>${project.version}</version>
 			</dependency>

@@ -1,11 +1,16 @@
-# Matrix Reloaded
+# MetricsHub
 
 ## Structure
 
 This is a multi-module project:
 
 * **/**: the root (parent of all submodules)
-* **matrix-engine**: the brain, the heart of this project
+* **metricshub-engine**: the brain, the heart of this project
+* **metricshub-agent**: the MetrricsHub Agent which includes a CLI
+* **metricshub-windows**: builds the MSI package
+* **metricshub-rhel**: builds the RPM package
+* **metricshub-debian**: builds the Debian package
+* **connector-serializer**: Serializes a set of connectors present in a directory
 
 ## How to build the Project
 
@@ -15,7 +20,7 @@ This is a multi-module project:
 
 ### Build
 
-To build the Matrix Reloaded package, from `./matrix-reloaded`:
+To build the MetricsHub package, from `./metricshub`:
 
 ```sh
 $ mvn clean package

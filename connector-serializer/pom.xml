@@ -1,19 +1,19 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>com.sentrysoftware.matrix</groupId>
-		<artifactId>matrix-parent</artifactId>
+		<groupId>com.sentrysoftware.metricshub</groupId>
+		<artifactId>metricshub-parent</artifactId>
 		<version>1.0.00-SNAPSHOT</version>
 	</parent>
 
-	<name>Connector Serializer for Matrix</name>
+	<name>Connector Serializer for MetricsHub</name>
 
 	<artifactId>connector-serializer</artifactId>
 
 	<dependencies>
 		<dependency>
-			<groupId>com.sentrysoftware.matrix</groupId>
-			<artifactId>matrix-engine</artifactId>
+			<groupId>com.sentrysoftware.metricshub</groupId>
+			<artifactId>metricshub-engine</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -42,5 +42,5 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-	
+
 </project>
