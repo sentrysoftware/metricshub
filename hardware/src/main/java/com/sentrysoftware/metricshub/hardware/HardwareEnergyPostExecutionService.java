@@ -24,6 +24,7 @@ import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.hardware.sustainability.DiskControllerPowerAndEnergyEstimator;
 import com.sentrysoftware.metricshub.hardware.sustainability.FanPowerAndEnergyEstimator;
 import com.sentrysoftware.metricshub.hardware.sustainability.HardwarePowerAndEnergyEstimator;
+import com.sentrysoftware.metricshub.hardware.sustainability.HostMonitorEnergyAndPowerEstimator;
 import com.sentrysoftware.metricshub.hardware.sustainability.HostMonitorThermalCalculator;
 import com.sentrysoftware.metricshub.hardware.sustainability.MemoryPowerAndEnergyEstimator;
 import com.sentrysoftware.metricshub.hardware.sustainability.NetworkPowerAndEnergyEstimator;
@@ -88,6 +89,40 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 	}
 
 	/**
+	 * Estimates and collects power and energy consumption for the hostMonitor.
+	 * @param estimatorGenerator Function that generates the estimator
+	 */
+	private void estimateAndCollectPowerAndEnergyForHost(
+		final BiFunction<Monitor, TelemetryManager, HostMonitorEnergyAndPowerEstimator> estimatorGenerator
+	) {
+		// Find monitors having the selected monitor type
+		final String monitorTypeKey = KnownMonitorType.HOST.getKey();
+		final Map<String, Monitor> hostMonitors = telemetryManager.findMonitorByType(monitorTypeKey);
+
+		// If no host is found, log a message
+		if (hostMonitors == null) {
+			log.info("No host monitors found on Host {}", telemetryManager.getHostname());
+			return;
+		}
+
+		final Monitor hostMonitor = hostMonitors.entrySet().stream().findFirst().get().getValue();
+
+		// If host is not found, log a message
+		if (hostMonitor == null) {
+			log.info("Host {} does not exist", telemetryManager.getHostname());
+			return;
+		}
+
+		// Compute and collect power and energy for host monitor
+
+		PowerAndEnergyCollectHelper.collectHostPowerAndEnergy(
+			hostMonitor,
+			telemetryManager,
+			estimatorGenerator.apply(hostMonitor, telemetryManager)
+		);
+	}
+
+	/**
 	 * Runs the estimation of several metrics like power consumption,
 	 * energy consumption, thermal consumption information, etc ...
 	 */
@@ -137,6 +172,7 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 
 		collectNetworkMetrics();
 
+		estimateAndCollectPowerAndEnergyForHost(HostMonitorEnergyAndPowerEstimator::new);
 		// Compute host temperature metrics (ambientTemperature, cpuTemperature, cpuThermalDissipationRate)
 		new HostMonitorThermalCalculator(telemetryManager).computeHostTemperatureMetrics();
 	}

@@ -4,6 +4,9 @@ import com.sentrysoftware.metricshub.engine.strategy.utils.CollectHelper;
 import com.sentrysoftware.metricshub.engine.strategy.utils.MathOperationsHelper;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -115,5 +118,43 @@ public class HwCollectHelper {
 		final Double previousCollectTime = CollectHelper.getNumberMetricCollectTime(monitor, counterMetricName, true);
 
 		return MathOperationsHelper.rate(rateMetricName, value, previousValue, collectTime, previousCollectTime, hostname);
+	}
+
+	/**
+	 * Generates the corresponding power metric name base on monitor type
+	 * @param monitorType the type of the monitor
+	 * @return power metric's name  e.g: hw.power{hw.type="network"} (General format is: hw.power{hw.type="<type>"})
+	 */
+	public static String generatePowerMetricNameForMonitorType(final String monitorType) {
+		return "hw.power{hw.type=\"" + monitorType + "\"}";
+	}
+
+	/**
+	 * Generates the corresponding energy metric name base on monitor type
+	 * @param monitorType the type of the monitor
+	 * @return energy metric's name  e.g: hw.energy{hw.type="network"} (General format is: hw.energy{hw.type="<type>"})
+	 */
+	public static String generateEnergyMetricNameForMonitorType(final String monitorType) {
+		return "hw.energy{hw.type=\"" + monitorType + "\"}";
+	}
+
+	/**
+	 * Check if at least one monitor in the given map collects the power consumption or the energy
+	 *
+	 * @param monitors map of monitors
+	 * @return boolean value
+	 */
+	public static boolean isPowerCollected(final Map<String, Monitor> monitors) {
+		return Optional
+			.ofNullable(monitors)
+			.stream()
+			.map(Map::values)
+			.flatMap(Collection::stream)
+			.anyMatch(monitor ->
+				CollectHelper.getUpdatedNumberMetricValue(monitor, generatePowerMetricNameForMonitorType(monitor.getType())) !=
+				null ||
+				CollectHelper.getUpdatedNumberMetricValue(monitor, generateEnergyMetricNameForMonitorType(monitor.getType())) !=
+				null
+			);
 	}
 }

@@ -28,4 +28,7 @@ public class HwConstants {
 
 	public static final String HW_ENERGY_NETWORK_METRIC = "hw.energy{hw.type=\"network\"}";
 	public static final String HW_POWER_NETWORK_METRIC = "hw.power{hw.type=\"network\"}";
+
+	public static final String HW_HOST_POWER = "hw.host.power";
+	public static final String HW_HOST_ENERGY = "hw.host.energy";
 }
