@@ -6,6 +6,7 @@ import com.sentrysoftware.metricshub.engine.common.helpers.ArrayHelper;
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.common.helpers.NumberHelper;
 import com.sentrysoftware.metricshub.engine.strategy.utils.CollectHelper;
+import com.sentrysoftware.metricshub.engine.strategy.utils.MathOperationsHelper;
 import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -30,6 +31,8 @@ public class HostMonitorThermalCalculator {
 	private static final String HW_HOST_AVERAGE_CPU_TEMPERATURE = "__hw.host.average_cpu_temperature";
 	private static final String HW_HOST_AMBIENT_TEMPERATURE = "hw.host.ambient_temperature";
 	private static final String HW_HOST_CPU_THERMAL_DISSIPATION_RATE = "__hw.host.cpu.thermal_dissipation_rate";
+	private static final String HW_HOST_HEATING_MARGIN = "hw.host.heating_margin";
+	private static final String TEMPERATURE_WARNING_THRESHOLD = "hw.temperature.limit{limit_type=\"high.degraded\"}";
 
 	/**
 	 * Compute temperature metrics for the current host monitor:
@@ -76,7 +79,7 @@ public class HostMonitorThermalCalculator {
 			}
 			final Double warningThreshold = CollectHelper.getNumberMetricValue(
 				temperatureMonitor,
-				"hw.temperature.limit{limit_type=\"high.degraded\"}",
+				TEMPERATURE_WARNING_THRESHOLD,
 				false
 			);
 
@@ -198,5 +201,52 @@ public class HostMonitorThermalCalculator {
 	 */
 	static boolean matchesCpuSensor(final String value) {
 		return value.contains("cpu") || value.contains("proc");
+	}
+
+	/**
+	 * Compute the heating margin for the host.
+	 */
+	public void computeHeatingMargin() {
+		Double heatingMargin = null;
+		final Map<String, Map<String, Monitor>> monitors = telemetryManager.getMonitors();
+		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
+
+		for (final String monitorType : monitors.keySet()) {
+			if (!matchesCpuSensor(monitorType)) {
+				for (final Monitor monitor : monitors.get(monitorType).values()) {
+					heatingMargin = MathOperationsHelper.min(heatingMargin, computeHeatingMarginMonitor(monitor));
+				}
+			}
+		}
+
+		if (heatingMargin != null) {
+			final Double finalHeatingMargin = heatingMargin;
+			telemetryManager
+				.getMonitors()
+				.get(KnownMonitorType.HOST.getKey())
+				.values()
+				.forEach(hostMonitor ->
+					metricFactory.collectNumberMetric(
+						hostMonitor,
+						HW_HOST_HEATING_MARGIN,
+						finalHeatingMargin,
+						telemetryManager.getStrategyTime()
+					)
+				);
+		}
+	}
+
+	/**
+	 * Compute the heating margin for the given monitor
+	 * @param monitor
+	 * @return
+	 */
+	public Double computeHeatingMarginMonitor(final Monitor monitor) {
+		final Double temperature = CollectHelper.getUpdatedNumberMetricValue(monitor, TEMPERATURE_METRIC);
+		final Double temperatureThreshold = CollectHelper.getUpdatedNumberMetricValue(
+			monitor,
+			TEMPERATURE_WARNING_THRESHOLD
+		);
+		return temperature != null && temperatureThreshold != null ? temperatureThreshold - temperature : null;
 	}
 }
