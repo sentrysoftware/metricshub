@@ -1,2 +1,2 @@
 @Library('jenkins-library') _
-maven([jdkTool: 'jdk-17'])
+mavenmatrix([jdkTool: 'jdk-17'])
