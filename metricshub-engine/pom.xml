@@ -270,37 +270,6 @@
 				</configuration>
 			</plugin>
 
-			<!-- assembly -->
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>metricshub-jar</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-						<configuration>
-							<descriptors>
-								<descriptor>src/assembly/metricshub-jar.xml</descriptor>
-							</descriptors>
-							<appendAssemblyId>false</appendAssemblyId>
-							<archive>
-								<manifest>
-									<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-									<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-								</manifest>
-								<manifestSections>
-									<manifestSection>
-										<name>com/sentrysoftware/metricshub</name>
-									</manifestSection>
-								</manifestSections>
-							</archive>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
 			<!-- build-helper-maven-plugin -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
