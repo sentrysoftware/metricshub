@@ -6,9 +6,12 @@
 		<artifactId>metricshub-parent</artifactId>
 		<version>1.0.00-SNAPSHOT</version>
 	</parent>
+
 	<artifactId>hardware</artifactId>
+
 	<name>Hardware Energy and Sustainability Module</name>
 	<description>Hardware Energy and Sustainability Post Processing Module</description>
+
 	<dependencies>
 		<!-- MetricsHub Engine -->
 		<dependency>
