@@ -239,7 +239,7 @@ public class TelemetryManager {
 	}
 
 	/**
-	 * Gets the {@link PowerMeter} value (either measured or estimated)
+	 * Gets the {@link PowerMeter}
 	 */
 	public PowerMeter getPowerMeter() {
 		return this.getHostProperties().getPowerMeter();
