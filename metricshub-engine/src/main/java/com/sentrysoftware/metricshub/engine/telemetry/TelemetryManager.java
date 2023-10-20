@@ -230,18 +230,4 @@ public class TelemetryManager {
 	public String getHostname() {
 		return hostConfiguration.getHostname();
 	}
-
-	/**
-	 * Sets the {@link PowerMeter} value (either measured or estimated)
-	 */
-	public void setPowerMeter(final PowerMeter powerMeter) {
-		this.getHostProperties().setPowerMeter(powerMeter);
-	}
-
-	/**
-	 * Gets the {@link PowerMeter}
-	 */
-	public PowerMeter getPowerMeter() {
-		return this.getHostProperties().getPowerMeter();
-	}
 }

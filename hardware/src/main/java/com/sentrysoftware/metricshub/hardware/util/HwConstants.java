@@ -29,6 +29,8 @@ public class HwConstants {
 	public static final String HW_ENERGY_NETWORK_METRIC = "hw.energy{hw.type=\"network\"}";
 	public static final String HW_POWER_NETWORK_METRIC = "hw.power{hw.type=\"network\"}";
 
-	public static final String HW_HOST_POWER = "hw.host.power";
-	public static final String HW_HOST_ENERGY = "hw.host.energy";
+	public static final String HW_HOST_MEASURED_POWER = "hw.host.power{quality=\"measured\"}";
+	public static final String HW_HOST_MEASURED_ENERGY = "hw.host.energy{quality=\"measured\"}";
+	public static final String HW_HOST_ESTIMATED_POWER = "hw.host.power{quality=\"estimated\"}";
+	public static final String HW_HOST_ESTIMATED_ENERGY = "hw.host.energy{quality=\"estimated\"}";
 }

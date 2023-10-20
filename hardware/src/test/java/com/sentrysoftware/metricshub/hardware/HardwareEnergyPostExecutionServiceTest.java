@@ -9,8 +9,6 @@ import static com.sentrysoftware.metricshub.hardware.common.Constants.FAN_SPEED_
 import static com.sentrysoftware.metricshub.hardware.common.Constants.HW_CPU_POWER;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.HW_HOST_AMBIENT_TEMPERATURE;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.HW_HOST_AVERAGE_CPU_TEMPERATURE;
-import static com.sentrysoftware.metricshub.hardware.common.Constants.HW_HOST_ENERGY;
-import static com.sentrysoftware.metricshub.hardware.common.Constants.HW_HOST_POWER;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.HW_MEMORY_POWER;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.HW_PHYSICAL_DISK_POWER;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.LOCALHOST;
@@ -31,6 +29,8 @@ import static com.sentrysoftware.metricshub.hardware.common.Constants.TAPE_DRIVE
 import static com.sentrysoftware.metricshub.hardware.common.Constants.TAPE_DRIVE_POWER_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.TAPE_DRIVE_UNMOUNT_COUNT_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.TEMPERATURE_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_ESTIMATED_ENERGY;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_ESTIMATED_POWER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -39,7 +39,6 @@ import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
-import com.sentrysoftware.metricshub.engine.telemetry.PowerMeter;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 import java.util.Date;
@@ -346,88 +345,64 @@ class HardwareEnergyPostExecutionServiceTest {
 	@Test
 	void testComputeHostPowerAndEnergyMetrics() {
 		// Initialize the telemetry manager
-		telemetryManager =
-			TelemetryManager
-				.builder()
-				.strategyTime(new Date().getTime())
-				.hostConfiguration(HostConfiguration.builder().hostId("localhost").build())
-				.build();
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.strategyTime(new Date().getTime())
+			.hostConfiguration(HostConfiguration.builder().hostId(LOCALHOST).build())
+			.build();
 
-		// We will compute estimated power. So, PowerMeter is set to estimated
-		telemetryManager.setPowerMeter(PowerMeter.ESTIMATED);
-
-		// Create the monitors: host and other monitors
-
+		// Initialize the host and other monitors
 		final Monitor host = Monitor
 			.builder()
 			.id(KnownMonitorType.HOST.getKey())
 			.type(KnownMonitorType.HOST.getKey())
 			.build();
+		host.setAsEndpoint();
+
+		// Set a previous collected host power value
 		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
 		final NumberMetric previousPowerValue = metricFactory.collectNumberMetric(
 			host,
-			HW_HOST_POWER,
+			HW_HOST_ESTIMATED_POWER,
 			60.0,
 			telemetryManager.getStrategyTime() - 120 * 1000
 		);
 		previousPowerValue.save();
 
-		host.addMetric(
-			CONNECTOR_STATUS_METRIC_KEY,
-			NumberMetric.builder().value(1.0).collectTime(telemetryManager.getStrategyTime()).build()
-		);
+		metricFactory.collectNumberMetric(host, CONNECTOR_STATUS_METRIC_KEY, 1.0, telemetryManager.getStrategyTime());
 
 		final Monitor enclosure = Monitor
 			.builder()
 			.id(KnownMonitorType.ENCLOSURE.getKey())
 			.type(KnownMonitorType.ENCLOSURE.getKey())
 			.build();
-		enclosure.addMetric(
-			CONNECTOR_STATUS_METRIC_KEY,
-			NumberMetric.builder().value(1.0).collectTime(telemetryManager.getStrategyTime()).build()
-		);
+
+		metricFactory.collectNumberMetric(enclosure, CONNECTOR_STATUS_METRIC_KEY, 1.0, telemetryManager.getStrategyTime());
 
 		final Monitor cpu = Monitor.builder().id("cpu1").type(KnownMonitorType.CPU.getKey()).build();
-
-		cpu.addMetric(
-			HW_CPU_POWER,
-			NumberMetric.builder().value(60.0).collectTime(telemetryManager.getStrategyTime()).build()
-		);
-		cpu.addMetric(
-			CONNECTOR_STATUS_METRIC_KEY,
-			NumberMetric.builder().value(1.0).collectTime(telemetryManager.getStrategyTime()).build()
-		);
+		metricFactory.collectNumberMetric(cpu, HW_CPU_POWER, 60.0, telemetryManager.getStrategyTime());
+		metricFactory.collectNumberMetric(cpu, CONNECTOR_STATUS_METRIC_KEY, 1.0, telemetryManager.getStrategyTime());
 
 		final Monitor memory = Monitor.builder().id("memory1").type(KnownMonitorType.MEMORY.getKey()).build();
 
-		memory.addMetric(
-			HW_MEMORY_POWER,
-			NumberMetric.builder().value(4.0).collectTime(telemetryManager.getStrategyTime()).build()
-		);
-		memory.addMetric(
-			CONNECTOR_STATUS_METRIC_KEY,
-			NumberMetric.builder().value(1.0).collectTime(telemetryManager.getStrategyTime()).build()
-		);
+		metricFactory.collectNumberMetric(memory, HW_MEMORY_POWER, 4.0, telemetryManager.getStrategyTime());
+		metricFactory.collectNumberMetric(memory, CONNECTOR_STATUS_METRIC_KEY, 1.0, telemetryManager.getStrategyTime());
 
 		final Monitor disk = Monitor.builder().id("disk_nvm_1").type(KnownMonitorType.PHYSICAL_DISK.getKey()).build();
 
-		disk.addMetric(
-			HW_PHYSICAL_DISK_POWER,
-			NumberMetric.builder().value(6.0).collectTime(telemetryManager.getStrategyTime()).build()
-		);
-		disk.addMetric(
-			CONNECTOR_STATUS_METRIC_KEY,
-			NumberMetric.builder().value(1.0).collectTime(telemetryManager.getStrategyTime()).build()
-		);
+		metricFactory.collectNumberMetric(disk, HW_PHYSICAL_DISK_POWER, 6.0, telemetryManager.getStrategyTime());
+		metricFactory.collectNumberMetric(disk, CONNECTOR_STATUS_METRIC_KEY, 1.0, telemetryManager.getStrategyTime());
 
 		final Monitor diskNoPower = Monitor
 			.builder()
 			.id("disk_noPower")
 			.type(KnownMonitorType.PHYSICAL_DISK.getKey())
 			.build();
-		diskNoPower.addMetric(
+		metricFactory.collectNumberMetric(
+			diskNoPower,
 			CONNECTOR_STATUS_METRIC_KEY,
-			NumberMetric.builder().value(1.0).collectTime(telemetryManager.getStrategyTime()).build()
+			1.0,
+			telemetryManager.getStrategyTime()
 		);
 
 		final Monitor missingDisk = Monitor
@@ -435,11 +410,14 @@ class HardwareEnergyPostExecutionServiceTest {
 			.id("disk_nvm_2")
 			.type(KnownMonitorType.PHYSICAL_DISK.getKey())
 			.build();
-		missingDisk.addMetric(
+		metricFactory.collectNumberMetric(
+			missingDisk,
 			CONNECTOR_STATUS_METRIC_KEY,
-			NumberMetric.builder().value(1.0).collectTime(telemetryManager.getStrategyTime()).build()
+			1.0,
+			telemetryManager.getStrategyTime()
 		);
 
+		// Add the previously created monitors to telemetry manager
 		telemetryManager.addNewMonitor(host, KnownMonitorType.HOST.getKey(), KnownMonitorType.HOST.getKey());
 		telemetryManager.addNewMonitor(cpu, KnownMonitorType.CPU.getKey(), "cpu1");
 		telemetryManager.addNewMonitor(disk, KnownMonitorType.PHYSICAL_DISK.getKey(), "disk_nvm_1");
@@ -453,9 +431,9 @@ class HardwareEnergyPostExecutionServiceTest {
 		hardwareEnergyPostExecutionService.run();
 
 		//  Check the computed and collected temperature metrics (the host is not a cpu sensor)
-		assertNotNull(host.getMetric(HW_HOST_POWER, NumberMetric.class));
-		assertEquals(107.78, host.getMetric(HW_HOST_POWER, NumberMetric.class).getValue());
-		assertNotNull(host.getMetric(HW_HOST_ENERGY, NumberMetric.class));
-		assertEquals(12933.6, host.getMetric(HW_HOST_ENERGY, NumberMetric.class).getValue());
+		assertNotNull(host.getMetric(HW_HOST_ESTIMATED_POWER, NumberMetric.class));
+		assertEquals(107.78, host.getMetric(HW_HOST_ESTIMATED_POWER, NumberMetric.class).getValue());
+		assertNotNull(host.getMetric(HW_HOST_ESTIMATED_ENERGY, NumberMetric.class));
+		assertEquals(12933.6, host.getMetric(HW_HOST_ESTIMATED_ENERGY, NumberMetric.class).getValue());
 	}
 }

@@ -4,9 +4,6 @@ import com.sentrysoftware.metricshub.engine.strategy.utils.CollectHelper;
 import com.sentrysoftware.metricshub.engine.strategy.utils.MathOperationsHelper;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -136,25 +133,5 @@ public class HwCollectHelper {
 	 */
 	public static String generateEnergyMetricNameForMonitorType(final String monitorType) {
 		return "hw.energy{hw.type=\"" + monitorType + "\"}";
-	}
-
-	/**
-	 * Check if at least one monitor in the given map collects the power consumption or the energy
-	 *
-	 * @param monitors map of monitors
-	 * @return boolean value
-	 */
-	public static boolean isPowerCollected(final Map<String, Monitor> monitors) {
-		return Optional
-			.ofNullable(monitors)
-			.stream()
-			.map(Map::values)
-			.flatMap(Collection::stream)
-			.anyMatch(monitor ->
-				CollectHelper.getUpdatedNumberMetricValue(monitor, generatePowerMetricNameForMonitorType(monitor.getType())) !=
-				null ||
-				CollectHelper.getUpdatedNumberMetricValue(monitor, generateEnergyMetricNameForMonitorType(monitor.getType())) !=
-				null
-			);
 	}
 }

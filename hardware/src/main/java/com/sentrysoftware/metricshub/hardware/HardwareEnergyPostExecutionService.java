@@ -95,17 +95,8 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 	private void estimateAndCollectPowerAndEnergyForHost(
 		final BiFunction<Monitor, TelemetryManager, HostMonitorEnergyAndPowerEstimator> estimatorGenerator
 	) {
-		// Find monitors having the selected monitor type
-		final String monitorTypeKey = KnownMonitorType.HOST.getKey();
-		final Map<String, Monitor> hostMonitors = telemetryManager.findMonitorByType(monitorTypeKey);
-
-		// If no host is found, log a message
-		if (hostMonitors == null) {
-			log.info("No host monitors found on Host {}", telemetryManager.getHostname());
-			return;
-		}
-
-		final Monitor hostMonitor = hostMonitors.entrySet().stream().findFirst().get().getValue();
+		// Find hostMonitor
+		final Monitor hostMonitor = telemetryManager.getEndpointHostMonitor();
 
 		// If host is not found, log a message
 		if (hostMonitor == null) {
@@ -172,9 +163,10 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 
 		collectNetworkMetrics();
 
-		estimateAndCollectPowerAndEnergyForHost(HostMonitorEnergyAndPowerEstimator::new);
 		// Compute host temperature metrics (ambientTemperature, cpuTemperature, cpuThermalDissipationRate)
 		new HostMonitorThermalCalculator(telemetryManager).computeHostTemperatureMetrics();
+
+		estimateAndCollectPowerAndEnergyForHost(HostMonitorEnergyAndPowerEstimator::new);
 	}
 
 	/**

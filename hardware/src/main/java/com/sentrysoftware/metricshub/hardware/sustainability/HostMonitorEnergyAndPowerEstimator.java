@@ -1,12 +1,16 @@
 package com.sentrysoftware.metricshub.hardware.sustainability;
 
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.CONNECTOR_STATUS_METRIC_KEY;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_ESTIMATED_ENERGY;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_ESTIMATED_POWER;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_MEASURED_ENERGY;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_MEASURED_POWER;
 
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.common.helpers.NumberHelper;
 import com.sentrysoftware.metricshub.engine.strategy.utils.CollectHelper;
+import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
-import com.sentrysoftware.metricshub.engine.telemetry.PowerMeter;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
@@ -25,64 +29,53 @@ import lombok.extern.slf4j.Slf4j;
 public class HostMonitorEnergyAndPowerEstimator {
 
 	private TelemetryManager telemetryManager;
-	private Monitor monitor;
-	private static final String HW_ENCLOSURE_POWER = "hw.enclosure.power";
-	private static final String HW_HOST_POWER = "hw.host.power";
-	private static final String HW_HOST_ENERGY = "hw.host.energy";
+	private Monitor hostMonitor;
 	private Double powerConsumption;
 
+	private static final String HW_ENCLOSURE_POWER = "hw.enclosure.power";
+
 	public HostMonitorEnergyAndPowerEstimator(final Monitor monitor, final TelemetryManager telemetryManager) {
-		this.monitor = monitor;
+		this.hostMonitor = monitor;
 		this.telemetryManager = telemetryManager;
 	}
 
 	/**
 	 * Estimates the power consumption of the host monitor
-	 *
 	 * @return Double
 	 */
 	public Double computeEstimatedPower() {
-		telemetryManager.setPowerMeter(PowerMeter.ESTIMATED);
-
 		powerConsumption = estimateHostPowerConsumption(sumEstimatedPowerConsumptions());
 		return powerConsumption;
 	}
 
 	/**
 	 * Computes the measured energy consumption of the host monitor
-	 *
 	 * @return Double
 	 */
 	public Double computeMeasuredEnergy() {
-		final Map<String, Monitor> enclosureMonitors = telemetryManager.findMonitorByType(
-			KnownMonitorType.ENCLOSURE.getKey()
-		);
 		// Compute measured energy
-		return HwCollectHelper.isPowerCollected(enclosureMonitors)
-			? HwCollectHelper.estimateEnergyUsingPower(
-				monitor,
-				telemetryManager,
-				powerConsumption,
-				HW_HOST_POWER,
-				HW_HOST_ENERGY,
-				telemetryManager.getStrategyTime()
-			)
-			: null;
+		return HwCollectHelper.estimateEnergyUsingPower(
+			hostMonitor,
+			telemetryManager,
+			powerConsumption,
+			HW_HOST_MEASURED_POWER,
+			HW_HOST_MEASURED_ENERGY,
+			telemetryManager.getStrategyTime()
+		);
 	}
 
 	/**
 	 * Computes the measured energy consumption of the host monitor
-	 *
 	 * @return Double
 	 */
 	public Double computeEstimatedEnergy() {
 		// Compute estimated energy
 		return HwCollectHelper.estimateEnergyUsingPower(
-			monitor,
+			hostMonitor,
 			telemetryManager,
 			powerConsumption,
-			HW_HOST_POWER,
-			HW_HOST_ENERGY,
+			HW_HOST_ESTIMATED_POWER,
+			HW_HOST_ESTIMATED_ENERGY,
 			telemetryManager.getStrategyTime()
 		);
 	}
@@ -96,9 +89,6 @@ public class HostMonitorEnergyAndPowerEstimator {
 			KnownMonitorType.ENCLOSURE.getKey()
 		);
 
-		// Set power meter to collected
-		telemetryManager.setPowerMeter(PowerMeter.MEASURED);
-
 		final Double totalMeasuredPowerConsumption = sumEnclosurePowerConsumptions(enclosureMonitors);
 
 		// Adjust monitor power consumptions
@@ -108,8 +98,32 @@ public class HostMonitorEnergyAndPowerEstimator {
 	}
 
 	/**
+	 * This method checks whether a connector status was set to "ok" or "1.0"
+	 * @param currentMonitor the current monitor
+	 * @return boolean
+	 */
+	boolean isConnectorStatusOk(final Monitor currentMonitor) {
+		final AbstractMetric connectorStatusMetric = currentMonitor.getMetric(CONNECTOR_STATUS_METRIC_KEY);
+
+		if (connectorStatusMetric instanceof NumberMetric) {
+			final Double connectorStatusNumberValue = CollectHelper.getNumberMetricValue(
+				currentMonitor,
+				CONNECTOR_STATUS_METRIC_KEY,
+				false
+			);
+			return Double.valueOf(1.0).equals(connectorStatusNumberValue);
+		} else {
+			final String connectorStatusStateSetValue = CollectHelper.getStateSetMetricValue(
+				currentMonitor,
+				CONNECTOR_STATUS_METRIC_KEY,
+				false
+			);
+			return "ok".equals(connectorStatusStateSetValue);
+		}
+	}
+
+	/**
 	 * Adjust the power consumption parameter of all the monitors
-	 *
 	 * @param totalEstimatedPowerConsumption Double value of the total estimated power consumption
 	 * @param totalMeasuredPowerConsumption  Double value of the total measured power consumption
 	 */
@@ -134,7 +148,7 @@ public class HostMonitorEnergyAndPowerEstimator {
 			.stream()
 			.map(Map::values)
 			.flatMap(Collection::stream)
-			.filter(monitor -> CollectHelper.getNumberMetricValue(monitor, CONNECTOR_STATUS_METRIC_KEY, false).equals(1.0))
+			.filter(monitor -> isConnectorStatusOk(monitor))
 			.filter(monitor -> !KnownMonitorType.HOST.getKey().equals(monitor.getType())) // We already sum the values for the host
 			.filter(monitor -> !KnownMonitorType.ENCLOSURE.getKey().equals(monitor.getType())) // Skip the enclosure
 			.filter(monitor -> !KnownMonitorType.VM.getKey().equals(monitor.getType())); // Skip VM monitors as their power is already computed based on the host's power
@@ -162,21 +176,51 @@ public class HostMonitorEnergyAndPowerEstimator {
 
 			return;
 		}
+		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
 		monitorStream.forEach(monitor -> {
 			final String powerMetricName = HwCollectHelper.generatePowerMetricNameForMonitorType(monitor.getType());
+			final String energyMetricName = HwCollectHelper.generateEnergyMetricNameForMonitorType(monitor.getType());
 			final Double powerMetricValue = CollectHelper.getNumberMetricValue(monitor, powerMetricName, false);
-			monitor.addMetric(
+			final Double adjustedPowerValue = getAdjustedPowerConsumption(
+				powerMetricValue,
+				totalEstimatedPowerConsumption,
+				totalMeasuredPowerConsumption
+			);
+
+			// Collect adjusted power metric
+			metricFactory.collectNumberMetric(
+				monitor,
 				powerMetricName,
-				NumberMetric
-					.builder()
-					.value(
-						getAdjustedPowerConsumption(powerMetricValue, totalEstimatedPowerConsumption, totalMeasuredPowerConsumption)
-					)
-					.build()
+				adjustedPowerValue,
+				telemetryManager.getStrategyTime()
+			);
+
+			final Double adjustedEnergyValue = HwCollectHelper.estimateEnergyUsingPower(
+				monitor,
+				telemetryManager,
+				adjustedPowerValue,
+				powerMetricName,
+				energyMetricName,
+				telemetryManager.getStrategyTime()
+			);
+
+			// Collect adjusted energy metric
+			metricFactory.collectNumberMetric(
+				monitor,
+				energyMetricName,
+				adjustedEnergyValue,
+				telemetryManager.getStrategyTime()
 			);
 		});
 	}
 
+	/**
+	 * This method adjusts the power consumption metric value
+	 * @param estimatedPowerConsumption the estimated power consumption
+	 * @param totalEstimatedPowerConsumption the total estimated power consumption
+	 * @param totalMeasuredPowerConsumption the total measured power consumption
+	 * @return
+	 */
 	Double getAdjustedPowerConsumption(
 		final Double estimatedPowerConsumption,
 		final Double totalEstimatedPowerConsumption,
@@ -191,6 +235,8 @@ public class HostMonitorEnergyAndPowerEstimator {
 
 	/**
 	 * Setting the host power consumption value as the sum of all the Enclosure power consumption values.
+	 * @param enclosureMonitors monitors of type {@link KnownMonitorType} = ENCLOSURE
+	 * @return the sum of all enclosures power consumptions
 	 */
 	Double sumEnclosurePowerConsumptions(@NonNull final Map<String, Monitor> enclosureMonitors) {
 		final String hostname = telemetryManager.getHostname();
@@ -199,9 +245,7 @@ public class HostMonitorEnergyAndPowerEstimator {
 		Double totalPowerConsumption = enclosureMonitors
 			.values()
 			.stream()
-			.filter(monitor ->
-				Double.valueOf(1.0).equals(CollectHelper.getNumberMetricValue(monitor, CONNECTOR_STATUS_METRIC_KEY, false))
-			)
+			.filter(monitor -> isConnectorStatusOk(monitor))
 			.map(monitor -> CollectHelper.getUpdatedNumberMetricValue(monitor, HW_ENCLOSURE_POWER))
 			.filter(Objects::nonNull)
 			.reduce(Double::sum)
@@ -229,9 +273,7 @@ public class HostMonitorEnergyAndPowerEstimator {
 			.stream()
 			.map(Map::values)
 			.flatMap(Collection::stream)
-			.filter(monitor ->
-				Double.valueOf(1.0).equals(CollectHelper.getNumberMetricValue(monitor, CONNECTOR_STATUS_METRIC_KEY, false))
-			)
+			.filter(monitor -> isConnectorStatusOk(monitor))
 			.filter(monitor -> !KnownMonitorType.HOST.getKey().equals(monitor.getType())) // We already sum the values for the host
 			.filter(monitor -> !KnownMonitorType.ENCLOSURE.getKey().equals(monitor.getType())) // Skip the enclosure
 			.filter(monitor -> !KnownMonitorType.VM.getKey().equals(monitor.getType())) // Skip VM monitors as their power is already computed based on the host's power
