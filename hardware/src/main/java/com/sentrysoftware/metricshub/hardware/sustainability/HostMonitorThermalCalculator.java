@@ -113,7 +113,8 @@ public class HostMonitorThermalCalculator {
 			);
 
 			if (temperatureWarningThreshold != null) {
-				heatingMargin = MathOperationsHelper.min(heatingMargin, temperatureWarningThreshold - temperature);
+				heatingMargin =
+					MathOperationsHelper.min(heatingMargin, Math.max(temperatureWarningThreshold - temperature, 0.0));
 			}
 		}
 
@@ -236,9 +237,8 @@ public class HostMonitorThermalCalculator {
 		// If we have both warning and alarm threshold then we return the minimum value
 		if (warningThreshold == null && alarmThreshold != null) {
 			return NumberHelper.round(alarmThreshold * 0.9, 1, RoundingMode.HALF_UP);
-		} else {
-			// return the minimum between warning and alarm
-			return MathOperationsHelper.min(warningThreshold, alarmThreshold);
 		}
+		// return the minimum between warning and alarm
+		return MathOperationsHelper.min(warningThreshold, alarmThreshold);
 	}
 }
