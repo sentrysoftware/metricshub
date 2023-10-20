@@ -6,6 +6,7 @@ import com.sentrysoftware.metricshub.engine.common.helpers.ArrayHelper;
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.common.helpers.NumberHelper;
 import com.sentrysoftware.metricshub.engine.strategy.utils.CollectHelper;
+import com.sentrysoftware.metricshub.engine.strategy.utils.MathOperationsHelper;
 import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -30,6 +31,9 @@ public class HostMonitorThermalCalculator {
 	private static final String HW_HOST_AVERAGE_CPU_TEMPERATURE = "__hw.host.average_cpu_temperature";
 	private static final String HW_HOST_AMBIENT_TEMPERATURE = "hw.host.ambient_temperature";
 	private static final String HW_HOST_CPU_THERMAL_DISSIPATION_RATE = "__hw.host.cpu.thermal_dissipation_rate";
+	private static final String HW_HOST_HEATING_MARGIN = "hw.host.heating_margin";
+	private static final String TEMPERATURE_WARNING_THRESHOLD = "hw.temperature.limit{limit_type=\"high.degraded\"}";
+	private static final String TEMPERATURE_ALARM_THRESHOLD = "hw.temperature.limit{limit_type=\"high.critical\"}";
 
 	/**
 	 * Compute temperature metrics for the current host monitor:
@@ -59,6 +63,7 @@ public class HostMonitorThermalCalculator {
 		double ambientTemperature = 35.0;
 		double cpuTemperatureAverage = 0;
 		double cpuTemperatureCount = 0;
+		Double heatingMargin = null;
 
 		// Loop over all the temperature monitors to compute the ambient temperature, cpuTemperatureCount and cpuTemperatureAverage
 		for (final Monitor temperatureMonitor : temperatureMonitors.values()) {
@@ -76,7 +81,7 @@ public class HostMonitorThermalCalculator {
 			}
 			final Double warningThreshold = CollectHelper.getNumberMetricValue(
 				temperatureMonitor,
-				"hw.temperature.limit{limit_type=\"high.degraded\"}",
+				TEMPERATURE_WARNING_THRESHOLD,
 				false
 			);
 
@@ -99,6 +104,17 @@ public class HostMonitorThermalCalculator {
 			if (isCpuSensor && temperature > 5) {
 				cpuTemperatureAverage += temperature;
 				cpuTemperatureCount++;
+			}
+
+			// Computation of heating margin
+			final Double temperatureWarningThreshold = getTemperatureWarningThreshold(
+				warningThreshold,
+				CollectHelper.getNumberMetricValue(temperatureMonitor, TEMPERATURE_ALARM_THRESHOLD, false)
+			);
+
+			if (temperatureWarningThreshold != null) {
+				heatingMargin =
+					MathOperationsHelper.min(heatingMargin, Math.max(temperatureWarningThreshold - temperature, 0.0));
 			}
 		}
 
@@ -134,6 +150,15 @@ public class HostMonitorThermalCalculator {
 
 			// Calculate the dissipation rate
 			computeHostThermalDissipationRate(hostMonitor, ambientTemperature, cpuTemperatureAverage);
+		}
+
+		if (heatingMargin != null) {
+			metricFactory.collectNumberMetric(
+				hostMonitor,
+				HW_HOST_HEATING_MARGIN,
+				heatingMargin,
+				telemetryManager.getStrategyTime()
+			);
 		}
 	}
 
@@ -198,5 +223,22 @@ public class HostMonitorThermalCalculator {
 	 */
 	static boolean matchesCpuSensor(final String value) {
 		return value.contains("cpu") || value.contains("proc");
+	}
+
+	/**
+	 * Get the temperature threshold value from the given metadata map
+	 *
+	 * @param metadata The {@link Monitor}'s metadata.
+	 * @return Double value
+	 */
+	private Double getTemperatureWarningThreshold(final Double warningThreshold, final Double alarmThreshold) {
+		// If we only have an alarm threshold, then warningThreshold will be 90% of alarmThreshold
+		// If we only have a warning threshold, we are good.
+		// If we have both warning and alarm threshold then we return the minimum value
+		if (warningThreshold == null && alarmThreshold != null) {
+			return NumberHelper.round(alarmThreshold * 0.9, 1, RoundingMode.HALF_UP);
+		}
+		// return the minimum between warning and alarm
+		return MathOperationsHelper.min(warningThreshold, alarmThreshold);
 	}
 }
