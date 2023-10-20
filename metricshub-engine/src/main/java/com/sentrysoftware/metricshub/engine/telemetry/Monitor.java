@@ -54,6 +54,16 @@ public class Monitor {
 		return type.cast(metrics.get(metricName));
 	}
 
+	/**
+	 * Get a metric by metric name
+	 *
+	 * @param metricName The unique name of the metric
+	 * @return {@link AbstractMetric} instance
+	 */
+	public AbstractMetric getMetric(final String metricName) {
+		return metrics.get(metricName);
+	}
+
 	/***
 	 * Add a new metric in the map of metrics
 	 *

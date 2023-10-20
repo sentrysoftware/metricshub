@@ -116,4 +116,22 @@ public class HwCollectHelper {
 
 		return MathOperationsHelper.rate(rateMetricName, value, previousValue, collectTime, previousCollectTime, hostname);
 	}
+
+	/**
+	 * Generates the corresponding power metric name base on monitor type
+	 * @param monitorType the type of the monitor
+	 * @return power metric's name  e.g: hw.power{hw.type="network"} (General format is: hw.power{hw.type="<type>"})
+	 */
+	public static String generatePowerMetricNameForMonitorType(final String monitorType) {
+		return "hw.power{hw.type=\"" + monitorType + "\"}";
+	}
+
+	/**
+	 * Generates the corresponding energy metric name base on monitor type
+	 * @param monitorType the type of the monitor
+	 * @return energy metric's name  e.g: hw.energy{hw.type="network"} (General format is: hw.energy{hw.type="<type>"})
+	 */
+	public static String generateEnergyMetricNameForMonitorType(final String monitorType) {
+		return "hw.energy{hw.type=\"" + monitorType + "\"}";
+	}
 }
