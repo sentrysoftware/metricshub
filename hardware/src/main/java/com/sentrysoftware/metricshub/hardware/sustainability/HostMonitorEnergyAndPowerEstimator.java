@@ -65,7 +65,7 @@ public class HostMonitorEnergyAndPowerEstimator {
 	}
 
 	/**
-	 * Computes the measured energy consumption of the host monitor
+	 * Computes the estimated energy consumption of the host monitor
 	 * @return Double
 	 */
 	public Double computeEstimatedEnergy() {
