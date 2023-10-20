@@ -3,9 +3,6 @@ package com.sentrysoftware.metricshub.engine.it.job;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import com.sentrysoftware.metricshub.engine.strategy.IStrategy;
-
-
 public interface ITJob {
 
 	/**
@@ -18,18 +15,18 @@ public interface ITJob {
 	ITJob withServerRecordData(String... recordDataPaths) throws Exception;
 
 	/**
-	 * Run the engine {@link IStrategy}
+	 * Run the engine
 	 *
 	 * @return The actual {@link ITJob}
 	 */
-	ITJob executeDiscoveryStrategy(IStrategy strategy);
+	ITJob executeDiscoveryStrategy();
 
 	/**
-	 * Run the engine {@link IStrategy}
+	 * Run the engine
 	 *
 	 * @return The actual {@link ITJob}
 	 */
-	ITJob executeCollectStrategy(IStrategy strategy);
+	ITJob executeCollectStrategy();
 
 	/**
 	 * Verify the expected result located under the given expectedPath

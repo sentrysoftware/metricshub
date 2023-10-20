@@ -11,7 +11,6 @@ import java.util.Map.Entry;
 import com.sentrysoftware.metricshub.engine.alert.AlertRule;
 import com.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
-import com.sentrysoftware.metricshub.engine.strategy.IStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.collect.CollectStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.collect.PostCollectStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.collect.PrepareCollectStrategy;
@@ -230,8 +229,6 @@ public abstract class AbstractITJob implements ITJob {
 
 		stopServer();
 
-		// assertEquals(OperationStatus.SUCCESS, lastEngineResult.getOperationStatus(), "Last strategy failed.");
-
 		final InputStream is = ITJobUtils.getItResourceAsInputStream(expectedPath);
 		final MonitorsVo expected = JsonHelper.deserialize(is, MonitorsVo.class);
 
@@ -247,9 +244,9 @@ public abstract class AbstractITJob implements ITJob {
 	}
 
 	@Override
-	public ITJob executeDiscoveryStrategy(final IStrategy strategy) {
+	public ITJob executeDiscoveryStrategy() {
 		
-		final Long discoveryTime = strategy.getStrategyTime();
+		final Long discoveryTime = telemetryManager.getStrategyTime();
 
 		telemetryManager.run(
 			new DetectionStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor),
@@ -265,8 +262,8 @@ public abstract class AbstractITJob implements ITJob {
 
 
 	@Override
-	public ITJob executeCollectStrategy(final IStrategy strategy) {
-		final Long collectTime = strategy.getStrategyTime();
+	public ITJob executeCollectStrategy() {
+		final Long collectTime = telemetryManager.getStrategyTime();
 
 		telemetryManager.run(
 			new PrepareCollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor),
