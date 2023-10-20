@@ -28,11 +28,9 @@ class HostMonitorThermalCalculatorTest {
 	private static final String IS_CPU_SENSOR = "__is_cpu_sensor";
 	private static final String HW_HOST_CPU_THERMAL_DISSIPATION_RATE = "__hw.host.cpu.thermal_dissipation_rate";
 	private static final String TRUE_STRING = "true";
-	private static final String CPU_ID = "cpu";
-	private static final String DISK_CONTROLLER_ID = "disk_controller";
-	private static final String TEMPERATURE = "hw.temperature";
-	private static final String TEMPERATURE_WARNING_THRESHOLD = "hw.temperature.limit{limit_type=\"high.degraded\"}";
 	private static final String HW_HOST_HEATING_MARGIN = "hw.host.heating_margin";
+	private static final String TEMPERATURE_WARNING_THRESHOLD = "hw.temperature.limit{limit_type=\"high.degraded\"}";
+	private static final String TEMPERATURE_ALARM_THRESHOLD = "hw.temperature.limit{limit_type=\"high.critical\"}";
 
 	@BeforeEach
 	void setup() {
@@ -128,65 +126,32 @@ class HostMonitorThermalCalculatorTest {
 		// Check the estimation of the host thermal dissipation rate
 		hostMonitorThermalCalculator.computeHostTemperatureMetrics();
 		assertEquals(1.0, host.getMetric(HW_HOST_CPU_THERMAL_DISSIPATION_RATE, NumberMetric.class).getValue());
-	}
 
-	@Test
-	void testComputeHeatingMargin() {
-		final Long strategyTime = 1696597422644L;
-		telemetryManager.setStrategyTime(strategyTime);
-		final Monitor host = Monitor.builder().id(HOST_ID).type(KnownMonitorType.HOST.getKey()).build();
-		final Monitor cpu = Monitor
-			.builder()
-			.id(CPU_ID)
-			.type(KnownMonitorType.CPU.getKey())
-			.metrics(
-				Map.of(
-					TEMPERATURE,
-					NumberMetric.builder().collectTime(strategyTime).name(TEMPERATURE).value(40D).build(),
-					TEMPERATURE_WARNING_THRESHOLD,
-					NumberMetric
-						.builder()
-						.collectTime(strategyTime)
-						.name(TEMPERATURE_WARNING_THRESHOLD)
-						.value(41D) // We want a low heating margin to make sure it's not used
-						.build()
-				)
-			)
-			.build();
-
-		telemetryManager.addNewMonitor(host, KnownMonitorType.HOST.getKey(), HOST_ID);
-		telemetryManager.addNewMonitor(cpu, KnownMonitorType.CPU.getKey(), CPU_ID);
-
-		// There shouldn't be a heating margin yet
+		// Heating margin check
 		assertNull(host.getMetric(HW_HOST_HEATING_MARGIN, NumberMetric.class));
 
-		// With only the CPU there shouldn't be any heating margin
-		hostMonitorThermalCalculator.computeHeatingMargin();
-		assertNull(host.getMetric(HW_HOST_HEATING_MARGIN, NumberMetric.class));
-
-		// Let's add a disk controller to be able to calculate some heating margin
-		final Monitor diskController = Monitor
-			.builder()
-			.id(DISK_CONTROLLER_ID)
-			.type(KnownMonitorType.DISK_CONTROLLER.getKey())
-			.metrics(
-				Map.of(
-					TEMPERATURE,
-					NumberMetric.builder().collectTime(strategyTime).name(TEMPERATURE).value(10D).build(),
-					TEMPERATURE_WARNING_THRESHOLD,
-					NumberMetric
-						.builder()
-						.collectTime(strategyTime)
-						.name(TEMPERATURE_WARNING_THRESHOLD)
-						.value(30D) // Heating margin of 20 degrees
-						.build()
-				)
-			)
-			.build();
-		telemetryManager.addNewMonitor(diskController, KnownMonitorType.DISK_CONTROLLER.getKey(), DISK_CONTROLLER_ID);
-
-		hostMonitorThermalCalculator.computeHeatingMargin();
+		metricFactory.collectNumberMetric(
+			temperatureMonitor,
+			TEMPERATURE_ALARM_THRESHOLD,
+			40.0,
+			telemetryManager.getStrategyTime()
+		);
+		telemetryManager.addNewMonitor(temperatureMonitor, KnownMonitorType.TEMPERATURE.getKey(), TEMPERATURE_MONITOR_ID);
+		hostMonitorThermalCalculator.computeHostTemperatureMetrics();
 		assertNotNull(host.getMetric(HW_HOST_HEATING_MARGIN, NumberMetric.class));
-		assertEquals(20D, host.getMetric(HW_HOST_HEATING_MARGIN, NumberMetric.class).getValue());
+		// Heating margin is 40.0 * 0.9 - 10.0 = 26.0
+		assertEquals(26.0, host.getMetric(HW_HOST_HEATING_MARGIN, NumberMetric.class).getValue());
+
+		metricFactory.collectNumberMetric(
+			temperatureMonitor,
+			TEMPERATURE_WARNING_THRESHOLD,
+			30.0,
+			telemetryManager.getStrategyTime()
+		);
+		telemetryManager.addNewMonitor(temperatureMonitor, KnownMonitorType.TEMPERATURE.getKey(), TEMPERATURE_MONITOR_ID);
+		hostMonitorThermalCalculator.computeHostTemperatureMetrics();
+		assertNotNull(host.getMetric(HW_HOST_HEATING_MARGIN, NumberMetric.class));
+		// Heating margin is 30.0 - 10.0 = 20.0
+		assertEquals(20.0, host.getMetric(HW_HOST_HEATING_MARGIN, NumberMetric.class).getValue());
 	}
 }

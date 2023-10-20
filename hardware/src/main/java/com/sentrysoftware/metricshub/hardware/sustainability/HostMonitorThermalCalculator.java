@@ -33,6 +33,7 @@ public class HostMonitorThermalCalculator {
 	private static final String HW_HOST_CPU_THERMAL_DISSIPATION_RATE = "__hw.host.cpu.thermal_dissipation_rate";
 	private static final String HW_HOST_HEATING_MARGIN = "hw.host.heating_margin";
 	private static final String TEMPERATURE_WARNING_THRESHOLD = "hw.temperature.limit{limit_type=\"high.degraded\"}";
+	private static final String TEMPERATURE_ALARM_THRESHOLD = "hw.temperature.limit{limit_type=\"high.critical\"}";
 
 	/**
 	 * Compute temperature metrics for the current host monitor:
@@ -62,6 +63,7 @@ public class HostMonitorThermalCalculator {
 		double ambientTemperature = 35.0;
 		double cpuTemperatureAverage = 0;
 		double cpuTemperatureCount = 0;
+		Double heatingMargin = null;
 
 		// Loop over all the temperature monitors to compute the ambient temperature, cpuTemperatureCount and cpuTemperatureAverage
 		for (final Monitor temperatureMonitor : temperatureMonitors.values()) {
@@ -103,6 +105,16 @@ public class HostMonitorThermalCalculator {
 				cpuTemperatureAverage += temperature;
 				cpuTemperatureCount++;
 			}
+
+			// Computation of heating margin
+			final Double temperatureWarningThreshold = getTemperatureWarningThreshold(
+				warningThreshold,
+				CollectHelper.getNumberMetricValue(temperatureMonitor, TEMPERATURE_ALARM_THRESHOLD, false)
+			);
+
+			if (temperatureWarningThreshold != null) {
+				heatingMargin = MathOperationsHelper.min(heatingMargin, temperatureWarningThreshold - temperature);
+			}
 		}
 
 		// Find the host monitor
@@ -137,6 +149,15 @@ public class HostMonitorThermalCalculator {
 
 			// Calculate the dissipation rate
 			computeHostThermalDissipationRate(hostMonitor, ambientTemperature, cpuTemperatureAverage);
+		}
+
+		if (heatingMargin != null) {
+			metricFactory.collectNumberMetric(
+				hostMonitor,
+				HW_HOST_HEATING_MARGIN,
+				heatingMargin,
+				telemetryManager.getStrategyTime()
+			);
 		}
 	}
 
@@ -204,49 +225,20 @@ public class HostMonitorThermalCalculator {
 	}
 
 	/**
-	 * Compute the heating margin for the host.
+	 * Get the temperature threshold value from the given metadata map
+	 *
+	 * @param metadata The {@link Monitor}'s metadata.
+	 * @return Double value
 	 */
-	public void computeHeatingMargin() {
-		Double heatingMargin = null;
-		final Map<String, Map<String, Monitor>> monitors = telemetryManager.getMonitors();
-		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
-
-		for (final String monitorType : monitors.keySet()) {
-			if (!matchesCpuSensor(monitorType)) {
-				for (final Monitor monitor : monitors.get(monitorType).values()) {
-					heatingMargin = MathOperationsHelper.min(heatingMargin, computeHeatingMarginMonitor(monitor));
-				}
-			}
+	private Double getTemperatureWarningThreshold(final Double warningThreshold, final Double alarmThreshold) {
+		// If we only have an alarm threshold, then warningThreshold will be 90% of alarmThreshold
+		// If we only have a warning threshold, we are good.
+		// If we have both warning and alarm threshold then we return the minimum value
+		if (warningThreshold == null && alarmThreshold != null) {
+			return NumberHelper.round(alarmThreshold * 0.9, 1, RoundingMode.HALF_UP);
+		} else {
+			// return the minimum between warning and alarm
+			return MathOperationsHelper.min(warningThreshold, alarmThreshold);
 		}
-
-		if (heatingMargin != null) {
-			final Double finalHeatingMargin = heatingMargin;
-			telemetryManager
-				.getMonitors()
-				.get(KnownMonitorType.HOST.getKey())
-				.values()
-				.forEach(hostMonitor ->
-					metricFactory.collectNumberMetric(
-						hostMonitor,
-						HW_HOST_HEATING_MARGIN,
-						finalHeatingMargin,
-						telemetryManager.getStrategyTime()
-					)
-				);
-		}
-	}
-
-	/**
-	 * Compute the heating margin for the given monitor
-	 * @param monitor
-	 * @return
-	 */
-	public Double computeHeatingMarginMonitor(final Monitor monitor) {
-		final Double temperature = CollectHelper.getUpdatedNumberMetricValue(monitor, TEMPERATURE_METRIC);
-		final Double temperatureThreshold = CollectHelper.getUpdatedNumberMetricValue(
-			monitor,
-			TEMPERATURE_WARNING_THRESHOLD
-		);
-		return temperature != null && temperatureThreshold != null ? temperatureThreshold - temperature : null;
 	}
 }
