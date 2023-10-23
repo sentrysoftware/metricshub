@@ -1,5 +1,6 @@
 package com.sentrysoftware.metricshub.hardware.sustainability;
 
+import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HW_HOST_CPU_THERMAL_DISSIPATION_RATE;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_NAME;
 
 import com.sentrysoftware.metricshub.engine.common.helpers.ArrayHelper;
@@ -30,10 +31,10 @@ public class HostMonitorThermalCalculator {
 	private static final String IS_CPU_SENSOR = "__is_cpu_sensor";
 	private static final String HW_HOST_AVERAGE_CPU_TEMPERATURE = "__hw.host.average_cpu_temperature";
 	private static final String HW_HOST_AMBIENT_TEMPERATURE = "hw.host.ambient_temperature";
-	private static final String HW_HOST_CPU_THERMAL_DISSIPATION_RATE = "__hw.host.cpu.thermal_dissipation_rate";
 	private static final String HW_HOST_HEATING_MARGIN = "hw.host.heating_margin";
 	private static final String TEMPERATURE_WARNING_THRESHOLD = "hw.temperature.limit{limit_type=\"high.degraded\"}";
 	private static final String TEMPERATURE_ALARM_THRESHOLD = "hw.temperature.limit{limit_type=\"high.critical\"}";
+	private static final String HW_HOST_AVERAGE_CPU_WARNING_THRESHOLD = "__hw.host.average_warning_threshold";
 
 	/**
 	 * Compute temperature metrics for the current host monitor:
@@ -63,6 +64,8 @@ public class HostMonitorThermalCalculator {
 		double ambientTemperature = 35.0;
 		double cpuTemperatureAverage = 0;
 		double cpuTemperatureCount = 0;
+		double cpuWarningThresholdAverage = 0;
+		double cpuWarningThresholdCount = 0;
 		Double heatingMargin = null;
 
 		// Loop over all the temperature monitors to compute the ambient temperature, cpuTemperatureCount and cpuTemperatureAverage
@@ -115,6 +118,9 @@ public class HostMonitorThermalCalculator {
 			if (temperatureWarningThreshold != null) {
 				heatingMargin =
 					MathOperationsHelper.min(heatingMargin, Math.max(temperatureWarningThreshold - temperature, 0.0));
+
+				cpuWarningThresholdAverage += temperatureWarningThreshold;
+				cpuWarningThresholdCount++;
 			}
 		}
 
@@ -150,6 +156,19 @@ public class HostMonitorThermalCalculator {
 
 			// Calculate the dissipation rate
 			computeHostThermalDissipationRate(hostMonitor, ambientTemperature, cpuTemperatureAverage);
+		}
+
+		if (cpuWarningThresholdCount > 0) {
+			cpuWarningThresholdAverage /= cpuWarningThresholdCount;
+
+			cpuWarningThresholdAverage = NumberHelper.round(cpuWarningThresholdAverage, 2, RoundingMode.HALF_UP);
+
+			metricFactory.collectNumberMetric(
+				hostMonitor,
+				HW_HOST_AVERAGE_CPU_WARNING_THRESHOLD,
+				cpuWarningThresholdAverage,
+				telemetryManager.getStrategyTime()
+			);
 		}
 
 		if (heatingMargin != null) {

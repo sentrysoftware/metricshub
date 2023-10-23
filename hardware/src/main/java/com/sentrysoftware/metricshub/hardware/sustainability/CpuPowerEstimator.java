@@ -1,7 +1,13 @@
 package com.sentrysoftware.metricshub.hardware.sustainability;
 
+import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HW_HOST_CPU_THERMAL_DISSIPATION_RATE;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_CPU_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_CPU_METRIC;
+
+import com.sentrysoftware.metricshub.engine.strategy.utils.CollectHelper;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import com.sentrysoftware.metricshub.hardware.util.HwCollectHelper;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -21,7 +27,17 @@ public class CpuPowerEstimator extends HardwarePowerAndEnergyEstimator {
 	 */
 	@Override
 	protected Double doPowerEstimation() {
-		return null;
+		Double cpuSpeedLimit = CollectHelper.getNumberMetricValue(monitor, "hw.cpu.speed.limit{limit_type=\"max\"}", false);
+		cpuSpeedLimit = cpuSpeedLimit != null ? cpuSpeedLimit : 2500000.0;
+
+		Double thermalDissipationRate = CollectHelper.getNumberMetricValue(
+			monitor,
+			HW_HOST_CPU_THERMAL_DISSIPATION_RATE,
+			false
+		);
+		thermalDissipationRate = thermalDissipationRate != null ? thermalDissipationRate : 0.25;
+
+		return thermalDissipationRate * (cpuSpeedLimit / 1000) / (1000 * 19);
 	}
 
 	/**
@@ -30,6 +46,13 @@ public class CpuPowerEstimator extends HardwarePowerAndEnergyEstimator {
 	 */
 	@Override
 	public Double estimateEnergy() {
-		return null;
+		return HwCollectHelper.estimateEnergyUsingPower(
+			monitor,
+			telemetryManager,
+			estimatedPower,
+			HW_POWER_CPU_METRIC,
+			HW_ENERGY_CPU_METRIC,
+			telemetryManager.getStrategyTime()
+		);
 	}
 }

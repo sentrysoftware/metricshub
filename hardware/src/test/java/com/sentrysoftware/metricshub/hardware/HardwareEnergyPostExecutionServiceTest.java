@@ -432,8 +432,8 @@ class HardwareEnergyPostExecutionServiceTest {
 
 		//  Check the computed and collected temperature metrics (the host is not a cpu sensor)
 		assertNotNull(host.getMetric(HW_HOST_ESTIMATED_POWER, NumberMetric.class));
-		assertEquals(107.78, host.getMetric(HW_HOST_ESTIMATED_POWER, NumberMetric.class).getValue());
+		assertEquals(41.15, host.getMetric(HW_HOST_ESTIMATED_POWER, NumberMetric.class).getValue());
 		assertNotNull(host.getMetric(HW_HOST_ESTIMATED_ENERGY, NumberMetric.class));
-		assertEquals(12933.6, host.getMetric(HW_HOST_ESTIMATED_ENERGY, NumberMetric.class).getValue());
+		assertEquals(4938.0, host.getMetric(HW_HOST_ESTIMATED_ENERGY, NumberMetric.class).getValue());
 	}
 }

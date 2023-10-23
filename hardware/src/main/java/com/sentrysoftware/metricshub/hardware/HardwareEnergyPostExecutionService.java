@@ -1,5 +1,6 @@
 package com.sentrysoftware.metricshub.hardware;
 
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_CPU_METRIC;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_DISK_CONTROLLER_METRIC;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_FAN_METRIC;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_MEMORY_METRIC;
@@ -7,6 +8,7 @@ import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_PHYSICAL_DISK_METRIC;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_ROBOTICS_METRIC;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_TAPE_DRIVE_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_CPU_METRIC;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_DISK_CONTROLLER_METRIC;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_FAN_METRIC;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_MEMORY_METRIC;
@@ -21,6 +23,7 @@ import com.sentrysoftware.metricshub.engine.strategy.utils.CollectHelper;
 import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import com.sentrysoftware.metricshub.hardware.sustainability.CpuPowerEstimator;
 import com.sentrysoftware.metricshub.hardware.sustainability.DiskControllerPowerAndEnergyEstimator;
 import com.sentrysoftware.metricshub.hardware.sustainability.FanPowerAndEnergyEstimator;
 import com.sentrysoftware.metricshub.hardware.sustainability.HardwarePowerAndEnergyEstimator;
@@ -159,6 +162,13 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 			HW_POWER_MEMORY_METRIC,
 			HW_ENERGY_MEMORY_METRIC,
 			MemoryPowerAndEnergyEstimator::new
+		);
+
+		estimateAndCollectPowerAndEnergyForMonitorType(
+			KnownMonitorType.CPU,
+			HW_POWER_CPU_METRIC,
+			HW_ENERGY_CPU_METRIC,
+			CpuPowerEstimator::new
 		);
 
 		collectNetworkMetrics();
