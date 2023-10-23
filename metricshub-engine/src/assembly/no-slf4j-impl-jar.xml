@@ -2,7 +2,7 @@
 	xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
-	<id>metricshub-assembly-descriptor</id>
+	<id>no-slf4j-impl</id>
 	<formats>
 		<format>jar</format>
 	</formats>
@@ -13,22 +13,8 @@
 			<useProjectArtifact>true</useProjectArtifact>
 			<unpack>true</unpack>
 			<unpackOptions>
-				<includes>
-					<include>com/**</include>
-					<include>org/**</include>
-					<include>uk/**</include>
-					<include>net/**</include>
-					<include>djb/**</include>
-					<include>META-INF/**</include>
-					<include>javax/**</include>
-					<include>wsdl/**</include>
-					<include>xsd/**</include>
-					<include>*.properties</include>
-					<include>io/**</include>
-				</includes>
 				<excludes>
 					<exclude>org/slf4j/impl/**</exclude>
-					<exclude>org/springframework/**</exclude>
 				</excludes>
 			</unpackOptions>
 		</dependencySet>

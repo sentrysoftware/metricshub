@@ -6,6 +6,8 @@ import static com.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_IN
 import static com.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_INFO_NAME_ATTRIBUTE_KEY;
 import static com.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_INFO_OTEL_VERSION_NUMBER_ATTRIBUTE_KEY;
 import static com.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_INFO_VERSION_ATTRIBUTE_KEY;
+import static com.sentrysoftware.metricshub.agent.helper.AgentConstants.APPLICATION_YAML_FILE_NAME;
+import static com.sentrysoftware.metricshub.agent.helper.AgentConstants.OBJECT_MAPPER;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HOST_NAME;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.OTEL_AIX_OS_TYPE;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.OTEL_FREE_BSD_OS_TYPE;
@@ -18,9 +20,7 @@ import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.OTEL_SUN_OS_TYPE;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.OTEL_WINDOWS_OS_TYPE;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sentrysoftware.metricshub.agent.context.ApplicationProperties.Project;
-import com.sentrysoftware.metricshub.agent.helper.ConfigHelper;
 import com.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import com.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import com.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler.ILocalOs;
@@ -37,11 +37,7 @@ import org.springframework.core.io.ClassPathResource;
 @Slf4j
 public class AgentInfo {
 
-	public static final ObjectMapper OBJECT_MAPPER = ConfigHelper.newObjectMapper();
-
 	public static final String METRICS_HUB_AGENT_METRIC_NAME = "metricshub.agent.info";
-
-	private static final String APPLICATION_YAML_FILE_NAME = "application.yaml";
 
 	// @formatter:off
 	// Map of local OS type that can be detected by the engine to the OTEL OS type

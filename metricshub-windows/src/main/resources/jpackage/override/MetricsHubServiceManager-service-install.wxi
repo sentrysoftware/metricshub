@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Include xmlns="http://schemas.microsoft.com/wix/2006/wi"
+         xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+
+  <ServiceInstall Type="ownProcess"
+                  Start="auto"
+                  Id="si_APPLICATION_LAUNCHER_ID"
+                  Name="MetricsHub"
+                  Description="MetricsHub monitors diverse technologies, encompassing applications, servers, and devices, particularly those without readily available monitoring solutions. It natively incorporates the monitoring of servers' hardware health and energy consumption, as well as that of network devices and storage systems within your data center."
+                  ErrorControl="normal"
+                  Account="LocalSystem"
+                  Vital="yes"
+  />
+  <ServiceControl Start="install"
+                  Stop="both"
+                  Remove="uninstall"
+                  Wait="yes"
+                  Id="sc_APPLICATION_LAUNCHER_ID"
+                  Name="MetricsHub"
+  />
+</Include>

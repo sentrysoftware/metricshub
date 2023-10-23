@@ -1565,21 +1565,21 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void ProductRequirementsCriterionProcessCriterionNullTest() {
+	void productRequirementsCriterionProcessCriterionNullTest() {
 		final ProductRequirementsCriterion productRequirementsCriterion = null;
 
 		assertTrue(new CriterionProcessor().process(productRequirementsCriterion).isSuccess());
 	}
 
 	@Test
-	void ProductRequirementsCriterionProcessCriterionNullVersionTest() {
+	void productRequirementsCriterionProcessCriterionNullVersionTest() {
 		final ProductRequirementsCriterion productRequirementsCriterion = ProductRequirementsCriterion.builder().build();
 
 		assertTrue(new CriterionProcessor().process(productRequirementsCriterion).isSuccess());
 	}
 
 	@Test
-	void ProductRequirementsCriterionProcessCriterionEmptyVersionTest() {
+	void productRequirementsCriterionProcessCriterionEmptyVersionTest() {
 		final ProductRequirementsCriterion productRequirementsCriterion = ProductRequirementsCriterion
 			.builder()
 			.engineVersion("")
@@ -1589,7 +1589,7 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void ProductRequirementsCriterionProcessCriterionOKTest() {
+	void productRequirementsCriterionProcessCriterionOKTest() {
 		final ProductRequirementsCriterion productRequirementsCriterion = ProductRequirementsCriterion
 			.builder()
 			.engineVersion(LOW_VERSION_NUMBER)
@@ -1598,7 +1598,7 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void ProductRequirementsCriterionProcessCriterionNOKTest() {
+	void productRequirementsCriterionProcessCriterionNOKTest() {
 		final ProductRequirementsCriterion productRequirementsCriterion = ProductRequirementsCriterion
 			.builder()
 			.engineVersion(HIGH_VERSION_NUMBER) // We will need to update the test once we reach metricshub-engine version 1000

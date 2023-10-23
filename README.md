@@ -25,6 +25,11 @@ To build the MetricsHub package, from `./metricshub`:
 ```sh
 $ mvn clean package
 ```
+#### Windows Build Rules (.MSI)
+
+* Windows host.
+* Define the `JPACKAGE_HOME` system environment variable in order to access the jpackage tool. Example: `JPACKAGE_HOME=C:\Program Files\Java\jdk-19`.
+* WixToolSet installed under `C:\Program Files (x86)\WiX Toolset v3.11`.
 
 ## Checkstyle
 
