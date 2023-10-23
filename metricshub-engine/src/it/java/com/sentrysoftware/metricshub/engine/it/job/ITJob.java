@@ -54,5 +54,5 @@ public interface ITJob {
 	 * @return actual {@link ITJob}
 	 * @throws IOException
 	 */
-	ITJob saveHostMonitoringJson(final Path path) throws IOException;
+	ITJob saveTelemetryManagerJson(final Path path) throws IOException;
 }

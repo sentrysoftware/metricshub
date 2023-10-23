@@ -4,7 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -119,7 +122,7 @@ public abstract class AbstractITJob implements ITJob {
 	private static void assertMetrics(final Monitor expected, final Monitor actual) {
 
 		for (final Entry<String, AbstractMetric> expectedEntry : expected.getMetrics().entrySet()) {
-		
+
 			final AbstractMetric expectedMetric = expectedEntry.getValue();
 			final String expectedKey = expectedEntry.getKey();
 
@@ -245,8 +248,8 @@ public abstract class AbstractITJob implements ITJob {
 
 	@Override
 	public ITJob executeDiscoveryStrategy() {
-		
-		final Long discoveryTime = telemetryManager.getStrategyTime();
+
+		final Long discoveryTime = System.currentTimeMillis();
 
 		telemetryManager.run(
 			new DetectionStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor),
@@ -263,7 +266,7 @@ public abstract class AbstractITJob implements ITJob {
 
 	@Override
 	public ITJob executeCollectStrategy() {
-		final Long collectTime = telemetryManager.getStrategyTime();
+		final Long collectTime = System.currentTimeMillis();
 
 		telemetryManager.run(
 			new PrepareCollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor),
@@ -274,6 +277,13 @@ public abstract class AbstractITJob implements ITJob {
 
 		assertTrue(isServerStarted(), "Server not ready.");
 
+		return this;
+	}
+
+	@Override
+	public ITJob saveTelemetryManagerJson(Path path) throws IOException {
+		Files.write(path, telemetryManager.toJson().getBytes());
+	
 		return this;
 	}
 }
