@@ -29,8 +29,6 @@ public class HostProperties {
 	@Default
 	private Map<String, ConnectorNamespace> connectorNamespaces = new HashMap<>();
 
-	private PowerMeter powerMeter;
-
 	/**
 	 *
 	 * @param connectorName the name of a given connector

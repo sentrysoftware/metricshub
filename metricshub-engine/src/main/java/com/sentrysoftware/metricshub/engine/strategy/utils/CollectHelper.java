@@ -2,6 +2,7 @@ package com.sentrysoftware.metricshub.engine.strategy.utils;
 
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
+import com.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -24,6 +25,23 @@ public class CollectHelper {
 		}
 
 		return previous ? getDoubleValue(metric.getPreviousValue()) : getDoubleValue(metric.getValue());
+	}
+
+	/**
+	 * Get the {@link StateSetMetric} value
+	 *
+	 * @param monitor    The {@link Monitor} instance we wish to extract the {@link StateSetMetric} value
+	 * @param metricName The name of the {@link StateSetMetric} instance
+	 * @return a {@link Double} value
+	 */
+	public static String getStateSetMetricValue(final Monitor monitor, final String metricName, final boolean previous) {
+		final StateSetMetric stateSetMetric = monitor.getMetric(metricName, StateSetMetric.class);
+
+		if (stateSetMetric == null) {
+			return null;
+		}
+
+		return previous ? stateSetMetric.getPreviousValue() : stateSetMetric.getValue();
 	}
 
 	/**

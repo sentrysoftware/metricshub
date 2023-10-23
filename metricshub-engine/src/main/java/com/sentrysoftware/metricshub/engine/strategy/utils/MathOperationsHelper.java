@@ -155,4 +155,20 @@ public class MathOperationsHelper {
 			hostname
 		);
 	}
+
+	/**
+	 * Compute the minimum between two {@link Double} operands. If one of the operands is null, return the other operand.
+	 * @param operandOne
+	 * @param operandTwo
+	 * @return {@link Double} value
+	 */
+	public static Double min(final Double operandOne, final Double operandTwo) {
+		if (operandOne == null) {
+			return operandTwo;
+		} else if (operandTwo == null) {
+			return operandOne;
+		} else {
+			return Math.min(operandOne, operandTwo);
+		}
+	}
 }

@@ -12,7 +12,7 @@
 	<description>MetricsHub Monitoring Agent</description>
 
 	<properties>
-		<log4j2.version>2.18.0</log4j2.version>
+		<log4j2.version>2.20.0</log4j2.version>
 		<!-- OpenTelemetry Javaagent location -->
 		<otelJavaAgentUrl>https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v${openTelemetryVersion}/opentelemetry-javaagent.jar</otelJavaAgentUrl>
 	</properties>
@@ -28,8 +28,30 @@
 
 		<!-- MetricsHub Engine -->
 		<dependency>
-			<groupId>com.sentrysoftware.metricshub</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>metricshub-engine</artifactId>
+			<classifier>no-slf4j-impl</classifier>
+			<version>${project.version}</version>
+		</dependency>
+
+		<!-- Hardware -->
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>hardware</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<!-- Connector Library -->
+		<dependency>
+			<groupId>com.sentrysoftware.shared</groupId>
+			<artifactId>hardware-connectors</artifactId>
+			<classifier>sources</classifier>
+			<exclusions>
+				<exclusion>
+					<groupId>com.bmc.patrol</groupId>
+					<artifactId>default-image</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<!-- Jackson -->
@@ -103,6 +125,7 @@
 		<dependency>
 			<groupId>org.awaitility</groupId>
 			<artifactId>awaitility</artifactId>
+			<version>4.2.0</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -110,14 +133,17 @@
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-api</artifactId>
+			<version>${log4j2.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
+			<version>${log4j2.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-slf4j-impl</artifactId>
+			<version>${log4j2.version}</version>
 		</dependency>
 
 		<!-- CLI jansi -->
@@ -133,18 +159,6 @@
 		</dependency>
 
 	</dependencies>
-
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.apache.logging.log4j</groupId>
-				<artifactId>log4j</artifactId>
-				<version>${log4j2.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 
 	<build>
 
@@ -167,6 +181,27 @@
 					</delimiters>
 					<useDefaultDelimiters>false</useDefaultDelimiters>
 				</configuration>
+			</plugin>
+
+			<!-- Unpack Connector Library -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>unpack-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>unpack-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/connectors</outputDirectory>
+							<includeGroupIds>com.sentrysoftware.shared</includeGroupIds>
+							<includeArtifactIds>hardware-connectors</includeArtifactIds>
+							<classifier>sources</classifier>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 
 			<!-- surefire -->
@@ -264,7 +299,48 @@
 			</plugin>
 
 			<!-- assembly -->
-
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>metricshub-jar</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>src/assembly/metricshub-jar.xml</descriptor>
+							</descriptors>
+							<appendAssemblyId>false</appendAssemblyId>
+							<archive>
+								<manifest>
+									<mainClass>com.sentrysoftware.metricshub.agent.MetricsHubAgentApplication</mainClass>
+									<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+									<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+								</manifest>
+								<manifestSections>
+									<manifestSection>
+										<name>com/sentrysoftware/metricshub</name>
+									</manifestSection>
+								</manifestSections>
+							</archive>
+						</configuration>
+					</execution>
+					<execution>
+						<id>distributable-package</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>src/assembly/dist.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 

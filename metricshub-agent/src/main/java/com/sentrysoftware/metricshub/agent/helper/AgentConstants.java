@@ -1,11 +1,15 @@
 package com.sentrysoftware.metricshub.agent.helper;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.file.Path;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AgentConstants {
+
+	// Application YAML properties
+	public static final String APPLICATION_YAML_FILE_NAME = "application.yaml";
 
 	// Configuration file
 	public static final String PRODUCT_CODE = "metricshub";
@@ -27,4 +31,7 @@ public class AgentConstants {
 	public static final String AGENT_INFO_BUILD_NUMBER_ATTRIBUTE_KEY = "build_number";
 	public static final String AGENT_INFO_VERSION_ATTRIBUTE_KEY = "version";
 	public static final String AGENT_INFO_NAME_ATTRIBUTE_KEY = "name";
+
+	// Object Mapper
+	public static final ObjectMapper OBJECT_MAPPER = ConfigHelper.newObjectMapper();
 }

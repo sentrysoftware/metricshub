@@ -4,6 +4,7 @@ import static com.sentrysoftware.metricshub.hardware.common.Constants.HW_HOST_AM
 import static com.sentrysoftware.metricshub.hardware.common.Constants.HW_HOST_AVERAGE_CPU_TEMPERATURE;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.TEMPERATURE_METRIC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
@@ -27,6 +28,9 @@ class HostMonitorThermalCalculatorTest {
 	private static final String IS_CPU_SENSOR = "__is_cpu_sensor";
 	private static final String HW_HOST_CPU_THERMAL_DISSIPATION_RATE = "__hw.host.cpu.thermal_dissipation_rate";
 	private static final String TRUE_STRING = "true";
+	private static final String HW_HOST_HEATING_MARGIN = "hw.host.heating_margin";
+	private static final String TEMPERATURE_WARNING_THRESHOLD = "hw.temperature.limit{limit_type=\"high.degraded\"}";
+	private static final String TEMPERATURE_ALARM_THRESHOLD = "hw.temperature.limit{limit_type=\"high.critical\"}";
 
 	@BeforeEach
 	void setup() {
@@ -122,5 +126,32 @@ class HostMonitorThermalCalculatorTest {
 		// Check the estimation of the host thermal dissipation rate
 		hostMonitorThermalCalculator.computeHostTemperatureMetrics();
 		assertEquals(1.0, host.getMetric(HW_HOST_CPU_THERMAL_DISSIPATION_RATE, NumberMetric.class).getValue());
+
+		// Heating margin check
+		assertNull(host.getMetric(HW_HOST_HEATING_MARGIN, NumberMetric.class));
+
+		metricFactory.collectNumberMetric(
+			temperatureMonitor,
+			TEMPERATURE_ALARM_THRESHOLD,
+			40.0,
+			telemetryManager.getStrategyTime()
+		);
+		telemetryManager.addNewMonitor(temperatureMonitor, KnownMonitorType.TEMPERATURE.getKey(), TEMPERATURE_MONITOR_ID);
+		hostMonitorThermalCalculator.computeHostTemperatureMetrics();
+		assertNotNull(host.getMetric(HW_HOST_HEATING_MARGIN, NumberMetric.class));
+		// Heating margin is 40.0 * 0.9 - 10.0 = 26.0
+		assertEquals(26.0, host.getMetric(HW_HOST_HEATING_MARGIN, NumberMetric.class).getValue());
+
+		metricFactory.collectNumberMetric(
+			temperatureMonitor,
+			TEMPERATURE_WARNING_THRESHOLD,
+			30.0,
+			telemetryManager.getStrategyTime()
+		);
+		telemetryManager.addNewMonitor(temperatureMonitor, KnownMonitorType.TEMPERATURE.getKey(), TEMPERATURE_MONITOR_ID);
+		hostMonitorThermalCalculator.computeHostTemperatureMetrics();
+		assertNotNull(host.getMetric(HW_HOST_HEATING_MARGIN, NumberMetric.class));
+		// Heating margin is 30.0 - 10.0 = 20.0
+		assertEquals(20.0, host.getMetric(HW_HOST_HEATING_MARGIN, NumberMetric.class).getValue());
 	}
 }

@@ -1,0 +1,27 @@
+<assembly
+	xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+	<id>metricshub-assembly-descriptor</id>
+	<formats>
+		<format>jar</format>
+	</formats>
+	<includeBaseDirectory>false</includeBaseDirectory>
+	<dependencySets>
+		<dependencySet>
+			<outputDirectory>/</outputDirectory>
+			<useProjectArtifact>true</useProjectArtifact>
+			<unpack>true</unpack>
+			<excludes>
+				<exclude>com.sentrysoftware.shared:hardware-connectors</exclude>
+				<!-- To prevent conflicts and ensure the logger starts properly, avoid including
+					additional dependencies with a Simple SLF4J implementation, 
+					as they may interfere with the existing log4j2 implementation. -->
+				<!-- The code of these modules is already included in the metricshub-engine-no-slf4j-impl artifact -->
+				<exclude>com.sentrysoftware.patrol.matsya:module-ipmiclient</exclude>
+				<exclude>com.sentrysoftware.patrol.matsya:module-winrm</exclude>
+				<exclude>com.sentrysoftware.patrol.matsya:module-awk</exclude>
+			</excludes>
+		</dependencySet>
+	</dependencySets>
+</assembly>
