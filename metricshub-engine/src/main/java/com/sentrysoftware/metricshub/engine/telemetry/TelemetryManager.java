@@ -3,6 +3,7 @@ package com.sentrysoftware.metricshub.engine.telemetry;
 import static com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 
 import com.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
+import com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.IWinConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
@@ -16,8 +17,10 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -168,9 +171,9 @@ public class TelemetryManager {
 
 	/**
 	 * Finds a monitor using its id attribute
-	 * @param id
-	 * @param monitorsMap
-	 * @return Monitor instance
+	 * @param id monitorId
+	 * @param monitorsMap a map of monitors having the same type
+	 * @return {@link Monitor} instance
 	 */
 	public Monitor findMonitorById(final String id, final Map<String, Monitor> monitorsMap) {
 		return monitorsMap.get(id);
@@ -229,5 +232,48 @@ public class TelemetryManager {
 	 */
 	public String getHostname() {
 		return hostConfiguration.getHostname();
+	}
+
+	/**
+	 * This method finds the parent of a given monitor
+	 * @param monitor a given monitor
+	 * @return the parent monitor which is a {@link Monitor} instance
+	 */
+	public Monitor findParentMonitor(final Monitor monitor) {
+		final String hwParentId = monitor.getAttribute("hw.parent.id");
+		final String hwParentType = monitor.getAttribute("hw.parent.type");
+
+		if (hwParentType != null && hwParentId != null) {
+			Optional<Map<String, Monitor>> sameTypeMonitors = Optional.ofNullable(findMonitorByType(hwParentType));
+			if (sameTypeMonitors.isPresent()) {
+				final Optional<Monitor> parentMonitor = sameTypeMonitors
+					.get()
+					.entrySet()
+					.stream()
+					.filter(entry -> hwParentId.equals(entry.getValue().getAttribute(MetricsHubConstants.MONITOR_ATTRIBUTE_ID)))
+					.map(Map.Entry::getValue)
+					.findFirst();
+				if (parentMonitor.isPresent()) {
+					return parentMonitor.get();
+				}
+			}
+		}
+		log.warn("Monitor {} does not have a parent on Host {}", monitor.getId(), getHostname());
+		return null;
+	}
+
+	/**
+	 * This method finds a monitor having a given id regardless of its type
+	 * @param monitorId monitor id
+	 * @return {@link Monitor}
+	 */
+	public Monitor findMonitorById(final String monitorId) {
+		final List<Monitor> monitors = getMonitors()
+			.values()
+			.stream()
+			.filter(monitorsMap -> monitorsMap.containsKey(monitorId))
+			.map(entry -> entry.get(monitorId))
+			.collect(Collectors.toList());
+		return monitors == null || monitors.size() == 0 ? null : monitors.get(0);
 	}
 }

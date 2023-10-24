@@ -62,7 +62,7 @@ class HostMonitorEnergyAndPowerEstimatorTest {
 		telemetryManager.addNewMonitor(enclosure, enclosure.getType(), enclosure.getId());
 
 		// Call computeMeasuredPower and check its response
-		final HostMonitorEnergyAndPowerEstimator hostMonitorEnergyAndPowerEstimator = new HostMonitorEnergyAndPowerEstimator(
+		final HostMonitorPowerAndEnergyEstimator hostMonitorEnergyAndPowerEstimator = new HostMonitorPowerAndEnergyEstimator(
 			host,
 			telemetryManager
 		);
@@ -102,7 +102,7 @@ class HostMonitorEnergyAndPowerEstimatorTest {
 		telemetryManager.addNewMonitor(enclosure, enclosure.getType(), enclosure.getId());
 
 		// Call computeMeasuredPower and check its response
-		final HostMonitorEnergyAndPowerEstimator hostMonitorEnergyAndPowerEstimator = new HostMonitorEnergyAndPowerEstimator(
+		final HostMonitorPowerAndEnergyEstimator hostMonitorEnergyAndPowerEstimator = new HostMonitorPowerAndEnergyEstimator(
 			host,
 			telemetryManager
 		);
@@ -181,7 +181,7 @@ class HostMonitorEnergyAndPowerEstimatorTest {
 		telemetryManager.addNewMonitor(enclosure, KnownMonitorType.ENCLOSURE.getKey(), KnownMonitorType.ENCLOSURE.getKey());
 
 		// Call computeEstimatedPower and check its response
-		final HostMonitorEnergyAndPowerEstimator hostMonitorEnergyAndPowerEstimator = new HostMonitorEnergyAndPowerEstimator(
+		final HostMonitorPowerAndEnergyEstimator hostMonitorEnergyAndPowerEstimator = new HostMonitorPowerAndEnergyEstimator(
 			host,
 			telemetryManager
 		);
@@ -268,7 +268,7 @@ class HostMonitorEnergyAndPowerEstimatorTest {
 		telemetryManager.addNewMonitor(enclosure, KnownMonitorType.ENCLOSURE.getKey(), KnownMonitorType.ENCLOSURE.getKey());
 
 		// Call computeEstimatedPower and computeEstimatedEnergy and check their response
-		final HostMonitorEnergyAndPowerEstimator hostMonitorEnergyAndPowerEstimator = new HostMonitorEnergyAndPowerEstimator(
+		final HostMonitorPowerAndEnergyEstimator hostMonitorEnergyAndPowerEstimator = new HostMonitorPowerAndEnergyEstimator(
 			host,
 			telemetryManager
 		);
@@ -302,7 +302,7 @@ class HostMonitorEnergyAndPowerEstimatorTest {
 		telemetryManager.addNewMonitor(enclosure, enclosure.getType(), enclosure.getId());
 
 		// Call computeMeasuredEnergy and check its response
-		final HostMonitorEnergyAndPowerEstimator hostMonitorEnergyAndPowerEstimator = new HostMonitorEnergyAndPowerEstimator(
+		final HostMonitorPowerAndEnergyEstimator hostMonitorEnergyAndPowerEstimator = new HostMonitorPowerAndEnergyEstimator(
 			host,
 			telemetryManager
 		);

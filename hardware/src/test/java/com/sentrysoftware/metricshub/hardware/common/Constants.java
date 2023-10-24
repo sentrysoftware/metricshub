@@ -34,4 +34,14 @@ public class Constants {
 	public static final String HW_CPU_POWER = "hw.power{hw.type=\"cpu\"}";
 	public static final String HW_MEMORY_POWER = "hw.power{hw.type=\"memory\"}";
 	public static final String HW_PHYSICAL_DISK_POWER = "hw.power{hw.type=\"physical_disk\"}";
+
+	public static final String HOST_1 = "host-1";
+	public static final String HOST = "host";
+	public static final String VM_ONLINE_ZERO_POWER_SHARE_1 = "vmOnlineZeroPowerShare1";
+	public static final String VM_1_ONLINE = "vm1Online";
+	public static final String VM_OFFLINE_2 = "vmOffline2";
+	public static final String VM_ONLINE_3 = "vmOnline3";
+	public static final String VM_ONLINE_NO_POWER_SHARE_4 = "vmOnlineNoPowerShare4";
+	public static final String VM_ONLINE_BAD_POWER_SHARE_5 = "vmOnlineBadPowerShare5";
+	public static final String ON = "On";
 }

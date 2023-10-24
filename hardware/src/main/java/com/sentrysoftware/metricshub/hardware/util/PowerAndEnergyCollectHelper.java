@@ -1,7 +1,7 @@
 package com.sentrysoftware.metricshub.hardware.util;
 
-import static com.sentrysoftware.metricshub.hardware.util.HwCollectHelper.generateEnergyMetricNameForMonitorType;
-import static com.sentrysoftware.metricshub.hardware.util.HwCollectHelper.generatePowerMetricNameForMonitorType;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENCLOSURE_ENERGY;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENCLOSURE_POWER;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_ESTIMATED_ENERGY;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_ESTIMATED_POWER;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_MEASURED_ENERGY;
@@ -13,7 +13,7 @@ import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.hardware.sustainability.HardwarePowerAndEnergyEstimator;
-import com.sentrysoftware.metricshub.hardware.sustainability.HostMonitorEnergyAndPowerEstimator;
+import com.sentrysoftware.metricshub.hardware.sustainability.HostMonitorPowerAndEnergyEstimator;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -83,7 +83,7 @@ public class PowerAndEnergyCollectHelper {
 	public static void collectHostPowerAndEnergy(
 		final Monitor monitor,
 		final TelemetryManager telemetryManager,
-		final HostMonitorEnergyAndPowerEstimator hostMonitorEnergyAndPowerEstimator
+		final HostMonitorPowerAndEnergyEstimator hostMonitorEnergyAndPowerEstimator
 	) {
 		// Retrieve enclosure monitors
 		final Map<String, Monitor> enclosures = telemetryManager.findMonitorByType(KnownMonitorType.ENCLOSURE.getKey());
@@ -211,10 +211,8 @@ public class PowerAndEnergyCollectHelper {
 			.map(Map::values)
 			.flatMap(Collection::stream)
 			.anyMatch(monitor ->
-				CollectHelper.getUpdatedNumberMetricValue(monitor, generatePowerMetricNameForMonitorType(monitor.getType())) !=
-				null ||
-				CollectHelper.getUpdatedNumberMetricValue(monitor, generateEnergyMetricNameForMonitorType(monitor.getType())) !=
-				null
+				CollectHelper.getUpdatedNumberMetricValue(monitor, HW_ENCLOSURE_POWER) != null ||
+				CollectHelper.getUpdatedNumberMetricValue(monitor, HW_ENCLOSURE_ENERGY) != null
 			);
 	}
 }

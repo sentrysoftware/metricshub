@@ -6,6 +6,7 @@ import static com.sentrysoftware.metricshub.hardware.common.Constants.DISK_CONTR
 import static com.sentrysoftware.metricshub.hardware.common.Constants.FAN_ENERGY_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.FAN_POWER_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.FAN_SPEED_METRIC;
+import static com.sentrysoftware.metricshub.hardware.common.Constants.HOST_1;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.HW_CPU_POWER;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.HW_HOST_AMBIENT_TEMPERATURE;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.HW_HOST_AVERAGE_CPU_TEMPERATURE;
@@ -19,6 +20,7 @@ import static com.sentrysoftware.metricshub.hardware.common.Constants.NETWORK_LI
 import static com.sentrysoftware.metricshub.hardware.common.Constants.NETWORK_LINK_STATUS_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.NETWORK_POWER_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.NETWORK_TRANSMITTED_BANDWIDTH_UTILIZATION_METRIC;
+import static com.sentrysoftware.metricshub.hardware.common.Constants.ON;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.PHYSICAL_DISK_ENERGY_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.PHYSICAL_DISK_POWER_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.ROBOTICS_ENERGY_METRIC;
@@ -29,18 +31,31 @@ import static com.sentrysoftware.metricshub.hardware.common.Constants.TAPE_DRIVE
 import static com.sentrysoftware.metricshub.hardware.common.Constants.TAPE_DRIVE_POWER_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.TAPE_DRIVE_UNMOUNT_COUNT_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.TEMPERATURE_METRIC;
+import static com.sentrysoftware.metricshub.hardware.common.Constants.VM_1_ONLINE;
+import static com.sentrysoftware.metricshub.hardware.common.Constants.VM_OFFLINE_2;
+import static com.sentrysoftware.metricshub.hardware.common.Constants.VM_ONLINE_3;
+import static com.sentrysoftware.metricshub.hardware.common.Constants.VM_ONLINE_BAD_POWER_SHARE_5;
+import static com.sentrysoftware.metricshub.hardware.common.Constants.VM_ONLINE_NO_POWER_SHARE_4;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_VM_METRIC;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_ESTIMATED_ENERGY;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_ESTIMATED_POWER;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_VM_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_VM_POWER_SHARE_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_VM_POWER_STATE_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.POWER_SOURCE_ID_ATTRIBUTE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
+import com.sentrysoftware.metricshub.engine.strategy.utils.CollectHelper;
 import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
+import com.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
+import com.sentrysoftware.metricshub.hardware.sustainability.VmPowerAndEnergyEstimator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -435,5 +450,151 @@ class HardwareEnergyPostExecutionServiceTest {
 		assertEquals(107.78, host.getMetric(HW_HOST_ESTIMATED_POWER, NumberMetric.class).getValue());
 		assertNotNull(host.getMetric(HW_HOST_ESTIMATED_ENERGY, NumberMetric.class));
 		assertEquals(12933.6, host.getMetric(HW_HOST_ESTIMATED_ENERGY, NumberMetric.class).getValue());
+	}
+
+	private static Monitor buildMonitor(final String monitorType, final String id) {
+		return Monitor.builder().id(id).type(monitorType).build();
+	}
+
+	@Test
+	void testRunWithVmMonitor() {
+		// Create the metric factory to collect metrics
+
+		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
+
+		// Prepare the monitors and their metrics
+
+		final Monitor vmOnline1 = buildMonitor(KnownMonitorType.VM.getKey(), VM_1_ONLINE);
+		vmOnline1.addMetric(HW_VM_POWER_STATE_METRIC, StateSetMetric.builder().value(ON).build());
+		metricFactory.collectNumberMetric(vmOnline1, HW_VM_POWER_SHARE_METRIC, 5.0, telemetryManager.getStrategyTime());
+
+		final Monitor vmOffline2 = buildMonitor(KnownMonitorType.VM.getKey(), VM_OFFLINE_2);
+		vmOffline2.addMetric(HW_VM_POWER_STATE_METRIC, StateSetMetric.builder().value("Off").build());
+		metricFactory.collectNumberMetric(vmOffline2, HW_VM_POWER_SHARE_METRIC, 10.0, telemetryManager.getStrategyTime());
+
+		final Monitor vmOnline3 = buildMonitor(KnownMonitorType.VM.getKey(), VM_ONLINE_3);
+		vmOnline3.addMetric(HW_VM_POWER_STATE_METRIC, StateSetMetric.builder().value(ON).build());
+		metricFactory.collectNumberMetric(vmOnline3, HW_VM_POWER_SHARE_METRIC, 5.0, telemetryManager.getStrategyTime());
+
+		final Monitor vmOnlineNoPowerShare4 = buildMonitor(KnownMonitorType.VM.getKey(), VM_ONLINE_NO_POWER_SHARE_4);
+		vmOnlineNoPowerShare4.addMetric(HW_VM_POWER_STATE_METRIC, StateSetMetric.builder().value(ON).build());
+
+		final Monitor vmOnlineBadPowerShare5 = buildMonitor(KnownMonitorType.VM.getKey(), VM_ONLINE_BAD_POWER_SHARE_5);
+		vmOnlineBadPowerShare5.addMetric(HW_VM_POWER_STATE_METRIC, StateSetMetric.builder().value(ON).build());
+		metricFactory.collectNumberMetric(
+			vmOnlineBadPowerShare5,
+			HW_VM_POWER_SHARE_METRIC,
+			-15.0,
+			telemetryManager.getStrategyTime()
+		);
+
+		// Create the host monitor
+		final Monitor host = buildMonitor(KnownMonitorType.HOST.getKey(), HOST_1);
+		host.setAsEndpoint();
+
+		// Set the host monitor estimated power
+		metricFactory.collectNumberMetric(host, HW_HOST_ESTIMATED_POWER, 100.0, telemetryManager.getStrategyTime());
+
+		// Add the created monitors to telemetry manager
+		telemetryManager.addNewMonitor(host, KnownMonitorType.HOST.getKey(), HOST_1);
+		telemetryManager.addNewMonitor(vmOnline1, KnownMonitorType.VM.getKey(), VM_1_ONLINE);
+		telemetryManager.addNewMonitor(vmOffline2, KnownMonitorType.VM.getKey(), VM_OFFLINE_2);
+		telemetryManager.addNewMonitor(vmOnline3, KnownMonitorType.VM.getKey(), VM_ONLINE_3);
+		telemetryManager.addNewMonitor(vmOnlineNoPowerShare4, KnownMonitorType.VM.getKey(), VM_ONLINE_NO_POWER_SHARE_4);
+		telemetryManager.addNewMonitor(vmOnlineBadPowerShare5, KnownMonitorType.VM.getKey(), VM_ONLINE_BAD_POWER_SHARE_5);
+
+		// Set the totalPowerSharesByPowerSource map
+		final Map<String, Double> totalPowerSharesByPowerSource = new HashMap<>(Map.of(HOST_1, 10.0));
+
+		// Init VmPowerAndEnergyEstimator objects and add power source id attribute
+		final VmPowerAndEnergyEstimator vmOnline1Estimator = new VmPowerAndEnergyEstimator(vmOnline1, telemetryManager);
+		vmOnline1Estimator.setTotalPowerSharesByPowerSource(totalPowerSharesByPowerSource);
+		vmOnline1.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, host.getId());
+
+		final VmPowerAndEnergyEstimator vmOffline2Estimator = new VmPowerAndEnergyEstimator(vmOffline2, telemetryManager);
+		vmOffline2Estimator.setTotalPowerSharesByPowerSource(totalPowerSharesByPowerSource);
+		vmOffline2.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, host.getId());
+
+		final VmPowerAndEnergyEstimator vmOnline3Estimator = new VmPowerAndEnergyEstimator(vmOnline3, telemetryManager);
+		vmOnline3Estimator.setTotalPowerSharesByPowerSource(totalPowerSharesByPowerSource);
+		vmOnline3.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, host.getId());
+
+		final VmPowerAndEnergyEstimator vmOnlineNoPowerShare4Estimator = new VmPowerAndEnergyEstimator(
+			vmOnlineNoPowerShare4,
+			telemetryManager
+		);
+		vmOnlineNoPowerShare4Estimator.setTotalPowerSharesByPowerSource(totalPowerSharesByPowerSource);
+		vmOnlineNoPowerShare4.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, host.getId());
+
+		final VmPowerAndEnergyEstimator vmOnlineBadPowerShare5Estimator = new VmPowerAndEnergyEstimator(
+			vmOnlineBadPowerShare5,
+			telemetryManager
+		);
+		vmOnlineBadPowerShare5Estimator.setTotalPowerSharesByPowerSource(totalPowerSharesByPowerSource);
+		vmOnlineBadPowerShare5.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, host.getId());
+
+		// Set previous power values
+		NumberMetric previousPowerValue = metricFactory.collectNumberMetric(
+			vmOnline1,
+			HW_POWER_VM_METRIC,
+			10.0,
+			telemetryManager.getStrategyTime() - 120 * 1000
+		);
+		previousPowerValue.save();
+
+		previousPowerValue =
+			metricFactory.collectNumberMetric(
+				vmOffline2,
+				HW_POWER_VM_METRIC,
+				1.0,
+				telemetryManager.getStrategyTime() - 120 * 1000
+			);
+		previousPowerValue.save();
+
+		previousPowerValue =
+			metricFactory.collectNumberMetric(
+				vmOnline3,
+				HW_POWER_VM_METRIC,
+				2.0,
+				telemetryManager.getStrategyTime() - 120 * 1000
+			);
+		previousPowerValue.save();
+
+		previousPowerValue =
+			metricFactory.collectNumberMetric(
+				vmOnlineNoPowerShare4,
+				HW_POWER_VM_METRIC,
+				12.0,
+				telemetryManager.getStrategyTime() - 120 * 1000
+			);
+		previousPowerValue.save();
+
+		previousPowerValue =
+			metricFactory.collectNumberMetric(
+				vmOnlineBadPowerShare5,
+				HW_POWER_VM_METRIC,
+				5.0,
+				telemetryManager.getStrategyTime() - 120 * 1000
+			);
+		previousPowerValue.save();
+
+		// Call run method in HardwareEnergyPostExecutionService
+		hardwareEnergyPostExecutionService = new HardwareEnergyPostExecutionService(telemetryManager);
+		hardwareEnergyPostExecutionService.run();
+
+		assertEquals(50.0, CollectHelper.getNumberMetricValue(vmOnline1, HW_POWER_VM_METRIC, false));
+		assertEquals(6000, CollectHelper.getNumberMetricValue(vmOnline1, HW_ENERGY_VM_METRIC, false));
+
+		assertEquals(0.0, CollectHelper.getNumberMetricValue(vmOffline2, HW_POWER_VM_METRIC, false));
+		assertEquals(0.0, CollectHelper.getNumberMetricValue(vmOffline2, HW_ENERGY_VM_METRIC, false));
+
+		assertEquals(50.0, CollectHelper.getNumberMetricValue(vmOnline3, HW_POWER_VM_METRIC, false));
+		assertEquals(6000, CollectHelper.getNumberMetricValue(vmOnline3, HW_ENERGY_VM_METRIC, false));
+
+		assertEquals(0.0, CollectHelper.getNumberMetricValue(vmOnlineNoPowerShare4, HW_POWER_VM_METRIC, false));
+		assertEquals(0.0, CollectHelper.getNumberMetricValue(vmOnlineNoPowerShare4, HW_ENERGY_VM_METRIC, false));
+
+		assertEquals(0.0, CollectHelper.getNumberMetricValue(vmOnlineBadPowerShare5, HW_POWER_VM_METRIC, false));
+		assertEquals(0.0, CollectHelper.getNumberMetricValue(vmOnlineBadPowerShare5, HW_ENERGY_VM_METRIC, false));
 	}
 }
