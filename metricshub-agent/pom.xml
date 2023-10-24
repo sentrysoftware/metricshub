@@ -319,6 +319,9 @@
 									<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 									<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
 								</manifest>
+								<manifestEntries>
+									<Multi-Release>true</Multi-Release>
+								</manifestEntries>
 								<manifestSections>
 									<manifestSection>
 										<name>com/sentrysoftware/metricshub</name>
