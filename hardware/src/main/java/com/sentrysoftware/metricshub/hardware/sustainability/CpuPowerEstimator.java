@@ -28,16 +28,17 @@ public class CpuPowerEstimator extends HardwarePowerAndEnergyEstimator {
 	@Override
 	protected Double doPowerEstimation() {
 		Double cpuSpeedLimit = CollectHelper.getNumberMetricValue(monitor, "hw.cpu.speed.limit{limit_type=\"max\"}", false);
-		cpuSpeedLimit = cpuSpeedLimit != null ? cpuSpeedLimit : 2500000.0;
+		cpuSpeedLimit = cpuSpeedLimit != null && cpuSpeedLimit > 0 ? cpuSpeedLimit : 2500000000.0;
 
 		Double thermalDissipationRate = CollectHelper.getNumberMetricValue(
 			monitor,
 			HW_HOST_CPU_THERMAL_DISSIPATION_RATE,
 			false
 		);
+		// If we didn't have a thermal dissipation rate value, then assume it's at 0.25 (25%)
 		thermalDissipationRate = thermalDissipationRate != null ? thermalDissipationRate : 0.25;
 
-		return thermalDissipationRate * (cpuSpeedLimit / 1000) / (1000 * 19);
+		return thermalDissipationRate * (cpuSpeedLimit / 1000000000) * 19;
 	}
 
 	/**

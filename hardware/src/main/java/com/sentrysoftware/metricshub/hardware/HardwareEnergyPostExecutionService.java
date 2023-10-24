@@ -164,17 +164,17 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 			MemoryPowerAndEnergyEstimator::new
 		);
 
+		collectNetworkMetrics();
+
+		// Compute host temperature metrics (ambientTemperature, cpuTemperature, cpuThermalDissipationRate)
+		new HostMonitorThermalCalculator(telemetryManager).computeHostTemperatureMetrics();
+
 		estimateAndCollectPowerAndEnergyForMonitorType(
 			KnownMonitorType.CPU,
 			HW_POWER_CPU_METRIC,
 			HW_ENERGY_CPU_METRIC,
 			CpuPowerEstimator::new
 		);
-
-		collectNetworkMetrics();
-
-		// Compute host temperature metrics (ambientTemperature, cpuTemperature, cpuThermalDissipationRate)
-		new HostMonitorThermalCalculator(telemetryManager).computeHostTemperatureMetrics();
 
 		estimateAndCollectPowerAndEnergyForHost(HostMonitorEnergyAndPowerEstimator::new);
 	}

@@ -154,20 +154,25 @@ public class HostMonitorThermalCalculator {
 				telemetryManager.getStrategyTime()
 			);
 
+			if (cpuWarningThresholdCount > 0) {
+				cpuWarningThresholdAverage /= cpuWarningThresholdCount;
+
+				cpuWarningThresholdAverage = NumberHelper.round(cpuWarningThresholdAverage, 2, RoundingMode.HALF_UP);
+
+				metricFactory.collectNumberMetric(
+					hostMonitor,
+					HW_HOST_AVERAGE_CPU_WARNING_THRESHOLD,
+					cpuWarningThresholdAverage,
+					telemetryManager.getStrategyTime()
+				);
+			}
+
 			// Calculate the dissipation rate
-			computeHostThermalDissipationRate(hostMonitor, ambientTemperature, cpuTemperatureAverage);
-		}
-
-		if (cpuWarningThresholdCount > 0) {
-			cpuWarningThresholdAverage /= cpuWarningThresholdCount;
-
-			cpuWarningThresholdAverage = NumberHelper.round(cpuWarningThresholdAverage, 2, RoundingMode.HALF_UP);
-
-			metricFactory.collectNumberMetric(
+			computeHostThermalDissipationRate(
 				hostMonitor,
-				HW_HOST_AVERAGE_CPU_WARNING_THRESHOLD,
-				cpuWarningThresholdAverage,
-				telemetryManager.getStrategyTime()
+				ambientTemperature,
+				cpuTemperatureAverage,
+				cpuWarningThresholdAverage
 			);
 		}
 
@@ -184,19 +189,20 @@ public class HostMonitorThermalCalculator {
 	/**
 	 * Calculate the heat dissipation rate of the processors (as a fraction of the maximum heat/power they can emit).
 	 *
-	 * @param hostMonitor           The host monitor we wish to update its heat dissipation rate
-	 * @param ambientTemperature    The ambient temperature of the host
-	 * @param cpuTemperatureAverage The CPU average temperature previously computed based on the cpu sensor count
+	 * @param hostMonitor                The host monitor we wish to update its heat dissipation rate
+	 * @param ambientTemperature         The ambient temperature of the host
+	 * @param cpuTemperatureAverage      The CPU average temperature previously computed based on the cpu sensor count
+	 * @param cpuWarningThresholdAverage The CPU average warning threshold previously computed based on the cpu warning threshold count
 	 */
 	void computeHostThermalDissipationRate(
 		final Monitor hostMonitor,
 		final double ambientTemperature,
-		final double cpuTemperatureAverage
+		final double cpuTemperatureAverage,
+		final double cpuWarningThresholdAverage
 	) {
 		// Get the average CPU temperature computed at the discovery level
 		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
-		final double ambientToWarningDifference =
-			CollectHelper.getNumberMetricValue(hostMonitor, HW_HOST_AVERAGE_CPU_TEMPERATURE, false) - ambientTemperature;
+		final double ambientToWarningDifference = cpuWarningThresholdAverage - ambientTemperature;
 
 		// Avoid the arithmetic exception
 		if (ambientToWarningDifference != 0.0) {
