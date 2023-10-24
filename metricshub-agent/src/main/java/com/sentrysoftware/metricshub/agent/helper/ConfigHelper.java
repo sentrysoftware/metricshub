@@ -284,7 +284,7 @@ public class ConfigHelper {
 	 */
 	public static File findConfigFile(final String configFilePath) throws IOException {
 		// The user has configured a configuration file path
-		if (!configFilePath.isBlank()) {
+		if (configFilePath != null && !configFilePath.isBlank()) {
 			final File configFile = new File(configFilePath);
 			if (configFile.exists()) {
 				return configFile;

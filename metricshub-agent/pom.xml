@@ -12,7 +12,7 @@
 	<description>MetricsHub Monitoring Agent</description>
 
 	<properties>
-		<log4j2.version>2.18.0</log4j2.version>
+		<log4j2.version>2.20.0</log4j2.version>
 		<!-- OpenTelemetry Javaagent location -->
 		<otelJavaAgentUrl>https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v${openTelemetryVersion}/opentelemetry-javaagent.jar</otelJavaAgentUrl>
 	</properties>
@@ -28,13 +28,15 @@
 
 		<!-- MetricsHub Engine -->
 		<dependency>
-			<groupId>com.sentrysoftware.metricshub</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>metricshub-engine</artifactId>
+			<classifier>no-slf4j-impl</classifier>
+			<version>${project.version}</version>
 		</dependency>
 
 		<!-- Hardware -->
 		<dependency>
-			<groupId>com.sentrysoftware.metricshub</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>hardware</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -123,6 +125,7 @@
 		<dependency>
 			<groupId>org.awaitility</groupId>
 			<artifactId>awaitility</artifactId>
+			<version>4.2.0</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -130,14 +133,17 @@
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-api</artifactId>
+			<version>${log4j2.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
+			<version>${log4j2.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-slf4j-impl</artifactId>
+			<version>${log4j2.version}</version>
 		</dependency>
 
 		<!-- CLI jansi -->
@@ -153,18 +159,6 @@
 		</dependency>
 
 	</dependencies>
-
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.apache.logging.log4j</groupId>
-				<artifactId>log4j</artifactId>
-				<version>${log4j2.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 
 	<build>
 
@@ -325,6 +319,9 @@
 									<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 									<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
 								</manifest>
+								<manifestEntries>
+									<Multi-Release>true</Multi-Release>
+								</manifestEntries>
 								<manifestSections>
 									<manifestSection>
 										<name>com/sentrysoftware/metricshub</name>
