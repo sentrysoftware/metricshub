@@ -24,9 +24,9 @@ class CpuPowerEstimatorTest {
 			.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).build())
 			.build();
 		CpuPowerEstimator cpuPowerEstimator = new CpuPowerEstimator(monitor, telemetryManager);
-		// Default is 0.25 * (2500000 / 1000) / (1000 * 19) = 0.03289473684210526
+		// Default is 0.25 * (2500000000 / 1000000000) * 19 = 1187.5
 		Double estimatedPower = cpuPowerEstimator.estimatePower();
-		assertEquals(0.03289473684210526, estimatedPower);
+		assertEquals(11.875, estimatedPower);
 		assertNull(cpuPowerEstimator.estimateEnergy());
 
 		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
@@ -38,12 +38,12 @@ class CpuPowerEstimatorTest {
 		);
 		collectedPowerMetric.save();
 
-		// CPU speed limit is 1900000 and CPU thermal dissipation rate is 0.5
+		// CPU speed limit is 2000000000 and CPU thermal dissipation rate is 0.5
 		telemetryManager.setStrategyTime(1696597422644L + 60 * 1000);
 		metricFactory.collectNumberMetric(
 			monitor,
 			"hw.cpu.speed.limit{limit_type=\"max\"}",
-			1900000D,
+			2000000000D,
 			telemetryManager.getStrategyTime()
 		);
 
@@ -54,12 +54,12 @@ class CpuPowerEstimatorTest {
 			telemetryManager.getStrategyTime()
 		);
 
-		// Estimated power is 0.5 * (1900000 / 1000) / (1000 * 19) = 0.05
+		// Estimated power is 0.5 * (2000000000 / 1000000000) * 19 = 19
 		estimatedPower = cpuPowerEstimator.estimatePower();
-		assertEquals(0.05, estimatedPower);
+		assertEquals(19D, estimatedPower);
 		collectedPowerMetric.save();
 
-		// Estimated energy is 3.0
+		// Estimated energy is 1140.0
 		Double estimatedEnergy = cpuPowerEstimator.estimateEnergy();
 		final NumberMetric collectedEnergyMetric = metricFactory.collectNumberMetric(
 			monitor,
@@ -69,14 +69,14 @@ class CpuPowerEstimatorTest {
 		);
 		collectedEnergyMetric.save();
 
-		assertEquals(3.0, estimatedEnergy);
+		assertEquals(1140D, estimatedEnergy);
 
-		// CPU speed limit is 3800000 and CPU thermal dissipation rate is 0.4
+		// CPU speed limit is 5000000000 and CPU thermal dissipation rate is 0.4
 		telemetryManager.setStrategyTime(1696597422644L + 2 * 60 * 1000);
 		metricFactory.collectNumberMetric(
 			monitor,
 			"hw.cpu.speed.limit{limit_type=\"max\"}",
-			3800000D,
+			5000000000D,
 			telemetryManager.getStrategyTime()
 		);
 
@@ -87,15 +87,15 @@ class CpuPowerEstimatorTest {
 			telemetryManager.getStrategyTime()
 		);
 
-		// Estimated power is 0.4 * (3800000 / 1000) / (1000 * 19) = 0.08
+		// Estimated power is 0.4 * (5000000000 / 1000000000) * 19 = 7.6
 		estimatedPower = cpuPowerEstimator.estimatePower();
-		assertEquals(0.08, estimatedPower);
+		assertEquals(38D, estimatedPower);
 		collectedPowerMetric.save();
 
-		// Estimated energy is 12.6
+		// Estimated energy is 5700.0
 		estimatedEnergy = cpuPowerEstimator.estimateEnergy();
 		collectedEnergyMetric.save();
 
-		assertEquals(12.6, estimatedEnergy);
+		assertEquals(5700D, estimatedEnergy);
 	}
 }
