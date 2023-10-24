@@ -1,1 +1,91 @@
-{}
+{
+  "total" : 3,
+  "monitors" : [ {
+    "metrics" : {
+      "metricshub.connector.status" : {
+        "name" : "metricshub.connector.status",
+        "collectTime" : 1698159131525,
+        "previousCollectTime" : 1698159131525,
+        "attributes" : { },
+        "resetMetricTime" : false,
+        "value" : "failed",
+        "previousValue" : "failed",
+        "stateSet" : [ "failed", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : false
+      },
+      "hw.status{hw.type=\"connector\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"connector\", state=\"present\"}",
+        "collectTime" : 1698159145096,
+        "previousCollectTime" : 1698159131525,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "connector"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.id" : "localhost",
+      "name" : "DellOpenManage",
+      "connector_id" : "DellOpenManage",
+      "description" : "This connector provides hardware monitoring through the Dell OpenManage Server Administrator SNMP agent which supports almost all Dell PowerEdge servers.",
+      "applies_to_os" : "[LINUX, WINDOWS]",
+      "id" : "DellOpenManage"
+    },
+    "conditionalCollection" : { },
+    "legacyTextParameters" : { },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698159131525,
+    "type" : "connector",
+    "id" : "connector_DellOpenManage",
+    "endpointHost" : false,
+    "endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"host\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"host\", state=\"present\"}",
+        "collectTime" : 1698159145096,
+        "previousCollectTime" : 1698159131525,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "host"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "id" : "localhost",
+      "is_endpoint" : "true",
+      "location" : "local",
+      "name" : "localhost"
+    },
+    "conditionalCollection" : { },
+    "legacyTextParameters" : { },
+    "alertRules" : { },
+    "resource" : {
+      "type" : "host",
+      "attributes" : {
+        "host.type" : "compute",
+        "host.name" : "localhost",
+        "agent.host.name" : "localhost",
+        "os.type" : "linux",
+        "host.id" : "localhost"
+      }
+    },
+    "discoveryTime" : 1698159145096,
+    "type" : "host",
+    "id" : "localhost",
+    "endpointHost" : true,
+    "endpoint" : true
+  } ]
+}
