@@ -4,8 +4,8 @@
     "metrics" : {
       "metricshub.connector.status" : {
         "name" : "metricshub.connector.status",
-        "collectTime" : 1698159131525,
-        "previousCollectTime" : 1698159131525,
+        "collectTime" : 1698161135602,
+        "previousCollectTime" : 1698161135602,
         "attributes" : { },
         "resetMetricTime" : false,
         "value" : "failed",
@@ -16,8 +16,8 @@
       },
       "hw.status{hw.type=\"connector\", state=\"present\"}" : {
         "name" : "hw.status{hw.type=\"connector\", state=\"present\"}",
-        "collectTime" : 1698159145096,
-        "previousCollectTime" : 1698159131525,
+        "collectTime" : 1698161149170,
+        "previousCollectTime" : 1698161135602,
         "attributes" : {
           "state" : "present",
           "hw.type" : "connector"
@@ -41,17 +41,17 @@
     "legacyTextParameters" : { },
     "alertRules" : { },
     "resource" : null,
-    "discoveryTime" : 1698159131525,
+    "discoveryTime" : 1698161135602,
     "type" : "connector",
     "id" : "connector_DellOpenManage",
-    "endpointHost" : false,
-    "endpoint" : false
+    "endpoint" : false,
+    "endpointHost" : false
   }, {
     "metrics" : {
       "hw.status{hw.type=\"host\", state=\"present\"}" : {
         "name" : "hw.status{hw.type=\"host\", state=\"present\"}",
-        "collectTime" : 1698159145096,
-        "previousCollectTime" : 1698159131525,
+        "collectTime" : 1698161149170,
+        "previousCollectTime" : 1698161135602,
         "attributes" : {
           "state" : "present",
           "hw.type" : "host"
@@ -64,10 +64,10 @@
       }
     },
     "attributes" : {
-      "id" : "localhost",
       "is_endpoint" : "true",
-      "location" : "local",
-      "name" : "localhost"
+      "id" : "localhost",
+      "name" : "localhost",
+      "location" : "local"
     },
     "conditionalCollection" : { },
     "legacyTextParameters" : { },
@@ -75,17 +75,17 @@
     "resource" : {
       "type" : "host",
       "attributes" : {
-        "host.type" : "compute",
         "host.name" : "localhost",
         "agent.host.name" : "localhost",
         "os.type" : "linux",
-        "host.id" : "localhost"
+        "host.id" : "localhost",
+        "host.type" : "compute"
       }
     },
-    "discoveryTime" : 1698159145096,
+    "discoveryTime" : 1698161149170,
     "type" : "host",
     "id" : "localhost",
-    "endpointHost" : true,
-    "endpoint" : true
+    "endpoint" : true,
+    "endpointHost" : true
   } ]
 }
