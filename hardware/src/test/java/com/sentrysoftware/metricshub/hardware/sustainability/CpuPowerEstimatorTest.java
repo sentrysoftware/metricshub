@@ -3,6 +3,8 @@ package com.sentrysoftware.metricshub.hardware.sustainability;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.CPU_ENERGY_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.CPU_POWER_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.LOCALHOST;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_CPU_SPEED_LIMIT_LIMIT_TYPE_MAX;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_CPU_THERMAL_DISSIPATION_RATE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -17,13 +19,13 @@ class CpuPowerEstimatorTest {
 
 	@Test
 	void testEstimatePowerAndEnergy() {
-		Monitor monitor = Monitor.builder().build();
-		TelemetryManager telemetryManager = TelemetryManager
+		final Monitor monitor = Monitor.builder().build();
+		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
 			.strategyTime(1696597422644L)
 			.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).build())
 			.build();
-		CpuPowerEstimator cpuPowerEstimator = new CpuPowerEstimator(monitor, telemetryManager);
+		final CpuPowerEstimator cpuPowerEstimator = new CpuPowerEstimator(monitor, telemetryManager);
 		// Default is 0.25 * (2500000000 / 1000000000) * 19 = 1187.5
 		Double estimatedPower = cpuPowerEstimator.estimatePower();
 		assertEquals(11.875, estimatedPower);
@@ -42,14 +44,14 @@ class CpuPowerEstimatorTest {
 		telemetryManager.setStrategyTime(1696597422644L + 60 * 1000);
 		metricFactory.collectNumberMetric(
 			monitor,
-			"hw.cpu.speed.limit{limit_type=\"max\"}",
+			HW_CPU_SPEED_LIMIT_LIMIT_TYPE_MAX,
 			2000000000D,
 			telemetryManager.getStrategyTime()
 		);
 
 		metricFactory.collectNumberMetric(
 			monitor,
-			"__hw.host.cpu.thermal_dissipation_rate",
+			HW_HOST_CPU_THERMAL_DISSIPATION_RATE,
 			0.5,
 			telemetryManager.getStrategyTime()
 		);
@@ -75,7 +77,7 @@ class CpuPowerEstimatorTest {
 		telemetryManager.setStrategyTime(1696597422644L + 2 * 60 * 1000);
 		metricFactory.collectNumberMetric(
 			monitor,
-			"hw.cpu.speed.limit{limit_type=\"max\"}",
+			HW_CPU_SPEED_LIMIT_LIMIT_TYPE_MAX,
 			5000000000D,
 			telemetryManager.getStrategyTime()
 		);

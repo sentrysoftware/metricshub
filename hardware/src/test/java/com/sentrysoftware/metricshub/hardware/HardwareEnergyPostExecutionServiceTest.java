@@ -1,6 +1,7 @@
 package com.sentrysoftware.metricshub.hardware;
 
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.CONNECTOR_STATUS_METRIC_KEY;
+import static com.sentrysoftware.metricshub.hardware.common.Constants.CPU_POWER_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.DISK_CONTROLLER_ENERGY_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.DISK_CONTROLLER_POWER_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.FAN_ENERGY_METRIC;
@@ -29,8 +30,12 @@ import static com.sentrysoftware.metricshub.hardware.common.Constants.TAPE_DRIVE
 import static com.sentrysoftware.metricshub.hardware.common.Constants.TAPE_DRIVE_POWER_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.TAPE_DRIVE_UNMOUNT_COUNT_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.TEMPERATURE_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_CPU_SPEED_LIMIT_LIMIT_TYPE_MAX;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_CPU_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_CPU_THERMAL_DISSIPATION_RATE;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_ESTIMATED_ENERGY;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_ESTIMATED_POWER;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_CPU_METRIC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -435,5 +440,52 @@ class HardwareEnergyPostExecutionServiceTest {
 		assertEquals(54.31, host.getMetric(HW_HOST_ESTIMATED_POWER, NumberMetric.class).getValue());
 		assertNotNull(host.getMetric(HW_HOST_ESTIMATED_ENERGY, NumberMetric.class));
 		assertEquals(6517.200000000001, host.getMetric(HW_HOST_ESTIMATED_ENERGY, NumberMetric.class).getValue());
+	}
+
+	@Test
+	void testRunWithCpuMonitor() {
+		// Create a CPU monitor
+		final Monitor cpuMonitor = Monitor
+			.builder()
+			.id(KnownMonitorType.CPU.getKey())
+			.type(KnownMonitorType.CPU.getKey())
+			.build();
+
+		// Default is 0.25 * (2500000000 / 1000000000) * 19 = 1187.5
+		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
+		final NumberMetric collectedPowerMetric = metricFactory.collectNumberMetric(
+			cpuMonitor,
+			CPU_POWER_METRIC,
+			11.875,
+			telemetryManager.getStrategyTime()
+		);
+		collectedPowerMetric.save();
+
+		// CPU speed limit is 2000000000 and CPU thermal dissipation rate is 0.5
+		telemetryManager.setStrategyTime(NEXT_STRATEGY_TIME);
+		metricFactory.collectNumberMetric(
+			cpuMonitor,
+			HW_CPU_SPEED_LIMIT_LIMIT_TYPE_MAX,
+			2000000000D,
+			telemetryManager.getStrategyTime()
+		);
+
+		metricFactory.collectNumberMetric(
+			cpuMonitor,
+			HW_HOST_CPU_THERMAL_DISSIPATION_RATE,
+			0.5,
+			telemetryManager.getStrategyTime()
+		);
+
+		// Add the CPU monitor to telemetry manager
+		telemetryManager.addNewMonitor(cpuMonitor, KnownMonitorType.CPU.getKey(), KnownMonitorType.CPU.getKey());
+
+		// Call run method in HardwareEnergyPostExecutionService
+		hardwareEnergyPostExecutionService = new HardwareEnergyPostExecutionService(telemetryManager);
+		hardwareEnergyPostExecutionService.run();
+
+		// Check the collected CPU power and energy metrics
+		assertEquals(19.0, cpuMonitor.getMetric(HW_POWER_CPU_METRIC, NumberMetric.class).getValue());
+		assertEquals(2280.0, cpuMonitor.getMetric(HW_ENERGY_CPU_METRIC, NumberMetric.class).getValue());
 	}
 }

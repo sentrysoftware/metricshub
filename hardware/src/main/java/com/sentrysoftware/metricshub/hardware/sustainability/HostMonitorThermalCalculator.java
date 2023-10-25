@@ -1,7 +1,7 @@
 package com.sentrysoftware.metricshub.hardware.sustainability;
 
-import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HW_HOST_CPU_THERMAL_DISSIPATION_RATE;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_NAME;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_CPU_THERMAL_DISSIPATION_RATE;
 
 import com.sentrysoftware.metricshub.engine.common.helpers.ArrayHelper;
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
@@ -11,6 +11,7 @@ import com.sentrysoftware.metricshub.engine.strategy.utils.MathOperationsHelper;
 import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import com.sentrysoftware.metricshub.hardware.util.HwConstants;
 import java.math.RoundingMode;
 import java.util.Map;
 import lombok.AllArgsConstructor;
@@ -41,7 +42,7 @@ public class HostMonitorThermalCalculator {
 	 * <ul>
 	 * <li><b>{@value #HW_HOST_AMBIENT_TEMPERATURE}</b> the minimum temperature between 5 and 100 degrees Celsius</li>
 	 * <li><b>{@value #HW_HOST_AVERAGE_CPU_TEMPERATURE}</b>: the average CPU temperatures</li>
-	 * <li><b>{@value #HW_HOST_CPU_THERMAL_DISSIPATION_RATE}</b>: the heat dissipation rate of the processors (as a fraction of the maximum heat/power they can emit)</li>
+	 * <li><b>{@link HwConstants#HW_HOST_CPU_THERMAL_DISSIPATION_RATE}</b>: the heat dissipation rate of the processors (as a fraction of the maximum heat/power they can emit)</li>
 	 * </ul>
 	 */
 	public void computeHostTemperatureMetrics() {
@@ -252,9 +253,9 @@ public class HostMonitorThermalCalculator {
 
 	/**
 	 * Get the temperature threshold value from the given metadata map
-	 *
-	 * @param metadata The {@link Monitor}'s metadata.
-	 * @return Double value
+	 * @param warningThreshold the warning limit
+	 * @param alarmThreshold the alarm limit
+	 * @return the temperature warning threshold
 	 */
 	private Double getTemperatureWarningThreshold(final Double warningThreshold, final Double alarmThreshold) {
 		// If we only have an alarm threshold, then warningThreshold will be 90% of alarmThreshold
