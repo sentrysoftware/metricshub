@@ -88,30 +88,27 @@ class VmPowerAndEnergyEstimatorTest {
 		final Map<String, Double> totalPowerSharesByPowerSource = new HashMap<>(Map.of(HOST_1, 10.0));
 
 		// Init VmPowerAndEnergyEstimator objects and add power source id attribute
-		final VmPowerAndEnergyEstimator vmOnline1Estimator = new VmPowerAndEnergyEstimator(vmOnline1, telemetryManager);
-		vmOnline1Estimator.setTotalPowerSharesByPowerSource(totalPowerSharesByPowerSource);
+		final VmPowerAndEnergyEstimator vmOnline1Estimator = new VmPowerAndEnergyEstimator(vmOnline1, telemetryManager, totalPowerSharesByPowerSource);
 		vmOnline1.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, host.getId());
 
-		final VmPowerAndEnergyEstimator vmOffline2Estimator = new VmPowerAndEnergyEstimator(vmOffline2, telemetryManager);
-		vmOffline2Estimator.setTotalPowerSharesByPowerSource(totalPowerSharesByPowerSource);
+		final VmPowerAndEnergyEstimator vmOffline2Estimator = new VmPowerAndEnergyEstimator(vmOffline2, telemetryManager, totalPowerSharesByPowerSource);
 		vmOffline2.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, host.getId());
 
-		final VmPowerAndEnergyEstimator vmOnline3Estimator = new VmPowerAndEnergyEstimator(vmOnline3, telemetryManager);
-		vmOnline3Estimator.setTotalPowerSharesByPowerSource(totalPowerSharesByPowerSource);
+		final VmPowerAndEnergyEstimator vmOnline3Estimator = new VmPowerAndEnergyEstimator(vmOnline3, telemetryManager, totalPowerSharesByPowerSource);
 		vmOnline3.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, host.getId());
 
 		final VmPowerAndEnergyEstimator vmOnlineNoPowerShare4Estimator = new VmPowerAndEnergyEstimator(
 			vmOnlineNoPowerShare4,
-			telemetryManager
+			telemetryManager,
+				totalPowerSharesByPowerSource
 		);
-		vmOnlineNoPowerShare4Estimator.setTotalPowerSharesByPowerSource(totalPowerSharesByPowerSource);
 		vmOnlineNoPowerShare4.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, host.getId());
 
 		final VmPowerAndEnergyEstimator vmOnlineBadPowerShare5Estimator = new VmPowerAndEnergyEstimator(
 			vmOnlineBadPowerShare5,
-			telemetryManager
+			telemetryManager,
+				totalPowerSharesByPowerSource
 		);
-		vmOnlineBadPowerShare5Estimator.setTotalPowerSharesByPowerSource(totalPowerSharesByPowerSource);
 		vmOnlineBadPowerShare5.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, host.getId());
 
 		// Call doPowerEstimation on VmPowerAndEnergyEstimator instances and check the computed power consumption values
@@ -165,7 +162,8 @@ class VmPowerAndEnergyEstimatorTest {
 		final Map<String, Double> totalPowerSharesByPowerSource = new HashMap<>(Map.of(HOST_1, 10.0));
 		final VmPowerAndEnergyEstimator vmPowerAndEnergyEstimator = new VmPowerAndEnergyEstimator(
 			vmOnlineZeroPowerShare1,
-			telemetryManager
+			telemetryManager,
+				totalPowerSharesByPowerSource
 		);
 		vmPowerAndEnergyEstimator.setTotalPowerSharesByPowerSource(totalPowerSharesByPowerSource);
 
@@ -202,7 +200,8 @@ class VmPowerAndEnergyEstimatorTest {
 		final Map<String, Double> totalPowerSharesByPowerSource = new HashMap<>(Map.of(HOST_1, 10.0));
 		final VmPowerAndEnergyEstimator vmPowerAndEnergyEstimator = new VmPowerAndEnergyEstimator(
 			vm1Online,
-			telemetryManager
+			telemetryManager,
+				totalPowerSharesByPowerSource
 		);
 		vmPowerAndEnergyEstimator.setTotalPowerSharesByPowerSource(totalPowerSharesByPowerSource);
 

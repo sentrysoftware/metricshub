@@ -86,7 +86,7 @@ public class PowerAndEnergyCollectHelper {
 		final HostMonitorPowerAndEnergyEstimator hostMonitorEnergyAndPowerEstimator
 	) {
 		// Retrieve enclosure monitors
-		final Map<String, Monitor> enclosures = telemetryManager.findMonitorByType(KnownMonitorType.ENCLOSURE.getKey());
+		final Map<String, Monitor> enclosures = telemetryManager.findMonitorsByType(KnownMonitorType.ENCLOSURE.getKey());
 
 		// Create metricFactory to collect metrics
 		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());

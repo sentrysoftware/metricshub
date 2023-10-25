@@ -14,10 +14,10 @@ import com.sentrysoftware.metricshub.engine.strategy.utils.CollectHelper;
 import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
-import com.sentrysoftware.metricshub.hardware.HardwareEnergyPostExecutionService;
 import com.sentrysoftware.metricshub.hardware.util.HwCollectHelper;
 import java.math.RoundingMode;
 import java.util.Map;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -26,12 +26,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class VmPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimator {
-
 	private Map<String, Double> totalPowerSharesByPowerSource;
 
-	public VmPowerAndEnergyEstimator(final Monitor monitor, final TelemetryManager telemetryManager) {
+	public VmPowerAndEnergyEstimator(final Monitor monitor, final TelemetryManager telemetryManager, final Map<String, Double> totalPowerSharesByPowerSource) {
 		super(monitor, telemetryManager);
-		this.setTotalPowerSharesByPowerSource(HardwareEnergyPostExecutionService.totalPowerSharesByPowerSource);
+		this.totalPowerSharesByPowerSource = totalPowerSharesByPowerSource;
 	}
 
 	/**
@@ -49,7 +48,7 @@ public class VmPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimator {
 		final Double totalPowerShares = totalPowerSharesByPowerSource.get(powerSourceId);
 
 		// totalPowerShares is never null here because the VM always comes with a powerShare value
-		final Double powerShareRatio = totalPowerShares != null ? vmPowerShare / totalPowerShares : 0.0;
+		final double powerShareRatio = totalPowerShares != null ? vmPowerShare / totalPowerShares : 0.0;
 
 		// Getting the power source's power consumption value
 		final Monitor powerSourceMonitor = telemetryManager.findMonitorById(powerSourceId);

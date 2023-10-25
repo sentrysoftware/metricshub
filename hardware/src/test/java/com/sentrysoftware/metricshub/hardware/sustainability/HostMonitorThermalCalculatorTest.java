@@ -100,7 +100,7 @@ class HostMonitorThermalCalculatorTest {
 		hostMonitorThermalCalculator.computeHostTemperatureMetrics();
 		assertEquals(10.0, host.getMetric(HW_HOST_AMBIENT_TEMPERATURE, NumberMetric.class).getValue());
 		assertEquals(10.0, host.getMetric(HW_HOST_AVERAGE_CPU_TEMPERATURE, NumberMetric.class).getValue());
-		assertNull(host.getMetric(HW_HOST_CPU_THERMAL_DISSIPATION_RATE, NumberMetric.class));
+		assertEquals(0.0, host.getMetric(HW_HOST_CPU_THERMAL_DISSIPATION_RATE, NumberMetric.class).getValue());
 
 		// Add another temperature monitor
 		final Monitor otherTemperatureMonitor = Monitor
@@ -125,7 +125,7 @@ class HostMonitorThermalCalculatorTest {
 
 		// Check the estimation of the host thermal dissipation rate
 		hostMonitorThermalCalculator.computeHostTemperatureMetrics();
-		assertEquals(1.0, host.getMetric(HW_HOST_CPU_THERMAL_DISSIPATION_RATE, NumberMetric.class).getValue());
+		assertEquals(0.0, host.getMetric(HW_HOST_CPU_THERMAL_DISSIPATION_RATE, NumberMetric.class).getValue());
 
 		// Heating margin check
 		assertNull(host.getMetric(HW_HOST_HEATING_MARGIN, NumberMetric.class));

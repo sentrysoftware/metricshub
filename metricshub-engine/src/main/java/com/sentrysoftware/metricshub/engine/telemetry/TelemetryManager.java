@@ -162,7 +162,7 @@ public class TelemetryManager {
 	 * @return Monitor instance
 	 */
 	public Monitor findMonitorByTypeAndId(final String type, final String id) {
-		final Map<String, Monitor> findMonitorByTypeResult = findMonitorByType(type);
+		final Map<String, Monitor> findMonitorByTypeResult = findMonitorsByType(type);
 		if (findMonitorByTypeResult != null) {
 			return findMonitorById(id, findMonitorByTypeResult);
 		}
@@ -185,7 +185,7 @@ public class TelemetryManager {
 	 * @param type type of the monitor. E.g. host, enclosure, network, etc.
 	 * @return {@link Monitor} instance
 	 */
-	public Map<String, Monitor> findMonitorByType(final String type) {
+	public Map<String, Monitor> findMonitorsByType(final String type) {
 		return this.getMonitors() == null ? null : this.getMonitors().get(type);
 	}
 
@@ -215,7 +215,7 @@ public class TelemetryManager {
 	 */
 	public Monitor getEndpointHostMonitor() {
 		// Get host monitors
-		final Map<String, Monitor> hostMonitors = findMonitorByType(HOST.getKey());
+		final Map<String, Monitor> hostMonitors = findMonitorsByType(HOST.getKey());
 
 		if (hostMonitors == null) {
 			return null;
@@ -244,7 +244,7 @@ public class TelemetryManager {
 		final String hwParentType = monitor.getAttribute("hw.parent.type");
 
 		if (hwParentType != null && hwParentId != null) {
-			Optional<Map<String, Monitor>> sameTypeMonitors = Optional.ofNullable(findMonitorByType(hwParentType));
+			Optional<Map<String, Monitor>> sameTypeMonitors = Optional.ofNullable(findMonitorsByType(hwParentType));
 			if (sameTypeMonitors.isPresent()) {
 				final Optional<Monitor> parentMonitor = sameTypeMonitors
 					.get()

@@ -82,7 +82,7 @@ public class HostMonitorPowerAndEnergyEstimator {
 	 * @return Double
 	 */
 	public Double computeMeasuredPower() {
-		final Map<String, Monitor> enclosureMonitors = telemetryManager.findMonitorByType(
+		final Map<String, Monitor> enclosureMonitors = telemetryManager.findMonitorsByType(
 			KnownMonitorType.ENCLOSURE.getKey()
 		);
 
@@ -120,7 +120,7 @@ public class HostMonitorPowerAndEnergyEstimator {
 			.stream()
 			.map(Map::values)
 			.flatMap(Collection::stream)
-			.filter(monitor -> HwCollectHelper.isConnectorStatusOk(monitor))
+			.filter(HwCollectHelper::isConnectorStatusOk)
 			.filter(monitor -> !KnownMonitorType.HOST.getKey().equals(monitor.getType())) // We already sum the values for the host
 			.filter(monitor -> !KnownMonitorType.ENCLOSURE.getKey().equals(monitor.getType())) // Skip the enclosure
 			.filter(monitor -> !KnownMonitorType.VM.getKey().equals(monitor.getType())); // Skip VM monitors as their power is already computed based on the host's power
@@ -191,7 +191,7 @@ public class HostMonitorPowerAndEnergyEstimator {
 	 * @param estimatedPowerConsumption the estimated power consumption
 	 * @param totalEstimatedPowerConsumption the total estimated power consumption
 	 * @param totalMeasuredPowerConsumption the total measured power consumption
-	 * @return
+	 * @return the adjusted power consumption of type Double
 	 */
 	Double getAdjustedPowerConsumption(
 		final Double estimatedPowerConsumption,
@@ -217,7 +217,7 @@ public class HostMonitorPowerAndEnergyEstimator {
 		Double totalPowerConsumption = enclosureMonitors
 			.values()
 			.stream()
-			.filter(monitor -> HwCollectHelper.isConnectorStatusOk(monitor))
+			.filter(HwCollectHelper::isConnectorStatusOk)
 			.map(monitor -> CollectHelper.getUpdatedNumberMetricValue(monitor, HW_ENCLOSURE_POWER))
 			.filter(Objects::nonNull)
 			.reduce(Double::sum)
@@ -245,7 +245,7 @@ public class HostMonitorPowerAndEnergyEstimator {
 			.stream()
 			.map(Map::values)
 			.flatMap(Collection::stream)
-			.filter(monitor -> HwCollectHelper.isConnectorStatusOk(monitor))
+			.filter(HwCollectHelper::isConnectorStatusOk)
 			.filter(monitor -> !KnownMonitorType.HOST.getKey().equals(monitor.getType())) // We already sum the values for the host
 			.filter(monitor -> !KnownMonitorType.ENCLOSURE.getKey().equals(monitor.getType())) // Skip the enclosure
 			.filter(monitor -> !KnownMonitorType.VM.getKey().equals(monitor.getType())) // Skip VM monitors as their power is already computed based on the host's power
@@ -277,18 +277,18 @@ public class HostMonitorPowerAndEnergyEstimator {
 		}
 
 		// Add 10% because of the heat dissipation of the power supplies
-		final double powerConsumption = NumberHelper.round(totalEstimatedPowerConsumption / 0.9, 2, RoundingMode.HALF_UP);
+		final double powerConsumptionValue = NumberHelper.round(totalEstimatedPowerConsumption / 0.9, 2, RoundingMode.HALF_UP);
 
-		if (powerConsumption > 0) {
-			log.debug("Hostname {} - Power Consumption: Estimated at {} Watts.", hostname, powerConsumption);
+		if (powerConsumptionValue > 0) {
+			log.debug("Hostname {} - Power Consumption: Estimated at {} Watts.", hostname, powerConsumptionValue);
 		} else {
 			log.warn(
 				"Hostname {} - Power Consumption could not be estimated. Negative value: {}.",
 				hostname,
-				powerConsumption
+				powerConsumptionValue
 			);
 		}
 
-		return powerConsumption;
+		return powerConsumptionValue;
 	}
 }

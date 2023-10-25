@@ -42,4 +42,9 @@ public class HwConstants {
 
 	public static final String HW_ENCLOSURE_POWER = "hw.enclosure.power";
 	public static final String HW_ENCLOSURE_ENERGY = "hw.enclosure.energy";
+	public static final String HW_ENERGY_CPU_METRIC = "hw.energy{hw.type=\"cpu\"}";
+	public static final String HW_POWER_CPU_METRIC = "hw.power{hw.type=\"cpu\"}";
+
+	public static final String HW_HOST_CPU_THERMAL_DISSIPATION_RATE = "__hw.host.cpu.thermal_dissipation_rate";
+
 }

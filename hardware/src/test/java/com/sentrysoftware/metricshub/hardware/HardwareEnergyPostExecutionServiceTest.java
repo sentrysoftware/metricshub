@@ -1,5 +1,20 @@
 package com.sentrysoftware.metricshub.hardware;
 
+import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
+import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
+import com.sentrysoftware.metricshub.engine.strategy.utils.CollectHelper;
+import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
+import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
+import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import com.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
+import com.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.CONNECTOR_STATUS_METRIC_KEY;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.DISK_CONTROLLER_ENERGY_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.DISK_CONTROLLER_POWER_METRIC;
@@ -46,21 +61,6 @@ import static com.sentrysoftware.metricshub.hardware.util.HwConstants.POWER_SOUR
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-
-import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
-import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import com.sentrysoftware.metricshub.engine.strategy.utils.CollectHelper;
-import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
-import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
-import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
-import com.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
-import com.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
-import com.sentrysoftware.metricshub.hardware.sustainability.VmPowerAndEnergyEstimator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 class HardwareEnergyPostExecutionServiceTest {
 
@@ -447,9 +447,9 @@ class HardwareEnergyPostExecutionServiceTest {
 
 		//  Check the computed and collected temperature metrics (the host is not a cpu sensor)
 		assertNotNull(host.getMetric(HW_HOST_ESTIMATED_POWER, NumberMetric.class));
-		assertEquals(107.78, host.getMetric(HW_HOST_ESTIMATED_POWER, NumberMetric.class).getValue());
+		assertEquals(54.31, host.getMetric(HW_HOST_ESTIMATED_POWER, NumberMetric.class).getValue());
 		assertNotNull(host.getMetric(HW_HOST_ESTIMATED_ENERGY, NumberMetric.class));
-		assertEquals(12933.6, host.getMetric(HW_HOST_ESTIMATED_ENERGY, NumberMetric.class).getValue());
+		assertEquals(6517.200000000001, host.getMetric(HW_HOST_ESTIMATED_ENERGY, NumberMetric.class).getValue());
 	}
 
 	private static Monitor buildMonitor(final String monitorType, final String id) {
@@ -503,34 +503,15 @@ class HardwareEnergyPostExecutionServiceTest {
 		telemetryManager.addNewMonitor(vmOnlineNoPowerShare4, KnownMonitorType.VM.getKey(), VM_ONLINE_NO_POWER_SHARE_4);
 		telemetryManager.addNewMonitor(vmOnlineBadPowerShare5, KnownMonitorType.VM.getKey(), VM_ONLINE_BAD_POWER_SHARE_5);
 
-		// Set the totalPowerSharesByPowerSource map
-		final Map<String, Double> totalPowerSharesByPowerSource = new HashMap<>(Map.of(HOST_1, 10.0));
-
-		// Init VmPowerAndEnergyEstimator objects and add power source id attribute
-		final VmPowerAndEnergyEstimator vmOnline1Estimator = new VmPowerAndEnergyEstimator(vmOnline1, telemetryManager);
-		vmOnline1Estimator.setTotalPowerSharesByPowerSource(totalPowerSharesByPowerSource);
+		// Add power source id attribute to the created VM monitors
 		vmOnline1.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, host.getId());
 
-		final VmPowerAndEnergyEstimator vmOffline2Estimator = new VmPowerAndEnergyEstimator(vmOffline2, telemetryManager);
-		vmOffline2Estimator.setTotalPowerSharesByPowerSource(totalPowerSharesByPowerSource);
 		vmOffline2.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, host.getId());
 
-		final VmPowerAndEnergyEstimator vmOnline3Estimator = new VmPowerAndEnergyEstimator(vmOnline3, telemetryManager);
-		vmOnline3Estimator.setTotalPowerSharesByPowerSource(totalPowerSharesByPowerSource);
 		vmOnline3.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, host.getId());
 
-		final VmPowerAndEnergyEstimator vmOnlineNoPowerShare4Estimator = new VmPowerAndEnergyEstimator(
-			vmOnlineNoPowerShare4,
-			telemetryManager
-		);
-		vmOnlineNoPowerShare4Estimator.setTotalPowerSharesByPowerSource(totalPowerSharesByPowerSource);
 		vmOnlineNoPowerShare4.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, host.getId());
 
-		final VmPowerAndEnergyEstimator vmOnlineBadPowerShare5Estimator = new VmPowerAndEnergyEstimator(
-			vmOnlineBadPowerShare5,
-			telemetryManager
-		);
-		vmOnlineBadPowerShare5Estimator.setTotalPowerSharesByPowerSource(totalPowerSharesByPowerSource);
 		vmOnlineBadPowerShare5.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, host.getId());
 
 		// Set previous power values

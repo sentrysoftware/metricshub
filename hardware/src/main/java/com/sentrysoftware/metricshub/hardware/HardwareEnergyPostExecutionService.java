@@ -1,23 +1,5 @@
 package com.sentrysoftware.metricshub.hardware;
 
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_DISK_CONTROLLER_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_FAN_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_MEMORY_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_NETWORK_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_PHYSICAL_DISK_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_ROBOTICS_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_TAPE_DRIVE_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_VM_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_DISK_CONTROLLER_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_FAN_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_MEMORY_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_NETWORK_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_PHYSICAL_DISK_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_ROBOTICS_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_TAPE_DRIVE_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_VM_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.POWER_SOURCE_ID_ATTRIBUTE;
-
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.delegate.IPostExecutionService;
 import com.sentrysoftware.metricshub.engine.strategy.utils.CollectHelper;
@@ -25,6 +7,7 @@ import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
+import com.sentrysoftware.metricshub.hardware.sustainability.CpuPowerEstimator;
 import com.sentrysoftware.metricshub.hardware.sustainability.DiskControllerPowerAndEnergyEstimator;
 import com.sentrysoftware.metricshub.hardware.sustainability.FanPowerAndEnergyEstimator;
 import com.sentrysoftware.metricshub.hardware.sustainability.HardwarePowerAndEnergyEstimator;
@@ -38,14 +21,36 @@ import com.sentrysoftware.metricshub.hardware.sustainability.TapeDrivePowerAndEn
 import com.sentrysoftware.metricshub.hardware.sustainability.VmPowerAndEnergyEstimator;
 import com.sentrysoftware.metricshub.hardware.util.HwCollectHelper;
 import com.sentrysoftware.metricshub.hardware.util.PowerAndEnergyCollectHelper;
-import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.stream.Collectors;
+import com.sentrysoftware.metricshub.hardware.util.TriFunction;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Map;
+import java.util.function.BiFunction;
+import java.util.stream.Collectors;
+
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_CPU_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_DISK_CONTROLLER_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_FAN_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_MEMORY_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_NETWORK_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_PHYSICAL_DISK_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_ROBOTICS_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_TAPE_DRIVE_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_VM_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_CPU_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_DISK_CONTROLLER_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_FAN_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_MEMORY_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_NETWORK_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_PHYSICAL_DISK_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_ROBOTICS_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_TAPE_DRIVE_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_VM_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.POWER_SOURCE_ID_ATTRIBUTE;
 
 @Data
 @AllArgsConstructor
@@ -54,8 +59,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class HardwareEnergyPostExecutionService implements IPostExecutionService {
 
+	private static final String HOST_DOES_NOT_CONTAIN_MONITORS = "Host {} does not contain {} monitors";
 	private TelemetryManager telemetryManager;
-	public static Map<String, Double> totalPowerSharesByPowerSource;
 
 	/**
 	 * Estimates and collects power and energy consumption for a given monitor type e.g: FAN, ROBOTICS, NETWORK, etc ..
@@ -73,11 +78,11 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 	) {
 		// Find monitors having the selected monitor type
 		final String monitorTypeKey = monitorType.getKey();
-		final Map<String, Monitor> sameTypeMonitors = telemetryManager.findMonitorByType(monitorTypeKey);
+		final Map<String, Monitor> sameTypeMonitors = telemetryManager.findMonitorsByType(monitorTypeKey);
 
 		// If no monitors are found, log a message
 		if (sameTypeMonitors == null) {
-			log.info("Host {} does not contain {} monitors", telemetryManager.getHostname(), monitorTypeKey);
+			log.info(HOST_DOES_NOT_CONTAIN_MONITORS, telemetryManager.getHostname(), monitorTypeKey);
 			return;
 		}
 
@@ -100,21 +105,21 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 	 * @param estimatorGenerator Function that generates the estimator
 	 */
 	private void estimateAndCollectPowerAndEnergyForVm(
-		final BiFunction<Monitor, TelemetryManager, VmPowerAndEnergyEstimator> estimatorGenerator
+		final TriFunction<Monitor, TelemetryManager, Map<String,Double>, VmPowerAndEnergyEstimator> estimatorGenerator
 	) {
-		final Map<String, Monitor> vmMonitors = telemetryManager.findMonitorByType(KnownMonitorType.VM.getKey());
+		final Map<String, Monitor> vmMonitors = telemetryManager.findMonitorsByType(KnownMonitorType.VM.getKey());
 
 		// If no vm monitors are found, log a message
 		if (vmMonitors == null) {
-			log.info("Host {} does not contain {} monitors", telemetryManager.getHostname(), KnownMonitorType.VM.getKey());
+			log.info(HOST_DOES_NOT_CONTAIN_MONITORS, telemetryManager.getHostname(), KnownMonitorType.VM.getKey());
 			return;
 		}
 
-		totalPowerSharesByPowerSource =
+		final Map<String,Double> totalPowerSharesByPowerSource =
 			vmMonitors
 				.values()
 				.stream()
-				.collect(Collectors.toMap(vm -> getVmPowerSourceMonitorId(vm), HwCollectHelper::getVmPowerShare, Double::sum));
+				.collect(Collectors.toMap(this::getVmPowerSourceMonitorId, HwCollectHelper::getVmPowerShare, Double::sum));
 
 		// For each vm monitor, estimate and collect power and energy consumption metrics
 		vmMonitors
@@ -125,7 +130,7 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 					HW_POWER_VM_METRIC,
 					HW_ENERGY_VM_METRIC,
 					telemetryManager,
-					estimatorGenerator.apply(monitor, telemetryManager)
+					estimatorGenerator.apply(monitor, telemetryManager, totalPowerSharesByPowerSource)
 				)
 			);
 	}
@@ -144,7 +149,7 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 
 		// If the parent does not have a power consumption, the power source is the host
 		final Monitor hostMonitor = telemetryManager.getEndpointHostMonitor();
-		monitor.addAttribute("__power_source_id", hostMonitor.getId());
+		monitor.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, hostMonitor.getId());
 		return hostMonitor.getId();
 	}
 
@@ -228,7 +233,15 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 		// Compute host temperature metrics (ambientTemperature, cpuTemperature, cpuThermalDissipationRate)
 		new HostMonitorThermalCalculator(telemetryManager).computeHostTemperatureMetrics();
 
+		estimateAndCollectPowerAndEnergyForMonitorType(
+			KnownMonitorType.CPU,
+			HW_POWER_CPU_METRIC,
+			HW_ENERGY_CPU_METRIC,
+			CpuPowerEstimator::new
+		);
+
 		estimateAndCollectPowerAndEnergyForHost(HostMonitorPowerAndEnergyEstimator::new);
+
 	}
 
 	/**
@@ -237,11 +250,11 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 	private void collectNetworkMetrics() {
 		// Find monitors having the selected monitor type
 		final String monitorTypeKey = KnownMonitorType.NETWORK.getKey();
-		final Map<String, Monitor> sameTypeMonitors = telemetryManager.findMonitorByType(monitorTypeKey);
+		final Map<String, Monitor> sameTypeMonitors = telemetryManager.findMonitorsByType(monitorTypeKey);
 
 		// If no monitors are found, log a message
 		if (sameTypeMonitors == null) {
-			log.info("Host {} does not contain {} monitors", telemetryManager.getHostname(), monitorTypeKey);
+			log.info(HOST_DOES_NOT_CONTAIN_MONITORS, telemetryManager.getHostname(), monitorTypeKey);
 			return;
 		}
 
@@ -261,7 +274,7 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 
 		final Double linkSpeed = CollectHelper.getNumberMetricValue(monitor, "hw.network.bandwidth.limit", false);
 
-		// If we don't have the linkSpeed, we can't compute the bandwidthUtilizations
+		// If we don't have the linkSpeed, we can't compute the bandwidth Utilization
 		if (linkSpeed != null && linkSpeed != 0) {
 			final Double transmittedByteRate = HwCollectHelper.calculateMetricRate(
 				monitor,

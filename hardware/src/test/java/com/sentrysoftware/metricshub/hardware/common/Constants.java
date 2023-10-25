@@ -30,6 +30,7 @@ public class Constants {
 	public static final String TEMPERATURE_METRIC = "hw.temperature";
 	public static final String PHYSICAL_DISK_POWER_METRIC = "hw.power{hw.type=\"physical_disk\"}";
 	public static final String PHYSICAL_DISK_ENERGY_METRIC = "hw.energy{hw.type=\"physical_disk\"}";
+
 	public static final String HW_ENCLOSURE_POWER = "hw.enclosure.power";
 	public static final String HW_CPU_POWER = "hw.power{hw.type=\"cpu\"}";
 	public static final String HW_MEMORY_POWER = "hw.power{hw.type=\"memory\"}";
@@ -44,4 +45,6 @@ public class Constants {
 	public static final String VM_ONLINE_NO_POWER_SHARE_4 = "vmOnlineNoPowerShare4";
 	public static final String VM_ONLINE_BAD_POWER_SHARE_5 = "vmOnlineBadPowerShare5";
 	public static final String ON = "On";
+	public static final String CPU_POWER_METRIC = "hw.power{hw.type=\"cpu\"}";
+	public static final String CPU_ENERGY_METRIC = "hw.energy{hw.type=\"cpu\"}";
 }
