@@ -8,11 +8,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import com.sentrysoftware.metricshub.engine.alert.AlertRule;
 import com.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
+import com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.collect.CollectStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.collect.PostCollectStrategy;
@@ -155,6 +159,11 @@ public abstract class AbstractITJob implements ITJob {
 		}
 	}
 
+	/**
+	 * Assert that expected and actual m onitor attributes are equal
+	 * @param expectedMonitor
+	 * @param actualMonitor
+	 */
 	private static void assertMonitorAttributes(final Monitor expectedMonitor, final Monitor actualMonitor) {
 		for (final Entry<String, String> expectedEntry : expectedMonitor.getAttributes().entrySet()) {
 		
@@ -169,10 +178,32 @@ public abstract class AbstractITJob implements ITJob {
 					() -> "Cannot find actual attribute on monitor: " + expectedMonitor.getId() + ". For parameter: "
 							+ expectedKey);
 
-			assertEquals(expected, actual);
+			if(expectedKey.equals(MetricsHubConstants.MONITOR_ATTRIBUTE_APPLIES_TO_OS)) {
+				assertEquals(getSetFromAppliesToOsString(expected), getSetFromAppliesToOsString(actual));
+			} else {
+				assertEquals(expected, actual);
+			}
 		}
 	}
 
+	/**
+	 * given the expected input from example applies_to_os: [ WINDOW, LINUX ]
+	 * return a set with expected values WINDOWs, LINUX (for example)
+	 * 
+	 * @param setString input to parse
+	 * @return parsedSet
+	 */
+	private static Set<String> getSetFromAppliesToOsString(final String setString) {
+		final Set<String> parsedSet = new HashSet<>();
+		parsedSet.addAll(Arrays.asList(setString.replaceAll("\\[", "").replaceAll("\\]", "").replaceAll(" ", "").split(",")));
+		return parsedSet;
+	}
+
+	/**
+	 * Assert that expected and actual metric attributes are equal
+	 * @param expectedMetric
+	 * @param actualMetric
+	 */
 	private static void assertMetricAttributes(final AbstractMetric expectedMetric, final AbstractMetric actualMetric) {
 		for (final Entry<String, String> expectedEntry : expectedMetric.getAttributes().entrySet()) {
 		
@@ -191,6 +222,11 @@ public abstract class AbstractITJob implements ITJob {
 		}
 	}
 
+	/**
+	 * Assert that expected and actual conditional collection are equal
+	 * @param expectedMonitor
+	 * @param actualMonitor
+	 */
 	private static void assertConditionalCollection(final Monitor expectedMonitor, final Monitor actualMonitor) {
 		for (final Entry<String, String> expectedEntry : expectedMonitor.getConditionalCollection().entrySet()) {
 		
@@ -209,6 +245,11 @@ public abstract class AbstractITJob implements ITJob {
 		}
 	}
 
+	/**
+	 * Assert that expected and actual legacy text parameters are equal
+	 * @param expectedMonitor
+	 * @param actualMonitor
+	 */
 	private static void assertLegacyTextParameters(final Monitor expectedMonitor, final Monitor actualMonitor) {
 		for (final Entry<String, String> expectedEntry : expectedMonitor.getLegacyTextParameters().entrySet()) {
 		
