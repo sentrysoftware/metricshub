@@ -133,7 +133,6 @@ public class MetricsHubConstants {
 	public static final String STATE_SET_METRIC_OK = "ok";
 	public static final String STATE_SET_METRIC_FAILED = "failed";
 	public static final String PRESENT_STATUS = "hw.status{hw.type=\"%s\", state=\"present\"}";
-	public static final String HW_HOST_CPU_THERMAL_DISSIPATION_RATE = "__hw.host.cpu.thermal_dissipation_rate";
 
 	/**
 	 * Host information
