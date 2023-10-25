@@ -79,7 +79,7 @@
         "host.id" : "localhost",
         "host.type" : "compute",
         "host.name" : "localhost",
-        "agent.host.name" : "192.168.0.131"
+        "agent.host.name" : "localhost"
       }
     },
     "discoveryTime" : 1698248045382,
