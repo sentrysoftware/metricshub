@@ -29,6 +29,7 @@ import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.MonitorsVo;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
+import com.sentrysoftware.metricshub.engine.telemetry.Resource;
 
 import lombok.Data;
 import lombok.NonNull;
@@ -55,6 +56,7 @@ public abstract class AbstractITJob implements ITJob {
 		assertConditionalCollection(expected, actual);
 		assertLegacyTextParameters(expected, actual);
 		assertAlertRules(expected, actual);
+		assertResource(expected, actual);
 		assertEquals(expected.getResource(), actual.getResource());
 		assertNotNull(actual.getDiscoveryTime());
 		assertEquals(expected.getType(), actual.getType(), "Type doesn't match actual Type on monitor: " + expected.getId());
@@ -160,7 +162,7 @@ public abstract class AbstractITJob implements ITJob {
 	}
 
 	/**
-	 * Assert that expected and actual m onitor attributes are equal
+	 * Assert that expected and actual monitor attributes are equal
 	 * @param expectedMonitor
 	 * @param actualMonitor
 	 */
@@ -183,6 +185,21 @@ public abstract class AbstractITJob implements ITJob {
 			} else {
 				assertEquals(expected, actual);
 			}
+		}
+	}
+
+	/**
+	 * Assert that expected and actual monitor resource attributes are equal
+	 * @param expectedMonitor
+	 * @param actualMonitor
+	 */
+	private static void assertResource(final Monitor expectedMonitor, final Monitor actualMonitor) {
+		final Resource expectedResource = expectedMonitor.getResource();
+		final Resource actualResource = expectedMonitor.getResource();
+
+		if(expectedResource != null) {
+			assertEquals(expectedResource.getType(), actualResource.getType());
+			assertEquals(expectedResource.getAttributes(), actualResource.getAttributes());
 		}
 	}
 
