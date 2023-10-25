@@ -36,4 +36,6 @@ public class HwConstants {
 
 	public static final String HW_ENERGY_CPU_METRIC = "hw.energy{hw.type=\"cpu\"}";
 	public static final String HW_POWER_CPU_METRIC = "hw.power{hw.type=\"cpu\"}";
+	public static final String HW_CPU_SPEED_LIMIT_LIMIT_TYPE_MAX = "hw.cpu.speed.limit{limit_type=\"max\"}";
+	public static final String HW_HOST_CPU_THERMAL_DISSIPATION_RATE = "__hw.host.cpu.thermal_dissipation_rate";
 }
