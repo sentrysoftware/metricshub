@@ -1,20 +1,5 @@
 package com.sentrysoftware.metricshub.hardware;
 
-import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
-import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import com.sentrysoftware.metricshub.engine.strategy.utils.CollectHelper;
-import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
-import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
-import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
-import com.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
-import com.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.CONNECTOR_STATUS_METRIC_KEY;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.DISK_CONTROLLER_ENERGY_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.DISK_CONTROLLER_POWER_METRIC;
@@ -61,6 +46,20 @@ import static com.sentrysoftware.metricshub.hardware.util.HwConstants.POWER_SOUR
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+
+import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
+import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
+import com.sentrysoftware.metricshub.engine.strategy.utils.CollectHelper;
+import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
+import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
+import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import com.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
+import com.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class HardwareEnergyPostExecutionServiceTest {
 

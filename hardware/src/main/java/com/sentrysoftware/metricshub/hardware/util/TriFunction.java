@@ -7,7 +7,6 @@ package com.sentrysoftware.metricshub.hardware.util;
 
 @FunctionalInterface
 public interface TriFunction<T, U, V, R> {
-
 	/**
 	 * Applies this function to the given arguments.
 	 * @param t first parameter
@@ -16,5 +15,4 @@ public interface TriFunction<T, U, V, R> {
 	 * @return of type R
 	 */
 	R apply(T t, U u, V v);
-
 }

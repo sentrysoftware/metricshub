@@ -277,7 +277,11 @@ public class HostMonitorPowerAndEnergyEstimator {
 		}
 
 		// Add 10% because of the heat dissipation of the power supplies
-		final double powerConsumptionValue = NumberHelper.round(totalEstimatedPowerConsumption / 0.9, 2, RoundingMode.HALF_UP);
+		final double powerConsumptionValue = NumberHelper.round(
+			totalEstimatedPowerConsumption / 0.9,
+			2,
+			RoundingMode.HALF_UP
+		);
 
 		if (powerConsumptionValue > 0) {
 			log.debug("Hostname {} - Power Consumption: Estimated at {} Watts.", hostname, powerConsumptionValue);

@@ -1,5 +1,25 @@
 package com.sentrysoftware.metricshub.hardware;
 
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_CPU_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_DISK_CONTROLLER_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_FAN_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_MEMORY_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_NETWORK_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_PHYSICAL_DISK_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_ROBOTICS_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_TAPE_DRIVE_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_VM_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_CPU_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_DISK_CONTROLLER_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_FAN_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_MEMORY_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_NETWORK_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_PHYSICAL_DISK_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_ROBOTICS_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_TAPE_DRIVE_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_VM_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.POWER_SOURCE_ID_ATTRIBUTE;
+
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.delegate.IPostExecutionService;
 import com.sentrysoftware.metricshub.engine.strategy.utils.CollectHelper;
@@ -22,35 +42,14 @@ import com.sentrysoftware.metricshub.hardware.sustainability.VmPowerAndEnergyEst
 import com.sentrysoftware.metricshub.hardware.util.HwCollectHelper;
 import com.sentrysoftware.metricshub.hardware.util.PowerAndEnergyCollectHelper;
 import com.sentrysoftware.metricshub.hardware.util.TriFunction;
+import java.util.Map;
+import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.stream.Collectors;
-
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_CPU_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_DISK_CONTROLLER_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_FAN_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_MEMORY_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_NETWORK_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_PHYSICAL_DISK_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_ROBOTICS_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_TAPE_DRIVE_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_VM_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_CPU_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_DISK_CONTROLLER_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_FAN_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_MEMORY_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_NETWORK_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_PHYSICAL_DISK_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_ROBOTICS_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_TAPE_DRIVE_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_VM_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.POWER_SOURCE_ID_ATTRIBUTE;
 
 @Data
 @AllArgsConstructor
@@ -105,7 +104,7 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 	 * @param estimatorGenerator Function that generates the estimator
 	 */
 	private void estimateAndCollectPowerAndEnergyForVm(
-		final TriFunction<Monitor, TelemetryManager, Map<String,Double>, VmPowerAndEnergyEstimator> estimatorGenerator
+		final TriFunction<Monitor, TelemetryManager, Map<String, Double>, VmPowerAndEnergyEstimator> estimatorGenerator
 	) {
 		final Map<String, Monitor> vmMonitors = telemetryManager.findMonitorsByType(KnownMonitorType.VM.getKey());
 
@@ -115,11 +114,10 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 			return;
 		}
 
-		final Map<String,Double> totalPowerSharesByPowerSource =
-			vmMonitors
-				.values()
-				.stream()
-				.collect(Collectors.toMap(this::getVmPowerSourceMonitorId, HwCollectHelper::getVmPowerShare, Double::sum));
+		final Map<String, Double> totalPowerSharesByPowerSource = vmMonitors
+			.values()
+			.stream()
+			.collect(Collectors.toMap(this::getVmPowerSourceMonitorId, HwCollectHelper::getVmPowerShare, Double::sum));
 
 		// For each vm monitor, estimate and collect power and energy consumption metrics
 		vmMonitors
@@ -241,7 +239,6 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 		);
 
 		estimateAndCollectPowerAndEnergyForHost(HostMonitorPowerAndEnergyEstimator::new);
-
 	}
 
 	/**
