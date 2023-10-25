@@ -200,8 +200,14 @@ public abstract class AbstractITJob implements ITJob {
 		if(expectedResource != null) {
 			assertEquals(expectedResource.getType(), actualResource.getType());
 			for(Entry<String, String> expectedAttribute : expectedResource.getAttributes().entrySet()) {
+				
+				// host name can change from different IT runs. if it is not null, check that actual has value.
 				if(!expectedAttribute.getKey().equals(Constants.AGENT_HOSTNAME_ATTRIBUTE)) {
 					assertEquals(expectedAttribute.getValue(), actualResource.getAttributes().get(expectedAttribute.getKey()));
+				} else {
+					if(expectedAttribute.getValue() != null) {
+						assertNotNull(actualResource.getAttributes().get(expectedAttribute.getKey()));
+					}
 				}
 			}
 		}
