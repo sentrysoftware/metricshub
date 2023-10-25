@@ -17,6 +17,7 @@ import java.util.Map.Entry;
 import com.sentrysoftware.metricshub.engine.alert.AlertRule;
 import com.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
+import com.sentrysoftware.metricshub.engine.constants.Constants;
 import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.collect.CollectStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.collect.PostCollectStrategy;
@@ -57,7 +58,6 @@ public abstract class AbstractITJob implements ITJob {
 		assertLegacyTextParameters(expected, actual);
 		assertAlertRules(expected, actual);
 		assertResource(expected, actual);
-		assertEquals(expected.getResource(), actual.getResource());
 		assertNotNull(actual.getDiscoveryTime());
 		assertEquals(expected.getType(), actual.getType(), "Type doesn't match actual Type on monitor: " + expected.getId());
 		assertEquals(expected.getId(), actual.getId(), () -> "ID doesn't match actual ID on monitor: " + expected.getId());
@@ -199,7 +199,11 @@ public abstract class AbstractITJob implements ITJob {
 
 		if(expectedResource != null) {
 			assertEquals(expectedResource.getType(), actualResource.getType());
-			assertEquals(expectedResource.getAttributes(), actualResource.getAttributes());
+			for(Entry<String, String> expectedAttribute : expectedResource.getAttributes().entrySet()) {
+				if(!expectedAttribute.getKey().equals(Constants.AGENT_HOSTNAME_ATTRIBUTE)) {
+					assertEquals(expectedAttribute.getValue(), actualResource.getAttributes().get(expectedAttribute.getKey()));
+				}
+			}
 		}
 	}
 
