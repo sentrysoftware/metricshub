@@ -41,7 +41,7 @@ public class Monitor {
 	private Long discoveryTime;
 	private String type;
 	private String id;
-	private boolean isEndpoint;
+	private boolean endpoint;
 
 	/**
 	 * Get a metric by type
@@ -157,7 +157,7 @@ public class Monitor {
 	 * @param isEndpoint boolean value
 	 */
 	public void setIsEndpoint(final boolean isEndpoint) {
-		this.isEndpoint = isEndpoint;
+		this.endpoint = isEndpoint;
 	}
 
 	/**

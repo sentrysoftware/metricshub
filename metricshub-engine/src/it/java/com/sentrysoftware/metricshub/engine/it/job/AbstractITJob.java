@@ -55,9 +55,8 @@ public abstract class AbstractITJob implements ITJob {
 		assertNotNull(actual.getDiscoveryTime());
 		assertEquals(expected.getType(), actual.getType(), "Type doesn't match actual Type on monitor: " + expected.getId());
 		assertEquals(expected.getId(), actual.getId(), () -> "ID doesn't match actual ID on monitor: " + expected.getId());
-
-		// TODO: endpoint: false in expected, but is true in actual.
-		// assertEquals(expected.isEndpoint(), actual.isEndpoint(), () -> "isEndpoint doesn't match actual isEndpoint on monitor: " + expected.getId());
+		assertEquals(expected.isEndpoint(), actual.isEndpoint(), () -> "isEndpoint doesn't match actual isEndpoint on monitor: " + expected.getId());
+		assertEquals(expected.isEndpointHost(), actual.isEndpointHost(), () -> "isEndpointHost doesn't match actual EndpointHost on monitor: " + expected.getId());
 	}
 
 	/**
@@ -170,10 +169,7 @@ public abstract class AbstractITJob implements ITJob {
 					() -> "Cannot find actual attribute on monitor: " + expectedMonitor.getId() + ". For parameter: "
 							+ expectedKey);
 
-			// TODO: decide how to deal with arrays
-			// DellOpenManageIT uses "applies_to_os" : "[LINUX, WINDOWS]"
-			// Some test runners result in Windows, Linux and not original order.
-			// assertEquals(expected, actual);
+			assertEquals(expected, actual);
 		}
 	}
 

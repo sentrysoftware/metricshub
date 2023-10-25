@@ -1,11 +1,11 @@
 {
-  "total" : 3,
+  "total" : 2,
   "monitors" : [ {
     "metrics" : {
       "metricshub.connector.status" : {
         "name" : "metricshub.connector.status",
-        "collectTime" : 1698161135602,
-        "previousCollectTime" : 1698161135602,
+        "collectTime" : 1698246067030,
+        "previousCollectTime" : 1698246067030,
         "attributes" : { },
         "resetMetricTime" : false,
         "value" : "failed",
@@ -16,8 +16,8 @@
       },
       "hw.status{hw.type=\"connector\", state=\"present\"}" : {
         "name" : "hw.status{hw.type=\"connector\", state=\"present\"}",
-        "collectTime" : 1698161149170,
-        "previousCollectTime" : 1698161135602,
+        "collectTime" : 1698246080615,
+        "previousCollectTime" : 1698246067030,
         "attributes" : {
           "state" : "present",
           "hw.type" : "connector"
@@ -34,14 +34,14 @@
       "name" : "DellOpenManage",
       "connector_id" : "DellOpenManage",
       "description" : "This connector provides hardware monitoring through the Dell OpenManage Server Administrator SNMP agent which supports almost all Dell PowerEdge servers.",
-      "applies_to_os" : "[LINUX, WINDOWS]",
+      "applies_to_os" : "[WINDOWS, LINUX]",
       "id" : "DellOpenManage"
     },
     "conditionalCollection" : { },
     "legacyTextParameters" : { },
     "alertRules" : { },
     "resource" : null,
-    "discoveryTime" : 1698161135602,
+    "discoveryTime" : 1698246067030,
     "type" : "connector",
     "id" : "connector_DellOpenManage",
     "endpoint" : false,
@@ -50,8 +50,8 @@
     "metrics" : {
       "hw.status{hw.type=\"host\", state=\"present\"}" : {
         "name" : "hw.status{hw.type=\"host\", state=\"present\"}",
-        "collectTime" : 1698161149170,
-        "previousCollectTime" : 1698161135602,
+        "collectTime" : 1698246080615,
+        "previousCollectTime" : 1698246067030,
         "attributes" : {
           "state" : "present",
           "hw.type" : "host"
@@ -75,14 +75,14 @@
     "resource" : {
       "type" : "host",
       "attributes" : {
-        "host.name" : "localhost",
-        "agent.host.name" : "localhost",
-        "os.type" : "linux",
+        "host.type" : "compute",
         "host.id" : "localhost",
-        "host.type" : "compute"
+        "os.type" : "linux",
+        "agent.host.name" : "192.168.0.131",
+        "host.name" : "localhost"
       }
     },
-    "discoveryTime" : 1698161149170,
+    "discoveryTime" : 1698246080615,
     "type" : "host",
     "id" : "localhost",
     "endpoint" : true,
