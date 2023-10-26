@@ -1,5 +1,6 @@
 package com.sentrysoftware.metricshub.hardware.sustainability;
 
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_CPU_SPEED_LIMIT_LIMIT_TYPE_MAX;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_CPU_METRIC;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_CPU_THERMAL_DISSIPATION_RATE;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_CPU_METRIC;
@@ -27,7 +28,7 @@ public class CpuPowerEstimator extends HardwarePowerAndEnergyEstimator {
 	 */
 	@Override
 	protected Double doPowerEstimation() {
-		Double cpuSpeedLimit = CollectHelper.getNumberMetricValue(monitor, "hw.cpu.speed.limit{limit_type=\"max\"}", false);
+		Double cpuSpeedLimit = CollectHelper.getNumberMetricValue(monitor, HW_CPU_SPEED_LIMIT_LIMIT_TYPE_MAX, false);
 		cpuSpeedLimit = cpuSpeedLimit != null && cpuSpeedLimit > 0 ? cpuSpeedLimit : 2500000000.0;
 
 		Double thermalDissipationRate = CollectHelper.getNumberMetricValue(

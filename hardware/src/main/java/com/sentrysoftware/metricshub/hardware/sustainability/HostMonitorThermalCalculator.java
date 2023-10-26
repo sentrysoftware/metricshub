@@ -254,9 +254,15 @@ public class HostMonitorThermalCalculator {
 
 	/**
 	 * Get the temperature threshold value from the given metadata map
+<<<<<<< HEAD
 	 * @param warningThreshold the warning threshold
 	 * @param alarmThreshold the alarm threshold
 	 * @return temperature warning threshold of type Double
+=======
+	 * @param warningThreshold the warning limit
+	 * @param alarmThreshold the alarm limit
+	 * @return the temperature warning threshold
+>>>>>>> 951d277207513000fa333dcb5c679084162ead52
 	 */
 	private Double getTemperatureWarningThreshold(final Double warningThreshold, final Double alarmThreshold) {
 		// If we only have an alarm threshold, then warningThreshold will be 90% of alarmThreshold

@@ -75,7 +75,11 @@ public class DetectionStrategy extends AbstractStrategy {
 		}
 
 		// Create Host monitor
-		final MonitorFactory monitorFactory = MonitorFactory.builder().discoveryTime(strategyTime).build();
+		final MonitorFactory monitorFactory = MonitorFactory
+			.builder()
+			.telemetryManager(telemetryManager)
+			.discoveryTime(strategyTime)
+			.build();
 		monitorFactory.createEndpointHostMonitor(hostProperties.isLocalhost());
 
 		// Create monitors
