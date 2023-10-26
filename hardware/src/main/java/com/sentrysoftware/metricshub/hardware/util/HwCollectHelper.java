@@ -1,6 +1,5 @@
 package com.sentrysoftware.metricshub.hardware.util;
 
-import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.CONNECTOR_STATUS_METRIC_KEY;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_VM_POWER_SHARE_METRIC;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_VM_POWER_STATE_METRIC;
 
@@ -8,8 +7,6 @@ import com.sentrysoftware.metricshub.engine.strategy.utils.CollectHelper;
 import com.sentrysoftware.metricshub.engine.strategy.utils.MathOperationsHelper;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
-import com.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
-import com.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -142,31 +139,6 @@ public class HwCollectHelper {
 	}
 
 	/**
-	 * This method checks whether a connector status was set to "ok" or "1.0"
-	 * @param currentMonitor the current monitor
-	 * @return boolean
-	 */
-	public static boolean isConnectorStatusOk(final Monitor currentMonitor) {
-		final AbstractMetric connectorStatusMetric = currentMonitor.getMetric(CONNECTOR_STATUS_METRIC_KEY);
-
-		if (connectorStatusMetric instanceof NumberMetric) {
-			final Double connectorStatusNumberValue = CollectHelper.getNumberMetricValue(
-				currentMonitor,
-				CONNECTOR_STATUS_METRIC_KEY,
-				false
-			);
-			return Double.valueOf(1.0).equals(connectorStatusNumberValue);
-		} else {
-			final String connectorStatusStateSetValue = CollectHelper.getStateSetMetricValue(
-				currentMonitor,
-				CONNECTOR_STATUS_METRIC_KEY,
-				false
-			);
-			return "ok".equals(connectorStatusStateSetValue);
-		}
-	}
-
-	/**
 	 * Get the VM's power share which is assumed not null and >= 0.0
 	 *
 	 * @param vm VM {@link Monitor} instance
@@ -191,6 +163,6 @@ public class HwCollectHelper {
 	 * @return		Whether the given VM is online.
 	 */
 	private static boolean isVmOnline(Monitor vm) {
-		return "On".equals(CollectHelper.getStateSetMetricValue(vm, HW_VM_POWER_STATE_METRIC, false));
+		return "on".equals(CollectHelper.getStateSetMetricValue(vm, HW_VM_POWER_STATE_METRIC, false));
 	}
 }

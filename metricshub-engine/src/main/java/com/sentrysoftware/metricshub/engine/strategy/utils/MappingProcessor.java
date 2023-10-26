@@ -812,7 +812,6 @@ public class MappingProcessor {
 	 * Converts legacyledstatus status into a current status
 	 *
 	 * @param value		String representing a legacyledstatus function with a legacy status
-	 * @param key		The attribute key
 	 * @return			String representing a current a current status
 	 */
 	private String legacyLedStatus(String value) {
@@ -1020,7 +1019,6 @@ public class MappingProcessor {
 	 * We multiply the value by a predetermined factor, usually for unit conversion
 	 *
 	 * @param value		An already extracted double value
-	 * @param key		The key used for debug purpose
 	 * @param factor	Double value to be multiplied to the value
 	 * @return			A String containing only the new value
 	 */

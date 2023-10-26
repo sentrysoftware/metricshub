@@ -16,6 +16,7 @@ import com.sentrysoftware.metricshub.engine.connector.model.metric.MetricType;
 import com.sentrysoftware.metricshub.engine.connector.model.metric.StateSet;
 import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
+import com.sentrysoftware.metricshub.engine.telemetry.ConnectorNamespace;
 import com.sentrysoftware.metricshub.engine.telemetry.HostProperties;
 import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
@@ -139,6 +140,9 @@ public class DetectionStrategy extends AbstractStrategy {
 		}
 
 		final MetricDefinition metricDefinition = metricDefinitionMap.get(CONNECTOR_STATUS_METRIC_KEY);
+		final ConnectorNamespace connectorNamespace = telemetryManager
+			.getHostProperties()
+			.getConnectorNamespace(connectorId);
 
 		// Check whether metric type is Enum
 		if (metricDefinition == null || (metricDefinition.getType() instanceof MetricType)) {
@@ -154,6 +158,9 @@ public class DetectionStrategy extends AbstractStrategy {
 					stateSet,
 					strategyTime
 				);
+
+				// Set isStatusOk to true in ConnectorNamespace
+				connectorNamespace.setStatusOk(true);
 			} else {
 				metricFactory.collectStateSetMetric(
 					monitor,
@@ -162,6 +169,9 @@ public class DetectionStrategy extends AbstractStrategy {
 					stateSet,
 					strategyTime
 				);
+
+				// Set isStatusOk to false in ConnectorNamespace
+				connectorNamespace.setStatusOk(false);
 			}
 		}
 	}

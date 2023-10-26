@@ -44,7 +44,9 @@ public class Constants {
 	public static final String VM_ONLINE_3 = "vmOnline3";
 	public static final String VM_ONLINE_NO_POWER_SHARE_4 = "vmOnlineNoPowerShare4";
 	public static final String VM_ONLINE_BAD_POWER_SHARE_5 = "vmOnlineBadPowerShare5";
-	public static final String ON = "On";
+	public static final String ON = "on";
 	public static final String CPU_POWER_METRIC = "hw.power{hw.type=\"cpu\"}";
 	public static final String CPU_ENERGY_METRIC = "hw.energy{hw.type=\"cpu\"}";
+
+	public static final String HW_CONNECTOR = "hw_connector";
 }

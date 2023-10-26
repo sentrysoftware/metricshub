@@ -22,6 +22,7 @@ public class ConnectorNamespace {
 
 	private String automaticWmiNamespace;
 	private String automaticWbemNamespace;
+	private boolean isStatusOk;
 
 	@Default
 	private ReentrantLock forceSerializationLock = new ReentrantLock(true);

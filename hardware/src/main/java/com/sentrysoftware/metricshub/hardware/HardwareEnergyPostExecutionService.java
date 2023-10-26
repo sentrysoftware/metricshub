@@ -41,7 +41,6 @@ import com.sentrysoftware.metricshub.hardware.sustainability.TapeDrivePowerAndEn
 import com.sentrysoftware.metricshub.hardware.sustainability.VmPowerAndEnergyEstimator;
 import com.sentrysoftware.metricshub.hardware.util.HwCollectHelper;
 import com.sentrysoftware.metricshub.hardware.util.PowerAndEnergyCollectHelper;
-import com.sentrysoftware.metricshub.hardware.util.TriFunction;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -88,6 +87,8 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 		// For each monitor, estimate and collect power and energy consumption metrics
 		sameTypeMonitors
 			.values()
+			.stream()
+			.filter(monitor -> telemetryManager.isConnectorStatusOk(monitor))
 			.forEach(monitor ->
 				PowerAndEnergyCollectHelper.collectPowerAndEnergy(
 					monitor,
@@ -101,11 +102,9 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 
 	/**
 	 * Estimates and collects power and energy consumption for a VM
-	 * @param estimatorGenerator Function that generates the estimator
+	 * @param isPowerEstimated whether the power consumption is estimated
 	 */
-	private void estimateAndCollectPowerAndEnergyForVm(
-		final TriFunction<Monitor, TelemetryManager, Map<String, Double>, VmPowerAndEnergyEstimator> estimatorGenerator
-	) {
+	private void estimateAndCollectPowerAndEnergyForVm(final boolean isPowerEstimated) {
 		final Map<String, Monitor> vmMonitors = telemetryManager.findMonitorsByType(KnownMonitorType.VM.getKey());
 
 		// If no vm monitors are found, log a message
@@ -122,13 +121,15 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 		// For each vm monitor, estimate and collect power and energy consumption metrics
 		vmMonitors
 			.values()
+			.stream()
+			.filter(monitor -> telemetryManager.isConnectorStatusOk(monitor))
 			.forEach(monitor ->
 				PowerAndEnergyCollectHelper.collectPowerAndEnergy(
 					monitor,
 					HW_POWER_VM_METRIC,
 					HW_ENERGY_VM_METRIC,
 					telemetryManager,
-					estimatorGenerator.apply(monitor, telemetryManager, totalPowerSharesByPowerSource)
+					new VmPowerAndEnergyEstimator(monitor, telemetryManager, totalPowerSharesByPowerSource, isPowerEstimated)
 				)
 			);
 	}
@@ -155,7 +156,7 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 	 * Estimates and collects power and energy consumption for the hostMonitor.
 	 * @param estimatorGenerator Function that generates the estimator
 	 */
-	private void estimateAndCollectPowerAndEnergyForHost(
+	private boolean estimateAndCollectPowerAndEnergyForHost(
 		final BiFunction<Monitor, TelemetryManager, HostMonitorPowerAndEnergyEstimator> estimatorGenerator
 	) {
 		// Find hostMonitor
@@ -164,12 +165,12 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 		// If host is not found, log a message
 		if (hostMonitor == null) {
 			log.info("Host {} does not exist", telemetryManager.getHostname());
-			return;
+			return false;
 		}
 
 		// Compute and collect power and energy for host monitor
 
-		PowerAndEnergyCollectHelper.collectHostPowerAndEnergy(
+		return PowerAndEnergyCollectHelper.collectHostPowerAndEnergy(
 			hostMonitor,
 			telemetryManager,
 			estimatorGenerator.apply(hostMonitor, telemetryManager)
@@ -224,8 +225,6 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 			MemoryPowerAndEnergyEstimator::new
 		);
 
-		estimateAndCollectPowerAndEnergyForVm(VmPowerAndEnergyEstimator::new);
-
 		collectNetworkMetrics();
 
 		// Compute host temperature metrics (ambientTemperature, cpuTemperature, cpuThermalDissipationRate)
@@ -238,7 +237,8 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 			CpuPowerEstimator::new
 		);
 
-		estimateAndCollectPowerAndEnergyForHost(HostMonitorPowerAndEnergyEstimator::new);
+		final boolean isPowerMeasured = estimateAndCollectPowerAndEnergyForHost(HostMonitorPowerAndEnergyEstimator::new);
+		estimateAndCollectPowerAndEnergyForVm(isPowerMeasured);
 	}
 
 	/**

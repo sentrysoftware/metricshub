@@ -1,12 +1,13 @@
 package com.sentrysoftware.metricshub.hardware;
 
-import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.CONNECTOR_STATUS_METRIC_KEY;
+import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.DISK_CONTROLLER_ENERGY_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.DISK_CONTROLLER_POWER_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.FAN_ENERGY_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.FAN_POWER_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.FAN_SPEED_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.HOST_1;
+import static com.sentrysoftware.metricshub.hardware.common.Constants.HW_CONNECTOR;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.HW_CPU_POWER;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.HW_HOST_AMBIENT_TEMPERATURE;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.HW_HOST_AVERAGE_CPU_TEMPERATURE;
@@ -50,12 +51,13 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.strategy.utils.CollectHelper;
+import com.sentrysoftware.metricshub.engine.telemetry.ConnectorNamespace;
+import com.sentrysoftware.metricshub.engine.telemetry.HostProperties;
 import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
@@ -88,6 +90,14 @@ class HardwareEnergyPostExecutionServiceTest {
 				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).build())
 				.strategyTime(STRATEGY_TIME)
 				.build();
+
+		// Set the status ok in the host properties
+		final ConnectorNamespace connectorNamespace = ConnectorNamespace.builder().isStatusOk(true).build();
+		final HostProperties hostProperties = HostProperties
+			.builder()
+			.connectorNamespaces(new HashMap<>(Map.of(HW_CONNECTOR, connectorNamespace)))
+			.build();
+		telemetryManager.setHostProperties(hostProperties);
 	}
 
 	@Test
@@ -97,6 +107,7 @@ class HardwareEnergyPostExecutionServiceTest {
 			.builder()
 			.type(FAN)
 			.metrics(new HashMap<>(Map.of(FAN_SPEED_METRIC, NumberMetric.builder().value(0.7).build())))
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
 			.build();
 
 		// Set the previously created fan monitor in telemetryManager
@@ -129,6 +140,7 @@ class HardwareEnergyPostExecutionServiceTest {
 		final Monitor roboticsMonitor = Monitor
 			.builder()
 			.type(ROBOTICS)
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
 			.metrics(new HashMap<>(Map.of(ROBOTICS_MOVE_COUNT_METRIC, NumberMetric.builder().value(0.7).build())))
 			.build();
 
@@ -172,7 +184,7 @@ class HardwareEnergyPostExecutionServiceTest {
 					)
 				)
 			)
-			.attributes(new HashMap<>(Map.of("name", "lto123")))
+			.attributes(new HashMap<>(Map.of("name", "lto123", MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
 			.build();
 
 		// Set the previously created tape drive monitor in telemetryManager
@@ -202,7 +214,11 @@ class HardwareEnergyPostExecutionServiceTest {
 	@Test
 	void testRunWithDiskControllerMonitor() {
 		// Create a disk controller monitor
-		final Monitor diskControllerMonitor = Monitor.builder().type(DISK_CONTROLLER).build();
+		final Monitor diskControllerMonitor = Monitor
+			.builder()
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.type(DISK_CONTROLLER)
+			.build();
 
 		// Set the previously created disk controller monitor in telemetryManager
 		final Map<String, Monitor> diskControllerMonitors = new HashMap<>(Map.of("monitor4", diskControllerMonitor));
@@ -230,8 +246,12 @@ class HardwareEnergyPostExecutionServiceTest {
 
 	@Test
 	void testRunWithMemoryMonitor() {
-		// Create a fan monitor
-		final Monitor memoryMonitor = Monitor.builder().type(MEMORY).build();
+		// Create a memory monitor
+		final Monitor memoryMonitor = Monitor
+			.builder()
+			.type(MEMORY)
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.build();
 
 		// Set the previously created monitor in telemetryManager
 		final Map<String, Monitor> monitors = new HashMap<>(Map.of("monitor1", memoryMonitor));
@@ -260,7 +280,11 @@ class HardwareEnergyPostExecutionServiceTest {
 	@Test
 	void testRunWithPhysicalDiskMonitor() {
 		// Create a physical disk monitor
-		final Monitor physicalDiskMonitor = Monitor.builder().type(PHYSICAL_DISK).build();
+		final Monitor physicalDiskMonitor = Monitor
+			.builder()
+			.type(PHYSICAL_DISK)
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.build();
 
 		// Set the previously created physical disk monitor in telemetryManager
 		final Map<String, Monitor> physicalDiskMonitors = new HashMap<>(Map.of("monitor5", physicalDiskMonitor));
@@ -292,7 +316,18 @@ class HardwareEnergyPostExecutionServiceTest {
 		final Monitor networkMonitor = Monitor
 			.builder()
 			.type(NETWORK)
-			.attributes(new HashMap<>(Map.of("name", "real_network_card", NETWORK_LINK_SPEED_ATTRIBUTE, "100.0")))
+			.attributes(
+				new HashMap<>(
+					Map.of(
+						"name",
+						"real_network_card",
+						NETWORK_LINK_SPEED_ATTRIBUTE,
+						"100.0",
+						MONITOR_ATTRIBUTE_CONNECTOR_ID,
+						HW_CONNECTOR
+					)
+				)
+			)
 			.metrics(
 				new HashMap<>(
 					Map.of(
@@ -358,18 +393,12 @@ class HardwareEnergyPostExecutionServiceTest {
 
 	@Test
 	void testComputeHostPowerAndEnergyMetrics() {
-		// Initialize the telemetry manager
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.strategyTime(new Date().getTime())
-			.hostConfiguration(HostConfiguration.builder().hostId(LOCALHOST).build())
-			.build();
-
 		// Initialize the host and other monitors
 		final Monitor host = Monitor
 			.builder()
 			.id(KnownMonitorType.HOST.getKey())
 			.type(KnownMonitorType.HOST.getKey())
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
 			.build();
 		host.setAsEndpoint();
 
@@ -383,53 +412,52 @@ class HardwareEnergyPostExecutionServiceTest {
 		);
 		previousPowerValue.save();
 
-		metricFactory.collectNumberMetric(host, CONNECTOR_STATUS_METRIC_KEY, 1.0, telemetryManager.getStrategyTime());
-
 		final Monitor enclosure = Monitor
 			.builder()
 			.id(KnownMonitorType.ENCLOSURE.getKey())
 			.type(KnownMonitorType.ENCLOSURE.getKey())
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
 			.build();
 
-		metricFactory.collectNumberMetric(enclosure, CONNECTOR_STATUS_METRIC_KEY, 1.0, telemetryManager.getStrategyTime());
-
-		final Monitor cpu = Monitor.builder().id("cpu1").type(KnownMonitorType.CPU.getKey()).build();
+		final Monitor cpu = Monitor
+			.builder()
+			.id("cpu1")
+			.type(KnownMonitorType.CPU.getKey())
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.build();
 		metricFactory.collectNumberMetric(cpu, HW_CPU_POWER, 60.0, telemetryManager.getStrategyTime());
-		metricFactory.collectNumberMetric(cpu, CONNECTOR_STATUS_METRIC_KEY, 1.0, telemetryManager.getStrategyTime());
 
-		final Monitor memory = Monitor.builder().id("memory1").type(KnownMonitorType.MEMORY.getKey()).build();
+		final Monitor memory = Monitor
+			.builder()
+			.id("memory1")
+			.type(KnownMonitorType.MEMORY.getKey())
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.build();
 
 		metricFactory.collectNumberMetric(memory, HW_MEMORY_POWER, 4.0, telemetryManager.getStrategyTime());
-		metricFactory.collectNumberMetric(memory, CONNECTOR_STATUS_METRIC_KEY, 1.0, telemetryManager.getStrategyTime());
 
-		final Monitor disk = Monitor.builder().id("disk_nvm_1").type(KnownMonitorType.PHYSICAL_DISK.getKey()).build();
+		final Monitor disk = Monitor
+			.builder()
+			.id("disk_nvm_1")
+			.type(KnownMonitorType.PHYSICAL_DISK.getKey())
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.build();
 
 		metricFactory.collectNumberMetric(disk, HW_PHYSICAL_DISK_POWER, 6.0, telemetryManager.getStrategyTime());
-		metricFactory.collectNumberMetric(disk, CONNECTOR_STATUS_METRIC_KEY, 1.0, telemetryManager.getStrategyTime());
 
 		final Monitor diskNoPower = Monitor
 			.builder()
 			.id("disk_noPower")
 			.type(KnownMonitorType.PHYSICAL_DISK.getKey())
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
 			.build();
-		metricFactory.collectNumberMetric(
-			diskNoPower,
-			CONNECTOR_STATUS_METRIC_KEY,
-			1.0,
-			telemetryManager.getStrategyTime()
-		);
 
 		final Monitor missingDisk = Monitor
 			.builder()
 			.id("disk_nvm_2")
 			.type(KnownMonitorType.PHYSICAL_DISK.getKey())
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
 			.build();
-		metricFactory.collectNumberMetric(
-			missingDisk,
-			CONNECTOR_STATUS_METRIC_KEY,
-			1.0,
-			telemetryManager.getStrategyTime()
-		);
 
 		// Add the previously created monitors to telemetry manager
 		telemetryManager.addNewMonitor(host, KnownMonitorType.HOST.getKey(), KnownMonitorType.HOST.getKey());
@@ -452,7 +480,12 @@ class HardwareEnergyPostExecutionServiceTest {
 	}
 
 	private static Monitor buildMonitor(final String monitorType, final String id) {
-		return Monitor.builder().id(id).type(monitorType).build();
+		return Monitor
+			.builder()
+			.id(id)
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.type(monitorType)
+			.build();
 	}
 
 	@Test

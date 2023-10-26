@@ -91,35 +91,40 @@ class VmPowerAndEnergyEstimatorTest {
 		final VmPowerAndEnergyEstimator vmOnline1Estimator = new VmPowerAndEnergyEstimator(
 			vmOnline1,
 			telemetryManager,
-			totalPowerSharesByPowerSource
+			totalPowerSharesByPowerSource,
+			false
 		);
 		vmOnline1.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, host.getId());
 
 		final VmPowerAndEnergyEstimator vmOffline2Estimator = new VmPowerAndEnergyEstimator(
 			vmOffline2,
 			telemetryManager,
-			totalPowerSharesByPowerSource
+			totalPowerSharesByPowerSource,
+			false
 		);
 		vmOffline2.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, host.getId());
 
 		final VmPowerAndEnergyEstimator vmOnline3Estimator = new VmPowerAndEnergyEstimator(
 			vmOnline3,
 			telemetryManager,
-			totalPowerSharesByPowerSource
+			totalPowerSharesByPowerSource,
+			false
 		);
 		vmOnline3.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, host.getId());
 
 		final VmPowerAndEnergyEstimator vmOnlineNoPowerShare4Estimator = new VmPowerAndEnergyEstimator(
 			vmOnlineNoPowerShare4,
 			telemetryManager,
-			totalPowerSharesByPowerSource
+			totalPowerSharesByPowerSource,
+			false
 		);
 		vmOnlineNoPowerShare4.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, host.getId());
 
 		final VmPowerAndEnergyEstimator vmOnlineBadPowerShare5Estimator = new VmPowerAndEnergyEstimator(
 			vmOnlineBadPowerShare5,
 			telemetryManager,
-			totalPowerSharesByPowerSource
+			totalPowerSharesByPowerSource,
+			false
 		);
 		vmOnlineBadPowerShare5.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, host.getId());
 
@@ -175,7 +180,8 @@ class VmPowerAndEnergyEstimatorTest {
 		final VmPowerAndEnergyEstimator vmPowerAndEnergyEstimator = new VmPowerAndEnergyEstimator(
 			vmOnlineZeroPowerShare1,
 			telemetryManager,
-			totalPowerSharesByPowerSource
+			totalPowerSharesByPowerSource,
+			false
 		);
 		vmPowerAndEnergyEstimator.setTotalPowerSharesByPowerSource(totalPowerSharesByPowerSource);
 
@@ -213,7 +219,8 @@ class VmPowerAndEnergyEstimatorTest {
 		final VmPowerAndEnergyEstimator vmPowerAndEnergyEstimator = new VmPowerAndEnergyEstimator(
 			vm1Online,
 			telemetryManager,
-			totalPowerSharesByPowerSource
+			totalPowerSharesByPowerSource,
+			true
 		);
 		vmPowerAndEnergyEstimator.setTotalPowerSharesByPowerSource(totalPowerSharesByPowerSource);
 

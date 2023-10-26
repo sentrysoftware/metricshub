@@ -17,10 +17,10 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -157,8 +157,8 @@ public class TelemetryManager {
 
 	/**
 	 * Finds a monitor using its type and its id attribute
-	 * @param type
-	 * @param id
+	 * @param type monitor's type
+	 * @param id monitor's id
 	 * @return Monitor instance
 	 */
 	public Monitor findMonitorByTypeAndId(final String type, final String id) {
@@ -268,12 +268,25 @@ public class TelemetryManager {
 	 * @return {@link Monitor}
 	 */
 	public Monitor findMonitorById(final String monitorId) {
-		final List<Monitor> monitors = getMonitors()
+		return getMonitors()
 			.values()
 			.stream()
-			.filter(monitorsMap -> monitorsMap.containsKey(monitorId))
-			.map(entry -> entry.get(monitorId))
-			.collect(Collectors.toList());
-		return monitors == null || monitors.size() == 0 ? null : monitors.get(0);
+			.map(monitorsMap -> monitorsMap.get(monitorId))
+			.filter(Objects::nonNull)
+			.findFirst()
+			.orElse(null);
+	}
+
+	/**
+	 * This method checks whether a connector status was set to "ok"
+	 * @param currentMonitor the current monitor
+	 * @return boolean whether the connector status is ok
+	 */
+	public boolean isConnectorStatusOk(final Monitor currentMonitor) {
+		if (currentMonitor.isEndpointHost()) {
+			return true;
+		}
+		final String connectorId = currentMonitor.getAttribute(MetricsHubConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID);
+		return null != connectorId && hostProperties.getConnectorNamespace(connectorId).isStatusOk();
 	}
 }

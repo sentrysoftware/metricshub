@@ -80,7 +80,7 @@ public class PowerAndEnergyCollectHelper {
 	 * @param telemetryManager the telemetry manager {@link TelemetryManager}
 	 * @param hostMonitorEnergyAndPowerEstimator generic estimator class which can used by the different hardware {@link HardwarePowerAndEnergyEstimator}
 	 */
-	public static void collectHostPowerAndEnergy(
+	public static boolean collectHostPowerAndEnergy(
 		final Monitor monitor,
 		final TelemetryManager telemetryManager,
 		final HostMonitorPowerAndEnergyEstimator hostMonitorEnergyAndPowerEstimator
@@ -99,7 +99,7 @@ public class PowerAndEnergyCollectHelper {
 			// Compute measured power
 			computedPower = hostMonitorEnergyAndPowerEstimator.computeMeasuredPower();
 			if (isNullComputedPower(telemetryManager, monitor, HW_HOST_MEASURED_POWER, computedPower)) {
-				return;
+				return true;
 			}
 			metricFactory.collectNumberMetric(
 				monitor,
@@ -111,7 +111,7 @@ public class PowerAndEnergyCollectHelper {
 			// Compute measured energy
 			computedEnergy = hostMonitorEnergyAndPowerEstimator.computeMeasuredEnergy();
 			if (isNullComputedEnergy(telemetryManager, monitor, HW_HOST_MEASURED_ENERGY, computedEnergy)) {
-				return;
+				return true;
 			}
 			metricFactory.collectNumberMetric(
 				monitor,
@@ -119,11 +119,12 @@ public class PowerAndEnergyCollectHelper {
 				computedEnergy,
 				telemetryManager.getStrategyTime()
 			);
+			return true;
 		} else {
 			// Compute estimated power
 			computedPower = hostMonitorEnergyAndPowerEstimator.computeEstimatedPower();
 			if (isNullComputedPower(telemetryManager, monitor, HW_HOST_ESTIMATED_POWER, computedPower)) {
-				return;
+				return false;
 			}
 			metricFactory.collectNumberMetric(
 				monitor,
@@ -135,7 +136,7 @@ public class PowerAndEnergyCollectHelper {
 			// Compute estimated energy
 			computedEnergy = hostMonitorEnergyAndPowerEstimator.computeEstimatedEnergy();
 			if (isNullComputedEnergy(telemetryManager, monitor, HW_HOST_ESTIMATED_ENERGY, computedEnergy)) {
-				return;
+				return false;
 			}
 			metricFactory.collectNumberMetric(
 				monitor,
@@ -143,6 +144,7 @@ public class PowerAndEnergyCollectHelper {
 				computedEnergy,
 				telemetryManager.getStrategyTime()
 			);
+			return false;
 		}
 	}
 

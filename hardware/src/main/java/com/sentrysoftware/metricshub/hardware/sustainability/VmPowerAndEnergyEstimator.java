@@ -27,14 +27,17 @@ import lombok.NoArgsConstructor;
 public class VmPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimator {
 
 	private Map<String, Double> totalPowerSharesByPowerSource;
+	private boolean isPowerMeasured;
 
 	public VmPowerAndEnergyEstimator(
 		final Monitor monitor,
 		final TelemetryManager telemetryManager,
-		final Map<String, Double> totalPowerSharesByPowerSource
+		final Map<String, Double> totalPowerSharesByPowerSource,
+		final boolean isPowerMeasured
 	) {
 		super(monitor, telemetryManager);
 		this.totalPowerSharesByPowerSource = totalPowerSharesByPowerSource;
+		this.isPowerMeasured = isPowerMeasured;
 	}
 
 	/**
@@ -61,9 +64,12 @@ public class VmPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimator {
 
 		if (powerSourceMonitor != null) {
 			if (KnownMonitorType.HOST.getKey().equals(powerSourceMonitor.getType())) {
-				powerSourcePowerConsumption =
-					CollectHelper.getNumberMetricValue(powerSourceMonitor, HW_HOST_MEASURED_POWER, false);
-				if (powerSourcePowerConsumption == null) {
+				// If the power of the power source monitor is measured
+				if (isPowerMeasured) {
+					powerSourcePowerConsumption =
+						CollectHelper.getNumberMetricValue(powerSourceMonitor, HW_HOST_MEASURED_POWER, false);
+				} else {
+					// If the power of the power source monitor is estimated
 					powerSourcePowerConsumption =
 						CollectHelper.getNumberMetricValue(powerSourceMonitor, HW_HOST_ESTIMATED_POWER, false);
 				}
@@ -88,7 +94,7 @@ public class VmPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimator {
 		metricFactory.collectNumberMetric(
 			monitor,
 			HW_VM_POWER_SHARE_METRIC,
-			powerShareRatio * 100,
+			powerShareRatio,
 			telemetryManager.getStrategyTime()
 		);
 		return estimatedPower;
