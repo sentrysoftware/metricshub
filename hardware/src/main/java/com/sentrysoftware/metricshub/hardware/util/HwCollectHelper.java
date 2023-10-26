@@ -1,5 +1,8 @@
 package com.sentrysoftware.metricshub.hardware.util;
 
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_VM_POWER_SHARE_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_VM_POWER_STATE_METRIC;
+
 import com.sentrysoftware.metricshub.engine.strategy.utils.CollectHelper;
 import com.sentrysoftware.metricshub.engine.strategy.utils.MathOperationsHelper;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
@@ -64,23 +67,23 @@ public class HwCollectHelper {
 		// Convert deltaTimeMs from milliseconds (ms) to seconds
 		final Double deltaTime = deltaTimeMs != null ? deltaTimeMs / 1000.0 : null;
 
-		// Calculate the usage over time. e.g from Power Consumption: E = P * T
-		final Double usageDelta = MathOperationsHelper.multiply(powerMetricName, estimatedPower, deltaTime, hostname);
+		// Calculate the energy usage over time. e.g from Power Consumption: E = P * T
+		final Double energyUsage = MathOperationsHelper.multiply(powerMetricName, estimatedPower, deltaTime, hostname);
 
-		if (usageDelta != null) {
-			// The counter will start from the usage delta
-			Double counter = usageDelta;
+		if (energyUsage != null) {
+			// The counter will start from the energy usage
+			Double energy = energyUsage;
 
 			// The previous counter is needed to make a sum with the delta counter value on this collect
-			final Double previousCounter = CollectHelper.getNumberMetricValue(monitor, energyMetricName, true);
+			final Double previousEnergy = CollectHelper.getNumberMetricValue(monitor, energyMetricName, true);
 
 			// Ok, we have the previous counter value ? sum the previous counter and the current delta counter
-			if (previousCounter != null) {
-				counter += previousCounter;
+			if (previousEnergy != null) {
+				energy += previousEnergy;
 			}
 
 			// Everything is good return the counter metric
-			return counter;
+			return energy;
 		} else {
 			log.debug(
 				"Hostname {} - Cannot calculate energy {} for monitor {}. Current raw value {} - Current time {} - Previous time {}.",
@@ -133,5 +136,33 @@ public class HwCollectHelper {
 	 */
 	public static String generateEnergyMetricNameForMonitorType(final String monitorType) {
 		return "hw.energy{hw.type=\"" + monitorType + "\"}";
+	}
+
+	/**
+	 * Get the VM's power share which is assumed not null and >= 0.0
+	 *
+	 * @param vm VM {@link Monitor} instance
+	 * @return Double value. Returns 0.0 if the power share is null or less than 0.0 or the VM is not online
+	 */
+	public static Double getVmPowerShare(Monitor vm) {
+		if (!isVmOnline(vm)) {
+			return 0.0;
+		}
+
+		final Double powerShare = CollectHelper.getNumberMetricValue(vm, HW_VM_POWER_SHARE_METRIC, false);
+		if (powerShare != null && powerShare >= 0.0) {
+			return powerShare;
+		}
+
+		return 0.0;
+	}
+
+	/**
+	 * @param vm	The VM whose online status should be determined.
+	 *
+	 * @return		Whether the given VM is online.
+	 */
+	private static boolean isVmOnline(Monitor vm) {
+		return "on".equals(CollectHelper.getStateSetMetricValue(vm, HW_VM_POWER_STATE_METRIC, false));
 	}
 }

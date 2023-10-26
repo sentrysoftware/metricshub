@@ -23,6 +23,9 @@ import org.junit.jupiter.api.Test;
 
 class MappingProcessorTest {
 
+	private static final String HW_VM_POWER_RATIO = "__hw.vm.power_ratio";
+	private static final String HW_VM_POWER_RATIO_RAW_POWER_SHARE = "__hw.vm.power_ratio.raw_power_share";
+
 	@Test
 	void testInterpretNonContextMapping() {
 		final TelemetryManager telemetryManager = new TelemetryManager();
@@ -579,15 +582,15 @@ class MappingProcessorTest {
 			.build();
 
 		{
-			final Map<String, String> keyValuePairs = Map.of("hw.vm.power_ratio", "computePowerShareRatio(10)");
-			final Map<String, String> expected = Map.of("hw.vm.power_ratio.raw_power_share", "10.0");
+			final Map<String, String> keyValuePairs = Map.of(HW_VM_POWER_RATIO, "computePowerShareRatio(10)");
+			final Map<String, String> expected = Map.of(HW_VM_POWER_RATIO_RAW_POWER_SHARE, "10.0");
 
 			assertEquals(expected, mappingProcessor.interpretNonContextMapping(keyValuePairs));
 		}
 
 		{
-			final Map<String, String> keyValuePairs = Map.of("hw.vm.power_ratio", "computePowerShareRatio(ten)");
-			final Map<String, String> expected = Map.of("hw.vm.power_ratio.raw_power_share", "");
+			final Map<String, String> keyValuePairs = Map.of(HW_VM_POWER_RATIO, "computePowerShareRatio(ten)");
+			final Map<String, String> expected = Map.of(HW_VM_POWER_RATIO_RAW_POWER_SHARE, "");
 
 			assertEquals(expected, mappingProcessor.interpretNonContextMapping(keyValuePairs));
 		}

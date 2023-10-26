@@ -42,13 +42,14 @@ public class HostMonitorThermalCalculator {
 	 * <ul>
 	 * <li><b>{@value #HW_HOST_AMBIENT_TEMPERATURE}</b> the minimum temperature between 5 and 100 degrees Celsius</li>
 	 * <li><b>{@value #HW_HOST_AVERAGE_CPU_TEMPERATURE}</b>: the average CPU temperatures</li>
-	 * <li><b>{@link HwConstants#HW_HOST_CPU_THERMAL_DISSIPATION_RATE}</b>: the heat dissipation rate of the processors (as a fraction of the maximum heat/power they can emit)</li>
+	 * <li><b>{@link HwConstants#HW_HOST_CPU_THERMAL_DISSIPATION_RATE }</b> : the heat dissipation rate of the
+	 * processors (as a fraction of the maximum heat/power they can emit)</li>
 	 * </ul>
 	 */
 	public void computeHostTemperatureMetrics() {
-		final Map<String, Monitor> temperatureMonitors = telemetryManager
-			.getMonitors()
-			.get(KnownMonitorType.TEMPERATURE.getKey());
+		final Map<String, Monitor> temperatureMonitors = telemetryManager.findMonitorsByType(
+			KnownMonitorType.TEMPERATURE.getKey()
+		);
 
 		// No temperatures then no computation
 		if (temperatureMonitors == null || temperatureMonitors.isEmpty()) {
@@ -253,9 +254,15 @@ public class HostMonitorThermalCalculator {
 
 	/**
 	 * Get the temperature threshold value from the given metadata map
+<<<<<<< HEAD
+	 * @param warningThreshold the warning threshold
+	 * @param alarmThreshold the alarm threshold
+	 * @return temperature warning threshold of type Double
+=======
 	 * @param warningThreshold the warning limit
 	 * @param alarmThreshold the alarm limit
 	 * @return the temperature warning threshold
+>>>>>>> 951d277207513000fa333dcb5c679084162ead52
 	 */
 	private Double getTemperatureWarningThreshold(final Double warningThreshold, final Double alarmThreshold) {
 		// If we only have an alarm threshold, then warningThreshold will be 90% of alarmThreshold

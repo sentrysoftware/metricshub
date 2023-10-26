@@ -180,7 +180,7 @@ public class MetricFactory {
 	 * @param monitor the monitor we currently collect its status metric
 	 * @param strategyTime strategy time
 	 */
-	public void collectConnectorStatusNumberMetric(
+	public boolean collectConnectorStatusNumberMetric(
 		final ConnectorTestResult connectorTestResult,
 		final Monitor monitor,
 		final long strategyTime
@@ -188,9 +188,10 @@ public class MetricFactory {
 		final MetricFactory metricFactory = new MetricFactory(hostname);
 		if (connectorTestResult.isSuccess()) {
 			metricFactory.collectNumberMetric(monitor, CONNECTOR_STATUS_METRIC_KEY, 1.0, strategyTime);
-		} else {
-			metricFactory.collectNumberMetric(monitor, CONNECTOR_STATUS_METRIC_KEY, 0.0, strategyTime);
+			return true;
 		}
+		metricFactory.collectNumberMetric(monitor, CONNECTOR_STATUS_METRIC_KEY, 0.0, strategyTime);
+		return false;
 	}
 
 	/**
@@ -279,17 +280,18 @@ public class MetricFactory {
 	 * @return boolean whether metric attributes contain state attribute
 	 */
 	public boolean checkForStateAttribute(final Map<String, String> attributes) {
-		return attributes.keySet().stream().anyMatch(attributeKey -> attributeKey.equals("hw.status"));
+		return attributes.keySet().stream().anyMatch(attributeKey -> attributeKey.equals("state"));
 	}
 
 	/**
 	 * This method collects monitor metrics
 	 * @param monitorType the monitor's type
 	 * @param connector connector
-	 * @param hostname host name
 	 * @param monitor a given monitor
 	 * @param connectorId connector id
 	 * @param metrics metrics
+	 * @param strategyTime time of the strategy in milliseconds
+	 * @param isDiscovery boolean whether it's a discovery operation
 	 */
 	public void collectMonitorMetrics(
 		final String monitorType,

@@ -1,7 +1,7 @@
 package com.sentrysoftware.metricshub.hardware.util;
 
-import static com.sentrysoftware.metricshub.hardware.util.HwCollectHelper.generateEnergyMetricNameForMonitorType;
-import static com.sentrysoftware.metricshub.hardware.util.HwCollectHelper.generatePowerMetricNameForMonitorType;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENCLOSURE_ENERGY;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENCLOSURE_POWER;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_ESTIMATED_ENERGY;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_ESTIMATED_POWER;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_MEASURED_ENERGY;
@@ -13,7 +13,7 @@ import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.hardware.sustainability.HardwarePowerAndEnergyEstimator;
-import com.sentrysoftware.metricshub.hardware.sustainability.HostMonitorEnergyAndPowerEstimator;
+import com.sentrysoftware.metricshub.hardware.sustainability.HostMonitorPowerAndEnergyEstimator;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -80,13 +80,13 @@ public class PowerAndEnergyCollectHelper {
 	 * @param telemetryManager the telemetry manager {@link TelemetryManager}
 	 * @param hostMonitorEnergyAndPowerEstimator generic estimator class which can used by the different hardware {@link HardwarePowerAndEnergyEstimator}
 	 */
-	public static void collectHostPowerAndEnergy(
+	public static boolean collectHostPowerAndEnergy(
 		final Monitor monitor,
 		final TelemetryManager telemetryManager,
-		final HostMonitorEnergyAndPowerEstimator hostMonitorEnergyAndPowerEstimator
+		final HostMonitorPowerAndEnergyEstimator hostMonitorEnergyAndPowerEstimator
 	) {
 		// Retrieve enclosure monitors
-		final Map<String, Monitor> enclosures = telemetryManager.findMonitorByType(KnownMonitorType.ENCLOSURE.getKey());
+		final Map<String, Monitor> enclosures = telemetryManager.findMonitorsByType(KnownMonitorType.ENCLOSURE.getKey());
 
 		// Create metricFactory to collect metrics
 		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
@@ -99,7 +99,7 @@ public class PowerAndEnergyCollectHelper {
 			// Compute measured power
 			computedPower = hostMonitorEnergyAndPowerEstimator.computeMeasuredPower();
 			if (isNullComputedPower(telemetryManager, monitor, HW_HOST_MEASURED_POWER, computedPower)) {
-				return;
+				return true;
 			}
 			metricFactory.collectNumberMetric(
 				monitor,
@@ -111,7 +111,7 @@ public class PowerAndEnergyCollectHelper {
 			// Compute measured energy
 			computedEnergy = hostMonitorEnergyAndPowerEstimator.computeMeasuredEnergy();
 			if (isNullComputedEnergy(telemetryManager, monitor, HW_HOST_MEASURED_ENERGY, computedEnergy)) {
-				return;
+				return true;
 			}
 			metricFactory.collectNumberMetric(
 				monitor,
@@ -119,11 +119,12 @@ public class PowerAndEnergyCollectHelper {
 				computedEnergy,
 				telemetryManager.getStrategyTime()
 			);
+			return true;
 		} else {
 			// Compute estimated power
 			computedPower = hostMonitorEnergyAndPowerEstimator.computeEstimatedPower();
 			if (isNullComputedPower(telemetryManager, monitor, HW_HOST_ESTIMATED_POWER, computedPower)) {
-				return;
+				return false;
 			}
 			metricFactory.collectNumberMetric(
 				monitor,
@@ -135,7 +136,7 @@ public class PowerAndEnergyCollectHelper {
 			// Compute estimated energy
 			computedEnergy = hostMonitorEnergyAndPowerEstimator.computeEstimatedEnergy();
 			if (isNullComputedEnergy(telemetryManager, monitor, HW_HOST_ESTIMATED_ENERGY, computedEnergy)) {
-				return;
+				return false;
 			}
 			metricFactory.collectNumberMetric(
 				monitor,
@@ -143,6 +144,7 @@ public class PowerAndEnergyCollectHelper {
 				computedEnergy,
 				telemetryManager.getStrategyTime()
 			);
+			return false;
 		}
 	}
 
@@ -211,10 +213,8 @@ public class PowerAndEnergyCollectHelper {
 			.map(Map::values)
 			.flatMap(Collection::stream)
 			.anyMatch(monitor ->
-				CollectHelper.getUpdatedNumberMetricValue(monitor, generatePowerMetricNameForMonitorType(monitor.getType())) !=
-				null ||
-				CollectHelper.getUpdatedNumberMetricValue(monitor, generateEnergyMetricNameForMonitorType(monitor.getType())) !=
-				null
+				CollectHelper.getUpdatedNumberMetricValue(monitor, HW_ENCLOSURE_POWER) != null ||
+				CollectHelper.getUpdatedNumberMetricValue(monitor, HW_ENCLOSURE_ENERGY) != null
 			);
 	}
 }

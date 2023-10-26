@@ -165,7 +165,7 @@ public class CollectStrategy extends AbstractStrategy {
 				.build();
 
 			if (collect instanceof MultiInstanceCollect multiInstanceCollect) {
-				final Map<String, Monitor> monitors = telemetryManager.findMonitorByType(monitorType);
+				final Map<String, Monitor> monitors = telemetryManager.findMonitorsByType(monitorType);
 				if (monitors == null) {
 					return;
 				}
@@ -182,7 +182,7 @@ public class CollectStrategy extends AbstractStrategy {
 				);
 			} else {
 				// Get monitors by type and connectorId (connector id attribute)
-				final Map<String, Monitor> sameTypeMonitors = telemetryManager.findMonitorByType(monitorType);
+				final Map<String, Monitor> sameTypeMonitors = telemetryManager.findMonitorsByType(monitorType);
 
 				final Map<String, Monitor> sameTypeSameConnectorMonitors = sameTypeMonitors
 					.values()
@@ -304,7 +304,7 @@ public class CollectStrategy extends AbstractStrategy {
 		// Otherwise, (in case of multi-instance processing), we loop over all the source table rows
 		final int rowCountLimit = maybeMonitor.isEmpty() ? table.size() : 1;
 
-		final Map<String, Monitor> sameTypeMonitors = telemetryManager.findMonitorByType(monitorType);
+		final Map<String, Monitor> sameTypeMonitors = telemetryManager.findMonitorsByType(monitorType);
 
 		// Loop over the source table rows
 		for (int i = 0; i < rowCountLimit; i++) {

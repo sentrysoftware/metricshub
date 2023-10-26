@@ -5,14 +5,11 @@ import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_PHYSICAL_DISK_METRIC;
 
 import com.sentrysoftware.metricshub.engine.common.helpers.ArrayHelper;
-import com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.hardware.util.HwCollectHelper;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -39,21 +36,9 @@ public class PhysicalDiskPowerAndEnergyEstimator extends HardwarePowerAndEnergyE
 		monitorDataList.add(monitor.getAttribute("model"));
 		monitorDataList.add(monitor.getAttribute("info"));
 
-		final String hwParentId = monitor.getAttribute("hw.parent.id");
-		final String hwParentType = monitor.getAttribute("hw.parent.type");
-
-		if (hwParentType != null && hwParentId != null) {
-			Optional
-				.ofNullable(telemetryManager.findMonitorByType(hwParentType))
-				.ifPresent(sameTypeMonitors ->
-					sameTypeMonitors
-						.entrySet()
-						.stream()
-						.filter(entry -> hwParentId.equals(entry.getValue().getAttribute(MetricsHubConstants.MONITOR_ATTRIBUTE_ID)))
-						.map(Map.Entry::getValue)
-						.findFirst()
-						.ifPresent(parent -> monitorDataList.add(parent.getAttribute(MONITOR_ATTRIBUTE_NAME)))
-				);
+		final Monitor parentMonitor = telemetryManager.findParentMonitor(monitor);
+		if (parentMonitor != null) {
+			monitorDataList.add(parentMonitor.getAttribute(MONITOR_ATTRIBUTE_NAME));
 		}
 
 		final String[] monitorData = monitorDataList.toArray(new String[0]);

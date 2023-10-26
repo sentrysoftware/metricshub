@@ -34,6 +34,14 @@ public class HwConstants {
 	public static final String HW_HOST_ESTIMATED_POWER = "hw.host.power{quality=\"estimated\"}";
 	public static final String HW_HOST_ESTIMATED_ENERGY = "hw.host.energy{quality=\"estimated\"}";
 
+	public static final String HW_ENERGY_VM_METRIC = "hw.energy{hw.type=\"vm\"}";
+	public static final String HW_POWER_VM_METRIC = "hw.power{hw.type=\"vm\"}";
+	public static final String POWER_SOURCE_ID_ATTRIBUTE = "__power_source_id";
+	public static final String HW_VM_POWER_SHARE_METRIC = "__hw.vm.power_ratio.raw_power_share";
+	public static final String HW_VM_POWER_STATE_METRIC = "hw.vm.power_state";
+
+	public static final String HW_ENCLOSURE_POWER = "hw.enclosure.power";
+	public static final String HW_ENCLOSURE_ENERGY = "hw.enclosure.energy";
 	public static final String HW_ENERGY_CPU_METRIC = "hw.energy{hw.type=\"cpu\"}";
 	public static final String HW_POWER_CPU_METRIC = "hw.power{hw.type=\"cpu\"}";
 	public static final String HW_CPU_SPEED_LIMIT_LIMIT_TYPE_MAX = "hw.cpu.speed.limit{limit_type=\"max\"}";

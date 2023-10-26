@@ -1,12 +1,14 @@
 package com.sentrysoftware.metricshub.hardware;
 
-import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.CONNECTOR_STATUS_METRIC_KEY;
+import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.CPU_POWER_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.DISK_CONTROLLER_ENERGY_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.DISK_CONTROLLER_POWER_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.FAN_ENERGY_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.FAN_POWER_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.FAN_SPEED_METRIC;
+import static com.sentrysoftware.metricshub.hardware.common.Constants.HOST_1;
+import static com.sentrysoftware.metricshub.hardware.common.Constants.HW_CONNECTOR;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.HW_CPU_POWER;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.HW_HOST_AMBIENT_TEMPERATURE;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.HW_HOST_AVERAGE_CPU_TEMPERATURE;
@@ -20,6 +22,7 @@ import static com.sentrysoftware.metricshub.hardware.common.Constants.NETWORK_LI
 import static com.sentrysoftware.metricshub.hardware.common.Constants.NETWORK_LINK_STATUS_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.NETWORK_POWER_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.NETWORK_TRANSMITTED_BANDWIDTH_UTILIZATION_METRIC;
+import static com.sentrysoftware.metricshub.hardware.common.Constants.ON;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.PHYSICAL_DISK_ENERGY_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.PHYSICAL_DISK_POWER_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.ROBOTICS_ENERGY_METRIC;
@@ -30,23 +33,36 @@ import static com.sentrysoftware.metricshub.hardware.common.Constants.TAPE_DRIVE
 import static com.sentrysoftware.metricshub.hardware.common.Constants.TAPE_DRIVE_POWER_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.TAPE_DRIVE_UNMOUNT_COUNT_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.TEMPERATURE_METRIC;
+import static com.sentrysoftware.metricshub.hardware.common.Constants.VM_1_ONLINE;
+import static com.sentrysoftware.metricshub.hardware.common.Constants.VM_OFFLINE_2;
+import static com.sentrysoftware.metricshub.hardware.common.Constants.VM_ONLINE_3;
+import static com.sentrysoftware.metricshub.hardware.common.Constants.VM_ONLINE_BAD_POWER_SHARE_5;
+import static com.sentrysoftware.metricshub.hardware.common.Constants.VM_ONLINE_NO_POWER_SHARE_4;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_CPU_SPEED_LIMIT_LIMIT_TYPE_MAX;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_CPU_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_VM_METRIC;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_CPU_THERMAL_DISSIPATION_RATE;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_ESTIMATED_ENERGY;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_ESTIMATED_POWER;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_CPU_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_VM_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_VM_POWER_SHARE_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_VM_POWER_STATE_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.POWER_SOURCE_ID_ATTRIBUTE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
+import com.sentrysoftware.metricshub.engine.strategy.utils.CollectHelper;
+import com.sentrysoftware.metricshub.engine.telemetry.ConnectorNamespace;
+import com.sentrysoftware.metricshub.engine.telemetry.HostProperties;
 import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
-import java.util.Date;
+import com.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
@@ -79,6 +95,14 @@ class HardwareEnergyPostExecutionServiceTest {
 				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).build())
 				.strategyTime(STRATEGY_TIME)
 				.build();
+
+		// Set the status ok in the host properties
+		final ConnectorNamespace connectorNamespace = ConnectorNamespace.builder().isStatusOk(true).build();
+		final HostProperties hostProperties = HostProperties
+			.builder()
+			.connectorNamespaces(new HashMap<>(Map.of(HW_CONNECTOR, connectorNamespace)))
+			.build();
+		telemetryManager.setHostProperties(hostProperties);
 	}
 
 	@Test
@@ -88,6 +112,7 @@ class HardwareEnergyPostExecutionServiceTest {
 			.builder()
 			.type(FAN)
 			.metrics(new HashMap<>(Map.of(FAN_SPEED_METRIC, NumberMetric.builder().value(0.7).build())))
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
 			.build();
 
 		// Set the previously created fan monitor in telemetryManager
@@ -120,6 +145,7 @@ class HardwareEnergyPostExecutionServiceTest {
 		final Monitor roboticsMonitor = Monitor
 			.builder()
 			.type(ROBOTICS)
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
 			.metrics(new HashMap<>(Map.of(ROBOTICS_MOVE_COUNT_METRIC, NumberMetric.builder().value(0.7).build())))
 			.build();
 
@@ -163,7 +189,7 @@ class HardwareEnergyPostExecutionServiceTest {
 					)
 				)
 			)
-			.attributes(new HashMap<>(Map.of("name", "lto123")))
+			.attributes(new HashMap<>(Map.of("name", "lto123", MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
 			.build();
 
 		// Set the previously created tape drive monitor in telemetryManager
@@ -193,7 +219,11 @@ class HardwareEnergyPostExecutionServiceTest {
 	@Test
 	void testRunWithDiskControllerMonitor() {
 		// Create a disk controller monitor
-		final Monitor diskControllerMonitor = Monitor.builder().type(DISK_CONTROLLER).build();
+		final Monitor diskControllerMonitor = Monitor
+			.builder()
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.type(DISK_CONTROLLER)
+			.build();
 
 		// Set the previously created disk controller monitor in telemetryManager
 		final Map<String, Monitor> diskControllerMonitors = new HashMap<>(Map.of("monitor4", diskControllerMonitor));
@@ -221,8 +251,12 @@ class HardwareEnergyPostExecutionServiceTest {
 
 	@Test
 	void testRunWithMemoryMonitor() {
-		// Create a fan monitor
-		final Monitor memoryMonitor = Monitor.builder().type(MEMORY).build();
+		// Create a memory monitor
+		final Monitor memoryMonitor = Monitor
+			.builder()
+			.type(MEMORY)
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.build();
 
 		// Set the previously created monitor in telemetryManager
 		final Map<String, Monitor> monitors = new HashMap<>(Map.of("monitor1", memoryMonitor));
@@ -251,7 +285,11 @@ class HardwareEnergyPostExecutionServiceTest {
 	@Test
 	void testRunWithPhysicalDiskMonitor() {
 		// Create a physical disk monitor
-		final Monitor physicalDiskMonitor = Monitor.builder().type(PHYSICAL_DISK).build();
+		final Monitor physicalDiskMonitor = Monitor
+			.builder()
+			.type(PHYSICAL_DISK)
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.build();
 
 		// Set the previously created physical disk monitor in telemetryManager
 		final Map<String, Monitor> physicalDiskMonitors = new HashMap<>(Map.of("monitor5", physicalDiskMonitor));
@@ -283,7 +321,18 @@ class HardwareEnergyPostExecutionServiceTest {
 		final Monitor networkMonitor = Monitor
 			.builder()
 			.type(NETWORK)
-			.attributes(new HashMap<>(Map.of("name", "real_network_card", NETWORK_LINK_SPEED_ATTRIBUTE, "100.0")))
+			.attributes(
+				new HashMap<>(
+					Map.of(
+						"name",
+						"real_network_card",
+						NETWORK_LINK_SPEED_ATTRIBUTE,
+						"100.0",
+						MONITOR_ATTRIBUTE_CONNECTOR_ID,
+						HW_CONNECTOR
+					)
+				)
+			)
 			.metrics(
 				new HashMap<>(
 					Map.of(
@@ -349,18 +398,12 @@ class HardwareEnergyPostExecutionServiceTest {
 
 	@Test
 	void testComputeHostPowerAndEnergyMetrics() {
-		// Initialize the telemetry manager
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.strategyTime(new Date().getTime())
-			.hostConfiguration(HostConfiguration.builder().hostId(LOCALHOST).build())
-			.build();
-
 		// Initialize the host and other monitors
 		final Monitor host = Monitor
 			.builder()
 			.id(KnownMonitorType.HOST.getKey())
 			.type(KnownMonitorType.HOST.getKey())
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
 			.build();
 		host.setAsEndpoint();
 
@@ -374,53 +417,52 @@ class HardwareEnergyPostExecutionServiceTest {
 		);
 		previousPowerValue.save();
 
-		metricFactory.collectNumberMetric(host, CONNECTOR_STATUS_METRIC_KEY, 1.0, telemetryManager.getStrategyTime());
-
 		final Monitor enclosure = Monitor
 			.builder()
 			.id(KnownMonitorType.ENCLOSURE.getKey())
 			.type(KnownMonitorType.ENCLOSURE.getKey())
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
 			.build();
 
-		metricFactory.collectNumberMetric(enclosure, CONNECTOR_STATUS_METRIC_KEY, 1.0, telemetryManager.getStrategyTime());
-
-		final Monitor cpu = Monitor.builder().id("cpu1").type(KnownMonitorType.CPU.getKey()).build();
+		final Monitor cpu = Monitor
+			.builder()
+			.id("cpu1")
+			.type(KnownMonitorType.CPU.getKey())
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.build();
 		metricFactory.collectNumberMetric(cpu, HW_CPU_POWER, 60.0, telemetryManager.getStrategyTime());
-		metricFactory.collectNumberMetric(cpu, CONNECTOR_STATUS_METRIC_KEY, 1.0, telemetryManager.getStrategyTime());
 
-		final Monitor memory = Monitor.builder().id("memory1").type(KnownMonitorType.MEMORY.getKey()).build();
+		final Monitor memory = Monitor
+			.builder()
+			.id("memory1")
+			.type(KnownMonitorType.MEMORY.getKey())
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.build();
 
 		metricFactory.collectNumberMetric(memory, HW_MEMORY_POWER, 4.0, telemetryManager.getStrategyTime());
-		metricFactory.collectNumberMetric(memory, CONNECTOR_STATUS_METRIC_KEY, 1.0, telemetryManager.getStrategyTime());
 
-		final Monitor disk = Monitor.builder().id("disk_nvm_1").type(KnownMonitorType.PHYSICAL_DISK.getKey()).build();
+		final Monitor disk = Monitor
+			.builder()
+			.id("disk_nvm_1")
+			.type(KnownMonitorType.PHYSICAL_DISK.getKey())
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.build();
 
 		metricFactory.collectNumberMetric(disk, HW_PHYSICAL_DISK_POWER, 6.0, telemetryManager.getStrategyTime());
-		metricFactory.collectNumberMetric(disk, CONNECTOR_STATUS_METRIC_KEY, 1.0, telemetryManager.getStrategyTime());
 
 		final Monitor diskNoPower = Monitor
 			.builder()
 			.id("disk_noPower")
 			.type(KnownMonitorType.PHYSICAL_DISK.getKey())
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
 			.build();
-		metricFactory.collectNumberMetric(
-			diskNoPower,
-			CONNECTOR_STATUS_METRIC_KEY,
-			1.0,
-			telemetryManager.getStrategyTime()
-		);
 
 		final Monitor missingDisk = Monitor
 			.builder()
 			.id("disk_nvm_2")
 			.type(KnownMonitorType.PHYSICAL_DISK.getKey())
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
 			.build();
-		metricFactory.collectNumberMetric(
-			missingDisk,
-			CONNECTOR_STATUS_METRIC_KEY,
-			1.0,
-			telemetryManager.getStrategyTime()
-		);
 
 		// Add the previously created monitors to telemetry manager
 		telemetryManager.addNewMonitor(host, KnownMonitorType.HOST.getKey(), KnownMonitorType.HOST.getKey());
@@ -442,14 +484,142 @@ class HardwareEnergyPostExecutionServiceTest {
 		assertEquals(6517.200000000001, host.getMetric(HW_HOST_ESTIMATED_ENERGY, NumberMetric.class).getValue());
 	}
 
+	private static Monitor buildMonitor(final String monitorType, final String id) {
+		return Monitor
+			.builder()
+			.id(id)
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.type(monitorType)
+			.build();
+	}
+
+	@Test
+	void testRunWithVmMonitor() {
+		// Create the metric factory to collect metrics
+
+		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
+
+		// Prepare the monitors and their metrics
+
+		final Monitor vmOnline1 = buildMonitor(KnownMonitorType.VM.getKey(), VM_1_ONLINE);
+		vmOnline1.addMetric(HW_VM_POWER_STATE_METRIC, StateSetMetric.builder().value(ON).build());
+		metricFactory.collectNumberMetric(vmOnline1, HW_VM_POWER_SHARE_METRIC, 5.0, telemetryManager.getStrategyTime());
+
+		final Monitor vmOffline2 = buildMonitor(KnownMonitorType.VM.getKey(), VM_OFFLINE_2);
+		vmOffline2.addMetric(HW_VM_POWER_STATE_METRIC, StateSetMetric.builder().value("Off").build());
+		metricFactory.collectNumberMetric(vmOffline2, HW_VM_POWER_SHARE_METRIC, 10.0, telemetryManager.getStrategyTime());
+
+		final Monitor vmOnline3 = buildMonitor(KnownMonitorType.VM.getKey(), VM_ONLINE_3);
+		vmOnline3.addMetric(HW_VM_POWER_STATE_METRIC, StateSetMetric.builder().value(ON).build());
+		metricFactory.collectNumberMetric(vmOnline3, HW_VM_POWER_SHARE_METRIC, 5.0, telemetryManager.getStrategyTime());
+
+		final Monitor vmOnlineNoPowerShare4 = buildMonitor(KnownMonitorType.VM.getKey(), VM_ONLINE_NO_POWER_SHARE_4);
+		vmOnlineNoPowerShare4.addMetric(HW_VM_POWER_STATE_METRIC, StateSetMetric.builder().value(ON).build());
+
+		final Monitor vmOnlineBadPowerShare5 = buildMonitor(KnownMonitorType.VM.getKey(), VM_ONLINE_BAD_POWER_SHARE_5);
+		vmOnlineBadPowerShare5.addMetric(HW_VM_POWER_STATE_METRIC, StateSetMetric.builder().value(ON).build());
+		metricFactory.collectNumberMetric(
+			vmOnlineBadPowerShare5,
+			HW_VM_POWER_SHARE_METRIC,
+			-15.0,
+			telemetryManager.getStrategyTime()
+		);
+
+		// Create the host monitor
+		final Monitor host = buildMonitor(KnownMonitorType.HOST.getKey(), HOST_1);
+		host.setAsEndpoint();
+
+		// Set the host monitor estimated power
+		metricFactory.collectNumberMetric(host, HW_HOST_ESTIMATED_POWER, 100.0, telemetryManager.getStrategyTime());
+
+		// Add the created monitors to telemetry manager
+		telemetryManager.addNewMonitor(host, KnownMonitorType.HOST.getKey(), HOST_1);
+		telemetryManager.addNewMonitor(vmOnline1, KnownMonitorType.VM.getKey(), VM_1_ONLINE);
+		telemetryManager.addNewMonitor(vmOffline2, KnownMonitorType.VM.getKey(), VM_OFFLINE_2);
+		telemetryManager.addNewMonitor(vmOnline3, KnownMonitorType.VM.getKey(), VM_ONLINE_3);
+		telemetryManager.addNewMonitor(vmOnlineNoPowerShare4, KnownMonitorType.VM.getKey(), VM_ONLINE_NO_POWER_SHARE_4);
+		telemetryManager.addNewMonitor(vmOnlineBadPowerShare5, KnownMonitorType.VM.getKey(), VM_ONLINE_BAD_POWER_SHARE_5);
+
+		// Add power source id attribute to the created VM monitors
+		vmOnline1.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, host.getId());
+
+		vmOffline2.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, host.getId());
+
+		vmOnline3.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, host.getId());
+
+		vmOnlineNoPowerShare4.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, host.getId());
+
+		vmOnlineBadPowerShare5.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, host.getId());
+
+		// Set previous power values
+		NumberMetric previousPowerValue = metricFactory.collectNumberMetric(
+			vmOnline1,
+			HW_POWER_VM_METRIC,
+			10.0,
+			telemetryManager.getStrategyTime() - 120 * 1000
+		);
+		previousPowerValue.save();
+
+		previousPowerValue =
+			metricFactory.collectNumberMetric(
+				vmOffline2,
+				HW_POWER_VM_METRIC,
+				1.0,
+				telemetryManager.getStrategyTime() - 120 * 1000
+			);
+		previousPowerValue.save();
+
+		previousPowerValue =
+			metricFactory.collectNumberMetric(
+				vmOnline3,
+				HW_POWER_VM_METRIC,
+				2.0,
+				telemetryManager.getStrategyTime() - 120 * 1000
+			);
+		previousPowerValue.save();
+
+		previousPowerValue =
+			metricFactory.collectNumberMetric(
+				vmOnlineNoPowerShare4,
+				HW_POWER_VM_METRIC,
+				12.0,
+				telemetryManager.getStrategyTime() - 120 * 1000
+			);
+		previousPowerValue.save();
+
+		previousPowerValue =
+			metricFactory.collectNumberMetric(
+				vmOnlineBadPowerShare5,
+				HW_POWER_VM_METRIC,
+				5.0,
+				telemetryManager.getStrategyTime() - 120 * 1000
+			);
+		previousPowerValue.save();
+
+		// Call run method in HardwareEnergyPostExecutionService
+		hardwareEnergyPostExecutionService = new HardwareEnergyPostExecutionService(telemetryManager);
+		hardwareEnergyPostExecutionService.run();
+
+		assertEquals(50.0, CollectHelper.getNumberMetricValue(vmOnline1, HW_POWER_VM_METRIC, false));
+		assertEquals(6000, CollectHelper.getNumberMetricValue(vmOnline1, HW_ENERGY_VM_METRIC, false));
+
+		assertEquals(0.0, CollectHelper.getNumberMetricValue(vmOffline2, HW_POWER_VM_METRIC, false));
+		assertEquals(0.0, CollectHelper.getNumberMetricValue(vmOffline2, HW_ENERGY_VM_METRIC, false));
+
+		assertEquals(50.0, CollectHelper.getNumberMetricValue(vmOnline3, HW_POWER_VM_METRIC, false));
+		assertEquals(6000, CollectHelper.getNumberMetricValue(vmOnline3, HW_ENERGY_VM_METRIC, false));
+
+		assertEquals(0.0, CollectHelper.getNumberMetricValue(vmOnlineNoPowerShare4, HW_POWER_VM_METRIC, false));
+		assertEquals(0.0, CollectHelper.getNumberMetricValue(vmOnlineNoPowerShare4, HW_ENERGY_VM_METRIC, false));
+
+		assertEquals(0.0, CollectHelper.getNumberMetricValue(vmOnlineBadPowerShare5, HW_POWER_VM_METRIC, false));
+		assertEquals(0.0, CollectHelper.getNumberMetricValue(vmOnlineBadPowerShare5, HW_ENERGY_VM_METRIC, false));
+	}
+
 	@Test
 	void testRunWithCpuMonitor() {
 		// Create a CPU monitor
-		final Monitor cpuMonitor = Monitor
-			.builder()
-			.id(KnownMonitorType.CPU.getKey())
-			.type(KnownMonitorType.CPU.getKey())
-			.build();
+		final Monitor cpuMonitor = buildMonitor(KnownMonitorType.CPU.getKey(), KnownMonitorType.CPU.getKey());
 
 		// Default is 0.25 * (2500000000 / 1000000000) * 19 = 1187.5
 		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
