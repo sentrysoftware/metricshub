@@ -3,6 +3,7 @@ package com.sentrysoftware.metricshub.engine.telemetry;
 import static com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 
 import com.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
+import com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.IWinConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
@@ -16,6 +17,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import lombok.AllArgsConstructor;
@@ -154,12 +157,12 @@ public class TelemetryManager {
 
 	/**
 	 * Finds a monitor using its type and its id attribute
-	 * @param type
-	 * @param id
+	 * @param type monitor's type
+	 * @param id monitor's id
 	 * @return Monitor instance
 	 */
 	public Monitor findMonitorByTypeAndId(final String type, final String id) {
-		final Map<String, Monitor> findMonitorByTypeResult = findMonitorByType(type);
+		final Map<String, Monitor> findMonitorByTypeResult = findMonitorsByType(type);
 		if (findMonitorByTypeResult != null) {
 			return findMonitorById(id, findMonitorByTypeResult);
 		}
@@ -168,9 +171,9 @@ public class TelemetryManager {
 
 	/**
 	 * Finds a monitor using its id attribute
-	 * @param id
-	 * @param monitorsMap
-	 * @return Monitor instance
+	 * @param id monitorId
+	 * @param monitorsMap a map of monitors having the same type
+	 * @return {@link Monitor} instance
 	 */
 	public Monitor findMonitorById(final String id, final Map<String, Monitor> monitorsMap) {
 		return monitorsMap.get(id);
@@ -182,7 +185,7 @@ public class TelemetryManager {
 	 * @param type type of the monitor. E.g. host, enclosure, network, etc.
 	 * @return {@link Monitor} instance
 	 */
-	public Map<String, Monitor> findMonitorByType(final String type) {
+	public Map<String, Monitor> findMonitorsByType(final String type) {
 		return this.getMonitors() == null ? null : this.getMonitors().get(type);
 	}
 
@@ -212,7 +215,7 @@ public class TelemetryManager {
 	 */
 	public Monitor getEndpointHostMonitor() {
 		// Get host monitors
-		final Map<String, Monitor> hostMonitors = findMonitorByType(HOST.getKey());
+		final Map<String, Monitor> hostMonitors = findMonitorsByType(HOST.getKey());
 
 		if (hostMonitors == null) {
 			return null;
@@ -229,5 +232,61 @@ public class TelemetryManager {
 	 */
 	public String getHostname() {
 		return hostConfiguration.getHostname();
+	}
+
+	/**
+	 * This method finds the parent of a given monitor
+	 * @param monitor a given monitor
+	 * @return the parent monitor which is a {@link Monitor} instance
+	 */
+	public Monitor findParentMonitor(final Monitor monitor) {
+		final String hwParentId = monitor.getAttribute("hw.parent.id");
+		final String hwParentType = monitor.getAttribute("hw.parent.type");
+
+		if (hwParentType != null && hwParentId != null) {
+			Optional<Map<String, Monitor>> sameTypeMonitors = Optional.ofNullable(findMonitorsByType(hwParentType));
+			if (sameTypeMonitors.isPresent()) {
+				final Optional<Monitor> parentMonitor = sameTypeMonitors
+					.get()
+					.entrySet()
+					.stream()
+					.filter(entry -> hwParentId.equals(entry.getValue().getAttribute(MetricsHubConstants.MONITOR_ATTRIBUTE_ID)))
+					.map(Map.Entry::getValue)
+					.findFirst();
+				if (parentMonitor.isPresent()) {
+					return parentMonitor.get();
+				}
+			}
+		}
+		log.warn("Monitor {} does not have a parent on Host {}", monitor.getId(), getHostname());
+		return null;
+	}
+
+	/**
+	 * This method finds a monitor having a given id regardless of its type
+	 * @param monitorId monitor id
+	 * @return {@link Monitor}
+	 */
+	public Monitor findMonitorById(final String monitorId) {
+		return getMonitors()
+			.values()
+			.stream()
+			.map(monitorsMap -> monitorsMap.get(monitorId))
+			.filter(Objects::nonNull)
+			.findFirst()
+			.orElse(null);
+	}
+
+	/**
+	 * This method checks whether a connector status was set to "ok"
+	 * @param currentMonitor the current monitor
+	 * @return boolean whether the connector status is ok
+	 */
+	public boolean isConnectorStatusOk(final Monitor currentMonitor) {
+		if (currentMonitor.isEndpointHost()) {
+			return true;
+		}
+		final String connectorId = currentMonitor.getAttribute(MetricsHubConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID);
+		return null != connectorId && hostProperties.getConnectorNamespace(connectorId).isStatusOk();
 	}
 }

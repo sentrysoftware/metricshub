@@ -305,7 +305,7 @@ public class MappingProcessor {
 			return null;
 		}
 
-		final Map<String, Monitor> typedMonitors = telemetryManager.findMonitorByType(monitorType);
+		final Map<String, Monitor> typedMonitors = telemetryManager.findMonitorsByType(monitorType);
 
 		if (typedMonitors == null) {
 			log.error("Hostname {} - No monitors found of type {}. Cannot set {}.", jobInfo.getHostname(), monitorType, key);
@@ -812,11 +812,10 @@ public class MappingProcessor {
 	 * Converts legacyledstatus status into a current status
 	 *
 	 * @param value		String representing a legacyledstatus function with a legacy status
-	 * @param key		The attribute key
 	 * @return			String representing a current a current status
 	 */
 	private String legacyLedStatus(String value) {
-		final Map<String, Monitor> typedMonitors = telemetryManager.findMonitorByType("led");
+		final Map<String, Monitor> typedMonitors = telemetryManager.findMonitorsByType("led");
 		Monitor monitor = typedMonitors.get("discovery");
 		Map<String, String> monitorAttributes = monitor.getAttributes();
 
@@ -1020,7 +1019,6 @@ public class MappingProcessor {
 	 * We multiply the value by a predetermined factor, usually for unit conversion
 	 *
 	 * @param value		An already extracted double value
-	 * @param key		The key used for debug purpose
 	 * @param factor	Double value to be multiplied to the value
 	 * @return			A String containing only the new value
 	 */

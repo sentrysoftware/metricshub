@@ -1,6 +1,6 @@
 package com.sentrysoftware.metricshub.hardware.sustainability;
 
-import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.CONNECTOR_STATUS_METRIC_KEY;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENCLOSURE_POWER;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_ESTIMATED_ENERGY;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_ESTIMATED_POWER;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_MEASURED_ENERGY;
@@ -13,7 +13,6 @@ import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
-import com.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 import com.sentrysoftware.metricshub.hardware.util.HwCollectHelper;
 import java.math.RoundingMode;
 import java.util.Collection;
@@ -26,15 +25,13 @@ import lombok.extern.slf4j.Slf4j;
 
 @Data
 @Slf4j
-public class HostMonitorEnergyAndPowerEstimator {
+public class HostMonitorPowerAndEnergyEstimator {
 
 	private TelemetryManager telemetryManager;
 	private Monitor hostMonitor;
 	private Double powerConsumption;
 
-	private static final String HW_ENCLOSURE_POWER = "hw.enclosure.power";
-
-	public HostMonitorEnergyAndPowerEstimator(final Monitor monitor, final TelemetryManager telemetryManager) {
+	public HostMonitorPowerAndEnergyEstimator(final Monitor monitor, final TelemetryManager telemetryManager) {
 		this.hostMonitor = monitor;
 		this.telemetryManager = telemetryManager;
 	}
@@ -85,7 +82,7 @@ public class HostMonitorEnergyAndPowerEstimator {
 	 * @return Double
 	 */
 	public Double computeMeasuredPower() {
-		final Map<String, Monitor> enclosureMonitors = telemetryManager.findMonitorByType(
+		final Map<String, Monitor> enclosureMonitors = telemetryManager.findMonitorsByType(
 			KnownMonitorType.ENCLOSURE.getKey()
 		);
 
@@ -95,31 +92,6 @@ public class HostMonitorEnergyAndPowerEstimator {
 		adjustAllPowerConsumptions(sumEstimatedPowerConsumptions(), totalMeasuredPowerConsumption);
 		powerConsumption = totalMeasuredPowerConsumption;
 		return powerConsumption;
-	}
-
-	/**
-	 * This method checks whether a connector status was set to "ok" or "1.0"
-	 * @param currentMonitor the current monitor
-	 * @return boolean
-	 */
-	boolean isConnectorStatusOk(final Monitor currentMonitor) {
-		final AbstractMetric connectorStatusMetric = currentMonitor.getMetric(CONNECTOR_STATUS_METRIC_KEY);
-
-		if (connectorStatusMetric instanceof NumberMetric) {
-			final Double connectorStatusNumberValue = CollectHelper.getNumberMetricValue(
-				currentMonitor,
-				CONNECTOR_STATUS_METRIC_KEY,
-				false
-			);
-			return Double.valueOf(1.0).equals(connectorStatusNumberValue);
-		} else {
-			final String connectorStatusStateSetValue = CollectHelper.getStateSetMetricValue(
-				currentMonitor,
-				CONNECTOR_STATUS_METRIC_KEY,
-				false
-			);
-			return "ok".equals(connectorStatusStateSetValue);
-		}
 	}
 
 	/**
@@ -148,7 +120,7 @@ public class HostMonitorEnergyAndPowerEstimator {
 			.stream()
 			.map(Map::values)
 			.flatMap(Collection::stream)
-			.filter(monitor -> isConnectorStatusOk(monitor))
+			.filter(monitor -> telemetryManager.isConnectorStatusOk(monitor))
 			.filter(monitor -> !KnownMonitorType.HOST.getKey().equals(monitor.getType())) // We already sum the values for the host
 			.filter(monitor -> !KnownMonitorType.ENCLOSURE.getKey().equals(monitor.getType())) // Skip the enclosure
 			.filter(monitor -> !KnownMonitorType.VM.getKey().equals(monitor.getType())); // Skip VM monitors as their power is already computed based on the host's power
@@ -219,7 +191,7 @@ public class HostMonitorEnergyAndPowerEstimator {
 	 * @param estimatedPowerConsumption the estimated power consumption
 	 * @param totalEstimatedPowerConsumption the total estimated power consumption
 	 * @param totalMeasuredPowerConsumption the total measured power consumption
-	 * @return
+	 * @return the adjusted power consumption of type Double
 	 */
 	Double getAdjustedPowerConsumption(
 		final Double estimatedPowerConsumption,
@@ -245,7 +217,7 @@ public class HostMonitorEnergyAndPowerEstimator {
 		Double totalPowerConsumption = enclosureMonitors
 			.values()
 			.stream()
-			.filter(monitor -> isConnectorStatusOk(monitor))
+			.filter(monitor -> telemetryManager.isConnectorStatusOk(monitor))
 			.map(monitor -> CollectHelper.getUpdatedNumberMetricValue(monitor, HW_ENCLOSURE_POWER))
 			.filter(Objects::nonNull)
 			.reduce(Double::sum)
@@ -273,7 +245,7 @@ public class HostMonitorEnergyAndPowerEstimator {
 			.stream()
 			.map(Map::values)
 			.flatMap(Collection::stream)
-			.filter(monitor -> isConnectorStatusOk(monitor))
+			.filter(monitor -> telemetryManager.isConnectorStatusOk(monitor))
 			.filter(monitor -> !KnownMonitorType.HOST.getKey().equals(monitor.getType())) // We already sum the values for the host
 			.filter(monitor -> !KnownMonitorType.ENCLOSURE.getKey().equals(monitor.getType())) // Skip the enclosure
 			.filter(monitor -> !KnownMonitorType.VM.getKey().equals(monitor.getType())) // Skip VM monitors as their power is already computed based on the host's power
@@ -305,17 +277,22 @@ public class HostMonitorEnergyAndPowerEstimator {
 		}
 
 		// Add 10% because of the heat dissipation of the power supplies
-		final double powerConsumption = NumberHelper.round(totalEstimatedPowerConsumption / 0.9, 2, RoundingMode.HALF_UP);
-		if (powerConsumption > 0) {
-			log.debug("Hostname {} - Power Consumption: Estimated at {} Watts.", hostname, powerConsumption);
+		final double powerConsumptionValue = NumberHelper.round(
+			totalEstimatedPowerConsumption / 0.9,
+			2,
+			RoundingMode.HALF_UP
+		);
+
+		if (powerConsumptionValue > 0) {
+			log.debug("Hostname {} - Power Consumption: Estimated at {} Watts.", hostname, powerConsumptionValue);
 		} else {
 			log.warn(
 				"Hostname {} - Power Consumption could not be estimated. Negative value: {}.",
 				hostname,
-				powerConsumption
+				powerConsumptionValue
 			);
 		}
 
-		return powerConsumption;
+		return powerConsumptionValue;
 	}
 }
