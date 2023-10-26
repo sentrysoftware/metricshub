@@ -280,7 +280,7 @@ public class MetricFactory {
 	 * @return boolean whether metric attributes contain state attribute
 	 */
 	public boolean checkForStateAttribute(final Map<String, String> attributes) {
-		return attributes.keySet().stream().anyMatch(attributeKey -> attributeKey.equals("hw.status"));
+		return attributes.keySet().stream().anyMatch(attributeKey -> attributeKey.equals("state"));
 	}
 
 	/**
