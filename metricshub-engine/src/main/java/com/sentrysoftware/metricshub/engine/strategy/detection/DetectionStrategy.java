@@ -150,7 +150,9 @@ public class DetectionStrategy extends AbstractStrategy {
 
 		// Check whether metric type is Enum
 		if (metricDefinition == null || (metricDefinition.getType() instanceof MetricType)) {
-			metricFactory.collectConnectorStatusNumberMetric(connectorTestResult, monitor, strategyTime);
+			connectorNamespace.setStatusOk(
+				metricFactory.collectConnectorStatusNumberMetric(connectorTestResult, monitor, strategyTime)
+			);
 		} else if (metricDefinition.getType() instanceof StateSet stateSetType) {
 			// When metric type is stateSet
 			final String[] stateSet = stateSetType.getSet().stream().toArray(String[]::new);
