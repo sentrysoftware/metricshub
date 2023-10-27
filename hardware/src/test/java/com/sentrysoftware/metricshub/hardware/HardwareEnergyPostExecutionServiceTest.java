@@ -1,6 +1,7 @@
 package com.sentrysoftware.metricshub.hardware;
 
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID;
+import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.PRESENT_STATUS;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.CPU_POWER_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.DISK_CONTROLLER_ENERGY_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.DISK_CONTROLLER_POWER_METRIC;
@@ -137,6 +138,42 @@ class HardwareEnergyPostExecutionServiceTest {
 
 		// Check the computed and collected energy metric
 		assertNotNull(fanMonitor.getMetric(FAN_ENERGY_METRIC, NumberMetric.class));
+	}
+
+	@Test
+	void testRunWithMissingFanMonitor() {
+		// Create a fan monitor
+		final Monitor fanMonitor = Monitor
+			.builder()
+			.type(FAN)
+			.metrics(new HashMap<>(Map.of(FAN_SPEED_METRIC, NumberMetric.builder().value(0.7).build())))
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.build();
+
+		// Set Fan monitor as missing
+
+		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
+		metricFactory.collectNumberMetric(
+			fanMonitor,
+			String.format(PRESENT_STATUS, fanMonitor.getType()),
+			0.0,
+			telemetryManager.getStrategyTime()
+		);
+
+		// Set the previously created fan monitor in telemetryManager
+		final Map<String, Monitor> fanMonitors = new HashMap<>(Map.of("monitor1", fanMonitor));
+		telemetryManager.setMonitors(new HashMap<>(Map.of(FAN, fanMonitors)));
+
+		// Call run method in HardwareEnergyPostExecutionService
+		hardwareEnergyPostExecutionService = new HardwareEnergyPostExecutionService(telemetryManager);
+		hardwareEnergyPostExecutionService.run();
+
+		// Check that the computed and collected power metric is null
+		final NumberMetric power = fanMonitor.getMetric(FAN_POWER_METRIC, NumberMetric.class);
+		assertNull(power);
+
+		// Check that the computed and collected energy metric is null
+		assertNull(fanMonitor.getMetric(FAN_ENERGY_METRIC, NumberMetric.class));
 	}
 
 	@Test
@@ -397,6 +434,124 @@ class HardwareEnergyPostExecutionServiceTest {
 	}
 
 	@Test
+	void testComputeHostPowerAndEnergyMetricsWithMissingMonitors() {
+		// Initialize the host and other monitors
+		final Monitor host = Monitor
+			.builder()
+			.id(KnownMonitorType.HOST.getKey())
+			.type(KnownMonitorType.HOST.getKey())
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.build();
+		host.setAsEndpoint();
+
+		// Set a previous collected host power value
+		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
+		final NumberMetric previousPowerValue = metricFactory.collectNumberMetric(
+			host,
+			HW_HOST_ESTIMATED_POWER,
+			60.0,
+			telemetryManager.getStrategyTime() - 120 * 1000
+		);
+		previousPowerValue.save();
+
+		final Monitor enclosure = Monitor
+			.builder()
+			.id(KnownMonitorType.ENCLOSURE.getKey())
+			.type(KnownMonitorType.ENCLOSURE.getKey())
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.build();
+
+		final Monitor cpu = Monitor
+			.builder()
+			.id("cpu1")
+			.type(KnownMonitorType.CPU.getKey())
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.build();
+		metricFactory.collectNumberMetric(cpu, HW_CPU_POWER, 60.0, telemetryManager.getStrategyTime());
+		metricFactory.collectNumberMetric(
+			cpu,
+			String.format(PRESENT_STATUS, cpu.getType()),
+			0.0,
+			telemetryManager.getStrategyTime()
+		);
+
+		final Monitor memory = Monitor
+			.builder()
+			.id("memory1")
+			.type(KnownMonitorType.MEMORY.getKey())
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.build();
+		metricFactory.collectNumberMetric(
+			memory,
+			String.format(PRESENT_STATUS, memory.getType()),
+			1.0,
+			telemetryManager.getStrategyTime()
+		);
+
+		metricFactory.collectNumberMetric(memory, HW_MEMORY_POWER, 4.0, telemetryManager.getStrategyTime());
+
+		final Monitor disk = Monitor
+			.builder()
+			.id("disk_nvm_1")
+			.type(KnownMonitorType.PHYSICAL_DISK.getKey())
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.build();
+
+		metricFactory.collectNumberMetric(disk, HW_PHYSICAL_DISK_POWER, 6.0, telemetryManager.getStrategyTime());
+
+		final Monitor diskNoPower = Monitor
+			.builder()
+			.id("disk_noPower")
+			.type(KnownMonitorType.PHYSICAL_DISK.getKey())
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.build();
+
+		final Monitor missingDisk = Monitor
+			.builder()
+			.id("disk_nvm_2")
+			.type(KnownMonitorType.PHYSICAL_DISK.getKey())
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.build();
+
+		// Add the previously created monitors to telemetry manager
+		telemetryManager.addNewMonitor(host, KnownMonitorType.HOST.getKey(), KnownMonitorType.HOST.getKey());
+		telemetryManager.addNewMonitor(cpu, KnownMonitorType.CPU.getKey(), "cpu1");
+		telemetryManager.addNewMonitor(disk, KnownMonitorType.PHYSICAL_DISK.getKey(), "disk_nvm_1");
+		telemetryManager.addNewMonitor(memory, KnownMonitorType.MEMORY.getKey(), "memory1");
+		telemetryManager.addNewMonitor(diskNoPower, KnownMonitorType.PHYSICAL_DISK.getKey(), "disk_noPower");
+		telemetryManager.addNewMonitor(missingDisk, KnownMonitorType.PHYSICAL_DISK.getKey(), "disk_nvm_2");
+		telemetryManager.addNewMonitor(enclosure, KnownMonitorType.ENCLOSURE.getKey(), KnownMonitorType.ENCLOSURE.getKey());
+
+		// Call run method in HardwareEnergyPostExecutionService
+		hardwareEnergyPostExecutionService = new HardwareEnergyPostExecutionService(telemetryManager);
+		hardwareEnergyPostExecutionService.run();
+
+		// Check that the missing monitor is not considered when power and energy computation is done
+		assertNotNull(host.getMetric(HW_HOST_ESTIMATED_POWER, NumberMetric.class));
+		assertEquals(41.11, host.getMetric(HW_HOST_ESTIMATED_POWER, NumberMetric.class).getValue());
+		assertNotNull(host.getMetric(HW_HOST_ESTIMATED_ENERGY, NumberMetric.class));
+		assertEquals(4933.2, host.getMetric(HW_HOST_ESTIMATED_ENERGY, NumberMetric.class).getValue());
+
+		// Reset the cpu as "not missing"
+		metricFactory.collectNumberMetric(
+			cpu,
+			String.format(PRESENT_STATUS, cpu.getType()),
+			1.0,
+			telemetryManager.getStrategyTime()
+		);
+
+		// Call again run method in HardwareEnergyPostExecutionService
+		hardwareEnergyPostExecutionService = new HardwareEnergyPostExecutionService(telemetryManager);
+		hardwareEnergyPostExecutionService.run();
+
+		// Check that cpu monitor is now considered when power and energy computation is done
+		assertNotNull(host.getMetric(HW_HOST_ESTIMATED_POWER, NumberMetric.class));
+		assertEquals(54.31, host.getMetric(HW_HOST_ESTIMATED_POWER, NumberMetric.class).getValue());
+		assertNotNull(host.getMetric(HW_HOST_ESTIMATED_ENERGY, NumberMetric.class));
+		assertEquals(6517.200000000001, host.getMetric(HW_HOST_ESTIMATED_ENERGY, NumberMetric.class).getValue());
+	}
+
+	@Test
 	void testComputeHostPowerAndEnergyMetrics() {
 		// Initialize the host and other monitors
 		final Monitor host = Monitor
@@ -614,6 +769,124 @@ class HardwareEnergyPostExecutionServiceTest {
 
 		assertEquals(0.0, CollectHelper.getNumberMetricValue(vmOnlineBadPowerShare5, HW_POWER_VM_METRIC, false));
 		assertEquals(0.0, CollectHelper.getNumberMetricValue(vmOnlineBadPowerShare5, HW_ENERGY_VM_METRIC, false));
+	}
+
+	@Test
+	void testRunWithVmWithMissingMonitors() {
+		// Create the metric factory to collect metrics
+
+		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
+
+		// Prepare the monitors and their metrics
+
+		final Monitor vmOnline1 = buildMonitor(KnownMonitorType.VM.getKey(), VM_1_ONLINE);
+		vmOnline1.addMetric(HW_VM_POWER_STATE_METRIC, StateSetMetric.builder().value(ON).build());
+		metricFactory.collectNumberMetric(vmOnline1, HW_VM_POWER_SHARE_METRIC, 5.0, telemetryManager.getStrategyTime());
+		metricFactory.collectNumberMetric(
+			vmOnline1,
+			String.format(PRESENT_STATUS, vmOnline1.getType()),
+			0.0,
+			telemetryManager.getStrategyTime()
+		);
+
+		final Monitor vmOffline2 = buildMonitor(KnownMonitorType.VM.getKey(), VM_OFFLINE_2);
+		vmOffline2.addMetric(HW_VM_POWER_STATE_METRIC, StateSetMetric.builder().value("Off").build());
+		metricFactory.collectNumberMetric(vmOffline2, HW_VM_POWER_SHARE_METRIC, 10.0, telemetryManager.getStrategyTime());
+
+		final Monitor vmOnline3 = buildMonitor(KnownMonitorType.VM.getKey(), VM_ONLINE_3);
+		vmOnline3.addMetric(HW_VM_POWER_STATE_METRIC, StateSetMetric.builder().value(ON).build());
+		metricFactory.collectNumberMetric(vmOnline3, HW_VM_POWER_SHARE_METRIC, 5.0, telemetryManager.getStrategyTime());
+		metricFactory.collectNumberMetric(
+			vmOnline3,
+			String.format(PRESENT_STATUS, vmOnline3.getType()),
+			0.0,
+			telemetryManager.getStrategyTime()
+		);
+
+		final Monitor vmOnlineNoPowerShare4 = buildMonitor(KnownMonitorType.VM.getKey(), VM_ONLINE_NO_POWER_SHARE_4);
+		vmOnlineNoPowerShare4.addMetric(HW_VM_POWER_STATE_METRIC, StateSetMetric.builder().value(ON).build());
+
+		final Monitor vmOnlineBadPowerShare5 = buildMonitor(KnownMonitorType.VM.getKey(), VM_ONLINE_BAD_POWER_SHARE_5);
+		vmOnlineBadPowerShare5.addMetric(HW_VM_POWER_STATE_METRIC, StateSetMetric.builder().value(ON).build());
+		metricFactory.collectNumberMetric(
+			vmOnlineBadPowerShare5,
+			HW_VM_POWER_SHARE_METRIC,
+			-15.0,
+			telemetryManager.getStrategyTime()
+		);
+
+		// Create the host monitor
+		final Monitor host = buildMonitor(KnownMonitorType.HOST.getKey(), HOST_1);
+		host.setAsEndpoint();
+
+		// Set the host monitor estimated power
+		metricFactory.collectNumberMetric(host, HW_HOST_ESTIMATED_POWER, 100.0, telemetryManager.getStrategyTime());
+
+		// Add the created monitors to telemetry manager
+		telemetryManager.addNewMonitor(host, KnownMonitorType.HOST.getKey(), HOST_1);
+		telemetryManager.addNewMonitor(vmOnline1, KnownMonitorType.VM.getKey(), VM_1_ONLINE);
+		telemetryManager.addNewMonitor(vmOffline2, KnownMonitorType.VM.getKey(), VM_OFFLINE_2);
+		telemetryManager.addNewMonitor(vmOnline3, KnownMonitorType.VM.getKey(), VM_ONLINE_3);
+		telemetryManager.addNewMonitor(vmOnlineNoPowerShare4, KnownMonitorType.VM.getKey(), VM_ONLINE_NO_POWER_SHARE_4);
+		telemetryManager.addNewMonitor(vmOnlineBadPowerShare5, KnownMonitorType.VM.getKey(), VM_ONLINE_BAD_POWER_SHARE_5);
+
+		// Add power source id attribute to the created VM monitors
+		vmOnline1.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, host.getId());
+
+		vmOffline2.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, host.getId());
+
+		vmOnline3.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, host.getId());
+
+		vmOnlineNoPowerShare4.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, host.getId());
+
+		vmOnlineBadPowerShare5.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, host.getId());
+
+		// Set previous power values
+
+		NumberMetric previousPowerValue = metricFactory.collectNumberMetric(
+			vmOffline2,
+			HW_POWER_VM_METRIC,
+			1.0,
+			telemetryManager.getStrategyTime() - 120 * 1000
+		);
+		previousPowerValue.save();
+
+		previousPowerValue =
+			metricFactory.collectNumberMetric(
+				vmOnlineNoPowerShare4,
+				HW_POWER_VM_METRIC,
+				12.0,
+				telemetryManager.getStrategyTime() - 120 * 1000
+			);
+		previousPowerValue.save();
+
+		previousPowerValue =
+			metricFactory.collectNumberMetric(
+				vmOnlineBadPowerShare5,
+				HW_POWER_VM_METRIC,
+				5.0,
+				telemetryManager.getStrategyTime() - 120 * 1000
+			);
+		previousPowerValue.save();
+
+		// Call run method in HardwareEnergyPostExecutionService
+		hardwareEnergyPostExecutionService = new HardwareEnergyPostExecutionService(telemetryManager);
+		hardwareEnergyPostExecutionService.run();
+
+		assertEquals(0.0, CollectHelper.getNumberMetricValue(vmOffline2, HW_POWER_VM_METRIC, false));
+		assertEquals(0.0, CollectHelper.getNumberMetricValue(vmOffline2, HW_ENERGY_VM_METRIC, false));
+
+		assertEquals(0.0, CollectHelper.getNumberMetricValue(vmOnlineNoPowerShare4, HW_POWER_VM_METRIC, false));
+		assertEquals(0.0, CollectHelper.getNumberMetricValue(vmOnlineNoPowerShare4, HW_ENERGY_VM_METRIC, false));
+
+		assertEquals(0.0, CollectHelper.getNumberMetricValue(vmOnlineBadPowerShare5, HW_POWER_VM_METRIC, false));
+		assertEquals(0.0, CollectHelper.getNumberMetricValue(vmOnlineBadPowerShare5, HW_ENERGY_VM_METRIC, false));
+
+		// Check that power and energy metrics are null on missing monitors vmOnline1 and vmOnline3
+		assertNull(CollectHelper.getNumberMetricValue(vmOnline1, HW_POWER_VM_METRIC, false));
+		assertNull(CollectHelper.getNumberMetricValue(vmOnline3, HW_POWER_VM_METRIC, false));
+		assertNull(CollectHelper.getNumberMetricValue(vmOnline1, HW_ENERGY_VM_METRIC, false));
+		assertNull(CollectHelper.getNumberMetricValue(vmOnline3, HW_ENERGY_VM_METRIC, false));
 	}
 
 	@Test

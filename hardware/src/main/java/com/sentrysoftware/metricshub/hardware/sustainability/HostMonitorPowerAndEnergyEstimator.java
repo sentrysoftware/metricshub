@@ -120,6 +120,7 @@ public class HostMonitorPowerAndEnergyEstimator {
 			.stream()
 			.map(Map::values)
 			.flatMap(Collection::stream)
+			.filter(monitor -> !monitor.isMissing())
 			.filter(monitor -> telemetryManager.isConnectorStatusOk(monitor))
 			.filter(monitor -> !KnownMonitorType.HOST.getKey().equals(monitor.getType())) // We already sum the values for the host
 			.filter(monitor -> !KnownMonitorType.ENCLOSURE.getKey().equals(monitor.getType())) // Skip the enclosure
@@ -217,6 +218,7 @@ public class HostMonitorPowerAndEnergyEstimator {
 		Double totalPowerConsumption = enclosureMonitors
 			.values()
 			.stream()
+			.filter(monitor -> !monitor.isMissing())
 			.filter(monitor -> telemetryManager.isConnectorStatusOk(monitor))
 			.map(monitor -> CollectHelper.getUpdatedNumberMetricValue(monitor, HW_ENCLOSURE_POWER))
 			.filter(Objects::nonNull)
@@ -245,6 +247,7 @@ public class HostMonitorPowerAndEnergyEstimator {
 			.stream()
 			.map(Map::values)
 			.flatMap(Collection::stream)
+			.filter(monitor -> !monitor.isMissing())
 			.filter(monitor -> telemetryManager.isConnectorStatusOk(monitor))
 			.filter(monitor -> !KnownMonitorType.HOST.getKey().equals(monitor.getType())) // We already sum the values for the host
 			.filter(monitor -> !KnownMonitorType.ENCLOSURE.getKey().equals(monitor.getType())) // Skip the enclosure
