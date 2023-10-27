@@ -126,6 +126,24 @@
 					<module>metricshub-rhel</module>
 				</modules>
 			</profile>
+			<profile>
+				<id>debian</id>
+				<activation>
+					<os>
+						<family>Linux</family>
+						<arch>amd64</arch>
+					</os>
+					<property>
+						<name>env.JPACKAGE_HOME</name>
+					</property>
+					<file>
+						<exists>/etc/debian_version</exists>
+					</file>
+				</activation>
+				<modules>
+					<module>metricshub-debian</module>
+				</modules>
+			</profile>
 	</profiles>
 
 	<dependencyManagement>
