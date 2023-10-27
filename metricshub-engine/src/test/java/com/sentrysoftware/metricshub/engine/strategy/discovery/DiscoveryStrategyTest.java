@@ -1,6 +1,7 @@
 package com.sentrysoftware.metricshub.engine.strategy.discovery;
 
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.IS_ENDPOINT;
+import static com.sentrysoftware.metricshub.engine.constants.Constants.AAC_CONNECTOR_ID;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.CONNECTOR;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.DISK_CONTROLLER;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.HOST;
@@ -10,7 +11,6 @@ import static com.sentrysoftware.metricshub.engine.constants.Constants.ID;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.LOGICAL_DISK;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.MONITOR_ID_ATTRIBUTE_VALUE;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.PHYSICAL_DISK;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.YAML_TEST_FILE_NAME_WITH_EXTENSION;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.YAML_TEST_PATH;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -57,7 +57,7 @@ class DiscoveryStrategyTest {
 				HOST,
 				Map.of(MONITOR_ID_ATTRIBUTE_VALUE, hostMonitor),
 				CONNECTOR,
-				Map.of(YAML_TEST_FILE_NAME_WITH_EXTENSION, connectorMonitor)
+				Map.of(AAC_CONNECTOR_ID, connectorMonitor)
 			)
 		);
 
@@ -79,7 +79,7 @@ class DiscoveryStrategyTest {
 
 		hostMonitor.getAttributes().put(IS_ENDPOINT, "true");
 
-		connectorMonitor.getAttributes().put(ID, YAML_TEST_FILE_NAME_WITH_EXTENSION);
+		connectorMonitor.getAttributes().put(ID, AAC_CONNECTOR_ID);
 
 		// Create the connector store
 		final ConnectorStore connectorStore = new ConnectorStore(YAML_TEST_PATH);

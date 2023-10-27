@@ -7,12 +7,10 @@ import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_NAME;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.STATE_SET_METRIC_FAILED;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.STATE_SET_METRIC_OK;
+import static com.sentrysoftware.metricshub.engine.constants.Constants.AAC_CONNECTOR_ID;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.HOST_ID;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.LINUX;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.LOCALHOST;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.STATE_SET;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.WINDOWS;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.YAML_TEST_FILE_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -39,6 +37,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
 class DetectionStrategyTest {
@@ -55,7 +55,7 @@ class DetectionStrategyTest {
 		);
 		final Map<String, Connector> connectors = new ConnectorLibraryParser()
 			.parseConnectorsFromAllYamlFiles(yamlTestPath);
-		return connectors.get(YAML_TEST_FILE_NAME + ".yaml");
+		return connectors.get(AAC_CONNECTOR_ID);
 	}
 
 	@Test
@@ -119,7 +119,7 @@ class DetectionStrategyTest {
 				.get(MONITOR_ATTRIBUTE_ID)
 		);
 		assertEquals(
-			YAML_TEST_FILE_NAME,
+			AAC_CONNECTOR_ID,
 			telemetryManager
 				.getMonitors()
 				.get(KnownMonitorType.CONNECTOR.getKey())
@@ -128,7 +128,7 @@ class DetectionStrategyTest {
 				.get(MONITOR_ATTRIBUTE_NAME)
 		);
 		assertEquals(
-			YAML_TEST_FILE_NAME,
+			AAC_CONNECTOR_ID,
 			telemetryManager
 				.getMonitors()
 				.get(KnownMonitorType.CONNECTOR.getKey())
@@ -136,23 +136,18 @@ class DetectionStrategyTest {
 				.getAttributes()
 				.get(MONITOR_ATTRIBUTE_CONNECTOR_ID)
 		);
-		assertTrue(
+		assertEquals(
+			Stream
+				.of(DeviceKind.LINUX, DeviceKind.WINDOWS)
+				.sorted()
+				.map(deviceKind -> deviceKind.toString().toLowerCase())
+				.collect(Collectors.joining(",")),
 			telemetryManager
 				.getMonitors()
 				.get(KnownMonitorType.CONNECTOR.getKey())
 				.get(monitorId)
 				.getAttributes()
 				.get(MONITOR_ATTRIBUTE_APPLIES_TO_OS)
-				.contains(LINUX)
-		);
-		assertTrue(
-			telemetryManager
-				.getMonitors()
-				.get(KnownMonitorType.CONNECTOR.getKey())
-				.get(monitorId)
-				.getAttributes()
-				.get(MONITOR_ATTRIBUTE_APPLIES_TO_OS)
-				.contains(WINDOWS)
 		);
 
 		// Check monitor metrics

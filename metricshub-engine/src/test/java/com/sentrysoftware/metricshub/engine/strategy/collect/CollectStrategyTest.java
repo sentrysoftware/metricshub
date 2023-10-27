@@ -12,7 +12,7 @@ import static com.sentrysoftware.metricshub.engine.constants.Constants.HOST_NAME
 import static com.sentrysoftware.metricshub.engine.constants.Constants.ID;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.MONITOR_ID_ATTRIBUTE_VALUE;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.STATUS_INFORMATION;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.TEST_CONNECTOR_FILE_NAME;
+import static com.sentrysoftware.metricshub.engine.constants.Constants.TEST_CONNECTOR_ID;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.TEST_CONNECTOR_PATH;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -51,13 +51,16 @@ class CollectStrategyTest {
 
 	@Test
 	void testRun() throws Exception {
-		final String connectorId = TEST_CONNECTOR_FILE_NAME.split("\\.")[0];
-
 		// Create host and connector monitors and set them in the telemetry manager
 		final Monitor hostMonitor = Monitor.builder().type(KnownMonitorType.HOST.getKey()).build();
 		final Monitor connectorMonitor = Monitor.builder().type(KnownMonitorType.CONNECTOR.getKey()).build();
 		final Map<String, Map<String, Monitor>> monitors = new HashMap<>(
-			Map.of(HOST, Map.of(MONITOR_ID_ATTRIBUTE_VALUE, hostMonitor), CONNECTOR, Map.of(connectorId, connectorMonitor))
+			Map.of(
+				HOST,
+				Map.of(MONITOR_ID_ATTRIBUTE_VALUE, hostMonitor),
+				CONNECTOR,
+				Map.of(TEST_CONNECTOR_ID, connectorMonitor)
+			)
 		);
 
 		final SnmpConfiguration snmpConfig = SnmpConfiguration.builder().community("public").build();
@@ -80,7 +83,7 @@ class CollectStrategyTest {
 			.builder()
 			.monitorType(ENCLOSURE)
 			.telemetryManager(telemetryManager)
-			.connectorId(connectorId)
+			.connectorId(TEST_CONNECTOR_ID)
 			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "enclosure-1")))
 			.discoveryTime(strategyTime - 30 * 60 * 1000)
 			.build();
@@ -91,7 +94,7 @@ class CollectStrategyTest {
 				.builder()
 				.monitorType(DISK_CONTROLLER)
 				.telemetryManager(telemetryManager)
-				.connectorId(connectorId)
+				.connectorId(TEST_CONNECTOR_ID)
 				.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "1")))
 				.discoveryTime(strategyTime - 30 * 60 * 1000)
 				.build();
@@ -99,7 +102,7 @@ class CollectStrategyTest {
 
 		hostMonitor.addAttribute(IS_ENDPOINT, "true");
 
-		connectorMonitor.addAttribute(ID, TEST_CONNECTOR_FILE_NAME);
+		connectorMonitor.addAttribute(ID, TEST_CONNECTOR_ID);
 
 		// Create the connector store
 		final ConnectorStore connectorStore = new ConnectorStore(TEST_CONNECTOR_PATH);

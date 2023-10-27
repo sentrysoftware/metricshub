@@ -2,7 +2,6 @@ package com.sentrysoftware.metricshub.engine.it.job;
 
 import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
-
 import lombok.NonNull;
 
 public class SuperConnectorITJob extends AbstractITJob {
@@ -30,5 +29,4 @@ public class SuperConnectorITJob extends AbstractITJob {
 		// Knowing that it only perform local OS commands and AWK calls
 		return true;
 	}
-
 }

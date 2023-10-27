@@ -1,23 +1,73 @@
 {
-  "total" : 2,
+  "total" : 62,
   "monitors" : [ {
+    "metrics" : {
+      "hw.status{hw.type=\"battery\"}" : {
+        "name" : "hw.status{hw.type=\"battery\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "battery"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"battery\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"battery\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "battery"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "name" : "1.1 (System Board CMOS Battery)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.1",
+      "type" : "System Board CMOS Battery"
+    },
+    "conditionalCollection" : { },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "battery",
+    "id" : "DellOpenManage_battery_1.1",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
     "metrics" : {
       "metricshub.connector.status" : {
         "name" : "metricshub.connector.status",
-        "collectTime" : 1698248031818,
-        "previousCollectTime" : 1698248031818,
+        "collectTime" : 1698399256006,
+        "previousCollectTime" : 1698399256006,
         "attributes" : { },
         "resetMetricTime" : false,
-        "value" : "failed",
-        "previousValue" : "failed",
+        "value" : "ok",
+        "previousValue" : "ok",
         "stateSet" : [ "failed", "ok" ],
         "type" : "StateSetMetric",
         "updated" : false
       },
       "hw.status{hw.type=\"connector\", state=\"present\"}" : {
         "name" : "hw.status{hw.type=\"connector\", state=\"present\"}",
-        "collectTime" : 1698248045382,
-        "previousCollectTime" : 1698248031818,
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
         "attributes" : {
           "state" : "present",
           "hw.type" : "connector"
@@ -34,24 +84,1437 @@
       "name" : "DellOpenManage",
       "connector_id" : "DellOpenManage",
       "description" : "This connector provides hardware monitoring through the Dell OpenManage Server Administrator SNMP agent which supports almost all Dell PowerEdge servers.",
-      "applies_to_os" : "[LINUX, WINDOWS]",
+      "applies_to_os" : "linux,windows",
       "id" : "DellOpenManage"
     },
     "conditionalCollection" : { },
     "legacyTextParameters" : { },
     "alertRules" : { },
     "resource" : null,
-    "discoveryTime" : 1698248031818,
+    "discoveryTime" : 1698399256006,
     "type" : "connector",
     "id" : "connector_DellOpenManage",
     "endpoint" : false,
-    "endpointHost" : false
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"cpu\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"cpu\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "cpu"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"cpu\"}" : {
+        "name" : "hw.status{hw.type=\"cpu\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "cpu"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      },
+      "hw.cpu.speed" : {
+        "name" : "hw.cpu.speed",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : { },
+        "resetMetricTime" : false,
+        "value" : 2.1E9,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.cpu.speed.limit{limit_type=\"max\"}" : {
+        "name" : "hw.cpu.speed.limit{limit_type=\"max\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "max"
+        },
+        "resetMetricTime" : true,
+        "value" : 4.0E9,
+        "previousValue" : 4.0E9,
+        "type" : "NumberMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "vendor" : "Intel",
+      "name" : "1.1 (Intel -  Xeon CPU E5-2620 v4 @ 2.10GHz - 4.00 KHz)",
+      "connector_id" : "DellOpenManage",
+      "model" : " Xeon CPU E5-2620 v4 @ 2.10GHz",
+      "id" : "1.1",
+      "info" : "Location: Slot CPU1"
+    },
+    "conditionalCollection" : { },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "cpu",
+    "id" : "DellOpenManage_cpu_1.1",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.enclosure.energy" : {
+        "name" : "hw.enclosure.energy",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : { },
+        "resetMetricTime" : false,
+        "value" : 3191.749,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"enclosure\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"enclosure\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "enclosure"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"enclosure\", state=\"open\"}" : {
+        "name" : "hw.status{hw.type=\"enclosure\", state=\"open\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "state" : "open",
+          "hw.type" : "enclosure"
+        },
+        "resetMetricTime" : false,
+        "value" : 0.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "__hw.enclosure.power.rate_from" : {
+        "name" : "__hw.enclosure.power.rate_from",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : { },
+        "resetMetricTime" : false,
+        "value" : 3191.749,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"enclosure\"}" : {
+        "name" : "hw.status{hw.type=\"enclosure\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "enclosure"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "vendor" : "Dell",
+      "name" : "Computer: (Dell PowerEdge R630)",
+      "connector_id" : "DellOpenManage",
+      "model" : "PowerEdge R630",
+      "id" : "1",
+      "type" : "Computer",
+      "info" : "Serial Number: FSJR3N2 Alternative Serial Number: 34377965102 "
+    },
+    "conditionalCollection" : {
+      "hw.enclosure.energy" : "3191749"
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "enclosure",
+    "id" : "DellOpenManage_enclosure_1",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"fan\"}" : {
+        "name" : "hw.status{hw.type=\"fan\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "fan"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      },
+      "hw.fan.speed" : {
+        "name" : "hw.fan.speed",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : { },
+        "resetMetricTime" : false,
+        "value" : 5640.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed.limit{limit_type=\"low.degraded\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.degraded\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "low.degraded"
+        },
+        "resetMetricTime" : true,
+        "value" : 840.0,
+        "previousValue" : 840.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"fan\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"fan\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "fan"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed.limit{limit_type=\"low.critical\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.critical\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "low.critical"
+        },
+        "resetMetricTime" : true,
+        "value" : 600.0,
+        "previousValue" : 600.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "System Board1A",
+      "name" : "1.1 (System Board1A)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.1"
+    },
+    "conditionalCollection" : {
+      "hw.fan.speed" : "System Board1A"
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "fan",
+    "id" : "DellOpenManage_fan_1.1",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"fan\"}" : {
+        "name" : "hw.status{hw.type=\"fan\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "fan"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      },
+      "hw.fan.speed" : {
+        "name" : "hw.fan.speed",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : { },
+        "resetMetricTime" : false,
+        "value" : 4200.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed.limit{limit_type=\"low.degraded\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.degraded\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "low.degraded"
+        },
+        "resetMetricTime" : true,
+        "value" : 840.0,
+        "previousValue" : 840.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"fan\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"fan\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "fan"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed.limit{limit_type=\"low.critical\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.critical\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "low.critical"
+        },
+        "resetMetricTime" : true,
+        "value" : 600.0,
+        "previousValue" : 600.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "System Board3B",
+      "name" : "1.10 (System Board3B)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.10"
+    },
+    "conditionalCollection" : {
+      "hw.fan.speed" : "System Board3B"
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "fan",
+    "id" : "DellOpenManage_fan_1.10",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"fan\"}" : {
+        "name" : "hw.status{hw.type=\"fan\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "fan"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      },
+      "hw.fan.speed" : {
+        "name" : "hw.fan.speed",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : { },
+        "resetMetricTime" : false,
+        "value" : 4200.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed.limit{limit_type=\"low.degraded\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.degraded\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "low.degraded"
+        },
+        "resetMetricTime" : true,
+        "value" : 840.0,
+        "previousValue" : 840.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"fan\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"fan\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "fan"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed.limit{limit_type=\"low.critical\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.critical\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "low.critical"
+        },
+        "resetMetricTime" : true,
+        "value" : 600.0,
+        "previousValue" : 600.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "System Board4B",
+      "name" : "1.11 (System Board4B)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.11"
+    },
+    "conditionalCollection" : {
+      "hw.fan.speed" : "System Board4B"
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "fan",
+    "id" : "DellOpenManage_fan_1.11",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"fan\"}" : {
+        "name" : "hw.status{hw.type=\"fan\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "fan"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      },
+      "hw.fan.speed" : {
+        "name" : "hw.fan.speed",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : { },
+        "resetMetricTime" : false,
+        "value" : 4320.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed.limit{limit_type=\"low.degraded\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.degraded\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "low.degraded"
+        },
+        "resetMetricTime" : true,
+        "value" : 840.0,
+        "previousValue" : 840.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"fan\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"fan\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "fan"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed.limit{limit_type=\"low.critical\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.critical\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "low.critical"
+        },
+        "resetMetricTime" : true,
+        "value" : 600.0,
+        "previousValue" : 600.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "System Board5B",
+      "name" : "1.12 (System Board5B)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.12"
+    },
+    "conditionalCollection" : {
+      "hw.fan.speed" : "System Board5B"
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "fan",
+    "id" : "DellOpenManage_fan_1.12",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"fan\"}" : {
+        "name" : "hw.status{hw.type=\"fan\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "fan"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      },
+      "hw.fan.speed" : {
+        "name" : "hw.fan.speed",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : { },
+        "resetMetricTime" : false,
+        "value" : 4200.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed.limit{limit_type=\"low.degraded\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.degraded\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "low.degraded"
+        },
+        "resetMetricTime" : true,
+        "value" : 840.0,
+        "previousValue" : 840.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"fan\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"fan\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "fan"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed.limit{limit_type=\"low.critical\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.critical\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "low.critical"
+        },
+        "resetMetricTime" : true,
+        "value" : 600.0,
+        "previousValue" : 600.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "System Board6B",
+      "name" : "1.13 (System Board6B)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.13"
+    },
+    "conditionalCollection" : {
+      "hw.fan.speed" : "System Board6B"
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "fan",
+    "id" : "DellOpenManage_fan_1.13",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"fan\"}" : {
+        "name" : "hw.status{hw.type=\"fan\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "fan"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      },
+      "hw.fan.speed" : {
+        "name" : "hw.fan.speed",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : { },
+        "resetMetricTime" : false,
+        "value" : 4200.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed.limit{limit_type=\"low.degraded\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.degraded\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "low.degraded"
+        },
+        "resetMetricTime" : true,
+        "value" : 840.0,
+        "previousValue" : 840.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"fan\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"fan\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "fan"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed.limit{limit_type=\"low.critical\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.critical\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "low.critical"
+        },
+        "resetMetricTime" : true,
+        "value" : 600.0,
+        "previousValue" : 600.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "System Board7B",
+      "name" : "1.14 (System Board7B)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.14"
+    },
+    "conditionalCollection" : {
+      "hw.fan.speed" : "System Board7B"
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "fan",
+    "id" : "DellOpenManage_fan_1.14",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"fan\"}" : {
+        "name" : "hw.status{hw.type=\"fan\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "fan"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      },
+      "hw.fan.speed" : {
+        "name" : "hw.fan.speed",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : { },
+        "resetMetricTime" : false,
+        "value" : 5640.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed.limit{limit_type=\"low.degraded\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.degraded\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "low.degraded"
+        },
+        "resetMetricTime" : true,
+        "value" : 840.0,
+        "previousValue" : 840.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"fan\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"fan\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "fan"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed.limit{limit_type=\"low.critical\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.critical\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "low.critical"
+        },
+        "resetMetricTime" : true,
+        "value" : 600.0,
+        "previousValue" : 600.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "System Board2A",
+      "name" : "1.2 (System Board2A)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.2"
+    },
+    "conditionalCollection" : {
+      "hw.fan.speed" : "System Board2A"
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "fan",
+    "id" : "DellOpenManage_fan_1.2",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"fan\"}" : {
+        "name" : "hw.status{hw.type=\"fan\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "fan"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      },
+      "hw.fan.speed" : {
+        "name" : "hw.fan.speed",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : { },
+        "resetMetricTime" : false,
+        "value" : 5760.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed.limit{limit_type=\"low.degraded\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.degraded\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "low.degraded"
+        },
+        "resetMetricTime" : true,
+        "value" : 840.0,
+        "previousValue" : 840.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"fan\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"fan\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "fan"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed.limit{limit_type=\"low.critical\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.critical\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "low.critical"
+        },
+        "resetMetricTime" : true,
+        "value" : 600.0,
+        "previousValue" : 600.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "System Board3A",
+      "name" : "1.3 (System Board3A)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.3"
+    },
+    "conditionalCollection" : {
+      "hw.fan.speed" : "System Board3A"
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "fan",
+    "id" : "DellOpenManage_fan_1.3",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"fan\"}" : {
+        "name" : "hw.status{hw.type=\"fan\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "fan"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      },
+      "hw.fan.speed" : {
+        "name" : "hw.fan.speed",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : { },
+        "resetMetricTime" : false,
+        "value" : 5640.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed.limit{limit_type=\"low.degraded\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.degraded\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "low.degraded"
+        },
+        "resetMetricTime" : true,
+        "value" : 840.0,
+        "previousValue" : 840.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"fan\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"fan\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "fan"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed.limit{limit_type=\"low.critical\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.critical\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "low.critical"
+        },
+        "resetMetricTime" : true,
+        "value" : 600.0,
+        "previousValue" : 600.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "System Board4A",
+      "name" : "1.4 (System Board4A)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.4"
+    },
+    "conditionalCollection" : {
+      "hw.fan.speed" : "System Board4A"
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "fan",
+    "id" : "DellOpenManage_fan_1.4",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"fan\"}" : {
+        "name" : "hw.status{hw.type=\"fan\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "fan"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      },
+      "hw.fan.speed" : {
+        "name" : "hw.fan.speed",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : { },
+        "resetMetricTime" : false,
+        "value" : 5520.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed.limit{limit_type=\"low.degraded\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.degraded\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "low.degraded"
+        },
+        "resetMetricTime" : true,
+        "value" : 840.0,
+        "previousValue" : 840.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"fan\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"fan\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "fan"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed.limit{limit_type=\"low.critical\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.critical\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "low.critical"
+        },
+        "resetMetricTime" : true,
+        "value" : 600.0,
+        "previousValue" : 600.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "System Board5A",
+      "name" : "1.5 (System Board5A)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.5"
+    },
+    "conditionalCollection" : {
+      "hw.fan.speed" : "System Board5A"
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "fan",
+    "id" : "DellOpenManage_fan_1.5",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"fan\"}" : {
+        "name" : "hw.status{hw.type=\"fan\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "fan"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      },
+      "hw.fan.speed" : {
+        "name" : "hw.fan.speed",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : { },
+        "resetMetricTime" : false,
+        "value" : 5640.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed.limit{limit_type=\"low.degraded\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.degraded\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "low.degraded"
+        },
+        "resetMetricTime" : true,
+        "value" : 840.0,
+        "previousValue" : 840.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"fan\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"fan\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "fan"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed.limit{limit_type=\"low.critical\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.critical\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "low.critical"
+        },
+        "resetMetricTime" : true,
+        "value" : 600.0,
+        "previousValue" : 600.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "System Board6A",
+      "name" : "1.6 (System Board6A)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.6"
+    },
+    "conditionalCollection" : {
+      "hw.fan.speed" : "System Board6A"
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "fan",
+    "id" : "DellOpenManage_fan_1.6",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"fan\"}" : {
+        "name" : "hw.status{hw.type=\"fan\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "fan"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      },
+      "hw.fan.speed" : {
+        "name" : "hw.fan.speed",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : { },
+        "resetMetricTime" : false,
+        "value" : 5640.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed.limit{limit_type=\"low.degraded\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.degraded\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "low.degraded"
+        },
+        "resetMetricTime" : true,
+        "value" : 840.0,
+        "previousValue" : 840.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"fan\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"fan\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "fan"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed.limit{limit_type=\"low.critical\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.critical\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "low.critical"
+        },
+        "resetMetricTime" : true,
+        "value" : 600.0,
+        "previousValue" : 600.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "System Board7A",
+      "name" : "1.7 (System Board7A)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.7"
+    },
+    "conditionalCollection" : {
+      "hw.fan.speed" : "System Board7A"
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "fan",
+    "id" : "DellOpenManage_fan_1.7",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"fan\"}" : {
+        "name" : "hw.status{hw.type=\"fan\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "fan"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      },
+      "hw.fan.speed" : {
+        "name" : "hw.fan.speed",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : { },
+        "resetMetricTime" : false,
+        "value" : 4200.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed.limit{limit_type=\"low.degraded\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.degraded\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "low.degraded"
+        },
+        "resetMetricTime" : true,
+        "value" : 840.0,
+        "previousValue" : 840.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"fan\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"fan\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "fan"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed.limit{limit_type=\"low.critical\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.critical\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "low.critical"
+        },
+        "resetMetricTime" : true,
+        "value" : 600.0,
+        "previousValue" : 600.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "System Board1B",
+      "name" : "1.8 (System Board1B)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.8"
+    },
+    "conditionalCollection" : {
+      "hw.fan.speed" : "System Board1B"
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "fan",
+    "id" : "DellOpenManage_fan_1.8",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"fan\"}" : {
+        "name" : "hw.status{hw.type=\"fan\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "fan"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      },
+      "hw.fan.speed" : {
+        "name" : "hw.fan.speed",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : { },
+        "resetMetricTime" : false,
+        "value" : 4200.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed.limit{limit_type=\"low.degraded\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.degraded\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "low.degraded"
+        },
+        "resetMetricTime" : true,
+        "value" : 840.0,
+        "previousValue" : 840.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"fan\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"fan\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "fan"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed.limit{limit_type=\"low.critical\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.critical\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "low.critical"
+        },
+        "resetMetricTime" : true,
+        "value" : 600.0,
+        "previousValue" : 600.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "System Board2B",
+      "name" : "1.9 (System Board2B)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.9"
+    },
+    "conditionalCollection" : {
+      "hw.fan.speed" : "System Board2B"
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "fan",
+    "id" : "DellOpenManage_fan_1.9",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
   }, {
     "metrics" : {
       "hw.status{hw.type=\"host\", state=\"present\"}" : {
         "name" : "hw.status{hw.type=\"host\", state=\"present\"}",
-        "collectTime" : 1698248045382,
-        "previousCollectTime" : 1698248031818,
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
         "attributes" : {
           "state" : "present",
           "hw.type" : "host"
@@ -64,10 +1527,10 @@
       }
     },
     "attributes" : {
-      "location" : "local",
-      "name" : "localhost",
+      "is_endpoint" : "true",
       "id" : "localhost",
-      "is_endpoint" : "true"
+      "name" : "localhost",
+      "location" : "local"
     },
     "conditionalCollection" : { },
     "legacyTextParameters" : { },
@@ -75,17 +1538,2707 @@
     "resource" : {
       "type" : "host",
       "attributes" : {
-        "os.type" : "linux",
-        "host.id" : "localhost",
+        "agent.host.name" : "192.168.10.124",
+        "host.name" : "127.0.0.1",
         "host.type" : "compute",
-        "host.name" : "localhost",
-        "agent.host.name" : "blahblah"
+        "host.id" : "localhost",
+        "os.type" : "linux"
       }
     },
-    "discoveryTime" : 1698248045382,
+    "discoveryTime" : 1698399256388,
     "type" : "host",
     "id" : "localhost",
     "endpoint" : true,
-    "endpointHost" : true
+    "endpointHost" : true,
+    "is_endpoint" : true
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"memory\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"memory\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.memory.limit" : {
+        "name" : "hw.memory.limit",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : { },
+        "resetMetricTime" : true,
+        "value" : 1.7179869184E10,
+        "previousValue" : 1.7179869184E10,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.errors{hw.type=\"memory\"}" : {
+        "name" : "hw.errors{hw.type=\"memory\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : 0.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"memory\"}" : {
+        "name" : "hw.status{hw.type=\"memory\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "vendor" : "Hynix Semiconductor (00AD00B300AD)",
+      "name" : "1.1 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384.0 MB)",
+      "connector_id" : "DellOpenManage",
+      "serial_number" : "2B6230D1",
+      "id" : "1.1",
+      "type" : "DDR4",
+      "info" : "Location: Slot A1 Part Number: HMA82GR7MFR8N-UH Alternative Serial Number: 00180130"
+    },
+    "conditionalCollection" : { },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "memory",
+    "id" : "DellOpenManage_memory_1.1",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"memory\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"memory\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.memory.limit" : {
+        "name" : "hw.memory.limit",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : { },
+        "resetMetricTime" : true,
+        "value" : 1.7179869184E10,
+        "previousValue" : 1.7179869184E10,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.errors{hw.type=\"memory\"}" : {
+        "name" : "hw.errors{hw.type=\"memory\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : 0.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"memory\"}" : {
+        "name" : "hw.status{hw.type=\"memory\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "vendor" : "Hynix Semiconductor (00AD00B300AD)",
+      "name" : "1.10 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384.0 MB)",
+      "connector_id" : "DellOpenManage",
+      "serial_number" : "2B62303E",
+      "id" : "1.10",
+      "type" : "DDR4",
+      "info" : "Location: Slot A10 Part Number: HMA82GR7MFR8N-UH Alternative Serial Number: 00180130"
+    },
+    "conditionalCollection" : { },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "memory",
+    "id" : "DellOpenManage_memory_1.10",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"memory\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"memory\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.memory.limit" : {
+        "name" : "hw.memory.limit",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : { },
+        "resetMetricTime" : true,
+        "value" : 1.7179869184E10,
+        "previousValue" : 1.7179869184E10,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.errors{hw.type=\"memory\"}" : {
+        "name" : "hw.errors{hw.type=\"memory\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : 0.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"memory\"}" : {
+        "name" : "hw.status{hw.type=\"memory\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "vendor" : "Hynix Semiconductor (00AD00B300AD)",
+      "name" : "1.11 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384.0 MB)",
+      "connector_id" : "DellOpenManage",
+      "serial_number" : "2B6232CA",
+      "id" : "1.11",
+      "type" : "DDR4",
+      "info" : "Location: Slot A11 Part Number: HMA82GR7MFR8N-UH Alternative Serial Number: 00180130"
+    },
+    "conditionalCollection" : { },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "memory",
+    "id" : "DellOpenManage_memory_1.11",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"memory\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"memory\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.memory.limit" : {
+        "name" : "hw.memory.limit",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : { },
+        "resetMetricTime" : true,
+        "value" : 1.7179869184E10,
+        "previousValue" : 1.7179869184E10,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.errors{hw.type=\"memory\"}" : {
+        "name" : "hw.errors{hw.type=\"memory\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : 0.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"memory\"}" : {
+        "name" : "hw.status{hw.type=\"memory\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "vendor" : "Hynix Semiconductor (00AD00B300AD)",
+      "name" : "1.12 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384.0 MB)",
+      "connector_id" : "DellOpenManage",
+      "serial_number" : "2B6230D3",
+      "id" : "1.12",
+      "type" : "DDR4",
+      "info" : "Location: Slot A12 Part Number: HMA82GR7MFR8N-UH Alternative Serial Number: 00180130"
+    },
+    "conditionalCollection" : { },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "memory",
+    "id" : "DellOpenManage_memory_1.12",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"memory\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"memory\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.memory.limit" : {
+        "name" : "hw.memory.limit",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : { },
+        "resetMetricTime" : true,
+        "value" : 1.7179869184E10,
+        "previousValue" : 1.7179869184E10,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.errors{hw.type=\"memory\"}" : {
+        "name" : "hw.errors{hw.type=\"memory\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : 0.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"memory\"}" : {
+        "name" : "hw.status{hw.type=\"memory\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "vendor" : "Hynix Semiconductor (00AD00B300AD)",
+      "name" : "1.2 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384.0 MB)",
+      "connector_id" : "DellOpenManage",
+      "serial_number" : "2B6230F3",
+      "id" : "1.2",
+      "type" : "DDR4",
+      "info" : "Location: Slot A2 Part Number: HMA82GR7MFR8N-UH Alternative Serial Number: 00180130"
+    },
+    "conditionalCollection" : { },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "memory",
+    "id" : "DellOpenManage_memory_1.2",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"memory\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"memory\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.memory.limit" : {
+        "name" : "hw.memory.limit",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : { },
+        "resetMetricTime" : true,
+        "value" : 1.7179869184E10,
+        "previousValue" : 1.7179869184E10,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.errors{hw.type=\"memory\"}" : {
+        "name" : "hw.errors{hw.type=\"memory\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : 0.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"memory\"}" : {
+        "name" : "hw.status{hw.type=\"memory\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "vendor" : "Hynix Semiconductor (00AD00B300AD)",
+      "name" : "1.3 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384.0 MB)",
+      "connector_id" : "DellOpenManage",
+      "serial_number" : "2B6230D6",
+      "id" : "1.3",
+      "type" : "DDR4",
+      "info" : "Location: Slot A3 Part Number: HMA82GR7MFR8N-UH Alternative Serial Number: 00180130"
+    },
+    "conditionalCollection" : { },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "memory",
+    "id" : "DellOpenManage_memory_1.3",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"memory\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"memory\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.memory.limit" : {
+        "name" : "hw.memory.limit",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : { },
+        "resetMetricTime" : true,
+        "value" : 1.7179869184E10,
+        "previousValue" : 1.7179869184E10,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.errors{hw.type=\"memory\"}" : {
+        "name" : "hw.errors{hw.type=\"memory\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : 0.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"memory\"}" : {
+        "name" : "hw.status{hw.type=\"memory\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "vendor" : "Hynix Semiconductor (00AD00B300AD)",
+      "name" : "1.4 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384.0 MB)",
+      "connector_id" : "DellOpenManage",
+      "serial_number" : "2B6230CF",
+      "id" : "1.4",
+      "type" : "DDR4",
+      "info" : "Location: Slot A4 Part Number: HMA82GR7MFR8N-UH Alternative Serial Number: 00180130"
+    },
+    "conditionalCollection" : { },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "memory",
+    "id" : "DellOpenManage_memory_1.4",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"memory\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"memory\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.memory.limit" : {
+        "name" : "hw.memory.limit",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : { },
+        "resetMetricTime" : true,
+        "value" : 1.7179869184E10,
+        "previousValue" : 1.7179869184E10,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.errors{hw.type=\"memory\"}" : {
+        "name" : "hw.errors{hw.type=\"memory\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : 0.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"memory\"}" : {
+        "name" : "hw.status{hw.type=\"memory\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "vendor" : "Hynix Semiconductor (00AD00B300AD)",
+      "name" : "1.5 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384.0 MB)",
+      "connector_id" : "DellOpenManage",
+      "serial_number" : "2B6230EA",
+      "id" : "1.5",
+      "type" : "DDR4",
+      "info" : "Location: Slot A5 Part Number: HMA82GR7MFR8N-UH Alternative Serial Number: 00180130"
+    },
+    "conditionalCollection" : { },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "memory",
+    "id" : "DellOpenManage_memory_1.5",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"memory\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"memory\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.memory.limit" : {
+        "name" : "hw.memory.limit",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : { },
+        "resetMetricTime" : true,
+        "value" : 1.7179869184E10,
+        "previousValue" : 1.7179869184E10,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.errors{hw.type=\"memory\"}" : {
+        "name" : "hw.errors{hw.type=\"memory\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : 0.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"memory\"}" : {
+        "name" : "hw.status{hw.type=\"memory\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "vendor" : "Hynix Semiconductor (00AD00B300AD)",
+      "name" : "1.6 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384.0 MB)",
+      "connector_id" : "DellOpenManage",
+      "serial_number" : "2B6230F4",
+      "id" : "1.6",
+      "type" : "DDR4",
+      "info" : "Location: Slot A6 Part Number: HMA82GR7MFR8N-UH Alternative Serial Number: 00180130"
+    },
+    "conditionalCollection" : { },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "memory",
+    "id" : "DellOpenManage_memory_1.6",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"memory\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"memory\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.memory.limit" : {
+        "name" : "hw.memory.limit",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : { },
+        "resetMetricTime" : true,
+        "value" : 1.7179869184E10,
+        "previousValue" : 1.7179869184E10,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.errors{hw.type=\"memory\"}" : {
+        "name" : "hw.errors{hw.type=\"memory\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : 0.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"memory\"}" : {
+        "name" : "hw.status{hw.type=\"memory\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "vendor" : "Hynix Semiconductor (00AD00B300AD)",
+      "name" : "1.7 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384.0 MB)",
+      "connector_id" : "DellOpenManage",
+      "serial_number" : "2B623048",
+      "id" : "1.7",
+      "type" : "DDR4",
+      "info" : "Location: Slot A7 Part Number: HMA82GR7MFR8N-UH Alternative Serial Number: 00180130"
+    },
+    "conditionalCollection" : { },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "memory",
+    "id" : "DellOpenManage_memory_1.7",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"memory\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"memory\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.memory.limit" : {
+        "name" : "hw.memory.limit",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : { },
+        "resetMetricTime" : true,
+        "value" : 1.7179869184E10,
+        "previousValue" : 1.7179869184E10,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.errors{hw.type=\"memory\"}" : {
+        "name" : "hw.errors{hw.type=\"memory\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : 0.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"memory\"}" : {
+        "name" : "hw.status{hw.type=\"memory\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "vendor" : "Hynix Semiconductor (00AD00B300AD)",
+      "name" : "1.8 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384.0 MB)",
+      "connector_id" : "DellOpenManage",
+      "serial_number" : "2B623041",
+      "id" : "1.8",
+      "type" : "DDR4",
+      "info" : "Location: Slot A8 Part Number: HMA82GR7MFR8N-UH Alternative Serial Number: 00180130"
+    },
+    "conditionalCollection" : { },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "memory",
+    "id" : "DellOpenManage_memory_1.8",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"memory\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"memory\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.memory.limit" : {
+        "name" : "hw.memory.limit",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : { },
+        "resetMetricTime" : true,
+        "value" : 1.7179869184E10,
+        "previousValue" : 1.7179869184E10,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.errors{hw.type=\"memory\"}" : {
+        "name" : "hw.errors{hw.type=\"memory\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : 0.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"memory\"}" : {
+        "name" : "hw.status{hw.type=\"memory\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "vendor" : "Hynix Semiconductor (00AD00B300AD)",
+      "name" : "1.9 (Hynix Semiconductor (00AD00B300AD) - DDR4 - 16384.0 MB)",
+      "connector_id" : "DellOpenManage",
+      "serial_number" : "2B6230D7",
+      "id" : "1.9",
+      "type" : "DDR4",
+      "info" : "Location: Slot A9 Part Number: HMA82GR7MFR8N-UH Alternative Serial Number: 00180130"
+    },
+    "conditionalCollection" : { },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "memory",
+    "id" : "DellOpenManage_memory_1.9",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"other_device\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"other_device\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "other_device"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"other_device\"}" : {
+        "name" : "hw.status{hw.type=\"other_device\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "other_device"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "__display_id" : "1",
+      "hw.parent.type" : "enclosure",
+      "name" : "ESM: 1 ()",
+      "connector_id" : "DellOpenManage",
+      "additional_label" : "",
+      "device_type" : "ESM",
+      "id" : "1",
+      "info" : "EventLog"
+    },
+    "conditionalCollection" : { },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "other_device",
+    "id" : "DellOpenManage_other_device_1",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"other_device\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"other_device\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "other_device"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"other_device\"}" : {
+        "name" : "hw.status{hw.type=\"other_device\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "other_device"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "__display_id" : "SDCardDevice-1.1",
+      "hw.parent.type" : "enclosure",
+      "name" : "vFlash: SDCardDevice-1.1 ()",
+      "connector_id" : "DellOpenManage",
+      "additional_label" : "",
+      "device_type" : "vFlash",
+      "id" : "SDCardDevice-1.1",
+      "info" : "Size : 0 MB "
+    },
+    "conditionalCollection" : { },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "other_device",
+    "id" : "DellOpenManage_other_device_SDCardDevice-1.1",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.power_supply.limit" : {
+        "name" : "hw.power_supply.limit",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : { },
+        "resetMetricTime" : true,
+        "value" : 750.0,
+        "previousValue" : 750.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"power_supply\"}" : {
+        "name" : "hw.status{hw.type=\"power_supply\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "power_supply"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"power_supply\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"power_supply\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "power_supply"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "power_supply_type" : "AC",
+      "name" : "1.1 (AC - 750.0 W)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.1"
+    },
+    "conditionalCollection" : { },
+    "legacyTextParameters" : {
+      "StatusInformation" : "AC Switch On - AC Power On"
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "power_supply",
+    "id" : "DellOpenManage_power_supply_1.1",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.power_supply.limit" : {
+        "name" : "hw.power_supply.limit",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : { },
+        "resetMetricTime" : true,
+        "value" : 750.0,
+        "previousValue" : 750.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"power_supply\"}" : {
+        "name" : "hw.status{hw.type=\"power_supply\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "power_supply"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"power_supply\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"power_supply\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "power_supply"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "power_supply_type" : "AC",
+      "name" : "1.2 (AC - 750.0 W)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.2"
+    },
+    "conditionalCollection" : { },
+    "legacyTextParameters" : {
+      "StatusInformation" : "AC Switch On - AC Power On"
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "power_supply",
+    "id" : "DellOpenManage_power_supply_1.2",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.temperature.limit{limit_type=\"high.degraded\"}" : {
+        "name" : "hw.temperature.limit{limit_type=\"high.degraded\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "high.degraded"
+        },
+        "resetMetricTime" : true,
+        "value" : 42.0,
+        "previousValue" : 42.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"temperature\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"temperature\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "temperature"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"temperature\"}" : {
+        "name" : "hw.status{hw.type=\"temperature\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "temperature"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      },
+      "hw.temperature.limit{limit_type=\"high.critical\"}" : {
+        "name" : "hw.temperature.limit{limit_type=\"high.critical\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "high.critical"
+        },
+        "resetMetricTime" : true,
+        "value" : 47.0,
+        "previousValue" : 47.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.temperature" : {
+        "name" : "hw.temperature",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : { },
+        "resetMetricTime" : false,
+        "value" : 23.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "System Board Inlet",
+      "name" : "1.1 (System Board Inlet)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.1"
+    },
+    "conditionalCollection" : {
+      "hw.temperature" : "System Board Inlet"
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "temperature",
+    "id" : "DellOpenManage_temperature_1.1",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.temperature.limit{limit_type=\"high.degraded\"}" : {
+        "name" : "hw.temperature.limit{limit_type=\"high.degraded\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "high.degraded"
+        },
+        "resetMetricTime" : true,
+        "value" : 70.0,
+        "previousValue" : 70.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"temperature\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"temperature\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "temperature"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"temperature\"}" : {
+        "name" : "hw.status{hw.type=\"temperature\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "temperature"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      },
+      "hw.temperature.limit{limit_type=\"high.critical\"}" : {
+        "name" : "hw.temperature.limit{limit_type=\"high.critical\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "high.critical"
+        },
+        "resetMetricTime" : true,
+        "value" : 75.0,
+        "previousValue" : 75.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.temperature" : {
+        "name" : "hw.temperature",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : { },
+        "resetMetricTime" : false,
+        "value" : 30.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "System Board Exhaust",
+      "name" : "1.2 (System Board Exhaust)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.2"
+    },
+    "conditionalCollection" : {
+      "hw.temperature" : "System Board Exhaust"
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "temperature",
+    "id" : "DellOpenManage_temperature_1.2",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.temperature.limit{limit_type=\"high.degraded\"}" : {
+        "name" : "hw.temperature.limit{limit_type=\"high.degraded\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "high.degraded"
+        },
+        "resetMetricTime" : true,
+        "value" : 85.0,
+        "previousValue" : 85.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"temperature\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"temperature\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "temperature"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"temperature\"}" : {
+        "name" : "hw.status{hw.type=\"temperature\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "temperature"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      },
+      "hw.temperature.limit{limit_type=\"high.critical\"}" : {
+        "name" : "hw.temperature.limit{limit_type=\"high.critical\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "limit_type" : "high.critical"
+        },
+        "resetMetricTime" : true,
+        "value" : 90.0,
+        "previousValue" : 90.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.temperature" : {
+        "name" : "hw.temperature",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : { },
+        "resetMetricTime" : false,
+        "value" : 37.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "CPU1",
+      "name" : "1.3 (CPU1)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.3"
+    },
+    "conditionalCollection" : {
+      "hw.temperature" : "CPU1"
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "temperature",
+    "id" : "DellOpenManage_temperature_1.3",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"voltage\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "CPU1 VCORE PG",
+      "name" : "1.1 (CPU1 VCORE PG)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.1"
+    },
+    "conditionalCollection" : {
+      "hw.voltage" : ""
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "voltage",
+    "id" : "DellOpenManage_voltage_1.1",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"voltage\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "System Board DIMM PG",
+      "name" : "1.10 (System Board DIMM PG)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.10"
+    },
+    "conditionalCollection" : {
+      "hw.voltage" : ""
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "voltage",
+    "id" : "DellOpenManage_voltage_1.10",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"voltage\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "System Board VCCIO PG",
+      "name" : "1.11 (System Board VCCIO PG)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.11"
+    },
+    "conditionalCollection" : {
+      "hw.voltage" : ""
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "voltage",
+    "id" : "DellOpenManage_voltage_1.11",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"voltage\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "CPU1 M01 VDDQ PG",
+      "name" : "1.12 (CPU1 M01 VDDQ PG)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.12"
+    },
+    "conditionalCollection" : {
+      "hw.voltage" : ""
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "voltage",
+    "id" : "DellOpenManage_voltage_1.12",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"voltage\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "System Board NDC PG",
+      "name" : "1.13 (System Board NDC PG)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.13"
+    },
+    "conditionalCollection" : {
+      "hw.voltage" : ""
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "voltage",
+    "id" : "DellOpenManage_voltage_1.13",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"voltage\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "CPU1 M01 VPP PG",
+      "name" : "1.14 (CPU1 M01 VPP PG)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.14"
+    },
+    "conditionalCollection" : {
+      "hw.voltage" : ""
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "voltage",
+    "id" : "DellOpenManage_voltage_1.14",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"voltage\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "System Board 1.5V PG",
+      "name" : "1.15 (System Board 1.5V PG)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.15"
+    },
+    "conditionalCollection" : {
+      "hw.voltage" : ""
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "voltage",
+    "id" : "DellOpenManage_voltage_1.15",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"voltage\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "System Board 1.5V AUX PG",
+      "name" : "1.16 (System Board 1.5V AUX PG)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.16"
+    },
+    "conditionalCollection" : {
+      "hw.voltage" : ""
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "voltage",
+    "id" : "DellOpenManage_voltage_1.16",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"voltage\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "CPU1 FIVR PG",
+      "name" : "1.17 (CPU1 FIVR PG)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.17"
+    },
+    "conditionalCollection" : {
+      "hw.voltage" : ""
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "voltage",
+    "id" : "DellOpenManage_voltage_1.17",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"voltage\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "System Board PS2 PG Fail",
+      "name" : "1.18 (System Board PS2 PG Fail)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.18"
+    },
+    "conditionalCollection" : {
+      "hw.voltage" : ""
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "voltage",
+    "id" : "DellOpenManage_voltage_1.18",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"voltage\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "System Board PS1 PG Fail",
+      "name" : "1.19 (System Board PS1 PG Fail)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.19"
+    },
+    "conditionalCollection" : {
+      "hw.voltage" : ""
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "voltage",
+    "id" : "DellOpenManage_voltage_1.19",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"voltage\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "System Board 3.3V PG",
+      "name" : "1.2 (System Board 3.3V PG)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.2"
+    },
+    "conditionalCollection" : {
+      "hw.voltage" : ""
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "voltage",
+    "id" : "DellOpenManage_voltage_1.2",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"voltage\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "System Board BP1 5V PG",
+      "name" : "1.20 (System Board BP1 5V PG)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.20"
+    },
+    "conditionalCollection" : {
+      "hw.voltage" : ""
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "voltage",
+    "id" : "DellOpenManage_voltage_1.20",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"voltage\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "System Board BP2 5V PG",
+      "name" : "1.21 (System Board BP2 5V PG)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.21"
+    },
+    "conditionalCollection" : {
+      "hw.voltage" : ""
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "voltage",
+    "id" : "DellOpenManage_voltage_1.21",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"voltage\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "CPU1 M01 VTT PG",
+      "name" : "1.22 (CPU1 M01 VTT PG)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.22"
+    },
+    "conditionalCollection" : {
+      "hw.voltage" : ""
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "voltage",
+    "id" : "DellOpenManage_voltage_1.22",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.voltage" : {
+        "name" : "hw.voltage",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : { },
+        "resetMetricTime" : false,
+        "value" : 228000.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"voltage\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "PS1 Voltage 1",
+      "name" : "1.23 (PS1 Voltage 1)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.23"
+    },
+    "conditionalCollection" : {
+      "hw.voltage" : "228000"
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "voltage",
+    "id" : "DellOpenManage_voltage_1.23",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.voltage" : {
+        "name" : "hw.voltage",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : { },
+        "resetMetricTime" : false,
+        "value" : 224000.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"voltage\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "PS2 Voltage 2",
+      "name" : "1.24 (PS2 Voltage 2)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.24"
+    },
+    "conditionalCollection" : {
+      "hw.voltage" : "224000"
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "voltage",
+    "id" : "DellOpenManage_voltage_1.24",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"voltage\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "System Board 5V AUX PG",
+      "name" : "1.3 (System Board 5V AUX PG)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.3"
+    },
+    "conditionalCollection" : {
+      "hw.voltage" : ""
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "voltage",
+    "id" : "DellOpenManage_voltage_1.3",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"voltage\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "CPU1 M23 VPP PG",
+      "name" : "1.4 (CPU1 M23 VPP PG)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.4"
+    },
+    "conditionalCollection" : {
+      "hw.voltage" : ""
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "voltage",
+    "id" : "DellOpenManage_voltage_1.4",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"voltage\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "System Board 2.5V AUX PG",
+      "name" : "1.5 (System Board 2.5V AUX PG)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.5"
+    },
+    "conditionalCollection" : {
+      "hw.voltage" : ""
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "voltage",
+    "id" : "DellOpenManage_voltage_1.5",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"voltage\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "System Board 1.05V PG",
+      "name" : "1.6 (System Board 1.05V PG)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.6"
+    },
+    "conditionalCollection" : {
+      "hw.voltage" : ""
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "voltage",
+    "id" : "DellOpenManage_voltage_1.6",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"voltage\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "CPU1 M23 VDDQ PG",
+      "name" : "1.7 (CPU1 M23 VDDQ PG)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.7"
+    },
+    "conditionalCollection" : {
+      "hw.voltage" : ""
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "voltage",
+    "id" : "DellOpenManage_voltage_1.7",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"voltage\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "CPU1 M23 VTT PG",
+      "name" : "1.8 (CPU1 M23 VTT PG)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.8"
+    },
+    "conditionalCollection" : {
+      "hw.voltage" : ""
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "voltage",
+    "id" : "DellOpenManage_voltage_1.8",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
+  }, {
+    "metrics" : {
+      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : 1698399256006,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.status{hw.type=\"voltage\"}" : {
+        "name" : "hw.status{hw.type=\"voltage\"}",
+        "collectTime" : 1698399256388,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "hw.type" : "voltage"
+        },
+        "resetMetricTime" : false,
+        "value" : "ok",
+        "previousValue" : null,
+        "stateSet" : [ "failed", "degraded", "ok" ],
+        "type" : "StateSetMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "hw.parent.type" : "enclosure",
+      "sensor_location" : "System Board 5V SWITCH PG",
+      "name" : "1.9 (System Board 5V SWITCH PG)",
+      "connector_id" : "DellOpenManage",
+      "id" : "1.9"
+    },
+    "conditionalCollection" : {
+      "hw.voltage" : ""
+    },
+    "legacyTextParameters" : {
+      "StatusInformation" : ""
+    },
+    "alertRules" : { },
+    "resource" : null,
+    "discoveryTime" : 1698399256006,
+    "type" : "voltage",
+    "id" : "DellOpenManage_voltage_1.9",
+    "endpoint" : false,
+    "endpointHost" : false,
+    "is_endpoint" : false
   } ]
 }

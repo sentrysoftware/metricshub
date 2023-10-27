@@ -1,14 +1,5 @@
 package com.sentrysoftware.metricshub.engine.it;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration.SnmpVersion;
@@ -18,15 +9,28 @@ import com.sentrysoftware.metricshub.engine.it.job.ITJob;
 import com.sentrysoftware.metricshub.engine.it.job.SnmpITJob;
 import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 class DellOpenManageIT {
-
 	static {
 		Locale.setDefault(Locale.US);
 	}
 
 	private static final String CONNECTOR_ID = "DellOpenManage";
-	private static final Path CONNECTOR_DIRECTORY = Paths.get("src", "it", "resources", "snmp", "DellOpenManageIT", "connectors");
+	private static final Path CONNECTOR_DIRECTORY = Paths.get(
+		"src",
+		"it",
+		"resources",
+		"snmp",
+		"DellOpenManageIT",
+		"connectors"
+	);
 	private static final String LOCALHOST = "localhost";
 
 	private static TelemetryManager telemetryManager;
@@ -34,7 +38,6 @@ class DellOpenManageIT {
 
 	@BeforeAll
 	static void setUp() throws Exception {
-
 		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
 			.builder()
 			.community("public")
@@ -53,19 +56,14 @@ class DellOpenManageIT {
 
 		final ConnectorStore connectorStore = new ConnectorStore(CONNECTOR_DIRECTORY);
 
-		telemetryManager = TelemetryManager
-			.builder()
-			.connectorStore(connectorStore)
-			.hostConfiguration(hostConfiguration)
-			.build();
+		telemetryManager =
+			TelemetryManager.builder().connectorStore(connectorStore).hostConfiguration(hostConfiguration).build();
 
 		matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
-
 	}
 
 	@Test
 	void test() throws Exception {
-
 		final ITJob itJob = new SnmpITJob(matsyaClientsExecutor, telemetryManager);
 
 		itJob
@@ -73,6 +71,5 @@ class DellOpenManageIT {
 			.executeDiscoveryStrategy()
 			.executeCollectStrategy()
 			.verifyExpected("snmp/DellOpenManageIT/expected/expected.json");
-
 	}
 }

@@ -128,7 +128,7 @@ public abstract class AbstractStrategy implements IStrategy {
 					.getHostProperties()
 					.getConnectorNamespace(connectorName)
 					.addSourceTable(sourceKey, sourceTable);
-				return;
+				continue;
 			}
 
 			final ComputeProcessor computeProcessor = ComputeProcessor

@@ -44,7 +44,8 @@ public class ConnectorLibraryParser {
 			final ConnectorParser connectorParser = ConnectorParser.withNodeProcessorAndUpdateChain(file.getParent());
 
 			final Connector connector = connectorParser.parse(file.toFile());
-			connectorsMap.put(file.getFileName().toString(), connector);
+			final String filename = file.getFileName().toString();
+			connectorsMap.put(filename.substring(0, filename.lastIndexOf('.')), connector);
 
 			return FileVisitResult.CONTINUE;
 		}

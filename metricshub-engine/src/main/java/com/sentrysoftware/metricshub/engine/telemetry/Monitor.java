@@ -2,6 +2,7 @@ package com.sentrysoftware.metricshub.engine.telemetry;
 
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.PRESENT_STATUS;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sentrysoftware.metricshub.engine.alert.AlertRule;
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
@@ -42,7 +43,9 @@ public class Monitor {
 	private Long discoveryTime;
 	private String type;
 	private String id;
-	private boolean endpoint;
+
+	@JsonProperty("is_endpoint")
+	private boolean isEndpoint;
 
 	/**
 	 * Get a metric by type
@@ -158,7 +161,7 @@ public class Monitor {
 	 * @param isEndpoint boolean value
 	 */
 	public void setIsEndpoint(final boolean isEndpoint) {
-		this.endpoint = isEndpoint;
+		this.isEndpoint = isEndpoint;
 	}
 
 	/**

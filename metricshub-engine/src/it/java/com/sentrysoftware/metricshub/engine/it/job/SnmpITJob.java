@@ -1,9 +1,9 @@
 package com.sentrysoftware.metricshub.engine.it.job;
 
+import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import com.sentrysoftware.metricshub.engine.it.snmp.SnmpAgent;
 import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
-
 import lombok.NonNull;
 
 public class SnmpITJob extends AbstractITJob {
@@ -16,12 +16,18 @@ public class SnmpITJob extends AbstractITJob {
 
 	@Override
 	public ITJob withServerRecordData(String... dataPaths) throws Exception {
-
 		stopServer();
 
 		snmpAgent = new SnmpAgent();
 
 		snmpAgent.start(dataPaths);
+
+		final SnmpConfiguration snmpConfiguration = (SnmpConfiguration) telemetryManager
+			.getHostConfiguration()
+			.getConfigurations()
+			.get(SnmpConfiguration.class);
+
+		snmpConfiguration.setPort(snmpAgent.getPort());
 
 		return this;
 	}
@@ -37,5 +43,4 @@ public class SnmpITJob extends AbstractITJob {
 	public boolean isServerStarted() {
 		return snmpAgent != null && snmpAgent.isStarted();
 	}
-
 }

@@ -13,7 +13,7 @@ import static com.sentrysoftware.metricshub.engine.constants.Constants.HOST_NAME
 import static com.sentrysoftware.metricshub.engine.constants.Constants.ID;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.MONITOR_ID_ATTRIBUTE_VALUE;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.STATUS_INFORMATION;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.TEST_CONNECTOR_FILE_NAME;
+import static com.sentrysoftware.metricshub.engine.constants.Constants.TEST_CONNECTOR_ID;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.TEST_CONNECTOR_PATH;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -53,7 +53,7 @@ class PostCollectStrategyTest {
 
 	@Test
 	void testRunRefreshPresentMetrics() throws Exception {
-		final String connectorId = TEST_CONNECTOR_FILE_NAME.split("\\.")[0];
+		final String connectorId = TEST_CONNECTOR_ID.split("\\.")[0];
 
 		// Create host and connector monitors and set them in the telemetry manager
 		final Monitor hostMonitor = Monitor.builder().type(KnownMonitorType.HOST.getKey()).build();
@@ -103,7 +103,7 @@ class PostCollectStrategyTest {
 
 		hostMonitor.addAttribute(IS_ENDPOINT, "true");
 
-		connectorMonitor.addAttribute(ID, TEST_CONNECTOR_FILE_NAME);
+		connectorMonitor.addAttribute(ID, TEST_CONNECTOR_ID);
 
 		// Create the connector store
 		final ConnectorStore connectorStore = new ConnectorStore(TEST_CONNECTOR_PATH);

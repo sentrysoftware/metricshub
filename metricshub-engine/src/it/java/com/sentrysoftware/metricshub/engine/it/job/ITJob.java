@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 public interface ITJob {
-
 	/**
 	 * Start the server and load the record data from the given paths
 	 *
