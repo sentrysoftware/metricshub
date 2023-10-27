@@ -57,4 +57,9 @@ public abstract class AbstractMetric {
 	 * @return {@link String} value
 	 */
 	public abstract String getType();
+
+	/**
+	 * Get the metric value
+	 */
+	public abstract <T> T getValue();
 }

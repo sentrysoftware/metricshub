@@ -8,6 +8,7 @@ import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.STATE_SET_METRIC_OK;
 
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
+import com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import com.sentrysoftware.metricshub.engine.common.helpers.NetworkHelper;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.Connector;
@@ -26,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -112,7 +114,14 @@ public class DetectionStrategy extends AbstractStrategy {
 		monitorAttributes.put(MONITOR_ATTRIBUTE_NAME, connectorId);
 		monitorAttributes.put(
 			MONITOR_ATTRIBUTE_APPLIES_TO_OS,
-			connector.getConnectorIdentity().getDetection().getAppliesTo().toString()
+			connector
+				.getConnectorIdentity()
+				.getDetection()
+				.getAppliesTo()
+				.stream()
+				.map(deviceKind -> deviceKind.toString().toLowerCase())
+				.sorted()
+				.collect(Collectors.joining(MetricsHubConstants.COMMA))
 		);
 		monitorAttributes.put("description", connector.getConnectorIdentity().getInformation());
 		monitorAttributes.put("hw.parent.id", hostId);

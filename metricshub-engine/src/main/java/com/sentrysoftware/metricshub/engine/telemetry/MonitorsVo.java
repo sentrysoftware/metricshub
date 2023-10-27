@@ -27,7 +27,7 @@ public class MonitorsVo {
 	 */
 	public void addAll(final Collection<Monitor> monitors) {
 		if (this.monitors.addAll(monitors)) {
-			total += this.monitors.size();
+			total = this.monitors.size();
 		}
 	}
 }

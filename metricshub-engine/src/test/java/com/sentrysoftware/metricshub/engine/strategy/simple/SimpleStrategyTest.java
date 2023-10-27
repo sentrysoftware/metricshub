@@ -11,7 +11,7 @@ import static com.sentrysoftware.metricshub.engine.constants.Constants.HOST_ID;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.HOST_NAME;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.ID;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.MONITOR_ID_ATTRIBUTE_VALUE;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.TEST_CONNECTOR_WITH_SIMPLE_FILE_NAME;
+import static com.sentrysoftware.metricshub.engine.constants.Constants.TEST_CONNECTOR_WITH_SIMPLE_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -70,7 +70,7 @@ class SimpleStrategyTest {
 				HOST,
 				Map.of(MONITOR_ID_ATTRIBUTE_VALUE, hostMonitor),
 				CONNECTOR,
-				Map.of(TEST_CONNECTOR_WITH_SIMPLE_FILE_NAME, connectorMonitor)
+				Map.of(TEST_CONNECTOR_WITH_SIMPLE_ID, connectorMonitor)
 			)
 		);
 
@@ -90,7 +90,7 @@ class SimpleStrategyTest {
 			)
 			.build();
 
-		connectorMonitor.getAttributes().put(ID, TEST_CONNECTOR_WITH_SIMPLE_FILE_NAME);
+		connectorMonitor.getAttributes().put(ID, TEST_CONNECTOR_WITH_SIMPLE_ID);
 
 		// Create the connector store
 		final ConnectorStore connectorStore = new ConnectorStore(TEST_CONNECTOR_PATH);

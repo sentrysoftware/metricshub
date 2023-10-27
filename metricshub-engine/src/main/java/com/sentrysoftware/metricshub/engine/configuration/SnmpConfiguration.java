@@ -23,7 +23,7 @@ public class SnmpConfiguration implements IConfiguration {
 	private final String community = "public";
 
 	@Builder.Default
-	private final Integer port = 161;
+	private Integer port = 161;
 
 	@Builder.Default
 	private final Long timeout = 120L;
