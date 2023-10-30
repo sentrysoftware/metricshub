@@ -75,7 +75,7 @@ public class AgentContext {
 
 		// Normalizes the agent configuration, configurations from parent will be set in children configuration
 		// to ease data retrieval in the scheduler
-		ConfigHelper.normalizeAgentConfiguration(agentConfig, connectorStore);
+		ConfigHelper.normalizeAgentConfiguration(agentConfig);
 
 		telemetryManagers = ConfigHelper.buildTelemetryManagers(agentConfig, connectorStore);
 
@@ -95,7 +95,6 @@ public class AgentContext {
 				.withAgentConfig(agentConfig)
 				.withAgentInfo(agentInfo)
 				.withConfigFile(configFile)
-				.withConnectorStore(connectorStore)
 				.withOtelCollectorProcessService(otelCollectorProcessService)
 				.withTaskScheduler(TaskSchedulingService.newScheduler(agentConfig.getJobPoolSize()))
 				.withTelemetryManagers(telemetryManagers)

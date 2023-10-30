@@ -998,7 +998,7 @@ class ComputeProcessorTest {
 
 		// Check the case of a non-null {@link Json2Csv} instance
 		jsonToCsv =
-			Json2Csv.builder().entryKey("/monitors").separator(";").properties("id,name,monitorType,hostId").build();
+			Json2Csv.builder().entryKey("/monitors").separator(";").properties("id;name;monitorType;hostId").build();
 
 		computeProcessor.process(jsonToCsv);
 

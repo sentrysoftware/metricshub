@@ -80,7 +80,7 @@
       }
     },
     "attributes" : {
-      "hw.parent.id" : "localhost",
+      "parent.id" : "localhost",
       "name" : "DellOpenManage",
       "connector_id" : "DellOpenManage",
       "description" : "This connector provides hardware monitoring through the Dell OpenManage Server Administrator SNMP agent which supports almost all Dell PowerEdge servers.",

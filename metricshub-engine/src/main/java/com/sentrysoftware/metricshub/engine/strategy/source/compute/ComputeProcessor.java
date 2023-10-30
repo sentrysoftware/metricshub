@@ -9,6 +9,7 @@ import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HEXA_PATTERN;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.LOG_COMPUTE_KEY_SUFFIX_TEMPLATE;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.NEW_LINE;
+import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.SEMICOLON;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.TABLE_SEP;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.VERTICAL_BAR;
 
@@ -803,7 +804,9 @@ public class ComputeProcessor implements IComputeProcessor {
 		}
 
 		try {
-			final List<String> jsonToCsvProperties = new ArrayList<>(Arrays.asList(json2csv.getProperties().split(COMMA)));
+			final List<String> jsonToCsvProperties = new ArrayList<>(
+				Arrays.asList(json2csv.getProperties().split(SEMICOLON))
+			);
 			final String json2csvResult = matsyaClientsExecutor.executeJson2Csv(
 				sourceTable.getRawData(),
 				json2csv.getEntryKey(),
@@ -1021,7 +1024,7 @@ public class ComputeProcessor implements IComputeProcessor {
 				Arrays
 					.asList(perBitTranslation.getBitList().split(COMMA))
 					.stream()
-					.map(bit -> Integer.parseInt(bit))
+					.map(Integer::parseInt)
 					.collect(Collectors.toList());
 		} catch (Exception exception) {
 			logComputeError(
