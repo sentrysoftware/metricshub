@@ -25,11 +25,34 @@ To build the MetricsHub package, from `./metricshub`:
 ```sh
 $ mvn clean package
 ```
-#### Windows Build Rules (.MSI)
 
-* Windows host.
-* Define the `JPACKAGE_HOME` system environment variable in order to access the jpackage tool. Example: `JPACKAGE_HOME=C:\Program Files\Java\jdk-19`.
-* WixToolSet installed under `C:\Program Files (x86)\WiX Toolset v3.11`.
+#### Building Windows Packages (.MSI)
+
+* **Host:** Windows
+* **JPackage Setup:** Install JDK 19 to enable the `jpackage` utility.
+* **Environment Variable:** Define the `JPACKAGE_HOME` system environment variable. Example: `JPACKAGE_HOME=C:\Program Files\Java\jdk-19`.
+* **WiXToolSet:** Ensure that the WiX Toolset is installed under `C:\Program Files (x86)\WiX Toolset v3.11`.
+* Execute the `mvn package` command within the Metricshub root directory (`metricshub`). You can find the `.msi` package in the `metricshub/metricshub-windows/target` directory upon completion (`metricshub-windows-<version>.msi`).
+
+#### Building Debian Packages (.DEB)
+
+* **Host:** Debian Linux
+* **JPackage Setup:** Install JDK 19 to enable the `jpackage` utility.
+* **Environment Variable:** Define the `JPACKAGE_HOME` system environment variable. Example: `JPACKAGE_HOME=/opt/java/jdk-19+36`.
+* **Additional Packages:** Install the following packages:
+  * `fakeroot` (`/usr/bin/fakeroot`)
+  * `gcc-multilib`
+* Execute the `mvn package` command within the Metricshub root directory (`metricshub`). You can find the `.deb` package in the `metricshub/metricshub-debian/target` directory upon completion (`metricshub-debian-<version>-amd64.deb`).
+  * The `Docker` package that is compatible with the `debian:latest` image will also be generated under the `metricshub/metricshub-debian/target` directory (`metricshub-debian-<version>-docker.tar.gz`).
+
+#### Building RHEL Packages (.RPM)
+
+* **Host:** Red Hat Enterprise Linux (Centos, Ubuntu, etc.)
+* **JPackage Setup:** Install JDK 19 to enable the `jpackage` utility
+* **Environment Variable:** Define the `JPACKAGE_HOME` system environment variable. Example: `JPACKAGE_HOME=/opt/java/jdk-19+36`.
+* **Additional Packages:** Install the `rpm-build` package (`/usr/bin/rpmbuild`).
+* Execute the `mvn package` command within the Metricshub root directory (`metricshub`). You can find the `.rpm` package in the `metricshub/metricshub-rhel/target` directory upon completion (`metricshub-rhel-<version>-1.x86_64.rpm`).
+
 
 ## Checkstyle
 
