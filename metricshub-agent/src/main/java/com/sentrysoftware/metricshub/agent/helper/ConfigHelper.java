@@ -50,8 +50,8 @@ import java.nio.file.attribute.AclEntryPermission;
 import java.nio.file.attribute.AclEntryType;
 import java.nio.file.attribute.AclFileAttributeView;
 import java.nio.file.attribute.GroupPrincipal;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -434,9 +434,8 @@ public class ConfigHelper {
 	 * values are specified on the resource groups or resources
 	 *
 	 * @param agentConfig    The whole configuration of the MetricsHub agent
-	 * @param connectorStore Wraps all the connectors
 	 */
-	public static void normalizeAgentConfiguration(final AgentConfig agentConfig, final ConnectorStore connectorStore) {
+	public static void normalizeAgentConfiguration(final AgentConfig agentConfig) {
 		agentConfig
 			.getResourceGroups()
 			.entrySet()
@@ -446,9 +445,7 @@ public class ConfigHelper {
 				resourceGroupConfig
 					.getResources()
 					.entrySet()
-					.forEach(resourceConfigEntry ->
-						normalizeResourceConfig(resourceGroupConfigEntry, resourceConfigEntry, connectorStore)
-					);
+					.forEach(resourceConfigEntry -> normalizeResourceConfig(resourceGroupConfigEntry, resourceConfigEntry));
 			});
 	}
 
@@ -459,12 +456,10 @@ public class ConfigHelper {
 	 *
 	 * @param resourceGroupConfigEntry The resource group configuration entry
 	 * @param resourceConfigEntry      The individual resource configuration entry
-	 * @param connectorStore           Wraps all the connectors
 	 */
 	private static void normalizeResourceConfig(
 		final Entry<String, ResourceGroupConfig> resourceGroupConfigEntry,
-		final Entry<String, ResourceConfig> resourceConfigEntry,
-		final ConnectorStore connectorStore
+		final Entry<String, ResourceConfig> resourceConfigEntry
 	) {
 		final ResourceGroupConfig resourceGroupConfig = resourceGroupConfigEntry.getValue();
 		final ResourceConfig resourceConfig = resourceConfigEntry.getValue();
@@ -521,21 +516,12 @@ public class ConfigHelper {
 		// Set agent attributes in the resource group attributes map
 		mergeAttributes(resourceGroupConfig.getAttributes(), resourceConfig.getAttributes());
 
-		// Do we have a connector?
-		final Connector connector = resourceConfig.getConnector();
-		if (connector != null) {
-			// Create its identity
-			final ConnectorIdentity identity = connector.getOrCreateConnectorIdentity();
-			final String compiledFileName = String.format(
-				"Custom-%s-%s",
-				resourceGroupConfigEntry.getKey(),
-				resourceConfigEntry.getKey()
-			);
-			identity.setCompiledFilename(compiledFileName);
-
-			// Add it to the store
-			connectorStore.addOne(compiledFileName, connector);
-		}
+		// Create an identity for the configured connector
+		normalizeConfiguredConnector(
+			resourceGroupConfigEntry.getKey(),
+			resourceConfigEntry.getKey(),
+			resourceConfig.getConnector()
+		);
 	}
 
 	/**
@@ -726,9 +712,18 @@ public class ConfigHelper {
 				resourceKey
 			);
 
+			final ConnectorStore telemetryManagerConnectorStore = createCustomConnectorStoreIfConfigured(
+				resourceConfig.getConnector(),
+				connectorStore
+			);
+
 			resourceGroupTelemetryManagers.putIfAbsent(
 				resourceKey,
-				TelemetryManager.builder().connectorStore(connectorStore).hostConfiguration(hostConfiguration).build()
+				TelemetryManager
+					.builder()
+					.connectorStore(telemetryManagerConnectorStore)
+					.hostConfiguration(hostConfiguration)
+					.build()
 			);
 		} catch (Exception e) {
 			log.warn(
@@ -740,6 +735,70 @@ public class ConfigHelper {
 				e.getMessage()
 			);
 		}
+	}
+
+	/**
+	 * Normalizes the configuration of a configured connector by creating a
+	 * unique identifier for it.
+	 *
+	 * @param resourceGroupKey    The resource group key.
+	 * @param resourceKey         The resource key.
+	 * @param configuredConnector The configured connector to be normalized.
+	 */
+	static void normalizeConfiguredConnector(
+		final String resourceGroupKey,
+		final String resourceKey,
+		final Connector configuredConnector
+	) {
+		// Check if a configured connector exists
+		if (configuredConnector != null) {
+			// Create a unique connector identifier based on resource keys
+			final ConnectorIdentity identity = configuredConnector.getOrCreateConnectorIdentity();
+			final String connectorId = String.format("MetricsHub-Configured-Connector-%s-%s", resourceGroupKey, resourceKey);
+
+			// Set the compiled filename of the connector to the unique identifier
+			identity.setCompiledFilename(connectorId);
+		}
+	}
+
+	/**
+	 * Create a custom ConnectorStore if a configured connector exists.
+	 *
+	 * @param resourceGroupKey The resource group key.
+	 * @param resourceKey      The resource key.
+	 * @param resourceConfig   The resource configuration.
+	 * @param connectorStore   The original ConnectorStore.
+	 * @return A custom ConnectorStore with the configured connector if it exists, or the original ConnectorStore.
+	 */
+	static ConnectorStore createCustomConnectorStoreIfConfigured(
+		final Connector configuredConnector,
+		final ConnectorStore connectorStore
+	) {
+		// Check if a configured connector is available
+		if (configuredConnector != null) {
+			// Create a custom ConnectorStore and populate it with the
+			// configured connector
+			final ConnectorStore customConnectorStore = new ConnectorStore();
+
+			final Map<String, Connector> originalConnectors = new HashMap<>();
+
+			originalConnectors.putAll(connectorStore.getStore());
+
+			// Populate the connector store with the existing connectors
+			customConnectorStore.setStore(originalConnectors);
+
+			// Add the configured connector
+			customConnectorStore.addOne(
+				configuredConnector.getConnectorIdentity().getCompiledFilename(),
+				configuredConnector
+			);
+
+			// Return the custom ConnectorStore
+			return customConnectorStore;
+		}
+
+		// If no configured connector exists, return the original ConnectorStore
+		return connectorStore;
 	}
 
 	/**
@@ -805,23 +864,26 @@ public class ConfigHelper {
 	 * Return configured connector names. This method throws an {@link IllegalStateException} if
 	 * we encounter an unknown connector
 	 *
-	 * @param acceptedConnectorNames Known connector names (connector compiled file names)
-	 * @param configConnectors       User's selected or excluded connectors
-	 * @param resourceKey            Resource unique identifier
-	 * @param isExcluded             Specifies if we are validating excluded or selected connectors
+	 * @param acceptedConnectorNames   Known connector names (connector compiled file names)
+	 * @param resourceConfigConnectors User's selected or excluded connectors
+	 * @param resourceKey              Resource unique identifier
+	 * @param isExcluded               Specifies if we are validating excluded or selected connectors
 	 *
 	 * @return {@link Set} containing the validated connector names
 	 * @throws IllegalStateException
 	 */
 	static Set<String> validateAndGetConnectors(
 		final @NonNull Set<String> acceptedConnectorNames,
-		final Set<String> configConnectors,
+		final Set<String> resourceConfigConnectors,
 		final String resourceKey,
 		final boolean isExcluded
 	) {
-		if (configConnectors == null || configConnectors.isEmpty()) {
-			return Collections.emptySet();
+		if (resourceConfigConnectors == null || resourceConfigConnectors.isEmpty()) {
+			return new HashSet<>();
 		}
+
+		// Copy the set of configured connectors as we wont perform operations on the original configuration
+		final Set<String> configConnectors = resourceConfigConnectors.stream().collect(Collectors.toSet());
 
 		// Get unknown connectors
 		final Set<String> unknownConnectors = configConnectors
@@ -1100,7 +1162,7 @@ public class ConfigHelper {
 	 * @param resourceKey        Resource unique identifier
 	 * @return new {@link HostConfiguration} instance
 	 */
-	private static HostConfiguration buildHostConfiguration(
+	static HostConfiguration buildHostConfiguration(
 		final ResourceConfig resourceConfig,
 		final Set<String> selectedConnectors,
 		final Set<String> excludedConnectors,
@@ -1130,22 +1192,34 @@ public class ConfigHelper {
 
 		final Map<String, String> attributes = resourceConfig.getAttributes();
 
+		// Get the host name and make sure it is always set because the engine needs a hostname
 		String hostname = attributes.get(MetricsHubConstants.HOST_NAME);
 		if (hostname == null) {
 			hostname = resourceKey;
 		}
 
+		// If we haven't a host.id then it will be set to the resource key
 		String hostId = attributes.get("host.id");
 		if (hostId == null) {
 			hostId = resourceKey;
 		}
 
+		// Manage the device kind
 		final DeviceKind hostType;
 		String hostTypeAttribute = attributes.get("host.type");
 		if (hostTypeAttribute == null) {
 			hostType = DeviceKind.OTHER;
 		} else {
 			hostType = detectHostTypeFromAttribute(hostTypeAttribute);
+		}
+
+		String configuredConnectorId = null;
+		// Retrieve the connector specified by the user in the metricshub.yaml configuration
+		final Connector configuredConnector = resourceConfig.getConnector();
+		// Check if a custom connector is defined
+		if (configuredConnector != null) {
+			// The custom connector is considered a selected connector from the engine's perspective
+			configuredConnectorId = configuredConnector.getCompiledFilename();
 		}
 
 		return HostConfiguration
@@ -1158,6 +1232,7 @@ public class ConfigHelper {
 			.hostId(hostId)
 			.hostType(hostType)
 			.sequential(Boolean.TRUE.equals(resourceConfig.getSequential()))
+			.configuredConnectorId(configuredConnectorId)
 			.build();
 	}
 

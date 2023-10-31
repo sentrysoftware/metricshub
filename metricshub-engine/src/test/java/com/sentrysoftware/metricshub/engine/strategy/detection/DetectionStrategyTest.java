@@ -1,6 +1,6 @@
 package com.sentrysoftware.metricshub.engine.strategy.detection;
 
-import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.CONNECTOR_STATUS_METRIC_KEY;
+import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.*;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_APPLIES_TO_OS;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
@@ -11,6 +11,7 @@ import static com.sentrysoftware.metricshub.engine.constants.Constants.AAC_CONNE
 import static com.sentrysoftware.metricshub.engine.constants.Constants.HOST_ID;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.LOCALHOST;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.STATE_SET;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -42,6 +43,8 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
 class DetectionStrategyTest {
+
+	private static final String METRICS_HUB_CONFIGURED_CONNECTOR_ID = "MetricsHub-Configured-Connector";
 
 	Connector getConnector() throws IOException {
 		// Retrieve connectors from connectors directory
@@ -299,5 +302,38 @@ class DetectionStrategyTest {
 		// Retrieve monitor's metric value (ConnectorResult is failed)
 		metric = monitor.getMetrics().get(CONNECTOR_STATUS_METRIC_KEY);
 		assertEquals(STATE_SET_METRIC_FAILED, ((StateSetMetric) metric).getValue());
+	}
+
+	@Test
+	void testCreateConfiguredConnectorMonitor() {
+		// Initiate telemetryManager with host configuration
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostId(HOST_ID)
+					.hostType(DeviceKind.LINUX)
+					.hostname(LOCALHOST)
+					.configuredConnectorId(METRICS_HUB_CONFIGURED_CONNECTOR_ID)
+					.build()
+			)
+			.build();
+
+		// Create detectionStrategy with the previously created telemetryManager
+		new DetectionStrategy(telemetryManager, new Date().getTime(), new MatsyaClientsExecutor(telemetryManager)).run();
+
+		final Monitor configuredConnectorMonitor = telemetryManager.findMonitorByTypeAndId(
+			KnownMonitorType.CONNECTOR.getKey(),
+			"connector_" + METRICS_HUB_CONFIGURED_CONNECTOR_ID
+		);
+		assertNotNull(configuredConnectorMonitor);
+		assertEquals(METRICS_HUB_CONFIGURED_CONNECTOR_ID, configuredConnectorMonitor.getAttribute(MONITOR_ATTRIBUTE_ID));
+		assertEquals(METRICS_HUB_CONFIGURED_CONNECTOR_ID, configuredConnectorMonitor.getAttribute(MONITOR_ATTRIBUTE_NAME));
+		assertEquals(HOST_ID, configuredConnectorMonitor.getAttribute(MONITOR_ATTRIBUTE_PARENT_ID));
+		assertTrue(
+			telemetryManager.getHostProperties().getConnectorNamespace(METRICS_HUB_CONFIGURED_CONNECTOR_ID).isStatusOk()
+		);
+		assertEquals(1.0, configuredConnectorMonitor.getMetric(CONNECTOR_STATUS_METRIC_KEY, NumberMetric.class).getValue());
 	}
 }

@@ -46,6 +46,8 @@ public class HostConfiguration {
 	@Builder.Default
 	private Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
 
+	private String configuredConnectorId;
+
 	private static final Map<Class<? extends IConfiguration>, Set<Class<? extends Source>>> CONFIGURATION_TO_SOURCES_MAP;
 
 	static {

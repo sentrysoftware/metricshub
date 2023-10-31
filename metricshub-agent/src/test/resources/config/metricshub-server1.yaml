@@ -56,39 +56,5 @@ resourceGroups:
             port: 443
             username: username
             password: password
-       # Resource configuration
-      snmp-resources: 
-        # Adds additional static attributes to the resource.
-        attributes:
-          host.names: [ server-2, server-3 ]
-          host.type: storage
-        metrics:
-          hw.host.configured: 1
-        protocols:
-          snmp:
-            timeout: 30s
-            community: public
-            version: v2c
-      # Resource configuration
-      grafana-service:
-        attributes:
-          service.name: Grafana
-        metrics:
-          metrics.grafana.configured: 1
-        monitors:
-          grafana:
-            simple: # simple job. Creates monitors and collects assicated metrics. 
-              sources:
-                grafanaHealth:
-                  type: http
-                  url: https://hws-demo.sentrysoftware.com/api/health
-                  method: GET
-                  header: "Accept: application/json"
-                  resultContent: body
-              mapping:
-                source: ${source::monitors.grafana.simple.sources.grafanaHealth}
-                attributes:
-                  id: $1
-                  service.version: $3
-                metrics:
-                  grafana.db.state: $2
+        selectConnectors:
+        - PureStorageREST

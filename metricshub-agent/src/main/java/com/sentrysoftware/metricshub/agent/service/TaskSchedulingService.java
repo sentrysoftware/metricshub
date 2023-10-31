@@ -9,7 +9,6 @@ import com.sentrysoftware.metricshub.agent.service.scheduling.ResourceGroupSched
 import com.sentrysoftware.metricshub.agent.service.scheduling.ResourceScheduling;
 import com.sentrysoftware.metricshub.agent.service.scheduling.SelfObserverScheduling;
 import com.sentrysoftware.metricshub.agent.service.signal.SimpleGaugeMetricObserver;
-import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import java.io.File;
 import java.util.Map;
@@ -25,7 +24,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 @Slf4j
 public class TaskSchedulingService {
 
-	private ConnectorStore connectorStore;
 	private File configFile;
 	private AgentConfig agentConfig;
 	private AgentInfo agentInfo;

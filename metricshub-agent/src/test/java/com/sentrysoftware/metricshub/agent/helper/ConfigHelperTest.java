@@ -4,7 +4,6 @@ import static com.sentrysoftware.metricshub.agent.helper.AgentConstants.CONFIG_E
 import static com.sentrysoftware.metricshub.agent.helper.AgentConstants.DEFAULT_CONFIG_FILENAME;
 import static com.sentrysoftware.metricshub.agent.helper.TestConstants.SENTRY_PARIS_RESOURCE_GROUP_KEY;
 import static com.sentrysoftware.metricshub.agent.helper.TestConstants.SERVER_1_RESOURCE_GROUP_KEY;
-import static com.sentrysoftware.metricshub.agent.helper.TestConstants.TEST_CONFIG_FILE_PATH;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -143,7 +142,7 @@ class ConfigHelperTest {
 
 	@Test
 	void testBuildTelemetryManagers() throws IOException {
-		final File configFile = ConfigHelper.findConfigFile(TEST_CONFIG_FILE_PATH);
+		final File configFile = ConfigHelper.findConfigFile("src/test/resources/config/metricshub-server1.yaml");
 
 		final ConnectorStore connectorStore = new ConnectorStore(Path.of("src/test/resources"));
 		final Connector connector = new Connector();
@@ -155,7 +154,7 @@ class ConfigHelperTest {
 			new FileInputStream(configFile),
 			AgentConfig.class
 		);
-		ConfigHelper.normalizeAgentConfiguration(agentConfig, connectorStore);
+		ConfigHelper.normalizeAgentConfiguration(agentConfig);
 
 		final Map<String, Map<String, TelemetryManager>> telemetryManagers = ConfigHelper.buildTelemetryManagers(
 			agentConfig,
@@ -449,5 +448,58 @@ class ConfigHelperTest {
 		assertThrows(IllegalStateException.class, () -> ConfigHelper.validateWinRmInfo(RESOURCE_KEY, 1234, 60L, null));
 		assertThrows(IllegalStateException.class, () -> ConfigHelper.validateWinRmInfo(RESOURCE_KEY, 1234, 60L, ""));
 		assertDoesNotThrow(() -> ConfigHelper.validateWinRmInfo(RESOURCE_KEY, 1234, 60L, USERNAME_CONFIG_VALUE));
+	}
+
+	@Test
+	void testNormalizeConfiguredConnector() {
+		assertDoesNotThrow(() ->
+			ConfigHelper.normalizeConfiguredConnector(SENTRY_PARIS_RESOURCE_GROUP_KEY, RESOURCE_KEY, null)
+		);
+		final Connector configuredConnector = new Connector();
+		ConfigHelper.normalizeConfiguredConnector(SENTRY_PARIS_RESOURCE_GROUP_KEY, RESOURCE_KEY, configuredConnector);
+		assertEquals(
+			"MetricsHub-Configured-Connector-sentry-paris-resource-test-key",
+			configuredConnector.getCompiledFilename()
+		);
+	}
+
+	@Test
+	void testCreateCustomConnectorStoreIfConfigured() {
+		// Create a ConnectorStore with a specified path
+		final ConnectorStore connectorStore = new ConnectorStore(Path.of("src/test/resources"));
+
+		// Test Case 1: No configured connector
+		{
+			// Attempt to create a custom ConnectorStore with no configured connector
+			final ConnectorStore resourceConnectorStore = ConfigHelper.createCustomConnectorStoreIfConfigured(
+				null,
+				connectorStore
+			);
+
+			// Ensure that the custom ConnectorStore is the same as the original connectorStore
+			assertEquals(connectorStore, resourceConnectorStore);
+		}
+
+		// Test Case 2: Existing configured connector
+		{
+			// Create a new Connector and configure it
+			final Connector configuredConnector = new Connector();
+			ConfigHelper.normalizeConfiguredConnector(SENTRY_PARIS_RESOURCE_GROUP_KEY, RESOURCE_KEY, configuredConnector);
+
+			// Attempt to create a custom ConnectorStore with the configured connector
+			final ConnectorStore resourceConnectorStore = ConfigHelper.createCustomConnectorStoreIfConfigured(
+				configuredConnector,
+				connectorStore
+			);
+
+			// Verify that the configured connector is now in the custom ConnectorStore
+			assertEquals(
+				configuredConnector,
+				resourceConnectorStore.getStore().get("MetricsHub-Configured-Connector-sentry-paris-resource-test-key")
+			);
+
+			// Make sure the original store is unchanged and remained empty
+			assertTrue(connectorStore.getStore().isEmpty());
+		}
 	}
 }

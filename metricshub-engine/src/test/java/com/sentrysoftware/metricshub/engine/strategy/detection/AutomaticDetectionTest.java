@@ -69,7 +69,8 @@ class AutomaticDetectionTest {
 			null,
 			0,
 			null,
-			configurations
+			configurations,
+			null
 		);
 
 		final File store = new File(DETECTION_FOLDER);
@@ -108,7 +109,8 @@ class AutomaticDetectionTest {
 			null,
 			0,
 			null,
-			configurations
+			configurations,
+			null
 		);
 
 		final File store = new File(DETECTION_FOLDER);
@@ -162,7 +164,8 @@ class AutomaticDetectionTest {
 			null,
 			0,
 			null,
-			configurations
+			configurations,
+			null
 		);
 
 		final File store = new File(DETECTION_FOLDER);
@@ -216,7 +219,8 @@ class AutomaticDetectionTest {
 			null,
 			0,
 			null,
-			configurations
+			configurations,
+			null
 		);
 
 		final File store = new File(DETECTION_FOLDER);
@@ -270,7 +274,8 @@ class AutomaticDetectionTest {
 			null,
 			0,
 			null,
-			configurations
+			configurations,
+			null
 		);
 
 		final File store = new File(DETECTION_FOLDER);
