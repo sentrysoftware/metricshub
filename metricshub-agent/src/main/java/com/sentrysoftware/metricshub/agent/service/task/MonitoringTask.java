@@ -273,8 +273,11 @@ public class MonitoringTask implements Runnable {
 		// Retrieve the metric unique key
 		final String metricKey = metricEntry.getKey();
 
+		// Extract the metric name from the metric key. E.g. extract hw.power from hw.power{hw.type="fan"} // NOSONAR
+		final String metricName = MetricFactory.extractName(metricKey);
+
 		// Get the metric definition from the metric definition map
-		final MetricDefinition metricDefinition = lookupMetricDefinition(metricKey, maybeMetricDefinitionMap);
+		final MetricDefinition metricDefinition = lookupMetricDefinition(metricName, maybeMetricDefinitionMap);
 
 		// Merge main resource attributes and monitor attributes
 		final Map<String, String> attributesMap = new HashMap<>();
@@ -307,7 +310,7 @@ public class MonitoringTask implements Runnable {
 					.withMetricDefinition(metricDefinition)
 					.withSdkMeterProvider(sdkMeterProvider)
 					.withAttributes(attributes)
-					.withMetricName(MetricFactory.extractName(metricKey))
+					.withMetricName(metricName)
 					.withMonitorId(monitor.getId())
 					.withResourceGroupKey(monitoringTaskInfo.getResourceGroupKey())
 					.withResourceKey(monitoringTaskInfo.getResourceKey())
@@ -321,19 +324,19 @@ public class MonitoringTask implements Runnable {
 	/**
 	 * Search the {@link MetricDefinition} instance defined for the given metric
 	 *
-	 * @param metricKey                Unique key of the metric
+	 * @param metricName               The name of the metric e.g. hw.status
 	 * @param maybeMetricDefinitionMap Optional Map of all the existing definitions
 	 * @return {@link MetricDefinition} instance, never <code>null</code>.
 	 */
 	static MetricDefinition lookupMetricDefinition(
-		final String metricKey,
+		final String metricName,
 		final Optional<Map<String, MetricDefinition>> maybeMetricDefinitionMap
 	) {
 		return maybeMetricDefinitionMap
-			.map(map -> map.get(metricKey))
+			.map(map -> map.get(metricName))
 			.filter(Objects::nonNull)
 			.orElseGet(() ->
-				MetricDefinition.builder().description(String.format(GENERIC_METRIC_DESCRIPTION_FORMAT, metricKey)).build()
+				MetricDefinition.builder().description(String.format(GENERIC_METRIC_DESCRIPTION_FORMAT, metricName)).build()
 			);
 	}
 
