@@ -22,14 +22,14 @@ public class BooleanDeserializer extends JsonDeserializer<Boolean> {
 	@Override
 	public Boolean deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
 		if (jsonParser == null) {
-			return null;
+			return false;
 		}
 
 		final String key = jsonParser.getCurrentName();
 
 		final String str = jsonParser.getValueAsString();
 		if (str == null) {
-			return null;
+			return false;
 		}
 		Boolean booleanValue = BOOLEAN_MAP.get(str);
 		if (booleanValue == null) {
