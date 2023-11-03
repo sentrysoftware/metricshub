@@ -129,7 +129,7 @@ public class OtelHelper {
 	 * @param userFqdn              FQDN attribute value
 	 * @return String value
 	 */
-	static String resolveResourceHostname(
+	public static String resolveResourceHostname(
 		final String collectedFqdn,
 		final String configuredHostname,
 		final boolean resolveHostnameToFqdn,
