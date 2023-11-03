@@ -4,6 +4,7 @@ import static com.sentrysoftware.metricshub.engine.constants.Constants.AUTOMATIC
 import static com.sentrysoftware.metricshub.engine.constants.Constants.ECS1_01;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.EMPTY;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.EXPECTED_SNMP_TABLE_DATA;
+import static com.sentrysoftware.metricshub.engine.constants.Constants.LOCALHOST;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.MY_CONNECTOR_1_NAME;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.OID;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.PASSWORD;
@@ -1007,21 +1008,10 @@ class SourceProcessorTest {
 		assertEquals(SourceTable.empty(), sourceProcessor.process(wmiSource));
 	}
 
+	@Test
 	void testProcessOsCommandSource() {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
-			.builder()
-			.community("public")
-			.version(SnmpConfiguration.SnmpVersion.V1)
-			.port(161)
-			.timeout(120L)
-			.build();
-		final HttpConfiguration httpConfiguration = HttpConfiguration
-			.builder()
-			.username(USERNAME)
-			.password(PASSWORD.toCharArray())
-			.port(161)
-			.timeout(120L)
-			.build();
+		final OsCommandConfiguration osCommandConfiguration = OsCommandConfiguration.builder().timeout(120L).build();
+
 		final HostProperties hostProperties = HostProperties.builder().isLocalhost(true).build();
 
 		final TelemetryManager telemetryManager = TelemetryManager
@@ -1029,12 +1019,10 @@ class SourceProcessorTest {
 			.hostConfiguration(
 				HostConfiguration
 					.builder()
-					.hostname(ECS1_01)
-					.hostId(ECS1_01)
+					.hostname(LOCALHOST)
+					.hostId(LOCALHOST)
 					.hostType(DeviceKind.LINUX)
-					.configurations(
-						Map.of(SnmpConfiguration.class, snmpConfiguration, HttpConfiguration.class, httpConfiguration)
-					)
+					.configurations(Map.of(OsCommandConfiguration.class, osCommandConfiguration))
 					.build()
 			)
 			.hostProperties(hostProperties)
