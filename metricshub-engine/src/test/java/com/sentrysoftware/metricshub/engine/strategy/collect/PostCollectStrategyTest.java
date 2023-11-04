@@ -18,6 +18,7 @@ import static com.sentrysoftware.metricshub.engine.constants.Constants.TEST_CONN
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -28,6 +29,7 @@ import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.metricshub.engine.strategy.IStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.MonitorFactory;
@@ -47,7 +49,7 @@ class PostCollectStrategyTest {
 	@Mock
 	private MatsyaClientsExecutor matsyaClientsExecutorMock;
 
-	private CollectStrategy collectStrategy;
+	private IStrategy collectStrategy;
 
 	static Long strategyTime = new Date().getTime();
 
@@ -116,6 +118,11 @@ class PostCollectStrategyTest {
 				.strategyTime(strategyTime)
 				.telemetryManager(telemetryManager)
 				.build();
+
+		// Mock detection criteria result
+		doReturn("result")
+			.when(matsyaClientsExecutorMock)
+			.executeSNMPGet(eq("1.3.6.1.4.1.795.10.1.1.3.1.1"), any(SnmpConfiguration.class), anyString(), anyBoolean());
 
 		// Mock source table information for enclosure
 		doReturn(SourceTable.csvToTable("enclosure-1;1;healthy", MetricsHubConstants.TABLE_SEP))

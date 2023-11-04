@@ -1,13 +1,23 @@
 package com.sentrysoftware.metricshub.engine.strategy;
 
+import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.CONNECTOR_STATUS_METRIC_KEY;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.LOG_COMPUTE_KEY_SUFFIX_TEMPLATE;
+import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.STATE_SET_METRIC_FAILED;
+import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.STATE_SET_METRIC_OK;
 
 import com.sentrysoftware.metricshub.engine.common.JobInfo;
 import com.sentrysoftware.metricshub.engine.common.exception.RetryableException;
+import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
+import com.sentrysoftware.metricshub.engine.connector.model.Connector;
+import com.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;
+import com.sentrysoftware.metricshub.engine.connector.model.metric.MetricType;
+import com.sentrysoftware.metricshub.engine.connector.model.metric.StateSet;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Compute;
 import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.metricshub.engine.strategy.detection.ConnectorSelection;
+import com.sentrysoftware.metricshub.engine.strategy.detection.ConnectorTestResult;
 import com.sentrysoftware.metricshub.engine.strategy.source.ISourceProcessor;
 import com.sentrysoftware.metricshub.engine.strategy.source.SourceProcessor;
 import com.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
@@ -16,6 +26,9 @@ import com.sentrysoftware.metricshub.engine.strategy.source.compute.ComputeProce
 import com.sentrysoftware.metricshub.engine.strategy.source.compute.ComputeUpdaterProcessor;
 import com.sentrysoftware.metricshub.engine.strategy.utils.ForceSerializationHelper;
 import com.sentrysoftware.metricshub.engine.strategy.utils.RetryOperation;
+import com.sentrysoftware.metricshub.engine.telemetry.ConnectorNamespace;
+import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
+import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import java.util.List;
 import java.util.Map;
@@ -348,5 +361,91 @@ public abstract class AbstractStrategy implements IStrategy {
 	@Override
 	public long getStrategyTimeout() {
 		return telemetryManager.getHostConfiguration().getStrategyTimeout();
+	}
+
+	/**
+	 * Validates the connector's detection criterias
+	 *
+	 * @param currentConnector	Connector instance
+	 * @param hostname			Hostname
+	 * @return					boolean representing the success of the tests
+	 */
+	protected boolean validateConnectorDetectionCriteria(final Connector currentConnector, final String hostname) {
+		if (currentConnector.getConnectorIdentity().getDetection() == null) {
+			return true;
+		}
+
+		ConnectorTestResult connectorTestResult = new ConnectorSelection(telemetryManager, matsyaClientsExecutor)
+			.runConnectorDetectionCriteria(currentConnector, hostname);
+		final String connectorId = currentConnector.getCompiledFilename();
+		final Monitor monitor = telemetryManager.findMonitorByTypeAndId(KnownMonitorType.CONNECTOR.getKey(), connectorId);
+
+		collectConnectorStatus(connectorTestResult, currentConnector, connectorId, monitor);
+
+		return connectorTestResult.isSuccess();
+	}
+
+	/**
+	 * Collects the connector status and sets the metric
+	 *
+	 * @param connectorTestResult	Criteria test results
+	 * @param connector				Connector instance
+	 * @param connectorId			Connector ID
+	 * @param monitor				Monitor instance
+	 */
+	protected void collectConnectorStatus(
+		final ConnectorTestResult connectorTestResult,
+		final Connector connector,
+		final String connectorId,
+		final Monitor monitor
+	) {
+		// Get monitor metrics from connector
+		final Map<String, MetricDefinition> metricDefinitionMap = connector.getMetrics();
+
+		// Init the metric factory to collect metrics
+		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
+
+		if (metricDefinitionMap == null) {
+			metricFactory.collectConnectorStatusNumberMetric(connectorTestResult, monitor, strategyTime);
+			return;
+		}
+
+		final MetricDefinition metricDefinition = metricDefinitionMap.get(CONNECTOR_STATUS_METRIC_KEY);
+		final ConnectorNamespace connectorNamespace = telemetryManager
+			.getHostProperties()
+			.getConnectorNamespace(connectorId);
+
+		// Check whether metric type is Enum
+		if (metricDefinition == null || (metricDefinition.getType() instanceof MetricType)) {
+			connectorNamespace.setStatusOk(
+				metricFactory.collectConnectorStatusNumberMetric(connectorTestResult, monitor, strategyTime)
+			);
+		} else if (metricDefinition.getType() instanceof StateSet stateSetType) {
+			// When metric type is stateSet
+			final String[] stateSet = stateSetType.getSet().stream().toArray(String[]::new);
+			if (connectorTestResult.isSuccess()) {
+				metricFactory.collectStateSetMetric(
+					monitor,
+					CONNECTOR_STATUS_METRIC_KEY,
+					STATE_SET_METRIC_OK,
+					stateSet,
+					strategyTime
+				);
+
+				// Set isStatusOk to true in ConnectorNamespace
+				connectorNamespace.setStatusOk(true);
+			} else {
+				metricFactory.collectStateSetMetric(
+					monitor,
+					CONNECTOR_STATUS_METRIC_KEY,
+					STATE_SET_METRIC_FAILED,
+					stateSet,
+					strategyTime
+				);
+
+				// Set isStatusOk to false in ConnectorNamespace
+				connectorNamespace.setStatusOk(false);
+			}
+		}
 	}
 }

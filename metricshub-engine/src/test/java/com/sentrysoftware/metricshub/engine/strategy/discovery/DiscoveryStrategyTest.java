@@ -14,6 +14,7 @@ import static com.sentrysoftware.metricshub.engine.constants.Constants.PHYSICAL_
 import static com.sentrysoftware.metricshub.engine.constants.Constants.YAML_TEST_PATH;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -92,6 +93,11 @@ class DiscoveryStrategyTest {
 				.strategyTime(strategyTime)
 				.telemetryManager(telemetryManager)
 				.build();
+
+		// Mock detection criteria result
+		doReturn("result")
+			.when(matsyaClientsExecutorMock)
+			.executeSNMPGet(eq("1.3.6.1.4.1.795.10.1.1.3.1.1"), any(SnmpConfiguration.class), anyString(), anyBoolean());
 
 		// Mock source table information for disk controller
 		doReturn(SourceTable.csvToTable("controller-1;1;Adaptec1;bios53v2;firmware32", MetricsHubConstants.TABLE_SEP))

@@ -61,6 +61,16 @@ public class CollectStrategy extends AbstractStrategy {
 	 * @param hostname the host name
 	 */
 	private void collect(final Connector currentConnector, final String hostname) {
+		if (!validateConnectorDetectionCriteria(currentConnector, hostname)) {
+			log.error(
+				"Hostname {} - The connector {} no longer matches the host. Stopping the connector's collect job.",
+				hostname,
+				currentConnector.getCompiledFilename()
+			);
+
+			return;
+		}
+
 		// Sort the connector monitor jobs according to the priority map
 		final Map<String, MonitorJob> connectorMonitorJobs = currentConnector
 			.getMonitors()

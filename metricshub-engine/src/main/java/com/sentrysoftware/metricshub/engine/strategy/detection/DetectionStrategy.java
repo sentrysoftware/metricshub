@@ -1,25 +1,17 @@
 package com.sentrysoftware.metricshub.engine.strategy.detection;
 
-import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.CONNECTOR_STATUS_METRIC_KEY;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_APPLIES_TO_OS;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_NAME;
-import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.STATE_SET_METRIC_FAILED;
-import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.STATE_SET_METRIC_OK;
 
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import com.sentrysoftware.metricshub.engine.common.helpers.NetworkHelper;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.Connector;
-import com.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;
-import com.sentrysoftware.metricshub.engine.connector.model.metric.MetricType;
-import com.sentrysoftware.metricshub.engine.connector.model.metric.StateSet;
 import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
-import com.sentrysoftware.metricshub.engine.telemetry.ConnectorNamespace;
 import com.sentrysoftware.metricshub.engine.telemetry.HostProperties;
-import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.MonitorFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -141,53 +133,6 @@ public class DetectionStrategy extends AbstractStrategy {
 			String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), connectorId, strategyTime)
 		);
 
-		// Get monitor metrics from connector
-		final Map<String, MetricDefinition> metricDefinitionMap = connector.getMetrics();
-
-		// Init the metric factory to collect metrics
-		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
-
-		if (metricDefinitionMap == null) {
-			metricFactory.collectConnectorStatusNumberMetric(connectorTestResult, monitor, strategyTime);
-			return;
-		}
-
-		final MetricDefinition metricDefinition = metricDefinitionMap.get(CONNECTOR_STATUS_METRIC_KEY);
-		final ConnectorNamespace connectorNamespace = telemetryManager
-			.getHostProperties()
-			.getConnectorNamespace(connectorId);
-
-		// Check whether metric type is Enum
-		if (metricDefinition == null || (metricDefinition.getType() instanceof MetricType)) {
-			connectorNamespace.setStatusOk(
-				metricFactory.collectConnectorStatusNumberMetric(connectorTestResult, monitor, strategyTime)
-			);
-		} else if (metricDefinition.getType() instanceof StateSet stateSetType) {
-			// When metric type is stateSet
-			final String[] stateSet = stateSetType.getSet().stream().toArray(String[]::new);
-			if (connectorTestResult.isSuccess()) {
-				metricFactory.collectStateSetMetric(
-					monitor,
-					CONNECTOR_STATUS_METRIC_KEY,
-					STATE_SET_METRIC_OK,
-					stateSet,
-					strategyTime
-				);
-
-				// Set isStatusOk to true in ConnectorNamespace
-				connectorNamespace.setStatusOk(true);
-			} else {
-				metricFactory.collectStateSetMetric(
-					monitor,
-					CONNECTOR_STATUS_METRIC_KEY,
-					STATE_SET_METRIC_FAILED,
-					stateSet,
-					strategyTime
-				);
-
-				// Set isStatusOk to false in ConnectorNamespace
-				connectorNamespace.setStatusOk(false);
-			}
-		}
+		collectConnectorStatus(connectorTestResult, connector, connectorId, monitor);
 	}
 }

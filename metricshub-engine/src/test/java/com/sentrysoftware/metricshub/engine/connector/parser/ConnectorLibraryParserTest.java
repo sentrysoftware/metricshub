@@ -26,7 +26,7 @@ class ConnectorLibraryParserTest {
 	public static final String PHYSICAL_DISK = "physical_disk";
 	public static final String DUPLICATE_COLUMN = "duplicateColumn";
 	public static final String TRANSLATE = "translate";
-	public static final String SNMP_CRITERION_TYPE = "snmpGetNext";
+	public static final String SNMP_CRITERION_TYPE = "snmpGet";
 	public static final String DISK_CONTROLLER = "disk_controller";
 	public static final String HW_PARENT_TYPE = "hw.parent.type";
 	public static final String DISK_CONTROLLER_AWK_COMMAND = "${awk::sprintf(\"Disk Controller: %s (%s)\", $2, $3)}";

@@ -14,6 +14,7 @@ import static com.sentrysoftware.metricshub.engine.constants.Constants.MONITOR_I
 import static com.sentrysoftware.metricshub.engine.constants.Constants.TEST_CONNECTOR_WITH_SIMPLE_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -104,6 +105,11 @@ class SimpleStrategyTest {
 				.strategyTime(strategyTime)
 				.telemetryManager(telemetryManager)
 				.build();
+
+		// Mock detection criteria result
+		doReturn("result")
+			.when(matsyaClientsExecutorMock)
+			.executeSNMPGet(eq("1.3.6.1.4.1.795.10.1.1.3.1.1"), any(SnmpConfiguration.class), anyString(), anyBoolean());
 
 		// Mock source table information for enclosure
 		doReturn(SourceTable.csvToTable("enclosure-1;1;healthy", MetricsHubConstants.TABLE_SEP))
