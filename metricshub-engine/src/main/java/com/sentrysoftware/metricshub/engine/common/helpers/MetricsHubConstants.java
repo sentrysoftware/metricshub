@@ -39,6 +39,7 @@ public class MetricsHubConstants {
 	public static final String MONITOR_ATTRIBUTE_CONNECTOR_ID = "connector_id";
 	public static final String MONITOR_ATTRIBUTE_APPLIES_TO_OS = "applies_to_os";
 	public static final String IS_ENDPOINT = "is_endpoint";
+	public static final String MONITOR_ATTRIBUTE_PARENT_ID = "parent.id";
 
 	public static final String OTHER_MONITOR_JOB_TYPES = "otherMonitorJobTypes";
 

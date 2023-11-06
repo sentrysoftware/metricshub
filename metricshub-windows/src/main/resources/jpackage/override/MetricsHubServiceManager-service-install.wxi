@@ -7,7 +7,7 @@
                   Start="auto"
                   Id="si_APPLICATION_LAUNCHER_ID"
                   Name="MetricsHub"
-                  Description="MetricsHub monitors diverse technologies, encompassing applications, servers, and devices, particularly those without readily available monitoring solutions. It natively incorporates the monitoring of servers' hardware health and energy consumption, as well as that of network devices and storage systems within your data center."
+                  Description="Universal metrics collection for OpenTelemetry."
                   ErrorControl="normal"
                   Account="LocalSystem"
                   Vital="yes"

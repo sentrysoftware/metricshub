@@ -1,8 +1,10 @@
 package com.sentrysoftware.metricshub.engine.strategy.detection;
 
+import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.CONNECTOR_STATUS_METRIC_KEY;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_APPLIES_TO_OS;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_NAME;
+import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_PARENT_ID;
 
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
@@ -12,9 +14,11 @@ import com.sentrysoftware.metricshub.engine.connector.model.Connector;
 import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
 import com.sentrysoftware.metricshub.engine.telemetry.HostProperties;
+import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.MonitorFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,12 +58,15 @@ public class DetectionStrategy extends AbstractStrategy {
 		// Detect if we monitor localhost then set the localhost property in the HostProperties instance
 		hostProperties.setLocalhost(NetworkHelper.isLocalhost(hostname));
 
+		// Get the configured connector
+		final String configuredConnectorId = hostConfiguration.getConfiguredConnectorId();
+
 		final Set<String> selectedConnectors = hostConfiguration.getSelectedConnectors();
-		final List<ConnectorTestResult> connectorTestResults;
+		List<ConnectorTestResult> connectorTestResults = new ArrayList<>();
 		// If one or more connector are selected, we run them
 		if (selectedConnectors != null && !selectedConnectors.isEmpty()) {
 			connectorTestResults = new ConnectorSelection(telemetryManager, matsyaClientsExecutor).run();
-		} else { // Else we run the automatic detection
+		} else if (configuredConnectorId == null) { // Else we run the automatic detection if we haven't a configured connector
 			connectorTestResults = new AutomaticDetection(telemetryManager, matsyaClientsExecutor).run();
 		}
 
@@ -73,6 +80,48 @@ public class DetectionStrategy extends AbstractStrategy {
 
 		// Create monitors
 		createMonitors(connectorTestResults);
+
+		// Create configured connector monitor
+		createConfiguredConnectorMonitor(configuredConnectorId);
+	}
+
+	/**
+	 * Create a new connector monitor for the configured connector
+	 *
+	 * @param configuredConnectorId unique identifier of the connector
+	 */
+	void createConfiguredConnectorMonitor(final String configuredConnectorId) {
+		if (configuredConnectorId == null) {
+			return;
+		}
+
+		final String hostId = telemetryManager.getHostConfiguration().getHostId();
+
+		// Set monitor attributes
+		final Map<String, String> monitorAttributes = new HashMap<>();
+		monitorAttributes.put(MONITOR_ATTRIBUTE_ID, configuredConnectorId);
+		monitorAttributes.put(MONITOR_ATTRIBUTE_NAME, configuredConnectorId);
+		monitorAttributes.put(MONITOR_ATTRIBUTE_PARENT_ID, hostId);
+
+		// Create the monitor factory
+		final MonitorFactory monitorFactory = MonitorFactory
+			.builder()
+			.telemetryManager(telemetryManager)
+			.monitorType(KnownMonitorType.CONNECTOR.getKey())
+			.attributes(monitorAttributes)
+			.connectorId(configuredConnectorId)
+			.discoveryTime(strategyTime)
+			.build();
+
+		// Create or update the monitor by calling monitor factory
+		final Monitor monitor = monitorFactory.createOrUpdateMonitor(
+			String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), configuredConnectorId)
+		);
+
+		telemetryManager.getHostProperties().getConnectorNamespace(configuredConnectorId).setStatusOk(true);
+
+		new MetricFactory(telemetryManager.getHostname())
+			.collectNumberMetric(monitor, CONNECTOR_STATUS_METRIC_KEY, 1.0, strategyTime);
 	}
 
 	/**
@@ -111,7 +160,7 @@ public class DetectionStrategy extends AbstractStrategy {
 				.collect(Collectors.joining(MetricsHubConstants.COMMA))
 		);
 		monitorAttributes.put("description", connector.getConnectorIdentity().getInformation());
-		monitorAttributes.put("hw.parent.id", hostId);
+		monitorAttributes.put(MONITOR_ATTRIBUTE_PARENT_ID, hostId);
 
 		// Create the monitor factory
 		final MonitorFactory monitorFactory = MonitorFactory

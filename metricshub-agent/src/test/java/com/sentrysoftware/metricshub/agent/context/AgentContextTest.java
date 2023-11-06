@@ -30,6 +30,7 @@ import com.sentrysoftware.metricshub.engine.connector.model.monitor.SimpleMonito
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.Mapping;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.Simple;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
+import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -110,7 +111,11 @@ class AgentContextTest {
 		assertNotNull(server3ResourceConfig);
 
 		// Check the TelemetryManager map is correctly created
-		assertEquals(3, agentContext.getTelemetryManagers().get(SENTRY_PARIS_RESOURCE_GROUP_KEY).size());
+		final Map<String, Map<String, TelemetryManager>> telemetryManagers = agentContext.getTelemetryManagers();
+		final Map<String, TelemetryManager> sentryParisTelemetryManagers = telemetryManagers.get(
+			SENTRY_PARIS_RESOURCE_GROUP_KEY
+		);
+		assertEquals(4, sentryParisTelemetryManagers.size());
 
 		// Check the OpenTelemetry SDK configuration is correctly created
 		final Map<String, String> expectedOtelSdkConfiguration = Map.of(
@@ -130,6 +135,15 @@ class AgentContextTest {
 		assertTrue(
 			MapHelper.areEqual(expectedOtelSdkConfiguration, agentContext.getOtelSdkConfiguration()),
 			() -> String.format("expected %s but was: %s", expectedOtelSdkConfiguration, otelSdkConfiguration)
+		);
+
+		// Make sure the engine is notified with configuredConnectorId
+		assertEquals(
+			"MetricsHub-Configured-Connector-sentry-paris-grafana-service",
+			sentryParisTelemetryManagers
+				.get(GRAFANA_SERVICE_RESOURCE_CONFIG_KEY)
+				.getHostConfiguration()
+				.getConfiguredConnectorId()
 		);
 	}
 }
