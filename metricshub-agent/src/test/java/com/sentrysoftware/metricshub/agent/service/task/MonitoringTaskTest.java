@@ -39,6 +39,7 @@ import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
+import com.sentrysoftware.metricshub.hardware.strategy.HardwareStrategy;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.sdk.autoconfigure.AutoConfiguredOpenTelemetrySdk;
@@ -122,6 +123,7 @@ class MonitoringTaskTest {
 		doNothing()
 			.when(telemetryManagerMock)
 			.run(any(IStrategy.class), any(IStrategy.class), any(IStrategy.class), any(IStrategy.class));
+		doNothing().when(telemetryManagerMock).run(any(IStrategy.class));
 
 		try (MockedStatic<OtelHelper> otelHelperMockedStatic = mockStatic(OtelHelper.class)) {
 			otelHelperMockedStatic
@@ -163,6 +165,7 @@ class MonitoringTaskTest {
 					any(SimpleStrategy.class),
 					any(PostCollectStrategy.class)
 				);
+			verify(telemetryManagerMock, times(4)).run(any(HardwareStrategy.class));
 		}
 	}
 

@@ -23,6 +23,7 @@ import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
+import com.sentrysoftware.metricshub.hardware.strategy.HardwareStrategy;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.sdk.autoconfigure.AutoConfiguredOpenTelemetrySdk;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
@@ -102,6 +103,9 @@ public class MonitoringTask implements Runnable {
 			new SimpleStrategy(telemetryManager, collectTime, matsyaClientsExecutor),
 			new PostCollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor)
 		);
+
+		// Run the hardware strategy
+		telemetryManager.run(new HardwareStrategy(telemetryManager, collectTime));
 
 		// Initialize metric observers
 		initAllObservers(telemetryManager);

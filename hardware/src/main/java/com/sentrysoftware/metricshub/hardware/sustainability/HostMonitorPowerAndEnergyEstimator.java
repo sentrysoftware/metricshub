@@ -154,6 +154,12 @@ public class HostMonitorPowerAndEnergyEstimator {
 			final String powerMetricName = HwCollectHelper.generatePowerMetricNameForMonitorType(monitor.getType());
 			final String energyMetricName = HwCollectHelper.generateEnergyMetricNameForMonitorType(monitor.getType());
 			final Double powerMetricValue = CollectHelper.getNumberMetricValue(monitor, powerMetricName, false);
+
+			// No estimated power? skip the computation
+			if (powerMetricValue == null) {
+				return;
+			}
+
 			final Double adjustedPowerValue = getAdjustedPowerConsumption(
 				powerMetricValue,
 				totalEstimatedPowerConsumption,
@@ -177,13 +183,15 @@ public class HostMonitorPowerAndEnergyEstimator {
 				telemetryManager.getStrategyTime()
 			);
 
-			// Collect adjusted energy metric
-			metricFactory.collectNumberMetric(
-				monitor,
-				energyMetricName,
-				adjustedEnergyValue,
-				telemetryManager.getStrategyTime()
-			);
+			if (adjustedEnergyValue != null) {
+				// Collect adjusted energy metric
+				metricFactory.collectNumberMetric(
+					monitor,
+					energyMetricName,
+					adjustedEnergyValue,
+					telemetryManager.getStrategyTime()
+				);
+			}
 		});
 	}
 
