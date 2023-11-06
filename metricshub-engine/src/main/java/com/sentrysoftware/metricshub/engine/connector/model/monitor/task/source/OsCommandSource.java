@@ -1,6 +1,7 @@
 package com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source;
 
 import static com.fasterxml.jackson.annotation.Nulls.FAIL;
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.NEW_LINE;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.TAB;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.WHITE_SPACE;
@@ -45,7 +46,8 @@ public class OsCommandSource extends Source {
 	private Long timeout;
 
 	@JsonDeserialize(using = BooleanDeserializer.class)
-	private Boolean executeLocally;
+	@JsonSetter(nulls = SKIP)
+	private Boolean executeLocally = false;
 
 	private String exclude;
 	private String keep;
@@ -80,7 +82,7 @@ public class OsCommandSource extends Source {
 		super(type, computes, forceSerialization, key, executeForEachEntryOf);
 		this.commandLine = commandLine;
 		this.timeout = timeout;
-		this.executeLocally = executeLocally;
+		this.executeLocally = executeLocally != null && executeLocally;
 		this.exclude = exclude;
 		this.keep = keep;
 		this.beginAtLineNumber = beginAtLineNumber;

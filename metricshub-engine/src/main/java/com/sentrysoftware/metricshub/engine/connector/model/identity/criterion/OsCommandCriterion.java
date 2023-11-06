@@ -1,6 +1,7 @@
 package com.sentrysoftware.metricshub.engine.connector.model.identity.criterion;
 
 import static com.fasterxml.jackson.annotation.Nulls.FAIL;
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.NEW_LINE;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -35,7 +36,8 @@ public class OsCommandCriterion extends Criterion {
 	private String expectedResult;
 
 	@JsonDeserialize(using = BooleanDeserializer.class)
-	private Boolean executeLocally;
+	@JsonSetter(nulls = SKIP)
+	private Boolean executeLocally = false;
 
 	@JsonDeserialize(using = TimeoutDeserializer.class)
 	private Long timeout;
@@ -55,7 +57,7 @@ public class OsCommandCriterion extends Criterion {
 		this.commandLine = commandLine;
 		this.errorMessage = errorMessage;
 		this.expectedResult = expectedResult;
-		this.executeLocally = executeLocally;
+		this.executeLocally = executeLocally != null && executeLocally;
 		this.timeout = timeout;
 	}
 
