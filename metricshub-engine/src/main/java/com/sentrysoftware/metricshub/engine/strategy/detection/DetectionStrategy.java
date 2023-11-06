@@ -31,11 +31,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DetectionStrategy extends AbstractStrategy {
 
-	/**
-	 * Format for string value like: <em>connector_connector-id</em>
-	 */
-	static final String CONNECTOR_ID_FORMAT = "%s_%s";
-
 	@Builder
 	public DetectionStrategy(
 		@NonNull final TelemetryManager telemetryManager,
@@ -130,7 +125,7 @@ public class DetectionStrategy extends AbstractStrategy {
 
 		// Create or update the monitor by calling monitor factory
 		final Monitor monitor = monitorFactory.createOrUpdateMonitor(
-			String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), connectorId, strategyTime)
+			String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), connectorId)
 		);
 
 		collectConnectorStatus(connectorTestResult, connector, connectorId, monitor);

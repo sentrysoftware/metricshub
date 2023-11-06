@@ -12,9 +12,8 @@ connector:
       - NT
       - Linux
     criteria:
-      - type: snmpGet
+      - type: snmpGetNext
         oid: 1.3.6.1.4.1.795.10.1.1.3.1.1
-        expectedResult: "result"
 monitors:
   enclosure:
     discovery:

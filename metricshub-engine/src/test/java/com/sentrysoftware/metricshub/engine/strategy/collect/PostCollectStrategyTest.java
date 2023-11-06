@@ -15,6 +15,7 @@ import static com.sentrysoftware.metricshub.engine.constants.Constants.MONITOR_I
 import static com.sentrysoftware.metricshub.engine.constants.Constants.STATUS_INFORMATION;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.TEST_CONNECTOR_ID;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.TEST_CONNECTOR_PATH;
+import static com.sentrysoftware.metricshub.engine.strategy.AbstractStrategy.CONNECTOR_ID_FORMAT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -61,7 +62,12 @@ class PostCollectStrategyTest {
 		final Monitor hostMonitor = Monitor.builder().type(KnownMonitorType.HOST.getKey()).build();
 		final Monitor connectorMonitor = Monitor.builder().type(KnownMonitorType.CONNECTOR.getKey()).build();
 		final Map<String, Map<String, Monitor>> monitors = new HashMap<>(
-			Map.of(HOST, Map.of(MONITOR_ID_ATTRIBUTE_VALUE, hostMonitor), CONNECTOR, Map.of(connectorId, connectorMonitor))
+			Map.of(
+				HOST,
+				Map.of(MONITOR_ID_ATTRIBUTE_VALUE, hostMonitor),
+				CONNECTOR,
+				Map.of(String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), connectorId), connectorMonitor)
+			)
 		);
 
 		final SnmpConfiguration snmpConfig = SnmpConfiguration.builder().community("public").build();
@@ -120,9 +126,9 @@ class PostCollectStrategyTest {
 				.build();
 
 		// Mock detection criteria result
-		doReturn("result")
+		doReturn("1.3.6.1.4.1.795.10.1.1.3.1.1.0	ASN_OCTET_STR	Test")
 			.when(matsyaClientsExecutorMock)
-			.executeSNMPGet(eq("1.3.6.1.4.1.795.10.1.1.3.1.1"), any(SnmpConfiguration.class), anyString(), anyBoolean());
+			.executeSNMPGetNext(eq("1.3.6.1.4.1.795.10.1.1.3.1.1"), any(SnmpConfiguration.class), anyString(), anyBoolean());
 
 		// Mock source table information for enclosure
 		doReturn(SourceTable.csvToTable("enclosure-1;1;healthy", MetricsHubConstants.TABLE_SEP))

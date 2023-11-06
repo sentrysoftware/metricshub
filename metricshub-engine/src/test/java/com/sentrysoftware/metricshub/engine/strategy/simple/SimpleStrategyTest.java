@@ -25,6 +25,7 @@ import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.discovery.PostDiscoveryStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
@@ -71,7 +72,14 @@ class SimpleStrategyTest {
 				HOST,
 				Map.of(MONITOR_ID_ATTRIBUTE_VALUE, hostMonitor),
 				CONNECTOR,
-				Map.of(TEST_CONNECTOR_WITH_SIMPLE_ID, connectorMonitor)
+				Map.of(
+					String.format(
+						AbstractStrategy.CONNECTOR_ID_FORMAT,
+						KnownMonitorType.CONNECTOR.getKey(),
+						TEST_CONNECTOR_WITH_SIMPLE_ID
+					),
+					connectorMonitor
+				)
 			)
 		);
 
@@ -107,9 +115,9 @@ class SimpleStrategyTest {
 				.build();
 
 		// Mock detection criteria result
-		doReturn("result")
+		doReturn("1.3.6.1.4.1.795.10.1.1.3.1.1.0	ASN_OCTET_STR	Test")
 			.when(matsyaClientsExecutorMock)
-			.executeSNMPGet(eq("1.3.6.1.4.1.795.10.1.1.3.1.1"), any(SnmpConfiguration.class), anyString(), anyBoolean());
+			.executeSNMPGetNext(eq("1.3.6.1.4.1.795.10.1.1.3.1.1"), any(SnmpConfiguration.class), anyString(), anyBoolean());
 
 		// Mock source table information for enclosure
 		doReturn(SourceTable.csvToTable("enclosure-1;1;healthy", MetricsHubConstants.TABLE_SEP))

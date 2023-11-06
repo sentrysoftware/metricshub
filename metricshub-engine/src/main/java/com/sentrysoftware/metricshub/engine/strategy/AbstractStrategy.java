@@ -58,6 +58,11 @@ public abstract class AbstractStrategy implements IStrategy {
 	private static final String SOURCE = "source";
 
 	/**
+	 * Format for string value like: <em>connector_connector-id</em>
+	 */
+	public static final String CONNECTOR_ID_FORMAT = "%s_%s";
+
+	/**
 	 * Execute each source in the given list of sources then for each source table apply all the attached computes.
 	 * When the {@link SourceTable} is ready it is added to {@link TelemetryManager}
 	 *
@@ -364,7 +369,7 @@ public abstract class AbstractStrategy implements IStrategy {
 	}
 
 	/**
-	 * Validates the connector's detection criterias
+	 * Validates the connector's detection criteria
 	 *
 	 * @param currentConnector	Connector instance
 	 * @param hostname			Hostname
@@ -378,7 +383,10 @@ public abstract class AbstractStrategy implements IStrategy {
 		ConnectorTestResult connectorTestResult = new ConnectorSelection(telemetryManager, matsyaClientsExecutor)
 			.runConnectorDetectionCriteria(currentConnector, hostname);
 		final String connectorId = currentConnector.getCompiledFilename();
-		final Monitor monitor = telemetryManager.findMonitorByTypeAndId(KnownMonitorType.CONNECTOR.getKey(), connectorId);
+		final Monitor monitor = telemetryManager.findMonitorByTypeAndId(
+			KnownMonitorType.CONNECTOR.getKey(),
+			String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), connectorId)
+		);
 
 		collectConnectorStatus(connectorTestResult, currentConnector, connectorId, monitor);
 
