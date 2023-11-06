@@ -1,16 +1,18 @@
 package com.sentrysoftware.metricshub.engine.strategy.detection;
 
-import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.*;
+import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.CONNECTOR_STATUS_METRIC_KEY;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_APPLIES_TO_OS;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_NAME;
+import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_PARENT_ID;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.STATE_SET_METRIC_FAILED;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.STATE_SET_METRIC_OK;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.AAC_CONNECTOR_ID;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.HOST_ID;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.LOCALHOST;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.STATE_SET;
+import static com.sentrysoftware.metricshub.engine.strategy.AbstractStrategy.CONNECTOR_ID_FORMAT;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -221,7 +223,7 @@ class DetectionStrategyTest {
 			.get(KnownMonitorType.CONNECTOR.getKey());
 		final String compiledFilename = connector.getConnectorIdentity().getCompiledFilename();
 		final Monitor monitor = connectorMonitorMap.get(
-			String.format(DetectionStrategy.CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), compiledFilename)
+			String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), compiledFilename)
 		);
 
 		// Retrieve monitor's metric value (ConnectorResult is successful)
@@ -286,7 +288,7 @@ class DetectionStrategyTest {
 			.get(KnownMonitorType.CONNECTOR.getKey());
 		final String compiledFilename = connector.getConnectorIdentity().getCompiledFilename();
 		final Monitor monitor = connectorMonitorMap.get(
-			String.format(DetectionStrategy.CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), compiledFilename)
+			String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), compiledFilename)
 		);
 		// Retrieve monitor's metric value (ConnectorResult is successful)
 		AbstractMetric metric = monitor.getMetrics().get(CONNECTOR_STATUS_METRIC_KEY);

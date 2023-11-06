@@ -142,6 +142,17 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 		final String hostname,
 		final Map.Entry<String, MonitorJob> monitorJobEntry
 	) {
+		if (!validateConnectorDetectionCriteria(currentConnector, hostname)) {
+			log.error(
+				"Hostname {} - The connector {} no longer matches the host. Stopping the connector's {} job.",
+				hostname,
+				currentConnector.getCompiledFilename(),
+				getJobName()
+			);
+
+			return;
+		}
+
 		final MonitorJob monitorJob = monitorJobEntry.getValue();
 
 		// Get the monitor task

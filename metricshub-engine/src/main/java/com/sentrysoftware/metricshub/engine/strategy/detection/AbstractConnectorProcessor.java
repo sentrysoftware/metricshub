@@ -219,7 +219,7 @@ public abstract class AbstractConnectorProcessor {
 	 *
 	 * @return {@link ConnectorTestResult} instance which tells if the connector test succeeded or not.
 	 */
-	private ConnectorTestResult runConnectorDetectionCriteria(Connector connector, String hostname) {
+	public ConnectorTestResult runConnectorDetectionCriteria(Connector connector, String hostname) {
 		final Detection detection = connector.getConnectorIdentity().getDetection();
 
 		final ConnectorTestResult connectorTestResult = ConnectorTestResult.builder().connector(connector).build();

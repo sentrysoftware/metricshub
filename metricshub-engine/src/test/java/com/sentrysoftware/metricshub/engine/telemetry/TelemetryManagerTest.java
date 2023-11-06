@@ -12,9 +12,11 @@ import static com.sentrysoftware.metricshub.engine.constants.Constants.LOGICAL_D
 import static com.sentrysoftware.metricshub.engine.constants.Constants.MONITOR_ID_ATTRIBUTE_VALUE;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.PHYSICAL_DISK;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.YAML_TEST_PATH;
+import static com.sentrysoftware.metricshub.engine.strategy.AbstractStrategy.CONNECTOR_ID_FORMAT;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -47,7 +49,10 @@ class TelemetryManagerTest {
 				HOST,
 				Map.of(MONITOR_ID_ATTRIBUTE_VALUE, hostMonitor),
 				CONNECTOR,
-				Map.of(AAC_CONNECTOR_ID, connectorMonitor)
+				Map.of(
+					String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), AAC_CONNECTOR_ID),
+					connectorMonitor
+				)
 			)
 		);
 
@@ -74,6 +79,11 @@ class TelemetryManagerTest {
 		// Create the connector store
 		final ConnectorStore connectorStore = new ConnectorStore(YAML_TEST_PATH);
 		telemetryManager.setConnectorStore(connectorStore);
+
+		// Mock detection criteria result
+		doReturn("1.3.6.1.4.1.795.10.1.1.3.1.1.0	ASN_OCTET_STR	Test")
+			.when(matsyaClientsExecutorMock)
+			.executeSNMPGetNext(eq("1.3.6.1.4.1.795.10.1.1.3.1.1"), any(SnmpConfiguration.class), anyString(), anyBoolean());
 
 		// Mock source table information for disk controller
 		doReturn(SourceTable.csvToTable("controller-1;1;Adaptec1;bios53v2;firmware32", MetricsHubConstants.TABLE_SEP))
