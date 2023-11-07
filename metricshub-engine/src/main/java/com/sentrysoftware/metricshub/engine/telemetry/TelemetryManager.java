@@ -106,7 +106,7 @@ public class TelemetryManager {
 				strategy.getClass().getSimpleName(),
 				e.getClass().getSimpleName()
 			);
-			log.debug("Hostname {} - Operation failed with unknown exception: ", hostname, e);
+			log.debug("Hostname {} - Operation failed with exception: ", hostname, e);
 		}
 	}
 

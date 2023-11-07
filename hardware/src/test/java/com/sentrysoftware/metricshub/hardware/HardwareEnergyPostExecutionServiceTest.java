@@ -76,7 +76,7 @@ class HardwareEnergyPostExecutionServiceTest {
 
 	private HardwareEnergyPostExecutionService hardwareEnergyPostExecutionService;
 
-	private TelemetryManager telemetryManager = null;
+	private TelemetryManager telemetryManager;
 
 	private static final String DISK_CONTROLLER = KnownMonitorType.DISK_CONTROLLER.getKey();
 	private static final String FAN = KnownMonitorType.FAN.getKey();
