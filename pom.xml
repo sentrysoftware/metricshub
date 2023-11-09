@@ -12,7 +12,7 @@
 
 	<groupId>com.sentrysoftware.metricshub</groupId>
 	<artifactId>metricshub-parent</artifactId>
-	<version>0.9.00-SNAPSHOT</version>
+	<version>0.9.01-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
 
