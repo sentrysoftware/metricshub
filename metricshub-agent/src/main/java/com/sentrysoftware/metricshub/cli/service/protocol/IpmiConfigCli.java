@@ -79,7 +79,7 @@ public class IpmiConfigCli implements IProtocolConfigCli {
 				.skipAuth(skipAuth)
 				.timeout(timeout)
 				.build();
-		} catch (IllegalArgumentException e) {
+		} catch (Exception e) {
 			throw new ParameterException(spec.commandLine(), e.getMessage());
 		}
 	}
