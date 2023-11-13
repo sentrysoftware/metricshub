@@ -1,0 +1,30 @@
+package com.sentrysoftware.metricshub.cli.service.protocol;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import com.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
+import org.junit.jupiter.api.Test;
+
+class IpmiConfigCliTest {
+
+	@Test
+	void testToProtocol() {
+		IpmiConfigCli ipmiConfigCli = new IpmiConfigCli();
+		final char[] password = "value".toCharArray();
+		final String username = "username";
+		final int timeout = 120;
+		ipmiConfigCli.setPassword(password);
+		ipmiConfigCli.setUsername(username);
+		ipmiConfigCli.setTimeout(timeout);
+		assertEquals(
+			IpmiConfiguration.builder().username(username).password(password).timeout(120L).bmcKey(new byte[] {}).build(),
+			ipmiConfigCli.toProtocol(null, null)
+		);
+		ipmiConfigCli = new IpmiConfigCli();
+		ipmiConfigCli.setTimeout(timeout);
+		assertEquals(
+			IpmiConfiguration.builder().username(username).password(password).timeout(120L).bmcKey(new byte[] {}).build(),
+			ipmiConfigCli.toProtocol(username, password)
+		);
+	}
+}
