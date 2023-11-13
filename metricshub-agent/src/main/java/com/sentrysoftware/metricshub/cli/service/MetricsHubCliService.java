@@ -1,8 +1,28 @@
 package com.sentrysoftware.metricshub.cli.service;
 
+import java.io.PrintWriter;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.ThreadContext;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.fusesource.jansi.Ansi;
+import org.fusesource.jansi.Ansi.Attribute;
+
 import com.sentrysoftware.metricshub.agent.helper.ConfigHelper;
 import com.sentrysoftware.metricshub.cli.service.converter.DeviceKindConverter;
 import com.sentrysoftware.metricshub.cli.service.protocol.IpmiConfigCli;
+import com.sentrysoftware.metricshub.cli.service.protocol.SshConfigCli;
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.IConfiguration;
@@ -19,24 +39,8 @@ import com.sentrysoftware.metricshub.engine.strategy.discovery.PostDiscoveryStra
 import com.sentrysoftware.metricshub.engine.strategy.simple.SimpleStrategy;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.hardware.strategy.HardwareStrategy;
-import java.io.PrintWriter;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
 import lombok.Data;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.ThreadContext;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.config.Configuration;
-import org.apache.logging.log4j.core.config.LoggerConfig;
-import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.Ansi.Attribute;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -99,6 +103,9 @@ public class MetricsHubCliService implements Callable<Integer> {
 
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline IPMI Options|@:%n")
 	private IpmiConfigCli ipmiConfigCli;
+
+	@ArgGroup(exclusive = false, heading = "%n@|bold,underline IPMI Options|@:%n")
+	private SshConfigCli sshConfigCli;
 
 	@Option(names = { "-u", "--username" }, order = 2, paramLabel = "USER", description = "Username for authentication")
 	String username;
@@ -273,7 +280,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 	private Map<Class<? extends IConfiguration>, IConfiguration> buildConfigurations() {
 		// TODO Add other protocols in stream here
 		return Stream
-			.of(ipmiConfigCli)
+			.of(ipmiConfigCli, sshConfigCli)
 			.filter(Objects::nonNull)
 			.map(protocolConfig -> protocolConfig.toProtocol(username, password))
 			.collect(Collectors.toMap(IConfiguration::getClass, Function.identity()));
@@ -295,7 +302,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 
 		// No protocol at all?
 		// TODO Add protocol here for each case
-		if (ipmiConfigCli == null) {
+		if (ipmiConfigCli == null && sshConfigCli == null) {
 			throw new ParameterException(
 				spec.commandLine(),
 				"At least one protocol must be specified: --http[s], --ipmi, --snmp, --ssh, --wbem, --wmi, --winrm."
@@ -361,6 +368,8 @@ public class MetricsHubCliService implements Callable<Integer> {
 		tryInteractiveGlobalPassword(passwordReader);
 
 		tryInteractiveIpmiPassword(passwordReader);
+
+		tryInteractiveSshPassword(passwordReader);
 		// TODO Implement interactive password for the other protocol configurations
 
 	}
@@ -384,6 +393,17 @@ public class MetricsHubCliService implements Callable<Integer> {
 	private void tryInteractiveIpmiPassword(final CliPasswordReader<char[]> passwordReader) {
 		if (ipmiConfigCli != null && ipmiConfigCli.getUsername() != null && ipmiConfigCli.getPassword() == null) {
 			ipmiConfigCli.setPassword(passwordReader.read("%s password for IPMI: ", ipmiConfigCli.getUsername()));
+		}
+	}
+
+	/**
+	 * Try to start the interactive mode to request and set SSH password
+	 *
+	 * @param passwordReader password reader which displays the prompt text and wait for user's input
+	 */
+	private void tryInteractiveSshPassword(final CliPasswordReader<char[]> passwordReader) {
+		if (sshConfigCli != null && sshConfigCli.getUsername() != null && sshConfigCli.getPassword() == null) {
+			sshConfigCli.setPassword(passwordReader.read("%s password for SSH: ", sshConfigCli.getUsername()));
 		}
 	}
 
