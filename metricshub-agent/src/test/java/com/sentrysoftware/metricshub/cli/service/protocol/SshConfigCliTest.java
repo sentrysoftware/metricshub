@@ -2,12 +2,10 @@ package com.sentrysoftware.metricshub.cli.service.protocol;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
 import java.io.File;
 import java.util.Set;
-
 import org.junit.jupiter.api.Test;
-
-import com.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
 
 class SshConfigCliTest {
 
