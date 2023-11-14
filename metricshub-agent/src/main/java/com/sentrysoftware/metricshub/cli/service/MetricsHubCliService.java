@@ -2,6 +2,7 @@ package com.sentrysoftware.metricshub.cli.service;
 
 import com.sentrysoftware.metricshub.agent.helper.ConfigHelper;
 import com.sentrysoftware.metricshub.cli.service.converter.DeviceKindConverter;
+import com.sentrysoftware.metricshub.cli.service.protocol.HttpConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.IpmiConfigCli;
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
@@ -99,6 +100,9 @@ public class MetricsHubCliService implements Callable<Integer> {
 
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline IPMI Options|@:%n")
 	IpmiConfigCli ipmiConfigCli;
+
+	@ArgGroup(exclusive = false, heading = "%n@|bold,underline HTTP Options|@:%n")
+	HttpConfigCli httpConfigCli;
 
 	@Option(names = { "-u", "--username" }, order = 2, paramLabel = "USER", description = "Username for authentication")
 	String username;
@@ -273,7 +277,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 	private Map<Class<? extends IConfiguration>, IConfiguration> buildConfigurations() {
 		// TODO Add other protocols in stream here
 		return Stream
-			.of(ipmiConfigCli)
+			.of(ipmiConfigCli, httpConfigCli)
 			.filter(Objects::nonNull)
 			.map(protocolConfig -> protocolConfig.toProtocol(username, password))
 			.collect(Collectors.toMap(IConfiguration::getClass, Function.identity()));
@@ -295,7 +299,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 
 		// No protocol at all?
 		// TODO Add protocol here for each case
-		if (ipmiConfigCli == null) {
+		if (httpConfigCli == null && ipmiConfigCli == null) {
 			throw new ParameterException(
 				spec.commandLine(),
 				"At least one protocol must be specified: --http[s], --ipmi, --snmp, --ssh, --wbem, --wmi, --winrm."
@@ -361,6 +365,8 @@ public class MetricsHubCliService implements Callable<Integer> {
 		tryInteractiveGlobalPassword(passwordReader);
 
 		tryInteractiveIpmiPassword(passwordReader);
+
+		tryInteractiveHttpPassword(passwordReader);
 		// TODO Implement interactive password for the other protocol configurations
 
 	}
@@ -384,6 +390,17 @@ public class MetricsHubCliService implements Callable<Integer> {
 	void tryInteractiveIpmiPassword(final CliPasswordReader<char[]> passwordReader) {
 		if (ipmiConfigCli != null && ipmiConfigCli.getUsername() != null && ipmiConfigCli.getPassword() == null) {
 			ipmiConfigCli.setPassword(passwordReader.read("%s password for IPMI: ", ipmiConfigCli.getUsername()));
+		}
+	}
+
+	/**
+	 * Try to start the interactive mode to request and set HTTP password
+	 *
+	 * @param passwordReader password reader which displays the prompt text and wait for user's input
+	 */
+	void tryInteractiveHttpPassword(final CliPasswordReader<char[]> passwordReader) {
+		if (httpConfigCli != null && httpConfigCli.getUsername() != null && httpConfigCli.getPassword() == null) {
+			httpConfigCli.setPassword(passwordReader.read("%s password for HTTP: ", httpConfigCli.getUsername()));
 		}
 	}
 
