@@ -9,13 +9,16 @@ import com.sentrysoftware.metricshub.engine.connector.model.Connector;
 import com.sentrysoftware.metricshub.engine.connector.model.identity.ConnectorIdentity;
 import com.sentrysoftware.metricshub.engine.connector.model.identity.Detection;
 import com.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
+import com.sentrysoftware.metricshub.engine.connector.model.monitor.MonitorJob;
+import com.sentrysoftware.metricshub.engine.connector.model.monitor.SimpleMonitorJob;
+import com.sentrysoftware.metricshub.engine.connector.model.monitor.StandardMonitorJob;
 import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.utils.ForceSerializationHelper;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -141,19 +144,99 @@ public abstract class AbstractConnectorProcessor {
 	}
 
 	/**
-	 * Remove the {@link ConnectorTestResult} from connectorTestResults which OnLastResort monitor type is already detected
-	 * by another {@link ConnectorTestResult} in connectorTestResults
+	 * Removes detected connectors of type "last resort" if their specified "last resort" monitor type (enclosure, fan, etc.) is already
+	 * discovered by a "regular" connector.
 	 *
-	 * @param connectorTestResults The {@link List} of {@link ConnectorTestResult}
-	 * @return The filtered {@link List} of {@link ConnectorTestResult}
+	 * @param matchingConnectorList The list of detected connectors, that match the host
+	 * @param hostname      		The name of the host currently discovered
+	 *
 	 */
-	protected List<ConnectorTestResult> filterLastResort(@NonNull List<ConnectorTestResult> connectorTestResults) {
-		final Set<String> monitorsSet = new HashSet<>();
-		connectorTestResults.forEach(ctr -> monitorsSet.addAll(ctr.getConnector().getMonitors().keySet()));
-		return connectorTestResults
+	void filterLastResortConnectors(List<ConnectorTestResult> matchingConnectorList, final String hostname) {
+		// Extract the list of last resort connectors from the list of matching connectors
+		final List<ConnectorTestResult> lastResortConnectorList = matchingConnectorList
 			.stream()
-			.filter(ctr -> monitorsSet.contains(ctr.getConnector().getConnectorIdentity().getDetection().getOnLastResort()))
-			.collect(Collectors.toList()); // NOSONAR
+			.filter(tc -> tc.getConnector().getConnectorIdentity().getDetection().getOnLastResort() != null)
+			.collect(Collectors.toList());
+
+		if (lastResortConnectorList.isEmpty()) {
+			return;
+		}
+
+		// Extract the list of regular connectors connectors from the list of matching connectors
+		final List<ConnectorTestResult> regularConnectorList = matchingConnectorList
+			.stream()
+			.filter(tc -> tc.getConnector().getConnectorIdentity().getDetection().getOnLastResort() == null)
+			.collect(Collectors.toList());
+
+		// Go through the list of last resort connectors and remove them if a regular connector discovers the same monitor type
+		String[] connectorNameHolder = new String[1];
+		lastResortConnectorList.forEach(lastResortTC -> {
+			boolean hasLastResortMonitor = regularConnectorList
+				.stream()
+				.anyMatch(tc -> {
+					final Map<String, MonitorJob> monitorJobs = tc.getConnector().getMonitors();
+
+					// Remember connector's filename
+					connectorNameHolder[0] = tc.getConnector().getCompiledFilename();
+
+					if (monitorJobs == null || monitorJobs.isEmpty()) {
+						log.warn(
+							"Hostname {} - {} connector detection. On last resort filter: Connector {} has no hardware monitors.",
+							hostname,
+							hostname,
+							connectorNameHolder[0]
+						);
+
+						return false;
+					}
+
+					// The monitor's job and mapping must not be empty
+					return monitorJobs
+						.entrySet()
+						.stream()
+						.anyMatch(mj -> {
+							final MonitorJob monitorJob = mj.getValue();
+							final boolean hasMonitorType = lastResortTC
+								.getConnector()
+								.getConnectorIdentity()
+								.getDetection()
+								.getOnLastResort()
+								.equals(mj.getKey());
+							if (monitorJob != null) {
+								if (monitorJob instanceof SimpleMonitorJob simpleMonitorJob) {
+									return (
+										hasMonitorType &&
+										simpleMonitorJob.getSimple() != null &&
+										simpleMonitorJob.getSimple().getMapping() != null
+									);
+								} else if (monitorJob instanceof StandardMonitorJob standardMonitorJob) {
+									return (
+										hasMonitorType &&
+										standardMonitorJob.getDiscovery() != null &&
+										standardMonitorJob.getDiscovery().getMapping() != null
+									);
+								}
+							}
+							return false;
+						});
+				});
+
+			if (hasLastResortMonitor) {
+				// The current connector discovers the same type has the defined last resort type. Discard last resort connector
+				matchingConnectorList.remove(lastResortTC);
+
+				log.info(
+					"Hostname {} - {} is a \"last resort\" connector and its components are already discovered thanks to connector {}. Connector is therefore discarded.",
+					hostname,
+					lastResortTC.getConnector().getCompiledFilename(),
+					connectorNameHolder[0]
+				);
+			} else {
+				// Add the last resort connector to the list of "regular" connectors so that it prevents other
+				// last resort connectors of the same type from matching (but that should never happen, right connector developers?)
+				regularConnectorList.add(lastResortTC);
+			}
+		});
 	}
 
 	/**
