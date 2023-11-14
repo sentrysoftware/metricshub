@@ -2,6 +2,7 @@ package com.sentrysoftware.metricshub.cli.service.protocol;
 
 import com.sentrysoftware.metricshub.cli.service.converter.SnmpPrivacyConverter;
 import com.sentrysoftware.metricshub.cli.service.converter.SnmpVersionConverter;
+import com.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import lombok.Data;
 import picocli.CommandLine.Option;
@@ -90,10 +91,10 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 	 *
 	 * @param defaultUsername Username specified at the top level of the CLI (with the --username option)
 	 * @param defaultPassword Password specified at the top level of the CLI (with the --password option)
-	 * @return a SNMPProtocol instance corresponding to the options specified by the user in the CLI
+	 * @return a {@link SnmpConfiguration} instance corresponding to the options specified by the user in the CLI
 	 */
 	@Override
-	public SnmpConfiguration toProtocol(String defaultUsername, char[] defaultPassword) {
+	public IConfiguration toProtocol(String defaultUsername, char[] defaultPassword) {
 		return SnmpConfiguration
 			.builder()
 			.version(snmpVersion)
