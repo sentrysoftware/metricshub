@@ -8,6 +8,7 @@ public class SnmpVersionConverter implements CommandLine.ITypeConverter<SnmpConf
 
 	/**
 	 * Converts a given version string to {@link SnmpConfiguration.SnmpVersion}
+	 *
 	 * @param version a given version
 	 * @return value of type {@link SnmpConfiguration.SnmpVersion}
 	 */

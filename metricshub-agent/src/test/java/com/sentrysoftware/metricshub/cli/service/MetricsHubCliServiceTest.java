@@ -122,7 +122,7 @@ class MetricsHubCliServiceTest {
 
 		// Ensure that the StringBuilder is empty after the method call
 		// This confirms that tryInteractiveGlobalPassword hasn't triggered the password reader
-		// because the both username and password are already present
+		// because both username and password are already present
 		assertTrue(builder.isEmpty());
 	}
 
@@ -177,7 +177,7 @@ class MetricsHubCliServiceTest {
 
 		// Ensure that the StringBuilder is empty after the method call
 		// This confirms that tryInteractiveIpmiPassword hasn't triggered the password reader
-		// because the both username and password are already present in ipmiConfigCli
+		// because both username and password are already present in ipmiConfigCli
 		assertTrue(builder.isEmpty());
 	}
 
@@ -232,7 +232,7 @@ class MetricsHubCliServiceTest {
 
 		// Ensure that the StringBuilder is empty after the method call
 		// This confirms that tryInteractiveSnmpPassword hasn't triggered the password reader
-		// because the both username and password are already present in snmpConfigCli
+		// because both username and password are already present in snmpConfigCli
 		assertTrue(builder.isEmpty());
 	}
 }

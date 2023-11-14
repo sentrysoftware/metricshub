@@ -7,6 +7,7 @@ public class SnmpPrivacyConverter implements CommandLine.ITypeConverter<SnmpConf
 
 	/**
 	 * Converts a given privacy string to {@link SnmpConfiguration.Privacy}
+	 *
 	 * @param privacy a given privacy string
 	 * @return value of type {@link SnmpConfiguration.Privacy}
 	 */

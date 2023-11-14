@@ -85,7 +85,9 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 	)
 	long timeout;
 
-	/** This method creates an {@link SnmpConfiguration} for a given username and a given password
+	/**
+	 * This method creates an {@link SnmpConfiguration} for a given username and a given password
+	 *
 	 * @param defaultUsername Username specified at the top level of the CLI (with the --username option)
 	 * @param defaultPassword Password specified at the top level of the CLI (with the --password option)
 	 * @return a SNMPProtocol instance corresponding to the options specified by the user in the CLI
