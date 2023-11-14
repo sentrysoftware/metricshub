@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.sentrysoftware.metricshub.cli.helper.StringBuilderWriter;
 import com.sentrysoftware.metricshub.cli.service.MetricsHubCliService.CliPasswordReader;
+import com.sentrysoftware.metricshub.cli.service.protocol.HttpConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.IpmiConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.SnmpConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.SshConfigCli;
@@ -289,6 +290,61 @@ class MetricsHubCliServiceTest {
 		// Ensure that the StringBuilder is empty after the method call
 		// This confirms that tryInteractiveSshPassword hasn't triggered the password reader
 		// because the both username and password are already present in sshConfigCli
+		assertTrue(builder.isEmpty());
+	}
+
+	@Test
+	void testTryInteractiveHttpPassword() {
+		final MetricsHubCliService metricsHubCliService = new MetricsHubCliService();
+
+		// Initialize a StringBuilder to capture the input password
+		final StringBuilder builder = new StringBuilder();
+
+		// Define a CliPasswordReader that appends the password to the StringBuilder
+		final CliPasswordReader<char[]> cliPasswordReader = (format, args) -> {
+			builder.append(PASSWORD, 0, PASSWORD.length);
+			return PASSWORD;
+		};
+
+		// Test tryInteractiveHttpPassword method with the CliPasswordReader
+		metricsHubCliService.tryInteractiveHttpPassword(cliPasswordReader);
+
+		// Make sure the StringBuilder is blank
+		// This confirms that tryInteractiveHttpPassword hasn't triggered the password reader
+		// because httpConfigCli is not present
+		assertTrue(builder.isEmpty());
+
+		// Set a new httpConfigCli in MetricsHubCliService
+		metricsHubCliService.httpConfigCli = new HttpConfigCli();
+
+		// Make sure the StringBuilder is blank
+		// This confirms that tryInteractiveHttpPassword hasn't triggered the password reader
+		// because httpConfigCli is present but it doesn't define the username
+		assertTrue(builder.isEmpty());
+
+		// Set a username in httpConfigCli
+		metricsHubCliService.httpConfigCli.setUsername("httpUser");
+
+		// Test tryInteractiveHttpPassword method with the CliPasswordReader
+		metricsHubCliService.tryInteractiveHttpPassword(cliPasswordReader);
+
+		// Assert that the captured password in the StringBuilder matches the expected value
+		// This confirms that tryInteractiveHttpPassword has triggered the password reader
+		// because the username is present in httpConfigCli but the password is null
+		assertEquals(new String(PASSWORD), builder.toString());
+
+		// Set a password in httpConfigCli
+		metricsHubCliService.httpConfigCli.setPassword(PASSWORD);
+
+		// Clear the StringBuilder
+		builder.delete(0, PASSWORD.length);
+
+		// Test tryInteractiveHttpPassword method with the CliPasswordReader
+		metricsHubCliService.tryInteractiveHttpPassword(cliPasswordReader);
+
+		// Ensure that the StringBuilder is empty after the method call
+		// This confirms that tryInteractiveHttpPassword hasn't triggered the password reader
+		// because both the username and password are already present in httpConfigCli
 		assertTrue(builder.isEmpty());
 	}
 }
