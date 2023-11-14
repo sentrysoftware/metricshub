@@ -15,7 +15,7 @@ public class SnmpVersionConverter implements CommandLine.ITypeConverter<SnmpConf
 	public SnmpConfiguration.SnmpVersion convert(@NonNull final String version) {
 		try {
 			return SnmpConfiguration.SnmpVersion.interpretValueOf(version);
-		} catch (IllegalArgumentException e) {
+		} catch (Exception e) {
 			throw new CommandLine.TypeConversionException(e.getMessage());
 		}
 	}

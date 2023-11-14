@@ -14,7 +14,7 @@ public class SnmpPrivacyConverter implements CommandLine.ITypeConverter<SnmpConf
 	public SnmpConfiguration.Privacy convert(final String privacy) {
 		try {
 			return SnmpConfiguration.Privacy.interpretValueOf(privacy);
-		} catch (IllegalArgumentException e) {
+		} catch (Exception e) {
 			throw new CommandLine.TypeConversionException(e.getMessage());
 		}
 	}

@@ -362,10 +362,12 @@ public class MetricsHubCliService implements Callable<Integer> {
 	 * @param passwordReader password reader which displays the prompt text and wait for user's input
 	 */
 	void tryInteractivePasswords(final CliPasswordReader<char[]> passwordReader) {
+
 		tryInteractiveGlobalPassword(passwordReader);
 
 		tryInteractiveIpmiPassword(passwordReader);
 		tryInteractiveSnmpPassword(passwordReader);
+
 		// TODO Implement interactive password for the other protocol configurations
 
 	}
@@ -386,7 +388,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 	 *
 	 * @param passwordReader password reader which displays the prompt text and wait for user's input
 	 */
-	private void tryInteractiveSnmpPassword(final CliPasswordReader<char[]> passwordReader) {
+	void tryInteractiveSnmpPassword(final CliPasswordReader<char[]> passwordReader) {
 		if (snmpConfigCli != null && snmpConfigCli.getUsername() != null && snmpConfigCli.getPassword() == null) {
 			snmpConfigCli.setPassword(passwordReader.read("%s password for SNMP: ", snmpConfigCli.getUsername()));
 		}

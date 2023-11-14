@@ -4,14 +4,14 @@ import com.sentrysoftware.metricshub.cli.service.converter.SnmpPrivacyConverter;
 import com.sentrysoftware.metricshub.cli.service.converter.SnmpVersionConverter;
 import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import lombok.Data;
-import picocli.CommandLine;
+import picocli.CommandLine.Option;
 
 @Data
 public class SnmpConfigCli implements IProtocolConfigCli {
 
 	public static final int DEFAULT_TIMEOUT = 30;
 
-	@CommandLine.Option(
+	@Option(
 		names = "--snmp",
 		order = 1,
 		defaultValue = "1",
@@ -21,7 +21,7 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 	)
 	SnmpConfiguration.SnmpVersion snmpVersion;
 
-	@CommandLine.Option(
+	@Option(
 		names = { "--snmp-community", "--community" },
 		order = 2,
 		paramLabel = "COMMUNITY",
@@ -30,7 +30,7 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 	)
 	String community;
 
-	@CommandLine.Option(
+	@Option(
 		names = "--snmp-username",
 		order = 3,
 		paramLabel = "USER",
@@ -38,7 +38,7 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 	)
 	String username;
 
-	@CommandLine.Option(
+	@Option(
 		names = "--snmp-password",
 		order = 4,
 		paramLabel = "P4SSW0RD",
@@ -48,7 +48,7 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 	)
 	char[] password;
 
-	@CommandLine.Option(
+	@Option(
 		names = "--snmp-privacy",
 		order = 5,
 		paramLabel = "DES|AES",
@@ -57,7 +57,7 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 	)
 	SnmpConfiguration.Privacy privacy;
 
-	@CommandLine.Option(
+	@Option(
 		names = "--snmp-privacy-password",
 		order = 6,
 		paramLabel = "P4SSW0RD",
@@ -67,7 +67,7 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 	)
 	char[] privacyPassword;
 
-	@CommandLine.Option(
+	@Option(
 		names = "--snmp-port",
 		order = 7,
 		paramLabel = "PORT",
@@ -76,7 +76,7 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 	)
 	int port;
 
-	@CommandLine.Option(
+	@Option(
 		names = "--snmp-timeout",
 		order = 8,
 		paramLabel = "TIMEOUT",
@@ -85,7 +85,7 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 	)
 	long timeout;
 
-	/**
+	/** This method creates an {@link SnmpConfiguration} for a given username and a given password
 	 * @param defaultUsername Username specified at the top level of the CLI (with the --username option)
 	 * @param defaultPassword Password specified at the top level of the CLI (with the --password option)
 	 * @return a SNMPProtocol instance corresponding to the options specified by the user in the CLI
