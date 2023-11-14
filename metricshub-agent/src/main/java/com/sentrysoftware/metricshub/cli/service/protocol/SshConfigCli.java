@@ -73,7 +73,7 @@ public class SshConfigCli implements IProtocolConfigCli {
 		return SshConfiguration
 			.sshConfigurationBuilder()
 			.username(username == null ? defaultUsername : username)
-			.password(password == null ? defaultPassword : password)
+			.password(username == null ? defaultPassword : password)
 			.privateKey(privateKey)
 			.useSudoCommands(useSudoCommands)
 			.useSudo(true)

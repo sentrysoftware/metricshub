@@ -101,8 +101,8 @@ public class MetricsHubCliService implements Callable<Integer> {
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline IPMI Options|@:%n")
 	IpmiConfigCli ipmiConfigCli;
 
-	@ArgGroup(exclusive = false, heading = "%n@|bold,underline IPMI Options|@:%n")
-	private SshConfigCli sshConfigCli;
+	@ArgGroup(exclusive = false, heading = "%n@|bold,underline SSH Options|@:%n")
+	SshConfigCli sshConfigCli;
 
 	@Option(names = { "-u", "--username" }, order = 2, paramLabel = "USER", description = "Username for authentication")
 	String username;
@@ -398,7 +398,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 	 *
 	 * @param passwordReader password reader which displays the prompt text and wait for user's input
 	 */
-	private void tryInteractiveSshPassword(final CliPasswordReader<char[]> passwordReader) {
+	void tryInteractiveSshPassword(final CliPasswordReader<char[]> passwordReader) {
 		if (sshConfigCli != null && sshConfigCli.getUsername() != null && sshConfigCli.getPassword() == null) {
 			sshConfigCli.setPassword(passwordReader.read("%s password for SSH: ", sshConfigCli.getUsername()));
 		}
