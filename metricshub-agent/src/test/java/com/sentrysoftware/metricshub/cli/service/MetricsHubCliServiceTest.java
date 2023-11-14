@@ -1,9 +1,12 @@
 package com.sentrysoftware.metricshub.cli.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.sentrysoftware.metricshub.cli.helper.StringBuilderWriter;
+import com.sentrysoftware.metricshub.cli.service.MetricsHubCliService.CliPasswordReader;
+import com.sentrysoftware.metricshub.cli.service.protocol.IpmiConfigCli;
 import com.sentrysoftware.metricshub.engine.connector.model.Connector;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import com.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
@@ -16,6 +19,8 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 class MetricsHubCliServiceTest {
+
+	private static final char[] PASSWORD = new char[] { 'p', 'a', 's', 's', 'w', 'o', 'r', 'd' };
 
 	@Test
 	void testListAllConnectors() {
@@ -71,5 +76,107 @@ class MetricsHubCliServiceTest {
 			metricsHubCliService.verbose = new boolean[] { true, true, true, true };
 			metricsHubCliService.setLogLevel();
 		});
+	}
+
+	@Test
+	void testTryInteractiveGlobalPassword() {
+		final MetricsHubCliService metricsHubCliService = new MetricsHubCliService();
+
+		// Initialize a StringBuilder to capture the input password
+		final StringBuilder builder = new StringBuilder();
+
+		// Define a CliPasswordReader that appends the password to the StringBuilder
+		final CliPasswordReader<char[]> cliPasswordReader = (format, args) -> {
+			builder.append(PASSWORD, 0, PASSWORD.length);
+			return PASSWORD;
+		};
+
+		// Test tryInteractiveGlobalPassword method with the CliPasswordReader
+		metricsHubCliService.tryInteractiveGlobalPassword(cliPasswordReader);
+
+		// Make sure the StringBuilder is blank
+		// This confirms that tryInteractiveGlobalPassword hasn't triggered the password reader
+		// because the username is not present
+		assertTrue(builder.isEmpty());
+
+		// Set a username in MetricsHubCliService
+		metricsHubCliService.username = "user";
+
+		// Test tryInteractiveGlobalPassword method with the CliPasswordReader
+		metricsHubCliService.tryInteractiveGlobalPassword(cliPasswordReader);
+
+		// Assert that the captured password in the StringBuilder matches the expected value
+		// This confirms that tryInteractiveGlobalPassword has triggered the password reader
+		// because the username is present but the password is null
+		assertEquals(new String(PASSWORD), builder.toString());
+
+		// Clear the StringBuilder
+		builder.delete(0, PASSWORD.length);
+
+		// Set the password in MetricsHubCliService
+		metricsHubCliService.password = PASSWORD;
+
+		// Test tryInteractiveGlobalPassword method with the CliPasswordReader again
+		metricsHubCliService.tryInteractiveGlobalPassword(cliPasswordReader);
+
+		// Ensure that the StringBuilder is empty after the method call
+		// This confirms that tryInteractiveGlobalPassword hasn't triggered the password reader
+		// because the both username and password are already present
+		assertTrue(builder.isEmpty());
+	}
+
+	@Test
+	void testTryInteractiveIpmiPassword() {
+		final MetricsHubCliService metricsHubCliService = new MetricsHubCliService();
+
+		// Initialize a StringBuilder to capture the input password
+		final StringBuilder builder = new StringBuilder();
+
+		// Define a CliPasswordReader that appends the password to the StringBuilder
+		final CliPasswordReader<char[]> cliPasswordReader = (format, args) -> {
+			builder.append(PASSWORD, 0, PASSWORD.length);
+			return PASSWORD;
+		};
+
+		// Test tryInteractiveIpmiPassword method with the CliPasswordReader
+		metricsHubCliService.tryInteractiveIpmiPassword(cliPasswordReader);
+
+		// Make sure the StringBuilder is blank
+		// This confirms that tryInteractiveIpmiPassword hasn't triggered the password reader
+		// because ipmiConfigCli is not present
+		assertTrue(builder.isEmpty());
+
+		// Set a new ipmiConfigCli in MetricsHubCliService
+		metricsHubCliService.ipmiConfigCli = new IpmiConfigCli();
+
+		// Make sure the StringBuilder is blank
+		// This confirms that tryInteractiveIpmiPassword hasn't triggered the password reader
+		// because ipmiConfigCli is present but it doesn't define the username
+		assertTrue(builder.isEmpty());
+
+		// Set a username in ipmiConfigCli
+		metricsHubCliService.ipmiConfigCli.setUsername("ipmiUser");
+
+		// Test tryInteractiveIpmiPassword method with the CliPasswordReader
+		metricsHubCliService.tryInteractiveIpmiPassword(cliPasswordReader);
+
+		// Assert that the captured password in the StringBuilder matches the expected value
+		// This confirms that tryInteractiveIpmiPassword has triggered the password reader
+		// because the username is present in ipmiConfigCli but the password is null
+		assertEquals(new String(PASSWORD), builder.toString());
+
+		// Set a password in ipmiConfigCli
+		metricsHubCliService.ipmiConfigCli.setPassword(PASSWORD);
+
+		// Clear the StringBuilder
+		builder.delete(0, PASSWORD.length);
+
+		// Test tryInteractiveIpmiPassword method with the CliPasswordReader
+		metricsHubCliService.tryInteractiveIpmiPassword(cliPasswordReader);
+
+		// Ensure that the StringBuilder is empty after the method call
+		// This confirms that tryInteractiveIpmiPassword hasn't triggered the password reader
+		// because the both username and password are already present in ipmiConfigCli
+		assertTrue(builder.isEmpty());
 	}
 }
