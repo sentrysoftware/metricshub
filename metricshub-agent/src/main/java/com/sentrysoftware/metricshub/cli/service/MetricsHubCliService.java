@@ -370,7 +370,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 	 *
 	 * @param passwordReader password reader which displays the prompt text and wait for user's input
 	 */
-	private void tryInteractiveGlobalPassword(final CliPasswordReader<char[]> passwordReader) {
+	void tryInteractiveGlobalPassword(final CliPasswordReader<char[]> passwordReader) {
 		if (username != null && password == null) {
 			password = passwordReader.read("%s password: ", username);
 		}
@@ -381,7 +381,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 	 *
 	 * @param passwordReader password reader which displays the prompt text and wait for user's input
 	 */
-	private void tryInteractiveIpmiPassword(final CliPasswordReader<char[]> passwordReader) {
+	void tryInteractiveIpmiPassword(final CliPasswordReader<char[]> passwordReader) {
 		if (ipmiConfigCli != null && ipmiConfigCli.getUsername() != null && ipmiConfigCli.getPassword() == null) {
 			ipmiConfigCli.setPassword(passwordReader.read("%s password for IPMI: ", ipmiConfigCli.getUsername()));
 		}
