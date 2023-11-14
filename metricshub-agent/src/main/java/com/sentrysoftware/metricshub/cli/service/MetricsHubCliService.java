@@ -19,6 +19,8 @@ import com.sentrysoftware.metricshub.engine.strategy.detection.DetectionStrategy
 import com.sentrysoftware.metricshub.engine.strategy.discovery.DiscoveryStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.discovery.PostDiscoveryStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.simple.SimpleStrategy;
+import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
+import com.sentrysoftware.metricshub.engine.telemetry.MonitorFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.hardware.strategy.HardwareStrategy;
 import java.io.PrintWriter;
@@ -226,6 +228,16 @@ public class MetricsHubCliService implements Callable<Integer> {
 
 		// Discovery
 		if (ConsoleService.hasConsole()) {
+			final Map<String, Monitor> connectorMonitors = telemetryManager.findMonitorsByType(
+				KnownMonitorType.CONNECTOR.getKey()
+			);
+
+			if (connectorMonitors == null || connectorMonitors.isEmpty()) {
+				printWriter.print(Ansi.ansi().fgBrightRed().a("No connector detected. Stopping.").reset().toString());
+				printWriter.flush();
+				return CommandLine.ExitCode.SOFTWARE;
+			}
+
 			int connectorCount = telemetryManager.findMonitorsByType(KnownMonitorType.CONNECTOR.getKey()).size();
 			printWriter.print("Performing discovery with ");
 			printWriter.print(Ansi.ansi().bold().a(connectorCount).boldOff().toString());
