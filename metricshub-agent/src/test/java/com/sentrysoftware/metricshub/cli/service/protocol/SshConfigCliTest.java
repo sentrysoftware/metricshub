@@ -19,7 +19,7 @@ class SshConfigCliTest {
 		final String sudoCommand = "sudoCommand";
 		final Set<String> useSudoCommands = Set.of("command1", "command2");
 
-		SshConfiguration sshConfiguration = SshConfiguration
+		final SshConfiguration sshConfiguration = SshConfiguration
 			.sshConfigurationBuilder()
 			.username(username)
 			.password(password)

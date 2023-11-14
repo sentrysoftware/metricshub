@@ -68,6 +68,13 @@ public class SshConfigCli implements IProtocolConfigCli {
 	)
 	private String sudoCommand;
 
+	/**
+	 * This method creates an {@link SshConfiguration} for a given username and a given password
+	 *
+	 * @param defaultUsername Username specified at the top level of the CLI (with the --username option)
+	 * @param defaultPassword Password specified at the top level of the CLI (with the --password option)
+	 * @return an {@link SshConfiguration} instance corresponding to the options specified by the user in the CLI
+	 */
 	@Override
 	public IConfiguration toProtocol(String defaultUsername, char[] defaultPassword) {
 		return SshConfiguration
