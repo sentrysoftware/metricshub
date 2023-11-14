@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.sentrysoftware.metricshub.cli.helper.StringBuilderWriter;
 import com.sentrysoftware.metricshub.cli.service.MetricsHubCliService.CliPasswordReader;
 import com.sentrysoftware.metricshub.cli.service.protocol.IpmiConfigCli;
+import com.sentrysoftware.metricshub.cli.service.protocol.SnmpConfigCli;
 import com.sentrysoftware.metricshub.engine.connector.model.Connector;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import com.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
@@ -121,7 +122,7 @@ class MetricsHubCliServiceTest {
 
 		// Ensure that the StringBuilder is empty after the method call
 		// This confirms that tryInteractiveGlobalPassword hasn't triggered the password reader
-		// because the both username and password are already present
+		// because both username and password are already present
 		assertTrue(builder.isEmpty());
 	}
 
@@ -176,7 +177,62 @@ class MetricsHubCliServiceTest {
 
 		// Ensure that the StringBuilder is empty after the method call
 		// This confirms that tryInteractiveIpmiPassword hasn't triggered the password reader
-		// because the both username and password are already present in ipmiConfigCli
+		// because both username and password are already present in ipmiConfigCli
+		assertTrue(builder.isEmpty());
+	}
+
+	@Test
+	void testTryInteractiveSnmpPassword() {
+		final MetricsHubCliService metricsHubCliService = new MetricsHubCliService();
+
+		// Initialize a StringBuilder to capture the input password
+		final StringBuilder builder = new StringBuilder();
+
+		// Define a CliPasswordReader that appends the password to the StringBuilder
+		final CliPasswordReader<char[]> cliPasswordReader = (format, args) -> {
+			builder.append(PASSWORD, 0, PASSWORD.length);
+			return PASSWORD;
+		};
+
+		// Test tryInteractiveSnmpPassword method with the CliPasswordReader
+		metricsHubCliService.tryInteractiveSnmpPassword(cliPasswordReader);
+
+		// Make sure the StringBuilder is blank
+		// This confirms that tryInteractiveSnmpPassword hasn't triggered the password reader
+		// because snmpConfigCli is not present
+		assertTrue(builder.isEmpty());
+
+		// Set a new snmpConfigCli in MetricsHubCliService
+		metricsHubCliService.snmpConfigCli = new SnmpConfigCli();
+
+		// Make sure the StringBuilder is blank
+		// This confirms that tryInteractiveSnmpPassword hasn't triggered the password reader
+		// because snmpConfigCli is present but it doesn't define the username
+		assertTrue(builder.isEmpty());
+
+		// Set a username in snmpConfigCli
+		metricsHubCliService.snmpConfigCli.setUsername("snmpUser");
+
+		// Test tryInteractiveSnmpPassword method with the CliPasswordReader
+		metricsHubCliService.tryInteractiveSnmpPassword(cliPasswordReader);
+
+		// Assert that the captured password in the StringBuilder matches the expected value
+		// This confirms that tryInteractiveSnmpPassword has triggered the password reader
+		// because the username is present in snmpConfigCli but the password is null
+		assertEquals(new String(PASSWORD), builder.toString());
+
+		// Set a password in snmpConfigCli
+		metricsHubCliService.snmpConfigCli.setPassword(PASSWORD);
+
+		// Clear the StringBuilder
+		builder.delete(0, PASSWORD.length);
+
+		// Test tryInteractiveSnmpPassword method with the CliPasswordReader
+		metricsHubCliService.tryInteractiveSnmpPassword(cliPasswordReader);
+
+		// Ensure that the StringBuilder is empty after the method call
+		// This confirms that tryInteractiveSnmpPassword hasn't triggered the password reader
+		// because both username and password are already present in snmpConfigCli
 		assertTrue(builder.isEmpty());
 	}
 }
