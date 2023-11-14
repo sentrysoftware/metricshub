@@ -86,7 +86,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 	boolean usageHelpRequested;
 
 	@Parameters(index = "0", paramLabel = "HOSTNAME", description = "Hostname of IP address of the host to monitor")
-	private String hostname;
+	String hostname;
 
 	@Option(
 		names = { "-t", "--type" },
@@ -96,13 +96,13 @@ public class MetricsHubCliService implements Callable<Integer> {
 		description = "Type of the host to monitor (lin, linux, win, windows, mgmt, management, storage, network, aix, hpux, solaris, tru64, vms)",
 		converter = DeviceKindConverter.class
 	)
-	private DeviceKind deviceType;
+	DeviceKind deviceType;
 
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline IPMI Options|@:%n")
-	private IpmiConfigCli ipmiConfigCli;
+	IpmiConfigCli ipmiConfigCli;
 
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline SNMP Options|@:%n")
-	private SnmpConfigCli snmpConfigCli;
+	SnmpConfigCli snmpConfigCli;
 
 	@Option(names = { "-u", "--username" }, order = 2, paramLabel = "USER", description = "Username for authentication")
 	String username;
@@ -124,7 +124,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		paramLabel = "CONNECTOR",
 		description = "Force selected hardware connectors to connect to the host (use @|bold ${ROOT-COMMAND-NAME} -l|@ to get the list of connectors)"
 	)
-	private Set<String> connectors;
+	Set<String> connectors;
 
 	@Option(
 		names = { "-x", "--exclude" },
@@ -133,7 +133,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		paramLabel = "CONNECTOR",
 		description = "Exclude connectors from the automatic detection process (use @|bold ${ROOT-COMMAND-NAME} -l|@ to get the list of connectors)"
 	)
-	private Set<String> excludedConnectors;
+	Set<String> excludedConnectors;
 
 	@Option(
 		names = { "-s", "--sequential" },
@@ -142,10 +142,10 @@ public class MetricsHubCliService implements Callable<Integer> {
 		description = "Force all network calls to be executed in sequential order. (default: ${DEFAULT-VALUE})",
 		help = true
 	)
-	private boolean sequential;
+	boolean sequential;
 
 	@Option(names = "-v", order = 7, description = "Verbose mode (repeat the option to increase verbosity)")
-	private boolean[] verbose;
+	boolean[] verbose;
 
 	@Option(
 		names = { "-l", "--list" },
@@ -161,7 +161,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 
 		// First, process special "list" option
 		if (listConnectors) {
-			return listConnectors(connectorStore);
+			return listAllConnectors(connectorStore, spec.commandLine().getOut());
 		}
 
 		// Validate inputs
@@ -362,12 +362,10 @@ public class MetricsHubCliService implements Callable<Integer> {
 	 * @param passwordReader password reader which displays the prompt text and wait for user's input
 	 */
 	void tryInteractivePasswords(final CliPasswordReader<char[]> passwordReader) {
-
 		tryInteractiveGlobalPassword(passwordReader);
 
 		tryInteractiveIpmiPassword(passwordReader);
 		tryInteractiveSnmpPassword(passwordReader);
-
 		// TODO Implement interactive password for the other protocol configurations
 
 	}
@@ -377,7 +375,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 	 *
 	 * @param passwordReader password reader which displays the prompt text and wait for user's input
 	 */
-	private void tryInteractiveGlobalPassword(final CliPasswordReader<char[]> passwordReader) {
+	void tryInteractiveGlobalPassword(final CliPasswordReader<char[]> passwordReader) {
 		if (username != null && password == null) {
 			password = passwordReader.read("%s password: ", username);
 		}
@@ -399,7 +397,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 	 *
 	 * @param passwordReader password reader which displays the prompt text and wait for user's input
 	 */
-	private void tryInteractiveIpmiPassword(final CliPasswordReader<char[]> passwordReader) {
+	void tryInteractiveIpmiPassword(final CliPasswordReader<char[]> passwordReader) {
 		if (ipmiConfigCli != null && ipmiConfigCli.getUsername() != null && ipmiConfigCli.getPassword() == null) {
 			ipmiConfigCli.setPassword(passwordReader.read("%s password for IPMI: ", ipmiConfigCli.getUsername()));
 		}
@@ -409,9 +407,10 @@ public class MetricsHubCliService implements Callable<Integer> {
 	 * Prints the list of connectors embedded in the engine.
 	 *
 	 * @param connectorStore Wraps all the connectors
+	 * @param printWriter    Prints formatted representations of objects to a text-output stream
 	 * @return success exit code
 	 */
-	private int listConnectors(final ConnectorStore connectorStore) {
+	int listAllConnectors(final ConnectorStore connectorStore, final PrintWriter printWriter) {
 		connectorStore
 			.getStore()
 			.entrySet()
@@ -430,25 +429,22 @@ public class MetricsHubCliService implements Callable<Integer> {
 					.map(DeviceKind::getDisplayName)
 					.collect(Collectors.joining(", "));
 
-				spec
-					.commandLine()
-					.getOut()
-					.println(
-						Ansi
-							.ansi()
-							.fgYellow()
-							.a(connectorName)
-							.fgDefault()
-							.a(" ".repeat(30 - connectorName.length()))
-							.a(Attribute.ITALIC)
-							.fgCyan()
-							.a(String.format("%-20s ", osList))
-							.fgDefault()
-							.a(Attribute.ITALIC_OFF)
-							.a(connector.getConnectorIdentity().getDisplayName())
-							.toString()
-					);
-				spec.commandLine().getOut().flush();
+				printWriter.println(
+					Ansi
+						.ansi()
+						.fgYellow()
+						.a(connectorName)
+						.fgDefault()
+						.a(" ".repeat(30 - connectorName.length()))
+						.a(Attribute.ITALIC)
+						.fgCyan()
+						.a(String.format("%-20s ", osList))
+						.fgDefault()
+						.a(Attribute.ITALIC_OFF)
+						.a(connector.getConnectorIdentity().getDisplayName())
+						.toString()
+				);
+				printWriter.flush();
 			});
 
 		return CommandLine.ExitCode.OK;
