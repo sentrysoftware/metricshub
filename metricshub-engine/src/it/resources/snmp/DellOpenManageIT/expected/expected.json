@@ -155,7 +155,7 @@
     "attributes" : {
       "hw.parent.type" : "enclosure",
       "vendor" : "Intel",
-      "name" : "1.1 (Intel -  Xeon CPU E5-2620 v4 @ 2.10GHz - 4.00 KHz)",
+      "name" : "1.1 (Intel -  Xeon CPU E5-2620 v4 @ 2.10GHz - 4.00 GHz)",
       "connector_id" : "DellOpenManage",
       "model" : " Xeon CPU E5-2620 v4 @ 2.10GHz",
       "id" : "1.1",

@@ -225,7 +225,17 @@ class MappingProcessorTest {
 	void testInterpretNonContextMappingAwk() {
 		final TelemetryManager telemetryManager = new TelemetryManager();
 
-		final List<String> row = List.of("arg1", "arg2", "arg3", "arg4", "arg5", "1000000000");
+		final List<String> row = List.of(
+			"arg1",
+			"arg2",
+			"arg3",
+			"arg4",
+			"arg5",
+			"1074000000",
+			"1000000000",
+			"1048576",
+			"4000"
+		);
 
 		final MappingProcessor mappingProcessor = MappingProcessor
 			.builder()
@@ -238,13 +248,13 @@ class MappingProcessorTest {
 		{
 			final Map<String, String> expected = Map.of(
 				"bytes2HumanFormatBase2",
-				"953.67 MiB",
+				"1.00 GiB",
 				"bytes2HumanFormatBase10",
 				"1.00 GB",
 				"mebiBytes2HumanFormat",
-				"953.67 TiB",
+				"1.00 TiB",
 				"megaHertz2HumanFormat",
-				"1.00 GHz",
+				"4.00 GHz",
 				"join",
 				"arg1 arg2 arg3",
 				"failed",
@@ -257,17 +267,17 @@ class MappingProcessorTest {
 				"bytes2HumanFormatBase2",
 				"${awk::bytes2HumanFormatBase2($6)}",
 				"bytes2HumanFormatBase10",
-				"${awk::bytes2HumanFormatBase10($6)}",
+				"${awk::bytes2HumanFormatBase10($7)}",
 				"mebiBytes2HumanFormat",
-				"${awk::mebiBytes2HumanFormat($6)}",
+				"${awk::mebiBytes2HumanFormat($8)}",
 				"megaHertz2HumanFormat",
-				"${awk::megaHertz2HumanFormat($6)}",
+				"${awk::megaHertz2HumanFormat($9)}",
 				"join",
 				"${awk::join(\" \", $1, $2, $3)}",
 				"failed",
 				"${awk::asdbytes2HumanFormatBase2($6)}",
 				"outOfBounds",
-				"${awk::bytes2HumanFormatBase2($7)}"
+				"${awk::bytes2HumanFormatBase2($100)}"
 			);
 
 			assertEquals(expected, mappingProcessor.interpretNonContextMapping(keyValuePairs));
