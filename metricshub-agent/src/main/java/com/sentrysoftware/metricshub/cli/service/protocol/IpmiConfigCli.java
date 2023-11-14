@@ -64,9 +64,11 @@ public class IpmiConfigCli implements IProtocolConfigCli {
 	private long timeout;
 
 	/**
+	 * This method creates an {@link IpmiConfiguration} for a given username and a given password
+	 *
 	 * @param defaultUsername Username specified at the top level of the CLI (with the --username option)
 	 * @param defaultPassword Password specified at the top level of the CLI (with the --password option)
-	 * @return an IpmiOverLanProtocol instance corresponding to the options specified by the user in the CLI
+	 * @return an {@link IpmiConfiguration} instance corresponding to the options specified by the user in the CLI
 	 */
 	@Override
 	public IConfiguration toProtocol(String defaultUsername, char[] defaultPassword) {

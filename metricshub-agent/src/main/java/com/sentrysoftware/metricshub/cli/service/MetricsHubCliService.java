@@ -3,6 +3,7 @@ package com.sentrysoftware.metricshub.cli.service;
 import com.sentrysoftware.metricshub.agent.helper.ConfigHelper;
 import com.sentrysoftware.metricshub.cli.service.converter.DeviceKindConverter;
 import com.sentrysoftware.metricshub.cli.service.protocol.IpmiConfigCli;
+import com.sentrysoftware.metricshub.cli.service.protocol.SnmpConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.SshConfigCli;
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
@@ -103,6 +104,9 @@ public class MetricsHubCliService implements Callable<Integer> {
 
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline SSH Options|@:%n")
 	SshConfigCli sshConfigCli;
+
+	@ArgGroup(exclusive = false, heading = "%n@|bold,underline SNMP Options|@:%n")
+	SnmpConfigCli snmpConfigCli;
 
 	@Option(names = { "-u", "--username" }, order = 2, paramLabel = "USER", description = "Username for authentication")
 	String username;
@@ -277,7 +281,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 	private Map<Class<? extends IConfiguration>, IConfiguration> buildConfigurations() {
 		// TODO Add other protocols in stream here
 		return Stream
-			.of(ipmiConfigCli, sshConfigCli)
+			.of(ipmiConfigCli, snmpConfigCli, sshConfigCli)
 			.filter(Objects::nonNull)
 			.map(protocolConfig -> protocolConfig.toProtocol(username, password))
 			.collect(Collectors.toMap(IConfiguration::getClass, Function.identity()));
@@ -299,7 +303,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 
 		// No protocol at all?
 		// TODO Add protocol here for each case
-		if (ipmiConfigCli == null && sshConfigCli == null) {
+		if (ipmiConfigCli == null && snmpConfigCli == null && sshConfigCli == null) {
 			throw new ParameterException(
 				spec.commandLine(),
 				"At least one protocol must be specified: --http[s], --ipmi, --snmp, --ssh, --wbem, --wmi, --winrm."
@@ -367,6 +371,8 @@ public class MetricsHubCliService implements Callable<Integer> {
 		tryInteractiveIpmiPassword(passwordReader);
 
 		tryInteractiveSshPassword(passwordReader);
+
+		tryInteractiveSnmpPassword(passwordReader);
 		// TODO Implement interactive password for the other protocol configurations
 
 	}
@@ -379,6 +385,17 @@ public class MetricsHubCliService implements Callable<Integer> {
 	void tryInteractiveGlobalPassword(final CliPasswordReader<char[]> passwordReader) {
 		if (username != null && password == null) {
 			password = passwordReader.read("%s password: ", username);
+		}
+	}
+
+	/**
+	 * Try to start the interactive mode to request and set SNMP password
+	 *
+	 * @param passwordReader password reader which displays the prompt text and wait for user's input
+	 */
+	void tryInteractiveSnmpPassword(final CliPasswordReader<char[]> passwordReader) {
+		if (snmpConfigCli != null && snmpConfigCli.getUsername() != null && snmpConfigCli.getPassword() == null) {
+			snmpConfigCli.setPassword(passwordReader.read("%s password for SNMP: ", snmpConfigCli.getUsername()));
 		}
 	}
 
