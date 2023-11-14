@@ -22,7 +22,10 @@ class SnmpConfigCliTest {
 		snmpConfigCli.setPrivacyPassword(password.toCharArray());
 
 		// Create an SnmpConfiguration and call method toProtocol
-		final SnmpConfiguration snmpConfiguration = snmpConfigCli.toProtocol("user1", password.toCharArray());
+		final SnmpConfiguration snmpConfiguration = (SnmpConfiguration) snmpConfigCli.toProtocol(
+			"user1",
+			password.toCharArray()
+		);
 
 		// Check the resulting snmp configuration
 		assertNotNull(snmpConfiguration);

@@ -13,18 +13,23 @@ class IpmiConfigCliTest {
 		final char[] password = "value".toCharArray();
 		final String username = "username";
 		final int timeout = 120;
+		final IpmiConfiguration ipmiConfigurationExpected = IpmiConfiguration
+			.builder()
+			.username(username)
+			.password(password)
+			.timeout(120L)
+			.bmcKey(new byte[] {})
+			.build();
+
 		ipmiConfigCli.setPassword(password);
 		ipmiConfigCli.setUsername(username);
 		ipmiConfigCli.setTimeout(timeout);
-		assertEquals(
-			IpmiConfiguration.builder().username(username).password(password).timeout(120L).bmcKey(new byte[] {}).build(),
-			ipmiConfigCli.toProtocol(null, null)
-		);
+
+		assertEquals(ipmiConfigurationExpected, ipmiConfigCli.toProtocol(null, null));
+
 		ipmiConfigCli = new IpmiConfigCli();
 		ipmiConfigCli.setTimeout(timeout);
-		assertEquals(
-			IpmiConfiguration.builder().username(username).password(password).timeout(120L).bmcKey(new byte[] {}).build(),
-			ipmiConfigCli.toProtocol(username, password)
-		);
+
+		assertEquals(ipmiConfigurationExpected, ipmiConfigCli.toProtocol(username, password));
 	}
 }
