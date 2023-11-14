@@ -49,9 +49,9 @@ function megaHertz2HumanFormat(str)
 	 	return ""
 	}
 
-	split("Hz;KHz;MHz;GHz;THz;PHz;EHz", units)
+	split("MHz;GHz;THz;PHz;EHz", units)
 
-    for (i = 1; str >= 1000 && i <= 7; i++) {
+    for (i = 1; str >= 1000 && i <= 5; i++) {
         str /= 1000
     }
 
