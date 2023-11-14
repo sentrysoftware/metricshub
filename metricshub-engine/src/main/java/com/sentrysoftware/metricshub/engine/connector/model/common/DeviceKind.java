@@ -30,9 +30,12 @@ public enum DeviceKind {
 	 * Map each OsType with a regular expression that detects it
 	 */
 	private static final Map<DeviceKind, Pattern> DETECTORS = Map.ofEntries(
-		new SimpleEntry<>(LINUX, Pattern.compile("^linux$")),
+		new SimpleEntry<>(LINUX, Pattern.compile("^lin$|^linux$")),
 		new SimpleEntry<>(WINDOWS, Pattern.compile("^(microsoft\\s*)?windows$|^win$|^nt$")),
-		new SimpleEntry<>(OOB, Pattern.compile("^management\\s*card$|^out-of-band$|^out\\s*of\\s*band$|^oob$")),
+		new SimpleEntry<>(
+			OOB,
+			Pattern.compile("^management$|^mgmt$|^management\\s*card$|^out-of-band$|^out\\s*of\\s*band$|^oob$")
+		),
 		new SimpleEntry<>(NETWORK, Pattern.compile("^network$|^switch$")),
 		new SimpleEntry<>(STORAGE, Pattern.compile("^storage$|^san$|^library$|^array$")),
 		new SimpleEntry<>(VMS, Pattern.compile("^vms$|^(hp\\s*)?open\\s*vms$")),
