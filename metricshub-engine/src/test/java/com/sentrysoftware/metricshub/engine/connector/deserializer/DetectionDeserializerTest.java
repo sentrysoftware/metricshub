@@ -157,11 +157,11 @@ class DetectionDeserializerTest extends DeserializerTest {
 	 * Check that the parsing of the given connector is defaulted to local
 	 * connection type
 	 *
-	 * @param connectorName
+	 * @param connectorId
 	 * @throws IOException
 	 */
-	private void testDefaultConnectionType(String connectorName) throws IOException {
-		final Connector detection = getConnector(connectorName);
+	private void testDefaultConnectionType(String connectorId) throws IOException {
+		final Connector detection = getConnector(connectorId);
 
 		assertEquals(
 			Collections.singleton(ConnectionType.LOCAL),
@@ -223,11 +223,11 @@ class DetectionDeserializerTest extends DeserializerTest {
 	/**
 	 * Check that the parsing of the given connector is defaulted to disableAutoDetection (false)
 	 *
-	 * @param connectorName
+	 * @param connectorId
 	 * @throws IOException
 	 */
-	private void testDefaultDisableAutoDetection(String connectorName) throws IOException {
-		final Connector detection = getConnector(connectorName);
+	private void testDefaultDisableAutoDetection(String connectorId) throws IOException {
+		final Connector detection = getConnector(connectorId);
 
 		assertEquals(false, detection.getConnectorIdentity().getDetection().isDisableAutoDetection());
 	}

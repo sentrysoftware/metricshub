@@ -23,7 +23,7 @@ class OrderedSourcesTest {
 
 	private static final JobInfo JOB_INFO = JobInfo
 		.builder()
-		.connectorName("connector")
+		.connectorId("connector")
 		.hostname("test")
 		.monitorType("enclosure")
 		.jobName("discovery")

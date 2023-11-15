@@ -331,10 +331,16 @@ public class MetricsHubCliService implements Callable<Integer> {
 			wmiConfigCli == null
 		) {
 			//CHECKSTYLE:ON
-			throw new ParameterException(
-				spec.commandLine(),
-				"At least one protocol must be specified: --http[s], --ipmi, --snmp, --ssh, --wbem, --wmi, --winrm."
-			);
+			final boolean protocolsNotConfigured = Stream
+				.of(ipmiConfigCli, snmpConfigCli, sshConfigCli, httpConfigCli)
+				.allMatch(Objects::isNull);
+
+			if (protocolsNotConfigured) {
+				throw new ParameterException(
+					spec.commandLine(),
+					"At least one protocol must be specified: --http[s], --ipmi, --snmp, --ssh, --wbem, --wmi, --winrm."
+				);
+			}
 		}
 
 		// Connectors

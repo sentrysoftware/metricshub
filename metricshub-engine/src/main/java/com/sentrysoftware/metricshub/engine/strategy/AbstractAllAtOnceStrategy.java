@@ -167,7 +167,7 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 		final JobInfo jobInfo = JobInfo
 			.builder()
 			.hostname(hostname)
-			.connectorName(currentConnector.getCompiledFilename())
+			.connectorId(currentConnector.getCompiledFilename())
 			.jobName(getJobName())
 			.monitorType(monitorType)
 			.build();
@@ -206,7 +206,7 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 		final String monitorType,
 		final String hostname
 	) {
-		final String connectorId = connector.getConnectorIdentity().getCompiledFilename();
+		final String connectorId = connector.getCompiledFilename();
 
 		// Check the source, so that, we can create the monitor later
 		final String source = mapping.getSource();
@@ -247,7 +247,7 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 				.jobInfo(
 					JobInfo
 						.builder()
-						.connectorName(connectorId)
+						.connectorId(connectorId)
 						.hostname(hostname)
 						.monitorType(monitorType)
 						.jobName(getJobName())
