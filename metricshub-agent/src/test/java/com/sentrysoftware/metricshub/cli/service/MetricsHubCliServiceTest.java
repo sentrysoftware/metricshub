@@ -10,6 +10,7 @@ import com.sentrysoftware.metricshub.cli.service.protocol.HttpConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.IpmiConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.SnmpConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.SshConfigCli;
+import com.sentrysoftware.metricshub.cli.service.protocol.WmiConfigCli;
 import com.sentrysoftware.metricshub.engine.connector.model.Connector;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import com.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
@@ -345,6 +346,61 @@ class MetricsHubCliServiceTest {
 		// Ensure that the StringBuilder is empty after the method call
 		// This confirms that tryInteractiveHttpPassword hasn't triggered the password reader
 		// because both the username and password are already present in httpConfigCli
+		assertTrue(builder.isEmpty());
+	}
+
+	@Test
+	void testTryInteractiveWmiPassword() {
+		final MetricsHubCliService metricsHubCliService = new MetricsHubCliService();
+
+		// Initialize a StringBuilder to capture the input password
+		final StringBuilder builder = new StringBuilder();
+
+		// Define a CliPasswordReader that appends the password to the StringBuilder
+		final CliPasswordReader<char[]> cliPasswordReader = (format, args) -> {
+			builder.append(PASSWORD, 0, PASSWORD.length);
+			return PASSWORD;
+		};
+
+		// Test tryInteractiveWmiPassword method with the CliPasswordReader
+		metricsHubCliService.tryInteractiveWmiPassword(cliPasswordReader);
+
+		// Make sure the StringBuilder is blank
+		// This confirms that tryInteractiveWmiPassword hasn't triggered the password reader
+		// because wmiConfigCli is not present
+		assertTrue(builder.isEmpty());
+
+		// Set a new wmiConfigCli in MetricsHubCliService
+		metricsHubCliService.wmiConfigCli = new WmiConfigCli();
+
+		// Make sure the StringBuilder is blank
+		// This confirms that tryInteractiveWmiPassword hasn't triggered the password reader
+		// because wmiConfigCli is present but it doesn't define the username
+		assertTrue(builder.isEmpty());
+
+		// Set a username in wmiConfigCli
+		metricsHubCliService.wmiConfigCli.setUsername("wmiUser");
+
+		// Test tryInteractiveWmiPassword method with the CliPasswordReader
+		metricsHubCliService.tryInteractiveWmiPassword(cliPasswordReader);
+
+		// Assert that the captured password in the StringBuilder matches the expected value
+		// This confirms that tryInteractiveWmiPassword has triggered the password reader
+		// because the username is present in wmiConfigCli but the password is null
+		assertEquals(new String(PASSWORD), builder.toString());
+
+		// Set a password in wmiConfigCli
+		metricsHubCliService.wmiConfigCli.setPassword(PASSWORD);
+
+		// Clear the StringBuilder
+		builder.delete(0, PASSWORD.length);
+
+		// Test tryInteractiveWmiPassword method with the CliPasswordReader
+		metricsHubCliService.tryInteractiveWmiPassword(cliPasswordReader);
+
+		// Ensure that the StringBuilder is empty after the method call
+		// This confirms that tryInteractiveWmiPassword hasn't triggered the password reader
+		// because both the username and password are already present in wmiConfigCli
 		assertTrue(builder.isEmpty());
 	}
 }
