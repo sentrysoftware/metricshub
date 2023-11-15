@@ -6,7 +6,7 @@ This is a multi-module project:
 
 * **/**: the root (parent of all submodules)
 * **metricshub-engine**: the brain, the heart of this project
-* **metricshub-agent**: the MetrricsHub Agent which includes a CLI
+* **metricshub-agent**: the MetricsHub Agent which includes a CLI
 * **metricshub-windows**: builds the MSI package
 * **metricshub-rhel**: builds the RPM package
 * **metricshub-debian**: builds the Debian package

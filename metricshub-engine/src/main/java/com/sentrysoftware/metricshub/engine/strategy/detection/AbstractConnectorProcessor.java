@@ -280,20 +280,20 @@ public abstract class AbstractConnectorProcessor {
 	/**
 	 * Return true if the name of the {@link Connector} is in the set of connector names
 	 * @param connector
-	 * @param connectorNameSet
+	 * @param connectorIdSet
 	 * @return boolean value
 	 */
 	protected boolean isConnectorContainedInSet(
 		@NonNull final Connector connector,
-		@NonNull final Set<String> connectorNameSet
+		@NonNull final Set<String> connectorIdSet
 	) {
 		final ConnectorIdentity connectorIdentity = connector.getConnectorIdentity();
 		if (connectorIdentity == null) {
 			return false;
 		}
 
-		final String connectorName = connectorIdentity.getCompiledFilename();
-		return connectorName != null && connectorNameSet.contains(connectorName);
+		final String connectorId = connectorIdentity.getCompiledFilename();
+		return connectorId != null && connectorIdSet.contains(connectorId);
 	}
 
 	/**
