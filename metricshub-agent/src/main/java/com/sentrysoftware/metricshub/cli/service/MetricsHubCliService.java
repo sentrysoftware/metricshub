@@ -6,6 +6,7 @@ import com.sentrysoftware.metricshub.cli.service.protocol.HttpConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.IpmiConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.SnmpConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.SshConfigCli;
+import com.sentrysoftware.metricshub.cli.service.protocol.WinRmConfigCli;
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.IConfiguration;
@@ -112,6 +113,9 @@ public class MetricsHubCliService implements Callable<Integer> {
 
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline HTTP Options|@:%n")
 	HttpConfigCli httpConfigCli;
+
+	@ArgGroup(exclusive = false, heading = "%n@|bold,underline WinRM Options|@:%n")
+	WinRmConfigCli winRmConfigCli;
 
 	@Option(names = { "-u", "--username" }, order = 2, paramLabel = "USER", description = "Username for authentication")
 	String username;
@@ -296,7 +300,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 	private Map<Class<? extends IConfiguration>, IConfiguration> buildConfigurations() {
 		// TODO Add other protocols in stream here
 		return Stream
-			.of(ipmiConfigCli, snmpConfigCli, sshConfigCli, httpConfigCli)
+			.of(ipmiConfigCli, snmpConfigCli, sshConfigCli, httpConfigCli, winRmConfigCli)
 			.filter(Objects::nonNull)
 			.map(protocolConfig -> protocolConfig.toProtocol(username, password))
 			.collect(Collectors.toMap(IConfiguration::getClass, Function.identity()));
@@ -319,7 +323,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		// No protocol at all?
 		// TODO Add protocol here for each case
 		final boolean protocolsNotConfigured = Stream
-			.of(ipmiConfigCli, snmpConfigCli, sshConfigCli, httpConfigCli)
+			.of(ipmiConfigCli, snmpConfigCli, sshConfigCli, httpConfigCli, winRmConfigCli)
 			.allMatch(Objects::isNull);
 		if (protocolsNotConfigured) {
 			throw new ParameterException(
@@ -393,6 +397,8 @@ public class MetricsHubCliService implements Callable<Integer> {
 		tryInteractiveSnmpPassword(passwordReader);
 
 		tryInteractiveHttpPassword(passwordReader);
+
+		tryInteractiveWinRmPassword(passwordReader);
 		// TODO Implement interactive password for the other protocol configurations
 
 	}
@@ -449,6 +455,17 @@ public class MetricsHubCliService implements Callable<Integer> {
 	void tryInteractiveHttpPassword(final CliPasswordReader<char[]> passwordReader) {
 		if (httpConfigCli != null && httpConfigCli.getUsername() != null && httpConfigCli.getPassword() == null) {
 			httpConfigCli.setPassword(passwordReader.read("%s password for HTTP: ", httpConfigCli.getUsername()));
+		}
+	}
+
+	/**
+	 * Try to start the interactive mode to request and set WinRM password
+	 *
+	 * @param passwordReader password reader which displays the prompt text and wait for user's input
+	 */
+	void tryInteractiveWinRmPassword(final CliPasswordReader<char[]> passwordReader) {
+		if (winRmConfigCli != null && winRmConfigCli.getUsername() != null && winRmConfigCli.getPassword() == null) {
+			winRmConfigCli.setPassword(passwordReader.read("%s password for WinRM: ", winRmConfigCli.getUsername()));
 		}
 	}
 
