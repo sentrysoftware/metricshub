@@ -318,7 +318,10 @@ public class MetricsHubCliService implements Callable<Integer> {
 
 		// No protocol at all?
 		// TODO Add protocol here for each case
-		if (ipmiConfigCli == null && snmpConfigCli == null && sshConfigCli == null && httpConfigCli == null) {
+		final boolean protocolsNotConfigured = Stream
+			.of(ipmiConfigCli, snmpConfigCli, sshConfigCli, httpConfigCli)
+			.allMatch(Objects::isNull);
+		if (protocolsNotConfigured) {
 			throw new ParameterException(
 				spec.commandLine(),
 				"At least one protocol must be specified: --http[s], --ipmi, --snmp, --ssh, --wbem, --wmi, --winrm."
