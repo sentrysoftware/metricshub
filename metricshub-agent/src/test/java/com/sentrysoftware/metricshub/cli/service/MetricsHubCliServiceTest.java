@@ -10,6 +10,7 @@ import com.sentrysoftware.metricshub.cli.service.protocol.HttpConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.IpmiConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.SnmpConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.SshConfigCli;
+import com.sentrysoftware.metricshub.cli.service.protocol.WinRmConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.WmiConfigCli;
 import com.sentrysoftware.metricshub.engine.connector.model.Connector;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
@@ -401,6 +402,61 @@ class MetricsHubCliServiceTest {
 		// Ensure that the StringBuilder is empty after the method call
 		// This confirms that tryInteractiveWmiPassword hasn't triggered the password reader
 		// because both the username and password are already present in wmiConfigCli
+		assertTrue(builder.isEmpty());
+	}
+
+	@Test
+	void testTryInteractiveWinRmPassword() {
+		final MetricsHubCliService metricsHubCliService = new MetricsHubCliService();
+
+		// Initialize a StringBuilder to capture the input password
+		final StringBuilder builder = new StringBuilder();
+
+		// Define a CliPasswordReader that appends the password to the StringBuilder
+		final CliPasswordReader<char[]> cliPasswordReader = (format, args) -> {
+			builder.append(PASSWORD, 0, PASSWORD.length);
+			return PASSWORD;
+		};
+
+		// Test tryInteractiveWinRmPassword method with the CliPasswordReader
+		metricsHubCliService.tryInteractiveWinRmPassword(cliPasswordReader);
+
+		// Make sure the StringBuilder is blank
+		// This confirms that tryInteractiveWinRmPassword hasn't triggered the password reader
+		// because winRmConfigCli is not present
+		assertTrue(builder.isEmpty());
+
+		// Set a new winRmConfigCli in MetricsHubCliService
+		metricsHubCliService.winRmConfigCli = new WinRmConfigCli();
+
+		// Make sure the StringBuilder is blank
+		// This confirms that tryInteractiveWinRmPassword hasn't triggered the password reader
+		// because winRmConfigCli is present but it doesn't define the username
+		assertTrue(builder.isEmpty());
+
+		// Set a username in winRmConfigCli
+		metricsHubCliService.winRmConfigCli.setUsername("winRmUser");
+
+		// Test tryInteractiveWinRmPassword method with the CliPasswordReader
+		metricsHubCliService.tryInteractiveWinRmPassword(cliPasswordReader);
+
+		// Assert that the captured password in the StringBuilder matches the expected value
+		// This confirms that tryInteractiveWinRmPassword has triggered the password reader
+		// because the username is present in winRmConfigCli but the password is null
+		assertEquals(new String(PASSWORD), builder.toString());
+
+		// Set a password in winRmConfigCli
+		metricsHubCliService.winRmConfigCli.setPassword(PASSWORD);
+
+		// Clear the StringBuilder
+		builder.delete(0, PASSWORD.length);
+
+		// Test tryInteractiveWinRmPassword method with the CliPasswordReader
+		metricsHubCliService.tryInteractiveWinRmPassword(cliPasswordReader);
+
+		// Ensure that the StringBuilder is empty after the method call
+		// This confirms that tryInteractiveWinRmPassword hasn't triggered the password reader
+		// because both the username and password are already present in winRmConfigCli
 		assertTrue(builder.isEmpty());
 	}
 }
