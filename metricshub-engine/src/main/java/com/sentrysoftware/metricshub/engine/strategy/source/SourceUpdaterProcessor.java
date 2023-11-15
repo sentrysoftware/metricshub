@@ -51,7 +51,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 
 	private ISourceProcessor sourceProcessor;
 	private TelemetryManager telemetryManager;
-	private String connectorName;
+	private String connectorId;
 	private Map<String, String> attributes;
 
 	@Override
@@ -163,7 +163,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 		// Get the source table defining where we are going to fetch the value
 		final Optional<SourceTable> maybeSourceTable = SourceTable.lookupSourceTable(
 			foreignSourceKey,
-			connectorName,
+			connectorId,
 			telemetryManager
 		);
 
@@ -283,7 +283,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 		return replaceSourceReferenceContent(
 			value,
 			telemetryManager,
-			connectorName,
+			connectorId,
 			source.getClass().getSimpleName(),
 			source.getKey()
 		);
@@ -311,7 +311,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 	 *
 	 * @param value            The value containing source key such as ${source::monitors.cpu.discovery.sources.source1}
 	 * @param telemetryManager The current {@link TelemetryManager} instance wrapping the host configuration and the host monitoring instance
-	 * @param connectorName    The connector's name
+	 * @param connectorId      The connector's identifier
 	 * @param operationType    The type of the operation required for debug purpose. E.g. Substring, SnmpGetTableSource, ...
 	 * @param operationKey     The unique key of the operation used required for debug purpose
 	 * @return {@link String} value
@@ -319,7 +319,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 	public static String replaceSourceReferenceContent(
 		final String value,
 		final TelemetryManager telemetryManager,
-		final String connectorName,
+		final String connectorId,
 		final String operationType,
 		final Object operationKey
 	) {
@@ -331,7 +331,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 			final String sourceKey = matcher.group();
 			final String sourceReferenceContent = extractSourceReferenceContent(
 				telemetryManager,
-				connectorName,
+				connectorId,
 				operationType,
 				operationKey,
 				sourceKey
@@ -348,7 +348,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 	 * Extract the source reference content
 	 *
 	 * @param telemetryManager The current {@link TelemetryManager} instance wrapping the host configuration and the host monitoring instance
-	 * @param connectorId    The connector defining all the operations we currently try to interpret and execute
+	 * @param connectorId      The connector defining all the operations we currently try to interpret and execute
 	 * @param operationType    The type of the operation required for debug purpose. E.g. Substring, SnmpGetTableSource, ...
 	 * @param operationKey     The unique key of the operation required for debug purpose
 	 * @param sourceRefKey     The unique id of the source to extract
@@ -447,7 +447,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 	private SourceTable processExecuteForEachEntryOf(final Source source, final String sourceTableKey) {
 		final Optional<SourceTable> maybeSourceTable = SourceTable.lookupSourceTable(
 			sourceTableKey,
-			connectorName,
+			connectorId,
 			telemetryManager
 		);
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();

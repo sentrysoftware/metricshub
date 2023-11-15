@@ -174,7 +174,7 @@ public class MappingProcessor {
 			final String updatedValue = SourceUpdaterProcessor.replaceSourceReferenceContent(
 				value,
 				telemetryManager,
-				jobInfo.getConnectorName(),
+				jobInfo.getConnectorId(),
 				"mapping",
 				key
 			);
@@ -1175,7 +1175,7 @@ public class MappingProcessor {
 				final String attributeValue = SourceUpdaterProcessor.replaceSourceReferenceContent(
 					value,
 					telemetryManager,
-					jobInfo.getConnectorName(),
+					jobInfo.getConnectorId(),
 					"mapping",
 					attributeKey
 				);

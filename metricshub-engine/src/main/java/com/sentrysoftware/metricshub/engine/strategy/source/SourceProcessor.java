@@ -59,7 +59,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SourceProcessor implements ISourceProcessor {
 
 	private TelemetryManager telemetryManager;
-	private String connectorName;
+	private String connectorId;
 	private MatsyaClientsExecutor matsyaClientsExecutor;
 
 	@WithSpan("Source Copy Exec")
@@ -88,7 +88,7 @@ public class SourceProcessor implements ISourceProcessor {
 
 		final SourceTable sourceTable = new SourceTable();
 
-		final Optional<SourceTable> maybeOrigin = SourceTable.lookupSourceTable(copyFrom, connectorName, telemetryManager);
+		final Optional<SourceTable> maybeOrigin = SourceTable.lookupSourceTable(copyFrom, connectorId, telemetryManager);
 
 		if (maybeOrigin.isEmpty()) {
 			return SourceTable.empty();
@@ -110,7 +110,7 @@ public class SourceProcessor implements ISourceProcessor {
 			sourceTable.setRawData(origin.getRawData());
 		}
 
-		logSourceCopy(connectorName, copyFrom, copySource.getKey(), sourceTable, hostname);
+		logSourceCopy(connectorId, copyFrom, copySource.getKey(), sourceTable, hostname);
 
 		return sourceTable;
 	}
@@ -149,8 +149,8 @@ public class SourceProcessor implements ISourceProcessor {
 					.hostname(hostname)
 					.method(httpSource.getMethod().toString())
 					.url(httpSource.getUrl())
-					.header(httpSource.getHeader(), connectorName, hostname)
-					.body(httpSource.getBody(), connectorName, hostname)
+					.header(httpSource.getHeader(), connectorId, hostname)
+					.body(httpSource.getBody(), connectorId, hostname)
 					.resultContent(httpSource.getResultContent())
 					.authenticationToken(httpSource.getAuthenticationToken())
 					.httpConfiguration(httpConfiguration)
@@ -163,7 +163,7 @@ public class SourceProcessor implements ISourceProcessor {
 			}
 		} catch (Exception e) {
 			logSourceError(
-				connectorName,
+				connectorId,
 				httpSource.getKey(),
 				String.format("HTTP %s %s", httpSource.getMethod(), httpSource.getUrl()),
 				hostname,
@@ -233,7 +233,7 @@ public class SourceProcessor implements ISourceProcessor {
 				log.error("Hostname {} - IPMI-over-LAN request returned <null> result. Returning an empty table.", hostname);
 			}
 		} catch (Exception e) {
-			logSourceError(connectorName, sourceKey, "IPMI-over-LAN", hostname, e);
+			logSourceError(connectorId, sourceKey, "IPMI-over-LAN", hostname, e);
 		}
 
 		return SourceTable.empty();
@@ -291,7 +291,7 @@ public class SourceProcessor implements ISourceProcessor {
 
 			log.debug("Hostname {} - IPMI OS command: {}:\n{}", hostname, fruCommand, fruResult);
 		} catch (Exception e) {
-			logSourceError(connectorName, sourceKey, String.format("IPMI OS command: %s.", fruCommand), hostname, e);
+			logSourceError(connectorId, sourceKey, String.format("IPMI OS command: %s.", fruCommand), hostname, e);
 
 			Thread.currentThread().interrupt();
 
@@ -310,7 +310,7 @@ public class SourceProcessor implements ISourceProcessor {
 			}
 			log.debug("Hostname {} - IPMI OS command: {}:\n{}", hostname, sdrCommand, sensorResult);
 		} catch (Exception e) {
-			logSourceError(connectorName, sourceKey, String.format("IPMI OS command: %s.", sdrCommand), hostname, e);
+			logSourceError(connectorId, sourceKey, String.format("IPMI OS command: %s.", sdrCommand), hostname, e);
 
 			Thread.currentThread().interrupt();
 
@@ -408,7 +408,7 @@ public class SourceProcessor implements ISourceProcessor {
 			result = matsyaClientsExecutor.executeWql(hostname, winConfiguration, wmiQuery, namespace);
 		} catch (Exception exception) {
 			logSourceError(
-				connectorName,
+				connectorId,
 				sourceKey,
 				String.format(
 					"IPMI WMI query=%s, Hostname=%s, Username=%s, Timeout=%d, Namespace=%s",
@@ -485,7 +485,7 @@ public class SourceProcessor implements ISourceProcessor {
 				.build();
 		} catch (Exception e) {
 			logSourceError(
-				connectorName,
+				connectorId,
 				osCommandSource.getKey(),
 				String.format("OS command: %s.", osCommandSource.getCommandLine()),
 				hostname,
@@ -545,7 +545,7 @@ public class SourceProcessor implements ISourceProcessor {
 			}
 		} catch (Exception e) { // NOSONAR on interruption
 			logSourceError(
-				connectorName,
+				connectorId,
 				snmpGetSource.getKey(),
 				String.format("SNMP Get: %s.", snmpGetSource.getOid()),
 				hostname,
@@ -610,7 +610,7 @@ public class SourceProcessor implements ISourceProcessor {
 			return sourceTable;
 		} catch (Exception e) { // NOSONAR on interruption
 			logSourceError(
-				connectorName,
+				connectorId,
 				snmpTableSource.getKey(),
 				String.format("SNMP Table: %s", snmpTableSource.getOid()),
 				hostname,
@@ -656,7 +656,7 @@ public class SourceProcessor implements ISourceProcessor {
 
 		final Optional<SourceTable> maybeStaticTable = SourceTable.lookupSourceTable(
 			staticValue,
-			connectorName,
+			connectorId,
 			telemetryManager
 		);
 
@@ -704,7 +704,7 @@ public class SourceProcessor implements ISourceProcessor {
 
 		final Optional<SourceTable> maybeLeftTable = SourceTable.lookupSourceTable(
 			tableJoinSource.getLeftTable(),
-			connectorName,
+			connectorId,
 			telemetryManager
 		);
 		if (maybeLeftTable.isEmpty()) {
@@ -727,7 +727,7 @@ public class SourceProcessor implements ISourceProcessor {
 
 		final Optional<SourceTable> maybeRightTable = SourceTable.lookupSourceTable(
 			tableJoinSource.getRightTable(),
-			connectorName,
+			connectorId,
 			telemetryManager
 		);
 		if (maybeRightTable.isEmpty()) {
@@ -837,7 +837,7 @@ public class SourceProcessor implements ISourceProcessor {
 
 		final List<SourceTable> sourceTablesToConcat = unionTables
 			.stream()
-			.map(key -> SourceTable.lookupSourceTable(key, connectorName, telemetryManager))
+			.map(key -> SourceTable.lookupSourceTable(key, connectorId, telemetryManager))
 			.filter(Optional::isPresent)
 			.map(Optional::get)
 			.collect(Collectors.toList()); //NOSONAR
@@ -915,7 +915,7 @@ public class SourceProcessor implements ISourceProcessor {
 			return SourceTable.builder().table(table).build();
 		} catch (Exception e) {
 			logSourceError(
-				connectorName,
+				connectorId,
 				wbemSource.getKey(),
 				String.format(
 					"WBEM query=%s, Username=%s, Timeout=%d, Namespace=%s",
@@ -948,7 +948,7 @@ public class SourceProcessor implements ISourceProcessor {
 
 		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(sourceNamespace)) {
 			// The namespace should be detected correctly in the detection strategy phase
-			return telemetryManager.getHostProperties().getConnectorNamespace(connectorName).getAutomaticWmiNamespace();
+			return telemetryManager.getHostProperties().getConnectorNamespace(connectorId).getAutomaticWmiNamespace();
 		}
 
 		return sourceNamespace;
@@ -1004,7 +1004,7 @@ public class SourceProcessor implements ISourceProcessor {
 			return SourceTable.builder().table(table).build();
 		} catch (Exception e) {
 			logSourceError(
-				connectorName,
+				connectorId,
 				wmiSource.getKey(),
 				String.format(
 					"WMI query=%s, Username=%s, Timeout=%d, Namespace=%s",
@@ -1024,14 +1024,14 @@ public class SourceProcessor implements ISourceProcessor {
 	/**
 	 * Log the given throwable
 	 *
-	 * @param connectorName  The name of the connector
-	 * @param sourceKey      The key of the source
-	 * @param hostname       The host's hostname
-	 * @param context        Additional information about the operation
-	 * @param throwable      The catched throwable to log
+	 * @param connectorId  The identifier of the connector
+	 * @param sourceKey    The key of the source
+	 * @param hostname     The host's hostname
+	 * @param context      Additional information about the operation
+	 * @param throwable    The catched throwable to log
 	 */
 	private static void logSourceError(
-		final String connectorName,
+		final String connectorId,
 		final String sourceKey,
 		final String context,
 		final String hostname,
@@ -1044,7 +1044,7 @@ public class SourceProcessor implements ISourceProcessor {
 				hostname,
 				sourceKey,
 				context,
-				connectorName,
+				connectorId,
 				StringHelper.getStackMessages(throwable)
 			);
 		}
@@ -1056,7 +1056,7 @@ public class SourceProcessor implements ISourceProcessor {
 					hostname,
 					sourceKey,
 					context,
-					connectorName
+					connectorId
 				),
 				throwable
 			);
@@ -1066,14 +1066,14 @@ public class SourceProcessor implements ISourceProcessor {
 	/**
 	 * Log the source copy data
 	 *
-	 * @param connectorName   the name of the connector defining the source
+	 * @param connectorId     the identifier of the connector defining the source
 	 * @param parentSourceKey the parent source key referenced in the source copy
 	 * @param childSourceKey  the source key referencing the parent source
 	 * @param sourceTable     the source's result we wish to log
 	 * @param hostname        the host's name
 	 */
 	private static void logSourceCopy(
-		final String connectorName,
+		final String connectorId,
 		final String parentSourceKey,
 		final String childSourceKey,
 		final SourceTable sourceTable,
@@ -1090,7 +1090,7 @@ public class SourceProcessor implements ISourceProcessor {
 				hostname,
 				parentSourceKey,
 				childSourceKey,
-				connectorName,
+				connectorId,
 				sourceTable.getRawData()
 			);
 			return;
@@ -1102,7 +1102,7 @@ public class SourceProcessor implements ISourceProcessor {
 				hostname,
 				parentSourceKey,
 				childSourceKey,
-				connectorName,
+				connectorId,
 				TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable())
 			);
 			return;
@@ -1113,7 +1113,7 @@ public class SourceProcessor implements ISourceProcessor {
 			hostname,
 			parentSourceKey,
 			childSourceKey,
-			connectorName,
+			connectorId,
 			sourceTable.getRawData(),
 			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable())
 		);
@@ -1130,7 +1130,7 @@ public class SourceProcessor implements ISourceProcessor {
 		if (namespace == null) {
 			namespace = WMI_DEFAULT_NAMESPACE;
 		} else if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(namespace)) {
-			namespace = telemetryManager.getHostProperties().getConnectorNamespace(connectorName).getAutomaticWbemNamespace();
+			namespace = telemetryManager.getHostProperties().getConnectorNamespace(connectorId).getAutomaticWbemNamespace();
 		}
 		return namespace;
 	}

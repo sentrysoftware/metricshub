@@ -29,7 +29,7 @@ public class ForceSerializationHelper {
 	 *
 	 * @param executable       the supplier executable function, e.g. visiting a criterion or a source
 	 * @param telemetryManager wraps the host's properties where the connector namespace holds the lock
-	 * @param connectorName    the name of the connector (criterion, source or compute) belongs to
+	 * @param connectorId      the identifier of the connector (criterion, source or compute) belongs to
 	 * @param objToProcess     the object to process used for debug purpose
 	 * @param description      the object to process description used in the debug messages
 	 * @param defaultValue     the default value to return in case of any glitch
@@ -38,12 +38,12 @@ public class ForceSerializationHelper {
 	public static <T> T forceSerialization(
 		@NonNull Supplier<T> executable,
 		@NonNull TelemetryManager telemetryManager,
-		@NonNull final String connectorName,
+		@NonNull final String connectorId,
 		final Object objToProcess,
 		@NonNull final String description,
 		@NonNull final T defaultValue
 	) {
-		final ReentrantLock forceSerializationLock = getForceSerializationLock(telemetryManager, connectorName);
+		final ReentrantLock forceSerializationLock = getForceSerializationLock(telemetryManager, connectorId);
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
 		final boolean isLockAcquired;
@@ -56,7 +56,7 @@ public class ForceSerializationHelper {
 				hostname,
 				description,
 				objToProcess,
-				connectorName
+				connectorId
 			);
 
 			log.debug(HOSTNAME_EXCEPTION_MESSAGE, hostname, e);
@@ -79,7 +79,7 @@ public class ForceSerializationHelper {
 				hostname,
 				description,
 				objToProcess,
-				connectorName
+				connectorId
 			);
 
 			return defaultValue;
@@ -89,17 +89,11 @@ public class ForceSerializationHelper {
 	/**
 	 * Get the Connector Namespace force serialization lock
 	 *
-	 *	@param telemetryManager           Wraps the host's properties where the connector namespace holds the lock
-	 * @param connectorCompiledFilename the connector compiled filename we currently process its criteria/sources/computes
+	 * @param telemetryManager Wraps the host's properties where the connector namespace holds the lock
+	 * @param connectorId       the connector identifier we currently process its criteria/sources/computes
 	 * @return {@link ReentrantLock} instance. never null.
 	 */
-	static ReentrantLock getForceSerializationLock(
-		final TelemetryManager telemetryManager,
-		final String connectorCompiledFilename
-	) {
-		return telemetryManager
-			.getHostProperties()
-			.getConnectorNamespace(connectorCompiledFilename)
-			.getForceSerializationLock();
+	static ReentrantLock getForceSerializationLock(final TelemetryManager telemetryManager, final String connectorId) {
+		return telemetryManager.getHostProperties().getConnectorNamespace(connectorId).getForceSerializationLock();
 	}
 }

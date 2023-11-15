@@ -86,7 +86,7 @@ public abstract class AbstractStrategy implements IStrategy {
 		final Map<String, String> attributes,
 		final JobInfo jobInfo
 	) {
-		final String connectorName = jobInfo.getConnectorName();
+		final String connectorId = jobInfo.getConnectorId();
 		final String monitorType = jobInfo.getMonitorType();
 		final String hostname = jobInfo.getHostname();
 
@@ -94,7 +94,7 @@ public abstract class AbstractStrategy implements IStrategy {
 			log.debug(
 				"Hostname {} - No sources found from connector {} with monitor {}.",
 				hostname,
-				connectorName,
+				connectorId,
 				monitorType
 			);
 			return;
@@ -105,11 +105,11 @@ public abstract class AbstractStrategy implements IStrategy {
 		for (final Source source : sources) {
 			final String sourceKey = source.getKey();
 
-			logBeginOperation(SOURCE, source, sourceKey, connectorName, hostname);
+			logBeginOperation(SOURCE, source, sourceKey, connectorId, hostname);
 
 			final SourceTable previousSourceTable = telemetryManager
 				.getHostProperties()
-				.getConnectorNamespace(connectorName)
+				.getConnectorNamespace(connectorId)
 				.getSourceTable(sourceKey);
 
 			// Execute the source and retry the operation
@@ -122,30 +122,27 @@ public abstract class AbstractStrategy implements IStrategy {
 				.withDescription(String.format("%s [%s]", SOURCE, sourceKey))
 				.withHostname(hostname)
 				.build()
-				.run(() -> runSource(connectorName, attributes, source, previousSourceTable));
+				.run(() -> runSource(connectorId, attributes, source, previousSourceTable));
 
 			if (sourceTable == null) {
 				log.warn(
 					"Hostname {} - Received null source table for Source key {} - Connector {} - Monitor {}.",
 					hostname,
 					sourceKey,
-					connectorName,
+					connectorId,
 					monitorType
 				);
 				continue;
 			}
 
 			// log the source table
-			logSourceTable(SOURCE, source.getClass().getSimpleName(), sourceKey, connectorName, sourceTable, hostname);
+			logSourceTable(SOURCE, source.getClass().getSimpleName(), sourceKey, connectorId, sourceTable, hostname);
 
 			final List<Compute> computes = source.getComputes();
 
 			// Add the source table and stop if no compute is found
 			if (computes == null || computes.isEmpty()) {
-				telemetryManager
-					.getHostProperties()
-					.getConnectorNamespace(connectorName)
-					.addSourceTable(sourceKey, sourceTable);
+				telemetryManager.getHostProperties().getConnectorNamespace(connectorId).addSourceTable(sourceKey, sourceTable);
 				continue;
 			}
 
@@ -153,7 +150,7 @@ public abstract class AbstractStrategy implements IStrategy {
 				.builder()
 				.sourceKey(sourceKey)
 				.sourceTable(sourceTable)
-				.connectorName(connectorName)
+				.connectorId(connectorId)
 				.hostname(hostname)
 				.matsyaClientsExecutor(matsyaClientsExecutor)
 				.telemetryManager(telemetryManager)
@@ -163,7 +160,7 @@ public abstract class AbstractStrategy implements IStrategy {
 				.builder()
 				.computeProcessor(computeProcessor)
 				.attributes(attributes)
-				.connectorName(connectorName)
+				.connectorId(connectorId)
 				.telemetryManager(telemetryManager)
 				.build();
 
@@ -174,7 +171,7 @@ public abstract class AbstractStrategy implements IStrategy {
 
 				final String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, index);
 
-				logBeginOperation(COMPUTE, compute, computeKey, connectorName, hostname);
+				logBeginOperation(COMPUTE, compute, computeKey, connectorId, hostname);
 
 				// process the compute
 				compute.accept(computeUpdaterProcessor);
@@ -184,7 +181,7 @@ public abstract class AbstractStrategy implements IStrategy {
 					COMPUTE,
 					compute.getClass().getSimpleName(),
 					computeKey,
-					connectorName,
+					connectorId,
 					computeProcessor.getSourceTable(),
 					hostname
 				);
@@ -192,7 +189,7 @@ public abstract class AbstractStrategy implements IStrategy {
 
 			telemetryManager
 				.getHostProperties()
-				.getConnectorNamespace(connectorName)
+				.getConnectorNamespace(connectorId)
 				.addSourceTable(sourceKey, computeProcessor.getSourceTable());
 		}
 	}
@@ -212,22 +209,22 @@ public abstract class AbstractStrategy implements IStrategy {
 	 * (ForceSerialization) The execution will be performed through
 	 * <code>forceSerialization(...)</code> method.
 	 *
-	 * @param connectorCompiledFilename The connector compiled filename we currently process
-	 * @param attributes                Key-value pairs of the monitor's attributes used
-	 *                                  in the mono instance processing
-	 * @param source                    The source we want to run
-	 * @param previousSourceTable       The source result produced in the past
+	 * @param connectorId         The connector compiled filename (identifier) we currently process
+	 * @param attributes          Key-value pairs of the monitor's attributes used
+	 *                            in the mono instance processing
+	 * @param source              The source we want to run
+	 * @param previousSourceTable The source result produced in the past
 	 * @return new {@link SourceTable} instance
 	 */
 	private SourceTable runSource(
-		final String connectorCompiledFilename,
+		final String connectorId,
 		final Map<String, String> attributes,
 		final Source source,
 		final SourceTable previousSourceTable
 	) {
 		final ISourceProcessor sourceProcessor = SourceProcessor
 			.builder()
-			.connectorName(connectorCompiledFilename)
+			.connectorId(connectorId)
 			.matsyaClientsExecutor(matsyaClientsExecutor)
 			.telemetryManager(telemetryManager)
 			.build();
@@ -236,7 +233,7 @@ public abstract class AbstractStrategy implements IStrategy {
 			source.accept(
 				SourceUpdaterProcessor
 					.builder()
-					.connectorName(connectorCompiledFilename)
+					.connectorId(connectorId)
 					.sourceProcessor(sourceProcessor)
 					.telemetryManager(telemetryManager)
 					.attributes(attributes)
@@ -252,7 +249,7 @@ public abstract class AbstractStrategy implements IStrategy {
 				ForceSerializationHelper.forceSerialization(
 					executable,
 					telemetryManager,
-					connectorCompiledFilename,
+					connectorId,
 					source,
 					SOURCE,
 					SourceTable.empty()
@@ -277,14 +274,14 @@ public abstract class AbstractStrategy implements IStrategy {
 	 * @param operationTag  the tag of the operation. E.g. source or compute
 	 * @param execution     the source or the compute we want to log
 	 * @param executionKey  the source or the compute unique key
-	 * @param connectorName the connector file name
+	 * @param connectorId   the connector identifier
 	 * @param hostname      the hostname
 	 */
 	private static <T> void logBeginOperation(
 		final String operationTag,
 		final T execution,
 		final String executionKey,
-		final String connectorName,
+		final String connectorId,
 		final String hostname
 	) {
 		if (!log.isInfoEnabled()) {
@@ -297,7 +294,7 @@ public abstract class AbstractStrategy implements IStrategy {
 			operationTag,
 			execution.getClass().getSimpleName(),
 			executionKey,
-			connectorName,
+			connectorId,
 			execution.toString()
 		);
 	}
@@ -308,7 +305,7 @@ public abstract class AbstractStrategy implements IStrategy {
 	 * @param operationTag   the tag of the operation. E.g. source or compute
 	 * @param executionClassName the source or the compute class name we want to log
 	 * @param executionKey   the key of the source or the compute we want to log
-	 * @param connectorName  the compiled file name of the connector
+	 * @param connectorId    the compiled file name of the connector (identifier)
 	 * @param sourceTable    the source's result we wish to log
 	 * @param hostname       the hostname of the source we wish to log
 	 */
@@ -316,7 +313,7 @@ public abstract class AbstractStrategy implements IStrategy {
 		final String operationTag,
 		final String executionClassName,
 		final String executionKey,
-		final String connectorName,
+		final String connectorId,
 		final SourceTable sourceTable,
 		final String hostname
 	) {
@@ -332,7 +329,7 @@ public abstract class AbstractStrategy implements IStrategy {
 				operationTag,
 				executionClassName,
 				executionKey,
-				connectorName,
+				connectorId,
 				sourceTable.getRawData()
 			);
 			return;
@@ -345,7 +342,7 @@ public abstract class AbstractStrategy implements IStrategy {
 				operationTag,
 				executionClassName,
 				executionKey,
-				connectorName,
+				connectorId,
 				TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable())
 			);
 			return;
@@ -357,7 +354,7 @@ public abstract class AbstractStrategy implements IStrategy {
 			operationTag,
 			executionClassName,
 			executionKey,
-			connectorName,
+			connectorId,
 			sourceTable.getRawData(),
 			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable())
 		);

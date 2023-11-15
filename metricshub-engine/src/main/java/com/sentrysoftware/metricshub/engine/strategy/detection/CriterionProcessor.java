@@ -85,11 +85,11 @@ public class CriterionProcessor implements ICriterionProcessor {
 	public CriterionProcessor(
 		final MatsyaClientsExecutor matsyaClientsExecutor,
 		final TelemetryManager telemetryManager,
-		final String connectorName
+		final String connectorId
 	) {
 		this.matsyaClientsExecutor = matsyaClientsExecutor;
 		this.telemetryManager = telemetryManager;
-		this.connectorId = connectorName;
+		this.connectorId = connectorId;
 		this.wqlDetectionHelper = new WqlDetectionHelper(matsyaClientsExecutor);
 	}
 

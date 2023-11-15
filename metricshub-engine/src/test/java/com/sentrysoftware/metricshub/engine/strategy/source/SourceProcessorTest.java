@@ -115,7 +115,7 @@ class SourceProcessorTest {
 	private static final String VALUE_LIST = "a1;b1;c1";
 
 	private static final String CAMELCASE_NOT_WBEM = "notWbem";
-	private static final String CONNECTOR_NAME = "myConnector";
+	private static final String CONNECTOR_ID = "myConnector";
 
 	@Test
 	void testProcessHttpSourceOK() {
@@ -364,7 +364,7 @@ class SourceProcessorTest {
 			.builder()
 			.telemetryManager(telemetryManager)
 			.matsyaClientsExecutor(matsyaClientsExecutorMock)
-			.connectorName(MY_CONNECTOR_1_NAME)
+			.connectorId(MY_CONNECTOR_1_NAME)
 			.build();
 
 		// standard
@@ -605,7 +605,7 @@ class SourceProcessorTest {
 			.builder()
 			.telemetryManager(telemetryManager)
 			.matsyaClientsExecutor(matsyaClientsExecutorMock)
-			.connectorName(MY_CONNECTOR_1_NAME)
+			.connectorId(MY_CONNECTOR_1_NAME)
 			.build();
 
 		TableUnionSource tableUnionExample = TableUnionSource.builder().tables(Arrays.asList()).build();
@@ -657,7 +657,7 @@ class SourceProcessorTest {
 			.builder()
 			.telemetryManager(telemetryManager)
 			.matsyaClientsExecutor(matsyaClientsExecutorMock)
-			.connectorName(MY_CONNECTOR_1_NAME)
+			.connectorId(MY_CONNECTOR_1_NAME)
 			.build();
 
 		CopySource copySource = null;
@@ -751,7 +751,7 @@ class SourceProcessorTest {
 			.builder()
 			.telemetryManager(telemetryManager)
 			.matsyaClientsExecutor(matsyaClientsExecutorMock)
-			.connectorName(CONNECTOR_NAME)
+			.connectorId(CONNECTOR_ID)
 			.build();
 		assertEquals(SourceTable.empty(), sourceProcessor.process((WbemSource) null));
 		assertEquals(SourceTable.empty(), sourceProcessor.process(WbemSource.builder().query(EMPTY).build()));
@@ -939,7 +939,7 @@ class SourceProcessorTest {
 			.builder()
 			.telemetryManager(telemetryManager)
 			.matsyaClientsExecutor(matsyaClientsExecutorMock)
-			.connectorName(CONNECTOR_NAME)
+			.connectorId(CONNECTOR_ID)
 			.build();
 		assertEquals(SourceTable.empty(), sourceProcessor.process(wmiSource));
 	}
@@ -974,7 +974,7 @@ class SourceProcessorTest {
 			.builder()
 			.telemetryManager(telemetryManager)
 			.matsyaClientsExecutor(matsyaClientsExecutorMock)
-			.connectorName(CONNECTOR_NAME)
+			.connectorId(CONNECTOR_ID)
 			.build();
 		assertEquals(SourceTable.builder().table(expected).build(), sourceProcessor.process(wmiSource));
 	}
@@ -1003,7 +1003,7 @@ class SourceProcessorTest {
 			.builder()
 			.telemetryManager(telemetryManager)
 			.matsyaClientsExecutor(matsyaClientsExecutorMock)
-			.connectorName(CONNECTOR_NAME)
+			.connectorId(CONNECTOR_ID)
 			.build();
 		assertEquals(SourceTable.empty(), sourceProcessor.process(wmiSource));
 	}

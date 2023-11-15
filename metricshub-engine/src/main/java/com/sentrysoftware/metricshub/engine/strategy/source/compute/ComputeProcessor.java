@@ -84,7 +84,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ComputeProcessor implements IComputeProcessor {
 
 	private TelemetryManager telemetryManager;
-	private String connectorName;
+	private String connectorId;
 	private MatsyaClientsExecutor matsyaClientsExecutor;
 	private String sourceKey;
 	private String hostname;
@@ -389,7 +389,7 @@ public class ComputeProcessor implements IComputeProcessor {
 			sourceTable.setRawData(awkResult);
 			sourceTable.setTable(SourceTable.csvToTable(awkResult, TABLE_SEP));
 		} catch (Exception e) {
-			logComputeError(connectorName, computeKey, "AWK: " + awkScript.description(), e, hostname);
+			logComputeError(connectorId, computeKey, "AWK: " + awkScript.description(), e, hostname);
 		}
 	}
 
@@ -820,7 +820,7 @@ public class ComputeProcessor implements IComputeProcessor {
 			}
 		} catch (Exception e) {
 			logComputeError(
-				connectorName,
+				connectorId,
 				String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, this.index),
 				"Json2CSV",
 				e,
@@ -832,13 +832,13 @@ public class ComputeProcessor implements IComputeProcessor {
 	/**
 	 * Log the given throwable
 	 *
-	 * @param connectorName The name of the connector defining the compute
+	 * @param connectorId   The identifier of the connector defining the compute
 	 * @param computeKey    The key of the compute
 	 * @param context       Additional information about the operation
 	 * @param throwable     The caught throwable to log
 	 */
 	private static void logComputeError(
-		final String connectorName,
+		final String connectorId,
 		final String computeKey,
 		final String context,
 		final Throwable throwable,
@@ -850,7 +850,7 @@ public class ComputeProcessor implements IComputeProcessor {
 				hostname,
 				computeKey,
 				context,
-				connectorName,
+				connectorId,
 				StringHelper.getStackMessages(throwable)
 			);
 		}
@@ -862,7 +862,7 @@ public class ComputeProcessor implements IComputeProcessor {
 					hostname,
 					computeKey,
 					context,
-					connectorName
+					connectorId
 				),
 				throwable
 			);
@@ -884,7 +884,7 @@ public class ComputeProcessor implements IComputeProcessor {
 				Stream.of(keepColumns.getColumnNumbers().split(COMMA)).map(Integer::parseInt).collect(Collectors.toList());
 		} catch (NumberFormatException numberFormatException) {
 			logComputeError(
-				connectorName,
+				connectorId,
 				String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, this.index),
 				"KeepColumns",
 				numberFormatException,
@@ -1028,7 +1028,7 @@ public class ComputeProcessor implements IComputeProcessor {
 					.collect(Collectors.toList());
 		} catch (Exception exception) {
 			logComputeError(
-				connectorName,
+				connectorId,
 				String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, this.index),
 				"PerBitTranslation",
 				exception,
@@ -1434,7 +1434,7 @@ public class ComputeProcessor implements IComputeProcessor {
 			}
 		} catch (Exception e) {
 			logComputeError(
-				connectorName,
+				connectorId,
 				String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, this.index),
 				"Xml2Csv",
 				e,
@@ -1703,7 +1703,7 @@ public class ComputeProcessor implements IComputeProcessor {
 		// In case of a ReferenceTranslationTable, we try to find its TranslationTable in the connector if the translations Map has not already been found.
 		// In case of an InLineTranslationTable, the Map retrieved through translationTable.getTranslations()
 		if (translation instanceof ReferenceTranslationTable referenceTranslationTable) {
-			final Connector connector = telemetryManager.getConnectorStore().getStore().get(connectorName);
+			final Connector connector = telemetryManager.getConnectorStore().getStore().get(connectorId);
 			if (connector != null && connector.getTranslations() != null) {
 				final TranslationTable translationTable = connector
 					.getTranslations()
