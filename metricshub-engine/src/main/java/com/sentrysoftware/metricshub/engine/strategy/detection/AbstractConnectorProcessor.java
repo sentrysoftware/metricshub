@@ -191,6 +191,7 @@ public abstract class AbstractConnectorProcessor {
 					}
 
 					// The monitor's job and mapping must not be empty
+					//CHECKSTYLE:OFF
 					return monitorJobs
 						.entrySet()
 						.stream()
@@ -219,6 +220,7 @@ public abstract class AbstractConnectorProcessor {
 							}
 							return false;
 						});
+					//CHECKSTYLE:ON
 				});
 
 			if (hasLastResortMonitor) {
