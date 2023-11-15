@@ -7,6 +7,7 @@ import com.sentrysoftware.metricshub.cli.service.protocol.IpmiConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.SnmpConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.SshConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.WinRmConfigCli;
+import com.sentrysoftware.metricshub.cli.service.protocol.WmiConfigCli;
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.IConfiguration;
@@ -113,6 +114,9 @@ public class MetricsHubCliService implements Callable<Integer> {
 
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline HTTP Options|@:%n")
 	HttpConfigCli httpConfigCli;
+
+	@ArgGroup(exclusive = false, heading = "%n@|bold,underline WMI Options|@:%n")
+	WmiConfigCli wmiConfigCli;
 
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline WinRM Options|@:%n")
 	WinRmConfigCli winRmConfigCli;
@@ -300,7 +304,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 	private Map<Class<? extends IConfiguration>, IConfiguration> buildConfigurations() {
 		// TODO Add other protocols in stream here
 		return Stream
-			.of(ipmiConfigCli, snmpConfigCli, sshConfigCli, httpConfigCli, winRmConfigCli)
+			.of(ipmiConfigCli, snmpConfigCli, sshConfigCli, httpConfigCli, wmiConfigCli, winRmConfigCli)
 			.filter(Objects::nonNull)
 			.map(protocolConfig -> protocolConfig.toProtocol(username, password))
 			.collect(Collectors.toMap(IConfiguration::getClass, Function.identity()));
@@ -398,6 +402,8 @@ public class MetricsHubCliService implements Callable<Integer> {
 
 		tryInteractiveHttpPassword(passwordReader);
 
+		tryInteractiveWmiPassword(passwordReader);
+
 		tryInteractiveWinRmPassword(passwordReader);
 		// TODO Implement interactive password for the other protocol configurations
 
@@ -455,6 +461,17 @@ public class MetricsHubCliService implements Callable<Integer> {
 	void tryInteractiveHttpPassword(final CliPasswordReader<char[]> passwordReader) {
 		if (httpConfigCli != null && httpConfigCli.getUsername() != null && httpConfigCli.getPassword() == null) {
 			httpConfigCli.setPassword(passwordReader.read("%s password for HTTP: ", httpConfigCli.getUsername()));
+		}
+	}
+
+	/**
+	 * Try to start the interactive mode to request and set WMI password
+	 *
+	 * @param passwordReader password reader which displays the prompt text and wait for user's input
+	 */
+	void tryInteractiveWmiPassword(final CliPasswordReader<char[]> passwordReader) {
+		if (wmiConfigCli != null && wmiConfigCli.getUsername() != null && wmiConfigCli.getPassword() == null) {
+			wmiConfigCli.setPassword(passwordReader.read("%s password for WMI: ", wmiConfigCli.getUsername()));
 		}
 	}
 
