@@ -321,7 +321,6 @@ public class MetricsHubCliService implements Callable<Integer> {
 		}
 
 		// No protocol at all?
-		//CHECKSTYLE:OFF
 		// TODO Add protocol here for each case
 		final boolean protocolsNotConfigured = Stream
 			.of(ipmiConfigCli, snmpConfigCli, sshConfigCli, httpConfigCli)
