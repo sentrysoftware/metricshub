@@ -163,7 +163,7 @@ public class CollectStrategy extends AbstractStrategy {
 			final JobInfo jobInfo = JobInfo
 				.builder()
 				.hostname(hostname)
-				.connectorName(currentConnector.getCompiledFilename())
+				.connectorId(currentConnector.getCompiledFilename())
 				.jobName(collect.getClass().getSimpleName())
 				.monitorType(monitorType)
 				.build();
@@ -328,7 +328,7 @@ public class CollectStrategy extends AbstractStrategy {
 				.jobInfo(
 					JobInfo
 						.builder()
-						.connectorName(connectorId)
+						.connectorId(connectorId)
 						.hostname(hostname)
 						.monitorType(monitorType)
 						.jobName("collect")

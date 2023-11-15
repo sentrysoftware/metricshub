@@ -30,13 +30,14 @@ public class HostProperties {
 	private Map<String, ConnectorNamespace> connectorNamespaces = new HashMap<>();
 
 	/**
+	 * Get the connector namespace defined for the given connector identifier
 	 *
-	 * @param connectorName the name of a given connector
+	 * @param connectorId the identifier of the connector namespace
 	 * @return ConnectorNamespace instance
 	 */
-	public ConnectorNamespace getConnectorNamespace(@NonNull final String connectorName) {
+	public ConnectorNamespace getConnectorNamespace(@NonNull final String connectorId) {
 		synchronized (connectorNamespaces) {
-			return connectorNamespaces.computeIfAbsent(connectorName, cn -> ConnectorNamespace.builder().build());
+			return connectorNamespaces.computeIfAbsent(connectorId, cn -> ConnectorNamespace.builder().build());
 		}
 	}
 }

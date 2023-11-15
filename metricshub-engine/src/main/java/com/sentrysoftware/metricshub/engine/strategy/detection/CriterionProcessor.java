@@ -78,18 +78,18 @@ public class CriterionProcessor implements ICriterionProcessor {
 
 	private TelemetryManager telemetryManager;
 
-	private String connectorName;
+	private String connectorId;
 
 	private WqlDetectionHelper wqlDetectionHelper;
 
 	public CriterionProcessor(
 		final MatsyaClientsExecutor matsyaClientsExecutor,
 		final TelemetryManager telemetryManager,
-		final String connectorName
+		final String connectorId
 	) {
 		this.matsyaClientsExecutor = matsyaClientsExecutor;
 		this.telemetryManager = telemetryManager;
-		this.connectorName = connectorName;
+		this.connectorId = connectorId;
 		this.wqlDetectionHelper = new WqlDetectionHelper(matsyaClientsExecutor);
 	}
 
@@ -196,8 +196,8 @@ public class CriterionProcessor implements ICriterionProcessor {
 					.hostname(hostname)
 					.method(httpCriterion.getMethod().toString())
 					.url(httpCriterion.getUrl())
-					.header(httpCriterion.getHeader(), connectorName, hostname)
-					.body(httpCriterion.getBody(), connectorName, hostname)
+					.header(httpCriterion.getHeader(), connectorId, hostname)
+					.body(httpCriterion.getBody(), connectorId, hostname)
 					.httpConfiguration(httpConfiguration)
 					.resultContent(httpCriterion.getResultContent())
 					.authenticationToken(httpCriterion.getAuthenticationToken())
@@ -1152,8 +1152,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(wmiCriterion.getNamespace())) {
 			final String cachedNamespace = telemetryManager
 				.getHostProperties()
-				.getConnectorNamespaces()
-				.get(wmiCriterion.getNamespace())
+				.getConnectorNamespace(connectorId)
 				.getAutomaticWmiNamespace();
 
 			// If not detected already, find the namespace
@@ -1223,14 +1222,12 @@ public class CriterionProcessor implements ICriterionProcessor {
 			if (wqlCriterion instanceof WmiCriterion) {
 				telemetryManager
 					.getHostProperties()
-					.getConnectorNamespaces()
-					.get(namespaceResult.getNamespace())
+					.getConnectorNamespace(connectorId)
 					.setAutomaticWmiNamespace(namespaceResult.getNamespace());
 			} else {
 				telemetryManager
 					.getHostProperties()
-					.getConnectorNamespaces()
-					.get(namespaceResult.getNamespace())
+					.getConnectorNamespace(connectorId)
 					.setAutomaticWbemNamespace(namespaceResult.getNamespace());
 			}
 		}
@@ -1287,8 +1284,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 		if (namespaceResult.getResult().isSuccess()) {
 			telemetryManager
 				.getHostProperties()
-				.getConnectorNamespaces()
-				.get(namespaceResult.getNamespace())
+				.getConnectorNamespace(connectorId)
 				.setAutomaticWbemNamespace(namespaceResult.getNamespace());
 		}
 
@@ -1323,8 +1319,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(wbemCriterion.getNamespace())) {
 			final String cachedNamespace = telemetryManager
 				.getHostProperties()
-				.getConnectorNamespaces()
-				.get(wbemCriterion.getNamespace())
+				.getConnectorNamespace(connectorId)
 				.getAutomaticWbemNamespace();
 
 			// If not detected already, find the namespace

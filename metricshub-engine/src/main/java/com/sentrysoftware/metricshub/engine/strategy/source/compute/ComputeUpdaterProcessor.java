@@ -39,7 +39,7 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 
 	private IComputeProcessor computeProcessor;
 	private TelemetryManager telemetryManager;
-	private String connectorName;
+	private String connectorId;
 	private Map<String, String> attributes;
 
 	@Override
@@ -188,7 +188,7 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 		return SourceUpdaterProcessor.replaceSourceReferenceContent(
 			value,
 			telemetryManager,
-			connectorName,
+			connectorId,
 			compute.getClass().getSimpleName(),
 			compute.getType()
 		);

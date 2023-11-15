@@ -91,7 +91,7 @@ public class OrderedSources {
 					orderDescription,
 					order.size(),
 					sources.size(),
-					jobInfo.getConnectorName(),
+					jobInfo.getConnectorId(),
 					jobInfo.getMonitorType(),
 					jobInfo.getJobName()
 				);
@@ -135,7 +135,7 @@ public class OrderedSources {
 					jobInfo.getHostname(),
 					sourceName,
 					orderDescription,
-					jobInfo.getConnectorName(),
+					jobInfo.getConnectorId(),
 					jobInfo.getMonitorType(),
 					jobInfo.getJobName()
 				);

@@ -1205,18 +1205,18 @@ class ComputeProcessorTest {
 		);
 		final String translationTableName = "translationTableName";
 		final TranslationTable connectorTranslationTable = TranslationTable.builder().translations(translations).build();
-		final String connectorName = "connectorName";
+		final String connectorId = "connectorId";
 		final Connector connector = Connector
 			.builder()
 			.translations(Collections.singletonMap(translationTableName, connectorTranslationTable))
 			.build();
 
-		Map<String, Connector> store = Maps.of(connectorName, connector);
+		Map<String, Connector> store = Maps.of(connectorId, connector);
 
 		final TelemetryManager telemetryManager = TelemetryManager.builder().connectorStore(connectorStoreMock).build();
 
 		doReturn(store).when(connectorStoreMock).getStore();
-		computeProcessor.setConnectorName(connectorName);
+		computeProcessor.setConnectorId(connectorId);
 		computeProcessor.setTelemetryManager(telemetryManager);
 
 		sourceTable.setTable(table);
@@ -2719,18 +2719,18 @@ class ComputeProcessorTest {
 		);
 		final String translationTableName = "translationTableName";
 		final TranslationTable connectorTranslationTable = TranslationTable.builder().translations(translations).build();
-		final String connectorName = "connectorName";
+		final String connectorId = "connectorId";
 		final Connector connector = Connector
 			.builder()
 			.translations(Collections.singletonMap(translationTableName, connectorTranslationTable))
 			.build();
 
-		final Map<String, Connector> store = Maps.of(connectorName, connector);
+		final Map<String, Connector> store = Maps.of(connectorId, connector);
 
 		final TelemetryManager telemetryManager = TelemetryManager.builder().connectorStore(connectorStoreMock).build();
 
 		doReturn(store).when(connectorStoreMock).getStore();
-		computeProcessor.setConnectorName(connectorName);
+		computeProcessor.setConnectorId(connectorId);
 		computeProcessor.setTelemetryManager(telemetryManager);
 		computeProcessor.process(translate);
 		assertEquals(

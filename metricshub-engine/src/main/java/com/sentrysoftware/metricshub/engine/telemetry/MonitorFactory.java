@@ -208,19 +208,19 @@ public class MonitorFactory {
 	}
 
 	/**
-	 * Build the monitor unique identifier [connectorName]_[monitorType]_[id]
-	 * @param connectorName  The connector compiled file name
+	 * Build the monitor unique identifier [connectorid]_[monitorType]_[id]
+	 * @param connectorId    The connector compiled file name (identifier)
 	 * @param monitorType    The type of the monitor.
 	 * @param id             The id of the monitor we wish to build its identifier
 	 * @return {@link String} value containing the key of the monitor
 	 */
 	public static String buildMonitorId(
-		@NonNull final String connectorName,
+		@NonNull final String connectorId,
 		@NonNull final String monitorType,
 		@NonNull final String id
 	) {
 		return new StringBuilder()
-			.append(connectorName)
+			.append(connectorId)
 			.append(UNDERSCORE)
 			.append(monitorType)
 			.append(UNDERSCORE)

@@ -10,7 +10,7 @@ import lombok.Data;
 public class JobInfo {
 
 	private String hostname;
-	private String connectorName;
+	private String connectorId;
 	private String monitorType;
 	private String jobName;
 }
