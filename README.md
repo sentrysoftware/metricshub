@@ -43,7 +43,7 @@ $ mvn clean package
 
 * **Host:** Debian Linux
 * **JPackage Setup:** Install JDK 19 to enable the `jpackage` utility.
-* **Environment Variable:**  Set the system environment variable `JPACKAGE_HOME` to the home directory of JDK 19.
+* **Environment Variable:** Set the system environment variable `JPACKAGE_HOME` to the home directory of JDK 19.
   * Verify that your `JPACKAGE_HOME` system environment variable is configured accurately, example:
     ```
 	echo $JPACKAGE_HOME
@@ -59,7 +59,7 @@ $ mvn clean package
 
 * **Host:** Red Hat Enterprise Linux (Centos, Ubuntu, etc.)
 * **JPackage Setup:** Install JDK 19 to enable the `jpackage` utility
-* **Environment Variable:**  Set the system environment variable `JPACKAGE_HOME` to the home directory of JDK 19.
+* **Environment Variable:** Set the system environment variable `JPACKAGE_HOME` to the home directory of JDK 19.
   * Verify that your `JPACKAGE_HOME` system environment variable is configured accurately, example:
     ```
 	echo $JPACKAGE_HOME
