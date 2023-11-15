@@ -99,8 +99,7 @@ public class ForceSerializationHelper {
 	) {
 		return telemetryManager
 			.getHostProperties()
-			.getConnectorNamespaces()
-			.get(connectorCompiledFilename)
+			.getConnectorNamespace(connectorCompiledFilename)
 			.getForceSerializationLock();
 	}
 }

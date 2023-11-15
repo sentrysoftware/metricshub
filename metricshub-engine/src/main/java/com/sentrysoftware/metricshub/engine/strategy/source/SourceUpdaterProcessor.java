@@ -348,7 +348,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 	 * Extract the source reference content
 	 *
 	 * @param telemetryManager The current {@link TelemetryManager} instance wrapping the host configuration and the host monitoring instance
-	 * @param connectorName    The connector defining all the operations we currently try to interpret and execute
+	 * @param connectorId    The connector defining all the operations we currently try to interpret and execute
 	 * @param operationType    The type of the operation required for debug purpose. E.g. Substring, SnmpGetTableSource, ...
 	 * @param operationKey     The unique key of the operation required for debug purpose
 	 * @param sourceRefKey     The unique id of the source to extract
@@ -356,7 +356,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 	 */
 	static String extractSourceReferenceContent(
 		final TelemetryManager telemetryManager,
-		final String connectorName,
+		final String connectorId,
 		final String operationType,
 		final Object operationKey,
 		final String sourceRefKey
@@ -364,8 +364,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 		// Get the source table from the connector namespace
 		final SourceTable sourceTable = telemetryManager
 			.getHostProperties()
-			.getConnectorNamespaces()
-			.get(connectorName)
+			.getConnectorNamespace(connectorId)
 			.getSourceTables()
 			.get(sourceRefKey);
 
