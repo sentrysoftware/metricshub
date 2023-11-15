@@ -10,6 +10,7 @@ import com.sentrysoftware.metricshub.cli.service.protocol.HttpConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.IpmiConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.SnmpConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.SshConfigCli;
+import com.sentrysoftware.metricshub.cli.service.protocol.WbemConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.WmiConfigCli;
 import com.sentrysoftware.metricshub.engine.connector.model.Connector;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
@@ -401,6 +402,61 @@ class MetricsHubCliServiceTest {
 		// Ensure that the StringBuilder is empty after the method call
 		// This confirms that tryInteractiveWmiPassword hasn't triggered the password reader
 		// because both the username and password are already present in wmiConfigCli
+		assertTrue(builder.isEmpty());
+	}
+
+	@Test
+	void testTryInteractiveWbemPassword() {
+		final MetricsHubCliService metricsHubCliService = new MetricsHubCliService();
+
+		// Initialize a StringBuilder to capture the input password
+		final StringBuilder builder = new StringBuilder();
+
+		// Define a CliPasswordReader that appends the password to the StringBuilder
+		final CliPasswordReader<char[]> cliPasswordReader = (format, args) -> {
+			builder.append(PASSWORD, 0, PASSWORD.length);
+			return PASSWORD;
+		};
+
+		// Test tryInteractiveWbemPassword method with the CliPasswordReader
+		metricsHubCliService.tryInteractiveWbemPassword(cliPasswordReader);
+
+		// Make sure the StringBuilder is blank
+		// This confirms that tryInteractiveWbemPassword hasn't triggered the password reader
+		// because wbemConfigCli is not present
+		assertTrue(builder.isEmpty());
+
+		// Set a new wbemConfigCli in MetricsHubCliService
+		metricsHubCliService.wbemConfigCli = new WbemConfigCli();
+
+		// Make sure the StringBuilder is blank
+		// This confirms that tryInteractiveWbemPassword hasn't triggered the password reader
+		// because wbemConfigCli is present but it doesn't define the username
+		assertTrue(builder.isEmpty());
+
+		// Set a username in wbemConfigCli
+		metricsHubCliService.wbemConfigCli.setUsername("wbemUser");
+
+		// Test tryInteractiveWbemPassword method with the CliPasswordReader
+		metricsHubCliService.tryInteractiveWbemPassword(cliPasswordReader);
+
+		// Assert that the captured password in the StringBuilder matches the expected value
+		// This confirms that tryInteractiveWbemPassword has triggered the password reader
+		// because the username is present in wbemConfigCli but the password is null
+		assertEquals(new String(PASSWORD), builder.toString());
+
+		// Set a password in wbemConfigCli
+		metricsHubCliService.wbemConfigCli.setPassword(PASSWORD);
+
+		// Clear the StringBuilder
+		builder.delete(0, PASSWORD.length);
+
+		// Test tryInteractiveWbemPassword method with the CliPasswordReader
+		metricsHubCliService.tryInteractiveWbemPassword(cliPasswordReader);
+
+		// Ensure that the StringBuilder is empty after the method call
+		// This confirms that tryInteractiveWbemPassword hasn't triggered the password reader
+		// because both username and password are already present in wbemConfigCli
 		assertTrue(builder.isEmpty());
 	}
 }

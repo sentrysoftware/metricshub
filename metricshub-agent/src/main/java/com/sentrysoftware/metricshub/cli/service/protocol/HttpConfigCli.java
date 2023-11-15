@@ -19,11 +19,11 @@ public class HttpConfigCli implements IProtocolConfigCli {
 
 		@Getter
 		@Option(names = "--http", order = 1, description = "Enables HTTP", required = true)
-		private boolean http;
+		boolean http;
 
 		@Getter
 		@Option(names = "--https", order = 2, description = "Enables HTTPS", required = true)
-		private boolean https;
+		boolean https;
 	}
 
 	@Option(
@@ -71,10 +71,24 @@ public class HttpConfigCli implements IProtocolConfigCli {
 		return HttpConfiguration
 			.builder()
 			.https(httpOrHttps.https)
-			.port(port != null ? port : httpOrHttps.https ? 443 : 80)
+			.port(getOrDeducePortNumber())
 			.username(username == null ? defaultUsername : username)
 			.password(username == null ? defaultPassword : password)
 			.timeout(timeout)
 			.build();
+	}
+
+	/**
+	 * Get or deduce the port number based on the HTTP transport protocol (secured or unsecured)
+	 *
+	 * @return int value
+	 */
+	int getOrDeducePortNumber() {
+		if (port != null) {
+			return port;
+		} else if (httpOrHttps.https) {
+			return 443;
+		}
+		return 80;
 	}
 }

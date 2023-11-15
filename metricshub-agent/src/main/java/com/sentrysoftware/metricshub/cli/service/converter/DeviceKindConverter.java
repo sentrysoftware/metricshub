@@ -11,7 +11,7 @@ public class DeviceKindConverter implements ITypeConverter<DeviceKind> {
 	public DeviceKind convert(@NonNull final String type) throws Exception {
 		try {
 			return DeviceKind.detect(type);
-		} catch (IllegalArgumentException e) {
+		} catch (Exception e) {
 			throw new TypeConversionException(e.getMessage());
 		}
 	}

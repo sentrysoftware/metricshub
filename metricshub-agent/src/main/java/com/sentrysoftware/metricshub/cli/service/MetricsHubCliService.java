@@ -6,6 +6,7 @@ import com.sentrysoftware.metricshub.cli.service.protocol.HttpConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.IpmiConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.SnmpConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.SshConfigCli;
+import com.sentrysoftware.metricshub.cli.service.protocol.WbemConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.WmiConfigCli;
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
@@ -113,6 +114,9 @@ public class MetricsHubCliService implements Callable<Integer> {
 
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline HTTP Options|@:%n")
 	HttpConfigCli httpConfigCli;
+
+	@ArgGroup(exclusive = false, heading = "%n@|bold,underline WBEM Options|@:%n")
+	WbemConfigCli wbemConfigCli;
 
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline WMI Options|@:%n")
 	WmiConfigCli wmiConfigCli;
@@ -300,7 +304,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 	private Map<Class<? extends IConfiguration>, IConfiguration> buildConfigurations() {
 		// TODO Add other protocols in stream here
 		return Stream
-			.of(ipmiConfigCli, snmpConfigCli, sshConfigCli, httpConfigCli, wmiConfigCli)
+			.of(ipmiConfigCli, snmpConfigCli, sshConfigCli, httpConfigCli, wmiConfigCli, wbemConfigCli)
 			.filter(Objects::nonNull)
 			.map(protocolConfig -> protocolConfig.toProtocol(username, password))
 			.collect(Collectors.toMap(IConfiguration::getClass, Function.identity()));
@@ -323,7 +327,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		// No protocol at all?
 		// TODO Add protocol here for each case
 		final boolean protocolsNotConfigured = Stream
-			.of(ipmiConfigCli, snmpConfigCli, sshConfigCli, httpConfigCli)
+			.of(ipmiConfigCli, snmpConfigCli, sshConfigCli, httpConfigCli, wbemConfigCli)
 			.allMatch(Objects::isNull);
 		if (protocolsNotConfigured) {
 			throw new ParameterException(
@@ -399,6 +403,8 @@ public class MetricsHubCliService implements Callable<Integer> {
 		tryInteractiveHttpPassword(passwordReader);
 
 		tryInteractiveWmiPassword(passwordReader);
+
+		tryInteractiveWbemPassword(passwordReader);
 		// TODO Implement interactive password for the other protocol configurations
 
 	}
@@ -470,6 +476,17 @@ public class MetricsHubCliService implements Callable<Integer> {
 	}
 
 	/**
+	 * Try to start the interactive mode to request and set WBEM password
+	 *
+	 * @param passwordReader password reader which displays the prompt text and wait for user's input
+	 */
+	void tryInteractiveWbemPassword(final CliPasswordReader<char[]> passwordReader) {
+		if (wbemConfigCli != null && wbemConfigCli.getUsername() != null && wbemConfigCli.getPassword() == null) {
+			wbemConfigCli.setPassword(passwordReader.read("%s password for WBEM: ", wbemConfigCli.getUsername()));
+		}
+	}
+
+	/**
 	 * Prints the list of connectors embedded in the engine.
 	 *
 	 * @param connectorStore Wraps all the connectors
@@ -516,6 +533,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		return CommandLine.ExitCode.OK;
 	}
 
+	@FunctionalInterface
 	interface CliPasswordReader<R> {
 		/**
 		 * Applies this function to the given arguments to read a password

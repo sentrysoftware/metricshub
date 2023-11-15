@@ -76,7 +76,7 @@ public class SshConfigCli implements IProtocolConfigCli {
 	 * @return an {@link SshConfiguration} instance corresponding to the options specified by the user in the CLI
 	 */
 	@Override
-	public IConfiguration toProtocol(String defaultUsername, char[] defaultPassword) {
+	public IConfiguration toProtocol(final String defaultUsername, final char[] defaultPassword) {
 		return SshConfiguration
 			.sshConfigurationBuilder()
 			.username(username == null ? defaultUsername : username)

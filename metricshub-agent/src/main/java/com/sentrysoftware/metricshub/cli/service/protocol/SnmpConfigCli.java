@@ -94,7 +94,7 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 	 * @return a {@link SnmpConfiguration} instance corresponding to the options specified by the user in the CLI
 	 */
 	@Override
-	public IConfiguration toProtocol(String defaultUsername, char[] defaultPassword) {
+	public IConfiguration toProtocol(final String defaultUsername, final char[] defaultPassword) {
 		return SnmpConfiguration
 			.builder()
 			.version(snmpVersion)

@@ -31,4 +31,21 @@ class HttpConfigCliTest {
 			httpConfigCli.toProtocol(username, password)
 		);
 	}
+
+	@Test
+	void testGetOrDeducePortNumber() {
+		final HttpConfigCli httpConfigCli = new HttpConfigCli();
+		final int expectedPortNumber = 4443;
+		httpConfigCli.setPort(expectedPortNumber);
+		assertEquals(expectedPortNumber, httpConfigCli.getOrDeducePortNumber());
+		httpConfigCli.setPort(null);
+		httpConfigCli.httpOrHttps = new HttpOrHttps();
+		httpConfigCli.httpOrHttps.http = false;
+		httpConfigCli.httpOrHttps.https = true;
+		assertEquals(443, httpConfigCli.getOrDeducePortNumber());
+
+		httpConfigCli.httpOrHttps.http = true;
+		httpConfigCli.httpOrHttps.https = false;
+		assertEquals(80, httpConfigCli.getOrDeducePortNumber());
+	}
 }

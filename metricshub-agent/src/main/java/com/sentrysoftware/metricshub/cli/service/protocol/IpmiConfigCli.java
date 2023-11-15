@@ -71,7 +71,7 @@ public class IpmiConfigCli implements IProtocolConfigCli {
 	 * @return an {@link IpmiConfiguration} instance corresponding to the options specified by the user in the CLI
 	 */
 	@Override
-	public IConfiguration toProtocol(String defaultUsername, char[] defaultPassword) {
+	public IConfiguration toProtocol(final String defaultUsername, final char[] defaultPassword) {
 		try {
 			return IpmiConfiguration
 				.builder()
