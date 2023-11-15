@@ -7,6 +7,7 @@ import com.sentrysoftware.metricshub.cli.service.protocol.IpmiConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.SnmpConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.SshConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.WbemConfigCli;
+import com.sentrysoftware.metricshub.cli.service.protocol.WinRmConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.WmiConfigCli;
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
@@ -120,6 +121,9 @@ public class MetricsHubCliService implements Callable<Integer> {
 
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline WMI Options|@:%n")
 	WmiConfigCli wmiConfigCli;
+
+	@ArgGroup(exclusive = false, heading = "%n@|bold,underline WinRM Options|@:%n")
+	WinRmConfigCli winRmConfigCli;
 
 	@Option(names = { "-u", "--username" }, order = 2, paramLabel = "USER", description = "Username for authentication")
 	String username;
@@ -302,9 +306,8 @@ public class MetricsHubCliService implements Callable<Integer> {
 	 * @return A {@link Map} associating the input protocol type to its input credentials.
 	 */
 	private Map<Class<? extends IConfiguration>, IConfiguration> buildConfigurations() {
-		// TODO Add other protocols in stream here
 		return Stream
-			.of(ipmiConfigCli, snmpConfigCli, sshConfigCli, httpConfigCli, wmiConfigCli, wbemConfigCli)
+			.of(ipmiConfigCli, snmpConfigCli, sshConfigCli, httpConfigCli, wmiConfigCli, winRmConfigCli, wbemConfigCli)
 			.filter(Objects::nonNull)
 			.map(protocolConfig -> protocolConfig.toProtocol(username, password))
 			.collect(Collectors.toMap(IConfiguration::getClass, Function.identity()));
@@ -312,6 +315,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 
 	/**
 	 * Validate the specified arguments, and ask for passwords if needed.
+	 *
 	 * @param connectorStore Wraps all the connectors
 	 * @throws ParameterException in case of invalid parameter
 	 */
@@ -325,10 +329,10 @@ public class MetricsHubCliService implements Callable<Integer> {
 		}
 
 		// No protocol at all?
-		// TODO Add protocol here for each case
 		final boolean protocolsNotConfigured = Stream
-			.of(ipmiConfigCli, snmpConfigCli, sshConfigCli, httpConfigCli, wbemConfigCli)
+			.of(ipmiConfigCli, snmpConfigCli, sshConfigCli, httpConfigCli, wmiConfigCli, winRmConfigCli, wbemConfigCli)
 			.allMatch(Objects::isNull);
+
 		if (protocolsNotConfigured) {
 			throw new ParameterException(
 				spec.commandLine(),
@@ -405,8 +409,8 @@ public class MetricsHubCliService implements Callable<Integer> {
 		tryInteractiveWmiPassword(passwordReader);
 
 		tryInteractiveWbemPassword(passwordReader);
-		// TODO Implement interactive password for the other protocol configurations
 
+		tryInteractiveWinRmPassword(passwordReader);
 	}
 
 	/**
@@ -483,6 +487,17 @@ public class MetricsHubCliService implements Callable<Integer> {
 	void tryInteractiveWbemPassword(final CliPasswordReader<char[]> passwordReader) {
 		if (wbemConfigCli != null && wbemConfigCli.getUsername() != null && wbemConfigCli.getPassword() == null) {
 			wbemConfigCli.setPassword(passwordReader.read("%s password for WBEM: ", wbemConfigCli.getUsername()));
+		}
+	}
+
+	/**
+	 * Try to start the interactive mode to request and set WinRM password
+	 *
+	 * @param passwordReader password reader which displays the prompt text and wait for user's input
+	 */
+	void tryInteractiveWinRmPassword(final CliPasswordReader<char[]> passwordReader) {
+		if (winRmConfigCli != null && winRmConfigCli.getUsername() != null && winRmConfigCli.getPassword() == null) {
+			winRmConfigCli.setPassword(passwordReader.read("%s password for WinRM: ", winRmConfigCli.getUsername()));
 		}
 	}
 

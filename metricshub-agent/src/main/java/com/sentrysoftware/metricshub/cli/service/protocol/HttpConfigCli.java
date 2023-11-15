@@ -3,12 +3,14 @@ package com.sentrysoftware.metricshub.cli.service.protocol;
 import com.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
 @Data
-public class HttpConfigCli implements IProtocolConfigCli {
+@EqualsAndHashCode(callSuper = true)
+public class HttpConfigCli extends AbstractTransportProtocolCli {
 
 	public static final int DEFAULT_TIMEOUT = 30;
 
@@ -70,7 +72,7 @@ public class HttpConfigCli implements IProtocolConfigCli {
 	public IConfiguration toProtocol(String defaultUsername, char[] defaultPassword) {
 		return HttpConfiguration
 			.builder()
-			.https(httpOrHttps.https)
+			.https(isHttps())
 			.port(getOrDeducePortNumber())
 			.username(username == null ? defaultUsername : username)
 			.password(username == null ? defaultPassword : password)
@@ -79,16 +81,26 @@ public class HttpConfigCli implements IProtocolConfigCli {
 	}
 
 	/**
-	 * Get or deduce the port number based on the HTTP transport protocol (secured or unsecured)
-	 *
-	 * @return int value
+	 * @return Whether HTTPS is configured or not
 	 */
-	int getOrDeducePortNumber() {
-		if (port != null) {
-			return port;
-		} else if (httpOrHttps.https) {
-			return 443;
-		}
+	@Override
+	protected boolean isHttps() {
+		return httpOrHttps.https;
+	}
+
+	/**
+	 * @return Default HTTPS port number
+	 */
+	@Override
+	protected int defaultHttpsPortNumber() {
+		return 443;
+	}
+
+	/**
+	 * @return Default HTTP port number
+	 */
+	@Override
+	protected int defaultHttpPortNumber() {
 		return 80;
 	}
 }

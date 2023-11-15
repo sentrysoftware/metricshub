@@ -5,10 +5,12 @@ import com.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.TransportProtocols;
 import com.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import picocli.CommandLine.Option;
 
 @Data
-public class WbemConfigCli implements IProtocolConfigCli {
+@EqualsAndHashCode(callSuper = true)
+public class WbemConfigCli extends AbstractTransportProtocolCli {
 
 	public static final int DEFAULT_TIMEOUT = 30;
 
@@ -93,16 +95,28 @@ public class WbemConfigCli implements IProtocolConfigCli {
 	}
 
 	/**
-	 * Get or deduce the port number based on WBEM the transport protocol
-	 *
-	 * @return int value
+	 * @return Default HTTPS port number for WBEM
 	 */
-	int getOrDeducePortNumber() {
-		if (port != null) {
-			return port;
-		} else if (protocol == TransportProtocols.HTTP) {
-			return 5988;
-		}
+	@Override
+	protected int defaultHttpsPortNumber() {
 		return 5989;
+	}
+
+	/**
+	 * @return Default HTTP port number for WBEM
+	 */
+	@Override
+	protected int defaultHttpPortNumber() {
+		return 5988;
+	}
+
+	/**
+	 * Whether HTTPS is configured or not
+	 *
+	 * @return boolean value
+	 */
+	@Override
+	protected boolean isHttps() {
+		return TransportProtocols.HTTPS.equals(protocol);
 	}
 }
