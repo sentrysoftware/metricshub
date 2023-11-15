@@ -30,15 +30,25 @@ $ mvn clean package
 
 * **Host:** Windows
 * **JPackage Setup:** Install JDK 19 to enable the `jpackage` utility.
-* **Environment Variable:** Define the `JPACKAGE_HOME` system environment variable. Example: `JPACKAGE_HOME=C:\Program Files\Java\jdk-19`.
-* **WiXToolSet:** Ensure that the WiX Toolset is installed under `C:\Program Files (x86)\WiX Toolset v3.11`.
+* **Environment Variable:** Set the system environment variable `JPACKAGE_HOME` to the home directory of JDK 19.
+  * Verify that your `JPACKAGE_HOME` system environment variable is configured accurately, example:
+    ```
+	echo %JPACKAGE_HOME%
+	C:\Program Files\Eclipse Adoptium\jdk-19.0.2.7-hotspot
+	```
+* **WiXToolSet Installation:** Download and install [WiX Toolset](https://github.com/wixtoolset/wix3/releases/tag/wix3112rtm) under `C:\Program Files (x86)\WiX Toolset v3.11`.
 * Execute the `mvn package` command within the Metricshub root directory (`metricshub`). You can find the `.msi` package in the `metricshub/metricshub-windows/target` directory upon completion (`metricshub-windows-<version>.msi`).
 
 #### Building Debian Packages (.DEB)
 
 * **Host:** Debian Linux
 * **JPackage Setup:** Install JDK 19 to enable the `jpackage` utility.
-* **Environment Variable:** Define the `JPACKAGE_HOME` system environment variable. Example: `JPACKAGE_HOME=/opt/java/jdk-19+36`.
+* **Environment Variable:** Set the system environment variable `JPACKAGE_HOME` to the home directory of JDK 19.
+  * Verify that your `JPACKAGE_HOME` system environment variable is configured accurately, example:
+    ```
+	echo $JPACKAGE_HOME
+	/opt/java/jdk-19.0.2+7
+	```
 * **Additional Packages:** Install the following packages:
   * `fakeroot` (`/usr/bin/fakeroot`)
   * `gcc-multilib`
@@ -49,7 +59,12 @@ $ mvn clean package
 
 * **Host:** Red Hat Enterprise Linux (Centos, Ubuntu, etc.)
 * **JPackage Setup:** Install JDK 19 to enable the `jpackage` utility
-* **Environment Variable:** Define the `JPACKAGE_HOME` system environment variable. Example: `JPACKAGE_HOME=/opt/java/jdk-19+36`.
+* **Environment Variable:** Set the system environment variable `JPACKAGE_HOME` to the home directory of JDK 19.
+  * Verify that your `JPACKAGE_HOME` system environment variable is configured accurately, example:
+    ```
+	echo $JPACKAGE_HOME
+	/opt/java/jdk-19.0.2+7
+	```
 * **Additional Packages:** Install the `rpm-build` package (`/usr/bin/rpmbuild`).
 * Execute the `mvn package` command within the Metricshub root directory (`metricshub`). You can find the `.rpm` package in the `metricshub/metricshub-rhel/target` directory upon completion (`metricshub-rhel-<version>-1.x86_64.rpm`).
 
