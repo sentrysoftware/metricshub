@@ -39,3 +39,6 @@ node_modules
 
 ### MacOS ###
 .DS_Store
+
+### Connectors used for testing ###
+/metricshub-agent/connectors

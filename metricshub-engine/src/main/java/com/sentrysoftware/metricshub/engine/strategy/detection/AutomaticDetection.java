@@ -106,7 +106,9 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 				.collect(Collectors.toList()); //NOSONAR
 
 		// Filter onLastResort Connectors
-		return filterLastResort(connectorTestResults);
+		filterLastResortConnectors(connectorTestResults, hostname);
+
+		return connectorTestResults;
 	}
 
 	/**
