@@ -377,7 +377,7 @@ public class ComputeProcessor implements IComputeProcessor {
 			final List<String> awkResultLines = FilterResultHelper.selectedColumns(
 				filterLines,
 				awk.getSeparators(),
-				awk.getSelectColumns().replaceAll("\\s+", EMPTY)
+				awk.getSelectColumns() == null ? EMPTY : awk.getSelectColumns().replaceAll("\\s+", EMPTY)
 			);
 			awkResult =
 				awkResultLines
