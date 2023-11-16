@@ -3,12 +3,14 @@ package com.sentrysoftware.metricshub.cli.service.protocol;
 import com.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
 @Data
-public class HttpConfigCli implements IProtocolConfigCli {
+@EqualsAndHashCode(callSuper = true)
+public class HttpConfigCli extends AbstractTransportProtocolCli {
 
 	public static final int DEFAULT_TIMEOUT = 30;
 
@@ -19,11 +21,11 @@ public class HttpConfigCli implements IProtocolConfigCli {
 
 		@Getter
 		@Option(names = "--http", order = 1, description = "Enables HTTP", required = true)
-		private boolean http;
+		boolean http;
 
 		@Getter
 		@Option(names = "--https", order = 2, description = "Enables HTTPS", required = true)
-		private boolean https;
+		boolean https;
 	}
 
 	@Option(
@@ -70,11 +72,35 @@ public class HttpConfigCli implements IProtocolConfigCli {
 	public IConfiguration toProtocol(String defaultUsername, char[] defaultPassword) {
 		return HttpConfiguration
 			.builder()
-			.https(httpOrHttps.https)
-			.port(port != null ? port : httpOrHttps.https ? 443 : 80)
+			.https(isHttps())
+			.port(getOrDeducePortNumber())
 			.username(username == null ? defaultUsername : username)
 			.password(username == null ? defaultPassword : password)
 			.timeout(timeout)
 			.build();
+	}
+
+	/**
+	 * @return Whether HTTPS is configured or not
+	 */
+	@Override
+	protected boolean isHttps() {
+		return httpOrHttps.https;
+	}
+
+	/**
+	 * @return Default HTTPS port number
+	 */
+	@Override
+	protected int defaultHttpsPortNumber() {
+		return 443;
+	}
+
+	/**
+	 * @return Default HTTP port number
+	 */
+	@Override
+	protected int defaultHttpPortNumber() {
+		return 80;
 	}
 }
