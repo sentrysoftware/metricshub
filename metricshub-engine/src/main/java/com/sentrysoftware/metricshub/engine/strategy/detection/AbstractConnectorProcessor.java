@@ -148,7 +148,7 @@ public abstract class AbstractConnectorProcessor {
 	 * discovered by a "regular" connector.
 	 *
 	 * @param matchingConnectorTestResultList The list of detected connectors, that match the host
-	 * @param hostname      		          The name of the host currently discovered
+	 * @param hostname                        The name of the host currently discovered
 	 *
 	 */
 	void filterLastResortConnectors(
