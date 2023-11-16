@@ -41,7 +41,7 @@ class ForceSerializationHelperTest {
 		.headers(Arrays.asList(SELECT_COLUMNS.split(MetricsHubConstants.COMMA)))
 		.build();
 	private static final String DESCRIPTION = "source";
-	private static final String CONNECTOR_NAME = "connector";
+	private static final String CONNECTOR_ID = "connector";
 
 	@Test
 	void testForceSerializationNullArguments() {
@@ -55,7 +55,7 @@ class ForceSerializationHelperTest {
 				ForceSerializationHelper.forceSerialization(
 					null,
 					telemetryManager,
-					CONNECTOR_NAME,
+					CONNECTOR_ID,
 					snmpTableSource,
 					DESCRIPTION,
 					emptySourceTable
@@ -68,7 +68,7 @@ class ForceSerializationHelperTest {
 				ForceSerializationHelper.forceSerialization(
 					() -> emptySourceTable,
 					null,
-					CONNECTOR_NAME,
+					CONNECTOR_ID,
 					snmpTableSource,
 					DESCRIPTION,
 					emptySourceTable
@@ -94,7 +94,7 @@ class ForceSerializationHelperTest {
 				ForceSerializationHelper.forceSerialization(
 					() -> emptySourceTable,
 					telemetryManager,
-					CONNECTOR_NAME,
+					CONNECTOR_ID,
 					snmpTableSource,
 					null,
 					emptySourceTable
@@ -107,7 +107,7 @@ class ForceSerializationHelperTest {
 				ForceSerializationHelper.forceSerialization(
 					() -> emptySourceTable,
 					telemetryManager,
-					CONNECTOR_NAME,
+					CONNECTOR_ID,
 					snmpTableSource,
 					DESCRIPTION,
 					null
@@ -124,7 +124,7 @@ class ForceSerializationHelperTest {
 
 		telemetryManager.setHostConfiguration(HostConfiguration.builder().hostname(HOST_NAME).build());
 
-		telemetryManager.getHostProperties().getConnectorNamespace(CONNECTOR_NAME).setForceSerializationLock(spyLock);
+		telemetryManager.getHostProperties().getConnectorNamespace(CONNECTOR_ID).setForceSerializationLock(spyLock);
 
 		doThrow(InterruptedException.class).when(spyLock).tryLock(anyLong(), any(TimeUnit.class));
 
@@ -133,7 +133,7 @@ class ForceSerializationHelperTest {
 			ForceSerializationHelper.forceSerialization(
 				() -> SourceTable.builder().table(List.of(List.of("a", "b", "c"))),
 				telemetryManager,
-				CONNECTOR_NAME,
+				CONNECTOR_ID,
 				snmpTableSource,
 				DESCRIPTION,
 				emptySourceTable
@@ -150,7 +150,7 @@ class ForceSerializationHelperTest {
 
 		telemetryManager.setHostConfiguration(HostConfiguration.builder().hostname(HOST_NAME).build());
 
-		telemetryManager.getHostProperties().getConnectorNamespace(CONNECTOR_NAME).setForceSerializationLock(spyLock);
+		telemetryManager.getHostProperties().getConnectorNamespace(CONNECTOR_ID).setForceSerializationLock(spyLock);
 
 		doReturn(false).when(spyLock).tryLock(anyLong(), any(TimeUnit.class));
 
@@ -159,7 +159,7 @@ class ForceSerializationHelperTest {
 			ForceSerializationHelper.forceSerialization(
 				() -> SourceTable.builder().table(List.of(List.of("a", "b", "c"))),
 				telemetryManager,
-				CONNECTOR_NAME,
+				CONNECTOR_ID,
 				snmpTableSource,
 				DESCRIPTION,
 				emptySourceTable
@@ -188,7 +188,7 @@ class ForceSerializationHelperTest {
 			)
 			.build();
 
-		telemetryManager.getHostProperties().getConnectorNamespace(CONNECTOR_NAME);
+		telemetryManager.getHostProperties().getConnectorNamespace(CONNECTOR_ID);
 
 		doReturn(EXPECTED_SNMP_TABLE_DATA)
 			.when(matsyaClientsExecutor)
@@ -196,7 +196,7 @@ class ForceSerializationHelperTest {
 
 		final ISourceProcessor processor = SourceProcessor
 			.builder()
-			.connectorName(CONNECTOR_NAME)
+			.connectorId(CONNECTOR_ID)
 			.matsyaClientsExecutor(matsyaClientsExecutor)
 			.telemetryManager(telemetryManager)
 			.build();
@@ -206,7 +206,7 @@ class ForceSerializationHelperTest {
 			ForceSerializationHelper.forceSerialization(
 				() -> snmpTableSource.accept(processor),
 				telemetryManager,
-				CONNECTOR_NAME,
+				CONNECTOR_ID,
 				snmpTableSource,
 				DESCRIPTION,
 				SourceTable.empty()
@@ -235,7 +235,7 @@ class ForceSerializationHelperTest {
 			)
 			.build();
 
-		telemetryManager.getHostProperties().getConnectorNamespace(CONNECTOR_NAME);
+		telemetryManager.getHostProperties().getConnectorNamespace(CONNECTOR_ID);
 
 		doReturn(EXPECTED_SNMP_TABLE_DATA)
 			.when(matsyaClientsExecutor)
@@ -243,7 +243,7 @@ class ForceSerializationHelperTest {
 
 		final ISourceProcessor processor = SourceProcessor
 			.builder()
-			.connectorName(CONNECTOR_NAME)
+			.connectorId(CONNECTOR_ID)
 			.matsyaClientsExecutor(matsyaClientsExecutor)
 			.telemetryManager(telemetryManager)
 			.build();
@@ -254,7 +254,7 @@ class ForceSerializationHelperTest {
 			ForceSerializationHelper.forceSerialization(
 				() -> snmpTableSource.accept(processor),
 				telemetryManager,
-				CONNECTOR_NAME,
+				CONNECTOR_ID,
 				snmpTableSource,
 				DESCRIPTION,
 				SourceTable.empty()
@@ -264,7 +264,7 @@ class ForceSerializationHelperTest {
 			ForceSerializationHelper.forceSerialization(
 				() -> snmpTableSource.accept(processor),
 				telemetryManager,
-				CONNECTOR_NAME,
+				CONNECTOR_ID,
 				snmpTableSource,
 				DESCRIPTION,
 				SourceTable.empty()
