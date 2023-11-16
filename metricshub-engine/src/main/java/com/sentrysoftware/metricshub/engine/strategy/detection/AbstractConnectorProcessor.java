@@ -147,98 +147,126 @@ public abstract class AbstractConnectorProcessor {
 	 * Removes detected connectors of type "last resort" if their specified "last resort" monitor type (enclosure, fan, etc.) is already
 	 * discovered by a "regular" connector.
 	 *
-	 * @param matchingConnectorList The list of detected connectors, that match the host
-	 * @param hostname      		The name of the host currently discovered
+	 * @param matchingConnectorTestResultList The list of detected connectors, that match the host
+	 * @param hostname      		          The name of the host currently discovered
 	 *
 	 */
-	void filterLastResortConnectors(List<ConnectorTestResult> matchingConnectorList, final String hostname) {
+	void filterLastResortConnectors(
+		final @NonNull List<ConnectorTestResult> matchingConnectorTestResultList,
+		final @NonNull String hostname
+	) {
 		// Extract the list of last resort connectors from the list of matching connectors
-		final List<ConnectorTestResult> lastResortConnectorList = matchingConnectorList
+		final List<ConnectorTestResult> lastResortConnectorTestResultList = matchingConnectorTestResultList
 			.stream()
-			.filter(tc -> tc.getConnector().getConnectorIdentity().getDetection().getOnLastResort() != null)
+			.filter(connectorTestResult ->
+				connectorTestResult.getConnector().getConnectorIdentity().getDetection().getOnLastResort() != null
+			)
 			.collect(Collectors.toList());
 
-		if (lastResortConnectorList.isEmpty()) {
+		if (lastResortConnectorTestResultList.isEmpty()) {
 			return;
 		}
 
-		// Extract the list of regular connectors connectors from the list of matching connectors
-		final List<ConnectorTestResult> regularConnectorList = matchingConnectorList
+		// Extract the list of regular connectors from the list of matching connectors
+		final List<ConnectorTestResult> regularConnectorTestResultList = matchingConnectorTestResultList
 			.stream()
-			.filter(tc -> tc.getConnector().getConnectorIdentity().getDetection().getOnLastResort() == null)
+			.filter(connectorTestResult ->
+				connectorTestResult.getConnector().getConnectorIdentity().getDetection().getOnLastResort() == null
+			)
 			.collect(Collectors.toList());
 
 		// Go through the list of last resort connectors and remove them if a regular connector discovers the same monitor type
-		String[] connectorNameHolder = new String[1];
-		lastResortConnectorList.forEach(lastResortTC -> {
-			boolean hasLastResortMonitor = regularConnectorList
+		final String[] connectorIdHolder = new String[1];
+		lastResortConnectorTestResultList.forEach(lastResortConnectorTestResult -> {
+			boolean hasLastResortMonitor = regularConnectorTestResultList
 				.stream()
-				.anyMatch(tc -> {
-					final Map<String, MonitorJob> monitorJobs = tc.getConnector().getMonitors();
-
-					// Remember connector's filename
-					connectorNameHolder[0] = tc.getConnector().getCompiledFilename();
-
-					if (monitorJobs == null || monitorJobs.isEmpty()) {
-						log.warn(
-							"Hostname {} - {} connector detection. On last resort filter: Connector {} has no hardware monitors.",
-							hostname,
-							hostname,
-							connectorNameHolder[0]
-						);
-
-						return false;
-					}
-
-					// The monitor's job and mapping must not be empty
-					//CHECKSTYLE:OFF
-					return monitorJobs
-						.entrySet()
-						.stream()
-						.anyMatch(mj -> {
-							final MonitorJob monitorJob = mj.getValue();
-							final boolean hasMonitorType = lastResortTC
-								.getConnector()
-								.getConnectorIdentity()
-								.getDetection()
-								.getOnLastResort()
-								.equals(mj.getKey());
-							if (monitorJob != null) {
-								if (monitorJob instanceof SimpleMonitorJob simpleMonitorJob) {
-									return (
-										hasMonitorType &&
-										simpleMonitorJob.getSimple() != null &&
-										simpleMonitorJob.getSimple().getMapping() != null
-									);
-								} else if (monitorJob instanceof StandardMonitorJob standardMonitorJob) {
-									return (
-										hasMonitorType &&
-										standardMonitorJob.getDiscovery() != null &&
-										standardMonitorJob.getDiscovery().getMapping() != null
-									);
-								}
-							}
-							return false;
-						});
-					//CHECKSTYLE:ON
-				});
+				.anyMatch(regularConnectorTestResult ->
+					hasLastResortMonitorJob(
+						hostname,
+						connectorIdHolder,
+						regularConnectorTestResult,
+						lastResortConnectorTestResult
+					)
+				);
 
 			if (hasLastResortMonitor) {
 				// The current connector discovers the same type has the defined last resort type. Discard last resort connector
-				matchingConnectorList.remove(lastResortTC);
+				matchingConnectorTestResultList.remove(lastResortConnectorTestResult);
 
 				log.info(
 					"Hostname {} - {} is a \"last resort\" connector and its components are already discovered thanks to connector {}. Connector is therefore discarded.",
 					hostname,
-					lastResortTC.getConnector().getCompiledFilename(),
-					connectorNameHolder[0]
+					lastResortConnectorTestResult.getConnector().getCompiledFilename(),
+					connectorIdHolder[0]
 				);
 			} else {
 				// Add the last resort connector to the list of "regular" connectors so that it prevents other
 				// last resort connectors of the same type from matching (but that should never happen, right connector developers?)
-				regularConnectorList.add(lastResortTC);
+				regularConnectorTestResultList.add(lastResortConnectorTestResult);
 			}
 		});
+	}
+
+	/**
+	 * Whether the regular connector test result has last resort monitor job defining a discovery or simple job and having a mapping section
+	 *
+	 * @param hostname                      The name of the host currently discovered
+	 * @param connectorIdHolder             Holds connector identifier used to remember connector identifier through the lambda expression
+	 * @param regularConnectorTestResult    Detected connector result, that matches the host and haven't a last resort monitor directive
+	 * @param lastResortConnectorTestResult Detected connector result, that matches the host and have a last resort monitor directive
+	 * @return boolean value
+	 */
+	private boolean hasLastResortMonitorJob(
+		final String hostname,
+		final String[] connectorIdHolder,
+		final ConnectorTestResult regularConnectorTestResult,
+		final ConnectorTestResult lastResortConnectorTestResult
+	) {
+		final Map<String, MonitorJob> monitorJobs = regularConnectorTestResult.getConnector().getMonitors();
+
+		// Remember connector's identifier
+		connectorIdHolder[0] = regularConnectorTestResult.getConnector().getCompiledFilename();
+
+		if (monitorJobs == null || monitorJobs.isEmpty()) {
+			log.warn(
+				"Hostname {} - {} connector detection. On last resort filter: Connector {} has no hardware monitors.",
+				hostname,
+				hostname,
+				connectorIdHolder[0]
+			);
+
+			return false;
+		}
+
+		// The monitor's job and mapping must not be empty
+		return monitorJobs
+			.entrySet()
+			.stream()
+			.anyMatch(monitorJobEntry -> {
+				final boolean hasLastResortMonitorType = lastResortConnectorTestResult
+					.getConnector()
+					.getConnectorIdentity()
+					.getDetection()
+					.getOnLastResort()
+					.equals(monitorJobEntry.getKey());
+
+				// If there is no monitor job entry having the last resort, we consider
+				// that the regular connector test result hasn't the last resort monitor job
+				if (!hasLastResortMonitorType) {
+					return false;
+				}
+
+				// Make sure we really have monitoring job discovering the last resort monitor type
+				final MonitorJob monitorJob = monitorJobEntry.getValue();
+				if (monitorJob != null) {
+					if (monitorJob instanceof SimpleMonitorJob simpleMonitorJob) {
+						return simpleMonitorJob.getSimple() != null && simpleMonitorJob.getSimple().getMapping() != null;
+					} else if (monitorJob instanceof StandardMonitorJob standardMonitorJob) {
+						return standardMonitorJob.getDiscovery() != null && standardMonitorJob.getDiscovery().getMapping() != null;
+					}
+				}
+				return false;
+			});
 	}
 
 	/**
