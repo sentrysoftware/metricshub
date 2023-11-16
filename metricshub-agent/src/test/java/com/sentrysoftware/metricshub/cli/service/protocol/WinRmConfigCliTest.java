@@ -45,4 +45,17 @@ class WinRmConfigCliTest {
 			winRmConfigCli.toProtocol(username, password)
 		);
 	}
+
+	@Test
+	void testGetOrDeducePortNumber() {
+		final WinRmConfigCli winRmConfigCli = new WinRmConfigCli();
+		final int expectedPortNumber = 4443;
+		winRmConfigCli.setPort(expectedPortNumber);
+		assertEquals(expectedPortNumber, winRmConfigCli.getOrDeducePortNumber());
+		winRmConfigCli.setPort(null);
+		winRmConfigCli.setProtocol(TransportProtocols.HTTPS);
+		assertEquals(5986, winRmConfigCli.getOrDeducePortNumber());
+		winRmConfigCli.setProtocol(TransportProtocols.HTTP);
+		assertEquals(5985, winRmConfigCli.getOrDeducePortNumber());
+	}
 }

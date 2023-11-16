@@ -7,10 +7,12 @@ import com.sentrysoftware.metricshub.engine.configuration.TransportProtocols;
 import com.sentrysoftware.metricshub.engine.configuration.WinRmConfiguration;
 import java.util.List;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import picocli.CommandLine.Option;
 
 @Data
-public class WinRmConfigCli implements IProtocolConfigCli {
+@EqualsAndHashCode(callSuper = true)
+public class WinRmConfigCli extends AbstractTransportProtocolCli {
 
 	public static final int DEFAULT_TIMEOUT = 30;
 	public static final Integer DEFAULT_HTTP_PORT = 5985;
@@ -89,23 +91,39 @@ public class WinRmConfigCli implements IProtocolConfigCli {
 	 */
 	@Override
 	public IConfiguration toProtocol(String defaultUsername, char[] defaultPassword) {
-		if (port == null) {
-			if (TransportProtocols.HTTP.equals(protocol)) {
-				port = 5985;
-			} else {
-				port = 5986;
-			}
-		}
-
 		return WinRmConfiguration
 			.builder()
 			.username(username == null ? defaultUsername : username)
 			.password(username == null ? defaultPassword : password)
 			.namespace(namespace)
-			.port(port)
+			.port(getOrDeducePortNumber())
 			.protocol(protocol)
 			.authentications(authentications)
 			.timeout(timeout)
 			.build();
+	}
+
+	/**
+	 * @return Default HTTPS Port Number for WinRM
+	 */
+	protected int defaultHttpsPortNumber() {
+		return 5986;
+	}
+
+	/**
+	 * @return Default HTTP Port Number for WinRM
+	 */
+	protected int defaultHttpPortNumber() {
+		return 5985;
+	}
+
+	/**
+	 * Whether HTTPS is configured or not
+	 *
+	 * @return boolean value
+	 */
+	@Override
+	protected boolean isHttps() {
+		return TransportProtocols.HTTPS.equals(protocol);
 	}
 }

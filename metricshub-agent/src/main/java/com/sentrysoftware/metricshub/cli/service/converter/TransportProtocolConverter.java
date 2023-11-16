@@ -10,7 +10,7 @@ public class TransportProtocolConverter implements ITypeConverter<TransportProto
 	public TransportProtocols convert(final String transportProtocol) throws Exception {
 		try {
 			return TransportProtocols.interpretValueOf(transportProtocol);
-		} catch (IllegalArgumentException e) {
+		} catch (Exception e) {
 			throw new TypeConversionException(e.getMessage());
 		}
 	}
