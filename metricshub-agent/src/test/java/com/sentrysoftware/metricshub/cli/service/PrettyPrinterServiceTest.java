@@ -1,15 +1,19 @@
 package com.sentrysoftware.metricshub.cli.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.sentrysoftware.metricshub.cli.helper.StringBuilderWriter;
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
+import com.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;
 import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.Map;
+import java.util.Optional;
 import org.fusesource.jansi.Ansi;
 import org.junit.jupiter.api.Test;
 
@@ -41,7 +45,7 @@ class PrettyPrinterServiceTest {
 	private static final String HOST_ID_VALUE = "server-1.organization.com";
 
 	@Test
-	void testPrint() {
+	void testPrint() throws IOException {
 		// Create a new TelemetryManager to wrap all the monitors
 		final TelemetryManager telemetryManager = new TelemetryManager();
 
@@ -216,13 +220,14 @@ class PrettyPrinterServiceTest {
 	 * @param battery1  First battery monitor instance
 	 * @param battery2  Second battery monitor instance
 	 * @return String value
+	 * @throws IOException
 	 */
 	private String buildExpected(
 		final Monitor host,
 		final Monitor enclosure,
 		final Monitor battery1,
 		final Monitor battery2
-	) {
+	) throws IOException {
 		final StringBuilder builder = new StringBuilder();
 		// Instantiate a new StringBuilderWriter
 		final Writer writer = new StringBuilderWriter(builder);
@@ -300,5 +305,18 @@ class PrettyPrinterServiceTest {
 		printWriter.flush();
 
 		return builder.toString();
+	}
+
+	@Test
+	void testFetchUnit() {
+		final String energyMetric = "hw.energy";
+		assertTrue(PrettyPrinterService.fetchUnit(energyMetric, Optional.empty()).isEmpty());
+		final String unit = "J";
+
+		final Map<String, MetricDefinition> metricDefintionsMap = Map.of(
+			energyMetric,
+			MetricDefinition.builder().unit(unit).build()
+		);
+		assertEquals(Optional.of(unit), PrettyPrinterService.fetchUnit(energyMetric, Optional.of(metricDefintionsMap)));
 	}
 }

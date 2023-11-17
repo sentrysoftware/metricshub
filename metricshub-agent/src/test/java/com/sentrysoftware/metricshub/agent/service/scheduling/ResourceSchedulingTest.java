@@ -12,7 +12,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.sentrysoftware.metricshub.agent.config.ResourceConfig;
-import com.sentrysoftware.metricshub.agent.context.AgentContext;
+import com.sentrysoftware.metricshub.agent.helper.ConfigHelper;
 import com.sentrysoftware.metricshub.agent.service.task.MonitoringTask;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import java.io.IOException;
@@ -42,7 +42,7 @@ class ResourceSchedulingTest {
 		doReturn(scheduledFutureMock).when(taskSchedulerMock).schedule(any(Runnable.class), any(Trigger.class));
 		final ResourceScheduling resourceScheduling = ResourceScheduling
 			.builder()
-			.withHostMetricDefinitions(AgentContext.readHostMetricDefinitions())
+			.withHostMetricDefinitions(ConfigHelper.readHostMetricDefinitions())
 			.withOtelSdkConfiguration(new HashMap<>())
 			.withResourceConfig(resourceConfig)
 			.withTelemetryManager(new TelemetryManager())

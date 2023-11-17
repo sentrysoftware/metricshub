@@ -24,6 +24,7 @@ import com.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration.SnmpVersion;
 import com.sentrysoftware.metricshub.engine.connector.model.Connector;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
+import com.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import java.io.File;
 import java.io.FileInputStream;
@@ -501,5 +502,26 @@ class ConfigHelperTest {
 			// Make sure the original store is unchanged and remained empty
 			assertTrue(connectorStore.getStore().isEmpty());
 		}
+	}
+
+	@Test
+	void testFetchMetricDefinitions() {
+		final ConnectorStore connectorStore = new ConnectorStore();
+		final Map<String, MetricDefinition> metricDefintionsMap = Map.of(
+			"metric",
+			MetricDefinition.builder().unit("unit").build()
+		);
+		connectorStore.setStore(
+			Map.of(PURE_STORAGE_REST_CONNECTOR_ID, Connector.builder().metrics(metricDefintionsMap).build())
+		);
+
+		assertEquals(
+			Optional.of(metricDefintionsMap),
+			ConfigHelper.fetchMetricDefinitions(connectorStore, PURE_STORAGE_REST_CONNECTOR_ID)
+		);
+		assertTrue(ConfigHelper.fetchMetricDefinitions(connectorStore, "other").isEmpty());
+		assertTrue(ConfigHelper.fetchMetricDefinitions(null, null).isEmpty());
+		assertTrue(ConfigHelper.fetchMetricDefinitions(null, PURE_STORAGE_REST_CONNECTOR_ID).isEmpty());
+		assertTrue(ConfigHelper.fetchMetricDefinitions(connectorStore, null).isEmpty());
 	}
 }

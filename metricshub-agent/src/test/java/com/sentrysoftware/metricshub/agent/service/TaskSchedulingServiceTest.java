@@ -28,8 +28,8 @@ import com.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import com.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
 import com.sentrysoftware.metricshub.agent.config.protocols.ProtocolsConfig;
 import com.sentrysoftware.metricshub.agent.config.protocols.SnmpProtocolConfig;
-import com.sentrysoftware.metricshub.agent.context.AgentContext;
 import com.sentrysoftware.metricshub.agent.context.AgentInfo;
+import com.sentrysoftware.metricshub.agent.helper.ConfigHelper;
 import com.sentrysoftware.metricshub.agent.helper.OtelConfigHelper;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import java.io.IOException;
@@ -189,7 +189,7 @@ class TaskSchedulingServiceTest {
 					Map.of(resourceKey1, new TelemetryManager(), resourceKey2, new TelemetryManager())
 				)
 			)
-			.withHostMetricDefinitions(AgentContext.readHostMetricDefinitions())
+			.withHostMetricDefinitions(ConfigHelper.readHostMetricDefinitions())
 			.build();
 
 		taskSchedulingService.scheduleResourcesInResourceGroups(SENTRY_PARIS_RESOURCE_GROUP_KEY, resourceGroupConfig);

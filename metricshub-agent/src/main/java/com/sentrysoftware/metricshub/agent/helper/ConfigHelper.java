@@ -26,7 +26,9 @@ import com.sentrysoftware.metricshub.agent.config.protocols.SshProtocolConfig;
 import com.sentrysoftware.metricshub.agent.config.protocols.WbemProtocolConfig;
 import com.sentrysoftware.metricshub.agent.config.protocols.WinRmProtocolConfig;
 import com.sentrysoftware.metricshub.agent.config.protocols.WmiProtocolConfig;
+import com.sentrysoftware.metricshub.agent.context.MetricDefinitions;
 import com.sentrysoftware.metricshub.agent.security.PasswordEncrypt;
+import com.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import com.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import com.sentrysoftware.metricshub.engine.common.helpers.ResourceHelper;
@@ -37,6 +39,7 @@ import com.sentrysoftware.metricshub.engine.connector.model.Connector;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import com.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import com.sentrysoftware.metricshub.engine.connector.model.identity.ConnectorIdentity;
+import com.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;
 import com.sentrysoftware.metricshub.engine.security.SecurityManager;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import java.io.File;
@@ -69,6 +72,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.ThreadContext;
+import org.springframework.core.io.ClassPathResource;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Slf4j
@@ -1258,5 +1262,41 @@ public class ConfigHelper {
 	 */
 	public static Path getDirectoryPath(final File file) {
 		return file.getAbsoluteFile().toPath().getParent();
+	}
+
+	/**
+	 * Read {@link MetricDefinitions} for the root monitor instance (Endpoint)
+	 * which is automatically created by the MetricsHub engine
+	 *
+	 * @return new {@link MetricDefinitions} instance
+	 * @throws IOException
+	 */
+	public static MetricDefinitions readHostMetricDefinitions() throws IOException {
+		return JsonHelper.deserialize(
+			newObjectMapper(),
+			new ClassPathResource("metricshub-host-metrics.yaml").getInputStream(),
+			MetricDefinitions.class
+		);
+	}
+
+	/**
+	 * Retrieves the metric definition map associated with the specified connector identifier
+	 * within the provided {@link ConnectorStore}.
+	 *
+	 * @param connectorStore Wrapper for all connectors
+	 * @param connectorId    The unique identifier of the connector
+	 * @return An Optional containing a Map of metric names to their definitions, or empty if metric definitions are not found
+	 */
+	public static Optional<Map<String, MetricDefinition>> fetchMetricDefinitions(
+		final ConnectorStore connectorStore,
+		final String connectorId
+	) {
+		if (connectorStore != null && connectorId != null) {
+			final Connector connector = connectorStore.getStore().get(connectorId);
+			if (connector != null) {
+				return Optional.ofNullable(connector.getMetrics());
+			}
+		}
+		return Optional.empty();
 	}
 }
