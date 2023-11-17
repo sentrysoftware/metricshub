@@ -8,7 +8,6 @@ import com.sentrysoftware.metricshub.agent.helper.OtelHelper;
 import com.sentrysoftware.metricshub.agent.service.signal.MetricTypeVisitor;
 import com.sentrysoftware.metricshub.agent.service.signal.SimpleUpDownCounterMetricObserver;
 import com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
-import com.sentrysoftware.metricshub.engine.connector.model.Connector;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import com.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;
 import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
@@ -152,7 +151,7 @@ public class MonitoringTask implements Runnable {
 					initMonitorMetricObservers(
 						monitor,
 						telemetryManager,
-						retrieveMonitorMetricDefinitionMap(
+						ConfigHelper.fetchMetricDefinitions(
 							connectorStore,
 							monitor.getAttribute(MetricsHubConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID)
 						)
@@ -216,27 +215,6 @@ public class MonitoringTask implements Runnable {
 		initializedMetricsPerMonitorId
 			.computeIfAbsent(host.getId(), id -> new HashSet<>())
 			.add(HOST_CONFIGURED_METRIC_NAME);
-	}
-
-	/**
-	 * Locate the monitor metric definition map associated with the connector identified by
-	 * connectorId, which is anticipated to reside within the provided {@link ConnectorStore}.
-	 *
-	 * @param connectorStore  Wraps all the connectors
-	 * @param connectorId     The unique identifier of the connector
-	 * @return Optional Map of metric name to its definition
-	 */
-	Optional<Map<String, MetricDefinition>> retrieveMonitorMetricDefinitionMap(
-		final ConnectorStore connectorStore,
-		final String connectorId
-	) {
-		if (connectorId != null) {
-			final Connector connector = connectorStore.getStore().get(connectorId);
-			if (connector != null) {
-				return Optional.ofNullable(connector.getMetrics());
-			}
-		}
-		return Optional.empty();
 	}
 
 	/**

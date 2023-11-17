@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.ClassPathResource;
 
 @Data
 @Slf4j
@@ -86,7 +85,7 @@ public class AgentContext {
 		otelCollectorProcessService = new OtelCollectorProcessService(agentConfig);
 
 		// Build the Host Metric Definitions
-		hostMetricDefinitions = readHostMetricDefinitions();
+		hostMetricDefinitions = ConfigHelper.readHostMetricDefinitions();
 
 		// Build the TaskScheduling Service
 		taskSchedulingService =
@@ -106,21 +105,6 @@ public class AgentContext {
 		final Duration startupDuration = Duration.ofNanos(System.nanoTime() - startTime);
 
 		log.info("Started MetricsHub Agent in {} seconds.", startupDuration.toMillis() / 1000.0);
-	}
-
-	/**
-	 * Read {@link MetricDefinitions} for the root monitor instance (Endpoint)
-	 * which is automatically created by the MetricsHub engine
-	 *
-	 * @return new {@link MetricDefinitions} instance
-	 * @throws IOException
-	 */
-	public static MetricDefinitions readHostMetricDefinitions() throws IOException {
-		return JsonHelper.deserialize(
-			ConfigHelper.newObjectMapper(),
-			new ClassPathResource("metricshub-host-metrics.yaml").getInputStream(),
-			MetricDefinitions.class
-		);
 	}
 
 	/**

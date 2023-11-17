@@ -1,16 +1,23 @@
 package com.sentrysoftware.metricshub.cli.service;
 
+import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
+import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_NAME;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_PARENT_ID;
 
+import com.sentrysoftware.metricshub.agent.context.MetricDefinitions;
+import com.sentrysoftware.metricshub.agent.helper.ConfigHelper;
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.common.helpers.NumberHelper;
+import com.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;
+import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Comparator;
@@ -18,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
@@ -29,7 +37,6 @@ import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Attribute;
 
 @Data
-@RequiredArgsConstructor
 public class PrettyPrinterService {
 
 	// @formatter:off
@@ -52,6 +59,15 @@ public class PrettyPrinterService {
 
 	@NonNull
 	private PrintWriter printWriter;
+
+	private MetricDefinitions hostMetricDefinitions;
+
+	public PrettyPrinterService(@NonNull TelemetryManager telemetryManager, @NonNull PrintWriter printWriter)
+		throws IOException {
+		this.telemetryManager = telemetryManager;
+		this.printWriter = printWriter;
+		hostMetricDefinitions = ConfigHelper.readHostMetricDefinitions();
+	}
 
 	/**
 	 * Print the current {@link TelemetryManager} result in a human-readable way.
@@ -154,6 +170,19 @@ public class PrettyPrinterService {
 		// spaces, resulting in the final format string: %-25s
 		final String metricNameFormat = String.format("%%-%ds", metricMaxLength + 5);
 
+		final Optional<Map<String, MetricDefinition>> maybeMetricDefinitions;
+		// Get host monitor's metric definitions
+		if (monitor.isEndpointHost()) {
+			maybeMetricDefinitions = Optional.ofNullable(hostMetricDefinitions.metrics());
+		} else {
+			// Retrieves the metric definitions for any other monitor
+			maybeMetricDefinitions =
+				ConfigHelper.fetchMetricDefinitions(
+					telemetryManager.getConnectorStore(),
+					monitor.getAttribute(MONITOR_ATTRIBUTE_CONNECTOR_ID)
+				);
+		}
+
 		// Iterate through the metrics, printing each metric name along with its corresponding value
 		metrics
 			.entrySet()
@@ -172,8 +201,9 @@ public class PrettyPrinterService {
 				addMargin(indentation);
 
 				if (metric instanceof NumberMetric numberMetric) {
+					final Optional<String> maybeUnit = fetchUnit(MetricFactory.extractName(metricName), maybeMetricDefinitions);
 					// Handle NumberMetric
-					printNumberMetric(formattedMetricName, numberMetric);
+					printNumberMetric(formattedMetricName, numberMetric, maybeUnit);
 				} else if (metric instanceof StateSetMetric stateSetMetric) {
 					// Handle StateSetMetric
 					printStateSetMetric(formattedMetricName, stateSetMetric);
@@ -217,29 +247,36 @@ public class PrettyPrinterService {
 	}
 
 	/**
-	 * Print the formatted metric name and its number value
+	 * Print the formatted metric name along with its numerical value and unit if present.
 	 *
 	 * @param formattedMetricName Metric name formatted with right-padding
 	 * @param numberMetric        Instance of {@link NumberMetric} that specifies the number value to be printed
+	 * @param maybeUnit           {@link Optional} that defines a unit for this metric
 	 */
-	private void printNumberMetric(final String formattedMetricName, NumberMetric numberMetric) {
+	private void printNumberMetric(
+		final String formattedMetricName,
+		final NumberMetric numberMetric,
+		final Optional<String> maybeUnit
+	) {
 		final Double value = numberMetric.getValue();
 		if (value == null) {
 			return;
 		}
 
+		// Construct ANSI formatting for the metric name and value
+		Ansi ansi = Ansi
+			.ansi()
+			.a(Attribute.INTENSITY_FAINT)
+			.a(formattedMetricName)
+			.bold()
+			.a(NumberHelper.formatNumber(value));
+
+		// Include the unit if present
+		if (maybeUnit.isPresent()) {
+			ansi = ansi.a(EMPTY).a(maybeUnit.get());
+		}
 		// Print the metric value
-		printWriter.println(
-			Ansi
-				.ansi()
-				.a(Attribute.INTENSITY_FAINT)
-				.a(formattedMetricName)
-				.bold()
-				.a(NumberHelper.formatNumber(value))
-				.boldOff()
-				.reset()
-				.toString()
-		);
+		printWriter.println(ansi.boldOff().reset().toString());
 	}
 
 	/**
@@ -338,7 +375,26 @@ public class PrettyPrinterService {
 	 * @param indentation Number of chars in indentation
 	 */
 	void addMargin(int indentation) {
-		printWriter.print(" ".repeat(indentation));
+		printWriter.print(EMPTY.repeat(indentation));
+	}
+
+	/**
+	 * Retrieves the unit associated with the specified metric name from the provided metric definition map.
+	 *
+	 * @param metricName               The name of the metric, e.g., "hw.energy"
+	 * @param maybeMetricDefinitionMap Optional {@link Map} containing metric definitions
+	 * @return An {@link Optional} of {@link String} representing the unit of the metric;
+	 *         an empty optional if the metric definition is absent, the metric is not found, or the unit is blank.
+	 */
+	static Optional<String> fetchUnit(
+		final String metricName,
+		final Optional<Map<String, MetricDefinition>> maybeMetricDefinitionMap
+	) {
+		return maybeMetricDefinitionMap
+			.map(map -> map.get(metricName))
+			.filter(Objects::nonNull)
+			.map(MetricDefinition::getUnit)
+			.filter(unit -> Objects.nonNull(unit) && !unit.isBlank());
 	}
 
 	@Data
