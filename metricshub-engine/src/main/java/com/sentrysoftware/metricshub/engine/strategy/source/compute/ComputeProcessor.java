@@ -1617,9 +1617,7 @@ public class ComputeProcessor implements IComputeProcessor {
 				Matcher matcher = COLUMN_PATTERN.matcher(concatString);
 				if (matcher.matches()) {
 					int concatColumnIndex = Integer.parseInt(matcher.group(1)) - 1;
-					if (concatColumnIndex < sourceTable.getTable().get(0).size()) {
-						sourceTable.getTable().forEach(line -> concatColumns(line, columnIndex, concatColumnIndex, abstractConcat));
-					}
+					sourceTable.getTable().forEach(line -> concatColumns(line, columnIndex, concatColumnIndex, abstractConcat));
 				} else {
 					sourceTable.getTable().forEach(line -> concatString(line, columnIndex, abstractConcat));
 
@@ -1664,7 +1662,14 @@ public class ComputeProcessor implements IComputeProcessor {
 		final int concatColumnIndex,
 		final AbstractConcat abstractConcat
 	) {
-		String result = abstractConcat instanceof LeftConcat
+		final int numberOfColumns = line.size();
+
+		// Avoid the IndexOutOfBoundsException
+		if (concatColumnIndex >= numberOfColumns || columnIndex >= numberOfColumns) {
+			return;
+		}
+
+		final String result = abstractConcat instanceof LeftConcat
 			? line.get(concatColumnIndex).concat(line.get(columnIndex))
 			: line.get(columnIndex).concat(line.get(concatColumnIndex));
 
@@ -1687,7 +1692,14 @@ public class ComputeProcessor implements IComputeProcessor {
 	 *                          whether the concatenation should be a left concatenation or a right concatenation.
 	 */
 	private void concatString(final List<String> line, final int columnIndex, final AbstractConcat abstractConcat) {
-		String result = abstractConcat instanceof LeftConcat
+		final int numberOfColumns = line.size();
+
+		// Avoid the IndexOutOfBoundsException
+		if (columnIndex >= numberOfColumns) {
+			return;
+		}
+
+		final String result = abstractConcat instanceof LeftConcat
 			? abstractConcat.getValue().concat(line.get(columnIndex))
 			: line.get(columnIndex).concat(abstractConcat.getValue());
 

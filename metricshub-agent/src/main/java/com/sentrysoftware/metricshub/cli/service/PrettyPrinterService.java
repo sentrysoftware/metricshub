@@ -1,10 +1,10 @@
 package com.sentrysoftware.metricshub.cli.service;
 
-import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_NAME;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_PARENT_ID;
+import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.WHITE_SPACE;
 
 import com.sentrysoftware.metricshub.agent.context.MetricDefinitions;
 import com.sentrysoftware.metricshub.agent.helper.ConfigHelper;
@@ -273,7 +273,7 @@ public class PrettyPrinterService {
 
 		// Include the unit if present
 		if (maybeUnit.isPresent()) {
-			ansi = ansi.a(EMPTY).a(maybeUnit.get());
+			ansi = ansi.a(WHITE_SPACE).a(maybeUnit.get());
 		}
 		// Print the metric value
 		printWriter.println(ansi.boldOff().reset().toString());
@@ -375,7 +375,7 @@ public class PrettyPrinterService {
 	 * @param indentation Number of chars in indentation
 	 */
 	void addMargin(int indentation) {
-		printWriter.print(EMPTY.repeat(indentation));
+		printWriter.print(WHITE_SPACE.repeat(indentation));
 	}
 
 	/**
