@@ -3,6 +3,7 @@ package com.sentrysoftware.metricshub.engine.telemetry;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -19,8 +20,13 @@ public class HostProperties {
 	private boolean isLocalhost;
 	private String ipmitoolCommand;
 	private int ipmiExecutionCount;
-	private Set<String> possibleWmiNamespaces;
-	private Set<String> possibleWbemNamespaces;
+
+	@Default
+	private Set<String> possibleWmiNamespaces = new TreeSet<>();
+
+	@Default
+	private Set<String> possibleWbemNamespaces = new TreeSet<>();
+
 	private String vCenterTicket;
 	private boolean osCommandExecutesLocally;
 	private boolean osCommandExecutesRemotely;
