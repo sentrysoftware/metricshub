@@ -764,6 +764,67 @@ class ComputeProcessorTest {
 	}
 
 	@Test
+	void testProcessLeftConcatColumnIndexOutOfBand() {
+		final List<List<String>> table = sourceTable.getTable();
+		table.clear();
+		table.add(new ArrayList<>(LINE_1));
+		table.add(new ArrayList<>(LINE_3_ONE_COLUMN));
+		final LeftConcat leftConcat = LeftConcat
+			.builder()
+			.column(2)
+			.value(PREFIX)
+			.type(LeftConcat.class.getSimpleName())
+			.build();
+
+		computeProcessor.process(leftConcat);
+
+		assertEquals(PREFIX + NAME1, table.get(0).get(1));
+		assertEquals(1, table.get(1).size());
+		assertEquals(LINE_3_ONE_COLUMN, table.get(1));
+	}
+
+	@Test
+	void testProcessLeftConcatColumnValueOutOfBand() {
+		{
+			final List<List<String>> table = sourceTable.getTable();
+			table.clear();
+			table.add(new ArrayList<>(LINE_1));
+			table.add(new ArrayList<>(LINE_3_ONE_COLUMN));
+			final LeftConcat leftConcat = LeftConcat
+				.builder()
+				.column(1)
+				.value("$4")
+				.type(LeftConcat.class.getSimpleName())
+				.build();
+
+			computeProcessor.process(leftConcat);
+
+			assertEquals(NUMBER_OF_DISKS1 + ID1, table.get(0).get(0));
+			assertEquals(1, table.get(1).size());
+			assertEquals(LINE_3_ONE_COLUMN, table.get(1));
+		}
+
+		{
+			final List<List<String>> table = sourceTable.getTable();
+			table.clear();
+			table.add(new ArrayList<>(LINE_1));
+			table.add(new ArrayList<>(LINE_3_ONE_COLUMN));
+			final LeftConcat leftConcat = LeftConcat
+				.builder()
+				.column(2)
+				.value("$1")
+				.type(LeftConcat.class.getSimpleName())
+				.build();
+
+			computeProcessor.process(leftConcat);
+
+			assertEquals(ID1 + NAME1, table.get(0).get(1));
+			assertEquals(1, table.get(1).size());
+			assertEquals(LINE_3_ONE_COLUMN, table.get(1));
+		}
+	}
+
+	@Test
 	void testProcessRightConcat() {
 		initializeSourceTable();
 
@@ -974,6 +1035,66 @@ class ComputeProcessorTest {
 		rightConcat.setValue("$2");
 		computeProcessor.process(rightConcat);
 		assertEquals(1, computeProcessor.getSourceTable().getTable().size());
+	}
+
+	@Test
+	void testProcessRightConcatColumnIndexOutOfBand() {
+		final List<List<String>> table = sourceTable.getTable();
+		table.clear();
+		table.add(new ArrayList<>(LINE_1));
+		table.add(new ArrayList<>(LINE_3_ONE_COLUMN));
+		final RightConcat rightConcat = RightConcat
+			.builder()
+			.column(2)
+			.value(SUFFIX)
+			.type(RightConcat.class.getSimpleName())
+			.build();
+
+		computeProcessor.process(rightConcat);
+
+		assertEquals(NAME1 + SUFFIX, table.get(0).get(1));
+		assertEquals(1, table.get(1).size());
+		assertEquals(LINE_3_ONE_COLUMN, table.get(1));
+	}
+
+	@Test
+	void testProcessRightConcatColumnValueOutOfBand() {
+		{
+			final List<List<String>> table = sourceTable.getTable();
+			table.clear();
+			table.add(new ArrayList<>(LINE_1));
+			table.add(new ArrayList<>(LINE_3_ONE_COLUMN));
+			final RightConcat rightConcat = RightConcat
+				.builder()
+				.column(1)
+				.value("$4")
+				.type(RightConcat.class.getSimpleName())
+				.build();
+
+			computeProcessor.process(rightConcat);
+
+			assertEquals(ID1 + NUMBER_OF_DISKS1, table.get(0).get(0));
+			assertEquals(1, table.get(1).size());
+			assertEquals(LINE_3_ONE_COLUMN, table.get(1));
+		}
+		{
+			final List<List<String>> table = sourceTable.getTable();
+			table.clear();
+			table.add(new ArrayList<>(LINE_1));
+			table.add(new ArrayList<>(LINE_3_ONE_COLUMN));
+			final RightConcat rightConcat = RightConcat
+				.builder()
+				.column(2)
+				.value("$1")
+				.type(RightConcat.class.getSimpleName())
+				.build();
+
+			computeProcessor.process(rightConcat);
+
+			assertEquals(NAME1 + ID1, table.get(0).get(1));
+			assertEquals(1, table.get(1).size());
+			assertEquals(LINE_3_ONE_COLUMN, table.get(1));
+		}
 	}
 
 	@Test

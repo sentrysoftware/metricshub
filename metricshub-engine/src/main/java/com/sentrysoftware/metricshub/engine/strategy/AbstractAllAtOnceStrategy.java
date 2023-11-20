@@ -212,7 +212,21 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 		final String source = mapping.getSource();
 		if (source == null) {
 			log.warn(
-				"Hostname {} - No instance tables found with {} during the {} for the connector {}.",
+				"Hostname {} - No instance tables found with {} during the {} job for the connector {}. Skip processing.",
+				hostname,
+				monitorType,
+				getJobName(),
+				connectorId
+			);
+			return;
+		}
+
+		// Checking for defined attributes to create monitors based on them
+		// If no attributes are found, skip processing
+		// This may indicate a job created to consolidate source values
+		if (mapping.getAttributes() == null) {
+			log.info(
+				"Hostname {} - No mapping attributes defined with {} during the {} job for the connector {}. Skip processing.",
 				hostname,
 				monitorType,
 				getJobName(),
@@ -226,7 +240,7 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 
 		if (maybeSourceTable.isEmpty()) {
 			log.warn(
-				"Hostname {} - The source table {} is not found during the {} for the connector {}.",
+				"Hostname {} - The source table {} is not found during the {} job for the connector {}. Skip processing.",
 				hostname,
 				source,
 				getJobName(),
@@ -262,7 +276,7 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 
 			final Resource resource = mappingProcessor.interpretMappingResource();
 
-			// Init a monitor factory with the previously created attributes and resources
+			// Initialize a monitor factory with the previously created attributes and resources
 
 			final MonitorFactory monitorFactory = MonitorFactory
 				.builder()
@@ -273,6 +287,19 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 				.connectorId(connectorId)
 				.discoveryTime(strategyTime)
 				.build();
+
+			// The attribute id is mandatory
+			if (noContextAttributeInterpretedValues.get(MONITOR_ATTRIBUTE_ID) == null) {
+				log.info(
+					"Hostname {} - No mapping attribute 'id' found with {} during the {} job for the connector {}. Processed row: {}. The monitor will not be created.",
+					hostname,
+					monitorType,
+					getJobName(),
+					connectorId,
+					row
+				);
+				continue;
+			}
 
 			// Create or update the monitor
 			final Monitor monitor = monitorFactory.createOrUpdateMonitor();
