@@ -53,7 +53,7 @@ processors:
     spike_limit_mib: 400
 
   # filter
-  # Filtering of the metrics. Several filter configurations can be specified.
+  # Filters the metrics. Several filter configurations can be specified.
   # For additional information on filtering options:
   # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/filterprocessor
   # Add your filter entries (e.g. "filter/1") to the pipeline in the processors array to activate it.
@@ -71,7 +71,7 @@ processors:
     timeout: 10s
 
   # resourcedetection
-  # The resource detection processor is used to detect resource information from the host.
+  # Detects resource information from the host.
   # For additional information on the resource detection processor:
   # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/resourcedetectionprocessor
   resourcedetection:
@@ -79,7 +79,7 @@ processors:
     override: false
 
   # metricstransform
-  # Post-processing to be applied to metrics before sending them out. For additional information on all possible actions:
+  # Post-processes the metrics before sending them out. For additional information on all possible actions:
   # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/metricstransformprocessor
   # Add "metricstransform" to the pipeline in the processors array to activate it.
   metricstransform:
