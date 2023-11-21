@@ -1,0 +1,15 @@
+BEGIN {
+
+############################################### Value to be set manually ###############################################
+    #PhysicalDisk  Discovery
+    #PhysicalDisk  DISCOVERY;PdID;PdDisplayId;AttachedToDeviceID;AttachedToDeviceType;ControllerNumber;Vendor;Model;FirmwareVersion;Size;SerialNumber
+    print "DISCOVERY;1;Disk 01;1;Enclosure;1;Western Digital;666;12E;300000000000;154ERFD455"
+    print "DISCOVERY;2;Disk 02;1;Enclosure;1;Western Digital;784.1;12E;1000000000000;154ERFD455"
+    print "DISCOVERY;3;Disk 03;1;Enclosure;1;Wester Digital;784.2;12E;200000000000;154ERFD455"
+
+    #PhysicalDisk  Collect
+    #PhysicalDisk  COLLECT;PdID;PdStatus;StatusInformation;PredictedFailure;ErrorCount;DeviceNotReadyErrorCount;MediaErrorCount;NoDeviceErrorCount;HardErrorCount;IllegalRequestErrorCount;RecoverableErrorCount;TransportErrorCount
+    print "COLLECT;1;OK;Disk OK;True;1;1;1;41;1;1;1;1"
+    print "COLLECT;2;OK;Disk OK;True;1;1;1;41;1;1;1;1"
+    print "COLLECT;3;OK;Disk OK;True;1;1;1;41;1;1;1;1"
+}

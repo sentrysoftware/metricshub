@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -48,8 +49,14 @@ public class ConnectorSelection extends AbstractConnectorProcessor {
 			return Collections.emptyList();
 		}
 
-		final Set<String> selectedConnectors = hostConfiguration.getSelectedConnectors();
-		if (selectedConnectors == null || selectedConnectors.isEmpty()) {
+		final Set<String> caseInsensitiveSelectedConnectors = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+		final Set<String> caseSensitiveSelectedConnectors = hostConfiguration.getSelectedConnectors();
+
+		if (caseSensitiveSelectedConnectors != null) {
+			caseInsensitiveSelectedConnectors.addAll(caseSensitiveSelectedConnectors);
+		}
+
+		if (caseInsensitiveSelectedConnectors == null || caseInsensitiveSelectedConnectors.isEmpty()) {
 			log.error(
 				"Hostname {} - No connectors have been selected for the detection. Stopping discovery operation.",
 				hostname
@@ -58,7 +65,10 @@ public class ConnectorSelection extends AbstractConnectorProcessor {
 		}
 
 		return runAllConnectorsDetectionCriteria(
-			connectorStore.values().stream().filter(connector -> isConnectorContainedInSet(connector, selectedConnectors)),
+			connectorStore
+				.values()
+				.stream()
+				.filter(connector -> isConnectorContainedInSet(connector, caseInsensitiveSelectedConnectors)),
 			hostConfiguration
 		)
 			.collect(Collectors.toList()); //NOSONAR
