@@ -61,7 +61,7 @@ public class WbemConfigCli extends AbstractTransportProtocolCli {
 		names = "--wbem-force-namespace",
 		order = 7,
 		paramLabel = "NAMESPACE",
-		description = "Force a specific namespace for connectors that perform namespace auto-detection (advanced)"
+		description = "Forces a specific namespace for connectors that perform namespace auto-detection (advanced)"
 	)
 	String namespace;
 

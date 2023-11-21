@@ -65,9 +65,9 @@ import picocli.CommandLine.Spec;
 	descriptionHeading = "%n@|bold,underline Description|@:%n%n",
 	description = "This tool is the CLI version of the @|italic MetricsHub|@ engine. " +
 	"MetricsHub monitors diverse technologies, encompassing applications, servers, and devices, particularly those without readily available monitoring solutions.%n%n" +
-	"It natively leverages various system management protocols to discover the hardware components of a system, " +
+	"It natively leverages various system management protocols to discover the hardware components of a system " +
 	"and report their operational status.%n%n" +
-	"Additionally, the power consumption of the system is measured, or estimated if no power sensor is detected.",
+	"Additionally, MetricsHub measures the power consumption of the system, or makes an estimation if no power sensor is detected.",
 	parameterListHeading = "%n@|bold,underline Parameters|@:%n",
 	optionListHeading = "%n@|bold,underline Options|@:%n",
 	customSynopsis = {
@@ -91,7 +91,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 	@Option(names = { "-h", "-?", "--help" }, usageHelp = true, description = "Shows this help message and exits")
 	boolean usageHelpRequested;
 
-	@Parameters(index = "0", paramLabel = "HOSTNAME", description = "Hostname of IP address of the host to monitor")
+	@Parameters(index = "0", paramLabel = "HOSTNAME", description = "Hostname or IP address of the host to monitor")
 	String hostname;
 
 	@Option(
@@ -99,7 +99,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		order = 1,
 		required = true,
 		paramLabel = "TYPE",
-		description = "Type of the host to monitor (lin, linux, win, windows, mgmt, management, storage, network, aix, hpux, solaris, tru64, vms)",
+		description = "Reports the type of the host to monitor (lin, linux, win, windows, mgmt, management, storage, network, aix, hpux, solaris, tru64, vms)",
 		converter = DeviceKindConverter.class
 	)
 	DeviceKind deviceType;
@@ -143,7 +143,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		order = 4,
 		split = ",",
 		paramLabel = "CONNECTOR",
-		description = "Force selected hardware connectors to connect to the host (use @|bold ${ROOT-COMMAND-NAME} -l|@ to get the list of connectors)"
+		description = "Forces the selected hardware connectors to connect to the host (use @|bold ${ROOT-COMMAND-NAME} -l|@ to get the list of connectors)"
 	)
 	Set<String> connectors;
 
@@ -152,7 +152,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		order = 5,
 		split = ",",
 		paramLabel = "CONNECTOR",
-		description = "Exclude connectors from the automatic detection process (use @|bold ${ROOT-COMMAND-NAME} -l|@ to get the list of connectors)"
+		description = "Excludes connectors from the automatic detection process (use @|bold ${ROOT-COMMAND-NAME} -l|@ to get the list of connectors)"
 	)
 	Set<String> excludedConnectors;
 
@@ -160,7 +160,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		names = { "-s", "--sequential" },
 		order = 6,
 		defaultValue = "false",
-		description = "Force all network calls to be executed in sequential order. (default: ${DEFAULT-VALUE})",
+		description = "Forces all network calls to be executed in sequential order. (default: ${DEFAULT-VALUE})",
 		help = true
 	)
 	boolean sequential;
@@ -172,7 +172,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		names = { "-l", "--list" },
 		help = true,
 		order = 8,
-		description = "Lists all connectors bundled in the engine, that can be selected or excluded"
+		description = "Lists all connectors bundled in the engine that can be selected or excluded"
 	)
 	boolean listConnectors;
 

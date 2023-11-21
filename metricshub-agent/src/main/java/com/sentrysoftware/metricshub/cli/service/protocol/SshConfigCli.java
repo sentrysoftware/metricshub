@@ -54,7 +54,7 @@ public class SshConfigCli implements IProtocolConfigCli {
 		names = "--ssh-usesudo-commands",
 		order = 6,
 		paramLabel = "COMMAND",
-		description = "List of commands for which @|italic sudo|@ is required",
+		description = "List of commands that requires @|italic sudo|@",
 		split = ","
 	)
 	private Set<String> useSudoCommands;

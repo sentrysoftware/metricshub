@@ -50,7 +50,7 @@ public class IpmiConfigCli implements IProtocolConfigCli {
 		names = "--ipmi-skip-auth",
 		order = 5,
 		defaultValue = "false",
-		description = "Whether to skip IPMI-over-LAN authentication"
+		description = "Skips IPMI-over-LAN authentication"
 	)
 	private boolean skipAuth;
 

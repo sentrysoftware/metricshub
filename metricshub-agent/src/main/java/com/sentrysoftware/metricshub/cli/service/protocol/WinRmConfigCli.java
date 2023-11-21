@@ -80,7 +80,7 @@ public class WinRmConfigCli extends AbstractTransportProtocolCli {
 		names = { "--winrm-force-namespace" },
 		order = 8,
 		paramLabel = "NAMESPACE",
-		description = "Force a specific namespace for connectors that perform namespace auto-detection (advanced)"
+		description = "Forces a specific namespace for connectors that perform namespace auto-detection (advanced)"
 	)
 	private String namespace;
 
