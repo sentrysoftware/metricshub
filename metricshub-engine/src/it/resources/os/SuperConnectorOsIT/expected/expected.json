@@ -1,0 +1,47 @@
+{
+  "total" : 1,
+  "monitors" : [ {
+    "metrics" : {
+      "hw.status{hw.type=\"host\", state=\"present\"}" : {
+        "name" : "hw.status{hw.type=\"host\", state=\"present\"}",
+        "collectTime" : 1700564958954,
+        "previousCollectTime" : 1700564958890,
+        "attributes" : {
+          "state" : "present",
+          "hw.type" : "host"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : 1.0,
+        "type" : "NumberMetric",
+        "updated" : true
+      }
+    },
+    "attributes" : {
+      "is_endpoint" : "true",
+      "id" : "localhost",
+      "name" : "localhost",
+      "location" : "local"
+    },
+    "conditionalCollection" : { },
+    "legacyTextParameters" : { },
+    "alertRules" : { },
+    "resource" : {
+      "type" : "host",
+      "attributes" : {
+        "os.type" : "storage",
+        "agent.host.name" : "host.docker.internal",
+        "host.name" : "kubernetes.docker.internal",
+        "host.type" : "storage",
+        "host.id" : "localhost"
+      }
+    },
+    "discoveryTime" : 1700564958954,
+    "type" : "host",
+    "id" : "localhost",
+    "endpointHost" : true,
+    "endpoint" : true,
+    "missing" : false,
+    "is_endpoint" : true
+  } ]
+}

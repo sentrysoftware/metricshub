@@ -1,0 +1,1145 @@
+---
+monitors:
+  enclosure:
+    discovery:
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # DISCOVERY;EnclosureID;EnclosureDisplayID;EnclosureVendor;EnclosureModel;EnclosureType;AdditionalInformation
+          - type: awk
+            script: "${file::embeddedFile-8}"
+            keep: ^DISCOVERY;
+            separators: ;
+      mapping:
+        # InstanceTable = Source(1)
+        # DISCOVERY;EnclosureID;EnclosureDisplayID;EnclosureVendor;EnclosureModel;EnclosureType;AdditionalInformation
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
+        attributes:
+          id: $2
+          __display_id: $3
+          vendor: $4
+          model: $5
+          type: $6
+          info: $7
+          name: "${awk::sprintf(\"Enclosure: %s (%s %s)\", $3, $4, $5)}"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      keys:
+      - id
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # COLLECT;EnclosureeID;EnclosureStatus;EnclosureConsumption;EnergyUsage;IntrusionStatus
+          - type: awk
+            script: "${file::embeddedFile-8}"
+            keep: ^COLLECT;
+            separators: ;
+            selectColumns: "2,3,4,5,6"
+      mapping:
+        # ValueTable = Source(1)
+        # COLLECT;EnclosureeID;EnclosureStatus;EnclosureConsumption;EnergyUsage;IntrusionStatus
+        source: "${source::monitors.enclosure.collect.sources.source(1)}"
+        attributes:
+          id: $1
+        metrics:
+          hw.status{hw.type="enclosure"}: $2
+          hw.enclosure.power: $3
+          hw.enclosure.energy: $4
+          hw.status{hw.type="enclosure", state="open"}: legacyIntrusionStatus($5)
+  lun:
+    discovery:
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # DISCOVERY,lunname;manufacturerID;logicalDeviceID;deviceWWN;state;policy;alivePathCount;LocalDeviceName;RemoteDeviceName
+          - type: awk
+            script: "${file::embeddedFile-1}"
+            keep: ^DISCOVERY;
+            separators: ;
+            # Add some text to each additional information
+            # DISCOVERY,lunname;manufacturerID;logicalDeviceID;deviceWWN;state;policy;alivePathCount;LocalDeviceName;RemoteDeviceName
+          - type: leftConcat
+            column: 5
+            value: WWN=
+      mapping:
+        # InstanceTable = Source(1)
+        # DISCOVERY,lunname;manufacturerID;logicalDeviceID;deviceWWN;state;policy;alivePathCount;LocalDeviceName;RemoteDeviceName
+        source: "${source::monitors.lun.discovery.sources.source(1)}"
+        attributes:
+          id: $4
+          __display_id: $2
+          array_name: $3
+          local_device_name: $9
+          remote_device_name: $10
+          wwn: $5
+          info: $7
+          hw.parent.type: enclosure
+          hw.parent.id: 1
+          name: "${awk::sprintf(\"%s (%s - %s)\", $3, $9, $10)}"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      keys:
+      - id
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # COLLECT;logicalDeviceID;state;alivePathCount;
+          - type: awk
+            script: "${file::embeddedFile-1}"
+            keep: ^COLLECT;
+            separators: ;
+            selectColumns: "2,3,4"
+            # Duplicate State
+            # logicalDeviceID;state;state;alivePathCount;
+          - type: duplicateColumn
+            column: 2
+            # The LUNStatusTranslationTable --> PatrolStatus
+            # logicalDeviceID;PatrolStatus;state;alivePathCount;
+          - type: translate
+            column: 2
+            translationTable: "${translation::LUNStatusTranslationTable}"
+            # The LUNStatusTranslationTable --> PatrolStatus
+            # logicalDeviceID;PatrolStatus;StatusInformation;alivePathCount;
+          - type: translate
+            column: 3
+            translationTable: "${translation::LUNStatusInformationTranslationTable}"
+      mapping:
+        # ValueTable = Source(1)
+        # logicalDeviceID;PatrolStatus;StatusInformation;alivePathCount;
+        source: "${source::monitors.lun.collect.sources.source(1)}"
+        attributes:
+          id: $1
+        metrics:
+          hw.lun.paths: $4
+          hw.status{hw.type="lun"}: $2
+        legacyTextParameters:
+          StatusInformation: $3
+  battery:
+    discovery:
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # DISCOVERY;BatteryDeviceID;BatteryModel;BatteryVendor;BatterieDisplayID
+          - type: awk
+            script: "${file::embeddedFile-2}"
+            keep: ^DISCOVERY;
+            separators: ;
+          - type: excludeMatchingLines
+            column: 2
+            valueList: 0
+      mapping:
+        # InstanceTable = Source(1)
+        # DISCOVERY;BatteryDeviceID;BatteryModel;BatteryVendor;BatterieDisplayID;AttachedToDeviceID;AttachedToDeviceType
+        source: "${source::monitors.battery.discovery.sources.source(1)}"
+        attributes:
+          id: $2
+          model: $3
+          vendor: $4
+          __display_id: $5
+          chemistry: Lithium-ion
+          info: $8
+          hw.parent.type: $7
+          hw.parent.id: $6
+          name: "${awk::sprintf(\"%s (%s %s)\", $5, $4, $3)}"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      keys:
+      - id
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # COLLECT;BatteryDeviceID
+          - type: awk
+            script: "${file::embeddedFile-2}"
+            keep: ^COLLECT;
+            separators: ;
+            selectColumns: "2,3,4,5"
+            # The BatterytatusTranslationTable --> PatrolStatus
+            # COLLECT;BatteryDeviceID
+          - type: translate
+            column: 2
+            translationTable: "${translation::BatterytatusTranslationTable}"
+      mapping:
+        # ValueTable = Source(1)
+        # COLLECT;BatteryDeviceID;BatteryStatus;BatteryCharge;TimeLeft
+        source: "${source::monitors.battery.collect.sources.source(1)}"
+        attributes:
+          id: $1
+        metrics:
+          hw.status{hw.type="battery"}: $2
+          hw.battery.charge: percent2Ratio($3)
+          hw.battery.time_left: $4
+  blade:
+    discovery:
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # DISCOVERY;BaldeID;BladeDisplayID;BladeSerial;AttachedToDeviceID;AttachedToDeviceType
+          - type: awk
+            script: "${file::embeddedFile-3}"
+            keep: ^DISCOVERY;
+            separators: ;
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: "Blade1,Blade2"
+          - type: leftConcat
+            column: 4
+            value: S*
+          - type: rightConcat
+            column: 4
+            value: '*N'
+      mapping:
+        # InstanceTable = Source(1)
+        # DISCOVERY;BaldeID;BladeDisplayID;BladeSerial;AttachedToDeviceID;AttachedToDeviceType
+        source: "${source::monitors.blade.discovery.sources.source(1)}"
+        attributes:
+          id: $2
+          __display_id: $3
+          serial_number: $4
+          info: $7
+          hw.parent.type: $6
+          hw.parent.id: $5
+          name: $3
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      keys:
+      - id
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # COLLECT;BladeID;BladeStatus
+          - type: awk
+            script: "${file::embeddedFile-3}"
+            keep: ^COLLECT;
+            separators: ;
+            selectColumns: "2,3,4,5"
+      mapping:
+        # ValueTable = Source(1)
+        # COLLECT;BladeID;BladeStatus;PowerState
+        source: "${source::monitors.blade.collect.sources.source(1)}"
+        attributes:
+          id: $1
+        metrics:
+          hw.status{hw.type="blade"}: $2
+          hw.blade.power_state: $3
+  cpu:
+    discovery:
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # DISCOVERY;CPUid;CPUdisplayID;CPUvendor;CPUmodel;CPUconso;CPUmaxSpeed;AttachedToDeviceID;AttachedToDeviceType
+          - type: awk
+            script: "${file::embeddedFile-4}"
+            keep: ^DISCOVERY;
+            separators: ;
+          - type: replace
+            column: 3
+            existingValue: PROC
+            newValue: cpu
+      mapping:
+        # InstanceTable = Source(1)
+        # DISCOVERY;CPUid;CPUdisplayID;CPUvendor;CPUmodel;CPUconso;CPUmaxSpeed;AttachedToDeviceID;AttachedToDeviceType
+        source: "${source::monitors.cpu.discovery.sources.source(1)}"
+        attributes:
+          id: $2
+          __display_id: $3
+          vendor: $4
+          model: $5
+          info: $10
+          hw.parent.type: $9
+          hw.parent.id: $8
+          name: "${awk::sprintf(\"%s (%s - %s - %s)\", $3, $4, $5, megaHertz2HumanFormat($7))}"
+        metrics:
+          hw.cpu.speed.limit{limit_type="max"}: megaHertz2Hertz($7)
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      keys:
+      - id
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # COLLECT;CPUid;CPUstatus;CPUcurrSpeed
+          - type: awk
+            script: "${file::embeddedFile-4}"
+            keep: ^COLLECT;
+            separators: ;
+            selectColumns: "2,3,4,5,6"
+      mapping:
+        # ValueTable = Source(1)
+        # COLLECT;CPUid;CPUstatus;CPUcurrSpeed;CorrectedErrorCount;PredictedFailure
+        source: "${source::monitors.cpu.collect.sources.source(1)}"
+        attributes:
+          id: $1
+        metrics:
+          hw.status{hw.type="cpu"}: $2
+          hw.cpu.speed: megaHertz2Hertz($3)
+          hw.errors{hw.type="cpu"}: $4
+          hw.status{hw.type="cpu", state="predicted_failure"}: boolean($5)
+  disk_controller:
+    discovery:
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # DISCOVERY;BaldeID;BladeDisplayID;BladeSerial
+          - type: awk
+            script: "${file::embeddedFile-6}"
+            keep: ^DISCOVERY;
+            separators: ;
+          - type: extract
+            column: 5
+            subColumn: 1
+            subSeparators: .
+      mapping:
+        # InstanceTable = Source(1)
+        # DISCOVERY;DiskControllerID;DiskControllerDisplayID;AttachedTodeviceID;Vendor;Model;ControllerNumber
+        source: "${source::monitors.disk_controller.discovery.sources.source(1)}"
+        attributes:
+          id: $2
+          __display_id: $3
+          vendor: $5
+          model: $6
+          controller_number: $7
+          info: $8
+          hw.parent.type: enclosure
+          hw.parent.id: $4
+          name: "${awk::sprintf(\"Disk Controller: %s (%s %s)\", $3, $5, $6)}"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      keys:
+      - id
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # COLLECT;DiskControllerID;DiskControllerStatus;BatteryStatus
+          - type: awk
+            script: "${file::embeddedFile-6}"
+            keep: ^COLLECT;
+            separators: ;
+            selectColumns: "2,3,4,5"
+      mapping:
+        # ValueTable = Source(1)
+        # DiskControllerID;DiskControllerStatus;BatteryStatus
+        source: "${source::monitors.disk_controller.collect.sources.source(1)}"
+        attributes:
+          id: $1
+        metrics:
+          hw.status{hw.type="disk_controller"}: $2
+  fan:
+    discovery:
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # DISCOVERY;FanID;FanDisplayID;FanType;PercentWarningThreshold;PercentAlarmThreshold;AttachedToDeviceID;AttachedToDeviceTyp;AdditionalInformation
+          - type: awk
+            script: "${file::embeddedFile-9}"
+            keep: ^DISCOVERY;
+            separators: ;
+      mapping:
+        # InstanceTable = Source(1)
+        # DISCOVERY;FanID;FanDisplayID;FanType;PercentWarningThreshold;PercentAlarmThreshold;AttachedToDeviceID;AttachedToDeviceTyp;AdditionalInformation
+        source: "${source::monitors.fan.discovery.sources.source(1)}"
+        attributes:
+          id: $2
+          __display_id: $3
+          sensor_location: $4
+          info: $9
+          hw.parent.type: $8
+          hw.parent.id: $7
+          name: "${awk::sprintf(\"%s (%s)\", $3, $4)}"
+        metrics:
+          hw.fan.speed_ratio.limit{limit_type="low.degraded"}: percent2Ratio($5)
+          hw.fan.speed_ratio.limit{limit_type="low.critical"}: percent2Ratio($6)
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      keys:
+      - id
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # COLLECT;FanID;FanStatus;FanSpeed;SpeedPercent
+          - type: awk
+            script: "${file::embeddedFile-9}"
+            keep: ^COLLECT;
+            separators: ;
+            selectColumns: "2,3,4,5"
+      mapping:
+        # ValueTable = Source(1)
+        # COLLECT;FanID;FanStatus;FanSpeed;SpeedPercent
+        source: "${source::monitors.fan.collect.sources.source(1)}"
+        attributes:
+          id: $1
+        metrics:
+          hw.status{hw.type="fan"}: $2
+          hw.fan.speed: $3
+          hw.fan.speed_ratio: percent2Ratio($4)
+  led:
+    discovery:
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # DISCOVERY;LedID;LedDisplayId;AttachedToDeviceID;AttachedToDeviceType;Name;OnStatus;OffStatus;BlinkingStatus;AlarmOnColor;WarningOnColor;AdditionalInformation
+          - type: awk
+            script: "${file::embeddedFile-10}"
+            keep: ^DISCOVERY;
+            separators: ;
+      mapping:
+        # InstanceTable = Source(1)
+        # DISCOVERY;LedID;LedDisplayId;AttachedToDeviceID;AttachedToDeviceType;Name;OnStatus;OffStatus;BlinkingStatus;AlarmOnColor;WarningOnColor;AdditionalInformation
+        source: "${source::monitors.led.discovery.sources.source(1)}"
+        attributes:
+          id: $2
+          __display_id: $3
+          __name: $6
+          __on_status: $7
+          __off_status: $8
+          __blinking_status: $9
+          info: $12
+          hw.parent.type: $5
+          hw.parent.id: $4
+          name: "${awk::sprintf(\"%s (%s)\", $3, $6)}"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      keys:
+      - id
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # COLLECT;LedID;LedStatus;LedColor
+          - type: awk
+            script: "${file::embeddedFile-10}"
+            keep: ^COLLECT;
+            separators: ;
+            selectColumns: "2,3,4"
+      mapping:
+        # ValueTable = Source(1)
+        # COLLECT;LedID;LedStatus;LedColor
+        source: "${source::monitors.led.collect.sources.source(1)}"
+        attributes:
+          id: $1
+        metrics:
+          hw.status{hw.type="led"}: legacyLedStatus($2)
+  logical_disk:
+    discovery:
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # DISCOVERY;
+          - type: awk
+            script: "${file::embeddedFile-11}"
+            keep: ^DISCOVERY;
+            separators: ;
+          # Multiply byte -> Gigabyt
+          - type: multiply
+            column: 7
+            value: 1000000000
+      mapping:
+        # InstanceTable = Source(1)
+        # DISCOVERY;LDid;LDdisplayid;LDAttachedToDeviceID;LDAttachedToDeviceType;LDControllerNumber;LDSsize;RaidLevel;LDtype
+        source: "${source::monitors.logical_disk.discovery.sources.source(1)}"
+        attributes:
+          id: $2
+          __display_id: $3
+          raid_level: $8
+          type: $9
+          info: $10
+          hw.parent.type: disk_controller
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $6)"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $3, $8, bytes2HumanFormatBase2($7))}"
+        metrics:
+          hw.logical_disk.limit: $7
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      keys:
+      - id
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # COLLECT;FanID;FanStatus;FanSpeed;SpeedPercent
+          - type: awk
+            script: "${file::embeddedFile-11}"
+            keep: ^COLLECT;
+            separators: ;
+            selectColumns: "2,3,4,5"
+          # Devide
+          - type: divide
+            column: 3
+            value: 10000000
+      mapping:
+        # ValueTable = Source(1)
+        # COLLECT;LDid;LDstatus;UnallocatedSpace;ErrorCount
+        source: "${source::monitors.logical_disk.collect.sources.source(1)}"
+        attributes:
+          id: $1
+        metrics:
+          hw.status{hw.type="logical_disk"}: $2
+          hw.logical_disk.usage{state="free"}: $3
+          hw.logical_disk.usage{state="used"}: collectAllocatedSpace()
+          hw.errors{hw.type="logical_disk"}: $4
+  memory:
+    discovery:
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # DISCOVERY;MemoryID;MemoryDisplayID;AttachedToDeviceID;AttachedToDeviceType;Vendor;Model;SerialNumber;Type;Size
+          - type: awk
+            script: "${file::embeddedFile-12}"
+            keep: ^DISCOVERY;
+            separators: ;
+          # Add
+          - type: add
+            column: 10
+            value: 24
+      mapping:
+        # InstanceTable = Source(1)
+        # DISCOVERY;MemoryID;MemoryDisplayID;AttachedToDeviceID;AttachedToDeviceType;Vendor;Model;SerialNumber;Type;Size
+        source: "${source::monitors.memory.discovery.sources.source(1)}"
+        attributes:
+          id: $2
+          __display_id: $3
+          vendor: $6
+          model: $7
+          serial_number: $8
+          type: $9
+          info: $11
+          hw.parent.type: $5
+          hw.parent.id: $4
+          name: "${awk::sprintf(\"%s (%s - %s - %s MB)\", $3, $6, $9, $10)}"
+        metrics:
+          hw.memory.limit: mebiByte2Byte($10)
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      keys:
+      - id
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # COLLECT;MemoryID;MemStatus;
+          - type: awk
+            script: "${file::embeddedFile-12}"
+            keep: ^COLLECT;
+            separators: ;
+            selectColumns: "2,3,4,5,6,7"
+      mapping:
+        # ValueTable = Source(1)
+        # COLLECT;MemoryID;MemStatus;PredictedFailure;ErrorStatus;LastError;ErrorCount
+        source: "${source::monitors.memory.collect.sources.source(1)}"
+        attributes:
+          id: $1
+        metrics:
+          hw.status{hw.type="memory"}: $2
+          hw.status{hw.type="memory", state="predicted_failure"}: boolean($3)
+          hw.errors{hw.type="memory"}: $6
+  network:
+    discovery:
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # DISCOVERY;NCid;NCdisplatId;AttachedToDeviceID;Vendor;Model;NCtype;PhysicalAddress;LogicalAddress;LogicalAddressType;SN;AdditionalInformation
+          - type: awk
+            script: "${file::embeddedFile-13}"
+            keep: ^DISCOVERY;
+            separators: ;
+      mapping:
+        # InstanceTable = Source(1)
+        # DISCOVERY;NCid;NCdisplatId;AttachedToDeviceID;Vendor;Model;NCtype;PhysicalAddress;LogicalAddress;LogicalAddressType;SN;AdditionalInformation
+        source: "${source::monitors.network.discovery.sources.source(1)}"
+        attributes:
+          id: $2
+          __display_id: $3
+          vendor: $5
+          model: $6
+          device_type: $7
+          physical_address: $8
+          logical_address: $9
+          logical_address_type: $10
+          serial_number: $11
+          info: $12
+          hw.parent.type: enclosure
+          hw.parent.id: $4
+          name: "${awk::sprintf(\"%s (%s - %s - %s)\", $3, $7, $5, $6)}"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      keys:
+      - id
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # COLLECT;NCid;NCstatus;NSlinkStatus;NClinkSpeed;DuplexMode;ErrorCount;ReceivedBytes;TransmittedBytes;ReceivedPackets;TransmittedPackets;ZeroBufferCreditCount
+          - type: awk
+            script: "${file::embeddedFile-13}"
+            keep: ^COLLECT;
+            separators: ;
+            selectColumns: "2,3,4,5,6,7,8,9,10,11,12"
+      mapping:
+        # ValueTable = Source(1)
+        # NCid;NCstatus;NSlinkStatus;NClinkSpeed;DuplexMode;ErrorCount;ReceivedBytes;TransmittedBytes;ReceivedPackets;TransmittedPackets;ZeroBufferCreditCount
+        source: "${source::monitors.network.collect.sources.source(1)}"
+        attributes:
+          id: $1
+        metrics:
+          hw.status{hw.type="network"}: $2
+          hw.network.up: legacyLinkStatus($3)
+          hw.network.bandwidth.limit: megaBit2Bit($4)
+          hw.network.full_duplex: legacyFullDuplex($5)
+          hw.errors{hw.type="network"}: $6
+          hw.network.io{direction="receive"}: $7
+          hw.network.io{direction="transmit"}: $8
+          hw.network.packets{direction="receive"}: $9
+          hw.network.packets{direction="transmit"}: $10
+          hw.errors{hw.type="network", hw.error.type="zero_buffer_credit"}: $11
+  other_device:
+    discovery:
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # DISCOVERY;OdId;OdDisplayId;AttachedToDeviceID;AttachedToDeviceType;AdditionalInformation
+          - type: awk
+            script: "${file::embeddedFile-14}"
+            keep: ^DISCOVERY;
+            separators: ;
+          - type: substring
+            column: 3
+            start: 5
+            length: 16
+      mapping:
+        # InstanceTable = Source(1)
+        # DISCOVERY;OdId;OdDisplayId;AttachedToDeviceID;AttachedToDeviceType;AdditionalInformation
+        source: "${source::monitors.other_device.discovery.sources.source(1)}"
+        attributes:
+          id: $2
+          __display_id: $3
+          info: $6
+          hw.parent.type: $5
+          hw.parent.id: $4
+          name: $3
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      keys:
+      - id
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # COLLECT;OdId;OdStatus;OdStatusInformation;OdUsageCount;OdPowerConsumption,Value
+          - type: awk
+            script: "${file::embeddedFile-14}"
+            keep: ^COLLECT;
+            separators: ;
+            selectColumns: "2,3,4,5,6,7"
+      mapping:
+        # ValueTable = Source(1)
+        # OdId;OdStatus;OdStatusInformation;OdUsageCount;OdPowerConsumption,Value
+        source: "${source::monitors.other_device.collect.sources.source(1)}"
+        attributes:
+          id: $1
+        metrics:
+          hw.status{hw.type="other_device"}: $2
+          hw.other_device.uses: $4
+          hw.power{hw.type="other_device"}: $5
+          hw.energy{hw.type="other_device"}: fakeCounter($5)
+          hw.other_device.value: $6
+        legacyTextParameters:
+          StatusInformation: $3
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # JOIN1;PdID
+          - type: awk
+            script: "${file::embeddedFile-21}"
+            keep: ^JOIN1;
+            separators: ;
+        source(2):
+          computes:
+          # JOIN2;PdID;PdDisplayId;AttachedToDeviceID;AttachedToDeviceType;ControllerNumber;Vendor;Model;FirmwareVersion;Size;SerialNumber;AdditionalInformation
+          - type: awk
+            script: "${file::embeddedFile-21}"
+            keep: ^JOIN2;
+            separators: ;
+        source(3):
+          # JOIN1;PdID;JOIN2;PdID;PdDisplayId;AttachedToDeviceID;AttachedToDeviceType;ControllerNumber;Vendor;Model;FirmwareVersion;Size;SerialNumber;AdditionalInformation
+          type: tableJoin
+          leftTable: "${source::monitors.physical_disk.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.physical_disk.discovery.sources.source(2)}"
+          leftKeyColumn: 2
+          rightKeyColumn: 2
+          defaultRightLine: ;
+      mapping:
+        # InstanceTable = Source(1)
+        # JOIN1;PdID;JOIN2;PdID;PdDisplayId;AttachedToDeviceID;AttachedToDeviceType;ControllerNumber;Vendor;Model;FirmwareVersion;Size;SerialNumber;AdditionalInformation
+        source: "${source::monitors.physical_disk.discovery.sources.source(3)}"
+        attributes:
+          id: $4
+          __display_id: $5
+          vendor: $9
+          model: $10
+          firmware_version: $11
+          serial_number: $13
+          info: $14
+          hw.parent.type: disk_controller
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $8)"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $5, $9, bytes2HumanFormatBase10($12))}"
+        metrics:
+          hw.physical_disk.size: $12
+    collect:
+      # Collect
+      # Collect type is multi-instance
+      type: multiInstance
+      keys:
+      - id
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # COLLECT;PdID;PdStatus;StatusInformation;PredictedFailure;ErrorCount;DeviceNotReadyErrorCount;MediaErrorCount;NoDeviceErrorCount;HardErrorCount;IllegalRequestErrorCount;RecoverableErrorCount;TransportErrorCount;EnduranceRemaining
+          - type: awk
+            script: "${file::embeddedFile-21}"
+            keep: ^COLLECT;
+            separators: ;
+            selectColumns: "2,3,4,5,6,7,8,9,10,11,12,13,14"
+      mapping:
+        # ValueTable = Source(1)
+        # PdID;PdStatus;StatusInformation;PredictedFailure;ErrorCount;DeviceNotReadyErrorCount;MediaErrorCount;NoDeviceErrorCount;HardErrorCount;IllegalRequestErrorCount;RecoverableErrorCount;TransportErrorCount;EnduranceRemaining
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
+        attributes:
+          id: $1
+        metrics:
+          hw.status{hw.type="physical_disk"}: $2
+          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($4)
+          hw.errors{hw.type="physical_disk"}: $5
+          hw.errors{hw.type="physical_disk", hw.error.type="device_not_ready"}: $6
+          hw.errors{hw.type="physical_disk", hw.error.type="media"}: $7
+          hw.errors{hw.type="physical_disk", hw.error.type="no_device"}: $8
+          hw.errors{hw.type="physical_disk", hw.error.type="hard"}: $9
+          hw.errors{hw.type="physical_disk", hw.error.type="illegal_request"}: $10
+          hw.errors{hw.type="physical_disk", hw.error.type="recoverable"}: $11
+          hw.errors{hw.type="physical_disk", hw.error.type="transport"}: $12
+          hw.physical_disk.endurance_utilization{state="remaining"}: percent2Ratio($13)
+        legacyTextParameters:
+          StatusInformation: $3
+  power_supply:
+    discovery:
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # DISCOVERY;PsId;PsDeviceId;AttachedToDeviceID;AttachedToDeviceType;PowerSupplyType;PowerSupplyPower
+          - type: awk
+            script: "${file::embeddedFile-16}"
+            keep: ^DISCOVERY;
+            separators: ;
+          # Convert PowerSupplyPower form Hex to Dec
+          - type: convert
+            column: 7
+            conversion: hex2Dec
+      mapping:
+        # InstanceTable = Source(1)
+        # DISCOVERY;PsId;PsDeviceId;AttachedToDeviceID;AttachedToDeviceType;PowerSupplyType;PowerSupplyPower
+        source: "${source::monitors.power_supply.discovery.sources.source(1)}"
+        attributes:
+          id: $2
+          __display_id: $3
+          power_supply_type: $6
+          info: $8
+          hw.parent.type: $5
+          hw.parent.id: $4
+          name: "${awk::sprintf(\"%s (%s - %s W)\", $3, $6, $7)}"
+        metrics:
+          hw.power_supply.limit: $7
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      keys:
+      - id
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # COLLECT;PsId;PsStatus;UsedWatts;
+          - type: awk
+            script: "${file::embeddedFile-16}"
+            keep: ^COLLECT;
+            separators: ;
+            selectColumns: "2,3,4,5"
+      mapping:
+        # ValueTable = Source(1)
+        # COLLECT;PsId;PsStatus;UsedWatts
+        source: "${source::monitors.power_supply.collect.sources.source(1)}"
+        attributes:
+          id: $1
+        metrics:
+          hw.status{hw.type="power_supply"}: $2
+          hw.power_supply.power: $3
+          hw.power_supply.utilization: percent2Ratio($4)
+  robotics:
+    discovery:
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # DISCOVERY;RoboId;RoboDisplayID;AttachedToDeviceID;AttachedToDeviceType;RoboticType;Vendor;Model;SerialNumber;AdditionalInformation
+          - type: awk
+            script: "${file::embeddedFile-17}"
+            keep: ^DISCOVERY;
+            separators: ;
+      mapping:
+        # InstanceTable = Source(1)
+        # DISCOVERY;RoboId;RoboDisplayID;AttachedToDeviceID;AttachedToDeviceType;RoboticType;Vendor;Model;SerialNumber;AdditionalInformation
+        source: "${source::monitors.robotics.discovery.sources.source(1)}"
+        attributes:
+          id: $2
+          __display_id: $3
+          robotics_type: $6
+          vendor: $7
+          model: $8
+          serial_number: $9
+          info: $10
+          hw.parent.type: $5
+          hw.parent.id: $4
+          name: "${awk::sprintf(\"%s (%s %s - %s)\", $3, $7, $8, $6)}"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      keys:
+      - id
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # COLLECT
+          - type: awk
+            script: "${file::embeddedFile-17}"
+            keep: ^COLLECT;
+            separators: ;
+            selectColumns: "2,3,4,5,6"
+      mapping:
+        # ValueTable = Source(1)
+        # COLLECT;RoboId;RoboStatus;RobotStatusInformation;MoveCount;ErrorCount
+        source: "${source::monitors.robotics.collect.sources.source(1)}"
+        attributes:
+          id: $1
+        metrics:
+          hw.status{hw.type="robotics"}: $2
+          hw.robotics.moves: $4
+          hw.errors{hw.type="robotics"}: $5
+        legacyTextParameters:
+          StatusInformation: $3
+  tape_drive:
+    discovery:
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # DISCOVERY;TdId;TdDisplayId;AttachedToDeviceID;AttachedToDeviceType;Vendor;Model;SerialNumber;ControllerNumber;AdditionalInformation
+          - type: awk
+            script: "${file::embeddedFile-18}"
+            keep: ^DISCOVERY;
+            separators: ;
+      mapping:
+        # InstanceTable = Source(1)
+        # DISCOVERY;TdId;TdDisplayId;AttachedToDeviceID;AttachedToDeviceType;Vendor;Model;SerialNumber;ControllerNumber;AdditionalInformation
+        source: "${source::monitors.tape_drive.discovery.sources.source(1)}"
+        attributes:
+          id: $2
+          __display_id: $3
+          vendor: $6
+          model: $7
+          serial_number: $8
+          info: $10
+          hw.parent.type: disk_controller
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $9)"
+          name: "${awk::sprintf(\"%s (%s %s)\", $3, $6, $7)}"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      keys:
+      - id
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # COLLECT;TdId;TdStatus;StatusInformation;MountCount;UnmountCount;ErrorCount;NeedsCleaning
+          - type: awk
+            script: "${file::embeddedFile-18}"
+            keep: ^COLLECT;
+            separators: ;
+            selectColumns: "2,3,4,5,6,7,8"
+      mapping:
+        # ValueTable = Source(1)
+        # COLLECT;TdId;TdStatus;StatusInformation;MountCount;UnmountCount;ErrorCount;NeedsCleaning
+        source: "${source::monitors.tape_drive.collect.sources.source(1)}"
+        attributes:
+          id: $1
+        metrics:
+          hw.status{hw.type="tape_drive"}: $2
+          hw.tape_drive.operations{type="mount"}: $4
+          hw.tape_drive.operations{type="unmount"}: $5
+          hw.errors{hw.type="tape_drive"}: $6
+          hw.status{hw.type="tape_drive", state="needs_cleaning"}: legacyNeedsCleaning($7)
+        legacyTextParameters:
+          StatusInformation: $3
+  temperature:
+    discovery:
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # DISCOVERY;TempId;TempDisplayId;AttachedToDeviceID;AttachedToDeviceType;TemperatureType;WarningThreshold;AlarmThreshold;AdditionalInformation
+          - type: awk
+            script: "${file::embeddedFile-19}"
+            keep: ^DISCOVERY;
+            separators: ;
+      mapping:
+        # InstanceTable = Source(1)
+        # DISCOVERY;TempId;TempDisplayId;AttachedToDeviceID;AttachedToDeviceType;TemperatureType;WarningThreshold;AlarmThreshold;AdditionalInformation
+        source: "${source::monitors.temperature.discovery.sources.source(1)}"
+        attributes:
+          id: $2
+          __display_id: $3
+          sensor_location: $6
+          info: $9
+          hw.parent.type: $5
+          hw.parent.id: $4
+          name: "${awk::sprintf(\"%s (%s)\", $3, $6)}"
+        metrics:
+          hw.temperature.limit{limit_type="high.degraded"}: $7
+          hw.temperature.limit{limit_type="high.critical"}: $8
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      keys:
+      - id
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # COLLECT;TempId;TempStatus;TempStatusInformation;Temperature
+          - type: awk
+            script: "${file::embeddedFile-19}"
+            keep: ^COLLECT;
+            separators: ;
+            selectColumns: "2,3,4,5"
+      mapping:
+        # ValueTable = Source(1)
+        # COLLECT;TempId;TempStatus;TempStatusInformation;Temperature
+        source: "${source::monitors.temperature.collect.sources.source(1)}"
+        attributes:
+          id: $1
+        metrics:
+          hw.status{hw.type="temperature"}: $2
+          hw.temperature: $4
+        legacyTextParameters:
+          StatusInformation: $3
+  voltage:
+    discovery:
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # DISCOVERY;VoltId;VoltDisplayId;AttachedToDeviceID;AttachedToDeviceType;VoltageType;AdditionalInformation
+          - type: awk
+            script: "${file::embeddedFile-20}"
+            keep: ^DISCOVERY;
+            separators: ;
+      mapping:
+        # InstanceTable = Source(1)
+        # DISCOVERY;VoltId;VoltDisplayId;AttachedToDeviceID;AttachedToDeviceType;VoltageType;AdditionalInformation
+        source: "${source::monitors.voltage.discovery.sources.source(1)}"
+        attributes:
+          id: $2
+          __display_id: $3
+          sensor_location: $6
+          info: $7
+          hw.parent.type: $5
+          hw.parent.id: $4
+          name: "${awk::sprintf(\"%s (%s)\", $3, $6)}"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      keys:
+      - id
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # COLLECT;VoltId;VoltStatus;VoltStatusInformation;Voltage
+          - type: awk
+            script: "${file::embeddedFile-20}"
+            keep: ^COLLECT;
+            separators: ;
+            selectColumns: "2,3,4,5"
+      mapping:
+        # ValueTable = Source(1)
+        # COLLECT;VoltId;VoltStatus;VoltStatusInformation;Voltage
+        source: "${source::monitors.voltage.collect.sources.source(1)}"
+        attributes:
+          id: $1
+        metrics:
+          hw.status{hw.type="voltage"}: $2
+          hw.voltage: $4
+        legacyTextParameters:
+          StatusInformation: $3
+  gpu:
+    discovery:
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # DISCOVERY;DeviceID;DisplayID;Vendor;Model;DriverVersion;FirmwareVersion;SerialNumber;Size;Location
+          - type: awk
+            script: "${file::embeddedFile-22}"
+            keep: ^DISCOVERY;
+            separators: ;
+      mapping:
+        # InstanceTable = Source(1)
+        # DISCOVERY;DeviceID;DisplayID;Vendor;Model;DriverVersion;FirmwareVersion;SerialNumber;Size;Location
+        source: "${source::monitors.gpu.discovery.sources.source(1)}"
+        attributes:
+          id: $2
+          __display_id: $3
+          vendor: $4
+          model: $5
+          driver_version: $6
+          firmware_version: $7
+          serial_number: $8
+          info: $10
+          hw.parent.type: $12
+          hw.parent.id: $11
+          name: "${awk::sprintf(\"%s (%s - %s - %s)\", $3, $4, $5, mebiBytes2HumanFormat($9))}"
+        metrics:
+          hw.gpu.memory.limit: mebiByte2Byte($9)
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      keys:
+      - id
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # COLLECT;DeviceID;Status;StatusInformation;PredictedFailure;CorrectedErrorCount;ErrorCount;UsedTime;DecoderUsedTime;EncoderUsedTime;MemoryUtilization;ReceivedBytesRate;TransmittedBytesRate;PowerConsumption;GPU.Collect.Source(1).Compute(1).Type="Awk"
+          - type: awk
+            script: "${file::embeddedFile-22}"
+            keep: ^COLLECT;
+            separators: ;
+      mapping:
+        # ValueTable = Source(1)
+        # COLLECT;DeviceID;Status;StatusInformation;PredictedFailure;CorrectedErrorCount;ErrorCount;UsedTime;DecoderUsedTime;
+        # EncoderUsedTime;MemoryUtilization;ReceivedBytesRate;TransmittedBytesRate;PowerConsumption;
+        # UsedTime;DecoderUsedTime;EncoderUsedTime;ReceivedBytes;TransmittedBytes
+        source: "${source::monitors.gpu.collect.sources.source(1)}"
+        attributes:
+          id: $2
+        metrics:
+          hw.status{hw.type="gpu"}: $3
+          hw.status{hw.type="gpu", state="predicted_failure"}: legacyPredictedFailure($5)
+          hw.errors{hw.type="gpu", hw.error.type="corrected"}: $6
+          hw.errors{hw.type="gpu"}: $7
+          hw.gpu.utilization{task="general"}: percent2Ratio($8)
+          hw.gpu.utilization{task="decoder"}: percent2Ratio($9)
+          hw.gpu.utilization{task="encoder"}: percent2Ratio($10)
+          hw.gpu.memory.utilization: percent2Ratio($11)
+          hw.gpu.io{direction="receive"}: $18
+          hw.gpu.io{direction="transmit"}: $19
+          hw.power{hw.type="gpu"}: $14
+          hw.energy{hw.type="gpu"}: fakeCounter($14)
+        legacyTextParameters:
+          StatusInformation: $4
+  vm:
+    discovery:
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # DISCOVERY;DeviceID;DisplayID;AttachedToDeviceID;AttachedToDeviceType;Hostname;AdditionalInformation1
+          - type: awk
+            script: "${file::embeddedFile-23}"
+            keep: ^DISCOVERY;
+            separators: ;
+      mapping:
+        # DISCOVERY;DeviceID;DisplayID;AttachedToDeviceID;AttachedToDeviceType;Hostname;AdditionalInformation1
+        source: "${source::monitors.vm.discovery.sources.source(1)}"
+        attributes:
+          id: $2
+          __display_id: $3
+          vm.host.name: $6
+          info: $7
+          hw.parent.type: $5
+          hw.parent.id: $4
+          name: "${awk::sprintf(\"%s (%s)\", $3, $6)}"
+    collect:
+      # Collect type is multi-instance
+      type: multiInstance
+      keys:
+      - id
+      sources:
+        source(1):
+          computes:
+            # AWK it
+            # COLLECT;DeviceID;PowerShare;PowerState
+          - type: awk
+            script: "${file::embeddedFile-23}"
+            keep: ^COLLECT;
+            separators: ;
+      mapping:
+        # ValueTable = Source(1)
+        # COLLECT;DeviceID;PowerShare;PowerState
+        source: "${source::monitors.vm.collect.sources.source(1)}"
+        attributes:
+          id: $2
+        metrics:
+          hw.vm.power_ratio: computePowerShareRatio($3)
+          hw.vm.power_state: $4
+translations:
+  LUNStatusTranslationTable:
+    alive: ok
+    unlic: degraded
+    dead: failed
+    Default: UNKNOWN
+  LUNStatusInformationTranslationTable:
+    alive: ""
+    unlic: One or more paths are unlicensed
+    dead: Dead
+    Default: UNKNOWN
+  BatterytatusTranslationTable:
+    mid: degraded
+    up: ok
+    down: failed
+    Default: UNKNOWN
