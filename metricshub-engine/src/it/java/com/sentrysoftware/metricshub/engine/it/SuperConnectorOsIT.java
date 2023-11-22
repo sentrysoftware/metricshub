@@ -4,7 +4,6 @@ import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import com.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
-import com.sentrysoftware.metricshub.engine.it.job.ITJob;
 import com.sentrysoftware.metricshub.engine.it.job.SuperConnectorITJob;
 import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -58,9 +57,7 @@ class SuperConnectorOsIT {
 
 	@Test
 	void test() throws Exception {
-		final ITJob itJob = new SuperConnectorITJob(matsyaClientsExecutor, telemetryManager);
-
-		itJob
+		new SuperConnectorITJob(matsyaClientsExecutor, telemetryManager)
 			.executeDiscoveryStrategy()
 			.executeCollectStrategy()
 			.verifyExpected("os/SuperConnectorOsIT/expected/expected.json");
