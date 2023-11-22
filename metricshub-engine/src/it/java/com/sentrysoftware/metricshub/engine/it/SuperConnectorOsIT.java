@@ -1,11 +1,10 @@
 package com.sentrysoftware.metricshub.engine.it;
 
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
-import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration.SnmpVersion;
+import com.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import com.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
-import com.sentrysoftware.metricshub.engine.it.job.SnmpITJob;
+import com.sentrysoftware.metricshub.engine.it.job.SuperConnectorITJob;
 import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import java.nio.file.Path;
@@ -16,18 +15,18 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-class DellOpenManageIT {
+class SuperConnectorOsIT {
 	static {
 		Locale.setDefault(Locale.US);
 	}
 
-	private static final String CONNECTOR_ID = "DellOpenManage";
+	private static final String CONNECTOR_ID = "SuperConnectorOs";
 	private static final Path CONNECTOR_DIRECTORY = Paths.get(
 		"src",
 		"it",
 		"resources",
-		"snmp",
-		"DellOpenManageIT",
+		"os",
+		"SuperConnectorOsIT",
 		"connectors"
 	);
 	private static final String LOCALHOST = "localhost";
@@ -37,20 +36,15 @@ class DellOpenManageIT {
 
 	@BeforeAll
 	static void setUp() throws Exception {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
-			.builder()
-			.community("public")
-			.version(SnmpVersion.V1)
-			.timeout(120L)
-			.build();
+		final OsCommandConfiguration osCommandConfiguration = OsCommandConfiguration.builder().timeout(120L).build();
 
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostId(LOCALHOST)
 			.hostname(LOCALHOST)
-			.hostType(DeviceKind.LINUX)
+			.hostType(DeviceKind.STORAGE)
 			.selectedConnectors(Set.of(CONNECTOR_ID))
-			.configurations(Map.of(SnmpConfiguration.class, snmpConfiguration))
+			.configurations(Map.of(OsCommandConfiguration.class, osCommandConfiguration))
 			.build();
 
 		final ConnectorStore connectorStore = new ConnectorStore(CONNECTOR_DIRECTORY);
@@ -63,10 +57,9 @@ class DellOpenManageIT {
 
 	@Test
 	void test() throws Exception {
-		new SnmpITJob(matsyaClientsExecutor, telemetryManager)
-			.withServerRecordData("snmp/DellOpenManageIT/input/input.snmp")
+		new SuperConnectorITJob(matsyaClientsExecutor, telemetryManager)
 			.executeDiscoveryStrategy()
 			.executeCollectStrategy()
-			.verifyExpected("snmp/DellOpenManageIT/expected/expected.json");
+			.verifyExpected("os/SuperConnectorOsIT/expected/expected.json");
 	}
 }
