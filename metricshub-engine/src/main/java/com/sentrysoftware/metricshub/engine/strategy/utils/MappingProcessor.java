@@ -809,15 +809,24 @@ public class MappingProcessor {
 	}
 
 	/**
-	 * Converts legacyledstatus status into a current status
+	 * Converts legacyLedStatus status into a current status
 	 *
-	 * @param value		String representing a legacyledstatus function with a legacy status
-	 * @return			String representing a current a current status
+	 * @param value		String representing a legacyLedStatus function with a legacy status
+	 * @return			String representing a current status
 	 */
 	private String legacyLedStatus(String value) {
 		final Map<String, Monitor> typedMonitors = telemetryManager.findMonitorsByType("led");
-		Monitor monitor = typedMonitors.get("discovery");
-		Map<String, String> monitorAttributes = monitor.getAttributes();
+
+		if (typedMonitors == null) {
+			return null;
+		}
+		final Monitor monitor = typedMonitors.get("discovery");
+
+		if (monitor == null) {
+			return null;
+		}
+
+		final Map<String, String> monitorAttributes = monitor.getAttributes();
 
 		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
 		final String extracted = functionArguments.get(0);

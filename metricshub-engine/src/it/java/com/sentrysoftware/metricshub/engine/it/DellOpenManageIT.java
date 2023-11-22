@@ -5,7 +5,6 @@ import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration.SnmpVersion;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import com.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
-import com.sentrysoftware.metricshub.engine.it.job.ITJob;
 import com.sentrysoftware.metricshub.engine.it.job.SnmpITJob;
 import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -64,9 +63,7 @@ class DellOpenManageIT {
 
 	@Test
 	void test() throws Exception {
-		final ITJob itJob = new SnmpITJob(matsyaClientsExecutor, telemetryManager);
-
-		itJob
+		new SnmpITJob(matsyaClientsExecutor, telemetryManager)
 			.withServerRecordData("snmp/DellOpenManageIT/input/input.snmp")
 			.executeDiscoveryStrategy()
 			.executeCollectStrategy()
