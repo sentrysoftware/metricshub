@@ -817,10 +817,11 @@ public class MappingProcessor {
 	private String legacyLedStatus(final KeyValuePair keyValuePair, final Monitor monitor) {
 		final Map<String, String> monitorAttributes = monitor.getAttributes();
 
-		final String extracted = FunctionArgumentsExtractor.extractArguments(keyValuePair.value).get(0);
+		final String extractedArgument = FunctionArgumentsExtractor.extractArguments(keyValuePair.value).get(0);
+		final String extractedValue = extractColumnValueOrTextValue(extractedArgument, keyValuePair.getKey());
 
 		String status = null;
-		switch (extracted.toLowerCase()) {
+		switch (extractedValue.toLowerCase()) {
 			case "on":
 				status = monitorAttributes.get("__on_status"); // ok, failed
 				break;
@@ -834,7 +835,7 @@ public class MappingProcessor {
 				status = EMPTY;
 		}
 
-		return status.toLowerCase();
+		return status != null ? status.toLowerCase() : EMPTY;
 	}
 
 	/**
@@ -1034,8 +1035,9 @@ public class MappingProcessor {
 		matcher.find();
 		final int columnIndex = Integer.parseInt(matcher.group(1)) - 1;
 		if (columnIndex >= 0 && columnIndex < row.size()) {
-			return row.get(columnIndex);
-		} else {
+			final String result = row.get(columnIndex);
+			return result != null ? result : EMPTY;
+		}
 			log.warn(
 				"Hostname {} - Column number {} is invalid for the source {}. Column number should not exceed the size of the row. key {} - " +
 				"Row {} - monitor type {}.",
@@ -1047,7 +1049,7 @@ public class MappingProcessor {
 				jobInfo.getMonitorType()
 			);
 			return EMPTY;
-		}
+
 	}
 
 	/**
