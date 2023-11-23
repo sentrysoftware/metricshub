@@ -1038,18 +1038,17 @@ public class MappingProcessor {
 			final String result = row.get(columnIndex);
 			return result != null ? result : EMPTY;
 		}
-			log.warn(
-				"Hostname {} - Column number {} is invalid for the source {}. Column number should not exceed the size of the row. key {} - " +
-				"Row {} - monitor type {}.",
-				jobInfo.getHostname(),
-				columnIndex,
-				mapping.getSource(),
-				key,
-				row,
-				jobInfo.getMonitorType()
-			);
-			return EMPTY;
-
+		log.warn(
+			"Hostname {} - Column number {} is invalid for the source {}. Column number should not exceed the size of the row. key {} - " +
+			"Row {} - monitor type {}.",
+			jobInfo.getHostname(),
+			columnIndex,
+			mapping.getSource(),
+			key,
+			row,
+			jobInfo.getMonitorType()
+		);
+		return EMPTY;
 	}
 
 	/**
