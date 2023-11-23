@@ -542,7 +542,7 @@ class MappingProcessorTest {
 	}
 
 	@Test
-	void testInterpretNonContextMappingLegacyLedStatus() {
+	void testInterpretContextMappingLegacyLedStatus() {
 		Monitor monitor = Monitor
 			.builder()
 			.attributes(Map.of("__on_status", "ok", "__off_status", "failed", "__blinking_status", "degraded"))
