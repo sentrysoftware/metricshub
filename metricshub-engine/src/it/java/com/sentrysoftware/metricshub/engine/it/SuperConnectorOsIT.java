@@ -60,9 +60,6 @@ class SuperConnectorOsIT {
 		new SuperConnectorITJob(matsyaClientsExecutor, telemetryManager)
 			.executeDiscoveryStrategy()
 			.executeCollectStrategy()
-			.saveTelemetryManagerJson(
-				Paths.get("src", "it", "resources", "os", "SuperConnectorOsIT", "expected", "expected.json")
-			);
-		//.verifyExpected("os/SuperConnectorOsIT/expected/expected.json");
+			.verifyExpected("os/SuperConnectorOsIT/expected/expected.json");
 	}
 }
