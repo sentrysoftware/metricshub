@@ -547,19 +547,6 @@ class MappingProcessorTest {
 			.builder()
 			.attributes(Map.of("__on_status", "ok", "__off_status", "failed", "__blinking_status", "degraded"))
 			.build();
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.monitors(Map.of("led", Map.of("discovery", monitor)))
-			.build();
-
-		final MappingProcessor mappingProcessor = MappingProcessor
-			.builder()
-			.jobInfo(JobInfo.builder().connectorId(MY_CONNECTOR_1_NAME).build())
-			.telemetryManager(telemetryManager)
-			.mapping(Mapping.builder().source(HARDCODED_SOURCE).build())
-			.build();
-
-		final Map<String, String> expected = Map.of("on", "ok", "off", "failed", "blinking", "degraded", "wrong input", "");
 
 		final Map<String, String> keyValuePairs = Map.of(
 			"on",
@@ -572,7 +559,16 @@ class MappingProcessorTest {
 			"legacyLedStatus(broken)"
 		);
 
-		assertEquals(expected, mappingProcessor.interpretNonContextMapping(keyValuePairs));
+		final MappingProcessor mappingProcessor = MappingProcessor
+			.builder()
+			.jobInfo(JobInfo.builder().connectorId(MY_CONNECTOR_1_NAME).build())
+			.mapping(Mapping.builder().source(HARDCODED_SOURCE).metrics(keyValuePairs).build())
+			.build();
+
+		final Map<String, String> expected = Map.of("on", "ok", "off", "failed", "blinking", "degraded", "wrong input", "");
+
+		mappingProcessor.interpretNonContextMapping(keyValuePairs);
+		assertEquals(expected, mappingProcessor.interpretContextMappingMetrics(monitor));
 	}
 
 	@Test

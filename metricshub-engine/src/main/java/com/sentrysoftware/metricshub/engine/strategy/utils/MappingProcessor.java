@@ -212,7 +212,7 @@ public class MappingProcessor {
 		} else if (isBooleanFunction(value)) {
 			result.put(key, booleanFunction(value, key));
 		} else if (isLegacyLedStatusFunction(value)) {
-			result.put(key, legacyLedStatus(value));
+			computationFunctions.put(key, this::legacyLedStatus);
 		} else if (isLegacyIntrusionStatusFunction(value)) {
 			result.put(key, legacyIntrusionStatus(value, key));
 		} else if (isLegacyPredictedFailureFunction(value)) {
@@ -810,26 +810,14 @@ public class MappingProcessor {
 
 	/**
 	 * Converts legacyLedStatus status into a current status
-	 *
-	 * @param value		String representing a legacyLedStatus function with a legacy status
-	 * @return			String representing a current status
+	 * @param keyValuePair key/value pair
+	 * @param monitor a given monitor
+	 * @return String representing a current status
 	 */
-	private String legacyLedStatus(String value) {
-		final Map<String, Monitor> typedMonitors = telemetryManager.findMonitorsByType("led");
-
-		if (typedMonitors == null) {
-			return null;
-		}
-		final Monitor monitor = typedMonitors.get("discovery");
-
-		if (monitor == null) {
-			return null;
-		}
-
+	private String legacyLedStatus(final KeyValuePair keyValuePair, final Monitor monitor) {
 		final Map<String, String> monitorAttributes = monitor.getAttributes();
 
-		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
-		final String extracted = functionArguments.get(0);
+		final String extracted = FunctionArgumentsExtractor.extractArguments(keyValuePair.value).get(0);
 
 		String status = null;
 		switch (extracted.toLowerCase()) {
