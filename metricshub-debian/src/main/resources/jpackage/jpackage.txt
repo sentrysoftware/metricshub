@@ -8,7 +8,7 @@
 --app-version ${project.version.noSnapshot}
 --dest "${project.build.directory}"
 --resource-dir override
---app-content metricshub/security,metricshub/otel,metricshub/config,metricshub/LICENSE,metricshub/connectors
+--app-content metricshub/security,metricshub/otel,metricshub/config,metricshub/LICENSE,metricshub/connectors,metricshub/site
 --main-class com.sentrysoftware.metricshub.cli.MetricsHubCliApplication
 --java-options --add-exports
 --java-options java.xml/com.sun.org.apache.xerces.internal.parsers=ALL-UNNAMED
