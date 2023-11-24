@@ -23,6 +23,11 @@
 		<url>http://alpha.internal.sentrysoftware.net/tracker/browse/MTX</url>
 	</issueManagement>
 
+	<organization>
+		<name>Sentry Software</name>
+		<url>https://metricshub.com</url>
+	</organization>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.release>17</maven.compiler.release>
@@ -62,6 +67,7 @@
 		<module>connector-serializer</module>
 		<module>metricshub-agent</module>
 		<module>hardware</module>
+		<module>metricshub-doc</module>
 	</modules>
 
 	<profiles>
@@ -458,7 +464,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-site-plugin</artifactId>
-					<version>3.11.0</version>
+					<version>3.12.1</version>
 				</plugin>
 				<plugin>
 					<groupId>com.googlecode.maven-download-plugin</groupId>
