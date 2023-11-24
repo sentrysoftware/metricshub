@@ -33,6 +33,12 @@
 			<version>${metricshub-jre.version}</version>
 			<type>zip</type>
 		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>metricshub-doc</artifactId>
+			<version>${project.version}</version>
+			<classifier>site</classifier>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -74,6 +80,17 @@
 						<configuration>
 							<outputDirectory>${project.build.directory}/jpackage/jre</outputDirectory>
 							<includeArtifactIds>metricshub-jre-windows</includeArtifactIds>
+						</configuration>
+					</execution>
+					<execution>
+						<id>unpack-metricshub-doc</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>unpack-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/jpackage/metricshub/site</outputDirectory>
+							<includeArtifactIds>metricshub-doc</includeArtifactIds>
 						</configuration>
 					</execution>
 				</executions>

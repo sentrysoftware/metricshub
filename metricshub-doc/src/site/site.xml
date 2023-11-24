@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="${project.name}">
+
+	<skin>
+		<groupId>org.sentrysoftware.maven</groupId>
+		<artifactId>sentry-maven-skin</artifactId>
+		<version>${skinVersion}</version>
+	</skin>
+
+	<custom>
+		<projectVersion>${project.version}</projectVersion>
+		<bodyClass>sentry-purple</bodyClass>
+		<keywords>universal, monitoring, hardware, observability, opentelemetry, otel, sustainability</keywords>
+		<publishDate>${timestamp}</publishDate>
+		<noDefaultLinks>true</noDefaultLinks>
+		<showRenderingTime>true</showRenderingTime>
+	</custom>
+
+	<body>
+
+		<links>
+			<item name="${project.name}" href="https://metricshub.com" />
+		</links>
+
+		<menu name="Getting Started">
+			<item name="Overview" href="index.html" />
+		</menu>
+
+		<menu name="Configuration">
+
+		</menu>
+
+		<menu name="Troubleshooting">
+
+		</menu>
+
+		<menu name="Appendix">
+			
+		</menu>
+	</body>
+</project>
