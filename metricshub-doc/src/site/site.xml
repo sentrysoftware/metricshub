@@ -24,6 +24,7 @@
 
 		<menu name="Getting Started">
 			<item name="Overview" href="index.html" />
+			<item name="Quick Start" href="start.html "/>
 		</menu>
 
 		<menu name="Configuration">
