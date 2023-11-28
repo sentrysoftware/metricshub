@@ -11,7 +11,7 @@ This quick start guide walks you through the step-by-step instructions you shoul
 
 ## Step 2: Configure the MetricsHub Agent
 
-First, add and define the resources you wish to monitor to the **config/metricshub.yaml** file. Simply provide the [hostname and type](./configuration/configure-agent.html#Monitored_resources) of the resource to be monitored, the [protocols and credentials](./configuration/configure-agent.html#Protocols_and_credentials).
+First, add and define the resources you wish to monitor to the **config/metricshub.yaml** file. Simply provide the [hostname and type](./configuration/configure-agent.html#Monitored_resources) of the resource to be monitored and the [protocols and credentials](./configuration/configure-agent.html#Protocols_and_credentials).
 
 Then, [define sites and sustainability](./configuration/configure-agent.html#Configure_the_sustainability_settings) settings. Monitored resources are grouped into resource groups (sites). The site represents a data center, a server room, or applications and services depending on your IT infrastructure and needs.
 
