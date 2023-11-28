@@ -17,7 +17,7 @@
 	<properties>
 		<!-- Sentry Maven Skin version to be used in site.xml and therefore be
 			 consistent with Velocity Tool artifact -->
-		<skinVersion>6.3.00-SNAPSHOT</skinVersion>
+		<skinVersion>6.2.00</skinVersion>
 
 		<!-- Use this property to display the solution name in the documentation -->
 		<solutionName>MetricsHub</solutionName>
