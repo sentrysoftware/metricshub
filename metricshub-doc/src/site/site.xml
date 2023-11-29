@@ -28,7 +28,10 @@
 		</menu>
 
 		<menu name="Configuration">
-
+			<item name="Security" href="security/security.html">
+				<item name="Password Encryption" href="security/passwords.html" />
+				<item name="Security Settings" href="security/settings.html" />
+			</item>
 		</menu>
 
 		<menu name="Troubleshooting">
