@@ -28,7 +28,7 @@
 		</menu>
 
 		<menu name="Configuration">
-
+			<item name="Hardware Sentry Agent" href="configuration/configure-agent.html" />
 		</menu>
 
 		<menu name="Troubleshooting">
