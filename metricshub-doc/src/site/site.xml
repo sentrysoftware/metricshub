@@ -34,7 +34,7 @@
 		</menu>
 
 		<menu name="Troubleshooting">
-
+			<item name="Self-Monitoring" href="troubleshooting/self-monitoring.html" />
 		</menu>
 
 		<menu name="Appendix">
