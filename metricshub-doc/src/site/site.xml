@@ -40,5 +40,9 @@
 		<menu name="Appendix">
 			
 		</menu>
+
+		<menu name="Security">
+			<item name="Password Encryption" href="security/passwords.html" />
+		</menu>
 	</body>
 </project>
