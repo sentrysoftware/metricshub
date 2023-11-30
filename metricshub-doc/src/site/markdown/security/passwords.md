@@ -10,8 +10,8 @@ description: ${solutionName} lets you encrypt the passwords stored in its YAML c
 To encrypt a password, run the `metricshub-encrypt` command in an interactive terminal:
 
 ```shell-session
-/$ cd /opt/hws/bin
-/opt/hws/bin$ ./metricshub-encrypt
+/$ cd /opt/metricshub/bin
+/opt/metricshub/bin$ ./metricshub-encrypt
 Enter the password to encrypt: <type the password>
 GkwzG6bx8cUhoeQW+/1ERI+2LOyB
 ```
@@ -39,9 +39,9 @@ resources:
 
 ## The *Master Password*
 
-On first use, the `metricshub-encrypt` command will create the **security/metricshub-keystore.p12** file to store a unique and random *master password*. This *master password* is used to encrypt passwords with `metricshub-encrypt`, and decrypt them from **config/metricshub-config.yaml**.
+On first use, the `metricshub-encrypt` command will create the **security/metricshub-keystore.p12** file to store a unique and random *master password*. This *master password* is used to encrypt passwords with `metricshub-encrypt`, and decrypt them from **config/metricshub.yaml**.
 
-The **metricshub-keystore.p12** file must not be modified, as this would prevent decryption from working. Any password encrypted with a given **metricshub-keystore.p12** *master password* must be decrypted with the exact same **metricshub-encrypt.p12** file.
+The **metricshub-keystore.p12** file must not be modified, as this would prevent decryption from working. Any password encrypted with a given **metricshub-keystore.p12** *master password* must be decrypted with the exact same **metricshub-keystore.p12** file.
 
 The **metricshub-keystore.p12** file can be shared across several hosts so that a password encrypted on one system can be decrypted on another. Simply copy the **metricshub-keystore.p12** file to the **security** directory. This will make **${solutionName}** able to decrypt the passwords.
 
