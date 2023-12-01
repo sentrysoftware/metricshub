@@ -7,18 +7,18 @@ description: How to configure ${solutionName} security settings.
 
 ## Customizing TLS Certificates
 
-You can use your own certificate to secure the communications between the **Hardware Sentry Agent** and the **OpenTelemetry Collector** by replacing the default TLS certificate of the `OTLP gRPC Receiver`.
+You can use your own certificate to secure the communications between the **MetricsHub Agent** and the **OpenTelemetry Collector** by replacing the default TLS certificate of the `OTLP gRPC Receiver`.
 
 ### Prerequisites
 
 - The certificate file must be in PEM format and can contain one or more certificate chains. The first certificate compatible with the client's requirements will be automatically selected.
-- The private key must be nonencrypted and in PEM format.
-- The certificate must include the `subjectAltName` extension indicating `DNS:localhost,IP:127.0.0.1` because internal communications are on `localhost` only and the **Hardware Sentry Agent**'s `OTLP Exporter` performs hostname verification.
+- The private key must be non-encrypted and in PEM format.
+- The certificate must include the `subjectAltName` extension indicating `DNS:localhost,IP:127.0.0.1` because internal communications are on `localhost` only and the **MetricsHub Agent**'s `OTLP Exporter` performs hostname verification.
 
 ### Procedure
 
 1. Generate your new private key and certificate files (for example: `my-otel.key` and `my-otel.crt`).
-2. Copy the generated certificate and private key files into the `security` directory.
+2. Copy the generated certificate and private key files into the `security` directory located under the installation directory.
 3. In the `otel/otel-config.yaml` file, update the `tls:cert_file` and `tls:key_file` attributes of the `OTLP gRPC Receiver`:
 
     ```yaml
@@ -41,7 +41,7 @@ You can use your own certificate to secure the communications between the **Hard
       otlp:
         trustedCertificatesFile: /opt/metricshub/security/my-otel.crt # Your new OTLP gRPC Receiver certificate.
 
-    hosts: # ...
+    resourceGroups: # ...
     ```
 
 5. Restart **${solutionName}**. See [Installation](../install.md) for more details.
@@ -107,7 +107,7 @@ OpenSSL is a command line tool to generate X.509 certificates. It can be used to
 
 ## Customizing OTLP Authentication Password
 
-You can use your own paswword to have the `OTLP gRPC Receiver` authenticate any incoming request.
+You can use your own password to have the `OTLP gRPC Receiver` authenticate any incoming request.
 
 ### Prerequisites
 
@@ -125,7 +125,7 @@ Access to the `htpasswd` tool:
    Adding password for user myUsername
    ```
 
-2. Copy the `.htpasswd-otel` file into the `security` directory.
+2. Copy the `.htpasswd-otel` file into the `security` directory located under the installation directory.
 
 3. In the `otel/otel-config.yaml` file, update the `file` attribute of the `basicauth` extension:
 
@@ -190,7 +190,7 @@ Access to the `htpasswd` tool:
 
 ## Disabling TLS (Not recommended)
 
-When you disable TLS on **${solutionName}**, the communications between the **Hardware Sentry Agent** and the **OpenTelemetry Collector** are not encrypted anymore.
+When you disable TLS on **${solutionName}**, the communications between the **MetricsHub Agent** and the **OpenTelemetry Collector** are not encrypted anymore.
 
 1. In the `otel/otel-config.yaml` file, remove or comment out the `tls` section from the `OTLP gRPC Receiver` configuration:
 
@@ -214,7 +214,7 @@ When you disable TLS on **${solutionName}**, the communications between the **Ha
       otlp:
         endpoint: http://localhost:4317
 
-    hosts: # ...
+    resourceGroups: # ...
     ```
 
 3. Remove or comment out the `trustedCertificatesFile` attribute of the `OTLP Exporter` in the `config/metricshub.yaml` file:
@@ -225,7 +225,7 @@ When you disable TLS on **${solutionName}**, the communications between the **Ha
         endpoint: http://localhost:4317
         # trustedCertificatesFile: security/otel.crt
 
-    hosts: # ...
+    resourceGroups: # ...
     ```
 
 4. Restart **${solutionName}**.
@@ -271,7 +271,7 @@ If you disable the authentication on **${solutionName}**, incoming requests will
         headers:
           # Authorization: Basic bXlVc2VybmFtZTpteVBhc3N3b3Jk # Basic <base64-credentials>
 
-    hosts: # ...
+    resourceGroups: # ...
     ```
 
 4. Restart **${solutionName}**.
