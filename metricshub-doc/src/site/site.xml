@@ -30,7 +30,7 @@
 
 
 		<menu name="Configuration">
-
+			<item name="OpenTelemetry Advanced Settings" href="configuration/configure-otel.html" />
 		</menu>
 
 		<menu name="Troubleshooting">
