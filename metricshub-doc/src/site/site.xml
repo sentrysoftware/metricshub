@@ -37,7 +37,7 @@
 		</menu>
 
 		<menu name="Troubleshooting">
-
+			<item name="Debugging" href="troubleshooting/debug.html" />
 		</menu>
 
 		<menu name="Appendix">
