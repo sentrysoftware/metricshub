@@ -31,10 +31,13 @@
 
 		<menu name="Configuration">
 			<item name="Security" href="security/security.html">
+				<item name="Password Encryption" href="security/passwords.html" />
+				<item name="Security Settings" href="security/settings.html" />
 			</item>
 		</menu>
 
 		<menu name="Troubleshooting">
+			<item name="Debugging" href="troubleshooting/debug.html" />
 			<item name="Self-Monitoring" href="troubleshooting/self-monitoring.html" />
 		</menu>
 
@@ -42,8 +45,5 @@
 			
 		</menu>
 
-		<menu name="Security">
-			<item name="Password Encryption" href="security/passwords.html" />
-		</menu>
 	</body>
 </project>
