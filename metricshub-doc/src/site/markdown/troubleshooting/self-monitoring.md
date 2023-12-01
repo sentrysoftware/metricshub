@@ -8,9 +8,9 @@ description: How to configure the self-monitoring of ${solutionName}.
 > **Important**: Self-monitoring is intended to help advanced users debug or troubleshoot **${solutionName}**. We recommend using it cautiously, as an incorrect configuration can lead to monitoring issues.
 
 **${solutionName}** can monitor itself, granting you a way to access additional metrics, such as the number of requests for a specific protocol, or the current state of the JVM.
-Using the **OpenTelemetry Java Agent**, **${solutionName}** can export traces and metrics of the **Hardware Sentry Agent** to observe its own performance.
+Using the **OpenTelemetry Java Agent**, **${solutionName}** can export traces and metrics of the **MetricsHub Agent** to observe its own performance.
 
-Those traces provide you and **Sentry Desk** with a complementary way to troubleshoot any problem arising.
+Those traces provide you with a complementary way to troubleshoot any problem arising.
 They describe the internal "path" that the **${solutionName}** application takes to execute its internal tasks and offer a clear overview of what is happening when a problem appears.
 
 **Self-Monitoring** generates a variety of **traces** and tracks every protocol request such as:
@@ -60,17 +60,17 @@ traces:
 
 ### Configure Java Options
 
-Now that the traces pipeline is configured, you need to add Java options to properly link the **OpenTelemetry Java Agent** to the **Hardware Sentry Agent** and configure the service and the exporter.
+Now that the traces pipeline is configured, you need to add Java options to properly link the **OpenTelemetry Java Agent** to the **MetricsHub Agent** and configure the service and the exporter.
 
->**Warning**: you must change the `service.name` property if you are using multiple **Hardware Sentry Agents**, so each service has a unique identifier. Otherwise, the observability back-end will aggregate the services together, resulting in issues regarding latency and information loss.
+>**Warning**: you must change the `service.name` property if you are using multiple **MetricsHub Agents**, so each service has a unique identifier. Otherwise, the observability back-end will aggregate the services together, resulting in issues regarding latency and information loss.
 
 #### On Windows
 
-Add the following options to the `agent.cfg` file located in `C:\Program Files\metricshub\app`.
+Add the following options to the `MetricsHubServiceManager.cfg` file located in `C:\Program Files\MetricsHub\app`.
 
 ```java
 java-options=-javaagent:otel\opentelemetry-javaagent.jar
-java-options=-Dotel.resource.attributes=service.namespace=SentrySoftware.metricshub,service.name=Hardware-Sentry-Agent
+java-options=-Dotel.resource.attributes=service.namespace=SentrySoftware.MetricsHub,service.name=MetricsHub-Agent
 java-options=-Dotel.traces.exporter=otlp
 java-options=-Dotel.metrics.exporter=otlp
 java-options=-Dotel.exporter.otlp.endpoint=https://localhost:4317
@@ -80,11 +80,11 @@ java-options=-Dotel.exporter.otlp.headers=Authorization=Basic aHdzOlNlbnRyeVNvZn
 
 #### On Linux
 
-Add the following options to the `agent.cfg` file located in `/opt/metricshub/lib/app`.
+Add the following options to the `service.cfg` file located in `/opt/metricshub/lib/app`.
 
 ```java
 java-options=-javaagent:/opt/metricshub/otel/opentelemetry-javaagent.jar
-java-options=-Dotel.resource.attributes=service.namespace=SentrySoftware.metricshub,service.name=Hardware-Sentry-Agent
+java-options=-Dotel.resource.attributes=service.namespace=SentrySoftware.MetricsHub,service.name=MetricsHub-Agent
 java-options=-Dotel.traces.exporter=otlp
 java-options=-Dotel.metrics.exporter=otlp
 java-options=-Dotel.exporter.otlp.endpoint=https://localhost:4317
@@ -133,7 +133,7 @@ A span is made of 3 main parts:
     * `Parent ID`: Unique ID of the parent span (empty for root spans).
     * `ID`: Unique ID of the span.
     * `Name`: Name of the span, typically describing the step currently tracked by the span.
-    * `Kind`: Type of the span, either `Internal` for an internal operation within Hardware Sentry or `Client` for [clients](https://github.com/open-telemetry/opentelemetry-java-instrumentation/blob/main/docs/supported-libraries.md#libraries--frameworks) automatically supported by the [opentelemetry-javaagent](https://github.com/open-telemetry/opentelemetry-java-instrumentation) such as [HttpUrlConnection](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/net/HttpURLConnection.html).
+    * `Kind`: Type of the span, either `Internal` for an internal operation within MetricsHub or `Client` for [clients](https://github.com/open-telemetry/opentelemetry-java-instrumentation/blob/main/docs/supported-libraries.md#libraries--frameworks) automatically supported by the [opentelemetry-javaagent](https://github.com/open-telemetry/opentelemetry-java-instrumentation) such as [HttpUrlConnection](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/net/HttpURLConnection.html).
     * `Start time`: Timestamp marking the beginning of the span's lifecycle.
     * `End time`: Timestamp marking the end of the span's lifecycle.
     * `Status code`: Status code of the span, either `Unset` or `Error`.
