@@ -38,6 +38,7 @@
 		</menu>
 
 		<menu name="Troubleshooting">
+			<item name="Health Check" href="troubleshooting/status.html" />
 			<item name="Debugging" href="troubleshooting/debug.html" />
 			<item name="Self-Monitoring" href="troubleshooting/self-monitoring.html" />
 		</menu>
