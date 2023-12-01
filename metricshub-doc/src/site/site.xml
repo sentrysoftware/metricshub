@@ -34,6 +34,7 @@
 				<item name="Password Encryption" href="security/passwords.html" />
 				<item name="Security Settings" href="security/settings.html" />
 			</item>
+			<item name="OpenTelemetry Advanced Settings" href="configuration/configure-otel.html" />
 		</menu>
 
 		<menu name="Troubleshooting">
