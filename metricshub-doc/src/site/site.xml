@@ -30,7 +30,8 @@
 
 
 		<menu name="Configuration">
-
+			<item name="Security" href="security/security.html">
+			</item>
 		</menu>
 
 		<menu name="Troubleshooting">
