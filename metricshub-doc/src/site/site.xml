@@ -40,6 +40,7 @@
 		<menu name="Troubleshooting">
 			<item name="Health Check" href="troubleshooting/status.html" />
 			<item name="Debugging" href="troubleshooting/debug.html" />
+			<item name="MetricsHub CLI (&lt;code&gt;metricshub&lt;/code&gt;)" href="troubleshooting/cli.html" />
 			<item name="Self-Monitoring" href="troubleshooting/self-monitoring.html" />
 		</menu>
 

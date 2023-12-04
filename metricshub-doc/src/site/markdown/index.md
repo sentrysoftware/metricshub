@@ -18,7 +18,7 @@ The agent exposes tailored metrics to any observability platform supporting [Ope
 
 * **Community edition**: it includes fundamental features of the solution and connectors developed or contributed by the community members.
 The MetricsHub foundation enables the monitoring of both Windows and Linux systems and collecting metrics exposed by MIB2 and LibreHardwareMonitor.
-Additionally, the MetricsHub empowers users to create directives specifying how to monitor any network, application, service, .etc entity with minimal configuration, involving low-code principles.
+Additionally, the MetricsHub empowers users to create directives specifying how to monitor any resource with minimal configuration, involving low-code principles.
 
 * **Enterprise edition**: In addition to the features included in the community edition, the enterprise edition includes the library of 250+ *Hardware Connectors*, **${solutionName}** becomes capable of performing the monitoring of almost any system from any manufacturer (**Cisco**, **Dell**, **EMC**, **Fujitsu**, **Hitachi**, **HP**, **IBM**, **Lenovo**, **NetApp**, **Oracle**, etc.) through `SNMP`, `IPMI`, `HTTP`, `WBEM`, `WMI`, `WINRM` or `SSH`.
 
