@@ -60,7 +60,7 @@ where:
 * `hw.site.electricity_cost` is the **electricity price in the currency of your choice per kiloWattHour**. This information is required to calculate the energy cost of your site. Refer to your energy contract to know the tariff by kilowatt per hour charged by your supplier or refer to the [GlobalPetrolPrices Web site](https://www.globalpetrolprices.com/electricity_prices/). Make sure to always use the same currency for all instances of MetricsHub on all sites to allow cost aggregation in your dashboards that cover multiple sites.
 * `hw.site.pue` is the **Power Usage Effectiveness (PUE)** of your site. By default, sites are set with a PUE of 1.8, which is the average value for typical data centers.
 
-Feel free to replace `<resource-group-name>`, `<site-name>`, `<carbon-intensity-value>`, `<electricity-cost-value>`, and `<pue-value>` with your specific resource group name, site name, and corresponding values for carbon intensity, electricity cost, and PUE. For example:
+Replace `<resource-group-name>`, `<site-name>`, `<carbon-intensity-value>`, `<electricity-cost-value>`, and `<pue-value>` with your specific resource group name, site name, and corresponding values for carbon intensity, electricity cost, and PUE. For example:
 
 ```yaml
 resourceGroups:
@@ -103,8 +103,8 @@ resourceGroups:
 where:
 
 * `<resource-id>` is the unique id of your resource (e.g: host, application or service id)
-* `<hostname>` is the name of the host, or its IP address.
-* `<type>` is the type of the host to be monitored. Possible values are:
+* `<hostname>` is the name of the host resource, or its IP address.
+* `<type>` is the type of the resource to be monitored. Possible values are:
 
     * `win` for Microsoft Windows systems
     * `linux` for Linux systems
@@ -119,49 +119,28 @@ where:
  For the enterprise edition, refer to [Monitored Systems](../enterprise-platform-requirements.html) for more details.
  For the basic edition, refer to [Monitored Systems](../basic-platform-requirements.html) for more details.
   
-* `<protocol-configuration>` is the protocol(s) **${solutionName}** will use to communicate with the hosts: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](#protocol) for more details.
+* `<protocol-configuration>` is the protocol(s) **${solutionName}** will use to communicate with the resources: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](#protocol) for more details.
 
-#### Multiple hosts
+#### Multiple resources
 
-You can group hosts that share the same characteristics (device type, protocols, credentials, etc.) using one of the below syntax:
+You can group resources that share the same characteristics (device kind, protocols, credentials, etc.) using one of the below syntax:
 
 ```yaml
-hosts:
-
-- hostGroup:
-    hostnames: [ <hostname1>,<hostname2>, etc.]
-    type: <host-type>
-  <protocol-configuration>
-
+resourceGroups:
+  <resource-group-name>:
+    resources:
+      <resource-id>:
+        attributes:
+          host.names: [<hostname1>,<hostname2>, etc.]
+          host.type: <type>
+        <protocol-configuration>
 ```
 
 where:
 
-* `<hostname1>,<hostname2>, etc.` is a comma-delimited list of hosts to be monitored. Provide their hostname or IP address.
-* `<host-type>` is the type of the host to be monitored.
-* `<protocol-configuration>` is the protocol(s) **${solutionName}** will use to communicate with the hosts: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](#protocol) for more details.
-
-or
-
-```yaml
-hosts:
-- hostGroup:
-    type: <host-type>
-    hostnames:
-      <hostname>:
-        extraLabels:
-          host.name: server-01.local.net
-          host.id: my-server-01-id
-    # <hostname>:
-    #   extraLabels:
-  <protocol-configuration>
-```
-
-where:
-
-* `<hostname>` is the name of the host, or its IP address. Using this format, you can provide `extraLabels` for each configured host.
-* `<host-type>` is the type of the host to be monitored.
-* `<protocol-configuration>` is the protocol(s) **${solutionName}** will use to communicate with the hosts: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](#protocol) for more details.
+* `<hostname1>,<hostname2>, etc.` is a comma-delimited list of host resources to be monitored. Provide their hostname or IP address.
+* `<type>` is the type of the resource to be monitored.
+* `<protocol-configuration>` is the protocol(s) **${solutionName}** will use to communicate with the resource: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](#protocol) for more details.
 
 <a name="protocol"></a>
 
@@ -171,28 +150,31 @@ where:
 
 Use the parameters below to configure the HTTP protocol:
 
-| Parameter | Description                                                                      |
-| --------- | -------------------------------------------------------------------------------- |
-| http      | Protocol used to access the host.                                                |
-| port      | The HTTPS port number used to perform HTTP requests (Default: 443).              |
-| username  | Name used to establish the connection with the host via the HTTP protocol.       |
-| password  | Password used to establish the connection with the host via the HTTP protocol.   |
-| timeout  | How long until the HTTP request times out (Default: 60s).  |
+| Parameter  | Description                                                                    |
+|------------|--------------------------------------------------------------------------------|
+| http       | Protocol used to access the host.                                              |
+| port       | The HTTPS port number used to perform HTTP requests (Default: 443).            |
+| username   | Name used to establish the connection with the host via the HTTP protocol.     |
+| password   | Password used to establish the connection with the host via the HTTP protocol. |
+| timeout    | How long until the HTTP request times out (Default: 60s).                      |
 
 **Example**
 
 ```yaml
-hosts:
-
-  - host:
-      hostname: myhost-01
-      type: storage
-    http:
-      https: true
-      port: 443
-      username: myusername
-      password: mypwd
-      timeout: 60
+resourceGroups:
+  boston:
+    resources:
+      myHost1:   
+        attributes:
+          host.name: my-host-01
+          host.type: storage
+        protocols:
+          http:
+            https: true
+            port: 443
+            username: myusername
+            password: mypwd
+            timeout: 60
 ```
 
 #### IPMI
@@ -208,14 +190,17 @@ Use the parameters below to configure the IPMI protocol:
 **Example**
 
 ```yaml
-hosts:
-
-- host:
-    hostname: myhost-01
-    type: oob
-  ipmi:
-    username: myusername
-    password: mypwd
+resourceGroups:
+  boston:
+    resources:
+      myHost1:
+        attributes:
+          host.name: my-host-01
+          host.type: oob
+        protocols:
+          ipmi:
+            username: myusername
+            password: mypwd
 ```
 
 #### OS commands
@@ -233,15 +218,19 @@ Use the parameters below to configure OS Commands that are executed locally:
 **Example**
 
 ```yaml
-hosts:
-  - host:
-      hostname: myhost-01
-      type: linux
-    osCommand:
-      timeout: 120
-      useSudo: true
-      useSudoCommands: [ cmd1, cmd2 ]
-      sudoCommand: sudo
+resourceGroups:
+  boston:
+    resources:
+      myHost1:
+        attributes:
+          host.name: my-host-01
+          host.type: linux
+        protocols:
+          osCommand:
+            timeout: 120
+            useSudo: true
+            useSudoCommands: [ cmd1, cmd2 ]
+            sudoCommand: sudo
 ```
 
 #### SSH
@@ -262,18 +251,22 @@ Use the parameters below to configure the SSH protocol:
 **Example**
 
 ```yaml
-hosts:
-  - host:
-      hostname: myhost-01
-      type: linux
-    ssh:
-      timeout: 120
-      useSudo: true
-      useSudoCommands: [ cmd1, cmd2 ]
-      sudoCommand: sudo
-      username: myusername
-      password: mypwd
-      privateKey: /tmp/ssh-key.txt
+resourceGroups:
+  boston:
+    resources:
+      myHost1:
+        attributes:
+          host.name: my-host-01
+          host.type: linux
+        protocols:
+          ssh:
+            timeout: 120
+            useSudo: true
+            useSudoCommands: [ cmd1, cmd2 ]
+            sudoCommand: sudo
+            username: myusername
+            password: mypwd
+            privateKey: /tmp/ssh-key.txt
 
 ```
 
@@ -296,38 +289,45 @@ Use the parameters below to configure the SNMP protocol:
 **Example**
 
 ```yaml
-hosts:
+resourceGroups:
+  boston:
+    resources:
+      myHost1:
+        attributes:
+          host.name: my-host-01
+          host.type: linux
+        protocols:
+          snmp:
+            version: v1
+            community: public
+            port: 161
+            timeout: 120s
+            
+      myHost2:
+        attributes:
+          host.name: my-host-02
+          host.type: linux
+        protocols:
+          snmp:
+            version: v2c
+            community: public
+            port: 161
+            timeout: 120s
 
-- host:
-    hostname: myhost-01
-    type: linux
-  snmp:
-    version: v1
-    community: public
-    port: 161
-    timeout: 120s
-
-- host:
-    hostname: myhost-01
-    type: linux
-  snmp:
-    version: v2c
-    community: public
-    port: 161
-    timeout: 120s
-
-- host:
-    hostname: myhost-01
-    type: linux
-  snmp:
-    version: v3-md5
-    community: public
-    port: 161
-    timeout: 120s
-    privacy: des
-    privacyPassword: myprivacypwd
-    username: myusername
-    password: mypwd
+      myHost3:
+        attributes:
+          host.name: my-host-03
+          host.type: linux
+        protocols:
+          snmp:
+            version: v3-md5
+            community: public
+            port: 161
+            timeout: 120s
+            privacy: des
+            privacyPassword: myprivacypwd
+            username: myusername
+            password: mypwd
 ```
 
 #### WBEM
@@ -347,17 +347,20 @@ Use the parameters below to configure the WBEM protocol:
 **Example**
 
 ```yaml
-hosts:
-
-  - host:
-      hostname: myhost-01
-      type: storage
-    wbem:
-      protocol: https
-      port: 5989
-      timeout: 120s
-      username: myusername
-      password: mypwd
+resourceGroups:
+  boston:
+    resources:
+      myHost1:
+        attributes:
+          host.name: my-host-01
+          host.type: storage
+        protocols:
+          wbem:
+            protocol: https
+            port: 5989
+            timeout: 120s
+            username: myusername
+            password: mypwd
 ```
 
 #### WMI
@@ -374,15 +377,18 @@ Use the parameters below to configure the WMI protocol:
 **Example**
 
 ```yaml
-hosts:
-
-  - host:
-      hostname: myhost-01
-      type: win
-    wmi:
-      timeout: 120s
-      username: myusername
-      password: mypwd
+resourceGroups:
+  boston:
+    resources:
+      myHost1:
+        attributes:
+          host.name: my-host-01
+          host.type: win
+        protocols:
+          wmi:
+            timeout: 120s
+            username: myusername
+            password: mypwd
 ```
 
 #### WinRM
@@ -402,90 +408,24 @@ Use the parameters below to configure the WinRM protocol:
 **Example**
 
 ```yaml
-hosts:
-
-  - host:
-      hostname: server-11
-      type: win
-    winrm:
-      protocol: http
-      port: 5985
-      username: myusername
-      password: mypwd
-      timeout: 120s
-      authentications: [ntlm]
+resourceGroups:
+  boston:
+    resources:
+      myHost1:
+        attributes:
+          host.name: my-host-01
+          host.type: win
+        protocols:
+          winrm:
+            protocol: http
+            port: 5985
+            username: myusername
+            password: mypwd
+            timeout: 120s
+            authentications: [ntlm]
 ```
 
 ## Additional settings (Optional)
-
-### Alert settings
-
-#### Disabling alerts (Not Recommended)
-
-To disable **${solutionName}**'s alerts:
-
-* for all your hosts, set the `disableAlerts` parameter to `true` just before the `hosts` section:
-
-    ```yaml
-    disableAlerts: true
-
-    hosts: # ...
-    ```
-
-* for a specific host, set the `disableAlerts` parameter to `true` in the relevant `host` section:
-
-    ```yaml
-    hosts:
-
-    - host:
-        hostname: myhost
-        type: linux
-      snmp:
-        version: v1
-        community: public
-        port: 161
-        timeout: 120s
-      disableAlerts: true
-    ```
-
-#### Hardware problem template
-
-When detecting a hardware problem, **${solutionName}** triggers an alert as OpenTelemetry log. The alert body is built from the following template:
-
-```
-Hardware problem on ${FQDN} with ${MONITOR_NAME}.${NEWLINE}${NEWLINE}${ALERT_DETAILS}${NEWLINE}${NEWLINE}${FULLREPORT}
-```
-
-To change this default hardware problem template:
-
-* for all your hosts, configure the `hardwareProblemTemplate` parameter just before the `hosts` section:
-
-    ```yaml
-    hardwareProblemTemplate: Custom hardware problem on ${FQDN} with ${MONITOR_NAME}.
-
-    hosts: # ...
-    ```
-
-* for a specific host, configure the `hardwareProblemTemplate` parameter in the relevant `host` section:
-
-    ```yaml
-    hosts:
-
-    - host:
-        hostname: myhost
-        type: linux
-      snmp:
-        version: v1
-        community: public
-        port: 161
-        timeout: 120s
-      hardwareProblemTemplate: Custom hardware problem on myhost with ${MONITOR_NAME}.
-    ```
-
-and indicate the template to use when building alert messages.
-
-For more information about the alert mechanism and the macros to use, refer to the [Alerts](../alerts.md) page.
-
 
 ### Authentication settings
 
@@ -501,12 +441,10 @@ exporter:
     headers:
       Authorization: Basic <credentials>
 
-hosts: # ...
+resourceGroups: # ...
 ```
 
 where `<credentials>` are built by first joining your username and password with a colon (`myUsername:myPassword`) and then encoding the value in `base64`.
-
-For more security, encrypt the `Basic <credentials>` value. See [Encrypting Passwords](../security/passwords.md#Encrypting_Passwords) for more details.
 
 > **Warning**: If you update the *Basic Authentication Header*, you must generate a new `.htpasswd` file for the [OpenTelemetry Collector Basic Authenticator](configure-otel.md#Basic_Authenticator).
 
@@ -523,71 +461,79 @@ exporter:
   otlp:
     endpoint: https://my-host:4317
 
-hosts: #...
+resourceGroups: #...
 ```
 
 ### Monitoring settings
 
 #### Collect period
 
-By default, **${solutionName}** collects metrics from the monitored hosts every minute. To change the default collect period:
+By default, **${solutionName}** collects metrics from the monitored resources every minute. To change the default collect period:
 
-* for all your hosts, add the `collectPeriod` parameter just before the `hosts` section:
+* For all your resources, add the `collectPeriod` parameter just before the `resourceGroups` section:
 
     ```yaml
     collectPeriod: 2m
 
-    hosts: # ...
+    resourceGroups: # ...
     ```
 
-* for a specific host, add the `collectPeriod` parameter in the relevant `host` section:
+* For a specific resource, add the `collectPeriod` parameter in the relevant configuration related to your resource (e.g: myHost1)
 
     ```yaml
-    hosts:
-
-    - host:
-        hostname: myhost
-        type: linux
-      snmp:
-        version: v1
-        community: public
-        port: 161
-        timeout: 120s
-      collectPeriod: 1m30s # Customized
+    resourceGroups:
+      boston:
+        resources:
+          myHost1:
+            attributes:
+              host.name: my-host-01
+              host.type: linux
+            protocols:
+              snmp:
+                version: v1
+                community: public
+                port: 161
+                timeout: 120s
+            collectPeriod: 1m30s # Customized 
     ```
 
 > **Warning**: Collecting metrics too frequently can cause CPU-intensive workloads.
 
 #### Connectors
 
-**${solutionName}** comes with the *Hardware Connector Library*, a library that consists of hundreds of hardware connectors that describe how to discover hardware components and detect failures. When running **${solutionName}**, the connectors are automatically selected based on the device type provided and the enabled protocols. You can however indicate to **${solutionName}** which connectors should be used or excluded.
+**${solutionName}** comes with the *Basic Connector Library* whereas the *Enterprise edition* includes hundreds of hardware connectors that describe how to discover components and detect failures. When running **${solutionName}**, the connectors are automatically selected based on the device type provided and the enabled protocols. You can however indicate to **${solutionName}** which connectors should be used or excluded.
 
 Use the parameters below to select or exclude connectors:
 
-| Parameter          | Description                                                                          |
-| ------------------ | ------------------------------------------------------------------------------------ |
-| selectedConnectors | Connector(s) to use to monitor the host. No automatic detection will be performed.   |
-| excludedConnectors | Connector(s) that must be excluded from the automatic detection.                     |
+| Parameter         | Description                                                                          |
+|-------------------| ------------------------------------------------------------------------------------ |
+| selectConnectors  | Connector(s) to use to monitor the host. No automatic detection will be performed.   |
+| excludeConnectors | Connector(s) that must be excluded from the automatic detection.                     |
 
 Connector names must be comma-separated, as shown in the example below:
 
 ```yaml
-hosts:
-
-  - host:
-      hostname: myhost-01
-      type: oob
-    wmi:
-      timeout: 120s
-      username: myusername
-      password: mypwd
-    selectedConnectors: [ VMwareESX4i, VMwareESXi ]
-    excludedConnectors: [ VMwareESXiDisksStorage ]
+resourceGroups:
+  boston:
+    resources:
+      myHost1:
+        attributes:
+          host.name: my-host-01
+          host.type: win
+        protocols:
+          wmi:
+            timeout: 120s
+            username: myusername
+            password: mypwd
+        selectConnectors: [ VMwareESX4i, VMwareESXi ]
+        excludeConnectors: [ VMwareESXiDisksStorage ]
 ```
 
-> **Note**: Any mispelled connector will be ignored.
+> **Note**: Any misspelled connector will be ignored.
 
-To know which connectors are available, refer to [Monitored Systems](../platform-requirements.html#!) or run the below command:
+To know which connectors are available, refer to [Basic Monitored Systems](../basic-platform-requirements.html#!) or [Enterprise Monitored Systems](../enterprise-platform-requirements.html#!).
+
+Otherwise, you can list the available connectors using the below command:
 
 ```shell-session
 $ metricshub -l
@@ -599,130 +545,115 @@ For more information about the `metricshub` command, refer to [MetricsHub CLI (m
 
 **${solutionName}** periodically performs discoveries to detect new components in your monitored environment. By default, **${solutionName}** runs a discovery after 30 collects. To change this default discovery cycle:
 
-* for all your hosts, add the `discoveryCycle` just before the `hosts` section:
+* For all your resources, add the `discoveryCycle` just before the `resourceGroups` section:
 
     ```yaml
     discoveryCycle: 15
 
-    hosts: # ...
+    resourceGroups: # ...
     ```
 
-* for a specific host, add the `discoveryCycle` parameter in the relevant `host` section:
+* For a specific host, add the `discoveryCycle` parameter in the relevant configuration related to your resource (e.g: myHost1).
 
     ```yaml
-    hosts:
-
-    - host:
-        hostname: myhost
-        type: linux
-      snmp:
-        version: v1
-        community: public
-        port: 161
-        timeout: 120s
-      discoveryCycle: 5 # Customized
+    resourceGroups:
+      boston:
+        resources:
+          myHost1:
+            attributes:
+              host.name: my-host-01
+              host.type: linux
+            protocols:
+              snmp:
+                version: v1
+                community: public
+                port: 161
+                timeout: 120s
+            discoveryCycle: 5 # Customized 
     ```
+
 
 and indicate the number of collects after which a discovery will be performed.
 
 > **Warning**: Running discoveries too frequently can cause CPU-intensive workloads.
 
-#### Extra labels
+#### Resource Attributes
 
-Add labels in the `extraLabels` section to override the data collected by the **MetricsHub Agent** or add additional attributes to the [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md). These attributes are added to each metric of that *Resource* when exported to time series platforms like Prometheus. 
+Add labels in the `attributes` section to override the data collected by the **MetricsHub Agent** or add additional attributes to the [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md). These attributes are added to each metric of that *Resource* when exported to time series platforms like Prometheus. 
 
-In the example below, we override the `host.name` attribute resolved by **${solutionName}** with `host01.internal.domain.net` and indicate that it is the `Jenkins` app:
-
-```yaml
-hosts:
-
-- host:
-    hostname: host01
-    type: Linux
-  snmp:
-    version: v1
-    port: 161
-    timeout: 120
-  extraLabels:
-    host.name: host01.internal.domain.net
-    app: Jenkins
-```
-
-In the example below, we configure several hosts which share the same characteristics (`hostGroup`) and override the `host.name` attributes resolved by **${solutionName}** with `server-01.local.net` and `server-02.local.net` and indicate that these hosts are `Jenkins` apps:
+In the example below, we add a new `app` attribute and indicate that it is the `Jenkins` app:
 
 ```yaml
-hosts:
-- hostGroup:
-    type: <host-type>
-    hostnames:
-      server-01:
-        extraLabels:
-          host.name: server-01.local.net
-          host.id: my-server-01-id
+resourceGroups:
+  boston:
+    resources:
+      myHost1:   
+        attributes:
+          host.name: my-host-01
+          host.type: other
           app: Jenkins
-      server-02:
-        extraLabels:
-          host.name: server-02.local.net
-          host.id: my-server-02-id
-          app: Jenkins
+        protocols:
+          http:
+            https: true
+            port: 443
+            username: myusername
+            password: mypwd
+            timeout: 60
 ```
 
 #### Hostname resolution
 
-By default, **${solutionName}** resolves the `hostname` of the host to a Fully Qualified Domain Name (FQDN) and displays this value in the [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md) attribute `host.name`. To display the configured hostname instead, set `resolveHostnameToFqdn` to `false`:
+By default, **${solutionName}** resolves the `hostname` of the resource to a Fully Qualified Domain Name (FQDN) and displays this value in the [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md) attribute `host.name`. To display the configured hostname instead, set `resolveHostnameToFqdn` to `false`:
 
 ```yaml
 resolveHostnameToFqdn: false
 
-hosts:
-
-- host:
-    hostname: host01
-    type: Linux
+resourceGroups:
 ```
 
 #### Job pool size
 
-By default, **${solutionName}** runs up to 20 discovery and collect jobs in parallel. To increase or decrease the number of jobs **${solutionName}** can run simultaneously,  add the `jobPoolSize` parameter just before the `hosts` section:
+By default, **${solutionName}** runs up to 20 discovery and collect jobs in parallel. To increase or decrease the number of jobs **${solutionName}** can run simultaneously and add the `jobPoolSize` parameter just before the `resourceGroups` section:
 
 ```yaml
-jobPoolSize: 20
+jobPoolSize: 40 # Customized
 
-hosts: # ...
+resourceGroups: # ...
 ```
-
-and indicate a number of jobs.
 
 > **Warning**: Running too many jobs in parallel can lead to an OutOfMemory error.
 
 #### Sequential mode
 
-By default, **${solutionName}** sends the queries to the host in parallel. Although the parallel mode is faster than the sequential one, too many requests at the same time can lead to the failure of the targeted system.
+By default, **${solutionName}** sends the queries to the resource in parallel. Although the parallel mode is faster than the sequential one, too many requests at the same time can lead to the failure of the targeted system.
 
 To force all the network calls to be executed in sequential order:
 
-* for all your hosts, enable the `sequential` option just before the `hosts` section (**NOT RECOMMENDED**):
+* For all your resources, enable the `sequential` option just before the `resourceGroups` section (**NOT RECOMMENDED**):
 
     ```yaml
     sequential: true
 
-    hosts: # ...
+    resourceGroups: # ...
     ```
 
-* for a specific host, enable the `sequential` option in the relevant `host` section:
+* For a specific resource, enable the `sequential` option in the relevant configuration related to your resource (e.g: myHost1)
 
     ```yaml
-    hosts:
-
-    - host:
-        hostname: myhost
-        type: linux
-      snmp:
-        version: v1
-        community: public
-        port: 161
-        timeout: 120s
-      sequential: true # Customized
+    resourceGroups:
+      boston:
+        resources:
+          myHost1:
+            attributes:
+              host.name: my-host-01
+              host.type: linux
+            protocols:
+              snmp:
+                version: v1
+                community: public
+                port: 161
+                timeout: 120s
+            sequential: true # Customized 
     ```
 
 > **Warning**: Sending requests in sequential mode slows down the monitoring significantly. Instead of using the sequential mode, you could increase the maximum number of allowed concurrent requests in the monitored system, if the manufacturer allows it.
@@ -744,7 +675,7 @@ Timeouts, durations and periods are specified with the below format:
 
 The **MetricsHub Agent** launches the _OpenTelemetry Collector_ as a child process by running the `otel/otelcol-contrib` executable which reads the `otel/otel-config.yaml` file to start its internal components.
 
-To customize the way the _OpenTelemetry Collector_ process is started, update the `otelCollector` section in `config/metricshub-config.yaml`:
+To customize the way the _OpenTelemetry Collector_ process is started, update the `otelCollector` section in `config/metricshub.yaml`:
 
 ```yaml
 otelCollector:
@@ -757,7 +688,7 @@ otelCollector:
   workingDir: <PATH>
   disabled: false
 
-hosts: # ...
+resourceGroups: # ...
 ```
 
 #### Command line
@@ -774,7 +705,7 @@ otelCollector:
     - /opt/metricshub/otel/my-otel-config.yaml
     - --feature-gates=pkg.translator.prometheus.NormalizeName
 
-hosts: # ...
+resourceGroups: # ...
 ```
 
 #### Disabling the collector (Not recommended)
@@ -787,7 +718,7 @@ To disable the _OpenTelemetry Collector_, set the `disabled` property to `true` 
 otelCollector:
   disabled: true
 
-hosts: # ...
+resourceGroups: # ...
 ```
 
 #### Environment
@@ -802,7 +733,7 @@ otelCollector:
     HTTPS_PROXY: https://my-proxy.domain.internal.net
     NO_WINDOWS_SERVICE: 1
 
-hosts: # ...
+resourceGroups: # ...
 ```
 
 #### Process output
@@ -815,7 +746,7 @@ To print the _OpenTelemetry Collector_ output to the console, set the `output` p
 otelCollector:
   output: console  # Default: log
 
-hosts: # ...
+resourceGroups: # ...
 ```
 
 To disable the _OpenTelemetry Collector_ output processor, set the `output` property to `silent` under the `otelCollector` section:
@@ -824,18 +755,18 @@ To disable the _OpenTelemetry Collector_ output processor, set the `output` prop
 otelCollector:
   output: silent   # Default: log
 
-hosts: # ...
+resourceGroups: # ...
 ```
 
 #### Working directory
 
-By default, the _OpenTelemetry Collector_ working directory is set to `metricshub/otel`. If your working directory is different (typically in heavily customized setups), add the `workingDir` attribute under the `otelCollector` section in `config/metricshub-config.yaml`:
+By default, the _OpenTelemetry Collector_ working directory is set to `metricshub/otel`. If your working directory is different (typically in heavily customized setups), add the `workingDir` attribute under the `otelCollector` section in `config/metricshub.yaml`:
 
 ```yaml
 otelCollector:
   workingDir: /opt/metricshub/otel
 
-hosts: # ...
+resourceGroups: # ...
 ```
 
 > **Important**: The _OpenTelemetry Collector_ might not start if the value set for the `workingDir` attribute is not correct, more especially if the `otel/otel-config.yaml` file uses relative paths.
@@ -853,7 +784,7 @@ exporter:
   otlp:
     trustedCertificatesFile: /opt/metricshub/security/new-server-cert.crt
 
-hosts: # ...
+resourceGroups: # ...
 ```
 
-The file should be stored in the `security` folder and should contain one or more X.509 certificates in PEM format.
+The file should be stored in the `security` folder of the installation directory and should contain one or more X.509 certificates in PEM format.

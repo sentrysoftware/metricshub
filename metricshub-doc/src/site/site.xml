@@ -29,7 +29,7 @@
 		</menu>
 
 		<menu name="Configuration">
-			<item name="Hardware Sentry Agent" href="configuration/configure-agent.html" />
+			<item name="MetricsHub Agent" href="configuration/configure-agent.html" />
 			<item name="Security" href="security/security.html">
 				<item name="Password Encryption" href="security/passwords.html" />
 				<item name="Security Settings" href="security/settings.html" />
