@@ -5,72 +5,106 @@ description: How to configure MetricsHub Agent to scrape hosts with various prot
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-The **MetricsHub Agent** collects the hardware health of the monitored systems and pushes the collected data to the OTLP receiver. **${solutionName}** then processes the hardware observability and sustainability metrics and exposes them in the backend platform of your choice (Datadog, BMC Helix, Prometheus, Grafana, etc.).
+The **MetricsHub Agent** collects the health of the monitored resources and pushes the collected data to the OTLP receiver. **${solutionName}** then processes the resource observability and sustainability metrics and exposes them in the backend platform of your choice (Datadog, BMC Helix, Prometheus, Grafana, etc.).
 
-To ensure this process runs smoothly, you need to configure a few settings in the `config/metricshub-config.yaml` file to allow **${solutionName}** to:
+To ensure this process runs smoothly, you need to configure a few settings in the `config/metricshub.yaml` file to allow **${solutionName}** to:
 
 * identify which site is monitored with this agent
 * calculate the electricity costs and the carbon footprint of this site
-* monitor the systems in this site.
-
-Note that all changes made to the  `config/metricshub.yaml` file are taken into account immediately. There is therefore no need to restart **${solutionName}**.
+* monitor the resources in this site.
 
 > **Important**: We recommend using an editor supporting the [Schemastore](https://www.schemastore.org/json#editors) to edit **${solutionName}**'s configuration YAML files (Example: [Visual Studio Code](https://code.visualstudio.com/download) and [vscode.dev](https://vscode.dev), with [RedHat's YAML extension](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml)).
 
 ## Configure a site
 
-A site represents the data center or the server room in which all the systems to be monitored are located. Configure your site in the `extraLabels` section of the `config/metricshub.yaml` file as shown in the example below:
+A site represents the data center, the server room or any other site in which all the resources to be monitored are located.
+
+In the `config/metricshub.yaml` file, establish a clear representation of your site by defining a `<resource-group-name>` within the designated `resourceGroups` section.
+Subsequently, define the `site` attribute, under the `attributes` section of your resource group. The following example demonstrates the structured approach:
 
 ```yaml
-extraLabels:
-  site: boston 
+resourceGroups:
+  <resource-group-name>:
+    attributes:
+      site: <site-name>
+```
+
+Replace `<resource-group-name>` with a unique identifier for your resource group and `<site-name>` with the designated name for your site as shown in the following example:
+
+```yaml
+resourceGroups:
+  boston:
+    attributes:
+      site: boston
 ```
 
 ## Configure the sustainability settings
 
-To obtain the electricity costs and carbon footprint of your site, configure the `extraMetrics` section of the `config/metricshub-config.yaml` file as follows:
 
-```yaml 
-extraMetrics:
-  hw.site.carbon_intensity: 350 # in g/kWh
-  hw.site.electricity_cost: 0.12 # in $/kWh
-  hw.site.pue: 1.8
+Once you've specified the `site` attribute within the `attributes` section of your resource group, take the next step to acquire insightful data regarding the electricity costs and carbon footprint of your site.
+This involves configuring the `metrics` section within your resource group in the `config/metricshub.yaml` file, as demonstrated below:
+
+```yaml
+resourceGroups:
+  <resource-group-name>:
+    attributes:
+      site: <site-name>
+    metrics:
+      hw.site.carbon_intensity: <carbon-intensity-value> # in g/kWh
+      hw.site.electricity_cost: <electricity-cost-value> # in $/kWh
+      hw.site.pue: <pue-value>
 ```
 
 where:
-* `hw.site.carbon_intensity` is the **carbon intensity in grams per kiloWatthour**. This information is required to calculate the carbon emissions of your site. The carbon intensity corresponds to the amount of CO₂ emissions produced per kWh of electricity and varies depending on the country and the region where the data center is located. See the [electricityMap Web site](https://app.electricitymap.org/map) for reference. 
+* `hw.site.carbon_intensity` is the **carbon intensity in grams per kiloWatthour**. This information is required to calculate the carbon emissions of your site. The carbon intensity corresponds to the amount of CO₂ emissions produced per kWh of electricity and varies depending on the country and the region where the data center is located. See the [electricityMap Web site](https://app.electricitymap.org/map) for reference.
 * `hw.site.electricity_cost` is the **electricity price in the currency of your choice per kiloWattHour**. This information is required to calculate the energy cost of your site. Refer to your energy contract to know the tariff by kilowatt per hour charged by your supplier or refer to the [GlobalPetrolPrices Web site](https://www.globalpetrolprices.com/electricity_prices/). Make sure to always use the same currency for all instances of MetricsHub on all sites to allow cost aggregation in your dashboards that cover multiple sites.
 * `hw.site.pue` is the **Power Usage Effectiveness (PUE)** of your site. By default, sites are set with a PUE of 1.8, which is the average value for typical data centers.
 
-## Configure the monitored hosts
-
-To collect metrics from your hosts, you must provide the following information in the `config/metricshub-config.yaml` file:
-
-* the hostname of the host to be monitored
-* its type
-* the protocol to be used.
-
-You can either configure your hosts individually or several at a times if they share the same characteristics (device type, protocols, credentials, etc.).
-
-### Monitored hosts
-
-#### Single host
-
-Systems to monitor are defined under `hosts` with the below syntax:
+Feel free to replace `<resource-group-name>`, `<site-name>`, `<carbon-intensity-value>`, `<electricity-cost-value>`, and `<pue-value>` with your specific resource group name, site name, and corresponding values for carbon intensity, electricity cost, and PUE. For example:
 
 ```yaml
-hosts:
+resourceGroups:
+  boston:
+    attributes:
+      site: boston
+    metrics:
+      hw.site.carbon_intensity: 350 # in g/kWh
+      hw.site.electricity_cost: 0.12 # in $/kWh
+      hw.site.pue: 1.8
+```
 
-- host:
-    hostname: <hostname>
-    type: <host-type>
-  <protocol-configuration>
+## Configure the monitored resources
+
+To collect metrics from your resources, you must provide the following information in the `config/metricshub.yaml` file:
+
+* the hostname of the resource to be monitored
+* its type
+* the protocol(s) to be used.
+
+You can either configure your resources individually or several at a times if they share the same characteristics (device type, protocols, credentials, etc.).
+
+### Monitored resources
+
+#### Single resource
+
+Resources to monitor are defined under `resources` section located under your resource group identified by `<resource-group-name>` with the below syntax:
+
+```yaml
+resourceGroups:
+  <resource-group-name>:
+    resources:
+      <resource-id>:   
+        attributes:
+          host.name: <hostname>
+          host.type: <type>
+        <protocol-configuration>
 ```
 
 where:
 
+* `<resource-id>` is the unique id of your resource (e.g: host, application or service id)
 * `<hostname>` is the name of the host, or its IP address.
-* `<host-type>` is the type of the host to be monitored. Possible values are:
+* `<type>` is the type of the host to be monitored. Possible values are:
 
     * `win` for Microsoft Windows systems
     * `linux` for Linux systems
@@ -82,7 +116,8 @@ where:
     * `solaris` for Oracle Solaris systems
     * `tru64` for HP Tru64 systems
     * `vms` for HP Open VMS systems
-  Refer to [Monitored Systems](../platform-requirements.html) for more details.
+ For the enterprise edition, refer to [Monitored Systems](../enterprise-platform-requirements.html) for more details.
+ For the basic edition, refer to [Monitored Systems](../basic-platform-requirements.html) for more details.
   
 * `<protocol-configuration>` is the protocol(s) **${solutionName}** will use to communicate with the hosts: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](#protocol) for more details.
 

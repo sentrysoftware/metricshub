@@ -25,7 +25,8 @@ The configuration can be updated as follows:
 loggerLevel: debug
 
 resourceGroups:
-  resources:
+  <resourceGroupKey>:
+    resources:
     # [...]
 ```
 
@@ -44,7 +45,8 @@ loggerLevel: debug
 outputDirectory: C:\Users\<username>\AppData\Local\Temp\logs2021
 
 resourceGroups:
-  resources:
+  <resourceGroupKey>:
+    resources:
   # [...]
 ```
 
