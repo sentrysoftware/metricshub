@@ -1,13 +1,13 @@
 keywords: cli
-description: The MetricsHub CLI is the core MetricsHub engine wrapped in a command line interface. System administrators can easily invoke this tool in a shell to discover the hardware components of the specified host and report any hardware-related problem.
+description: The MetricsHub CLI is the core MetricsHub's engine wrapped in a command line interface. System administrators can easily invoke this tool in a shell to discover and report problems related to the specified resources, including hardware, systems, applications, services, etc.
 
-# MetricsHub CLI (`MetricsHub`)
+# MetricsHub CLI (`metricshub`)
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
 ## Overview
 
-The `metricshub` CLI is the core *MetricsHub engine* wrapped in a command line interface. System administrators can easily invoke this tool in a shell to discover the hardware components of the specified host and report any hardware-related problem.
+The `metricshub` CLI is the core MetricsHub's engine wrapped in a command line interface. System administrators can easily invoke this tool in a shell to discover and report problems related to the specified resources, including hardware, systems, applications, services, etc.
 
 Discovered components include:
 
@@ -27,9 +27,11 @@ Supported systems include:
 * SAN switches
 * Storage systems (disk arrays, filers, tape libraries)
 
-The detailed list of supported systems (manufacturer and product family and the required instrumentation stack) is listed in [Sentry's Hardware Connectors Library](../platform-requirements.html).
+The detailed list of systems supported by the enterprise edition (manufacturer and product family and the required instrumentation stack) is listed in [Sentry's Hardware Connectors Library](../platform-requirements.html).
 
-The quantity and quality of the information that **${solutionName}** will gather depends on the instrumentation stack available on the targeted host.
+The detailed list of systems supported by the basic edition (manufacturer and product family and the required instrumentation stack) is listed in [Sentry Basic Connectors](../basic-platform-requirements.html).
+
+The quantity and quality of the information that **${solutionName}** will gather depends on the instrumentation stack available on the targeted resource (host).
 
 ![Output example for an Hitachi system](../images/metricshub-hitachi.png)
 
@@ -48,21 +50,21 @@ Only a few options are required to run the `metricshub` command:
 
 ![Usage of MetricsHub](../images/metricshub-usage.png)
 
-The `metricshub` command can be used to troubleshoot the monitoring performed by the **MetricsHub Agent** (the core engine) or by other *Hardware Sentry* products such as the KM for PATROL.
+The `metricshub` command can be used to troubleshoot the monitoring performed by the **MetricsHub Agent** (the core engine) or by other *Sentry Software* products such as the KM for PATROL.
 
 ## The Basics
 
-The `metricshub` command invokes the *MetricsHub Engine* against one host and performs 3 tasks:
+The `metricshub` command invokes the *MetricsHub Engine* against one resource and performs 3 tasks:
 
-1. Detection of the instrumentation stack on the targeted host
-2. Discovery of the hardware components
-3. Collection of metrics and status for each hardware component
+1. Detection of the instrumentation stack on the targeted resource (host)
+2. Discovery of the resource's components
+3. Collection of metrics and status for each resource's component
 
 The `metricshub` command requires a few parameters to run:
 
 * the hostname to connect to
-* the type of the host (Windows, Linux, Management, Storage, Network, AIX, HP-UX, Solaris)
-* the protocols to use to gather information from the host (HTTP, IPMI, SNMP, SSH, WBEM or WMI)
+* the type of the resource (Windows, Linux, Management, Storage, Network, AIX, HP-UX, Solaris)
+* the protocols to use to gather information from the resource (HTTP, IPMI, SNMP, SSH, WBEM or WMI)
 * the credentials
 
 Example:
@@ -186,7 +188,7 @@ This command will connect to the `WIN09` system using the `WinRM` protocol to ex
 
 ## Automatic Detection vs Manual Selection
 
-**${solutionName}** is bundled with Sentry's **Hardware Connector Library**, a library which consists of hundreds of *hardware connectors* that describe how to discover hardware components and detect failures in a given system, with a specific instrumentation stack.
+**${solutionName}** is bundled with Sentry's **Connector Library**, a library which consists of a list of *connectors* (hundreds of hardware and storage connectors offered by the enterprise edition) that describe how to discover resource components (such as hardware, service and application components) and detect failures in a given system, with a specific instrumentation stack.
 
 Examples of connectors:
 
@@ -224,7 +226,7 @@ To exclude specific connectors from being tested in the detection phase, use the
 
 ## Sequential Mode
 
-By default, the *MetricsHub Engine* sends the queries simultaneously to the host. Although the parallel transmission is faster than the sequential one, too many requests at the same time can lead to the failure of the targeted host.
+By default, the *MetricsHub Engine* sends the queries simultaneously to the host resource. Although the parallel transmission is faster than the sequential one, too many requests at the same time can lead to the failure of the targeted host resource.
 
 Use the `--sequential` option to force all the requests to be executed in a sequential order, thus the monitored host is not overloaded.
 
