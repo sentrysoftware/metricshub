@@ -27,9 +27,9 @@ Supported systems include:
 * SAN switches
 * Storage systems (disk arrays, filers, tape libraries)
 
-The detailed list of systems supported by the enterprise edition (manufacturer and product family and the required instrumentation stack) is listed in [Sentry's Hardware Connectors Library](../platform-requirements.html).
+The detailed list of systems supported by the enterprise edition (manufacturer and product family and the required instrumentation stack) is listed in [Sentry's Enterprise Connectors Library](../enterprise-platform-requirements.html).
 
-The detailed list of systems supported by the basic edition (manufacturer and product family and the required instrumentation stack) is listed in [Sentry Basic Connectors](../basic-platform-requirements.html).
+The detailed list of systems supported by the basic edition (manufacturer and product family and the required instrumentation stack) is listed in [Sentry Basic Connectors Library](../basic-platform-requirements.html).
 
 The quantity and quality of the information that **${solutionName}** will gather depends on the instrumentation stack available on the targeted resource (host).
 

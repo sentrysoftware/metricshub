@@ -23,18 +23,19 @@ GkwzG6bx8cUhoeQW+/1ERI+2LOyB
 Once a password has been encrypted, it can be used in a `metricshub.yaml` configuration file instead of a readable password:
 
 ```yaml
-resources:
-
-  my-server:
-    attributes:
-      host.name: myhost-01
-      host.type: storage
-    protocols:
-      http:
-        https: true
-        port: 443
-        username: myusername
-        password: GkwzG6bx8cUhoeQW+/1ERI+2LOyB
+resourceGroups:
+    <resourceGroupKey>:
+        resources:
+          my-server:
+            attributes:
+              host.name: myhost-01
+              host.type: storage
+            protocols:
+              http:
+                https: true
+                port: 443
+                username: myusername
+                password: GkwzG6bx8cUhoeQW+/1ERI+2LOyB
 ```
 
 ## The *Master Password*
