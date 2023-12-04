@@ -25,18 +25,27 @@
 		<menu name="Getting Started">
 			<item name="Overview" href="index.html" />
 			<item name="Quick Start" href="start.html "/>
+			<item name="Installation" href="install.html" />
 		</menu>
 
 		<menu name="Configuration">
 			<item name="Hardware Sentry Agent" href="configuration/configure-agent.html" />
+			<item name="Security" href="security/security.html">
+				<item name="Password Encryption" href="security/passwords.html" />
+				<item name="Security Settings" href="security/settings.html" />
+			</item>
+			<item name="OpenTelemetry Advanced Settings" href="configuration/configure-otel.html" />
 		</menu>
 
 		<menu name="Troubleshooting">
-
+			<item name="Health Check" href="troubleshooting/status.html" />
+			<item name="Debugging" href="troubleshooting/debug.html" />
+			<item name="Self-Monitoring" href="troubleshooting/self-monitoring.html" />
 		</menu>
 
 		<menu name="Appendix">
 			
 		</menu>
+
 	</body>
 </project>

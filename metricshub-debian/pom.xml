@@ -133,7 +133,7 @@
 							<goal>exec</goal>
 						</goals>
 						<configuration>
-							<executable>${env.JPACKAGE_HOME}/bin/jpackage</executable>
+							<executable>${env.JAVA_HOME}/bin/jpackage</executable>
 							<arguments>
 								<argument>--add-launcher</argument>
 								<argument>metricshub-encrypt=metricshub-encrypt.properties</argument>
@@ -153,7 +153,7 @@
 							<goal>exec</goal>
 						</goals>
 						<configuration>
-							<executable>${env.JPACKAGE_HOME}/bin/jpackage</executable>
+							<executable>${env.JAVA_HOME}/bin/jpackage</executable>
 							<arguments>
 								<argument>--add-launcher</argument>
 								<argument>metricshub-encrypt=metricshub-encrypt.properties</argument>
