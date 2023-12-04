@@ -31,10 +31,10 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.release>17</maven.compiler.release>
-		<lombok.version>1.18.24</lombok.version>
+		<lombok.version>1.18.30</lombok.version>
 		<slf4j.version>1.7.30</slf4j.version>
 		<jupiter.version>5.9.2</jupiter.version>
-		<mockito.version>5.0.0</mockito.version>
+		<mockito.version>5.7.0</mockito.version>
 		<groovy.version>3.0.13</groovy.version>
 		<hardware-connectors.version>36-SNAPSHOT</hardware-connectors.version>
 		<spring.version>6.0.3</spring.version>
@@ -78,9 +78,6 @@
 					<family>Windows</family>
 					<arch>amd64</arch>
 				</os>
-				<property>
-					<name>env.JPACKAGE_HOME</name>
-				</property>
 				<file>
 					<exists>C:\Program Files (x86)\WiX Toolset v3.11</exists>
 				</file>
@@ -121,9 +118,6 @@
 						<family>Linux</family>
 						<arch>amd64</arch>
 					</os>
-					<property>
-						<name>env.JPACKAGE_HOME</name>
-					</property>
 					<file>
 						<exists>/etc/redhat-release</exists>
 					</file>
@@ -139,9 +133,6 @@
 						<family>Linux</family>
 						<arch>amd64</arch>
 					</os>
-					<property>
-						<name>env.JPACKAGE_HOME</name>
-					</property>
 					<file>
 						<exists>/etc/debian_version</exists>
 					</file>
@@ -231,7 +222,7 @@
 			<dependency>
 				<groupId>org.mockito</groupId>
 				<artifactId>mockito-inline</artifactId>
-				<version>${mockito.version}</version>
+				<version>5.2.0</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
