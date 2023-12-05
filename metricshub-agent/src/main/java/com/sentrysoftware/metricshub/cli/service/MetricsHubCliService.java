@@ -171,10 +171,28 @@ public class MetricsHubCliService implements Callable<Integer> {
 	@Option(
 		names = { "-l", "--list" },
 		help = true,
-		order = 8,
+		order = 7,
 		description = "Lists all connectors bundled in the engine that can be selected or excluded"
 	)
 	boolean listConnectors;
+
+	@Option(
+		names = { "-i", "--iterations" },
+		help = true,
+		order = 8,
+		defaultValue = "1",
+		description = "Executes the collect strategies N times, where N is the number of iterations defined by the user."
+	)
+	int iterations;
+
+	@Option(
+		names = { "-si", "--sleep-iteration" },
+		help = true,
+		order = 9,
+		defaultValue = "15",
+		description = "Adds a sleep period between collect iterations"
+	)
+	long sleepIteration;
 
 	@Override
 	public Integer call() throws Exception {
@@ -265,31 +283,44 @@ public class MetricsHubCliService implements Callable<Integer> {
 			new PostDiscoveryStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor)
 		);
 
-		// Collect
-		if (ConsoleService.hasConsole()) {
-			long monitorCount = telemetryManager
-				.getMonitors()
-				.values()
-				.stream()
-				.map(Map::values)
-				.mapToLong(Collection::size)
-				.sum();
-			printWriter.print("Performing collect on ");
-			printWriter.print(Ansi.ansi().bold().a(monitorCount).boldOff().toString());
-			printWriter.println(monitorCount > 1 ? " monitors..." : " monitor...");
-			printWriter.flush();
+		// If there is just one collect operation, there is no need to add a sleep time
+		if (iterations <= 1) {
+			sleepIteration = -1;
 		}
-		final long collectTime = System.currentTimeMillis();
-		// One more, run only prepare, collect simple and post strategies
-		telemetryManager.run(
-			new PrepareCollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor),
-			new CollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor),
-			new SimpleStrategy(telemetryManager, collectTime, matsyaClientsExecutor),
-			new PostCollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor)
-		);
 
-		// Run the hardware strategy
-		telemetryManager.run(new HardwareStrategy(telemetryManager, collectTime));
+		// Perform the collect operation "iterations" times
+		for (int i = 0; i < iterations; i++) {
+			// Collect
+			if (ConsoleService.hasConsole()) {
+				long monitorCount = telemetryManager
+					.getMonitors()
+					.values()
+					.stream()
+					.map(Map::values)
+					.mapToLong(Collection::size)
+					.sum();
+				printWriter.print("Performing collect on ");
+				printWriter.print(Ansi.ansi().bold().a(monitorCount).boldOff().toString());
+				printWriter.println(monitorCount > 1 ? " monitors..." : " monitor...");
+				printWriter.flush();
+			}
+			final long collectTime = System.currentTimeMillis();
+			// One more, run only prepare, collect simple and post strategies
+			telemetryManager.run(
+				new PrepareCollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor),
+				new CollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor),
+				new SimpleStrategy(telemetryManager, collectTime, matsyaClientsExecutor),
+				new PostCollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor)
+			);
+
+			// Run the hardware strategy
+			telemetryManager.run(new HardwareStrategy(telemetryManager, collectTime));
+
+			// If iterations > 1, add a sleep time between iterations
+			if (i != iterations - 1 && sleepIteration != -1) {
+				Thread.currentThread().sleep(sleepIteration * 1000);
+			}
+		}
 
 		// And now the result
 		if (ConsoleService.hasConsole()) {
