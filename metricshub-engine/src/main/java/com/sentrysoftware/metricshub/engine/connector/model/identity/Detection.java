@@ -1,8 +1,5 @@
 package com.sentrysoftware.metricshub.engine.connector.model.identity;
 
-import static com.fasterxml.jackson.annotation.Nulls.FAIL;
-import static com.fasterxml.jackson.annotation.Nulls.SKIP;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -13,16 +10,20 @@ import com.sentrysoftware.metricshub.engine.connector.deserializer.custom.NonBla
 import com.sentrysoftware.metricshub.engine.connector.deserializer.custom.SupersedesDeserializer;
 import com.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import com.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+
+import static com.fasterxml.jackson.annotation.Nulls.FAIL;
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 
 @Data
 @NoArgsConstructor
@@ -50,6 +51,8 @@ public class Detection implements Serializable {
 
 	private List<Criterion> criteria = new ArrayList<>();
 
+	private Set<String> tags = new HashSet<>();
+
 	@Builder
 	@JsonCreator
 	public Detection(
@@ -58,7 +61,8 @@ public class Detection implements Serializable {
 		@JsonProperty("onLastResort") String onLastResort,
 		@JsonProperty(value = "appliesTo", required = true) @NonNull Set<DeviceKind> appliesTo,
 		@JsonProperty("supersedes") Set<String> supersedes,
-		@JsonProperty("criteria") List<Criterion> criteria
+		@JsonProperty("criteria") List<Criterion> criteria,
+		@JsonProperty("tags") Set<String> tags
 	) {
 		this.connectionTypes =
 			connectionTypes == null ? new HashSet<>(Collections.singleton(ConnectionType.LOCAL)) : connectionTypes;
@@ -67,5 +71,6 @@ public class Detection implements Serializable {
 		this.appliesTo = appliesTo;
 		this.supersedes = supersedes == null ? new HashSet<>() : supersedes;
 		this.criteria = criteria == null ? new ArrayList<>() : criteria;
+		this.tags = tags == null ? new HashSet<>() : tags;
 	}
 }

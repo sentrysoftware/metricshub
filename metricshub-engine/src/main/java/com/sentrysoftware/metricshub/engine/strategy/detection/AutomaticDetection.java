@@ -72,6 +72,7 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 			.values()
 			.stream()
 			.filter(connector -> connector.getOrCreateConnectorIdentity().getDetection() != null)
+			.filter(connector -> telemetryManager.getHostConfiguration().getConnectorTags().containsAll(connector.getConnectorIdentity().getDetection().getTags()))
 			// No Auto Detection Filtering
 			.filter(connector -> !connector.getOrCreateConnectorIdentity().getDetection().isDisableAutoDetection())
 			// DeviceKind Filtering
