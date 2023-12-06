@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -181,7 +182,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		help = true,
 		order = 8,
 		defaultValue = "1",
-		description = "Executes the collect strategies N times, where N is the number of iterations defined by the user."
+		description = "Executes the collect strategies N times, where N is the number of iterations"
 	)
 	int iterations;
 
@@ -190,7 +191,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		help = true,
 		order = 9,
 		defaultValue = "5",
-		description = "Adds a sleep period between collect iterations"
+		description = "Adds a sleep period in seconds between collect iterations"
 	)
 	long sleepIteration;
 
@@ -283,10 +284,8 @@ public class MetricsHubCliService implements Callable<Integer> {
 			new PostDiscoveryStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor)
 		);
 
-		// If there is just one collect operation, there is no need to add a sleep time
-		if (iterations <= 1) {
-			sleepIteration = -1;
-		}
+		// Check whether iterations is greater than 0. If it's not the case, throw a ParameterException
+		validateIterations(iterations);
 
 		// Perform the collect operation "iterations" times
 		for (int i = 0; i < iterations; i++) {
@@ -317,8 +316,9 @@ public class MetricsHubCliService implements Callable<Integer> {
 			telemetryManager.run(new HardwareStrategy(telemetryManager, collectTime));
 
 			// If iterations > 1, add a sleep time between iterations
-			if (i != iterations - 1 && sleepIteration != -1) {
-				Thread.currentThread().sleep(sleepIteration * 1000);
+			if (i != iterations - 1) {
+				printWriter.println(String.format("Pausing for %d seconds before the next iteration...", sleepIteration));
+				TimeUnit.SECONDS.sleep(sleepIteration);
 			}
 		}
 
@@ -331,6 +331,16 @@ public class MetricsHubCliService implements Callable<Integer> {
 		new PrettyPrinterService(telemetryManager, printWriter).print();
 
 		return CommandLine.ExitCode.OK;
+	}
+
+	/**
+	 *  Checks that iterations is greater than 0. Otherwise, throws a ParameterException
+	 * @param iterations the number of collect iterations
+	 */
+	private void validateIterations(int iterations) {
+		if (iterations <= 0) {
+			throw new ParameterException(spec.commandLine(), "Number of iterations must be greater than 0.");
+		}
 	}
 
 	/**
