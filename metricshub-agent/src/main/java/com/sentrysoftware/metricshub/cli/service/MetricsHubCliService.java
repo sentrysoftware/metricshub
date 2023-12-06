@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -316,9 +315,9 @@ public class MetricsHubCliService implements Callable<Integer> {
 			telemetryManager.run(new HardwareStrategy(telemetryManager, collectTime));
 
 			// If iterations > 1, add a sleep time between iterations
-			if (i != iterations - 1) {
+			if (i != iterations - 1 && sleepIteration > 0) {
 				printWriter.println(String.format("Pausing for %d seconds before the next iteration...", sleepIteration));
-				TimeUnit.SECONDS.sleep(sleepIteration);
+				Thread.sleep(sleepIteration * 1000);
 			}
 		}
 
