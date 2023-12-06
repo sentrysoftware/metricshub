@@ -189,7 +189,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		names = { "-si", "--sleep-iteration" },
 		help = true,
 		order = 9,
-		defaultValue = "15",
+		defaultValue = "5",
 		description = "Adds a sleep period between collect iterations"
 	)
 	long sleepIteration;
