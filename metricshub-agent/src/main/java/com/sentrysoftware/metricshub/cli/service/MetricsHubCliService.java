@@ -171,13 +171,34 @@ public class MetricsHubCliService implements Callable<Integer> {
 	@Option(
 		names = { "-l", "--list" },
 		help = true,
-		order = 8,
+		order = 7,
 		description = "Lists all connectors bundled in the engine that can be selected or excluded"
 	)
 	boolean listConnectors;
 
+	@Option(
+		names = { "-i", "--iterations" },
+		help = true,
+		order = 8,
+		defaultValue = "1",
+		description = "Executes the collect strategies N times, where N is the number of iterations"
+	)
+	int iterations;
+
+	@Option(
+		names = { "-si", "--sleep-iteration" },
+		help = true,
+		order = 9,
+		defaultValue = "5",
+		description = "Adds a sleep period in seconds between collect iterations"
+	)
+	long sleepIteration;
+
 	@Override
 	public Integer call() throws Exception {
+		// Check whether iterations is greater than 0. If it's not the case, throw a ParameterException
+		validateIterations(iterations);
+
 		final ConnectorStore connectorStore = new ConnectorStore(ConfigHelper.getSubDirectory("connectors", false));
 
 		// First, process special "list" option
@@ -265,31 +286,40 @@ public class MetricsHubCliService implements Callable<Integer> {
 			new PostDiscoveryStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor)
 		);
 
-		// Collect
-		if (ConsoleService.hasConsole()) {
-			long monitorCount = telemetryManager
-				.getMonitors()
-				.values()
-				.stream()
-				.map(Map::values)
-				.mapToLong(Collection::size)
-				.sum();
-			printWriter.print("Performing collect on ");
-			printWriter.print(Ansi.ansi().bold().a(monitorCount).boldOff().toString());
-			printWriter.println(monitorCount > 1 ? " monitors..." : " monitor...");
-			printWriter.flush();
-		}
-		final long collectTime = System.currentTimeMillis();
-		// One more, run only prepare, collect simple and post strategies
-		telemetryManager.run(
-			new PrepareCollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor),
-			new CollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor),
-			new SimpleStrategy(telemetryManager, collectTime, matsyaClientsExecutor),
-			new PostCollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor)
-		);
+		// Perform the collect operation "iterations" times
+		for (int i = 0; i < iterations; i++) {
+			// Collect
+			if (ConsoleService.hasConsole()) {
+				long monitorCount = telemetryManager
+					.getMonitors()
+					.values()
+					.stream()
+					.map(Map::values)
+					.mapToLong(Collection::size)
+					.sum();
+				printWriter.print("Performing collect on ");
+				printWriter.print(Ansi.ansi().bold().a(monitorCount).boldOff().toString());
+				printWriter.println(monitorCount > 1 ? " monitors..." : " monitor...");
+				printWriter.flush();
+			}
+			final long collectTime = System.currentTimeMillis();
+			// One more, run only prepare, collect simple and post strategies
+			telemetryManager.run(
+				new PrepareCollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor),
+				new CollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor),
+				new SimpleStrategy(telemetryManager, collectTime, matsyaClientsExecutor),
+				new PostCollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor)
+			);
 
-		// Run the hardware strategy
-		telemetryManager.run(new HardwareStrategy(telemetryManager, collectTime));
+			// Run the hardware strategy
+			telemetryManager.run(new HardwareStrategy(telemetryManager, collectTime));
+
+			// If iterations > 1, add a sleep time between iterations
+			if (i != iterations - 1 && sleepIteration > 0) {
+				printWriter.println(String.format("Pausing for %d seconds before the next iteration...", sleepIteration));
+				Thread.sleep(sleepIteration * 1000);
+			}
+		}
 
 		// And now the result
 		if (ConsoleService.hasConsole()) {
@@ -300,6 +330,16 @@ public class MetricsHubCliService implements Callable<Integer> {
 		new PrettyPrinterService(telemetryManager, printWriter).print();
 
 		return CommandLine.ExitCode.OK;
+	}
+
+	/**
+	 *  Checks that iterations is greater than 0. Otherwise, throws a ParameterException
+	 * @param iterations the number of collect iterations
+	 */
+	private void validateIterations(int iterations) {
+		if (iterations <= 0) {
+			throw new ParameterException(spec.commandLine(), "Number of iterations must be greater than 0.");
+		}
 	}
 
 	/**
