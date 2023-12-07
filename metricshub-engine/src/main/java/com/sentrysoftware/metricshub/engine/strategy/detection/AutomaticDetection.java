@@ -68,11 +68,13 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 			return new ArrayList<>();
 		}
 
+		final Set<String> includeConnectorTags = telemetryManager.getHostConfiguration().getIncludeConnectorTags();
+
 		final List<Connector> connectors = connectorStore
 			.values()
 			.stream()
 			.filter(connector -> connector.getOrCreateConnectorIdentity().getDetection() != null)
-			.filter(connector -> telemetryManager.getHostConfiguration().getConnectorTags().containsAll(connector.getConnectorIdentity().getDetection().getTags()))
+			.filter(connector -> hasAtLeastOneTagOf(includeConnectorTags, connector))
 			// No Auto Detection Filtering
 			.filter(connector -> !connector.getOrCreateConnectorIdentity().getDetection().isDisableAutoDetection())
 			// DeviceKind Filtering
@@ -110,6 +112,23 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 		filterLastResortConnectors(connectorTestResults, hostname);
 
 		return connectorTestResults;
+	}
+
+	/**
+	 * Checks whether the set userConnectorTags defined in HostConfiguration contains at least one of a given connector's tags
+	 * @param includeConnectorTags tags defined by the user and stored in HostConfiguration
+	 * @param connector a given connector
+	 * @return boolean
+	 */
+	boolean hasAtLeastOneTagOf(final Set<String> includeConnectorTags, final Connector connector) {
+		if (includeConnectorTags == null || includeConnectorTags.isEmpty()) {
+			return true;
+		}
+		final Set<String> connectorTags = connector.getConnectorIdentity().getDetection().getTags();
+		if (connectorTags == null) {
+			return false;
+		}
+		return connectorTags.stream().anyMatch(tag -> includeConnectorTags.contains(tag));
 	}
 
 	/**

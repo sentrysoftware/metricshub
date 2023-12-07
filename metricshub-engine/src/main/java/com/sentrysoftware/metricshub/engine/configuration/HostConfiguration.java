@@ -43,7 +43,6 @@ public class HostConfiguration {
 	private Consumer<AlertInfo> alertTrigger;
 	private long retryDelay;
 	private Map<String, String> connectorVariables;
-	private Set<String> connectorTags = new HashSet<>();
 
 	@Builder.Default
 	private Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
@@ -51,6 +50,8 @@ public class HostConfiguration {
 	private String configuredConnectorId;
 
 	private static final Map<Class<? extends IConfiguration>, Set<Class<? extends Source>>> CONFIGURATION_TO_SOURCES_MAP;
+
+	private Set<String> includeConnectorTags = new HashSet<>();
 
 	static {
 		CONFIGURATION_TO_SOURCES_MAP =

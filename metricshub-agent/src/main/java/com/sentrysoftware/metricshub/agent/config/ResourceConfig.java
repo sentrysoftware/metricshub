@@ -67,6 +67,10 @@ public class ResourceConfig {
 	@JsonIgnore
 	private Connector connector;
 
+	@Default
+	@JsonSetter(nulls = SKIP)
+	private Set<String> includeConnectorTags = new HashSet<>();
+
 	/**
 	 * Creates and returns a shallow copy of all the fields in this
 	 * ResourceConfig object except the attributes map which is deeply copied.
@@ -96,6 +100,7 @@ public class ResourceConfig {
 			.protocols(protocols)
 			.selectConnectors(selectConnectors)
 			.excludeConnectors(excludeConnectors)
+			.includeConnectorTags(includeConnectorTags)
 			.connector(connector)
 			.build();
 	}

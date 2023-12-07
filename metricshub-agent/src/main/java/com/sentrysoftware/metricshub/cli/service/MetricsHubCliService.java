@@ -28,6 +28,7 @@ import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.hardware.strategy.HardwareStrategy;
 import java.io.PrintWriter;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -171,10 +172,20 @@ public class MetricsHubCliService implements Callable<Integer> {
 	@Option(
 		names = { "-l", "--list" },
 		help = true,
-		order = 8,
+		order = 7,
 		description = "Lists all connectors bundled in the engine that can be selected or excluded"
 	)
 	boolean listConnectors;
+
+	@Option(
+		names = { "-ict", "--include-connector-tags" },
+		help = true,
+		order = 10,
+		description = "Allows to include connectors based on host configuration user-defined tags",
+		split = ",",
+		paramLabel = "CONNECTOR"
+	)
+	HashSet<String> includeConnectorTags;
 
 	@Override
 	public Integer call() throws Exception {
@@ -197,6 +208,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 			.hostname(hostname)
 			.hostType(deviceType)
 			.sequential(sequential)
+			.includeConnectorTags(includeConnectorTags)
 			.build();
 
 		// Connectors

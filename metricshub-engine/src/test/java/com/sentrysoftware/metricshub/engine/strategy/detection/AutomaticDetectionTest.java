@@ -19,12 +19,14 @@ import com.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import com.sentrysoftware.metricshub.engine.connector.model.identity.ConnectionType;
 import com.sentrysoftware.metricshub.engine.connector.model.identity.ConnectorIdentity;
 import com.sentrysoftware.metricshub.engine.connector.model.identity.Detection;
+import com.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetCriterion;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.MonitorJob;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.StandardMonitorJob;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.Discovery;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.Mapping;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpSource;
+import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
 import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.telemetry.HostProperties;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
@@ -86,6 +88,7 @@ class AutomaticDetectionTest {
 			0,
 			null,
 			configurations,
+			null,
 			null
 		);
 
@@ -126,6 +129,7 @@ class AutomaticDetectionTest {
 			0,
 			null,
 			configurations,
+			null,
 			null
 		);
 
@@ -160,6 +164,68 @@ class AutomaticDetectionTest {
 	}
 
 	@Test
+	void testRunIncludeConnectorTags() {
+		final Map<String, Map<String, Monitor>> monitors = new HashMap<>();
+		final HostProperties hostProperties = new HostProperties();
+		hostProperties.setLocalhost(true);
+
+		final Set<String> connectors = new HashSet<>();
+		connectors.add(CONNECTOR_YAML);
+		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
+		configurations.put(SnmpConfiguration.class, new SnmpConfiguration());
+
+		final Set<String> includeSelectedTags = Set.of("hardware", "storage");
+
+		final HostConfiguration hostConfiguration = new HostConfiguration(
+				LOCALHOST,
+				"hostId",
+				DeviceKind.WINDOWS,
+				0,
+				null,
+				null,
+				true,
+				null,
+				0,
+				null,
+				configurations,
+				null,
+				includeSelectedTags
+		);
+
+		final File store = new File(DETECTION_FOLDER);
+		final Path storePath = store.toPath();
+
+		final Detection detection = new Detection();
+		detection.setDisableAutoDetection(false);
+		detection.setTags(Set.of("hardware"));
+		detection.setAppliesTo(Set.of(DeviceKind.WINDOWS));
+		detection.setConnectionTypes(Set.of(ConnectionType.LOCAL));
+		final SnmpGetCriterion snmpGetCriterion = new SnmpGetCriterion();
+		snmpGetCriterion.setOid("123456");
+		detection.setCriteria(List.of(snmpGetCriterion));
+
+		final ConnectorIdentity connectorIdentity = new ConnectorIdentity();
+		connectorIdentity.setDetection(detection);
+
+		final Connector connector = new Connector();
+		connector.setConnectorIdentity(connectorIdentity);
+		connector.setSourceTypes(Set.of(SnmpTableSource.class));
+
+		final ConnectorStore connectorStore = new ConnectorStore(storePath);
+		connectorStore.getStore().put(CONNECTOR_YAML, connector);
+
+		final TelemetryManager telemetryManager = new TelemetryManager(
+				monitors,
+				hostProperties,
+				hostConfiguration,
+				connectorStore,
+				STRATEGY_TIME
+		);
+		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
+		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, matsyaClientsExecutor).run());
+	}
+
+	@Test
 	void testDeviceKindFiltering() {
 		final Map<String, Map<String, Monitor>> monitors = new HashMap<>();
 		final HostProperties hostProperties = new HostProperties();
@@ -181,6 +247,7 @@ class AutomaticDetectionTest {
 			0,
 			null,
 			configurations,
+			null,
 			null
 		);
 
@@ -236,6 +303,7 @@ class AutomaticDetectionTest {
 			0,
 			null,
 			configurations,
+			null,
 			null
 		);
 
@@ -291,6 +359,7 @@ class AutomaticDetectionTest {
 			0,
 			null,
 			configurations,
+			null,
 			null
 		);
 

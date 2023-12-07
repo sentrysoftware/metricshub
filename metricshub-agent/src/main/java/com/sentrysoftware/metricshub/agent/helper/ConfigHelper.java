@@ -609,7 +609,7 @@ public class ConfigHelper {
 	 * Configure the 'com.sentrysoftware' logger based on the user's command.<br>
 	 * See src/main/resources/log4j2.xml
 	 *
-	 * @param loggerLevel     Logger level from the configuration as {@link String}
+	 * @param loggerLevelStr     Logger level from the configuration as {@link String}
 	 * @param outputDirectory The output directory as String
 	 */
 	public static void configureGlobalLogger(final String loggerLevelStr, final String outputDirectory) {
@@ -767,12 +767,9 @@ public class ConfigHelper {
 
 	/**
 	 * Create a custom ConnectorStore if a configured connector exists.
-	 *
-	 * @param resourceGroupKey The resource group key.
-	 * @param resourceKey      The resource key.
-	 * @param resourceConfig   The resource configuration.
-	 * @param connectorStore   The original ConnectorStore.
-	 * @return A custom ConnectorStore with the configured connector if it exists, or the original ConnectorStore.
+	 * @param configuredConnector Configured connector
+	 * @param connectorStore      The original ConnectorStore
+	 * @return
 	 */
 	static ConnectorStore createCustomConnectorStoreIfConfigured(
 		final Connector configuredConnector,
@@ -1232,6 +1229,7 @@ public class ConfigHelper {
 			.configurations(protocolConfigurations)
 			.selectedConnectors(selectedConnectors)
 			.excludedConnectors(excludedConnectors)
+			.includeConnectorTags(resourceConfig.getIncludeConnectorTags())
 			.hostname(hostname)
 			.hostId(hostId)
 			.hostType(hostType)

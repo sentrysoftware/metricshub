@@ -293,9 +293,10 @@ public class Constants {
 	public static final String SNMP_CONFIGURATION_NO_PRIVACY_WITH_USERNAME_TO_STRING =
 		"SNMP v3 with MD5 auth as testUser";
 	public static final String HOST_CONFIGURATION_TO_STRING =
-		"HostConfiguration(hostname=localhost," +
-		" hostId=localhost, hostType=LINUX, strategyTimeout=100, selectedConnectors=null, excludedConnectors=null, sequential=false," +
-		" alertTrigger=null, retryDelay=30, connectorVariables=null, configurations={}, configuredConnectorId=null)";
+		"HostConfiguration(hostname=localhost, hostId=localhost," +
+		" hostType=LINUX, strategyTimeout=100, selectedConnectors=null," +
+		" excludedConnectors=null, sequential=false, alertTrigger=null," +
+		" retryDelay=30, connectorVariables=null, configurations={}, configuredConnectorId=null, includeConnectorTags=null)";
 	public static final String IPMI_RESULT_EXAMPLE =
 		"Device ID                 : 3\r\n" +
 		"Device Revision           : 3\r\n" +
