@@ -1436,12 +1436,7 @@ class ComputeProcessorTest {
 
 	@Test
 	void testExcludeMatchingLines() {
-		final List<String> line1 = Arrays.asList(FOO, "1", "2", "3");
-		final List<String> line2 = Arrays.asList(BAR, "10", "20", "30");
-		final List<String> line3 = Arrays.asList(BAZ, "100", "200", "300");
-		final List<List<String>> table = Arrays.asList(line1, line2, line3);
-
-		computeProcessor.setSourceTable(SourceTable.builder().table(table).build());
+		List<List<String>> table = newSourceTable();
 
 		// regexp is null, valueSet is null
 		final ExcludeMatchingLines excludeMatchingLines = ExcludeMatchingLines
@@ -1454,27 +1449,30 @@ class ComputeProcessorTest {
 		assertEquals(table, computeProcessor.getSourceTable().getTable());
 
 		// regexp is empty, valueSet is null
+		table = newSourceTable();
 		excludeMatchingLines.setRegExp("");
 		computeProcessor.process(excludeMatchingLines);
 		assertEquals(table, computeProcessor.getSourceTable().getTable());
 
 		// regexp is empty, valueSet is empty
+		table = newSourceTable();
 		excludeMatchingLines.setValueList(EMPTY);
 		computeProcessor.process(excludeMatchingLines);
 		assertEquals(table, computeProcessor.getSourceTable().getTable());
 
 		// regex is not null, not empty
+		table = newSourceTable();
 		excludeMatchingLines.setRegExp("^B.*");
 		computeProcessor.process(excludeMatchingLines);
 		assertNotEquals(table, computeProcessor.getSourceTable().getTable());
 		List<List<String>> resultTable = computeProcessor.getSourceTable().getTable();
 		assertNotNull(resultTable);
 		assertEquals(1, resultTable.size());
-		assertEquals(line1, resultTable.get(0));
+		assertEquals(table.get(0), resultTable.get(0));
 
 		// regex is null,
 		// valueSet is not null, not empty
-		computeProcessor.getSourceTable().setTable(table);
+		table = newSourceTable();
 		excludeMatchingLines.setRegExp(null);
 		excludeMatchingLines.setValueList("3,300");
 		excludeMatchingLines.setColumn(4);
@@ -1483,20 +1481,20 @@ class ComputeProcessorTest {
 		resultTable = computeProcessor.getSourceTable().getTable();
 		assertNotNull(resultTable);
 		assertEquals(1, resultTable.size());
-		assertEquals(line2, resultTable.get(0));
+		assertEquals(table.get(1), resultTable.get(0));
 
 		// regex is not null, not empty
 		// valueSet is not null, not empty
-		computeProcessor.getSourceTable().setTable(table);
+		table = newSourceTable();
 		excludeMatchingLines.setColumn(1);
 		excludeMatchingLines.setRegExp(".*R.*"); // Applying only the regex would exclude line2
-		excludeMatchingLines.setValueList("FOO,BAR,BAB"); // Applying only the valueSet would exclude line1 and line2
+		excludeMatchingLines.setValueList("foo,BAR,BAB"); // Applying only the valueSet would exclude line1 and line2
 		computeProcessor.process(excludeMatchingLines);
 		assertNotEquals(table, computeProcessor.getSourceTable().getTable());
 		resultTable = computeProcessor.getSourceTable().getTable();
 		assertNotNull(resultTable);
 		assertEquals(1, resultTable.size()); // Applying both the regex and the valueSet leaves only line3
-		assertEquals(line3, resultTable.get(0));
+		assertEquals(table.get(2), resultTable.get(0));
 	}
 
 	@Test
@@ -2095,14 +2093,34 @@ class ComputeProcessorTest {
 		assertTrue(computeProcessor.getSourceTable().getTable().isEmpty());
 	}
 
-	@Test
-	void testKeepOnlyMatchingLines() {
+	/**
+	 * Creates and returns a new source table represented as a list of lists of strings.
+	 *
+	 * This method constructs a source table with three lines, each containing a combination of predefined values:
+	 * <ol>
+	 * <li>Line 1: ["FOO", "1", "2", "3"]</li>
+	 * <li>Line 2: ["BAR", "10", "20", "30"]</li>
+	 * <li>Line 3: ["BAZ", "100", "200", "300"]</li>
+	 * </ol>
+	 * The source table is then set in the compute processor using {@code SourceTable.builder().table(table).build()}.
+	 *
+	 * @return A new source table represented as a list of lists of strings.
+	 *         Each inner list corresponds to a line in the source table.
+	 */
+	List<List<String>> newSourceTable() {
 		final List<String> line1 = Arrays.asList(FOO, "1", "2", "3");
 		final List<String> line2 = Arrays.asList(BAR, "10", "20", "30");
 		final List<String> line3 = Arrays.asList(BAZ, "100", "200", "300");
 		final List<List<String>> table = Arrays.asList(line1, line2, line3);
 
 		computeProcessor.setSourceTable(SourceTable.builder().table(table).build());
+
+		return table;
+	}
+
+	@Test
+	void testKeepOnlyMatchingLines() {
+		List<List<String>> table = newSourceTable();
 
 		// regexp is null, valueList is null
 		KeepOnlyMatchingLines keepOnlyMatchingLines = KeepOnlyMatchingLines
@@ -2115,27 +2133,32 @@ class ComputeProcessorTest {
 		assertEquals(table, computeProcessor.getSourceTable().getTable());
 
 		// regexp is empty, valueSet is null
+		table = newSourceTable();
 		keepOnlyMatchingLines.setRegExp("");
 		computeProcessor.process(keepOnlyMatchingLines);
 		assertEquals(table, computeProcessor.getSourceTable().getTable());
 
 		// regexp is empty, valueSet is empty
+		table = newSourceTable();
 		keepOnlyMatchingLines.setValueList(EMPTY);
 		computeProcessor.process(keepOnlyMatchingLines);
-		assertEquals(table, computeProcessor.getSourceTable().getTable());
+		assertTrue(computeProcessor.getSourceTable().getTable().isEmpty());
 
 		// regex is not null, not empty
+		table = newSourceTable();
 		keepOnlyMatchingLines.setRegExp("^B.*");
+		keepOnlyMatchingLines.setValueList(null);
 		computeProcessor.process(keepOnlyMatchingLines);
 		assertNotEquals(table, computeProcessor.getSourceTable().getTable());
 		List<List<String>> resultTable = computeProcessor.getSourceTable().getTable();
 		assertNotNull(resultTable);
 		assertEquals(2, resultTable.size());
-		assertEquals(line2, resultTable.get(0));
-		assertEquals(line3, resultTable.get(1));
+		assertEquals(table.get(1), resultTable.get(0));
+		assertEquals(table.get(2), resultTable.get(1));
 
 		// regex is null,
 		// valueSet is not null, not empty
+		table = newSourceTable();
 		computeProcessor.getSourceTable().setTable(table);
 		keepOnlyMatchingLines.setRegExp(null);
 		keepOnlyMatchingLines.setValueList("3,300");
@@ -2145,12 +2168,12 @@ class ComputeProcessorTest {
 		resultTable = computeProcessor.getSourceTable().getTable();
 		assertNotNull(resultTable);
 		assertEquals(2, resultTable.size());
-		assertEquals(line1, resultTable.get(0));
-		assertEquals(line3, resultTable.get(1));
+		assertEquals(table.get(0), resultTable.get(0));
+		assertEquals(table.get(2), resultTable.get(1));
 
 		// regex is not null, not empty
 		// valueSet is not null, not empty
-		computeProcessor.getSourceTable().setTable(table);
+		table = newSourceTable();
 		keepOnlyMatchingLines.setColumn(1);
 		keepOnlyMatchingLines.setRegExp("^B.*"); // Applying only the regex would match line2 and line3
 		keepOnlyMatchingLines.setValueList("FOO,BAR,BAB"); // Applying only the valueSet would match line1 and line2
@@ -2159,7 +2182,20 @@ class ComputeProcessorTest {
 		resultTable = computeProcessor.getSourceTable().getTable();
 		assertNotNull(resultTable);
 		assertEquals(1, resultTable.size()); // Applying both the regex and the valueList matches only line2
-		assertEquals(line2, resultTable.get(0));
+		assertEquals(table.get(1), resultTable.get(0));
+
+		// regex is null, not empty
+		// valueSet is not null, not empty and contains
+		table = newSourceTable();
+		keepOnlyMatchingLines.setColumn(1);
+		keepOnlyMatchingLines.setRegExp(null);
+		keepOnlyMatchingLines.setValueList("FOz,bar,BAB"); // Applying only the valueSet would match line2
+		computeProcessor.process(keepOnlyMatchingLines);
+		assertNotEquals(table, computeProcessor.getSourceTable().getTable());
+		resultTable = computeProcessor.getSourceTable().getTable();
+		assertNotNull(resultTable);
+		assertEquals(1, resultTable.size()); // Applying both the regex and the valueList matches only line2
+		assertEquals(table.get(1), resultTable.get(0));
 	}
 
 	@Test

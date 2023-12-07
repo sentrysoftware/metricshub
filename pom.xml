@@ -59,6 +59,7 @@
 		<prettier-maven-plugin.version>0.21</prettier-maven-plugin.version>
 		<prettierJava.version>2.0.0</prettierJava.version>
 		<metricshub-jre.version>1-SNAPSHOT</metricshub-jre.version>
+		<ipmi.version>1.0.00</ipmi.version>
 	</properties>
 
 	<modules>
@@ -281,9 +282,9 @@
 				<version>${matsya.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.sentrysoftware.patrol.matsya</groupId>
-				<artifactId>module-ipmiclient</artifactId>
-				<version>${matsya.version}</version>
+				<groupId>org.sentrysoftware</groupId>
+				<artifactId>ipmi</artifactId>
+				<version>${ipmi.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.sentrysoftware.patrol.matsya</groupId>

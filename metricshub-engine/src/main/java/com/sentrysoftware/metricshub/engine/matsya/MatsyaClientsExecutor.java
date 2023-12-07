@@ -12,7 +12,6 @@ import com.sentrysoftware.matsya.awk.AwkException;
 import com.sentrysoftware.matsya.awk.AwkExecutor;
 import com.sentrysoftware.matsya.http.HttpClient;
 import com.sentrysoftware.matsya.http.HttpResponse;
-import com.sentrysoftware.matsya.ipmi.MatsyaIpmiClient;
 import com.sentrysoftware.matsya.jflat.JFlat;
 import com.sentrysoftware.matsya.snmp.SNMPClient;
 import com.sentrysoftware.matsya.ssh.SSHClient;
@@ -74,6 +73,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.sentrysoftware.ipmi.client.IpmiClient;
+import org.sentrysoftware.ipmi.client.IpmiClientConfiguration;
 
 @Slf4j
 @Data
@@ -1507,7 +1508,7 @@ public class MatsyaClientsExecutor {
 
 		final long startTime = System.currentTimeMillis();
 
-		String result = MatsyaIpmiClient.getChassisStatusAsStringResult(
+		final String result = IpmiClient.getChassisStatusAsStringResult(
 			buildIpmiConfiguration(hostname, ipmiConfiguration)
 		);
 
@@ -1530,13 +1531,13 @@ public class MatsyaClientsExecutor {
 	}
 
 	/**
-	 * Build MATSYA IPMI configuration
+	 * Build IPMI configuration
 	 *
 	 * @param hostname          The host we wish to set in the {@link IpmiConfiguration}
 	 * @param ipmiConfiguration MetricsHub {@link IpmiConfiguration} instance including all the required fields to perform IPMI requests
 	 * @return new instance of MATSYA {@link IpmiConfiguration}
 	 */
-	private static com.sentrysoftware.matsya.ipmi.IpmiConfiguration buildIpmiConfiguration(
+	private static IpmiClientConfiguration buildIpmiConfiguration(
 		@NonNull String hostname,
 		@NonNull IpmiConfiguration ipmiConfiguration
 	) {
@@ -1548,7 +1549,7 @@ public class MatsyaClientsExecutor {
 		notNull(password, PASSWORD_CANNOT_BE_NULL);
 		notNull(timeout, TIMEOUT_CANNOT_BE_NULL);
 
-		return new com.sentrysoftware.matsya.ipmi.IpmiConfiguration(
+		return new IpmiClientConfiguration(
 			hostname,
 			username,
 			password,
@@ -1586,9 +1587,7 @@ public class MatsyaClientsExecutor {
 
 		final long startTime = System.currentTimeMillis();
 
-		String result = MatsyaIpmiClient.getFrusAndSensorsAsStringResult(
-			buildIpmiConfiguration(hostname, ipmiConfiguration)
-		);
+		String result = IpmiClient.getFrusAndSensorsAsStringResult(buildIpmiConfiguration(hostname, ipmiConfiguration));
 
 		final long responseTime = System.currentTimeMillis() - startTime;
 
