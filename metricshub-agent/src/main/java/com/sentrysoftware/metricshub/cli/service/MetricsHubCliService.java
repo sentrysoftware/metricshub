@@ -201,7 +201,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		order = 10,
 		description = "Allows to include connectors based on host configuration user-defined tags",
 		split = ",",
-		paramLabel = "CONNECTOR"
+		paramLabel = "TAG"
 	)
 	HashSet<String> includeConnectorTags;
 
