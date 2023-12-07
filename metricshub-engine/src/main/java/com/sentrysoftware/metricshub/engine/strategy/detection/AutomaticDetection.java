@@ -120,7 +120,7 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 	 * @param connector a given connector
 	 * @return boolean
 	 */
-	boolean hasAtLeastOneTagOf(final Set<String> includeConnectorTags, final Connector connector) {
+	public boolean hasAtLeastOneTagOf(final Set<String> includeConnectorTags, final Connector connector) {
 		if (includeConnectorTags == null || includeConnectorTags.isEmpty()) {
 			return true;
 		}

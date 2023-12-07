@@ -6,6 +6,7 @@ import static com.sentrysoftware.metricshub.engine.constants.Constants.DETECTION
 import static com.sentrysoftware.metricshub.engine.constants.Constants.LOCALHOST;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.STRATEGY_TIME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -19,7 +20,6 @@ import com.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import com.sentrysoftware.metricshub.engine.connector.model.identity.ConnectionType;
 import com.sentrysoftware.metricshub.engine.connector.model.identity.ConnectorIdentity;
 import com.sentrysoftware.metricshub.engine.connector.model.identity.Detection;
-import com.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetCriterion;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.MonitorJob;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.StandardMonitorJob;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.Discovery;
@@ -165,64 +165,73 @@ class AutomaticDetectionTest {
 
 	@Test
 	void testRunIncludeConnectorTags() {
-		final Map<String, Map<String, Monitor>> monitors = new HashMap<>();
+		// Set the host to be a local host
 		final HostProperties hostProperties = new HostProperties();
 		hostProperties.setLocalhost(true);
 
-		final Set<String> connectors = new HashSet<>();
-		connectors.add(CONNECTOR_YAML);
+		// Create the snmp configuration
 		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
 		configurations.put(SnmpConfiguration.class, new SnmpConfiguration());
 
-		final Set<String> includeSelectedTags = Set.of("hardware", "storage");
-
+		// Set includeSelectedTags in HostConfiguration
 		final HostConfiguration hostConfiguration = new HostConfiguration(
-				LOCALHOST,
-				"hostId",
-				DeviceKind.WINDOWS,
-				0,
-				null,
-				null,
-				true,
-				null,
-				0,
-				null,
-				configurations,
-				null,
-				includeSelectedTags
+			LOCALHOST,
+			"hostId",
+			DeviceKind.WINDOWS,
+			0,
+			null,
+			null,
+			true,
+			null,
+			0,
+			null,
+			configurations,
+			null,
+			Set.of("hardware", "storage")
 		);
 
-		final File store = new File(DETECTION_FOLDER);
-		final Path storePath = store.toPath();
-
+		// Create a Detection object
 		final Detection detection = new Detection();
 		detection.setDisableAutoDetection(false);
+
+		// Set the connector tags
 		detection.setTags(Set.of("hardware"));
+
 		detection.setAppliesTo(Set.of(DeviceKind.WINDOWS));
 		detection.setConnectionTypes(Set.of(ConnectionType.LOCAL));
-		final SnmpGetCriterion snmpGetCriterion = new SnmpGetCriterion();
-		snmpGetCriterion.setOid("123456");
-		detection.setCriteria(List.of(snmpGetCriterion));
 
+		// Set the detection object in ConnectorIdentity
 		final ConnectorIdentity connectorIdentity = new ConnectorIdentity();
 		connectorIdentity.setDetection(detection);
 
+		// Create a connector and set its connector identity
 		final Connector connector = new Connector();
 		connector.setConnectorIdentity(connectorIdentity);
+
+		// Set the connector source types
 		connector.setSourceTypes(Set.of(SnmpTableSource.class));
 
-		final ConnectorStore connectorStore = new ConnectorStore(storePath);
-		connectorStore.getStore().put(CONNECTOR_YAML, connector);
+		// Create an AutomaticDetection object and check the result of method "hasAtLeastOneTagOf"
+		final AutomaticDetection automaticDetection = new AutomaticDetection();
+		assertTrue(automaticDetection.hasAtLeastOneTagOf(hostConfiguration.getIncludeConnectorTags(), connector));
 
-		final TelemetryManager telemetryManager = new TelemetryManager(
-				monitors,
-				hostProperties,
-				hostConfiguration,
-				connectorStore,
-				STRATEGY_TIME
-		);
-		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
-		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, matsyaClientsExecutor).run());
+		// Set includeSelectedTags in HostConfiguration to another value and check the result of method "hasAtLeastOneTagOf"
+		hostConfiguration.setIncludeConnectorTags(Set.of("Unix", "AIX"));
+		assertFalse(automaticDetection.hasAtLeastOneTagOf(hostConfiguration.getIncludeConnectorTags(), connector));
+
+		// Set an empty includeSelectedTags value in HostConfiguration, the connector tags remains not empty
+		hostConfiguration.setIncludeConnectorTags(Collections.emptySet());
+		assertTrue(automaticDetection.hasAtLeastOneTagOf(hostConfiguration.getIncludeConnectorTags(), connector));
+
+		// Set an empty connector tags value with a not empty includeSelectedTags value in HostConfiguration
+		hostConfiguration.setIncludeConnectorTags(Set.of("hardware", "AIX"));
+		detection.setTags(Collections.emptySet());
+		assertFalse(automaticDetection.hasAtLeastOneTagOf(hostConfiguration.getIncludeConnectorTags(), connector));
+
+		// Make connector tags value empty with an empty includeSelectedTags value in HostConfiguration
+		hostConfiguration.setIncludeConnectorTags(Collections.emptySet());
+		detection.setTags(Collections.emptySet());
+		assertTrue(automaticDetection.hasAtLeastOneTagOf(hostConfiguration.getIncludeConnectorTags(), connector));
 	}
 
 	@Test
