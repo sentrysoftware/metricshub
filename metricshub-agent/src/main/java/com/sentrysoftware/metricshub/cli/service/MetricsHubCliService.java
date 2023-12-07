@@ -196,6 +196,9 @@ public class MetricsHubCliService implements Callable<Integer> {
 
 	@Override
 	public Integer call() throws Exception {
+		// Check whether iterations is greater than 0. If it's not the case, throw a ParameterException
+		validateIterations(iterations);
+
 		final ConnectorStore connectorStore = new ConnectorStore(ConfigHelper.getSubDirectory("connectors", false));
 
 		// First, process special "list" option
@@ -282,9 +285,6 @@ public class MetricsHubCliService implements Callable<Integer> {
 			new SimpleStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor),
 			new PostDiscoveryStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor)
 		);
-
-		// Check whether iterations is greater than 0. If it's not the case, throw a ParameterException
-		validateIterations(iterations);
 
 		// Perform the collect operation "iterations" times
 		for (int i = 0; i < iterations; i++) {
