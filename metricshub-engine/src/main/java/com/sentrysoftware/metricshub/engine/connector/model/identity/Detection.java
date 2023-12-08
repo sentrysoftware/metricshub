@@ -50,6 +50,9 @@ public class Detection implements Serializable {
 
 	private List<Criterion> criteria = new ArrayList<>();
 
+	@JsonSetter(nulls = SKIP)
+	private Set<String> tags = new HashSet<>();
+
 	@Builder
 	@JsonCreator
 	public Detection(
@@ -58,7 +61,8 @@ public class Detection implements Serializable {
 		@JsonProperty("onLastResort") String onLastResort,
 		@JsonProperty(value = "appliesTo", required = true) @NonNull Set<DeviceKind> appliesTo,
 		@JsonProperty("supersedes") Set<String> supersedes,
-		@JsonProperty("criteria") List<Criterion> criteria
+		@JsonProperty("criteria") List<Criterion> criteria,
+		@JsonProperty("tags") Set<String> tags
 	) {
 		this.connectionTypes =
 			connectionTypes == null ? new HashSet<>(Collections.singleton(ConnectionType.LOCAL)) : connectionTypes;
@@ -67,5 +71,6 @@ public class Detection implements Serializable {
 		this.appliesTo = appliesTo;
 		this.supersedes = supersedes == null ? new HashSet<>() : supersedes;
 		this.criteria = criteria == null ? new ArrayList<>() : criteria;
+		this.tags = tags == null ? new HashSet<>() : tags;
 	}
 }

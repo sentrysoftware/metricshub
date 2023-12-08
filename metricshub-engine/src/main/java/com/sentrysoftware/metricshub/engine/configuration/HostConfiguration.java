@@ -14,6 +14,7 @@ import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WmiSource;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -49,6 +50,8 @@ public class HostConfiguration {
 	private String configuredConnectorId;
 
 	private static final Map<Class<? extends IConfiguration>, Set<Class<? extends Source>>> CONFIGURATION_TO_SOURCES_MAP;
+
+	private Set<String> includeConnectorTags = new HashSet<>();
 
 	static {
 		CONFIGURATION_TO_SOURCES_MAP =
@@ -126,7 +129,7 @@ public class HostConfiguration {
 	 * Get the protocol configuration used to execute requests on Windows machines.
 	 *  (WinRM or WMI)<br> WinRM is prioritized.
 	 *
-	 * @return {@link IWinProtocol} instance.
+	 * @return {@link IWinConfiguration} instance.
 	 */
 	public IWinConfiguration getWinConfiguration() {
 		// We prioritize WinRM over WMI as it's more efficient.

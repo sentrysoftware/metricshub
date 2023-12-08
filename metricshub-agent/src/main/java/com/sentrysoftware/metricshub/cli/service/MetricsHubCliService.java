@@ -194,6 +194,16 @@ public class MetricsHubCliService implements Callable<Integer> {
 	)
 	long sleepIteration;
 
+	@Option(
+		names = { "-ict", "--include-connector-tags" },
+		help = true,
+		order = 10,
+		description = "Filter connectors for automatic detection by specifying relevant tags (e.g., hardware, storage, application)",
+		split = ",",
+		paramLabel = "TAG"
+	)
+	Set<String> includeConnectorTags;
+
 	@Override
 	public Integer call() throws Exception {
 		// Check whether iterations is greater than 0. If it's not the case, throw a ParameterException
@@ -218,6 +228,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 			.hostname(hostname)
 			.hostType(deviceType)
 			.sequential(sequential)
+			.includeConnectorTags(includeConnectorTags)
 			.build();
 
 		// Connectors
