@@ -115,7 +115,7 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 	}
 
 	/**
-	 * Checks whether the set userConnectorTags defined in HostConfiguration contains at least one of a given connector's tags
+	 * Checks whether the given includeConnectorTags set defined in HostConfiguration contains at least one of a given connector's tags
 	 * @param includeConnectorTags tags defined by the user and stored in HostConfiguration
 	 * @param connector a given connector
 	 * @return boolean

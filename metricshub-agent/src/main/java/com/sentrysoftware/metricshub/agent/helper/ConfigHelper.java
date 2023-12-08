@@ -769,7 +769,7 @@ public class ConfigHelper {
 	 * Create a custom ConnectorStore if a configured connector exists.
 	 * @param configuredConnector Configured connector
 	 * @param connectorStore      The original ConnectorStore
-	 * @return
+	 * @return A custom ConnectorStore with the configured connector if it exists, or the original ConnectorStore.
 	 */
 	static ConnectorStore createCustomConnectorStoreIfConfigured(
 		final Connector configuredConnector,

@@ -50,6 +50,7 @@ public class Detection implements Serializable {
 
 	private List<Criterion> criteria = new ArrayList<>();
 
+	@JsonSetter(nulls = SKIP)
 	private Set<String> tags = new HashSet<>();
 
 	@Builder
