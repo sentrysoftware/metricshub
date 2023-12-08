@@ -57,11 +57,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -74,6 +74,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Data
@@ -571,20 +572,14 @@ public class ComputeProcessor implements IComputeProcessor {
 	 *                              describing the rules
 	 *                              regarding which lines should be kept or removed in/from the {@link SourceTable}.
 	 */
-	private void processAbstractMatchingLines(AbstractMatchingLines abstractMatchingLines) {
+	private void processAbstractMatchingLines(final AbstractMatchingLines abstractMatchingLines) {
 		if (isConsistentMatchingLinesInfo(abstractMatchingLines)) {
 			final int columnIndex = abstractMatchingLines.getColumn() - 1;
 			final String abstractMatchingLinesValueList = abstractMatchingLines.getValueList();
 			Set<String> valueSet = null;
 
 			if (abstractMatchingLinesValueList != null) {
-				if (abstractMatchingLinesValueList.isEmpty()) {
-					valueSet = new HashSet<>();
-				} else if (abstractMatchingLinesValueList.indexOf(COMMA) >= 0) {
-					valueSet = new HashSet<>(Arrays.asList(abstractMatchingLinesValueList.split(COMMA)));
-				} else {
-					valueSet = new HashSet<>(Arrays.asList(abstractMatchingLinesValueList));
-				}
+				valueSet = buildCaseInsensitiveValueSet(abstractMatchingLinesValueList);
 			}
 
 			final String pslRegexp = abstractMatchingLines.getRegExp();
@@ -611,6 +606,31 @@ public class ComputeProcessor implements IComputeProcessor {
 			sourceTable.setTable(filteredTable);
 			sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 		}
+	}
+
+	/**
+	 * Builds a case-insensitive set of values from the given string.
+	 *
+	 * This method takes a string as input and checks if it contains a comma (`,`). If a comma is found,
+	 * it splits the string into multiple values, converts them to a case-insensitive set, and returns the set.
+	 * If no comma is found, it creates a case-insensitive set with the single input value and returns it.
+	 *
+	 * @param value The input string from which to build the case-insensitive set of values.
+	 * @return A case-insensitive set of values extracted from the input string.
+	 * @throws IllegalArgumentException If the input string is {@code null}.
+	 */
+	private Set<String> buildCaseInsensitiveValueSet(@NonNull final String value) {
+		if (value.indexOf(COMMA) >= 0) {
+			return Stream
+				.of(value.split(COMMA))
+				.collect(Collectors.toCollection(() -> new TreeSet<>(String.CASE_INSENSITIVE_ORDER)));
+		}
+
+		final Set<String> singletonSet = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+
+		singletonSet.add(value);
+
+		return singletonSet;
 	}
 
 	/**
@@ -642,7 +662,7 @@ public class ComputeProcessor implements IComputeProcessor {
 	 * 								and the concrete type of the given {@link AbstractMatchingLines},
 	 * 								that can be used to filter the lines in the {@link SourceTable}.
 	 */
-	private Predicate<String> getPredicate(String pslRegexp, AbstractMatchingLines abstractMatchingLines) {
+	private Predicate<String> getPredicate(final String pslRegexp, final AbstractMatchingLines abstractMatchingLines) {
 		Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(pslRegexp), Pattern.CASE_INSENSITIVE);
 
 		return abstractMatchingLines instanceof KeepOnlyMatchingLines
@@ -661,7 +681,10 @@ public class ComputeProcessor implements IComputeProcessor {
 	 * 								and the concrete type of the given {@link AbstractMatchingLines},
 	 * 								that can be used to filter the lines in the {@link SourceTable}.
 	 */
-	private Predicate<String> getPredicate(Set<String> valueSet, AbstractMatchingLines abstractMatchingLines) {
+	private Predicate<String> getPredicate(
+		final Set<String> valueSet,
+		final AbstractMatchingLines abstractMatchingLines
+	) {
 		return abstractMatchingLines instanceof KeepOnlyMatchingLines
 			? value -> value != null && valueSet.contains(value)
 			: value -> value != null && !valueSet.contains(value);

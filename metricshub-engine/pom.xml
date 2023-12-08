@@ -91,8 +91,8 @@
 			<artifactId>module-httpclient</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.sentrysoftware.patrol.matsya</groupId>
-			<artifactId>module-ipmiclient</artifactId>
+			<groupId>org.sentrysoftware</groupId>
+			<artifactId>ipmi</artifactId>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>
