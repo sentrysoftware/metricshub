@@ -90,7 +90,7 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 		names = { "--context-name" },
 		order = 9,
 		paramLabel = "CONTEXT_NAME",
-		description = "Snmp protocol context name"
+		description = "Snmp V3 protocol context name"
 	)
 	String contextName;
 
