@@ -28,8 +28,7 @@ public class SnmpConfiguration implements IConfiguration {
 	@Builder.Default
 	private final Long timeout = 120L;
 
-	@Builder.Default
-	private final String contextName = null;
+	private String contextName;
 
 	private Privacy privacy;
 	private char[] privacyPassword;
