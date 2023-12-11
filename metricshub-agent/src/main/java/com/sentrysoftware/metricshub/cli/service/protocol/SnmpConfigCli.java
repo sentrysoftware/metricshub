@@ -1,5 +1,7 @@
 package com.sentrysoftware.metricshub.cli.service.protocol;
 
+import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
+
 import com.sentrysoftware.metricshub.cli.service.converter.SnmpPrivacyConverter;
 import com.sentrysoftware.metricshub.cli.service.converter.SnmpVersionConverter;
 import com.sentrysoftware.metricshub.engine.configuration.IConfiguration;
@@ -86,6 +88,15 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 	)
 	long timeout;
 
+	@Option(
+		names = { "-cn", "--context-name" },
+		order = 9,
+		paramLabel = "CONTEXT_NAME",
+		defaultValue = EMPTY,
+		description = "Snmp protocol context name"
+	)
+	String contextName;
+
 	/**
 	 * This method creates an {@link SnmpConfiguration} for a given username and a given password
 	 *
@@ -105,6 +116,7 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 			.privacyPassword(privacyPassword)
 			.port(port)
 			.timeout(timeout)
+			.contextName(contextName)
 			.build();
 	}
 }
