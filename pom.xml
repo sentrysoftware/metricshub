@@ -252,11 +252,6 @@
 			</dependency>
 			<dependency>
 				<groupId>com.sentrysoftware.patrol.matsya</groupId>
-				<artifactId>module-sshclient</artifactId>
-				<version>${matsya.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.sentrysoftware.patrol.matsya</groupId>
 				<artifactId>module-jflat</artifactId>
 				<version>${matsya.version}</version>
 			</dependency>

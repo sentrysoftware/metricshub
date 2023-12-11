@@ -62,10 +62,6 @@
 		</dependency>
 		<dependency>
 			<groupId>com.sentrysoftware.patrol.matsya</groupId>
-			<artifactId>module-sshclient</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.sentrysoftware.patrol.matsya</groupId>
 			<artifactId>module-wbemclient2</artifactId>
 		</dependency>
 		<dependency>
