@@ -1,7 +1,5 @@
 package com.sentrysoftware.metricshub.engine.configuration;
 
-import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -31,7 +29,7 @@ public class SnmpConfiguration implements IConfiguration {
 	private final Long timeout = 120L;
 
 	@Builder.Default
-	private final String contextName = EMPTY;
+	private final String contextName = null;
 
 	private Privacy privacy;
 	private char[] privacyPassword;
