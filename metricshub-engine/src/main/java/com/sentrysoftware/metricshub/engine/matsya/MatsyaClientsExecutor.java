@@ -14,7 +14,7 @@ import com.sentrysoftware.matsya.http.HttpClient;
 import com.sentrysoftware.matsya.http.HttpResponse;
 import com.sentrysoftware.matsya.jflat.JFlat;
 import com.sentrysoftware.matsya.snmp.SNMPClient;
-import com.sentrysoftware.matsya.ssh.SSHClient;
+import org.sentrysoftware.ssh.SshClient;
 import com.sentrysoftware.matsya.tablejoin.TableJoin;
 import com.sentrysoftware.matsya.vcenter.VCenterClient;
 import com.sentrysoftware.matsya.wbem2.WbemExecutor;
@@ -1285,7 +1285,7 @@ public class MatsyaClientsExecutor {
 			: updateCommandWithLocalList(noPasswordCommand, localFiles);
 
 		// We have a command: execute it
-		try (SSHClient sshClient = createSshClientInstance(hostname)) {
+		try (SshClient sshClient = createSshClientInstance(hostname)) {
 			sshClient.connect((int) timeoutInMilliseconds);
 
 			if (password == null) {
@@ -1303,7 +1303,7 @@ public class MatsyaClientsExecutor {
 
 			final long startTime = System.currentTimeMillis();
 
-			final SSHClient.CommandResult commandResult = sshClient.executeCommand(
+			final SshClient.CommandResult commandResult = sshClient.executeCommand(
 				updatedCommand,
 				(int) timeoutInMilliseconds
 			);
@@ -1367,7 +1367,7 @@ public class MatsyaClientsExecutor {
 	 * @throws MatsyaException If a Matsya error occurred.
 	 */
 	static void authenticateSsh(
-		final SSHClient sshClient,
+		final SshClient sshClient,
 		final String hostname,
 		final String username,
 		final char[] password,
@@ -1429,13 +1429,13 @@ public class MatsyaClientsExecutor {
 	}
 
 	/**
-	 * Create a new instance of the {@link SSHClient}
+	 * Create a new instance of the {@link SshClient}
 	 *
 	 * @param hostname
 	 * @return {@link SSHClient} instance
 	 */
-	public static SSHClient createSshClientInstance(final String hostname) {
-		return new SSHClient(hostname, StandardCharsets.UTF_8);
+	public static SshClient createSshClientInstance(final String hostname) {
+		return new SshClient(hostname, StandardCharsets.UTF_8);
 	}
 
 	/**
@@ -1454,7 +1454,7 @@ public class MatsyaClientsExecutor {
 	 * @return The Matsya SSH client
 	 * @throws MatsyaException If a Matsya error occurred.
 	 */
-	public static SSHClient connectSshClientTerminal(
+	public static SshClient connectSshClientTerminal(
 		@NonNull final String hostname,
 		@NonNull final String username,
 		final char[] password,
@@ -1463,7 +1463,7 @@ public class MatsyaClientsExecutor {
 	) throws MatsyaException {
 		isTrue(timeout > 0, "timeout must be > 0");
 
-		final SSHClient sshClient = createSshClientInstance(hostname);
+		final SshClient sshClient = createSshClientInstance(hostname);
 
 		try {
 			sshClient.connect(timeout * 1000);

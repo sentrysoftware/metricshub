@@ -105,6 +105,10 @@
 			</exclusions>
 		</dependency>
 		<dependency>
+			<groupId>org.sentrysoftware</groupId>
+			<artifactId>ssh</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.sentrysoftware.patrol.matsya</groupId>
 			<artifactId>module-xflat</artifactId>
 		</dependency>
