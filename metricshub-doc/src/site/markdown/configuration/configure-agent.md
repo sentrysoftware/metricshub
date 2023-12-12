@@ -539,6 +539,8 @@ Otherwise, you can list the available connectors using the below command:
 $ metricshub -l
 ```
 
+##### Connector tags
+
 The connectors can be filtered by tags.
 
 A given connector is selected only if it contains a tag which is listed in the MetricsHub Agent configuration file `config/metricshub.yaml`.

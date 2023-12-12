@@ -234,7 +234,7 @@ Use the `--sequential` option to force all the requests to be executed in a sequ
 $ metricshub SERVER01 -t linux --snmp 1 --community COMM02 --sequential
 ```
 
-### Iterations
+## Iterations
 
 You can run the collect operation many times (e.g: to compute energy or rate metrics, you need to run it at least twice).
 
@@ -245,7 +245,7 @@ duration in seconds of the pause between two collect operations.
 $ metricshub SERVER01 -t oob --snmp v2c --community public --iterations 2 --sleep-iteration 5
 ```
 
-### Connector tags
+## Connector tags
 
 The connectors can be filtered by tags. Tags are string values defined in a CLI command.
 
