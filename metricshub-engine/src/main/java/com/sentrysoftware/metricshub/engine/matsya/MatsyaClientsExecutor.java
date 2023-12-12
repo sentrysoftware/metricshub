@@ -272,7 +272,7 @@ public class MatsyaClientsExecutor {
 					protocol.getPassword() != null ? new String(protocol.getPassword()) : null,
 					privacyType,
 					protocol.getPrivacyPassword() != null ? new String(protocol.getPrivacyPassword()) : null,
-					null,
+					protocol.getContextName(),
 					null
 				);
 
