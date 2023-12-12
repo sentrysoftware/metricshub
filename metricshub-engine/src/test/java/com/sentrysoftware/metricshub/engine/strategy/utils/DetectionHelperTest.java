@@ -1,55 +1,23 @@
 package com.sentrysoftware.metricshub.engine.strategy.utils;
 
-import static com.sentrysoftware.metricshub.engine.constants.Constants.LOCALHOST;
-import static com.sentrysoftware.metricshub.engine.strategy.utils.DetectionHelper.hasAtLeastOneTagOf;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import com.sentrysoftware.metricshub.engine.configuration.IConfiguration;
-import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.Connector;
 import com.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import com.sentrysoftware.metricshub.engine.connector.model.identity.ConnectionType;
 import com.sentrysoftware.metricshub.engine.connector.model.identity.ConnectorIdentity;
 import com.sentrysoftware.metricshub.engine.connector.model.identity.Detection;
-import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
-import com.sentrysoftware.metricshub.engine.telemetry.HostProperties;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 import org.junit.jupiter.api.Test;
+
+import java.util.Collections;
+import java.util.Set;
+
+import static com.sentrysoftware.metricshub.engine.strategy.utils.DetectionHelper.hasAtLeastOneTagOf;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DetectionHelperTest {
 
 	@Test
-	void testRunIncludeConnectorTags() {
-		// Set the host to be a local host
-		final HostProperties hostProperties = new HostProperties();
-		hostProperties.setLocalhost(true);
-
-		// Create the snmp configuration
-		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
-		configurations.put(SnmpConfiguration.class, new SnmpConfiguration());
-
-		// Set includeSelectedTags in HostConfiguration
-		final HostConfiguration hostConfiguration = new HostConfiguration(
-			LOCALHOST,
-			"hostId",
-			DeviceKind.WINDOWS,
-			0,
-			null,
-			null,
-			true,
-			null,
-			0,
-			null,
-			configurations,
-			null,
-			Set.of("hardware", "storage")
-		);
-
+	void testHasAtLeastOneTagOf() {
 		// Create a Detection object
 		final Detection detection = new Detection();
 		detection.setDisableAutoDetection(false);
@@ -57,6 +25,7 @@ class DetectionHelperTest {
 		// Set the connector tags
 		detection.setTags(Set.of("hardware"));
 
+		// Set additional properties for the detection
 		detection.setAppliesTo(Set.of(DeviceKind.WINDOWS));
 		detection.setConnectionTypes(Set.of(ConnectionType.LOCAL));
 
@@ -68,28 +37,27 @@ class DetectionHelperTest {
 		final Connector connector = new Connector();
 		connector.setConnectorIdentity(connectorIdentity);
 
-		// Set the connector source types
-		connector.setSourceTypes(Set.of(SnmpTableSource.class));
+		// Assertion: Connector should have at least one of the specified tags
+		assertTrue(hasAtLeastOneTagOf(Set.of("hardware", "storage"), connector));
 
-		// Check the result of method "DetectionHelper.hasAtLeastOneTagOf"
-		assertTrue(hasAtLeastOneTagOf(hostConfiguration.getIncludeConnectorTags(), connector));
+		// Assertion: Connector should not have any of the specified tags
+		assertFalse(hasAtLeastOneTagOf(Set.of("Unix", "AIX"), connector));
 
-		// Set includeSelectedTags in HostConfiguration to another value and check the result of method "hasAtLeastOneTagOf"
-		hostConfiguration.setIncludeConnectorTags(Set.of("Unix", "AIX"));
-		assertFalse(hasAtLeastOneTagOf(hostConfiguration.getIncludeConnectorTags(), connector));
+		// Assertion: hasAtLeastOneTagOf considers that the connector should be kept
+		// Due to null or empty "includeConnectorTags"
+		assertTrue(hasAtLeastOneTagOf(Collections.emptySet(), connector));
+		assertTrue(hasAtLeastOneTagOf(null, connector));
 
-		// Set an empty includeSelectedTags value in HostConfiguration, the connector tags remains not empty
-		hostConfiguration.setIncludeConnectorTags(Collections.emptySet());
-		assertTrue(hasAtLeastOneTagOf(hostConfiguration.getIncludeConnectorTags(), connector));
-
-		// Set an empty connector tags value with a not empty includeSelectedTags value in HostConfiguration
-		hostConfiguration.setIncludeConnectorTags(Set.of("hardware", "AIX"));
+		// Modify detection tags to be empty
 		detection.setTags(Collections.emptySet());
-		assertFalse(hasAtLeastOneTagOf(hostConfiguration.getIncludeConnectorTags(), connector));
 
-		// Make connector tags value empty with an empty includeSelectedTags value in HostConfiguration
-		hostConfiguration.setIncludeConnectorTags(Collections.emptySet());
-		detection.setTags(Collections.emptySet());
-		assertTrue(hasAtLeastOneTagOf(hostConfiguration.getIncludeConnectorTags(), connector));
+		// Assertion: Connector should not have any of the specified tags
+		assertFalse(hasAtLeastOneTagOf(Set.of("hardware", "AIX"), connector));
+
+		// Modify detection tags to be null
+		detection.setTags(null);
+
+		// Assertion: Connector should not have any of the specified tags
+		assertFalse(hasAtLeastOneTagOf(Set.of("hardware"), connector));
 	}
 }
