@@ -1,5 +1,7 @@
 package com.sentrysoftware.metricshub.cli.service;
 
+import static com.sentrysoftware.metricshub.engine.strategy.utils.DetectionHelper.hasAtLeastOneTagOf;
+
 import com.sentrysoftware.metricshub.agent.helper.ConfigHelper;
 import com.sentrysoftware.metricshub.cli.service.converter.DeviceKindConverter;
 import com.sentrysoftware.metricshub.cli.service.protocol.HttpConfigCli;
@@ -566,6 +568,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 			.stream()
 			.filter(Objects::nonNull)
 			.filter(e -> e.getValue() != null && e.getValue().getCompiledFilename() != null)
+			.filter(entry -> hasAtLeastOneTagOf(includeConnectorTags, entry.getValue()))
 			.sorted((e1, e2) -> e1.getValue().getCompiledFilename().compareToIgnoreCase(e2.getValue().getCompiledFilename()))
 			.forEachOrdered(connectorEntry -> {
 				final String connectorName = connectorEntry.getKey();

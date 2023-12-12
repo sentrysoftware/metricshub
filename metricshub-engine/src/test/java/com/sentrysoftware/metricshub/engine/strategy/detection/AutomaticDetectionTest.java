@@ -5,6 +5,7 @@ import static com.sentrysoftware.metricshub.engine.constants.Constants.CONNECTOR
 import static com.sentrysoftware.metricshub.engine.constants.Constants.DETECTION_FOLDER;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.LOCALHOST;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.STRATEGY_TIME;
+import static com.sentrysoftware.metricshub.engine.strategy.utils.DetectionHelper.hasAtLeastOneTagOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -213,25 +214,25 @@ class AutomaticDetectionTest {
 
 		// Create an AutomaticDetection object and check the result of method "hasAtLeastOneTagOf"
 		final AutomaticDetection automaticDetection = new AutomaticDetection();
-		assertTrue(automaticDetection.hasAtLeastOneTagOf(hostConfiguration.getIncludeConnectorTags(), connector));
+		assertTrue(hasAtLeastOneTagOf(hostConfiguration.getIncludeConnectorTags(), connector));
 
 		// Set includeSelectedTags in HostConfiguration to another value and check the result of method "hasAtLeastOneTagOf"
 		hostConfiguration.setIncludeConnectorTags(Set.of("Unix", "AIX"));
-		assertFalse(automaticDetection.hasAtLeastOneTagOf(hostConfiguration.getIncludeConnectorTags(), connector));
+		assertFalse(hasAtLeastOneTagOf(hostConfiguration.getIncludeConnectorTags(), connector));
 
 		// Set an empty includeSelectedTags value in HostConfiguration, the connector tags remains not empty
 		hostConfiguration.setIncludeConnectorTags(Collections.emptySet());
-		assertTrue(automaticDetection.hasAtLeastOneTagOf(hostConfiguration.getIncludeConnectorTags(), connector));
+		assertTrue(hasAtLeastOneTagOf(hostConfiguration.getIncludeConnectorTags(), connector));
 
 		// Set an empty connector tags value with a not empty includeSelectedTags value in HostConfiguration
 		hostConfiguration.setIncludeConnectorTags(Set.of("hardware", "AIX"));
 		detection.setTags(Collections.emptySet());
-		assertFalse(automaticDetection.hasAtLeastOneTagOf(hostConfiguration.getIncludeConnectorTags(), connector));
+		assertFalse(hasAtLeastOneTagOf(hostConfiguration.getIncludeConnectorTags(), connector));
 
 		// Make connector tags value empty with an empty includeSelectedTags value in HostConfiguration
 		hostConfiguration.setIncludeConnectorTags(Collections.emptySet());
 		detection.setTags(Collections.emptySet());
-		assertTrue(automaticDetection.hasAtLeastOneTagOf(hostConfiguration.getIncludeConnectorTags(), connector));
+		assertTrue(hasAtLeastOneTagOf(hostConfiguration.getIncludeConnectorTags(), connector));
 	}
 
 	@Test
