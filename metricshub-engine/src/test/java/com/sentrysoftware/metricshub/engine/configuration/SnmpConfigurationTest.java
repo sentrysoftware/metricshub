@@ -17,6 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -124,5 +126,23 @@ class SnmpConfigurationTest {
 		);
 		final String actualMessage = exception.getMessage();
 		assertTrue(actualMessage.contains(INVALID_PRIVACY_VALUE_EXCEPTION_MESSAGE));
+	}
+
+	@Test
+	void testContextNameTransfer() {
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.configurations(Map.of(SnmpConfiguration.class, SnmpConfiguration.builder().contextName("context-1").build()))
+					.build()
+			)
+			.build();
+		final SnmpConfiguration snmpConfiguration = (SnmpConfiguration) telemetryManager
+			.getHostConfiguration()
+			.getConfigurations()
+			.get(SnmpConfiguration.class);
+		assertEquals("context-1", snmpConfiguration.getContextName());
 	}
 }
