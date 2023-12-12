@@ -1,18 +1,17 @@
 package com.sentrysoftware.metricshub.engine.strategy.utils;
 
+import static com.sentrysoftware.metricshub.engine.strategy.utils.DetectionHelper.hasAtLeastOneTagOf;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.sentrysoftware.metricshub.engine.connector.model.Connector;
 import com.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import com.sentrysoftware.metricshub.engine.connector.model.identity.ConnectionType;
 import com.sentrysoftware.metricshub.engine.connector.model.identity.ConnectorIdentity;
 import com.sentrysoftware.metricshub.engine.connector.model.identity.Detection;
-import org.junit.jupiter.api.Test;
-
 import java.util.Collections;
 import java.util.Set;
-
-import static com.sentrysoftware.metricshub.engine.strategy.utils.DetectionHelper.hasAtLeastOneTagOf;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
 
 class DetectionHelperTest {
 
