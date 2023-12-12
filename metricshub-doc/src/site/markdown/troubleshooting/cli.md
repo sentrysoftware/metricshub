@@ -236,7 +236,7 @@ $ metricshub SERVER01 -t linux --snmp 1 --community COMM02 --sequential
 
 ### Iterations
 
-You can run the collect operation many times (e.g: to compute energy, you need to run it at least twice).
+You can run the collect operation many times (e.g: to compute energy or rate metrics, you need to run it at least twice).
 
 Use `--iterations` option to define the number of times the collect operation will be executed and `--sleep-iteration` to define the
 duration in seconds of the pause between two collect operations.
@@ -247,7 +247,7 @@ $ metricshub SERVER01 -t oob --snmp v2c --community public --iterations 2 --slee
 
 ### Connector tags
 
-The connectors can be filtered by tags. Tags are String values defined in a CLI command.
+The connectors can be filtered by tags. Tags are string values defined in a CLI command.
 
 A given connector is selected only if it contains a tag which is listed in the CLI command tags.
 
