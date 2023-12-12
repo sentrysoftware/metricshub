@@ -233,3 +233,30 @@ Use the `--sequential` option to force all the requests to be executed in a sequ
 ```batch
 $ metricshub SERVER01 -t linux --snmp 1 --community COMM02 --sequential
 ```
+
+### Iterations
+
+You can run the collect operation many times (e.g: to compute energy, you need to run it at least twice).
+
+Use `--iterations` option to define the number of times the collect operation will be executed and `--sleep-iteration` to define the
+duration in seconds of the pause between two collect operations.
+
+```batch
+$ metricshub SERVER01 -t oob --snmp v2c --community public --iterations 2 --sleep-iteration 5
+```
+
+### Connector tags
+
+The connectors can be filtered by tags. Tags are String values defined in a CLI command.
+
+A given connector is selected only if it contains a tag which is listed in the CLI command tags.
+
+The tags are useful to select only some connectors using their categories (e.g: hardware, storage, etc ...).
+
+Use `--include-connector-tags` to define the tags in the CLI command (If there is more than one tag to define, use commas to define them).
+
+```batch
+$ metricshub SERVER01 -t oob --snmp v2c --community public --include-connector-tags hardware, storage
+```
+
+
