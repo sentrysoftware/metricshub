@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 
-public class DetectionHelperTest {
+class DetectionHelperTest {
 
 	@Test
 	void testRunIncludeConnectorTags() {
