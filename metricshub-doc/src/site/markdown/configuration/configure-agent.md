@@ -539,7 +539,34 @@ Otherwise, you can list the available connectors using the below command:
 $ metricshub -l
 ```
 
-For more information about the `metricshub` command, refer to [MetricsHub CLI (metricshub)](../troubleshooting/cli.md)
+For more information about the `metricshub` command, refer to [MetricsHub CLI (metricshub)](../troubleshooting/cli.md).
+
+##### Connector tags
+
+Connectors can be filtered based on tags.
+
+During the automatic detection, a connector will only be selected if it contains a tag that is listed in the MetricsHub Agent's configuration file, `config/metricshub.yaml`.
+
+The tags are used to classify connectors, making it possible to select only a specific type of connector, such as `hardware` connectors or `application` connectors.
+
+To filter connectors by tags, set the required tags in the `includeConnectorTags` property under the resource configuration using the following format:
+
+```yaml
+resourceGroups:
+  boston:
+    resources:
+      # Resource Configuration 
+      myHost1:
+        includeConnectorTags: [hardware, storage]
+        attributes:
+          host.name: my-host-01
+          host.type: linux
+        protocols:
+          snmp:
+            community: public
+            port: 161
+            version: v2c
+```
 
 #### Discovery cycle
 
