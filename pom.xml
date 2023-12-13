@@ -59,11 +59,7 @@
 		<prettier-maven-plugin.version>0.21</prettier-maven-plugin.version>
 		<prettierJava.version>2.0.0</prettierJava.version>
 		<metricshub-jre.version>1-SNAPSHOT</metricshub-jre.version>
-<<<<<<< HEAD
 		<snmp.version>1.0.00</snmp.version>
-=======
-		<snmp.version>1.0.00-SNAPSHOT</snmp.version>
->>>>>>> 8e5eab42e9a0cc467a3d3463537f10fc616a83b2
 	</properties>
 
 	<modules>
