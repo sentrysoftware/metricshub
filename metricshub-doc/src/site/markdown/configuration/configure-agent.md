@@ -539,6 +539,8 @@ Otherwise, you can list the available connectors using the below command:
 $ metricshub -l
 ```
 
+For more information about the `metricshub` command, refer to [MetricsHub CLI (metricshub)](../troubleshooting/cli.md).
+
 ##### Connector tags
 
 Connectors can be filtered based on tags.
@@ -565,8 +567,6 @@ resourceGroups:
             port: 161
             version: v2c
 ```
-
-For more information about the `metricshub` command, refer to [MetricsHub CLI (metricshub)](../troubleshooting/cli.md)
 
 #### Discovery cycle
 
