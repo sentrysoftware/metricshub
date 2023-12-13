@@ -57,8 +57,8 @@
 			<artifactId>module-tablejoin</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.sentrysoftware.patrol.matsya</groupId>
-			<artifactId>module-snmpclient</artifactId>
+			<groupId>org.sentrysoftware</groupId>
+			<artifactId>snmp</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.sentrysoftware.patrol.matsya</groupId>
