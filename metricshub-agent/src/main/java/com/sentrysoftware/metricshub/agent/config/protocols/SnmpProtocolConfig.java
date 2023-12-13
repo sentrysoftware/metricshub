@@ -45,6 +45,8 @@ public class SnmpProtocolConfig extends AbstractProtocolConfig {
 
 	private char[] password;
 
+	private String contextName;
+
 	/**
 	 * Create a new {@link SnmpConfiguration} instance based on the current members
 	 *
@@ -62,6 +64,7 @@ public class SnmpProtocolConfig extends AbstractProtocolConfig {
 			.privacyPassword(super.decrypt(privacyPassword))
 			.port(port)
 			.timeout(timeout)
+			.contextName(contextName)
 			.build();
 	}
 

@@ -86,6 +86,14 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 	)
 	long timeout;
 
+	@Option(
+		names = { "--context-name" },
+		order = 9,
+		paramLabel = "CONTEXT_NAME",
+		description = "Snmp V3 protocol context name"
+	)
+	String contextName;
+
 	/**
 	 * This method creates an {@link SnmpConfiguration} for a given username and a given password
 	 *
@@ -105,6 +113,7 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 			.privacyPassword(privacyPassword)
 			.port(port)
 			.timeout(timeout)
+			.contextName(contextName)
 			.build();
 	}
 }

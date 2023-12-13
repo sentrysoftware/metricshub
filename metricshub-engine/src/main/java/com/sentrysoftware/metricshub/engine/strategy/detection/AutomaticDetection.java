@@ -1,5 +1,7 @@
 package com.sentrysoftware.metricshub.engine.strategy.detection;
 
+import static com.sentrysoftware.metricshub.engine.strategy.utils.DetectionHelper.hasAtLeastOneTagOf;
+
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.Connector;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
@@ -112,23 +114,6 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 		filterLastResortConnectors(connectorTestResults, hostname);
 
 		return connectorTestResults;
-	}
-
-	/**
-	 * Checks whether the given includeConnectorTags set defined in HostConfiguration contains at least one of a given connector's tags
-	 * @param includeConnectorTags tags defined by the user and stored in HostConfiguration
-	 * @param connector a given connector
-	 * @return boolean
-	 */
-	public boolean hasAtLeastOneTagOf(final Set<String> includeConnectorTags, final Connector connector) {
-		if (includeConnectorTags == null || includeConnectorTags.isEmpty()) {
-			return true;
-		}
-		final Set<String> connectorTags = connector.getConnectorIdentity().getDetection().getTags();
-		if (connectorTags == null) {
-			return false;
-		}
-		return connectorTags.stream().anyMatch(tag -> includeConnectorTags.contains(tag));
 	}
 
 	/**
