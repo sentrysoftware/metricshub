@@ -59,7 +59,7 @@
 		<prettier-maven-plugin.version>0.21</prettier-maven-plugin.version>
 		<prettierJava.version>2.0.0</prettierJava.version>
 		<metricshub-jre.version>1-SNAPSHOT</metricshub-jre.version>
-		<snmp.version>1.0.00-SNAPSHOT</snmp.version>
+		<snmp.version>1.0.00</snmp.version>
 	</properties>
 
 	<modules>
@@ -249,7 +249,7 @@
 			<dependency>
 				<groupId>org.sentrysoftware</groupId>
 				<artifactId>snmp</artifactId>
-				<version>${snmp.version}</version>
+				<version>1.0.00</version>
 			</dependency>
 			<dependency>
 				<groupId>com.sentrysoftware.patrol.matsya</groupId>
