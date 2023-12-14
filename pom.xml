@@ -252,11 +252,6 @@
 			</dependency>
 			<dependency>
 				<groupId>com.sentrysoftware.patrol.matsya</groupId>
-				<artifactId>module-jflat</artifactId>
-				<version>${matsya.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.sentrysoftware.patrol.matsya</groupId>
 				<artifactId>module-winrm</artifactId>
 				<version>${matsya.version}</version>
 			</dependency>
@@ -284,6 +279,11 @@
 				<groupId>org.sentrysoftware</groupId>
 				<artifactId>ssh</artifactId>
 				<version>1.0.00</version>
+			</dependency>
+			<dependency>
+				<groupId>org.sentrysoftware</groupId>
+				<artifactId>jflat</artifactId>
+				<version>1.0.00-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>com.sentrysoftware.patrol.matsya</groupId>
