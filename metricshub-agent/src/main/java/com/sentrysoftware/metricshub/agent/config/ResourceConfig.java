@@ -53,6 +53,10 @@ public class ResourceConfig {
 
 	@Default
 	@JsonSetter(nulls = SKIP)
+	private Map<String, ConnectorVariables> variables = new HashMap<>();
+
+	@Default
+	@JsonSetter(nulls = SKIP)
 	private Set<String> selectConnectors = new HashSet<>();
 
 	@Default
@@ -98,6 +102,7 @@ public class ResourceConfig {
 			)
 			.metrics(metrics)
 			.protocols(protocols)
+			.variables(variables)
 			.selectConnectors(selectConnectors)
 			.excludeConnectors(excludeConnectors)
 			.includeConnectorTags(includeConnectorTags)
