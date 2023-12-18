@@ -286,9 +286,9 @@
 				<version>1.0.00</version>
 			</dependency>
 			<dependency>
-				<groupId>com.sentrysoftware.patrol.matsya</groupId>
-				<artifactId>module-xflat</artifactId>
-				<version>${matsya.version}</version>
+				<groupId>org.sentrysoftware</groupId>
+				<artifactId>xflat</artifactId>
+				<version>1.0.00-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>com.sentrysoftware.patrol.matsya</groupId>
