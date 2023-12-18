@@ -51,6 +51,7 @@
 		<dependency>
 			<groupId>org.sentrysoftware</groupId>
 			<artifactId>tablejoin</artifactId>
+			<version>1.0.00-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.sentrysoftware</groupId>
