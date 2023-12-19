@@ -1124,45 +1124,51 @@ public class ComputeProcessor implements IComputeProcessor {
 		if (COLUMN_PATTERN.matcher(replacement).matches()) {
 			final int replacementColumnIndex = getColumnIndex(replacement);
 
-			if (!sourceTable.getTable().isEmpty() && replacementColumnIndex < sourceTable.getTable().get(0).size()) {
+			if (!sourceTable.getTable().isEmpty()) {
 				// If strToReplace is like "$n", the strToReplace is actually the content of the column n.
 				if (COLUMN_PATTERN.matcher(strToReplace).matches()) {
 					final int strToReplaceColumnIndex = getColumnIndex(strToReplace);
-					if (strToReplaceColumnIndex < sourceTable.getTable().get(0).size()) {
-						sourceTable
-							.getTable()
-							.forEach(column ->
-								column.set(
+					sourceTable
+						.getTable()
+						.forEach(line -> {
+							if (validateSizeAndIndices(line.size(), columnIndex, replacementColumnIndex, strToReplaceColumnIndex)) {
+								line.set(
 									columnIndex,
-									column
-										.get(columnIndex)
-										.replace(column.get(strToReplaceColumnIndex), column.get(replacementColumnIndex))
-								)
-							);
-					}
+									line.get(columnIndex).replace(line.get(strToReplaceColumnIndex), line.get(replacementColumnIndex))
+								);
+							}
+						});
 				} else {
 					sourceTable
 						.getTable()
-						.forEach(column ->
-							column.set(columnIndex, column.get(columnIndex).replace(strToReplace, column.get(replacementColumnIndex)))
-						);
+						.forEach(line -> {
+							if (validateSizeAndIndices(line.size(), columnIndex, replacementColumnIndex)) {
+								line.set(columnIndex, line.get(columnIndex).replace(strToReplace, line.get(replacementColumnIndex)));
+							}
+						});
 				}
 			}
 		} else {
 			// If strToReplace is like "$n", the strToReplace is actually the content of the column n.
 			if (COLUMN_PATTERN.matcher(strToReplace).matches()) {
 				final int strToReplaceColumnIndex = getColumnIndex(strToReplace);
-				if (!sourceTable.getTable().isEmpty() && strToReplaceColumnIndex < sourceTable.getTable().get(0).size()) {
+				if (!sourceTable.getTable().isEmpty()) {
 					sourceTable
 						.getTable()
-						.forEach(column ->
-							column.set(columnIndex, column.get(columnIndex).replace(column.get(strToReplaceColumnIndex), replacement))
-						);
+						.forEach(line -> {
+							if (validateSizeAndIndices(line.size(), columnIndex, strToReplaceColumnIndex)) {
+								line.set(columnIndex, line.get(columnIndex).replace(line.get(strToReplaceColumnIndex), replacement));
+							}
+						});
 				}
 			} else {
 				sourceTable
 					.getTable()
-					.forEach(column -> column.set(columnIndex, column.get(columnIndex).replace(strToReplace, replacement)));
+					.forEach(line -> {
+						if (validateSizeAndIndices(line.size(), columnIndex)) {
+							line.set(columnIndex, line.get(columnIndex).replace(strToReplace, replacement));
+						}
+					});
 			}
 		}
 
@@ -1170,6 +1176,22 @@ public class ComputeProcessor implements IComputeProcessor {
 			SourceTable.csvToTable(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false), TABLE_SEP)
 		);
 		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
+	}
+
+	/**
+	 * Validates the size and index values of a collection.
+	 *
+	 * @param collectionSize The size of the collection.
+	 * @param indices        The index values to be validated.
+	 * @return {@code true} if all index values are within the bounds of the collection size, {@code false} otherwise.
+	 */
+	boolean validateSizeAndIndices(final int collectionSize, final int... indices) {
+		for (int indexValue : indices) {
+			if (indexValue < 0 || indexValue >= collectionSize) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@Override
@@ -1685,10 +1707,8 @@ public class ComputeProcessor implements IComputeProcessor {
 		final int concatColumnIndex,
 		final AbstractConcat abstractConcat
 	) {
-		final int numberOfColumns = line.size();
-
 		// Avoid the IndexOutOfBoundsException
-		if (concatColumnIndex >= numberOfColumns || columnIndex >= numberOfColumns) {
+		if (!validateSizeAndIndices(line.size(), concatColumnIndex, columnIndex)) {
 			return;
 		}
 
@@ -1715,10 +1735,8 @@ public class ComputeProcessor implements IComputeProcessor {
 	 *                          whether the concatenation should be a left concatenation or a right concatenation.
 	 */
 	private void concatString(final List<String> line, final int columnIndex, final AbstractConcat abstractConcat) {
-		final int numberOfColumns = line.size();
-
 		// Avoid the IndexOutOfBoundsException
-		if (columnIndex >= numberOfColumns) {
+		if (!validateSizeAndIndices(line.size(), columnIndex)) {
 			return;
 		}
 
