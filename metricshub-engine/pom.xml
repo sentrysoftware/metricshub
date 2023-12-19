@@ -106,8 +106,8 @@
 			<artifactId>jflat</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.sentrysoftware.patrol.matsya</groupId>
-			<artifactId>module-xflat</artifactId>
+			<groupId>org.sentrysoftware</groupId>
+			<artifactId>xflat</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.sentrysoftware.patrol.matsya</groupId>
