@@ -3001,4 +3001,20 @@ class ComputeProcessorTest {
 		computeProcessor.process(translate);
 		assertEquals(table, sourceTable.getTable());
 	}
+
+	@Test
+	void testValidateSizeAndIndices() {
+		assertTrue(
+			computeProcessor.validateSizeAndIndices(5, 2, 3, 4),
+			"Expected the method to return true for valid indices."
+		);
+		assertFalse(
+			computeProcessor.validateSizeAndIndices(5, 2, -1, 4),
+			"Expected the method to return false for an invalid index."
+		);
+		assertFalse(
+			computeProcessor.validateSizeAndIndices(5, 2, 3, 5),
+			"Expected the method to return false for an index equal to the collection size."
+		);
+	}
 }
