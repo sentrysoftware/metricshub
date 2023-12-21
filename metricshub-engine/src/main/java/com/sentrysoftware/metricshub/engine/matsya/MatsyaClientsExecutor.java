@@ -12,7 +12,6 @@ import com.sentrysoftware.matsya.awk.AwkException;
 import com.sentrysoftware.matsya.awk.AwkExecutor;
 import com.sentrysoftware.matsya.http.HttpClient;
 import com.sentrysoftware.matsya.http.HttpResponse;
-import com.sentrysoftware.matsya.tablejoin.TableJoin;
 import com.sentrysoftware.matsya.vcenter.VCenterClient;
 import com.sentrysoftware.matsya.wbem2.WbemExecutor;
 import com.sentrysoftware.matsya.wbem2.WbemQueryResult;
@@ -23,8 +22,6 @@ import com.sentrysoftware.matsya.winrm.wql.WinRMWqlExecutor;
 import com.sentrysoftware.matsya.wmi.WmiStringConverter;
 import com.sentrysoftware.matsya.wmi.remotecommand.WinRemoteCommandExecutor;
 import com.sentrysoftware.matsya.wmi.wbem.WmiWbemServices;
-import com.sentrysoftware.matsya.xflat.XFlat;
-import com.sentrysoftware.matsya.xflat.exceptions.XFlatException;
 import com.sentrysoftware.metricshub.engine.common.exception.MatsyaException;
 import com.sentrysoftware.metricshub.engine.common.exception.RetryableException;
 import com.sentrysoftware.metricshub.engine.common.helpers.NetworkHelper;
@@ -75,6 +72,9 @@ import org.sentrysoftware.ipmi.client.IpmiClientConfiguration;
 import org.sentrysoftware.jflat.JFlat;
 import org.sentrysoftware.snmp.client.SnmpClient;
 import org.sentrysoftware.ssh.SshClient;
+import org.sentrysoftware.tablejoin.TableJoin;
+import org.sentrysoftware.xflat.XFlat;
+import org.sentrysoftware.xflat.exceptions.XFlatException;
 
 @Slf4j
 @Data

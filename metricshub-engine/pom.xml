@@ -49,8 +49,9 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>com.sentrysoftware.patrol.matsya</groupId>
-			<artifactId>module-tablejoin</artifactId>
+			<groupId>org.sentrysoftware</groupId>
+			<artifactId>tablejoin</artifactId>
+			<version>1.0.00</version>
 		</dependency>
 		<dependency>
 			<groupId>org.sentrysoftware</groupId>
@@ -105,8 +106,8 @@
 			<artifactId>jflat</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.sentrysoftware.patrol.matsya</groupId>
-			<artifactId>module-xflat</artifactId>
+			<groupId>org.sentrysoftware</groupId>
+			<artifactId>xflat</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.sentrysoftware.patrol.matsya</groupId>
