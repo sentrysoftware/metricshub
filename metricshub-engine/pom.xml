@@ -176,8 +176,8 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.sentrysoftware.patrol.matsya</groupId>
-			<artifactId>module-vcenter</artifactId>
+			<groupId>org.sentrysoftware</groupId>
+			<artifactId>vcenter</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>io.opentelemetry.instrumentation</groupId>
@@ -185,7 +185,6 @@
 			<version>${openTelemetryVersion}</version>
 		</dependency>
 	</dependencies>
-	
 
 	<build>
 
