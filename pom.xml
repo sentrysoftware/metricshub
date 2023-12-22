@@ -243,7 +243,7 @@
 			<dependency>
 				<groupId>org.sentrysoftware</groupId>
 				<artifactId>tablejoin</artifactId>
-				<version>1.0.00-SNAPSHOT</version>
+				<version>1.0.00</version>
 			</dependency>
 			<dependency>
 				<groupId>org.sentrysoftware</groupId>
@@ -266,9 +266,9 @@
 				<version>${matsya.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.sentrysoftware.patrol.matsya</groupId>
-				<artifactId>module-wbemclient2</artifactId>
-				<version>${matsya.version}</version>
+				<groupId>org.sentrysoftware</groupId>
+				<artifactId>wbem</artifactId>
+				<version>1.0.00</version>
 			</dependency>
 			<dependency>
 				<groupId>org.sentrysoftware</groupId>

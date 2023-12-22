@@ -103,7 +103,7 @@ public class ConfigHelper {
 	 * Get the default output directory for logging.<br>
 	 * On Windows, if the LOCALAPPDATA path is not valid then the output directory will be located
 	 * under the install directory.<br>
-	 * On Linux, the output directory is located under the install directory.
+	 * On Linux, the output directory is located under the installation directory.
 	 *
 	 * @return {@link Path} instance
 	 */
@@ -316,7 +316,7 @@ public class ConfigHelper {
 		final String configFilename,
 		final String configFilenameExample
 	) throws IOException {
-		// Get the the configuration file absolute path
+		// Get the configuration file absolute path
 		final Path configPath = getDefaultConfigFilePath(directory, configFilename);
 
 		// If it exists then we are good we can just return the resulting File
@@ -883,7 +883,7 @@ public class ConfigHelper {
 			return new HashSet<>();
 		}
 
-		// Copy the set of configured connectors as we wont perform operations on the original configuration
+		// Copy the set of configured connectors as we won't perform operations on the original configuration
 		final Set<String> configConnectors = resourceConfigConnectors.stream().collect(Collectors.toSet());
 
 		// Get unknown connectors
