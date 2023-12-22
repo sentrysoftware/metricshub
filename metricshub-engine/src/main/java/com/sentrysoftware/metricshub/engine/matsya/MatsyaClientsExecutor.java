@@ -5,7 +5,6 @@ import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static org.springframework.util.Assert.isTrue;
 import static org.springframework.util.Assert.notNull;
 
-import com.sentrysoftware.javax.wbem.WBEMException;
 import com.sentrysoftware.matsya.HttpProtocolEnum;
 import com.sentrysoftware.matsya.WmiHelper;
 import com.sentrysoftware.matsya.awk.AwkException;
@@ -13,8 +12,6 @@ import com.sentrysoftware.matsya.awk.AwkExecutor;
 import com.sentrysoftware.matsya.http.HttpClient;
 import com.sentrysoftware.matsya.http.HttpResponse;
 import com.sentrysoftware.matsya.vcenter.VCenterClient;
-import com.sentrysoftware.matsya.wbem2.WbemExecutor;
-import com.sentrysoftware.matsya.wbem2.WbemQueryResult;
 import com.sentrysoftware.matsya.windows.remote.WindowsRemoteCommandResult;
 import com.sentrysoftware.matsya.winrm.command.WinRMCommandExecutor;
 import com.sentrysoftware.matsya.winrm.service.client.auth.AuthenticationEnum;
@@ -73,6 +70,9 @@ import org.sentrysoftware.jflat.JFlat;
 import org.sentrysoftware.snmp.client.SnmpClient;
 import org.sentrysoftware.ssh.SshClient;
 import org.sentrysoftware.tablejoin.TableJoin;
+import org.sentrysoftware.wbem.client.WbemExecutor;
+import org.sentrysoftware.wbem.client.WbemQueryResult;
+import org.sentrysoftware.wbem.javax.wbem.WBEMException;
 import org.sentrysoftware.xflat.XFlat;
 import org.sentrysoftware.xflat.exceptions.XFlatException;
 

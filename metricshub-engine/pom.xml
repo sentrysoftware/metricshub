@@ -51,15 +51,14 @@
 		<dependency>
 			<groupId>org.sentrysoftware</groupId>
 			<artifactId>tablejoin</artifactId>
-			<version>1.0.00</version>
 		</dependency>
 		<dependency>
 			<groupId>org.sentrysoftware</groupId>
 			<artifactId>snmp</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.sentrysoftware.patrol.matsya</groupId>
-			<artifactId>module-wbemclient2</artifactId>
+			<groupId>org.sentrysoftware</groupId>
+			<artifactId>wbem</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.sentrysoftware.patrol.matsya</groupId>
