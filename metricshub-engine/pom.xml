@@ -61,8 +61,8 @@
 			<artifactId>wbem</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.sentrysoftware.patrol.matsya</groupId>
-			<artifactId>module-winrm</artifactId>
+			<groupId>org.sentrysoftware</groupId>
+			<artifactId>winrm</artifactId>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>

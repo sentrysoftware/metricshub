@@ -5,16 +5,11 @@ import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static org.springframework.util.Assert.isTrue;
 import static org.springframework.util.Assert.notNull;
 
-import com.sentrysoftware.matsya.HttpProtocolEnum;
 import com.sentrysoftware.matsya.WmiHelper;
 import com.sentrysoftware.matsya.awk.AwkException;
 import com.sentrysoftware.matsya.awk.AwkExecutor;
 import com.sentrysoftware.matsya.http.HttpClient;
 import com.sentrysoftware.matsya.http.HttpResponse;
-import com.sentrysoftware.matsya.windows.remote.WindowsRemoteCommandResult;
-import com.sentrysoftware.matsya.winrm.command.WinRMCommandExecutor;
-import com.sentrysoftware.matsya.winrm.service.client.auth.AuthenticationEnum;
-import com.sentrysoftware.matsya.winrm.wql.WinRMWqlExecutor;
 import com.sentrysoftware.matsya.wmi.WmiStringConverter;
 import com.sentrysoftware.matsya.wmi.remotecommand.WinRemoteCommandExecutor;
 import com.sentrysoftware.matsya.wmi.wbem.WmiWbemServices;
@@ -73,6 +68,11 @@ import org.sentrysoftware.vcenter.VCenterClient;
 import org.sentrysoftware.wbem.client.WbemExecutor;
 import org.sentrysoftware.wbem.client.WbemQueryResult;
 import org.sentrysoftware.wbem.javax.wbem.WBEMException;
+import org.sentrysoftware.winrm.HttpProtocolEnum;
+import org.sentrysoftware.winrm.WindowsRemoteCommandResult;
+import org.sentrysoftware.winrm.command.WinRMCommandExecutor;
+import org.sentrysoftware.winrm.service.client.auth.AuthenticationEnum;
+import org.sentrysoftware.winrm.wql.WinRMWqlExecutor;
 import org.sentrysoftware.xflat.XFlat;
 import org.sentrysoftware.xflat.exceptions.XFlatException;
 
