@@ -829,7 +829,7 @@ public class ConfigHelper {
 			// configured connector
 			final ConnectorStore customConnectorStore = new ConnectorStore();
 
-			final Map<String, Connector> originalConnectors = new HashMap<>();
+			final Map<String, Connector> originalConnectors = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 			originalConnectors.putAll(connectorStore.getStore());
 
