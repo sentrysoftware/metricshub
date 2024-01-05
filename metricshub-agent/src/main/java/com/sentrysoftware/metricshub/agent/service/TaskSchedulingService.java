@@ -175,4 +175,12 @@ public class TaskSchedulingService {
 
 		return threadPoolTaskScheduler;
 	}
+
+	/**
+	 * Cancels all the {@link ScheduledFuture} instances and shuts down the task scheduler
+	 */
+	public void stop() {
+		schedules.values().forEach(action -> action.cancel(true));
+		taskScheduler.destroy();
+	}
 }

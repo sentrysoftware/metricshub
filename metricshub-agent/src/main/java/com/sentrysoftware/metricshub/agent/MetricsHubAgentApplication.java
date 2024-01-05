@@ -2,6 +2,10 @@ package com.sentrysoftware.metricshub.agent;
 
 import com.sentrysoftware.metricshub.agent.context.AgentContext;
 import com.sentrysoftware.metricshub.agent.helper.AgentConstants;
+import com.sentrysoftware.metricshub.agent.helper.ConfigHelper;
+import com.sentrysoftware.metricshub.agent.service.OtelCollectorProcessService;
+import com.sentrysoftware.metricshub.agent.service.TaskSchedulingService;
+import com.sentrysoftware.metricshub.agent.service.task.FileWatcherTask;
 import java.util.Locale;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -43,10 +47,42 @@ public class MetricsHubAgentApplication implements Runnable {
 
 			// Start the Scheduler
 			agentContext.getTaskSchedulingService().start();
+
+			FileWatcherTask
+				.builder()
+				.file(agentContext.getConfigFile())
+				.filter(event ->
+					event.context() != null && agentContext.getConfigFile().getName().equals(event.context().toString())
+				)
+				.checksum(ConfigHelper.calculateMD5Checksum(agentContext.getConfigFile()))
+				.await(500)
+				.onChange(() -> resetContext(agentContext, alternateConfigFile))
+				.build()
+				.start();
 		} catch (Exception e) {
 			configureGlobalErrorLogger();
 			log.error("Failed to start MetricsHub Agent.", e);
 			throw new IllegalStateException("Error dectected during MetricsHub agent startup.", e);
+		}
+	}
+
+	/**
+	 * Resets the agent context by restarting {@link TaskSchedulingService} and {@link OtelCollectorProcessService}:
+	 * @param agentContext The agent context
+	 * @param alternateConfigFile Alternation configuration file passed by the user
+	 */
+	private synchronized void resetContext(final AgentContext agentContext, String alternateConfigFile) {
+		try {
+			agentContext.getTaskSchedulingService().stop();
+			agentContext.getOtelCollectorProcessService().stop();
+
+			agentContext.build(alternateConfigFile, false);
+			agentContext.getOtelCollectorProcessService().launch();
+			agentContext.getTaskSchedulingService().start();
+		} catch (Exception e) {
+			configureGlobalErrorLogger();
+			log.error("Failed to start MetricsHub Agent.", e);
+			throw new IllegalStateException("Error detected during MetricsHub agent startup.", e);
 		}
 	}
 
