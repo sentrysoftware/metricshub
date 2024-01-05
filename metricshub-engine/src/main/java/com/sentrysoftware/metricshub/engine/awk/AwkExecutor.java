@@ -4,9 +4,13 @@ import java.text.ParseException;
 import java.util.concurrent.ConcurrentHashMap;
 import org.sentrysoftware.jawk.intermediate.AwkTuples;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 /**
  * Execute AWK Scripts
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AwkExecutor {
 
 	/**
@@ -14,22 +18,33 @@ public class AwkExecutor {
 	 */
 	static ConcurrentHashMap<String, AwkTuples> awkCodeMap = new ConcurrentHashMap<>();
 
+	/**
+	 * Execute the given <code>awkScript</code> on the <code>awkInput</code>
+	 *
+	 * @param awkScript The AWK script we wish to process and interpret
+	 * @param awkInput  The input we wish to modify via the AWK script
+	 * @return String value
+	 * @throws AwkException
+	 */
 	public static String executeAwk(final String awkScript, final String awkInput) throws AwkException {
 		// We're using our ConcurrentHashMap to cache the intermediate
 		// code, so we don't "compile" it every time.
 		// This saves a lot of CPU.
-		final AwkTuples tuples = awkCodeMap.computeIfAbsent(
-			awkScript,
-			code -> {
-				try {
-					return Awk.getIntermediateCode(code);
-				} catch (ParseException e) {
-					// Through a RuntimeException so the e.getMessage() can be passed
-					// through the call stack
-					throw new RuntimeException(e.getMessage());
-				}
-			}
-		);
+		final AwkTuples tuples;
+		try  {
+			tuples = awkCodeMap.computeIfAbsent(awkScript, code -> {
+					try {
+
+						return Awk.getIntermediateCode(code);
+					} catch (ParseException e) {
+						// Throw a RuntimeException so the e.getMessage() can be passed
+						// through the call stack
+						throw new RuntimeException(e.getMessage());
+					}
+				});
+		} catch (Exception e) {
+			throw new AwkException("Failed to get intermediate code.", e);
+		}
 
 		if (tuples == null) {
 			throw new AwkException("Failed to interpret the AWK script below:\n" + awkScript);
@@ -38,9 +53,7 @@ public class AwkExecutor {
 		final String result = Awk.interpret(awkInput, tuples);
 
 		if (result == null) {
-			throw new AwkException(
-				"null result for the script below on the specified input:\n" + awkScript + "\n\nInput:\n" + awkInput
-			);
+			throw new AwkException("null result for the script below on the specified input:\n" + awkScript + "\n\nInput:\n" + awkInput);
 		}
 
 		return result;
