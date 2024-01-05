@@ -186,6 +186,26 @@ class ConfigHelperTest {
 	}
 
 	@Test
+	void testBuildNewConnectorStore() {
+		// Create a custom connectors Map
+		final Map<String, Connector> customConnectors = Map.of("custom-connector-1", new Connector());
+
+		// Initialize the original connector store
+		final ConnectorStore connectorStore = new ConnectorStore(Path.of("src/test/resources/storeMerge"));
+
+		// Call buildNewConnectorStore
+		final ConnectorStore newConnectorStore = ConfigHelper.buildNewConnectorStore(customConnectors, connectorStore);
+
+		// Retrieve the new connector store connectors
+		final Map<String, Connector> newStoreConnectors = newConnectorStore.getStore();
+
+		// Check that the merge of custom and standard connectors was successfully executed
+		assertEquals(2, newStoreConnectors.size());
+		assertTrue(newStoreConnectors.containsKey("custom-connector-1"));
+		assertTrue(newStoreConnectors.containsKey("noTemplateVariable"));
+	}
+
+	@Test
 	void testValidateSnmpInfo() {
 		final char[] community = "public".toCharArray();
 		final char[] emptyCommunity = new char[] {};

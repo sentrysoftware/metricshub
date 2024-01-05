@@ -38,6 +38,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.sentrysoftware.javax.wbem.WBEMException;
+import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
 import com.sentrysoftware.metricshub.engine.common.exception.MatsyaException;
 import com.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
@@ -53,6 +54,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.sentrysoftware.wbem.javax.wbem.WBEMException;
 import org.sentrysoftware.wmi.exceptions.WmiComException;
 
 @ExtendWith(MockitoExtension.class)

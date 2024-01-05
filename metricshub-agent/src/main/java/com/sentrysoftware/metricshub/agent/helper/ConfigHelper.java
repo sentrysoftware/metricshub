@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.sentrysoftware.metricshub.agent.config.AgentConfig;
 import com.sentrysoftware.metricshub.agent.config.AlertingSystemConfig;
+import com.sentrysoftware.metricshub.agent.config.ConnectorVariables;
 import com.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import com.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
 import com.sentrysoftware.metricshub.agent.config.protocols.AbstractProtocolConfig;
@@ -61,6 +62,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -103,7 +105,7 @@ public class ConfigHelper {
 	 * Get the default output directory for logging.<br>
 	 * On Windows, if the LOCALAPPDATA path is not valid then the output directory will be located
 	 * under the install directory.<br>
-	 * On Linux, the output directory is located under the install directory.
+	 * On Linux, the output directory is located under the installation directory.
 	 *
 	 * @return {@link Path} instance
 	 */
@@ -316,7 +318,7 @@ public class ConfigHelper {
 		final String configFilename,
 		final String configFilenameExample
 	) throws IOException {
-		// Get the the configuration file absolute path
+		// Get the configuration file absolute path
 		final Path configPath = getDefaultConfigFilePath(directory, configFilename);
 
 		// If it exists then we are good we can just return the resulting File
@@ -716,10 +718,27 @@ public class ConfigHelper {
 				resourceKey
 			);
 
-			final ConnectorStore telemetryManagerConnectorStore = createCustomConnectorStoreIfConfigured(
+			ConnectorStore telemetryManagerConnectorStore = createCustomConnectorStoreIfConfigured(
 				resourceConfig.getConnector(),
 				connectorStore
 			);
+
+			// Retrieve connectors variables map from the resource configuration
+			final Map<String, ConnectorVariables> connectorVariablesMap = resourceConfig.getVariables();
+
+			// If connectors variables exist then merge the existing connector store with a new one containing custom connectors
+			if (connectorVariablesMap != null && !connectorVariablesMap.isEmpty()) {
+				// Call ConnectorTemplateLibraryParser and parse the custom connectors
+				final ConnectorTemplateLibraryParser connectorTemplateLibraryParser = new ConnectorTemplateLibraryParser();
+
+				final Map<String, Connector> customConnectors = connectorTemplateLibraryParser.parse(
+					ConfigHelper.getSubDirectory("connectors", false),
+					connectorVariablesMap
+				);
+
+				// Overwrite telemetryManagerConnectorStore
+				telemetryManagerConnectorStore = buildNewConnectorStore(customConnectors, telemetryManagerConnectorStore);
+			}
 
 			resourceGroupTelemetryManagers.putIfAbsent(
 				resourceKey,
@@ -739,6 +758,35 @@ public class ConfigHelper {
 				e.getMessage()
 			);
 		}
+	}
+
+	/**
+	 * Builds a new connector store by merging the existing (standard) connectors with the custom connectors (connectors that contain template variables)
+	 * @param customConnectors Map<String, Connector> Connectors containing template variables
+	 * @param telemetryManagerConnectorStore the connector store before the merge with custom connectors
+	 * @return {@link ConnectorStore} instance
+	 */
+	protected static ConnectorStore buildNewConnectorStore(
+		final Map<String, Connector> customConnectors,
+		final ConnectorStore telemetryManagerConnectorStore
+	) {
+		// Initialize a new connector store that will contain both standard and custom connectors
+		final ConnectorStore finalConnectorStore = new ConnectorStore();
+
+		// Initialize a new connectors map that will contain both standard and custom connectors
+		final Map<String, Connector> newConnectors = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+		// Add the original connector store connectors
+		newConnectors.putAll(telemetryManagerConnectorStore.getStore());
+
+		// Add custom connectors
+		newConnectors.putAll(customConnectors);
+
+		// Populate the connector store with the existing connectors
+		finalConnectorStore.setStore(newConnectors);
+
+		// Return the custom ConnectorStore
+		return finalConnectorStore;
 	}
 
 	/**
@@ -781,7 +829,7 @@ public class ConfigHelper {
 			// configured connector
 			final ConnectorStore customConnectorStore = new ConnectorStore();
 
-			final Map<String, Connector> originalConnectors = new HashMap<>();
+			final Map<String, Connector> originalConnectors = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 			originalConnectors.putAll(connectorStore.getStore());
 
@@ -883,7 +931,7 @@ public class ConfigHelper {
 			return new HashSet<>();
 		}
 
-		// Copy the set of configured connectors as we wont perform operations on the original configuration
+		// Copy the set of configured connectors as we won't perform operations on the original configuration
 		final Set<String> configConnectors = resourceConfigConnectors.stream().collect(Collectors.toSet());
 
 		// Get unknown connectors

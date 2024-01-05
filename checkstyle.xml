@@ -44,7 +44,7 @@
       <property name="lineWrappingIndentation" value="8"/>
       <property name="arrayInitIndent" value="8"/>
     </module>
-  
+
     <!-- Checks for Naming Conventions.                  -->
     <!-- See http://checkstyle.sf.net/config_naming.html -->
     <module name="ConstantName"/>

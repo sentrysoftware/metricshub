@@ -91,6 +91,30 @@ public class ConnectorParser {
 
 	/**
 	 * Creates a new {@link ConnectorParser} with extends and constants
+	 * {@link NodeProcessor}
+	 *
+	 * @param connectorDirectory the connectors yaml files directory
+	 * @return new instance of {@link ConnectorParser}
+	 */
+	public static ConnectorParser withNodeProcessor(
+		final Path connectorDirectory,
+		final Map<String, String> connectorVariables
+	) {
+		final ObjectMapper mapper = JsonHelper.buildYamlMapper();
+
+		PostDeserializeHelper.addPostDeserializeSupport(mapper);
+
+		return ConnectorParser
+			.builder()
+			.deserializer(new ConnectorDeserializer(mapper))
+			.processor(
+				NodeProcessorHelper.withExtendsAndTemplateVariableProcessor(connectorDirectory, mapper, connectorVariables)
+			)
+			.build();
+	}
+
+	/**
+	 * Creates a new {@link ConnectorParser} with extends and constants
 	 * {@link NodeProcessor} and with a {@link ConnectorUpdateChain}
 	 *
 	 * @param connectorDirectory
@@ -98,6 +122,28 @@ public class ConnectorParser {
 	 */
 	public static ConnectorParser withNodeProcessorAndUpdateChain(final Path connectorDirectory) {
 		final ConnectorParser connectorParser = withNodeProcessor(connectorDirectory);
+
+		// Create the update objects
+		final ConnectorUpdateChain updateChain = createUpdateChain();
+
+		// Set the first update chain
+		connectorParser.setConnectorUpdateChain(updateChain);
+
+		return connectorParser;
+	}
+
+	/**
+	 * Creates a new {@link ConnectorParser} with extends and constants
+	 * {@link NodeProcessor} and with a {@link ConnectorUpdateChain}
+	 *
+	 * @param connectorDirectory the connectors yaml files directory
+	 * @return new instance of {@link ConnectorParser}
+	 */
+	public static ConnectorParser withNodeProcessorAndUpdateChain(
+		final Path connectorDirectory,
+		final Map<String, String> connectorVariables
+	) {
+		final ConnectorParser connectorParser = withNodeProcessor(connectorDirectory, connectorVariables);
 
 		// Create the update objects
 		final ConnectorUpdateChain updateChain = createUpdateChain();
