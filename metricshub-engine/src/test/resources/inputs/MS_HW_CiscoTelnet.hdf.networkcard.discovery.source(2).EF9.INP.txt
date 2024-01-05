@@ -1,0 +1,3 @@
+show interface detail-counters | grep '\(fc[0-9]\)\|\(waits due to lack of transmit credits\)'
+                             ^
+% invalid interface detected at '^' marker.

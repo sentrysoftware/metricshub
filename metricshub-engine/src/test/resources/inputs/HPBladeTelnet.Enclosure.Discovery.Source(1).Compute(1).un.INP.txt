@@ -1,0 +1,16 @@
+Result:
+show enclosure info
+
+Enclosure Information:
+	Enclosure Name: fermat-oa
+	Enclosure Type: BladeSystem c3000 Enclosure
+	Part Number: 437502-B21
+	Serial Number: CZC8171W57
+	UUID: 09CZC8171W57
+	Asset Tag: 
+	Midplane Spare Part Number: 441829-001
+	Solutions ID: 0000000000000000
+	Power Distribution Unit:
+		[No PDU is present on c3000 enclosures]
+	Onboard Administrator Tray Information:
+		[No Tray Information is present on c3000 enclosures]

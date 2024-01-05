@@ -1,0 +1,1 @@
+MSHW;1;1-0;online;Controller 1, Enclosure 0, Slot 2;MAXTOR;STM3160813AS;MC1J;;149.05;Channel )       : 0, Device 2(2:0);

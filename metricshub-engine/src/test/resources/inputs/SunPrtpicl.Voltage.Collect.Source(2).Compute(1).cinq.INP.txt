@@ -1,0 +1,48 @@
+ps0_p_pwr (voltage-indicator, 1ae00000b85)
+  :_fru_parent	 (1ae0000090fH) 
+  :Label	 P_PWR 
+  :Condition	 okay 
+  :_class	 voltage-indicator 
+  :name	 ps0_p_pwr 
+  ps0_ff_pok (voltage-indicator, 1ae00000b8a)
+  :_fru_parent	 (1ae0000090fH) 
+  :Label	 FF_POK 
+  :Condition	 okay 
+  :_class	 voltage-indicator 
+  :name	 ps0_ff_pok 
+  ps0_ff_uv (voltage-indicator, 1ae00000b8f)
+  :_fru_parent	 (1ae0000090fH) 
+  :Label	 FF_UV 
+  :Condition	 okay 
+  :_class	 voltage-indicator 
+  :name	 ps0_ff_uv 
+  ps0_ff_ov (voltage-indicator, 1ae00000b94)
+  :_fru_parent	 (1ae0000090fH) 
+  :Label	 FF_OV 
+  :Condition	 okay 
+  :_class	 voltage-indicator 
+  :name	 ps0_ff_ov 
+  ps1_p_pwr (voltage-indicator, 1ae00000b99)
+  :_fru_parent	 (1ae00000912H) 
+  :Label	 P_PWR 
+  :Condition	 okay 
+  :_class	 voltage-indicator 
+  :name	 ps1_p_pwr 
+  ps1_ff_pok (voltage-indicator, 1ae00000b9e)
+  :_fru_parent	 (1ae00000912H) 
+  :Label	 FF_POK 
+  :Condition	 okay 
+  :_class	 voltage-indicator 
+  :name	 ps1_ff_pok 
+  ps1_ff_uv (voltage-indicator, 1ae00000ba3)
+  :_fru_parent	 (1ae00000912H) 
+  :Label	 FF_UV 
+  :Condition	 okay 
+  :_class	 voltage-indicator 
+  :name	 ps1_ff_uv 
+  ps1_ff_ov (voltage-indicator, 1ae00000ba8)
+  :_fru_parent	 (1ae00000912H) 
+  :Label	 FF_OV 
+  :Condition	 okay 
+  :_class	 voltage-indicator 
+  :name	 ps1_ff_ov

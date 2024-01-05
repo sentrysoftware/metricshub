@@ -1,0 +1,1053 @@
+Result:
+show /SYS -d properties -l all 
+
+  /SYS
+    Properties:
+	type = Host System
+	chassis_name = SUN BLADE 6000 MODULAR SYSTEM
+	chassis_part_number = 541-1983-07
+	chassis_serial_number = 1005LCB-0850YM09GX
+	chassis_manufacturer = SUN MICROSYSTEMS
+	product_name = SUN BLADE X6220 SERVER MODULE
+	product_part_number = 540-7612-01
+	product_serial_number = 1244CCR-090300009E
+	product_version = (none)
+	product_manufacturer = SUN MICROSYSTEMS
+	fru_name = ASSY, BD, GEMINI,X6220
+	fru_manufacturer = SUN MICROSYSTEMS
+	fru_part_number = 501-7324-12
+	fru_serial_number = 1005LCB-08529G0A7J
+	prepare_to_remove_status = NotReady
+	prepare_to_remove_action = (none)
+	return_to_service_action = (none)
+	power_state = On
+
+  /SYS/SP
+    Properties:
+	type = Service Processor
+	fru_name = ASSY, SERVICE PROCESSOR, X6220
+	fru_part_number = 501-7986-03
+	fru_serial_number = 1005LCB-0817ZN04VT
+
+
+  /SYS/SP/NET0
+    Properties:
+	type = Network Interface
+	fru_name = FAST ETHERNET CONTROLLER
+	fru_manufacturer = MOTOROLA
+	fru_part_number = MPC8248 FCC
+	fru_serial_number = 00:14:4F:E6:4F:F1
+
+  /SYS/OK2RM
+    Properties:
+	type = Indicator
+	value = Off
+
+  /SYS/LOCATE
+    Properties:
+	type = Indicator
+	value = Off
+
+  /SYS/POWER
+    Properties:
+	type = Indicator
+	value = On
+
+  /SYS/SERVICE
+    Properties:
+	type = Indicator
+	value = Off
+
+
+  /SYS/SLOTID
+    Properties:
+	type = OEM
+	class = Discrete Sensor
+	value = 1
+
+
+  /SYS/MB
+    Properties:
+	type = Motherboard
+	chassis_name = SUN BLADE 6000 MODULAR SYSTEM
+	chassis_part_number = 541-1983-07
+	chassis_serial_number = 1005LCB-0850YM09GX
+	chassis_manufacturer = SUN MICROSYSTEMS
+	product_name = SUN BLADE X6220 SERVER MODULE
+	product_part_number = 540-7612-01
+	product_serial_number = 1244CCR-090300009E
+	product_version = (none)
+	product_manufacturer = SUN MICROSYSTEMS
+	fru_name = ASSY, BD, GEMINI,X6220
+	fru_part_number = 501-7324-12
+	fru_serial_number = 1005LCB-08529G0A7J
+
+
+  /SYS/MB/V_BAT
+    Properties:
+	type = Voltage
+	class = Threshold Sensor
+	value = 2.842 Volts
+	upper_nonrecov_threshold = 3.388 Volts
+	upper_critical_threshold = 3.290 Volts
+	upper_noncritical_threshold = 3.192 Volts
+	lower_noncritical_threshold = 2.688 Volts
+	lower_critical_threshold = 2.590 Volts
+	lower_nonrecov_threshold = 2.394 Volts
+
+
+  /SYS/MB/V_+3V3AUX
+    Properties:
+	type = Voltage
+	class = Threshold Sensor
+	value = 3.247 Volts
+	upper_nonrecov_threshold = 3.995 Volts
+	upper_critical_threshold = 3.791 Volts
+	upper_noncritical_threshold = 3.587 Volts
+	lower_noncritical_threshold = 2.992 Volts
+	lower_critical_threshold = 2.788 Volts
+	lower_nonrecov_threshold = 2.584 Volts
+
+
+  /SYS/MB/V_+3V3
+    Properties:
+	type = Voltage
+	class = Threshold Sensor
+	value = 3.328 Volts
+	upper_nonrecov_threshold = 3.978 Volts
+	upper_critical_threshold = 3.796 Volts
+	upper_noncritical_threshold = 3.588 Volts
+	lower_noncritical_threshold = 2.990 Volts
+	lower_critical_threshold = 2.782 Volts
+	lower_nonrecov_threshold = 2.600 Volts
+
+
+  /SYS/MB/V_+5V
+    Properties:
+	type = Voltage
+	class = Threshold Sensor
+	value = 5.018 Volts
+	upper_nonrecov_threshold = 6.500 Volts
+	upper_critical_threshold = 5.980 Volts
+	upper_noncritical_threshold = 5.486 Volts
+	lower_noncritical_threshold = 4.498 Volts
+	lower_critical_threshold = 3.978 Volts
+	lower_nonrecov_threshold = 3.484 Volts
+
+
+  /SYS/MB/V_+12V
+    Properties:
+	type = Voltage
+	class = Threshold Sensor
+	value = 12.285 Volts
+	upper_nonrecov_threshold = 14.994 Volts
+	upper_critical_threshold = 13.986 Volts
+	upper_noncritical_threshold = 12.978 Volts
+	lower_noncritical_threshold = 10.962 Volts
+	lower_critical_threshold = 9.954 Volts
+	lower_nonrecov_threshold = 8.946 Volts
+
+
+  /SYS/MB/V_+2V5
+    Properties:
+	type = Voltage
+	class = Threshold Sensor
+	value = 2.470 Volts
+	upper_nonrecov_threshold = 2.990 Volts
+	upper_critical_threshold = 2.899 Volts
+	upper_noncritical_threshold = 2.795 Volts
+	lower_noncritical_threshold = 2.197 Volts
+	lower_critical_threshold = 1.989 Volts
+	lower_nonrecov_threshold = 1.794 Volts
+
+
+  /SYS/MB/V_+1V5
+    Properties:
+	type = Voltage
+	class = Threshold Sensor
+	value = 1.470 Volts
+	upper_nonrecov_threshold = 2.198 Volts
+	upper_critical_threshold = 1.988 Volts
+	upper_noncritical_threshold = 1.792 Volts
+	lower_noncritical_threshold = 1.190 Volts
+	lower_critical_threshold = 0.994 Volts
+	lower_nonrecov_threshold = 0.798 Volts
+
+
+  /SYS/MB/V_+1V2
+    Properties:
+	type = Voltage
+	class = Threshold Sensor
+	value = 1.196 Volts
+	upper_nonrecov_threshold = 1.898 Volts
+	upper_critical_threshold = 1.690 Volts
+	upper_noncritical_threshold = 1.495 Volts
+	lower_noncritical_threshold = 0.897 Volts
+	lower_critical_threshold = 0.689 Volts
+	lower_nonrecov_threshold = 0.494 Volts
+
+
+  /SYS/MB/T_AMB0
+    Properties:
+	type = Temperature
+	class = Threshold Sensor
+	value = 29.000 degree C
+	upper_nonrecov_threshold = 100.000 degree C
+	upper_critical_threshold = 90.000 degree C
+	upper_noncritical_threshold = 80.000 degree C
+	lower_noncritical_threshold = N/A
+	lower_critical_threshold = N/A
+	lower_nonrecov_threshold = N/A
+
+
+  /SYS/MB/T_AMB1
+    Properties:
+	type = Temperature
+	class = Threshold Sensor
+	value = 28.000 degree C
+	upper_nonrecov_threshold = 100.000 degree C
+	upper_critical_threshold = 90.000 degree C
+	upper_noncritical_threshold = 80.000 degree C
+	lower_noncritical_threshold = N/A
+	lower_critical_threshold = N/A
+	lower_nonrecov_threshold = N/A
+
+
+  /SYS/MB/T_AMB2
+    Properties:
+	type = Temperature
+	class = Threshold Sensor
+	value = 27.000 degree C
+	upper_nonrecov_threshold = 100.000 degree C
+	upper_critical_threshold = 90.000 degree C
+	upper_noncritical_threshold = 80.000 degree C
+	lower_noncritical_threshold = N/A
+	lower_critical_threshold = N/A
+	lower_nonrecov_threshold = N/A
+
+
+  /SYS/MB/NET0
+    Properties:
+	type = Network Interface
+	fru_name = GIGABIT ETHERNET CONTROLLER
+	fru_manufacturer = NVIDIA
+	fru_part_number = CK804
+	fru_serial_number = 00:14:4F:9E:96:CC
+
+
+  /SYS/MB/NET1
+    Properties:
+	type = Network Interface
+	fru_name = GIGABIT ETHERNET CONTROLLER
+	fru_manufacturer = NVIDIA
+	fru_part_number = IO4
+	fru_serial_number = 00:14:4F:9E:96:CD
+
+
+  /SYS/MB/BIOS
+    Properties:
+	type = BIOS
+	fru_name = SYSTEM BIOS
+	fru_manufacturer = AMERICAN MEGATRENDS
+	fru_version = 0ABJT110
+	fru_part_number = AMIBIOS8
+
+
+  /SYS/MB/P0
+    Properties:
+	type = Host Processor
+	fru_name = DUAL-CORE AMD OPTERON(TM) PROCESSOR 2218
+	fru_manufacturer = ADVANCED MICRO DEVICES
+	fru_version = 03
+	fru_part_number = 0F41
+
+  /SYS/MB/P0/SERVICE
+    Properties:
+	type = Indicator
+	value = Off
+
+
+  /SYS/MB/P0/T_CORE
+    Properties:
+	type = Temperature
+	class = Threshold Sensor
+	value = 20.000 degree C
+	upper_nonrecov_threshold = 75.000 degree C
+	upper_critical_threshold = 60.000 degree C
+	upper_noncritical_threshold = 55.000 degree C
+	lower_noncritical_threshold = N/A
+	lower_critical_threshold = N/A
+	lower_nonrecov_threshold = N/A
+
+
+  /SYS/MB/P0/V_VDD
+    Properties:
+	type = Voltage
+	class = Threshold Sensor
+	value = 1.302 Volts
+	upper_nonrecov_threshold = 2.100 Volts
+	upper_critical_threshold = 1.890 Volts
+	upper_noncritical_threshold = 1.694 Volts
+	lower_noncritical_threshold = 0.350 Volts
+	lower_critical_threshold = 0.294 Volts
+	lower_nonrecov_threshold = 0.238 Volts
+
+
+  /SYS/MB/P0/V_VDDIO
+    Properties:
+	type = Voltage
+	class = Threshold Sensor
+	value = 1.820 Volts
+	upper_nonrecov_threshold = 2.300 Volts
+	upper_critical_threshold = 2.200 Volts
+	upper_noncritical_threshold = 2.100 Volts
+	lower_noncritical_threshold = 1.500 Volts
+	lower_critical_threshold = 1.400 Volts
+	lower_nonrecov_threshold = 1.300 Volts
+
+
+  /SYS/MB/P0/V_VTT
+    Properties:
+	type = Voltage
+	class = Threshold Sensor
+	value = 0.910 Volts
+	upper_nonrecov_threshold = 1.200 Volts
+	upper_critical_threshold = 1.100 Volts
+	upper_noncritical_threshold = 1.000 Volts
+	lower_noncritical_threshold = 0.800 Volts
+	lower_critical_threshold = 0.700 Volts
+	lower_nonrecov_threshold = 0.600 Volts
+
+
+  /SYS/MB/P0/D0
+    Properties:
+	type = DIMM
+
+
+  /SYS/MB/P0/D0/SERVICE
+    Properties:
+	type = Indicator
+	value = Off
+
+
+  /SYS/MB/P0/D1
+    Properties:
+	type = DIMM
+
+  /SYS/MB/P0/D1/SERVICE
+    Properties:
+	type = Indicator
+	value = Off
+
+
+  /SYS/MB/P0/D2
+    Properties:
+	type = DIMM
+
+
+  /SYS/MB/P0/D2/SERVICE
+    Properties:
+	type = Indicator
+	value = Off
+
+  /SYS/MB/P0/D3
+    Properties:
+	type = DIMM
+
+  /SYS/MB/P0/D3/SERVICE
+    Properties:
+	type = Indicator
+	value = Off
+
+  /SYS/MB/P0/D4
+    Properties:
+	type = DIMM
+
+  /SYS/MB/P0/D4/SERVICE
+    Properties:
+	type = Indicator
+	value = Off
+
+  /SYS/MB/P0/D5
+    Properties:
+	type = DIMM
+
+  /SYS/MB/P0/D5/SERVICE
+    Properties:
+	type = Indicator
+	value = Off
+
+
+  /SYS/MB/P0/D6
+    Properties:
+	type = DIMM
+	fru_name = 1024MB DDR-II 666 (PC2 5300) ADDRESS/COMMAND PARITY/ECC
+	fru_manufacturer = SAMSUNG
+	fru_version = 4145
+	fru_part_number = M3 93T2950EZA-CE6 
+	fru_serial_number = 47398B2A
+
+  /SYS/MB/P0/D6/SERVICE
+    Properties:
+	type = Indicator
+	value = Off
+
+
+  /SYS/MB/P0/D7
+    Properties:
+	type = DIMM
+	fru_name = 1024MB DDR-II 666 (PC2 5300) ADDRESS/COMMAND PARITY/ECC
+	fru_manufacturer = SAMSUNG
+	fru_version = 4145
+	fru_part_number = M3 93T2950EZA-CE6 
+	fru_serial_number = 4739892F
+
+  /SYS/MB/P0/D7/SERVICE
+    Properties:
+	type = Indicator
+	value = Off
+
+
+  /SYS/MB/P1
+    Properties:
+	type = Host Processor
+	fru_name = DUAL-CORE AMD OPTERON(TM) PROCESSOR 2218
+	fru_manufacturer = ADVANCED MICRO DEVICES
+	fru_version = 03
+	fru_part_number = 0F41
+
+  /SYS/MB/P1/SERVICE
+    Properties:
+	type = Indicator
+	value = Off
+
+
+  /SYS/MB/P1/T_CORE
+    Properties:
+	type = Temperature
+	class = Threshold Sensor
+	value = 20.000 degree C
+	upper_nonrecov_threshold = 75.000 degree C
+	upper_critical_threshold = 60.000 degree C
+	upper_noncritical_threshold = 55.000 degree C
+	lower_noncritical_threshold = N/A
+	lower_critical_threshold = N/A
+	lower_nonrecov_threshold = N/A
+
+
+  /SYS/MB/P1/V_VDD
+    Properties:
+	type = Voltage
+	class = Threshold Sensor
+	value = 1.302 Volts
+	upper_nonrecov_threshold = 2.100 Volts
+	upper_critical_threshold = 1.890 Volts
+	upper_noncritical_threshold = 1.694 Volts
+	lower_noncritical_threshold = 0.350 Volts
+	lower_critical_threshold = 0.294 Volts
+	lower_nonrecov_threshold = 0.238 Volts
+
+
+  /SYS/MB/P1/V_VDDIO
+    Properties:
+	type = Voltage
+	class = Threshold Sensor
+	value = 1.830 Volts
+	upper_nonrecov_threshold = 2.300 Volts
+	upper_critical_threshold = 2.200 Volts
+	upper_noncritical_threshold = 2.100 Volts
+	lower_noncritical_threshold = 1.500 Volts
+	lower_critical_threshold = 1.400 Volts
+	lower_nonrecov_threshold = 1.300 Volts
+
+
+  /SYS/MB/P1/V_VTT
+    Properties:
+	type = Voltage
+	class = Threshold Sensor
+	value = 0.910 Volts
+	upper_nonrecov_threshold = 1.200 Volts
+	upper_critical_threshold = 1.100 Volts
+	upper_noncritical_threshold = 1.000 Volts
+	lower_noncritical_threshold = 0.800 Volts
+	lower_critical_threshold = 0.700 Volts
+	lower_nonrecov_threshold = 0.600 Volts
+
+
+  /SYS/MB/P1/D0
+    Properties:
+	type = DIMM
+
+  /SYS/MB/P1/D0/SERVICE
+    Properties:
+	type = Indicator
+	value = Off
+
+  /SYS/MB/P1/D1
+    Properties:
+	type = DIMM
+
+  /SYS/MB/P1/D1/SERVICE
+    Properties:
+	type = Indicator
+	value = Off
+
+  /SYS/MB/P1/D2
+    Properties:
+	type = DIMM
+
+  /SYS/MB/P1/D2/SERVICE
+    Properties:
+	type = Indicator
+	value = Off
+
+  /SYS/MB/P1/D3
+    Properties:
+	type = DIMM
+
+
+  /SYS/MB/P1/D3/SERVICE
+    Properties:
+	type = Indicator
+	value = Off
+
+
+  /SYS/MB/P1/D4
+    Properties:
+	type = DIMM
+
+
+  /SYS/MB/P1/D4/SERVICE
+    Properties:
+	type = Indicator
+	value = Off
+
+
+  /SYS/MB/P1/D5
+    Properties:
+	type = DIMM
+
+
+  /SYS/MB/P1/D5/SERVICE
+    Properties:
+	type = Indicator
+	value = Off
+
+
+  /SYS/MB/P1/D6
+    Properties:
+	type = DIMM
+	fru_name = 1024MB DDR-II 666 (PC2 5300) ADDRESS/COMMAND PARITY/ECC
+	fru_manufacturer = SAMSUNG
+	fru_version = 4145
+	fru_part_number = M3 93T2950EZA-CE6 
+	fru_serial_number = 47398BF0
+
+
+  /SYS/MB/P1/D6/SERVICE
+    Properties:
+	type = Indicator
+	value = Off
+
+
+  /SYS/MB/P1/D7
+    Properties:
+	type = DIMM
+	fru_name = 1024MB DDR-II 666 (PC2 5300) ADDRESS/COMMAND PARITY/ECC
+	fru_manufacturer = SAMSUNG
+	fru_version = 4145
+	fru_part_number = M3 93T2950EZA-CE6 
+	fru_serial_number = 47398B2E
+
+
+  /SYS/MB/P1/D7/SERVICE
+    Properties:
+	type = Indicator
+	value = Off
+
+
+  /SYS/MIDPLANE
+    Properties:
+	type = Chassis
+	product_name = SUN BLADE 6000 MODULAR SYSTEM
+	product_part_number = 541-1983-07
+	product_serial_number = 1005LCB-0850YM09GX
+	product_version = (none)
+	product_manufacturer = SUN MICROSYSTEMS
+	fru_name = ASY,BD,MIDPLANE,6000
+	fru_part_number = 501-7376-03
+	fru_serial_number = 1005LCB-0850YB093W
+
+
+  /SYS/HDD0
+    Properties:
+	type = Hard Disk
+
+
+  /SYS/HDD0/SERVICE
+    Properties:
+	type = Indicator
+	value = Off
+
+
+  /SYS/HDD0/OK2RM
+    Properties:
+	type = Indicator
+	value = Off
+
+
+  /SYS/HDD0/FAIL
+    Properties:
+	type = Drive Slot
+	class = Discrete Sensor
+	value = Predictive Failure Deasserted
+
+
+  /SYS/HDD0/STATE
+    Properties:
+	type = Drive Slot
+	class = Discrete Sensor
+	value = Drive: [Present]
+
+  /SYS/HDD1
+    Properties:
+	type = Hard Disk
+
+  /SYS/HDD1/SERVICE
+    Properties:
+	type = Indicator
+	value = Off
+
+  /SYS/HDD1/OK2RM
+    Properties:
+	type = Indicator
+	value = Off
+
+
+  /SYS/HDD1/FAIL
+    Properties:
+	type = Drive Slot
+	class = Discrete Sensor
+	value = Predictive Failure Deasserted
+
+
+  /SYS/HDD1/STATE
+    Properties:
+	type = Drive Slot
+	class = Discrete Sensor
+	value = Drive: [Present]
+
+  /SYS/HDD2
+    Properties:
+	type = Hard Disk
+
+  /SYS/HDD2/SERVICE
+    Properties:
+	type = Indicator
+	value = Off
+
+  /SYS/HDD2/OK2RM
+    Properties:
+	type = Indicator
+	value = Off
+
+
+  /SYS/HDD2/FAIL
+    Properties:
+	type = Drive Slot
+	class = Discrete Sensor
+	value = Predictive Failure Deasserted
+
+
+  /SYS/HDD2/STATE
+    Properties:
+	type = Drive Slot
+	class = Discrete Sensor
+	value = Drive: [Present]
+
+  /SYS/HDD3
+    Properties:
+	type = Hard Disk
+
+  /SYS/HDD3/SERVICE
+    Properties:
+	type = Indicator
+	value = Off
+
+  /SYS/HDD3/OK2RM
+    Properties:
+	type = Indicator
+	value = Off
+
+
+  /SYS/HDD3/FAIL
+    Properties:
+	type = Drive Slot
+	class = Discrete Sensor
+	value = Predictive Failure Deasserted
+
+
+  /SYS/HDD3/STATE
+    Properties:
+	type = Drive Slot
+	class = Discrete Sensor
+	value = Drive: [Present]
+
+  /SYS/FM0
+    Properties:
+	type = Rear Fan
+
+  /SYS/FM0/F0
+    Properties:
+	type = Fan
+
+
+  /SYS/FM0/F0/SPEED
+    Properties:
+	type = Fan
+	class = Threshold Sensor
+	value = 3500.000 RPM
+	upper_nonrecov_threshold = 8000.000 RPM
+	upper_critical_threshold = 7500.000 RPM
+	upper_noncritical_threshold = 7000.000 RPM
+	lower_noncritical_threshold = 2000.000 RPM
+	lower_critical_threshold = 1500.000 RPM
+	lower_nonrecov_threshold = 1000.000 RPM
+
+
+  /SYS/FM0/F1
+    Properties:
+	type = Fan
+
+
+  /SYS/FM0/F1/SPEED
+    Properties:
+	type = Fan
+	class = Threshold Sensor
+	value = 3800.000 RPM
+	upper_nonrecov_threshold = 8000.000 RPM
+	upper_critical_threshold = 7500.000 RPM
+	upper_noncritical_threshold = 7000.000 RPM
+	lower_noncritical_threshold = 2000.000 RPM
+	lower_critical_threshold = 1500.000 RPM
+	lower_nonrecov_threshold = 1000.000 RPM
+
+
+  /SYS/FM0/FAIL
+    Properties:
+	type = Fan
+	class = Discrete Sensor
+	value = Predictive Failure Deasserted
+
+  /SYS/FM1
+    Properties:
+	type = Rear Fan
+
+  /SYS/FM1/F0
+    Properties:
+	type = Fan
+
+
+  /SYS/FM1/F0/SPEED
+    Properties:
+	type = Fan
+	class = Threshold Sensor
+	value = 3500.000 RPM
+	upper_nonrecov_threshold = 8000.000 RPM
+	upper_critical_threshold = 7500.000 RPM
+	upper_noncritical_threshold = 7000.000 RPM
+	lower_noncritical_threshold = 2000.000 RPM
+	lower_critical_threshold = 1500.000 RPM
+	lower_nonrecov_threshold = 1000.000 RPM
+
+
+  /SYS/FM1/F1
+    Properties:
+	type = Fan
+
+
+  /SYS/FM1/F1/SPEED
+    Properties:
+	type = Fan
+	class = Threshold Sensor
+	value = 3700.000 RPM
+	upper_nonrecov_threshold = 8000.000 RPM
+	upper_critical_threshold = 7500.000 RPM
+	upper_noncritical_threshold = 7000.000 RPM
+	lower_noncritical_threshold = 2000.000 RPM
+	lower_critical_threshold = 1500.000 RPM
+	lower_nonrecov_threshold = 1000.000 RPM
+
+
+  /SYS/FM1/FAIL
+    Properties:
+	type = Fan
+	class = Discrete Sensor
+	value = Predictive Failure Deasserted
+
+  /SYS/FM2
+    Properties:
+	type = Rear Fan
+
+  /SYS/FM2/F0
+    Properties:
+	type = Fan
+
+
+  /SYS/FM2/F0/SPEED
+    Properties:
+	type = Fan
+	class = Threshold Sensor
+	value = 3700.000 RPM
+	upper_nonrecov_threshold = 8000.000 RPM
+	upper_critical_threshold = 7500.000 RPM
+	upper_noncritical_threshold = 7000.000 RPM
+	lower_noncritical_threshold = 2000.000 RPM
+	lower_critical_threshold = 1500.000 RPM
+	lower_nonrecov_threshold = 1000.000 RPM
+
+
+  /SYS/FM2/F1
+    Properties:
+	type = Fan
+
+
+  /SYS/FM2/F1/SPEED
+    Properties:
+	type = Fan
+	class = Threshold Sensor
+	value = 3500.000 RPM
+	upper_nonrecov_threshold = 8000.000 RPM
+	upper_critical_threshold = 7500.000 RPM
+	upper_noncritical_threshold = 7000.000 RPM
+	lower_noncritical_threshold = 2000.000 RPM
+	lower_critical_threshold = 1500.000 RPM
+	lower_nonrecov_threshold = 1000.000 RPM
+
+
+  /SYS/FM2/FAIL
+    Properties:
+	type = Fan
+	class = Discrete Sensor
+	value = Predictive Failure Deasserted
+
+  /SYS/FM3
+    Properties:
+	type = Rear Fan
+
+  /SYS/FM3/F0
+    Properties:
+	type = Fan
+
+
+  /SYS/FM3/F0/SPEED
+    Properties:
+	type = Fan
+	class = Threshold Sensor
+	value = 3400.000 RPM
+	upper_nonrecov_threshold = 8000.000 RPM
+	upper_critical_threshold = 7500.000 RPM
+	upper_noncritical_threshold = 7000.000 RPM
+	lower_noncritical_threshold = 2000.000 RPM
+	lower_critical_threshold = 1500.000 RPM
+	lower_nonrecov_threshold = 1000.000 RPM
+
+  /SYS/FM3/F1
+    Properties:
+	type = Fan
+
+
+  /SYS/FM3/F1/SPEED
+    Properties:
+	type = Fan
+	class = Threshold Sensor
+	value = 3700.000 RPM
+	upper_nonrecov_threshold = 8000.000 RPM
+	upper_critical_threshold = 7500.000 RPM
+	upper_noncritical_threshold = 7000.000 RPM
+	lower_noncritical_threshold = 2000.000 RPM
+	lower_critical_threshold = 1500.000 RPM
+	lower_nonrecov_threshold = 1000.000 RPM
+
+
+  /SYS/FM3/FAIL
+    Properties:
+	type = Fan
+	class = Discrete Sensor
+	value = Predictive Failure Deasserted
+
+  /SYS/FM4
+    Properties:
+	type = Rear Fan
+
+  /SYS/FM4/F0
+    Properties:
+	type = Fan
+
+
+  /SYS/FM4/F0/SPEED
+    Properties:
+	type = Fan
+	class = Threshold Sensor
+	value = 3500.000 RPM
+	upper_nonrecov_threshold = 8000.000 RPM
+	upper_critical_threshold = 7500.000 RPM
+	upper_noncritical_threshold = 7000.000 RPM
+	lower_noncritical_threshold = 2000.000 RPM
+	lower_critical_threshold = 1500.000 RPM
+	lower_nonrecov_threshold = 1000.000 RPM
+
+
+  /SYS/FM4/F1
+    Properties:
+	type = Fan
+
+
+  /SYS/FM4/F1/SPEED
+    Properties:
+	type = Fan
+	class = Threshold Sensor
+	value = 3700.000 RPM
+	upper_nonrecov_threshold = 8000.000 RPM
+	upper_critical_threshold = 7500.000 RPM
+	upper_noncritical_threshold = 7000.000 RPM
+	lower_noncritical_threshold = 2000.000 RPM
+	lower_critical_threshold = 1500.000 RPM
+	lower_nonrecov_threshold = 1000.000 RPM
+
+
+  /SYS/FM4/FAIL
+    Properties:
+	type = Fan
+	class = Discrete Sensor
+	value = Predictive Failure Deasserted
+
+  /SYS/FM5
+    Properties:
+	type = Rear Fan
+
+  /SYS/FM5/F0
+    Properties:
+	type = Fan
+
+
+  /SYS/FM5/F0/SPEED
+    Properties:
+	type = Fan
+	class = Threshold Sensor
+	value = 3600.000 RPM
+	upper_nonrecov_threshold = 8000.000 RPM
+	upper_critical_threshold = 7500.000 RPM
+	upper_noncritical_threshold = 7000.000 RPM
+	lower_noncritical_threshold = 2000.000 RPM
+	lower_critical_threshold = 1500.000 RPM
+	lower_nonrecov_threshold = 1000.000 RPM
+
+
+  /SYS/FM5/F1
+    Properties:
+	type = Fan
+
+
+  /SYS/FM5/F1/SPEED
+    Properties:
+	type = Fan
+	class = Threshold Sensor
+	value = 3700.000 RPM
+	upper_nonrecov_threshold = 8000.000 RPM
+	upper_critical_threshold = 7500.000 RPM
+	upper_noncritical_threshold = 7000.000 RPM
+	lower_noncritical_threshold = 2000.000 RPM
+	lower_critical_threshold = 1500.000 RPM
+	lower_nonrecov_threshold = 1000.000 RPM
+
+
+  /SYS/FM5/FAIL
+    Properties:
+	type = Fan
+	class = Discrete Sensor
+	value = Predictive Failure Deasserted
+
+
+  /SYS/PS0
+    Properties:
+	type = Power Supply
+	fru_name = A206 POWER SUPPLY
+	fru_part_number = 300-1802-06
+	fru_serial_number = 1762TH1-0713000609
+
+
+  /SYS/PS0/VINOK0
+    Properties:
+	type = Power Supply
+	class = Discrete Sensor
+	value = State Asserted
+
+
+  /SYS/PS0/VINOK1
+    Properties:
+	type = Power Supply
+	class = Discrete Sensor
+	value = State Asserted
+
+
+  /SYS/PS0/PWROK0
+    Properties:
+	type = Power Supply
+	class = Discrete Sensor
+	value = State Asserted
+
+
+  /SYS/PS0/PWROK1
+    Properties:
+	type = Power Supply
+	class = Discrete Sensor
+	value = State Asserted
+
+
+  /SYS/PS1
+    Properties:
+	type = Power Supply
+	fru_name = A206 POWER SUPPLY
+	fru_part_number = 300-1802-06
+	fru_serial_number = 1762TH1-0713000612
+
+
+  /SYS/PS1/VINOK0
+    Properties:
+	type = Power Supply
+	class = Discrete Sensor
+	value = State Asserted
+
+
+  /SYS/PS1/VINOK1
+    Properties:
+	type = Power Supply
+	class = Discrete Sensor
+	value = State Asserted
+
+
+  /SYS/PS1/PWROK0
+    Properties:
+	type = Power Supply
+	class = Discrete Sensor
+	value = State Asserted
+
+
+  /SYS/PS1/PWROK1
+    Properties:
+	type = Power Supply
+	class = Discrete Sensor
+	value = State Asserted
+
+  /SYS/NEM0
+    Properties:
+	type = Network Module
+
+  /SYS/NEM1
+    Properties:
+	type = Network Module
+
+  /SYS/CMM
+    Properties:
+	type = Chassis Monitoring Module

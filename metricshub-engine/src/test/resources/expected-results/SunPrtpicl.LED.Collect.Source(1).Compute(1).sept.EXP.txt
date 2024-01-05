@@ -1,0 +1,17 @@
+MSHW;1ae00000c1c;mb_act;green;on
+MSHW;1ae00000c22;mb_service;amber;off
+MSHW;1ae00000c28;mb_locate;white;off
+MSHW;1ae00000c2e;ps0_act;green;on
+MSHW;1ae00000c34;ps0_service;amber;off
+MSHW;1ae00000c3a;ps0_ok2rm;blue;off
+MSHW;1ae00000c40;ps1_act;green;on
+MSHW;1ae00000c46;ps1_service;amber;off
+MSHW;1ae00000c4c;ps1_ok2rm;blue;off
+MSHW;1ae00000c52;hdd0_service;amber;off
+MSHW;1ae00000c58;hdd0_ok2rm;blue;off
+MSHW;1ae00000c5e;hdd1_service;amber;off
+MSHW;1ae00000c64;hdd1_ok2rm;blue;off
+MSHW;1ae00000c6a;hdd2_service;amber;off
+MSHW;1ae00000c70;hdd2_ok2rm;blue;off
+MSHW;1ae00000c76;hdd3_service;amber;off
+MSHW;1ae00000c7c;hdd3_ok2rm;blue;off

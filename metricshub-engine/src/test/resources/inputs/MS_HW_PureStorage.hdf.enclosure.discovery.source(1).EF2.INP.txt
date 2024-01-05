@@ -1,0 +1,106 @@
+Name       Status    Identify  Slot  Index  Speed       Temperature  Details                
+CT0        ok        off       -     0      -           -            -                      
+CT0.ETH0   ok        -         -     0      1.00 Gb/s   -            -                      
+CT0.ETH1   ok        -         -     1      0.00 b/s    -            -                      
+CT0.ETH2   ok        -         -     2      0.00 b/s    -            -                      
+CT0.ETH3   ok        -         -     3      0.00 b/s    -            -                      
+CT0.FAN0   ok        -         -     0      -           -            -                      
+CT0.FAN1   ok        -         -     1      -           -            -                      
+CT0.FAN10  ok        -         -     10     -           -            -                      
+CT0.FAN11  ok        -         -     11     -           -            -                      
+CT0.FAN12  ok        -         -     12     -           -            -                      
+CT0.FAN13  ok        -         -     13     -           -            -                      
+CT0.FAN2   ok        -         -     2      -           -            -                      
+CT0.FAN3   ok        -         -     3      -           -            -                      
+CT0.FAN4   ok        -         -     4      -           -            -                      
+CT0.FAN5   ok        -         -     5      -           -            -                      
+CT0.FAN6   ok        -         -     6      -           -            -                      
+CT0.FAN7   ok        -         -     7      -           -            -                      
+CT0.FAN8   ok        -         -     8      -           -            -                      
+CT0.FAN9   ok        -         -     9      -           -            -                      
+CT0.FC0    ok        -         3     0      8.00 Gb/s   -            -                      
+CT0.FC1    ok        -         3     1      4.00 Gb/s   -            -                      
+CT0.IB0    ok        -         2     0      56.00 Gb/s  -            -                      
+CT0.IB1    ok        -         2     1      56.00 Gb/s  -            -                      
+CT0.PWR0   ok        -         -     0      -           -            -                      
+CT0.PWR1   critical  -         -     1      -           -            Power supply input lost
+CT0.SAS0   ok        -         1     0      24.00 Gb/s  -            -                      
+CT0.SAS1   ok        -         1     1      24.00 Gb/s  -            -                      
+CT0.TMP0   ok        -         -     0      -           15 C         -                      
+CT0.TMP1   ok        -         -     1      -           30 C         -                      
+CT1        ok        off       -     1      -           -            -                      
+CT1.ETH0   ok        -         -     0      1.00 Gb/s   -            -                      
+CT1.ETH1   ok        -         -     1      0.00 b/s    -            -                      
+CT1.ETH2   ok        -         -     2      10.00 Gb/s  -            -                      
+CT1.ETH3   ok        -         -     3      0.00 b/s    -            -                      
+CT1.FAN0   ok        -         -     0      -           -            -                      
+CT1.FAN1   ok        -         -     1      -           -            -                      
+CT1.FAN10  ok        -         -     10     -           -            -                      
+CT1.FAN11  ok        -         -     11     -           -            -                      
+CT1.FAN12  ok        -         -     12     -           -            -                      
+CT1.FAN13  ok        -         -     13     -           -            -                      
+CT1.FAN2   ok        -         -     2      -           -            -                      
+CT1.FAN3   ok        -         -     3      -           -            -                      
+CT1.FAN4   ok        -         -     4      -           -            -                      
+CT1.FAN5   ok        -         -     5      -           -            -                      
+CT1.FAN6   ok        -         -     6      -           -            -                      
+CT1.FAN7   ok        -         -     7      -           -            -                      
+CT1.FAN8   ok        -         -     8      -           -            -                      
+CT1.FAN9   ok        -         -     9      -           -            -                      
+CT1.FC0    ok        -         3     0      8.00 Gb/s   -            -                      
+CT1.FC1    ok        -         3     1      8.00 Gb/s   -            -                      
+CT1.IB0    ok        -         2     0      56.00 Gb/s  -            -                      
+CT1.IB1    ok        -         2     1      56.00 Gb/s  -            -                      
+CT1.PWR0   ok        -         -     0      -           -            -                      
+CT1.PWR1   ok        -         -     1      -           -            -                      
+CT1.SAS0   ok        -         1     0      24.00 Gb/s  -            -                      
+CT1.SAS1   ok        -         1     1      24.00 Gb/s  -            -                      
+CT1.TMP0   ok        -         -     0      -           16 C         -                      
+CT1.TMP1   ok        -         -     1      -           32 C         -                      
+SH0        ok        off       -     0      -           -            -                      
+SH0.BAY0   ok        off       -     0      -           -            -                      
+SH0.BAY1   ok        off       -     1      -           -            -                      
+SH0.BAY10  ok        off       -     10     -           -            -                      
+SH0.BAY11  ok        off       -     11     -           -            -                      
+SH0.BAY12  ok        off       -     12     -           -            -                      
+SH0.BAY13  ok        off       -     13     -           -            -                      
+SH0.BAY14  ok        off       -     14     -           -            -                      
+SH0.BAY15  ok        off       -     15     -           -            -                      
+SH0.BAY16  ok        off       -     16     -           -            -                      
+SH0.BAY17  ok        off       -     17     -           -            -                      
+SH0.BAY18  ok        off       -     18     -           -            -                      
+SH0.BAY19  ok        off       -     19     -           -            -                      
+SH0.BAY2   ok        off       -     2      -           -            -                      
+SH0.BAY20  ok        off       -     20     -           -            -                      
+SH0.BAY21  ok        off       -     21     -           -            -                      
+SH0.BAY22  ok        off       -     22     -           -            -                      
+SH0.BAY23  ok        off       -     23     -           -            -                      
+SH0.BAY3   ok        off       -     3      -           -            -                      
+SH0.BAY4   ok        off       -     4      -           -            -                      
+SH0.BAY5   ok        off       -     5      -           -            -                      
+SH0.BAY6   ok        on        -     6      -           -            -                      
+SH0.BAY7   ok        off       -     7      -           -            -                      
+SH0.BAY8   ok        off       -     8      -           -            -                      
+SH0.BAY9   ok        off       -     9      -           -            -                      
+SH0.FAN0   ok        -         -     0      -           -            -                      
+SH0.FAN1   ok        -         -     1      -           -            -                      
+SH0.FAN2   ok        -         -     2      -           -            -                      
+SH0.FAN3   ok        -         -     3      -           -            -                      
+SH0.IOM0   ok        off       0     0      -           -            -                      
+SH0.IOM1   ok        off       1     1      -           -            -                      
+SH0.PWR0   ok        -         -     0      -           -            -                      
+SH0.PWR1   ok        -         -     1      -           -            -                      
+SH0.SAS0   ok        -         0     0      24.00 Gb/s  -            -                      
+SH0.SAS1   ok        -         0     1      0.00 b/s    -            -                      
+SH0.SAS2   ok        -         0     2      24.00 Gb/s  -            -                      
+SH0.SAS3   ok        -         1     3      24.00 Gb/s  -            -                      
+SH0.SAS4   ok        -         1     4      0.00 b/s    -            -                      
+SH0.SAS5   ok        -         1     5      24.00 Gb/s  -            -                      
+SH0.TMP0   ok        -         -     0      -           18 C         -                      
+SH0.TMP1   ok        -         -     1      -           19 C         -                      
+SH0.TMP2   ok        -         -     2      -           19 C         -                      
+SH0.TMP3   ok        -         -     3      -           25 C         -                      
+SH0.TMP4   ok        -         -     4      -           20 C         -                      
+SH0.TMP5   ok        -         -     5      -           25 C         -                      
+SH0.TMP6   ok        -         -     6      -           29 C         -                      
+SH0.TMP7   ok        -         -     7      -           26 C         -                      

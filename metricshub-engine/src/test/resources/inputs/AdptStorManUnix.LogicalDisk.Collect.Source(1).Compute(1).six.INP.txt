@@ -1,0 +1,27 @@
+MSHWController 1
+Controllers found: 1
+----------------------------------------------------------------------
+Logical device information
+----------------------------------------------------------------------
+Logical device number 0
+   Logical device name                      : 0
+   RAID level                               : 1
+   Status of logical device                 : Degraded
+   Size                                     : 152489 MB
+   Read-cache mode                          : Enabled
+   Write-cache mode                         : Disabled (write-through)
+   Write-cache setting                      : Disabled (write-through)
+   Partitioned                              : Yes
+   Protected by Hot-Spare                   : No
+   Bootable                                 : Yes
+   Failed stripes                           : No
+   Power settings                           : Disabled
+   --------------------------------------------------------
+   Logical device segment information
+   --------------------------------------------------------
+   Segment 0                                : Present (0,2) 
+   Segment 1                                : Missing
+
+
+
+Command completed successfully.

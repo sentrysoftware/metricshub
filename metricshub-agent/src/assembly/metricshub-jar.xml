@@ -19,8 +19,8 @@
 					as they may interfere with the existing log4j2 implementation. -->
 				<!-- The code of these modules is already included in the metricshub-engine-no-slf4j-impl artifact -->
 				<exclude>org.sentrysoftware:ipmi</exclude>
-				<exclude>com.sentrysoftware.patrol.matsya:module-winrm</exclude>
-				<exclude>com.sentrysoftware.patrol.matsya:module-awk</exclude>
+				<exclude>org.sentrysoftware:winrm</exclude>
+				<exclude>org.sentrysoftware:jawk</exclude>
 			</excludes>
 		</dependencySet>
 	</dependencySets>

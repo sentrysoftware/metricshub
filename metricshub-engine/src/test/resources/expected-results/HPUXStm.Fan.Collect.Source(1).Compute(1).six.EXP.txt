@@ -1,0 +1,2 @@
+MSHW;FAN-Global;CAB-0 Cabinet Fans (blowers);OK;;
+MSHW;PSU-Global;CAB-0 Cabinet Power Supplies;OK;;

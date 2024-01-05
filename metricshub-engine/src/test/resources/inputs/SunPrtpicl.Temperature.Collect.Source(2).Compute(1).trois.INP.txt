@@ -1,0 +1,12 @@
+ps0_ff_ot (temperature-indicator, 1ae00000bd7)
+  :_fru_parent	 (1ae0000090fH) 
+  :Label	 FF_OT 
+  :Condition	 okay 
+  :_class	 temperature-indicator 
+  :name	 ps0_ff_ot 
+  ps1_ff_ot (temperature-indicator, 1ae00000bdc)
+  :_fru_parent	 (1ae00000912H) 
+  :Label	 FF_OT 
+  :Condition	 okay 
+  :_class	 temperature-indicator 
+  :name	 ps1_ff_ot

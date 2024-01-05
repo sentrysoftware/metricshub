@@ -1,0 +1,2 @@
+MSHW;85;85 - left;Optimal;Optimal;
+MSHW;85;85 - right;Optimal;Optimal;

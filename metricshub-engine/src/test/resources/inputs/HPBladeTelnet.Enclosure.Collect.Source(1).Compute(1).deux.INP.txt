@@ -1,0 +1,29 @@
+Result:
+show enclosure status
+
+Enclosure:
+	Status: OK
+	Unit Identification LED: Off
+	Diagnostic Status:
+		Internal Data        OK
+
+Onboard Administrator:
+	Status: OK
+
+Power Subsystem:
+	Status: OK
+	Power Mode: Redundant
+	Redundancy State: Redundant
+	Power Capacity: 2400 Watts DC
+	Power Available: 1108 Watts DC
+	Present Power:  830 Watts AC
+
+Cooling Subsystem:
+	Status: OK
+	Fans Good/Wanted/Needed: 6/6/5
+	Fan 1:  6993 RPM (39%)
+	Fan 2:  5999 RPM (33%)
+	Fan 3:  6998 RPM (39%)
+	Fan 4:  6990 RPM (39%)
+	Fan 5:  6000 RPM (33%)
+	Fan 6:  7001 RPM (39%)

@@ -1,0 +1,20 @@
+MSHW;FRU;DELL;FRU256,DELL P/N 03K345A00;CN1374048B00SV
+MSHW;Power Supply;8;Power Supply 8;;;;OK|OK|OK|OK|;;Monitored by sensors: Status
+MSHW;Power Supply;9;Power Supply 9;;;;OK|OK|OK|OK|ALARM|ALARM|WARN|WARN|WARN|;Status: Failed - Status: Failed - Status: Predicted Failure - Status: Predicted Failure - Status: Predicted Failure - ;Monitored by sensors: Status, Status, Status
+MSHW;Processor;2;Processor 2;;;;OK|OK|OK|OK|OK|OK|OK|OK|OK|;;Monitored by sensors: VCORE, Status, VRM
+MSHW;Processor;3;Processor 3;;;;OK|OK|OK|OK|OK|OK|OK|OK|OK|;;Monitored by sensors: VCORE, Status, VRM
+MSHW;Temperature;1;Temp;Processor 2;39;120.000;125.000
+MSHW;Temperature;2;Temp;Processor 3;37;120.000;125.000
+MSHW;Temperature;3;Ambient Temp;System Board 1;17;42.000;47.000
+MSHW;Temperature;4;Planar Temp;System Board 1;29;67.000;72.000
+MSHW;Temperature;5;Riser Temp;System Board 1;31;62.000;67.000
+MSHW;Voltage;10;CMOS Battery;System Board 1;2877.000000;2645.000000;
+MSHW;Fan;30;FAN 1A RPM;System Board 1;7575;;2175.000
+MSHW;Fan;31;FAN 1B RPM;System Board 1;5250;;2175.000
+MSHW;Fan;32;FAN 2A RPM;System Board 1;7650;;2175.000
+MSHW;Fan;33;FAN 2B RPM;System Board 1;5475;;2175.000
+MSHW;Fan;34;FAN 3A RPM;System Board 1;7575;;2175.000
+MSHW;Fan;35;FAN 3B RPM;System Board 1;5400;;2175.000
+MSHW;Fan;36;FAN 4A RPM;System Board 1;7950;;2175.000
+MSHW;Fan;37;FAN 4B RPM;System Board 1;5100;;2175.000
+MSHW;Enclosure;Dell;FRU256,DELL P/N 03K345A00;CN1374048B00SV;WARN|OK|;PS Redundancy: redundancy lost - ;;Monitored by sensors: PROC VTT, 1.5V PG, 1.8V PG, 3.3V PG, 5V PG, 5V Riser PG, Riser PG, PS Redundancy, Fan Redundancy

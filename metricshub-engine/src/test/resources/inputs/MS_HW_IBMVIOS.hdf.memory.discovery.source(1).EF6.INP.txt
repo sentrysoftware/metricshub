@@ -1,0 +1,905 @@
+INSTALLED RESOURCE LIST WITH VPD
+The following resources are installed on your machine.
+	
+  Model Architecture: chrp
+  Model Implementation: Multiple Processor, PCI bus
+  sys0                                               System Object
+  sysplanar0                                         System Planar
+  pci4             U78AB.001.WZSGGSC-P1              PCI Express Bus
+        Hardware Location Code......U78AB.001.WZSGGSC-P1
+  fcs2             U78AB.001.WZSGGSC-P1-C5-T1        8Gb PCI Express Dual Port FC Adapter (df1000f114108a03)
+        Part Number.................10N9824
+        Serial Number...............1C02408426
+        Manufacturer................001C
+        EC Level....................D76482B
+        Customer Card ID Number.....577D
+        FRU Number..................10N9824
+        Device Specific.(ZM)........3
+        Network Address.............10000000C9D03262
+        ROS Level and ID............027820B7
+        Device Specific.(Z0)........31004549
+        Device Specific.(Z1)........00000000
+        Device Specific.(Z2)........00000000
+        Device Specific.(Z3)........09030909
+        Device Specific.(Z4)........FF781150
+        Device Specific.(Z5)........027820B7
+        Device Specific.(Z6)........077320B7
+        Device Specific.(Z7)........0B7C20B7
+        Device Specific.(Z8)........20000000C9D03262
+        Device Specific.(Z9)........US2.02X7 
+        Device Specific.(ZA)........U2D2.02X7 
+        Device Specific.(ZB)........U3K2.02X7 
+        Device Specific.(ZC)........00000000
+        Hardware Location Code......U78AB.001.WZSGGSC-P1-C5-T1
+  fcnet2           U78AB.001.WZSGGSC-P1-C5-T1        Fibre Channel Network Protocol Device
+  fscsi3           U78AB.001.WZSGGSC-P1-C5-T1        FC SCSI I/O Controller Protocol Device
+  sfwcomm4         U78AB.001.WZSGGSC-P1-C5-T1-W0-L0  Fibre Channel Storage Framework Comm
+  fcs3             U78AB.001.WZSGGSC-P1-C5-T2        8Gb PCI Express Dual Port FC Adapter (df1000f114108a03)
+        Part Number.................10N9824
+        Serial Number...............1C02408426
+        Manufacturer................001C
+        EC Level....................D76482B
+        Customer Card ID Number.....577D
+        FRU Number..................10N9824
+        Device Specific.(ZM)........3
+        Network Address.............10000000C9D03263
+        ROS Level and ID............027820B7
+        Device Specific.(Z0)........31004549
+        Device Specific.(Z1)........00000000
+        Device Specific.(Z2)........00000000
+        Device Specific.(Z3)........09030909
+        Device Specific.(Z4)........FF781150
+        Device Specific.(Z5)........027820B7
+        Device Specific.(Z6)........077320B7
+        Device Specific.(Z7)........0B7C20B7
+        Device Specific.(Z8)........20000000C9D03263
+        Device Specific.(Z9)........US2.02X7 
+        Device Specific.(ZA)........U2D2.02X7 
+        Device Specific.(ZB)........U3K2.02X7 
+        Device Specific.(ZC)........00000000
+        Hardware Location Code......U78AB.001.WZSGGSC-P1-C5-T2
+  fcnet3           U78AB.001.WZSGGSC-P1-C5-T2        Fibre Channel Network Protocol Device
+  fscsi2           U78AB.001.WZSGGSC-P1-C5-T2        FC SCSI I/O Controller Protocol Device
+  vio0                                               Virtual I/O Bus
+  vfchost5         U8231.E2B.06BA5AP-V2-C15          Virtual FC Server Adapter
+        Hardware Location Code......U8231.E2B.06BA5AP-V2-C15
+  vfchost4         U8231.E2B.06BA5AP-V2-C14          Virtual FC Server Adapter
+        Hardware Location Code......U8231.E2B.06BA5AP-V2-C14
+  vhost2           U8231.E2B.06BA5AP-V2-C13          Virtual SCSI Server Adapter
+        Hardware Location Code......U8231.E2B.06BA5AP-V2-C13
+  vtscsi2          U8231.E2B.06BA5AP-V2-C13-L1       Virtual Target Device - Logical Volume
+  vfchost3         U8231.E2B.06BA5AP-V2-C12          Virtual FC Server Adapter
+        Hardware Location Code......U8231.E2B.06BA5AP-V2-C12
+  vfchost2         U8231.E2B.06BA5AP-V2-C11          Virtual FC Server Adapter
+        Hardware Location Code......U8231.E2B.06BA5AP-V2-C11
+  vhost1           U8231.E2B.06BA5AP-V2-C5           Virtual SCSI Server Adapter
+        Hardware Location Code......U8231.E2B.06BA5AP-V2-C5
+  vtopt1           U8231.E2B.06BA5AP-V2-C5-L2        Virtual Target Device - File-backed Optical
+  vtscsi0          U8231.E2B.06BA5AP-V2-C5-L1        Virtual Target Device - Logical Volume
+  ent4             U8231.E2B.06BA5AP-V2-C3-T1        Virtual I/O Ethernet Adapter (l-lan)
+        Network Address.............360BC56C8703
+        Displayable Message.........Virtual I/O Ethernet Adapter (l-lan)
+        Hardware Location Code......U8231.E2B.06BA5AP-V2-C3-T1
+  vhost0           U8231.E2B.06BA5AP-V2-C2           Virtual SCSI Server Adapter
+        Hardware Location Code......U8231.E2B.06BA5AP-V2-C2
+  vtopt0           U8231.E2B.06BA5AP-V2-C2-L2        Virtual Target Device - Optical Media
+  vtscsi1          U8231.E2B.06BA5AP-V2-C2-L1        Virtual Target Device - Logical Volume
+  vfchost1         U8231.E2B.06BA5AP-V2-C4           Virtual FC Server Adapter
+        Hardware Location Code......U8231.E2B.06BA5AP-V2-C4
+  vfchost0         U8231.E2B.06BA5AP-V2-C9           Virtual FC Server Adapter
+        Hardware Location Code......U8231.E2B.06BA5AP-V2-C9
+  vsa0             U8231.E2B.06BA5AP-V2-C0           LPAR Virtual Serial Adapter
+        Hardware Location Code......U8231.E2B.06BA5AP-V2-C0
+  vty0             U8231.E2B.06BA5AP-V2-C0-L0        Asynchronous Terminal
+  pci2             U78AB.001.WZSGGSC-P1              PCI Bus
+        Hardware Location Code......U78AB.001.WZSGGSC-P1
+  sissas2          U78AB.001.WZSGGSC-P1-C18-T1       PCI-X266 Planar 3Gb SAS RAID Adapter
+      PCI-X266 Planar 3Gb SAS RAID Adapter            :
+        Part Number.................74Y3296
+        FRU Number..................74Y3346
+        Serial Number...............YL11P2030006
+        Manufacture ID..............001P
+        EC Level....................1
+        ROM Level.(alterable).......04200019
+        Customer Card ID Number.....2BD9
+        Product Specific.(Z1).......1
+        Hardware Location Code......U78AB.001.WZSGGSC-P1-C18-T1
+  pci1             U78AB.001.WZSGGSC-P1              PCI Bus
+        Hardware Location Code......U78AB.001.WZSGGSC-P1
+  usbhc0           U78AB.001.WZSGGSC-P1              USB Host Controller (33103500)
+        Hardware Location Code......U78AB.001.WZSGGSC-P1
+  usbhc1           U78AB.001.WZSGGSC-P1              USB Host Controller (33103500)
+        Hardware Location Code......U78AB.001.WZSGGSC-P1
+  usbhc2           U78AB.001.WZSGGSC-P1              USB Enhanced Host Controller (3310e000)
+        Hardware Location Code......U78AB.001.WZSGGSC-P1
+  pci0             U78AB.001.WZSGGSC-P1              PCI Bus
+        Hardware Location Code......U78AB.001.WZSGGSC-P1
+  sissas1          U78AB.001.WZSGGSC-P1-T7           PCI-X266 Planar 3Gb SAS RAID Adapter
+        ROM Level.(alterable).......04200029
+        Customer Card ID Number.....2BE1
+        Hardware Location Code......U78AB.001.WZSGGSC-P1-T7
+  sas1             U78AB.001.WZSGGSC-P1-T7           Controller SAS Protocol
+  sfwcomm5                                           SAS Storage Framework Comm
+  hdisk0           U78AB.001.WZSGGSC-P3-D1           SAS Disk Drive (300000 MB)
+        Manufacturer................IBM     
+        Machine Type and Model......ST9300603SS     
+        FRU Number..................44V6833     
+        ROS Level and ID............42423039
+        Serial Number...............6SE40JGC
+        EC Level....................L36403    
+        Part Number.................44V6838     
+        Device Specific.(Z0)........000006329F003002
+        Device Specific.(Z1)........0617BB09    
+        Device Specific.(Z2)........0021
+        Device Specific.(Z3)........11131
+        Device Specific.(Z4)........
+        Device Specific.(Z5)........22
+        Device Specific.(Z6)........L36403    
+        Hardware Location Code......U78AB.001.WZSGGSC-P3-D1
+  hdisk1           U78AB.001.WZSGGSC-P3-D2           Other SAS Disk Drive
+        Manufacturer................SEAGATE 
+        Machine Type and Model......ST300MM0026     
+        ROS Level and ID............30303034
+        Hardware Location Code......U78AB.001.WZSGGSC-P3-D2
+  hdisk2           U78AB.001.WZSGGSC-P3-D3           SAS Disk Drive (146800 MB)
+        Manufacturer................IBM-ESXS
+        Machine Type and Model......MBE2147RC       
+        FRU Number..................42D0668     
+        ROS Level and ID............53433136
+        Serial Number...............D3006RGL
+        EC Level....................L81062    
+        Part Number.................42D0671     
+        Device Specific.(Z0)........000006329F001002
+        Device Specific.(Z1)........SC16SC16SC16
+        Device Specific.(Z2)........0001
+        Device Specific.(Z3)........10280
+        Device Specific.(Z4)........0001
+        Device Specific.(Z5)........22
+        Device Specific.(Z6)........L81062    
+        Hardware Location Code......U78AB.001.WZSGGSC-P3-D3
+  ses2             U78AB.001.WZSGGSC-P2-Y2           SAS Enclosure Services Device
+      SAS Expander:
+        FRU Number..................00E1083
+        Serial Number...............YL10P208909E
+        Customer Card ID Number.....2D1F
+        Load ID.....................A1700DED
+        ROM Level.(alterable).......0109
+        Hardware Location Code......U78AB.001.WZSGGSC-P2-Y2
+  ses3             U78AB.001.WZSGGSC-P2-Y1           SAS Enclosure Services Device
+      SAS Expander:
+        FRU Number..................00E1083
+        Serial Number...............YL10P208909E
+        Customer Card ID Number.....2D1F
+        Load ID.....................A1700DED
+        ROM Level.(alterable).......0109
+        Hardware Location Code......U78AB.001.WZSGGSC-P2-Y1
+  pdisk1           U78AB.001.WZSGGSC-P3-D4           Physical SAS Disk Drive
+        Manufacturer................IBM-ESXS
+        Machine Type and Model......MBE2147RC       
+        FRU Number..................42D0668     
+        ROS Level and ID............53433136
+        Serial Number...............D3006RGS
+        EC Level....................L81062    
+        Part Number.................42D0671     
+        Device Specific.(Z0)........000006329F001002
+        Device Specific.(Z1)........SC16SC16SC16
+        Device Specific.(Z2)........0001
+        Device Specific.(Z3)........10280
+        Device Specific.(Z4)........0001
+        Device Specific.(Z5)........22
+        Device Specific.(Z6)........L81062    
+        Hardware Location Code......U78AB.001.WZSGGSC-P3-D4
+  ses4             U78AB.001.WZSGGSC-P2-Y1           SAS Enclosure Services Device
+        ROM Level.(alterable).......  01
+        Hardware Location Code......U78AB.001.WZSGGSC-P2-Y1
+  sata1            U78AB.001.WZSGGSC-P1-T7           Controller SATA Protocol
+  cd0              U78AB.001.WZSGGSC-P3-D7           SATA DVD-RAM Drive
+        Manufacturer................IBM     
+        Machine Type and Model......RMBO0040542     
+        ROS Level and ID............SA61
+        Device Specific.(Z0)........058002028F000030
+        Part Number.................46K6189     
+        EC Level....................N23396    
+        FRU Number..................44V4220     
+        Hardware Location Code......U78AB.001.WZSGGSC-P3-D7
+  lhea0            U78AB.001.WZSGGSC-P1              Logical Host Ethernet Adapter (l-hea)
+        Hardware Location Code......U78AB.001.WZSGGSC-P1
+  ent3             U78AB.001.WZSGGSC-P1-C2-T4        Logical Host Ethernet Port (lp-hea)
+      IBM Host Ethernet Adapter:
+        Network Address.............5CF3FC850E33
+  ent2             U78AB.001.WZSGGSC-P1-C2-T3        Logical Host Ethernet Port (lp-hea)
+      IBM Host Ethernet Adapter:
+        Network Address.............5CF3FC850E32
+  ent1             U78AB.001.WZSGGSC-P1-C2-T2        Logical Host Ethernet Port (lp-hea)
+      IBM Host Ethernet Adapter:
+        Network Address.............5CF3FC850E21
+  ent0             U78AB.001.WZSGGSC-P1-C2-T1        Logical Host Ethernet Port (lp-hea)
+      IBM Host Ethernet Adapter:
+        Network Address.............5CF3FC850E20
+  L2cache0                                           L2 Cache
+  mem0                                               Memory
+  proc0                                              Processor
+  PLATFORM SPECIFIC
+  Name:  IBM,8231-E2B
+    Model:  IBM,8231-E2B
+    Node:  /
+    Device Type:  chrp
+      System VPD:
+        Record Name.................VSYS
+        Flag Field..................XXSV
+        Brand.......................S0
+        Hardware Location Code......U8231.E2B.06BA5AP
+        Machine/Cabinet Serial No...06BA5AP
+        Machine Type and Model......8231-E2B
+        System Unique ID (SUID).....0004AC15E7CC
+        World Wide Port Name........C05076042407
+        Version.....................ipzSeries
+      Physical Location: U8231.E2B.06BA5AP
+      CEC:
+        Record Name.................VCEN
+        Flag Field..................XXEV
+        Brand.......................S0
+        Hardware Location Code......U78AB.001.WZSGGSC
+        Machine/Cabinet Serial No...WZSGGSC
+        Machine Type and Model......78AB-001
+        Controlling CEC ID..........8231-E2B 06BA5AP
+        Rack Serial Number..........0000000000000000
+        Feature Code/Marketing ID...78AB-001
+        Version.....................ipzSeries
+      Physical Location: U78AB.001.WZSGGSC
+      SYSTEM BACKPLANE:
+        Record Name.................VINI
+        Flag Field..................XXBP
+        Hardware Location Code......U78AB.001.WZSGGSC-P1
+        Customer Card ID Number.....2BFB
+        Serial Number...............YL10P1102057
+        CCIN Extender...............1
+        Product Specific.(VZ).......01
+        FRU Number..................74Y3347
+        Part Number.................74Y3284
+        Power.......................2A00000000000000
+        Product Specific.(HE).......0001
+        Product Specific.(CT).......40F30024
+        Product Specific.(HW).......0005
+        Product Specific.(B3).......000000000001
+        Product Specific.(B4).......00
+        Product Specific.(B7).......000000000000000000000000
+        Product Specific.(BS).........
+        Version.....................ipzSeries
+      Physical Location: U78AB.001.WZSGGSC-P1
+      QUAD ETHERNET   :
+        Record Name.................VINI
+        Flag Field..................XXET
+        Hardware Location Code......U78AB.001.WZSGGSC-P1-C2
+        Customer Card ID Number.....266D
+        Serial Number...............YL11P1113037
+        CCIN Extender...............1
+        Product Specific.(VZ).......01
+        FRU Number..................74Y3433
+        Part Number.................74Y3092
+        Product Specific.(HE).......0001
+        Product Specific.(CT).......3091000A
+        Product Specific.(HW).......0001
+        Product Specific.(B3).......000000000001
+        Product Specific.(B4).......00
+        Product Specific.(B7).......000000000000000000000000
+        Product Specific.(B1).......5CF3FC850E200020
+        Version.....................ipzSeries
+      Physical Location: U78AB.001.WZSGGSC-P1-C2
+      PROC REGULATOR  :
+        Record Name.................VINI
+        Flag Field..................XXRG
+        Hardware Location Code......U78AB.001.WZSGGSC-P1-C8
+        Customer Card ID Number.....2BE8
+        Serial Number...............YL102013J18K
+        Part Number.................74Y8427
+        FRU Number.................. 74Y8427
+        CCIN Extender...............1
+        Product Specific.(VZ).......01
+        Product Specific.(CR).......
+        Version.....................RS6K
+      Physical Location: U78AB.001.WZSGGSC-P1-C8
+      4-WAY  PROC CUOD:
+        Record Name.................VINI
+        Flag Field..................XXPF
+        Hardware Location Code......U78AB.001.WZSGGSC-P1-C9
+        Customer Card ID Number.....537D
+        Serial Number...............YA1930945268
+        FRU Number..................74Y6149
+        Part Number.................74Y6149
+        Product Specific.(HE).......0001
+        Product Specific.(CT).......40110004
+        Product Specific.(HW).......0001
+        Product Specific.(B3).......000000000000
+        Product Specific.(B4).......00
+        Product Specific.(B7).......000000000000000000000000
+        Power.......................3400400111018000
+        Product Specific.(VZ).......01
+        CCIN Extender...............1
+        Version.....................ipzSeries
+      Physical Location: U78AB.001.WZSGGSC-P1-C9
+      4-WAY  PROC CUOD:
+        Record Name.................VINI
+        Flag Field..................XXPF
+        Hardware Location Code......U78AB.001.WZSGGSC-P1-C10
+        Customer Card ID Number.....537D
+        Serial Number...............YA1930945235
+        FRU Number..................74Y6149
+        Part Number.................74Y6149
+        Product Specific.(HE).......0001
+        Product Specific.(CT).......40110004
+        Product Specific.(HW).......0001
+        Product Specific.(B3).......000000000000
+        Product Specific.(B4).......00
+        Product Specific.(B7).......000000000000000000000000
+        Power.......................3400400111018000
+        Product Specific.(VZ).......01
+        CCIN Extender...............1
+        Version.....................ipzSeries
+      Physical Location: U78AB.001.WZSGGSC-P1-C10
+      PROC REGULATOR  :
+        Record Name.................VINI
+        Flag Field..................XXRG
+        Hardware Location Code......U78AB.001.WZSGGSC-P1-C11
+        Customer Card ID Number.....2BE8
+        Serial Number...............YL102013J189
+        Part Number.................74Y8427
+        FRU Number.................. 74Y8427
+        CCIN Extender...............1
+        Product Specific.(VZ).......01
+        Product Specific.(CR).......
+        Version.....................RS6K
+      Physical Location: U78AB.001.WZSGGSC-P1-C11
+      RAID            :
+        Record Name.................VINI
+        Flag Field..................XXRD
+        Hardware Location Code......U78AB.001.WZSGGSC-P1-C12
+        Customer Card ID Number.....2BE1
+        Serial Number...............YL10P210304F
+        CCIN Extender...............1
+        Product Specific.(VZ).......01
+        FRU Number..................74Y3358
+        Part Number.................74Y3311
+        Product Specific.(HE).......0001
+        Product Specific.(CT).......30F20005
+        Product Specific.(HW).......0001
+        Product Specific.(B3).......000000000001
+        Product Specific.(B4).......00
+        Product Specific.(B7).......000000000000000000000000
+        Version.....................ipzSeries
+      Physical Location: U78AB.001.WZSGGSC-P1-C12
+      RAID            :
+        Record Name.................VINI
+        Flag Field..................XXRD
+        Hardware Location Code......U78AB.001.WZSGGSC-P1-C13
+        Customer Card ID Number.....2BCF
+        Serial Number...............YL14P3231087
+        CCIN Extender...............1
+        Product Specific.(VZ).......01
+        FRU Number..................74Y3345
+        Part Number.................74Y3294
+        Product Specific.(HE).......0001
+        Product Specific.(CT).......30F20005
+        Product Specific.(HW).......0001
+        Product Specific.(B3).......000000000001
+        Product Specific.(B4).......00
+        Product Specific.(B7).......000000000000000000000000
+        Version.....................ipzSeries
+      Physical Location: U78AB.001.WZSGGSC-P1-C13
+      MEMORY CARD     :
+        Record Name.................VINI
+        Flag Field..................XXRI
+        Hardware Location Code......U78AB.001.WZSGGSC-P1-C15
+        Customer Card ID Number.....2BE3
+        Serial Number...............YL12P11130B8
+        CCIN Extender...............1
+        Product Specific.(VZ).......01
+        FRU Number..................74Y3423
+        Part Number.................74Y3276
+        Product Specific.(HE).......0001
+        Product Specific.(CT).......40B60007
+        Product Specific.(HW).......0001
+        Product Specific.(B3).......000000000001
+        Product Specific.(B4).......00
+        Product Specific.(B7).......000000000000000000000000
+        Version.....................ipzSeries
+      Physical Location: U78AB.001.WZSGGSC-P1-C15
+      Memory DIMM:
+        Record Name.................VINI
+        Flag Field..................XXMS
+        Hardware Location Code......U78AB.001.WZSGGSC-P1-C15-C1
+        Customer Card ID Number.....31C5
+        Serial Number...............YLD0086F03B5
+        CCIN Extender...............1
+        Product Specific.(VZ).......03
+        FRU Number..................77P8784
+        Part Number.................77P8784
+        Power.......................4800000000010000
+        Size........................4096
+        Product Specific.(HE).......0001
+        Product Specific.(CT).......10210004
+        Product Specific.(HW).......0001
+        Product Specific.(B3).......030000000001
+        Product Specific.(B4).......00
+        Product Specific.(B7).......000000000000000000000000
+        Version.....................ipzSeries
+      Physical Location: U78AB.001.WZSGGSC-P1-C15-C1
+      Memory DIMM:
+        Record Name.................VINI
+        Flag Field..................XXMS
+        Hardware Location Code......U78AB.001.WZSGGSC-P1-C15-C2
+        Customer Card ID Number.....31C5
+        Serial Number...............YLD0096F02E6
+        CCIN Extender...............1
+        Product Specific.(VZ).......03
+        FRU Number..................77P8784
+        Part Number.................77P8784
+        Power.......................4800000000010000
+        Size........................4096
+        Product Specific.(HE).......0001
+        Product Specific.(CT).......10210004
+        Product Specific.(HW).......0001
+        Product Specific.(B3).......030000000001
+        Product Specific.(B4).......00
+        Product Specific.(B7).......000000000000000000000000
+        Version.....................ipzSeries
+      Physical Location: U78AB.001.WZSGGSC-P1-C15-C2
+      Memory DIMM:
+        Record Name.................VINI
+        Flag Field..................XXMS
+        Hardware Location Code......U78AB.001.WZSGGSC-P1-C15-C3
+        Customer Card ID Number.....31C5
+        Serial Number...............YLD00A6F0313
+        CCIN Extender...............1
+        Product Specific.(VZ).......03
+        FRU Number..................77P8784
+        Part Number.................77P8784
+        Power.......................4800000000010000
+        Size........................4096
+        Product Specific.(HE).......0001
+        Product Specific.(CT).......10210004
+        Product Specific.(HW).......0001
+        Product Specific.(B3).......030000000001
+        Product Specific.(B4).......00
+        Product Specific.(B7).......000000000000000000000000
+        Version.....................ipzSeries
+      Physical Location: U78AB.001.WZSGGSC-P1-C15-C3
+      Memory DIMM:
+        Record Name.................VINI
+        Flag Field..................XXMS
+        Hardware Location Code......U78AB.001.WZSGGSC-P1-C15-C4
+        Customer Card ID Number.....31C5
+        Serial Number...............YLD00B6F0377
+        CCIN Extender...............1
+        Product Specific.(VZ).......03
+        FRU Number..................77P8784
+        Part Number.................77P8784
+        Power.......................4800000000010000
+        Size........................4096
+        Product Specific.(HE).......0001
+        Product Specific.(CT).......10210004
+        Product Specific.(HW).......0001
+        Product Specific.(B3).......030000000001
+        Product Specific.(B4).......00
+        Product Specific.(B7).......000000000000000000000000
+        Version.....................ipzSeries
+      Physical Location: U78AB.001.WZSGGSC-P1-C15-C4
+      MEMORY CARD     :
+        Record Name.................VINI
+        Flag Field..................XXRI
+        Hardware Location Code......U78AB.001.WZSGGSC-P1-C17
+        Customer Card ID Number.....2BE3
+        Serial Number...............YL12P11130CC
+        CCIN Extender...............1
+        Product Specific.(VZ).......01
+        FRU Number..................74Y3423
+        Part Number.................74Y3276
+        Product Specific.(HE).......0001
+        Product Specific.(CT).......40B60007
+        Product Specific.(HW).......0001
+        Product Specific.(B3).......000000000001
+        Product Specific.(B4).......00
+        Product Specific.(B7).......000000000000000000000000
+        Version.....................ipzSeries
+      Physical Location: U78AB.001.WZSGGSC-P1-C17
+      Memory DIMM:
+        Record Name.................VINI
+        Flag Field..................XXMS
+        Hardware Location Code......U78AB.001.WZSGGSC-P1-C17-C1
+        Customer Card ID Number.....31C5
+        Serial Number...............YLD0006F02C8
+        CCIN Extender...............1
+        Product Specific.(VZ).......03
+        FRU Number..................77P8784
+        Part Number.................77P8784
+        Power.......................4800000000010000
+        Size........................4096
+        Product Specific.(HE).......0001
+        Product Specific.(CT).......10210004
+        Product Specific.(HW).......0001
+        Product Specific.(B3).......030000000001
+        Product Specific.(B4).......00
+        Product Specific.(B7).......000000000000000000000000
+        Version.....................ipzSeries
+      Physical Location: U78AB.001.WZSGGSC-P1-C17-C1
+      Memory DIMM:
+        Record Name.................VINI
+        Flag Field..................XXMS
+        Hardware Location Code......U78AB.001.WZSGGSC-P1-C17-C2
+        Customer Card ID Number.....31C5
+        Serial Number...............YLD0016F02EA
+        CCIN Extender...............1
+        Product Specific.(VZ).......03
+        FRU Number..................77P8784
+        Part Number.................77P8784
+        Power.......................4800000000010000
+        Size........................4096
+        Product Specific.(HE).......0001
+        Product Specific.(CT).......10210004
+        Product Specific.(HW).......0001
+        Product Specific.(B3).......030000000001
+        Product Specific.(B4).......00
+        Product Specific.(B7).......000000000000000000000000
+        Version.....................ipzSeries
+      Physical Location: U78AB.001.WZSGGSC-P1-C17-C2
+      Memory DIMM:
+        Record Name.................VINI
+        Flag Field..................XXMS
+        Hardware Location Code......U78AB.001.WZSGGSC-P1-C17-C3
+        Customer Card ID Number.....31C5
+        Serial Number...............YLD0026F02E9
+        CCIN Extender...............1
+        Product Specific.(VZ).......03
+        FRU Number..................77P8784
+        Part Number.................77P8784
+        Power.......................4800000000010000
+        Size........................4096
+        Product Specific.(HE).......0001
+        Product Specific.(CT).......10210004
+        Product Specific.(HW).......0001
+        Product Specific.(B3).......030000000001
+        Product Specific.(B4).......00
+        Product Specific.(B7).......000000000000000000000000
+        Version.....................ipzSeries
+      Physical Location: U78AB.001.WZSGGSC-P1-C17-C3
+      Memory DIMM:
+        Record Name.................VINI
+        Flag Field..................XXMS
+        Hardware Location Code......U78AB.001.WZSGGSC-P1-C17-C4
+        Customer Card ID Number.....31C5
+        Serial Number...............YLD0036F02F0
+        CCIN Extender...............1
+        Product Specific.(VZ).......03
+        FRU Number..................77P8784
+        Part Number.................77P8784
+        Power.......................4800000000010000
+        Size........................4096
+        Product Specific.(HE).......0001
+        Product Specific.(CT).......10210004
+        Product Specific.(HW).......0001
+        Product Specific.(B3).......030000000001
+        Product Specific.(B4).......00
+        Product Specific.(B7).......000000000000000000000000
+        Version.....................ipzSeries
+      Physical Location: U78AB.001.WZSGGSC-P1-C17-C4
+      RAID            :
+        Record Name.................VINI
+        Flag Field..................XXRD
+        Hardware Location Code......U78AB.001.WZSGGSC-P1-C18
+        Customer Card ID Number.....2BD9
+        Serial Number...............YL11P2030006
+        CCIN Extender...............1
+        Product Specific.(VZ).......01
+        FRU Number..................74Y3346
+        Part Number.................74Y3296
+        Product Specific.(HE).......0001
+        Product Specific.(CT).......30F20005
+        Product Specific.(HW).......0001
+        Product Specific.(B3).......000000000001
+        Product Specific.(B4).......00
+        Product Specific.(B7).......000000000000000000000000
+        Version.....................ipzSeries
+      Physical Location: U78AB.001.WZSGGSC-P1-C18
+      ANCHOR          :
+        Record Name.................VINI
+        Flag Field..................XXAV
+        Hardware Location Code......U78AB.001.WZSGGSC-P1-C19
+        Customer Card ID Number.....52C9
+        Serial Number...............YL10WC167002
+        CCIN Extender...............1
+        Product Specific.(VZ).......01
+        FRU Number..................74Y2642
+        Part Number.................74Y2691
+        Power.......................8100300000000000
+        Product Specific.(HE).......0010
+        Product Specific.(CT).......40B40000
+        Product Specific.(HW).......0001
+        Product Specific.(B3).......000000000001
+        Product Specific.(B4).......00
+        Product Specific.(B7).......000000000000000000000000
+        Product Specific.(B9).......43531158114855876D5153502CCC6B2BE3A9669B4D
+                                    31926A7523169990194D3226989265274353C64D33
+                                    8D8884DD6A39DCCE4D34E5DFCE84860514AF
+        Version.....................ipzSeries
+      Physical Location: U78AB.001.WZSGGSC-P1-C19
+      CEC OP PANEL    :
+        Record Name.................VINI
+        Flag Field..................XXOP
+        Hardware Location Code......U78AB.001.WZSGGSC-D1
+        Customer Card ID Number.....2BCD
+        Serial Number...............YL10UF3850EA
+        CCIN Extender...............1
+        Product Specific.(VZ).......01
+        FRU Number..................74Y3964
+        Part Number.................74Y3965
+        Product Specific.(HE).......0001
+        Product Specific.(CT).......40B50000
+        Product Specific.(HW).......0002
+        Product Specific.(B3).......000000000000
+        Product Specific.(B4).......00
+        Product Specific.(B7).......000000000000000000000000
+        Version.....................ipzSeries
+      Physical Location: U78AB.001.WZSGGSC-D1
+      A IBM AC PS     :
+        Record Name.................VINI
+        Flag Field..................XXPS
+        Hardware Location Code......U78AB.001.WZSGGSC-E1
+        Customer Card ID Number.....2B46
+        Serial Number...............YL12213S0005
+        Part Number.................74Y8677
+        FRU Number.................. 74Y8677
+        Version.....................RS6K
+      Physical Location: U78AB.001.WZSGGSC-E1
+      A IBM AC PS     :
+        Record Name.................VINI
+        Flag Field..................XXPS
+        Hardware Location Code......U78AB.001.WZSGGSC-E2
+        Customer Card ID Number.....2B46
+        Serial Number...............YL12213S0009
+        Part Number.................74Y8677
+        FRU Number.................. 74Y8677
+        Version.....................RS6K
+      Physical Location: U78AB.001.WZSGGSC-E2
+      IBM Air Mover   :
+        Record Name.................VINI
+        Flag Field..................XXAM
+        Hardware Location Code......U78AB.001.WZSGGSC-A1
+        Customer Card ID Number.....6B1E
+        FRU Number.................. 74Y5222
+        Version.....................RS6K
+      Physical Location: U78AB.001.WZSGGSC-A1
+      IBM Air Mover   :
+        Record Name.................VINI
+        Flag Field..................XXAM
+        Hardware Location Code......U78AB.001.WZSGGSC-A2
+        Customer Card ID Number.....6B1E
+        FRU Number.................. 74Y5222
+        Version.....................RS6K
+      Physical Location: U78AB.001.WZSGGSC-A2
+      IBM Air Mover   :
+        Record Name.................VINI
+        Flag Field..................XXAM
+        Hardware Location Code......U78AB.001.WZSGGSC-A3
+        Customer Card ID Number.....6B1E
+        FRU Number.................. 74Y5222
+        Version.....................RS6K
+      Physical Location: U78AB.001.WZSGGSC-A3
+      IBM Air Mover   :
+        Record Name.................VINI
+        Flag Field..................XXAM
+        Hardware Location Code......U78AB.001.WZSGGSC-A4
+        Customer Card ID Number.....6B1E
+        FRU Number.................. 74Y5222
+        Version.....................RS6K
+      Physical Location: U78AB.001.WZSGGSC-A4
+      IBM Air Mover   :
+        Record Name.................VINI
+        Flag Field..................XXAM
+        Hardware Location Code......U78AB.001.WZSGGSC-A5
+        Customer Card ID Number.....6B1E
+        FRU Number.................. 74Y5222
+        Version.....................RS6K
+      Physical Location: U78AB.001.WZSGGSC-A5
+      IBM Air Mover   :
+        Record Name.................VINI
+        Flag Field..................XXAM
+        Hardware Location Code......U78AB.001.WZSGGSC-A6
+        Customer Card ID Number.....6B1E
+        FRU Number.................. 74Y5222
+        Version.....................RS6K
+      Physical Location: U78AB.001.WZSGGSC-A6
+      IBM Air Mover   :
+        Record Name.................VINI
+        Flag Field..................XXAM
+        Hardware Location Code......U78AB.001.WZSGGSC-A7
+        Customer Card ID Number.....6B1E
+        FRU Number.................. 74Y5222
+        Version.....................RS6K
+      Physical Location: U78AB.001.WZSGGSC-A7
+      PSBPD6E4A  3GSAS:
+        Record Name.................VINI
+        Flag Field..................XXDB
+        Hardware Location Code......U78AB.001.WZSGGSC-P2
+        Customer Card ID Number.....2D1F
+        Serial Number...............YL10P208909E
+        FRU Number.................. 00E1083
+        Part Number.................00E1084
+        CCIN Extender...............1
+        Product Specific.(VZ).......01
+        Product Specific.(B2).......500507604248E3000000000000000100
+        Version.....................RS6K
+      Physical Location: U78AB.001.WZSGGSC-P2
+      DASD BACKPLANE  :
+        Record Name.................VINI
+        Flag Field..................XXDB
+        Hardware Location Code......U78AB.001.WZSGGSC-P3
+        Customer Card ID Number.....2BD7
+        Serial Number...............YL13P32220E1
+        CCIN Extender...............1
+        Product Specific.(VZ).......02
+        FRU Number..................74Y3352
+        Part Number.................74Y3298
+        Product Specific.(HE).......0001
+        Product Specific.(CT).......40F50003
+        Product Specific.(HW).......0001
+        Product Specific.(B3).......000000000001
+        Product Specific.(B4).......00
+        Product Specific.(B7).......000000000000000000000000
+        FRU Label...................P3                  
+        Version.....................ipzSeries
+      Physical Location: U78AB.001.WZSGGSC-P3
+      System Firmware:
+        Code Level, LID Keyword.....Phyp_1 00102011051980A00701
+        Code Level, LID Keyword.....PFW 10482011050381CF0681
+        Code Level, LID Keyword.....FSP_Ker 02232011051981E00100
+        Code Level, LID Keyword.....FSP_Fil 02302011051981E00109
+        Code Level, LID Keyword.....FipS_BU 02302011051981E00208
+        Code Level, LID Keyword.....Phyp_2 00102011051985A00702
+        Code Level, LID Keyword.....SPCN3 124620060531A0E00A11
+        Code Level, LID Keyword.....SPCN1 183020070213A0E00D00
+        Code Level, LID Keyword.....SPCN2 183420070213A0E00D20
+        Microcode Image.............AL730_035 AL730_035 AL730_035
+        Hardware Location Code......U8231.E2B.06BA5AP-Y1
+      Physical Location: U8231.E2B.06BA5AP-Y1
+  Name:  openprom
+    Model:  IBM,AL730_035
+    Node:  openprom
+  Name:  interrupt-controller
+    Model:  IBM, Logical PowerPC-PIC, 00
+    Node:  interrupt-controller@0
+    Device Type:  PowerPC-External-Interrupt-Presentation
+  Name:  interrupt-controller
+    Model:  IBM,Logical PHB
+    Node:  interrupt-controller@800000025000200
+    Device Type:  PowerPC-LSI-Source
+    Physical Location: U78AB.001.WZSGGSC-P1
+  Name:  interrupt-controller
+    Model:  IBM,Logical PHB
+    Node:  interrupt-controller@800000025000201
+    Device Type:  PowerPC-LSI-Source
+    Physical Location: U78AB.001.WZSGGSC-P1
+  Name:  interrupt-controller
+    Model:  IBM,Logical PHB
+    Node:  interrupt-controller@800000025000202
+    Device Type:  PowerPC-LSI-Source
+    Physical Location: U78AB.001.WZSGGSC-P1
+  Name:  interrupt-controller
+    Model:  IBM,Logical PHB
+    Node:  interrupt-controller@800000025000206
+    Device Type:  PowerPC-LSI-Source
+    Physical Location: U78AB.001.WZSGGSC-P1
+  Name:  lhea
+    Node:  lhea@200000000000000
+    Physical Location: U78AB.001.WZSGGSC-P1
+  Name:  pci
+    Model:  IBM,Logical_PHB
+    Node:  pci@800000020000200
+    Physical Location: U78AB.001.WZSGGSC-P1
+  Name:  pci
+    Model:  IBM,Logical_PHB
+    Node:  pci@800000020000201
+    Physical Location: U78AB.001.WZSGGSC-P1
+  Name:  pci
+    Model:  IBM,Logical_PHB
+    Node:  pci@800000020000202
+    Physical Location: U78AB.001.WZSGGSC-P1
+  Name:  pci
+    Model:  IBM,Logical_PHB
+    Node:  pci@800000020000206
+    Device Type:  pciex
+    Physical Location: U78AB.001.WZSGGSC-P1
+  Name:  vty
+    Node:  vty@30000000
+    Device Type:  serial
+    Physical Location: U8231.E2B.06BA5AP-V2-C0
+  Name:  v-scsi-host
+    Node:  v-scsi-host@30000002
+    Physical Location: U8231.E2B.06BA5AP-V2-C2
+  Name:  l-lan
+    Node:  l-lan@30000003
+    Device Type:  network
+    Physical Location: U8231.E2B.06BA5AP-V2-C3-T1
+  Name:  vfc-server
+    Node:  vfc-server@30000004
+    Device Type:  fcp
+    Physical Location: U8231.E2B.06BA5AP-V2-C4
+  Name:  v-scsi-host
+    Node:  v-scsi-host@30000005
+    Physical Location: U8231.E2B.06BA5AP-V2-C5
+  Name:  vfc-server
+    Node:  vfc-server@30000009
+    Device Type:  fcp
+    Physical Location: U8231.E2B.06BA5AP-V2-C9
+  Name:  vfc-server
+    Node:  vfc-server@3000000b
+    Device Type:  fcp
+    Physical Location: U8231.E2B.06BA5AP-V2-C11
+  Name:  vfc-server
+    Node:  vfc-server@3000000c
+    Device Type:  fcp
+    Physical Location: U8231.E2B.06BA5AP-V2-C12
+  Name:  v-scsi-host
+    Node:  v-scsi-host@3000000d
+    Physical Location: U8231.E2B.06BA5AP-V2-C13
+  Name:  vfc-server
+    Node:  vfc-server@3000000e
+    Device Type:  fcp
+    Physical Location: U8231.E2B.06BA5AP-V2-C14
+  Name:  vfc-server
+    Node:  vfc-server@3000000f
+    Device Type:  fcp
+    Physical Location: U8231.E2B.06BA5AP-V2-C15
+  Name:  ethernet
+    Node:  ethernet@200000000000001
+    Device Type:  network
+    Physical Location: U78AB.001.WZSGGSC-P1-C2-T1
+  Name:  ethernet
+    Node:  ethernet@200000000000002
+    Device Type:  network
+    Physical Location: U78AB.001.WZSGGSC-P1-C2-T2
+  Name:  ethernet
+    Node:  ethernet@200000000000013
+    Device Type:  network
+    Physical Location: U78AB.001.WZSGGSC-P1-C2-T3
+  Name:  ethernet
+    Node:  ethernet@200000000000014
+    Device Type:  network
+    Physical Location: U78AB.001.WZSGGSC-P1-C2-T4
+  Name:  pci1014,02BD
+    Node:  pci1014,02BD@1
+    Physical Location: U78AB.001.WZSGGSC-P1-T7
+  Name:  usb
+    Node:  usb@1
+    Physical Location: U78AB.001.WZSGGSC-P1
+  Name:  usb
+    Node:  usb@1,1
+    Physical Location: U78AB.001.WZSGGSC-P1
+  Name:  usb
+    Node:  usb@1,2
+    Physical Location: U78AB.001.WZSGGSC-P1
+  Name:  pci1014,02BD
+    Node:  pci1014,02BD@1
+    Physical Location: U78AB.001.WZSGGSC-P1-C18-T1
+  Name:  fibre-channel
+    Model:  10N9824
+    Node:  fibre-channel@0
+    Device Type:  fcp
+    Physical Location: U78AB.001.WZSGGSC-P1-C5-T1
+  Name:  fibre-channel
+    Model:  10N9824
+    Node:  fibre-channel@0,1
+    Device Type:  fcp
+    Physical Location: U78AB.001.WZSGGSC-P1-C5-T2
+  Name:  cache
+    Node:  cache
+    Device Type:  aux_ioa
+    Physical Location: U78AB.001.WZSGGSC-P1-C12
+  Name:  hub
+    Node:  hub@1
+    Physical Location: U78AB.001.WZSGGSC-P1
+  Name:  hub
+    Node:  hub@1
+    Physical Location: U78AB.001.WZSGGSC-P1
+  Name:  hub
+    Node:  hub@1
+    Physical Location: U78AB.001.WZSGGSC-P1

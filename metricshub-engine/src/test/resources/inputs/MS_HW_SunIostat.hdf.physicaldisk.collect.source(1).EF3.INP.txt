@@ -1,0 +1,45 @@
+c3t5d0           Soft Errors: 0 Hard Errors: 0 Transport Errors: 0 
+Vendor: SEAGATE  Product: ST9146803SS      Revision: FS62 Serial No: 3SD3CY4F 
+Size: 146.82GB <146815733760 bytes>
+Media Error: 0 Device Not Ready: 0 No Device: 0 Recoverable: 0 
+Illegal Request: 4 Predictive Failure Analysis: 0 
+c3t3d0           Soft Errors: 0 Hard Errors: 0 Transport Errors: 0 
+Vendor: SEAGATE  Product: ST973402SSUN72G  Revision: 0603 Serial No: 084823L3T8 
+Size: 73.41GB <73407865856 bytes>
+Media Error: 0 Device Not Ready: 0 No Device: 0 Recoverable: 0 
+Illegal Request: 1 Predictive Failure Analysis: 0 
+c3t0d0           Soft Errors: 0 Hard Errors: 0 Transport Errors: 0 
+Vendor: LSILOGIC Product: Logical Volume   Revision: 3000 Serial No:  
+Size: 146.74GB <146742968320 bytes>
+Media Error: 0 Device Not Ready: 0 No Device: 0 Recoverable: 0 
+Illegal Request: 0 Predictive Failure Analysis: 0 
+c2t0d0           Soft Errors: 0 Hard Errors: 3658 Transport Errors: 0 
+Vendor: TSSTcorp Product: CD/DVDW TS-T632A Revision: SR03 Serial No:  
+Size: 0.00GB <0 bytes>
+Media Error: 0 Device Not Ready: 3658 No Device: 0 Recoverable: 0 
+Illegal Request: 0 Predictive Failure Analysis: 0 
+c1t4d0           Soft Errors: 0 Hard Errors: 0 Transport Errors: 250 
+Vendor: DGC      Product: LUNZ             Revision: 4201 Serial No: CKM00171901109 
+Size: 0.00GB <0 bytes>
+Media Error: 0 Device Not Ready: 0 No Device: 0 Recoverable: 0 
+Illegal Request: 63 Predictive Failure Analysis: 0 
+c0t600A0980383038586B5D4A5A70444463d0 Soft Errors: 0 Hard Errors: 0 Transport Errors: 0 
+Vendor: NETAPP   Product: LUN C-Mode       Revision: 9000 Serial No: 808Xk]JZpDDc 
+Size: 107.37GB <107374182400 bytes>
+Media Error: 0 Device Not Ready: 0 No Device: 0 Recoverable: 0 
+Illegal Request: 0 Predictive Failure Analysis: 0 
+c0t600A0980383038586B5D4A5A70444462d0 Soft Errors: 0 Hard Errors: 4 Transport Errors: 14 
+Vendor: NETAPP   Product: LUN C-Mode       Revision: 9000 Serial No: 808Xk]JZpDDb 
+Size: 107.37GB <107374182400 bytes>
+Media Error: 0 Device Not Ready: 0 No Device: 4 Recoverable: 0 
+Illegal Request: 0 Predictive Failure Analysis: 0 
+c0t6006016086F044003B4BD759E00A3349d0 Soft Errors: 0 Hard Errors: 0 Transport Errors: 586 
+Vendor: DGC      Product: VRAID            Revision: 4100 Serial No: CKM00171901109 
+Size: 107.37GB <107374182400 bytes>
+Media Error: 0 Device Not Ready: 0 No Device: 0 Recoverable: 0 
+Illegal Request: 0 Predictive Failure Analysis: 0 
+c0t6006016086F04400484BD75948CBD061d0 Soft Errors: 0 Hard Errors: 2 Transport Errors: 0 
+Vendor: DGC      Product: VRAID            Revision: 4100 Serial No: CKM00171901109 
+Size: 107.37GB <107374182400 bytes>
+Media Error: 0 Device Not Ready: 0 No Device: 2 Recoverable: 0 
+Illegal Request: 0 Predictive Failure Analysis: 0 

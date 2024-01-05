@@ -1,0 +1,2 @@
+MSHW;e300000a76;ps0_ff_ot;;;okay
+MSHW;e300000a7b;ps1_ff_ot;;;okay

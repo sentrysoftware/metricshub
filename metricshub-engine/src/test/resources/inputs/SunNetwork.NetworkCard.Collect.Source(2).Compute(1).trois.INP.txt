@@ -1,0 +1,30 @@
+DeviceID bge0
+bge0: flags=1004843<UP,BROADCAST,RUNNING,MULTICAST,DHCP,IPv4> mtu 1500 index 2
+	inet 10.0.10.237 netmask ffff0000 broadcast 10.0.255.255
+	ether 0:3:ba:c8:1b:29 
+module: bge                             instance: 0     
+name:   bge0                            class:    net
+	brdcstrcv                       17317365
+	brdcstxmt                       67628
+	collisions                      0
+	crtime                          72.442854597
+	ierrors                         0
+	ifspeed                         1000000000
+	ipackets                        19680199
+	ipackets64                      19680199
+	multircv                        7316
+	multixmt                        13572
+	norcvbuf                        0
+	noxmtbuf                        0
+	obytes                          1242798388
+	obytes64                        1242798388
+	oerrors                         0
+	opackets                        2766768
+	opackets64                      2766768
+	rbytes                          1592795793
+	rbytes64                        1592795793
+	snaptime                        868934.832731568
+	unknowns                        1151508
+link_status 1
+link_speed 1000
+link_duplex 2

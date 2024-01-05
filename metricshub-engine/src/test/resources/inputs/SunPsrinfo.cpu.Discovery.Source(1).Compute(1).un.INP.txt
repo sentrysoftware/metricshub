@@ -1,0 +1,2 @@
+MSHW;0;sparcv9;1503;on-line
+MSHW;1;sparcv9;1503;on-line

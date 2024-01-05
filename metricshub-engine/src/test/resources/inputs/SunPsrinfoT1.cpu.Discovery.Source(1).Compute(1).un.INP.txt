@@ -1,0 +1,6 @@
+The physical processor has 2 virtual processors (0 2)
+  x86 (chipid 0x0 GenuineIntel family 15 model 3 step 4 clock 3391 MHz)
+	Intel(r) Xeon(tm) CPU 3.40GHz
+The physical processor has 2 virtual processors (1 3)
+  x86 (chipid 0x3 GenuineIntel family 15 model 3 step 4 clock 3391 MHz)
+	Intel(r) Xeon(tm) CPU 3.40GHz

@@ -1,0 +1,8 @@
+Status of virtual processor 0 as of: 12/21/2012 14:26:39
+  on-line since 12/11/2012 13:27:45.
+  The sparcv9 processor operates at 1503 MHz,
+	and has a sparcv9 floating point processor.
+Status of virtual processor 1 as of: 12/21/2012 14:26:39
+  on-line since 12/11/2012 13:27:34.
+  The sparcv9 processor operates at 1503 MHz,
+	and has a sparcv9 floating point processor.

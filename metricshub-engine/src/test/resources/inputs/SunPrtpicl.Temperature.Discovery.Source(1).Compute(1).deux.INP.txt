@@ -1,0 +1,30 @@
+mb_p0_t_core (temperature-sensor, e300000a5b)
+  :_fru_parent	 (e30000088bH) 
+  :Label	 T_CORE 
+  :HighPowerOffThreshold	 96 
+  :HighShutdownThreshold	 89 
+  :HighWarningThreshold	 84 
+  :Temperature	 54 
+  :_class	 temperature-sensor 
+  :name	 mb_p0_t_core 
+  mb_p1_t_core (temperature-sensor, e300000a63)
+  :_fru_parent	 (e3000008b8H) 
+  :Label	 T_CORE 
+  :HighPowerOffThreshold	 96 
+  :HighShutdownThreshold	 89 
+  :HighWarningThreshold	 84 
+  :Temperature	 53 
+  :_class	 temperature-sensor 
+  :name	 mb_p1_t_core 
+  mb_t_enc (temperature-sensor, e300000a6b)
+  :_fru_parent	 (e30000086dH) 
+  :Label	 T_ENC 
+  :HighPowerOffThreshold	 51 
+  :HighShutdownThreshold	 48 
+  :HighWarningThreshold	 40 
+  :LowPowerOffThreshold	 -6 
+  :LowShutdownThreshold	 -3 
+  :LowWarningThreshold	 5 
+  :Temperature	 24 
+  :_class	 temperature-sensor 
+  :name	 mb_t_enc
