@@ -256,9 +256,9 @@
 				<version>${matsya.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.sentrysoftware.patrol.matsya</groupId>
-				<artifactId>module-wmiclient</artifactId>
-				<version>${matsya.version}</version>
+				<groupId>org.sentrysoftware</groupId>
+				<artifactId>wmi</artifactId>
+				<version>1.0.00</version>
 			</dependency>
 			<dependency>
 				<groupId>com.sentrysoftware.patrol.matsya</groupId>

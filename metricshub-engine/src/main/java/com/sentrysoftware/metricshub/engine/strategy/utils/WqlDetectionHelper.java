@@ -4,7 +4,6 @@ import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 
 import com.sentrysoftware.javax.wbem.WBEMException;
 import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
-import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
 import com.sentrysoftware.metricshub.engine.common.exception.MatsyaException;
 import com.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.IWinConfiguration;
@@ -27,6 +26,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.sentrysoftware.wmi.exceptions.WmiComException;
 
 @Slf4j
 public class WqlDetectionHelper {
