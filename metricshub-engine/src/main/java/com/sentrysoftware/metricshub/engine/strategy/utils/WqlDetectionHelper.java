@@ -25,8 +25,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.sentrysoftware.wmi.exceptions.WmiComException;
 import org.sentrysoftware.wbem.javax.wbem.WBEMException;
+import org.sentrysoftware.wmi.exceptions.WmiComException;
 
 @Slf4j
 public class WqlDetectionHelper {

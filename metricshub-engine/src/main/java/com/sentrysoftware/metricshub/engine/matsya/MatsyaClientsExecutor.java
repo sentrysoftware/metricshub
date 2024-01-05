@@ -65,14 +65,14 @@ import org.sentrysoftware.jflat.JFlat;
 import org.sentrysoftware.snmp.client.SnmpClient;
 import org.sentrysoftware.ssh.SshClient;
 import org.sentrysoftware.tablejoin.TableJoin;
-import org.sentrysoftware.wmi.WmiHelper;
-import org.sentrysoftware.wmi.WmiStringConverter;
-import org.sentrysoftware.wmi.remotecommand.WinRemoteCommandExecutor;
-import org.sentrysoftware.wmi.wbem.WmiWbemServices;
 import org.sentrysoftware.vcenter.VCenterClient;
 import org.sentrysoftware.wbem.client.WbemExecutor;
 import org.sentrysoftware.wbem.client.WbemQueryResult;
 import org.sentrysoftware.wbem.javax.wbem.WBEMException;
+import org.sentrysoftware.wmi.WmiHelper;
+import org.sentrysoftware.wmi.WmiStringConverter;
+import org.sentrysoftware.wmi.remotecommand.WinRemoteCommandExecutor;
+import org.sentrysoftware.wmi.wbem.WmiWbemServices;
 import org.sentrysoftware.xflat.XFlat;
 import org.sentrysoftware.xflat.exceptions.XFlatException;
 
