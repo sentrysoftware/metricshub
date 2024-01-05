@@ -45,6 +45,7 @@ import com.sentrysoftware.metricshub.engine.security.SecurityManager;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -54,6 +55,7 @@ import java.nio.file.attribute.AclEntryPermission;
 import java.nio.file.attribute.AclEntryType;
 import java.nio.file.attribute.AclFileAttributeView;
 import java.nio.file.attribute.GroupPrincipal;
+import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -1344,5 +1346,21 @@ public class ConfigHelper {
 			}
 		}
 		return Optional.empty();
+	}
+
+	/**
+	 * Calculates the MD5 checksum of the specified file.
+	 *
+	 * @param file The file for which the MD5 checksum is to be calculated.
+	 * @return The MD5 checksum as a hexadecimal string or <code>null</code> if the calculation has failed.
+	 */
+	public static String calculateMD5Checksum(final File file) {
+		try {
+			byte[] data = Files.readAllBytes(file.toPath());
+			byte[] hash = MessageDigest.getInstance("MD5").digest(data);
+			return new BigInteger(1, hash).toString(16);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 }
