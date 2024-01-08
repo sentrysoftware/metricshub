@@ -6,6 +6,7 @@ import static com.sentrysoftware.metricshub.agent.helper.TestConstants.SENTRY_PA
 import static com.sentrysoftware.metricshub.agent.helper.TestConstants.SERVER_1_RESOURCE_GROUP_KEY;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -183,6 +184,26 @@ class ConfigHelperTest {
 		assertEquals(Set.of(PURE_STORAGE_REST_CONNECTOR_ID), hostConfiguration.getSelectedConnectors());
 		assertEquals(Collections.emptySet(), hostConfiguration.getExcludedConnectors());
 		assertNotNull(hostConfiguration.getConfigurations().get(HttpConfiguration.class));
+	}
+
+	@Test
+	void testBuildNewConnectorStore() {
+		// Create a custom connectors Map
+		final Map<String, Connector> customConnectors = Map.of("custom-connector-1", new Connector());
+
+		// Initialize the original connector store
+		final ConnectorStore connectorStore = new ConnectorStore(Path.of("src/test/resources/storeMerge"));
+
+		// Call buildNewConnectorStore
+		final ConnectorStore newConnectorStore = ConfigHelper.buildNewConnectorStore(customConnectors, connectorStore);
+
+		// Retrieve the new connector store connectors
+		final Map<String, Connector> newStoreConnectors = newConnectorStore.getStore();
+
+		// Check that the merge of custom and standard connectors was successfully executed
+		assertEquals(2, newStoreConnectors.size());
+		assertTrue(newStoreConnectors.containsKey("custom-connector-1"));
+		assertTrue(newStoreConnectors.containsKey("noTemplateVariable"));
 	}
 
 	@Test
@@ -523,5 +544,24 @@ class ConfigHelperTest {
 		assertTrue(ConfigHelper.fetchMetricDefinitions(null, null).isEmpty());
 		assertTrue(ConfigHelper.fetchMetricDefinitions(null, PURE_STORAGE_REST_CONNECTOR_ID).isEmpty());
 		assertTrue(ConfigHelper.fetchMetricDefinitions(connectorStore, null).isEmpty());
+	}
+
+	@Test
+	void testCalculateMD5Checksum() {
+		// Check that calculateMD5Checksum returns always the same value for the same input file
+		final File file = Path.of("src", "test", "resources", "md5Checksum", "checkSumTest.txt").toFile();
+		final String md5CheckSumFirstCallResult = ConfigHelper.calculateMD5Checksum(file);
+		final String md5CheckSumSecondCallResult = ConfigHelper.calculateMD5Checksum(file);
+		assertNotNull(md5CheckSumFirstCallResult);
+		assertNotNull(md5CheckSumSecondCallResult);
+		assertEquals(md5CheckSumFirstCallResult, md5CheckSumSecondCallResult);
+
+		// Check that calculateMD5Checksum returns different values for different input files
+		final File secondFile = Path.of("src", "test", "resources", "md5Checksum", "otherCheckSumTest.txt").toFile();
+		final String md5CheckSumFirstFileResult = ConfigHelper.calculateMD5Checksum(file);
+		final String md5CheckSumSecondFileResult = ConfigHelper.calculateMD5Checksum(secondFile);
+		assertNotNull(md5CheckSumFirstFileResult);
+		assertNotNull(md5CheckSumSecondFileResult);
+		assertNotEquals(md5CheckSumFirstFileResult, md5CheckSumSecondFileResult);
 	}
 }

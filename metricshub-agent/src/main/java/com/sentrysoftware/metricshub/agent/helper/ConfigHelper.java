@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.sentrysoftware.metricshub.agent.config.AgentConfig;
 import com.sentrysoftware.metricshub.agent.config.AlertingSystemConfig;
+import com.sentrysoftware.metricshub.agent.config.ConnectorVariables;
 import com.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import com.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
 import com.sentrysoftware.metricshub.agent.config.protocols.AbstractProtocolConfig;
@@ -44,6 +45,7 @@ import com.sentrysoftware.metricshub.engine.security.SecurityManager;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -53,6 +55,7 @@ import java.nio.file.attribute.AclEntryPermission;
 import java.nio.file.attribute.AclEntryType;
 import java.nio.file.attribute.AclFileAttributeView;
 import java.nio.file.attribute.GroupPrincipal;
+import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -61,6 +64,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -716,10 +720,27 @@ public class ConfigHelper {
 				resourceKey
 			);
 
-			final ConnectorStore telemetryManagerConnectorStore = createCustomConnectorStoreIfConfigured(
+			ConnectorStore telemetryManagerConnectorStore = createCustomConnectorStoreIfConfigured(
 				resourceConfig.getConnector(),
 				connectorStore
 			);
+
+			// Retrieve connectors variables map from the resource configuration
+			final Map<String, ConnectorVariables> connectorVariablesMap = resourceConfig.getVariables();
+
+			// If connectors variables exist then merge the existing connector store with a new one containing custom connectors
+			if (connectorVariablesMap != null && !connectorVariablesMap.isEmpty()) {
+				// Call ConnectorTemplateLibraryParser and parse the custom connectors
+				final ConnectorTemplateLibraryParser connectorTemplateLibraryParser = new ConnectorTemplateLibraryParser();
+
+				final Map<String, Connector> customConnectors = connectorTemplateLibraryParser.parse(
+					ConfigHelper.getSubDirectory("connectors", false),
+					connectorVariablesMap
+				);
+
+				// Overwrite telemetryManagerConnectorStore
+				telemetryManagerConnectorStore = buildNewConnectorStore(customConnectors, telemetryManagerConnectorStore);
+			}
 
 			resourceGroupTelemetryManagers.putIfAbsent(
 				resourceKey,
@@ -739,6 +760,35 @@ public class ConfigHelper {
 				e.getMessage()
 			);
 		}
+	}
+
+	/**
+	 * Builds a new connector store by merging the existing (standard) connectors with the custom connectors (connectors that contain template variables)
+	 * @param customConnectors Map<String, Connector> Connectors containing template variables
+	 * @param telemetryManagerConnectorStore the connector store before the merge with custom connectors
+	 * @return {@link ConnectorStore} instance
+	 */
+	protected static ConnectorStore buildNewConnectorStore(
+		final Map<String, Connector> customConnectors,
+		final ConnectorStore telemetryManagerConnectorStore
+	) {
+		// Initialize a new connector store that will contain both standard and custom connectors
+		final ConnectorStore finalConnectorStore = new ConnectorStore();
+
+		// Initialize a new connectors map that will contain both standard and custom connectors
+		final Map<String, Connector> newConnectors = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+		// Add the original connector store connectors
+		newConnectors.putAll(telemetryManagerConnectorStore.getStore());
+
+		// Add custom connectors
+		newConnectors.putAll(customConnectors);
+
+		// Populate the connector store with the existing connectors
+		finalConnectorStore.setStore(newConnectors);
+
+		// Return the custom ConnectorStore
+		return finalConnectorStore;
 	}
 
 	/**
@@ -781,7 +831,7 @@ public class ConfigHelper {
 			// configured connector
 			final ConnectorStore customConnectorStore = new ConnectorStore();
 
-			final Map<String, Connector> originalConnectors = new HashMap<>();
+			final Map<String, Connector> originalConnectors = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 			originalConnectors.putAll(connectorStore.getStore());
 
@@ -1296,5 +1346,21 @@ public class ConfigHelper {
 			}
 		}
 		return Optional.empty();
+	}
+
+	/**
+	 * Calculates the MD5 checksum of the specified file.
+	 *
+	 * @param file The file for which the MD5 checksum is to be calculated.
+	 * @return The MD5 checksum as a hexadecimal string or <code>null</code> if the calculation has failed.
+	 */
+	public static String calculateMD5Checksum(final File file) {
+		try {
+			byte[] data = Files.readAllBytes(file.toPath());
+			byte[] hash = MessageDigest.getInstance("MD5").digest(data);
+			return new BigInteger(1, hash).toString(16);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 }
