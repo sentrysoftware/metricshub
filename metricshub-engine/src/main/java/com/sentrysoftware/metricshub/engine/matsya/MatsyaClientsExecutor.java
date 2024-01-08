@@ -68,7 +68,7 @@ import org.sentrysoftware.vcenter.VCenterClient;
 import org.sentrysoftware.wbem.client.WbemExecutor;
 import org.sentrysoftware.wbem.client.WbemQueryResult;
 import org.sentrysoftware.wbem.javax.wbem.WBEMException;
-import org.sentrysoftware.winrm.HttpProtocolEnum;
+import org.sentrysoftware.winrm.WinRMHttpProtocolEnum;
 import org.sentrysoftware.winrm.WindowsRemoteCommandResult;
 import org.sentrysoftware.winrm.command.WinRMCommandExecutor;
 import org.sentrysoftware.winrm.service.client.auth.AuthenticationEnum;
@@ -1625,9 +1625,9 @@ public class MatsyaClientsExecutor {
 		@SpanAttribute("wql.namespace") @NonNull final String namespace
 	) throws MatsyaException {
 		final String username = winRmConfiguration.getUsername();
-		final HttpProtocolEnum httpProtocol = TransportProtocols.HTTP.equals(winRmConfiguration.getProtocol())
-			? HttpProtocolEnum.HTTP
-			: HttpProtocolEnum.HTTPS;
+		final WinRMHttpProtocolEnum httpProtocol = TransportProtocols.HTTP.equals(winRmConfiguration.getProtocol())
+			? WinRMHttpProtocolEnum.HTTP
+			: WinRMHttpProtocolEnum.HTTPS;
 		final Integer port = winRmConfiguration.getPort();
 		final List<AuthenticationEnum> authentications = winRmConfiguration.getAuthentications();
 		final Long timeout = winRmConfiguration.getTimeout();
@@ -1708,9 +1708,9 @@ public class MatsyaClientsExecutor {
 		@SpanAttribute("winrm.command") @NonNull final String command
 	) throws MatsyaException {
 		final String username = winRmConfiguration.getUsername();
-		final HttpProtocolEnum httpProtocol = TransportProtocols.HTTP.equals(winRmConfiguration.getProtocol())
-			? HttpProtocolEnum.HTTP
-			: HttpProtocolEnum.HTTPS;
+		final WinRMHttpProtocolEnum httpProtocol = TransportProtocols.HTTP.equals(winRmConfiguration.getProtocol())
+			? WinRMHttpProtocolEnum.HTTP
+			: WinRMHttpProtocolEnum.HTTPS;
 		final Integer port = winRmConfiguration.getPort();
 		final List<AuthenticationEnum> authentications = winRmConfiguration.getAuthentications();
 		final Long timeout = winRmConfiguration.getTimeout();
