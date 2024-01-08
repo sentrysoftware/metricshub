@@ -75,8 +75,8 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>com.sentrysoftware.patrol.matsya</groupId>
-			<artifactId>module-wmiclient</artifactId>
+			<groupId>org.sentrysoftware</groupId>
+			<artifactId>wmi</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.sentrysoftware</groupId>
