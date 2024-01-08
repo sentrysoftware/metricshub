@@ -296,7 +296,7 @@ public class Constants {
 		"HostConfiguration(hostname=localhost, hostId=localhost," +
 		" hostType=LINUX, strategyTimeout=100, selectedConnectors=null," +
 		" excludedConnectors=null, sequential=false, alertTrigger=null," +
-		" retryDelay=30, connectorVariables=null, configurations={}, configuredConnectorId=null, includeConnectorTags=null)";
+		" retryDelay=30, connectorVariables=null, configurations={}, configuredConnectorId=null, includeConnectorTags=[])";
 	public static final String IPMI_RESULT_EXAMPLE =
 		"Device ID                 : 3\r\n" +
 		"Device Revision           : 3\r\n" +
