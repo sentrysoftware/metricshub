@@ -4,7 +4,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 
 /**
- * Overrides the println method of {@link PrintStream} 
+ * Overrides the println method of {@link PrintStream}
  */
 public class UniformPrintStream extends PrintStream {
 
@@ -21,5 +21,4 @@ public class UniformPrintStream extends PrintStream {
 	public void println() {
 		this.write('\n');
 	}
-
 }

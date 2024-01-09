@@ -2,10 +2,9 @@ package com.sentrysoftware.metricshub.engine.awk;
 
 import java.text.ParseException;
 import java.util.concurrent.ConcurrentHashMap;
-import org.sentrysoftware.jawk.intermediate.AwkTuples;
-
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.sentrysoftware.jawk.intermediate.AwkTuples;
 
 /**
  * Execute AWK Scripts
@@ -31,17 +30,20 @@ public class AwkExecutor {
 		// code, so we don't "compile" it every time.
 		// This saves a lot of CPU.
 		final AwkTuples tuples;
-		try  {
-			tuples = awkCodeMap.computeIfAbsent(awkScript, code -> {
-					try {
-
-						return Awk.getIntermediateCode(code);
-					} catch (ParseException e) {
-						// Throw a RuntimeException so the e.getMessage() can be passed
-						// through the call stack
-						throw new RuntimeException(e.getMessage());
+		try {
+			tuples =
+				awkCodeMap.computeIfAbsent(
+					awkScript,
+					code -> {
+						try {
+							return Awk.getIntermediateCode(code);
+						} catch (ParseException e) {
+							// Throw a RuntimeException so the e.getMessage() can be passed
+							// through the call stack
+							throw new RuntimeException(e.getMessage());
+						}
 					}
-				});
+				);
 		} catch (Exception e) {
 			throw new AwkException("Failed to get intermediate code.", e);
 		}
@@ -53,7 +55,9 @@ public class AwkExecutor {
 		final String result = Awk.interpret(awkInput, tuples);
 
 		if (result == null) {
-			throw new AwkException("null result for the script below on the specified input:\n" + awkScript + "\n\nInput:\n" + awkInput);
+			throw new AwkException(
+				"null result for the script below on the specified input:\n" + awkScript + "\n\nInput:\n" + awkInput
+			);
 		}
 
 		return result;

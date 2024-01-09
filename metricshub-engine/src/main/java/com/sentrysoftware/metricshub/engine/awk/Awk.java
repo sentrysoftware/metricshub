@@ -9,18 +9,15 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.sentrysoftware.jawk.ExitException;
 import org.sentrysoftware.jawk.backend.AVM;
 import org.sentrysoftware.jawk.frontend.AwkParser;
 import org.sentrysoftware.jawk.frontend.AwkSyntaxTree;
+import org.sentrysoftware.jawk.intermediate.AwkTuples;
 import org.sentrysoftware.jawk.util.AwkSettings;
 import org.sentrysoftware.jawk.util.ScriptSource;
-
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-
-import org.sentrysoftware.jawk.intermediate.AwkTuples;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Awk {
@@ -34,7 +31,6 @@ public class Awk {
 	 * @throws ParseException when the Awk script is wrong
 	 */
 	public static AwkTuples getIntermediateCode(final String script) throws ParseException {
-
 		// All scripts need to be prefixed with an extra statement that sets the Record Separator (RS)
 		// to the "normal" end-of-line (\n), because Jawk uses line.separator System property, which
 		// is \r\n on Windows, thus preventing it from splitting lines properly.
@@ -66,7 +62,6 @@ public class Awk {
 				tuples.postProcess();
 				parser.populateGlobalVariableNameToOffsetMappings(tuples);
 			}
-
 		} catch (IOException e) {
 			throw new ParseException(e.getMessage(), 0);
 		} catch (Exception e) {
@@ -74,7 +69,6 @@ public class Awk {
 		}
 
 		return tuples;
-
 	}
 
 	/**
@@ -86,7 +80,6 @@ public class Awk {
 	 * @throws RuntimeException when something goes wrong with the interpretation of the code
 	 */
 	public static String interpret(final String input, final AwkTuples intermediateCode) {
-
 		// Configure the InputStream
 		final AwkSettings settings = new AwkSettings();
 		try {
@@ -119,7 +112,6 @@ public class Awk {
 
 		// Result
 		return resultBytesStream.toString();
-
 	}
 
 	/**
@@ -132,12 +124,10 @@ public class Awk {
 	 * @throws RuntimeException when something goes wrong with the interpretation of the code
 	 */
 	public static String interpret(String input, String script) throws ParseException {
-
 		// Get the intermediate code
 		AwkTuples intermediateCode = getIntermediateCode(script);
 
 		// Interpret
 		return interpret(input, intermediateCode);
 	}
-
 }

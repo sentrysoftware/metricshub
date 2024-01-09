@@ -9,7 +9,7 @@ public class AwkException extends Exception {
 
 	/**
 	 * Constructs an AWK Exception using the given message
-	 * 
+	 *
 	 * @param message Exception message
 	 */
 	public AwkException(String message) {
@@ -18,7 +18,7 @@ public class AwkException extends Exception {
 
 	/**
 	 * Constructs an AWK Exception using the given message and the throwable
-	 * 
+	 *
 	 * @param message   Exception message
 	 * @param throwable Any throwable error
 	 */
