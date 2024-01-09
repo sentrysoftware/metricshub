@@ -3,7 +3,6 @@ package com.sentrysoftware.metricshub.engine.strategy.utils;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.TABLE_SEP;
 
 import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
-import com.sentrysoftware.matsya.wmi.exceptions.WmiComException;
 import com.sentrysoftware.metricshub.engine.common.exception.MatsyaException;
 import com.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.IWinConfiguration;
@@ -27,6 +26,7 @@ import lombok.Data;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.wbem.javax.wbem.WBEMException;
+import org.sentrysoftware.wmi.exceptions.WmiComException;
 
 @Slf4j
 public class WqlDetectionHelper {
