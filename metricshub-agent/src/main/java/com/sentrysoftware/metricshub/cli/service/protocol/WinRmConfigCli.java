@@ -1,6 +1,5 @@
 package com.sentrysoftware.metricshub.cli.service.protocol;
 
-import com.sentrysoftware.matsya.winrm.service.client.auth.AuthenticationEnum;
 import com.sentrysoftware.metricshub.cli.service.converter.TransportProtocolConverter;
 import com.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.TransportProtocols;
@@ -8,6 +7,7 @@ import com.sentrysoftware.metricshub.engine.configuration.WinRmConfiguration;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.sentrysoftware.winrm.service.client.auth.AuthenticationEnum;
 import picocli.CommandLine.Option;
 
 @Data

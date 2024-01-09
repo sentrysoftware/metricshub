@@ -252,19 +252,14 @@
 				<version>1.0.00</version>
 			</dependency>
 			<dependency>
-				<groupId>com.sentrysoftware.patrol.matsya</groupId>
-				<artifactId>module-winrm</artifactId>
-				<version>${matsya.version}</version>
+				<groupId>org.sentrysoftware</groupId>
+				<artifactId>wmi</artifactId>
+				<version>1.0.00</version>
 			</dependency>
 			<dependency>
-				<groupId>com.sentrysoftware.patrol.matsya</groupId>
-				<artifactId>module-wmiclient</artifactId>
-				<version>${matsya.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.sentrysoftware.patrol.matsya</groupId>
-				<artifactId>module-httpclient</artifactId>
-				<version>${matsya.version}</version>
+				<groupId>org.sentrysoftware</groupId>
+				<artifactId>http</artifactId>
+				<version>1.0.00</version>
 			</dependency>
 			<dependency>
 				<groupId>org.sentrysoftware</groupId>
@@ -294,7 +289,7 @@
 			<dependency>
 				<groupId>org.sentrysoftware</groupId>
 				<artifactId>winrm</artifactId>
-				<version>1.0.00-SNAPSHOT</version>
+				<version>1.0.00</version>
 			</dependency>
 			<dependency>
 				<groupId>org.sentrysoftware</groupId>

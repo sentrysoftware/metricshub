@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -34,7 +35,7 @@ public class HostConfiguration {
 	private String hostId;
 	private DeviceKind hostType;
 
-	@Builder.Default
+	@Default
 	private long strategyTimeout = DEFAULT_JOB_TIMEOUT;
 
 	private Set<String> selectedConnectors;
@@ -44,13 +45,14 @@ public class HostConfiguration {
 	private long retryDelay;
 	private Map<String, String> connectorVariables;
 
-	@Builder.Default
+	@Default
 	private Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
 
 	private String configuredConnectorId;
 
 	private static final Map<Class<? extends IConfiguration>, Set<Class<? extends Source>>> CONFIGURATION_TO_SOURCES_MAP;
 
+	@Default
 	private Set<String> includeConnectorTags = new HashSet<>();
 
 	static {

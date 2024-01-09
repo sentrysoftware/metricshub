@@ -29,6 +29,9 @@ public class FileWatcherTask extends Thread {
 
 	private long await;
 
+	@NonNull
+	private String checksum;
+
 	@Override
 	public void run() {
 		try {
@@ -69,7 +72,17 @@ public class FileWatcherTask extends Thread {
 
 				// Waiting if a key is present
 				while ((key = watchService.take()) != null) {
-					key.pollEvents().stream().filter(event -> filter.test(event)).forEach(event -> performAction());
+					key
+						.pollEvents()
+						.stream()
+						.filter(event -> filter.test(event))
+						.forEach(event -> {
+							final String newChecksum = ConfigHelper.calculateMD5Checksum(file);
+							if (checksum != null && !checksum.equals(newChecksum)) {
+								checksum = newChecksum;
+								performAction();
+							}
+						});
 
 					// The key is no more valid and must be reset
 					if (!key.reset()) {

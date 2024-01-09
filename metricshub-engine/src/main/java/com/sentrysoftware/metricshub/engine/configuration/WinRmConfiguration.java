@@ -1,11 +1,11 @@
 package com.sentrysoftware.metricshub.engine.configuration;
 
-import com.sentrysoftware.matsya.winrm.service.client.auth.AuthenticationEnum;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.sentrysoftware.winrm.service.client.auth.AuthenticationEnum;
 
 @Data
 @Builder

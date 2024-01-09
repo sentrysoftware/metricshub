@@ -61,8 +61,8 @@
 			<artifactId>wbem</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.sentrysoftware.patrol.matsya</groupId>
-			<artifactId>module-winrm</artifactId>
+			<groupId>org.sentrysoftware</groupId>
+			<artifactId>winrm</artifactId>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>
@@ -75,12 +75,12 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>com.sentrysoftware.patrol.matsya</groupId>
-			<artifactId>module-wmiclient</artifactId>
+			<groupId>org.sentrysoftware</groupId>
+			<artifactId>wmi</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.sentrysoftware.patrol.matsya</groupId>
-			<artifactId>module-httpclient</artifactId>
+			<groupId>org.sentrysoftware</groupId>
+			<artifactId>http</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.sentrysoftware</groupId>
