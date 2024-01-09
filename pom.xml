@@ -251,11 +251,6 @@
 				<version>1.0.00</version>
 			</dependency>
 			<dependency>
-				<groupId>com.sentrysoftware.patrol.matsya</groupId>
-				<artifactId>module-winrm</artifactId>
-				<version>${matsya.version}</version>
-			</dependency>
-			<dependency>
 				<groupId>org.sentrysoftware</groupId>
 				<artifactId>wmi</artifactId>
 				<version>1.0.00</version>
@@ -288,6 +283,11 @@
 			<dependency>
 				<groupId>org.sentrysoftware</groupId>
 				<artifactId>xflat</artifactId>
+				<version>1.0.00</version>
+			</dependency>
+			<dependency>
+				<groupId>org.sentrysoftware</groupId>
+				<artifactId>winrm</artifactId>
 				<version>1.0.00</version>
 			</dependency>
 			<dependency>

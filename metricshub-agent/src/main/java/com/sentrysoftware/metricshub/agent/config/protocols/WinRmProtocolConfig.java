@@ -4,7 +4,6 @@ import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.sentrysoftware.matsya.winrm.service.client.auth.AuthenticationEnum;
 import com.sentrysoftware.metricshub.agent.deserialization.TimeDeserializer;
 import com.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.TransportProtocols;
@@ -16,6 +15,7 @@ import lombok.Builder.Default;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.sentrysoftware.winrm.service.client.auth.AuthenticationEnum;
 
 @Data
 @Builder
