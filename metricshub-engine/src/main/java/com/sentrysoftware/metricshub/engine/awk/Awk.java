@@ -4,7 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,7 +55,10 @@ public class Awk {
 
 			// Produce the intermediate code
 			if (ast != null) {
+				// 1st pass to tie actual parameters to back-referenced formal parameters
 				ast.semanticAnalysis();
+
+				// 2nd pass to tie actual parameters to forward-referenced formal parameters
 				ast.semanticAnalysis();
 				if (ast.populateTuples(tuples) != 0) {
 					throw new ParseException("Syntax problem with the Awk script", 0);
@@ -64,31 +68,25 @@ public class Awk {
 			}
 		} catch (IOException e) {
 			throw new ParseException(e.getMessage(), 0);
-		} catch (Exception e) {
-			throw new ParseException(e.getMessage(), 0);
 		}
 
 		return tuples;
 	}
 
 	/**
-	 * Interprets the specified Awk intermediate code against an input string
+	 * Interprets the specified Awk intermediate code against an input string. If something goes wrong with the interpretation of the code, a {@link RuntimeException} is thrown.
 	 *
-	 * @param input The text input to be parsed by the Awk script
+	 * @param input            The text input to be parsed by the Awk script
 	 * @param intermediateCode The Awk intermediate code
+	 * @param charset          A named mapping between sequences of sixteen-bit Unicode code units
+	 *                         and sequences of bytes used to set the input as bytes in the {@link AwkSettings}
 	 * @return The result of the Awk script (i.e. what has been printed by the script)
-	 * @throws RuntimeException when something goes wrong with the interpretation of the code
 	 */
-	public static String interpret(final String input, final AwkTuples intermediateCode) {
+	public static String interpret(final String input, final AwkTuples intermediateCode, final Charset charset) {
 		// Configure the InputStream
 		final AwkSettings settings = new AwkSettings();
-		try {
-			settings.setInput(new ByteArrayInputStream(input.getBytes("ISO-8859-1"))); //UTF-8")));
-		} catch (UnsupportedEncodingException e) {
-			// Impossible
-			return null;
-		}
-		//settings.setFieldSeparator(" +");
+
+		settings.setInput(new ByteArrayInputStream(input.getBytes(charset)));
 
 		// Create the OutputStream
 		final ByteArrayOutputStream resultBytesStream = new ByteArrayOutputStream();
@@ -115,13 +113,23 @@ public class Awk {
 	}
 
 	/**
-	 * Interprets the specified Awk script against an input string
+	 * Interprets the specified Awk intermediate code against an input string. If something goes wrong with the interpretation of the code, a {@link RuntimeException} is thrown.
+	 *
+	 * @param input The text input to be parsed by the Awk script
+	 * @param intermediateCode The Awk intermediate code
+	 * @return The result of the Awk script (i.e. what has been printed by the script)
+	 */
+	public static String interpret(final String input, final AwkTuples intermediateCode) {
+		return interpret(input, intermediateCode, StandardCharsets.UTF_8);
+	}
+
+	/**
+	 * Interprets the specified Awk script against an input string. If something goes wrong with the interpretation of the code, a {@link RuntimeException} is thrown.
 	 *
 	 * @param input The text input to be parsed by the Awk script
 	 * @param script The Awk script to interpret
 	 * @return The result of the Awk script (i.e. what has been printed by the script)
 	 * @throws ParseException when the Awk script is wrong
-	 * @throws RuntimeException when something goes wrong with the interpretation of the code
 	 */
 	public static String interpret(String input, String script) throws ParseException {
 		// Get the intermediate code

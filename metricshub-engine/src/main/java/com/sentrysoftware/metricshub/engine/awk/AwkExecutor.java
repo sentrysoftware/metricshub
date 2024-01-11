@@ -56,7 +56,7 @@ public class AwkExecutor {
 
 		if (result == null) {
 			throw new AwkException(
-				"null result for the script below on the specified input:\n" + awkScript + "\n\nInput:\n" + awkInput
+				String.format("Null result for the script below on the specified input:\n%s\n\nInput:\n%s", awkScript, awkInput)
 			);
 		}
 
