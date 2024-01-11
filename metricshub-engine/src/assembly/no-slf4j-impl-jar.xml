@@ -14,7 +14,7 @@
 			<unpack>true</unpack>
 			<unpackOptions>
 				<excludes>
-					<exclude>org/slf4j/impl/**</exclude>
+					<exclude>org/slf4j/**</exclude>
 				</excludes>
 			</unpackOptions>
 		</dependencySet>
