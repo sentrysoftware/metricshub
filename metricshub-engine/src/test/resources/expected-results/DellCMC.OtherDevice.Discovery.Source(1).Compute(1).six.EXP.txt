@@ -1,0 +1,9 @@
+MSHW;CMC-1;CMC;OK;;
+MSHW;CMC-2;CMC;OK;;
+MSHW;Switch-1;Switch;OK;;
+MSHW;Switch-2;Switch;OK;;
+MSHW;Switch-3;Switch;OK;;
+MSHW;Switch-4;Switch;OK;;
+MSHW;Switch-5;Switch;OK;;
+MSHW;Switch-6;Switch;OK;;
+MSHW;KVM;KVM;OK;;

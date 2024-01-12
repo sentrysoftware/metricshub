@@ -1,0 +1,50 @@
+show interface detail-counters | grep '\(fc[0-9]\)\|\(waits due to lack of transmit credits\)'
+
+fc1/1 
+      0 waits due to lack of transmit credits
+fc1/2 
+      0 waits due to lack of transmit credits
+fc1/3 
+      0 waits due to lack of transmit credits
+fc1/4 
+      0 waits due to lack of transmit credits
+fc1/5 
+      0 waits due to lack of transmit credits
+fc1/6 
+      0 waits due to lack of transmit credits
+fc1/7 
+      0 waits due to lack of transmit credits
+fc1/8 
+      0 waits due to lack of transmit credits
+fc1/9 
+      0 waits due to lack of transmit credits
+fc1/10 
+      0 waits due to lack of transmit credits
+fc1/11 
+      0 waits due to lack of transmit credits
+fc1/12 
+      0 waits due to lack of transmit credits
+fc1/13 
+      0 waits due to lack of transmit credits
+fc1/14 
+      0 waits due to lack of transmit credits
+fc1/15 
+      0 waits due to lack of transmit credits
+fc1/16 
+      0 waits due to lack of transmit credits
+fc1/17 
+      0 waits due to lack of transmit credits
+fc1/18 
+      0 waits due to lack of transmit credits
+fc1/19 
+      0 waits due to lack of transmit credits
+fc1/20 
+      0 waits due to lack of transmit credits
+fc1/21 
+      0 waits due to lack of transmit credits
+fc1/22 
+      0 waits due to lack of transmit credits
+fc1/23 
+      0 waits due to lack of transmit credits
+fc1/24 
+      0 waits due to lack of transmit credits

@@ -1,0 +1,166 @@
+LAN INTERFACE STATUS DISPLAY
+                       Wed, Dec 19,2012  15:52:46
+
+PPA Number                      = 0
+Description                     = lan0 HP PCIe 1000Base-T Release B.11.31.1103
+Type (value)                    = ethernet-csmacd(6)
+MTU Size                        = 1500
+Speed                           = 1000000000
+Station Address                 = 0x237d4597dc
+Administration Status (value)   = up(1)
+Operation Status (value)        = up(1)
+Last Change                     = 194
+Inbound Octets                  = 2168394450
+Inbound Unicast Packets         = 498441
+Inbound Non-Unicast Packets     = 13862063
+Inbound Discards                = 0
+Inbound Errors                  = 0
+Inbound Unknown Protocols       = 5828742
+Outbound Octets                 = 101965422
+Outbound Unicast Packets        = 658671
+Outbound Non-Unicast Packets    = 77
+Outbound Discards               = 0
+Outbound Errors                 = 0
+Outbound Queue Length           = 0
+Specific                        = 655367
+
+Ethernet-like Statistics Group
+
+Index                           = 1
+Alignment Errors                = 0
+FCS Errors                      = 0
+Single Collision Frames         = 0
+Multiple Collision Frames       = 0
+Deferred Transmissions          = 0
+Late Collisions                 = 0
+Excessive Collisions            = 0
+Internal MAC Transmit Errors    = 0
+Carrier Sense Errors            = 0
+Frames Too Long                 = 0
+Internal MAC Receive Errors     = 0
+
+
+                      LAN INTERFACE STATUS DISPLAY
+                       Wed, Dec 19,2012  15:52:46
+
+PPA Number                      = 1
+Description                     = lan1 HP PCIe 1000Base-T Release B.11.31.1103
+Type (value)                    = ethernet-csmacd(6)
+MTU Size                        = 1500
+Speed                           = 1000000000
+Station Address                 = 0x237d4597dd
+Administration Status (value)   = up(1)
+Operation Status (value)        = down(2)
+Last Change                     = 0
+Inbound Octets                  = 0
+Inbound Unicast Packets         = 0
+Inbound Non-Unicast Packets     = 0
+Inbound Discards                = 0
+Inbound Errors                  = 0
+Inbound Unknown Protocols       = 0
+Outbound Octets                 = 0
+Outbound Unicast Packets        = 0
+Outbound Non-Unicast Packets    = 0
+Outbound Discards               = 0
+Outbound Errors                 = 0
+Outbound Queue Length           = 0
+Specific                        = 655367
+
+Ethernet-like Statistics Group
+
+Index                           = 2
+Alignment Errors                = 0
+FCS Errors                      = 0
+Single Collision Frames         = 0
+Multiple Collision Frames       = 0
+Deferred Transmissions          = 0
+Late Collisions                 = 0
+Excessive Collisions            = 0
+Internal MAC Transmit Errors    = 0
+Carrier Sense Errors            = 0
+Frames Too Long                 = 0
+Internal MAC Receive Errors     = 0
+
+
+                      LAN INTERFACE STATUS DISPLAY
+                       Wed, Dec 19,2012  15:52:46
+
+PPA Number                      = 2
+Description                     = lan2 HP PCIe 1000Base-T Release B.11.31.1103
+Type (value)                    = ethernet-csmacd(6)
+MTU Size                        = 1500
+Speed                           = 1000000000
+Station Address                 = 0x237d45e7e4
+Administration Status (value)   = up(1)
+Operation Status (value)        = down(2)
+Last Change                     = 0
+Inbound Octets                  = 0
+Inbound Unicast Packets         = 0
+Inbound Non-Unicast Packets     = 0
+Inbound Discards                = 0
+Inbound Errors                  = 0
+Inbound Unknown Protocols       = 0
+Outbound Octets                 = 0
+Outbound Unicast Packets        = 0
+Outbound Non-Unicast Packets    = 0
+Outbound Discards               = 0
+Outbound Errors                 = 0
+Outbound Queue Length           = 0
+Specific                        = 655367
+
+Ethernet-like Statistics Group
+
+Index                           = 3
+Alignment Errors                = 0
+FCS Errors                      = 0
+Single Collision Frames         = 0
+Multiple Collision Frames       = 0
+Deferred Transmissions          = 0
+Late Collisions                 = 0
+Excessive Collisions            = 0
+Internal MAC Transmit Errors    = 0
+Carrier Sense Errors            = 0
+Frames Too Long                 = 0
+Internal MAC Receive Errors     = 0
+
+
+                      LAN INTERFACE STATUS DISPLAY
+                       Wed, Dec 19,2012  15:52:46
+
+PPA Number                      = 3
+Description                     = lan3 HP PCIe 1000Base-T Release B.11.31.1103
+Type (value)                    = ethernet-csmacd(6)
+MTU Size                        = 1500
+Speed                           = 1000000000
+Station Address                 = 0x237d45e7e5
+Administration Status (value)   = up(1)
+Operation Status (value)        = down(2)
+Last Change                     = 0
+Inbound Octets                  = 0
+Inbound Unicast Packets         = 0
+Inbound Non-Unicast Packets     = 0
+Inbound Discards                = 0
+Inbound Errors                  = 0
+Inbound Unknown Protocols       = 0
+Outbound Octets                 = 0
+Outbound Unicast Packets        = 0
+Outbound Non-Unicast Packets    = 0
+Outbound Discards               = 0
+Outbound Errors                 = 0
+Outbound Queue Length           = 0
+Specific                        = 655367
+
+Ethernet-like Statistics Group
+
+Index                           = 4
+Alignment Errors                = 0
+FCS Errors                      = 0
+Single Collision Frames         = 0
+Multiple Collision Frames       = 0
+Deferred Transmissions          = 0
+Late Collisions                 = 0
+Excessive Collisions            = 0
+Internal MAC Transmit Errors    = 0
+Carrier Sense Errors            = 0
+Frames Too Long                 = 0
+Internal MAC Receive Errors     = 0

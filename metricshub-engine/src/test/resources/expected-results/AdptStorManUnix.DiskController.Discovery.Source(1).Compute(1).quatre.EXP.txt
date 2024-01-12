@@ -1,0 +1,1 @@
+MSHW;1;optimal;IBM ServeRAID 8k    ;C4EAC0;Slot 0;Memory 256 MB;5.2-0 (15421);1.1-5 (2461);optimal;

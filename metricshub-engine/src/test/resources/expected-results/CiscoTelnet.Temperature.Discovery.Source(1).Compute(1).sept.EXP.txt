@@ -1,0 +1,3 @@
+MSHW;1;1/Outlet1;Ok;;30;60;75;blade;
+MSHW;1;1/Outlet2;Ok;;32;60;75;blade;
+MSHW;1;1/Intake1;Ok;;29;50;65;blade;

@@ -1,0 +1,317 @@
+-------------------------------------------------------------
+ETHERNET STATISTICS (ent2) :
+Device Type: Shared Ethernet Adapter
+Hardware Address: 00:14:5e:51:f3:30
+Elapsed Time: 8 days 3 hours 11 minutes 24 seconds
+
+Transmit Statistics:                          Receive Statistics:
+--------------------                          -------------------
+Packets: 20867598                             Packets: 20814214
+Bytes: 2173168745                             Bytes: 2158600613
+Interrupts: 0                                 Interrupts: 17144564
+Transmit Errors: 0                            Receive Errors: 0
+Packets Dropped: 0                            Packets Dropped: 0
+                                              Bad Packets: 0
+Max Packets on S/W Transmit Queue: 65        
+S/W Transmit Queue Overflow: 0
+Current S/W+H/W Transmit Queue Length: 1
+
+Elapsed Time: 0 days 0 hours 0 minutes 0 seconds
+Broadcast Packets: 13868844                   Broadcast Packets: 13868834
+Multicast Packets: 6606011                    Multicast Packets: 6606007
+No Carrier Sense: 0                           CRC Errors: 0
+DMA Underrun: 0                               DMA Overrun: 0
+Lost CTS Errors: 0                            Alignment Errors: 0
+Max Collision Errors: 0                       No Resource Errors: 0
+Late Collision Errors: 0                      Receive Collision Errors: 0
+Deferred: 0                                   Packet Too Short Errors: 0
+SQE Test: 0                                   Packet Too Long Errors: 0
+Timeout Errors: 0                             Packets Discarded by Adapter: 0
+Single Collision Count: 0                     Receiver Start Count: 0
+Multiple Collision Count: 0
+Current HW Transmit Queue Length: 1
+
+General Statistics:
+-------------------
+No mbuf Errors: 0
+Adapter Reset Count: 0
+Adapter Data Rate: 0
+Driver Flags: Up Broadcast Running 
+	Simplex 64BitSupport ChecksumOffload 
+	DataRateSet 
+
+--------------------------------------------------------------
+Statistics for adapters in the Shared Ethernet Adapter ent2
+--------------------------------------------------------------
+Number of adapters: 2
+SEA Flags: 00000001
+    < THREAD >
+VLAN Ids :
+    ent0: 1
+Real Side Statistics:
+    Packets received: 20814216
+    Packets bridged: 20475059
+    Packets consumed: 20813998
+    Packets fragmented: 0
+    Packets transmitted: 379605
+    Packets dropped: 0
+Virtual Side Statistics:
+    Packets received: 0
+    Packets bridged: 0
+    Packets consumed: 0
+    Packets fragmented: 0
+    Packets transmitted: 20487997
+    Packets dropped: 0
+Other Statistics:
+    Output packets generated: 379605
+    Output packets dropped: 0
+    Device output failures: 0
+    Memory allocation failures: 0
+    ICMP error packets sent: 0
+    Non IP packets larger than MTU: 0
+    Thread queue overflow packets: 0
+--------------------------------------------------------------
+Real Adapter: ent1
+
+ETHERNET STATISTICS (ent1) :
+Device Type: Host Ethernet Adapter (l-hea)
+Hardware Address: 00:14:5e:51:f3:30
+
+Transmit Statistics:                          Receive Statistics:
+--------------------                          -------------------
+Packets: 379605                               Packets: 20814216
+Bytes: 130375172                              Bytes: 2158600741
+Interrupts: 0                                 Interrupts: 17144566
+Transmit Errors: 0                            Receive Errors: 0
+Packets Dropped: 0                            Packets Dropped: 0
+                                              Bad Packets: 0
+
+Max Packets on S/W Transmit Queue: 65        
+S/W Transmit Queue Overflow: 0
+Current S/W+H/W Transmit Queue Length: 5
+
+Broadcast Packets: 5                          Broadcast Packets: 13868834
+Multicast Packets: 2                          Multicast Packets: 6606007
+No Carrier Sense: 0                           CRC Errors: 0
+DMA Underrun: 0                               DMA Overrun: 0
+Lost CTS Errors: 0                            Alignment Errors: 0
+Max Collision Errors: 0                       No Resource Errors: 0
+Late Collision Errors: 0                      Receive Collision Errors: 0
+Deferred: 0                                   Packet Too Short Errors: 0
+SQE Test: 0                                   Packet Too Long Errors: 0
+Timeout Errors: 0                             Packets Discarded by Adapter: 0
+Single Collision Count: 0                     Receiver Start Count: 0
+Multiple Collision Count: 0
+Current HW Transmit Queue Length: 5
+
+General Statistics:
+-------------------
+No mbuf Errors: 0
+Adapter Reset Count: 0
+Adapter Data Rate: 2000
+Driver Flags: Up Broadcast Running 
+	Simplex Promiscuous AllMulticast 
+	64BitSupport ChecksumOffload LargeSend DataRateSet 
+
+Queue Pair 0:
+-------------
+RX Interrupts: 17144568
+RX Interrupts Coalesced: 10527
+RX Offlevel Interrupts: 0
+RX Timer Queue Drain: 62345
+RX Q1 Low Latency Packets: 20286372
+RX Q2 Standard Packets: 527846
+RX Q3 Jumbo Packets: 0
+TX F2 Normal Packets: 87507
+TX F3 Low Latency Packets: 292102
+TX Interface Specific Buffers: 0
+TX NON-Interface Specific Buffers: 87507
+TX Maximum Work Requests: 65
+TX Max Data Segments: 1
+
+Logical Host Ethernet Port (l-port) Driver Properties:
+------------------------------------------------------
+HW TX TCP Segmentation Offload: On 
+RX TCP Segment Aggregation: Off 
+HW TX Checksum Offload: On 
+HW RX Checksum Offload: On 
+TX and RX Jumbo Frames: Off 
+RX Interrupt Coalescing: On 
+Promiscuous Mode:  (QP 8)/On 
+Logical Port Link State: Up 
+Physical Port Link State: Up 
+Media Speed Selected: Autonegotiate 
+Media Speed Running: 1000 Mbps / 1 Gbps, Full Duplex 
+
+Logical Host Ethernet Port (l-port) Specific Properties:
+--------------------------------------------------------
+Logical Port Number: 1
+Port Operational State: Up 
+External-Network Switch-Port Operational State: Up 
+External-Network-Switch (ENS) Port Speed: 1000 Mbps / 1 Gbps, Full Duplex 
+Port Receive Control:     Logical Port Valid: True 
+    VLAN Extract: False 
+    TCP 6-tuple lookup enable: False 
+    UDP 6-tuple lookup enable: False 
+    TCP 3-tuple lookup enable: False 
+    TCP 2-tuple lookup enable: False 
+    LLC/SNAP packet handling: Accept 
+    Jumbo Frame Action: Discard 
+    Fragmented IP packet handling: Accept 
+    IP checksum error action: Accept 
+    MAC filter mode: False 
+    Untagged filtering mode: Accept 
+    VLAN tagged filtering mode: Filter according to VLAN permit array 
+TX Pause Frame Negotiated: False 
+RX Pause Frame Negotiated: False 
+Number of Default QPNs for Port: 1
+Default QPN Array: -260671512
+    QP0 | num: 8 | bid: 0x90000300 | ISN/level: 0x303
+
+Logical Host Ethernet Adapter (l-hea) Specific Properties:
+----------------------------------------------------------
+Logical Adapter Handle: 0x8000000003000000
+Notification Queue: 
+    Events: 0 | bid: 0x90000300 | ISN/level: 0x90100
+Current number of Queue Pairs: 1
+Current number of Completion Queues: 2
+Current number of Event Queues: 2
+Current number of Memory Regions: 11
+Max number of Queue Pairs: 1
+Max number of Completion Queues: 2
+Max number of Event Queues: 3
+Max number of Memory Regions: 64
+Internal Clock Frequency: 250000000 HZ
+Max number of Protection Domains: 4294967295
+Max number of Address Handles: 4294967295
+Max number of CQEs per CQ: 8388608
+Max number of WQEs for any Queue: 32768
+Max number scatter/gather element in RQ1: 254
+Max number scatter/gather element in RQ2: 254
+Max number scatter/gather element in RQ3: 254
+Memory Region supported sizes:
+    4K 16K 1M 16M 256M 4G 
+Max Memory Region size: 536870912
+Number of ports: 1
+Port Receive Control Mask: 0x21C7
+Max Mcast MAC per hea port: 32
+HEA Capabilities: 0x0
+Max number of ISNs per EQ/NEQ: 1
+NEQ support code: 2
+Max number of VLAN IDs per HEA port: 20
+Max number of port groups: 2
+Max number physical ports per port group: 2
+Port Query Mask: 0xE900000000000000
+Port Modify Mask: 0xE100000000000000
+
+--------------------------------------------------------------
+Virtual Adapter: ent0
+
+ETHERNET STATISTICS (ent0) :
+Device Type: Virtual I/O Ethernet Adapter (l-lan)
+Hardware Address: f6:38:5f:93:e0:0c
+
+Transmit Statistics:                          Receive Statistics:
+--------------------                          -------------------
+Packets: 20487997                             Packets: 0
+Bytes: 2042795841                             Bytes: 0
+Interrupts: 0                                 Interrupts: 0
+Transmit Errors: 0                            Receive Errors: 0
+Packets Dropped: 0                            Packets Dropped: 0
+                                              Bad Packets: 0
+
+Max Packets on S/W Transmit Queue: 0         
+S/W Transmit Queue Overflow: 0
+Current S/W+H/W Transmit Queue Length: 0
+
+Broadcast Packets: 13868839                   Broadcast Packets: 0
+Multicast Packets: 6606009                    Multicast Packets: 0
+No Carrier Sense: 0                           CRC Errors: 0
+DMA Underrun: 0                               DMA Overrun: 0
+Lost CTS Errors: 0                            Alignment Errors: 0
+Max Collision Errors: 0                       No Resource Errors: 0
+Late Collision Errors: 0                      Receive Collision Errors: 0
+Deferred: 0                                   Packet Too Short Errors: 0
+SQE Test: 0                                   Packet Too Long Errors: 0
+Timeout Errors: 0                             Packets Discarded by Adapter: 0
+Single Collision Count: 0                     Receiver Start Count: 0
+Multiple Collision Count: 0
+Current HW Transmit Queue Length: 0
+
+General Statistics:
+-------------------
+No mbuf Errors: 0
+Adapter Reset Count: 0
+Adapter Data Rate: 20000
+Driver Flags: Up Broadcast Running 
+	Simplex Promiscuous AllMulticast 
+	64BitSupport ChecksumOffload DataRateSet 
+
+Virtual I/O Ethernet Adapter (l-lan) Specific Statistics:
+---------------------------------------------------------
+RQ Length: 4481
+Trunk Adapter: True
+  Priority: 1  Active: True
+Filter MCast Mode: False
+Filters: 255
+  Enabled: 1  Queued: 0  Overflow: 0
+LAN State: Operational
+
+Hypervisor Send Failures: 13149
+  Receiver Failures: 13149
+  Send Errors: 0
+Hypervisor Receive Failures: 0
+
+Invalid VLAN ID Packets: 0
+
+ILLAN Attributes: 0000000000003103 [0000000000003103]
+
+Port VLAN ID:     1
+VLAN Tag IDs:  None
+
+
+Switch ID: ETHERNET0
+
+Hypervisor Information  
+  Virtual Memory        
+    Total (KB)                 79
+  I/O Memory            
+    VRM Minimum (KB)          100
+    VRM Desired (KB)          100
+    DMA Max Min (KB)          128
+
+Transmit Information    
+  Transmit Buffers       
+    Buffer Size             65536
+    Buffers                    32
+    History             
+      No Buffers                0
+  Virtual Memory        
+    Total (KB)               2048
+  I/O Memory            
+    VRM Minimum (KB)         2176
+    VRM Desired (KB)        16384
+    DMA Max Min (KB)        16384
+
+Receive Information     
+  Receive Buffers        
+    Buffer Type              Tiny    Small   Medium    Large     Huge
+    Min Buffers               512      512      128       24       24
+    Max Buffers              2048     2048      256       64       64
+    Allocated                 512      512      128       24       24
+    Registered                512      512      128       24       24
+    History             
+      Max Allocated           512      512      128       24       24
+      Lowest Registered       512      512      128       24       24
+  Virtual Memory        
+    Minimum (KB)              256     1024     2048      768     1536
+    Maximum (KB)             1024     4096     4096     2048     4096
+  I/O Memory            
+    VRM Minimum (KB)         4096     4096     2560      864     1632
+    VRM Desired (KB)        16384    16384     5120     2304     4352
+    DMA Max Min (KB)        16384    16384     8192     4096     8192
+
+I/O Memory Information  
+  Total VRM Minimum (KB)    15524
+  Total VRM Desired (KB)    61028
+  Total DMA Max Min (KB)    69760

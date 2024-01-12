@@ -1,0 +1,4 @@
+smartctl 5.39.1 2010-01-28 r3054 [x86_64-unknown-linux-gnu] (local build)
+Copyright (C) 2002-10 by Bruce Allen, http://smartmontools.sourceforge.net
+
+SMART Health Status: OK

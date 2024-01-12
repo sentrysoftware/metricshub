@@ -1,0 +1,252 @@
+CMU#0
+    1.0V Power Supply Group:1.000V
+    1.2V Power Supply Group:1.200V
+    1.8V Power Supply Group:1.800V
+    2.5V#0 Power Supply Group:2.500V
+    2.5V#1 Power Supply Group:2.510V
+    5.0VL Power Supply Group:5.150V
+    CPUM#0-CHIP#0
+        1.0V Power Supply Group:0.990V
+        5.0VL Power Supply Group:5.160V
+    CPUM#1-CHIP#0
+        1.0V Power Supply Group:0.980V
+        5.0VL Power Supply Group:5.150V
+    CPUM#2-CHIP#0
+        1.0V Power Supply Group:1.060V
+        5.0VL Power Supply Group:5.150V
+    CPUM#3-CHIP#0
+        1.0V Power Supply Group:1.040V
+        5.0VL Power Supply Group:5.160V
+CMU#1
+    1.0V Power Supply Group:1.000V
+    1.2V Power Supply Group:1.200V
+    1.8V Power Supply Group:1.800V
+    2.5V#0 Power Supply Group:2.500V
+    2.5V#1 Power Supply Group:2.500V
+    5.0VL Power Supply Group:5.150V
+    CPUM#0-CHIP#0
+        1.0V Power Supply Group:1.010V
+        5.0VL Power Supply Group:5.170V
+    CPUM#1-CHIP#0
+        1.0V Power Supply Group:1.040V
+        5.0VL Power Supply Group:5.190V
+    CPUM#2-CHIP#0
+        1.0V Power Supply Group:0.990V
+        5.0VL Power Supply Group:5.150V
+    CPUM#3-CHIP#0
+        1.0V Power Supply Group:1.040V
+        5.0VL Power Supply Group:5.170V
+CMU#2
+    1.0V Power Supply Group:1.000V
+    1.2V Power Supply Group:1.200V
+    1.8V Power Supply Group:1.800V
+    2.5V#0 Power Supply Group:2.520V
+    2.5V#1 Power Supply Group:2.520V
+    5.0VL Power Supply Group:5.130V
+    CPUM#0-CHIP#0
+        1.0V Power Supply Group:0.990V
+        5.0VL Power Supply Group:5.160V
+    CPUM#1-CHIP#0
+        1.0V Power Supply Group:1.020V
+        5.0VL Power Supply Group:5.180V
+    CPUM#2-CHIP#0
+        1.0V Power Supply Group:1.010V
+        5.0VL Power Supply Group:5.170V
+    CPUM#3-CHIP#0
+        1.0V Power Supply Group:1.010V
+        5.0VL Power Supply Group:5.180V
+CMU#3
+    1.0V Power Supply Group:1.000V
+    1.2V Power Supply Group:1.200V
+    1.8V Power Supply Group:1.800V
+    2.5V#0 Power Supply Group:2.520V
+    2.5V#1 Power Supply Group:2.510V
+    5.0VL Power Supply Group:5.120V
+    CPUM#0-CHIP#0
+        1.0V Power Supply Group:1.030V
+        5.0VL Power Supply Group:5.170V
+    CPUM#1-CHIP#0
+        1.0V Power Supply Group:1.040V
+        5.0VL Power Supply Group:5.190V
+    CPUM#2-CHIP#0
+        1.0V Power Supply Group:1.010V
+        5.0VL Power Supply Group:5.200V
+    CPUM#3-CHIP#0
+        1.0V Power Supply Group:0.980V
+        5.0VL Power Supply Group:5.160V
+CMU#4
+    1.0V Power Supply Group:1.000V
+    1.2V Power Supply Group:1.200V
+    1.8V Power Supply Group:1.800V
+    2.5V#0 Power Supply Group:2.520V
+    2.5V#1 Power Supply Group:2.500V
+    5.0VL Power Supply Group:5.140V
+    CPUM#0-CHIP#0
+        1.0V Power Supply Group:0.990V
+        5.0VL Power Supply Group:5.160V
+    CPUM#1-CHIP#0
+        1.0V Power Supply Group:1.040V
+        5.0VL Power Supply Group:5.170V
+    CPUM#2-CHIP#0
+        1.0V Power Supply Group:1.020V
+        5.0VL Power Supply Group:5.190V
+    CPUM#3-CHIP#0
+        1.0V Power Supply Group:0.990V
+        5.0VL Power Supply Group:5.170V
+CMU#5
+    1.0V Power Supply Group:1.000V
+    1.2V Power Supply Group:1.200V
+    1.8V Power Supply Group:1.800V
+    2.5V#0 Power Supply Group:2.520V
+    2.5V#1 Power Supply Group:2.510V
+    5.0VL Power Supply Group:5.130V
+    CPUM#0-CHIP#0
+        1.0V Power Supply Group:1.010V
+        5.0VL Power Supply Group:5.130V
+    CPUM#1-CHIP#0
+        1.0V Power Supply Group:1.060V
+        5.0VL Power Supply Group:5.150V
+    CPUM#2-CHIP#0
+        1.0V Power Supply Group:0.990V
+        5.0VL Power Supply Group:5.140V
+    CPUM#3-CHIP#0
+        1.0V Power Supply Group:1.030V
+        5.0VL Power Supply Group:5.160V
+CMU#6
+    1.0V Power Supply Group:1.000V
+    1.2V Power Supply Group:1.200V
+    1.8V Power Supply Group:1.800V
+    2.5V#0 Power Supply Group:2.520V
+    2.5V#1 Power Supply Group:2.500V
+    5.0VL Power Supply Group:5.150V
+    CPUM#0-CHIP#0
+        1.0V Power Supply Group:1.060V
+        5.0VL Power Supply Group:5.160V
+    CPUM#1-CHIP#0
+        1.0V Power Supply Group:1.060V
+        5.0VL Power Supply Group:5.140V
+    CPUM#2-CHIP#0
+        1.0V Power Supply Group:1.040V
+        5.0VL Power Supply Group:5.180V
+    CPUM#3-CHIP#0
+        1.0V Power Supply Group:1.060V
+        5.0VL Power Supply Group:5.140V
+CMU#7
+    1.0V Power Supply Group:1.000V
+    1.2V Power Supply Group:1.200V
+    1.8V Power Supply Group:1.800V
+    2.5V#0 Power Supply Group:2.520V
+    2.5V#1 Power Supply Group:2.530V
+    5.0VL Power Supply Group:5.130V
+    CPUM#0-CHIP#0
+        1.0V Power Supply Group:1.040V
+        5.0VL Power Supply Group:5.160V
+    CPUM#1-CHIP#0
+        1.0V Power Supply Group:1.040V
+        5.0VL Power Supply Group:5.170V
+IOU#0
+    1.2V Power Supply Group:1.200V
+    1.8V Power Supply Group:1.780V
+    2.5V Power Supply Group:2.520V
+    3.3V Power Supply Group:3.310V
+    5.0VL Power Supply Group:5.170V
+    5V Power Supply Group:5.120V
+    12V Power Supply Group:12.160V
+IOU#1
+    1.2V Power Supply Group:1.200V
+    1.8V Power Supply Group:1.810V
+    2.5V Power Supply Group:2.520V
+    3.3V Power Supply Group:3.310V
+    5.0VL Power Supply Group:5.180V
+    5V Power Supply Group:5.130V
+    12V Power Supply Group:12.180V
+IOU#2
+    1.2V Power Supply Group:1.210V
+    1.8V Power Supply Group:1.800V
+    2.5V Power Supply Group:2.520V
+    3.3V Power Supply Group:3.310V
+    5.0VL Power Supply Group:5.140V
+    5V Power Supply Group:5.090V
+    12V Power Supply Group:12.160V
+IOU#3
+    1.2V Power Supply Group:1.210V
+    1.8V Power Supply Group:1.800V
+    2.5V Power Supply Group:2.520V
+    3.3V Power Supply Group:3.310V
+    5.0VL Power Supply Group:5.170V
+    5V Power Supply Group:5.110V
+    12V Power Supply Group:12.160V
+IOU#4
+    1.2V Power Supply Group:1.200V
+    1.8V Power Supply Group:1.800V
+    2.5V Power Supply Group:2.520V
+    3.3V Power Supply Group:3.300V
+    5.0VL Power Supply Group:5.170V
+    5V Power Supply Group:5.130V
+    12V Power Supply Group:12.200V
+IOU#5
+    1.2V Power Supply Group:1.200V
+    1.8V Power Supply Group:1.810V
+    2.5V Power Supply Group:2.510V
+    3.3V Power Supply Group:3.300V
+    5.0VL Power Supply Group:5.170V
+    5V Power Supply Group:5.120V
+    12V Power Supply Group:12.180V
+IOU#6
+    1.2V Power Supply Group:1.200V
+    1.8V Power Supply Group:1.800V
+    2.5V Power Supply Group:2.510V
+    3.3V Power Supply Group:3.300V
+    5.0VL Power Supply Group:5.160V
+    5V Power Supply Group:5.140V
+    12V Power Supply Group:12.160V
+IOU#7
+    1.2V Power Supply Group:1.200V
+    1.8V Power Supply Group:1.790V
+    2.5V Power Supply Group:2.520V
+    3.3V Power Supply Group:3.300V
+    5.0VL Power Supply Group:5.170V
+    5V Power Supply Group:5.060V
+    12V Power Supply Group:12.160V
+XBU_B#0
+    1.0V Power Supply Group:1.000V
+    1.8V Power Supply Group:1.790V
+    5.0VL Power Supply Group:5.130V
+XBU_B#1
+    1.0V Power Supply Group:1.000V
+    1.8V Power Supply Group:1.800V
+    5.0VL Power Supply Group:5.170V
+XBU_B#2
+    1.0V Power Supply Group:1.000V
+    1.8V Power Supply Group:1.810V
+    5.0VL Power Supply Group:5.170V
+XBU_B#3
+    1.0V Power Supply Group:1.000V
+    1.8V Power Supply Group:1.800V
+    5.0VL Power Supply Group:5.160V
+XBU_B#4
+    1.0V Power Supply Group:1.000V
+    1.8V Power Supply Group:1.800V
+    5.0VL Power Supply Group:5.150V
+XBU_B#5
+    1.0V Power Supply Group:1.000V
+    1.8V Power Supply Group:1.790V
+    5.0VL Power Supply Group:5.190V
+XBU_B#6
+    1.0V Power Supply Group:1.000V
+    1.8V Power Supply Group:1.790V
+    5.0VL Power Supply Group:5.190V
+XBU_B#7
+    1.0V Power Supply Group:1.000V
+    1.8V Power Supply Group:1.800V
+    5.0VL Power Supply Group:5.170V
+CLKU_B#0
+    1.8V Power Supply Group:1.800V
+    2.5V Power Supply Group:2.490V
+    3.3V Power Supply Group:3.360V
+    5.0VL Power Supply Group:5.150V
+CLKU_B#1
+    1.8V Power Supply Group:1.800V
+    2.5V Power Supply Group:2.500V
+    3.3V Power Supply Group:3.350V
+    5.0VL Power Supply Group:5.150V

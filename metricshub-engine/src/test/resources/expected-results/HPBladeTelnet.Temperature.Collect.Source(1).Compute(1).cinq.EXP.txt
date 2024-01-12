@@ -1,0 +1,11 @@
+MSHW;OA1;OK;23;75;80;2;2;
+MSHW;BladeBay1;N/A;20;40;45;;2;
+MSHW;BladeBay2;N/A;19;40;45;;2;
+MSHW;BladeBay3;N/A;19;40;45;;2;
+MSHW;BladeBay4;N/A;18;40;45;;2;
+MSHW;BladeBay5;N/A;20;40;45;;2;
+MSHW;BladeBay6;N/A;18;40;45;;2;
+MSHW;BladeBay7;N/A;18;40;45;;2;
+MSHW;IC1;OK;;;;2;;
+MSHW;IC3;OK;;;;2;;
+MSHW;IC4;OK;;;;2;;

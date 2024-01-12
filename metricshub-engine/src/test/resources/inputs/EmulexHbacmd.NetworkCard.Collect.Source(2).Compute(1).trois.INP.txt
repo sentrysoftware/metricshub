@@ -1,0 +1,128 @@
+libqlsdm: INFO - Assigning lib instance number to 0.
+
+Port Statistics for 10:00:00:00:c9:44:5b:c0
+
+Exchange Count          :  682607
+Responder Exchange Count:  39
+Tx Seq Count            :  682840
+Rx Seq Count            :  1053169
+Tx Frame Count          :  682840
+Rx Frame Count          :  3289241
+Tx Word Count           :  9562880
+Rx Word Count           :  1354282240
+Tx KB Count             :  37355
+Rx KB Count             :  5290165
+LIP Count               :  N/A
+NOS Count               :  1
+Error Frame Count       :  0
+Dumped Frame Count      :  N/A
+Link Failure Count      :  0
+Loss of Sync Count      :  2
+Loss of Signal Count    :  0
+Prim Seq Prot Err Count :  0
+Invalid Tx Word Count   :  0
+Invalid Rx Frame CRC Cnt:  0
+Link Transition Count   :  2
+Active RPI Count        :  0
+Active XRI Count        :  0
+Rx Port Busy Count      :  0
+Rx Fabric Busy Count    :  0
+Primary Sequence Timeout:  0
+Elastic Buffer Overrun  :  0
+Arbitration Timeout     :  0
+
+
+Port Statistics for 10:00:00:00:c9:6e:b8:db
+
+Exchange Count          :  681684
+Responder Exchange Count:  41
+Tx Seq Count            :  681904
+Rx Seq Count            :  1052317
+Tx Frame Count          :  681904
+Rx Frame Count          :  3288521
+Tx Word Count           :  9551360
+Rx Word Count           :  1354306560
+Tx KB Count             :  37310
+Rx KB Count             :  5290260
+LIP Count               :  N/A
+NOS Count               :  1
+Error Frame Count       :  0
+Dumped Frame Count      :  N/A
+Link Failure Count      :  0
+Loss of Sync Count      :  2
+Loss of Signal Count    :  0
+Prim Seq Prot Err Count :  0
+Invalid Tx Word Count   :  0
+Invalid Rx Frame CRC Cnt:  0
+Link Transition Count   :  2
+Active RPI Count        :  0
+Active XRI Count        :  0
+Rx Port Busy Count      :  0
+Rx Fabric Busy Count    :  0
+Primary Sequence Timeout:  0
+Elastic Buffer Overrun  :  0
+Arbitration Timeout     :  0
+libqlsdm: INFO - Assigning lib instance number to 0.
+
+Port Statistics for 10:00:00:00:c9:44:5b:c6
+
+Exchange Count          :  682607
+Responder Exchange Count:  39
+Tx Seq Count            :  682840
+Rx Seq Count            :  1053169
+Tx Frame Count          :  682840
+Rx Frame Count          :  3289241
+Tx Word Count           :  9562880
+Rx Word Count           :  1354282240
+Tx KB Count             :  37355
+Rx KB Count             :  5290165
+LIP Count               :  N/A
+NOS Count               :  1
+Error Frame Count       :  0
+Dumped Frame Count      :  N/A
+Link Failure Count      :  0
+Loss of Sync Count      :  2
+Loss of Signal Count    :  0
+Prim Seq Prot Err Count :  0
+Invalid Tx Word Count   :  0
+Invalid Rx Frame CRC Cnt:  0
+Link Transition Count   :  2
+Active RPI Count        :  0
+Active XRI Count        :  0
+Rx Port Busy Count      :  0
+Rx Fabric Busy Count    :  0
+Primary Sequence Timeout:  0
+Elastic Buffer Overrun  :  0
+Arbitration Timeout     :  0
+
+
+Port Statistics for 10:00:00:00:c9:6e:b8:db
+
+Exchange Count          :  681684
+Responder Exchange Count:  41
+Tx Seq Count            :  681904
+Rx Seq Count            :  1052317
+Tx Frame Count          :  681904
+Rx Frame Count          :  3288521
+Tx Word Count           :  9551360
+Rx Word Count           :  1354306560
+Tx KB Count             :  37310
+Rx KB Count             :  5290260
+LIP Count               :  N/A
+NOS Count               :  1
+Error Frame Count       :  0
+Dumped Frame Count      :  N/A
+Link Failure Count      :  0
+Loss of Sync Count      :  2
+Loss of Signal Count    :  0
+Prim Seq Prot Err Count :  0
+Invalid Tx Word Count   :  0
+Invalid Rx Frame CRC Cnt:  0
+Link Transition Count   :  2
+Active RPI Count        :  0
+Active XRI Count        :  0
+Rx Port Busy Count      :  0
+Rx Fabric Busy Count    :  0
+Primary Sequence Timeout:  0
+Elastic Buffer Overrun  :  0
+Arbitration Timeout     :  0

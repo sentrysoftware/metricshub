@@ -1,0 +1,50 @@
+Port Attributes for 10:00:00:00:c9:44:5b:c0
+
+Node WWN            : 20 00 00 00 c9 44 5b c0 
+Port WWN            : 10 00 00 00 c9 44 5b c0 
+Port Symname        : 
+Port FCID           : 234200
+Port Type           : Fabric
+Port State          : Operational
+Port Service Type   : 6
+Port Supported FC4  : 00 00 01 20 00 00 00 01 
+                      00 00 00 00 00 00 00 00 
+                      00 00 00 00 00 00 00 00 
+                      00 00 00 00 00 00 00 00 
+Port Active FC4     : 00 00 01 00 00 00 00 01 
+                      00 00 00 00 00 00 00 00 
+                      00 00 00 00 00 00 00 00 
+                      00 00 00 00 00 00 00 00 
+Port Supported Speed: 2 GBit/sec.
+Port Speed          : 2 GBit/sec.
+Max Frame Size      : 2048
+OS Device Name      : /devices/pci@9,600000/fibre-channel@1
+Num Discovered Ports: 14
+Fabric Name         : 10 00 00 05 1e 36 67 0c 
+
+
+
+
+Port Attributes for 10:00:00:00:c9:44:5b:c6
+
+Node WWN            : 20 00 00 00 c9 44 5b c6 
+Port WWN            : 10 00 00 00 c9 44 5b c6 
+Port Symname        : 
+Port FCID           : 22AB00
+Port Type           : Fabric
+Port State          : Operational
+Port Service Type   : 6
+Port Supported FC4  : 00 00 01 20 00 00 00 01 
+                      00 00 00 00 00 00 00 00 
+                      00 00 00 00 00 00 00 00 
+                      00 00 00 00 00 00 00 00 
+Port Active FC4     : 00 00 01 00 00 00 00 01 
+                      00 00 00 00 00 00 00 00 
+                      00 00 00 00 00 00 00 00 
+                      00 00 00 00 00 00 00 00 
+Port Supported Speed: 2 GBit/sec.
+Port Speed          : 2 GBit/sec.
+Max Frame Size      : 2048
+OS Device Name      : /devices/pci@9,600000/fibre-channel@2
+Num Discovered Ports: 14
+Fabric Name         : 10 00 00 05 1e 36 61 a0

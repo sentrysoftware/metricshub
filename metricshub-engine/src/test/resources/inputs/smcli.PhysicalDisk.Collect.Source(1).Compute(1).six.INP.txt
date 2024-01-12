@@ -1,0 +1,729 @@
+C:\PROGRA~2\BMCSOF~1\Patrol3\profile\patrol
+Incorrect
+DS3200 -c "show StorageSubsystem;"  
+"show StorageSubsystem;"
+
+C:\PROGRA~2\BMCSOF~1\Patrol3\profile\patrol>if exist C:\PROGRA~2\BMCSOF~1\Patrol3\\bin\smcli\DS3200\"show StorageSubsystem;" type C:\Windows\smcli\DS3200\"show StorageSubsystem;" 
+Storage Subsystem profile
+PROFILE FOR STORAGE SUBSYSTEM: guangxi_old (3/18/10 4:56:07 PM)
+
+
+SUMMARY------------------------------
+
+   Number of controllers: 2
+
+   Number of logical drive groups: 1
+
+   Total number of logical drives used:     2    
+      Number of standard logical drives:    1    
+      Number of access logical drives:      1    
+   Total number of logical drives allowed:  256  
+
+
+   Number of drives:        9                               
+   Current drive type(s):   Serial Attached SCSI (SAS) (9)  
+   Total hot spare drives:  1                               
+      Standby:              1                               
+      In use:               0                               
+
+   Number of drive enclosures:          0  
+   Number of drive enclosures allowed:  0  
+
+   Storage Partitioning:             Enabled  
+      Number of partitions used:     1        
+      Number of partitions allowed:  4        
+   Number of logical drives allowed per partition: 32
+
+   Access logical drive:  LUN 31,31 (see Mappings section for details)  
+   Default host OS:       W2KNETNCL0 (Host OS index 0)                  
+
+   Current configuration                                     
+      Firmware version:                    06.17.31.00       
+      NVSRAM version:                      N1726D320R917V16  
+   Pending configuration                                     
+      Staged firmware download supported:  Yes               
+      Firmware version:                    None              
+      NVSRAM version:                      None              
+      Transferred on:                      None              
+   Controller enclosure audible alarm:     Disabled          
+
+   NVSRAM configured for batteries:          Yes  
+                                                  
+   Start cache flushing at (in percentage):  80   
+   Stop cache flushing at (in percentage):   80   
+   Cache block size (in KB):                 4    
+
+   Media scan frequency (in days): 30
+
+   Failover alert delay (in minutes): 5
+
+   Feature enable identifier: 000000E096F030313338342046425DD0
+
+   Feature pack: Basic
+   Feature pack submodel ID: 34
+
+   Storage Subsystem world-wide identifier (ID): 600A0B80002FBDE4000000004643807C
+
+CONTROLLERS------------------------------
+   Number of controllers: 2
+
+      Controller in Enclosure 85, Slot A
+
+         Status: Online
+         Current configuration                       
+            Firmware version:      06.17.31.00       
+               Appware version:    06.17.31.00       
+               Bootware version:   06.17.31.00       
+            NVSRAM version:        N1726D320R917V16  
+         Pending configuration                       
+            Firmware version:      None              
+               Appware version:    None              
+               Bootware version:   None              
+            NVSRAM version:        None              
+            Transferred on:        None              
+         Replacement part number:  39R6508           
+         Board ID:                 1333              
+         Submodel ID:              34                
+         Product ID:               1726-2xx  FAStT   
+         Product revision:         0617              
+         Serial number:            SX72100286        
+         Date of manufacture:      May 23, 2007      
+         Cache                                       
+            Total data cache:      368 MB            
+            Processor cache:       144 MB            
+         Host Interface Board                        
+            Board ID:              0302              
+            Host card status:      Optimal           
+            Serial number:                           
+            Date of manufacture:   Not available     
+            Part number:                             
+            Vendor:                                  
+
+      Associated Logical Drives (* = Preferred Owner): 
+         1*
+
+      Controller host name:             
+         Remote login:        Enabled*  
+
+      Ethernet port:              1                  
+         MAC address:             00:a0:b8:36:9d:1e  
+         Network configuration:   Static             
+         IP address:              192.168.128.101    
+         Subnet mask:             255.255.255.0      
+         Gateway:                 192.168.128.1      
+                                                     
+      *NVSRAM setting, may be overridden by DHCP/Bootp server setting
+
+      Drive interface:        SAS      
+         Channel:             1        
+         Port:                Unknown  
+            Status:           Up       
+         Maximum data rate:   3 Gbps   
+         Current data rate:   3 Gbps   
+      Drive interface:        SAS      
+         Channel:             2        
+         Port:                Unknown  
+            Status:           Up       
+         Maximum data rate:   3 Gbps   
+         Current data rate:   3 Gbps   
+      Host interface:               Sas                       
+         Channel:                   1                         
+         Port:                      1                         
+            Status:                 Up                        
+            World-wide identifier:  50:0a:0b:83:69:d1:e0:04   
+         Maximum data rate:         3 Gbps                    
+         Current data rate:         Not available             
+         Part type:                 C1068    revision 734464  
+      Host interface:               Sas                       
+         Channel:                   2                         
+         Port:                      2                         
+            Status:                 Up                        
+            World-wide identifier:  50:0a:0b:83:69:d1:e0:0c   
+         Maximum data rate:         3 Gbps                    
+         Current data rate:         Not available             
+         Part type:                 C1068    revision 734464  
+      Host interface:               Sas                       
+         Channel:                   3                         
+         Port:                      3                         
+            Status:                 Up                        
+            World-wide identifier:  50:0a:0b:83:69:d1:e0:08   
+         Maximum data rate:         3 Gbps                    
+         Current data rate:         3 Gbps                    
+         Part type:                 C1068    revision 734464  
+
+      Controller in Enclosure 85, Slot B
+
+         Status: Online
+         Current configuration                       
+            Firmware version:      06.17.31.00       
+               Appware version:    06.17.31.00       
+               Bootware version:   06.17.31.00       
+            NVSRAM version:        N1726D320R917V16  
+         Pending configuration                       
+            Firmware version:      None              
+               Appware version:    None              
+               Bootware version:   None              
+            NVSRAM version:        None              
+            Transferred on:        None              
+         Replacement part number:  39R6508           
+         Board ID:                 1333              
+         Submodel ID:              34                
+         Product ID:               1726-2xx  FAStT   
+         Product revision:         0617              
+         Serial number:            SX72003690        
+         Date of manufacture:      May 23, 2007      
+         Cache                                       
+            Total data cache:      368 MB            
+            Processor cache:       144 MB            
+         Host Interface Board                        
+            Board ID:              0302              
+            Host card status:      Optimal           
+            Serial number:                           
+            Date of manufacture:   Not available     
+            Part number:                             
+            Vendor:                                  
+
+      Associated Logical Drives (* = Preferred Owner): None
+
+      Controller host name:             
+         Remote login:        Enabled*  
+
+      Ethernet port:              1                  
+         MAC address:             00:a0:b8:36:9d:57  
+         Network configuration:   Static             
+         IP address:              192.168.128.102    
+         Subnet mask:             255.255.255.0      
+         Gateway:                 192.168.128.1      
+                                                     
+      *NVSRAM setting, may be overridden by DHCP/Bootp server setting
+
+      Drive interface:        SAS      
+         Channel:             1        
+         Port:                Unknown  
+            Status:           Up       
+         Maximum data rate:   3 Gbps   
+         Current data rate:   3 Gbps   
+      Drive interface:        SAS      
+         Channel:             2        
+         Port:                Unknown  
+            Status:           Up       
+         Maximum data rate:   3 Gbps   
+         Current data rate:   3 Gbps   
+      Host interface:               Sas                       
+         Channel:                   1                         
+         Port:                      1                         
+            Status:                 Up                        
+            World-wide identifier:  50:0a:0b:83:69:d5:70:04   
+         Maximum data rate:         3 Gbps                    
+         Current data rate:         Not available             
+         Part type:                 C1068    revision 734464  
+      Host interface:               Sas                       
+         Channel:                   2                         
+         Port:                      2                         
+            Status:                 Up                        
+            World-wide identifier:  50:0a:0b:83:69:d5:70:0c   
+         Maximum data rate:         3 Gbps                    
+         Current data rate:         3 Gbps                    
+         Part type:                 C1068    revision 734464  
+      Host interface:               Sas                       
+         Channel:                   3                         
+         Port:                      3                         
+            Status:                 Up                        
+            World-wide identifier:  50:0a:0b:83:69:d5:70:08   
+         Maximum data rate:         3 Gbps                    
+         Current data rate:         Not available             
+         Part type:                 C1068    revision 734464  
+
+ARRAYS------------------------------
+
+   Number of logical drive groups: 1
+
+   ARRAY 1 (RAID 5)
+
+      Array status:               Online                      
+                                                              
+      Drive type:                 Serial Attached SCSI (SAS)  
+      Enclosure loss protection:  No                          
+                                                              
+      Current owner:              Controller in slot A        
+
+      Associated logical drives and free capacities:
+
+         LOGICAL DRIVE NAME  CAPACITY    
+         1                   953.624 GB  
+
+      Associated drives (in piece order):
+
+         ENCLOSURE  SLOT  
+         85         1     
+         85         2     
+         85         3     
+         85         4     
+         85         5     
+         85         6     
+         85         7     
+         85         8     
+
+STANDARD LOGICAL DRIVES------------------------------
+
+SUMMARY
+
+   Number of standard logical drives: 1
+
+   See other Logical Drives sub-tabs for premium feature information.
+
+   NAME  STATUS   CAPACITY    RAID LEVEL  ARRAY  DRIVE TYPE  
+   1     Optimal  953.624 GB  5           1      SAS         
+
+DETAILS
+
+   LOGICAL DRIVE NAME: 1
+
+      Logical Drive status: Optimal
+
+      Capacity:                             953.624 GB (1,023,945,474,048 Bytes)             
+      Logical Drive world-wide identifier:  60:0a:0b:80:00:2f:bd:e4:00:00:07:2d:47:6e:aa:aa  
+      Subsystem ID (SSID):                  0                                                
+      Associated array:                     1                                                
+      RAID level:                           5                                                
+
+      Drive type:                 Serial Attached SCSI (SAS)  
+      Enclosure loss protection:  No                          
+
+      Preferred owner:  Controller in slot A  
+      Current owner:    Controller in slot A  
+
+      Segment size:           128 KB  
+      Modification priority:  High    
+
+      Read cache:                            Enabled   
+      Write cache:                           Enabled   
+         Write cache without batteries:      Disabled  
+         Write cache with mirroring:         Enabled   
+      Flush write cache after (in seconds):  10.00     
+      Dynamic cache read prefetch:           Enabled   
+
+      Enable background media scan:      Enabled   
+      Media scan with redundancy check:  Disabled  
+
+MISSING LOGICAL DRIVES------------------------------
+
+   Number of missing logical drives: 0
+
+DRIVES------------------------------
+
+SUMMARY
+   Number of drives: 9
+      Current drive types: Serial Attached SCSI (SAS) (9)
+
+   BASIC:
+      TRAY, SLOT  STATUS   CAPACITY    TYPE  CURRENT DATA RATE  PRODUCT ID        FIRMWARE VERSION  
+      85, 1       Optimal  136.732 GB  SAS   3 Gbps             MAX3147RC         T904              
+      85, 2       Optimal  136.732 GB  SAS   3 Gbps             MAX3147RC         T904              
+      85, 3       Optimal  136.732 GB  SAS   3 Gbps             MAX3147RC         T904              
+      85, 4       Optimal  136.732 GB  SAS   3 Gbps             VPA146C3-ETS10 N  A49B              
+      85, 5       Optimal  136.732 GB  SAS   3 Gbps             MAX3147RC         T904              
+      85, 6       Optimal  136.732 GB  SAS   3 Gbps             ST3146855SS       BA26              
+      85, 7       Optimal  136.732 GB  SAS   3 Gbps             ST3146855SS       BA26              
+      85, 8       Optimal  136.732 GB  SAS   3 Gbps             ST3146855SS       BA26              
+      85, 9       Optimal  136.732 GB  SAS   3 Gbps             ST3146855SS       BA26              
+
+
+HOT SPARE COVERAGE:
+   The following logical drive groups are not protected: None - All logical drive groups are protected
+   Total hot spare drives: 1
+      Standby:  1  
+      In use:   0  
+
+   Standby drive at enclosure 85, slot 9 (SAS, 136.732 GB)
+      Protects the following logical drive groups: 1
+
+
+   DETAILS
+   Drive at Enclosure 85, Slot 1
+
+      Status:  Optimal
+
+      Mode:  Assigned
+      Raw capacity:            136.732 GB               
+      Usable capacity:         136.232 GB               
+      World-wide identifier:   50:00:00:e0:14:8c:47:40  
+      Associated array:        1                        
+      Drive path redundancy:  OK                          
+      Drive type:             Serial Attached SCSI (SAS)  
+                                                          
+      Speed:                  15000 RPM                   
+      Current data rate:      3 Gbps                      
+      Product ID:             MAX3147RC                   
+      Firmware version:       T904                        
+      Serial number:          DQ59P72020SK                
+      Vendor:                 IBM-ESXS                    
+      Date of manufacture:    Not available               
+
+   Drive at Enclosure 85, Slot 2
+
+      Status:  Optimal
+
+      Mode:  Assigned
+      Raw capacity:            136.732 GB               
+      Usable capacity:         136.232 GB               
+      World-wide identifier:   50:00:00:e0:14:8a:cd:b0  
+      Associated array:        1                        
+      Drive path redundancy:  OK                          
+      Drive type:             Serial Attached SCSI (SAS)  
+                                                          
+      Speed:                  15000 RPM                   
+      Current data rate:      3 Gbps                      
+      Product ID:             MAX3147RC                   
+      Firmware version:       T904                        
+      Serial number:          DQ59P72020KR                
+      Vendor:                 IBM-ESXS                    
+      Date of manufacture:    Not available               
+
+   Drive at Enclosure 85, Slot 3
+
+      Status:  Optimal
+
+      Mode:  Assigned
+      Raw capacity:            136.732 GB               
+      Usable capacity:         136.232 GB               
+      World-wide identifier:   50:00:00:e0:14:8c:45:d0  
+      Associated array:        1                        
+      Drive path redundancy:  OK                          
+      Drive type:             Serial Attached SCSI (SAS)  
+                                                          
+      Speed:                  15000 RPM                   
+      Current data rate:      3 Gbps                      
+      Product ID:             MAX3147RC                   
+      Firmware version:       T904                        
+      Serial number:          DQ59P72020SJ                
+      Vendor:                 IBM-ESXS                    
+      Date of manufacture:    Not available               
+
+   Drive at Enclosure 85, Slot 4
+
+      Status:  Optimal
+
+      Mode:  Assigned
+      Raw capacity:            136.732 GB               
+      Usable capacity:         136.232 GB               
+      World-wide identifier:   50:00:cc:a0:07:09:75:72  
+      Associated array:        1                        
+      Drive path redundancy:  OK                          
+      Drive type:             Serial Attached SCSI (SAS)  
+                                                          
+      Speed:                  15000 RPM                   
+      Current data rate:      3 Gbps                      
+      Product ID:             VPA146C3-ETS10 N            
+      Firmware version:       A49B                        
+      Serial number:          JDVNU1GK                    
+      Vendor:                 IBM-ESXS                    
+      Date of manufacture:    Not available               
+
+   Drive at Enclosure 85, Slot 5
+
+      Status:  Optimal
+
+      Mode:  Assigned
+      Raw capacity:            136.732 GB               
+      Usable capacity:         136.232 GB               
+      World-wide identifier:   50:00:00:e0:14:8a:ce:70  
+      Associated array:        1                        
+      Drive path redundancy:  OK                          
+      Drive type:             Serial Attached SCSI (SAS)  
+                                                          
+      Speed:                  15000 RPM                   
+      Current data rate:      3 Gbps                      
+      Product ID:             MAX3147RC                   
+      Firmware version:       T904                        
+      Serial number:          DQ59P72020KU                
+      Vendor:                 IBM-ESXS                    
+      Date of manufacture:    Not available               
+
+   Drive at Enclosure 85, Slot 6
+
+      Status:  Optimal
+
+      Mode:  Assigned
+      Raw capacity:            136.732 GB               
+      Usable capacity:         136.232 GB               
+      World-wide identifier:   50:00:c5:00:07:b0:e6:27  
+      Associated array:        1                        
+      Drive path redundancy:  OK                          
+      Drive type:             Serial Attached SCSI (SAS)  
+                                                          
+      Speed:                  15015 RPM                   
+      Current data rate:      3 Gbps                      
+      Product ID:             ST3146855SS                 
+      Firmware version:       BA26                        
+      Serial number:          3LN303XS00009820K75M        
+      Vendor:                 IBM-ESXS                    
+      Date of manufacture:    Not available               
+
+   Drive at Enclosure 85, Slot 7
+
+      Status:  Optimal
+
+      Mode:  Assigned
+      Raw capacity:            136.732 GB               
+      Usable capacity:         136.232 GB               
+      World-wide identifier:   50:00:c5:00:07:b0:e5:0b  
+      Associated array:        1                        
+      Drive path redundancy:  OK                          
+      Drive type:             Serial Attached SCSI (SAS)  
+                                                          
+      Speed:                  15015 RPM                   
+      Current data rate:      3 Gbps                      
+      Product ID:             ST3146855SS                 
+      Firmware version:       BA26                        
+      Serial number:          3LN302T500009821KURX        
+      Vendor:                 IBM-ESXS                    
+      Date of manufacture:    Not available               
+
+   Drive at Enclosure 85, Slot 8
+
+      Status:  Optimal
+
+      Mode:  Assigned
+      Raw capacity:            136.732 GB               
+      Usable capacity:         136.232 GB               
+      World-wide identifier:   50:00:c5:00:07:b0:e5:7b  
+      Associated array:        1                        
+      Drive path redundancy:  OK                          
+      Drive type:             Serial Attached SCSI (SAS)  
+                                                          
+      Speed:                  15015 RPM                   
+      Current data rate:      3 Gbps                      
+      Product ID:             ST3146855SS                 
+      Firmware version:       BA26                        
+      Serial number:          3LN301RN00009820K712        
+      Vendor:                 IBM-ESXS                    
+      Date of manufacture:    Not available               
+
+   Drive at Enclosure 85, Slot 9
+
+      Status:  Optimal
+
+      Mode:  Hot spare standby
+      Raw capacity:            136.732 GB               
+      Usable capacity:         136.232 GB               
+      World-wide identifier:   50:00:c5:00:07:b0:f1:03  
+      Associated array:        None                     
+      Drive path redundancy:  OK                          
+      Drive type:             Serial Attached SCSI (SAS)  
+                                                          
+      Speed:                  15015 RPM                   
+      Current data rate:      3 Gbps                      
+      Product ID:             ST3146855SS                 
+      Firmware version:       BA26                        
+      Serial number:          3LN2ZKEZ0000982039VG        
+      Vendor:                 IBM-ESXS                    
+      Date of manufacture:    Not available               
+
+DRIVE CHANNELS----------------------------
+
+   SUMMARY
+
+      CHANNEL  PORT       STATUS   
+      1        Expansion  Optimal  
+      2                   Optimal  
+
+   DETAILS
+
+      DRIVE CHANNEL 1
+
+         Port: Expansion
+            Status: Optimal
+            Max. Rate: 3 Gbps
+            Current Rate: 3 Gbps
+            Rate Control: Switched
+            DRIVE COUNTS
+
+               Total # of attached drives: 9
+               Connected to: Controller A
+                  Attached drives: 9
+                     Drive enclosure: 85 (9 drives)
+
+
+            CUMULATIVE ERROR COUNTS
+
+               Controller A
+                  Baseline time set:               7/16/09 9:46:13 AM  
+                  Sample period (days, hh:mm:ss):  245 days, 13:56:27  
+                  Controller detected errors:      0                   
+                  Drive detected errors:           0                   
+                  Timeout errors:                  0                   
+                  Total I/O count:                 232333643           
+
+               Controller B
+                  Baseline time set:               7/16/09 9:46:13 AM  
+                  Sample period (days, hh:mm:ss):  245 days, 13:56:27  
+                  Controller detected errors:      0                   
+                  Drive detected errors:           0                   
+                  Timeout errors:                  0                   
+                  Total I/O count:                 23566054            
+
+         DRIVE CHANNEL 2
+
+            Port: 
+               Status: Optimal
+               Max. Rate: 3 Gbps
+               Current Rate: 3 Gbps
+               Rate Control: Switched
+               DRIVE COUNTS
+
+                  Total # of attached drives: 9
+                  Connected to: Controller B
+                     Attached drives: 9
+                        Drive enclosure: 85 (9 drives)
+
+
+               CUMULATIVE ERROR COUNTS
+
+                  Controller A
+                     Baseline time set:               7/16/09 9:46:16 AM  
+                     Sample period (days, hh:mm:ss):  245 days, 13:56:24  
+                     Controller detected errors:      0                   
+                     Drive detected errors:           0                   
+                     Timeout errors:                  0                   
+                     Total I/O count:                 80731794            
+
+                  Controller B
+                     Baseline time set:               7/16/09 9:46:15 AM  
+                     Sample period (days, hh:mm:ss):  245 days, 13:56:25  
+                     Controller detected errors:      0                   
+                     Drive detected errors:           0                   
+                     Timeout errors:                  0                   
+                     Total I/O count:                 25437457            
+
+      ENCLOSURES------------------------------
+         Controller/Drive Enclosure Overall Component Information
+
+            Enclosure audible alarm:  Disabled         
+            Current drive types:      SAS              
+            Part number:              PN 39R6545       
+            Serial number:            SN 130158R       
+            Vendor:                   VN IBM           
+            Date of manufacture:      June 1, 2007     
+
+            2 Battery Packs Detected
+
+               Battery status:           Optimal           
+               Location:                 Controller A      
+               Age:                      359 days          
+               Days until replacement:   360 days          
+               Replacement part number:  PN 39R6520        
+               Serial number:            SN 1T72303888PS   
+               Vendor:                   VN IBM            
+               Date of manufacture:      February 1, 2007  
+
+               Battery status:           Optimal           
+               Location:                 Controller B      
+               Age:                      359 days          
+               Days until replacement:   360 days          
+               Replacement part number:  PN 39R6520        
+               Serial number:            SN 1T72303889PS   
+               Vendor:                   VN IBM            
+               Date of manufacture:      February 1, 2007  
+
+
+            2 Power-Fan Canisters Detected
+
+               Power-fan canister (right) status:  Optimal          
+               Part number:                        PN 42C2140       
+               Serial number:                      SN ZST070939958  
+               Vendor:                             VN IBM           
+               Date of manufacture:                March 1, 2007    
+
+
+               Power-fan canister (left) status:  Optimal          
+               Part number:                       PN 42C2140       
+               Serial number:                     SN ZST070939953  
+               Vendor:                            VN IBM           
+               Date of manufacture:               March 1, 2007    
+
+
+            2 Power Supplies Detected
+
+               Power supply status:  Optimal                        
+               Location:             Power supply canister (right)  
+
+               Power supply status:  Optimal                       
+               Location:             Power supply canister (left)  
+
+
+            2 Fans Detected
+
+               Fan Status:  Optimal              
+               Location:    Fan canister (left)  
+
+               Fan Status:  Optimal               
+               Location:    Fan canister (right)  
+
+
+            4 Temperature Sensors Detected
+
+               Temperature sensor status:  Optimal       
+               Location:                   Controller A  
+
+               Temperature sensor status:  Optimal       
+               Location:                   Controller B  
+
+               Temperature sensor status:  Optimal        
+               Location:                   Not available  
+
+               Temperature sensor status:  Optimal        
+               Location:                   Not available  
+
+
+
+      MAPPINGS (Storage Partitioning - Enabled (1 of 4 used))-------------------
+
+         VOLUME NAME           LUN  CONTROLLER  ACCESSIBLE BY      VOLUME STATUS  
+         Access Logical Drive  31   A,B         Host Group HA      Optimal        
+         1                     0    A           Host Group HA      Optimal        
+         Access Logical Drive  31   A,B         Storage Subsystem  Optimal        
+
+         TOPOLOGY DEFINITIONS                           
+                                                        
+            STORAGE SUBSYSTEM                           
+               Default type:   W2KNETNCL0               
+                                                        
+            HOST GROUP HA                               
+               Host:           x3650-a                  
+                  Host Port:   50:06:05:b0:00:2a:2f:24  
+                     Alias:    x3650-a0                 
+                     Type:     Linux                    
+                                                        
+                  Host Port:   50:06:05:b0:00:26:79:84  
+                     Alias:    x3650-a1                 
+                     Type:     Linux                    
+                                                        
+               Host:           x3650-b                  
+                  Host Port:   50:06:05:b0:00:26:60:54  
+                     Alias:    x3650-b0                 
+                     Type:     Linux                    
+                                                        
+                  Host Port:   50:06:05:b0:00:29:e0:74  
+                     Alias:    x3650-b1                 
+                     Type:     Linux                    
+                                                        
+         NVSRAM HOST TYPE DEFINITIONS
+
+         HOST TYPE                                              ADT STATUS  ASSOCIATED INDEX  
+         AIX                                                    Disabled    6                 
+         HP-UX                                                  Enabled     7                 
+         Irix                                                   Disabled    10                
+         LNXCLVMWARE                                            Disabled    13                
+         Linux                                                  Disabled    5                 
+         Netware Failover                                       Disabled    11                
+         Solaris                                                Disabled    8                 
+         Solaris (with Veritas DMP)                             Enabled     14                
+         Unused1                                                Disabled    1                 
+         Unused12                                               Disabled    12                
+         Unused4                                                Disabled    4                 
+         W2KNETNCL0                                             Disabled    0 (Default)       
+         Windows 2000/Server 2003 Clustered                     Disabled    3                 
+         Windows 2000/Server 2003 Clustered (supports DMP)      Enabled     15                
+         Windows 2000/Server 2003 Non-Clustered                 Disabled    2                 
+         Windows 2000/Server 2003 Non-Clustered (supports DMP)  Enabled     9                 

@@ -1,0 +1,2 @@
+MSHW;Clock;A;NotSupported;NotSupported;
+MSHW;Clock;A;NotSupported;NotSupported;

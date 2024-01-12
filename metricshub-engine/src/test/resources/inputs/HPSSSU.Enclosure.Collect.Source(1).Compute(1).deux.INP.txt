@@ -1,0 +1,3188 @@
+START TIME 15:08:00,25
+ SSSU for HP StorageWorks Command View EVA
+ Version: 9.3.0 
+ Build: 072310A
+ NoSystemSelected> LS SYSTEM
+ Systems available on this Manager:
+
+Found System EVA4000
+MS_HW_ENCLOSURE EVA4000
+MS_HW_SECTION LS CONTROLLER FULL XML BEGIN 15:08:02,71
+
+
+SSSU for HP StorageWorks Command View EVA
+Version: 9.3.0 
+Build: 072310A
+NoSystemSelected> SELECT SYSTEM "EVA4000"
+
+EVA4000> SET OPTIONS ON_ERROR=Exit_on_error NORETRIES
+
+EVA4000> LS CONTROLLER FULL XML
+
+controller available on this Cell:
+
+\Hardware\Rack 1\Controller Enclosure 2\Controller B information:
+<object>
+  <objectid>00000708B40805509AD306000000000000000000</objectid>
+  <objectname>\Hardware\Rack 1\Controller Enclosure 2\Controller B</objectname>
+  <objecttype>controller</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>5005-08b4-0006-d39a-0000-0000-0000-0000</objecthexuid>
+  <controllername>Controller B</controllername>
+  <uid>00000708B40805509AD306000000000000000000</uid>
+  <objecthexuid>5005-08b4-0006-d39a-0000-0000-0000-0000</objecthexuid>
+  <operationalstate>attention</operationalstate>
+  <operationalstatedetail>initialized_attention</operationalstatedetail>
+  <objectparentuid>0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C</objectparentuid>
+  <comments></comments>
+  <objectparenthexuid>0c0c-0c0c-0c0c-0c0c-0c0c-0c0c-0c0c-0c0c</objectparenthexuid>
+  <objectparentid>0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C</objectparentid>
+  <datablocksize>512</datablocksize>
+  <scellparticipation>normal</scellparticipation>
+  <nsccondition>good</nsccondition>
+  <firmwareversion>CR1363xc3p-6220</firmwareversion>
+  <modelnumber>HSV200</modelnumber>
+  <serialnumber>PBA24F19SVG0FM</serialnumber>
+  <shelfnumber>2</shelfnumber>
+  <controllermainmemory>1024</controllermainmemory>
+  <cachememory>
+    <cachecondition>good</cachecondition>
+    <readcapacity>512</readcapacity>
+    <writecapacity>256</writecapacity>
+    <mirrorcapacity>256</mirrorcapacity>
+    <mirrorconnectionstate>active</mirrorconnectionstate>
+    <mirrorconnectionstate2>active</mirrorconnectionstate2>
+    <mirrorport1state>normal</mirrorport1state>
+    <mirrorport2state>normal</mirrorport2state>
+  </cachememory>
+  <wwnodename>5000-1FE1-500F-D6D0</wwnodename>
+  <manufacturer>Hewlett-Packard Company</manufacturer>
+  <hostports>
+    <hostport>
+      <portname>hostport1</portname>
+      <wwid>50001FE1 500FD6DC</wwid>
+      <nodeid>50001FE1 500FD6D0</nodeid>
+      <hostportaddress>64-1D-13</hostportaddress>
+      <operationalstate>good</operationalstate>
+      <speed>1</speed>
+      <portcondition>fabric_login</portcondition>
+      <topology>fabric</topology>
+    </hostport>
+    <hostport>
+      <portname>hostport2</portname>
+      <wwid>50001FE1 500FD6DD</wwid>
+      <nodeid>50001FE1 500FD6D0</nodeid>
+      <hostportaddress>unknown</hostportaddress>
+      <operationalstate>failed</operationalstate>
+      <speed>4</speed>
+      <portcondition>link_down</portcondition>
+      <topology>fabric</topology>
+    </hostport>
+  </hostports>
+  <deviceports>
+    <deviceport>
+      <portname>looppair1loopa</portname>
+      <wwid>00508B40 006D39A1</wwid>
+      <loopid>124</loopid>
+      <operationalstate>good</operationalstate>
+      <loopalpa>02</loopalpa>
+      <loopposition>9</loopposition>
+      <switchtype>No switch</switchtype>
+    </deviceport>
+    <deviceport>
+      <portname>looppair1loopb</portname>
+      <wwid>00508B40 006D39A2</wwid>
+      <loopid>124</loopid>
+      <operationalstate>good</operationalstate>
+      <loopalpa>02</loopalpa>
+      <loopposition>9</loopposition>
+      <switchtype>No switch</switchtype>
+    </deviceport>
+  </deviceports>
+  <fanfru>blower_power_supply</fanfru>
+  <shelfnumber>2</shelfnumber>
+  <fans>
+    <fan>
+      <fanname>fan0</fanname>
+      <status>normal</status>
+      <speed>2272</speed>
+    </fan>
+    <fan>
+      <fanname>fan1</fanname>
+      <status>normal</status>
+      <speed>2272</speed>
+    </fan>
+  </fans>
+  <sensors>
+    <sensor>
+      <name>i2csensor1</name>
+      <tempc>25</tempc>
+      <tempf>77</tempf>
+    </sensor>
+    <sensor>
+      <name>i2csensor2</name>
+      <tempc>25</tempc>
+      <tempf>77</tempf>
+    </sensor>
+    <sensor>
+      <name>cpusensor</name>
+      <tempc>24</tempc>
+      <tempf>75</tempf>
+    </sensor>
+    <sensor>
+      <name>weightedavg</name>
+      <tempc>24</tempc>
+      <tempf>75</tempf>
+    </sensor>
+    <sensor>
+      <name>fantrippoint</name>
+      <tempc>55</tempc>
+      <tempf>131</tempf>
+    </sensor>
+  </sensors>
+  <controllertemperaturestatus>normal</controllertemperaturestatus>
+  <powersources>
+    <powerlevel>12.30</powerlevel>
+    <source>
+      <type>powersupply0</type>
+      <state>good</state>
+    </source>
+    <source>
+      <type>powersupply1</type>
+      <state>good</state>
+    </source>
+  </powersources>
+  <cachebattery>
+    <operationalstate>good</operationalstate>
+    <chargeropstate>unknown</chargeropstate>
+    <currentbatterycapacity>160</currentbatterycapacity>
+    <maximumbatterycapacity>190</maximumbatterycapacity>
+    <minimumbatterycapacity>96</minimumbatterycapacity>
+    <modules>
+      <module>
+        <name>batterymodule0</name>
+        <operationalstate>not_present</operationalstate>
+        <statedetails>unknown</statedetails>
+      </module>
+      <module>
+        <name>batterymodule1</name>
+        <operationalstate>good</operationalstate>
+        <statedetails>holding_charge</statedetails>
+      </module>
+      <module>
+        <name>batterymodule2</name>
+        <operationalstate>not_present</operationalstate>
+        <statedetails>unknown</statedetails>
+      </module>
+      <module>
+        <name>batterymodule3</name>
+        <operationalstate>not_present</operationalstate>
+        <statedetails>unknown</statedetails>
+      </module>
+    </modules>
+  </cachebattery>
+  <rohscompliant>yes</rohscompliant>
+</object>
+
+
+
+\Hardware\Rack 1\Controller Enclosure 2\Controller A information:
+<object>
+  <objectid>20000710B4080550F8CF06000000000000000000</objectid>
+  <objectname>\Hardware\Rack 1\Controller Enclosure 2\Controller A</objectname>
+  <objecttype>controller</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>5005-08b4-0006-cff8-0000-0000-0000-0000</objecthexuid>
+  <controllername>Controller A</controllername>
+  <uid>20000710B4080550F8CF06000000000000000000</uid>
+  <objecthexuid>5005-08b4-0006-cff8-0000-0000-0000-0000</objecthexuid>
+  <operationalstate>attention</operationalstate>
+  <operationalstatedetail>initialized_attention</operationalstatedetail>
+  <objectparentuid>0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C</objectparentuid>
+  <comments></comments>
+  <objectparenthexuid>0c0c-0c0c-0c0c-0c0c-0c0c-0c0c-0c0c-0c0c</objectparenthexuid>
+  <objectparentid>0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C</objectparentid>
+  <datablocksize>512</datablocksize>
+  <scellparticipation>normal</scellparticipation>
+  <nsccondition>good</nsccondition>
+  <firmwareversion>CR1363xc3p-6220</firmwareversion>
+  <modelnumber>HSV200</modelnumber>
+  <serialnumber>PBA24F19SVF0P1</serialnumber>
+  <shelfnumber>2</shelfnumber>
+  <controllermainmemory>1024</controllermainmemory>
+  <cachememory>
+    <cachecondition>good</cachecondition>
+    <readcapacity>512</readcapacity>
+    <writecapacity>256</writecapacity>
+    <mirrorcapacity>256</mirrorcapacity>
+    <mirrorconnectionstate>active</mirrorconnectionstate>
+    <mirrorconnectionstate2>active</mirrorconnectionstate2>
+    <mirrorport1state>normal</mirrorport1state>
+    <mirrorport2state>normal</mirrorport2state>
+  </cachememory>
+  <wwnodename>5000-1FE1-500F-D6D0</wwnodename>
+  <manufacturer>Hewlett-Packard Company</manufacturer>
+  <hostports>
+    <hostport>
+      <portname>hostport1</portname>
+      <wwid>50001FE1 500FD6D8</wwid>
+      <nodeid>50001FE1 500FD6D0</nodeid>
+      <hostportaddress>61-17-13</hostportaddress>
+      <operationalstate>good</operationalstate>
+      <speed>2</speed>
+      <portcondition>fabric_login</portcondition>
+      <topology>fabric</topology>
+    </hostport>
+    <hostport>
+      <portname>hostport2</portname>
+      <wwid>50001FE1 500FD6D9</wwid>
+      <nodeid>50001FE1 500FD6D0</nodeid>
+      <hostportaddress>unknown</hostportaddress>
+      <operationalstate>failed</operationalstate>
+      <speed>4</speed>
+      <portcondition>link_down</portcondition>
+      <topology>fabric</topology>
+    </hostport>
+  </hostports>
+  <deviceports>
+    <deviceport>
+      <portname>looppair1loopa</portname>
+      <wwid>00508B40 006CFF81</wwid>
+      <loopid>125</loopid>
+      <operationalstate>good</operationalstate>
+      <loopalpa>01</loopalpa>
+      <loopposition>0</loopposition>
+      <switchtype>No switch</switchtype>
+    </deviceport>
+    <deviceport>
+      <portname>looppair1loopb</portname>
+      <wwid>00508B40 006CFF82</wwid>
+      <loopid>125</loopid>
+      <operationalstate>good</operationalstate>
+      <loopalpa>01</loopalpa>
+      <loopposition>0</loopposition>
+      <switchtype>No switch</switchtype>
+    </deviceport>
+  </deviceports>
+  <fanfru>blower_power_supply</fanfru>
+  <shelfnumber>2</shelfnumber>
+  <fans>
+    <fan>
+      <fanname>fan0</fanname>
+      <status>normal</status>
+      <speed>2272</speed>
+    </fan>
+    <fan>
+      <fanname>fan1</fanname>
+      <status>normal</status>
+      <speed>2272</speed>
+    </fan>
+  </fans>
+  <sensors>
+    <sensor>
+      <name>i2csensor1</name>
+      <tempc>24</tempc>
+      <tempf>75</tempf>
+    </sensor>
+    <sensor>
+      <name>i2csensor2</name>
+      <tempc>25</tempc>
+      <tempf>77</tempf>
+    </sensor>
+    <sensor>
+      <name>cpusensor</name>
+      <tempc>23</tempc>
+      <tempf>73</tempf>
+    </sensor>
+    <sensor>
+      <name>weightedavg</name>
+      <tempc>24</tempc>
+      <tempf>75</tempf>
+    </sensor>
+    <sensor>
+      <name>fantrippoint</name>
+      <tempc>55</tempc>
+      <tempf>131</tempf>
+    </sensor>
+  </sensors>
+  <controllertemperaturestatus>normal</controllertemperaturestatus>
+  <powersources>
+    <powerlevel>12.23</powerlevel>
+    <source>
+      <type>powersupply0</type>
+      <state>good</state>
+    </source>
+    <source>
+      <type>powersupply1</type>
+      <state>good</state>
+    </source>
+  </powersources>
+  <cachebattery>
+    <operationalstate>failed</operationalstate>
+    <chargeropstate>unknown</chargeropstate>
+    <currentbatterycapacity>0</currentbatterycapacity>
+    <maximumbatterycapacity>190</maximumbatterycapacity>
+    <minimumbatterycapacity>96</minimumbatterycapacity>
+    <modules>
+      <module>
+        <name>batterymodule0</name>
+        <operationalstate>failed</operationalstate>
+        <statedetails>failed</statedetails>
+      </module>
+      <module>
+        <name>batterymodule1</name>
+        <operationalstate>not_present</operationalstate>
+        <statedetails>unknown</statedetails>
+      </module>
+      <module>
+        <name>batterymodule2</name>
+        <operationalstate>not_present</operationalstate>
+        <statedetails>unknown</statedetails>
+      </module>
+      <module>
+        <name>batterymodule3</name>
+        <operationalstate>not_present</operationalstate>
+        <statedetails>unknown</statedetails>
+      </module>
+    </modules>
+  </cachebattery>
+  <rohscompliant>yes</rohscompliant>
+</object>
+
+MS_HW_SECTION LS CONTROLLER FULL XML END 15:08:05,58
+
+MS_HW_SECTION LS DISK FULL XML BEGIN 15:08:05,58
+
+
+SSSU for HP StorageWorks Command View EVA
+Version: 9.3.0 
+Build: 072310A
+NoSystemSelected> SELECT SYSTEM "EVA4000"
+
+EVA4000> SET OPTIONS ON_ERROR=Exit_on_error NORETRIES
+
+EVA4000> LS DISK FULL XML
+
+Disks available on this Cell:
+
+\Disk Groups\Default Disk Group\Disk 001 information:
+<object>
+  <objectid>03080710180000201CB7FA620000000000000000</objectid>
+  <objectname>\Disk Groups\Default Disk Group\Disk 001</objectname>
+  <objecttype>disk</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>2000-0018-62fa-b71c-0000-0000-0000-0000</objecthexuid>
+  <nscModel>HSV200</nscModel>
+  <diskname>Disk 001</diskname>
+  <comments></comments>
+  <operationalstate>good</operationalstate>
+  <operationalstatedetail>member_ok</operationalstatedetail>
+  <uid>03080710180000201CB7FA620000000000000000</uid>
+  <objectparentuid>00010710B4080560F8CF06000020030000002400</objectparentuid>
+  <objectparentid>00010710B4080560F8CF06000020030000002400</objectparentid>
+  <objectparenthexuid>6005-08b4-0006-cff8-0003-2000-0024-0000</objectparenthexuid>
+  <storagecellname>EVA4000</storagecellname>
+  <EnclosureDiskBays>14</EnclosureDiskBays>
+  <nodewwid>2000-0018-62FA-B71C</nodewwid>
+  <diskgroupname>Default Disk Group</diskgroupname>
+  <diskgroupid>00010710B4080560F8CF06000020030000002400</diskgroupid>
+  <diskbaynumber>4</diskbaynumber>
+  <shelfnumber>1</shelfnumber>
+  <EnclosureIOTransport>fc</EnclosureIOTransport>
+  <loops>
+    <loop>
+      <loopname>loopa</loopname>
+      <portwwid>2000-0018-62FA-B71C</portwwid>
+      <loopid>101</loopid>
+      <assignedlun>0</assignedlun>
+      <loopstate>good</loopstate>
+      <loopalpa>33</loopalpa>
+      <loopposition>4</loopposition>
+    </loop>
+    <loop>
+      <loopname>loopb</loopname>
+      <portwwid>2000-0018-62FA-B71C</portwwid>
+      <loopid>101</loopid>
+      <assignedlun>0</assignedlun>
+      <loopstate>good</loopstate>
+      <loopalpa>33</loopalpa>
+      <loopposition>4</loopposition>
+    </loop>
+  </loops>
+  <formattedcapacity>286749488</formattedcapacity>
+  <diskdrivetype>online</diskdrivetype>
+  <mediaaccessible>yes</mediaaccessible>
+  <failurepredicted>no</failurepredicted>
+  <manufacturer>HPQ     </manufacturer>
+  <modelnumber>BF1465A477      </modelnumber>
+  <firmwareversion>HP02</firmwareversion>
+  <disktype>fibre_channel_disk</disktype>
+  <serialnumber>3LN38Y5V</serialnumber>
+  <rssindex>7</rssindex>
+  <rssid>1</rssid>
+  <migrationprogress>n/a</migrationprogress>
+  <occupancy>89755648</occupancy>
+  <migrationstate>not_migrating</migrationstate>
+  <canlocaterss>yes</canlocaterss>
+  <actualusage>grouped</actualusage>
+  <requestedusage>grouped</requestedusage>
+  <quorumdisk>yes</quorumdisk>
+  <looppair>looppair1</looppair>
+  <diskcodeloadable>yes</diskcodeloadable>
+  <DiskHasVraid0Data>false</DiskHasVraid0Data>
+</object>
+
+
+
+\Disk Groups\Default Disk Group\Disk 002 information:
+<object>
+  <objectid>000807101800002024DCFA620000000000000000</objectid>
+  <objectname>\Disk Groups\Default Disk Group\Disk 002</objectname>
+  <objecttype>disk</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>2000-0018-62fa-dc24-0000-0000-0000-0000</objecthexuid>
+  <nscModel>HSV200</nscModel>
+  <diskname>Disk 002</diskname>
+  <comments></comments>
+  <operationalstate>good</operationalstate>
+  <operationalstatedetail>member_ok</operationalstatedetail>
+  <uid>000807101800002024DCFA620000000000000000</uid>
+  <objectparentuid>00010710B4080560F8CF06000020030000002400</objectparentuid>
+  <objectparentid>00010710B4080560F8CF06000020030000002400</objectparentid>
+  <objectparenthexuid>6005-08b4-0006-cff8-0003-2000-0024-0000</objectparenthexuid>
+  <storagecellname>EVA4000</storagecellname>
+  <EnclosureDiskBays>14</EnclosureDiskBays>
+  <nodewwid>2000-0018-62FA-DC24</nodewwid>
+  <diskgroupname>Default Disk Group</diskgroupname>
+  <diskgroupid>00010710B4080560F8CF06000020030000002400</diskgroupid>
+  <diskbaynumber>1</diskbaynumber>
+  <shelfnumber>1</shelfnumber>
+  <EnclosureIOTransport>fc</EnclosureIOTransport>
+  <loops>
+    <loop>
+      <loopname>loopa</loopname>
+      <portwwid>2000-0018-62FA-DC24</portwwid>
+      <loopid>98</loopid>
+      <assignedlun>0</assignedlun>
+      <loopstate>good</loopstate>
+      <loopalpa>36</loopalpa>
+      <loopposition>1</loopposition>
+    </loop>
+    <loop>
+      <loopname>loopb</loopname>
+      <portwwid>2000-0018-62FA-DC24</portwwid>
+      <loopid>98</loopid>
+      <assignedlun>0</assignedlun>
+      <loopstate>good</loopstate>
+      <loopalpa>36</loopalpa>
+      <loopposition>1</loopposition>
+    </loop>
+  </loops>
+  <formattedcapacity>286749488</formattedcapacity>
+  <diskdrivetype>online</diskdrivetype>
+  <mediaaccessible>yes</mediaaccessible>
+  <failurepredicted>no</failurepredicted>
+  <manufacturer>HPQ     </manufacturer>
+  <modelnumber>BF1465A477      </modelnumber>
+  <firmwareversion>HP02</firmwareversion>
+  <disktype>fibre_channel_disk</disktype>
+  <serialnumber>3LN3974C</serialnumber>
+  <rssindex>0</rssindex>
+  <rssid>1</rssid>
+  <migrationprogress>n/a</migrationprogress>
+  <occupancy>89755648</occupancy>
+  <migrationstate>not_migrating</migrationstate>
+  <canlocaterss>yes</canlocaterss>
+  <actualusage>grouped</actualusage>
+  <requestedusage>grouped</requestedusage>
+  <quorumdisk>yes</quorumdisk>
+  <looppair>looppair1</looppair>
+  <diskcodeloadable>yes</diskcodeloadable>
+  <DiskHasVraid0Data>false</DiskHasVraid0Data>
+</object>
+
+
+
+\Disk Groups\Default Disk Group\Disk 003 information:
+<object>
+  <objectid>04080710180000203590FA620000000000000000</objectid>
+  <objectname>\Disk Groups\Default Disk Group\Disk 003</objectname>
+  <objecttype>disk</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>2000-0018-62fa-9035-0000-0000-0000-0000</objecthexuid>
+  <nscModel>HSV200</nscModel>
+  <diskname>Disk 003</diskname>
+  <comments></comments>
+  <operationalstate>good</operationalstate>
+  <operationalstatedetail>member_ok</operationalstatedetail>
+  <uid>04080710180000203590FA620000000000000000</uid>
+  <objectparentuid>00010710B4080560F8CF06000020030000002400</objectparentuid>
+  <objectparentid>00010710B4080560F8CF06000020030000002400</objectparentid>
+  <objectparenthexuid>6005-08b4-0006-cff8-0003-2000-0024-0000</objectparenthexuid>
+  <storagecellname>EVA4000</storagecellname>
+  <EnclosureDiskBays>14</EnclosureDiskBays>
+  <nodewwid>2000-0018-62FA-9035</nodewwid>
+  <diskgroupname>Default Disk Group</diskgroupname>
+  <diskgroupid>00010710B4080560F8CF06000020030000002400</diskgroupid>
+  <diskbaynumber>14</diskbaynumber>
+  <shelfnumber>1</shelfnumber>
+  <EnclosureIOTransport>fc</EnclosureIOTransport>
+  <loops>
+    <loop>
+      <loopname>loopa</loopname>
+      <portwwid>2000-0018-62FA-9035</portwwid>
+      <loopid>111</loopid>
+      <assignedlun>0</assignedlun>
+      <loopstate>good</loopstate>
+      <loopalpa>26</loopalpa>
+      <loopposition>8</loopposition>
+    </loop>
+    <loop>
+      <loopname>loopb</loopname>
+      <portwwid>2000-0018-62FA-9035</portwwid>
+      <loopid>111</loopid>
+      <assignedlun>0</assignedlun>
+      <loopstate>good</loopstate>
+      <loopalpa>26</loopalpa>
+      <loopposition>8</loopposition>
+    </loop>
+  </loops>
+  <formattedcapacity>286749488</formattedcapacity>
+  <diskdrivetype>online</diskdrivetype>
+  <mediaaccessible>yes</mediaaccessible>
+  <failurepredicted>no</failurepredicted>
+  <manufacturer>HPQ     </manufacturer>
+  <modelnumber>BF1465A477      </modelnumber>
+  <firmwareversion>HP02</firmwareversion>
+  <disktype>fibre_channel_disk</disktype>
+  <serialnumber>3LN38MJ4</serialnumber>
+  <rssindex>4</rssindex>
+  <rssid>1</rssid>
+  <migrationprogress>n/a</migrationprogress>
+  <occupancy>89755648</occupancy>
+  <migrationstate>not_migrating</migrationstate>
+  <canlocaterss>yes</canlocaterss>
+  <actualusage>grouped</actualusage>
+  <requestedusage>grouped</requestedusage>
+  <quorumdisk>yes</quorumdisk>
+  <looppair>looppair1</looppair>
+  <diskcodeloadable>yes</diskcodeloadable>
+  <DiskHasVraid0Data>false</DiskHasVraid0Data>
+</object>
+
+
+
+\Disk Groups\Default Disk Group\Disk 004 information:
+<object>
+  <objectid>060807101800002061BBFA620000000000000000</objectid>
+  <objectname>\Disk Groups\Default Disk Group\Disk 004</objectname>
+  <objecttype>disk</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>2000-0018-62fa-bb61-0000-0000-0000-0000</objecthexuid>
+  <nscModel>HSV200</nscModel>
+  <diskname>Disk 004</diskname>
+  <comments></comments>
+  <operationalstate>good</operationalstate>
+  <operationalstatedetail>member_ok</operationalstatedetail>
+  <uid>060807101800002061BBFA620000000000000000</uid>
+  <objectparentuid>00010710B4080560F8CF06000020030000002400</objectparentuid>
+  <objectparentid>00010710B4080560F8CF06000020030000002400</objectparentid>
+  <objectparenthexuid>6005-08b4-0006-cff8-0003-2000-0024-0000</objectparenthexuid>
+  <storagecellname>EVA4000</storagecellname>
+  <EnclosureDiskBays>14</EnclosureDiskBays>
+  <nodewwid>2000-0018-62FA-BB61</nodewwid>
+  <diskgroupname>Default Disk Group</diskgroupname>
+  <diskgroupid>00010710B4080560F8CF06000020030000002400</diskgroupid>
+  <diskbaynumber>12</diskbaynumber>
+  <shelfnumber>1</shelfnumber>
+  <EnclosureIOTransport>fc</EnclosureIOTransport>
+  <loops>
+    <loop>
+      <loopname>loopa</loopname>
+      <portwwid>2000-0018-62FA-BB61</portwwid>
+      <loopid>109</loopid>
+      <assignedlun>0</assignedlun>
+      <loopstate>good</loopstate>
+      <loopalpa>29</loopalpa>
+      <loopposition>6</loopposition>
+    </loop>
+    <loop>
+      <loopname>loopb</loopname>
+      <portwwid>2000-0018-62FA-BB61</portwwid>
+      <loopid>109</loopid>
+      <assignedlun>0</assignedlun>
+      <loopstate>good</loopstate>
+      <loopalpa>29</loopalpa>
+      <loopposition>6</loopposition>
+    </loop>
+  </loops>
+  <formattedcapacity>286749488</formattedcapacity>
+  <diskdrivetype>online</diskdrivetype>
+  <mediaaccessible>yes</mediaaccessible>
+  <failurepredicted>no</failurepredicted>
+  <manufacturer>HPQ     </manufacturer>
+  <modelnumber>BF1465A477      </modelnumber>
+  <firmwareversion>HP02</firmwareversion>
+  <disktype>fibre_channel_disk</disktype>
+  <serialnumber>3LN38WEH</serialnumber>
+  <rssindex>2</rssindex>
+  <rssid>1</rssid>
+  <migrationprogress>n/a</migrationprogress>
+  <occupancy>89755648</occupancy>
+  <migrationstate>not_migrating</migrationstate>
+  <canlocaterss>yes</canlocaterss>
+  <actualusage>grouped</actualusage>
+  <requestedusage>grouped</requestedusage>
+  <quorumdisk>no</quorumdisk>
+  <looppair>looppair1</looppair>
+  <diskcodeloadable>yes</diskcodeloadable>
+  <DiskHasVraid0Data>false</DiskHasVraid0Data>
+</object>
+
+
+
+\Disk Groups\Default Disk Group\Disk 005 information:
+<object>
+  <objectid>010807101800002080D0FA620000000000000000</objectid>
+  <objectname>\Disk Groups\Default Disk Group\Disk 005</objectname>
+  <objecttype>disk</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>2000-0018-62fa-d080-0000-0000-0000-0000</objecthexuid>
+  <nscModel>HSV200</nscModel>
+  <diskname>Disk 005</diskname>
+  <comments></comments>
+  <operationalstate>good</operationalstate>
+  <operationalstatedetail>member_ok</operationalstatedetail>
+  <uid>010807101800002080D0FA620000000000000000</uid>
+  <objectparentuid>00010710B4080560F8CF06000020030000002400</objectparentuid>
+  <objectparentid>00010710B4080560F8CF06000020030000002400</objectparentid>
+  <objectparenthexuid>6005-08b4-0006-cff8-0003-2000-0024-0000</objectparenthexuid>
+  <storagecellname>EVA4000</storagecellname>
+  <EnclosureDiskBays>14</EnclosureDiskBays>
+  <nodewwid>2000-0018-62FA-D080</nodewwid>
+  <diskgroupname>Default Disk Group</diskgroupname>
+  <diskgroupid>00010710B4080560F8CF06000020030000002400</diskgroupid>
+  <diskbaynumber>2</diskbaynumber>
+  <shelfnumber>1</shelfnumber>
+  <EnclosureIOTransport>fc</EnclosureIOTransport>
+  <loops>
+    <loop>
+      <loopname>loopa</loopname>
+      <portwwid>2000-0018-62FA-D080</portwwid>
+      <loopid>99</loopid>
+      <assignedlun>0</assignedlun>
+      <loopstate>good</loopstate>
+      <loopalpa>35</loopalpa>
+      <loopposition>2</loopposition>
+    </loop>
+    <loop>
+      <loopname>loopb</loopname>
+      <portwwid>2000-0018-62FA-D080</portwwid>
+      <loopid>99</loopid>
+      <assignedlun>0</assignedlun>
+      <loopstate>good</loopstate>
+      <loopalpa>35</loopalpa>
+      <loopposition>2</loopposition>
+    </loop>
+  </loops>
+  <formattedcapacity>286749488</formattedcapacity>
+  <diskdrivetype>online</diskdrivetype>
+  <mediaaccessible>yes</mediaaccessible>
+  <failurepredicted>no</failurepredicted>
+  <manufacturer>HPQ     </manufacturer>
+  <modelnumber>BF1465A477      </modelnumber>
+  <firmwareversion>HP02</firmwareversion>
+  <disktype>fibre_channel_disk</disktype>
+  <serialnumber>3LN0PY9M</serialnumber>
+  <rssindex>1</rssindex>
+  <rssid>1</rssid>
+  <migrationprogress>n/a</migrationprogress>
+  <occupancy>89755648</occupancy>
+  <migrationstate>not_migrating</migrationstate>
+  <canlocaterss>yes</canlocaterss>
+  <actualusage>grouped</actualusage>
+  <requestedusage>grouped</requestedusage>
+  <quorumdisk>yes</quorumdisk>
+  <looppair>looppair1</looppair>
+  <diskcodeloadable>yes</diskcodeloadable>
+  <DiskHasVraid0Data>false</DiskHasVraid0Data>
+</object>
+
+
+
+\Disk Groups\Default Disk Group\Disk 006 information:
+<object>
+  <objectid>0208071018000020CCDDFA620000000000000000</objectid>
+  <objectname>\Disk Groups\Default Disk Group\Disk 006</objectname>
+  <objecttype>disk</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>2000-0018-62fa-ddcc-0000-0000-0000-0000</objecthexuid>
+  <nscModel>HSV200</nscModel>
+  <diskname>Disk 006</diskname>
+  <comments></comments>
+  <operationalstate>good</operationalstate>
+  <operationalstatedetail>member_ok</operationalstatedetail>
+  <uid>0208071018000020CCDDFA620000000000000000</uid>
+  <objectparentuid>00010710B4080560F8CF06000020030000002400</objectparentuid>
+  <objectparentid>00010710B4080560F8CF06000020030000002400</objectparentid>
+  <objectparenthexuid>6005-08b4-0006-cff8-0003-2000-0024-0000</objectparenthexuid>
+  <storagecellname>EVA4000</storagecellname>
+  <EnclosureDiskBays>14</EnclosureDiskBays>
+  <nodewwid>2000-0018-62FA-DDCC</nodewwid>
+  <diskgroupname>Default Disk Group</diskgroupname>
+  <diskgroupid>00010710B4080560F8CF06000020030000002400</diskgroupid>
+  <diskbaynumber>3</diskbaynumber>
+  <shelfnumber>1</shelfnumber>
+  <EnclosureIOTransport>fc</EnclosureIOTransport>
+  <loops>
+    <loop>
+      <loopname>loopa</loopname>
+      <portwwid>2000-0018-62FA-DDCC</portwwid>
+      <loopid>100</loopid>
+      <assignedlun>0</assignedlun>
+      <loopstate>good</loopstate>
+      <loopalpa>34</loopalpa>
+      <loopposition>3</loopposition>
+    </loop>
+    <loop>
+      <loopname>loopb</loopname>
+      <portwwid>2000-0018-62FA-DDCC</portwwid>
+      <loopid>100</loopid>
+      <assignedlun>0</assignedlun>
+      <loopstate>good</loopstate>
+      <loopalpa>34</loopalpa>
+      <loopposition>3</loopposition>
+    </loop>
+  </loops>
+  <formattedcapacity>286749488</formattedcapacity>
+  <diskdrivetype>online</diskdrivetype>
+  <mediaaccessible>yes</mediaaccessible>
+  <failurepredicted>no</failurepredicted>
+  <manufacturer>HPQ     </manufacturer>
+  <modelnumber>BF1465A477      </modelnumber>
+  <firmwareversion>HP02</firmwareversion>
+  <disktype>fibre_channel_disk</disktype>
+  <serialnumber>3LN397D9</serialnumber>
+  <rssindex>6</rssindex>
+  <rssid>1</rssid>
+  <migrationprogress>n/a</migrationprogress>
+  <occupancy>89755648</occupancy>
+  <migrationstate>not_migrating</migrationstate>
+  <canlocaterss>yes</canlocaterss>
+  <actualusage>grouped</actualusage>
+  <requestedusage>grouped</requestedusage>
+  <quorumdisk>yes</quorumdisk>
+  <looppair>looppair1</looppair>
+  <diskcodeloadable>yes</diskcodeloadable>
+  <DiskHasVraid0Data>false</DiskHasVraid0Data>
+</object>
+
+
+
+\Disk Groups\Default Disk Group\Disk 007 information:
+<object>
+  <objectid>0508071018000020CDD0FA620000000000000000</objectid>
+  <objectname>\Disk Groups\Default Disk Group\Disk 007</objectname>
+  <objecttype>disk</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>2000-0018-62fa-d0cd-0000-0000-0000-0000</objecthexuid>
+  <nscModel>HSV200</nscModel>
+  <diskname>Disk 007</diskname>
+  <comments></comments>
+  <operationalstate>good</operationalstate>
+  <operationalstatedetail>member_ok</operationalstatedetail>
+  <uid>0508071018000020CDD0FA620000000000000000</uid>
+  <objectparentuid>00010710B4080560F8CF06000020030000002400</objectparentuid>
+  <objectparentid>00010710B4080560F8CF06000020030000002400</objectparentid>
+  <objectparenthexuid>6005-08b4-0006-cff8-0003-2000-0024-0000</objectparenthexuid>
+  <storagecellname>EVA4000</storagecellname>
+  <EnclosureDiskBays>14</EnclosureDiskBays>
+  <nodewwid>2000-0018-62FA-D0CD</nodewwid>
+  <diskgroupname>Default Disk Group</diskgroupname>
+  <diskgroupid>00010710B4080560F8CF06000020030000002400</diskgroupid>
+  <diskbaynumber>13</diskbaynumber>
+  <shelfnumber>1</shelfnumber>
+  <EnclosureIOTransport>fc</EnclosureIOTransport>
+  <loops>
+    <loop>
+      <loopname>loopa</loopname>
+      <portwwid>2000-0018-62FA-D0CD</portwwid>
+      <loopid>110</loopid>
+      <assignedlun>0</assignedlun>
+      <loopstate>good</loopstate>
+      <loopalpa>27</loopalpa>
+      <loopposition>7</loopposition>
+    </loop>
+    <loop>
+      <loopname>loopb</loopname>
+      <portwwid>2000-0018-62FA-D0CD</portwwid>
+      <loopid>110</loopid>
+      <assignedlun>0</assignedlun>
+      <loopstate>good</loopstate>
+      <loopalpa>27</loopalpa>
+      <loopposition>7</loopposition>
+    </loop>
+  </loops>
+  <formattedcapacity>286749488</formattedcapacity>
+  <diskdrivetype>online</diskdrivetype>
+  <mediaaccessible>yes</mediaaccessible>
+  <failurepredicted>no</failurepredicted>
+  <manufacturer>HPQ     </manufacturer>
+  <modelnumber>BF1465A477      </modelnumber>
+  <firmwareversion>HP02</firmwareversion>
+  <disktype>fibre_channel_disk</disktype>
+  <serialnumber>3LN0PYBF</serialnumber>
+  <rssindex>5</rssindex>
+  <rssid>1</rssid>
+  <migrationprogress>n/a</migrationprogress>
+  <occupancy>89755648</occupancy>
+  <migrationstate>not_migrating</migrationstate>
+  <canlocaterss>yes</canlocaterss>
+  <actualusage>grouped</actualusage>
+  <requestedusage>grouped</requestedusage>
+  <quorumdisk>no</quorumdisk>
+  <looppair>looppair1</looppair>
+  <diskcodeloadable>yes</diskcodeloadable>
+  <DiskHasVraid0Data>false</DiskHasVraid0Data>
+</object>
+
+
+
+\Disk Groups\Default Disk Group\Disk 008 information:
+<object>
+  <objectid>0708071018000020FBCBFA620000000000000000</objectid>
+  <objectname>\Disk Groups\Default Disk Group\Disk 008</objectname>
+  <objecttype>disk</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>2000-0018-62fa-cbfb-0000-0000-0000-0000</objecthexuid>
+  <nscModel>HSV200</nscModel>
+  <diskname>Disk 008</diskname>
+  <comments></comments>
+  <operationalstate>good</operationalstate>
+  <operationalstatedetail>member_ok</operationalstatedetail>
+  <uid>0708071018000020FBCBFA620000000000000000</uid>
+  <objectparentuid>00010710B4080560F8CF06000020030000002400</objectparentuid>
+  <objectparentid>00010710B4080560F8CF06000020030000002400</objectparentid>
+  <objectparenthexuid>6005-08b4-0006-cff8-0003-2000-0024-0000</objectparenthexuid>
+  <storagecellname>EVA4000</storagecellname>
+  <EnclosureDiskBays>14</EnclosureDiskBays>
+  <nodewwid>2000-0018-62FA-CBFB</nodewwid>
+  <diskgroupname>Default Disk Group</diskgroupname>
+  <diskgroupid>00010710B4080560F8CF06000020030000002400</diskgroupid>
+  <diskbaynumber>11</diskbaynumber>
+  <shelfnumber>1</shelfnumber>
+  <EnclosureIOTransport>fc</EnclosureIOTransport>
+  <loops>
+    <loop>
+      <loopname>loopa</loopname>
+      <portwwid>2000-0018-62FA-CBFB</portwwid>
+      <loopid>108</loopid>
+      <assignedlun>0</assignedlun>
+      <loopstate>good</loopstate>
+      <loopalpa>2A</loopalpa>
+      <loopposition>5</loopposition>
+    </loop>
+    <loop>
+      <loopname>loopb</loopname>
+      <portwwid>2000-0018-62FA-CBFB</portwwid>
+      <loopid>108</loopid>
+      <assignedlun>0</assignedlun>
+      <loopstate>good</loopstate>
+      <loopalpa>2A</loopalpa>
+      <loopposition>5</loopposition>
+    </loop>
+  </loops>
+  <formattedcapacity>286749488</formattedcapacity>
+  <diskdrivetype>online</diskdrivetype>
+  <mediaaccessible>yes</mediaaccessible>
+  <failurepredicted>no</failurepredicted>
+  <manufacturer>HPQ     </manufacturer>
+  <modelnumber>BF1465A477      </modelnumber>
+  <firmwareversion>HP02</firmwareversion>
+  <disktype>fibre_channel_disk</disktype>
+  <serialnumber>3LN0PXNN</serialnumber>
+  <rssindex>3</rssindex>
+  <rssid>1</rssid>
+  <migrationprogress>n/a</migrationprogress>
+  <occupancy>89755648</occupancy>
+  <migrationstate>not_migrating</migrationstate>
+  <canlocaterss>yes</canlocaterss>
+  <actualusage>grouped</actualusage>
+  <requestedusage>grouped</requestedusage>
+  <quorumdisk>no</quorumdisk>
+  <looppair>looppair1</looppair>
+  <diskcodeloadable>yes</diskcodeloadable>
+  <DiskHasVraid0Data>false</DiskHasVraid0Data>
+</object>
+
+MS_HW_SECTION LS DISK FULL XML END 15:08:09,98
+
+MS_HW_SECTION LS DISKSHELF FULL XML BEGIN 15:08:09,98
+
+
+SSSU for HP StorageWorks Command View EVA
+Version: 9.3.0 
+Build: 072310A
+NoSystemSelected> SELECT SYSTEM "EVA4000"
+
+EVA4000> SET OPTIONS ON_ERROR=Exit_on_error NORETRIES
+
+EVA4000> LS DISKSHELF FULL XML
+
+diskshelf available on this Cell:
+
+\Hardware\Rack 1\Disk Enclosure 1 information:
+<object>
+  <objectid>00000708500508B3006A75AE0000000000000000</objectid>
+  <objectname>\Hardware\Rack 1\Disk Enclosure 1</objectname>
+  <objecttype>diskshelf</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>b308-0550-ae75-6a00-0000-0000-0000-0000</objecthexuid>
+  <objectparentid>0A0A0A0A0A0A0A0A0A0A0A0A0A0A0A0A0A0A0A0A</objectparentid>
+  <wwnodename>5005-08B3-006A-75AE</wwnodename>
+  <emulastevent>n/a</emulastevent>
+  <diskshelfswapbit>0</diskshelfswapbit>
+  <diskslotstatus>
+    <diskslot>
+      <name>diskslot1</name>
+      <state>installed_good</state>
+      <diskid>000807081800002024DCFA620000000000000000</diskid>
+      <diskwwn>2000-0018-62fa-dc24-0000-0000-0000-0000</diskwwn>
+      <diskstatus>normal</diskstatus>
+      <volumestatus>normal</volumestatus>
+      <ilfdisk>no</ilfdisk>
+    </diskslot>
+    <diskslot>
+      <name>diskslot2</name>
+      <state>installed_good</state>
+      <diskid>010807081800002080D0FA620000000000000000</diskid>
+      <diskwwn>2000-0018-62fa-d080-0000-0000-0000-0000</diskwwn>
+      <diskstatus>normal</diskstatus>
+      <volumestatus>normal</volumestatus>
+      <ilfdisk>no</ilfdisk>
+    </diskslot>
+    <diskslot>
+      <name>diskslot3</name>
+      <state>installed_good</state>
+      <diskid>0208070818000020CCDDFA620000000000000000</diskid>
+      <diskwwn>2000-0018-62fa-ddcc-0000-0000-0000-0000</diskwwn>
+      <diskstatus>normal</diskstatus>
+      <volumestatus>normal</volumestatus>
+      <ilfdisk>no</ilfdisk>
+    </diskslot>
+    <diskslot>
+      <name>diskslot4</name>
+      <state>installed_good</state>
+      <diskid>03080708180000201CB7FA620000000000000000</diskid>
+      <diskwwn>2000-0018-62fa-b71c-0000-0000-0000-0000</diskwwn>
+      <diskstatus>normal</diskstatus>
+      <volumestatus>normal</volumestatus>
+      <ilfdisk>no</ilfdisk>
+    </diskslot>
+    <diskslot>
+      <name>diskslot5</name>
+      <state>notinstalled</state>
+      <diskid>0000070800000000000000000000000000000000</diskid>
+      <diskwwn>0000-0000-0000-0000-0000-0000-0000-0000</diskwwn>
+      <diskstatus>unknown</diskstatus>
+      <volumestatus>no_volume</volumestatus>
+      <ilfdisk>no</ilfdisk>
+    </diskslot>
+    <diskslot>
+      <name>diskslot6</name>
+      <state>notinstalled</state>
+      <diskid>0000070800000000000000000000000000000000</diskid>
+      <diskwwn>0000-0000-0000-0000-0000-0000-0000-0000</diskwwn>
+      <diskstatus>unknown</diskstatus>
+      <volumestatus>no_volume</volumestatus>
+      <ilfdisk>no</ilfdisk>
+    </diskslot>
+    <diskslot>
+      <name>diskslot7</name>
+      <state>notinstalled</state>
+      <diskid>0000070800000000000000000000000000000000</diskid>
+      <diskwwn>0000-0000-0000-0000-0000-0000-0000-0000</diskwwn>
+      <diskstatus>unknown</diskstatus>
+      <volumestatus>no_volume</volumestatus>
+      <ilfdisk>no</ilfdisk>
+    </diskslot>
+    <diskslot>
+      <name>diskslot8</name>
+      <state>notinstalled</state>
+      <diskid>0000070800000000000000000000000000000000</diskid>
+      <diskwwn>0000-0000-0000-0000-0000-0000-0000-0000</diskwwn>
+      <diskstatus>unknown</diskstatus>
+      <volumestatus>no_volume</volumestatus>
+      <ilfdisk>no</ilfdisk>
+    </diskslot>
+    <diskslot>
+      <name>diskslot9</name>
+      <state>notinstalled</state>
+      <diskid>0000070800000000000000000000000000000000</diskid>
+      <diskwwn>0000-0000-0000-0000-0000-0000-0000-0000</diskwwn>
+      <diskstatus>unknown</diskstatus>
+      <volumestatus>no_volume</volumestatus>
+      <ilfdisk>no</ilfdisk>
+    </diskslot>
+    <diskslot>
+      <name>diskslot10</name>
+      <state>notinstalled</state>
+      <diskid>0000070800000000000000000000000000000000</diskid>
+      <diskwwn>0000-0000-0000-0000-0000-0000-0000-0000</diskwwn>
+      <diskstatus>unknown</diskstatus>
+      <volumestatus>no_volume</volumestatus>
+      <ilfdisk>no</ilfdisk>
+    </diskslot>
+    <diskslot>
+      <name>diskslot11</name>
+      <state>installed_good</state>
+      <diskid>0708070818000020FBCBFA620000000000000000</diskid>
+      <diskwwn>2000-0018-62fa-cbfb-0000-0000-0000-0000</diskwwn>
+      <diskstatus>normal</diskstatus>
+      <volumestatus>normal</volumestatus>
+      <ilfdisk>no</ilfdisk>
+    </diskslot>
+    <diskslot>
+      <name>diskslot12</name>
+      <state>installed_good</state>
+      <diskid>060807081800002061BBFA620000000000000000</diskid>
+      <diskwwn>2000-0018-62fa-bb61-0000-0000-0000-0000</diskwwn>
+      <diskstatus>normal</diskstatus>
+      <volumestatus>normal</volumestatus>
+      <ilfdisk>no</ilfdisk>
+    </diskslot>
+    <diskslot>
+      <name>diskslot13</name>
+      <state>installed_good</state>
+      <diskid>0508070818000020CDD0FA620000000000000000</diskid>
+      <diskwwn>2000-0018-62fa-d0cd-0000-0000-0000-0000</diskwwn>
+      <diskstatus>normal</diskstatus>
+      <volumestatus>normal</volumestatus>
+      <ilfdisk>no</ilfdisk>
+    </diskslot>
+    <diskslot>
+      <name>diskslot14</name>
+      <state>installed_good</state>
+      <diskid>04080708180000203590FA620000000000000000</diskid>
+      <diskwwn>2000-0018-62fa-9035-0000-0000-0000-0000</diskwwn>
+      <diskstatus>normal</diskstatus>
+      <volumestatus>normal</volumestatus>
+      <ilfdisk>no</ilfdisk>
+    </diskslot>
+  </diskslotstatus>
+  <led>
+    <operationalstate>good</operationalstate>
+    <failurepredicted>No</failurepredicted>
+    <language>English</language>
+    <ledswapbit>0</ledswapbit>
+  </led>
+  <alarm>
+    <operationalstate>good</operationalstate>
+    <setting>off</setting>
+  </alarm>
+  <diskshelfname>Disk Enclosure 1</diskshelfname>
+  <operationalstate>good</operationalstate>
+  <operationalstatedetail>initialized_ok</operationalstatedetail>
+  <objectparentuid>0A0A0A0A0A0A0A0A0A0A0A0A0A0A0A0A0A0A0A0A</objectparentuid>
+  <comments></comments>
+  <objectparenthexuid>0a0a-0a0a-0a0a-0a0a-0a0a-0a0a-0a0a-0a0a</objectparenthexuid>
+  <shelfnumber>1</shelfnumber>
+  <looppair>looppair1</looppair>
+  <emu>
+    <operationalstate>good</operationalstate>
+    <failurepredicted>No</failurepredicted>
+    <firmware>04180000</firmware>
+    <hardwaretype>02</hardwaretype>
+    <hardwarerevision>00</hardwarerevision>
+    <firmwareversion>04.18</firmwareversion>
+    <firmwarebuild>0000</firmwarebuild>
+  </emu>
+  <powersupplies>
+    <powersupply>
+      <name>powersupply1</name>
+      <operationalstate>good</operationalstate>
+      <failurepredicted>No</failurepredicted>
+      <vdcoutputs>
+        <vdcoutput>
+          <type>vdc5output</type>
+          <voltage>5.5</voltage>
+          <current>5.6</current>
+        </vdcoutput>
+        <vdcoutput>
+          <type>vdc12output</type>
+          <voltage>12.6</voltage>
+          <current>3.7</current>
+        </vdcoutput>
+      </vdcoutputs>
+      <alarms>
+        <acfailure>No</acfailure>
+        <alarm>
+          <type>vdc5voltalarm</type>
+          <alarmstatus>no_alarm</alarmstatus>
+          <overvoltwarning>5.7</overvoltwarning>
+          <overvoltcritical>5.7</overvoltcritical>
+          <undervoltwarning>5.1</undervoltwarning>
+          <undervoltcritical>5.1</undervoltcritical>
+        </alarm>
+        <alarm>
+          <type>vdc5curalarm</type>
+          <alarmstatus>no_alarm</alarmstatus>
+          <overcurwarning>20.0</overcurwarning>
+          <overcurcritical>24.0</overcurcritical>
+        </alarm>
+        <alarm>
+          <type>vdc12voltalarm</type>
+          <alarmstatus>no_alarm</alarmstatus>
+          <overvoltwarning>13.1</overvoltwarning>
+          <overvoltcritical>13.3</overvoltcritical>
+          <undervoltwarning>11.9</undervoltwarning>
+          <undervoltcritical>11.8</undervoltcritical>
+        </alarm>
+        <alarm>
+          <type>vdc12curalarm</type>
+          <alarmstatus>no_alarm</alarmstatus>
+          <overcurwarning>22.5</overcurwarning>
+          <overcurcritical>26.5</overcurcritical>
+        </alarm>
+      </alarms>
+    </powersupply>
+    <powersupply>
+      <name>powersupply2</name>
+      <operationalstate>good</operationalstate>
+      <failurepredicted>No</failurepredicted>
+      <vdcoutputs>
+        <vdcoutput>
+          <type>vdc5output</type>
+          <voltage>5.5</voltage>
+          <current>6.4</current>
+        </vdcoutput>
+        <vdcoutput>
+          <type>vdc12output</type>
+          <voltage>12.6</voltage>
+          <current>3.3</current>
+        </vdcoutput>
+      </vdcoutputs>
+      <alarms>
+        <acfailure>No</acfailure>
+        <alarm>
+          <type>vdc5voltalarm</type>
+          <alarmstatus>no_alarm</alarmstatus>
+          <overvoltwarning>5.7</overvoltwarning>
+          <overvoltcritical>5.7</overvoltcritical>
+          <undervoltwarning>5.1</undervoltwarning>
+          <undervoltcritical>5.1</undervoltcritical>
+        </alarm>
+        <alarm>
+          <type>vdc5curalarm</type>
+          <alarmstatus>no_alarm</alarmstatus>
+          <overcurwarning>20.0</overcurwarning>
+          <overcurcritical>24.0</overcurcritical>
+        </alarm>
+        <alarm>
+          <type>vdc12voltalarm</type>
+          <alarmstatus>no_alarm</alarmstatus>
+          <overvoltwarning>13.1</overvoltwarning>
+          <overvoltcritical>13.3</overvoltcritical>
+          <undervoltwarning>11.9</undervoltwarning>
+          <undervoltcritical>11.8</undervoltcritical>
+        </alarm>
+        <alarm>
+          <type>vdc12curalarm</type>
+          <alarmstatus>no_alarm</alarmstatus>
+          <overcurwarning>22.5</overcurwarning>
+          <overcurcritical>26.5</overcurcritical>
+        </alarm>
+      </alarms>
+    </powersupply>
+  </powersupplies>
+  <iocomm>
+    <fibrechannelports>
+      <port>
+        <name>porta1</name>
+        <operationalstate>good</operationalstate>
+        <failprediction>No</failprediction>
+        <swapbit>1</swapbit>
+        <outputlink>Good</outputlink>
+        <inputlink>Good</inputlink>
+        <state>Enabled</state>
+      </port>
+      <port>
+        <name>porta2</name>
+        <operationalstate>good</operationalstate>
+        <failprediction>No</failprediction>
+        <swapbit>1</swapbit>
+        <outputlink>Good</outputlink>
+        <inputlink>Good</inputlink>
+        <state>Enabled</state>
+      </port>
+      <port>
+        <name>portb1</name>
+        <operationalstate>good</operationalstate>
+        <failprediction>No</failprediction>
+        <swapbit>1</swapbit>
+        <outputlink>Good</outputlink>
+        <inputlink>Good</inputlink>
+        <state>Enabled</state>
+      </port>
+      <port>
+        <name>portb2</name>
+        <operationalstate>good</operationalstate>
+        <failprediction>No</failprediction>
+        <swapbit>1</swapbit>
+        <outputlink>Good</outputlink>
+        <inputlink>Good</inputlink>
+        <state>Enabled</state>
+      </port>
+    </fibrechannelports>
+    <iomodules>
+      <module>
+        <name>modulea</name>
+        <operationalstate>good</operationalstate>
+        <failprediction>No</failprediction>
+        <hardwaretype>04</hardwaretype>
+        <hardwarerevision>00</hardwarerevision>
+        <firmware>04.00</firmware>
+      </module>
+      <module>
+        <name>moduleb</name>
+        <operationalstate>good</operationalstate>
+        <failprediction>No</failprediction>
+        <hardwaretype>04</hardwaretype>
+        <hardwarerevision>00</hardwarerevision>
+        <firmware>04.00</firmware>
+      </module>
+    </iomodules>
+    <communicationbuses>
+      <bus>
+        <name>emuinternal</name>
+        <operationalstate>good</operationalstate>
+        <failprediction>No</failprediction>
+        <state>Enabled</state>
+      </bus>
+      <bus>
+        <name>emuexternal</name>
+        <operationalstate>good</operationalstate>
+        <failprediction>No</failprediction>
+        <state>Enabled</state>
+      </bus>
+      <bus>
+        <name>rs232port1</name>
+        <operationalstate>good</operationalstate>
+        <failprediction>No</failprediction>
+        <state>Enabled</state>
+      </bus>
+      <bus>
+        <name>rs232port2</name>
+        <operationalstate>good</operationalstate>
+        <failprediction>No</failprediction>
+        <state>Enabled</state>
+      </bus>
+    </communicationbuses>
+  </iocomm>
+  <cooling>
+    <sensors>
+      <sensor>
+        <name></name>
+        <tempf> </tempf>
+        <tempc> </tempc>
+        <operationalstate>unsupported</operationalstate>
+        <tempalarmstatus>not_applicable</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>ps1</name>
+        <tempf>84.2</tempf>
+        <tempc>29.0</tempc>
+        <operationalstate>good</operationalstate>
+        <tempalarmstatus>no_alarm</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>ps2</name>
+        <tempf>82.4</tempf>
+        <tempc>28.0</tempc>
+        <operationalstate>good</operationalstate>
+        <tempalarmstatus>no_alarm</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>emu</name>
+        <tempf>69.8</tempf>
+        <tempc>21.0</tempc>
+        <operationalstate>good</operationalstate>
+        <tempalarmstatus>no_alarm</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>diskslot1</name>
+        <tempf>77.0</tempf>
+        <tempc>25.0</tempc>
+        <operationalstate>good</operationalstate>
+        <tempalarmstatus>no_alarm</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>diskslot2</name>
+        <tempf>77.0</tempf>
+        <tempc>25.0</tempc>
+        <operationalstate>good</operationalstate>
+        <tempalarmstatus>no_alarm</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>diskslot3</name>
+        <tempf>75.2</tempf>
+        <tempc>24.0</tempc>
+        <operationalstate>good</operationalstate>
+        <tempalarmstatus>no_alarm</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>diskslot4</name>
+        <tempf>73.4</tempf>
+        <tempc>23.0</tempc>
+        <operationalstate>good</operationalstate>
+        <tempalarmstatus>no_alarm</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>diskslot5</name>
+        <tempf> </tempf>
+        <tempc> </tempc>
+        <operationalstate>notinstalled</operationalstate>
+        <tempalarmstatus>not_applicable</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>diskslot6</name>
+        <tempf> </tempf>
+        <tempc> </tempc>
+        <operationalstate>notinstalled</operationalstate>
+        <tempalarmstatus>not_applicable</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>diskslot7</name>
+        <tempf> </tempf>
+        <tempc> </tempc>
+        <operationalstate>notinstalled</operationalstate>
+        <tempalarmstatus>not_applicable</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>diskslot8</name>
+        <tempf> </tempf>
+        <tempc> </tempc>
+        <operationalstate>notinstalled</operationalstate>
+        <tempalarmstatus>not_applicable</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>diskslot9</name>
+        <tempf> </tempf>
+        <tempc> </tempc>
+        <operationalstate>notinstalled</operationalstate>
+        <tempalarmstatus>not_applicable</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>diskslot10</name>
+        <tempf> </tempf>
+        <tempc> </tempc>
+        <operationalstate>notinstalled</operationalstate>
+        <tempalarmstatus>not_applicable</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>diskslot11</name>
+        <tempf>75.2</tempf>
+        <tempc>24.0</tempc>
+        <operationalstate>good</operationalstate>
+        <tempalarmstatus>no_alarm</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>diskslot12</name>
+        <tempf>77.0</tempf>
+        <tempc>25.0</tempc>
+        <operationalstate>good</operationalstate>
+        <tempalarmstatus>no_alarm</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>diskslot13</name>
+        <tempf>77.0</tempf>
+        <tempc>25.0</tempc>
+        <operationalstate>good</operationalstate>
+        <tempalarmstatus>no_alarm</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>diskslot14</name>
+        <tempf>73.4</tempf>
+        <tempc>23.0</tempc>
+        <operationalstate>good</operationalstate>
+        <tempalarmstatus>no_alarm</tempalarmstatus>
+      </sensor>
+    </sensors>
+    <fans>
+      <fan>
+        <name>fan1</name>
+        <operationalstate>good</operationalstate>
+        <failprediction>No</failprediction>
+        <speed>speed_1_lowest</speed>
+      </fan>
+      <fan>
+        <name>fan2</name>
+        <operationalstate>good</operationalstate>
+        <failprediction>No</failprediction>
+        <speed>speed_1_lowest</speed>
+      </fan>
+    </fans>
+  </cooling>
+</object>
+
+MS_HW_SECTION LS DISKSHELF FULL XML END 15:08:15,01
+
+MS_HW_SECTION LS SNAPSHOT FULL XML BEGIN 15:08:15,01
+
+
+SSSU for HP StorageWorks Command View EVA
+Version: 9.3.0 
+Build: 072310A
+NoSystemSelected> SELECT SYSTEM "EVA4000"
+
+EVA4000> SET OPTIONS ON_ERROR=Exit_on_error NORETRIES
+
+EVA4000> LS SNAPSHOT FULL XML
+
+snapshot available on this Cell:
+  No snapshot found
+MS_HW_SECTION LS SNAPSHOT FULL XML END 15:08:19,51
+
+Found System EVA5000
+MS_HW_ENCLOSURE EVA5000
+MS_HW_SECTION LS CONTROLLER FULL XML BEGIN 15:08:19,51
+
+
+SSSU for HP StorageWorks Command View EVA
+Version: 9.3.0 
+Build: 072310A
+NoSystemSelected> SELECT SYSTEM "EVA5000"
+
+EVA5000> SET OPTIONS ON_ERROR=Exit_on_error NORETRIES
+
+EVA5000> LS CONTROLLER FULL XML
+
+controller available on this Cell:
+
+\Hardware\UnMappableDevices\Controller Enclosure 1\Controller A information:
+<object>
+  <objectid>00000708B4080550B34001000000000000000000</objectid>
+  <objectname>\Hardware\UnMappableDevices\Controller Enclosure 1\Controller A</objectname>
+  <objecttype>controller</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>5005-08b4-0001-40b3-0000-0000-0000-0000</objecthexuid>
+  <controllername>Controller A</controllername>
+  <uid>00000708B4080550B34001000000000000000000</uid>
+  <objecthexuid>5005-08b4-0001-40b3-0000-0000-0000-0000</objecthexuid>
+  <operationalstate>attention</operationalstate>
+  <operationalstatedetail>initialized_attention</operationalstatedetail>
+  <objectparentuid>2020202020202020202020202020202020202020</objectparentuid>
+  <comments></comments>
+  <objectparenthexuid>2020-2020-2020-2020-2020-2020-2020-2020</objectparenthexuid>
+  <objectparentid>2020202020202020202020202020202020202020</objectparentid>
+  <datablocksize>512</datablocksize>
+  <scellparticipation>minimal</scellparticipation>
+  <nsccondition>soft_diagnostic_failure</nsccondition>
+  <firmwareversion>CR0D2Cvcsp-3028</firmwareversion>
+  <modelnumber>HSV110</modelnumber>
+  <serialnumber>P4889B29ILC02P</serialnumber>
+  <shelfnumber>1</shelfnumber>
+  <controllermainmemory>256</controllermainmemory>
+  <cachememory>
+    <cachecondition>good</cachecondition>
+    <readcapacity>512</readcapacity>
+    <writecapacity>256</writecapacity>
+    <mirrorcapacity>256</mirrorcapacity>
+    <mirrorconnectionstate>active</mirrorconnectionstate>
+    <mirrorconnectionstate2>alternate</mirrorconnectionstate2>
+    <mirrorport1state>normal</mirrorport1state>
+    <mirrorport2state>unknown</mirrorport2state>
+  </cachememory>
+  <wwnodename>5000-1FE1-5002-1F10</wwnodename>
+  <manufacturer>Hewlett-Packard Company</manufacturer>
+  <hostports>
+    <hostport>
+      <portname>hostport1</portname>
+      <wwid>50001FE1 50021F19</wwid>
+      <nodeid>50001FE1 50021F10</nodeid>
+      <hostportaddress>64-16-13</hostportaddress>
+      <operationalstate>good</operationalstate>
+      <speed>1</speed>
+      <portcondition>fabric_login</portcondition>
+      <topology>unknown</topology>
+    </hostport>
+    <hostport>
+      <portname>hostport2</portname>
+      <wwid>50001FE1 50021F18</wwid>
+      <nodeid>50001FE1 50021F10</nodeid>
+      <hostportaddress>unknown</hostportaddress>
+      <operationalstate>failed</operationalstate>
+      <speed>1</speed>
+      <portcondition>link_down</portcondition>
+      <topology>unknown</topology>
+    </hostport>
+  </hostports>
+  <deviceports>
+    <deviceport>
+      <portname>looppair1loopa</portname>
+      <wwid>00508B40 00140B31</wwid>
+      <loopid>255</loopid>
+      <operationalstate>failed</operationalstate>
+      <loopalpa>FF</loopalpa>
+    </deviceport>
+    <deviceport>
+      <portname>looppair1loopb</portname>
+      <wwid>00508B40 00140B32</wwid>
+      <loopid>255</loopid>
+      <operationalstate>failed</operationalstate>
+      <loopalpa>FF</loopalpa>
+    </deviceport>
+    <deviceport>
+      <portname>looppair2loopa</portname>
+      <wwid>00508B40 00140B33</wwid>
+      <loopid>125</loopid>
+      <operationalstate>good</operationalstate>
+      <loopalpa>01</loopalpa>
+    </deviceport>
+    <deviceport>
+      <portname>looppair2loopb</portname>
+      <wwid>00508B40 00140B34</wwid>
+      <loopid>125</loopid>
+      <operationalstate>good</operationalstate>
+      <loopalpa>01</loopalpa>
+    </deviceport>
+  </deviceports>
+  <fanfru>blower_only</fanfru>
+  <shelfnumber>1</shelfnumber>
+  <fans>
+    <fan>
+      <fanname>fan1</fanname>
+      <installstatus>yes</installstatus>
+      <requestedspeed>high</requestedspeed>
+      <actualspeed>3900</actualspeed>
+    </fan>
+    <fan>
+      <fanname>fan2</fanname>
+      <installstatus>yes</installstatus>
+      <requestedspeed>high</requestedspeed>
+      <actualspeed>3780</actualspeed>
+    </fan>
+  </fans>
+  <sensors>
+    <sensor>
+      <name>i2csensor1</name>
+      <tempc>16</tempc>
+      <tempf>60</tempf>
+    </sensor>
+    <sensor>
+      <name>i2csensor2</name>
+      <tempc>20</tempc>
+      <tempf>68</tempf>
+    </sensor>
+    <sensor>
+      <name>cpusensor</name>
+      <tempc>1</tempc>
+      <tempf>33</tempf>
+    </sensor>
+    <sensor>
+      <name>weightedavg</name>
+      <tempc>12</tempc>
+      <tempf>53</tempf>
+    </sensor>
+    <sensor>
+      <name>fantrippoint</name>
+      <tempc>55</tempc>
+      <tempf>131</tempf>
+    </sensor>
+  </sensors>
+  <powersources>
+    <source>
+      <type>vdc12</type>
+      <powerlevel>11.92</powerlevel>
+    </source>
+    <source>
+      <type>vdc5</type>
+      <powerlevel>4.99</powerlevel>
+    </source>
+    <source>
+      <type>vdc3.3</type>
+      <powerlevel>3.28</powerlevel>
+    </source>
+    <source>
+      <type>vdc2.5</type>
+      <powerlevel>2.50</powerlevel>
+    </source>
+    <source>
+      <type>vdc2</type>
+      <powerlevel>2.01</powerlevel>
+    </source>
+  </powersources>
+  <cachebattery>
+    <operationalstate>good</operationalstate>
+    <chargeropstate>good</chargeropstate>
+    <voltage>2.34</voltage>
+    <modules>
+      <module>
+        <name>batterymodule1</name>
+        <operationalstate>good</operationalstate>
+      </module>
+      <module>
+        <name>batterymodule2</name>
+        <operationalstate>good</operationalstate>
+      </module>
+    </modules>
+  </cachebattery>
+  <rohscompliant>no</rohscompliant>
+</object>
+
+
+
+\Hardware\UnMappableDevices\Controller Enclosure 1\Controller B information:
+<object>
+  <objectid>21000710B4080550F44A01000000000000000000</objectid>
+  <objectname>\Hardware\UnMappableDevices\Controller Enclosure 1\Controller B</objectname>
+  <objecttype>controller</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>5005-08b4-0001-4af4-0000-0000-0000-0000</objecthexuid>
+  <controllername>Controller B</controllername>
+  <uid>21000710B4080550F44A01000000000000000000</uid>
+  <objecthexuid>5005-08b4-0001-4af4-0000-0000-0000-0000</objecthexuid>
+  <operationalstate>attention</operationalstate>
+  <operationalstatedetail>initialized_attention</operationalstatedetail>
+  <objectparentuid>2020202020202020202020202020202020202020</objectparentuid>
+  <comments></comments>
+  <objectparenthexuid>2020-2020-2020-2020-2020-2020-2020-2020</objectparenthexuid>
+  <objectparentid>2020202020202020202020202020202020202020</objectparentid>
+  <datablocksize>512</datablocksize>
+  <scellparticipation>minimal</scellparticipation>
+  <nsccondition>soft_diagnostic_failure</nsccondition>
+  <firmwareversion>CR0D2Cvcsp-3028</firmwareversion>
+  <modelnumber>HSV110</modelnumber>
+  <serialnumber>P4889B59IM805S</serialnumber>
+  <shelfnumber>1</shelfnumber>
+  <controllermainmemory>256</controllermainmemory>
+  <cachememory>
+    <cachecondition>good</cachecondition>
+    <readcapacity>512</readcapacity>
+    <writecapacity>256</writecapacity>
+    <mirrorcapacity>256</mirrorcapacity>
+    <mirrorconnectionstate>active</mirrorconnectionstate>
+    <mirrorconnectionstate2>alternate</mirrorconnectionstate2>
+    <mirrorport1state>normal</mirrorport1state>
+    <mirrorport2state>unknown</mirrorport2state>
+  </cachememory>
+  <wwnodename>5000-1FE1-5002-1F10</wwnodename>
+  <manufacturer>Hewlett-Packard Company</manufacturer>
+  <hostports>
+    <hostport>
+      <portname>hostport1</portname>
+      <wwid>50001FE1 50021F1D</wwid>
+      <nodeid>50001FE1 50021F10</nodeid>
+      <hostportaddress>64-17-13</hostportaddress>
+      <operationalstate>good</operationalstate>
+      <speed>1</speed>
+      <portcondition>fabric_login</portcondition>
+      <topology>unknown</topology>
+    </hostport>
+    <hostport>
+      <portname>hostport2</portname>
+      <wwid>50001FE1 50021F1C</wwid>
+      <nodeid>50001FE1 50021F10</nodeid>
+      <hostportaddress>unknown</hostportaddress>
+      <operationalstate>failed</operationalstate>
+      <speed>1</speed>
+      <portcondition>link_down</portcondition>
+      <topology>unknown</topology>
+    </hostport>
+  </hostports>
+  <deviceports>
+    <deviceport>
+      <portname>looppair1loopa</portname>
+      <wwid>00508B40 0014AF41</wwid>
+      <loopid>255</loopid>
+      <operationalstate>failed</operationalstate>
+      <loopalpa>FF</loopalpa>
+    </deviceport>
+    <deviceport>
+      <portname>looppair1loopb</portname>
+      <wwid>00508B40 0014AF42</wwid>
+      <loopid>255</loopid>
+      <operationalstate>failed</operationalstate>
+      <loopalpa>FF</loopalpa>
+    </deviceport>
+    <deviceport>
+      <portname>looppair2loopa</portname>
+      <wwid>00508B40 0014AF43</wwid>
+      <loopid>124</loopid>
+      <operationalstate>good</operationalstate>
+      <loopalpa>02</loopalpa>
+    </deviceport>
+    <deviceport>
+      <portname>looppair2loopb</portname>
+      <wwid>00508B40 0014AF44</wwid>
+      <loopid>124</loopid>
+      <operationalstate>good</operationalstate>
+      <loopalpa>02</loopalpa>
+    </deviceport>
+  </deviceports>
+  <fanfru>blower_only</fanfru>
+  <shelfnumber>1</shelfnumber>
+  <fans>
+    <fan>
+      <fanname>fan1</fanname>
+      <installstatus>yes</installstatus>
+      <requestedspeed>high</requestedspeed>
+      <actualspeed>3870</actualspeed>
+    </fan>
+    <fan>
+      <fanname>fan2</fanname>
+      <installstatus>yes</installstatus>
+      <requestedspeed>high</requestedspeed>
+      <actualspeed>3750</actualspeed>
+    </fan>
+  </fans>
+  <sensors>
+    <sensor>
+      <name>i2csensor1</name>
+      <tempc>19</tempc>
+      <tempf>66</tempf>
+    </sensor>
+    <sensor>
+      <name>i2csensor2</name>
+      <tempc>21</tempc>
+      <tempf>69</tempf>
+    </sensor>
+    <sensor>
+      <name>cpusensor</name>
+      <tempc>1</tempc>
+      <tempf>33</tempf>
+    </sensor>
+    <sensor>
+      <name>weightedavg</name>
+      <tempc>13</tempc>
+      <tempf>55</tempf>
+    </sensor>
+    <sensor>
+      <name>fantrippoint</name>
+      <tempc>55</tempc>
+      <tempf>131</tempf>
+    </sensor>
+  </sensors>
+  <powersources>
+    <source>
+      <type>vdc12</type>
+      <powerlevel>11.98</powerlevel>
+    </source>
+    <source>
+      <type>vdc5</type>
+      <powerlevel>4.99</powerlevel>
+    </source>
+    <source>
+      <type>vdc3.3</type>
+      <powerlevel>3.29</powerlevel>
+    </source>
+    <source>
+      <type>vdc2.5</type>
+      <powerlevel>2.50</powerlevel>
+    </source>
+    <source>
+      <type>vdc2</type>
+      <powerlevel>2.01</powerlevel>
+    </source>
+  </powersources>
+  <cachebattery>
+    <operationalstate>good</operationalstate>
+    <chargeropstate>good</chargeropstate>
+    <voltage>2.33</voltage>
+    <modules>
+      <module>
+        <name>batterymodule1</name>
+        <operationalstate>good</operationalstate>
+      </module>
+      <module>
+        <name>batterymodule2</name>
+        <operationalstate>good</operationalstate>
+      </module>
+    </modules>
+  </cachebattery>
+  <rohscompliant>no</rohscompliant>
+</object>
+
+
+
+\Hardware\UnMappableDevices\Controller Enclosure 1\ information:
+<object>
+  <objectid>08000710B4080560F44A01000070020000001D00</objectid>
+  <objectname>EVA5000</objectname>
+  <objecttype>storagecell</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>6005-08b4-0001-4af4-0002-7000-001d-0000</objecthexuid>
+  <codeloaddrivesdownrev>0</codeloaddrivesdownrev>
+  <codeloaddrivesremaining>0</codeloaddrivesremaining>
+  <codeloaddrivesblocked>0</codeloaddrivesblocked>
+  <scname>EVA5000</scname>
+  <uid>08000710B4080560F44A01000070020000001D00</uid>
+  <nodewwn>5000-1FE1-5002-1F10</nodewwn>
+  <operationalstate>attention</operationalstate>
+  <operationalstatedetail>initialized_attention</operationalstatedetail>
+  <licensestate>invalid_capacity</licensestate>
+  <comments></comments>
+  <objecthexuid>6005-08b4-0001-4af4-0002-7000-001d-0000</objecthexuid>
+  <scparentuid>0000000000000000000000000000000000000000</scparentuid>
+  <objectparenthexuid>0000-0000-0000-0000-0000-0000-0000-0000</objectparenthexuid>
+  <objectparentid>0000000000000000000000000000000000000000</objectparentid>
+  <contrday>19</contrday>
+  <contrmonth>12</contrmonth>
+  <contryear>2012</contryear>
+  <contrhour>15</contrhour>
+  <contrminute>24</contrminute>
+  <contrsecond>35</contrsecond>
+  <scstatus>20001</scstatus>
+  <sccap>546.54</sccap>
+  <scocc>380.56</scocc>
+  <scfree>165.97</scfree>
+  <vmsid>0</vmsid>
+  <scdevaddpolicy>Manual</scdevaddpolicy>
+  <volrepdelay>60</volrepdelay>
+  <firmwareversion>CR0D2Cvcsp-3028</firmwareversion>
+  <basiclicensed>true</basiclicensed>
+  <drmlicensed>false</drmlicensed>
+  <snaplicensed>false</snaplicensed>
+  <scellstatestring>0,0,0,0,0,0,0,2092,0,0,0,0,0,0,0,0,0</scellstatestring>
+  <managementhostname>VOLTAIRE</managementhostname>
+  <managementhostip>10.0.10.217</managementhostip>
+  <isUserSvcMode>false</isUserSvcMode>
+  <storagesystemcontrpolicymemory>512 MB</storagesystemcontrpolicymemory>
+  <storagesystemcontrollermemory>512</storagesystemcontrollermemory>
+  <storagesystemcontrollercachememory>2048</storagesystemcontrollercachememory>
+</object>
+
+
+
+\Hardware\UnMappableDevices\Controller Enclosure 1\Controller A{1} information:
+<object>
+  <objectid>00000708B4080550B34001000000000000000000</objectid>
+  <objectname>\Hardware\UnMappableDevices\Controller Enclosure 1\Controller A</objectname>
+  <objecttype>controller</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>5005-08b4-0001-40b3-0000-0000-0000-0000</objecthexuid>
+  <controllername>Controller A</controllername>
+  <uid>00000708B4080550B34001000000000000000000</uid>
+  <objecthexuid>5005-08b4-0001-40b3-0000-0000-0000-0000</objecthexuid>
+  <operationalstate>attention</operationalstate>
+  <operationalstatedetail>initialized_attention</operationalstatedetail>
+  <objectparentuid>2020202020202020202020202020202020202020</objectparentuid>
+  <comments></comments>
+  <objectparenthexuid>2020-2020-2020-2020-2020-2020-2020-2020</objectparenthexuid>
+  <objectparentid>2020202020202020202020202020202020202020</objectparentid>
+  <datablocksize>512</datablocksize>
+  <scellparticipation>minimal</scellparticipation>
+  <nsccondition>soft_diagnostic_failure</nsccondition>
+  <firmwareversion>CR0D2Cvcsp-3028</firmwareversion>
+  <modelnumber>HSV110</modelnumber>
+  <serialnumber>P4889B29ILC02P</serialnumber>
+  <shelfnumber>1</shelfnumber>
+  <controllermainmemory>256</controllermainmemory>
+  <cachememory>
+    <cachecondition>good</cachecondition>
+    <readcapacity>512</readcapacity>
+    <writecapacity>256</writecapacity>
+    <mirrorcapacity>256</mirrorcapacity>
+    <mirrorconnectionstate>active</mirrorconnectionstate>
+    <mirrorconnectionstate2>alternate</mirrorconnectionstate2>
+    <mirrorport1state>normal</mirrorport1state>
+    <mirrorport2state>unknown</mirrorport2state>
+  </cachememory>
+  <wwnodename>5000-1FE1-5002-1F10</wwnodename>
+  <manufacturer>Hewlett-Packard Company</manufacturer>
+  <hostports>
+    <hostport>
+      <portname>hostport1</portname>
+      <wwid>50001FE1 50021F19</wwid>
+      <nodeid>50001FE1 50021F10</nodeid>
+      <hostportaddress>64-16-13</hostportaddress>
+      <operationalstate>good</operationalstate>
+      <speed>1</speed>
+      <portcondition>fabric_login</portcondition>
+      <topology>unknown</topology>
+    </hostport>
+    <hostport>
+      <portname>hostport2</portname>
+      <wwid>50001FE1 50021F18</wwid>
+      <nodeid>50001FE1 50021F10</nodeid>
+      <hostportaddress>unknown</hostportaddress>
+      <operationalstate>failed</operationalstate>
+      <speed>1</speed>
+      <portcondition>link_down</portcondition>
+      <topology>unknown</topology>
+    </hostport>
+  </hostports>
+  <deviceports>
+    <deviceport>
+      <portname>looppair1loopa</portname>
+      <wwid>00508B40 00140B31</wwid>
+      <loopid>255</loopid>
+      <operationalstate>failed</operationalstate>
+      <loopalpa>FF</loopalpa>
+    </deviceport>
+    <deviceport>
+      <portname>looppair1loopb</portname>
+      <wwid>00508B40 00140B32</wwid>
+      <loopid>255</loopid>
+      <operationalstate>failed</operationalstate>
+      <loopalpa>FF</loopalpa>
+    </deviceport>
+    <deviceport>
+      <portname>looppair2loopa</portname>
+      <wwid>00508B40 00140B33</wwid>
+      <loopid>125</loopid>
+      <operationalstate>good</operationalstate>
+      <loopalpa>01</loopalpa>
+    </deviceport>
+    <deviceport>
+      <portname>looppair2loopb</portname>
+      <wwid>00508B40 00140B34</wwid>
+      <loopid>125</loopid>
+      <operationalstate>good</operationalstate>
+      <loopalpa>01</loopalpa>
+    </deviceport>
+  </deviceports>
+  <fanfru>blower_only</fanfru>
+  <shelfnumber>1</shelfnumber>
+  <fans>
+    <fan>
+      <fanname>fan1</fanname>
+      <installstatus>yes</installstatus>
+      <requestedspeed>high</requestedspeed>
+      <actualspeed>3870</actualspeed>
+    </fan>
+    <fan>
+      <fanname>fan2</fanname>
+      <installstatus>yes</installstatus>
+      <requestedspeed>high</requestedspeed>
+      <actualspeed>3810</actualspeed>
+    </fan>
+  </fans>
+  <sensors>
+    <sensor>
+      <name>i2csensor1</name>
+      <tempc>16</tempc>
+      <tempf>60</tempf>
+    </sensor>
+    <sensor>
+      <name>i2csensor2</name>
+      <tempc>21</tempc>
+      <tempf>69</tempf>
+    </sensor>
+    <sensor>
+      <name>cpusensor</name>
+      <tempc>1</tempc>
+      <tempf>33</tempf>
+    </sensor>
+    <sensor>
+      <name>weightedavg</name>
+      <tempc>12</tempc>
+      <tempf>53</tempf>
+    </sensor>
+    <sensor>
+      <name>fantrippoint</name>
+      <tempc>55</tempc>
+      <tempf>131</tempf>
+    </sensor>
+  </sensors>
+  <powersources>
+    <source>
+      <type>vdc12</type>
+      <powerlevel>11.92</powerlevel>
+    </source>
+    <source>
+      <type>vdc5</type>
+      <powerlevel>4.99</powerlevel>
+    </source>
+    <source>
+      <type>vdc3.3</type>
+      <powerlevel>3.27</powerlevel>
+    </source>
+    <source>
+      <type>vdc2.5</type>
+      <powerlevel>2.50</powerlevel>
+    </source>
+    <source>
+      <type>vdc2</type>
+      <powerlevel>2.01</powerlevel>
+    </source>
+  </powersources>
+  <cachebattery>
+    <operationalstate>good</operationalstate>
+    <chargeropstate>good</chargeropstate>
+    <voltage>2.34</voltage>
+    <modules>
+      <module>
+        <name>batterymodule1</name>
+        <operationalstate>good</operationalstate>
+      </module>
+      <module>
+        <name>batterymodule2</name>
+        <operationalstate>good</operationalstate>
+      </module>
+    </modules>
+  </cachebattery>
+  <rohscompliant>no</rohscompliant>
+</object>
+
+
+
+\Hardware\UnMappableDevices\Controller Enclosure 1\Controller B{2} information:
+<object>
+  <objectid>21000710B4080550F44A01000000000000000000</objectid>
+  <objectname>\Hardware\UnMappableDevices\Controller Enclosure 1\Controller B</objectname>
+  <objecttype>controller</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>5005-08b4-0001-4af4-0000-0000-0000-0000</objecthexuid>
+  <controllername>Controller B</controllername>
+  <uid>21000710B4080550F44A01000000000000000000</uid>
+  <objecthexuid>5005-08b4-0001-4af4-0000-0000-0000-0000</objecthexuid>
+  <operationalstate>attention</operationalstate>
+  <operationalstatedetail>initialized_attention</operationalstatedetail>
+  <objectparentuid>2020202020202020202020202020202020202020</objectparentuid>
+  <comments></comments>
+  <objectparenthexuid>2020-2020-2020-2020-2020-2020-2020-2020</objectparenthexuid>
+  <objectparentid>2020202020202020202020202020202020202020</objectparentid>
+  <datablocksize>512</datablocksize>
+  <scellparticipation>minimal</scellparticipation>
+  <nsccondition>soft_diagnostic_failure</nsccondition>
+  <firmwareversion>CR0D2Cvcsp-3028</firmwareversion>
+  <modelnumber>HSV110</modelnumber>
+  <serialnumber>P4889B59IM805S</serialnumber>
+  <shelfnumber>1</shelfnumber>
+  <controllermainmemory>256</controllermainmemory>
+  <cachememory>
+    <cachecondition>good</cachecondition>
+    <readcapacity>512</readcapacity>
+    <writecapacity>256</writecapacity>
+    <mirrorcapacity>256</mirrorcapacity>
+    <mirrorconnectionstate>active</mirrorconnectionstate>
+    <mirrorconnectionstate2>alternate</mirrorconnectionstate2>
+    <mirrorport1state>normal</mirrorport1state>
+    <mirrorport2state>unknown</mirrorport2state>
+  </cachememory>
+  <wwnodename>5000-1FE1-5002-1F10</wwnodename>
+  <manufacturer>Hewlett-Packard Company</manufacturer>
+  <hostports>
+    <hostport>
+      <portname>hostport1</portname>
+      <wwid>50001FE1 50021F1D</wwid>
+      <nodeid>50001FE1 50021F10</nodeid>
+      <hostportaddress>64-17-13</hostportaddress>
+      <operationalstate>good</operationalstate>
+      <speed>1</speed>
+      <portcondition>fabric_login</portcondition>
+      <topology>unknown</topology>
+    </hostport>
+    <hostport>
+      <portname>hostport2</portname>
+      <wwid>50001FE1 50021F1C</wwid>
+      <nodeid>50001FE1 50021F10</nodeid>
+      <hostportaddress>unknown</hostportaddress>
+      <operationalstate>failed</operationalstate>
+      <speed>1</speed>
+      <portcondition>link_down</portcondition>
+      <topology>unknown</topology>
+    </hostport>
+  </hostports>
+  <deviceports>
+    <deviceport>
+      <portname>looppair1loopa</portname>
+      <wwid>00508B40 0014AF41</wwid>
+      <loopid>255</loopid>
+      <operationalstate>failed</operationalstate>
+      <loopalpa>FF</loopalpa>
+    </deviceport>
+    <deviceport>
+      <portname>looppair1loopb</portname>
+      <wwid>00508B40 0014AF42</wwid>
+      <loopid>255</loopid>
+      <operationalstate>failed</operationalstate>
+      <loopalpa>FF</loopalpa>
+    </deviceport>
+    <deviceport>
+      <portname>looppair2loopa</portname>
+      <wwid>00508B40 0014AF43</wwid>
+      <loopid>124</loopid>
+      <operationalstate>good</operationalstate>
+      <loopalpa>02</loopalpa>
+    </deviceport>
+    <deviceport>
+      <portname>looppair2loopb</portname>
+      <wwid>00508B40 0014AF44</wwid>
+      <loopid>124</loopid>
+      <operationalstate>good</operationalstate>
+      <loopalpa>02</loopalpa>
+    </deviceport>
+  </deviceports>
+  <fanfru>blower_only</fanfru>
+  <shelfnumber>1</shelfnumber>
+  <fans>
+    <fan>
+      <fanname>fan1</fanname>
+      <installstatus>yes</installstatus>
+      <requestedspeed>high</requestedspeed>
+      <actualspeed>3840</actualspeed>
+    </fan>
+    <fan>
+      <fanname>fan2</fanname>
+      <installstatus>yes</installstatus>
+      <requestedspeed>high</requestedspeed>
+      <actualspeed>3750</actualspeed>
+    </fan>
+  </fans>
+  <sensors>
+    <sensor>
+      <name>i2csensor1</name>
+      <tempc>19</tempc>
+      <tempf>66</tempf>
+    </sensor>
+    <sensor>
+      <name>i2csensor2</name>
+      <tempc>21</tempc>
+      <tempf>69</tempf>
+    </sensor>
+    <sensor>
+      <name>cpusensor</name>
+      <tempc>1</tempc>
+      <tempf>33</tempf>
+    </sensor>
+    <sensor>
+      <name>weightedavg</name>
+      <tempc>13</tempc>
+      <tempf>55</tempf>
+    </sensor>
+    <sensor>
+      <name>fantrippoint</name>
+      <tempc>55</tempc>
+      <tempf>131</tempf>
+    </sensor>
+  </sensors>
+  <powersources>
+    <source>
+      <type>vdc12</type>
+      <powerlevel>11.98</powerlevel>
+    </source>
+    <source>
+      <type>vdc5</type>
+      <powerlevel>4.99</powerlevel>
+    </source>
+    <source>
+      <type>vdc3.3</type>
+      <powerlevel>3.29</powerlevel>
+    </source>
+    <source>
+      <type>vdc2.5</type>
+      <powerlevel>2.49</powerlevel>
+    </source>
+    <source>
+      <type>vdc2</type>
+      <powerlevel>2.01</powerlevel>
+    </source>
+  </powersources>
+  <cachebattery>
+    <operationalstate>good</operationalstate>
+    <chargeropstate>good</chargeropstate>
+    <voltage>2.33</voltage>
+    <modules>
+      <module>
+        <name>batterymodule1</name>
+        <operationalstate>good</operationalstate>
+      </module>
+      <module>
+        <name>batterymodule2</name>
+        <operationalstate>good</operationalstate>
+      </module>
+    </modules>
+  </cachebattery>
+  <rohscompliant>no</rohscompliant>
+</object>
+
+
+
+\Hardware\UnMappableDevices\Controller Enclosure 1\{3} information:
+<object>
+  <objectid>08000710B4080560F44A01000070020000001D00</objectid>
+  <objectname>EVA5000</objectname>
+  <objecttype>storagecell</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>6005-08b4-0001-4af4-0002-7000-001d-0000</objecthexuid>
+  <codeloaddrivesdownrev>0</codeloaddrivesdownrev>
+  <codeloaddrivesremaining>0</codeloaddrivesremaining>
+  <codeloaddrivesblocked>0</codeloaddrivesblocked>
+  <scname>EVA5000</scname>
+  <uid>08000710B4080560F44A01000070020000001D00</uid>
+  <nodewwn>5000-1FE1-5002-1F10</nodewwn>
+  <operationalstate>attention</operationalstate>
+  <operationalstatedetail>initialized_attention</operationalstatedetail>
+  <licensestate>invalid_capacity</licensestate>
+  <comments></comments>
+  <objecthexuid>6005-08b4-0001-4af4-0002-7000-001d-0000</objecthexuid>
+  <scparentuid>0000000000000000000000000000000000000000</scparentuid>
+  <objectparenthexuid>0000-0000-0000-0000-0000-0000-0000-0000</objectparenthexuid>
+  <objectparentid>0000000000000000000000000000000000000000</objectparentid>
+  <contrday>19</contrday>
+  <contrmonth>12</contrmonth>
+  <contryear>2012</contryear>
+  <contrhour>15</contrhour>
+  <contrminute>24</contrminute>
+  <contrsecond>36</contrsecond>
+  <scstatus>20001</scstatus>
+  <sccap>546.54</sccap>
+  <scocc>380.56</scocc>
+  <scfree>165.97</scfree>
+  <vmsid>0</vmsid>
+  <scdevaddpolicy>Manual</scdevaddpolicy>
+  <volrepdelay>60</volrepdelay>
+  <firmwareversion>CR0D2Cvcsp-3028</firmwareversion>
+  <basiclicensed>true</basiclicensed>
+  <drmlicensed>false</drmlicensed>
+  <snaplicensed>false</snaplicensed>
+  <scellstatestring>0,0,0,0,0,0,0,2092,0,0,0,0,0,0,0,0,0</scellstatestring>
+  <managementhostname>VOLTAIRE</managementhostname>
+  <managementhostip>10.0.10.217</managementhostip>
+  <isUserSvcMode>false</isUserSvcMode>
+  <storagesystemcontrpolicymemory>512 MB</storagesystemcontrpolicymemory>
+  <storagesystemcontrollermemory>512</storagesystemcontrollermemory>
+  <storagesystemcontrollercachememory>2048</storagesystemcontrollercachememory>
+</object>
+
+MS_HW_SECTION LS CONTROLLER FULL XML END 15:08:25,22
+
+MS_HW_SECTION LS DISK FULL XML BEGIN 15:08:25,22
+
+
+SSSU for HP StorageWorks Command View EVA
+Version: 9.3.0 
+Build: 072310A
+NoSystemSelected> SELECT SYSTEM "EVA5000"
+
+EVA5000> SET OPTIONS ON_ERROR=Exit_on_error NORETRIES
+
+EVA5000> LS DISK FULL XML
+
+Disks available on this Cell:
+
+\Disk Groups\Default Disk Group\Disk 001 information:
+<object>
+  <objectid>000807100C0000200134E1500000000000000000</objectid>
+  <objectname>\Disk Groups\Default Disk Group\Disk 001</objectname>
+  <objecttype>disk</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>2000-000c-50e1-3401-0000-0000-0000-0000</objecthexuid>
+  <nscModel>HSV110</nscModel>
+  <diskname>Disk 001</diskname>
+  <comments></comments>
+  <operationalstate>good</operationalstate>
+  <operationalstatedetail>member_ok</operationalstatedetail>
+  <uid>000807100C0000200134E1500000000000000000</uid>
+  <objectparentuid>00010710B4080560F44A01000070020000001F00</objectparentuid>
+  <objectparentid>00010710B4080560F44A01000070020000001F00</objectparentid>
+  <objectparenthexuid>6005-08b4-0001-4af4-0002-7000-001f-0000</objectparenthexuid>
+  <storagecellname>EVA5000</storagecellname>
+  <EnclosureDiskBays>14</EnclosureDiskBays>
+  <nodewwid>2000-000C-50E1-3401</nodewwid>
+  <diskgroupname>Default Disk Group</diskgroupname>
+  <diskgroupid>00010710B4080560F44A01000070020000001F00</diskgroupid>
+  <diskbaynumber>3</diskbaynumber>
+  <shelfnumber>2</shelfnumber>
+  <EnclosureIOTransport>fc</EnclosureIOTransport>
+  <loops>
+    <loop>
+      <loopname>loopa</loopname>
+      <portwwid>2000-000C-50E1-3401</portwwid>
+      <loopid>86</loopid>
+      <assignedlun>0</assignedlun>
+      <loopstate>good</loopstate>
+      <loopalpa>4D</loopalpa>
+    </loop>
+    <loop>
+      <loopname>loopb</loopname>
+      <portwwid>2000-000C-50E1-3401</portwwid>
+      <loopid>86</loopid>
+      <assignedlun>0</assignedlun>
+      <loopstate>good</loopstate>
+      <loopalpa>4D</loopalpa>
+    </loop>
+  </loops>
+  <formattedcapacity>286749488</formattedcapacity>
+  <diskdrivetype>online</diskdrivetype>
+  <mediaaccessible>yes</mediaaccessible>
+  <failurepredicted>no</failurepredicted>
+  <manufacturer>HPQ     </manufacturer>
+  <modelnumber>BD14655B2A      </modelnumber>
+  <firmwareversion>HP07</firmwareversion>
+  <disktype>fibre_channel_disk</disktype>
+  <rssindex>7</rssindex>
+  <rssid>2</rssid>
+  <migrationprogress>n/a</migrationprogress>
+  <occupancy>133013504</occupancy>
+  <migrationstate>not_migrating</migrationstate>
+  <canlocaterss>yes</canlocaterss>
+  <actualusage>grouped</actualusage>
+  <requestedusage>grouped</requestedusage>
+  <quorumdisk>yes</quorumdisk>
+  <looppair>looppair2</looppair>
+  <diskcodeloadable>no</diskcodeloadable>
+  <DiskHasVraid0Data>false</DiskHasVraid0Data>
+</object>
+
+
+
+\Disk Groups\Default Disk Group\Disk 002 information:
+<object>
+  <objectid>020807100C0000207D32E1500000000000000000</objectid>
+  <objectname>\Disk Groups\Default Disk Group\Disk 002</objectname>
+  <objecttype>disk</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>2000-000c-50e1-327d-0000-0000-0000-0000</objecthexuid>
+  <nscModel>HSV110</nscModel>
+  <diskname>Disk 002</diskname>
+  <comments></comments>
+  <operationalstate>good</operationalstate>
+  <operationalstatedetail>member_ok</operationalstatedetail>
+  <uid>020807100C0000207D32E1500000000000000000</uid>
+  <objectparentuid>00010710B4080560F44A01000070020000001F00</objectparentuid>
+  <objectparentid>00010710B4080560F44A01000070020000001F00</objectparentid>
+  <objectparenthexuid>6005-08b4-0001-4af4-0002-7000-001f-0000</objectparenthexuid>
+  <storagecellname>EVA5000</storagecellname>
+  <EnclosureDiskBays>14</EnclosureDiskBays>
+  <nodewwid>2000-000C-50E1-327D</nodewwid>
+  <diskgroupname>Default Disk Group</diskgroupname>
+  <diskgroupid>00010710B4080560F44A01000070020000001F00</diskgroupid>
+  <diskbaynumber>7</diskbaynumber>
+  <shelfnumber>2</shelfnumber>
+  <EnclosureIOTransport>fc</EnclosureIOTransport>
+  <loops>
+    <loop>
+      <loopname>loopa</loopname>
+      <portwwid>2000-000C-50E1-327D</portwwid>
+      <loopid>90</loopid>
+      <assignedlun>0</assignedlun>
+      <loopstate>good</loopstate>
+      <loopalpa>49</loopalpa>
+    </loop>
+    <loop>
+      <loopname>loopb</loopname>
+      <portwwid>2000-000C-50E1-327D</portwwid>
+      <loopid>90</loopid>
+      <assignedlun>0</assignedlun>
+      <loopstate>good</loopstate>
+      <loopalpa>49</loopalpa>
+    </loop>
+  </loops>
+  <formattedcapacity>286749488</formattedcapacity>
+  <diskdrivetype>online</diskdrivetype>
+  <mediaaccessible>yes</mediaaccessible>
+  <failurepredicted>no</failurepredicted>
+  <manufacturer>HPQ     </manufacturer>
+  <modelnumber>BD14655B2A      </modelnumber>
+  <firmwareversion>HP07</firmwareversion>
+  <disktype>fibre_channel_disk</disktype>
+  <rssindex>5</rssindex>
+  <rssid>2</rssid>
+  <migrationprogress>n/a</migrationprogress>
+  <occupancy>133017600</occupancy>
+  <migrationstate>not_migrating</migrationstate>
+  <canlocaterss>yes</canlocaterss>
+  <actualusage>grouped</actualusage>
+  <requestedusage>grouped</requestedusage>
+  <quorumdisk>yes</quorumdisk>
+  <looppair>looppair2</looppair>
+  <diskcodeloadable>no</diskcodeloadable>
+  <DiskHasVraid0Data>false</DiskHasVraid0Data>
+</object>
+
+
+
+\Disk Groups\Default Disk Group\Disk 003 information:
+<object>
+  <objectid>030807100C000020D2C274500000000000000000</objectid>
+  <objectname>\Disk Groups\Default Disk Group\Disk 003</objectname>
+  <objecttype>disk</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>2000-000c-5074-c2d2-0000-0000-0000-0000</objecthexuid>
+  <nscModel>HSV110</nscModel>
+  <diskname>Disk 003</diskname>
+  <comments></comments>
+  <operationalstate>good</operationalstate>
+  <operationalstatedetail>member_ok</operationalstatedetail>
+  <uid>030807100C000020D2C274500000000000000000</uid>
+  <objectparentuid>00010710B4080560F44A01000070020000001F00</objectparentuid>
+  <objectparentid>00010710B4080560F44A01000070020000001F00</objectparentid>
+  <objectparenthexuid>6005-08b4-0001-4af4-0002-7000-001f-0000</objectparenthexuid>
+  <storagecellname>EVA5000</storagecellname>
+  <EnclosureDiskBays>14</EnclosureDiskBays>
+  <nodewwid>2000-000C-5074-C2D2</nodewwid>
+  <diskgroupname>Default Disk Group</diskgroupname>
+  <diskgroupid>00010710B4080560F44A01000070020000001F00</diskgroupid>
+  <diskbaynumber>1</diskbaynumber>
+  <shelfnumber>2</shelfnumber>
+  <EnclosureIOTransport>fc</EnclosureIOTransport>
+  <loops>
+    <loop>
+      <loopname>loopa</loopname>
+      <portwwid>2000-000C-5074-C2D2</portwwid>
+      <loopid>84</loopid>
+      <assignedlun>0</assignedlun>
+      <loopstate>good</loopstate>
+      <loopalpa>51</loopalpa>
+    </loop>
+    <loop>
+      <loopname>loopb</loopname>
+      <portwwid>2000-000C-5074-C2D2</portwwid>
+      <loopid>84</loopid>
+      <assignedlun>0</assignedlun>
+      <loopstate>good</loopstate>
+      <loopalpa>51</loopalpa>
+    </loop>
+  </loops>
+  <formattedcapacity>286749488</formattedcapacity>
+  <diskdrivetype>online</diskdrivetype>
+  <mediaaccessible>yes</mediaaccessible>
+  <failurepredicted>no</failurepredicted>
+  <manufacturer>HPQ     </manufacturer>
+  <modelnumber>BD14655B2A      </modelnumber>
+  <firmwareversion>HP07</firmwareversion>
+  <disktype>fibre_channel_disk</disktype>
+  <rssindex>4</rssindex>
+  <rssid>2</rssid>
+  <migrationprogress>n/a</migrationprogress>
+  <occupancy>133017600</occupancy>
+  <migrationstate>not_migrating</migrationstate>
+  <canlocaterss>yes</canlocaterss>
+  <actualusage>grouped</actualusage>
+  <requestedusage>grouped</requestedusage>
+  <quorumdisk>yes</quorumdisk>
+  <looppair>looppair2</looppair>
+  <diskcodeloadable>no</diskcodeloadable>
+  <DiskHasVraid0Data>false</DiskHasVraid0Data>
+</object>
+
+
+
+\Disk Groups\Default Disk Group\Disk 004 information:
+<object>
+  <objectid>040807100C000020F635E1500000000000000000</objectid>
+  <objectname>\Disk Groups\Default Disk Group\Disk 004</objectname>
+  <objecttype>disk</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>2000-000c-50e1-35f6-0000-0000-0000-0000</objecthexuid>
+  <nscModel>HSV110</nscModel>
+  <diskname>Disk 004</diskname>
+  <comments></comments>
+  <operationalstate>good</operationalstate>
+  <operationalstatedetail>member_ok</operationalstatedetail>
+  <uid>040807100C000020F635E1500000000000000000</uid>
+  <objectparentuid>00010710B4080560F44A01000070020000001F00</objectparentuid>
+  <objectparentid>00010710B4080560F44A01000070020000001F00</objectparentid>
+  <objectparenthexuid>6005-08b4-0001-4af4-0002-7000-001f-0000</objectparenthexuid>
+  <storagecellname>EVA5000</storagecellname>
+  <EnclosureDiskBays>14</EnclosureDiskBays>
+  <nodewwid>2000-000C-50E1-35F6</nodewwid>
+  <diskgroupname>Default Disk Group</diskgroupname>
+  <diskgroupid>00010710B4080560F44A01000070020000001F00</diskgroupid>
+  <diskbaynumber>2</diskbaynumber>
+  <shelfnumber>2</shelfnumber>
+  <EnclosureIOTransport>fc</EnclosureIOTransport>
+  <loops>
+    <loop>
+      <loopname>loopa</loopname>
+      <portwwid>2000-000C-50E1-35F6</portwwid>
+      <loopid>85</loopid>
+      <assignedlun>0</assignedlun>
+      <loopstate>good</loopstate>
+      <loopalpa>4E</loopalpa>
+    </loop>
+    <loop>
+      <loopname>loopb</loopname>
+      <portwwid>2000-000C-50E1-35F6</portwwid>
+      <loopid>85</loopid>
+      <assignedlun>0</assignedlun>
+      <loopstate>good</loopstate>
+      <loopalpa>4E</loopalpa>
+    </loop>
+  </loops>
+  <formattedcapacity>286749488</formattedcapacity>
+  <diskdrivetype>online</diskdrivetype>
+  <mediaaccessible>yes</mediaaccessible>
+  <failurepredicted>no</failurepredicted>
+  <manufacturer>HPQ     </manufacturer>
+  <modelnumber>BD14655B2A      </modelnumber>
+  <firmwareversion>HP07</firmwareversion>
+  <disktype>fibre_channel_disk</disktype>
+  <rssindex>3</rssindex>
+  <rssid>2</rssid>
+  <migrationprogress>n/a</migrationprogress>
+  <occupancy>133017600</occupancy>
+  <migrationstate>not_migrating</migrationstate>
+  <canlocaterss>yes</canlocaterss>
+  <actualusage>grouped</actualusage>
+  <requestedusage>grouped</requestedusage>
+  <quorumdisk>yes</quorumdisk>
+  <looppair>looppair2</looppair>
+  <diskcodeloadable>no</diskcodeloadable>
+  <DiskHasVraid0Data>false</DiskHasVraid0Data>
+</object>
+
+
+
+\Disk Groups\Default Disk Group\Disk 005 information:
+<object>
+  <objectid>05080710110000206C31B6C60000000000000000</objectid>
+  <objectname>\Disk Groups\Default Disk Group\Disk 005</objectname>
+  <objecttype>disk</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>2000-0011-c6b6-316c-0000-0000-0000-0000</objecthexuid>
+  <nscModel>HSV110</nscModel>
+  <diskname>Disk 005</diskname>
+  <comments></comments>
+  <operationalstate>good</operationalstate>
+  <operationalstatedetail>member_ok</operationalstatedetail>
+  <uid>05080710110000206C31B6C60000000000000000</uid>
+  <objectparentuid>00010710B4080560F44A01000070020000001F00</objectparentuid>
+  <objectparentid>00010710B4080560F44A01000070020000001F00</objectparentid>
+  <objectparenthexuid>6005-08b4-0001-4af4-0002-7000-001f-0000</objectparenthexuid>
+  <storagecellname>EVA5000</storagecellname>
+  <EnclosureDiskBays>14</EnclosureDiskBays>
+  <nodewwid>2000-0011-C6B6-316C</nodewwid>
+  <diskgroupname>Default Disk Group</diskgroupname>
+  <diskgroupid>00010710B4080560F44A01000070020000001F00</diskgroupid>
+  <diskbaynumber>6</diskbaynumber>
+  <shelfnumber>2</shelfnumber>
+  <EnclosureIOTransport>fc</EnclosureIOTransport>
+  <loops>
+    <loop>
+      <loopname>loopa</loopname>
+      <portwwid>2000-0011-C6B6-316C</portwwid>
+      <loopid>89</loopid>
+      <assignedlun>0</assignedlun>
+      <loopstate>good</loopstate>
+      <loopalpa>4A</loopalpa>
+    </loop>
+    <loop>
+      <loopname>loopb</loopname>
+      <portwwid>2000-0011-C6B6-316C</portwwid>
+      <loopid>89</loopid>
+      <assignedlun>0</assignedlun>
+      <loopstate>good</loopstate>
+      <loopalpa>4A</loopalpa>
+    </loop>
+  </loops>
+  <formattedcapacity>286749488</formattedcapacity>
+  <diskdrivetype>online</diskdrivetype>
+  <mediaaccessible>yes</mediaaccessible>
+  <failurepredicted>no</failurepredicted>
+  <manufacturer>HPQ     </manufacturer>
+  <modelnumber>BD1465822C      </modelnumber>
+  <firmwareversion>HP04</firmwareversion>
+  <disktype>fibre_channel_disk</disktype>
+  <rssindex>2</rssindex>
+  <rssid>2</rssid>
+  <migrationprogress>n/a</migrationprogress>
+  <occupancy>133017600</occupancy>
+  <migrationstate>not_migrating</migrationstate>
+  <canlocaterss>yes</canlocaterss>
+  <actualusage>grouped</actualusage>
+  <requestedusage>grouped</requestedusage>
+  <quorumdisk>yes</quorumdisk>
+  <looppair>looppair2</looppair>
+  <diskcodeloadable>no</diskcodeloadable>
+  <DiskHasVraid0Data>false</DiskHasVraid0Data>
+</object>
+
+
+
+\Disk Groups\Default Disk Group\Disk 006 information:
+<object>
+  <objectid>06080710140000202ECB96C30000000000000000</objectid>
+  <objectname>\Disk Groups\Default Disk Group\Disk 006</objectname>
+  <objecttype>disk</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>2000-0014-c396-cb2e-0000-0000-0000-0000</objecthexuid>
+  <nscModel>HSV110</nscModel>
+  <diskname>Disk 006</diskname>
+  <comments></comments>
+  <operationalstate>good</operationalstate>
+  <operationalstatedetail>member_ok</operationalstatedetail>
+  <uid>06080710140000202ECB96C30000000000000000</uid>
+  <objectparentuid>00010710B4080560F44A01000070020000001F00</objectparentuid>
+  <objectparentid>00010710B4080560F44A01000070020000001F00</objectparentid>
+  <objectparenthexuid>6005-08b4-0001-4af4-0002-7000-001f-0000</objectparenthexuid>
+  <storagecellname>EVA5000</storagecellname>
+  <EnclosureDiskBays>14</EnclosureDiskBays>
+  <nodewwid>2000-0014-C396-CB2E</nodewwid>
+  <diskgroupname>Default Disk Group</diskgroupname>
+  <diskgroupid>00010710B4080560F44A01000070020000001F00</diskgroupid>
+  <diskbaynumber>4</diskbaynumber>
+  <shelfnumber>2</shelfnumber>
+  <EnclosureIOTransport>fc</EnclosureIOTransport>
+  <loops>
+    <loop>
+      <loopname>loopa</loopname>
+      <portwwid>2000-0014-C396-CB2E</portwwid>
+      <loopid>87</loopid>
+      <assignedlun>0</assignedlun>
+      <loopstate>good</loopstate>
+      <loopalpa>4C</loopalpa>
+    </loop>
+    <loop>
+      <loopname>loopb</loopname>
+      <portwwid>2000-0014-C396-CB2E</portwwid>
+      <loopid>87</loopid>
+      <assignedlun>0</assignedlun>
+      <loopstate>good</loopstate>
+      <loopalpa>4C</loopalpa>
+    </loop>
+  </loops>
+  <formattedcapacity>286749488</formattedcapacity>
+  <diskdrivetype>online</diskdrivetype>
+  <mediaaccessible>yes</mediaaccessible>
+  <failurepredicted>no</failurepredicted>
+  <manufacturer>HPQ     </manufacturer>
+  <modelnumber>BD1465822C      </modelnumber>
+  <firmwareversion>HP03</firmwareversion>
+  <disktype>fibre_channel_disk</disktype>
+  <rssindex>6</rssindex>
+  <rssid>2</rssid>
+  <migrationprogress>n/a</migrationprogress>
+  <occupancy>133013504</occupancy>
+  <migrationstate>not_migrating</migrationstate>
+  <canlocaterss>yes</canlocaterss>
+  <actualusage>grouped</actualusage>
+  <requestedusage>grouped</requestedusage>
+  <quorumdisk>no</quorumdisk>
+  <looppair>looppair2</looppair>
+  <diskcodeloadable>no</diskcodeloadable>
+  <DiskHasVraid0Data>false</DiskHasVraid0Data>
+</object>
+
+MS_HW_SECTION LS DISK FULL XML END 15:08:29,09
+
+MS_HW_SECTION LS DISKSHELF FULL XML BEGIN 15:08:29,09
+
+
+SSSU for HP StorageWorks Command View EVA
+Version: 9.3.0 
+Build: 072310A
+NoSystemSelected> SELECT SYSTEM "EVA5000"
+
+EVA5000> SET OPTIONS ON_ERROR=Exit_on_error NORETRIES
+
+EVA5000> LS DISKSHELF FULL XML
+
+diskshelf available on this Cell:
+
+\Hardware\Rack 1\Disk Enclosure 2 information:
+<object>
+  <objectid>00000708500508B3006867490000000000000000</objectid>
+  <objectname>\Hardware\Rack 1\Disk Enclosure 2</objectname>
+  <objecttype>diskshelf</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>b308-0550-4967-6800-0000-0000-0000-0000</objecthexuid>
+  <objectparentid>0A0A0A0A0A0A0A0A0A0A0A0A0A0A0A0A0A0A0A0A</objectparentid>
+  <wwnodename>5005-08B3-0068-6749</wwnodename>
+  <emulastevent>n/a</emulastevent>
+  <diskshelfswapbit>0</diskshelfswapbit>
+  <diskslotstatus>
+    <diskslot>
+      <name>diskslot1</name>
+      <state>installed_good</state>
+      <diskid>030807080C000020D2C274500000000000000000</diskid>
+      <diskwwn>2000-000c-5074-c2d2-0000-0000-0000-0000</diskwwn>
+      <diskstatus>normal</diskstatus>
+      <volumestatus>normal</volumestatus>
+      <ilfdisk>no</ilfdisk>
+    </diskslot>
+    <diskslot>
+      <name>diskslot2</name>
+      <state>installed_good</state>
+      <diskid>040807080C000020F635E1500000000000000000</diskid>
+      <diskwwn>2000-000c-50e1-35f6-0000-0000-0000-0000</diskwwn>
+      <diskstatus>normal</diskstatus>
+      <volumestatus>normal</volumestatus>
+      <ilfdisk>no</ilfdisk>
+    </diskslot>
+    <diskslot>
+      <name>diskslot3</name>
+      <state>installed_good</state>
+      <diskid>000807080C0000200134E1500000000000000000</diskid>
+      <diskwwn>2000-000c-50e1-3401-0000-0000-0000-0000</diskwwn>
+      <diskstatus>normal</diskstatus>
+      <volumestatus>normal</volumestatus>
+      <ilfdisk>no</ilfdisk>
+    </diskslot>
+    <diskslot>
+      <name>diskslot4</name>
+      <state>installed_good</state>
+      <diskid>06080708140000202ECB96C30000000000000000</diskid>
+      <diskwwn>2000-0014-c396-cb2e-0000-0000-0000-0000</diskwwn>
+      <diskstatus>normal</diskstatus>
+      <volumestatus>normal</volumestatus>
+      <ilfdisk>no</ilfdisk>
+    </diskslot>
+    <diskslot>
+      <name>diskslot5</name>
+      <state>notinstalled</state>
+      <diskid>0000070800000000000000000000000000000000</diskid>
+      <diskwwn>0000-0000-0000-0000-0000-0000-0000-0000</diskwwn>
+      <diskstatus>unknown</diskstatus>
+      <volumestatus>no_volume</volumestatus>
+      <ilfdisk>no</ilfdisk>
+    </diskslot>
+    <diskslot>
+      <name>diskslot6</name>
+      <state>installed_good</state>
+      <diskid>05080708110000206C31B6C60000000000000000</diskid>
+      <diskwwn>2000-0011-c6b6-316c-0000-0000-0000-0000</diskwwn>
+      <diskstatus>normal</diskstatus>
+      <volumestatus>normal</volumestatus>
+      <ilfdisk>no</ilfdisk>
+    </diskslot>
+    <diskslot>
+      <name>diskslot7</name>
+      <state>installed_good</state>
+      <diskid>020807080C0000207D32E1500000000000000000</diskid>
+      <diskwwn>2000-000c-50e1-327d-0000-0000-0000-0000</diskwwn>
+      <diskstatus>normal</diskstatus>
+      <volumestatus>normal</volumestatus>
+      <ilfdisk>no</ilfdisk>
+    </diskslot>
+    <diskslot>
+      <name>diskslot8</name>
+      <state>installed_notavailable</state>
+      <diskid>0000070800000000000000000000000000000000</diskid>
+      <diskwwn>0000-0000-0000-0000-0000-0000-0000-0000</diskwwn>
+      <diskstatus>unknown</diskstatus>
+      <volumestatus>no_volume</volumestatus>
+      <ilfdisk>no</ilfdisk>
+    </diskslot>
+    <diskslot>
+      <name>diskslot9</name>
+      <state>installed_notavailable</state>
+      <diskid>0000070800000000000000000000000000000000</diskid>
+      <diskwwn>0000-0000-0000-0000-0000-0000-0000-0000</diskwwn>
+      <diskstatus>unknown</diskstatus>
+      <volumestatus>no_volume</volumestatus>
+      <ilfdisk>no</ilfdisk>
+    </diskslot>
+    <diskslot>
+      <name>diskslot10</name>
+      <state>notinstalled</state>
+      <diskid>0000070800000000000000000000000000000000</diskid>
+      <diskwwn>0000-0000-0000-0000-0000-0000-0000-0000</diskwwn>
+      <diskstatus>unknown</diskstatus>
+      <volumestatus>no_volume</volumestatus>
+      <ilfdisk>no</ilfdisk>
+    </diskslot>
+    <diskslot>
+      <name>diskslot11</name>
+      <state>notinstalled</state>
+      <diskid>0000070800000000000000000000000000000000</diskid>
+      <diskwwn>0000-0000-0000-0000-0000-0000-0000-0000</diskwwn>
+      <diskstatus>unknown</diskstatus>
+      <volumestatus>no_volume</volumestatus>
+      <ilfdisk>no</ilfdisk>
+    </diskslot>
+    <diskslot>
+      <name>diskslot12</name>
+      <state>notinstalled</state>
+      <diskid>0000070800000000000000000000000000000000</diskid>
+      <diskwwn>0000-0000-0000-0000-0000-0000-0000-0000</diskwwn>
+      <diskstatus>unknown</diskstatus>
+      <volumestatus>no_volume</volumestatus>
+      <ilfdisk>no</ilfdisk>
+    </diskslot>
+    <diskslot>
+      <name>diskslot13</name>
+      <state>notinstalled</state>
+      <diskid>0000070800000000000000000000000000000000</diskid>
+      <diskwwn>0000-0000-0000-0000-0000-0000-0000-0000</diskwwn>
+      <diskstatus>unknown</diskstatus>
+      <volumestatus>no_volume</volumestatus>
+      <ilfdisk>no</ilfdisk>
+    </diskslot>
+    <diskslot>
+      <name>diskslot14</name>
+      <state>notinstalled</state>
+      <diskid>0000070800000000000000000000000000000000</diskid>
+      <diskwwn>0000-0000-0000-0000-0000-0000-0000-0000</diskwwn>
+      <diskstatus>unknown</diskstatus>
+      <volumestatus>no_volume</volumestatus>
+      <ilfdisk>no</ilfdisk>
+    </diskslot>
+  </diskslotstatus>
+  <led>
+    <operationalstate>good</operationalstate>
+    <failurepredicted>No</failurepredicted>
+    <language>English</language>
+    <ledswapbit>0</ledswapbit>
+  </led>
+  <alarm>
+    <operationalstate>good</operationalstate>
+    <setting>on</setting>
+  </alarm>
+  <diskshelfname>Disk Enclosure 2</diskshelfname>
+  <operationalstate>attention</operationalstate>
+  <operationalstatedetail>initialized_attention</operationalstatedetail>
+  <objectparentuid>0A0A0A0A0A0A0A0A0A0A0A0A0A0A0A0A0A0A0A0A</objectparentuid>
+  <comments></comments>
+  <objectparenthexuid>0a0a-0a0a-0a0a-0a0a-0a0a-0a0a-0a0a-0a0a</objectparenthexuid>
+  <shelfnumber>2</shelfnumber>
+  <looppair>looppair2</looppair>
+  <emu>
+    <operationalstate>good</operationalstate>
+    <failurepredicted>No</failurepredicted>
+    <firmware>03140000</firmware>
+    <hardwaretype>01</hardwaretype>
+    <hardwarerevision>01</hardwarerevision>
+    <firmwareversion>03.14</firmwareversion>
+    <firmwarebuild>0000</firmwarebuild>
+  </emu>
+  <powersupplies>
+    <powersupply>
+      <name>powersupply1</name>
+      <operationalstate>good</operationalstate>
+      <failurepredicted>No</failurepredicted>
+      <vdcoutputs>
+        <vdcoutput>
+          <type>vdc5output</type>
+          <voltage>5.5</voltage>
+          <current>6.0</current>
+        </vdcoutput>
+        <vdcoutput>
+          <type>vdc12output</type>
+          <voltage>12.6</voltage>
+          <current>3.5</current>
+        </vdcoutput>
+      </vdcoutputs>
+      <alarms>
+        <acfailure>No</acfailure>
+        <alarm>
+          <type>vdc5voltalarm</type>
+          <alarmstatus>no_alarm</alarmstatus>
+          <overvoltwarning>5.7</overvoltwarning>
+          <overvoltcritical>5.7</overvoltcritical>
+          <undervoltwarning>5.1</undervoltwarning>
+          <undervoltcritical>5.1</undervoltcritical>
+        </alarm>
+        <alarm>
+          <type>vdc5curalarm</type>
+          <alarmstatus>no_alarm</alarmstatus>
+          <overcurwarning>20.0</overcurwarning>
+          <overcurcritical>24.0</overcurcritical>
+        </alarm>
+        <alarm>
+          <type>vdc12voltalarm</type>
+          <alarmstatus>no_alarm</alarmstatus>
+          <overvoltwarning>13.1</overvoltwarning>
+          <overvoltcritical>13.3</overvoltcritical>
+          <undervoltwarning>11.9</undervoltwarning>
+          <undervoltcritical>11.8</undervoltcritical>
+        </alarm>
+        <alarm>
+          <type>vdc12curalarm</type>
+          <alarmstatus>no_alarm</alarmstatus>
+          <overcurwarning>22.5</overcurwarning>
+          <overcurcritical>26.5</overcurcritical>
+        </alarm>
+      </alarms>
+    </powersupply>
+    <powersupply>
+      <name>powersupply2</name>
+      <operationalstate>good</operationalstate>
+      <failurepredicted>No</failurepredicted>
+      <vdcoutputs>
+        <vdcoutput>
+          <type>vdc5output</type>
+          <voltage>5.5</voltage>
+          <current>6.2</current>
+        </vdcoutput>
+        <vdcoutput>
+          <type>vdc12output</type>
+          <voltage>12.6</voltage>
+          <current>3.3</current>
+        </vdcoutput>
+      </vdcoutputs>
+      <alarms>
+        <acfailure>No</acfailure>
+        <alarm>
+          <type>vdc5voltalarm</type>
+          <alarmstatus>no_alarm</alarmstatus>
+          <overvoltwarning>5.7</overvoltwarning>
+          <overvoltcritical>5.7</overvoltcritical>
+          <undervoltwarning>5.1</undervoltwarning>
+          <undervoltcritical>5.1</undervoltcritical>
+        </alarm>
+        <alarm>
+          <type>vdc5curalarm</type>
+          <alarmstatus>no_alarm</alarmstatus>
+          <overcurwarning>20.0</overcurwarning>
+          <overcurcritical>24.0</overcurcritical>
+        </alarm>
+        <alarm>
+          <type>vdc12voltalarm</type>
+          <alarmstatus>no_alarm</alarmstatus>
+          <overvoltwarning>13.1</overvoltwarning>
+          <overvoltcritical>13.3</overvoltcritical>
+          <undervoltwarning>11.9</undervoltwarning>
+          <undervoltcritical>11.8</undervoltcritical>
+        </alarm>
+        <alarm>
+          <type>vdc12curalarm</type>
+          <alarmstatus>no_alarm</alarmstatus>
+          <overcurwarning>22.5</overcurwarning>
+          <overcurcritical>26.5</overcurcritical>
+        </alarm>
+      </alarms>
+    </powersupply>
+  </powersupplies>
+  <iocomm>
+    <fibrechannelports>
+      <port>
+        <name>porta1</name>
+        <operationalstate>good</operationalstate>
+        <failprediction>No</failprediction>
+        <swapbit>1</swapbit>
+        <outputlink>Good</outputlink>
+        <inputlink>Good</inputlink>
+        <state>Enabled</state>
+      </port>
+      <port>
+        <name>porta2</name>
+        <operationalstate>good</operationalstate>
+        <failprediction>No</failprediction>
+        <swapbit>1</swapbit>
+        <outputlink>Good</outputlink>
+        <inputlink>Good</inputlink>
+        <state>Enabled</state>
+      </port>
+      <port>
+        <name>portb1</name>
+        <operationalstate>good</operationalstate>
+        <failprediction>No</failprediction>
+        <swapbit>1</swapbit>
+        <outputlink>Good</outputlink>
+        <inputlink>Good</inputlink>
+        <state>Enabled</state>
+      </port>
+      <port>
+        <name>portb2</name>
+        <operationalstate>good</operationalstate>
+        <failprediction>No</failprediction>
+        <swapbit>1</swapbit>
+        <outputlink>Good</outputlink>
+        <inputlink>Good</inputlink>
+        <state>Enabled</state>
+      </port>
+    </fibrechannelports>
+    <iomodules>
+      <module>
+        <name>modulea</name>
+        <operationalstate>good</operationalstate>
+        <failprediction>No</failprediction>
+        <hardwaretype>02</hardwaretype>
+        <hardwarerevision>02</hardwarerevision>
+        <firmware>02.02</firmware>
+      </module>
+      <module>
+        <name>moduleb</name>
+        <operationalstate>good</operationalstate>
+        <failprediction>No</failprediction>
+        <hardwaretype>02</hardwaretype>
+        <hardwarerevision>02</hardwarerevision>
+        <firmware>02.02</firmware>
+      </module>
+    </iomodules>
+    <communicationbuses>
+      <bus>
+        <name>emuinternal</name>
+        <operationalstate>good</operationalstate>
+        <failprediction>No</failprediction>
+        <state>Enabled</state>
+      </bus>
+      <bus>
+        <name>emuexternal</name>
+        <operationalstate>good</operationalstate>
+        <failprediction>No</failprediction>
+        <state>Enabled</state>
+      </bus>
+      <bus>
+        <name>rs232port1</name>
+        <operationalstate>good</operationalstate>
+        <failprediction>No</failprediction>
+        <state>Enabled</state>
+      </bus>
+      <bus>
+        <name>rs232port2</name>
+        <operationalstate>good</operationalstate>
+        <failprediction>No</failprediction>
+        <state>Enabled</state>
+      </bus>
+    </communicationbuses>
+  </iocomm>
+  <cooling>
+    <sensors>
+      <sensor>
+        <name></name>
+        <tempf> </tempf>
+        <tempc> </tempc>
+        <operationalstate>unsupported</operationalstate>
+        <tempalarmstatus>not_applicable</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>ps1</name>
+        <tempf>78.8</tempf>
+        <tempc>26.0</tempc>
+        <operationalstate>good</operationalstate>
+        <tempalarmstatus>no_alarm</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>ps2</name>
+        <tempf>84.2</tempf>
+        <tempc>29.0</tempc>
+        <operationalstate>good</operationalstate>
+        <tempalarmstatus>no_alarm</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>emu</name>
+        <tempf>78.8</tempf>
+        <tempc>26.0</tempc>
+        <operationalstate>good</operationalstate>
+        <tempalarmstatus>no_alarm</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>diskslot1</name>
+        <tempf>68.0</tempf>
+        <tempc>20.0</tempc>
+        <operationalstate>good</operationalstate>
+        <tempalarmstatus>no_alarm</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>diskslot2</name>
+        <tempf>66.2</tempf>
+        <tempc>19.0</tempc>
+        <operationalstate>good</operationalstate>
+        <tempalarmstatus>no_alarm</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>diskslot3</name>
+        <tempf>68.0</tempf>
+        <tempc>20.0</tempc>
+        <operationalstate>good</operationalstate>
+        <tempalarmstatus>no_alarm</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>diskslot4</name>
+        <tempf>68.0</tempf>
+        <tempc>20.0</tempc>
+        <operationalstate>good</operationalstate>
+        <tempalarmstatus>no_alarm</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>diskslot5</name>
+        <tempf> </tempf>
+        <tempc> </tempc>
+        <operationalstate>notinstalled</operationalstate>
+        <tempalarmstatus>not_applicable</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>diskslot6</name>
+        <tempf>66.2</tempf>
+        <tempc>19.0</tempc>
+        <operationalstate>good</operationalstate>
+        <tempalarmstatus>no_alarm</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>diskslot7</name>
+        <tempf>66.2</tempf>
+        <tempc>19.0</tempc>
+        <operationalstate>good</operationalstate>
+        <tempalarmstatus>no_alarm</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>diskslot8</name>
+        <tempf>68.0</tempf>
+        <tempc>20.0</tempc>
+        <operationalstate>good</operationalstate>
+        <tempalarmstatus>no_alarm</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>diskslot9</name>
+        <tempf>66.2</tempf>
+        <tempc>19.0</tempc>
+        <operationalstate>good</operationalstate>
+        <tempalarmstatus>no_alarm</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>diskslot10</name>
+        <tempf> </tempf>
+        <tempc> </tempc>
+        <operationalstate>notinstalled</operationalstate>
+        <tempalarmstatus>not_applicable</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>diskslot11</name>
+        <tempf> </tempf>
+        <tempc> </tempc>
+        <operationalstate>notinstalled</operationalstate>
+        <tempalarmstatus>not_applicable</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>diskslot12</name>
+        <tempf> </tempf>
+        <tempc> </tempc>
+        <operationalstate>notinstalled</operationalstate>
+        <tempalarmstatus>not_applicable</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>diskslot13</name>
+        <tempf> </tempf>
+        <tempc> </tempc>
+        <operationalstate>notinstalled</operationalstate>
+        <tempalarmstatus>not_applicable</tempalarmstatus>
+      </sensor>
+      <sensor>
+        <name>diskslot14</name>
+        <tempf> </tempf>
+        <tempc> </tempc>
+        <operationalstate>notinstalled</operationalstate>
+        <tempalarmstatus>not_applicable</tempalarmstatus>
+      </sensor>
+    </sensors>
+    <fans>
+      <fan>
+        <name>fan1</name>
+        <operationalstate>good</operationalstate>
+        <failprediction>No</failprediction>
+        <speed>speed_2_second_lowest</speed>
+      </fan>
+      <fan>
+        <name>fan2</name>
+        <operationalstate>good</operationalstate>
+        <failprediction>No</failprediction>
+        <speed>speed_1_lowest</speed>
+      </fan>
+    </fans>
+  </cooling>
+</object>
+
+MS_HW_SECTION LS DISKSHELF FULL XML END 15:08:34,12
+
+MS_HW_SECTION LS SNAPSHOT FULL XML BEGIN 15:08:34,12
+
+
+SSSU for HP StorageWorks Command View EVA
+Version: 9.3.0 
+Build: 072310A
+NoSystemSelected> SELECT SYSTEM "EVA5000"
+
+EVA5000> SET OPTIONS ON_ERROR=Exit_on_error NORETRIES
+
+EVA5000> LS SNAPSHOT FULL XML
+
+snapshot available on this Cell:
+  No snapshot found
+MS_HW_SECTION LS SNAPSHOT FULL XML END 15:08:36,61
+
+END TIME 15:08:36,61

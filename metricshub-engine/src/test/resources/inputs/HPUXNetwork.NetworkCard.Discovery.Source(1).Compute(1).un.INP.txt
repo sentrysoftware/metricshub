@@ -1,0 +1,40 @@
+                      LAN INTERFACE STATUS DISPLAY
+                       Fri, Jul 27,2012  02:19:41
+
+PPA Number                      = 0
+Description                     = lan0 Hewlett-Packard 10/100 TX Half-Duplex Manual TT = 1500
+Type (value)                    = ethernet-csmacd(6)
+MTU Size                        = 1500
+Speed                           = 100000000
+Station Address                 = 0x1083cfe694
+Administration Status (value)   = up(1)
+Operation Status (value)        = up(1)
+Last Change                     = 9133
+Inbound Octets                  = 1641677323
+Inbound Unicast Packets         = 1104025
+Inbound Non-Unicast Packets     = 13865327
+Inbound Discards                = 508
+Inbound Errors                  = 0
+Inbound Unknown Protocols       = 5829347
+Outbound Octets                 = 271594257
+Outbound Unicast Packets        = 1053749
+Outbound Non-Unicast Packets    = 508
+Outbound Discards               = 0
+Outbound Errors                 = 0
+Outbound Queue Length           = 0
+Specific                        = 655367
+
+Ethernet-like Statistics Group
+
+Index                           = 1
+Alignment Errors                = 0
+FCS Errors                      = 0
+Single Collision Frames         = 41335
+Multiple Collision Frames       = 47325
+Deferred Transmissions          = 5554
+Late Collisions                 = 0
+Excessive Collisions            = 0
+Internal MAC Transmit Errors    = 0
+Carrier Sense Errors            = 0
+Frames Too Long                 = 0
+Internal MAC Receive Errors     = 0

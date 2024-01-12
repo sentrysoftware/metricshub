@@ -1,0 +1,3 @@
+MSHW;1ae00000bbc;mb_p0_t_core;84;57;
+MSHW;1ae00000bc4;mb_p1_t_core;84;52;
+MSHW;1ae00000bcc;mb_t_enc;40;26;

@@ -1,0 +1,1 @@
+MSHW;1;Ambient_Temp;;40;15;OK;;

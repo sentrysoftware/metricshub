@@ -1,0 +1,13 @@
+SmartPools Health
+Name                  Health  Type Prot   Members          Down          Smartfailed
+--------------------- ------- ---- ------ ---------------- ------------- -------------
+x210_22tb_800gb-        OK
+ssd_48gb
+ x210_22tb_800gb-       OK    HDD  +2d:1n 1-4:bay2-6       Nodes:        Nodes:
+ssd_48gb:1                                                 Drives:       Drives:
+ x210_22tb_800gb-       OK    HDD  +2d:1n 1-4:bay7-12      Nodes:        Nodes:
+ssd_48gb:3                                                 Drives:       Drives:
+OK = Ok, U = Too few nodes, M = Missing drives,
+D = Some nodes or drives are down, S = Some nodes or drives are smartfailed,
+R = Some nodes or drives need repair
+Unprovisioned drives: none 

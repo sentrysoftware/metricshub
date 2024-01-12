@@ -1,0 +1,25 @@
+DID         Domain Status
+00          Running
+01          Running
+02          Running
+03          Running
+04          Running
+05          Running
+06          Running
+07          Running
+08          Running
+09          Running
+10          Running
+11          -
+12          -
+13          -
+14          -
+15          -
+16          -
+17          -
+18          -
+19          -
+20          -
+21          -
+22          -
+23          -

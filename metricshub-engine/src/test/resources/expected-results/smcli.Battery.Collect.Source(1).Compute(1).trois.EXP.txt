@@ -1,0 +1,2 @@
+MSHW;Battery;85;85 - Controller A;Optimal;Optimal;
+MSHW;Battery;85;85 - Controller B;Optimal;Optimal;

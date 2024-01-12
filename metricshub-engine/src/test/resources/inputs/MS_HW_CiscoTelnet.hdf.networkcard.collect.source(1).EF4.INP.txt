@@ -1,0 +1,773 @@
+show interface
+fc1/1 is up
+    Hardware is Fibre Channel, SFP is short wave laser w/o OFC (SN)
+    Port WWN is 20:01:00:0d:ec:33:53:c0
+    Peer port WWN is 20:01:00:0d:ec:25:cd:40
+    Admin port mode is auto, trunk mode is off
+    snmp link state traps are enabled
+    Port mode is E
+    Port vsan is 1
+    Speed is 2 Gbps
+    Transmit B2B Credit is 255
+    Receive B2B Credit is 255
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 456544 bits/sec, 57068 bytes/sec, 37 frames/sec
+    5 minutes output rate 4408 bits/sec, 551 bytes/sec, 7 frames/sec
+      13253896987 frames input, 15741192926668 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      315386920478 frames output, 653111090410256 bytes
+        0 discards, 0 errors
+      0 input OLS, 1 LRR, 0 NOS, 2 loop inits
+      1 output OLS, 1 LRR, 0 NOS, 2 loop inits
+      255 receive B2B credit remaining
+      255 transmit B2B credit remaining
+      239 low priority transmit B2B credit remaining
+    Interface last changed at Tue Jul 25 16:16:21 2017
+fc1/2 is trunking
+    Hardware is Fibre Channel, SFP is short wave laser w/o OFC (SN)
+    Port WWN is 20:02:00:0d:ec:33:53:c0
+    Peer port WWN is 20:0a:00:0d:ec:81:38:40
+    Admin port mode is auto, trunk mode is on
+    snmp link state traps are enabled
+    Port mode is TE
+    Port vsan is 1
+    Speed is 2 Gbps
+    Transmit B2B Credit is 16
+    Receive B2B Credit is 255
+    Receive data field Size is 2112
+    Beacon is turned off
+    Trunk vsans (admin allowed and active) (1)
+    Trunk vsans (up)                       (1)
+    Trunk vsans (isolated)                 ()
+    Trunk vsans (initializing)             ()
+    5 minutes input rate 4936 bits/sec, 617 bytes/sec, 7 frames/sec
+    5 minutes output rate 458392 bits/sec, 57299 bytes/sec, 38 frames/sec
+      323191516734 frames input, 669777788776648 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      361070213340 frames output, 714889686467812 bytes
+        0 discards, 0 errors
+      0 input OLS, 1 LRR, 0 NOS, 8 loop inits
+      2 output OLS, 1 LRR, 1 NOS, 4 loop inits
+      255 receive B2B credit remaining
+      16 transmit B2B credit remaining
+      14 low priority transmit B2B credit remaining
+    Interface last changed at Tue Jul 25 16:17:53 2017
+fc1/3 is up
+    Hardware is Fibre Channel, SFP is short wave laser w/o OFC (SN)
+    Port WWN is 20:03:00:0d:ec:33:53:c0
+    Peer port WWN is 20:04:08:00:88:02:00:df
+    Admin port mode is auto, trunk mode is on
+    snmp link state traps are enabled
+    Port mode is E
+    Port vsan is 1
+    Speed is 2 Gbps
+    Transmit B2B Credit is 12
+    Receive B2B Credit is 255
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 1472 bits/sec, 184 bytes/sec, 2 frames/sec
+    5 minutes output rate 1928 bits/sec, 241 bytes/sec, 2 frames/sec
+      347927938299 frames input, 696313030734736 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      7909843713 frames output, 14132508719712 bytes
+        0 discards, 0 errors
+      8 input OLS, 2 LRR, 0 NOS, 2 loop inits
+      2 output OLS, 0 LRR, 7 NOS, 4 loop inits
+      255 receive B2B credit remaining
+      12 transmit B2B credit remaining
+      11 low priority transmit B2B credit remaining
+    Interface last changed at Tue Jul 25 16:14:44 2017
+fc1/4 is down (Link failure: loss of signal)
+    Hardware is Fibre Channel, SFP is short wave laser w/o OFC (SN)
+    Port WWN is 20:04:00:0d:ec:33:53:c0
+    Admin port mode is auto, trunk mode is on
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      4698487 frames input, 311171624 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      11072941 frames output, 1675218676 bytes
+        0 discards, 0 errors
+      4 input OLS, 2 LRR, 0 NOS, 2 loop inits
+      4 output OLS, 2 LRR, 2 NOS, 3 loop inits
+    Interface last changed at Fri Sep  8 11:56:49 2017
+fc1/5 is down (Link failure or not-connected)
+    Hardware is Fibre Channel, SFP is short wave laser w/o OFC (SN)
+    Port WWN is 20:05:00:0d:ec:33:53:c0
+    Admin port mode is auto, trunk mode is off
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 108 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 108 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 1 loop inits
+fc1/6 is down (Link failure or not-connected)
+    Hardware is Fibre Channel, SFP is short wave laser w/o OFC (SN)
+    Port WWN is 20:06:00:0d:ec:33:53:c0
+    Admin port mode is auto, trunk mode is on
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 108 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 108 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 1 loop inits
+fc1/7 is down (Link failure or not-connected)
+    Hardware is Fibre Channel, SFP is short wave laser w/o OFC (SN)
+    Port WWN is 20:07:00:0d:ec:33:53:c0
+    Admin port mode is auto, trunk mode is on
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 112 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 112 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 1 loop inits
+fc1/8 is down (Link failure or not-connected)
+    Hardware is Fibre Channel, SFP is short wave laser w/o OFC (SN)
+    Port WWN is 20:08:00:0d:ec:33:53:c0
+    Admin port mode is auto, trunk mode is on
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 120 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 120 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 1 loop inits
+fc1/9 is down (Link failure or not-connected)
+    Hardware is Fibre Channel, SFP is short wave laser w/o OFC (SN)
+    Port WWN is 20:09:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 164 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 164 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 1 loop inits
+fc1/10 is down (Link failure or not-connected)
+    Hardware is Fibre Channel, SFP is short wave laser w/o OFC (SN)
+    Port WWN is 20:0a:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 224 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 224 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 1 loop inits
+fc1/11 is down (SFP not present)
+    Hardware is Fibre Channel 
+    Port WWN is 20:0b:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 192 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 192 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 0 loop inits
+fc1/12 is down (Link failure or not-connected)
+    Hardware is Fibre Channel, SFP is long wave laser cost reduced
+    Port WWN is 20:0c:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 180 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 180 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 1 loop inits
+fc1/13 is down (SFP not present)
+    Hardware is Fibre Channel 
+    Port WWN is 20:0d:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 156 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 156 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 0 loop inits
+fc1/14 is down (SFP not present)
+    Hardware is Fibre Channel 
+    Port WWN is 20:0e:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 144 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 144 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 0 loop inits
+fc1/15 is down (SFP not present)
+    Hardware is Fibre Channel 
+    Port WWN is 20:0f:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 228 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 228 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 0 loop inits
+fc1/16 is down (SFP not present)
+    Hardware is Fibre Channel 
+    Port WWN is 20:10:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 152 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 152 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 0 loop inits
+fc1/17 is down (SFP not present)
+    Hardware is Fibre Channel 
+    Port WWN is 20:11:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 204 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 204 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 0 loop inits
+fc1/18 is down (SFP not present)
+    Hardware is Fibre Channel 
+    Port WWN is 20:12:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 224 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 224 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 0 loop inits
+fc1/19 is down (SFP not present)
+    Hardware is Fibre Channel 
+    Port WWN is 20:13:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 108 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 108 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 0 loop inits
+fc1/20 is down (SFP not present)
+    Hardware is Fibre Channel 
+    Port WWN is 20:14:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 180 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 180 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 0 loop inits
+fc1/21 is down (SFP not present)
+    Hardware is Fibre Channel 
+    Port WWN is 20:15:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 124 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 124 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 0 loop inits
+fc1/22 is down (SFP not present)
+    Hardware is Fibre Channel 
+    Port WWN is 20:16:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 228 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 228 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 0 loop inits
+fc1/23 is down (SFP not present)
+    Hardware is Fibre Channel 
+    Port WWN is 20:17:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 208 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 208 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 0 loop inits
+fc1/24 is down (SFP not present)
+    Hardware is Fibre Channel 
+    Port WWN is 20:18:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 120 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 120 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 0 loop inits
+fc1/25 is down (Link failure or not-connected)
+    Hardware is Fibre Channel, SFP is short wave laser w/o OFC (SN)
+    Port WWN is 20:19:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 140 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 140 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 1 loop inits
+fc1/26 is down (Link failure or not-connected)
+    Hardware is Fibre Channel, SFP is short wave laser w/o OFC (SN)
+    Port WWN is 20:1a:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 208 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 208 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 1 loop inits
+fc1/27 is down (Link failure or not-connected)
+    Hardware is Fibre Channel, SFP is short wave laser w/o OFC (SN)
+    Port WWN is 20:1b:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 140 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 140 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 1 loop inits
+fc1/28 is down (Link failure or not-connected)
+    Hardware is Fibre Channel, SFP is long wave laser cost reduced
+    Port WWN is 20:1c:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 220 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 220 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 1 loop inits
+fc1/29 is down (SFP not present)
+    Hardware is Fibre Channel 
+    Port WWN is 20:1d:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 196 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 196 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 0 loop inits
+fc1/30 is down (SFP not present)
+    Hardware is Fibre Channel 
+    Port WWN is 20:1e:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 220 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 220 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 0 loop inits
+fc1/31 is down (SFP not present)
+    Hardware is Fibre Channel 
+    Port WWN is 20:1f:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 140 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 140 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 0 loop inits
+fc1/32 is down (SFP not present)
+    Hardware is Fibre Channel 
+    Port WWN is 20:20:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 204 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 204 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 0 loop inits
+fc1/33 is down (SFP not present)
+    Hardware is Fibre Channel 
+    Port WWN is 20:21:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 152 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 152 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 0 loop inits
+fc1/34 is down (SFP not present)
+    Hardware is Fibre Channel 
+    Port WWN is 20:22:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 120 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 120 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 0 loop inits
+fc1/35 is down (SFP not present)
+    Hardware is Fibre Channel 
+    Port WWN is 20:23:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 152 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 152 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 0 loop inits
+fc1/36 is down (SFP not present)
+    Hardware is Fibre Channel 
+    Port WWN is 20:24:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 160 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 160 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 0 loop inits
+fc1/37 is down (SFP not present)
+    Hardware is Fibre Channel 
+    Port WWN is 20:25:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 152 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 152 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 0 loop inits
+fc1/38 is down (SFP not present)
+    Hardware is Fibre Channel 
+    Port WWN is 20:26:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 156 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 156 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 0 loop inits
+fc1/39 is down (SFP not present)
+    Hardware is Fibre Channel 
+    Port WWN is 20:27:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 132 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 132 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 0 loop inits
+fc1/40 is down (SFP not present)
+    Hardware is Fibre Channel 
+    Port WWN is 20:28:00:0d:ec:33:53:c0
+    Admin port mode is FX
+    snmp link state traps are enabled
+    Port vsan is 1
+    Receive data field Size is 2112
+    Beacon is turned off
+    5 minutes input rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+    5 minutes output rate 0 bits/sec, 0 bytes/sec, 0 frames/sec
+      1 frames input, 192 bytes
+        0 discards, 0 errors
+        0 CRC,  0 unknown class
+        0 too long, 0 too short
+      1 frames output, 192 bytes
+        0 discards, 0 errors
+      0 input OLS, 0 LRR, 0 NOS, 0 loop inits
+      0 output OLS, 0 LRR, 0 NOS, 0 loop inits
+sup-fc0 is up
+    Hardware is Fibre Channel
+    Speed is 1 Gbps
+    15527028 packets input, 2147483647 bytes
+      0 multicast frames, 0 compressed
+      0 input errors, 0 frame, 0 overrun 0 fifo
+    15527029 packets output, 2088482480 bytes, 0 underruns
+      0 output errors, 0 collisions, 0 fifo
+      0 carrier errors
+mgmt0 is up
+    Hardware is FastEthernet
+    Address is 0017.5ab5.3f8a
+    Internet address is 10.0.11.202/16
+    MTU 1500 bytes, BW 100 Mbps full Duplex
+    1063212212 packets input, 1471271242 bytes
+      0 multicast frames, 0 compressed
+      534671 input errors, 0 frame, 0 overrun 508153 fifo
+    77633420 packets output, 272582590 bytes, 0 underruns
+      0 output errors, 0 collisions, 157 fifo
+      0 carrier errors

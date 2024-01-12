@@ -1,0 +1,461 @@
+INSTALLED RESOURCE LIST WITH VPD
+
+The following resources are installed on your machine.
+	
+  Model Architecture: chrp
+  Model Implementation: Multiple Processor, PCI bus
+
+  sys0                                          System Object
+  sysplanar0                                    System Planar
+  vio0                                          Virtual I/O Bus
+  ent0             U8203.E4A.10D3961-V1-C12-T1  Virtual I/O Ethernet Adapter (l-lan)
+
+        Network Address.............F6385F93E00C
+        Displayable Message.........Virtual I/O Ethernet Adapter (l-lan)
+        Hardware Location Code......U8203.E4A.10D3961-V1-C12-T1
+
+  vhost0           U8203.E4A.10D3961-V1-C11     Virtual SCSI Server Adapter
+
+        Hardware Location Code......U8203.E4A.10D3961-V1-C11
+
+  rootvg_vioaix    U8203.E4A.10D3961-V1-C11-L1  Virtual Target Device - Disk
+  vsa0             U8203.E4A.10D3961-V1-C0      LPAR Virtual Serial Adapter
+
+        Hardware Location Code......U8203.E4A.10D3961-V1-C0
+
+  vty0             U8203.E4A.10D3961-V1-C0-L0   Asynchronous Terminal
+  pci1             U789C.001.DQD2574-P1         PCI Bus
+
+        Hardware Location Code......U789C.001.DQD2574-P1
+
+  pci0             U789C.001.DQD2574-P1         PCI Bus
+
+        Hardware Location Code......U789C.001.DQD2574-P1
+
+  sissas0          U789C.001.DQD2574-P1-T9      PCI-X266 Planar 3Gb SAS Adapter
+
+        ROM Level.(alterable).......0220004a
+        Customer Card ID Number.....572C
+        Hardware Location Code......U789C.001.DQD2574-P1-T9
+
+  sas0             U789C.001.DQD2574-P1-T9      Controller SAS Protocol
+  sfwcomm0                                      SAS Storage Framework Comm
+  hdisk0           U789C.001.DQD2574-P2-D3      SAS Disk Drive (73400 MB)
+
+        Manufacturer................IBM     
+        Machine Type and Model......ST373455SS      
+        FRU Number..................10N7200     
+        ROS Level and ID............45303044
+        Serial Number...............3LQ2QFWX
+        EC Level....................D76038    
+        Part Number.................10N7199     
+        Device Specific.(Z0)........000005329F001002
+        Device Specific.(Z1)........1106E00D    
+        Device Specific.(Z2)........0021
+        Device Specific.(Z3)........08064
+        Device Specific.(Z4)........
+        Device Specific.(Z5)........22
+        Device Specific.(Z6)........D76038    
+        Hardware Location Code......U789C.001.DQD2574-P2-D3
+
+  hdisk1           U789C.001.DQD2574-P2-D6      SAS Disk Drive (73400 MB)
+
+        Manufacturer................IBM     
+        Machine Type and Model......ST373455SS      
+        FRU Number..................10N7200     
+        ROS Level and ID............45303044
+        Serial Number...............3LQ2XC6T
+        EC Level....................D76038    
+        Part Number.................10N7199     
+        Device Specific.(Z0)........000005329F001002
+        Device Specific.(Z1)........1106E00D    
+        Device Specific.(Z2)........0021
+        Device Specific.(Z3)........08063
+        Device Specific.(Z4)........
+        Device Specific.(Z5)........22
+        Device Specific.(Z6)........D76038    
+        Hardware Location Code......U789C.001.DQD2574-P2-D6
+
+  ses0             U789C.001.DQD2574-P2-Y1      SAS Enclosure Services Device
+
+        ROM Level.(alterable).......  01
+        Hardware Location Code......U789C.001.DQD2574-P2-Y1
+
+  sata0            U789C.001.DQD2574-P1-T9      Controller SATA Protocol
+  cd0              U789C.001.DQD2574-P2-D2      SATA DVD-ROM Drive
+
+        Manufacturer................IBM     
+        Machine Type and Model......DROM0020581     
+        ROS Level and ID............DA33
+        Device Specific.(Z0)........058002028F000010
+        Part Number.................42R5292     
+        EC Level....................H87201    
+        FRU Number..................42R5293     
+        Hardware Location Code......U789C.001.DQD2574-P2-D2
+
+  lhea0            U789C.001.DQD2574-P1         Logical Host Ethernet Adapter (l-hea)
+
+        Hardware Location Code......U789C.001.DQD2574-P1
+
+  ent1             U789C.001.DQD2574-P1-C7-T1   Logical Host Ethernet Port (lp-hea)
+
+      IBM Host Ethernet Adapter:
+        Network Address.............00145E51F330
+
+  L2cache0                                      L2 Cache
+  mem0                                          Memory
+  proc0                                         Processor
+
+  PLATFORM SPECIFIC
+
+  Name:  IBM,8203-E4A
+    Model:  IBM,8203-E4A
+    Node:  /
+    Device Type:  chrp
+
+      System VPD:
+        Record Name.................VSYS
+        Flag Field..................XXSV
+        Brand.......................P0
+        Hardware Location Code......U8203.E4A.10D3961
+        Machine/Cabinet Serial No...10D3961
+        Machine Type and Model......8203-E4A
+        System Unique ID (SUID).....0004AC10F25D
+        World Wide Port Name........C05076003ACB
+        Version.....................ipzSeries
+      Physical Location: U8203.E4A.10D3961
+
+      CEC:
+        Record Name.................VCEN
+        Flag Field..................XXEV
+        Brand.......................P0
+        Hardware Location Code......U789C.001.DQD2574
+        Machine/Cabinet Serial No...DQD2574
+        Machine Type and Model......789C-001
+        Controlling CEC ID..........8203-E4A 10D3961
+        Rack Serial Number..........0000000000000000
+        Feature Code/Marketing ID...789C-001
+        Version.....................ipzSeries
+      Physical Location: U789C.001.DQD2574
+
+      SYSTEM BACKPLANE:
+        Record Name.................VINI
+        Flag Field..................XXBP
+        Hardware Location Code......U789C.001.DQD2574-P1
+        Customer Card ID Number.....53DE
+        Serial Number...............YL12W807003U
+        CCIN Extender...............1
+        Product Specific.(VZ).......05
+        FRU Number..................10N9996
+        Part Number.................46K6610
+        Power.......................2A00000000000000
+        Product Specific.(HE).......0003
+        Product Specific.(CT).......40130001
+        Product Specific.(HW).......0001
+        Product Specific.(B3).......000000000001
+        Product Specific.(B4).......00
+        Product Specific.(B7).......000000000000000000000000
+        Version.....................ipzSeries
+      Physical Location: U789C.001.DQD2574-P1
+
+      DUAL ETHERNET   :
+        Record Name.................VINI
+        Flag Field..................XXET
+        Hardware Location Code......U789C.001.DQD2574-P1-C7
+        Customer Card ID Number.....1818
+        Serial Number...............YL13W808201B
+        CCIN Extender...............1
+        Product Specific.(VZ).......04
+        FRU Number..................10N9627
+        Part Number.................10N9628
+        Product Specific.(HE).......0001
+        Product Specific.(CT).......40910005
+        Product Specific.(HW).......0001
+        Product Specific.(B3).......000000000001
+        Product Specific.(B4).......00
+        Product Specific.(B7).......000000000000000000000000
+        Product Specific.(B1).......00145E51F3300010
+        Version.....................ipzSeries
+      Physical Location: U789C.001.DQD2574-P1-C7
+
+      ANCHOR          :
+        Record Name.................VINI
+        Flag Field..................XXAV
+        Hardware Location Code......U789C.001.DQD2574-P1-C11
+        Customer Card ID Number.....52A9
+        Serial Number...............YL1006001730
+        CCIN Extender...............1
+        Product Specific.(VZ).......01
+        FRU Number..................10N6802
+        Part Number.................10N6802
+        Power.......................8100300000000000
+        Product Specific.(HE).......0010
+        Product Specific.(CT).......40B40000
+        Product Specific.(HW).......0001
+        Product Specific.(B3).......000000000001
+        Product Specific.(B4).......00
+        Product Specific.(B7).......000000000000000000000000
+        Product Specific.(B9).......43538080094152CA396D5350127AFF8A7948F77E4D
+                                    31E869D51784FC45734D32C1E2AE3497923FD34D33
+                                    8648A47AA46659C94D3494D71F8ACAC852E3
+        Version.....................ipzSeries
+      Physical Location: U789C.001.DQD2574-P1-C11
+
+      THERMAL PWR MGMT:
+        Record Name.................VINI
+        Flag Field..................XXTP
+        Hardware Location Code......U789C.001.DQD2574-P1-C12
+        Customer Card ID Number.....2A0D
+        Serial Number...............YL14W806304K
+        CCIN Extender...............1
+        Product Specific.(VZ).......02
+        FRU Number..................10N9718
+        Part Number.................10N9719
+        Product Specific.(HE).......0001
+        Product Specific.(CT).......40B60002
+        Product Specific.(HW).......0001
+        Product Specific.(B3).......000000000001
+        Product Specific.(B4).......00
+        Product Specific.(B7).......000000000000000000000000
+        Version.....................ipzSeries
+      Physical Location: U789C.001.DQD2574-P1-C12
+
+      Memory DIMM:
+        Record Name.................VINI
+        Flag Field..................XXMS
+        Hardware Location Code......U789C.001.DQD2574-P1-C14
+        Customer Card ID Number.....31A9
+        Serial Number...............YLD0010858BF
+        CCIN Extender...............1
+        Product Specific.(VZ).......01
+        FRU Number..................77P6497
+        Part Number.................77P6497
+        Power.......................4400000000000000
+        Size........................0000512
+        Version.....................ipzSeries
+      Physical Location: U789C.001.DQD2574-P1-C14
+
+      Memory DIMM:
+        Record Name.................VINI
+        Flag Field..................XXMS
+        Hardware Location Code......U789C.001.DQD2574-P1-C15
+        Customer Card ID Number.....31A9
+        Serial Number...............YLD0030858BE
+        CCIN Extender...............1
+        Product Specific.(VZ).......01
+        FRU Number..................77P6497
+        Part Number.................77P6497
+        Power.......................4400000000000000
+        Size........................0000512
+        Version.....................ipzSeries
+      Physical Location: U789C.001.DQD2574-P1-C15
+
+      Memory DIMM:
+        Record Name.................VINI
+        Flag Field..................XXMS
+        Hardware Location Code......U789C.001.DQD2574-P1-C16
+        Customer Card ID Number.....31A9
+        Serial Number...............YLD0000858BB
+        CCIN Extender...............1
+        Product Specific.(VZ).......01
+        FRU Number..................77P6497
+        Part Number.................77P6497
+        Power.......................4400000000000000
+        Size........................0000512
+        Version.....................ipzSeries
+      Physical Location: U789C.001.DQD2574-P1-C16
+
+      Memory DIMM:
+        Record Name.................VINI
+        Flag Field..................XXMS
+        Hardware Location Code......U789C.001.DQD2574-P1-C17
+        Customer Card ID Number.....31A9
+        Serial Number...............YLD0020858BC
+        CCIN Extender...............1
+        Product Specific.(VZ).......01
+        FRU Number..................77P6497
+        Part Number.................77P6497
+        Power.......................4400000000000000
+        Size........................0000512
+        Version.....................ipzSeries
+      Physical Location: U789C.001.DQD2574-P1-C17
+
+      CEC OP PANEL    :
+        Record Name.................VINI
+        Flag Field..................XXOP
+        Hardware Location Code......U789C.001.DQD2574-D1
+        Customer Card ID Number.....296C
+        Serial Number...............YL10W8043082
+        CCIN Extender...............1
+        Product Specific.(VZ).......02
+        FRU Number..................44V4749
+        Part Number.................44V4747
+        Product Specific.(HE).......0001
+        Product Specific.(CT).......40B50000
+        Product Specific.(HW).......0001
+        Product Specific.(B3).......000000000000
+        Product Specific.(B4).......00
+        Product Specific.(B7).......000000000000000000000000
+        Version.....................ipzSeries
+      Physical Location: U789C.001.DQD2574-D1
+
+      Voltage Reg     :
+        Record Name.................VINI
+        Flag Field..................XXRG
+        Hardware Location Code......U789C.001.DQD2574-P1-C13
+        Customer Card ID Number.....2A2B
+        FRU Number.................. 42R6496
+        Version.....................RS6K
+      Physical Location: U789C.001.DQD2574-P1-C13
+
+      Voltage Reg     :
+        Record Name.................VINI
+        Flag Field..................XXRG
+        Hardware Location Code......U789C.001.DQD2574-P1-C18
+        Customer Card ID Number.....2A2C
+        FRU Number.................. 42R6498
+        Version.....................RS6K
+      Physical Location: U789C.001.DQD2574-P1-C18
+
+      A IBM AC PS     :
+        Record Name.................VINI
+        Flag Field..................XXPS
+        Hardware Location Code......U789C.001.DQD2574-E1
+        Customer Card ID Number.....51BF
+        Serial Number...............YL1028350125
+        Part Number.................44V4948
+        FRU Number.................. 44V4948
+        Version.....................RS6K
+      Physical Location: U789C.001.DQD2574-E1
+
+      A IBM AC PS     :
+        Record Name.................VINI
+        Flag Field..................XXPS
+        Hardware Location Code......U789C.001.DQD2574-E2
+        Customer Card ID Number.....51BF
+        Serial Number...............YL1028420045
+        Part Number.................44V5097
+        FRU Number.................. 44V5097
+        Version.....................RS6K
+      Physical Location: U789C.001.DQD2574-E2
+
+      IBM Air Mover   :
+        Record Name.................VINI
+        Flag Field..................XXAM
+        Hardware Location Code......U789C.001.DQD2574-A4
+        Customer Card ID Number.....27B4
+        FRU Number.................. 39J4517
+        Version.....................RS6K
+      Physical Location: U789C.001.DQD2574-A4
+
+      IBM Air Mover   :
+        Record Name.................VINI
+        Flag Field..................XXAM
+        Hardware Location Code......U789C.001.DQD2574-A3
+        Customer Card ID Number.....27B4
+        FRU Number.................. 39J4517
+        Version.....................RS6K
+      Physical Location: U789C.001.DQD2574-A3
+
+      IBM Air Mover   :
+        Record Name.................VINI
+        Flag Field..................XXAM
+        Hardware Location Code......U789C.001.DQD2574-A2
+        Customer Card ID Number.....27B4
+        FRU Number.................. 39J4517
+        Version.....................RS6K
+      Physical Location: U789C.001.DQD2574-A2
+
+      IBM Air Mover   :
+        Record Name.................VINI
+        Flag Field..................XXAM
+        Hardware Location Code......U789C.001.DQD2574-A1
+        Customer Card ID Number.....27B4
+        FRU Number.................. 39J4517
+        Version.....................RS6K
+      Physical Location: U789C.001.DQD2574-A1
+
+      VSBPDM8E4  3GSAS:
+        Record Name.................VINI
+        Flag Field..................XXDB
+        Hardware Location Code......U789C.001.DQD2574-P2
+        Customer Card ID Number.....28A8
+        Serial Number...............YL14W002001C
+        FRU Number.................. 46K6926
+        Part Number.................46K7120
+        CCIN Extender...............1
+        Product Specific.(VZ).......01
+        Product Specific.(B2).......50050760293F43000000000000000000
+        Version.....................RS6K
+      Physical Location: U789C.001.DQD2574-P2
+
+      System Firmware:
+        Code Level, LID Keyword.....Phyp_1 08092009082580A00701
+        Code Level, LID Keyword.....PFW 12492009041581CF0681
+        Code Level, LID Keyword.....FSP_Ker 21392009092481E00100
+        Code Level, LID Keyword.....FSP_Fil 21392009092481E00101
+        Code Level, LID Keyword.....FipS_BU 21392009092481E00200
+        Code Level, LID Keyword.....SPCN3 164320070409A0E00A11
+        Code Level, LID Keyword.....SPCN1 183020070213A0E00D00
+        Code Level, LID Keyword.....SPCN2 183420070213A0E00D20
+        Microcode Image.............EL320_101 EL320_076 EL320_101
+        Hardware Location Code......U8203.E4A.10D3961-Y1
+      Physical Location: U8203.E4A.10D3961-Y1
+
+  Name:  openprom
+    Model:  IBM,EL320_101
+    Node:  openprom
+
+  Name:  interrupt-controller
+    Model:  IBM, Logical PowerPC-PIC, 00
+    Node:  interrupt-controller@0
+    Device Type:  PowerPC-External-Interrupt-Presentation
+
+  Name:  interrupt-controller
+    Model:  IBM,Logical PHB
+    Node:  interrupt-controller@3dffe000a400
+    Device Type:  PowerPC-LSI-Source
+    Physical Location: U789C.001.DQD2574-P1
+
+  Name:  interrupt-controller
+    Model:  IBM,Logical PHB
+    Node:  interrupt-controller@3dffe0009400
+    Device Type:  PowerPC-LSI-Source
+    Physical Location: U789C.001.DQD2574-P1
+
+  Name:  lhea
+    Node:  lhea@23c00100
+    Physical Location: U789C.001.DQD2574-P1
+
+  Name:  pci
+    Model:  IBM,Logical_PHB
+    Node:  pci@800000020000200
+    Physical Location: U789C.001.DQD2574-P1
+
+  Name:  pci
+    Model:  IBM,Logical_PHB
+    Node:  pci@800000020000203
+    Physical Location: U789C.001.DQD2574-P1
+
+  Name:  vty
+    Node:  vty@30000000
+    Device Type:  serial
+    Physical Location: U8203.E4A.10D3961-V1-C0
+
+  Name:  v-scsi-host
+    Node:  v-scsi-host@3000000b
+    Physical Location: U8203.E4A.10D3961-V1-C11
+
+  Name:  l-lan
+    Node:  l-lan@3000000c
+    Device Type:  network
+    Physical Location: U8203.E4A.10D3961-V1-C12-T1
+
+  Name:  ethernet
+    Node:  ethernet@23e00000
+    Device Type:  network
+    Physical Location: U789C.001.DQD2574-P1-C7-T1
+
+  Name:  pci1014,02BD
+    Node:  pci1014,02BD@1
+    Physical Location: U789C.001.DQD2574-P1-T9

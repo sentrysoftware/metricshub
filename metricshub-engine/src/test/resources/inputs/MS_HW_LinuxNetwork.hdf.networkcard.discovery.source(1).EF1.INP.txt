@@ -1,0 +1,43 @@
+docker0: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
+        inet 172.17.0.1  netmask 255.255.0.0  broadcast 0.0.0.0
+        ether 02:42:ce:c3:3f:58  txqueuelen 0  (Ethernet)
+        RX packets 0  bytes 0 (0.0 B)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 0  bytes 0 (0.0 B)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+enp7s0f0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 10.0.10.31  netmask 255.255.0.0  broadcast 10.0.255.255
+        inet6 fe80::219:99ff:fec5:7bdd  prefixlen 64  scopeid 0x20<link>
+        ether 00:19:99:c5:7b:dd  txqueuelen 1000  (Ethernet)
+        RX packets 3275018688  bytes 482058372629 (448.9 GiB)
+        RX errors 1  dropped 1  overruns 4304762  frame 1
+        TX packets 131635135  bytes 37931746706 (35.3 GiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+        device memory 0xdf920000-df93ffff  
+enp7s0f1: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
+        ether 00:19:99:c5:7b:de  txqueuelen 1000  (Ethernet)
+        RX packets 0  bytes 0 (0.0 B)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 0  bytes 0 (0.0 B)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+        device memory 0xdf900000-df91ffff  
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+        loop  txqueuelen 1  (Local Loopback)
+        RX packets 7973984  bytes 3038218077 (2.8 GiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 7973984  bytes 3038218077 (2.8 GiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+virbr0: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
+        inet 192.168.122.1  netmask 255.255.255.0  broadcast 192.168.122.255
+        ether 52:54:00:e0:0d:f7  txqueuelen 1000  (Ethernet)
+        RX packets 0  bytes 0 (0.0 B)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 0  bytes 0 (0.0 B)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+virbr0-nic: flags=4098<BROADCAST,MULTICAST>  mtu 1500
+        ether 52:54:00:e0:0d:f7  txqueuelen 1000  (Ethernet)
+        RX packets 0  bytes 0 (0.0 B)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 0  bytes 0 (0.0 B)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0

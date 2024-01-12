@@ -1,0 +1,7 @@
+MSHW;1;OK;OK ;
+MSHW;2;Other;Other ;
+MSHW;3;OK;OK ;
+MSHW;4;OK;OK ;
+MSHW;5;OK;OK ;
+MSHW;6;Other;Other ;
+MSHW;7;OK;OK ;

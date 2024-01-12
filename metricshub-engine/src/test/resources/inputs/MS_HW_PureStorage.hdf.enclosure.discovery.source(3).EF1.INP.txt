@@ -1,0 +1,25 @@
+Name       Type   Status   Capacity  Degraded  Last Failure              Last Evac Completed       Details
+SH0.BAY0   NVRAM  healthy  2.00G     0.00      -                         -                         -      
+SH0.BAY1   SSD    healthy  238.23G   0.00      -                         -                         -      
+SH0.BAY2   SSD    healthy  238.23G   0.00      -                         -                         -      
+SH0.BAY3   SSD    healthy  238.23G   0.00      -                         -                         -      
+SH0.BAY4   SSD    healthy  238.23G   0.00      -                         -                         -      
+SH0.BAY5   SSD    healthy  238.23G   0.00      -                         -                         -      
+SH0.BAY6   SSD    healthy  238.23G   0.00      -                         -                         -      
+SH0.BAY7   SSD    healthy  238.23G   0.00      -                         -                         -      
+SH0.BAY8   SSD    healthy  238.23G   0.00      -                         -                         -      
+SH0.BAY9   SSD    healthy  238.23G   0.00      -                         -                         -      
+SH0.BAY10  SSD    healthy  238.23G   0.00      -                         -                         -      
+SH0.BAY11  SSD    healthy  238.23G   0.00      -                         -                         -      
+SH0.BAY12  SSD    healthy  238.23G   0.00      -                         -                         -      
+SH0.BAY13  SSD    healthy  238.23G   0.00      -                         -                         -      
+SH0.BAY14  SSD    healthy  238.23G   0.00      -                         -                         -      
+SH0.BAY15  SSD    healthy  238.23G   0.00      -                         -                         -      
+SH0.BAY16  SSD    healthy  238.23G   0.00      -                         -                         -      
+SH0.BAY17  SSD    healthy  238.23G   0.00      -                         -                         -      
+SH0.BAY18  SSD    healthy  238.23G   0.00      -                         -                         -      
+SH0.BAY19  SSD    healthy  238.23G   0.00      -                         -                         -      
+SH0.BAY20  SSD    healthy  238.23G   0.00      -                         -                         -      
+SH0.BAY21  SSD    healthy  238.23G   0.00      -                         -                         -      
+SH0.BAY22  SSD    healthy  238.23G   0.00      2017-09-28 08:31:31 CEST  2017-09-28 08:33:24 CEST  -      
+SH0.BAY23  NVRAM  healthy  2.00G     0.00      -                         -                         -      
