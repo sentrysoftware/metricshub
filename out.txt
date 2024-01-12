@@ -1,0 +1,1093 @@
+[INFO] Scanning for projects...
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for com.sentrysoftware.metricshub:metricshub-agent:jar:0.9.01-SNAPSHOT
+[WARNING] 'build.plugins.plugin.version' for org.apache.maven.plugins:maven-jar-plugin is missing. @ line 272, column 12
+[WARNING] 
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING] 
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING] 
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] MetricsHub                                                         [pom]
+[INFO] MetricsHub Engine                                                  [jar]
+[INFO] HDF to YAML Converter                                              [jar]
+[INFO] Connector Serializer for MetricsHub                                [jar]
+[INFO] Hardware Energy and Sustainability Module                          [jar]
+[INFO] MetricsHub Agent                                                   [jar]
+[INFO] MetricsHub Documentation                                           [pom]
+[INFO] MetricsHub for Windows                                             [pom]
+[INFO] 
+[INFO] ----------< com.sentrysoftware.metricshub:metricshub-parent >-----------
+[INFO] Building MetricsHub 0.9.01-SNAPSHOT                                [1/8]
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.3.0:checkstyle (validate) @ metricshub-parent ---
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.3.0:check (validate) @ metricshub-parent ---
+[INFO] You have 0 Checkstyle violations.
+[INFO] 
+[INFO] --- prettier-maven-plugin:0.21:check (default) @ metricshub-parent ---
+[INFO] Skipping plugin execution
+[INFO] 
+[INFO] --- buildnumber-maven-plugin:1.4:create (default) @ metricshub-parent ---
+[INFO] ShortRevision tag detected. The value is '8'.
+[INFO] Executing: cmd.exe /X /C "git rev-parse --verify --short=8 HEAD"
+[INFO] Working directory: C:\workspace\matrix-reloaded
+[INFO] Storing buildNumber: 314f069b at timestamp: 12 janv. 2024 at 20:49:06
+[INFO] Storing buildScmBranch: feature/MTX-538-Import-JUtils-code-in-MetricsHub
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-version) @ metricshub-parent ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-hc-version) @ metricshub-parent ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-hwgraf-version) @ metricshub-parent ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-ddog-version) @ metricshub-parent ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:regex-property (build-no-snapshot-version) @ metricshub-parent ---
+[INFO] 
+[INFO] ----------< com.sentrysoftware.metricshub:metricshub-engine >-----------
+[INFO] Building MetricsHub Engine 0.9.01-SNAPSHOT                         [2/8]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.3.0:checkstyle (validate) @ metricshub-engine ---
+[INFO] Rendering content with org.apache.maven.skins:maven-default-skin:jar:1.3 skin.
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.3.0:check (validate) @ metricshub-engine ---
+[INFO] You have 0 Checkstyle violations.
+[INFO] 
+[INFO] --- prettier-maven-plugin:0.21:check (default) @ metricshub-engine ---
+[INFO] Skipping plugin execution
+[INFO] 
+[INFO] --- buildnumber-maven-plugin:1.4:create (default) @ metricshub-engine ---
+[INFO] 
+[INFO] --- jacoco-maven-plugin:0.8.10:prepare-agent (default-prepare-agent) @ metricshub-engine ---
+[INFO] argLine set to -javaagent:C:\\Users\\KawtarBakour\\.m2\\repository\\org\\jacoco\\org.jacoco.agent\\0.8.10\\org.jacoco.agent-0.8.10-runtime.jar=destfile=C:\\workspace\\matrix-reloaded\\metricshub-engine\\target\\jacoco.exec,excludes=com/sentrysoftware/metricshub/engine/connector/model/**:com/sentrysoftware/metricshub/engine/strategy/**:com/sentrysoftware/metricshub/engine/matsya/**:com/sentrysoftware/metricshub/engine/connector/model/common/**
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-version) @ metricshub-engine ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-hc-version) @ metricshub-engine ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-hwgraf-version) @ metricshub-engine ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-ddog-version) @ metricshub-engine ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:regex-property (build-no-snapshot-version) @ metricshub-engine ---
+[INFO] 
+[INFO] --- maven-resources-plugin:3.2.0:resources (default-resources) @ metricshub-engine ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Using 'UTF-8' encoding to copy filtered properties files.
+[INFO] Copying 2 resources
+[INFO] The encoding used to copy filtered properties files have not been set. This means that the same encoding will be used to copy filtered properties files as when copying other filtered resources. This might not be what you want! Run your build with --debug to see which files might be affected. Read more at https://maven.apache.org/plugins/maven-resources-plugin/examples/filtering-properties-files.html
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ metricshub-engine ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:add-test-source (add-test-source) @ metricshub-engine ---
+[INFO] Test Source directory: C:\workspace\matrix-reloaded\metricshub-engine\src\it\java added.
+[INFO] 
+[INFO] --- maven-resources-plugin:3.2.0:testResources (default-testResources) @ metricshub-engine ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Using 'UTF-8' encoding to copy filtered properties files.
+[INFO] Copying 1007 resources
+[INFO] Copying 43 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ metricshub-engine ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-surefire-plugin:3.0.0-M5:test (default-test) @ metricshub-engine ---
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.sentrysoftware.metricshub.engine.awk.AwkTest
+[INFO] Tests run: 275, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.073 s - in com.sentrysoftware.metricshub.engine.awk.AwkTest
+[INFO] Running com.sentrysoftware.metricshub.engine.common.helpers.ArrayHelperTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.engine.common.helpers.ArrayHelperTest
+[INFO] Running com.sentrysoftware.metricshub.engine.common.helpers.FilterResultHelperTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.063 s - in com.sentrysoftware.metricshub.engine.common.helpers.FilterResultHelperTest
+[INFO] Running com.sentrysoftware.metricshub.engine.common.helpers.FunctionArgumentsExtractorTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.engine.common.helpers.FunctionArgumentsExtractorTest
+[INFO] Running com.sentrysoftware.metricshub.engine.common.helpers.JsonHelperTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.534 s - in com.sentrysoftware.metricshub.engine.common.helpers.JsonHelperTest
+[INFO] Running com.sentrysoftware.metricshub.engine.common.helpers.JUtilsTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.063 s - in com.sentrysoftware.metricshub.engine.common.helpers.JUtilsTest
+[INFO] Running com.sentrysoftware.metricshub.engine.common.helpers.ListHelperTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.engine.common.helpers.ListHelperTest
+[INFO] Running com.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandlerTest
+[ERROR] Java HotSpot(TM) 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+[WARNING] Tests run: 14, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 2.282 s - in com.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandlerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.common.helpers.MapHelperTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s - in com.sentrysoftware.metricshub.engine.common.helpers.MapHelperTest
+[INFO] Running com.sentrysoftware.metricshub.engine.common.helpers.NetworkHelperTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.239 s - in com.sentrysoftware.metricshub.engine.common.helpers.NetworkHelperTest
+[INFO] Running com.sentrysoftware.metricshub.engine.common.helpers.NumberHelperTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.047 s - in com.sentrysoftware.metricshub.engine.common.helpers.NumberHelperTest
+[INFO] Running com.sentrysoftware.metricshub.engine.common.helpers.ResourceHelperTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.048 s - in com.sentrysoftware.metricshub.engine.common.helpers.ResourceHelperTest
+[INFO] Running com.sentrysoftware.metricshub.engine.common.helpers.StreamUtilsTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.009 s - in com.sentrysoftware.metricshub.engine.common.helpers.StreamUtilsTest
+[INFO] Running com.sentrysoftware.metricshub.engine.common.helpers.StringHelperTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.039 s - in com.sentrysoftware.metricshub.engine.common.helpers.StringHelperTest
+[INFO] Running com.sentrysoftware.metricshub.engine.common.helpers.TextTableHelperTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.018 s - in com.sentrysoftware.metricshub.engine.common.helpers.TextTableHelperTest
+[INFO] Running com.sentrysoftware.metricshub.engine.configuration.HostConfigurationTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.135 s - in com.sentrysoftware.metricshub.engine.configuration.HostConfigurationTest
+[INFO] Running com.sentrysoftware.metricshub.engine.configuration.IpmiConfigurationTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.engine.configuration.IpmiConfigurationTest
+[INFO] Running com.sentrysoftware.metricshub.engine.configuration.OsCommandConfigurationTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.engine.configuration.OsCommandConfigurationTest
+[INFO] Running com.sentrysoftware.metricshub.engine.configuration.SnmpConfigurationTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.031 s - in com.sentrysoftware.metricshub.engine.configuration.SnmpConfigurationTest
+[INFO] Running com.sentrysoftware.metricshub.engine.configuration.SshConfigurationTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.engine.configuration.SshConfigurationTest
+[INFO] Running com.sentrysoftware.metricshub.engine.configuration.TransportProtocolsTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.engine.configuration.TransportProtocolsTest
+[INFO] Running com.sentrysoftware.metricshub.engine.configuration.WbemConfigurationTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.engine.configuration.WbemConfigurationTest
+[INFO] Running com.sentrysoftware.metricshub.engine.configuration.WinRmConfigurationTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.engine.configuration.WinRmConfigurationTest
+[INFO] Running com.sentrysoftware.metricshub.engine.configuration.WmiConfigurationTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.engine.configuration.WmiConfigurationTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.compute.AddComputeDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.738 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.compute.AddComputeDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.compute.AndComputeDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.compute.AndComputeDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.compute.ArrayTranslateComputeDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.047 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.compute.ArrayTranslateComputeDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.compute.AwkComputeDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.compute.AwkComputeDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.compute.ConvertComputeDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.compute.ConvertComputeDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.compute.DivideComputeDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.compute.DivideComputeDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.compute.DuplicateColumnComputeDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.017 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.compute.DuplicateColumnComputeDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.compute.ExcludeMatchingLinesComputeDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.compute.ExcludeMatchingLinesComputeDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.compute.ExtractComputeDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.compute.ExtractComputeDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.compute.ExtractPropertyFromWbemPathComputeDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.02 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.compute.ExtractPropertyFromWbemPathComputeDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.compute.Json2CsvComputeDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.012 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.compute.Json2CsvComputeDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.compute.KeepColumnsComputeDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.compute.KeepColumnsComputeDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.compute.KeepOnlyMatchingLinesComputeDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.024 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.compute.KeepOnlyMatchingLinesComputeDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.compute.LeftConcatComputeDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.compute.LeftConcatComputeDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.compute.MultiplyComputeDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.compute.MultiplyComputeDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.compute.PerBitTranslationComputeDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.compute.PerBitTranslationComputeDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.compute.ReplaceComputeDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.compute.ReplaceComputeDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.compute.RightConcatComputeDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.compute.RightConcatComputeDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.compute.SubstringComputeDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.compute.SubstringComputeDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.compute.SubtractComputeDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.compute.SubtractComputeDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.compute.TranslateComputeDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.compute.TranslateComputeDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.compute.Xml2CsvComputeDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.compute.Xml2CsvComputeDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.ConnectorDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.ConnectorDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.criterion.DeviceTypeCriterionDeserializerTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.032 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.criterion.DeviceTypeCriterionDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.criterion.HttpCriterionDeserializerTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.047 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.criterion.HttpCriterionDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.criterion.IpmiCriterionDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.019 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.criterion.IpmiCriterionDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.criterion.OsCommandCriterionDeserializerTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.043 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.criterion.OsCommandCriterionDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.criterion.ProcessCriterionDeserializerTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.032 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.criterion.ProcessCriterionDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.criterion.ProductRequirementsCriterionDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.criterion.ProductRequirementsCriterionDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.criterion.ServiceCriterionDeserializerTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.criterion.ServiceCriterionDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.criterion.SnmpGetCriterionDeserializerTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.criterion.SnmpGetCriterionDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.criterion.SnmpGetNextCriterionDeserializerTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.032 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.criterion.SnmpGetNextCriterionDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.criterion.WbemCriterionDeserializerTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.023 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.criterion.WbemCriterionDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.criterion.WmiCriterionDeserializerTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.024 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.criterion.WmiCriterionDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.custom.BooleanDeserializerTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.6 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.custom.BooleanDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.custom.ConnectionTypeSetDeserializerTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.03 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.custom.ConnectionTypeSetDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.custom.DeviceKindSetDeserializerTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.031 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.custom.DeviceKindSetDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.custom.EntryConcatMethodDeserializerTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.039 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.custom.EntryConcatMethodDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.custom.NonBlankDeserializerTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.011 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.custom.NonBlankDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.custom.NonBlankInLinkedHashSetDeserializerTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.029 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.custom.NonBlankInLinkedHashSetDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.custom.PortDeserializerTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.custom.PortDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.custom.PositiveIntegerDeserializerTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.custom.PositiveIntegerDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.custom.ResultContentDeserializerTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.custom.ResultContentDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.custom.SourcesDeserializerTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.custom.SourcesDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.custom.SupersedesDeserializerTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.custom.SupersedesDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.custom.TimeoutDeserializerTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.032 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.custom.TimeoutDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.custom.TranslationTableDeserializerTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.031 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.custom.TranslationTableDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.DetectionDeserializerTest
+[INFO] Tests run: 21, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.078 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.DetectionDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.ExtendsDeserializerTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.032 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.ExtendsDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.MetricsDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.MetricsDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.MonitorsDeserializerTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.133 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.MonitorsDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.PreDeserializerTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.032 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.PreDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.source.CopySourceDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.source.CopySourceDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.source.HttpSourceDeserializerTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.source.HttpSourceDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.source.IpmiSourceDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.source.IpmiSourceDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.source.OsCommandSourceDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.source.OsCommandSourceDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.source.SnmpGetSourceDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.017 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.source.SnmpGetSourceDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.source.SnmpTableSourceDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.source.SnmpTableSourceDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.source.StaticSourceDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.source.StaticSourceDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.source.TableJoinSourceDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.source.TableJoinSourceDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.source.TableUnionSourceDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.source.TableUnionSourceDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.source.WbemSourceDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.source.WbemSourceDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.source.WmiSourceDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.source.WmiSourceDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.deserializer.TranslationsDeserializerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.engine.connector.deserializer.TranslationsDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SourceTest
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.142 s - in com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SourceTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.parser.ConnectorLibraryParserTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.142 s - in com.sentrysoftware.metricshub.engine.connector.parser.ConnectorLibraryParserTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.parser.ConnectorParserTest
+[INFO] Tests run: 27, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.715 s - in com.sentrysoftware.metricshub.engine.connector.parser.ConnectorParserTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.parser.EmbeddedFilesResolverTest
+[WARNING] Tests run: 3, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.engine.connector.parser.EmbeddedFilesResolverTest
+[INFO] Running com.sentrysoftware.metricshub.engine.connector.parser.TemplateVariableProcessorTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.048 s - in com.sentrysoftware.metricshub.engine.connector.parser.TemplateVariableProcessorTest
+[INFO] Running com.sentrysoftware.metricshub.engine.matsya.http.HttpRequestTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.094 s - in com.sentrysoftware.metricshub.engine.matsya.http.HttpRequestTest
+[INFO] Running com.sentrysoftware.metricshub.engine.security.SecurityManagerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.44 s - in com.sentrysoftware.metricshub.engine.security.SecurityManagerTest
+[INFO] Running com.sentrysoftware.metricshub.engine.strategy.collect.CollectStrategyTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.33 s - in com.sentrysoftware.metricshub.engine.strategy.collect.CollectStrategyTest
+[INFO] Running com.sentrysoftware.metricshub.engine.strategy.collect.PostCollectStrategyTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.031 s - in com.sentrysoftware.metricshub.engine.strategy.collect.PostCollectStrategyTest
+[INFO] Running com.sentrysoftware.metricshub.engine.strategy.collect.PrepareCollectStrategyTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.engine.strategy.collect.PrepareCollectStrategyTest
+[INFO] Running com.sentrysoftware.metricshub.engine.strategy.ContextExecutorStrategyTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.028 s - in com.sentrysoftware.metricshub.engine.strategy.ContextExecutorStrategyTest
+[INFO] Running com.sentrysoftware.metricshub.engine.strategy.detection.AbstractConnectorProcessorTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.engine.strategy.detection.AbstractConnectorProcessorTest
+[INFO] Running com.sentrysoftware.metricshub.engine.strategy.detection.AutomaticDetectionTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.284 s - in com.sentrysoftware.metricshub.engine.strategy.detection.AutomaticDetectionTest
+[INFO] Running com.sentrysoftware.metricshub.engine.strategy.detection.ConnectorSelectionTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.079 s - in com.sentrysoftware.metricshub.engine.strategy.detection.ConnectorSelectionTest
+[INFO] Running com.sentrysoftware.metricshub.engine.strategy.detection.CriterionProcessorTest
+[WARNING] Tests run: 78, Failures: 0, Errors: 0, Skipped: 3, Time elapsed: 1.932 s - in com.sentrysoftware.metricshub.engine.strategy.detection.CriterionProcessorTest
+[INFO] Running com.sentrysoftware.metricshub.engine.strategy.detection.DetectionStrategyTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.103 s - in com.sentrysoftware.metricshub.engine.strategy.detection.DetectionStrategyTest
+[INFO] Running com.sentrysoftware.metricshub.engine.strategy.discovery.DiscoveryStrategyTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.115 s - in com.sentrysoftware.metricshub.engine.strategy.discovery.DiscoveryStrategyTest
+[INFO] Running com.sentrysoftware.metricshub.engine.strategy.discovery.PostDiscoveryStrategyTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.engine.strategy.discovery.PostDiscoveryStrategyTest
+[INFO] Running com.sentrysoftware.metricshub.engine.strategy.simple.SimpleStrategyTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.047 s - in com.sentrysoftware.metricshub.engine.strategy.simple.SimpleStrategyTest
+[INFO] Running com.sentrysoftware.metricshub.engine.strategy.source.compute.ComputeProcessorTest
+[INFO] Tests run: 54, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.504 s - in com.sentrysoftware.metricshub.engine.strategy.source.compute.ComputeProcessorTest
+[INFO] Running com.sentrysoftware.metricshub.engine.strategy.source.compute.ComputeUpdaterProcessorTest
+[INFO] Tests run: 22, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.488 s - in com.sentrysoftware.metricshub.engine.strategy.source.compute.ComputeUpdaterProcessorTest
+[INFO] Running com.sentrysoftware.metricshub.engine.strategy.source.OrderedSourcesTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.engine.strategy.source.OrderedSourcesTest
+[INFO] Running com.sentrysoftware.metricshub.engine.strategy.source.SourceProcessorTest
+[INFO] Tests run: 25, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.236 s - in com.sentrysoftware.metricshub.engine.strategy.source.SourceProcessorTest
+[INFO] Running com.sentrysoftware.metricshub.engine.strategy.source.SourceTableTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.engine.strategy.source.SourceTableTest
+[INFO] Running com.sentrysoftware.metricshub.engine.strategy.source.SourceUpdaterProcessorTest
+[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.079 s - in com.sentrysoftware.metricshub.engine.strategy.source.SourceUpdaterProcessorTest
+[INFO] Running com.sentrysoftware.metricshub.engine.strategy.utils.DetectionHelperTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.engine.strategy.utils.DetectionHelperTest
+[INFO] Running com.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelperTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelperTest
+[INFO] Running com.sentrysoftware.metricshub.engine.strategy.utils.ForceSerializationHelperTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.079 s - in com.sentrysoftware.metricshub.engine.strategy.utils.ForceSerializationHelperTest
+[INFO] Running com.sentrysoftware.metricshub.engine.strategy.utils.MappingProcessorTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.063 s - in com.sentrysoftware.metricshub.engine.strategy.utils.MappingProcessorTest
+[INFO] Running com.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelperTest
+[WARNING] Tests run: 30, Failures: 0, Errors: 0, Skipped: 5, Time elapsed: 3.716 s - in com.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelperTest
+[INFO] Running com.sentrysoftware.metricshub.engine.strategy.utils.WqlDetectionHelperTest
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.031 s - in com.sentrysoftware.metricshub.engine.strategy.utils.WqlDetectionHelperTest
+[INFO] Running com.sentrysoftware.metricshub.engine.telemetry.MonitorFactoryTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.978 s - in com.sentrysoftware.metricshub.engine.telemetry.MonitorFactoryTest
+[INFO] Running com.sentrysoftware.metricshub.engine.telemetry.TelemetryManagerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.047 s - in com.sentrysoftware.metricshub.engine.telemetry.TelemetryManagerTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[WARNING] Tests run: 847, Failures: 0, Errors: 0, Skipped: 10
+[INFO] 
+[INFO] 
+[INFO] --- maven-jar-plugin:2.4:jar (default-jar) @ metricshub-engine ---
+[INFO] 
+[INFO] --- maven-assembly-plugin:3.3.0:single (no-slf4j-impl-jar) @ metricshub-engine ---
+[INFO] Reading assembly descriptor: src/assembly/no-slf4j-impl-jar.xml
+[INFO] Building jar: C:\workspace\matrix-reloaded\metricshub-engine\target\metricshub-engine-0.9.01-SNAPSHOT-no-slf4j-impl.jar
+[INFO] 
+[INFO] --- maven-failsafe-plugin:3.0.0-M5:integration-test (integration-test) @ metricshub-engine ---
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.sentrysoftware.metricshub.engine.it.DellOpenManageIT
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 14.47 s - in com.sentrysoftware.metricshub.engine.it.DellOpenManageIT
+[INFO] Running com.sentrysoftware.metricshub.engine.it.SuperConnectorOsIT
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 11.249 s - in com.sentrysoftware.metricshub.engine.it.SuperConnectorOsIT
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- jacoco-maven-plugin:0.8.10:report (default-report) @ metricshub-engine ---
+[INFO] Loading execution data file C:\workspace\matrix-reloaded\metricshub-engine\target\jacoco.exec
+[INFO] Analyzed bundle 'MetricsHub Engine' with 125 classes
+[INFO] 
+[INFO] --- jacoco-maven-plugin:0.8.10:check (default-check) @ metricshub-engine ---
+[INFO] Loading execution data file C:\workspace\matrix-reloaded\metricshub-engine\target\jacoco.exec
+[INFO] Analyzed bundle 'metricshub-engine' with 125 classes
+[INFO] All coverage checks have been met.
+[INFO] 
+[INFO] --- maven-failsafe-plugin:3.0.0-M5:verify (integration-test) @ metricshub-engine ---
+[INFO] 
+[INFO] --------< com.sentrysoftware.metricshub:hdf-to-yaml-converter >---------
+[INFO] Building HDF to YAML Converter 0.9.01-SNAPSHOT                     [3/8]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.3.0:checkstyle (validate) @ hdf-to-yaml-converter ---
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.3.0:check (validate) @ hdf-to-yaml-converter ---
+[INFO] 
+[INFO] --- prettier-maven-plugin:0.21:check (default) @ hdf-to-yaml-converter ---
+[INFO] Skipping plugin execution
+[INFO] 
+[INFO] --- buildnumber-maven-plugin:1.4:create (default) @ hdf-to-yaml-converter ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-version) @ hdf-to-yaml-converter ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-hc-version) @ hdf-to-yaml-converter ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-hwgraf-version) @ hdf-to-yaml-converter ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-ddog-version) @ hdf-to-yaml-converter ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:regex-property (build-no-snapshot-version) @ hdf-to-yaml-converter ---
+[INFO] 
+[INFO] --- jacoco-maven-plugin:0.8.10:prepare-agent (default-prepare-agent) @ hdf-to-yaml-converter ---
+[INFO] argLine set to -javaagent:C:\\Users\\KawtarBakour\\.m2\\repository\\org\\jacoco\\org.jacoco.agent\\0.8.10\\org.jacoco.agent-0.8.10-runtime.jar=destfile=C:\\workspace\\matrix-reloaded\\hdf-to-yaml-converter\\target\\jacoco.exec
+[INFO] 
+[INFO] --- maven-resources-plugin:3.2.0:resources (default-resources) @ hdf-to-yaml-converter ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Using 'UTF-8' encoding to copy filtered properties files.
+[INFO] skip non existing resourceDirectory C:\workspace\matrix-reloaded\hdf-to-yaml-converter\src\main\resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ hdf-to-yaml-converter ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:3.2.0:testResources (default-testResources) @ hdf-to-yaml-converter ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Using 'UTF-8' encoding to copy filtered properties files.
+[INFO] Copying 1050 resources
+[INFO] skip non existing resourceDirectory C:\workspace\matrix-reloaded\hdf-to-yaml-converter\src\it\resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ hdf-to-yaml-converter ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 89 source files to C:\workspace\matrix-reloaded\hdf-to-yaml-converter\target\test-classes
+[INFO] 
+[INFO] --- maven-surefire-plugin:3.0.0-M5:test (default-test) @ hdf-to-yaml-converter ---
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.sentrysoftware.metricshub.converter.CollectTypeProcessorTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.214 s - in com.sentrysoftware.metricshub.converter.CollectTypeProcessorTest
+[INFO] Running com.sentrysoftware.metricshub.converter.ConnectorConverterTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.251 s - in com.sentrysoftware.metricshub.converter.ConnectorConverterTest
+[INFO] Running com.sentrysoftware.metricshub.converter.ConnectorLibraryConverterTest
+[WARNING] Tests run: 4, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 48.537 s - in com.sentrysoftware.metricshub.converter.ConnectorLibraryConverterTest
+[INFO] Running com.sentrysoftware.metricshub.converter.PreConnectorTest
+[INFO] Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.047 s - in com.sentrysoftware.metricshub.converter.PreConnectorTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.computes.AddComputeTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.032 s - in com.sentrysoftware.metricshub.converter.state.computes.AddComputeTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.computes.AndComputeTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.computes.AndComputeTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.computes.ArrayTranslateComputeTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.018 s - in com.sentrysoftware.metricshub.converter.state.computes.ArrayTranslateComputeTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.computes.AwkComputeTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 s - in com.sentrysoftware.metricshub.converter.state.computes.AwkComputeTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.computes.ConvertComputeTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.converter.state.computes.ConvertComputeTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.computes.DivideComputeTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.computes.DivideComputeTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.computes.DuplicateColumnComputeTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.converter.state.computes.DuplicateColumnComputeTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.computes.ExcludeMatchingLinesComputeTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 s - in com.sentrysoftware.metricshub.converter.state.computes.ExcludeMatchingLinesComputeTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.computes.ExtractComputeTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.computes.ExtractComputeTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.computes.ExtractPropertyFromWbemPathComputeTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.computes.ExtractPropertyFromWbemPathComputeTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.computes.Json2CsvComputeTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.converter.state.computes.Json2CsvComputeTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.computes.KeepColumnsComputeTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s - in com.sentrysoftware.metricshub.converter.state.computes.KeepColumnsComputeTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.computes.KeepOnlyMatchingLinesComputeTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.computes.KeepOnlyMatchingLinesComputeTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.computes.LeftConcatComputeTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.converter.state.computes.LeftConcatComputeTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.computes.MultiplyComputeTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.converter.state.computes.MultiplyComputeTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.computes.PerBitTranslationComputeTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.computes.PerBitTranslationComputeTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.computes.ReplaceComputeTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.021 s - in com.sentrysoftware.metricshub.converter.state.computes.ReplaceComputeTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.computes.RightConcatComputeTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.01 s - in com.sentrysoftware.metricshub.converter.state.computes.RightConcatComputeTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.computes.SubstringComputeTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.converter.state.computes.SubstringComputeTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.computes.SubtractComputeTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s - in com.sentrysoftware.metricshub.converter.state.computes.SubtractComputeTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.computes.TranslateComputeTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.computes.TranslateComputeTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.computes.Xml2CsvComputeTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.converter.state.computes.Xml2CsvComputeTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.ConnectorSimplePropertyTest
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.032 s - in com.sentrysoftware.metricshub.converter.state.ConnectorSimplePropertyTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.detection.criteria.ConnectorDeviceTypeCriteriaTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.converter.state.detection.criteria.ConnectorDeviceTypeCriteriaTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.detection.criteria.ConnectorHttpCriteriaTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.detection.criteria.ConnectorHttpCriteriaTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.detection.criteria.ConnectorIpmiCriteriaTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.detection.criteria.ConnectorIpmiCriteriaTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.detection.criteria.ConnectorOsCommandCriteriaTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.detection.criteria.ConnectorOsCommandCriteriaTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.detection.criteria.ConnectorProcessCriteriaTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.converter.state.detection.criteria.ConnectorProcessCriteriaTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.detection.criteria.ConnectorProductRequirementsCriteriaTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.detection.criteria.ConnectorProductRequirementsCriteriaTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.detection.criteria.ConnectorServiceCriteriaTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.converter.state.detection.criteria.ConnectorServiceCriteriaTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.detection.criteria.ConnectorSnmpCriteriaTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.018 s - in com.sentrysoftware.metricshub.converter.state.detection.criteria.ConnectorSnmpCriteriaTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.detection.criteria.ConnectorWbemCriteriaTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.detection.criteria.ConnectorWbemCriteriaTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.detection.criteria.ConnectorWmiCriteriaTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 s - in com.sentrysoftware.metricshub.converter.state.detection.criteria.ConnectorWmiCriteriaTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.mapping.MappingConvertersWrapperTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.mapping.MappingConvertersWrapperTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.BatteryCollectValueTableTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.BatteryCollectValueTableTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.BladeCollectValueTableTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.BladeCollectValueTableTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.CpuCollectValueTableTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.CpuCollectValueTableTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.DiskControllerCollectValueTableTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.DiskControllerCollectValueTableTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.EnclosureCollectValueTableTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s - in com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.EnclosureCollectValueTableTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.FanCollectValueTableTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.FanCollectValueTableTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.GpuCollectValueTableTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.GpuCollectValueTableTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.LedCollectValueTableTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.LedCollectValueTableTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.LogicalDiskCollectValueTableTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.LogicalDiskCollectValueTableTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.LunCollectValueTableTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.LunCollectValueTableTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.MemoryCollectValueTableTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.MemoryCollectValueTableTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.NetworkCardCollectValueTableTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.NetworkCardCollectValueTableTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.OtherDeviceCollectValueTableTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s - in com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.OtherDeviceCollectValueTableTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.PhysicalDiskCollectValueTableTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.PhysicalDiskCollectValueTableTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.PowerSupplyCollectValueTableTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.009 s - in com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.PowerSupplyCollectValueTableTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.RoboticsCollectValueTableTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.RoboticsCollectValueTableTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.TapeDriveCollectValueTableTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s - in com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.TapeDriveCollectValueTableTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.TemperatureCollectValueTableTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.TemperatureCollectValueTableTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.VMCollectValueTableTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.VMCollectValueTableTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.VoltageCollectValueTableTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.monitors.collect.valuetable.VoltageCollectValueTableTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.BatteryDiscoveryInstanceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s - in com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.BatteryDiscoveryInstanceTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.BladeDiscoveryInstanceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s - in com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.BladeDiscoveryInstanceTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.CpuDiscoveryInstanceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.CpuDiscoveryInstanceTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.DiskControllerDiscoveryInstanceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.DiskControllerDiscoveryInstanceTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.EnclosureDiscoveryInstanceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.EnclosureDiscoveryInstanceTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.FanDiscoveryInstanceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.FanDiscoveryInstanceTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.GpuDiscoveryInstanceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s - in com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.GpuDiscoveryInstanceTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.LedDiscoveryInstanceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.LedDiscoveryInstanceTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.LogicalDiskDiscoveryInstanceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.LogicalDiskDiscoveryInstanceTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.LunDiscoveryInstanceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.LunDiscoveryInstanceTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.MemoryDiscoveryInstanceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.MemoryDiscoveryInstanceTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.NetworkCardDiscoveryInstanceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.NetworkCardDiscoveryInstanceTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.OtherDeviceDiscoveryInstanceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.OtherDeviceDiscoveryInstanceTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.PhysicalDiskDiscoveryInstanceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.PhysicalDiskDiscoveryInstanceTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.PowerSupplyDiscoveryInstanceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.PowerSupplyDiscoveryInstanceTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.RoboticsDiscoveryInstanceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.RoboticsDiscoveryInstanceTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.TapeDriveDiscoveryInstanceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.TapeDriveDiscoveryInstanceTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.TemperatureDiscoveryInstanceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.TemperatureDiscoveryInstanceTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.VmDiscoveryInstanceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 s - in com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.VmDiscoveryInstanceTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.VoltageDiscoveryInstanceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.monitors.discovery.instance.VoltageDiscoveryInstanceTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.source.CopySourceConverterTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.converter.state.source.CopySourceConverterTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.source.HttpSourceConverterTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.047 s - in com.sentrysoftware.metricshub.converter.state.source.HttpSourceConverterTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.source.IpmiSourceConverterTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.converter.state.source.IpmiSourceConverterTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.source.OsCommandSourceConverterTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s - in com.sentrysoftware.metricshub.converter.state.source.OsCommandSourceConverterTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.source.SnmpSourceConverterTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.04 s - in com.sentrysoftware.metricshub.converter.state.source.SnmpSourceConverterTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.source.StaticSourceConverterTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s - in com.sentrysoftware.metricshub.converter.state.source.StaticSourceConverterTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.source.TableJoinSourceConverterTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s - in com.sentrysoftware.metricshub.converter.state.source.TableJoinSourceConverterTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.source.TableUnionSourceConverterTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.017 s - in com.sentrysoftware.metricshub.converter.state.source.TableUnionSourceConverterTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.source.WbemSourceConverterTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s - in com.sentrysoftware.metricshub.converter.state.source.WbemSourceConverterTest
+[INFO] Running com.sentrysoftware.metricshub.converter.state.source.WmiSourceConverterTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.converter.state.source.WmiSourceConverterTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[WARNING] Tests run: 124, Failures: 0, Errors: 0, Skipped: 1
+[INFO] 
+[INFO] 
+[INFO] --- maven-jar-plugin:2.4:jar (default-jar) @ hdf-to-yaml-converter ---
+[INFO] 
+[INFO] --- jacoco-maven-plugin:0.8.10:report (default-report) @ hdf-to-yaml-converter ---
+[INFO] Loading execution data file C:\workspace\matrix-reloaded\hdf-to-yaml-converter\target\jacoco.exec
+[INFO] Analyzed bundle 'HDF to YAML Converter' with 192 classes
+[INFO] 
+[INFO] --- jacoco-maven-plugin:0.8.10:check (default-check) @ hdf-to-yaml-converter ---
+[INFO] Loading execution data file C:\workspace\matrix-reloaded\hdf-to-yaml-converter\target\jacoco.exec
+[INFO] Analyzed bundle 'hdf-to-yaml-converter' with 192 classes
+[INFO] All coverage checks have been met.
+[INFO] 
+[INFO] ---------< com.sentrysoftware.metricshub:connector-serializer >---------
+[INFO] Building Connector Serializer for MetricsHub 0.9.01-SNAPSHOT       [4/8]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.3.0:checkstyle (validate) @ connector-serializer ---
+[INFO] Rendering content with org.apache.maven.skins:maven-default-skin:jar:1.3 skin.
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.3.0:check (validate) @ connector-serializer ---
+[INFO] You have 0 Checkstyle violations.
+[INFO] 
+[INFO] --- prettier-maven-plugin:0.21:check (default) @ connector-serializer ---
+[INFO] Skipping plugin execution
+[INFO] 
+[INFO] --- buildnumber-maven-plugin:1.4:create (default) @ connector-serializer ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-version) @ connector-serializer ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-hc-version) @ connector-serializer ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-hwgraf-version) @ connector-serializer ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-ddog-version) @ connector-serializer ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:regex-property (build-no-snapshot-version) @ connector-serializer ---
+[INFO] 
+[INFO] --- maven-resources-plugin:3.2.0:resources (default-resources) @ connector-serializer ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Using 'UTF-8' encoding to copy filtered properties files.
+[INFO] skip non existing resourceDirectory C:\workspace\matrix-reloaded\connector-serializer\src\main\resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ connector-serializer ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:3.2.0:testResources (default-testResources) @ connector-serializer ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Using 'UTF-8' encoding to copy filtered properties files.
+[INFO] Copying 2 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ connector-serializer ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-surefire-plugin:3.0.0-M5:test (default-test) @ connector-serializer ---
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.sentrysoftware.metricshub.connector.serializer.ConnectorLibrarySerializerTest
+Parsing WBEMConnector.yaml
+Successfully parsed and serialized 1 connector.
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.885 s - in com.sentrysoftware.metricshub.connector.serializer.ConnectorLibrarySerializerTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- maven-jar-plugin:2.4:jar (default-jar) @ connector-serializer ---
+[INFO] 
+[INFO] ---------------< com.sentrysoftware.metricshub:hardware >---------------
+[INFO] Building Hardware Energy and Sustainability Module 0.9.01-SNAPSHOT [5/8]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.3.0:checkstyle (validate) @ hardware ---
+[INFO] Rendering content with org.apache.maven.skins:maven-default-skin:jar:1.3 skin.
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.3.0:check (validate) @ hardware ---
+[INFO] You have 0 Checkstyle violations.
+[INFO] 
+[INFO] --- prettier-maven-plugin:0.21:check (default) @ hardware ---
+[INFO] Skipping plugin execution
+[INFO] 
+[INFO] --- buildnumber-maven-plugin:1.4:create (default) @ hardware ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-version) @ hardware ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-hc-version) @ hardware ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-hwgraf-version) @ hardware ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-ddog-version) @ hardware ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:regex-property (build-no-snapshot-version) @ hardware ---
+[INFO] 
+[INFO] --- maven-resources-plugin:3.2.0:resources (default-resources) @ hardware ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Using 'UTF-8' encoding to copy filtered properties files.
+[INFO] skip non existing resourceDirectory C:\workspace\matrix-reloaded\hardware\src\main\resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ hardware ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:3.2.0:testResources (default-testResources) @ hardware ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Using 'UTF-8' encoding to copy filtered properties files.
+[INFO] skip non existing resourceDirectory C:\workspace\matrix-reloaded\hardware\src\test\resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ hardware ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-surefire-plugin:3.0.0-M5:test (default-test) @ hardware ---
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.sentrysoftware.metricshub.hardware.HardwareEnergyPostExecutionServiceTest
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.153 s - in com.sentrysoftware.metricshub.hardware.HardwareEnergyPostExecutionServiceTest
+[INFO] Running com.sentrysoftware.metricshub.hardware.strategy.HardwareStrategyTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.hardware.strategy.HardwareStrategyTest
+[INFO] Running com.sentrysoftware.metricshub.hardware.sustainability.CpuPowerEstimatorTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.hardware.sustainability.CpuPowerEstimatorTest
+[INFO] Running com.sentrysoftware.metricshub.hardware.sustainability.DiskControllerPowerAndEnergyEstimatorTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.012 s - in com.sentrysoftware.metricshub.hardware.sustainability.DiskControllerPowerAndEnergyEstimatorTest
+[INFO] Running com.sentrysoftware.metricshub.hardware.sustainability.FanPowerAndEnergyEstimatorTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.hardware.sustainability.FanPowerAndEnergyEstimatorTest
+[INFO] Running com.sentrysoftware.metricshub.hardware.sustainability.HostMonitorEnergyAndPowerEstimatorTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.hardware.sustainability.HostMonitorEnergyAndPowerEstimatorTest
+[INFO] Running com.sentrysoftware.metricshub.hardware.sustainability.HostMonitorThermalCalculatorTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.hardware.sustainability.HostMonitorThermalCalculatorTest
+[INFO] Running com.sentrysoftware.metricshub.hardware.sustainability.MemoryPowerAndEnergyEstimatorTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.hardware.sustainability.MemoryPowerAndEnergyEstimatorTest
+[INFO] Running com.sentrysoftware.metricshub.hardware.sustainability.NetworkPowerAndEnergyEstimatorTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.hardware.sustainability.NetworkPowerAndEnergyEstimatorTest
+[INFO] Running com.sentrysoftware.metricshub.hardware.sustainability.PhysicalDiskPowerAndEnergyEstimatorTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.hardware.sustainability.PhysicalDiskPowerAndEnergyEstimatorTest
+[INFO] Running com.sentrysoftware.metricshub.hardware.sustainability.RoboticsPowerAndEnergyEstimatorTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.hardware.sustainability.RoboticsPowerAndEnergyEstimatorTest
+[INFO] Running com.sentrysoftware.metricshub.hardware.sustainability.TapeDrivePowerAndEnergyEstimatorTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s - in com.sentrysoftware.metricshub.hardware.sustainability.TapeDrivePowerAndEnergyEstimatorTest
+[INFO] Running com.sentrysoftware.metricshub.hardware.sustainability.VmPowerAndEnergyEstimatorTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.hardware.sustainability.VmPowerAndEnergyEstimatorTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 48, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- maven-jar-plugin:2.4:jar (default-jar) @ hardware ---
+[INFO] 
+[INFO] -----------< com.sentrysoftware.metricshub:metricshub-agent >-----------
+[INFO] Building MetricsHub Agent 0.9.01-SNAPSHOT                          [6/8]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.3.0:checkstyle (validate) @ metricshub-agent ---
+[INFO] Rendering content with org.apache.maven.skins:maven-default-skin:jar:1.3 skin.
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.3.0:check (validate) @ metricshub-agent ---
+[INFO] You have 0 Checkstyle violations.
+[INFO] 
+[INFO] --- prettier-maven-plugin:0.21:check (default) @ metricshub-agent ---
+[INFO] Skipping plugin execution
+[INFO] 
+[INFO] --- buildnumber-maven-plugin:1.4:create (default) @ metricshub-agent ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-version) @ metricshub-agent ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-hc-version) @ metricshub-agent ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-hwgraf-version) @ metricshub-agent ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-ddog-version) @ metricshub-agent ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:regex-property (build-no-snapshot-version) @ metricshub-agent ---
+[INFO] 
+[INFO] --- jacoco-maven-plugin:0.8.10:prepare-agent (default-prepare-agent) @ metricshub-agent ---
+[INFO] argLine set to -javaagent:C:\\Users\\KawtarBakour\\.m2\\repository\\org\\jacoco\\org.jacoco.agent\\0.8.10\\org.jacoco.agent-0.8.10-runtime.jar=destfile=C:\\workspace\\matrix-reloaded\\metricshub-agent\\target\\jacoco.exec,excludes=com/sentrysoftware/metricshub/agent/config/**
+[INFO] 
+[INFO] --- maven-dependency-plugin:3.2.0:unpack-dependencies (unpack-source) @ metricshub-agent ---
+[INFO] Unpacking C:\Users\KawtarBakour\.m2\repository\com\sentrysoftware\shared\hardware-connectors\36-SNAPSHOT\hardware-connectors-36-SNAPSHOT-sources.jar to C:\workspace\matrix-reloaded\metricshub-agent\target\connectors with includes "" and excludes ""
+[INFO] com.sentrysoftware.shared:hardware-connectors:jar:sources:36-SNAPSHOT already exists in destination.
+[INFO] 
+[INFO] --- download-maven-plugin:1.6.7:wget (install-otel-javaagent) @ metricshub-agent ---
+[INFO] File already exist, skipping
+[INFO] 
+[INFO] --- maven-resources-plugin:3.2.0:resources (default-resources) @ metricshub-agent ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Using 'UTF-8' encoding to copy filtered properties files.
+[INFO] Copying 5 resources
+[INFO] The encoding used to copy filtered properties files have not been set. This means that the same encoding will be used to copy filtered properties files as when copying other filtered resources. This might not be what you want! Run your build with --debug to see which files might be affected. Read more at https://maven.apache.org/plugins/maven-resources-plugin/examples/filtering-properties-files.html
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ metricshub-agent ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:3.2.0:testResources (default-testResources) @ metricshub-agent ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Using 'UTF-8' encoding to copy filtered properties files.
+[INFO] Copying 11 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ metricshub-agent ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-surefire-plugin:3.0.0-M5:test (default-test) @ metricshub-agent ---
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.sentrysoftware.metricshub.agent.context.AgentContextTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.883 s - in com.sentrysoftware.metricshub.agent.context.AgentContextTest
+[INFO] Running com.sentrysoftware.metricshub.agent.context.AgentInfoTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.agent.context.AgentInfoTest
+[INFO] Running com.sentrysoftware.metricshub.agent.deserialization.AttributesDeserializerTest
+[ERROR] Java HotSpot(TM) 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.642 s - in com.sentrysoftware.metricshub.agent.deserialization.AttributesDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.agent.deserialization.MonitorJobsDeserializerTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.223 s - in com.sentrysoftware.metricshub.agent.deserialization.MonitorJobsDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.agent.deserialization.SnmpPrivacyDeserializerTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.031 s - in com.sentrysoftware.metricshub.agent.deserialization.SnmpPrivacyDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.agent.deserialization.SnmpVersionDeserializerTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.048 s - in com.sentrysoftware.metricshub.agent.deserialization.SnmpVersionDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.agent.deserialization.TimeDeserializerTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s - in com.sentrysoftware.metricshub.agent.deserialization.TimeDeserializerTest
+[INFO] Running com.sentrysoftware.metricshub.agent.helper.ConfigHelperTest
+[INFO] Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.008 s - in com.sentrysoftware.metricshub.agent.helper.ConfigHelperTest
+[INFO] Running com.sentrysoftware.metricshub.agent.helper.ConnectorTemplateLibraryParserTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.079 s - in com.sentrysoftware.metricshub.agent.helper.ConnectorTemplateLibraryParserTest
+[INFO] Running com.sentrysoftware.metricshub.agent.helper.OtelConfigHelperTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.032 s - in com.sentrysoftware.metricshub.agent.helper.OtelConfigHelperTest
+[INFO] Running com.sentrysoftware.metricshub.agent.helper.OtelHelperTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.071 s - in com.sentrysoftware.metricshub.agent.helper.OtelHelperTest
+[INFO] Running com.sentrysoftware.metricshub.agent.process.io.ConsoleStreamProcessorTest
+test process output line
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.agent.process.io.ConsoleStreamProcessorTest
+[INFO] Running com.sentrysoftware.metricshub.agent.process.io.NamedStreamProcessorTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s - in com.sentrysoftware.metricshub.agent.process.io.NamedStreamProcessorTest
+[INFO] Running com.sentrysoftware.metricshub.agent.process.io.ProcessorHelperTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.384 s - in com.sentrysoftware.metricshub.agent.process.io.ProcessorHelperTest
+[INFO] Running com.sentrysoftware.metricshub.agent.process.io.Slf4jStreamProcessorTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.012 s - in com.sentrysoftware.metricshub.agent.process.io.Slf4jStreamProcessorTest
+[INFO] Running com.sentrysoftware.metricshub.agent.process.runtime.AbstractProcessTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.603 s - in com.sentrysoftware.metricshub.agent.process.runtime.AbstractProcessTest
+[INFO] Running com.sentrysoftware.metricshub.agent.process.runtime.ProcessControlTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.032 s - in com.sentrysoftware.metricshub.agent.process.runtime.ProcessControlTest
+[INFO] Running com.sentrysoftware.metricshub.agent.security.PasswordEncryptTest
+[WARNING] Tests run: 3, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0.079 s - in com.sentrysoftware.metricshub.agent.security.PasswordEncryptTest
+[INFO] Running com.sentrysoftware.metricshub.agent.service.OtelCollectorProcessServiceTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.315 s - in com.sentrysoftware.metricshub.agent.service.OtelCollectorProcessServiceTest
+[INFO] Running com.sentrysoftware.metricshub.agent.service.scheduling.ResourceGroupSchedulingTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.445 s - in com.sentrysoftware.metricshub.agent.service.scheduling.ResourceGroupSchedulingTest
+[INFO] Running com.sentrysoftware.metricshub.agent.service.scheduling.ResourceSchedulingTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.056 s - in com.sentrysoftware.metricshub.agent.service.scheduling.ResourceSchedulingTest
+[INFO] Running com.sentrysoftware.metricshub.agent.service.scheduling.SelfObserverSchedulingTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.038 s - in com.sentrysoftware.metricshub.agent.service.scheduling.SelfObserverSchedulingTest
+[INFO] Running com.sentrysoftware.metricshub.agent.service.signal.CounterMetricObserverTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.agent.service.signal.CounterMetricObserverTest
+[INFO] Running com.sentrysoftware.metricshub.agent.service.signal.CounterStateMetricObserverTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s - in com.sentrysoftware.metricshub.agent.service.signal.CounterStateMetricObserverTest
+[INFO] Running com.sentrysoftware.metricshub.agent.service.signal.GaugeMetricObserverTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.agent.service.signal.GaugeMetricObserverTest
+[INFO] Running com.sentrysoftware.metricshub.agent.service.signal.GaugeStateMetricObserverTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.agent.service.signal.GaugeStateMetricObserverTest
+[INFO] Running com.sentrysoftware.metricshub.agent.service.signal.MetricTypeVisitorTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.062 s - in com.sentrysoftware.metricshub.agent.service.signal.MetricTypeVisitorTest
+[INFO] Running com.sentrysoftware.metricshub.agent.service.signal.SimpleGaugeMetricObserverTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.agent.service.signal.SimpleGaugeMetricObserverTest
+[INFO] Running com.sentrysoftware.metricshub.agent.service.signal.SimpleUpDownCounterMetricObserverTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.agent.service.signal.SimpleUpDownCounterMetricObserverTest
+[INFO] Running com.sentrysoftware.metricshub.agent.service.signal.UpDownCounterMetricObserverTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.agent.service.signal.UpDownCounterMetricObserverTest
+[INFO] Running com.sentrysoftware.metricshub.agent.service.signal.UpDownCounterStateMetricObserverTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.011 s - in com.sentrysoftware.metricshub.agent.service.signal.UpDownCounterStateMetricObserverTest
+[INFO] Running com.sentrysoftware.metricshub.agent.service.task.FileWatcherTaskTest
+[WARNING] Tests run: 2, Failures: 0, Errors: 0, Skipped: 2, Time elapsed: 0 s - in com.sentrysoftware.metricshub.agent.service.task.FileWatcherTaskTest
+[INFO] Running com.sentrysoftware.metricshub.agent.service.task.MonitoringTaskTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.379 s - in com.sentrysoftware.metricshub.agent.service.task.MonitoringTaskTest
+[INFO] Running com.sentrysoftware.metricshub.agent.service.TaskSchedulingServiceTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.102 s - in com.sentrysoftware.metricshub.agent.service.TaskSchedulingServiceTest
+[INFO] Running com.sentrysoftware.metricshub.cli.service.ConsoleServiceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.cli.service.ConsoleServiceTest
+[INFO] Running com.sentrysoftware.metricshub.cli.service.converter.DeviceKindConverterTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.031 s - in com.sentrysoftware.metricshub.cli.service.converter.DeviceKindConverterTest
+[INFO] Running com.sentrysoftware.metricshub.cli.service.converter.SnmpPrivacyConverterTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.cli.service.converter.SnmpPrivacyConverterTest
+[INFO] Running com.sentrysoftware.metricshub.cli.service.converter.SnmpVersionConverterTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.cli.service.converter.SnmpVersionConverterTest
+[INFO] Running com.sentrysoftware.metricshub.cli.service.converter.TransportProtocolConverterTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.cli.service.converter.TransportProtocolConverterTest
+[INFO] Running com.sentrysoftware.metricshub.cli.service.MetricsHubCliServiceTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.08 s - in com.sentrysoftware.metricshub.cli.service.MetricsHubCliServiceTest
+[INFO] Running com.sentrysoftware.metricshub.cli.service.PrettyPrinterServiceTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.047 s - in com.sentrysoftware.metricshub.cli.service.PrettyPrinterServiceTest
+[INFO] Running com.sentrysoftware.metricshub.cli.service.PrintExceptionMessageHandlerServiceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.25 s - in com.sentrysoftware.metricshub.cli.service.PrintExceptionMessageHandlerServiceTest
+[INFO] Running com.sentrysoftware.metricshub.cli.service.protocol.HttpConfigCliTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.cli.service.protocol.HttpConfigCliTest
+[INFO] Running com.sentrysoftware.metricshub.cli.service.protocol.IpmiConfigCliTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.cli.service.protocol.IpmiConfigCliTest
+[INFO] Running com.sentrysoftware.metricshub.cli.service.protocol.SnmpConfigCliTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s - in com.sentrysoftware.metricshub.cli.service.protocol.SnmpConfigCliTest
+[INFO] Running com.sentrysoftware.metricshub.cli.service.protocol.SshConfigCliTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.009 s - in com.sentrysoftware.metricshub.cli.service.protocol.SshConfigCliTest
+[INFO] Running com.sentrysoftware.metricshub.cli.service.protocol.WbemConfigCliTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s - in com.sentrysoftware.metricshub.cli.service.protocol.WbemConfigCliTest
+[INFO] Running com.sentrysoftware.metricshub.cli.service.protocol.WinRmConfigCliTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.cli.service.protocol.WinRmConfigCliTest
+[INFO] Running com.sentrysoftware.metricshub.cli.service.protocol.WmiConfigCliTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.cli.service.protocol.WmiConfigCliTest
+[INFO] Running com.sentrysoftware.metricshub.cli.service.VersionServiceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.sentrysoftware.metricshub.cli.service.VersionServiceTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[WARNING] Tests run: 117, Failures: 0, Errors: 0, Skipped: 3
+[INFO] 
+[INFO] 
+[INFO] --- maven-jar-plugin:2.4:jar (default-jar) @ metricshub-agent ---
+[INFO] Building jar: C:\workspace\matrix-reloaded\metricshub-agent\target\metricshub-agent-0.9.01-SNAPSHOT.jar
+[INFO] 
+[INFO] --- maven-assembly-plugin:3.3.0:single (metricshub-jar) @ metricshub-agent ---
+[INFO] Reading assembly descriptor: src/assembly/metricshub-jar.xml
+[WARNING] Artifact: com.sentrysoftware.metricshub:metricshub-agent:jar:0.9.01-SNAPSHOT references the same file as the assembly destination file. Moving it to a temporary location for inclusion.
+[INFO] Building jar: C:\workspace\matrix-reloaded\metricshub-agent\target\metricshub-agent-0.9.01-SNAPSHOT.jar
+[WARNING] Configuration option 'appendAssemblyId' is set to false.
+Instead of attaching the assembly file: C:\workspace\matrix-reloaded\metricshub-agent\target\metricshub-agent-0.9.01-SNAPSHOT.jar, it will become the file for main project artifact.
+NOTE: If multiple descriptors or descriptor-formats are provided for this project, the value of this file will be non-deterministic!
+[WARNING] Replacing pre-existing project main-artifact file: C:\workspace\matrix-reloaded\metricshub-agent\target\archive-tmp\metricshub-agent-0.9.01-SNAPSHOT.jar
+with assembly file: C:\workspace\matrix-reloaded\metricshub-agent\target\metricshub-agent-0.9.01-SNAPSHOT.jar
+[INFO] 
+[INFO] --- maven-assembly-plugin:3.3.0:single (distributable-package) @ metricshub-agent ---
+[INFO] Reading assembly descriptor: src/assembly/dist.xml
+[INFO] Building zip: C:\workspace\matrix-reloaded\metricshub-agent\target\metricshub-agent-0.9.01-SNAPSHOT-dist.zip
+[INFO] 
+[INFO] --- jacoco-maven-plugin:0.8.10:report (default-report) @ metricshub-agent ---
+[INFO] Loading execution data file C:\workspace\matrix-reloaded\metricshub-agent\target\jacoco.exec
+[INFO] Analyzed bundle 'MetricsHub Agent' with 73 classes
+[INFO] 
+[INFO] --- jacoco-maven-plugin:0.8.10:check (default-check) @ metricshub-agent ---
+[INFO] Loading execution data file C:\workspace\matrix-reloaded\metricshub-agent\target\jacoco.exec
+[INFO] Analyzed bundle 'metricshub-agent' with 73 classes
+[INFO] All coverage checks have been met.
+[INFO] 
+[INFO] ------------< com.sentrysoftware.metricshub:metricshub-doc >------------
+[INFO] Building MetricsHub Documentation 0.9.01-SNAPSHOT                  [7/8]
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.3.0:checkstyle (validate) @ metricshub-doc ---
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.3.0:check (validate) @ metricshub-doc ---
+[INFO] 
+[INFO] --- prettier-maven-plugin:0.21:check (default) @ metricshub-doc ---
+[INFO] Skipping plugin execution
+[INFO] 
+[INFO] --- buildnumber-maven-plugin:1.4:create (default) @ metricshub-doc ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-version) @ metricshub-doc ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-hc-version) @ metricshub-doc ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-hwgraf-version) @ metricshub-doc ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-ddog-version) @ metricshub-doc ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:regex-property (build-no-snapshot-version) @ metricshub-doc ---
+[INFO] 
+[INFO] --- maven-site-plugin:3.12.1:site (default) @ metricshub-doc ---
+[INFO] configuring report plugin org.apache.maven.plugins:maven-project-info-reports-plugin:3.4.5
+[INFO] 15 reports detected for maven-project-info-reports-plugin:3.4.5: ci-management, dependencies, dependency-info, dependency-management, distribution-management, index, issue-management, licenses, mailing-lists, modules, plugin-management, plugins, scm, summary, team
+[INFO] Rendering site with default locale English (en)
+[WARNING] No project URL defined - decoration links will not be relativized!
+[INFO] Rendering content with org.sentrysoftware.maven:sentry-maven-skin:jar:6.2.00 skin.
+[INFO] Skipped "About" report (maven-project-info-reports-plugin:3.4.5:index), file "index.html" already exists.
+[INFO] Rendering 12 Doxia documents: 12 markdown
+[INFO] Generating "Dependencies" report  --- maven-project-info-reports-plugin:3.4.5:dependencies
+[INFO] Unable to create Maven project from repository for artifact 'xml-resolver:xml-resolver:jar:1.2', for more information run with -X
+[INFO] Unable to create Maven project from repository for artifact 'xml-resolver:xml-resolver:jar:1.2', for more information run with -X
+Downloading from codehaus-snapshots: http://snapshots.repository.codehaus.org/com/sentrysoftware/shared/hardware-connectors/36-SNAPSHOT/maven-metadata.xml
+[WARNING] Could not transfer metadata com.sentrysoftware.shared:hardware-connectors:36-SNAPSHOT/maven-metadata.xml from/to codehaus-snapshots (http://snapshots.repository.codehaus.org): Transfer failed for http://snapshots.repository.codehaus.org/com/sentrysoftware/shared/hardware-connectors/36-SNAPSHOT/maven-metadata.xml
+[INFO] Generating "Dependency Information" report --- maven-project-info-reports-plugin:3.4.5:dependency-info
+[INFO] Generating "Dependency Management" report --- maven-project-info-reports-plugin:3.4.5:dependency-management
+[INFO] Generating "Distribution Management" report --- maven-project-info-reports-plugin:3.4.5:distribution-management
+[INFO] Generating "Issue Management" report --- maven-project-info-reports-plugin:3.4.5:issue-management
+[INFO] Generating "Plugin Management" report --- maven-project-info-reports-plugin:3.4.5:plugin-management
+[INFO] Generating "Plugins" report       --- maven-project-info-reports-plugin:3.4.5:plugins
+[INFO] Generating "Source Code Management" report --- maven-project-info-reports-plugin:3.4.5:scm
+[INFO] Generating "Summary" report       --- maven-project-info-reports-plugin:3.4.5:summary
+[INFO] 
+[INFO] --- maven-site-plugin:3.12.1:jar (default) @ metricshub-doc ---
+[INFO] configuring report plugin org.apache.maven.plugins:maven-project-info-reports-plugin:3.4.5
+[INFO] 15 reports detected for maven-project-info-reports-plugin:3.4.5: ci-management, dependencies, dependency-info, dependency-management, distribution-management, index, issue-management, licenses, mailing-lists, modules, plugin-management, plugins, scm, summary, team
+[INFO] Rendering site with default locale English (en)
+[WARNING] No project URL defined - decoration links will not be relativized!
+[INFO] Rendering content with org.sentrysoftware.maven:sentry-maven-skin:jar:6.2.00 skin.
+[INFO] Skipped "About" report (maven-project-info-reports-plugin:3.4.5:index), file "index.html" already exists.
+[INFO] Rendering 12 Doxia documents: 12 markdown
+[INFO] Generating "Dependencies" report  --- maven-project-info-reports-plugin:3.4.5:dependencies
+[INFO] Unable to create Maven project from repository for artifact 'xml-resolver:xml-resolver:jar:1.2', for more information run with -X
+[INFO] Unable to create Maven project from repository for artifact 'xml-resolver:xml-resolver:jar:1.2', for more information run with -X
+[INFO] Generating "Dependency Information" report --- maven-project-info-reports-plugin:3.4.5:dependency-info
+[INFO] Generating "Dependency Management" report --- maven-project-info-reports-plugin:3.4.5:dependency-management
+[INFO] Generating "Distribution Management" report --- maven-project-info-reports-plugin:3.4.5:distribution-management
+[INFO] Generating "Issue Management" report --- maven-project-info-reports-plugin:3.4.5:issue-management
+[INFO] Generating "Plugin Management" report --- maven-project-info-reports-plugin:3.4.5:plugin-management
+[INFO] Generating "Plugins" report       --- maven-project-info-reports-plugin:3.4.5:plugins
+[INFO] Generating "Source Code Management" report --- maven-project-info-reports-plugin:3.4.5:scm
+[INFO] Generating "Summary" report       --- maven-project-info-reports-plugin:3.4.5:summary
+[INFO] Building jar: C:\workspace\matrix-reloaded\metricshub-doc\target\metricshub-doc-0.9.01-SNAPSHOT-site.jar
+[INFO] 
+[INFO] ----------< com.sentrysoftware.metricshub:metricshub-windows >----------
+[INFO] Building MetricsHub for Windows 0.9.01-SNAPSHOT                    [8/8]
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.3.0:checkstyle (validate) @ metricshub-windows ---
+[INFO] Rendering content with org.apache.maven.skins:maven-default-skin:jar:1.3 skin.
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.3.0:check (validate) @ metricshub-windows ---
+[INFO] You have 0 Checkstyle violations.
+[INFO] 
+[INFO] --- prettier-maven-plugin:0.21:check (default) @ metricshub-windows ---
+[INFO] Skipping plugin execution
+[INFO] 
+[INFO] --- buildnumber-maven-plugin:1.4:create (default) @ metricshub-windows ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-version) @ metricshub-windows ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-hc-version) @ metricshub-windows ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-hwgraf-version) @ metricshub-windows ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:parse-version (parse-ddog-version) @ metricshub-windows ---
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.2.0:regex-property (build-no-snapshot-version) @ metricshub-windows ---
+[INFO] 
+[INFO] --- download-maven-plugin:1.6.7:wget (download-otelcol-contrib-windows-amd64) @ metricshub-windows ---
+[INFO] Expanding: C:\workspace\matrix-reloaded\metricshub-windows\target\jpackage\metricshub\otel\otelcol-contrib_0.67.0_windows_amd64.tar.gz into C:\workspace\matrix-reloaded\metricshub-windows\target\jpackage\metricshub\otel
+[INFO] 
+[INFO] --- maven-dependency-plugin:3.2.0:unpack-dependencies (unpack-metricshub-agent) @ metricshub-windows ---
+[INFO] Unpacking C:\workspace\matrix-reloaded\metricshub-agent\target\metricshub-agent-0.9.01-SNAPSHOT-dist.zip to C:\workspace\matrix-reloaded\metricshub-windows\target\jpackage\metricshub with includes "" and excludes ""
+[INFO] 
+[INFO] --- maven-dependency-plugin:3.2.0:unpack-dependencies (unpack-service-installer) @ metricshub-windows ---
+[INFO] cc.nssm:service-installer:zip:win64:2.24 already exists in destination.
+[INFO] 
+[INFO] --- maven-dependency-plugin:3.2.0:unpack-dependencies (unpack-jre) @ metricshub-windows ---
+[INFO] com.sentrysoftware.metricshub:metricshub-jre-windows:zip:1-SNAPSHOT already exists in destination.
+[INFO] 
+[INFO] --- maven-dependency-plugin:3.2.0:unpack-dependencies (unpack-metricshub-doc) @ metricshub-windows ---
+[INFO] Unpacking C:\workspace\matrix-reloaded\metricshub-doc\target\metricshub-doc-0.9.01-SNAPSHOT-site.jar to C:\workspace\matrix-reloaded\metricshub-windows\target\jpackage\metricshub\site with includes "" and excludes ""
+[INFO] 
+[INFO] --- maven-resources-plugin:3.2.0:copy-resources (copy-resources) @ metricshub-windows ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Using 'UTF-8' encoding to copy filtered properties files.
+[INFO] Copying 7 resources
+[INFO] The encoding used to copy filtered properties files have not been set. This means that the same encoding will be used to copy filtered properties files as when copying other filtered resources. This might not be what you want! Run your build with --debug to see which files might be affected. Read more at https://maven.apache.org/plugins/maven-resources-plugin/examples/filtering-properties-files.html
+[INFO] 
+[INFO] --- exec-maven-plugin:3.0.0:exec (package-msi) @ metricshub-windows ---
+[INFO] 
+[INFO] --- maven-antrun-plugin:3.0.0:run (rename-package) @ metricshub-windows ---
+[INFO] Executing tasks
+[INFO]      [move] Moving 1 file to C:\workspace\matrix-reloaded\metricshub-windows\target
+[INFO] Executed tasks
+[INFO] 
+[INFO] --- attach-artifact-maven-plugin:1.0:attach-artifact (attach-artifacts) @ metricshub-windows ---
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for MetricsHub 0.9.01-SNAPSHOT:
+[INFO] 
+[INFO] MetricsHub ......................................... SUCCESS [  4.515 s]
+[INFO] MetricsHub Engine .................................. SUCCESS [01:38 min]
+[INFO] HDF to YAML Converter .............................. SUCCESS [01:00 min]
+[INFO] Connector Serializer for MetricsHub ................ SUCCESS [  2.419 s]
+[INFO] Hardware Energy and Sustainability Module .......... SUCCESS [  1.810 s]
+[INFO] MetricsHub Agent ................................... SUCCESS [01:16 min]
+[INFO] MetricsHub Documentation ........................... SUCCESS [01:11 min]
+[INFO] MetricsHub for Windows ............................. SUCCESS [02:22 min]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  07:37 min
+[INFO] Finished at: 2024-01-12T20:56:40+01:00
+[INFO] ------------------------------------------------------------------------
