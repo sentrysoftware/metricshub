@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sentrysoftware.metricshub.agent.config.protocols.ProtocolsConfig;
 import com.sentrysoftware.metricshub.agent.deserialization.AttributesDeserializer;
+import com.sentrysoftware.metricshub.agent.deserialization.ConnectorVariablesDeserializer;
 import com.sentrysoftware.metricshub.agent.deserialization.MonitorJobsDeserializer;
 import com.sentrysoftware.metricshub.agent.deserialization.TimeDeserializer;
 import com.sentrysoftware.metricshub.engine.connector.model.Connector;
@@ -15,6 +16,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -53,7 +55,8 @@ public class ResourceConfig {
 
 	@Default
 	@JsonSetter(nulls = SKIP)
-	private Map<String, ConnectorVariables> variables = new HashMap<>();
+	@JsonDeserialize(using = ConnectorVariablesDeserializer.class)
+	private Map<String, ConnectorVariables> variables = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 	@Default
 	@JsonSetter(nulls = SKIP)

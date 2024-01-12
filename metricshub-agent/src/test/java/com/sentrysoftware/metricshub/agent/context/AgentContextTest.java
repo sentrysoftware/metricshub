@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.sentrysoftware.metricshub.agent.config.AgentConfig;
+import com.sentrysoftware.metricshub.agent.config.ConnectorVariables;
 import com.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import com.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
 import com.sentrysoftware.metricshub.engine.common.helpers.MapHelper;
@@ -145,5 +146,31 @@ class AgentContextTest {
 				.getHostConfiguration()
 				.getConfiguredConnectorId()
 		);
+	}
+
+	@Test
+	void testInitializeWithConnectorVariables() throws IOException {
+		final AgentContext agentContext = new AgentContext("src/test/resources/config/metricshub-connectorVariables.yaml");
+
+		assertNotNull(agentContext.getAgentInfo());
+		assertNotNull(agentContext.getConfigFile());
+		assertNotNull(agentContext.getPid());
+
+		final AgentConfig agentConfig = agentContext.getAgentConfig();
+		assertNotNull(agentConfig);
+
+		final ResourceConfig resourceConfig = agentConfig
+			.getResourceGroups()
+			.get(SENTRY_PARIS_RESOURCE_GROUP_KEY)
+			.getResources()
+			.get(SERVER_1_RESOURCE_GROUP_KEY);
+		final Map<String, ConnectorVariables> variables = resourceConfig.getVariables();
+		final ConnectorVariables expectedConnectorVariables = ConnectorVariables
+			.builder()
+			.variableValues(Map.of("restQueryPath", "/pure/api/v2"))
+			.build();
+		assertEquals(Map.of("PureStorageREST", expectedConnectorVariables), variables);
+		// Case insensitive check
+		assertEquals(expectedConnectorVariables, variables.get("purestoragerest"));
 	}
 }
