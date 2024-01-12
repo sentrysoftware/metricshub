@@ -33,7 +33,7 @@ import com.sentrysoftware.metricshub.engine.strategy.collect.PostCollectStrategy
 import com.sentrysoftware.metricshub.engine.strategy.collect.PrepareCollectStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.detection.DetectionStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.discovery.DiscoveryStrategy;
-import com.sentrysoftware.metricshub.engine.strategy.discovery.PostDiscoveryStrategy;
+import com.sentrysoftware.metricshub.hardware.strategy.HardwarePostDiscoveryStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.simple.SimpleStrategy;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -156,7 +156,7 @@ class MonitoringTaskTest {
 					any(DetectionStrategy.class),
 					any(DiscoveryStrategy.class),
 					any(SimpleStrategy.class),
-					any(PostDiscoveryStrategy.class)
+					any(HardwarePostDiscoveryStrategy.class)
 				);
 			verify(telemetryManagerMock, times(4))
 				.run(

@@ -1,4 +1,26 @@
-package com.sentrysoftware.metricshub.engine.strategy.discovery;
+package com.sentrysoftware.metricshub.hardware.strategy.discovery;
+
+import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
+import com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
+import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
+import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
+import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
+import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.metricshub.engine.strategy.discovery.DiscoveryStrategy;
+import com.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
+import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
+import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import com.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
+import com.sentrysoftware.metricshub.hardware.strategy.HardwarePostDiscoveryStrategy;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.IS_ENDPOINT;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.AAC_CONNECTOR_ID;
@@ -13,31 +35,14 @@ import static com.sentrysoftware.metricshub.engine.constants.Constants.MONITOR_I
 import static com.sentrysoftware.metricshub.engine.constants.Constants.PHYSICAL_DISK;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.YAML_TEST_PATH;
 import static com.sentrysoftware.metricshub.engine.strategy.AbstractStrategy.CONNECTOR_ID_FORMAT;
+import static com.sentrysoftware.metricshub.hardware.common.Constants.HOST;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.CONNECTOR;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
-
-import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
-import com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
-import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
-import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
-import com.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
-import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
-import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
-import com.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class DiscoveryStrategyTest {
@@ -138,7 +143,7 @@ class DiscoveryStrategyTest {
 
 		// Call DiscoveryStrategy to discover the monitors
 		discoveryStrategy.run();
-		new PostDiscoveryStrategy(telemetryManager, strategyTime, matsyaClientsExecutorMock).run();
+		new HardwarePostDiscoveryStrategy(telemetryManager, strategyTime, matsyaClientsExecutorMock).run();
 
 		// Check discovered monitors
 		final Map<String, Map<String, Monitor>> discoveredMonitors = telemetryManager.getMonitors();
@@ -216,7 +221,7 @@ class DiscoveryStrategyTest {
 				eq(true)
 			);
 		discoveryStrategy.run();
-		new PostDiscoveryStrategy(telemetryManager, nextDiscoveryTime, matsyaClientsExecutorMock).run();
+		new HardwarePostDiscoveryStrategy((telemetryManager, nextDiscoveryTime, matsyaClientsExecutorMock).run();
 
 		// Check that the monitors are set to missing as they are not present in the previous discovery job
 		assertEquals(

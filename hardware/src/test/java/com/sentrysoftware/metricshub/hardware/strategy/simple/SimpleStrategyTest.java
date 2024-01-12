@@ -1,5 +1,32 @@
-package com.sentrysoftware.metricshub.engine.strategy.simple;
+package com.sentrysoftware.metricshub.hardware.strategy.simple;
 
+import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
+import com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
+import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
+import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
+import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
+import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
+import com.sentrysoftware.metricshub.engine.strategy.simple.SimpleStrategy;
+import com.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
+import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
+import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import com.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
+import com.sentrysoftware.metricshub.hardware.strategy.HardwarePostDiscoveryStrategy;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.CONNECTOR;
+import static com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
+import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HOST_NAME;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.IS_ENDPOINT;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.CONNECTOR;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.DISK_CONTROLLER;
@@ -12,34 +39,14 @@ import static com.sentrysoftware.metricshub.engine.constants.Constants.HOST_NAME
 import static com.sentrysoftware.metricshub.engine.constants.Constants.ID;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.MONITOR_ID_ATTRIBUTE_VALUE;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.TEST_CONNECTOR_WITH_SIMPLE_ID;
+import static com.sentrysoftware.metricshub.hardware.common.Constants.DISK_CONTROLLER_PRESENT_METRIC;
+import static com.sentrysoftware.metricshub.hardware.sustainability.HostMonitorThermalCalculatorTest.HOST_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
-
-import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
-import com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
-import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
-import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
-import com.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
-import com.sentrysoftware.metricshub.engine.strategy.discovery.PostDiscoveryStrategy;
-import com.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
-import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
-import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
-import com.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class SimpleStrategyTest {
@@ -63,10 +70,10 @@ class SimpleStrategyTest {
 	@Test
 	void testRun() throws Exception {
 		// Create host and connector monitors and set them in the telemetry manager
-		final Monitor hostMonitor = Monitor.builder().type(KnownMonitorType.HOST.getKey()).build();
+		final Monitor hostMonitor = Monitor.builder().type(HOST.getKey()).build();
 		hostMonitor.getAttributes().put(IS_ENDPOINT, "true");
 
-		final Monitor connectorMonitor = Monitor.builder().type(KnownMonitorType.CONNECTOR.getKey()).build();
+		final Monitor connectorMonitor = Monitor.builder().type(CONNECTOR.getKey()).build();
 		final Map<String, Map<String, Monitor>> monitors = new HashMap<>(
 			Map.of(
 				HOST,
@@ -75,7 +82,7 @@ class SimpleStrategyTest {
 				Map.of(
 					String.format(
 						AbstractStrategy.CONNECTOR_ID_FORMAT,
-						KnownMonitorType.CONNECTOR.getKey(),
+						CONNECTOR.getKey(),
 						TEST_CONNECTOR_WITH_SIMPLE_ID
 					),
 					connectorMonitor
@@ -141,7 +148,7 @@ class SimpleStrategyTest {
 				eq(true)
 			);
 		simpleStrategy.run();
-		new PostDiscoveryStrategy(telemetryManager, strategyTime, matsyaClientsExecutorMock).run();
+		new HardwarePostDiscoveryStrategy((telemetryManager, strategyTime, matsyaClientsExecutorMock).run();
 
 		// Check processed monitors
 		final Map<String, Map<String, Monitor>> processedMonitors = telemetryManager.getMonitors();
@@ -192,7 +199,7 @@ class SimpleStrategyTest {
 				eq(true)
 			);
 		simpleStrategy.run();
-		new PostDiscoveryStrategy(telemetryManager, nextDiscoveryTime, matsyaClientsExecutorMock).run();
+		new HardwarePostDiscoveryStrategy(telemetryManager, nextDiscoveryTime, matsyaClientsExecutorMock).run();
 
 		// Check that the monitors are set to missing when they are not present in the previous simple job
 		assertEquals(0.0, enclosure.getMetric(ENCLOSURE_PRESENT_METRIC, NumberMetric.class).getValue());

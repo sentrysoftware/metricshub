@@ -23,7 +23,7 @@ import com.sentrysoftware.metricshub.engine.strategy.collect.PostCollectStrategy
 import com.sentrysoftware.metricshub.engine.strategy.collect.PrepareCollectStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.detection.DetectionStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.discovery.DiscoveryStrategy;
-import com.sentrysoftware.metricshub.engine.strategy.discovery.PostDiscoveryStrategy;
+import com.sentrysoftware.metricshub.hardware.strategy.HardwarePostDiscoveryStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.simple.SimpleStrategy;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -296,7 +296,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		telemetryManager.run(
 			new DiscoveryStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor),
 			new SimpleStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor),
-			new PostDiscoveryStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor)
+			new HardwarePostDiscoveryStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor)
 		);
 
 		// Perform the collect operation "iterations" times

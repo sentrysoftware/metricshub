@@ -133,13 +133,6 @@ public class Monitor {
 	}
 
 	/**
-	 * Set the current monitor as missing
-	 */
-	public void setAsMissing(final String hostname) {
-		new MetricFactory(hostname).collectNumberMetric(this, String.format(PRESENT_STATUS, type), 0.0, discoveryTime);
-	}
-
-	/**
 	 * Set the current monitor as present
 	 */
 	public void setAsPresent(final String hostname) {

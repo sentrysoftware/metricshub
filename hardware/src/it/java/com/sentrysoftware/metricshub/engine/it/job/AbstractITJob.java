@@ -13,7 +13,6 @@ import com.sentrysoftware.metricshub.engine.strategy.collect.PostCollectStrategy
 import com.sentrysoftware.metricshub.engine.strategy.collect.PrepareCollectStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.detection.DetectionStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.discovery.DiscoveryStrategy;
-import com.sentrysoftware.metricshub.engine.strategy.discovery.PostDiscoveryStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.simple.SimpleStrategy;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.MonitorsVo;
@@ -366,7 +365,7 @@ public abstract class AbstractITJob implements ITJob {
 			new DetectionStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor),
 			new DiscoveryStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor),
 			new SimpleStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor),
-			new PostDiscoveryStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor)
+			new HardwarePostDiscoveryStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor)
 		);
 
 		assertTrue(isServerStarted(), () -> "Server not started.");
