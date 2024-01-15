@@ -19,7 +19,6 @@ public class JUtils {
 	 * @return the encoded string in hex
 	 */
 	public static String encodeSha256(final String input) {
-
 		if (input == null) {
 			return null;
 		}
@@ -35,6 +34,5 @@ public class JUtils {
 			log.error("Error while encoding SHA-256: {}", e.getMessage());
 			return null;
 		}
-
 	}
 }

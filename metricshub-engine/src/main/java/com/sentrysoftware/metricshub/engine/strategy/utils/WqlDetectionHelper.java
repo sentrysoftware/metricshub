@@ -375,9 +375,12 @@ public class WqlDetectionHelper {
 			final String message = t.getMessage();
 			return isAcceptableWmiComError(message);
 		} else if (
-				t instanceof org.sentrysoftware.wbem.client.exceptions.WqlQuerySyntaxException
-						|| t instanceof org.sentrysoftware.winrm.exceptions.WqlQuerySyntaxException
-						|| t instanceof org.sentrysoftware.wmi.exceptions.WqlQuerySyntaxException) {
+			// CHECKSTYLE:OFF
+			t instanceof org.sentrysoftware.wbem.client.exceptions.WqlQuerySyntaxException ||
+			t instanceof org.sentrysoftware.winrm.exceptions.WqlQuerySyntaxException ||
+			t instanceof org.sentrysoftware.wmi.exceptions.WqlQuerySyntaxException
+			// CHECKSTYLE:ON
+		) {
 			return true;
 		}
 
