@@ -65,10 +65,8 @@ class HostMonitorEnergyAndPowerEstimatorTest {
 		telemetryManager.addNewMonitor(enclosure, enclosure.getType(), enclosure.getId());
 
 		// Call computeMeasuredPower and check its response
-		final HostMonitorPowerAndEnergyEstimator hostMonitorEnergyAndPowerEstimator = new HostMonitorPowerAndEnergyEstimator(
-			host,
-			telemetryManager
-		);
+		final HostMonitorPowerAndEnergyEstimator hostMonitorEnergyAndPowerEstimator =
+			new HostMonitorPowerAndEnergyEstimator(host, telemetryManager);
 		Double measuredPower = hostMonitorEnergyAndPowerEstimator.computeMeasuredPower();
 		assertNull(measuredPower);
 		assertNull(CollectHelper.getUpdatedNumberMetricValue(host, HW_HOST_MEASURED_POWER));
@@ -110,10 +108,8 @@ class HostMonitorEnergyAndPowerEstimatorTest {
 		telemetryManager.addNewMonitor(enclosure, enclosure.getType(), enclosure.getId());
 
 		// Call computeMeasuredPower and check its response
-		final HostMonitorPowerAndEnergyEstimator hostMonitorEnergyAndPowerEstimator = new HostMonitorPowerAndEnergyEstimator(
-			host,
-			telemetryManager
-		);
+		final HostMonitorPowerAndEnergyEstimator hostMonitorEnergyAndPowerEstimator =
+			new HostMonitorPowerAndEnergyEstimator(host, telemetryManager);
 		assertEquals(120.0, hostMonitorEnergyAndPowerEstimator.computeMeasuredPower());
 		assertNull(CollectHelper.getUpdatedNumberMetricValue(host, HW_HOST_MEASURED_POWER));
 	}
@@ -197,10 +193,8 @@ class HostMonitorEnergyAndPowerEstimatorTest {
 		telemetryManager.addNewMonitor(enclosure, KnownMonitorType.ENCLOSURE.getKey(), KnownMonitorType.ENCLOSURE.getKey());
 
 		// Call computeEstimatedPower and check its response
-		final HostMonitorPowerAndEnergyEstimator hostMonitorEnergyAndPowerEstimator = new HostMonitorPowerAndEnergyEstimator(
-			host,
-			telemetryManager
-		);
+		final HostMonitorPowerAndEnergyEstimator hostMonitorEnergyAndPowerEstimator =
+			new HostMonitorPowerAndEnergyEstimator(host, telemetryManager);
 		assertEquals(77.78, hostMonitorEnergyAndPowerEstimator.computeEstimatedPower());
 	}
 
@@ -293,10 +287,8 @@ class HostMonitorEnergyAndPowerEstimatorTest {
 		telemetryManager.addNewMonitor(enclosure, KnownMonitorType.ENCLOSURE.getKey(), KnownMonitorType.ENCLOSURE.getKey());
 
 		// Call computeEstimatedPower and computeEstimatedEnergy and check their response
-		final HostMonitorPowerAndEnergyEstimator hostMonitorEnergyAndPowerEstimator = new HostMonitorPowerAndEnergyEstimator(
-			host,
-			telemetryManager
-		);
+		final HostMonitorPowerAndEnergyEstimator hostMonitorEnergyAndPowerEstimator =
+			new HostMonitorPowerAndEnergyEstimator(host, telemetryManager);
 		hostMonitorEnergyAndPowerEstimator.computeEstimatedPower();
 		assertEquals(9333.6, hostMonitorEnergyAndPowerEstimator.computeEstimatedEnergy());
 	}
@@ -326,10 +318,8 @@ class HostMonitorEnergyAndPowerEstimatorTest {
 		telemetryManager.addNewMonitor(enclosure, enclosure.getType(), enclosure.getId());
 
 		// Call computeMeasuredEnergy and check its response
-		final HostMonitorPowerAndEnergyEstimator hostMonitorEnergyAndPowerEstimator = new HostMonitorPowerAndEnergyEstimator(
-			host,
-			telemetryManager
-		);
+		final HostMonitorPowerAndEnergyEstimator hostMonitorEnergyAndPowerEstimator =
+			new HostMonitorPowerAndEnergyEstimator(host, telemetryManager);
 		hostMonitorEnergyAndPowerEstimator.computeMeasuredEnergy();
 
 		assertEquals(3520255.0, CollectHelper.getNumberMetricValue(host, HW_HOST_MEASURED_ENERGY, false));

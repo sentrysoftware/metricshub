@@ -291,10 +291,10 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 
 			// The bandwidths are 'byteRate * 8 / linkSpeed (in Bit/s)'
 			final Double bandwidthUtilizationTransmitted = HwCollectHelper.isValidPositive(transmittedByteRate)
-				? transmittedByteRate * 8 / linkSpeed
+				? (transmittedByteRate * 8) / linkSpeed
 				: null;
 			final Double bandwidthUtilizationReceived = HwCollectHelper.isValidPositive(receivedByteRate)
-				? receivedByteRate * 8 / linkSpeed
+				? (receivedByteRate * 8) / linkSpeed
 				: null;
 
 			final MetricFactory metricFactory = new MetricFactory(hostname);
