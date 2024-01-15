@@ -1,6 +1,20 @@
 package com.sentrysoftware.metricshub.hardware.strategy.simple;
 
-import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
+import static com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.CONNECTOR;
+import static com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.DISK_CONTROLLER;
+import static com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
+import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.IS_ENDPOINT;
+import static com.sentrysoftware.metricshub.hardware.common.Constants.DISK_CONTROLLER_PRESENT_METRIC;
+import static com.sentrysoftware.metricshub.hardware.common.Constants.ENCLOSURE_PRESENT_METRIC;
+import static com.sentrysoftware.metricshub.hardware.common.Constants.YAML_TEST_PATH;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.ENCLOSURE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+
 import com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
@@ -13,52 +27,16 @@ import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 import com.sentrysoftware.metricshub.hardware.strategy.HardwarePostDiscoveryStrategy;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-import static com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.CONNECTOR;
-import static com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
-import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HOST_NAME;
-import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.IS_ENDPOINT;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.CONNECTOR;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.DISK_CONTROLLER;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.DISK_CONTROLLER_PRESENT_METRIC;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.ENCLOSURE;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.ENCLOSURE_PRESENT_METRIC;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.HOST;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.HOST_ID;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.HOST_NAME;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.ID;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.MONITOR_ID_ATTRIBUTE_VALUE;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.TEST_CONNECTOR_WITH_SIMPLE_ID;
-import static com.sentrysoftware.metricshub.hardware.common.Constants.DISK_CONTROLLER_PRESENT_METRIC;
-import static com.sentrysoftware.metricshub.hardware.sustainability.HostMonitorThermalCalculatorTest.HOST_ID;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
-
 @ExtendWith(MockitoExtension.class)
 class SimpleStrategyTest {
-
-	private static final Path TEST_CONNECTOR_PATH = Paths.get(
-		"src",
-		"test",
-		"resources",
-		"test-files",
-		"strategy",
-		"TestConnectorWithSimple.yaml"
-	);
 
 	@Mock
 	private MatsyaClientsExecutor matsyaClientsExecutorMock;
@@ -76,15 +54,11 @@ class SimpleStrategyTest {
 		final Monitor connectorMonitor = Monitor.builder().type(CONNECTOR.getKey()).build();
 		final Map<String, Map<String, Monitor>> monitors = new HashMap<>(
 			Map.of(
-				HOST,
-				Map.of(MONITOR_ID_ATTRIBUTE_VALUE, hostMonitor),
-				CONNECTOR,
+				HOST.getKey(),
+				Map.of("monitor1", hostMonitor),
+				CONNECTOR.getKey(),
 				Map.of(
-					String.format(
-						AbstractStrategy.CONNECTOR_ID_FORMAT,
-						CONNECTOR.getKey(),
-						TEST_CONNECTOR_WITH_SIMPLE_ID
-					),
+					String.format(AbstractStrategy.CONNECTOR_ID_FORMAT, CONNECTOR.getKey(), "TestConnectorWithSimple"),
 					connectorMonitor
 				)
 			)
@@ -98,18 +72,18 @@ class SimpleStrategyTest {
 			.hostConfiguration(
 				HostConfiguration
 					.builder()
-					.hostId(HOST_ID)
-					.hostname(HOST_NAME)
+					.hostId("host-01")
+					.hostname("ec-02")
 					.sequential(false)
 					.configurations(Map.of(SnmpConfiguration.class, snmpConfig))
 					.build()
 			)
 			.build();
 
-		connectorMonitor.getAttributes().put(ID, TEST_CONNECTOR_WITH_SIMPLE_ID);
+		connectorMonitor.getAttributes().put("id", "TestConnectorWithSimple");
 
 		// Create the connector store
-		final ConnectorStore connectorStore = new ConnectorStore(TEST_CONNECTOR_PATH);
+		final ConnectorStore connectorStore = new ConnectorStore(YAML_TEST_PATH);
 		telemetryManager.setConnectorStore(connectorStore);
 
 		// Set simple strategy information
@@ -148,13 +122,13 @@ class SimpleStrategyTest {
 				eq(true)
 			);
 		simpleStrategy.run();
-		new HardwarePostDiscoveryStrategy((telemetryManager, strategyTime, matsyaClientsExecutorMock).run();
+		new HardwarePostDiscoveryStrategy(telemetryManager, strategyTime, matsyaClientsExecutorMock).run();
 
 		// Check processed monitors
 		final Map<String, Map<String, Monitor>> processedMonitors = telemetryManager.getMonitors();
 
 		final Map<String, Monitor> enclosureMonitors = processedMonitors.get(ENCLOSURE);
-		final Map<String, Monitor> diskControllerMonitors = processedMonitors.get(DISK_CONTROLLER);
+		final Map<String, Monitor> diskControllerMonitors = processedMonitors.get(DISK_CONTROLLER.getKey());
 
 		assertEquals(4, processedMonitors.size());
 		assertEquals(1, enclosureMonitors.size());

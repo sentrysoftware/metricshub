@@ -258,7 +258,6 @@ public class Constants {
 	public static final String COMMAND_FILE_ABSOLUTE_PATH =
 		"${file::src\\test\\resources\\test-files\\embedded\\connector2\\command.txt}";
 	public static final String EMBEDDED_TEMP_FILE_PREFIX = "SEN_Embedded_";
-	public static final String TXT_FILE_EXTENSION = "txt";
 	public static final String BAT_FILE_EXTENSION = "\\w+\\.bat";
 	public static final Path YAML_TEST_PATH = Paths.get(
 		"src",
@@ -480,5 +479,4 @@ public class Constants {
 	public static final String STATUS_INFORMATION = "StatusInformation";
 
 	public static final String ENCLOSURE_PRESENT_METRIC = "hw.status{hw.type=\"enclosure\", state=\"present\"}";
-
 }

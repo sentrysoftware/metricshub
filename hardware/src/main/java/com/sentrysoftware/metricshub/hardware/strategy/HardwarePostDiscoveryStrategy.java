@@ -1,5 +1,7 @@
 package com.sentrysoftware.metricshub.hardware.strategy;
 
+import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.PRESENT_STATUS;
+
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
@@ -11,8 +13,6 @@ import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-
-import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.PRESENT_STATUS;
 
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -42,8 +42,8 @@ public class HardwarePostDiscoveryStrategy extends AbstractStrategy {
 	 * @return boolean
 	 */
 	private boolean monitorHasKnownType(final String monitorType) {
-		for(KnownMonitorType type: KnownMonitorType.values()){
-			if(type.getKey().equals(monitorType)) {
+		for (KnownMonitorType type : KnownMonitorType.values()) {
+			if (type.getKey().equals(monitorType)) {
 				return true;
 			}
 		}
@@ -60,6 +60,8 @@ public class HardwarePostDiscoveryStrategy extends AbstractStrategy {
 			.flatMap(Collection::stream)
 			.filter(monitor -> monitorHasKnownType(monitor.getType()))
 			.filter(monitor -> !strategyTime.equals(monitor.getDiscoveryTime()))
-			.forEach(monitor -> setAsMissing(monitor, telemetryManager.getHostname(),PRESENT_STATUS));
+			.forEach(monitor ->
+				setAsMissing(monitor, telemetryManager.getHostname(), String.format(PRESENT_STATUS, monitor.getType()))
+			);
 	}
 }

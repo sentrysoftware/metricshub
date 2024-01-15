@@ -1,5 +1,12 @@
 package com.sentrysoftware.metricshub.hardware.strategy;
 
+import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
+import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_NAME;
+import static com.sentrysoftware.metricshub.hardware.common.Constants.ENCLOSURE_PRESENT_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.CONNECTOR;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.ENCLOSURE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
@@ -9,17 +16,9 @@ import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.MonitorFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
-import org.junit.jupiter.api.Test;
-
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
-import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_NAME;
-import static com.sentrysoftware.metricshub.hardware.common.Constants.ENCLOSURE_PRESENT_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.CONNECTOR;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.ENCLOSURE;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
 
 class HardwarePostDiscoveryStrategyTest {
 

@@ -33,12 +33,12 @@ import com.sentrysoftware.metricshub.engine.strategy.collect.PostCollectStrategy
 import com.sentrysoftware.metricshub.engine.strategy.collect.PrepareCollectStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.detection.DetectionStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.discovery.DiscoveryStrategy;
-import com.sentrysoftware.metricshub.hardware.strategy.HardwarePostDiscoveryStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.simple.SimpleStrategy;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
+import com.sentrysoftware.metricshub.hardware.strategy.HardwarePostDiscoveryStrategy;
 import com.sentrysoftware.metricshub.hardware.strategy.HardwareStrategy;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;

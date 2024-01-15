@@ -1,5 +1,8 @@
 package com.sentrysoftware.metricshub.hardware.common;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 public class Constants {
 
 	public static final String FAN_SPEED_METRIC = "hw.fan.speed";
@@ -50,6 +53,7 @@ public class Constants {
 
 	public static final String HW_CONNECTOR = "hw_connector";
 	public static final String DISK_CONTROLLER_PRESENT_METRIC =
-			"hw.status{hw.type=\"disk_controller\", state=\"present\"}";
+		"hw.status{hw.type=\"disk_controller\", state=\"present\"}";
 	public static final String ENCLOSURE_PRESENT_METRIC = "hw.status{hw.type=\"enclosure\", state=\"present\"}";
+	public static final Path YAML_TEST_PATH = Paths.get("src", "test", "resources", "yaml-test-file");
 }
