@@ -1,0 +1,48 @@
+Cluster Name: NYC-CS-Isilon
+Cluster Health:     [  OK ]
+Cluster Storage:  HDD                 SSD Storage
+Size:             75.5T (79.3T Raw)   0 (0 Raw)
+VHS Size:         3.8T
+Used:             57.2T (76%)         0 (n/a)
+Avail:            18.4T (24%)         0 (n/a)
+                   Health  Throughput (bps)  HDD Storage      SSD Storage
+ID |IP Address     |DASR |  In   Out  Total| Used / Size     |Used / Size
+---+---------------+-----+-----+-----+-----+-----------------+-----------------
+  1|10.194.104.32  | OK  |    0|14.7M|14.7M|14.3T/19.8T( 72%)|        L3:  745G
+  2|10.194.104.33  | OK  |    0| 180k| 180k|14.3T/19.8T( 72%)|        L3:  745G
+  3|10.194.104.34  | OK  | 148k| 7.3k| 155k|14.3T/19.8T( 72%)|        L3:  745G
+  4|10.194.104.35  | OK  |    0|41.4M|41.4M|14.3T/19.8T( 72%)|        L3:  745G
+---+---------------+-----+-----+-----+-----+-----------------+-----------------
+Cluster Totals:          | 148k|56.3M|56.4M|57.2T/75.5T( 76%)|        L3:  2.9T
+     Health Fields: D = Down, A = Attention, S = Smartfailed, R = Read-Only
+Critical Events:
+Cluster Job Status:
+No running jobs.
+Paused and waiting jobs:
+Job                        Impact Pri Policy     Phase Run Time   State
+-------------------------- ------ --- ---------- ----- ---------- -------------
+MediaScan[298]             Low    8   LOW        1/7   0:35:41    User Paused
+        Progress: Started
+FSAnalyze[10623]           Low    6   LOW        1/2   1d 20:45   User Paused
+        Progress: Processed 215891378 LINs; 0 errors
+SmartPools[10683]          Low    6   LOW        1/2   12:55:43   User Paused
+        Progress: Processed 84257906 LINs and approx. 18 TB: 81135839 files,
+        3122067 directories; 0 errors Block Based Estimate: 16h 8m 50s Remaining
+        (44% Complete)
+ShadowStoreProtect[10696]  Low    6   LOW        1/1   0:00:00    User Paused
+        Progress: n/a
+MultiScan[10713]           Low    4   LOW        1/4   0:20:13    User Paused
+        (AutoBalance)
+        Progress: AutoBalance: 7367379 LINs, 0 errors 0 errors total
+No failed jobs.
+Recent job results:
+Time            Job                        Event                          Run Time
+--------------- -------------------------- ------------------------------ ----------
+02/27 06:23:57  SnapshotDelete[11434]      Succeeded (MEDIUM)             0:00:43
+02/27 05:54:19  SnapshotDelete[11433]      Succeeded (MEDIUM)             0:01:08
+02/27 05:23:55  SnapshotDelete[11432]      Succeeded (MEDIUM)             0:00:46
+02/27 04:54:15  SnapshotDelete[11431]      Succeeded (MEDIUM)             0:01:08
+02/27 04:24:21  SnapshotDelete[11430]      Succeeded (MEDIUM)             0:01:16
+02/27 03:53:55  SnapshotDelete[11429]      Succeeded (MEDIUM)             0:00:52
+02/27 03:23:52  SnapshotDelete[11428]      Succeeded (MEDIUM)             0:00:51
+02/27 02:53:36  SnapshotDelete[11427]      Succeeded (MEDIUM)             0:00:36

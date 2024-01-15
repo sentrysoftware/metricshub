@@ -1,0 +1,3 @@
+MSHW;ent0;	Virtual I/O Ethernet Adapter (l-lan);Logical;36:0B:C1:C2:00:02;Hardware Location Code: U8231.E2B.06BA5AP-V3-C2-T1;
+MSHW;ent1;	Virtual I/O Ethernet Adapter (l-lan);Logical;36:0B:C1:C2:00:06;Hardware Location Code: U8231.E2B.06BA5AP-V3-C6-T1;
+MSHW;ent2;	Virtual I/O Ethernet Adapter (l-lan);Logical;36:0B:C1:C2:00:07;Hardware Location Code: U8231.E2B.06BA5AP-V3-C7-T1;

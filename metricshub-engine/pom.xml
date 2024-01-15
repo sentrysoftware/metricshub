@@ -35,8 +35,8 @@
 			<artifactId>spring-context</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.sentrysoftware.patrol.matsya</groupId>
-			<artifactId>module-awk</artifactId>
+			<groupId>org.sentrysoftware</groupId>
+			<artifactId>jawk</artifactId>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>
@@ -109,10 +109,6 @@
 			<artifactId>xflat</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.sentrysoftware.patrol.matsya</groupId>
-			<artifactId>module-jutils</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.sentrysoftware.emulation</groupId>
 			<artifactId>emulation-framework-http-server</artifactId>
 			<scope>test</scope>
@@ -143,6 +139,11 @@
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-params</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

@@ -1,0 +1,10 @@
+MSHW;ChassisFan1;Ok;;
+MSHW;ChassisFan2;Ok;;
+MSHW;ChassisFan3;Ok;;
+MSHW;Fan_in_PS1;Failure;Failure;
+MSHW;Fan_in_PS2;Failure;Failure;
+MSHW;ChassisFan1;Ok;;
+MSHW;ChassisFan2;Ok;;
+MSHW;ChassisFan3;Ok;;
+MSHW;Fan_in_PS1;Failure;Failure;
+MSHW;Fan_in_PS2;Failure;Failure;

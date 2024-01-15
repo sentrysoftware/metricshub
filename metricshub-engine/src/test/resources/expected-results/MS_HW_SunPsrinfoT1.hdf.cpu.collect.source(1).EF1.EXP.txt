@@ -1,0 +1,1 @@
+MSHW;0;UltraSPARC-T2;1165

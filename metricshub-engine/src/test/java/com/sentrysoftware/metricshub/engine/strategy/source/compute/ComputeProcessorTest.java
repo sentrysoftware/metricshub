@@ -2426,12 +2426,14 @@ class ComputeProcessorTest {
 
 		final Awk awkOK = Awk
 			.builder()
-			.script("""
-						BEGIN { FS = ";"; }
-						{
-							print $1 ";" $2 ";" $3 ";"
-						}
-					""")
+			.script(
+				"""
+					BEGIN { FS = ";"; }
+					{
+						print $1 ";" $2 ";" $3 ";"
+					}
+				"""
+			)
 			.keep("^" + ID1)
 			.separators(TABLE_SEP)
 			.selectColumns(ONE_TWO_THREE)

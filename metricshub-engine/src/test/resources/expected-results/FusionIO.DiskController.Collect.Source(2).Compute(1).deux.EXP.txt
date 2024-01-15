@@ -1,0 +1,3 @@
+MSHW_ADAPTER;fct0:fct1:;ioDrive Duo;ALARM;External Power: NOT connected;
+MSHW_DISK_TO_ADAPTER;fct0;fct0:fct1:;
+MSHW_DISK_TO_ADAPTER;fct1;fct0:fct1:;

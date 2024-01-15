@@ -1,0 +1,68 @@
+f0_rs (fan, e300000a80)
+  :_fru_parent	 (e3000007c3H) 
+  :Label	 RS 
+  :SpeedUnit	  rpm 
+  :LowWarningThreshold	 0x3e8 
+  :Speed	 0x1df6 
+  :_class	 fan 
+  :name	 f0_rs 
+  f1_rs (fan, e300000a87)
+  :_fru_parent	 (e3000007c6H) 
+  :Label	 RS 
+  :SpeedUnit	  rpm 
+  :LowWarningThreshold	 0x3e8 
+  :Speed	 0x1e4e 
+  :_class	 fan 
+  :name	 f1_rs 
+  f2_rs (fan, e300000a8e)
+  :_fru_parent	 (e3000007c9H) 
+  :Label	 RS 
+  :SpeedUnit	  rpm 
+  :LowWarningThreshold	 0x3e8 
+  :Speed	 0x1e4e 
+  :_class	 fan 
+  :name	 f2_rs 
+  mb_p0_f0_rs (fan, e300000a95)
+  :_fru_parent	 (e300000893H) 
+  :Label	 RS 
+  :SpeedUnit	  rpm 
+  :LowWarningThreshold	 0x7d0 
+  :Speed	 0x404f 
+  :_class	 fan 
+  :name	 mb_p0_f0_rs 
+  mb_p0_f1_rs (fan, e300000a9c)
+  :_fru_parent	 (e30000089bH) 
+  :Label	 RS 
+  :SpeedUnit	  rpm 
+  :LowWarningThreshold	 0x7d0 
+  :Speed	 0x3d51 
+  :_class	 fan 
+  :name	 mb_p0_f1_rs 
+  mb_p1_f0_rs (fan, e300000aa3)
+  :_fru_parent	 (e3000008c0H) 
+  :Label	 RS 
+  :SpeedUnit	  rpm 
+  :LowWarningThreshold	 0x7d0 
+  :Speed	 0x439b 
+  :_class	 fan 
+  :name	 mb_p1_f0_rs 
+  mb_p1_f1_rs (fan, e300000aaa)
+  :_fru_parent	 (e3000008c8H) 
+  :Label	 RS 
+  :SpeedUnit	  rpm 
+  :LowWarningThreshold	 0x7d0 
+  :Speed	 0 
+  :_class	 fan 
+  :name	 mb_p1_f1_rs 
+  ps0_ff_fan (fan, e300000ab1)
+  :_fru_parent	 (e3000007aaH) 
+  :Label	 FF_FAN 
+  :SpeedUnit	 okay 
+  :_class	 fan 
+  :name	 ps0_ff_fan 
+  ps1_ff_fan (fan, e300000ab6)
+  :_fru_parent	 (e3000007adH) 
+  :Label	 FF_FAN 
+  :SpeedUnit	 okay 
+  :_class	 fan 
+  :name	 ps1_ff_fan

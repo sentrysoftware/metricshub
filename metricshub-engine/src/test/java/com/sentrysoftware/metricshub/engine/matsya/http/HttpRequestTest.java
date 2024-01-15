@@ -25,7 +25,8 @@ import org.mockito.MockedStatic;
 class HttpRequestTest {
 
 	private static final String CONNECTION_KEEP_ALIVE_HEADER = "Connection: keep-alive";
-	private static final String BODY = """
+	private static final String BODY =
+		"""
 		{ "key" : "value" }
 		""";
 	private static final HttpConfiguration HTTP_CONFIG = HttpConfiguration.builder().build();

@@ -1,0 +1,100 @@
+  
+Found 1 VSL driver package:
+          4.2.0 build 988 Driver: loaded
+       
+       Found 2 ioMemory devices in this system
+       
+       Adapter: ioMono  (driver 4.2.0)
+       	ioMemory SX350-6400, Product Number:SDFADCMOS-6T40-SF1, SN:1538G0019, FIO SN:1538G0019
+       	ioMemory Adapter Controller, PN:5490-72189-6400G
+       	Product UUID:e7933a87-008d-5d44-b26c-bce56cf171b2
+       	PCIe Bus voltage: avg 12.25V
+       	PCIe Bus current: avg 0.57A
+       	PCIe Bus power: avg 6.99W
+       	PCIe Power limit threshold: 24.75W
+       	PCIe slot available power: unavailable
+       	Connected ioMemory modules:
+       	  fct0:	  c1:00.0:	Product Number:SDFADCMOS-6T40-SF1, SN:1538G0019
+       
+       fct0	Attached
+       	ioMemory Adapter Controller, Product Number:SDFADCMOS-6T40-SF1, SN:1538G0019
+       	ioMemory Adapter Controller, PN:5490-72189-6400G
+       	Microcode Versions: App:0.0.13.0
+       	Powerloss protection: protected
+       	PCI:c1:00.0, Slot Number:1
+       	Vendor:1aed, Device:3001, Sub vendor:1aed, Sub device:3001
+       	Firmware v8.7.17, rev 20150408 Public
+       	6400.00 GBytes device size
+       	Format: v500, 1562500000 sectors of 4096 bytes
+       	PCIe slot available power: unavailable
+       	PCIe negotiated link: 8 lanes at 5.0 Gt/sec each, 4000.00 MBytes/sec total
+       	Internal temperature: 37.40 degC, max 43.80 degC
+       	Internal voltage: avg 1.02V, max 1.03V
+       	Aux voltage: avg 1.79V, max 1.81V
+       	Reserve space status: Healthy; Reserves: 100.00%, warn at 10.00%
+       	Active media: 100.00%
+       	Rated PBW: 22.00 PB, 99.83% remaining
+       	Lifetime data volumes:
+       	   Physical bytes written: 37,607,086,235,376
+       	   Physical bytes read   : 24,203,749,122,048
+       	RAM usage:
+       	   Current: 810,281,216 bytes
+       	   Peak   : 810,471,296 bytes
+       	Contained Virtual Partitions:
+       	  fct0:	ID:0, UUID:18698b95-c271-4e26-9cbd-db9b96c3d376
+       
+       fct0	State: Online, Type: block device, Device: unavailable
+       	ID:0, UUID:18698b95-c271-4e26-9cbd-db9b96c3d376
+       	6400.00 GBytes device size
+       	Format: 1562500000 sectors of 4096 bytes
+       	Sectors In Use: 1308376937
+       	Max Physical Sectors Allowed: 1562500000
+       	Min Physical Sectors Reserved: 1562500000
+       
+       Adapter: ioMono  (driver 4.2.0)
+       	ioMemory SX350-6400, Product Number:SDFADCMOS-6T40-SF1, SN:1538G0049, FIO SN:1538G0049
+       	ioMemory Adapter Controller, PN:5490-72189-6400G
+       	Product UUID:68f93bf4-5bcf-52a8-a895-5721c62371ab
+       	PCIe Bus voltage: avg 12.23V
+       	PCIe Bus current: avg 0.55A
+       	PCIe Bus power: avg 6.75W
+       	PCIe Power limit threshold: 24.75W
+       	PCIe slot available power: unavailable
+       	Connected ioMemory modules:
+       	  fct1:	  c4:00.0:	Product Number:SDFADCMOS-6T40-SF1, SN:1538G0049
+       
+       fct1	Attached
+       	ioMemory Adapter Controller, Product Number:SDFADCMOS-6T40-SF1, SN:1538G0049
+       	ioMemory Adapter Controller, PN:5490-72189-6400G
+       	Microcode Versions: App:0.0.13.0
+       	Powerloss protection: protected
+       	PCI:c4:00.0, Slot Number:2
+       	Vendor:1aed, Device:3001, Sub vendor:1aed, Sub device:3001
+       	Firmware v8.7.17, rev 20150408 Public
+       	6400.00 GBytes device size
+       	Format: v500, 1562500000 sectors of 4096 bytes
+       	PCIe slot available power: unavailable
+       	PCIe negotiated link: 8 lanes at 5.0 Gt/sec each, 4000.00 MBytes/sec total
+       	Internal temperature: 36.91 degC, max 42.82 degC
+       	Internal voltage: avg 1.02V, max 1.03V
+       	Aux voltage: avg 1.80V, max 1.81V
+       	Reserve space status: Healthy; Reserves: 100.00%, warn at 10.00%
+       	Active media: 100.00%
+       	Rated PBW: 22.00 PB, 99.94% remaining
+       	Lifetime data volumes:
+       	   Physical bytes written: 12,639,894,181,992
+       	   Physical bytes read   : 5,761,286,060,032
+       	RAM usage:
+       	   Current: 858,535,552 bytes
+       	   Peak   : 858,719,872 bytes
+       	Contained Virtual Partitions:
+       	  fct1:	ID:0, UUID:6a21065c-2f1a-49c5-b8be-b3abdb3460e8
+       
+       fct1	State: Online, Type: block device, Device: unavailable
+       	ID:0, UUID:6a21065c-2f1a-49c5-b8be-b3abdb3460e8
+       	6400.00 GBytes device size
+       	Format: 1562500000 sectors of 4096 bytes
+       	Sectors In Use: 1562182368
+       	Max Physical Sectors Allowed: 1562500000
+       	Min Physical Sectors Reserved: 1562500000 
+       	

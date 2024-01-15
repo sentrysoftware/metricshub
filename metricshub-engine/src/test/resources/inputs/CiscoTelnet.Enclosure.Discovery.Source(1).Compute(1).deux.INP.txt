@@ -1,0 +1,98 @@
+show hardware
+
+Cisco Nexus Operating System (NX-OS) Software
+TAC support: http://www.cisco.com/tac
+Copyright (c) 2002-2012, Cisco Systems, Inc. All rights reserved.
+The copyrights to certain works contained herein are owned by
+other third parties and are used and distributed under license.
+Some parts of this software are covered under the GNU Public
+License. A copy of the license is available at
+http://www.gnu.org/licenses/gpl.html.
+
+Software
+  BIOS:      version 1.0.19
+  loader:    version N/A
+  kickstart: version 4.2(9)
+  system:    version 4.2(9)
+  BIOS compile time:       02/01/10
+  kickstart image file is: bootflash:/m9100-s2ek9-kickstart-mz.4.2.9.bin
+  kickstart compile time:  3/8/2012 22:00:00 [04/17/2012 00:13:54]
+  system image file is:    bootflash:/m9100-s2ek9-mz.4.2.9.bin
+  system compile time:     3/8/2012 22:00:00 [04/17/2012 01:34:44]
+
+
+Hardware
+  cisco MDS 9124 (1 Slot) Chassis ("1/2/4 Gbps FC/Supervisor-2")
+  Motorola, e500  with 516128 kB of memory.
+  Processor Board ID JAE1125MAGK
+
+  Device name: cisco-san-02
+  bootflash:     250368 kB
+Kernel uptime is 10 day(s), 4 hour(s), 26 minute(s), 51 second(s)
+
+Last reset 
+  Reason: Unknown
+  System version: 4.2(9)
+  Service: 
+--------------------------------
+Switch hardware ID information
+--------------------------------
+
+Switch is booted up
+  Switch type is : MDS 9124 (1 Slot) Chassis
+  Model number is DS-C9124-K9
+  H/W version is 1.0
+  Part Number is 73-10583-03
+  Part Revision is A2
+  Manufacture Date is Year 11 Week 13
+  Serial number is FOX11130QAR
+  CLEI code is COM7600ARA
+
+--------------------------------
+Chassis has 1 Module slots
+--------------------------------
+
+Module1  ok
+  Module type is : 1/2/4 Gbps FC/Supervisor-2
+  0 submodules are present
+  Model number is DS-C9124-K9-SUP
+  H/W version is 1.0
+  Part Number is 73-10583-03
+  Part Revision is A2
+  Manufacture Date is Year 11 Week 25
+  Serial number is JAE1125MAGK
+  CLEI code is COM7600ARA
+
+---------------------------------------
+Chassis has 2 PowerSupply Slots
+---------------------------------------
+
+PS1 ok
+  Power supply type is: 299.88W DC
+  Model number is PWR-C49-300AC
+  H/W version is 176.0
+  Part Number is 341-0103-02
+  Part Revision is B0
+  Manufacture Date is Year 10 Week 43
+  Serial number is PAC10430MQP
+  CLEI code is 
+
+PS2 ok
+  Power supply type is: 299.88W DC
+  Model number is DS-C24-300AC
+  H/W version is 160.0
+  Part Number is 341-0250-01
+  Part Revision is A0
+  Manufacture Date is Year 11 Week 14
+  Serial number is PAC1114301G
+  CLEI code is 
+
+----------------------------------
+Chassis has 3 Fan slots
+----------------------------------
+
+Fan1 ok
+
+Fan2 ok
+
+Fan3 ok

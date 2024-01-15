@@ -1,0 +1,2 @@
+Memory size: 8192 Megabytes
+SUNW,SPARC-Enterprise-T5220

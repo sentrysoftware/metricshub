@@ -1,0 +1,36 @@
+MSHWController 1
+Controllers found: 1
+----------------------------------------------------------------------
+Controller information
+----------------------------------------------------------------------
+   Controller Status                        : Optimal
+   Channel description                      : SAS/SATA
+   Controller Model                         : IBM ServeRAID 8k    
+   Controller Serial Number                 : C4EAC0
+   Physical Slot                            : 0
+   Installed memory                         : 256 MB
+   Copyback                                 : Disabled
+   Background consistency check             : Enabled
+   Automatic Failover                       : Enabled
+   Stayawake period                         : Disabled
+   Spinup limit internal drives             : 0
+   Spinup limit external drives             : 0
+   Defunct disk drive count                 : 0
+   Logical devices/Failed/Degraded          : 1/0/1
+   --------------------------------------------------------
+   Controller Version Information
+   --------------------------------------------------------
+   BIOS                                     : 5.2-0 (15421)
+   Firmware                                 : 5.2-0 (15421)
+   Driver                                   : 1.1-5 (2461)
+   Boot Flash                               : 5.1-0 (15407)
+   --------------------------------------------------------
+   Controller Battery Information
+   --------------------------------------------------------
+   Status                                   : Optimal
+   Over temperature                         : No
+   Capacity remaining                       : 100 percent
+   Time remaining (at current draw)         : 4 days, 0 hours, 52 minutes
+
+
+Command completed successfully.

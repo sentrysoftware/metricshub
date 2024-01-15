@@ -1,0 +1,14 @@
+Result:
+ getsysinfo -c
+Chassis Information:
+System Model = PowerEdgeM1000eControlPanel
+RAC event log gettraclog
+System event log getsel
+Subsystem RACADM Command
+72 RACADM Subcommands
+System AssetTag = 00000
+Service Tag =
+Chassis Name = Dell Rack System
+Chassis Location = [UNDEFINED]
+Power Status = ON
+[patrol@Dell-M1000E-BladeChassis ~]$

@@ -1,0 +1,3 @@
+MSHW;0;D: - Extend;D:;Simple;NTFS;479962595328;Healthy;;
+MSHW;1;C:;C:;Simple;NTFS;238370684928;Healthy;Boot;
+MSHW;2;E: - R?serv? au;E:;Simple;NTFS;367001600;Healthy;System;

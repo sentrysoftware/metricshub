@@ -1,0 +1,3 @@
+MSHW;1;IC Switch - Ethernet;HP 1Gb Ethernet Pass-Thru Module for c-Class BladeSystem;
+MSHW;3;IC Switch - Fibre;HP 4Gb VC-FC Module;
+MSHW;4;IC Switch - Fibre;Cisco MDS 9124e 12-port Fabric Switch, HP c-Class BladeSystem;

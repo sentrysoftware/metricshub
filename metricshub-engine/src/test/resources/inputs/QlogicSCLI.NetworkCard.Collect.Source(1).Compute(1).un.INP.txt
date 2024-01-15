@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<QLogic>
+    <AppName>SANsurfer FC/CNA HBA CLI</AppName>
+    <AppVersion>1.7.3.32</AppVersion>
+    <AppXmlVersion>2.0</AppXmlVersion>
+	<HBA>
+		<GeneralInfo Instance="1"
+		HBAModel="QLE220"
+		Description="QLE220 PCI Express to 4Gb FC Single Channel"
+		HBAID="1-QLE220"
+		HBAAlias=""
+		HBAPort="1"
+		PortAlias=""
+		WWNN="20-00-00-1B-32-88-93-BB"
+		WWPN="21-00-00-1B-32-88-93-BB"
+		PortID="63-06-13"
+		SerialNumber="RFC0902F72307"
+		DriverVersion="8.03.07.05.06.2-k"
+		BIOSVersion="2.02"
+		FirmwareVersion="5.06.02 (9496)"
+		OptionROMBiosVersion="2.02"
+		OptionROMFCodeVersion="2.00"
+		OptionROMEFIVersion="2.03"
+		OptionROMFirmwareVersion="4.04.02"
+		PCIBus="21"
+		PCIDevice="0"
+		ActualConnectionMode="Point To Point"
+		ActualDataRate="2 Gbps"
+		TargetCount="8"
+		PortType="NPort"
+		PCIeMaxBusWidth="x4"
+		PCIeMaxBusSpeed="2.5 Gbps"
+		PCIeNegotiatedWidth="x4"
+		PCIeNegotiatedSpeed="2.5 Gbps"
+		Status="Online" />
+	</HBA>
+	<HBA>
+		<GeneralInfo Instance="0"
+		HBAModel="QLE220"
+		Description="QLE220 PCI Express to 4Gb FC Single Channel"
+		HBAID="0-QLE220"
+		HBAAlias=""
+		HBAPort="1"
+		PortAlias=""
+		WWNN="20-00-00-1B-32-92-5F-D1"
+		WWPN="21-00-00-1B-32-92-5F-D1"
+		PortID="63-07-13"
+		SerialNumber="RFC0935M33247"
+		DriverVersion="8.03.07.05.06.2-k"
+		BIOSVersion="2.02"
+		FirmwareVersion="5.06.02 (9496)"
+		OptionROMBiosVersion="2.02"
+		OptionROMFCodeVersion="2.00"
+		OptionROMEFIVersion="2.03"
+		OptionROMFirmwareVersion="4.04.02"
+		PCIBus="4"
+		PCIDevice="0"
+		ActualConnectionMode="Point To Point"
+		ActualDataRate="2 Gbps"
+		TargetCount="8"
+		PortType="NPort"
+		PCIeMaxBusWidth="x4"
+		PCIeMaxBusSpeed="2.5 Gbps"
+		PCIeNegotiatedWidth="x4"
+		PCIeNegotiatedSpeed="2.5 Gbps"
+		Status="Online" />
+	</HBA>
+    <Status> 0 </Status>
+    <Reboot> 0 </Reboot>
+</QLogic>

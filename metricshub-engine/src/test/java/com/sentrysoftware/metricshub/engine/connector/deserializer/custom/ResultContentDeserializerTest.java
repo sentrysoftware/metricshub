@@ -21,7 +21,8 @@ import org.junit.jupiter.api.Test;
 class ResultContentDeserializerTest {
 
 	private static final String SOURCE_URL = "/url";
-	private static final String HTTP_SOURCE_YAML = """
+	private static final String HTTP_SOURCE_YAML =
+		"""
 		type: http
 		url: /url
 		resultContent: ReplaceMe

@@ -1,0 +1,4 @@
+                        network, instance #0 (driver name: e1000g)
+                        network, instance #1 (driver name: e1000g)
+                        network, instance #2 (driver name: e1000g)
+                        network, instance #3 (driver name: e1000g)

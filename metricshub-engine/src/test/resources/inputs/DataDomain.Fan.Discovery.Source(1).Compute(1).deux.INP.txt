@@ -1,0 +1,5 @@
+1.1;1;Left Fan;0;0;;
+2.1;2;Left Fan;1;1;;
+3.1;3;Left Fan;2;1;;
+4.1;4;Left Fan;2;1;;
+4.2;4;Right Fan;3;2;;

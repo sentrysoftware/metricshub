@@ -1,0 +1,11 @@
+MSHW;Domain;00;Main;;;;Running
+MSHW;Domain;01;Main;;;;Running
+MSHW;Domain;02;Main;;;;Running
+MSHW;Domain;03;Main;;;;Running
+MSHW;Domain;04;Main;;;;Running
+MSHW;Domain;05;Main;;;;Running
+MSHW;Domain;06;Main;;;;Running
+MSHW;Domain;07;Main;;;;Running
+MSHW;Domain;08;Main;;;;Running
+MSHW;Domain;09;Main;;;;Running
+MSHW;Domain;10;Main;;;;Running

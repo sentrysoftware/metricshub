@@ -1,0 +1,9 @@
+MSHW;1ae00000be1;f0_rs;;;;;0x1a5e;;0x3e8;
+MSHW;1ae00000be8;f1_rs;;;;;0x1bc1;;0x3e8;
+MSHW;1ae00000bef;f2_rs;;;;;0x1d4c;;0x3e8;
+MSHW;1ae00000bf6;mb_p0_f0_rs;;;;;0x3ec7;;0x7d0;
+MSHW;1ae00000bfd;mb_p0_f1_rs;;;;;0x3d51;;0x7d0;
+MSHW;1ae00000c04;mb_p1_f0_rs;;;;;0x4563;;0x7d0;
+MSHW;1ae00000c0b;mb_p1_f1_rs;;;;;0x404f;;0x7d0;
+MSHW;1ae00000c12;ps0_ff_fan;;;;okay;;;;
+MSHW;1ae00000c17;ps1_ff_fan;;;;okay;;;;

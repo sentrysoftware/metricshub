@@ -1,0 +1,58 @@
+FIBRE CHANNEL STATISTICS REPORT: fcs0
+
+Device Type: 4Gb FC PCI Express Adapter (df1000fe) (adapter/pciex/df1000fe)
+Serial Number: 1F7300CB10
+Option ROM Version: 02E82752
+Firmware Version: Z1F2.70A5 
+World Wide Node Name: 0x20000000C96B6DC6
+World Wide Port Name: 0x10000000C96B6DC6
+
+FC-4 TYPES:
+  Supported: 0x0000012000000000000000000000000000000000000000000000000000000000
+  Active:    0x0000010000000000000000000000000000000000000000000000000000000000
+Class of Service: 3
+Port Speed (supported): 4 GBIT
+Port Speed (running):   2 GBIT
+Port FC ID: 0x630a13
+Port Type: Fabric
+
+Seconds Since Last Reset: 586812          
+
+	Transmit Statistics	Receive Statistics
+	-------------------	------------------
+Frames: 718235          	2226606         
+Words:  18610176        	693952512       
+
+LIP Count: 0               
+NOS Count: 0               
+Error Frames:  0               
+Dumped Frames: 0               
+Link Failure Count: 0               
+Loss of Sync Count: 1               
+Loss of Signal: 0               
+Primitive Seq Protocol Error Count: 0               
+Invalid Tx Word Count: 32              
+Invalid CRC Count: 0               
+
+IP over FC Adapter Driver Information
+  No DMA Resource Count: 0               
+  No Adapter Elements Count: 0               
+
+FC SCSI Adapter Driver Information
+  No DMA Resource Count: 0               
+  No Adapter Elements Count: 0               
+  No Command Resource Count: 0               
+
+IP over FC Traffic Statistics
+  Input Requests:   0               
+  Output Requests:  0               
+  Control Requests: 0               
+  Input Bytes:  0               
+  Output Bytes: 0               
+
+FC SCSI Traffic Statistics
+  Input Requests:   175383          
+  Output Requests:  41109           
+  Control Requests: 90394           
+  Input Bytes:  2727156378      
+  Output Bytes: 44507860

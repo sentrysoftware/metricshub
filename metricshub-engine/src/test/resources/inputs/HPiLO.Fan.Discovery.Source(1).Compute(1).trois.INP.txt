@@ -1,0 +1,25 @@
+PS
+
+
+PS
+
+
+Power Monitor Status:
+Firmware Revision : 5
+System Power state: On            Power Switch      : On         
+Temperature       : Normal        Selected fan state: Normal      
+
+          Power supplies      Fan                          
+ #  State          Type       States        
+-----------------------------------------------------------
+0  Normal          Type 0    Normal         
+1  Fault           Type 0    Normal         
+2  Not Installed      -      Normal         
+3    -                -      Normal         
+4    -                -      Normal         
+5    -                -      Normal         
+6    -                -      Normal         
+7    -                -      Normal         
+
+
+GSP Host Name:  thoreau-gsp

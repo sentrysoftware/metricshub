@@ -5,8 +5,8 @@ import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static org.springframework.util.Assert.isTrue;
 import static org.springframework.util.Assert.notNull;
 
-import com.sentrysoftware.matsya.awk.AwkException;
-import com.sentrysoftware.matsya.awk.AwkExecutor;
+import com.sentrysoftware.metricshub.engine.awk.AwkException;
+import com.sentrysoftware.metricshub.engine.awk.AwkExecutor;
 import com.sentrysoftware.metricshub.engine.common.exception.MatsyaException;
 import com.sentrysoftware.metricshub.engine.common.exception.RetryableException;
 import com.sentrysoftware.metricshub.engine.common.helpers.NetworkHelper;
