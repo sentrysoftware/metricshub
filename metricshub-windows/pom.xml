@@ -28,7 +28,7 @@
 			<type>zip</type>
 		</dependency>
 		<dependency>
-			<groupId>${project.groupId}</groupId>
+			<groupId>org.sentrysoftware</groupId>
 			<artifactId>metricshub-jre-windows</artifactId>
 			<version>${metricshub-jre.version}</version>
 			<type>zip</type>
