@@ -254,7 +254,6 @@ public class Constants {
 	// Yaml test files
 	public static final String AAC_CONNECTOR_ID = "AAC";
 	public static final String TEST_CONNECTOR_ID = "TestConnector";
-	public static final String TEST_CONNECTOR_WITH_SIMPLE_ID = "TestConnectorWithSimple";
 	public static final String COMMAND_FILE_ABSOLUTE_PATH =
 		"${file::src\\test\\resources\\test-files\\embedded\\connector2\\command.txt}";
 	public static final String EMBEDDED_TEMP_FILE_PREFIX = "SEN_Embedded_";

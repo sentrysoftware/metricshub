@@ -55,5 +55,4 @@ public class Constants {
 	public static final String DISK_CONTROLLER_PRESENT_METRIC =
 		"hw.status{hw.type=\"disk_controller\", state=\"present\"}";
 	public static final String ENCLOSURE_PRESENT_METRIC = "hw.status{hw.type=\"enclosure\", state=\"present\"}";
-	public static final Path YAML_TEST_PATH = Paths.get("src", "test", "resources", "yaml-test-file");
 }

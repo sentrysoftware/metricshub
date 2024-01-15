@@ -6,7 +6,6 @@ import static com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorTy
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.IS_ENDPOINT;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.DISK_CONTROLLER_PRESENT_METRIC;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.ENCLOSURE_PRESENT_METRIC;
-import static com.sentrysoftware.metricshub.hardware.common.Constants.YAML_TEST_PATH;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.ENCLOSURE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -27,6 +26,8 @@ import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 import com.sentrysoftware.metricshub.hardware.strategy.HardwarePostDiscoveryStrategy;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +38,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class SimpleStrategyTest {
+
+	private static final Path YAML_TEST_PATH = Paths.get("src", "test", "resources", "strategy", "simple");
 
 	@Mock
 	private MatsyaClientsExecutor matsyaClientsExecutorMock;

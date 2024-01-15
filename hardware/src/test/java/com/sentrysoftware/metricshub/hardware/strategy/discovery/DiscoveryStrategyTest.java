@@ -6,7 +6,6 @@ import static com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorTy
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.IS_ENDPOINT;
 import static com.sentrysoftware.metricshub.engine.strategy.AbstractStrategy.CONNECTOR_ID_FORMAT;
 import static com.sentrysoftware.metricshub.hardware.common.Constants.HOST;
-import static com.sentrysoftware.metricshub.hardware.common.Constants.YAML_TEST_PATH;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.CONNECTOR;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -27,6 +26,8 @@ import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 import com.sentrysoftware.metricshub.hardware.strategy.HardwarePostDiscoveryStrategy;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,6 +39,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class DiscoveryStrategyTest {
+
+	private static final Path YAML_TEST_PATH = Paths.get("src", "test", "resources", "strategy", "discovery");
 
 	private static final String AAC_CONNECTOR_ID = "AAC";
 
