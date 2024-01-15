@@ -208,7 +208,7 @@ public class HostMonitorPowerAndEnergyEstimator {
 		final Double totalMeasuredPowerConsumption
 	) {
 		return NumberHelper.round(
-			estimatedPowerConsumption / totalEstimatedPowerConsumption * totalMeasuredPowerConsumption,
+			(estimatedPowerConsumption / totalEstimatedPowerConsumption) * totalMeasuredPowerConsumption,
 			2,
 			RoundingMode.HALF_UP
 		);
