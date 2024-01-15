@@ -38,7 +38,6 @@
 		<groovy.version>3.0.13</groovy.version>
 		<hardware-connectors.version>36-SNAPSHOT</hardware-connectors.version>
 		<spring.version>6.0.3</spring.version>
-		<matsya.version>3.16.00</matsya.version>
 		<picocli.version>4.7.5</picocli.version>
 		<spring-boot.version>3.0.1</spring-boot.version>
 		<jackson.version>2.14.1</jackson.version>
@@ -295,11 +294,6 @@
 				<groupId>org.sentrysoftware</groupId>
 				<artifactId>jawk</artifactId>
 				<version>3.0.01</version>
-			</dependency>
-			<dependency>
-				<groupId>com.sentrysoftware.patrol.matsya</groupId>
-				<artifactId>module-jutils</artifactId>
-				<version>${matsya.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springdoc</groupId>

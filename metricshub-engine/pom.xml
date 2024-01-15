@@ -109,10 +109,6 @@
 			<artifactId>xflat</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.sentrysoftware.patrol.matsya</groupId>
-			<artifactId>module-jutils</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.sentrysoftware.emulation</groupId>
 			<artifactId>emulation-framework-http-server</artifactId>
 			<scope>test</scope>
