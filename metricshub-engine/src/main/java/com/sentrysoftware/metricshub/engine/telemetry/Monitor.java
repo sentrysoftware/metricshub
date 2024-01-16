@@ -1,13 +1,10 @@
 package com.sentrysoftware.metricshub.engine.telemetry;
 
-import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.PRESENT_STATUS;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sentrysoftware.metricshub.engine.alert.AlertRule;
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
-import com.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -133,13 +130,6 @@ public class Monitor {
 	}
 
 	/**
-	 * Set the current monitor as present
-	 */
-	public void setAsPresent(final String hostname) {
-		new MetricFactory(hostname).collectNumberMetric(this, String.format(PRESENT_STATUS, type), 1.0, discoveryTime);
-	}
-
-	/**
 	 * This method checks if the monitor type is {@code host} and represents an endpoint.
 	 *
 	 * @return {@code true} if the monitor is of type "host" and is an endpoint; {@code false} otherwise.
@@ -162,31 +152,5 @@ public class Monitor {
 	 */
 	public void setAsEndpoint() {
 		setIsEndpoint(true);
-	}
-
-	/**
-	 * Checks whether the current monitor has the metric {@link MetricsHubConstants#PRESENT_STATUS}
-	 * @return true or false
-	 */
-
-	boolean hasPresentMetric() {
-		return getMetrics().containsKey(String.format(PRESENT_STATUS, type));
-	}
-
-	/**
-	 * Check if the current monitor is missing or not. Missing means the present value is 0.
-	 * If the monitor is not eligible to missing devices then it can never be missing.
-	 *
-	 * @return <code>true</code> if the monitor is missing otherwise <code>false</code>
-	 */
-	public boolean isMissing() {
-		if (!hasPresentMetric()) {
-			return false;
-		}
-
-		final NumberMetric presentMetric = getMetric(String.format(PRESENT_STATUS, type), NumberMetric.class);
-		final Double present = presentMetric != null ? presentMetric.getValue() : null;
-
-		return Double.valueOf(0).equals(present);
 	}
 }

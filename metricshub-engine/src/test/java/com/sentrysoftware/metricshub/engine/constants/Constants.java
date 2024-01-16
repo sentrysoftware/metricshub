@@ -235,7 +235,6 @@ public class Constants {
 		() -> InetAddress.getLocalHost().getCanonicalHostName(),
 		UNKNOWN
 	);
-	public static final String AGENT_HOSTNAME_ATTRIBUTE = "agent.host.name";
 	public static final String LOCATION = "location";
 	public static final String COMPUTE = "compute";
 	public static final String HOST_ID_ATTRIBUTE = "host.id";
@@ -432,10 +431,6 @@ public class Constants {
 	public static final String NO = "no";
 	public static final String NONE = "none";
 	public static final String INVALID_PRIVACY_VALUE = "sha-256";
-
-	// Thread sleep duration in milliseconds
-	public static final long THREAD_SLEEP_DURATION = 350000L;
-
 	// OS
 	public static final String LINUX = "LINUX";
 	public static final String WINDOWS = "WINDOWS";
@@ -476,6 +471,4 @@ public class Constants {
 
 	public static final String HEALTHY = "healthy";
 	public static final String STATUS_INFORMATION = "StatusInformation";
-
-	public static final String ENCLOSURE_PRESENT_METRIC = "hw.status{hw.type=\"enclosure\", state=\"present\"}";
 }

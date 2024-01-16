@@ -12,7 +12,6 @@ import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import com.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;
 import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.collect.CollectStrategy;
-import com.sentrysoftware.metricshub.engine.strategy.collect.PostCollectStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.collect.PrepareCollectStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.detection.DetectionStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.discovery.DiscoveryStrategy;
@@ -21,6 +20,7 @@ import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
+import com.sentrysoftware.metricshub.hardware.strategy.HardwarePostCollectStrategy;
 import com.sentrysoftware.metricshub.hardware.strategy.HardwarePostDiscoveryStrategy;
 import com.sentrysoftware.metricshub.hardware.strategy.HardwareStrategy;
 import io.opentelemetry.api.common.Attributes;
@@ -100,7 +100,7 @@ public class MonitoringTask implements Runnable {
 			new PrepareCollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor),
 			new CollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor),
 			new SimpleStrategy(telemetryManager, collectTime, matsyaClientsExecutor),
-			new PostCollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor)
+			new HardwarePostCollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor)
 		);
 
 		// Run the hardware strategy

@@ -1,6 +1,6 @@
 package com.sentrysoftware.metricshub.hardware.strategy;
 
-import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.PRESENT_STATUS;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.PRESENT_STATUS;
 
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
@@ -8,6 +8,7 @@ import com.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
 import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import com.sentrysoftware.metricshub.hardware.util.HwCollectHelper;
 import java.util.Collection;
 import java.util.Map;
 import lombok.EqualsAndHashCode;
@@ -27,13 +28,23 @@ public class HardwarePostDiscoveryStrategy extends AbstractStrategy {
 	}
 
 	/**
-	 * Set the current monitor as missing
-	 * @param hostname The host's name
-	 * @param metricName The metric's name
+	 * Sets the current monitor as missing
 	 * @param monitor A given monitor
+	 * @param hostname The host's name
+	 * @param metricName The collected metric name
 	 */
 	public void setAsMissing(final Monitor monitor, final String hostname, final String metricName) {
 		new MetricFactory(hostname).collectNumberMetric(monitor, metricName, 0.0, strategyTime);
+	}
+
+	/**
+	 * Sets the current monitor as present
+	 * @param monitor A given monitor
+	 * @param hostname The host's name
+	 * @param metricName The collected metric name
+	 */
+	public void setAsPresent(final Monitor monitor, final String hostname, final String metricName) {
+		new MetricFactory(hostname).collectNumberMetric(monitor, metricName, 1.0, strategyTime);
 	}
 
 	/**
@@ -52,6 +63,7 @@ public class HardwarePostDiscoveryStrategy extends AbstractStrategy {
 
 	@Override
 	public void run() {
+		// Sets Undiscovered monitors having a known monitor type as missing
 		telemetryManager
 			.getMonitors()
 			.values()
@@ -62,6 +74,18 @@ public class HardwarePostDiscoveryStrategy extends AbstractStrategy {
 			.filter(monitor -> !strategyTime.equals(monitor.getDiscoveryTime()))
 			.forEach(monitor ->
 				setAsMissing(monitor, telemetryManager.getHostname(), String.format(PRESENT_STATUS, monitor.getType()))
+			);
+
+		// Sets all the remaining monitors as present
+		telemetryManager
+			.getMonitors()
+			.values()
+			.stream()
+			.map(Map::values)
+			.flatMap(Collection::stream)
+			.filter(monitor -> !HwCollectHelper.isMissing(monitor))
+			.forEach(monitor ->
+				setAsPresent(monitor, telemetryManager.getHostname(), String.format(PRESENT_STATUS, monitor.getType()))
 			);
 	}
 }

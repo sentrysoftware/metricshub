@@ -48,4 +48,5 @@ public class HwConstants {
 	public static final String HW_HOST_CPU_THERMAL_DISSIPATION_RATE = "__hw.host.cpu.thermal_dissipation_rate";
 	public static final String CONNECTOR = "connector";
 	public static final String ENCLOSURE = "enclosure";
+	public static final String PRESENT_STATUS = "hw.status{hw.type=\"%s\", state=\"present\"}";
 }

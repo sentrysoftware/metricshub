@@ -1,6 +1,6 @@
-package com.sentrysoftware.metricshub.engine.strategy.collect;
+package com.sentrysoftware.metricshub.hardware.strategy;
 
-import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.PRESENT_STATUS;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.PRESENT_STATUS;
 
 import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
@@ -15,9 +15,9 @@ import lombok.NonNull;
 
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class PostCollectStrategy extends AbstractStrategy {
+public class HardwarePostCollectStrategy extends AbstractStrategy {
 
-	public PostCollectStrategy(
+	public HardwarePostCollectStrategy(
 		@NonNull final TelemetryManager telemetryManager,
 		@NonNull final Long strategyTime,
 		@NonNull final MatsyaClientsExecutor matsyaClientsExecutor

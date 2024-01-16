@@ -29,7 +29,6 @@ import com.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import com.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;
 import com.sentrysoftware.metricshub.engine.strategy.IStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.collect.CollectStrategy;
-import com.sentrysoftware.metricshub.engine.strategy.collect.PostCollectStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.collect.PrepareCollectStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.detection.DetectionStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.discovery.DiscoveryStrategy;
@@ -38,6 +37,7 @@ import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
+import com.sentrysoftware.metricshub.hardware.strategy.HardwarePostCollectStrategy;
 import com.sentrysoftware.metricshub.hardware.strategy.HardwarePostDiscoveryStrategy;
 import com.sentrysoftware.metricshub.hardware.strategy.HardwareStrategy;
 import io.opentelemetry.api.common.AttributeKey;
@@ -163,7 +163,7 @@ class MonitoringTaskTest {
 					any(PrepareCollectStrategy.class),
 					any(CollectStrategy.class),
 					any(SimpleStrategy.class),
-					any(PostCollectStrategy.class)
+					any(HardwarePostCollectStrategy.class)
 				);
 			verify(telemetryManagerMock, times(4)).run(any(HardwareStrategy.class));
 		}

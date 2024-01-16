@@ -116,7 +116,6 @@ public class MonitorFactory {
 			foundMonitor.setAttributes(attributes);
 			foundMonitor.setResource(resource);
 			foundMonitor.setType(monitorType);
-			foundMonitor.setAsPresent(hostname);
 			foundMonitor.setDiscoveryTime(discoveryTime);
 
 			return foundMonitor;
@@ -129,8 +128,6 @@ public class MonitorFactory {
 				.id(id)
 				.discoveryTime(discoveryTime)
 				.build();
-
-			newMonitor.setAsPresent(hostname);
 
 			if (connectorId != null) {
 				newMonitor.addAttribute(MetricsHubConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID, connectorId);

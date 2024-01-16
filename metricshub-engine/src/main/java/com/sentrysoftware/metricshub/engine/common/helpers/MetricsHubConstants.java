@@ -133,7 +133,6 @@ public class MetricsHubConstants {
 	public static final String CONNECTOR_STATUS_METRIC_KEY = "metricshub.connector.status";
 	public static final String STATE_SET_METRIC_OK = "ok";
 	public static final String STATE_SET_METRIC_FAILED = "failed";
-	public static final String PRESENT_STATUS = "hw.status{hw.type=\"%s\", state=\"present\"}";
 
 	/**
 	 * Host information

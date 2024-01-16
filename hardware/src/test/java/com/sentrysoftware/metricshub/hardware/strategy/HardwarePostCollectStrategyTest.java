@@ -1,21 +1,9 @@
-package com.sentrysoftware.metricshub.engine.strategy.collect;
+package com.sentrysoftware.metricshub.hardware.strategy;
 
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.IS_ENDPOINT;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.CONNECTOR;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.DISK_CONTROLLER;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.ENCLOSURE;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.ENCLOSURE_PRESENT_METRIC;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.HEALTHY;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.HOST;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.HOST_ID;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.HOST_NAME;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.ID;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.MONITOR_ID_ATTRIBUTE_VALUE;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.STATUS_INFORMATION;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.TEST_CONNECTOR_ID;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.TEST_CONNECTOR_PATH;
 import static com.sentrysoftware.metricshub.engine.strategy.AbstractStrategy.CONNECTOR_ID_FORMAT;
+import static com.sentrysoftware.metricshub.hardware.common.Constants.ENCLOSURE_PRESENT_METRIC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -31,21 +19,27 @@ import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.IStrategy;
+import com.sentrysoftware.metricshub.engine.strategy.collect.CollectStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.MonitorFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class PostCollectStrategyTest {
+class HardwarePostCollectStrategyTest {
+
+	private static final Path TEST_CONNECTOR_PATH = Paths.get("src", "test", "resources", "strategy", "collect");
 
 	@Mock
 	private MatsyaClientsExecutor matsyaClientsExecutorMock;
@@ -56,16 +50,16 @@ class PostCollectStrategyTest {
 
 	@Test
 	void testRunRefreshPresentMetrics() throws Exception {
-		final String connectorId = TEST_CONNECTOR_ID.split("\\.")[0];
+		final String connectorId = "TestConnector";
 
 		// Create host and connector monitors and set them in the telemetry manager
 		final Monitor hostMonitor = Monitor.builder().type(KnownMonitorType.HOST.getKey()).build();
 		final Monitor connectorMonitor = Monitor.builder().type(KnownMonitorType.CONNECTOR.getKey()).build();
 		final Map<String, Map<String, Monitor>> monitors = new HashMap<>(
 			Map.of(
-				HOST,
-				Map.of(MONITOR_ID_ATTRIBUTE_VALUE, hostMonitor),
-				CONNECTOR,
+				KnownMonitorType.HOST.getKey(),
+				Map.of("id", hostMonitor),
+				KnownMonitorType.CONNECTOR.getKey(),
 				Map.of(String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), connectorId), connectorMonitor)
 			)
 		);
@@ -78,8 +72,8 @@ class PostCollectStrategyTest {
 			.hostConfiguration(
 				HostConfiguration
 					.builder()
-					.hostId(HOST_ID)
-					.hostname(HOST_NAME)
+					.hostId("host-01")
+					.hostname("ec-01")
 					.sequential(false)
 					.configurations(Map.of(SnmpConfiguration.class, snmpConfig))
 					.build()
@@ -90,7 +84,7 @@ class PostCollectStrategyTest {
 
 		MonitorFactory monitorFactory = MonitorFactory
 			.builder()
-			.monitorType(ENCLOSURE)
+			.monitorType(KnownMonitorType.ENCLOSURE.getKey())
 			.telemetryManager(telemetryManager)
 			.connectorId(connectorId)
 			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "enclosure-1")))
@@ -101,7 +95,7 @@ class PostCollectStrategyTest {
 		monitorFactory =
 			MonitorFactory
 				.builder()
-				.monitorType(DISK_CONTROLLER)
+				.monitorType(KnownMonitorType.DISK_CONTROLLER.getKey())
 				.telemetryManager(telemetryManager)
 				.connectorId(connectorId)
 				.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "1")))
@@ -111,12 +105,16 @@ class PostCollectStrategyTest {
 
 		hostMonitor.addAttribute(IS_ENDPOINT, "true");
 
-		connectorMonitor.addAttribute(ID, TEST_CONNECTOR_ID);
+		connectorMonitor.addAttribute("id", "TestConnector");
 
 		// Create the connector store
 		final ConnectorStore connectorStore = new ConnectorStore(TEST_CONNECTOR_PATH);
 		telemetryManager.setConnectorStore(connectorStore);
 
+		// Call HardwarePostDiscoveryStrategy to set the present and the missing monitors
+		new HardwarePostDiscoveryStrategy(telemetryManager, discoveryTime, matsyaClientsExecutorMock).run();
+
+		// Build the collect strategy
 		collectStrategy =
 			CollectStrategy
 				.builder()
@@ -159,16 +157,16 @@ class PostCollectStrategyTest {
 			1.0,
 			diskController.getMetric("hw.status{hw.type=\"disk_controller\"}", NumberMetric.class).getValue()
 		);
-		assertEquals(HEALTHY, diskController.getLegacyTextParameters().get(STATUS_INFORMATION));
+		Assertions.assertEquals("healthy", diskController.getLegacyTextParameters().get("StatusInformation"));
 		assertEquals(1.0, enclosure.getMetric("hw.status{hw.type=\"enclosure\"}", NumberMetric.class).getValue());
-		assertEquals(HEALTHY, enclosure.getLegacyTextParameters().get(STATUS_INFORMATION));
+		Assertions.assertEquals("healthy", enclosure.getLegacyTextParameters().get("StatusInformation"));
 
 		// The metric is created when we create the monitor using the MonitorFactory
 		final NumberMetric enclosurePresentMetric = enclosure.getMetric(ENCLOSURE_PRESENT_METRIC, NumberMetric.class);
 		assertNotNull(enclosurePresentMetric);
 		assertEquals(discoveryTime, enclosurePresentMetric.getCollectTime());
 
-		new PostCollectStrategy(telemetryManager, strategyTime, matsyaClientsExecutorMock).run();
+		new HardwarePostCollectStrategy(telemetryManager, strategyTime, matsyaClientsExecutorMock).run();
 
 		assertNotNull(enclosurePresentMetric);
 		assertEquals(1.0, enclosure.getMetric(ENCLOSURE_PRESENT_METRIC, NumberMetric.class).getValue());
