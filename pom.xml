@@ -57,7 +57,7 @@
 		<otelColContribBaseUrl>https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v${otelVersion}</otelColContribBaseUrl>
 		<prettier-maven-plugin.version>0.21</prettier-maven-plugin.version>
 		<prettierJava.version>2.5.0</prettierJava.version>
-		<metricshub-jre.version>1-SNAPSHOT</metricshub-jre.version>
+		<metricshub-jre.version>1.0.01</metricshub-jre.version>
 	</properties>
 
 	<modules>
