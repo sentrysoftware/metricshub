@@ -1,12 +1,12 @@
-package com.sentrysoftware.metricshub.hardware.strategy.discovery;
+package com.sentrysoftware.metricshub.engine.strategy.discovery;
 
+import static com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.CONNECTOR;
 import static com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.DISK_CONTROLLER;
+import static com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 import static com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.LOGICAL_DISK;
 import static com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.PHYSICAL_DISK;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.IS_ENDPOINT;
 import static com.sentrysoftware.metricshub.engine.strategy.AbstractStrategy.CONNECTOR_ID_FORMAT;
-import static com.sentrysoftware.metricshub.hardware.common.Constants.HOST;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.CONNECTOR;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -14,18 +14,14 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 
-import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
-import com.sentrysoftware.metricshub.engine.strategy.discovery.DiscoveryStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
-import com.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
-import com.sentrysoftware.metricshub.hardware.strategy.HardwarePostDiscoveryStrategy;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
@@ -40,7 +36,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class DiscoveryStrategyTest {
 
-	private static final Path YAML_TEST_PATH = Paths.get("src", "test", "resources", "strategy", "discovery");
+	private static final Path YAML_TEST_PATH = Paths.get(
+		"src",
+		"test",
+		"resources",
+		"test-files",
+		"strategy",
+		"discovery"
+	);
 
 	private static final String AAC_CONNECTOR_ID = "AAC";
 
@@ -54,17 +57,14 @@ class DiscoveryStrategyTest {
 	@Test
 	void testRun() throws Exception {
 		// Create host and connector monitors and set them in the telemetry manager
-		final Monitor hostMonitor = Monitor.builder().type(KnownMonitorType.HOST.getKey()).build();
-		final Monitor connectorMonitor = Monitor.builder().type(KnownMonitorType.CONNECTOR.getKey()).build();
+		final Monitor hostMonitor = Monitor.builder().type(HOST.getKey()).build();
+		final Monitor connectorMonitor = Monitor.builder().type(CONNECTOR.getKey()).build();
 		final Map<String, Map<String, Monitor>> monitors = new HashMap<>(
 			Map.of(
-				HOST,
+				HOST.getKey(),
 				Map.of("anyMonitorId", hostMonitor),
-				CONNECTOR,
-				Map.of(
-					String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), AAC_CONNECTOR_ID),
-					connectorMonitor
-				)
+				CONNECTOR.getKey(),
+				Map.of(String.format(CONNECTOR_ID_FORMAT, CONNECTOR.getKey(), AAC_CONNECTOR_ID), connectorMonitor)
 			)
 		);
 
@@ -85,6 +85,7 @@ class DiscoveryStrategyTest {
 			.build();
 
 		hostMonitor.getAttributes().put(IS_ENDPOINT, "true");
+		hostMonitor.setIsEndpoint(true);
 
 		connectorMonitor.getAttributes().put("id", AAC_CONNECTOR_ID);
 
@@ -140,112 +141,25 @@ class DiscoveryStrategyTest {
 
 		// Call DiscoveryStrategy to discover the monitors
 		discoveryStrategy.run();
-		new HardwarePostDiscoveryStrategy(telemetryManager, strategyTime, matsyaClientsExecutorMock).run();
 
 		// Check discovered monitors
 		final Map<String, Map<String, Monitor>> discoveredMonitors = telemetryManager.getMonitors();
 
 		assertEquals(5, discoveredMonitors.size());
-		assertEquals(1, discoveredMonitors.get(HOST).size());
-		assertEquals(1, discoveredMonitors.get(CONNECTOR).size());
+		assertEquals(1, discoveredMonitors.get(HOST.getKey()).size());
+		assertEquals(1, discoveredMonitors.get(CONNECTOR.getKey()).size());
 		assertEquals(1, discoveredMonitors.get(DISK_CONTROLLER.getKey()).size());
 		assertEquals(1, discoveredMonitors.get(PHYSICAL_DISK.getKey()).size());
 		assertEquals(1, discoveredMonitors.get(LOGICAL_DISK.getKey()).size());
 
 		// Check discovered monitors order
 		final Set<String> expectedOrder = Set.of(
-			HOST,
+			HOST.getKey(),
 			DISK_CONTROLLER.getKey(),
-			CONNECTOR,
+			CONNECTOR.getKey(),
 			LOGICAL_DISK.getKey(),
 			PHYSICAL_DISK.getKey()
 		);
 		assertEquals(expectedOrder, discoveredMonitors.keySet());
-
-		final Monitor diskControllerMonitor = discoveredMonitors
-			.get(DISK_CONTROLLER.getKey())
-			.get("AAC_disk_controller_controller-1");
-		final Monitor logicalDiskCMonitor = discoveredMonitors
-			.get(LOGICAL_DISK.getKey())
-			.get("AAC_logical_disk_logical-disk-1");
-		final Monitor physicalDiskMonitor = discoveredMonitors.get(PHYSICAL_DISK.getKey()).get("AAC_physical_disk_disk-1");
-
-		// Check that the monitors' present status are set to 1
-		assertEquals(
-			1.0,
-			diskControllerMonitor
-				.getMetric("hw.status{hw.type=\"disk_controller\", state=\"present\"}", NumberMetric.class)
-				.getValue()
-		);
-		assertEquals(
-			1.0,
-			logicalDiskCMonitor
-				.getMetric("hw.status{hw.type=\"logical_disk\", state=\"present\"}", NumberMetric.class)
-				.getValue()
-		);
-		assertEquals(
-			1.0,
-			physicalDiskMonitor
-				.getMetric("hw.status{hw.type=\"physical_disk\", state=\"present\"}", NumberMetric.class)
-				.getValue()
-		);
-
-		final long nextDiscoveryTime = strategyTime + 60 * 60 * 1000;
-		discoveryStrategy.setStrategyTime(nextDiscoveryTime);
-
-		// Mock source table with no information for disk controller
-		doReturn(SourceTable.csvToTable("", MetricsHubConstants.TABLE_SEP))
-			.when(matsyaClientsExecutorMock)
-			.executeSNMPTable(
-				eq("1.3.6.1.4.1.795.10.1.1.3.1"),
-				any(String[].class),
-				any(SnmpConfiguration.class),
-				anyString(),
-				eq(true)
-			);
-
-		// Mock source table with no information for physical_disk
-		doReturn(SourceTable.csvToTable("", MetricsHubConstants.TABLE_SEP))
-			.when(matsyaClientsExecutorMock)
-			.executeSNMPTable(
-				eq("1.3.6.1.4.1.795.10.1.1.5.1"),
-				any(String[].class),
-				any(SnmpConfiguration.class),
-				anyString(),
-				eq(true)
-			);
-
-		// Mock source table with no information for logical_disk
-		doReturn(SourceTable.csvToTable("", MetricsHubConstants.TABLE_SEP))
-			.when(matsyaClientsExecutorMock)
-			.executeSNMPTable(
-				eq("1.3.6.1.4.1.795.10.1.1.4.1"),
-				any(String[].class),
-				any(SnmpConfiguration.class),
-				anyString(),
-				eq(true)
-			);
-		discoveryStrategy.run();
-		new HardwarePostDiscoveryStrategy(telemetryManager, nextDiscoveryTime, matsyaClientsExecutorMock).run();
-
-		// Check that the monitors are set to missing as they are not present in the previous discovery job
-		assertEquals(
-			0.0,
-			diskControllerMonitor
-				.getMetric("hw.status{hw.type=\"disk_controller\", state=\"present\"}", NumberMetric.class)
-				.getValue()
-		);
-		assertEquals(
-			0.0,
-			logicalDiskCMonitor
-				.getMetric("hw.status{hw.type=\"logical_disk\", state=\"present\"}", NumberMetric.class)
-				.getValue()
-		);
-		assertEquals(
-			0.0,
-			physicalDiskMonitor
-				.getMetric("hw.status{hw.type=\"physical_disk\", state=\"present\"}", NumberMetric.class)
-				.getValue()
-		);
 	}
 }

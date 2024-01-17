@@ -110,7 +110,6 @@ public class MonitorFactory {
 		final long discoveryTime
 	) {
 		final Monitor foundMonitor = telemetryManager.findMonitorByTypeAndId(monitorType, id);
-		final String hostname = telemetryManager.getHostname();
 
 		if (foundMonitor != null) {
 			foundMonitor.setAttributes(attributes);

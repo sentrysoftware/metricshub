@@ -1,12 +1,10 @@
-package com.sentrysoftware.metricshub.hardware.strategy.simple;
+package com.sentrysoftware.metricshub.engine.strategy.simple;
 
 import static com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.CONNECTOR;
 import static com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.DISK_CONTROLLER;
+import static com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.ENCLOSURE;
 import static com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.IS_ENDPOINT;
-import static com.sentrysoftware.metricshub.hardware.common.Constants.DISK_CONTROLLER_PRESENT_METRIC;
-import static com.sentrysoftware.metricshub.hardware.common.Constants.ENCLOSURE_PRESENT_METRIC;
-import static com.sentrysoftware.metricshub.hardware.util.HwConstants.ENCLOSURE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -20,12 +18,10 @@ import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
-import com.sentrysoftware.metricshub.engine.strategy.simple.SimpleStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
-import com.sentrysoftware.metricshub.hardware.strategy.HardwarePostDiscoveryStrategy;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
@@ -39,7 +35,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class SimpleStrategyTest {
 
-	private static final Path YAML_TEST_PATH = Paths.get("src", "test", "resources", "strategy", "simple");
+	private static final Path YAML_TEST_PATH = Paths.get("src", "test", "resources", "test-files", "strategy", "simple");
 
 	@Mock
 	private MatsyaClientsExecutor matsyaClientsExecutorMock;
@@ -125,12 +121,11 @@ class SimpleStrategyTest {
 				eq(true)
 			);
 		simpleStrategy.run();
-		new HardwarePostDiscoveryStrategy(telemetryManager, strategyTime, matsyaClientsExecutorMock).run();
 
 		// Check processed monitors
 		final Map<String, Map<String, Monitor>> processedMonitors = telemetryManager.getMonitors();
 
-		final Map<String, Monitor> enclosureMonitors = processedMonitors.get(ENCLOSURE);
+		final Map<String, Monitor> enclosureMonitors = processedMonitors.get(ENCLOSURE.getKey());
 		final Map<String, Monitor> diskControllerMonitors = processedMonitors.get(DISK_CONTROLLER.getKey());
 
 		assertEquals(4, processedMonitors.size());
@@ -146,40 +141,5 @@ class SimpleStrategyTest {
 			1.0,
 			diskController.getMetric("hw.status{hw.type=\"disk_controller\"}", NumberMetric.class).getValue()
 		);
-
-		// Check that the monitors' present status are set to 1
-		assertEquals(1.0, enclosure.getMetric(ENCLOSURE_PRESENT_METRIC, NumberMetric.class).getValue());
-		assertEquals(1.0, diskController.getMetric(DISK_CONTROLLER_PRESENT_METRIC, NumberMetric.class).getValue());
-
-		final long nextDiscoveryTime = strategyTime + 2 * 60 * 1000;
-		simpleStrategy.setStrategyTime(nextDiscoveryTime);
-
-		// Mock source table with no information for enclosure
-		doReturn(SourceTable.csvToTable("", MetricsHubConstants.TABLE_SEP))
-			.when(matsyaClientsExecutorMock)
-			.executeSNMPTable(
-				eq("1.3.6.1.4.1.795.10.1.1.3.1"),
-				any(String[].class),
-				any(SnmpConfiguration.class),
-				anyString(),
-				eq(true)
-			);
-
-		// Mock source table with no information for disk_controller
-		doReturn(SourceTable.csvToTable("", MetricsHubConstants.TABLE_SEP))
-			.when(matsyaClientsExecutorMock)
-			.executeSNMPTable(
-				eq("1.3.6.1.4.1.795.10.1.1.4.1"),
-				any(String[].class),
-				any(SnmpConfiguration.class),
-				anyString(),
-				eq(true)
-			);
-		simpleStrategy.run();
-		new HardwarePostDiscoveryStrategy(telemetryManager, nextDiscoveryTime, matsyaClientsExecutorMock).run();
-
-		// Check that the monitors are set to missing when they are not present in the previous simple job
-		assertEquals(0.0, enclosure.getMetric(ENCLOSURE_PRESENT_METRIC, NumberMetric.class).getValue());
-		assertEquals(0.0, diskController.getMetric(DISK_CONTROLLER_PRESENT_METRIC, NumberMetric.class).getValue());
 	}
 }
