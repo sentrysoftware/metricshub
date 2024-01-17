@@ -1,6 +1,6 @@
 package org.snmp4j.agent;
 
-import com.sentrysoftware.metricshub.engine.it.snmp.SnmpAgent;
+import com.sentrysoftware.metricshub.hardware.it.snmp.SnmpAgent;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;

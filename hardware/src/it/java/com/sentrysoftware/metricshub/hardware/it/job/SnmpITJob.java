@@ -1,9 +1,9 @@
-package com.sentrysoftware.metricshub.engine.it.job;
+package com.sentrysoftware.metricshub.hardware.it.job;
 
 import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
-import com.sentrysoftware.metricshub.engine.it.snmp.SnmpAgent;
 import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import com.sentrysoftware.metricshub.hardware.it.snmp.SnmpAgent;
 import lombok.NonNull;
 
 public class SnmpITJob extends AbstractITJob {

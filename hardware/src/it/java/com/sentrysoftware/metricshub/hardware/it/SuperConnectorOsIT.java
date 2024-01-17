@@ -1,12 +1,12 @@
-package com.sentrysoftware.metricshub.engine.it;
+package com.sentrysoftware.metricshub.hardware.it;
 
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import com.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
-import com.sentrysoftware.metricshub.engine.it.job.SuperConnectorITJob;
 import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import com.sentrysoftware.metricshub.hardware.it.job.SuperConnectorITJob;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;

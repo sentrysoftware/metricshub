@@ -1,6 +1,6 @@
-package com.sentrysoftware.metricshub.engine.it.snmp;
+package com.sentrysoftware.metricshub.hardware.it.snmp;
 
-import com.sentrysoftware.metricshub.engine.it.job.ITJobUtils;
+import com.sentrysoftware.metricshub.hardware.it.job.ITJobUtils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
