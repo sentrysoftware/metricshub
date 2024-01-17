@@ -1,4 +1,4 @@
-package com.sentrysoftware.metricshub.engine.it.job;
+package com.sentrysoftware.metricshub.hardware.it.job;
 
 import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;

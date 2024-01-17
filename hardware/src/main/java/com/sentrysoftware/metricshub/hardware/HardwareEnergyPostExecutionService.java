@@ -88,7 +88,7 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 		sameTypeMonitors
 			.values()
 			.stream()
-			.filter(monitor -> !monitor.isMissing())
+			.filter(monitor -> !HwCollectHelper.isMissing(monitor))
 			.filter(monitor -> telemetryManager.isConnectorStatusOk(monitor))
 			.forEach(monitor ->
 				PowerAndEnergyCollectHelper.collectPowerAndEnergy(
@@ -123,7 +123,7 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 		vmMonitors
 			.values()
 			.stream()
-			.filter(monitor -> !monitor.isMissing())
+			.filter(monitor -> !HwCollectHelper.isMissing(monitor))
 			.filter(monitor -> telemetryManager.isConnectorStatusOk(monitor))
 			.forEach(monitor ->
 				PowerAndEnergyCollectHelper.collectPowerAndEnergy(

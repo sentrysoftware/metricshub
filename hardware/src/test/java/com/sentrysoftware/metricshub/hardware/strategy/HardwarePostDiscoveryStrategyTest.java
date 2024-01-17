@@ -1,11 +1,10 @@
-package com.sentrysoftware.metricshub.engine.strategy.discovery;
+package com.sentrysoftware.metricshub.hardware.strategy;
 
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_NAME;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.CONNECTOR;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.ENCLOSURE;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.ENCLOSURE_PRESENT_METRIC;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.HOST_ID;
+import static com.sentrysoftware.metricshub.hardware.common.Constants.ENCLOSURE_PRESENT_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.CONNECTOR;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.ENCLOSURE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
@@ -21,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
-class PostDiscoveryStrategyTest {
+class HardwarePostDiscoveryStrategyTest {
 
 	@Test
 	void testRunMissingDeviceDetection() {
@@ -34,7 +33,7 @@ class PostDiscoveryStrategyTest {
 			.hostConfiguration(
 				HostConfiguration
 					.builder()
-					.hostId(HOST_ID)
+					.hostId("PC-120")
 					.hostname(MetricsHubConstants.HOST_NAME)
 					.sequential(false)
 					.configurations(Map.of(SnmpConfiguration.class, snmpConfig))
@@ -56,11 +55,11 @@ class PostDiscoveryStrategyTest {
 
 		final Monitor monitor = monitorFactory.createOrUpdateMonitor();
 
-		new PostDiscoveryStrategy(telemetryManager, previousDiscoveryTime, matsyaClientExecutor).run();
+		new HardwarePostDiscoveryStrategy(telemetryManager, previousDiscoveryTime, matsyaClientExecutor).run();
 
 		assertEquals(1.0, monitor.getMetric(ENCLOSURE_PRESENT_METRIC, NumberMetric.class).getValue());
 
-		new PostDiscoveryStrategy(telemetryManager, discoveryTime, matsyaClientExecutor).run();
+		new HardwarePostDiscoveryStrategy(telemetryManager, discoveryTime, matsyaClientExecutor).run();
 		assertEquals(0.0, monitor.getMetric(ENCLOSURE_PRESENT_METRIC, NumberMetric.class).getValue());
 	}
 }

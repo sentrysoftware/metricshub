@@ -1,4 +1,4 @@
-package com.sentrysoftware.metricshub.engine.it.job;
+package com.sentrysoftware.metricshub.hardware.it.job;
 
 import java.io.IOException;
 import java.nio.file.Path;

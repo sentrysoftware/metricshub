@@ -1,4 +1,4 @@
-package com.sentrysoftware.metricshub.engine.it.job;
+package com.sentrysoftware.metricshub.hardware.it.job;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -6,20 +6,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.sentrysoftware.metricshub.engine.alert.AlertRule;
 import com.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
-import com.sentrysoftware.metricshub.engine.constants.Constants;
 import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.collect.CollectStrategy;
-import com.sentrysoftware.metricshub.engine.strategy.collect.PostCollectStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.collect.PrepareCollectStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.detection.DetectionStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.discovery.DiscoveryStrategy;
-import com.sentrysoftware.metricshub.engine.strategy.discovery.PostDiscoveryStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.simple.SimpleStrategy;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.MonitorsVo;
 import com.sentrysoftware.metricshub.engine.telemetry.Resource;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
+import com.sentrysoftware.metricshub.hardware.strategy.HardwarePostCollectStrategy;
+import com.sentrysoftware.metricshub.hardware.strategy.HardwarePostDiscoveryStrategy;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -30,6 +29,8 @@ import lombok.NonNull;
 
 @Data
 public abstract class AbstractITJob implements ITJob {
+
+	private static final String AGENT_HOSTNAME_ATTRIBUTE = "agent.host.name";
 
 	@NonNull
 	protected final MatsyaClientsExecutor matsyaClientsExecutor;
@@ -222,13 +223,13 @@ public abstract class AbstractITJob implements ITJob {
 				// host name can change from different IT runs. if it is not null, check that actual has value.
 				final String expectedKey = expectedAttribute.getKey();
 				final String expectedValue = expectedAttribute.getValue();
-				if (expectedKey.equals(Constants.AGENT_HOSTNAME_ATTRIBUTE)) {
+				if (expectedKey.equals(AGENT_HOSTNAME_ATTRIBUTE)) {
 					assertNotNull(
 						actualResource.getAttributes().get(expectedKey),
 						() ->
 							String.format(
 								"%s cannot be null on the resource for the monitor identifier: %s.",
-								Constants.AGENT_HOSTNAME_ATTRIBUTE,
+								AGENT_HOSTNAME_ATTRIBUTE,
 								expectedMonitorId
 							)
 					);
@@ -366,7 +367,7 @@ public abstract class AbstractITJob implements ITJob {
 			new DetectionStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor),
 			new DiscoveryStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor),
 			new SimpleStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor),
-			new PostDiscoveryStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor)
+			new HardwarePostDiscoveryStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor)
 		);
 
 		assertTrue(isServerStarted(), () -> "Server not started.");
@@ -382,7 +383,7 @@ public abstract class AbstractITJob implements ITJob {
 			new PrepareCollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor),
 			new CollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor),
 			new SimpleStrategy(telemetryManager, collectTime, matsyaClientsExecutor),
-			new PostCollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor)
+			new HardwarePostCollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor)
 		);
 
 		assertTrue(isServerStarted(), () -> "Server not started.");
