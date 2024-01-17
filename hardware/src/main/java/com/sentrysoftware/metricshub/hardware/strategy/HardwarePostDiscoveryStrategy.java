@@ -50,7 +50,7 @@ public class HardwarePostDiscoveryStrategy extends AbstractStrategy {
 	/**
 	 * Checks whether a monitor has a {@link KnownMonitorType}
 	 * @param monitorType A given monitor's type
-	 * @return boolean
+	 * @return boolean whether a monitor has a {@link KnownMonitorType}
 	 */
 	private boolean monitorHasKnownType(final String monitorType) {
 		for (KnownMonitorType type : KnownMonitorType.values()) {
@@ -83,6 +83,7 @@ public class HardwarePostDiscoveryStrategy extends AbstractStrategy {
 			.stream()
 			.map(Map::values)
 			.flatMap(Collection::stream)
+			.filter(monitor -> monitorHasKnownType(monitor.getType()))
 			.filter(monitor -> !HwCollectHelper.isMissing(monitor))
 			.forEach(monitor ->
 				setAsPresent(monitor, telemetryManager.getHostname(), String.format(PRESENT_STATUS, monitor.getType()))
