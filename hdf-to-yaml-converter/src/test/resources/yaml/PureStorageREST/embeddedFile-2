@@ -1,9 +1,0 @@
-BEGIN {FS=":";}
-{
-if ($1 == "Set-Cookie")
-    {
-         split($2,outputarray,";")
-         AuthenticationToken=outputarray[1]
-         print AuthenticationToken
-    }
-}

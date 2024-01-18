@@ -1,2 +1,0 @@
-<!--getmultiple api="hpiepapi" name="HPIEPAPI_GetTemperatureSensorNumberOfRows" entry="HPIEPAPI_GetTemperatureSensorTableProp" default="No manageable temperature sensors are installed on this system"-->MSHW;Temperature;<!--getrow-->;<!--getprop name="Status" default="&#45"-->;<!--getprop name="Name" default="unknown"-->;<!--getprop name="Reading" default="unknown"-->
-<!--endmultiple-->

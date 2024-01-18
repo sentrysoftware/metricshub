@@ -60,10 +60,8 @@
 
 	<modules>
 		<module>metricshub-engine</module>
-		<module>hdf-to-yaml-converter</module>
-		<module>connector-serializer</module>
-		<module>metricshub-agent</module>
 		<module>hardware</module>
+		<module>metricshub-agent</module>
 		<module>metricshub-doc</module>
 	</modules>
 
@@ -125,11 +123,6 @@
 			<dependency>
 				<groupId>com.sentrysoftware.metricshub</groupId>
 				<artifactId>connector-serializer</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.sentrysoftware.metricshub</groupId>
-				<artifactId>hdf-to-yaml-converter</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

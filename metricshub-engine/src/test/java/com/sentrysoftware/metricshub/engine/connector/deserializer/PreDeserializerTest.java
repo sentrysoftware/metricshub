@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class PreDeserializerTest extends DeserializerTest {
@@ -43,7 +43,7 @@ class PreDeserializerTest extends DeserializerTest {
 	void testPreBlankSource() throws IOException {
 		try {
 			getConnector("preBlankSource");
-			Assert.fail(IO_EXCEPTION_MSG);
+			Assertions.fail(IO_EXCEPTION_MSG);
 		} catch (InvalidFormatException e) {
 			final String message = "The source key referenced by 'pre' cannot be empty.";
 			checkMessage(e, message);

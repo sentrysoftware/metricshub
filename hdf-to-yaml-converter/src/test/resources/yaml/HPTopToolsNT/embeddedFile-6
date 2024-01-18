@@ -1,2 +1,0 @@
-<!--getmultiple api="hpiepapi" name="HPIEPAPI_GetVoltageSensorNumberOfRows" entry="HPIEPAPI_GetVoltageSensorTableProp" default="No manageable voltage sensors are installed on this system"-->MSHW;Voltage;<!--getrow-->;<!--getprop name="Status" default="&#45"-->;<!--getprop name="Name" default="unknown"-->;<!--getprop name="Reading" default="unknown"-->
-<!--endmultiple-->

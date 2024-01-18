@@ -1,4 +1,0 @@
-Content-Type: application/json
-Accept: application/json
-Cookie: %{AUTHENTICATIONTOKEN}
-x-dell-api-version: 2.0

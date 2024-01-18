@@ -60,7 +60,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.apache.groovy.util.Maps;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -1310,7 +1309,7 @@ class ComputeProcessorTest {
 			Arrays.asList(ID3, "TRANSLATED_STATUS31", TYPE3)
 		);
 
-		final Map<String, String> translations = Maps.of(
+		final Map<String, String> translations = Map.of(
 			"",
 			"NO_VALUE",
 			"status11",
@@ -1332,7 +1331,7 @@ class ComputeProcessorTest {
 			.translations(Collections.singletonMap(translationTableName, connectorTranslationTable))
 			.build();
 
-		Map<String, Connector> store = Maps.of(connectorId, connector);
+		Map<String, Connector> store = Map.of(connectorId, connector);
 
 		final TelemetryManager telemetryManager = TelemetryManager.builder().connectorStore(connectorStoreMock).build();
 
@@ -2862,7 +2861,7 @@ class ComputeProcessorTest {
 
 		final ITranslationTable translationTable = new ReferenceTranslationTable("${translation::translationTableName}");
 		translate.setTranslationTable(translationTable);
-		final Map<String, String> translations = Maps.of(
+		final Map<String, String> translations = Map.of(
 			"",
 			"NO_VALUE",
 			"status11",
@@ -2884,7 +2883,7 @@ class ComputeProcessorTest {
 			.translations(Collections.singletonMap(translationTableName, connectorTranslationTable))
 			.build();
 
-		final Map<String, Connector> store = Maps.of(connectorId, connector);
+		final Map<String, Connector> store = Map.of(connectorId, connector);
 
 		final TelemetryManager telemetryManager = TelemetryManager.builder().connectorStore(connectorStoreMock).build();
 

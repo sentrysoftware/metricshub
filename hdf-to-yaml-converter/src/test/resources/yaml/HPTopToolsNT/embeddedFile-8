@@ -1,2 +1,0 @@
-<!--getmultiple api="hpsmbapi" name="SMBAPI_GetNumberOfMemMod" default="No modules found"-->MSHW;Memory;<!--getrow-->;<!--getprop altapi="hpmadapi" name="GetMemoryModuleStatus" default="N/A"-->;<!--getprop name="SMBAPI_GetModInstalledSize" default="unknown"-->;<!--getprop name="SMBAPI_GetModType" translate default="unknown"-->
-<!--endmultiple-->

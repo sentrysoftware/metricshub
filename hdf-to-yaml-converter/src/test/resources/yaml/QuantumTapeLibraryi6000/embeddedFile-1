@@ -1,7 +1,0 @@
-BEGIN {FS="[;]"}
-$1 ~ /^[0-9.]+$/ {split($1,ID,".");
-                    deviceID = $1
-                    displayID = ID[12] "," ID[13] "," ID[14] "," ID[15] "," ID[16] "," ID[17]
-                    location = "Location: Aisle: " ID[12] " Frame: " ID[13] " Rack: " ID[14] " Section: " ID[15] " Col: " ID[16] " Row: " ID[17]
-                    print "MSHW;" $0 displayID ";" location ";"
-                   }

@@ -1,7 +1,0 @@
-$1 ~ /:/ { node = $1
-             SORT[node] = SORT[node] "\n" $0
-           }
-
-END { for (nodeList in SORT)
-          print SORT[nodeList]
-    }

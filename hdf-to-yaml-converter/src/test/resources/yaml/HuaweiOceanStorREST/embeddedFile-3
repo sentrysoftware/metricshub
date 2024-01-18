@@ -1,8 +1,0 @@
-BEGIN {FS=":";}
-{
-if ($1 == "iBaseToken")
-    {
-       ibt = $2 ; gsub(/;/, "", ibt) ;
-         print "iBaseToken:" ibt
-    }
-}

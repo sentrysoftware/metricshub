@@ -1,9 +1,0 @@
-tolower($0) ~ /^logical unit:/ {LUNID = $NF}
-$1 ~ /Vendor:/ {Vendor = $0 ; gsub (/ +Vendor: +/,"",Vendor ) ; ArrayName = Vendor }
-$1 ~ /Product:/ {Product= $0 ; gsub (/ +Product: +/,"",Product) ; ArrayName = ArrayName " " Product}
-$1 ~ /Revision:/ {Revision= $0 ; gsub (/ +Revision: +/,"",Revision) ; ArrayName = ArrayName " " Revision}
-$1 ~ /Name:/ && LUNID != "" {NAAID = $NF
-#                                     MSHW;LUNID;ArrayName;NAAID;
-                            print "MSHW;" LUNID ";" ArrayName ";" NAAID ";"
-                            LUNID = "" ; NAAID = "" ;
-                            }

@@ -1,1 +1,0 @@
-$0 ~ /Total Power Capacity/ { print ("MSHW;"$(NF-1)) }

@@ -1,5 +1,0 @@
-#Collection related values and informative fields.
-
-BEGIN {FS=";";OFS=";"}
-gsub(/.*good/,"Good",$2)
-{print $0}
