@@ -12,7 +12,7 @@ import lombok.Builder;
 public class CounterStateMetricObserver extends AbstractStateMetricObserver {
 
 	/**
-	 * Constructs a {@code CounterStateMetricObserver} instance using the Builder pattern.
+	 * Constructs a {@code CounterStateMetricObserver} with the specified parameters.
 	 *
 	 * @param meter        the OpenTelemetry meter
 	 * @param attributes   the attributes associated with the metric

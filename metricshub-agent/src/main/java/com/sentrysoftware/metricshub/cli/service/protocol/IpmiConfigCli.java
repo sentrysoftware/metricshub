@@ -11,7 +11,7 @@ import picocli.CommandLine.Spec;
 
 /**
  * This class is used by MetricsHubCliService to configure Ipmi protocol when using the MetricsHub CLI.
- * It create the engine's {@link IpmiConfiguration} object that is used to monitor a specific resource through REST.
+ * It create the engine's {@link IpmiConfiguration} object that is used to monitor a specific resource through IPMI.
  */
 @Data
 public class IpmiConfigCli implements IProtocolConfigCli {

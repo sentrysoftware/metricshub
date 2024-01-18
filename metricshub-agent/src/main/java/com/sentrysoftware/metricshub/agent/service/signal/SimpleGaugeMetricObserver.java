@@ -20,7 +20,7 @@ public class SimpleGaugeMetricObserver extends AbstractMetricObserver {
 	private final Double metricValue;
 
 	/**
-	 * Constructs a new instance of {@code SimpleGaugeMetricObserver}.
+	 * Constructs a new {@code SimpleGaugeMetricObserver} with the specified parameters.
 	 *
 	 * @param meter       The OpenTelemetry meter to use for metric recording.
 	 * @param metricName  The name of the metric.

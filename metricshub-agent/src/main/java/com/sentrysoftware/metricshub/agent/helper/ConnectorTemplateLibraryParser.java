@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
  * The parsing process involves checking for YAML files, validating whether the YAML structure defines a
  * final Connector (with a displayName section), and using ConnectorParser to parse the YAML file and create
  * Connector objects.
+ * </p>
  */
 @Slf4j
 public class ConnectorTemplateLibraryParser {

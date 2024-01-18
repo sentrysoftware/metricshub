@@ -9,8 +9,8 @@ import lombok.EqualsAndHashCode;
 import picocli.CommandLine.Option;
 
 /**
- * This class is used by MetricsHubCliService to configure Wbem protocol when using the MetricsHub CLI.
- * It create the engine's {@link WbemConfiguration} object that is used to monitor a specific resource using Http/Https.
+ * This class is used by MetricsHubCliService to configure WBEM protocol when using the MetricsHub CLI.
+ * It create the engine's {@link WbemConfiguration} object that is used to monitor a specific resource using WBEM.
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

@@ -20,7 +20,7 @@ public class SimpleUpDownCounterMetricObserver extends AbstractMetricObserver {
 	private final Double metricValue;
 
 	/**
-	 * Constructs a new instance of {@code SimpleUpDownCounterMetricObserver}.
+	 * Constructs a new {@code SimpleUpDownCounterMetricObserver} with the specified parameters.
 	 *
 	 * @param meter       The OpenTelemetry meter to use for metric recording.
 	 * @param metricName  The name of the metric.

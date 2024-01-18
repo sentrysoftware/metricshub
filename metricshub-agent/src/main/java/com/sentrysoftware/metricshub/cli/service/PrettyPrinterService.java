@@ -42,6 +42,7 @@ import org.fusesource.jansi.Ansi.Attribute;
  * <p>The {@code PrettyPrinterService} class provides methods to print monitor data, including attributes and metrics,
  * in a well-formatted manner. It supports different types of monitors, such as hosts, connectors, enclosures, blades,
  * disk controllers, and CPUs. The printing is done using ANSI escape codes for color and formatting.
+ * </p>
  */
 @Data
 public class PrettyPrinterService {

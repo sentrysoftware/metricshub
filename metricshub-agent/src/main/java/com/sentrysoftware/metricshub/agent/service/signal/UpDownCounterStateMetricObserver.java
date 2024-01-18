@@ -12,7 +12,7 @@ import lombok.Builder;
 public class UpDownCounterStateMetricObserver extends AbstractStateMetricObserver {
 
 	/**
-	 * Constructs an instance of UpDownCounterStateMetricObserver.
+	 * Constructs a new {@code UpDownCounterStateMetricObserver} with the specified parameters.
 	 *
 	 * @param meter       The OpenTelemetry meter to use for creating the metric.
 	 * @param attributes  The attributes to associate with the metric.

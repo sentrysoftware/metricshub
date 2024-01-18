@@ -12,7 +12,7 @@ import picocli.CommandLine.Option;
 
 /**
  * This class is used by MetricsHubCliService to configure WinRm protocol when using the MetricsHub CLI.
- * It create the engine's {@link WinRmConfiguration} object that is used to monitor a specific resource through Http/Https.
+ * It create the engine's {@link WinRmConfiguration} object that is used to monitor a specific resource through WinRm.
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

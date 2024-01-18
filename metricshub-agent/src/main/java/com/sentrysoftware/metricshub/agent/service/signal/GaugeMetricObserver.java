@@ -17,7 +17,7 @@ import lombok.ToString;
 public class GaugeMetricObserver extends AbstractNumberMetricObserver {
 
 	/**
-	 * Constructs a GaugeMetricObserver with the specified parameters.
+	 * Constructs a new {@code GaugeMetricObserver} with the specified parameters.
 	 *
 	 * @param meter       the meter to which the metric belongs
 	 * @param attributes  the attributes associated with the metric

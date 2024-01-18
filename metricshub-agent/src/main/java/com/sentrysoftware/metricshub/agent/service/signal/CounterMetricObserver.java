@@ -11,14 +11,14 @@ import lombok.Builder;
  * counter metrics.
  *
  * <p>This class provides a builder pattern for convenient instantiation and configuration
- * of counter metric observers.
+ * of counter metric observers.</p>
  *
  * @see AbstractNumberMetricObserver
  */
 public class CounterMetricObserver extends AbstractNumberMetricObserver {
 
 	/**
-	 * Constructs a new CounterMetricObserver with the specified parameters.
+	 * Constructs a new {@code CounterMetricObserver} with the specified parameters.
 	 *
 	 * @param meter       The OpenTelemetry Meter used for metric creation.
 	 * @param attributes  The attributes associated with the metric.
