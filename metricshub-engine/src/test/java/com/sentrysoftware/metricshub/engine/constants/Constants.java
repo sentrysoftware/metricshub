@@ -235,7 +235,6 @@ public class Constants {
 		() -> InetAddress.getLocalHost().getCanonicalHostName(),
 		UNKNOWN
 	);
-	public static final String AGENT_HOSTNAME_ATTRIBUTE = "agent.host.name";
 	public static final String LOCATION = "location";
 	public static final String COMPUTE = "compute";
 	public static final String HOST_ID_ATTRIBUTE = "host.id";
@@ -254,11 +253,9 @@ public class Constants {
 	// Yaml test files
 	public static final String AAC_CONNECTOR_ID = "AAC";
 	public static final String TEST_CONNECTOR_ID = "TestConnector";
-	public static final String TEST_CONNECTOR_WITH_SIMPLE_ID = "TestConnectorWithSimple";
 	public static final String COMMAND_FILE_ABSOLUTE_PATH =
 		"${file::src\\test\\resources\\test-files\\embedded\\connector2\\command.txt}";
 	public static final String EMBEDDED_TEMP_FILE_PREFIX = "SEN_Embedded_";
-	public static final String TXT_FILE_EXTENSION = "txt";
 	public static final String BAT_FILE_EXTENSION = "\\w+\\.bat";
 	public static final Path YAML_TEST_PATH = Paths.get(
 		"src",
@@ -434,10 +431,6 @@ public class Constants {
 	public static final String NO = "no";
 	public static final String NONE = "none";
 	public static final String INVALID_PRIVACY_VALUE = "sha-256";
-
-	// Thread sleep duration in milliseconds
-	public static final long THREAD_SLEEP_DURATION = 350000L;
-
 	// OS
 	public static final String LINUX = "LINUX";
 	public static final String WINDOWS = "WINDOWS";
@@ -466,20 +459,6 @@ public class Constants {
 		"Neither WMI nor WinRM credentials are configured for this host.";
 	public static final String HOST_OS_IS_NOT_WINDOWS_MESSAGE = "Host OS is not Windows";
 
-	// Connector path
-	public static final Path TEST_CONNECTOR_PATH = Paths.get(
-		"src",
-		"test",
-		"resources",
-		"test-files",
-		"strategy",
-		"TestConnector.yaml"
-	);
-
 	public static final String HEALTHY = "healthy";
 	public static final String STATUS_INFORMATION = "StatusInformation";
-
-	public static final String ENCLOSURE_PRESENT_METRIC = "hw.status{hw.type=\"enclosure\", state=\"present\"}";
-	public static final String DISK_CONTROLLER_PRESENT_METRIC =
-		"hw.status{hw.type=\"disk_controller\", state=\"present\"}";
 }

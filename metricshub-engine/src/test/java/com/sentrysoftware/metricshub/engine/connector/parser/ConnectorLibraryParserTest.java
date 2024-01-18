@@ -84,9 +84,10 @@ class ConnectorLibraryParserTest {
 		assertEquals(3, connectors.get(AAC_CONNECTOR_ID).getMonitors().size());
 
 		//Retrieve the disk controller monitor
-		StandardMonitorJob monitorJob = (StandardMonitorJob) (
-			connectors.get(AAC_CONNECTOR_ID).getMonitors().get(DISK_CONTROLLER)
-		);
+		StandardMonitorJob monitorJob = (StandardMonitorJob) (connectors
+				.get(AAC_CONNECTOR_ID)
+				.getMonitors()
+				.get(DISK_CONTROLLER));
 
 		//Check disk controller discovery sources
 		assertEquals(1, monitorJob.getDiscovery().getSources().size());

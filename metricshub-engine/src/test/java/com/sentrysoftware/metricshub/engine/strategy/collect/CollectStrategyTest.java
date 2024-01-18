@@ -13,7 +13,6 @@ import static com.sentrysoftware.metricshub.engine.constants.Constants.ID;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.MONITOR_ID_ATTRIBUTE_VALUE;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.STATUS_INFORMATION;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.TEST_CONNECTOR_ID;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.TEST_CONNECTOR_PATH;
 import static com.sentrysoftware.metricshub.engine.strategy.AbstractStrategy.CONNECTOR_ID_FORMAT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -34,6 +33,8 @@ import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.MonitorFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,6 +45,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class CollectStrategyTest {
+
+	// Connector path
+	public static final Path TEST_CONNECTOR_PATH = Paths.get(
+		"src",
+		"test",
+		"resources",
+		"test-files",
+		"strategy",
+		"collect"
+	);
 
 	@Mock
 	private MatsyaClientsExecutor matsyaClientsExecutorMock;

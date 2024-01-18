@@ -2,7 +2,6 @@ package com.sentrysoftware.metricshub.engine.strategy.utils;
 
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.TABLE_SEP;
 
-import com.sentrysoftware.matsya.exceptions.WqlQuerySyntaxException;
 import com.sentrysoftware.metricshub.engine.common.exception.MatsyaException;
 import com.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.IWinConfiguration;
@@ -375,7 +374,13 @@ public class WqlDetectionHelper {
 		} else if (t instanceof WmiComException) {
 			final String message = t.getMessage();
 			return isAcceptableWmiComError(message);
-		} else if (t instanceof WqlQuerySyntaxException) {
+		} else if (
+			// CHECKSTYLE:OFF
+			t instanceof org.sentrysoftware.wbem.client.exceptions.WqlQuerySyntaxException ||
+			t instanceof org.sentrysoftware.winrm.exceptions.WqlQuerySyntaxException ||
+			t instanceof org.sentrysoftware.wmi.exceptions.WqlQuerySyntaxException
+			// CHECKSTYLE:ON
+		) {
 			return true;
 		}
 
@@ -393,11 +398,13 @@ public class WqlDetectionHelper {
 		// CHECKSTYLE:OFF
 		return (
 			errorMessage != null &&
+			// @formatter:off
 			(
 				errorMessage.contains("WBEM_E_NOT_FOUND") ||
 				errorMessage.contains("WBEM_E_INVALID_NAMESPACE") ||
 				errorMessage.contains("WBEM_E_INVALID_CLASS")
 			)
+			// @formatter:on
 		);
 		// CHECKSTYLE:ON
 	}

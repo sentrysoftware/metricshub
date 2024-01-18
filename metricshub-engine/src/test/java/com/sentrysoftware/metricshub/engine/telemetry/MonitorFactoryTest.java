@@ -6,7 +6,6 @@ import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_NAME;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.STATE_SET_METRIC_OK;
-import static com.sentrysoftware.metricshub.engine.constants.Constants.AGENT_HOSTNAME_ATTRIBUTE;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.AGENT_HOSTNAME_VALUE;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.COMPUTE;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.HOST;
@@ -286,7 +285,7 @@ class MonitorFactoryTest {
 		assertEquals(COMPUTE, hostMonitorResource.getAttributes().get(HOST_TYPE));
 		assertEquals(HOST_ID, hostMonitorResource.getAttributes().get(HOST_ID_ATTRIBUTE));
 		assertEquals(LINUX.toLowerCase(), hostMonitorResource.getAttributes().get(OS_TYPE));
-		assertEquals(AGENT_HOSTNAME_VALUE, hostMonitorResource.getAttributes().get(AGENT_HOSTNAME_ATTRIBUTE));
+		assertEquals(AGENT_HOSTNAME_VALUE, hostMonitorResource.getAttributes().get("agent.host.name"));
 		assertEquals(HOST_NAME, hostMonitorResource.getAttributes().get(HOST_NAME));
 
 		// Check that the monitor is an endpoint host monitor

@@ -88,7 +88,7 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 		sameTypeMonitors
 			.values()
 			.stream()
-			.filter(monitor -> !monitor.isMissing())
+			.filter(monitor -> !HwCollectHelper.isMissing(monitor))
 			.filter(monitor -> telemetryManager.isConnectorStatusOk(monitor))
 			.forEach(monitor ->
 				PowerAndEnergyCollectHelper.collectPowerAndEnergy(
@@ -123,7 +123,7 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 		vmMonitors
 			.values()
 			.stream()
-			.filter(monitor -> !monitor.isMissing())
+			.filter(monitor -> !HwCollectHelper.isMissing(monitor))
 			.filter(monitor -> telemetryManager.isConnectorStatusOk(monitor))
 			.forEach(monitor ->
 				PowerAndEnergyCollectHelper.collectPowerAndEnergy(
@@ -291,10 +291,10 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 
 			// The bandwidths are 'byteRate * 8 / linkSpeed (in Bit/s)'
 			final Double bandwidthUtilizationTransmitted = HwCollectHelper.isValidPositive(transmittedByteRate)
-				? transmittedByteRate * 8 / linkSpeed
+				? (transmittedByteRate * 8) / linkSpeed
 				: null;
 			final Double bandwidthUtilizationReceived = HwCollectHelper.isValidPositive(receivedByteRate)
-				? receivedByteRate * 8 / linkSpeed
+				? (receivedByteRate * 8) / linkSpeed
 				: null;
 
 			final MetricFactory metricFactory = new MetricFactory(hostname);

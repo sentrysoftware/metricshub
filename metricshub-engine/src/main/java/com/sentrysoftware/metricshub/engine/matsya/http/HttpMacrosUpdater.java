@@ -1,6 +1,6 @@
 package com.sentrysoftware.metricshub.engine.matsya.http;
 
-import static com.sentrysoftware.matsya.jutils.JUtils.encodeSha256;
+import static com.sentrysoftware.metricshub.engine.common.helpers.JUtils.encodeSha256;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HOSTNAME_MACRO;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.PASSWORD_MACRO;

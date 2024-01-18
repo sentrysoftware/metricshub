@@ -242,7 +242,7 @@ public class IpmiHelper {
 				currentValue = currentValue * Math.pow(10, unitModifier);
 				// Add the sensor to the table
 				result.add(Arrays.asList("Current", sensorId, sensorName, deviceId, String.valueOf(currentValue)));
-			} else if (sensorType.equals("1") && (baseUnit.equals("7") || baseUnit.equals("8") && currentValue != 0)) { // Power consumption.
+			} else if (sensorType.equals("1") && (baseUnit.equals("7") || (baseUnit.equals("8") && currentValue != 0))) { // Power consumption.
 				// Depending on the unit, convert it to watts or not
 				if (baseUnit.equals("7")) {
 					List<String> powerList = powerRow(unitModifier, currentValue, line);
@@ -563,7 +563,7 @@ public class IpmiHelper {
 	private static String energyRow(final int unitModifier, double currentValue) {
 		// Convert values based on unitModifier
 		// Joule conversion.
-		return String.valueOf(currentValue * Math.pow(10, unitModifier) / 3600000);
+		return String.valueOf((currentValue * Math.pow(10, unitModifier)) / 3600000);
 	}
 
 	/**

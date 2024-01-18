@@ -110,13 +110,11 @@ public class MonitorFactory {
 		final long discoveryTime
 	) {
 		final Monitor foundMonitor = telemetryManager.findMonitorByTypeAndId(monitorType, id);
-		final String hostname = telemetryManager.getHostname();
 
 		if (foundMonitor != null) {
 			foundMonitor.setAttributes(attributes);
 			foundMonitor.setResource(resource);
 			foundMonitor.setType(monitorType);
-			foundMonitor.setAsPresent(hostname);
 			foundMonitor.setDiscoveryTime(discoveryTime);
 
 			return foundMonitor;
@@ -129,8 +127,6 @@ public class MonitorFactory {
 				.id(id)
 				.discoveryTime(discoveryTime)
 				.build();
-
-			newMonitor.setAsPresent(hostname);
 
 			if (connectorId != null) {
 				newMonitor.addAttribute(MetricsHubConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID, connectorId);

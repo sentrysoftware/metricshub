@@ -2,11 +2,13 @@ package com.sentrysoftware.metricshub.hardware.util;
 
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_VM_POWER_SHARE_METRIC;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.HW_VM_POWER_STATE_METRIC;
+import static com.sentrysoftware.metricshub.hardware.util.HwConstants.PRESENT_STATUS;
 
 import com.sentrysoftware.metricshub.engine.strategy.utils.CollectHelper;
 import com.sentrysoftware.metricshub.engine.strategy.utils.MathOperationsHelper;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import com.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -164,5 +166,35 @@ public class HwCollectHelper {
 	 */
 	private static boolean isVmOnline(Monitor vm) {
 		return "on".equals(CollectHelper.getStateSetMetricValue(vm, HW_VM_POWER_STATE_METRIC, false));
+	}
+
+	/**
+	 * Checks whether the current monitor has the metric {@link HwConstants#PRESENT_STATUS}
+	 * @param monitor A given monitor
+	 * @return true or false
+	 */
+
+	static boolean hasPresentMetric(final Monitor monitor) {
+		return monitor.getMetrics().containsKey(String.format(PRESENT_STATUS, monitor.getType()));
+	}
+
+	/**
+	 * Checks if a given monitor is missing or not. Missing means the present value is 0.
+	 * If the monitor is not eligible to missing devices then it can never be missing.
+	 * @param monitor A given monitor
+	 * @return <code>true</code> if the monitor is missing otherwise <code>false</code>
+	 */
+	public static boolean isMissing(final Monitor monitor) {
+		if (!hasPresentMetric(monitor)) {
+			return false;
+		}
+
+		final NumberMetric presentMetric = monitor.getMetric(
+			String.format(PRESENT_STATUS, monitor.getType()),
+			NumberMetric.class
+		);
+		final Double present = presentMetric != null ? presentMetric.getValue() : null;
+
+		return Double.valueOf(0).equals(present);
 	}
 }
