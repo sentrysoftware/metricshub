@@ -10,10 +10,11 @@
 	<custom>
 		<projectVersion>${project.version}</projectVersion>
 		<bodyClass>sentry-purple</bodyClass>
-		<keywords>universal, monitoring, hardware, observability, opentelemetry, otel, sustainability</keywords>
+		<keywords>universal, monitoring, hardware, system, observability, opentelemetry, otel, sustainability</keywords>
 		<publishDate>${timestamp}</publishDate>
 		<noDefaultLinks>true</noDefaultLinks>
 		<showRenderingTime>true</showRenderingTime>
+		<bodyClass>community-connectors</bodyClass>
 	</custom>
 
 	<body>
@@ -45,7 +46,8 @@
 		</menu>
 
 		<menu name="Appendix">
-			
+			<item name="Community Connectors Reference" href="metricshub-connector-reference.html" />
+			<item name="Community Connector Platforms" href="platform-requirements.html" />
 		</menu>
 
 	</body>

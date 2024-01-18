@@ -1,0 +1,24 @@
+.community-connectors code[class*=language-js] {
+    background-color: #f9f2f4;
+    color: #c7254e;
+}
+
+.community-connectors code[class*=language-js] .token.punctuation {
+    color: #a1a1a1;
+}
+
+.community-connectors code[class*=language-js] .token.operator {
+    color: #3e3f58;
+}
+
+.community-connectors code[class*=language-js] .token.string {
+    color: #c96a43;
+}
+
+.community-connectors code[class*=language-js]::selection,
+.community-connectors code[class*=language-js] ::selection
+{
+    text-shadow: none;
+    background: #4f62ad;
+    color: white;
+}

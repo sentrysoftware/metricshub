@@ -1,13 +1,13 @@
 keywords: about
-description: ${solutionName} is an open source distribution of the OpenTelemetry Collector, designed to oversee diverse devices, applications, services, and hardware components across computers, network switches, and storage systems. It efficiently communicates the gathered metrics to any platform compatible with OpenTelemetry.
+description: ${solutionName} is an open source distribution of the OpenTelemetry Collector, designed to monitor diverse devices, applications, services, and hardware components across computers, network switches, and storage systems. It efficiently communicates the gathered metrics to any platform compatible with OpenTelemetry.
 
 # Overview
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-**${solutionName}** functions as a universal metrics collector for OpenTelemetry, allowing customization for overseeing diverse technologies, encompassing applications, servers, and devices, particularly those without readily available monitoring solutions.
+**${solutionName}** is a universal metrics collector for OpenTelemetry, allowing customization for monitoring diverse technologies, encompassing applications, servers, and devices, particularly those without readily available monitoring solutions. It natively reports the power consumption, electricity costs and CO₂ emissions of the monitored resources to support SRE initiatives.
 
-The **enterprise edition** includes the capability to monitor the hardware health of different computers, network switches, and storage systems and reports the power consumption, electricity costs and CO₂ emissions to support SRE initiatives.
+The **enterprise edition** includes the capability to monitor the hardware health of various resources including computers, network switches, and storage systems from nearly any vendor.
 
 The agent exposes tailored metrics to any observability platform supporting [OpenTelemetry](https://opentelemetry.io/docs), including [Datadog](https://www.datadoghq.com), [BMC Helix](https://www.bmc.com/it-solutions/bmc-helix.html), [Prometheus](https://prometheus.io), Splunk, and more.
 
@@ -16,8 +16,8 @@ The agent exposes tailored metrics to any observability platform supporting [Ope
 
 **${solutionName}** is available in 2 editions:
 
-* **Community edition**: it includes fundamental features of the solution and connectors developed or contributed by the community members.
-The MetricsHub foundation enables the monitoring of both Windows and Linux systems and collecting metrics exposed by MIB2 and LibreHardwareMonitor.
+* **Community edition**: it includes fundamental features of the solution and connectors contributed by the community members.
+The MetricsHub foundation enables the monitoring of operating systems (Windows, Linux, etc.) and collecting metrics exposed by the [**Community Connectors**](#Community_Connectors) such as MIB2 or LibreHardwareMonitor.
 Additionally, the MetricsHub empowers users to create directives specifying how to monitor any resource with minimal configuration, involving low-code principles.
 
 * **Enterprise edition**: In addition to the features included in the community edition, the enterprise edition includes the library of 250+ *Hardware Connectors*, **${solutionName}** becomes capable of performing the monitoring of almost any system from any manufacturer (**Cisco**, **Dell**, **EMC**, **Fujitsu**, **Hitachi**, **HP**, **IBM**, **Lenovo**, **NetApp**, **Oracle**, etc.) through `SNMP`, `IPMI`, `HTTP`, `WBEM`, `WMI`, `WINRM` or `SSH`.
@@ -57,7 +57,7 @@ Additionally, the MetricsHub empowers users to create directives specifying how 
 
 * The **MetricsHub Agent**
     * Its [configuration file](configuration/configure-agent.md) (`metricshub.yaml`)
-    * The monitoring engine, with the basic connectors: Windows, Linux, MIB2, Libre Hardware Monitor 
+    * The monitoring engine, with the [**Community Connectors**](#Community_Connectors): Windows, Linux, MIB2, Libre Hardware Monitor, HyperV, etc.
 * The *OpenTelemetry Collector Contrib* executable
     * The *OpenTelemetry* [configuration file](configuration/configure-otel.md) (`otel-config.yaml`)
 * MetricsHub CLI (`metricshub`)
@@ -89,7 +89,11 @@ The *OpenTelemetry Collector Contrib* is responsible for:
 1. Pulling its metrics periodically (internally)
 2. Pushing these metrics to the specified platform.
 
-### Hardware Connector Library (Enterprise edition)
+### Community Connectors
+
+By default, **${solutionName}** incorporates the [**Community Connectors**](./metricshub-connector-reference.html), these connectors are compatible with diverse [operating systems and platforms](./platform-requirements.html), including Windows, Linux, VMware ESX, HyperV, and more. The ${solutionName} Community Connectors is an open-source project featuring connectors developed by community contributors. Depending on your requirements, you can submit enhancement requests on the [MetricsHub Community Connectors Repository](https://github.com/sentrysoftware/metricshub-community-connectors) or actively contribute to the creation of new connectors, allowing the entire community to reap the benefits.
+
+### Enterprise edition (Hardware Connector Library)
 
 In the enterprise edition, the library of **250+** *Hardware Connectors* is provided as zip asset to be included in the **${solutionName}** installation. It is the same library that powers [Hardware Sentry KM for PATROL](https://www.sentrysoftware.com/products/km-hardware-sentry.html), the original and battle-seasoned module for PATROL, created in 2004 by Sentry Software and used on hundreds of thousands of systems around the world.
 
