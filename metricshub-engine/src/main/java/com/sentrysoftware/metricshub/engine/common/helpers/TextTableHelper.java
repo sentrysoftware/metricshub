@@ -63,7 +63,7 @@ public class TextTableHelper {
 	/**
 	 * Creates a text table for the given <code>rows</code>.<br><br>
 	 * Each row is designed as a {@link List} of {@link String} values.<br><br>
-	 * The headers are generated based on <emp>semiColonSeparatedColumns</emp> (e.g. : <emp>column1;column2</emp>).
+	 * The headers are generated based on <em>semiColonSeparatedColumns</em> (e.g. : <em>column1;column2</em>).
 	 *
 	 * @param semiColonSeparatedColumns	A semicolon-separated list of column names.
 	 * @param rows						The {@link List} of rows.
@@ -80,7 +80,7 @@ public class TextTableHelper {
 	/**
 	 * Creates a text table for the given <code>rows</code>.<br><br>
 	 * Each row is designed as a {@link List} of {@link String} values.<br><br>
-	 * The headers are generated based on <emp>columns</emp> (e.g. : <emp>new String[] {column1, column2}</emp>).
+	 * The headers are generated based on <em>columns</em> (e.g. : <em>new String[] {column1, column2}</em>).
 	 *
 	 * @param columns	An array of column names.
 	 * @param rows		The {@link List} of rows.
@@ -104,7 +104,7 @@ public class TextTableHelper {
 	/**
 	 * Creates a text table for the given <code>rows</code>.<br><br>
 	 * Each row is designed as a {@link List} of {@link String} values.<br><br>
-	 * The headers are generated based on <emp>columns</emp> (e.g. : <emp>Arrays.asList(column1, column2)</emp>).
+	 * The headers are generated based on <em>columns</em> (e.g. : <em>Arrays.asList(column1, column2)</em>).
 	 *
 	 * @param columns	An {@link Collection} of column names.
 	 * @param rows		The {@link List} of rows.

@@ -17,12 +17,26 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * Custom JSON deserializer for post-processing the deserialization of {@link ResourceGroupConfig} instances.
+ *
+ * <p>The {@code PostConfigDeserializer} extends {@link DelegatingDeserializer} to allow additional processing
+ * after the default deserialization. It specifically handles cases where a {@code ResourceGroupConfig} contains
+ * {@code ResourceConfig} instances with a special attribute "host.names," indicating multiple hosts sharing
+ * the same configuration. This deserializer resolves such configurations by creating new {@code ResourceConfig}
+ * instances for each host and updating the configuration map accordingly.
+ */
 public class PostConfigDeserializer extends DelegatingDeserializer {
 
 	private static final String MULTI_HOST_ATTRIBUTE_KEY = "host.names";
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Constructs a new {@code PostConfigDeserializer} with the specified delegate.
+	 *
+	 * @param delegate The delegate {@link JsonDeserializer} for actual deserialization.
+	 */
 	public PostConfigDeserializer(final JsonDeserializer<?> delegate) {
 		super(delegate);
 	}

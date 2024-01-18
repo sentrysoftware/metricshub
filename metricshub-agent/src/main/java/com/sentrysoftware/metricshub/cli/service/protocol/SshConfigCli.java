@@ -9,9 +9,16 @@ import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
 
+/**
+ * This class is used by MetricsHubCliService to configure SSH protocol when using the MetricsHub CLI.
+ * It create the engine's {@link SshConfiguration} object that is used to monitor a specific resource.
+ */
 @Data
 public class SshConfigCli implements IProtocolConfigCli {
 
+	/**
+	 * Default timeout in seconds to execute an SSH operation
+	 */
 	public static final int DEFAULT_TIMEOUT = 30;
 
 	@Spec

@@ -9,6 +9,10 @@ import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * AlertingSystemConfig represents the configuration for the alerting system in the MetricsHub agent.
+ * It includes options such as whether the alerting system is disabled, and the template for problem alerts.
+ */
 @AllArgsConstructor
 @NoArgsConstructor
 @Data

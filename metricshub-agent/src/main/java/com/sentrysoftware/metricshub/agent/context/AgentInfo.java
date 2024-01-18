@@ -34,9 +34,17 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 
+/**
+ * AgentInfo represents information about the MetricsHub agent, including attributes such as name, version,
+ * build number, build date, Health Connector (HC) version, and OpenTelemetry (OTel) version. It also provides
+ * metric attributes and resource attributes, and is responsible for reading internal application configuration.
+ */
 @Slf4j
 public class AgentInfo {
 
+	/**
+	 * Metric name for MetricsHub agent.
+	 */
 	public static final String METRICS_HUB_AGENT_METRIC_NAME = "metricshub.agent.info";
 
 	// @formatter:off
@@ -73,6 +81,10 @@ public class AgentInfo {
 	@Getter
 	private Map<String, String> resourceAttributes = new HashMap<>();
 
+	/**
+	 * Creates an instance of AgentInfo, initializing metric and resource attributes
+	 * based on internal application configuration.
+	 */
 	public AgentInfo() {
 		// Read the application.yaml file
 		final ClassPathResource classPathResource = new ClassPathResource(APPLICATION_YAML_FILE_NAME);

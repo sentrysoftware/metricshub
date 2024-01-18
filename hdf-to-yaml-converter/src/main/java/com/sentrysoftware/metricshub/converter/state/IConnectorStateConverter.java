@@ -21,7 +21,7 @@ public interface IConnectorStateConverter {
 	 * @param key The property name
 	 * @param value The value of the property
 	 * @param connector The contextual {@link JsonNode}
-	 * @param PreConnector connector pre-formatted containing information such as comments
+	 * @param preConnector connector pre-formatted containing information such as comments
 	 */
 	void convert(String key, String value, JsonNode connector, PreConnector preConnector);
 }

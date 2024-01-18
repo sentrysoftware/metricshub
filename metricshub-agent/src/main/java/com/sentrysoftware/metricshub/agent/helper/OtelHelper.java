@@ -13,9 +13,15 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+/**
+ * Helper class providing methods related to OpenTelemetry (OTEL) configuration.
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OtelHelper {
 
+	/**
+	 * Fully Qualified Domain Name (FQDN) attribute key
+	 */
 	public static final String FQDN_ATTRIBUTE_KEY = "fqdn";
 
 	/**
@@ -49,7 +55,7 @@ public class OtelHelper {
 	 * Whether this key should be accepted or not.<br>
 	 * If the key starts with '__' then it is not accepted.
 	 *
-	 * @param entry string key
+	 * @param key OTEL key to test
 	 *
 	 * @return boolean value
 	 */

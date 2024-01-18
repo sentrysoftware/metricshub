@@ -5,17 +5,30 @@ import com.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import lombok.Data;
 import picocli.CommandLine.Option;
 
+/**
+ * This class is used by MetricsHubCliService to configure Wmi protocol when using the MetricsHub CLI.
+ * It create the engine's {@link WmiConfiguration} object that is used to monitor a specific resource.
+ */
 @Data
 public class WmiConfigCli implements IProtocolConfigCli {
 
+	/**
+	 *  Default timeout in seconds for Wbem operations
+	 */
 	public static final int DEFAULT_TIMEOUT = 30;
 
 	@Option(names = "--wmi", order = 1, description = "Enables WMI")
 	private boolean useWmi;
 
+	/**
+	 * Username for WMI authentication
+	 */
 	@Option(names = "--wmi-username", order = 2, paramLabel = "USER", description = "Username for WMI authentication")
 	private String username;
 
+	/**
+	 * Password for WMI authentication
+	 */
 	@Option(
 		names = "--wmi-password",
 		order = 3,
@@ -26,6 +39,9 @@ public class WmiConfigCli implements IProtocolConfigCli {
 	)
 	private char[] password;
 
+	/**
+	 * Timeout in seconds for WBem operations
+	 */
 	@Option(
 		names = "--wmi-timeout",
 		order = 4,
@@ -35,6 +51,9 @@ public class WmiConfigCli implements IProtocolConfigCli {
 	)
 	private Long timeout;
 
+	/**
+	 * Forces a specific namespace for connectors that perform namespace auto-detection
+	 */
 	@Option(
 		names = "--wmi-force-namespace",
 		order = 5,

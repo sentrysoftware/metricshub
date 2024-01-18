@@ -9,6 +9,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
 
+/**
+ * Information required for the monitoring task, including telemetry manager, resource configuration, keys, OpenTelemetry SDK configuration, and host metric definitions.
+ */
 @Data
 @AllArgsConstructor
 @Builder

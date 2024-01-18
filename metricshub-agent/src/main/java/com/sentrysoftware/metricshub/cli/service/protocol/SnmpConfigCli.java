@@ -7,9 +7,16 @@ import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import lombok.Data;
 import picocli.CommandLine.Option;
 
+/**
+ * This class is used by MetricsHubCliService to configure Snmp protocol when using the MetricsHub CLI.
+ * It create the engine's {@link SnmpConfiguration} object that is used to monitor a specific resource.
+ */
 @Data
 public class SnmpConfigCli implements IProtocolConfigCli {
 
+	/**
+	 * Default timeout in seconds for an SNMP operation
+	 */
 	public static final int DEFAULT_TIMEOUT = 30;
 
 	@Option(

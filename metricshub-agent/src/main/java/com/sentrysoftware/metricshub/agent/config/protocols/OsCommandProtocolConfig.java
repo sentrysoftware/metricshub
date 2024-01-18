@@ -13,6 +13,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+/**
+ * Configuration class for the OS command protocol.
+ * Extends {@link AbstractProtocolConfig}.
+ */
 @Data
 @Builder
 @AllArgsConstructor

@@ -8,10 +8,17 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import picocli.CommandLine.Option;
 
+/**
+ * This class is used by MetricsHubCliService to configure Wbem protocol when using the MetricsHub CLI.
+ * It create the engine's {@link WbemConfiguration} object that is used to monitor a specific resource using Http/Https.
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class WbemConfigCli extends AbstractTransportProtocolCli {
 
+	/**
+	 * Default timeout in seconds for a Wbem operation
+	 */
 	public static final int DEFAULT_TIMEOUT = 30;
 
 	@Option(names = "--wbem", order = 1, description = "Enables WBEM")

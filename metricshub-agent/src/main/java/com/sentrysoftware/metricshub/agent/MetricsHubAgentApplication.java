@@ -14,6 +14,9 @@ import org.apache.logging.log4j.ThreadContext;
 import picocli.CommandLine;
 import picocli.CommandLine.Option;
 
+/**
+ * MetricsHub Agent application entry point.
+ */
 @Data
 @Slf4j
 public class MetricsHubAgentApplication implements Runnable {
@@ -32,6 +35,12 @@ public class MetricsHubAgentApplication implements Runnable {
 	)
 	private String alternateConfigFile;
 
+	/**
+	 * The main entry point for the MetricsHub Agent application.
+	 * Creates an instance of MetricsHubAgentApplication and executes it using CommandLine.
+	 *
+	 * @param args The command-line arguments passed to the application.
+	 */
 	public static void main(String[] args) {
 		new CommandLine(new MetricsHubAgentApplication()).execute(args);
 	}

@@ -36,6 +36,13 @@ import lombok.RequiredArgsConstructor;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Attribute;
 
+/**
+ * Service class for printing the telemetry data obtained from the {@link TelemetryManager} in a human-readable format.
+ *
+ * <p>The {@code PrettyPrinterService} class provides methods to print monitor data, including attributes and metrics,
+ * in a well-formatted manner. It supports different types of monitors, such as hosts, connectors, enclosures, blades,
+ * disk controllers, and CPUs. The printing is done using ANSI escape codes for color and formatting.
+ */
 @Data
 public class PrettyPrinterService {
 
@@ -62,6 +69,13 @@ public class PrettyPrinterService {
 
 	private MetricDefinitions hostMetricDefinitions;
 
+	/**
+	 * Constructs a new {@code PrettyPrinterService} instance with the specified {@link TelemetryManager} and {@link PrintWriter}.
+	 *
+	 * @param telemetryManager The {@code TelemetryManager} instance for retrieving telemetry data.
+	 * @param printWriter      The {@code PrintWriter} instance for writing the formatted output.
+	 * @throws IOException If an I/O error occurs while reading metric definitions for host monitors.
+	 */
 	public PrettyPrinterService(@NonNull TelemetryManager telemetryManager, @NonNull PrintWriter printWriter)
 		throws IOException {
 		this.telemetryManager = telemetryManager;

@@ -320,7 +320,7 @@ public class MatsyaClientsExecutor {
 	 * @param leftKeyColumnNumber
 	 * @param rightKeyColumnNumber
 	 * @param defaultRightLine
-	 * @param wbemKeyType          {@link true} if WBEM
+	 * @param wbemKeyType          <code>true</code> if WBEM
 	 * @param caseInsensitive
 	 * @return
 	 */
@@ -486,7 +486,7 @@ public class MatsyaClientsExecutor {
 
 	/**
 	 * Perform a WQL query, either against a CIM server (WBEM) or WMI
-	 * <p>
+	 * <br>
 	 *
 	 * @param hostname    Hostname
 	 * @param configuration The WbemConfiguration or WmiConfiguration object specifying how to connect to specified host
@@ -515,7 +515,7 @@ public class MatsyaClientsExecutor {
 
 	/**
 	 * Perform a WQL remote command query, either against a CIM server (WBEM) or WMI
-	 * <p>
+	 * <br>
 	 *
 	 * @param hostname      Hostname
 	 * @param configuration The WbemConfiguration or WmiConfiguration object specifying how to connect to specified host
@@ -549,7 +549,7 @@ public class MatsyaClientsExecutor {
 
 	/**
 	 * Determine if a vCenter server is configured and call the appropriate method to run the WBEM query.
-	 * <p>
+	 * <br>
 	 *
 	 * @param hostname   Hostname
 	 * @param wbemConfig WBEM Protocol configuration, incl. credentials
@@ -576,7 +576,7 @@ public class MatsyaClientsExecutor {
 
 	/**
 	 * Perform a WBEM query using vCenter ticket authentication.
-	 * <p>
+	 * <br>
 	 *
 	 * @param hostname   Hostname
 	 * @param wbemConfig WBEM Protocol configuration, incl. credentials
@@ -640,7 +640,7 @@ public class MatsyaClientsExecutor {
 
 	/**
 	 * Perform a query to a vCenterServer in order to obtain an authentication ticket.
-	 * <p>
+	 * <br>
 	 *
 	 * @param vCenter  vCenter server FQDN or IP
 	 * @param username Username
@@ -678,7 +678,7 @@ public class MatsyaClientsExecutor {
 
 	/**
 	 * Assess whether the exception (or any of its causes) is an access denied error saying that we must refresh the vCenter ticket.
-	 * <p>
+	 * <br>
 	 *
 	 * @param t Exception to verify
 	 * @return whether specified exception tells us that the ticket needs to be refreshed
@@ -699,7 +699,7 @@ public class MatsyaClientsExecutor {
 
 	/**
 	 * Perform a WBEM query.
-	 * <p>
+	 * <br>
 	 *
 	 * @param hostname   Hostname
 	 * @param wbemConfig WBEM Protocol configuration, incl. credentials
@@ -1248,7 +1248,7 @@ public class MatsyaClientsExecutor {
 	 * @param localFiles
 	 * @param noPasswordCommand
 	 * @return
-	 * @throws IOException
+	 * @throws MatsyaException
 	 */
 	@WithSpan("SSH")
 	public static String runRemoteSshCommand(
@@ -1353,11 +1353,12 @@ public class MatsyaClientsExecutor {
 	}
 
 	/**
-	 * <p>Authenticate SSH with:
-	 * <li>username, privateKey and password first</li>
-	 * <li>username and password</li>
-	 * <li>username only</li>
-	 * </p>
+	 * Authenticate SSH with:
+	 * <ul>
+	 * 	<li>username, privateKey and password first</li>
+	 * 	<li>username and password</li>
+	 * 	<li>username only</li>
+	 * </ul>
 	 *
 	 * @param sshClient  The Matsya SSH client
 	 * @param hostname   The hostname
@@ -1432,19 +1433,20 @@ public class MatsyaClientsExecutor {
 	 * Create a new instance of the {@link SshClient}
 	 *
 	 * @param hostname
-	 * @return {@link SSHClient} instance
+	 * @return {@link SshClient} instance
 	 */
 	public static SshClient createSshClientInstance(final String hostname) {
 		return new SshClient(hostname, StandardCharsets.UTF_8);
 	}
 
 	/**
-	 * <p>Connect to the SSH terminal with Matsya. For that:
-	 * <li>Create a Matsya SSH Client instance.</li>
-	 * <li>Connect to SSH.</li>
-	 * <li>Open a SSH session.</li>
-	 * <li>Open a terminal.</li>
-	 * </p>
+	 * Connect to the SSH terminal with Matsya. For that:
+	 * <ul>
+	 * 	<li>Create a Matsya SSH Client instance.</li>
+	 * 	<li>Connect to SSH.</li>
+	 * 	<li>Open a SSH session.</li>
+	 * 	<li>Open a terminal.</li>
+	 * </ul>
 	 *
 	 * @param hostname   The hostname (mandatory)
 	 * @param username   The username (mandatory)

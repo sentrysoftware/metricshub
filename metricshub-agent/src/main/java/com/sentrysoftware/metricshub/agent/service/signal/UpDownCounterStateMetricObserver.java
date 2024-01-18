@@ -5,8 +5,23 @@ import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.metrics.Meter;
 import lombok.Builder;
 
+/**
+ * Observer for UpDownCounter state metrics.
+ * Extends {@link AbstractStateMetricObserver}.
+ */
 public class UpDownCounterStateMetricObserver extends AbstractStateMetricObserver {
 
+	/**
+	 * Constructs an instance of UpDownCounterStateMetricObserver.
+	 *
+	 * @param meter       The OpenTelemetry meter to use for creating the metric.
+	 * @param attributes  The attributes to associate with the metric.
+	 * @param metricName  The name of the metric.
+	 * @param unit        The unit of the metric.
+	 * @param description The description of the metric.
+	 * @param state       The initial state of the metric.
+	 * @param metric      The StateSetMetric to observe.
+	 */
 	@Builder(setterPrefix = "with")
 	public UpDownCounterStateMetricObserver(
 		final Meter meter,

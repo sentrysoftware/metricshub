@@ -16,6 +16,16 @@ import java.util.Map;
 import java.util.TreeMap;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Utility class for parsing connector template YAML files and creating a map of custom connectors.
+ * This class provides functionality to visit YAML files in a specified directory, read connector data,
+ * and create Connector objects based on the parsed data. The resulting connectors are stored in a map
+ * with the connector ID as the key and the corresponding Connector object as the value.
+ * <p>
+ * The parsing process involves checking for YAML files, validating whether the YAML structure defines a
+ * final Connector (with a displayName section), and using ConnectorParser to parse the YAML file and create
+ * Connector objects.
+ */
 @Slf4j
 public class ConnectorTemplateLibraryParser {
 
@@ -94,9 +104,12 @@ public class ConnectorTemplateLibraryParser {
 	}
 
 	/**
-	 * @param yamlParentDirectory the directory containing connectors yaml files
-	 * @return Map<String, Connector> (connectors map: key=yamlFileName, value=Connector)
-	 * @throws IOException if the file does not exist
+	 * Parses connector template YAML files in the specified directory and creates a map of custom connectors.
+	 *
+	 * @param yamlParentDirectory   The directory containing connector YAML files
+	 * @param connectorVariablesMap A map of ConnectorVariables for variable substitution
+	 * @return Map&lt;String, Connector&gt; (connectors map: key=yamlFileName, value=Connector)
+	 * @throws IOException if the file does not exist or an I/O error occurs during processing
 	 */
 	public Map<String, Connector> parse(
 		final Path yamlParentDirectory,

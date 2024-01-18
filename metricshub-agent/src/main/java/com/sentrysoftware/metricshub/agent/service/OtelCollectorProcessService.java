@@ -22,6 +22,11 @@ public class OtelCollectorProcessService extends AbstractProcess {
 
 	private AgentConfig agentConfig;
 
+	/**
+	 * Creates a new instance of OtelCollectorProcessService.
+	 *
+	 * @param agentConfig The configuration for the MetricsHub Agent.
+	 */
 	public OtelCollectorProcessService(final AgentConfig agentConfig) {
 		super(agentConfig.getOtelCollector().toProcessConfig());
 		this.agentConfig = agentConfig;

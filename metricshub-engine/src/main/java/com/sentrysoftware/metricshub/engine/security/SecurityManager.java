@@ -193,7 +193,7 @@ public class SecurityManager {
 	 * @param ks           The keyStore holding the secret key
 	 * @param password     The password used to protect the {@link KeyStore}
 	 * @param keyStoreFile The key store file (PRODUCT-CODE-keystore.p12)
-	 * @throws Exception
+	 * @throws MetricsHubSecurityException
 	 */
 	public static SecretKey generateMasterKey(
 		@NonNull final KeyStore ks,

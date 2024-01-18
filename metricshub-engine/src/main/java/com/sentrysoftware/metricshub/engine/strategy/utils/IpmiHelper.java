@@ -1117,9 +1117,9 @@ public class IpmiHelper {
 	 * correct status of the given sensor
 	 * Look for all states listed (States Asserted and Assertion Events)
 	 * which are located before the "Assertions Enabled" entry
-	 * @param sensorName
-	 * @param matcher
-	 * @return
+	 * @param sensorName Name of the sensor
+	 * @param sensorEntry Entry of the sensor
+	 * @return string
 	 */
 	public static String processOemSpecific(String sensorName, String sensorEntry) {
 		if (sensorName.isEmpty()) {

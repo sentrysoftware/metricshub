@@ -4,6 +4,10 @@ import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import lombok.NonNull;
 import picocli.CommandLine;
 
+/**
+ * Custom converter for converting SNMP version strings to {@link SnmpConfiguration.SnmpVersion}.
+ * It is used in conjunction with Picocli's command-line parsing to convert command-line input to the appropriate enum type.
+ */
 public class SnmpVersionConverter implements CommandLine.ITypeConverter<SnmpConfiguration.SnmpVersion> {
 
 	/**

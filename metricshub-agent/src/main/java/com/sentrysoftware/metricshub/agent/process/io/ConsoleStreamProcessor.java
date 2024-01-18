@@ -3,13 +3,18 @@ package com.sentrysoftware.metricshub.agent.process.io;
 import java.io.PrintStream;
 
 /**
- * {@link StreamProcessor} implementation which prints the received block in the
- * standard out or standard error.
+ * Implementation of {@link StreamProcessor} that prints the received block to either
+ * standard output or standard error.
  */
 public class ConsoleStreamProcessor implements StreamProcessor {
 
 	private PrintStream printStream;
 
+	/**
+	 * Constructs a {@code ConsoleStreamProcessor} instance.
+	 *
+	 * @param isError {@code true} if the output is an error, {@code false} for standard output.
+	 */
 	public ConsoleStreamProcessor(final boolean isError) {
 		// Check if we should print to STDOUT or STDERR
 		if (isError) {

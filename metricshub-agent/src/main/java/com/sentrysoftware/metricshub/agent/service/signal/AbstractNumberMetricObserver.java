@@ -8,6 +8,14 @@ import java.util.Optional;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+/**
+ * AbstractNumberMetricObserver is an extension of AbstractMetricObserver and serves as the base classd
+ * for defining generic number metric observers in the MetricsHub agent. It introduces functionality specific
+ * to observing metrics with numerical values and is further extended by concrete number metric observer classes.
+ *
+ * <p>This class includes methods for observing number metrics, retrieving metric values, and handling special
+ * cases such as energy metric observations where an increase in usage is checked.
+ */
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public abstract class AbstractNumberMetricObserver extends AbstractMetricObserver {

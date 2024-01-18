@@ -9,8 +9,20 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.NonNull;
 
+/**
+ * Custom JSON deserializer for converting timeout values to seconds.
+ * Extends {@link JsonDeserializer} and handles deserialization of timeout values in various formats.
+ */
 public class TimeDeserializer extends JsonDeserializer<Long> {
 
+	/**
+	 * Deserialize the JSON value to a {@code Long} representing the timeout in seconds.
+	 *
+	 * @param parser The JSON parser.
+	 * @param ctxt   The deserialization context.
+	 * @return The timeout value in seconds.
+	 * @throws IOException If an I/O error occurs.
+	 */
 	@Override
 	public Long deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException {
 		if (parser == null) {

@@ -223,9 +223,9 @@ public class WqlDetectionHelper {
 
 	/**
 	 * Detect the WBEM/WMI namespace applicable to the specified WBEM/WMI criterion.
-	 * <p>
+	 * <br>
 	 * The namespace in the criterion must be "Automatic".
-	 * <p>
+	 * <br>
 	 *
 	 * @param hostname           The host name
 	 * @param configuration      WBEM/WMI configuration (credentials, timeout)
@@ -306,9 +306,9 @@ public class WqlDetectionHelper {
 
 	/**
 	 * Perform the specified WQL detection test, on the specified WBEM/WMI protocol configuration.
-	 * <p>
+	 * <br>
 	 * Note: "Automatic" namespace is not supported in this method.
-	 * <p>
+	 * <br>
 	 *
 	 * @param hostname      Host name
 	 * @param configuration WBEM/WMI configuration (credentials, timeout)
@@ -359,7 +359,7 @@ public class WqlDetectionHelper {
 	/**
 	 * Assess whether an exception (or any of its causes) is simply an error saying that the
 	 * requested namespace of class doesn't exist, which is considered okay.
-	 * <p>
+	 * <br>
 	 *
 	 * @param t Exception to verify
 	 * @return whether specified exception is acceptable while performing namespace detection

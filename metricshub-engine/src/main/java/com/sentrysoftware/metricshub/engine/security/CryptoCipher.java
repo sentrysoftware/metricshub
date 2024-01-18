@@ -114,9 +114,8 @@ public class CryptoCipher {
 	/**
 	 * Encrypt the given text value
 	 *
-	 * @param str       The text we wish to encrypt
-	 * @param secretKey The {@link SecretKey} instance used by the encryption
-	 *                  algorithm
+	 * @param plainText The plain text we wish to encrypt
+	 * @param secretKey The {@link SecretKey} instance used by the encryption algorithm
 	 * @return char array of encrypted data
 	 * @throws MetricsHubSecurityException
 	 */
@@ -128,7 +127,7 @@ public class CryptoCipher {
 	/**
 	 * Decrypt the given text value using a secreteKey
 	 *
-	 * @param str       The text we wish to decrypt
+	 * @param crypted   The text we wish to decrypt
 	 * @param secretKey The {@link SecretKey} instance used to decrypt the text value
 	 * @return char array of decrypted data
 	 */

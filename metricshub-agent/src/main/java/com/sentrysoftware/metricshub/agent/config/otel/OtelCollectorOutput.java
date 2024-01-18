@@ -9,10 +9,22 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Enumeration representing different output options for the OpenTelemetry Collector.
+ */
 @AllArgsConstructor
 public enum OtelCollectorOutput {
+	/**
+	 * Silent output, no logging or console output.
+	 */
 	SILENT(ProcessOutput::silent),
+	/**
+	 * Console output.
+	 */
 	CONSOLE(() -> ProcessOutput.namedConsoleOutput(EXECUTABLE_OUTPUT_ID)),
+	/**
+	 * Logging output using SLF4J.
+	 */
 	LOG(() -> ProcessOutput.logOutput(LoggerFactory.getLogger(OtelCollectorProcessService.class)));
 
 	@Getter

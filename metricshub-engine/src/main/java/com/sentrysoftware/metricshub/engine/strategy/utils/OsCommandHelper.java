@@ -366,12 +366,14 @@ public class OsCommandHelper {
 	}
 
 	/**
-	 * <p>Get the timeout from:
-	 * <li>First, the command timeout</li>
-	 * <li>Then, the command configuration timeout</li>
-	 * <li>Then, the protocol configuration timeout</li>
-	 * <li>Finally, the default timeout</li>
-	 * </p>
+	 * Get the timeout from:
+	 * <ul>
+	 * 	<li>First, the command timeout</li>
+	 * 	<li>Then, the command configuration timeout</li>
+	 * 	<li>Then, the protocol configuration timeout</li>
+	 * 	<li>Finally, the default timeout</li>
+	 * </ul>
+	 *
 	 * @param commandTimeout The os command timeout in seconds.
 	 * @param osCommandConfiguration
 	 * @param configuration
@@ -440,13 +442,15 @@ public class OsCommandHelper {
 	}
 
 	/**
-	 * <p>Run the OS Command on:
-	 * <li>Local (use java Process)</li>
-	 * <li>Remote windows (use WMI/WinRm command)</li>
-	 * <li>Remote Linux (use SSH)<:li>
+	 * Run the OS Command on:
+	 * <ul>
+	 * 	<li>Local (use java Process)</li>
+	 * 	<li>Remote windows (use WMI/WinRm command)</li>
+	 * 	<li>Remote Linux (use SSH)</li>
+	 * </ul>
 	 * <p>It replaces Host name, User name, Password, Sudo, Embedded files macros in the command line.</p>
 	 * <p>If necessary, it creates embedded files and deletes them after the command execution.</p>
-	 * </p>
+	 *
 	 *
 	 * @param commandLine The command Line. (mandatory)
 	 * @param telemetryManager The engine configuration and host properties. (mandatory)

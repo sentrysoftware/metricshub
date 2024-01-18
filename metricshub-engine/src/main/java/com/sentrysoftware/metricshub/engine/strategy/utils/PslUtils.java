@@ -36,7 +36,7 @@ public class PslUtils {
 	/**
 	 * Converts a PSL regex into its Java equivalent.
 	 * Method shamelessly taken from somewhere else.
-	 * <p>
+	 * <br>
 	 * @param pslRegex Regular expression as used in PSL's grep() function.
 	 * @return Regular expression that can be used in Java's Pattern.compile.
 	 */
@@ -138,11 +138,11 @@ public class PslUtils {
 	 * Converts an entry and its result into an extended JSON format:
 	 * 	{
 	 * 		"Entry":{
-	 * 			"Full":"<entry>",
-	 * 			"Column(1)":"<1st field value>",
-	 * 	    	"Column(2)":"<2nd field value>",
-	 * 			"Column(3)":"<3rd field value>",
-	 * 			"Value":<result> <- Result must be properly formatted (either "result" or {"property":"value"}
+	 * 			"Full":"&lt;entry&gt;",
+	 * 			"Column(1)":"&lt;1st field value&gt;",
+	 * 	    	"Column(2)":"&lt;2nd field value&gt;",
+	 * 			"Column(3)":"&lt;3rd field value&gt;",
+	 * 			"Value":&lt;result&gt; &lt;- Result must be properly formatted (either "result" or {"property":"value"}
 	 * 		}
 	 * 	}
 	 *

@@ -74,11 +74,11 @@ public class ProcessControl {
 	}
 
 	/**
-	 * Starts a process and builds the {@link ProcessControl} instance
+	 * Starts a process and builds the {@link ProcessControl} instance.
 	 *
-	 * @param processBuilder
-	 * @return {@link ProcessControl} instance
-	 * @throws IOException
+	 * @param processBuilder The {@code ProcessBuilder} used to start the process.
+	 * @return {@link ProcessControl} instance.
+	 * @throws IOException If an I/O error occurs.
 	 */
 	public static ProcessControl start(final ProcessBuilder processBuilder) throws IOException {
 		return new ProcessControl(processBuilder.start());
@@ -119,7 +119,7 @@ public class ProcessControl {
 	/**
 	 * Registers a new virtual-machine shutdown hook.
 	 *
-	 * @param runnable
+	 * @param runnable The {@code Runnable} to be executed during the shutdown.
 	 */
 	public static void addShutdownHook(Runnable runnable) {
 		Runtime.getRuntime().addShutdownHook(new Thread(runnable));

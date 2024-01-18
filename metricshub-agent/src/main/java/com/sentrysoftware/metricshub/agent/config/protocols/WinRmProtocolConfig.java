@@ -17,6 +17,10 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.winrm.service.client.auth.AuthenticationEnum;
 
+/**
+ * Configuration class for the WinRm (Windows Remote Management) protocol.
+ * Extends {@link AbstractProtocolConfig}.
+ */
 @Data
 @Builder
 @AllArgsConstructor

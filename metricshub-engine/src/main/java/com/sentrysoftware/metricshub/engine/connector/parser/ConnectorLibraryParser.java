@@ -79,7 +79,7 @@ public class ConnectorLibraryParser {
 
 	/**
 	 * @param yamlParentDirectory the directory containing connectors yaml files
-	 * @return Map<String, Connector> (connectors map: key=yamlFileName, value=Connector)
+	 * @return Map&lt;String, Connector&gt; (connectors map: key=yamlFileName, value=Connector)
 	 * @throws IOException if the file does not exist
 	 */
 	public Map<String, Connector> parseConnectorsFromAllYamlFiles(Path yamlParentDirectory) throws IOException {

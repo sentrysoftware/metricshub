@@ -8,6 +8,11 @@ import java.util.Optional;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+/**
+ * Abstract class for observing state-based metrics. Extends {@link AbstractMetricObserver}.
+ * This class provides a common structure for classes that observe metrics associated with different states.
+ * It extends {@link AbstractMetricObserver} to inherit common metric observation functionalities.
+ */
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public abstract class AbstractStateMetricObserver extends AbstractMetricObserver {

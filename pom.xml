@@ -492,11 +492,24 @@
 						</inputGlobs>
 					</configuration>
 				</plugin>
+				<plugin>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>3.6.3</version>
+					<configuration>
+						<detectJavaApiLink>false</detectJavaApiLink>
+						<source>${maven.compiler.target}</source>
+						<show>public</show>
+						<notimestamp>true</notimestamp>
+						<additionalJOptions>
+							<additionalJOption>-Xmaxwarns</additionalJOption>
+							<additionalJOption>999</additionalJOption>
+						</additionalJOptions>
+					</configuration>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 
 		<plugins>
-
 			<!-- buildnumber -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -674,8 +687,36 @@
 				</configuration>
 			</plugin>
 
+			<!-- javadoc -->
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+						<goal>jar</goal>
+					</goals>
+				</execution>
+			</executions>
+		</plugin>
+
 		</plugins>
 	</build>
+
+	<reporting>
+		<plugins>
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<reportSets>
+					<reportSet>
+					<reports>
+						<report>javadoc</report>
+					</reports>
+				</reportSet>
+			</reportSets>
+		</plugin>
+		</plugins>
+	</reporting>
 
 
 </project>

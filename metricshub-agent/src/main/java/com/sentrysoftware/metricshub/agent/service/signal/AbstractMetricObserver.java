@@ -8,6 +8,11 @@ import io.opentelemetry.api.metrics.Meter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+/**
+ * AbstractMetricObserver is the base class for defining generic metric observers in the MetricsHub agent.
+ * It provides common functionality and methods for initializing metric observers, as well as creating
+ * OpenTelemetry SDK builders.
+ */
 @AllArgsConstructor
 @Data
 public abstract class AbstractMetricObserver {

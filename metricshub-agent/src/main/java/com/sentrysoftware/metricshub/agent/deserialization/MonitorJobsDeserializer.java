@@ -20,8 +20,14 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Custom JSON deserializer for mapping monitor jobs from JSON to a {@code Map<String, MonitorJob>} using Jackson.
+ */
 public class MonitorJobsDeserializer extends JsonDeserializer<Map<String, MonitorJob>> {
 
+	/**
+	 * ObjectMapper for JSON deserialization.
+	 */
 	public static final ObjectMapper OBJECT_MAPPER = newObjectMapper();
 
 	@Override

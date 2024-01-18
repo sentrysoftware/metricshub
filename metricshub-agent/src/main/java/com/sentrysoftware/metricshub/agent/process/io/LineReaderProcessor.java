@@ -11,6 +11,12 @@ import lombok.NonNull;
  */
 public class LineReaderProcessor extends AbstractReaderProcessor {
 
+	/**
+	 * Constructs a LineReaderProcessor with the specified reader and stream processor.
+	 *
+	 * @param reader           The reader to read process output lines.
+	 * @param streamProcessor  The {@link StreamProcessor} to be called for each available line.
+	 */
 	public LineReaderProcessor(@NonNull Reader reader, @NonNull StreamProcessor streamProcessor) {
 		super(reader, streamProcessor);
 	}
