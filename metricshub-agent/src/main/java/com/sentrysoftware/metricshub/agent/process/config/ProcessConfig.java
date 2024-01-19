@@ -15,7 +15,7 @@ import lombok.NonNull;
  * If you wish to process the STDOUT and STDERR, provide the
  * {@link ProcessOutput} configuration. A set of predefined configurations are
  * already defined by {@link ProcessOutput} class such as
- * {@link ProcessOutput#log(String)}, {@link ProcessOutput#silent()} and
+ * {@link ProcessOutput#log(org.slf4j.Logger)}, {@link ProcessOutput#silent()} and
  * {@link ProcessOutput#namedConsole(String)} but you can provide your own
  * implementation to process the output.<br> The process environment map can also be
  * defined, subsequently the started subprocesses will use this map as their

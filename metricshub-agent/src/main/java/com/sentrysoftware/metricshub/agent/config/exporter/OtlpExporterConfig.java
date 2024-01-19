@@ -15,6 +15,9 @@ import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Configuration class for the OpenTelemetry (OTEL) Protocol (OTLP) exporter.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

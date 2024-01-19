@@ -1,5 +1,7 @@
 package com.sentrysoftware.metricshub.engine.common.exception;
 
+import com.sentrysoftware.metricshub.engine.strategy.utils.RetryOperation;
+
 /**
  * Exception which indicates that a retry operation is required.<br>
  * See {@link RetryOperation} implementation.

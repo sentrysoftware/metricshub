@@ -8,6 +8,10 @@ import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Represents the variables associated with a connector. This class is used for storing key-value pairs
+ * where keys are variable names and values are the corresponding variable values.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

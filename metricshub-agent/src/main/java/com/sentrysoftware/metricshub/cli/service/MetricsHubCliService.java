@@ -81,6 +81,15 @@ import picocli.CommandLine.Spec;
 	}
 )
 //CHECKSTYLE:ON
+
+/**
+ * MetricsHub CLI service providing a command-line interface to gather metrics from specified hosts.
+ * It implements a {@link Callable} which return an exit code as follows:
+ * <ul>
+ * 	<li>OK: when the execution is successful</li>
+ * 	<li>SOFTWARE: when an internal software error occurs.</li>
+ * </ul>
+ */
 @Data
 public class MetricsHubCliService implements Callable<Integer> {
 

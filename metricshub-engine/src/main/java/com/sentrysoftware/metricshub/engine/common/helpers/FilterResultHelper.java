@@ -19,12 +19,14 @@ import lombok.NonNull;
 public class FilterResultHelper {
 
 	/**
-	 * <p>Filter the lines:
-	 * <li>In removing the header if exists: all the lines from start to removeHeader number.</li>
-	 * <li>In removing the Footer if exists: all the removeFooter number lines from the end.</li>
-	 * <li>In removing all the lines matching to the excludeRegExp if exist</li>
-	 * <li>In keeping only the lines matching to the keepOnlyRegExp if exist</li>
-	 * </p>
+	 * Filter the lines:
+	 * <ul>
+	 * 	<li>In removing the header if exists: all the lines from start to removeHeader number.</li>
+	 * 	<li>In removing the Footer if exists: all the removeFooter number lines from the end.</li>
+	 * 	<li>In removing all the lines matching to the excludeRegExp if exist</li>
+	 * 	<li>In keeping only the lines matching to the keepOnlyRegExp if exist</li>
+	 * </ul>
+	 *
 	 * @param lines The lines to be filtered. (mandatory)
 	 * @param removeHeader The number of lines to ignored from the start.
 	 * @param removeFooter  The number of lines to ignored from the end.

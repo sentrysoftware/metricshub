@@ -24,6 +24,9 @@ import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Configuration class for the OpenTelemetry Collector.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -45,7 +48,13 @@ public class OtelCollectorConfig {
 		}
 	}
 
+	/**
+	 * Default executable name for the OpenTelemetry Collector.
+	 */
 	public static final String EXECUTABLE_NAME = "otelcol-contrib";
+	/**
+	 * Default executable output ID for the OpenTelemetry Collector.
+	 */
 	public static final String EXECUTABLE_OUTPUT_ID = "otelcol";
 
 	@Default

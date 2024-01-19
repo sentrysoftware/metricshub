@@ -11,6 +11,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+/**
+ * Configuration class for the WMI (Windows Management Instrumentation) protocol.
+ * Extends {@link AbstractProtocolConfig}.
+ */
 @Data
 @Builder
 @AllArgsConstructor

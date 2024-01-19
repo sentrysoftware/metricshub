@@ -26,7 +26,7 @@ public class CriterionTestResult {
 
 	/**
 	 * Create a detection failure report.
-	 * <p>
+	 * <br>
 	 *
 	 * @param criterion The failed criterion
 	 * @param result    Its result (that doesn't match with the criterion)
@@ -44,7 +44,7 @@ public class CriterionTestResult {
 
 	/**
 	 * Create a detection error report.
-	 * <p>
+	 * <br>
 	 *
 	 * @param criterion The failed criterion
 	 * @param reason    The reason why it failed
@@ -69,7 +69,7 @@ public class CriterionTestResult {
 
 	/**
 	 * Create a detection error report.
-	 * <p>
+	 * <br>
 	 *
 	 * @param criterion The failed criterion
 	 * @param reason    The reason why it failed
@@ -81,7 +81,7 @@ public class CriterionTestResult {
 
 	/**
 	 * Create a detection error report.
-	 * <p>
+	 * <br>
 	 *
 	 * @param criterion The failed criterion
 	 * @param t         the Exception that made the test fail
@@ -105,7 +105,7 @@ public class CriterionTestResult {
 
 	/**
 	 * Create a successful detection report.
-	 * <p>
+	 * <br>
 	 *
 	 * @param criterion The criterion that was fulfilled
 	 * @param result    Its result

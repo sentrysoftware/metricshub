@@ -78,6 +78,13 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.ThreadContext;
 import org.springframework.core.io.ClassPathResource;
 
+/**
+ * Helper class for managing configuration-related operations in the MetricsHub agent.
+ * This class provides methods for retrieving directories, creating paths, and handling configuration files.
+ * It also includes utility methods for encryption and other configuration-related tasks.
+ * The class is designed with a private constructor and static utility methods.
+ *
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Slf4j
 public class ConfigHelper {
@@ -257,8 +264,8 @@ public class ConfigHelper {
 	/**
 	 * Decrypt the given encrypted password.
 	 *
-	 * @param encrypted
-	 * @return char array
+	 * @param encrypted    The encrypted password
+	 * @return char array  The decrypted password
 	 */
 	public static char[] decrypt(final char[] encrypted) {
 		try {
@@ -288,7 +295,7 @@ public class ConfigHelper {
 	 *
 	 * @param configFilePath The configuration file passed by the user. E.g. --config=/opt/PRODUCT-CODE/config/my-metricshub.yaml
 	 * @return {@link File} instance
-	 * @throws IOException
+	 * @throws IOException  This exception is thrown is the file is not found
 	 */
 	public static File findConfigFile(final String configFilePath) throws IOException {
 		// The user has configured a configuration file path
@@ -1303,10 +1310,10 @@ public class ConfigHelper {
 	}
 
 	/**
-	 * Get the directory path of the given file
+	 * Utility method to get the directory path of the given file.
 	 *
-	 * @param file
-	 * @return {@link Path} instance
+	 * @param file The file for which the directory path is needed.
+	 * @return A {@link Path} instance representing the directory path of the given file.
 	 */
 	public static Path getDirectoryPath(final File file) {
 		return file.getAbsoluteFile().toPath().getParent();
@@ -1315,9 +1322,10 @@ public class ConfigHelper {
 	/**
 	 * Read {@link MetricDefinitions} for the root monitor instance (Endpoint)
 	 * which is automatically created by the MetricsHub engine
+	 * This method deserializes the metrics configuration from the "metricshub-host-metrics.yaml" file.
 	 *
-	 * @return new {@link MetricDefinitions} instance
-	 * @throws IOException
+	 * @return A new {@link MetricDefinitions} instance representing the host metric definitions.
+	 * @throws IOException If an I/O error occurs while reading the configuration file.
 	 */
 	public static MetricDefinitions readHostMetricDefinitions() throws IOException {
 		return JsonHelper.deserialize(

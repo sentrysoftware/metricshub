@@ -19,6 +19,10 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
+/**
+ * Service for managing task scheduling related to MetricsHub agent.
+ * It handles scheduling of self-observers, resource group observers, and resource observers.
+ */
 @Data
 @Builder(setterPrefix = "with")
 @Slf4j
@@ -158,6 +162,7 @@ public class TaskSchedulingService {
 	/**
 	 * Create and initialize a scheduler instance
 	 *
+	 * @param jobPoolSize The size of the job pool
 	 * @return new instance of {@link ThreadPoolTaskScheduler}
 	 */
 	public static ThreadPoolTaskScheduler newScheduler(final int jobPoolSize) {

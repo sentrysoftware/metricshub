@@ -20,10 +20,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.PeriodicTrigger;
 
+/**
+ * Scheduling class responsible for self-observation tasks in MetricsHub.
+ * This class creates and schedules an observer for collecting MetricsHub agent information.
+ */
 @Slf4j
 public class SelfObserverScheduling extends AbstractScheduling {
 
+	/**
+	 * Key used to identify the self-observation task in the schedules map.
+	 */
 	public static final String METRICSHUB_OVERALL_SELF_TASK_KEY = "metricshub-overall-self-task";
+	/**
+	 * Description for the overall MetricsHub agent information metric.
+	 */
 	private static final String METRICS_HUB_AGENT_INFORMATION = "MetricsHub agent information.";
 
 	@NonNull
@@ -32,6 +42,15 @@ public class SelfObserverScheduling extends AbstractScheduling {
 	@NonNull
 	private AgentConfig agentConfig;
 
+	/**
+	 * Constructs a new instance of {@code SelfObserverScheduling}.
+	 *
+	 * @param taskScheduler        The task scheduler to use for scheduling.
+	 * @param schedules            The map to store scheduled tasks.
+	 * @param otelSdkConfiguration The OpenTelemetry SDK configuration.
+	 * @param agentInfo            The information about the MetricsHub agent.
+	 * @param agentConfig          The configuration for the MetricsHub agent.
+	 */
 	@Builder(setterPrefix = "with")
 	public SelfObserverScheduling(
 		@NonNull final TaskScheduler taskScheduler,

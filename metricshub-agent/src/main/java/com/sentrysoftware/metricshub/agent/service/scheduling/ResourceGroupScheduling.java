@@ -22,9 +22,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.PeriodicTrigger;
 
+/**
+ * Scheduling class responsible for scheduling resource group-related tasks in
+ * MetricsHub. This class creates and schedules observers for metrics defined in
+ * a {@link ResourceGroupConfig}, and also schedules periodic flush tasks for
+ * the resource group.
+ */
 @Slf4j
 public class ResourceGroupScheduling extends AbstractScheduling {
 
+	/**
+	 * Format for creating unique keys for identifying the scheduled tasks related
+	 * to a specific resource group.
+	 */
 	public static final String METRICSHUB_RESOURCE_GROUP_KEY_FORMAT = "metricshub-resource-group-%s";
 
 	/**
@@ -63,6 +73,16 @@ public class ResourceGroupScheduling extends AbstractScheduling {
 	@NonNull
 	private AgentConfig agentConfig;
 
+	/**
+	 * Constructs a new instance of {@code ResourceGroupScheduling}.
+	 *
+	 * @param taskScheduler        The task scheduler to use for scheduling.
+	 * @param schedules            The map to store scheduled tasks.
+	 * @param otelSdkConfiguration The OpenTelemetry SDK configuration.
+	 * @param resourceGroupKey     Key for identifying the resource group.
+	 * @param resourceGroupConfig  Configuration for the resource group.
+	 * @param agentConfig          Configuration for the MetricsHub agent.
+	 */
 	@Builder(setterPrefix = "with")
 	public ResourceGroupScheduling(
 		@NonNull final TaskScheduler taskScheduler,

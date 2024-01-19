@@ -48,11 +48,11 @@ public class ArrayHelper {
 
 	/**
 	 * Convert the specified hexadecimal string into a byte array.
-	 * <p>
+	 * <br>
 	 * Example:
-	 * <p>
+	 * <br>
 	 * "0x010203" => <code>new byte[] { 0x01, 0x02, 0x03 }</code>
-	 * <p>
+	 * <br>
 	 * @param hexString Hexadecimal string (may be prefixed with "0x" or "#")
 	 * @return the corresponding byte array
 	 */

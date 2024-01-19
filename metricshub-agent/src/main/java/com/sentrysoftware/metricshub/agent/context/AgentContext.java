@@ -23,10 +23,18 @@ import java.util.Map;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * AgentContext represents the context of the MetricsHub agent, containing various components such as agent information,
+ * configuration, telemetry managers, OpenTelemetry SDK configuration, OtelCollector process service, task scheduling service,
+ * and metric definitions. It also includes methods for building the context and logging product information.
+ */
 @Data
 @Slf4j
 public class AgentContext {
 
+	/**
+	 * ObjectMapper instance for deserializing agent configuration.
+	 */
 	public static final ObjectMapper AGENT_CONFIG_OBJECT_MAPPER = newAgentConfigObjectMapper();
 
 	private AgentInfo agentInfo;

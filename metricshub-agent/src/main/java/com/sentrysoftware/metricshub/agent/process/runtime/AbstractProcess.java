@@ -41,7 +41,7 @@ public abstract class AbstractProcess implements IStoppable {
 	/**
 	 * Starts the process
 	 *
-	 * @throws IOException
+	 * @throws IOException is thrown if the process cannot be started
 	 */
 	public void start() throws IOException {
 		try {

@@ -15,6 +15,9 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Helper class providing methods related to OpenTelemetry (OTEL) configuration.
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Slf4j
 public class OtelConfigHelper {

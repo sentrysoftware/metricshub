@@ -8,15 +8,25 @@ import lombok.Getter;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
+/**
+ * This class is used by MetricsHubCliService to configure Http protocol when using the MetricsHub CLI.
+ * It create the engine's {@link HttpConfiguration} object that is used to monitor a specific resource through REST.
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class HttpConfigCli extends AbstractTransportProtocolCli {
 
+	/**
+	 * Default timeout in seconds for an HTTP operation
+	 */
 	public static final int DEFAULT_TIMEOUT = 30;
 
 	@ArgGroup(exclusive = true, multiplicity = "0..1")
 	HttpOrHttps httpOrHttps;
 
+	/**
+	 * Configuration class representing the choice between HTTP and HTTPS protocols.
+	 */
 	public static class HttpOrHttps {
 
 		@Getter

@@ -24,6 +24,14 @@ import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Configuration class representing the configuration for a resource in
+ * MetricsHub. It includes settings such as logger level, output directory,
+ * collection period, discovery cycle, alerting system configuration, sequential
+ * execution, resolving hostname to FQDN, job timeout, attributes, metrics,
+ * protocols configuration, variables, selected connectors, excluded connectors,
+ * monitor jobs, included connector tags, and a connector instance.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

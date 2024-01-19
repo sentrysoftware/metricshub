@@ -315,7 +315,7 @@ public class ConnectorLibraryConverter {
 	/**
 	 * Add the .yaml extension
 	 *
-	 * @param filename
+	 * @param filenameNoExtension
 	 * @return String value
 	 */
 	public static String getConnectorFilename(final String filenameNoExtension) {
@@ -325,7 +325,7 @@ public class ConnectorLibraryConverter {
 
 	/**
 	 * Make sure the specified directory exists and create it if it doesn't.
-	 * <p>
+	 * <br>
 	 *
 	 * @param dir Directory to be tested
 	 * @throws ConnectorConverterException if specified directory is not a directory
@@ -363,10 +363,10 @@ public class ConnectorLibraryConverter {
 
 	/**
 	 * Get the list of connector source files in the specified directory
-	 * <p>
+	 * <br>
 	 *
 	 * @param sourceDirectory The directory to search for files
-	 * @return List of matching {@link File} objects
+	 * @return List of matching {@link Files} objects
 	 * @throws IOException              on directory listing issues
 	 * @throws IllegalArgumentException if specified directory is null
 	 *

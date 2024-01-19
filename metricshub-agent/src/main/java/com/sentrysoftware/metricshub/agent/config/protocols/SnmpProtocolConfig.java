@@ -15,6 +15,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+/**
+ * Configuration class for the SNMP protocol.
+ * Extends {@link AbstractProtocolConfig}.
+ */
 @Data
 @Builder
 @AllArgsConstructor

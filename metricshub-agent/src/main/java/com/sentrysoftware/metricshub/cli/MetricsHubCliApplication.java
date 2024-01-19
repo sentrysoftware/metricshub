@@ -6,11 +6,21 @@ import java.util.Locale;
 import org.fusesource.jansi.AnsiConsole;
 import picocli.CommandLine;
 
+/**
+ * MetricsHub CLI application entry point. This class contains the main method
+ * {@link #main(String[]) main} to launch the MetricsHub CLI.
+ */
 public class MetricsHubCliApplication {
 	static {
 		Locale.setDefault(Locale.US);
 	}
 
+	/**
+	 * Entry point for the MetricsHub CLI application. Initializes necessary configurations,
+	 * processes command line arguments, and executes the CLI.
+	 *
+	 * @param args The command line arguments passed to the application.
+	 */
 	public static void main(String[] args) {
 		System.setProperty("log4j2.configurationFile", "log4j2-cli.xml");
 

@@ -2,6 +2,9 @@ package com.sentrysoftware.metricshub.cli.service.protocol;
 
 import com.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 
+/**
+ * Interface for CLI configurations of protocols to convert to core engine configurations.
+ */
 public interface IProtocolConfigCli {
 	/**
 	 * Convert the CLI configuration to the core engine configuration

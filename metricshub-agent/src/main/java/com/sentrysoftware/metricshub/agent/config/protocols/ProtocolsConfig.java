@@ -8,6 +8,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Configuration class for various protocols.
+ * Aggregates specific protocol configuration instances.
+ */
 @AllArgsConstructor
 @NoArgsConstructor
 @Data

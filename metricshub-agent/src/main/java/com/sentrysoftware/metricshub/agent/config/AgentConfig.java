@@ -19,16 +19,34 @@ import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * AgentConfig represents the configuration for the MetricsHub agent. It includes settings for
+ * job pool size, logger level, output directory, collect period, discovery cycle, alerting system configuration,
+ * sequential mode, hostname resolution, job timeout, OpenTelemetry (OTel) collector configuration,
+ * exporter configuration, custom attributes, custom metrics, and resource group configurations.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class AgentConfig {
 
+	/**
+	 * Default problem template for alerts
+	 */
 	public static final String PROBLEM_DEFAULT_TEMPLATE =
 		"Problem on ${FQDN} with ${MONITOR_NAME}.${NEWLINE}${NEWLINE}${ALERT_DETAILS}${NEWLINE}${NEWLINE}${FULLREPORT}";
+	/**
+	 * Default job pool size
+	 */
 	public static final int DEFAULT_JOB_POOL_SIZE = 20;
+	/**
+	 * Default job collect period in seconds
+	 */
 	public static final long DEFAULT_COLLECT_PERIOD = 120;
+	/**
+	 * Default discovery cycle in minutes
+	 */
 	public static final int DEFAULT_DISCOVERY_CYCLE = 30;
 
 	@Default

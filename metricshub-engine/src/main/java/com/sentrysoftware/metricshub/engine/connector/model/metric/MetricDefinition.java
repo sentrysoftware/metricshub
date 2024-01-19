@@ -11,6 +11,12 @@ import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Represents the definition of a metric.
+ *
+ * <p>A MetricDefinition instance holds information about a metric, such as its unit, description, and type.
+ * </p>
+ */
 @Data
 @Builder
 @AllArgsConstructor

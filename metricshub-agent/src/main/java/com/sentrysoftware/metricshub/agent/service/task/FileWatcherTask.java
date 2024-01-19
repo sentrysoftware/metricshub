@@ -14,6 +14,9 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * A task for watching a file and triggering an action on specified events.
+ */
 @Slf4j
 @Builder
 public class FileWatcherTask extends Thread {

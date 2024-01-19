@@ -1,5 +1,10 @@
 package com.sentrysoftware.metricshub.cli.service.protocol;
 
+/**
+ * AbstractTransportProtocolCli is the base class for implementing command-line interface (CLI) transport protocols
+ * in the MetricsHub command-line interface.
+ * It provides common functionality for deducing port numbers based on transport protocols and checking whether HTTPS is configured.
+ */
 public abstract class AbstractTransportProtocolCli implements IProtocolConfigCli {
 
 	/**
@@ -18,7 +23,7 @@ public abstract class AbstractTransportProtocolCli implements IProtocolConfigCli
 	}
 
 	/**
-	 * Whether HTTPS is configured or not
+	 * Check whether HTTPS is configured or not
 	 *
 	 * @return boolean value
 	 */

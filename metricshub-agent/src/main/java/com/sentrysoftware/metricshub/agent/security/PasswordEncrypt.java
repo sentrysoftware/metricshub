@@ -15,6 +15,11 @@ import java.util.Locale;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+/**
+ * Utility class for encrypting passwords using a key-store file.
+ * The class provides methods for retrieving the key-store file, determining the security folder location,
+ * and encrypting passwords.
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PasswordEncrypt {
 	static {
@@ -100,6 +105,12 @@ public class PasswordEncrypt {
 			.toFile();
 	}
 
+	/**
+	 * The entry-point of MetricsHub-encrypt which is used for encrypting passwords.
+	 * It reads the password from the command line or console input and prints the encrypted password.
+	 *
+	 * @param args Command line arguments
+	 */
 	public static void main(String[] args) {
 		try {
 			char[] password;

@@ -299,7 +299,7 @@ public class ConversionHelper {
 	/**
 	 * Get the corresponding YAML monitor name for the given HDF monitor name
 	 *
-	 * @param monitorName
+	 * @param hdfMonitorName
 	 * @return String value
 	 */
 	public static String getYamlMonitorName(final String hdfMonitorName) {

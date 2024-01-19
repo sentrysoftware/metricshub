@@ -49,7 +49,6 @@ public class ConnectorDeserializer {
 	 * Deserialize the given YAML connector node
 	 *
 	 * @param node     YAML as {@link TreeNode}
-	 * @param fileName connector file name
 	 * @return {@link Connector} instance
 	 * @throws IOException
 	 */

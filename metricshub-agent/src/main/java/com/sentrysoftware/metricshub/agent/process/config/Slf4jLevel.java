@@ -12,13 +12,37 @@ import org.slf4j.Logger;
  */
 @AllArgsConstructor
 public enum Slf4jLevel {
+	/**
+	 * Trace logging level
+	 */
 	TRACE(l -> l::trace, Logger::isTraceEnabled),
+	/**
+	 * Debug logging level
+	 */
 	DEBUG(l -> l::debug, Logger::isDebugEnabled),
+	/**
+	 * Info logging level
+	 */
 	INFO(l -> l::info, Logger::isInfoEnabled),
+	/**
+	 * Warning logging level
+	 */
 	WARN(l -> l::warn, Logger::isWarnEnabled),
+	/**
+	 * Error logging level
+	 */
 	ERROR(l -> l::error, Logger::isErrorEnabled);
 
+	/**
+	 * Functional interface representing a log method.
+	 */
 	public interface LogMethod {
+		/**
+		 * Log a message with the specified format and arguments.
+		 *
+		 * @param format    The format string
+		 * @param arguments The arguments referenced by the format string
+		 */
 		void log(String format, Object... arguments);
 	}
 

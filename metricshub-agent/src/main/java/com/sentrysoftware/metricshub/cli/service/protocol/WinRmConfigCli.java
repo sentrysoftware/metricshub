@@ -10,12 +10,25 @@ import lombok.EqualsAndHashCode;
 import org.sentrysoftware.winrm.service.client.auth.AuthenticationEnum;
 import picocli.CommandLine.Option;
 
+/**
+ * This class is used by MetricsHubCliService to configure WinRm protocol when using the MetricsHub CLI.
+ * It create the engine's {@link WinRmConfiguration} object that is used to monitor a specific resource through WinRm.
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class WinRmConfigCli extends AbstractTransportProtocolCli {
 
+	/**
+	 * Default timeout in seconds for a WinRm operation
+	 */
 	public static final int DEFAULT_TIMEOUT = 30;
+	/**
+	 * Default Http Port
+	 */
 	public static final Integer DEFAULT_HTTP_PORT = 5985;
+	/**
+	 * Default Https port
+	 */
 	public static final Integer DEFAULT_HTTPS_PORT = 5986;
 
 	@Option(names = "--winrm", order = 1, description = "Enables WinRM")

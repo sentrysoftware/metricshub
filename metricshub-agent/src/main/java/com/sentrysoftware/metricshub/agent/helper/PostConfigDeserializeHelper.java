@@ -10,6 +10,11 @@ import com.sentrysoftware.metricshub.agent.deserialization.PostConfigDeserialize
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+/**
+ * Helper class for adding post-deserialization support to an {@link ObjectMapper}.
+ * It provides a utility method to register a {@link PostConfigDeserializer} for post-processing
+ * the deserialization of certain types.
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PostConfigDeserializeHelper {
 

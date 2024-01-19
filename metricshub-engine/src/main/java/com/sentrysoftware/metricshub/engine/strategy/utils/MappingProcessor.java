@@ -126,7 +126,7 @@ public class MappingProcessor {
 
 	/**
 	 * This method interprets non context mapping attributes
-	 * @return Map<String, String>
+	 * @return Map&lt;String, String&gt;
 	 */
 	public Map<String, String> interpretNonContextMappingAttributes() {
 		return interpretNonContextMapping(mapping.getAttributes());
@@ -134,7 +134,7 @@ public class MappingProcessor {
 
 	/**
 	 * This method interprets non context mapping metrics
-	 * @return Map<String, String>
+	 * @return Map&lt;String, String&gt;
 	 */
 	public Map<String, String> interpretNonContextMappingMetrics() {
 		return interpretNonContextMapping(mapping.getMetrics());
@@ -142,7 +142,7 @@ public class MappingProcessor {
 
 	/**
 	 *  This method interprets non context mapping conditional collections
-	 * @return Map<String, String>
+	 * @return Map&lt;String, String&gt;
 	 */
 	public Map<String, String> interpretNonContextMappingConditionalCollection() {
 		return interpretNonContextMapping(mapping.getConditionalCollection());
@@ -150,7 +150,7 @@ public class MappingProcessor {
 
 	/**
 	 * This method interprets non context mapping legacy text parameters
-	 * @return Map<String, String>
+	 * @return Map&lt;String, String&gt;
 	 */
 	public Map<String, String> interpretNonContextMappingLegacyTextParameters() {
 		return interpretNonContextMapping(mapping.getLegacyTextParameters());
@@ -160,7 +160,7 @@ public class MappingProcessor {
 	 * This method interprets non context mapping.
 	 * The key value pairs are filled with values depending on the column type: extraction, awk, rate, etc...
 	 * @param keyValuePairs pairs of key values (for example: attribute key and attribute value)
-	 * @return Map<String, String>
+	 * @return Map&lt;String, String&gt;
 	 */
 	public Map<String, String> interpretNonContextMapping(final Map<String, String> keyValuePairs) { // NOSONAR on cognitive complexity of 16
 		if (keyValuePairs == null) {
@@ -1115,7 +1115,7 @@ public class MappingProcessor {
 	/**
 	 * This method interprets context mapping attributes
 	 * @param monitor a given monitor
-	 * @return Map<String, String>
+	 * @return Map&lt;String, String&gt;
 	 */
 	public Map<String, String> interpretContextMappingAttributes(final Monitor monitor) {
 		return interpretContextKeyValuePairs(monitor, mapping.getAttributes());
@@ -1124,7 +1124,7 @@ public class MappingProcessor {
 	/**
 	 * This method interprets context mapping metrics
 	 * @param monitor a given monitor
-	 * @return Map<String, String>
+	 * @return Map&lt;String, String&gt;
 	 */
 	public Map<String, String> interpretContextMappingMetrics(final Monitor monitor) {
 		return interpretContextKeyValuePairs(monitor, mapping.getMetrics());
@@ -1133,7 +1133,7 @@ public class MappingProcessor {
 	/**
 	 * This method interprets context mapping conditional collections
 	 * @param monitor a given monitor
-	 * @return Map<String, String>
+	 * @return Map&lt;String, String&gt;
 	 */
 	public Map<String, String> interpretContextMappingConditionalCollection(final Monitor monitor) {
 		return interpretContextKeyValuePairs(monitor, mapping.getConditionalCollection());
@@ -1142,7 +1142,7 @@ public class MappingProcessor {
 	/**
 	 * This method interprets context mapping legacy text parameters
 	 * @param monitor a given monitor
-	 * @return Map<String, String>
+	 * @return Map&lt;String, String&gt;
 	 */
 	public Map<String, String> interpretContextMappingLegacyTextParameters(final Monitor monitor) {
 		return interpretContextKeyValuePairs(monitor, mapping.getLegacyTextParameters());

@@ -10,6 +10,12 @@ import lombok.NonNull;
  */
 public class ReaderProcessor extends AbstractReaderProcessor {
 
+	/**
+	 * Creates a new {@code ReaderProcessor} with the specified {@link Reader} and {@link StreamProcessor}.
+	 *
+	 * @param reader          The {@code Reader} from which to read the process output.
+	 * @param streamProcessor The {@code StreamProcessor} to process each block of data.
+	 */
 	public ReaderProcessor(@NonNull Reader reader, @NonNull StreamProcessor streamProcessor) {
 		super(reader, streamProcessor);
 	}

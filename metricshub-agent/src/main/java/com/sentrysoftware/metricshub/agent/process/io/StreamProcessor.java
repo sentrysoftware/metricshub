@@ -1,13 +1,13 @@
 package com.sentrysoftware.metricshub.agent.process.io;
 
 /**
- * Stream processor interface to be implemented in order to handle the process output
+ * Interface for a stream processor to be implemented for handling process output.
  */
 public interface StreamProcessor {
 	/**
 	 * Process the given block
 	 *
-	 * @param block
+	 * @param block The block of text to be processed
 	 */
 	void process(String block);
 }

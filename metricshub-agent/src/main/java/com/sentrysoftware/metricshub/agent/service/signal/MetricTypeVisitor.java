@@ -17,6 +17,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+/**
+ * Visitor implementation for handling different metric types and initializing appropriate observers for each.
+ */
 @Data
 @AllArgsConstructor
 @Builder(setterPrefix = "with")

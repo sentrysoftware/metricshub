@@ -9,8 +9,18 @@ import com.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import org.springframework.core.io.ClassPathResource;
 import picocli.CommandLine.IVersionProvider;
 
+/**
+ * Service class for providing version information.
+ * Implements the {@link IVersionProvider} interface for Picocli.
+ */
 public class VersionService implements IVersionProvider {
 
+	/**
+	 * Retrieves version information as an array of strings.
+	 *
+	 * @return An array of strings containing version information.
+	 * @throws Exception If there is an error while retrieving version information.
+	 */
 	@Override
 	public String[] getVersion() throws Exception {
 		// Read the application.yaml file

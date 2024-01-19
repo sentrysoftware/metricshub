@@ -23,8 +23,4 @@ public class Slf4jStreamProcessor implements StreamProcessor {
 		// Simply log the block with the current logger
 		level.withLogger(logger).log(block);
 	}
-
-	public void onProcessed() {
-		// Nothing
-	}
 }
