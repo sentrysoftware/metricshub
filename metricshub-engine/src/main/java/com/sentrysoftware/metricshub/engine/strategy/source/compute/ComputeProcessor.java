@@ -13,7 +13,7 @@ import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.TABLE_SEP;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.VERTICAL_BAR;
 
-import com.sentrysoftware.metricshub.engine.ClientsExecutor;
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.common.helpers.FilterResultHelper;
 import com.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import com.sentrysoftware.metricshub.engine.connector.model.Connector;

@@ -1,4 +1,4 @@
-package com.sentrysoftware.metricshub.engine.http;
+package com.sentrysoftware.metricshub.engine.client.http;
 
 import com.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 import java.util.HashMap;

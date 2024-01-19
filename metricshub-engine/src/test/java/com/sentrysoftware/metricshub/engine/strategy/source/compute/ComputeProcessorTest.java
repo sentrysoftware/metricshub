@@ -18,7 +18,7 @@ import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mockStatic;
 
-import com.sentrysoftware.metricshub.engine.ClientsExecutor;
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.common.helpers.ResourceHelper;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.Connector;

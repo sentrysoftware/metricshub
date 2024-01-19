@@ -5,7 +5,7 @@ import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.STATE_SET_METRIC_FAILED;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.STATE_SET_METRIC_OK;
 
-import com.sentrysoftware.metricshub.engine.ClientsExecutor;
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.common.JobInfo;
 import com.sentrysoftware.metricshub.engine.common.exception.RetryableException;
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;

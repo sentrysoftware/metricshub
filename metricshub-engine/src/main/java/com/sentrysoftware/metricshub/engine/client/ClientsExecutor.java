@@ -1,4 +1,4 @@
-package com.sentrysoftware.metricshub.engine;
+package com.sentrysoftware.metricshub.engine.client;
 
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
@@ -7,6 +7,11 @@ import static org.springframework.util.Assert.notNull;
 
 import com.sentrysoftware.metricshub.engine.awk.AwkException;
 import com.sentrysoftware.metricshub.engine.awk.AwkExecutor;
+import com.sentrysoftware.metricshub.engine.client.http.Body;
+import com.sentrysoftware.metricshub.engine.client.http.Header;
+import com.sentrysoftware.metricshub.engine.client.http.HttpMacrosUpdater;
+import com.sentrysoftware.metricshub.engine.client.http.HttpRequest;
+import com.sentrysoftware.metricshub.engine.client.http.Url;
 import com.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import com.sentrysoftware.metricshub.engine.common.exception.RetryableException;
 import com.sentrysoftware.metricshub.engine.common.helpers.NetworkHelper;
@@ -21,11 +26,6 @@ import com.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.WinRmConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
-import com.sentrysoftware.metricshub.engine.http.Body;
-import com.sentrysoftware.metricshub.engine.http.Header;
-import com.sentrysoftware.metricshub.engine.http.HttpMacrosUpdater;
-import com.sentrysoftware.metricshub.engine.http.HttpRequest;
-import com.sentrysoftware.metricshub.engine.http.Url;
 import com.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.metricshub.engine.strategy.utils.RetryOperation;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -364,7 +364,7 @@ public class ClientsExecutor {
 	}
 
 	/**
-	 * Call Client in order to execute the Awk script on the given input
+	 * Call AwkExecutor in order to execute the Awk script on the given input
 	 *
 	 * @param embeddedFileScript
 	 * @param input

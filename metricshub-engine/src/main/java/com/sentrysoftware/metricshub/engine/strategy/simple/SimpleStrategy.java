@@ -1,6 +1,6 @@
 package com.sentrysoftware.metricshub.engine.strategy.simple;
 
-import com.sentrysoftware.metricshub.engine.ClientsExecutor;
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.MonitorJob;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.SimpleMonitorJob;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.AbstractMonitorTask;

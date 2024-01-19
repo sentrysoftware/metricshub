@@ -19,7 +19,8 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mockStatic;
 
-import com.sentrysoftware.metricshub.engine.ClientsExecutor;
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
+import com.sentrysoftware.metricshub.engine.client.http.HttpRequest;
 import com.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import com.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
@@ -45,7 +46,6 @@ import com.sentrysoftware.metricshub.engine.connector.model.identity.criterion.S
 import com.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetNextCriterion;
 import com.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WbemCriterion;
 import com.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WmiCriterion;
-import com.sentrysoftware.metricshub.engine.http.HttpRequest;
 import com.sentrysoftware.metricshub.engine.strategy.utils.CriterionProcessVisitor;
 import com.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.metricshub.engine.strategy.utils.OsCommandResult;

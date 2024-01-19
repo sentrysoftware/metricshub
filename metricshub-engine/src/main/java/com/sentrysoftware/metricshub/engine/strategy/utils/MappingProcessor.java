@@ -3,7 +3,7 @@ package com.sentrysoftware.metricshub.engine.strategy.utils;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.COLUMN_PATTERN;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
 
-import com.sentrysoftware.metricshub.engine.ClientsExecutor;
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.common.JobInfo;
 import com.sentrysoftware.metricshub.engine.common.helpers.FunctionArgumentsExtractor;
 import com.sentrysoftware.metricshub.engine.common.helpers.state.DuplexMode;

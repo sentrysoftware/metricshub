@@ -4,7 +4,8 @@ import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.SUCCESSFUL_OS_DETECTION_MESSAGE;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.TABLE_SEP;
 
-import com.sentrysoftware.metricshub.engine.ClientsExecutor;
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
+import com.sentrysoftware.metricshub.engine.client.http.HttpRequest;
 import com.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import com.sentrysoftware.metricshub.engine.common.exception.ControlledSshException;
 import com.sentrysoftware.metricshub.engine.common.exception.IpmiCommandForSolarisException;
@@ -32,7 +33,6 @@ import com.sentrysoftware.metricshub.engine.connector.model.identity.criterion.S
 import com.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WbemCriterion;
 import com.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WmiCriterion;
 import com.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WqlCriterion;
-import com.sentrysoftware.metricshub.engine.http.HttpRequest;
 import com.sentrysoftware.metricshub.engine.strategy.utils.CriterionProcessVisitor;
 import com.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.metricshub.engine.strategy.utils.OsCommandResult;

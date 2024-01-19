@@ -1,6 +1,6 @@
 package com.sentrysoftware.metricshub.engine.strategy.collect;
 
-import com.sentrysoftware.metricshub.engine.ClientsExecutor;
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import java.util.Collection;

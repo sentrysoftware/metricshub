@@ -7,7 +7,7 @@ import static com.sentrysoftware.metricshub.hardware.util.HwConstants.CONNECTOR;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.ENCLOSURE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.sentrysoftware.metricshub.engine.ClientsExecutor;
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;

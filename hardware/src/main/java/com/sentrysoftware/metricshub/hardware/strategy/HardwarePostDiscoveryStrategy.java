@@ -2,7 +2,7 @@ package com.sentrysoftware.metricshub.hardware.strategy;
 
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.PRESENT_STATUS;
 
-import com.sentrysoftware.metricshub.engine.ClientsExecutor;
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
 import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;

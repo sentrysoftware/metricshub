@@ -77,7 +77,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
-import com.sentrysoftware.metricshub.engine.ClientsExecutor;
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.common.exception.ControlledSshException;
 import com.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
 import com.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;

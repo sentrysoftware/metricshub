@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.sentrysoftware.metricshub.engine.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.alert.AlertRule;
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import com.sentrysoftware.metricshub.engine.strategy.collect.CollectStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.collect.PrepareCollectStrategy;

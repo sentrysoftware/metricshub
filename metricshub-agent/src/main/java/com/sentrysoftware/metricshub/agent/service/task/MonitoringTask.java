@@ -7,7 +7,7 @@ import com.sentrysoftware.metricshub.agent.helper.ConfigHelper;
 import com.sentrysoftware.metricshub.agent.helper.OtelHelper;
 import com.sentrysoftware.metricshub.agent.service.signal.MetricTypeVisitor;
 import com.sentrysoftware.metricshub.agent.service.signal.SimpleUpDownCounterMetricObserver;
-import com.sentrysoftware.metricshub.engine.ClientsExecutor;
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import com.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;

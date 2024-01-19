@@ -1,6 +1,6 @@
 package com.sentrysoftware.metricshub.hardware.it;
 
-import com.sentrysoftware.metricshub.engine.ClientsExecutor;
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;

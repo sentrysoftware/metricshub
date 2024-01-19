@@ -11,7 +11,7 @@ import com.sentrysoftware.metricshub.cli.service.protocol.SshConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.WbemConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.WinRmConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.WmiConfigCli;
-import com.sentrysoftware.metricshub.engine.ClientsExecutor;
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.IConfiguration;

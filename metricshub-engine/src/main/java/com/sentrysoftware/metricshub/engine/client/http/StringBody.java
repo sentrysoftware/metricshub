@@ -1,4 +1,4 @@
-package com.sentrysoftware.metricshub.engine.http;
+package com.sentrysoftware.metricshub.engine.client.http;
 
 import java.util.function.UnaryOperator;
 import lombok.AllArgsConstructor;

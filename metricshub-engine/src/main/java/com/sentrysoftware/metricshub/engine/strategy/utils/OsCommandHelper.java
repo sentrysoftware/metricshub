@@ -10,7 +10,7 @@ import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import static org.springframework.util.Assert.isTrue;
 import static org.springframework.util.Assert.state;
 
-import com.sentrysoftware.metricshub.engine.ClientsExecutor;
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import com.sentrysoftware.metricshub.engine.common.exception.ClientRuntimeException;
 import com.sentrysoftware.metricshub.engine.common.exception.ControlledSshException;
