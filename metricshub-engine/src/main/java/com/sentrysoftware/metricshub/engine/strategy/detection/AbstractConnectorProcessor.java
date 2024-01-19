@@ -4,6 +4,7 @@ import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MAX_THREADS_COUNT;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.THREAD_TIMEOUT;
 
+import com.sentrysoftware.metricshub.engine.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.Connector;
 import com.sentrysoftware.metricshub.engine.connector.model.identity.ConnectorIdentity;
@@ -12,7 +13,6 @@ import com.sentrysoftware.metricshub.engine.connector.model.identity.criterion.C
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.MonitorJob;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.SimpleMonitorJob;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.StandardMonitorJob;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.utils.ForceSerializationHelper;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public abstract class AbstractConnectorProcessor {
 	protected TelemetryManager telemetryManager;
 
 	@NonNull
-	protected MatsyaClientsExecutor matsyaClientsExecutor;
+	protected ClientsExecutor clientsExecutor;
 
 	/**
 	 * Run the Detection job and returns the detected {@link ConnectorTestResult}
@@ -278,9 +278,9 @@ public abstract class AbstractConnectorProcessor {
 	 * @return <code>true</code> if the criterion execution succeeded
 	 */
 	protected CriterionTestResult processCriterion(final Criterion criterion, final Connector connector) {
-		// Instantiate criterionProcessor with matsyaClientsExecutor, telemetryManager and connector name
+		// Instantiate criterionProcessor with clientsExecutor, telemetryManager and connector name
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			matsyaClientsExecutor,
+			clientsExecutor,
 			telemetryManager,
 			connector.getConnectorIdentity().getCompiledFilename()
 		);

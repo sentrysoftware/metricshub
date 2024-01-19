@@ -4,9 +4,10 @@ import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.SUCCESSFUL_OS_DETECTION_MESSAGE;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.TABLE_SEP;
 
+import com.sentrysoftware.metricshub.engine.ClientsExecutor;
+import com.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import com.sentrysoftware.metricshub.engine.common.exception.ControlledSshException;
 import com.sentrysoftware.metricshub.engine.common.exception.IpmiCommandForSolarisException;
-import com.sentrysoftware.metricshub.engine.common.exception.MatsyaException;
 import com.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
 import com.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import com.sentrysoftware.metricshub.engine.common.helpers.VersionHelper;
@@ -31,8 +32,7 @@ import com.sentrysoftware.metricshub.engine.connector.model.identity.criterion.S
 import com.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WbemCriterion;
 import com.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WmiCriterion;
 import com.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WqlCriterion;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
-import com.sentrysoftware.metricshub.engine.matsya.http.HttpRequest;
+import com.sentrysoftware.metricshub.engine.http.HttpRequest;
 import com.sentrysoftware.metricshub.engine.strategy.utils.CriterionProcessVisitor;
 import com.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.metricshub.engine.strategy.utils.OsCommandResult;
@@ -74,7 +74,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 	private static final String HTTP_TEST_SUCCESS = "Hostname %s - HTTP test succeeded. Returned result: %s.";
 	private static final Pattern SNMP_GET_NEXT_VALUE_PATTERN = Pattern.compile("\\w+\\s+\\w+\\s+(.*)");
 
-	private MatsyaClientsExecutor matsyaClientsExecutor;
+	private ClientsExecutor clientsExecutor;
 
 	private TelemetryManager telemetryManager;
 
@@ -83,18 +83,18 @@ public class CriterionProcessor implements ICriterionProcessor {
 	private WqlDetectionHelper wqlDetectionHelper;
 
 	public CriterionProcessor(
-		final MatsyaClientsExecutor matsyaClientsExecutor,
+		final ClientsExecutor clientsExecutor,
 		final TelemetryManager telemetryManager,
 		final String connectorId
 	) {
-		this.matsyaClientsExecutor = matsyaClientsExecutor;
+		this.clientsExecutor = clientsExecutor;
 		this.telemetryManager = telemetryManager;
 		this.connectorId = connectorId;
-		this.wqlDetectionHelper = new WqlDetectionHelper(matsyaClientsExecutor);
+		this.wqlDetectionHelper = new WqlDetectionHelper(clientsExecutor);
 	}
 
 	/**
-	 * Process the given {@link DeviceTypeCriterion} through Matsya and return the {@link CriterionTestResult}
+	 * Process the given {@link DeviceTypeCriterion} and return the {@link CriterionTestResult}
 	 *
 	 * @param deviceTypeCriterion
 	 * @return new {@link CriterionTestResult} instance
@@ -156,7 +156,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 	}
 
 	/**
-	 * Process the given {@link HttpCriterion} through Matsya and return the {@link CriterionTestResult}
+	 * Process the given {@link HttpCriterion} through Client and return the {@link CriterionTestResult}
 	 *
 	 * @param httpCriterion
 	 * @return new {@link CriterionTestResult} instance
@@ -190,7 +190,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 		}
 
 		try {
-			final String result = matsyaClientsExecutor.executeHttp(
+			final String result = clientsExecutor.executeHttp(
 				HttpRequest
 					.builder()
 					.hostname(hostname)
@@ -212,7 +212,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 	}
 
 	/**
-	 * Process the given {@link IpmiCriterion} through Matsya and return the {@link CriterionTestResult}
+	 * Process the given {@link IpmiCriterion} through Client and return the {@link CriterionTestResult}
 	 *
 	 * @param ipmiCriterion
 	 * @return CriterionTestResult instance
@@ -362,7 +362,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 		}
 
 		try {
-			final String result = matsyaClientsExecutor.executeIpmiDetection(hostname, configuration);
+			final String result = clientsExecutor.executeIpmiDetection(hostname, configuration);
 			if (result == null) {
 				return CriterionTestResult
 					.builder()
@@ -545,7 +545,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 * @throws InterruptedException
 	 * @throws IOException
 	 * @throws TimeoutException
-	 * @throws MatsyaException
+	 * @throws ClientException
 	 * @throws ControlledSshException
 	 */
 	String runOsCommand(
@@ -553,14 +553,14 @@ public class CriterionProcessor implements ICriterionProcessor {
 		final String hostname,
 		final SshConfiguration sshConfiguration,
 		final int timeout
-	) throws InterruptedException, IOException, TimeoutException, MatsyaException, ControlledSshException {
+	) throws InterruptedException, IOException, TimeoutException, ClientException, ControlledSshException {
 		return telemetryManager.getHostProperties().isLocalhost()
 			? OsCommandHelper.runLocalCommand(ipmitoolCommand, timeout, null) // or we can use NetworkHelper.isLocalhost(hostname)
 			: OsCommandHelper.runSshCommand(ipmitoolCommand, hostname, sshConfiguration, timeout, null, null);
 	}
 
 	/**
-	 * Process the given {@link OsCommandCriterion} through Matsya and return the {@link CriterionTestResult}
+	 * Process the given {@link OsCommandCriterion} through Client and return the {@link CriterionTestResult}
 	 *
 	 * @param osCommandCriterion
 	 * @return
@@ -617,7 +617,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 	}
 
 	/**
-	 * Process the given {@link ProcessCriterion} through Matsya and return the {@link CriterionTestResult}
+	 * Process the given {@link ProcessCriterion} through Client and return the {@link CriterionTestResult}
 	 *
 	 * @param processCriterion
 	 * @return CriterionTestResult instance
@@ -707,7 +707,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 	}
 
 	/**
-	 * Process the given {@link ServiceCriterion} through Matsya and return the {@link CriterionTestResult}
+	 * Process the given {@link ServiceCriterion} through Client and return the {@link CriterionTestResult}
 	 *
 	 * @param serviceCriterion
 	 * @return {@link CriterionTestResult} instance
@@ -889,7 +889,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 	}
 
 	/**
-	 * Process the given {@link SnmpGetCriterion} through Matsya and return the {@link CriterionTestResult}
+	 * Process the given {@link SnmpGetCriterion} through Client and return the {@link CriterionTestResult}
 	 *
 	 * @param snmpGetCriterion
 	 * @return SnmpCriterion instance
@@ -917,7 +917,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 		}
 
 		try {
-			final String result = matsyaClientsExecutor.executeSNMPGet(snmpGetCriterion.getOid(), protocol, hostname, false);
+			final String result = clientsExecutor.executeSNMPGet(snmpGetCriterion.getOid(), protocol, hostname, false);
 
 			final TestResult testResult = checkSNMPGetResult(
 				hostname,
@@ -1067,7 +1067,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 	}
 
 	/**
-	 * Process the given {@link SnmpGetNextCriterion} through Matsya and return the {@link CriterionTestResult}
+	 * Process the given {@link SnmpGetNextCriterion} through Client and return the {@link CriterionTestResult}
 	 *
 	 * @param snmpGetNextCriterion
 	 * @return
@@ -1096,7 +1096,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 		}
 
 		try {
-			final String result = matsyaClientsExecutor.executeSNMPGetNext(
+			final String result = clientsExecutor.executeSNMPGetNext(
 				snmpGetNextCriterion.getOid(),
 				snmpConfiguration,
 				hostname,
@@ -1129,7 +1129,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 	}
 
 	/**
-	 * Process the given {@link WmiCriterion} through Matsya and return the {@link CriterionTestResult}
+	 * Process the given {@link WmiCriterion} through Client and return the {@link CriterionTestResult}
 	 *
 	 * @param wmiCriterion
 	 * @return CriterionTestResult instance
@@ -1290,7 +1290,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 	}
 
 	/**
-	 * Process the given {@link WbemCriterion} through Matsya and return the {@link CriterionTestResult}
+	 * Process the given {@link WbemCriterion} through Client and return the {@link CriterionTestResult}
 	 *
 	 * @param wbemCriterion
 	 * @return

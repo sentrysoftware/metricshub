@@ -21,12 +21,12 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 
+import com.sentrysoftware.metricshub.engine.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.IStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
@@ -57,7 +57,7 @@ class CollectStrategyTest {
 	);
 
 	@Mock
-	private MatsyaClientsExecutor matsyaClientsExecutorMock;
+	private ClientsExecutor clientsExecutorMock;
 
 	private IStrategy collectStrategy;
 
@@ -128,19 +128,19 @@ class CollectStrategyTest {
 		collectStrategy =
 			CollectStrategy
 				.builder()
-				.matsyaClientsExecutor(matsyaClientsExecutorMock)
+				.clientsExecutor(clientsExecutorMock)
 				.strategyTime(strategyTime)
 				.telemetryManager(telemetryManager)
 				.build();
 
 		// Mock detection criteria result
 		doReturn("1.3.6.1.4.1.795.10.1.1.3.1.1.0	ASN_OCTET_STR	Test")
-			.when(matsyaClientsExecutorMock)
+			.when(clientsExecutorMock)
 			.executeSNMPGetNext(eq("1.3.6.1.4.1.795.10.1.1.3.1.1"), any(SnmpConfiguration.class), anyString(), anyBoolean());
 
 		// Mock source table information for enclosure
 		doReturn(SourceTable.csvToTable("enclosure-1;1;healthy", MetricsHubConstants.TABLE_SEP))
-			.when(matsyaClientsExecutorMock)
+			.when(clientsExecutorMock)
 			.executeSNMPTable(
 				eq("1.3.6.1.4.1.795.10.1.1.30.1"),
 				any(String[].class),
@@ -151,7 +151,7 @@ class CollectStrategyTest {
 
 		// Mock source table information for disk_controller
 		doReturn(SourceTable.csvToTable("1;1;healthy", MetricsHubConstants.TABLE_SEP))
-			.when(matsyaClientsExecutorMock)
+			.when(clientsExecutorMock)
 			.executeSNMPTable(
 				eq("1.3.6.1.4.1.795.10.1.1.31.1"),
 				any(String[].class),

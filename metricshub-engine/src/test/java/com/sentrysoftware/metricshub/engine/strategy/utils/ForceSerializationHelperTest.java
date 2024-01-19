@@ -10,12 +10,12 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
 
+import com.sentrysoftware.metricshub.engine.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.source.ISourceProcessor;
 import com.sentrysoftware.metricshub.engine.strategy.source.SourceProcessor;
 import com.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
@@ -176,7 +176,7 @@ class ForceSerializationHelperTest {
 			.forceSerialization(true)
 			.build();
 
-		final MatsyaClientsExecutor matsyaClientsExecutor = spy(MatsyaClientsExecutor.class);
+		final ClientsExecutor clientsExecutor = spy(ClientsExecutor.class);
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
 			.hostConfiguration(
@@ -190,14 +190,12 @@ class ForceSerializationHelperTest {
 
 		telemetryManager.getHostProperties().getConnectorNamespace(CONNECTOR_ID);
 
-		doReturn(EXPECTED_SNMP_TABLE_DATA)
-			.when(matsyaClientsExecutor)
-			.executeSNMPTable(any(), any(), any(), any(), anyBoolean());
+		doReturn(EXPECTED_SNMP_TABLE_DATA).when(clientsExecutor).executeSNMPTable(any(), any(), any(), any(), anyBoolean());
 
 		final ISourceProcessor processor = SourceProcessor
 			.builder()
 			.connectorId(CONNECTOR_ID)
-			.matsyaClientsExecutor(matsyaClientsExecutor)
+			.clientsExecutor(clientsExecutor)
 			.telemetryManager(telemetryManager)
 			.build();
 
@@ -223,7 +221,7 @@ class ForceSerializationHelperTest {
 			.forceSerialization(true)
 			.build();
 
-		final MatsyaClientsExecutor matsyaClientsExecutor = spy(MatsyaClientsExecutor.class);
+		final ClientsExecutor clientsExecutor = spy(ClientsExecutor.class);
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
 			.hostConfiguration(
@@ -237,14 +235,12 @@ class ForceSerializationHelperTest {
 
 		telemetryManager.getHostProperties().getConnectorNamespace(CONNECTOR_ID);
 
-		doReturn(EXPECTED_SNMP_TABLE_DATA)
-			.when(matsyaClientsExecutor)
-			.executeSNMPTable(any(), any(), any(), any(), anyBoolean());
+		doReturn(EXPECTED_SNMP_TABLE_DATA).when(clientsExecutor).executeSNMPTable(any(), any(), any(), any(), anyBoolean());
 
 		final ISourceProcessor processor = SourceProcessor
 			.builder()
 			.connectorId(CONNECTOR_ID)
-			.matsyaClientsExecutor(matsyaClientsExecutor)
+			.clientsExecutor(clientsExecutor)
 			.telemetryManager(telemetryManager)
 			.build();
 

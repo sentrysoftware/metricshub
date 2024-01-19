@@ -6,12 +6,12 @@ import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_NAME;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_PARENT_ID;
 
+import com.sentrysoftware.metricshub.engine.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import com.sentrysoftware.metricshub.engine.common.helpers.NetworkHelper;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.Connector;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
 import com.sentrysoftware.metricshub.engine.telemetry.HostProperties;
 import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
@@ -39,9 +39,9 @@ public class DetectionStrategy extends AbstractStrategy {
 	public DetectionStrategy(
 		@NonNull final TelemetryManager telemetryManager,
 		@NonNull final Long strategyTime,
-		@NonNull final MatsyaClientsExecutor matsyaClientsExecutor
+		@NonNull final ClientsExecutor clientsExecutor
 	) {
-		super(telemetryManager, strategyTime, matsyaClientsExecutor);
+		super(telemetryManager, strategyTime, clientsExecutor);
 	}
 
 	@Override
@@ -65,9 +65,9 @@ public class DetectionStrategy extends AbstractStrategy {
 		List<ConnectorTestResult> connectorTestResults = new ArrayList<>();
 		// If one or more connector are selected, we run them
 		if (selectedConnectors != null && !selectedConnectors.isEmpty()) {
-			connectorTestResults = new ConnectorSelection(telemetryManager, matsyaClientsExecutor).run();
+			connectorTestResults = new ConnectorSelection(telemetryManager, clientsExecutor).run();
 		} else if (configuredConnectorId == null) { // Else we run the automatic detection if we haven't a configured connector
-			connectorTestResults = new AutomaticDetection(telemetryManager, matsyaClientsExecutor).run();
+			connectorTestResults = new AutomaticDetection(telemetryManager, clientsExecutor).run();
 		}
 
 		// Create Host monitor

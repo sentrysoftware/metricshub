@@ -1,11 +1,11 @@
 package com.sentrysoftware.metricshub.hardware.it;
 
+import com.sentrysoftware.metricshub.engine.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration.SnmpVersion;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import com.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.hardware.it.job.SnmpITJob;
 import java.nio.file.Path;
@@ -33,7 +33,7 @@ class DellOpenManageIT {
 	private static final String LOCALHOST = "localhost";
 
 	private static TelemetryManager telemetryManager;
-	private static MatsyaClientsExecutor matsyaClientsExecutor;
+	private static ClientsExecutor clientsExecutor;
 
 	@BeforeAll
 	static void setUp() throws Exception {
@@ -58,12 +58,12 @@ class DellOpenManageIT {
 		telemetryManager =
 			TelemetryManager.builder().connectorStore(connectorStore).hostConfiguration(hostConfiguration).build();
 
-		matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
+		clientsExecutor = new ClientsExecutor(telemetryManager);
 	}
 
 	@Test
 	void test() throws Exception {
-		new SnmpITJob(matsyaClientsExecutor, telemetryManager)
+		new SnmpITJob(clientsExecutor, telemetryManager)
 			.withServerRecordData("snmp/DellOpenManageIT/input/input.snmp")
 			.executeDiscoveryStrategy()
 			.executeCollectStrategy()

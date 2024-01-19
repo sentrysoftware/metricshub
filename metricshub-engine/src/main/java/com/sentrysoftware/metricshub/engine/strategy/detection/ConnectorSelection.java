@@ -1,9 +1,9 @@
 package com.sentrysoftware.metricshub.engine.strategy.detection;
 
+import com.sentrysoftware.metricshub.engine.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.Connector;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import java.util.Collections;
 import java.util.List;
@@ -21,9 +21,9 @@ public class ConnectorSelection extends AbstractConnectorProcessor {
 
 	public ConnectorSelection(
 		@NonNull final TelemetryManager telemetryManager,
-		@NonNull final MatsyaClientsExecutor matsyaClientsExecutor
+		@NonNull final ClientsExecutor clientsExecutor
 	) {
-		super(telemetryManager, matsyaClientsExecutor);
+		super(telemetryManager, clientsExecutor);
 	}
 
 	@Override

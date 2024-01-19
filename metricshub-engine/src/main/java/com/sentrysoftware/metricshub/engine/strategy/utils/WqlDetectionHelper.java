@@ -2,12 +2,12 @@ package com.sentrysoftware.metricshub.engine.strategy.utils;
 
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.TABLE_SEP;
 
-import com.sentrysoftware.metricshub.engine.common.exception.MatsyaException;
+import com.sentrysoftware.metricshub.engine.ClientsExecutor;
+import com.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import com.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.IWinConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WqlCriterion;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import com.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import java.util.Collections;
@@ -36,7 +36,7 @@ public class WqlDetectionHelper {
 
 	private static final String ROOT_SLASH = "root/";
 
-	private MatsyaClientsExecutor matsyaClientsExecutor;
+	private ClientsExecutor clientsExecutor;
 
 	private static final Set<String> IGNORED_WMI_NAMESPACES = Set.of(
 		"SECURITY",
@@ -70,8 +70,8 @@ public class WqlDetectionHelper {
 
 	private static final Set<String> IGNORED_WBEM_NAMESPACES = Set.of("root", "/root");
 
-	public WqlDetectionHelper(final MatsyaClientsExecutor matsyaClientsExecutor) {
-		this.matsyaClientsExecutor = matsyaClientsExecutor;
+	public WqlDetectionHelper(final ClientsExecutor clientsExecutor) {
+		this.clientsExecutor = clientsExecutor;
 	}
 
 	/**
@@ -99,7 +99,7 @@ public class WqlDetectionHelper {
 		// Try all "interop" queries that could retrieve a list of namespaces in this CIM server
 		for (WqlQuery interopQuery : WBEM_INTEROP_QUERIES) {
 			try {
-				matsyaClientsExecutor
+				clientsExecutor
 					.executeWbem(hostname, configuration, interopQuery.getWql(), interopQuery.getNamespace())
 					.stream()
 					.filter(row -> !row.isEmpty())
@@ -110,7 +110,7 @@ public class WqlDetectionHelper {
 					.filter(namespace -> !IGNORED_WBEM_NAMESPACES.contains(namespace))
 					.map(namespace -> ROOT_SLASH + namespace)
 					.forEach(namespace -> possibleWbemNamespaces.add(namespace));
-			} catch (final MatsyaException e) {
+			} catch (final ClientException e) {
 				// If the CIM server doesn't know the requested class, we will get a WBEM exception
 				// saying so. Such exceptions are okay and will not fail the detection.
 				// That's why we return in failure if and only if the error type is neither "invalid namespace",
@@ -172,7 +172,7 @@ public class WqlDetectionHelper {
 		Set<String> possibleWmiNamespaces = new TreeSet<>();
 
 		try {
-			matsyaClientsExecutor
+			clientsExecutor
 				.executeWql(hostname, configuration, "SELECT Name FROM __NAMESPACE", "root")
 				.stream()
 				.filter(row -> !row.isEmpty())
@@ -193,7 +193,7 @@ public class WqlDetectionHelper {
 				)
 				.map(namespace -> ROOT_SLASH + namespace)
 				.forEach(possibleWmiNamespaces::add);
-		} catch (final MatsyaException e) {
+		} catch (final ClientException e) {
 			// Get the cause in the exception
 			Throwable cause = e.getCause();
 
@@ -322,9 +322,8 @@ public class WqlDetectionHelper {
 		// Make the WBEM query
 		final List<List<String>> queryResult;
 		try {
-			queryResult =
-				matsyaClientsExecutor.executeWql(hostname, configuration, criterion.getQuery(), criterion.getNamespace());
-		} catch (MatsyaException e) {
+			queryResult = clientsExecutor.executeWql(hostname, configuration, criterion.getQuery(), criterion.getNamespace());
+		} catch (ClientException e) {
 			return CriterionTestResult.error(criterion, e);
 		}
 

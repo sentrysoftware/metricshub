@@ -1,4 +1,4 @@
-package com.sentrysoftware.metricshub.engine.matsya.http;
+package com.sentrysoftware.metricshub.engine.http;
 
 import com.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;

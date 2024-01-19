@@ -1,6 +1,6 @@
 package com.sentrysoftware.metricshub.engine.strategy.collect;
 
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.metricshub.engine.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import java.util.Collection;
@@ -16,9 +16,9 @@ public class PrepareCollectStrategy extends AbstractStrategy {
 	public PrepareCollectStrategy(
 		@NonNull final TelemetryManager telemetryManager,
 		@NonNull final Long strategyTime,
-		@NonNull final MatsyaClientsExecutor matsyaClientsExecutor
+		@NonNull final ClientsExecutor clientsExecutor
 	) {
-		super(telemetryManager, strategyTime, matsyaClientsExecutor);
+		super(telemetryManager, strategyTime, clientsExecutor);
 	}
 
 	@Override

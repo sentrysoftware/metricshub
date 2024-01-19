@@ -5,6 +5,7 @@ import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.STATE_SET_METRIC_FAILED;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.STATE_SET_METRIC_OK;
 
+import com.sentrysoftware.metricshub.engine.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.common.JobInfo;
 import com.sentrysoftware.metricshub.engine.common.exception.RetryableException;
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
@@ -15,7 +16,6 @@ import com.sentrysoftware.metricshub.engine.connector.model.metric.MetricType;
 import com.sentrysoftware.metricshub.engine.connector.model.metric.StateSet;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Compute;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.detection.ConnectorSelection;
 import com.sentrysoftware.metricshub.engine.strategy.detection.ConnectorTestResult;
 import com.sentrysoftware.metricshub.engine.strategy.source.ISourceProcessor;
@@ -52,7 +52,7 @@ public abstract class AbstractStrategy implements IStrategy {
 	protected Long strategyTime;
 
 	@NonNull
-	protected MatsyaClientsExecutor matsyaClientsExecutor;
+	protected ClientsExecutor clientsExecutor;
 
 	private static final String COMPUTE = "compute";
 	private static final String SOURCE = "source";
@@ -152,7 +152,7 @@ public abstract class AbstractStrategy implements IStrategy {
 				.sourceTable(sourceTable)
 				.connectorId(connectorId)
 				.hostname(hostname)
-				.matsyaClientsExecutor(matsyaClientsExecutor)
+				.clientsExecutor(clientsExecutor)
 				.telemetryManager(telemetryManager)
 				.build();
 
@@ -225,7 +225,7 @@ public abstract class AbstractStrategy implements IStrategy {
 		final ISourceProcessor sourceProcessor = SourceProcessor
 			.builder()
 			.connectorId(connectorId)
-			.matsyaClientsExecutor(matsyaClientsExecutor)
+			.clientsExecutor(clientsExecutor)
 			.telemetryManager(telemetryManager)
 			.build();
 
@@ -377,7 +377,7 @@ public abstract class AbstractStrategy implements IStrategy {
 			return true;
 		}
 
-		ConnectorTestResult connectorTestResult = new ConnectorSelection(telemetryManager, matsyaClientsExecutor)
+		ConnectorTestResult connectorTestResult = new ConnectorSelection(telemetryManager, clientsExecutor)
 			.runConnectorDetectionCriteria(currentConnector, hostname);
 		final String connectorId = currentConnector.getCompiledFilename();
 		final Monitor monitor = telemetryManager.findMonitorByTypeAndId(

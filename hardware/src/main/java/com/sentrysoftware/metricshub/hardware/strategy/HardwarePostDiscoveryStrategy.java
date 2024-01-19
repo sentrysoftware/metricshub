@@ -2,8 +2,8 @@ package com.sentrysoftware.metricshub.hardware.strategy;
 
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.PRESENT_STATUS;
 
+import com.sentrysoftware.metricshub.engine.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
 import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
@@ -21,9 +21,9 @@ public class HardwarePostDiscoveryStrategy extends AbstractStrategy {
 	public HardwarePostDiscoveryStrategy(
 		@NonNull final TelemetryManager telemetryManager,
 		@NonNull final Long strategyTime,
-		@NonNull final MatsyaClientsExecutor matsyaClientsExecutor
+		@NonNull final ClientsExecutor clientsExecutor
 	) {
-		super(telemetryManager, strategyTime, matsyaClientsExecutor);
+		super(telemetryManager, strategyTime, clientsExecutor);
 	}
 
 	/**

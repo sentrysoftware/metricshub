@@ -77,6 +77,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
+import com.sentrysoftware.metricshub.engine.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.common.exception.ControlledSshException;
 import com.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
 import com.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
@@ -86,7 +87,6 @@ import com.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import com.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.telemetry.SshSemaphoreFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import java.io.File;
@@ -424,24 +424,13 @@ class OsCommandHelperTest {
 			() -> OsCommandHelper.runSshCommand(CMD, HOST, sshConfiguration, 0, null, null)
 		);
 
-		try (
-			final MockedStatic<MatsyaClientsExecutor> mockedMatsyaClientsExecutor = mockStatic(MatsyaClientsExecutor.class)
-		) {
+		try (final MockedStatic<ClientsExecutor> mockedClientsExecutor = mockStatic(ClientsExecutor.class)) {
 			when(sshConfiguration.getUsername()).thenReturn(USERNAME);
 			when(sshConfiguration.getPassword()).thenReturn(PASSWORD.toCharArray());
 
-			mockedMatsyaClientsExecutor
+			mockedClientsExecutor
 				.when(() ->
-					MatsyaClientsExecutor.runRemoteSshCommand(
-						HOST,
-						USERNAME,
-						PASSWORD.toCharArray(),
-						null,
-						CMD,
-						timeout,
-						null,
-						null
-					)
+					ClientsExecutor.runRemoteSshCommand(HOST, USERNAME, PASSWORD.toCharArray(), null, CMD, timeout, null, null)
 				)
 				.thenReturn(RESULT);
 
@@ -777,7 +766,7 @@ class OsCommandHelperTest {
 
 		try (
 			final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class);
-			final MockedStatic<MatsyaClientsExecutor> mockedMatsyaClientsExecutor = mockStatic(MatsyaClientsExecutor.class);
+			final MockedStatic<ClientsExecutor> mockedClientsExecutor = mockStatic(ClientsExecutor.class);
 			final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)
 		) {
 			mockedOsCommandHelper.when(() -> OsCommandHelper.getUsername(wmiConfiguration)).thenCallRealMethod();
@@ -806,10 +795,8 @@ class OsCommandHelperTest {
 			doReturn(TEMP_EMBEDDED_1).when(file1).getAbsolutePath();
 			doReturn(TEMP_EMBEDDED_2).when(file2).getAbsolutePath();
 
-			mockedMatsyaClientsExecutor
-				.when(() ->
-					MatsyaClientsExecutor.executeWinRemoteCommand(eq(HOST), eq(wmiConfiguration), eq(UPDATED_COMMAND), any())
-				)
+			mockedClientsExecutor
+				.when(() -> ClientsExecutor.executeWinRemoteCommand(eq(HOST), eq(wmiConfiguration), eq(UPDATED_COMMAND), any()))
 				.thenReturn(WINDOWS_NT_HELLO_WORLD);
 
 			mockedOsCommandHelper

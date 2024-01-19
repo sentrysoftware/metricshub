@@ -7,12 +7,12 @@ import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.sentrysoftware.metricshub.engine.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.Connector;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import com.sentrysoftware.metricshub.engine.connector.model.identity.ConnectorIdentity;
 import com.sentrysoftware.metricshub.engine.connector.model.identity.Detection;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.telemetry.HostProperties;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -30,16 +30,16 @@ class ConnectorSelectionTest {
 	@Test
 	void testRunNull() {
 		final TelemetryManager telemetryManager = new TelemetryManager();
-		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
-		assertThrows(IllegalArgumentException.class, () -> new ConnectorSelection(null, matsyaClientsExecutor));
+		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
+		assertThrows(IllegalArgumentException.class, () -> new ConnectorSelection(null, clientsExecutor));
 		assertThrows(IllegalArgumentException.class, () -> new ConnectorSelection(telemetryManager, null));
 	}
 
 	@Test
 	void testRunEmptyTelemetryManager() {
 		TelemetryManager telemetryManager = new TelemetryManager();
-		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
-		assertEquals(Collections.emptyList(), new ConnectorSelection(telemetryManager, matsyaClientsExecutor).run());
+		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
+		assertEquals(Collections.emptyList(), new ConnectorSelection(telemetryManager, clientsExecutor).run());
 	}
 
 	@Test
@@ -71,8 +71,8 @@ class ConnectorSelectionTest {
 			connectorStore,
 			STRATEGY_TIME
 		);
-		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
-		assertEquals(Collections.emptyList(), new ConnectorSelection(telemetryManager, matsyaClientsExecutor).run());
+		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
+		assertEquals(Collections.emptyList(), new ConnectorSelection(telemetryManager, clientsExecutor).run());
 	}
 
 	@Test
@@ -105,8 +105,8 @@ class ConnectorSelectionTest {
 			connectorStore,
 			STRATEGY_TIME
 		);
-		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
-		assertEquals(Collections.emptyList(), new ConnectorSelection(telemetryManager, matsyaClientsExecutor).run());
+		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
+		assertEquals(Collections.emptyList(), new ConnectorSelection(telemetryManager, clientsExecutor).run());
 	}
 
 	@Test
@@ -139,8 +139,8 @@ class ConnectorSelectionTest {
 			connectorStore,
 			STRATEGY_TIME
 		);
-		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
+		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
 
-		assertEquals(new ArrayList<>(), new ConnectorSelection(telemetryManager, matsyaClientsExecutor).run());
+		assertEquals(new ArrayList<>(), new ConnectorSelection(telemetryManager, clientsExecutor).run());
 	}
 }

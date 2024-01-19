@@ -1,4 +1,4 @@
-package com.sentrysoftware.metricshub.engine.matsya.http;
+package com.sentrysoftware.metricshub.engine.http;
 
 import java.util.HashMap;
 import java.util.Map;

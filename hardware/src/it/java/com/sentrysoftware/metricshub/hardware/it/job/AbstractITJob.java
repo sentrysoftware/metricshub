@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.sentrysoftware.metricshub.engine.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.alert.AlertRule;
 import com.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.collect.CollectStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.collect.PrepareCollectStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.detection.DetectionStrategy;
@@ -33,7 +33,7 @@ public abstract class AbstractITJob implements ITJob {
 	private static final String AGENT_HOSTNAME_ATTRIBUTE = "agent.host.name";
 
 	@NonNull
-	protected final MatsyaClientsExecutor matsyaClientsExecutor;
+	protected final ClientsExecutor clientsExecutor;
 
 	@NonNull
 	protected final TelemetryManager telemetryManager;
@@ -364,10 +364,10 @@ public abstract class AbstractITJob implements ITJob {
 		final Long discoveryTime = System.currentTimeMillis();
 
 		telemetryManager.run(
-			new DetectionStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor),
-			new DiscoveryStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor),
-			new SimpleStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor),
-			new HardwarePostDiscoveryStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor)
+			new DetectionStrategy(telemetryManager, discoveryTime, clientsExecutor),
+			new DiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor),
+			new SimpleStrategy(telemetryManager, discoveryTime, clientsExecutor),
+			new HardwarePostDiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor)
 		);
 
 		assertTrue(isServerStarted(), () -> "Server not started.");
@@ -380,10 +380,10 @@ public abstract class AbstractITJob implements ITJob {
 		final Long collectTime = System.currentTimeMillis();
 
 		telemetryManager.run(
-			new PrepareCollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor),
-			new CollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor),
-			new SimpleStrategy(telemetryManager, collectTime, matsyaClientsExecutor),
-			new HardwarePostCollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor)
+			new PrepareCollectStrategy(telemetryManager, collectTime, clientsExecutor),
+			new CollectStrategy(telemetryManager, collectTime, clientsExecutor),
+			new SimpleStrategy(telemetryManager, collectTime, clientsExecutor),
+			new HardwarePostCollectStrategy(telemetryManager, collectTime, clientsExecutor)
 		);
 
 		assertTrue(isServerStarted(), () -> "Server not started.");

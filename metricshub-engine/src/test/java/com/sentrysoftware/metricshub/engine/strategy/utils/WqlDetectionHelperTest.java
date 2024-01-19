@@ -37,11 +37,11 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.sentrysoftware.metricshub.engine.common.exception.MatsyaException;
+import com.sentrysoftware.metricshub.engine.ClientsExecutor;
+import com.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import com.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WmiCriterion;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import java.util.Collections;
 import java.util.List;
@@ -59,7 +59,7 @@ import org.sentrysoftware.wmi.exceptions.WmiComException;
 class WqlDetectionHelperTest {
 
 	@Mock
-	private MatsyaClientsExecutor matsyaClientsExecutorMock;
+	private ClientsExecutor clientsExecutorMock;
 
 	@InjectMocks
 	private WqlDetectionHelper wqlDetectionHelperMock;
@@ -87,9 +87,9 @@ class WqlDetectionHelperTest {
 
 		// No response from the host
 		doThrow(
-			new MatsyaException(MATSYA_NO_RESPONSE_EXCEPTION_MESSAGE, new TimeoutException(WBEM_NAMESPACE_TIMEOUT_MESSAGE))
+			new ClientException(MATSYA_NO_RESPONSE_EXCEPTION_MESSAGE, new TimeoutException(WBEM_NAMESPACE_TIMEOUT_MESSAGE))
 		)
-			.when(matsyaClientsExecutorMock)
+			.when(clientsExecutorMock)
 			.executeWbem(any(), eq(wbemConfiguration), any(), any());
 
 		final WqlDetectionHelper.PossibleNamespacesResult result = wqlDetectionHelperMock.findPossibleNamespaces(
@@ -98,7 +98,7 @@ class WqlDetectionHelperTest {
 		);
 		assertFalse(result.isSuccess());
 		assertTrue(result.getErrorMessage().contains(WBEM_NAMESPACE_TIMEOUT_MESSAGE), WBEM_NAMESPACE_TIMEOUT_ERROR_MESSAGE);
-		verify(matsyaClientsExecutorMock).executeWbem(any(), eq(wbemConfiguration), any(), any());
+		verify(clientsExecutorMock).executeWbem(any(), eq(wbemConfiguration), any(), any());
 	}
 
 	@Test
@@ -110,8 +110,8 @@ class WqlDetectionHelperTest {
 			.build();
 
 		// We will always return "not found"
-		doThrow(new MatsyaException(new WBEMException(WBEMException.CIM_ERR_NOT_FOUND)))
-			.when(matsyaClientsExecutorMock)
+		doThrow(new ClientException(new WBEMException(WBEMException.CIM_ERR_NOT_FOUND)))
+			.when(clientsExecutorMock)
 			.executeWbem(any(), eq(wbemConfiguration), any(), any());
 
 		final WqlDetectionHelper.PossibleNamespacesResult result = wqlDetectionHelperMock.findPossibleNamespaces(
@@ -132,19 +132,19 @@ class WqlDetectionHelperTest {
 		// By default, WBEM will throw an "invalid namespace" exception
 		// except for 2 namespaces where we will return a result
 		doThrow(
-			new MatsyaException(new WBEMException(WBEMException.CIM_ERR_INVALID_NAMESPACE)),
-			new MatsyaException(new WBEMException(WBEMException.CIM_ERR_INVALID_CLASS)),
-			new MatsyaException(new WBEMException(WBEMException.CIM_ERR_NOT_FOUND))
+			new ClientException(new WBEMException(WBEMException.CIM_ERR_INVALID_NAMESPACE)),
+			new ClientException(new WBEMException(WBEMException.CIM_ERR_INVALID_CLASS)),
+			new ClientException(new WBEMException(WBEMException.CIM_ERR_NOT_FOUND))
 		)
-			.when(matsyaClientsExecutorMock)
+			.when(clientsExecutorMock)
 			.executeWbem(any(), eq(wbemConfiguration), any(), any());
 
 		doReturn(List.of(List.of(FIRST_NAMESPACE)))
-			.when(matsyaClientsExecutorMock)
+			.when(clientsExecutorMock)
 			.executeWbem(any(), eq(wbemConfiguration), any(), eq(ROOT));
 
 		doReturn(List.of(List.of(SECOND_NAMESPACE)))
-			.when(matsyaClientsExecutorMock)
+			.when(clientsExecutorMock)
 			.executeWbem(any(), eq(wbemConfiguration), any(), eq(INTEROP_NAMESPACE));
 
 		final WqlDetectionHelper.PossibleNamespacesResult result = wqlDetectionHelperMock.findPossibleNamespaces(
@@ -180,9 +180,9 @@ class WqlDetectionHelperTest {
 
 		// No response from the host
 		doThrow(
-			new MatsyaException(MATSYA_NO_RESPONSE_EXCEPTION_MESSAGE, new TimeoutException(WBEM_NAMESPACE_TIMEOUT_MESSAGE))
+			new ClientException(MATSYA_NO_RESPONSE_EXCEPTION_MESSAGE, new TimeoutException(WBEM_NAMESPACE_TIMEOUT_MESSAGE))
 		)
-			.when(matsyaClientsExecutorMock)
+			.when(clientsExecutorMock)
 			.executeWql(any(), eq(wmiConfiguration), any(), any());
 
 		final WqlDetectionHelper.PossibleNamespacesResult result = wqlDetectionHelperMock.findPossibleNamespaces(
@@ -203,7 +203,7 @@ class WqlDetectionHelperTest {
 
 		// We return an empty list
 		doReturn(Collections.emptyList())
-			.when(matsyaClientsExecutorMock)
+			.when(clientsExecutorMock)
 			.executeWql(any(), eq(wmiConfiguration), any(), eq(ROOT));
 
 		final WqlDetectionHelper.PossibleNamespacesResult result = wqlDetectionHelperMock.findPossibleNamespaces(
@@ -222,7 +222,7 @@ class WqlDetectionHelperTest {
 			.build();
 
 		doReturn(List.of(List.of(FIRST_NAMESPACE), List.of(SECOND_NAMESPACE)))
-			.when(matsyaClientsExecutorMock)
+			.when(clientsExecutorMock)
 			.executeWql(any(), eq(wmiConfiguration), any(), any());
 
 		final WqlDetectionHelper.PossibleNamespacesResult result = wqlDetectionHelperMock.findPossibleNamespaces(
@@ -244,11 +244,11 @@ class WqlDetectionHelperTest {
 			() -> wqlDetectionHelperMock.performDetectionTest(LOCALHOST, null, null)
 		);
 
-		// MatsyaException
+		// ClientException
 
 		final WmiConfiguration wmiConfiguration = WmiConfiguration.builder().build();
-		doThrow(new MatsyaException(MATSYA_NO_RESPONSE_EXCEPTION_MESSAGE, new TimeoutException()))
-			.when(matsyaClientsExecutorMock)
+		doThrow(new ClientException(MATSYA_NO_RESPONSE_EXCEPTION_MESSAGE, new TimeoutException()))
+			.when(clientsExecutorMock)
 			.executeWql(any(), eq(wmiConfiguration), any(), any());
 		WmiCriterion wmiCriterion = WmiCriterion.builder().query(WBEM_QUERY).build();
 		CriterionTestResult result = wqlDetectionHelperMock.performDetectionTest(LOCALHOST, wmiConfiguration, wmiCriterion);
@@ -257,17 +257,15 @@ class WqlDetectionHelperTest {
 		assertTrue(result.getException() instanceof TimeoutException);
 
 		// Empty result
-		// MatsyaException
-		doReturn(Collections.emptyList())
-			.when(matsyaClientsExecutorMock)
-			.executeWql(any(), eq(wmiConfiguration), any(), any());
+		// ClientException
+		doReturn(Collections.emptyList()).when(clientsExecutorMock).executeWql(any(), eq(wmiConfiguration), any(), any());
 		result = wqlDetectionHelperMock.performDetectionTest(LOCALHOST, wmiConfiguration, wmiCriterion);
 		assertFalse(result.isSuccess());
 		assertNull(result.getException());
 
 		// Non-empty result, and no expected result => success
 
-		doReturn(EXCUTE_WBEM_RESULT).when(matsyaClientsExecutorMock).executeWql(any(), eq(wmiConfiguration), any(), any());
+		doReturn(EXCUTE_WBEM_RESULT).when(clientsExecutorMock).executeWql(any(), eq(wmiConfiguration), any(), any());
 		result = wqlDetectionHelperMock.performDetectionTest(LOCALHOST, wmiConfiguration, wmiCriterion);
 		assertTrue(result.isSuccess());
 		assertTrue(result.getMessage().contains(EXCUTE_WBEM_RESULT_ELEMENT), RESULT_MESSAGE_SHOULD_CONTAIN_RESULT);
@@ -300,8 +298,8 @@ class WqlDetectionHelperTest {
 			.query(WBEM_QUERY)
 			.expectedResult(WEBM_CRITERION_NOT_MATCHING_EXPECTED_RESULT)
 			.build();
-		doThrow(new MatsyaException(MATSYA_NO_RESPONSE_EXCEPTION_MESSAGE, new TimeoutException()))
-			.when(matsyaClientsExecutorMock)
+		doThrow(new ClientException(MATSYA_NO_RESPONSE_EXCEPTION_MESSAGE, new TimeoutException()))
+			.when(clientsExecutorMock)
 			.executeWql(any(), eq(wmiConfiguration), any(), any());
 
 		final WqlDetectionHelper.NamespaceResult result = wqlDetectionHelperMock.detectNamespace(
@@ -312,7 +310,7 @@ class WqlDetectionHelperTest {
 		);
 		assertFalse(result.getResult().isSuccess());
 		assertTrue(result.getResult().getMessage().contains(TIMEOUT_EXCEPTION));
-		verify(matsyaClientsExecutorMock).executeWql(any(), eq(wmiConfiguration), any(), any());
+		verify(clientsExecutorMock).executeWql(any(), eq(wmiConfiguration), any(), any());
 	}
 
 	@Test
@@ -324,11 +322,11 @@ class WqlDetectionHelperTest {
 			.query(WBEM_QUERY)
 			.expectedResult(WEBM_CRITERION_NOT_MATCHING_EXPECTED_RESULT)
 			.build();
-		doThrow(new MatsyaException(MATSYA_NO_RESPONSE_EXCEPTION_MESSAGE, new WmiComException(WMI_COM_EXCEPTION_MESSAGE)))
-			.when(matsyaClientsExecutorMock)
+		doThrow(new ClientException(MATSYA_NO_RESPONSE_EXCEPTION_MESSAGE, new WmiComException(WMI_COM_EXCEPTION_MESSAGE)))
+			.when(clientsExecutorMock)
 			.executeWql(any(), eq(wmiConfiguration), any(), eq(FIRST_NAMESPACE));
 		doReturn(EXCUTE_WBEM_RESULT)
-			.when(matsyaClientsExecutorMock)
+			.when(clientsExecutorMock)
 			.executeWql(any(), eq(wmiConfiguration), any(), eq(SECOND_NAMESPACE));
 
 		final WqlDetectionHelper.NamespaceResult result = wqlDetectionHelperMock.detectNamespace(
@@ -339,7 +337,7 @@ class WqlDetectionHelperTest {
 		);
 		assertFalse(result.getResult().isSuccess());
 		assertNull(result.getResult().getException());
-		verify(matsyaClientsExecutorMock, times(2)).executeWql(any(), eq(wmiConfiguration), any(), any());
+		verify(clientsExecutorMock, times(2)).executeWql(any(), eq(wmiConfiguration), any(), any());
 	}
 
 	@Test
@@ -347,7 +345,7 @@ class WqlDetectionHelperTest {
 		// 3 matching result, and root\\cimv2 must be removed
 		final WmiConfiguration wmiConfiguration = WmiConfiguration.builder().build();
 		final WmiCriterion wmiCriterion = WmiCriterion.builder().query(WBEM_QUERY).build();
-		doReturn(EXCUTE_WBEM_RESULT).when(matsyaClientsExecutorMock).executeWql(any(), eq(wmiConfiguration), any(), any());
+		doReturn(EXCUTE_WBEM_RESULT).when(clientsExecutorMock).executeWql(any(), eq(wmiConfiguration), any(), any());
 
 		final WqlDetectionHelper.NamespaceResult result = wqlDetectionHelperMock.detectNamespace(
 			LOCALHOST,
@@ -358,7 +356,7 @@ class WqlDetectionHelperTest {
 		assertTrue(result.getResult().isSuccess());
 		assertNull(result.getResult().getException());
 		assertEquals(FIRST_NAMESPACE, result.getNamespace());
-		verify(matsyaClientsExecutorMock, times(2)).executeWql(any(), eq(wmiConfiguration), any(), any());
+		verify(clientsExecutorMock, times(2)).executeWql(any(), eq(wmiConfiguration), any(), any());
 	}
 
 	@Test
@@ -366,7 +364,7 @@ class WqlDetectionHelperTest {
 		// 1 single matching result: root\\cimv2 which must not be removed
 		final WmiConfiguration wmiConfiguration = WmiConfiguration.builder().build();
 		final WmiCriterion wmiCriterion = WmiCriterion.builder().query(WBEM_QUERY).build();
-		doReturn(EXCUTE_WBEM_RESULT).when(matsyaClientsExecutorMock).executeWql(any(), eq(wmiConfiguration), any(), any());
+		doReturn(EXCUTE_WBEM_RESULT).when(clientsExecutorMock).executeWql(any(), eq(wmiConfiguration), any(), any());
 
 		final WqlDetectionHelper.NamespaceResult result = wqlDetectionHelperMock.detectNamespace(
 			LOCALHOST,

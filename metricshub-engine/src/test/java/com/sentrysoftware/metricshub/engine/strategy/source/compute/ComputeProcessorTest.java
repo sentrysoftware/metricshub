@@ -18,6 +18,7 @@ import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mockStatic;
 
+import com.sentrysoftware.metricshub.engine.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.common.helpers.ResourceHelper;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.Connector;
@@ -50,7 +51,6 @@ import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Subtract;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Translate;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Xml2Csv;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import com.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -79,7 +79,7 @@ class ComputeProcessorTest {
 	private ComputeProcessor computeProcessor;
 
 	@Spy
-	private MatsyaClientsExecutor matsyaClientsExecutorMock;
+	private ClientsExecutor clientsExecutorMock;
 
 	@Mock
 	private ConnectorStore connectorStoreMock;
@@ -223,8 +223,8 @@ class ComputeProcessorTest {
 					HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.WINDOWS).build()
 				)
 				.build();
-		matsyaClientsExecutorMock.setTelemetryManager(telemetryManager);
-		computeProcessor.setMatsyaClientsExecutor(matsyaClientsExecutorMock);
+		clientsExecutorMock.setTelemetryManager(telemetryManager);
+		computeProcessor.setClientsExecutor(clientsExecutorMock);
 	}
 
 	private void initializeSourceTable() {
@@ -2323,7 +2323,7 @@ class ComputeProcessorTest {
 		doReturn(
 			"FOO;ID1;NAME1;MANUFACTURER1;NUMBER_OF_DISKS1\nBAR;ID2;NAME2;MANUFACTURER2;NUMBER_OF_DISKS2\nBAZ;ID3;NAME3;MANUFACTURER3;NUMBER_OF_DISKS3"
 		)
-			.when(matsyaClientsExecutorMock)
+			.when(clientsExecutorMock)
 			.executeAwkScript(any(), any());
 		try (final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)) {
 			mockedEmbeddedFileHelper
@@ -2348,7 +2348,7 @@ class ComputeProcessorTest {
 				.separators(TABLE_SEP)
 				.selectColumns(ONE_TWO_THREE)
 				.build();
-		doReturn(null).when(matsyaClientsExecutorMock).executeAwkScript(any(), any());
+		doReturn(null).when(clientsExecutorMock).executeAwkScript(any(), any());
 
 		try (final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)) {
 			mockedEmbeddedFileHelper
@@ -2369,7 +2369,7 @@ class ComputeProcessorTest {
 				.separators(TABLE_SEP)
 				.selectColumns(ONE_TWO_THREE)
 				.build();
-		doReturn(EMPTY).when(matsyaClientsExecutorMock).executeAwkScript(any(), any());
+		doReturn(EMPTY).when(clientsExecutorMock).executeAwkScript(any(), any());
 		try (final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)) {
 			mockedEmbeddedFileHelper
 				.when(() -> EmbeddedFileHelper.findEmbeddedFiles(embeddedFileName))
@@ -2380,9 +2380,7 @@ class ComputeProcessorTest {
 
 		sourceTable.setRawData(null);
 		sourceTable.setTable(table);
-		doReturn(SourceTable.tableToCsv(table, TABLE_SEP, true))
-			.when(matsyaClientsExecutorMock)
-			.executeAwkScript(any(), any());
+		doReturn(SourceTable.tableToCsv(table, TABLE_SEP, true)).when(clientsExecutorMock).executeAwkScript(any(), any());
 		try (final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)) {
 			mockedEmbeddedFileHelper
 				.when(() -> EmbeddedFileHelper.findEmbeddedFiles(embeddedFileName))
@@ -2395,9 +2393,7 @@ class ComputeProcessorTest {
 		}
 
 		// Let's try with a space character in the selectColumns list
-		doReturn(SourceTable.tableToCsv(table, TABLE_SEP, true))
-			.when(matsyaClientsExecutorMock)
-			.executeAwkScript(any(), any());
+		doReturn(SourceTable.tableToCsv(table, TABLE_SEP, true)).when(clientsExecutorMock).executeAwkScript(any(), any());
 		try (final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)) {
 			mockedEmbeddedFileHelper
 				.when(() -> EmbeddedFileHelper.findEmbeddedFiles(embeddedFileName))
@@ -2439,7 +2435,7 @@ class ComputeProcessorTest {
 			.selectColumns(ONE_TWO_THREE)
 			.build();
 
-		doCallRealMethod().when(matsyaClientsExecutorMock).executeAwkScript(any(), any());
+		doCallRealMethod().when(clientsExecutorMock).executeAwkScript(any(), any());
 
 		computeProcessor.process(awkOK);
 		final List<List<String>> expectedTable = Arrays.asList(Arrays.asList(ID1, NAME1, MANUFACTURER1));

@@ -1,10 +1,10 @@
 package com.sentrysoftware.metricshub.hardware.it;
 
+import com.sentrysoftware.metricshub.engine.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import com.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.hardware.it.job.SuperConnectorITJob;
 import java.nio.file.Path;
@@ -32,7 +32,7 @@ class SuperConnectorOsIT {
 	private static final String LOCALHOST = "localhost";
 
 	private static TelemetryManager telemetryManager;
-	private static MatsyaClientsExecutor matsyaClientsExecutor;
+	private static ClientsExecutor clientsExecutor;
 
 	@BeforeAll
 	static void setUp() throws Exception {
@@ -52,12 +52,12 @@ class SuperConnectorOsIT {
 		telemetryManager =
 			TelemetryManager.builder().connectorStore(connectorStore).hostConfiguration(hostConfiguration).build();
 
-		matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
+		clientsExecutor = new ClientsExecutor(telemetryManager);
 	}
 
 	@Test
 	void test() throws Exception {
-		new SuperConnectorITJob(matsyaClientsExecutor, telemetryManager)
+		new SuperConnectorITJob(clientsExecutor, telemetryManager)
 			.executeDiscoveryStrategy()
 			.executeCollectStrategy()
 			.verifyExpected("os/SuperConnectorOsIT/expected/expected.json");

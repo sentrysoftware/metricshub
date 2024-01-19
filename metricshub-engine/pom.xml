@@ -251,7 +251,7 @@
 						<!-- Exclude simple DTO, VO and POJO -->
 						<exclude>com/sentrysoftware/metricshub/engine/connector/model/**</exclude>
 						<exclude>com/sentrysoftware/metricshub/engine/strategy/**</exclude>
-						<exclude>com/sentrysoftware/metricshub/engine/matsya/**</exclude>
+						<exclude>com/sentrysoftware/metricshub/engine/**</exclude>
 						<exclude>com/sentrysoftware/metricshub/engine/connector/model/common/**</exclude>
 					</excludes>
 				</configuration>

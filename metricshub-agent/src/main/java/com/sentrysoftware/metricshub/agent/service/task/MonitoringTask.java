@@ -7,10 +7,10 @@ import com.sentrysoftware.metricshub.agent.helper.ConfigHelper;
 import com.sentrysoftware.metricshub.agent.helper.OtelHelper;
 import com.sentrysoftware.metricshub.agent.service.signal.MetricTypeVisitor;
 import com.sentrysoftware.metricshub.agent.service.signal.SimpleUpDownCounterMetricObserver;
+import com.sentrysoftware.metricshub.engine.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import com.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.collect.CollectStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.collect.PrepareCollectStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.detection.DetectionStrategy;
@@ -73,7 +73,7 @@ public class MonitoringTask implements Runnable {
 
 		configureLoggerContext(hostId);
 
-		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
+		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
 
 		// Are we supposed to run the discovery?
 		final long discoveryTime = System.currentTimeMillis();
@@ -83,10 +83,10 @@ public class MonitoringTask implements Runnable {
 			// Run detection and discovery strategies first, the collect strategy will be run when all the OpenTelemetry
 			// observers are registered
 			telemetryManager.run(
-				new DetectionStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor),
-				new DiscoveryStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor),
-				new SimpleStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor),
-				new HardwarePostDiscoveryStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor)
+				new DetectionStrategy(telemetryManager, discoveryTime, clientsExecutor),
+				new DiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor),
+				new SimpleStrategy(telemetryManager, discoveryTime, clientsExecutor),
+				new HardwarePostDiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor)
 			);
 
 			// Initialize the OpenTelemetry observers and LogEmitter after the discovery
@@ -100,10 +100,10 @@ public class MonitoringTask implements Runnable {
 
 		// One more, run only prepare, collect simple and post strategies
 		telemetryManager.run(
-			new PrepareCollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor),
-			new CollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor),
-			new SimpleStrategy(telemetryManager, collectTime, matsyaClientsExecutor),
-			new HardwarePostCollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor)
+			new PrepareCollectStrategy(telemetryManager, collectTime, clientsExecutor),
+			new CollectStrategy(telemetryManager, collectTime, clientsExecutor),
+			new SimpleStrategy(telemetryManager, collectTime, clientsExecutor),
+			new HardwarePostCollectStrategy(telemetryManager, collectTime, clientsExecutor)
 		);
 
 		// Run the hardware strategy
