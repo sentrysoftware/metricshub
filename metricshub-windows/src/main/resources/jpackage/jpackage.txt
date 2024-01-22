@@ -13,7 +13,7 @@
 --app-content metricshub\security,metricshub\otel,metricshub\connectors,metricshub\config,metricshub\LICENSE,metricshub\site
 --license-file metricshub\LICENSE
 --win-console
---main-class com.sentrysoftware.metricshub.cli.MetricsHubCliApplication
+--main-class cli.org.sentrysoftware.metricshub.MetricsHubCliApplication
 --java-options --add-exports
 --java-options java.xml/com.sun.org.apache.xerces.internal.parsers=ALL-UNNAMED
 --java-options --add-opens

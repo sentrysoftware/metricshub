@@ -13,7 +13,7 @@
 			<useProjectArtifact>true</useProjectArtifact>
 			<unpack>true</unpack>
 			<excludes>
-				<exclude>com.sentrysoftware.shared:hardware-connectors</exclude>
+				<exclude>org.sentrysoftware.shared:hardware-connectors</exclude>
 				<!-- To prevent conflicts and ensure the logger starts properly, avoid including
 					additional dependencies with a Simple SLF4J implementation, 
 					as they may interfere with the existing log4j2 implementation. -->

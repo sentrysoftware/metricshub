@@ -10,7 +10,7 @@
 		<version>13</version>
 	</parent>
 
-	<groupId>com.sentrysoftware.metricshub</groupId>
+	<groupId>org.sentrysoftware.metricshub</groupId>
 	<artifactId>metricshub-parent</artifactId>
 	<version>0.9.01-SNAPSHOT</version>
 
@@ -116,12 +116,12 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>com.sentrysoftware.metricshub</groupId>
+				<groupId>org.sentrysoftware.metricshub</groupId>
 				<artifactId>metricshub-engine</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.sentrysoftware.metricshub</groupId>
+				<groupId>org.sentrysoftware.metricshub</groupId>
 				<artifactId>connector-serializer</artifactId>
 				<version>${project.version}</version>
 			</dependency>
