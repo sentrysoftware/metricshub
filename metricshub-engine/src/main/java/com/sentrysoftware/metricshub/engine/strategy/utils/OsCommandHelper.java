@@ -10,9 +10,10 @@ import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import static org.springframework.util.Assert.isTrue;
 import static org.springframework.util.Assert.state;
 
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
+import com.sentrysoftware.metricshub.engine.common.exception.ClientException;
+import com.sentrysoftware.metricshub.engine.common.exception.ClientRuntimeException;
 import com.sentrysoftware.metricshub.engine.common.exception.ControlledSshException;
-import com.sentrysoftware.metricshub.engine.common.exception.MatsyaException;
-import com.sentrysoftware.metricshub.engine.common.exception.MatsyaRuntimeException;
 import com.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
 import com.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import com.sentrysoftware.metricshub.engine.configuration.IConfiguration;
@@ -21,7 +22,6 @@ import com.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration
 import com.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import com.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.telemetry.SshSemaphoreFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
@@ -272,7 +272,7 @@ public class OsCommandHelper {
 	 * @param localFiles
 	 * @param noPasswordCommand
 	 * @return
-	 * @throws MatsyaException
+	 * @throws ClientException
 	 * @throws InterruptedException
 	 */
 	public static String runSshCommand(
@@ -282,14 +282,14 @@ public class OsCommandHelper {
 		final long timeout,
 		final List<File> localFiles,
 		final String noPasswordCommand
-	) throws MatsyaException, InterruptedException, ControlledSshException {
+	) throws ClientException, InterruptedException, ControlledSshException {
 		isTrue(timeout > 0, NEGATIVE_TIMEOUT);
 
 		try {
 			return runControlledSshCommand(
 				() -> {
 					try {
-						return MatsyaClientsExecutor.runRemoteSshCommand(
+						return ClientsExecutor.runRemoteSshCommand(
 							hostname,
 							sshConfiguration.getUsername(),
 							sshConfiguration.getPassword(),
@@ -299,15 +299,15 @@ public class OsCommandHelper {
 							localFiles,
 							noPasswordCommand
 						);
-					} catch (MatsyaException e) {
-						throw new MatsyaRuntimeException(e);
+					} catch (ClientException e) {
+						throw new ClientRuntimeException(e);
 					}
 				},
 				hostname,
 				DEFAULT_LOCK_TIMEOUT
 			);
-		} catch (final MatsyaRuntimeException e) {
-			throw (MatsyaException) e.getCause();
+		} catch (final ClientRuntimeException e) {
+			throw (ClientException) e.getCause();
 		}
 	}
 
@@ -459,7 +459,7 @@ public class OsCommandHelper {
 	 * @param isLocalhost The parameter in Host Monitoring to indicate if the command is execute locally.
 	 * @return The command execution return and the command with password masked (if present).
 	 * @throws IOException When an I/O error occurred on local command execution or embedded file creation.
-	 * @throws MatsyaException When an error occurred on a remote execution.
+	 * @throws ClientException When an error occurred on a remote execution.
 	 * @throws InterruptedException When the local command execution is interrupted.
 	 * @throws TimeoutException When the local command execution ended in timeout.
 	 * @throws NoCredentialProvidedException When there's no user provided for a remote command.
@@ -472,7 +472,7 @@ public class OsCommandHelper {
 		final boolean isExecuteLocally,
 		final boolean isLocalhost
 	)
-		throws IOException, MatsyaException, InterruptedException, TimeoutException, NoCredentialProvidedException, ControlledSshException {
+		throws IOException, ClientException, InterruptedException, TimeoutException, NoCredentialProvidedException, ControlledSshException {
 		final IConfiguration configuration;
 
 		if (!isLocalhost && telemetryManager.getHostConfiguration().getHostType() == DeviceKind.WINDOWS) {
@@ -555,7 +555,7 @@ public class OsCommandHelper {
 				// Case Windows Remote
 			} else if (DeviceKind.WINDOWS.equals(telemetryManager.getHostConfiguration().getHostType())) {
 				commandResult =
-					MatsyaClientsExecutor.executeWinRemoteCommand(
+					ClientsExecutor.executeWinRemoteCommand(
 						hostname,
 						configuration,
 						command,

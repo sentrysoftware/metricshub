@@ -2,13 +2,13 @@ package com.sentrysoftware.metricshub.engine.strategy.detection;
 
 import static com.sentrysoftware.metricshub.engine.strategy.utils.DetectionHelper.hasAtLeastOneTagOf;
 
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.Connector;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import com.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import com.sentrysoftware.metricshub.engine.connector.model.identity.ConnectionType;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,9 +27,9 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 
 	public AutomaticDetection(
 		@NonNull final TelemetryManager telemetryManager,
-		@NonNull final MatsyaClientsExecutor matsyaClientsExecutor
+		@NonNull final ClientsExecutor clientsExecutor
 	) {
-		super(telemetryManager, matsyaClientsExecutor);
+		super(telemetryManager, clientsExecutor);
 	}
 
 	@Override

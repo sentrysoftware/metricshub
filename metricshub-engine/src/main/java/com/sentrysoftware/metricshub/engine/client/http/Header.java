@@ -1,4 +1,4 @@
-package com.sentrysoftware.metricshub.engine.matsya.http;
+package com.sentrysoftware.metricshub.engine.client.http;
 
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.NEW_LINE;
 import static org.springframework.util.Assert.isTrue;

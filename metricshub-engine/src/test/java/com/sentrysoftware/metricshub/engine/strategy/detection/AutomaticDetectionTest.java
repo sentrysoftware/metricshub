@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.IConfiguration;
@@ -25,7 +26,6 @@ import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.Discove
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.Mapping;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpSource;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.telemetry.HostProperties;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -53,16 +53,16 @@ class AutomaticDetectionTest {
 	@Test
 	void testRunNull() {
 		final TelemetryManager telemetryManager = new TelemetryManager();
-		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
-		assertThrows(IllegalArgumentException.class, () -> new AutomaticDetection(null, matsyaClientsExecutor));
+		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
+		assertThrows(IllegalArgumentException.class, () -> new AutomaticDetection(null, clientsExecutor));
 		assertThrows(IllegalArgumentException.class, () -> new AutomaticDetection(telemetryManager, null));
 	}
 
 	@Test
 	void testRunEmptyTelemetryManager() {
 		final TelemetryManager telemetryManager = new TelemetryManager();
-		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
-		assertEquals(Collections.emptyList(), new AutomaticDetection(telemetryManager, matsyaClientsExecutor).run());
+		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
+		assertEquals(Collections.emptyList(), new AutomaticDetection(telemetryManager, clientsExecutor).run());
 	}
 
 	@Test
@@ -101,8 +101,8 @@ class AutomaticDetectionTest {
 			connectorStore,
 			STRATEGY_TIME
 		);
-		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
-		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, matsyaClientsExecutor).run());
+		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
+		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, clientsExecutor).run());
 	}
 
 	@Test
@@ -157,8 +157,8 @@ class AutomaticDetectionTest {
 			connectorStore,
 			STRATEGY_TIME
 		);
-		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
-		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, matsyaClientsExecutor).run());
+		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
+		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, clientsExecutor).run());
 	}
 
 	@Test
@@ -213,8 +213,8 @@ class AutomaticDetectionTest {
 			connectorStore,
 			STRATEGY_TIME
 		);
-		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
-		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, matsyaClientsExecutor).run());
+		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
+		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, clientsExecutor).run());
 	}
 
 	@Test
@@ -269,8 +269,8 @@ class AutomaticDetectionTest {
 			connectorStore,
 			STRATEGY_TIME
 		);
-		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
-		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, matsyaClientsExecutor).run());
+		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
+		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, clientsExecutor).run());
 	}
 
 	@Test
@@ -325,14 +325,14 @@ class AutomaticDetectionTest {
 			connectorStore,
 			STRATEGY_TIME
 		);
-		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
-		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, matsyaClientsExecutor).run());
+		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
+		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, clientsExecutor).run());
 	}
 
 	@Test
 	void testFilterLastResortConnectors() {
 		final TelemetryManager telemetryManager = new TelemetryManager();
-		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
+		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
 		{
 			// A single "last resort" connector discovering the same hardware monitor as a
 			// regular connector
@@ -360,7 +360,7 @@ class AutomaticDetectionTest {
 
 			final List<ConnectorTestResult> connectorTestResultList = new ArrayList<>(List.of(lastResortConnectorTestResult));
 
-			new AutomaticDetection(telemetryManager, matsyaClientsExecutor)
+			new AutomaticDetection(telemetryManager, clientsExecutor)
 				.filterLastResortConnectors(connectorTestResultList, LOCALHOST);
 
 			// The last resort connector should be kept
@@ -399,7 +399,7 @@ class AutomaticDetectionTest {
 				.build();
 			connectorTestResultList.add(regularConnectorTestResult);
 
-			new AutomaticDetection(telemetryManager, matsyaClientsExecutor)
+			new AutomaticDetection(telemetryManager, clientsExecutor)
 				.filterLastResortConnectors(connectorTestResultList, LOCALHOST);
 
 			// We should only have the regular connector left
@@ -466,7 +466,7 @@ class AutomaticDetectionTest {
 				List.of(lastResortConnectorTestResult, regularConnectorTestResult)
 			);
 
-			new AutomaticDetection(telemetryManager, matsyaClientsExecutor)
+			new AutomaticDetection(telemetryManager, clientsExecutor)
 				.filterLastResortConnectors(connectorTestResultList, LOCALHOST);
 
 			// Our two connectors should still be in the list as the regular connector does
@@ -572,8 +572,7 @@ class AutomaticDetectionTest {
 				List.of(lastResortConnectorTestResult1, lastResortConnectorTestResult2, regularConnectorTestResult)
 			);
 
-			new AutomaticDetection(telemetryManager, matsyaClientsExecutor)
-				.filterLastResortConnectors(testedConnectors, LOCALHOST);
+			new AutomaticDetection(telemetryManager, clientsExecutor).filterLastResortConnectors(testedConnectors, LOCALHOST);
 
 			// The regular connector and the first last resort connector should be in the
 			// list. The second last resort connector should
@@ -685,8 +684,7 @@ class AutomaticDetectionTest {
 				)
 			);
 
-			new AutomaticDetection(telemetryManager, matsyaClientsExecutor)
-				.filterLastResortConnectors(testedConnectors, LOCALHOST);
+			new AutomaticDetection(telemetryManager, clientsExecutor).filterLastResortConnectors(testedConnectors, LOCALHOST);
 
 			// All connectors should be kept
 			assertEquals(3, testedConnectors.size());

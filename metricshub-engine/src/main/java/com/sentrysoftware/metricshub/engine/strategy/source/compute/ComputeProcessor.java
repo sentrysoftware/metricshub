@@ -13,6 +13,7 @@ import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.TABLE_SEP;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.VERTICAL_BAR;
 
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.common.helpers.FilterResultHelper;
 import com.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import com.sentrysoftware.metricshub.engine.connector.model.Connector;
@@ -46,7 +47,6 @@ import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Subtract;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Translate;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Xml2Csv;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import com.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
 import com.sentrysoftware.metricshub.engine.strategy.utils.PslUtils;
@@ -86,7 +86,7 @@ public class ComputeProcessor implements IComputeProcessor {
 
 	private TelemetryManager telemetryManager;
 	private String connectorId;
-	private MatsyaClientsExecutor matsyaClientsExecutor;
+	private ClientsExecutor clientsExecutor;
 	private String sourceKey;
 	private String hostname;
 	private SourceTable sourceTable;
@@ -350,7 +350,7 @@ public class ComputeProcessor implements IComputeProcessor {
 		log.debug("Hostname {} - Compute Operation [{}]. AWK Script:\n{}\n", hostname, computeKey, awkScript.getContent());
 
 		try {
-			String awkResult = matsyaClientsExecutor.executeAwkScript(awkScript.getContent(), input);
+			String awkResult = clientsExecutor.executeAwkScript(awkScript.getContent(), input);
 
 			if (awkResult == null || awkResult.isEmpty()) {
 				log.warn(
@@ -832,7 +832,7 @@ public class ComputeProcessor implements IComputeProcessor {
 			final List<String> jsonToCsvProperties = new ArrayList<>(
 				Arrays.asList(json2csv.getProperties().split(SEMICOLON))
 			);
-			final String json2csvResult = matsyaClientsExecutor.executeJson2Csv(
+			final String json2csvResult = clientsExecutor.executeJson2Csv(
 				sourceTable.getRawData(),
 				json2csv.getEntryKey(),
 				jsonToCsvProperties,
@@ -1469,7 +1469,7 @@ public class ComputeProcessor implements IComputeProcessor {
 		}
 
 		try {
-			final List<List<String>> xmlResult = matsyaClientsExecutor.executeXmlParsing(
+			final List<List<String>> xmlResult = clientsExecutor.executeXmlParsing(
 				sourceTable.getRawData(),
 				xml2csv.getProperties(),
 				xml2csv.getRecordTag()

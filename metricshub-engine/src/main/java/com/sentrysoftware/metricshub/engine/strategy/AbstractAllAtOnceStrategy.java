@@ -6,6 +6,7 @@ import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.OTHER_MONITOR_JOB_TYPES;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.THREAD_TIMEOUT;
 
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.common.ConnectorMonitorTypeComparator;
 import com.sentrysoftware.metricshub.engine.common.JobInfo;
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
@@ -16,7 +17,6 @@ import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.Abstrac
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.Discovery;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.Mapping;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.Simple;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.source.OrderedSources;
 import com.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import com.sentrysoftware.metricshub.engine.strategy.utils.MappingProcessor;
@@ -55,9 +55,9 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 	protected AbstractAllAtOnceStrategy(
 		@NonNull final TelemetryManager telemetryManager,
 		final long strategyTime,
-		@NonNull final MatsyaClientsExecutor matsyaClientsExecutor
+		@NonNull final ClientsExecutor clientsExecutor
 	) {
-		super(telemetryManager, strategyTime, matsyaClientsExecutor);
+		super(telemetryManager, strategyTime, clientsExecutor);
 	}
 
 	/**

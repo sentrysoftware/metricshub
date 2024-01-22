@@ -22,12 +22,12 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.discovery.DiscoveryStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import java.util.HashMap;
@@ -39,7 +39,7 @@ class TelemetryManagerTest {
 
 	@Test
 	void testRun() throws Exception {
-		final MatsyaClientsExecutor matsyaClientsExecutorMock = spy(MatsyaClientsExecutor.class);
+		final ClientsExecutor clientsExecutorMock = spy(ClientsExecutor.class);
 
 		// Create host and connector monitors and set them in the telemetry manager
 		final Monitor hostMonitor = Monitor.builder().type(KnownMonitorType.HOST.getKey()).build();
@@ -82,12 +82,12 @@ class TelemetryManagerTest {
 
 		// Mock detection criteria result
 		doReturn("1.3.6.1.4.1.795.10.1.1.3.1.1.0	ASN_OCTET_STR	Test")
-			.when(matsyaClientsExecutorMock)
+			.when(clientsExecutorMock)
 			.executeSNMPGetNext(eq("1.3.6.1.4.1.795.10.1.1.3.1.1"), any(SnmpConfiguration.class), anyString(), anyBoolean());
 
 		// Mock source table information for disk controller
 		doReturn(SourceTable.csvToTable("controller-1;1;Adaptec1;bios53v2;firmware32", MetricsHubConstants.TABLE_SEP))
-			.when(matsyaClientsExecutorMock)
+			.when(clientsExecutorMock)
 			.executeSNMPTable(
 				eq("1.3.6.1.4.1.795.10.1.1.3.1"),
 				any(String[].class),
@@ -98,7 +98,7 @@ class TelemetryManagerTest {
 
 		// Mock source table information for physical_disk
 		doReturn(SourceTable.csvToTable("disk-1;1;0;vendor-1;5;500000;512", MetricsHubConstants.TABLE_SEP))
-			.when(matsyaClientsExecutorMock)
+			.when(clientsExecutorMock)
 			.executeSNMPTable(
 				eq("1.3.6.1.4.1.795.10.1.1.5.1"),
 				any(String[].class),
@@ -109,7 +109,7 @@ class TelemetryManagerTest {
 
 		// Mock source table information for logical_disk
 		doReturn(SourceTable.csvToTable("logical-disk-1;1;500;RAID-5", MetricsHubConstants.TABLE_SEP))
-			.when(matsyaClientsExecutorMock)
+			.when(clientsExecutorMock)
 			.executeSNMPTable(
 				eq("1.3.6.1.4.1.795.10.1.1.4.1"),
 				any(String[].class),
@@ -120,9 +120,7 @@ class TelemetryManagerTest {
 
 		// Call DiscoveryStrategy to discover the monitors
 		assertDoesNotThrow(() ->
-			telemetryManager.run(
-				new DiscoveryStrategy(telemetryManager, System.currentTimeMillis(), matsyaClientsExecutorMock)
-			)
+			telemetryManager.run(new DiscoveryStrategy(telemetryManager, System.currentTimeMillis(), clientsExecutorMock))
 		);
 
 		// Check discovered monitors

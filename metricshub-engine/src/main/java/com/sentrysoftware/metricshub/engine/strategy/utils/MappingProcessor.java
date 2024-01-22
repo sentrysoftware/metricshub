@@ -3,6 +3,7 @@ package com.sentrysoftware.metricshub.engine.strategy.utils;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.COLUMN_PATTERN;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
 
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.common.JobInfo;
 import com.sentrysoftware.metricshub.engine.common.helpers.FunctionArgumentsExtractor;
 import com.sentrysoftware.metricshub.engine.common.helpers.state.DuplexMode;
@@ -12,7 +13,6 @@ import com.sentrysoftware.metricshub.engine.common.helpers.state.NeedsCleaning;
 import com.sentrysoftware.metricshub.engine.common.helpers.state.PredictedFailure;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.mapping.MappingResource;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.Mapping;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.source.SourceUpdaterProcessor;
 import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
@@ -973,7 +973,7 @@ public class MappingProcessor {
 	 * @return			Result of awk function
 	 */
 	private String executeAwkScript(String value, String key) {
-		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor();
+		final ClientsExecutor clientsExecutor = new ClientsExecutor();
 		final String function = value.trim().replace("${awk::", "").replace("}", "");
 		final ClassPathResource resource = new ClassPathResource("internalAwk.awk");
 		final String awkTemplate;
@@ -985,7 +985,7 @@ public class MappingProcessor {
 		}
 
 		try {
-			return matsyaClientsExecutor.executeAwkScript(awkTemplate, String.join(";", row));
+			return clientsExecutor.executeAwkScript(awkTemplate, String.join(";", row));
 		} catch (Exception e) {
 			log.error(
 				"Hostname {} - Error while running awk function {} for parameter {}.",

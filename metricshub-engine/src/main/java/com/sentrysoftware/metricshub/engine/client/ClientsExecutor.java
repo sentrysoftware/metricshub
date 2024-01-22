@@ -1,4 +1,4 @@
-package com.sentrysoftware.metricshub.engine.matsya;
+package com.sentrysoftware.metricshub.engine.client;
 
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
@@ -7,7 +7,12 @@ import static org.springframework.util.Assert.notNull;
 
 import com.sentrysoftware.metricshub.engine.awk.AwkException;
 import com.sentrysoftware.metricshub.engine.awk.AwkExecutor;
-import com.sentrysoftware.metricshub.engine.common.exception.MatsyaException;
+import com.sentrysoftware.metricshub.engine.client.http.Body;
+import com.sentrysoftware.metricshub.engine.client.http.Header;
+import com.sentrysoftware.metricshub.engine.client.http.HttpMacrosUpdater;
+import com.sentrysoftware.metricshub.engine.client.http.HttpRequest;
+import com.sentrysoftware.metricshub.engine.client.http.Url;
+import com.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import com.sentrysoftware.metricshub.engine.common.exception.RetryableException;
 import com.sentrysoftware.metricshub.engine.common.helpers.NetworkHelper;
 import com.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
@@ -21,11 +26,6 @@ import com.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.WinRmConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
-import com.sentrysoftware.metricshub.engine.matsya.http.Body;
-import com.sentrysoftware.metricshub.engine.matsya.http.Header;
-import com.sentrysoftware.metricshub.engine.matsya.http.HttpMacrosUpdater;
-import com.sentrysoftware.metricshub.engine.matsya.http.HttpRequest;
-import com.sentrysoftware.metricshub.engine.matsya.http.Url;
 import com.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.metricshub.engine.strategy.utils.RetryOperation;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -80,7 +80,7 @@ import org.sentrysoftware.xflat.exceptions.XFlatException;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MatsyaClientsExecutor {
+public class ClientsExecutor {
 
 	private static final String MASK = "*****";
 	private static final char[] CHAR_ARRAY_MASK = MASK.toCharArray();
@@ -121,7 +121,7 @@ public class MatsyaClientsExecutor {
 	}
 
 	/**
-	 * Execute SNMP GetNext request through Matsya
+	 * Execute SNMP GetNext request
 	 *
 	 * @param oid
 	 * @param configuration
@@ -160,7 +160,7 @@ public class MatsyaClientsExecutor {
 	}
 
 	/**
-	 * Execute SNMP Get request through Matsya
+	 * Execute SNMP Get request
 	 *
 	 * @param oid
 	 * @param configuration
@@ -194,7 +194,7 @@ public class MatsyaClientsExecutor {
 	}
 
 	/**
-	 * Execute SNMP Table through matsya
+	 * Execute SNMP Table
 	 *
 	 * @param oid
 	 * @param selectColumnArray
@@ -258,7 +258,7 @@ public class MatsyaClientsExecutor {
 			? protocol.getPrivacy().name()
 			: null;
 
-		// Create the Matsya SNMPClient and run the GetNext request
+		// Create the SNMPClient and run the GetNext request
 		return (T) execute(
 			() -> {
 				final SnmpClient snmpClient = new SnmpClient(
@@ -313,7 +313,7 @@ public class MatsyaClientsExecutor {
 	}
 
 	/**
-	 * Execute TableJoin Using Matsya
+	 * Execute TableJoin
 	 *
 	 * @param leftTable
 	 * @param rightTable
@@ -364,7 +364,7 @@ public class MatsyaClientsExecutor {
 	}
 
 	/**
-	 * Call Matsya in order to execute the Awk script on the given input
+	 * Call AwkExecutor in order to execute the Awk script on the given input
 	 *
 	 * @param embeddedFileScript
 	 * @param input
@@ -384,7 +384,7 @@ public class MatsyaClientsExecutor {
 	}
 
 	/**
-	 * Execute JSON to CSV operation using Matsya.
+	 * Execute JSON to CSV operation.
 	 *
 	 * @param jsonSource
 	 * @param jsonEntryKey
@@ -488,20 +488,20 @@ public class MatsyaClientsExecutor {
 	 * Perform a WQL query, either against a CIM server (WBEM) or WMI
 	 * <br>
 	 *
-	 * @param hostname    Hostname
+	 * @param hostname      Hostname
 	 * @param configuration The WbemConfiguration or WmiConfiguration object specifying how to connect to specified host
-	 * @param query       WQL query to execute
-	 * @param namespace   The namespace
+	 * @param query         WQL query to execute
+	 * @param namespace     The namespace
 	 * @return A table (as a {@link List} of {@link List} of {@link String}s)
 	 * resulting from the execution of the query.
-	 * @throws MatsyaException when anything wrong happens with the Matsya library
+	 * @throws ClientException when anything wrong happens
 	 */
 	public List<List<String>> executeWql(
 		final String hostname,
 		final IConfiguration configuration,
 		final String query,
 		final String namespace
-	) throws MatsyaException {
+	) throws ClientException {
 		if (configuration instanceof WbemConfiguration wbemConfiguration) {
 			return executeWbem(hostname, wbemConfiguration, query, namespace);
 		} else if (configuration instanceof WmiConfiguration wmiConfiguration) {
@@ -523,14 +523,14 @@ public class MatsyaClientsExecutor {
 	 * @param embeddedFiles The list of embedded files used in the wql remote command query
 	 * @return A table (as a {@link List} of {@link List} of {@link String}s)
 	 * resulting from the execution of the query.
-	 * @throws MatsyaException when anything wrong happens with the Matsya library
+	 * @throws ClientException when anything wrong happens
 	 */
 	public static String executeWinRemoteCommand(
 		final String hostname,
 		final IConfiguration configuration,
 		final String command,
 		final List<String> embeddedFiles
-	) throws MatsyaException {
+	) throws ClientException {
 		if (configuration instanceof WmiConfiguration wmiConfiguration) {
 			return executeWmiRemoteCommand(
 				command,
@@ -557,7 +557,7 @@ public class MatsyaClientsExecutor {
 	 * @param namespace  WBEM namespace
 	 * @return A table (as a {@link List} of {@link List} of {@link String}s)
 	 * resulting from the execution of the query.
-	 * @throws MatsyaException when anything goes wrong (details in cause)
+	 * @throws ClientException when anything goes wrong (details in cause)
 	 */
 	@WithSpan("WBEM")
 	public List<List<String>> executeWbem(
@@ -565,7 +565,7 @@ public class MatsyaClientsExecutor {
 		@NonNull @SpanAttribute("wbem.config") final WbemConfiguration wbemConfig,
 		@NonNull @SpanAttribute("wbem.query") final String query,
 		@NonNull @SpanAttribute("wbem.namespace") final String namespace
-	) throws MatsyaException {
+	) throws ClientException {
 		// handle vCenter case
 		if (wbemConfig.getVCenter() != null) {
 			return doVCenterQuery(hostname, wbemConfig, query, namespace);
@@ -584,14 +584,14 @@ public class MatsyaClientsExecutor {
 	 * @param namespace  WBEM namespace
 	 * @return A table (as a {@link List} of {@link List} of {@link String}s)
 	 * resulting from the execution of the query.
-	 * @throws MatsyaException when anything goes wrong (details in cause)
+	 * @throws ClientException when anything goes wrong (details in cause)
 	 */
 	private List<List<String>> doVCenterQuery(
 		@NonNull final String hostname,
 		@NonNull final WbemConfiguration wbemConfig,
 		@NonNull final String query,
 		@NonNull final String namespace
-	) throws MatsyaException {
+	) throws ClientException {
 		String ticket = telemetryManager.getHostProperties().getVCenterTicket();
 
 		if (ticket == null) {
@@ -617,7 +617,7 @@ public class MatsyaClientsExecutor {
 
 		try {
 			return doWbemQuery(hostname, vCenterWbemConfig, query, namespace);
-		} catch (MatsyaException e) {
+		} catch (ClientException e) {
 			if (isRefreshTicketNeeded(e.getCause())) {
 				ticket =
 					refreshVCenterTicket(
@@ -648,7 +648,7 @@ public class MatsyaClientsExecutor {
 	 * @param hostname Hostname
 	 * @param timeout  Timeout
 	 * @return A ticket String
-	 * @throws MatsyaException when anything goes wrong (details in cause)
+	 * @throws ClientException when anything goes wrong (details in cause)
 	 */
 	private String refreshVCenterTicket(
 		@NonNull String vCenter,
@@ -656,7 +656,7 @@ public class MatsyaClientsExecutor {
 		@NonNull char[] password,
 		@NonNull String hostname,
 		@NonNull Long timeout
-	) throws MatsyaException {
+	) throws ClientException {
 		VCenterClient.setDebug(() -> true, log::debug);
 		try {
 			String ticket = execute(
@@ -664,7 +664,7 @@ public class MatsyaClientsExecutor {
 				timeout
 			);
 			if (ticket == null) {
-				throw new MatsyaException("Cannot get the ticket through matsya vCenter module");
+				throw new ClientException("Cannot get the ticket through vCenter module");
 			}
 			return ticket;
 		} catch (Exception e) {
@@ -672,7 +672,7 @@ public class MatsyaClientsExecutor {
 				Thread.currentThread().interrupt();
 			}
 			log.error("Hostname {} - Vcenter ticket refresh query failed. Exception: {}", e);
-			throw new MatsyaException("vCenter refresh ticket query failed on " + hostname + ".", e);
+			throw new ClientException("vCenter refresh ticket query failed on " + hostname + ".", e);
 		}
 	}
 
@@ -707,14 +707,14 @@ public class MatsyaClientsExecutor {
 	 * @param namespace  WBEM namespace
 	 * @return A table (as a {@link List} of {@link List} of {@link String}s)
 	 * resulting from the execution of the query.
-	 * @throws MatsyaException when anything goes wrong (details in cause)
+	 * @throws ClientException when anything goes wrong (details in cause)
 	 */
 	private List<List<String>> doWbemQuery(
 		final String hostname,
 		final WbemConfiguration wbemConfig,
 		final String query,
 		final String namespace
-	) throws MatsyaException {
+	) throws ClientException {
 		try {
 			String urlSpec = String.format("%s://%s:%d", wbemConfig.getProtocol().toString(), hostname, wbemConfig.getPort());
 
@@ -770,18 +770,18 @@ public class MatsyaClientsExecutor {
 
 			return result;
 		} catch (Exception e) { // NOSONAR an exception is already thrown
-			throw new MatsyaException("WBEM query failed on " + hostname + ".", e);
+			throw new ClientException("WBEM query failed on " + hostname + ".", e);
 		}
 	}
 
 	/**
-	 * Execute a WMI query through Matsya
+	 * Execute a WMI query
 	 *
 	 * @param hostname  The hostname of the device where the WMI service is running (<code>null</code> for localhost)
 	 * @param wmiConfig WMI Protocol configuration (credentials, timeout)
 	 * @param wbemQuery The WQL to execute
 	 * @param namespace The WBEM namespace where all the classes reside
-	 * @throws MatsyaException when anything goes wrong (details in cause)
+	 * @throws ClientException when anything goes wrong (details in cause)
 	 */
 	@WithSpan("WMI")
 	public List<List<String>> executeWmi(
@@ -789,7 +789,7 @@ public class MatsyaClientsExecutor {
 		@SpanAttribute("wmi.config") @NonNull final WmiConfiguration wmiConfig,
 		@SpanAttribute("wmi.query") @NonNull final String wbemQuery,
 		@SpanAttribute("wmi.namespace") @NonNull final String namespace
-	) throws MatsyaException {
+	) throws ClientException {
 		// Where to connect to?
 		// Local: namespace
 		// Remote: hostname\namespace
@@ -848,12 +848,12 @@ public class MatsyaClientsExecutor {
 
 			return resultTable;
 		} catch (Exception e) {
-			throw new MatsyaException("WMI query failed on " + hostname + ".", e);
+			throw new ClientException("WMI query failed on " + hostname + ".", e);
 		}
 	}
 
 	/**
-	 * Execute a command on a remote Windows system through Matsya and return an object with
+	 * Execute a command on a remote Windows system through Client and return an object with
 	 * the output of the command.
 	 *
 	 * @param command    The command to execute. (Mandatory)
@@ -863,7 +863,7 @@ public class MatsyaClientsExecutor {
 	 * @param timeout    Timeout in seconds
 	 * @param localFiles The local files list
 	 * @return
-	 * @throws MatsyaException For any problem encountered.
+	 * @throws ClientException For any problem encountered.
 	 */
 	@WithSpan("Remote Command WMI")
 	public static String executeWmiRemoteCommand(
@@ -873,7 +873,7 @@ public class MatsyaClientsExecutor {
 		final char[] password,
 		@SpanAttribute("wmi.timeout") final int timeout,
 		@SpanAttribute("wmi.local_files") final List<String> localFiles
-	) throws MatsyaException {
+	) throws ClientException {
 		try {
 			trace(() ->
 				log.trace(
@@ -920,7 +920,7 @@ public class MatsyaClientsExecutor {
 
 			return resultStdout;
 		} catch (Exception e) {
-			throw new MatsyaException((Exception) e.getCause());
+			throw new ClientException((Exception) e.getCause());
 		}
 	}
 
@@ -1237,7 +1237,7 @@ public class MatsyaClientsExecutor {
 	}
 
 	/**
-	 * Use Matsya ssh-client in order to run ssh command
+	 * Use ssh-client in order to run ssh command
 	 *
 	 * @param hostname
 	 * @param username
@@ -1248,7 +1248,7 @@ public class MatsyaClientsExecutor {
 	 * @param localFiles
 	 * @param noPasswordCommand
 	 * @return
-	 * @throws MatsyaException
+	 * @throws ClientException
 	 */
 	@WithSpan("SSH")
 	public static String runRemoteSshCommand(
@@ -1260,7 +1260,7 @@ public class MatsyaClientsExecutor {
 		@SpanAttribute("ssh.timeout") final long timeout,
 		@SpanAttribute("ssh.local_files") final List<File> localFiles,
 		@SpanAttribute("ssh.command") final String noPasswordCommand
-	) throws MatsyaException {
+	) throws ClientException {
 		trace(() ->
 			log.trace(
 				"Executing Remote SSH command:\n- hostname: {}\n- username: {}\n- key-file-path: {}\n" + // NOSONAR
@@ -1318,7 +1318,7 @@ public class MatsyaClientsExecutor {
 					commandResult.result
 				);
 				log.error(message);
-				throw new MatsyaException(message);
+				throw new ClientException(message);
 			}
 
 			String result = commandResult.result;
@@ -1338,7 +1338,7 @@ public class MatsyaClientsExecutor {
 				)
 			);
 			return result;
-		} catch (final MatsyaException e) {
+		} catch (final ClientException e) {
 			throw e;
 		} catch (final Exception e) {
 			final String message = String.format(
@@ -1348,7 +1348,7 @@ public class MatsyaClientsExecutor {
 				hostname
 			);
 			log.error("Hostname {} - {}. Exception : {}.", hostname, message, e.getMessage());
-			throw new MatsyaException(message, (Exception) e.getCause());
+			throw new ClientException(message, (Exception) e.getCause());
 		}
 	}
 
@@ -1360,12 +1360,12 @@ public class MatsyaClientsExecutor {
 	 * 	<li>username only</li>
 	 * </ul>
 	 *
-	 * @param sshClient  The Matsya SSH client
+	 * @param sshClient  The SSH client
 	 * @param hostname   The hostname
 	 * @param username   The username
 	 * @param password   The password
 	 * @param privateKey The private key file
-	 * @throws MatsyaException If a Matsya error occurred.
+	 * @throws ClientException If an error occurred.
 	 */
 	static void authenticateSsh(
 		final SshClient sshClient,
@@ -1373,7 +1373,7 @@ public class MatsyaClientsExecutor {
 		final String username,
 		final char[] password,
 		final File privateKey
-	) throws MatsyaException {
+	) throws ClientException {
 		final boolean authenticated;
 		try {
 			if (privateKey != null) {
@@ -1391,7 +1391,7 @@ public class MatsyaClientsExecutor {
 				privateKey != null ? privateKey.getAbsolutePath() : null
 			);
 			log.error("Hostname {} - {}. Exception : {}.", hostname, message, e.getMessage());
-			throw new MatsyaException(message, e);
+			throw new ClientException(message, e);
 		}
 
 		if (!authenticated) {
@@ -1402,7 +1402,7 @@ public class MatsyaClientsExecutor {
 				privateKey != null ? privateKey.getAbsolutePath() : null
 			);
 			log.error(message);
-			throw new MatsyaException(message);
+			throw new ClientException(message);
 		}
 	}
 
@@ -1440,9 +1440,9 @@ public class MatsyaClientsExecutor {
 	}
 
 	/**
-	 * Connect to the SSH terminal with Matsya. For that:
+	 * Connect to the SSH terminal. For that:
 	 * <ul>
-	 * 	<li>Create a Matsya SSH Client instance.</li>
+	 * 	<li>Create an SSH Client instance.</li>
 	 * 	<li>Connect to SSH.</li>
 	 * 	<li>Open a SSH session.</li>
 	 * 	<li>Open a terminal.</li>
@@ -1453,8 +1453,8 @@ public class MatsyaClientsExecutor {
 	 * @param password   The password
 	 * @param privateKey The private key file
 	 * @param timeout    The timeout (>0) in seconds
-	 * @return The Matsya SSH client
-	 * @throws MatsyaException If a Matsya error occurred.
+	 * @return The SSH client
+	 * @throws ClientException If a Client error occurred.
 	 */
 	public static SshClient connectSshClientTerminal(
 		@NonNull final String hostname,
@@ -1462,7 +1462,7 @@ public class MatsyaClientsExecutor {
 		final char[] password,
 		final File privateKey,
 		final int timeout
-	) throws MatsyaException {
+	) throws ClientException {
 		isTrue(timeout > 0, "timeout must be > 0");
 
 		final SshClient sshClient = createSshClientInstance(hostname);
@@ -1479,7 +1479,7 @@ public class MatsyaClientsExecutor {
 			return sshClient;
 		} catch (final IOException e) {
 			sshClient.close();
-			throw new MatsyaException(e);
+			throw new ClientException(e);
 		}
 	}
 
@@ -1610,14 +1610,14 @@ public class MatsyaClientsExecutor {
 	}
 
 	/**
-	 * Execute a WinRM query through Matsya
+	 * Execute a WinRM query
 	 *
 	 * @param hostname           The hostname of the device where the WinRM service is running (<code>null</code> for localhost)
 	 * @param winRmConfiguration WinRM Protocol configuration (credentials, timeout)
 	 * @param query              The query to execute
 	 * @param namespace          The namespace on which to execute the query
 	 * @return The result of the query
-	 * @throws MatsyaException when anything goes wrong (details in cause)
+	 * @throws ClientException when anything goes wrong (details in cause)
 	 */
 	@WithSpan("WQL WinRM")
 	public List<List<String>> executeWqlThroughWinRm(
@@ -1625,7 +1625,7 @@ public class MatsyaClientsExecutor {
 		@SpanAttribute("wql.config") @NonNull final WinRmConfiguration winRmConfiguration,
 		@SpanAttribute("wql.query") @NonNull final String query,
 		@SpanAttribute("wql.namespace") @NonNull final String namespace
-	) throws MatsyaException {
+	) throws ClientException {
 		final String username = winRmConfiguration.getUsername();
 		final WinRMHttpProtocolEnum httpProtocol = TransportProtocols.HTTP.equals(winRmConfiguration.getProtocol())
 			? WinRMHttpProtocolEnum.HTTP
@@ -1690,25 +1690,25 @@ public class MatsyaClientsExecutor {
 			return table;
 		} catch (Exception e) {
 			log.error("Hostname {} - WinRM WQL request failed. Errors:\n{}\n", hostname, StringHelper.getStackMessages(e));
-			throw new MatsyaException(String.format("WinRM WQL request failed on %s.", hostname), e);
+			throw new ClientException(String.format("WinRM WQL request failed on %s.", hostname), e);
 		}
 	}
 
 	/**
-	 * Execute a WinRM remote command through Matsya
+	 * Execute a WinRM remote command
 	 *
 	 * @param hostname           The hostname of the device where the WinRM service is running (<code>null</code> for localhost)
 	 * @param winRmConfiguration WinRM Protocol configuration (credentials, timeout)
 	 * @param command            The command to execute
 	 * @return The result of the query
-	 * @throws MatsyaException when anything goes wrong (details in cause)
+	 * @throws ClientException when anything goes wrong (details in cause)
 	 */
 	@WithSpan("Remote Command WinRM")
 	public static String executeRemoteWinRmCommand(
 		@SpanAttribute("host.hostname") @NonNull final String hostname,
 		@SpanAttribute("winrm.config") @NonNull final WinRmConfiguration winRmConfiguration,
 		@SpanAttribute("winrm.command") @NonNull final String command
-	) throws MatsyaException {
+	) throws ClientException {
 		final String username = winRmConfiguration.getUsername();
 		final WinRMHttpProtocolEnum httpProtocol = TransportProtocols.HTTP.equals(winRmConfiguration.getProtocol())
 			? WinRMHttpProtocolEnum.HTTP
@@ -1753,7 +1753,7 @@ public class MatsyaClientsExecutor {
 
 			// If the command returns an error
 			if (result.getStatusCode() != 0) {
-				throw new MatsyaException(String.format("WinRM remote command failed on %s: %s", hostname, result.getStderr()));
+				throw new ClientException(String.format("WinRM remote command failed on %s: %s", hostname, result.getStderr()));
 			}
 
 			String resultStdout = result.getStdout();
@@ -1777,7 +1777,7 @@ public class MatsyaClientsExecutor {
 			return resultStdout;
 		} catch (Exception e) {
 			log.error("Hostname {} - WinRM remote command failed. Errors:\n{}\n", hostname, StringHelper.getStackMessages(e));
-			throw new MatsyaException(String.format("WinRM remote command failed on %s.", hostname), e);
+			throw new ClientException(String.format("WinRM remote command failed on %s.", hostname), e);
 		}
 	}
 

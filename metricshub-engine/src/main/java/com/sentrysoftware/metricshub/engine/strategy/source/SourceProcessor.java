@@ -6,6 +6,8 @@ import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.TABLE_SEP;
 import static com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.WMI_DEFAULT_NAMESPACE;
 
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
+import com.sentrysoftware.metricshub.engine.client.http.HttpRequest;
 import com.sentrysoftware.metricshub.engine.common.helpers.FilterResultHelper;
 import com.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import com.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
@@ -28,8 +30,6 @@ import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.TableUnionSource;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WbemSource;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WmiSource;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
-import com.sentrysoftware.metricshub.engine.matsya.http.HttpRequest;
 import com.sentrysoftware.metricshub.engine.strategy.utils.IpmiHelper;
 import com.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.metricshub.engine.strategy.utils.OsCommandResult;
@@ -60,7 +60,7 @@ public class SourceProcessor implements ISourceProcessor {
 
 	private TelemetryManager telemetryManager;
 	private String connectorId;
-	private MatsyaClientsExecutor matsyaClientsExecutor;
+	private ClientsExecutor clientsExecutor;
 
 	@WithSpan("Source Copy Exec")
 	@Override
@@ -143,7 +143,7 @@ public class SourceProcessor implements ISourceProcessor {
 		}
 
 		try {
-			final String result = matsyaClientsExecutor.executeHttp(
+			final String result = clientsExecutor.executeHttp(
 				HttpRequest
 					.builder()
 					.hostname(hostname)
@@ -225,7 +225,7 @@ public class SourceProcessor implements ISourceProcessor {
 		}
 
 		try {
-			final String result = matsyaClientsExecutor.executeIpmiGetSensors(hostname, ipmiConfiguration);
+			final String result = clientsExecutor.executeIpmiGetSensors(hostname, ipmiConfiguration);
 
 			if (result != null) {
 				return SourceTable.builder().rawData(result).build();
@@ -383,7 +383,7 @@ public class SourceProcessor implements ISourceProcessor {
 	}
 
 	/**
-	 * Call the matsya client executor to execute a WMI request.
+	 * Call the client executor to execute a WMI request.
 	 *
 	 * @param hostname		The host against the query will be run.
 	 * @param winConfiguration	The information used to connect to the host and perform the query.
@@ -405,7 +405,7 @@ public class SourceProcessor implements ISourceProcessor {
 		List<List<String>> result;
 
 		try {
-			result = matsyaClientsExecutor.executeWql(hostname, winConfiguration, wmiQuery, namespace);
+			result = clientsExecutor.executeWql(hostname, winConfiguration, wmiQuery, namespace);
 		} catch (Exception exception) {
 			logSourceError(
 				connectorId,
@@ -524,12 +524,7 @@ public class SourceProcessor implements ISourceProcessor {
 		}
 
 		try {
-			final String result = matsyaClientsExecutor.executeSNMPGet(
-				snmpGetSource.getOid(),
-				snmpConfiguration,
-				hostname,
-				true
-			);
+			final String result = clientsExecutor.executeSNMPGet(snmpGetSource.getOid(), snmpConfiguration, hostname, true);
 
 			if (result != null) {
 				return SourceTable
@@ -569,7 +564,7 @@ public class SourceProcessor implements ISourceProcessor {
 			return SourceTable.empty();
 		}
 
-		// run Matsya in order to execute the snmpTable
+		// run the Client in order to execute the snmpTable
 		// receives a List structure
 		SourceTable sourceTable = new SourceTable();
 		String selectedColumns = snmpTableSource.getSelectColumns();
@@ -596,7 +591,7 @@ public class SourceProcessor implements ISourceProcessor {
 		}
 
 		try {
-			final List<List<String>> result = matsyaClientsExecutor.executeSNMPTable(
+			final List<List<String>> result = clientsExecutor.executeSNMPTable(
 				snmpTableSource.getOid(),
 				selectedColumnArray,
 				protocol,
@@ -762,7 +757,7 @@ public class SourceProcessor implements ISourceProcessor {
 
 		String defaultRightLine = tableJoinSource.getDefaultRightLine();
 
-		final List<List<String>> executeTableJoin = matsyaClientsExecutor.executeTableJoin(
+		final List<List<String>> executeTableJoin = clientsExecutor.executeTableJoin(
 			leftTable.getTable(),
 			rightTable.getTable(),
 			tableJoinSource.getLeftKeyColumn(),
@@ -905,7 +900,7 @@ public class SourceProcessor implements ISourceProcessor {
 				return SourceTable.empty();
 			}
 
-			final List<List<String>> table = matsyaClientsExecutor.executeWbem(
+			final List<List<String>> table = clientsExecutor.executeWbem(
 				hostname,
 				wbemConfiguration,
 				wbemSource.getQuery(),
@@ -994,7 +989,7 @@ public class SourceProcessor implements ISourceProcessor {
 		}
 
 		try {
-			final List<List<String>> table = matsyaClientsExecutor.executeWql(
+			final List<List<String>> table = clientsExecutor.executeWql(
 				hostname,
 				winConfiguration,
 				wmiSource.getQuery(),

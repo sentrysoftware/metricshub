@@ -19,7 +19,9 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mockStatic;
 
-import com.sentrysoftware.metricshub.engine.common.exception.MatsyaException;
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
+import com.sentrysoftware.metricshub.engine.client.http.HttpRequest;
+import com.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import com.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
@@ -44,8 +46,6 @@ import com.sentrysoftware.metricshub.engine.connector.model.identity.criterion.S
 import com.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetNextCriterion;
 import com.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WbemCriterion;
 import com.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WmiCriterion;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
-import com.sentrysoftware.metricshub.engine.matsya.http.HttpRequest;
 import com.sentrysoftware.metricshub.engine.strategy.utils.CriterionProcessVisitor;
 import com.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.metricshub.engine.strategy.utils.OsCommandResult;
@@ -78,7 +78,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class CriterionProcessorTest {
 
 	@Mock
-	private MatsyaClientsExecutor matsyaClientsExecutorMock;
+	private ClientsExecutor clientsExecutorMock;
 
 	@Mock
 	private WqlDetectionHelper wqlDetectionHelperMock;
@@ -114,7 +114,7 @@ class CriterionProcessorTest {
 	@Test
 	void testProcessWbemCriterionSuccess() throws Exception {
 		initWbem();
-		doReturn(EXCUTE_WBEM_RESULT).when(matsyaClientsExecutorMock).executeWql(any(), eq(wbemConfiguration), any(), any());
+		doReturn(EXCUTE_WBEM_RESULT).when(clientsExecutorMock).executeWql(any(), eq(wbemConfiguration), any(), any());
 		final WbemCriterion wbemCriterion = WbemCriterion
 			.builder()
 			.query(WBEM_QUERY)
@@ -128,7 +128,7 @@ class CriterionProcessorTest {
 	@Test
 	void testProcessWbemCriterionActualResultIsNotExpectedResult() throws Exception {
 		initWbem();
-		doReturn(EXCUTE_WBEM_RESULT).when(matsyaClientsExecutorMock).executeWql(any(), eq(wbemConfiguration), any(), any());
+		doReturn(EXCUTE_WBEM_RESULT).when(clientsExecutorMock).executeWql(any(), eq(wbemConfiguration), any(), any());
 		final WbemCriterion wbemCriterion = WbemCriterion
 			.builder()
 			.query(WBEM_QUERY)
@@ -149,7 +149,7 @@ class CriterionProcessorTest {
 	@Test
 	void testProcessWbemEmptyQueryResult() throws Exception {
 		initWbem();
-		doReturn(List.of()).when(matsyaClientsExecutorMock).executeWql(any(), eq(wbemConfiguration), any(), any());
+		doReturn(List.of()).when(clientsExecutorMock).executeWql(any(), eq(wbemConfiguration), any(), any());
 		final WbemCriterion wbemCriterion = WbemCriterion
 			.builder()
 			.query(WBEM_QUERY)
@@ -190,11 +190,9 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void testProcessWbemCriterionWithMatsyaException() throws Exception {
+	void testProcessWbemCriterionWithClientException() throws Exception {
 		initWbem();
-		doThrow(MatsyaException.class)
-			.when(matsyaClientsExecutorMock)
-			.executeWql(any(), eq(wbemConfiguration), any(), any());
+		doThrow(ClientException.class).when(clientsExecutorMock).executeWql(any(), eq(wbemConfiguration), any(), any());
 		final WbemCriterion wbemCriterion = WbemCriterion
 			.builder()
 			.query(WBEM_QUERY)
@@ -202,7 +200,7 @@ class CriterionProcessorTest {
 			.build();
 		final CriterionTestResult result = criterionProcessor.process(wbemCriterion);
 		assertFalse(result.isSuccess());
-		assertTrue(result.getException() instanceof MatsyaException);
+		assertTrue(result.getException() instanceof ClientException);
 	}
 
 	private void initSNMP() {
@@ -235,7 +233,7 @@ class CriterionProcessorTest {
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 		doThrow(new TimeoutException(SNMP_GET_NEXT_TIMEOUT_EXCEPTION_MESSAGE))
-			.when(matsyaClientsExecutorMock)
+			.when(clientsExecutorMock)
 			.executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionProcessor.process(SnmpGetNextCriterion.builder().oid(OID).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(SNMP_GET_NEXT_TIMEOUT_MESSAGE).build();
@@ -247,7 +245,7 @@ class CriterionProcessorTest {
 		initSNMP();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(null).when(matsyaClientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
+		doReturn(null).when(clientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionProcessor.process(SnmpGetNextCriterion.builder().oid(OID).build());
 		final CriterionTestResult expected = CriterionTestResult
 			.builder()
@@ -261,7 +259,7 @@ class CriterionProcessorTest {
 		initSNMP();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(EMPTY).when(matsyaClientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
+		doReturn(EMPTY).when(clientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionProcessor.process(SnmpGetNextCriterion.builder().oid(OID).build());
 		final CriterionTestResult expected = CriterionTestResult
 			.builder()
@@ -276,9 +274,7 @@ class CriterionProcessorTest {
 		initSNMP();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(SNMP_GET_NEXT_FIRST_RESULT)
-			.when(matsyaClientsExecutorMock)
-			.executeSNMPGetNext(any(), any(), any(), eq(false));
+		doReturn(SNMP_GET_NEXT_FIRST_RESULT).when(clientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionProcessor.process(SnmpGetNextCriterion.builder().oid(OID).build());
 		final CriterionTestResult expected = CriterionTestResult
 			.builder()
@@ -293,9 +289,7 @@ class CriterionProcessorTest {
 		initSNMP();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(SNMP_GET_NEXT_SECOND_RESULT)
-			.when(matsyaClientsExecutorMock)
-			.executeSNMPGetNext(any(), any(), any(), eq(false));
+		doReturn(SNMP_GET_NEXT_SECOND_RESULT).when(clientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionProcessor.process(SnmpGetNextCriterion.builder().oid(OID).build());
 		final CriterionTestResult expected = CriterionTestResult
 			.builder()
@@ -311,9 +305,7 @@ class CriterionProcessorTest {
 		initSNMP();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(SNMP_GET_NEXT_SECOND_RESULT)
-			.when(matsyaClientsExecutorMock)
-			.executeSNMPGetNext(any(), any(), any(), eq(false));
+		doReturn(SNMP_GET_NEXT_SECOND_RESULT).when(clientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionProcessor.process(
 			SnmpGetNextCriterion.builder().oid(OID).expectedResult(SNMP_GET_NEXT_CRITERION_VERSION).build()
 		);
@@ -330,9 +322,7 @@ class CriterionProcessorTest {
 		initSNMP();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(SNMP_GET_NEXT_THIRD_RESULT)
-			.when(matsyaClientsExecutorMock)
-			.executeSNMPGetNext(any(), any(), any(), eq(false));
+		doReturn(SNMP_GET_NEXT_THIRD_RESULT).when(clientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionProcessor.process(
 			SnmpGetNextCriterion.builder().oid(OID).expectedResult(SNMP_GET_NEXT_CRITERION_VERSION).build()
 		);
@@ -350,9 +340,7 @@ class CriterionProcessorTest {
 		initSNMP();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(SNMP_GET_NEXT_FOURTH_RESULT)
-			.when(matsyaClientsExecutorMock)
-			.executeSNMPGetNext(any(), any(), any(), eq(false));
+		doReturn(SNMP_GET_NEXT_FOURTH_RESULT).when(clientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionProcessor.process(
 			SnmpGetNextCriterion.builder().oid(OID).expectedResult(SNMP_GET_NEXT_CRITERION_VERSION).build()
 		);
@@ -388,7 +376,7 @@ class CriterionProcessorTest {
 		initSNMP();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(EXECUTE_SNMP_GET_RESULT).when(matsyaClientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
+		doReturn(EXECUTE_SNMP_GET_RESULT).when(clientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionProcessor.process(
 			SnmpGetCriterion.builder().oid(OID).expectedResult(EXPECTED_SNMP_RESULT).build()
 		);
@@ -406,7 +394,7 @@ class CriterionProcessorTest {
 		initSNMP();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(EXECUTE_SNMP_GET_RESULT).when(matsyaClientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
+		doReturn(EXECUTE_SNMP_GET_RESULT).when(clientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionProcessor.process(
 			SnmpGetCriterion.builder().oid(OID).expectedResult(SNMP_VERSION).build()
 		);
@@ -423,7 +411,7 @@ class CriterionProcessorTest {
 		initSNMP();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(EXECUTE_SNMP_GET_RESULT).when(matsyaClientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
+		doReturn(EXECUTE_SNMP_GET_RESULT).when(clientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionProcessor.process(SnmpGetCriterion.builder().oid(OID).build());
 		final CriterionTestResult expected = CriterionTestResult
 			.builder()
@@ -439,7 +427,7 @@ class CriterionProcessorTest {
 		initSNMP();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(EMPTY).when(matsyaClientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
+		doReturn(EMPTY).when(clientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionProcessor.process(SnmpGetCriterion.builder().oid(OID).build());
 		final CriterionTestResult expected = CriterionTestResult
 			.builder()
@@ -454,7 +442,7 @@ class CriterionProcessorTest {
 		initSNMP();
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(null).when(matsyaClientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
+		doReturn(null).when(clientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionProcessor.process(SnmpGetCriterion.builder().oid(OID).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(SNMP_GET_NULL_RESULT_MESSAGE).build();
 		assertEquals(expected, actual);
@@ -466,7 +454,7 @@ class CriterionProcessorTest {
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 		doThrow(new TimeoutException(SNMP_GET_TIMEOUT_MESSAGE))
-			.when(matsyaClientsExecutorMock)
+			.when(clientsExecutorMock)
 			.executeSNMPGet(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = criterionProcessor.process(SnmpGetCriterion.builder().oid(OID).build());
 		final CriterionTestResult expected = CriterionTestResult.builder().message(SNMP_GET_EXCEPTION_MESSAGE).build();
@@ -628,7 +616,7 @@ class CriterionProcessorTest {
 				.build();
 
 			doReturn(EXECUTE_WMI_RESULT)
-				.when(matsyaClientsExecutorMock)
+				.when(clientsExecutorMock)
 				.executeWql(LOCALHOST, localWmiConfiguration, WMI_PROCESS_QUERY, CRITERION_WMI_NAMESPACE);
 
 			final CriterionTestResult criterionTestResult = criterionProcessor.process(processCriterion);
@@ -954,7 +942,7 @@ class CriterionProcessorTest {
 
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			matsyaClientsExecutorMock,
+			clientsExecutorMock,
 			telemetryManager,
 			MY_CONNECTOR_1_NAME
 		);
@@ -977,7 +965,7 @@ class CriterionProcessorTest {
 
 		final TelemetryManager telemetryManager = TelemetryManager.builder().build();
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			matsyaClientsExecutorMock,
+			clientsExecutorMock,
 			telemetryManager,
 			MY_CONNECTOR_1_NAME
 		);
@@ -1020,10 +1008,10 @@ class CriterionProcessorTest {
 			.resultContent(httpCriterion.getResultContent())
 			.authenticationToken(httpCriterion.getAuthenticationToken())
 			.build();
-		doReturn(result).when(matsyaClientsExecutorMock).executeHttp(httpRequest, false);
+		doReturn(result).when(clientsExecutorMock).executeHttp(httpRequest, false);
 
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			matsyaClientsExecutorMock,
+			clientsExecutorMock,
 			telemetryManager,
 			MY_CONNECTOR_1_NAME
 		);
@@ -1080,10 +1068,10 @@ class CriterionProcessorTest {
 			.resultContent(httpCriterion.getResultContent())
 			.authenticationToken(httpCriterion.getAuthenticationToken())
 			.build();
-		doReturn(RESULT).when(matsyaClientsExecutorMock).executeHttp(httpRequest, false);
+		doReturn(RESULT).when(clientsExecutorMock).executeHttp(httpRequest, false);
 
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			matsyaClientsExecutorMock,
+			clientsExecutorMock,
 			telemetryManager,
 			MY_CONNECTOR_1_NAME
 		);
@@ -1518,7 +1506,7 @@ class CriterionProcessorTest {
 			.build();
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 		doReturn(SYSTEM_POWER_UP_MESSAGE)
-			.when(matsyaClientsExecutorMock)
+			.when(clientsExecutorMock)
 			.executeIpmiDetection(eq(MANAGEMENT_CARD_HOST), any(IpmiConfiguration.class));
 		assertEquals(
 			CriterionTestResult
@@ -1556,7 +1544,7 @@ class CriterionProcessorTest {
 
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 		doReturn(null)
-			.when(matsyaClientsExecutorMock)
+			.when(clientsExecutorMock)
 			.executeIpmiDetection(eq(MANAGEMENT_CARD_HOST), any(IpmiConfiguration.class));
 		assertEquals(
 			CriterionTestResult.builder().message(OOB_NULL_RESULT_MESSAGE).build().getMessage(),
@@ -1631,7 +1619,7 @@ class CriterionProcessorTest {
 	@Test
 	void testProcessWmiCriterionSuccess() throws Exception {
 		initWmi();
-		doReturn(EXCUTE_WBEM_RESULT).when(matsyaClientsExecutorMock).executeWql(any(), eq(wmiConfiguration), any(), any());
+		doReturn(EXCUTE_WBEM_RESULT).when(clientsExecutorMock).executeWql(any(), eq(wmiConfiguration), any(), any());
 		final WmiCriterion wmiCriterion = WmiCriterion
 			.builder()
 			.query(WBEM_QUERY)
@@ -1645,7 +1633,7 @@ class CriterionProcessorTest {
 	@Test
 	void testProcessWmiCriterionActualResultIsNotExpectedResult() throws Exception {
 		initWmi();
-		doReturn(EXCUTE_WBEM_RESULT).when(matsyaClientsExecutorMock).executeWql(any(), eq(wmiConfiguration), any(), any());
+		doReturn(EXCUTE_WBEM_RESULT).when(clientsExecutorMock).executeWql(any(), eq(wmiConfiguration), any(), any());
 		final WmiCriterion wmiCriterion = WmiCriterion
 			.builder()
 			.query(WBEM_QUERY)
@@ -1666,7 +1654,7 @@ class CriterionProcessorTest {
 	@Test
 	void testProcessWmiEmptyQueryResult() throws Exception {
 		initWmi();
-		doReturn(List.of()).when(matsyaClientsExecutorMock).executeWql(any(), eq(wmiConfiguration), any(), any());
+		doReturn(List.of()).when(clientsExecutorMock).executeWql(any(), eq(wmiConfiguration), any(), any());
 		final WmiCriterion wmiCriterion = WmiCriterion
 			.builder()
 			.query(WBEM_QUERY)
@@ -1707,11 +1695,9 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void testProcessWmiCriterionWithMatsyaException() throws Exception {
+	void testProcessWmiCriterionWithClientException() throws Exception {
 		initWmi();
-		doThrow(MatsyaException.class)
-			.when(matsyaClientsExecutorMock)
-			.executeWql(any(), eq(wmiConfiguration), any(), any());
+		doThrow(ClientException.class).when(clientsExecutorMock).executeWql(any(), eq(wmiConfiguration), any(), any());
 		final WmiCriterion wmiCriterion = WmiCriterion
 			.builder()
 			.query(WBEM_QUERY)
@@ -1719,7 +1705,7 @@ class CriterionProcessorTest {
 			.build();
 		final CriterionTestResult result = criterionProcessor.process(wmiCriterion);
 		assertFalse(result.isSuccess());
-		assertTrue(result.getException() instanceof MatsyaException);
+		assertTrue(result.getException() instanceof ClientException);
 	}
 
 	@Test
@@ -1754,7 +1740,7 @@ class CriterionProcessorTest {
 			.build();
 
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			matsyaClientsExecutorMock,
+			clientsExecutorMock,
 			telemetryManager,
 			MY_CONNECTOR_1_NAME
 		);
@@ -1821,7 +1807,7 @@ class CriterionProcessorTest {
 			.build();
 
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			matsyaClientsExecutorMock,
+			clientsExecutorMock,
 			telemetryManager,
 			MY_CONNECTOR_1_NAME
 		);
@@ -1886,7 +1872,7 @@ class CriterionProcessorTest {
 			.build();
 
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			matsyaClientsExecutorMock,
+			clientsExecutorMock,
 			telemetryManager,
 			MY_CONNECTOR_1_NAME
 		);
@@ -1943,7 +1929,7 @@ class CriterionProcessorTest {
 		final TelemetryManager telemetryManager = TelemetryManager.builder().build();
 
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			matsyaClientsExecutorMock,
+			clientsExecutorMock,
 			telemetryManager,
 			MY_CONNECTOR_1_NAME
 		);
@@ -1972,7 +1958,7 @@ class CriterionProcessorTest {
 		final TelemetryManager telemetryManager = TelemetryManager.builder().build();
 
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			matsyaClientsExecutorMock,
+			clientsExecutorMock,
 			telemetryManager,
 			MY_CONNECTOR_1_NAME
 		);
@@ -2003,7 +1989,7 @@ class CriterionProcessorTest {
 		final TelemetryManager telemetryManager = TelemetryManager.builder().build();
 
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			matsyaClientsExecutorMock,
+			clientsExecutorMock,
 			telemetryManager,
 			MY_CONNECTOR_1_NAME
 		);
@@ -2054,7 +2040,7 @@ class CriterionProcessorTest {
 			.build();
 
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			matsyaClientsExecutorMock,
+			clientsExecutorMock,
 			telemetryManager,
 			MY_CONNECTOR_1_NAME
 		);
@@ -2107,7 +2093,7 @@ class CriterionProcessorTest {
 			.build();
 
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			matsyaClientsExecutorMock,
+			clientsExecutorMock,
 			telemetryManager,
 			MY_CONNECTOR_1_NAME
 		);
@@ -2164,7 +2150,7 @@ class CriterionProcessorTest {
 			.build();
 
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			matsyaClientsExecutorMock,
+			clientsExecutorMock,
 			telemetryManager,
 			MY_CONNECTOR_1_NAME
 		);
@@ -2217,7 +2203,7 @@ class CriterionProcessorTest {
 			.build();
 
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			matsyaClientsExecutorMock,
+			clientsExecutorMock,
 			telemetryManager,
 			MY_CONNECTOR_1_NAME
 		);
@@ -2272,7 +2258,7 @@ class CriterionProcessorTest {
 			.build();
 
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			matsyaClientsExecutorMock,
+			clientsExecutorMock,
 			telemetryManager,
 			MY_CONNECTOR_1_NAME
 		);
@@ -2327,7 +2313,7 @@ class CriterionProcessorTest {
 			.build();
 
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			matsyaClientsExecutorMock,
+			clientsExecutorMock,
 			telemetryManager,
 			MY_CONNECTOR_1_NAME
 		);
@@ -2378,7 +2364,7 @@ class CriterionProcessorTest {
 			.build();
 
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			matsyaClientsExecutorMock,
+			clientsExecutorMock,
 			telemetryManager,
 			MY_CONNECTOR_1_NAME
 		);

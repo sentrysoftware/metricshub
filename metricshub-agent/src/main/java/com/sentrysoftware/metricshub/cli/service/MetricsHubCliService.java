@@ -11,13 +11,13 @@ import com.sentrysoftware.metricshub.cli.service.protocol.SshConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.WbemConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.WinRmConfigCli;
 import com.sentrysoftware.metricshub.cli.service.protocol.WmiConfigCli;
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.Connector;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import com.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.collect.CollectStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.collect.PrepareCollectStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.detection.DetectionStrategy;
@@ -261,8 +261,8 @@ public class MetricsHubCliService implements Callable<Integer> {
 			.hostConfiguration(hostConfiguration)
 			.build();
 
-		// Instantiate a new MatsyaClientsExecutor
-		final MatsyaClientsExecutor matsyaClientsExecutor = new MatsyaClientsExecutor(telemetryManager);
+		// Instantiate a new ClientsExecutor
+		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
 
 		final long discoveryTime = System.currentTimeMillis();
 
@@ -282,7 +282,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 			printWriter.println("...");
 			printWriter.flush();
 		}
-		telemetryManager.run(new DetectionStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor));
+		telemetryManager.run(new DetectionStrategy(telemetryManager, discoveryTime, clientsExecutor));
 
 		// Discovery
 		if (ConsoleService.hasConsole()) {
@@ -303,9 +303,9 @@ public class MetricsHubCliService implements Callable<Integer> {
 			printWriter.flush();
 		}
 		telemetryManager.run(
-			new DiscoveryStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor),
-			new SimpleStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor),
-			new HardwarePostDiscoveryStrategy(telemetryManager, discoveryTime, matsyaClientsExecutor)
+			new DiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor),
+			new SimpleStrategy(telemetryManager, discoveryTime, clientsExecutor),
+			new HardwarePostDiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor)
 		);
 
 		// Perform the collect operation "iterations" times
@@ -327,10 +327,10 @@ public class MetricsHubCliService implements Callable<Integer> {
 			final long collectTime = System.currentTimeMillis();
 			// One more, run only prepare, collect simple and post strategies
 			telemetryManager.run(
-				new PrepareCollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor),
-				new CollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor),
-				new SimpleStrategy(telemetryManager, collectTime, matsyaClientsExecutor),
-				new HardwarePostCollectStrategy(telemetryManager, collectTime, matsyaClientsExecutor)
+				new PrepareCollectStrategy(telemetryManager, collectTime, clientsExecutor),
+				new CollectStrategy(telemetryManager, collectTime, clientsExecutor),
+				new SimpleStrategy(telemetryManager, collectTime, clientsExecutor),
+				new HardwarePostCollectStrategy(telemetryManager, collectTime, clientsExecutor)
 			);
 
 			// Run the hardware strategy

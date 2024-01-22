@@ -1,9 +1,9 @@
 package com.sentrysoftware.metricshub.engine.strategy.discovery;
 
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.MonitorJob;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.StandardMonitorJob;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.AbstractMonitorTask;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.AbstractAllAtOnceStrategy;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import lombok.Builder;
@@ -21,9 +21,9 @@ public class DiscoveryStrategy extends AbstractAllAtOnceStrategy {
 	public DiscoveryStrategy(
 		@NonNull final TelemetryManager telemetryManager,
 		@NonNull final Long strategyTime,
-		@NonNull final MatsyaClientsExecutor matsyaClientsExecutor
+		@NonNull final ClientsExecutor clientsExecutor
 	) {
-		super(telemetryManager, strategyTime, matsyaClientsExecutor);
+		super(telemetryManager, strategyTime, clientsExecutor);
 	}
 
 	@Override
