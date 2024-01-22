@@ -250,7 +250,6 @@
 					<excludes>
 						<!-- Exclude simple DTO, VO and POJO -->
 						<exclude>com/sentrysoftware/metricshub/engine/connector/model/**</exclude>
-						<exclude>com/sentrysoftware/metricshub/engine/client/http/**</exclude>
 						<exclude>com/sentrysoftware/metricshub/engine/client/**</exclude>
 						<exclude>com/sentrysoftware/metricshub/engine/connector/model/common/**</exclude>
 					</excludes>

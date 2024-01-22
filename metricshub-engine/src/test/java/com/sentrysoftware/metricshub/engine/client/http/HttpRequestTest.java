@@ -1,4 +1,4 @@
-package com.sentrysoftware.metricshub.engine.http;
+package com.sentrysoftware.metricshub.engine.client.http;
 
 import static com.sentrysoftware.metricshub.engine.constants.Constants.EMBEDDED_FILE_1_REF;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.EMBEDDED_FILE_2_REF;
@@ -10,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mockStatic;
 
-import com.sentrysoftware.metricshub.engine.client.http.*;
 import com.sentrysoftware.metricshub.engine.client.http.HttpRequest.HttpRequestBuilder;
 import com.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
