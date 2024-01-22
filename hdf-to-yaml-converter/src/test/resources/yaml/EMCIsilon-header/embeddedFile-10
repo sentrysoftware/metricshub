@@ -1,4 +1,0 @@
-{nodeName = $1 ; gsub (/:/,"",nodeName);}
-$2 ~ /SerNo/ { systemSerialNumber = $NF }
-$2 ~ /Product/ { systemProductModel = $0 ; gsub(/.*: /,"",systemProductModel) }
-$2 ~ /^RAM.$/ { systemRAM = $3 ; print "MSHW;" nodeName ";" systemSerialNumber ";" systemProductModel ";System RAM: " systemRAM ";" }

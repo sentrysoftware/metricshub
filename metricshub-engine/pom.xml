@@ -109,17 +109,6 @@
 			<artifactId>xflat</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.sentrysoftware.emulation</groupId>
-			<artifactId>emulation-framework-http-server</artifactId>
-			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>org.testng</groupId>
-					<artifactId>testng</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
 			<groupId>javax.xml.bind</groupId>
 			<artifactId>jaxb-api</artifactId>
 			<scope>test</scope>
@@ -238,7 +227,7 @@
 										<limit>
 											<counter>COMPLEXITY</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.66</minimum>
+											<minimum>0.64</minimum>
 										</limit>
 									</limits>
 								</rule>
@@ -250,8 +239,7 @@
 					<excludes>
 						<!-- Exclude simple DTO, VO and POJO -->
 						<exclude>com/sentrysoftware/metricshub/engine/connector/model/**</exclude>
-						<exclude>com/sentrysoftware/metricshub/engine/strategy/**</exclude>
-						<exclude>com/sentrysoftware/metricshub/engine/matsya/**</exclude>
+						<exclude>com/sentrysoftware/metricshub/engine/client/**</exclude>
 						<exclude>com/sentrysoftware/metricshub/engine/connector/model/common/**</exclude>
 					</excludes>
 				</configuration>

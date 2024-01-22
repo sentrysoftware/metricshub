@@ -1,7 +1,0 @@
-/usr/sbin/ioscan -fnkd sasd | grep /dev/sasd | while read dev
-do
-/usr/bin/echo $dev
-cat <<-!
-                        $(%{SUDO:/opt/sas/bin/sasmgr}/opt/sas/bin/sasmgr get_info -D $dev)
-!
-done

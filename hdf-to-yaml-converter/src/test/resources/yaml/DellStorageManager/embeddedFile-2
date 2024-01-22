@@ -1,5 +1,0 @@
-BEGIN {FS=";"}
-$1 ~ "^\\\\" { NexusID = $1 ; gsub ("\\\\\\\\","\\",NexusID)
-                 EnclosureID = NexusID ; gsub("\\\\[0-9]+$","",EnclosureID);
-                 print "MSHW;" EnclosureID ";" $0
-               }

@@ -9,7 +9,7 @@ import com.sentrysoftware.metricshub.engine.connector.model.identity.criterion.D
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class DeviceTypeCriterionDeserializerTest extends DeserializerTest {
@@ -47,7 +47,7 @@ class DeviceTypeCriterionDeserializerTest extends DeserializerTest {
 		// exception, test will fail.
 		try {
 			getConnector("deviceTypeCriterionOsTypeNonEnum");
-			Assert.fail(JSON_MAPPING_EXCEPTION_MSG);
+			Assertions.fail(JSON_MAPPING_EXCEPTION_MSG);
 		} catch (JsonMappingException e) {
 			checkMessage(e, "'toto' is not a supported device kind.");
 		}

@@ -6,7 +6,7 @@ import static com.sentrysoftware.metricshub.engine.constants.Constants.PASSWORD;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.USERNAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test of {@link HttpConfiguration}
@@ -14,7 +14,7 @@ import org.junit.Test;
 class HttpConfigurationTest {
 
 	@Test
-	public void testToString() {
+	void testToString() {
 		final HttpConfiguration httpsConfiguration = new HttpConfiguration();
 
 		// When the userName is NOT null, it's appended to the result

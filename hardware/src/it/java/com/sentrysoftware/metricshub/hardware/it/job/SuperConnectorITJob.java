@@ -1,16 +1,13 @@
 package com.sentrysoftware.metricshub.hardware.it.job;
 
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import lombok.NonNull;
 
 public class SuperConnectorITJob extends AbstractITJob {
 
-	public SuperConnectorITJob(
-		@NonNull MatsyaClientsExecutor matsyaClientsExecutor,
-		@NonNull TelemetryManager telemetryManager
-	) {
-		super(matsyaClientsExecutor, telemetryManager);
+	public SuperConnectorITJob(@NonNull ClientsExecutor clientsExecutor, @NonNull TelemetryManager telemetryManager) {
+		super(clientsExecutor, telemetryManager);
 	}
 
 	@Override

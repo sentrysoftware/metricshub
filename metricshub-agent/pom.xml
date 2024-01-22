@@ -41,17 +41,11 @@
 			<version>${project.version}</version>
 		</dependency>
 
-		<!-- Connector Library -->
+		<!-- MetricsHub Community Connectors -->
 		<dependency>
-			<groupId>com.sentrysoftware.shared</groupId>
-			<artifactId>hardware-connectors</artifactId>
+			<groupId>org.sentrysoftware</groupId>
+			<artifactId>metricshub-community-connectors</artifactId>
 			<classifier>sources</classifier>
-			<exclusions>
-				<exclusion>
-					<groupId>com.bmc.patrol</groupId>
-					<artifactId>default-image</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 		<!-- Jackson -->
@@ -201,9 +195,10 @@
 						</goals>
 						<configuration>
 							<outputDirectory>${project.build.directory}/connectors</outputDirectory>
-							<includeGroupIds>com.sentrysoftware.shared</includeGroupIds>
-							<includeArtifactIds>hardware-connectors</includeArtifactIds>
+							<includeGroupIds>org.sentrysoftware</includeGroupIds>
+							<includeArtifactIds>metricshub-community-connectors</includeArtifactIds>
 							<classifier>sources</classifier>
+							<excludes>META-INF/**</excludes>
 						</configuration>
 					</execution>
 				</executions>

@@ -30,7 +30,8 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
-import com.sentrysoftware.metricshub.engine.common.exception.MatsyaException;
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
+import com.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import com.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
 import com.sentrysoftware.metricshub.engine.common.helpers.ResourceHelper;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
@@ -55,7 +56,6 @@ import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.TableUnionSource;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WbemSource;
 import com.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WmiSource;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import com.sentrysoftware.metricshub.engine.strategy.utils.OsCommandResult;
 import com.sentrysoftware.metricshub.engine.telemetry.ConnectorNamespace;
@@ -81,7 +81,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class SourceProcessorTest {
 
 	@Mock
-	private MatsyaClientsExecutor matsyaClientsExecutorMock;
+	private ClientsExecutor clientsExecutorMock;
 
 	private static final String LOWERCASE_A = "a";
 	private static final String LOWERCASE_B = "b";
@@ -138,10 +138,10 @@ class SourceProcessorTest {
 		final SourceProcessor sourceProcessor = SourceProcessor
 			.builder()
 			.telemetryManager(telemetryManager)
-			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.clientsExecutor(clientsExecutorMock)
 			.build();
 
-		doReturn(ECS1_01).when(matsyaClientsExecutorMock).executeHttp(any(), eq(true));
+		doReturn(ECS1_01).when(clientsExecutorMock).executeHttp(any(), eq(true));
 		final SourceTable actual = sourceProcessor.process(HttpSource.builder().url(URL).method(HttpMethod.GET).build());
 
 		final SourceTable expected = SourceTable.builder().rawData(ECS1_01).build();
@@ -175,7 +175,7 @@ class SourceProcessorTest {
 		final SourceProcessor sourceProcessor = SourceProcessor
 			.builder()
 			.telemetryManager(telemetryManager)
-			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.clientsExecutor(clientsExecutorMock)
 			.build();
 
 		assertEquals(SourceTable.empty(), sourceProcessor.process(SnmpGetSource.builder().oid(OID).build()));
@@ -207,13 +207,13 @@ class SourceProcessorTest {
 			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
 			.build();
 		telemetryManager.setHostConfiguration(hostConfiguration);
-		doReturn(ECS1_01).when(matsyaClientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(true));
+		doReturn(ECS1_01).when(clientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(true));
 		final SourceTable actual = sourceProcessor.process(SnmpGetSource.builder().oid(OID).build());
 		final SourceTable expected = SourceTable.builder().table(Arrays.asList(Arrays.asList(ECS1_01))).build();
 		assertEquals(expected, actual);
 
 		// test that the exception is correctly caught and still returns a result
-		when(matsyaClientsExecutorMock.executeSNMPGet(any(), any(), any(), eq(true))).thenThrow(TimeoutException.class);
+		when(clientsExecutorMock.executeSNMPGet(any(), any(), any(), eq(true))).thenThrow(TimeoutException.class);
 		assertEquals(SourceTable.empty(), sourceProcessor.process(SnmpGetSource.builder().oid(OID).build()));
 	}
 
@@ -226,7 +226,7 @@ class SourceProcessorTest {
 		final SourceProcessor sourceProcessor = SourceProcessor
 			.builder()
 			.telemetryManager(telemetryManager)
-			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.clientsExecutor(clientsExecutorMock)
 			.build();
 		assertEquals(
 			SourceTable.empty(),
@@ -259,7 +259,7 @@ class SourceProcessorTest {
 			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
 			.build();
 		telemetryManager.setHostConfiguration(hostConfiguration);
-		doReturn(new ArrayList<>()).when(matsyaClientsExecutorMock).executeSNMPTable(any(), any(), any(), any(), eq(true));
+		doReturn(new ArrayList<>()).when(clientsExecutorMock).executeSNMPTable(any(), any(), any(), any(), eq(true));
 		final SourceTable actual = sourceProcessor.process(
 			SnmpTableSource.builder().oid(OID).selectColumns(SNMP_WRONG_COLUMNS).build()
 		);
@@ -291,11 +291,9 @@ class SourceProcessorTest {
 		final SourceProcessor sourceProcessor = SourceProcessor
 			.builder()
 			.telemetryManager(telemetryManager)
-			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.clientsExecutor(clientsExecutorMock)
 			.build();
-		doReturn(EXPECTED_SNMP_TABLE_DATA)
-			.when(matsyaClientsExecutorMock)
-			.executeSNMPTable(any(), any(), any(), any(), eq(true));
+		doReturn(EXPECTED_SNMP_TABLE_DATA).when(clientsExecutorMock).executeSNMPTable(any(), any(), any(), any(), eq(true));
 		final SourceTable actual = sourceProcessor.process(
 			SnmpTableSource.builder().oid(OID).selectColumns(SNMP_SELECTED_COLUMNS).build()
 		);
@@ -363,7 +361,7 @@ class SourceProcessorTest {
 		final SourceProcessor sourceProcessor = SourceProcessor
 			.builder()
 			.telemetryManager(telemetryManager)
-			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.clientsExecutor(clientsExecutorMock)
 			.connectorId(MY_CONNECTOR_1_NAME)
 			.build();
 
@@ -376,14 +374,14 @@ class SourceProcessorTest {
 		);
 		SourceTable expectedResult = SourceTable.builder().table(expectedJoin).build();
 
-		List<List<String>> matsyaReturn = Arrays.asList(
+		List<List<String>> clientReturn = Arrays.asList(
 			Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1, LOWERCASE_A1, LOWERCASE_B2, LOWERCASE_C2),
 			Arrays.asList(VALUE_VAL1, VALUE_VAL2, VALUE_VAL3, CAMELCASE_VAL1, UPPERCASE_B2, UPPERCASE_C2),
 			Arrays.asList(UPPERCASE_V1, UPPERCASE_V2, UPPERCASE_V3, CAMELCASE_VAL1, UPPERCASE_B2, UPPERCASE_C2),
 			Arrays.asList(LOWERCASE_X, LOWERCASE_Y, LOWERCASE_Z, LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1)
 		);
-		doReturn(matsyaReturn)
-			.when(matsyaClientsExecutorMock)
+		doReturn(clientReturn)
+			.when(clientsExecutorMock)
 			.executeTableJoin(
 				tabl1.getTable(),
 				tabl2.getTable(),
@@ -418,7 +416,7 @@ class SourceProcessorTest {
 			Arrays.asList(Arrays.asList(LOWERCASE_A1, LOWERCASE_B1, LOWERCASE_C1, LOWERCASE_A1, LOWERCASE_B2, LOWERCASE_C2));
 		expectedResult = SourceTable.builder().table(expectedJoin).build();
 		doReturn(expectedJoin)
-			.when(matsyaClientsExecutorMock)
+			.when(clientsExecutorMock)
 			.executeTableJoin(tabl1.getTable(), tabl2.getTable(), 1, 1, null, false, true);
 		tableJoinExample =
 			TableJoinSource
@@ -450,7 +448,7 @@ class SourceProcessorTest {
 		expectedJoin = Arrays.asList(Arrays.asList(LOWERCASE_A, LOWERCASE_B, LOWERCASE_C));
 		expectedResult = SourceTable.builder().table(expectedJoin).build();
 		doReturn(expectedJoin)
-			.when(matsyaClientsExecutorMock)
+			.when(clientsExecutorMock)
 			.executeTableJoin(tabl1.getTable(), tabl3.getTable(), 1, 1, null, false, true);
 		tableJoinExample =
 			TableJoinSource
@@ -604,7 +602,7 @@ class SourceProcessorTest {
 		final SourceProcessor sourceProcessor = SourceProcessor
 			.builder()
 			.telemetryManager(telemetryManager)
-			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.clientsExecutor(clientsExecutorMock)
 			.connectorId(MY_CONNECTOR_1_NAME)
 			.build();
 
@@ -656,7 +654,7 @@ class SourceProcessorTest {
 		final SourceProcessor sourceProcessor = SourceProcessor
 			.builder()
 			.telemetryManager(telemetryManager)
-			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.clientsExecutor(clientsExecutorMock)
 			.connectorId(MY_CONNECTOR_1_NAME)
 			.build();
 
@@ -705,7 +703,7 @@ class SourceProcessorTest {
 		final SourceProcessor sourceProcessor = SourceProcessor
 			.builder()
 			.telemetryManager(telemetryManager)
-			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.clientsExecutor(clientsExecutorMock)
 			.build();
 
 		StaticSource staticSource = null;
@@ -728,7 +726,7 @@ class SourceProcessorTest {
 	}
 
 	@Test
-	void testProcessWbemSource() throws MatsyaException {
+	void testProcessWbemSource() throws ClientException {
 		final WbemConfiguration wbemConfiguration = WbemConfiguration
 			.builder()
 			.username(ECS1_01 + "\\" + USERNAME)
@@ -750,7 +748,7 @@ class SourceProcessorTest {
 		final SourceProcessor sourceProcessor = SourceProcessor
 			.builder()
 			.telemetryManager(telemetryManager)
-			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.clientsExecutor(clientsExecutorMock)
 			.connectorId(CONNECTOR_ID)
 			.build();
 		assertEquals(SourceTable.empty(), sourceProcessor.process((WbemSource) null));
@@ -845,11 +843,11 @@ class SourceProcessorTest {
 			Arrays.asList("v1", "v2", "v3")
 		);
 
-		doReturn(listValues).when(matsyaClientsExecutorMock).executeWbem(any(), any(), any(), any());
+		doReturn(listValues).when(clientsExecutorMock).executeWbem(any(), any(), any(), any());
 		assertEquals(listValues, sourceProcessor.process(wbemSource).getTable());
 
 		// handle exception
-		doThrow(new MatsyaException()).when(matsyaClientsExecutorMock).executeWbem(any(), any(), any(), any());
+		doThrow(new ClientException()).when(clientsExecutorMock).executeWbem(any(), any(), any(), any());
 		assertEquals(SourceTable.empty(), sourceProcessor.process(wbemSource));
 	}
 
@@ -886,7 +884,7 @@ class SourceProcessorTest {
 		final SourceProcessor sourceProcessor = SourceProcessor
 			.builder()
 			.telemetryManager(telemetryManager)
-			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.clientsExecutor(clientsExecutorMock)
 			.build();
 		assertEquals(SourceTable.empty(), sourceProcessor.process((WmiSource) null));
 		assertEquals(SourceTable.empty(), sourceProcessor.process(WmiSource.builder().query(WBEM_QUERY).build()));
@@ -910,7 +908,7 @@ class SourceProcessorTest {
 		final SourceProcessor sourceProcessor = SourceProcessor
 			.builder()
 			.telemetryManager(telemetryManager)
-			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.clientsExecutor(clientsExecutorMock)
 			.build();
 		assertEquals(SourceTable.empty(), sourceProcessor.process(wmiSource));
 	}
@@ -938,7 +936,7 @@ class SourceProcessorTest {
 		final SourceProcessor sourceProcessor = SourceProcessor
 			.builder()
 			.telemetryManager(telemetryManager)
-			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.clientsExecutor(clientsExecutorMock)
 			.connectorId(CONNECTOR_ID)
 			.build();
 		assertEquals(SourceTable.empty(), sourceProcessor.process(wmiSource));
@@ -969,11 +967,11 @@ class SourceProcessorTest {
 			Arrays.asList("1.2", "2|4587"),
 			Arrays.asList("1.3", "1|4587")
 		);
-		doReturn(expected).when(matsyaClientsExecutorMock).executeWql(ECS1_01, wmiConfiguration, WBEM_QUERY, WMI_NAMESPACE);
+		doReturn(expected).when(clientsExecutorMock).executeWql(ECS1_01, wmiConfiguration, WBEM_QUERY, WMI_NAMESPACE);
 		final SourceProcessor sourceProcessor = SourceProcessor
 			.builder()
 			.telemetryManager(telemetryManager)
-			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.clientsExecutor(clientsExecutorMock)
 			.connectorId(CONNECTOR_ID)
 			.build();
 		assertEquals(SourceTable.builder().table(expected).build(), sourceProcessor.process(wmiSource));
@@ -1002,7 +1000,7 @@ class SourceProcessorTest {
 		final SourceProcessor sourceProcessor = SourceProcessor
 			.builder()
 			.telemetryManager(telemetryManager)
-			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.clientsExecutor(clientsExecutorMock)
 			.connectorId(CONNECTOR_ID)
 			.build();
 		assertEquals(SourceTable.empty(), sourceProcessor.process(wmiSource));
@@ -1030,7 +1028,7 @@ class SourceProcessorTest {
 		final SourceProcessor sourceProcessor = SourceProcessor
 			.builder()
 			.telemetryManager(telemetryManager)
-			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.clientsExecutor(clientsExecutorMock)
 			.build();
 		assertEquals(SourceTable.empty(), sourceProcessor.process((OsCommandSource) null));
 		assertEquals(SourceTable.empty(), sourceProcessor.process(new OsCommandSource()));
@@ -1117,7 +1115,7 @@ class SourceProcessorTest {
 		final SourceProcessor sourceProcessor = SourceProcessor
 			.builder()
 			.telemetryManager(telemetryManager)
-			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.clientsExecutor(clientsExecutorMock)
 			.build();
 		assertEquals(SourceTable.empty(), sourceProcessor.process(new IpmiSource()));
 	}
@@ -1135,7 +1133,7 @@ class SourceProcessorTest {
 		final SourceProcessor sourceProcessor = SourceProcessor
 			.builder()
 			.telemetryManager(telemetryManager)
-			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.clientsExecutor(clientsExecutorMock)
 			.build();
 		assertEquals(SourceTable.empty(), sourceProcessor.process(new IpmiSource()));
 	}
@@ -1158,14 +1156,12 @@ class SourceProcessorTest {
 		final SourceProcessor sourceProcessor = SourceProcessor
 			.builder()
 			.telemetryManager(telemetryManager)
-			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.clientsExecutor(clientsExecutorMock)
 			.build();
 		String ipmiResult =
 			"FRU;IBM;System x3650 M2;KD9098C - 794722G\n" +
 			"System Board;1;System Board 1;IBM;System x3650 M2;KD9098C - 794722G;Base board 1=Device Present";
-		doReturn(ipmiResult)
-			.when(matsyaClientsExecutorMock)
-			.executeIpmiGetSensors(eq(ECS1_01), any(IpmiConfiguration.class));
+		doReturn(ipmiResult).when(clientsExecutorMock).executeIpmiGetSensors(eq(ECS1_01), any(IpmiConfiguration.class));
 		assertEquals(SourceTable.builder().rawData(ipmiResult).build(), sourceProcessor.process(new IpmiSource()));
 	}
 
@@ -1187,9 +1183,9 @@ class SourceProcessorTest {
 		final SourceProcessor sourceProcessor = SourceProcessor
 			.builder()
 			.telemetryManager(telemetryManager)
-			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.clientsExecutor(clientsExecutorMock)
 			.build();
-		doReturn(null).when(matsyaClientsExecutorMock).executeIpmiGetSensors(eq(ECS1_01), any(IpmiConfiguration.class));
+		doReturn(null).when(clientsExecutorMock).executeIpmiGetSensors(eq(ECS1_01), any(IpmiConfiguration.class));
 		assertEquals(SourceTable.empty(), sourceProcessor.process(new IpmiSource()));
 	}
 
@@ -1212,10 +1208,10 @@ class SourceProcessorTest {
 		final SourceProcessor sourceProcessor = SourceProcessor
 			.builder()
 			.telemetryManager(telemetryManager)
-			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.clientsExecutor(clientsExecutorMock)
 			.build();
 		doThrow(new ExecutionException(new Exception("Exception from tests")))
-			.when(matsyaClientsExecutorMock)
+			.when(clientsExecutorMock)
 			.executeIpmiGetSensors(eq(ECS1_01), any(IpmiConfiguration.class));
 		assertEquals(SourceTable.empty(), sourceProcessor.process(new IpmiSource()));
 	}
@@ -1239,11 +1235,11 @@ class SourceProcessorTest {
 		final SourceProcessor sourceProcessor = SourceProcessor
 			.builder()
 			.telemetryManager(telemetryManager)
-			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.clientsExecutor(clientsExecutorMock)
 			.build();
 		final List<List<String>> wmiResult1 = Arrays.asList(Arrays.asList("IdentifyingNumber", "Name", "Vendor"));
 		doReturn(wmiResult1)
-			.when(matsyaClientsExecutorMock)
+			.when(clientsExecutorMock)
 			.executeWql(
 				PC14,
 				wmiConfiguration,
@@ -1255,7 +1251,7 @@ class SourceProcessorTest {
 			Arrays.asList("2", "20", "sensorName(sensorId):description for deviceId", "10", "15", "2", "0", "30", "25")
 		);
 		doReturn(wmiResult2)
-			.when(matsyaClientsExecutorMock)
+			.when(clientsExecutorMock)
 			.executeWql(
 				PC14,
 				wmiConfiguration,
@@ -1267,7 +1263,7 @@ class SourceProcessorTest {
 			Arrays.asList("state", "sensorName(sensorId):description for deviceType deviceId")
 		);
 		doReturn(wmiResult3)
-			.when(matsyaClientsExecutorMock)
+			.when(clientsExecutorMock)
 			.executeWql(PC14, wmiConfiguration, "SELECT CurrentState,Description FROM Sensor", "root/hardware");
 
 		final List<List<String>> expected = Arrays.asList(
@@ -1298,10 +1294,10 @@ class SourceProcessorTest {
 		final SourceProcessor sourceProcessor = SourceProcessor
 			.builder()
 			.telemetryManager(telemetryManager)
-			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.clientsExecutor(clientsExecutorMock)
 			.build();
-		doThrow(MatsyaException.class)
-			.when(matsyaClientsExecutorMock)
+		doThrow(ClientException.class)
+			.when(clientsExecutorMock)
 			.executeWql(
 				PC14,
 				wmiConfiguration,
@@ -1331,7 +1327,7 @@ class SourceProcessorTest {
 		final SourceProcessor sourceProcessor = SourceProcessor
 			.builder()
 			.telemetryManager(telemetryManager)
-			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.clientsExecutor(clientsExecutorMock)
 			.build();
 
 		assertEquals(SourceTable.empty(), sourceProcessor.process(new IpmiSource()));
@@ -1373,7 +1369,7 @@ class SourceProcessorTest {
 		final SourceProcessor sourceProcessor = SourceProcessor
 			.builder()
 			.telemetryManager(telemetryManager)
-			.matsyaClientsExecutor(matsyaClientsExecutorMock)
+			.clientsExecutor(clientsExecutorMock)
 			.build();
 
 		// local

@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class ExtendsDeserializerTest extends DeserializerTest {
@@ -37,7 +37,7 @@ class ExtendsDeserializerTest extends DeserializerTest {
 	void testDeserializeExtendsEmptyConnectorRefNotAccepted() {
 		try {
 			getConnector("extendsEmptyConnectorRef");
-			Assert.fail(IO_EXCEPTION_MSG);
+			Assertions.fail(IO_EXCEPTION_MSG);
 		} catch (IOException e) {
 			String message = "The connector referenced by 'extends' cannot be empty.";
 			checkMessage(e, message);
@@ -48,7 +48,7 @@ class ExtendsDeserializerTest extends DeserializerTest {
 	void testDeserializeExtendsNullConnectorRefNotAccepted() {
 		try {
 			getConnector("extendsNullConnectorRef");
-			Assert.fail(IO_EXCEPTION_MSG);
+			Assertions.fail(IO_EXCEPTION_MSG);
 		} catch (IOException e) {
 			String message = "The connector referenced by 'extends' cannot be empty.";
 			checkMessage(e, message);
@@ -59,7 +59,7 @@ class ExtendsDeserializerTest extends DeserializerTest {
 	void testDeserializeExtendsSingleEmptyValueNotAccepted() throws IOException {
 		try {
 			getConnector("extendsSingleEmptyValue");
-			Assert.fail(IO_EXCEPTION_MSG);
+			Assertions.fail(IO_EXCEPTION_MSG);
 		} catch (IOException e) {
 			String message = "The connector referenced by 'extends' cannot be empty.";
 			checkMessage(e, message);

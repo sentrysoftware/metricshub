@@ -12,11 +12,11 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
 import com.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
@@ -38,7 +38,7 @@ class SimpleStrategyTest {
 	private static final Path YAML_TEST_PATH = Paths.get("src", "test", "resources", "test-files", "strategy", "simple");
 
 	@Mock
-	private MatsyaClientsExecutor matsyaClientsExecutorMock;
+	private ClientsExecutor clientsExecutorMock;
 
 	static Long strategyTime = new Date().getTime();
 
@@ -89,19 +89,19 @@ class SimpleStrategyTest {
 		simpleStrategy =
 			SimpleStrategy
 				.builder()
-				.matsyaClientsExecutor(matsyaClientsExecutorMock)
+				.clientsExecutor(clientsExecutorMock)
 				.strategyTime(strategyTime)
 				.telemetryManager(telemetryManager)
 				.build();
 
 		// Mock detection criteria result
 		doReturn("1.3.6.1.4.1.795.10.1.1.3.1.1.0	ASN_OCTET_STR	Test")
-			.when(matsyaClientsExecutorMock)
+			.when(clientsExecutorMock)
 			.executeSNMPGetNext(eq("1.3.6.1.4.1.795.10.1.1.3.1.1"), any(SnmpConfiguration.class), anyString(), anyBoolean());
 
 		// Mock source table information for enclosure
 		doReturn(SourceTable.csvToTable("enclosure-1;1;healthy", MetricsHubConstants.TABLE_SEP))
-			.when(matsyaClientsExecutorMock)
+			.when(clientsExecutorMock)
 			.executeSNMPTable(
 				eq("1.3.6.1.4.1.795.10.1.1.3.1"),
 				any(String[].class),
@@ -112,7 +112,7 @@ class SimpleStrategyTest {
 
 		// Mock source table information for disk_controller
 		doReturn(SourceTable.csvToTable("1;1;healthy", MetricsHubConstants.TABLE_SEP))
-			.when(matsyaClientsExecutorMock)
+			.when(clientsExecutorMock)
 			.executeSNMPTable(
 				eq("1.3.6.1.4.1.795.10.1.1.4.1"),
 				any(String[].class),

@@ -6,12 +6,12 @@ import static com.sentrysoftware.metricshub.engine.constants.Constants.*;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.HOST_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.Connector;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.MonitorFactory;
@@ -44,7 +44,7 @@ class PrepareCollectStrategyTest {
 			)
 			.connectorStore(connectorStore)
 			.build();
-		final MatsyaClientsExecutor matsyaClientExecutor = new MatsyaClientsExecutor(telemetryManager);
+		final ClientsExecutor clientExecutor = new ClientsExecutor(telemetryManager);
 		final long collectTime = System.currentTimeMillis();
 		final MonitorFactory monitorFactory = MonitorFactory
 			.builder()
@@ -69,7 +69,7 @@ class PrepareCollectStrategyTest {
 			true
 		);
 
-		new PrepareCollectStrategy(telemetryManager, collectTime, matsyaClientExecutor).run();
+		new PrepareCollectStrategy(telemetryManager, collectTime, clientExecutor).run();
 
 		final NumberMetric metric = monitor.getMetric(HW_METRIC, NumberMetric.class);
 

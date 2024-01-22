@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TableJoinSourceDeserializerTest extends DeserializerTest {
@@ -43,7 +43,7 @@ class TableJoinSourceDeserializerTest extends DeserializerTest {
 
 			comparePreSource(connector, expected);
 		} catch (Exception e) {
-			Assert.fail(e.getMessage());
+			Assertions.fail(e.getMessage());
 		}
 	}
 }

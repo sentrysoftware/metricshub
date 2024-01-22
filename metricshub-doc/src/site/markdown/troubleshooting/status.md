@@ -18,7 +18,7 @@ On Windows, you will need to verify the status of the **MetricsHub** service.
 
 Connect to [`http://localhost:13133`](http://localhost:13133), which typically responds with:
 
-```json
+```
 {"status":"Server available","upSince":"2021-10-25T00:59:24.340626+02:00","uptime":"12h12m21.5832293s"}
 ```
 

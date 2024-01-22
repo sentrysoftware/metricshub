@@ -10,7 +10,7 @@ import com.sentrysoftware.metricshub.engine.connector.model.identity.criterion.W
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class WbemCriterionDeserializerTest extends DeserializerTest {
@@ -74,7 +74,7 @@ class WbemCriterionDeserializerTest extends DeserializerTest {
 		{
 			try {
 				getConnector("wbemCriterionMissingQuery");
-				Assert.fail(MISMATCHED_EXCEPTION_MSG);
+				Assertions.fail(MISMATCHED_EXCEPTION_MSG);
 			} catch (MismatchedInputException e) {
 				final String message = "Missing required creator property 'query' (index 2)";
 				checkMessage(e, message);
@@ -84,7 +84,7 @@ class WbemCriterionDeserializerTest extends DeserializerTest {
 		{
 			try {
 				getConnector("wbemCriterionNullQuery");
-				Assert.fail(INVALID_NULL_EXCEPTION_MSG);
+				Assertions.fail(INVALID_NULL_EXCEPTION_MSG);
 			} catch (InvalidNullException e) {
 				final String message = "Invalid `null` value encountered for property \"query\"";
 				checkMessage(e, message);
@@ -101,7 +101,7 @@ class WbemCriterionDeserializerTest extends DeserializerTest {
 	void testWbemBlankQueryNotAccepted() throws IOException {
 		try {
 			getConnector("wbemCriterionBlankQuery");
-			Assert.fail(INVALID_FORMAT_EXCEPTION_MSG);
+			Assertions.fail(INVALID_FORMAT_EXCEPTION_MSG);
 		} catch (InvalidFormatException e) {
 			String message = "Invalid blank value encountered for property 'query'.";
 			checkMessage(e, message);
@@ -117,7 +117,7 @@ class WbemCriterionDeserializerTest extends DeserializerTest {
 	void testWbemBlankNamespaceNotAccepted() throws IOException {
 		try {
 			getConnector("wbemCriterionBlankNamespace");
-			Assert.fail(INVALID_FORMAT_EXCEPTION_MSG);
+			Assertions.fail(INVALID_FORMAT_EXCEPTION_MSG);
 		} catch (InvalidFormatException e) {
 			String message = "Invalid blank value encountered for property 'namespace'.";
 			checkMessage(e, message);

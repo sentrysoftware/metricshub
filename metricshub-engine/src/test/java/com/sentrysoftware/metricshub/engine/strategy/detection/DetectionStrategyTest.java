@@ -13,10 +13,11 @@ import static com.sentrysoftware.metricshub.engine.constants.Constants.HOST_ID;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.LOCALHOST;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.STATE_SET;
 import static com.sentrysoftware.metricshub.engine.strategy.AbstractStrategy.CONNECTOR_ID_FORMAT;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.Connector;
@@ -25,7 +26,6 @@ import com.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinit
 import com.sentrysoftware.metricshub.engine.connector.model.metric.MetricType;
 import com.sentrysoftware.metricshub.engine.connector.model.metric.StateSet;
 import com.sentrysoftware.metricshub.engine.connector.parser.ConnectorLibraryParser;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import com.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
@@ -83,7 +83,7 @@ class DetectionStrategyTest {
 		final DetectionStrategy detectionStrategy = new DetectionStrategy(
 			telemetryManager,
 			new Date().getTime(),
-			new MatsyaClientsExecutor(telemetryManager)
+			new ClientsExecutor(telemetryManager)
 		);
 
 		// Create a list of CriterionTestResult
@@ -208,7 +208,7 @@ class DetectionStrategyTest {
 		final DetectionStrategy detectionStrategy = new DetectionStrategy(
 			telemetryManager,
 			new Date().getTime(),
-			new MatsyaClientsExecutor(telemetryManager)
+			new ClientsExecutor(telemetryManager)
 		);
 
 		// Set a NumberMetric in the connector
@@ -273,7 +273,7 @@ class DetectionStrategyTest {
 		final DetectionStrategy detectionStrategy = new DetectionStrategy(
 			telemetryManager,
 			new Date().getTime(),
-			new MatsyaClientsExecutor(telemetryManager)
+			new ClientsExecutor(telemetryManager)
 		);
 
 		// Set a StateSetMetric in the connector
@@ -323,7 +323,7 @@ class DetectionStrategyTest {
 			.build();
 
 		// Create detectionStrategy with the previously created telemetryManager
-		new DetectionStrategy(telemetryManager, new Date().getTime(), new MatsyaClientsExecutor(telemetryManager)).run();
+		new DetectionStrategy(telemetryManager, new Date().getTime(), new ClientsExecutor(telemetryManager)).run();
 
 		final Monitor configuredConnectorMonitor = telemetryManager.findMonitorByTypeAndId(
 			KnownMonitorType.CONNECTOR.getKey(),

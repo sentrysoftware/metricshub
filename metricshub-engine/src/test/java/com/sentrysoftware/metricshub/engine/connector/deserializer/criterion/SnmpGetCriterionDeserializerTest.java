@@ -9,7 +9,7 @@ import com.sentrysoftware.metricshub.engine.connector.model.identity.criterion.S
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class SnmpGetCriterionDeserializerTest extends DeserializerTest {
@@ -42,7 +42,7 @@ class SnmpGetCriterionDeserializerTest extends DeserializerTest {
 		// oid is null
 		try {
 			getConnector("snmpGetCriterionNullOid");
-			Assert.fail(INVALID_NULL_EXCEPTION_MSG);
+			Assertions.fail(INVALID_NULL_EXCEPTION_MSG);
 		} catch (InvalidNullException e) {
 			final String message = "Invalid `null` value encountered for property \"oid\"";
 			checkMessage(e, message);
@@ -59,7 +59,7 @@ class SnmpGetCriterionDeserializerTest extends DeserializerTest {
 		// oid is null
 		try {
 			getConnector("snmpGetCriterionBlankOid");
-			Assert.fail(IO_EXCEPTION_MSG);
+			Assertions.fail(IO_EXCEPTION_MSG);
 		} catch (IOException e) {
 			final String message = "Invalid blank value encountered for property 'oid'.";
 			checkMessage(e, message);
@@ -76,7 +76,7 @@ class SnmpGetCriterionDeserializerTest extends DeserializerTest {
 		// oid is defined
 		try {
 			getConnector("snmpGetCriterionNoOid");
-			Assert.fail(MISMATCHED_EXCEPTION_MSG);
+			Assertions.fail(MISMATCHED_EXCEPTION_MSG);
 		} catch (MismatchedInputException e) {
 			final String message = "Missing required creator property 'oid' (index 2)";
 			checkMessage(e, message);

@@ -1,8 +1,8 @@
 package com.sentrysoftware.metricshub.engine.connector.deserializer.compute;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.sentrysoftware.metricshub.engine.connector.deserializer.DeserializerTest;
 import com.sentrysoftware.metricshub.engine.connector.model.Connector;

@@ -7,11 +7,11 @@ import static com.sentrysoftware.metricshub.hardware.util.HwConstants.CONNECTOR;
 import static com.sentrysoftware.metricshub.hardware.util.HwConstants.ENCLOSURE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import com.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import com.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import com.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
-import com.sentrysoftware.metricshub.engine.matsya.MatsyaClientsExecutor;
 import com.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import com.sentrysoftware.metricshub.engine.telemetry.MonitorFactory;
 import com.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -41,7 +41,7 @@ class HardwarePostDiscoveryStrategyTest {
 			)
 			.connectorStore(connectorStore)
 			.build();
-		final MatsyaClientsExecutor matsyaClientExecutor = new MatsyaClientsExecutor(telemetryManager);
+		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
 		final long discoveryTime = System.currentTimeMillis();
 		final long previousDiscoveryTime = discoveryTime - 30 * 60 * 1000;
 		final MonitorFactory monitorFactory = MonitorFactory
@@ -55,11 +55,11 @@ class HardwarePostDiscoveryStrategyTest {
 
 		final Monitor monitor = monitorFactory.createOrUpdateMonitor();
 
-		new HardwarePostDiscoveryStrategy(telemetryManager, previousDiscoveryTime, matsyaClientExecutor).run();
+		new HardwarePostDiscoveryStrategy(telemetryManager, previousDiscoveryTime, clientsExecutor).run();
 
 		assertEquals(1.0, monitor.getMetric(ENCLOSURE_PRESENT_METRIC, NumberMetric.class).getValue());
 
-		new HardwarePostDiscoveryStrategy(telemetryManager, discoveryTime, matsyaClientExecutor).run();
+		new HardwarePostDiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor).run();
 		assertEquals(0.0, monitor.getMetric(ENCLOSURE_PRESENT_METRIC, NumberMetric.class).getValue());
 	}
 }

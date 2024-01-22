@@ -1,4 +1,0 @@
-BEGIN { FS = "="; model = ""; serialNumber = ""; }
-$1 ~ /^System Model *$/ { model = $2; }
-$1 ~ /^Service Tag *$/ { serialNumber = $2; }
-END { print "MSHW;" model ";" serialNumber; }
