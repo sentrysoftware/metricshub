@@ -10,7 +10,7 @@ import com.sentrysoftware.metricshub.engine.connector.model.identity.criterion.P
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class ProcessCriterionDeserializerTest extends DeserializerTest {
@@ -48,7 +48,7 @@ class ProcessCriterionDeserializerTest extends DeserializerTest {
 		// commandLine is null
 		try {
 			getConnector("processCriterionNullCommandLine");
-			Assert.fail(INVALID_NULL_EXCEPTION_MSG);
+			Assertions.fail(INVALID_NULL_EXCEPTION_MSG);
 		} catch (InvalidNullException e) {
 			final String message = "Invalid `null` value encountered for property \"commandLine\"";
 			checkMessage(e, message);
@@ -65,7 +65,7 @@ class ProcessCriterionDeserializerTest extends DeserializerTest {
 		// commandLine is blank
 		try {
 			getConnector("processCriterionBlankCommandLine");
-			Assert.fail(INVALID_FORMAT_EXCEPTION_MSG);
+			Assertions.fail(INVALID_FORMAT_EXCEPTION_MSG);
 		} catch (InvalidFormatException e) {
 			final String message = "Invalid blank value encountered for property 'commandLine'.";
 			checkMessage(e, message);
@@ -82,7 +82,7 @@ class ProcessCriterionDeserializerTest extends DeserializerTest {
 		// no commandline defined
 		try {
 			getConnector("processCriterionNoCommandLine");
-			Assert.fail(MISMATCHED_EXCEPTION_MSG);
+			Assertions.fail(MISMATCHED_EXCEPTION_MSG);
 		} catch (MismatchedInputException e) {
 			checkMessage(e, "Missing required creator property 'commandLine' (index 2)");
 		}

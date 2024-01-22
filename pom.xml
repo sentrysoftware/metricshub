@@ -36,7 +36,6 @@
 		<jupiter.version>5.9.2</jupiter.version>
 		<mockito.version>5.7.0</mockito.version>
 		<groovy.version>3.0.13</groovy.version>
-		<hardware-connectors.version>36-SNAPSHOT</hardware-connectors.version>
 		<spring.version>6.0.3</spring.version>
 		<picocli.version>4.7.5</picocli.version>
 		<spring-boot.version>3.0.1</spring-boot.version>
@@ -46,7 +45,6 @@
 		<snmp4j-agent.version>3.5.0</snmp4j-agent.version>
 		<commons-lang3.version>3.12.0</commons-lang3.version>
 		<slf4j-simple.version>2.0.6</slf4j-simple.version>
-		<emulation.version>3-SNAPSHOT</emulation.version>
 		<openTelemetryVersion>1.30.0</openTelemetryVersion>
 		<grpcVersion>1.47.0</grpcVersion>
 		<protobufVersion>3.11.4</protobufVersion>
@@ -62,10 +60,8 @@
 
 	<modules>
 		<module>metricshub-engine</module>
-		<module>hdf-to-yaml-converter</module>
-		<module>connector-serializer</module>
-		<module>metricshub-agent</module>
 		<module>hardware</module>
+		<module>metricshub-agent</module>
 		<module>metricshub-doc</module>
 	</modules>
 
@@ -130,11 +126,6 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.sentrysoftware.metricshub</groupId>
-				<artifactId>hdf-to-yaml-converter</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
 				<groupId>org.projectlombok</groupId>
 				<artifactId>lombok</artifactId>
 				<version>${lombok.version}</version>
@@ -152,16 +143,10 @@
 				<version>${slf4j.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.sentrysoftware.shared</groupId>
-				<artifactId>hardware-connectors</artifactId>
-				<version>${hardware-connectors.version}</version>
+				<groupId>org.sentrysoftware</groupId>
+				<artifactId>metricshub-community-connectors</artifactId>
+				<version>1.0.00-SNAPSHOT</version>
 				<classifier>sources</classifier>
-			</dependency>
-			<dependency>
-				<groupId>com.sentrysoftware.emulation</groupId>
-				<artifactId>emulation-framework-http-server</artifactId>
-				<version>${emulation.version}</version>
-				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>javax.xml.bind</groupId>
@@ -443,11 +428,6 @@
 					<version>3.0.0</version>
 				</plugin>
 				<plugin>
-					<groupId>com.sentrysoftware.maven</groupId>
-					<artifactId>hdf-maven-plugin</artifactId>
-					<version>5.0</version>
-				</plugin>
-				<plugin>
 					<groupId>com.hubspot.maven.plugins</groupId>
 					<artifactId>prettier-maven-plugin</artifactId>
 					<version>${prettier-maven-plugin.version}</version>
@@ -648,7 +628,8 @@
 				</executions>
 				<configuration>
 					<inputGlobs>
-						<!-- These are the default patterns, you can omit <inputGlobs> entirely unless you want to override them -->
+						<!-- These are the default patterns, you can omit
+						<inputGlobs> entirely unless you want to override them -->
 						<inputGlob>src/main/java/**/*.java</inputGlob>
 						<inputGlob>src/test/java/**/*.java</inputGlob>
 						<inputGlob>src/it/java/**/*.java</inputGlob>

@@ -1,5 +1,0 @@
-CONTROLLERLIST=`%{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -S|/usr/bin/nawk '{if ($2 ~ /"/) {print $1}}'`
-for CONTROLLER in $CONTROLLERLIST
-    do
-    %{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -l $CONTROLLER | /usr/bin/nawk -v controller=$CONTROLLER '{if ($1 ~ /c[0-9]+/) {print ("MSHW;"controller";"$2";"$3";")}}'
-    done

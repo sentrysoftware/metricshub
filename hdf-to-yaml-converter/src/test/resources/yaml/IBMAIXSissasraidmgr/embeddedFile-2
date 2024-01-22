@@ -1,5 +1,0 @@
-BEGIN {FS="[:]"}
-$1 ~ /RAID Adapter/ { Controller = $2 ; gsub(/ /,"",Controller);}
-$1 ~ /Battery State/ { State = $2 ; gsub(/^ +/,"",State); gsub(/ +$/,"",State);
-                         print "MSHW;" Controller ";" State ";"
-                        }

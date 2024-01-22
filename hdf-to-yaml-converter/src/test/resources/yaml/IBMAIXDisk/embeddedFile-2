@@ -1,6 +1,0 @@
-#!/bin/sh
-for DISK in `/usr/sbin/lsdev -C -c disk -F 'name'`
-do
-    SIZE=`/usr/sbin/lscfg -vp -l $DISK|/usr/bin/awk -F "[() ]" '/hdisk.*[0-9]+ MB)/ { print $(NF-2) }'`
-    /bin/echo "MSHW;$DISK;$SIZE"
-done

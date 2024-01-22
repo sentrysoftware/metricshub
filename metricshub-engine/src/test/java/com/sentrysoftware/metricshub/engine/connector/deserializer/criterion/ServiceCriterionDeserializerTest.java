@@ -8,7 +8,7 @@ import com.sentrysoftware.metricshub.engine.connector.model.identity.criterion.S
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class ServiceCriterionDeserializerTest extends DeserializerTest {
@@ -36,7 +36,7 @@ class ServiceCriterionDeserializerTest extends DeserializerTest {
 		// name is null
 		try {
 			getConnector("serviceCriterionNullName");
-			Assert.fail(INVALID_NULL_EXCEPTION_MSG);
+			Assertions.fail(INVALID_NULL_EXCEPTION_MSG);
 		} catch (InvalidNullException e) {
 			final String message = "Invalid `null` value encountered for property \"name\"";
 			checkMessage(e, message);
@@ -45,7 +45,7 @@ class ServiceCriterionDeserializerTest extends DeserializerTest {
 
 	@Test
 	/**
-	 * Checks that blank name is regected
+	 * Checks that blank name is rejected
 	 *
 	 * @throws IOException
 	 */
@@ -53,7 +53,7 @@ class ServiceCriterionDeserializerTest extends DeserializerTest {
 		// name is " "
 		try {
 			getConnector("serviceCriterionBlankName");
-			Assert.fail(IO_EXCEPTION_MSG);
+			Assertions.fail(IO_EXCEPTION_MSG);
 		} catch (IOException e) {
 			final String message = "Invalid blank value encountered for property 'name'.";
 			checkMessage(e, message);
@@ -70,7 +70,7 @@ class ServiceCriterionDeserializerTest extends DeserializerTest {
 		// name is not declared
 		try {
 			getConnector("serviceCriterionNoName");
-			Assert.fail(IO_EXCEPTION_MSG);
+			Assertions.fail(IO_EXCEPTION_MSG);
 		} catch (IOException e) {
 			final String message = "Missing required creator property 'name' (index 2)";
 			checkMessage(e, message);

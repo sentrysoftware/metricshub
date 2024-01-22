@@ -1,5 +1,0 @@
-LOGICALDRIVELIST=`%{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -S|/usr/bin/nawk '{if ($1 ~ /c[0-9]t[0-9]d[0-9]/) {print $1}}'`
-for VOLUME in $LOGICALDRIVELIST
-        do
-        %{SUDO:/usr/sbin/raidctl}/usr/sbin/raidctl -l $VOLUME | egrep 'OPTIMAL|DEGRADED|FAILED|SYNCING' | awk '{print ("MSHW;"$1";"$4";")}'
-        done

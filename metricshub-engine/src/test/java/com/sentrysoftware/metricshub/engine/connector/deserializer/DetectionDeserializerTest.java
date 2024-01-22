@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
@@ -17,7 +18,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
 class DetectionDeserializerTest extends DeserializerTest {
@@ -79,7 +79,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 	void testDeserializeAppliesToEmpty() throws Exception {
 		try {
 			getConnector("appliesToEmpty");
-			Assert.fail(IO_EXCEPTION_MSG);
+			fail(IO_EXCEPTION_MSG);
 		} catch (IOException e) {
 			final String message = "' ' is not a supported device kind.";
 			checkMessage(e, message);
@@ -95,7 +95,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 	void testDeserializeAppliesToNull() throws Exception {
 		try {
 			getConnector("appliesToNull");
-			Assert.fail(INVALID_NULL_EXCEPTION_MSG);
+			fail(INVALID_NULL_EXCEPTION_MSG);
 		} catch (InvalidNullException e) {
 			final String message = "Invalid `null` value encountered for property \"appliesTo\"";
 			checkMessage(e, message);
@@ -111,7 +111,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 	void testDeserializeAppliesToInvalid() throws Exception {
 		try {
 			getConnector("appliesToInvalid");
-			Assert.fail(IO_EXCEPTION_MSG);
+			fail(IO_EXCEPTION_MSG);
 		} catch (IOException e) {
 			checkMessage(e, "'unknownValue' is not a supported device kind.");
 		}
@@ -126,7 +126,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 	void testDeserializeAppliesToCommentedOut() throws IOException {
 		try {
 			getConnector("appliesToCommentedOut");
-			Assert.fail(MISMATCHED_EXCEPTION_MSG);
+			fail(MISMATCHED_EXCEPTION_MSG);
 		} catch (MismatchedInputException e) {
 			final String message = "Missing required creator property 'appliesTo' (index 3)";
 			checkMessage(e, message);
@@ -146,7 +146,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 	void testDeserializeConnectionTypeEmpty() throws IOException {
 		try {
 			getConnector("connectionTypesEmpty");
-			Assert.fail(IO_EXCEPTION_MSG);
+			fail(IO_EXCEPTION_MSG);
 		} catch (IOException e) {
 			final String message = "ConnectionType must be a known connection type (local, remote)";
 			checkMessage(e, message);
@@ -198,7 +198,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 	void testDeserializeConnectionTypeInvalid() throws Exception {
 		try {
 			getConnector("connectionTypesInvalid");
-			Assert.fail(IO_EXCEPTION_MSG);
+			fail(IO_EXCEPTION_MSG);
 		} catch (IOException e) {
 			final String message = "ConnectionType must be a known connection type (local, remote)";
 			checkMessage(e, message);
@@ -263,7 +263,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 	void testDeserializeDisableAutodetectionInvalid() throws Exception {
 		try {
 			getConnector("disableAutoDetectionInvalid");
-			Assert.fail(INVALID_FORMAT_EXCEPTION_MSG);
+			fail(INVALID_FORMAT_EXCEPTION_MSG);
 		} catch (InvalidFormatException e) {
 			final String message = "Cannot deserialize value of type `boolean` from String \"maybe\"";
 			assertTrue(
@@ -287,7 +287,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 	void testDeserializeSupersedesEmpty() {
 		try {
 			getConnector("supersedesEmpty");
-			Assert.fail(IO_EXCEPTION_MSG);
+			fail(IO_EXCEPTION_MSG);
 		} catch (IOException e) {
 			String message = SUPERSEDES_ERROR_MSG;
 			assertTrue(
@@ -337,7 +337,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 	void testDeserializeSupersedesNullList() {
 		try {
 			getConnector("supersedesNullList");
-			Assert.fail(IO_EXCEPTION_MSG);
+			fail(IO_EXCEPTION_MSG);
 		} catch (IOException e) {
 			checkMessage(e, SUPERSEDES_ERROR_MSG);
 		}
@@ -352,7 +352,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 	void testDeserializeSupersedesEmptyList() {
 		try {
 			getConnector("supersedesEmptyList");
-			Assert.fail(IO_EXCEPTION_MSG);
+			fail(IO_EXCEPTION_MSG);
 		} catch (IOException e) {
 			checkMessage(e, SUPERSEDES_ERROR_MSG);
 		}
@@ -385,7 +385,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 		try {
 			getConnector("onLastResortEmpty");
 
-			Assert.fail(INVALID_FORMAT_EXCEPTION_MSG);
+			fail(INVALID_FORMAT_EXCEPTION_MSG);
 		} catch (InvalidFormatException e) {
 			String message = "Invalid blank value encountered for property 'onLastResort'.";
 			checkMessage(e, message);

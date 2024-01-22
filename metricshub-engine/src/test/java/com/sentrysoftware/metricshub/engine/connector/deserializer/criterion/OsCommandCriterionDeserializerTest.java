@@ -13,7 +13,7 @@ import com.sentrysoftware.metricshub.engine.connector.model.identity.criterion.O
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class OsCommandCriterionDeserializerTest extends DeserializerTest {
@@ -61,7 +61,7 @@ class OsCommandCriterionDeserializerTest extends DeserializerTest {
 		// commandLine is null
 		try {
 			getConnector("osCommandCriterionCommandLineNo");
-			Assert.fail(MISMATCHED_EXCEPTION_MSG);
+			Assertions.fail(MISMATCHED_EXCEPTION_MSG);
 		} catch (MismatchedInputException e) {
 			final String message = "Missing required creator property 'commandLine' (index 2)";
 			checkMessage(e, message);
@@ -77,7 +77,7 @@ class OsCommandCriterionDeserializerTest extends DeserializerTest {
 	void testDeserializeOsCommandBlankCommand() throws IOException {
 		try {
 			getConnector("osCommandCriterionCommandLineBlank");
-			Assert.fail(IO_EXCEPTION_MSG);
+			Assertions.fail(IO_EXCEPTION_MSG);
 		} catch (IOException e) {
 			String message = "Invalid blank value encountered for property 'commandLine'.";
 			checkMessage(e, message);
@@ -94,7 +94,7 @@ class OsCommandCriterionDeserializerTest extends DeserializerTest {
 		// commandLine is null
 		try {
 			getConnector("osCommandCriterionCommandLineNull");
-			Assert.fail(INVALID_NULL_EXCEPTION_MSG);
+			Assertions.fail(INVALID_NULL_EXCEPTION_MSG);
 		} catch (InvalidNullException e) {
 			final String message = "Invalid `null` value encountered for property \"commandLine\"";
 			checkMessage(e, message);
@@ -108,7 +108,7 @@ class OsCommandCriterionDeserializerTest extends DeserializerTest {
 	void testDeserializeOsCommandNegativeTimeout() throws IOException {
 		try {
 			getConnector("osCommandCriterionNegativeTimeout");
-			Assert.fail(INVALID_FORMAT_EXCEPTION_MSG);
+			Assertions.fail(INVALID_FORMAT_EXCEPTION_MSG);
 		} catch (InvalidFormatException e) {
 			final String message = "Invalid negative or zero value encountered for property 'timeout'";
 			checkMessage(e, message);
@@ -122,7 +122,7 @@ class OsCommandCriterionDeserializerTest extends DeserializerTest {
 	void testDeserializeOsCommandZeroTimeout() throws IOException {
 		try {
 			getConnector("osCommandCriterionZeroTimeout");
-			Assert.fail(INVALID_FORMAT_EXCEPTION_MSG);
+			Assertions.fail(INVALID_FORMAT_EXCEPTION_MSG);
 		} catch (InvalidFormatException e) {
 			final String message = "Invalid negative or zero value encountered for property 'timeout'";
 			checkMessage(e, message);
@@ -136,7 +136,7 @@ class OsCommandCriterionDeserializerTest extends DeserializerTest {
 	void testDeserializeOsCommandStringTimeout() throws IOException {
 		try {
 			getConnector("osCommandCriterionStringTimeout");
-			Assert.fail(INVALID_FORMAT_EXCEPTION_MSG);
+			Assertions.fail(INVALID_FORMAT_EXCEPTION_MSG);
 		} catch (InvalidFormatException e) {
 			final String message = "Invalid value encountered for property 'timeout'";
 			checkMessage(e, message);

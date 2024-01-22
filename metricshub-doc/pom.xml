@@ -99,6 +99,15 @@
 				<version>3.4.5</version>
 			</plugin>
 
+			<!-- Generate reference through the MetricsHub Connector Maven Plugin -->
+			<plugin>
+				<groupId>org.sentrysoftware.maven</groupId>
+				<artifactId>metricshub-connector-maven-plugin</artifactId>
+				<version>1.0.00-SNAPSHOT</version>
+				<configuration>
+					<sourceDirectory>${project.basedir}/../metricshub-agent/target/connectors</sourceDirectory>
+				</configuration>
+			</plugin>
 		</plugins>
 	</reporting>
 

@@ -1,3 +1,0 @@
-BEGIN { FS = ";"; PowerConsumption = ""; }
-$1 ~ /MSHW/ {sum += $3; PowerConsumption=sum}
-END {print "MSHW;"PowerConsumption";"}

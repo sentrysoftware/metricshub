@@ -1,7 +1,0 @@
-BEGIN {FS=";";}
-{
-  if ($2 > $3)
-  {
-      print "Unassigned Disks: "$2-$3";;;;;;;Unassigned Disks."$1";Unassigned Disks."$1";Unassigned Disks."$1";true;"
-  }
-}

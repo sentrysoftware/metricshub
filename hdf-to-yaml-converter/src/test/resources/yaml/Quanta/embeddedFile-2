@@ -1,8 +1,0 @@
-BEGIN {FS=";";}
-{
-    if ($3 < 0 ) UpperThreshold = ""; else UpperThreshold = $3;
-    if ($4 < 0 ) LowerThreshold = ""; else LowerThreshold = $4;
-    if ($5 < 0 ) SensorReading = ""; else SensorReading = $5;
-    if (UpperThreshold == "" && LowerThreshold == "" || SensorReading == "") StatusActivation=1;
-    print $1";"$2";"UpperThreshold";"LowerThreshold";"SensorReading";"$6";"StatusActivation";"
-}

@@ -3,8 +3,8 @@ package com.sentrysoftware.metricshub.engine.strategy.detection;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.CONNECTOR_YAML;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.DETECTION_FOLDER;
 import static com.sentrysoftware.metricshub.engine.constants.Constants.STRATEGY_TIME;
-import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.sentrysoftware.metricshub.engine.configuration.HostConfiguration;

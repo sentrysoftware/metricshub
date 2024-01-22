@@ -13,7 +13,7 @@ import com.sentrysoftware.metricshub.engine.connector.model.identity.criterion.C
 import com.sentrysoftware.metricshub.engine.connector.model.identity.criterion.HttpCriterion;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class HttpCriterionDeserializerTest extends DeserializerTest {
@@ -85,7 +85,7 @@ class HttpCriterionDeserializerTest extends DeserializerTest {
 	void testDeserializeNonNull() throws Exception {
 		try {
 			getConnector("httpCriterionNonNull");
-			Assert.fail(MISMATCHED_EXCEPTION_MSG);
+			Assertions.fail(MISMATCHED_EXCEPTION_MSG);
 		} catch (MismatchedInputException e) {
 			final String message = "Missing required creator property 'url' (index 3)";
 			checkMessage(e, message);
@@ -103,7 +103,7 @@ class HttpCriterionDeserializerTest extends DeserializerTest {
 		{
 			try {
 				getConnector("httpCriterionHttpMethodEnum");
-				Assert.fail(JSON_MAPPING_EXCEPTION_MSG);
+				Assertions.fail(JSON_MAPPING_EXCEPTION_MSG);
 			} catch (JsonMappingException e) {
 				String message = "not one of the values accepted for Enum class: [POST, DELETE, GET, PUT]";
 				checkMessage(e, message);
@@ -140,7 +140,7 @@ class HttpCriterionDeserializerTest extends DeserializerTest {
 		{
 			try {
 				getConnector("httpCriterionResultContentEnum");
-				Assert.fail(JSON_MAPPING_EXCEPTION_MSG);
+				Assertions.fail(JSON_MAPPING_EXCEPTION_MSG);
 			} catch (JsonMappingException e) {
 				String message =
 					"not one of the values accepted for Enum class: [all, body, HTTP_STATUS, httpStatus, header, ALL, BODY, http_status, HEADER]";

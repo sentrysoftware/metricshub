@@ -1,5 +1,0 @@
-$0 ~ /^Array Unit Type/ {model = $NF}
-$1 ~ /H.W/ && $2 ~ /Rev/ {firmware = $NF}
-$1 ~ /Serial/ && $2 ~ /Number/ {serialNumber = $NF}
-$1 ~ /MS_HW_SYSTEM_END/  { systemName = $2
-                          if (model != "") {print "MSHW;"systemName";"model";"firmware";"serialNumber";"}}

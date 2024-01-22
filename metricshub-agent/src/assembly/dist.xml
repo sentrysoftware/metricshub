@@ -37,7 +37,7 @@
 			<filtered>false</filtered>
 		</fileSet>
 
-		<!-- Connector library -->
+		<!-- MetricsHub Community Connectors -->
 		<fileSet>
 			<directory>${project.build.directory}/connectors</directory>
 			<outputDirectory>/connectors</outputDirectory>

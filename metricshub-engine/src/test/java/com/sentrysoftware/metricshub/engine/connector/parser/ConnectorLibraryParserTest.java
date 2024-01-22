@@ -1,8 +1,8 @@
 package com.sentrysoftware.metricshub.engine.connector.parser;
 
 import static com.sentrysoftware.metricshub.engine.constants.Constants.AAC_CONNECTOR_ID;
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.sentrysoftware.metricshub.engine.connector.model.Connector;
 import com.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;

@@ -1,8 +1,0 @@
-BEGIN { FS="[,]" }
-NF >= 8 &&  $(NF-1) ~ /^[0-9]/ && $(NF-4) ~ /^[0-9]/ {
-    ID = $1
-    HDDSize = $(NF-4)
-    SSDSize = $(NF-1)
-    TotalSize = (HDDSize + SSDSize) / 1000000000
-    print "MSHW;" ID ";" TotalSize ";"
-    }
