@@ -1,5 +1,6 @@
 package com.sentrysoftware.metricshub.agent.context;
 
+import static com.sentrysoftware.metricshub.agent.helper.ConfigHelper.TOP_LEVEL_VIRTUAL_RESOURCE_GROUP_KEY;
 import static com.sentrysoftware.metricshub.agent.helper.TestConstants.GRAFANA_DB_STATE_METRIC;
 import static com.sentrysoftware.metricshub.agent.helper.TestConstants.GRAFANA_HEALTH_SOURCE_KEY;
 import static com.sentrysoftware.metricshub.agent.helper.TestConstants.GRAFANA_HEALTH_SOURCE_REF;
@@ -146,6 +147,31 @@ class AgentContextTest {
 				.getHostConfiguration()
 				.getConfiguredConnectorId()
 		);
+	}
+
+	@Test
+	void testInitializeWithTopLevelResources() throws IOException {
+		// Create the agent context using the configuration file path
+		final AgentContext agentContext = new AgentContext(
+			"src/test/resources/config/top-level-resource-agent-context-test.yaml"
+		);
+
+		// Check AgentContext fields
+		assertNotNull(agentContext.getAgentInfo());
+		assertNotNull(agentContext.getConfigFile());
+		assertNotNull(agentContext.getPid());
+
+		// Verify that the agent configuration is not null
+		final AgentConfig agentConfig = agentContext.getAgentConfig();
+		assertNotNull(agentConfig);
+
+		// Check whether top-level resources are included in the telemetry managers
+		final Map<String, Map<String, TelemetryManager>> telemetryManagers = agentContext.getTelemetryManagers();
+		assertEquals(2, telemetryManagers.size());
+
+		// Check the presence of the top-level resources and the resources inside resource groups
+		assertNotNull(telemetryManagers.get(TOP_LEVEL_VIRTUAL_RESOURCE_GROUP_KEY).get("server-2"));
+		assertNotNull(telemetryManagers.get(SENTRY_PARIS_RESOURCE_GROUP_KEY).get("server-1"));
 	}
 
 	@Test

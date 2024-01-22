@@ -109,6 +109,7 @@ public class ConfigHelper {
 	private static final Predicate<Integer> INVALID_PORT_CHECKER = attr -> attr == null || attr < 1 || attr > 65535;
 	private static final Predicate<Long> INVALID_TIMEOUT_CHECKER = attr -> attr == null || attr < 0L;
 	private static final Predicate<String> EMPTY_STRING_CHECKER = attr -> attr != null && attr.isBlank();
+	public static final String TOP_LEVEL_VIRTUAL_RESOURCE_GROUP_KEY = "metricshub-top-level-rg";
 
 	/**
 	 * Get the default output directory for logging.<br>
@@ -451,6 +452,13 @@ public class ConfigHelper {
 	 * @param agentConfig    The whole configuration of the MetricsHub agent
 	 */
 	public static void normalizeAgentConfiguration(final AgentConfig agentConfig) {
+		// Normalize the top level resources using agent configuration
+		agentConfig
+			.getResources()
+			.entrySet()
+			.forEach(resourceConfigEntry -> normalizeResourceConfigUsingAgentConfig(agentConfig, resourceConfigEntry));
+
+		// Normalize the resources using resource groups
 		agentConfig
 			.getResourceGroups()
 			.entrySet()
@@ -462,6 +470,76 @@ public class ConfigHelper {
 					.entrySet()
 					.forEach(resourceConfigEntry -> normalizeResourceConfig(resourceGroupConfigEntry, resourceConfigEntry));
 			});
+	}
+
+	/**
+	 * Normalizes the top level resource configuration and sets global values if no specific
+	 * values are specified on the agent configuration
+	 * @param resourceConfigEntry A given resource configuration entry (resourceKey, resourceConfig)
+	 */
+	private static void normalizeResourceConfigUsingAgentConfig(
+		final AgentConfig agentConfig,
+		final Entry<String, ResourceConfig> resourceConfigEntry
+	) {
+		final ResourceConfig resourceConfig = resourceConfigEntry.getValue();
+		// Set agent configuration's collect period if there is no specific collect period on the resource configuration
+		if (resourceConfig.getCollectPeriod() == null) {
+			resourceConfig.setCollectPeriod(agentConfig.getCollectPeriod());
+		}
+
+		// Set agent configuration's discovery cycle if there is no specific collect period on the resource group
+		if (resourceConfig.getDiscoveryCycle() == null) {
+			resourceConfig.setDiscoveryCycle(agentConfig.getDiscoveryCycle());
+		}
+
+		// Set agent configuration's logger level in the resource configuration
+		if (resourceConfig.getLoggerLevel() == null) {
+			resourceConfig.setLoggerLevel(agentConfig.getLoggerLevel());
+		}
+
+		// Set agent configuration's output directory in the resource configuration
+		if (resourceConfig.getOutputDirectory() == null) {
+			resourceConfig.setOutputDirectory(agentConfig.getOutputDirectory());
+		}
+
+		// Set agent configuration's sequential flag in the resource configuration
+		if (resourceConfig.getSequential() == null) {
+			resourceConfig.setSequential(agentConfig.isSequential());
+		}
+
+		final AlertingSystemConfig resourceGroupAlertingSystemConfig = agentConfig.getAlertingSystemConfig();
+
+		final AlertingSystemConfig alertingSystemConfig = resourceConfig.getAlertingSystemConfig();
+		// Set agent configuration's alerting system in the resource configuration
+		if (alertingSystemConfig == null) {
+			resourceConfig.setAlertingSystemConfig(resourceGroupAlertingSystemConfig);
+		} else if (alertingSystemConfig.getProblemTemplate() == null) {
+			// Set the problem template of the alerting system
+			alertingSystemConfig.setProblemTemplate(resourceGroupAlertingSystemConfig.getProblemTemplate());
+		} else if (alertingSystemConfig.getDisable() == null) {
+			// Set the disable flag of the altering system
+			alertingSystemConfig.setDisable(resourceGroupAlertingSystemConfig.getDisable());
+		}
+
+		// Set the resolve host name to FQDN flag
+		if (resourceConfig.getResolveHostnameToFqdn() == null) {
+			resourceConfig.setResolveHostnameToFqdn(agentConfig.isResolveHostnameToFqdn());
+		}
+
+		// Set the job timeout value
+		if (resourceConfig.getJobTimeout() == null) {
+			resourceConfig.setJobTimeout(agentConfig.getJobTimeout());
+		}
+
+		// Set agent attributes in the agent configuration attributes map
+		mergeAttributes(agentConfig.getAttributes(), resourceConfig.getAttributes());
+
+		// Create an identity for the configured connector
+		normalizeConfiguredConnector(
+			TOP_LEVEL_VIRTUAL_RESOURCE_GROUP_KEY,
+			resourceConfigEntry.getKey(),
+			resourceConfig.getConnector()
+		);
 	}
 
 	/**
@@ -676,6 +754,26 @@ public class ConfigHelper {
 						)
 					);
 			});
+
+		// Initialize top level resources telemetry managers map
+		final Map<String, TelemetryManager> topLevelResourcesTelemetryManagers = new HashMap<>();
+
+		// Update top level resources telemetry managers
+		agentConfig
+			.getResources()
+			.forEach((resourceKey, resourceConfig) -> {
+				updateResourceGroupTelemetryManagers(
+					topLevelResourcesTelemetryManagers,
+					TOP_LEVEL_VIRTUAL_RESOURCE_GROUP_KEY,
+					resourceKey,
+					resourceConfig,
+					connectorStore
+				);
+			});
+
+		// Put the top level resources map in the main/common telemetry managers map
+		telemetryManagers.put(TOP_LEVEL_VIRTUAL_RESOURCE_GROUP_KEY, topLevelResourcesTelemetryManagers);
+
 		return telemetryManagers;
 	}
 

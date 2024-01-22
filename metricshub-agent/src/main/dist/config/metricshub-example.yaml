@@ -9,6 +9,24 @@ collectPeriod: 1m
 exporter:
   otlp:
 
+# Top level resources configuration
+resources:
+  #═══════════════════════════════════════════════════
+  # SNMP v1 protocol configuration
+  #═══════════════════════════════════════════════════
+
+  # server-4:
+  #   attributes:
+  #     host.name: server-4
+  #     host.type: linux
+  #   protocols:
+  #     snmp:
+  #       version: v1
+  #       community: public
+  #       port: 161
+  #       timeout: 120
+  #   excludeConnectors: [ SunF15K ]
+
 # Resource Groups configuration
 resourceGroups:
 

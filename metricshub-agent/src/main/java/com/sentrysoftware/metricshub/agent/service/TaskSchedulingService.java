@@ -1,5 +1,7 @@
 package com.sentrysoftware.metricshub.agent.service;
 
+import static com.sentrysoftware.metricshub.agent.helper.ConfigHelper.TOP_LEVEL_VIRTUAL_RESOURCE_GROUP_KEY;
+
 import com.sentrysoftware.metricshub.agent.config.AgentConfig;
 import com.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import com.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
@@ -45,12 +47,15 @@ public class TaskSchedulingService {
 		// Self observer scheduling
 		scheduleSelfObserver();
 
+		// Top level resources observers scheduling
+		scheduleTopLevelResourcesObservers();
+
 		// Resource Group observers scheduling
 		scheduleResourceGroupObservers();
 	}
 
 	/**
-	 * Initialize the {@link SelfObserverScheduling} to schedule {@link SelfObserver}
+	 * Initialize the {@link SelfObserverScheduling} to schedule SelfObserver
 	 * which triggers a periodic task to flush metrics
 	 */
 	void scheduleSelfObserver() {
@@ -83,6 +88,21 @@ public class TaskSchedulingService {
 			});
 
 		log.info("Resource Group Observers scheduled.");
+	}
+
+	/**
+	 * Initialize the {@link SimpleGaugeMetricObserver} for each resource and
+	 * trigger a periodic task to flush metrics
+	 */
+	void scheduleTopLevelResourcesObservers() {
+		agentConfig
+			.getResources()
+			.entrySet()
+			.stream()
+			.filter(entry -> Objects.nonNull(entry.getValue()))
+			.forEach(entry -> scheduleResource(TOP_LEVEL_VIRTUAL_RESOURCE_GROUP_KEY, entry.getKey(), entry.getValue()));
+
+		log.info("Top level resources Observers scheduled.");
 	}
 
 	/**

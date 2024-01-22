@@ -100,6 +100,10 @@ public class AgentConfig {
 
 	@Default
 	@JsonSetter(nulls = SKIP)
+	private Map<String, ResourceConfig> resources = new HashMap<>();
+
+	@Default
+	@JsonSetter(nulls = SKIP)
 	private Map<String, ResourceGroupConfig> resourceGroups = new HashMap<>();
 
 	/**
