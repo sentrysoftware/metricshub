@@ -3,11 +3,22 @@ package org.sentrysoftware.metricshub.engine.configuration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.AES;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.DES;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.INVALID_PRIVACY_VALUE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.INVALID_PRIVACY_VALUE_EXCEPTION_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.INVALID_SNMP_VERSION;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.NO;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.NONE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.SNMP_CONFIGURATION_ENCRYPTED_TO_STRING;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.SNMP_CONFIGURATION_NO_PRIVACY_TO_STRING;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.SNMP_CONFIGURATION_NO_PRIVACY_WITH_USERNAME_TO_STRING;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.SNMP_CONFIGURATION_V1_TO_STRING;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.SNMP_CONFIGURATION_V2C_TO_STRING;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.USERNAME;
 
 import java.util.Map;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.sentrysoftware.metricshub.engine.constants.Constants;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
@@ -23,27 +34,24 @@ class SnmpConfigurationTest {
 			.version(SnmpConfiguration.SnmpVersion.V3_MD5)
 			.privacy(SnmpConfiguration.Privacy.AES)
 			.build();
-		Assertions.assertEquals(Constants.SNMP_CONFIGURATION_ENCRYPTED_TO_STRING, snmpConfiguration.toString());
+		assertEquals(SNMP_CONFIGURATION_ENCRYPTED_TO_STRING, snmpConfiguration.toString());
 
 		// Privacy is NULL, version is V3_MD5 and username is NULL
 		snmpConfiguration = SnmpConfiguration.builder().privacy(null).version(SnmpConfiguration.SnmpVersion.V3_MD5).build();
-		Assertions.assertEquals(Constants.SNMP_CONFIGURATION_NO_PRIVACY_TO_STRING, snmpConfiguration.toString());
+		assertEquals(SNMP_CONFIGURATION_NO_PRIVACY_TO_STRING, snmpConfiguration.toString());
 
 		// Privacy is NULL, version is V3_MD5 and username is not NULL
 		snmpConfiguration =
-			SnmpConfiguration.builder().username(Constants.USERNAME).version(SnmpConfiguration.SnmpVersion.V3_MD5).build();
-		Assertions.assertEquals(
-			Constants.SNMP_CONFIGURATION_NO_PRIVACY_WITH_USERNAME_TO_STRING,
-			snmpConfiguration.toString()
-		);
+			SnmpConfiguration.builder().username(USERNAME).version(SnmpConfiguration.SnmpVersion.V3_MD5).build();
+		assertEquals(SNMP_CONFIGURATION_NO_PRIVACY_WITH_USERNAME_TO_STRING, snmpConfiguration.toString());
 
 		// Privacy is NULL, version is V1 and username is NULL
 		snmpConfiguration = SnmpConfiguration.builder().version(SnmpConfiguration.SnmpVersion.V1).build();
-		Assertions.assertEquals(Constants.SNMP_CONFIGURATION_V1_TO_STRING, snmpConfiguration.toString());
+		assertEquals(SNMP_CONFIGURATION_V1_TO_STRING, snmpConfiguration.toString());
 
 		// Privacy is NULL, version is V2C and username is NULL
 		snmpConfiguration = SnmpConfiguration.builder().version(SnmpConfiguration.SnmpVersion.V2C).build();
-		Assertions.assertEquals(Constants.SNMP_CONFIGURATION_V2C_TO_STRING, snmpConfiguration.toString());
+		assertEquals(SNMP_CONFIGURATION_V2C_TO_STRING, snmpConfiguration.toString());
 
 		// Privacy is not NULL, version is V3_MD5 and username is not NULL
 		snmpConfiguration =
@@ -51,12 +59,9 @@ class SnmpConfigurationTest {
 				.builder()
 				.version(SnmpConfiguration.SnmpVersion.V3_MD5)
 				.privacy(SnmpConfiguration.Privacy.NO_ENCRYPTION)
-				.username(Constants.USERNAME)
+				.username(USERNAME)
 				.build();
-		Assertions.assertEquals(
-			Constants.SNMP_CONFIGURATION_NO_PRIVACY_WITH_USERNAME_TO_STRING,
-			snmpConfiguration.toString()
-		);
+		assertEquals(SNMP_CONFIGURATION_NO_PRIVACY_WITH_USERNAME_TO_STRING, snmpConfiguration.toString());
 	}
 
 	@Test
@@ -89,38 +94,38 @@ class SnmpConfigurationTest {
 			}
 		);
 		String actualMessage = exception.getMessage();
-		assertTrue(actualMessage.contains(Constants.INVALID_SNMP_VERSION));
+		assertTrue(actualMessage.contains(INVALID_SNMP_VERSION));
 
 		exception =
 			assertThrows(
 				IllegalArgumentException.class,
 				() -> {
-					SnmpConfiguration.SnmpVersion.interpretValueOf(Constants.NO);
+					SnmpConfiguration.SnmpVersion.interpretValueOf(NO);
 				}
 			);
 		actualMessage = exception.getMessage();
-		assertTrue(actualMessage.contains(Constants.INVALID_SNMP_VERSION));
+		assertTrue(actualMessage.contains(INVALID_SNMP_VERSION));
 	}
 
 	@Test
 	void testPrivacyInterpretValueOf() {
 		// Encryption is defined: privacy is not equal to NO and not equal to NONE
-		assertEquals(SnmpConfiguration.Privacy.DES, SnmpConfiguration.Privacy.interpretValueOf(Constants.DES));
-		assertEquals(SnmpConfiguration.Privacy.AES, SnmpConfiguration.Privacy.interpretValueOf(Constants.AES));
+		assertEquals(SnmpConfiguration.Privacy.DES, SnmpConfiguration.Privacy.interpretValueOf(DES));
+		assertEquals(SnmpConfiguration.Privacy.AES, SnmpConfiguration.Privacy.interpretValueOf(AES));
 
 		// No encryption: privacy is equal to NO or equal to NONE
-		assertEquals(SnmpConfiguration.Privacy.NO_ENCRYPTION, SnmpConfiguration.Privacy.interpretValueOf(Constants.NO));
-		assertEquals(SnmpConfiguration.Privacy.NO_ENCRYPTION, SnmpConfiguration.Privacy.interpretValueOf(Constants.NONE));
+		assertEquals(SnmpConfiguration.Privacy.NO_ENCRYPTION, SnmpConfiguration.Privacy.interpretValueOf(NO));
+		assertEquals(SnmpConfiguration.Privacy.NO_ENCRYPTION, SnmpConfiguration.Privacy.interpretValueOf(NONE));
 
 		// Invalid privacy value
 		final Exception exception = assertThrows(
 			IllegalArgumentException.class,
 			() -> {
-				SnmpConfiguration.Privacy.interpretValueOf(Constants.INVALID_PRIVACY_VALUE);
+				SnmpConfiguration.Privacy.interpretValueOf(INVALID_PRIVACY_VALUE);
 			}
 		);
 		final String actualMessage = exception.getMessage();
-		assertTrue(actualMessage.contains(Constants.INVALID_PRIVACY_VALUE_EXCEPTION_MESSAGE));
+		assertTrue(actualMessage.contains(INVALID_PRIVACY_VALUE_EXCEPTION_MESSAGE));
 	}
 
 	@Test

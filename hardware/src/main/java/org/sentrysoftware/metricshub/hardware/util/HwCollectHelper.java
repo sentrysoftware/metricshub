@@ -1,5 +1,9 @@
 package org.sentrysoftware.metricshub.hardware.util;
 
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_VM_POWER_SHARE_METRIC;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_VM_POWER_STATE_METRIC;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.PRESENT_STATUS;
+
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -147,7 +151,7 @@ public class HwCollectHelper {
 			return 0.0;
 		}
 
-		final Double powerShare = CollectHelper.getNumberMetricValue(vm, HwConstants.HW_VM_POWER_SHARE_METRIC, false);
+		final Double powerShare = CollectHelper.getNumberMetricValue(vm, HW_VM_POWER_SHARE_METRIC, false);
 		if (powerShare != null && powerShare >= 0.0) {
 			return powerShare;
 		}
@@ -161,7 +165,7 @@ public class HwCollectHelper {
 	 * @return		Whether the given VM is online.
 	 */
 	private static boolean isVmOnline(Monitor vm) {
-		return "on".equals(CollectHelper.getStateSetMetricValue(vm, HwConstants.HW_VM_POWER_STATE_METRIC, false));
+		return "on".equals(CollectHelper.getStateSetMetricValue(vm, HW_VM_POWER_STATE_METRIC, false));
 	}
 
 	/**
@@ -171,7 +175,7 @@ public class HwCollectHelper {
 	 */
 
 	static boolean hasPresentMetric(final Monitor monitor) {
-		return monitor.getMetrics().containsKey(String.format(HwConstants.PRESENT_STATUS, monitor.getType()));
+		return monitor.getMetrics().containsKey(String.format(PRESENT_STATUS, monitor.getType()));
 	}
 
 	/**
@@ -186,7 +190,7 @@ public class HwCollectHelper {
 		}
 
 		final NumberMetric presentMetric = monitor.getMetric(
-			String.format(HwConstants.PRESENT_STATUS, monitor.getType()),
+			String.format(PRESENT_STATUS, monitor.getType()),
 			NumberMetric.class
 		);
 		final Double present = presentMetric != null ? presentMetric.getValue() : null;

@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.EMPTY;
 
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -36,7 +37,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Subtract;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Translate;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Xml2Csv;
-import org.sentrysoftware.metricshub.engine.constants.Constants;
 
 @ExtendWith(MockitoExtension.class)
 class ComputeUpdaterProcessorTest {
@@ -53,49 +53,49 @@ class ComputeUpdaterProcessorTest {
 	@Test
 	void testProcessAdd() {
 		doNothing().when(computeProcessor).process(any(Add.class));
-		computeUpdaterProcessor.process(Add.builder().column(1).value(Constants.EMPTY).build());
+		computeUpdaterProcessor.process(Add.builder().column(1).value(EMPTY).build());
 		verify(computeProcessor, times(1)).process(any(Add.class));
 	}
 
 	@Test
 	void testProcessDivide() {
 		doNothing().when(computeProcessor).process(any(Divide.class));
-		computeUpdaterProcessor.process(Divide.builder().column(1).value(Constants.EMPTY).build());
+		computeUpdaterProcessor.process(Divide.builder().column(1).value(EMPTY).build());
 		verify(computeProcessor, times(1)).process(any(Divide.class));
 	}
 
 	@Test
 	void testProcessMultiply() {
 		doNothing().when(computeProcessor).process(any(Multiply.class));
-		computeUpdaterProcessor.process(Multiply.builder().column(1).value(Constants.EMPTY).build());
+		computeUpdaterProcessor.process(Multiply.builder().column(1).value(EMPTY).build());
 		verify(computeProcessor, times(1)).process(any(Multiply.class));
 	}
 
 	@Test
 	void testProcessSubtract() {
 		doNothing().when(computeProcessor).process(any(Subtract.class));
-		computeUpdaterProcessor.process(Subtract.builder().column(1).value(Constants.EMPTY).build());
+		computeUpdaterProcessor.process(Subtract.builder().column(1).value(EMPTY).build());
 		verify(computeProcessor, times(1)).process(any(Subtract.class));
 	}
 
 	@Test
 	void testProcessAnd() {
 		doNothing().when(computeProcessor).process(any(And.class));
-		computeUpdaterProcessor.process(And.builder().column(1).value(Constants.EMPTY).build());
+		computeUpdaterProcessor.process(And.builder().column(1).value(EMPTY).build());
 		verify(computeProcessor, times(1)).process(any(And.class));
 	}
 
 	@Test
 	void testProcessLeftConcat() {
 		doNothing().when(computeProcessor).process(any(LeftConcat.class));
-		computeUpdaterProcessor.process(LeftConcat.builder().column(1).value(Constants.EMPTY).build());
+		computeUpdaterProcessor.process(LeftConcat.builder().column(1).value(EMPTY).build());
 		verify(computeProcessor, times(1)).process(any(LeftConcat.class));
 	}
 
 	@Test
 	void testProcessRightConcat() {
 		doNothing().when(computeProcessor).process(any(RightConcat.class));
-		computeUpdaterProcessor.process(RightConcat.builder().column(1).value(Constants.EMPTY).build());
+		computeUpdaterProcessor.process(RightConcat.builder().column(1).value(EMPTY).build());
 		verify(computeProcessor, times(1)).process(any(RightConcat.class));
 	}
 
@@ -230,7 +230,7 @@ class ComputeUpdaterProcessorTest {
 		final PerBitTranslation perBitTranslation = PerBitTranslation
 			.builder()
 			.column(-1)
-			.bitList(Constants.EMPTY)
+			.bitList(EMPTY)
 			.translationTable(TranslationTable.builder().build())
 			.build();
 		doNothing().when(computeProcessor).process(any(PerBitTranslation.class));

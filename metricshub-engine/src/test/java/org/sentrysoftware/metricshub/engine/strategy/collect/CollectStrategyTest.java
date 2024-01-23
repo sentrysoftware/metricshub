@@ -8,6 +8,17 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.IS_ENDPOINT;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.CONNECTOR;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.DISK_CONTROLLER;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.ENCLOSURE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HEALTHY;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_ID;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_NAME;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.ID;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.MONITOR_ID_ATTRIBUTE_VALUE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.STATUS_INFORMATION;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.TEST_CONNECTOR_ID;
 import static org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy.CONNECTOR_ID_FORMAT;
 
 import java.nio.file.Path;
@@ -25,7 +36,6 @@ import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
-import org.sentrysoftware.metricshub.engine.constants.Constants;
 import org.sentrysoftware.metricshub.engine.strategy.IStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
@@ -60,11 +70,11 @@ class CollectStrategyTest {
 		final Monitor connectorMonitor = Monitor.builder().type(KnownMonitorType.CONNECTOR.getKey()).build();
 		final Map<String, Map<String, Monitor>> monitors = new HashMap<>(
 			Map.of(
-				Constants.HOST,
-				Map.of(Constants.MONITOR_ID_ATTRIBUTE_VALUE, hostMonitor),
-				Constants.CONNECTOR,
+				HOST,
+				Map.of(MONITOR_ID_ATTRIBUTE_VALUE, hostMonitor),
+				CONNECTOR,
 				Map.of(
-					String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), Constants.TEST_CONNECTOR_ID),
+					String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), TEST_CONNECTOR_ID),
 					connectorMonitor
 				)
 			)
@@ -78,8 +88,8 @@ class CollectStrategyTest {
 			.hostConfiguration(
 				HostConfiguration
 					.builder()
-					.hostId(Constants.HOST_ID)
-					.hostname(Constants.HOST_NAME)
+					.hostId(HOST_ID)
+					.hostname(HOST_NAME)
 					.sequential(false)
 					.configurations(Map.of(SnmpConfiguration.class, snmpConfig))
 					.build()
@@ -88,9 +98,9 @@ class CollectStrategyTest {
 
 		MonitorFactory monitorFactory = MonitorFactory
 			.builder()
-			.monitorType(Constants.ENCLOSURE)
+			.monitorType(ENCLOSURE)
 			.telemetryManager(telemetryManager)
-			.connectorId(Constants.TEST_CONNECTOR_ID)
+			.connectorId(TEST_CONNECTOR_ID)
 			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "enclosure-1")))
 			.discoveryTime(strategyTime - 30 * 60 * 1000)
 			.build();
@@ -99,9 +109,9 @@ class CollectStrategyTest {
 		monitorFactory =
 			MonitorFactory
 				.builder()
-				.monitorType(Constants.DISK_CONTROLLER)
+				.monitorType(DISK_CONTROLLER)
 				.telemetryManager(telemetryManager)
-				.connectorId(Constants.TEST_CONNECTOR_ID)
+				.connectorId(TEST_CONNECTOR_ID)
 				.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "1")))
 				.discoveryTime(strategyTime - 30 * 60 * 1000)
 				.build();
@@ -109,7 +119,7 @@ class CollectStrategyTest {
 
 		hostMonitor.addAttribute(IS_ENDPOINT, "true");
 
-		connectorMonitor.addAttribute(Constants.ID, Constants.TEST_CONNECTOR_ID);
+		connectorMonitor.addAttribute(ID, TEST_CONNECTOR_ID);
 
 		// Create the connector store
 		final ConnectorStore connectorStore = new ConnectorStore(TEST_CONNECTOR_PATH);
@@ -157,8 +167,8 @@ class CollectStrategyTest {
 			1.0,
 			diskController.getMetric("hw.status{hw.type=\"disk_controller\"}", NumberMetric.class).getValue()
 		);
-		assertEquals(Constants.HEALTHY, diskController.getLegacyTextParameters().get(Constants.STATUS_INFORMATION));
+		assertEquals(HEALTHY, diskController.getLegacyTextParameters().get(STATUS_INFORMATION));
 		assertEquals(1.0, enclosure.getMetric("hw.status{hw.type=\"enclosure\"}", NumberMetric.class).getValue());
-		assertEquals(Constants.HEALTHY, enclosure.getLegacyTextParameters().get(Constants.STATUS_INFORMATION));
+		assertEquals(HEALTHY, enclosure.getLegacyTextParameters().get(STATUS_INFORMATION));
 	}
 }

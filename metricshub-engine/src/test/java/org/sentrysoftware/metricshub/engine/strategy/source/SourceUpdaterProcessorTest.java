@@ -5,6 +5,30 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.EMPTY;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.ENCLOSURE_COLLECT_SOURCE_1;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.EXPECTED_RESULT;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.EXPECTED_SNMP_TABLE_DATA;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.EXPECTED_VAL_1;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.EXPECTED_VAL_1_AND_2;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.EXPECTED_VAL_1_AND_2_ARRAY;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.EXPECTED_VAL_2;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.LOCALHOST;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.MONITOR_ID_ATTRIBUTE_VALUE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.MY_CONNECTOR_1_NAME;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.OID;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.PASSWORD;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.SNMP_SELECTED_COLUMNS;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.SNMP_SELECTED_COLUMNS_LIST;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.TAB1_REF;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.URL;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.USERNAME;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.VALUE_A1;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.VALUE_B1;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.VALUE_C1;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.VALUE_VAL1;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.VALUE_VAL2;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.VALUE_VAL3;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,7 +58,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.TableUnionSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WbemSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WmiSource;
-import org.sentrysoftware.metricshub.engine.constants.Constants;
 import org.sentrysoftware.metricshub.engine.telemetry.HostProperties;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
@@ -48,15 +71,15 @@ class SourceUpdaterProcessorTest {
 	void testProcessHTTPSource() {
 		final HttpConfiguration httpConfiguration = HttpConfiguration
 			.builder()
-			.username(Constants.USERNAME)
-			.password(Constants.PASSWORD.toCharArray())
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
 			.port(161)
 			.timeout(120L)
 			.build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
-			.hostname(Constants.LOCALHOST)
-			.hostId(Constants.LOCALHOST)
+			.hostname(LOCALHOST)
+			.hostId(LOCALHOST)
 			.hostType(DeviceKind.LINUX)
 			.configurations(Collections.singletonMap(HttpConfiguration.class, httpConfiguration))
 			.build();
@@ -68,69 +91,58 @@ class SourceUpdaterProcessorTest {
 			new SourceUpdaterProcessor(
 				sourceProcessor,
 				telemetryManager,
-				Constants.MY_CONNECTOR_1_NAME,
-				Map.of(MONITOR_ATTRIBUTE_ID, Constants.MONITOR_ID_ATTRIBUTE_VALUE)
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
 			)
-				.process(HttpSource.builder().url(Constants.URL).method(HttpMethod.GET).build())
+				.process(HttpSource.builder().url(URL).method(HttpMethod.GET).build())
 		);
 
-		final HttpSource httpSource = HttpSource.builder().url(Constants.URL).build();
-		httpSource.setExecuteForEachEntryOf(
-			ExecuteForEachEntryOf.builder().source(Constants.ENCLOSURE_COLLECT_SOURCE_1).build()
-		);
+		final HttpSource httpSource = HttpSource.builder().url(URL).build();
+		httpSource.setExecuteForEachEntryOf(ExecuteForEachEntryOf.builder().source(ENCLOSURE_COLLECT_SOURCE_1).build());
 
 		final SourceTable sourceTable = SourceTable
 			.builder()
 			.table(
-				Arrays.asList(
-					Arrays.asList(Constants.VALUE_VAL1, Constants.VALUE_VAL2, Constants.VALUE_VAL3),
-					Arrays.asList(Constants.VALUE_A1, Constants.VALUE_B1, Constants.VALUE_C1)
-				)
+				Arrays.asList(Arrays.asList(VALUE_VAL1, VALUE_VAL2, VALUE_VAL3), Arrays.asList(VALUE_A1, VALUE_B1, VALUE_C1))
 			)
 			.build();
 
 		final HostProperties hostProperties = HostProperties.builder().build();
 
-		hostProperties
-			.getConnectorNamespace(Constants.MY_CONNECTOR_1_NAME)
-			.addSourceTable(Constants.ENCLOSURE_COLLECT_SOURCE_1, sourceTable);
+		hostProperties.getConnectorNamespace(MY_CONNECTOR_1_NAME).addSourceTable(ENCLOSURE_COLLECT_SOURCE_1, sourceTable);
 
 		telemetryManager.setHostProperties(hostProperties);
 
-		final SourceTable expected1 = SourceTable.builder().rawData(Constants.EXPECTED_VAL_1).build();
-		final SourceTable expected2 = SourceTable.builder().rawData(Constants.EXPECTED_VAL_2).build();
+		final SourceTable expected1 = SourceTable.builder().rawData(EXPECTED_VAL_1).build();
+		final SourceTable expected2 = SourceTable.builder().rawData(EXPECTED_VAL_2).build();
 		doReturn(expected1, expected2).when(sourceProcessor).process(any(HttpSource.class));
 		SourceTable result = new SourceUpdaterProcessor(
 			sourceProcessor,
 			telemetryManager,
-			Constants.MY_CONNECTOR_1_NAME,
-			Map.of(MONITOR_ATTRIBUTE_ID, Constants.MONITOR_ID_ATTRIBUTE_VALUE)
+			MY_CONNECTOR_1_NAME,
+			Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
 		)
 			.process(httpSource);
-		assertEquals(Constants.EXPECTED_VAL_1_AND_2, result.getRawData());
+		assertEquals(EXPECTED_VAL_1_AND_2, result.getRawData());
 
 		httpSource.setExecuteForEachEntryOf(
-			ExecuteForEachEntryOf
-				.builder()
-				.source(Constants.ENCLOSURE_COLLECT_SOURCE_1)
-				.concatMethod(EntryConcatMethod.LIST)
-				.build()
+			ExecuteForEachEntryOf.builder().source(ENCLOSURE_COLLECT_SOURCE_1).concatMethod(EntryConcatMethod.LIST).build()
 		);
 		doReturn(expected1, expected2).when(sourceProcessor).process(any(HttpSource.class));
 		result =
 			new SourceUpdaterProcessor(
 				sourceProcessor,
 				telemetryManager,
-				Constants.MY_CONNECTOR_1_NAME,
-				Map.of(MONITOR_ATTRIBUTE_ID, Constants.MONITOR_ID_ATTRIBUTE_VALUE)
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
 			)
 				.process(httpSource);
-		assertEquals(Constants.EXPECTED_VAL_1_AND_2, result.getRawData());
+		assertEquals(EXPECTED_VAL_1_AND_2, result.getRawData());
 
 		httpSource.setExecuteForEachEntryOf(
 			ExecuteForEachEntryOf
 				.builder()
-				.source(Constants.ENCLOSURE_COLLECT_SOURCE_1)
+				.source(ENCLOSURE_COLLECT_SOURCE_1)
 				.concatMethod(EntryConcatMethod.JSON_ARRAY)
 				.build()
 		);
@@ -139,16 +151,16 @@ class SourceUpdaterProcessorTest {
 			new SourceUpdaterProcessor(
 				sourceProcessor,
 				telemetryManager,
-				Constants.MY_CONNECTOR_1_NAME,
-				Map.of(MONITOR_ATTRIBUTE_ID, Constants.MONITOR_ID_ATTRIBUTE_VALUE)
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
 			)
 				.process(httpSource);
-		assertEquals(Constants.EXPECTED_VAL_1_AND_2_ARRAY, result.getRawData());
+		assertEquals(EXPECTED_VAL_1_AND_2_ARRAY, result.getRawData());
 
 		httpSource.setExecuteForEachEntryOf(
 			ExecuteForEachEntryOf
 				.builder()
-				.source(Constants.ENCLOSURE_COLLECT_SOURCE_1)
+				.source(ENCLOSURE_COLLECT_SOURCE_1)
 				.concatMethod(EntryConcatMethod.JSON_ARRAY_EXTENDED)
 				.build()
 		);
@@ -157,27 +169,27 @@ class SourceUpdaterProcessorTest {
 			new SourceUpdaterProcessor(
 				sourceProcessor,
 				telemetryManager,
-				Constants.MY_CONNECTOR_1_NAME,
-				Map.of(MONITOR_ATTRIBUTE_ID, Constants.MONITOR_ID_ATTRIBUTE_VALUE)
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
 			)
 				.process(httpSource);
 
-		assertEquals(Constants.EXPECTED_RESULT, result.getRawData());
+		assertEquals(EXPECTED_RESULT, result.getRawData());
 	}
 
 	@Test
 	void testProcessSNMPGetSource() {
 		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
 			.builder()
-			.username(Constants.USERNAME)
-			.password(Constants.PASSWORD.toCharArray())
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
 			.port(161)
 			.timeout(120L)
 			.build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
-			.hostname(Constants.LOCALHOST)
-			.hostId(Constants.LOCALHOST)
+			.hostname(LOCALHOST)
+			.hostId(LOCALHOST)
 			.hostType(DeviceKind.LINUX)
 			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
 			.build();
@@ -189,13 +201,13 @@ class SourceUpdaterProcessorTest {
 			new SourceUpdaterProcessor(
 				sourceProcessor,
 				telemetryManager,
-				Constants.MY_CONNECTOR_1_NAME,
-				Map.of(MONITOR_ATTRIBUTE_ID, Constants.MONITOR_ID_ATTRIBUTE_VALUE)
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
 			)
-				.process(SnmpGetSource.builder().oid(Constants.OID).build())
+				.process(SnmpGetSource.builder().oid(OID).build())
 		);
 
-		final SourceTable expected1 = SourceTable.builder().rawData(Constants.EXPECTED_VAL_1).build();
+		final SourceTable expected1 = SourceTable.builder().rawData(EXPECTED_VAL_1).build();
 
 		doReturn(expected1).when(sourceProcessor).process(any(SnmpGetSource.class));
 		assertEquals(
@@ -203,10 +215,10 @@ class SourceUpdaterProcessorTest {
 			new SourceUpdaterProcessor(
 				sourceProcessor,
 				telemetryManager,
-				Constants.MY_CONNECTOR_1_NAME,
-				Map.of(MONITOR_ATTRIBUTE_ID, Constants.MONITOR_ID_ATTRIBUTE_VALUE)
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
 			)
-				.process(SnmpGetSource.builder().oid(Constants.OID).build())
+				.process(SnmpGetSource.builder().oid(OID).build())
 		);
 	}
 
@@ -214,15 +226,15 @@ class SourceUpdaterProcessorTest {
 	void testProcessSNMPGetTableSource() {
 		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
 			.builder()
-			.username(Constants.USERNAME)
-			.password(Constants.PASSWORD.toCharArray())
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
 			.port(161)
 			.timeout(120L)
 			.build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
-			.hostname(Constants.LOCALHOST)
-			.hostId(Constants.LOCALHOST)
+			.hostname(LOCALHOST)
+			.hostId(LOCALHOST)
 			.hostType(DeviceKind.LINUX)
 			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
 			.build();
@@ -233,16 +245,16 @@ class SourceUpdaterProcessorTest {
 			new SourceUpdaterProcessor(
 				sourceProcessor,
 				telemetryManager,
-				Constants.MY_CONNECTOR_1_NAME,
-				Map.of(MONITOR_ATTRIBUTE_ID, Constants.MONITOR_ID_ATTRIBUTE_VALUE)
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
 			)
-				.process(SnmpTableSource.builder().oid(Constants.OID).selectColumns(Constants.SNMP_SELECTED_COLUMNS).build())
+				.process(SnmpTableSource.builder().oid(OID).selectColumns(SNMP_SELECTED_COLUMNS).build())
 		);
 
 		SourceTable expected = SourceTable
 			.builder()
-			.table(Constants.EXPECTED_SNMP_TABLE_DATA)
-			.headers(Constants.SNMP_SELECTED_COLUMNS_LIST)
+			.table(EXPECTED_SNMP_TABLE_DATA)
+			.headers(SNMP_SELECTED_COLUMNS_LIST)
 			.build();
 		doReturn(expected).when(sourceProcessor).process(any(SnmpTableSource.class));
 		assertEquals(
@@ -250,10 +262,10 @@ class SourceUpdaterProcessorTest {
 			new SourceUpdaterProcessor(
 				sourceProcessor,
 				telemetryManager,
-				Constants.MY_CONNECTOR_1_NAME,
-				Map.of(MONITOR_ATTRIBUTE_ID, Constants.MONITOR_ID_ATTRIBUTE_VALUE)
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
 			)
-				.process(SnmpTableSource.builder().oid(Constants.OID).selectColumns(Constants.SNMP_SELECTED_COLUMNS).build())
+				.process(SnmpTableSource.builder().oid(OID).selectColumns(SNMP_SELECTED_COLUMNS).build())
 		);
 	}
 
@@ -261,15 +273,15 @@ class SourceUpdaterProcessorTest {
 	void testProcessTableJoinSource() {
 		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
 			.builder()
-			.username(Constants.USERNAME)
-			.password(Constants.PASSWORD.toCharArray())
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
 			.port(161)
 			.timeout(120L)
 			.build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
-			.hostname(Constants.LOCALHOST)
-			.hostId(Constants.LOCALHOST)
+			.hostname(LOCALHOST)
+			.hostId(LOCALHOST)
 			.hostType(DeviceKind.LINUX)
 			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
 			.build();
@@ -280,8 +292,8 @@ class SourceUpdaterProcessorTest {
 			new SourceUpdaterProcessor(
 				sourceProcessor,
 				telemetryManager,
-				Constants.MY_CONNECTOR_1_NAME,
-				Map.of(MONITOR_ATTRIBUTE_ID, Constants.MONITOR_ID_ATTRIBUTE_VALUE)
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
 			)
 				.process(TableJoinSource.builder().build())
 		);
@@ -291,15 +303,15 @@ class SourceUpdaterProcessorTest {
 	void testProcessTableUnionSource() {
 		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
 			.builder()
-			.username(Constants.USERNAME)
-			.password(Constants.PASSWORD.toCharArray())
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
 			.port(161)
 			.timeout(120L)
 			.build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
-			.hostname(Constants.LOCALHOST)
-			.hostId(Constants.LOCALHOST)
+			.hostname(LOCALHOST)
+			.hostId(LOCALHOST)
 			.hostType(DeviceKind.LINUX)
 			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
 			.build();
@@ -310,8 +322,8 @@ class SourceUpdaterProcessorTest {
 			new SourceUpdaterProcessor(
 				sourceProcessor,
 				telemetryManager,
-				Constants.MY_CONNECTOR_1_NAME,
-				Map.of(MONITOR_ATTRIBUTE_ID, Constants.MONITOR_ID_ATTRIBUTE_VALUE)
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
 			)
 				.process(TableUnionSource.builder().tables(new ArrayList<>()).build())
 		);
@@ -321,15 +333,15 @@ class SourceUpdaterProcessorTest {
 	void testProcessCopySource() {
 		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
 			.builder()
-			.username(Constants.USERNAME)
-			.password(Constants.PASSWORD.toCharArray())
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
 			.port(161)
 			.timeout(120L)
 			.build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
-			.hostname(Constants.LOCALHOST)
-			.hostId(Constants.LOCALHOST)
+			.hostname(LOCALHOST)
+			.hostId(LOCALHOST)
 			.hostType(DeviceKind.LINUX)
 			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
 			.build();
@@ -340,19 +352,19 @@ class SourceUpdaterProcessorTest {
 			new SourceUpdaterProcessor(
 				sourceProcessor,
 				telemetryManager,
-				Constants.MY_CONNECTOR_1_NAME,
-				Map.of(MONITOR_ATTRIBUTE_ID, Constants.MONITOR_ID_ATTRIBUTE_VALUE)
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
 			)
-				.process(CopySource.builder().from(Constants.TAB1_REF).build())
+				.process(CopySource.builder().from(TAB1_REF).build())
 		);
 
-		CopySource copySource = CopySource.builder().from(Constants.TAB1_REF).build();
-		final List<List<String>> result = Collections.singletonList(Collections.singletonList(Constants.VALUE_VAL1));
+		CopySource copySource = CopySource.builder().from(TAB1_REF).build();
+		final List<List<String>> result = Collections.singletonList(Collections.singletonList(VALUE_VAL1));
 		final SourceTable expected = SourceTable.builder().table(result).build();
 
-		final SnmpGetSource snmpGetSource = SnmpGetSource.builder().oid(Constants.OID).build();
+		final SnmpGetSource snmpGetSource = SnmpGetSource.builder().oid(OID).build();
 
-		final List<List<String>> resultSnmp = Collections.singletonList(Collections.singletonList(Constants.VALUE_VAL1));
+		final List<List<String>> resultSnmp = Collections.singletonList(Collections.singletonList(VALUE_VAL1));
 		final SourceTable expectedSnmp = SourceTable.builder().table(resultSnmp).build();
 		doReturn(expectedSnmp).when(sourceProcessor).process(any(SnmpGetSource.class));
 		assertEquals(
@@ -360,8 +372,8 @@ class SourceUpdaterProcessorTest {
 			new SourceUpdaterProcessor(
 				sourceProcessor,
 				telemetryManager,
-				Constants.MY_CONNECTOR_1_NAME,
-				Map.of(MONITOR_ATTRIBUTE_ID, Constants.MONITOR_ID_ATTRIBUTE_VALUE)
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
 			)
 				.process(snmpGetSource)
 		);
@@ -372,8 +384,8 @@ class SourceUpdaterProcessorTest {
 			new SourceUpdaterProcessor(
 				sourceProcessor,
 				telemetryManager,
-				Constants.MY_CONNECTOR_1_NAME,
-				Map.of(MONITOR_ATTRIBUTE_ID, Constants.MONITOR_ID_ATTRIBUTE_VALUE)
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
 			)
 				.process(copySource)
 		);
@@ -383,22 +395,22 @@ class SourceUpdaterProcessorTest {
 	void testProcessStaticSource() {
 		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
 			.builder()
-			.username(Constants.USERNAME)
-			.password(Constants.PASSWORD.toCharArray())
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
 			.port(161)
 			.timeout(120L)
 			.build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
-			.hostname(Constants.LOCALHOST)
-			.hostId(Constants.LOCALHOST)
+			.hostname(LOCALHOST)
+			.hostId(LOCALHOST)
 			.hostType(DeviceKind.LINUX)
 			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
 			.build();
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 
-		StaticSource staticSource = StaticSource.builder().value(Constants.VALUE_VAL1).build();
-		final List<List<String>> resultTable = Collections.singletonList(Collections.singletonList(Constants.VALUE_VAL1));
+		StaticSource staticSource = StaticSource.builder().value(VALUE_VAL1).build();
+		final List<List<String>> resultTable = Collections.singletonList(Collections.singletonList(VALUE_VAL1));
 		final SourceTable expected = SourceTable.builder().table(resultTable).build();
 		doReturn(expected).when(sourceProcessor).process(any(StaticSource.class));
 		assertEquals(
@@ -406,8 +418,8 @@ class SourceUpdaterProcessorTest {
 			new SourceUpdaterProcessor(
 				sourceProcessor,
 				telemetryManager,
-				Constants.MY_CONNECTOR_1_NAME,
-				Map.of(MONITOR_ATTRIBUTE_ID, Constants.MONITOR_ID_ATTRIBUTE_VALUE)
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
 			)
 				.process(staticSource)
 		);
@@ -439,10 +451,10 @@ class SourceUpdaterProcessorTest {
 			new SourceUpdaterProcessor(
 				sourceProcessor,
 				telemetryManager,
-				Constants.MY_CONNECTOR_1_NAME,
-				Map.of(MONITOR_ATTRIBUTE_ID, Constants.MONITOR_ID_ATTRIBUTE_VALUE)
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
 			)
-				.process(WbemSource.builder().query(Constants.EMPTY).build())
+				.process(WbemSource.builder().query(EMPTY).build())
 		);
 	}
 
@@ -454,10 +466,10 @@ class SourceUpdaterProcessorTest {
 			new SourceUpdaterProcessor(
 				sourceProcessor,
 				TelemetryManager.builder().build(),
-				Constants.MY_CONNECTOR_1_NAME,
-				Map.of(MONITOR_ATTRIBUTE_ID, Constants.MONITOR_ID_ATTRIBUTE_VALUE)
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
 			)
-				.process(WmiSource.builder().query(Constants.EMPTY).build())
+				.process(WmiSource.builder().query(EMPTY).build())
 		);
 	}
 
@@ -470,8 +482,8 @@ class SourceUpdaterProcessorTest {
 			new SourceUpdaterProcessor(
 				sourceProcessor,
 				TelemetryManager.builder().build(),
-				Constants.MY_CONNECTOR_1_NAME,
-				Map.of(MONITOR_ATTRIBUTE_ID, Constants.MONITOR_ID_ATTRIBUTE_VALUE)
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
 			)
 				.process(
 					OsCommandSource.builder().commandLine("/usr/sbin/pvdisplay /dev/dsk/%PhysicalDisk.Collect.DeviceID%").build()
@@ -487,8 +499,8 @@ class SourceUpdaterProcessorTest {
 			new SourceUpdaterProcessor(
 				sourceProcessor,
 				TelemetryManager.builder().build(),
-				Constants.MY_CONNECTOR_1_NAME,
-				Map.of(MONITOR_ATTRIBUTE_ID, Constants.MONITOR_ID_ATTRIBUTE_VALUE)
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
 			)
 				.process(IpmiSource.builder().build())
 		);
@@ -505,7 +517,7 @@ class SourceUpdaterProcessorTest {
 			final String value = String.format("%s value", vendorSource1Ref);
 			telemetryManager
 				.getHostProperties()
-				.getConnectorNamespace(Constants.MY_CONNECTOR_1_NAME)
+				.getConnectorNamespace(MY_CONNECTOR_1_NAME)
 				.addSourceTable(
 					vendorSource1Ref,
 					SourceTable.builder().table(SourceTable.csvToTable("vendor", MetricsHubConstants.TABLE_SEP)).build()
@@ -514,7 +526,7 @@ class SourceUpdaterProcessorTest {
 			final String result = SourceUpdaterProcessor.replaceSourceReferenceContent(
 				value,
 				telemetryManager,
-				Constants.MY_CONNECTOR_1_NAME,
+				MY_CONNECTOR_1_NAME,
 				"source",
 				"object"
 			);
@@ -525,7 +537,7 @@ class SourceUpdaterProcessorTest {
 			final String value = String.format("%s %s value", vendorSource1Ref, vendorSource1Ref);
 			telemetryManager
 				.getHostProperties()
-				.getConnectorNamespace(Constants.MY_CONNECTOR_1_NAME)
+				.getConnectorNamespace(MY_CONNECTOR_1_NAME)
 				.addSourceTable(
 					vendorSource1Ref,
 					SourceTable.builder().table(SourceTable.csvToTable("vendor", MetricsHubConstants.TABLE_SEP)).build()
@@ -534,7 +546,7 @@ class SourceUpdaterProcessorTest {
 			final String result = SourceUpdaterProcessor.replaceSourceReferenceContent(
 				value,
 				telemetryManager,
-				Constants.MY_CONNECTOR_1_NAME,
+				MY_CONNECTOR_1_NAME,
 				"source",
 				"object"
 			);
@@ -544,7 +556,7 @@ class SourceUpdaterProcessorTest {
 			final String value = String.format("%s%s value", vendorSource1Ref, vendorSource1Ref);
 			telemetryManager
 				.getHostProperties()
-				.getConnectorNamespace(Constants.MY_CONNECTOR_1_NAME)
+				.getConnectorNamespace(MY_CONNECTOR_1_NAME)
 				.addSourceTable(
 					vendorSource1Ref,
 					SourceTable.builder().table(SourceTable.csvToTable("vendor", MetricsHubConstants.TABLE_SEP)).build()
@@ -553,7 +565,7 @@ class SourceUpdaterProcessorTest {
 			final String result = SourceUpdaterProcessor.replaceSourceReferenceContent(
 				value,
 				telemetryManager,
-				Constants.MY_CONNECTOR_1_NAME,
+				MY_CONNECTOR_1_NAME,
 				"source",
 				"object"
 			);

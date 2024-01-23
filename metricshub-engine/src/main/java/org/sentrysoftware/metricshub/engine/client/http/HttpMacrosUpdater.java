@@ -1,5 +1,6 @@
 package org.sentrysoftware.metricshub.engine.client.http;
 
+import static org.sentrysoftware.metricshub.engine.common.helpers.JUtils.encodeSha256;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HOSTNAME_MACRO;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.PASSWORD_MACRO;
@@ -9,7 +10,6 @@ import java.util.Base64;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import org.sentrysoftware.metricshub.engine.common.helpers.JUtils;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class HttpMacrosUpdater {
@@ -73,7 +73,7 @@ public class HttpMacrosUpdater {
 		// Encode the authentication token into SHA256 string
 		// then replace the macro with the resulting value
 		if (updatedContent.indexOf(SHA256_AUTH_MACRO) != -1) {
-			updatedContent = updatedContent.replace(SHA256_AUTH_MACRO, JUtils.encodeSha256(authenticationToken));
+			updatedContent = updatedContent.replace(SHA256_AUTH_MACRO, encodeSha256(authenticationToken));
 		}
 
 		return updatedContent;

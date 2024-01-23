@@ -257,7 +257,7 @@
 				</executions>
 				<configuration>
 					<excludes>
-						<exclude>com/sentrysoftware/metricshub/agent/config/**</exclude>
+						<exclude>org/sentrysoftware/metricshub/agent/config/**</exclude>
 					</excludes>
 					<outputDirectory>${project.build.directory}/coverage-reports/jacoco</outputDirectory>
 				</configuration>
@@ -324,7 +324,7 @@
 								</manifestEntries>
 								<manifestSections>
 									<manifestSection>
-										<name>com/sentrysoftware/metricshub</name>
+										<name>org/sentrysoftware/metricshub</name>
 									</manifestSection>
 								</manifestSections>
 							</archive>

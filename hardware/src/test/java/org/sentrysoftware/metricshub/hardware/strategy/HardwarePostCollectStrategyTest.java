@@ -10,6 +10,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.IS_ENDPOINT;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
 import static org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy.CONNECTOR_ID_FORMAT;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.ENCLOSURE_PRESENT_METRIC;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -34,7 +35,6 @@ import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.MonitorFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
-import org.sentrysoftware.metricshub.hardware.common.Constants;
 
 @ExtendWith(MockitoExtension.class)
 class HardwarePostCollectStrategyTest {
@@ -162,17 +162,14 @@ class HardwarePostCollectStrategyTest {
 		Assertions.assertEquals("healthy", enclosure.getLegacyTextParameters().get("StatusInformation"));
 
 		// The metric is created when we create the monitor using the MonitorFactory
-		final NumberMetric enclosurePresentMetric = enclosure.getMetric(
-			Constants.ENCLOSURE_PRESENT_METRIC,
-			NumberMetric.class
-		);
+		final NumberMetric enclosurePresentMetric = enclosure.getMetric(ENCLOSURE_PRESENT_METRIC, NumberMetric.class);
 		assertNotNull(enclosurePresentMetric);
 		assertEquals(discoveryTime, enclosurePresentMetric.getCollectTime());
 
 		new HardwarePostCollectStrategy(telemetryManager, strategyTime, clientsExecutorMock).run();
 
 		assertNotNull(enclosurePresentMetric);
-		assertEquals(1.0, enclosure.getMetric(Constants.ENCLOSURE_PRESENT_METRIC, NumberMetric.class).getValue());
+		assertEquals(1.0, enclosure.getMetric(ENCLOSURE_PRESENT_METRIC, NumberMetric.class).getValue());
 		assertEquals(strategyTime, enclosurePresentMetric.getCollectTime());
 	}
 }

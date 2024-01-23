@@ -1,5 +1,25 @@
 package org.sentrysoftware.metricshub.hardware;
 
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_CPU_METRIC;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_DISK_CONTROLLER_METRIC;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_FAN_METRIC;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_MEMORY_METRIC;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_NETWORK_METRIC;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_PHYSICAL_DISK_METRIC;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_ROBOTICS_METRIC;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_TAPE_DRIVE_METRIC;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_VM_METRIC;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_CPU_METRIC;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_DISK_CONTROLLER_METRIC;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_FAN_METRIC;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_MEMORY_METRIC;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_NETWORK_METRIC;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_PHYSICAL_DISK_METRIC;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_ROBOTICS_METRIC;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_TAPE_DRIVE_METRIC;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_VM_METRIC;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.POWER_SOURCE_ID_ATTRIBUTE;
+
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -28,7 +48,6 @@ import org.sentrysoftware.metricshub.hardware.sustainability.RoboticsPowerAndEne
 import org.sentrysoftware.metricshub.hardware.sustainability.TapeDrivePowerAndEnergyEstimator;
 import org.sentrysoftware.metricshub.hardware.sustainability.VmPowerAndEnergyEstimator;
 import org.sentrysoftware.metricshub.hardware.util.HwCollectHelper;
-import org.sentrysoftware.metricshub.hardware.util.HwConstants;
 import org.sentrysoftware.metricshub.hardware.util.PowerAndEnergyCollectHelper;
 
 @Data
@@ -109,8 +128,8 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 			.forEach(monitor ->
 				PowerAndEnergyCollectHelper.collectPowerAndEnergy(
 					monitor,
-					HwConstants.HW_POWER_VM_METRIC,
-					HwConstants.HW_ENERGY_VM_METRIC,
+					HW_POWER_VM_METRIC,
+					HW_ENERGY_VM_METRIC,
 					telemetryManager,
 					new VmPowerAndEnergyEstimator(monitor, telemetryManager, totalPowerSharesByPowerSource, isPowerEstimated)
 				)
@@ -124,14 +143,14 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 		// If the parent has a power consumption, then we have the power source
 		final Monitor parent = telemetryManager.findParentMonitor(monitor);
 
-		if (parent != null && parent.getMetric(HwConstants.HW_POWER_VM_METRIC, NumberMetric.class) != null) {
-			monitor.addAttribute(HwConstants.POWER_SOURCE_ID_ATTRIBUTE, parent.getId());
+		if (parent != null && parent.getMetric(HW_POWER_VM_METRIC, NumberMetric.class) != null) {
+			monitor.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, parent.getId());
 			return parent.getId();
 		}
 
 		// If the parent does not have a power consumption, the power source is the host
 		final Monitor hostMonitor = telemetryManager.getEndpointHostMonitor();
-		monitor.addAttribute(HwConstants.POWER_SOURCE_ID_ATTRIBUTE, hostMonitor.getId());
+		monitor.addAttribute(POWER_SOURCE_ID_ATTRIBUTE, hostMonitor.getId());
 		return hostMonitor.getId();
 	}
 
@@ -168,43 +187,43 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 	public void run() {
 		estimateAndCollectPowerAndEnergyForMonitorType(
 			KnownMonitorType.FAN,
-			HwConstants.HW_POWER_FAN_METRIC,
-			HwConstants.HW_ENERGY_FAN_METRIC,
+			HW_POWER_FAN_METRIC,
+			HW_ENERGY_FAN_METRIC,
 			FanPowerAndEnergyEstimator::new
 		);
 
 		estimateAndCollectPowerAndEnergyForMonitorType(
 			KnownMonitorType.ROBOTICS,
-			HwConstants.HW_POWER_ROBOTICS_METRIC,
-			HwConstants.HW_ENERGY_ROBOTICS_METRIC,
+			HW_POWER_ROBOTICS_METRIC,
+			HW_ENERGY_ROBOTICS_METRIC,
 			RoboticsPowerAndEnergyEstimator::new
 		);
 
 		estimateAndCollectPowerAndEnergyForMonitorType(
 			KnownMonitorType.TAPE_DRIVE,
-			HwConstants.HW_POWER_TAPE_DRIVE_METRIC,
-			HwConstants.HW_ENERGY_TAPE_DRIVE_METRIC,
+			HW_POWER_TAPE_DRIVE_METRIC,
+			HW_ENERGY_TAPE_DRIVE_METRIC,
 			TapeDrivePowerAndEnergyEstimator::new
 		);
 
 		estimateAndCollectPowerAndEnergyForMonitorType(
 			KnownMonitorType.DISK_CONTROLLER,
-			HwConstants.HW_POWER_DISK_CONTROLLER_METRIC,
-			HwConstants.HW_ENERGY_DISK_CONTROLLER_METRIC,
+			HW_POWER_DISK_CONTROLLER_METRIC,
+			HW_ENERGY_DISK_CONTROLLER_METRIC,
 			DiskControllerPowerAndEnergyEstimator::new
 		);
 
 		estimateAndCollectPowerAndEnergyForMonitorType(
 			KnownMonitorType.PHYSICAL_DISK,
-			HwConstants.HW_POWER_PHYSICAL_DISK_METRIC,
-			HwConstants.HW_ENERGY_PHYSICAL_DISK_METRIC,
+			HW_POWER_PHYSICAL_DISK_METRIC,
+			HW_ENERGY_PHYSICAL_DISK_METRIC,
 			PhysicalDiskPowerAndEnergyEstimator::new
 		);
 
 		estimateAndCollectPowerAndEnergyForMonitorType(
 			KnownMonitorType.MEMORY,
-			HwConstants.HW_POWER_MEMORY_METRIC,
-			HwConstants.HW_ENERGY_MEMORY_METRIC,
+			HW_POWER_MEMORY_METRIC,
+			HW_ENERGY_MEMORY_METRIC,
 			MemoryPowerAndEnergyEstimator::new
 		);
 
@@ -215,8 +234,8 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 
 		estimateAndCollectPowerAndEnergyForMonitorType(
 			KnownMonitorType.CPU,
-			HwConstants.HW_POWER_CPU_METRIC,
-			HwConstants.HW_ENERGY_CPU_METRIC,
+			HW_POWER_CPU_METRIC,
+			HW_ENERGY_CPU_METRIC,
 			CpuPowerEstimator::new
 		);
 
@@ -301,8 +320,8 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 
 		PowerAndEnergyCollectHelper.collectPowerAndEnergy(
 			monitor,
-			HwConstants.HW_POWER_NETWORK_METRIC,
-			HwConstants.HW_ENERGY_NETWORK_METRIC,
+			HW_POWER_NETWORK_METRIC,
+			HW_ENERGY_NETWORK_METRIC,
 			telemetryManager,
 			new NetworkPowerAndEnergyEstimator(monitor, telemetryManager)
 		);

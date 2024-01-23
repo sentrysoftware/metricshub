@@ -1,5 +1,8 @@
 package org.sentrysoftware.metricshub.engine.common.helpers;
 
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.COMMA;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -55,7 +58,7 @@ public class StringHelper {
 	 */
 	public static String getStackMessages(final Throwable throwable) {
 		if (throwable == null) {
-			return MetricsHubConstants.EMPTY;
+			return EMPTY;
 		}
 
 		return new StringBuilder(throwable.getClass().getSimpleName())
@@ -84,7 +87,7 @@ public class StringHelper {
 	 */
 	public static String prettyHttpHeaders(final Map<String, String> headers) {
 		if (headers == null) {
-			return MetricsHubConstants.EMPTY;
+			return EMPTY;
 		}
 
 		return headers
@@ -163,20 +166,17 @@ public class StringHelper {
 	public static String stringify(final Object value) {
 		if (value == null) {
 			// Handle null input
-			return MetricsHubConstants.EMPTY;
+			return EMPTY;
 		} else if (value instanceof Collection<?> collection) {
 			// If the input is a List, convert it to a CSV string
-			return collection
-				.stream()
-				.map(item -> item != null ? item.toString() : MetricsHubConstants.EMPTY)
-				.collect(Collectors.joining(MetricsHubConstants.COMMA));
+			return collection.stream().map(item -> item != null ? item.toString() : EMPTY).collect(Collectors.joining(COMMA));
 		} else if (value.getClass().isArray()) {
 			// If the input is an array, convert it to a CSV string
 			Object[] array = (Object[]) value;
 			return Arrays
 				.stream(array)
-				.map(item -> item != null ? item.toString() : MetricsHubConstants.EMPTY)
-				.collect(Collectors.joining(MetricsHubConstants.COMMA));
+				.map(item -> item != null ? item.toString() : EMPTY)
+				.collect(Collectors.joining(COMMA));
 		} else {
 			// For any other type of value, simply convert it to a string
 			return value.toString();

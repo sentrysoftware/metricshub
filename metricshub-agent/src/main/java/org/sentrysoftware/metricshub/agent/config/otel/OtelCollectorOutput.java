@@ -1,5 +1,7 @@
 package org.sentrysoftware.metricshub.agent.config.otel;
 
+import static org.sentrysoftware.metricshub.agent.config.otel.OtelCollectorConfig.EXECUTABLE_OUTPUT_ID;
+
 import io.grpc.netty.shaded.io.netty.util.internal.shaded.org.jctools.queues.MessagePassingQueue.Supplier;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,7 +21,7 @@ public enum OtelCollectorOutput {
 	/**
 	 * Console output.
 	 */
-	CONSOLE(() -> ProcessOutput.namedConsoleOutput(OtelCollectorConfig.EXECUTABLE_OUTPUT_ID)),
+	CONSOLE(() -> ProcessOutput.namedConsoleOutput(EXECUTABLE_OUTPUT_ID)),
 	/**
 	 * Logging output using SLF4J.
 	 */

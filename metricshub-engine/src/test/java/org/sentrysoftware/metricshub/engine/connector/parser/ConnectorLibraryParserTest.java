@@ -2,6 +2,7 @@ package org.sentrysoftware.metricshub.engine.connector.parser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.AAC_CONNECTOR_ID;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -12,7 +13,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.ConnectionType;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.StandardMonitorJob;
-import org.sentrysoftware.metricshub.engine.constants.Constants;
 
 class ConnectorLibraryParserTest {
 
@@ -55,7 +55,7 @@ class ConnectorLibraryParserTest {
 		//Check connector identity retrieval
 		assertTrue(
 			connectors
-				.get(Constants.AAC_CONNECTOR_ID)
+				.get(AAC_CONNECTOR_ID)
 				.getConnectorIdentity()
 				.getDetection()
 				.getConnectionTypes()
@@ -63,39 +63,29 @@ class ConnectorLibraryParserTest {
 		);
 		assertTrue(
 			connectors
-				.get(Constants.AAC_CONNECTOR_ID)
+				.get(AAC_CONNECTOR_ID)
 				.getConnectorIdentity()
 				.getDetection()
 				.getConnectionTypes()
 				.contains(ConnectionType.REMOTE)
 		);
 		assertTrue(
-			connectors
-				.get(Constants.AAC_CONNECTOR_ID)
-				.getConnectorIdentity()
-				.getDetection()
-				.getAppliesTo()
-				.contains(DeviceKind.LINUX)
+			connectors.get(AAC_CONNECTOR_ID).getConnectorIdentity().getDetection().getAppliesTo().contains(DeviceKind.LINUX)
 		);
 		assertTrue(
-			connectors
-				.get(Constants.AAC_CONNECTOR_ID)
-				.getConnectorIdentity()
-				.getDetection()
-				.getAppliesTo()
-				.contains(DeviceKind.WINDOWS)
+			connectors.get(AAC_CONNECTOR_ID).getConnectorIdentity().getDetection().getAppliesTo().contains(DeviceKind.WINDOWS)
 		);
 		assertEquals(
 			SNMP_CRITERION_TYPE,
-			connectors.get(Constants.AAC_CONNECTOR_ID).getConnectorIdentity().getDetection().getCriteria().get(0).getType()
+			connectors.get(AAC_CONNECTOR_ID).getConnectorIdentity().getDetection().getCriteria().get(0).getType()
 		);
 
 		//Check detected monitors number
-		assertEquals(3, connectors.get(Constants.AAC_CONNECTOR_ID).getMonitors().size());
+		assertEquals(3, connectors.get(AAC_CONNECTOR_ID).getMonitors().size());
 
 		//Retrieve the disk controller monitor
 		StandardMonitorJob monitorJob = (StandardMonitorJob) (connectors
-				.get(Constants.AAC_CONNECTOR_ID)
+				.get(AAC_CONNECTOR_ID)
 				.getMonitors()
 				.get(DISK_CONTROLLER));
 
@@ -115,7 +105,7 @@ class ConnectorLibraryParserTest {
 		);
 
 		//Retrieve the physical disk monitor
-		monitorJob = (StandardMonitorJob) (connectors.get(Constants.AAC_CONNECTOR_ID).getMonitors().get(PHYSICAL_DISK));
+		monitorJob = (StandardMonitorJob) (connectors.get(AAC_CONNECTOR_ID).getMonitors().get(PHYSICAL_DISK));
 
 		//Check physical disk discovery sources
 		assertEquals(1, monitorJob.getDiscovery().getSources().size());

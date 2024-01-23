@@ -8,20 +8,30 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.IS_ENDPOINT;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.AAC_CONNECTOR_ID;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.CONNECTOR;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.DISK_CONTROLLER;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_ID;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_NAME;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.ID;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.LOGICAL_DISK;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.MONITOR_ID_ATTRIBUTE_VALUE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.PHYSICAL_DISK;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.YAML_TEST_PATH;
+import static org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy.CONNECTOR_ID_FORMAT;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
-import org.sentrysoftware.metricshub.engine.constants.Constants;
-import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.discovery.DiscoveryStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 
@@ -36,15 +46,11 @@ class TelemetryManagerTest {
 		final Monitor connectorMonitor = Monitor.builder().type(KnownMonitorType.CONNECTOR.getKey()).build();
 		final Map<String, Map<String, Monitor>> monitors = new HashMap<>(
 			Map.of(
-				Constants.HOST,
-				Map.of(Constants.MONITOR_ID_ATTRIBUTE_VALUE, hostMonitor),
-				Constants.CONNECTOR,
+				HOST,
+				Map.of(MONITOR_ID_ATTRIBUTE_VALUE, hostMonitor),
+				CONNECTOR,
 				Map.of(
-					String.format(
-						AbstractStrategy.CONNECTOR_ID_FORMAT,
-						KnownMonitorType.CONNECTOR.getKey(),
-						Constants.AAC_CONNECTOR_ID
-					),
+					String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), AAC_CONNECTOR_ID),
 					connectorMonitor
 				)
 			)
@@ -58,20 +64,20 @@ class TelemetryManagerTest {
 			.hostConfiguration(
 				HostConfiguration
 					.builder()
-					.hostId(Constants.HOST_ID)
-					.hostname(Constants.HOST_NAME)
+					.hostId(HOST_ID)
+					.hostname(HOST_NAME)
 					.sequential(false)
 					.configurations(Map.of(SnmpConfiguration.class, snmpConfig))
 					.build()
 			)
 			.build();
 
-		hostMonitor.getAttributes().put(MetricsHubConstants.IS_ENDPOINT, "true");
+		hostMonitor.getAttributes().put(IS_ENDPOINT, "true");
 
-		connectorMonitor.getAttributes().put(Constants.ID, Constants.AAC_CONNECTOR_ID);
+		connectorMonitor.getAttributes().put(ID, AAC_CONNECTOR_ID);
 
 		// Create the connector store
-		final ConnectorStore connectorStore = new ConnectorStore(Constants.YAML_TEST_PATH);
+		final ConnectorStore connectorStore = new ConnectorStore(YAML_TEST_PATH);
 		telemetryManager.setConnectorStore(connectorStore);
 
 		// Mock detection criteria result
@@ -80,8 +86,7 @@ class TelemetryManagerTest {
 			.executeSNMPGetNext(eq("1.3.6.1.4.1.795.10.1.1.3.1.1"), any(SnmpConfiguration.class), anyString(), anyBoolean());
 
 		// Mock source table information for disk controller
-		Mockito
-			.doReturn(SourceTable.csvToTable("controller-1;1;Adaptec1;bios53v2;firmware32", MetricsHubConstants.TABLE_SEP))
+		doReturn(SourceTable.csvToTable("controller-1;1;Adaptec1;bios53v2;firmware32", MetricsHubConstants.TABLE_SEP))
 			.when(clientsExecutorMock)
 			.executeSNMPTable(
 				eq("1.3.6.1.4.1.795.10.1.1.3.1"),
@@ -122,20 +127,14 @@ class TelemetryManagerTest {
 		final Map<String, Map<String, Monitor>> discoveredMonitors = telemetryManager.getMonitors();
 
 		assertEquals(5, discoveredMonitors.size());
-		assertEquals(1, discoveredMonitors.get(Constants.HOST).size());
-		assertEquals(1, discoveredMonitors.get(Constants.CONNECTOR).size());
-		assertEquals(1, discoveredMonitors.get(Constants.DISK_CONTROLLER).size());
-		assertEquals(1, discoveredMonitors.get(Constants.PHYSICAL_DISK).size());
-		assertEquals(1, discoveredMonitors.get(Constants.LOGICAL_DISK).size());
+		assertEquals(1, discoveredMonitors.get(HOST).size());
+		assertEquals(1, discoveredMonitors.get(CONNECTOR).size());
+		assertEquals(1, discoveredMonitors.get(DISK_CONTROLLER).size());
+		assertEquals(1, discoveredMonitors.get(PHYSICAL_DISK).size());
+		assertEquals(1, discoveredMonitors.get(LOGICAL_DISK).size());
 
 		// Check discovered monitors order
-		final Set<String> expectedOrder = Set.of(
-			Constants.HOST,
-			Constants.DISK_CONTROLLER,
-			Constants.CONNECTOR,
-			Constants.LOGICAL_DISK,
-			Constants.PHYSICAL_DISK
-		);
+		final Set<String> expectedOrder = Set.of(HOST, DISK_CONTROLLER, CONNECTOR, LOGICAL_DISK, PHYSICAL_DISK);
 		assertEquals(expectedOrder, discoveredMonitors.keySet());
 	}
 }

@@ -11,6 +11,7 @@ import java.util.Map;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.agent.config.AgentConfig;
+import org.sentrysoftware.metricshub.agent.context.ApplicationProperties.Project;
 import org.sentrysoftware.metricshub.agent.deserialization.PostConfigDeserializer;
 import org.sentrysoftware.metricshub.agent.helper.ConfigHelper;
 import org.sentrysoftware.metricshub.agent.helper.OtelConfigHelper;
@@ -148,7 +149,7 @@ public class AgentContext {
 			// Log product information
 			final ApplicationProperties applicationProperties = agentInfo.getApplicationProperties();
 
-			final ApplicationProperties.Project project = applicationProperties.project();
+			final Project project = applicationProperties.project();
 
 			log.info(
 				"Product information:" + // NOSONAR

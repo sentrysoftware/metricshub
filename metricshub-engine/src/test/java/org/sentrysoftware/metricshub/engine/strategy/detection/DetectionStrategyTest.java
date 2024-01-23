@@ -11,6 +11,10 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_PARENT_ID;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.STATE_SET_METRIC_FAILED;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.STATE_SET_METRIC_OK;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.AAC_CONNECTOR_ID;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_ID;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.LOCALHOST;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.STATE_SET;
 import static org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy.CONNECTOR_ID_FORMAT;
 
 import java.io.IOException;
@@ -34,7 +38,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinit
 import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricType;
 import org.sentrysoftware.metricshub.engine.connector.model.metric.StateSet;
 import org.sentrysoftware.metricshub.engine.connector.parser.ConnectorLibraryParser;
-import org.sentrysoftware.metricshub.engine.constants.Constants;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
@@ -57,7 +60,7 @@ class DetectionStrategyTest {
 		);
 		final Map<String, Connector> connectors = new ConnectorLibraryParser()
 			.parseConnectorsFromAllYamlFiles(yamlTestPath);
-		return connectors.get(Constants.AAC_CONNECTOR_ID);
+		return connectors.get(AAC_CONNECTOR_ID);
 	}
 
 	@Test
@@ -72,12 +75,7 @@ class DetectionStrategyTest {
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
 			.hostConfiguration(
-				HostConfiguration
-					.builder()
-					.hostId(Constants.HOST_ID)
-					.hostType(DeviceKind.LINUX)
-					.hostname(Constants.LOCALHOST)
-					.build()
+				HostConfiguration.builder().hostId(HOST_ID).hostType(DeviceKind.LINUX).hostname(LOCALHOST).build()
 			)
 			.build();
 
@@ -126,7 +124,7 @@ class DetectionStrategyTest {
 				.get(MONITOR_ATTRIBUTE_ID)
 		);
 		assertEquals(
-			Constants.AAC_CONNECTOR_ID,
+			AAC_CONNECTOR_ID,
 			telemetryManager
 				.getMonitors()
 				.get(KnownMonitorType.CONNECTOR.getKey())
@@ -135,7 +133,7 @@ class DetectionStrategyTest {
 				.get(MONITOR_ATTRIBUTE_NAME)
 		);
 		assertEquals(
-			Constants.AAC_CONNECTOR_ID,
+			AAC_CONNECTOR_ID,
 			telemetryManager
 				.getMonitors()
 				.get(KnownMonitorType.CONNECTOR.getKey())
@@ -202,12 +200,7 @@ class DetectionStrategyTest {
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
 			.hostConfiguration(
-				HostConfiguration
-					.builder()
-					.hostId(Constants.HOST_ID)
-					.hostType(DeviceKind.LINUX)
-					.hostname(Constants.LOCALHOST)
-					.build()
+				HostConfiguration.builder().hostId(HOST_ID).hostType(DeviceKind.LINUX).hostname(LOCALHOST).build()
 			)
 			.build();
 
@@ -272,12 +265,7 @@ class DetectionStrategyTest {
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
 			.hostConfiguration(
-				HostConfiguration
-					.builder()
-					.hostId(Constants.HOST_ID)
-					.hostType(DeviceKind.LINUX)
-					.hostname(Constants.LOCALHOST)
-					.build()
+				HostConfiguration.builder().hostId(HOST_ID).hostType(DeviceKind.LINUX).hostname(LOCALHOST).build()
 			)
 			.build();
 
@@ -290,7 +278,7 @@ class DetectionStrategyTest {
 
 		// Set a StateSetMetric in the connector
 		final StateSet stateSet = new StateSet();
-		stateSet.setSet(Set.of(Constants.STATE_SET[0], Constants.STATE_SET[1], Constants.STATE_SET[2]));
+		stateSet.setSet(Set.of(STATE_SET[0], STATE_SET[1], STATE_SET[2]));
 		connector.setMetrics(Map.of(CONNECTOR_STATUS_METRIC_KEY, MetricDefinition.builder().type(stateSet).build()));
 		detectionStrategy.createMonitor(connectorTestResult);
 
@@ -326,9 +314,9 @@ class DetectionStrategyTest {
 			.hostConfiguration(
 				HostConfiguration
 					.builder()
-					.hostId(Constants.HOST_ID)
+					.hostId(HOST_ID)
 					.hostType(DeviceKind.LINUX)
-					.hostname(Constants.LOCALHOST)
+					.hostname(LOCALHOST)
 					.configuredConnectorId(METRICS_HUB_CONFIGURED_CONNECTOR_ID)
 					.build()
 			)
@@ -344,7 +332,7 @@ class DetectionStrategyTest {
 		assertNotNull(configuredConnectorMonitor);
 		assertEquals(METRICS_HUB_CONFIGURED_CONNECTOR_ID, configuredConnectorMonitor.getAttribute(MONITOR_ATTRIBUTE_ID));
 		assertEquals(METRICS_HUB_CONFIGURED_CONNECTOR_ID, configuredConnectorMonitor.getAttribute(MONITOR_ATTRIBUTE_NAME));
-		assertEquals(Constants.HOST_ID, configuredConnectorMonitor.getAttribute(MONITOR_ATTRIBUTE_PARENT_ID));
+		assertEquals(HOST_ID, configuredConnectorMonitor.getAttribute(MONITOR_ATTRIBUTE_PARENT_ID));
 		assertTrue(
 			telemetryManager.getHostProperties().getConnectorNamespace(METRICS_HUB_CONFIGURED_CONNECTOR_ID).isStatusOk()
 		);

@@ -1,6 +1,8 @@
 package org.sentrysoftware.metricshub.engine.strategy.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HARDCODED_SOURCE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.MY_CONNECTOR_1_NAME;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -36,15 +38,15 @@ class MappingProcessorTest {
 
 		final MappingProcessor mappingProcessor = MappingProcessor
 			.builder()
-			.jobInfo(JobInfo.builder().connectorId(Constants.MY_CONNECTOR_1_NAME).build())
+			.jobInfo(JobInfo.builder().connectorId(MY_CONNECTOR_1_NAME).build())
 			.telemetryManager(telemetryManager)
-			.mapping(Mapping.builder().source(Constants.HARDCODED_SOURCE).build())
+			.mapping(Mapping.builder().source(HARDCODED_SOURCE).build())
 			.row(row)
 			.build();
 
 		final ConnectorNamespace connectorNamespace = telemetryManager
 			.getHostProperties()
-			.getConnectorNamespace(Constants.MY_CONNECTOR_1_NAME);
+			.getConnectorNamespace(MY_CONNECTOR_1_NAME);
 		connectorNamespace.addSourceTable(
 			vendorSource1Ref,
 			SourceTable.builder().table(SourceTable.csvToTable("vendor", MetricsHubConstants.TABLE_SEP)).build()
@@ -237,9 +239,9 @@ class MappingProcessorTest {
 
 		final MappingProcessor mappingProcessor = MappingProcessor
 			.builder()
-			.jobInfo(JobInfo.builder().connectorId(Constants.MY_CONNECTOR_1_NAME).build())
+			.jobInfo(JobInfo.builder().connectorId(MY_CONNECTOR_1_NAME).build())
 			.telemetryManager(telemetryManager)
-			.mapping(Mapping.builder().source(Constants.HARDCODED_SOURCE).build())
+			.mapping(Mapping.builder().source(HARDCODED_SOURCE).build())
 			.row(row)
 			.build();
 
@@ -299,9 +301,9 @@ class MappingProcessorTest {
 		{
 			final MappingProcessor mappingProcessor = MappingProcessor
 				.builder()
-				.jobInfo(JobInfo.builder().connectorId(Constants.MY_CONNECTOR_1_NAME).build())
+				.jobInfo(JobInfo.builder().connectorId(MY_CONNECTOR_1_NAME).build())
 				.telemetryManager(telemetryManager)
-				.mapping(Mapping.builder().source(Constants.HARDCODED_SOURCE).build())
+				.mapping(Mapping.builder().source(HARDCODED_SOURCE).build())
 				.mapping(Mapping.builder().metrics(Map.of("hw.enclosure.power", "rate($1)")).build())
 				.row(List.of("2000"))
 				.collectTime(240000L)
@@ -318,9 +320,9 @@ class MappingProcessorTest {
 		{
 			final MappingProcessor mappingProcessor = MappingProcessor
 				.builder()
-				.jobInfo(JobInfo.builder().connectorId(Constants.MY_CONNECTOR_1_NAME).build())
+				.jobInfo(JobInfo.builder().connectorId(MY_CONNECTOR_1_NAME).build())
 				.telemetryManager(telemetryManager)
-				.mapping(Mapping.builder().source(Constants.HARDCODED_SOURCE).build())
+				.mapping(Mapping.builder().source(HARDCODED_SOURCE).build())
 				.mapping(Mapping.builder().metrics(Map.of("hw.enclosure.power", "rate($1)")).build())
 				.row(List.of("value"))
 				.collectTime(240000L)
@@ -337,9 +339,9 @@ class MappingProcessorTest {
 		{
 			final MappingProcessor mappingProcessor = MappingProcessor
 				.builder()
-				.jobInfo(JobInfo.builder().connectorId(Constants.MY_CONNECTOR_1_NAME).build())
+				.jobInfo(JobInfo.builder().connectorId(MY_CONNECTOR_1_NAME).build())
 				.telemetryManager(telemetryManager)
-				.mapping(Mapping.builder().source(Constants.HARDCODED_SOURCE).build())
+				.mapping(Mapping.builder().source(HARDCODED_SOURCE).build())
 				.mapping(Mapping.builder().metrics(Map.of("hw.enclosure.power", "rate($1)")).build())
 				.row(List.of("2000"))
 				.build();
@@ -369,9 +371,9 @@ class MappingProcessorTest {
 		{
 			final MappingProcessor mappingProcessor = MappingProcessor
 				.builder()
-				.jobInfo(JobInfo.builder().connectorId(Constants.MY_CONNECTOR_1_NAME).build())
+				.jobInfo(JobInfo.builder().connectorId(MY_CONNECTOR_1_NAME).build())
 				.telemetryManager(telemetryManager)
-				.mapping(Mapping.builder().source(Constants.HARDCODED_SOURCE).build())
+				.mapping(Mapping.builder().source(HARDCODED_SOURCE).build())
 				.mapping(Mapping.builder().metrics(Map.of("hw.enclosure.energy", "fakeCounter($1)")).build())
 				.row(List.of("2000"))
 				.collectTime(240000L)
@@ -391,9 +393,9 @@ class MappingProcessorTest {
 		{
 			final MappingProcessor mappingProcessor = MappingProcessor
 				.builder()
-				.jobInfo(JobInfo.builder().connectorId(Constants.MY_CONNECTOR_1_NAME).build())
+				.jobInfo(JobInfo.builder().connectorId(MY_CONNECTOR_1_NAME).build())
 				.telemetryManager(telemetryManager)
-				.mapping(Mapping.builder().source(Constants.HARDCODED_SOURCE).build())
+				.mapping(Mapping.builder().source(HARDCODED_SOURCE).build())
 				.mapping(Mapping.builder().metrics(Map.of("hw.enclosure.energy", "fakeCounter($1)")).build())
 				.row(List.of("2000"))
 				.collectTime(240000L)
@@ -410,9 +412,9 @@ class MappingProcessorTest {
 		{
 			final MappingProcessor mappingProcessor = MappingProcessor
 				.builder()
-				.jobInfo(JobInfo.builder().connectorId(Constants.MY_CONNECTOR_1_NAME).build())
+				.jobInfo(JobInfo.builder().connectorId(MY_CONNECTOR_1_NAME).build())
 				.telemetryManager(telemetryManager)
-				.mapping(Mapping.builder().source(Constants.HARDCODED_SOURCE).build())
+				.mapping(Mapping.builder().source(HARDCODED_SOURCE).build())
 				.mapping(Mapping.builder().metrics(Map.of("hw.enclosure.energy", "fakeCounter($1)")).build())
 				.row(List.of("value"))
 				.collectTime(240000)
@@ -429,9 +431,9 @@ class MappingProcessorTest {
 		{
 			final MappingProcessor mappingProcessor = MappingProcessor
 				.builder()
-				.jobInfo(JobInfo.builder().connectorId(Constants.MY_CONNECTOR_1_NAME).build())
+				.jobInfo(JobInfo.builder().connectorId(MY_CONNECTOR_1_NAME).build())
 				.telemetryManager(telemetryManager)
-				.mapping(Mapping.builder().source(Constants.HARDCODED_SOURCE).build())
+				.mapping(Mapping.builder().source(HARDCODED_SOURCE).build())
 				.mapping(Mapping.builder().metrics(Map.of("hw.enclosure.energy", "fakeCounter($1)")).build())
 				.row(List.of("2000"))
 				.build();
@@ -461,9 +463,9 @@ class MappingProcessorTest {
 
 			final MappingProcessor mappingProcessor = MappingProcessor
 				.builder()
-				.jobInfo(JobInfo.builder().connectorId(Constants.MY_CONNECTOR_1_NAME).build())
+				.jobInfo(JobInfo.builder().connectorId(MY_CONNECTOR_1_NAME).build())
 				.telemetryManager(telemetryManager)
-				.mapping(Mapping.builder().source(Constants.HARDCODED_SOURCE).build())
+				.mapping(Mapping.builder().source(HARDCODED_SOURCE).build())
 				.mapping(
 					Mapping.builder().metrics(Map.of("hw.power_supply.utilization", "legacyPowerSupplyUtilization($1)")).build()
 				)
@@ -493,9 +495,9 @@ class MappingProcessorTest {
 
 			final MappingProcessor mappingProcessor = MappingProcessor
 				.builder()
-				.jobInfo(JobInfo.builder().connectorId(Constants.MY_CONNECTOR_1_NAME).build())
+				.jobInfo(JobInfo.builder().connectorId(MY_CONNECTOR_1_NAME).build())
 				.telemetryManager(telemetryManager)
-				.mapping(Mapping.builder().source(Constants.HARDCODED_SOURCE).build())
+				.mapping(Mapping.builder().source(HARDCODED_SOURCE).build())
 				.mapping(
 					Mapping.builder().metrics(Map.of("hw.power_supply.utilization", "legacyPowerSupplyUtilization($1)")).build()
 				)
@@ -521,9 +523,9 @@ class MappingProcessorTest {
 
 			final MappingProcessor mappingProcessor = MappingProcessor
 				.builder()
-				.jobInfo(JobInfo.builder().connectorId(Constants.MY_CONNECTOR_1_NAME).build())
+				.jobInfo(JobInfo.builder().connectorId(MY_CONNECTOR_1_NAME).build())
 				.telemetryManager(telemetryManager)
-				.mapping(Mapping.builder().source(Constants.HARDCODED_SOURCE).build())
+				.mapping(Mapping.builder().source(HARDCODED_SOURCE).build())
 				.mapping(
 					Mapping.builder().metrics(Map.of("hw.power_supply.utilization", "legacyPowerSupplyUtilization($1)")).build()
 				)
@@ -559,8 +561,8 @@ class MappingProcessorTest {
 
 		final MappingProcessor mappingProcessor = MappingProcessor
 			.builder()
-			.jobInfo(JobInfo.builder().connectorId(Constants.MY_CONNECTOR_1_NAME).build())
-			.mapping(Mapping.builder().source(Constants.HARDCODED_SOURCE).metrics(keyValuePairs).build())
+			.jobInfo(JobInfo.builder().connectorId(MY_CONNECTOR_1_NAME).build())
+			.mapping(Mapping.builder().source(HARDCODED_SOURCE).metrics(keyValuePairs).build())
 			.build();
 
 		final Map<String, String> expected = Map.of("on", "ok", "off", "failed", "blinking", "degraded", "wrong input", "");
@@ -580,9 +582,9 @@ class MappingProcessorTest {
 
 		final MappingProcessor mappingProcessor = MappingProcessor
 			.builder()
-			.jobInfo(JobInfo.builder().connectorId(Constants.MY_CONNECTOR_1_NAME).build())
+			.jobInfo(JobInfo.builder().connectorId(MY_CONNECTOR_1_NAME).build())
 			.telemetryManager(telemetryManager)
-			.mapping(Mapping.builder().source(Constants.HARDCODED_SOURCE).build())
+			.mapping(Mapping.builder().source(HARDCODED_SOURCE).build())
 			.build();
 
 		{
@@ -613,9 +615,9 @@ class MappingProcessorTest {
 
 		final MappingProcessor mappingProcessor = MappingProcessor
 			.builder()
-			.jobInfo(JobInfo.builder().connectorId(Constants.MY_CONNECTOR_1_NAME).build())
+			.jobInfo(JobInfo.builder().connectorId(MY_CONNECTOR_1_NAME).build())
 			.telemetryManager(telemetryManager)
-			.mapping(Mapping.builder().source(Constants.HARDCODED_SOURCE).build())
+			.mapping(Mapping.builder().source(HARDCODED_SOURCE).build())
 			.row(row)
 			.build();
 

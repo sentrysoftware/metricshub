@@ -1,5 +1,7 @@
 package org.sentrysoftware.metricshub.engine.strategy.detection;
 
+import static org.sentrysoftware.metricshub.engine.strategy.utils.DetectionHelper.hasAtLeastOneTagOf;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -17,7 +19,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.ConnectionType;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
-import org.sentrysoftware.metricshub.engine.strategy.utils.DetectionHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 @Slf4j
@@ -75,7 +76,7 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 			.values()
 			.stream()
 			.filter(connector -> connector.getOrCreateConnectorIdentity().getDetection() != null)
-			.filter(connector -> DetectionHelper.hasAtLeastOneTagOf(includeConnectorTags, connector))
+			.filter(connector -> hasAtLeastOneTagOf(includeConnectorTags, connector))
 			// No Auto Detection Filtering
 			.filter(connector -> !connector.getOrCreateConnectorIdentity().getDetection().isDisableAutoDetection())
 			// DeviceKind Filtering

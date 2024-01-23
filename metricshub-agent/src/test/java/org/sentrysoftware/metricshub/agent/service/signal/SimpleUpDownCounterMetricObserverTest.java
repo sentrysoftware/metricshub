@@ -1,6 +1,8 @@
 package org.sentrysoftware.metricshub.agent.service.signal;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.sentrysoftware.metricshub.agent.helper.TestConstants.ATTRIBUTES;
 import static org.sentrysoftware.metricshub.agent.helper.TestConstants.COMPANY_ATTRIBUTE_VALUE;
 import static org.sentrysoftware.metricshub.agent.helper.TestConstants.HW_METRIC;

@@ -7,15 +7,17 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.sentrysoftware.metricshub.agent.helper.OtelHelper.FQDN_ATTRIBUTE_KEY;
-import static org.sentrysoftware.metricshub.agent.helper.TestConstants.*;
+import static org.sentrysoftware.metricshub.agent.helper.TestConstants.ATTRIBUTES;
+import static org.sentrysoftware.metricshub.agent.helper.TestConstants.COMPANY_ATTRIBUTE_KEY;
+import static org.sentrysoftware.metricshub.agent.helper.TestConstants.COMPANY_ATTRIBUTE_VALUE;
 import static org.sentrysoftware.metricshub.agent.helper.TestConstants.COMPUTE_HOST_TYPE;
 import static org.sentrysoftware.metricshub.agent.helper.TestConstants.HOSTNAME;
+import static org.sentrysoftware.metricshub.agent.helper.TestConstants.HOST_TYPE_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HOST_NAME;
 
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.sdk.resources.Resource;
 import java.util.Map;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class OtelHelperTest {
@@ -38,7 +40,7 @@ class OtelHelperTest {
 		{
 			assertThrows(IllegalArgumentException.class, () -> OtelHelper.createHostResource(null, emptyMap, false));
 			assertThrows(IllegalArgumentException.class, () -> OtelHelper.createHostResource(emptyMap, null, false));
-			Assertions.assertDoesNotThrow(() -> OtelHelper.createHostResource(emptyMap, emptyMap, false));
+			assertDoesNotThrow(() -> OtelHelper.createHostResource(emptyMap, emptyMap, false));
 		}
 		{
 			final Resource resource = OtelHelper.createHostResource(

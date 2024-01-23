@@ -3,6 +3,9 @@ package org.sentrysoftware.metricshub.engine.strategy.detection;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.CONNECTOR_YAML;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.DETECTION_FOLDER;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.STRATEGY_TIME;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -18,7 +21,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.ConnectorIdentity;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.Detection;
-import org.sentrysoftware.metricshub.engine.constants.Constants;
 import org.sentrysoftware.metricshub.engine.telemetry.HostProperties;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -56,18 +58,18 @@ class ConnectorSelectionTest {
 		final Connector connector = new Connector();
 		connector.setConnectorIdentity(connectorIdentity);
 
-		final File store = new File(Constants.DETECTION_FOLDER);
+		final File store = new File(DETECTION_FOLDER);
 		final Path storePath = store.toPath();
 
 		final ConnectorStore connectorStore = new ConnectorStore(storePath);
-		connectorStore.getStore().put(Constants.CONNECTOR_YAML, connector);
+		connectorStore.getStore().put(CONNECTOR_YAML, connector);
 
 		final TelemetryManager telemetryManager = new TelemetryManager(
 			monitors,
 			hostProperties,
 			hostConfiguration,
 			connectorStore,
-			Constants.STRATEGY_TIME
+			STRATEGY_TIME
 		);
 		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
 		assertEquals(Collections.emptyList(), new ConnectorSelection(telemetryManager, clientsExecutor).run());
@@ -90,18 +92,18 @@ class ConnectorSelectionTest {
 		final Connector connector = new Connector();
 		connector.setConnectorIdentity(connectorIdentity);
 
-		final File store = new File(Constants.DETECTION_FOLDER);
+		final File store = new File(DETECTION_FOLDER);
 		final Path storePath = store.toPath();
 
 		final ConnectorStore connectorStore = new ConnectorStore(storePath);
-		connectorStore.getStore().put(Constants.CONNECTOR_YAML, connector);
+		connectorStore.getStore().put(CONNECTOR_YAML, connector);
 
 		final TelemetryManager telemetryManager = new TelemetryManager(
 			monitors,
 			hostProperties,
 			hostConfiguration,
 			connectorStore,
-			Constants.STRATEGY_TIME
+			STRATEGY_TIME
 		);
 		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
 		assertEquals(Collections.emptyList(), new ConnectorSelection(telemetryManager, clientsExecutor).run());
@@ -115,7 +117,7 @@ class ConnectorSelectionTest {
 
 		final HostConfiguration hostConfiguration = new HostConfiguration();
 		hostConfiguration.setHostname("localhost");
-		hostConfiguration.setSelectedConnectors(Collections.singleton(Constants.CONNECTOR_YAML));
+		hostConfiguration.setSelectedConnectors(Collections.singleton(CONNECTOR_YAML));
 
 		final ConnectorIdentity connectorIdentity = new ConnectorIdentity();
 		connectorIdentity.setDetection(new Detection());
@@ -123,7 +125,7 @@ class ConnectorSelectionTest {
 		final Connector connector = new Connector();
 		connector.setConnectorIdentity(connectorIdentity);
 
-		final File store = new File(Constants.DETECTION_FOLDER);
+		final File store = new File(DETECTION_FOLDER);
 		final Path storePath = store.toPath();
 
 		final ConnectorStore connectorStore = new ConnectorStore(storePath);
@@ -135,7 +137,7 @@ class ConnectorSelectionTest {
 			hostProperties,
 			hostConfiguration,
 			connectorStore,
-			Constants.STRATEGY_TIME
+			STRATEGY_TIME
 		);
 		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
 

@@ -3,9 +3,12 @@ package org.sentrysoftware.metricshub.engine.configuration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HTTP;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HTTPS;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.INVALID_PROTOCOL;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.INVALID_PROTOCOL_EXCEPTION_MESSAGE;
 
 import org.junit.jupiter.api.Test;
-import org.sentrysoftware.metricshub.engine.constants.Constants;
 
 /**
  * Test of {@link TransportProtocols}
@@ -21,17 +24,17 @@ class TransportProtocolsTest {
 	@Test
 	void testInterpretValueOf() {
 		// Valid protocols are HTTP and HTTPS
-		assertEquals(TransportProtocols.HTTP, TransportProtocols.interpretValueOf(Constants.HTTP));
-		assertEquals(TransportProtocols.HTTPS, TransportProtocols.interpretValueOf(Constants.HTTPS));
+		assertEquals(TransportProtocols.HTTP, TransportProtocols.interpretValueOf(HTTP));
+		assertEquals(TransportProtocols.HTTPS, TransportProtocols.interpretValueOf(HTTPS));
 
 		// Invalid protocol: throw an exception
 		final Exception exception = assertThrows(
 			IllegalArgumentException.class,
 			() -> {
-				TransportProtocols.interpretValueOf(Constants.INVALID_PROTOCOL);
+				TransportProtocols.interpretValueOf(INVALID_PROTOCOL);
 			}
 		);
 		final String actualMessage = exception.getMessage();
-		assertTrue(actualMessage.contains(Constants.INVALID_PROTOCOL_EXCEPTION_MESSAGE));
+		assertTrue(actualMessage.contains(INVALID_PROTOCOL_EXCEPTION_MESSAGE));
 	}
 }

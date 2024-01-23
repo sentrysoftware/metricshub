@@ -1,6 +1,9 @@
 package org.sentrysoftware.metricshub.engine.connector.deserializer.custom;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.doReturn;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;

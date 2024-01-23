@@ -10,6 +10,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mockStatic;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.EMPTY;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.LOCALHOST;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.SINGLE_SPACE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.TABLE_SEP;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.VALUE_VAL1;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.VALUE_VAL2;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.VALUE_VAL3;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,7 +27,10 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.helpers.ResourceHelper;
@@ -55,7 +65,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Subtract;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Translate;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Xml2Csv;
-import org.sentrysoftware.metricshub.engine.constants.Constants;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -205,17 +214,12 @@ class ComputeProcessorTest {
 		computeProcessor = new ComputeProcessor();
 		sourceTable = new SourceTable();
 		computeProcessor.setSourceTable(sourceTable);
-		computeProcessor.setHostname(Constants.LOCALHOST);
+		computeProcessor.setHostname(LOCALHOST);
 		telemetryManager =
 			TelemetryManager
 				.builder()
 				.hostConfiguration(
-					HostConfiguration
-						.builder()
-						.hostname(Constants.LOCALHOST)
-						.hostId(Constants.LOCALHOST)
-						.hostType(DeviceKind.WINDOWS)
-						.build()
+					HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.WINDOWS).build()
 				)
 				.build();
 		clientsExecutorMock.setTelemetryManager(telemetryManager);
@@ -232,9 +236,9 @@ class ComputeProcessorTest {
 	@Test
 	void testProcessAdd() {
 		List<List<String>> table = Arrays.asList(
-			Arrays.asList(ID1, FIVE_HUNDRED, TWO, Constants.VALUE_VAL1),
-			Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED, FIVE, Constants.VALUE_VAL2),
-			Arrays.asList(ID1, TWO_HUNDRED, TWO, Constants.VALUE_VAL3)
+			Arrays.asList(ID1, FIVE_HUNDRED, TWO, VALUE_VAL1),
+			Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED, FIVE, VALUE_VAL2),
+			Arrays.asList(ID1, TWO_HUNDRED, TWO, VALUE_VAL3)
 		);
 
 		sourceTable.setTable(table);
@@ -242,7 +246,7 @@ class ComputeProcessorTest {
 		computeProcessor.process((Add) null);
 		assertEquals(table, sourceTable.getTable());
 
-		Add addition = Add.builder().column(-1).value(Constants.EMPTY).build();
+		Add addition = Add.builder().column(-1).value(EMPTY).build();
 		computeProcessor.process(addition);
 		assertEquals(table, sourceTable.getTable());
 
@@ -255,9 +259,9 @@ class ComputeProcessorTest {
 		assertEquals(table, sourceTable.getTable());
 
 		final List<List<String>> result = Arrays.asList(
-			Arrays.asList(ID1, "502.0", TWO, Constants.VALUE_VAL1),
-			Arrays.asList(ID2, "1505.0", FIVE, Constants.VALUE_VAL2),
-			Arrays.asList(ID1, "202.0", TWO, Constants.VALUE_VAL3)
+			Arrays.asList(ID1, "502.0", TWO, VALUE_VAL1),
+			Arrays.asList(ID2, "1505.0", FIVE, VALUE_VAL2),
+			Arrays.asList(ID1, "202.0", TWO, VALUE_VAL3)
 		);
 
 		Add addColumn = Add.builder().column(2).value(DOLLAR_3).build();
@@ -276,9 +280,9 @@ class ComputeProcessorTest {
 		computeProcessor.process(addValue);
 		assertEquals(
 			Arrays.asList(
-				Arrays.asList(ID1, "512.0", TWO, Constants.VALUE_VAL1),
-				Arrays.asList(ID2, "1515.0", FIVE, Constants.VALUE_VAL2),
-				Arrays.asList(ID1, "212.0", TWO, Constants.VALUE_VAL3)
+				Arrays.asList(ID1, "512.0", TWO, VALUE_VAL1),
+				Arrays.asList(ID2, "1515.0", FIVE, VALUE_VAL2),
+				Arrays.asList(ID1, "212.0", TWO, VALUE_VAL3)
 			),
 			sourceTable.getTable()
 		);
@@ -286,9 +290,9 @@ class ComputeProcessorTest {
 		Add emptyAdd = Add.builder().column(4).value(FIVE).build();
 		table =
 			Arrays.asList(
-				Arrays.asList(ID1, FIVE_HUNDRED, TWO, Constants.EMPTY),
-				Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED, FIVE, Constants.EMPTY),
-				Arrays.asList(ID1, TWO_HUNDRED, TWO, Constants.EMPTY)
+				Arrays.asList(ID1, FIVE_HUNDRED, TWO, EMPTY),
+				Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED, FIVE, EMPTY),
+				Arrays.asList(ID1, TWO_HUNDRED, TWO, EMPTY)
 			);
 		sourceTable.setTable(table);
 		computeProcessor.process(emptyAdd);
@@ -302,9 +306,9 @@ class ComputeProcessorTest {
 	@Test
 	void testProcessDivide() {
 		final List<List<String>> table = Arrays.asList(
-			Arrays.asList(ID1, FIVE_HUNDRED, TWO, Constants.VALUE_VAL1),
-			Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED, FIVE, Constants.VALUE_VAL2),
-			Arrays.asList(ID1, TWO_HUNDRED, TWO, Constants.VALUE_VAL3)
+			Arrays.asList(ID1, FIVE_HUNDRED, TWO, VALUE_VAL1),
+			Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED, FIVE, VALUE_VAL2),
+			Arrays.asList(ID1, TWO_HUNDRED, TWO, VALUE_VAL3)
 		);
 
 		sourceTable.setTable(table);
@@ -312,7 +316,7 @@ class ComputeProcessorTest {
 		computeProcessor.process((Divide) null);
 		assertEquals(table, sourceTable.getTable());
 
-		Divide divide = Divide.builder().column(-1).value(Constants.EMPTY).build();
+		Divide divide = Divide.builder().column(-1).value(EMPTY).build();
 		computeProcessor.process(divide);
 		assertEquals(table, sourceTable.getTable());
 
@@ -329,9 +333,9 @@ class ComputeProcessorTest {
 		assertEquals(table, sourceTable.getTable());
 
 		final List<List<String>> result1 = Arrays.asList(
-			Arrays.asList(ID1, "250.0", TWO, Constants.VALUE_VAL1),
-			Arrays.asList(ID2, "300.0", FIVE, Constants.VALUE_VAL2),
-			Arrays.asList(ID1, "100.0", TWO, Constants.VALUE_VAL3)
+			Arrays.asList(ID1, "250.0", TWO, VALUE_VAL1),
+			Arrays.asList(ID2, "300.0", FIVE, VALUE_VAL2),
+			Arrays.asList(ID1, "100.0", TWO, VALUE_VAL3)
 		);
 
 		Divide valueColumn = Divide.builder().column(2).value(DOLLAR_3).build();
@@ -347,9 +351,9 @@ class ComputeProcessorTest {
 		assertEquals(result1, sourceTable.getTable());
 
 		final List<List<String>> result2 = Arrays.asList(
-			Arrays.asList(ID1, "25.0", TWO, Constants.VALUE_VAL1),
-			Arrays.asList(ID2, "30.0", FIVE, Constants.VALUE_VAL2),
-			Arrays.asList(ID1, "10.0", TWO, Constants.VALUE_VAL3)
+			Arrays.asList(ID1, "25.0", TWO, VALUE_VAL1),
+			Arrays.asList(ID2, "30.0", FIVE, VALUE_VAL2),
+			Arrays.asList(ID1, "10.0", TWO, VALUE_VAL3)
 		);
 
 		Divide valueValue = Divide.builder().column(2).value(TEN).build();
@@ -364,9 +368,9 @@ class ComputeProcessorTest {
 	@Test
 	void testProcessMultiply() {
 		final List<List<String>> table = Arrays.asList(
-			Arrays.asList(ID1, FIVE_HUNDRED, TWO, Constants.VALUE_VAL1),
-			Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED, FIVE, Constants.VALUE_VAL2),
-			Arrays.asList(ID1, TWO_HUNDRED, TWO, Constants.VALUE_VAL3)
+			Arrays.asList(ID1, FIVE_HUNDRED, TWO, VALUE_VAL1),
+			Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED, FIVE, VALUE_VAL2),
+			Arrays.asList(ID1, TWO_HUNDRED, TWO, VALUE_VAL3)
 		);
 
 		sourceTable.setTable(table);
@@ -374,7 +378,7 @@ class ComputeProcessorTest {
 		computeProcessor.process((Multiply) null);
 		assertEquals(table, sourceTable.getTable());
 
-		Multiply multiply = Multiply.builder().column(-1).value(Constants.EMPTY).build();
+		Multiply multiply = Multiply.builder().column(-1).value(EMPTY).build();
 		computeProcessor.process(multiply);
 		assertEquals(table, sourceTable.getTable());
 
@@ -387,9 +391,9 @@ class ComputeProcessorTest {
 		assertEquals(table, sourceTable.getTable());
 
 		final List<List<String>> result = Arrays.asList(
-			Arrays.asList(ID1, "1000.0", TWO, Constants.VALUE_VAL1),
-			Arrays.asList(ID2, "7500.0", FIVE, Constants.VALUE_VAL2),
-			Arrays.asList(ID1, "400.0", TWO, Constants.VALUE_VAL3)
+			Arrays.asList(ID1, "1000.0", TWO, VALUE_VAL1),
+			Arrays.asList(ID2, "7500.0", FIVE, VALUE_VAL2),
+			Arrays.asList(ID1, "400.0", TWO, VALUE_VAL3)
 		);
 
 		Multiply multiByColumn = Multiply.builder().column(2).value(DOLLAR_3).build();
@@ -408,9 +412,9 @@ class ComputeProcessorTest {
 		computeProcessor.process(valueValue);
 		assertEquals(
 			Arrays.asList(
-				Arrays.asList(ID1, "10000.0", TWO, Constants.VALUE_VAL1),
-				Arrays.asList(ID2, "75000.0", FIVE, Constants.VALUE_VAL2),
-				Arrays.asList(ID1, "4000.0", TWO, Constants.VALUE_VAL3)
+				Arrays.asList(ID1, "10000.0", TWO, VALUE_VAL1),
+				Arrays.asList(ID2, "75000.0", FIVE, VALUE_VAL2),
+				Arrays.asList(ID1, "4000.0", TWO, VALUE_VAL3)
 			),
 			sourceTable.getTable()
 		);
@@ -419,9 +423,9 @@ class ComputeProcessorTest {
 		computeProcessor.process(valueValue);
 		assertEquals(
 			Arrays.asList(
-				Arrays.asList(ID1, ZERO_POINT_ZERO, TWO, Constants.VALUE_VAL1),
-				Arrays.asList(ID2, ZERO_POINT_ZERO, FIVE, Constants.VALUE_VAL2),
-				Arrays.asList(ID1, ZERO_POINT_ZERO, TWO, Constants.VALUE_VAL3)
+				Arrays.asList(ID1, ZERO_POINT_ZERO, TWO, VALUE_VAL1),
+				Arrays.asList(ID2, ZERO_POINT_ZERO, FIVE, VALUE_VAL2),
+				Arrays.asList(ID1, ZERO_POINT_ZERO, TWO, VALUE_VAL3)
 			),
 			sourceTable.getTable()
 		);
@@ -430,9 +434,9 @@ class ComputeProcessorTest {
 	@Test
 	void testProcessSubtract() {
 		final List<List<String>> table = Arrays.asList(
-			Arrays.asList(ID1, FIVE_HUNDRED, TWO, Constants.VALUE_VAL1),
-			Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED, FIVE, Constants.VALUE_VAL2),
-			Arrays.asList(ID1, TWO_HUNDRED, TWO, Constants.VALUE_VAL3)
+			Arrays.asList(ID1, FIVE_HUNDRED, TWO, VALUE_VAL1),
+			Arrays.asList(ID2, ONE_THOUSAND_FIVE_HUNDRED, FIVE, VALUE_VAL2),
+			Arrays.asList(ID1, TWO_HUNDRED, TWO, VALUE_VAL3)
 		);
 
 		sourceTable.setTable(table);
@@ -440,7 +444,7 @@ class ComputeProcessorTest {
 		computeProcessor.process((Subtract) null);
 		assertEquals(table, sourceTable.getTable());
 
-		Subtract substract = Subtract.builder().column(-1).value(Constants.EMPTY).build();
+		Subtract substract = Subtract.builder().column(-1).value(EMPTY).build();
 		computeProcessor.process(substract);
 		assertEquals(table, sourceTable.getTable());
 
@@ -453,9 +457,9 @@ class ComputeProcessorTest {
 		assertEquals(table, sourceTable.getTable());
 
 		final List<List<String>> result = Arrays.asList(
-			Arrays.asList(ID1, "498.0", TWO, Constants.VALUE_VAL1),
-			Arrays.asList(ID2, "1495.0", FIVE, Constants.VALUE_VAL2),
-			Arrays.asList(ID1, "198.0", TWO, Constants.VALUE_VAL3)
+			Arrays.asList(ID1, "498.0", TWO, VALUE_VAL1),
+			Arrays.asList(ID2, "1495.0", FIVE, VALUE_VAL2),
+			Arrays.asList(ID1, "198.0", TWO, VALUE_VAL3)
 		);
 
 		Subtract substractColumn = Subtract.builder().column(2).value(DOLLAR_3).build();
@@ -474,9 +478,9 @@ class ComputeProcessorTest {
 		computeProcessor.process(substractValue);
 		assertEquals(
 			Arrays.asList(
-				Arrays.asList(ID1, "488.0", TWO, Constants.VALUE_VAL1),
-				Arrays.asList(ID2, "1485.0", FIVE, Constants.VALUE_VAL2),
-				Arrays.asList(ID1, "188.0", TWO, Constants.VALUE_VAL3)
+				Arrays.asList(ID1, "488.0", TWO, VALUE_VAL1),
+				Arrays.asList(ID2, "1485.0", FIVE, VALUE_VAL2),
+				Arrays.asList(ID1, "188.0", TWO, VALUE_VAL3)
 			),
 			sourceTable.getTable()
 		);
@@ -484,9 +488,7 @@ class ComputeProcessorTest {
 
 	@Test
 	void testPerformMathComputeOnLine() {
-		final List<List<String>> table = Collections.singletonList(
-			Arrays.asList(Constants.SINGLE_SPACE, FOO, FOUR_POINT_ZERO)
-		);
+		final List<List<String>> table = Collections.singletonList(Arrays.asList(SINGLE_SPACE, FOO, FOUR_POINT_ZERO));
 		sourceTable.setTable(table);
 
 		// column index > row size
@@ -1453,7 +1455,7 @@ class ComputeProcessorTest {
 
 		// regexp is empty, valueSet is empty
 		table = newSourceTable();
-		excludeMatchingLines.setValueList(Constants.EMPTY);
+		excludeMatchingLines.setValueList(EMPTY);
 		computeProcessor.process(excludeMatchingLines);
 		assertEquals(table, computeProcessor.getSourceTable().getTable());
 
@@ -2137,7 +2139,7 @@ class ComputeProcessorTest {
 
 		// regexp is empty, valueSet is empty
 		table = newSourceTable();
-		keepOnlyMatchingLines.setValueList(Constants.EMPTY);
+		keepOnlyMatchingLines.setValueList(EMPTY);
 		computeProcessor.process(keepOnlyMatchingLines);
 		assertTrue(computeProcessor.getSourceTable().getTable().isEmpty());
 
@@ -2309,7 +2311,7 @@ class ComputeProcessorTest {
 			.script(embeddedFileName)
 			.keep("^" + FOO)
 			.exclude("^" + BAR)
-			.separators(Constants.TABLE_SEP)
+			.separators(TABLE_SEP)
 			.selectColumns(ONE_TWO_THREE)
 			.build();
 		final Map<String, EmbeddedFile> embeddedFileMap = Collections.singletonMap(
@@ -2342,7 +2344,7 @@ class ComputeProcessorTest {
 				.script(embeddedFileName)
 				.keep("^" + FOO)
 				.exclude("^" + BAR)
-				.separators(Constants.TABLE_SEP)
+				.separators(TABLE_SEP)
 				.selectColumns(ONE_TWO_THREE)
 				.build();
 		doReturn(null).when(clientsExecutorMock).executeAwkScript(any(), any());
@@ -2363,10 +2365,10 @@ class ComputeProcessorTest {
 				.script(embeddedFileName)
 				.keep("^" + FOO)
 				.exclude("^" + BAR)
-				.separators(Constants.TABLE_SEP)
+				.separators(TABLE_SEP)
 				.selectColumns(ONE_TWO_THREE)
 				.build();
-		Mockito.doReturn(Constants.EMPTY).when(clientsExecutorMock).executeAwkScript(any(), any());
+		doReturn(EMPTY).when(clientsExecutorMock).executeAwkScript(any(), any());
 		try (final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)) {
 			mockedEmbeddedFileHelper
 				.when(() -> EmbeddedFileHelper.findEmbeddedFiles(embeddedFileName))
@@ -2377,31 +2379,20 @@ class ComputeProcessorTest {
 
 		sourceTable.setRawData(null);
 		sourceTable.setTable(table);
-		doReturn(SourceTable.tableToCsv(table, Constants.TABLE_SEP, true))
-			.when(clientsExecutorMock)
-			.executeAwkScript(any(), any());
+		doReturn(SourceTable.tableToCsv(table, TABLE_SEP, true)).when(clientsExecutorMock).executeAwkScript(any(), any());
 		try (final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)) {
 			mockedEmbeddedFileHelper
 				.when(() -> EmbeddedFileHelper.findEmbeddedFiles(embeddedFileName))
 				.thenReturn(embeddedFileMap);
 			computeProcessor.process(
-				Awk
-					.builder()
-					.script(embeddedFileName)
-					.exclude(ID1)
-					.keep(ID2)
-					.separators(Constants.TABLE_SEP)
-					.selectColumns("2,3")
-					.build()
+				Awk.builder().script(embeddedFileName).exclude(ID1).keep(ID2).separators(TABLE_SEP).selectColumns("2,3").build()
 			);
 			assertEquals("NAME2;MANUFACTURER2;", sourceTable.getRawData());
 			assertEquals(Arrays.asList(Arrays.asList(NAME2, MANUFACTURER2)), sourceTable.getTable());
 		}
 
 		// Let's try with a space character in the selectColumns list
-		doReturn(SourceTable.tableToCsv(table, Constants.TABLE_SEP, true))
-			.when(clientsExecutorMock)
-			.executeAwkScript(any(), any());
+		doReturn(SourceTable.tableToCsv(table, TABLE_SEP, true)).when(clientsExecutorMock).executeAwkScript(any(), any());
 		try (final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)) {
 			mockedEmbeddedFileHelper
 				.when(() -> EmbeddedFileHelper.findEmbeddedFiles(embeddedFileName))
@@ -2412,7 +2403,7 @@ class ComputeProcessorTest {
 					.script(embeddedFileName)
 					.exclude(ID1)
 					.keep(ID2)
-					.separators(Constants.TABLE_SEP)
+					.separators(TABLE_SEP)
 					.selectColumns("2, 3")
 					.build()
 			);
@@ -2439,7 +2430,7 @@ class ComputeProcessorTest {
 				"""
 			)
 			.keep("^" + ID1)
-			.separators(Constants.TABLE_SEP)
+			.separators(TABLE_SEP)
 			.selectColumns(ONE_TWO_THREE)
 			.build();
 
@@ -2965,7 +2956,7 @@ class ComputeProcessorTest {
 		final PerBitTranslation translate = PerBitTranslation
 			.builder()
 			.column(0)
-			.bitList(Constants.EMPTY)
+			.bitList(EMPTY)
 			.translationTable(TranslationTable.builder().build())
 			.build();
 
@@ -2985,7 +2976,7 @@ class ComputeProcessorTest {
 		assertEquals(table, sourceTable.getTable());
 
 		// test column value is not an integer
-		translate.setBitList(Constants.EMPTY);
+		translate.setBitList(EMPTY);
 		translate.setColumn(3);
 		computeProcessor.process(translate);
 		assertEquals(table, sourceTable.getTable());

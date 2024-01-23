@@ -149,7 +149,7 @@ public class TelemetryManager {
 	 * Get the protocol configuration used to execute requests on Windows machines.
 	 * (WinRM or WMI)<br> WinRM is prioritized.
 	 *
-	 * @return {@link IWinConfiguration} instance.
+	 * @return {@link org.sentrysoftware.metricshub.engine.configuration.IWinConfiguration} instance.
 	 */
 	public IWinConfiguration getWinConfiguration() {
 		return hostConfiguration.getWinConfiguration();

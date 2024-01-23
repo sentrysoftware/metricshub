@@ -10,7 +10,6 @@ import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.sentrysoftware.metricshub.agent.process.io.CustomInputStream;
@@ -28,8 +27,8 @@ class ProcessControlTest {
 			() -> ProcessControl.newProcessBuilder(emptyList, emptyMap, null, false)
 		);
 		assertThrows(IllegalArgumentException.class, () -> ProcessControl.newProcessBuilder(cmdLine, null, null, false));
-		Assertions.assertDoesNotThrow(() -> ProcessControl.newProcessBuilder(cmdLine, emptyMap, null, false));
-		Assertions.assertDoesNotThrow(() -> ProcessControl.newProcessBuilder(cmdLine, emptyMap, new File(""), false));
+		assertDoesNotThrow(() -> ProcessControl.newProcessBuilder(cmdLine, emptyMap, null, false));
+		assertDoesNotThrow(() -> ProcessControl.newProcessBuilder(cmdLine, emptyMap, new File(""), false));
 	}
 
 	@Test

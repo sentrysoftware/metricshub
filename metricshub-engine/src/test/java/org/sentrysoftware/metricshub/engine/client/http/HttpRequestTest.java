@@ -5,6 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mockStatic;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.EMBEDDED_FILE_1_REF;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.EMBEDDED_FILE_2_REF;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.MY_CONNECTOR_1_NAME;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -13,9 +17,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
+import org.sentrysoftware.metricshub.engine.client.http.HttpRequest.HttpRequestBuilder;
 import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
-import org.sentrysoftware.metricshub.engine.constants.Constants;
 import org.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
 
 class HttpRequestTest {
@@ -46,9 +50,9 @@ class HttpRequestTest {
 		{
 			final HttpRequest request = HttpRequest
 				.builder()
-				.hostname(Constants.HOST)
+				.hostname(HOST)
 				.httpConfiguration(HTTP_CONFIG)
-				.header(CONNECTION_KEEP_ALIVE_HEADER, Constants.MY_CONNECTOR_1_NAME, Constants.HOST)
+				.header(CONNECTION_KEEP_ALIVE_HEADER, MY_CONNECTOR_1_NAME, HOST)
 				.build();
 
 			assertEquals(new StringHeader(CONNECTION_KEEP_ALIVE_HEADER), request.getHeader());
@@ -57,9 +61,9 @@ class HttpRequestTest {
 		{
 			final HttpRequest request = HttpRequest
 				.builder()
-				.hostname(Constants.HOST)
+				.hostname(HOST)
 				.httpConfiguration(HTTP_CONFIG)
-				.header(null, Constants.MY_CONNECTOR_1_NAME, Constants.HOST)
+				.header(null, MY_CONNECTOR_1_NAME, HOST)
 				.build();
 
 			assertNull(request.getHeader());
@@ -69,9 +73,9 @@ class HttpRequestTest {
 			final EmbeddedFile expectedEmbeddedFile = new EmbeddedFile(
 				CONNECTION_KEEP_ALIVE_HEADER,
 				null,
-				Constants.EMBEDDED_FILE_1_REF
+				EMBEDDED_FILE_1_REF
 			);
-			commandLineEmbeddedFiles.put(Constants.EMBEDDED_FILE_1_REF, expectedEmbeddedFile);
+			commandLineEmbeddedFiles.put(EMBEDDED_FILE_1_REF, expectedEmbeddedFile);
 
 			try (final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)) {
 				mockedEmbeddedFileHelper
@@ -80,9 +84,9 @@ class HttpRequestTest {
 
 				final HttpRequest request = HttpRequest
 					.builder()
-					.hostname(Constants.HOST)
+					.hostname(HOST)
 					.httpConfiguration(HTTP_CONFIG)
-					.header(Constants.EMBEDDED_FILE_1_REF, Constants.MY_CONNECTOR_1_NAME, Constants.HOST)
+					.header(EMBEDDED_FILE_1_REF, MY_CONNECTOR_1_NAME, HOST)
 					.build();
 
 				assertEquals(new EmbeddedFileHeader(expectedEmbeddedFile), request.getHeader());
@@ -95,9 +99,9 @@ class HttpRequestTest {
 		{
 			final HttpRequest request = HttpRequest
 				.builder()
-				.hostname(Constants.HOST)
+				.hostname(HOST)
 				.httpConfiguration(HTTP_CONFIG)
-				.body(BODY, Constants.MY_CONNECTOR_1_NAME, Constants.HOST)
+				.body(BODY, MY_CONNECTOR_1_NAME, HOST)
 				.build();
 
 			assertEquals(new StringBody(BODY), request.getBody());
@@ -106,17 +110,17 @@ class HttpRequestTest {
 		{
 			final HttpRequest request = HttpRequest
 				.builder()
-				.hostname(Constants.HOST)
+				.hostname(HOST)
 				.httpConfiguration(HTTP_CONFIG)
-				.body(null, Constants.MY_CONNECTOR_1_NAME, Constants.HOST)
+				.body(null, MY_CONNECTOR_1_NAME, HOST)
 				.build();
 
 			assertNull(request.getBody());
 		}
 
 		{
-			final EmbeddedFile expectedEmbeddedFile = new EmbeddedFile(BODY, null, Constants.EMBEDDED_FILE_1_REF);
-			commandLineEmbeddedFiles.put(Constants.EMBEDDED_FILE_1_REF, expectedEmbeddedFile);
+			final EmbeddedFile expectedEmbeddedFile = new EmbeddedFile(BODY, null, EMBEDDED_FILE_1_REF);
+			commandLineEmbeddedFiles.put(EMBEDDED_FILE_1_REF, expectedEmbeddedFile);
 
 			try (final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)) {
 				mockedEmbeddedFileHelper
@@ -125,9 +129,9 @@ class HttpRequestTest {
 
 				final HttpRequest request = HttpRequest
 					.builder()
-					.hostname(Constants.HOST)
+					.hostname(HOST)
 					.httpConfiguration(HTTP_CONFIG)
-					.body(Constants.EMBEDDED_FILE_1_REF, Constants.MY_CONNECTOR_1_NAME, Constants.HOST)
+					.body(EMBEDDED_FILE_1_REF, MY_CONNECTOR_1_NAME, HOST)
 					.build();
 
 				assertEquals(new EmbeddedFileBody(expectedEmbeddedFile), request.getBody());
@@ -138,13 +142,13 @@ class HttpRequestTest {
 	@Test
 	void testGetHttpEmbeddedFileFailsOnManyEmbeddedFiles() {
 		commandLineEmbeddedFiles.put(
-			Constants.EMBEDDED_FILE_1_REF,
-			new EmbeddedFile(CONNECTION_KEEP_ALIVE_HEADER, null, Constants.EMBEDDED_FILE_1_REF)
+			EMBEDDED_FILE_1_REF,
+			new EmbeddedFile(CONNECTION_KEEP_ALIVE_HEADER, null, EMBEDDED_FILE_1_REF)
 		);
 
 		commandLineEmbeddedFiles.put(
-			Constants.EMBEDDED_FILE_2_REF,
-			new EmbeddedFile(CONNECTION_KEEP_ALIVE_HEADER, null, Constants.EMBEDDED_FILE_2_REF)
+			EMBEDDED_FILE_2_REF,
+			new EmbeddedFile(CONNECTION_KEEP_ALIVE_HEADER, null, EMBEDDED_FILE_2_REF)
 		);
 		try (final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)) {
 			mockedEmbeddedFileHelper
@@ -154,11 +158,11 @@ class HttpRequestTest {
 			assertThrows(
 				IllegalStateException.class,
 				() ->
-					HttpRequest.HttpRequestBuilder.getHttpEmbeddedFile(
-						Constants.EMBEDDED_FILE_1_REF + " " + Constants.EMBEDDED_FILE_2_REF,
+					HttpRequestBuilder.getHttpEmbeddedFile(
+						EMBEDDED_FILE_1_REF + " " + EMBEDDED_FILE_2_REF,
 						"header",
-						Constants.MY_CONNECTOR_1_NAME,
-						Constants.HOST
+						MY_CONNECTOR_1_NAME,
+						HOST
 					)
 			);
 		}

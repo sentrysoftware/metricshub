@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.EXPECTED_SNMP_TABLE_DATA;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,14 +20,12 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
-import org.sentrysoftware.metricshub.engine.constants.Constants;
 import org.sentrysoftware.metricshub.engine.strategy.source.ISourceProcessor;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceProcessor;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
@@ -38,7 +37,7 @@ class ForceSerializationHelperTest {
 	private static final String SELECT_COLUMNS = "ID,1,3";
 	private static final SourceTable EXPECTED_SOURCE_TABLE = SourceTable
 		.builder()
-		.table(Constants.EXPECTED_SNMP_TABLE_DATA)
+		.table(EXPECTED_SNMP_TABLE_DATA)
 		.headers(Arrays.asList(SELECT_COLUMNS.split(MetricsHubConstants.COMMA)))
 		.build();
 	private static final String DESCRIPTION = "source";
@@ -191,10 +190,7 @@ class ForceSerializationHelperTest {
 
 		telemetryManager.getHostProperties().getConnectorNamespace(CONNECTOR_ID);
 
-		Mockito
-			.doReturn(Constants.EXPECTED_SNMP_TABLE_DATA)
-			.when(clientsExecutor)
-			.executeSNMPTable(any(), any(), any(), any(), anyBoolean());
+		doReturn(EXPECTED_SNMP_TABLE_DATA).when(clientsExecutor).executeSNMPTable(any(), any(), any(), any(), anyBoolean());
 
 		final ISourceProcessor processor = SourceProcessor
 			.builder()
@@ -239,10 +235,7 @@ class ForceSerializationHelperTest {
 
 		telemetryManager.getHostProperties().getConnectorNamespace(CONNECTOR_ID);
 
-		Mockito
-			.doReturn(Constants.EXPECTED_SNMP_TABLE_DATA)
-			.when(clientsExecutor)
-			.executeSNMPTable(any(), any(), any(), any(), anyBoolean());
+		doReturn(EXPECTED_SNMP_TABLE_DATA).when(clientsExecutor).executeSNMPTable(any(), any(), any(), any(), anyBoolean());
 
 		final ISourceProcessor processor = SourceProcessor
 			.builder()

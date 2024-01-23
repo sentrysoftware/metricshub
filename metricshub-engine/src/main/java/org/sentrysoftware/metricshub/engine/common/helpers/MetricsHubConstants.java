@@ -1,5 +1,14 @@
 package org.sentrysoftware.metricshub.engine.common.helpers;
 
+import static org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind.AIX;
+import static org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind.HPUX;
+import static org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind.LINUX;
+import static org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind.OOB;
+import static org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind.SOLARIS;
+import static org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind.TRU64;
+import static org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind.VMS;
+import static org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind.WINDOWS;
+
 import java.util.Map;
 import java.util.regex.Pattern;
 import lombok.AccessLevel;
@@ -74,16 +83,16 @@ public class MetricsHubConstants {
 
 	// @formatter:off
 	public static final Map<DeviceKind, String> HOST_TYPE_TO_OTEL_HOST_TYPE = Map.of(
-		DeviceKind.VMS, HOST_TYPE_COMPUTE,
-		DeviceKind.TRU64, HOST_TYPE_COMPUTE,
-		DeviceKind.HPUX, HOST_TYPE_COMPUTE,
-		DeviceKind.AIX, HOST_TYPE_COMPUTE,
-		DeviceKind.LINUX, HOST_TYPE_COMPUTE,
-		DeviceKind.OOB, HOST_TYPE_COMPUTE,
-		DeviceKind.WINDOWS, HOST_TYPE_COMPUTE,
+		VMS, HOST_TYPE_COMPUTE,
+		TRU64, HOST_TYPE_COMPUTE,
+		HPUX, HOST_TYPE_COMPUTE,
+		AIX, HOST_TYPE_COMPUTE,
+		LINUX, HOST_TYPE_COMPUTE,
+		OOB, HOST_TYPE_COMPUTE,
+		WINDOWS, HOST_TYPE_COMPUTE,
 		DeviceKind.NETWORK, NETWORK,
 		DeviceKind.STORAGE, STORAGE,
-		DeviceKind.SOLARIS, HOST_TYPE_COMPUTE
+		SOLARIS, HOST_TYPE_COMPUTE
 	);
 	// @formatter:on
 
@@ -105,16 +114,16 @@ public class MetricsHubConstants {
 
 	// @formatter:off
 	public static final Map<DeviceKind, String> HOST_TYPE_TO_OTEL_OS_TYPE = Map.of(
-		DeviceKind.VMS, OTEL_OPENVMS_OS_TYPE,
-		DeviceKind.TRU64, OTEL_TRUE64_OS_TYPE,
-		DeviceKind.HPUX, OTEL_HPUX_OS_TYPE,
-		DeviceKind.AIX, OTEL_AIX_OS_TYPE,
-		DeviceKind.LINUX, OTEL_LINUX_OS_TYPE,
-		DeviceKind.OOB, OTEL_MANAGEMENT_OS_TYPE,
-		DeviceKind.WINDOWS, OTEL_WINDOWS_OS_TYPE,
+		VMS, OTEL_OPENVMS_OS_TYPE,
+		TRU64, OTEL_TRUE64_OS_TYPE,
+		HPUX, OTEL_HPUX_OS_TYPE,
+		AIX, OTEL_AIX_OS_TYPE,
+		LINUX, OTEL_LINUX_OS_TYPE,
+		OOB, OTEL_MANAGEMENT_OS_TYPE,
+		WINDOWS, OTEL_WINDOWS_OS_TYPE,
 		DeviceKind.NETWORK, OTEL_NETWORK_OS_TYPE,
 		DeviceKind.STORAGE, OTEL_STORAGE_OS_TYPE,
-		DeviceKind.SOLARIS, OTEL_SOLARIS_OS_TYPE
+		SOLARIS, OTEL_SOLARIS_OS_TYPE
 	);
 	// @formatter:on
 

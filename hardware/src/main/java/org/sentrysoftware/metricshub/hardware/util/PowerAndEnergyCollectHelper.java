@@ -1,5 +1,12 @@
 package org.sentrysoftware.metricshub.hardware.util;
 
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENCLOSURE_ENERGY;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENCLOSURE_POWER;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_ESTIMATED_ENERGY;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_ESTIMATED_POWER;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_MEASURED_ENERGY;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_MEASURED_POWER;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -91,24 +98,24 @@ public class PowerAndEnergyCollectHelper {
 		if (isPowerMeasured(enclosures)) {
 			// Compute measured power
 			computedPower = hostMonitorEnergyAndPowerEstimator.computeMeasuredPower();
-			if (isNullComputedPower(telemetryManager, monitor, HwConstants.HW_HOST_MEASURED_POWER, computedPower)) {
+			if (isNullComputedPower(telemetryManager, monitor, HW_HOST_MEASURED_POWER, computedPower)) {
 				return true;
 			}
 			metricFactory.collectNumberMetric(
 				monitor,
-				HwConstants.HW_HOST_MEASURED_POWER,
+				HW_HOST_MEASURED_POWER,
 				computedPower,
 				telemetryManager.getStrategyTime()
 			);
 
 			// Compute measured energy
 			computedEnergy = hostMonitorEnergyAndPowerEstimator.computeMeasuredEnergy();
-			if (isNullComputedEnergy(telemetryManager, monitor, HwConstants.HW_HOST_MEASURED_ENERGY, computedEnergy)) {
+			if (isNullComputedEnergy(telemetryManager, monitor, HW_HOST_MEASURED_ENERGY, computedEnergy)) {
 				return true;
 			}
 			metricFactory.collectNumberMetric(
 				monitor,
-				HwConstants.HW_HOST_MEASURED_ENERGY,
+				HW_HOST_MEASURED_ENERGY,
 				computedEnergy,
 				telemetryManager.getStrategyTime()
 			);
@@ -116,24 +123,24 @@ public class PowerAndEnergyCollectHelper {
 		} else {
 			// Compute estimated power
 			computedPower = hostMonitorEnergyAndPowerEstimator.computeEstimatedPower();
-			if (isNullComputedPower(telemetryManager, monitor, HwConstants.HW_HOST_ESTIMATED_POWER, computedPower)) {
+			if (isNullComputedPower(telemetryManager, monitor, HW_HOST_ESTIMATED_POWER, computedPower)) {
 				return false;
 			}
 			metricFactory.collectNumberMetric(
 				monitor,
-				HwConstants.HW_HOST_ESTIMATED_POWER,
+				HW_HOST_ESTIMATED_POWER,
 				computedPower,
 				telemetryManager.getStrategyTime()
 			);
 
 			// Compute estimated energy
 			computedEnergy = hostMonitorEnergyAndPowerEstimator.computeEstimatedEnergy();
-			if (isNullComputedEnergy(telemetryManager, monitor, HwConstants.HW_HOST_ESTIMATED_ENERGY, computedEnergy)) {
+			if (isNullComputedEnergy(telemetryManager, monitor, HW_HOST_ESTIMATED_ENERGY, computedEnergy)) {
 				return false;
 			}
 			metricFactory.collectNumberMetric(
 				monitor,
-				HwConstants.HW_HOST_ESTIMATED_ENERGY,
+				HW_HOST_ESTIMATED_ENERGY,
 				computedEnergy,
 				telemetryManager.getStrategyTime()
 			);
@@ -206,8 +213,8 @@ public class PowerAndEnergyCollectHelper {
 			.map(Map::values)
 			.flatMap(Collection::stream)
 			.anyMatch(monitor ->
-				CollectHelper.getUpdatedNumberMetricValue(monitor, HwConstants.HW_ENCLOSURE_POWER) != null ||
-				CollectHelper.getUpdatedNumberMetricValue(monitor, HwConstants.HW_ENCLOSURE_ENERGY) != null
+				CollectHelper.getUpdatedNumberMetricValue(monitor, HW_ENCLOSURE_POWER) != null ||
+				CollectHelper.getUpdatedNumberMetricValue(monitor, HW_ENCLOSURE_ENERGY) != null
 			);
 	}
 }

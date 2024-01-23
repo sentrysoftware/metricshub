@@ -1,7 +1,10 @@
 package org.sentrysoftware.metricshub.cli.service;
 
+import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.APPLICATION_YAML_FILE_NAME;
+import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.OBJECT_MAPPER;
+
 import org.sentrysoftware.metricshub.agent.context.ApplicationProperties;
-import org.sentrysoftware.metricshub.agent.helper.AgentConstants;
+import org.sentrysoftware.metricshub.agent.context.ApplicationProperties.Project;
 import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import org.springframework.core.io.ClassPathResource;
 import picocli.CommandLine.IVersionProvider;
@@ -21,14 +24,14 @@ public class VersionService implements IVersionProvider {
 	@Override
 	public String[] getVersion() throws Exception {
 		// Read the application.yaml file
-		final ClassPathResource classPathResource = new ClassPathResource(AgentConstants.APPLICATION_YAML_FILE_NAME);
+		final ClassPathResource classPathResource = new ClassPathResource(APPLICATION_YAML_FILE_NAME);
 		final ApplicationProperties applicationProperties = JsonHelper.deserialize(
-			AgentConstants.OBJECT_MAPPER,
+			OBJECT_MAPPER,
 			classPathResource.getInputStream(),
 			ApplicationProperties.class
 		);
 
-		final ApplicationProperties.Project project = applicationProperties.project();
+		final Project project = applicationProperties.project();
 		final String projectName = project.name();
 		final String projectVersion = project.version();
 		final String buildNumber = applicationProperties.buildNumber();

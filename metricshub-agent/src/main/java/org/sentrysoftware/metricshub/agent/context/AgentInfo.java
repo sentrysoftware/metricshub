@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.sentrysoftware.metricshub.agent.context.ApplicationProperties.Project;
 import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler.ILocalOs;
@@ -96,7 +97,7 @@ public class AgentInfo {
 			throw new IllegalStateException("Cannot read application.yaml file.", e);
 		}
 
-		final ApplicationProperties.Project project = applicationProperties.project();
+		final Project project = applicationProperties.project();
 
 		// Update metric attributes
 		// @formatter:off

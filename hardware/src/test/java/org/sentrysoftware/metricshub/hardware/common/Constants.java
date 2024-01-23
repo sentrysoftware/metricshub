@@ -1,8 +1,5 @@
 package org.sentrysoftware.metricshub.hardware.common;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 public class Constants {
 
 	public static final String FAN_SPEED_METRIC = "hw.fan.speed";

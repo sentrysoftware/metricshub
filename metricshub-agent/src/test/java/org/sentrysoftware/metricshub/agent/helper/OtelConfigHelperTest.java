@@ -8,7 +8,6 @@ import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.DEFAULT_
 import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.agent.config.AgentConfig;
 import org.sentrysoftware.metricshub.agent.config.exporter.ExporterConfig;
@@ -76,7 +75,7 @@ class OtelConfigHelperTest {
 
 	@Test
 	void testBuildOtelSdkConfiguration() {
-		Assertions.assertDoesNotThrow(() -> OtelConfigHelper.buildOtelSdkConfiguration(new AgentConfig()));
+		assertDoesNotThrow(() -> OtelConfigHelper.buildOtelSdkConfiguration(new AgentConfig()));
 	}
 
 	@Test

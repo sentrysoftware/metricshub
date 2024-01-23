@@ -2,6 +2,8 @@ package org.sentrysoftware.metricshub.agent.config.otel;
 
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 import static org.sentrysoftware.metricshub.agent.config.otel.OtelCollectorOutput.LOG;
+import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.DEFAULT_OTEL_CONFIG_FILENAME;
+import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.OTEL_DIRECTORY_NAME;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -17,7 +19,6 @@ import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.agent.deserialization.TimeDeserializer;
-import org.sentrysoftware.metricshub.agent.helper.AgentConstants;
 import org.sentrysoftware.metricshub.agent.helper.ConfigHelper;
 import org.sentrysoftware.metricshub.agent.process.config.ProcessConfig;
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
@@ -33,9 +34,7 @@ import org.sentrysoftware.metricshub.engine.common.helpers.MapHelper;
 public class OtelCollectorConfig {
 
 	protected static final List<String> DEFAULT_COMMAND_LINE = buildDefaultCommandLine();
-	protected static final String DEFAULT_WORKING_DIR = ConfigHelper
-		.getSubPath(AgentConstants.OTEL_DIRECTORY_NAME)
-		.toString();
+	protected static final String DEFAULT_WORKING_DIR = ConfigHelper.getSubPath(OTEL_DIRECTORY_NAME).toString();
 	protected static final Map<String, String> DEFAULT_ENVIRONMENT;
 
 	static {
@@ -90,14 +89,14 @@ public class OtelCollectorConfig {
 		final List<String> commandLine = new ArrayList<>();
 
 		// Executable path
-		commandLine.add(ConfigHelper.getSubPath(AgentConstants.OTEL_DIRECTORY_NAME + "/" + EXECUTABLE_NAME).toString());
+		commandLine.add(ConfigHelper.getSubPath(OTEL_DIRECTORY_NAME + "/" + EXECUTABLE_NAME).toString());
 
 		// Configuration path
 		commandLine.add("--config");
 
 		// Get the default configuration file path located under the otel directory
 		final String defaultConfigFilePath = ConfigHelper
-			.getDefaultConfigFilePath(AgentConstants.OTEL_DIRECTORY_NAME, AgentConstants.DEFAULT_OTEL_CONFIG_FILENAME)
+			.getDefaultConfigFilePath(OTEL_DIRECTORY_NAME, DEFAULT_OTEL_CONFIG_FILENAME)
 			.toString();
 
 		commandLine.add(

@@ -3,6 +3,7 @@ package org.sentrysoftware.metricshub.hardware.strategy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_NAME;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.ENCLOSURE_PRESENT_METRIC;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.CONNECTOR;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.ENCLOSURE;
 
@@ -18,7 +19,6 @@ import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.MonitorFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
-import org.sentrysoftware.metricshub.hardware.common.Constants;
 
 class HardwarePostDiscoveryStrategyTest {
 
@@ -57,9 +57,9 @@ class HardwarePostDiscoveryStrategyTest {
 
 		new HardwarePostDiscoveryStrategy(telemetryManager, previousDiscoveryTime, clientsExecutor).run();
 
-		assertEquals(1.0, monitor.getMetric(Constants.ENCLOSURE_PRESENT_METRIC, NumberMetric.class).getValue());
+		assertEquals(1.0, monitor.getMetric(ENCLOSURE_PRESENT_METRIC, NumberMetric.class).getValue());
 
 		new HardwarePostDiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor).run();
-		assertEquals(0.0, monitor.getMetric(Constants.ENCLOSURE_PRESENT_METRIC, NumberMetric.class).getValue());
+		assertEquals(0.0, monitor.getMetric(ENCLOSURE_PRESENT_METRIC, NumberMetric.class).getValue());
 	}
 }

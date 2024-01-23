@@ -3,6 +3,9 @@ package org.sentrysoftware.metricshub.engine.strategy.collect;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_NAME;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.CONNECTOR;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.ENCLOSURE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_ID;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +16,6 @@ import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
-import org.sentrysoftware.metricshub.engine.constants.Constants;
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.MonitorFactory;
@@ -35,7 +37,7 @@ class PrepareCollectStrategyTest {
 			.hostConfiguration(
 				HostConfiguration
 					.builder()
-					.hostId(Constants.HOST_ID)
+					.hostId(HOST_ID)
 					.hostname(MetricsHubConstants.HOST_NAME)
 					.sequential(false)
 					.configurations(Map.of(SnmpConfiguration.class, snmpConfig))
@@ -49,9 +51,9 @@ class PrepareCollectStrategyTest {
 			.builder()
 			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "id", MONITOR_ATTRIBUTE_NAME, "name")))
 			.discoveryTime(collectTime - 30 * 60 * 1000)
-			.connectorId(Constants.CONNECTOR)
+			.connectorId(CONNECTOR)
 			.telemetryManager(telemetryManager)
-			.monitorType(Constants.ENCLOSURE)
+			.monitorType(ENCLOSURE)
 			.build();
 
 		final Monitor monitor = monitorFactory.createOrUpdateMonitor();
@@ -59,7 +61,7 @@ class PrepareCollectStrategyTest {
 		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
 
 		metricFactory.collectMonitorMetrics(
-			Constants.ENCLOSURE,
+			ENCLOSURE,
 			new Connector(),
 			monitor,
 			MetricsHubConstants.HOST_NAME,
