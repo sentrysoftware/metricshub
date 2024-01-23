@@ -1,5 +1,6 @@
 package org.sentrysoftware.metricshub.agent.service;
 
+import static org.sentrysoftware.metricshub.agent.helper.ConfigHelper.TOP_LEVEL_VIRTUAL_RESOURCE_GROUP_KEY;
 
 import java.io.File;
 import java.util.Map;
@@ -19,8 +20,6 @@ import org.sentrysoftware.metricshub.agent.service.scheduling.SelfObserverSchedu
 import org.sentrysoftware.metricshub.agent.service.signal.SimpleGaugeMetricObserver;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
-
-import static org.sentrysoftware.metricshub.agent.helper.ConfigHelper.TOP_LEVEL_VIRTUAL_RESOURCE_GROUP_KEY;
 
 /**
  * Service for managing task scheduling related to MetricsHub agent.
