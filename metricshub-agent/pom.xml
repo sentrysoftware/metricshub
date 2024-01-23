@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>com.sentrysoftware.metricshub</groupId>
+		<groupId>org.sentrysoftware.metricshub</groupId>
 		<artifactId>metricshub-parent</artifactId>
 		<version>0.9.01-SNAPSHOT</version>
 	</parent>
@@ -257,7 +257,7 @@
 				</executions>
 				<configuration>
 					<excludes>
-						<exclude>com/sentrysoftware/metricshub/agent/config/**</exclude>
+						<exclude>org/sentrysoftware/metricshub/agent/config/**</exclude>
 					</excludes>
 					<outputDirectory>${project.build.directory}/coverage-reports/jacoco</outputDirectory>
 				</configuration>
@@ -315,7 +315,7 @@
 							<appendAssemblyId>false</appendAssemblyId>
 							<archive>
 								<manifest>
-									<mainClass>com.sentrysoftware.metricshub.agent.MetricsHubAgentApplication</mainClass>
+									<mainClass>org.sentrysoftware.metricshub.agent.MetricsHubAgentApplication</mainClass>
 									<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 									<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
 								</manifest>
@@ -324,7 +324,7 @@
 								</manifestEntries>
 								<manifestSections>
 									<manifestSection>
-										<name>com/sentrysoftware/metricshub</name>
+										<name>org/sentrysoftware/metricshub</name>
 									</manifestSection>
 								</manifestSections>
 							</archive>

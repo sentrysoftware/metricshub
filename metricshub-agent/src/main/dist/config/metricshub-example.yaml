@@ -115,8 +115,6 @@ resourceGroups:
       #       community: public
       #       port: 161
       #       timeout: 120
-      #   excludeConnectors: [ SunF15K ]
-
       #═══════════════════════════════════════════════════
       # SNMP v2c protocol configuration                  
       #═══════════════════════════════════════════════════

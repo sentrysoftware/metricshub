@@ -133,7 +133,7 @@ where:
 
 * `<protocol-configuration>` is the protocol(s) **${solutionName}** will use to communicate with the resources: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](#protocol) for more details.
 
-#### Same characteristics resources
+### Same characteristics resources
 
 You can configure resources that share the same characteristics (device kind, protocols, credentials, etc.) using syntax below:
 

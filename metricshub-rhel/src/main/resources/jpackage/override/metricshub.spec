@@ -131,7 +131,7 @@ if [ -d APPLICATION_DIRECTORY ]; then
     cd APPLICATION_DIRECTORY && ln -s lib/config config
   fi
 
-  if [ ! -e  APPLICATION_DIRECTORY/logs ]; then
+  if [ ! -e  APPLICATION_DIRECTORY/connectors ]; then
     cd APPLICATION_DIRECTORY && ln -s lib/connectors connectors
   fi
  

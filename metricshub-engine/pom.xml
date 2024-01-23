@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.sentrysoftware.metricshub</groupId>
+		<groupId>org.sentrysoftware.metricshub</groupId>
 		<artifactId>metricshub-parent</artifactId>
 		<version>0.9.01-SNAPSHOT</version>
 	</parent>
@@ -238,9 +238,9 @@
 				<configuration>
 					<excludes>
 						<!-- Exclude simple DTO, VO and POJO -->
-						<exclude>com/sentrysoftware/metricshub/engine/connector/model/**</exclude>
-						<exclude>com/sentrysoftware/metricshub/engine/client/**</exclude>
-						<exclude>com/sentrysoftware/metricshub/engine/connector/model/common/**</exclude>
+						<exclude>org/sentrysoftware/metricshub/engine/connector/model/**</exclude>
+						<exclude>org/sentrysoftware/metricshub/engine/client/**</exclude>
+						<exclude>org/sentrysoftware/metricshub/engine/connector/model/common/**</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
