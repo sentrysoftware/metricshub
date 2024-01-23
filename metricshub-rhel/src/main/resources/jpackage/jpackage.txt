@@ -10,7 +10,7 @@
 --resource-dir override
 --app-content metricshub/security,metricshub/otel,metricshub/config,metricshub/LICENSE,metricshub/connectors,metricshub/site
 --license-file metricshub/LICENSE
---main-class com.sentrysoftware.metricshub.cli.MetricsHubCliApplication
+--main-class org.sentrysoftware.metricshub.cli.MetricsHubCliApplication
 --java-options --add-exports
 --java-options java.xml/com.sun.org.apache.xerces.internal.parsers=ALL-UNNAMED
 --java-options --add-opens
