@@ -21,6 +21,9 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 
+/**
+ * Resolves and internalizes embedded files within a JsonNode.
+ */
 public class EmbeddedFilesResolver {
 
 	private final JsonNode connector;
@@ -28,6 +31,13 @@ public class EmbeddedFilesResolver {
 	private final Set<Path> parents;
 	private final Map<String, String> alreadyProcessedEmbeddedFiles;
 
+	/**
+	 * Constructs an EmbeddedFilesResolver with the given parameters.
+	 *
+	 * @param connector           The JsonNode representing the connector.
+	 * @param connectorDirectory  The directory of the connector.
+	 * @param parents             Set of parent directories.
+	 */
 	public EmbeddedFilesResolver(final JsonNode connector, final Path connectorDirectory, final Set<Path> parents) {
 		this.connector = connector;
 		this.connectorDirectory = connectorDirectory;
@@ -39,7 +49,7 @@ public class EmbeddedFilesResolver {
 	 * Look for all references of embedded files that look like: $file("...")$,
 	 * find the referenced file, add its content in a new node at the end of the connector
 	 * and replace the reference to the external file by a reference to the internalized embedded file
-	 * @throws IOException
+	 * @throws IOException If there is an issue finding the embedded file or processing the JSON structure.
 	 */
 	public void internalize() throws IOException {
 		final JsonParser jsonParser = connector.traverse();
@@ -83,7 +93,7 @@ public class EmbeddedFilesResolver {
 	/**
 	 * Find the absolute path of the file in parameter
 	 * @param fileName The name or relative path of the file
-	 * @return
+	 * @return The absolute path of the file if found, null otherwise.
 	 * @throws IOException when the file can't be found
 	 */
 	private String findAbsolutePath(final String fileName) {
@@ -108,11 +118,11 @@ public class EmbeddedFilesResolver {
 	}
 
 	/**
-	 * Traverse the given node and replace values
+	 * Traverse the given node and replace values.
 	 *
-	 * @param node {@link JsonNode} instance
-	 * @param transformer value transformer function
-	 * @param replacementPredicate replacement predicate
+	 * @param node                The {@link JsonNode} instance to traverse.
+	 * @param transformer         The value transformer function.
+	 * @param replacementPredicate The replacement predicate.
 	 */
 	public static void replacePlaceholderValues(
 		final JsonNode node,
@@ -166,11 +176,11 @@ public class EmbeddedFilesResolver {
 	}
 
 	/**
-	 * Replace oldValue in {@link JsonNode} only if this oldValue matches the replacement predicate
+	 * Replace oldValue in {@link JsonNode} only if this oldValue matches the replacement predicate.
 	 *
-	 * @param replacer
-	 * @param oldValue
-	 * @param replacementPredicate
+	 * @param replacer            The runnable to perform the replacement.
+	 * @param oldValue            The old value to check for replacement.
+	 * @param replacementPredicate The replacement predicate.
 	 */
 	private static void replaceJsonNode(Runnable replacer, String oldValue, Predicate<String> replacementPredicate) {
 		if (replacementPredicate.test(oldValue)) {
@@ -180,7 +190,7 @@ public class EmbeddedFilesResolver {
 
 	/**
 	 * Perform replacements on the given value using the key-value pairs
-	 * provided in the replacements {@link Map}
+	 * provided in the replacements {@link Map}.
 	 *
 	 * @param value to replace
 	 * @return new {@link String} value
@@ -201,9 +211,10 @@ public class EmbeddedFilesResolver {
 
 	/**
 	 * Replace the file reference with the corresponding reference located in
-	 * @param matcher
-	 * @param value
-	 * @return String value
+	 *
+	 * @param matcher The matcher for the file reference.
+	 * @param value   The original value containing the file reference.
+	 * @return The modified value with the file reference replaced.
 	 */
 	private String replaceFileReference(final Matcher matcher, final String value) {
 		final String replacement = alreadyProcessedEmbeddedFiles.get(matcher.group(1));

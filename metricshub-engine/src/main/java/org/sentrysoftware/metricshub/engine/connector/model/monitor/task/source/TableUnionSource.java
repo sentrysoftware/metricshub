@@ -23,6 +23,9 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.strategy.source.ISourceProcessor;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 
+/**
+ * Represents a source that performs a union operation on multiple tables.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -30,11 +33,24 @@ public class TableUnionSource extends Source {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The list of tables to be included in the union operation.
+	 */
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	@JsonDeserialize(using = TablesDeserializer.class)
 	private List<String> tables = new ArrayList<>();
 
+	/**
+	 * Builder for creating instances of {@code TableUnionSource}.
+	 *
+	 * @param type                 The type of the source.
+	 * @param computes             List of computations to be applied to the source.
+	 * @param forceSerialization   Flag indicating whether to force serialization.
+	 * @param tables               List of tables to be included in the union operation.
+	 * @param key                  The key associated with the source.
+	 * @param executeForEachEntryOf The execution context for each entry of the source.
+	 */
 	@Builder
 	@JsonCreator
 	public TableUnionSource(

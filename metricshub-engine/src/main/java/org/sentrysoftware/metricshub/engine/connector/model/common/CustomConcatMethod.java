@@ -10,20 +10,35 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+/**
+ * Represents a custom concatenation method for combining multiple entries.
+ */
 @Data
 @NoArgsConstructor
 public class CustomConcatMethod implements IEntryConcatMethod {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The concatenation start string.
+	 */
 	@JsonSetter(nulls = FAIL)
 	@NonNull
 	private String concatStart;
 
+	/**
+	 * The concatenation end string.
+	 */
 	@JsonSetter(nulls = FAIL)
 	@NonNull
 	private String concatEnd;
 
+	/**
+	 * Constructor to create a CustomConcatMethod instance.
+	 *
+	 * @param concatStart The concatenation start string.
+	 * @param concatEnd   The concatenation end string.
+	 */
 	@Builder
 	@JsonCreator
 	public CustomConcatMethod(

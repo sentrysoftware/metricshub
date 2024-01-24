@@ -6,6 +6,9 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import java.util.Map;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 
+/**
+ * Custom deserializer for deserializing a map of {@link Source} objects.
+ */
 public class SourcesDeserializer extends AbstractLinkedHashMapDeserializer<Source> {
 
 	@Override

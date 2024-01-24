@@ -7,23 +7,62 @@ import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * Enum representing different kinds of devices that connectors can handle.
+ */
 @AllArgsConstructor
 public enum DeviceKind {
+	/**
+	 * HP Open VMS.
+	 */
 	VMS("HP Open VMS"),
+	/**
+	 * HP Tru64.
+	 */
 	TRU64("HP Tru64"),
+	/**
+	 * HP-UX.
+	 */
 	HPUX("HP-UX"),
+	/**
+	 * IBM AIX.
+	 */
 	AIX("IBM AIX"),
+	/**
+	 * Linux.
+	 */
 	LINUX("Linux"),
+	/**
+	 * Management.
+	 */
 	OOB("Management"),
+	/**
+	 * Microsoft Windows.
+	 */
 	WINDOWS("Microsoft Windows"),
+	/**
+	 * Network.
+	 */
 	NETWORK("Network"),
+	/**
+	 * Storage.
+	 */
 	STORAGE("Storage"),
+	/**
+	 * Oracle Solaris.
+	 */
 	SOLARIS("Oracle Solaris"),
+	/**
+	 * Other.
+	 */
 	OTHER("Other");
 
 	@Getter
 	private String displayName;
 
+	/**
+	 * A set containing all the enumerated device kinds.
+	 */
 	public static final Set<DeviceKind> DEVICE_KINDS = Set.of(DeviceKind.values());
 
 	/**
@@ -47,10 +86,11 @@ public enum DeviceKind {
 	);
 
 	/**
-	 * Detect {@link DeviceKind} using the value defined in the connector code
+	 * Detects the {@link DeviceKind} using the value defined in the connector code.
 	 *
-	 * @param value
-	 * @return {@link DeviceKind} instance
+	 * @param value The value to detect.
+	 * @return The corresponding {@link DeviceKind} instance.
+	 * @throws IllegalArgumentException If the provided value is not a supported device kind.
 	 */
 	public static DeviceKind detect(final String value) {
 		// Null returns null

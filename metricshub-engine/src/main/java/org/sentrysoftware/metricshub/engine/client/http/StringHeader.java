@@ -9,6 +9,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+/**
+ * Represents an HTTP request header with a string content.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,6 +20,9 @@ public class StringHeader implements Header {
 
 	private static final long serialVersionUID = 7838818669996389750L;
 
+	/**
+	 * The actual content of the HTTP request header.
+	 */
 	private String header;
 
 	@Override

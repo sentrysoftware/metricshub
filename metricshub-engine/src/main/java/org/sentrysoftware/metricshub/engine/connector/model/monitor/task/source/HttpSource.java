@@ -23,6 +23,9 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.strategy.source.ISourceProcessor;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 
+/**
+ * Represents a source that retrieves data by making an HTTP request.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -30,21 +33,53 @@ public class HttpSource extends Source {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The HTTP method for the request.
+	 */
 	@JsonSetter(nulls = SKIP)
 	private HttpMethod method = HttpMethod.GET;
 
+	/**
+	 * The URL for the HTTP request.
+	 */
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	private String url;
 
-	// String or EmbeddedFile reference
+	/**
+	 * The header for the HTTP request. It can be either a String or an EmbeddedFile reference.
+	 */
 	private String header;
+	/**
+	 * The body of the HTTP request.
+	 */
 	private String body;
+	/**
+	 * The authentication token for the HTTP request.
+	 */
 	private String authenticationToken;
 
+	/**
+	 * The type of content to retrieve from the HTTP response.
+	 */
 	@JsonSetter(nulls = SKIP)
 	private ResultContent resultContent = ResultContent.BODY;
 
+	/**
+	 * Builder for creating instances of {@code HttpSource}.
+	 *
+	 * @param type                 The type of the source.
+	 * @param computes             List of computations to be applied to the source.
+	 * @param forceSerialization   Flag indicating whether to force serialization.
+	 * @param method               The HTTP method for the request.
+	 * @param url                  The URL for the HTTP request.
+	 * @param header               The header for the HTTP request.
+	 * @param body                 The body of the HTTP request.
+	 * @param authenticationToken The authentication token for the HTTP request.
+	 * @param resultContent        The type of content to retrieve from the HTTP response.
+	 * @param key                  The key associated with the source.
+	 * @param executeForEachEntryOf The execution context for each entry of the source.
+	 */
 	@Builder
 	public HttpSource(
 		@JsonProperty("type") String type,

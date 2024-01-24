@@ -7,6 +7,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.winrm.service.client.auth.AuthenticationEnum;
 
+/**
+ * The WinRmConfiguration interface represents the configuration for the Windows Remote Management protocol in the MetricsHub engine.
+ */
 @Data
 @Builder
 @AllArgsConstructor

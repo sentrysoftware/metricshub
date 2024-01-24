@@ -16,26 +16,51 @@ import javax.crypto.spec.SecretKeySpec;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+/**
+ * Utility class providing methods for encryption and decryption operations using AES/GCM/NoPadding algorithm.
+ * The master key is stored as a Base64-encoded string and derived using PBKDF2WithHmacSHA512.
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CryptoCipher {
 
+	/**
+	 * Length of the GCM initialization vector (IV) in bytes.
+	 */
 	public static final int GCM_IV_LENGTH = 16;
+	/**
+	 * Length of the GCM authentication tag in bytes.
+	 */
 	public static final int GCM_TAG_LENGTH = 16;
+	/**
+	 * Number of iterations for the PBKDF2 key derivation.
+	 */
 	public static final int ITERATIONS = 2333;
+	/**
+	 * Length of the derived key in bytes.
+	 */
 	public static final int KEY_LENGTH = 32;
 
+	/**
+	 * Base64-encoded string representation of the master key.
+	 */
 	public static final String MASTER_KEY = "bWFzdGVyLWtleQ==";
+	/**
+	 * Initialization vector (IV) used in encryption and decryption.
+	 */
 	private static final byte[] IV = "c2VudHJ5aXY=".getBytes();
+	/**
+	 * Cipher algorithm used for encryption and decryption.
+	 */
 	private static final String CIPHER_ALGO = "AES/GCM/NoPadding";
 
 	/**
-	 * Encrypt the given text value using the initialization vector
+	 * Encrypts the given plaintext using the provided secret key and initialization vector.
 	 *
-	 * @param plaintext text in byte array
-	 * @param key       the secret key used to encrypt the text
-	 * @param iv        the initialization vector to use
-	 * @return byte array
-	 * @throws MetricsHubSecurityException
+	 * @param plaintext Text to be encrypted in byte array.
+	 * @param key       Secret key used for encryption.
+	 * @param iv        Initialization vector.
+	 * @return Encrypted data in byte array.
+	 * @throws MetricsHubSecurityException If an error occurs during encryption.
 	 */
 	private static byte[] encrypt(byte[] plaintext, SecretKey key, byte[] iv) throws MetricsHubSecurityException {
 		try {
@@ -54,12 +79,13 @@ public class CryptoCipher {
 	}
 
 	/**
-	 * Decrypt the given cipher text which has been clipped and mixed
+	 * Decrypts the given ciphertext using the provided secret key and initialization vector.
 	 *
-	 * @param str        The text we wish to decrypt
-	 * @param passPhrase The pass phrase used to decrypt the text
-	 * @return char array of decrypted data
-	 * @throws MetricsHubSecurityException
+	 * @param cipherText Ciphertext to be decrypted.
+	 * @param key        Secret key used for decryption.
+	 * @param iv         Initialization vector.
+	 * @return Decrypted data in char array.
+	 * @throws MetricsHubSecurityException If an error occurs during decryption.
 	 */
 	private static char[] decrypt(byte[] cipherText, SecretKey key, byte[] iv) throws MetricsHubSecurityException {
 		try {
@@ -80,10 +106,10 @@ public class CryptoCipher {
 	}
 
 	/**
-	 * Generate a random master key
+	 * Generates a random master key.
 	 *
-	 * @return char array
-	 * @throws MetricsHubSecurityException
+	 * @return Char array representing the generated master key.
+	 * @throws MetricsHubSecurityException If an error occurs during key generation.
 	 */
 	public static char[] generateRandomMasterKey() throws MetricsHubSecurityException {
 		try {
@@ -99,10 +125,10 @@ public class CryptoCipher {
 	}
 
 	/**
-	 * Get a new random salt data
+	 * Gets a new random salt data.
 	 *
-	 * @return a random salt used to safeguard the password
-	 * @throws NoSuchAlgorithmException
+	 * @return A random salt used to safeguard the password.
+	 * @throws NoSuchAlgorithmException If algorithm used for salt generation does not exist.
 	 */
 	public static byte[] getSalt() throws NoSuchAlgorithmException {
 		final SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
@@ -112,12 +138,12 @@ public class CryptoCipher {
 	}
 
 	/**
-	 * Encrypt the given text value
+	 * Encrypts the given plaintext using the provided secret key.
 	 *
-	 * @param plainText The plain text we wish to encrypt
-	 * @param secretKey The {@link SecretKey} instance used by the encryption algorithm
-	 * @return char array of encrypted data
-	 * @throws MetricsHubSecurityException
+	 * @param plainText Plain text to be encrypted.
+	 * @param secretKey Secret key used for encryption.
+	 * @return Char array representing the encrypted data.
+	 * @throws MetricsHubSecurityException If an error occurs during encryption.
 	 */
 	public static char[] encrypt(char[] plainText, SecretKey secretKey) throws MetricsHubSecurityException {
 		final byte[] cipherText = encrypt(charsToBytes(plainText), secretKey, IV);

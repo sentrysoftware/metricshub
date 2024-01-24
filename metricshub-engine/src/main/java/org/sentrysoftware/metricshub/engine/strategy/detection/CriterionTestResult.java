@@ -6,6 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
 
+/**
+ * Represents the result of a criterion test, including information about success, failure, or errors.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,6 +23,11 @@ public class CriterionTestResult {
 
 	private Throwable exception;
 
+	/**
+	 * Creates an empty criterion test result.
+	 *
+	 * @return A new {@link CriterionTestResult} instance.
+	 */
 	public static CriterionTestResult empty() {
 		return CriterionTestResult.builder().build();
 	}

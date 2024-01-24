@@ -41,11 +41,10 @@ import org.sentrysoftware.metricshub.engine.telemetry.MonitorFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Resource;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
-/*
- *
- *
+/**
+ * Abstract strategy class for processing all monitor jobs at once.
+ * Extends {@link AbstractStrategy}.
  */
-
 @Slf4j
 @Data
 @NoArgsConstructor

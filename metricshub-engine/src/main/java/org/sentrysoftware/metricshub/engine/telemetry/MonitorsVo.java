@@ -9,6 +9,9 @@ import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Value Object (VO) class representing a collection of monitors with additional metadata.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

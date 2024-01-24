@@ -24,6 +24,9 @@ import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
 
+/**
+ * Factory class for creating and collecting metrics for a Monitor based on information provided by a Connector.
+ */
 @Slf4j
 @Data
 @AllArgsConstructor
@@ -174,11 +177,12 @@ public class MetricFactory {
 	}
 
 	/**
-	 * Collect the connector status metric as a number
+	 * Collects the connector status metric as a number.
 	 *
-	 * @param connectorTestResult contains information about connector tests
-	 * @param monitor the monitor we currently collect its status metric
-	 * @param strategyTime strategy time
+	 * @param connectorTestResult  Information about connector tests.
+	 * @param monitor              The monitor to collect the metric for.
+	 * @param strategyTime         Strategy time.
+	 * @return {@code true} if the connector test was successful, {@code false} otherwise.
 	 */
 	public boolean collectConnectorStatusNumberMetric(
 		final ConnectorTestResult connectorTestResult,
@@ -275,9 +279,10 @@ public class MetricFactory {
 	}
 
 	/**
-	 * This method returns a boolean flag to check whether the state attribute exists
-	 * @param attributes
-	 * @return boolean whether metric attributes contain state attribute
+	 * Checks whether the state attribute exists in the metric attributes.
+	 *
+	 * @param attributes Metric attributes.
+	 * @return {@code true} if the state attribute exists, {@code false} otherwise.
 	 */
 	public boolean checkForStateAttribute(final Map<String, String> attributes) {
 		return attributes.keySet().stream().anyMatch(attributeKey -> attributeKey.equals("state"));

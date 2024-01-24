@@ -8,6 +8,9 @@ import java.util.regex.Pattern;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+/**
+ * Utility class for extracting arguments from a function code definition.
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FunctionArgumentsExtractor {
 
@@ -17,8 +20,8 @@ public class FunctionArgumentsExtractor {
 	 * Extracts the arguments from a function like<br>
 	 * lookup("disk_controller", "id", "controller_number", $2)
 	 *
-	 * @param functionCode function code definition
-	 * @return captured arguments
+	 * @param functionCode The function code definition.
+	 * @return The captured arguments.
 	 */
 	public static List<String> extractArguments(String functionCode) {
 		final List<String> arguments = new ArrayList<>();

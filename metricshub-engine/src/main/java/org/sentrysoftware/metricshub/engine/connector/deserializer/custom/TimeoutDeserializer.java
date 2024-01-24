@@ -6,6 +6,9 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import java.io.IOException;
 
+/**
+ * Custom deserializer for deserializing timeout values.
+ */
 public class TimeoutDeserializer extends JsonDeserializer<Long> {
 
 	@Override

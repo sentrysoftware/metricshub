@@ -6,6 +6,11 @@ import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
 
+/**
+ * The {@code CollectHelper} class provides utility methods for extracting metric values and collect times from
+ * {@link Monitor} instances. It includes methods for working with both {@link NumberMetric} and {@link StateSetMetric}.
+ * The class is designed to have a private no-argument constructor to prevent instantiation.
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CollectHelper {
 
@@ -28,11 +33,12 @@ public class CollectHelper {
 	}
 
 	/**
-	 * Get the {@link StateSetMetric} value
+	 * Get the {@link StateSetMetric} value.
 	 *
-	 * @param monitor    The {@link Monitor} instance we wish to extract the {@link StateSetMetric} value
-	 * @param metricName The name of the {@link StateSetMetric} instance
-	 * @return a {@link Double} value
+	 * @param monitor    The {@link Monitor} instance from which to extract the {@link StateSetMetric} value.
+	 * @param metricName The name of the {@link StateSetMetric} instance.
+	 * @param previous   Indicate whether to return the {@code value} or the {@code previousValue}.
+	 * @return The {@link String} value.
 	 */
 	public static String getStateSetMetricValue(final Monitor monitor, final String metricName, final boolean previous) {
 		final StateSetMetric stateSetMetric = monitor.getMetric(metricName, StateSetMetric.class);

@@ -16,16 +16,18 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+/**
+ * Helper class for working with strings.
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StringHelper {
 
 	/**
-	 * Execute the given callable to get the resulting Object as String value
+	 * Execute the given callable to get the resulting Object as String value.
 	 *
-	 * @param call         Callable providing a value
-	 * @param defaultValue The default value to return if the callable returns null
-	 *                     or empty
-	 * @return String value
+	 * @param call         Callable providing a value.
+	 * @param defaultValue The default value to return if the callable returns null or empty.
+	 * @return String value.
 	 */
 	public static String getValue(final Callable<Object> call, final String defaultValue) {
 		final Object result = callIfPossible(call);
@@ -101,11 +103,10 @@ public class StringHelper {
 	/**
 	 * Add the given prefix and value to the {@link StringJoiner} instance. <code>null</code> value is not added.
 	 *
-	 * @param <T>
-	 * @param stringJoiner {@link StringJoiner} instance used to append the prefix
-	 *                     and the value
-	 * @param prefix       The value prefix
-	 * @param value        The value to add
+	 * @param <T>            the type of the value to be added
+	 * @param stringJoiner   {@link StringJoiner} instance used to append the prefix and the value.
+	 * @param prefix         The value prefix.
+	 * @param value          The value to add.
 	 */
 	public static <T> void addNonNull(
 		@NonNull final StringJoiner stringJoiner,

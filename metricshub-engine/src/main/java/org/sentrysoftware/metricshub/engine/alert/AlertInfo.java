@@ -6,6 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 
+/**
+ * Represents information related to an alert, including the associated alert rule, monitor,
+ * metric name, hostname, host type, and parent monitor.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

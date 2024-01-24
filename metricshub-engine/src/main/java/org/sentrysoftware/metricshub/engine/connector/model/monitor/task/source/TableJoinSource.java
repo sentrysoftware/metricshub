@@ -23,6 +23,9 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.strategy.source.ISourceProcessor;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 
+/**
+ * Represents a source that performs a join operation on two tables.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -30,25 +33,58 @@ public class TableJoinSource extends Source {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The name of the left table to join.
+	 */
 	@JsonSetter(nulls = FAIL)
 	@JsonDeserialize(using = NonBlankDeserializer.class)
 	private String leftTable;
 
+	/**
+	 * The name of the right table to join.
+	 */
 	@JsonSetter(nulls = FAIL)
 	@JsonDeserialize(using = NonBlankDeserializer.class)
 	private String rightTable;
 
+	/**
+	 * The column index from the left table to use as the key for the join.
+	 */
 	@JsonSetter(nulls = FAIL)
 	@JsonDeserialize(using = PositiveIntegerDeserializer.class)
 	private Integer leftKeyColumn;
 
+	/**
+	 * The column index from the right table to use as the key for the join.
+	 */
 	@JsonSetter(nulls = FAIL)
 	@JsonDeserialize(using = PositiveIntegerDeserializer.class)
 	private Integer rightKeyColumn;
 
+	/**
+	 * The default line for right table entries when there is no match.
+	 */
 	private String defaultRightLine;
+	/**
+	 * The type of key used for the join.
+	 */
 	private String keyType;
 
+	/**
+	 * Builder for creating instances of {@code TableJoinSource}.
+	 *
+	 * @param type                 The type of the source.
+	 * @param computes             List of computations to be applied to the source.
+	 * @param forceSerialization   Flag indicating whether to force serialization.
+	 * @param leftTable            The name of the left table to join.
+	 * @param rightTable           The name of the right table to join.
+	 * @param leftKeyColumn        The column index from the left table to use as the key for the join.
+	 * @param rightKeyColumn       The column index from the right table to use as the key for the join.
+	 * @param defaultRightLine     The default line for right table entries when there is no match.
+	 * @param keyType              The type of key used for the join.
+	 * @param key                  The key associated with the source.
+	 * @param executeForEachEntryOf The execution context for each entry of the source.
+	 */
 	@Builder
 	@JsonCreator
 	public TableJoinSource(

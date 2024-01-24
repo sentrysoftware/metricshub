@@ -36,6 +36,11 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.strategy.utils.PslUtils;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
+/**
+ * The {@code SourceUpdaterProcessor} class is responsible for processing various source types, including HTTP, IPMI,
+ * OS command, SNMP, static, table join, table union, WMI, and SNMP table sources. It performs operations such as
+ * replacing attribute references, updating source references, and extracting HTTP authentication tokens.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -143,12 +148,12 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 	}
 
 	/**
-	 * Get the value of the field from the foreign source identified by <em>foreignSourceKey</em>.
+	 * Extracts the HTTP authentication token from the specified foreign source identified by <em>foreignSourceKey</em>.
 	 *
-	 * @param originalSourceKey The original source key used for debug purpose
-	 * @param foreignSourceKey  The foreign source key used to extract the field value
-	 * @param fieldLabel        The field label used for debug purpose
-	 * @return
+	 * @param originalSourceKey The original source key for debugging purposes.
+	 * @param foreignSourceKey  The foreign source key used to extract the token.
+	 * @param fieldLabel        The field label for debugging purposes.
+	 * @return The extracted HTTP authentication token.
 	 */
 	public String extractHttpTokenFromSource(final String originalSourceKey, String foreignSourceKey, String fieldLabel) {
 		// No token to replace

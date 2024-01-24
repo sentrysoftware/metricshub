@@ -9,6 +9,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.strategy.source.compute.IComputeProcessor;
 
+/**
+ * The abstract base class for various compute operations used in MetricsHub engine's data processing tasks.
+ * Subclasses define specific compute operations such as addition, subtraction, and more.
+ * This class provides a foundation for polymorphic deserialization and common behavior.
+ */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type", visible = true)
 @JsonSubTypes(
 	{
@@ -43,16 +48,39 @@ public abstract class Compute implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The type of the compute operation.
+	 */
 	protected String type;
 
+	/**
+	 * Creates a copy of the current compute operation.
+	 *
+	 * @return A new instance of the concrete compute operation.
+	 */
 	public abstract Compute copy();
 
+	/**
+	 * Updates the compute operation using the provided updater function.
+	 *
+	 * @param updater The unary operator to apply updates to the compute operation.
+	 */
 	public abstract void update(UnaryOperator<String> updater);
 
+	/**
+	 * Returns a formatted string representation of the compute operation, indicating its type.
+	 *
+	 * @return A string representation of the compute operation.
+	 */
 	@Override
 	public String toString() {
 		return new StringBuilder("- type=").append(this.getClass().getSimpleName()).toString();
 	}
 
+	/**
+	 * Accepts a compute processor for further processing.
+	 *
+	 * @param computeProcessor The compute processor to accept.
+	 */
 	public abstract void accept(IComputeProcessor computeProcessor);
 }

@@ -17,6 +17,9 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.springframework.util.Assert;
 
+/**
+ * Helper class for working with resources.
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ResourceHelper {
 

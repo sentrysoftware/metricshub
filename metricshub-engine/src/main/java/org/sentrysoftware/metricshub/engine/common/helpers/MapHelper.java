@@ -5,15 +5,18 @@ import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+/**
+ * Helper class for operations related to maps.
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MapHelper {
 
 	/**
-	 * Check if the given maps are deeply the same
+	 * Check if the given maps are deeply the same.
 	 *
-	 * @param first
-	 * @param second
-	 * @return <code>true</code> if the maps are deeply equal otherwise <code>false</code>
+	 * @param first  The first map to compare.
+	 * @param second The second map to compare.
+	 * @return {@code true} if the maps are deeply equal, otherwise {@code false}.
 	 */
 	public static boolean areEqual(final Map<String, String> first, final Map<String, String> second) {
 		if (Objects.equals(first, second)) {

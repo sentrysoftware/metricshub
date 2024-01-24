@@ -11,6 +11,9 @@ import lombok.ToString;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.detection.ICriterionProcessor;
 
+/**
+ * Represents an SNMP GET-NEXT criterion used for detection.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -19,6 +22,14 @@ public class SnmpGetNextCriterion extends SnmpCriterion {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Constructs an SNMP GET-NEXT criterion with the specified type, forceSerialization flag, OID, and expected result.
+	 *
+	 * @param type               The type of the SNMP GET-NEXT criterion.
+	 * @param forceSerialization A flag indicating whether serialization should be forced.
+	 * @param oid                The SNMP OID (Object Identifier) for the GET-NEXT operation.
+	 * @param expectedResult     The expected result for the GET-NEXT operation, or null if no specific result is expected.
+	 */
 	@Builder
 	@JsonCreator
 	public SnmpGetNextCriterion(

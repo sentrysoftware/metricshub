@@ -11,6 +11,9 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Discove
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Simple;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 
+/**
+ * Implementation of {@link SourceConnectorUpdateChain} for updating monitor task source dependencies in the connector.
+ */
 public class MonitorTaskSourceDepUpdate extends SourceConnectorUpdateChain {
 
 	@Override

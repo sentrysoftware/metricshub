@@ -17,15 +17,20 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 
+/**
+ * The {@code EmbeddedFileHelper} class provides utility methods for handling embedded files in various contexts, such as
+ * command lines, AWK directives, headers, and bodies. It allows finding and processing file references in a given string.
+ * The class is designed to have a private no-argument constructor to prevent instantiation.
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EmbeddedFileHelper {
 
 	/**
-	 * Find all the embedded files that are referenced in the given string
+	 * Finds all the embedded files that are referenced in the given string.
 	 *
-	 * @param value the value can be a command line, AWK directive, header, body, etc.
-	 * @return Map of the file reference to {@link EmbeddedFile} instance
-	 * @throws IOException
+	 * @param value The value can be a command line, AWK directive, header, body, etc.
+	 * @return A map of the file reference to {@link EmbeddedFile} instance.
+	 * @throws IOException If an I/O error occurs while processing the embedded files.
 	 */
 	public static Map<String, EmbeddedFile> findEmbeddedFiles(@NonNull final String value) throws IOException {
 		final Map<String, EmbeddedFile> embeddedFiles = new HashMap<>();

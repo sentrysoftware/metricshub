@@ -17,6 +17,9 @@ import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ConversionType;
 import org.sentrysoftware.metricshub.engine.strategy.source.compute.IComputeProcessor;
 
+/**
+ * Represents a Convert computation task for monitoring.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -24,14 +27,27 @@ public class Convert extends Compute {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The column index used in the Convert computation.
+	 */
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	private Integer column;
 
+	/**
+	 * The conversion type to be applied in the computation.
+	 */
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	private ConversionType conversion;
 
+	/**
+	 * Convert constructor using the Builder pattern.
+	 *
+	 * @param type      The type of the computation task.
+	 * @param column    The column index used in the computation.
+	 * @param conversion The conversion type to be applied.
+	 */
 	@Builder
 	@JsonCreator
 	public Convert(

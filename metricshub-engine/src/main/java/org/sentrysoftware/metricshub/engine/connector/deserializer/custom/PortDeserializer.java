@@ -6,6 +6,9 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import java.io.IOException;
 
+/**
+ * Custom deserializer for deserializing integer values representing ports. Ensures that the value is a positive integer.
+ */
 public class PortDeserializer extends JsonDeserializer<Integer> {
 
 	@Override

@@ -10,6 +10,12 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.exception.RetryableException;
 
+/**
+ * The {@code RetryOperation} class provides a mechanism for retrying a function that may throw a {@link RetryableException}.
+ * It allows configuring the number of retries, the wait strategy between retries, and handles the retry logic.
+ *
+ * @param <T> The type of the result produced by the operation.
+ */
 @AllArgsConstructor
 @Builder(setterPrefix = "with")
 @Slf4j

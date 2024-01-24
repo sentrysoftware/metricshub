@@ -19,6 +19,9 @@ import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.Transl
 import org.sentrysoftware.metricshub.engine.connector.model.common.ITranslationTable;
 import org.sentrysoftware.metricshub.engine.strategy.source.compute.IComputeProcessor;
 
+/**
+ * Represents an ArrayTranslate computation task for monitoring.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -26,18 +29,39 @@ public class ArrayTranslate extends Compute {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The column index used in the ArrayTranslate computation.
+	 */
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	private Integer column;
 
+	/**
+	 * The translation table for mapping values in the specified column.
+	 */
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	@JsonDeserialize(using = TranslationTableDeserializer.class)
 	private ITranslationTable translationTable;
 
+	/**
+	 * The array separator used in the computation.
+	 */
 	private String arraySeparator;
+	/**
+	 * The result separator used in the computation.
+	 */
 	private String resultSeparator;
 
+	/**
+	 * ArrayTranslate constructor using the Builder pattern.
+	 *
+	 * @param type              The type of the computation task.
+	 * @param column            The column index used in the computation.
+	 * @param translationTable  The translation table for mapping values.
+	 * @param arraySeparator    The array separator used in the computation.
+	 * @param resultSeparator   The result separator used in the computation.
+	 */
 	@Builder
 	@JsonCreator
 	public ArrayTranslate(

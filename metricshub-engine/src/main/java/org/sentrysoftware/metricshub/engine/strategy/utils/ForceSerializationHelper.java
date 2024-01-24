@@ -14,6 +14,11 @@ import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResu
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
+/**
+ * The {@code ForceSerializationHelper} class provides utility methods for enforcing serialization of operations on
+ * connector namespaces. It aims to acquire a lock before running an executable function, ensuring that the
+ * serialization is maintained. The class is designed to have a private no-argument constructor to prevent instantiation.
+ */
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ForceSerializationHelper {

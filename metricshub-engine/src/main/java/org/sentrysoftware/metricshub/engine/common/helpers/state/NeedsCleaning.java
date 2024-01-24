@@ -5,10 +5,23 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * The NeedsCleaning enum represents different states related to the need for cleaning.
+ * It implements the IState interface and includes methods for interpreting state values.
+ */
 @AllArgsConstructor
 public enum NeedsCleaning implements IState {
+	/**
+	 * OK state indicating no immediate need for cleaning.
+	 */
 	OK(0),
+	/**
+	 * NEEDED state indicating that cleaning is needed.
+	 */
 	NEEDED(1),
+	/**
+	 * NEEDED_IMMEDIATELY state indicating an immediate need for cleaning.
+	 */
 	NEEDED_IMMEDIATELY(1);
 
 	@Getter

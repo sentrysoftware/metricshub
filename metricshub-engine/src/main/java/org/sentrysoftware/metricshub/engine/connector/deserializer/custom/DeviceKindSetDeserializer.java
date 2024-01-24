@@ -7,6 +7,9 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 
+/**
+ * Custom deserializer for a collection of {@link DeviceKind} objects.
+ */
 public class DeviceKindSetDeserializer extends AbstractCollectionDeserializer<DeviceKind> {
 
 	@Override

@@ -31,6 +31,17 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.StandardMoni
 import org.sentrysoftware.metricshub.engine.strategy.utils.ForceSerializationHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
+/**
+ * Abstract base class for processing and detecting connectors based on specific criteria.
+ * Implementations of this class define the logic for running detection jobs and processing connector criteria.
+ * <p>
+ * This class provides methods for running detection criteria sequentially or simultaneously and filtering connectors based on criteria results.
+ * It also includes utilities for updating supersedes information and handling last resort connectors.
+ * </p>
+ * <p>
+ * Connector detection involves evaluating criteria defined in the {@link Detection} object associated with a {@link Connector}.
+ * </p>
+ */
 @Slf4j
 @AllArgsConstructor
 @NoArgsConstructor
@@ -51,9 +62,9 @@ public abstract class AbstractConnectorProcessor {
 
 	/**
 	 * Run all detection criteria of the {@link Connector} on the {@link HostConfiguration}
-	 * @param connectors
-	 * @param hostConfiguration
-	 * @return
+	 * @param connectors          The stream of connectors to run detection on.
+	 * @param hostConfiguration   The host configuration providing information about the host.
+	 * @return A stream of {@link ConnectorTestResult}s representing the results of connector detection.
 	 */
 	public Stream<ConnectorTestResult> runAllConnectorsDetectionCriteria(
 		@NonNull Stream<Connector> connectors,

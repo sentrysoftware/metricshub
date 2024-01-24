@@ -18,6 +18,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 
+/**
+ * Abstract class for the source connector update chain, providing functionality to update source dependencies.
+ */
 public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdateChain {
 
 	/**

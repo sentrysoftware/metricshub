@@ -10,6 +10,9 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 
+/**
+ * Represents the body of an HTTP request containing an embedded file.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,6 +21,9 @@ public class EmbeddedFileBody implements Body {
 
 	private static final long serialVersionUID = -8300191804094179578L;
 
+	/**
+	 * The embedded file body content.
+	 */
 	private EmbeddedFile body;
 
 	@Override

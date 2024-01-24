@@ -41,11 +41,33 @@ import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
+/**
+ * The {@code CollectStrategy} class represents a strategy for collecting metrics from various connectors
+ * in a monitoring system.
+ *
+ * <p>
+ * This class is part of a strategy design pattern and is responsible for executing the collection
+ * of monitors and their metrics for a given host and connectors.
+ * </p>
+ *
+ * <p>
+ * It uses a combination of sequential and parallel execution based on the configuration to efficiently
+ * collect metrics from different connectors.
+ * </p>
+ */
 @Slf4j
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class CollectStrategy extends AbstractStrategy {
 
+	/**
+	 * Constructs a new {@code CollectStrategy} using the provided telemetry manager, strategy time, and
+	 * clients executor.
+	 *
+	 * @param telemetryManager The telemetry manager responsible for managing telemetry-related operations.
+	 * @param strategyTime     The time when the strategy is executed.
+	 * @param clientsExecutor  The executor for managing clients used in the strategy.
+	 */
 	@Builder
 	public CollectStrategy(
 		@NonNull final TelemetryManager telemetryManager,

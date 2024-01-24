@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * The WmiConfiguration interface represents the configuration for the Windows Management Instrumentation protocol in the MetricsHub engine.
+ */
 @Data
 @Builder
 @AllArgsConstructor

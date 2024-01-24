@@ -14,6 +14,9 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.strategy.source.ISourceProcessor;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 
+/**
+ * Represents a source task that retrieves data using IPMI.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -21,6 +24,15 @@ public class IpmiSource extends Source {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Constructs a new {@code IpmiSource} instance with the provided attributes.
+	 *
+	 * @param type                  the type of the source
+	 * @param computes              the list of compute operations to be applied
+	 * @param forceSerialization    flag indicating whether serialization should be forced
+	 * @param key                   the key associated with the source
+	 * @param executeForEachEntryOf the execute-for-each-entry-of information
+	 */
 	@Builder
 	@JsonCreator
 	public IpmiSource(

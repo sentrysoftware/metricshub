@@ -16,6 +16,9 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.strategy.source.compute.IComputeProcessor;
 
+/**
+ * Represents a Json2Csv computation task for monitoring.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -23,12 +26,29 @@ public class Json2Csv extends Compute {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The entry key for Json2Csv computation.
+	 */
 	@JsonSetter(nulls = SKIP)
 	private String entryKey = "/";
 
+	/**
+	 * The properties for Json2Csv computation.
+	 */
 	private String properties;
+	/**
+	 * The separator for Json2Csv computation.
+	 */
 	private String separator;
 
+	/**
+	 * Json2Csv constructor using the Builder pattern.
+	 *
+	 * @param type      The type of the computation task.
+	 * @param entryKey  The entry key for Json2Csv computation.
+	 * @param properties The properties for Json2Csv computation.
+	 * @param separator The separator for Json2Csv computation.
+	 */
 	@Builder
 	@JsonCreator
 	public Json2Csv(

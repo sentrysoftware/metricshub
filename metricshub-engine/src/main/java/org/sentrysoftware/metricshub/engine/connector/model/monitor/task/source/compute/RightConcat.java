@@ -9,6 +9,9 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.strategy.source.compute.IComputeProcessor;
 
+/**
+ * Represents a RightConcat computation task for monitoring.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -16,6 +19,13 @@ public class RightConcat extends AbstractConcat {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * RightConcat constructor using the Builder pattern.
+	 *
+	 * @param type   The type of the computation task.
+	 * @param column The column index used in the computation.
+	 * @param value  The value to be concatenated.
+	 */
 	@Builder
 	@JsonCreator
 	public RightConcat(

@@ -39,6 +39,12 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 import org.springframework.core.io.ClassPathResource;
 
+/**
+ * The {@code MappingProcessor} class provides functionality to interpret non-context mapping attributes, metrics,
+ * conditional collections, and legacy text parameters. It includes methods for processing key-value pairs based on
+ * various directives and functions defined in the mapping configuration. The class is designed to be used in the context
+ * of mapping processing within the MetricsHub engine.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

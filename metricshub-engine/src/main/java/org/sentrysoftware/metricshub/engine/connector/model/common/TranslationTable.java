@@ -14,6 +14,9 @@ import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Represents a translation table used for mapping values in the context of a connector.
+ */
 @Data
 @Builder
 @AllArgsConstructor
@@ -22,14 +25,17 @@ public class TranslationTable implements ITranslationTable {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Translations mapping with case-insensitive keys.
+	 */
 	@Default
 	@JsonIgnore
 	private Map<String, String> translations = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 	/**
-	 * Copy the {@link TranslationTable} instance
+	 * Creates a deep copy of the {@link TranslationTable} instance.
 	 *
-	 * @return {@link TranslationTable} deep copy
+	 * @return A new instance of {@link TranslationTable} with copied translations.
 	 */
 	public TranslationTable copy() {
 		return TranslationTable
@@ -46,7 +52,7 @@ public class TranslationTable implements ITranslationTable {
 	}
 
 	/**
-	 * Update the given translation table
+	 * Updates the translation values using the specified updater.
 	 *
 	 * @param updater An operation on a single operand that produces a result of the
 	 *                same type as its operand.
@@ -57,11 +63,22 @@ public class TranslationTable implements ITranslationTable {
 		}
 	}
 
+	/**
+	 * Sets a translation for the specified key.
+	 *
+	 * @param key   The key for the translation.
+	 * @param value The translation value.
+	 */
 	@JsonAnySetter
 	public void setTranslation(String key, String value) {
 		translations.put(key.toLowerCase(), value);
 	}
 
+	/**
+	 * Retrieves the translations mapping.
+	 *
+	 * @return The translations mapping.
+	 */
 	@JsonAnyGetter
 	public Map<String, String> getTranslations() {
 		return this.translations;

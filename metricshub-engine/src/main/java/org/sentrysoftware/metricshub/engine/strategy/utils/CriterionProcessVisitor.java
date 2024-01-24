@@ -18,6 +18,9 @@ import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.W
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.springframework.util.Assert;
 
+/**
+ * Visitor class for handling local operating system details related to process criteria.
+ */
 @Slf4j
 @RequiredArgsConstructor
 public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
@@ -101,9 +104,9 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 	}
 
 	/**
-	 * List all Linux process.
+	 * List all Linux processes.
 	 *
-	 * @return
+	 * @return A list containing details of all Linux processes.
 	 */
 	public static List<List<String>> listAllLinuxProcesses() {
 		return ProcessHandle.allProcesses().map(CriterionProcessVisitor::getProcessDetails).collect(Collectors.toList()); //NOSONAR

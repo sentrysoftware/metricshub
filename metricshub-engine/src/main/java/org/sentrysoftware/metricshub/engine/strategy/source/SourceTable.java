@@ -18,6 +18,10 @@ import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
+/**
+ * The {@code SourceTable} class represents a table of data obtained from monitor sources.
+ * It includes methods for transforming the table to and from CSV format and performing other related operations.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -90,11 +94,14 @@ public class SourceTable {
 	}
 
 	/**
-	 * Transform a line to a list
+	 * Transforms a line of CSV-formatted data to a list.
+	 * <p>
 	 * a1,b1,c1, => [ a1, b1, c1 ]
-	 * @param line The CSV line we wish to parse
-	 * @param separator The cells separator
-	 * @return {@link List} of {@link String}
+	 * </p>
+	 *
+	 * @param line      The CSV-formatted line to be transformed.
+	 * @param separator The separator between cells.
+	 * @return The list of strings representing the line.
 	 */
 	public static List<String> lineToList(String line, final String separator) {
 		if (line != null && !line.isEmpty()) {
@@ -109,7 +116,9 @@ public class SourceTable {
 	}
 
 	/**
-	 * @return Empty {@link SourceTable} instance
+	 * Creates an empty {@code SourceTable} instance.
+	 *
+	 * @return An empty {@code SourceTable} instance.
 	 */
 	public static SourceTable empty() {
 		return SourceTable.builder().build();

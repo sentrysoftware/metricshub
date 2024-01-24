@@ -13,6 +13,9 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
+/**
+ * Processor for replacing placeholder values in a JsonNode using constant values.
+ */
 public class ConstantsProcessor implements NodeProcessor {
 
 	@Override
@@ -67,11 +70,11 @@ public class ConstantsProcessor implements NodeProcessor {
 	}
 
 	/**
-	 * Traverse the given node and replace values
+	 * Traverse the given node and replace values.
 	 *
-	 * @param node {@link JsonNode} instance
-	 * @param transformer value transformer function
-	 * @param replacementPredicate replacement predicate
+	 * @param node                The {@link JsonNode} instance to traverse.
+	 * @param transformer         The value transformer function.
+	 * @param replacementPredicate The replacement predicate.
 	 */
 	public static void replacePlaceholderValues(
 		final JsonNode node,
@@ -125,10 +128,11 @@ public class ConstantsProcessor implements NodeProcessor {
 	}
 
 	/**
-	 * Replace oldValue in {@link JsonNode} only if this oldValue matches the placeholder
+	 * Replace oldValue in {@link JsonNode} only if this oldValue matches the placeholder.
 	 *
-	 * @param replacer
-	 * @param oldValue
+	 * @param replacer            The runnable to perform the replacement.
+	 * @param oldValue            The old value to check for replacement.
+	 * @param replacementPredicate The replacement predicate.
 	 */
 	private static void replaceJsonNode(Runnable replacer, String oldValue, Predicate<String> replacementPredicate) {
 		if (replacementPredicate.test(oldValue)) {

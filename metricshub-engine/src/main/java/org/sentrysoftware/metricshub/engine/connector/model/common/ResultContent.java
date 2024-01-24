@@ -6,15 +6,30 @@ import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * Enumeration representing different types of result content that can be extracted from a connector.
+ */
 @Getter
 @AllArgsConstructor
 public enum ResultContent {
+	/**
+	 * Represents HTTP status as result content.
+	 */
 	@JsonAlias(value = { "httpStatus", "http_status" })
 	HTTP_STATUS("httpStatus"),
+	/**
+	 * Represents header as result content.
+	 */
 	@JsonAlias("header")
 	HEADER("header"),
+	/**
+	 * Represents body as result content.
+	 */
 	@JsonAlias("body")
 	BODY("body"),
+	/**
+	 * Represents all content as result content.
+	 */
 	@JsonAlias("all")
 	ALL("all");
 
@@ -35,10 +50,11 @@ public enum ResultContent {
 	private String name;
 
 	/**
-	 * Detect {@link ResultContent} using the value defined in the connector code
+	 * Detects {@link ResultContent} using the value defined in the connector code.
 	 *
-	 * @param value
-	 * @return {@link ResultContent} instance
+	 * @param value The value to detect.
+	 * @return {@link ResultContent} instance.
+	 * @throws IllegalArgumentException If the value is not a supported ResultContent.
 	 */
 	public static ResultContent detect(final String value) {
 		// Null returns null

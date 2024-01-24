@@ -8,6 +8,10 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
 
+/**
+ * Custom deserializer for converting boolean values from various representations to Java Boolean objects.
+ * Supports mapping of strings to boolean values and handles case-insensitive comparison.
+ */
 public class BooleanDeserializer extends JsonDeserializer<Boolean> {
 
 	private static final Map<String, Boolean> BOOLEAN_MAP = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);

@@ -51,6 +51,10 @@ import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandResult;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
+/**
+ * The {@code SourceProcessor} class is responsible for processing various types of monitor sources.
+ * It implements the {@link ISourceProcessor} interface and provides methods for executing source-related tasks.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

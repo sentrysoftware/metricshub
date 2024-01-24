@@ -23,6 +23,9 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.strategy.source.ISourceProcessor;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 
+/**
+ * Represents a source task for SNMP-based tables.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -30,11 +33,25 @@ public class SnmpTableSource extends SnmpSource {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The columns to select from the SNMP table.
+	 */
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	@JsonDeserialize(using = NonBlankDeserializer.class)
 	private String selectColumns;
 
+	/**
+	 * Constructs a new {@code SnmpTableSource} instance with the provided attributes.
+	 *
+	 * @param type                  the type of the source
+	 * @param computes              the list of compute operations to be applied
+	 * @param forceSerialization    flag indicating whether serialization should be forced
+	 * @param oid                   the SNMP OID to retrieve data
+	 * @param selectColumns         the columns to select from the SNMP table
+	 * @param key                   the key associated with the source
+	 * @param executeForEachEntryOf the execute-for-each-entry-of information
+	 */
 	@Builder
 	@JsonCreator
 	public SnmpTableSource(

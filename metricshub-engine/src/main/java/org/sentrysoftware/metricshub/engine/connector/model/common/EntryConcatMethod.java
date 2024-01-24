@@ -6,24 +6,41 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 
+/**
+ * Represents different methods for concatenating entries in a connector.
+ */
 @Getter
 @AllArgsConstructor
 public enum EntryConcatMethod implements IEntryConcatMethod {
+	/**
+	 * Concatenation using a list.
+	 */
 	@JsonAlias("list")
 	LIST("list"),
+	/**
+	 * Concatenation using a JSON array.
+	 */
 	@JsonAlias(value = { "jsonArray", "json_array" })
 	JSON_ARRAY("jsonArray"),
+	/**
+	 * Concatenation using an extended JSON array.
+	 */
 	@JsonAlias(value = { "JSONArrayExtended", "json_array_extended" })
 	JSON_ARRAY_EXTENDED("jsonArrayExtended");
 
+	/**
+	 * List of all possible values for {@link EntryConcatMethod}.
+	 */
 	public static final List<EntryConcatMethod> ENUM_VALUES = List.of(values());
 
 	private String name;
 
 	/**
-	 * Get {@link EntryConcatMethod} by name, the name defined in the connector code
-	 * @param name
-	 * @return {@link EntryConcatMethod} instance
+	 * Get {@link EntryConcatMethod} by name, the name defined in the connector code.
+	 *
+	 * @param name The name of the concatenation method.
+	 * @return {@link EntryConcatMethod} instance.
+	 * @throws IllegalArgumentException if an invalid name is provided.
 	 */
 	public static EntryConcatMethod getByName(@NonNull final String name) {
 		return ENUM_VALUES

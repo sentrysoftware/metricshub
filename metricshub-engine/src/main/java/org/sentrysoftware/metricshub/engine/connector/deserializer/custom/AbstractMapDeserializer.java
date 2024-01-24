@@ -11,6 +11,12 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * An abstract class providing deserialization support for custom types using Jackson's ObjectMapper
+ * and representing the deserialization of a {@link Map} instance.
+ *
+ * @param <T> The type of values stored in the map.
+ */
 public abstract class AbstractMapDeserializer<T> extends JsonDeserializer<Map<String, T>> {
 
 	protected String nodePath;

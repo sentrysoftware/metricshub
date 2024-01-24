@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.UnaryOperator;
 
+/**
+ * Represents the header of an HTTP request.
+ */
 public interface Header extends Serializable {
 	/**
 	 * Gets the HTTP header content as {@link Map} and performs macro replacements

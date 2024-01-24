@@ -21,6 +21,9 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.strategy.source.ISourceProcessor;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 
+/**
+ * Represents a source task with a static value.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -28,10 +31,23 @@ public class StaticSource extends Source {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The static value associated with the source.
+	 */
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	private String value;
 
+	/**
+	 * Constructs a new {@code StaticSource} instance with the provided attributes.
+	 *
+	 * @param type                  the type of the source
+	 * @param computes              the list of compute operations to be applied
+	 * @param forceSerialization    flag indicating whether serialization should be forced
+	 * @param value                 the static value associated with the source
+	 * @param key                   the key associated with the source
+	 * @param executeForEachEntryOf the execute-for-each-entry-of information
+	 */
 	@Builder
 	@JsonCreator
 	public StaticSource(
@@ -46,6 +62,11 @@ public class StaticSource extends Source {
 		this.value = value;
 	}
 
+	/**
+	 * Creates a new instance by copying the current instance.
+	 *
+	 * @return a new {@code StaticSource} instance
+	 */
 	public StaticSource copy() {
 		return StaticSource
 			.builder()

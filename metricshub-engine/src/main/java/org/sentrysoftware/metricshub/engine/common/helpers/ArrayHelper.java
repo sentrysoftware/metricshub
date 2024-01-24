@@ -6,18 +6,21 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Utility class for handling arrays and common array-related operations.
+ */
 public class ArrayHelper {
 
 	private ArrayHelper() {}
 
 	/**
-	 * Returns the element at the specified position in this array.
-	 * @param <T>
+	 * Returns the element at the specified position in the array.
 	 *
-	 * @param array        The array from which we want to get the element at the specified position
-	 * @param index        Index of the element to return
-	 * @param defaultValue The default value to return if the element cannot be extracted
-	 * @return T
+	 * @param <T>          The type of elements in the array.
+	 * @param array        The array from which to retrieve the element.
+	 * @param index        Index of the element to return.
+	 * @param defaultValue The default value to return if the element cannot be extracted.
+	 * @return The element at the specified position, or the default value if not present.
 	 */
 	public static <T> T getValueAtIndex(T[] array, int index, T defaultValue) {
 		if (array == null || array.length <= index) {

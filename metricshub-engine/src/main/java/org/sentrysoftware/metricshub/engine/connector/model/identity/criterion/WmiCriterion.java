@@ -10,6 +10,10 @@ import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.detection.ICriterionProcessor;
 
+/**
+ * Represents a Windows Management Instrumentation (WMI) detection criterion.
+ * This criterion allows the execution of WMI queries to identify resources on Windows systems.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -17,6 +21,16 @@ public class WmiCriterion extends WqlCriterion {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Constructor to create an instance of {@link WmiCriterion} using a JSON creator.
+	 *
+	 * @param type                Type of the criterion.
+	 * @param forceSerialization Flag indicating whether serialization should be forced.
+	 * @param query               The WMI query associated with the criterion.
+	 * @param namespace           The namespace for the WMI query.
+	 * @param expectedResult      The expected result for the criterion.
+	 * @param errorMessage        The error message associated with the criterion.
+	 */
 	@JsonCreator
 	@Builder
 	public WmiCriterion(

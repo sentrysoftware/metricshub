@@ -5,6 +5,9 @@ import java.util.LinkedHashSet;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+/**
+ * Custom deserializer for a collection of "extends" references.
+ */
 public class ExtendsDeserializer extends AbstractNonBlankNonNullInCollectionDeserializer {
 
 	@Override

@@ -6,6 +6,9 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import java.io.IOException;
 
+/**
+ * Custom deserializer for ensuring that a deserialized string property is non-blank.
+ */
 public class NonBlankDeserializer extends JsonDeserializer<String> {
 
 	@Override

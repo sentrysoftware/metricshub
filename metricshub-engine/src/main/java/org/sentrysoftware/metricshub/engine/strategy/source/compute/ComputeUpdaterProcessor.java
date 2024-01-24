@@ -31,6 +31,14 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceUpdaterProcessor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
+/**
+ * The {@code ComputeUpdaterProcessor} class is responsible for processing various compute operations such as
+ * array translation, logical AND, addition, AWK, conversion, division, duplicating columns, excluding matching lines,
+ * extracting data, extracting property from Wbem path, JSON to CSV conversion, keeping specified columns,
+ * keeping only matching lines, left concatenation, multiplication, per-bit translation, replacement, right concatenation,
+ * subtraction, substring, translation, and XML to CSV conversion. It is part of the compute processing strategy and
+ * delegates operations to the provided {@link IComputeProcessor} instance.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

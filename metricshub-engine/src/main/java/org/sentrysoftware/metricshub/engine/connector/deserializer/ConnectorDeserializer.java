@@ -11,46 +11,50 @@ import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 
 /**
- * This class deserializes YAML connector files
- *
+ * Deserializes YAML connector files.
  */
 public class ConnectorDeserializer {
 
 	@Getter
 	private ObjectMapper mapper;
 
+	/**
+	 * Constructs a new ConnectorDeserializer with the specified ObjectMapper.
+	 *
+	 * @param mapper The ObjectMapper to use for deserialization.
+	 */
 	public ConnectorDeserializer(ObjectMapper mapper) {
 		this.mapper = mapper;
 	}
 
 	/**
-	 * Deserialize the given YAML connector input stream
+	 * Deserializes the given YAML connector input stream.
 	 *
-	 * @param input YAML as {@link InputStream}
-	 * @return {@link Connector} instance
-	 * @throws IOException
+	 * @param input YAML as {@link InputStream}.
+	 * @return {@link Connector} instance.
+	 * @throws IOException If an I/O error occurs during deserialization.
 	 */
 	public Connector deserialize(final InputStream input) throws IOException {
 		return JsonHelper.deserialize(mapper, input, Connector.class);
 	}
 
 	/**
-	 * Deserialize the given YAML connector file
+	 * Deserializes the given YAML connector file.
 	 *
-	 * @param src YAML file
-	 * @return {@link Connector} instance
-	 * @throws IOException
+	 * @param src YAML file.
+	 * @return {@link Connector} instance.
+	 * @throws IOException If an I/O error occurs during deserialization.
 	 */
 	public Connector deserialize(final File src) throws IOException {
 		return deserialize(new FileInputStream(src));
 	}
 
 	/**
-	 * Deserialize the given YAML connector node
+	 * Deserializes the given YAML connector node.
 	 *
-	 * @param node     YAML as {@link TreeNode}
-	 * @return {@link Connector} instance
-	 * @throws IOException
+	 * @param node YAML as {@link TreeNode}.
+	 * @return {@link Connector} instance.
+	 * @throws IOException If an I/O error occurs during deserialization.
 	 */
 	public Connector deserialize(final TreeNode node) throws IOException {
 		return JsonHelper.deserialize(mapper, node, Connector.class);

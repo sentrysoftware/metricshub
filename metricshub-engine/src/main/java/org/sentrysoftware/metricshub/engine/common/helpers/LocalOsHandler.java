@@ -6,18 +6,51 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * Helper class for handling the local operating system.
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LocalOsHandler {
 
+	/**
+	 * Represents the Windows operating system.
+	 */
 	public static final ILocalOs WINDOWS = new Windows();
+	/**
+	 * Represents the Linux operating system.
+	 */
 	public static final ILocalOs LINUX = new Linux();
+	/**
+	 * Represents the Sun operating system.
+	 */
 	public static final ILocalOs SUN = new Sun();
+	/**
+	 * Represents the HP-UX operating system.
+	 */
 	public static final ILocalOs HP = new Hp();
+	/**
+	 * Represents the Solaris operating system.
+	 */
 	public static final ILocalOs SOLARIS = new Solaris();
+	/**
+	 * Represents the AIX operating system.
+	 */
 	public static final ILocalOs AIX = new Aix();
+	/**
+	 * Represents the FreeBSD operating system.
+	 */
 	public static final ILocalOs FREE_BSD = new FreeBsd();
+	/**
+	 * Represents the OpenBSD operating system.
+	 */
 	public static final ILocalOs OPEN_BSD = new OpenBsd();
+	/**
+	 * Represents the NetBSD operating system.
+	 */
 	public static final ILocalOs NET_BSD = new NetBsd();
+	/**
+	 * Represents the macOS operating system.
+	 */
 	public static final ILocalOs MAC_OS_X = new MacOsx();
 
 	private static final List<ILocalOs> OS_LIST = List.of(
@@ -73,28 +106,92 @@ public class LocalOsHandler {
 		return Optional.ofNullable(System.getProperty("os.version"));
 	}
 
+	/**
+	 * Visitor interface for local operating system types.
+	 */
 	public interface ILocalOsVisitor {
+		/**
+		 * Visit method for Windows operating system.
+		 *
+		 * @param os Windows operating system instance
+		 */
 		void visit(Windows os);
+		/**
+		 * Visit method for Linux operating system.
+		 *
+		 * @param os Linux operating system instance
+		 */
 		void visit(Linux os);
+		/**
+		 * Visit method for Sun operating system.
+		 *
+		 * @param os Sun operating system instance
+		 */
 		void visit(Sun os);
+		/**
+		 * Visit method for HP-UX operating system.
+		 *
+		 * @param os HP-UX operating system instance
+		 */
 		void visit(Hp os);
+		/**
+		 * Visit method for Solaris operating system.
+		 *
+		 * @param os Solaris operating system instance
+		 */
 		void visit(Solaris os);
+		/**
+		 * Visit method for AIX operating system.
+		 *
+		 * @param os AIX operating system instance
+		 */
 		void visit(Aix os);
+		/**
+		 * Visit method for FreeBSD operating system.
+		 *
+		 * @param os FreeBSD operating system instance
+		 */
 		void visit(FreeBsd os);
+		/**
+		 * Visit method for OpenBSD operating system.
+		 *
+		 * @param os OpenBSD operating system instance
+		 */
 		void visit(OpenBsd os);
+		/**
+		 * Visit method for NetBSD operating system.
+		 *
+		 * @param os NetBSD operating system instance
+		 */
 		void visit(NetBsd os);
+		/**
+		 * Visit method for macOS operating system.
+		 *
+		 * @param os macOS operating system instance
+		 */
 		void visit(MacOsx os);
 	}
 
+	/**
+	 * Abstract base class representing a local operating system.
+	 */
 	@Getter
 	public abstract static class ILocalOs {
 
 		protected String osTag;
 		protected boolean unix;
 
+		/**
+		 * Accepts a visitor for handling different types of local operating systems.
+		 *
+		 * @param visitor The visitor to accept.
+		 */
 		public abstract void accept(ILocalOsVisitor visitor);
 	}
 
+	/**
+	 * Represents the Windows operating system.
+	 */
 	public static class Windows extends ILocalOs {
 
 		Windows() {
@@ -108,6 +205,9 @@ public class LocalOsHandler {
 		}
 	}
 
+	/**
+	 * Represents the Linux operating system.
+	 */
 	public static class Linux extends ILocalOs {
 
 		Linux() {
@@ -121,6 +221,9 @@ public class LocalOsHandler {
 		}
 	}
 
+	/**
+	 * Represents the Sun operating system.
+	 */
 	public static class Sun extends ILocalOs {
 
 		Sun() {
@@ -134,6 +237,9 @@ public class LocalOsHandler {
 		}
 	}
 
+	/**
+	 * Represents the HP-UX operating system.
+	 */
 	public static class Hp extends ILocalOs {
 
 		Hp() {
@@ -147,6 +253,9 @@ public class LocalOsHandler {
 		}
 	}
 
+	/**
+	 * Represents the Solaris operating system.
+	 */
 	public static class Solaris extends ILocalOs {
 
 		Solaris() {
@@ -160,6 +269,9 @@ public class LocalOsHandler {
 		}
 	}
 
+	/**
+	 * Represents the Aix operating system.
+	 */
 	public static class Aix extends ILocalOs {
 
 		Aix() {
@@ -184,6 +296,9 @@ public class LocalOsHandler {
 		}
 	}
 
+	/**
+	 * Represents the FreeBsd operating system.
+	 */
 	public static class FreeBsd extends BsdOs {
 
 		FreeBsd() {
@@ -197,6 +312,9 @@ public class LocalOsHandler {
 		}
 	}
 
+	/**
+	 * Represents the OpenBSD operating system.
+	 */
 	public static class OpenBsd extends BsdOs {
 
 		OpenBsd() {
@@ -210,6 +328,9 @@ public class LocalOsHandler {
 		}
 	}
 
+	/**
+	 * Represents the NetBSD operating system.
+	 */
 	public static class NetBsd extends BsdOs {
 
 		NetBsd() {
@@ -223,6 +344,9 @@ public class LocalOsHandler {
 		}
 	}
 
+	/**
+	 * Represents the macOS operating system.
+	 */
 	public static class MacOsx extends ILocalOs {
 
 		MacOsx() {

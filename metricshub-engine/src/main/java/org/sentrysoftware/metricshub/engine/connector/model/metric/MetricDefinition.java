@@ -14,8 +14,7 @@ import lombok.NoArgsConstructor;
 /**
  * Represents the definition of a metric.
  *
- * <p>A MetricDefinition instance holds information about a metric, such as its unit, description, and type.
- * </p>
+ * <p>A MetricDefinition instance holds information about a metric, such as its unit, description, and type.</p>
  */
 @Data
 @Builder
@@ -25,14 +24,23 @@ public class MetricDefinition implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The unit of the metric. Default is an empty string.
+	 */
 	@Default
 	@JsonSetter(nulls = SKIP)
 	private String unit = EMPTY;
 
+	/**
+	 * The description of the metric. Default is an empty string.
+	 */
 	@Default
 	@JsonSetter(nulls = SKIP)
 	private String description = EMPTY;
 
+	/**
+	 * The type of the metric. Default is {@link MetricType#GAUGE}.
+	 */
 	@Default
 	@JsonSetter(nulls = SKIP)
 	private IMetricType type = MetricType.GAUGE;

@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import org.sentrysoftware.jawk.intermediate.AwkTuples;
 
 /**
- * Execute AWK Scripts
+ * Utility class for executing AWK scripts.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AwkExecutor {
@@ -20,10 +20,10 @@ public class AwkExecutor {
 	/**
 	 * Execute the given <code>awkScript</code> on the <code>awkInput</code>
 	 *
-	 * @param awkScript The AWK script we wish to process and interpret
-	 * @param awkInput  The input we wish to modify via the AWK script
-	 * @return String value
-	 * @throws AwkException
+	 * @param awkScript The AWK script to process and interpret
+	 * @param awkInput  The input to modify via the AWK script
+	 * @return The result of the AWK script
+	 * @throws AwkException if execution fails
 	 */
 	public static String executeAwk(final String awkScript, final String awkInput) throws AwkException {
 		// We're using our ConcurrentHashMap to cache the intermediate

@@ -5,6 +5,9 @@ import java.util.HashSet;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+/**
+ * Custom deserializer for deserializing a collection of supersedes connectors.
+ */
 public class SupersedesDeserializer extends AbstractNonBlankNonNullInCollectionDeserializer {
 
 	@Override

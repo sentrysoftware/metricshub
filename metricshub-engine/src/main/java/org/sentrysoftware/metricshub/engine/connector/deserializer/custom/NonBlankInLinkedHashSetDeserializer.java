@@ -5,6 +5,9 @@ import java.util.LinkedHashSet;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+/**
+ * Custom deserializer for ensuring that deserialized string values in a LinkedHashSet are non-blank.
+ */
 public class NonBlankInLinkedHashSetDeserializer extends AbstractNonBlankNonNullInCollectionDeserializer {
 
 	@Override

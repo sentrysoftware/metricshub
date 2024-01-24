@@ -11,12 +11,27 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Abstrac
 import org.sentrysoftware.metricshub.engine.strategy.AbstractAllAtOnceStrategy;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
+/**
+ * The {@code SimpleStrategy} class represents a simple strategy for executing monitor tasks.
+ * It extends {@link AbstractAllAtOnceStrategy} and is responsible for coordinating the execution of tasks for all monitors at once.
+ *
+ * <p>
+ * The class uses the TelemetryManager to manage monitors and metrics associated with the monitor tasks.
+ * </p>
+ */
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class SimpleStrategy extends AbstractAllAtOnceStrategy {
 
 	private static final String JOB_NAME = "simple";
 
+	/**
+	 * Builder for constructing instances of {@code SimpleStrategy}.
+	 *
+	 * @param telemetryManager The telemetry manager for managing monitors and metrics.
+	 * @param strategyTime     The time at which the strategy is executed.
+	 * @param clientsExecutor  The executor for running connector clients.
+	 */
 	@Builder
 	public SimpleStrategy(
 		@NonNull final TelemetryManager telemetryManager,

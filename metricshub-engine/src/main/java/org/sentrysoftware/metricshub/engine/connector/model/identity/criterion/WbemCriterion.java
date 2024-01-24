@@ -10,6 +10,10 @@ import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.detection.ICriterionProcessor;
 
+/**
+ * Represents a detection criterion based on Wbem queries.
+ * Extends the abstract class {@link WqlCriterion} and inherits from {@link Criterion}.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -17,6 +21,16 @@ public class WbemCriterion extends WqlCriterion {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Constructs a new {@code WbemCriterion} instance using the provided parameters.
+	 *
+	 * @param type               The type of the criterion.
+	 * @param forceSerialization Flag indicating whether serialization should be forced.
+	 * @param query              The Wbem query for the criterion.
+	 * @param namespace          The namespace for the Wbem query.
+	 * @param expectedResult     The expected result of the criterion.
+	 * @param errorMessage       The error message associated with the criterion.
+	 */
 	@JsonCreator
 	@Builder
 	public WbemCriterion(

@@ -16,6 +16,9 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.strategy.source.compute.IComputeProcessor;
 
+/**
+ * Represents an Awk computation task for monitoring.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -23,15 +26,40 @@ public class Awk extends Compute {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The AWK script to be executed for the computation task.
+	 */
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	private String script;
 
+	/**
+	 * The exclude parameter for the AWK task.
+	 */
 	private String exclude;
+	/**
+	 * The keep parameter for the AWK task.
+	 */
 	private String keep;
+	/**
+	 * The separators parameter for the AWK task.
+	 */
 	private String separators;
+	/**
+	 * The selectColumns parameter for the AWK task.
+	 */
 	private String selectColumns;
 
+	/**
+	 * Awk constructor using the Builder pattern.
+	 *
+	 * @param type          The type of the computation task.
+	 * @param script        The AWK script to be executed.
+	 * @param exclude       The exclude parameter for the AWK task.
+	 * @param keep          The keep parameter for the AWK task.
+	 * @param separators    The separators parameter for the AWK task.
+	 * @param selectColumns The selectColumns parameter for the AWK task.
+	 */
 	@Builder
 	@JsonCreator
 	public Awk(

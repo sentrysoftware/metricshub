@@ -27,6 +27,11 @@ import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.wbem.javax.wbem.WBEMException;
 import org.sentrysoftware.wmi.exceptions.WmiComException;
 
+/**
+ * Helper class for WBEM/WMI namespace detection using WQL queries.
+ * This class provides methods to find possible namespaces, detect suitable namespaces,
+ * and perform WQL detection tests.
+ */
 @Slf4j
 public class WqlDetectionHelper {
 
@@ -70,6 +75,11 @@ public class WqlDetectionHelper {
 
 	private static final Set<String> IGNORED_WBEM_NAMESPACES = Set.of("root", "/root");
 
+	/**
+	 * Constructs a new instance of {@code WqlDetectionHelper} with the provided ClientsExecutor.
+	 *
+	 * @param clientsExecutor The ClientsExecutor to be used for WQL queries.
+	 */
 	public WqlDetectionHelper(final ClientsExecutor clientsExecutor) {
 		this.clientsExecutor = clientsExecutor;
 	}
@@ -424,6 +434,10 @@ public class WqlDetectionHelper {
 		// CHECKSTYLE:ON
 	}
 
+	/**
+	 * Data class representing the result of querying for possible namespaces.
+	 * Provides information about the possible namespaces, success status, and an error message if applicable.
+	 */
 	@Data
 	@Builder
 	public static class PossibleNamespacesResult {
@@ -433,6 +447,10 @@ public class WqlDetectionHelper {
 		private String errorMessage;
 	}
 
+	/**
+	 * Data class representing the result for a specific namespace.
+	 * Contains information about the namespace itself and a CriterionTestResult.
+	 */
 	@Data
 	@Builder
 	public static class NamespaceResult {

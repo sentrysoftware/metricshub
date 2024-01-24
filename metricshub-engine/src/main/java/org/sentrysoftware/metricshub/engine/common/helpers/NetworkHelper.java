@@ -8,7 +8,7 @@ import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Class helper to get network information
+ * Helper class to retrieve network information.
  */
 @Slf4j
 public class NetworkHelper {
@@ -27,10 +27,10 @@ public class NetworkHelper {
 	private NetworkHelper() {}
 
 	/**
-	 * Check whether the given hostname is a localhost
+	 * Check whether the given hostname is a localhost.
 	 *
-	 * @param hostname
-	 * @return <code>true</code> if the passed hostname is a localhost
+	 * @param hostname The hostname to check.
+	 * @return {@code true} if the hostname is a localhost, {@code false} otherwise.
 	 */
 	public static boolean isLocalhost(final String hostname) {
 		// Empty or null hostname is assumed local
@@ -82,11 +82,11 @@ public class NetworkHelper {
 	}
 
 	/**
-	 * @param hostname					The hostname whose IP is being searched for.
+	 * Resolve the IP address of the given hostname.
 	 *
-	 * @return							The IP Address of the given hostname
+	 * @param hostname The hostname.
+	 * @return The IP address of the hostname, or {@code null} if not resolved.
 	 */
-
 	public static String resolveDns(final String hostname) {
 		String ipAddress = null;
 		InetAddress inetAddress = null;
@@ -108,9 +108,10 @@ public class NetworkHelper {
 	}
 
 	/**
-	 * @param hostname					The hostname whose FQDN is being searched for.
+	 * Get the fully qualified domain name (FQDN) of the given hostname.
 	 *
-	 * @return							The FQDN of the given hostname
+	 * @param hostname The hostname.
+	 * @return The FQDN of the hostname, or the original hostname if not resolved.
 	 */
 	public static String getFqdn(final String hostname) {
 		if (hostname != null && !hostname.isBlank()) {

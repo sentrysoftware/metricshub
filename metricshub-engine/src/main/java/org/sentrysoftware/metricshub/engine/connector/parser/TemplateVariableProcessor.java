@@ -11,6 +11,9 @@ import java.util.regex.Pattern;
 import lombok.Builder;
 import lombok.Builder.Default;
 
+/**
+ * {@link NodeProcessor} implementation for processing template variables in a JsonNode.
+ */
 @Builder
 public class TemplateVariableProcessor implements NodeProcessor {
 
@@ -20,10 +23,12 @@ public class TemplateVariableProcessor implements NodeProcessor {
 	private Map<String, String> connectorVariables = new HashMap<>();
 
 	/**
-	 * Processes a given Json node by calling {@link JsonNodeUpdater}
-	 * @param node a given json node
-	 * @return JsonNode
-	 * @throws IOException thrown by {@link NodeProcessor}
+	 * Processes a given Json node by replacing template variables with their corresponding values
+	 * using the provided key-value pairs.
+	 *
+	 * @param node The input Json node.
+	 * @return The processed Json node.
+	 * @throws IOException Thrown by the underlying {@link NodeProcessor}.
 	 */
 	@Override
 	public JsonNode process(JsonNode node) throws IOException {

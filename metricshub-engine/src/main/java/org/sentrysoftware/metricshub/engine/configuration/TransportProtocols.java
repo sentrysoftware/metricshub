@@ -1,7 +1,17 @@
 package org.sentrysoftware.metricshub.engine.configuration;
 
+/**
+ * Enum representing transport protocols for communication.
+ * Supports HTTP and HTTPS protocols.
+ */
 public enum TransportProtocols {
+	/**
+	 * HTTP transport protocol.
+	 */
 	HTTP,
+	/**
+	 * HTTPS transport protocol.
+	 */
 	HTTPS;
 
 	/**

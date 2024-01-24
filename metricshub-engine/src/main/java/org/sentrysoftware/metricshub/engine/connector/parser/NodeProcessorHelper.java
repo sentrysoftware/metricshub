@@ -6,24 +6,27 @@ import java.util.Map;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+/**
+ * Helper class for creating instances of NodeProcessor implementations.
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class NodeProcessorHelper {
 
 	/**
-	 * Creates a new {@link ConstantsProcessor}
+	 * Creates a new {@link ConstantsProcessor}.
 	 *
-	 * @return new {@link ConstantsProcessor}
+	 * @return A new {@link ConstantsProcessor} instance.
 	 */
 	private static NodeProcessor constantsProcessor() {
 		return new ConstantsProcessor();
 	}
 
 	/**
-	 * Create a {@link ExtendsProcessor} with {@link ConstantsProcessor} destination
+	 * Creates a {@link ExtendsProcessor} with a {@link ConstantsProcessor} destination.
 	 *
-	 * @param connectorDirectory the connectors yaml files directory
-	 * @param mapper object mapper
-	 * @return new {@link ExtendsProcessor} instance
+	 * @param connectorDirectory The directory containing connectors YAML files.
+	 * @param mapper             The object mapper.
+	 * @return A new {@link ExtendsProcessor} instance.
 	 */
 	public static NodeProcessor withExtendsAndConstantsProcessor(
 		final Path connectorDirectory,
@@ -38,11 +41,13 @@ public class NodeProcessorHelper {
 	}
 
 	/**
-	 * Create a {@link ExtendsProcessor} with {@link TemplateVariableProcessor} destination that redirects to {@link ConstantsProcessor}
+	 * Creates a {@link ExtendsProcessor} with a {@link TemplateVariableProcessor} destination
+	 * that redirects to {@link ConstantsProcessor}.
 	 *
-	 * @param connectorDirectory the connectors yaml files directory
-	 * @param mapper object mapper
-	 * @return new {@link TemplateVariableProcessor} instance
+	 * @param connectorDirectory   The directory containing connectors YAML files.
+	 * @param mapper               The object mapper.
+	 * @param connectorVariables   The map of connector variables.
+	 * @return A new {@link TemplateVariableProcessor} instance.
 	 */
 	public static NodeProcessor withExtendsAndTemplateVariableProcessor(
 		final Path connectorDirectory,

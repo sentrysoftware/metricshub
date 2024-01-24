@@ -77,6 +77,16 @@ import org.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
 import org.sentrysoftware.metricshub.engine.strategy.utils.PslUtils;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
+/**
+ * Processor for handling various compute operations in the context of source data.
+ * This class includes methods to execute operations like ArrayTranslate, And, Add, and Awk,
+ * among others, on the source data table.
+ *
+ * <p>It relies on a TelemetryManager, connectorId, MatsyaClientsExecutor, sourceKey, hostname,
+ * SourceTable, and index for its operations. It also uses a predefined map of mathematical functions
+ * for certain operations.
+ * </p>
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -1088,8 +1098,9 @@ public class ComputeProcessor implements IComputeProcessor {
 	}
 
 	/**
-	 * This method processes the replace compute
-	 * @param replace
+	 * This method processes the replace compute operation.
+	 *
+	 * @param replace The replace object containing details of the operation.
 	 */
 	@Override
 	@WithSpan("Compute Replace Exec")
@@ -1751,8 +1762,9 @@ public class ComputeProcessor implements IComputeProcessor {
 
 	/**
 	 * Find the translation map associated with the {@link ITranslationTable} in parameter.
-	 * @param translation
-	 * @return
+	 *
+	 * @param translation The translation table to find translations for.
+	 * @return The translation map if found, otherwise null.
 	 */
 	public Map<String, String> findTranslations(final ITranslationTable translation) {
 		// In case of a ReferenceTranslationTable, we try to find its TranslationTable in the connector if the translations Map has not already been found.

@@ -16,6 +16,9 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.strategy.source.compute.IComputeProcessor;
 
+/**
+ * Represents a DuplicateColumn computation task for monitoring.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -23,10 +26,19 @@ public class DuplicateColumn extends Compute {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The column index to be duplicated.
+	 */
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	private Integer column;
 
+	/**
+	 * DuplicateColumn constructor using the Builder pattern.
+	 *
+	 * @param type   The type of the computation task.
+	 * @param column The column index to be duplicated.
+	 */
 	@Builder
 	@JsonCreator
 	public DuplicateColumn(

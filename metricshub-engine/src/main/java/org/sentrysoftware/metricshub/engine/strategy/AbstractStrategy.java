@@ -39,6 +39,9 @@ import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
+/**
+ * Abstract class representing a strategy for handling connectors and their sources and computes.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
