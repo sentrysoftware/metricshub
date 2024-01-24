@@ -9,24 +9,27 @@ import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.Builder;
-import lombok.Builder.Default;
+import lombok.NonNull;
 
-@Builder
-public class TemplateVariableProcessor implements NodeProcessor {
+public class TemplateVariableProcessor extends AbstractNodeProcessor {
 
-	private NodeProcessor nodeProcessor;
-
-	@Default
+	@NonNull
 	private Map<String, String> connectorVariables = new HashMap<>();
+
+	@Builder
+	public TemplateVariableProcessor(@NonNull Map<String, String> connectorVariables, AbstractNodeProcessor next) {
+		super(next);
+		this.connectorVariables = connectorVariables;
+	}
 
 	/**
 	 * Processes a given Json node by calling {@link JsonNodeUpdater}
 	 * @param node a given json node
 	 * @return JsonNode
-	 * @throws IOException thrown by {@link NodeProcessor}
+	 * @throws IOException thrown by {@link AbstractNodeProcessor}
 	 */
 	@Override
-	public JsonNode process(JsonNode node) throws IOException {
+	public JsonNode processNode(JsonNode node) throws IOException {
 		// Create the unary operator that replaces the template variable pattern by the agent config defined variable value
 		final UnaryOperator<String> variableValueUpdater = value -> performReplacements(connectorVariables, value);
 
@@ -34,14 +37,15 @@ public class TemplateVariableProcessor implements NodeProcessor {
 		final Predicate<String> isMatchingConnectorVariableRegex = str -> str != null && str.contains("${var::");
 
 		// Call JsonNodeUpdater to replace the placeholder by the variable value
-		final JsonNodeUpdater jsonNodeUpdater = new JsonNodeUpdater(
-			node,
-			variableValueUpdater,
-			isMatchingConnectorVariableRegex
-		);
-		jsonNodeUpdater.update();
+		JsonNodeUpdater
+			.builder()
+			.withJsonNode(node)
+			.withPredicate(isMatchingConnectorVariableRegex)
+			.withUpdater(variableValueUpdater)
+			.build()
+			.update();
 
-		return nodeProcessor.process(node);
+		return node;
 	}
 
 	/**

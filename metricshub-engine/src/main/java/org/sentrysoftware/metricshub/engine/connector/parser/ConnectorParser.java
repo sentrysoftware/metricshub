@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import org.sentrysoftware.metricshub.engine.connector.deserializer.ConnectorDeserializer;
 import org.sentrysoftware.metricshub.engine.connector.deserializer.PostDeserializeHelper;
@@ -32,7 +33,10 @@ import org.sentrysoftware.metricshub.engine.connector.update.PreSourceDepUpdate;
 public class ConnectorParser {
 
 	private ConnectorDeserializer deserializer;
-	private NodeProcessor processor;
+
+	@Getter
+	private AbstractNodeProcessor processor;
+
 	private ConnectorUpdateChain connectorUpdateChain;
 
 	/**
@@ -72,7 +76,7 @@ public class ConnectorParser {
 
 	/**
 	 * Creates a new {@link ConnectorParser} with extends and constants
-	 * {@link NodeProcessor}
+	 * {@link AbstractNodeProcessor}
 	 *
 	 * @param connectorDirectory
 	 * @return new instance of {@link ConnectorParser}
@@ -91,7 +95,7 @@ public class ConnectorParser {
 
 	/**
 	 * Creates a new {@link ConnectorParser} with extends and constants
-	 * {@link NodeProcessor}
+	 * {@link AbstractNodeProcessor}
 	 *
 	 * @param connectorDirectory the connectors yaml files directory
 	 * @return new instance of {@link ConnectorParser}
@@ -115,7 +119,7 @@ public class ConnectorParser {
 
 	/**
 	 * Creates a new {@link ConnectorParser} with extends and constants
-	 * {@link NodeProcessor} and with a {@link ConnectorUpdateChain}
+	 * {@link AbstractNodeProcessor} and with a {@link ConnectorUpdateChain}
 	 *
 	 * @param connectorDirectory
 	 * @return new instance of {@link ConnectorParser}
@@ -134,7 +138,7 @@ public class ConnectorParser {
 
 	/**
 	 * Creates a new {@link ConnectorParser} with extends and constants
-	 * {@link NodeProcessor} and with a {@link ConnectorUpdateChain}
+	 * {@link AbstractNodeProcessor} and with a {@link ConnectorUpdateChain}
 	 *
 	 * @param connectorDirectory the connectors yaml files directory
 	 * @return new instance of {@link ConnectorParser}

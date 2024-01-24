@@ -1,6 +1,7 @@
 package org.sentrysoftware.metricshub.engine.connector.parser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,8 +37,10 @@ class TemplateVariableProcessorTest {
 		final TemplateVariableProcessor templateVariableProcessor = TemplateVariableProcessor
 			.builder()
 			.connectorVariables(Map.of("snmp-get-next", "snmpGetNext"))
-			.nodeProcessor(new ConstantsProcessor())
+			.next(new ConstantsProcessor())
 			.build();
+
+		assertNotNull(templateVariableProcessor.getNext());
 
 		// Call the method process
 		final JsonNode nodeProcessingResult = templateVariableProcessor.process(connectorNode);
