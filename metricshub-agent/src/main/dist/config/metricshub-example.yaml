@@ -25,7 +25,6 @@ resources:
   #       community: public
   #       port: 161
   #       timeout: 120
-  #   excludeConnectors: [ SunF15K ]
 
 # Resource Groups configuration
 resourceGroups:
