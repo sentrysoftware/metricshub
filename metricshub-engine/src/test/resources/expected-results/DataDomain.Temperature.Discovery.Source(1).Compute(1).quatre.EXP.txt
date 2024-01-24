@@ -1,0 +1,5 @@
+MSHW;1.1;1;Left Temp Sensor;11;1;;
+MSHW;2.1;2;Left Temp Sensor;21;1;;
+MSHW;3.1;3;Left Temp Sensor;31;1;;
+MSHW;4.1;4;Left Temp Sensor;41;0;;
+MSHW;4.2;4;Right Temp Sensor;42;2;;

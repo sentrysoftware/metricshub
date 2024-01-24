@@ -1,0 +1,15 @@
+Manageable HBA List
+
+Port WWN   : 10:00:00:00:c9:44:5b:c0
+Node WWN   : 20:00:00:00:c9:44:5b:c0
+Fabric Name: 10:00:00:05:1e:36:67:0c
+Flags      : 8000f980
+Host Name  : bari10
+Mfg        : Emulex Corporation
+
+Port WWN   : 10:00:00:00:c9:44:5b:c6
+Node WWN   : 20:00:00:00:c9:44:5b:c6
+Fabric Name: 10:00:00:05:1e:36:61:a0
+Flags      : 8000f980
+Host Name  : bari10
+Mfg        : Emulex Corporation

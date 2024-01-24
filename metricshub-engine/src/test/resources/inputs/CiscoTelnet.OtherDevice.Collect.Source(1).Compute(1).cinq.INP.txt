@@ -1,0 +1,153 @@
+show module
+Mod  Ports  Module-Type                      Model              Status
+---  -----  -------------------------------- ------------------ ------------
+1    24     1/2/4 Gbps FC/Supervisor-2       DS-C9124-K9-SUP    active *
+
+Mod  Sw              Hw      World-Wide-Name(s) (WWN)
+---  --------------  ------  --------------------------------------------------
+1    4.2(9)          1.0     20:01:00:0d:ec:4c:71:00 to 20:18:00:0d:ec:4c:71:00 
+
+
+Mod  MAC-Address(es)                         Serial-Num
+---  --------------------------------------  ----------
+1    00-0d-ec-3d-cf-50 to 00-0d-ec-3d-cf-54  JAE1125MAGK
+
+* this terminal session 
+
+show environment
+Clock:
+----------------------------------------------------------
+Clock           Model                Hw         Status
+----------------------------------------------------------
+A               Clock Module         --         NotSupported/None
+
+
+Fan:
+------------------------------------------------------
+Fan             Model                Hw         Status
+------------------------------------------------------
+ChassisFan1     FAN Module 1         --         Ok  
+ChassisFan2     FAN Module 2         --         Ok  
+ChassisFan3     FAN Module 3         --         Ok  
+Fan_in_PS1      --                   --         Failure        
+Fan_in_PS2      --                   --         Failure        
+Fan Air Filter : NotSupported
+
+
+Temperature:
+--------------------------------------------------------------------
+Module   Sensor        MajorThresh   MinorThres   CurTemp     Status
+                       (Celsius)     (Celsius)    (Celsius)         
+--------------------------------------------------------------------
+1        Outlet          75              60          29         Ok             
+1        Outlet          75              60          32         Ok             
+1        Intake          65              50          28         Ok             
+
+
+Power Supply:
+Voltage: 42 Volts
+-----------------------------------------------------
+PS  Model                Power       Power     Status
+                         (Watts)     (Amp)           
+-----------------------------------------------------
+1   PWR-C49-300AC         299.88      7.14     Ok                  
+2   DS-C24-300AC          299.88      7.14     Ok                  
+
+
+Mod Model                Power     Power       Power     Power       Status
+                         Requested Requested   Allocated Allocated         
+                         (Watts)   (Amp)       (Watts)   (Amp)               
+--- -------------------  -------   ----------  --------- ----------  ----------
+1    DS-C9124-K9-SUP      209.16    4.98       209.16    4.98        Powered-Up
+
+
+Power Usage Summary:
+--------------------
+Power Supply redundancy mode:                 Redundant 
+Power Supply redundancy operational mode:     Redundant
+
+Total Power Capacity                              299.88 W
+
+Power reserved for Supervisor(s)                  209.16 W
+Power reserved for Fan Module(s)                   42.00 W
+                                                -------------
+Total Power Available                              48.72 W
+                                                -------------
+
+DEBUG: 2012-12-21 17:10:49: [powerSupplyColl]: 
+-----+ INFORMATION SOURCES: powersupply.collect.source(1) is statically set to:
+show module
+Mod  Ports  Module-Type                      Model              Status
+---  -----  -------------------------------- ------------------ ------------
+1    24     1/2/4 Gbps FC/Supervisor-2       DS-C9124-K9-SUP    active *
+
+Mod  Sw              Hw      World-Wide-Name(s) (WWN)
+---  --------------  ------  --------------------------------------------------
+1    4.2(9)          1.0     20:01:00:0d:ec:4c:71:00 to 20:18:00:0d:ec:4c:71:00 
+
+
+Mod  MAC-Address(es)                         Serial-Num
+---  --------------------------------------  ----------
+1    00-0d-ec-3d-cf-50 to 00-0d-ec-3d-cf-54  JAE1125MAGK
+
+* this terminal session 
+
+show environment
+Clock:
+----------------------------------------------------------
+Clock           Model                Hw         Status
+----------------------------------------------------------
+A               Clock Module         --         NotSupported/None
+
+
+Fan:
+------------------------------------------------------
+Fan             Model                Hw         Status
+------------------------------------------------------
+ChassisFan1     FAN Module 1         --         Ok  
+ChassisFan2     FAN Module 2         --         Ok  
+ChassisFan3     FAN Module 3         --         Ok  
+Fan_in_PS1      --                   --         Failure        
+Fan_in_PS2      --                   --         Failure        
+Fan Air Filter : NotSupported
+
+
+Temperature:
+--------------------------------------------------------------------
+Module   Sensor        MajorThresh   MinorThres   CurTemp     Status
+                       (Celsius)     (Celsius)    (Celsius)         
+--------------------------------------------------------------------
+1        Outlet          75              60          29         Ok             
+1        Outlet          75              60          32         Ok             
+1        Intake          65              50          28         Ok             
+
+
+Power Supply:
+Voltage: 42 Volts
+-----------------------------------------------------
+PS  Model                Power       Power     Status
+                         (Watts)     (Amp)           
+-----------------------------------------------------
+1   PWR-C49-300AC         299.88      7.14     Ok                  
+2   DS-C24-300AC          299.88      7.14     Ok                  
+
+
+Mod Model                Power     Power       Power     Power       Status
+                         Requested Requested   Allocated Allocated         
+                         (Watts)   (Amp)       (Watts)   (Amp)               
+--- -------------------  -------   ----------  --------- ----------  ----------
+1    DS-C9124-K9-SUP      209.16    4.98       209.16    4.98        Powered-Up
+
+
+Power Usage Summary:
+--------------------
+Power Supply redundancy mode:                 Redundant 
+Power Supply redundancy operational mode:     Redundant
+
+Total Power Capacity                              299.88 W
+
+Power reserved for Supervisor(s)                  209.16 W
+Power reserved for Fan Module(s)                   42.00 W
+                                                -------------
+Total Power Available                              48.72 W
+                                                -------------

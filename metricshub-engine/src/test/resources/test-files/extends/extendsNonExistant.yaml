@@ -1,0 +1,6 @@
+---
+connector:
+  detection:
+    appliesTo: [ linux ]
+
+# extends: having it commented or non existant results in empty LinkedHashSet

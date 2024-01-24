@@ -1,0 +1,2 @@
+MSHW;mpath1;mpath1 (360000970000294901120533030303243) dm-2 EMC,SYMMETRIX;4;OK;;Path: 1:0:3:0 sde - Path: 1:0:4:0 sdg - Path: 2:0:3:0 sdj - Path: 2:0:4:0 sdl;
+MSHW;mpath4;mpath4 (360000970000294901120533030303644) dm-3 EMC,SYMMETRIX;4;OK;;Path: 1:0:3:3 sdf - Path: 1:0:4:3 sdh - Path: 2:0:3:3 sdk - Path: 2:0:4:3 sdm;

@@ -1,0 +1,14 @@
+---
+connector:
+  detection:
+    criteria:
+    # Hardware Sentry v10.3.00+
+    - type: productRequirements
+      kmVersion: 10.3.00
+    - type: http
+      method: GET
+      url: /redfish/v1/
+      header: ${file::header.txt}   # HDF EMBEDDED FILE
+      body: ${file::embedded2/body.txt}   # HDF EMBEDDED FILE
+      expectedResult: iLO 4
+      errorMessage: Invalid credentials / not an HP iLO 4

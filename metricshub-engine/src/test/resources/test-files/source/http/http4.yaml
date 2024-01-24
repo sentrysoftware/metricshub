@@ -1,0 +1,12 @@
+connector:
+  detection:
+    appliesTo: [ Linux ]
+
+pre:
+  testHttpSource:
+    type: http
+    method: POST
+    body: >
+      test
+
+      body

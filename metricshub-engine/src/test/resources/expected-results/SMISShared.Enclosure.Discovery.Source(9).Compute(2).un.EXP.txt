@@ -1,0 +1,3 @@
+MSHW;Clar_StorageSystem.CreationClassName="Clar_StorageSystem",Name="CLARiiON+CKM00083900053";3|15|;EMC;Rack Mounted CX4_120 - EMC-SAN;CKM00083900053
+MSHW;Clar_StorageSystem.CreationClassName="Clar_StorageSystem",Name="CLARiiON+CKM00120300966";3|15|;EMC;Rack Mounted VNX5300 - emc-vnx;CKM00120300966
+MSHW;Symm_StorageSystem.CreationClassName="Symm_StorageSystem",Name="SYMMETRIX+000294901120";3|15|;EMC;VMAX-1SE - 000294901120;000294901120

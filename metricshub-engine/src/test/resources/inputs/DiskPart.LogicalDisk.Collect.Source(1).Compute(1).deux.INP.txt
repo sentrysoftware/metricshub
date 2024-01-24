@@ -1,0 +1,17 @@
+Microsoft DiskPart version 6.2.9200
+
+Copyright (C) 1999-2012 Microsoft Corporation.
+On computer: PC23
+
+DISKPART> 
+  Volume ###  Ltr  Label        Fs     Type        Size     Status     Info
+  ----------  ---  -----------  -----  ----------  -------  ---------  --------
+  Volume 0     F                       DVD-ROM         0 B  No Media           
+  Volume 1                      RAW    Partition     97 GB  Healthy            
+  Volume 2     C                NTFS   Partition    833 GB  Healthy    Boot    
+  Volume 3         Recovery     NTFS   Partition    300 MB  Healthy    Hidden  
+  Volume 4                      FAT32  Partition    100 MB  Healthy    System  
+  Volume 5     D                       Removable       0 B  No Media           
+  Volume 6     E                       Removable       0 B  No Media           
+
+DISKPART> 

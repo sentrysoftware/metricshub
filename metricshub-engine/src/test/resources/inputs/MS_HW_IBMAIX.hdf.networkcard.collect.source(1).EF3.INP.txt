@@ -1,0 +1,102 @@
+MS_HW_entstat_Start: ent0
+-------------------------------------------------------------
+ETHERNET STATISTICS (ent0) :
+Device Type: Virtual I/O Ethernet Adapter (l-lan)
+Hardware Address: 36:0b:c1:c2:00:02
+Elapsed Time: 19 days 16 hours 34 minutes 34 seconds
+Transmit Statistics:                          Receive Statistics:
+--------------------                          -------------------
+Packets: 49634001                             Packets: 177244964
+Bytes: 12674128910                            Bytes: 28516388029
+Interrupts: 0                                 Interrupts: 153680729
+Transmit Errors: 0                            Receive Errors: 0
+Packets Dropped: 0                            Packets Dropped: 838
+                                              Bad Packets: 0
+Max Packets on S/W Transmit Queue: 0         
+S/W Transmit Queue Overflow: 0
+Current S/W+H/W Transmit Queue Length: 0
+Broadcast Packets: 10004                      Broadcast Packets: 123782279
+Multicast Packets: 7858                       Multicast Packets: 1747644
+No Carrier Sense: 0                           CRC Errors: 0
+DMA Underrun: 0                               DMA Overrun: 0
+Lost CTS Errors: 0                            Alignment Errors: 0
+Max Collision Errors: 0                       No Resource Errors: 838
+Late Collision Errors: 0                      Receive Collision Errors: 0
+Deferred: 0                                   Packet Too Short Errors: 0
+SQE Test: 0                                   Packet Too Long Errors: 0
+Timeout Errors: 0                             Packets Discarded by Adapter: 0
+Single Collision Count: 0                     Receiver Start Count: 0
+Multiple Collision Count: 0
+Current HW Transmit Queue Length: 0
+General Statistics:
+-------------------
+No mbuf Errors: 0
+Adapter Reset Count: 0
+Adapter Data Rate: 20000
+Driver Flags: Up Broadcast Running 
+	Simplex 64BitSupport ChecksumOffload 
+	DataRateSet VIOENT 
+Virtual I/O Ethernet Adapter (l-lan) Specific Statistics:
+---------------------------------------------------------
+RQ Length: 4545
+Trunk Adapter: True
+  Priority: 2  Active: False
+Filter MCast Mode: False
+Filters: 255
+  Enabled: 2  Queued: 0  Overflow: 0
+LAN State: Operational
+LPAR Active Memory Sharing: Disabled
+Hypervisor Send Failures: 0
+  Receiver Failures: 0
+  Send Errors: 0
+Hypervisor Receive Failures: 838
+Invalid VLAN ID Packets: 0
+ILLAN Attributes: 0000000000003202 [0000000000002200]
+Port VLAN ID:     1
+VLAN Tag IDs:  None
+Switch ID: ETHERNET0
+Switch Mode: VEB
+Management VLAN: Disabled
+Hypervisor Information  
+  Virtual Memory        
+    Total (KB)                 80
+  I/O Memory            
+    VRM Minimum (KB)          100
+    VRM Desired (KB)          100
+    DMA Max Min (KB)          128
+Transmit Information    
+  Transmit Buffers       
+    Buffer Size             65536
+    Buffers                    32
+    History             
+      No Buffers                0
+  Virtual Memory        
+    Total (KB)               2048
+  I/O Memory            
+    VRM Minimum (KB)         2176
+    VRM Desired (KB)        16384
+    DMA Max Min (KB)        16384
+Receive Information     
+  Receive Buffers        
+    Buffer Type              Tiny    Small   Medium    Large     Huge
+    Min Buffers               512      512      128       24       24
+    Max Buffers              2048     2048      256       64       64
+    Allocated                 512      512      128       24       24
+    Registered                512      512      128       24       24
+    History             
+      Max Allocated           512      694      128       24       24
+      Lowest Registered       511      502      128       24       24
+  Virtual Memory        
+    Minimum (KB)              256     1024     2048      768     1536
+    Maximum (KB)             1024     4096     4096     2048     4096
+  I/O Memory            
+    VRM Minimum (KB)         4096     4096     2560      864     1632
+    VRM Desired (KB)        16384    16384     5120     2304     4352
+    DMA Max Min (KB)        16384    16384     8192     4096     8192
+  Buffer Mode: Min
+I/O Memory Information  
+  Total VRM Minimum (KB)    15524
+  Total VRM Desired (KB)    61028
+  Total DMA Max Min (KB)    69760
+MS_HW_entstat_End: ent0
+/var/tmp/Patrol481[6]: /etc/lsattr:  not found.

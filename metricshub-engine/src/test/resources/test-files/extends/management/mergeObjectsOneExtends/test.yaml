@@ -1,0 +1,11 @@
+---
+connector:
+  detection:
+    appliesTo: [ linux ]
+
+extends:
+- Connector1
+
+pre:
+  testHttpSource:
+    method: POST

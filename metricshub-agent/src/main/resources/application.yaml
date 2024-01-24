@@ -1,0 +1,6 @@
+project:
+  name: "@project.name@"
+  version: "@project.version@"
+buildNumber: "@buildNumber@"
+buildDate: "@timestamp@"
+ccVersion: "@community-connectors.version@"

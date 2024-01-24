@@ -1,0 +1,49 @@
+	
+Pseudo name=emcpowera
+VPLEX ID=CKM00152602652  
+Logical device ID=6000144000000010B00CE83975D22612 [middb_vol1_ocr]
+state=alive; policy=ADaptive; queued-IOs=0
+==============================================================================
+--------------- Host ---------------   - Stor -  -- I/O Path --   -- Stats ---
+###  HW Path               I/O Paths    Interf.  Mode     State   Q-IOs Errors
+==============================================================================
+   1 lpfc                   sdn        CL1-07    active   alive      0      0
+   1 lpfc                   sdk        CL1-0A    active   alive      0      0
+   1 lpfc                   sde        CL1-0D    active   alive      0      0
+   1 lpfc                   sdb        CL1-0F    active   alive      0      0
+   2 lpfc                   sdw        CL1-0E    active   alive      0      0
+   2 lpfc                   sdt        CL1-0B    active   alive      0      0
+   2 lpfc                   sdq        CL1-04    active   alive      0      0
+   2 lpfc                   sdh        CL1-06    active   alive      0      0
+Pseudo name=emcpowerb
+VPLEX ID=CKM00152602652  
+Logical device ID=6000144000000010B00CE83975D226AF [middb_vol2_data1]
+state=alive; policy=ADaptive; queued-IOs=0
+==============================================================================
+--------------- Host ---------------   - Stor -  -- I/O Path --   -- Stats ---
+###  HW Path               I/O Paths    Interf.  Mode     State   Q-IOs Errors
+==============================================================================
+   1 lpfc                   sdo        CL1-07    active   alive      0      0
+   1 lpfc                   sdl        CL1-0A    active   alive      0      0
+   1 lpfc                   sdf        CL1-0D    active   alive      0      0
+   1 lpfc                   sdc        CL1-0F    active   alive      0      0
+   2 lpfc                   sdx        CL1-0E    active   alive      0      0
+   2 lpfc                   sdu        CL1-0B    active   alive      0      0
+   2 lpfc                   sdr        CL1-04    active   alive      0      0
+   2 lpfc                   sdi        CL1-06    active   alive      0      0
+Pseudo name=emcpowerc
+VPLEX ID=CKM00152602652  
+Logical device ID=6000144000000010B00CE83975D226B1 [middb_vol3_data2]
+state=alive; policy=ADaptive; queued-IOs=0
+==============================================================================
+--------------- Host ---------------   - Stor -  -- I/O Path --   -- Stats ---
+###  HW Path               I/O Paths    Interf.  Mode     State   Q-IOs Errors
+==============================================================================
+   1 lpfc                   sdp        CL1-07    active   alive      0      0
+   1 lpfc                   sdm        CL1-0A    active   alive      0      0
+   1 lpfc                   sdg        CL1-0D    active   alive      0      0
+   1 lpfc                   sdd        CL1-0F    active   alive      0      0
+   2 lpfc                   sdy        CL1-0E    active   alive      0      0
+   2 lpfc                   sdv        CL1-0B    active   alive      0      0
+   2 lpfc                   sds        CL1-04    active   alive      0      0
+   2 lpfc                   sdj        CL1-06    active   alive      0      0

@@ -1,0 +1,8 @@
+---
+connector:
+  detection:
+    appliesTo: [ linux ]
+pre:
+  " ":
+    type: copy
+    from: ${source::pre.anotherSource}

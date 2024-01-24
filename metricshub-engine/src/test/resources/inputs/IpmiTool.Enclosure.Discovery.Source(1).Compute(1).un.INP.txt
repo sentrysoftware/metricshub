@@ -1,0 +1,55 @@
+FRU;SUN MICROSYSTEMS;CMM;1244CCR-09020004LL - 371-1447-11
+FRU;SUN MICROSYSTEMS;SUN BLADE 6000 MODULAR SYSTEM;1005LCB-0850YM09GX - 541-1983-07
+FRU;MOTOROLA;FAST ETHERNET CONTROLLER;00:21:28:28:B4:99 - MPC8248 FCC
+FRU;;A206 POWER SUPPLY;1762TH1-0839A44320 - 300-1802-08
+FRU;;A206 POWER SUPPLY;1762TH1-0839A44314 - 300-1802-08
+FRU;;ASSY,BLADE,T6300,6-CORE,1.0GHZ;0000000-0714UM00JL - 541-2317-04
+FRU;;ASSY,BD,GEMINI,X6220;0000000-090300009E - 540-7612-01
+FRU;;ASSY,BD,WOLF,X6250;0000000-7001 - 540-7254-01
+FRU;;ASSY,BD,NEM,6000;0000000-09010004MH - 371-1451-04
+FRU;;ASSY,BD,NEM,6000;0000000-09080004V7 - 371-1451-04
+FRU;;;
+FRU;SUN MICROSYSTEMS;ILOM;
+I/O Module;0;I/O Module 0;;ASSY,BD,NEM,6000;0000000-09010004MH - 371-1451-04;nem0.prsnt=Device Present
+I/O Module;1;I/O Module 1;;ASSY,BD,NEM,6000;0000000-09080004V7 - 371-1451-04;nem1.prsnt=Device Present
+Fan Device;0;Fan Device 0;;;;fm0.fail=Predictive Failure Deasserted
+Fan Device;1;Fan Device 1;;;;fm1.fail=Predictive Failure Deasserted
+Fan Device;2;Fan Device 2;;;;fm2.fail=Predictive Failure Deasserted
+Fan Device;3;Fan Device 3;;;;fm3.fail=Predictive Failure Deasserted
+Fan Device;4;Fan Device 4;;;;fm4.fail=Predictive Failure Deasserted
+Fan Device;5;Fan Device 5;;;;fm5.fail=Predictive Failure Deasserted
+Power Supply;0;Power Supply 0;;A206 POWER SUPPLY;1762TH1-0839A44320 - 300-1802-08;ps0.prsnt=Device Present|ps0.status=Presence detected|ps0.pstate_0=1|ps0.pstate_1=1|ps0.ac0_fail=Predictive Failure Deasserted|ps0.ac1_fail=Predictive Failure Deasserted|ps0.fan_fail=Predictive Failure Deasserted|ps0.v12v_0_fault=Predictive Failure Deasserted|ps0.v12v_1_fault=Predictive Failure Deasserted|ps0.V3_3V_fault=Predictive Failure Deasserted|ps0.t_amb_fault=Predictive Failure Deasserted|ps0.I12V_0_fault=Predictive Failure Deasserted|ps0.I12V_1_fault=Predictive Failure Deasserted|ps0.I12V_0_warn=Predictive Failure Deasserted|ps0.I12V_1_warn=Predictive Failure Deasserted|ps0.t_amb_warn=Predictive Failure Deasserted
+Power Supply;1;Power Supply 1;;A206 POWER SUPPLY;1762TH1-0839A44314 - 300-1802-08;ps1.prsnt=Device Present|ps1.status=Presence detected|ps1.pstate_0=1|ps1.pstate_1=1|ps1.ac0_fail=Predictive Failure Deasserted|ps1.ac1_fail=Predictive Failure Deasserted|ps1.fan_fail=Predictive Failure Deasserted|ps1.v12v_0_fault=Predictive Failure Deasserted|ps1.v12v_1_fault=Predictive Failure Deasserted|ps1.V3_3V_fault=Predictive Failure Deasserted|ps1.t_amb_fault=Predictive Failure Deasserted|ps1.I12V_0_fault=Predictive Failure Deasserted|ps1.I12V_1_fault=Predictive Failure Deasserted|ps1.I12V_0_warn=Predictive Failure Deasserted|ps1.I12V_1_warn=Predictive Failure Deasserted|ps1.t_amb_warn=Predictive Failure Deasserted
+System Board;0;System Board 0;;;0000000-09020004LL - 371-1447-11;bl0.prsnt=Device Present
+System Board;1;System Board 1;SUN MICROSYSTEMS;ILOM;;bl1.prsnt=Device Present
+System Board;2;System Board 2;;;;bl2.prsnt=Device Present
+System Chassis;0;System Chassis 0;;;;ch.t_ovrd=1
+Power Management;0;Power Management 0;;;;ch.pwrctl.state=Predictive Failure Deasserted
+Fan;1c00;fm0.f0.speed;Fan Device 0;5400.00;1500.00;2000.00
+Fan;1d00;fm0.f1.speed;Fan Device 0;6200.00;1500.00;2000.00
+Fan;1e00;fm1.f0.speed;Fan Device 1;5400.00;1500.00;2000.00
+Fan;1f00;fm1.f1.speed;Fan Device 1;6100.00;1500.00;2000.00
+Fan;2000;fm2.f0.speed;Fan Device 2;5900.00;1500.00;2000.00
+Fan;2100;fm2.f1.speed;Fan Device 2;5600.00;1500.00;2000.00
+Fan;2200;fm3.f0.speed;Fan Device 3;5500.00;1500.00;2000.00
+Fan;2300;fm3.f1.speed;Fan Device 3;6100.00;1500.00;2000.00
+Fan;2400;fm4.f0.speed;Fan Device 4;5500.00;1500.00;2000.00
+Fan;2500;fm4.f1.speed;Fan Device 4;6200.00;1500.00;2000.00
+Fan;2600;fm5.f0.speed;Fan Device 5;5600.00;1500.00;2000.00
+Fan;2700;fm5.f1.speed;Fan Device 5;5900.00;1500.00;2000.00
+Temperature;3200;ps0.t_amb;Power Supply 0;17.00;;40.00
+Fan;3300;ps0.fan_speed;Power Supply 0;11940.00;4200.00;
+Voltage;3400;ps0.V12V;Power Supply 0;12240.000000;;
+Voltage;3500;ps0.V3_3V;Power Supply 0;3340.000000;;
+Current;3600;ps0.I12V_0;Power Supply 0;16.25
+Current;3700;ps0.I12V_1;Power Supply 0;15.00
+Current;3800;ps0.I3_3V;Power Supply 0;1.50
+Temperature;4700;ps1.t_amb;Power Supply 1;19.00;;40.00
+Fan;4800;ps1.fan_speed;Power Supply 1;11940.00;4200.00;
+Voltage;4900;ps1.V12V;Power Supply 1;12240.000000;;
+Voltage;4a00;ps1.V3_3V;Power Supply 1;3340.000000;;
+Current;4b00;ps1.I12V_0;Power Supply 1;15.00
+Current;4c00;ps1.I12V_1;Power Supply 1;15.00
+Current;4d00;ps1.I3_3V;Power Supply 1;0.78
+Temperature;5a00;ch.t_amb_0;System Chassis 0;15.00;;
+Temperature;5b00;ch.t_amb_1;System Chassis 0;17.00;;

@@ -1,0 +1,2 @@
+MSHW_ADAPTER;fct0:;       Adapter: ioMono  (driver 4.2.0);OK;;
+MSHW_ADAPTER;fct1:;       Adapter: ioMono  (driver 4.2.0);OK;;

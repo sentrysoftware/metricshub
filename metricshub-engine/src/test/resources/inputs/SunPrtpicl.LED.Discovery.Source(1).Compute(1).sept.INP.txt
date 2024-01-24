@@ -1,0 +1,121 @@
+mb_act (led, 19f00000b68)
+  :_fru_parent	 (19f0000091eH) 
+  :Label	 ACT 
+  :Color	 green 
+  :State	 on 
+  :_class	 led 
+  :name	 mb_act 
+  mb_service (led, 19f00000b6e)
+  :_fru_parent	 (19f0000091eH) 
+  :Label	 SERVICE 
+  :Color	 amber 
+  :State	 off 
+  :_class	 led 
+  :name	 mb_service 
+  mb_locate (led, 19f00000b74)
+  :LocatorName	 system 
+  :IsLocator	 true 
+  :_fru_parent	 (19f0000091eH) 
+  :Label	 LOCATE 
+  :Color	 white 
+  :State	 off 
+  :_class	 led 
+  :name	 mb_locate 
+  ps0_act (led, 19f00000b7a)
+  :_fru_parent	 (19f0000085bH) 
+  :Label	 ACT 
+  :Color	 green 
+  :State	 on 
+  :_class	 led 
+  :name	 ps0_act 
+  ps0_service (led, 19f00000b80)
+  :_fru_parent	 (19f0000085bH) 
+  :Label	 SERVICE 
+  :Color	 amber 
+  :State	 off 
+  :_class	 led 
+  :name	 ps0_service 
+  ps0_ok2rm (led, 19f00000b86)
+  :_fru_parent	 (19f0000085bH) 
+  :Label	 OK2RM 
+  :Color	 blue 
+  :State	 off 
+  :_class	 led 
+  :name	 ps0_ok2rm 
+  ps1_act (led, 19f00000b8c)
+  :_fru_parent	 (19f0000085eH) 
+  :Label	 ACT 
+  :Color	 green 
+  :State	 on 
+  :_class	 led 
+  :name	 ps1_act 
+  ps1_service (led, 19f00000b92)
+  :_fru_parent	 (19f0000085eH) 
+  :Label	 SERVICE 
+  :Color	 amber 
+  :State	 off 
+  :_class	 led 
+  :name	 ps1_service 
+  ps1_ok2rm (led, 19f00000b98)
+  :_fru_parent	 (19f0000085eH) 
+  :Label	 OK2RM 
+  :Color	 blue 
+  :State	 off 
+  :_class	 led 
+  :name	 ps1_ok2rm 
+  hdd0_service (led, 19f00000b9e)
+  :_location_parent	 (19f0000080eH) 
+  :Label	 SERVICE 
+  :Color	 amber 
+  :State	 off 
+  :_class	 led 
+  :name	 hdd0_service 
+  hdd0_ok2rm (led, 19f00000ba4)
+  :_location_parent	 (19f0000080eH) 
+  :Label	 OK2RM 
+  :Color	 blue 
+  :State	 off 
+  :_class	 led 
+  :name	 hdd0_ok2rm 
+  hdd1_service (led, 19f00000baa)
+  :_location_parent	 (19f00000813H) 
+  :Label	 SERVICE 
+  :Color	 amber 
+  :State	 off 
+  :_class	 led 
+  :name	 hdd1_service 
+  hdd1_ok2rm (led, 19f00000bb0)
+  :_location_parent	 (19f00000813H) 
+  :Label	 OK2RM 
+  :Color	 blue 
+  :State	 off 
+  :_class	 led 
+  :name	 hdd1_ok2rm 
+  hdd2_service (led, 19f00000bb6)
+  :_location_parent	 (19f00000843H) 
+  :Label	 SERVICE 
+  :Color	 amber 
+  :State	 off 
+  :_class	 led 
+  :name	 hdd2_service 
+  hdd2_ok2rm (led, 19f00000bbc)
+  :_location_parent	 (19f00000843H) 
+  :Label	 OK2RM 
+  :Color	 blue 
+  :State	 off 
+  :_class	 led 
+  :name	 hdd2_ok2rm 
+  hdd3_service (led, 19f00000bc2)
+  :_location_parent	 (19f00000846H) 
+  :Label	 SERVICE 
+  :Color	 amber 
+  :State	 off 
+  :_class	 led 
+  :name	 hdd3_service 
+  hdd3_ok2rm (led, 19f00000bc8)
+  :_location_parent	 (19f00000846H) 
+  :Label	 OK2RM 
+  :Color	 blue 
+  :State	 off 
+  :_class	 led 
+  :name	 hdd3_ok2rm

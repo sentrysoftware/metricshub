@@ -1,0 +1,14 @@
+connector:
+  detection:
+    appliesTo: [ Linux ]
+
+pre:
+  testHttpSource:
+    type: http
+    method: POST
+    path: /testPath/
+    url: http://machine:5985/path/
+    body: >
+      test
+
+      body

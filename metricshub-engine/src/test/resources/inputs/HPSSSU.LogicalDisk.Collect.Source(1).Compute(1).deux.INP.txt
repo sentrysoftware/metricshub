@@ -1,0 +1,947 @@
+START TIME 15:08:37,35
+ SSSU for HP StorageWorks Command View EVA
+ Version: 9.3.0 
+ Build: 072310A
+ NoSystemSelected> LS SYSTEM
+ Systems available on this Manager:
+
+Found System EVA4000
+MS_HW_ENCLOSURE EVA4000
+
+
+MS_HW_SECTION LS VDISK FULL XML BEGIN 15:08:39,81
+
+
+SSSU for HP StorageWorks Command View EVA
+Version: 9.3.0 
+Build: 072310A
+NoSystemSelected> SELECT SYSTEM "EVA4000"
+
+EVA4000> SET OPTIONS ON_ERROR=Exit_on_error NORETRIES
+
+EVA4000> LS VDISK FULL XML
+
+Vdisks available on this Cell:
+
+\Virtual Disks\Ibm-svc\ACTIVE information:
+<object>
+  <objectid>03200710B4080560F8CF06000030030000000500</objectid>
+  <objectname>\Virtual Disks\Ibm-svc\ACTIVE</objectname>
+  <objecttype>virtualdisk</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>6005-08b4-0006-cff8-0003-3000-0005-0000</objecthexuid>
+  <partitionname>ACTIVE</partitionname>
+  <uid>03200710B4080560F8CF06000030030000000500</uid>
+  <parentstoragecellinfo>
+    <storagecellname>EVA4000</storagecellname>
+    <storagecellid>08000710B4080560F8CF06000020030000002200</storagecellid>
+    <storagecellwwn>5000-1FE1-500F-D6D0</storagecellwwn>
+  </parentstoragecellinfo>
+  <objectparentuid>00000710B4080560F8CF06000030030000000400</objectparentuid>
+  <objectparenthexuid>6005-08b4-0006-cff8-0003-3000-0004-0000</objectparenthexuid>
+  <objectparentid>00000710B4080560F8CF06000030030000000400</objectparentid>
+  <comments></comments>
+  <creationdatetime>11-Jul-2011 10:48:38</creationdatetime>
+  <timestampmodify>691174691</timestampmodify>
+  <previousclonesourcevdiskid>0000000000000000000000000000000000000000</previousclonesourcevdiskid>
+  <previousclonesourcevdiskhexuid>0000-0000-0000-0000-0000-0000-0000-0000</previousclonesourcevdiskhexuid>
+  <familyname>Ibm-svc</familyname>
+  <wwlunid>6005-08b4-0006-cff8-0003-3000-0005-0000</wwlunid>
+  <dirtyblockcount>0</dirtyblockcount>
+  <onlinecontroller>
+    <controllername>Controller B</controllername>
+    <controllerid>00000708B40805509AD306000000000000000000</controllerid>
+  </onlinecontroller>
+  <operationalstate>good</operationalstate>
+  <operationalstatedetail>operating_normally</operationalstatedetail>
+  <allocatedcapacity>100</allocatedcapacity>
+  <allocatedcapacityblocks>209715200</allocatedcapacityblocks>
+  <virtualdisktype>original</virtualdisktype>
+  <requestedcapacity>100</requestedcapacity>
+  <requestedcapacityblocks>209715200</requestedcapacityblocks>
+  <sharingrelationship>none</sharingrelationship>
+  <sharinginformation>
+    <parentvdiskhexuid>n/a</parentvdiskhexuid>
+    <parentvdiskid>n/a</parentvdiskid>
+    <parentvdiskname>n/a</parentvdiskname>
+    <childvdiskhexuid>n/a</childvdiskhexuid>
+    <childvdiskid>n/a</childvdiskid>
+    <childvdiskname>n/a</childvdiskname>
+  </sharinginformation>
+  <mirrorexists>no</mirrorexists>
+  <mirrorsuspended>no</mirrorsuspended>
+  <redundancy>vraid1</redundancy>
+  <writecacheactual>writeback</writecacheactual>
+  <writecache>writeback</writecache>
+  <vdisksecondarystate>none</vdisksecondarystate>
+  <mirrorcache>mirrored</mirrorcache>
+  <readcache>enable</readcache>
+  <virtualdiskpresented>yes</virtualdiskpresented>
+  <presentations>
+    <presentation>
+      <hostid>01800710B4080560F8CF06000030030000000900</hostid>
+      <lunnumber>1</lunnumber>
+      <hostname>\Hosts\svc-san</hostname>
+      <scsireservationtype>none</scsireservationtype>
+      <hostosmode>mswindows</hostosmode>
+      <osmodeindex>3</osmodeindex>
+    </presentation>
+  </presentations>
+  <writeprotect>disable</writeprotect>
+  <scvdenable>enable</scvdenable>
+  <osunitid>0</osunitid>
+  <diskgroupname>\Disk Groups\Default Disk Group</diskgroupname>
+  <diskgroupid>00010710B4080560F8CF06000020030000002400</diskgroupid>
+  <preferredpath>no_preference</preferredpath>
+  <restoreprogress>n/a</restoreprogress>
+  <hostaccess>read_write</hostaccess>
+</object>
+
+
+
+\Virtual Disks\Lucrece\ACTIVE information:
+<object>
+  <objectid>02200710B4080560F8CF06000030030000001E00</objectid>
+  <objectname>\Virtual Disks\Lucrece\ACTIVE</objectname>
+  <objecttype>virtualdisk</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>6005-08b4-0006-cff8-0003-3000-001e-0000</objecthexuid>
+  <partitionname>ACTIVE</partitionname>
+  <uid>02200710B4080560F8CF06000030030000001E00</uid>
+  <parentstoragecellinfo>
+    <storagecellname>EVA4000</storagecellname>
+    <storagecellid>08000710B4080560F8CF06000020030000002200</storagecellid>
+    <storagecellwwn>5000-1FE1-500F-D6D0</storagecellwwn>
+  </parentstoragecellinfo>
+  <objectparentuid>00000710B4080560F8CF06000030030000001D00</objectparentuid>
+  <objectparenthexuid>6005-08b4-0006-cff8-0003-3000-001d-0000</objectparenthexuid>
+  <objectparentid>00000710B4080560F8CF06000030030000001D00</objectparentid>
+  <comments></comments>
+  <creationdatetime>01-Feb-2012 10:46:43</creationdatetime>
+  <timestampmodify>691175065</timestampmodify>
+  <previousclonesourcevdiskid>0000000000000000000000000000000000000000</previousclonesourcevdiskid>
+  <previousclonesourcevdiskhexuid>0000-0000-0000-0000-0000-0000-0000-0000</previousclonesourcevdiskhexuid>
+  <familyname>Lucrece</familyname>
+  <wwlunid>6005-08b4-0006-cff8-0003-3000-001e-0000</wwlunid>
+  <dirtyblockcount>0</dirtyblockcount>
+  <onlinecontroller>
+    <controllername>Controller B</controllername>
+    <controllerid>00000708B40805509AD306000000000000000000</controllerid>
+  </onlinecontroller>
+  <operationalstate>good</operationalstate>
+  <operationalstatedetail>operating_normally</operationalstatedetail>
+  <allocatedcapacity>17</allocatedcapacity>
+  <allocatedcapacityblocks>35651584</allocatedcapacityblocks>
+  <virtualdisktype>original</virtualdisktype>
+  <requestedcapacity>17</requestedcapacity>
+  <requestedcapacityblocks>35651584</requestedcapacityblocks>
+  <sharingrelationship>none</sharingrelationship>
+  <sharinginformation>
+    <parentvdiskhexuid>n/a</parentvdiskhexuid>
+    <parentvdiskid>n/a</parentvdiskid>
+    <parentvdiskname>n/a</parentvdiskname>
+    <childvdiskhexuid>n/a</childvdiskhexuid>
+    <childvdiskid>n/a</childvdiskid>
+    <childvdiskname>n/a</childvdiskname>
+  </sharinginformation>
+  <mirrorexists>no</mirrorexists>
+  <mirrorsuspended>no</mirrorsuspended>
+  <redundancy>vraid1</redundancy>
+  <writecacheactual>writeback</writecacheactual>
+  <writecache>writeback</writecache>
+  <vdisksecondarystate>none</vdisksecondarystate>
+  <mirrorcache>mirrored</mirrorcache>
+  <readcache>enable</readcache>
+  <virtualdiskpresented>yes</virtualdiskpresented>
+  <presentations>
+    <presentation>
+      <hostid>03800710B4080560F8CF06000030030000001C00</hostid>
+      <lunnumber>1</lunnumber>
+      <hostname>\Hosts\Lucrece</hostname>
+      <scsireservationtype>none</scsireservationtype>
+      <hostosmode>sunsolaris</hostosmode>
+      <osmodeindex>6</osmodeindex>
+    </presentation>
+  </presentations>
+  <writeprotect>disable</writeprotect>
+  <scvdenable>enable</scvdenable>
+  <osunitid>0</osunitid>
+  <diskgroupname>\Disk Groups\Default Disk Group</diskgroupname>
+  <diskgroupid>00010710B4080560F8CF06000020030000002400</diskgroupid>
+  <preferredpath>no_preference</preferredpath>
+  <restoreprogress>n/a</restoreprogress>
+  <hostaccess>read_write</hostaccess>
+</object>
+
+
+
+\Virtual Disks\PC02\ACTIVE information:
+<object>
+  <objectid>05200710B4080560F8CF06000030030000001400</objectid>
+  <objectname>\Virtual Disks\PC02\ACTIVE</objectname>
+  <objecttype>virtualdisk</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>6005-08b4-0006-cff8-0003-3000-0014-0000</objecthexuid>
+  <partitionname>ACTIVE</partitionname>
+  <uid>05200710B4080560F8CF06000030030000001400</uid>
+  <parentstoragecellinfo>
+    <storagecellname>EVA4000</storagecellname>
+    <storagecellid>08000710B4080560F8CF06000020030000002200</storagecellid>
+    <storagecellwwn>5000-1FE1-500F-D6D0</storagecellwwn>
+  </parentstoragecellinfo>
+  <objectparentuid>00000710B4080560F8CF06000030030000001300</objectparentuid>
+  <objectparenthexuid>6005-08b4-0006-cff8-0003-3000-0013-0000</objectparenthexuid>
+  <objectparentid>00000710B4080560F8CF06000030030000001300</objectparentid>
+  <comments></comments>
+  <creationdatetime>14-Nov-2011 11:10:22</creationdatetime>
+  <timestampmodify>691175393</timestampmodify>
+  <previousclonesourcevdiskid>0000000000000000000000000000000000000000</previousclonesourcevdiskid>
+  <previousclonesourcevdiskhexuid>0000-0000-0000-0000-0000-0000-0000-0000</previousclonesourcevdiskhexuid>
+  <familyname>PC02</familyname>
+  <wwlunid>6005-08b4-0006-cff8-0003-3000-0014-0000</wwlunid>
+  <dirtyblockcount>0</dirtyblockcount>
+  <onlinecontroller>
+    <controllername>Controller B</controllername>
+    <controllerid>00000708B40805509AD306000000000000000000</controllerid>
+  </onlinecontroller>
+  <operationalstate>good</operationalstate>
+  <operationalstatedetail>operating_normally</operationalstatedetail>
+  <allocatedcapacity>37</allocatedcapacity>
+  <allocatedcapacityblocks>77594624</allocatedcapacityblocks>
+  <virtualdisktype>original</virtualdisktype>
+  <requestedcapacity>37</requestedcapacity>
+  <requestedcapacityblocks>77594624</requestedcapacityblocks>
+  <sharingrelationship>none</sharingrelationship>
+  <sharinginformation>
+    <parentvdiskhexuid>n/a</parentvdiskhexuid>
+    <parentvdiskid>n/a</parentvdiskid>
+    <parentvdiskname>n/a</parentvdiskname>
+    <childvdiskhexuid>n/a</childvdiskhexuid>
+    <childvdiskid>n/a</childvdiskid>
+    <childvdiskname>n/a</childvdiskname>
+  </sharinginformation>
+  <mirrorexists>no</mirrorexists>
+  <mirrorsuspended>no</mirrorsuspended>
+  <redundancy>vraid1</redundancy>
+  <writecacheactual>writeback</writecacheactual>
+  <writecache>writeback</writecache>
+  <vdisksecondarystate>none</vdisksecondarystate>
+  <mirrorcache>mirrored</mirrorcache>
+  <readcache>enable</readcache>
+  <virtualdiskpresented>yes</virtualdiskpresented>
+  <presentations>
+    <presentation>
+      <hostid>00800710B4080560F8CF06000030030000001A00</hostid>
+      <lunnumber>1</lunnumber>
+      <hostname>\Hosts\PC02</hostname>
+      <scsireservationtype>none</scsireservationtype>
+      <hostosmode>mswindows</hostosmode>
+      <osmodeindex>3</osmodeindex>
+    </presentation>
+  </presentations>
+  <writeprotect>disable</writeprotect>
+  <scvdenable>enable</scvdenable>
+  <osunitid>0</osunitid>
+  <diskgroupname>\Disk Groups\Default Disk Group</diskgroupname>
+  <diskgroupid>00010710B4080560F8CF06000020030000002400</diskgroupid>
+  <preferredpath>no_preference</preferredpath>
+  <restoreprogress>n/a</restoreprogress>
+  <hostaccess>read_write</hostaccess>
+</object>
+
+
+
+\Virtual Disks\PC02-DR\ACTIVE information:
+<object>
+  <objectid>00200710B4080560F8CF06000020030000003500</objectid>
+  <objectname>\Virtual Disks\PC02-DR\ACTIVE</objectname>
+  <objecttype>virtualdisk</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>6005-08b4-0006-cff8-0003-2000-0035-0000</objecthexuid>
+  <partitionname>ACTIVE</partitionname>
+  <uid>00200710B4080560F8CF06000020030000003500</uid>
+  <parentstoragecellinfo>
+    <storagecellname>EVA4000</storagecellname>
+    <storagecellid>08000710B4080560F8CF06000020030000002200</storagecellid>
+    <storagecellwwn>5000-1FE1-500F-D6D0</storagecellwwn>
+  </parentstoragecellinfo>
+  <objectparentuid>00000710B4080560F8CF06000020030000003400</objectparentuid>
+  <objectparenthexuid>6005-08b4-0006-cff8-0003-2000-0034-0000</objectparenthexuid>
+  <objectparentid>00000710B4080560F8CF06000020030000003400</objectparentid>
+  <comments></comments>
+  <creationdatetime>21-Apr-2011 14:12:47</creationdatetime>
+  <timestampmodify>691175689</timestampmodify>
+  <previousclonesourcevdiskid>0000000000000000000000000000000000000000</previousclonesourcevdiskid>
+  <previousclonesourcevdiskhexuid>0000-0000-0000-0000-0000-0000-0000-0000</previousclonesourcevdiskhexuid>
+  <familyname>PC02-DR</familyname>
+  <wwlunid>6005-08b4-0006-cff8-0003-2000-0035-0000</wwlunid>
+  <dirtyblockcount>0</dirtyblockcount>
+  <onlinecontroller>
+    <controllername>Controller B</controllername>
+    <controllerid>00000708B40805509AD306000000000000000000</controllerid>
+  </onlinecontroller>
+  <operationalstate>good</operationalstate>
+  <operationalstatedetail>operating_normally</operationalstatedetail>
+  <allocatedcapacity>5</allocatedcapacity>
+  <allocatedcapacityblocks>10485760</allocatedcapacityblocks>
+  <virtualdisktype>original</virtualdisktype>
+  <requestedcapacity>5</requestedcapacity>
+  <requestedcapacityblocks>10485760</requestedcapacityblocks>
+  <sharingrelationship>none</sharingrelationship>
+  <sharinginformation>
+    <parentvdiskhexuid>n/a</parentvdiskhexuid>
+    <parentvdiskid>n/a</parentvdiskid>
+    <parentvdiskname>n/a</parentvdiskname>
+    <childvdiskhexuid>n/a</childvdiskhexuid>
+    <childvdiskid>n/a</childvdiskid>
+    <childvdiskname>n/a</childvdiskname>
+  </sharinginformation>
+  <mirrorexists>no</mirrorexists>
+  <mirrorsuspended>no</mirrorsuspended>
+  <redundancy>vraid1</redundancy>
+  <writecacheactual>writeback</writecacheactual>
+  <writecache>writeback</writecache>
+  <vdisksecondarystate>none</vdisksecondarystate>
+  <mirrorcache>mirrored</mirrorcache>
+  <readcache>enable</readcache>
+  <virtualdiskpresented>no</virtualdiskpresented>
+  <writeprotect>disable</writeprotect>
+  <scvdenable>enable</scvdenable>
+  <osunitid>0</osunitid>
+  <diskgroupname>\Disk Groups\Default Disk Group</diskgroupname>
+  <diskgroupid>00010710B4080560F8CF06000020030000002400</diskgroupid>
+  <preferredpath>no_preference</preferredpath>
+  <restoreprogress>n/a</restoreprogress>
+  <drmgroupname>DR Group 001</drmgroupname>
+  <drmgroupid>00B00710B4080560F8CF06000020030000003900</drmgroupid>
+  <drmmode>source</drmmode>
+  <fullcopystate>no</fullcopystate>
+  <drlogpctfull>0</drlogpctfull>
+  <writemodereq>Synchronous</writemodereq>
+  <drlogwritetransactions>0</drlogwritetransactions>
+  <logstoragemax>10485760</logstoragemax>
+  <requestedmaxlogsizemethod>Defaultsync</requestedmaxlogsizemethod>
+  <requestedmaxlogsize>0</requestedmaxlogsize>
+  <requestedmaxlogsizexml>0</requestedmaxlogsizexml>
+  <asyncminlogsize>3325952</asyncminlogsize>
+  <asyncreclogsize>10485760</asyncreclogsize>
+  <DRMRundown>false</DRMRundown>
+  <drmgrouponlinensc>Controller B</drmgrouponlinensc>
+  <drmgroupwritemode>synchronous</drmgroupwritemode>
+  <remotevdiskmembers>
+    <remotevdisk>
+      <remotevirtualdiskid>01200710B4080560B340010000C0020000000D00</remotevirtualdiskid>
+      <remotevirtualdiskname>\Virtual Disks\PC02-DR</remotevirtualdiskname>
+      <remotescellid>08000710B4080560F44A01000070020000001D00</remotescellid>
+      <copystate>normal</copystate>
+      <copystatecomplete>0</copystatecomplete>
+      <mergeOperation>None</mergeOperation>
+      <accessmode>disable</accessmode>
+      <hostaccessmode>none</hostaccessmode>
+    </remotevdisk>
+  </remotevdiskmembers>
+  <hostaccess>not_presented</hostaccess>
+</object>
+
+
+
+\Virtual Disks\Pascal\ACTIVE information:
+<object>
+  <objectid>04200710B4080560F8CF06000030030000000C00</objectid>
+  <objectname>\Virtual Disks\Pascal\ACTIVE</objectname>
+  <objecttype>virtualdisk</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>6005-08b4-0006-cff8-0003-3000-000c-0000</objecthexuid>
+  <partitionname>ACTIVE</partitionname>
+  <uid>04200710B4080560F8CF06000030030000000C00</uid>
+  <parentstoragecellinfo>
+    <storagecellname>EVA4000</storagecellname>
+    <storagecellid>08000710B4080560F8CF06000020030000002200</storagecellid>
+    <storagecellwwn>5000-1FE1-500F-D6D0</storagecellwwn>
+  </parentstoragecellinfo>
+  <objectparentuid>00000710B4080560F8CF06000030030000000B00</objectparentuid>
+  <objectparenthexuid>6005-08b4-0006-cff8-0003-3000-000b-0000</objectparenthexuid>
+  <objectparentid>00000710B4080560F8CF06000030030000000B00</objectparentid>
+  <comments></comments>
+  <creationdatetime>11-Nov-2011 17:09:44</creationdatetime>
+  <timestampmodify>691176204</timestampmodify>
+  <previousclonesourcevdiskid>0000000000000000000000000000000000000000</previousclonesourcevdiskid>
+  <previousclonesourcevdiskhexuid>0000-0000-0000-0000-0000-0000-0000-0000</previousclonesourcevdiskhexuid>
+  <familyname>Pascal</familyname>
+  <wwlunid>6005-08b4-0006-cff8-0003-3000-000c-0000</wwlunid>
+  <dirtyblockcount>0</dirtyblockcount>
+  <onlinecontroller>
+    <controllername>Controller B</controllername>
+    <controllerid>00000708B40805509AD306000000000000000000</controllerid>
+  </onlinecontroller>
+  <operationalstate>good</operationalstate>
+  <operationalstatedetail>operating_normally</operationalstatedetail>
+  <allocatedcapacity>3</allocatedcapacity>
+  <allocatedcapacityblocks>6291456</allocatedcapacityblocks>
+  <virtualdisktype>original</virtualdisktype>
+  <requestedcapacity>3</requestedcapacity>
+  <requestedcapacityblocks>6291456</requestedcapacityblocks>
+  <sharingrelationship>none</sharingrelationship>
+  <sharinginformation>
+    <parentvdiskhexuid>n/a</parentvdiskhexuid>
+    <parentvdiskid>n/a</parentvdiskid>
+    <parentvdiskname>n/a</parentvdiskname>
+    <childvdiskhexuid>n/a</childvdiskhexuid>
+    <childvdiskid>n/a</childvdiskid>
+    <childvdiskname>n/a</childvdiskname>
+  </sharinginformation>
+  <mirrorexists>no</mirrorexists>
+  <mirrorsuspended>no</mirrorsuspended>
+  <redundancy>vraid5</redundancy>
+  <writecacheactual>writeback</writecacheactual>
+  <writecache>writeback</writecache>
+  <vdisksecondarystate>none</vdisksecondarystate>
+  <mirrorcache>mirrored</mirrorcache>
+  <readcache>enable</readcache>
+  <virtualdiskpresented>yes</virtualdiskpresented>
+  <presentations>
+    <presentation>
+      <hostid>02800710B4080560F8CF06000030030000001100</hostid>
+      <lunnumber>1</lunnumber>
+      <hostname>\Hosts\Pascal</hostname>
+      <scsireservationtype>none</scsireservationtype>
+      <hostosmode>mswindows</hostosmode>
+      <osmodeindex>3</osmodeindex>
+    </presentation>
+  </presentations>
+  <writeprotect>disable</writeprotect>
+  <scvdenable>enable</scvdenable>
+  <osunitid>0</osunitid>
+  <diskgroupname>\Disk Groups\Default Disk Group</diskgroupname>
+  <diskgroupid>00010710B4080560F8CF06000020030000002400</diskgroupid>
+  <preferredpath>no_preference</preferredpath>
+  <restoreprogress>n/a</restoreprogress>
+  <hostaccess>read_write</hostaccess>
+</object>
+
+
+
+\Virtual Disks\toland-v4000\ACTIVE information:
+<object>
+  <objectid>06200710B4080560F8CF06000030030000002500</objectid>
+  <objectname>\Virtual Disks\toland-v4000\ACTIVE</objectname>
+  <objecttype>virtualdisk</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>6005-08b4-0006-cff8-0003-3000-0025-0000</objecthexuid>
+  <partitionname>ACTIVE</partitionname>
+  <uid>06200710B4080560F8CF06000030030000002500</uid>
+  <parentstoragecellinfo>
+    <storagecellname>EVA4000</storagecellname>
+    <storagecellid>08000710B4080560F8CF06000020030000002200</storagecellid>
+    <storagecellwwn>5000-1FE1-500F-D6D0</storagecellwwn>
+  </parentstoragecellinfo>
+  <objectparentuid>00000710B4080560F8CF06000030030000002400</objectparentuid>
+  <objectparenthexuid>6005-08b4-0006-cff8-0003-3000-0024-0000</objectparenthexuid>
+  <objectparentid>00000710B4080560F8CF06000030030000002400</objectparentid>
+  <comments></comments>
+  <creationdatetime>23-Jul-2012 17:46:09</creationdatetime>
+  <timestampmodify>691176500</timestampmodify>
+  <previousclonesourcevdiskid>0000000000000000000000000000000000000000</previousclonesourcevdiskid>
+  <previousclonesourcevdiskhexuid>0000-0000-0000-0000-0000-0000-0000-0000</previousclonesourcevdiskhexuid>
+  <familyname>toland-v4000</familyname>
+  <wwlunid>6005-08b4-0006-cff8-0003-3000-0025-0000</wwlunid>
+  <dirtyblockcount>0</dirtyblockcount>
+  <onlinecontroller>
+    <controllername>Controller B</controllername>
+    <controllerid>00000708B40805509AD306000000000000000000</controllerid>
+  </onlinecontroller>
+  <operationalstate>good</operationalstate>
+  <operationalstatedetail>operating_normally</operationalstatedetail>
+  <allocatedcapacity>10</allocatedcapacity>
+  <allocatedcapacityblocks>20971520</allocatedcapacityblocks>
+  <virtualdisktype>original</virtualdisktype>
+  <requestedcapacity>10</requestedcapacity>
+  <requestedcapacityblocks>20971520</requestedcapacityblocks>
+  <sharingrelationship>none</sharingrelationship>
+  <sharinginformation>
+    <parentvdiskhexuid>n/a</parentvdiskhexuid>
+    <parentvdiskid>n/a</parentvdiskid>
+    <parentvdiskname>n/a</parentvdiskname>
+    <childvdiskhexuid>n/a</childvdiskhexuid>
+    <childvdiskid>n/a</childvdiskid>
+    <childvdiskname>n/a</childvdiskname>
+  </sharinginformation>
+  <mirrorexists>no</mirrorexists>
+  <mirrorsuspended>no</mirrorsuspended>
+  <redundancy>vraid1</redundancy>
+  <writecacheactual>writeback</writecacheactual>
+  <writecache>writeback</writecache>
+  <vdisksecondarystate>none</vdisksecondarystate>
+  <mirrorcache>mirrored</mirrorcache>
+  <readcache>enable</readcache>
+  <virtualdiskpresented>yes</virtualdiskpresented>
+  <presentations>
+    <presentation>
+      <hostid>04800710B4080560F8CF06000030030000002300</hostid>
+      <lunnumber>1</lunnumber>
+      <hostname>\Hosts\toland</hostname>
+      <scsireservationtype>none</scsireservationtype>
+      <hostosmode>ibmaix</hostosmode>
+      <osmodeindex>9</osmodeindex>
+    </presentation>
+  </presentations>
+  <writeprotect>disable</writeprotect>
+  <scvdenable>enable</scvdenable>
+  <osunitid>0</osunitid>
+  <diskgroupname>\Disk Groups\Default Disk Group</diskgroupname>
+  <diskgroupid>00010710B4080560F8CF06000020030000002400</diskgroupid>
+  <preferredpath>no_preference</preferredpath>
+  <restoreprogress>n/a</restoreprogress>
+  <hostaccess>read_write</hostaccess>
+</object>
+
+MS_HW_SECTION LS VDISK FULL XML END 15:08:44,27
+MS_HW_SECTION LS DISK_GROUP FULL XML BEGIN 15:08:44,27
+
+
+SSSU for HP StorageWorks Command View EVA
+Version: 9.3.0 
+Build: 072310A
+NoSystemSelected> SELECT SYSTEM "EVA4000"
+
+EVA4000> SET OPTIONS ON_ERROR=Exit_on_error NORETRIES
+
+EVA4000> LS DISK_GROUP FULL XML
+
+Disk_Groups available on this Cell:
+
+\Disk Groups\Default Disk Group information:
+<object>
+  <objectid>00010710B4080560F8CF06000020030000002400</objectid>
+  <objectname>\Disk Groups\Default Disk Group</objectname>
+  <objecttype>diskgroupfolder</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>6005-08b4-0006-cff8-0003-2000-0024-0000</objecthexuid>
+  <uid>00010710B4080560F8CF06000020030000002400</uid>
+  <operationalstate>good</operationalstate>
+  <operationalstatedetail>initialized_ok</operationalstatedetail>
+  <comments></comments>
+  <hexuid>6005-08b4-0006-cff8-0003-2000-0024-0000</hexuid>
+  <objectparentuid></objectparentuid>
+  <objectparenthexuid>0606-0606-0606-0606-0606-0606-0606-0606</objectparenthexuid>
+  <objectparentid>0606060606060606060606060606060606060606</objectparentid>
+  <diskgroupname>Default Disk Group</diskgroupname>
+  <totaldisks>8</totaldisks>
+  <levelingstate>inactive</levelingstate>
+  <levelingprogress>100</levelingprogress>
+  <rssdiskstate>none</rssdiskstate>
+  <srclevelactual>vraid0</srclevelactual>
+  <srclevelrequested>none</srclevelrequested>
+  <diskdrivetype>online</diskdrivetype>
+  <requestedsparepolicy>single</requestedsparepolicy>
+  <currentsparepolicy>single</currentsparepolicy>
+  <totalstoragespace>1719402496</totalstoragespace>
+  <totalstoragespacegb>819.88</totalstoragespacegb>
+  <usedstoragespace>718045184</usedstoragespace>
+  <usedstoragespacegb>342.39</usedstoragespacegb>
+  <occupancyalarmlevel>90</occupancyalarmlevel>
+  <vraid0storagespace>1000800256</vraid0storagespace>
+  <vraid1storagespace>500514816</vraid1storagespace>
+  <vraid5storagespace>800718848</vraid5storagespace>
+  <vraid6storagespace>0</vraid6storagespace>
+  <vraid0conservstoragespace></vraid0conservstoragespace>
+  <vraid1conservstoragespace></vraid1conservstoragespace>
+  <vraid5conservstoragespace></vraid5conservstoragespace>
+  <vraid6conservstoragespace></vraid6conservstoragespace>
+  <vraid0storagespacegb>477.21</vraid0storagespacegb>
+  <vraid1storagespacegb>238.66</vraid1storagespacegb>
+  <vraid5storagespacegb>381.81</vraid5storagespacegb>
+  <vraid6storagespacegb>0.00</vraid6storagespacegb>
+  <vraid0conservstoragespacegb></vraid0conservstoragespacegb>
+  <vraid1conservstoragespacegb></vraid1conservstoragespacegb>
+  <vraid5conservstoragespacegb></vraid5conservstoragespacegb>
+  <vraid6conservstoragespacegb></vraid6conservstoragespacegb>
+  <transitionstate>inactive</transitionstate>
+  <transitionpercent>100</transitionpercent>
+  <diskgrouptype>basic</diskgrouptype>
+</object>
+
+MS_HW_SECTION LS DISK_GROUP FULL XML END 15:08:47,28
+
+Found System EVA5000
+MS_HW_ENCLOSURE EVA5000
+
+
+MS_HW_SECTION LS VDISK FULL XML BEGIN 15:08:47,28
+
+
+SSSU for HP StorageWorks Command View EVA
+Version: 9.3.0 
+Build: 072310A
+NoSystemSelected> SELECT SYSTEM "EVA5000"
+
+EVA5000> SET OPTIONS ON_ERROR=Exit_on_error NORETRIES
+
+EVA5000> LS VDISK FULL XML
+
+Vdisks available on this Cell:
+
+\Virtual Disks\Ibm-svc\ACTIVE information:
+<object>
+  <objectid>02200710B4080560B340010000D0020000000600</objectid>
+  <objectname>\Virtual Disks\Ibm-svc\ACTIVE</objectname>
+  <objecttype>virtualdisk</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>6005-08b4-0001-40b3-0002-d000-0006-0000</objecthexuid>
+  <partitionname>ACTIVE</partitionname>
+  <uid>02200710B4080560B340010000D0020000000600</uid>
+  <parentstoragecellinfo>
+    <storagecellname>EVA5000</storagecellname>
+    <storagecellid>08000710B4080560F44A01000070020000001D00</storagecellid>
+    <storagecellwwn>5000-1FE1-5002-1F10</storagecellwwn>
+  </parentstoragecellinfo>
+  <mirrorexists>no</mirrorexists>
+  <objectparentuid>00000710B4080560B340010000D0020000000500</objectparentuid>
+  <objectparenthexuid>6005-08b4-0001-40b3-0002-d000-0005-0000</objectparenthexuid>
+  <objectparentid>00000710B4080560B340010000D0020000000500</objectparentid>
+  <comments></comments>
+  <creationdatetime>11-Jul-2011 10:50:38</creationdatetime>
+  <timestampmodify>699413540</timestampmodify>
+  <previousclonesourcevdiskid>0000000000000000000000000000000000000000</previousclonesourcevdiskid>
+  <previousclonesourcevdiskhexuid>0000-0000-0000-0000-0000-0000-0000-0000</previousclonesourcevdiskhexuid>
+  <familyname>Ibm-svc</familyname>
+  <wwlunid>6005-08b4-0001-40b3-0002-d000-0006-0000</wwlunid>
+  <onlinecontroller>
+    <controllername>Controller A</controllername>
+    <controllerid>00000708B4080550B34001000000000000000000</controllerid>
+  </onlinecontroller>
+  <operationalstate>good</operationalstate>
+  <operationalstatedetail>operating_normally</operationalstatedetail>
+  <allocatedcapacity>137</allocatedcapacity>
+  <allocatedcapacityblocks>287309824</allocatedcapacityblocks>
+  <virtualdisktype>original</virtualdisktype>
+  <requestedcapacity>137</requestedcapacity>
+  <requestedcapacityblocks>287309824</requestedcapacityblocks>
+  <sharingrelationship>none</sharingrelationship>
+  <sharinginformation>
+    <parentvdiskhexuid>n/a</parentvdiskhexuid>
+    <parentvdiskid>n/a</parentvdiskid>
+    <parentvdiskname>n/a</parentvdiskname>
+    <childvdiskhexuid>n/a</childvdiskhexuid>
+    <childvdiskid>n/a</childvdiskid>
+    <childvdiskname>n/a</childvdiskname>
+  </sharinginformation>
+  <redundancy>vraid1</redundancy>
+  <dirtyblockcount>0</dirtyblockcount>
+  <writecacheactual>writeback</writecacheactual>
+  <writecache>writeback</writecache>
+  <vdisksecondarystate>none</vdisksecondarystate>
+  <mirrorcache>mirrored</mirrorcache>
+  <readcache>enable</readcache>
+  <virtualdiskpresented>yes</virtualdiskpresented>
+  <presentations>
+    <presentation>
+      <hostid>00800710B4080560B340010000D0020000000800</hostid>
+      <lunnumber>1</lunnumber>
+      <hostname>\Hosts\Ibm-Svc</hostname>
+      <scsireservationtype>none</scsireservationtype>
+      <hostosmode>mswindows</hostosmode>
+      <osmodeindex>3</osmodeindex>
+    </presentation>
+  </presentations>
+  <writeprotect>disable</writeprotect>
+  <scvdenable>enable</scvdenable>
+  <osunitid>0</osunitid>
+  <diskgroupname>\Disk Groups\Default Disk Group</diskgroupname>
+  <diskgroupid>00010710B4080560F44A01000070020000001F00</diskgroupid>
+  <preferredpath>no_preference</preferredpath>
+</object>
+
+
+
+\Virtual Disks\PC02\ACTIVE information:
+<object>
+  <objectid>03200710B4080560B340010000D0020000001000</objectid>
+  <objectname>\Virtual Disks\PC02\ACTIVE</objectname>
+  <objecttype>virtualdisk</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>6005-08b4-0001-40b3-0002-d000-0010-0000</objecthexuid>
+  <partitionname>ACTIVE</partitionname>
+  <uid>03200710B4080560B340010000D0020000001000</uid>
+  <parentstoragecellinfo>
+    <storagecellname>EVA5000</storagecellname>
+    <storagecellid>08000710B4080560F44A01000070020000001D00</storagecellid>
+    <storagecellwwn>5000-1FE1-5002-1F10</storagecellwwn>
+  </parentstoragecellinfo>
+  <mirrorexists>no</mirrorexists>
+  <objectparentuid>00000710B4080560B340010000D0020000000F00</objectparentuid>
+  <objectparenthexuid>6005-08b4-0001-40b3-0002-d000-000f-0000</objectparenthexuid>
+  <objectparentid>00000710B4080560B340010000D0020000000F00</objectparentid>
+  <comments></comments>
+  <creationdatetime>14-Nov-2011 11:03:53</creationdatetime>
+  <timestampmodify>699413603</timestampmodify>
+  <previousclonesourcevdiskid>0000000000000000000000000000000000000000</previousclonesourcevdiskid>
+  <previousclonesourcevdiskhexuid>0000-0000-0000-0000-0000-0000-0000-0000</previousclonesourcevdiskhexuid>
+  <familyname>PC02</familyname>
+  <wwlunid>6005-08b4-0001-40b3-0002-d000-0010-0000</wwlunid>
+  <onlinecontroller>
+    <controllername>Controller B</controllername>
+    <controllerid>00000708B4080550F44A01000000000000000000</controllerid>
+  </onlinecontroller>
+  <operationalstate>good</operationalstate>
+  <operationalstatedetail>operating_normally</operationalstatedetail>
+  <allocatedcapacity>33</allocatedcapacity>
+  <allocatedcapacityblocks>69206016</allocatedcapacityblocks>
+  <virtualdisktype>original</virtualdisktype>
+  <requestedcapacity>33</requestedcapacity>
+  <requestedcapacityblocks>69206016</requestedcapacityblocks>
+  <sharingrelationship>none</sharingrelationship>
+  <sharinginformation>
+    <parentvdiskhexuid>n/a</parentvdiskhexuid>
+    <parentvdiskid>n/a</parentvdiskid>
+    <parentvdiskname>n/a</parentvdiskname>
+    <childvdiskhexuid>n/a</childvdiskhexuid>
+    <childvdiskid>n/a</childvdiskid>
+    <childvdiskname>n/a</childvdiskname>
+  </sharinginformation>
+  <redundancy>vraid1</redundancy>
+  <dirtyblockcount>0</dirtyblockcount>
+  <writecacheactual>writeback</writecacheactual>
+  <writecache>writeback</writecache>
+  <vdisksecondarystate>none</vdisksecondarystate>
+  <mirrorcache>mirrored</mirrorcache>
+  <readcache>enable</readcache>
+  <virtualdiskpresented>yes</virtualdiskpresented>
+  <presentations>
+    <presentation>
+      <hostid>01800710B4080560B340010000D0020000001700</hostid>
+      <lunnumber>1</lunnumber>
+      <hostname>\Hosts\PC02</hostname>
+      <scsireservationtype>none</scsireservationtype>
+      <hostosmode>mswindows</hostosmode>
+      <osmodeindex>3</osmodeindex>
+    </presentation>
+  </presentations>
+  <writeprotect>disable</writeprotect>
+  <scvdenable>enable</scvdenable>
+  <osunitid>0</osunitid>
+  <diskgroupname>\Disk Groups\Default Disk Group</diskgroupname>
+  <diskgroupid>00010710B4080560F44A01000070020000001F00</diskgroupid>
+  <preferredpath>no_preference</preferredpath>
+</object>
+
+
+
+\Virtual Disks\PC02-DR\ACTIVE information:
+<object>
+  <objectid>01200710B4080560B340010000C0020000000D00</objectid>
+  <objectname>\Virtual Disks\PC02-DR\ACTIVE</objectname>
+  <objecttype>virtualdisk</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>6005-08b4-0001-40b3-0002-c000-000d-0000</objecthexuid>
+  <partitionname>ACTIVE</partitionname>
+  <uid>01200710B4080560B340010000C0020000000D00</uid>
+  <parentstoragecellinfo>
+    <storagecellname>EVA5000</storagecellname>
+    <storagecellid>08000710B4080560F44A01000070020000001D00</storagecellid>
+    <storagecellwwn>5000-1FE1-5002-1F10</storagecellwwn>
+  </parentstoragecellinfo>
+  <mirrorexists>no</mirrorexists>
+  <objectparentuid>00000710B4080560B340010000C0020000001100</objectparentuid>
+  <objectparenthexuid>6005-08b4-0001-40b3-0002-c000-0011-0000</objectparenthexuid>
+  <objectparentid>00000710B4080560B340010000C0020000001100</objectparentid>
+  <comments></comments>
+  <creationdatetime>21-Apr-2011 14:13:14</creationdatetime>
+  <timestampmodify>699413525</timestampmodify>
+  <previousclonesourcevdiskid>0000000000000000000000000000000000000000</previousclonesourcevdiskid>
+  <previousclonesourcevdiskhexuid>0000-0000-0000-0000-0000-0000-0000-0000</previousclonesourcevdiskhexuid>
+  <familyname>PC02-DR</familyname>
+  <wwlunid>6005-08b4-0006-cff8-0003-2000-0035-0000</wwlunid>
+  <onlinecontroller>
+    <controllername>Controller B</controllername>
+    <controllerid>00000708B4080550F44A01000000000000000000</controllerid>
+  </onlinecontroller>
+  <operationalstate>good</operationalstate>
+  <operationalstatedetail>operating_normally</operationalstatedetail>
+  <allocatedcapacity>5</allocatedcapacity>
+  <allocatedcapacityblocks>10485760</allocatedcapacityblocks>
+  <virtualdisktype>original</virtualdisktype>
+  <requestedcapacity>5</requestedcapacity>
+  <requestedcapacityblocks>10485760</requestedcapacityblocks>
+  <sharingrelationship>none</sharingrelationship>
+  <sharinginformation>
+    <parentvdiskhexuid>n/a</parentvdiskhexuid>
+    <parentvdiskid>n/a</parentvdiskid>
+    <parentvdiskname>n/a</parentvdiskname>
+    <childvdiskhexuid>n/a</childvdiskhexuid>
+    <childvdiskid>n/a</childvdiskid>
+    <childvdiskname>n/a</childvdiskname>
+  </sharinginformation>
+  <redundancy>vraid1</redundancy>
+  <dirtyblockcount>0</dirtyblockcount>
+  <writecacheactual>writeback</writecacheactual>
+  <writecache>writeback</writecache>
+  <vdisksecondarystate>none</vdisksecondarystate>
+  <mirrorcache>mirrored</mirrorcache>
+  <readcache>enable</readcache>
+  <virtualdiskpresented>no</virtualdiskpresented>
+  <writeprotect>enable</writeprotect>
+  <scvdenable>disable</scvdenable>
+  <osunitid>0</osunitid>
+  <diskgroupname>\Disk Groups\Default Disk Group</diskgroupname>
+  <diskgroupid>00010710B4080560F44A01000070020000001F00</diskgroupid>
+  <preferredpath>no_preference</preferredpath>
+  <drmgroupname>DR Group 001</drmgroupname>
+  <drmgroupid>00B00710B4080560B340010000C0020000000800</drmgroupid>
+  <drmmode>destination</drmmode>
+  <drmgroupwritemode>synchronous</drmgroupwritemode>
+  <remotevdiskmembers>
+    <remotevdisk>
+      <remotevirtualdiskid>00200710B4080560F8CF06000020030000003500</remotevirtualdiskid>
+      <remotevirtualdiskname>\Virtual Disks\PC02-DR</remotevirtualdiskname>
+      <remotescellid>08000710B4080560F8CF06000020030000002200</remotescellid>
+      <copystate>normal</copystate>
+      <copystatecomplete>0</copystatecomplete>
+      <accessmode>disable</accessmode>
+      <hostaccessmode>none</hostaccessmode>
+    </remotevdisk>
+  </remotevdiskmembers>
+</object>
+
+
+
+\Virtual Disks\toland-eva\ACTIVE information:
+<object>
+  <objectid>04200710B4080560B340010000D0020000002300</objectid>
+  <objectname>\Virtual Disks\toland-eva\ACTIVE</objectname>
+  <objecttype>virtualdisk</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>6005-08b4-0001-40b3-0002-d000-0023-0000</objecthexuid>
+  <partitionname>ACTIVE</partitionname>
+  <uid>04200710B4080560B340010000D0020000002300</uid>
+  <parentstoragecellinfo>
+    <storagecellname>EVA5000</storagecellname>
+    <storagecellid>08000710B4080560F44A01000070020000001D00</storagecellid>
+    <storagecellwwn>5000-1FE1-5002-1F10</storagecellwwn>
+  </parentstoragecellinfo>
+  <mirrorexists>no</mirrorexists>
+  <objectparentuid>00000710B4080560B340010000D0020000002200</objectparentuid>
+  <objectparenthexuid>6005-08b4-0001-40b3-0002-d000-0022-0000</objectparenthexuid>
+  <objectparentid>00000710B4080560B340010000D0020000002200</objectparentid>
+  <comments></comments>
+  <creationdatetime>23-Jul-2012 17:24:52</creationdatetime>
+  <timestampmodify>699413634</timestampmodify>
+  <previousclonesourcevdiskid>0000000000000000000000000000000000000000</previousclonesourcevdiskid>
+  <previousclonesourcevdiskhexuid>0000-0000-0000-0000-0000-0000-0000-0000</previousclonesourcevdiskhexuid>
+  <familyname>toland-eva</familyname>
+  <wwlunid>6005-08b4-0001-40b3-0002-d000-0023-0000</wwlunid>
+  <onlinecontroller>
+    <controllername>Controller B</controllername>
+    <controllerid>00000708B4080550F44A01000000000000000000</controllerid>
+  </onlinecontroller>
+  <operationalstate>good</operationalstate>
+  <operationalstatedetail>operating_normally</operationalstatedetail>
+  <allocatedcapacity>15</allocatedcapacity>
+  <allocatedcapacityblocks>31457280</allocatedcapacityblocks>
+  <virtualdisktype>original</virtualdisktype>
+  <requestedcapacity>15</requestedcapacity>
+  <requestedcapacityblocks>31457280</requestedcapacityblocks>
+  <sharingrelationship>none</sharingrelationship>
+  <sharinginformation>
+    <parentvdiskhexuid>n/a</parentvdiskhexuid>
+    <parentvdiskid>n/a</parentvdiskid>
+    <parentvdiskname>n/a</parentvdiskname>
+    <childvdiskhexuid>n/a</childvdiskhexuid>
+    <childvdiskid>n/a</childvdiskid>
+    <childvdiskname>n/a</childvdiskname>
+  </sharinginformation>
+  <redundancy>vraid1</redundancy>
+  <dirtyblockcount>0</dirtyblockcount>
+  <writecacheactual>writeback</writecacheactual>
+  <writecache>writeback</writecache>
+  <vdisksecondarystate>none</vdisksecondarystate>
+  <mirrorcache>mirrored</mirrorcache>
+  <readcache>enable</readcache>
+  <virtualdiskpresented>yes</virtualdiskpresented>
+  <presentations>
+    <presentation>
+      <hostid>02800710B4080560B340010000D0020000002100</hostid>
+      <lunnumber>1</lunnumber>
+      <hostname>\Hosts\toland</hostname>
+      <scsireservationtype>none</scsireservationtype>
+      <hostosmode>mswindows</hostosmode>
+      <osmodeindex>3</osmodeindex>
+    </presentation>
+  </presentations>
+  <writeprotect>disable</writeprotect>
+  <scvdenable>enable</scvdenable>
+  <osunitid>0</osunitid>
+  <diskgroupname>\Disk Groups\Default Disk Group</diskgroupname>
+  <diskgroupid>00010710B4080560F44A01000070020000001F00</diskgroupid>
+  <preferredpath>no_preference</preferredpath>
+</object>
+
+MS_HW_SECTION LS VDISK FULL XML END 15:08:52,29
+MS_HW_SECTION LS DISK_GROUP FULL XML BEGIN 15:08:52,29
+
+
+SSSU for HP StorageWorks Command View EVA
+Version: 9.3.0 
+Build: 072310A
+NoSystemSelected> SELECT SYSTEM "EVA5000"
+
+EVA5000> SET OPTIONS ON_ERROR=Exit_on_error NORETRIES
+
+EVA5000> LS DISK_GROUP FULL XML
+
+Disk_Groups available on this Cell:
+
+\Disk Groups\Default Disk Group information:
+<object>
+  <objectid>00010710B4080560F44A01000070020000001F00</objectid>
+  <objectname>\Disk Groups\Default Disk Group</objectname>
+  <objecttype>diskgroupfolder</objecttype>
+  <objectwwn></objectwwn>
+  <objecthexuid>6005-08b4-0001-4af4-0002-7000-001f-0000</objecthexuid>
+  <uid>00010710B4080560F44A01000070020000001F00</uid>
+  <operationalstate>good</operationalstate>
+  <operationalstatedetail>initialized_ok</operationalstatedetail>
+  <comments></comments>
+  <hexuid>6005-08b4-0001-4af4-0002-7000-001f-0000</hexuid>
+  <objectparentuid></objectparentuid>
+  <objectparenthexuid>0606-0606-0606-0606-0606-0606-0606-0606</objectparenthexuid>
+  <objectparentid>0606060606060606060606060606060606060606</objectparentid>
+  <diskgroupname>Default Disk Group</diskgroupname>
+  <totaldisks>6</totaldisks>
+  <levelingstate>inactive</levelingstate>
+  <levelingprogress>100</levelingprogress>
+  <rssdiskstate>none</rssdiskstate>
+  <srclevelactual>vraid0</srclevelactual>
+  <srclevelrequested>unknown</srclevelrequested>
+  <diskdrivetype>online</diskdrivetype>
+  <requestedsparepolicy>single</requestedsparepolicy>
+  <currentsparepolicy>single</currentsparepolicy>
+  <totalstoragespace>1146167296</totalstoragespace>
+  <totalstoragespacegb>546.54</totalstoragespacegb>
+  <usedstoragespace>798097408</usedstoragespace>
+  <usedstoragespacegb>380.56</usedstoragespacegb>
+  <occupancyalarmlevel>90</occupancyalarmlevel>
+  <vraid0storagespace>347766784</vraid0storagespace>
+  <vraid1storagespace>173932544</vraid1storagespace>
+  <vraid5storagespace>278249472</vraid5storagespace>
+  <vraid6storagespace>0</vraid6storagespace>
+  <vraid0conservstoragespace></vraid0conservstoragespace>
+  <vraid1conservstoragespace></vraid1conservstoragespace>
+  <vraid5conservstoragespace></vraid5conservstoragespace>
+  <vraid6conservstoragespace></vraid6conservstoragespace>
+  <vraid0storagespacegb>165.82</vraid0storagespacegb>
+  <vraid1storagespacegb>82.93</vraid1storagespacegb>
+  <vraid5storagespacegb>132.67</vraid5storagespacegb>
+  <vraid6storagespacegb>0.00</vraid6storagespacegb>
+  <vraid0conservstoragespacegb></vraid0conservstoragespacegb>
+  <vraid1conservstoragespacegb></vraid1conservstoragespacegb>
+  <vraid5conservstoragespacegb></vraid5conservstoragespacegb>
+  <vraid6conservstoragespacegb></vraid6conservstoragespacegb>
+  <transitionstate>inactive</transitionstate>
+  <transitionpercent>100</transitionpercent>
+  <diskgrouptype>basic</diskgrouptype>
+</object>
+
+MS_HW_SECTION LS DISK_GROUP FULL XML END 15:08:54,93
+
+END TIME 15:08:54,93

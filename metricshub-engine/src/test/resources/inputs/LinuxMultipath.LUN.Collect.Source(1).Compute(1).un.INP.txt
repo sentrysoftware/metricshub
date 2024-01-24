@@ -1,0 +1,14 @@
+mpath1 (360000970000294901120533030303243) dm-2 EMC,SYMMETRIX
+[size=2.8M][features=0][hwhandler=0][ro]
+\_ round-robin 0 [prio=0][active]
+ \_ 1:0:3:0 sde 8:64  [active][undef]
+ \_ 1:0:4:0 sdg 8:96  [active][undef]
+ \_ 2:0:3:0 sdj 8:144 [active][undef]
+ \_ 2:0:4:0 sdl 8:176 [active][undef]
+mpath4 (360000970000294901120533030303644) dm-3 EMC,SYMMETRIX
+[size=5.0G][features=0][hwhandler=0][rw]
+\_ round-robin 0 [prio=0][active]
+ \_ 1:0:3:3 sdf 8:80  [active][undef]
+ \_ 1:0:4:3 sdh 8:112 [active][undef]
+ \_ 2:0:3:3 sdk 8:160 [active][undef]
+ \_ 2:0:4:3 sdm 8:192 [active][undef]

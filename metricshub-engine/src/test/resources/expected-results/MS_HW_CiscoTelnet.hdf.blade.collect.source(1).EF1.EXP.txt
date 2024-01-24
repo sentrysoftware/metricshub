@@ -1,0 +1,1 @@
+MSHW;1;40-Port 1/2 Gbps FC/Supervisor ;DS-C9140-K9-SUP;active;

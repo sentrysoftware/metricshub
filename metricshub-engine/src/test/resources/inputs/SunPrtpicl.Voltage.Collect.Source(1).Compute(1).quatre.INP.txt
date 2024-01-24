@@ -1,0 +1,87 @@
+mb_p0_v_core (voltage-sensor, 1ae00000b37)
+  :_fru_parent	 (1ae000009f0H) 
+  :Label	 V_CORE 
+  :HighPowerOffThreshold	 1.610000 
+  :HighWarningThreshold	 1.540000 
+  :LowPowerOffThreshold	 1.190000 
+  :LowWarningThreshold	 1.260000 
+  :Voltage	 1.488000 
+  :_class	 voltage-sensor 
+  :name	 mb_p0_v_core 
+  mb_p1_v_core (voltage-sensor, 1ae00000b40)
+  :_fru_parent	 (1ae00000a1dH) 
+  :Label	 V_CORE 
+  :HighPowerOffThreshold	 1.610000 
+  :HighWarningThreshold	 1.540000 
+  :LowPowerOffThreshold	 1.190000 
+  :LowWarningThreshold	 1.260000 
+  :Voltage	 1.494000 
+  :_class	 voltage-sensor 
+  :name	 mb_p1_v_core 
+  mb_v_vtt (voltage-sensor, 1ae00000b49)
+  :_fru_parent	 (1ae000009d2H) 
+  :Label	 V_VTT 
+  :HighPowerOffThreshold	 1.495000 
+  :HighWarningThreshold	 1.430000 
+  :LowPowerOffThreshold	 1.105000 
+  :LowWarningThreshold	 1.170000 
+  :Voltage	 1.240000 
+  :_class	 voltage-sensor 
+  :name	 mb_v_vtt 
+  mb_v_gbe_+2v5 (voltage-sensor, 1ae00000b52)
+  :_fru_parent	 (1ae000009d2H) 
+  :Label	 V_GBE_+2V5 
+  :HighPowerOffThreshold	 2.875000 
+  :HighWarningThreshold	 2.750000 
+  :LowPowerOffThreshold	 2.125000 
+  :LowWarningThreshold	 2.250000 
+  :Voltage	 2.519000 
+  :_class	 voltage-sensor 
+  :name	 mb_v_gbe_+2v5 
+  mb_v_gbe_core (voltage-sensor, 1ae00000b5b)
+  :_fru_parent	 (1ae000009d2H) 
+  :Label	 V_GBE_CORE 
+  :HighPowerOffThreshold	 1.380000 
+  :HighWarningThreshold	 1.320000 
+  :LowPowerOffThreshold	 1.020000 
+  :LowWarningThreshold	 1.080000 
+  :Voltage	 1.206000 
+  :_class	 voltage-sensor 
+  :name	 mb_v_gbe_core 
+  mb_v_vcctm (voltage-sensor, 1ae00000b64)
+  :_fru_parent	 (1ae000009d2H) 
+  :Label	 V_VCCTM 
+  :HighPowerOffThreshold	 2.875000 
+  :HighWarningThreshold	 2.750000 
+  :LowPowerOffThreshold	 2.125000 
+  :LowWarningThreshold	 2.250000 
+  :Voltage	 2.519000 
+  :_class	 voltage-sensor 
+  :name	 mb_v_vcctm 
+  mb_v_+2v5 (voltage-sensor, 1ae00000b6d)
+  :_fru_parent	 (1ae000009d2H) 
+  :Label	 V_+2V5 
+  :HighPowerOffThreshold	 2.990000 
+  :HighWarningThreshold	 2.860000 
+  :LowPowerOffThreshold	 2.210000 
+  :LowWarningThreshold	 2.340000 
+  :Voltage	 2.484000 
+  :_class	 voltage-sensor 
+  :name	 mb_v_+2v5 
+  mb_v_+1v5 (voltage-sensor, 1ae00000b76)
+  :_fru_parent	 (1ae000009d2H) 
+  :Label	 V_+1V5 
+  :HighPowerOffThreshold	 1.725000 
+  :HighWarningThreshold	 1.650000 
+  :LowPowerOffThreshold	 1.275000 
+  :LowWarningThreshold	 1.350000 
+  :Voltage	 1.511000 
+  :_class	 voltage-sensor 
+  :name	 mb_v_+1v5 
+  mb_bat_v_bat (voltage-sensor, 1ae00000b7f)
+  :_fru_parent	 (1ae000009e0H) 
+  :Label	 V_BAT 
+  :LowWarningThreshold	 2.700000 
+  :Voltage	 2.937000 
+  :_class	 voltage-sensor 
+  :name	 mb_bat_v_bat

@@ -1,0 +1,4 @@
+MSHW;Power Supply 1;OK;1200;294;
+MSHW;Power Supply 2;OK;1200;0;
+MSHW;Power Supply 4;OK;1200;270;
+MSHW;Power Supply 5;OK;1200;0;

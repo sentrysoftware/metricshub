@@ -1,0 +1,2 @@
+MSHW;85;85 - Controller A - Ethernet Port 1;;;Ethernet Port;;;;00:a0:b8:36:9d:1e;MAC;;;192.168.128.101;IP;;
+MSHW;85;85 - Controller B - Ethernet Port 1;;;Ethernet Port;;;;00:a0:b8:36:9d:57;MAC;3000;;192.168.128.102;IP;;

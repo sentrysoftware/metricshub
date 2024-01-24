@@ -1,0 +1,348 @@
+show interconnect status all
+Interconnect Module #1 Status:
+	Status: OK
+	Thermal: OK
+	CPU Fault: OK
+	Health LED: OK
+	UID: Off
+	Powered: On
+	Diagnostic Status:
+		Internal Data                            OK
+		Management Processor                     OK
+		Thermal Warning                          OK
+		Thermal Danger                           OK
+		I/O Configuration                        OK
+		Power                                    OK
+		Device Failure                           OK
+		Device Degraded                          OK
+Interconnect Module #2 Status:
+	Interconnect Module Type: No Interconnect Module Installed
+Interconnect Module #3 Status:
+	Status: OK
+	Thermal: OK
+	CPU Fault: OK
+	Health LED: OK
+	UID: Off
+	Powered: On
+	Diagnostic Status:
+		Internal Data                            OK
+		Management Processor                     OK
+		Thermal Warning                          OK
+		Thermal Danger                           OK
+		I/O Configuration                        OK
+		Power                                    OK
+		Device Failure                           OK
+		Device Degraded                          OK
+Interconnect Module #4 Status:
+	Status: OK
+	Thermal: OK
+	CPU Fault: OK
+	Health LED: OK
+	UID: Off
+	Powered: On
+	Diagnostic Status:
+		Internal Data                            OK
+		Management Processor                     OK
+		Thermal Warning                          OK
+		Thermal Danger                           OK
+		I/O Configuration                        OK
+		Power                                    OK
+		Device Failure                           OK
+		Device Degraded                          OK
+show server status all
+Blade #1 Status:
+	Power: On
+	Current Wattage used: 81
+	Health: OK
+	Unit Identification LED: Off
+	Virtual Fan: 19%
+	Diagnostic Status:
+		Internal Data                            OK
+		Management Processor                     OK
+		I/O Configuration                        OK
+		Power                                    OK
+		Cooling                                  OK
+		Location                                 OK
+		Device Failure                           OK
+		Device Degraded                          OK
+		iLO Network                              OK
+		Mezzanine Card                           OK
+Blade #2 Status:
+	Power: On
+	Current Wattage used: 124
+	Health: OK
+	Unit Identification LED: Off
+	Virtual Fan: 32%
+	Diagnostic Status:
+		Internal Data                            OK
+		Management Processor                     OK
+		I/O Configuration                        OK
+		Power                                    OK
+		Cooling                                  OK
+		Location                                 OK
+		Device Failure                           OK
+		Device Degraded                          OK
+		iLO Network                              OK
+		Mezzanine Card                           OK
+Blade #3 Status:
+	Power: On
+	Current Wattage used: 99
+	Health: OK
+	Unit Identification LED: Off
+	Virtual Fan: 19%
+	Diagnostic Status:
+		Internal Data                            OK
+		Management Processor                     OK
+		I/O Configuration                        OK
+		Power                                    OK
+		Cooling                                  OK
+		Location                                 OK
+		Device Failure                           OK
+		Device Degraded                          OK
+		iLO Network                              OK
+		Mezzanine Card                           OK
+Blade #4 Status:
+	Power: On
+	Current Wattage used: 83
+	Health: Other
+	Unit Identification LED: Off
+	Virtual Fan: 19%
+	Diagnostic Status:
+		Internal Data                            OK
+		Management Processor                     OK
+		I/O Configuration                        OK
+		Power                                    OK
+		Cooling                                  OK
+		Location                                 OK
+		Device Failure                           OK
+		Device Degraded                          OK
+		iLO Network                              OK
+		Power Mgmt Cntlr                         Other
+		Mezzanine Card                           OK
+Blade #5 Status:
+	Power: On
+	Current Wattage used: 108
+	Health: OK
+	Unit Identification LED: Off
+	Virtual Fan: 32%
+	Diagnostic Status:
+		Internal Data                            OK
+		Management Processor                     OK
+		I/O Configuration                        OK
+		Power                                    OK
+		Cooling                                  OK
+		Location                                 OK
+		Device Failure                           OK
+		Device Degraded                          OK
+		iLO Network                              OK
+		Mezzanine Card                           OK
+Blade #6 Status:
+	Power: On
+	Current Wattage used: 134
+	Health: Other
+	Unit Identification LED: Off
+	Virtual Fan: 32%
+	Diagnostic Status:
+		Internal Data                            OK
+		Management Processor                     OK
+		I/O Configuration                        OK
+		Power                                    OK
+		Cooling                                  OK
+		Location                                 OK
+		Device Failure                           OK
+		Device Degraded                          OK
+		iLO Network                              OK
+		Power Mgmt Cntlr                         Other
+		Mezzanine Card                           OK
+Blade #7 Status:
+	Power: On
+	Current Wattage used: 118
+	Health: OK
+	Unit Identification LED: Off
+	Virtual Fan: 32%
+	Diagnostic Status:
+		Internal Data                            OK
+		Management Processor                     OK
+		I/O Configuration                        OK
+		Power                                    OK
+		Cooling                                  OK
+		Location                                 OK
+		Device Failure                           OK
+		Device Degraded                          OK
+		iLO Network                              OK
+		Mezzanine Card                           OK
+Blade #8 Status:
+	Power: No Server Blade Installed
+show enclosure powersupply all
+Power Supply #1 Information:
+	Status: OK
+	AC Input Status: OK
+	Output Capacity: 1200 Watts DC
+	Current Power Output: 294 Watts DC
+	Serial Number: 531290A4DVR09K
+	Product Name: HP PROLIANT SERVER PS     
+	Part Number: 437572-B21
+	Spare Part Number: 441830-001
+	Product Ver: 01
+	Diagnostic Status:
+		Internal Data                            OK
+		Device Failure                           OK
+		Power Cord                               OK
+Power Supply #2 Information:
+	Status: OK
+	AC Input Status: OK
+	Output Capacity: 1200 Watts DC
+	Current Power Output: 0 Watts DC (Dynamic Power Savings Mode)
+	Serial Number: 531290A4DVL5W6
+	Product Name: HP PROLIANT SERVER PS     
+	Part Number: 437572-B21
+	Spare Part Number: 441830-001
+	Product Ver: 01
+	Diagnostic Status:
+		Internal Data                            OK
+		Device Failure                           OK
+		Power Cord                               OK
+Power Supply #3 Information:
+	Status: Power Supply Bay Empty
+Power Supply #4 Information:
+	Status: OK
+	AC Input Status: OK
+	Output Capacity: 1200 Watts DC
+	Current Power Output: 270 Watts DC
+	Serial Number: 531290A4DVR09T
+	Product Name: HP PROLIANT SERVER PS     
+	Part Number: 437572-B21
+	Spare Part Number: 441830-001
+	Product Ver: 01
+	Diagnostic Status:
+		Internal Data                            OK
+		Device Failure                           OK
+		Power Cord                               OK
+Power Supply #5 Information:
+	Status: OK
+	AC Input Status: OK
+	Output Capacity: 1200 Watts DC
+	Current Power Output: 0 Watts DC (Dynamic Power Savings Mode)
+	Serial Number: 53130X9LLVD0CT
+	Product Name: HP PROLIANT SERVER PS     
+	Part Number: 437572-B21
+	Spare Part Number: 441830-001
+	Product Ver: 01
+	Diagnostic Status:
+		Internal Data                            OK
+		Device Failure                           OK
+		Power Cord                               OK
+Power Supply #6 Information:
+	Status: Power Supply Bay Empty
+show enclosure fan all
+Fan #1 information:
+	Status: OK
+	Speed: 38 percent of Maximum speed
+	Maximum speed: 18000
+	Minimum speed: 600
+	Power consumed: 15
+	Product Name: Active Cool 200 Fan
+	Part Number: 412140-B21
+	Spare Part Number: 413996-001
+	Version: 2.7
+	Diagnostic Status:
+		Internal Data                            OK
+		Location                                 OK
+		Device Failure                           OK
+		Device Degraded                          OK
+		Missing Device                           OK
+Fan #2 information:
+	Status: OK
+	Speed: 33 percent of Maximum speed
+	Maximum speed: 18000
+	Minimum speed: 600
+	Power consumed: 12
+	Product Name: Active Cool 200 Fan
+	Part Number: 412140-B21
+	Spare Part Number: 413996-001
+	Version: 2.7
+	Diagnostic Status:
+		Internal Data                            OK
+		Location                                 OK
+		Device Failure                           OK
+		Device Degraded                          OK
+		Missing Device                           OK
+Fan #3 information:
+	Status: OK
+	Speed: 38 percent of Maximum speed
+	Maximum speed: 18000
+	Minimum speed: 600
+	Power consumed: 15
+	Product Name: Active Cool 200 Fan
+	Part Number: 412140-B21
+	Spare Part Number: 413996-001
+	Version: 2.7
+	Diagnostic Status:
+		Internal Data                            OK
+		Location                                 OK
+		Device Failure                           OK
+		Device Degraded                          OK
+		Missing Device                           OK
+Fan #4 information:
+	Status: OK
+	Speed: 38 percent of Maximum speed
+	Maximum speed: 18000
+	Minimum speed: 600
+	Power consumed: 15
+	Product Name: Active Cool 200 Fan
+	Part Number: 412140-B21
+	Spare Part Number: 413996-001
+	Version: 2.7
+	Diagnostic Status:
+		Internal Data                            OK
+		Location                                 OK
+		Device Failure                           OK
+		Device Degraded                          OK
+		Missing Device                           OK
+Fan #5 information:
+	Status: OK
+	Speed: 33 percent of Maximum speed
+	Maximum speed: 18000
+	Minimum speed: 600
+	Power consumed: 13
+	Product Name: Active Cool 200 Fan
+	Part Number: 412140-B21
+	Spare Part Number: 413996-001
+	Version: 2.7
+	Diagnostic Status:
+		Internal Data                            OK
+		Location                                 OK
+		Device Failure                           OK
+		Device Degraded                          OK
+		Missing Device                           OK
+Fan #6 information:
+	Status: OK
+	Speed: 38 percent of Maximum speed
+	Maximum speed: 18000
+	Minimum speed: 600
+	Power consumed: 17
+	Product Name: Active Cool 200 Fan
+	Part Number: 412140-B21
+	Spare Part Number: 413996-001
+	Version: 2.7
+	Diagnostic Status:
+		Internal Data                            OK
+		Location                                 OK
+		Device Failure                           OK
+		Device Degraded                          OK
+		Missing Device                           OK
+show enclosure temp
+Locale                 Bay # Temp Status      Temp    Caution   Critical 
+---------------------- ----- -----------    --------  -------   -------- 
+Enclosure                    N/A            15C/ 59F    ---       ---
+Onboard Administrator    1   OK             16C/ 60F    75C       80C
+Blade Bay                1   N/A            15C/ 59F    40C       45C
+Blade Bay                2   N/A            15C/ 59F    40C       45C
+Blade Bay                3   N/A            15C/ 59F    40C       45C
+Blade Bay                4   N/A            15C/ 59F    40C       45C
+Blade Bay                5   N/A            15C/ 59F    40C       45C
+Blade Bay                6   N/A            15C/ 59F    40C       45C
+Blade Bay                7   N/A            15C/ 59F    40C       45C
+Interconnect Module      1   OK               ----      ---       ---
+Interconnect Module      3   OK               ----      ---       ---
+Interconnect Module      4   OK               ----      ---       ---

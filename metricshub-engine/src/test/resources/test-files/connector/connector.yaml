@@ -1,0 +1,7 @@
+connector:
+  displayName: testConnector
+  platforms: testPlatforms
+  reliesOn: testReliesOn
+  version:  1.0.0
+  projectVersion: 20
+  information: testInformation

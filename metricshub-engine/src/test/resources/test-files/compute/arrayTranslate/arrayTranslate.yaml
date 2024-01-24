@@ -1,0 +1,15 @@
+connector:
+  detection:
+    appliesTo: [ Linux ]
+
+pre:
+  testCompute:
+    type: http
+    url: /testUrl/
+
+    computes:
+      - type: arrayTranslate
+        column: 1
+        translationTable: ${translation::translationTableTest}
+        arraySeparator: arraySeparatorTest
+        resultSeparator: resultSeparatorTest

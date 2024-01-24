@@ -1,0 +1,20 @@
+FRU;DELL;FRU256,DELL P/N 03K345A00;CN1374048B00SV
+Power Supply;8;Power Supply 8;;;;Status=Presence detected
+Power Supply;9;Power Supply 9;;;;Status=Presence detected|Status=Failure detected|Status=Predictive failure
+Processor;2;Processor 2;;;;VCORE=0|Status=Presence detected|VRM=Presence detected
+Processor;3;Processor 3;;;;VCORE=0|Status=Presence detected|VRM=Presence detected
+System Board;1;System Board 1;;;;PROC VTT=0|1.5V PG=0|1.8V PG=0|3.3V PG=0|5V PG=0|5V Riser PG=0|Riser PG=0|PS Redundancy=Redundancy Lost|Fan Redundancy=Fully Redundant
+Temperature;1;Temp;Processor 2;39;120.000;125.000
+Temperature;2;Temp;Processor 3;37;120.000;125.000
+Temperature;3;Ambient Temp;System Board 1;17;42.000;47.000
+Temperature;4;Planar Temp;System Board 1;29;67.000;72.000
+Temperature;5;Riser Temp;System Board 1;31;62.000;67.000
+Voltage;10;CMOS Battery;System Board 1;2877.000000;2645.000000;
+Fan;30;FAN 1A RPM;System Board 1;7575;;2175.000
+Fan;31;FAN 1B RPM;System Board 1;5250;;2175.000
+Fan;32;FAN 2A RPM;System Board 1;7650;;2175.000
+Fan;33;FAN 2B RPM;System Board 1;5475;;2175.000
+Fan;34;FAN 3A RPM;System Board 1;7575;;2175.000
+Fan;35;FAN 3B RPM;System Board 1;5400;;2175.000
+Fan;36;FAN 4A RPM;System Board 1;7950;;2175.000
+Fan;37;FAN 4B RPM;System Board 1;5100;;2175.000

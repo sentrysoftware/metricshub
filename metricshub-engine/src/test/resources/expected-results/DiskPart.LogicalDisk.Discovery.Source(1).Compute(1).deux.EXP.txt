@@ -1,0 +1,7 @@
+MSHW;0;F:;F:;DVD-ROM;;0;No Media;;
+MSHW;1;;;;RAW;104152956928;Healthy;;
+MSHW;2;C:;C:;;NTFS;894426939392;Healthy;Boot;
+MSHW;3;Recovery;;;NTFS;314572800;Healthy;Hidden;
+MSHW;4;;;;FAT32;104857600;Healthy;System;
+MSHW;5;D:;D:;Removable;;0;No Media;;
+MSHW;6;E:;E:;Removable;;0;No Media;;

@@ -1,0 +1,2 @@
+Memory size: 4096 Megabytes
+SUNW,Sun-Fire-V240

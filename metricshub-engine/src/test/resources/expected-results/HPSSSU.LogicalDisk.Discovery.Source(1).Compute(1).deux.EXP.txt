@@ -1,0 +1,14 @@
+MSHW_ENCLOSURE;EVA4000;
+MSHW_LOGICALDISK;EVA4000;Virtual Disk;EVA4000\Virtual Disks\Ibm-svc\ACTIVE;Ibm-svc;good;operating_normally;100;;Type original;0;
+MSHW_LOGICALDISK;EVA4000;Virtual Disk;EVA4000\Virtual Disks\Lucrece\ACTIVE;Lucrece;good;operating_normally;17;;Type original;0;
+MSHW_LOGICALDISK;EVA4000;Virtual Disk;EVA4000\Virtual Disks\PC02\ACTIVE;PC02;good;operating_normally;37;;Type original;0;
+MSHW_LOGICALDISK;EVA4000;Virtual Disk;EVA4000\Virtual Disks\PC02-DR\ACTIVE;PC02-DR;good;operating_normally;5;;Type original;0;
+MSHW_LOGICALDISK;EVA4000;Virtual Disk;EVA4000\Virtual Disks\Pascal\ACTIVE;Pascal;good;operating_normally;3;;Type original;0;
+MSHW_LOGICALDISK;EVA4000;Virtual Disk;EVA4000\Virtual Disks\toland-v4000\ACTIVE;toland-v4000;good;operating_normally;10;;Type original;0;
+MSHW_LOGICALDISK;EVA4000;Disk Group;EVA4000\Disk Groups\Default Disk Group;Default Disk Group;good;initialized_ok;819.88;477.49;Type basic;1;
+MSHW_ENCLOSURE;EVA5000;
+MSHW_LOGICALDISK;EVA5000;Virtual Disk;EVA5000\Virtual Disks\Ibm-svc\ACTIVE;Ibm-svc;good;operating_normally;137;;Type original;0;
+MSHW_LOGICALDISK;EVA5000;Virtual Disk;EVA5000\Virtual Disks\PC02\ACTIVE;PC02;good;operating_normally;33;;Type original;0;
+MSHW_LOGICALDISK;EVA5000;Virtual Disk;EVA5000\Virtual Disks\PC02-DR\ACTIVE;PC02-DR;good;operating_normally;5;;Type original;0;
+MSHW_LOGICALDISK;EVA5000;Virtual Disk;EVA5000\Virtual Disks\toland-eva\ACTIVE;toland-eva;good;operating_normally;15;;Type original;0;
+MSHW_LOGICALDISK;EVA5000;Disk Group;EVA5000\Disk Groups\Default Disk Group;Default Disk Group;good;initialized_ok;546.54;165.98;Type basic;1;

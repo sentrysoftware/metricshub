@@ -1,0 +1,2105 @@
+FIBRE CHANNEL STATISTICS REPORT: fcs2
+Device Type: 8Gb PCI Express Dual Port FC Adapter (df1000f114108a03) (adapter/pciex/df1000f114108a0)
+Serial Number: 1C02408426
+Option ROM Version: 027820B7
+ZA: U2D2.02X7 
+World Wide Node Name: 0x20000000C9D03262
+World Wide Port Name: 0x10000000C9D03262
+FC-4 TYPES:
+  Supported: 0x0000012000000000000000000000000000000000000000000000000000000000
+  Active:    0x0000010000000000000000000000000000000000000000000000000000000000
+FC-4 TYPES (ULP mappings):
+  Supported ULPs:   
+    	Internet Protocol (IP) over Fibre Channel (IETF RFC2625) 
+    	Small Computer System Interface (SCSI) Fibre Channel Protocol (FCP)
+  Active ULPs:   
+    	Small Computer System Interface (SCSI) Fibre Channel Protocol (FCP)
+Class of Service: 3
+Port Speed (supported): 8 GBIT
+Port Speed (running):   8 GBIT
+Port FC ID: 0x8a0900
+Port Type: Fabric
+Attention Type:   Link Up
+Topology:  Point to Point or Fabric
+Seconds Since Last Reset: 3379573         
+	Transmit Statistics	Receive Statistics
+	-------------------	------------------
+Frames: 120             	128             
+Words:  2048            	2560            
+LIP Count: 0               
+NOS Count: 0               
+Error Frames:  0               
+Dumped Frames: 0               
+Link Failure Count: 0               
+Loss of Sync Count: 0               
+Loss of Signal: 0               
+Primitive Seq Protocol Error Count: 0               
+Invalid Tx Word Count: 39              
+Invalid CRC Count: 0               
+IP over FC Adapter Driver Information
+  No DMA Resource Count: 0               
+  No Adapter Elements Count: 0               
+IP over FC Traffic Statistics
+  Input Requests:   0               
+  Output Requests:  0               
+  Control Requests: 0               
+  Input Bytes:  0               
+  Output Bytes: 0               
+Adapter Effective max transfer value:   0x100000
+-------------------------------------------------------------
+ETHERNET STATISTICS (ent0) :
+Device Type: Host Ethernet Adapter (l-hea)
+Hardware Address: 5c:f3:fc:85:0e:20
+Elapsed Time: 39 days 2 hours 46 minutes 41 seconds
+Transmit Statistics:                          Receive Statistics:
+--------------------                          -------------------
+Packets: 44951849                             Packets: 580339874
+Bytes: 18257897157                            Bytes: 119705754095
+Interrupts: 0                                 Interrupts: 186023983
+Transmit Errors: 0                            Receive Errors: 0
+Packets Dropped: 0                            Packets Dropped: 257587
+                                              Bad Packets: 214
+Max Packets on S/W Transmit Queue: 68        
+S/W Transmit Queue Overflow: 0
+Current S/W+H/W Transmit Queue Length: 29
+Broadcast Packets: 19467                      Broadcast Packets: 542014759
+Multicast Packets: 15593                      Multicast Packets: 3781732
+No Carrier Sense: 0                           CRC Errors: 0
+DMA Underrun: 0                               DMA Overrun: 0
+Lost CTS Errors: 0                            Alignment Errors: 0
+Max Collision Errors: 0                       No Resource Errors: 0
+Late Collision Errors: 0                      Receive Collision Errors: 0
+Deferred: 0                                   Packet Too Short Errors: 0
+SQE Test: 0                                   Packet Too Long Errors: 0
+Timeout Errors: 0                             Packets Discarded by Adapter: 0
+Single Collision Count: 0                     Receiver Start Count: 0
+Multiple Collision Count: 0
+Current HW Transmit Queue Length: 29
+General Statistics:
+-------------------
+No mbuf Errors: 257373
+Adapter Reset Count: 0
+Adapter Data Rate: 2000
+Driver Flags: Up Broadcast Running 
+	Simplex 64BitSupport ChecksumOffload 
+	LargeSend DataRateSet 
+Multi-Core Scaling Specific Statistics:
+---------------------------------------
+Total / Average:
+----------------
+RX Interrupts: 186032395 / 46508098
+RX Interrupts Coalesced: 24461 / 6115
+RX Offlevel Interrupts: 586023 / 629234183700483
+RX Timer Queue Drain: 481343 / 120335
+RX Q1 Low Latency Packets: 445699635 / 111424908
+RX Q2 Standard Packets: 134382869 / 33595717
+RX Q3 Jumbo Packets: 0 / 0
+RX TCP Segment Aggregation Maximum Packets Aggregated: 4 / 1
+RX TCP Segment Aggregation Large Packets Created: 123468933 / 30867233
+RX TCP Packets Aggregated into Large Packets: 123468933 / 30867233
+RX TCP Segment Bytes Aggregated into Large Packets: 30803467264 / 7700866816
+TX F2 Normal Packets: 5356800 / 1339200
+TX F3 Low Latency Packets: 32927657 / 8231914
+TX Interface Specific Buffers: 4955087 / 1238771
+TX NON-Interface Specific Buffers: 506762 / 126690
+TX Maximum Work Requests: 69 / 17
+TX Max Data Segments: 39 / 9
+Queue Pair 0:
+-------------
+RX Interrupts: 134907175
+RX Interrupts Coalesced: 4640
+RX Offlevel Interrupts: 522701
+RX Timer Queue Drain: 215064
+RX Q1 Low Latency Packets: 383562333
+RX Q2 Standard Packets: 88547278
+RX Q3 Jumbo Packets: 0
+RX TCP Segment Aggregation Maximum Packets Aggregated: 1
+RX TCP Segment Aggregation Large Packets Created: 72734564
+RX TCP Packets Aggregated into Large Packets: 72734564
+RX TCP Segment Bytes Aggregated into Large Packets: 27509657216
+TX F2 Normal Packets: 1309246
+TX F3 Low Latency Packets: 6681527
+TX Interface Specific Buffers: 1242385
+TX NON-Interface Specific Buffers: 93344
+TX Maximum Work Requests: 17
+TX Max Data Segments: 8
+Queue Pair 1:
+-------------
+RX Interrupts: 16051924
+RX Interrupts Coalesced: 5688
+RX Offlevel Interrupts: 51369
+RX Timer Queue Drain: 69345
+RX Q1 Low Latency Packets: 19713786
+RX Q2 Standard Packets: 30967877
+RX Q3 Jumbo Packets: 0
+RX TCP Segment Aggregation Maximum Packets Aggregated: 1
+RX TCP Segment Aggregation Large Packets Created: 32654744
+RX TCP Packets Aggregated into Large Packets: 32654744
+RX TCP Segment Bytes Aggregated into Large Packets: 0
+TX F2 Normal Packets: 1303980
+TX F3 Low Latency Packets: 8016651
+TX Interface Specific Buffers: 1236228
+TX NON-Interface Specific Buffers: 94317
+TX Maximum Work Requests: 18
+TX Max Data Segments: 10
+Queue Pair 2:
+-------------
+RX Interrupts: 18140594
+RX Interrupts Coalesced: 5754
+RX Offlevel Interrupts: 722
+RX Timer Queue Drain: 70629
+RX Q1 Low Latency Packets: 21755889
+RX Q2 Standard Packets: 2812469
+RX Q3 Jumbo Packets: 0
+RX TCP Segment Aggregation Maximum Packets Aggregated: 1
+RX TCP Segment Aggregation Large Packets Created: 4549869
+RX TCP Packets Aggregated into Large Packets: 4549869
+RX TCP Segment Bytes Aggregated into Large Packets: 0
+TX F2 Normal Packets: 1298370
+TX F3 Low Latency Packets: 5938359
+TX Interface Specific Buffers: 1232500
+TX NON-Interface Specific Buffers: 91876
+TX Maximum Work Requests: 17
+TX Max Data Segments: 13
+Queue Pair 3:
+-------------
+RX Interrupts: 16932702
+RX Interrupts Coalesced: 8379
+RX Offlevel Interrupts: 11231
+RX Timer Queue Drain: 126305
+RX Q1 Low Latency Packets: 20667627
+RX Q2 Standard Packets: 12055245
+RX Q3 Jumbo Packets: 0
+RX TCP Segment Aggregation Maximum Packets Aggregated: 1
+RX TCP Segment Aggregation Large Packets Created: 13529756
+RX TCP Packets Aggregated into Large Packets: 13529756
+RX TCP Segment Bytes Aggregated into Large Packets: 3293810048
+TX F2 Normal Packets: 1445204
+TX F3 Low Latency Packets: 12291120
+TX Interface Specific Buffers: 1243974
+TX NON-Interface Specific Buffers: 227225
+TX Maximum Work Requests: 17
+TX Max Data Segments: 8
+Logical Host Ethernet Port (l-port) Driver Properties:
+------------------------------------------------------
+HW TX TCP Segmentation Offload: On 
+RX TCP Segment Aggregation: On 
+HW TX Checksum Offload: On 
+HW RX Checksum Offload: On 
+TX and RX Jumbo Frames: Off 
+RX Interrupt Coalescing: On 
+Promiscuous Mode: Off 
+Logical Port Link State: Up 
+Physical Port Link State: Up 
+Media Speed Selected: Autonegotiate 
+Media Speed Running: 1000 Mbps / 1 Gbps, Full Duplex 
+Logical Host Ethernet Port (l-port) Specific Properties:
+--------------------------------------------------------
+Logical Port Number: 1
+Port Operational State: Up 
+External-Network Switch-Port Operational State: Up 
+External-Network-Switch (ENS) Port Speed: 1000 Mbps / 1 Gbps, Full Duplex 
+Port Receive Control:     Logical Port Valid: True 
+    VLAN Extract: False 
+    TCP 6-tuple lookup enable: False 
+    UDP 6-tuple lookup enable: False 
+    TCP 3-tuple lookup enable: False 
+    TCP 2-tuple lookup enable: False 
+    LLC/SNAP packet handling: Accept 
+    Jumbo Frame Action: Discard 
+    Fragmented IP packet handling: Accept 
+    IP checksum error action: Accept 
+    MAC filter mode: False 
+    Untagged filtering mode: Accept 
+    VLAN tagged filtering mode: Filter according to VLAN permit array 
+TX Pause Frame Negotiated: True 
+RX Pause Frame Negotiated: True 
+Number of Default QPNs for Port: 4
+Default QPN Array: -262121936
+    QP0 | num: 76 | bid: 0x90000300 | ISN/level: 0x1E305
+    QP1 | num: 77 | bid: 0x90000300 | ISN/level: 0x1E306
+    QP2 | num: 78 | bid: 0x90000300 | ISN/level: 0x1E307
+    QP3 | num: 79 | bid: 0x90000300 | ISN/level: 0x1E308
+Logical Host Ethernet Adapter (l-hea) Specific Properties:
+----------------------------------------------------------
+Logical Adapter Handle: 0x8000000003000000
+Notification Queue: 
+    Events: 12 | bid: 0x90000300 | ISN/level: 0x90100
+Current number of Queue Pairs: 16
+Current number of Completion Queues: 32
+Current number of Event Queues: 20
+Current number of Memory Regions: 92
+Max number of Queue Pairs: 16
+Max number of Completion Queues: 32
+Max number of Event Queues: 36
+Max number of Memory Regions: 1024
+Internal Clock Frequency: 250000000 HZ
+Max number of Protection Domains: 4294967295
+Max number of Address Handles: 4294967295
+Max number of CQEs per CQ: 16777216
+Max number of WQEs for any Queue: 32768
+Max number scatter/gather element in RQ1: 254
+Max number scatter/gather element in RQ2: 254
+Max number scatter/gather element in RQ3: 254
+Memory Region supported sizes:
+    4K 16K 1M 16M 256M 4G 
+Max Memory Region size: 5368709120
+Number of ports: 4
+Port Receive Control Mask: 0x21C7
+Max Mcast MAC per hea port: 32
+HEA Capabilities: 0x0
+Max number of ISNs per EQ/NEQ: 1
+NEQ support code: 2
+Max number of VLAN IDs per HEA port: 20
+Max number of port groups: 2
+Max number physical ports per port group: 2
+Port Query Mask: 0xE900000000000000
+Port Modify Mask: 0xE100000000000000
+HeaQueryHeaBlk : 
+	CurrNumQP = 16 
+	CurrNumCQ = 32 
+	CurrNumEQ = 20 
+	CurrNumMR = 92 
+	r0 = 0 
+	MaxNumQP = 16 
+	MaxNumCQ = 32 
+	MaxNumEQ = 36 
+	MaxNumMR = 1024 
+	r1 = 0 
+	IntClockFreq = 250000000 
+	MaxNumPD = 4294967295 
+	MaxNumAddrHandle = 4294967295 
+	MaxCQEperCQ = 16777216 
+	MaxNumWQE = 32768 
+	MaxDataSegRQ1WQE = 254 
+	MaxDataSegRQ2WQE = 254 
+	MaxDataSegRQ3WQE = 254 
+	MRsize32 = 4227858432 
+	r3 = 0 
+	MaxMRsize = 5368709120 
+	r4 = 0 
+	NumberOfPorts = 4 
+	r5 = 0 
+	PxLy_RC_MASK = (0x00000000000021c7)
+	MaxMcastMACHEAport = 32 
+	CapIndicatorRes = 0
+	MaxNumISN_EQ = 1
+	MaxNumNEQ = 2 
+	MaxVLANs = 20 
+	MaxNumPortGroup = 2
+	MaxNumPhysPortGroup = 2 
+	PortQueryMask = (0xe900000000000000)
+	PortModifyMask = (0xe100000000000000)
+PortCat0
+	PortMac64 = (0x80005cf3fc850e20)
+	PortRxCtrl64 = (0x0000000000004032)
+	r1 = 0 
+	PState = 1 
+	PortSpeed = 6 
+	EPState = 1 
+	TxRxPause = 3 
+	DfltQPNsPerPort = 4 
+	r2 = 0 
+	DfltQPNarray:
+  0: r1 = 0, r2 = 0, LPortDfltQPN = 76
+  1: r1 = 0, r2 = 0, LPortDfltQPN = 77
+  2: r1 = 0, r2 = 0, LPortDfltQPN = 78
+  3: r1 = 0, r2 = 0, LPortDfltQPN = 79
+  4: r1 = 0, r2 = 0, LPortDfltQPN = 76
+  5: r1 = 0, r2 = 0, LPortDfltQPN = 77
+  6: r1 = 0, r2 = 0, LPortDfltQPN = 78
+  7: r1 = 0, r2 = 0, LPortDfltQPN = 79
+  8: r1 = 0, r2 = 0, LPortDfltQPN = 76
+  9: r1 = 0, r2 = 0, LPortDfltQPN = 77
+ 10: r1 = 0, r2 = 0, LPortDfltQPN = 78
+ 11: r1 = 0, r2 = 0, LPortDfltQPN = 79
+ 12: r1 = 0, r2 = 0, LPortDfltQPN = 76
+ 13: r1 = 0, r2 = 0, LPortDfltQPN = 77
+ 14: r1 = 0, r2 = 0, LPortDfltQPN = 78
+ 15: r1 = 0, r2 = 0, LPortDfltQPN = 79
+PortCat1
+	VLANfilter (in hex)
+   0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	  32: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	  64: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	  96: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 128: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 160: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 192: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 224: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 256: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 288: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 320: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 352: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 384: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 416: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 448: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 480: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	
+PortCat2
+	RxOctets = 119705754287 
+	RxUcastPkt = 34543384 
+	RxUcastPktDropFilter = 0 
+	RxUcastPktDropError = 0 
+	RxPktDropLong = 0 
+	RxMcastPkt = 3781732 
+	RxBcastPkt = 542014761 
+	TxOctects = 18257899387 
+	TxUcastPkt = 44916793 
+	TxMcastPkt = 15593 
+	TxBcastPkt = 19467 
+PortCat3
+	None
+PortCat4
+	PortSpeed = 6 
+	Pause = 15 
+	ENSPortState = 1 
+	JumboFrame = 0 
+	ENSPortWrap = 0 
+PortCat5
+	None
+PortCat6
+	None
+PortCat7
+	PortDfltQPN = 0
+	Pxs_VLANFUn[ 0] = 0 
+	Pxs_VLANFUn[ 1] = 0 
+	Pxs_VLANFUn[ 2] = 0 
+	Pxs_VLANFUn[ 3] = 0 
+	Pxs_VLANFUn[ 4] = 0 
+	Pxs_VLANFUn[ 5] = 0 
+	Pxs_VLANFUn[ 6] = 0 
+	Pxs_VLANFUn[ 7] = 0 
+	Pxs_VLANFUn[ 8] = 0 
+	Pxs_VLANFUn[ 9] = 0 
+	Pxs_VLANFUn[10] = 0 
+	Pxs_VLANFUn[11] = 0 
+	Pxs_VLANFUn[12] = 0 
+	Pxs_VLANFUn[13] = 0 
+	Pxs_VLANFUn[14] = 0 
+	Pxs_VLANFUn[15] = 0 
+	Pxs_VLANFUn[16] = 0 
+	Pxs_VLANFUn[17] = 0 
+	Pxs_VLANFUn[18] = 0 
+	Pxs_VLANFUn[19] = 0 
+	Pxs_VLANFUn[20] = 0 
+	Pxs_VLANFUn[21] = 0 
+	Pxs_VLANFUn[22] = 0 
+	Pxs_VLANFUn[23] = 0 
+	Pxs_VLANFUn[24] = 0 
+	Pxs_VLANFUn[25] = 0 
+	Pxs_VLANFUn[26] = 0 
+	Pxs_VLANFUn[27] = 0 
+	Pxs_VLANFUn[28] = 0 
+	Pxs_VLANFUn[29] = 0 
+	Pxs_VLANFUn[30] = 0 
+	Pxs_VLANFUn[31] = 0 
+	Pxs_VLANFUn[32] = 0 
+	Pxs_VLANFUn[33] = 0 
+	Pxs_VLANFUn[34] = 0 
+	Pxs_VLANFUn[35] = 0 
+	Pxs_VLANFUn[36] = 0 
+	Pxs_VLANFUn[37] = 0 
+	Pxs_VLANFUn[38] = 0 
+	Pxs_VLANFUn[39] = 0 
+	Pxs_VLANFUn[40] = 0 
+	Pxs_VLANFUn[41] = 0 
+	Pxs_VLANFUn[42] = 0 
+	Pxs_VLANFUn[43] = 0 
+	Pxs_VLANFUn[44] = 0 
+	Pxs_VLANFUn[45] = 0 
+	Pxs_VLANFUn[46] = 0 
+	Pxs_VLANFUn[47] = 0 
+	Pxs_VLANFUn[48] = 0 
+	Pxs_VLANFUn[49] = 0 
+	Pxs_VLANFUn[50] = 0 
+	Pxs_VLANFUn[51] = 0 
+	Pxs_VLANFUn[52] = 0 
+	Pxs_VLANFUn[53] = 0 
+	Pxs_VLANFUn[54] = 0 
+	Pxs_VLANFUn[55] = 0 
+	Pxs_VLANFUn[56] = 0 
+	Pxs_VLANFUn[57] = 0 
+	Pxs_VLANFUn[58] = 0 
+	Pxs_VLANFUn[59] = 0 
+	Pxs_VLANFUn[60] = 0 
+	Pxs_VLANFUn[61] = 0 
+	Pxs_VLANFUn[62] = 0 
+	Pxs_VLANFUn[63] = 0 
+	Pxs_MHASHn[ 0] = 0 
+	Pxs_MHASHn[ 1] = 0 
+	Pxs_MHASHn[ 2] = 0 
+	Pxs_MHASHn[ 3] = 0 
+	Pxs_MHASHn[ 4] = 0 
+	Pxs_MHASHn[ 5] = 0 
+	Pxs_MHASHn[ 6] = 0 
+	Pxs_MHASHn[ 7] = 0 
+	Pxs_MHASHn[ 8] = 0 
+	Pxs_MHASHn[ 9] = 0 
+	Pxs_MHASHn[10] = 0 
+	Pxs_MHASHn[11] = 0 
+	Pxs_MHASHn[12] = 0 
+	Pxs_MHASHn[13] = 0 
+	Pxs_MHASHn[14] = 0 
+	Pxs_MHASHn[15] = 0 
+	Pxs_MHASHn[16] = 0 
+	Pxs_MHASHn[17] = 0 
+	Pxs_MHASHn[18] = 0 
+	Pxs_MHASHn[19] = 0 
+	Pxs_MHASHn[20] = 0 
+	Pxs_MHASHn[21] = 0 
+	Pxs_MHASHn[22] = 0 
+	Pxs_MHASHn[23] = 0 
+	Pxs_MHASHn[24] = 0 
+	Pxs_MHASHn[25] = 0 
+	Pxs_MHASHn[26] = 0 
+	Pxs_MHASHn[27] = 0 
+	Pxs_MHASHn[28] = 0 
+	Pxs_MHASHn[29] = 0 
+	Pxs_MHASHn[30] = 0 
+	Pxs_MHASHn[31] = 0 
+	Pxs_MHASHn[32] = 0 
+	Pxs_MHASHn[33] = 0 
+	Pxs_MHASHn[34] = 0 
+	Pxs_MHASHn[35] = 0 
+	Pxs_MHASHn[36] = 0 
+	Pxs_MHASHn[37] = 0 
+	Pxs_MHASHn[38] = 0 
+	Pxs_MHASHn[39] = 0 
+	Pxs_MHASHn[40] = 0 
+	Pxs_MHASHn[41] = 0 
+	Pxs_MHASHn[42] = 0 
+	Pxs_MHASHn[43] = 0 
+	Pxs_MHASHn[44] = 0 
+	Pxs_MHASHn[45] = 0 
+	Pxs_MHASHn[46] = 0 
+	Pxs_MHASHn[47] = 0 
+	Pxs_MHASHn[48] = 0 
+	Pxs_MHASHn[49] = 0 
+	Pxs_MHASHn[50] = 0 
+	Pxs_MHASHn[51] = 0 
+	Pxs_MHASHn[52] = 0 
+	Pxs_MHASHn[53] = 0 
+	Pxs_MHASHn[54] = 0 
+	Pxs_MHASHn[55] = 0 
+	Pxs_MHASHn[56] = 0 
+	Pxs_MHASHn[57] = 0 
+	Pxs_MHASHn[58] = 0 
+	Pxs_MHASHn[59] = 0 
+	Pxs_MHASHn[60] = 0 
+	Pxs_MHASHn[61] = 0 
+	Pxs_MHASHn[62] = 0 
+	Pxs_MHASHn[63] = 0 
+-------------------------------------------------------------
+ETHERNET STATISTICS (ent7) :
+Device Type: 
+Hardware Address: 5c:f3:fc:85:0e:21
+Elapsed Time: 39 days 2 hours 46 minutes 40 seconds
+Transmit Statistics:                          Receive Statistics:
+--------------------                          -------------------
+Packets: 1302457030                           Packets: 2556041575
+Bytes: 469828306759                           Bytes: 941485521278
+Interrupts: 0                                 Interrupts: 502207325
+Transmit Errors: 0                            Receive Errors: 0
+Packets Dropped: 0                            Packets Dropped: 668510
+                                              Bad Packets: 215
+Max Packets on S/W Transmit Queue: 68        
+S/W Transmit Queue Overflow: 0
+Current S/W+H/W Transmit Queue Length: 34
+Elapsed Time: 0 days 0 hours 0 minutes 0 seconds
+Broadcast Packets: 223257794                  Broadcast Packets: 550681449
+Multicast Packets: 795273786                  Multicast Packets: 1713782767
+No Carrier Sense: 0                           CRC Errors: 0
+DMA Underrun: 0                               DMA Overrun: 0
+Lost CTS Errors: 0                            Alignment Errors: 0
+Max Collision Errors: 0                       No Resource Errors: 0
+Late Collision Errors: 0                      Receive Collision Errors: 0
+Deferred: 0                                   Packet Too Short Errors: 0
+SQE Test: 0                                   Packet Too Long Errors: 0
+Timeout Errors: 0                             Packets Discarded by Adapter: 0
+Single Collision Count: 0                     Receiver Start Count: 0
+Multiple Collision Count: 0
+Current HW Transmit Queue Length: 34
+General Statistics:
+-------------------
+No mbuf Errors: 668295
+Adapter Reset Count: 0
+Adapter Data Rate: 0
+Driver Flags: Up Broadcast Running 
+	Simplex 64BitSupport ChecksumOffload 
+	LargeSend DataRateSet 
+-------------------------------------------------------------
+ETHERNET STATISTICS (ent6) :
+Device Type: EtherChannel
+Hardware Address: 5c:f3:fc:85:0e:32
+Elapsed Time: 39 days 2 hours 46 minutes 39 seconds
+Transmit Statistics:                          Receive Statistics:
+--------------------                          -------------------
+Packets: 601                                  Packets: 960206595
+Bytes: 39066                                  Bytes: 230596600638
+Interrupts: 0                                 Interrupts: 304336203
+Transmit Errors: 0                            Receive Errors: 0
+Packets Dropped: 0                            Packets Dropped: 471045
+                                              Bad Packets: 427
+Max Packets on S/W Transmit Queue: 33        
+S/W Transmit Queue Overflow: 0
+Current S/W+H/W Transmit Queue Length: 23
+Broadcast Packets: 31                         Broadcast Packets: 952619608
+Multicast Packets: 570                        Multicast Packets: 7586987
+No Carrier Sense: 0                           CRC Errors: 0
+DMA Underrun: 0                               DMA Overrun: 0
+Lost CTS Errors: 0                            Alignment Errors: 0
+Max Collision Errors: 0                       No Resource Errors: 0
+Late Collision Errors: 0                      Receive Collision Errors: 0
+Deferred: 0                                   Packet Too Short Errors: 0
+SQE Test: 0                                   Packet Too Long Errors: 0
+Timeout Errors: 0                             Packets Discarded by Adapter: 0
+Single Collision Count: 0                     Receiver Start Count: 0
+Multiple Collision Count: 0
+Current HW Transmit Queue Length: 23
+General Statistics:
+-------------------
+No mbuf Errors: 470618
+Adapter Reset Count: 0
+Adapter Data Rate: 2000
+Driver Flags: Up Broadcast Running 
+	Simplex 64BitSupport ChecksumOffload 
+	LargeSend DataRateSet ETHERCHANNEL 
+=============================================================
+=============================================================
+Statistics for every adapter in the EtherChannel:
+-------------------------------------------------
+Number of adapters: 2
+Operating mode: Standard mode
+Hash mode: Destination IP address
+-------------------------------------------------------------
+ETHERNET STATISTICS (ent2) :
+Device Type: Host Ethernet Adapter (l-hea)
+Hardware Address: 5c:f3:fc:85:0e:32
+Transmit Statistics:                          Receive Statistics:
+--------------------                          -------------------
+Packets: 2                                    Packets: 480123727
+Bytes: 128                                    Bytes: 115142078401
+Interrupts: 0                                 Interrupts: 152166874
+Transmit Errors: 0                            Receive Errors: 0
+Packets Dropped: 0                            Packets Dropped: 249428
+                                              Bad Packets: 214
+Max Packets on S/W Transmit Queue: 2         
+S/W Transmit Queue Overflow: 0
+Current S/W+H/W Transmit Queue Length: 2
+Broadcast Packets: 0                          Broadcast Packets: 476330982
+Multicast Packets: 2                          Multicast Packets: 3792745
+No Carrier Sense: 0                           CRC Errors: 0
+DMA Underrun: 0                               DMA Overrun: 0
+Lost CTS Errors: 0                            Alignment Errors: 0
+Max Collision Errors: 0                       No Resource Errors: 0
+Late Collision Errors: 0                      Receive Collision Errors: 0
+Deferred: 0                                   Packet Too Short Errors: 0
+SQE Test: 0                                   Packet Too Long Errors: 0
+Timeout Errors: 0                             Packets Discarded by Adapter: 0
+Single Collision Count: 0                     Receiver Start Count: 0
+Multiple Collision Count: 0
+Current HW Transmit Queue Length: 2
+General Statistics:
+-------------------
+No mbuf Errors: 249214
+Adapter Reset Count: 0
+Adapter Data Rate: 2000
+Driver Flags: Up Broadcast Running 
+	Simplex 64BitSupport ChecksumOffload 
+	LargeSend DataRateSet 
+Multi-Core Scaling Specific Statistics:
+---------------------------------------
+Total / Average:
+----------------
+RX Interrupts: 152167622 / 38041905
+RX Interrupts Coalesced: 14117 / 3529
+RX Offlevel Interrupts: 465178 / 499478926721026
+RX Timer Queue Drain: 384233 / 96058
+RX Q1 Low Latency Packets: 406000433 / 101500108
+RX Q2 Standard Packets: 73874080 / 18468520
+RX Q3 Jumbo Packets: 0 / 0
+RX TCP Segment Aggregation Maximum Packets Aggregated: 4 / 1
+RX TCP Segment Aggregation Large Packets Created: 66399361 / 16599840
+RX TCP Packets Aggregated into Large Packets: 66399361 / 16599840
+RX TCP Segment Bytes Aggregated into Large Packets: 19114166040 / 4778541510
+TX F2 Normal Packets: 0 / 0
+TX F3 Low Latency Packets: 2 / 0
+TX Interface Specific Buffers: 0 / 0
+TX NON-Interface Specific Buffers: 0 / 0
+TX Maximum Work Requests: 2 / 0
+TX Max Data Segments: 0 / 0
+Queue Pair 0:
+-------------
+RX Interrupts: 126483593
+RX Interrupts Coalesced: 3612
+RX Offlevel Interrupts: 437947
+RX Timer Queue Drain: 200740
+RX Q1 Low Latency Packets: 367445648
+RX Q2 Standard Packets: 50572702
+RX Q3 Jumbo Packets: 0
+RX TCP Segment Aggregation Maximum Packets Aggregated: 1
+RX TCP Segment Aggregation Large Packets Created: 36426385
+RX TCP Packets Aggregated into Large Packets: 36426385
+RX TCP Segment Bytes Aggregated into Large Packets: 15845210312
+TX F2 Normal Packets: 0
+TX F3 Low Latency Packets: 0
+TX Interface Specific Buffers: 0
+TX NON-Interface Specific Buffers: 0
+TX Maximum Work Requests: 0
+TX Max Data Segments: 0
+Queue Pair 1:
+-------------
+RX Interrupts: 6923439
+RX Interrupts Coalesced: 2923
+RX Offlevel Interrupts: 15216
+RX Timer Queue Drain: 48749
+RX Q1 Low Latency Packets: 11214424
+RX Q2 Standard Packets: 10016047
+RX Q3 Jumbo Packets: 0
+RX TCP Segment Aggregation Maximum Packets Aggregated: 1
+RX TCP Segment Aggregation Large Packets Created: 12297424
+RX TCP Packets Aggregated into Large Packets: 12297424
+RX TCP Segment Bytes Aggregated into Large Packets: 0
+TX F2 Normal Packets: 0
+TX F3 Low Latency Packets: 0
+TX Interface Specific Buffers: 0
+TX NON-Interface Specific Buffers: 0
+TX Maximum Work Requests: 0
+TX Max Data Segments: 0
+Queue Pair 2:
+-------------
+RX Interrupts: 9719693
+RX Interrupts Coalesced: 2336
+RX Offlevel Interrupts: 811
+RX Timer Queue Drain: 37857
+RX Q1 Low Latency Packets: 13956749
+RX Q2 Standard Packets: 1908058
+RX Q3 Jumbo Packets: 0
+RX TCP Segment Aggregation Maximum Packets Aggregated: 1
+RX TCP Segment Aggregation Large Packets Created: 4246155
+RX TCP Packets Aggregated into Large Packets: 4246155
+RX TCP Segment Bytes Aggregated into Large Packets: 0
+TX F2 Normal Packets: 0
+TX F3 Low Latency Packets: 0
+TX Interface Specific Buffers: 0
+TX NON-Interface Specific Buffers: 0
+TX Maximum Work Requests: 0
+TX Max Data Segments: 0
+Queue Pair 3:
+-------------
+RX Interrupts: 9040897
+RX Interrupts Coalesced: 5246
+RX Offlevel Interrupts: 11204
+RX Timer Queue Drain: 96887
+RX Q1 Low Latency Packets: 13383612
+RX Q2 Standard Packets: 11377273
+RX Q3 Jumbo Packets: 0
+RX TCP Segment Aggregation Maximum Packets Aggregated: 1
+RX TCP Segment Aggregation Large Packets Created: 13429397
+RX TCP Packets Aggregated into Large Packets: 13429397
+RX TCP Segment Bytes Aggregated into Large Packets: 3268955728
+TX F2 Normal Packets: 0
+TX F3 Low Latency Packets: 2
+TX Interface Specific Buffers: 0
+TX NON-Interface Specific Buffers: 0
+TX Maximum Work Requests: 2
+TX Max Data Segments: 0
+Logical Host Ethernet Port (l-port) Driver Properties:
+------------------------------------------------------
+HW TX TCP Segmentation Offload: On 
+RX TCP Segment Aggregation: On 
+HW TX Checksum Offload: On 
+HW RX Checksum Offload: On 
+TX and RX Jumbo Frames: Off 
+RX Interrupt Coalescing: On 
+Promiscuous Mode: Off 
+Logical Port Link State: Up 
+Physical Port Link State: Up 
+Media Speed Selected: Autonegotiate 
+Media Speed Running: 1000 Mbps / 1 Gbps, Full Duplex 
+Logical Host Ethernet Port (l-port) Specific Properties:
+--------------------------------------------------------
+Logical Port Number: 19
+Port Operational State: Up 
+External-Network Switch-Port Operational State: Up 
+External-Network-Switch (ENS) Port Speed: 1000 Mbps / 1 Gbps, Full Duplex 
+Port Receive Control:     Logical Port Valid: True 
+    VLAN Extract: False 
+    TCP 6-tuple lookup enable: False 
+    UDP 6-tuple lookup enable: False 
+    TCP 3-tuple lookup enable: False 
+    TCP 2-tuple lookup enable: False 
+    LLC/SNAP packet handling: Accept 
+    Jumbo Frame Action: Discard 
+    Fragmented IP packet handling: Accept 
+    IP checksum error action: Accept 
+    MAC filter mode: False 
+    Untagged filtering mode: Accept 
+    VLAN tagged filtering mode: Filter according to VLAN permit array 
+TX Pause Frame Negotiated: True 
+RX Pause Frame Negotiated: True 
+Number of Default QPNs for Port: 4
+Default QPN Array: -262121936
+    QP0 | num: 84 | bid: 0x90000300 | ISN/level: 0x1E30F
+    QP1 | num: 85 | bid: 0x90000300 | ISN/level: 0x1E310
+    QP2 | num: 86 | bid: 0x90000300 | ISN/level: 0x1E311
+    QP3 | num: 87 | bid: 0x90000300 | ISN/level: 0x1E312
+Logical Host Ethernet Adapter (l-hea) Specific Properties:
+----------------------------------------------------------
+Logical Adapter Handle: 0x8000000003000000
+Notification Queue: 
+    Events: 9 | bid: 0x90000300 | ISN/level: 0x90100
+Current number of Queue Pairs: 16
+Current number of Completion Queues: 32
+Current number of Event Queues: 20
+Current number of Memory Regions: 92
+Max number of Queue Pairs: 16
+Max number of Completion Queues: 32
+Max number of Event Queues: 36
+Max number of Memory Regions: 1024
+Internal Clock Frequency: 250000000 HZ
+Max number of Protection Domains: 4294967295
+Max number of Address Handles: 4294967295
+Max number of CQEs per CQ: 16777216
+Max number of WQEs for any Queue: 32768
+Max number scatter/gather element in RQ1: 254
+Max number scatter/gather element in RQ2: 254
+Max number scatter/gather element in RQ3: 254
+Memory Region supported sizes:
+    4K 16K 1M 16M 256M 4G 
+Max Memory Region size: 5368709120
+Number of ports: 4
+Port Receive Control Mask: 0x21C7
+Max Mcast MAC per hea port: 32
+HEA Capabilities: 0x0
+Max number of ISNs per EQ/NEQ: 1
+NEQ support code: 2
+Max number of VLAN IDs per HEA port: 20
+Max number of port groups: 2
+Max number physical ports per port group: 2
+Port Query Mask: 0xE900000000000000
+Port Modify Mask: 0xE100000000000000
+HeaQueryHeaBlk : 
+	CurrNumQP = 16 
+	CurrNumCQ = 32 
+	CurrNumEQ = 20 
+	CurrNumMR = 92 
+	r0 = 0 
+	MaxNumQP = 16 
+	MaxNumCQ = 32 
+	MaxNumEQ = 36 
+	MaxNumMR = 1024 
+	r1 = 0 
+	IntClockFreq = 250000000 
+	MaxNumPD = 4294967295 
+	MaxNumAddrHandle = 4294967295 
+	MaxCQEperCQ = 16777216 
+	MaxNumWQE = 32768 
+	MaxDataSegRQ1WQE = 254 
+	MaxDataSegRQ2WQE = 254 
+	MaxDataSegRQ3WQE = 254 
+	MRsize32 = 4227858432 
+	r3 = 0 
+	MaxMRsize = 5368709120 
+	r4 = 0 
+	NumberOfPorts = 4 
+	r5 = 0 
+	PxLy_RC_MASK = (0x00000000000021c7)
+	MaxMcastMACHEAport = 32 
+	CapIndicatorRes = 0
+	MaxNumISN_EQ = 1
+	MaxNumNEQ = 2 
+	MaxVLANs = 20 
+	MaxNumPortGroup = 2
+	MaxNumPhysPortGroup = 2 
+	PortQueryMask = (0xe900000000000000)
+	PortModifyMask = (0xe100000000000000)
+PortCat0
+	PortMac64 = (0x80005cf3fc850e32)
+	PortRxCtrl64 = (0x0000000000004032)
+	r1 = 0 
+	PState = 1 
+	PortSpeed = 6 
+	EPState = 1 
+	TxRxPause = 3 
+	DfltQPNsPerPort = 4 
+	r2 = 0 
+	DfltQPNarray:
+  0: r1 = 0, r2 = 0, LPortDfltQPN = 84
+  1: r1 = 0, r2 = 0, LPortDfltQPN = 85
+  2: r1 = 0, r2 = 0, LPortDfltQPN = 86
+  3: r1 = 0, r2 = 0, LPortDfltQPN = 87
+  4: r1 = 0, r2 = 0, LPortDfltQPN = 84
+  5: r1 = 0, r2 = 0, LPortDfltQPN = 85
+  6: r1 = 0, r2 = 0, LPortDfltQPN = 86
+  7: r1 = 0, r2 = 0, LPortDfltQPN = 87
+  8: r1 = 0, r2 = 0, LPortDfltQPN = 84
+  9: r1 = 0, r2 = 0, LPortDfltQPN = 85
+ 10: r1 = 0, r2 = 0, LPortDfltQPN = 86
+ 11: r1 = 0, r2 = 0, LPortDfltQPN = 87
+ 12: r1 = 0, r2 = 0, LPortDfltQPN = 84
+ 13: r1 = 0, r2 = 0, LPortDfltQPN = 85
+ 14: r1 = 0, r2 = 0, LPortDfltQPN = 86
+ 15: r1 = 0, r2 = 0, LPortDfltQPN = 87
+PortCat1
+	VLANfilter (in hex)
+   0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	  32: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	  64: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	  96: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 128: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 160: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 192: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 224: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 256: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 288: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 320: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 352: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 384: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 416: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 448: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 480: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	
+PortCat2
+	RxOctets = 115142078401 
+	RxUcastPkt = 0 
+	RxUcastPktDropFilter = 0 
+	RxUcastPktDropError = 0 
+	RxPktDropLong = 0 
+	RxMcastPkt = 3792745 
+	RxBcastPkt = 476330982 
+	TxOctects = 128 
+	TxUcastPkt = 0 
+	TxMcastPkt = 2 
+	TxBcastPkt = 0 
+PortCat3
+	None
+PortCat4
+	PortSpeed = 6 
+	Pause = 15 
+	ENSPortState = 1 
+	JumboFrame = 0 
+	ENSPortWrap = 0 
+PortCat5
+	None
+PortCat6
+	None
+PortCat7
+	PortDfltQPN = 0
+	Pxs_VLANFUn[ 0] = 0 
+	Pxs_VLANFUn[ 1] = 0 
+	Pxs_VLANFUn[ 2] = 0 
+	Pxs_VLANFUn[ 3] = 0 
+	Pxs_VLANFUn[ 4] = 0 
+	Pxs_VLANFUn[ 5] = 0 
+	Pxs_VLANFUn[ 6] = 0 
+	Pxs_VLANFUn[ 7] = 0 
+	Pxs_VLANFUn[ 8] = 0 
+	Pxs_VLANFUn[ 9] = 0 
+	Pxs_VLANFUn[10] = 0 
+	Pxs_VLANFUn[11] = 0 
+	Pxs_VLANFUn[12] = 0 
+	Pxs_VLANFUn[13] = 0 
+	Pxs_VLANFUn[14] = 0 
+	Pxs_VLANFUn[15] = 0 
+	Pxs_VLANFUn[16] = 0 
+	Pxs_VLANFUn[17] = 0 
+	Pxs_VLANFUn[18] = 0 
+	Pxs_VLANFUn[19] = 0 
+	Pxs_VLANFUn[20] = 0 
+	Pxs_VLANFUn[21] = 0 
+	Pxs_VLANFUn[22] = 0 
+	Pxs_VLANFUn[23] = 0 
+	Pxs_VLANFUn[24] = 0 
+	Pxs_VLANFUn[25] = 0 
+	Pxs_VLANFUn[26] = 0 
+	Pxs_VLANFUn[27] = 0 
+	Pxs_VLANFUn[28] = 0 
+	Pxs_VLANFUn[29] = 0 
+	Pxs_VLANFUn[30] = 0 
+	Pxs_VLANFUn[31] = 0 
+	Pxs_VLANFUn[32] = 0 
+	Pxs_VLANFUn[33] = 0 
+	Pxs_VLANFUn[34] = 0 
+	Pxs_VLANFUn[35] = 0 
+	Pxs_VLANFUn[36] = 0 
+	Pxs_VLANFUn[37] = 0 
+	Pxs_VLANFUn[38] = 0 
+	Pxs_VLANFUn[39] = 0 
+	Pxs_VLANFUn[40] = 0 
+	Pxs_VLANFUn[41] = 0 
+	Pxs_VLANFUn[42] = 0 
+	Pxs_VLANFUn[43] = 0 
+	Pxs_VLANFUn[44] = 0 
+	Pxs_VLANFUn[45] = 0 
+	Pxs_VLANFUn[46] = 0 
+	Pxs_VLANFUn[47] = 0 
+	Pxs_VLANFUn[48] = 0 
+	Pxs_VLANFUn[49] = 0 
+	Pxs_VLANFUn[50] = 0 
+	Pxs_VLANFUn[51] = 0 
+	Pxs_VLANFUn[52] = 0 
+	Pxs_VLANFUn[53] = 0 
+	Pxs_VLANFUn[54] = 0 
+	Pxs_VLANFUn[55] = 0 
+	Pxs_VLANFUn[56] = 0 
+	Pxs_VLANFUn[57] = 0 
+	Pxs_VLANFUn[58] = 0 
+	Pxs_VLANFUn[59] = 0 
+	Pxs_VLANFUn[60] = 0 
+	Pxs_VLANFUn[61] = 0 
+	Pxs_VLANFUn[62] = 0 
+	Pxs_VLANFUn[63] = 0 
+	Pxs_MHASHn[ 0] = 0 
+	Pxs_MHASHn[ 1] = 0 
+	Pxs_MHASHn[ 2] = 0 
+	Pxs_MHASHn[ 3] = 0 
+	Pxs_MHASHn[ 4] = 0 
+	Pxs_MHASHn[ 5] = 0 
+	Pxs_MHASHn[ 6] = 0 
+	Pxs_MHASHn[ 7] = 0 
+	Pxs_MHASHn[ 8] = 0 
+	Pxs_MHASHn[ 9] = 0 
+	Pxs_MHASHn[10] = 0 
+	Pxs_MHASHn[11] = 0 
+	Pxs_MHASHn[12] = 0 
+	Pxs_MHASHn[13] = 0 
+	Pxs_MHASHn[14] = 0 
+	Pxs_MHASHn[15] = 0 
+	Pxs_MHASHn[16] = 0 
+	Pxs_MHASHn[17] = 0 
+	Pxs_MHASHn[18] = 0 
+	Pxs_MHASHn[19] = 0 
+	Pxs_MHASHn[20] = 0 
+	Pxs_MHASHn[21] = 0 
+	Pxs_MHASHn[22] = 0 
+	Pxs_MHASHn[23] = 0 
+	Pxs_MHASHn[24] = 0 
+	Pxs_MHASHn[25] = 0 
+	Pxs_MHASHn[26] = 0 
+	Pxs_MHASHn[27] = 0 
+	Pxs_MHASHn[28] = 0 
+	Pxs_MHASHn[29] = 0 
+	Pxs_MHASHn[30] = 0 
+	Pxs_MHASHn[31] = 0 
+	Pxs_MHASHn[32] = 0 
+	Pxs_MHASHn[33] = 0 
+	Pxs_MHASHn[34] = 0 
+	Pxs_MHASHn[35] = 0 
+	Pxs_MHASHn[36] = 0 
+	Pxs_MHASHn[37] = 0 
+	Pxs_MHASHn[38] = 0 
+	Pxs_MHASHn[39] = 0 
+	Pxs_MHASHn[40] = 0 
+	Pxs_MHASHn[41] = 0 
+	Pxs_MHASHn[42] = 0 
+	Pxs_MHASHn[43] = 0 
+	Pxs_MHASHn[44] = 0 
+	Pxs_MHASHn[45] = 0 
+	Pxs_MHASHn[46] = 0 
+	Pxs_MHASHn[47] = 0 
+	Pxs_MHASHn[48] = 0 
+	Pxs_MHASHn[49] = 0 
+	Pxs_MHASHn[50] = 0 
+	Pxs_MHASHn[51] = 0 
+	Pxs_MHASHn[52] = 0 
+	Pxs_MHASHn[53] = 0 
+	Pxs_MHASHn[54] = 0 
+	Pxs_MHASHn[55] = 0 
+	Pxs_MHASHn[56] = 0 
+	Pxs_MHASHn[57] = 0 
+	Pxs_MHASHn[58] = 0 
+	Pxs_MHASHn[59] = 0 
+	Pxs_MHASHn[60] = 0 
+	Pxs_MHASHn[61] = 0 
+	Pxs_MHASHn[62] = 0 
+	Pxs_MHASHn[63] = 0 
+-------------------------------------------------------------
+ETHERNET STATISTICS (ent3) :
+Device Type: Host Ethernet Adapter (l-hea)
+Hardware Address: 5c:f3:fc:85:0e:32
+Transmit Statistics:                          Receive Statistics:
+--------------------                          -------------------
+Packets: 599                                  Packets: 480082870
+Bytes: 38938                                  Bytes: 115454522393
+Interrupts: 0                                 Interrupts: 152169331
+Transmit Errors: 0                            Receive Errors: 0
+Packets Dropped: 0                            Packets Dropped: 221617
+                                              Bad Packets: 213
+Max Packets on S/W Transmit Queue: 31        
+S/W Transmit Queue Overflow: 0
+Current S/W+H/W Transmit Queue Length: 21
+Broadcast Packets: 31                         Broadcast Packets: 476288628
+Multicast Packets: 568                        Multicast Packets: 3794242
+No Carrier Sense: 0                           CRC Errors: 0
+DMA Underrun: 0                               DMA Overrun: 0
+Lost CTS Errors: 0                            Alignment Errors: 0
+Max Collision Errors: 0                       No Resource Errors: 0
+Late Collision Errors: 0                      Receive Collision Errors: 0
+Deferred: 0                                   Packet Too Short Errors: 0
+SQE Test: 0                                   Packet Too Long Errors: 0
+Timeout Errors: 0                             Packets Discarded by Adapter: 0
+Single Collision Count: 0                     Receiver Start Count: 0
+Multiple Collision Count: 0
+Current HW Transmit Queue Length: 21
+General Statistics:
+-------------------
+No mbuf Errors: 221404
+Adapter Reset Count: 0
+Adapter Data Rate: 2000
+Driver Flags: Up Broadcast Running 
+	Simplex 64BitSupport ChecksumOffload 
+	LargeSend DataRateSet 
+Multi-Core Scaling Specific Statistics:
+---------------------------------------
+Total / Average:
+----------------
+RX Interrupts: 152170000 / 38042500
+RX Interrupts Coalesced: 14321 / 3580
+RX Offlevel Interrupts: 464734 / 499002185351170
+RX Timer Queue Drain: 376976 / 94244
+RX Q1 Low Latency Packets: 406162071 / 101540517
+RX Q2 Standard Packets: 73699395 / 18424848
+RX Q3 Jumbo Packets: 0 / 0
+RX TCP Segment Aggregation Maximum Packets Aggregated: 4 / 1
+RX TCP Segment Aggregation Large Packets Created: 66174966 / 16543741
+RX TCP Packets Aggregated into Large Packets: 66174966 / 16543741
+RX TCP Segment Bytes Aggregated into Large Packets: 18877462940 / 4719365735
+TX F2 Normal Packets: 1 / 0
+TX F3 Low Latency Packets: 598 / 149
+TX Interface Specific Buffers: 0 / 0
+TX NON-Interface Specific Buffers: 1 / 0
+TX Maximum Work Requests: 31 / 7
+TX Max Data Segments: 1 / 0
+Queue Pair 0:
+-------------
+RX Interrupts: 126479590
+RX Interrupts Coalesced: 3659
+RX Offlevel Interrupts: 437606
+RX Timer Queue Drain: 191150
+RX Q1 Low Latency Packets: 367552850
+RX Q2 Standard Packets: 50725861
+RX Q3 Jumbo Packets: 0
+RX TCP Segment Aggregation Maximum Packets Aggregated: 1
+RX TCP Segment Aggregation Large Packets Created: 36503679
+RX TCP Packets Aggregated into Large Packets: 36503679
+RX TCP Segment Bytes Aggregated into Large Packets: 15678407508
+TX F2 Normal Packets: 0
+TX F3 Low Latency Packets: 31
+TX Interface Specific Buffers: 0
+TX NON-Interface Specific Buffers: 0
+TX Maximum Work Requests: 14
+TX Max Data Segments: 0
+Queue Pair 1:
+-------------
+RX Interrupts: 6926864
+RX Interrupts Coalesced: 3024
+RX Offlevel Interrupts: 15190
+RX Timer Queue Drain: 48000
+RX Q1 Low Latency Packets: 11236599
+RX Q2 Standard Packets: 10003909
+RX Q3 Jumbo Packets: 0
+RX TCP Segment Aggregation Maximum Packets Aggregated: 1
+RX TCP Segment Aggregation Large Packets Created: 12296920
+RX TCP Packets Aggregated into Large Packets: 12296920
+RX TCP Segment Bytes Aggregated into Large Packets: 0
+TX F2 Normal Packets: 0
+TX F3 Low Latency Packets: 0
+TX Interface Specific Buffers: 0
+TX NON-Interface Specific Buffers: 0
+TX Maximum Work Requests: 0
+TX Max Data Segments: 0
+Queue Pair 2:
+-------------
+RX Interrupts: 9723406
+RX Interrupts Coalesced: 2297
+RX Offlevel Interrupts: 803
+RX Timer Queue Drain: 37888
+RX Q1 Low Latency Packets: 13972648
+RX Q2 Standard Packets: 1908493
+RX Q3 Jumbo Packets: 0
+RX TCP Segment Aggregation Maximum Packets Aggregated: 1
+RX TCP Segment Aggregation Large Packets Created: 4252890
+RX TCP Packets Aggregated into Large Packets: 4252890
+RX TCP Segment Bytes Aggregated into Large Packets: 0
+TX F2 Normal Packets: 1
+TX F3 Low Latency Packets: 567
+TX Interface Specific Buffers: 0
+TX NON-Interface Specific Buffers: 1
+TX Maximum Work Requests: 17
+TX Max Data Segments: 1
+Queue Pair 3:
+-------------
+RX Interrupts: 9040140
+RX Interrupts Coalesced: 5341
+RX Offlevel Interrupts: 11135
+RX Timer Queue Drain: 99938
+RX Q1 Low Latency Packets: 13399974
+RX Q2 Standard Packets: 11061132
+RX Q3 Jumbo Packets: 0
+RX TCP Segment Aggregation Maximum Packets Aggregated: 1
+RX TCP Segment Aggregation Large Packets Created: 13121477
+RX TCP Packets Aggregated into Large Packets: 13121477
+RX TCP Segment Bytes Aggregated into Large Packets: 3199055432
+TX F2 Normal Packets: 0
+TX F3 Low Latency Packets: 0
+TX Interface Specific Buffers: 0
+TX NON-Interface Specific Buffers: 0
+TX Maximum Work Requests: 0
+TX Max Data Segments: 0
+Logical Host Ethernet Port (l-port) Driver Properties:
+------------------------------------------------------
+HW TX TCP Segmentation Offload: On 
+RX TCP Segment Aggregation: On 
+HW TX Checksum Offload: On 
+HW RX Checksum Offload: On 
+TX and RX Jumbo Frames: Off 
+RX Interrupt Coalescing: On 
+Promiscuous Mode: Off 
+Logical Port Link State: Up 
+Physical Port Link State: Up 
+Media Speed Selected: Autonegotiate 
+Media Speed Running: 1000 Mbps / 1 Gbps, Full Duplex 
+Logical Host Ethernet Port (l-port) Specific Properties:
+--------------------------------------------------------
+Logical Port Number: 20
+Port Operational State: Up 
+External-Network Switch-Port Operational State: Up 
+External-Network-Switch (ENS) Port Speed: 1000 Mbps / 1 Gbps, Full Duplex 
+Port Receive Control:     Logical Port Valid: True 
+    VLAN Extract: False 
+    TCP 6-tuple lookup enable: False 
+    UDP 6-tuple lookup enable: False 
+    TCP 3-tuple lookup enable: False 
+    TCP 2-tuple lookup enable: False 
+    LLC/SNAP packet handling: Accept 
+    Jumbo Frame Action: Discard 
+    Fragmented IP packet handling: Accept 
+    IP checksum error action: Accept 
+    MAC filter mode: False 
+    Untagged filtering mode: Accept 
+    VLAN tagged filtering mode: Filter according to VLAN permit array 
+TX Pause Frame Negotiated: True 
+RX Pause Frame Negotiated: True 
+Number of Default QPNs for Port: 4
+Default QPN Array: -262121936
+    QP0 | num: 88 | bid: 0x90000300 | ISN/level: 0x1E314
+    QP1 | num: 89 | bid: 0x90000300 | ISN/level: 0x1E315
+    QP2 | num: 90 | bid: 0x90000300 | ISN/level: 0x1E316
+    QP3 | num: 91 | bid: 0x90000300 | ISN/level: 0x1E317
+Logical Host Ethernet Adapter (l-hea) Specific Properties:
+----------------------------------------------------------
+Logical Adapter Handle: 0x8000000003000000
+Notification Queue: 
+    Events: 9 | bid: 0x90000300 | ISN/level: 0x90100
+Current number of Queue Pairs: 16
+Current number of Completion Queues: 32
+Current number of Event Queues: 20
+Current number of Memory Regions: 92
+Max number of Queue Pairs: 16
+Max number of Completion Queues: 32
+Max number of Event Queues: 36
+Max number of Memory Regions: 1024
+Internal Clock Frequency: 250000000 HZ
+Max number of Protection Domains: 4294967295
+Max number of Address Handles: 4294967295
+Max number of CQEs per CQ: 16777216
+Max number of WQEs for any Queue: 32768
+Max number scatter/gather element in RQ1: 254
+Max number scatter/gather element in RQ2: 254
+Max number scatter/gather element in RQ3: 254
+Memory Region supported sizes:
+    4K 16K 1M 16M 256M 4G 
+Max Memory Region size: 5368709120
+Number of ports: 4
+Port Receive Control Mask: 0x21C7
+Max Mcast MAC per hea port: 32
+HEA Capabilities: 0x0
+Max number of ISNs per EQ/NEQ: 1
+NEQ support code: 2
+Max number of VLAN IDs per HEA port: 20
+Max number of port groups: 2
+Max number physical ports per port group: 2
+Port Query Mask: 0xE900000000000000
+Port Modify Mask: 0xE100000000000000
+HeaQueryHeaBlk : 
+	CurrNumQP = 16 
+	CurrNumCQ = 32 
+	CurrNumEQ = 20 
+	CurrNumMR = 92 
+	r0 = 0 
+	MaxNumQP = 16 
+	MaxNumCQ = 32 
+	MaxNumEQ = 36 
+	MaxNumMR = 1024 
+	r1 = 0 
+	IntClockFreq = 250000000 
+	MaxNumPD = 4294967295 
+	MaxNumAddrHandle = 4294967295 
+	MaxCQEperCQ = 16777216 
+	MaxNumWQE = 32768 
+	MaxDataSegRQ1WQE = 254 
+	MaxDataSegRQ2WQE = 254 
+	MaxDataSegRQ3WQE = 254 
+	MRsize32 = 4227858432 
+	r3 = 0 
+	MaxMRsize = 5368709120 
+	r4 = 0 
+	NumberOfPorts = 4 
+	r5 = 0 
+	PxLy_RC_MASK = (0x00000000000021c7)
+	MaxMcastMACHEAport = 32 
+	CapIndicatorRes = 0
+	MaxNumISN_EQ = 1
+	MaxNumNEQ = 2 
+	MaxVLANs = 20 
+	MaxNumPortGroup = 2
+	MaxNumPhysPortGroup = 2 
+	PortQueryMask = (0xe900000000000000)
+	PortModifyMask = (0xe100000000000000)
+PortCat0
+	PortMac64 = (0xc0005cf3fc850e32)
+	PortRxCtrl64 = (0x0000000000004032)
+	r1 = 0 
+	PState = 1 
+	PortSpeed = 6 
+	EPState = 1 
+	TxRxPause = 3 
+	DfltQPNsPerPort = 4 
+	r2 = 0 
+	DfltQPNarray:
+  0: r1 = 0, r2 = 0, LPortDfltQPN = 88
+  1: r1 = 0, r2 = 0, LPortDfltQPN = 89
+  2: r1 = 0, r2 = 0, LPortDfltQPN = 90
+  3: r1 = 0, r2 = 0, LPortDfltQPN = 91
+  4: r1 = 0, r2 = 0, LPortDfltQPN = 88
+  5: r1 = 0, r2 = 0, LPortDfltQPN = 89
+  6: r1 = 0, r2 = 0, LPortDfltQPN = 90
+  7: r1 = 0, r2 = 0, LPortDfltQPN = 91
+  8: r1 = 0, r2 = 0, LPortDfltQPN = 88
+  9: r1 = 0, r2 = 0, LPortDfltQPN = 89
+ 10: r1 = 0, r2 = 0, LPortDfltQPN = 90
+ 11: r1 = 0, r2 = 0, LPortDfltQPN = 91
+ 12: r1 = 0, r2 = 0, LPortDfltQPN = 88
+ 13: r1 = 0, r2 = 0, LPortDfltQPN = 89
+ 14: r1 = 0, r2 = 0, LPortDfltQPN = 90
+ 15: r1 = 0, r2 = 0, LPortDfltQPN = 91
+PortCat1
+	VLANfilter (in hex)
+   0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	  32: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	  64: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	  96: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 128: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 160: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 192: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 224: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 256: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 288: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 320: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 352: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 384: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 416: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 448: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 480: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	
+PortCat2
+	RxOctets = 115454522393 
+	RxUcastPkt = 0 
+	RxUcastPktDropFilter = 0 
+	RxUcastPktDropError = 0 
+	RxPktDropLong = 0 
+	RxMcastPkt = 3794242 
+	RxBcastPkt = 476288628 
+	TxOctects = 38938 
+	TxUcastPkt = 0 
+	TxMcastPkt = 568 
+	TxBcastPkt = 31 
+PortCat3
+	None
+PortCat4
+	PortSpeed = 6 
+	Pause = 15 
+	ENSPortState = 1 
+	JumboFrame = 0 
+	ENSPortWrap = 0 
+PortCat5
+	None
+PortCat6
+	None
+PortCat7
+	PortDfltQPN = 0
+	Pxs_VLANFUn[ 0] = 0 
+	Pxs_VLANFUn[ 1] = 0 
+	Pxs_VLANFUn[ 2] = 0 
+	Pxs_VLANFUn[ 3] = 0 
+	Pxs_VLANFUn[ 4] = 0 
+	Pxs_VLANFUn[ 5] = 0 
+	Pxs_VLANFUn[ 6] = 0 
+	Pxs_VLANFUn[ 7] = 0 
+	Pxs_VLANFUn[ 8] = 0 
+	Pxs_VLANFUn[ 9] = 0 
+	Pxs_VLANFUn[10] = 0 
+	Pxs_VLANFUn[11] = 0 
+	Pxs_VLANFUn[12] = 0 
+	Pxs_VLANFUn[13] = 0 
+	Pxs_VLANFUn[14] = 0 
+	Pxs_VLANFUn[15] = 0 
+	Pxs_VLANFUn[16] = 0 
+	Pxs_VLANFUn[17] = 0 
+	Pxs_VLANFUn[18] = 0 
+	Pxs_VLANFUn[19] = 0 
+	Pxs_VLANFUn[20] = 0 
+	Pxs_VLANFUn[21] = 0 
+	Pxs_VLANFUn[22] = 0 
+	Pxs_VLANFUn[23] = 0 
+	Pxs_VLANFUn[24] = 0 
+	Pxs_VLANFUn[25] = 0 
+	Pxs_VLANFUn[26] = 0 
+	Pxs_VLANFUn[27] = 0 
+	Pxs_VLANFUn[28] = 0 
+	Pxs_VLANFUn[29] = 0 
+	Pxs_VLANFUn[30] = 0 
+	Pxs_VLANFUn[31] = 0 
+	Pxs_VLANFUn[32] = 0 
+	Pxs_VLANFUn[33] = 0 
+	Pxs_VLANFUn[34] = 0 
+	Pxs_VLANFUn[35] = 0 
+	Pxs_VLANFUn[36] = 0 
+	Pxs_VLANFUn[37] = 0 
+	Pxs_VLANFUn[38] = 0 
+	Pxs_VLANFUn[39] = 0 
+	Pxs_VLANFUn[40] = 0 
+	Pxs_VLANFUn[41] = 0 
+	Pxs_VLANFUn[42] = 0 
+	Pxs_VLANFUn[43] = 0 
+	Pxs_VLANFUn[44] = 0 
+	Pxs_VLANFUn[45] = 0 
+	Pxs_VLANFUn[46] = 0 
+	Pxs_VLANFUn[47] = 0 
+	Pxs_VLANFUn[48] = 0 
+	Pxs_VLANFUn[49] = 0 
+	Pxs_VLANFUn[50] = 0 
+	Pxs_VLANFUn[51] = 0 
+	Pxs_VLANFUn[52] = 0 
+	Pxs_VLANFUn[53] = 0 
+	Pxs_VLANFUn[54] = 0 
+	Pxs_VLANFUn[55] = 0 
+	Pxs_VLANFUn[56] = 0 
+	Pxs_VLANFUn[57] = 0 
+	Pxs_VLANFUn[58] = 0 
+	Pxs_VLANFUn[59] = 0 
+	Pxs_VLANFUn[60] = 0 
+	Pxs_VLANFUn[61] = 0 
+	Pxs_VLANFUn[62] = 0 
+	Pxs_VLANFUn[63] = 0 
+	Pxs_MHASHn[ 0] = 0 
+	Pxs_MHASHn[ 1] = 0 
+	Pxs_MHASHn[ 2] = 0 
+	Pxs_MHASHn[ 3] = 0 
+	Pxs_MHASHn[ 4] = 0 
+	Pxs_MHASHn[ 5] = 0 
+	Pxs_MHASHn[ 6] = 0 
+	Pxs_MHASHn[ 7] = 0 
+	Pxs_MHASHn[ 8] = 0 
+	Pxs_MHASHn[ 9] = 0 
+	Pxs_MHASHn[10] = 0 
+	Pxs_MHASHn[11] = 0 
+	Pxs_MHASHn[12] = 0 
+	Pxs_MHASHn[13] = 0 
+	Pxs_MHASHn[14] = 0 
+	Pxs_MHASHn[15] = 0 
+	Pxs_MHASHn[16] = 0 
+	Pxs_MHASHn[17] = 0 
+	Pxs_MHASHn[18] = 0 
+	Pxs_MHASHn[19] = 0 
+	Pxs_MHASHn[20] = 0 
+	Pxs_MHASHn[21] = 0 
+	Pxs_MHASHn[22] = 0 
+	Pxs_MHASHn[23] = 0 
+	Pxs_MHASHn[24] = 0 
+	Pxs_MHASHn[25] = 0 
+	Pxs_MHASHn[26] = 0 
+	Pxs_MHASHn[27] = 0 
+	Pxs_MHASHn[28] = 0 
+	Pxs_MHASHn[29] = 0 
+	Pxs_MHASHn[30] = 0 
+	Pxs_MHASHn[31] = 0 
+	Pxs_MHASHn[32] = 0 
+	Pxs_MHASHn[33] = 0 
+	Pxs_MHASHn[34] = 0 
+	Pxs_MHASHn[35] = 0 
+	Pxs_MHASHn[36] = 0 
+	Pxs_MHASHn[37] = 0 
+	Pxs_MHASHn[38] = 0 
+	Pxs_MHASHn[39] = 0 
+	Pxs_MHASHn[40] = 0 
+	Pxs_MHASHn[41] = 0 
+	Pxs_MHASHn[42] = 0 
+	Pxs_MHASHn[43] = 0 
+	Pxs_MHASHn[44] = 0 
+	Pxs_MHASHn[45] = 0 
+	Pxs_MHASHn[46] = 0 
+	Pxs_MHASHn[47] = 0 
+	Pxs_MHASHn[48] = 0 
+	Pxs_MHASHn[49] = 0 
+	Pxs_MHASHn[50] = 0 
+	Pxs_MHASHn[51] = 0 
+	Pxs_MHASHn[52] = 0 
+	Pxs_MHASHn[53] = 0 
+	Pxs_MHASHn[54] = 0 
+	Pxs_MHASHn[55] = 0 
+	Pxs_MHASHn[56] = 0 
+	Pxs_MHASHn[57] = 0 
+	Pxs_MHASHn[58] = 0 
+	Pxs_MHASHn[59] = 0 
+	Pxs_MHASHn[60] = 0 
+	Pxs_MHASHn[61] = 0 
+	Pxs_MHASHn[62] = 0 
+	Pxs_MHASHn[63] = 0 
+-------------------------------------------------------------
+ETHERNET STATISTICS (ent5) :
+Device Type: Shared Ethernet Adapter
+Hardware Address: 5c:f3:fc:85:0e:21
+Elapsed Time: 39 days 2 hours 46 minutes 40 seconds
+Transmit Statistics:                          Receive Statistics:
+--------------------                          -------------------
+Packets: 1302457031                           Packets: 2556041576
+Bytes: 469828306833                           Bytes: 941485521356
+Interrupts: 0                                 Interrupts: 502207326
+Transmit Errors: 0                            Receive Errors: 0
+Packets Dropped: 0                            Packets Dropped: 668510
+                                              Bad Packets: 215
+Max Packets on S/W Transmit Queue: 68        
+S/W Transmit Queue Overflow: 0
+Current S/W+H/W Transmit Queue Length: 34
+Elapsed Time: 0 days 0 hours 0 minutes 0 seconds
+Broadcast Packets: 223257795                  Broadcast Packets: 550681450
+Multicast Packets: 795273786                  Multicast Packets: 1713782767
+No Carrier Sense: 0                           CRC Errors: 0
+DMA Underrun: 0                               DMA Overrun: 0
+Lost CTS Errors: 0                            Alignment Errors: 0
+Max Collision Errors: 0                       No Resource Errors: 0
+Late Collision Errors: 0                      Receive Collision Errors: 0
+Deferred: 0                                   Packet Too Short Errors: 0
+SQE Test: 0                                   Packet Too Long Errors: 0
+Timeout Errors: 0                             Packets Discarded by Adapter: 0
+Single Collision Count: 0                     Receiver Start Count: 0
+Multiple Collision Count: 0
+Current HW Transmit Queue Length: 34
+General Statistics:
+-------------------
+No mbuf Errors: 668295
+Adapter Reset Count: 0
+Adapter Data Rate: 0
+Driver Flags: Up Broadcast Running 
+	Simplex 64BitSupport ChecksumOffload 
+	LargeSend DataRateSet 
+--------------------------------------------------------------
+Statistics for adapters in the Shared Ethernet Adapter ent5
+--------------------------------------------------------------
+Number of adapters: 2
+SEA Flags: 00000183
+    < THREAD >
+    < LARGESEND >
+VLAN Ids :
+    ent4: 1
+Real Side Statistics:
+    Packets received: 1172279748
+    Packets bridged: 1164769764
+    Packets consumed: 1025880700
+    Packets fragmented: 0
+    Packets transmitted: 137687267
+    Packets dropped: 1248112141
+    Packets filtered(VlanId): 0
+    Packets filtered(Reserved address): 7509984
+Virtual Side Statistics:
+    Packets received: 137687267
+    Packets bridged: 137687267
+    Packets consumed: 80
+    Packets fragmented: 0
+    Packets transmitted: 1164769764
+    Packets dropped: 90463
+    Packets filtered(VlanId): 0
+Other Statistics:
+    Output packets generated: 0
+    Output packets dropped: 0
+    Device output failures: 0
+    Memory allocation failures: 19860
+    ICMP error packets sent: 0
+    Non IP packets larger than MTU: 0
+    Thread queue overflow packets: 1245406048
+	SEA THREADS INFORMATION
+	Thread .............. #0
+    SEA Default Queue #8 
+    Queue full dropped packets: 100292988
+    Queue packets queued: 0
+    Queue average packets queued: 392
+    Queue packets count: 102360348
+    Queue max packets queued: 8191
+	Thread .............. #1
+    SEA Default Queue #8 
+    Queue full dropped packets: 70792967
+    Queue packets queued: 0
+    Queue average packets queued: 343
+    Queue packets count: 107503670
+    Queue max packets queued: 8191
+	Thread .............. #2
+    SEA Default Queue #8 
+    Queue full dropped packets: 45616645
+    Queue packets queued: 0
+    Queue average packets queued: 359
+    Queue packets count: 92770525
+    Queue max packets queued: 8191
+	Thread .............. #3
+    SEA Default Queue #8 
+    Queue full dropped packets: 606917488
+    Queue packets queued: 0
+    Queue average packets queued: 7145
+    Queue packets count: 542111661
+    Queue max packets queued: 8191
+	Thread .............. #4
+    SEA Default Queue #8 
+    Queue full dropped packets: 355449664
+    Queue packets queued: 0
+    Queue average packets queued: 6857
+    Queue packets count: 322160415
+    Queue max packets queued: 8191
+	Thread .............. #5
+    SEA Default Queue #8 
+    Queue full dropped packets: 23241781
+    Queue packets queued: 0
+    Queue average packets queued: 467
+    Queue packets count: 67495017
+    Queue max packets queued: 8191
+	Thread .............. #6
+    SEA Default Queue #8 
+    Queue full dropped packets: 43094515
+    Queue packets queued: 0
+    Queue average packets queued: 449
+    Queue packets count: 75565379
+    Queue max packets queued: 8191
+--------------------------------------------------------------
+Real Adapter: ent1
+ETHERNET STATISTICS (ent1) :
+Device Type: Host Ethernet Adapter (l-hea)
+Hardware Address: 5c:f3:fc:85:0e:21
+Transmit Statistics:                          Receive Statistics:
+--------------------                          -------------------
+Packets: 137687267                            Packets: 2418263924
+Bytes: 30321172502                            Bytes: 911765237583
+Interrupts: 0                                 Interrupts: 370634485
+Transmit Errors: 0                            Receive Errors: 0
+Packets Dropped: 0                            Packets Dropped: 668510
+                                              Bad Packets: 215
+Max Packets on S/W Transmit Queue: 68        
+S/W Transmit Queue Overflow: 0
+Current S/W+H/W Transmit Queue Length: 34
+Broadcast Packets: 109848                     Broadcast Packets: 550571590
+Multicast Packets: 31157                      Multicast Packets: 1713751593
+No Carrier Sense: 0                           CRC Errors: 0
+DMA Underrun: 0                               DMA Overrun: 0
+Lost CTS Errors: 0                            Alignment Errors: 0
+Max Collision Errors: 0                       No Resource Errors: 0
+Late Collision Errors: 0                      Receive Collision Errors: 0
+Deferred: 0                                   Packet Too Short Errors: 0
+SQE Test: 0                                   Packet Too Long Errors: 0
+Timeout Errors: 0                             Packets Discarded by Adapter: 0
+Single Collision Count: 0                     Receiver Start Count: 0
+Multiple Collision Count: 0
+Current HW Transmit Queue Length: 34
+General Statistics:
+-------------------
+No mbuf Errors: 668295
+Adapter Reset Count: 0
+Adapter Data Rate: 2000
+Driver Flags: Up Broadcast Running 
+	Simplex Promiscuous AllMulticast 
+	64BitSupport ChecksumOffload LargeSend DataRateSet 
+Multi-Core Scaling Specific Statistics:
+---------------------------------------
+Total / Average:
+----------------
+RX Interrupts: 370636378 / 92659094
+RX Interrupts Coalesced: 209078 / 52269
+RX Offlevel Interrupts: 814701 / 874777464012801
+RX Timer Queue Drain: 31503367 / 7875841
+RX Q1 Low Latency Packets: 623662114 / 155915528
+RX Q2 Standard Packets: 1793933515 / 448483378
+RX Q3 Jumbo Packets: 0 / 0
+TX F2 Normal Packets: 24174156 / 6043539
+TX F3 Low Latency Packets: 113513111 / 28378277
+TX Interface Specific Buffers: 0 / 0
+TX NON-Interface Specific Buffers: 24174156 / 6043539
+TX Maximum Work Requests: 77 / 19
+TX Max Data Segments: 4 / 1
+Queue Pair 0:
+-------------
+RX Interrupts: 308594507
+RX Interrupts Coalesced: 180503
+RX Offlevel Interrupts: 647456
+RX Timer Queue Drain: 12237468
+RX Q1 Low Latency Packets: 567636916
+RX Q2 Standard Packets: 711394022
+RX Q3 Jumbo Packets: 0
+TX F2 Normal Packets: 6666996
+TX F3 Low Latency Packets: 32583519
+TX Interface Specific Buffers: 0
+TX NON-Interface Specific Buffers: 6666996
+TX Maximum Work Requests: 18
+TX Max Data Segments: 1
+Queue Pair 1:
+-------------
+RX Interrupts: 9127447
+RX Interrupts Coalesced: 9017
+RX Offlevel Interrupts: 62380
+RX Timer Queue Drain: 124139
+RX Q1 Low Latency Packets: 15447296
+RX Q2 Standard Packets: 34316332
+RX Q3 Jumbo Packets: 0
+TX F2 Normal Packets: 5762510
+TX F3 Low Latency Packets: 27501265
+TX Interface Specific Buffers: 0
+TX NON-Interface Specific Buffers: 5762510
+TX Maximum Work Requests: 21
+TX Max Data Segments: 1
+Queue Pair 2:
+-------------
+RX Interrupts: 38780835
+RX Interrupts Coalesced: 9193
+RX Offlevel Interrupts: 93816
+RX Timer Queue Drain: 19007070
+RX Q1 Low Latency Packets: 22533685
+RX Q2 Standard Packets: 1035296401
+RX Q3 Jumbo Packets: 0
+TX F2 Normal Packets: 5905830
+TX F3 Low Latency Packets: 29140184
+TX Interface Specific Buffers: 0
+TX NON-Interface Specific Buffers: 5905830
+TX Maximum Work Requests: 18
+TX Max Data Segments: 1
+Queue Pair 3:
+-------------
+RX Interrupts: 14133589
+RX Interrupts Coalesced: 10365
+RX Offlevel Interrupts: 11049
+RX Timer Queue Drain: 134690
+RX Q1 Low Latency Packets: 18044217
+RX Q2 Standard Packets: 12926760
+RX Q3 Jumbo Packets: 0
+TX F2 Normal Packets: 5838820
+TX F3 Low Latency Packets: 24288143
+TX Interface Specific Buffers: 0
+TX NON-Interface Specific Buffers: 5838820
+TX Maximum Work Requests: 20
+TX Max Data Segments: 1
+Logical Host Ethernet Port (l-port) Driver Properties:
+------------------------------------------------------
+HW TX TCP Segmentation Offload: On 
+RX TCP Segment Aggregation: Off 
+HW TX Checksum Offload: On 
+HW RX Checksum Offload: On 
+TX and RX Jumbo Frames: Off 
+RX Interrupt Coalescing: On 
+Promiscuous Mode:  (QP 80)/On 
+Logical Port Link State: Up 
+Physical Port Link State: Up 
+Media Speed Selected: Autonegotiate 
+Media Speed Running: 1000 Mbps / 1 Gbps, Full Duplex 
+Logical Host Ethernet Port (l-port) Specific Properties:
+--------------------------------------------------------
+Logical Port Number: 2
+Port Operational State: Up 
+External-Network Switch-Port Operational State: Up 
+External-Network-Switch (ENS) Port Speed: 1000 Mbps / 1 Gbps, Full Duplex 
+Port Receive Control:     Logical Port Valid: True 
+    VLAN Extract: False 
+    TCP 6-tuple lookup enable: False 
+    UDP 6-tuple lookup enable: False 
+    TCP 3-tuple lookup enable: False 
+    TCP 2-tuple lookup enable: False 
+    LLC/SNAP packet handling: Accept 
+    Jumbo Frame Action: Discard 
+    Fragmented IP packet handling: Accept 
+    IP checksum error action: Accept 
+    MAC filter mode: False 
+    Untagged filtering mode: Accept 
+    VLAN tagged filtering mode: Filter according to VLAN permit array 
+TX Pause Frame Negotiated: True 
+RX Pause Frame Negotiated: True 
+Number of Default QPNs for Port: 4
+Default QPN Array: -262121936
+    QP0 | num: 80 | bid: 0x90000300 | ISN/level: 0x1E30A
+    QP1 | num: 81 | bid: 0x90000300 | ISN/level: 0x1E30B
+    QP2 | num: 82 | bid: 0x90000300 | ISN/level: 0x1E30C
+    QP3 | num: 83 | bid: 0x90000300 | ISN/level: 0x1E30D
+Logical Host Ethernet Adapter (l-hea) Specific Properties:
+----------------------------------------------------------
+Logical Adapter Handle: 0x8000000003000000
+Notification Queue: 
+    Events: 9 | bid: 0x90000300 | ISN/level: 0x90100
+Current number of Queue Pairs: 16
+Current number of Completion Queues: 32
+Current number of Event Queues: 20
+Current number of Memory Regions: 92
+Max number of Queue Pairs: 16
+Max number of Completion Queues: 32
+Max number of Event Queues: 36
+Max number of Memory Regions: 1024
+Internal Clock Frequency: 250000000 HZ
+Max number of Protection Domains: 4294967295
+Max number of Address Handles: 4294967295
+Max number of CQEs per CQ: 16777216
+Max number of WQEs for any Queue: 32768
+Max number scatter/gather element in RQ1: 254
+Max number scatter/gather element in RQ2: 254
+Max number scatter/gather element in RQ3: 254
+Memory Region supported sizes:
+    4K 16K 1M 16M 256M 4G 
+Max Memory Region size: 5368709120
+Number of ports: 4
+Port Receive Control Mask: 0x21C7
+Max Mcast MAC per hea port: 32
+HEA Capabilities: 0x0
+Max number of ISNs per EQ/NEQ: 1
+NEQ support code: 2
+Max number of VLAN IDs per HEA port: 20
+Max number of port groups: 2
+Max number physical ports per port group: 2
+Port Query Mask: 0xE900000000000000
+Port Modify Mask: 0xE100000000000000
+HeaQueryHeaBlk : 
+	CurrNumQP = 16 
+	CurrNumCQ = 32 
+	CurrNumEQ = 20 
+	CurrNumMR = 92 
+	r0 = 0 
+	MaxNumQP = 16 
+	MaxNumCQ = 32 
+	MaxNumEQ = 36 
+	MaxNumMR = 1024 
+	r1 = 0 
+	IntClockFreq = 250000000 
+	MaxNumPD = 4294967295 
+	MaxNumAddrHandle = 4294967295 
+	MaxCQEperCQ = 16777216 
+	MaxNumWQE = 32768 
+	MaxDataSegRQ1WQE = 254 
+	MaxDataSegRQ2WQE = 254 
+	MaxDataSegRQ3WQE = 254 
+	MRsize32 = 4227858432 
+	r3 = 0 
+	MaxMRsize = 5368709120 
+	r4 = 0 
+	NumberOfPorts = 4 
+	r5 = 0 
+	PxLy_RC_MASK = (0x00000000000021c7)
+	MaxMcastMACHEAport = 32 
+	CapIndicatorRes = 0
+	MaxNumISN_EQ = 1
+	MaxNumNEQ = 2 
+	MaxVLANs = 20 
+	MaxNumPortGroup = 2
+	MaxNumPhysPortGroup = 2 
+	PortQueryMask = (0xe900000000000000)
+	PortModifyMask = (0xe100000000000000)
+PortCat0
+	PortMac64 = (0xc0005cf3fc850e21)
+	PortRxCtrl64 = (0x0000000000004032)
+	r1 = 0 
+	PState = 1 
+	PortSpeed = 6 
+	EPState = 1 
+	TxRxPause = 3 
+	DfltQPNsPerPort = 4 
+	r2 = 0 
+	DfltQPNarray:
+  0: r1 = 0, r2 = 0, LPortDfltQPN = 80
+  1: r1 = 0, r2 = 0, LPortDfltQPN = 81
+  2: r1 = 0, r2 = 0, LPortDfltQPN = 82
+  3: r1 = 0, r2 = 0, LPortDfltQPN = 83
+  4: r1 = 0, r2 = 0, LPortDfltQPN = 80
+  5: r1 = 0, r2 = 0, LPortDfltQPN = 81
+  6: r1 = 0, r2 = 0, LPortDfltQPN = 82
+  7: r1 = 0, r2 = 0, LPortDfltQPN = 83
+  8: r1 = 0, r2 = 0, LPortDfltQPN = 80
+  9: r1 = 0, r2 = 0, LPortDfltQPN = 81
+ 10: r1 = 0, r2 = 0, LPortDfltQPN = 82
+ 11: r1 = 0, r2 = 0, LPortDfltQPN = 83
+ 12: r1 = 0, r2 = 0, LPortDfltQPN = 80
+ 13: r1 = 0, r2 = 0, LPortDfltQPN = 81
+ 14: r1 = 0, r2 = 0, LPortDfltQPN = 82
+ 15: r1 = 0, r2 = 0, LPortDfltQPN = 83
+PortCat1
+	VLANfilter (in hex)
+   0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	  32: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	  64: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	  96: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 128: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 160: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 192: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 224: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 256: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 288: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 320: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 352: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 384: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 416: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 448: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	 480: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	
+PortCat2
+	RxOctets = 911765237583 
+	RxUcastPkt = 153940741 
+	RxUcastPktDropFilter = 0 
+	RxUcastPktDropError = 0 
+	RxPktDropLong = 0 
+	RxMcastPkt = 1713751593 
+	RxBcastPkt = 550571590 
+	TxOctects = 30321172502 
+	TxUcastPkt = 137546262 
+	TxMcastPkt = 31157 
+	TxBcastPkt = 109848 
+PortCat3
+	None
+PortCat4
+	PortSpeed = 6 
+	Pause = 15 
+	ENSPortState = 1 
+	JumboFrame = 0 
+	ENSPortWrap = 0 
+PortCat5
+	None
+PortCat6
+	None
+PortCat7
+	PortDfltQPN = 80
+	Pxs_VLANFUn[ 0] = 0 
+	Pxs_VLANFUn[ 1] = 0 
+	Pxs_VLANFUn[ 2] = 0 
+	Pxs_VLANFUn[ 3] = 0 
+	Pxs_VLANFUn[ 4] = 0 
+	Pxs_VLANFUn[ 5] = 0 
+	Pxs_VLANFUn[ 6] = 0 
+	Pxs_VLANFUn[ 7] = 0 
+	Pxs_VLANFUn[ 8] = 0 
+	Pxs_VLANFUn[ 9] = 0 
+	Pxs_VLANFUn[10] = 0 
+	Pxs_VLANFUn[11] = 0 
+	Pxs_VLANFUn[12] = 0 
+	Pxs_VLANFUn[13] = 0 
+	Pxs_VLANFUn[14] = 0 
+	Pxs_VLANFUn[15] = 0 
+	Pxs_VLANFUn[16] = 0 
+	Pxs_VLANFUn[17] = 0 
+	Pxs_VLANFUn[18] = 0 
+	Pxs_VLANFUn[19] = 0 
+	Pxs_VLANFUn[20] = 0 
+	Pxs_VLANFUn[21] = 0 
+	Pxs_VLANFUn[22] = 0 
+	Pxs_VLANFUn[23] = 0 
+	Pxs_VLANFUn[24] = 0 
+	Pxs_VLANFUn[25] = 0 
+	Pxs_VLANFUn[26] = 0 
+	Pxs_VLANFUn[27] = 0 
+	Pxs_VLANFUn[28] = 0 
+	Pxs_VLANFUn[29] = 0 
+	Pxs_VLANFUn[30] = 0 
+	Pxs_VLANFUn[31] = 0 
+	Pxs_VLANFUn[32] = 0 
+	Pxs_VLANFUn[33] = 0 
+	Pxs_VLANFUn[34] = 0 
+	Pxs_VLANFUn[35] = 0 
+	Pxs_VLANFUn[36] = 0 
+	Pxs_VLANFUn[37] = 0 
+	Pxs_VLANFUn[38] = 0 
+	Pxs_VLANFUn[39] = 0 
+	Pxs_VLANFUn[40] = 0 
+	Pxs_VLANFUn[41] = 0 
+	Pxs_VLANFUn[42] = 0 
+	Pxs_VLANFUn[43] = 0 
+	Pxs_VLANFUn[44] = 0 
+	Pxs_VLANFUn[45] = 0 
+	Pxs_VLANFUn[46] = 0 
+	Pxs_VLANFUn[47] = 0 
+	Pxs_VLANFUn[48] = 0 
+	Pxs_VLANFUn[49] = 0 
+	Pxs_VLANFUn[50] = 0 
+	Pxs_VLANFUn[51] = 0 
+	Pxs_VLANFUn[52] = 0 
+	Pxs_VLANFUn[53] = 0 
+	Pxs_VLANFUn[54] = 0 
+	Pxs_VLANFUn[55] = 0 
+	Pxs_VLANFUn[56] = 0 
+	Pxs_VLANFUn[57] = 0 
+	Pxs_VLANFUn[58] = 0 
+	Pxs_VLANFUn[59] = 0 
+	Pxs_VLANFUn[60] = 0 
+	Pxs_VLANFUn[61] = 0 
+	Pxs_VLANFUn[62] = 0 
+	Pxs_VLANFUn[63] = 0 
+	Pxs_MHASHn[ 0] = 0 
+	Pxs_MHASHn[ 1] = 0 
+	Pxs_MHASHn[ 2] = 0 
+	Pxs_MHASHn[ 3] = 0 
+	Pxs_MHASHn[ 4] = 0 
+	Pxs_MHASHn[ 5] = 0 
+	Pxs_MHASHn[ 6] = 0 
+	Pxs_MHASHn[ 7] = 0 
+	Pxs_MHASHn[ 8] = 0 
+	Pxs_MHASHn[ 9] = 0 
+	Pxs_MHASHn[10] = 0 
+	Pxs_MHASHn[11] = 0 
+	Pxs_MHASHn[12] = 0 
+	Pxs_MHASHn[13] = 0 
+	Pxs_MHASHn[14] = 0 
+	Pxs_MHASHn[15] = 0 
+	Pxs_MHASHn[16] = 0 
+	Pxs_MHASHn[17] = 0 
+	Pxs_MHASHn[18] = 0 
+	Pxs_MHASHn[19] = 0 
+	Pxs_MHASHn[20] = 0 
+	Pxs_MHASHn[21] = 0 
+	Pxs_MHASHn[22] = 0 
+	Pxs_MHASHn[23] = 0 
+	Pxs_MHASHn[24] = 0 
+	Pxs_MHASHn[25] = 0 
+	Pxs_MHASHn[26] = 0 
+	Pxs_MHASHn[27] = 0 
+	Pxs_MHASHn[28] = 0 
+	Pxs_MHASHn[29] = 0 
+	Pxs_MHASHn[30] = 0 
+	Pxs_MHASHn[31] = 0 
+	Pxs_MHASHn[32] = 0 
+	Pxs_MHASHn[33] = 0 
+	Pxs_MHASHn[34] = 0 
+	Pxs_MHASHn[35] = 0 
+	Pxs_MHASHn[36] = 0 
+	Pxs_MHASHn[37] = 0 
+	Pxs_MHASHn[38] = 0 
+	Pxs_MHASHn[39] = 0 
+	Pxs_MHASHn[40] = 0 
+	Pxs_MHASHn[41] = 0 
+	Pxs_MHASHn[42] = 0 
+	Pxs_MHASHn[43] = 0 
+	Pxs_MHASHn[44] = 0 
+	Pxs_MHASHn[45] = 0 
+	Pxs_MHASHn[46] = 0 
+	Pxs_MHASHn[47] = 0 
+	Pxs_MHASHn[48] = 0 
+	Pxs_MHASHn[49] = 0 
+	Pxs_MHASHn[50] = 0 
+	Pxs_MHASHn[51] = 0 
+	Pxs_MHASHn[52] = 0 
+	Pxs_MHASHn[53] = 0 
+	Pxs_MHASHn[54] = 0 
+	Pxs_MHASHn[55] = 0 
+	Pxs_MHASHn[56] = 0 
+	Pxs_MHASHn[57] = 0 
+	Pxs_MHASHn[58] = 0 
+	Pxs_MHASHn[59] = 0 
+	Pxs_MHASHn[60] = 0 
+	Pxs_MHASHn[61] = 0 
+	Pxs_MHASHn[62] = 0 
+	Pxs_MHASHn[63] = 0 
+--------------------------------------------------------------
+Virtual Adapter: ent4
+ETHERNET STATISTICS (ent4) :
+Device Type: Virtual I/O Ethernet Adapter (l-lan)
+Hardware Address: 36:0b:c5:6c:87:03
+Transmit Statistics:                          Receive Statistics:
+--------------------                          -------------------
+Packets: 1164769764                           Packets: 137777652
+Bytes: 439507134331                           Bytes: 29720283773
+Interrupts: 0                                 Interrupts: 131572841
+Transmit Errors: 0                            Receive Errors: 0
+Packets Dropped: 0                            Packets Dropped: 0
+                                              Bad Packets: 0
+Max Packets on S/W Transmit Queue: 0         
+S/W Transmit Queue Overflow: 0
+Current S/W+H/W Transmit Queue Length: 0
+Broadcast Packets: 223147947                  Broadcast Packets: 109860
+Multicast Packets: 795242629                  Multicast Packets: 31174
+No Carrier Sense: 0                           CRC Errors: 0
+DMA Underrun: 0                               DMA Overrun: 0
+Lost CTS Errors: 0                            Alignment Errors: 0
+Max Collision Errors: 0                       No Resource Errors: 0
+Late Collision Errors: 0                      Receive Collision Errors: 0
+Deferred: 0                                   Packet Too Short Errors: 0
+SQE Test: 0                                   Packet Too Long Errors: 0
+Timeout Errors: 0                             Packets Discarded by Adapter: 0
+Single Collision Count: 0                     Receiver Start Count: 0
+Multiple Collision Count: 0
+Current HW Transmit Queue Length: 0
+General Statistics:
+-------------------
+No mbuf Errors: 0
+Adapter Reset Count: 0
+Adapter Data Rate: 20000
+Driver Flags: Up Broadcast Running 
+	Simplex Promiscuous AllMulticast 
+	64BitSupport ChecksumOffload DataRateSet 
+Virtual I/O Ethernet Adapter (l-lan) Specific Statistics:
+---------------------------------------------------------
+RQ Length: 4545
+Trunk Adapter: True
+  Priority: 1  Active: True
+Filter MCast Mode: False
+Filters: 255
+  Enabled: 0  Queued: 0  Overflow: 0
+LAN State: Operational
+Hypervisor Send Failures: 1001604
+  Receiver Failures: 1001604
+  Send Errors: 0
+Hypervisor Receive Failures: 0
+Invalid VLAN ID Packets: 0
+ILLAN Attributes: 0000000000003103 [0000000000003103]
+Port VLAN ID:     1
+VLAN Tag IDs:  None
+Switch ID: ETHERNET0
+Switch Mode: VEB
+Management VLAN: Disabled
+Hypervisor Information  
+  Virtual Memory        
+    Total (KB)                 80
+  I/O Memory            
+    VRM Minimum (KB)          100
+    VRM Desired (KB)          100
+    DMA Max Min (KB)          128
+Transmit Information    
+  Transmit Buffers       
+    Buffer Size             65536
+    Buffers                    32
+    History             
+      No Buffers                0
+  Virtual Memory        
+    Total (KB)               2048
+  I/O Memory            
+    VRM Minimum (KB)         2176
+    VRM Desired (KB)        16384
+    DMA Max Min (KB)        16384
+Receive Information     
+  Receive Buffers        
+    Buffer Type              Tiny    Small   Medium    Large     Huge
+    Min Buffers               512      512      128       24       24
+    Max Buffers              2048     2048      256       64       64
+    Allocated                 512      512      128       24       24
+    Registered                512      512      128       24       24
+    History             
+      Max Allocated           559      572      128       24       24
+      Lowest Registered       479      502      128       24       24
+  Virtual Memory        
+    Minimum (KB)              256     1024     2048      768 1536
+    Maximum (KB)             1024     4096     4096     2048     4096
+  I/O Memory            
+    VRM Minimum (KB)         4096     4096     2560      864     1632
+    VRM Desired (KB)        16384    16384     5120     2304     4352
+    DMA Max Min (KB)        16384    16384     8192     4096     8192
+I/O Memory Information  
+  Total VRM Minimum (KB)    15524
+  Total VRM Desired (KB)    61028
+  Total DMA Max Min (KB)    69760
+Error opening device: /dev/fscsi2
+errno: 00000010

@@ -1,0 +1,13 @@
+connector:
+  detection:
+    appliesTo: [ Linux ]
+
+pre:
+  testCompute:
+    type: http
+    url: /testUrl/
+
+    computes:
+      - type: excludeMatchingLines
+        column: 1
+        valueList: test,exclude,values

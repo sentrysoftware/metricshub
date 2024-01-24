@@ -1,0 +1,14 @@
+---
+connector:
+  detection:
+    appliesTo: [ linux ]
+
+constants:
+  query: SELECT Name FROM EMC_StorageSystem
+  namespace: root/emc
+
+pre:
+  wbemSource:
+    type: wbem
+    query: ${constant::query}
+    namespace: ${constant::namespace}

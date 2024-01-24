@@ -1,0 +1,10 @@
+MSHW_PD;fct0;fioa;HP 640GB MLC PCIe ioDrive Duo for ProLiant Servers;Product Number:600282-B21 SN:xxxxx;396;OK;;
+MSHW_TEMP;Internal fct0;50.7;78;
+MSHW_TEMP;Board fct0;40;;
+MSHW_VOLT;Aux fct0;2.461;;
+MSHW_VOLT;Internal fct0;1.028;;
+MSHW_PD;fct1;fiob;HP 640GB MLC PCIe ioDrive Duo for ProLiant Servers;Product Number:600282-B21 SN:xxxxx;396;OK;;
+MSHW_TEMP;Internal fct1;49.2;78;
+MSHW_TEMP;Board fct1;39;;
+MSHW_VOLT;Aux fct1;2.458;;
+MSHW_VOLT;Internal fct1;1.014;;

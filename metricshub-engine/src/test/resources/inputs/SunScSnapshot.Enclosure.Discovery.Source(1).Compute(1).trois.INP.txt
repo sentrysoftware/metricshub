@@ -1,0 +1,20 @@
+sc> showplatform -v
+SUNW,Sun-Fire-T2000
+Chassis Serial Number: 0637NNN161
+
+Domain Status
+------ ------
+S0     Running
+
+CPU Cores available: 6
+
+Device            Version
+------            -------
+MB/I2C_SWITCH16   1.5
+MB/I2C_SWITCH18   1.5
+MB/CMP0           0xfffff218a45b9959
+
+******** showplatform -v ********
+SUNW,Sun-Fire-T200
+Config file mismatch at line 0
+Config file mismatch at line 2
