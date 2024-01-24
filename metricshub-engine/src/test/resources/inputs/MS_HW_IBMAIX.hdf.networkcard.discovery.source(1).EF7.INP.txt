@@ -1,0 +1,21 @@
+MS_HW_lscfg_Start: ent0
+  ent0             U8231.E2B.06BA5AP-V3-C2-T1  
+	Virtual I/O Ethernet Adapter (l-lan)
+        Network Address.............360BC1C20002
+        Displayable Message.........Virtual I/O Ethernet Adapter (l-lan)
+        Hardware Location Code......U8231.E2B.06BA5AP-V3-C2-T1
+MS_HW_lscfg_End: ent0
+MS_HW_lscfg_Start: ent1
+  ent1             U8231.E2B.06BA5AP-V3-C6-T1  
+	Virtual I/O Ethernet Adapter (l-lan)
+        Network Address.............360BC1C20006
+        Displayable Message.........Virtual I/O Ethernet Adapter (l-lan)
+        Hardware Location Code......U8231.E2B.06BA5AP-V3-C6-T1
+MS_HW_lscfg_End: ent1
+MS_HW_lscfg_Start: ent2
+  ent2             U8231.E2B.06BA5AP-V3-C7-T1  
+	Virtual I/O Ethernet Adapter (l-lan)
+        Network Address.............360BC1C20007
+        Displayable Message.........Virtual I/O Ethernet Adapter (l-lan)
+        Hardware Location Code......U8231.E2B.06BA5AP-V3-C7-T1
+MS_HW_lscfg_End: ent2

@@ -1,0 +1,25 @@
+c1t1d0           Soft Errors: 0 Hard Errors: 0 Transport Errors: 0 
+Vendor: SEAGATE  Product: ST336607LSUN36G  Revision: 0507 Serial No: 0407A785FJ 
+Size: 36.42GB <36420075008 bytes>
+Media Error: 0 Device Not Ready: 0 No Device: 0 Recoverable: 0 
+Illegal Request: 0 Predictive Failure Analysis: 0 
+c1t2d0           Soft Errors: 0 Hard Errors: 0 Transport Errors: 0 
+Vendor: SEAGATE  Product: ST336607LSUN36G  Revision: 0207 Serial No: 0313A1BTCZ 
+Size: 36.42GB <36420075008 bytes>
+Media Error: 0 Device Not Ready: 0 No Device: 0 Recoverable: 0 
+Illegal Request: 0 Predictive Failure Analysis: 0 
+c1t3d0           Soft Errors: 0 Hard Errors: 0 Transport Errors: 0 
+Vendor: SEAGATE  Product: ST336607LSUN36G  Revision: 0307 Serial No: 0334A2H7LJ 
+Size: 36.42GB <36420075008 bytes>
+Media Error: 0 Device Not Ready: 0 No Device: 0 Recoverable: 0 
+Illegal Request: 0 Predictive Failure Analysis: 0 
+c1t0d0           Soft Errors: 0 Hard Errors: 0 Transport Errors: 0 
+Vendor: SEAGATE  Product: ST336607LSUN36G  Revision: 0507 Serial No: 0402A6YYNY 
+Size: 36.42GB <36420075008 bytes>
+Media Error: 0 Device Not Ready: 0 No Device: 0 Recoverable: 0 
+Illegal Request: 0 Predictive Failure Analysis: 0 
+c0t0d0           Soft Errors: 0 Hard Errors: 0 Transport Errors: 1 
+Vendor: TEAC     Product: DV-28E-C         Revision: 1.4B Serial No:  
+Size: 0.00GB <0 bytes>
+Media Error: 0 Device Not Ready: 0 No Device: 0 Recoverable: 0 
+Illegal Request: 2 Predictive Failure Analysis: 0

@@ -1,0 +1,236 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.sentrysoftware.metricshub</groupId>
+		<artifactId>metricshub-parent</artifactId>
+		<version>0.9.01-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>metricshub-rhel</artifactId>
+	<packaging>pom</packaging>
+
+	<name>MetricsHub for RHEL</name>
+	<description>MetricsHub Package for Red Hat Enterprise Linux (.rpm)</description>
+
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>metricshub-agent</artifactId>
+			<version>${project.version}</version>
+			<classifier>dist</classifier>
+			<type>zip</type>
+		</dependency>
+		<dependency>
+			<groupId>org.sentrysoftware</groupId>
+			<artifactId>metricshub-jre-linux</artifactId>
+			<version>${metricshub-jre.version}</version>
+			<type>zip</type>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>metricshub-doc</artifactId>
+			<version>${project.version}</version>
+			<classifier>site</classifier>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+
+			<!-- Unpack metricshub-agent -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>unpack-metricshub-agent</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>unpack-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/jpackage/metricshub</outputDirectory>
+							<includeArtifactIds>metricshub-agent</includeArtifactIds>
+						</configuration>
+					</execution>
+					<execution>
+						<id>unpack-jre</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>unpack-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/jpackage/jre</outputDirectory>
+							<includeArtifactIds>metricshub-jre-linux</includeArtifactIds>
+						</configuration>
+					</execution>
+					<execution>
+						<id>unpack-metricshub-doc</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>unpack-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/jpackage/metricshub/site</outputDirectory>
+							<includeArtifactIds>metricshub-doc</includeArtifactIds>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Download OpenTelemetry Collector Contrib binary -->
+			<plugin>
+				<groupId>com.googlecode.maven-download-plugin</groupId>
+				<artifactId>download-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>download-otelcol-contrib-linux-amd64</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>wget</goal>
+						</goals>
+						<configuration>
+							<url>${otelColContribBaseUrl}/otelcol-contrib_${otelVersion}_linux_amd64.tar.gz</url>
+							<unpack>true</unpack>
+							<outputDirectory>${project.build.directory}/jpackage/metricshub/otel</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- JPackage resources -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}</outputDirectory>
+							<resources>
+								<resource>
+									<directory>src/main/resources</directory>
+									<filtering>true</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<executions>
+					<!-- Run jpackage command to generate MetricsHub .rpm -->
+					<execution>
+						<id>package-rpm</id>
+						<phase>package</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>${env.JAVA_HOME}/bin/jpackage</executable>
+							<arguments>
+								<argument>--add-launcher</argument>
+								<argument>metricshub-encrypt=metricshub-encrypt.properties</argument>
+								<argument>--add-launcher</argument>
+								<argument>service=metricshub-agent.properties</argument>
+								<argument>@jpackage.txt</argument>
+							</arguments>
+							<workingDirectory>${project.build.directory}/jpackage</workingDirectory>
+						</configuration>
+					</execution>
+					<!-- Run rpm command to report required dependencies -->
+					<execution>
+						<id>execute-rpm-deps-command</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>rpm</executable>
+							<arguments>
+								<argument>-qp</argument>
+								<argument>${project.artifactId}-${project.version}-1.x86_64.rpm</argument>
+								<argument>--requires</argument>
+							</arguments>
+							<outputFile>${project.build.directory}/rpm-deps.txt</outputFile>
+							<workingDirectory>${project.build.directory}</workingDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<!-- Rename the package -->
+					<execution>
+						<id>rename-package</id>
+						<phase>package</phase>
+						<configuration>
+							<target>
+								<move file="${project.build.directory}/metricshub-${project.version.noSnapshot}-1.x86_64.rpm" tofile="${project.build.directory}/${project.artifactId}-${project.version}-1.x86_64.rpm"/>
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+					<!-- Check X11 dependencies -->
+					<execution>
+						<id>check-rpm-x11-deps-output</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<loadfile property="output" srcFile="${project.build.directory}/rpm-deps.txt" />
+								<fail message="The RPM package shouldn't require X11 dependencies.">
+									<condition>
+										<matches string="${output}" pattern="libX11|libXau|libXrender|libxcb" />
+									</condition>
+								</fail>
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Attach artifacts -->
+			<plugin>
+				<groupId>org.sonatype.plugins</groupId>
+				<artifactId>attach-artifact-maven-plugin</artifactId>
+				<version>1.0</version>
+				<executions>
+					<execution>
+						<id>attach-artifacts</id>
+						<phase>package</phase>
+						<goals>
+							<goal>attach-artifact</goal>
+						</goals>
+						<configuration>
+							<artifacts>
+								<artifact>
+									<file>${project.build.directory}/${project.artifactId}-${project.version}-1.x86_64.rpm</file>
+									<type>rpm</type>
+									<artifactId>${project.artifactId}</artifactId>
+									<classifier>1.x86_64</classifier>
+								</artifact>
+							</artifacts>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+		</plugins>
+	</build>
+
+</project>

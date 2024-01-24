@@ -1,0 +1,83 @@
+show hardware
+Cisco Storage Area Networking Operating System (SAN-OS) Software
+TAC support: http://www.cisco.com/tac
+Copyright (c) 2002-2011, Cisco Systems, Inc. All rights reserved.
+The copyrights to certain works contained herein are owned by
+other third parties and are used and distributed under license.
+Some parts of this software may be covered under the GNU Public
+License or the GNU Lesser General Public License. A copy of 
+each such license is available at
+http://www.gnu.org/licenses/gpl.html and
+http://www.gnu.org/licenses/lgpl.html
+Software
+  BIOS:      version 1.1.0
+  loader:    version 1.2(2)
+  kickstart: version 3.3(5b)
+  system:    version 3.3(5b)
+  BIOS compile time:       10/24/03
+  kickstart image file is: bootflash:/m9100-s1ek9-kickstart-mz.3.3.5b.bin
+  kickstart compile time:  4/14/2011 19:00:00 [04/28/2011 06:19:31]
+  system image file is:    bootflash:/m9100-s1ek9-mz.3.3.5b.bin
+  system compile time:     4/14/2011 19:00:00 [04/28/2011 06:35:41]
+Hardware
+  cisco MDS 9100 ("1/2 Gbps FC/Supervisor")
+  Intel(R) Pentium(R) III CPU with 963828 kB of memory.
+  Processor Board ID JAE1046F8GK
+  bootflash:  250368 kB
+  slot0:           0 kB
+cisco-san-03   kernel uptime is 194 days 21 hours 5 minute(s) 10 second(s)
+  Last reset 
+    Reason: Unknown
+    System version: 3.3(5b)
+    Service: 
+--------------------------------
+Switch hardware ID information
+--------------------------------
+MDS Switch is booted up
+  Switch type is "MDS 1 Slot Chassis"
+  Model number is DS-C9140-K9
+  H/W version is 7.0
+  Part Number is 73-8764-12
+  Part Revision is A1
+  Manufacture Date is Year 10 Week 45
+  Serial number is FOX104504UN
+  CLEI code is 0000000000
+--------------------------------
+Chassis has 1 slots for Modules
+--------------------------------
+Module in slot 1 is ok
+  Module type is "1/2 Gbps FC/Supervisor"
+  No submodules are present
+  Model number is DS-C9140-K9-SUP
+  H/W version is 7.0
+  Part Number is 73-8764-12
+  Part Revision is A1
+  Manufacture Date is Year 10 Week 46
+  Serial number is JAE1046F8GK
+  CLEI code is CNMK1J0ARB
+---------------------------------------
+Chassis has 2 Slots for Power Supplies
+---------------------------------------
+PS in slot A is ok
+  Power supply type is "300.00W 110v AC"
+  Model number is DS-CAC-300W
+  H/W version is 1.0
+  Part Number is 341-0087-03
+  Part Revision is B0
+  Manufacture Date is Year 10 Week 31
+  Serial number is PAC103127P7
+  CLEI code is 
+PS in slot B is ok
+  Power supply type is "300.00W 110v AC"
+  Model number is DS-CAC-300W
+  H/W version is 1.0
+  Part Number is 341-0087-03
+  Part Revision is B0
+  Manufacture Date is Year 10 Week 31
+  Serial number is PAC103127NN
+  CLEI code is 
+-----------------------------------
+Chassis has 2 slots for Fan Module
+-----------------------------------
+  Fan module 1 is ok
+  Fan module 2 is in failure

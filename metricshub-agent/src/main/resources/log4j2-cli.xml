@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+	<Appenders>
+		<Console name="Console" target="SYSTEM_OUT">
+			<!-- Format of the output log -->
+			<PatternLayout disableAnsi="${ctx:disableAnsi}"
+				pattern="[%highlight{%-5level}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=cyan, DEBUG=green bold, TRACE=blue}] %style{[%logger{1.}]}{Dim} %m%n" />
+		</Console>
+	</Appenders>
+	<Loggers>
+		<Root level="off">
+			<AppenderRef ref="Console" />
+		</Root>
+		<logger name="org.sentrysoftware" level="error" additivity="false">
+			<AppenderRef ref="Console" />
+		</logger>
+	</Loggers>
+</Configuration>

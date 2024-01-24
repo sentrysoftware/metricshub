@@ -1,0 +1,14 @@
+connector:
+  detection:
+    appliesTo: [ Linux ]
+
+pre:
+  testCompute:
+    type: http
+    url: /testUrl/
+
+    computes:
+      - type: keepOnlyMatchingLines
+        column: 1
+        regExp: regExpTest
+        valueList: 1,2

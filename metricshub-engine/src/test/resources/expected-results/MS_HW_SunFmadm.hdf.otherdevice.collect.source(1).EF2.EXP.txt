@@ -1,0 +1,1 @@
+MSHW;Overall;OK;No CPU Faults Reported by fmadm;

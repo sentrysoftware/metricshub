@@ -1,0 +1,46 @@
+MSHW;FRU;SUN MICROSYSTEMS;SUN BLADE 6000 MODULAR SYSTEM;1005LCB-0850YM09GX - 541-1983-07
+MSHW;FRU;MOTOROLA;FAST ETHERNET CONTROLLER;00:21:28:28:B4:99 - MPC8248 FCC
+MSHW;FRU;SUN MICROSYSTEMS;ILOM;
+MSHW;NEM;0;I/O Module 0;;ASSY,BD,NEM,6000;0000000-09010004MH - 371-1451-04;OK|;;Monitored by sensors: nem0.prsnt
+MSHW;NEM;1;I/O Module 1;;ASSY,BD,NEM,6000;0000000-09080004V7 - 371-1451-04;OK|;;Monitored by sensors: nem1.prsnt
+MSHW;Fan Device;0;Fan Device 0;;;;OK|;;Monitored by sensors: fm0.fail
+MSHW;Fan Device;1;Fan Device 1;;;;OK|;;Monitored by sensors: fm1.fail
+MSHW;Fan Device;2;Fan Device 2;;;;OK|;;Monitored by sensors: fm2.fail
+MSHW;Fan Device;3;Fan Device 3;;;;OK|;;Monitored by sensors: fm3.fail
+MSHW;Fan Device;4;Fan Device 4;;;;OK|;;Monitored by sensors: fm4.fail
+MSHW;Fan Device;5;Fan Device 5;;;;OK|;;Monitored by sensors: fm5.fail
+MSHW;Power Supply;0;Power Supply 0;;A206 POWER SUPPLY;1762TH1-0839A44320 - 300-1802-08;OK|OK|OK|OK|OK|OK|OK|OK|OK|OK|OK|OK|OK|OK|OK|OK|OK|;;Monitored by sensors: ps0.prsnt, ps0.status, ps0.pstate_0, ps0.pstate_1, ps0.ac0_fail, ps0.ac1_fail, ps0.fan_fail, ps0.v12v_0_fault, ps0.v12v_1_fault, ps0.V3_3V_fault, ps0.t_amb_fault, ps0.I12V_0_fault, ps0.I12V_1_fault, ps0.I12V_0_warn, ps0.I12V_1_warn, ps0.t_amb_warn
+MSHW;Power Supply;1;Power Supply 1;;A206 POWER SUPPLY;1762TH1-0839A44314 - 300-1802-08;OK|OK|OK|OK|OK|OK|OK|OK|OK|OK|OK|OK|OK|OK|OK|OK|OK|;;Monitored by sensors: ps1.prsnt, ps1.status, ps1.pstate_0, ps1.pstate_1, ps1.ac0_fail, ps1.ac1_fail, ps1.fan_fail, ps1.v12v_0_fault, ps1.v12v_1_fault, ps1.V3_3V_fault, ps1.t_amb_fault, ps1.I12V_0_fault, ps1.I12V_1_fault, ps1.I12V_0_warn, ps1.I12V_1_warn, ps1.t_amb_warn
+MSHW;Blade;0;System Board 0;;;0000000-09020004LL - 371-1447-11;OK|;;Monitored by sensors: bl0.prsnt
+MSHW;Blade;1;System Board 1;SUN MICROSYSTEMS;ILOM;;OK|;;Monitored by sensors: bl1.prsnt
+MSHW;Blade;2;System Board 2;;;;OK|;;Monitored by sensors: bl2.prsnt
+MSHW;Power Management;0;Power Management 0;;;;OK|;;Monitored by sensors: ch.pwrctl.state
+MSHW;Fan;1c00;fm0.f0.speed;Fan Device 0;5400.00;1500.00;2000.00
+MSHW;Fan;1d00;fm0.f1.speed;Fan Device 0;6200.00;1500.00;2000.00
+MSHW;Fan;1e00;fm1.f0.speed;Fan Device 1;5400.00;1500.00;2000.00
+MSHW;Fan;1f00;fm1.f1.speed;Fan Device 1;6100.00;1500.00;2000.00
+MSHW;Fan;2000;fm2.f0.speed;Fan Device 2;5900.00;1500.00;2000.00
+MSHW;Fan;2100;fm2.f1.speed;Fan Device 2;5600.00;1500.00;2000.00
+MSHW;Fan;2200;fm3.f0.speed;Fan Device 3;5500.00;1500.00;2000.00
+MSHW;Fan;2300;fm3.f1.speed;Fan Device 3;6100.00;1500.00;2000.00
+MSHW;Fan;2400;fm4.f0.speed;Fan Device 4;5500.00;1500.00;2000.00
+MSHW;Fan;2500;fm4.f1.speed;Fan Device 4;6200.00;1500.00;2000.00
+MSHW;Fan;2600;fm5.f0.speed;Fan Device 5;5600.00;1500.00;2000.00
+MSHW;Fan;2700;fm5.f1.speed;Fan Device 5;5900.00;1500.00;2000.00
+MSHW;Temperature;3200;ps0.t_amb;Power Supply 0;17.00;;40.00
+MSHW;Fan;3300;ps0.fan_speed;Power Supply 0;11940.00;4200.00;
+MSHW;Voltage;3400;ps0.V12V;Power Supply 0;12240.000000;;
+MSHW;Voltage;3500;ps0.V3_3V;Power Supply 0;3340.000000;;
+MSHW;Current;3600;ps0.I12V_0;Power Supply 0;16.25
+MSHW;Current;3700;ps0.I12V_1;Power Supply 0;15.00
+MSHW;Current;3800;ps0.I3_3V;Power Supply 0;1.50
+MSHW;Temperature;4700;ps1.t_amb;Power Supply 1;19.00;;40.00
+MSHW;Fan;4800;ps1.fan_speed;Power Supply 1;11940.00;4200.00;
+MSHW;Voltage;4900;ps1.V12V;Power Supply 1;12240.000000;;
+MSHW;Voltage;4a00;ps1.V3_3V;Power Supply 1;3340.000000;;
+MSHW;Current;4b00;ps1.I12V_0;Power Supply 1;15.00
+MSHW;Current;4c00;ps1.I12V_1;Power Supply 1;15.00
+MSHW;Current;4d00;ps1.I3_3V;Power Supply 1;0.78
+MSHW;Temperature;5a00;ch.t_amb_0;System Chassis 0;15.00;;
+MSHW;Temperature;5b00;ch.t_amb_1;System Chassis 0;17.00;;
+MSHW;Enclosure;Sun;SUN BLADE 6000 MODULAR SYSTEM;1005LCB-0850YM09GX - 541-1983-07;;;;Monitored by sensors: 

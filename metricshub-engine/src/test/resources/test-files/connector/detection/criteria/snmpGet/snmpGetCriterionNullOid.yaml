@@ -1,0 +1,8 @@
+---
+connector:
+  detection:
+    appliesTo: [ linux ]
+    criteria:
+      - type: snmpGet
+        oid: 
+        expectedResult: OK

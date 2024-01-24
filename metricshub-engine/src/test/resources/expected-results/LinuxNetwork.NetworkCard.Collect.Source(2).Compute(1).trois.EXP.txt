@@ -1,0 +1,1 @@
+MSHW;eth0;OK;1000;Full;

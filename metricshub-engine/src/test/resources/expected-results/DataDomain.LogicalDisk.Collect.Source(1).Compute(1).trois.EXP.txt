@@ -1,0 +1,4 @@
+MSHW;/ddvar;132.9;94.0;
+MSHW;Data;86447.4;13718.5;
+MSHW;Meta-data;2.0;0.7;
+MSHW;Index;738.5;213.0;

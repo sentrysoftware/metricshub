@@ -1,0 +1,36 @@
+---
+connector:
+  detection:
+    appliesTo: [ linux ]
+    criteria:
+      - type: http
+        url: test
+        header: $embedded.http-header
+        body: test-body
+        resultContent: ALL
+        authenticationToken: $embedded.authenticationToken
+        expectedResult: result
+        errorMessage: error
+      - type: http
+        url: test/path1
+        header: $embedded.http-header
+        body: test-body
+        authenticationToken: $embedded.authenticationToken
+        expectedResult: result
+        errorMessage: error
+      - type: http
+        url: test/path2
+        method: POST
+        header: $embedded.http-header
+        body: test-body
+        resultContent:
+        authenticationToken: $embedded.authenticationToken
+        expectedResult: result
+        errorMessage: error
+embedded:
+  authenticationToken: test-auth-token
+  http-header: |
+    Content-Type: application/json
+    Accept: application/json
+    Cookie: %{AUTHENTICATIONTOKEN}
+    

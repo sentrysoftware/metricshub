@@ -1,0 +1,8 @@
+MSHW;1ae00000b85;ps0_p_pwr;;;;okay
+MSHW;1ae00000b8a;ps0_ff_pok;;;;okay
+MSHW;1ae00000b8f;ps0_ff_uv;;;;okay
+MSHW;1ae00000b94;ps0_ff_ov;;;;okay
+MSHW;1ae00000b99;ps1_p_pwr;;;;okay
+MSHW;1ae00000b9e;ps1_ff_pok;;;;okay
+MSHW;1ae00000ba3;ps1_ff_uv;;;;okay
+MSHW;1ae00000ba8;ps1_ff_ov;;;;okay

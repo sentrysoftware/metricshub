@@ -1,0 +1,3 @@
+MSHW;x210_22tb_800gb-ssd_48gb;OK;;
+MSHW;x210_22tb_800gb-ssd_48gb:1;OK;HDD+2d:1n1-4:bay2-6;
+MSHW;x210_22tb_800gb-ssd_48gb:3;OK;HDD+2d:1n1-4:bay7-12;

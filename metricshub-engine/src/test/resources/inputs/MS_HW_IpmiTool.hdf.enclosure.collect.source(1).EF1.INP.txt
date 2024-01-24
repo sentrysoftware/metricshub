@@ -1,0 +1,58 @@
+FRU;FUJITSU;PRIMERGY RX300 S7;YLAR004219
+FRU;FUJITSU;D2939;39159317
+FRU;FUJITSU;D2939;39159317
+FRU;FUJITSU;D2939;39159317
+External Environment;0;External Environment 0;;;;Ambient=Device Present
+Processor;0;Processor 0;;;;CPU1=Presence detected
+Processor;1;Processor 1;;;;CPU2=Presence detected
+Power Unit;1;Power Unit 1;;;;Power Unit=Fully Redundant
+Power Unit;0;Power Unit 0;;;;PSU Config=Hardware change detected
+System Management Module;1;System Management Module 1;;;;I2C1=
+System Management Module;2;System Management Module 2;;;;I2C2=
+System Management Module;3;System Management Module 3;;;;I2C3=
+System Management Module;4;System Management Module 4;;;;I2C4=
+System Management Module;5;System Management Module 5;;;;I2C5=
+System Management Module;6;System Management Module 6;;;;I2C6=
+System Management Module;7;System Management Module 7;;;;I2C7=
+System Management Module;8;System Management Module 8;;;;I2C8=
+System Management Software;0;System Management Software 0;;;;Local Monitor=Device Enabled
+Temperature;1;Ambient;External Environment 0;20;;
+Temperature;2;Systemboard 1;System Board 0;19;;
+Temperature;3;Systemboard 2;System Board 0;25;;
+Temperature;4;CPU1;Processor 0;30;;
+Temperature;5;CPU2;Processor 1;30;;
+Temperature;6;MEM A;Memory Device 0;30;;
+Temperature;a;MEM E;Memory Device 4;30;;
+Temperature;e;PSU1 Inlet;Power Supply 4;20;;
+Temperature;f;PSU2 Inlet;Power Supply 8;20;;
+Temperature;10;PSU1;Power Supply 4;47;;
+Temperature;11;PSU2;Power Supply 8;47;;
+Voltage;12;BATT 3.0V;Battery 0;3210.000000;;
+Voltage;13;STBY 12V;System Board 0;11820.000000;;
+Voltage;14;STBY 5V;System Board 0;5099.000000;;
+Voltage;15;STBY 3.3V;System Board 0;3283.000000;;
+Voltage;16;LAN 1.8V STBY;System Board 0;1810.000000;;
+Voltage;17;iRMC 1.5V STBY;System Board 0;1470.000000;;
+Voltage;18;LAN 1.0V STBY;System Board 0;980.000000;;
+Voltage;19;MAIN 12V;System Board 0;12159.000000;;
+Voltage;1a;MAIN 5V;System Board 0;5025.000000;;
+Voltage;1b;MAIN 3.3V;System Board 0;3317.000000;;
+Voltage;1c;PCH 1.5V;System Board 0;1480.000000;;
+Voltage;1d;PCH 1.1V;System Board 0;1080.000000;;
+Voltage;1e;CPU1 1.05V;System Board 0;1030.000000;;
+Voltage;1f;CPU2 1.05V;System Board 0;1030.000000;;
+Fan;20;FAN1 SYS;Fan Device 0;4680;;
+Fan;21;FAN2 SYS;Fan Device 1;4680;;
+Fan;22;FAN3 SYS;Fan Device 2;4560;;
+Fan;23;FAN4 SYS;Fan Device 3;4860;;
+Fan;24;FAN5 SYS;Fan Device 4;4680;;
+Fan;25;FAN PSU1;Power Supply 4;1440;;
+Fan;26;FAN PSU2;Power Supply 8;1520;;
+PowerConsumption;27;CPU1 Power;Processor 0;18
+PowerConsumption;28;CPU2 Power;Processor 1;16
+PowerConsumption;29;System Power;System Board 0;32
+PowerConsumption;2a;HDD Power;Disk Drive Bay 0;0
+PowerConsumption;2b;PSU1 Power;Power Supply 100;48
+PowerConsumption;2c;PSU2 Power;Power Supply 104;36
+PowerConsumption;2d;Total Power;Unknown  0;84
+PowerConsumption;2e;Total Power Out;Unknown  1;64

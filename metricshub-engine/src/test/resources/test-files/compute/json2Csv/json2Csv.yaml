@@ -1,0 +1,13 @@
+connector:
+  detection:
+    appliesTo: [ Linux ]
+
+pre:
+  testCompute:
+    type: http
+    url: /testUrl/
+
+    computes:
+      - type: json2Csv
+        entryKey: /
+        properties: property;test;here

@@ -1,0 +1,25 @@
+c1t0d0           Soft Errors: 0 Hard Errors: 0 Transport Errors: 0 
+Vendor: DELL     Product:   VSF            Revision: 0123 Serial No:  
+Size: 0.00GB <0 bytes>
+Media Error: 0 Device Not Ready: 0 No Device: 0 Recoverable: 0 
+Illegal Request: 0 Predictive Failure Analysis: 0 
+c1t1d0           Soft Errors: 0 Hard Errors: 0 Transport Errors: 0 
+Vendor: DELL     Product:   VCD            Revision: 0133 Serial No:  
+Size: 0.00GB <0 bytes>
+Media Error: 0 Device Not Ready: 0 No Device: 0 Recoverable: 0 
+Illegal Request: 0 Predictive Failure Analysis: 0 
+c0t0d0           Soft Errors: 1 Hard Errors: 0 Transport Errors: 0 
+Vendor: SEAGATE  Product: ST373453LC       Revision: DX10 Serial No:  
+Size: 73.41GB <73407820288 bytes>
+Media Error: 0 Device Not Ready: 0 No Device: 0 Recoverable: 0 
+Illegal Request: 1 Predictive Failure Analysis: 0 
+c0t1d0           Soft Errors: 2 Hard Errors: 0 Transport Errors: 0 
+Vendor: SEAGATE  Product: ST373453LC       Revision: DX10 Serial No:  
+Size: 73.41GB <73407820288 bytes>
+Media Error: 0 Device Not Ready: 0 No Device: 0 Recoverable: 0 
+Illegal Request: 2 Predictive Failure Analysis: 0 
+c2t0d0           Soft Errors: 4 Hard Errors: 0 Transport Errors: 0 
+Vendor: TEAC     Product: CD-224E          Revision: K.9A Serial No:  
+Size: 0.00GB <0 bytes>
+Media Error: 0 Device Not Ready: 0 No Device: 0 Recoverable: 0 
+Illegal Request: 4 Predictive Failure Analysis: 0

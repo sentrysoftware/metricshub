@@ -1,0 +1,112 @@
+ getsensorinfo
+<senType>      <Num>          <sensorName>   <status>       <reading>      <units>        <lc>           <uc>
+FanSpeed       1              Fan-1          OK             5019           rpm            2522           14500
+FanSpeed       2              Fan-2          OK             4926           rpm            2522           14500
+FanSpeed       3              Fan-3          OK             4935           rpm            2522           14500
+FanSpeed       4              Fan-4          OK             4942           rpm            2522           14500
+FanSpeed       5              Fan-5          OK             5018           rpm            2522           14500
+FanSpeed       6              Fan-6          OK             4876           rpm            2522           14500
+FanSpeed       7              Fan-7          OK             4921           rpm            2522           14500
+FanSpeed       8              Fan-8          OK             4921           rpm            2522           14500
+FanSpeed       9              Fan-9          OK             4879           rpm            2522           14500
+
+<senType>      <Num>          <sensorName>   <status>       <reading>      <units>        <lc>           <uc>
+Temp           1              Ambient_Temp   OK             15             celcius        N/A            40
+
+<senType>      <Num>          <sensorName>   <status>       <AC-OK status>
+PWR            1              PS-1           Online         OK
+PWR            2              PS-2           Online         OK
+PWR            3              PS-3           Online         OK
+PWR            4              PS-4           Online         OK
+PWR            5              PS-5           Online         OK
+PWR            6              PS-6           Online         OK
+[patrol@Dell-M1000E-BladeChassis ~]$ getmodinfo -A
+Chassis         Present         ON              OK              JKB2SH1
+Fan-1           Present         ON              OK
+Fan-2           Present         ON              OK
+Fan-3           Present         ON              OK
+Fan-4           Present         ON              OK
+Fan-5           Present         ON              OK
+Fan-6           Present         ON              OK
+Fan-7           Present         ON              OK
+Fan-8           Present         ON              OK
+Fan-9           Present         ON              OK
+PS-1            Present         Redundant       OK
+PS-2            Present         Redundant       OK
+PS-3            Present         Redundant       OK
+PS-4            Present         Online          OK
+PS-5            Present         Online          OK
+PS-6            Present         Online          OK
+CMC-1           Present         Standby         OK             N/A
+CMC-2           Present         Primary         OK              N/A
+Switch-1        Present         ON              OK              1LB2SH1
+Switch-2        Present         ON              OK              2LB2SH1
+Switch-3        Present         ON              OK              4LB2SH1
+Switch-4        Present         ON              OK              3LB2SH1
+Switch-5        Present         ON              OK              GB046H1
+Switch-6        Present         ON              OK              59046H1
+Server-1        Present         ON              OK              15K67J1
+Server-2        Present         ON              OK              J4K67J1
+Server-3        Present         ON              OK              HYX37J1
+Server-4        Present         ON              OK              BZX37J1
+Server-5        Present         ON              OK              7DQ37J1
+Server-6        Present         ON              OK              F4K67J1
+Server-7        Present         ON              OK              C4K67J1
+Server-8        Present         ON              OK              25K67J1
+Server-9        Present         ON              OK              69537J1
+Server-10       Present         ON              OK              10Y37J1
+Server-11       Present         ON              OK              FZX37J1
+Server-12       Present         ON              OK              D4K67J1
+Server-13       Present         ON              OK              DZB8RH1
+Server-14       Present         ON              OK              GZB8RH1
+Server-15       Present         ON              OK              CZB8RH1
+Server-16       Present         ON              OK              HZB8RH1
+KVM             Present         ON              OK
+[patrol@Dell-M1000E-BladeChassis ~]$ getpbinfo
+[Power Budget Status]
+System Input Power                              = 2772 W
+Peak System Power                               = 2940 W
+Peak System Power Timestamp                     = 07:25:07 05/12/2009
+Minimum System Power                            = 2544 W
+Minimum System Power Timestamp                  = 00:01:42 05/11/2009
+Overall Power Health                            = OK
+Redundancy                                      = Yes
+System Input Power Cap                          = 7928 W
+Redundancy Policy                               = AC Redundancy
+Dynamic PSU Engagement Enabled                  = No
+System Input Max Power Capacity                 = 7928 W
+Input Redundancy Reserve                        = 7928 W
+Input Power Allocated to Servers                = 3920 W
+Input Power Allocated to Chassis Infrastructure = 800 W
+Total Input Power Available for Allocation      = 2977 W
+Standby Input Power Capacity                    = 0 W
+
+[Chassis Power Supply Status Table]
+<Name>          <Presence>      <Power State>   <Input Current> <Input Volts>   <Output Rated Power>
+
+PS1             Present         Redundant       2.4 A           211.0 V         2360 W
+PS2             Present         Redundant       2.3 A           213.5 V         2360 W
+PS3             Present         Redundant       2.2 A           211.0 V         2360 W
+PS4             Present         Online          2.2 A           213.0 V         2360 W
+PS5             Present         Online          2.3 A           212.5 V         2360 W
+PS6             Present         Online          2.1 A           209.0 V         2360 W
+
+[Server Module Power Allocation Table]
+<Slot#> <Server Name>   <Power State>   <Allocation>    <Priority>  <Blade Type>
+1       SLOT-01         ON              258 W           1           PowerEdgeM600
+2       SLOT-02         ON              258 W           1           PowerEdgeM600
+3       SLOT-03         ON              258 W           1           PowerEdgeM600
+4       SLOT-04         ON              258 W           1           PowerEdgeM600
+5       SLOT-05         ON              258 W           1           PowerEdgeM600
+6       SLOT-06         ON              258 W           1           PowerEdgeM600
+7       SLOT-07         ON              258 W           1           PowerEdgeM600
+8       SLOT-08         ON              258 W           1           PowerEdgeM600
+9       SLOT-09         ON              258 W           1           PowerEdgeM600
+10      SLOT-10         ON              258 W           1           PowerEdgeM600
+11      SLOT-11         ON              258 W           1           PowerEdgeM600
+12      SLOT-12         ON              258 W           1           PowerEdgeM600
+13      SLOT-13         ON              274 W           1           PowerEdgeM600
+14      SLOT-14         ON              274 W           1           PowerEdgeM600
+15      SLOT-15         ON              274 W           1           PowerEdgeM600
+16      SLOT-16         ON              274 W           1           PowerEdgeM600
+[patrol@Dell-M1000E-BladeChassis ~]$

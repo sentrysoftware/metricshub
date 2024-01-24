@@ -1,0 +1,8 @@
+---
+connector:
+  detection:
+    appliesTo: [ linux ]
+    criteria:
+      - type: productRequirements
+        engineVersion: testengineversion
+        kmVersion: testkmversion

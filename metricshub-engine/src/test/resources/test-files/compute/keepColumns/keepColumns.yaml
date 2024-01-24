@@ -1,0 +1,12 @@
+connector:
+  detection:
+    appliesTo: [ Linux ]
+
+pre:
+  testCompute:
+    type: http
+    url: /testUrl/
+
+    computes:
+      - type: keepColumns
+        columnNumbers: "1,2"

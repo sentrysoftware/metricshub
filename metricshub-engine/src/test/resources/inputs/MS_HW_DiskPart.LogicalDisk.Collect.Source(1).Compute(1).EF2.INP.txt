@@ -1,0 +1,14 @@
+Active code page: 437
+
+Microsoft DiskPart version 10.0.16299.15
+
+Copyright (C) Microsoft Corporation.
+On computer: BERTRAND4
+
+  Volume ###  Ltr  Label        Fs     Type        Size     Status     Info
+  ----------  ---  -----------  -----  ----------  -------  ---------  --------
+  Volume 0     D   Extend       NTFS   Simple       447 GB  Healthy
+  Volume 1     C                NTFS   Simple       222 GB  Healthy    Boot
+  Volume 2     E   R?serv? au   NTFS   Simple       350 MB  Healthy    System
+
+Leaving DiskPart...

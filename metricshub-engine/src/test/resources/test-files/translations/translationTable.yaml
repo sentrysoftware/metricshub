@@ -1,0 +1,10 @@
+connector:
+  detection:
+    appliesTo: [ linux ]
+
+translations:
+  statusToTranslate:
+    0: ok
+    1: degraded
+    2: failed
+    Default: unknown

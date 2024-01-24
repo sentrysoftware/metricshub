@@ -1,0 +1,6 @@
+{
+    "symmetrixId": "ID",
+    "startDate": "2023-08-29 15:56:44.095174",
+    "endDate": "2023-08-29 16:56:44.095174",
+    "dataFormat": "Average",
+}

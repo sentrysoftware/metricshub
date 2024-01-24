@@ -1,0 +1,14 @@
+connector:
+  detection:
+    appliesTo: [ Linux ]
+
+pre:
+  testCompute:
+    type: http
+    url: /testUrl/
+
+    computes:
+      - type: perBitTranslation
+        column: 1
+        bitList: 1,2,3,4
+        translationTable: ${translation::translationTableTest}

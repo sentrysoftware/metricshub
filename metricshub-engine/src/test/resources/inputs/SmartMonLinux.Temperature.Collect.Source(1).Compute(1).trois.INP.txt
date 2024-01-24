@@ -1,0 +1,44 @@
+smartctl 5.39.1 2010-01-28 r3054 [x86_64-unknown-linux-gnu] (local build)
+Copyright (C) 2002-10 by Bruce Allen, http://smartmontools.sourceforge.net
+
+Device: SEAGATE  ST373453LC       Version: DX10
+Serial number: 3HW1P87Y
+Device type: disk
+Transport protocol: Parallel SCSI (SPI-4)
+Local Time is: Thu Jan  3 17:56:12 2013 CET
+Device supports SMART and is Enabled
+Temperature Warning Enabled
+SMART Health Status: OK
+
+Current Drive Temperature:     35 C
+Drive Trip Temperature:        68 C
+Elements in grown defect list: 0
+Vendor (Seagate) cache information
+  Blocks sent to initiator = 3405544933
+  Blocks received from initiator = 254736539
+  Blocks read from cache and sent to initiator = 241921085
+  Number of read and write commands whose size <= segment size = 447239257
+  Number of read and write commands whose size > segment size = 349973
+Vendor (Seagate/Hitachi) factory information
+  number of hours powered up = 44856.23
+  number of minutes until next internal SMART test = 84
+
+Error counter log:
+           Errors Corrected by           Total   Correction     Gigabytes    Total
+               ECC          rereads/    errors   algorithm      processed    uncorrected
+           fast | delayed   rewrites  corrected  invocations   [10^9 bytes]  errors
+read:    2017549        0         0   2017549    2017549       7237.466           0
+write:         0        0         0         0          0       3833.511           0
+
+Non-medium error count:        1
+
+[GLTSD (Global Logging Target Save Disable) set. Enable Save with '-S on']
+
+SMART Self-test log
+Num  Test              Status                 segment  LifeTime  LBA_first_err [SK ASC ASQ]
+     Description                              number   (hours)
+# 1  Background short  Completed                   -   37695                 - [-   -    -]
+# 2  Background long   Completed                   -       2                 - [-   -    -]
+# 3  Background short  Completed                   -       2                 - [-   -    -]
+
+Long (extended) Self Test duration: 1280 seconds [21.3 minutes]

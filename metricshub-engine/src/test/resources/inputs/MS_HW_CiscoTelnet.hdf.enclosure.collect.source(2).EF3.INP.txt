@@ -1,0 +1,58 @@
+show module
+Mod  Ports  Module-Type                      Model              Status
+---  -----  -------------------------------- ------------------ ------------
+1    40     1/2 Gbps FC/Supervisor           DS-C9140-K9-SUP    active *
+Mod  Sw              Hw      World-Wide-Name(s) (WWN)
+---  --------------  ------  --------------------------------------------------
+1    3.3(5b)         7.0     20:01:00:0d:ec:33:53:c0 to 20:28:00:0d:ec:33:53:c0 
+Mod  MAC-Address(es)                         Serial-Num
+---  --------------------------------------  ----------
+1    00-17-5a-b5-3f-8a to 00-17-5a-b5-3f-8e  JAE1046F8GK
+* this terminal session 
+show environment
+Clock:
+----------------------------------------------------------
+Clock           Model                Hw         Status         
+----------------------------------------------------------
+A               Clock Module         --         not present/------
+B               Clock Module         --         not present/------
+Fan:
+------------------------------------------------------
+Fan             Model                Hw         Status         
+------------------------------------------------------
+Chassis                              --         ok 
+Chassis                              --         failure        
+PS-1            --                   --         ok             
+PS-2            --                   --         ok             
+Temperature:
+---------------------------------------------------------------
+Module   Sensor   MajorThresh   MinorThres   CurTemp     Status
+                  (Celsius)     (Celsius)    (Celsius)         
+---------------------------------------------------------------
+1        Outlet   75            60           29          ok
+1        Outlet   75            60           31          ok
+1        Outlet   75            60           32          ok
+1        Intake   65            50           22          ok
+1        Intake   65            50           25          ok
+Power Supply:
+-----------------------------------------------------
+PS  Model                Power     Power       Status
+                         (Watts)   (Amp @12V)        
+-----------------------------------------------------
+1   DS-CAC-300W          300.00    25.00       ok                  
+2                        0.00      0.00        ok                  
+Mod Model                Power     Power       Power     Power       Status
+                         Requested Requested   Allocated Allocated         
+                         (Watts)   (Amp @12V)  (Watts)   (Amp @12V)        
+--- -------------------  -------   ----------  --------- ----------  ----------
+1    DS-C9140-K9-SUP     204.00    17.00       204.00    17.00       powered-up
+Power Usage Summary:
+--------------------
+Power Supply redundancy mode:                   redundant
+Total Power Capacity                            300.00   W
+Power reserved for Supervisor(s)[-]             204.00   W
+Power reserved for Fan Module(s)[-]             12.00    W
+Power currently used by Modules[-]              0.00     W
+                                                -------
+Total Power Available                           84.00    W
+                                                -------
