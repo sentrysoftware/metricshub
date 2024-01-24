@@ -1,19 +1,4 @@
-<<<<<<< Updated upstream:metricshub-engine/src/main/java/org/sentrysoftware/metricshub/engine/common/HostLocation.java
 package org.sentrysoftware.metricshub.engine.common;
-
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-@Getter
-@AllArgsConstructor
-public enum HostLocation {
-	LOCAL("local"),
-	REMOTE("remote");
-
-	private String key;
-}
-=======
-package com.sentrysoftware.metricshub.engine.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -35,4 +20,3 @@ public enum HostLocation {
 
 	private String key;
 }
->>>>>>> Stashed changes:metricshub-engine/src/main/java/com/sentrysoftware/metricshub/engine/common/HostLocation.java
