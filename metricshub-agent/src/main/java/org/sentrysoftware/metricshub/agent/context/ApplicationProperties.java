@@ -1,5 +1,26 @@
 package org.sentrysoftware.metricshub.agent.context;
 
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Agent
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
 /**
  * This record is used to map the contents of the application.yaml file into a
  * structured Java object.<br>
@@ -8,14 +29,14 @@ package org.sentrysoftware.metricshub.agent.context;
  * @param project     Project informations
  * @param buildNumber Application build number
  * @param buildDate   Application build date
- * @param hcVersion   Hardware Connector version
+ * @param ccVersion   Community Connector version
  * @param otelVersion OpenTelemetry version
  */
 public record ApplicationProperties(
 	Project project,
 	String buildNumber,
 	String buildDate,
-	String hcVersion,
+	String ccVersion,
 	String otelVersion
 ) {
 	/**

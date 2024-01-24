@@ -11,7 +11,7 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_INFO_BUILD_DATE_NUMBER_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_INFO_BUILD_NUMBER_ATTRIBUTE_KEY;
-import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_INFO_HC_VERSION_NUMBER_ATTRIBUTE_KEY;
+import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_INFO_CC_VERSION_NUMBER_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_INFO_NAME_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_INFO_OTEL_VERSION_NUMBER_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_INFO_VERSION_ATTRIBUTE_KEY;
@@ -112,7 +112,7 @@ class SelfObserverSchedulingTest {
 			assertNotNull(attributes.get(AttributeKey.stringKey(AGENT_INFO_VERSION_ATTRIBUTE_KEY)));
 			assertNotNull(attributes.get(AttributeKey.stringKey(AGENT_INFO_BUILD_NUMBER_ATTRIBUTE_KEY)));
 			assertNotNull(attributes.get(AttributeKey.stringKey(AGENT_INFO_BUILD_DATE_NUMBER_ATTRIBUTE_KEY)));
-			assertNotNull(attributes.get(AttributeKey.stringKey(AGENT_INFO_HC_VERSION_NUMBER_ATTRIBUTE_KEY)));
+			assertNotNull(attributes.get(AttributeKey.stringKey(AGENT_INFO_CC_VERSION_NUMBER_ATTRIBUTE_KEY)));
 			assertNotNull(attributes.get(AttributeKey.stringKey(AGENT_INFO_OTEL_VERSION_NUMBER_ATTRIBUTE_KEY)));
 			assertNotNull(attributes.get(AttributeKey.stringKey(COMPANY_ATTRIBUTE_KEY)));
 		}

@@ -1,16 +1,23 @@
 # MetricsHub
 
+![GitHub release (with filter)](https://img.shields.io/github/v/release/sentrysoftware/metricshub)
+![Build](https://img.shields.io/github/actions/workflow/status/sentrysoftware/metricshub/build.yml)
+![GitHub top language](https://img.shields.io/github/languages/top/sentrysoftware/metricshub)
+![License](https://img.shields.io/github/license/sentrysoftware/metricshub)
+
 ## Structure
 
 This is a multi-module project:
 
-* **/**: the root (parent of all submodules)
-* **metricshub-engine**: the brain, the heart of this project
-* **metricshub-agent**: the MetricsHub Agent which includes a CLI
-* **metricshub-windows**: builds the MSI package
-* **metricshub-rhel**: builds the RPM package
-* **metricshub-debian**: builds the Debian package
-* **connector-serializer**: Serializes a set of connectors present in a directory
+* **/**: The root (parent of all submodules)
+* **metricshub-engine**: The brain, the heart of this project. It houses the core logic and essential functionalities that power the entire system.
+* **hardware**: Hardware Energy and Sustainability module, dedicated to managing and monitoring hardware-related metrics, focusing on energy consumption and sustainability aspects.
+* **metricshub-agent**: The MetricsHub Agent module includes a Command-Line Interface (CLI) and is responsible for interacting with the MetricsHub engine. It acts as an entry point, collecting and transmitting data to the OpenTelemetry Collector.
+* **metricshub-windows**: Builds the MSI (Microsoft Installer) package for MetricsHub on Windows platforms.
+* **metricshub-rhel**: Builds the RPM (Red Hat Package Manager) package.
+* **metricshub-debian**: Builds the Debian package of MetricsHub.
+* **metricshub-doc**: Houses the documentation for MetricsHub.
+
 
 ## How to build the Project
 
@@ -31,7 +38,7 @@ $ mvn clean package
 
 * **Host:** Windows
 * **WiXToolSet Installation:** Download and install [WiX Toolset](https://github.com/wixtoolset/wix3/releases/tag/wix3112rtm) under `C:\Program Files (x86)\WiX Toolset v3.11`.
-* Execute the `mvn package` command within the Metricshub root directory (`metricshub`). You can find the `.msi` package in the `metricshub/metricshub-windows/target` directory upon completion (`metricshub-windows-<version>.msi`).
+* Execute the `mvn package` command within the MetricsHub root directory (`metricshub`). You can find the `.msi` package in the `metricshub/metricshub-windows/target` directory upon completion (`metricshub-windows-<version>.msi`).
 
 #### Building Debian Packages (.DEB)
 
@@ -39,14 +46,14 @@ $ mvn clean package
 * **Additional Packages:** Install the following packages:
   * `fakeroot` (`/usr/bin/fakeroot`)
   * `gcc-multilib`
-* Execute the `mvn package` command within the Metricshub root directory (`metricshub`). You can find the `.deb` package in the `metricshub/metricshub-debian/target` directory upon completion (`metricshub-debian-<version>-amd64.deb`).
+* Execute the `mvn package` command within the MetricsHub root directory (`metricshub`). You can find the `.deb` package in the `metricshub/metricshub-debian/target` directory upon completion (`metricshub-debian-<version>-amd64.deb`).
   * The `Docker` package that is compatible with the `debian:latest` image will also be generated under the `metricshub/metricshub-debian/target` directory (`metricshub-debian-<version>-docker.tar.gz`).
 
 #### Building RHEL Packages (.RPM)
 
-* **Host:** Red Hat Enterprise Linux (Centos, Ubuntu, etc.)
+* **Host:** Red Hat Enterprise Linux (Centos, etc.)
 * **Additional Packages:** Install the `rpm-build` package (`/usr/bin/rpmbuild`).
-* Execute the `mvn package` command within the Metricshub root directory (`metricshub`). You can find the `.rpm` package in the `metricshub/metricshub-rhel/target` directory upon completion (`metricshub-rhel-<version>-1.x86_64.rpm`).
+* Execute the `mvn package` command within the MetricsHub root directory (`metricshub`). You can find the `.rpm` package in the `metricshub/metricshub-rhel/target` directory upon completion (`metricshub-rhel-<version>-1.x86_64.rpm`).
 
 
 ## Checkstyle
@@ -96,7 +103,7 @@ mvn checkstyle:check
 
 ## Code Formatting
 
-In this project, we maintain code formatting using `prettier-java`, a tool that helps ensure clean and consistent Java code. It automatically formats your code according to a predefined set of rules.
+In this project, we maintain code formatting using [prettier-java](https://github.com/jhipster/prettier-java), a tool that helps ensure clean and consistent Java code. It automatically formats your code according to a predefined set of rules.
 
 ### Prettier Maven Plugin
 
@@ -117,3 +124,13 @@ The build will fail if you forgot to run Prettier.
 ## Submitting a PR
 
 Before you submit a PR, make sure to use the available tools for code formatting, and ensure that the style checks and unit tests pass.
+
+## License
+
+License is GNU Affero General Public License v3.0. Each source file must include the AGPL-3.0 header (build will fail otherwise).
+To update source files with the proper header, simply execute the below command:
+
+```bash
+mvn license:update-file-header
+```
+
