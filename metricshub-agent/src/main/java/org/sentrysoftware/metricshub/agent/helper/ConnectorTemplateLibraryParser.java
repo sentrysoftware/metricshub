@@ -11,6 +11,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Map;
 import java.util.TreeMap;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.agent.config.ConnectorVariables;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
@@ -113,8 +114,8 @@ public class ConnectorTemplateLibraryParser {
 	 * @throws IOException if the file does not exist or an I/O error occurs during processing
 	 */
 	public Map<String, Connector> parse(
-		final Path yamlParentDirectory,
-		Map<String, ConnectorVariables> connectorVariablesMap
+		@NonNull final Path yamlParentDirectory,
+		@NonNull final Map<String, ConnectorVariables> connectorVariablesMap
 	) throws IOException {
 		final long startTime = System.currentTimeMillis();
 		final ConnectorFileVisitor connectorFileVisitor = new ConnectorFileVisitor(connectorVariablesMap);

@@ -10,7 +10,11 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class ConstantsProcessor extends AbstractNodeProcessor {
 
 	/**

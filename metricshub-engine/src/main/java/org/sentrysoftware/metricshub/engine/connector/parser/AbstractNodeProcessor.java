@@ -3,19 +3,19 @@ package org.sentrysoftware.metricshub.engine.connector.parser;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 
 /**
  * Abstract base class for implementing a chain of responsibility pattern in processing JsonNodes.
  * Each concrete subclass represents a specific processing step in the chain.
  */
 @AllArgsConstructor
+@Data
 public abstract class AbstractNodeProcessor {
 
 	/**
 	 * Next node processor
 	 */
-	@Getter
 	protected AbstractNodeProcessor next;
 
 	/**

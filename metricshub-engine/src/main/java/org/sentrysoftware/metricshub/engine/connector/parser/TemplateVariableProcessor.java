@@ -9,8 +9,12 @@ import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class TemplateVariableProcessor extends AbstractNodeProcessor {
 
 	@NonNull
