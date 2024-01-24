@@ -54,7 +54,6 @@ public class OtelHelper {
 	/**
 	 * Whether this key should be accepted or not.<br>
 	 * If the key starts with '__' then it is not accepted.
-	 *
 	 * @param key OTEL key to test
 	 *
 	 * @return boolean value

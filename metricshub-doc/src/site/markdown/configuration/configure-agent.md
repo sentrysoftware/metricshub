@@ -73,7 +73,7 @@ resourceGroups:
       hw.site.pue: 1.8
 ```
 
-## Configure the monitored resources
+## Configure monitored resources
 
 To collect metrics from your resources, you must provide the following information in the `config/metricshub.yaml` file:
 
@@ -85,9 +85,7 @@ You can either configure your resources individually or several at a times if th
 
 ### Monitored resources
 
-#### Single resource
-
-Resources to monitor are defined under `resources` section located under your resource group identified by `<resource-group-name>` with the below syntax:
+If your intention is to associate monitored resources with a specific resource group, set up your resource within the `resources` section under the designated resource group identified by `<resource-group-name>`. Here's an illustrative example:
 
 ```yaml
 resourceGroups:
@@ -99,6 +97,20 @@ resourceGroups:
           host.type: <type>
         <protocol-configuration>
 ```
+This configuration is particularly useful when configuring the **MetricsHub Agent** to monitor multiple sites, where each site serves as a resource group containing various resources.
+
+Alternatively, if you don't require the resource grouping feature, you can configure your resource directly under the `resources` section located at the top level in the `metricshub.yaml` file:
+
+```yaml
+resources:
+  <resource-id>:   
+    attributes:
+      host.name: <hostname>
+      host.type: <type>
+    <protocol-configuration>
+# resourceGroups: # not required
+```
+This approach is suitable when resource grouping is unnecessary for your monitoring setup.
 
 where:
 
@@ -106,24 +118,24 @@ where:
 * `<hostname>` is the name of the host resource, or its IP address.
 * `<type>` is the type of the resource to be monitored. Possible values are:
 
-    * `win` for Microsoft Windows systems
-    * `linux` for Linux systems
-    * `network` for network devices
-    * `oob` for Out-of-band management cards
-    * `storage` for storage systems
-    * `aix` for IBM AIX systems
-    * `hpux` for HP UX systems
-    * `solaris` for Oracle Solaris systems
-    * `tru64` for HP Tru64 systems
-    * `vms` for HP Open VMS systems
- For the enterprise edition, refer to [Monitored Systems](../enterprise-platform-requirements.html) for more details.
- For the basic edition, refer to [Monitored Systems](../basic-platform-requirements.html) for more details.
-  
+  * `win` for Microsoft Windows systems
+  * `linux` for Linux systems
+  * `network` for network devices
+  * `oob` for Out-of-band management cards
+  * `storage` for storage systems
+  * `aix` for IBM AIX systems
+  * `hpux` for HP UX systems
+  * `solaris` for Oracle Solaris systems
+  * `tru64` for HP Tru64 systems
+  * `vms` for HP Open VMS systems
+    For the enterprise edition, refer to [Monitored Systems](../enterprise-platform-requirements.html) for more details.
+    For the basic edition, refer to [Monitored Systems](../basic-platform-requirements.html) for more details.
+
 * `<protocol-configuration>` is the protocol(s) **${solutionName}** will use to communicate with the resources: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](#protocol) for more details.
 
-#### Multiple resources
+### Same characteristics resources
 
-You can group resources that share the same characteristics (device kind, protocols, credentials, etc.) using one of the below syntax:
+You can configure resources that share the same characteristics (device kind, protocols, credentials, etc.) using syntax below:
 
 ```yaml
 resourceGroups:

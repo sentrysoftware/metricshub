@@ -11,8 +11,10 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mockStatic;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.CONFIG_EXAMPLE_FILENAME;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.DEFAULT_CONFIG_FILENAME;
+import static org.sentrysoftware.metricshub.agent.helper.ConfigHelper.TOP_LEVEL_VIRTUAL_RESOURCE_GROUP_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.TestConstants.SENTRY_PARIS_RESOURCE_GROUP_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.TestConstants.SERVER_1_RESOURCE_GROUP_KEY;
+import static org.sentrysoftware.metricshub.agent.helper.TestConstants.TOP_LEVEL_RESOURCES_CONFIG_PATH;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -184,6 +186,74 @@ class ConfigHelperTest {
 		assertEquals(Set.of(PURE_STORAGE_REST_CONNECTOR_ID), hostConfiguration.getSelectedConnectors());
 		assertEquals(Collections.emptySet(), hostConfiguration.getExcludedConnectors());
 		assertNotNull(hostConfiguration.getConfigurations().get(HttpConfiguration.class));
+	}
+
+	@Test
+	void testBuildTelemetryManagersWithTopLevelResources() throws IOException {
+		// Find the configuration file
+		final File configFile = ConfigHelper.findConfigFile(TOP_LEVEL_RESOURCES_CONFIG_PATH);
+
+		// Create the connector store
+		final ConnectorStore connectorStore = new ConnectorStore(Path.of("src/test/resources"));
+		final Connector connector = new Connector();
+		connector.getOrCreateConnectorIdentity().setCompiledFilename(PURE_STORAGE_REST_CONNECTOR_ID);
+		connectorStore.addOne(PURE_STORAGE_REST_CONNECTOR_ID, connector);
+
+		// Create the agent configuration
+		final AgentConfig agentConfig = JsonHelper.deserialize(
+			AgentContext.AGENT_CONFIG_OBJECT_MAPPER,
+			new FileInputStream(configFile),
+			AgentConfig.class
+		);
+
+		// Normalize agent configuration
+		ConfigHelper.normalizeAgentConfiguration(agentConfig);
+
+		final Map<String, Map<String, TelemetryManager>> telemetryManagers = ConfigHelper.buildTelemetryManagers(
+			agentConfig,
+			connectorStore
+		);
+
+		// Check that top-level resources are added to the telemetry managers map
+
+		assertEquals(2, telemetryManagers.size());
+
+		// Check resources under resource groups
+
+		final Map<String, TelemetryManager> resourceGroupTelemetryManagers = telemetryManagers.get(
+			SENTRY_PARIS_RESOURCE_GROUP_KEY
+		);
+		assertNotNull(resourceGroupTelemetryManagers);
+		final TelemetryManager telemetryManager = resourceGroupTelemetryManagers.get(SERVER_1_RESOURCE_GROUP_KEY);
+		assertNotNull(telemetryManager);
+		final HostConfiguration hostConfiguration = telemetryManager.getHostConfiguration();
+		assertEquals(
+			agentConfig
+				.getResourceGroups()
+				.get(SENTRY_PARIS_RESOURCE_GROUP_KEY)
+				.getResources()
+				.get(SERVER_1_RESOURCE_GROUP_KEY)
+				.getAttributes()
+				.get(MetricsHubConstants.HOST_NAME),
+			hostConfiguration.getHostname()
+		);
+
+		assertEquals(Set.of(PURE_STORAGE_REST_CONNECTOR_ID), hostConfiguration.getSelectedConnectors());
+		assertEquals(Collections.emptySet(), hostConfiguration.getExcludedConnectors());
+		assertNotNull(hostConfiguration.getConfigurations().get(HttpConfiguration.class));
+
+		// Check resources under agent config (top-level resources)
+		final Map<String, TelemetryManager> topLevelResourcesTelemetryManagers = telemetryManagers.get(
+			TOP_LEVEL_VIRTUAL_RESOURCE_GROUP_KEY
+		);
+		assertNotNull(topLevelResourcesTelemetryManagers);
+		final TelemetryManager topLevelTelemetryManager = topLevelResourcesTelemetryManagers.get("server-2");
+		assertNotNull(topLevelTelemetryManager);
+		final HostConfiguration topLevelhostConfiguration = topLevelTelemetryManager.getHostConfiguration();
+		assertEquals(
+			agentConfig.getResources().get("server-2").getAttributes().get(MetricsHubConstants.HOST_NAME),
+			topLevelhostConfiguration.getHostname()
+		);
 	}
 
 	@Test
