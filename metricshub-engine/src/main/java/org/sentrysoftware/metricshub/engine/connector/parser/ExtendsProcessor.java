@@ -7,31 +7,31 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Iterator;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 
-@AllArgsConstructor
-@Builder
 @Data
-public class ExtendsProcessor implements NodeProcessor {
+@EqualsAndHashCode(callSuper = true)
+public class ExtendsProcessor extends AbstractNodeProcessor {
 
 	@NonNull
 	private Path connectorDirectory;
 
 	@NonNull
-	private NodeProcessor destination;
-
-	@NonNull
 	private ObjectMapper mapper;
 
-	@Override
-	public JsonNode process(JsonNode node) throws IOException {
-		final JsonNode result = doMerge(node);
+	@Builder
+	public ExtendsProcessor(@NonNull Path connectorDirectory, @NonNull ObjectMapper mapper, AbstractNodeProcessor next) {
+		super(next);
+		this.connectorDirectory = connectorDirectory;
+		this.mapper = mapper;
+	}
 
-		// Call next processor
-		return destination.process(result);
+	@Override
+	public JsonNode processNode(JsonNode node) throws IOException {
+		return doMerge(node);
 	}
 
 	/**

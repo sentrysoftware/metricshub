@@ -14,7 +14,7 @@ public class NodeProcessorHelper {
 	 *
 	 * @return new {@link ConstantsProcessor}
 	 */
-	private static NodeProcessor constantsProcessor() {
+	private static AbstractNodeProcessor constantsProcessor() {
 		return new ConstantsProcessor();
 	}
 
@@ -25,15 +25,15 @@ public class NodeProcessorHelper {
 	 * @param mapper object mapper
 	 * @return new {@link ExtendsProcessor} instance
 	 */
-	public static NodeProcessor withExtendsAndConstantsProcessor(
+	public static AbstractNodeProcessor withExtendsAndConstantsProcessor(
 		final Path connectorDirectory,
 		final ObjectMapper mapper
 	) {
 		return ExtendsProcessor
 			.builder()
 			.connectorDirectory(connectorDirectory)
-			.destination(constantsProcessor())
 			.mapper(mapper)
+			.next(constantsProcessor())
 			.build();
 	}
 
@@ -44,7 +44,7 @@ public class NodeProcessorHelper {
 	 * @param mapper object mapper
 	 * @return new {@link TemplateVariableProcessor} instance
 	 */
-	public static NodeProcessor withExtendsAndTemplateVariableProcessor(
+	public static AbstractNodeProcessor withExtendsAndTemplateVariableProcessor(
 		final Path connectorDirectory,
 		final ObjectMapper mapper,
 		final Map<String, String> connectorVariables
@@ -52,12 +52,8 @@ public class NodeProcessorHelper {
 		return ExtendsProcessor
 			.builder()
 			.connectorDirectory(connectorDirectory)
-			.destination(
-				TemplateVariableProcessor
-					.builder()
-					.nodeProcessor(constantsProcessor())
-					.connectorVariables(connectorVariables)
-					.build()
+			.next(
+				TemplateVariableProcessor.builder().connectorVariables(connectorVariables).next(constantsProcessor()).build()
 			)
 			.mapper(mapper)
 			.build();
