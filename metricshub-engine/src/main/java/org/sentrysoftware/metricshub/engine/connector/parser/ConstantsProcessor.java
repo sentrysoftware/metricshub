@@ -1,9 +1,7 @@
 package org.sentrysoftware.metricshub.engine.connector.parser;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,14 +10,32 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * Processor for replacing placeholder values in a JsonNode using constant values.
  */
-public class ConstantsProcessor implements NodeProcessor {
+@Data
+@EqualsAndHashCode(callSuper = true)
+public class ConstantsProcessor extends AbstractNodeProcessor {
+
+	/**
+	 * Constructs a ConstantsProcessor with a next processor.
+	 */
+	private ConstantsProcessor(AbstractNodeProcessor next) {
+		super(next);
+	}
+
+	/**
+	 * Constructs a ConstantsProcessor without a next processor.
+	 */
+	public ConstantsProcessor() {
+		this(null);
+	}
 
 	@Override
-	public JsonNode process(JsonNode node) {
+	public JsonNode processNode(JsonNode node) {
 		final JsonNode constantsNode = node.get("constants");
 
 		if (constantsNode != null && constantsNode.isObject()) {
@@ -32,10 +48,17 @@ public class ConstantsProcessor implements NodeProcessor {
 				replacements.put(key, child.asText());
 			}
 
-			final UnaryOperator<String> transformer = value -> performReplacements(replacements, value);
+			final UnaryOperator<String> updater = value -> performReplacements(replacements, value);
 
 			final Predicate<String> replacementPredicate = Objects::nonNull;
-			replacePlaceholderValues(node, transformer, replacementPredicate);
+
+			JsonNodeUpdater
+				.builder()
+				.withJsonNode(node)
+				.withPredicate(replacementPredicate)
+				.withUpdater(updater)
+				.build()
+				.update();
 
 			((ObjectNode) node).remove("constants");
 		}
@@ -44,15 +67,15 @@ public class ConstantsProcessor implements NodeProcessor {
 	}
 
 	/**
-	 * Perform replacements on the given value using the key-value pairs
-	 * provided in the replacements {@link Map}
+	 * Replace placeholders in the given value with corresponding values from the provided
+	 * key-value pairs in the replacements {@link Map}.
 	 *
-	 * @param replacements Key-value pairs of placeholder to value to replace.
-	 * E.g { $constants.query1=MyQuery1, $constants.query2=MyQuery2 }
-	 * @param value to replace
-	 * @return new {@link String} value
+	 * @param replacements Key-value pairs representing placeholders and their replacement values.
+	 *                     <br>Example: { $constants.query1=MyQuery1, $constants.query2=MyQuery2 }
+	 * @param value        The string to be replaced.
+	 * @return A new {@link String} with the placeholders replaced.
 	 */
-	private String performReplacements(Map<String, String> replacements, String value) {
+	private String performReplacements(final Map<String, String> replacements, String value) {
 		if (value == null || value.isEmpty()) {
 			return value;
 		}
@@ -67,76 +90,5 @@ public class ConstantsProcessor implements NodeProcessor {
 
 		// return the new value
 		return value;
-	}
-
-	/**
-	 * Traverse the given node and replace values.
-	 *
-	 * @param node                The {@link JsonNode} instance to traverse.
-	 * @param transformer         The value transformer function.
-	 * @param replacementPredicate The replacement predicate.
-	 */
-	public static void replacePlaceholderValues(
-		final JsonNode node,
-		final UnaryOperator<String> transformer,
-		final Predicate<String> replacementPredicate
-	) {
-		if (node.isObject()) {
-			// Get JsonNode fields
-			final List<String> fieldNames = new ArrayList<>(node.size());
-			node.fieldNames().forEachRemaining(fieldNames::add);
-
-			// Get the corresponding JsonNode for each field
-			for (final String fieldName : fieldNames) {
-				final JsonNode child = node.get(fieldName);
-
-				// Means it wrap sub JsonNode(s)
-				if (child.isContainerNode()) {
-					replacePlaceholderValues(child, transformer, replacementPredicate);
-				} else {
-					// Perform the replacement
-					final String oldValue = child.asText();
-					// No need to transform value if it doesn't have the placeholder
-					replaceJsonNode(
-						() -> ((ObjectNode) node).set(fieldName, new TextNode(transformer.apply(oldValue))),
-						oldValue,
-						replacementPredicate
-					);
-				}
-			}
-		} else if (node.isArray()) {
-			// Loop over the array and get each JsonNode element
-			for (int i = 0; i < node.size(); i++) {
-				final JsonNode child = node.get(i);
-
-				// Means this node is a JsonNode element
-				if (child.isContainerNode()) {
-					replacePlaceholderValues(child, transformer, replacementPredicate);
-				} else {
-					// Means this is a simple array node
-					final String oldValue = child.asText();
-					// No need to transform value if it doesn't have the placeholder
-					final int index = i;
-					replaceJsonNode(
-						() -> ((ArrayNode) node).set(index, new TextNode(transformer.apply(oldValue))),
-						oldValue,
-						replacementPredicate
-					);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Replace oldValue in {@link JsonNode} only if this oldValue matches the placeholder.
-	 *
-	 * @param replacer            The runnable to perform the replacement.
-	 * @param oldValue            The old value to check for replacement.
-	 * @param replacementPredicate The replacement predicate.
-	 */
-	private static void replaceJsonNode(Runnable replacer, String oldValue, Predicate<String> replacementPredicate) {
-		if (replacementPredicate.test(oldValue)) {
-			replacer.run();
-		}
 	}
 }

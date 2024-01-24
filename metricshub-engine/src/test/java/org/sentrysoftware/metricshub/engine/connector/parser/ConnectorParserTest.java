@@ -1,9 +1,13 @@
 package org.sentrysoftware.metricshub.engine.connector.parser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,6 +21,8 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WmiSource;
 
 class ConnectorParserTest {
+
+	private static final Path RESOURCES_TEST_FILES_PATH = Path.of("src/test/resources/test-files");
 
 	@Test
 	void testExtendsManagementArrayObjectsDepthExtends() throws IOException {
@@ -593,5 +599,76 @@ class ConnectorParserTest {
 	private List<Set<String>> buildUseCase13Dependency() {
 		// Sources are concatenated manually in source(4) tableUnion
 		return buildUseCase1Dependency();
+	}
+
+	@Test
+	void withNodeProcessorExtendsAndConstantsProcessorTest() {
+		final AbstractNodeProcessor processor = ConnectorParser.withNodeProcessor(RESOURCES_TEST_FILES_PATH).getProcessor();
+		assertNotNull(
+			processor,
+			() -> "Context: Extends and constants node processors creation. First processor shouldn't be null"
+		);
+		assertTrue(
+			processor instanceof ExtendsProcessor,
+			() ->
+				"Context: Extends and constants node processors creation. First processor should be: " +
+				ExtendsProcessor.class.getSimpleName()
+		);
+
+		final AbstractNodeProcessor next = processor.getNext();
+		assertNotNull(
+			next,
+			() -> "Context: Extends and constants node processors creation. Second processor shouldn't be null"
+		);
+		assertTrue(
+			next instanceof ConstantsProcessor,
+			() ->
+				"Context: Extends and constants node processors creation. Second processor should be: " +
+				ConstantsProcessor.class.getSimpleName()
+		);
+	}
+
+	@Test
+	void withExtendsAndTemplateVariableProcessorTest() {
+		final AbstractNodeProcessor processor = ConnectorParser
+			.withNodeProcessor(RESOURCES_TEST_FILES_PATH, Collections.emptyMap())
+			.getProcessor();
+		assertNotNull(
+			processor,
+			() ->
+				"Context: Extends, template variable and constants node processors creation. First processor shouldn't be null"
+		);
+		assertTrue(
+			processor instanceof ExtendsProcessor,
+			() ->
+				"Context: Extends, template variable and constants node processors creation. First processor should be: " +
+				ExtendsProcessor.class.getSimpleName()
+		);
+
+		AbstractNodeProcessor next = processor.getNext();
+		assertNotNull(
+			next,
+			() ->
+				"Context: Extends, template variable and constants node processors creation. Second processor shouldn't be null"
+		);
+		assertTrue(
+			next instanceof TemplateVariableProcessor,
+			() ->
+				"Context: Extends, template variable and constants node processors creation. Second processor should be: " +
+				TemplateVariableProcessor.class.getSimpleName()
+		);
+
+		next = next.getNext();
+		assertNotNull(
+			next,
+			() ->
+				"Context: Extends, template variable and constants node processors creation. Third processor shouldn't be null"
+		);
+		assertTrue(
+			next instanceof ConstantsProcessor,
+			() ->
+				"Context: Extends, template variable and constants node processors creation. Third processor should be: " +
+				ConstantsProcessor.class.getSimpleName()
+		);
 	}
 }
