@@ -41,6 +41,10 @@ import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.Timeou
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.detection.ICriterionProcessor;
 
+/**
+ * Represents an operating system command detection criterion.
+ * This criterion allows the execution of operating system commands and checks the result against an expected value.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -48,21 +52,47 @@ public class OsCommandCriterion extends Criterion {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The command line to be executed as part of the criterion.
+	 */
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	@JsonDeserialize(using = NonBlankDeserializer.class)
 	private String commandLine;
 
+	/**
+	 * An optional error message to be associated with the criterion.
+	 */
 	private String errorMessage;
+	/**
+	 * The expected result of the operating system command execution.
+	 */
 	private String expectedResult;
 
+	/**
+	 * Indicates whether the command should be executed locally or remotely.
+	 */
 	@JsonDeserialize(using = BooleanDeserializer.class)
 	@JsonSetter(nulls = SKIP)
 	private Boolean executeLocally = false;
 
+	/**
+	 * The timeout for the command execution, in milliseconds.
+	 */
 	@JsonDeserialize(using = TimeoutDeserializer.class)
 	private Long timeout;
 
+	/**
+	 * Builder for constructing instances of {@link OsCommandCriterion}.
+	 *
+	 * @param type                Type of the criterion.
+	 * @param forceSerialization Flag indicating whether serialization should be forced.
+	 * @param commandLine         The command line to be executed.
+	 * @param errorMessage        An optional error message.
+	 * @param expectedResult      The expected result of the command.
+	 * @param executeLocally      Indicates whether to execute the command locally.
+	 * @param timeout             The timeout for command execution.
+	 */
 	@Builder
 	@JsonCreator
 	public OsCommandCriterion(

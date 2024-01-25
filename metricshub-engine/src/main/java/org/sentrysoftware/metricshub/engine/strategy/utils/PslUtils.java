@@ -33,6 +33,10 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 
+/**
+ * Utility class for handling PSL (Process Specification Language) regular expressions
+ * and formatting data in an extended JSON format.
+ */
 @Slf4j
 public class PslUtils {
 
@@ -200,26 +204,28 @@ public class PslUtils {
 	}
 
 	/**
-	 * @param text				The text that should be parsed.
-	 * @param selectColumns		The list/range(s) of columns that should be extracted from the text.
-	 * @param separators		The set of characters used to split the given text.
-	 * @param resultSeparator	The separator used to join the resulting elements.
+	 * Extracts and formats the nth group in the given text based on the specified columns, separators, and result separator.
 	 *
-	 * @return					The nth group in the given text,
-	 * 							as formatted according to the given separators and column numbers.
+	 * @param text              The text that should be parsed.
+	 * @param selectColumns     The list/range(s) of columns that should be extracted from the text.
+	 * @param separators        The set of characters used to split the given text.
+	 * @param resultSeparator   The separator used to join the resulting elements.
+	 * @return                  The nth group in the given text,
+	 *                          formatted according to the given separators and column numbers.
 	 */
 	public static String nthArgf(String text, String selectColumns, String separators, String resultSeparator) {
 		return nthArgCommon(text, selectColumns, separators, resultSeparator, false);
 	}
 
 	/**
-	 * @param text				The text that should be parsed.
-	 * @param selectColumns		The list/range(s) of columns that should be extracted from the text.
-	 * @param separators		The set of characters used to split the given text.
-	 * @param resultSeparator	The separator used to join the resulting elements.
+	 * Extracts and formats the nth group in the given text based on the specified columns, separators, and result separator.
 	 *
-	 * @return					The nth group in the given text,
-	 * 							as formatted according to the given separators and column numbers.
+	 * @param text              The text that should be parsed.
+	 * @param selectColumns     The list/range(s) of columns that should be extracted from the text.
+	 * @param separators        The set of characters used to split the given text.
+	 * @param resultSeparator   The separator used to join the resulting elements.
+	 * @return                  The nth group in the given text,
+	 *                          formatted according to the given separators and column numbers.
 	 */
 	public static String nthArg(String text, String selectColumns, String separators, String resultSeparator) {
 		return nthArgCommon(text, selectColumns, separators, resultSeparator, true);

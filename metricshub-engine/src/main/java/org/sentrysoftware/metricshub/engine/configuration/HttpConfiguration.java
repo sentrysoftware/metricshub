@@ -26,6 +26,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * The HttpConfiguration class represents the configuration for HTTP connections in the MetricsHub engine.
+ */
 @Data
 @Builder
 @AllArgsConstructor

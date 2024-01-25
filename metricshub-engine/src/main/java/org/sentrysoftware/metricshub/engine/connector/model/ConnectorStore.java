@@ -32,6 +32,10 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.connector.parser.ConnectorLibraryParser;
 
+/**
+ * Manages the storage and retrieval of {@link Connector} instances.
+ * The instances are stored in a map where the key is the connector file name, and the value is the corresponding {@link Connector} object.
+ */
 @Slf4j
 @NoArgsConstructor
 public class ConnectorStore {
@@ -43,6 +47,11 @@ public class ConnectorStore {
 	@Getter
 	private Path connectorDirectory;
 
+	/**
+	 * Constructs a {@link ConnectorStore} using the specified connector directory.
+	 *
+	 * @param connectorDirectory The path to the directory containing connector files.
+	 */
 	public ConnectorStore(Path connectorDirectory) {
 		try {
 			this.connectorDirectory = connectorDirectory;

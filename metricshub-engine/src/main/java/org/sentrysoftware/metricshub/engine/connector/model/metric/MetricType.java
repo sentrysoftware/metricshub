@@ -25,15 +25,32 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * The MetricType enum represents different types of metrics.
+ * Each type is associated with a specific metric key type, and each key type can accept a visitor
+ * to implement its specific business logic.
+ */
 @AllArgsConstructor
 public enum MetricType implements IMetricType {
+	/**
+	 * Gauge Metric Type
+	 */
 	@JsonAlias("gauge")
 	GAUGE(new Gauge()),
+	/**
+	 * Counter Metric Type
+	 */
 	@JsonAlias("counter")
 	COUNTER(new Counter()),
+	/**
+	 * Up-Down Counter Metric Type
+	 */
 	@JsonAlias(value = { "upDownCounter", "up_down_counter" })
 	UP_DOWN_COUNTER(new UpDownCounter());
 
+	/**
+	 * The metric key type associated with the metric type
+	 */
 	@Getter
 	private IMetricKeyType metricKeyType;
 
@@ -42,6 +59,10 @@ public enum MetricType implements IMetricType {
 		return this;
 	}
 
+	/**
+	 * The IMetricKeyType interface represents the key type of a metric.
+	 * Each key type can accept a visitor to implement its specific business logic.
+	 */
 	public interface IMetricKeyType {
 		/**
 		 * Accept the given visitor
@@ -51,6 +72,9 @@ public enum MetricType implements IMetricType {
 		void accept(IMetricTypeVisitor visitor);
 	}
 
+	/**
+	 * The Gauge class represents the key type for Gauge metrics.
+	 */
 	public static class Gauge implements IMetricKeyType {
 
 		@Override
@@ -59,6 +83,9 @@ public enum MetricType implements IMetricType {
 		}
 	}
 
+	/**
+	 * The Counter class represents the key type for Counter metrics.
+	 */
 	public static class Counter implements IMetricKeyType {
 
 		@Override
@@ -67,6 +94,9 @@ public enum MetricType implements IMetricType {
 		}
 	}
 
+	/**
+	 * The UpDownCounter class represents the key type for Up-Down Counter metrics.
+	 */
 	public static class UpDownCounter implements IMetricKeyType {
 
 		@Override
@@ -76,25 +106,27 @@ public enum MetricType implements IMetricType {
 	}
 
 	/**
-	 * Defines the visit of each metric type
-	 *
+	 * The IMetricTypeVisitor interface defines the visit method for each metric type.
 	 */
 	public interface IMetricTypeVisitor {
 		/**
-		 * Visit the given Gauge type
-		 * @param gauge
+		 * Visit the given Gauge type.
+		 *
+		 * @param gauge the Gauge metric type
 		 */
 		void visit(Gauge gauge);
 
 		/**
-		 * Visit the given Counter type
-		 * @param counter
+		 * Visit the given Counter type.
+		 *
+		 * @param counter the Counter metric type
 		 */
 		void visit(Counter counter);
 
 		/**
-		 * Visit the given UpDownCounter type
-		 * @param upDownCounter
+		 * Visit the given UpDownCounter type.
+		 *
+		 * @param upDownCounter the UpDownCounter metric type
 		 */
 		void visit(UpDownCounter upDownCounter);
 	}

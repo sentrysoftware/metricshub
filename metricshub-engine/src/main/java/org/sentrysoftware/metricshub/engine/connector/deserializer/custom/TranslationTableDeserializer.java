@@ -35,6 +35,9 @@ import org.sentrysoftware.metricshub.engine.connector.model.common.ITranslationT
 import org.sentrysoftware.metricshub.engine.connector.model.common.ReferenceTranslationTable;
 import org.sentrysoftware.metricshub.engine.connector.model.common.TranslationTable;
 
+/**
+ * Custom deserializer for deserializing translation tables.
+ */
 public class TranslationTableDeserializer extends JsonDeserializer<ITranslationTable> {
 
 	@Override

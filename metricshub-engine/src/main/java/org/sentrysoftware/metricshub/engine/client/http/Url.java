@@ -27,6 +27,9 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+/**
+ * Utility class for formatting URLs.
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Url {
 

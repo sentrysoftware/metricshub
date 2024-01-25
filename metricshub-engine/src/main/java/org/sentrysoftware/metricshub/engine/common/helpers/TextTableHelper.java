@@ -37,6 +37,9 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.springframework.util.Assert;
 
+/**
+ * Helper class providing methods for working with text tables.
+ */
 public class TextTableHelper {
 
 	private static final String N_A = "N/A";

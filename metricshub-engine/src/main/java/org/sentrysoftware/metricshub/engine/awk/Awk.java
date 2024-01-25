@@ -41,6 +41,9 @@ import org.sentrysoftware.jawk.intermediate.AwkTuples;
 import org.sentrysoftware.jawk.util.AwkSettings;
 import org.sentrysoftware.jawk.util.ScriptSource;
 
+/**
+ * Utility class for working with AWK scripts.
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Awk {
 

@@ -36,6 +36,9 @@ import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
 
+/**
+ * Represents a monitoring entity with associated metrics, attributes, and alert rules.
+ */
 @Data
 @Builder
 @AllArgsConstructor
@@ -66,11 +69,12 @@ public class Monitor {
 	private boolean isEndpoint;
 
 	/**
-	 * Get a metric by type
+	 * Gets a metric of the specified type by name.
 	 *
-	 * @param metricName The unique name of the metric
-	 * @param type          The type of the metric
-	 * @return {@link AbstractMetric} instance
+	 * @param metricName The unique name of the metric.
+	 * @param type       The type of the metric.
+	 * @param <T>        The metric type T
+	 * @return The metric instance, or {@code null} if not found.
 	 */
 	public <T extends AbstractMetric> T getMetric(final String metricName, final Class<T> type) {
 		return type.cast(metrics.get(metricName));

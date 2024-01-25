@@ -38,6 +38,9 @@ import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.NonBla
 import org.sentrysoftware.metricshub.engine.connector.model.common.ExecuteForEachEntryOf;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Compute;
 
+/**
+ * Represents a base class for SNMP-based source tasks.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -45,11 +48,24 @@ public abstract class SnmpSource extends Source {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The SNMP OID (Object Identifier) associated with the source.
+	 */
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	@JsonDeserialize(using = NonBlankDeserializer.class)
 	protected String oid;
 
+	/**
+	 * Constructs a new {@code SnmpSource} instance with the provided attributes.
+	 *
+	 * @param type                  the type of the source
+	 * @param computes              the list of compute operations to be applied
+	 * @param forceSerialization    flag indicating whether serialization should be forced
+	 * @param oid                   the SNMP OID to retrieve data
+	 * @param key                   the key associated with the source
+	 * @param executeForEachEntryOf the execute-for-each-entry-of information
+	 */
 	protected SnmpSource(
 		String type,
 		List<Compute> computes,

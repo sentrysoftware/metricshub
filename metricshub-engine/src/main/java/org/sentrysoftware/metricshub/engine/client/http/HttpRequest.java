@@ -35,6 +35,9 @@ import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
 import org.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
 
+/**
+ * Represents an HTTP request.
+ */
 @Data
 @Builder
 @AllArgsConstructor
@@ -60,18 +63,24 @@ public class HttpRequest {
 	@NonNull
 	private ResultContent resultContent = ResultContent.BODY;
 
+	/**
+	 * The authentication token for the request.
+	 */
 	private String authenticationToken;
 
+	/**
+	 * Builder for creating instances of {@code HttpRequest}.
+	 */
 	public static class HttpRequestBuilder {
 
 		/**
-		 * Set the {@link Header} object
+		 * Set the {@link Header} object.
 		 *
-		 * @param value       string value that can reference an embedded file
-		 * @param connectorId the identifier of the connector
-		 * @param hostname    the hostname of the host we currently monitor
-		 * @return this builder
-		 * @throws IOException
+		 * @param value       String value that can reference an embedded file.
+		 * @param connectorId The identifier of the connector.
+		 * @param hostname    The hostname of the host being monitored.
+		 * @return This builder.
+		 * @throws IOException If an I/O error occurs while processing the embedded file.
 		 */
 		public HttpRequestBuilder header(final String value, final String connectorId, final String hostname)
 			throws IOException {
@@ -87,13 +96,13 @@ public class HttpRequest {
 		}
 
 		/**
-		 * Set the {@link Body} object
+		 * Set the {@link Body} object.
 		 *
-		 * @param value       string value that can reference an embedded file
-		 * @param connectorId the identifier of the connector
-		 * @param hostname    the hostname of the host we currently monitor
-		 * @return this builder
-		 * @throws IOException
+		 * @param value       String value that can reference an embedded file.
+		 * @param connectorId The identifier of the connector.
+		 * @param hostname    The hostname of the host being monitored.
+		 * @return This builder.
+		 * @throws IOException If an I/O error occurs while processing the embedded file.
 		 */
 		public HttpRequestBuilder body(final String value, final String connectorId, final String hostname)
 			throws IOException {
@@ -110,15 +119,14 @@ public class HttpRequest {
 		}
 
 		/**
-		 * Get the HTTP embedded file
+		 * Get the HTTP embedded file.
 		 *
-		 * @param value         value from which we want to extract the embedded file
-		 * @param context       operation context (header or body) used for logging
-		 * @param connectorId   the identifier of the connector used for logging
-		 * @param hostname      the hostname of the host we currently monitor
-		 * @return {@link Optional} instance that may contain the
-		 * {@link EmbeddedFile} instance
-		 * @throws IOException
+		 * @param value       Value from which to extract the embedded file.
+		 * @param context     Operation context (header or body) used for logging.
+		 * @param connectorId The identifier of the connector used for logging.
+		 * @param hostname    The hostname of the host being monitored.
+		 * @return {@link Optional} instance that may contain the {@link EmbeddedFile} instance.
+		 * @throws IOException If an I/O error occurs while processing the embedded file.
 		 */
 		public static Optional<EmbeddedFile> getHttpEmbeddedFile(
 			final String value,

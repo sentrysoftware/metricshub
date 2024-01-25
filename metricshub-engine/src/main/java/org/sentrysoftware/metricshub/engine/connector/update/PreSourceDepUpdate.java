@@ -26,6 +26,9 @@ import java.util.regex.Pattern;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 
+/**
+ * Implementation of {@link SourceConnectorUpdateChain} for updating pre-source dependencies in the connector.
+ */
 public class PreSourceDepUpdate extends SourceConnectorUpdateChain {
 
 	@Override

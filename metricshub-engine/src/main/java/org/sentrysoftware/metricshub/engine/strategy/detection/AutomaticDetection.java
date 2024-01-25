@@ -42,10 +42,30 @@ import org.sentrysoftware.metricshub.engine.connector.model.identity.ConnectionT
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
+/**
+ * The {@code AutomaticDetection} class represents a strategy for automatically detecting connectors based on predefined criteria.
+ * It extends the {@link AbstractConnectorProcessor} class and implements the connector detection logic.
+ *
+ * <p>
+ * The automatic detection process involves filtering connectors based on various criteria such as device kind, connection type,
+ * accepted sources, and exclusion tags. The results of the detection are stored in {@link ConnectorTestResult} objects.
+ * </p>
+ *
+ * <p>
+ * The detection process includes handling exclusion tags, device kind filtering, connection type filtering, and accepted sources filtering.
+ * It also considers the configured {@code includeConnectorTags} and checks if auto-detection is disabled for connectors.
+ * </p>
+ */
 @Slf4j
 @NoArgsConstructor
 public class AutomaticDetection extends AbstractConnectorProcessor {
 
+	/**
+	 * Constructs a new {@code AutomaticDetection} instance using the provided telemetry manager and clients executor.
+	 *
+	 * @param telemetryManager The telemetry manager responsible for managing telemetry-related operations.
+	 * @param clientsExecutor  The executor for managing clients used in the strategy.
+	 */
 	public AutomaticDetection(
 		@NonNull final TelemetryManager telemetryManager,
 		@NonNull final ClientsExecutor clientsExecutor

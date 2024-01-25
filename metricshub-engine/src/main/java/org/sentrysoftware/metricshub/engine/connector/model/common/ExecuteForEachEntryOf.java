@@ -39,20 +39,35 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.NonBlankDeserializer;
 
+/**
+ * Represents a configuration for executing an operation for each entry of a specified source.
+ */
 @Data
 @NoArgsConstructor
 public class ExecuteForEachEntryOf implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The source for executing the operation for each entry.
+	 */
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	@JsonDeserialize(using = NonBlankDeserializer.class)
 	private String source;
 
+	/**
+	 * The method used to concatenate entries.
+	 */
 	@JsonSetter(nulls = SKIP)
 	private IEntryConcatMethod concatMethod = EntryConcatMethod.LIST;
 
+	/**
+	 * Constructs an instance of {@link ExecuteForEachEntryOf}.
+	 *
+	 * @param source       The source for executing the operation for each entry.
+	 * @param concatMethod The method used to concatenate entries.
+	 */
 	@Builder
 	@JsonCreator
 	public ExecuteForEachEntryOf(
@@ -63,6 +78,11 @@ public class ExecuteForEachEntryOf implements Serializable {
 		this.concatMethod = concatMethod == null ? EntryConcatMethod.LIST : concatMethod;
 	}
 
+	/**
+	 * Creates a copy of the current {@link ExecuteForEachEntryOf} instance.
+	 *
+	 * @return A new instance of {@link ExecuteForEachEntryOf} with the same source and concatenation method.
+	 */
 	public ExecuteForEachEntryOf copy() {
 		return ExecuteForEachEntryOf.builder().source(source).concatMethod(concatMethod.copy()).build();
 	}

@@ -25,6 +25,14 @@ import java.util.Comparator;
 import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 
+/**
+ * Comparator for sorting {@link Connector} instances based on the monitor type.
+ * <p>
+ * This comparator prioritizes connectors with monitor types HOST and ENCLOSURE.
+ * Connectors with these monitor types will be ordered first, and then the remaining connectors
+ * will be sorted based on their compiled filenames.
+ * </p>
+ */
 public class ConnectorMonitorTypeComparator implements Comparator<Connector> {
 
 	@Override

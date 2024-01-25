@@ -33,6 +33,9 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+/**
+ * Provides utility methods for encryption and decryption operations using a master key stored in a KeyStore.
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SecurityManager {
 
@@ -113,16 +116,22 @@ public class SecurityManager {
 		'a',
 		's'
 	};
+	/**
+	 * Alias for the master key stored in the KeyStore.
+	 */
 	private static final String MASTER_KEY_ALIAS = "masterKey";
+	/**
+	 * Name of the KeyStore file.
+	 */
 	public static final String METRICSHUB_KEY_STORE_FILE_NAME = "metricshub-keystore.p12";
 
 	/**
-	 * Encrypt the given password
+	 * Encrypts the given password using the master key stored in the KeyStore.
 	 *
-	 * @param passwd       Password to encrypt
-	 * @param keyStoreFile The key store holding secret information
-	 * @return char array
-	 * @throws MetricsHubSecurityException
+	 * @param passwd       Password to encrypt.
+	 * @param keyStoreFile The KeyStore file holding secret information.
+	 * @return Encrypted password as a char array.
+	 * @throws MetricsHubSecurityException If an error occurs during encryption.
 	 */
 	public static char[] encrypt(final char[] passwd, @NonNull final File keyStoreFile)
 		throws MetricsHubSecurityException {
@@ -134,12 +143,12 @@ public class SecurityManager {
 	}
 
 	/**
-	 * Decrypt the password
+	 * Decrypts the given encrypted password using the master key stored in the KeyStore.
 	 *
-	 * @param encrypted    The encrypted text
-	 * @param keyStoreFile The key store holding the secret information
-	 * @return char array
-	 * @throws MetricsHubSecurityException
+	 * @param encrypted    The encrypted text.
+	 * @param keyStoreFile The KeyStore file holding secret information.
+	 * @return Decrypted password as a char array.
+	 * @throws MetricsHubSecurityException If an error occurs during decryption.
 	 */
 	public static char[] decrypt(final char[] encrypted, final File keyStoreFile) throws MetricsHubSecurityException {
 		if (encrypted != null && keyStoreFile != null && keyStoreFile.exists()) {
@@ -150,12 +159,11 @@ public class SecurityManager {
 	}
 
 	/**
-	 * Get the secret key from the KeyStore
+	 * Gets the secret key from the KeyStore, and generates a new one if not present.
 	 *
-	 * @param keyStoreFile The key store file
-	 *
-	 * @return {@link SecretKey} instance
-	 * @throws MetricsHubSecurityException
+	 * @param keyStoreFile The KeyStore file.
+	 * @return {@link SecretKey} instance.
+	 * @throws MetricsHubSecurityException If an error occurs during key retrieval or generation.
 	 */
 	private static SecretKey getSecretKey(@NonNull final File keyStoreFile) throws MetricsHubSecurityException {
 		// Load the keyStore
@@ -178,10 +186,11 @@ public class SecurityManager {
 	}
 
 	/**
-	 * Load the PRODUCT-CODE-keystore.p12 file, if the keyStore file doesn't exist then it is created
+	 * Loads the KeyStore from the specified file, creating it if it does not exist.
 	 *
-	 * @param keyStoreFile The key store file
-	 * @throws MetricsHubSecurityException
+	 * @param keyStoreFile The KeyStore file.
+	 * @return {@link KeyStore} instance.
+	 * @throws MetricsHubSecurityException If an error occurs during KeyStore loading or creation.
 	 */
 	public static KeyStore loadKeyStore(@NonNull final File keyStoreFile) throws MetricsHubSecurityException {
 		try {
@@ -209,12 +218,13 @@ public class SecurityManager {
 	}
 
 	/**
-	 * Generate and save a new master key in the given {@link KeyStore}
+	 * Generates and saves a new master key in the given {@link KeyStore}.
 	 *
-	 * @param ks           The keyStore holding the secret key
-	 * @param password     The password used to protect the {@link KeyStore}
-	 * @param keyStoreFile The key store file (PRODUCT-CODE-keystore.p12)
-	 * @throws MetricsHubSecurityException
+	 * @param ks           The KeyStore holding the secret key.
+	 * @param password     The password used to protect the KeyStore.
+	 * @param keyStoreFile The KeyStore file.
+	 * @return The newly generated {@link SecretKey}.
+	 * @throws MetricsHubSecurityException If an error occurs during key generation or storage.
 	 */
 	public static SecretKey generateMasterKey(
 		@NonNull final KeyStore ks,

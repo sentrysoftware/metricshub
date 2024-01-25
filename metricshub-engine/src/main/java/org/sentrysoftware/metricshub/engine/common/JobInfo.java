@@ -25,6 +25,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+/**
+ * Represents information about a job, including the hostname, connector ID, monitor type, and job name.
+ */
 @Builder
 @Data
 @AllArgsConstructor

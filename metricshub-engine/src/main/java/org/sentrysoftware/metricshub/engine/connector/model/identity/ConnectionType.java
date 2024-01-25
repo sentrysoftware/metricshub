@@ -21,15 +21,25 @@ package org.sentrysoftware.metricshub.engine.connector.model.identity;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+/**
+ * Enum representing the types of connections for a connector.
+ */
 public enum ConnectionType {
+	/**
+	 * Remote connection
+	 */
 	REMOTE,
+	/**
+	 * Local connection
+	 */
 	LOCAL;
 
 	/**
-	 * Detect {@link ConnectionType} using the value defined in the connector code
+	 * Detects {@link ConnectionType} using the value defined in the connector code.
 	 *
-	 * @param value
-	 * @return {@link ConnectionType} instance
+	 * @param value The value to detect.
+	 * @return {@link ConnectionType} instance.
+	 * @throws IllegalArgumentException If the provided value is not a supported connection type.
 	 */
 	public static ConnectionType detect(final String value) {
 		// Null returns null

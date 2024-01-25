@@ -37,6 +37,9 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.strategy.source.compute.IComputeProcessor;
 
+/**
+ * Represents a Replace computation task for monitoring.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -44,14 +47,31 @@ public class Replace extends Compute {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The column index used in the Replace computation.
+	 */
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	private Integer column;
 
+	/**
+	 * The existing value to be replaced.
+	 */
 	private String existingValue;
 
+	/**
+	 * The new value to replace the existing value.
+	 */
 	private String newValue;
 
+	/**
+	 * Replace constructor using the Builder pattern.
+	 *
+	 * @param type          The type of the computation task.
+	 * @param column        The column index used in the computation.
+	 * @param existingValue The existing value to be replaced.
+	 * @param newValue      The new value to replace the existing value.
+	 */
 	@Builder
 	@JsonCreator
 	public Replace(

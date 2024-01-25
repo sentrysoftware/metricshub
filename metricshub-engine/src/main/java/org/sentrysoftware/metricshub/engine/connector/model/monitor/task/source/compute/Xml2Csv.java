@@ -36,6 +36,9 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.strategy.source.compute.IComputeProcessor;
 
+/**
+ * Represents an Xml2Csv computation task for monitoring.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -43,11 +46,25 @@ public class Xml2Csv extends Compute {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The record tag used in the Xml2Csv computation.
+	 * Default value is "/" if not provided.
+	 */
 	@JsonSetter(nulls = SKIP)
 	private String recordTag = "/";
 
+	/**
+	 * The properties associated with the Xml2Csv computation.
+	 */
 	private String properties;
 
+	/**
+	 * Xml2Csv constructor using the Builder pattern.
+	 *
+	 * @param type       The type of the computation task.
+	 * @param recordTag  The record tag used in the computation.
+	 * @param properties The properties associated with the computation.
+	 */
 	@Builder
 	@JsonCreator
 	public Xml2Csv(

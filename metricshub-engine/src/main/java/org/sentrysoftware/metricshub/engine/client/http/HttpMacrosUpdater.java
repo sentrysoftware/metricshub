@@ -32,6 +32,11 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+/**
+ * Utility class for updating HTTP macros in a text string.
+ * Replaces known HTTP macros with literal target sequences, such as username,
+ * password, authentication-token, base64-password, base64-auth, and sha256-auth.
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class HttpMacrosUpdater {
 
