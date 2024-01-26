@@ -182,6 +182,8 @@ public class MetricsHubConstants {
 	 * Files
 	 **/
 	public static final String CANT_FIND_EMBEDDED_FILE = "Can't find embedded file: ";
+	public static final String ZIP = "zip";
+	public static final String CONNECTORS = "connectors";
 
 	//A compiled representation of a file converter. We attempt to match input like ${file::path} // NOSONAR on comment
 	public static final Pattern FILE_PATTERN = Pattern.compile("\\$\\{file::(.*?)\\}", Pattern.CASE_INSENSITIVE);

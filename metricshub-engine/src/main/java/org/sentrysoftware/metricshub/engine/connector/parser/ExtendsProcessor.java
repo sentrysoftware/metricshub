@@ -21,17 +21,25 @@ package org.sentrysoftware.metricshub.engine.connector.parser;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.CONNECTORS;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.ZIP;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Iterator;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
+import org.sentrysoftware.metricshub.engine.common.helpers.FileHelper;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -102,7 +110,53 @@ public class ExtendsProcessor extends AbstractNodeProcessor {
 	 * @throws IOException
 	 */
 	private JsonNode getJsonNode(Iterator<JsonNode> iter) throws IOException {
-		return mapper.readTree(connectorDirectory.resolve(iter.next().asText() + ".yaml").toFile());
+		final String connectorRelativePath = iter.next().asText() + ".yaml";
+
+		// If the path is absolute, it should refer to a path within the "connectors" directory
+		if (!connectorRelativePath.startsWith(".")) {
+			final Path connectorsDirectoryPath = FileHelper.findConnectorsDirectory(connectorDirectory);
+			if (connectorsDirectoryPath != null) {
+				final File connectorPathFile = connectorsDirectoryPath.resolve(connectorRelativePath).normalize().toFile();
+				if (connectorPathFile != null && connectorPathFile.exists()) {
+					return mapper.readTree(connectorPathFile);
+				}
+			}
+		}
+
+		Path connectorPath = connectorDirectory.resolve(connectorRelativePath).normalize();
+		final String strPath = connectorPath.normalize().toString();
+
+		final int zipIndex = strPath.lastIndexOf(ZIP);
+		if (zipIndex != -1) {
+			// In order to check if the yaml file actually exists, we need to look into the zip file and check if there is an entry of that name
+			final JsonNode res;
+
+			// First we need to found the zip in the file system
+			try (ZipFile zipFile = new ZipFile(strPath.substring(0, zipIndex + ZIP.length()))) {
+				// Then we try to find the yaml file in the zip
+				final ZipEntry zipEntry = zipFile.getEntry(strPath.substring(zipIndex + ZIP.length() + 1).replace("\\", "/"));
+				if (zipEntry != null) {
+					try (InputStream inputStream = zipFile.getInputStream(zipEntry)) {
+						res = mapper.readTree(inputStream);
+					}
+				} else { // If we can't find the parent in the zip file, we will try to find it in the connector directory
+					final int connectorsIndex = strPath.indexOf(CONNECTORS);
+
+					if (connectorsIndex == -1) {
+						throw new IllegalStateException("Cannot find connector directory");
+					}
+
+					// We will recreate the path to the file if it's in the connectors directory:
+					// <path to the connectors directory> + <path of the file>
+					final File fileInConnectorsDirectory = new File(
+						strPath.substring(0, connectorsIndex + CONNECTORS.length()) + strPath.substring(zipIndex + ZIP.length())
+					);
+					res = mapper.readTree(fileInConnectorsDirectory);
+				}
+			}
+			return res;
+		}
+		return mapper.readTree(connectorPath.toFile());
 	}
 
 	/**

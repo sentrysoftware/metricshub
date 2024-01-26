@@ -23,16 +23,24 @@ package org.sentrysoftware.metricshub.engine.connector.parser;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Enumeration;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
+import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 
 @Slf4j
@@ -53,6 +61,13 @@ public class ConnectorLibraryParser {
 
 		@Override
 		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+			final String filename = file.getFileName().toString();
+
+			if (isZipFile(filename)) {
+				readZipFile(file);
+				return FileVisitResult.CONTINUE;
+			}
+
 			// Skip this path if it is a directory or not a YAML file
 			if (Files.isDirectory(file) || !isYamlFile(file.toFile().getName())) {
 				return FileVisitResult.CONTINUE;
@@ -65,10 +80,61 @@ public class ConnectorLibraryParser {
 			final ConnectorParser connectorParser = ConnectorParser.withNodeProcessorAndUpdateChain(file.getParent());
 
 			final Connector connector = connectorParser.parse(file.toFile());
-			final String filename = file.getFileName().toString();
 			connectorsMap.put(filename.substring(0, filename.lastIndexOf('.')), connector);
 
 			return FileVisitResult.CONTINUE;
+		}
+
+		/**
+		 * Read a Zip file and try to parse its files as connectors.
+		 * @param zipPath The zip file path
+		 * @throws IOException
+		 */
+		private void readZipFile(final Path zipPath) throws IOException {
+			try (ZipFile zipFile = new ZipFile(zipPath.toFile())) {
+				Enumeration<? extends ZipEntry> entries = zipFile.entries();
+				while (entries.hasMoreElements()) {
+					ZipEntry zipEntry = entries.nextElement();
+					// Check if entry is a directory
+					if (isYamlFile(zipEntry.getName())) {
+						InputStream inputStream = zipFile.getInputStream(zipEntry);
+
+						// Check if this is a connector
+						final JsonNode connectorNode = OBJECT_MAPPER.readTree(inputStream);
+
+						if (!isConnector(connectorNode)) {
+							continue;
+						}
+
+						// Read and process the entry contents using the inputStream
+						final String entryName = zipEntry.getName();
+
+						final StringBuilder folderUriBuilder = new StringBuilder();
+
+						folderUriBuilder.append(zipPath.toString());
+						folderUriBuilder.append(LocalOsHandler.isWindows() ? "\\" : "/");
+						final int slashIndex = entryName.lastIndexOf('/');
+						if (slashIndex != -1) {
+							folderUriBuilder.append(entryName.substring(0, entryName.lastIndexOf('/')));
+						}
+
+						final URI folderUri = new File(folderUriBuilder.toString()).toURI();
+
+						final ConnectorParser connectorParser = ConnectorParser.withNodeProcessorAndUpdateChain(
+							Paths.get(folderUri)
+						);
+
+						final String fileName = entryName.substring(entryName.lastIndexOf('/') + 1);
+
+						final Connector connector = connectorParser.parse(zipFile.getInputStream(zipEntry), folderUri, fileName);
+						connectorsMap.put(fileName.substring(0, fileName.lastIndexOf('.')), connector);
+					}
+				}
+			} catch (IOException exception) {
+				// In case of an IOException, we log it and throw it back
+				log.error("Error while reading zip file {}: {}", zipPath.getFileName().toString(), exception.getMessage());
+				throw exception;
+			}
 		}
 
 		/**
@@ -96,11 +162,21 @@ public class ConnectorLibraryParser {
 		private boolean isYamlFile(final String name) {
 			return name.toLowerCase().endsWith(".yaml");
 		}
+
+		/**
+		 * Whether the connector is a ZIP file or not
+		 *
+		 * @param name given file name
+		 * @return boolean value
+		 */
+		private boolean isZipFile(final String name) {
+			return name.toLowerCase().endsWith(".zip");
+		}
 	}
 
 	/**
 	 * @param yamlParentDirectory the directory containing connectors yaml files
-	 * @return Map&lt;String, Connector&gt; (connectors map: key=yamlFileName, value=Connector)
+	 * @return The {@link Map} of connectors (connectors map: key=yamlFileName, value=Connector)
 	 * @throws IOException if the file does not exist
 	 */
 	public Map<String, Connector> parseConnectorsFromAllYamlFiles(Path yamlParentDirectory) throws IOException {

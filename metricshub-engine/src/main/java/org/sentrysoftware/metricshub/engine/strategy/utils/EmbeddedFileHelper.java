@@ -23,21 +23,31 @@ package org.sentrysoftware.metricshub.engine.strategy.utils;
 
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.CANT_FIND_EMBEDDED_FILE;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.FILE_PATTERN;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.NEW_LINE;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.ZIP;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.regex.Matcher;
-import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 
+@Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EmbeddedFileHelper {
 
@@ -63,7 +73,7 @@ public class EmbeddedFileHelper {
 
 			// If the embeddedFile has already been processed, no need to continue
 			if (!alreadyProcessedFiles.contains(fileNameRef)) {
-				embeddedFiles.put(fileNameRef, newEmbeddFileObject(fileName, fileNameRef));
+				embeddedFiles.put(fileNameRef, newEmbeddedFileObject(new File(fileName).toURI(), fileNameRef));
 				alreadyProcessedFiles.add(fileNameRef);
 			}
 		}
@@ -79,13 +89,58 @@ public class EmbeddedFileHelper {
 	 * @return a new {@link EmbeddedFile} instance
 	 * @throws IOException
 	 */
-	static EmbeddedFile newEmbeddFileObject(final String fileName, final String fileNameRef) throws IOException {
-		final Path filePath = Path.of(fileName);
-
-		if (!Files.exists(filePath)) {
-			throw new IOException(CANT_FIND_EMBEDDED_FILE + fileName);
+	static EmbeddedFile newEmbeddedFileObject(final URI fileUri, final String fileNameRef) throws IOException {
+		if (!fileExists(fileUri)) {
+			throw new IOException(CANT_FIND_EMBEDDED_FILE + fileUri.getPath());
 		}
-		return new EmbeddedFile(parseEmbeddedFile(filePath), findExtension(fileName), fileNameRef);
+		return new EmbeddedFile(parseEmbeddedFile(fileUri), findExtension(fileUri.getPath()), fileNameRef);
+	}
+
+	/**
+	 * Check the existence of a file, given its URI.
+	 * This method will check if the file is in a ZP container.
+	 * @param fileUri The URI of the file we want to find
+	 * @return true if the file exists, false if not
+	 * @throws IOException
+	 */
+	public static boolean fileExists(final URI fileUri) throws IOException {
+		// If the file is not in a zip container, Files.exists is enough to find it
+		if (Files.exists(new File(fileUri).toPath())) {
+			return true;
+		}
+
+		// If the file is in a zip container, we have to look into the zip container to find the right entry
+		return findZipEntry(fileUri.getPath()) != null;
+	}
+
+	/**
+	 * Find the {@link ZipEntry} within a ZIP file, given the path of the file as a String
+	 * @param filePath The path of the file as a String
+	 * @return the {@link ZipEntry} if it exists within a Zip file, null if it doesn't.
+	 * @throws IOException
+	 */
+	public static ZipEntry findZipEntry(final String filePath) throws IOException {
+		final int zipIndex = filePath.lastIndexOf(ZIP);
+
+		if (zipIndex != -1) {
+			// First we need to found the zip in the file system
+			try {
+				final ZipFile zipFile = new ZipFile(filePath.substring(0, zipIndex + ZIP.length()));
+
+				// Then we try to find the file in the zip
+				final ZipEntry zipEntry = zipFile.getEntry(filePath.substring(zipIndex + ZIP.length() + 1).replace("\\", "/"));
+
+				return zipEntry;
+			} catch (IOException exception) {
+				log.error(
+					"Error while reading zipFile {}: {}",
+					filePath.substring(0, zipIndex + ZIP.length()),
+					exception.getMessage()
+				);
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -96,24 +151,63 @@ public class EmbeddedFileHelper {
 	 */
 	static String findExtension(final String fileName) {
 		final int index = fileName.lastIndexOf('.');
-		if (index > 0) {
+		final int separatorIndex = Math.max(fileName.lastIndexOf('/'), fileName.lastIndexOf('\\'));
+		// We want to find the index of the last '.' only if it's in the last file of the path
+		// in case the file is in an .zip archive (or any kind of archive)
+		if (index > separatorIndex) {
 			return fileName.substring(index + 1);
 		}
 		return null;
 	}
 
 	/**
-	 * Read the file at the filePath location, and return its content
-	 *
-	 * @param filePath The absolute path of the file to read
-	 * @return String value
-	 * @throws IOException
+	 * Parse an embedded file located in a .zip file given its URI
+	 * @param fileUri The URI of the file we want to parse
+	 * @return The content of the file
+	 * @throws IOException When the embedded file can't be read.
 	 */
-	static String parseEmbeddedFile(final Path filePath) throws IOException {
-		try {
-			return Files.readAllLines(filePath).stream().collect(Collectors.joining("\n"));
-		} catch (Exception e) {
-			throw new IOException("Could not read embedded file: " + filePath);
+	static String parseEmbeddedFile(final URI fileUri) throws IOException {
+		final StringBuilder stringBuilder = new StringBuilder();
+
+		final String filePath = Paths.get(fileUri).toString();
+		if (filePath.contains(ZIP)) {
+			final int zipIndex = filePath.lastIndexOf(ZIP) + ZIP.length();
+
+			// First we need to found the zip in the file system
+			final ZipFile zipFile = new ZipFile(filePath.substring(0, zipIndex));
+
+			// Then we try to find the yaml file in the zip
+			final ZipEntry zipEntry = zipFile.getEntry(filePath.substring(zipIndex + 1).replace("\\", "/"));
+
+			if (zipEntry != null) {
+				try (Scanner scanner = new Scanner(zipFile.getInputStream(zipEntry), StandardCharsets.UTF_8.name())) {
+					// Read the content of the file
+					while (scanner.hasNextLine()) {
+						stringBuilder.append(scanner.nextLine());
+						if (scanner.hasNextLine()) {
+							stringBuilder.append(NEW_LINE);
+						}
+					}
+				}
+				zipFile.close();
+			}
+		} else {
+			// Open an input stream for the file within the JAR
+			try (InputStream inputStream = fileUri.toURL().openStream()) {
+				// Use a Scanner to read the content
+				try (Scanner scanner = new Scanner(inputStream, StandardCharsets.UTF_8.name())) {
+					// Read the content of the file
+					while (scanner.hasNextLine()) {
+						stringBuilder.append(scanner.nextLine());
+						if (scanner.hasNextLine()) {
+							stringBuilder.append(NEW_LINE);
+						}
+					}
+				}
+			} catch (Exception e) {
+				throw new IOException("Could not read embedded file: " + fileUri.getPath());
+			}
 		}
+		return stringBuilder.toString();
 	}
 }

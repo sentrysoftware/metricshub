@@ -4,7 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -15,7 +17,9 @@ import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 
 class EmbeddedFileHelperTest {
 
-	private static final String FILE_PATH = "src/test/resources/test-files/embedded/connector1/header.txt";
+	private static final String FILE_PATH = new File("src/test/resources/test-files/embedded/connector1/header.txt")
+		.getAbsolutePath()
+		.replace("\\", "/");
 	private static final String EMBEDDED_FILE_HEADER_REF = String.format("${file::%s}", FILE_PATH);
 
 	@Test
@@ -58,6 +62,6 @@ class EmbeddedFileHelperTest {
 
 	@Test
 	void testParseEmbeddedFileFailsOnFileNotFound() {
-		assertThrows(IOException.class, () -> EmbeddedFileHelper.parseEmbeddedFile(Path.of("notpresent")));
+		assertThrows(IllegalArgumentException.class, () -> EmbeddedFileHelper.parseEmbeddedFile(URI.create("notpresent")));
 	}
 }

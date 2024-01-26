@@ -21,10 +21,14 @@ package org.sentrysoftware.metricshub.engine.common.helpers;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.CONNECTORS;
+
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -46,5 +50,19 @@ public class FileHelper {
 		} catch (IOException e) {
 			return 0;
 		}
+	}
+
+	/**
+	 * Return the path to the connectors directory if the {@link Path} in parameter is a path containing a "connectors" folder.
+	 * @param path The path where to look for the connectors directory
+	 * @return The {@link Path}  of the connector directory
+	 */
+	public static Path findConnectorsDirectory(final Path path) {
+		final String strPath = path.toString();
+		final int connectorsIndex = strPath.indexOf(File.separator + CONNECTORS + File.separator);
+		if (connectorsIndex == -1) {
+			return null;
+		}
+		return Paths.get(strPath.substring(0, connectorsIndex + File.separator.length() + CONNECTORS.length()));
 	}
 }

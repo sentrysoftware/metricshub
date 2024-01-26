@@ -30,7 +30,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,15 +43,17 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
+import java.util.zip.ZipEntry;
+import org.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
 
 public class EmbeddedFilesResolver {
 
 	private final JsonNode connector;
 	private final Path connectorDirectory;
-	private final Set<Path> parents;
-	private final Map<String, String> alreadyProcessedEmbeddedFiles;
+	private final Set<URI> parents;
+	private final Map<String, URI> alreadyProcessedEmbeddedFiles;
 
-	public EmbeddedFilesResolver(final JsonNode connector, final Path connectorDirectory, final Set<Path> parents) {
+	public EmbeddedFilesResolver(final JsonNode connector, final Path connectorDirectory, final Set<URI> parents) {
 		this.connector = connector;
 		this.connectorDirectory = connectorDirectory;
 		this.parents = parents;
@@ -79,12 +83,12 @@ public class EmbeddedFilesResolver {
 				final String fileName = fileMatcher.group(1);
 
 				if (!alreadyProcessedEmbeddedFiles.containsKey(fileName)) {
-					final String filePath = findAbsolutePath(fileName);
+					final URI fileUri = findAbsoluteUri(fileName, connectorDirectory);
 
-					if (filePath == null || filePath.isEmpty()) {
+					if (fileUri == null) {
 						throw new IOException(CANT_FIND_EMBEDDED_FILE + fileName);
 					}
-					alreadyProcessedEmbeddedFiles.put(fileName, filePath);
+					alreadyProcessedEmbeddedFiles.put(fileName, fileUri);
 				}
 			}
 
@@ -102,25 +106,43 @@ public class EmbeddedFilesResolver {
 	}
 
 	/**
-	 * Find the absolute path of the file in parameter
-	 * @param fileName The name or relative path of the file
+	 * Find the absolute URI of the file in parameter
+	 * @param fileName           The name or relative path of the file
+	 * @param connectorDirectory The name of the connector directory where to look for the file
 	 * @return
 	 * @throws IOException when the file can't be found
 	 */
-	private String findAbsolutePath(final String fileName) {
-		Path filePath = connectorDirectory.resolve(fileName).normalize();
+	public URI findAbsoluteUri(final String fileName, final Path connectorDirectory) throws IOException {
+		// Let's check if the file exists.
+		final Path filePath = connectorDirectory.resolve(fileName).normalize();
+		String strPath = filePath.toString();
 
+		// If the file is not in a zip, then checking its existence is easy
 		if (filePath.toFile().exists()) {
-			return filePath.toString();
+			return filePath.toUri();
 		}
 
-		// If the file doesn't exist in the connector's directory, lets check the parents
-		final Iterator<Path> iterator = parents.iterator();
+		// If the file is in a zip, it gets trickier
+		ZipEntry zipEntry = EmbeddedFileHelper.findZipEntry(strPath);
+
+		if (zipEntry != null) {
+			return filePath.toUri();
+		}
+
+		// If the file doesn't exist in the connectors's directory, lets check the parents
+		final Iterator<URI> iterator = parents.iterator();
 
 		while (iterator.hasNext()) {
-			filePath = iterator.next().resolve(fileName).normalize();
-			if (filePath.toFile().exists()) {
-				return filePath.toString();
+			Path path = new File(iterator.next()).toPath().resolve(fileName).normalize();
+
+			// We do the same checks with the parents
+			if (path.toFile().exists()) {
+				return path.toUri();
+			}
+
+			zipEntry = EmbeddedFileHelper.findZipEntry(path.toString());
+			if (zipEntry != null) {
+				return path.toUri();
 			}
 		}
 
@@ -227,7 +249,7 @@ public class EmbeddedFilesResolver {
 	 * @return String value
 	 */
 	private String replaceFileReference(final Matcher matcher, final String value) {
-		final String replacement = alreadyProcessedEmbeddedFiles.get(matcher.group(1));
+		final String replacement = alreadyProcessedEmbeddedFiles.get(matcher.group(1)).getPath();
 		return value.replace(matcher.group(1), replacement);
 	}
 }
