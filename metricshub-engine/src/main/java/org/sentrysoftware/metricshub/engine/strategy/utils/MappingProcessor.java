@@ -147,6 +147,7 @@ public class MappingProcessor {
 
 	/**
 	 * This method interprets non context mapping attributes
+	 *
 	 * @return Map&lt;String, String&gt;
 	 */
 	public Map<String, String> interpretNonContextMappingAttributes() {
@@ -155,6 +156,7 @@ public class MappingProcessor {
 
 	/**
 	 * This method interprets non context mapping metrics
+	 *
 	 * @return Map&lt;String, String&gt;
 	 */
 	public Map<String, String> interpretNonContextMappingMetrics() {
@@ -162,7 +164,8 @@ public class MappingProcessor {
 	}
 
 	/**
-	 *  This method interprets non context mapping conditional collections
+	 * This method interprets non context mapping conditional collections
+	 *
 	 * @return Map&lt;String, String&gt;
 	 */
 	public Map<String, String> interpretNonContextMappingConditionalCollection() {
@@ -171,6 +174,7 @@ public class MappingProcessor {
 
 	/**
 	 * This method interprets non context mapping legacy text parameters
+	 *
 	 * @return Map&lt;String, String&gt;
 	 */
 	public Map<String, String> interpretNonContextMappingLegacyTextParameters() {
@@ -180,6 +184,7 @@ public class MappingProcessor {
 	/**
 	 * This method interprets non context mapping.
 	 * The key value pairs are filled with values depending on the column type: extraction, awk, rate, etc...
+	 *
 	 * @param keyValuePairs pairs of key values (for example: attribute key and attribute value)
 	 * @return Map&lt;String, String&gt;
 	 */
@@ -209,9 +214,9 @@ public class MappingProcessor {
 	/**
 	 * Process the given key-value then update the final interpreted value in the result map
 	 *
-	 * @param key		Unique key of the attribute or metric
-	 * @param value		Value directive we wish to process
-	 * @param result	Key-value map in which we append the interpreted value
+	 * @param key    Unique key of the attribute or metric
+	 * @param value  Value directive we wish to process
+	 * @param result Key-value map in which we append the interpreted value
 	 */
 	private void processKeyValue(final String key, final String value, final Map<String, String> result) {
 		if (value == null) {
@@ -254,6 +259,8 @@ public class MappingProcessor {
 			computationFunctions.put(key, this::fakeCounter);
 		} else if (isRateFunction(value)) {
 			computationFunctions.put(key, this::rate);
+		} else if (isColumnConcatenation(value)) {
+			result.put(key, concatenateColumnsValue(value, key));
 		} else {
 			result.put(key, value);
 		}
@@ -357,9 +364,9 @@ public class MappingProcessor {
 	/**
 	 * Performs a legacyPowerSupplyUtilization operation where we calculate the ratio of the power supply used.
 	 *
-	 * @param keyValuePair	Key-value defining the field key and its value we wish to interpret.
-	 * @param monitor		The monitor from which we want to extract the metric.
-	 * @return 				String representing the ratio of PowerSupplyUtilization.
+	 * @param keyValuePair Key-value defining the field key and its value we wish to interpret.
+	 * @param monitor      The monitor from which we want to extract the metric.
+	 * @return String representing the ratio of PowerSupplyUtilization.
 	 */
 	private String legacyPowerSupplyUtilization(final KeyValuePair keyValuePair, final Monitor monitor) {
 		final String key = keyValuePair.getKey();
@@ -397,7 +404,7 @@ public class MappingProcessor {
 	 * rate
 	 *
 	 * @param keyValuePair key-value where the key is the metric name and the value is function call
-	 * @param monitor The monitor we currently collect.
+	 * @param monitor      The monitor we currently collect.
 	 * @return String value
 	 */
 	private String fakeCounter(final KeyValuePair keyValuePair, final Monitor monitor) {
@@ -477,7 +484,7 @@ public class MappingProcessor {
 	 * Calculate a rate from counter values
 	 *
 	 * @param keyValuePair key-value where the key is the metric name and the value is function call
-	 * @param monitor The monitor we currently collect.
+	 * @param monitor      The monitor we currently collect.
 	 * @return String value
 	 */
 	private String rate(final KeyValuePair keyValuePair, final Monitor monitor) {
@@ -546,8 +553,8 @@ public class MappingProcessor {
 	/**
 	 * Checks to see if the value contains a fakeCounter function "fakeCounter()"
 	 *
-	 * @param value		Value to be parsed
-	 * @return 			Returns true if the function is found
+	 * @param value Value to be parsed
+	 * @return Returns true if the function is found
 	 */
 
 	private boolean isFakeCounterFunction(String value) {
@@ -557,8 +564,8 @@ public class MappingProcessor {
 	/**
 	 * Checks to see if the value contains a legacyPowerSupplyUtilization function "legacyPowerSupplyUtilization()"
 	 *
-	 * @param value		Value to be parsed
-	 * @return 			Returns true if the function is found
+	 * @param value Value to be parsed
+	 * @return Returns true if the function is found
 	 */
 	private boolean isLegacyPowerSupplyUtilization(String value) {
 		return LEGACY_POWER_SUPPLY_UTILIZATION_PATTERN.matcher(value).find();
@@ -567,8 +574,8 @@ public class MappingProcessor {
 	/**
 	 * Checks to see if the value contains a lookup function "lookup()"
 	 *
-	 * @param value		Value to be parsed
-	 * @return 			Returns true if the function is found
+	 * @param value Value to be parsed
+	 * @return Returns true if the function is found
 	 */
 	private boolean isLookupFunction(String value) {
 		return LOOKUP_PATTERN.matcher(value).find();
@@ -577,8 +584,8 @@ public class MappingProcessor {
 	/**
 	 * Checks to see if the value contains a rate function "rate()"
 	 *
-	 * @param value		Value to be parsed
-	 * @return 			Returns true if the function is found
+	 * @param value Value to be parsed
+	 * @return Returns true if the function is found
 	 */
 	private boolean isRateFunction(String value) {
 		return RATE_PATTERN.matcher(value).find();
@@ -587,9 +594,9 @@ public class MappingProcessor {
 	/**
 	 * Converts megabit values to bit values
 	 *
-	 * @param value		String representing a megabit2bit function with a value in megabits
-	 * @param key		The attribute key
-	 * @return			String representing a double value in bits
+	 * @param value String representing a megabit2bit function with a value in megabits
+	 * @param key   The attribute key
+	 * @return String representing a double value in bits
 	 */
 	private String megaBit2bit(String value, String key) {
 		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
@@ -605,8 +612,8 @@ public class MappingProcessor {
 	/**
 	 * Checks to see if the value contains a megabit2bit function "megabit2bit()"
 	 *
-	 * @param value		Value to be parsed
-	 * @return 			Returns true if the function is found
+	 * @param value Value to be parsed
+	 * @return Returns true if the function is found
 	 */
 	private boolean isMegaBit2Bit(String value) {
 		return MEGABIT_2_BIT_PATTERN.matcher(value).find();
@@ -615,9 +622,9 @@ public class MappingProcessor {
 	/**
 	 * Converts legacyfullduplex status into a current status
 	 *
-	 * @param value		String representing a legacyfullduplex function with a legacy status
-	 * @param key		The attribute key
-	 * @return			String representing a current status
+	 * @param value String representing a legacyfullduplex function with a legacy status
+	 * @param key   The attribute key
+	 * @return String representing a current status
 	 */
 	private String legacyFullDuplex(String value, String key) {
 		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
@@ -641,8 +648,8 @@ public class MappingProcessor {
 	/**
 	 * Checks to see if the value contains a legacyfullduplex function "legacyfullduplex()"
 	 *
-	 * @param value		Value to be parsed
-	 * @return 			Returns true if the function is found
+	 * @param value Value to be parsed
+	 * @return Returns true if the function is found
 	 */
 	private boolean isLegacyFullDuplex(String value) {
 		return LEGACY_FULL_DUPLEX_PATTERN.matcher(value).find();
@@ -651,9 +658,9 @@ public class MappingProcessor {
 	/**
 	 * Converts legacylinkstatus status into a current status
 	 *
-	 * @param value		String representing a legacylinkstatus function with a legacy status
-	 * @param key		The attribute key
-	 * @return			String representing a current status
+	 * @param value String representing a legacylinkstatus function with a legacy status
+	 * @param key   The attribute key
+	 * @return String representing a current status
 	 */
 	private String legacyLinkStatusFunction(String value, String key) {
 		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
@@ -677,8 +684,8 @@ public class MappingProcessor {
 	/**
 	 * Checks to see if the value contains a legacylinkstatus function "legacylinkstatus()"
 	 *
-	 * @param value		Value to be parsed
-	 * @return 			Returns true if the function is found
+	 * @param value Value to be parsed
+	 * @return Returns true if the function is found
 	 */
 	private boolean isLegacyLinkStatusFunction(String value) {
 		return LEGACY_LINK_STATUS_PATTERN.matcher(value).find();
@@ -687,9 +694,9 @@ public class MappingProcessor {
 	/**
 	 * Creates a metric for this monitor with the power share value
 	 *
-	 * @param value	The power share value (weight)
-	 * @param key	The attribute key
-	 * @return		Double value representing power share weight
+	 * @param value The power share value (weight)
+	 * @param key   The attribute key
+	 * @return Double value representing power share weight
 	 */
 	private String computePowerShareRatio(final String value, final String key) {
 		// Extract the function argument. E.g. from rate($1) extract $1
@@ -714,8 +721,8 @@ public class MappingProcessor {
 	/**
 	 * Checks to see if the value contains a computePowerShareRatio function "computePowerShareRatio()"
 	 *
-	 * @param value		Value to be parsed
-	 * @return 			Returns true if the function is found
+	 * @param value Value to be parsed
+	 * @return Returns true if the function is found
 	 */
 	private boolean isComputePowerShareRatioFunction(String value) {
 		return COMPUTE_POWER_SHARE_RATIO_PATTERN.matcher(value).find();
@@ -724,9 +731,9 @@ public class MappingProcessor {
 	/**
 	 * Converts legacyneedscleaning status into a current status
 	 *
-	 * @param value		String representing a legacyneedscleaning function with a legacy status
-	 * @param key		The attribute key
-	 * @return			String representing a current a current status
+	 * @param value String representing a legacyneedscleaning function with a legacy status
+	 * @param key   The attribute key
+	 * @return String representing a current a current status
 	 */
 	private String legacyNeedsCleaning(String value, String key) {
 		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
@@ -750,8 +757,8 @@ public class MappingProcessor {
 	/**
 	 * Checks to see if the value contains a legacyneedscleaning function "legacyneedscleaning()"
 	 *
-	 * @param value		Value to be parsed
-	 * @return 			Returns true if the function is found
+	 * @param value Value to be parsed
+	 * @return Returns true if the function is found
 	 */
 	private boolean islegacyNeedsCleaningFunction(String value) {
 		return LEGACY_NEEDS_CLEANING_PATTERN.matcher(value).find();
@@ -760,9 +767,9 @@ public class MappingProcessor {
 	/**
 	 * Converts legacyneedscleaning status into a current status
 	 *
-	 * @param value		String representing a legacyneedscleaning function with a legacy status
-	 * @param key		The attribute key
-	 * @return			String representing a current a current status
+	 * @param value String representing a legacyneedscleaning function with a legacy status
+	 * @param key   The attribute key
+	 * @return String representing a current a current status
 	 */
 	private String legacyPredictedFailure(String value, String key) {
 		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
@@ -786,8 +793,8 @@ public class MappingProcessor {
 	/**
 	 * Checks to see if the value contains a legacypredictedfailure function "legacypredictedfailure()"
 	 *
-	 * @param value		Value to be parsed
-	 * @return 			Returns true if the function is found
+	 * @param value Value to be parsed
+	 * @return Returns true if the function is found
 	 */
 	private boolean isLegacyPredictedFailureFunction(String value) {
 		return LEGACY_PREDICTED_FAILURE_PATTERN.matcher(value).find();
@@ -796,9 +803,9 @@ public class MappingProcessor {
 	/**
 	 * Converts legacyintrusionstatus status into a current status
 	 *
-	 * @param value		String representing a legacyintrusionstatus function with a legacy status
-	 * @param key		The attribute key
-	 * @return			String representing a current a current status
+	 * @param value String representing a legacyintrusionstatus function with a legacy status
+	 * @param key   The attribute key
+	 * @return String representing a current a current status
 	 */
 	private String legacyIntrusionStatus(String value, String key) {
 		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
@@ -822,8 +829,8 @@ public class MappingProcessor {
 	/**
 	 * Checks to see if the value contains a legacyintrusionstatus function "legacyintrusionstatus()"
 	 *
-	 * @param value		Value to be parsed
-	 * @return 			Returns true if the function is found
+	 * @param value Value to be parsed
+	 * @return Returns true if the function is found
 	 */
 	private boolean isLegacyIntrusionStatusFunction(String value) {
 		return LEGACY_INTRUSION_STATUS_PATTERN.matcher(value).find();
@@ -831,8 +838,9 @@ public class MappingProcessor {
 
 	/**
 	 * Converts legacyLedStatus status into a current status
+	 *
 	 * @param keyValuePair key/value pair
-	 * @param monitor a given monitor
+	 * @param monitor      a given monitor
 	 * @return String representing a current status
 	 */
 	private String legacyLedStatus(final KeyValuePair keyValuePair, final Monitor monitor) {
@@ -862,8 +870,8 @@ public class MappingProcessor {
 	/**
 	 * Checks to see if the value contains a legacyledstatus function "legacyledstatus()"
 	 *
-	 * @param value		Value to be parsed
-	 * @return 			Returns true if the function is found
+	 * @param value Value to be parsed
+	 * @return Returns true if the function is found
 	 */
 	private boolean isLegacyLedStatusFunction(String value) {
 		return LEGACY_LED_STATUS_PATTERN.matcher(value).find();
@@ -872,9 +880,9 @@ public class MappingProcessor {
 	/**
 	 * Converts a boolean status into a current status
 	 *
-	 * @param value		String representing a boolean function with a legacy status
-	 * @param key		The attribute key
-	 * @return			String representing a current a current status
+	 * @param value String representing a boolean function with a legacy status
+	 * @param key   The attribute key
+	 * @return String representing a current a current status
 	 */
 	private String booleanFunction(String value, String key) {
 		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
@@ -895,8 +903,8 @@ public class MappingProcessor {
 	/**
 	 * Checks to see if the value contains a boolean function "boolean()"
 	 *
-	 * @param value		Value to be parsed
-	 * @return 			Returns true if the function is found
+	 * @param value Value to be parsed
+	 * @return Returns true if the function is found
 	 */
 	private boolean isBooleanFunction(String value) {
 		return BOOLEAN_PATTERN.matcher(value).find();
@@ -905,9 +913,9 @@ public class MappingProcessor {
 	/**
 	 * Converts megabyte values to byte values
 	 *
-	 * @param value		String representing a megabit2bit function with a value in megabytes
-	 * @param key		The attribute key
-	 * @return			String representing a double value in bytes
+	 * @param value String representing a megabit2bit function with a value in megabytes
+	 * @param key   The attribute key
+	 * @return String representing a double value in bytes
 	 */
 	private String mebiByte2Byte(String value, String key) {
 		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
@@ -923,8 +931,8 @@ public class MappingProcessor {
 	/**
 	 * Checks to see if the value contains a mebibyte2byte function "mebibyte2byte()"
 	 *
-	 * @param value		Value to be parsed
-	 * @return 			Returns true if the function is found
+	 * @param value Value to be parsed
+	 * @return Returns true if the function is found
 	 */
 	private boolean isMebiByte2ByteFunction(String value) {
 		return MEBIBYTE_2_BYTE_PATTERN.matcher(value).find();
@@ -933,9 +941,9 @@ public class MappingProcessor {
 	/**
 	 * Converts megahertz values to hertz values
 	 *
-	 * @param value		String representing a megabit2bit function with a value in megahertz
-	 * @param key		The attribute key
-	 * @return			String representing a double value in hertz
+	 * @param value String representing a megabit2bit function with a value in megahertz
+	 * @param key   The attribute key
+	 * @return String representing a double value in hertz
 	 */
 	private String megaHertz2Hertz(String value, String key) {
 		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
@@ -951,8 +959,8 @@ public class MappingProcessor {
 	/**
 	 * Checks to see if the value contains a megahertz2hertz function "megahertz2hertz()"
 	 *
-	 * @param value		Value to be parsed
-	 * @return 			Returns true if the function is found
+	 * @param value Value to be parsed
+	 * @return Returns true if the function is found
 	 */
 	private boolean isMegaHertz2HertzFunction(String value) {
 		return MEGAHERTZ_2_HERTZ_PATTERN.matcher(value).find();
@@ -961,9 +969,9 @@ public class MappingProcessor {
 	/**
 	 * Converts percent values to ratio values
 	 *
-	 * @param value		String representing a megabit2bit function with a value in percent
-	 * @param key		The attribute key
-	 * @return			String representing a double value as a ratio
+	 * @param value String representing a megabit2bit function with a value in percent
+	 * @param key   The attribute key
+	 * @return String representing a double value as a ratio
 	 */
 	private String percent2Ratio(String value, String key) {
 		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
@@ -979,8 +987,8 @@ public class MappingProcessor {
 	/**
 	 * Checks to see if the value contains a percent2ration function "percent2ration()"
 	 *
-	 * @param value		Value to be parsed
-	 * @return 			Returns true if the function is found
+	 * @param value Value to be parsed
+	 * @return Returns true if the function is found
 	 */
 	private boolean isPercentToRatioFunction(String value) {
 		return PERCENT_2_RATIO_PATTERN.matcher(value).find();
@@ -989,9 +997,9 @@ public class MappingProcessor {
 	/**
 	 * Executes an awk function
 	 *
-	 * @param value		String representing an awk function
-	 * @param key		The attribute key
-	 * @return			Result of awk function
+	 * @param value String representing an awk function
+	 * @param key   The attribute key
+	 * @return Result of awk function
 	 */
 	private String executeAwkScript(String value, String key) {
 		final ClientsExecutor clientsExecutor = new ClientsExecutor();
@@ -1023,7 +1031,7 @@ public class MappingProcessor {
 	 * Extract double value from the given
 	 *
 	 * @param value Value to extract and format
-	 * @param key The key defined by the mapping section
+	 * @param key   The key defined by the mapping section
 	 * @return {@link Optional} of {@link Double} value
 	 */
 	private Optional<Double> extractDoubleValue(final String value, final String key) {
@@ -1037,9 +1045,9 @@ public class MappingProcessor {
 	/**
 	 * We multiply the value by a predetermined factor, usually for unit conversion
 	 *
-	 * @param value		An already extracted double value
-	 * @param factor	Double value to be multiplied to the value
-	 * @return			A String containing only the new value
+	 * @param value  An already extracted double value
+	 * @param factor Double value to be multiplied to the value
+	 * @return A String containing only the new value
 	 */
 	private String multiplyValueByFactor(final Double value, final double factor) {
 		return Double.toString(value * factor);
@@ -1047,6 +1055,7 @@ public class MappingProcessor {
 
 	/**
 	 * This method extracts column value using a Regex
+	 *
 	 * @param value
 	 * @param key
 	 * @return string representing the column value
@@ -1073,6 +1082,42 @@ public class MappingProcessor {
 	}
 
 	/**
+	 * This method supports placeholder notation using "$" to reference column indices
+	 *
+	 * @param value
+	 * @param key
+	 * @return
+	 */
+	protected String concatenateColumnsValue(final String value, final String key) {
+		if (value != null && value.contains("$")) {
+			Matcher matcher = Pattern.compile("\\$\\s*(\\d+)\\s*").matcher(value);
+			StringBuffer resultBuffer = new StringBuffer();
+			while (matcher.find()) {
+				int columnIndex = Integer.parseInt(matcher.group().substring(1)) - 1;
+				if (columnIndex >= 0 && columnIndex < row.size()) {
+					String replacement = row.get(columnIndex);
+					matcher.appendReplacement(resultBuffer, replacement);
+				} else {
+					log.warn(
+						"Hostname {} - Column number {} is invalid for the source {}. Column number should not exceed the size of the row. key {} - " +
+						"Row {} - monitor type {}.",
+						(jobInfo != null) ? jobInfo.getHostname() : "Unknown",
+						columnIndex,
+						key,
+						row,
+						(jobInfo != null) ? jobInfo.getMonitorType() : "Unknown"
+					);
+					matcher.appendReplacement(resultBuffer, "");
+				}
+			}
+			matcher.appendTail(resultBuffer);
+			return resultBuffer.toString();
+		} else {
+			return EMPTY;
+		}
+	}
+
+	/**
 	 * Whether the given value defines an AWK script
 	 *
 	 * @param value String to check
@@ -1084,6 +1129,7 @@ public class MappingProcessor {
 
 	/**
 	 * This method checks whether a column contains a value to be extracted (e.g: $1, $2, etc ...)
+	 *
 	 * @param value
 	 * @return true or false
 	 */
@@ -1092,7 +1138,18 @@ public class MappingProcessor {
 	}
 
 	/**
+	 * Checks whether the input string represents a column concatenation
+	 *
+	 * @param value
+	 * @return true or false
+	 */
+	private boolean isColumnConcatenation(String value) {
+		return Pattern.compile("\\$\\s*(\\d+)\\s*").matcher(value).find();
+	}
+
+	/**
 	 * This method returns the matcher of a regex on a given string value
+	 *
 	 * @param value
 	 * @return Matcher
 	 */
@@ -1106,7 +1163,7 @@ public class MappingProcessor {
 	 * @param columnRefOrValue The input string that may represent a column reference or a text value.
 	 * @param key              A key used for column extraction, if applicable.
 	 * @return The extracted column value if 'columnRefOrValue' represents a column reference,
-	 *         or the input 'columnRefOrValue' string if it does not.
+	 * or the input 'columnRefOrValue' string if it does not.
 	 */
 	private String extractColumnValueOrTextValue(final String columnRefOrValue, final String key) {
 		if (isColumnExtraction(columnRefOrValue)) {
@@ -1117,6 +1174,7 @@ public class MappingProcessor {
 
 	/**
 	 * This method interprets mapping instance mapping resource field
+	 *
 	 * @return Resource
 	 */
 	public Resource interpretMappingResource() {
@@ -1135,6 +1193,7 @@ public class MappingProcessor {
 
 	/**
 	 * This method interprets context mapping attributes
+	 *
 	 * @param monitor a given monitor
 	 * @return Map&lt;String, String&gt;
 	 */
@@ -1144,6 +1203,7 @@ public class MappingProcessor {
 
 	/**
 	 * This method interprets context mapping metrics
+	 *
 	 * @param monitor a given monitor
 	 * @return Map&lt;String, String&gt;
 	 */
@@ -1153,6 +1213,7 @@ public class MappingProcessor {
 
 	/**
 	 * This method interprets context mapping conditional collections
+	 *
 	 * @param monitor a given monitor
 	 * @return Map&lt;String, String&gt;
 	 */
@@ -1162,6 +1223,7 @@ public class MappingProcessor {
 
 	/**
 	 * This method interprets context mapping legacy text parameters
+	 *
 	 * @param monitor a given monitor
 	 * @return Map&lt;String, String&gt;
 	 */
@@ -1171,7 +1233,8 @@ public class MappingProcessor {
 
 	/**
 	 * This method interprets context key value pairs
-	 * @param monitor a given monitor
+	 *
+	 * @param monitor       a given monitor
 	 * @param keyValuePairs key value pairs (for example: attribute key and attribute value)
 	 * @return Map<String, String>
 	 */
