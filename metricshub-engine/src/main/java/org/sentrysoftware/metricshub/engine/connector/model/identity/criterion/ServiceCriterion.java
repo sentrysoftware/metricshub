@@ -36,6 +36,9 @@ import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.NonBla
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.detection.ICriterionProcessor;
 
+/**
+ * Represents a detection criterion based on a service. This criterion checks whether the specified service is present.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -43,11 +46,21 @@ public class ServiceCriterion extends Criterion {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The name of the service for the criterion.
+	 */
 	@NonNull
 	@JsonDeserialize(using = NonBlankDeserializer.class)
 	@JsonSetter(nulls = FAIL)
 	private String name;
 
+	/**
+	 * Constructor to create an instance of {@link ServiceCriterion} using a builder.
+	 *
+	 * @param type                Type of the criterion.
+	 * @param forceSerialization Flag indicating whether serialization should be forced.
+	 * @param name                The name of the service for the criterion.
+	 */
 	@Builder
 	@JsonCreator
 	public ServiceCriterion(

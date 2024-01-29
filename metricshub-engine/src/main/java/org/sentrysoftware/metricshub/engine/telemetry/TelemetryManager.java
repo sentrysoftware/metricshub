@@ -50,6 +50,9 @@ import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.strategy.ContextExecutor;
 import org.sentrysoftware.metricshub.engine.strategy.IStrategy;
 
+/**
+ * The `TelemetryManager` class manages telemetry-related operations, monitors, and strategies.
+ */
 @Data
 @Builder
 @AllArgsConstructor

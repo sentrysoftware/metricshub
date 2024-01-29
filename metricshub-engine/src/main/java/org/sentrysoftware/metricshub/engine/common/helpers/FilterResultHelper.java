@@ -36,6 +36,9 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.strategy.utils.PslUtils;
 
+/**
+ * Utility class for filtering and selecting columns in a list of lines.
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FilterResultHelper {
 

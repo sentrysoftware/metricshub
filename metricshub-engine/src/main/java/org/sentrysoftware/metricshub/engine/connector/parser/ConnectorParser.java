@@ -55,6 +55,9 @@ import org.sentrysoftware.metricshub.engine.connector.update.ConnectorUpdateChai
 import org.sentrysoftware.metricshub.engine.connector.update.MonitorTaskSourceDepUpdate;
 import org.sentrysoftware.metricshub.engine.connector.update.PreSourceDepUpdate;
 
+/**
+ * Utility class for parsing connector files and creating Connector objects.
+ */
 @AllArgsConstructor
 @Builder
 @Data
@@ -68,11 +71,11 @@ public class ConnectorParser {
 	private ConnectorUpdateChain connectorUpdateChain;
 
 	/**
-	 * Parse the given connector file
+	 * Parses the given connector file.
 	 *
-	 * @param file
-	 * @return new {@link Connector} object
-	 * @throws IOException
+	 * @param file Connector file to parse.
+	 * @return New {@link Connector} object.
+	 * @throws IOException If an I/O error occurs during parsing.
 	 */
 	public Connector parse(final File file) throws IOException {
 		JsonNode node = deserializer.getMapper().readTree(file);
@@ -142,8 +145,8 @@ public class ConnectorParser {
 	 * Creates a new {@link ConnectorParser} with extends and constants
 	 * {@link AbstractNodeProcessor}
 	 *
-	 * @param connectorDirectory
-	 * @return new instance of {@link ConnectorParser}
+	 * @param connectorDirectory The connector files directory.
+	 * @return New instance of {@link ConnectorParser}.
 	 */
 	public static ConnectorParser withNodeProcessor(final Path connectorDirectory) {
 		final ObjectMapper mapper = JsonHelper.buildYamlMapper();
@@ -161,8 +164,9 @@ public class ConnectorParser {
 	 * Creates a new {@link ConnectorParser} with extends and constants
 	 * {@link AbstractNodeProcessor}
 	 *
-	 * @param connectorDirectory the connectors yaml files directory
-	 * @return new instance of {@link ConnectorParser}
+	 * @param connectorDirectory    The connector files directory.
+	 * @param connectorVariables    Map of connector variables.
+	 * @return New instance of {@link ConnectorParser}.
 	 */
 	public static ConnectorParser withNodeProcessor(
 		final Path connectorDirectory,
@@ -185,8 +189,8 @@ public class ConnectorParser {
 	 * Creates a new {@link ConnectorParser} with extends and constants
 	 * {@link AbstractNodeProcessor} and with a {@link ConnectorUpdateChain}
 	 *
-	 * @param connectorDirectory
-	 * @return new instance of {@link ConnectorParser}
+	 * @param connectorDirectory The connector files directory.
+	 * @return New instance of {@link ConnectorParser}.
 	 */
 	public static ConnectorParser withNodeProcessorAndUpdateChain(final Path connectorDirectory) {
 		final ConnectorParser connectorParser = withNodeProcessor(connectorDirectory);
@@ -204,8 +208,9 @@ public class ConnectorParser {
 	 * Creates a new {@link ConnectorParser} with extends and constants
 	 * {@link AbstractNodeProcessor} and with a {@link ConnectorUpdateChain}
 	 *
-	 * @param connectorDirectory the connectors yaml files directory
-	 * @return new instance of {@link ConnectorParser}
+	 * @param connectorDirectory The connector files directory.
+	 * @param connectorVariables Map of connector variables.
+	 * @return New instance of {@link ConnectorParser}.
 	 */
 	public static ConnectorParser withNodeProcessorAndUpdateChain(
 		final Path connectorDirectory,

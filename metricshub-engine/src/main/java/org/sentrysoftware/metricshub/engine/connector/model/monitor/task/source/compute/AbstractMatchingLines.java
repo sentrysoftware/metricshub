@@ -34,6 +34,11 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+/**
+ * An abstract class extending {@link Compute} that represents operations involving matching lines based on specified criteria.
+ * It provides common fields such as column, regular expression, and value list, along with methods for updating and converting to a string.
+ *
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -42,11 +47,20 @@ public abstract class AbstractMatchingLines extends Compute {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The column on which the matching is performed.
+	 */
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	protected Integer column;
 
+	/**
+	 * The regular expression used for matching.
+	 */
 	protected String regExp;
+	/**
+	 * The list of values for matching.
+	 */
 	protected String valueList;
 
 	protected AbstractMatchingLines(String type, Integer column, String regExp, String valueList) {

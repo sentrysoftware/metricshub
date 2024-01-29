@@ -39,6 +39,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.JobInfo;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 
+/**
+ * The OrderedSources class is responsible for building a list of ordered sources based on either the
+ * execution order or the source dependency tree. It includes methods for ordering and validating the sources.
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
 @Builder
@@ -49,6 +53,12 @@ public class OrderedSources {
 	@Default
 	private List<Source> sources = new ArrayList<>();
 
+	/**
+	 * The OrderedSourcesBuilder class extends the generated builder for additional methods related to
+	 * building the list of ordered sources.
+	 *
+	 * @see OrderedSources
+	 */
 	public static class OrderedSourcesBuilder {
 
 		/**

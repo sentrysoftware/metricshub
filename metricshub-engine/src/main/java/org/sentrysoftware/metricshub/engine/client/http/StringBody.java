@@ -28,6 +28,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+/**
+ * Represents an HTTP request body with a string content.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -36,6 +39,9 @@ public class StringBody implements Body {
 
 	private static final long serialVersionUID = 7408610469247885489L;
 
+	/**
+	 * The actual content of the HTTP request body.
+	 */
 	private String body;
 
 	@Override

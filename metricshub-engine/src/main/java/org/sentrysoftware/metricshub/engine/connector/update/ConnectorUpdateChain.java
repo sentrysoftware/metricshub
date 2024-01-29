@@ -29,16 +29,16 @@ import org.sentrysoftware.metricshub.engine.connector.model.Connector;
  */
 public interface ConnectorUpdateChain {
 	/**
-	 * Set the next update chain
+	 * Sets the next update chain in the sequence.
 	 *
-	 * @param nextChain
+	 * @param nextChain The next update chain in the sequence.
 	 */
 	void setNextUpdateChain(ConnectorUpdateChain nextChain);
 
 	/**
-	 * Update the given connector
+	 * Updates the given {@link Connector} object using the defined logic.
 	 *
-	 * @param connector
+	 * @param connector The connector to be updated.
 	 */
 	void update(Connector connector);
 }

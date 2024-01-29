@@ -24,36 +24,39 @@ package org.sentrysoftware.metricshub.engine.client.http;
 import java.io.Serializable;
 import java.util.function.UnaryOperator;
 
+/**
+ * Represents the body of an HTTP request.
+ */
 public interface Body extends Serializable {
 	/**
-	 * Gets the HTTP body content as string and performs macro replacements
+	 * Gets the HTTP body content as a string and performs macro replacements.
 	 *
-	 * @param username            HTTP username
-	 * @param password            HTTP password
-	 * @param authenticationToken HTTP authentication token
-	 * @param hostname            HTTP server's hostname
-	 * @return string value
+	 * @param username            The HTTP username
+	 * @param password            The HTTP password as a character array
+	 * @param authenticationToken The HTTP authentication token
+	 * @param hostname            The remote hostname
+	 * @return The HTTP body content with resolved and parsed HTTP macros
 	 */
 	String getContent(String username, char[] password, String authenticationToken, String hostname);
 
 	/**
-	 * Performs a deep copy
+	 * Performs a deep copy of the body.
 	 *
-	 * @return new {@link Body} instance
+	 * @return A new {@link Body} instance with the same content
 	 */
 	Body copy();
 
 	/**
-	 * Updates the actual body attributes
+	 * Updates the actual body attributes using the provided updater function.
 	 *
-	 * @param updater updater function
+	 * @param updater The function to apply to the current body content
 	 */
 	void update(UnaryOperator<String> updater);
 
 	/**
-	 * Gets the HTTP body string description
+	 * Gets a string description of the HTTP body.
 	 *
-	 * @return string value
+	 * @return The content of the HTTP body as a string
 	 */
 	String description();
 }

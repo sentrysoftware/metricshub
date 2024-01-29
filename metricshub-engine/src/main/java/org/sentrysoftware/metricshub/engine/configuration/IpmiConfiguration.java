@@ -26,6 +26,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * The IpmiConfiguration class represents the configuration for IPMI (Intelligent Platform Management Interface) connections
+ * in the MetricsHub engine.
+ */
 @Data
 @Builder
 @AllArgsConstructor
