@@ -25,6 +25,10 @@ import lombok.Data;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 
+/**
+ * An abstract class implementing the {@link ConnectorUpdateChain} interface.
+ * It provides the structure for handling the update chain and ensures that the next chain in the sequence is called.
+ */
 @Data
 public abstract class AbstractConnectorUpdateChain implements ConnectorUpdateChain {
 

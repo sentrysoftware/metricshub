@@ -44,6 +44,9 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.strategy.source.ISourceProcessor;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 
+/**
+ * Represents a source that retrieves data using Windows Management Instrumentation (WMI).
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -51,14 +54,31 @@ public class WmiSource extends Source {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The WMI query used to retrieve data.
+	 */
 	@NonNull
 	@JsonDeserialize(using = NonBlankDeserializer.class)
 	@JsonSetter(nulls = FAIL)
 	private String query;
 
+	/**
+	 * The WMI namespace for the query.
+	 */
 	@JsonDeserialize(using = NonBlankDeserializer.class)
 	private String namespace;
 
+	/**
+	 * Builder for creating instances of {@code WmiSource}.
+	 *
+	 * @param type                 The type of the source.
+	 * @param computes             List of computations to be applied to the source.
+	 * @param forceSerialization   Flag indicating whether to force serialization.
+	 * @param query                The WMI query used to retrieve data.
+	 * @param namespace            The WMI namespace for the query.
+	 * @param key                  The key associated with the source.
+	 * @param executeForEachEntryOf The execution context for each entry of the source.
+	 */
 	@Builder
 	@JsonCreator
 	public WmiSource(

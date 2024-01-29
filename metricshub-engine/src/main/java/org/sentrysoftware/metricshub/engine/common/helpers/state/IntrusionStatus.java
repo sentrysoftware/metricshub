@@ -26,11 +26,23 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * Enumeration representing different intrusion status.
+ */
 @AllArgsConstructor
 public enum IntrusionStatus implements IState {
+	/**
+	 * Represents the CLOSED intrusion status.
+	 */
 	CLOSED(0),
+	/**
+	 * Represents the OPEN intrusion status.
+	 */
 	OPEN(1);
 
+	/**
+	 * The numeric value associated with the intrusion status.
+	 */
 	@Getter
 	private int numericValue;
 

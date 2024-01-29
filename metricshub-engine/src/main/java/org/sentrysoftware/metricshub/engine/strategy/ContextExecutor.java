@@ -32,6 +32,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Executor for executing a strategy in a separate thread with timeout handling.
+ */
 @Data
 @Builder
 @AllArgsConstructor

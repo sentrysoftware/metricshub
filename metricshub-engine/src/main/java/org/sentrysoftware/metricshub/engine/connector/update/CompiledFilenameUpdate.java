@@ -28,6 +28,9 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 
+/**
+ * Implementation of {@link AbstractConnectorUpdateChain} for updating compiled filename in the connector.
+ */
 @RequiredArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(callSuper = true)

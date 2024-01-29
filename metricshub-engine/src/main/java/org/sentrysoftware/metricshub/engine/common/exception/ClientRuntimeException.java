@@ -29,6 +29,11 @@ public class ClientRuntimeException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Constructs a new {@code ClientRuntimeException} with the specified cause.
+	 *
+	 * @param cause The underlying cause of this exception.
+	 */
 	public ClientRuntimeException(final ClientException cause) {
 		super(cause);
 	}

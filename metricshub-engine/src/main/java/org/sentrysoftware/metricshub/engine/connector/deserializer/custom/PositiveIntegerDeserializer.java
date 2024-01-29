@@ -27,6 +27,9 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import java.io.IOException;
 
+/**
+ * Custom deserializer for deserializing integer values ensuring they are non-negative.
+ */
 public class PositiveIntegerDeserializer extends JsonDeserializer<Integer> {
 
 	@Override

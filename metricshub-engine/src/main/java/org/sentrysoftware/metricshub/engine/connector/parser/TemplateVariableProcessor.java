@@ -49,8 +49,8 @@ public class TemplateVariableProcessor extends AbstractNodeProcessor {
 
 	/**
 	 * Processes a given Json node by calling {@link JsonNodeUpdater}
-	 * @param node a given json node
-	 * @return JsonNode
+	 * @param node The input Json node.
+	 * @return The processed Json node.
 	 * @throws IOException thrown by {@link AbstractNodeProcessor}
 	 */
 	@Override

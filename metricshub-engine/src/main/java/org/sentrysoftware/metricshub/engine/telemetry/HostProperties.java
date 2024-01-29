@@ -32,6 +32,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+/**
+ * Represents properties related to a host, including information about IPMI, WMI, WBEM, and connector namespaces.
+ */
 @Data
 @Builder
 @AllArgsConstructor

@@ -52,6 +52,11 @@ public class CustomDeserializer extends DelegatingDeserializer {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Constructs a new instance of CustomDeserializer.
+	 *
+	 * @param delegate The delegate {@link JsonDeserializer}.
+	 */
 	public CustomDeserializer(JsonDeserializer<?> delegate) {
 		super(delegate);
 	}

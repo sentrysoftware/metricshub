@@ -37,6 +37,9 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.strategy.source.compute.IComputeProcessor;
 
+/**
+ * Represents a Substring computation task for monitoring.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -44,18 +47,35 @@ public class Substring extends Compute {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The column index used in the Substring computation.
+	 */
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	private Integer column;
 
+	/**
+	 * The starting position for the Substring operation.
+	 */
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	private String start;
 
+	/**
+	 * The length of the substring to extract.
+	 */
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	private String length;
 
+	/**
+	 * Construct a new instance of Substring.
+	 *
+	 * @param type   The type of the computation task.
+	 * @param column The column index used in the computation.
+	 * @param start  The starting position for the Substring operation.
+	 * @param length The length of the substring to extract.
+	 */
 	@Builder
 	@JsonCreator
 	public Substring(

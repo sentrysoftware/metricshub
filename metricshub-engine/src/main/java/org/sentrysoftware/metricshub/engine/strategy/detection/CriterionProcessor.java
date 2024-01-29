@@ -75,6 +75,20 @@ import org.sentrysoftware.metricshub.engine.strategy.utils.PslUtils;
 import org.sentrysoftware.metricshub.engine.strategy.utils.WqlDetectionHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
+/**
+ * The `CriterionProcessor` class is responsible for processing various criteria,
+ * facilitating detection operations related to different aspects such as IPMI, HTTP, SNMP, etc.
+ * <p>
+ * This class integrates with ClientsExecutor and TelemetryManager to execute criterion-specific
+ * tests and log relevant information. It also utilizes a WqlDetectionHelper for Windows Management
+ * Instrumentation (WMI) queries.
+ * </p>
+ * <p>
+ * The class includes methods for processing different types of criteria, such as IpmiCriterion, HttpCriterion,
+ * DeviceTypeCriterion.
+ * </p>
+ *
+ */
 @Slf4j
 @Data
 @NoArgsConstructor
@@ -103,6 +117,13 @@ public class CriterionProcessor implements ICriterionProcessor {
 
 	private WqlDetectionHelper wqlDetectionHelper;
 
+	/**
+	 * Constructor for the CriterionProcessor class.
+	 *
+	 * @param clientsExecutor The ClientsExecutor instance.
+	 * @param telemetryManager      The TelemetryManager instance.
+	 * @param connectorId           The connector ID.
+	 */
 	public CriterionProcessor(
 		final ClientsExecutor clientsExecutor,
 		final TelemetryManager telemetryManager,
@@ -117,8 +138,8 @@ public class CriterionProcessor implements ICriterionProcessor {
 	/**
 	 * Process the given {@link DeviceTypeCriterion} and return the {@link CriterionTestResult}
 	 *
-	 * @param deviceTypeCriterion
-	 * @return new {@link CriterionTestResult} instance
+	 * @param deviceTypeCriterion The DeviceTypeCriterion to process.
+	 * @return New {@link CriterionTestResult} instance.
 	 */
 	@WithSpan("Criterion DeviceType Exec")
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") DeviceTypeCriterion deviceTypeCriterion) {
@@ -153,9 +174,9 @@ public class CriterionProcessor implements ICriterionProcessor {
 	/**
 	 * Return true if the deviceKind in the deviceKindList is included in the DeviceTypeCriterion detection.
 	 *
-	 * @param deviceKindList
-	 * @param deviceTypeCriterion
-	 * @return new {@link CriterionTestResult} instance
+	 * @param deviceKindList      The list of DeviceKind values to check.
+	 * @param deviceTypeCriterion The DeviceTypeCriterion for detection.
+	 * @return True if the deviceKind in the deviceKindList is included; otherwise, false.
 	 */
 	public boolean isDeviceKindIncluded(
 		final List<DeviceKind> deviceKindList,
@@ -179,8 +200,8 @@ public class CriterionProcessor implements ICriterionProcessor {
 	/**
 	 * Process the given {@link HttpCriterion} through Client and return the {@link CriterionTestResult}
 	 *
-	 * @param httpCriterion
-	 * @return new {@link CriterionTestResult} instance
+	 * @param httpCriterion The HTTP criterion to process.
+	 * @return New {@link CriterionTestResult} instance.
 	 */
 	@WithSpan("Criterion HTTP Exec")
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") HttpCriterion httpCriterion) {
@@ -235,8 +256,8 @@ public class CriterionProcessor implements ICriterionProcessor {
 	/**
 	 * Process the given {@link IpmiCriterion} through Client and return the {@link CriterionTestResult}
 	 *
-	 * @param ipmiCriterion
-	 * @return CriterionTestResult instance
+	 * @param ipmiCriterion The IPMI criterion to process.
+	 * @return CriterionTestResult instance.
 	 */
 	@WithSpan("Criterion IPMI Exec")
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") IpmiCriterion ipmiCriterion) {
@@ -410,14 +431,14 @@ public class CriterionProcessor implements ICriterionProcessor {
 
 	/**
 	 * Check the OS type and version and build the correct IPMI command. If the
-	 * process fails, return the according error
+	 * process fails, return the corresponding error.
 	 *
-	 * @param hostType
-	 * @param hostname
-	 * @param sshConfiguration
-	 * @param osCommandConfiguration
-	 * @param defaultTimeout
-	 * @return String : the ipmi Command
+	 * @param hostType               The type of the host.
+	 * @param hostname               The hostname.
+	 * @param sshConfiguration       The SSH configuration.
+	 * @param osCommandConfiguration The OS command configuration.
+	 * @param defaultTimeout         The default timeout.
+	 * @return String : The IPMI Command.
 	 */
 	public String buildIpmiCommand(
 		final DeviceKind hostType,
@@ -488,8 +509,8 @@ public class CriterionProcessor implements ICriterionProcessor {
 	/**
 	 * Whether the ipmitool command requires sudo
 	 *
-	 * @param osCommandConfiguration User's configuration
-	 * @return boolean value
+	 * @param osCommandConfiguration User's configuration.
+	 * @return boolean value whether IPMI tool require Sudo or not.
 	 */
 	private boolean doesIpmitoolRequireSudo(final OsCommandConfiguration osCommandConfiguration) {
 		// CHECKSTYLE:OFF
@@ -506,14 +527,14 @@ public class CriterionProcessor implements ICriterionProcessor {
 	}
 
 	/**
-	 * Get IPMI command based on solaris version if version == 9 than use lipmi if
-	 * version > 9 than use bmc else return error
+	 * Get IPMI command based on Solaris version. If version == 9, then use 'lipmi'.
+	 * If version > 9, then use 'bmc'. Otherwise, return an error.
 	 *
-	 * @param ipmitoolCommand
-	 * @param hostname
-	 * @param solarisOsVersion
-	 * @return String : ipmi command for Solaris
-	 * @throws IpmiCommandForSolarisException
+	 * @param ipmitoolCommand    The base IPMI tool command.
+	 * @param hostname           The hostname.
+	 * @param solarisOsVersion   The Solaris OS version.
+	 * @return String : IPMI command for Solaris.
+	 * @throws IpmiCommandForSolarisException If an error occurs while determining the IPMI command.
 	 */
 	public String getIpmiCommandForSolaris(String ipmitoolCommand, final String hostname, final String solarisOsVersion)
 		throws IpmiCommandForSolarisException {
@@ -556,18 +577,18 @@ public class CriterionProcessor implements ICriterionProcessor {
 	}
 
 	/**
-	 * Run SSH command. Check if we can execute on localhost or remote
+	 * Run SSH command. Check if we can execute on localhost or remote.
 	 *
-	 * @param ipmitoolCommand
-	 * @param hostname
-	 * @param sshConfiguration
-	 * @param timeout
-	 * @return Command execution output
-	 * @throws InterruptedException
-	 * @throws IOException
-	 * @throws TimeoutException
-	 * @throws ClientException
-	 * @throws ControlledSshException
+	 * @param ipmitoolCommand    The IPMI tool command to execute.
+	 * @param hostname           The hostname.
+	 * @param sshConfiguration   The SSH configuration.
+	 * @param timeout            The timeout for command execution.
+	 * @return Command execution output.
+	 * @throws InterruptedException If the operation is interrupted.
+	 * @throws IOException          If an I/O error occurs.
+	 * @throws TimeoutException     If the operation times out.
+	 * @throws ClientException      If an error occurs in the client.
+	 * @throws ControlledSshException If an error occurs in the controlled SSH.
 	 */
 	String runOsCommand(
 		final String ipmitoolCommand,
@@ -583,8 +604,8 @@ public class CriterionProcessor implements ICriterionProcessor {
 	/**
 	 * Process the given {@link OsCommandCriterion} through Client and return the {@link CriterionTestResult}
 	 *
-	 * @param osCommandCriterion
-	 * @return
+	 * @param osCommandCriterion The {@link OsCommandCriterion} to process.
+	 * @return {@link CriterionTestResult} instance.
 	 */
 	@WithSpan("Criterion OS Command Exec")
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") OsCommandCriterion osCommandCriterion) {
@@ -640,8 +661,8 @@ public class CriterionProcessor implements ICriterionProcessor {
 	/**
 	 * Process the given {@link ProcessCriterion} through Client and return the {@link CriterionTestResult}
 	 *
-	 * @param processCriterion
-	 * @return CriterionTestResult instance
+	 * @param processCriterion The {@link ProcessCriterion} to process.
+	 * @return {@link CriterionTestResult} instance.
 	 */
 	@WithSpan("Criterion Process Exec")
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") ProcessCriterion processCriterion) {
@@ -698,10 +719,10 @@ public class CriterionProcessor implements ICriterionProcessor {
 	}
 
 	/**
-	 * Process the given {@link ProductRequirementsCriterion} and return the {@link CriterionTestResult}
+	 * Process the given {@link ProductRequirementsCriterion} and return the {@link CriterionTestResult}.
 	 *
-	 * @param productRequirementsCriterion
-	 * @return {@link CriterionTestResult} instance
+	 * @param productRequirementsCriterion The {@link ProductRequirementsCriterion} to process.
+	 * @return {@link CriterionTestResult} instance.
 	 */
 	@WithSpan("Criterion ProductRequirements Exec")
 	public CriterionTestResult process(
@@ -730,8 +751,8 @@ public class CriterionProcessor implements ICriterionProcessor {
 	/**
 	 * Process the given {@link ServiceCriterion} through Client and return the {@link CriterionTestResult}
 	 *
-	 * @param serviceCriterion
-	 * @return {@link CriterionTestResult} instance
+	 * @param serviceCriterion The {@link ServiceCriterion} to process.
+	 * @return {@link CriterionTestResult} instance.
 	 */
 	@WithSpan("Criterion Service Exec")
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") ServiceCriterion serviceCriterion) {
@@ -800,6 +821,9 @@ public class CriterionProcessor implements ICriterionProcessor {
 		);
 	}
 
+	/**
+	 * A test result class containing a message, success status, and CSV table.
+	 */
 	@Data
 	@Builder
 	public static class TestResult {
@@ -811,12 +835,12 @@ public class CriterionProcessor implements ICriterionProcessor {
 
 	/**
 	 * Simply check the value consistency and verify whether the returned value is
-	 * not null or empty
+	 * not null or empty.
 	 *
-	 * @param hostname
-	 * @param oid
-	 * @param result
-	 * @return {@link TestResult} wrapping the message and the success status
+	 * @param hostname The hostname.
+	 * @param oid      The SNMP OID.
+	 * @param result   The result of the SNMP Get operation.
+	 * @return {@link TestResult} wrapping the message and the success status.
 	 */
 	private TestResult checkSNMPGetValue(final String hostname, final String oid, final String result) {
 		String message;
@@ -850,11 +874,11 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 * the expected output is not defined. Otherwise check if the value matches the
 	 * expected regex.
 	 *
-	 * @param hostname
-	 * @param oid
-	 * @param expected
-	 * @param result
-	 * @return {@link TestResult} wrapping the success status and the message
+	 * @param hostname  The hostname.
+	 * @param oid       The SNMP OID.
+	 * @param expected  The expected value.
+	 * @param result    The result of the SNMP Get operation.
+	 * @return {@link TestResult} wrapping the success status and the message.
 	 */
 	private TestResult checkSNMPGetResult(
 		final String hostname,
@@ -869,13 +893,13 @@ public class CriterionProcessor implements ICriterionProcessor {
 	}
 
 	/**
-	 * Check if the result matches the expected value
+	 * Check if the result matches the expected value.
 	 *
-	 * @param hostname
-	 * @param oid
-	 * @param expected
-	 * @param result
-	 * @return {@link TestResult} wrapping the message and the success status
+	 * @param hostname  The hostname.
+	 * @param oid       The SNMP OID.
+	 * @param expected  The expected value.
+	 * @param result    The result of the SNMP Get operation.
+	 * @return {@link TestResult} wrapping the message and the success status.
 	 */
 	private TestResult checkSNMPGetExpectedValue(
 		final String hostname,
@@ -912,8 +936,8 @@ public class CriterionProcessor implements ICriterionProcessor {
 	/**
 	 * Process the given {@link SnmpGetCriterion} through Client and return the {@link CriterionTestResult}
 	 *
-	 * @param snmpGetCriterion
-	 * @return SnmpCriterion instance
+	 * @param snmpGetCriterion The SNMP Get criterion to process.
+	 * @return The result of the criterion test.
 	 */
 	@WithSpan("Criterion SNMP Get Exec")
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") SnmpGetCriterion snmpGetCriterion) {
@@ -969,10 +993,10 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 * Simply check the value consistency and verify whether the returned OID is
 	 * under the same tree of the requested OID.
 	 *
-	 * @param hostname
-	 * @param oid
-	 * @param result
-	 * @return {@link TestResult} wrapping the message and the success status
+	 * @param hostname The hostname.
+	 * @param oid      The SNMP OID.
+	 * @param result   The result of the SNMP GetNext operation.
+	 * @return {@link TestResult} wrapping the message and the success status.
 	 */
 	private TestResult checkSNMPGetNextValue(final String hostname, final String oid, final String result) {
 		String message;
@@ -1011,13 +1035,13 @@ public class CriterionProcessor implements ICriterionProcessor {
 	}
 
 	/**
-	 * Check if the result matches the expected value
+	 * Check if the result matches the expected value.
 	 *
-	 * @param hostname
-	 * @param oid
-	 * @param expected
-	 * @param result
-	 * @return {@link TestResult} wrapping the message and the success status
+	 * @param hostname  The hostname.
+	 * @param oid       The SNMP OID.
+	 * @param expected  The expected value.
+	 * @param result    The result of the SNMP GetNext operation.
+	 * @return {@link TestResult} wrapping the message and the success status.
 	 */
 	private TestResult checkSNMPGetNextExpectedValue(
 		final String hostname,
@@ -1090,8 +1114,8 @@ public class CriterionProcessor implements ICriterionProcessor {
 	/**
 	 * Process the given {@link SnmpGetNextCriterion} through Client and return the {@link CriterionTestResult}
 	 *
-	 * @param snmpGetNextCriterion
-	 * @return
+	 * @param snmpGetNextCriterion The SNMP GetNext criterion to process.
+	 * @return The result of the criterion test.
 	 */
 	@WithSpan("Criterion SNMP GetNext Exec")
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") SnmpGetNextCriterion snmpGetNextCriterion) {
@@ -1152,8 +1176,8 @@ public class CriterionProcessor implements ICriterionProcessor {
 	/**
 	 * Process the given {@link WmiCriterion} through Client and return the {@link CriterionTestResult}
 	 *
-	 * @param wmiCriterion
-	 * @return CriterionTestResult instance
+	 * @param wmiCriterion The WMI criterion to process.
+	 * @return The result of the criterion test processing.
 	 */
 	@WithSpan("Criterion WMI Exec")
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") WmiCriterion wmiCriterion) {
@@ -1313,8 +1337,8 @@ public class CriterionProcessor implements ICriterionProcessor {
 	/**
 	 * Process the given {@link WbemCriterion} through Client and return the {@link CriterionTestResult}
 	 *
-	 * @param wbemCriterion
-	 * @return
+	 * @param wbemCriterion The WBEM criterion to process.
+	 * @return The result of the criterion test processing.
 	 */
 	@WithSpan("Criterion WBEM Exec")
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") WbemCriterion wbemCriterion) {
