@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HARDCODED_SOURCE;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.MY_CONNECTOR_1_NAME;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -32,7 +31,22 @@ class MappingProcessorTest {
 		final TelemetryManager telemetryManager = new TelemetryManager();
 		telemetryManager.setHostConfiguration(HostConfiguration.builder().hostname("hostname").build());
 
-		final List<String> row = List.of("1", "1", "1", "10", "10", "1", "1", "1", "1", "2", "1");
+		final List<String> row = List.of(
+			"1",
+			"1",
+			"1",
+			"10",
+			"10",
+			"1",
+			"1",
+			"1",
+			"1",
+			"2",
+			"1",
+			"DellOpenManage",
+			"cpu",
+			"1.1"
+		);
 
 		final String vendorSource1Ref = "${source::monitors.cpu.discovery.sources.vendor}";
 		final String vendorIdSource1Ref = "${source::monitors.cpu.discovery.sources.id}";
@@ -217,6 +231,18 @@ class MappingProcessorTest {
 				"testBoolean",
 				"boolean(invalid)"
 			);
+
+			assertEquals(expected, mappingProcessor.interpretNonContextMapping(keyValuePairs));
+		}
+
+		// Test case for replacement of each column reference with the actual value of the corresponding column
+		{
+			final Map<String, String> expected = new LinkedHashMap<>();
+			expected.put("type", "cpu");
+			expected.put("name", "cpu DellOpenManage");
+			expected.put("id", "DellOpenManage_cpu_1.1");
+
+			final Map<String, String> keyValuePairs = Map.of("type", "$13", "name", "cpu $12", "id", "$12_$13_$14");
 
 			assertEquals(expected, mappingProcessor.interpretNonContextMapping(keyValuePairs));
 		}
@@ -687,53 +713,5 @@ class MappingProcessorTest {
 			expectedNull,
 			mappingProcessor.interpretNonContextMapping(keyValuePairsMonitorWithAttributeValueNotFound)
 		);
-	}
-
-	@Test
-	void testConcatenateColumnsValue() {
-		List<String> row = Arrays.asList("DellOpenManage", "cpu", "1.1");
-		MappingProcessor mappingProcessor = MappingProcessor.builder().row(row).build();
-
-		// Test case where replacement is successful
-		String value1 = "$2";
-		String key1 = "type";
-		String expectedResult1 = "cpu";
-		assertEquals(expectedResult1, mappingProcessor.concatenateColumnsValue(value1, key1));
-
-		// Test case when the provided value contains a placeholder
-		String value2 = "cpu $1";
-		String key2 = "name";
-		String expectedResult2 = "cpu DellOpenManage";
-		assertEquals(expectedResult2, mappingProcessor.concatenateColumnsValue(value2, key2));
-
-		// Test case with multiple column references
-		String value3 = "$1_$2_$3";
-		String key3 = "id";
-		String expectedResult3 = "DellOpenManage_cpu_1.1";
-		assertEquals(expectedResult3, mappingProcessor.concatenateColumnsValue(value3, key3));
-
-		// Test case where placeholder is beyond the size of the row
-		String invalidPlaceholder = "$4";
-		String key7 = "invalidPlaceholder";
-		String expectedResult7 = "";
-		assertEquals(expectedResult7, mappingProcessor.concatenateColumnsValue(invalidPlaceholder, key7));
-
-		// Test case where value is empty
-		String emptyValue = "";
-		String key4 = "emptyValue";
-		String expectedResult4 = "";
-		assertEquals(expectedResult4, mappingProcessor.concatenateColumnsValue(emptyValue, key4));
-
-		// Test case where value contains only spaces
-		String spacesValue = "   ";
-		String key5 = "spacesValue";
-		String expectedResult5 = "";
-		assertEquals(expectedResult5, mappingProcessor.concatenateColumnsValue(spacesValue, key5));
-
-		// Test case where value is null
-		String nullValue = null;
-		String key6 = "nullValue";
-		String expectedResult6 = "";
-		assertEquals(expectedResult6, mappingProcessor.concatenateColumnsValue(nullValue, key6));
 	}
 }

@@ -22,6 +22,7 @@ package org.sentrysoftware.metricshub.engine.strategy.utils;
  */
 
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.COLUMN_PATTERN;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.COLUMN_REFERENCE_PATTERN;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
 
 import java.io.BufferedReader;
@@ -32,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -254,8 +256,8 @@ public class MappingProcessor {
 			computationFunctions.put(key, this::fakeCounter);
 		} else if (isRateFunction(value)) {
 			computationFunctions.put(key, this::rate);
-		} else if (isColumnConcatenation(value)) {
-			result.put(key, concatenateColumnsValue(value, key));
+		} else if (containsColumnReferences(value)) {
+			result.put(key, replaceColumnReferences(value, key));
 		} else {
 			result.put(key, value);
 		}
@@ -1075,39 +1077,54 @@ public class MappingProcessor {
 	}
 
 	/**
-	 * This method supports placeholder notation using "$" to reference column indices
+	 * Replaces in the given value each column reference (E.g. $1) with the corresponding column value from the current row.
 	 *
-	 * @param value
-	 * @param key
-	 * @return
+	 * @param value The input string containing placeholder notations.
+	 * @param key   A key of the attribute.
+	 * @return The modified string after replacing column references with actual values.
 	 */
-	protected String concatenateColumnsValue(final String value, final String key) {
-		if (value != null && value.contains("$")) {
-			Matcher matcher = Pattern.compile("\\$\\s*(\\d+)\\s*").matcher(value);
-			StringBuffer resultBuffer = new StringBuffer();
-			while (matcher.find()) {
-				int columnIndex = Integer.parseInt(matcher.group().substring(1)) - 1;
-				if (columnIndex >= 0 && columnIndex < row.size()) {
-					String replacement = row.get(columnIndex);
-					matcher.appendReplacement(resultBuffer, replacement);
-				} else {
-					log.warn(
-						"Hostname {} - Column number {} is invalid for the source {}. Column number should not exceed the size of the row. key {} - " +
-						"Row {} - monitor type {}.",
-						(jobInfo != null) ? jobInfo.getHostname() : "Unknown",
-						columnIndex,
-						key,
-						row,
-						(jobInfo != null) ? jobInfo.getMonitorType() : "Unknown"
-					);
-					matcher.appendReplacement(resultBuffer, "");
-				}
+	private String replaceColumnReferences(final String value, final String key) {
+		return getColumnReferenceMatcher(value).replaceAll(match -> getColumnValue(match, key));
+	}
+
+	/**
+	 * Retrieves the value of the column referenced in the match and replaces the match in the input string.
+	 *
+	 * @param match The MatchResult containing the column reference.
+	 * @param key   A key of the attribute used for logging.
+	 * @return The column value if available, or the original match if the column is not found.
+	 */
+	private String getColumnValue(final MatchResult match, final String key) {
+		final int columnIndex = Integer.parseInt(match.group(1)) - 1;
+		if (columnIndex >= 0 && columnIndex < row.size()) {
+			final String columnValue = row.get(columnIndex);
+			if (columnValue != null) {
+				return Matcher.quoteReplacement(columnValue);
+			} else {
+				log.warn(
+					"Hostname {} - Value is null for column number {} in the row. Source: {} - Key: {} - Row: {} - Monitor type: {}",
+					jobInfo.getHostname(),
+					columnIndex,
+					mapping.getSource(),
+					key,
+					row,
+					jobInfo.getMonitorType()
+				);
 			}
-			matcher.appendTail(resultBuffer);
-			return resultBuffer.toString();
 		} else {
-			return EMPTY;
+			log.warn(
+				"Hostname {} - Column number {} is invalid for the source {}. Column number should not exceed the size of the row. key {} - " +
+				"Row {} - monitor type {}.",
+				jobInfo.getHostname(),
+				columnIndex,
+				mapping.getSource(),
+				key,
+				row,
+				jobInfo.getMonitorType()
+			);
 		}
+
+		return Matcher.quoteReplacement(match.group());
 	}
 
 	/**
@@ -1134,8 +1151,8 @@ public class MappingProcessor {
 	 * @param value
 	 * @return true or false
 	 */
-	private boolean isColumnConcatenation(String value) {
-		return Pattern.compile("\\$\\s*(\\d+)\\s*").matcher(value).find();
+	private boolean containsColumnReferences(String value) {
+		return getColumnReferenceMatcher(value).find();
 	}
 
 	/**
@@ -1145,6 +1162,17 @@ public class MappingProcessor {
 	 */
 	private Matcher getStringRegexMatcher(String value) {
 		return COLUMN_PATTERN.matcher(value);
+	}
+
+	/**
+	 * Creates a matcher that will match the given value against the column
+	 * reference pattern.
+	 *
+	 * @param value The string value on which the regular expression pattern will be applied.
+	 * @return A Matcher object that can be used to perform matching operations on the input string.
+	 */
+	private Matcher getColumnReferenceMatcher(String value) {
+		return COLUMN_REFERENCE_PATTERN.matcher(value);
 	}
 
 	/**
