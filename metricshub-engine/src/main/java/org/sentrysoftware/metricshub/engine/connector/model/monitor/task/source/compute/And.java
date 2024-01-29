@@ -62,7 +62,7 @@ public class And extends Compute {
 	private String value; // NOSONAR
 
 	/**
-	 * And constructor using the Builder pattern.
+	 * Construct a new instance of And.
 	 *
 	 * @param type   The type of the computation task.
 	 * @param column The column index used in the computation.

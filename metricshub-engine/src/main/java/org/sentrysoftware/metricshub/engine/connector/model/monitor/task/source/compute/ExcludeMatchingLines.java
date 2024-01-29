@@ -41,7 +41,7 @@ public class ExcludeMatchingLines extends AbstractMatchingLines {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * ExcludeMatchingLines constructor using the Builder pattern.
+	 * Construct a new instance of ExcludeMatchingLines.
 	 *
 	 * @param type      The type of the computation task.
 	 * @param column    The column from which to extract values for matching.

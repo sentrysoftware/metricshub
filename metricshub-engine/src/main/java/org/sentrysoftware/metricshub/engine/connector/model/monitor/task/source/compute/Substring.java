@@ -69,7 +69,7 @@ public class Substring extends Compute {
 	private String length;
 
 	/**
-	 * Substring constructor using the Builder pattern.
+	 * Construct a new instance of Substring.
 	 *
 	 * @param type   The type of the computation task.
 	 * @param column The column index used in the computation.

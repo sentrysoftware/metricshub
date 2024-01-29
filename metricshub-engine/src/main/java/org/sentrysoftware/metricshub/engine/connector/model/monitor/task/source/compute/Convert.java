@@ -63,7 +63,7 @@ public class Convert extends Compute {
 	private ConversionType conversion;
 
 	/**
-	 * Convert constructor using the Builder pattern.
+	 * Construct a new instance of Convert.
 	 *
 	 * @param type      The type of the computation task.
 	 * @param column    The column index used in the computation.

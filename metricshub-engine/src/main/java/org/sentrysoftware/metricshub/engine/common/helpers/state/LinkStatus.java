@@ -28,7 +28,7 @@ import lombok.Getter;
 
 /**
  * Enumeration representing the link status states.
- * <p>
+ * 
  * The states are:
  * <ul>
  *     <li>{@link #PLUGGED} with numeric value 1</li>

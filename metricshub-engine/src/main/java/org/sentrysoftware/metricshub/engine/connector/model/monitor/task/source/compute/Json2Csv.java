@@ -63,7 +63,7 @@ public class Json2Csv extends Compute {
 	private String separator;
 
 	/**
-	 * Json2Csv constructor using the Builder pattern.
+	 * Construct a new instance of Json2Csv.
 	 *
 	 * @param type      The type of the computation task.
 	 * @param entryKey  The entry key for Json2Csv computation.

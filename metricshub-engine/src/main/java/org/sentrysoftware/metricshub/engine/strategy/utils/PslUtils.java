@@ -34,7 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 
 /**
- * Utility class for handling PSL (Process Specification Language) regular expressions
+ * Utility class for handling PSL (PATROL Script Language) regular expressions
  * and formatting data in an extended JSON format.
  */
 @Slf4j

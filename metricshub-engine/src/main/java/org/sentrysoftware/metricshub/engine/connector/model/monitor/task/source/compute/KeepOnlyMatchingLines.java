@@ -41,7 +41,7 @@ public class KeepOnlyMatchingLines extends AbstractMatchingLines {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * KeepOnlyMatchingLines constructor using the Builder pattern.
+	 * Construct a new instance of KeepOnlyMatchingLines.
 	 *
 	 * @param type      The type of the computation task.
 	 * @param column    The column index used in the computation.

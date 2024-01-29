@@ -55,14 +55,14 @@ public class Subtract extends Compute {
 	private Integer column;
 
 	/**
-	 * Number value or Column(n), hence the String type.
+	 * Number value or $n, hence the String type.
 	 */
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	private String value;
 
 	/**
-	 * Subtract constructor using the Builder pattern.
+	 * Construct a new instance of Subtract.
 	 *
 	 * @param type   The type of the computation task.
 	 * @param column The column index used in the computation.

@@ -1598,7 +1598,7 @@ public class ClientsExecutor {
 	 *
 	 * @param hostname          The host we wish to set in the {@link IpmiConfiguration}
 	 * @param ipmiConfiguration MetricsHub {@link IpmiConfiguration} instance including all the required fields to perform IPMI requests
-	 * @return new instance of {@link IpmiConfiguration}
+	 * @return new instance of {@link IpmiClientConfiguration}
 	 */
 	private static IpmiClientConfiguration buildIpmiConfiguration(
 		@NonNull String hostname,

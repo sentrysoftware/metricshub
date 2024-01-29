@@ -55,7 +55,7 @@ public class DuplicateColumn extends Compute {
 	private Integer column;
 
 	/**
-	 * DuplicateColumn constructor using the Builder pattern.
+	 * Construct a new instance of DuplicateColumn.
 	 *
 	 * @param type   The type of the computation task.
 	 * @param column The column index to be duplicated.

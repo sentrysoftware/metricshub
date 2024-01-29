@@ -55,7 +55,7 @@ public class KeepColumns extends Compute {
 	private String columnNumbers;
 
 	/**
-	 * KeepColumns constructor using the Builder pattern.
+	 * Construct a new instance of KeepColumns.
 	 *
 	 * @param type          The type of the computation task.
 	 * @param columnNumbers The column numbers to be kept.

@@ -41,7 +41,7 @@ public class RightConcat extends AbstractConcat {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * RightConcat constructor using the Builder pattern.
+	 * Construct a new instance of RightConcat.
 	 *
 	 * @param type   The type of the computation task.
 	 * @param column The column index used in the computation.

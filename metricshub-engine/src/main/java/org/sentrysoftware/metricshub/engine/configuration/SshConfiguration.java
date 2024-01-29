@@ -29,11 +29,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /**
- * Configuration class for SSH connections. Extends {@link OsCommandConfiguration}.
- */
-
-/**
- * The SshConfiguration class represents the configuration for SSH (Secure Shell) connections
+ * Configuration class for SSH connections. It represents the configuration for SSH (Secure Shell) connections
  * in the MetricsHub engine.
  */
 @Data

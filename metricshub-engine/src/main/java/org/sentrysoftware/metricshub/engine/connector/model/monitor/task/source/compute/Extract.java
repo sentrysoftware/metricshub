@@ -67,7 +67,7 @@ public class Extract extends Compute {
 	private String subSeparators;
 
 	/**
-	 * Extract constructor using the Builder pattern.
+	 * Construct a new instance of Extract.
 	 *
 	 * @param type         The type of the computation task.
 	 * @param column       The main column from which to extract values.

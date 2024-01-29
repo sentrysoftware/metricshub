@@ -62,7 +62,7 @@ public class Divide extends Compute {
 	private String value;
 
 	/**
-	 * Divide constructor using the Builder pattern.
+	 * Construct a new instance of Divide.
 	 *
 	 * @param type   The type of the computation task.
 	 * @param column The column index used in the computation.

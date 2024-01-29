@@ -62,7 +62,7 @@ public class ExtractPropertyFromWbemPath extends Compute {
 	private Integer column;
 
 	/**
-	 * ExtractPropertyFromWbemPath constructor using the Builder pattern.
+	 * Construct a new instance of ExtractPropertyFromWbemPath.
 	 *
 	 * @param type     The type of the computation task.
 	 * @param column   The column from which to extract the Wbem path.

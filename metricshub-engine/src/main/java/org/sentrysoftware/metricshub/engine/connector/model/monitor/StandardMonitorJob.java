@@ -33,7 +33,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Discove
  *
  * <p>
  * This class implements the {@link MonitorJob} interface and is designed for standard monitor jobs that include both
- * discovery and collection tasks.
+ * discovery and collect tasks.
  * </p>
  */
 @Data

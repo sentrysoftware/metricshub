@@ -77,7 +77,7 @@ public class OsCommandCriterion extends Criterion {
 	private Boolean executeLocally = false;
 
 	/**
-	 * The timeout for the command execution, in milliseconds.
+	 * The timeout for the command execution, in seconds.
 	 */
 	@JsonDeserialize(using = TimeoutDeserializer.class)
 	private Long timeout;

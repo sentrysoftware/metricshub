@@ -65,7 +65,7 @@ public class Replace extends Compute {
 	private String newValue;
 
 	/**
-	 * Replace constructor using the Builder pattern.
+	 * Construct a new instance of Replace.
 	 *
 	 * @param type          The type of the computation task.
 	 * @param column        The column index used in the computation.

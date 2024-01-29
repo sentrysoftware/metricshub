@@ -55,7 +55,7 @@ public class Add extends Compute {
 	private Integer column;
 
 	/**
-	 * Number value or Column(n), hence the String type
+	 * Number value or $n, hence the String type
 	 */
 	@NonNull
 	@JsonSetter(nulls = FAIL)

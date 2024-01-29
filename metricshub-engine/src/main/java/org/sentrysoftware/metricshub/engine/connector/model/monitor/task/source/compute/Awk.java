@@ -72,7 +72,7 @@ public class Awk extends Compute {
 	private String selectColumns;
 
 	/**
-	 * Awk constructor using the Builder pattern.
+	 * Construct a new instance of Awk.
 	 *
 	 * @param type          The type of the computation task.
 	 * @param script        The AWK script to be executed.

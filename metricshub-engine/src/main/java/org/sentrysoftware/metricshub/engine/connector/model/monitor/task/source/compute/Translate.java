@@ -66,7 +66,7 @@ public class Translate extends Compute {
 	private ITranslationTable translationTable;
 
 	/**
-	 * Translate constructor using the Builder pattern.
+	 * Construct a new instance of Translate.
 	 *
 	 * @param type            The type of the computation task.
 	 * @param column          The column index used in the computation.

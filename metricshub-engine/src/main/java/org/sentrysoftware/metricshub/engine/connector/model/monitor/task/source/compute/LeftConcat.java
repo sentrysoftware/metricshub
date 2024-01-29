@@ -41,7 +41,7 @@ public class LeftConcat extends AbstractConcat {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * LeftConcat constructor using the Builder pattern.
+	 * Construct a new instance of LeftConcat.
 	 *
 	 * @param type   The type of the computation task.
 	 * @param column The column index used in the computation.

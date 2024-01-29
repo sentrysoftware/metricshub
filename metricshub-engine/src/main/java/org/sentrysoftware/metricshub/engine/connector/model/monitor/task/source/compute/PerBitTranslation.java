@@ -73,7 +73,7 @@ public class PerBitTranslation extends Compute {
 	private ITranslationTable translationTable;
 
 	/**
-	 * PerBitTranslation constructor using the Builder pattern.
+	 * Construct a new instance of PerBitTranslation.
 	 *
 	 * @param type             The type of the computation task.
 	 * @param column           The column index used in the computation.

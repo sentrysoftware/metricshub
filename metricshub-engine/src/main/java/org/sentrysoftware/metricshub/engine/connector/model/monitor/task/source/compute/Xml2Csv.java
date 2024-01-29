@@ -59,7 +59,7 @@ public class Xml2Csv extends Compute {
 	private String properties;
 
 	/**
-	 * Xml2Csv constructor using the Builder pattern.
+	 * Construct a new instance of Xml2Csv.
 	 *
 	 * @param type       The type of the computation task.
 	 * @param recordTag  The record tag used in the computation.
