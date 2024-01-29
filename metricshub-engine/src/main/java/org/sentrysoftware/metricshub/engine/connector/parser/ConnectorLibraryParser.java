@@ -35,9 +35,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 
+/**
+ * Parses connectors from YAML files in a given directory.
+ */
 @Slf4j
 public class ConnectorLibraryParser {
 
+	/**
+	 * The ObjectMapper instance for handling YAML files.
+	 */
 	public static final ObjectMapper OBJECT_MAPPER = JsonHelper.buildYamlMapper();
 
 	/**
@@ -72,10 +78,11 @@ public class ConnectorLibraryParser {
 		}
 
 		/**
-		 * Whether the JsonNode is a final Connector. It means that this JsonNode defines the displayName section.
+		 * Checks whether the JsonNode is a final Connector.
+		 * It means that this JsonNode defines the displayName section.
 		 *
-		 * @param connector JsonNode that contains connector's data
-		 * @return <code>true</code> if the {@link JsonNode} is a final connector, otherwise false.
+		 * @param connector JsonNode that contains connector's data.
+		 * @return {@code true} if the {@link JsonNode} is a final connector, otherwise {@code false}.
 		 */
 		private boolean isConnector(final JsonNode connector) {
 			final JsonNode connectorNode = connector.get("connector");
@@ -88,10 +95,10 @@ public class ConnectorLibraryParser {
 		}
 
 		/**
-		 * Whether the connector is a YAML file or not
+		 * Checks whether the connector is a YAML file or not.
 		 *
-		 * @param name given fileName
-		 * @return boolean value
+		 * @param name Given fileName.
+		 * @return {@code true} if the file has a YAML extension, otherwise {@code false}.
 		 */
 		private boolean isYamlFile(final String name) {
 			return name.toLowerCase().endsWith(".yaml");
@@ -99,9 +106,11 @@ public class ConnectorLibraryParser {
 	}
 
 	/**
-	 * @param yamlParentDirectory the directory containing connectors yaml files
-	 * @return Map&lt;String, Connector&gt; (connectors map: key=yamlFileName, value=Connector)
-	 * @throws IOException if the file does not exist
+	 * Parses connectors from all YAML files in the given directory.
+	 *
+	 * @param yamlParentDirectory The directory containing connectors YAML files.
+	 * @return Map&lt;String, Connector&gt; (connectors map: key=YAMLFileName, value=Connector).
+	 * @throws IOException If the file does not exist.
 	 */
 	public Map<String, Connector> parseConnectorsFromAllYamlFiles(Path yamlParentDirectory) throws IOException {
 		final long startTime = System.currentTimeMillis();

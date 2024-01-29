@@ -33,6 +33,9 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Discove
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Simple;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 
+/**
+ * Implementation of {@link AbstractConnectorUpdateChain} for updating available sources in the connector.
+ */
 public class AvailableSourceUpdate extends AbstractConnectorUpdateChain {
 
 	@Override

@@ -40,6 +40,9 @@ import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.Transl
 import org.sentrysoftware.metricshub.engine.connector.model.common.ITranslationTable;
 import org.sentrysoftware.metricshub.engine.strategy.source.compute.IComputeProcessor;
 
+/**
+ * Represents a Translate computation task for monitoring.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -47,15 +50,28 @@ public class Translate extends Compute {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The column index used in the Translate computation.
+	 */
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	private Integer column;
 
+	/**
+	 * The translation table used in the Translate computation.
+	 */
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	@JsonDeserialize(using = TranslationTableDeserializer.class)
 	private ITranslationTable translationTable;
 
+	/**
+	 * Construct a new instance of Translate.
+	 *
+	 * @param type            The type of the computation task.
+	 * @param column          The column index used in the computation.
+	 * @param translationTable The translation table used in the computation.
+	 */
 	@Builder
 	@JsonCreator
 	public Translate(

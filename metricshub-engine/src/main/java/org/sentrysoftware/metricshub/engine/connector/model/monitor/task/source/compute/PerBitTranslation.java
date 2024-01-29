@@ -40,6 +40,9 @@ import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.Transl
 import org.sentrysoftware.metricshub.engine.connector.model.common.ITranslationTable;
 import org.sentrysoftware.metricshub.engine.strategy.source.compute.IComputeProcessor;
 
+/**
+ * Represents a PerBitTranslation computation task for monitoring.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -47,19 +50,36 @@ public class PerBitTranslation extends Compute {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The column index used in the PerBitTranslation computation.
+	 */
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	private Integer column;
 
+	/**
+	 * The bit list associated with the PerBitTranslation task.
+	 */
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	private String bitList;
 
+	/**
+	 * The translation table used for the PerBitTranslation computation.
+	 */
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	@JsonDeserialize(using = TranslationTableDeserializer.class)
 	private ITranslationTable translationTable;
 
+	/**
+	 * Construct a new instance of PerBitTranslation.
+	 *
+	 * @param type             The type of the computation task.
+	 * @param column           The column index used in the computation.
+	 * @param bitList          The bit list associated with the PerBitTranslation task.
+	 * @param translationTable The translation table used for the PerBitTranslation computation.
+	 */
 	@Builder
 	@JsonCreator
 	public PerBitTranslation(

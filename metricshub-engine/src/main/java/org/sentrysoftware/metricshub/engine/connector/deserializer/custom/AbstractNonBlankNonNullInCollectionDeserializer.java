@@ -24,6 +24,11 @@ package org.sentrysoftware.metricshub.engine.connector.deserializer.custom;
 import java.util.Objects;
 import java.util.function.Function;
 
+/**
+ * An abstract base class for deserializers handling non-null and non-blank values in collections.
+ * Extends {@link AbstractCollectionDeserializer} and provides an implementation for extracting
+ * non-null and non-blank values using a {@link Function}.
+ */
 public abstract class AbstractNonBlankNonNullInCollectionDeserializer extends AbstractCollectionDeserializer<String> {
 
 	@Override

@@ -36,10 +36,30 @@ import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
+/**
+ * The {@code ConnectorSelection} class represents a strategy for selecting specific connectors based on predefined criteria.
+ * It extends the {@link AbstractConnectorProcessor} class and implements the connector selection logic.
+ *
+ * <p>
+ * The connector selection process involves filtering connectors based on case-sensitive and case-insensitive lists of selected connectors.
+ * The results of the selection are stored in {@link ConnectorTestResult} objects.
+ * </p>
+ *
+ * <p>
+ * The class checks the host configuration and connector store availability before proceeding with the selection.
+ * It utilizes the configured lists of selected connectors, considering both case-sensitive and case-insensitive sets.
+ * </p>
+ */
 @Slf4j
 @NoArgsConstructor
 public class ConnectorSelection extends AbstractConnectorProcessor {
 
+	/**
+	 * Constructs a new {@code ConnectorSelection} instance using the provided telemetry manager and clients executor.
+	 *
+	 * @param telemetryManager The telemetry manager responsible for managing telemetry-related operations.
+	 * @param clientsExecutor  The executor for managing clients used in the strategy.
+	 */
 	public ConnectorSelection(
 		@NonNull final TelemetryManager telemetryManager,
 		@NonNull final ClientsExecutor clientsExecutor

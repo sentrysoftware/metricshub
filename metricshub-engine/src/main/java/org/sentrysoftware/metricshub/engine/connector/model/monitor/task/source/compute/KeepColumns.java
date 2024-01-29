@@ -37,6 +37,9 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.strategy.source.compute.IComputeProcessor;
 
+/**
+ * Represents a KeepColumns computation task for monitoring.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -44,10 +47,19 @@ public class KeepColumns extends Compute {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The column numbers to be kept in the KeepColumns computation.
+	 */
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	private String columnNumbers;
 
+	/**
+	 * Construct a new instance of KeepColumns.
+	 *
+	 * @param type          The type of the computation task.
+	 * @param columnNumbers The column numbers to be kept.
+	 */
 	@Builder
 	@JsonCreator
 	public KeepColumns(

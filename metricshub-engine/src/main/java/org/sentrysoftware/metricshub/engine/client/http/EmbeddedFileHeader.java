@@ -31,6 +31,9 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 
+/**
+ * Represents the header of an HTTP request containing an embedded file.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -39,6 +42,9 @@ public class EmbeddedFileHeader implements Header {
 
 	private static final long serialVersionUID = 7171137961999511622L;
 
+	/**
+	 * The embedded file header content.
+	 */
 	private EmbeddedFile header;
 
 	@Override

@@ -28,6 +28,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+/**
+ * The SnmpConfiguration class represents the configuration for SNMP in the MetricsHub engine.
+ * It implements the IConfiguration interface and includes settings such as SNMP version, community,
+ * port, timeout, context name, privacy, privacy password, username, and password.
+ */
 @Data
 @Builder
 @AllArgsConstructor
@@ -77,10 +82,25 @@ public class SnmpConfiguration implements IConfiguration {
 	 */
 	@AllArgsConstructor
 	public enum SnmpVersion {
+		/**
+		 * SNMP version 1 (v1) without authentication.
+		 */
 		V1(1, null, "SNMP v1"),
+		/**
+		 * SNMP version 2 (v2c) without authentication.
+		 */
 		V2C(2, null, "SNMP v2c"),
+		/**
+		 * SNMP version 3 (v3) without authentication.
+		 */
 		V3_NO_AUTH(3, null, "SNMP v3"),
+		/**
+		 * SNMP version 3 (v3) with MD5 authentication.
+		 */
 		V3_MD5(3, "MD5", "SNMP v3 with MD5 auth"),
+		/**
+		 * SNMP version 3 (v3) with SHA authentication.
+		 */
 		V3_SHA(3, "SHA", "SNMP v3 with SHA auth");
 
 		@Getter
@@ -97,6 +117,7 @@ public class SnmpConfiguration implements IConfiguration {
 		 *
 		 * @param version String to be interpreted
 		 * @return Corresponding {@link SnmpVersion} value
+		 * @throws IllegalArgumentException If the provided SNMP version label is invalid.
 		 */
 		public static SnmpVersion interpretValueOf(@NonNull final String version) {
 			final String lowerCaseVersion = version.toLowerCase();
@@ -128,8 +149,17 @@ public class SnmpConfiguration implements IConfiguration {
 	 * in SNMP v3 connections.
 	 */
 	public enum Privacy {
+		/**
+		 * No encryption for SNMP v3 connections.
+		 */
 		NO_ENCRYPTION,
+		/**
+		 * Advanced Encryption Standard (AES) encryption for SNMP v3 connections.
+		 */
 		AES,
+		/**
+		 * Data Encryption Standard (DES) encryption for SNMP v3 connections.
+		 */
 		DES;
 
 		/**

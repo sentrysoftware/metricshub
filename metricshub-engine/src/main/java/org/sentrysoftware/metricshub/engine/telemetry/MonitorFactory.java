@@ -49,6 +49,9 @@ import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
 
+/**
+ * Factory class for creating and updating {@link Monitor} instances.
+ */
 @Slf4j
 @Data
 @AllArgsConstructor

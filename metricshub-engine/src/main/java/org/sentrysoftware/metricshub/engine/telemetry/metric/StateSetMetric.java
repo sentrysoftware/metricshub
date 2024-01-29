@@ -28,18 +28,33 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+/**
+ * The `StateSetMetric` class represents a metric that holds a state value from a predefined set of states.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class StateSetMetric extends AbstractMetric {
 
+	/**
+	 * The type identifier for the StateSetMetric.
+	 */
 	public static final String STATE_SET_METRIC_TYPE = "StateSetMetric";
 
 	private String value;
 	private String previousValue;
 	private String[] stateSet;
 
+	/**
+	 * Constructs a new StateSetMetric.
+	 *
+	 * @param name         The name of the metric.
+	 * @param collectTime  The time when the metric was collected.
+	 * @param attributes   Additional attributes associated with the metric.
+	 * @param value        The current value of the state.
+	 * @param stateSet     The set of possible states for the metric.
+	 */
 	@Builder
 	public StateSetMetric(
 		final String name,

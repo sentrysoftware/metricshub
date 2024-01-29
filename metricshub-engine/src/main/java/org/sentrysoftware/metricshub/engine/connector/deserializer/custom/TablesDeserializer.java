@@ -26,6 +26,9 @@ import java.util.Collection;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+/**
+ * Custom deserializer for deserializing a collection of tables.
+ */
 public class TablesDeserializer extends AbstractNonBlankNonNullInCollectionDeserializer {
 
 	@Override

@@ -37,6 +37,9 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.strategy.source.compute.IComputeProcessor;
 
+/**
+ * Represents a Subtract computation task for monitoring.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -44,15 +47,27 @@ public class Subtract extends Compute {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The column index used in the Subtract computation.
+	 */
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	private Integer column;
 
-	// Number value or Column(n), hence the String type
+	/**
+	 * Number value or $n, hence the String type.
+	 */
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	private String value;
 
+	/**
+	 * Construct a new instance of Subtract.
+	 *
+	 * @param type   The type of the computation task.
+	 * @param column The column index used in the computation.
+	 * @param value  The value to be subtracted.
+	 */
 	@Builder
 	@JsonCreator
 	public Subtract(

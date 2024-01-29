@@ -29,16 +29,18 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+/**
+ * Utility class for common file-related operations.
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FileHelper {
 
 	/**
-	 * Returns the time of last modification of specified Path in milliseconds since
-	 * EPOCH.
+	 * Returns the time of last modification of the specified Path in milliseconds since EPOCH.
 	 *
-	 * @param path Path to the file
-	 * @return Milliseconds since EPOCH, or 0 (zero) if file does not exist
-	 * @throws IllegalArgumentException if specified path is null
+	 * @param path The path to the file.
+	 * @return Milliseconds since EPOCH, or 0 (zero) if the file does not exist.
+	 * @throws IllegalArgumentException If the specified path is null.
 	 */
 	public static long getLastModifiedTime(@NonNull Path path) {
 		try {

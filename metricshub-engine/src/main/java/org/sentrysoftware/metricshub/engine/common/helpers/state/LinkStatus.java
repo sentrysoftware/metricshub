@@ -26,11 +26,29 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * Enumeration representing the link status states.
+ *
+ * The states are:
+ * <ul>
+ *     <li>{@link #PLUGGED} with numeric value 1</li>
+ *     <li>{@link #UNPLUGGED} with numeric value 0</li>
+ * </ul>
+ */
 @AllArgsConstructor
 public enum LinkStatus implements IState {
+	/**
+	 * Represents the plugged state with a numeric value of 1.
+	 */
 	PLUGGED(1),
+	/**
+	 * Represents the unplugged state with a numeric value of 0.
+	 */
 	UNPLUGGED(0);
 
+	/**
+	 * The numeric value associated with each state.
+	 */
 	@Getter
 	private int numericValue;
 

@@ -32,6 +32,9 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 
+/**
+ * Represents a namespace for a connector, containing information about source tables and related settings.
+ */
 @Data
 @Builder
 @AllArgsConstructor

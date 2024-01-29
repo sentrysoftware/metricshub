@@ -27,6 +27,11 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import java.util.Map;
 import java.util.TreeMap;
 
+/**
+ * Custom deserializer for converting JSON objects with string keys to a case-insensitive TreeMap.
+ * The deserializer enforces that the keys are non-empty strings and creates a TreeMap with a case-insensitive
+ * comparator for case-insensitive key matching.
+ */
 public class CaseInsensitiveTreeMapDeserializer extends AbstractMapDeserializer<String> {
 
 	@Override

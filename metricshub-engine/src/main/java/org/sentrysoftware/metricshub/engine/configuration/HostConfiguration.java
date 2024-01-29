@@ -46,6 +46,9 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WbemSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WmiSource;
 
+/**
+ * The HostConfiguration class represents the configuration for a host in the MetricsHub engine.
+ */
 @Data
 @Builder
 @AllArgsConstructor
