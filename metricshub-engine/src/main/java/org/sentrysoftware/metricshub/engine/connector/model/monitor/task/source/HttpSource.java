@@ -21,7 +21,6 @@ package org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.NEW_LINE;
 import static org.sentrysoftware.metricshub.engine.common.helpers.StringHelper.addNonNull;
@@ -36,7 +35,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ExecuteForEachEntryOf;
 import org.sentrysoftware.metricshub.engine.connector.model.common.HttpMethod;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
@@ -54,11 +52,21 @@ public class HttpSource extends Source {
 	@JsonSetter(nulls = SKIP)
 	private HttpMethod method = HttpMethod.GET;
 
-	@NonNull
-	@JsonSetter(nulls = FAIL)
+	/**
+	 * The URL for the HTTP request.
+	 */
+	@JsonSetter(nulls = SKIP)
 	private String url;
 
-	// String or EmbeddedFile reference
+	/**
+	 * The path for the HTTP request.
+	 */
+	@JsonSetter(nulls = SKIP)
+	private String path;
+
+	/**
+	 * The header for the HTTP request. It can be either a String or an EmbeddedFile reference.
+	 */
 	private String header;
 	private String body;
 	private String authenticationToken;
@@ -66,13 +74,30 @@ public class HttpSource extends Source {
 	@JsonSetter(nulls = SKIP)
 	private ResultContent resultContent = ResultContent.BODY;
 
+	/**
+	 * Builder for creating instances of {@code HttpSource}.
+	 *
+	 * @param type                 The type of the source.
+	 * @param computes             List of computations to be applied to the source.
+	 * @param forceSerialization   Flag indicating whether to force serialization.
+	 * @param method               The HTTP method for the request.
+	 * @param url                  The URL for the HTTP request.
+	 * @param path                  The Path for the HTTP request.
+	 * @param header               The header for the HTTP request.
+	 * @param body                 The body of the HTTP request.
+	 * @param authenticationToken The authentication token for the HTTP request.
+	 * @param resultContent        The type of content to retrieve from the HTTP response.
+	 * @param key                  The key associated with the source.
+	 * @param executeForEachEntryOf The execution context for each entry of the source.
+	 */
 	@Builder
 	public HttpSource(
 		@JsonProperty("type") String type,
 		@JsonProperty("computes") List<Compute> computes,
 		@JsonProperty("forceSerialization") boolean forceSerialization,
 		@JsonProperty("method") HttpMethod method,
-		@JsonProperty(value = "url", required = true) @NonNull String url,
+		@JsonProperty(value = "url") String url,
+		@JsonProperty("path") String path,
 		@JsonProperty("header") String header,
 		@JsonProperty("body") String body,
 		@JsonProperty("authenticationToken") String authenticationToken,
@@ -83,6 +108,7 @@ public class HttpSource extends Source {
 		super(type, computes, forceSerialization, key, executeForEachEntryOf);
 		this.method = method;
 		this.url = url;
+		this.path = path;
 		this.header = header;
 		this.body = body;
 		this.authenticationToken = authenticationToken;
@@ -99,6 +125,7 @@ public class HttpSource extends Source {
 			.executeForEachEntryOf(executeForEachEntryOf != null ? executeForEachEntryOf.copy() : null)
 			.method(method)
 			.url(url)
+			.path(path)
 			.header(header)
 			.body(body)
 			.authenticationToken(authenticationToken)
@@ -109,6 +136,7 @@ public class HttpSource extends Source {
 	@Override
 	public void update(UnaryOperator<String> updater) {
 		url = updater.apply(url);
+		path = updater.apply(path);
 		header = updater.apply(header);
 		body = updater.apply(body);
 		authenticationToken = updater.apply(authenticationToken);
@@ -122,6 +150,7 @@ public class HttpSource extends Source {
 
 		addNonNull(stringJoiner, "- method=", method);
 		addNonNull(stringJoiner, "- url=", url);
+		addNonNull(stringJoiner, "- path=", path);
 		addNonNull(stringJoiner, "- header=", header);
 		addNonNull(stringJoiner, "- body=", body);
 		addNonNull(stringJoiner, "- authenticationToken=", authenticationToken);

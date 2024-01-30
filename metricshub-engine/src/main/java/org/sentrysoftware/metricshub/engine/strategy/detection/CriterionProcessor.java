@@ -217,6 +217,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 					.hostname(hostname)
 					.method(httpCriterion.getMethod().toString())
 					.url(httpCriterion.getUrl())
+					.path(httpCriterion.getPath())
 					.header(httpCriterion.getHeader(), connectorId, hostname)
 					.body(httpCriterion.getBody(), connectorId, hostname)
 					.httpConfiguration(httpConfiguration)

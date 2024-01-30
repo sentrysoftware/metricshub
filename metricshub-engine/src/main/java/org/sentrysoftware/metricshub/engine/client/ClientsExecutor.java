@@ -97,6 +97,14 @@ import org.sentrysoftware.wmi.wbem.WmiWbemServices;
 import org.sentrysoftware.xflat.XFlat;
 import org.sentrysoftware.xflat.exceptions.XFlatException;
 
+/**
+ * The ClientsExecutor class provides utility methods for executing
+ * various operations through Clients. It includes functionalities for executing
+ * requests, running scripts, and handling general execution tasks. The
+ * execution is done on a remote host, and various protocols, clients, and
+ * utilities like AWK, HTTP, IPMI, JFlat, SNMP, SSH, TableJoin, VCenter, WBEM,
+ * WMI, WinRM, and XFlat are supported.
+ */
 @Slf4j
 @Data
 @AllArgsConstructor
@@ -144,14 +152,14 @@ public class ClientsExecutor {
 	/**
 	 * Execute SNMP GetNext request
 	 *
-	 * @param oid
-	 * @param configuration
-	 * @param hostname
-	 * @param logMode
-	 * @return {@link String} value
-	 * @throws InterruptedException
-	 * @throws ExecutionException
-	 * @throws TimeoutException
+	 * @param oid            The Object Identifier (OID) for the SNMP GETNEXT request.
+	 * @param configuration  The SNMP configuration specifying parameters like version, community, etc.
+	 * @param hostname       The hostname or IP address of the SNMP-enabled device.
+	 * @param logMode        A boolean indicating whether to log errors and warnings during execution.
+	 * @return The SNMP response as a String value.
+	 * @throws InterruptedException If the execution is interrupted.
+	 * @throws ExecutionException  If an exception occurs during execution.
+	 * @throws TimeoutException    If the execution times out.
 	 */
 	@WithSpan("SNMP Get Next")
 	public String executeSNMPGetNext(
@@ -183,14 +191,14 @@ public class ClientsExecutor {
 	/**
 	 * Execute SNMP Get request
 	 *
-	 * @param oid
-	 * @param configuration
-	 * @param hostname
-	 * @param logMode
-	 * @return {@link String} value
-	 * @throws InterruptedException
-	 * @throws ExecutionException
-	 * @throws TimeoutException
+	 * @param oid            The Object Identifier (OID) for the SNMP GET request.
+	 * @param configuration  The SNMP configuration specifying parameters like version, community, etc.
+	 * @param hostname       The hostname or IP address of the SNMP-enabled device.
+	 * @param logMode        A boolean indicating whether to log errors and warnings during execution.
+	 * @return The SNMP response as a String value.
+	 * @throws InterruptedException If the execution is interrupted.
+	 * @throws ExecutionException  If an exception occurs during execution.
+	 * @throws TimeoutException    If the execution times out.
 	 */
 	@WithSpan("SNMP Get")
 	public String executeSNMPGet(
@@ -217,15 +225,15 @@ public class ClientsExecutor {
 	/**
 	 * Execute SNMP Table
 	 *
-	 * @param oid
-	 * @param selectColumnArray
-	 * @param configuration
-	 * @param hostname
-	 * @param logMode
-	 * @return {@link List} of rows where each row is a {@link List} of {@link String} cells
-	 * @throws InterruptedException
-	 * @throws ExecutionException
-	 * @throws TimeoutException
+	 * @param oid               The SNMP Object Identifier (OID) representing the table.
+	 * @param selectColumnArray An array of column names to select from the SNMP table.
+	 * @param configuration     The SNMP configuration containing connection details.
+	 * @param hostname          The hostname or IP address of the SNMP-enabled device.
+	 * @param logMode           Flag indicating whether to log warnings in case of errors.
+	 * @return A list of rows, where each row is a list of string cells representing the SNMP table.
+	 * @throws InterruptedException If the thread executing this method is interrupted.
+	 * @throws ExecutionException  If an exception occurs during the execution of the SNMP request.
+	 * @throws TimeoutException    If the SNMP request times out.
 	 */
 	@WithSpan("SNMP Get Table")
 	public List<List<String>> executeSNMPTable(
@@ -265,6 +273,20 @@ public class ClientsExecutor {
 		return result;
 	}
 
+	/**
+	 * Execute an SNMP Get request based on the specified SNMP Get Request type.
+	 *
+	 * @param request           The type of SNMP Get request (GET, GETNEXT, TABLE).
+	 * @param oid               The SNMP Object Identifier (OID) for the request.
+	 * @param protocol          The SNMP configuration containing connection details.
+	 * @param hostname          The hostname or IP address of the SNMP-enabled device.
+	 * @param selectColumnArray An array of column names for TABLE requests.
+	 * @param logMode           Flag indicating whether to log warnings in case of errors.
+	 * @return The result of the SNMP request, which can be a single value, a table, or null if an error occurs.
+	 * @throws InterruptedException If the thread executing this method is interrupted.
+	 * @throws ExecutionException  If an exception occurs during the execution of the SNMP request.
+	 * @throws TimeoutException    If the SNMP request times out.
+	 */
 	@SuppressWarnings("unchecked")
 	private <T> T executeSNMPGetRequest(
 		final SnmpGetRequest request,
@@ -327,23 +349,40 @@ public class ClientsExecutor {
 		);
 	}
 
+	/**
+	 * Enum representing different types of SNMP requests.
+	 * These requests are used to specify the type of SNMP operation
+	 * when interacting with SNMP agents.
+	 */
 	public enum SnmpGetRequest {
+		/**
+		 * Represents an SNMP GET request.
+		 * Used to retrieve the value of a single SNMP object.
+		 */
 		GET,
+		/**
+		 * Represents an SNMP GETNEXT request.
+		 * Used to retrieve the value of the next SNMP object.
+		 */
 		GETNEXT,
+		/**
+		 * Represents an SNMP TABLE request.
+		 * Used to retrieve a table of SNMP objects.
+		 */
 		TABLE
 	}
 
 	/**
 	 * Execute TableJoin
 	 *
-	 * @param leftTable
-	 * @param rightTable
-	 * @param leftKeyColumnNumber
-	 * @param rightKeyColumnNumber
-	 * @param defaultRightLine
-	 * @param wbemKeyType          <code>true</code> if WBEM
-	 * @param caseInsensitive
-	 * @return
+	 * @param leftTable              The left table.
+	 * @param rightTable             The right table.
+	 * @param leftKeyColumnNumber    The column number for the key in the left table.
+	 * @param rightKeyColumnNumber   The column number for the key in the right table.
+	 * @param defaultRightLine       The default line for the right table.
+	 * @param wbemKeyType            {@code true} if WBEM.
+	 * @param caseInsensitive        {@code true} for case-insensitive comparison.
+	 * @return The result of the table join operation.
 	 */
 	public List<List<String>> executeTableJoin(
 		final List<List<String>> leftTable,
@@ -387,10 +426,10 @@ public class ClientsExecutor {
 	/**
 	 * Call AwkExecutor in order to execute the Awk script on the given input
 	 *
-	 * @param embeddedFileScript
-	 * @param input
-	 * @return
-	 * @throws AwkException
+	 * @param embeddedFileScript The embedded file script.
+	 * @param input              The input for the Awk script.
+	 * @return The result of executing the Awk script.
+	 * @throws AwkException if an error occurs during Awk script execution.
 	 */
 	@WithSpan("AWK")
 	public String executeAwkScript(
@@ -407,14 +446,14 @@ public class ClientsExecutor {
 	/**
 	 * Execute JSON to CSV operation.
 	 *
-	 * @param jsonSource
-	 * @param jsonEntryKey
-	 * @param propertyList
-	 * @param separator
-	 * @return
-	 * @throws TimeoutException
-	 * @throws ExecutionException
-	 * @throws InterruptedException
+	 * @param jsonSource    The JSON source string.
+	 * @param jsonEntryKey  The JSON entry key.
+	 * @param propertyList  The list of properties.
+	 * @param separator     The separator for CSV.
+	 * @return The CSV representation of the JSON.
+	 * @throws TimeoutException       If the execution times out.
+	 * @throws ExecutionException     If an execution exception occurs.
+	 * @throws InterruptedException  If the execution is interrupted.
 	 */
 	public String executeJson2Csv(String jsonSource, String jsonEntryKey, List<String> propertyList, String separator)
 		throws InterruptedException, ExecutionException, TimeoutException {
@@ -802,6 +841,7 @@ public class ClientsExecutor {
 	 * @param wmiConfig WMI Protocol configuration (credentials, timeout)
 	 * @param wbemQuery The WQL to execute
 	 * @param namespace The WBEM namespace where all the classes reside
+	 * @return A list of rows, where each row is represented as a list of strings.
 	 * @throws ClientException when anything goes wrong (details in cause)
 	 */
 	@WithSpan("WMI")
@@ -878,12 +918,12 @@ public class ClientsExecutor {
 	 * the output of the command.
 	 *
 	 * @param command    The command to execute. (Mandatory)
-	 * @param hostname   Host to connect to.  (Mandatory)
-	 * @param username   The username name.
+	 * @param hostname   The host to connect to.  (Mandatory)
+	 * @param username   The username.
 	 * @param password   The password.
 	 * @param timeout    Timeout in seconds
 	 * @param localFiles The local files list
-	 * @return
+	 * @return The output of the executed command.
 	 * @throws ClientException For any problem encountered.
 	 */
 	@WithSpan("Remote Command WMI")
@@ -972,7 +1012,7 @@ public class ClientsExecutor {
 	}
 
 	/**
-	 * Executes the given HTTP request through MATSYA
+	 * Executes the given HTTP request
 	 *
 	 * @param httpRequest The {@link HttpRequest} values.
 	 * @param logMode     Whether or not logging is enabled.
@@ -1032,27 +1072,34 @@ public class ClientsExecutor {
 			? EMPTY
 			: body.getContent(username, CHAR_ARRAY_MASK, MASK, hostname);
 
-		// Get the HTTP request URL
-		final String httpRequestUrl = httpRequest.getUrl();
-		notNull(httpRequestUrl, "HTTP request URL cannot be null.");
-
-		// Update the known HTTP macros
-		final String url = HttpMacrosUpdater.update(httpRequestUrl, username, password, authenticationToken, hostname);
-
 		// Set the protocol http or https
 		final String protocol = Boolean.TRUE.equals(httpConfiguration.getHttps()) ? "https" : "http";
 
+		// Get the HTTP request URL
+		final String httpRequestUrl = httpRequest.getUrl();
+
+		// Get the HTTP request Path
+		final String httpRequestPath = httpRequest.getPath();
+
+		// Update the known HTTP macros, and return empty if the httpRequestPath is null
+		final String path = HttpMacrosUpdater.update(httpRequestPath, username, password, authenticationToken, hostname);
+
+		// Update the known HTTP macros, and return empty if the httpRequestUrl is null
+		final String url = HttpMacrosUpdater.update(httpRequestUrl, username, password, authenticationToken, hostname);
+
 		// Build the full URL
-		final String fullUrl = Url.format(hostname, httpConfiguration.getPort(), url, protocol);
+		final String fullUrl = Url.format(protocol, hostname, httpConfiguration.getPort(), path, url);
 
 		trace(() ->
 			log.trace(
-				"Executing HTTP request: {} {}\n- hostname: {}\n- url: {}\n- Protocol: {}\n- Port: {}\n" + // NOSONAR
+				"Executing HTTP request: {} {}\n- hostname: {}\n- url: {}\n- path: {}\n" + // NOSONAR
+				"- Protocol: {}\n- Port: {}\n" +
 				"- Request-headers:\n{}\n- Request-body:\n{}\n- Timeout: {} s\n- Get-result-content: {}\n",
 				method,
 				fullUrl,
 				hostname,
 				url,
+				path,
 				protocol,
 				httpConfiguration.getPort(),
 				StringHelper.prettyHttpHeaders(headerContentProtected),
@@ -1084,6 +1131,7 @@ public class ClientsExecutor {
 					bodyContent,
 					bodyContentProtected,
 					url,
+					path,
 					protocol,
 					fullUrl
 				)
@@ -1104,7 +1152,8 @@ public class ClientsExecutor {
 	 * @param headerContentProtected The HTTP header without sensitive information
 	 * @param bodyContent            The HTTP body
 	 * @param bodyContentProtected   The HTTP body without sensitive information
-	 * @param url                    The HTTP URL path
+	 * @param url                    The HTTP URL
+	 * @param path                    The HTTP URL path
 	 * @param protocol               The protocol: http or https
 	 * @param fullUrl                The full HTTP URL. E.g. <pre>http://www.example.com:1080/api/v1/examples</pre>
 	 * @return String value
@@ -1122,6 +1171,7 @@ public class ClientsExecutor {
 		final String bodyContent,
 		final String bodyContentProtected,
 		final String url,
+		final String path,
 		final String protocol,
 		final String fullUrl
 	) {
@@ -1180,7 +1230,7 @@ public class ClientsExecutor {
 
 			trace(() ->
 				log.trace(
-					"Executed HTTP request: {} {}\n- Hostname: {}\n- Url: {}\n- Protocol: {}\n- Port: {}\n" + // NOSONAR
+					"Executed HTTP request: {} {}\n- Hostname: {}\n- Url: {}\n- Path: {}\n- Protocol: {}\n- Port: {}\n" + // NOSONAR
 					"- Request-headers:\n{}\n- Request-body:\n{}\n- Timeout: {} s\n" +
 					"- get-result-content: {}\n- response-status: {}\n- response-headers:\n{}\n" +
 					"- response-body:\n{}\n- response-time: {}\n",
@@ -1188,6 +1238,7 @@ public class ClientsExecutor {
 					fullUrl,
 					hostname,
 					url,
+					path,
 					protocol,
 					httpConfiguration.getPort(),
 					StringHelper.prettyHttpHeaders(headerContentProtected),
@@ -1258,18 +1309,18 @@ public class ClientsExecutor {
 	}
 
 	/**
-	 * Use ssh-client in order to run ssh command
+	 * Use ssh-client in order to run ssh command.
 	 *
-	 * @param hostname
-	 * @param username
-	 * @param password
-	 * @param keyFilePath
-	 * @param command
-	 * @param timeout
-	 * @param localFiles
-	 * @param noPasswordCommand
-	 * @return
-	 * @throws ClientException
+	 * @param hostname         The hostname or IP address to connect to.
+	 * @param username         The SSH username.
+	 * @param password         The SSH password as a character array.
+	 * @param keyFilePath      The path to the SSH key file.
+	 * @param command          The SSH command to execute.
+	 * @param timeout          The timeout for the command execution in seconds.
+	 * @param localFiles       List of local files to be transferred to the remote host.
+	 * @param noPasswordCommand The command to execute without password.
+	 * @return The result of the SSH command.
+	 * @throws ClientException If an error occurs during the SSH command execution.
 	 */
 	@WithSpan("SSH")
 	public static String runRemoteSshCommand(
@@ -1451,10 +1502,10 @@ public class ClientsExecutor {
 	}
 
 	/**
-	 * Create a new instance of the {@link SshClient}
+	 * Creates a new instance of the {@link SshClient}.
 	 *
-	 * @param hostname
-	 * @return {@link SshClient} instance
+	 * @param hostname The hostname.
+	 * @return A {@link SshClient} instance.
 	 */
 	public static SshClient createSshClientInstance(final String hostname) {
 		return new SshClient(hostname, StandardCharsets.UTF_8);
@@ -1505,14 +1556,14 @@ public class ClientsExecutor {
 	}
 
 	/**
-	 * Run the IPMI detection in order to detect the Chassis power state
+	 * Runs IPMI detection to determine the Chassis power state.
 	 *
-	 * @param hostname          The host name or the IP address we wish to query
-	 * @param ipmiConfiguration The MetricsHub {@link IpmiConfiguration} instance including all the required fields to perform IPMI requests
-	 * @return String value. E.g. System power state is up
-	 * @throws TimeoutException
-	 * @throws ExecutionException
-	 * @throws InterruptedException
+	 * @param hostname          The host name or IP address to query.
+	 * @param ipmiConfiguration The MetricsHub {@link IpmiConfiguration} instance with required fields for IPMI requests.
+	 * @return A string value, e.g., "System power state is up."
+	 * @throws InterruptedException If the execution is interrupted.
+	 * @throws ExecutionException   If the execution encounters an exception.
+	 * @throws TimeoutException     If the operation times out.
 	 */
 	@WithSpan("IPMI Chassis Status")
 	public String executeIpmiDetection(
@@ -1558,7 +1609,7 @@ public class ClientsExecutor {
 	 *
 	 * @param hostname          The host we wish to set in the {@link IpmiConfiguration}
 	 * @param ipmiConfiguration MetricsHub {@link IpmiConfiguration} instance including all the required fields to perform IPMI requests
-	 * @return new instance of MATSYA {@link IpmiConfiguration}
+	 * @return new instance of {@link IpmiClientConfiguration}
 	 */
 	private static IpmiClientConfiguration buildIpmiConfiguration(
 		@NonNull String hostname,
@@ -1583,14 +1634,14 @@ public class ClientsExecutor {
 	}
 
 	/**
-	 * Run IPMI Over-LAN request in order to get all the sensors
+	 * Executes an IPMI Over-LAN request to retrieve information about all sensors.
 	 *
-	 * @param hostname          The host we wish to set in the {@link IpmiConfiguration}
-	 * @param ipmiConfiguration The MetricsHub {@link IpmiConfiguration} instance including all the required fields to perform IPMI requests
-	 * @return String output contains FRUs and Sensor states and readings
-	 * @throws TimeoutException
-	 * @throws ExecutionException
-	 * @throws InterruptedException
+	 * @param hostname          The host for which the {@link IpmiConfiguration} is set.
+	 * @param ipmiConfiguration The MetricsHub {@link IpmiConfiguration} instance containing the required fields for IPMI requests.
+	 * @return A string containing information about FRUs, sensor states, and readings.
+	 * @throws InterruptedException If the execution is interrupted.
+	 * @throws ExecutionException   If the execution encounters an exception.
+	 * @throws TimeoutException     If the operation times out.
 	 */
 	@WithSpan("IPMI Sensors")
 	public String executeIpmiGetSensors(

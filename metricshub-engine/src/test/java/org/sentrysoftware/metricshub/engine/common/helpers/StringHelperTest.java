@@ -84,4 +84,11 @@ class StringHelperTest {
 		assertEquals("a,b", StringHelper.stringify(List.of("a", "b")));
 		assertEquals("a,b", StringHelper.stringify(new String[] { "a", "b" }));
 	}
+
+	@Test
+	void testNonNullNonBlank() {
+		assertEquals(StringHelper.nonNullNonBlank(EMPTY), false);
+		assertEquals(StringHelper.nonNullNonBlank(null), false);
+		assertEquals(StringHelper.nonNullNonBlank("text"), true);
+	}
 }

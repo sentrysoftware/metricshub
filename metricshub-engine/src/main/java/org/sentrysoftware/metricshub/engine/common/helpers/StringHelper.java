@@ -203,4 +203,14 @@ public class StringHelper {
 			return value.toString();
 		}
 	}
+
+	/**
+	 * Checks if the specified string is non-null and non-blank.
+	 *
+	 * @param value The string to be checked.
+	 * @return {@code true} if the string is non-null and contains at least one non-whitespace character, {@code false} otherwise.
+	 */
+	public static boolean nonNullNonBlank(final String value) {
+		return value != null && !value.isBlank();
+	}
 }
