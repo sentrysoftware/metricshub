@@ -28,6 +28,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+/**
+ * Configuration class for SSH connections. It represents the configuration for SSH (Secure Shell) connections
+ * in the MetricsHub engine.
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
@@ -37,6 +41,17 @@ public class SshConfiguration extends OsCommandConfiguration {
 	private char[] password;
 	private File privateKey;
 
+	/**
+	 * Builder for creating instances of {@link SshConfiguration}.
+	 *
+	 * @param useSudo           Flag indicating whether to use sudo for commands.
+	 * @param useSudoCommands   Set of sudo commands to be used.
+	 * @param sudoCommand       The sudo command to execute.
+	 * @param timeout           The timeout for command execution in seconds.
+	 * @param username          The SSH username for authentication.
+	 * @param password          The SSH password for authentication.
+	 * @param privateKey        The private key file for SSH key-based authentication.
+	 */
 	@Builder(builderMethodName = "sshConfigurationBuilder")
 	public SshConfiguration(
 		final boolean useSudo,

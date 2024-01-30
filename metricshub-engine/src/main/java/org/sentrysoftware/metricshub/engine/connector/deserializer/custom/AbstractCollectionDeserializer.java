@@ -33,6 +33,14 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collector;
 
+/**
+ * An abstract deserializer for collections of a specific type. Subclasses should provide implementations for
+ * value extraction, empty collection creation, collector creation, and building a collection from another collection.
+ * This deserializer handles the deserialization of JSON arrays and string values into a collection of the specified type.
+ *
+ * @param <T> The type of elements in the collection.
+ * @see JsonDeserializer
+ */
 public abstract class AbstractCollectionDeserializer<T> extends JsonDeserializer<Collection<T>> {
 
 	@Override

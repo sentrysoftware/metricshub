@@ -30,8 +30,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.NonNull;
 
+/**
+ * Helper class for number-related operations.
+ */
 public class NumberHelper {
 
+	/**
+	 * Pattern to detect integers with trailing zeros.
+	 */
 	public static final Pattern INTEGER_DETECT_PATTERN = Pattern.compile("^(-?\\d+)(\\.0*)$");
 
 	private static final DecimalFormat DECIMAL_FORMAT;

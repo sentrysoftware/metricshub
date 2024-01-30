@@ -31,6 +31,11 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.CustomDeserializer;
 
+/**
+ * Helper class for adding post-deserialization support to an {@link ObjectMapper}.
+ * This class provides a method to add a {@link CustomDeserializer} as a post deserializer
+ * for handling special deserialization requirements.
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PostDeserializeHelper {
 

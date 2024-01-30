@@ -50,6 +50,9 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.strategy.source.ISourceProcessor;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 
+/**
+ * Represents a source that executes an operating system command to retrieve data.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -58,30 +61,75 @@ public class OsCommandSource extends Source {
 	private static final String WHITE_SPACE_TAB = WHITE_SPACE + TAB;
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The command line to execute.
+	 */
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	@JsonDeserialize(using = NonBlankDeserializer.class)
 	private String commandLine;
 
+	/**
+	 * The timeout for executing the command.
+	 */
 	@JsonDeserialize(using = TimeoutDeserializer.class)
 	private Long timeout;
 
+	/**
+	 * Flag indicating whether to execute the command locally.
+	 */
 	@JsonDeserialize(using = BooleanDeserializer.class)
 	@JsonSetter(nulls = SKIP)
 	private Boolean executeLocally = false;
 
+	/**
+	 * The pattern to exclude lines from the command output.
+	 */
 	private String exclude;
+	/**
+	 * The pattern to keep lines from the command output.
+	 */
 	private String keep;
 
+	/**
+	 * The line number to begin extracting output from.
+	 */
 	@JsonDeserialize(using = PositiveIntegerDeserializer.class)
 	private Integer beginAtLineNumber;
 
+	/**
+	 * The line number to end extracting output at.
+	 */
 	@JsonDeserialize(using = PositiveIntegerDeserializer.class)
 	private Integer endAtLineNumber;
 
+	/**
+	 * The separators for columns in the command output.
+	 */
 	private String separators = WHITE_SPACE_TAB;
+	/**
+	 * The columns to select from the command output.
+	 */
 	private String selectColumns;
 
+	/**
+	 * Builder for creating instances of {@code OsCommandSource}.
+	 *
+	 * @param type                 The type of the source.
+	 * @param computes             List of computations to be applied to the source.
+	 * @param forceSerialization   Flag indicating whether to force serialization.
+	 * @param commandLine          The command line to execute.
+	 * @param timeout              The timeout for executing the command.
+	 * @param executeLocally       Flag indicating whether to execute the command locally.
+	 * @param exclude              The pattern to exclude lines from the command output.
+	 * @param keep                 The pattern to keep lines from the command output.
+	 * @param beginAtLineNumber    The line number to begin extracting output from.
+	 * @param endAtLineNumber      The line number to end extracting output at.
+	 * @param separators           The separators for columns in the command output.
+	 * @param selectColumns        The columns to select from the command output.
+	 * @param key                  The key associated with the source.
+	 * @param executeForEachEntryOf The execution context for each entry of the source.
+	 */
 	@Builder
 	@JsonCreator
 	public OsCommandSource(

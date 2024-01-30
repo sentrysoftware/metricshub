@@ -42,6 +42,9 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.strategy.source.ISourceProcessor;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 
+/**
+ * Represents a source that retrieves data by making an HTTP request.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -49,6 +52,9 @@ public class HttpSource extends Source {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The HTTP method for the request.
+	 */
 	@JsonSetter(nulls = SKIP)
 	private HttpMethod method = HttpMethod.GET;
 
@@ -68,9 +74,18 @@ public class HttpSource extends Source {
 	 * The header for the HTTP request. It can be either a String or an EmbeddedFile reference.
 	 */
 	private String header;
+	/**
+	 * The body of the HTTP request.
+	 */
 	private String body;
+	/**
+	 * The authentication token for the HTTP request.
+	 */
 	private String authenticationToken;
 
+	/**
+	 * The type of content to retrieve from the HTTP response.
+	 */
 	@JsonSetter(nulls = SKIP)
 	private ResultContent resultContent = ResultContent.BODY;
 

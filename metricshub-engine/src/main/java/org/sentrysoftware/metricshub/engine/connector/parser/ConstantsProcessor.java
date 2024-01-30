@@ -34,6 +34,9 @@ import java.util.function.UnaryOperator;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * Processor for replacing placeholder values in a JsonNode using constant values.
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class ConstantsProcessor extends AbstractNodeProcessor {
@@ -85,13 +88,13 @@ public class ConstantsProcessor extends AbstractNodeProcessor {
 	}
 
 	/**
-	 * Perform replacements on the given value using the key-value pairs
-	 * provided in the replacements {@link Map}
+	 * Replace placeholders in the given value with corresponding values from the provided
+	 * key-value pairs in the replacements {@link Map}.
 	 *
-	 * @param replacements Key-value pairs of placeholder to value to replace.
-	 * E.g { $constants.query1=MyQuery1, $constants.query2=MyQuery2 }
-	 * @param value to replace
-	 * @return new {@link String} value
+	 * @param replacements Key-value pairs representing placeholders and their replacement values.
+	 *                     <br>Example: { $constants.query1=MyQuery1, $constants.query2=MyQuery2 }
+	 * @param value        The string to be replaced.
+	 * @return A new {@link String} with the placeholders replaced.
 	 */
 	private String performReplacements(final Map<String, String> replacements, String value) {
 		if (value == null || value.isEmpty()) {

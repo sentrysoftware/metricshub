@@ -26,11 +26,23 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * Enumeration representing different duplex modes.
+ */
 @AllArgsConstructor
 public enum DuplexMode implements IState {
+	/**
+	 * Represents the HALF duplex mode.
+	 */
 	HALF(0),
+	/**
+	 * Represents the FULL duplex mode.
+	 */
 	FULL(1);
 
+	/**
+	 * The numeric value associated with the duplex mode.
+	 */
 	@Getter
 	private int numericValue;
 

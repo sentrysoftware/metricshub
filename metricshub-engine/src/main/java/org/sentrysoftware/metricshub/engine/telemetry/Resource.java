@@ -29,6 +29,9 @@ import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Represents a resource associated with a monitor.
+ */
 @Data
 @Builder
 @AllArgsConstructor

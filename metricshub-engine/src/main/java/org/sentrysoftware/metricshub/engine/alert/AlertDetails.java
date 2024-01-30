@@ -30,6 +30,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 
+/**
+ * Represents details associated with an alert, including the problem,
+ * consequence, and recommended action.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

@@ -26,9 +26,18 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * Enumeration representing states related to predicted failures.
+ */
 @AllArgsConstructor
 public enum PredictedFailure implements IState {
+	/**
+	 * OK state with numeric value 0.
+	 */
 	OK(0),
+	/**
+	 * FAILURE_PREDICTED state with numeric value 1.
+	 */
 	FAILURE_PREDICTED(1);
 
 	@Getter

@@ -26,21 +26,25 @@ import java.util.Optional;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.common.helpers.NumberHelper;
 
+/**
+ * Interface representing a generic state.
+ */
 public interface IState {
 	/**
+	 * Get the numeric value associated with the state.
+	 *
 	 * @return The numeric value as int
 	 */
 	int getNumericValue();
 
 	/**
-	 * Interpret the given <code>state</code> value based on the
-	 * <code>stateTranslations</code> lookup
+	 * Interpret the given {@code state} value based on the {@code stateTranslations} lookup.
 	 *
-	 * @param <T>
+	 * @param <T>               Type extending {@link IState}
 	 * @param state             The state value to interpret
 	 * @param stateTranslations The translation lookup from which we get {@link IState} by key
 	 * @param type              The type used to cast the result
-	 * @return {@link Optional} of <code>T extends IState</code>
+	 * @return {@link Optional} of {@code T extends IState}
 	 */
 	static <T extends IState> Optional<T> interpret(
 		final String state,
