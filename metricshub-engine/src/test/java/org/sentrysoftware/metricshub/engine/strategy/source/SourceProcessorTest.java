@@ -30,7 +30,6 @@ import static org.sentrysoftware.metricshub.engine.constants.Constants.VALUE_VAL
 import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_QUERY;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.WMI_NAMESPACE;
 
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -119,7 +118,7 @@ class SourceProcessorTest {
 	private static final String CONNECTOR_ID = "myConnector";
 
 	@Test
-	void testProcessHttpSourceOK() throws InvalidFormatException {
+	void testProcessHttpSourceOK() {
 		final HttpConfiguration httpConfiguration = HttpConfiguration
 			.builder()
 			.username(USERNAME)

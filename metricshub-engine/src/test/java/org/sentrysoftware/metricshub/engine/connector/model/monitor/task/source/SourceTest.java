@@ -3,7 +3,6 @@ package org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
@@ -34,7 +33,7 @@ class SourceTest {
 	}
 
 	@Test
-	void testReferencesHttp() throws IOException, InvalidFormatException {
+	void testReferencesHttp() throws IOException {
 		final String httpYaml =
 			"""
 			type: http

@@ -1,6 +1,7 @@
 package org.sentrysoftware.metricshub.engine.client.http;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +29,7 @@ class UrlTest {
 
 	@Test
 	void testFormatPathOnly() {
-		assertEquals(Url.format(HOSTNAME, PORT, PATH_3, PROTOCOL), FULL_URL_1);
+		assertEquals(FULL_URL_1, Url.format(HOSTNAME, PORT, PATH_3, PROTOCOL));
 		assertThrows(IllegalArgumentException.class, () -> Url.format(null, PORT, PATH_3, PROTOCOL));
 		assertThrows(IllegalArgumentException.class, () -> Url.format(HOSTNAME, null, PATH_3, PROTOCOL));
 		assertThrows(IllegalArgumentException.class, () -> Url.format(HOSTNAME, PORT, PATH_3, null));
@@ -36,18 +37,18 @@ class UrlTest {
 
 	@Test
 	void testUrlProcessing() {
-		assertEquals(Url.format(PROTOCOL, HOSTNAME, PORT, PATH_1, FULL_URL_1), FULL_URL_2);
+		assertEquals(FULL_URL_2, Url.format(PROTOCOL, HOSTNAME, PORT, PATH_1, FULL_URL_1));
 		assertThrows(IllegalArgumentException.class, () -> Url.format(null, null, null, PATH_3, EMPTY));
 	}
 
 	@Test
 	void testUrlProcessingWithUrlOnly() {
-		assertEquals(Url.format(PROTOCOL, HOSTNAME, PORT, EMPTY, FULL_URL_1), FULL_URL_1);
+		assertEquals(FULL_URL_1, Url.format(PROTOCOL, HOSTNAME, PORT, EMPTY, FULL_URL_1));
 	}
 
 	@Test
 	void testUrlProcessingWithPathOnly() {
-		assertEquals(Url.format(PROTOCOL, HOSTNAME, PORT, PATH_3, EMPTY), FULL_URL_1);
+		assertEquals(FULL_URL_1, Url.format(PROTOCOL, HOSTNAME, PORT, PATH_3, EMPTY));
 	}
 
 	@Test

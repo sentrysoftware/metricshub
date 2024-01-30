@@ -69,17 +69,12 @@ public class Url {
 	 * @return formatted String URL
 	 */
 	public static String format(@NonNull final String url, @NonNull final String path) {
-		String fullUrl;
-
-		fullUrl =
-			String.format(
-				"%s%s%s",
-				url,
-				url.endsWith("/") || path.startsWith("/") ? "" : "/",
-				url.endsWith("/") && path.startsWith("/") ? path.substring(1) : path
-			);
-
-		return fullUrl;
+		return String.format(
+			"%s%s%s",
+			url,
+			url.endsWith("/") || path.startsWith("/") ? "" : "/",
+			url.endsWith("/") && path.startsWith("/") ? path.substring(1) : path
+		);
 	}
 
 	/**
