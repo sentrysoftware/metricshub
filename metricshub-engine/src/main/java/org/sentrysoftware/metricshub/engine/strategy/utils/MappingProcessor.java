@@ -1154,45 +1154,47 @@ public class MappingProcessor {
 	}
 
 	/**
-	 * Whether the given value defines an AWK script
+	 * Whether the given value defines an AWK script.
 	 *
-	 * @param value String to check
-	 * @return boolean value
+	 * @param value The character sequence to be matched.
+	 * @return true if, the subsequence of the input sequence matches the AWK script pattern. Otherwise false.
 	 */
 	private boolean isAwkScript(final String value) {
 		return AWK_SCRIPT_PATTERN.matcher(value).find();
 	}
 
 	/**
-	 * This method checks whether a column contains a value to be extracted (e.g: $1, $2, etc ...)
-	 * @param value
-	 * @return true or false
+	 * Checks whether the input string represents a column directive (e.g: $1, $2, etc ...).
+	 *
+	 * @param value The character sequence to be matched.
+	 * @return true if, the input sequence matches the column pattern. Otherwise false.
 	 */
-	private boolean isColumnExtraction(String value) {
+	private boolean isColumnExtraction(final String value) {
 		return getStringRegexMatcher(value).find();
 	}
 
 	/**
-	 * Checks whether the input string represents a column concatenation
-	 * @param value
-	 * @return true or false
+	 * Checks whether the input string contains a column reference directive.
+	 *
+	 * @param value The character sequence to be matched.
+	 * @return true if, the subsequence of the input sequence matches the column reference pattern. Otherwise false.
 	 */
-	private boolean containsColumnReferences(String value) {
+	private boolean containsColumnReferences(final String value) {
 		return getColumnReferenceMatcher(value).find();
 	}
 
 	/**
-	 * This method returns the matcher of a regex on a given string value
-	 * @param value
-	 * @return Matcher
+	 * Creates the matcher of the column pattern on the given string value.
+	 *
+	 * @param value The character sequence to be matched
+	 * @return A Matcher object that can be used to perform matching operations on the input string.
 	 */
-	private Matcher getStringRegexMatcher(String value) {
+	private Matcher getStringRegexMatcher(final String value) {
 		return COLUMN_PATTERN.matcher(value);
 	}
 
 	/**
-	 * Creates a matcher that will match the given value against the column
-	 * reference pattern.
+	 * Creates the matcher of the column reference pattern on the given string value.
 	 *
 	 * @param value The string value on which the regular expression pattern will be applied.
 	 * @return A Matcher object that can be used to perform matching operations on the input string.
