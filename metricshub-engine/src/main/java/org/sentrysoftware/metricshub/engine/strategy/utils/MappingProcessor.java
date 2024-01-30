@@ -1057,28 +1057,45 @@ public class MappingProcessor {
 
 	/**
 	 * This method extracts column value using a Regex
-	 * @param value
-	 * @param key
-	 * @return string representing the column value
+	 * @param reference The value reference to be processed.
+	 * @param key       The attribute key.
+	 * @return The column value if available, or empty if not available.
 	 */
-	private String extractColumnValue(final String value, final String key) {
-		final Matcher matcher = getStringRegexMatcher(value);
+	private String extractColumnValue(final String reference, final String key) {
+		final Matcher matcher = getStringRegexMatcher(reference);
 		matcher.find();
 		final int columnIndex = Integer.parseInt(matcher.group(1)) - 1;
-		if (columnIndex >= 0 && columnIndex < row.size()) {
+		final int rowSize = row.size();
+		if (columnIndex >= 0 && columnIndex < rowSize) {
 			final String result = row.get(columnIndex);
-			return result != null ? result : EMPTY;
+			if (result != null) {
+				return result;
+			} else {
+				log.warn(
+					"Hostname {} - Extract Column Value: value is null for column number {} in the row. " +
+					"Unable to fetch the value for attribute key {}. Source: {} - Row: {} - Monitor type: {}.",
+					jobInfo.getHostname(),
+					columnIndex,
+					key,
+					mapping.getSource(),
+					row,
+					jobInfo.getMonitorType()
+				);
+			}
+		} else {
+			log.warn(
+				"Hostname {} - Extract Column Value: column number {} is out of bounds for source {} with row size {}. " +
+				"Unable to fetch the value for attribute key {}. Row: {}, Monitor type: {}.",
+				jobInfo.getHostname(),
+				columnIndex,
+				mapping.getSource(),
+				rowSize,
+				key,
+				row,
+				jobInfo.getMonitorType()
+			);
 		}
-		log.warn(
-			"Hostname {} - Column number {} is invalid for the source {}. Column number should not exceed the size of the row. key {} - " +
-			"Row {} - monitor type {}.",
-			jobInfo.getHostname(),
-			columnIndex,
-			mapping.getSource(),
-			key,
-			row,
-			jobInfo.getMonitorType()
-		);
+
 		return EMPTY;
 	}
 
@@ -1098,39 +1115,42 @@ public class MappingProcessor {
 	 *
 	 * @param match The MatchResult containing the column reference.
 	 * @param key   A key of the attribute used for logging.
-	 * @return The column value if available, or the original match if the column is not found.
+	 * @return The column value if available, or empty it cannot be fetched.
 	 */
 	private String getColumnValue(final MatchResult match, final String key) {
 		final int columnIndex = Integer.parseInt(match.group(1)) - 1;
-		if (columnIndex >= 0 && columnIndex < row.size()) {
+		final int rowSize = row.size();
+		if (columnIndex >= 0 && columnIndex < rowSize) {
 			final String columnValue = row.get(columnIndex);
 			if (columnValue != null) {
 				return Matcher.quoteReplacement(columnValue);
 			} else {
 				log.warn(
-					"Hostname {} - Value is null for column number {} in the row. Source: {} - Key: {} - Row: {} - Monitor type: {}",
+					"Hostname {} - Get Column Value: value is null for column number {} in the row. " +
+					"Unable to fetch the value for attribute key {}. Source: {} - Row: {} - Monitor type: {}.",
 					jobInfo.getHostname(),
 					columnIndex,
-					mapping.getSource(),
 					key,
+					mapping.getSource(),
 					row,
 					jobInfo.getMonitorType()
 				);
 			}
 		} else {
 			log.warn(
-				"Hostname {} - Column number {} is invalid for the source {}. Column number should not exceed the size of the row. key {} - " +
-				"Row {} - monitor type {}.",
+				"Hostname {} - Get Column Value: column number {} is out of bounds for source {} with row size {}. " +
+				"Unable to fetch the value for attribute key {}. Row: {}, Monitor type: {}.",
 				jobInfo.getHostname(),
 				columnIndex,
 				mapping.getSource(),
+				rowSize,
 				key,
 				row,
 				jobInfo.getMonitorType()
 			);
 		}
 
-		return Matcher.quoteReplacement(match.group());
+		return EMPTY;
 	}
 
 	/**

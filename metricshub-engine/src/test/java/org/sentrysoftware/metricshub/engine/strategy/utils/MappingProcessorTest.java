@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HARDCODED_SOURCE;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.MY_CONNECTOR_1_NAME;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -31,22 +32,7 @@ class MappingProcessorTest {
 		final TelemetryManager telemetryManager = new TelemetryManager();
 		telemetryManager.setHostConfiguration(HostConfiguration.builder().hostname("hostname").build());
 
-		final List<String> row = List.of(
-			"1",
-			"1",
-			"1",
-			"10",
-			"10",
-			"1",
-			"1",
-			"1",
-			"1",
-			"2",
-			"1",
-			"DellOpenManage",
-			"cpu",
-			"1.1"
-		);
+		final List<String> row = List.of("1", "1", "1", "10", "10", "1", "1", "1", "1", "2", "1");
 
 		final String vendorSource1Ref = "${source::monitors.cpu.discovery.sources.vendor}";
 		final String vendorIdSource1Ref = "${source::monitors.cpu.discovery.sources.id}";
@@ -234,18 +220,39 @@ class MappingProcessorTest {
 
 			assertEquals(expected, mappingProcessor.interpretNonContextMapping(keyValuePairs));
 		}
+	}
+
+	@Test
+	void testInterpretNonContextMappingReplaceColumnReferences() {
+		final List<String> row = Arrays.asList("cpu", "DellOpenManage", "1.1", "Dell $1", null);
+		final MappingProcessor mappingProcessor = MappingProcessor
+			.builder()
+			.jobInfo(JobInfo.builder().connectorId(MY_CONNECTOR_1_NAME).build())
+			.telemetryManager(new TelemetryManager())
+			.mapping(Mapping.builder().source(HARDCODED_SOURCE).build())
+			.row(row)
+			.build();
 
 		// Test case for replacement of each column reference with the actual value of the corresponding column
-		{
-			final Map<String, String> expected = new LinkedHashMap<>();
-			expected.put("type", "cpu");
-			expected.put("name", "cpu DellOpenManage");
-			expected.put("id", "DellOpenManage_cpu_1.1");
+		final Map<String, String> keyValuePairs = new HashMap<>();
+		keyValuePairs.put("type", "$1");
+		keyValuePairs.put("name", "cpu $2");
+		keyValuePairs.put("id", "$1_$2_$3");
+		keyValuePairs.put("vendor", "$4");
+		keyValuePairs.put("serial", "$5 $6");
+		keyValuePairs.put("microcode", "$7");
+		keyValuePairs.put("firmware", "Dell $7");
+		keyValuePairs.put("info", "$5");
 
-			final Map<String, String> keyValuePairs = Map.of("type", "$13", "name", "cpu $12", "id", "$12_$13_$14");
-
-			assertEquals(expected, mappingProcessor.interpretNonContextMapping(keyValuePairs));
-		}
+		final Map<String, String> result = mappingProcessor.interpretNonContextMapping(keyValuePairs);
+		assertEquals("cpu", result.get("type"));
+		assertEquals("cpu DellOpenManage", result.get("name"));
+		assertEquals("cpu_DellOpenManage_1.1", result.get("id"));
+		assertEquals("Dell $1", result.get("vendor"));
+		assertEquals(" ", result.get("serial"));
+		assertEquals("", result.get("microcode"));
+		assertEquals("Dell ", result.get("firmware"));
+		assertEquals("", result.get("info"));
 	}
 
 	@Test
