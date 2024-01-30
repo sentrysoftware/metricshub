@@ -1005,7 +1005,8 @@
       "model" : "VMAX250F",
       "id" : "2",
       "type" : "Storage",
-      "info" : "Serial number : 297800620"
+      "info" : "Serial number : 297800620",
+      "vendor_and_model" : "EMC VMAX250F"
     },
     "conditionalCollection" : { },
     "legacyTextParameters" : { },
