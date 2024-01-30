@@ -125,7 +125,15 @@ class ConnectorLibraryParserTest {
 
 	@Test
 	void testVisitZipFile() throws IOException {
-		final Path yamlTestPath = Paths.get("src", "test", "resources", "test-files", "connector", "zippedConnector");
+		final Path yamlTestPath = Paths.get(
+			"src",
+			"test",
+			"resources",
+			"test-files",
+			"connector",
+			"zippedConnector",
+			"connectors"
+		);
 		final Map<String, Connector> connectors = new ConnectorLibraryParser()
 			.parseConnectorsFromAllYamlFiles(yamlTestPath);
 

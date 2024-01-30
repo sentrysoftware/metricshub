@@ -23,24 +23,21 @@ package org.sentrysoftware.metricshub.engine.connector.parser;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Enumeration;
+import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import lombok.extern.slf4j.Slf4j;
+import org.sentrysoftware.metricshub.engine.common.helpers.FileHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
-import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 
 /**
@@ -97,45 +94,50 @@ public class ConnectorLibraryParser {
 		 * @throws IOException
 		 */
 		private void readZipFile(final Path zipPath) throws IOException {
-			try (ZipFile zipFile = new ZipFile(zipPath.toFile())) {
-				Enumeration<? extends ZipEntry> entries = zipFile.entries();
-				while (entries.hasMoreElements()) {
-					ZipEntry zipEntry = entries.nextElement();
-					// Check if entry is a directory
-					if (isYamlFile(zipEntry.getName())) {
-						InputStream inputStream = zipFile.getInputStream(zipEntry);
+			try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipPath)) {
+				final Path root = zipFileSystem.getPath("/");
 
-						// Check if this is a connector
-						final JsonNode connectorNode = OBJECT_MAPPER.readTree(inputStream);
+				Files.walkFileTree(
+					root,
+					new SimpleFileVisitor<Path>() {
+						@Override
+						public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
+							final String strPath = path.toString();
 
-						if (!isConnector(connectorNode)) {
-							continue;
+							if (!isYamlFile(strPath)) {
+								return FileVisitResult.CONTINUE;
+							}
+							final JsonNode connectorNode = OBJECT_MAPPER.readTree(Files.newInputStream(path));
+
+							if (!isConnector(connectorNode)) {
+								return FileVisitResult.CONTINUE;
+							}
+
+							final Path connectorFolder = path.getParent();
+							final URI connectorFolderUri = connectorFolder.toUri();
+
+							final ConnectorParser connectorParser = ConnectorParser.withNodeProcessorAndUpdateChain(connectorFolder);
+
+							final String fileName = strPath.substring(strPath.lastIndexOf('/') + 1);
+
+							FileHelper.fileSystemTask(
+								connectorFolderUri,
+								Collections.emptyMap(),
+								() -> {
+									final Connector connector;
+									try {
+										connector = connectorParser.parse(Files.newInputStream(path), connectorFolderUri, fileName);
+									} catch (IOException e) {
+										throw new IllegalStateException(e);
+									}
+									connectorsMap.put(fileName.substring(0, fileName.lastIndexOf('.')), connector);
+								}
+							);
+
+							return FileVisitResult.CONTINUE;
 						}
-
-						// Read and process the entry contents using the inputStream
-						final String entryName = zipEntry.getName();
-
-						final StringBuilder folderUriBuilder = new StringBuilder();
-
-						folderUriBuilder.append(zipPath.toString());
-						folderUriBuilder.append(LocalOsHandler.isWindows() ? "\\" : "/");
-						final int slashIndex = entryName.lastIndexOf('/');
-						if (slashIndex != -1) {
-							folderUriBuilder.append(entryName.substring(0, entryName.lastIndexOf('/')));
-						}
-
-						final URI folderUri = new File(folderUriBuilder.toString()).toURI();
-
-						final ConnectorParser connectorParser = ConnectorParser.withNodeProcessorAndUpdateChain(
-							Paths.get(folderUri)
-						);
-
-						final String fileName = entryName.substring(entryName.lastIndexOf('/') + 1);
-
-						final Connector connector = connectorParser.parse(zipFile.getInputStream(zipEntry), folderUri, fileName);
-						connectorsMap.put(fileName.substring(0, fileName.lastIndexOf('.')), connector);
 					}
-				}
+				);
 			} catch (IOException exception) {
 				// In case of an IOException, we log it and throw it back
 				log.error("Error while reading zip file {}: {}", zipPath.getFileName().toString(), exception.getMessage());

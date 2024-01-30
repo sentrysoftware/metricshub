@@ -21,8 +21,6 @@ package org.sentrysoftware.metricshub.engine.connector.parser;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.ZIP;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -30,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.AbstractMap;
@@ -38,8 +37,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -109,22 +106,21 @@ public class ConnectorParser {
 	 * Parse the given connector file
 	 *
 	 * @param inputStream The {@link InputStream} of the connector we want to parse
-	 * @param zipFileUri The URI of the folder containing the connector
+	 * @param connectorFolderUri The URI of the folder containing the connector
 	 * @param fileName The connector file name
 	 * @return new {@link Connector} object
 	 * @throws IOException
 	 */
-	public Connector parse(final InputStream inputStream, final URI zipFileUri, final String fileName)
+	public Connector parse(final InputStream inputStream, final URI connectorFolderUri, final String fileName)
 		throws IOException {
 		JsonNode node = deserializer.getMapper().readTree(inputStream);
 		// PRE-Processing
 		if (processor != null) {
 			final Map<URI, JsonNode> parents = new HashMap<>();
-			resolveParents(node, zipFileUri, parents);
+			resolveParents(node, connectorFolderUri, parents);
 
 			node = processor.process(node);
-
-			new EmbeddedFilesResolver(node, Paths.get(zipFileUri), parents.keySet()).internalize();
+			new EmbeddedFilesResolver(node, Paths.get(connectorFolderUri), parents.keySet()).internalize();
 		}
 
 		// POST-Processing
@@ -288,66 +284,27 @@ public class ConnectorParser {
 		final Path connectorCurrentDirPath = Paths.get(connectorCurrentDir);
 		Path connectorPath = connectorCurrentDirPath.resolve(connectorRelativePath + ".yaml").normalize();
 
-		File connectorPathFile = connectorPath.toFile();
-
-		if (connectorPathFile != null && connectorPathFile.exists()) {
+		if (Files.exists(connectorPath)) {
 			return new AbstractMap.SimpleEntry<>(
 				connectorPath.getParent().toUri(),
-				deserializer.getMapper().readTree(connectorPathFile)
+				deserializer.getMapper().readTree(Files.newInputStream(connectorPath))
 			);
 		}
 
 		// If the path is absolute, it should refer to a path within the "connectors" directory
 		if (!connectorRelativePath.startsWith(".")) {
-			final Path connectorsDirectoryPath = FileHelper.findConnectorsDirectory(Paths.get(connectorCurrentDir));
+			final Path connectorsDirectoryPath = FileHelper.findConnectorsDirectory(connectorCurrentDir);
 			if (connectorsDirectoryPath != null) {
 				connectorPath = connectorsDirectoryPath.resolve(connectorRelativePath + ".yaml").normalize();
-				connectorPathFile = connectorPath.toFile();
-				if (connectorPathFile != null && connectorPathFile.exists()) {
+				if (Files.exists(connectorPath)) {
 					return new AbstractMap.SimpleEntry<>(
 						connectorPath.getParent().toUri(),
-						deserializer.getMapper().readTree(connectorPathFile)
+						deserializer.getMapper().readTree(Files.newInputStream(connectorPath))
 					);
 				}
 			}
 		}
 
-		// In order to check if the yaml file actually exists, we need to look into the zip file and check if there is an entry of that name
-		final String strPath = connectorPath.toString();
-
-		Entry<URI, JsonNode> res = null;
-
-		final int zipIndex = strPath.lastIndexOf(ZIP);
-
-		if (zipIndex != -1) {
-			// First we need to found the zip in the file system
-			final ZipFile zipFile = new ZipFile(strPath.substring(0, zipIndex + ZIP.length()));
-
-			// Then we try to find the yaml file in the zip
-			final ZipEntry zipEntry = zipFile.getEntry(strPath.substring(zipIndex + ZIP.length() + 1).replace("\\", "/"));
-
-			if (zipEntry != null) {
-				res =
-					new AbstractMap.SimpleEntry<>(
-						connectorPath.getParent().toUri(),
-						deserializer.getMapper().readTree(zipFile.getInputStream(zipEntry))
-					);
-			}
-			zipFile.close();
-
-			if (res == null) {
-				res =
-					getConnectorParentEntry(
-						new File(strPath.substring(0, zipIndex + ZIP.length() + 1)).toURI(),
-						connectorRelativePath
-					);
-
-				if (res == null) {
-					throw new IllegalStateException("Cannot find extended connector " + connectorPath);
-				}
-			}
-		}
-
-		return res;
+		throw new IllegalStateException("Cannot get parent entry for connector path: " + connectorRelativePath);
 	}
 }

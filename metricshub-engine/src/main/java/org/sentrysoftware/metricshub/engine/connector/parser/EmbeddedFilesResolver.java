@@ -27,24 +27,17 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Predicate;
-import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
-import java.util.zip.ZipEntry;
-import org.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
+import org.sentrysoftware.metricshub.engine.common.helpers.FileHelper;
 
 /**
  * Resolves and internalizes embedded files within a JsonNode.
@@ -92,14 +85,7 @@ public class EmbeddedFilesResolver {
 			while (fileMatcher.find()) {
 				final String fileName = fileMatcher.group(1);
 
-				if (!alreadyProcessedEmbeddedFiles.containsKey(fileName)) {
-					final URI fileUri = findAbsoluteUri(fileName, connectorDirectory);
-
-					if (fileUri == null) {
-						throw new IOException(CANT_FIND_EMBEDDED_FILE + fileName);
-					}
-					alreadyProcessedEmbeddedFiles.put(fileName, fileUri);
-				}
+				alreadyProcessedEmbeddedFiles.computeIfAbsent(fileName, name -> findAbsoluteUri(name, connectorDirectory));
 			}
 
 			token = jsonParser.nextToken();
@@ -110,9 +96,13 @@ public class EmbeddedFilesResolver {
 			return;
 		}
 
-		// Traverse the connector node and replace embedded files references
-		// E.g. ${file::file-1} becomes ${file::file-absolute-path-1} // NOSONAR on comment
-		replacePlaceholderValues(connector, this::performFileRefReplacements, value -> value.indexOf("${file::") != -1);
+		JsonNodeUpdater
+			.builder()
+			.withJsonNode(connector)
+			.withPredicate(value -> value.indexOf("${file::") != -1)
+			.withUpdater(this::performFileRefReplacements)
+			.build()
+			.update();
 	}
 
 	/**
@@ -120,115 +110,41 @@ public class EmbeddedFilesResolver {
 	 * @param fileName           The name or relative path of the file
 	 * @param connectorDirectory The name of the connector directory where to look for the file
 	 * @return The absolute path of the file if found, null otherwise.
-	 * @throws IOException when the file can't be found
+	 * @throws IllegalStateException when the file can't be found
 	 */
-	public URI findAbsoluteUri(final String fileName, final Path connectorDirectory) throws IOException {
+	public URI findAbsoluteUri(final String fileName, final Path connectorDirectory) {
 		// Let's check if the file exists.
 		final Path filePath = connectorDirectory.resolve(fileName).normalize();
-		String strPath = filePath.toString();
 
-		// If the file is not in a zip, then checking its existence is easy
-		if (filePath.toFile().exists()) {
+		// If the file is in the zip, then checking its existence is easy
+		if (Files.exists(filePath)) {
 			return filePath.toUri();
 		}
 
-		// If the file is in a zip, it gets trickier
-		ZipEntry zipEntry = EmbeddedFileHelper.findZipEntry(strPath);
-
-		if (zipEntry != null) {
-			return filePath.toUri();
-		}
-
-		// If the file doesn't exist in the connectors's directory, lets check the parents
+		// If the file doesn't exist in the zip using the fileName, lets check the parents
 		final Iterator<URI> iterator = parents.iterator();
 
 		while (iterator.hasNext()) {
-			Path path = new File(iterator.next()).toPath().resolve(fileName).normalize();
+			Path path = Paths.get(iterator.next()).resolve(fileName).normalize();
 
 			// We do the same checks with the parents
-			if (path.toFile().exists()) {
-				return path.toUri();
-			}
-
-			zipEntry = EmbeddedFileHelper.findZipEntry(path.toString());
-			if (zipEntry != null) {
+			if (Files.exists(path)) {
 				return path.toUri();
 			}
 		}
 
-		// If the file can't be found, return null
-		return null;
-	}
-
-	/**
-	 * Traverse the given node and replace values.
-	 *
-	 * @param node                The {@link JsonNode} instance to traverse.
-	 * @param transformer         The value transformer function.
-	 * @param replacementPredicate The replacement predicate.
-	 */
-	public static void replacePlaceholderValues(
-		final JsonNode node,
-		final UnaryOperator<String> transformer,
-		final Predicate<String> replacementPredicate
-	) {
-		if (node.isObject()) {
-			// Get JsonNode fields
-			final List<String> fieldNames = new ArrayList<>(node.size());
-			node.fieldNames().forEachRemaining(fieldNames::add);
-
-			// Get the corresponding JsonNode for each field
-			for (final String fieldName : fieldNames) {
-				final JsonNode child = node.get(fieldName);
-
-				// Means it wrap sub JsonNode(s)
-				if (child.isContainerNode()) {
-					replacePlaceholderValues(child, transformer, replacementPredicate);
-				} else {
-					// Perform the replacement
-					final String oldValue = child.asText();
-					// No need to transform value if it doesn't have the placeholder
-					replaceJsonNode(
-						() -> ((ObjectNode) node).set(fieldName, new TextNode(transformer.apply(oldValue))),
-						oldValue,
-						replacementPredicate
-					);
-				}
-			}
-		} else if (node.isArray()) {
-			// Loop over the array and get each JsonNode element
-			for (int i = 0; i < node.size(); i++) {
-				final JsonNode child = node.get(i);
-
-				// Means this node is a JsonNode element
-				if (child.isContainerNode()) {
-					replacePlaceholderValues(child, transformer, replacementPredicate);
-				} else {
-					// Means this is a simple array node
-					final String oldValue = child.asText();
-					// No need to transform value if it doesn't have the placeholder
-					final int index = i;
-					replaceJsonNode(
-						() -> ((ArrayNode) node).set(index, new TextNode(transformer.apply(oldValue))),
-						oldValue,
-						replacementPredicate
-					);
+		// Last attempt using path from connectors directory
+		if (!fileName.startsWith(".")) {
+			final Path connectorsDirectoryPath = FileHelper.findConnectorsDirectory(connectorDirectory.toUri());
+			if (connectorsDirectoryPath != null) {
+				final Path connectorPathFile = connectorsDirectoryPath.resolve(fileName).normalize();
+				if (Files.exists(connectorPathFile)) {
+					return connectorPathFile.toUri();
 				}
 			}
 		}
-	}
 
-	/**
-	 * Replace oldValue in {@link JsonNode} only if this oldValue matches the replacement predicate.
-	 *
-	 * @param replacer            The runnable to perform the replacement.
-	 * @param oldValue            The old value to check for replacement.
-	 * @param replacementPredicate The replacement predicate.
-	 */
-	private static void replaceJsonNode(Runnable replacer, String oldValue, Predicate<String> replacementPredicate) {
-		if (replacementPredicate.test(oldValue)) {
-			replacer.run();
-		}
+		throw new IllegalStateException(CANT_FIND_EMBEDDED_FILE + fileName);
 	}
 
 	/**
@@ -260,7 +176,7 @@ public class EmbeddedFilesResolver {
 	 * @return The modified value with the file reference replaced.
 	 */
 	private String replaceFileReference(final Matcher matcher, final String value) {
-		final String replacement = alreadyProcessedEmbeddedFiles.get(matcher.group(1)).getPath();
+		final String replacement = alreadyProcessedEmbeddedFiles.get(matcher.group(1)).toString();
 		return value.replace(matcher.group(1), replacement);
 	}
 }

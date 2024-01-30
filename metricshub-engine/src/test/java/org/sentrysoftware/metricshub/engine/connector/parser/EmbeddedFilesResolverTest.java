@@ -15,6 +15,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+import org.sentrysoftware.metricshub.engine.common.helpers.FileHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 
 class EmbeddedFilesResolverTest {
@@ -42,8 +43,8 @@ class EmbeddedFilesResolverTest {
 		      expectedResult: iLO 4
 		      errorMessage: Invalid credentials / not an HP iLO 4
 		""",
-		new File("src/test/resources/test-files/embedded/connector1/header.txt").toURI().getPath(),
-		new File("src/test/resources/test-files/embedded/connector2/embedded2/body.txt").toURI().getPath()
+		Paths.get("src/test/resources/test-files/embedded/connector1/header.txt").toUri().toString(),
+		Paths.get("src/test/resources/test-files/embedded/connector2/embedded2/body.txt").toUri().toString()
 	);
 
 	/**
@@ -94,12 +95,39 @@ class EmbeddedFilesResolverTest {
 			Collections.emptySet()
 		);
 
-		assertThrows(IOException.class, () -> embeddedFilesResolver.internalize());
+		assertThrows(IllegalStateException.class, () -> embeddedFilesResolver.internalize());
 	}
 
 	@Test
-	@EnabledOnOs(value = OS.WINDOWS)
-	void testFindAbsoluteUriZipWindows() throws IOException {
+	void testFindAbsoluteUriZip() throws Exception {
+		final EmbeddedFilesResolver embeddedFilesResolver = new EmbeddedFilesResolver(
+			OBJECT_MAPPER.readTree(CONNECTOR_2_FILE),
+			CONNECTOR_2_DIRECTORY,
+			Collections.emptySet()
+		);
+
+		final String absolutePath = Paths.get("src/test/resources").toAbsolutePath().toString().replace("\\", "/");
+		final String uriStr = String.format(
+			"jar:file:///%s/test-files/connector/zippedConnector/connectors/connectors.zip!/hardware/DiskPart/diskPart.awk",
+			absolutePath
+		);
+		final String connectorDirUriStr = String.format(
+			"jar:file:///%s/test-files/connector/zippedConnector/connectors/connectors.zip!/hardware/DiskPart",
+			absolutePath
+		);
+
+		final URI connectorDirUri = URI.create(connectorDirUriStr);
+		final URI result = FileHelper.fileSystemTask(
+			connectorDirUri,
+			Collections.emptyMap(),
+			() -> embeddedFilesResolver.findAbsoluteUri("diskPart.awk", Paths.get(connectorDirUri))
+		);
+
+		assertEquals(uriStr, result.toString());
+	}
+
+	@Test
+	void testFindAbsoluteUri() throws IOException {
 		final EmbeddedFilesResolver embeddedFilesResolver = new EmbeddedFilesResolver(
 			OBJECT_MAPPER.readTree(CONNECTOR_2_FILE),
 			CONNECTOR_2_DIRECTORY,
@@ -112,78 +140,13 @@ class EmbeddedFilesResolverTest {
 			"test-files",
 			"connector",
 			"zippedConnector",
-			"connectors.zip"
+			"connectors",
+			"hardware",
+			"MIB2"
 		);
 		assertEquals(
-			new File("src\\test\\resources\\test-files\\connector\\zippedConnector\\connectors.zip\\AAC.yaml").toURI(),
-			embeddedFilesResolver.findAbsoluteUri("AAC.yaml", yamlTestPath)
-		);
-	}
-
-	@Test
-	@EnabledOnOs(value = OS.WINDOWS)
-	void testFindAbsoluteUriWindows() throws IOException {
-		final EmbeddedFilesResolver embeddedFilesResolver = new EmbeddedFilesResolver(
-			OBJECT_MAPPER.readTree(CONNECTOR_2_FILE),
-			CONNECTOR_2_DIRECTORY,
-			Collections.emptySet()
-		);
-		final Path yamlTestPath = Paths.get(
-			"src",
-			"test",
-			"resources",
-			"test-files",
-			"connector",
-			"connectorLibraryParser"
-		);
-		assertEquals(
-			new File("src\\test\\resources\\test-files\\connector\\connectorLibraryParser\\AAC.yaml").toURI(),
-			embeddedFilesResolver.findAbsoluteUri("AAC.yaml", yamlTestPath)
-		);
-	}
-
-	@Test
-	@EnabledOnOs(value = OS.LINUX)
-	void testFindAbsoluteUriZipLinux() throws IOException {
-		final EmbeddedFilesResolver embeddedFilesResolver = new EmbeddedFilesResolver(
-			OBJECT_MAPPER.readTree(CONNECTOR_2_FILE),
-			CONNECTOR_2_DIRECTORY,
-			Collections.emptySet()
-		);
-		final Path yamlTestPath = Paths.get(
-			"src",
-			"test",
-			"resources",
-			"test-files",
-			"connector",
-			"zippedConnector",
-			"connectors.zip"
-		);
-		assertEquals(
-			new File("src/test/resources/test-files/connector/zippedConnector/connectors.zip/AAC.yaml").toURI(),
-			embeddedFilesResolver.findAbsoluteUri("AAC.yaml", yamlTestPath)
-		);
-	}
-
-	@Test
-	@EnabledOnOs(value = OS.LINUX)
-	void testFindAbsoluteUriLinux() throws IOException {
-		final EmbeddedFilesResolver embeddedFilesResolver = new EmbeddedFilesResolver(
-			OBJECT_MAPPER.readTree(CONNECTOR_2_FILE),
-			CONNECTOR_2_DIRECTORY,
-			Collections.emptySet()
-		);
-		final Path yamlTestPath = Paths.get(
-			"src",
-			"test",
-			"resources",
-			"test-files",
-			"connector",
-			"connectorLibraryParser"
-		);
-		assertEquals(
-			new File("src/test/resources/test-files/connector/connectorLibraryParser/AAC.yaml").toURI(),
-			embeddedFilesResolver.findAbsoluteUri("AAC.yaml", yamlTestPath)
+			new File("src/test/resources/test-files/connector/zippedConnector/connectors/hardware/MIB2/exit.txt").toURI(),
+			embeddedFilesResolver.findAbsoluteUri("exit.txt", yamlTestPath)
 		);
 	}
 }

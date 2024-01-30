@@ -3,24 +3,7 @@ package org.sentrysoftware.metricshub.engine.connector.parser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.DISCOVERY_MAPPING_MODEL;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.DISCOVERY_MAPPING_NAME;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.DISCOVERY_MAPPING_VENDOR;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.DISK_CONTROLLER;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.DISK_CONTROLLER_AWK_COMMAND;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.DOLLAR_3;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.DOLLAR_4;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.DUPLICATE_COLUMN;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.ENCLOSURE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.HW_PARENT_TYPE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.PHYSICAL_DISK;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.PHYSICAL_DISK_AWK_COMMAND;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.SNMP_CRITERION_TYPE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.SNMP_TABLE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.SOURCE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.TRANSLATE;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -28,12 +11,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
-import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
-import org.sentrysoftware.metricshub.engine.connector.model.identity.ConnectionType;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.SimpleMonitorJob;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.StandardMonitorJob;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.TableJoinSource;
@@ -691,73 +670,5 @@ class ConnectorParserTest {
 				"Context: Extends, template variable and constants node processors creation. Third processor should be: " +
 				ConstantsProcessor.class.getSimpleName()
 		);
-	}
-
-	@Test
-	void testParseZip() throws IOException {
-		final File connectorsZipFile = new File("src/test/resources/test-files/connector/zippedConnector/connectors.zip");
-		ZipFile zipFile = new ZipFile(connectorsZipFile);
-
-		// The zip file contains only one file: AAC.yaml
-		final String fileName = "AAC.yaml";
-		ZipEntry AacEntry = zipFile.getEntry(fileName);
-
-		final ConnectorParser connectorParser = ConnectorParser.withNodeProcessorAndUpdateChain(connectorsZipFile.toPath());
-
-		final Connector connector = connectorParser.parse(
-			zipFile.getInputStream(AacEntry),
-			connectorsZipFile.toURI(),
-			fileName
-		);
-
-		zipFile.close();
-
-		//Check connector identity retrieval
-		assertTrue(connector.getConnectorIdentity().getDetection().getConnectionTypes().contains(ConnectionType.LOCAL));
-		assertTrue(connector.getConnectorIdentity().getDetection().getConnectionTypes().contains(ConnectionType.REMOTE));
-		assertTrue(connector.getConnectorIdentity().getDetection().getAppliesTo().contains(DeviceKind.LINUX));
-		assertTrue(connector.getConnectorIdentity().getDetection().getAppliesTo().contains(DeviceKind.WINDOWS));
-		assertEquals(SNMP_CRITERION_TYPE, connector.getConnectorIdentity().getDetection().getCriteria().get(0).getType());
-
-		//Check detected monitors number
-		assertEquals(3, connector.getMonitors().size());
-
-		//Retrieve the disk controller monitor
-		StandardMonitorJob monitorJob = (StandardMonitorJob) (connector.getMonitors().get(DISK_CONTROLLER));
-
-		//Check disk controller discovery sources
-		assertEquals(1, monitorJob.getDiscovery().getSources().size());
-		assertEquals(SNMP_TABLE, monitorJob.getDiscovery().getSources().get(SOURCE).getType());
-
-		//Check disk controller discovery mapping
-		assertEquals(ENCLOSURE, monitorJob.getDiscovery().getMapping().getAttributes().get(HW_PARENT_TYPE));
-		assertEquals(
-			DISK_CONTROLLER_AWK_COMMAND,
-			monitorJob.getDiscovery().getMapping().getAttributes().get(DISCOVERY_MAPPING_NAME)
-		);
-		assertEquals(DOLLAR_3, monitorJob.getDiscovery().getMapping().getAttributes().get(DISCOVERY_MAPPING_MODEL));
-
-		//Retrieve the physical disk monitor
-		monitorJob = (StandardMonitorJob) (connector.getMonitors().get(PHYSICAL_DISK));
-
-		//Check physical disk discovery sources
-		assertEquals(1, monitorJob.getDiscovery().getSources().size());
-		assertEquals(SNMP_TABLE, monitorJob.getDiscovery().getSources().get(SOURCE).getType());
-
-		//Check physical disk discovery mapping
-		assertEquals(DISK_CONTROLLER, monitorJob.getDiscovery().getMapping().getAttributes().get(HW_PARENT_TYPE));
-		assertEquals(
-			PHYSICAL_DISK_AWK_COMMAND,
-			monitorJob.getDiscovery().getMapping().getAttributes().get(DISCOVERY_MAPPING_NAME)
-		);
-		assertEquals(DOLLAR_4, monitorJob.getDiscovery().getMapping().getAttributes().get(DISCOVERY_MAPPING_VENDOR));
-
-		//Check physical disk collection
-		assertEquals(1, monitorJob.getCollect().getSources().size());
-		assertEquals(4, monitorJob.getCollect().getSources().get(SOURCE).getComputes().size());
-		assertEquals(DUPLICATE_COLUMN, monitorJob.getCollect().getSources().get(SOURCE).getComputes().get(0).getType());
-		assertEquals(TRANSLATE, monitorJob.getCollect().getSources().get(SOURCE).getComputes().get(1).getType());
-		assertEquals(TRANSLATE, monitorJob.getCollect().getSources().get(SOURCE).getComputes().get(2).getType());
-		assertEquals(TRANSLATE, monitorJob.getCollect().getSources().get(SOURCE).getComputes().get(3).getType());
 	}
 }

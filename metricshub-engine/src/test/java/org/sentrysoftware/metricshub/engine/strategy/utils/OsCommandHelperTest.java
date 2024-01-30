@@ -595,11 +595,18 @@ class OsCommandHelperTest {
 
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 
-		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
+		try (
+			final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class);
+			final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)
+		) {
 			mockedOsCommandHelper.when(() -> OsCommandHelper.getUsername(wmiConfiguration)).thenCallRealMethod();
 			mockedOsCommandHelper
 				.when(() -> OsCommandHelper.runOsCommand(COMMAND_TO_UPDATE, telemetryManager, 120L, false, false))
 				.thenCallRealMethod();
+
+			mockedEmbeddedFileHelper
+				.when(() -> EmbeddedFileHelper.findEmbeddedFiles(anyString()))
+				.thenReturn(commandLineEmbeddedFiles);
 
 			mockedOsCommandHelper
 				.when(() ->
