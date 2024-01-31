@@ -21,6 +21,7 @@ package org.sentrysoftware.metricshub.engine.strategy.collect;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MAX_THREADS_COUNT;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
@@ -226,6 +227,15 @@ public class CollectStrategy extends AbstractStrategy {
 				// Create the sources and the computes for a connector
 				processSourcesAndComputes(orderedSources.getSources(), jobInfo);
 
+				log.debug(
+					"Start of processing of monitors of type {} with mapping = {}, connector = {}, hostname = {} and keys = {}",
+					monitorType,
+					multiInstanceCollect.getMapping(),
+					currentConnector,
+					hostname,
+					multiInstanceCollect.getKeys()
+				);
+
 				processMonitors(
 					monitorType,
 					multiInstanceCollect.getMapping(),
@@ -301,6 +311,15 @@ public class CollectStrategy extends AbstractStrategy {
 		final String hostname,
 		final Monitor monitor
 	) {
+		log.debug(
+			"Start of processing of monitors of type {} with mapping = {}, connector = {}, hostname = {}, maybeMonitor = {} and keys = {}",
+			monitorType,
+			mapping,
+			connector,
+			hostname,
+			Optional.of(monitor),
+			EMPTY
+		);
 		processMonitors(monitorType, mapping, connector, hostname, Optional.of(monitor), null);
 	}
 

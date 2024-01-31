@@ -277,6 +277,8 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 		// If the source table is not empty, loop over the source table rows
 		final SourceTable sourceTable = maybeSourceTable.get();
 
+		log.debug("Start of source table {} processing with mapping = {}", sourceTable, mapping);
+
 		for (final List<String> row : sourceTable.getTable()) {
 			// Init mapping processor
 			final MappingProcessor mappingProcessor = MappingProcessor
