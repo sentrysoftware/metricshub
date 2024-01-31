@@ -33,7 +33,7 @@ public class NodeProcessorHelper {
 			.builder()
 			.connectorDirectory(connectorDirectory)
 			.mapper(mapper)
-			.next(constantsProcessor())
+			.next(ReferenceResolverProcessor.builder().next(constantsProcessor()).build())
 			.build();
 	}
 
@@ -53,7 +53,11 @@ public class NodeProcessorHelper {
 			.builder()
 			.connectorDirectory(connectorDirectory)
 			.next(
-				TemplateVariableProcessor.builder().connectorVariables(connectorVariables).next(constantsProcessor()).build()
+				TemplateVariableProcessor
+					.builder()
+					.connectorVariables(connectorVariables)
+					.next(ReferenceResolverProcessor.builder().next(constantsProcessor()).build())
+					.build()
 			)
 			.mapper(mapper)
 			.build();

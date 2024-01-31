@@ -50,7 +50,7 @@ public class ConstantsProcessor extends AbstractNodeProcessor {
 			final Predicate<String> replacementPredicate = Objects::nonNull;
 
 			JsonNodeUpdater
-				.builder()
+				.jsonNodeUpdaterBuilder()
 				.withJsonNode(node)
 				.withPredicate(replacementPredicate)
 				.withUpdater(updater)

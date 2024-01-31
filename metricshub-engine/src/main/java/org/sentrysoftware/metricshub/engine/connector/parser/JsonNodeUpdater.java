@@ -9,31 +9,38 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 
 /**
  * This utility class traverses a JsonNode, applying updates according to an
  * updater function and a predicate that determines whether the value should be
  * updated.
  */
-@Builder(setterPrefix = "with")
-@RequiredArgsConstructor
-public class JsonNodeUpdater {
 
-	@NonNull
-	private final JsonNode jsonNode;
+@Data
+@EqualsAndHashCode(callSuper = true)
+public class JsonNodeUpdater extends JsonNodeUpdaterBase {
+
+	@Builder(setterPrefix = "with", builderMethodName = "jsonNodeUpdaterBuilder")
+	public JsonNodeUpdater(
+		@NonNull JsonNode jsonNode,
+		@NonNull Predicate<String> predicate,
+		@NonNull UnaryOperator<String> updater
+	) {
+		super(jsonNode, predicate);
+		this.updater = updater;
+	}
 
 	@NonNull
 	private final UnaryOperator<String> updater;
-
-	@NonNull
-	private final Predicate<String> predicate;
 
 	/**
 	 * Traverse the current JsonNode, applying the updater to each JsonNode child
 	 * when the predicate evaluates to true, indicating that the value should be updated.
 	 */
+	@Override
 	public void update() {
 		update(jsonNode);
 	}

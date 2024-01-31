@@ -621,10 +621,10 @@ class ConnectorParserTest {
 			() -> "Context: Extends and constants node processors creation. Second processor shouldn't be null"
 		);
 		assertTrue(
-			next instanceof ConstantsProcessor,
+			next instanceof ReferenceResolverProcessor,
 			() ->
 				"Context: Extends and constants node processors creation. Second processor should be: " +
-				ConstantsProcessor.class.getSimpleName()
+				ReferenceResolverProcessor.class.getSimpleName()
 		);
 	}
 
@@ -665,10 +665,10 @@ class ConnectorParserTest {
 				"Context: Extends, template variable and constants node processors creation. Third processor shouldn't be null"
 		);
 		assertTrue(
-			next instanceof ConstantsProcessor,
+			next instanceof ReferenceResolverProcessor,
 			() ->
 				"Context: Extends, template variable and constants node processors creation. Third processor should be: " +
-				ConstantsProcessor.class.getSimpleName()
+				ReferenceResolverProcessor.class.getSimpleName()
 		);
 	}
 }
