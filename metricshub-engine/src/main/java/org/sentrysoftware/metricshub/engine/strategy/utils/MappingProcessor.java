@@ -22,6 +22,7 @@ package org.sentrysoftware.metricshub.engine.strategy.utils;
  */
 
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.COLUMN_PATTERN;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.COLUMN_REFERENCE_PATTERN;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
 
 import java.io.BufferedReader;
@@ -32,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -260,6 +262,8 @@ public class MappingProcessor {
 			computationFunctions.put(key, this::fakeCounter);
 		} else if (isRateFunction(value)) {
 			computationFunctions.put(key, this::rate);
+		} else if (containsColumnReferences(value)) {
+			result.put(key, replaceColumnReferences(value, key));
 		} else {
 			result.put(key, value);
 		}
@@ -1053,57 +1057,150 @@ public class MappingProcessor {
 
 	/**
 	 * This method extracts column value using a Regex
-	 * @param value
-	 * @param key
-	 * @return string representing the column value
+	 * @param reference The value reference to be processed.
+	 * @param key       The attribute key.
+	 * @return The column value if available, or empty if not available.
 	 */
-	private String extractColumnValue(final String value, final String key) {
-		final Matcher matcher = getStringRegexMatcher(value);
+	private String extractColumnValue(final String reference, final String key) {
+		final Matcher matcher = getStringRegexMatcher(reference);
 		matcher.find();
 		final int columnIndex = Integer.parseInt(matcher.group(1)) - 1;
-		if (columnIndex >= 0 && columnIndex < row.size()) {
+		final int rowSize = row.size();
+		if (columnIndex >= 0 && columnIndex < rowSize) {
 			final String result = row.get(columnIndex);
-			return result != null ? result : EMPTY;
+			if (result != null) {
+				return result;
+			} else {
+				log.warn(
+					"Hostname {} - Extract Column Value: value is null for column number {} in the row. " +
+					"Unable to fetch the value for attribute key {}. Source: {} - Row: {} - Monitor type: {}.",
+					jobInfo.getHostname(),
+					columnIndex,
+					key,
+					mapping.getSource(),
+					row,
+					jobInfo.getMonitorType()
+				);
+			}
+		} else {
+			log.warn(
+				"Hostname {} - Extract Column Value: column number {} is out of bounds for source {} with row size {}. " +
+				"Unable to fetch the value for attribute key {}. Row: {}, Monitor type: {}.",
+				jobInfo.getHostname(),
+				columnIndex,
+				mapping.getSource(),
+				rowSize,
+				key,
+				row,
+				jobInfo.getMonitorType()
+			);
 		}
-		log.warn(
-			"Hostname {} - Column number {} is invalid for the source {}. Column number should not exceed the size of the row. key {} - " +
-			"Row {} - monitor type {}.",
-			jobInfo.getHostname(),
-			columnIndex,
-			mapping.getSource(),
-			key,
-			row,
-			jobInfo.getMonitorType()
-		);
+
 		return EMPTY;
 	}
 
 	/**
-	 * Whether the given value defines an AWK script
+	 * Replaces in the given value each column reference (E.g. $1) with the corresponding column value from the current row.
 	 *
-	 * @param value String to check
-	 * @return boolean value
+	 * @param value The input string containing placeholder notations.
+	 * @param key   A key of the attribute.
+	 * @return The modified string after replacing column references with actual values.
+	 */
+	private String replaceColumnReferences(final String value, final String key) {
+		return getColumnReferenceMatcher(value).replaceAll(match -> getColumnValue(match, key));
+	}
+
+	/**
+	 * Retrieves the value of the column referenced in the match and replaces the match in the input string.
+	 *
+	 * @param match The MatchResult containing the column reference.
+	 * @param key   A key of the attribute used for logging.
+	 * @return The column value if available, or empty it cannot be fetched.
+	 */
+	private String getColumnValue(final MatchResult match, final String key) {
+		final int columnIndex = Integer.parseInt(match.group(1)) - 1;
+		final int rowSize = row.size();
+		if (columnIndex >= 0 && columnIndex < rowSize) {
+			final String columnValue = row.get(columnIndex);
+			if (columnValue != null) {
+				return Matcher.quoteReplacement(columnValue);
+			} else {
+				log.warn(
+					"Hostname {} - Get Column Value: value is null for column number {} in the row. " +
+					"Unable to fetch the value for attribute key {}. Source: {} - Row: {} - Monitor type: {}.",
+					jobInfo.getHostname(),
+					columnIndex,
+					key,
+					mapping.getSource(),
+					row,
+					jobInfo.getMonitorType()
+				);
+			}
+		} else {
+			log.warn(
+				"Hostname {} - Get Column Value: column number {} is out of bounds for source {} with row size {}. " +
+				"Unable to fetch the value for attribute key {}. Row: {}, Monitor type: {}.",
+				jobInfo.getHostname(),
+				columnIndex,
+				mapping.getSource(),
+				rowSize,
+				key,
+				row,
+				jobInfo.getMonitorType()
+			);
+		}
+
+		return EMPTY;
+	}
+
+	/**
+	 * Whether the given value defines an AWK script.
+	 *
+	 * @param value The character sequence to be matched.
+	 * @return true if, the subsequence of the input sequence matches the AWK script pattern. Otherwise false.
 	 */
 	private boolean isAwkScript(final String value) {
 		return AWK_SCRIPT_PATTERN.matcher(value).find();
 	}
 
 	/**
-	 * This method checks whether a column contains a value to be extracted (e.g: $1, $2, etc ...)
-	 * @param value
-	 * @return true or false
+	 * Checks whether the input string represents a column directive (e.g: $1, $2, etc ...).
+	 *
+	 * @param value The character sequence to be matched.
+	 * @return true if, the input sequence matches the column pattern. Otherwise false.
 	 */
-	private boolean isColumnExtraction(String value) {
+	private boolean isColumnExtraction(final String value) {
 		return getStringRegexMatcher(value).find();
 	}
 
 	/**
-	 * This method returns the matcher of a regex on a given string value
-	 * @param value
-	 * @return Matcher
+	 * Checks whether the input string contains a column reference directive.
+	 *
+	 * @param value The character sequence to be matched.
+	 * @return true if, the subsequence of the input sequence matches the column reference pattern. Otherwise false.
 	 */
-	private Matcher getStringRegexMatcher(String value) {
+	private boolean containsColumnReferences(final String value) {
+		return getColumnReferenceMatcher(value).find();
+	}
+
+	/**
+	 * Creates the matcher of the column pattern on the given string value.
+	 *
+	 * @param value The character sequence to be matched
+	 * @return A Matcher object that can be used to perform matching operations on the input string.
+	 */
+	private Matcher getStringRegexMatcher(final String value) {
 		return COLUMN_PATTERN.matcher(value);
+	}
+
+	/**
+	 * Creates the matcher of the column reference pattern on the given string value.
+	 *
+	 * @param value The string value on which the regular expression pattern will be applied.
+	 * @return A Matcher object that can be used to perform matching operations on the input string.
+	 */
+	private Matcher getColumnReferenceMatcher(String value) {
+		return COLUMN_REFERENCE_PATTERN.matcher(value);
 	}
 
 	/**
