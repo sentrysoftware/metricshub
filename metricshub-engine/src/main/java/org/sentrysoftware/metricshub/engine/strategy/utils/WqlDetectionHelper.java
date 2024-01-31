@@ -1,5 +1,26 @@
 package org.sentrysoftware.metricshub.engine.strategy.utils;
 
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Engine
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.TABLE_SEP;
 
 import java.util.Collections;
@@ -27,6 +48,11 @@ import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.wbem.javax.wbem.WBEMException;
 import org.sentrysoftware.wmi.exceptions.WmiComException;
 
+/**
+ * Helper class for WBEM/WMI namespace detection using WQL queries.
+ * This class provides methods to find possible namespaces, detect suitable namespaces,
+ * and perform WQL detection tests.
+ */
 @Slf4j
 public class WqlDetectionHelper {
 
@@ -70,6 +96,11 @@ public class WqlDetectionHelper {
 
 	private static final Set<String> IGNORED_WBEM_NAMESPACES = Set.of("root", "/root");
 
+	/**
+	 * Constructs a new instance of {@code WqlDetectionHelper} with the provided ClientsExecutor.
+	 *
+	 * @param clientsExecutor The ClientsExecutor to be used for WQL queries.
+	 */
 	public WqlDetectionHelper(final ClientsExecutor clientsExecutor) {
 		this.clientsExecutor = clientsExecutor;
 	}
@@ -424,6 +455,10 @@ public class WqlDetectionHelper {
 		// CHECKSTYLE:ON
 	}
 
+	/**
+	 * Data class representing the result of querying for possible namespaces.
+	 * Provides information about the possible namespaces, success status, and an error message if applicable.
+	 */
 	@Data
 	@Builder
 	public static class PossibleNamespacesResult {
@@ -433,6 +468,10 @@ public class WqlDetectionHelper {
 		private String errorMessage;
 	}
 
+	/**
+	 * Data class representing the result for a specific namespace.
+	 * Contains information about the namespace itself and a CriterionTestResult.
+	 */
 	@Data
 	@Builder
 	public static class NamespaceResult {

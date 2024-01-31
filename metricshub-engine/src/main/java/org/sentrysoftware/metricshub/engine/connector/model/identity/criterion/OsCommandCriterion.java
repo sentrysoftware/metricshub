@@ -1,5 +1,26 @@
 package org.sentrysoftware.metricshub.engine.connector.model.identity.criterion;
 
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Engine
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
 import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.NEW_LINE;
@@ -20,6 +41,10 @@ import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.Timeou
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.detection.ICriterionProcessor;
 
+/**
+ * Represents an operating system command detection criterion.
+ * This criterion allows the execution of operating system commands and checks the result against an expected value.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -27,21 +52,47 @@ public class OsCommandCriterion extends Criterion {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The command line to be executed as part of the criterion.
+	 */
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	@JsonDeserialize(using = NonBlankDeserializer.class)
 	private String commandLine;
 
+	/**
+	 * An optional error message to be associated with the criterion.
+	 */
 	private String errorMessage;
+	/**
+	 * The expected result of the operating system command execution.
+	 */
 	private String expectedResult;
 
+	/**
+	 * Indicates whether the command should be executed locally or remotely.
+	 */
 	@JsonDeserialize(using = BooleanDeserializer.class)
 	@JsonSetter(nulls = SKIP)
 	private Boolean executeLocally = false;
 
+	/**
+	 * The timeout for the command execution, in seconds.
+	 */
 	@JsonDeserialize(using = TimeoutDeserializer.class)
 	private Long timeout;
 
+	/**
+	 * Builder for constructing instances of {@link OsCommandCriterion}.
+	 *
+	 * @param type                Type of the criterion.
+	 * @param forceSerialization Flag indicating whether serialization should be forced.
+	 * @param commandLine         The command line to be executed.
+	 * @param errorMessage        An optional error message.
+	 * @param expectedResult      The expected result of the command.
+	 * @param executeLocally      Indicates whether to execute the command locally.
+	 * @param timeout             The timeout for command execution.
+	 */
 	@Builder
 	@JsonCreator
 	public OsCommandCriterion(

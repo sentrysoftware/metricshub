@@ -1,22 +1,48 @@
 package org.sentrysoftware.metricshub.engine.strategy.utils;
 
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Engine
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * The {@code MathOperationsHelper} class provides utility methods for performing basic mathematical operations,
+ * including subtraction, division, multiplication, rate calculation, and finding the minimum of two operands. The
+ * class includes methods to handle potential edge cases, such as division by zero or suspicious negative results.
+ * Logging statements are used to provide additional information in case of unexpected scenarios.
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Slf4j
 public class MathOperationsHelper {
 
 	/**
-	 * Perform a subtraction arithmetic operation
+	 * Performs a subtraction arithmetic operation.
 	 *
-	 * @param metricName	The name of the metric
-	 * @param minuend		Minuend of the subtraction
-	 * @param subtrahend	Subtrahend of the subtraction
-	 * @param hostname      Current hostname used for logging only
-	 *
-	 * @return {@link Double} value
+	 * @param metricName The name of the metric.
+	 * @param minuend    Minuend of the subtraction.
+	 * @param subtrahend Subtrahend of the subtraction.
+	 * @param hostname   Current hostname used for logging only.
+	 * @return The result of the subtraction operation, or null if any operand is null.
 	 */
 	public static Double subtract(
 		final String metricName,
@@ -46,13 +72,13 @@ public class MathOperationsHelper {
 	}
 
 	/**
-	 * Perform a division arithmetic operation
+	 * Performs a division arithmetic operation.
 	 *
-	 * @param metricName The metric we wish to compute using a division (Rate, Percentage...)
-	 * @param dividend   The dividend to use
-	 * @param divisor    The divisor to use
-	 * @param hostname   Current hostname used for logging only
-	 * @return {@link Double} value
+	 * @param metricName The metric for the division operation.
+	 * @param dividend   The dividend to use.
+	 * @param divisor    The divisor to use.
+	 * @param hostname   Current hostname used for logging only.
+	 * @return The result of the division operation, or null if any operand is null or division by zero occurs.
 	 */
 	public static Double divide(
 		final String metricName,
@@ -93,13 +119,13 @@ public class MathOperationsHelper {
 	}
 
 	/**
-	 * Perform a multiplication arithmetic operation
+	 * Performs a multiplication arithmetic operation.
 	 *
-	 * @param metricName   The name of the metric we currently compute the value for
-	 * @param multiplier   The multiplier to use
-	 * @param multiplicand The multiplicand to use
-	 * @param hostname     Current hostname used for logging only
-	 * @return {@link Double} value
+	 * @param metricName   The name of the metric for the multiplication operation.
+	 * @param multiplier   The multiplier to use.
+	 * @param multiplicand The multiplicand to use.
+	 * @param hostname     Current hostname used for logging only.
+	 * @return The result of the multiplication operation, or null if any operand is null.
 	 */
 	public static Double multiply(
 		final String metricName,
@@ -129,16 +155,15 @@ public class MathOperationsHelper {
 	}
 
 	/**
-	 * Compute a rate (value - previousValue) / (collectTime - previousCollectTime)
+	 * Computes a rate using the formula (value - previousValue) / (collectTime - previousCollectTime).
 	 *
-	 * @param metricName          The metric name we wish to compute its rate value
-	 * @param value               The value from the current collect
-	 * @param previousValue       The value from the previous collect
-	 * @param collectTime         The time of the current collect
-	 * @param previousCollectTime The time of the previous collect
-	 * @param hostname            Current hostname used for logging only
-	 *
-	 * @return {@link Double} value
+	 * @param metricName          The metric name for rate calculation.
+	 * @param value               The value from the current collect.
+	 * @param previousValue       The value from the previous collect.
+	 * @param collectTime         The time of the current collect.
+	 * @param previousCollectTime The time of the previous collect.
+	 * @param hostname            Current hostname used for logging only.
+	 * @return The computed rate, or null if any operand is null or division by zero occurs.
 	 */
 	public static Double rate(
 		String metricName,
@@ -157,10 +182,11 @@ public class MathOperationsHelper {
 	}
 
 	/**
-	 * Compute the minimum between two {@link Double} operands. If one of the operands is null, return the other operand.
-	 * @param operandOne
-	 * @param operandTwo
-	 * @return {@link Double} value
+	 * Computes the minimum between two {@link Double} operands. If one of the operands is null, returns the other operand.
+	 *
+	 * @param operandOne The first operand.
+	 * @param operandTwo The second operand.
+	 * @return The minimum value between the operands, or the non-null operand if the other is null.
 	 */
 	public static Double min(final Double operandOne, final Double operandTwo) {
 		if (operandOne == null) {

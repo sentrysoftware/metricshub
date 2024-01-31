@@ -1,5 +1,26 @@
 package org.sentrysoftware.metricshub.engine.strategy.utils;
 
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Engine
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.LOCALHOST;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.NEW_LINE;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.TABLE_SEP;
@@ -18,6 +39,9 @@ import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.W
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.springframework.util.Assert;
 
+/**
+ * Visitor class for handling local operating system details related to process criteria.
+ */
 @Slf4j
 @RequiredArgsConstructor
 public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
@@ -101,9 +125,9 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 	}
 
 	/**
-	 * List all Linux process.
+	 * List all Linux processes.
 	 *
-	 * @return
+	 * @return A list containing details of all Linux processes.
 	 */
 	public static List<List<String>> listAllLinuxProcesses() {
 		return ProcessHandle.allProcesses().map(CriterionProcessVisitor::getProcessDetails).collect(Collectors.toList()); //NOSONAR

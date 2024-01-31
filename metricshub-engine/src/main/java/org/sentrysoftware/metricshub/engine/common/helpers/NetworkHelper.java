@@ -1,5 +1,26 @@
 package org.sentrysoftware.metricshub.engine.common.helpers;
 
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Engine
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -8,7 +29,7 @@ import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Class helper to get network information
+ * Helper class to retrieve network information.
  */
 @Slf4j
 public class NetworkHelper {
@@ -27,10 +48,10 @@ public class NetworkHelper {
 	private NetworkHelper() {}
 
 	/**
-	 * Check whether the given hostname is a localhost
+	 * Check whether the given hostname is a localhost.
 	 *
-	 * @param hostname
-	 * @return <code>true</code> if the passed hostname is a localhost
+	 * @param hostname The hostname to check.
+	 * @return {@code true} if the hostname is a localhost, {@code false} otherwise.
 	 */
 	public static boolean isLocalhost(final String hostname) {
 		// Empty or null hostname is assumed local
@@ -82,11 +103,11 @@ public class NetworkHelper {
 	}
 
 	/**
-	 * @param hostname					The hostname whose IP is being searched for.
+	 * Resolve the IP address of the given hostname.
 	 *
-	 * @return							The IP Address of the given hostname
+	 * @param hostname The hostname.
+	 * @return The IP address of the hostname, or {@code null} if not resolved.
 	 */
-
 	public static String resolveDns(final String hostname) {
 		String ipAddress = null;
 		InetAddress inetAddress = null;
@@ -108,9 +129,10 @@ public class NetworkHelper {
 	}
 
 	/**
-	 * @param hostname					The hostname whose FQDN is being searched for.
+	 * Get the fully qualified domain name (FQDN) of the given hostname.
 	 *
-	 * @return							The FQDN of the given hostname
+	 * @param hostname The hostname.
+	 * @return The FQDN of the hostname, or the original hostname if not resolved.
 	 */
 	public static String getFqdn(final String hostname) {
 		if (hostname != null && !hostname.isBlank()) {

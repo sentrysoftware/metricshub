@@ -1,23 +1,47 @@
 package org.sentrysoftware.metricshub.engine.common.helpers;
 
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Engine
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Utility class for handling arrays and common array-related operations.
+ */
 public class ArrayHelper {
 
 	private ArrayHelper() {}
 
 	/**
-	 * Returns the element at the specified position in this array.
-	 * @param <T>
+	 * Returns the element at the specified position in the array.
 	 *
-	 * @param array        The array from which we want to get the element at the specified position
-	 * @param index        Index of the element to return
-	 * @param defaultValue The default value to return if the element cannot be extracted
-	 * @return T
+	 * @param <T>          The type of elements in the array.
+	 * @param array        The array from which to retrieve the element.
+	 * @param index        Index of the element to return.
+	 * @param defaultValue The default value to return if the element cannot be extracted.
+	 * @return The element at the specified position, or the default value if not present.
 	 */
 	public static <T> T getValueAtIndex(T[] array, int index, T defaultValue) {
 		if (array == null || array.length <= index) {

@@ -1,5 +1,26 @@
 package org.sentrysoftware.metricshub.engine.strategy.detection;
 
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Engine
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -15,10 +36,30 @@ import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
+/**
+ * The {@code ConnectorSelection} class represents a strategy for selecting specific connectors based on predefined criteria.
+ * It extends the {@link AbstractConnectorProcessor} class and implements the connector selection logic.
+ *
+ * <p>
+ * The connector selection process involves filtering connectors based on case-sensitive and case-insensitive lists of selected connectors.
+ * The results of the selection are stored in {@link ConnectorTestResult} objects.
+ * </p>
+ *
+ * <p>
+ * The class checks the host configuration and connector store availability before proceeding with the selection.
+ * It utilizes the configured lists of selected connectors, considering both case-sensitive and case-insensitive sets.
+ * </p>
+ */
 @Slf4j
 @NoArgsConstructor
 public class ConnectorSelection extends AbstractConnectorProcessor {
 
+	/**
+	 * Constructs a new {@code ConnectorSelection} instance using the provided telemetry manager and clients executor.
+	 *
+	 * @param telemetryManager The telemetry manager responsible for managing telemetry-related operations.
+	 * @param clientsExecutor  The executor for managing clients used in the strategy.
+	 */
 	public ConnectorSelection(
 		@NonNull final TelemetryManager telemetryManager,
 		@NonNull final ClientsExecutor clientsExecutor

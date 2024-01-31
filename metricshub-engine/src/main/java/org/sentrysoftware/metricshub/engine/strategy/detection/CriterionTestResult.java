@@ -1,11 +1,35 @@
 package org.sentrysoftware.metricshub.engine.strategy.detection;
 
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Engine
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
 
+/**
+ * Represents the result of a criterion test, including information about success, failure, or errors.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,6 +44,11 @@ public class CriterionTestResult {
 
 	private Throwable exception;
 
+	/**
+	 * Creates an empty criterion test result.
+	 *
+	 * @return A new {@link CriterionTestResult} instance.
+	 */
 	public static CriterionTestResult empty() {
 		return CriterionTestResult.builder().build();
 	}

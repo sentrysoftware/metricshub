@@ -1,5 +1,26 @@
 package org.sentrysoftware.metricshub.engine.strategy.source;
 
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Engine
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.NEW_LINE;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.SEMICOLON;
@@ -36,6 +57,11 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.strategy.utils.PslUtils;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
+/**
+ * The {@code SourceUpdaterProcessor} class is responsible for processing various source types, including HTTP, IPMI,
+ * OS command, SNMP, static, table join, table union, WMI, and SNMP table sources. It performs operations such as
+ * replacing attribute references, updating source references, and extracting HTTP authentication tokens.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -143,12 +169,12 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 	}
 
 	/**
-	 * Get the value of the field from the foreign source identified by <em>foreignSourceKey</em>.
+	 * Extracts the HTTP authentication token from the specified foreign source identified by <em>foreignSourceKey</em>.
 	 *
-	 * @param originalSourceKey The original source key used for debug purpose
-	 * @param foreignSourceKey  The foreign source key used to extract the field value
-	 * @param fieldLabel        The field label used for debug purpose
-	 * @return
+	 * @param originalSourceKey The original source key for debugging purposes.
+	 * @param foreignSourceKey  The foreign source key used to extract the token.
+	 * @param fieldLabel        The field label for debugging purposes.
+	 * @return The extracted HTTP authentication token.
 	 */
 	public String extractHttpTokenFromSource(final String originalSourceKey, String foreignSourceKey, String fieldLabel) {
 		// No token to replace

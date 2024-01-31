@@ -1,5 +1,26 @@
 package org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source;
 
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Engine
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
 import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.NEW_LINE;
 import static org.sentrysoftware.metricshub.engine.common.helpers.StringHelper.addNonNull;
@@ -21,6 +42,9 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.strategy.source.ISourceProcessor;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 
+/**
+ * Represents a source task with a static value.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -28,10 +52,23 @@ public class StaticSource extends Source {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The static value associated with the source.
+	 */
 	@NonNull
 	@JsonSetter(nulls = FAIL)
 	private String value;
 
+	/**
+	 * Constructs a new {@code StaticSource} instance with the provided attributes.
+	 *
+	 * @param type                  the type of the source
+	 * @param computes              the list of compute operations to be applied
+	 * @param forceSerialization    flag indicating whether serialization should be forced
+	 * @param value                 the static value associated with the source
+	 * @param key                   the key associated with the source
+	 * @param executeForEachEntryOf the execute-for-each-entry-of information
+	 */
 	@Builder
 	@JsonCreator
 	public StaticSource(
@@ -46,6 +83,11 @@ public class StaticSource extends Source {
 		this.value = value;
 	}
 
+	/**
+	 * Creates a new instance by copying the current instance.
+	 *
+	 * @return a new {@code StaticSource} instance
+	 */
 	public StaticSource copy() {
 		return StaticSource
 			.builder()

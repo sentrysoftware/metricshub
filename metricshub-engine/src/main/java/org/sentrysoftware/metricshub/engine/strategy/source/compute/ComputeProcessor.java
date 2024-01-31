@@ -1,5 +1,26 @@
 package org.sentrysoftware.metricshub.engine.strategy.source.compute;
 
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Engine
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.COLUMN_PATTERN;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.COMMA;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DEFAULT;
@@ -77,6 +98,16 @@ import org.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
 import org.sentrysoftware.metricshub.engine.strategy.utils.PslUtils;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
+/**
+ * Processor for handling various compute operations in the context of source data.
+ * This class includes methods to execute operations like ArrayTranslate, And, Add, and Awk,
+ * among others, on the source data table.
+ *
+ * <p>It relies on a TelemetryManager, connectorId, MatsyaClientsExecutor, sourceKey, hostname,
+ * SourceTable, and index for its operations. It also uses a predefined map of mathematical functions
+ * for certain operations.
+ * </p>
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -1088,8 +1119,9 @@ public class ComputeProcessor implements IComputeProcessor {
 	}
 
 	/**
-	 * This method processes the replace compute
-	 * @param replace
+	 * This method processes the replace compute operation.
+	 *
+	 * @param replace The replace object containing details of the operation.
 	 */
 	@Override
 	@WithSpan("Compute Replace Exec")
@@ -1751,8 +1783,9 @@ public class ComputeProcessor implements IComputeProcessor {
 
 	/**
 	 * Find the translation map associated with the {@link ITranslationTable} in parameter.
-	 * @param translation
-	 * @return
+	 *
+	 * @param translation The translation table to find translations for.
+	 * @return The translation map if found, otherwise null.
 	 */
 	public Map<String, String> findTranslations(final ITranslationTable translation) {
 		// In case of a ReferenceTranslationTable, we try to find its TranslationTable in the connector if the translations Map has not already been found.

@@ -1,5 +1,26 @@
 package org.sentrysoftware.metricshub.engine.strategy.detection;
 
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Engine
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
 import static org.sentrysoftware.metricshub.engine.strategy.utils.DetectionHelper.hasAtLeastOneTagOf;
 
 import java.util.ArrayList;
@@ -21,10 +42,30 @@ import org.sentrysoftware.metricshub.engine.connector.model.identity.ConnectionT
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
+/**
+ * The {@code AutomaticDetection} class represents a strategy for automatically detecting connectors based on predefined criteria.
+ * It extends the {@link AbstractConnectorProcessor} class and implements the connector detection logic.
+ *
+ * <p>
+ * The automatic detection process involves filtering connectors based on various criteria such as device kind, connection type,
+ * accepted sources, and exclusion tags. The results of the detection are stored in {@link ConnectorTestResult} objects.
+ * </p>
+ *
+ * <p>
+ * The detection process includes handling exclusion tags, device kind filtering, connection type filtering, and accepted sources filtering.
+ * It also considers the configured {@code includeConnectorTags} and checks if auto-detection is disabled for connectors.
+ * </p>
+ */
 @Slf4j
 @NoArgsConstructor
 public class AutomaticDetection extends AbstractConnectorProcessor {
 
+	/**
+	 * Constructs a new {@code AutomaticDetection} instance using the provided telemetry manager and clients executor.
+	 *
+	 * @param telemetryManager The telemetry manager responsible for managing telemetry-related operations.
+	 * @param clientsExecutor  The executor for managing clients used in the strategy.
+	 */
 	public AutomaticDetection(
 		@NonNull final TelemetryManager telemetryManager,
 		@NonNull final ClientsExecutor clientsExecutor

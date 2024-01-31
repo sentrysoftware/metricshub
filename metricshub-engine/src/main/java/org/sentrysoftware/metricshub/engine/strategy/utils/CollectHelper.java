@@ -1,11 +1,37 @@
 package org.sentrysoftware.metricshub.engine.strategy.utils;
 
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Engine
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
 
+/**
+ * The {@code CollectHelper} class provides utility methods for extracting metric values and collect times from
+ * {@link Monitor} instances. It includes methods for working with both {@link NumberMetric} and {@link StateSetMetric}.
+ * The class is designed to have a private no-argument constructor to prevent instantiation.
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CollectHelper {
 
@@ -28,11 +54,12 @@ public class CollectHelper {
 	}
 
 	/**
-	 * Get the {@link StateSetMetric} value
+	 * Get the {@link StateSetMetric} value.
 	 *
-	 * @param monitor    The {@link Monitor} instance we wish to extract the {@link StateSetMetric} value
-	 * @param metricName The name of the {@link StateSetMetric} instance
-	 * @return a {@link Double} value
+	 * @param monitor    The {@link Monitor} instance from which to extract the {@link StateSetMetric} value.
+	 * @param metricName The name of the {@link StateSetMetric} instance.
+	 * @param previous   Indicate whether to return the {@code value} or the {@code previousValue}.
+	 * @return The {@link String} value.
 	 */
 	public static String getStateSetMetricValue(final Monitor monitor, final String metricName, final boolean previous) {
 		final StateSetMetric stateSetMetric = monitor.getMetric(metricName, StateSetMetric.class);

@@ -1,5 +1,26 @@
 package org.sentrysoftware.metricshub.engine.telemetry;
 
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Engine
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +36,9 @@ import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
 
+/**
+ * Represents a monitoring entity with associated metrics, attributes, and alert rules.
+ */
 @Data
 @Builder
 @AllArgsConstructor
@@ -45,11 +69,12 @@ public class Monitor {
 	private boolean isEndpoint;
 
 	/**
-	 * Get a metric by type
+	 * Gets a metric of the specified type by name.
 	 *
-	 * @param metricName The unique name of the metric
-	 * @param type          The type of the metric
-	 * @return {@link AbstractMetric} instance
+	 * @param metricName The unique name of the metric.
+	 * @param type       The type of the metric.
+	 * @param <T>        The metric type T
+	 * @return The metric instance, or {@code null} if not found.
 	 */
 	public <T extends AbstractMetric> T getMetric(final String metricName, final Class<T> type) {
 		return type.cast(metrics.get(metricName));

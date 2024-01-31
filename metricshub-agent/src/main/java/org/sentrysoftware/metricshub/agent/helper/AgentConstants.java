@@ -1,5 +1,26 @@
 package org.sentrysoftware.metricshub.agent.helper;
 
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Agent
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.file.Path;
 import lombok.AccessLevel;
@@ -66,13 +87,13 @@ public class AgentConstants {
 
 	// Agent attribute information constants
 	/**
-	 * Agent information Open Telemetry version number attribute key
+	 * Agent info Open Telemetry version number attribute key
 	 */
 	public static final String AGENT_INFO_OTEL_VERSION_NUMBER_ATTRIBUTE_KEY = "otel_version";
 	/**
-	 * Agent info hc version number attribute key
+	 * Agent info community connectors version number attribute key
 	 */
-	public static final String AGENT_INFO_HC_VERSION_NUMBER_ATTRIBUTE_KEY = "hc_version";
+	public static final String AGENT_INFO_CC_VERSION_NUMBER_ATTRIBUTE_KEY = "cc_version";
 	/**
 	 * Agent info build date number attribute key
 	 */

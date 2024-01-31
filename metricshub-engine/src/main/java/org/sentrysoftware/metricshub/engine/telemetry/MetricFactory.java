@@ -1,5 +1,26 @@
 package org.sentrysoftware.metricshub.engine.telemetry;
 
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Engine
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.COMMA;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.CONNECTOR_STATUS_METRIC_KEY;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
@@ -24,6 +45,9 @@ import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
 
+/**
+ * Factory class for creating and collecting metrics for a Monitor based on information provided by a Connector.
+ */
 @Slf4j
 @Data
 @AllArgsConstructor
@@ -174,11 +198,12 @@ public class MetricFactory {
 	}
 
 	/**
-	 * Collect the connector status metric as a number
+	 * Collects the connector status metric as a number.
 	 *
-	 * @param connectorTestResult contains information about connector tests
-	 * @param monitor the monitor we currently collect its status metric
-	 * @param strategyTime strategy time
+	 * @param connectorTestResult  Information about connector tests.
+	 * @param monitor              The monitor to collect the metric for.
+	 * @param strategyTime         Strategy time.
+	 * @return {@code true} if the connector test was successful, {@code false} otherwise.
 	 */
 	public boolean collectConnectorStatusNumberMetric(
 		final ConnectorTestResult connectorTestResult,
@@ -275,9 +300,10 @@ public class MetricFactory {
 	}
 
 	/**
-	 * This method returns a boolean flag to check whether the state attribute exists
-	 * @param attributes
-	 * @return boolean whether metric attributes contain state attribute
+	 * Checks whether the state attribute exists in the metric attributes.
+	 *
+	 * @param attributes Metric attributes.
+	 * @return {@code true} if the state attribute exists, {@code false} otherwise.
 	 */
 	public boolean checkForStateAttribute(final Map<String, String> attributes) {
 		return attributes.keySet().stream().anyMatch(attributeKey -> attributeKey.equals("state"));

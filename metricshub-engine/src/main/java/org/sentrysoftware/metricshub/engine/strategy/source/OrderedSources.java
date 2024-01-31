@@ -1,5 +1,26 @@
 package org.sentrysoftware.metricshub.engine.strategy.source;
 
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Engine
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -18,6 +39,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.JobInfo;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 
+/**
+ * The OrderedSources class is responsible for building a list of ordered sources based on either the
+ * execution order or the source dependency tree. It includes methods for ordering and validating the sources.
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
 @Builder
@@ -28,6 +53,12 @@ public class OrderedSources {
 	@Default
 	private List<Source> sources = new ArrayList<>();
 
+	/**
+	 * The OrderedSourcesBuilder class extends the generated builder for additional methods related to
+	 * building the list of ordered sources.
+	 *
+	 * @see OrderedSources
+	 */
 	public static class OrderedSourcesBuilder {
 
 		/**

@@ -1,5 +1,26 @@
 package org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute;
 
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Engine
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.NEW_LINE;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.TABLE_SEP;
@@ -16,6 +37,9 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.strategy.source.compute.IComputeProcessor;
 
+/**
+ * Represents a Json2Csv computation task for monitoring.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -23,12 +47,29 @@ public class Json2Csv extends Compute {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The entry key for Json2Csv computation.
+	 */
 	@JsonSetter(nulls = SKIP)
 	private String entryKey = "/";
 
+	/**
+	 * The properties for Json2Csv computation.
+	 */
 	private String properties;
+	/**
+	 * The separator for Json2Csv computation.
+	 */
 	private String separator;
 
+	/**
+	 * Construct a new instance of Json2Csv.
+	 *
+	 * @param type      The type of the computation task.
+	 * @param entryKey  The entry key for Json2Csv computation.
+	 * @param properties The properties for Json2Csv computation.
+	 * @param separator The separator for Json2Csv computation.
+	 */
 	@Builder
 	@JsonCreator
 	public Json2Csv(

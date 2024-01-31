@@ -1,5 +1,26 @@
 package org.sentrysoftware.metricshub.engine.strategy.collect;
 
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Engine
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MAX_THREADS_COUNT;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
@@ -41,11 +62,33 @@ import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
+/**
+ * The {@code CollectStrategy} class represents a strategy for collecting metrics from various connectors
+ * in a monitoring system.
+ *
+ * <p>
+ * This class is part of a strategy design pattern and is responsible for executing the collection
+ * of monitors and their metrics for a given host and connectors.
+ * </p>
+ *
+ * <p>
+ * It uses a combination of sequential and parallel execution based on the configuration to efficiently
+ * collect metrics from different connectors.
+ * </p>
+ */
 @Slf4j
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class CollectStrategy extends AbstractStrategy {
 
+	/**
+	 * Constructs a new {@code CollectStrategy} using the provided telemetry manager, strategy time, and
+	 * clients executor.
+	 *
+	 * @param telemetryManager The telemetry manager responsible for managing telemetry-related operations.
+	 * @param strategyTime     The time when the strategy is executed.
+	 * @param clientsExecutor  The executor for managing clients used in the strategy.
+	 */
 	@Builder
 	public CollectStrategy(
 		@NonNull final TelemetryManager telemetryManager,

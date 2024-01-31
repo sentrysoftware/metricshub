@@ -1,5 +1,26 @@
 package org.sentrysoftware.metricshub.engine.strategy.utils;
 
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Engine
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.NEW_LINE;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.TABLE_SEP;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.WHITE_SPACE;
@@ -21,6 +42,10 @@ import org.sentrysoftware.metricshub.engine.common.helpers.ArrayHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.ListHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.NumberHelper;
 
+/**
+ * Utility class for IPMI (Intelligent Platform Management Interface) operations and data processing.
+ * This class provides methods for cleaning, processing, and translating IPMI-related data.
+ */
 public class IpmiHelper {
 
 	private static final Pattern PATTERN_BMC_REQ = Pattern.compile("(?m)^(BMC req|--).*");
@@ -567,11 +592,11 @@ public class IpmiHelper {
 	}
 
 	/**
-	 * Process what we got from ipmitool and return a pretty table
+	 * Process what we got from ipmitool and return a pretty table.
 	 *
-	 * @param fruResult
-	 * @param sdrResult
-	 * @return
+	 * @param fruResult  The result from the FRU command.
+	 * @param sdrResult  The result from the SDR command.
+	 * @return A List of Lists representing the translated ipmiTable.
 	 */
 	public static List<List<String>> ipmiTranslateFromIpmitool(String fruResult, String sdrResult) {
 		List<List<String>> result = new ArrayList<>();
@@ -588,10 +613,11 @@ public class IpmiHelper {
 	}
 
 	/**
-	 * Add Temperature, Fan, Voltage, Current, PowerConsumption info from Sensors to the given ipmiTable
-	 * @param sdrResult
-	 * @param ipmiTable
-	 * @return
+	 * Add temperature, fan, voltage, current, and power consumption information from sensors to the given ipmiTable.
+	 *
+	 * @param sdrResult  The result from the SDR command.
+	 * @param ipmiTable  The existing ipmiTable to which sensor information will be added.
+	 * @return The updated ipmiTable with sensor information.
 	 */
 	public static List<String> ipmiAddHardwareSensorInfo(String sdrResult, List<String> ipmiTable) {
 		for (String sensorEntry : sdrResult.split(NEW_LINE)) {
@@ -681,15 +707,16 @@ public class IpmiHelper {
 	}
 
 	/**
-	 * Get Voltage info for the given Sensor entry
-	 * threshold1 = by priority if exists : Lower non-critical > Lower critical > Lower non-recoverable
-	 * threshold2 =  by priority if exists : Upper non-critical > Upper critical > Upper non-recoverable
-	 * @param sensorEntry
-	 * @param sensorName
-	 * @param sensorId
-	 * @param location
-	 * @param valueReading
-	 * @return
+	 * Get voltage information for the given sensor entry.
+	 * Threshold1 is determined by priority: Lower Non-Critical > Lower Critical > Lower Non-Recoverable.
+	 * Threshold2 is determined by priority: Upper Non-Critical > Upper Critical > Upper Non-Recoverable.
+	 *
+	 * @param sensorEntry The sensor entry to extract voltage information from.
+	 * @param sensorName The name of the sensor.
+	 * @param sensorId The ID of the sensor.
+	 * @param location The location of the sensor.
+	 * @param valueReading The current value reading of the sensor.
+	 * @return A formatted string containing voltage information.
 	 */
 	public static String getVoltageFromSensor(
 		String sensorEntry,
@@ -758,15 +785,16 @@ public class IpmiHelper {
 	}
 
 	/**
-	 * Get Fan info for the given Sensor entry
-	 * threshold1 = if exists : Lower non-critical
-	 * threshold2 =  by priority if exists : Lower critical > Lower non-recoverable
-	 * @param sensorEntry
-	 * @param sensorName
-	 * @param sensorId
-	 * @param location
-	 * @param valueReading
-	 * @return
+	 * Get fan information for the given sensor entry.
+	 * Threshold1 is Lower Non-Critical if it exists.
+	 * Threshold2 is determined by priority: Lower Critical > Lower Non-Recoverable.
+	 *
+	 * @param sensorEntry The sensor entry to extract fan information from.
+	 * @param sensorName The name of the sensor.
+	 * @param sensorId The ID of the sensor.
+	 * @param location The location of the sensor.
+	 * @param valueReading The current value reading of the sensor.
+	 * @return A formatted string containing fan information.
 	 */
 	public static String getFanFromSensor(
 		String sensorEntry,
@@ -806,15 +834,16 @@ public class IpmiHelper {
 	}
 
 	/**
-	 * Get Temperature info for the given Sensor entry
-	 * threshold1 = if exists : Upper non-critical
-	 * threshold2 =  by priority of exists : Upper critical > Upper non-recoverable
-	 * @param sensorEntry
-	 * @param sensorName
-	 * @param sensorId
-	 * @param location
-	 * @param valueReading
-	 * @return
+	 * Get temperature information for the given sensor entry.
+	 * Threshold1 is Upper Non-Critical if it exists.
+	 * Threshold2 is determined by priority: Upper Critical > Upper Non-Recoverable.
+	 *
+	 * @param sensorEntry The sensor entry to extract temperature information from.
+	 * @param sensorName The name of the sensor.
+	 * @param sensorId The ID of the sensor.
+	 * @param location The location of the sensor.
+	 * @param valueReading The current value reading of the sensor.
+	 * @return A formatted string containing temperature information.
 	 */
 	public static String getTemperatureFromSensor(
 		String sensorEntry,
@@ -857,10 +886,11 @@ public class IpmiHelper {
 	}
 
 	/**
-	 * Process what we got from ipmitool and return a pretty device table
-	 * @param fruResult
-	 * @param sdrResult
-	 * @return
+	 * Process the data obtained from ipmitool and return a formatted device table.
+	 *
+	 * @param fruResult The result from the FRU command.
+	 * @param sdrResult The result from the SDR command.
+	 * @return The formatted device table.
 	 */
 	public static List<String> ipmiBuildDeviceListFromIpmitool(String fruResult, String sdrResult) {
 		List<String> result = new ArrayList<>();
@@ -883,11 +913,12 @@ public class IpmiHelper {
 	}
 
 	/**
-	 * Parse SDR records in order to extract each sensor and complete the device list
-	 * @param sdrResult
-	 * @param fruMap
-	 * @param deviceList
-	 * @return
+	 * Parse SDR records in order to extract each sensor and complete the device list.
+	 *
+	 * @param sdrResult   The result containing SDR records.
+	 * @param fruMap      The map containing FRU information.
+	 * @param deviceList  The list of devices to be updated.
+	 * @return The updated device list.
 	 */
 	public static List<String> processSdrRecords(
 		String sdrResult,
@@ -944,12 +975,13 @@ public class IpmiHelper {
 	}
 
 	/**
-	 * Parse entry and get the line that matches the pattern and return the substring delimited by the given parameters
-	 * @param entry
-	 * @param patternToMatch
-	 * @param leftLimit
-	 * @param rightLimit
-	 * @return
+	 * Parse the entry and get the line that matches the pattern, then return the substring delimited by the given parameters.
+	 *
+	 * @param entry          The input string to parse.
+	 * @param patternToMatch The pattern to match in the entry.
+	 * @param leftLimit      The left delimiter of the substring.
+	 * @param rightLimit     The right delimiter of the substring.
+	 * @return The substring delimited by leftLimit and rightLimit in the matched line, or an empty string if not found.
 	 */
 	public static String checkPatternAndReturnDelimitedString(
 		String entry,
@@ -989,16 +1021,17 @@ public class IpmiHelper {
 	}
 
 	/**
-	 * Add sensor information to the global device list
-	 * Check if this entityID was already put into the list then complete its description with the given status,
-	 * otherwise insert new sensor entry
-	 * @param deviceList
-	 * @param sdrResult
-	 * @param deviceType
-	 * @param deviceId
-	 * @param entityId
-	 * @param statusArray
-	 * @return
+	 * Add sensor information to the global device list. Check if this entityID was already put into the list,
+	 * then complete its description with the given status; otherwise, insert a new sensor entry.
+	 *
+	 * @param deviceList   The global device list to which the sensor information is added.
+	 * @param sdrResult    The result of the SDR command.
+	 * @param deviceType   The type of the device.
+	 * @param deviceId     The ID of the device.
+	 * @param entityId     The entity ID of the sensor.
+	 * @param statusArray  The status array of the sensor.
+	 * @param fruList      The list of FRU entries.
+	 * @return The updated global device list.
 	 */
 	public static List<String> addSensorElementToDeviceList(
 		List<String> deviceList,
@@ -1073,11 +1106,12 @@ public class IpmiHelper {
 	}
 
 	/**
-	 * Get the actual status of the given sensor
-	 * Look for all states listed (States Asserted and Assertion Events) which are located before the "Assertions Enabled" entry
-	 * @param sensorEntry
-	 * @param sensorName
-	 * @return
+	 * Get the actual status of the given sensor. It looks for all states listed (States Asserted and Assertion Events)
+	 * which are located before the "Assertions Enabled" entry.
+	 *
+	 * @param sensorEntry The entry containing information about the sensor.
+	 * @param sensorName  The name of the sensor.
+	 * @return A string representing the status array of the sensor.
 	 */
 	public static String getSensorStatusArray(String sensorEntry, String sensorName) {
 		if (sensorName.isEmpty()) {
@@ -1142,9 +1176,10 @@ public class IpmiHelper {
 	}
 
 	/**
-	 * Process the raw result of the FRU command and return the list of good FRU list and poor FRU list
-	 * @param fruResult
-	 * @return
+	 * Process the raw result of the FRU command and return the list of good FRU and poor FRU.
+	 *
+	 * @param fruResult The raw result of the FRU command.
+	 * @return A map containing lists of good FRU, poor FRU, and all FRU entries.
 	 */
 	public static Map<String, List<String>> processFruResult(String fruResult) {
 		List<String> goodFruList = new ArrayList<>();
@@ -1187,11 +1222,11 @@ public class IpmiHelper {
 	}
 
 	/**
-	 * Reformat the ipmitoolSdr list so we have one line per sdr entry Remove lines
-	 * that starts with BMC req and --
+	 * Reformat the ipmitoolSdr list so that each SDR entry is on a separate line.
+	 * Removes lines that start with "BMC req" and "-- ".
 	 *
-	 * @param sdrResult
-	 * @return
+	 * @param sdrResult The input string containing the ipmitool SDR list.
+	 * @return The reformatted string with one line per SDR entry.
 	 */
 	public static String cleanSensorCommandResult(String sdrResult) {
 		if (sdrResult == null || sdrResult.isEmpty()) {

@@ -1,5 +1,26 @@
 package org.sentrysoftware.metricshub.engine.awk;
 
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Engine
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
 import java.text.ParseException;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.AccessLevel;
@@ -7,7 +28,7 @@ import lombok.NoArgsConstructor;
 import org.sentrysoftware.jawk.intermediate.AwkTuples;
 
 /**
- * Execute AWK Scripts
+ * Utility class for executing AWK scripts.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AwkExecutor {
@@ -20,10 +41,10 @@ public class AwkExecutor {
 	/**
 	 * Execute the given <code>awkScript</code> on the <code>awkInput</code>
 	 *
-	 * @param awkScript The AWK script we wish to process and interpret
-	 * @param awkInput  The input we wish to modify via the AWK script
-	 * @return String value
-	 * @throws AwkException
+	 * @param awkScript The AWK script to process and interpret
+	 * @param awkInput  The input to modify via the AWK script
+	 * @return The result of the AWK script
+	 * @throws AwkException if execution fails
 	 */
 	public static String executeAwk(final String awkScript, final String awkInput) throws AwkException {
 		// We're using our ConcurrentHashMap to cache the intermediate

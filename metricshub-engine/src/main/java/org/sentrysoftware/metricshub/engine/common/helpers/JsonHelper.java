@@ -1,5 +1,26 @@
 package org.sentrysoftware.metricshub.engine.common.helpers;
 
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Engine
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -12,6 +33,9 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * Helper class for JSON and YAML serialization and deserialization using Jackson.
+ */
 public class JsonHelper {
 
 	private JsonHelper() {}
@@ -19,6 +43,7 @@ public class JsonHelper {
 	/**
 	 * Serialize the Java value to a JSON String
 	 *
+	 * @param <T>    The element type
 	 * @param value the value object to serialize.
 	 * @return a string containing the object serialized in JSON format.
 	 */
@@ -31,26 +56,27 @@ public class JsonHelper {
 	}
 
 	/**
-	 * Deserialize the JSON string to a Java value
+	 * Deserialize the JSON string to a Java value.
 	 *
-	 * @param json  The JSON value we wish to deserialize
-	 * @param clazz The target Java type
-	 * @return new Object
-	 * @throws IOException
+	 * @param <T>    The element type
+	 * @param json  The JSON value we wish to deserialize.
+	 * @param clazz The target Java type.
+	 * @return new Object.
+	 * @throws IOException if an error occurs during deserialization.
 	 */
 	public static <T> T deserialize(final String json, final Class<T> clazz) throws IOException {
 		return buildObjectMapper().readValue(json, clazz);
 	}
 
 	/**
-	 * Deserialize the given input stream
+	 * Deserialize the given input stream.
 	 *
-	 * @param <T>
-	 * @param mapper {@link ObjectMapper} instance used to deserialize input stream
-	 * @param input  {@link InputStream} instance
-	 * @param type   Java type
-	 * @return new instance of T
-	 * @throws IOException
+	 * @param <T>    The element type
+	 * @param mapper {@link ObjectMapper} instance used to deserialize input stream.
+	 * @param input  {@link InputStream} instance.
+	 * @param type   Java type.
+	 * @return new instance of T.
+	 * @throws IOException if an error occurs during deserialization.
 	 */
 	public static <T> T deserialize(final ObjectMapper mapper, final InputStream input, final Class<T> type)
 		throws IOException {
@@ -58,14 +84,14 @@ public class JsonHelper {
 	}
 
 	/**
-	 * Deserialize the given input stream
+	 * Deserialize the given input stream.
 	 *
-	 * @param <T>
-	 * @param mapper {@link ObjectMapper} instance used to deserialize input stream
-	 * @param node   {@link TreeNode} instance
-	 * @param type   Java type
-	 * @return new instance of T
-	 * @throws IOException
+	 * @param <T>    The element type
+	 * @param mapper {@link ObjectMapper} instance used to deserialize input stream.
+	 * @param node   {@link TreeNode} instance.
+	 * @param type   Java type.
+	 * @return new instance of T.
+	 * @throws IOException if an error occurs during deserialization.
 	 */
 	public static <T> T deserialize(final ObjectMapper mapper, final TreeNode node, final Class<T> type)
 		throws IOException {
@@ -73,21 +99,22 @@ public class JsonHelper {
 	}
 
 	/**
-	 * Deserialize and return the requested type using the InputStream
+	 * Deserialize and return the requested type using the InputStream.
 	 *
-	 * @param is    {@link InputStream} connection to the JSON
-	 * @param clazz The target Java type
-	 * @return new Object
-	 * @throws IOException
+	 * @param is    {@link InputStream} connection to the JSON.
+	 * @param clazz The target Java type.
+	 * @param <T>   The element type
+	 * @return new Object.
+	 * @throws IOException if an error occurs during deserialization.
 	 */
 	public static <T> T deserialize(final InputStream is, final Class<T> clazz) throws IOException {
 		return buildObjectMapper().readValue(is, clazz);
 	}
 
 	/**
-	 * Build and return a new {@link ObjectMapper} instance enabling the indentation.
+	 * Build and return a new {@link ObjectMapper} instance enabling indentation.
 	 *
-	 * @return new {@link ObjectMapper} instance
+	 * @return new {@link ObjectMapper} instance.
 	 */
 	public static ObjectMapper buildObjectMapper() {
 		// Since 2.13 use JsonMapper.builder().enable(...)
@@ -102,9 +129,9 @@ public class JsonHelper {
 	}
 
 	/**
-	 * build a new {@link ObjectMapper} using {@link YAMLFactory}
+	 * Build a new {@link ObjectMapper} using {@link YAMLFactory}.
 	 *
-	 * @return new {@link ObjectMapper} instance
+	 * @return new {@link ObjectMapper} instance.
 	 */
 	public static ObjectMapper buildYamlMapper() {
 		return JsonMapper

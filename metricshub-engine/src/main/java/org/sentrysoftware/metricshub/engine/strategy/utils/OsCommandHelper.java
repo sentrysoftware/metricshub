@@ -1,5 +1,26 @@
 package org.sentrysoftware.metricshub.engine.strategy.utils;
 
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Engine
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DEFAULT_LOCK_TIMEOUT;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.FILE_PATTERN;
@@ -57,6 +78,9 @@ import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 import org.sentrysoftware.metricshub.engine.telemetry.SshSemaphoreFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
+/**
+ * Utility class for handling OS commands, including local and remote execution.
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OsCommandHelper {
 
@@ -70,11 +94,12 @@ public class OsCommandHelper {
 	/**
 	 * Create the temporary embedded files in the given command line.
 	 *
-	 * @param commandLine     The command line we wish to process.
-	 * @param osCommandConfiguration The OS Command Configuration.
-	 * @param tempFileCreator The function that creates a temporary file.
-	 * @return a Map with key, the EmbeddedFile tag and value a File for the temporary embedded file created.
-	 * @throws IOException If an error occurred in the temp file creation.
+	 * @param commandLine              The command line to process.
+	 * @param osCommandConfiguration   The OS Command Configuration.
+	 * @param commandLineEmbeddedFiles A map of embedded files referenced in the command line.
+	 * @param tempFileCreator          The function that creates a temporary file.
+	 * @return A map with EmbeddedFile tags as keys and corresponding temporary File objects.
+	 * @throws IOException If an error occurs during temp file creation.
 	 */
 	public static Map<String, File> createOsCommandEmbeddedFiles(
 		@NonNull final String commandLine,
@@ -169,12 +194,14 @@ public class OsCommandHelper {
 	}
 
 	/**
-	 * Replace the %{SUDO:xxx}% tag in the text.
-	 * With xxx the sudo Command in OS Command configuration if useSudo is configured or Empty otherwise..
+	 * Replace the %{SUDO:xxx}% tag in the given text with the sudo command.
+	 * The replacement is based on the configuration in the provided OsCommandConfiguration.
+	 * If the useSudo configuration is enabled and the sudo command is associated with the specified file,
+	 * it replaces the tag with the sudo command; otherwise, it replaces it with an empty string.
 	 *
-	 * @param text
-	 * @param osCommandConfiguration
-	 * @return
+	 * @param text                    The text containing %{SUDO:xxx}% tags to be replaced.
+	 * @param osCommandConfiguration The configuration for OS commands.
+	 * @return The text with %{SUDO:xxx}% tags replaced with the sudo command or empty string.
 	 */
 	static String replaceSudo(final String text, final OsCommandConfiguration osCommandConfiguration) {
 		if (text == null || text.isBlank()) {
@@ -196,15 +223,15 @@ public class OsCommandHelper {
 	}
 
 	/**
-	 * Run the given command on localhost machine.
+	 * Run the given command on the localhost machine.
 	 *
-	 * @param command The command.
-	 * @param timeout The timeout in seconds.
-	 * @param noPasswordCommand The command with the password masked.
-	 * @return
-	 * @throws InterruptedException
-	 * @throws IOException
-	 * @throws TimeoutException
+	 * @param command           The command to be executed.
+	 * @param timeout           The timeout for the command execution in seconds.
+	 * @param noPasswordCommand The command with the password masked (if present).
+	 * @return The result of the local command execution.
+	 * @throws InterruptedException When the thread is interrupted during execution.
+	 * @throws IOException          When an I/O error occurs during command execution.
+	 * @throws TimeoutException     When the command execution times out.
 	 */
 	@WithSpan("OS Command")
 	public static String runLocalCommand(
@@ -263,17 +290,18 @@ public class OsCommandHelper {
 	}
 
 	/**
-	 * Run SSH command. Check if we can execute on localhost or remote
+	 * Run an SSH command, checking if it can be executed on localhost or remotely.
 	 *
-	 * @param command
-	 * @param hostname
-	 * @param sshConfiguration
-	 * @param timeout The timeout in seconds.
-	 * @param localFiles
-	 * @param noPasswordCommand
-	 * @return
-	 * @throws ClientException
-	 * @throws InterruptedException
+	 * @param command           The SSH command to be executed.
+	 * @param hostname          The hostname of the remote machine.
+	 * @param sshConfiguration  The SSH configuration including username, password, and private key.
+	 * @param timeout           The timeout for the command execution in seconds.
+	 * @param localFiles        List of local files required for the remote execution.
+	 * @param noPasswordCommand The command with password masked (if present).
+	 * @return The result of the SSH command execution.
+	 * @throws ClientException          When an error occurs during Client execution.
+	 * @throws InterruptedException    When the thread is interrupted during execution.
+	 * @throws ControlledSshException   When there's an issue with controlled SSH execution.
 	 */
 	public static String runSshCommand(
 		@NonNull final String command,
@@ -312,15 +340,15 @@ public class OsCommandHelper {
 	}
 
 	/**
-	 * Run controlled SSH command. Check if we can obtain a permit from the semaphore before running the command
+	 * Run a controlled SSH command, checking if a permit can be obtained from the semaphore before running the command.
 	 *
-	 * @param <T>
-	 * @param executable
-	 * @param hostname
-	 * @param timeout
-	 * @return The executable result (e.g. a {@link String} value)
-	 * @throws InterruptedException
-	 * @throws ControlledSshException
+	 * @param <T>         The type of result expected from the executable.
+	 * @param executable  The executable to be run.
+	 * @param hostname    The hostname of the remote machine.
+	 * @param timeout     The timeout for obtaining a semaphore permit in seconds.
+	 * @return The result of the executable.
+	 * @throws InterruptedException    When the thread is interrupted during execution.
+	 * @throws ControlledSshException   When there's an issue with controlled SSH execution.
 	 */
 	static <T> T runControlledSshCommand(Supplier<T> executable, String hostname, int timeout)
 		throws InterruptedException, ControlledSshException {
@@ -374,10 +402,10 @@ public class OsCommandHelper {
 	 * 	<li>Finally, the default timeout</li>
 	 * </ul>
 	 *
-	 * @param commandTimeout The os command timeout in seconds.
-	 * @param osCommandConfiguration
-	 * @param configuration
-	 * @param defaultTimeout The default timeout in seconds.
+	 * @param commandTimeout         The OS command timeout in seconds.
+	 * @param osCommandConfiguration The configuration specific to OS command execution.
+	 * @param configuration          The general configuration, either an instance of {@link IWinConfiguration} or {@link SshConfiguration}.
+	 * @param defaultTimeout         The default timeout in seconds.
 	 * @return The timeout in seconds.
 	 */
 	public static long getTimeout(
@@ -444,26 +472,25 @@ public class OsCommandHelper {
 	/**
 	 * Run the OS Command on:
 	 * <ul>
-	 * 	<li>Local (use java Process)</li>
-	 * 	<li>Remote windows (use WMI/WinRm command)</li>
-	 * 	<li>Remote Linux (use SSH)</li>
+	 *   <li>Local (use java Process)</li>
+	 *   <li>Remote windows (use WMI/WinRm command)</li>
+	 *   <li>Remote Linux (use SSH)</li>
 	 * </ul>
 	 * <p>It replaces Host name, User name, Password, Sudo, Embedded files macros in the command line.</p>
 	 * <p>If necessary, it creates embedded files and deletes them after the command execution.</p>
 	 *
-	 *
-	 * @param commandLine The command Line. (mandatory)
-	 * @param telemetryManager The engine configuration and host properties. (mandatory)
-	 * @param commandTimeout The OS command parameter for the timeout.
-	 * @param isExecuteLocally The OS command parameter to indicate if the command should be execute locally.
-	 * @param isLocalhost The parameter in Host Monitoring to indicate if the command is execute locally.
+	 * @param commandLine         The command Line. (mandatory)
+	 * @param telemetryManager    The engine configuration and host properties. (mandatory)
+	 * @param commandTimeout      The OS command parameter for the timeout.
+	 * @param isExecuteLocally    The OS command parameter to indicate if the command should be executed locally.
+	 * @param isLocalhost         The parameter in Host Monitoring to indicate if the command is executed locally.
 	 * @return The command execution return and the command with password masked (if present).
-	 * @throws IOException When an I/O error occurred on local command execution or embedded file creation.
-	 * @throws ClientException When an error occurred on a remote execution.
-	 * @throws InterruptedException When the local command execution is interrupted.
-	 * @throws TimeoutException When the local command execution ended in timeout.
+	 * @throws IOException                   When an I/O error occurred on local command execution or embedded file creation.
+	 * @throws ClientException               When an error occurred on remote execution.
+	 * @throws InterruptedException          When the local command execution is interrupted.
+	 * @throws TimeoutException              When the local command execution ends in timeout.
 	 * @throws NoCredentialProvidedException When there's no user provided for a remote command.
-	 * @throws ControlledSshException
+	 * @throws ControlledSshException        When an error occurs during controlled SSH execution.
 	 */
 	public static OsCommandResult runOsCommand(
 		@NonNull final String commandLine,

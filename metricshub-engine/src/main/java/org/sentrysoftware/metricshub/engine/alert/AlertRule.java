@@ -1,5 +1,26 @@
 package org.sentrysoftware.metricshub.engine.alert;
 
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Engine
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.HashSet;
 import java.util.Objects;
@@ -17,6 +38,9 @@ import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 
+/**
+ * Represents an alert rule used for monitoring conditions and triggering alerts based on those conditions.
+ */
 @Data
 @NoArgsConstructor
 @Slf4j
@@ -43,6 +67,15 @@ public class AlertRule {
 
 	private boolean triggered;
 
+	/**
+	 * Creates an AlertRule instance with the specified conditionsChecker, conditions, period, severity, and type.
+	 *
+	 * @param conditionsChecker A function that checks conditions and returns alert details.
+	 * @param conditions        A set of alert conditions.
+	 * @param period            The time period for the alert rule.
+	 * @param severity          The severity level of the alert rule.
+	 * @param type              The type of the alert rule.
+	 */
 	public AlertRule(
 		@NonNull BiFunction<Monitor, Set<AlertCondition>, AlertDetails> conditionsChecker,
 		@NonNull Set<AlertCondition> conditions,
@@ -57,6 +90,14 @@ public class AlertRule {
 		this.type = type;
 	}
 
+	/**
+	 * Creates an AlertRule instance with the specified conditionsChecker, conditions, severity, and type.
+	 *
+	 * @param conditionsChecker A function that checks conditions and returns alert details.
+	 * @param conditions        A set of alert conditions.
+	 * @param severity          The severity level of the alert rule.
+	 * @param type              The type of the alert rule.
+	 */
 	public AlertRule(
 		@NonNull BiFunction<Monitor, Set<AlertCondition>, AlertDetails> conditionsChecker,
 		@NonNull Set<AlertCondition> conditions,
@@ -66,6 +107,14 @@ public class AlertRule {
 		this(conditionsChecker, conditions, 0, severity, type);
 	}
 
+	/**
+	 * Creates an AlertRule instance with the specified conditionsChecker, conditions, period, and severity.
+	 *
+	 * @param conditionsChecker A function that checks conditions and returns alert details.
+	 * @param conditions        A set of alert conditions.
+	 * @param period            The time period for the alert rule.
+	 * @param severity          The severity level of the alert rule.
+	 */
 	public AlertRule(
 		@NonNull BiFunction<Monitor, Set<AlertCondition>, AlertDetails> conditionsChecker,
 		@NonNull Set<AlertCondition> conditions,
@@ -75,6 +124,13 @@ public class AlertRule {
 		this(conditionsChecker, conditions, period, severity, AlertRuleType.STATIC);
 	}
 
+	/**
+	 * Creates an AlertRule instance with the specified conditionsChecker, conditions, and severity.
+	 *
+	 * @param conditionsChecker A function that checks conditions and returns alert details.
+	 * @param conditions        A set of alert conditions.
+	 * @param severity          The severity level of the alert rule.
+	 */
 	public AlertRule(
 		@NonNull BiFunction<Monitor, Set<AlertCondition>, AlertDetails> conditionsChecker,
 		@NonNull Set<AlertCondition> conditions,

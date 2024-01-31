@@ -1,5 +1,26 @@
 package org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source;
 
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Engine
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.NEW_LINE;
@@ -25,6 +46,9 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.strategy.source.ISourceProcessor;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 
+/**
+ * An abstract class representing a data source in the MetricsHub engine.
+ */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type", visible = true)
 @JsonSubTypes(
 	{
@@ -47,17 +71,36 @@ public abstract class Source implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The type of the data source.
+	 */
 	protected String type;
 
+	/**
+	 * List of compute operations to be performed on the source data.
+	 * It is annotated with @JsonSetter to skip null values during deserialization.
+	 */
 	@JsonSetter(nulls = SKIP)
 	private List<Compute> computes = new ArrayList<>();
 
+	/**
+	 * Flag indicating whether the source should be force-serialized.
+	 */
 	protected boolean forceSerialization;
 
+	/**
+	 * A key associated with the source, excluded from JSON serialization using @JsonIgnore.
+	 */
 	@JsonIgnore
 	protected String key;
 
+	/**
+	 * Configuration for executing an operation for each entry of the source.
+	 */
 	protected ExecuteForEachEntryOf executeForEachEntryOf;
+	/**
+	 * Set of references associated with the source.
+	 */
 	private Set<String> references = new HashSet<>();
 
 	protected Source(
@@ -75,10 +118,26 @@ public abstract class Source implements Serializable {
 		this.references = new HashSet<>();
 	}
 
+	/**
+	 * Creates a copy of the source.
+	 *
+	 * @return A new Source instance that is a copy of the original.
+	 */
 	public abstract Source copy();
 
+	/**
+	 * Updates the source based on the provided updater function.
+	 *
+	 * @param updater The updater function to modify the source.
+	 */
 	public abstract void update(UnaryOperator<String> updater);
 
+	/**
+	 * Accepts a source processor to perform processing on the source.
+	 *
+	 * @param sourceProcessor The source processor to accept.
+	 * @return A SourceTable representing the processed source.
+	 */
 	public abstract SourceTable accept(ISourceProcessor sourceProcessor);
 
 	@Override

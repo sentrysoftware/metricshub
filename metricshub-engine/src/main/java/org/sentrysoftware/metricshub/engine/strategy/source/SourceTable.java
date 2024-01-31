@@ -1,5 +1,26 @@
 package org.sentrysoftware.metricshub.engine.strategy.source;
 
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Engine
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.NEW_LINE;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.SOURCE_REF_PATTERN;
 
@@ -18,6 +39,10 @@ import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
+/**
+ * The {@code SourceTable} class represents a table of data obtained from monitor sources.
+ * It includes methods for transforming the table to and from CSV format and performing other related operations.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -90,11 +115,14 @@ public class SourceTable {
 	}
 
 	/**
-	 * Transform a line to a list
+	 * Transforms a line of CSV-formatted data to a list.
+	 * <p>
 	 * a1,b1,c1, => [ a1, b1, c1 ]
-	 * @param line The CSV line we wish to parse
-	 * @param separator The cells separator
-	 * @return {@link List} of {@link String}
+	 * </p>
+	 *
+	 * @param line      The CSV-formatted line to be transformed.
+	 * @param separator The separator between cells.
+	 * @return The list of strings representing the line.
 	 */
 	public static List<String> lineToList(String line, final String separator) {
 		if (line != null && !line.isEmpty()) {
@@ -109,7 +137,9 @@ public class SourceTable {
 	}
 
 	/**
-	 * @return Empty {@link SourceTable} instance
+	 * Creates an empty {@code SourceTable} instance.
+	 *
+	 * @return An empty {@code SourceTable} instance.
 	 */
 	public static SourceTable empty() {
 		return SourceTable.builder().build();

@@ -1,5 +1,26 @@
 package org.sentrysoftware.metricshub.engine.connector.parser;
 
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Engine
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -12,6 +33,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 
+/**
+ * Represents a processor that merges extended connectors specified under the 'extends' section of the given JSON node.
+ * This processor recursively merges extended connectors, applying the merging logic for arrays and objects.
+ * The merged result is then passed to the next processor in the chain.
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class ExtendsProcessor extends AbstractNodeProcessor {
@@ -43,9 +69,9 @@ public class ExtendsProcessor extends AbstractNodeProcessor {
 	 * <br>
 	 * A recursive merge is applied for each extended connector because it can extend another connector too. That's why doMerge
 	 * is called for each extended connector.
-	 * @param node
-	 * @return {@link JsonNode} instance
-	 * @throws IOException
+	 * @param node The JSON node to merge.
+	 * @return The merged JSON node.
+	 * @throws IOException If an I/O error occurs during merging.
 	 */
 	private JsonNode doMerge(JsonNode node) throws IOException {
 		JsonNode extNode = node.get("extends");
@@ -74,11 +100,11 @@ public class ExtendsProcessor extends AbstractNodeProcessor {
 	}
 
 	/**
-	 * Gets the next {@link JsonNode} from the iterator
+	 * Gets the next JSON node from the iterator based on the connector directory.
 	 *
-	 * @param iter {@link Iterator} over a collection of {@link JsonNode}
-	 * @return {@link JsonNode} object
-	 * @throws IOException
+	 * @param iter The iterator over a collection of JSON nodes.
+	 * @return The next JSON node.
+	 * @throws IOException If an I/O error occurs during node retrieval.
 	 */
 	private JsonNode getJsonNode(Iterator<JsonNode> iter) throws IOException {
 		return mapper.readTree(connectorDirectory.resolve(iter.next().asText() + ".yaml").toFile());
@@ -93,9 +119,9 @@ public class ExtendsProcessor extends AbstractNodeProcessor {
 	 *   <li><code>updateNode</code> object values overwrite <code>mainNode</code> object values.<li>
 	 * </ol>
 	 *
-	 * @param mainNode
-	 * @param updateNode
-	 * @return {@link JsonNode} merged
+	 * @param mainNode   The main JSON node to merge into.
+	 * @param updateNode The update JSON node to merge.
+	 * @return The merged JSON node.
 	 */
 	public static JsonNode merge(JsonNode mainNode, JsonNode updateNode) {
 		final Iterator<String> fieldNames = updateNode.fieldNames();
@@ -120,11 +146,11 @@ public class ExtendsProcessor extends AbstractNodeProcessor {
 	}
 
 	/**
-	 * Handles the specific merge logic for arrays
+	 * Merges JSON arrays based on specific conditions.
 	 *
-	 * @param updateNode
-	 * @param fieldName
-	 * @param jsonNode
+	 * @param updateNode The update JSON node containing the array to merge.
+	 * @param fieldName  The name of the field representing the array.
+	 * @param jsonNode   The main JSON node containing the array to merge into.
 	 */
 	private static void mergeJsonArray(JsonNode updateNode, String fieldName, JsonNode jsonNode) {
 		ArrayNode mainArray = (ArrayNode) jsonNode;

@@ -4,12 +4,6 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>com.sentrysoftware.integration</groupId>
-		<artifactId>java-parent</artifactId>
-		<version>13</version>
-	</parent>
-
 	<groupId>org.sentrysoftware.metricshub</groupId>
 	<artifactId>metricshub-parent</artifactId>
 	<version>0.9.01-SNAPSHOT</version>
@@ -18,15 +12,35 @@
 
 	<name>MetricsHub</name>
 
-	<issueManagement>
-		<system>JIRA</system>
-		<url>http://alpha.internal.sentrysoftware.net/tracker/browse/MTX</url>
-	</issueManagement>
+	<url>https://github.com/sentrysoftware/metricshub</url>
+	<inceptionYear>2023</inceptionYear>
+
+	<distributionManagement>
+		<repository>
+			<id>github</id>
+			<name>GitHub Apache Maven Packages for Sentry Software</name>
+			<url>https://maven.pkg.github.com/sentrysoftware/metricshub</url>
+		</repository>
+	</distributionManagement>
+
+	<scm>
+		<connection>scm:git:https://github.com/sentrysoftware/metricshub.git</connection>
+		<url>https://maven.pkg.github.com/sentrysoftware/metricshub</url>
+	</scm>
 
 	<organization>
 		<name>Sentry Software</name>
 		<url>https://metricshub.com</url>
 	</organization>
+
+	<licenses>
+		<license>
+			<name>AGPL-3.0</name>
+			<url>https://www.gnu.org/licenses/agpl-3.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -56,6 +70,9 @@
 		<prettier-maven-plugin.version>0.21</prettier-maven-plugin.version>
 		<prettierJava.version>2.5.0</prettierJava.version>
 		<metricshub-jre.version>1.0.01</metricshub-jre.version>
+		<community-connectors.version>1.0.00-SNAPSHOT</community-connectors.version>
+		<project.build.outputTimestamp>2024-01-10T17:05:36Z</project.build.outputTimestamp>
+
 	</properties>
 
 	<modules>
@@ -71,7 +88,6 @@
 			<activation>
 				<os>
 					<family>Windows</family>
-					<arch>amd64</arch>
 				</os>
 				<file>
 					<exists>C:\Program Files (x86)\WiX Toolset v3.11</exists>
@@ -86,7 +102,6 @@
 			<activation>
 				<os>
 					<family>Linux</family>
-					<arch>amd64</arch>
 				</os>
 				<file>
 					<exists>/etc/redhat-release</exists>
@@ -101,7 +116,6 @@
 			<activation>
 				<os>
 					<family>Linux</family>
-					<arch>amd64</arch>
 				</os>
 				<file>
 					<exists>/etc/debian_version</exists>
@@ -140,7 +154,7 @@
 			<dependency>
 				<groupId>org.sentrysoftware</groupId>
 				<artifactId>metricshub-community-connectors</artifactId>
-				<version>1.0.00-SNAPSHOT</version>
+				<version>${community-connectors.version}</version>
 				<classifier>sources</classifier>
 			</dependency>
 			<dependency>
@@ -454,6 +468,58 @@
 		</pluginManagement>
 
 		<plugins>
+
+			<!-- license -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<version>2.3.0</version>
+				<configuration>
+					<licenseName>agpl_v3</licenseName>
+					<copyrightOwners>Sentry Software</copyrightOwners>
+					<copyrightStringFormat>Copyright %1$s %2$s</copyrightStringFormat>
+					<includes>
+						<include>main/java/**/*.java</include>
+					</includes>
+					<trimHeaderLine>true</trimHeaderLine>
+					<canUpdateCopyright>true</canUpdateCopyright>
+					<canUpdateDescription>true</canUpdateDescription>
+					<processStartTag>╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲</processStartTag>
+					<sectionDelimiter>჻჻჻჻჻჻</sectionDelimiter>
+					<processEndTag>╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱</processEndTag>
+				</configuration>
+				<executions>
+					<execution>
+						<id>check-license</id>
+						<phase>process-sources</phase>
+						<goals>
+							<goal>check-file-header</goal>
+						</goals>
+						<configuration>
+							<failOnMissingHeader>true</failOnMissingHeader>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- artifact (Reproducible Build) -->
+			<plugin>
+				<artifactId>maven-artifact-plugin</artifactId>
+				<version>3.5.0</version>
+				<executions>
+					<execution>
+						<id>buildinfo</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>buildinfo</goal>
+						</goals>
+						<configuration>
+							<reproducible>true</reproducible>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
 			<!-- buildnumber -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -496,14 +562,14 @@
 						</goals>
 					</execution>
 					<execution>
-						<id>parse-hc-version</id>
+						<id>parse-cc-version</id>
 						<phase>initialize</phase>
 						<goals>
 							<goal>parse-version</goal>
 						</goals>
 						<configuration>
-							<versionString>${hardware-connectors.version}</versionString>
-							<formattedPropertyPrefix>formattedHcVersion</formattedPropertyPrefix>
+							<versionString>${community-connectors.version}</versionString>
+							<formattedPropertyPrefix>formattedCcVersion</formattedPropertyPrefix>
 						</configuration>
 					</execution>
 					<execution>
@@ -537,14 +603,14 @@
 						</goals>
 					</execution>
 					<execution>
-						<id>parse-hc-version-for-site</id>
+						<id>parse-cc-version-for-site</id>
 						<phase>pre-site</phase>
 						<goals>
 							<goal>parse-version</goal>
 						</goals>
 						<configuration>
-							<versionString>${hardware-connectors.version}</versionString>
-							<formattedPropertyPrefix>formattedHcVersion</formattedPropertyPrefix>
+							<versionString>${community-connectors.version}</versionString>
+							<formattedPropertyPrefix>formattedCcVersion</formattedPropertyPrefix>
 						</configuration>
 					</execution>
 					<execution>

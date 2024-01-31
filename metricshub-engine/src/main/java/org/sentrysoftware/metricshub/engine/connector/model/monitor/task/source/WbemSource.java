@@ -1,5 +1,26 @@
 package org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source;
 
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Engine
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
 import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.NEW_LINE;
 import static org.sentrysoftware.metricshub.engine.common.helpers.StringHelper.addNonNull;
@@ -23,6 +44,9 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.strategy.source.ISourceProcessor;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 
+/**
+ * Represents a source that retrieves data using WBEM (Web-Based Enterprise Management) protocol.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -30,14 +54,31 @@ public class WbemSource extends Source {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * The WBEM query used to retrieve data.
+	 */
 	@NonNull
 	@JsonDeserialize(using = NonBlankDeserializer.class)
 	@JsonSetter(nulls = FAIL)
 	private String query;
 
+	/**
+	 * The WBEM namespace for the query.
+	 */
 	@JsonDeserialize(using = NonBlankDeserializer.class)
 	private String namespace;
 
+	/**
+	 * Builder for creating instances of {@code WbemSource}.
+	 *
+	 * @param type                 The type of the source.
+	 * @param computes             List of computations to be applied to the source.
+	 * @param forceSerialization   Flag indicating whether to force serialization.
+	 * @param query                The WBEM query used to retrieve data.
+	 * @param namespace            The WBEM namespace for the query.
+	 * @param key                  The key associated with the source.
+	 * @param executeForEachEntryOf The execution context for each entry of the source.
+	 */
 	@Builder
 	@JsonCreator
 	public WbemSource(

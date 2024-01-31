@@ -1,5 +1,26 @@
 package org.sentrysoftware.metricshub.engine.strategy;
 
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Engine
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.CONNECTOR_STATUS_METRIC_KEY;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.LOG_COMPUTE_KEY_SUFFIX_TEMPLATE;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.STATE_SET_METRIC_FAILED;
@@ -39,6 +60,9 @@ import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
+/**
+ * Abstract class representing a strategy for handling connectors and their sources and computes.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -289,7 +313,7 @@ public abstract class AbstractStrategy implements IStrategy {
 		}
 
 		log.info(
-			"Hostname {} - Begin {} [{} {}] for hardware connector [{}]:\n{}\n",
+			"Hostname {} - Begin {} [{} {}] for connector [{}]:\n{}\n",
 			hostname,
 			operationTag,
 			execution.getClass().getSimpleName(),
@@ -324,7 +348,7 @@ public abstract class AbstractStrategy implements IStrategy {
 		// Is there any raw data to log?
 		if (sourceTable.getRawData() != null && (sourceTable.getTable() == null || sourceTable.getTable().isEmpty())) {
 			log.info(
-				"Hostname {} - End of {} [{} {}] for hardware connector [{}].\nRaw result:\n{}\n",
+				"Hostname {} - End of {} [{} {}] for connector [{}].\nRaw result:\n{}\n",
 				hostname,
 				operationTag,
 				executionClassName,
@@ -337,7 +361,7 @@ public abstract class AbstractStrategy implements IStrategy {
 
 		if (sourceTable.getRawData() == null) {
 			log.info(
-				"Hostname {} - End of {} [{} {}] for hardware connector [{}].\nTable result:\n{}\n",
+				"Hostname {} - End of {} [{} {}] for connector [{}].\nTable result:\n{}\n",
 				hostname,
 				operationTag,
 				executionClassName,
@@ -349,7 +373,7 @@ public abstract class AbstractStrategy implements IStrategy {
 		}
 
 		log.info(
-			"Hostname {} - End of {} [{} {}] for hardware connector [{}].\nRaw result:\n{}\nTable result:\n{}\n",
+			"Hostname {} - End of {} [{} {}] for connector [{}].\nRaw result:\n{}\nTable result:\n{}\n",
 			hostname,
 			operationTag,
 			executionClassName,
