@@ -277,7 +277,17 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 		// If the source table is not empty, loop over the source table rows
 		final SourceTable sourceTable = maybeSourceTable.get();
 
-		log.debug("Start of source table {} processing with mapping = {}", sourceTable, mapping);
+		log.debug(
+			"Host {}, start of source table processing with source {}, attributes {}, metrics {}, conditional collection {}, legacy text parameters {} " +
+			"and resource{}",
+			hostname,
+			mapping.getSource(),
+			mapping.getAttributes(),
+			mapping.getMetrics(),
+			mapping.getConditionalCollection(),
+			mapping.getLegacyTextParameters(),
+			mapping.getResource()
+		);
 
 		for (final List<String> row : sourceTable.getTable()) {
 			// Init mapping processor

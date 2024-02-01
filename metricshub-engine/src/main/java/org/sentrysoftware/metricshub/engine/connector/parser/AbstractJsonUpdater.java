@@ -27,9 +27,9 @@ import lombok.Data;
 import lombok.NonNull;
 
 @Data
-public abstract class JsonNodeUpdaterBase {
+public abstract class AbstractJsonUpdater {
 
-	protected JsonNodeUpdaterBase(@NonNull JsonNode jsonNode, @NonNull Predicate<String> predicate) {
+	protected AbstractJsonUpdater(@NonNull JsonNode jsonNode, @NonNull Predicate<String> predicate) {
 		this.jsonNode = jsonNode;
 		this.predicate = predicate;
 	}
@@ -41,4 +41,16 @@ public abstract class JsonNodeUpdaterBase {
 	protected final Predicate<String> predicate;
 
 	protected abstract void update();
+
+	/**
+	 * Run the update only if the value matches the replacement predicate
+	 *
+	 * @param update Runnable function, actually the function performing the update
+	 * @param value  Value to check
+	 */
+	protected void runUpdate(final Runnable update, final String value) {
+		if (predicate.test(value)) {
+			update.run();
+		}
+	}
 }

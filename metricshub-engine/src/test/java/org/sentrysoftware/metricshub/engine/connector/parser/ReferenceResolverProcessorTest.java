@@ -5,12 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
 class ReferenceResolverProcessorTest {
 
 	@Test
-	void testProcessNode() {
+	void testProcessNode() throws IOException {
 		final String json =
 			"""
 			pre:
@@ -56,69 +57,58 @@ class ReferenceResolverProcessorTest {
 			""";
 
 		final ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
-		try {
-			final JsonNode rootNode = objectMapper.readTree(json);
+		final JsonNode rootNode = objectMapper.readTree(json);
 
-			JsonNode processedNode = ReferenceResolverProcessor
-				.builder()
-				.next(new ConstantsProcessor())
-				.build()
-				.processNode(rootNode);
+		JsonNode processedNode = ReferenceResolverProcessor
+			.builder()
+			.next(new ConstantsProcessor())
+			.build()
+			.processNode(rootNode);
 
-			// Check that the relative source references are correctly replaced under the "pre" section
-			assertEquals("${source::pre.source4}", processedNode.get("pre").get("source1").get("leftTable").asText());
-			assertEquals("${source::pre.source1}", processedNode.get("pre").get("source2").get("rightTable").asText());
+		// Check that the relative source references are correctly replaced under the "pre" section
+		assertEquals("${source::pre.source4}", processedNode.get("pre").get("source1").get("leftTable").asText());
+		assertEquals("${source::pre.source1}", processedNode.get("pre").get("source2").get("rightTable").asText());
 
-			// Check that the relative source references are correctly replaced under the "enclosure" monitor section
-			assertEquals(
-				"${source::monitors.enclosure.discovery.sources.httpSource1}",
-				processedNode
-					.get("monitors")
-					.get("enclosure")
-					.get("discovery")
-					.get("sources")
-					.get("httpSource2")
-					.get("type1")
-					.asText()
-			);
-			assertEquals(
-				"${source::monitors.enclosure.discovery.sources.httpSource2}",
-				processedNode.get("monitors").get("enclosure").get("discovery").get("mapping").get("source1").asText()
-			);
-			assertEquals(
-				"${source::monitors.enclosure.collect.sources.httpSource1}",
-				processedNode
-					.get("monitors")
-					.get("enclosure")
-					.get("collect")
-					.get("sources")
-					.get("httpSource2")
-					.get("type1")
-					.asText()
-			);
-			assertEquals(
-				"${source::monitors.enclosure.collect.sources.httpSource2}",
-				processedNode.get("monitors").get("enclosure").get("collect").get("mapping").get("source1").asText()
-			);
+		// Check that the relative source references are correctly replaced under the "enclosure" monitor section
+		assertEquals(
+			"${source::monitors.enclosure.discovery.sources.httpSource1}",
+			processedNode
+				.get("monitors")
+				.get("enclosure")
+				.get("discovery")
+				.get("sources")
+				.get("httpSource2")
+				.get("type1")
+				.asText()
+		);
+		assertEquals(
+			"${source::monitors.enclosure.discovery.sources.httpSource2}",
+			processedNode.get("monitors").get("enclosure").get("discovery").get("mapping").get("source1").asText()
+		);
+		assertEquals(
+			"${source::monitors.enclosure.collect.sources.httpSource1}",
+			processedNode
+				.get("monitors")
+				.get("enclosure")
+				.get("collect")
+				.get("sources")
+				.get("httpSource2")
+				.get("type1")
+				.asText()
+		);
+		assertEquals(
+			"${source::monitors.enclosure.collect.sources.httpSource2}",
+			processedNode.get("monitors").get("enclosure").get("collect").get("mapping").get("source1").asText()
+		);
 
-			// Check that the relative source references are correctly replaced under the "disk" monitor section
-			assertEquals(
-				"${source::monitors.disk.discovery.sources.httpSource1}",
-				processedNode
-					.get("monitors")
-					.get("disk")
-					.get("discovery")
-					.get("sources")
-					.get("httpSource2")
-					.get("type1")
-					.asText()
-			);
-			assertEquals(
-				"${source::monitors.disk.discovery.sources.httpSource2}",
-				processedNode.get("monitors").get("disk").get("discovery").get("mapping").get("source1").asText()
-			);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		// Check that the relative source references are correctly replaced under the "disk" monitor section
+		assertEquals(
+			"${source::monitors.disk.discovery.sources.httpSource1}",
+			processedNode.get("monitors").get("disk").get("discovery").get("sources").get("httpSource2").get("type1").asText()
+		);
+		assertEquals(
+			"${source::monitors.disk.discovery.sources.httpSource2}",
+			processedNode.get("monitors").get("disk").get("discovery").get("mapping").get("source1").asText()
+		);
 	}
 }

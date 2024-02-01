@@ -42,7 +42,7 @@ import lombok.NonNull;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class JsonNodeUpdater extends JsonNodeUpdaterBase {
+public class JsonNodeUpdater extends AbstractJsonUpdater {
 
 	@Builder(setterPrefix = "with", builderMethodName = "jsonNodeUpdaterBuilder")
 	public JsonNodeUpdater(
@@ -112,18 +112,6 @@ public class JsonNodeUpdater extends JsonNodeUpdaterBase {
 					runUpdate(() -> ((ArrayNode) node).set(index, new TextNode(updater.apply(oldValue))), oldValue);
 				}
 			}
-		}
-	}
-
-	/**
-	 * Run the update only if the value matches the replacement predicate
-	 *
-	 * @param update Runnable function, actually the function performing the update
-	 * @param value  Value to check
-	 */
-	private void runUpdate(final Runnable update, final String value) {
-		if (predicate.test(value)) {
-			update.run();
 		}
 	}
 }

@@ -25,14 +25,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.BinaryOperator;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NonNull;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -54,8 +52,8 @@ public class ReferenceResolverProcessor extends AbstractNodeProcessor {
 
 	/**
 	 * Calls the method {@link #processNode(JsonNode)}
-	 * @param node a given json node
-	 * @return JsonNode
+	 * @param node A given json node to be processed
+	 * @return JsonNode The updated Json node
 	 * @throws IOException thrown by the super class method
 	 */
 	@Override
@@ -64,51 +62,59 @@ public class ReferenceResolverProcessor extends AbstractNodeProcessor {
 	}
 
 	/**
+	 * Replaces relative source references with the full source references
+	 * @param valueToUpdate The value to be replaced
+	 * @param context The path in the Json tree from the starting Json node having the key "monitors" or "pre"
+	 * @return A string representing the updated value
+	 */
+	private String updateSourceReferences(String valueToUpdate, final String context) {
+		var monitorsRefMatcher = REGEX_SOURCE_REF_MONITORS.matcher(valueToUpdate);
+		var preRefMatcher = REGEX_SOURCE_REF_PRE.matcher(valueToUpdate);
+		var parts = context.split("\\.");
+
+		String sourceName;
+		// If the context starts with the string "monitors", perform the corresponding replacement
+		while (monitorsRefMatcher.find()) {
+			if (
+				// CHECKSTYLE:OFF
+				parts.length >= 4 &&
+				parts[0].equals("monitors") &&
+				JOBS.contains(parts[2]) &&
+				(parts[3].equals("sources") || parts[3].equals("mapping"))
+				// CHECKSTYLE:ON
+			) {
+				sourceName = monitorsRefMatcher.group(6);
+				valueToUpdate =
+					valueToUpdate.replace(
+						sourceName,
+						Stream.of(parts[0], parts[1], parts[2], "sources", sourceName).collect(Collectors.joining("."))
+					);
+			}
+		}
+		// If the context starts with the string "pre", perform the corresponding replacement
+		while (preRefMatcher.find()) {
+			if (parts.length >= 2 && parts[0].equals("pre")) {
+				sourceName = preRefMatcher.group(3);
+				valueToUpdate =
+					valueToUpdate.replace(sourceName, Stream.of(parts[0], sourceName).collect(Collectors.joining(".")));
+			}
+		}
+		return valueToUpdate;
+	}
+
+	/**
 	 * Processes a given Json node by calling {@link JsonNodeUpdater}
 	 * @param node The JsonNode to be processed.
-	 * @return {@link JsonNode} instance
-	 * @throws IOException
+	 * @return The processed node as a {@link JsonNode} instance
+	 * @throws IOException thrown by the super class method
 	 */
 	@Override
 	protected JsonNode processNode(JsonNode node) throws IOException {
-		@NonNull
-		final BinaryOperator<String> updater = (valueToUpdate, context) -> {
-			var monitorsRefMatcher = REGEX_SOURCE_REF_MONITORS.matcher(valueToUpdate);
-			var preRefMatcher = REGEX_SOURCE_REF_PRE.matcher(valueToUpdate);
-			var parts = context.split("\\.");
-
-			String sourceName;
-			while (monitorsRefMatcher.find()) {
-				if (
-					// CHECKSTYLE:OFF
-					parts.length >= 4 &&
-					parts[0].equals("monitors") &&
-					JOBS.contains(parts[2]) &&
-					(parts[3].equals("sources") || parts[3].equals("mapping"))
-					// CHECKSTYLE:ON
-				) {
-					sourceName = monitorsRefMatcher.group(6);
-					valueToUpdate =
-						valueToUpdate.replace(
-							sourceName,
-							Stream.of(parts[0], parts[1], parts[2], "sources", sourceName).collect(Collectors.joining("."))
-						);
-				}
-			}
-			while (preRefMatcher.find()) {
-				if (parts.length >= 2 && parts[0].equals("pre")) {
-					sourceName = preRefMatcher.group(3);
-					valueToUpdate =
-						valueToUpdate.replace(sourceName, Stream.of(parts[0], sourceName).collect(Collectors.joining(".")));
-				}
-			}
-			return valueToUpdate;
-		};
 		JsonNodeContextUpdater
 			.jsonNodeContextUpdaterBuilder()
 			.withJsonNode(node)
 			.withPredicate(Objects::nonNull)
-			.withUpdater(updater)
+			.withUpdater(this::updateSourceReferences)
 			.build()
 			.update();
 		return node;
