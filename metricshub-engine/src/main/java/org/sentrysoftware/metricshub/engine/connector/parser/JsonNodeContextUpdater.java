@@ -21,6 +21,8 @@ package org.sentrysoftware.metricshub.engine.connector.parser;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -62,7 +64,7 @@ public class JsonNodeContextUpdater extends AbstractJsonUpdater {
 	 */
 	@Override
 	public void update() {
-		update(jsonNode, "");
+		update(jsonNode, EMPTY);
 	}
 
 	/**

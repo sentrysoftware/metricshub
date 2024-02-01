@@ -23,16 +23,13 @@ package org.sentrysoftware.metricshub.engine.connector.parser;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.function.Predicate;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
 
 @Data
+@AllArgsConstructor
 public abstract class AbstractJsonUpdater {
-
-	protected AbstractJsonUpdater(@NonNull JsonNode jsonNode, @NonNull Predicate<String> predicate) {
-		this.jsonNode = jsonNode;
-		this.predicate = predicate;
-	}
 
 	@NonNull
 	protected final JsonNode jsonNode;
@@ -40,6 +37,10 @@ public abstract class AbstractJsonUpdater {
 	@NonNull
 	protected final Predicate<String> predicate;
 
+	/**
+	 * Traverses a given {@link JsonNode} instance then updates some nodes values based on some conditions.
+	 * This method should be implemented in subclasses.
+	 */
 	protected abstract void update();
 
 	/**
