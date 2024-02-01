@@ -39,11 +39,16 @@ import lombok.NonNull;
  * updater function and a predicate that determines whether the value should be
  * updated.
  */
-
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class JsonNodeUpdater extends AbstractJsonUpdater {
+public class JsonNodeUpdater extends AbstractJsonNodeUpdater {
 
+	/**
+	 * Constructs a new instance of the {@link JsonNodeUpdater}.
+	 * @param jsonNode  {@link JsonNode} object to update.
+	 * @param predicate Update condition function.
+	 * @param updater   Function performing an update of a string value.
+	 */
 	@Builder(setterPrefix = "with", builderMethodName = "jsonNodeUpdaterBuilder")
 	public JsonNodeUpdater(
 		@NonNull JsonNode jsonNode,

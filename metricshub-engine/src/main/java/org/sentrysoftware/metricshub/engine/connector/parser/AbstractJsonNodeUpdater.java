@@ -27,9 +27,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
 
+/**
+ * An abstract class that provides the structure for updating a {@link JsonNode}.<br>
+ * Each concrete subclass represents a specific {@link JsonNode} update implementation.
+ */
 @Data
 @AllArgsConstructor
-public abstract class AbstractJsonUpdater {
+public abstract class AbstractJsonNodeUpdater {
 
 	@NonNull
 	protected final JsonNode jsonNode;

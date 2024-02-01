@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -36,80 +37,78 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class ReferenceResolverProcessor extends AbstractNodeProcessor {
 
+	private static final String SOURCE_REF_FORMAT = "${source::%s}";
+
+	private static final Pattern REGEX_SOURCE_REF_MONITORS = Pattern.compile(
+		"\\$\\{source::(?!((?i)monitors\\.([\\w()\\.-]+)\\.(discovery|collect|simple)\\.sources\\.([\\w()\\.-]+)\\}))([\\w()\\.-]+)\\}"
+	);
+	private static final Pattern REGEX_SOURCE_REF_PRE = Pattern.compile(
+		"\\$\\{source::(?!((?i)pre\\.([\\w()\\.-]+)\\}))([\\w()\\.-]+)\\}"
+	);
+
 	@Builder
 	public ReferenceResolverProcessor(final AbstractNodeProcessor next) {
 		super(next);
 	}
 
-	private static final Pattern REGEX_SOURCE_REF_MONITORS = Pattern.compile(
-		"\\$\\{source::(?!((?i)monitors\\.(\\w+)\\.(discovery|collect|simple)\\.(sources|mapping)\\.(\\w+)\\}))([\\w()]+)\\}"
-	);
-	private static final Pattern REGEX_SOURCE_REF_PRE = Pattern.compile(
-		"\\$\\{source::(?!((?i)pre\\.(\\w+)\\}))([\\w()]+)\\}"
-	);
-
 	private static final Set<String> JOBS = Set.of("discovery", "collect", "simple");
 
 	/**
-	 * Calls the method {@link #processNode(JsonNode)}
-	 * @param node A given json node to be processed
-	 * @return JsonNode The updated Json node
-	 * @throws IOException thrown by the super class method
-	 */
-	@Override
-	public JsonNode process(JsonNode node) throws IOException {
-		return super.process(node);
-	}
-
-	/**
 	 * Replaces relative source references with the full source references
+	 *
 	 * @param valueToUpdate The value to be replaced
-	 * @param context The path in the Json tree from the starting Json node having the key "monitors" or "pre"
+	 * @param context The path in the JSON tree from the starting JsonNode having the key "monitors" or "pre"
 	 * @return A string representing the updated value
 	 */
 	private String updateSourceReferences(String valueToUpdate, final String context) {
-		var monitorsRefMatcher = REGEX_SOURCE_REF_MONITORS.matcher(valueToUpdate);
-		var preRefMatcher = REGEX_SOURCE_REF_PRE.matcher(valueToUpdate);
-		var parts = context.split("\\.");
+		final var parts = context.split("\\.");
 
-		String sourceName;
-		// If the context starts with the string "monitors", perform the corresponding replacement
-		while (monitorsRefMatcher.find()) {
-			if (
-				// CHECKSTYLE:OFF
-				parts.length >= 4 &&
-				parts[0].equals("monitors") &&
-				JOBS.contains(parts[2]) &&
-				(parts[3].equals("sources") || parts[3].equals("mapping"))
-				// CHECKSTYLE:ON
-			) {
-				sourceName = monitorsRefMatcher.group(6);
-				valueToUpdate =
-					valueToUpdate.replace(
-						sourceName,
-						Stream.of(parts[0], parts[1], parts[2], "sources", sourceName).collect(Collectors.joining("."))
+		valueToUpdate =
+			REGEX_SOURCE_REF_MONITORS
+				.matcher(valueToUpdate)
+				.replaceAll(match -> {
+					// If the context starts with the string "monitors", perform the corresponding replacement
+					if (
+						// CHECKSTYLE:OFF
+						parts.length >= 4 &&
+						parts[0].equals("monitors") &&
+						JOBS.contains(parts[2]) &&
+						(parts[3].equals("sources") || parts[3].equals("mapping"))
+						// CHECKSTYLE:ON
+					) {
+						return Matcher.quoteReplacement(
+							String.format(
+								SOURCE_REF_FORMAT,
+								Stream.of(parts[0], parts[1], parts[2], "sources", match.group(5)).collect(Collectors.joining("."))
+							)
+						);
+					}
+
+					return Matcher.quoteReplacement(match.group());
+				});
+
+		return REGEX_SOURCE_REF_PRE
+			.matcher(valueToUpdate)
+			.replaceAll(match -> {
+				if (parts.length >= 2 && parts[0].equals("pre")) {
+					return Matcher.quoteReplacement(
+						String.format(SOURCE_REF_FORMAT, Stream.of(parts[0], match.group(3)).collect(Collectors.joining(".")))
 					);
-			}
-		}
-		// If the context starts with the string "pre", perform the corresponding replacement
-		while (preRefMatcher.find()) {
-			if (parts.length >= 2 && parts[0].equals("pre")) {
-				sourceName = preRefMatcher.group(3);
-				valueToUpdate =
-					valueToUpdate.replace(sourceName, Stream.of(parts[0], sourceName).collect(Collectors.joining(".")));
-			}
-		}
-		return valueToUpdate;
+				}
+
+				return Matcher.quoteReplacement(match.group());
+			});
 	}
 
 	/**
-	 * Processes a given Json node by calling {@link JsonNodeUpdater}
+	 * Processes the given JsonNode by calling {@link JsonNodeUpdater}
+	 *
 	 * @param node The JsonNode to be processed.
 	 * @return The processed node as a {@link JsonNode} instance
 	 * @throws IOException thrown by the super class method
 	 */
 	@Override
-	protected JsonNode processNode(JsonNode node) throws IOException {
+	protected JsonNode processNode(final JsonNode node) throws IOException {
 		JsonNodeContextUpdater
 			.jsonNodeContextUpdaterBuilder()
 			.withJsonNode(node)

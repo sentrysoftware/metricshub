@@ -37,14 +37,19 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 
 /**
- * This utility class traverses a JsonNode, applying updates according to an
- * updater function and a predicate that determines whether the value should be
- * updated.
+ * This utility class traverses a JsonNode using a path context, applying updates according to an
+ * updater function and a predicate that determines whether the value should be updated.
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class JsonNodeContextUpdater extends AbstractJsonUpdater {
+public class JsonNodeContextUpdater extends AbstractJsonNodeUpdater {
 
+	/**
+	 * Constructs a new instance of the {@link JsonNodeContextUpdater}.
+	 * @param jsonNode  {@link JsonNode} object to update.
+	 * @param predicate Update condition function.
+	 * @param updater   Function performing an update of a string value using a current context.
+	 */
 	@Builder(setterPrefix = "with", builderMethodName = "jsonNodeContextUpdaterBuilder")
 	public JsonNodeContextUpdater(
 		@NonNull JsonNode jsonNode,
@@ -87,7 +92,9 @@ public class JsonNodeContextUpdater extends AbstractJsonUpdater {
 			for (final String fieldName : fieldNames) {
 				final JsonNode child = node.get(fieldName);
 
+				// Build a new path or append field name to the existing path context
 				final String newPath = currentPath.isEmpty() ? fieldName : currentPath + "." + fieldName;
+
 				// Means it wrap sub JsonNode(s)
 				if (child.isContainerNode()) {
 					update(child, newPath);
@@ -103,7 +110,9 @@ public class JsonNodeContextUpdater extends AbstractJsonUpdater {
 			for (int i = 0; i < node.size(); i++) {
 				final JsonNode child = node.get(i);
 
+				// Create a new path for the array entry
 				final String newPath = currentPath + "[" + i + "]";
+
 				// Means this node is a JsonNode element
 				if (child.isContainerNode()) {
 					update(child, newPath);
