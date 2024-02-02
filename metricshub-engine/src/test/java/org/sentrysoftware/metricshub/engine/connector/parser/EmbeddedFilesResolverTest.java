@@ -107,7 +107,7 @@ class EmbeddedFilesResolverTest {
 		);
 
 		final String absolutePath = Paths.get("src/test/resources").toAbsolutePath().toString().replace("\\", "/");
-		final String uriStr = String.format(
+		final String uriStrExpected = String.format(
 			"jar:file:///%s/test-files/connector/zippedConnector/connectors/connectors.zip!/hardware/DiskPart/diskPart.awk",
 			absolutePath
 		);
@@ -123,7 +123,7 @@ class EmbeddedFilesResolverTest {
 			() -> embeddedFilesResolver.findAbsoluteUri("diskPart.awk", Paths.get(connectorDirUri))
 		);
 
-		assertEquals(uriStr, result.toString());
+		assertEquals(uriStrExpected, result.toString());
 	}
 
 	@Test

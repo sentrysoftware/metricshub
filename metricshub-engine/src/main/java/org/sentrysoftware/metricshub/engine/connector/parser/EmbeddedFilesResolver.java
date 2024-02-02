@@ -97,7 +97,7 @@ public class EmbeddedFilesResolver {
 		}
 
 		JsonNodeUpdater
-			.builder()
+			.jsonNodeUpdaterBuilder()
 			.withJsonNode(connector)
 			.withPredicate(value -> value.indexOf("${file::") != -1)
 			.withUpdater(this::performFileRefReplacements)
