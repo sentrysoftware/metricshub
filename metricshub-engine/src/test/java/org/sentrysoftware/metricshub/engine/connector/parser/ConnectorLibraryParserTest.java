@@ -28,7 +28,12 @@ import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.ConnectionType;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.MonitorJob;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.StandardMonitorJob;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Mapping;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 
 class ConnectorLibraryParserTest {
 
@@ -208,5 +213,137 @@ class ConnectorLibraryParserTest {
 		assertEquals(TRANSLATE, monitorJob.getCollect().getSources().get(SOURCE).getComputes().get(1).getType());
 		assertEquals(TRANSLATE, monitorJob.getCollect().getSources().get(SOURCE).getComputes().get(2).getType());
 		assertEquals(TRANSLATE, monitorJob.getCollect().getSources().get(SOURCE).getComputes().get(3).getType());
+	}
+
+	/**
+	 * This tests the method visitFile overridden in {@link ConnectorLibraryParser}.
+	 * The visited file contains relative source references
+	 * @throws IOException if the file does not exist
+	 */
+	@Test
+	void testVisitFileWithRelativeSourceRef() throws IOException {
+		final Path yamlTestPath = Paths.get(
+			"src",
+			"test",
+			"resources",
+			"test-files",
+			"connector",
+			"connectorLibraryParserWithRelativeSourceRef"
+		);
+		final Map<String, Connector> connectors = new ConnectorLibraryParser()
+			.parseConnectorsFromAllYamlFiles(yamlTestPath);
+
+		//Check connector identity retrieval
+		assertTrue(
+			connectors
+				.get(AAC_CONNECTOR_ID)
+				.getConnectorIdentity()
+				.getDetection()
+				.getConnectionTypes()
+				.contains(ConnectionType.LOCAL)
+		);
+		assertTrue(
+			connectors
+				.get(AAC_CONNECTOR_ID)
+				.getConnectorIdentity()
+				.getDetection()
+				.getConnectionTypes()
+				.contains(ConnectionType.REMOTE)
+		);
+		assertTrue(
+			connectors.get(AAC_CONNECTOR_ID).getConnectorIdentity().getDetection().getAppliesTo().contains(DeviceKind.LINUX)
+		);
+		assertTrue(
+			connectors.get(AAC_CONNECTOR_ID).getConnectorIdentity().getDetection().getAppliesTo().contains(DeviceKind.WINDOWS)
+		);
+		assertEquals(
+			SNMP_CRITERION_TYPE,
+			connectors.get(AAC_CONNECTOR_ID).getConnectorIdentity().getDetection().getCriteria().get(0).getType()
+		);
+
+		//Check detected monitors number
+		assertEquals(2, connectors.get(AAC_CONNECTOR_ID).getMonitors().size());
+
+		//Retrieve the disk controller monitor
+		StandardMonitorJob monitorJob = (StandardMonitorJob) (connectors
+				.get(AAC_CONNECTOR_ID)
+				.getMonitors()
+				.get(DISK_CONTROLLER));
+
+		//Check disk controller discovery sources
+		assertEquals(3, monitorJob.getDiscovery().getSources().size());
+		assertEquals(SNMP_TABLE, monitorJob.getDiscovery().getSources().get(SOURCE).getType());
+
+		//Check disk controller discovery mapping
+		assertEquals(ENCLOSURE, monitorJob.getDiscovery().getMapping().getAttributes().get(HW_PARENT_TYPE));
+		assertEquals(
+			DISK_CONTROLLER_AWK_COMMAND,
+			monitorJob.getDiscovery().getMapping().getAttributes().get(DISCOVERY_MAPPING_NAME)
+		);
+		assertEquals(
+			DISCOVERY_MAPPING_MODEL_VALUE,
+			monitorJob.getDiscovery().getMapping().getAttributes().get(DISCOVERY_MAPPING_MODEL)
+		);
+
+		//Retrieve the physical disk monitor
+		monitorJob = (StandardMonitorJob) (connectors.get(AAC_CONNECTOR_ID).getMonitors().get(PHYSICAL_DISK));
+
+		//Check physical disk discovery sources
+		assertEquals(1, monitorJob.getDiscovery().getSources().size());
+		assertEquals(SNMP_TABLE, monitorJob.getDiscovery().getSources().get(SOURCE).getType());
+
+		//Check physical disk discovery mapping
+		assertEquals(DISK_CONTROLLER, monitorJob.getDiscovery().getMapping().getAttributes().get(HW_PARENT_TYPE));
+		assertEquals(
+			PHYSICAL_DISK_AWK_COMMAND,
+			monitorJob.getDiscovery().getMapping().getAttributes().get(DISCOVERY_MAPPING_NAME)
+		);
+		assertEquals(
+			DISCOVERY_MAPPING_VENDOR_VALUE,
+			monitorJob.getDiscovery().getMapping().getAttributes().get(DISCOVERY_MAPPING_VENDOR)
+		);
+
+		//Check physical disk collection
+		assertEquals(1, monitorJob.getCollect().getSources().size());
+		assertEquals(4, monitorJob.getCollect().getSources().get(SOURCE).getComputes().size());
+		assertEquals(DUPLICATE_COLUMN, monitorJob.getCollect().getSources().get(SOURCE).getComputes().get(0).getType());
+		assertEquals(TRANSLATE, monitorJob.getCollect().getSources().get(SOURCE).getComputes().get(1).getType());
+		assertEquals(TRANSLATE, monitorJob.getCollect().getSources().get(SOURCE).getComputes().get(2).getType());
+		assertEquals(TRANSLATE, monitorJob.getCollect().getSources().get(SOURCE).getComputes().get(3).getType());
+
+		// Check relative source references replacement under the "pre" section
+		final Map<String, Source> pre = connectors.get(AAC_CONNECTOR_ID).getPre();
+		final HttpSource preSource = (HttpSource) (pre.get("source2"));
+		assertEquals("${source::pre.source(1)}", preSource.getUrl());
+		assertEquals("${source::pre.source(1)}", preSource.getHeader());
+
+		final HttpSource secondPreSource = (HttpSource) (pre.get("source3"));
+		assertEquals("${source::pre.source(2)}", secondPreSource.getUrl());
+		assertEquals("${source::pre.source(2)}", secondPreSource.getHeader());
+
+		// Check relative source references replacement under the "monitors" section
+		final Map<String, MonitorJob> monitorJobs = connectors.get(AAC_CONNECTOR_ID).getMonitors();
+		final StandardMonitorJob diskControllerJob = (StandardMonitorJob) (monitorJobs.get(DISK_CONTROLLER));
+		final SnmpTableSource sourceTwo = (SnmpTableSource) diskControllerJob.getDiscovery().getSources().get("source(2)");
+		assertEquals("${source::monitors.disk_controller.discovery.sources.source(1)}", sourceTwo.getOid());
+		final SnmpTableSource sourceThree = (SnmpTableSource) diskControllerJob
+			.getDiscovery()
+			.getSources()
+			.get("source(3)");
+		assertEquals("${source::monitors.disk_controller.discovery.sources.source(2)}", sourceThree.getOid());
+
+		// Check relative source references replacement under the "mapping" section
+		final Mapping diskControllerMapping = diskControllerJob.getDiscovery().getMapping();
+		assertEquals("${source::monitors.disk_controller.discovery.sources.source1}", diskControllerMapping.getSource());
+
+		final StandardMonitorJob physicalDiskJob = (StandardMonitorJob) (monitorJobs.get(PHYSICAL_DISK));
+		final Mapping physicalDiskDiscoveryMapping = physicalDiskJob.getDiscovery().getMapping();
+		assertEquals(
+			"${source::monitors.physical_disk.discovery.sources.source(1)}",
+			physicalDiskDiscoveryMapping.getSource()
+		);
+
+		final Mapping physicalDiskCollectMapping = physicalDiskJob.getCollect().getMapping();
+		assertEquals("${source::monitors.physical_disk.collect.sources.source1}", physicalDiskCollectMapping.getSource());
 	}
 }

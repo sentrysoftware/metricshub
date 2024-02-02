@@ -7,6 +7,9 @@ grafana:
         method: GET
         header: "Accept: application/json"
         resultContent: body
+      copySource:
+        type: copy
+        from: ${source::grafanaHealth}
     mapping:
       source: ${source::monitors.grafana.simple.sources.grafanaHealth}
       attributes:

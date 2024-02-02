@@ -3,6 +3,9 @@ package org.sentrysoftware.metricshub.agent.deserialization;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.doReturn;
+import static org.sentrysoftware.metricshub.agent.helper.TestConstants.COPY_SOURCE_KEY;
+import static org.sentrysoftware.metricshub.agent.helper.TestConstants.COPY_SOURCE_REF;
+import static org.sentrysoftware.metricshub.agent.helper.TestConstants.COPY_SOURCE_TYPE;
 import static org.sentrysoftware.metricshub.agent.helper.TestConstants.GRAFANA_DB_STATE_METRIC;
 import static org.sentrysoftware.metricshub.agent.helper.TestConstants.GRAFANA_HEALTH_SOURCE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.TestConstants.GRAFANA_HEALTH_SOURCE_REF;
@@ -35,7 +38,9 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.MonitorJob;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.SimpleMonitorJob;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Mapping;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Simple;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CopySource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 
 @ExtendWith(MockitoExtension.class)
 class MonitorJobsDeserializerTest {
@@ -71,22 +76,33 @@ class MonitorJobsDeserializerTest {
 		attributes.put(ID_ATTRIBUTE_KEY, "$1");
 		attributes.put(SERVICE_VERSION, "$3");
 
+		final Map<String, Source> sources = new LinkedHashMap<>();
+
+		sources.put(
+			GRAFANA_HEALTH_SOURCE_KEY,
+			HttpSource
+				.builder()
+				.header(HTTP_ACCEPT_HEADER)
+				.method(HttpMethod.GET)
+				.resultContent(ResultContent.BODY)
+				.url(HTTP_SERVICE_URL)
+				.key(GRAFANA_HEALTH_SOURCE_REF)
+				.type(HTTP_KEY_TYPE)
+				.build()
+		);
+
+		final CopySource copySource = CopySource
+			.builder()
+			.type(COPY_SOURCE_TYPE)
+			.from(GRAFANA_HEALTH_SOURCE_REF)
+			.key(COPY_SOURCE_REF)
+			.build();
+		copySource.setReferences(Set.of(GRAFANA_HEALTH_SOURCE_REF));
+		sources.put(COPY_SOURCE_KEY, copySource);
+
 		final Simple simple = Simple
 			.builder()
-			.sources(
-				Map.of(
-					GRAFANA_HEALTH_SOURCE_KEY,
-					HttpSource
-						.builder()
-						.header(HTTP_ACCEPT_HEADER)
-						.method(HttpMethod.GET)
-						.resultContent(ResultContent.BODY)
-						.url(HTTP_SERVICE_URL)
-						.key(GRAFANA_HEALTH_SOURCE_REF)
-						.type(HTTP_KEY_TYPE)
-						.build()
-				)
-			)
+			.sources(sources)
 			.mapping(
 				Mapping
 					.builder()
@@ -97,7 +113,7 @@ class MonitorJobsDeserializerTest {
 			)
 			.build();
 
-		simple.setSourceDep(List.of(Set.of(GRAFANA_HEALTH_SOURCE_KEY)));
+		simple.setSourceDep(List.of(Set.of(GRAFANA_HEALTH_SOURCE_KEY), Set.of(COPY_SOURCE_KEY)));
 
 		final SimpleMonitorJob simpleMonitorJobExpected = SimpleMonitorJob.builder().simple(simple).build();
 		final Map<String, SimpleMonitorJob> expected = Map.of(GRAFANA_MONITOR_JOB_KEY, simpleMonitorJobExpected);
