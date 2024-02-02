@@ -68,11 +68,15 @@ public class FileHelper {
 	 */
 	public static Path findConnectorsDirectory(final URI zipUri) {
 		final String strPath = zipUri.toString();
-		final int connectorsIndex = strPath.indexOf("/" + CONNECTORS + "/");
+		final int connectorsIndex = strPath.lastIndexOf("/" + CONNECTORS + "/");
 		if (connectorsIndex == -1) {
 			return null;
 		}
-		return Paths.get(strPath.substring("jar:file:///".length(), connectorsIndex + 1 + CONNECTORS.length()));
+
+		// Determine the starting index based on the operating system (Windows or other)
+		final int beginIndex = LocalOsHandler.isWindows() ? "jar:file:///".length() : "jar:file://".length();
+
+		return Paths.get(strPath.substring(beginIndex, connectorsIndex + 1 + CONNECTORS.length()));
 	}
 
 	/**

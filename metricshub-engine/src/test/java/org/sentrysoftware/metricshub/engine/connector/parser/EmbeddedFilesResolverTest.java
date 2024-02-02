@@ -99,7 +99,23 @@ class EmbeddedFilesResolverTest {
 	}
 
 	@Test
-	void testFindAbsoluteUriZip() throws Exception {
+	@EnabledOnOs(OS.WINDOWS)
+	void testFindAbsoluteUriZipWindows() throws Exception {
+		testFindAbsoluteUriZip("jar:file:///");
+	}
+
+	@Test
+	@EnabledOnOs(OS.LINUX)
+	void testFindAbsoluteUriZipLinux() throws Exception {
+		testFindAbsoluteUriZip("jar:file://");
+	}
+
+	/**
+	 * Test the {@link EmbeddedFilesResolver#findAbsoluteUri(String, Path)} method.
+	 * @param schemePrefix The scheme prefix for the URI.
+	 * @throws Exception If an error occurs during the test.
+	 */
+	private void testFindAbsoluteUriZip(final String schemePrefix) throws Exception {
 		final EmbeddedFilesResolver embeddedFilesResolver = new EmbeddedFilesResolver(
 			OBJECT_MAPPER.readTree(CONNECTOR_2_FILE),
 			CONNECTOR_2_DIRECTORY,
@@ -108,11 +124,13 @@ class EmbeddedFilesResolverTest {
 
 		final String absolutePath = Paths.get("src/test/resources").toAbsolutePath().toString().replace("\\", "/");
 		final String uriStrExpected = String.format(
-			"jar:file:///%s/test-files/connector/zippedConnector/connectors/connectors.zip!/hardware/DiskPart/diskPart.awk",
+			"%s%s/test-files/connector/zippedConnector/connectors/connectors.zip!/hardware/DiskPart/diskPart.awk",
+			schemePrefix,
 			absolutePath
 		);
 		final String connectorDirUriStr = String.format(
-			"jar:file:///%s/test-files/connector/zippedConnector/connectors/connectors.zip!/hardware/DiskPart",
+			"%s%s/test-files/connector/zippedConnector/connectors/connectors.zip!/hardware/DiskPart",
+			schemePrefix,
 			absolutePath
 		);
 

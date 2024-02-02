@@ -280,10 +280,7 @@ class ConnectorLibraryParserTest {
 			DISK_CONTROLLER_AWK_COMMAND,
 			monitorJob.getDiscovery().getMapping().getAttributes().get(DISCOVERY_MAPPING_NAME)
 		);
-		assertEquals(
-			"$3",
-			monitorJob.getDiscovery().getMapping().getAttributes().get(DISCOVERY_MAPPING_MODEL)
-		);
+		assertEquals("$3", monitorJob.getDiscovery().getMapping().getAttributes().get(DISCOVERY_MAPPING_MODEL));
 
 		//Retrieve the physical disk monitor
 		monitorJob = (StandardMonitorJob) (connectors.get(AAC_CONNECTOR_ID).getMonitors().get(PHYSICAL_DISK));
@@ -298,10 +295,7 @@ class ConnectorLibraryParserTest {
 			PHYSICAL_DISK_AWK_COMMAND,
 			monitorJob.getDiscovery().getMapping().getAttributes().get(DISCOVERY_MAPPING_NAME)
 		);
-		assertEquals(
-			"$4",
-			monitorJob.getDiscovery().getMapping().getAttributes().get(DISCOVERY_MAPPING_VENDOR)
-		);
+		assertEquals("$4", monitorJob.getDiscovery().getMapping().getAttributes().get(DISCOVERY_MAPPING_VENDOR));
 
 		//Check physical disk collection
 		assertEquals(1, monitorJob.getCollect().getSources().size());
