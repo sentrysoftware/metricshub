@@ -36,7 +36,6 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -353,7 +352,7 @@ public class ComputeProcessor implements IComputeProcessor {
 		} else {
 			try {
 				awkScript = EmbeddedFileHelper.findEmbeddedFiles(awk.getScript()).get(script);
-			} catch (IOException exception) {
+			} catch (Exception exception) {
 				log.warn(
 					"Hostname {} - Compute Operation (Awk) script {} has not been set correctly, the table remains unchanged.",
 					hostname,

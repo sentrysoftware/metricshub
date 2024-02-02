@@ -117,6 +117,8 @@ public class Constants {
 	public static final String VALUE_A1 = "a1";
 	public static final String VALUE_B1 = "b1";
 	public static final String VALUE_C1 = "c1";
+	public static final String DOLLAR_3 = "$3";
+	public static final String DOLLAR_4 = "$4";
 	public static final String URL = "my/url";
 	public static final String ENCLOSURE_COLLECT_SOURCE_1 = "${source::monitors.enclosure.collect.sources.source1}";
 	public static final String EXPECTED_VAL_1 = "expectedVal1";
@@ -249,6 +251,9 @@ public class Constants {
 	public static final String LOGICAL_DISK = "logical_disk";
 	public static final String CONNECTOR = "connector";
 	public static final String ENCLOSURE = "enclosure";
+	public static final String DISCOVERY_MAPPING_NAME = "name";
+	public static final String DISCOVERY_MAPPING_VENDOR = "vendor";
+	public static final String DISCOVERY_MAPPING_MODEL = "model";
 
 	// Yaml test files
 	public static final String AAC_CONNECTOR_ID = "AAC";
@@ -403,6 +408,7 @@ public class Constants {
 		"but the value cannot be extracted. Returned result: 1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT.";
 	public static final String CRITERION_WMI_NAMESPACE = "root\\cimv2";
 	public static final String WMI_EXCEPTION_OTHER_MESSAGE = "other";
+	public static final String SNMP_TABLE = "snmpTable";
 
 	public static final String WMI_EXCEPTION_WBEM_E_NOT_FOUND_MESSAGE = "WBEM_E_NOT_FOUND";
 	public static final String WMI_EXCEPTION_WBEM_E_INVALID_NAMESPACE_MESSAGE = "WBEM_E_INVALID_NAMESPACE";
@@ -423,6 +429,14 @@ public class Constants {
 	public static final String FIRST_NAMESPACE = "namespace1";
 	public static final String SECOND_NAMESPACE = "namespace2";
 	public static final String INTEROP_NAMESPACE = "interop";
+	public static final String DUPLICATE_COLUMN = "duplicateColumn";
+	public static final String TRANSLATE = "translate";
+	public static final String SNMP_CRITERION_TYPE = "snmpGetNext";
+	public static final String HW_PARENT_TYPE = "hw.parent.type";
+	public static final String DISK_CONTROLLER_AWK_COMMAND = "${awk::sprintf(\"Disk Controller: %s (%s)\", $2, $3)}";
+	public static final String PHYSICAL_DISK_AWK_COMMAND =
+		"${awk::sprintf(\"%s (%s - %s)\", $1, $4, bytes2HumanFormatBase10($6))}";
+	public static final String SOURCE = "source(1)";
 
 	// Encryption
 

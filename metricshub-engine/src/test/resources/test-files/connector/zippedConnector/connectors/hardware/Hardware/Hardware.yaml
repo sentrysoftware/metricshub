@@ -1,0 +1,322 @@
+metrics:
+
+  hw.enclosure.energy:
+    description: Energy consumed by the enclosure since the start of the MetricsHub Agent.
+    type: Counter
+    unit: J
+
+  hw.enclosure.power:
+    description: Instantaneous power consumed by the enclosure, in Watts (hw.enclosure.energy is preferred).
+    type: Gauge
+    unit: W
+
+  hw.energy:
+    description: Energy consumed by the component since the start of the MetricsHub Agent.
+    type: Counter
+    unit: J
+
+  hw.errors:
+    description: Number of errors encountered by the component.
+    type: Counter
+    unit: "{errors}"
+
+  hw.host.ambient_temperature:
+    description: Host's current ambient temperature in degrees Celsius (°C). This metric is only reported if the value is between 5°C and 35°C.
+    type: Gauge
+    unit: Cel
+
+  hw.host.energy:
+    description: Energy consumed by the host since the start of the MetricsHub Agent.
+    type: Counter
+    unit: J
+
+  hw.host.heating_margin:
+    description: Number of degrees Celsius (°C) remaining before the temperature reaches the closest warning threshold.
+    type: Gauge
+    unit: Cel
+
+  hw.host.power:
+    description: Instantaneous power consumed by the host, in Watts (hw.host.energy is preferred).
+    type: Gauge
+    unit: W
+
+  hw.power:
+    description: Instantaneous power consumed by the component, in Watts (hw.energy is preferred).
+    type: Gauge
+    unit: W
+
+  hw.status:
+    description: 'Operational status: 1 (true) or 0 (false) for each of the possible states.'
+    type:
+      stateSet:
+      - degraded
+      - failed
+      - ok  
+
+  hw.battery.charge:
+    description: Remaining fraction of battery charge.
+    type: Gauge
+    unit: 1
+
+  hw.battery.charge.limit:
+    description: Lower limit of battery charge fraction to ensure proper operation.
+    type: Gauge
+    unit: 1
+
+  hw.battery.time_left:
+    description: Number of seconds left before recharging the battery when state is discharging.
+    type: Gauge
+    unit: s
+
+  hw.power_state:
+    description: Power state. Each of the possible states (off, on and suspended) will either take the value 1 (true) or 0 (false).
+    type:
+      stateSet:
+      - "off"
+      - "on"
+      - suspended
+
+  metricshub.connector.status:
+    description: Connector operational status.
+    type:
+      stateSet:
+      - failed
+      - ok
+
+  hw.errors.limit:
+    description: Number of detected and corrected errors that will generate a warning or an alarm when limit_type is degraded or critical.
+    type: Gauge
+    unit: "{errors}"
+
+  hw.cpu.speed:
+    description: CPU current frequency.
+    type: Gauge
+    unit: Hz
+
+  hw.cpu.speed.limit:
+    description: CPU maximum frequency.
+    type: Gauge
+    unit: Hz
+
+  hw.fan.speed:
+    description: Fan speed.
+    type: Gauge
+    unit: rpm
+
+  hw.fan.speed.limit:
+    description: Speed of the corresponding fan (in revolutions/minute) that will generate a warning or an alarm when limit_type is low.degraded or low.critical.
+    type: Gauge
+    unit: rpm
+
+  hw.fan.speed_ratio:
+    description: Fan speed expressed as a fraction of its maximum speed.
+    type: Gauge
+    unit: 1
+
+  hw.fan.speed_ratio.limit:
+    description: Fan speed ratio that will generate a warning or an alarm when limit_type is low.degraded or low.critical.
+    type: Gauge
+    unit: 1
+
+  hw.gpu.io:
+    description: Received and transmitted bytes by the GPU.
+    type: Counter
+    unit: By
+
+  hw.gpu.memory.limit:
+    description: Size of the GPU memory.
+    type: UpDownCounter
+    unit: By
+
+  hw.gpu.memory.utilization:
+    description: Fraction of GPU memory used.
+    type: Gauge
+    unit: 1
+
+  hw.gpu.memory.utilization.limit:
+    description: GPU memory utilization ratio that will generate a warning or an alarm when limit_type is degraded or critical.
+    type: Gauge
+    unit: 1
+
+  hw.gpu.memory.usage:
+    description: GPU memory used.
+    type: UpDownCounter
+    unit: By
+
+  hw.gpu.power:
+    description: GPU instantaneous power consumption in Watts.
+    type: Gauge
+    unit: W
+
+  hw.gpu.utilization:
+    description: Ratio of time spent by the GPU for each task (decoder, encoder and general).
+    type: Gauge
+    unit: 1
+
+  hw.gpu.utilization.limit:
+    description: GPU used time ratio that will generate a warning or an alarm when limit_type is degraded or critical.
+    type: Gauge
+    unit: 1
+
+  hw.logical_disk.limit:
+    description: Size of the logical disk.
+    type: UpDownCounter
+    unit: By
+
+  hw.logical_disk.usage:
+    description: Logical disk space usage.
+    type: UpDownCounter
+    unit: By
+
+  hw.logical_disk.utilization:
+    description: Logical disk space utilization as a fraction.
+    type: Gauge
+    unit: 1
+
+  hw.lun.paths:
+    description: Number of available paths.
+    type: Gauge
+    unit: "{paths}"
+
+  hw.lun.paths.limit:
+    description: Number of available paths that will generate a warning when limit_type is low.degraded.
+    type: Gauge
+    unit: "{paths}"
+
+  hw.memory.limit:
+    description: Memory module size.
+    type: Gauge
+    unit: By
+
+  hw.network.bandwidth.limit:
+    description: Speed that the network adapter and its remote counterpart currently use to communicate with each other.
+    type: UpDownCounter
+    unit: By
+
+  hw.network.bandwidth.utilization:
+    description: Utilization of the network bandwidth as a fraction.
+    type: Gauge
+    unit: 1
+
+  hw.network.error_ratio:
+    description: Ratio of sent and received packets that were in error.
+    type: Gauge
+    unit: 1
+
+  hw.network.error_ratio.limit:
+    description: Network interface error ratio that will generate a warning or an alarm when limit_type is degraded or critical.
+    type: Gauge
+    unit: 1
+
+  hw.network.full_duplex:
+    description: Whether the port is configured to operate in full-duplex mode.
+    type: UpDownCounter
+
+  hw.network.io:
+    description: Received and transmitted network traffic in bytes.
+    type: Counter
+    unit: By
+
+  hw.network.packets:
+    description: Received and transmitted network traffic in packets (or frames).
+    type: Counter
+    unit: "{packets}"
+
+  hw.network.up:
+    description: Link status.
+    type: UpDownCounter
+
+  hw.other_device.uses:
+    description: Number of times the device has been used.
+    type: Counter
+    unit: "{uses}"
+
+  hw.other_device.uses.limit:
+    description: Number of times the device has been used which will generate a warning or an alarm when limit_type is degraded or critical.
+    type: Gauge
+    unit: "{uses}"
+
+  hw.other_device.value:
+    description: Currently reported value of the device.
+    type: Gauge
+
+  hw.other_device.value.limit:
+    description: Device reported value that will generate a warning or an alarm when limit_type is degraded or critical.
+    type: Gauge
+
+  hw.physical_disk.endurance_utilization:
+    description: Physical disk remaining endurance ratio.
+    type: Gauge
+    unit: 1
+  
+  hw.physical_disk.size:
+    description: Size of the disk.
+    type: Gauge
+    unit: By
+
+  hw.physical_disk.smart:
+    description: Value of the corresponding S.M.A.R.T. attribute.
+    type: Gauge
+    unit: 1
+
+  hw.power_supply.limit:
+    description: Maximum power output of the power supply.
+    type: Gauge
+    unit: W
+
+  hw.power_supply.utilization:
+    description: Utilization of the power supply as a fraction of its maximum output.
+    type: Gauge
+    unit: 1
+
+  hw.robotics.moves:
+    description: Number of moves operations that occurred during the last collect interval.
+    type: Counter
+    unit: "{moves}"
+
+  hw.tape_drive.operations:
+    description: Operations performed by the tape drive.
+    type: Counter
+    unit: "{operations}"
+
+  hw.temperature:
+    description: Temperature of the component.
+    type: Gauge
+    unit: Cel
+
+  hw.temperature.limit:
+    description: Temperature of the corresponding component that will generate a warning or an alarm when limit_type is high.degraded or high.critical.
+    type: Gauge
+    unit: Cel
+
+  hw.vm.power_ratio:
+    description: Ratio of host power consumed by the virtual machine.
+    type: Gauge
+    unit: Cel
+
+  hw.voltage:
+    description: Voltage measured by the sensor.
+    type: Gauge
+    unit: V
+
+  hw.voltage.limit:
+    description: Voltage limit in Volts.
+    type: Gauge
+    unit: V
+
+  hw.power.limit:
+    description: Energy consumption of the corresponding component that will generate a warning or an alarm when limit_type is high.degraded or high.critical.
+    type: Gauge
+    unit: W
+
+  metricshub.agent.info:
+    description: MetricsHub Agent information.
+    type: Gauge
+
+  metricshub.host.configured:
+    description: Whether the host is configured or not.
+    type: UpDownCounter
+
+  metricshub.host.up:
+    description: Whether the configured protocol (http, ipmi, snmp, ssh, wbem, winrm and wmi) is up (1) or not (0).	
+    type: UpDownCounter

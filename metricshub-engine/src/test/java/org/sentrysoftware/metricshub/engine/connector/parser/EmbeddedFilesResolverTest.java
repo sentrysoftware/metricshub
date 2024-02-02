@@ -7,12 +7,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+import org.sentrysoftware.metricshub.engine.common.helpers.FileHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 
 class EmbeddedFilesResolverTest {
@@ -24,7 +27,7 @@ class EmbeddedFilesResolverTest {
 	private static final Path CONNECTOR_2_DIRECTORY = Path.of(BASE_DIRECTORY, "connector2");
 	private static final Path CONNECTOR_1_DIRECTORY = Path.of(BASE_DIRECTORY, "connector1");
 
-	private static final String WINDOWS_EXPECTED_YAML =
+	private static final String WINDOWS_EXPECTED_YAML = String.format(
 		"""
 		---
 		connector:
@@ -35,11 +38,14 @@ class EmbeddedFilesResolverTest {
 		    - type: http
 		      method: GET
 		      url: /redfish/v1/
-		      header: "${file::src\\\\test\\\\resources\\\\test-files\\\\embedded\\\\connector1\\\\header.txt}"
-		      body: "${file::src\\\\test\\\\resources\\\\test-files\\\\embedded\\\\connector2\\\\embedded2\\\\body.txt}"
+		      header: "${file::%s}"
+		      body: "${file::%s}"
 		      expectedResult: iLO 4
 		      errorMessage: Invalid credentials / not an HP iLO 4
-		""";
+		""",
+		Paths.get("src/test/resources/test-files/embedded/connector1/header.txt").toUri().toString(),
+		Paths.get("src/test/resources/test-files/embedded/connector2/embedded2/body.txt").toUri().toString()
+	);
 
 	/**
 	 *  Path separator on LINUX is /
@@ -73,7 +79,7 @@ class EmbeddedFilesResolverTest {
 	private void assertResolvedConnector(final String expectedYaml) throws IOException {
 		final JsonNode connector = OBJECT_MAPPER.readTree(CONNECTOR_1_FILE);
 
-		final Set<Path> parents = Set.of(CONNECTOR_2_DIRECTORY);
+		final Set<URI> parents = Set.of(CONNECTOR_2_DIRECTORY.toUri());
 
 		new EmbeddedFilesResolver(connector, CONNECTOR_1_DIRECTORY, parents).internalize();
 
@@ -89,6 +95,76 @@ class EmbeddedFilesResolverTest {
 			Collections.emptySet()
 		);
 
-		assertThrows(IOException.class, () -> embeddedFilesResolver.internalize());
+		assertThrows(IllegalStateException.class, () -> embeddedFilesResolver.internalize());
+	}
+
+	@Test
+	@EnabledOnOs(OS.WINDOWS)
+	void testFindAbsoluteUriZipWindows() throws Exception {
+		testFindAbsoluteUriZip("jar:file:///");
+	}
+
+	@Test
+	@EnabledOnOs(OS.LINUX)
+	void testFindAbsoluteUriZipLinux() throws Exception {
+		testFindAbsoluteUriZip("jar:file://");
+	}
+
+	/**
+	 * Test the {@link EmbeddedFilesResolver#findAbsoluteUri(String, Path)} method.
+	 * @param schemePrefix The scheme prefix for the URI.
+	 * @throws Exception If an error occurs during the test.
+	 */
+	private void testFindAbsoluteUriZip(final String schemePrefix) throws Exception {
+		final EmbeddedFilesResolver embeddedFilesResolver = new EmbeddedFilesResolver(
+			OBJECT_MAPPER.readTree(CONNECTOR_2_FILE),
+			CONNECTOR_2_DIRECTORY,
+			Collections.emptySet()
+		);
+
+		final String absolutePath = Paths.get("src/test/resources").toAbsolutePath().toString().replace("\\", "/");
+		final String uriStrExpected = String.format(
+			"%s%s/test-files/connector/zippedConnector/connectors/connectors.zip!/hardware/DiskPart/diskPart.awk",
+			schemePrefix,
+			absolutePath
+		);
+		final String connectorDirUriStr = String.format(
+			"%s%s/test-files/connector/zippedConnector/connectors/connectors.zip!/hardware/DiskPart",
+			schemePrefix,
+			absolutePath
+		);
+
+		final URI connectorDirUri = URI.create(connectorDirUriStr);
+		final URI result = FileHelper.fileSystemTask(
+			connectorDirUri,
+			Collections.emptyMap(),
+			() -> embeddedFilesResolver.findAbsoluteUri("diskPart.awk", Paths.get(connectorDirUri))
+		);
+
+		assertEquals(uriStrExpected, result.toString());
+	}
+
+	@Test
+	void testFindAbsoluteUri() throws IOException {
+		final EmbeddedFilesResolver embeddedFilesResolver = new EmbeddedFilesResolver(
+			OBJECT_MAPPER.readTree(CONNECTOR_2_FILE),
+			CONNECTOR_2_DIRECTORY,
+			Collections.emptySet()
+		);
+		final Path yamlTestPath = Paths.get(
+			"src",
+			"test",
+			"resources",
+			"test-files",
+			"connector",
+			"zippedConnector",
+			"connectors",
+			"hardware",
+			"MIB2"
+		);
+		assertEquals(
+			new File("src/test/resources/test-files/connector/zippedConnector/connectors/hardware/MIB2/exit.txt").toURI(),
+			embeddedFilesResolver.findAbsoluteUri("exit.txt", yamlTestPath)
+		);
 	}
 }

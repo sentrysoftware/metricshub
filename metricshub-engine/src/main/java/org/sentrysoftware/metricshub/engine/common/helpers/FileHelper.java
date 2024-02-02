@@ -21,10 +21,21 @@ package org.sentrysoftware.metricshub.engine.common.helpers;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.CONNECTORS;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.NEW_LINE;
+
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -47,6 +58,84 @@ public class FileHelper {
 			return Files.getLastModifiedTime(path, LinkOption.NOFOLLOW_LINKS).toMillis();
 		} catch (IOException e) {
 			return 0;
+		}
+	}
+
+	/**
+	 * Return the path to the connectors directory if the {@link Path} in parameter is a path containing a "connectors" folder.
+	 * @param zipUri The path where to look for the connectors directory
+	 * @return The {@link Path}  of the connector directory
+	 */
+	public static Path findConnectorsDirectory(final URI zipUri) {
+		final String strPath = zipUri.toString();
+		final int connectorsIndex = strPath.lastIndexOf("/" + CONNECTORS + "/");
+		if (connectorsIndex == -1) {
+			return null;
+		}
+
+		// Determine the starting index based on the operating system (Windows or other)
+		final int beginIndex = LocalOsHandler.isWindows() ? "jar:file:///".length() : "jar:file://".length();
+
+		return Paths.get(strPath.substring(beginIndex, connectorsIndex + 1 + CONNECTORS.length()));
+	}
+
+	/**
+	 * Executes a file system task using the provided URI, environment map, and a runnable task within a try-with-resources block.
+	 *
+	 * This method creates a new file system based on the specified URI and the provided environment map. It then executes the
+	 * provided runnable task within the context of this file system. The file system is automatically closed when the task
+	 * completes or if an exception is thrown.
+	 *
+	 * @param uri The non-null URI specifying the file system to be created.
+	 * @param env The non-null map of file system provider-specific properties and options.
+	 * @param runnable The non-null task to be executed within the created file system.
+	 * @throws IOException If an I/O error occurs while creating or operating on the file system.
+	 */
+	public static void fileSystemTask(
+		@NonNull final URI uri,
+		@NonNull final Map<String, ?> env,
+		@NonNull final Runnable runnable
+	) throws IOException {
+		try (FileSystem fs = FileSystems.newFileSystem(uri, env)) {
+			runnable.run();
+		}
+	}
+
+	/**
+	 * Executes a file system task using the provided URI, environment map, and a callable task within a try-with-resources block.
+	 *
+	 * This method creates a new file system based on the specified URI and the provided environment map. It then executes the
+	 * provided callable task within the context of this file system. The file system is automatically closed when the task
+	 * completes or if an exception is thrown.
+	 * @param <T>
+	 *
+	 * @param uri The non-null URI specifying the file system to be created.
+	 * @param env The non-null map of file system provider-specific properties and options.
+	 * @param callable The non-null task to be executed within the created file system.
+	 * @return
+	 * @throws IOException If an I/O error occurs while creating or operating on the file system.
+	 */
+	public static <T> T fileSystemTask(
+		@NonNull final URI uri,
+		@NonNull final Map<String, ?> env,
+		@NonNull final Callable<T> callable
+	) throws Exception {
+		try (FileSystem fs = FileSystems.newFileSystem(uri, env)) {
+			return callable.call();
+		}
+	}
+
+	/**
+	 * Utility method to read the content of a file specified by a URI.
+	 * The file content is read line by line and joined into a single string.
+	 *
+	 * @param filePath The path of the file to be read.
+	 * @return A string representing the content of the file.
+	 * @throws IOException If an I/O error occurs while reading the file.
+	 */
+	public static String readFileContent(final Path filePath) throws IOException {
+		try (Stream<String> lines = Files.lines(filePath)) {
+			return lines.collect(Collectors.joining(NEW_LINE));
 		}
 	}
 }

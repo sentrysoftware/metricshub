@@ -1,0 +1,55 @@
+---
+extends:
+- ../Hardware/Hardware
+- ../MIB2-header/MIB2-header
+connector:
+  displayName: MIB-2 Standard SNMP Agent - Network Interfaces
+  platforms: Any system with SNMP
+  detection:
+    appliesTo:
+    - Network
+    - OOB
+    - HP
+    - Storage
+    - VMS
+    - OSF1
+    supersedes:
+    - HPUXNetwork
+monitors:
+  network:
+    discovery:
+      sources:
+        source(3):
+          computes:
+            # Now add MSHW to the Left and Right of the ifMIBObjects SpeedMBS
+            # PortID;Description;PortType;MacAddress;AdminStatus;ID;Name;Alias;
+          - type: leftConcat
+            column: 7
+            value: MSHW
+          - type: rightConcat
+            column: 7
+            value: MSHW
+            # Replace "MSHWMSHW", i.e. a blank column with the ifTable value.
+            # PortID;Description;PortType;MacAddress;AdminStatus;ID;Name;Alias;
+          - type: replace
+            column: 7
+            existingValue: MSHWMSHW
+            newValue: $2
+            # Now get rid of any remaining MSHWs
+            # PortID;Description;PortType;MacAddress;AdminStatus;ID;Name;Alias;
+          - type: replace
+            column: 7
+            existingValue: MSHW
+            newValue: ""
+      mapping:
+        # InstanceTable = Source(1)
+        # PortID;Description;PortType;MacAddress;AdminStatus;ID;Name;Alias;
+        source: ${source::monitors.network.discovery.sources.source(3)}
+        attributes:
+          id: $1
+          __display_id: $7
+          physical_address: $4
+          physical_address_type: MAC
+          device_type: $3
+          hw.parent.type: enclosure
+          name: ${awk::sprintf(\"%s (%s)\", $7, $3)}
