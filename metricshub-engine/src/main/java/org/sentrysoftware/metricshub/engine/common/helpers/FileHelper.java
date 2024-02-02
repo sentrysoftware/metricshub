@@ -63,7 +63,7 @@ public class FileHelper {
 
 	/**
 	 * Return the path to the connectors directory if the {@link Path} in parameter is a path containing a "connectors" folder.
-	 * @param path The path where to look for the connectors directory
+	 * @param zipUri The path where to look for the connectors directory
 	 * @return The {@link Path}  of the connector directory
 	 */
 	public static Path findConnectorsDirectory(final URI zipUri) {
