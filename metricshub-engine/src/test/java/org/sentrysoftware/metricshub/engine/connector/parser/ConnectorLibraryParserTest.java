@@ -281,7 +281,7 @@ class ConnectorLibraryParserTest {
 			monitorJob.getDiscovery().getMapping().getAttributes().get(DISCOVERY_MAPPING_NAME)
 		);
 		assertEquals(
-			DISCOVERY_MAPPING_MODEL_VALUE,
+			"$3",
 			monitorJob.getDiscovery().getMapping().getAttributes().get(DISCOVERY_MAPPING_MODEL)
 		);
 
@@ -299,7 +299,7 @@ class ConnectorLibraryParserTest {
 			monitorJob.getDiscovery().getMapping().getAttributes().get(DISCOVERY_MAPPING_NAME)
 		);
 		assertEquals(
-			DISCOVERY_MAPPING_VENDOR_VALUE,
+			"$4",
 			monitorJob.getDiscovery().getMapping().getAttributes().get(DISCOVERY_MAPPING_VENDOR)
 		);
 

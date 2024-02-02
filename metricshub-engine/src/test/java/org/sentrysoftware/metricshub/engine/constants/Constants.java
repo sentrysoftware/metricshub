@@ -436,7 +436,7 @@ public class Constants {
 	public static final String DISK_CONTROLLER_AWK_COMMAND = "${awk::sprintf(\"Disk Controller: %s (%s)\", $2, $3)}";
 	public static final String PHYSICAL_DISK_AWK_COMMAND =
 		"${awk::sprintf(\"%s (%s - %s)\", $1, $4, bytes2HumanFormatBase10($6))}";
-	public static String SOURCE = "source(1)";
+	public static final String SOURCE = "source(1)";
 
 	// Encryption
 
