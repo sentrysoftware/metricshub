@@ -355,6 +355,20 @@ public class CollectStrategy extends AbstractStrategy {
 			return;
 		}
 
+		log.debug(
+			"Hostname {} - Start collect {} mapping with source {}, attributes {}, metrics {}, conditional collection {}, legacy text parameters {} " +
+			"and resource{}. Connector ID: {}.",
+			hostname,
+			monitorType,
+			mapping.getSource(),
+			mapping.getAttributes(),
+			mapping.getMetrics(),
+			mapping.getConditionalCollection(),
+			mapping.getLegacyTextParameters(),
+			mapping.getResource(),
+			connectorId
+		);
+
 		// If we process single monitor (monoInstance), we loop until first row.
 		// Otherwise, (in case of multi-instance processing), we loop over all the source table rows
 		final int rowCountLimit = maybeMonitor.isEmpty() ? table.size() : 1;

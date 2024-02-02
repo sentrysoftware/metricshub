@@ -606,24 +606,38 @@ class ConnectorParserTest {
 		final AbstractNodeProcessor processor = ConnectorParser.withNodeProcessor(RESOURCES_TEST_FILES_PATH).getProcessor();
 		assertNotNull(
 			processor,
-			() -> "Context: Extends and constants node processors creation. First processor shouldn't be null"
+			() ->
+				"Context: Extends, reference resolver and constants node processors creation. First processor shouldn't be null"
 		);
 		assertTrue(
 			processor instanceof ExtendsProcessor,
 			() ->
-				"Context: Extends and constants node processors creation. First processor should be: " +
+				"Context: Extends, reference resolver and constants node processors creation. First processor should be: " +
 				ExtendsProcessor.class.getSimpleName()
 		);
 
-		final AbstractNodeProcessor next = processor.getNext();
+		AbstractNodeProcessor next = processor.getNext();
 		assertNotNull(
 			next,
-			() -> "Context: Extends and constants node processors creation. Second processor shouldn't be null"
+			() ->
+				"Context: Extends, reference resolver and constants node processors creation. Second processor shouldn't be null"
+		);
+		assertTrue(
+			next instanceof ReferenceResolverProcessor,
+			() ->
+				"Context: Extends, reference resolver and constants node processors creation. Second processor should be: " +
+				ReferenceResolverProcessor.class.getSimpleName()
+		);
+		next = next.next;
+		assertNotNull(
+			next,
+			() ->
+				"Context: Extends, reference resolver and constants node processors creation. Third processor shouldn't be null"
 		);
 		assertTrue(
 			next instanceof ConstantsProcessor,
 			() ->
-				"Context: Extends and constants node processors creation. Second processor should be: " +
+				"Context: Extends, reference resolver and constants node processors creation. Third processor should be: " +
 				ConstantsProcessor.class.getSimpleName()
 		);
 	}
@@ -636,12 +650,12 @@ class ConnectorParserTest {
 		assertNotNull(
 			processor,
 			() ->
-				"Context: Extends, template variable and constants node processors creation. First processor shouldn't be null"
+				"Context: Extends, template variable, reference resolver and constants node processors creation. First processor shouldn't be null"
 		);
 		assertTrue(
 			processor instanceof ExtendsProcessor,
 			() ->
-				"Context: Extends, template variable and constants node processors creation. First processor should be: " +
+				"Context: Extends, template variable, reference resolver and constants node processors creation. First processor should be: " +
 				ExtendsProcessor.class.getSimpleName()
 		);
 
@@ -649,12 +663,12 @@ class ConnectorParserTest {
 		assertNotNull(
 			next,
 			() ->
-				"Context: Extends, template variable and constants node processors creation. Second processor shouldn't be null"
+				"Context: Extends, template variable, reference resolver and constants node processors creation. Second processor shouldn't be null"
 		);
 		assertTrue(
 			next instanceof TemplateVariableProcessor,
 			() ->
-				"Context: Extends, template variable and constants node processors creation. Second processor should be: " +
+				"Context: Extends, template variable, reference resolver and constants node processors creation. Second processor should be: " +
 				TemplateVariableProcessor.class.getSimpleName()
 		);
 
@@ -662,12 +676,24 @@ class ConnectorParserTest {
 		assertNotNull(
 			next,
 			() ->
-				"Context: Extends, template variable and constants node processors creation. Third processor shouldn't be null"
+				"Context: Extends, template variable, reference resolver and constants node processors creation. Third processor shouldn't be null"
+		);
+		assertTrue(
+			next instanceof ReferenceResolverProcessor,
+			() ->
+				"Context: Extends, template variable, reference resolver and constants node processors creation. Third processor should be: " +
+				ReferenceResolverProcessor.class.getSimpleName()
+		);
+		next = next.getNext();
+		assertNotNull(
+			next,
+			() ->
+				"Context: Extends, template variable, reference resolver and constants node processors creation. Fourth processor shouldn't be null"
 		);
 		assertTrue(
 			next instanceof ConstantsProcessor,
 			() ->
-				"Context: Extends, template variable and constants node processors creation. Third processor should be: " +
+				"Context: Extends, template variable, reference resolver and constants node processors creation. Fourth processor should be: " +
 				ConstantsProcessor.class.getSimpleName()
 		);
 	}

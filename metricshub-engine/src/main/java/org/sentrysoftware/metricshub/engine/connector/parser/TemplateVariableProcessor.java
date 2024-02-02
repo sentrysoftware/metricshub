@@ -63,7 +63,7 @@ public class TemplateVariableProcessor extends AbstractNodeProcessor {
 
 		// Call JsonNodeUpdater to replace the placeholder by the variable value
 		JsonNodeUpdater
-			.builder()
+			.jsonNodeUpdaterBuilder()
 			.withJsonNode(node)
 			.withPredicate(isMatchingConnectorVariableRegex)
 			.withUpdater(variableValueUpdater)
