@@ -368,6 +368,11 @@ public class MetricsHubConstants {
 	public static final Pattern COLUMN_PATTERN = Pattern.compile("^\\s*\\$(\\d+)\\s*$");
 
 	/**
+	 * Column Reference pattern
+	 */
+	public static final Pattern COLUMN_REFERENCE_PATTERN = Pattern.compile("\\$(\\d+)");
+
+	/**
 	 * Double Pattern
 	 */
 	public static final Pattern DOUBLE_PATTERN = Pattern.compile("\\d+(\\.\\d+)?");

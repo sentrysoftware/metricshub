@@ -23,6 +23,7 @@ monitors:
           type: $6
           info: $7
           name: "${awk::sprintf(\"Enclosure: %s (%s %s)\", $3, $4, $5)}"
+          vendor_and_model: $4 $5
     collect:
       # Collect type is multi-instance
       type: multiInstance
