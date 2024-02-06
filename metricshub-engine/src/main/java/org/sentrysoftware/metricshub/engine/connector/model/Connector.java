@@ -40,10 +40,12 @@ import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.ExtendsDeserializer;
 import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.SourcesDeserializer;
 import org.sentrysoftware.metricshub.engine.connector.model.common.TranslationTable;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.ConnectorIdentity;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.Detection;
 import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.MonitorJob;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
@@ -154,5 +156,25 @@ public class Connector implements Serializable {
 			}
 		}
 		throw new IllegalStateException("No compiled file name found.");
+	}
+
+	/**
+	 * Checks if a specified tag is present in the tags associated with the Connector.
+	 *
+	 * @param tag       The tag to check for presence.
+	 * @return {@code true} if the tag is present, {@code false} otherwise.
+	 */
+	public boolean hasTag(@NonNull final String tag) {
+		final Detection detection = connectorIdentity.getDetection();
+		if (detection == null) {
+			return false;
+		}
+
+		final Set<String> connectorTags = detection.getTags();
+		if (connectorTags == null) {
+			return false;
+		}
+
+		return connectorTags.contains(tag);
 	}
 }

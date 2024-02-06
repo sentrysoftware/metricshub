@@ -204,9 +204,9 @@ You can however specify manually which connectors must be used to monitor the sp
 
 ### Force Connectors
 
-To force specific connectors to be used, add the `--force CONNECTOR,...` option, where `CONNECTOR,...` is a comma-separated list of connector internal names (you need to use their **id**).
+To force specific connectors to be used, add the `--connectors +CONNECTOR,...` option, where `+CONNECTOR,...` is a comma-separated list of connector internal names (you need to use their **id**).
 
-Using the `--force` option will shorten the detection phase, as only the specified connectors will be tested.
+Using the `--connectors` option will shorten the detection phase, as only the specified connectors will be tested.
 
 To get the list of connectors bundled in **${solutionName}** and their corresponding internal name (**id**), you can run the below command:
 
@@ -218,11 +218,31 @@ This will provide a list as below:
 
 ![Output of the metricshub --list command, listing all connectors, their ID, applicable system types and display name](../images/metricshub-list.png)
 
-This list displays the internal name (**id**) of each connector, its applicable system types (to use with the `--type` option) and its display name. You need to use the connector's internal name (**id**) in the `--force` option.
+This list displays the internal name (**id**) of each connector, its applicable system types and its display name. You need to use the connector's internal name (**id**) prefixed with a plus sign (`+`) in the `--connectors` option.
 
 ### Exclude Connectors
 
-To exclude specific connectors from being tested in the detection phase, use the `--exclude CONNECTOR,...` option, where `CONNECTOR,...` is a comma-separated list connectors' internal name (**id**).
+To exclude specific connectors from being tested in the detection phase, use the `--connectors -CONNECTOR,...` option, where `-CONNECTOR,...` is a comma-separated list connectors' internal name (**id**). You need to use the connector's internal name (**id**) prefixed with a minus sign (`-`) in the `--connectors` option.
+
+### Connector tags
+
+The connectors can be filtered by tags. Tags are string values defined in a CLI command.
+
+A given connector is selected only if it defines a tag which is listed in the CLI command tags.
+
+The tags are useful to select only some connectors using their categories (e.g: hardware, system, etc ...).
+
+Use `--connectors` to define the tags in the CLI command and prefix the tag name with a hash (`#`) (If there is more than one tag to define, use commas to define them).
+
+```batch
+$ metricshub SERVER01 -t oob --snmp v2c --community public --connectors #hardware,#system
+```
+
+To exclude connectors by tags, prefix the tag name you want to exclude with a minus sign and a hash (`-#`) (If there is more than one tag to exclude, use commas to define them)
+
+```batch
+$ metricshub SERVER01 -t oob --snmp v2c --community public --connectors #hardware,-#system
+```
 
 ## Sequential Mode
 
@@ -245,18 +265,5 @@ duration in seconds of the pause between two collect operations.
 $ metricshub SERVER01 -t oob --snmp v2c --community public --iterations 2 --sleep-iteration 5
 ```
 
-## Connector tags
-
-The connectors can be filtered by tags. Tags are string values defined in a CLI command.
-
-A given connector is selected only if it contains a tag which is listed in the CLI command tags.
-
-The tags are useful to select only some connectors using their categories (e.g: hardware, storage, etc ...).
-
-Use `--include-connector-tags` to define the tags in the CLI command (If there is more than one tag to define, use commas to define them).
-
-```batch
-$ metricshub SERVER01 -t oob --snmp v2c --community public --include-connector-tags hardware, storage
-```
 
 

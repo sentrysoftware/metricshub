@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -62,9 +61,10 @@ public class ConnectorSelection extends AbstractConnectorProcessor {
 	 */
 	public ConnectorSelection(
 		@NonNull final TelemetryManager telemetryManager,
-		@NonNull final ClientsExecutor clientsExecutor
+		@NonNull final ClientsExecutor clientsExecutor,
+		@NonNull final Set<String> connectorIds
 	) {
-		super(telemetryManager, clientsExecutor);
+		super(telemetryManager, clientsExecutor, connectorIds);
 	}
 
 	@Override
@@ -90,14 +90,7 @@ public class ConnectorSelection extends AbstractConnectorProcessor {
 			return Collections.emptyList();
 		}
 
-		final Set<String> caseInsensitiveSelectedConnectors = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-		final Set<String> caseSensitiveSelectedConnectors = hostConfiguration.getSelectedConnectors();
-
-		if (caseSensitiveSelectedConnectors != null) {
-			caseInsensitiveSelectedConnectors.addAll(caseSensitiveSelectedConnectors);
-		}
-
-		if (caseInsensitiveSelectedConnectors == null || caseInsensitiveSelectedConnectors.isEmpty()) {
+		if (connectorIds.isEmpty()) {
 			log.error(
 				"Hostname {} - No connectors have been selected for the detection. Stopping discovery operation.",
 				hostname
@@ -106,10 +99,7 @@ public class ConnectorSelection extends AbstractConnectorProcessor {
 		}
 
 		return runAllConnectorsDetectionCriteria(
-			connectorStore
-				.values()
-				.stream()
-				.filter(connector -> isConnectorContainedInSet(connector, caseInsensitiveSelectedConnectors)),
+			connectorStore.values().stream().filter(connector -> isConnectorContainedInSet(connector, connectorIds)),
 			hostConfiguration
 		)
 			.collect(Collectors.toList()); //NOSONAR

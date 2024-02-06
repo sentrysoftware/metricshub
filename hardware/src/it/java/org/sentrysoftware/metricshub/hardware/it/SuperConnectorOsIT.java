@@ -43,7 +43,7 @@ class SuperConnectorOsIT {
 			.hostId(LOCALHOST)
 			.hostname(LOCALHOST)
 			.hostType(DeviceKind.STORAGE)
-			.selectedConnectors(Set.of(CONNECTOR_ID))
+			.connectors(Set.of("+" + CONNECTOR_ID))
 			.configurations(Map.of(OsCommandConfiguration.class, osCommandConfiguration))
 			.build();
 

@@ -515,14 +515,7 @@ By default, **${solutionName}** collects metrics from the monitored resources ev
 
 **${solutionName}** comes with the *Basic Connector Library* whereas the *Enterprise edition* includes hundreds of hardware connectors that describe how to discover components and detect failures. When running **${solutionName}**, the connectors are automatically selected based on the device type provided and the enabled protocols. You can however indicate to **${solutionName}** which connectors should be used or excluded.
 
-Use the parameters below to select or exclude connectors:
-
-| Parameter         | Description                                                                          |
-|-------------------| ------------------------------------------------------------------------------------ |
-| selectConnectors  | Connector(s) to use to monitor the host. No automatic detection will be performed.   |
-| excludeConnectors | Connector(s) that must be excluded from the automatic detection.                     |
-
-Connector names must be comma-separated, as shown in the example below:
+Use the `connectors` parameter to force, select or exclude connectors. Connector names must be comma-separated, as shown in the example below:
 
 ```yaml
 resourceGroups:
@@ -537,10 +530,13 @@ resourceGroups:
             timeout: 120s
             username: myusername
             password: mypwd
-        selectConnectors: [ VMwareESX4i, VMwareESXi ]
-        excludeConnectors: [ VMwareESXiDisksStorage ]
+        connectors: [ +VMwareESX4i, +VMwareESXi ]
 ```
 
+- To force a connector, prefix the connector identifier with a plus sign (+), for instance, `+MIB2`.
+- To exclude a connector, use a minus sign (-) before the connector identifier, for example, `-MIB2`.
+- To stage a connector to be executed by the automatic detection, only use the connector identifier, for example, `MIB2`.
+  
 > **Note**: Any misspelled connector will be ignored.
 
 To know which connectors are available, refer to [Basic Monitored Systems](../basic-platform-requirements.html#!) or [Enterprise Monitored Systems](../enterprise-platform-requirements.html#!).
@@ -559,9 +555,9 @@ Connectors can be filtered based on tags.
 
 During the automatic detection, a connector will only be selected if it contains a tag that is listed in the MetricsHub Agent's configuration file, `config/metricshub.yaml`.
 
-The tags are used to classify connectors, making it possible to select only a specific type of connector, such as `hardware` connectors or `application` connectors.
+The tags are used to classify connectors, making it possible to select only a specific category of connector, such as `hardware` connectors or `application` connectors.
 
-To filter connectors by tags, set the required tags in the `includeConnectorTags` property under the resource configuration using the following format:
+Use the `connectors` parameter to filter connectors by tags, prefix the tag name with a hash (`#`), such as `#hardware` or `#system` as shown in the example below:
 
 ```yaml
 resourceGroups:
@@ -569,7 +565,6 @@ resourceGroups:
     resources:
       # Resource Configuration 
       myHost1:
-        includeConnectorTags: [hardware, storage]
         attributes:
           host.name: my-host-01
           host.type: linux
@@ -578,6 +573,26 @@ resourceGroups:
             community: public
             port: 161
             version: v2c
+        connectors: [ "#hardware", "#system" ]
+```
+
+To exclude connectors by tags, prefix the tag name you want to exclude with a minus and a hash sign (`-#`), such as `-#system` as shown in the example below:
+
+```yaml
+resourceGroups:
+  boston:
+    resources:
+      # Resource Configuration 
+      myHost1:
+        attributes:
+          host.name: my-host-01
+          host.type: linux
+        protocols:
+          snmp:
+            community: public
+            port: 161
+            version: v2c
+        connectors: [ -#system ]
 ```
 
 #### Discovery cycle

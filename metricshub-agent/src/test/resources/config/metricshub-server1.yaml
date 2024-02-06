@@ -56,5 +56,5 @@ resourceGroups:
             port: 443
             username: username
             password: password
-        selectConnectors:
-        - PureStorageREST
+        connectors:
+        - +PureStorageREST
