@@ -26,8 +26,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,6 +41,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
+import org.sentrysoftware.metricshub.engine.common.helpers.FileHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import org.sentrysoftware.metricshub.engine.connector.deserializer.ConnectorDeserializer;
 import org.sentrysoftware.metricshub.engine.connector.deserializer.PostDeserializeHelper;
@@ -75,9 +79,9 @@ public class ConnectorParser {
 
 		// PRE-Processing
 		if (processor != null) {
-			final Map<Path, JsonNode> parents = new HashMap<>();
+			final Map<URI, JsonNode> parents = new HashMap<>();
 			final Path connectorDirectory = file.toPath().getParent();
-			resolveParents(node, connectorDirectory, parents);
+			resolveParents(node, connectorDirectory.toUri(), parents);
 
 			node = processor.process(node);
 
@@ -94,6 +98,41 @@ public class ConnectorParser {
 
 		// Update the compiled filename
 		new CompiledFilenameUpdate(file.getName()).update(connector);
+
+		return connector;
+	}
+
+	/**
+	 * Parse the given connector file
+	 *
+	 * @param inputStream The {@link InputStream} of the connector we want to parse
+	 * @param connectorFolderUri The URI of the folder containing the connector
+	 * @param fileName The connector file name
+	 * @return new {@link Connector} object
+	 * @throws IOException
+	 */
+	public Connector parse(final InputStream inputStream, final URI connectorFolderUri, final String fileName)
+		throws IOException {
+		JsonNode node = deserializer.getMapper().readTree(inputStream);
+		// PRE-Processing
+		if (processor != null) {
+			final Map<URI, JsonNode> parents = new HashMap<>();
+			resolveParents(node, connectorFolderUri, parents);
+
+			node = processor.process(node);
+			new EmbeddedFilesResolver(node, Paths.get(connectorFolderUri), parents.keySet()).internalize();
+		}
+
+		// POST-Processing
+		final Connector connector = deserializer.deserialize(node);
+
+		// Run the update chain
+		if (connectorUpdateChain != null) {
+			connectorUpdateChain.update(connector);
+		}
+
+		// Update the compiled filename
+		new CompiledFilenameUpdate(fileName).update(connector);
 
 		return connector;
 	}
@@ -204,26 +243,26 @@ public class ConnectorParser {
 	 * Resolve connector parent paths
 	 *
 	 * @param connector    The connector object as {@link JsonNode}
-	 * @param connectorDir The connector directory
+	 * @param connectorUri The connector directory
 	 * @param parents      The parents map to resolve
 	 * @throws IOException
 	 */
-	private void resolveParents(final JsonNode connector, final Path connectorDir, final Map<Path, JsonNode> parents)
+	private void resolveParents(final JsonNode connector, final URI connectorUri, final Map<URI, JsonNode> parents)
 		throws IOException {
 		final ArrayNode extended = (ArrayNode) connector.get("extends");
 		if (extended == null || extended.isNull() || extended.isEmpty()) {
 			return;
 		}
 
-		final List<Entry<Path, JsonNode>> nextEntries = new ArrayList<>();
-		Entry<Path, JsonNode> parentEntry;
+		final List<Entry<URI, JsonNode>> nextEntries = new ArrayList<>();
+		Entry<URI, JsonNode> parentEntry;
 		for (final JsonNode extendedNode : extended) {
-			parentEntry = getConnectorParentEntry(connectorDir, extendedNode.asText());
+			parentEntry = getConnectorParentEntry(connectorUri, extendedNode.asText());
 			nextEntries.add(parentEntry);
 			parents.put(parentEntry.getKey(), parentEntry.getValue());
 		}
 
-		for (Entry<Path, JsonNode> entry : nextEntries) {
+		for (Entry<URI, JsonNode> entry : nextEntries) {
 			resolveParents(entry.getValue(), entry.getKey(), parents);
 		}
 	}
@@ -237,17 +276,35 @@ public class ConnectorParser {
 	 * @return a Map entry defining the path as key and the {@link JsonNode} parent connector as value
 	 * @throws IOException
 	 */
-	private Entry<Path, JsonNode> getConnectorParentEntry(
-		final Path connectorCurrentDir,
+	private Entry<URI, JsonNode> getConnectorParentEntry(
+		final URI connectorCurrentDir,
 		final String connectorRelativePath
 	) throws IOException {
-		final Path connectorPath = connectorCurrentDir.resolve(connectorRelativePath + ".yaml");
-		if (!Files.exists(connectorPath)) {
-			throw new IllegalStateException("Cannot find extended connector " + connectorPath.toString());
+		// Resolve the Path of the parent yaml file and normalize it
+		final Path connectorCurrentDirPath = Paths.get(connectorCurrentDir);
+		Path connectorPath = connectorCurrentDirPath.resolve(connectorRelativePath + ".yaml").normalize();
+
+		if (Files.exists(connectorPath)) {
+			return new AbstractMap.SimpleEntry<>(
+				connectorPath.getParent().toUri(),
+				deserializer.getMapper().readTree(Files.newInputStream(connectorPath))
+			);
 		}
-		return new AbstractMap.SimpleEntry<>(
-			connectorPath.getParent(),
-			deserializer.getMapper().readTree(connectorPath.toFile())
-		);
+
+		// If the path is absolute, it should refer to a path within the "connectors" directory
+		if (!connectorRelativePath.startsWith(".")) {
+			final Path connectorsDirectoryPath = FileHelper.findConnectorsDirectory(connectorCurrentDir);
+			if (connectorsDirectoryPath != null) {
+				connectorPath = connectorsDirectoryPath.resolve(connectorRelativePath + ".yaml").normalize();
+				if (Files.exists(connectorPath)) {
+					return new AbstractMap.SimpleEntry<>(
+						connectorPath.getParent().toUri(),
+						deserializer.getMapper().readTree(Files.newInputStream(connectorPath))
+					);
+				}
+			}
+		}
+
+		throw new IllegalStateException("Cannot get parent entry for connector path: " + connectorRelativePath);
 	}
 }

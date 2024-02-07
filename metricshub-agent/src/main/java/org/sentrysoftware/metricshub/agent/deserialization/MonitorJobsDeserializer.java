@@ -28,7 +28,6 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,6 +38,7 @@ import org.sentrysoftware.metricshub.engine.connector.deserializer.PostDeseriali
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.MonitorJob;
 import org.sentrysoftware.metricshub.engine.connector.parser.ConnectorParser;
+import org.sentrysoftware.metricshub.engine.connector.parser.ReferenceResolverProcessor;
 import org.sentrysoftware.metricshub.engine.connector.update.ConnectorUpdateChain;
 
 /**
@@ -63,8 +63,9 @@ public class MonitorJobsDeserializer extends JsonDeserializer<Map<String, Monito
 			return new HashMap<>();
 		}
 
-		final ObjectNode monitorsNode = JsonNodeFactory.instance.objectNode();
-		monitorsNode.set("monitors", jsonNode);
+		// Resolve relative source references through the ReferenceResolverProcessor
+		final JsonNode monitorsNode = new ReferenceResolverProcessor(null)
+			.process(JsonNodeFactory.instance.objectNode().set("monitors", jsonNode));
 
 		// Parse the connector like it is done by the engine for regular connectors
 		final Connector connector = JsonHelper.deserialize(OBJECT_MAPPER, monitorsNode, Connector.class);

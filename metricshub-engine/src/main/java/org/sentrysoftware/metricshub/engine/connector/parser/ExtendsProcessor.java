@@ -25,13 +25,16 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
+import org.sentrysoftware.metricshub.engine.common.helpers.FileHelper;
 
 /**
  * Represents a processor that merges extended connectors specified under the 'extends' section of the given JSON node.
@@ -107,7 +110,22 @@ public class ExtendsProcessor extends AbstractNodeProcessor {
 	 * @throws IOException If an I/O error occurs during node retrieval.
 	 */
 	private JsonNode getJsonNode(Iterator<JsonNode> iter) throws IOException {
-		return mapper.readTree(connectorDirectory.resolve(iter.next().asText() + ".yaml").toFile());
+		final String connectorRelativePath = iter.next().asText() + ".yaml";
+
+		// If the path is absolute, it should refer to a path within the "connectors" directory
+		if (!connectorRelativePath.startsWith(".")) {
+			final Path connectorsDirectoryPath = FileHelper.findConnectorsDirectory(connectorDirectory.toUri());
+			if (connectorsDirectoryPath != null) {
+				final File connectorPathFile = connectorsDirectoryPath.resolve(connectorRelativePath).normalize().toFile();
+				if (connectorPathFile != null && connectorPathFile.exists()) {
+					return mapper.readTree(connectorPathFile);
+				}
+			}
+		}
+
+		Path connectorPath = connectorDirectory.resolve(connectorRelativePath).normalize();
+
+		return mapper.readTree(Files.newInputStream(connectorPath));
 	}
 
 	/**
