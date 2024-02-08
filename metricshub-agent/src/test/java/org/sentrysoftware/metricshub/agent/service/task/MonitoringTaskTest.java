@@ -49,6 +49,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;
 import org.sentrysoftware.metricshub.engine.strategy.IStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.collect.CollectStrategy;
+import org.sentrysoftware.metricshub.engine.strategy.collect.HealthCheckStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.collect.PrepareCollectStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.detection.DetectionStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.discovery.DiscoveryStrategy;
@@ -122,6 +123,15 @@ class MonitoringTaskTest {
 		doReturn(hostConfiguration).when(telemetryManagerMock).getHostConfiguration();
 		doNothing()
 			.when(telemetryManagerMock)
+			.run(
+				any(IStrategy.class),
+				any(IStrategy.class),
+				any(IStrategy.class),
+				any(IStrategy.class),
+				any(IStrategy.class)
+			);
+		doNothing()
+			.when(telemetryManagerMock)
 			.run(any(IStrategy.class), any(IStrategy.class), any(IStrategy.class), any(IStrategy.class));
 		doNothing().when(telemetryManagerMock).run(any(IStrategy.class));
 
@@ -161,6 +171,7 @@ class MonitoringTaskTest {
 			verify(telemetryManagerMock, times(4))
 				.run(
 					any(PrepareCollectStrategy.class),
+					any(HealthCheckStrategy.class),
 					any(CollectStrategy.class),
 					any(SimpleStrategy.class),
 					any(HardwarePostCollectStrategy.class)
