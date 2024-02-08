@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
@@ -74,22 +73,6 @@ class HttpCriterionDeserializerTest extends DeserializerTest {
 		expected.addAll(List.of(http1, http2, http3));
 
 		compareCriterion(httpCriterion, expected);
-	}
-
-	@Test
-	/**
-	 * Checks that fields that cannot be null throw an error when they are null
-	 *
-	 * @throws IOException
-	 */
-	void testDeserializeNonNull() throws Exception {
-		try {
-			getConnector("httpCriterionNonNull");
-			Assertions.fail(MISMATCHED_EXCEPTION_MSG);
-		} catch (MismatchedInputException e) {
-			final String message = "Missing required creator property 'url' (index 3)";
-			checkMessage(e, message);
-		}
 	}
 
 	@Test

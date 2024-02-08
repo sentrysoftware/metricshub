@@ -33,10 +33,67 @@ class HttpSourceDeserializerTest extends DeserializerTest {
 					.builder()
 					.key("${source::pre.testHttpSource}")
 					.type("http")
-					.url("/testUrl/")
+					.url("http://machine:5985/testUrl/")
 					.method(POST)
 					.body("test\nbody")
 					.build()
+			)
+		);
+
+		assertEquals(expected, connector.getPre());
+	}
+
+	@Test
+	void testDeserializeHttpSourceWithPathOnly() throws IOException {
+		final Connector connector = getConnector("http2");
+
+		final Map<String, Source> expected = new LinkedHashMap<>(
+			Map.of(
+				"testHttpSource",
+				HttpSource
+					.builder()
+					.key("${source::pre.testHttpSource}")
+					.type("http")
+					.path("/testPath/")
+					.method(POST)
+					.body("test\nbody")
+					.build()
+			)
+		);
+
+		assertEquals(expected, connector.getPre());
+	}
+
+	@Test
+	void testDeserializeHttpSourceWithUrlAndPath() throws IOException {
+		final Connector connector = getConnector("http3");
+
+		final Map<String, Source> expected = new LinkedHashMap<>(
+			Map.of(
+				"testHttpSource",
+				HttpSource
+					.builder()
+					.key("${source::pre.testHttpSource}")
+					.type("http")
+					.url("http://machine:5985/path/")
+					.path("/testPath/")
+					.method(POST)
+					.body("test\nbody")
+					.build()
+			)
+		);
+
+		assertEquals(expected, connector.getPre());
+	}
+
+	@Test
+	void testDeserializeHttpSourceWithoutUrlNorPath() throws IOException {
+		final Connector connector = getConnector("http4");
+
+		final Map<String, Source> expected = new LinkedHashMap<>(
+			Map.of(
+				"testHttpSource",
+				HttpSource.builder().key("${source::pre.testHttpSource}").type("http").method(POST).body("test\nbody").build()
 			)
 		);
 

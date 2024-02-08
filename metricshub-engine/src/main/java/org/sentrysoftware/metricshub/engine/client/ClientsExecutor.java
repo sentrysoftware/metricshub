@@ -1072,27 +1072,34 @@ public class ClientsExecutor {
 			? EMPTY
 			: body.getContent(username, CHAR_ARRAY_MASK, MASK, hostname);
 
-		// Get the HTTP request URL
-		final String httpRequestUrl = httpRequest.getUrl();
-		notNull(httpRequestUrl, "HTTP request URL cannot be null.");
-
-		// Update the known HTTP macros
-		final String url = HttpMacrosUpdater.update(httpRequestUrl, username, password, authenticationToken, hostname);
-
 		// Set the protocol http or https
 		final String protocol = Boolean.TRUE.equals(httpConfiguration.getHttps()) ? "https" : "http";
 
+		// Get the HTTP request URL
+		final String httpRequestUrl = httpRequest.getUrl();
+
+		// Get the HTTP request Path
+		final String httpRequestPath = httpRequest.getPath();
+
+		// Update the known HTTP macros, and return empty if the httpRequestPath is null
+		final String path = HttpMacrosUpdater.update(httpRequestPath, username, password, authenticationToken, hostname);
+
+		// Update the known HTTP macros, and return empty if the httpRequestUrl is null
+		final String url = HttpMacrosUpdater.update(httpRequestUrl, username, password, authenticationToken, hostname);
+
 		// Build the full URL
-		final String fullUrl = Url.format(hostname, httpConfiguration.getPort(), url, protocol);
+		final String fullUrl = Url.format(protocol, hostname, httpConfiguration.getPort(), path, url);
 
 		trace(() ->
 			log.trace(
-				"Executing HTTP request: {} {}\n- hostname: {}\n- url: {}\n- Protocol: {}\n- Port: {}\n" + // NOSONAR
+				"Executing HTTP request: {} {}\n- hostname: {}\n- url: {}\n- path: {}\n" + // NOSONAR
+				"- Protocol: {}\n- Port: {}\n" +
 				"- Request-headers:\n{}\n- Request-body:\n{}\n- Timeout: {} s\n- Get-result-content: {}\n",
 				method,
 				fullUrl,
 				hostname,
 				url,
+				path,
 				protocol,
 				httpConfiguration.getPort(),
 				StringHelper.prettyHttpHeaders(headerContentProtected),
@@ -1124,6 +1131,7 @@ public class ClientsExecutor {
 					bodyContent,
 					bodyContentProtected,
 					url,
+					path,
 					protocol,
 					fullUrl
 				)
@@ -1144,7 +1152,8 @@ public class ClientsExecutor {
 	 * @param headerContentProtected The HTTP header without sensitive information
 	 * @param bodyContent            The HTTP body
 	 * @param bodyContentProtected   The HTTP body without sensitive information
-	 * @param url                    The HTTP URL path
+	 * @param url                    The HTTP URL
+	 * @param path                    The HTTP URL path
 	 * @param protocol               The protocol: http or https
 	 * @param fullUrl                The full HTTP URL. E.g. <pre>http://www.example.com:1080/api/v1/examples</pre>
 	 * @return String value
@@ -1162,6 +1171,7 @@ public class ClientsExecutor {
 		final String bodyContent,
 		final String bodyContentProtected,
 		final String url,
+		final String path,
 		final String protocol,
 		final String fullUrl
 	) {
@@ -1220,7 +1230,7 @@ public class ClientsExecutor {
 
 			trace(() ->
 				log.trace(
-					"Executed HTTP request: {} {}\n- Hostname: {}\n- Url: {}\n- Protocol: {}\n- Port: {}\n" + // NOSONAR
+					"Executed HTTP request: {} {}\n- Hostname: {}\n- Url: {}\n- Path: {}\n- Protocol: {}\n- Port: {}\n" + // NOSONAR
 					"- Request-headers:\n{}\n- Request-body:\n{}\n- Timeout: {} s\n" +
 					"- get-result-content: {}\n- response-status: {}\n- response-headers:\n{}\n" +
 					"- response-body:\n{}\n- response-time: {}\n",
@@ -1228,6 +1238,7 @@ public class ClientsExecutor {
 					fullUrl,
 					hostname,
 					url,
+					path,
 					protocol,
 					httpConfiguration.getPort(),
 					StringHelper.prettyHttpHeaders(headerContentProtected),

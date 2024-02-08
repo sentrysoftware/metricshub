@@ -1,6 +1,7 @@
 package org.sentrysoftware.metricshub.engine.common.helpers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -83,5 +84,12 @@ class StringHelperTest {
 		assertEquals("a", StringHelper.stringify("a"));
 		assertEquals("a,b", StringHelper.stringify(List.of("a", "b")));
 		assertEquals("a,b", StringHelper.stringify(new String[] { "a", "b" }));
+	}
+
+	@Test
+	void testNonNullNonBlank() {
+		assertFalse(StringHelper.nonNullNonBlank(EMPTY));
+		assertFalse(StringHelper.nonNullNonBlank(null));
+		assertTrue(StringHelper.nonNullNonBlank("text"));
 	}
 }
