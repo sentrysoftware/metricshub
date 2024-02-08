@@ -44,4 +44,7 @@ public class TestConstants {
 	public static final String METRIC_STATE_FAILED = "failed";
 	public static final AttributeKey<String> OTEL_COMPANY_ATTRIBUTE_KEY = AttributeKey.stringKey(COMPANY_ATTRIBUTE_KEY);
 	public static final Attributes ATTRIBUTES = Attributes.of(OTEL_COMPANY_ATTRIBUTE_KEY, COMPANY_ATTRIBUTE_VALUE);
+	public static final String COPY_SOURCE_REF = "${source::monitors.grafana.simple.sources.copySource}";
+	public static final String COPY_SOURCE_KEY = "copySource";
+	public static final String COPY_SOURCE_TYPE = "copy";
 }

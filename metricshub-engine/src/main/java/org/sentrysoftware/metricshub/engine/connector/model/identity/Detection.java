@@ -30,7 +30,6 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -122,7 +121,7 @@ public class Detection implements Serializable {
 		@JsonProperty("tags") Set<String> tags
 	) {
 		this.connectionTypes =
-			connectionTypes == null ? new HashSet<>(Collections.singleton(ConnectionType.LOCAL)) : connectionTypes;
+			connectionTypes == null ? new HashSet<>(Set.of(ConnectionType.LOCAL, ConnectionType.REMOTE)) : connectionTypes;
 		this.disableAutoDetection = disableAutoDetection;
 		this.onLastResort = onLastResort;
 		this.appliesTo = appliesTo;

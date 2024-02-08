@@ -25,17 +25,20 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.FILE_PATTERN;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
-import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import org.sentrysoftware.metricshub.engine.common.helpers.FileHelper;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 
 /**
@@ -61,14 +64,14 @@ public class EmbeddedFileHelper {
 
 		while (fileMatcher.find()) {
 			// The absolute path of the file
-			final String fileName = fileMatcher.group(1);
+			final String fileUri = fileMatcher.group(1);
 
 			// The file reference in the connector. Example: ${file::file-absolute-path} // NOSONAR on comment
 			final String fileNameRef = fileMatcher.group();
 
 			// If the embeddedFile has already been processed, no need to continue
 			if (!alreadyProcessedFiles.contains(fileNameRef)) {
-				embeddedFiles.put(fileNameRef, newEmbeddFileObject(fileName, fileNameRef));
+				embeddedFiles.put(fileNameRef, runNewEmbeddedFileObjectTask(URI.create(fileUri), fileNameRef));
 				alreadyProcessedFiles.add(fileNameRef);
 			}
 		}
@@ -77,48 +80,85 @@ public class EmbeddedFileHelper {
 	}
 
 	/**
+	 * Runs a task to create a new instance of an EmbeddedFileObject based on the specified URI and file name reference.
+	 * If the URI scheme is "jar," the task is executed within a file system context for JAR files (ZIP).
+	 *
+	 * @param fileUri      The URI of the file for which the EmbeddedFileObject is created.
+	 * @param fileNameRef  The reference to the file name.
+	 * @return A new instance of EmbeddedFileObject representing the specified file.
+	 * @throws IOException If an error occurs during the task execution or while creating the EmbeddedFileObject.
+	 */
+	private static EmbeddedFile runNewEmbeddedFileObjectTask(final URI fileUri, final String fileNameRef)
+		throws IOException {
+		if ("jar".equals(fileUri.getScheme())) {
+			try {
+				return FileHelper.fileSystemTask(
+					fileUri,
+					Collections.emptyMap(),
+					() -> {
+						try {
+							return newEmbeddedFileObject(fileUri, fileNameRef);
+						} catch (IOException e) {
+							throw new IllegalStateException(e);
+						}
+					}
+				);
+			} catch (Exception e) {
+				if (e instanceof IOException ioException) {
+					throw ioException;
+				}
+
+				if (e.getCause() instanceof IOException ioException) {
+					throw ioException;
+				}
+
+				throw new IOException(e);
+			}
+		}
+		return newEmbeddedFileObject(fileUri, fileNameRef);
+	}
+
+	/**
 	 * Create a new {@link EmbeddedFile} object
 	 *
 	 * @param fileName    The file name used to get the path
 	 * @param fileNameRef The file name reference. E.g. ${file::script.awk}
 	 * @return a new {@link EmbeddedFile} instance
-	 * @throws IOException
+	 * @throws IOException If the file cannot be found or parsed.
 	 */
-	static EmbeddedFile newEmbeddFileObject(final String fileName, final String fileNameRef) throws IOException {
-		final Path filePath = Path.of(fileName);
-
+	private static EmbeddedFile newEmbeddedFileObject(final URI fileUri, final String fileNameRef) throws IOException {
+		final Path filePath = Paths.get(fileUri);
 		if (!Files.exists(filePath)) {
-			throw new IOException(CANT_FIND_EMBEDDED_FILE + fileName);
+			throw new IOException(CANT_FIND_EMBEDDED_FILE + fileUri.getPath());
 		}
-		return new EmbeddedFile(parseEmbeddedFile(filePath), findExtension(fileName), fileNameRef);
+		return new EmbeddedFile(parseEmbeddedFile(filePath), findExtension(fileUri.toString()), fileNameRef);
 	}
 
 	/**
-	 * Returns the extension of a file from the given the file name
+	 * Returns the extension of a file from the given the file name.
 	 *
-	 * @param fileName
-	 * @return String value
+	 * @param uriString URI string representation.
+	 * @return File extension as a string.
 	 */
-	static String findExtension(final String fileName) {
-		final int index = fileName.lastIndexOf('.');
-		if (index > 0) {
-			return fileName.substring(index + 1);
+	static String findExtension(final String uriString) {
+		final int index = uriString.lastIndexOf('.');
+		final int separatorIndex = Math.max(uriString.lastIndexOf('/'), uriString.lastIndexOf('\\'));
+		// We want to find the index of the last '.' only if it's in the last file of the path
+		// in case the file is in an .zip archive (or any kind of archive)
+		if (index > separatorIndex) {
+			return uriString.substring(index + 1);
 		}
 		return null;
 	}
 
 	/**
-	 * Read the file at the filePath location, and return its content
+	 * Parse an embedded file located in a .zip file given its URI.
 	 *
-	 * @param filePath The absolute path of the file to read
-	 * @return String value
-	 * @throws IOException
+	 * @param filePath The path of the file we want to parse.
+	 * @return The content of the file.
+	 * @throws IOException When an I/O error occurs opening the file.
 	 */
-	static String parseEmbeddedFile(final Path filePath) throws IOException {
-		try {
-			return Files.readAllLines(filePath).stream().collect(Collectors.joining("\n"));
-		} catch (Exception e) {
-			throw new IOException("Could not read embedded file: " + filePath);
-		}
+	private static String parseEmbeddedFile(final Path filePath) throws IOException {
+		return FileHelper.readFileContent(filePath);
 	}
 }

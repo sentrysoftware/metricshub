@@ -164,7 +164,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 		final Connector detection = getConnector(connectorId);
 
 		assertEquals(
-			Collections.singleton(ConnectionType.LOCAL),
+			Set.of(ConnectionType.LOCAL, ConnectionType.REMOTE),
 			detection.getConnectorIdentity().getDetection().getConnectionTypes()
 		);
 	}

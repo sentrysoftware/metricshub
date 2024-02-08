@@ -1,0 +1,268 @@
+---
+connector:
+  reliesOn: MIB-2 Standard SNMP Agent
+  version: 1.0
+  information: This connector discovers the enclosure and Ethernet ports of a system equipped with an MIB-2 standard SNMP Agent.
+  detection:
+    connectionTypes:
+    - remote
+    - local
+    criteria:
+    # Criteria(1): there must be something in the ifTable SNMP Table
+    - type: snmpGetNext
+      oid: 1.3.6.1.2.1.2.2.1
+monitors:
+  network:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = ifTable SNMP Table
+          # PortID;Description;TypeCode;MacAddress;AdminStatus;
+          type: snmpTable
+          oid: 1.3.6.1.2.1.2.2.1
+          selectColumns: ID,2,3,6,7
+          computes:
+            # Keep only ports whose administrative status is 'up'
+            # PortID;Description;TypeCode;MacAddress;AdminStatus;
+          - type: keepOnlyMatchingLines
+            column: 5
+            valueList: 1
+            # Keep only real Ethernet and/or FC ports
+            # PortID;Description;TypeCode;MacAddress;AdminStatus;
+          - type: keepOnlyMatchingLines
+            column: 3
+            valueList: 6,7,26,32,37,62,94,95,96,97,117,166
+            # Translate the TypeCode to a readable string
+            # PortID;Description;PortType;MacAddress;AdminStatus;
+          - type: translate
+            column: 3
+            translationTable: ${translation::PortTypeTranslationTable}
+        source(2):
+          # Get information from the ifXtable
+          # ID;Name;Alias;
+          type: snmpTable
+          oid: 1.3.6.1.2.1.31.1.1.1
+          selectColumns: ID,1,18
+        source(3):
+          # Join the 32bit MIB2 table with the 64 bit IfXTable
+          # PortID;Description;TypeCode;MacAddress;AdminStatus;ID;Name;Alias;
+          type: tableJoin
+          leftTable: "${source::monitors.network.discovery.sources.source(1)}"
+          rightTable: "${source::monitors.network.discovery.sources.source(2)}"
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ;;;
+    collect:
+      # Collect type = multi-instance
+      type: multiInstance
+      keys:
+      - id
+      sources:
+        source(1):
+          # Source(1) = ifTable SNMP Table
+          # PortID;Description;Speed;OperationalStatus;ReceivedBytes;ReceivedUnicastPackets;ReceivedNonUnicastPackets;ReceivedErrors;TransmittedBytes;TransmittedUnicastPackets;TransmittedNonUnicastPackets;TransmittedErrors;
+          type: snmpTable
+          oid: 1.3.6.1.2.1.2.2.1
+          selectColumns: ID,2,5,8,10,11,12,14,16,17,18,20
+          computes:
+            # Duplicate Status twice
+            # PortID;Description;Speed;OperationalStatus;OperationalStatus;OperationalStatus;ReceivedBytes;ReceivedUnicastPackets;ReceivedNonUnicastPackets;ReceivedErrors;TransmittedBytes;TransmittedUnicastPackets;TransmittedNonUnicastPackets;TransmittedErrors;
+          - type: duplicateColumn
+            column: 4
+          - type: duplicateColumn
+            column: 5
+            # Translate the first column status into a PATROLStatus
+            # PortID;Description;Speed;PATROLStatus;OperationalStatus;OperationalStatus;ReceivedBytes;ReceivedUnicastPackets;ReceivedNonUnicastPackets;ReceivedErrors;TransmittedBytes;TransmittedUnicastPackets;TransmittedNonUnicastPackets;TransmittedErrors;
+          - type: translate
+            column: 4
+            translationTable: ${translation::PortStatusTranslationTable}
+            # Translate the second column status into a more readable string
+            # PortID;Description;Speed;PATROLStatus;StatusInformation;OperationalStatus;ReceivedBytes;ReceivedUnicastPackets;ReceivedNonUnicastPackets;ReceivedErrors;TransmittedBytes;TransmittedUnicastPackets;TransmittedNonUnicastPackets;TransmittedErrors;
+          - type: translate
+            column: 5
+            translationTable: ${translation::PortStatusInformationTranslationTable}
+            # Translate the third column status into a LinkStatus value
+            # PortID;Description;Speed;PATROLStatus;StatusInformation;LinkStatus;ReceivedBytes;ReceivedUnicastPackets;ReceivedNonUnicastPackets;ReceivedErrors;TransmittedBytes;TransmittedUnicastPackets;TransmittedNonUnicastPackets;TransmittedErrors;
+          - type: translate
+            column: 6
+            translationTable: ${translation::PortLinkStatusInformationTranslationTable}
+            # Convert bits/sec into Mbps
+            # PortID;Description;SpeedMBps;PATROLStatus;StatusInformation;LinkStatus;ReceivedBytes;ReceivedUnicastPackets;ReceivedNonUnicastPackets;ReceivedErrors;TransmittedBytes;TransmittedUnicastPackets;TransmittedNonUnicastPackets;TransmittedErrors;
+          - type: divide
+            column: 3
+            value: 1000000
+            # Add up ReceivedUnicastPackets and ReceivedNonUnicastPackets
+            # PortID;Description;SpeedMBps;PATROLStatus;StatusInformation;LinkStatus;ReceivedBytes;ReceivedPackets;ReceivedNonUnicastPackets;ReceivedErrors;TransmittedBytes;TransmittedUnicastPackets;TransmittedNonUnicastPackets;TransmittedErrors;
+          - type: add
+            column: 8
+            value: $9
+            # Add up TransmittedUnicastPackets and TransmittedNonUnicastPackets
+            # PortID;Description;SpeedMBps;PATROLStatus;StatusInformation;LinkStatus;ReceivedBytes;ReceivedPackets;ReceivedNonUnicastPackets;ReceivedErrors;TransmittedBytes;TransmittedPackets;TransmittedNonUnicastPackets;TransmittedErrors;
+          - type: add
+            column: 12
+            value: $13
+            # Add up ReceivedErrors and TransmittedErrors
+            # PortID;Description;SpeedMBps;PATROLStatus;StatusInformation;LinkStatus;ReceivedBytes;ReceivedPackets;ReceivedNonUnicastPackets;TotalErrors;TransmittedBytes;TransmittedPackets;TransmittedNonUnicastPackets;TransmittedErrors;
+          - type: add
+            column: 10
+            value: $14
+        source(2):
+          # Source(2) = ifMIBObjects SNMP Table
+          # PortID;SpeedMBs;ReceivedBytes64;ReceivedUnicastPackets64;ifHCInMulticastPkts64;ifHCInBroadcastPkts64;TransmittedBytes64;TransmittedPackets64;ifHCOutMulticastPkts;ifHCOutBroadcastPkts;
+          type: snmpTable
+          oid: 1.3.6.1.2.1.31.1.1.1
+          selectColumns: ID,15,6,7,8,9,10,11,12,13
+          computes:
+            # Add MulticastPkts and BroadcastPkts to UnicastPackets
+            # PortID;SpeedMBs;ReceivedBytes64;ReceivedUnicastPackets64;ifHCInMulticastPkts64;ifHCInBroadcastPkts64;TransmittedBytes64;TransmittedPackets64;ifHCOutMulticastPkts;ifHCOutBroadcastPkts;
+          - type: add
+            column: 4
+            value: $5
+          - type: add
+            column: 4
+            value: $6
+          - type: add
+            column: 8
+            value: $9
+          - type: add
+            column: 8
+            value: $10
+            # Keep only useful columns
+            # PortID;SpeedMBs;ReceivedBytes64;ReceivedPackets64;TransmittedBytes64;TransmittedPackets64;
+          - type: keepColumns
+            columnNumbers: 1,2,3,4,7,8
+        source(3):
+          # Source(3) = Table Joint of (1) and (2)
+          # PortID;Description;SpeedMBps;PATROLStatus;StatusInformation;LinkStatus;ReceivedBytes;ReceivedPackets;ReceivedNonUnicastPackets;TotalErrors;TransmittedBytes;TransmittedPackets;TransmittedNonUnicastPackets;TransmittedErrors;PortID;SpeedMBs;ReceivedBytes64;ReceivedPackets64;TransmittedBytes64;TransmittedPackets64;
+          type: tableJoin
+          leftTable: ${source::monitors.network.collect.sources.source(1)}
+          rightTable: ${source::monitors.network.collect.sources.source(2)}
+          leftKeyColumn: 1
+          rightKeyColumn: 1
+          defaultRightLine: ;;;;;;
+          computes:
+            # Now add MSHW to the Left and Right of the ifMIBObjects SpeedMBS
+            # PortID;Description;SpeedMBps;PATROLStatus;StatusInformation;LinkStatus;ReceivedBytes;ReceivedPackets;ReceivedNonUnicastPackets;TotalErrors;TransmittedBytes;TransmittedPackets;TransmittedNonUnicastPackets;TransmittedErrors;PortID;SpeedMBs;
+          - type: leftConcat
+            column: 16
+            value: MSHW
+          - type: rightConcat
+            column: 16
+            value: MSHW
+            # Replace "MSHWMSHW", i.e. a blank column with the ifTable value.
+            # This will use the old 32^2 limited value of link bps speed if a Mbps value is not available
+            # PortID;Description;SpeedMBps;PATROLStatus;StatusInformation;LinkStatus;ReceivedBytes;ReceivedPackets;ReceivedNonUnicastPackets;TotalErrors;TransmittedBytes;TransmittedPackets;TransmittedNonUnicastPackets;TransmittedErrors;PortID;SpeedMBs;
+          - type: replace
+            column: 16
+            existingValue: MSHWMSHW
+            newValue: $3
+            # Now get rid of any remaining MSHWs
+            # PortID;Description;SpeedMBps;PATROLStatus;StatusInformation;LinkStatus;ReceivedBytes;ReceivedPackets;ReceivedNonUnicastPackets;TotalErrors;TransmittedBytes;TransmittedPackets;TransmittedNonUnicastPackets;TransmittedErrors;PortID;SpeedMBs;
+          - type: replace
+            column: 16
+            existingValue: MSHW
+            newValue: ""
+        source(4):
+          # Make a copy of Source(3)
+          type: copy
+          from: ${source::monitors.network.collect.sources.source(3)}
+          computes:
+            # Keep only interfaces with 64bit counters
+            #   1        2           3           4            # 5            # 6          7            # 8            # 9            #              10        11             12            #    13            #             # 14            #  15   16         17            #  18            #     19            #    20
+            # PortID;Description;SpeedMBps;PATROLStatus;StatusInformation;LinkStatus;ReceivedBytes;ReceivedPackets;ReceivedNonUnicastPackets;TotalErrors;TransmittedBytes;TransmittedPackets;TransmittedNonUnicastPackets;TransmittedErrors;PortID;SpeedMBs;ReceivedBytes64;ReceivedPackets64;TransmittedBytes64;TransmittedPackets64;
+          - type: keepOnlyMatchingLines
+            column: 20
+            regExp: .
+            # Replace 32 bit counters with 64 bit ones
+            # ReceivedBytes
+            # PortID;Description;SpeedMBps;PATROLStatus;StatusInformation;LinkStatus;ReceivedBytes;ReceivedPackets;ReceivedNonUnicastPackets;TotalErrors;TransmittedBytes;TransmittedPackets;TransmittedNonUnicastPackets;TransmittedErrors;PortID;SpeedMBs;ReceivedBytes64;ReceivedPackets64;TransmittedBytes64;TransmittedPackets64;
+          - type: replace
+            column: 7
+            existingValue: $7
+            newValue: $17
+          # ReceivedPackets
+          - type: replace
+            column: 8
+            existingValue: $8
+            newValue: $18
+          # TransmittedBytes
+          - type: replace
+            column: 11
+            existingValue: $11
+            newValue: $19
+          # TransmittedPackets
+          - type: replace
+            column: 12
+            existingValue: $12
+            newValue: $20
+        source(5):
+          # Make a copy of Source(3)
+          type: copy
+          from: ${source::monitors.network.collect.sources.source(3)}
+          computes:
+            # Exclude interfaces with 64bit counters
+            #   1        2           3           4            # 5            # 6          7            # 8            # 9            #              10        11             12            #    13            #             # 14            #  15   16         17            #  18            #     19            #    20
+            # PortID;Description;SpeedMBps;PATROLStatus;StatusInformation;LinkStatus;ReceivedBytes;ReceivedPackets;ReceivedNonUnicastPackets;TotalErrors;TransmittedBytes;TransmittedPackets;TransmittedNonUnicastPackets;TransmittedErrors;PortID;SpeedMBs;ReceivedBytes64;ReceivedPackets64;TransmittedBytes64;TransmittedPackets64;
+          - type: excludeMatchingLines
+            column: 20
+            regExp: .
+        source(6):
+          # Union 32 and 64 bit tables
+          # PortID;Description;SpeedMBps;PATROLStatus;StatusInformation;LinkStatus;ReceivedBytes;ReceivedPackets;ReceivedNonUnicastPackets;TotalErrors;TransmittedBytes;TransmittedPackets;TransmittedNonUnicastPackets;TransmittedErrors;PortID;SpeedMBs;ReceivedBytes64;ReceivedPackets64;TransmittedBytes64;TransmittedPackets64;
+          type: tableUnion
+          tables:
+          - ${source::monitors.network.collect.sources.source(4)}
+          - ${source::monitors.network.collect.sources.source(5)}
+      mapping:
+        # ValueTable = Source(6)
+        source: ${source::monitors.network.collect.sources.source(6)}
+        attributes:
+          id: $1
+        metrics:
+          hw.status{hw.type="network"}: $4
+          hw.network.up: legacyLinkStatus($6)
+          hw.network.bandwidth.limit: megaBit2Bit($16)
+          hw.errors{hw.type="network"}: $10
+          hw.network.packets{direction="receive"}: $8
+          hw.network.packets{direction="transmit"}: $12
+          hw.network.io{direction="receive"}: $7
+          hw.network.io{direction="transmit"}: $11
+        legacyTextParameters:
+          StatusInformation: $5
+translations:
+  PortLinkStatusInformationTranslationTable:
+    "2": degraded
+    "6": degraded
+    "7": degraded
+    Default: ok
+  PortStatusInformationTranslationTable:
+    "1": Up
+    "2": Down
+    "3": Testing
+    "5": Dormant
+    "6": Component Not Present
+    "7": Lower Layer Down
+    Default: Unknown Status
+  PortTypeTranslationTable:
+    "56": FC Port
+    "26": Ethernet
+    "37": ATM
+    Default: Ethernet
+    "166": MPLS
+    "6": Ethernet
+    "7": Ethernet
+    "117": Ethernet
+    "94": ADSL
+    "62": Ethernet
+    "95": RSDL
+    "96": SDSL
+    "97": VDSL
+    "32": Frame Relay
+  PortStatusTranslationTable:
+    "1": ok
+    "2": ok
+    "3": degraded
+    "5": ok
+    "6": failed
+    "7": failed
+    Default: UNKNOWN
