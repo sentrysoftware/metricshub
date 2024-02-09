@@ -50,6 +50,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinit
 import org.sentrysoftware.metricshub.engine.strategy.IStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.collect.CollectStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.collect.PrepareCollectStrategy;
+import org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.detection.DetectionStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.discovery.DiscoveryStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.simple.SimpleStrategy;
@@ -120,10 +121,8 @@ class MonitoringTaskTest {
 			.when(monitoringTaskInfoMock)
 			.getResourceConfig();
 		doReturn(hostConfiguration).when(telemetryManagerMock).getHostConfiguration();
-		doNothing()
-			.when(telemetryManagerMock)
-			.run(any(IStrategy.class), any(IStrategy.class), any(IStrategy.class), any(IStrategy.class));
-		doNothing().when(telemetryManagerMock).run(any(IStrategy.class));
+
+		doNothing().when(telemetryManagerMock).run(any(IStrategy[].class));
 
 		try (MockedStatic<OtelHelper> otelHelperMockedStatic = mockStatic(OtelHelper.class)) {
 			otelHelperMockedStatic
@@ -161,6 +160,7 @@ class MonitoringTaskTest {
 			verify(telemetryManagerMock, times(4))
 				.run(
 					any(PrepareCollectStrategy.class),
+					any(ProtocolHealthCheckStrategy.class),
 					any(CollectStrategy.class),
 					any(SimpleStrategy.class),
 					any(HardwarePostCollectStrategy.class)

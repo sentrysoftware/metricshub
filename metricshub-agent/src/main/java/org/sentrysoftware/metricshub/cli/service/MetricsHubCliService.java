@@ -58,6 +58,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.strategy.collect.CollectStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.collect.PrepareCollectStrategy;
+import org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.detection.ConnectorStagingManager;
 import org.sentrysoftware.metricshub.engine.strategy.detection.ConnectorStagingManager.StagedConnectorIdentifiers;
 import org.sentrysoftware.metricshub.engine.strategy.detection.DetectionStrategy;
@@ -333,6 +334,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 			// One more, run only prepare, collect simple and post strategies
 			telemetryManager.run(
 				new PrepareCollectStrategy(telemetryManager, collectTime, clientsExecutor),
+				new ProtocolHealthCheckStrategy(telemetryManager, collectTime, clientsExecutor),
 				new CollectStrategy(telemetryManager, collectTime, clientsExecutor),
 				new SimpleStrategy(telemetryManager, collectTime, clientsExecutor),
 				new HardwarePostCollectStrategy(telemetryManager, collectTime, clientsExecutor)

@@ -52,6 +52,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;
 import org.sentrysoftware.metricshub.engine.strategy.collect.CollectStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.collect.PrepareCollectStrategy;
+import org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.detection.DetectionStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.discovery.DiscoveryStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.simple.SimpleStrategy;
@@ -122,6 +123,7 @@ public class MonitoringTask implements Runnable {
 		// One more, run only prepare, collect simple and post strategies
 		telemetryManager.run(
 			new PrepareCollectStrategy(telemetryManager, collectTime, clientsExecutor),
+			new ProtocolHealthCheckStrategy(telemetryManager, collectTime, clientsExecutor),
 			new CollectStrategy(telemetryManager, collectTime, clientsExecutor),
 			new SimpleStrategy(telemetryManager, collectTime, clientsExecutor),
 			new HardwarePostCollectStrategy(telemetryManager, collectTime, clientsExecutor)
