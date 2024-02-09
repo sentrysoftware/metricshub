@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.CONNECTOR_YAML;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.CONNECTOR;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.DETECTION_FOLDER;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.LOCALHOST;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.STRATEGY_TIME;
@@ -36,6 +36,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Discove
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Mapping;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpSource;
+import org.sentrysoftware.metricshub.engine.strategy.detection.ConnectorStagingManager.StagedConnectorIdentifiers;
 import org.sentrysoftware.metricshub.engine.telemetry.HostProperties;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -53,16 +54,21 @@ class AutomaticDetectionTest {
 	@Test
 	void testRunNull() {
 		final TelemetryManager telemetryManager = new TelemetryManager();
+		final Set<String> emptySet = Collections.emptySet();
 		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
-		assertThrows(IllegalArgumentException.class, () -> new AutomaticDetection(null, clientsExecutor));
-		assertThrows(IllegalArgumentException.class, () -> new AutomaticDetection(telemetryManager, null));
+		assertThrows(IllegalArgumentException.class, () -> new AutomaticDetection(null, clientsExecutor, emptySet));
+		assertThrows(IllegalArgumentException.class, () -> new AutomaticDetection(telemetryManager, null, emptySet));
+		assertThrows(IllegalArgumentException.class, () -> new AutomaticDetection(telemetryManager, clientsExecutor, null));
 	}
 
 	@Test
 	void testRunEmptyTelemetryManager() {
 		final TelemetryManager telemetryManager = new TelemetryManager();
 		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
-		assertEquals(Collections.emptyList(), new AutomaticDetection(telemetryManager, clientsExecutor).run());
+		assertEquals(
+			Collections.emptyList(),
+			new AutomaticDetection(telemetryManager, clientsExecutor, Collections.emptySet()).run()
+		);
 	}
 
 	@Test
@@ -72,28 +78,26 @@ class AutomaticDetectionTest {
 		hostProperties.setLocalhost(true);
 
 		final Set<String> connectors = new HashSet<>();
-		connectors.add(CONNECTOR_YAML);
+		connectors.add("-" + CONNECTOR);
 		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
 		HostConfiguration hostConfiguration = new HostConfiguration(
 			LOCALHOST,
 			"hostId",
 			DeviceKind.WINDOWS,
 			0,
-			null,
 			connectors,
 			true,
 			null,
 			0,
 			null,
 			configurations,
-			null,
 			null
 		);
 
 		final File store = new File(DETECTION_FOLDER);
 		final Path storePath = store.toPath();
 		final ConnectorStore connectorStore = new ConnectorStore(storePath);
-		connectorStore.getStore().put(CONNECTOR_YAML, new Connector());
+		connectorStore.getStore().put(CONNECTOR, new Connector());
 		final TelemetryManager telemetryManager = new TelemetryManager(
 			monitors,
 			hostProperties,
@@ -102,7 +106,17 @@ class AutomaticDetectionTest {
 			STRATEGY_TIME
 		);
 		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
-		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, clientsExecutor).run());
+		final StagedConnectorIdentifiers stagedConnectorIdentifiers = new ConnectorStagingManager(LOCALHOST)
+			.stage(connectorStore, connectors);
+		assertEquals(
+			new ArrayList<>(),
+			new AutomaticDetection(
+				telemetryManager,
+				clientsExecutor,
+				stagedConnectorIdentifiers.getAutoDetectionConnectorIds()
+			)
+				.run()
+		);
 	}
 
 	@Test
@@ -112,7 +126,7 @@ class AutomaticDetectionTest {
 		hostProperties.setLocalhost(true);
 
 		final Set<String> connectors = new HashSet<>();
-		connectors.add(CONNECTOR_YAML);
+		connectors.add(CONNECTOR);
 		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
 		configurations.put(SnmpConfiguration.class, new SnmpConfiguration());
 		final HostConfiguration hostConfiguration = new HostConfiguration(
@@ -120,14 +134,12 @@ class AutomaticDetectionTest {
 			"hostId",
 			DeviceKind.WINDOWS,
 			0,
-			null,
-			null,
+			connectors,
 			true,
 			null,
 			0,
 			null,
 			configurations,
-			null,
 			null
 		);
 
@@ -148,7 +160,7 @@ class AutomaticDetectionTest {
 		connector.setSourceTypes(Set.of(SnmpSource.class));
 
 		final ConnectorStore connectorStore = new ConnectorStore(storePath);
-		connectorStore.getStore().put(CONNECTOR_YAML, connector);
+		connectorStore.getStore().put(CONNECTOR, connector);
 
 		final TelemetryManager telemetryManager = new TelemetryManager(
 			monitors,
@@ -158,7 +170,17 @@ class AutomaticDetectionTest {
 			STRATEGY_TIME
 		);
 		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
-		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, clientsExecutor).run());
+		final StagedConnectorIdentifiers stagedConnectorIdentifiers = new ConnectorStagingManager(LOCALHOST)
+			.stage(connectorStore, connectors);
+		assertEquals(
+			new ArrayList<>(),
+			new AutomaticDetection(
+				telemetryManager,
+				clientsExecutor,
+				stagedConnectorIdentifiers.getAutoDetectionConnectorIds()
+			)
+				.run()
+		);
 	}
 
 	@Test
@@ -168,7 +190,7 @@ class AutomaticDetectionTest {
 		hostProperties.setLocalhost(true);
 
 		final Set<String> connectors = new HashSet<>();
-		connectors.add(CONNECTOR_YAML);
+		connectors.add(CONNECTOR);
 		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
 		configurations.put(SnmpConfiguration.class, new SnmpConfiguration());
 		final HostConfiguration hostConfiguration = new HostConfiguration(
@@ -176,14 +198,12 @@ class AutomaticDetectionTest {
 			"hostId",
 			DeviceKind.WINDOWS,
 			0,
-			null,
-			null,
+			connectors,
 			true,
 			null,
 			0,
 			null,
 			configurations,
-			null,
 			null
 		);
 
@@ -204,7 +224,7 @@ class AutomaticDetectionTest {
 		connector.setSourceTypes(Set.of(SnmpSource.class));
 
 		final ConnectorStore connectorStore = new ConnectorStore(storePath);
-		connectorStore.getStore().put(CONNECTOR_YAML, connector);
+		connectorStore.getStore().put(CONNECTOR, connector);
 
 		final TelemetryManager telemetryManager = new TelemetryManager(
 			monitors,
@@ -214,7 +234,17 @@ class AutomaticDetectionTest {
 			STRATEGY_TIME
 		);
 		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
-		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, clientsExecutor).run());
+		final StagedConnectorIdentifiers stagedConnectorIdentifiers = new ConnectorStagingManager(LOCALHOST)
+			.stage(connectorStore, connectors);
+		assertEquals(
+			new ArrayList<>(),
+			new AutomaticDetection(
+				telemetryManager,
+				clientsExecutor,
+				stagedConnectorIdentifiers.getAutoDetectionConnectorIds()
+			)
+				.run()
+		);
 	}
 
 	@Test
@@ -224,7 +254,7 @@ class AutomaticDetectionTest {
 		hostProperties.setLocalhost(true);
 
 		final Set<String> connectors = new HashSet<>();
-		connectors.add(CONNECTOR_YAML);
+		connectors.add(CONNECTOR);
 		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
 		configurations.put(SnmpConfiguration.class, new SnmpConfiguration());
 		final HostConfiguration hostConfiguration = new HostConfiguration(
@@ -232,14 +262,12 @@ class AutomaticDetectionTest {
 			"hostId",
 			DeviceKind.WINDOWS,
 			0,
-			null,
-			null,
+			connectors,
 			true,
 			null,
 			0,
 			null,
 			configurations,
-			null,
 			null
 		);
 
@@ -260,7 +288,7 @@ class AutomaticDetectionTest {
 		connector.setSourceTypes(Set.of(SnmpSource.class));
 
 		final ConnectorStore connectorStore = new ConnectorStore(storePath);
-		connectorStore.getStore().put(CONNECTOR_YAML, connector);
+		connectorStore.getStore().put(CONNECTOR, connector);
 
 		final TelemetryManager telemetryManager = new TelemetryManager(
 			monitors,
@@ -270,7 +298,17 @@ class AutomaticDetectionTest {
 			STRATEGY_TIME
 		);
 		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
-		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, clientsExecutor).run());
+		final StagedConnectorIdentifiers stagedConnectorIdentifiers = new ConnectorStagingManager(LOCALHOST)
+			.stage(connectorStore, connectors);
+		assertEquals(
+			new ArrayList<>(),
+			new AutomaticDetection(
+				telemetryManager,
+				clientsExecutor,
+				stagedConnectorIdentifiers.getAutoDetectionConnectorIds()
+			)
+				.run()
+		);
 	}
 
 	@Test
@@ -280,7 +318,7 @@ class AutomaticDetectionTest {
 		hostProperties.setLocalhost(true);
 
 		final Set<String> connectors = new HashSet<>();
-		connectors.add(CONNECTOR_YAML);
+		connectors.add(CONNECTOR);
 		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
 		configurations.put(SnmpConfiguration.class, new SnmpConfiguration());
 		final HostConfiguration hostConfiguration = new HostConfiguration(
@@ -288,14 +326,12 @@ class AutomaticDetectionTest {
 			"hostId",
 			DeviceKind.WINDOWS,
 			0,
-			null,
-			null,
+			connectors,
 			true,
 			null,
 			0,
 			null,
 			configurations,
-			null,
 			null
 		);
 
@@ -316,7 +352,7 @@ class AutomaticDetectionTest {
 		connector.setSourceTypes(Set.of(HttpSource.class));
 
 		final ConnectorStore connectorStore = new ConnectorStore(storePath);
-		connectorStore.getStore().put(CONNECTOR_YAML, connector);
+		connectorStore.getStore().put(CONNECTOR, connector);
 
 		final TelemetryManager telemetryManager = new TelemetryManager(
 			monitors,
@@ -326,7 +362,17 @@ class AutomaticDetectionTest {
 			STRATEGY_TIME
 		);
 		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
-		assertEquals(new ArrayList<>(), new AutomaticDetection(telemetryManager, clientsExecutor).run());
+		final StagedConnectorIdentifiers stagedConnectorIdentifiers = new ConnectorStagingManager(LOCALHOST)
+			.stage(connectorStore, connectors);
+		assertEquals(
+			new ArrayList<>(),
+			new AutomaticDetection(
+				telemetryManager,
+				clientsExecutor,
+				stagedConnectorIdentifiers.getAutoDetectionConnectorIds()
+			)
+				.run()
+		);
 	}
 
 	@Test
@@ -360,7 +406,7 @@ class AutomaticDetectionTest {
 
 			final List<ConnectorTestResult> connectorTestResultList = new ArrayList<>(List.of(lastResortConnectorTestResult));
 
-			new AutomaticDetection(telemetryManager, clientsExecutor)
+			new AutomaticDetection(telemetryManager, clientsExecutor, Collections.emptySet())
 				.filterLastResortConnectors(connectorTestResultList, LOCALHOST);
 
 			// The last resort connector should be kept
@@ -399,7 +445,7 @@ class AutomaticDetectionTest {
 				.build();
 			connectorTestResultList.add(regularConnectorTestResult);
 
-			new AutomaticDetection(telemetryManager, clientsExecutor)
+			new AutomaticDetection(telemetryManager, clientsExecutor, Collections.emptySet())
 				.filterLastResortConnectors(connectorTestResultList, LOCALHOST);
 
 			// We should only have the regular connector left
@@ -466,7 +512,7 @@ class AutomaticDetectionTest {
 				List.of(lastResortConnectorTestResult, regularConnectorTestResult)
 			);
 
-			new AutomaticDetection(telemetryManager, clientsExecutor)
+			new AutomaticDetection(telemetryManager, clientsExecutor, Collections.emptySet())
 				.filterLastResortConnectors(connectorTestResultList, LOCALHOST);
 
 			// Our two connectors should still be in the list as the regular connector does
@@ -572,7 +618,8 @@ class AutomaticDetectionTest {
 				List.of(lastResortConnectorTestResult1, lastResortConnectorTestResult2, regularConnectorTestResult)
 			);
 
-			new AutomaticDetection(telemetryManager, clientsExecutor).filterLastResortConnectors(testedConnectors, LOCALHOST);
+			new AutomaticDetection(telemetryManager, clientsExecutor, Collections.emptySet())
+				.filterLastResortConnectors(testedConnectors, LOCALHOST);
 
 			// The regular connector and the first last resort connector should be in the
 			// list. The second last resort connector should
@@ -684,7 +731,8 @@ class AutomaticDetectionTest {
 				)
 			);
 
-			new AutomaticDetection(telemetryManager, clientsExecutor).filterLastResortConnectors(testedConnectors, LOCALHOST);
+			new AutomaticDetection(telemetryManager, clientsExecutor, Collections.emptySet())
+				.filterLastResortConnectors(testedConnectors, LOCALHOST);
 
 			// All connectors should be kept
 			assertEquals(3, testedConnectors.size());

@@ -49,7 +49,7 @@ class DellOpenManageIT {
 			.hostId(LOCALHOST)
 			.hostname(LOCALHOST)
 			.hostType(DeviceKind.LINUX)
-			.selectedConnectors(Set.of(CONNECTOR_ID))
+			.connectors(Set.of("+" + CONNECTOR_ID))
 			.configurations(Map.of(SnmpConfiguration.class, snmpConfiguration))
 			.build();
 

@@ -23,7 +23,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -183,8 +182,7 @@ class ConfigHelperTest {
 			hostConfiguration.getHostname()
 		);
 
-		assertEquals(Set.of(PURE_STORAGE_REST_CONNECTOR_ID), hostConfiguration.getSelectedConnectors());
-		assertEquals(Collections.emptySet(), hostConfiguration.getExcludedConnectors());
+		assertEquals(Set.of("+" + PURE_STORAGE_REST_CONNECTOR_ID), hostConfiguration.getConnectors());
 		assertNotNull(hostConfiguration.getConfigurations().get(HttpConfiguration.class));
 	}
 
@@ -238,8 +236,7 @@ class ConfigHelperTest {
 			hostConfiguration.getHostname()
 		);
 
-		assertEquals(Set.of(PURE_STORAGE_REST_CONNECTOR_ID), hostConfiguration.getSelectedConnectors());
-		assertEquals(Collections.emptySet(), hostConfiguration.getExcludedConnectors());
+		assertEquals(Set.of("+" + PURE_STORAGE_REST_CONNECTOR_ID), hostConfiguration.getConnectors());
 		assertNotNull(hostConfiguration.getConfigurations().get(HttpConfiguration.class));
 
 		// Check resources under agent config (top-level resources)
@@ -257,23 +254,21 @@ class ConfigHelperTest {
 	}
 
 	@Test
-	void testBuildNewConnectorStore() {
+	void testUpdateConnectorStore() {
 		// Create a custom connectors Map
 		final Map<String, Connector> customConnectors = Map.of("custom-connector-1", new Connector());
 
 		// Initialize the original connector store
 		final ConnectorStore connectorStore = new ConnectorStore(Path.of("src/test/resources/storeMerge"));
 
-		// Call buildNewConnectorStore
-		final ConnectorStore newConnectorStore = ConfigHelper.buildNewConnectorStore(customConnectors, connectorStore);
+		// Call updateConnectorStore
+		ConfigHelper.updateConnectorStore(connectorStore, customConnectors);
 
-		// Retrieve the new connector store connectors
-		final Map<String, Connector> newStoreConnectors = newConnectorStore.getStore();
-
+		final Map<String, Connector> store = connectorStore.getStore();
 		// Check that the merge of custom and standard connectors was successfully executed
-		assertEquals(2, newStoreConnectors.size());
-		assertTrue(newStoreConnectors.containsKey("custom-connector-1"));
-		assertTrue(newStoreConnectors.containsKey("noTemplateVariable"));
+		assertEquals(2, store.size());
+		assertTrue(store.containsKey("custom-connector-1"));
+		assertTrue(store.containsKey("noTemplateVariable"));
 	}
 
 	@Test
@@ -556,20 +551,18 @@ class ConfigHelperTest {
 	}
 
 	@Test
-	void testCreateCustomConnectorStoreIfConfigured() {
+	void testAddConfiguredConnector() {
 		// Create a ConnectorStore with a specified path
 		final ConnectorStore connectorStore = new ConnectorStore(Path.of("src/test/resources"));
+		final int initialSize = connectorStore.getStore().size();
 
 		// Test Case 1: No configured connector
 		{
-			// Attempt to create a custom ConnectorStore with no configured connector
-			final ConnectorStore resourceConnectorStore = ConfigHelper.createCustomConnectorStoreIfConfigured(
-				null,
-				connectorStore
-			);
+			// Attempt to add a null configured connector
+			assertDoesNotThrow(() -> ConfigHelper.addConfiguredConnector(connectorStore, null));
 
-			// Ensure that the custom ConnectorStore is the same as the original connectorStore
-			assertEquals(connectorStore, resourceConnectorStore);
+			// Ensure that the ConnectorStore size has remained unchanged
+			assertEquals(initialSize, connectorStore.getStore().size());
 		}
 
 		// Test Case 2: Existing configured connector
@@ -578,20 +571,14 @@ class ConfigHelperTest {
 			final Connector configuredConnector = new Connector();
 			ConfigHelper.normalizeConfiguredConnector(SENTRY_PARIS_RESOURCE_GROUP_KEY, RESOURCE_KEY, configuredConnector);
 
-			// Attempt to create a custom ConnectorStore with the configured connector
-			final ConnectorStore resourceConnectorStore = ConfigHelper.createCustomConnectorStoreIfConfigured(
-				configuredConnector,
-				connectorStore
-			);
+			// Attempt to add the configured connector
+			ConfigHelper.addConfiguredConnector(connectorStore, configuredConnector);
 
-			// Verify that the configured connector is now in the custom ConnectorStore
+			// Verify that the configured connector is now in the ConnectorStore
 			assertEquals(
 				configuredConnector,
-				resourceConnectorStore.getStore().get("MetricsHub-Configured-Connector-sentry-paris-resource-test-key")
+				connectorStore.getStore().get("MetricsHub-Configured-Connector-sentry-paris-resource-test-key")
 			);
-
-			// Make sure the original store is unchanged and remained empty
-			assertTrue(connectorStore.getStore().isEmpty());
 		}
 	}
 

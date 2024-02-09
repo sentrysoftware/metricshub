@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -45,6 +44,7 @@ import org.sentrysoftware.metricshub.engine.common.helpers.NetworkHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
+import org.sentrysoftware.metricshub.engine.strategy.detection.ConnectorStagingManager.StagedConnectorIdentifiers;
 import org.sentrysoftware.metricshub.engine.telemetry.HostProperties;
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
@@ -98,13 +98,37 @@ public class DetectionStrategy extends AbstractStrategy {
 		// Get the configured connector
 		final String configuredConnectorId = hostConfiguration.getConfiguredConnectorId();
 
-		final Set<String> selectedConnectors = hostConfiguration.getSelectedConnectors();
-		List<ConnectorTestResult> connectorTestResults = new ArrayList<>();
-		// If one or more connector are selected, we run them
-		if (selectedConnectors != null && !selectedConnectors.isEmpty()) {
-			connectorTestResults = new ConnectorSelection(telemetryManager, clientsExecutor).run();
-		} else if (configuredConnectorId == null) { // Else we run the automatic detection if we haven't a configured connector
-			connectorTestResults = new AutomaticDetection(telemetryManager, clientsExecutor).run();
+		// Initialize a new manager to stage connectors
+		final ConnectorStagingManager connectorStagingManager = new ConnectorStagingManager(hostname);
+
+		// Stage connector identifiers
+		final StagedConnectorIdentifiers stagedConnectorIdentifiers = connectorStagingManager.stage(
+			telemetryManager.getConnectorStore(),
+			hostConfiguration.getConnectors()
+		);
+
+		// Initialize the connector test results
+		final List<ConnectorTestResult> connectorTestResults = new ArrayList<>();
+
+		// Process forced connectors
+		if (stagedConnectorIdentifiers.isForcedStaging()) {
+			connectorTestResults.addAll(
+				new ConnectorSelection(telemetryManager, clientsExecutor, stagedConnectorIdentifiers.getForcedConnectorIds())
+					.run()
+			);
+		}
+
+		// Process automatic detection if connectors are staged for automatic detection.
+		// If a custom connector has been created then the automatic detection is skipped.
+		if (stagedConnectorIdentifiers.isAutoDetectionStaged() && configuredConnectorId == null) {
+			connectorTestResults.addAll(
+				new AutomaticDetection(
+					telemetryManager,
+					clientsExecutor,
+					stagedConnectorIdentifiers.getAutoDetectionConnectorIds()
+				)
+					.run()
+			);
 		}
 
 		// Create Host monitor

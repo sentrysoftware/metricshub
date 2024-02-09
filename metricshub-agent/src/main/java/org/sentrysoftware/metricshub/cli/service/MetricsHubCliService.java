@@ -21,13 +21,12 @@ package org.sentrysoftware.metricshub.cli.service;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import static org.sentrysoftware.metricshub.engine.strategy.utils.DetectionHelper.hasAtLeastOneTagOf;
-
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -58,8 +57,10 @@ import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.strategy.collect.CollectStrategy;
-import org.sentrysoftware.metricshub.engine.strategy.collect.HealthCheckStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.collect.PrepareCollectStrategy;
+import org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy;
+import org.sentrysoftware.metricshub.engine.strategy.detection.ConnectorStagingManager;
+import org.sentrysoftware.metricshub.engine.strategy.detection.ConnectorStagingManager.StagedConnectorIdentifiers;
 import org.sentrysoftware.metricshub.engine.strategy.detection.DetectionStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.discovery.DiscoveryStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.simple.SimpleStrategy;
@@ -172,22 +173,19 @@ public class MetricsHubCliService implements Callable<Integer> {
 	char[] password;
 
 	@Option(
-		names = { "-f", "--force" },
+		names = { "-c", "--connectors" },
 		order = 4,
 		split = ",",
 		paramLabel = "CONNECTOR",
-		description = "Forces the selected connectors to connect to the host (use @|bold ${ROOT-COMMAND-NAME} -l|@ to get the list of connectors)"
+		description = "Specifies the setup of connectors to connect to the host.%n" +
+		" To force a connector, precede the connector identifier with a plus sign (+), as in +MIB2%n." +
+		" To exclude a connector from automatic detection, precede the connector identifier with a minus sign (-), like -MIB2.%n" +
+		" To stage a connector for processing by automatic detection, configure the connector identifier, for instance, MIB2.%n" +
+		" To stage a category of connectors for processing by automatic detection, precede the category tag with a hash (#), such as #hardware.%n" +
+		" To exclude a category of connectors from automatic detection, precede the category tag to be excluded with a minus and a hash sign (-#), such as -#system.%n" +
+		" Use @|bold ${ROOT-COMMAND-NAME} -l|@ to get the list of connectors)."
 	)
 	Set<String> connectors;
-
-	@Option(
-		names = { "-x", "--exclude" },
-		order = 5,
-		split = ",",
-		paramLabel = "CONNECTOR",
-		description = "Excludes connectors from the automatic detection process (use @|bold ${ROOT-COMMAND-NAME} -l|@ to get the list of connectors)"
-	)
-	Set<String> excludedConnectors;
 
 	@Option(
 		names = { "-s", "--sequential" },
@@ -227,16 +225,6 @@ public class MetricsHubCliService implements Callable<Integer> {
 	)
 	long sleepIteration;
 
-	@Option(
-		names = { "-ict", "--include-connector-tags" },
-		help = true,
-		order = 10,
-		description = "Filter connectors for automatic detection by specifying relevant tags (e.g., hardware, storage, application)",
-		split = ",",
-		paramLabel = "TAG"
-	)
-	Set<String> includeConnectorTags;
-
 	@Override
 	public Integer call() throws Exception {
 		// Check whether iterations is greater than 0. If it's not the case, throw a ParameterException
@@ -250,7 +238,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		}
 
 		// Validate inputs
-		validate(connectorStore);
+		validate();
 
 		// Setup Log4j
 		setLogLevel();
@@ -261,15 +249,11 @@ public class MetricsHubCliService implements Callable<Integer> {
 			.hostname(hostname)
 			.hostType(deviceType)
 			.sequential(sequential)
-			.includeConnectorTags(includeConnectorTags)
 			.build();
 
 		// Connectors
 		if (connectors != null) {
-			hostConfiguration.setSelectedConnectors(connectors);
-		}
-		if (excludedConnectors != null) {
-			hostConfiguration.setExcludedConnectors(excludedConnectors);
+			hostConfiguration.setConnectors(connectors);
 		}
 
 		// Set the configurations
@@ -350,7 +334,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 			// One more, run only prepare, collect simple and post strategies
 			telemetryManager.run(
 				new PrepareCollectStrategy(telemetryManager, collectTime, clientsExecutor),
-				new HealthCheckStrategy(telemetryManager, collectTime, clientsExecutor),
+				new ProtocolHealthCheckStrategy(telemetryManager, collectTime, clientsExecutor),
 				new CollectStrategy(telemetryManager, collectTime, clientsExecutor),
 				new SimpleStrategy(telemetryManager, collectTime, clientsExecutor),
 				new HardwarePostCollectStrategy(telemetryManager, collectTime, clientsExecutor)
@@ -378,7 +362,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 	}
 
 	/**
-	 *  Checks that iterations is greater than 0. Otherwise, throws a ParameterException
+	 * Checks that iterations is greater than 0. Otherwise, throws a ParameterException
 	 * @param iterations the number of collect iterations
 	 */
 	private void validateIterations(int iterations) {
@@ -404,7 +388,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 	 * @param connectorStore Wraps all the connectors
 	 * @throws ParameterException in case of invalid parameter
 	 */
-	private void validate(final ConnectorStore connectorStore) {
+	private void validate() {
 		// Can we ask for passwords interactively?
 		final boolean interactive = ConsoleService.hasConsole();
 
@@ -423,19 +407,6 @@ public class MetricsHubCliService implements Callable<Integer> {
 				spec.commandLine(),
 				"At least one protocol must be specified: --http[s], --ipmi, --snmp, --ssh, --wbem, --wmi, --winrm."
 			);
-		}
-
-		// Connectors
-		final Map<String, Connector> allConnectors = connectorStore.getStore();
-		Stream<String> connectorsToCheck = connectors != null ? connectors.stream() : Stream.empty();
-		if (excludedConnectors != null) {
-			connectorsToCheck = Stream.concat(connectorsToCheck, excludedConnectors.stream());
-		}
-		String invalidConnectors = connectorsToCheck
-			.filter(connectorName -> !allConnectors.containsKey(connectorName))
-			.collect(Collectors.joining(", "));
-		if (!invalidConnectors.isBlank()) {
-			throw new ParameterException(spec.commandLine(), "Unknown connector: " + invalidConnectors);
 		}
 	}
 
@@ -594,13 +565,19 @@ public class MetricsHubCliService implements Callable<Integer> {
 	 * @return success exit code
 	 */
 	int listAllConnectors(final ConnectorStore connectorStore, final PrintWriter printWriter) {
+		final ConnectorStagingManager connectorStagingManager = new ConnectorStagingManager();
+		final StagedConnectorIdentifiers stagedConnectorIds = connectorStagingManager.stage(connectorStore, connectors);
+		final Set<String> stagedConnectorIdsSet = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+		stagedConnectorIdsSet.addAll(stagedConnectorIds.getAutoDetectionConnectorIds());
+		stagedConnectorIdsSet.addAll(stagedConnectorIds.getForcedConnectorIds());
+
 		connectorStore
 			.getStore()
 			.entrySet()
 			.stream()
 			.filter(Objects::nonNull)
 			.filter(e -> e.getValue() != null && e.getValue().getCompiledFilename() != null)
-			.filter(entry -> hasAtLeastOneTagOf(includeConnectorTags, entry.getValue()))
+			.filter(entry -> stagedConnectorIdsSet.contains(entry.getKey()))
 			.sorted((e1, e2) -> e1.getValue().getCompiledFilename().compareToIgnoreCase(e2.getValue().getCompiledFilename()))
 			.forEachOrdered(connectorEntry -> {
 				final String connectorName = connectorEntry.getKey();

@@ -44,18 +44,18 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
  * </p>
  */
 @Slf4j
-public class HealthCheckStrategy extends AbstractStrategy {
+public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 
 	/**
 	 * Protocol up status value '1.0'
 	 */
-	private static final Double UP = 1.0;
+	public static final Double UP = 1.0;
 	/**
 	 * Protocol down status value '0.0'
 	 */
-	private static final Double DOWN = 0.0;
+	public static final Double DOWN = 0.0;
 	/**
-	 *
+	 * Up metric name format that will be saved by the metric factory
 	 */
 	public static final String UP_METRIC_FORMAT = "metricshub.host.up{protocol=\"%s\"}";
 	/**
@@ -72,7 +72,7 @@ public class HealthCheckStrategy extends AbstractStrategy {
 	 * @param clientsExecutor  The executor for managing clients used in the strategy.
 	 */
 	@Builder
-	public HealthCheckStrategy(
+	public ProtocolHealthCheckStrategy(
 		@NonNull final TelemetryManager telemetryManager,
 		@NonNull final Long strategyTime,
 		@NonNull final ClientsExecutor clientsExecutor
@@ -91,7 +91,7 @@ public class HealthCheckStrategy extends AbstractStrategy {
 			return;
 		}
 
-		log.info("Performing Health Check on " + hostname);
+		log.info("Hostname {} - Performing protocol health check.", hostname);
 		// Create a metric factory
 		final MetricFactory metricFactory = new MetricFactory(hostname);
 		// Check the hostname protocols health
@@ -112,16 +112,23 @@ public class HealthCheckStrategy extends AbstractStrategy {
 	/**
 	 * Check HTTP protocol health on the hostname for the host monitor
 	 * Criteria: The HTTP GET request to "/" must return a result.
+	 *
 	 * @param hostMonitor   An endpoint host monitor
 	 * @param hostname      The hostname on which we perform health check
 	 * @param metricFactory The metric factory used to collect the health check metric
 	 */
 	public void checkHttpHealth(String hostname, Monitor hostMonitor, MetricFactory metricFactory) {
 		String httpResult = null;
+		// Retrieve HTTP configuration from the telemetry manager
 		final HttpConfiguration httpConfiguration = (HttpConfiguration) telemetryManager
 			.getHostConfiguration()
 			.getConfigurations()
 			.get(HttpConfiguration.class);
+		// Stop the HTTP health check if there isn't an HTTP configuration
+		if (httpConfiguration == null) {
+			return;
+		}
+		// Execute HTTP test request
 		try {
 			// Create an Http request
 			final HttpRequest request = HttpRequest
@@ -139,15 +146,14 @@ public class HealthCheckStrategy extends AbstractStrategy {
 				hostname,
 				e
 			);
-		} finally {
-			// Generate a metric from the Http result
-			metricFactory.collectNumberMetric(
-				hostMonitor,
-				String.format(UP_METRIC_FORMAT, "HTTP"),
-				httpResult != null ? UP : DOWN,
-				telemetryManager.getStrategyTime()
-			);
 		}
+		// Generate a metric from the Http result
+		metricFactory.collectNumberMetric(
+			hostMonitor,
+			String.format(UP_METRIC_FORMAT, "HTTP"),
+			httpResult != null ? UP : DOWN,
+			telemetryManager.getStrategyTime()
+		);
 	}
 
 	/**
