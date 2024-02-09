@@ -174,6 +174,7 @@ public class SourceProcessor implements ISourceProcessor {
 					.hostname(hostname)
 					.method(httpSource.getMethod().toString())
 					.url(httpSource.getUrl())
+					.path(httpSource.getPath())
 					.header(httpSource.getHeader(), connectorId, hostname)
 					.body(httpSource.getBody(), connectorId, hostname)
 					.resultContent(httpSource.getResultContent())

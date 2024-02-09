@@ -21,7 +21,6 @@ package org.sentrysoftware.metricshub.engine.connector.model.identity.criterion;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -56,11 +55,19 @@ public class HttpCriterion extends Criterion {
 	private HttpMethod method = HttpMethod.GET;
 
 	/**
-	 * URL for the HTTP criterion (required).
+	 * URL for the HTTP criterion.
+	 */
+
+	@NonNull
+	@JsonSetter(nulls = SKIP)
+	private String url;
+
+	/**
+	 * Path for the HTTP criterion.
 	 */
 	@NonNull
-	@JsonSetter(nulls = FAIL)
-	private String url;
+	@JsonSetter(nulls = SKIP)
+	private String path;
 
 	/**
 	 * String or EmbeddedFile reference for the HTTP criterion.
@@ -113,7 +120,8 @@ public class HttpCriterion extends Criterion {
 		@JsonProperty("type") String type,
 		@JsonProperty("forceSerialization") boolean forceSerialization,
 		@JsonProperty("method") HttpMethod method,
-		@JsonProperty(value = "url", required = true) @NonNull String url,
+		@JsonProperty(value = "url") String url,
+		@JsonProperty("path") String path,
 		@JsonProperty("header") String header,
 		@JsonProperty("body") String body,
 		@JsonProperty("expectedResult") String expectedResult,
@@ -124,6 +132,7 @@ public class HttpCriterion extends Criterion {
 		super(type, forceSerialization);
 		this.method = method == null ? HttpMethod.GET : method;
 		this.url = url;
+		this.path = path;
 		this.header = header;
 		this.body = body;
 		this.expectedResult = expectedResult;

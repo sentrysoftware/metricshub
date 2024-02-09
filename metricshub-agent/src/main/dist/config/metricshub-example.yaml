@@ -114,6 +114,8 @@ resourceGroups:
       #       community: public
       #       port: 161
       #       timeout: 120
+      #   connectors: [ -SunF15K ]
+
       #═══════════════════════════════════════════════════
       # SNMP v2c protocol configuration                  
       #═══════════════════════════════════════════════════
@@ -178,8 +180,8 @@ resourceGroups:
       #       port: 443
       #       username: username
       #       password: password
-      #   selectConnectors:
-      #   - PureStorageREST
+      #   connectors:
+      #   - +PureStorageREST
 
       #═══════════════════════════════════════════════════
       # SSH protocol configuration                       

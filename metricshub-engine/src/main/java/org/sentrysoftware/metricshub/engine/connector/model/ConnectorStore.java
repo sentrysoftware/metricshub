@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -82,5 +83,31 @@ public class ConnectorStore {
 	 */
 	public void addOne(@NonNull final String id, @NonNull final Connector connector) {
 		store.put(id, connector);
+	}
+
+	/**
+	 * Adds multiple instances of {@link Connector} to the connector store.
+	 * The connectors are provided as a {@link Map} where each entry represents a connector with its unique identifier.
+	 *
+	 * @param connectors A {@link Map} containing connectors to be added, keyed by their unique identifiers.
+	 */
+	public void addMany(@NonNull final Map<String, Connector> connectors) {
+		store.putAll(connectors);
+	}
+
+	/**
+	 * Creates and returns a new instance of ConnectorStore, initialized with a copy of the current connectors.
+	 *
+	 * This method is useful for creating a snapshot of the current state of the ConnectorStore used for each resource.
+	 * Changes made to the new ConnectorStore will not affect the original one.
+	 *
+	 * @return A new ConnectorStore instance with the same connectors as the current store.
+	 */
+	public ConnectorStore newConnectorStore() {
+		final ConnectorStore newConnectorStore = new ConnectorStore();
+		final Map<String, Connector> originalConnectors = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		originalConnectors.putAll(store);
+		newConnectorStore.setStore(originalConnectors);
+		return newConnectorStore;
 	}
 }

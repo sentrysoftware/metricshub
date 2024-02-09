@@ -6,7 +6,7 @@ pre:
   testHttpSource:
     type: http
     method: POST
-    url: http://machine:5985/testUrl/
+    path: /testPath/
     body: >
       test
 

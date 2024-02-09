@@ -25,7 +25,6 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -62,8 +61,7 @@ public class HostConfiguration {
 	@Default
 	private long strategyTimeout = DEFAULT_JOB_TIMEOUT;
 
-	private Set<String> selectedConnectors;
-	private Set<String> excludedConnectors;
+	private Set<String> connectors;
 	private boolean sequential;
 	private Consumer<AlertInfo> alertTrigger;
 	private long retryDelay;
@@ -75,9 +73,6 @@ public class HostConfiguration {
 	private String configuredConnectorId;
 
 	private static final Map<Class<? extends IConfiguration>, Set<Class<? extends Source>>> CONFIGURATION_TO_SOURCES_MAP;
-
-	@Default
-	private Set<String> includeConnectorTags = new HashSet<>();
 
 	static {
 		CONFIGURATION_TO_SOURCES_MAP =

@@ -61,5 +61,5 @@ resourceGroups:
             restQueryPath: /pure/api/v2
             nullValue:
           OtherNull:
-        selectConnectors:
-        - PureStorageREST
+        connectors:
+        - +PureStorageREST

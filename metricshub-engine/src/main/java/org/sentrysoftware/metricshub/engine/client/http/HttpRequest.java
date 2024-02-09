@@ -53,6 +53,8 @@ public class HttpRequest {
 
 	private String method;
 
+	private String path;
+
 	private String url;
 
 	private Header header;
