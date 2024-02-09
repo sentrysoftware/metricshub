@@ -1,15 +1,18 @@
 package org.sentrysoftware.metricshub.engine.strategy.collect;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.doReturn;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HOSTNAME;
-import static org.sentrysoftware.metricshub.engine.strategy.collect.HealthCheckStrategy.UP_METRIC_FORMAT;
+import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.DOWN;
+import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.UP;
+import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.UP_METRIC_FORMAT;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -22,7 +25,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 @ExtendWith(MockitoExtension.class)
-class HealthCheckStrategyTest {
+class ProtocolHealthCheckStrategyTest {
 
 	private static final long CURRENT_TIME_MILLIS = System.currentTimeMillis();
 
@@ -31,52 +34,49 @@ class HealthCheckStrategyTest {
 
 	private static final String SUCCESS_RESPONSE = "Success";
 	private static final String NULL_RESPONSE = null;
-	private static final Double UP_VALUE = 1.0;
-	private static final Double DOWN_VALUE = 0.0;
-	private static Monitor hostMonitor;
-	static HttpConfiguration httpConfig;
 	static Map<String, Map<String, Monitor>> monitors;
-	static TelemetryManager telemetryManager;
 
 	/**
-	 * Instantiates all the necessary variables to perform the Http Health Check
+	 * Sets up the test environment before each test method is executed.
+	 * Creates a endpoint host monitor with specific properties and initializes the monitors map.
 	 */
-	private static void setupHttp() {
-		// Create the host monitor
-		hostMonitor = Monitor.builder().type(HOST.getKey()).isEndpoint(true).build();
-
-		// Create all the needed protocols configurations
-		httpConfig = HttpConfiguration.builder().build();
-
-		// Create a map of monitors
+	@BeforeEach
+	void setup() {
+		Monitor hostMonitor = Monitor.builder().type(HOST.getKey()).isEndpoint(true).build();
 		monitors = new HashMap<>(Map.of(HOST.getKey(), Map.of(HOSTNAME, hostMonitor)));
+	}
 
+	/**
+	 * Creates and returns a TelemetryManager instance with an HTTP configuration.
+	 *
+	 * @return A TelemetryManager instance configured with an HTTP configuration.
+	 */
+	private TelemetryManager createTelemetryManagerWithHttpConfig() {
 		// Create a telemetry manager
-		telemetryManager =
-			TelemetryManager
-				.builder()
-				.monitors(monitors)
-				.hostConfiguration(
-					HostConfiguration
-						.builder()
-						.hostId(HOSTNAME)
-						.hostname(HOSTNAME)
-						.sequential(false)
-						.configurations(Map.of(HttpConfiguration.class, httpConfig))
-						.build()
-				)
-				.build();
+		return TelemetryManager
+			.builder()
+			.monitors(monitors)
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostId(HOSTNAME)
+					.hostname(HOSTNAME)
+					.sequential(false)
+					.configurations(Map.of(HttpConfiguration.class, HttpConfiguration.builder().build()))
+					.build()
+			)
+			.build();
 	}
 
 	@Test
 	void testCheckHttpDownHealth() {
-		// Create all the necessary variables to run the test
-		setupHttp();
+		// Create a telemetry manager using an HTTP HostConfiguration.
+		final TelemetryManager telemetryManager = createTelemetryManagerWithHttpConfig();
 		// Mock HTTP protocol health check response
 		doReturn(NULL_RESPONSE).when(clientsExecutorMock).executeHttp(any(HttpRequest.class), anyBoolean());
 
 		// Create a new health check strategy
-		final HealthCheckStrategy httpHealthCheckStrategy = new HealthCheckStrategy(
+		final ProtocolHealthCheckStrategy httpHealthCheckStrategy = new ProtocolHealthCheckStrategy(
 			telemetryManager,
 			CURRENT_TIME_MILLIS,
 			clientsExecutorMock
@@ -84,18 +84,21 @@ class HealthCheckStrategyTest {
 		// Start the Health Check strategy
 		httpHealthCheckStrategy.run();
 
-		assertEquals(DOWN_VALUE, hostMonitor.getMetric(String.format(UP_METRIC_FORMAT, "HTTP")).getValue());
+		assertEquals(
+			DOWN,
+			telemetryManager.getEndpointHostMonitor().getMetric(String.format(UP_METRIC_FORMAT, "HTTP")).getValue()
+		);
 	}
 
 	@Test
 	void testCheckHttpUpHealth() {
-		// Create all the necessary variables to run the test
-		setupHttp();
+		// Create a telemetry manager using an HTTP HostConfiguration.
+		final TelemetryManager telemetryManager = createTelemetryManagerWithHttpConfig();
 		// Mock HTTP protocol health check response
 		doReturn(SUCCESS_RESPONSE).when(clientsExecutorMock).executeHttp(any(HttpRequest.class), anyBoolean());
 
 		// Create a new health check strategy
-		final HealthCheckStrategy httpHealthCheckStrategy = new HealthCheckStrategy(
+		final ProtocolHealthCheckStrategy httpHealthCheckStrategy = new ProtocolHealthCheckStrategy(
 			telemetryManager,
 			CURRENT_TIME_MILLIS,
 			clientsExecutorMock
@@ -103,6 +106,9 @@ class HealthCheckStrategyTest {
 		// Start the Health Check strategy
 		httpHealthCheckStrategy.run();
 
-		assertEquals(UP_VALUE, hostMonitor.getMetric(String.format(UP_METRIC_FORMAT, "HTTP")).getValue());
+		assertEquals(
+			UP,
+			telemetryManager.getEndpointHostMonitor().getMetric(String.format(UP_METRIC_FORMAT, "HTTP")).getValue()
+		);
 	}
 }

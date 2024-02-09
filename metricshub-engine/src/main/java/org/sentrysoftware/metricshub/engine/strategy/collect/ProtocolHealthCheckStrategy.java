@@ -43,16 +43,16 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
  * </p>
  */
 @Slf4j
-public class HealthCheckStrategy extends AbstractStrategy {
+public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 
 	/**
 	 * Protocol up status value '1.0'
 	 */
-	private static final Double UP = 1.0;
+	public static final Double UP = 1.0;
 	/**
 	 * Protocol down status value '0.0'
 	 */
-	private static final Double DOWN = 0.0;
+	public static final Double DOWN = 0.0;
 	/**
 	 * Up metric name format that will be saved by the metric factory
 	 */
@@ -67,7 +67,7 @@ public class HealthCheckStrategy extends AbstractStrategy {
 	 * @param clientsExecutor  The executor for managing clients used in the strategy.
 	 */
 	@Builder
-	public HealthCheckStrategy(
+	public ProtocolHealthCheckStrategy(
 		@NonNull final TelemetryManager telemetryManager,
 		@NonNull final Long strategyTime,
 		@NonNull final ClientsExecutor clientsExecutor
@@ -86,7 +86,7 @@ public class HealthCheckStrategy extends AbstractStrategy {
 			return;
 		}
 
-		log.info("Performing Health Check on " + hostname);
+		log.info("Hostname {} - Performing protocol health check.", hostname);
 		// Create a metric factory
 		final MetricFactory metricFactory = new MetricFactory(hostname);
 		// Check the hostname protocols health
@@ -140,14 +140,13 @@ public class HealthCheckStrategy extends AbstractStrategy {
 				hostname,
 				e
 			);
-		} finally {
-			// Generate a metric from the Http result
-			metricFactory.collectNumberMetric(
-				hostMonitor,
-				String.format(UP_METRIC_FORMAT, "HTTP"),
-				httpResult != null ? UP : DOWN,
-				telemetryManager.getStrategyTime()
-			);
 		}
+		// Generate a metric from the Http result
+		metricFactory.collectNumberMetric(
+			hostMonitor,
+			String.format(UP_METRIC_FORMAT, "HTTP"),
+			httpResult != null ? UP : DOWN,
+			telemetryManager.getStrategyTime()
+		);
 	}
 }
