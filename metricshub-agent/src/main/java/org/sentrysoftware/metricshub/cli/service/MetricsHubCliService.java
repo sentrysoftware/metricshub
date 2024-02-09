@@ -177,10 +177,11 @@ public class MetricsHubCliService implements Callable<Integer> {
 		split = ",",
 		paramLabel = "CONNECTOR",
 		description = "Specifies the setup of connectors to connect to the host.%n" +
-		" To force a connector, prefix the connector identifier with a plus sign (+), for instance, +MIB2.%n" +
-		" To select a specific connector category, prefix the category tag with a hash (#), such as #hardware or #system.%n" +
-		" To exclude a specific connector category, prefix the category tag with a minus and hash sign (-#), such as -#system.%n" +
-		" To exclude a connector, use a minus sign (-) before the connector identifier, for example, -MIB2.%n" +
+		" To force a connector, precede the connector identifier with a plus sign (+), as in +MIB2%n." +
+		" To exclude a connector from automatic detection, precede the connector identifier with a minus sign (-), like -MIB2.%n" +
+		" To stage a connector for processing by automatic detection, configure the connector identifier, for instance, MIB2.%n" +
+		" To stage a category of connectors for processing by automatic detection, precede the category tag with a hash (#), such as #hardware.%n" +
+		" To exclude a category of connectors from automatic detection, precede the category tag to be excluded with a minus and a hash sign (-#), such as -#system.%n" +
 		" Use @|bold ${ROOT-COMMAND-NAME} -l|@ to get the list of connectors)."
 	)
 	Set<String> connectors;

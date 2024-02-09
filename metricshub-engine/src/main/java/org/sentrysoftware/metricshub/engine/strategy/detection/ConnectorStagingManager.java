@@ -62,17 +62,17 @@ public class ConnectorStagingManager {
 	/**
 	 * Whether logging is enabled for this manager.
 	 */
-	private boolean enableLogging;
+	private boolean isLoggingEnabled;
 
 	/**
 	 * Constructs a ConnectorStagingManager with the given hostname and optional logging.
 	 *
-	 * @param hostname      The host name of the resource we currently monitor
-	 * @param enableLogging Indicates whether logging is enabled for this manager.
+	 * @param hostname         The host name of the resource we currently monitor
+	 * @param isLoggingEnabled Indicates whether logging is enabled for this manager.
 	 */
-	private ConnectorStagingManager(String hostname, boolean enableLogging) {
+	private ConnectorStagingManager(String hostname, boolean isLoggingEnabled) {
 		this.hostname = hostname;
-		this.enableLogging = enableLogging;
+		this.isLoggingEnabled = isLoggingEnabled;
 	}
 
 	/**
@@ -104,8 +104,7 @@ public class ConnectorStagingManager {
 	) {
 		final Map<String, Connector> store = connectorStore.getStore();
 		if (store == null || store.isEmpty()) {
-			conditionalLog(() ->
-				log.error("Hostname {} - No connector available in the store. Detection will stop.", hostname)
+			logIfEnabled(() -> log.error("Hostname {} - No connector available in the store. Detection will stop.", hostname)
 			);
 			return StagedConnectorIdentifiers.empty();
 		}
@@ -259,7 +258,7 @@ public class ConnectorStagingManager {
 		if (store.containsKey(connectorId)) {
 			connectorSet.add(connectorId);
 		} else {
-			conditionalLog(() ->
+			logIfEnabled(() ->
 				log.warn(
 					"Hostname {} - The connector associated with {} is not present in the store. Detection will skip this connector.",
 					hostname,
@@ -270,12 +269,12 @@ public class ConnectorStagingManager {
 	}
 
 	/**
-	 * Conditionally logs a message based on the value of enableLogging.
+	 * Logs a message if logging is enabled.
 	 *
 	 * @param loggingTask The LoggingTask to execute if logging is enabled.
 	 */
-	private void conditionalLog(final LoggingTask loggingTask) {
-		if (enableLogging) {
+	private void logIfEnabled(final LoggingTask loggingTask) {
+		if (isLoggingEnabled) {
 			loggingTask.log();
 		}
 	}

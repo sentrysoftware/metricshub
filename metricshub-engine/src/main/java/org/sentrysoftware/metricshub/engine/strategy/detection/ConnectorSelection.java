@@ -58,6 +58,7 @@ public class ConnectorSelection extends AbstractConnectorProcessor {
 	 *
 	 * @param telemetryManager The telemetry manager responsible for managing telemetry-related operations.
 	 * @param clientsExecutor  The executor for managing clients used in the strategy.
+	 * @param connectorIds     The set of connector identifiers that represent the connectors involved in the connector selection.
 	 */
 	public ConnectorSelection(
 		@NonNull final TelemetryManager telemetryManager,

@@ -513,9 +513,9 @@ By default, **${solutionName}** collects metrics from the monitored resources ev
 
 #### Connectors
 
-**${solutionName}** comes with the *Basic Connector Library* whereas the *Enterprise edition* includes hundreds of hardware connectors that describe how to discover components and detect failures. When running **${solutionName}**, the connectors are automatically selected based on the device type provided and the enabled protocols. You can however indicate to **${solutionName}** which connectors should be used or excluded.
+**${solutionName}** comes with the *Basic Connector Library* whereas the *Enterprise edition* includes hundreds of hardware connectors that describe how to discover components and detect failures. When running **${solutionName}**, the connectors are automatically selected based on the device type provided and the enabled protocols. However, you have the flexibility to specify which connectors should be utilized or omitted.
 
-Use the `connectors` parameter to force, select or exclude connectors. Connector names must be comma-separated, as shown in the example below:
+The `connectors` parameter allows you to enforce, select, or exclude specific connectors. Connector names or category tags should be separated by commas, as illustrated in the example below:
 
 ```yaml
 resourceGroups:
@@ -530,14 +530,69 @@ resourceGroups:
             timeout: 120s
             username: myusername
             password: mypwd
-        connectors: [ +VMwareESX4i, +VMwareESXi ]
+        connectors: [ +VMwareESX4i, +VMwareESXi, "#system" ]
 ```
 
-- To force a connector, prefix the connector identifier with a plus sign (+), for instance, `+MIB2`.
-- To exclude a connector, use a minus sign (-) before the connector identifier, for example, `-MIB2`.
-- To stage a connector to be executed by the automatic detection, only use the connector identifier, for example, `MIB2`.
+- To force a connector, precede the connector identifier with a plus sign (`+`), as in `+MIB2`.
+- To exclude a connector from automatic detection, precede the connector identifier with a minus sign (`-`), like `-MIB2`.
+- To stage a connector for processing by automatic detection, configure the connector identifier, for instance, `MIB2`.
+- To stage a category of connectors for processing by automatic detection, precede the category tag with a hash (`#`), such as `#hardware` or `#system`.
+- To exclude a category of connectors from automatic detection, precede the category tag to be excluded with a minus and a hash sign (`-#`), such as `-#system`.
   
-> **Note**: Any misspelled connector will be ignored.
+> **Notes**: 
+>- Any misspelled connector will be ignored.
+>- Misspelling a category tag will prevent automatic detection from functioning due to an empty connectors staging.
+
+##### Examples
+
+- Example 1:
+  ```yaml
+  connectors: [ "#hardware" ]
+  ```
+  The core engine will automatically detect connectors categorized under `hardware`.
+
+- Example 2:
+  ```yaml
+  connectors: [ "-#hardware", "#system" ]
+  ```
+  The core engine will perform automatic detection on connectors categorized under `system`, excluding those categorized under `hardware`.
+
+- Example 3:
+  ```yaml
+  connectors: [ DiskPart, MIB2, "#system" ]
+  ```
+  The core engine will automatically detect connectors named `DiskPart`, `MIB2`, and all connectors under the `system` category.
+
+- Example 4:
+  ```yaml
+  connectors: [ +DiskPart, MIB2, "#system" ]
+  ```
+  The core engine will enforce the execution of the `DiskPart` connector and then proceed with the automatic detection of `MIB2` and all connectors under the `system` category.
+
+- Example 5:
+  ```yaml
+  connectors: [ DiskPart, "-#system" ] 
+  ```
+  The core engine will perform automatic detection exclusively on the `DiskPart` connector.
+
+- Example 6:
+  ```yaml
+  connectors: [ +Linux, MIB2 ] 
+  ```
+  The core engine will enforce the execution of the `Linux` connector and subsequently perform automatic detection on the `MIB2` connector.
+
+- Example 7:
+  ```yaml
+  connectors: [ -Linux ] 
+  ```
+  The core engine will perform automatic detection on all connectors except the `Linux` connector.
+
+- Example 8:
+  ```yaml
+  connectors: [ "#hardware", -MIB2 ] 
+  ```
+  The core engine will perform automatic detection on connectors categorized under `hardware`, excluding the `MIB2` connector.
+
 
 To know which connectors are available, refer to [Basic Monitored Systems](../basic-platform-requirements.html#!) or [Enterprise Monitored Systems](../enterprise-platform-requirements.html#!).
 
@@ -548,52 +603,6 @@ $ metricshub -l
 ```
 
 For more information about the `metricshub` command, refer to [MetricsHub CLI (metricshub)](../troubleshooting/cli.md).
-
-##### Connector tags
-
-Connectors can be filtered based on tags.
-
-During the automatic detection, a connector will only be selected if it contains a tag that is listed in the MetricsHub Agent's configuration file, `config/metricshub.yaml`.
-
-The tags are used to classify connectors, making it possible to select only a specific category of connector, such as `hardware` connectors or `application` connectors.
-
-Use the `connectors` parameter to filter connectors by tags, prefix the tag name with a hash (`#`), such as `#hardware` or `#system` as shown in the example below:
-
-```yaml
-resourceGroups:
-  boston:
-    resources:
-      # Resource Configuration 
-      myHost1:
-        attributes:
-          host.name: my-host-01
-          host.type: linux
-        protocols:
-          snmp:
-            community: public
-            port: 161
-            version: v2c
-        connectors: [ "#hardware", "#system" ]
-```
-
-To exclude connectors by tags, prefix the tag name you want to exclude with a minus and a hash sign (`-#`), such as `-#system` as shown in the example below:
-
-```yaml
-resourceGroups:
-  boston:
-    resources:
-      # Resource Configuration 
-      myHost1:
-        attributes:
-          host.name: my-host-01
-          host.type: linux
-        protocols:
-          snmp:
-            community: public
-            port: 161
-            version: v2c
-        connectors: [ -#system ]
-```
 
 #### Discovery cycle
 

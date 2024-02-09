@@ -64,6 +64,7 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 	 *
 	 * @param telemetryManager The telemetry manager responsible for managing telemetry-related operations.
 	 * @param clientsExecutor  The executor for managing clients used in the strategy.
+	 * @param connectorIds     The set of connector identifiers that represent the connectors involved in the automatic detection.
 	 */
 	public AutomaticDetection(
 		@NonNull final TelemetryManager telemetryManager,
@@ -117,9 +118,9 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 			// DeviceKind Filtering
 			.filter(connector -> connector.getConnectorIdentity().getDetection().getAppliesTo().contains(deviceKind))
 			// ConnectionType Filtering
-			.filter(connector -> connectionTypesFiltering(connector, isLocalhost))
+			.filter(connector -> hasSameConnectionTypeAsHost(connector, isLocalhost))
 			// Accepted Sources Filtering
-			.filter(connector -> anyMatch(connector.getSourceTypes(), acceptedSources))
+			.filter(connector -> hasMatchingSourceTypeInAcceptedSources(connector.getSourceTypes(), acceptedSources))
 			.collect(Collectors.toList()); //NOSONAR
 
 		final Set<String> supersedes = new HashSet<>();
@@ -152,34 +153,31 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 	}
 
 	/**
-	 * Return true if the connector has the same type of connection as the host (local or remote)
-	 * @param connector   The connector to test
-	 * @param isLocalHost True if the host is a local machine
-	 * @return boolean value
+	 * Return true if the connector has the same type of connection as the host (local or remote).
+	 *
+	 * @param connector   The connector to test.
+	 * @param isLocalhost True if the host is a local machine.
+	 * @return True if the connector has the same connection type as the host, false otherwise.
 	 */
-	private boolean connectionTypesFiltering(final Connector connector, final boolean isLocalHost) {
+	private boolean hasSameConnectionTypeAsHost(final Connector connector, final boolean isLocalhost) {
 		return connector
 			.getConnectorIdentity()
 			.getDetection()
 			.getConnectionTypes()
-			.contains(isLocalHost ? ConnectionType.LOCAL : ConnectionType.REMOTE);
+			.contains(isLocalhost ? ConnectionType.LOCAL : ConnectionType.REMOTE);
 	}
 
 	/**
-	 * Return true if any element of the acceptedSources match at least a value in sourceTypes
-	 * @param sourceTypes     The Java type of the sources
-	 * @param acceptedSources The Java type of the accepted sources
-	 * @return boolean value
+	 * Checks if there is a matching connector source type in the set of accepted sources.
+	 *
+	 * @param connectorSourceTypes The set of source types associated with the connector.
+	 * @param acceptedSources      The set of accepted sources to check for matching source types.
+	 * @return True if there is a matching connector source type in the accepted sources, false otherwise.
 	 */
-	private boolean anyMatch(
-		final Set<Class<? extends Source>> sourceTypes,
+	private boolean hasMatchingSourceTypeInAcceptedSources(
+		final Set<Class<? extends Source>> connectorSourceTypes,
 		final Set<Class<? extends Source>> acceptedSources
 	) {
-		for (Class<? extends Source> source : acceptedSources) {
-			if (sourceTypes.contains(source)) {
-				return true;
-			}
-		}
-		return false;
+		return acceptedSources.stream().anyMatch(connectorSourceTypes::contains);
 	}
 }
