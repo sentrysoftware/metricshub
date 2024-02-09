@@ -8,13 +8,15 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HOSTNAME;
-import static org.sentrysoftware.metricshub.engine.strategy.collect.HealthCheckStrategy.SNMP_OID;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.DOWN;
+import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.SNMP_OID;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.UP;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.UP_METRIC_FORMAT;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -73,33 +75,25 @@ class ProtocolHealthCheckStrategyTest {
 	}
 
 	/**
-	 * Instantiates all the necessary variables to perform the Http Health Check
+	 * Creates and returns a TelemetryManager instance with an SNMP configuration.
+	 *
+	 * @return A TelemetryManager instance configured with an SNMP configuration.
 	 */
-	private static void setupSnmp() {
-		// Create the host monitor
-		hostMonitor = Monitor.builder().type(HOST.getKey()).isEndpoint(true).build();
-
-		// Create all the needed protocols configurations
-		final SnmpConfiguration snmpConfig = SnmpConfiguration.builder().community("public").build();
-
-		// Create a map of monitors
-		monitors = new HashMap<>(Map.of(HOST.getKey(), Map.of(HOSTNAME, hostMonitor)));
-
+	private TelemetryManager createTelemetryManagerWithSnmpConfig() {
 		// Create a telemetry manager
-		telemetryManager =
-			TelemetryManager
-				.builder()
-				.monitors(monitors)
-				.hostConfiguration(
-					HostConfiguration
-						.builder()
-						.hostId(HOSTNAME)
-						.hostname(HOSTNAME)
-						.sequential(false)
-						.configurations(Map.of(SnmpConfiguration.class, snmpConfig))
-						.build()
-				)
-				.build();
+		return TelemetryManager
+			.builder()
+			.monitors(monitors)
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostId(HOSTNAME)
+					.hostname(HOSTNAME)
+					.sequential(false)
+					.configurations(Map.of(SnmpConfiguration.class, SnmpConfiguration.builder().community("public").build()))
+					.build()
+			)
+			.build();
 	}
 
 	@Test
@@ -148,15 +142,15 @@ class ProtocolHealthCheckStrategyTest {
 
 	@Test
 	void testCheckSnmpUpHealth() throws InterruptedException, ExecutionException, TimeoutException {
-		// Create all the necessary variables to run the test
-		setupSnmp();
+		// Create a telemetry manager using an HTTP HostConfiguration.
+		final TelemetryManager telemetryManager = createTelemetryManagerWithSnmpConfig();
 		// Mock HTTP protocol health check response
 		doReturn(SUCCESS_RESPONSE)
 			.when(clientsExecutorMock)
 			.executeSNMPGetNext(eq(SNMP_OID), any(SnmpConfiguration.class), anyString(), anyBoolean());
 
 		// Create a new health check strategy
-		final HealthCheckStrategy snmpHealthCheckStrategy = new HealthCheckStrategy(
+		final ProtocolHealthCheckStrategy snmpHealthCheckStrategy = new ProtocolHealthCheckStrategy(
 			telemetryManager,
 			CURRENT_TIME_MILLIS,
 			clientsExecutorMock
@@ -164,20 +158,23 @@ class ProtocolHealthCheckStrategyTest {
 		// Start the Health Check strategy
 		snmpHealthCheckStrategy.run();
 
-		assertEquals(UP_VALUE, hostMonitor.getMetric(String.format(UP_METRIC_FORMAT, "SNMP")).getValue());
+		assertEquals(
+			UP,
+			telemetryManager.getEndpointHostMonitor().getMetric(String.format(UP_METRIC_FORMAT, "SNMP")).getValue()
+		);
 	}
 
 	@Test
 	void testCheckSnmpDownHealth() throws InterruptedException, ExecutionException, TimeoutException {
-		// Create all the necessary variables to run the test
-		setupSnmp();
+		// Create a telemetry manager using an HTTP HostConfiguration.
+		final TelemetryManager telemetryManager = createTelemetryManagerWithSnmpConfig();
 		// Mock SNMP protocol health check response
 		doReturn(NULL_RESPONSE)
 			.when(clientsExecutorMock)
 			.executeSNMPGetNext(eq(SNMP_OID), any(SnmpConfiguration.class), anyString(), anyBoolean());
 
 		// Create a new health check strategy
-		final HealthCheckStrategy snmpHealthCheckStrategy = new HealthCheckStrategy(
+		final ProtocolHealthCheckStrategy snmpHealthCheckStrategy = new ProtocolHealthCheckStrategy(
 			telemetryManager,
 			CURRENT_TIME_MILLIS,
 			clientsExecutorMock
@@ -185,6 +182,9 @@ class ProtocolHealthCheckStrategyTest {
 		// Start the SNMP Health Check strategy
 		snmpHealthCheckStrategy.run();
 
-		assertEquals(DOWN_VALUE, hostMonitor.getMetric(String.format(UP_METRIC_FORMAT, "SNMP")).getValue());
+		assertEquals(
+			DOWN,
+			telemetryManager.getEndpointHostMonitor().getMetric(String.format(UP_METRIC_FORMAT, "SNMP")).getValue()
+		);
 	}
 }

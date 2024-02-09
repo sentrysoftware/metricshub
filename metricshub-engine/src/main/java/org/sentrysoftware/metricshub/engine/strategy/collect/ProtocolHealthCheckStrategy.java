@@ -184,13 +184,13 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 				hostname,
 				e
 			);
-		} finally {
-			metricFactory.collectNumberMetric(
-				hostMonitor,
-				String.format(UP_METRIC_FORMAT, "SNMP"),
-				snmpResult != null ? UP : DOWN,
-				telemetryManager.getStrategyTime()
-			);
 		}
+		// Generate a metric from the Snmp result
+		metricFactory.collectNumberMetric(
+			hostMonitor,
+			String.format(UP_METRIC_FORMAT, "SNMP"),
+			snmpResult != null ? UP : DOWN,
+			telemetryManager.getStrategyTime()
+		);
 	}
 }
