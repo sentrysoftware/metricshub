@@ -74,6 +74,9 @@ public abstract class AbstractConnectorProcessor {
 	@NonNull
 	protected ClientsExecutor clientsExecutor;
 
+	@NonNull
+	protected Set<String> connectorIds;
+
 	/**
 	 * Run the Detection job and returns the detected {@link ConnectorTestResult}
 	 *

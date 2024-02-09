@@ -26,6 +26,7 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.STATE_SET_METRIC_FAILED;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.STATE_SET_METRIC_OK;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -401,7 +402,11 @@ public abstract class AbstractStrategy implements IStrategy {
 			return true;
 		}
 
-		ConnectorTestResult connectorTestResult = new ConnectorSelection(telemetryManager, clientsExecutor)
+		final ConnectorTestResult connectorTestResult = new ConnectorSelection(
+			telemetryManager,
+			clientsExecutor,
+			Collections.emptySet()
+		)
 			.runConnectorDetectionCriteria(currentConnector, hostname);
 		final String connectorId = currentConnector.getCompiledFilename();
 		final Monitor monitor = telemetryManager.findMonitorByTypeAndId(

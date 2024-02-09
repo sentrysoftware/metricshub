@@ -33,6 +33,7 @@ import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
+import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;
 import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricType;
@@ -320,6 +321,7 @@ class DetectionStrategyTest {
 					.configuredConnectorId(METRICS_HUB_CONFIGURED_CONNECTOR_ID)
 					.build()
 			)
+			.connectorStore(new ConnectorStore())
 			.build();
 
 		// Create detectionStrategy with the previously created telemetryManager

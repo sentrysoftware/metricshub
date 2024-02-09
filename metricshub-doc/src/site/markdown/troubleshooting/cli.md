@@ -202,11 +202,72 @@ When running the `metricshub` command, the connectors are automatically selected
 
 You can however specify manually which connectors must be used to monitor the specified host, or exclude some connectors from the list that will be tested during the detection phase.
 
-### Force Connectors
+### Configure connectors
 
-To force specific connectors to be used, add the `--force CONNECTOR,...` option, where `CONNECTOR,...` is a comma-separated list of connector internal names (you need to use their **id**).
+The connectors are automatically selected based on the device type provided and the enabled protocols. However, you have the flexibility to specify which connectors should be utilized or omitted.
 
-Using the `--force` option will shorten the detection phase, as only the specified connectors will be tested.
+The `--connectors` CLI option allows you to enforce, select, or exclude specific connectors. Connector identifiers or category tags should be separated by commas, as illustrated in the example below:
+
+```batch
+$ metricshub SERVER01 -t oob --snmp v2c --community public --connectors +MIB2,#hardware,-Windows
+```
+
+- To force a connector, precede the connector identifier with a plus sign (`+`), as in `+MIB2`.
+- To exclude a connector from automatic detection, precede the connector identifier with a minus sign (`-`), like `-Windows`.
+- To stage a connector for processing by automatic detection, configure the connector identifier, for instance, `MIB2`.
+- To stage a category of connectors for processing by automatic detection, precede the category tag with a hash (`#`), such as `#hardware` or `#system`.
+- To exclude a category of connectors from automatic detection, precede the category tag to be excluded with a minus and a hash sign (`-#`), such as `-#system`.
+
+#### Examples
+
+- Example 1:
+  ```batch
+  $ metricshub SERVER01 -t win --snmp v2c --community public --connectors #hardware
+  ```
+  The core engine will automatically detect connectors categorized under `hardware`.
+
+- Example 2:
+  ```batch
+  $ metricshub SERVER01 -t win --wmi --connectors -#hardware,#system
+  ```
+  The core engine will perform automatic detection on connectors categorized under `system`, excluding those categorized under `hardware`.
+
+- Example 3:
+  ```batch
+  $ metricshub SERVER01 -t win --snmp v2c --community public --wmi --connectors MIB2NT,MIB2,#system
+  ```
+  The core engine will automatically detect connectors named `MIB2NT`, `MIB2`, and all connectors under the `system` category.
+
+- Example 4:
+  ```batch
+  $ metricshub SERVER01 -t win --snmp v2c --community public --wmi --connectors +DiskPart,MIB2,#system
+  ```
+  The core engine will enforce the execution of the `DiskPart` connector and then proceed with the automatic detection of `MIB2` and all connectors under the `system` category.
+
+- Example 5:
+  ```batch
+  $ metricshub SERVER01 -t win --wmi --connectors DiskPart,-#system
+  ```
+  The core engine will perform automatic detection exclusively on the `DiskPart` connector.
+
+- Example 6:
+  ```batch
+  $ metricshub SERVER01 -t win --snmp v2c --community public --connectors +Windows,MIB2
+  ```
+  The core engine will enforce the execution of the `Windows` connector and subsequently perform automatic detection on the `MIB2` connector.
+
+- Example 7:
+  ```batch
+  metricshub SERVER01 -t win --snmp v2c --community public --connectors -Linux
+  ```
+  The core engine will perform automatic detection on all connectors except the `Linux` connector.
+
+- Example 8:
+  ```batch
+  metricshub SERVER01 -t win --snmp v2c --community public --connectors #hardware,-MIB2
+  ```
+  The core engine will perform automatic detection on connectors categorized under `hardware`, excluding the `MIB2` connector.
+
 
 To get the list of connectors bundled in **${solutionName}** and their corresponding internal name (**id**), you can run the below command:
 
@@ -218,11 +279,7 @@ This will provide a list as below:
 
 ![Output of the metricshub --list command, listing all connectors, their ID, applicable system types and display name](../images/metricshub-list.png)
 
-This list displays the internal name (**id**) of each connector, its applicable system types (to use with the `--type` option) and its display name. You need to use the connector's internal name (**id**) in the `--force` option.
-
-### Exclude Connectors
-
-To exclude specific connectors from being tested in the detection phase, use the `--exclude CONNECTOR,...` option, where `CONNECTOR,...` is a comma-separated list connectors' internal name (**id**).
+This list displays the internal name (**id**) of each connector, its applicable system types and its display name.
 
 ## Sequential Mode
 
@@ -244,19 +301,3 @@ duration in seconds of the pause between two collect operations.
 ```batch
 $ metricshub SERVER01 -t oob --snmp v2c --community public --iterations 2 --sleep-iteration 5
 ```
-
-## Connector tags
-
-The connectors can be filtered by tags. Tags are string values defined in a CLI command.
-
-A given connector is selected only if it contains a tag which is listed in the CLI command tags.
-
-The tags are useful to select only some connectors using their categories (e.g: hardware, storage, etc ...).
-
-Use `--include-connector-tags` to define the tags in the CLI command (If there is more than one tag to define, use commas to define them).
-
-```batch
-$ metricshub SERVER01 -t oob --snmp v2c --community public --include-connector-tags hardware, storage
-```
-
-
