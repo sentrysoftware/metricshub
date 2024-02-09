@@ -47,14 +47,12 @@ import java.nio.file.attribute.AclFileAttributeView;
 import java.nio.file.attribute.GroupPrincipal;
 import java.security.MessageDigest;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -820,37 +818,19 @@ public class ConfigHelper {
 		}
 
 		try {
+			// Create a new connector store for this resource configuration
+			final ConnectorStore resourceConnectorStore = connectorStore.newConnectorStore();
+
 			// Validate protocols
 			validateProtocols(resourceKey, resourceConfig);
 
-			final Map<String, Connector> connectors = connectorStore.getStore();
-			final Set<String> connectorIds = connectors.keySet();
-
-			final Set<String> selectedConnectors = validateAndGetConnectors(
-				connectorIds,
-				resourceConfig.getSelectConnectors(),
-				resourceKey,
-				false
-			);
-
-			final Set<String> excludedConnectors = validateAndGetConnectors(
-				connectorIds,
-				resourceConfig.getExcludeConnectors(),
-				resourceKey,
-				true
-			);
-
 			final HostConfiguration hostConfiguration = buildHostConfiguration(
 				resourceConfig,
-				selectedConnectors,
-				excludedConnectors,
+				resourceConfig.getConnectors(),
 				resourceKey
 			);
 
-			ConnectorStore telemetryManagerConnectorStore = createCustomConnectorStoreIfConfigured(
-				resourceConfig.getConnector(),
-				connectorStore
-			);
+			addConfiguredConnector(resourceConnectorStore, resourceConfig.getConnector());
 
 			// Retrieve connectors variables map from the resource configuration
 			final Map<String, ConnectorVariables> connectorVariablesMap = resourceConfig.getVariables();
@@ -865,17 +845,13 @@ public class ConfigHelper {
 					connectorVariablesMap
 				);
 
-				// Overwrite telemetryManagerConnectorStore
-				telemetryManagerConnectorStore = buildNewConnectorStore(customConnectors, telemetryManagerConnectorStore);
+				// Overwrite resourceConnectorStore
+				updateConnectorStore(resourceConnectorStore, customConnectors);
 			}
 
 			resourceGroupTelemetryManagers.putIfAbsent(
 				resourceKey,
-				TelemetryManager
-					.builder()
-					.connectorStore(telemetryManagerConnectorStore)
-					.hostConfiguration(hostConfiguration)
-					.build()
+				TelemetryManager.builder().connectorStore(resourceConnectorStore).hostConfiguration(hostConfiguration).build()
 			);
 		} catch (Exception e) {
 			log.warn(
@@ -890,32 +866,17 @@ public class ConfigHelper {
 	}
 
 	/**
-	 * Builds a new connector store by merging the existing (standard) connectors with the custom connectors (connectors that contain template variables)
-	 * @param customConnectors Map<String, Connector> Connectors containing template variables
-	 * @param telemetryManagerConnectorStore the connector store before the merge with custom connectors
-	 * @return {@link ConnectorStore} instance
+	 * Add the custom connectors to the resource's connector store.
+	 *
+	 * @param resourceConnectorStore The connector store of the resource
+	 * @param customConnectors       Map of customized connectors. E.g. Custom connectors that contain template variables
 	 */
-	protected static ConnectorStore buildNewConnectorStore(
-		final Map<String, Connector> customConnectors,
-		final ConnectorStore telemetryManagerConnectorStore
+	protected static void updateConnectorStore(
+		final ConnectorStore resourceConnectorStore,
+		final Map<String, Connector> customConnectors
 	) {
-		// Initialize a new connector store that will contain both standard and custom connectors
-		final ConnectorStore finalConnectorStore = new ConnectorStore();
-
-		// Initialize a new connectors map that will contain both standard and custom connectors
-		final Map<String, Connector> newConnectors = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-
-		// Add the original connector store connectors
-		newConnectors.putAll(telemetryManagerConnectorStore.getStore());
-
 		// Add custom connectors
-		newConnectors.putAll(customConnectors);
-
-		// Populate the connector store with the existing connectors
-		finalConnectorStore.setStore(newConnectors);
-
-		// Return the custom ConnectorStore
-		return finalConnectorStore;
+		resourceConnectorStore.addMany(customConnectors);
 	}
 
 	/**
@@ -943,40 +904,20 @@ public class ConfigHelper {
 	}
 
 	/**
-	 * Create a custom ConnectorStore if a configured connector exists.
-	 * @param configuredConnector Configured connector
-	 * @param connectorStore      The original ConnectorStore
-	 * @return A custom ConnectorStore with the configured connector if it exists, or the original ConnectorStore.
+	 * Add the configured connector to the resource's connector store.
+	 *
+	 * @param resourceConnectorStore The resource's ConnectorStore
+	 * @param configuredConnector    Configured connector
 	 */
-	static ConnectorStore createCustomConnectorStoreIfConfigured(
-		final Connector configuredConnector,
-		final ConnectorStore connectorStore
-	) {
+	static void addConfiguredConnector(final ConnectorStore resourceConnectorStore, final Connector configuredConnector) {
 		// Check if a configured connector is available
 		if (configuredConnector != null) {
-			// Create a custom ConnectorStore and populate it with the
-			// configured connector
-			final ConnectorStore customConnectorStore = new ConnectorStore();
-
-			final Map<String, Connector> originalConnectors = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-
-			originalConnectors.putAll(connectorStore.getStore());
-
-			// Populate the connector store with the existing connectors
-			customConnectorStore.setStore(originalConnectors);
-
 			// Add the configured connector
-			customConnectorStore.addOne(
+			resourceConnectorStore.addOne(
 				configuredConnector.getConnectorIdentity().getCompiledFilename(),
 				configuredConnector
 			);
-
-			// Return the custom ConnectorStore
-			return customConnectorStore;
 		}
-
-		// If no configured connector exists, return the original ConnectorStore
-		return connectorStore;
 	}
 
 	/**
@@ -1035,79 +976,6 @@ public class ConfigHelper {
 		final OsCommandProtocolConfig osCommandConfig = protocolsConfig.getOsCommand();
 		if (osCommandConfig != null) {
 			validateOsCommandInfo(resourceKey, osCommandConfig.getTimeout());
-		}
-	}
-
-	/**
-	 * Return configured connector names. This method throws an {@link IllegalStateException} if
-	 * we encounter an unknown connector
-	 *
-	 * @param acceptedConnectorNames   Known connector names (connector compiled file names)
-	 * @param resourceConfigConnectors User's selected or excluded connectors
-	 * @param resourceKey              Resource unique identifier
-	 * @param isExcluded               Specifies if we are validating excluded or selected connectors
-	 *
-	 * @return {@link Set} containing the validated connector names
-	 * @throws IllegalStateException
-	 */
-	static Set<String> validateAndGetConnectors(
-		final @NonNull Set<String> acceptedConnectorNames,
-		final Set<String> resourceConfigConnectors,
-		final String resourceKey,
-		final boolean isExcluded
-	) {
-		if (resourceConfigConnectors == null || resourceConfigConnectors.isEmpty()) {
-			return new HashSet<>();
-		}
-
-		// Copy the set of configured connectors as we won't perform operations on the original configuration
-		final Set<String> configConnectors = resourceConfigConnectors.stream().collect(Collectors.toSet());
-
-		// Get unknown connectors
-		final Set<String> unknownConnectors = configConnectors
-			.stream()
-			.filter(compiledFileName -> !acceptedConnectorNames.contains(compiledFileName))
-			.collect(Collectors.toSet());
-
-		// Check unknown connectors
-		if (unknownConnectors.isEmpty()) {
-			return configConnectors;
-		}
-
-		final String message;
-		configConnectors.removeAll(unknownConnectors);
-
-		if (isExcluded) {
-			message =
-				String.format(
-					"Resource %s - Configured unknown excluded connector(s): %s. This resource will be monitored, but the unknown connectors will be ignored.",
-					String.join(", ", unknownConnectors),
-					resourceKey
-				);
-
-			log.error(message);
-
-			return configConnectors;
-		} else if (!configConnectors.isEmpty()) {
-			message =
-				String.format(
-					"Resource %s - Configured unknown selected connector(s): %s. This resource will be monitored, but the unknown connectors will be ignored.",
-					resourceKey,
-					String.join(", ", unknownConnectors)
-				);
-
-			log.error(message);
-
-			return configConnectors;
-		} else {
-			message =
-				String.format(
-					"Resource %s - Selected connectors are not valid. This resource will not be monitored.",
-					resourceKey
-				);
-
-			// Throw the bad configuration exception
-			throw new IllegalStateException(message);
 		}
 	}
 
@@ -1334,16 +1202,14 @@ public class ConfigHelper {
 	/**
 	 * Build the {@link HostConfiguration} expected by the internal engine
 	 *
-	 * @param resourceConfig     User's resource configuration
-	 * @param selectedConnectors User's selected connectors
-	 * @param excludedConnectors User's excluded connectors
-	 * @param resourceKey        Resource unique identifier
+	 * @param resourceConfig          User's resource configuration
+	 * @param connectorsConfiguration User's connectors configuration directives.
+	 * @param resourceKey             Resource unique identifier
 	 * @return new {@link HostConfiguration} instance
 	 */
 	static HostConfiguration buildHostConfiguration(
 		final ResourceConfig resourceConfig,
-		final Set<String> selectedConnectors,
-		final Set<String> excludedConnectors,
+		final Set<String> connectorsConfiguration,
 		final String resourceKey
 	) {
 		final ProtocolsConfig protocols = resourceConfig.getProtocols();
@@ -1404,9 +1270,7 @@ public class ConfigHelper {
 			.builder()
 			.strategyTimeout(resourceConfig.getJobTimeout())
 			.configurations(protocolConfigurations)
-			.selectedConnectors(selectedConnectors)
-			.excludedConnectors(excludedConnectors)
-			.includeConnectorTags(resourceConfig.getIncludeConnectorTags())
+			.connectors(connectorsConfiguration)
 			.hostname(hostname)
 			.hostId(hostId)
 			.hostType(hostType)

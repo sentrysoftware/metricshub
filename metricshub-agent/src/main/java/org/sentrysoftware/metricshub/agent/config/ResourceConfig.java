@@ -89,11 +89,7 @@ public class ResourceConfig {
 
 	@Default
 	@JsonSetter(nulls = SKIP)
-	private Set<String> selectConnectors = new HashSet<>();
-
-	@Default
-	@JsonSetter(nulls = SKIP)
-	private Set<String> excludeConnectors = new HashSet<>();
+	private Set<String> connectors = new HashSet<>();
 
 	@JsonSetter(nulls = SKIP)
 	@JsonDeserialize(using = MonitorJobsDeserializer.class)
@@ -102,10 +98,6 @@ public class ResourceConfig {
 
 	@JsonIgnore
 	private Connector connector;
-
-	@Default
-	@JsonSetter(nulls = SKIP)
-	private Set<String> includeConnectorTags = new HashSet<>();
 
 	/**
 	 * Creates and returns a shallow copy of all the fields in this
@@ -135,9 +127,7 @@ public class ResourceConfig {
 			.metrics(metrics)
 			.protocols(protocols)
 			.variables(variables)
-			.selectConnectors(selectConnectors)
-			.excludeConnectors(excludeConnectors)
-			.includeConnectorTags(includeConnectorTags)
+			.connectors(connectors)
 			.connector(connector)
 			.build();
 	}

@@ -21,13 +21,12 @@ package org.sentrysoftware.metricshub.engine.strategy.detection;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import static org.sentrysoftware.metricshub.engine.strategy.utils.DetectionHelper.hasAtLeastOneTagOf;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.NoArgsConstructor;
@@ -52,8 +51,8 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
  * </p>
  *
  * <p>
- * The detection process includes handling exclusion tags, device kind filtering, connection type filtering, and accepted sources filtering.
- * It also considers the configured {@code includeConnectorTags} and checks if auto-detection is disabled for connectors.
+ * The detection process includes device kind filtering, connection type filtering, and accepted sources filtering.
+ * It also checks if auto-detection is disabled for connectors.
  * </p>
  */
 @Slf4j
@@ -65,12 +64,14 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 	 *
 	 * @param telemetryManager The telemetry manager responsible for managing telemetry-related operations.
 	 * @param clientsExecutor  The executor for managing clients used in the strategy.
+	 * @param connectorIds     The set of connector identifiers that represent the connectors involved in the automatic detection.
 	 */
 	public AutomaticDetection(
 		@NonNull final TelemetryManager telemetryManager,
-		@NonNull final ClientsExecutor clientsExecutor
+		@NonNull final ClientsExecutor clientsExecutor,
+		@NonNull final Set<String> connectorIds
 	) {
-		super(telemetryManager, clientsExecutor);
+		super(telemetryManager, clientsExecutor, connectorIds);
 	}
 
 	@Override
@@ -97,35 +98,29 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 		}
 
 		final DeviceKind deviceKind = hostConfiguration.getHostType();
-		final Set<String> excludedConnectors = hostConfiguration.getExcludedConnectors();
+
 		final boolean isLocalhost = telemetryManager.getHostProperties().isLocalhost();
 		final Set<Class<? extends Source>> acceptedSources = hostConfiguration.determineAcceptedSources(isLocalhost);
-
-		// Filter the excluded connectors from the list of connectors
-		if (excludedConnectors != null && !excludedConnectors.isEmpty()) {
-			excludedConnectors.stream().forEach(connectorStore::remove);
-		}
 
 		if (connectorStore.isEmpty()) {
 			log.error("Hostname {} - No connector to detect. Stopping detection operation.", hostname);
 			return new ArrayList<>();
 		}
 
-		final Set<String> includeConnectorTags = telemetryManager.getHostConfiguration().getIncludeConnectorTags();
-
 		final List<Connector> connectors = connectorStore
-			.values()
+			.entrySet()
 			.stream()
-			.filter(connector -> connector.getOrCreateConnectorIdentity().getDetection() != null)
-			.filter(connector -> hasAtLeastOneTagOf(includeConnectorTags, connector))
+			.filter(connectorEntry -> connectorIds.contains(connectorEntry.getKey()))
+			.map(Entry::getValue)
+			.filter(connector -> connector.getConnectorIdentity().getDetection() != null)
 			// No Auto Detection Filtering
-			.filter(connector -> !connector.getOrCreateConnectorIdentity().getDetection().isDisableAutoDetection())
+			.filter(connector -> !connector.getConnectorIdentity().getDetection().isDisableAutoDetection())
 			// DeviceKind Filtering
-			.filter(connector -> connector.getOrCreateConnectorIdentity().getDetection().getAppliesTo().contains(deviceKind))
+			.filter(connector -> connector.getConnectorIdentity().getDetection().getAppliesTo().contains(deviceKind))
 			// ConnectionType Filtering
-			.filter(connector -> connectionTypesFiltering(connector, isLocalhost))
+			.filter(connector -> hasSameConnectionTypeAsHost(connector, isLocalhost))
 			// Accepted Sources Filtering
-			.filter(connector -> anyMatch(connector.getSourceTypes(), acceptedSources))
+			.filter(connector -> hasMatchingSourceTypeInAcceptedSources(connector.getSourceTypes(), acceptedSources))
 			.collect(Collectors.toList()); //NOSONAR
 
 		final Set<String> supersedes = new HashSet<>();
@@ -158,34 +153,31 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 	}
 
 	/**
-	 * Return true if the connector has the same type of connection as the host (local or remote)
-	 * @param connector   The connector to test
-	 * @param isLocalHost True if
-	 * @return boolean value
+	 * Return true if the connector has the same type of connection as the host (local or remote).
+	 *
+	 * @param connector   The connector to test.
+	 * @param isLocalhost True if the host is a local machine.
+	 * @return True if the connector has the same connection type as the host, false otherwise.
 	 */
-	private boolean connectionTypesFiltering(final Connector connector, final boolean isLocalHost) {
+	private boolean hasSameConnectionTypeAsHost(final Connector connector, final boolean isLocalhost) {
 		return connector
 			.getConnectorIdentity()
 			.getDetection()
 			.getConnectionTypes()
-			.contains(isLocalHost ? ConnectionType.LOCAL : ConnectionType.REMOTE);
+			.contains(isLocalhost ? ConnectionType.LOCAL : ConnectionType.REMOTE);
 	}
 
 	/**
-	 * Return true if any element of the acceptedSources match at least a value in sourceTypes
-	 * @param sourceTypes
-	 * @param acceptedSources
-	 * @return boolean value
+	 * Checks if there is a matching connector source type in the set of accepted sources.
+	 *
+	 * @param connectorSourceTypes The set of source types associated with the connector.
+	 * @param acceptedSources      The set of accepted sources to check for matching source types.
+	 * @return True if there is a matching connector source type in the accepted sources, false otherwise.
 	 */
-	private boolean anyMatch(
-		final Set<Class<? extends Source>> sourceTypes,
+	private boolean hasMatchingSourceTypeInAcceptedSources(
+		final Set<Class<? extends Source>> connectorSourceTypes,
 		final Set<Class<? extends Source>> acceptedSources
 	) {
-		for (Class<? extends Source> source : acceptedSources) {
-			if (sourceTypes.contains(source)) {
-				return true;
-			}
-		}
-		return false;
+		return acceptedSources.stream().anyMatch(connectorSourceTypes::contains);
 	}
 }
