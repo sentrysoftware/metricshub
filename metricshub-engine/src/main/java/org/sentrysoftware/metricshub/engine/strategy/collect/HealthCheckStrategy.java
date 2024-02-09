@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.client.http.HttpRequest;
 import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
+import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
 import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
@@ -57,6 +58,10 @@ public class HealthCheckStrategy extends AbstractStrategy {
 	 *
 	 */
 	public static final String UP_METRIC_FORMAT = "metricshub.host.up{protocol=\"%s\"}";
+	/**
+	 * The SNMP OId value to use in the health check test
+	 */
+	public static final String SNMP_OID = "1.3.6.1";
 
 	/**
 	 * Constructs a new {@code HealthCheckStrategy} using the provided telemetry manager, strategy time, and
@@ -91,6 +96,7 @@ public class HealthCheckStrategy extends AbstractStrategy {
 		final MetricFactory metricFactory = new MetricFactory(hostname);
 		// Check the hostname protocols health
 		checkHttpHealth(hostname, hostMonitor, metricFactory);
+		checkSnmpHealth(hostname, hostMonitor, metricFactory);
 	}
 
 	@Override
@@ -116,7 +122,6 @@ public class HealthCheckStrategy extends AbstractStrategy {
 			.getHostConfiguration()
 			.getConfigurations()
 			.get(HttpConfiguration.class);
-
 		try {
 			// Create an Http request
 			final HttpRequest request = HttpRequest
@@ -140,6 +145,44 @@ public class HealthCheckStrategy extends AbstractStrategy {
 				hostMonitor,
 				String.format(UP_METRIC_FORMAT, "HTTP"),
 				httpResult != null ? UP : DOWN,
+				telemetryManager.getStrategyTime()
+			);
+		}
+	}
+
+	/**
+	 * Check SNMP protocol health on the hostname for the host monitor
+	 * Criteria: SNMP Get Next on '1.3.6.1' SNMP OId must be successful.
+	 *
+	 * @param hostMonitor   An endpoint host monitor
+	 * @param hostname      The hostname on which we perform health check
+	 * @param metricFactory The metric factory used to collect the health check metric
+	 */
+	public void checkSnmpHealth(String hostname, Monitor hostMonitor, MetricFactory metricFactory) {
+		String snmpResult = null;
+		// Retrieve SNMP Configuration from the telemetry manager host configuration
+		final SnmpConfiguration snmpConfiguration = (SnmpConfiguration) telemetryManager
+			.getHostConfiguration()
+			.getConfigurations()
+			.get(SnmpConfiguration.class);
+		// Stop the SNMP health check if there isn't an HTTP configuration
+		if (snmpConfiguration == null) {
+			return;
+		}
+		// Execute SNMP test command
+		try {
+			snmpResult = clientsExecutor.executeSNMPGetNext(SNMP_OID, snmpConfiguration, hostname, true);
+		} catch (Exception e) {
+			log.debug(
+				"Hostname {} - Checking SNMP protocol status. SNMP exception when performing a test SNMP Get Next: ",
+				hostname,
+				e
+			);
+		} finally {
+			metricFactory.collectNumberMetric(
+				hostMonitor,
+				String.format(UP_METRIC_FORMAT, "SNMP"),
+				snmpResult != null ? UP : DOWN,
 				telemetryManager.getStrategyTime()
 			);
 		}
