@@ -54,7 +54,7 @@ public class HealthCheckStrategy extends AbstractStrategy {
 	 */
 	private static final Double DOWN = 0.0;
 	/**
-	 *
+	 * Up metric name format that will be saved by the metric factory
 	 */
 	public static final String UP_METRIC_FORMAT = "metricshub.host.up{protocol=\"%s\"}";
 
@@ -106,17 +106,23 @@ public class HealthCheckStrategy extends AbstractStrategy {
 	/**
 	 * Check HTTP protocol health on the hostname for the host monitor
 	 * Criteria: The HTTP GET request to "/" must return a result.
+	 *
 	 * @param hostMonitor   An endpoint host monitor
 	 * @param hostname      The hostname on which we perform health check
 	 * @param metricFactory The metric factory used to collect the health check metric
 	 */
 	public void checkHttpHealth(String hostname, Monitor hostMonitor, MetricFactory metricFactory) {
 		String httpResult = null;
+		// Retrieve HTTP configuration from the telemetry manager
 		final HttpConfiguration httpConfiguration = (HttpConfiguration) telemetryManager
 			.getHostConfiguration()
 			.getConfigurations()
 			.get(HttpConfiguration.class);
-
+		// Stop the HTTP health check if there isn't an HTTP configuration
+		if (httpConfiguration == null) {
+			return;
+		}
+		// Execute HTTP test request
 		try {
 			// Create an Http request
 			final HttpRequest request = HttpRequest
