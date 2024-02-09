@@ -53,6 +53,9 @@ public class HealthCheckStrategy extends AbstractStrategy {
 	 * Protocol down status value '0.0'
 	 */
 	private static final Double DOWN = 0.0;
+	/**
+	 *
+	 */
 	public static final String UP_METRIC_FORMAT = "metricshub.host.up{protocol=\"%s\"}";
 
 	/**
@@ -109,7 +112,7 @@ public class HealthCheckStrategy extends AbstractStrategy {
 	 */
 	public void checkHttpHealth(String hostname, Monitor hostMonitor, MetricFactory metricFactory) {
 		String httpResult = null;
-		HttpConfiguration httpConfiguration = (HttpConfiguration) telemetryManager
+		final HttpConfiguration httpConfiguration = (HttpConfiguration) telemetryManager
 			.getHostConfiguration()
 			.getConfigurations()
 			.get(HttpConfiguration.class);
@@ -135,7 +138,7 @@ public class HealthCheckStrategy extends AbstractStrategy {
 			// Generate a metric from the Http result
 			metricFactory.collectNumberMetric(
 				hostMonitor,
-				String.format(UP_METRIC_FORMAT, hostname),
+				String.format(UP_METRIC_FORMAT, "HTTP"),
 				httpResult != null ? UP : DOWN,
 				telemetryManager.getStrategyTime()
 			);

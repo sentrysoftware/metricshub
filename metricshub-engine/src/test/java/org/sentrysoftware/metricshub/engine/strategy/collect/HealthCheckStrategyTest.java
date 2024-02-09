@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.engine.strategy;
+package org.sentrysoftware.metricshub.engine.strategy.collect;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -6,7 +6,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.doReturn;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HOSTNAME;
-import static org.sentrysoftware.metricshub.engine.strategy.collect.HealthCheckStrategy.HTTP_HEALTH;
+import static org.sentrysoftware.metricshub.engine.strategy.collect.HealthCheckStrategy.UP_METRIC_FORMAT;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +18,6 @@ import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.client.http.HttpRequest;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
-import org.sentrysoftware.metricshub.engine.strategy.collect.HealthCheckStrategy;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
@@ -85,7 +84,7 @@ class HealthCheckStrategyTest {
 		// Start the Health Check strategy
 		httpHealthCheckStrategy.run();
 
-		assertEquals(DOWN_VALUE, hostMonitor.getMetric(HTTP_HEALTH).getValue());
+		assertEquals(DOWN_VALUE, hostMonitor.getMetric(String.format(UP_METRIC_FORMAT, "HTTP")).getValue());
 	}
 
 	@Test
@@ -104,6 +103,6 @@ class HealthCheckStrategyTest {
 		// Start the Health Check strategy
 		httpHealthCheckStrategy.run();
 
-		assertEquals(UP_VALUE, hostMonitor.getMetric(HTTP_HEALTH).getValue());
+		assertEquals(UP_VALUE, hostMonitor.getMetric(String.format(UP_METRIC_FORMAT, "HTTP")).getValue());
 	}
 }
