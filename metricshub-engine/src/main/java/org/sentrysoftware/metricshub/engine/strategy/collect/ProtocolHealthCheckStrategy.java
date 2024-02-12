@@ -173,7 +173,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 		}
 
 		// Generate a metric from the Http result
-		metricFactory.collectNumberMetric(hostMonitor, HTTP_UP_METRIC, httpResult != null ? UP : DOWN, getStrategyTime());
+		metricFactory.collectNumberMetric(hostMonitor, HTTP_UP_METRIC, httpResult != null ? UP : DOWN, strategyTime);
 	}
 
 	/**
@@ -214,6 +214,6 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 		}
 
 		// Generate a metric from the Snmp result
-		metricFactory.collectNumberMetric(hostMonitor, SNMP_UP_METRIC, snmpResult != null ? UP : DOWN, getStrategyTime());
+		metricFactory.collectNumberMetric(hostMonitor, SNMP_UP_METRIC, snmpResult != null ? UP : DOWN, strategyTime);
 	}
 }
