@@ -9,9 +9,10 @@ import static org.mockito.Mockito.doReturn;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HOSTNAME;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.DOWN;
+import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.HTTP_UP_METRIC;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.SNMP_OID;
+import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.SNMP_UP_METRIC;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.UP;
-import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.UP_METRIC_FORMAT;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -114,10 +115,7 @@ class ProtocolHealthCheckStrategyTest {
 		// Start the Health Check strategy
 		httpHealthCheckStrategy.run();
 
-		assertEquals(
-			DOWN,
-			telemetryManager.getEndpointHostMonitor().getMetric(String.format(UP_METRIC_FORMAT, "HTTP")).getValue()
-		);
+		assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(HTTP_UP_METRIC).getValue());
 	}
 
 	@Test
@@ -138,10 +136,7 @@ class ProtocolHealthCheckStrategyTest {
 		// Start the Health Check strategy
 		httpHealthCheckStrategy.run();
 
-		assertEquals(
-			UP,
-			telemetryManager.getEndpointHostMonitor().getMetric(String.format(UP_METRIC_FORMAT, "HTTP")).getValue()
-		);
+		assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(HTTP_UP_METRIC).getValue());
 	}
 
 	@Test
@@ -164,10 +159,7 @@ class ProtocolHealthCheckStrategyTest {
 		// Start the SNMP Health Check strategy
 		snmpHealthCheckStrategy.run();
 
-		assertEquals(
-			UP,
-			telemetryManager.getEndpointHostMonitor().getMetric(String.format(UP_METRIC_FORMAT, "SNMP")).getValue()
-		);
+		assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(SNMP_UP_METRIC).getValue());
 	}
 
 	@Test
@@ -190,9 +182,6 @@ class ProtocolHealthCheckStrategyTest {
 		// Start the SNMP Health Check strategy
 		snmpHealthCheckStrategy.run();
 
-		assertEquals(
-			DOWN,
-			telemetryManager.getEndpointHostMonitor().getMetric(String.format(UP_METRIC_FORMAT, "SNMP")).getValue()
-		);
+		assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SNMP_UP_METRIC).getValue());
 	}
 }
