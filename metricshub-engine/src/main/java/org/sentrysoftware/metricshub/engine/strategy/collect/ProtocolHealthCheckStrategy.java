@@ -124,7 +124,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 			.getHostConfiguration()
 			.getConfigurations()
 			.get(HttpConfiguration.class);
-		// Stop the HTTP health check if there isn't an HTTP configuration
+		// Stop the HTTP health check if there is not an HTTP configuration
 		if (httpConfiguration == null) {
 			return;
 		}
@@ -171,7 +171,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 			.getHostConfiguration()
 			.getConfigurations()
 			.get(SnmpConfiguration.class);
-		// Stop the SNMP health check if there isn't an HTTP configuration
+		// Stop the SNMP health check if there is not an SNMP configuration
 		if (snmpConfiguration == null) {
 			return;
 		}
