@@ -98,10 +98,9 @@ class ProtocolHealthCheckStrategyTest {
 
 	@Test
 	void testCheckHttpDownHealth() {
-		
 		// Create a telemetry manager using an HTTP HostConfiguration.
 		final TelemetryManager telemetryManager = createTelemetryManagerWithHttpConfig();
-		
+
 		// Mock HTTP protocol health check response
 		doReturn(NULL_RESPONSE).when(clientsExecutorMock).executeHttp(any(HttpRequest.class), anyBoolean());
 
@@ -111,7 +110,7 @@ class ProtocolHealthCheckStrategyTest {
 			CURRENT_TIME_MILLIS,
 			clientsExecutorMock
 		);
-		
+
 		// Start the Health Check strategy
 		httpHealthCheckStrategy.run();
 
@@ -123,10 +122,9 @@ class ProtocolHealthCheckStrategyTest {
 
 	@Test
 	void testCheckHttpUpHealth() {
-		
 		// Create a telemetry manager using an HTTP HostConfiguration.
 		final TelemetryManager telemetryManager = createTelemetryManagerWithHttpConfig();
-		
+
 		// Mock HTTP protocol health check response
 		doReturn(SUCCESS_RESPONSE).when(clientsExecutorMock).executeHttp(any(HttpRequest.class), anyBoolean());
 
@@ -136,7 +134,7 @@ class ProtocolHealthCheckStrategyTest {
 			CURRENT_TIME_MILLIS,
 			clientsExecutorMock
 		);
-		
+
 		// Start the Health Check strategy
 		httpHealthCheckStrategy.run();
 
@@ -148,21 +146,21 @@ class ProtocolHealthCheckStrategyTest {
 
 	@Test
 	void testCheckSnmpUpHealth() throws InterruptedException, ExecutionException, TimeoutException {
-		
 		// Create a telemetry manager using an SNMP HostConfiguration.
 		final TelemetryManager telemetryManager = createTelemetryManagerWithSnmpConfig();
-		
+
 		// Mock SNMP protocol health check response
 		doReturn(SUCCESS_RESPONSE)
 			.when(clientsExecutorMock)
 			.executeSNMPGetNext(eq(SNMP_OID), any(SnmpConfiguration.class), anyString(), anyBoolean());
 
-		// Create a new SNMP protocol health check strategy
+		// Create a new protocol health check strategy
 		final ProtocolHealthCheckStrategy snmpHealthCheckStrategy = new ProtocolHealthCheckStrategy(
 			telemetryManager,
 			CURRENT_TIME_MILLIS,
 			clientsExecutorMock
 		);
+
 		// Start the SNMP Health Check strategy
 		snmpHealthCheckStrategy.run();
 
@@ -174,21 +172,21 @@ class ProtocolHealthCheckStrategyTest {
 
 	@Test
 	void testCheckSnmpDownHealth() throws InterruptedException, ExecutionException, TimeoutException {
-		
 		// Create a telemetry manager using an SNMP HostConfiguration.
 		final TelemetryManager telemetryManager = createTelemetryManagerWithSnmpConfig();
-		
+
 		// Mock SNMP protocol health check response
 		doReturn(NULL_RESPONSE)
 			.when(clientsExecutorMock)
 			.executeSNMPGetNext(eq(SNMP_OID), any(SnmpConfiguration.class), anyString(), anyBoolean());
 
-		// Create a new SNMP protocol health check strategy
+		// Create a new protocol health check strategy
 		final ProtocolHealthCheckStrategy snmpHealthCheckStrategy = new ProtocolHealthCheckStrategy(
 			telemetryManager,
 			CURRENT_TIME_MILLIS,
 			clientsExecutorMock
 		);
+
 		// Start the SNMP Health Check strategy
 		snmpHealthCheckStrategy.run();
 
