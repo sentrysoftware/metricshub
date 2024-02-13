@@ -3,6 +3,7 @@ package org.sentrysoftware.metricshub.engine.strategy.collect;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -12,6 +13,7 @@ import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHeal
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.HTTP_UP_METRIC;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.SNMP_OID;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.SNMP_UP_METRIC;
+import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.SSH_UP_METRIC;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.UP;
 
 import java.util.HashMap;
@@ -22,12 +24,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.client.http.HttpRequest;
+import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
+import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
@@ -92,6 +98,38 @@ class ProtocolHealthCheckStrategyTest {
 					.hostname(HOSTNAME)
 					.sequential(false)
 					.configurations(Map.of(SnmpConfiguration.class, SnmpConfiguration.builder().community("public").build()))
+					.build()
+			)
+			.build();
+	}
+
+	/**
+	 * Creates and returns a TelemetryManager instance with an SSH configuration.
+	 *
+	 * @return A TelemetryManager instance configured with an SSH configuration.
+	 */
+	private TelemetryManager createTelemetryManagerWithSshConfig() {
+		// Create a telemetry manager
+		return TelemetryManager
+			.builder()
+			.monitors(monitors)
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostId(HOSTNAME)
+					.hostname(HOSTNAME)
+					.sequential(false)
+					.configurations(
+						Map.of(
+							SshConfiguration.class,
+							SshConfiguration
+								.sshConfigurationBuilder()
+								.username("username")
+								.password("password".toCharArray())
+								.timeout(60L)
+								.build()
+						)
+					)
 					.build()
 			)
 			.build();
@@ -183,5 +221,77 @@ class ProtocolHealthCheckStrategyTest {
 		snmpHealthCheckStrategy.run();
 
 		assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SNMP_UP_METRIC).getValue());
+	}
+
+	@Test
+	void testCheckSshDownHealth() throws InterruptedException, ExecutionException, TimeoutException, ClientException {
+		// Create a telemetry manager using an SNMP HostConfiguration.
+		final TelemetryManager telemetryManager = createTelemetryManagerWithSshConfig();
+
+		// Create a new protocol health check strategy
+		final ProtocolHealthCheckStrategy sshHealthCheckStrategy = new ProtocolHealthCheckStrategy(
+			telemetryManager,
+			CURRENT_TIME_MILLIS,
+			clientsExecutorMock
+		);
+
+		// Mock SSH protocol health check response
+		try (MockedStatic<ClientsExecutor> staticClientsExecutor = Mockito.mockStatic(ClientsExecutor.class)) {
+			staticClientsExecutor
+				.when(() ->
+					ClientsExecutor.runRemoteSshCommand(
+						anyString(),
+						anyString(),
+						any(),
+						any(),
+						any(),
+						anyLong(),
+						any(),
+						anyString()
+					)
+				)
+				.thenReturn(NULL_RESPONSE);
+
+			// Start the SNMP Health Check strategy
+			sshHealthCheckStrategy.run();
+
+			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
+		}
+	}
+
+	@Test
+	void testCheckSshUpHealth() throws InterruptedException, ExecutionException, TimeoutException, ClientException {
+		// Create a telemetry manager using an SNMP HostConfiguration.
+		final TelemetryManager telemetryManager = createTelemetryManagerWithSshConfig();
+
+		// Create a new protocol health check strategy
+		final ProtocolHealthCheckStrategy sshHealthCheckStrategy = new ProtocolHealthCheckStrategy(
+			telemetryManager,
+			CURRENT_TIME_MILLIS,
+			clientsExecutorMock
+		);
+
+		// Mock SSH protocol health check response
+		try (MockedStatic<ClientsExecutor> staticClientsExecutor = Mockito.mockStatic(ClientsExecutor.class)) {
+			staticClientsExecutor
+				.when(() ->
+					ClientsExecutor.runRemoteSshCommand(
+						anyString(),
+						anyString(),
+						any(),
+						any(),
+						any(),
+						anyLong(),
+						any(),
+						anyString()
+					)
+				)
+				.thenReturn("test");
+
+			// Start the SNMP Health Check strategy
+			sshHealthCheckStrategy.run();
+
+			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
+		}
 	}
 }
