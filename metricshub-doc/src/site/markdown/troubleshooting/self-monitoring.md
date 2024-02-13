@@ -1,7 +1,7 @@
 keywords: agent, configuration, self-monitoring, trace, span, pipeline
 description: How to configure the self-monitoring of ${solutionName}.
 
-# Self-Monitoring
+# Self-Monitoring <span class="badge">Enterprise</span>
 
 <!-- MACRO{toc|fromDepth=1|toDepth=3|id=toc} -->
 
@@ -36,11 +36,11 @@ All the JVM metrics have the same attributes:
 | otel.process.runtime.jvm.classes.current_loaded | Number of classes currently loaded by the JVM process         | Gauge   |      |
 | otel.process.runtime.jvm.classes.unloaded       | Number of classes unloaded by the JVM process since its start | Counter |      |
 | otel.process.runtime.jvm.classes.loaded         | Number loaded classes by the JVM process since its start      | Counter |      |
-| otel.process.runtime.jvm.threads.count          | JVM process's number of executing threads                      | Gauge   |      |
-| otel.process.runtime.jvm.memory.committed       | JVM process's memory committed                                 | Gauge   | By   |
+| otel.process.runtime.jvm.threads.count          | JVM process's number of executing threads                     | Gauge   |      |
+| otel.process.runtime.jvm.memory.committed       | JVM process's memory committed                                | Gauge   | By   |
 | otel.process.runtime.jvm.memory.init            | JVM process's initial memory requested                        | Gauge   | By   |
-| otel.process.runtime.jvm.memory.limit           | JVM process's memory size limit                                | Gauge   | By   |
-| otel.process.runtime.jvm.memory.usage           | JVM process's memory usage                                     | Gauge   | By   |
+| otel.process.runtime.jvm.memory.limit           | JVM process's memory size limit                               | Gauge   | By   |
+| otel.process.runtime.jvm.memory.usage           | JVM process's memory usage                                    | Gauge   | By   |
 
 
 ## Self-monitoring the agent

@@ -6,9 +6,16 @@ loggerLevel: error
 # Internal collect interval
 collectPeriod: 1m
 
-exporter:
-  otlp:
-
+# Internal OpenTelemetry SDK configuration
+otel:
+  # Default configuration
+  # otel.metrics.exporter: otlp
+  # otel.logs.exporter: otlp
+  # otel.exporter.otlp.metrics.endpoint: http://localhost:4317
+  # otel.exporter.otlp.logs.endpoint: http://localhost:4317
+  # otel.exporter.otlp.metrics.protocol: grpc # Options include grpc and http/protobuf
+  # otel.exporter.otlp.logs.protocol: grpc # Options include grpc and http/protobuf
+  
 # Top level resources configuration
 resources:
   #═══════════════════════════════════════════════════
@@ -130,25 +137,6 @@ resourceGroups:
       #       community: public
       #       port: 161
       #       timeout: 120
-
-      #═══════════════════════════════════════════════════
-      # SNMP v3 MD5 protocol configuration               
-      #═══════════════════════════════════════════════════
-
-      # server-6:
-      #   attributes:
-      #     host.name: server-6
-      #     host.type: oob
-      #   protocols:
-      #     snmp:
-      #       version: v3-md5
-      #       community: public
-      #       port: 161
-      #       timeout: 120
-      #       privacy: des
-      #       privacyPassword: privacy_password
-      #       username: username
-      #       password: password
 
       #═══════════════════════════════════════════════════
       # WBEM protocol configuration                      

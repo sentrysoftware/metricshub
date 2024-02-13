@@ -21,6 +21,9 @@ package org.sentrysoftware.metricshub.agent.service;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -102,6 +105,13 @@ public class OtelCollectorProcessService extends AbstractProcess {
 
 		if (agentConfig.getOtelCollector().isDisabled()) {
 			log.info("The MetricsHub Agent is configured to not start the OpenTelemetry Collector.");
+			return;
+		}
+
+		// Ensure that the OpenTelemetry Collector Contrib executable is installed
+		final List<String> commandLine = processConfig.getCommandLine();
+		if (commandLine.isEmpty() || !Files.exists(Paths.get(commandLine.get(0)))) {
+			log.info("The MetricsHub Agent will not start the OpenTelemetry Collector because the executable is missing.");
 			return;
 		}
 

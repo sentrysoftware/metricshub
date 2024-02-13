@@ -1,7 +1,7 @@
 keywords: receivers, processors, exporters
 description: A simple YAML file configures where ${solutionName} must send the data it collects.
 
-# OpenTelemetry Advanced Settings
+# OpenTelemetry Advanced Settings <span class="badge">Enterprise</span>
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
@@ -19,8 +19,6 @@ As a regular *OpenTelemetry Collector*, **${solutionName}** consists of:
 * and several extensions.
 
 ![Internal architecture of the ${solutionName}](../images/metricshub-internal-architecture.png)
-
-This version of **${solutionName}** leverages **version ${otelVersion}** of OpenTelemetry.
 
 ## Receivers
 

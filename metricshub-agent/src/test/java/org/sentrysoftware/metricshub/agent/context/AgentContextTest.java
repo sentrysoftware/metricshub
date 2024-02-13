@@ -22,6 +22,7 @@ import static org.sentrysoftware.metricshub.agent.helper.TestConstants.TEST_CONF
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HOST_NAME;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ import org.sentrysoftware.metricshub.agent.config.AgentConfig;
 import org.sentrysoftware.metricshub.agent.config.ConnectorVariables;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
+import org.sentrysoftware.metricshub.agent.helper.OtelSdkConfigConstants;
 import org.sentrysoftware.metricshub.engine.common.helpers.MapHelper;
 import org.sentrysoftware.metricshub.engine.connector.model.common.HttpMethod;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
@@ -120,18 +122,13 @@ class AgentContextTest {
 		assertEquals(4, sentryParisTelemetryManagers.size());
 
 		// Check the OpenTelemetry SDK configuration is correctly created
-		final Map<String, String> expectedOtelSdkConfiguration = Map.of(
-			"otel.logs.exporter",
-			"otlp",
-			"otel.exporter.otlp.endpoint",
-			"https://localhost:4317",
-			"otel.exporter.otlp.headers",
-			"Authorization=Basic aHdzOlNlbnRyeVNvZnR3YXJlMSE=",
-			"otel.metric.export.interval",
-			"315360000000",
-			"otel.metrics.exporter",
-			"otlp"
+		final Map<String, String> expectedOtelSdkConfiguration = new HashMap<>();
+		expectedOtelSdkConfiguration.putAll(OtelSdkConfigConstants.DEFAULT_CONFIGURATION);
+		expectedOtelSdkConfiguration.put(
+			OtelSdkConfigConstants.OTEL_METRIC_EXPORT_INTERVAL,
+			OtelSdkConfigConstants.DEFAULT_METRICS_EXPORT_INTERVAL
 		);
+
 		final Map<String, String> otelSdkConfiguration = agentContext.getOtelSdkConfiguration();
 
 		assertTrue(

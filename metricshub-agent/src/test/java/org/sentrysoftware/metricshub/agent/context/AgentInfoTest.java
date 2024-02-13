@@ -17,7 +17,6 @@ class AgentInfoTest {
 		assertNotNull(metricAttributes.get("build_number"));
 		assertNotNull(metricAttributes.get("build_date"));
 		assertNotNull(metricAttributes.get("cc_version"));
-		assertNotNull(metricAttributes.get("otel_version"));
 
 		final Map<String, String> resourceAttributes = agentInfo.getResourceAttributes();
 		assertNotNull(resourceAttributes);
