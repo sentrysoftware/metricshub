@@ -277,7 +277,7 @@ $ metricshub --list
 
 This will provide a list as below:
 
-![Output of the metricshub --list command, listing all connectors, their ID, applicable system types and display name](../images/metricshub-list.png)
+![Output of the metricshub --list command, listing all connectors, their ID, categories, applicable system types and display name](../images/metricshub-list.png)
 
 This list displays the internal name (**id**) of each connector, its applicable system types and its display name.
 
