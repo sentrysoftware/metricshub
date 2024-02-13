@@ -385,7 +385,6 @@ public class MetricsHubCliService implements Callable<Integer> {
 	/**
 	 * Validate the specified arguments, and ask for passwords if needed.
 	 *
-	 * @param connectorStore Wraps all the connectors
 	 * @throws ParameterException in case of invalid parameter
 	 */
 	private void validate() {
@@ -590,13 +589,20 @@ public class MetricsHubCliService implements Callable<Integer> {
 					.map(DeviceKind::getDisplayName)
 					.collect(Collectors.joining(", "));
 
+				final String connectorCategories = connector
+					.getConnectorIdentity()
+					.getDetection()
+					.getTags()
+					.stream()
+					.collect(Collectors.joining(", "));
+
 				printWriter.println(
 					Ansi
 						.ansi()
 						.fgYellow()
-						.a(connectorName)
-						.fgDefault()
-						.a(" ".repeat(30 - connectorName.length()))
+						.a(String.format("%-20s ", connectorName))
+						.fgMagenta()
+						.a(String.format("%-20s ", connectorCategories))
 						.a(Attribute.ITALIC)
 						.fgCyan()
 						.a(String.format("%-20s ", osList))
