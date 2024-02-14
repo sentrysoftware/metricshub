@@ -45,6 +45,27 @@
 			<item name="Self-Monitoring" href="troubleshooting/self-monitoring.html" />
 		</menu>
 
+		<menu name="Connector Design Guide">
+			<item name="Overview" href="connector-design-guide/overview.html" />
+			<item name="Connector General Form" href="connector-design-guide/general-form.html" />
+			<item name="Connectors" href="connector-design-guide/connectors.html">
+				<item name="Detection" href="connector-design-guide/detection.html" />
+				<item name="Criteria" href="connector-design-guide/criteria.html" />
+			</item>
+			<item name="Sudo Commands" href="connector-design-guide/sudo-commands.html" />
+			<item name="Extends" href="connector-design-guide/extends.html" />
+			<item name="Monitors" href="connector-design-guide/monitors.html">
+				<item name="Sources" href="connector-design-guide/sources.html" />
+				<item name="Computes" href="connector-design-guide/computes.html" />
+				<item name="Mapping" href="connector-design-guide/mapping.html" />
+			</item>
+			<item name="Metrics" href="connector-design-guide/metrics.html" />
+			<item name="Constants" href="connector-design-guide/constants.html" />
+			<item name="PreSources" href="connector-design-guide/presources.html" />
+			<item name="Translation Table" href="connector-design-guide/translation-tables.html" />
+			<item name="Connector Object References" href="connector-design-guide/connector-object-references.html" />
+		</menu>
+
 		<menu name="Appendix">
 			<item name="Community Connectors Reference" href="metricshub-connector-reference.html" />
 			<item name="Community Connector Platforms" href="platform-requirements.html" />
