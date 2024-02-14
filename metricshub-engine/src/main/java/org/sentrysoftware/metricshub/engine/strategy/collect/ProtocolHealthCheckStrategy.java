@@ -31,6 +31,7 @@ import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
 import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
+import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -244,7 +245,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 */
 	public void checkSshHealth(String hostname, Monitor hostMonitor, MetricFactory metricFactory) {
 		// Create and set the SSH result to null
-		String sshResult = null;
+		Double sshResult = UP;
 
 		// Retrieve SSH Configuration
 		final SshConfiguration sshConfiguration = (SshConfiguration) telemetryManager
@@ -253,39 +254,80 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 			.get(SshConfiguration.class);
 
 		// Stop the SSH health check if there is not any SSH configuration
-		if (sshConfiguration == null) {
+		if (sshConfiguration == null || !telemetryManager.getHostProperties().isMustCheckSshStatus()) {
 			return;
 		}
 
 		log.info("Hostname {} - Checking SSH protocol status. Sending an SSH 'echo test' command.", hostname);
 
-		// Execute SSH test command
-		try {
-			sshResult =
-				ClientsExecutor.runRemoteSshCommand(
-					hostname,
-					sshConfiguration.getUsername(),
-					sshConfiguration.getPassword(),
-					null,
-					SSH_TEST_COMMAND,
-					strategyTime,
-					null,
-					SSH_TEST_COMMAND
-				);
-		} catch (Exception e) {
-			log.debug(
-				"Hostname {} - Checking SSH protocol status. SSH exception when performing an SSH 'echo test' command: ",
-				hostname,
-				e
-			);
+		// Execute Local test
+		if (telemetryManager.getHostProperties().isOsCommandExecutesLocally()) {
+			sshResult = localSshTest(hostname, sshResult);
+		}
+
+		if (telemetryManager.getHostProperties().isOsCommandExecutesRemotely()) {
+			sshResult = remoteSshTest(hostname, sshResult, sshConfiguration);
 		}
 
 		// Generate a metric from the SSH result
-		metricFactory.collectNumberMetric(
-			hostMonitor,
-			SSH_UP_METRIC,
-			sshResult != null && sshResult.trim().equals("test") ? UP : DOWN,
-			strategyTime
-		);
+		metricFactory.collectNumberMetric(hostMonitor, SSH_UP_METRIC, sshResult, strategyTime);
+	}
+
+	/**
+	 * Performs a local Os Command test to determine whether the SSH protocol is UP.
+	 *
+	 * @param hostname  The hostname on which we perform health check
+	 * @param sshResult The results that will be used to create protocol health check metric
+	 * @return The SSH health check result after performing the tests
+	 */
+	private Double localSshTest(String hostname, Double sshResult) {
+		try {
+			if (OsCommandHelper.runLocalCommand(SSH_TEST_COMMAND, strategyTime, null) == null) {
+				log.debug(
+					"Hostname {} - Checking SSH protocol status. Local OS command has not returned any results.",
+					hostname
+				);
+				return DOWN;
+			}
+		} catch (Exception e) {
+			log.debug(
+				"Hostname {} - Checking SSH protocol status. SSH exception when performing a local OS command test: ",
+				hostname,
+				e
+			);
+			return DOWN;
+		}
+
+		return sshResult;
+	}
+
+	/**
+	 * Performs a remote SSH test to determine whether the SSH protocol is UP in the given host.
+	 *
+	 * @param hostname          The hostname on which we perform health check
+	 * @param sshResult         The results that will be used to create protocol health check metric
+	 * @param sshConfiguration  The SSH configuration retrieved from the telemetryManager
+	 * @return The SSH health check result after performing the tests
+	 */
+	private Double remoteSshTest(String hostname, Double sshResult, SshConfiguration sshConfiguration) {
+		try {
+			if (
+				OsCommandHelper.runSshCommand(SSH_TEST_COMMAND, hostname, sshConfiguration, strategyTime, null, null) == null
+			) {
+				log.debug(
+					"Hostname {} - Checking SSH protocol status. Remote SSH command has not returned any results. ",
+					hostname
+				);
+				return DOWN;
+			}
+		} catch (Exception e) {
+			log.debug(
+				"Hostname {} - Checking SSH protocol status. SSH exception when performing a remote SSH command test: ",
+				hostname,
+				e
+			);
+			return DOWN;
+		}
+		return sshResult;
 	}
 }

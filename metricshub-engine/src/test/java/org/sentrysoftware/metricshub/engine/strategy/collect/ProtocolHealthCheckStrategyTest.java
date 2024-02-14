@@ -1,6 +1,7 @@
 package org.sentrysoftware.metricshub.engine.strategy.collect;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -34,6 +35,7 @@ import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
+import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
@@ -135,6 +137,20 @@ class ProtocolHealthCheckStrategyTest {
 			.build();
 	}
 
+	/**
+	 * Creates and returns a TelemetryManager instance without any configuration.
+	 *
+	 * @return A TelemetryManager instance.
+	 */
+	private TelemetryManager createTelemetryManagerWithoutConfig() {
+		// Create a telemetry manager
+		return TelemetryManager
+			.builder()
+			.monitors(monitors)
+			.hostConfiguration(HostConfiguration.builder().hostId(HOSTNAME).hostname(HOSTNAME).sequential(false).build())
+			.build();
+	}
+
 	@Test
 	void testCheckHttpDownHealth() {
 		// Create a telemetry manager using an HTTP HostConfiguration.
@@ -224,42 +240,6 @@ class ProtocolHealthCheckStrategyTest {
 	}
 
 	@Test
-	void testCheckSshDownHealth() throws InterruptedException, ExecutionException, TimeoutException, ClientException {
-		// Create a telemetry manager using an SNMP HostConfiguration.
-		final TelemetryManager telemetryManager = createTelemetryManagerWithSshConfig();
-
-		// Create a new protocol health check strategy
-		final ProtocolHealthCheckStrategy sshHealthCheckStrategy = new ProtocolHealthCheckStrategy(
-			telemetryManager,
-			CURRENT_TIME_MILLIS,
-			clientsExecutorMock
-		);
-
-		// Mock SSH protocol health check response
-		try (MockedStatic<ClientsExecutor> staticClientsExecutor = Mockito.mockStatic(ClientsExecutor.class)) {
-			staticClientsExecutor
-				.when(() ->
-					ClientsExecutor.runRemoteSshCommand(
-						anyString(),
-						anyString(),
-						any(),
-						any(),
-						any(),
-						anyLong(),
-						any(),
-						anyString()
-					)
-				)
-				.thenReturn(NULL_RESPONSE);
-
-			// Start the SNMP Health Check strategy
-			sshHealthCheckStrategy.run();
-
-			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
-		}
-	}
-
-	@Test
 	void testCheckSshUpHealth() throws InterruptedException, ExecutionException, TimeoutException, ClientException {
 		// Create a telemetry manager using an SNMP HostConfiguration.
 		final TelemetryManager telemetryManager = createTelemetryManagerWithSshConfig();
@@ -270,6 +250,9 @@ class ProtocolHealthCheckStrategyTest {
 			CURRENT_TIME_MILLIS,
 			clientsExecutorMock
 		);
+
+		// Setting SSH host properties
+		telemetryManager.getHostProperties().setMustCheckSshStatus(true);
 
 		// Mock SSH protocol health check response
 		try (MockedStatic<ClientsExecutor> staticClientsExecutor = Mockito.mockStatic(ClientsExecutor.class)) {
@@ -293,5 +276,217 @@ class ProtocolHealthCheckStrategyTest {
 
 			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
 		}
+	}
+
+	@Test
+	void testCheckSshHealthLocally() {
+		// Create a telemetry manager using an SNMP HostConfiguration.
+		final TelemetryManager telemetryManager = createTelemetryManagerWithSshConfig();
+
+		// Create a new protocol health check strategy
+		final ProtocolHealthCheckStrategy sshHealthCheckStrategy = new ProtocolHealthCheckStrategy(
+			telemetryManager,
+			CURRENT_TIME_MILLIS,
+			clientsExecutorMock
+		);
+
+		// Setting SSH host properties
+		telemetryManager.getHostProperties().setMustCheckSshStatus(true);
+		telemetryManager.getHostProperties().setOsCommandExecutesLocally(true);
+
+		try (MockedStatic<OsCommandHelper> staticOsCommandHelper = Mockito.mockStatic(OsCommandHelper.class)) {
+			staticOsCommandHelper
+				.when(() -> OsCommandHelper.runLocalCommand(anyString(), anyLong(), any()))
+				.thenReturn(SUCCESS_RESPONSE);
+
+			// Start the SNMP Health Check strategy
+			sshHealthCheckStrategy.run();
+
+			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
+		}
+
+		try (MockedStatic<OsCommandHelper> staticOsCommandHelper = Mockito.mockStatic(OsCommandHelper.class)) {
+			staticOsCommandHelper.when(() -> OsCommandHelper.runLocalCommand(anyString(), anyLong(), any())).thenReturn(null);
+
+			// Start the SNMP Health Check strategy
+			sshHealthCheckStrategy.run();
+
+			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
+		}
+	}
+
+	@Test
+	void testCheckSshUpHealthRemotely() {
+		// Create a telemetry manager using an SNMP HostConfiguration.
+		final TelemetryManager telemetryManager = createTelemetryManagerWithSshConfig();
+
+		// Create a new protocol health check strategy
+		final ProtocolHealthCheckStrategy sshHealthCheckStrategy = new ProtocolHealthCheckStrategy(
+			telemetryManager,
+			CURRENT_TIME_MILLIS,
+			clientsExecutorMock
+		);
+
+		// Setting SSH host properties
+		telemetryManager.getHostProperties().setMustCheckSshStatus(true);
+		telemetryManager.getHostProperties().setOsCommandExecutesLocally(false);
+		telemetryManager.getHostProperties().setOsCommandExecutesRemotely(true);
+
+		try (MockedStatic<OsCommandHelper> staticOsCommandHelper = Mockito.mockStatic(OsCommandHelper.class)) {
+			staticOsCommandHelper
+				.when(() ->
+					OsCommandHelper.runSshCommand(anyString(), anyString(), any(SshConfiguration.class), anyLong(), any(), any())
+				)
+				.thenReturn(SUCCESS_RESPONSE);
+
+			// Start the SNMP Health Check strategy
+			sshHealthCheckStrategy.run();
+
+			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
+		}
+
+		try (MockedStatic<OsCommandHelper> staticOsCommandHelper = Mockito.mockStatic(OsCommandHelper.class)) {
+			staticOsCommandHelper
+				.when(() ->
+					OsCommandHelper.runSshCommand(anyString(), anyString(), any(SshConfiguration.class), anyLong(), any(), any())
+				)
+				.thenReturn(null);
+
+			// Start the SNMP Health Check strategy
+			sshHealthCheckStrategy.run();
+
+			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
+		}
+	}
+
+	@Test
+	void testCheckSshUpHealthBothLocallyAndRemotely() {
+		// Create a telemetry manager using an SNMP HostConfiguration.
+		final TelemetryManager telemetryManager = createTelemetryManagerWithSshConfig();
+
+		// Create a new protocol health check strategy
+		final ProtocolHealthCheckStrategy sshHealthCheckStrategy = new ProtocolHealthCheckStrategy(
+			telemetryManager,
+			CURRENT_TIME_MILLIS,
+			clientsExecutorMock
+		);
+
+		// Setting SSH host properties
+		telemetryManager.getHostProperties().setMustCheckSshStatus(true);
+		telemetryManager.getHostProperties().setOsCommandExecutesLocally(true);
+		telemetryManager.getHostProperties().setOsCommandExecutesRemotely(true);
+
+		// Both local and remote commands working fine
+		try (MockedStatic<OsCommandHelper> staticOsCommandHelper = Mockito.mockStatic(OsCommandHelper.class)) {
+			staticOsCommandHelper
+				.when(() ->
+					OsCommandHelper.runSshCommand(anyString(), anyString(), any(SshConfiguration.class), anyLong(), any(), any())
+				)
+				.thenReturn(SUCCESS_RESPONSE);
+
+			staticOsCommandHelper
+				.when(() -> OsCommandHelper.runLocalCommand(anyString(), anyLong(), any()))
+				.thenReturn(SUCCESS_RESPONSE);
+
+			// Start the SNMP Health Check strategy
+			sshHealthCheckStrategy.run();
+
+			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
+		}
+
+		// Local commands not working
+		try (MockedStatic<OsCommandHelper> staticOsCommandHelper = Mockito.mockStatic(OsCommandHelper.class)) {
+			staticOsCommandHelper
+				.when(() ->
+					OsCommandHelper.runSshCommand(anyString(), anyString(), any(SshConfiguration.class), anyLong(), any(), any())
+				)
+				.thenReturn(SUCCESS_RESPONSE);
+
+			staticOsCommandHelper.when(() -> OsCommandHelper.runLocalCommand(anyString(), anyLong(), any())).thenReturn(null);
+
+			// Start the SNMP Health Check strategy
+			sshHealthCheckStrategy.run();
+
+			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
+		}
+		// remote command not working
+		try (MockedStatic<OsCommandHelper> staticOsCommandHelper = Mockito.mockStatic(OsCommandHelper.class)) {
+			staticOsCommandHelper
+				.when(() ->
+					OsCommandHelper.runSshCommand(anyString(), anyString(), any(SshConfiguration.class), anyLong(), any(), any())
+				)
+				.thenReturn(null);
+
+			staticOsCommandHelper
+				.when(() -> OsCommandHelper.runLocalCommand(anyString(), anyLong(), any()))
+				.thenReturn(SUCCESS_RESPONSE);
+
+			// Start the SNMP Health Check strategy
+			sshHealthCheckStrategy.run();
+
+			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
+		}
+
+		// Both local and remote commands not working, but not throwing exceptions
+		try (MockedStatic<OsCommandHelper> staticOsCommandHelper = Mockito.mockStatic(OsCommandHelper.class)) {
+			staticOsCommandHelper
+				.when(() ->
+					OsCommandHelper.runSshCommand(anyString(), anyString(), any(SshConfiguration.class), anyLong(), any(), any())
+				)
+				.thenReturn(null);
+
+			staticOsCommandHelper.when(() -> OsCommandHelper.runLocalCommand(anyString(), anyLong(), any())).thenReturn(null);
+
+			// Start the SNMP Health Check strategy
+			sshHealthCheckStrategy.run();
+
+			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
+		}
+	}
+
+	@Test
+	void testCheckSshNoHealthWhenMustCheckFalse() {
+		// Create a telemetry manager using an SNMP HostConfiguration.
+		final TelemetryManager telemetryManager = createTelemetryManagerWithSshConfig();
+
+		// Create a new protocol health check strategy
+		final ProtocolHealthCheckStrategy sshHealthCheckStrategy = new ProtocolHealthCheckStrategy(
+			telemetryManager,
+			CURRENT_TIME_MILLIS,
+			clientsExecutorMock
+		);
+
+		// Setting SSH host properties
+		telemetryManager.getHostProperties().setMustCheckSshStatus(false);
+		telemetryManager.getHostProperties().setOsCommandExecutesLocally(true);
+		telemetryManager.getHostProperties().setOsCommandExecutesRemotely(true);
+
+		// Start the SNMP Health Check strategy
+		sshHealthCheckStrategy.run();
+
+		assertNull(telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC));
+	}
+
+	@Test
+	void testCheckSshNoHealthWhenNoConfiguration() {
+		// Create a telemetry manager using an SNMP HostConfiguration.
+		final TelemetryManager telemetryManager = createTelemetryManagerWithoutConfig();
+
+		// Create a new protocol health check strategy
+		final ProtocolHealthCheckStrategy sshHealthCheckStrategy = new ProtocolHealthCheckStrategy(
+			telemetryManager,
+			CURRENT_TIME_MILLIS,
+			clientsExecutorMock
+		);
+
+		// Setting SSH host properties
+		telemetryManager.getHostProperties().setMustCheckSshStatus(false);
+		telemetryManager.getHostProperties().setOsCommandExecutesLocally(true);
+		telemetryManager.getHostProperties().setOsCommandExecutesRemotely(true);
+
+		// Start the SNMP Health Check strategy
+		sshHealthCheckStrategy.run();
+
+		assertNull(telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC));
 	}
 }
