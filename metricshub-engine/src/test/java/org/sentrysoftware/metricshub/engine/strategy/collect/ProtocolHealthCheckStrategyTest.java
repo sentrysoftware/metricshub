@@ -240,7 +240,7 @@ class ProtocolHealthCheckStrategyTest {
 
 	@Test
 	void testCheckSshHealthLocally() {
-		// Create a telemetry manager using an SNMP HostConfiguration.
+		// Create a telemetry manager using an SSH HostConfiguration.
 		final TelemetryManager telemetryManager = createTelemetryManagerWithSshConfig();
 
 		// Create a new protocol health check strategy
@@ -259,7 +259,7 @@ class ProtocolHealthCheckStrategyTest {
 				.when(() -> OsCommandHelper.runLocalCommand(anyString(), anyLong(), any()))
 				.thenReturn(SUCCESS_RESPONSE);
 
-			// Start the SNMP Health Check strategy
+			// Start the SSH Health Check strategy
 			sshHealthCheckStrategy.run();
 
 			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
@@ -268,7 +268,7 @@ class ProtocolHealthCheckStrategyTest {
 		try (MockedStatic<OsCommandHelper> staticOsCommandHelper = Mockito.mockStatic(OsCommandHelper.class)) {
 			staticOsCommandHelper.when(() -> OsCommandHelper.runLocalCommand(anyString(), anyLong(), any())).thenReturn(null);
 
-			// Start the SNMP Health Check strategy
+			// Start the SSH Health Check strategy
 			sshHealthCheckStrategy.run();
 
 			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
@@ -277,7 +277,7 @@ class ProtocolHealthCheckStrategyTest {
 
 	@Test
 	void testCheckSshUpHealthRemotely() {
-		// Create a telemetry manager using an SNMP HostConfiguration.
+		// Create a telemetry manager using an SSH HostConfiguration.
 		final TelemetryManager telemetryManager = createTelemetryManagerWithSshConfig();
 
 		// Create a new protocol health check strategy
@@ -299,7 +299,7 @@ class ProtocolHealthCheckStrategyTest {
 				)
 				.thenReturn(SUCCESS_RESPONSE);
 
-			// Start the SNMP Health Check strategy
+			// Start the SSH Health Check strategy
 			sshHealthCheckStrategy.run();
 
 			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
@@ -312,7 +312,7 @@ class ProtocolHealthCheckStrategyTest {
 				)
 				.thenReturn(null);
 
-			// Start the SNMP Health Check strategy
+			// Start the SSH Health Check strategy
 			sshHealthCheckStrategy.run();
 
 			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
@@ -321,7 +321,7 @@ class ProtocolHealthCheckStrategyTest {
 
 	@Test
 	void testCheckSshUpHealthBothLocallyAndRemotely() {
-		// Create a telemetry manager using an SNMP HostConfiguration.
+		// Create a telemetry manager using an SSH HostConfiguration.
 		final TelemetryManager telemetryManager = createTelemetryManagerWithSshConfig();
 
 		// Create a new protocol health check strategy
@@ -348,7 +348,7 @@ class ProtocolHealthCheckStrategyTest {
 				.when(() -> OsCommandHelper.runLocalCommand(anyString(), anyLong(), any()))
 				.thenReturn(SUCCESS_RESPONSE);
 
-			// Start the SNMP Health Check strategy
+			// Start the SSH Health Check strategy
 			sshHealthCheckStrategy.run();
 
 			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
@@ -364,7 +364,7 @@ class ProtocolHealthCheckStrategyTest {
 
 			staticOsCommandHelper.when(() -> OsCommandHelper.runLocalCommand(anyString(), anyLong(), any())).thenReturn(null);
 
-			// Start the SNMP Health Check strategy
+			// Start the SSH Health Check strategy
 			sshHealthCheckStrategy.run();
 
 			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
@@ -381,7 +381,7 @@ class ProtocolHealthCheckStrategyTest {
 				.when(() -> OsCommandHelper.runLocalCommand(anyString(), anyLong(), any()))
 				.thenReturn(SUCCESS_RESPONSE);
 
-			// Start the SNMP Health Check strategy
+			// Start the SSH Health Check strategy
 			sshHealthCheckStrategy.run();
 
 			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
@@ -397,7 +397,7 @@ class ProtocolHealthCheckStrategyTest {
 
 			staticOsCommandHelper.when(() -> OsCommandHelper.runLocalCommand(anyString(), anyLong(), any())).thenReturn(null);
 
-			// Start the SNMP Health Check strategy
+			// Start the SSH Health Check strategy
 			sshHealthCheckStrategy.run();
 
 			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
@@ -406,7 +406,7 @@ class ProtocolHealthCheckStrategyTest {
 
 	@Test
 	void testCheckSshNoHealthWhenMustCheckFalse() {
-		// Create a telemetry manager using an SNMP HostConfiguration.
+		// Create a telemetry manager using an SSH HostConfiguration.
 		final TelemetryManager telemetryManager = createTelemetryManagerWithSshConfig();
 
 		// Create a new protocol health check strategy
@@ -421,7 +421,7 @@ class ProtocolHealthCheckStrategyTest {
 		telemetryManager.getHostProperties().setOsCommandExecutesLocally(true);
 		telemetryManager.getHostProperties().setOsCommandExecutesRemotely(true);
 
-		// Start the SNMP Health Check strategy
+		// Start the SSH Health Check strategy
 		sshHealthCheckStrategy.run();
 
 		assertNull(telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC));
@@ -429,7 +429,7 @@ class ProtocolHealthCheckStrategyTest {
 
 	@Test
 	void testCheckSshNoHealthWhenNoConfiguration() {
-		// Create a telemetry manager using an SNMP HostConfiguration.
+		// Create a telemetry manager without HostConfiguration.
 		final TelemetryManager telemetryManager = createTelemetryManagerWithoutConfig();
 
 		// Create a new protocol health check strategy
@@ -444,9 +444,10 @@ class ProtocolHealthCheckStrategyTest {
 		telemetryManager.getHostProperties().setOsCommandExecutesLocally(true);
 		telemetryManager.getHostProperties().setOsCommandExecutesRemotely(true);
 
-		// Start the SNMP Health Check strategy
+		// Start the SSH Health Check strategy
 		sshHealthCheckStrategy.run();
 
+		// make sure that SSH health check is not performed if an SSH config is not present
 		assertNull(telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC));
 	}
 }
