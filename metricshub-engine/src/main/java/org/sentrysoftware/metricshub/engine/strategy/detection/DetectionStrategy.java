@@ -254,10 +254,10 @@ public class DetectionStrategy extends AbstractStrategy {
 	/**
 	 * Verify the given set of sources instances to check if they are OsCommandSources
 	 *
-	 * @param criteria Connector detection criteria list
+	 * @param sourceTypes Connector source types
 	 */
-	void verifySshSources(final Set<Class<? extends Source>> sources) {
-		if (sources.contains(OsCommandSource.class)) {
+	void verifySshSources(final Set<Class<? extends Source>> sourceTypes) {
+		if (sourceTypes.contains(OsCommandSource.class)) {
 			telemetryManager.getHostProperties().setMustCheckSshStatus(true);
 		}
 	}

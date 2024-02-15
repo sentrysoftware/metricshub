@@ -271,7 +271,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 
 		// Execute Local test
 		if (telemetryManager.getHostProperties().isOsCommandExecutesLocally()) {
-			sshResult = localSshTest(hostname, sshResult);
+			sshResult = localSshTest(hostname);
 		}
 
 		if (telemetryManager.getHostProperties().isOsCommandExecutesRemotely()) {
@@ -289,7 +289,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 * @param sshResult The results that will be used to create protocol health check metric
 	 * @return The SSH health check result after performing the tests
 	 */
-	private Double localSshTest(String hostname, Double sshResult) {
+	private Double localSshTest(String hostname) {
 		try {
 			if (OsCommandHelper.runLocalCommand(SSH_TEST_COMMAND, strategyTime, null) == null) {
 				log.debug(
@@ -307,18 +307,18 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 			return DOWN;
 		}
 
-		return sshResult;
+		return UP;
 	}
 
 	/**
 	 * Performs a remote SSH test to determine whether the SSH protocol is UP in the given host.
 	 *
-	 * @param hostname          The hostname on which we perform health check
-	 * @param sshResult         The results that will be used to create protocol health check metric
-	 * @param sshConfiguration  The SSH configuration retrieved from the telemetryManager
-	 * @return The SSH health check result after performing the tests
+	 * @param hostname           The hostname on which we perform health check
+	 * @param previousSshStatus  The results that will be used to create protocol health check metric
+	 * @param sshConfiguration   The SSH configuration retrieved from the telemetryManager
+	 * @return The updated SSH status after performing the remote SSH test or the previous SSH status if the SSH test succeeds.
 	 */
-	private Double remoteSshTest(String hostname, Double sshResult, SshConfiguration sshConfiguration) {
+	private Double remoteSshTest(String hostname, Double previousSshStatus, SshConfiguration sshConfiguration) {
 		try {
 			if (
 				OsCommandHelper.runSshCommand(SSH_TEST_COMMAND, hostname, sshConfiguration, strategyTime, null, null) == null
@@ -337,7 +337,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 			);
 			return DOWN;
 		}
-		return sshResult;
+		return previousSshStatus;
 	}
 
 	/**
