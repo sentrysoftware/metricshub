@@ -111,7 +111,9 @@ public class OtelCollectorProcessService extends AbstractProcess {
 		// Ensure that the OpenTelemetry Collector Contrib executable is installed
 		final List<String> commandLine = processConfig.getCommandLine();
 		if (commandLine.isEmpty() || !Files.exists(Paths.get(commandLine.get(0)))) {
-			log.info("The MetricsHub Agent will not start the OpenTelemetry Collector because the executable is missing.");
+			log.info(
+				"The MetricsHub Agent will not start the OpenTelemetry Collector because the executable is not present."
+			);
 			return;
 		}
 

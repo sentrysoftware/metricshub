@@ -424,9 +424,21 @@ resourceGroups:
 
 #### Basic authentication header
 
-The **MetricsHub Agent**'s internal `OTLP Exporter` authenticates itself with the _OpenTelemetry Collector_'s [OTLP gRPC Receiver](configure-otel.md#OTLP_gRPC) by including the HTTP `Authorization` request header with the credentials. A predefined *Basic Authentication Header* value is stored internally and included in each request when sending telemetry data.
+In the community edition, by default, the **MetricsHub Agent**'s internal `OTLP Exporter` operates without authentication when communicating with the `OTLP Receiver`.
 
-To override the default value of the *Basic Authentication Header*, set a new `Authorization` header for the `otel:otel.exporter.otlp.metrics.headers` and `otel:otel.exporter.otlp.logs.headers` sections:
+If your `OTLP Receiver` requires authentication headers, you will need to manually configure the necessary headers under the `otel:otel.exporter.otlp.metrics.headers` and `otel:otel.exporter.otlp.logs.headers` sections in your configuration file:
+
+```yaml
+otel:
+  otel.exporter.otlp.metrics.headers: <custom-header1>
+  otel.exporter.otlp.logs.headers: <custom-header2>
+
+resourceGroups: # ...
+```
+
+On the other hand, the enterprise edition updates the community edition's behavior. The **MetricsHub Agent**'s internal `OTLP Exporter` includes the HTTP  `Authorization` request header to authenticate itself with the _OpenTelemetry Collector_'s [OTLP gRPC Receiver](configure-otel.md#OTLP_gRPC). A predefined *Basic Authentication Header* value is stored internally and included in each request when sending telemetry data.
+
+To customize the default value of the `OTLP Exporter` header, set the header under the `otel:otel.exporter.otlp.metrics.headers` and `otel:otel.exporter.otlp.logs.headers` sections in your configuration file:
 
 ```yaml
 otel:
