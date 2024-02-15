@@ -25,7 +25,6 @@ import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.DEFAULT_
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -34,7 +33,6 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.agent.config.AgentConfig;
-import org.sentrysoftware.metricshub.agent.config.exporter.OtlpExporterConfig;
 
 /**
  * Helper class providing methods related to OpenTelemetry (OTEL) configuration.
@@ -72,7 +70,7 @@ public class OtelConfigHelper {
 		// No security for HTTP
 		if (otlpEndpoint.toLowerCase().startsWith("http://")) {
 			log.debug(
-				"There is no Otel security file to load for the gRPC OTLP exporter[endpoint: {}]. The security file {} is loaded only for https connections.",
+				"There is no Otel security file to load for the OTLP exporter[endpoint: {}]. The security file {} is loaded only for https connections.",
 				otlpEndpoint,
 				securityFilePath
 			);
@@ -97,43 +95,64 @@ public class OtelConfigHelper {
 	public static Map<String, String> buildOtelSdkConfiguration(final AgentConfig agentConfig) {
 		final Map<String, String> properties = new HashMap<>();
 
-		// Default OTLP endpoint
-		String otlpEndpoint = "https://localhost:4317";
+		properties.putAll(agentConfig.getOtelSdkConfig());
 
-		properties.put("otel.metrics.exporter", "otlp");
-		properties.put("otel.logs.exporter", "otlp");
-		properties.put("otel.exporter.otlp.endpoint", otlpEndpoint);
-		properties.put("otel.metric.export.interval", String.valueOf(Duration.ofDays(365 * 10L).toMillis()));
+		// Certificate file path for metrics
+		populateCertificate(
+			properties,
+			OtelSdkConfigConstants.OTEL_EXPORTER_OTLP_METRICS_ENDPOINT,
+			OtelSdkConfigConstants.OTEL_EXPORTER_OTLP_METRICS_CERTIFICATE
+		);
 
-		String certificatesFileToTrust = null;
+		// Certificate file path for logs
+		populateCertificate(
+			properties,
+			OtelSdkConfigConstants.OTEL_EXPORTER_OTLP_LOGS_ENDPOINT,
+			OtelSdkConfigConstants.OTEL_EXPORTER_OTLP_LOGS_CERTIFICATE
+		);
 
-		// Does the user configured OTLP?
-		if (agentConfig.hasOtlpExporterConfig()) {
-			final OtlpExporterConfig otlpExporterConfig = agentConfig.getExporter().getOtlp();
+		// Certificate file path for logs, traces and metrics
+		populateCertificate(
+			properties,
+			OtelSdkConfigConstants.OTEL_EXPORTER_OTLP_ENDPOINT,
+			OtelSdkConfigConstants.OTEL_EXPORTER_OTLP_CERTIFICATE
+		);
 
-			// Endpoint overridden?
-			if (otlpExporterConfig.hasEndpoint()) {
-				otlpEndpoint = otlpExporterConfig.getEndpoint();
-				properties.put("otel.exporter.otlp.endpoint", otlpEndpoint);
-			}
-
-			// Headers
-			otlpExporterConfig
-				.getHeadersInOtlpFormat()
-				.ifPresent(headers -> properties.put("otel.exporter.otlp.headers", headers));
-
-			certificatesFileToTrust = otlpExporterConfig.getTrustedCertificatesFile();
-		}
-
-		// Certificate file path
-		getSecurityFilePath(
-			AgentConstants.SECURITY_DIRECTORY_NAME,
-			DEFAULT_OTEL_CRT_FILENAME,
-			certificatesFileToTrust,
-			otlpEndpoint
-		)
-			.ifPresent(trustedCertificatesFile -> properties.put("otel.exporter.otlp.certificate", trustedCertificatesFile));
+		// Force the exporter's interval to the default value (10 years)
+		// This means that the agent will push metrics and logs after each collect cycle.
+		properties.put(
+			OtelSdkConfigConstants.OTEL_METRIC_EXPORT_INTERVAL,
+			OtelSdkConfigConstants.DEFAULT_METRICS_EXPORT_INTERVAL
+		);
 
 		return properties;
+	}
+
+	/**
+	 * Populates the OTLP certificate property in the given properties map based on the OTLP endpoint property.
+	 *
+	 * This method checks if the OTLP endpoint is specified in the properties map. If the endpoint is provided,
+	 * it attempts to obtain the trusted certificates file path using the getSecurityFilePath method and updates
+	 * the OTLP certificate property in the properties map accordingly.
+	 *
+	 * @param properties                 The map containing key-value pairs of properties.
+	 * @param otlpEndpointPropertyKey    The key representing the OTLP endpoint property in the properties map.
+	 * @param otlpCertificatePropertyKey The key representing the OTLP certificate property in the properties map.
+	 */
+	private static void populateCertificate(
+		final Map<String, String> properties,
+		final String otlpEndpointPropertyKey,
+		final String otlpCertificatePropertyKey
+	) {
+		final String otlpEndpoint = properties.get(otlpEndpointPropertyKey);
+		if (otlpEndpoint != null) {
+			getSecurityFilePath(
+				AgentConstants.SECURITY_DIRECTORY_NAME,
+				DEFAULT_OTEL_CRT_FILENAME,
+				properties.get(otlpCertificatePropertyKey),
+				otlpEndpoint
+			)
+				.ifPresent(trustedCertificatesFile -> properties.put(otlpCertificatePropertyKey, trustedCertificatesFile));
+		}
 	}
 }

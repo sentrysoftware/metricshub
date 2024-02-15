@@ -15,13 +15,6 @@
 			<fileMode>0755</fileMode>
 		</file>
 
-		<!-- OpenTelemetry Java Agent -->
-		<file>
-			<source>${project.build.directory}/otel/opentelemetry-javaagent.jar</source>
-			<outputDirectory>otel</outputDirectory>
-			<fileMode>0755</fileMode>
-		</file>
-
 	</files>
 
 	

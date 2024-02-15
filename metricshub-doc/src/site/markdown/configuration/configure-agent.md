@@ -289,14 +289,10 @@ Use the parameters below to configure the SNMP protocol:
 | Parameter        | Description                                                                    |
 | ---------------- | ------------------------------------------------------------------------------ |
 | snmp             | Protocol used to access the host.                                              |
-| version          | The version of the SNMP protocol (v1, v2c, v3-no-auth, v3-md5, v3-sha).        |
+| version          | The version of the SNMP protocol (v1, v2c).                                    |
 | community        | The SNMP Community string to use to perform SNMP v1 queries (Default: public). |
 | port             | The SNMP port number used to perform SNMP queries (Default: 161).              |
 | timeout          | How long until the SNMP request times out (Default: 120s).                     |
-| privacy          | _SNMP v3 only_ - The type of encryption protocol (none, aes, des).             |
-| privacy password | _SNMP v3 only_ - Password associated to the privacy protocol.                  |
-| username         | _SNMP v3 only_ - Name to use for performing the SNMP query.                    |
-| password         | _SNMP v3 only_ - Password to use for performing the SNMP query.                |
 
 **Example**
 
@@ -325,21 +321,6 @@ resourceGroups:
             community: public
             port: 161
             timeout: 120s
-
-      myHost3:
-        attributes:
-          host.name: my-host-03
-          host.type: linux
-        protocols:
-          snmp:
-            version: v3-md5
-            community: public
-            port: 161
-            timeout: 120s
-            privacy: des
-            privacyPassword: myprivacypwd
-            username: myusername
-            password: mypwd
 ```
 
 #### WBEM
@@ -443,20 +424,31 @@ resourceGroups:
 
 #### Basic authentication header
 
-The **MetricsHub Agent**'s internal `OTLP Exporter` authenticates itself with the _OpenTelemetry Collector_'s [OTLP gRPC Receiver](configure-otel.md#OTLP_gRPC) by including the HTTP `Authorization` request header with the credentials. A predefined *Basic Authentication Header* value is stored internally and included in each request when sending telemetry data.
+In the community edition, by default, the **MetricsHub Agent**'s internal `OTLP Exporter` operates without authentication when communicating with the `OTLP Receiver`.
 
-To override the default value of the *Basic Authentication Header*, add a new `Authorization` header under the `exporter:otlp:headers` section:
+If your `OTLP Receiver` requires authentication headers, you will need to manually configure the necessary headers under the `otel:otel.exporter.otlp.metrics.headers` and `otel:otel.exporter.otlp.logs.headers` sections in your configuration file:
 
 ```yaml
-exporter:
-  otlp:
-    headers:
-      Authorization: Basic <credentials>
+otel:
+  otel.exporter.otlp.metrics.headers: <custom-header1>
+  otel.exporter.otlp.logs.headers: <custom-header2>
 
 resourceGroups: # ...
 ```
 
-where `<credentials>` are built by first joining your username and password with a colon (`myUsername:myPassword`) and then encoding the value in `base64`.
+On the other hand, the enterprise edition updates the community edition's behavior. The **MetricsHub Agent**'s internal `OTLP Exporter` includes the HTTP  `Authorization` request header to authenticate itself with the _OpenTelemetry Collector_'s [OTLP gRPC Receiver](configure-otel.md#OTLP_gRPC). A predefined *Basic Authentication Header* value is stored internally and included in each request when sending telemetry data.
+
+To customize the default value of the `OTLP Exporter` header, set the header under the `otel:otel.exporter.otlp.metrics.headers` and `otel:otel.exporter.otlp.logs.headers` sections in your configuration file:
+
+```yaml
+otel:
+  otel.exporter.otlp.metrics.headers: Authorization=Basic <base64-credentials>
+  otel.exporter.otlp.logs.headers: Authorization=Basic <base64-credentials>
+
+resourceGroups: # ...
+```
+
+where `<base64-credentials>` are built by first joining your username and password with a colon (`myUsername:myPassword`) and then encoding the value in `base64`.
 
 > **Warning**: If you update the *Basic Authentication Header*, you must generate a new `.htpasswd` file for the [OpenTelemetry Collector Basic Authenticator](configure-otel.md#Basic_Authenticator).
 
@@ -466,15 +458,27 @@ The **MetricsHub Agent**'s internal `OTLP Exporter` pushes telemetry [signals](h
 
 By default, the internal `OTLP Exporter` is configured to push data to the `OTLP Receiver` endpoint `https://localhost:4317`.
 
-To override the OTLP endpoint, configure the `endpoint` property under the `exporter:otlp` section:
+To override the OTLP endpoints, configure the `otel.exporter.otlp.metrics.endpoint` and `otel.exporter.otlp.logs.endpoint` parameters under the `otel` section:
 
 ```yaml
-exporter:
-  otlp:
-    endpoint: https://my-host:4317
+otel:
+  otel.exporter.otlp.metrics.endpoint: https://my-host:4317
+  otel.exporter.otlp.logs.endpoint: https://my-host:4317
 
 resourceGroups: #...
 ```
+
+#### Example Configuration for the **MetricsHub Agent** Community Edition to Transmit Metrics to the Prometheus OTLP Receiver
+
+```yaml
+otel:
+  otel.metrics.exporter: otlp
+  otel.exporter.otlp.metrics.endpoint: http://<prom-server-host>:9090/api/v1/otlp/v1/metrics
+  otel.exporter.otlp.metrics.protocol: http/protobuf
+```
+
+> **Note:**
+> For specific configuration details, refer to the [OpenTelemetry Auto-Configure documentation](https://github.com/open-telemetry/opentelemetry-java/tree/main/sdk-extensions/autoconfigure). This resource provides information on the properties that should be configured according to your deployment requirements.
 
 ### Monitoring settings
 
@@ -732,7 +736,7 @@ Timeouts, durations and periods are specified with the below format:
 | h    | hours                           | 1h, 1h30m        |
 | d    | days (based on a 24-hour day)   | 1d               |
 
-### OpenTelemetry Collector process settings
+### OpenTelemetry Collector process settings <span class="badge">Enterprise</span>
 
 > **Note**: These settings should not be changed unless specifically required.
 
@@ -834,18 +838,18 @@ resourceGroups: # ...
 
 > **Important**: The _OpenTelemetry Collector_ might not start if the value set for the `workingDir` attribute is not correct, more especially if the `otel/otel-config.yaml` file uses relative paths.
 
-### Security settings
+### Security settings <span class="badge">Enterprise</span>
 
 #### Trusted certificates file
 
 A TLS handshake takes place when the **MetricsHub Agent**'s `OTLP Exporter` instantiates a communication with the `OTLP gRPC Receiver`. By default, the internal `OTLP Exporter` client is configured to trust the `OTLP gRPC Receiver`'s certificate `security/otel.crt`.
 
-If you generate a new server's certificate for the [OTLP gRPC Receiver](configure-otel.md#OTLP_gRPC), you must configure the `trustedCertificatesFile` parameter under the `exporter:otlp` section:
+If you generate a new server's certificate for the [OTLP gRPC Receiver](configure-otel.md#OTLP_gRPC), you must configure the `otel.exporter.otlp.metrics.certificate` and `otel.exporter.otlp.logs.certificate` parameters under the `otel` section:
 
 ```yaml
-exporter:
-  otlp:
-    trustedCertificatesFile: /opt/metricshub/security/new-server-cert.crt
+otel:
+  otel.exporter.otlp.metrics.certificate: /opt/metricshub/security/new-server-cert.crt
+  otel.exporter.otlp.logs.certificate: /opt/metricshub/security/new-server-cert.crt
 
 resourceGroups: # ...
 ```
