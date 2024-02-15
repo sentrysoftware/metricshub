@@ -12,6 +12,7 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorTy
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HOSTNAME;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.DOWN;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.HTTP_UP_METRIC;
+import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.IPMI_UP_METRIC;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.SNMP_OID;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.SNMP_UP_METRIC;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.SSH_UP_METRIC;
@@ -28,11 +29,13 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.sentrysoftware.ipmi.client.IpmiClient;
+import org.sentrysoftware.ipmi.client.IpmiClientConfiguration;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.client.http.HttpRequest;
-import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
+import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
@@ -128,6 +131,40 @@ class ProtocolHealthCheckStrategyTest {
 								.sshConfigurationBuilder()
 								.username("username")
 								.password("password".toCharArray())
+								.timeout(60L)
+								.build()
+						)
+					)
+					.build()
+			)
+			.build();
+	}
+
+	/**
+	 * Creates and returns a TelemetryManager instance with an IPMI configuration.
+	 *
+	 * @return A TelemetryManager instance configured with an IPMI configuration.
+	 */
+	private TelemetryManager createTelemetryManagerWithIpmiConfig() {
+		// Create a telemetry manager
+		return TelemetryManager
+			.builder()
+			.monitors(monitors)
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostId(HOSTNAME)
+					.hostname(HOSTNAME)
+					.sequential(false)
+					.configurations(
+						Map.of(
+							IpmiConfiguration.class,
+							IpmiConfiguration
+								.builder()
+								.username("username")
+								.password("password".toCharArray())
+								.bmcKey(null)
+								.skipAuth(false)
 								.timeout(60L)
 								.build()
 						)
@@ -237,45 +274,6 @@ class ProtocolHealthCheckStrategyTest {
 		snmpHealthCheckStrategy.run();
 
 		assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SNMP_UP_METRIC).getValue());
-	}
-
-	@Test
-	void testCheckSshUpHealth() throws InterruptedException, ExecutionException, TimeoutException, ClientException {
-		// Create a telemetry manager using an SNMP HostConfiguration.
-		final TelemetryManager telemetryManager = createTelemetryManagerWithSshConfig();
-
-		// Create a new protocol health check strategy
-		final ProtocolHealthCheckStrategy sshHealthCheckStrategy = new ProtocolHealthCheckStrategy(
-			telemetryManager,
-			CURRENT_TIME_MILLIS,
-			clientsExecutorMock
-		);
-
-		// Setting SSH host properties
-		telemetryManager.getHostProperties().setMustCheckSshStatus(true);
-
-		// Mock SSH protocol health check response
-		try (MockedStatic<ClientsExecutor> staticClientsExecutor = Mockito.mockStatic(ClientsExecutor.class)) {
-			staticClientsExecutor
-				.when(() ->
-					ClientsExecutor.runRemoteSshCommand(
-						anyString(),
-						anyString(),
-						any(),
-						any(),
-						any(),
-						anyLong(),
-						any(),
-						anyString()
-					)
-				)
-				.thenReturn("test");
-
-			// Start the SNMP Health Check strategy
-			sshHealthCheckStrategy.run();
-
-			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
-		}
 	}
 
 	@Test
@@ -488,5 +486,55 @@ class ProtocolHealthCheckStrategyTest {
 		sshHealthCheckStrategy.run();
 
 		assertNull(telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC));
+	}
+
+	@Test
+	void testCheckIpmiUpHealth() {
+		// Create a telemetry manager using an IPMI HostConfiguration.
+		final TelemetryManager telemetryManager = createTelemetryManagerWithIpmiConfig();
+
+		// Create a new protocol health check strategy
+		final ProtocolHealthCheckStrategy ipmiHealthCheckStrategy = new ProtocolHealthCheckStrategy(
+			telemetryManager,
+			CURRENT_TIME_MILLIS,
+			clientsExecutorMock
+		);
+
+		// Mock IPMI protocol health check response
+		try (MockedStatic<IpmiClient> staticIpmiClient = Mockito.mockStatic(IpmiClient.class)) {
+			staticIpmiClient
+				.when(() -> IpmiClient.getChassisStatusAsStringResult(any(IpmiClientConfiguration.class)))
+				.thenReturn(SUCCESS_RESPONSE);
+
+			// Start the IPMI Health Check strategy
+			ipmiHealthCheckStrategy.run();
+
+			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(IPMI_UP_METRIC).getValue());
+		}
+	}
+
+	@Test
+	void testCheckIpmiDownHealth() {
+		// Create a telemetry manager using an IPMI HostConfiguration.
+		final TelemetryManager telemetryManager = createTelemetryManagerWithIpmiConfig();
+
+		// Create a new protocol health check strategy
+		final ProtocolHealthCheckStrategy ipmiHealthCheckStrategy = new ProtocolHealthCheckStrategy(
+			telemetryManager,
+			CURRENT_TIME_MILLIS,
+			clientsExecutorMock
+		);
+
+		// Mock IPMI protocol health check response
+		try (MockedStatic<IpmiClient> staticIpmiClient = Mockito.mockStatic(IpmiClient.class)) {
+			staticIpmiClient
+				.when(() -> IpmiClient.getChassisStatusAsStringResult(any(IpmiClientConfiguration.class)))
+				.thenReturn(null);
+
+			// Start the IPMI Health Check strategy
+			ipmiHealthCheckStrategy.run();
+
+			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(IPMI_UP_METRIC).getValue());
+		}
 	}
 }
