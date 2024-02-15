@@ -290,10 +290,6 @@ public class Constants {
 	public static final String SSH_CONFIGURATION_TO_STRING = "SSH as testUser";
 	public static final String SNMP_CONFIGURATION_V1_TO_STRING = "SNMP v1 (public)";
 	public static final String SNMP_CONFIGURATION_V2C_TO_STRING = "SNMP v2c (public)";
-	public static final String SNMP_CONFIGURATION_ENCRYPTED_TO_STRING = "SNMP v3 with MD5 auth (AES-encrypted)";
-	public static final String SNMP_CONFIGURATION_NO_PRIVACY_TO_STRING = "SNMP v3 with MD5 auth";
-	public static final String SNMP_CONFIGURATION_NO_PRIVACY_WITH_USERNAME_TO_STRING =
-		"SNMP v3 with MD5 auth as testUser";
 	public static final String HOST_CONFIGURATION_TO_STRING =
 		"HostConfiguration(hostname=localhost, hostId=localhost," +
 		" hostType=LINUX, strategyTimeout=100, connectors=null," +

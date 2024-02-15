@@ -179,13 +179,7 @@ class SourceUpdaterProcessorTest {
 
 	@Test
 	void testProcessSNMPGetSource() {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
-			.builder()
-			.username(USERNAME)
-			.password(PASSWORD.toCharArray())
-			.port(161)
-			.timeout(120L)
-			.build();
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().port(161).timeout(120L).build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(LOCALHOST)
@@ -224,13 +218,7 @@ class SourceUpdaterProcessorTest {
 
 	@Test
 	void testProcessSNMPGetTableSource() {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
-			.builder()
-			.username(USERNAME)
-			.password(PASSWORD.toCharArray())
-			.port(161)
-			.timeout(120L)
-			.build();
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().port(161).timeout(120L).build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(LOCALHOST)
@@ -271,13 +259,7 @@ class SourceUpdaterProcessorTest {
 
 	@Test
 	void testProcessTableJoinSource() {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
-			.builder()
-			.username(USERNAME)
-			.password(PASSWORD.toCharArray())
-			.port(161)
-			.timeout(120L)
-			.build();
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().port(161).timeout(120L).build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(LOCALHOST)
@@ -301,13 +283,7 @@ class SourceUpdaterProcessorTest {
 
 	@Test
 	void testProcessTableUnionSource() {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
-			.builder()
-			.username(USERNAME)
-			.password(PASSWORD.toCharArray())
-			.port(161)
-			.timeout(120L)
-			.build();
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().port(161).timeout(120L).build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(LOCALHOST)
@@ -331,13 +307,7 @@ class SourceUpdaterProcessorTest {
 
 	@Test
 	void testProcessCopySource() {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
-			.builder()
-			.username(USERNAME)
-			.password(PASSWORD.toCharArray())
-			.port(161)
-			.timeout(120L)
-			.build();
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().port(161).timeout(120L).build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(LOCALHOST)
@@ -393,13 +363,7 @@ class SourceUpdaterProcessorTest {
 
 	@Test
 	void testProcessStaticSource() {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
-			.builder()
-			.username(USERNAME)
-			.password(PASSWORD.toCharArray())
-			.port(161)
-			.timeout(120L)
-			.build();
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().port(161).timeout(120L).build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(LOCALHOST)

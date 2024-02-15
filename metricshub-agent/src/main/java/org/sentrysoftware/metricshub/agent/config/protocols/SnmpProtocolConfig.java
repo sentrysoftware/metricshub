@@ -28,12 +28,10 @@ import lombok.Builder.Default;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.sentrysoftware.metricshub.agent.deserialization.SnmpPrivacyDeserializer;
 import org.sentrysoftware.metricshub.agent.deserialization.SnmpVersionDeserializer;
 import org.sentrysoftware.metricshub.agent.deserialization.TimeDeserializer;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration.Privacy;
 import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration.SnmpVersion;
 
 /**
@@ -61,16 +59,7 @@ public class SnmpProtocolConfig extends AbstractProtocolConfig {
 	@JsonDeserialize(using = TimeDeserializer.class)
 	private Long timeout = 120L;
 
-	@JsonDeserialize(using = SnmpPrivacyDeserializer.class)
-	private Privacy privacy;
-
-	private char[] privacyPassword;
-
-	private String username;
-
 	private char[] password;
-
-	private String contextName;
 
 	/**
 	 * Create a new {@link SnmpConfiguration} instance based on the current members
@@ -83,29 +72,14 @@ public class SnmpProtocolConfig extends AbstractProtocolConfig {
 			.builder()
 			.version(version)
 			.community(String.valueOf(decrypt(community)))
-			.username(username)
-			.password(super.decrypt(password))
-			.privacy(privacy)
-			.privacyPassword(super.decrypt(privacyPassword))
 			.port(port)
 			.timeout(timeout)
-			.contextName(contextName)
 			.build();
 	}
 
 	@Override
 	public String toString() {
 		String desc = version.getDisplayName();
-		if (version == SnmpVersion.V1 || version == SnmpVersion.V2C) {
-			desc = desc + " (" + String.valueOf(community) + ")";
-		} else {
-			if (username != null) {
-				desc = desc + " as " + username;
-			}
-			if (privacy != null && privacy != Privacy.NO_ENCRYPTION) {
-				desc = desc + " (" + privacy + "-encrypted)";
-			}
-		}
-		return desc;
+		return desc + " (" + String.valueOf(community) + ")";
 	}
 }

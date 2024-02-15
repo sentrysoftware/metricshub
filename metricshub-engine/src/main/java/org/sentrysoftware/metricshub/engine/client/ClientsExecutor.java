@@ -296,11 +296,6 @@ public class ClientsExecutor {
 		final String[] selectColumnArray,
 		final boolean logMode
 	) throws InterruptedException, ExecutionException, TimeoutException {
-		final String privacyType = protocol.getPrivacy() != SnmpConfiguration.Privacy.NO_ENCRYPTION &&
-			protocol.getPrivacy() != null
-			? protocol.getPrivacy().name()
-			: null;
-
 		// Create the SNMPClient and run the GetNext request
 		return (T) execute(
 			() -> {
@@ -311,11 +306,11 @@ public class ClientsExecutor {
 					null,
 					protocol.getCommunity(),
 					protocol.getVersion().getAuthType(),
-					protocol.getUsername(),
-					protocol.getPassword() != null ? new String(protocol.getPassword()) : null,
-					privacyType,
-					protocol.getPrivacyPassword() != null ? new String(protocol.getPrivacyPassword()) : null,
-					protocol.getContextName(),
+					null,
+					null,
+					null,
+					null,
+					null,
 					null
 				);
 
