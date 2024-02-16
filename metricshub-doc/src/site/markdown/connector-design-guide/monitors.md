@@ -3,6 +3,8 @@ description: This page describes how to specify the monitor to discovery and col
 
 # Monitors
 
+This page describes how to specify the monitor to discovery and collect in a connector file.
+
 ## Format
 ```yaml
 connector:

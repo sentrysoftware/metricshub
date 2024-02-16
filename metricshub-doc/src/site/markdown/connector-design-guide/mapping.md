@@ -3,6 +3,8 @@ description: This page describes how to map metrics and attribute in a connector
 
 # Mapping
 
+This page describes how to map metrics and attribute in a connector file.
+
 ## Format
 
 ```yaml

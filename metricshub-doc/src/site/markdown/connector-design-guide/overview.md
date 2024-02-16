@@ -3,6 +3,12 @@ description: The intended audience of this guide is the advanced user of Metrics
 
 # Overview
 
+The goal of this guide is to explain how to develop your own connectors.
+
+We will see how is constructed a connector, what is the syntax of each its parts and what they mean.
+
+The targeted audience of this guide is the advanced user of MetricsHub who wishes to monitor some specific appliance that is not covered by MetricsHub's built in connectors.
+
 ## General Syntax
 
 The general syntax for *.yaml files is as in the example below.

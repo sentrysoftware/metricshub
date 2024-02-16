@@ -5,7 +5,9 @@ description: The intended audience of this guide is the advanced user of Metrics
 
 ## Connector Directory
 
-The connector directory defines the location of the connector files. As best practice, each connector has its own directory.
+The connector directory defines the location of the connector files. As best practice, each connector has its own directory that will contain the connector and its embedded files.
+
+All connector directories are to be placed in the "MetricsHub/connectors" directory for them to be exploited by MetricsHub.
 
 ## Children Pages
 

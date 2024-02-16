@@ -3,6 +3,10 @@ description: This page defines the detection’s criteria that are defined in a 
 
 # Criteria
 
+In order for a connector to match a system, some criterion must be met. They are defined in the [Detection Section](detection.md) of the connector and checked during the discovery. If all criterion are met, the connector matches and will be used to monitor the system. If a criteria is not met, MetricsHub stops processing the detection and as far as the target system is concerned, the connector will not be used.
+
+A maximum number of 99 detection criterion may be defined in a connector.
+
 * [HTTP](#http)
     * [Input Properties](#http-input-properties)
     * [Example](#http-example)
@@ -37,12 +41,11 @@ description: This page defines the detection’s criteria that are defined in a 
 * [WMI](#wmi)
     * [Input Properties](#wmi-input-properties)
     * [Example](#wmi-example)
-    
-In order for a connector to match a system, some criterion must be met. They are defined in the [Detection Section](detection.md) of the connector and checked during the discovery. If all criterion are met, the connector matches and will be used to monitor the system. If a criteria is not met, MetricsHub stops processing the detection and as far as the target system is concerned, the connector will not be used.
-
-A maximum number of 99 detection criterion may be defined in a connector.
 
 ## <a id="http" /> HTTP
+
+The goal of this part is to see how to define HTTP criteria.
+
 ```yaml
 connector:
   # ...
@@ -90,6 +93,9 @@ connector:
 ```
 
 ## <a id="ipmi" /> IPMI
+
+The goal of this part is to see how to define IPMI criteria.
+
 ```yaml
 connector:
   # ...
@@ -112,6 +118,9 @@ connector:
 ```
 
 ## <a id="product-requirements" /> Product Requirements
+
+The goal of this part is to see how to define Product Requirements criteria.
+
 ```yaml
 connector:
   # ...
@@ -139,6 +148,9 @@ connector:
 ```
 
 ## <a id="device-type" /> Device Type
+
+The goal of this part is to see how to define Device Type criteria.
+
 ```yaml
 connector:
   # ...
@@ -180,6 +192,9 @@ connector:
 ```
 
 ## <a id="os-command" /> OS Command
+
+The goal of this part is to see how to define OS commands criteria.
+
 ```yaml
 connector:
   # ...
@@ -216,6 +231,9 @@ connector:
 ```
 
 ## <a id="process" /> Process
+
+The goal of this part is to see how to define process criteria.
+
 ```yaml
 connector:
   # ...
@@ -241,6 +259,9 @@ connector:
 ```
 
 ## <a id="service" /> Service
+
+The goal of this part is to see how to define service criteria.
+
 ```yaml
 connector:
   # ...
@@ -250,7 +271,6 @@ connector:
     - type: service
       name: # <string>
 ```
-
 
 ### <a id="service-input-properties" /> Input Properties
 | Input Property | Description |
@@ -267,6 +287,9 @@ connector:
 ```
 
 ## <a id="snmp-get" /> SNMP Get
+
+The goal of this part is to see how to define SNMP Get criteria.
+
 ```yaml
 connector:
   # ...
@@ -295,6 +318,9 @@ connector:
 ```
 
 ## <a id="snmp-getnext" /> SNMP GetNext
+
+The goal of this part is to see how to define SNMP GetNext criteria.
+
 ```yaml
 connector:
   # ...
@@ -322,6 +348,9 @@ connector:
 ```
 
 ## <a id="wbem" /> WBEM
+
+The goal of this part is to see how to define WBEM criteria.
+
 ```yaml
 connector:
   # ...
@@ -353,6 +382,9 @@ connector:
 ```
 
 ## <a id="wmi" /> WMI
+
+The goal of this part is to see how to define WMI criteria.
+
 ```yaml
 connector:
   # ...

@@ -3,13 +3,15 @@ description: This page describes the format of the connector source
 
 # Sources
 
+This page describes the format of the connector source
+
 * [Format](#format)
-* [HTTP](#http)
-* [IPMI](#ipmi)
-* [OS Command](#os-command)
+* [HTTP Source](#http)
+* [IPMI Source](#ipmi)
+* [OS Command Source](#os-command)
 * [Copy](#copy)
 * [Static](#static)
-* [SNMPGet](#snmpget)
+* [SNMPGet Source](#snmpget)
 * [SNMP Table](#snmptable)
 * [Table Join](#table-join)
 * [Table Union](#table-union)
@@ -35,7 +37,7 @@ monitors:
 
 Under each source we can define a set of computes. Refer to the [Computes Section](connector-design-guide/computes.md) page for more details.
 
-## <a id="http" />HTTP
+## <a id="http" />HTTP Source
 
 ```yaml
 connector:
@@ -65,7 +67,7 @@ monitors:
           computes: # <compute-object-array>
 ```
 
-## <a id="ipmi" />IPMI
+## <a id="ipmi" />IPMI Source
 
 ```yaml
 connector:
@@ -83,7 +85,7 @@ monitors:
           computes: # <compute-object-array>
 ```
 
-## <a id="os-command" />OS Command
+## <a id="os-command" />OS Command Source
 
 ```yaml
 connector:
@@ -151,7 +153,7 @@ monitors:
           computes: # <compute-object-array>
 ```
 
-## <a id="snmpget" />SNMPGet
+## <a id="snmpget" />SNMPGet Source
 
 ```yaml
 connector:

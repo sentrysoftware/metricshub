@@ -3,6 +3,8 @@ description: This page shows how to reference connector objects such as sources,
 
 # Connector Object References
 
+This page shows how to reference connector objects such as sources, entries, columns and files, etc. inside the YAML document.
+
 * [Source Reference](#source)
     * [Format](#source-format)
     * [Example](#source-example)

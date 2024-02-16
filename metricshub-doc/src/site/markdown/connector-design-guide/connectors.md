@@ -1,7 +1,9 @@
 keywords: guide, connector
 description: The connector section defines the connector’s identifying information such as the display name, the version or detection criteria of the connector.
 
-# Connectors
+# Connector
+
+The first part of a connector is a list of information defining its identity, what is the purpose of this connector and what type of platforms and systems it can be used against. The goal of this part is for someone to understand quickly what this connector is about.
 
 ## Format
 

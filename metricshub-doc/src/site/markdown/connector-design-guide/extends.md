@@ -1,7 +1,9 @@
 keywords: guide, connector, extends
-description: To defines a set of connectors to extends, you need to declare the connectors under the `extends` sections.
+description: This page defines how to specify the connectors to extend.
 
 # Extends
+
+To defines a set of connectors to extends, you need to declare the connectors under the `extends` sections.
 
 ## Format
 ```yaml

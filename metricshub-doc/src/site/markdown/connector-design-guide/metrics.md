@@ -3,6 +3,8 @@ description: This page shows how to defines in a connector the OpenTelemetry met
 
 # Metrics
 
+This page shows how to defines in a connector the OpenTelemetry metrics that this connector will collect and report.
+
 ## Format
 
 ```yaml

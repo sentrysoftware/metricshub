@@ -3,6 +3,8 @@ description: This page defines how to specify in a connector the sudo-able comma
 
 # SUDO Commands
 
+This page defines how to specify in a connector the sudo-able commands.
+
 ## Format
 ```yaml
 connector:

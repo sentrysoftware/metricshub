@@ -3,6 +3,8 @@ description: This page describes how to define translation tables in a connector
 
 # Translation Tables
 
+This page describes how to define translation tables in a connector file.
+
 ## Format
 
 ```yaml
