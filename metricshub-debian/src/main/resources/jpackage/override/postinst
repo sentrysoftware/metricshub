@@ -40,14 +40,6 @@ if [ -d /opt/metricshub ]; then
     cd /opt/metricshub && ln -s lib/config config
   fi
 
-  if [ ! -e /opt/metricshub/security ]; then
-    cd /opt/metricshub && ln -s lib/security security
-  fi
-
-  if [ ! -e /opt/metricshub/otel ]; then
-    cd /opt/metricshub && ln -s lib/otel otel
-  fi
-
   if [ ! -e /opt/metricshub/site ]; then
     cd /opt/metricshub && ln -s lib/site site
   fi

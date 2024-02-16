@@ -101,14 +101,6 @@ if [ -d APPLICATION_DIRECTORY ]; then
      rm -f APPLICATION_DIRECTORY/connectors
   fi
 
-  if [ -L APPLICATION_DIRECTORY/security ]; then
-     rm -f APPLICATION_DIRECTORY/security
-  fi
-
-  if [ -L APPLICATION_DIRECTORY/otel ]; then
-     rm -f APPLICATION_DIRECTORY/otel
-  fi
-
   if [ -L APPLICATION_DIRECTORY/site ]; then
     rm -f APPLICATION_DIRECTORY/site
   fi
@@ -133,14 +125,6 @@ if [ -d APPLICATION_DIRECTORY ]; then
 
   if [ ! -e  APPLICATION_DIRECTORY/connectors ]; then
     cd APPLICATION_DIRECTORY && ln -s lib/connectors connectors
-  fi
- 
-  if [ ! -e  APPLICATION_DIRECTORY/security ]; then
-    cd APPLICATION_DIRECTORY && ln -s lib/security security
-  fi
-
-  if [ ! -e  APPLICATION_DIRECTORY/otel ]; then
-    cd APPLICATION_DIRECTORY && ln -s lib/otel otel
   fi
 
   if [ ! -e  APPLICATION_DIRECTORY/site ]; then

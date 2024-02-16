@@ -25,7 +25,6 @@ import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_IN
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_INFO_BUILD_NUMBER_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_INFO_CC_VERSION_NUMBER_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_INFO_NAME_ATTRIBUTE_KEY;
-import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_INFO_OTEL_VERSION_NUMBER_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_INFO_VERSION_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.APPLICATION_YAML_FILE_NAME;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.OBJECT_MAPPER;
@@ -128,8 +127,7 @@ public class AgentInfo {
 				AGENT_INFO_VERSION_ATTRIBUTE_KEY, project.version(),
 				AGENT_INFO_BUILD_NUMBER_ATTRIBUTE_KEY, applicationProperties.buildNumber(),
 				AGENT_INFO_BUILD_DATE_NUMBER_ATTRIBUTE_KEY, applicationProperties.buildDate(),
-				AGENT_INFO_CC_VERSION_NUMBER_ATTRIBUTE_KEY, applicationProperties.ccVersion(),
-				AGENT_INFO_OTEL_VERSION_NUMBER_ATTRIBUTE_KEY, applicationProperties.otelVersion()
+				AGENT_INFO_CC_VERSION_NUMBER_ATTRIBUTE_KEY, applicationProperties.ccVersion()
 			);
 		// @formatter:on
 

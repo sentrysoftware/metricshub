@@ -13,6 +13,7 @@ import static org.mockito.Mockito.mockStatic;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 import org.awaitility.Awaitility;
 import org.awaitility.Durations;
 import org.junit.jupiter.api.Test;
@@ -155,5 +156,37 @@ class OtelCollectorProcessServiceTest {
 
 			assertTrue(otelProcess.isStopped());
 		}
+	}
+
+	@Test
+	void testLaunchOtelCollectorDisabled() {
+		final OtelCollectorConfig otelCollectorConfigMock = Mockito.mock(OtelCollectorConfig.class);
+		final AgentConfig agentConfig = AgentConfig.builder().otelCollector(otelCollectorConfigMock).build();
+		doReturn(true).when(otelCollectorConfigMock).isDisabled();
+		final OtelCollectorProcessService otelCollectorProcessService = new OtelCollectorProcessService(agentConfig);
+
+		assertDoesNotThrow(() -> otelCollectorProcessService.launch());
+	}
+
+	@Test
+	void testLaunchExecutableFileDoesntExist() {
+		final OtelCollectorConfig otelCollectorConfigMock = Mockito.mock(OtelCollectorConfig.class);
+		final AgentConfig agentConfig = AgentConfig.builder().otelCollector(otelCollectorConfigMock).build();
+		doReturn(ProcessConfig.builder().commandLine(List.of(UUID.randomUUID().toString())).build())
+			.when(otelCollectorConfigMock)
+			.toProcessConfig();
+		final OtelCollectorProcessService otelCollectorProcessService = new OtelCollectorProcessService(agentConfig);
+
+		assertDoesNotThrow(() -> otelCollectorProcessService.launch());
+	}
+
+	@Test
+	void testLaunchExecutableMissing() {
+		final OtelCollectorConfig otelCollectorConfigMock = Mockito.mock(OtelCollectorConfig.class);
+		final AgentConfig agentConfig = AgentConfig.builder().otelCollector(otelCollectorConfigMock).build();
+		doReturn(ProcessConfig.builder().commandLine(List.of()).build()).when(otelCollectorConfigMock).toProcessConfig();
+		final OtelCollectorProcessService otelCollectorProcessService = new OtelCollectorProcessService(agentConfig);
+
+		assertDoesNotThrow(() -> otelCollectorProcessService.launch());
 	}
 }

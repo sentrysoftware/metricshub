@@ -23,6 +23,7 @@ package org.sentrysoftware.metricshub.agent.config;
 
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.HashMap;
@@ -32,12 +33,11 @@ import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.sentrysoftware.metricshub.agent.config.exporter.ExporterConfig;
-import org.sentrysoftware.metricshub.agent.config.exporter.OtlpExporterConfig;
 import org.sentrysoftware.metricshub.agent.config.otel.OtelCollectorConfig;
 import org.sentrysoftware.metricshub.agent.deserialization.AttributesDeserializer;
 import org.sentrysoftware.metricshub.agent.deserialization.TimeDeserializer;
 import org.sentrysoftware.metricshub.agent.helper.AgentConstants;
+import org.sentrysoftware.metricshub.agent.helper.OtelSdkConfigConstants;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 
 /**
@@ -108,7 +108,8 @@ public class AgentConfig {
 
 	@Default
 	@JsonSetter(nulls = SKIP)
-	private ExporterConfig exporter = ExporterConfig.builder().build();
+	@JsonProperty("otel")
+	private Map<String, String> otelSdkConfig = OtelSdkConfigConstants.DEFAULT_CONFIGURATION;
 
 	@Default
 	@JsonSetter(nulls = SKIP)
@@ -126,24 +127,6 @@ public class AgentConfig {
 	@Default
 	@JsonSetter(nulls = SKIP)
 	private Map<String, ResourceGroupConfig> resourceGroups = new HashMap<>();
-
-	/**
-	 * Whether the {@link OtlpExporterConfig} is present or not
-	 *
-	 * @return boolean value
-	 */
-	public boolean hasOtlpExporterConfig() {
-		return hasExporterConfig() && exporter.getOtlp() != null;
-	}
-
-	/**
-	 * Whether the {@link ExporterConfig} is present or not
-	 *
-	 * @return boolean value
-	 */
-	public boolean hasExporterConfig() {
-		return exporter != null;
-	}
 
 	/**
 	 * Build a new empty instance

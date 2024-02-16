@@ -4,4 +4,3 @@ project:
 buildNumber: "@buildNumber@"
 buildDate: "@timestamp@"
 ccVersion: "@community-connectors.version@"
-otelVersion: "@otelVersion@"

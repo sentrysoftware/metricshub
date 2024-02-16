@@ -26,19 +26,12 @@ package org.sentrysoftware.metricshub.agent.context;
  * structured Java object.<br>
  * It contains fields that correspond to the data in the YAML file.
  *
- * @param project     Project informations
+ * @param project     Project information
  * @param buildNumber Application build number
  * @param buildDate   Application build date
  * @param ccVersion   Community Connector version
- * @param otelVersion OpenTelemetry version
  */
-public record ApplicationProperties(
-	Project project,
-	String buildNumber,
-	String buildDate,
-	String ccVersion,
-	String otelVersion
-) {
+public record ApplicationProperties(Project project, String buildNumber, String buildDate, String ccVersion) {
 	/**
 	 * Record representing project information.
 	 *

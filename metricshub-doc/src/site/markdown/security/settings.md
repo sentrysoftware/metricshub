@@ -1,7 +1,8 @@
 keywords: security, password, encrypt, key, certificate, tls, authentication
 description: How to configure ${solutionName} security settings.
 
-# Security Settings
+# Security Settings <span class="badge">Enterprise</span>
+
 
 <!-- MACRO{toc|fromDepth=1|toDepth=3|id=toc} -->
 
@@ -34,12 +35,12 @@ You can use your own certificate to secure the communications between the **Metr
               authenticator: basicauth
     ```
 
-4. In the `config/metricshub.yaml` file, set your new certificate (`security/my-otel.crt`) as `trustedCertificatesFile` in the `OTLP Exporter` configuration section:
+4. In the `config/metricshub.yaml` file, set your new certificate (`security/my-otel.crt`) as `otel.exporter.otlp.metrics.certificate` and `otel.exporter.otlp.logs.certificate`  in the `OTLP Exporter` configuration section:
 
     ```yaml
-    exporter:
-      otlp:
-        trustedCertificatesFile: /opt/metricshub/security/my-otel.crt # Your new OTLP gRPC Receiver certificate.
+    otel:
+      otel.exporter.otlp.metrics.certificate: /opt/metricshub/security/my-otel.crt # Your new OTLP gRPC Receiver certificate.
+      otel.exporter.otlp.logs.certificate: /opt/metricshub/security/my-otel.crt # Your new OTLP gRPC Receiver certificate.
 
     resourceGroups: # ...
     ```
@@ -173,15 +174,12 @@ Access to the `htpasswd` tool:
    bXlVc2VybmFtZTpteVBhc3N3b3Jk
    ```
 
-6. In the `otel/otel-config.yaml` file, add a new `Authorization` header under the `exporter:otlp:headers` section:
+6. In the `otel/otel-config.yaml` file, set a new `Authorization` header for the `otel:otel.exporter.otlp.metrics.headers` and `otel:otel.exporter.otlp.logs.headers` sections:
 
    ```yaml
-   exporter:
-     otlp:
-       headers:
-        # ...
-
-        Authorization: Basic bXlVc2VybmFtZTpteVBhc3N3b3Jk # Basic <base64-credentials>
+   otel:
+     otel.exporter.otlp.metrics.headers: Authorization=Basic bXlVc2VybmFtZTpteVBhc3N3b3Jk # Basic <base64-credentials>
+     otel.exporter.otlp.logs.headers: Authorization=Basic bXlVc2VybmFtZTpteVBhc3N3b3Jk # Basic <base64-credentials>
    ```
 
    The `Authorization` header must be provided as `Basic <base64-credentials>`, where `<base64-credentials>` is the `base64` value you have generated in the previous step.
@@ -210,20 +208,21 @@ When you disable TLS on **${solutionName}**, the communications between the **Me
 2. In the `config/metricshub.yaml` file, update the `OTLP Exporter` endpoint to enable `HTTP`:
 
     ```yaml
-    exporter:
-      otlp:
-        endpoint: http://localhost:4317
+    otel:
+      otel.exporter.otlp.metrics.endpoint: http://localhost:4317 # gRPC OTLP Receiver metrics endpoint
+      otel.exporter.otlp.logs.endpoint: http://localhost:4317 # gRPC OTLP Receiver logs endpoint
 
     resourceGroups: # ...
     ```
 
-3. Remove or comment out the `trustedCertificatesFile` attribute of the `OTLP Exporter` in the `config/metricshub.yaml` file:
+3. Remove or comment out the `otel.exporter.otlp.metrics.certificate` and `otel.exporter.otlp.logs.certificate` attributes of the `OTLP Exporter` in the `config/metricshub.yaml` file:
 
     ```yaml
-    exporter:
-      otlp:
-        endpoint: http://localhost:4317
-        # trustedCertificatesFile: security/otel.crt
+    otel:
+      otel.exporter.otlp.metrics.endpoint: http://localhost:4317 # gRPC OTLP Receiver metrics endpoint
+      otel.exporter.otlp.logs.endpoint: http://localhost:4317 # gRPC OTLP Receiver logs endpoint
+      # otel.exporter.otlp.metrics.certificate: security/otel.crt
+      # otel.exporter.otlp.logs.certificate: security/otel.crt
 
     resourceGroups: # ...
     ```
@@ -262,15 +261,14 @@ If you disable the authentication on **${solutionName}**, incoming requests will
      # ...
    ```
 
-3. In the `config/metricshub.yaml` file, remove or comment out the `Authorization` header from the `OTLP Exporter` configuration:
+3. In the `config/metricshub.yaml` file, remove or comment out the `Authorization` header configuration from the `OTLP Exporter` configuration:
 
     ```yaml
-    exporter:
-      otlp:
-        trustedCertificatesFile: /opt/metricshub/security/otel.crt
-        headers:
-          # Authorization: Basic bXlVc2VybmFtZTpteVBhc3N3b3Jk # Basic <base64-credentials>
-
+    otel:
+      otel.exporter.otlp.metrics.certificate: /opt/metricshub/security/otel.crt
+      otel.exporter.otlp.logs.certificate: /opt/metricshub/security/otel.crt
+      # otel.exporter.otlp.metrics.headers: Authorization=Basic bXlVc2VybmFtZTpteVBhc3N3b3Jk # Basic <base64-credentials>
+      # otel.exporter.otlp.logs.headers: Authorization=Basic bXlVc2VybmFtZTpteVBhc3N3b3Jk # Basic <base64-credentials>
     resourceGroups: # ...
     ```
 

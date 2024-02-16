@@ -78,26 +78,6 @@
 				</executions>
 			</plugin>
 
-			<!-- Download OpenTelemetry Collector Contrib binary -->
-			<plugin>
-				<groupId>com.googlecode.maven-download-plugin</groupId>
-				<artifactId>download-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>download-otelcol-contrib-linux-amd64</id>
-						<phase>generate-resources</phase>
-						<goals>
-							<goal>wget</goal>
-						</goals>
-						<configuration>
-							<url>${otelColContribBaseUrl}/otelcol-contrib_${otelVersion}_linux_amd64.tar.gz</url>
-							<unpack>true</unpack>
-							<outputDirectory>${project.build.directory}/jpackage/metricshub/otel</outputDirectory>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
 			<!-- JPackage resources -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

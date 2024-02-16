@@ -13,7 +13,6 @@ import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_IN
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_INFO_BUILD_NUMBER_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_INFO_CC_VERSION_NUMBER_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_INFO_NAME_ATTRIBUTE_KEY;
-import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_INFO_OTEL_VERSION_NUMBER_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_INFO_VERSION_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.TestConstants.COMPANY_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.TestConstants.COMPANY_ATTRIBUTE_VALUE;
@@ -113,7 +112,6 @@ class SelfObserverSchedulingTest {
 			assertNotNull(attributes.get(AttributeKey.stringKey(AGENT_INFO_BUILD_NUMBER_ATTRIBUTE_KEY)));
 			assertNotNull(attributes.get(AttributeKey.stringKey(AGENT_INFO_BUILD_DATE_NUMBER_ATTRIBUTE_KEY)));
 			assertNotNull(attributes.get(AttributeKey.stringKey(AGENT_INFO_CC_VERSION_NUMBER_ATTRIBUTE_KEY)));
-			assertNotNull(attributes.get(AttributeKey.stringKey(AGENT_INFO_OTEL_VERSION_NUMBER_ATTRIBUTE_KEY)));
 			assertNotNull(attributes.get(AttributeKey.stringKey(COMPANY_ATTRIBUTE_KEY)));
 		}
 	}

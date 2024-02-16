@@ -59,14 +59,12 @@
 		<snmp4j-agent.version>3.5.0</snmp4j-agent.version>
 		<commons-lang3.version>3.12.0</commons-lang3.version>
 		<slf4j-simple.version>2.0.6</slf4j-simple.version>
-		<openTelemetryVersion>1.30.0</openTelemetryVersion>
+		<openTelemetryJavaVersion>1.35.0</openTelemetryJavaVersion>
 		<grpcVersion>1.47.0</grpcVersion>
 		<protobufVersion>3.11.4</protobufVersion>
 		<protocVersion>${protobufVersion}</protocVersion>
-		<otelVersion>0.67.0</otelVersion>
 		<ddog.version>1.0.00</ddog.version>
 		<hwgraf.version>4</hwgraf.version>
-		<otelColContribBaseUrl>https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v${otelVersion}</otelColContribBaseUrl>
 		<prettier-maven-plugin.version>0.21</prettier-maven-plugin.version>
 		<prettierJava.version>2.5.0</prettierJava.version>
 		<metricshub-jre.version>1.0.01</metricshub-jre.version>
@@ -322,33 +320,33 @@
 			<dependency>
 				<groupId>io.opentelemetry</groupId>
 				<artifactId>opentelemetry-api</artifactId>
-				<version>${openTelemetryVersion}</version>
+				<version>${openTelemetryJavaVersion}</version>
 			</dependency>
 			<dependency>
 				<groupId>io.opentelemetry</groupId>
 				<artifactId>opentelemetry-sdk</artifactId>
-				<version>${openTelemetryVersion}</version>
+				<version>${openTelemetryJavaVersion}</version>
 			</dependency>
 			<dependency>
 				<groupId>io.opentelemetry</groupId>
 				<artifactId>opentelemetry-exporter-otlp</artifactId>
-				<version>${openTelemetryVersion}</version>
+				<version>${openTelemetryJavaVersion}</version>
 			</dependency>
 			<dependency>
 				<groupId>io.opentelemetry</groupId>
 				<artifactId>opentelemetry-sdk-extension-autoconfigure</artifactId>
-				<version>${openTelemetryVersion}</version>
+				<version>${openTelemetryJavaVersion}</version>
 			</dependency>
 			<dependency>
 				<groupId>io.opentelemetry</groupId>
 				<artifactId>opentelemetry-sdk-testing</artifactId>
-				<version>${openTelemetryVersion}</version>
+				<version>${openTelemetryJavaVersion}</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>io.opentelemetry</groupId>
 				<artifactId>opentelemetry-sdk-common</artifactId>
-				<version>${openTelemetryVersion}</version>
+				<version>${openTelemetryJavaVersion}</version>
 			</dependency>
 			<dependency>
 				<groupId>io.grpc</groupId>
