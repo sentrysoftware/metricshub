@@ -21,6 +21,8 @@ package org.sentrysoftware.metricshub.engine.strategy.collect;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration.DEFAULT_TIMEOUT;
+
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -291,7 +293,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 */
 	private Double localSshTest(String hostname) {
 		try {
-			if (OsCommandHelper.runLocalCommand(SSH_TEST_COMMAND, strategyTime, null) == null) {
+			if (OsCommandHelper.runLocalCommand(SSH_TEST_COMMAND, DEFAULT_TIMEOUT, null) == null) {
 				log.debug(
 					"Hostname {} - Checking SSH protocol status. Local OS command has not returned any results.",
 					hostname
@@ -321,10 +323,10 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	private Double remoteSshTest(String hostname, Double previousSshStatus, SshConfiguration sshConfiguration) {
 		try {
 			if (
-				OsCommandHelper.runSshCommand(SSH_TEST_COMMAND, hostname, sshConfiguration, strategyTime, null, null) == null
+				OsCommandHelper.runSshCommand(SSH_TEST_COMMAND, hostname, sshConfiguration, DEFAULT_TIMEOUT, null, null) == null
 			) {
 				log.debug(
-					"Hostname {} - Checking SSH protocol status. Remote SSH command has not returned any results. ",
+					"Hostname {} - Checking SSH protocol status. Remote SSH command has not returned any results.",
 					hostname
 				);
 				return DOWN;
