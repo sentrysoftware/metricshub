@@ -33,14 +33,6 @@ if [ -d /opt/metricshub ]; then
      rm -f /opt/metricshub/config
   fi
 
-  if [ -L /opt/metricshub/security ]; then
-     rm -f /opt/metricshub/security
-  fi
-
-  if [ -L /opt/metricshub/otel ]; then
-     rm -f /opt/metricshub/otel
-  fi
-
   if [ -L /opt/metricshub/site ]; then
     rm -f /opt/metricshub/site
   fi

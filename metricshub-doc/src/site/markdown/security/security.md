@@ -8,13 +8,13 @@ description: Security mechanisms to encrypt passwords and secure the configurati
 **${solutionName}** provides a set of security mechanisms to secure:
 
 * The **MetricsHub Agent**'s passwords stored in the `config/metricshub.yaml` file
-* The communications instantiated between the **MetricsHub Agent** and the **OpenTelemetry Collector**.
+* The communications instantiated between the **MetricsHub Agent** and the **OpenTelemetry Collector**. <span class="badge">Enterprise</span>
 
 ## Encryption
 
 Use the `metricshub-encrypt` command to encrypt the passwords specified in the `config/metricshub.yaml` file. See [Passwords Encryption](passwords.md#Passwords_Encryption) for more details.
 
-## OpenTelemetry Collector Security
+## OpenTelemetry Collector Security <span class="badge">Enterprise</span>
 
 ### Receiver security
 

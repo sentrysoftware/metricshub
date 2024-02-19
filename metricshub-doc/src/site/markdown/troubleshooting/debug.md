@@ -52,7 +52,7 @@ resourceGroups:
 
 Set `loggerlevel` to `off` to disable the debug mode.
 
-## OpenTelemetry Collector
+## OpenTelemetry Collector <span class="badge">Enterprise</span>
 
 To get more details about the **${solutionName}** operations (initialization, pipeline, termination), first set the log `level` to `error`, `warn`, or `debug` in the **otel/otel-config.yaml** file:
 

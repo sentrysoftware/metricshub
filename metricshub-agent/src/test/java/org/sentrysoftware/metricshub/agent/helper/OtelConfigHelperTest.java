@@ -1,17 +1,16 @@
 package org.sentrysoftware.metricshub.agent.helper;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.DEFAULT_OTEL_CRT_FILENAME;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.agent.config.AgentConfig;
-import org.sentrysoftware.metricshub.agent.config.exporter.ExporterConfig;
-import org.sentrysoftware.metricshub.agent.config.exporter.OtlpExporterConfig;
 
 class OtelConfigHelperTest {
 
@@ -82,42 +81,22 @@ class OtelConfigHelperTest {
 	void testBuildOtelSdkConfigurationHeaders() {
 		{
 			final Map<String, String> sdkConfig = OtelConfigHelper.buildOtelSdkConfiguration(AgentConfig.empty());
-			assertTrue(sdkConfig.containsKey(OTEL_EXPORTER_OTLP_HEADERS_PROPERTY));
-		}
-
-		{
-			final AgentConfig agentConfig = AgentConfig
-				.builder()
-				.exporter(ExporterConfig.builder().otlp(OtlpExporterConfig.builder().headers(null).build()).build())
-				.build();
-			final Map<String, String> sdkConfig = OtelConfigHelper.buildOtelSdkConfiguration(agentConfig);
 			assertFalse(sdkConfig.containsKey(OTEL_EXPORTER_OTLP_HEADERS_PROPERTY));
 		}
 
 		{
 			final AgentConfig agentConfig = AgentConfig
 				.builder()
-				.exporter(
-					ExporterConfig.builder().otlp(OtlpExporterConfig.builder().headers(Collections.emptyMap()).build()).build()
-				)
+				.otelSdkConfig(OtelSdkConfigConstants.DEFAULT_CONFIGURATION)
 				.build();
 			final Map<String, String> sdkConfig = OtelConfigHelper.buildOtelSdkConfiguration(agentConfig);
-			assertFalse(sdkConfig.containsKey(OTEL_EXPORTER_OTLP_HEADERS_PROPERTY));
-		}
-
-		{
-			final AgentConfig agentConfig = AgentConfig
-				.builder()
-				.exporter(ExporterConfig.builder().otlp(null).build())
-				.build();
-			final Map<String, String> sdkConfig = OtelConfigHelper.buildOtelSdkConfiguration(agentConfig);
-			assertFalse(sdkConfig.containsKey(OTEL_EXPORTER_OTLP_HEADERS_PROPERTY));
-		}
-
-		{
-			final AgentConfig agentConfig = AgentConfig.builder().exporter(null).build();
-			final Map<String, String> sdkConfig = OtelConfigHelper.buildOtelSdkConfiguration(agentConfig);
-			assertFalse(sdkConfig.containsKey(OTEL_EXPORTER_OTLP_HEADERS_PROPERTY));
+			final Map<String, String> expectedSdkConfig = new HashMap<>();
+			expectedSdkConfig.putAll(OtelSdkConfigConstants.DEFAULT_CONFIGURATION);
+			expectedSdkConfig.put(
+				OtelSdkConfigConstants.OTEL_METRIC_EXPORT_INTERVAL,
+				OtelSdkConfigConstants.DEFAULT_METRICS_EXPORT_INTERVAL
+			);
+			assertEquals(expectedSdkConfig, sdkConfig);
 		}
 	}
 }

@@ -87,10 +87,6 @@ public class AgentConstants {
 
 	// Agent attribute information constants
 	/**
-	 * Agent info Open Telemetry version number attribute key
-	 */
-	public static final String AGENT_INFO_OTEL_VERSION_NUMBER_ATTRIBUTE_KEY = "otel_version";
-	/**
 	 * Agent info community connectors version number attribute key
 	 */
 	public static final String AGENT_INFO_CC_VERSION_NUMBER_ATTRIBUTE_KEY = "cc_version";

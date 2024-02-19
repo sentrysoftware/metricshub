@@ -9,12 +9,12 @@ description: There are several ways to easily assess the status of ${solutionNam
 
 Verify that both processes are running:
 
-* `otelcol-contrib`
+* `otelcol-contrib` <span class="badge">Enterprise</span>
 * `metricshub/bin/service`
 
 On Windows, you will need to verify the status of the **MetricsHub** service.
 
-## Check the collector status
+## Check the collector status <span class="badge">Enterprise</span>
 
 Connect to [`http://localhost:13133`](http://localhost:13133), which typically responds with:
 
@@ -29,7 +29,7 @@ $ curl http://localhost:13133
 {"status":"Server available","upSince":"2021-10-25T00:59:24.340626+02:00","uptime":"12h13m33.8777673s"}
 ```
 
-## Check the pipelines status
+## Check the pipelines status <span class="badge">Enterprise</span>
 
 Add `zpages` in the `service:extensions` section of the **otel/otel-config.yaml** file:
 
@@ -47,7 +47,7 @@ Connect to:
 * [`http://localhost:55679/debug/pipelinez`](http://localhost:55679/debug/pipelinez) for details about the active pipeline
 * [`http://localhost:55679/debug/tracez`](http://localhost:55679/debug/tracez) for activity details of each receiver and exporter in the pipeline
 
-## Check the collector is running properly
+## Check the collector is running properly <span class="badge">Enterprise</span>
 
 The *OpenTelemetry Collector* runs an internal Prometheus Exporter on port 8888, exposing metrics related to its operations, notably the number of metrics being processed in its pipeline, and how many errors have been encountered pushing these metrics to the outside.
 
