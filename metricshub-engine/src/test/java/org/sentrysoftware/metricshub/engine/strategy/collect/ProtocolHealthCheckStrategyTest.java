@@ -75,7 +75,6 @@ class ProtocolHealthCheckStrategyTest {
 					.builder()
 					.hostId(HOSTNAME)
 					.hostname(HOSTNAME)
-					.sequential(false)
 					.configurations(Map.of(HttpConfiguration.class, HttpConfiguration.builder().build()))
 					.build()
 			)
@@ -97,7 +96,6 @@ class ProtocolHealthCheckStrategyTest {
 					.builder()
 					.hostId(HOSTNAME)
 					.hostname(HOSTNAME)
-					.sequential(false)
 					.configurations(Map.of(SnmpConfiguration.class, SnmpConfiguration.builder().community("public").build()))
 					.build()
 			)
@@ -119,7 +117,6 @@ class ProtocolHealthCheckStrategyTest {
 					.builder()
 					.hostId(HOSTNAME)
 					.hostname(HOSTNAME)
-					.sequential(false)
 					.configurations(
 						Map.of(
 							SshConfiguration.class,
@@ -146,7 +143,7 @@ class ProtocolHealthCheckStrategyTest {
 		return TelemetryManager
 			.builder()
 			.monitors(monitors)
-			.hostConfiguration(HostConfiguration.builder().hostId(HOSTNAME).hostname(HOSTNAME).sequential(false).build())
+			.hostConfiguration(HostConfiguration.builder().hostId(HOSTNAME).hostname(HOSTNAME).build())
 			.build();
 	}
 
@@ -429,7 +426,7 @@ class ProtocolHealthCheckStrategyTest {
 
 	@Test
 	void testCheckSshNoHealthWhenNoConfiguration() {
-		// Create a telemetry manager without HostConfiguration.
+		// Create a telemetry manager without configuration.
 		final TelemetryManager telemetryManager = createTelemetryManagerWithoutConfig();
 
 		// Create a new protocol health check strategy

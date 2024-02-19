@@ -282,7 +282,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 */
 	private Double localSshTest(String hostname) {
 		try {
-			if (OsCommandHelper.runLocalCommand(SSH_TEST_COMMAND, strategyTime, null) == null) {
+			if (OsCommandHelper.runLocalCommand(SSH_TEST_COMMAND, 60L, null) == null) {
 				log.debug(
 					"Hostname {} - Checking SSH protocol status. Local OS command has not returned any results.",
 					hostname
@@ -311,9 +311,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 */
 	private Double remoteSshTest(String hostname, Double previousSshStatus, SshConfiguration sshConfiguration) {
 		try {
-			if (
-				OsCommandHelper.runSshCommand(SSH_TEST_COMMAND, hostname, sshConfiguration, strategyTime, null, null) == null
-			) {
+			if (OsCommandHelper.runSshCommand(SSH_TEST_COMMAND, hostname, sshConfiguration, 60L, null, null) == null) {
 				log.debug(
 					"Hostname {} - Checking SSH protocol status. Remote SSH command has not returned any results. ",
 					hostname
