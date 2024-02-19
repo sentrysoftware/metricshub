@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -43,6 +44,11 @@ import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.common.helpers.NetworkHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.ConnectorIdentity;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.OsCommandCriterion;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.OsCommandSource;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.detection.ConnectorStagingManager.StagedConnectorIdentifiers;
 import org.sentrysoftware.metricshub.engine.telemetry.HostProperties;
@@ -191,7 +197,13 @@ public class DetectionStrategy extends AbstractStrategy {
 	 * @param connectorTestResultList List of ConnectorTestResult
 	 */
 	void createMonitors(final List<ConnectorTestResult> connectorTestResultList) {
-		connectorTestResultList.forEach(this::createMonitor);
+		connectorTestResultList.forEach(connectorTestResult -> {
+			// Create a monitor for each connector
+			createMonitor(connectorTestResult);
+
+			// Verify SSH for each connector
+			verifySsh(connectorTestResult.getConnector());
+		});
 	}
 
 	/**
@@ -239,5 +251,71 @@ public class DetectionStrategy extends AbstractStrategy {
 		);
 
 		collectConnectorStatus(connectorTestResult, connector, connectorId, monitor);
+	}
+
+	/**
+	 * Verify the given set of sources instances to check if they are OsCommandSources
+	 *
+	 * @param sourceTypes Connector source types
+	 */
+	void verifySshSources(final Set<Class<? extends Source>> sourceTypes) {
+		if (sourceTypes.contains(OsCommandSource.class)) {
+			telemetryManager.getHostProperties().setMustCheckSshStatus(true);
+		}
+	}
+
+	/**
+	 * Verify the given list of criterion instances to check if they will run locally or remotely
+	 *
+	 * @param criteria Connector detection criteria list
+	 */
+	void verifySshCriteria(final List<Criterion> criteria) {
+		boolean osCommandExecuteLocally = false;
+		boolean osCommandExecuteRemotely = false;
+
+		for (final Criterion criterion : criteria) {
+			if (criterion instanceof OsCommandCriterion osCommandCriterion) {
+				boolean executeLocally = osCommandCriterion.getExecuteLocally();
+
+				// if osCommandExecuteLocally is false, it will take the executeLocally value
+				osCommandExecuteLocally |= executeLocally;
+
+				// if osCommandExecuteRemotely is false, it will take the executeLocally's opposite value
+				osCommandExecuteRemotely |= !executeLocally;
+			}
+
+			// Stop if both variables are true
+			if (osCommandExecuteLocally && osCommandExecuteRemotely) {
+				break;
+			}
+		}
+
+		// Store the values in the Host Properties
+		telemetryManager.getHostProperties().setOsCommandExecutesLocally(osCommandExecuteLocally);
+		telemetryManager.getHostProperties().setOsCommandExecutesRemotely(osCommandExecuteRemotely);
+	}
+
+	/**
+	 * Verify SSH on the given connector so that the {@code metricshub.host.up}
+	 * metric collect can properly assess whether commands are working or not.
+	 *
+	 * @param connector {@link Connector} instance defining sources and criteria
+	 */
+	void verifySsh(final Connector connector) {
+		// Verify SSH Sources
+		verifySshSources(connector.getSourceTypes());
+
+		// Get the connector identity
+		ConnectorIdentity connectorIdentity = connector.getConnectorIdentity();
+
+		// Test if there are connector detection criteria
+		if (
+			connectorIdentity != null &&
+			connectorIdentity.getDetection() != null &&
+			connectorIdentity.getDetection().getCriteria() != null
+		) {
+			// Verify SSH Criteria
+			verifySshCriteria(connectorIdentity.getDetection().getCriteria());
+		}
 	}
 }
