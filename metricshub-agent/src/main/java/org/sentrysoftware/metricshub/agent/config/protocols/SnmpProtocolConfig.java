@@ -59,8 +59,6 @@ public class SnmpProtocolConfig extends AbstractProtocolConfig {
 	@JsonDeserialize(using = TimeDeserializer.class)
 	private Long timeout = 120L;
 
-	private char[] password;
-
 	/**
 	 * Create a new {@link SnmpConfiguration} instance based on the current members
 	 *

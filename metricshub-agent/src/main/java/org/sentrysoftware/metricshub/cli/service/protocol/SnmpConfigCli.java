@@ -60,7 +60,7 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 
 	@Option(
 		names = "--snmp-port",
-		order = 7,
+		order = 3,
 		paramLabel = "PORT",
 		defaultValue = "161",
 		description = "Port of the SNMP agent (default: ${DEFAULT-VALUE})"
@@ -69,7 +69,7 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 
 	@Option(
 		names = "--snmp-timeout",
-		order = 8,
+		order = 4,
 		paramLabel = "TIMEOUT",
 		defaultValue = "" + DEFAULT_TIMEOUT,
 		description = "Timeout in seconds for SNMP operations (default: ${DEFAULT-VALUE} s)"

@@ -329,7 +329,6 @@ public class Constants {
 
 	public static final String INVALID_PROTOCOL_EXCEPTION_MESSAGE = "Invalid protocol value: ";
 	public static final String INVALID_SNMP_VERSION = "Invalid SNMP version: ";
-	public static final String INVALID_PRIVACY_VALUE_EXCEPTION_MESSAGE = " Invalid Privacy value: ";
 	public static final String ERROR_IN_FILE1 = "error in file1";
 
 	// Protocols

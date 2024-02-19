@@ -40,7 +40,6 @@ import lombok.NonNull;
 public class SnmpConfiguration implements IConfiguration {
 
 	private static final String INVALID_SNMP_VERSION_EXCEPTION_MESSAGE = "Invalid SNMP version: ";
-	private static final String INVALID_PRIVACY_VALUE_EXCEPTION_MESSAGE = " Invalid Privacy value: ";
 
 	@Builder.Default
 	private final SnmpVersion version = SnmpVersion.V1;
@@ -67,17 +66,14 @@ public class SnmpConfiguration implements IConfiguration {
 		/**
 		 * SNMP version 1 (v1) without authentication.
 		 */
-		V1(1, null, "SNMP v1"),
+		V1(1, "SNMP v1"),
 		/**
 		 * SNMP version 2 (v2c) without authentication.
 		 */
-		V2C(2, null, "SNMP v2c");
+		V2C(2, "SNMP v2c");
 
 		@Getter
 		private final int intVersion;
-
-		@Getter
-		private final String authType;
 
 		@Getter
 		private final String displayName;

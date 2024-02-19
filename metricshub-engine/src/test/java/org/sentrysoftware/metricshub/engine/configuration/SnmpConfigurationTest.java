@@ -3,19 +3,12 @@ package org.sentrysoftware.metricshub.engine.configuration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.AES;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.DES;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.INVALID_PRIVACY_VALUE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.INVALID_PRIVACY_VALUE_EXCEPTION_MESSAGE;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.INVALID_SNMP_VERSION;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.NO;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.NONE;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.SNMP_CONFIGURATION_V1_TO_STRING;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.SNMP_CONFIGURATION_V2C_TO_STRING;
 
-import java.util.Map;
 import org.junit.jupiter.api.Test;
-import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
  * Test of {@link SnmpConfiguration}

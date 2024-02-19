@@ -306,7 +306,7 @@ public class ClientsExecutor {
 					protocol.getVersion().getIntVersion(),
 					null,
 					protocol.getCommunity(),
-					protocol.getVersion().getAuthType(),
+					null,
 					null,
 					null,
 					null,
