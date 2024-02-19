@@ -317,7 +317,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 				OsCommandHelper.runSshCommand(SSH_TEST_COMMAND, hostname, sshConfiguration, DEFAULT_TIMEOUT, null, null) == null
 			) {
 				log.debug(
-					"Hostname {} - Checking SSH protocol status. Remote SSH command has not returned any results. ",
+					"Hostname {} - Checking SSH protocol status. Remote SSH command has not returned any results.",
 					hostname
 				);
 				return DOWN;
