@@ -22,7 +22,6 @@ package org.sentrysoftware.metricshub.cli.service.protocol;
  */
 
 import lombok.Data;
-import org.sentrysoftware.metricshub.cli.service.converter.SnmpPrivacyConverter;
 import org.sentrysoftware.metricshub.cli.service.converter.SnmpVersionConverter;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
@@ -60,45 +59,8 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 	String community;
 
 	@Option(
-		names = "--snmp-username",
-		order = 3,
-		paramLabel = "USER",
-		description = "Username for SNMP version 3 with MD5 or SHA"
-	)
-	String username;
-
-	@Option(
-		names = "--snmp-password",
-		order = 4,
-		paramLabel = "P4SSW0RD",
-		description = "Password for SNMP version 3 with MD5 or SHA",
-		interactive = true,
-		arity = "0..1"
-	)
-	char[] password;
-
-	@Option(
-		names = "--snmp-privacy",
-		order = 5,
-		paramLabel = "DES|AES",
-		description = "Privacy (encryption type) for SNMP version 3 (DES, AES, or none)",
-		converter = SnmpPrivacyConverter.class
-	)
-	SnmpConfiguration.Privacy privacy;
-
-	@Option(
-		names = "--snmp-privacy-password",
-		order = 6,
-		paramLabel = "P4SSW0RD",
-		description = "Privacy (encryption) password",
-		interactive = true,
-		arity = "0..1"
-	)
-	char[] privacyPassword;
-
-	@Option(
 		names = "--snmp-port",
-		order = 7,
+		order = 3,
 		paramLabel = "PORT",
 		defaultValue = "161",
 		description = "Port of the SNMP agent (default: ${DEFAULT-VALUE})"
@@ -107,20 +69,12 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 
 	@Option(
 		names = "--snmp-timeout",
-		order = 8,
+		order = 4,
 		paramLabel = "TIMEOUT",
 		defaultValue = "" + DEFAULT_TIMEOUT,
 		description = "Timeout in seconds for SNMP operations (default: ${DEFAULT-VALUE} s)"
 	)
 	long timeout;
-
-	@Option(
-		names = { "--context-name" },
-		order = 9,
-		paramLabel = "CONTEXT_NAME",
-		description = "Snmp V3 protocol context name"
-	)
-	String contextName;
 
 	/**
 	 * This method creates an {@link SnmpConfiguration} for a given username and a given password
@@ -131,17 +85,6 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 	 */
 	@Override
 	public IConfiguration toProtocol(final String defaultUsername, final char[] defaultPassword) {
-		return SnmpConfiguration
-			.builder()
-			.version(snmpVersion)
-			.community(community)
-			.username(username == null ? defaultUsername : username)
-			.password(username == null ? defaultPassword : password)
-			.privacy(privacy)
-			.privacyPassword(privacyPassword)
-			.port(port)
-			.timeout(timeout)
-			.contextName(contextName)
-			.build();
+		return SnmpConfiguration.builder().version(snmpVersion).community(community).port(port).timeout(timeout).build();
 	}
 }

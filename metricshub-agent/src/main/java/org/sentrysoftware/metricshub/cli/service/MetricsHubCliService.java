@@ -457,8 +457,6 @@ public class MetricsHubCliService implements Callable<Integer> {
 
 		tryInteractiveSshPassword(passwordReader);
 
-		tryInteractiveSnmpPassword(passwordReader);
-
 		tryInteractiveHttpPassword(passwordReader);
 
 		tryInteractiveWmiPassword(passwordReader);
@@ -476,17 +474,6 @@ public class MetricsHubCliService implements Callable<Integer> {
 	void tryInteractiveGlobalPassword(final CliPasswordReader<char[]> passwordReader) {
 		if (username != null && password == null) {
 			password = passwordReader.read("%s password: ", username);
-		}
-	}
-
-	/**
-	 * Try to start the interactive mode to request and set SNMP password
-	 *
-	 * @param passwordReader password reader which displays the prompt text and wait for user's input
-	 */
-	void tryInteractiveSnmpPassword(final CliPasswordReader<char[]> passwordReader) {
-		if (snmpConfigCli != null && snmpConfigCli.getUsername() != null && snmpConfigCli.getPassword() == null) {
-			snmpConfigCli.setPassword(passwordReader.read("%s password for SNMP: ", snmpConfigCli.getUsername()));
 		}
 	}
 

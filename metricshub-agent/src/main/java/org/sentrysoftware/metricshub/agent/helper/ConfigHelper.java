@@ -1063,14 +1063,6 @@ public class ConfigHelper {
 			INVALID_TIMEOUT_CHECKER,
 			() -> String.format(TIMEOUT_ERROR, resourceKey, displayName, snmpConfig.getTimeout())
 		);
-
-		if (intVersion == 3 && snmpVersion.getAuthType() != null) {
-			validateAttribute(
-				snmpConfig.getUsername(),
-				INVALID_STRING_CHECKER,
-				() -> String.format(USERNAME_ERROR, resourceKey, displayName)
-			);
-		}
 	}
 
 	/**

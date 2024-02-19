@@ -139,7 +139,7 @@ resourceGroups:
       #       timeout: 120
 
       #═══════════════════════════════════════════════════
-      # WBEM protocol configuration                      
+      # WBEM protocol configuration
       #═══════════════════════════════════════════════════
 
       # server-7:
