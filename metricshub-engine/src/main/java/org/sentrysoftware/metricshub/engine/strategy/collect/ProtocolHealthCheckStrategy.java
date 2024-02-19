@@ -391,7 +391,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 			);
 		}
 
-		// Generate a metric from the Snmp result
+		// Generate a metric from the IPMI result
 		metricFactory.collectNumberMetric(hostMonitor, IPMI_UP_METRIC, ipmiResult != null ? UP : DOWN, strategyTime);
 	}
 }
