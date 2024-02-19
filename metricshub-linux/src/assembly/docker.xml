@@ -13,6 +13,7 @@
 			<directory>${project.build.directory}/metricshub</directory>
 			<outputDirectory>/</outputDirectory>
 			<filtered>false</filtered>
+			<fileMode>0755</fileMode>
 		</fileSet>
 		<!-- docker files -->
 		<fileSet>

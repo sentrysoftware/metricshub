@@ -6,11 +6,11 @@
 		<version>0.9.01-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>metricshub-debian</artifactId>
+	<artifactId>metricshub-linux</artifactId>
 	<packaging>pom</packaging>
 
-	<name>MetricsHub for Debian</name>
-	<description>MetricsHub Package for Debian (.deb)</description>
+	<name>MetricsHub for Linux</name>
+	<description>MetricsHub Package for Linux</description>
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
@@ -101,31 +101,11 @@
 				</executions>
 			</plugin>
 
-			<!-- Run jpackage command to generate MetricsHub .deb and app-image -->
+			<!-- Run jpackage command to generate MetricsHub app-image -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
 				<executions>
-					<execution>
-						<id>package-debian</id>
-						<phase>package</phase>
-						<goals>
-							<goal>exec</goal>
-						</goals>
-						<configuration>
-							<executable>${env.JAVA_HOME}/bin/jpackage</executable>
-							<arguments>
-								<argument>--add-launcher</argument>
-								<argument>metricshub-encrypt=metricshub-encrypt.properties</argument>
-								<argument>--add-launcher</argument>
-								<argument>service=metricshub-agent.properties</argument>
-								<argument>--license-file</argument>
-								<argument>metricshub/LICENSE</argument>
-								<argument>@jpackage.txt</argument>
-							</arguments>
-							<workingDirectory>${project.build.directory}/jpackage</workingDirectory>
-						</configuration>
-					</execution>
 					<execution>
 						<id>package-app-image</id>
 						<phase>package</phase>
@@ -140,8 +120,6 @@
 								<argument>--add-launcher</argument>
 								<argument>service=metricshub-agent.properties</argument>
 								<argument>@jpackage.txt</argument>
-								<argument>--type</argument>
-								<argument>app-image</argument>
 							</arguments>
 							<workingDirectory>${project.build.directory}/jpackage</workingDirectory>
 						</configuration>
@@ -149,31 +127,24 @@
 				</executions>
 			</plugin>
 
-			<!-- Rename the package (JPackage doesn't accept version with snapshot)-->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>rename-package</id>
-						<phase>package</phase>
-						<configuration>
-							<target>
-								<move file="${project.build.directory}/metricshub_${project.version.noSnapshot}_amd64.deb" tofile="${project.build.directory}/${project.artifactId}-${project.version}-amd64.deb"/>
-							</target>
-						</configuration>
-						<goals>
-							<goal>run</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-
-			<!-- Assembly for the docker classifier -->
+			<!-- Assembly for linux package and docker classifier -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<executions>
+					<execution>
+						<id>linux-package</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>src/assembly/linux-descriptor.xml</descriptor>
+							</descriptors>
+							<appendAssemblyId>false</appendAssemblyId>
+						</configuration>
+					</execution>
 					<execution>
 						<id>docker-package</id>
 						<phase>package</phase>
@@ -205,10 +176,9 @@
 						<configuration>
 							<artifacts>
 								<artifact>
-									<file>${project.build.directory}/${project.artifactId}-${project.version}-amd64.deb</file>
-									<type>deb</type>
+									<file>${project.build.directory}/${project.artifactId}-${project.version}.tar.gz</file>
+									<type>tar.gz</type>
 									<artifactId>${project.artifactId}</artifactId>
-									<classifier>amd64</classifier>
 								</artifact>
 								<artifact>
 									<file>${project.build.directory}/${project.artifactId}-${project.version}-docker.tar.gz</file>

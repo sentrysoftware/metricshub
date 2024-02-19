@@ -15,6 +15,10 @@ To ensure this process runs smoothly, you need to configure a few settings in th
 
 > **Important**: We recommend using an editor supporting the [Schemastore](https://www.schemastore.org/json#editors) to edit **${solutionName}**'s configuration YAML files (Example: [Visual Studio Code](https://code.visualstudio.com/download) and [vscode.dev](https://vscode.dev), with [RedHat's YAML extension](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml)).
 
+> **Note**: The configurations described on this page are applicable to the `metricshub.yaml` file:
+> * On Windows, the `metricshub.yaml` configuration file is located at `C:\ProgramData\MetricsHub\config`.
+> * On Linux, the `metricshub.yaml` configuration file is located at `./metricshub/lib/config`.
+
 ## Configure a site
 
 A site represents the data center, the server room or any other site in which all the resources to be monitored are located.
@@ -99,7 +103,7 @@ resourceGroups:
 ```
 This configuration is particularly useful when configuring the **MetricsHub Agent** to monitor multiple sites, where each site serves as a resource group containing various resources.
 
-Alternatively, if you don't require the resource grouping feature, you can configure your resource directly under the `resources` section located at the top level in the `metricshub.yaml` file:
+Alternatively, if you don't require the resource grouping feature, you can configure your resource directly under the `resources` section located at the top level in the `config/metricshub.yaml` file:
 
 ```yaml
 resources:
@@ -426,7 +430,7 @@ resourceGroups:
 
 In the community edition, by default, the **MetricsHub Agent**'s internal `OTLP Exporter` operates without authentication when communicating with the `OTLP Receiver`.
 
-If your `OTLP Receiver` requires authentication headers, you will need to manually configure the necessary headers under the `otel:otel.exporter.otlp.metrics.headers` and `otel:otel.exporter.otlp.logs.headers` sections in your configuration file:
+If your `OTLP Receiver` requires authentication headers, you will need to manually configure the `otel.exporter.otlp.metrics.headers` and `otel.exporter.otlp.logs.headers` parameters under the `otel` section in your configuration file:
 
 ```yaml
 otel:
@@ -438,7 +442,7 @@ resourceGroups: # ...
 
 On the other hand, the enterprise edition updates the community edition's behavior. The **MetricsHub Agent**'s internal `OTLP Exporter` includes the HTTP  `Authorization` request header to authenticate itself with the _OpenTelemetry Collector_'s [OTLP gRPC Receiver](configure-otel.md#OTLP_gRPC). A predefined *Basic Authentication Header* value is stored internally and included in each request when sending telemetry data.
 
-To customize the default value of the `OTLP Exporter` header, set the header under the `otel:otel.exporter.otlp.metrics.headers` and `otel:otel.exporter.otlp.logs.headers` sections in your configuration file:
+To customize the default value of the `OTLP Exporter` header, set the `otel.exporter.otlp.metrics.headers` and `otel.exporter.otlp.logs.headers` parameters under the `otel` section in your configuration file:
 
 ```yaml
 otel:
@@ -458,7 +462,7 @@ The **MetricsHub Agent**'s internal `OTLP Exporter` pushes telemetry [signals](h
 
 By default, the internal `OTLP Exporter` is configured to push data to the `OTLP Receiver` endpoint `https://localhost:4317`.
 
-To override the OTLP endpoints, configure the `otel.exporter.otlp.metrics.endpoint` and `otel.exporter.otlp.logs.endpoint` parameters under the `otel` section:
+To override the OTLP endpoints, configure the `otel.exporter.otlp.metrics.endpoint` and `otel.exporter.otlp.logs.endpoint` parameters under the `otel` section in your configuration file:
 
 ```yaml
 otel:
@@ -476,6 +480,8 @@ otel:
   otel.exporter.otlp.metrics.endpoint: http://<prom-server-host>:9090/api/v1/otlp/v1/metrics
   otel.exporter.otlp.metrics.protocol: http/protobuf
 ```
+
+Replace `<prom-server-host>` with the server's hostname or IP address where *Prometheus* is running.
 
 > **Note:**
 > For specific configuration details, refer to the [OpenTelemetry Auto-Configure documentation](https://github.com/open-telemetry/opentelemetry-java/tree/main/sdk-extensions/autoconfigure). This resource provides information on the properties that should be configured according to your deployment requirements.

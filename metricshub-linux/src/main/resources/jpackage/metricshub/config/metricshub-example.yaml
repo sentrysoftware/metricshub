@@ -8,7 +8,9 @@ collectPeriod: 1m
 
 # Internal OpenTelemetry SDK configuration
 otel:
-  # Default configuration
+  # OpenTelemetry SDK Autoconfigure properties
+  # https://github.com/open-telemetry/opentelemetry-java/tree/main/sdk-extensions/autoconfigure
+  # MetricsHub Default configuration
   # otel.metrics.exporter: otlp
   # otel.logs.exporter: otlp
   # otel.exporter.otlp.metrics.endpoint: http://localhost:4317
@@ -16,15 +18,23 @@ otel:
   # otel.exporter.otlp.metrics.protocol: grpc # Options include grpc and http/protobuf
   # otel.exporter.otlp.logs.protocol: grpc # Options include grpc and http/protobuf
   
-# Top level resources configuration
+# Simple resource configuration
 resources:
+  localhost:
+    attributes:
+      host.name: localhost
+      host.type: linux
+    protocols:
+      osCommand:
+        timeout: 120
+
   #═══════════════════════════════════════════════════
   # SNMP v1 protocol configuration
   #═══════════════════════════════════════════════════
 
-  # server-4:
+  # server-01:
   #   attributes:
-  #     host.name: server-4
+  #     host.name: server-01
   #     host.type: linux
   #   protocols:
   #     snmp:
@@ -68,7 +78,7 @@ resourceGroups:
     resources:
 
       #═══════════════════════════════════════════════════
-      # IPMI protocol configuration                      
+      # IPMI protocol configuration    
       #═══════════════════════════════════════════════════
 
       # server-1:
@@ -82,7 +92,7 @@ resourceGroups:
       #       timeout: 120
 
       #═══════════════════════════════════════════════════
-      # WMI protocol configuration                       
+      # WMI protocol configuration     
       #═══════════════════════════════════════════════════
 
       # server-2:
@@ -108,7 +118,7 @@ resourceGroups:
       #       timeout: 120
 
       #═══════════════════════════════════════════════════
-      # SNMP v1 protocol configuration                  
+      # SNMP v1 protocol configuration
       #═══════════════════════════════════════════════════
 
       # server-4:
@@ -124,7 +134,7 @@ resourceGroups:
       #   connectors: [ -SunF15K ]
 
       #═══════════════════════════════════════════════════
-      # SNMP v2c protocol configuration                  
+      # SNMP v2c protocol configuration
       #═══════════════════════════════════════════════════
 
       # server-5:
@@ -155,7 +165,7 @@ resourceGroups:
       #       password: password
 
       #═══════════════════════════════════════════════════
-      # HTTP protocol configuration                      
+      # HTTP protocol configuration    
       #═══════════════════════════════════════════════════
 
       # server-8:
@@ -172,7 +182,7 @@ resourceGroups:
       #   - +PureStorageREST
 
       #═══════════════════════════════════════════════════
-      # SSH protocol configuration                       
+      # SSH protocol configuration     
       #═══════════════════════════════════════════════════
 
       # server-9:
@@ -190,7 +200,7 @@ resourceGroups:
       #       privateKey: /tmp/ssh-key.txt
 
       #═══════════════════════════════════════════════════
-      # OSCommand configuration                          
+      # OSCommand configuration        
       #═══════════════════════════════════════════════════
 
       # server-10:
@@ -205,7 +215,7 @@ resourceGroups:
       #       sudoCommand: sudo
 
       #═══════════════════════════════════════════════════
-      # WinRM configuration                              
+      # WinRM configuration            
       #═══════════════════════════════════════════════════
 
       # server-11:
@@ -222,7 +232,7 @@ resourceGroups:
       #       authentications: [ntlm, kerberos]
 
       #═══════════════════════════════════════════════════
-      # vCenter WBEM configuration                              
+      # vCenter WBEM configuration            
       #═══════════════════════════════════════════════════
 
       # server-12:
