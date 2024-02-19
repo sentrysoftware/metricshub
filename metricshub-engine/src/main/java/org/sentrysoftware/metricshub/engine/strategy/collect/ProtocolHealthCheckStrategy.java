@@ -35,6 +35,7 @@ import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import static org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration.DEFAULT_TIMEOUT;
 
 /**
  * A strategy that aims to perform health check over a hostname on each protocol
@@ -282,7 +283,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 */
 	private Double localSshTest(String hostname) {
 		try {
-			if (OsCommandHelper.runLocalCommand(SSH_TEST_COMMAND, 60L, null) == null) {
+			if (OsCommandHelper.runLocalCommand(SSH_TEST_COMMAND, DEFAULT_TIMEOUT, null) == null) {
 				log.debug(
 					"Hostname {} - Checking SSH protocol status. Local OS command has not returned any results.",
 					hostname
@@ -311,7 +312,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 */
 	private Double remoteSshTest(String hostname, Double previousSshStatus, SshConfiguration sshConfiguration) {
 		try {
-			if (OsCommandHelper.runSshCommand(SSH_TEST_COMMAND, hostname, sshConfiguration, 60L, null, null) == null) {
+			if (OsCommandHelper.runSshCommand(SSH_TEST_COMMAND, hostname, sshConfiguration, DEFAULT_TIMEOUT, null, null) == null) {
 				log.debug(
 					"Hostname {} - Checking SSH protocol status. Remote SSH command has not returned any results. ",
 					hostname
