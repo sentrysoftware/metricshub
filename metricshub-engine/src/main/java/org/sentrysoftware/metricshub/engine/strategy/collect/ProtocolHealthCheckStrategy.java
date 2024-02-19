@@ -1,5 +1,7 @@
 package org.sentrysoftware.metricshub.engine.strategy.collect;
 
+import static org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration.DEFAULT_TIMEOUT;
+
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
  * MetricsHub Engine
@@ -35,7 +37,6 @@ import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
-import static org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration.DEFAULT_TIMEOUT;
 
 /**
  * A strategy that aims to perform health check over a hostname on each protocol
@@ -312,7 +313,9 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 */
 	private Double remoteSshTest(String hostname, Double previousSshStatus, SshConfiguration sshConfiguration) {
 		try {
-			if (OsCommandHelper.runSshCommand(SSH_TEST_COMMAND, hostname, sshConfiguration, DEFAULT_TIMEOUT, null, null) == null) {
+			if (
+				OsCommandHelper.runSshCommand(SSH_TEST_COMMAND, hostname, sshConfiguration, DEFAULT_TIMEOUT, null, null) == null
+			) {
 				log.debug(
 					"Hostname {} - Checking SSH protocol status. Remote SSH command has not returned any results. ",
 					hostname
