@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HOSTNAME;
@@ -17,8 +18,12 @@ import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHeal
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.SNMP_UP_METRIC;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.SSH_UP_METRIC;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.UP;
+import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WBEM_TEST_QUERY;
+import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WBEM_UP_METRIC;
+import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WBEM_UP_TEST_NAMESPACES;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -33,11 +38,13 @@ import org.sentrysoftware.ipmi.client.IpmiClient;
 import org.sentrysoftware.ipmi.client.IpmiClientConfiguration;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.client.http.HttpRequest;
+import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
+import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -79,7 +86,6 @@ class ProtocolHealthCheckStrategyTest {
 					.builder()
 					.hostId(HOSTNAME)
 					.hostname(HOSTNAME)
-					.sequential(false)
 					.configurations(Map.of(HttpConfiguration.class, HttpConfiguration.builder().build()))
 					.build()
 			)
@@ -101,7 +107,6 @@ class ProtocolHealthCheckStrategyTest {
 					.builder()
 					.hostId(HOSTNAME)
 					.hostname(HOSTNAME)
-					.sequential(false)
 					.configurations(Map.of(SnmpConfiguration.class, SnmpConfiguration.builder().community("public").build()))
 					.build()
 			)
@@ -123,7 +128,6 @@ class ProtocolHealthCheckStrategyTest {
 					.builder()
 					.hostId(HOSTNAME)
 					.hostname(HOSTNAME)
-					.sequential(false)
 					.configurations(
 						Map.of(
 							SshConfiguration.class,
@@ -175,6 +179,28 @@ class ProtocolHealthCheckStrategyTest {
 	}
 
 	/**
+	 * Creates and returns a TelemetryManager instance with an IPMI configuration.
+	 *
+	 * @return A TelemetryManager instance configured with an IPMI configuration.
+	 */
+	private TelemetryManager createTelemetryManagerWithWbemConfig() {
+		// Create a telemetry manager
+		return TelemetryManager
+			.builder()
+			.monitors(monitors)
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostId(HOSTNAME)
+					.hostname(HOSTNAME)
+					.sequential(false)
+					.configurations(Map.of(WbemConfiguration.class, WbemConfiguration.builder().build()))
+					.build()
+			)
+			.build();
+	}
+
+	/**
 	 * Creates and returns a TelemetryManager instance without any configuration.
 	 *
 	 * @return A TelemetryManager instance.
@@ -184,7 +210,7 @@ class ProtocolHealthCheckStrategyTest {
 		return TelemetryManager
 			.builder()
 			.monitors(monitors)
-			.hostConfiguration(HostConfiguration.builder().hostId(HOSTNAME).hostname(HOSTNAME).sequential(false).build())
+			.hostConfiguration(HostConfiguration.builder().hostId(HOSTNAME).hostname(HOSTNAME).build())
 			.build();
 	}
 
@@ -278,7 +304,7 @@ class ProtocolHealthCheckStrategyTest {
 
 	@Test
 	void testCheckSshHealthLocally() {
-		// Create a telemetry manager using an SNMP HostConfiguration.
+		// Create a telemetry manager using an SSH HostConfiguration.
 		final TelemetryManager telemetryManager = createTelemetryManagerWithSshConfig();
 
 		// Create a new protocol health check strategy
@@ -297,7 +323,7 @@ class ProtocolHealthCheckStrategyTest {
 				.when(() -> OsCommandHelper.runLocalCommand(anyString(), anyLong(), any()))
 				.thenReturn(SUCCESS_RESPONSE);
 
-			// Start the SNMP Health Check strategy
+			// Start the SSH Health Check strategy
 			sshHealthCheckStrategy.run();
 
 			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
@@ -306,7 +332,7 @@ class ProtocolHealthCheckStrategyTest {
 		try (MockedStatic<OsCommandHelper> staticOsCommandHelper = Mockito.mockStatic(OsCommandHelper.class)) {
 			staticOsCommandHelper.when(() -> OsCommandHelper.runLocalCommand(anyString(), anyLong(), any())).thenReturn(null);
 
-			// Start the SNMP Health Check strategy
+			// Start the SSH Health Check strategy
 			sshHealthCheckStrategy.run();
 
 			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
@@ -315,7 +341,7 @@ class ProtocolHealthCheckStrategyTest {
 
 	@Test
 	void testCheckSshUpHealthRemotely() {
-		// Create a telemetry manager using an SNMP HostConfiguration.
+		// Create a telemetry manager using an SSH HostConfiguration.
 		final TelemetryManager telemetryManager = createTelemetryManagerWithSshConfig();
 
 		// Create a new protocol health check strategy
@@ -337,7 +363,7 @@ class ProtocolHealthCheckStrategyTest {
 				)
 				.thenReturn(SUCCESS_RESPONSE);
 
-			// Start the SNMP Health Check strategy
+			// Start the SSH Health Check strategy
 			sshHealthCheckStrategy.run();
 
 			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
@@ -350,7 +376,7 @@ class ProtocolHealthCheckStrategyTest {
 				)
 				.thenReturn(null);
 
-			// Start the SNMP Health Check strategy
+			// Start the SSH Health Check strategy
 			sshHealthCheckStrategy.run();
 
 			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
@@ -359,7 +385,7 @@ class ProtocolHealthCheckStrategyTest {
 
 	@Test
 	void testCheckSshUpHealthBothLocallyAndRemotely() {
-		// Create a telemetry manager using an SNMP HostConfiguration.
+		// Create a telemetry manager using an SSH HostConfiguration.
 		final TelemetryManager telemetryManager = createTelemetryManagerWithSshConfig();
 
 		// Create a new protocol health check strategy
@@ -386,7 +412,7 @@ class ProtocolHealthCheckStrategyTest {
 				.when(() -> OsCommandHelper.runLocalCommand(anyString(), anyLong(), any()))
 				.thenReturn(SUCCESS_RESPONSE);
 
-			// Start the SNMP Health Check strategy
+			// Start the SSH Health Check strategy
 			sshHealthCheckStrategy.run();
 
 			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
@@ -402,7 +428,7 @@ class ProtocolHealthCheckStrategyTest {
 
 			staticOsCommandHelper.when(() -> OsCommandHelper.runLocalCommand(anyString(), anyLong(), any())).thenReturn(null);
 
-			// Start the SNMP Health Check strategy
+			// Start the SSH Health Check strategy
 			sshHealthCheckStrategy.run();
 
 			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
@@ -419,7 +445,7 @@ class ProtocolHealthCheckStrategyTest {
 				.when(() -> OsCommandHelper.runLocalCommand(anyString(), anyLong(), any()))
 				.thenReturn(SUCCESS_RESPONSE);
 
-			// Start the SNMP Health Check strategy
+			// Start the SSH Health Check strategy
 			sshHealthCheckStrategy.run();
 
 			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
@@ -435,7 +461,7 @@ class ProtocolHealthCheckStrategyTest {
 
 			staticOsCommandHelper.when(() -> OsCommandHelper.runLocalCommand(anyString(), anyLong(), any())).thenReturn(null);
 
-			// Start the SNMP Health Check strategy
+			// Start the SSH Health Check strategy
 			sshHealthCheckStrategy.run();
 
 			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
@@ -444,7 +470,7 @@ class ProtocolHealthCheckStrategyTest {
 
 	@Test
 	void testCheckSshNoHealthWhenMustCheckFalse() {
-		// Create a telemetry manager using an SNMP HostConfiguration.
+		// Create a telemetry manager using an SSH HostConfiguration.
 		final TelemetryManager telemetryManager = createTelemetryManagerWithSshConfig();
 
 		// Create a new protocol health check strategy
@@ -459,7 +485,7 @@ class ProtocolHealthCheckStrategyTest {
 		telemetryManager.getHostProperties().setOsCommandExecutesLocally(true);
 		telemetryManager.getHostProperties().setOsCommandExecutesRemotely(true);
 
-		// Start the SNMP Health Check strategy
+		// Start the SSH Health Check strategy
 		sshHealthCheckStrategy.run();
 
 		assertNull(telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC));
@@ -467,7 +493,7 @@ class ProtocolHealthCheckStrategyTest {
 
 	@Test
 	void testCheckSshNoHealthWhenNoConfiguration() {
-		// Create a telemetry manager using an SNMP HostConfiguration.
+		// Create a telemetry manager without configuration.
 		final TelemetryManager telemetryManager = createTelemetryManagerWithoutConfig();
 
 		// Create a new protocol health check strategy
@@ -482,9 +508,10 @@ class ProtocolHealthCheckStrategyTest {
 		telemetryManager.getHostProperties().setOsCommandExecutesLocally(true);
 		telemetryManager.getHostProperties().setOsCommandExecutesRemotely(true);
 
-		// Start the SNMP Health Check strategy
+		// Start the SSH Health Check strategy
 		sshHealthCheckStrategy.run();
 
+		// make sure that SSH health check is not performed if an SSH config is not present
 		assertNull(telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC));
 	}
 
@@ -536,5 +563,61 @@ class ProtocolHealthCheckStrategyTest {
 
 			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(IPMI_UP_METRIC).getValue());
 		}
+	}
+
+	@Test
+	void testCheckWbemUpHealthNamespaces() throws ClientException {
+		// Create a telemetry manager using a WBEM HostConfiguration
+		final TelemetryManager telemetryManager = createTelemetryManagerWithWbemConfig();
+
+		// Create a new protocol health check strategy
+		final ProtocolHealthCheckStrategy wbemHealthCheckStrategy = new ProtocolHealthCheckStrategy(
+			telemetryManager,
+			CURRENT_TIME_MILLIS,
+			clientsExecutorMock
+		);
+
+		// Mock a positive result for each WBEM test namespace
+		for (final String namespace : WBEM_UP_TEST_NAMESPACES) {
+			
+			// Mock WBEM protocol health check response
+			doAnswer(answer -> {
+					if (answer.getArgument(3).equals(namespace)) {
+						return List.of(List.of(SUCCESS_RESPONSE));
+					} else {
+						return null;
+					}
+				})
+				.when(clientsExecutorMock)
+				.executeWbem(anyString(), any(WbemConfiguration.class), eq(WBEM_TEST_QUERY), anyString());
+
+			// Start the WBEM Health Check strategy
+			wbemHealthCheckStrategy.run();
+
+			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(WBEM_UP_METRIC).getValue());
+		}
+	}
+
+	@Test
+	void testCheckWbemDownHealth() throws ClientException {
+		// Create a telemetry manager using a WBEM HostConfiguration
+		final TelemetryManager telemetryManager = createTelemetryManagerWithWbemConfig();
+
+		// Create a new protocol health check strategy
+		final ProtocolHealthCheckStrategy wbemHealthCheckStrategy = new ProtocolHealthCheckStrategy(
+			telemetryManager,
+			CURRENT_TIME_MILLIS,
+			clientsExecutorMock
+		);
+
+		// Mock a null WBEM protocol health check response
+		doReturn(null)
+			.when(clientsExecutorMock)
+			.executeWbem(anyString(), any(WbemConfiguration.class), eq(WBEM_TEST_QUERY), anyString());
+
+		// Start the WBEM Health Check strategy
+		wbemHealthCheckStrategy.run();
+
+		assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(WBEM_UP_METRIC).getValue());
 	}
 }

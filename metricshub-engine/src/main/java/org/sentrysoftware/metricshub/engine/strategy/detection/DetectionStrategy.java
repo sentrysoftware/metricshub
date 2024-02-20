@@ -197,11 +197,13 @@ public class DetectionStrategy extends AbstractStrategy {
 	 * @param connectorTestResultList List of ConnectorTestResult
 	 */
 	void createMonitors(final List<ConnectorTestResult> connectorTestResultList) {
-		// Verify SSH for each connector
-		connectorTestResultList.stream().map(ConnectorTestResult::getConnector).forEach(this::verifySsh);
+		connectorTestResultList.forEach(connectorTestResult -> {
+			// Create a monitor for each connector
+			createMonitor(connectorTestResult);
 
-		// Create a monitor for each connector
-		connectorTestResultList.forEach(this::createMonitor);
+			// Verify SSH for each connector
+			verifySsh(connectorTestResult.getConnector());
+		});
 	}
 
 	/**
@@ -254,10 +256,10 @@ public class DetectionStrategy extends AbstractStrategy {
 	/**
 	 * Verify the given set of sources instances to check if they are OsCommandSources
 	 *
-	 * @param criteria Connector detection criteria list
+	 * @param sourceTypes Connector source types
 	 */
-	void verifySshSources(final Set<Class<? extends Source>> sources) {
-		if (sources.contains(OsCommandSource.class)) {
+	void verifySshSources(final Set<Class<? extends Source>> sourceTypes) {
+		if (sourceTypes.contains(OsCommandSource.class)) {
 			telemetryManager.getHostProperties().setMustCheckSshStatus(true);
 		}
 	}
@@ -272,14 +274,14 @@ public class DetectionStrategy extends AbstractStrategy {
 		boolean osCommandExecuteRemotely = false;
 
 		for (final Criterion criterion : criteria) {
-			if (criterion instanceof OsCommandCriterion) {
-				boolean executeLocally = ((OsCommandCriterion) criterion).getExecuteLocally();
+			if (criterion instanceof OsCommandCriterion osCommandCriterion) {
+				boolean executeLocally = osCommandCriterion.getExecuteLocally();
 
 				// if osCommandExecuteLocally is false, it will take the executeLocally value
 				osCommandExecuteLocally |= executeLocally;
 
 				// if osCommandExecuteRemotely is false, it will take the executeLocally's opposite value
-				osCommandExecuteLocally |= !executeLocally;
+				osCommandExecuteRemotely |= !executeLocally;
 			}
 
 			// Stop if both variables are true
