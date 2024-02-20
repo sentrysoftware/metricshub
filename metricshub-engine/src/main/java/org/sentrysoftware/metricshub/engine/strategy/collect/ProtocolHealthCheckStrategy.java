@@ -20,9 +20,10 @@ package org.sentrysoftware.metricshub.engine.strategy.collect;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
-
 import static org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration.DEFAULT_TIMEOUT;
 
+import java.util.Collections;
+import java.util.List;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -34,9 +35,11 @@ import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
+import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
 import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
+import org.sentrysoftware.metricshub.engine.strategy.utils.WqlDetectionHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -91,6 +94,11 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	public static final String IPMI_UP_METRIC = String.format(UP_METRIC_FORMAT, "ipmi");
 
 	/**
+	 * WBEM Up metric
+	 */
+	public static final String WBEM_UP_METRIC = String.format(UP_METRIC_FORMAT, "wbem");
+
+	/**
 	 * The SNMP OID value to use in the health check test
 	 */
 	public static final String SNMP_OID = "1.3.6.1";
@@ -99,6 +107,18 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 * SSH test command to execute
 	 */
 	public static final String SSH_TEST_COMMAND = "echo test";
+
+	/**
+	 * List of WBEM Test Namespaces
+	 */
+	public static final List<String> WBEM_UP_TEST_NAMESPACES = Collections.unmodifiableList(
+		List.of("root/Interop", "interop", "root/PG_Interop", "PG_Interop")
+	);
+
+	/**
+	 * WQL Query to test WBEM protocol
+	 */
+	public static final String WBEM_TEST_QUERY = "SELECT Name FROM CIM_NameSpace";
 
 	/**
 	 * Constructs a new {@code HealthCheckStrategy} using the provided telemetry
@@ -142,6 +162,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 		checkSnmpHealth(hostname, hostMonitor, metricFactory);
 		checkSshHealth(hostname, hostMonitor, metricFactory);
 		checkIpmiHealth(hostname, hostMonitor, metricFactory);
+		checkWbemHealth(hostname, hostMonitor, metricFactory);
 	}
 
 	@Override
@@ -393,5 +414,69 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 
 		// Generate a metric from the IPMI result
 		metricFactory.collectNumberMetric(hostMonitor, IPMI_UP_METRIC, ipmiResult != null ? UP : DOWN, strategyTime);
+	}
+
+	/**
+	 * Check WBEM protocol health on the hostname for the host monitor.
+	 *
+	 * <ul>
+	 * 	<li>Criteria: The query must not return an error for at least one of the following namespaces:
+	 * 		"root/Interop", "interop", "root/PG_Interop", "PG_Interop"</li>
+	 * 	<li>Query: SELECT Name FROM CIM_NameSpace.</li>
+	 * 	<li>Success Conditions: CIM_ERR_INVALID_NAMESPACE and CIM_ERR_NOT_FOUND errors are considered successful, indicating that the protocol is responding.</li>
+	 * </ul>
+	 *
+	 * @param hostMonitor   An endpoint host monitor
+	 * @param hostname      The hostname on which we perform health check
+	 * @param metricFactory The metric factory used to collect the health check metric
+	 */
+	public void checkWbemHealth(String hostname, Monitor hostMonitor, MetricFactory metricFactory) {
+		// Create and set the WBEM result to null
+		List<List<String>> wbemResults = null;
+
+		// Retrieve WBEM Configuration from the telemetry manager host configuration
+		final WbemConfiguration wbemConfiguration = (WbemConfiguration) telemetryManager
+			.getHostConfiguration()
+			.getConfigurations()
+			.get(WbemConfiguration.class);
+
+		// Stop the health check if there is not an WBEM configuration
+		if (wbemConfiguration == null) {
+			return;
+		}
+
+		log.info(
+			"Hostname {} - Checking WBEM protocol status. Sending a WBEM SELECT request on different namespaces.",
+			hostname
+		);
+
+		for (String wbemNamespace : WBEM_UP_TEST_NAMESPACES) {
+			try {
+				// Execute WBEM query
+				wbemResults = clientsExecutor.executeWbem(hostname, wbemConfiguration, WBEM_TEST_QUERY, wbemNamespace);
+
+				// The query on the WBEM namespace returned a result
+				if (wbemResults != null) {
+					// Collect the metric with a '1.0' value and stop the test
+					metricFactory.collectNumberMetric(hostMonitor, WBEM_UP_METRIC, UP, strategyTime);
+					return;
+				}
+			} catch (Exception e) {
+				if (WqlDetectionHelper.isAcceptableException(e)) {
+					// Collect the WBEM metric with a '1.0' value and stop the test as the thrown exception is acceptable
+					metricFactory.collectNumberMetric(hostMonitor, WBEM_UP_METRIC, UP, strategyTime);
+					return;
+				}
+				log.debug(
+					"Hostname {} - Checking WBEM protocol status. WBEM exception when performing a WBEM SELECT query on '{}' namespace: ",
+					hostname,
+					wbemNamespace,
+					e
+				);
+			}
+		}
+
+		// Collect the WBEM metric with a '0.0' value as the queries response was not positive
+		metricFactory.collectNumberMetric(hostMonitor, WBEM_UP_METRIC, DOWN, strategyTime);
 	}
 }

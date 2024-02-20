@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HOSTNAME;
@@ -17,8 +18,12 @@ import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHeal
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.SNMP_UP_METRIC;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.SSH_UP_METRIC;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.UP;
+import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WBEM_TEST_QUERY;
+import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WBEM_UP_METRIC;
+import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WBEM_UP_TEST_NAMESPACES;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -33,11 +38,13 @@ import org.sentrysoftware.ipmi.client.IpmiClient;
 import org.sentrysoftware.ipmi.client.IpmiClientConfiguration;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.client.http.HttpRequest;
+import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
+import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -165,6 +172,28 @@ class ProtocolHealthCheckStrategyTest {
 								.build()
 						)
 					)
+					.build()
+			)
+			.build();
+	}
+
+	/**
+	 * Creates and returns a TelemetryManager instance with an IPMI configuration.
+	 *
+	 * @return A TelemetryManager instance configured with an IPMI configuration.
+	 */
+	private TelemetryManager createTelemetryManagerWithWbemConfig() {
+		// Create a telemetry manager
+		return TelemetryManager
+			.builder()
+			.monitors(monitors)
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostId(HOSTNAME)
+					.hostname(HOSTNAME)
+					.sequential(false)
+					.configurations(Map.of(WbemConfiguration.class, WbemConfiguration.builder().build()))
 					.build()
 			)
 			.build();
@@ -533,5 +562,61 @@ class ProtocolHealthCheckStrategyTest {
 
 			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(IPMI_UP_METRIC).getValue());
 		}
+	}
+
+	@Test
+	void testCheckWbemUpHealthNamespaces() throws ClientException {
+		// Create a telemetry manager using a WBEM HostConfiguration
+		final TelemetryManager telemetryManager = createTelemetryManagerWithWbemConfig();
+
+		// Create a new protocol health check strategy
+		final ProtocolHealthCheckStrategy wbemHealthCheckStrategy = new ProtocolHealthCheckStrategy(
+			telemetryManager,
+			CURRENT_TIME_MILLIS,
+			clientsExecutorMock
+		);
+
+		// Mock a positive result for each WBEM test namespace
+		for (final String namespace : WBEM_UP_TEST_NAMESPACES) {
+			
+			// Mock WBEM protocol health check response
+			doAnswer(answer -> {
+					if (answer.getArgument(3).equals(namespace)) {
+						return List.of(List.of(SUCCESS_RESPONSE));
+					} else {
+						return null;
+					}
+				})
+				.when(clientsExecutorMock)
+				.executeWbem(anyString(), any(WbemConfiguration.class), eq(WBEM_TEST_QUERY), anyString());
+
+			// Start the WBEM Health Check strategy
+			wbemHealthCheckStrategy.run();
+
+			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(WBEM_UP_METRIC).getValue());
+		}
+	}
+
+	@Test
+	void testCheckWbemDownHealth() throws ClientException {
+		// Create a telemetry manager using a WBEM HostConfiguration
+		final TelemetryManager telemetryManager = createTelemetryManagerWithWbemConfig();
+
+		// Create a new protocol health check strategy
+		final ProtocolHealthCheckStrategy wbemHealthCheckStrategy = new ProtocolHealthCheckStrategy(
+			telemetryManager,
+			CURRENT_TIME_MILLIS,
+			clientsExecutorMock
+		);
+
+		// Mock a null WBEM protocol health check response
+		doReturn(null)
+			.when(clientsExecutorMock)
+			.executeWbem(anyString(), any(WbemConfiguration.class), eq(WBEM_TEST_QUERY), anyString());
+
+		// Start the WBEM Health Check strategy
+		wbemHealthCheckStrategy.run();
+
+		assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(WBEM_UP_METRIC).getValue());
 	}
 }
