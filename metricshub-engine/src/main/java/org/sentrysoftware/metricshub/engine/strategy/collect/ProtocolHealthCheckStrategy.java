@@ -31,11 +31,13 @@ import org.sentrysoftware.ipmi.client.IpmiClient;
 import org.sentrysoftware.ipmi.client.IpmiClientConfiguration;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.client.http.HttpRequest;
+import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
+import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
 import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
@@ -99,6 +101,11 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	public static final String WBEM_UP_METRIC = String.format(UP_METRIC_FORMAT, "wbem");
 
 	/**
+	 * WMI Up metric
+	 */
+	public static final String WMI_UP_METRIC = String.format(UP_METRIC_FORMAT, "wmi");
+
+	/**
 	 * The SNMP OID value to use in the health check test
 	 */
 	public static final String SNMP_OID = "1.3.6.1";
@@ -109,16 +116,26 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	public static final String SSH_TEST_COMMAND = "echo test";
 
 	/**
-	 * List of WBEM Test Namespaces
+	 * List of WBEM protocol health check test Namespaces
 	 */
 	public static final List<String> WBEM_UP_TEST_NAMESPACES = Collections.unmodifiableList(
 		List.of("root/Interop", "interop", "root/PG_Interop", "PG_Interop")
 	);
 
 	/**
-	 * WQL Query to test WBEM protocol
+	 * WQL Query to test WBEM protocol health check
 	 */
 	public static final String WBEM_TEST_QUERY = "SELECT Name FROM CIM_NameSpace";
+
+	/**
+	 * WQL Query to test WMI and WinRM protocols health check
+	 */
+	public static final String WMI_AND_WINRM_TEST_QUERY = "Select Name FROM Win32_ComputerSystem";
+
+	/**
+	 * WMI and WinRM protocol health check test Namespace
+	 */
+	public static final String WMI_AND_WINRM_TEST_NAMESPACE = "root\\cimv2";
 
 	/**
 	 * Constructs a new {@code HealthCheckStrategy} using the provided telemetry
@@ -163,6 +180,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 		checkSshHealth(hostname, hostMonitor, metricFactory);
 		checkIpmiHealth(hostname, hostMonitor, metricFactory);
 		checkWbemHealth(hostname, hostMonitor, metricFactory);
+		checkWmiHealth(hostname, hostMonitor, metricFactory);
 	}
 
 	@Override
@@ -478,5 +496,60 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 
 		// Collect the WBEM metric with a '0.0' value as the queries response was not positive
 		metricFactory.collectNumberMetric(hostMonitor, WBEM_UP_METRIC, DOWN, strategyTime);
+	}
+
+	/**
+	 * Check WMI protocol health on the hostname for the host monitor.
+	 *
+	 * <ul>
+	 * 	<li>Criteria: The query must not return an error for at least one of the root\cimv2 namespace.</li>
+	 * 	<li>Query: SELECT Name FROM Win32_ComputerSystem.</li>
+	 * 	<li>Success Conditions: No errors in the query result, indicating that the protocol is responding.</li>
+	 * </ul>
+	 *
+	 * @param hostMonitor   An endpoint host monitor
+	 * @param hostname      The hostname on which we perform health check
+	 * @param metricFactory The metric factory used to collect the health check metric
+	 */
+	public void checkWmiHealth(String hostname, Monitor hostMonitor, MetricFactory metricFactory) {
+		// Create and set the WMI result to null
+		List<List<String>> wmiResult = null;
+
+		// Retrieve WMI Configuration from the telemetry manager host configuration
+		final WmiConfiguration wmiConfiguration = (WmiConfiguration) telemetryManager
+			.getHostConfiguration()
+			.getConfigurations()
+			.get(WmiConfiguration.class);
+
+		// Stop the health check if there is not an WMI configuration
+		if (wmiConfiguration == null) {
+			return;
+		}
+
+		log.info(
+			"Hostname {} - Checking WMI protocol status. Sending a WMI SELECT request on {} namespace.",
+			hostname,
+			WMI_AND_WINRM_TEST_NAMESPACE
+		);
+
+		try {
+			wmiResult =
+				clientsExecutor.executeWmi(hostname, wmiConfiguration, WMI_AND_WINRM_TEST_QUERY, WMI_AND_WINRM_TEST_NAMESPACE);
+		} catch (ClientException e) {
+			if (WqlDetectionHelper.isAcceptableException(e)) {
+				// Generate a metric from the WMI result
+				metricFactory.collectNumberMetric(hostMonitor, WMI_UP_METRIC, UP, strategyTime);
+				return;
+			}
+			log.debug(
+				"Hostname {} - Checking WMI protocol status. WMI exception when performing a WMI SELECT request on {} namespace: ",
+				hostname,
+				WMI_AND_WINRM_TEST_NAMESPACE,
+				e
+			);
+		}
+
+		// Generate a metric from the WMI result
+		metricFactory.collectNumberMetric(hostMonitor, WMI_UP_METRIC, wmiResult != null ? UP : DOWN, strategyTime);
 	}
 }
