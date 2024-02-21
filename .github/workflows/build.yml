@@ -22,18 +22,12 @@ jobs:
 
     strategy:
       matrix:
-        os: [ ubuntu-20.04, windows-latest, rocky-latest ]
+        os: [ ubuntu-latest, windows-latest ]
 
     steps:
 
-    - name: Set up Maven
-      if: ${{ matrix.os == 'rocky-latest' }}
-      uses: stCarolas/setup-maven@v4.5
-      with:
-        maven-version: 3.9.6
-
     - name: Install gcc-multilib
-      if: ${{ matrix.os == 'ubuntu-20.04' }}
+      if: ${{ matrix.os == 'ubuntu-latest' }}
       run: |
         sudo apt-get update
         sudo apt-get install -y gcc-multilib
@@ -59,37 +53,36 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ github.token }}
 
-    - name: Upload Debian Artifact
-      uses: actions/upload-artifact@v4
-      if: ${{ matrix.os == 'ubuntu-20.04' }}
-      with:
-        name: debian-package
-        path: ./metricshub-debian/target/*.deb
+    - name: Get version
+      run: |
+            metricshub_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+            echo "MetricsHub version ${metricshub_version}"
+            echo "metricshub_version=$metricshub_version" >> $GITHUB_ENV
 
-    - name: Upload RPM Artifact
+    - name: Upload Linux Artifact
       uses: actions/upload-artifact@v4
-      if: ${{ matrix.os == 'rocky-latest' }}
+      if: ${{ matrix.os == 'ubuntu-latest' }}
       with:
-        name: rpm-package
-        path: ./metricshub-rhel/target/*.rpm
+        name: metricshub-linux-package-${{ env.metricshub_version }}
+        path: ./metricshub-linux/target/metricshub-linux-*.tar.gz
 
     - name: Upload Windows Artifact
       uses: actions/upload-artifact@v4
       if: ${{ matrix.os == 'windows-latest' }}
       with:
-        name: windows-package
-        path: ./metricshub-windows/target/*.msi
+        name: metricshub-windows-package-${{ env.metricshub_version }}
+        path: ./metricshub-windows/target/metricshub-windows-*.zip
 
     - name: Upload Site Artifact
       uses: actions/upload-artifact@v4
-      if: ${{ matrix.os == 'ubuntu-20.04' }}
+      if: ${{ matrix.os == 'ubuntu-latest' }}
       with:
-        name: site
+        name: metricshub-site-${{ env.metricshub_version }}
         path: ./metricshub-doc/target/metricshub-doc-*-site.jar
 
     - name: Upload Docker Artifact
       uses: actions/upload-artifact@v4
-      if: ${{ matrix.os == 'ubuntu-20.04' }}
+      if: ${{ matrix.os == 'ubuntu-latest' }}
       with:
-        name: docker-package
-        path: ./metricshub-debian/target/*-docker.tar.gz
+        name: metricshub-docker-package-${{ env.metricshub_version }}
+        path: ./metricshub-linux/target/metricshub-linux-*-docker.tar.gz
