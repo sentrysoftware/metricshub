@@ -471,7 +471,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 		}
 
 		log.info(
-			"Hostname {} - Checking WBEM protocol status. Sending a WBEM SELECT request on different namespaces.",
+			"Hostname {} - Checking WBEM protocol status. Sending a WQL SELECT request on different namespaces.",
 			hostname
 		);
 
@@ -493,7 +493,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 					return;
 				}
 				log.debug(
-					"Hostname {} - Checking WBEM protocol status. WBEM exception when performing a WBEM SELECT query on '{}' namespace: ",
+					"Hostname {} - Checking WBEM protocol status. WBEM exception when performing a WQL SELECT query on '{}' namespace: ",
 					hostname,
 					wbemNamespace,
 					e
