@@ -24,6 +24,7 @@ import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHeal
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WMI_AND_WINRM_TEST_NAMESPACE;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WMI_AND_WINRM_TEST_QUERY;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WMI_UP_METRIC;
+import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WINRM_UP_METRIC;
 
 import java.util.HashMap;
 import java.util.List;
@@ -48,6 +49,7 @@ import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
+import org.sentrysoftware.metricshub.engine.configuration.WinRmConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
@@ -221,6 +223,32 @@ class ProtocolHealthCheckStrategyTest {
 						Map.of(
 							WmiConfiguration.class,
 							WmiConfiguration.builder().username("username").password("password".toCharArray()).timeout(60L).build()
+						)
+					)
+					.build()
+			)
+			.build();
+	}
+
+	/**
+	 * Creates and returns a TelemetryManager instance with an WINRM configuration.
+	 *
+	 * @return A TelemetryManager instance configured with an WINRM configuration.
+	 */
+	private TelemetryManager createTelemetryManagerWithWinRmConfig() {
+		// Create a telemetry manager
+		return TelemetryManager
+			.builder()
+			.monitors(monitors)
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostId(HOSTNAME)
+					.hostname(HOSTNAME)
+					.configurations(
+						Map.of(
+							WinRmConfiguration.class,
+							WinRmConfiguration.builder().username("username").password("password".toCharArray()).timeout(60L).build()
 						)
 					)
 					.build()
@@ -702,5 +730,61 @@ class ProtocolHealthCheckStrategyTest {
 		wmiHealthCheckStrategy.run();
 
 		assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(WMI_UP_METRIC).getValue());
+	}
+
+	@Test
+	void testCheckWinRmUpHealth() throws ClientException {
+		// Create a telemetry manager using a WINRM HostConfiguration
+		final TelemetryManager telemetryManager = createTelemetryManagerWithWinRmConfig();
+
+		// Create a new protocol health check strategy
+		final ProtocolHealthCheckStrategy winRmHealthCheckStrategy = new ProtocolHealthCheckStrategy(
+			telemetryManager,
+			CURRENT_TIME_MILLIS,
+			clientsExecutorMock
+		);
+
+		// Mock a positive WINRM protocol health check response
+		doReturn(List.of(List.of(SUCCESS_RESPONSE)))
+			.when(clientsExecutorMock)
+			.executeWqlThroughWinRm(
+				anyString(),
+				any(WinRmConfiguration.class),
+				eq(WMI_AND_WINRM_TEST_QUERY),
+				eq(WMI_AND_WINRM_TEST_NAMESPACE)
+			);
+
+		// Start the WINRM Health Check strategy
+		winRmHealthCheckStrategy.run();
+
+		assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(WINRM_UP_METRIC).getValue());
+	}
+
+	@Test
+	void testCheckWinRmDownHealth() throws ClientException {
+		// Create a telemetry manager using a WINRM HostConfiguration
+		final TelemetryManager telemetryManager = createTelemetryManagerWithWinRmConfig();
+
+		// Create a new protocol health check strategy
+		final ProtocolHealthCheckStrategy winRmHealthCheckStrategy = new ProtocolHealthCheckStrategy(
+			telemetryManager,
+			CURRENT_TIME_MILLIS,
+			clientsExecutorMock
+		);
+
+		// Mock a positive WINRM protocol health check response
+		doReturn(null)
+			.when(clientsExecutorMock)
+			.executeWqlThroughWinRm(
+				anyString(),
+				any(WinRmConfiguration.class),
+				eq(WMI_AND_WINRM_TEST_QUERY),
+				eq(WMI_AND_WINRM_TEST_NAMESPACE)
+			);
+
+		// Start the WINRM Health Check strategy
+		winRmHealthCheckStrategy.run();
+
+		assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(WINRM_UP_METRIC).getValue());
 	}
 }

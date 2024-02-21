@@ -37,6 +37,7 @@ import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
+import org.sentrysoftware.metricshub.engine.configuration.WinRmConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
 import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
@@ -104,6 +105,11 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 * WMI Up metric
 	 */
 	public static final String WMI_UP_METRIC = String.format(UP_METRIC_FORMAT, "wmi");
+	
+	/**
+	 * WINRM Up metric
+	 */
+	public static final String WINRM_UP_METRIC = String.format(UP_METRIC_FORMAT, "winrm");
 
 	/**
 	 * The SNMP OID value to use in the health check test
@@ -181,6 +187,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 		checkIpmiHealth(hostname, hostMonitor, metricFactory);
 		checkWbemHealth(hostname, hostMonitor, metricFactory);
 		checkWmiHealth(hostname, hostMonitor, metricFactory);
+		checkWinRmHealth(hostname, hostMonitor, metricFactory);
 	}
 
 	@Override
@@ -527,7 +534,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 		}
 
 		log.info(
-			"Hostname {} - Checking WMI protocol status. Sending a WMI SELECT request on {} namespace.",
+			"Hostname {} - Checking WMI protocol status. Sending a WQL SELECT request on {} namespace.",
 			hostname,
 			WMI_AND_WINRM_TEST_NAMESPACE
 		);
@@ -542,7 +549,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 				return;
 			}
 			log.debug(
-				"Hostname {} - Checking WMI protocol status. WMI exception when performing a WMI SELECT request on {} namespace: ",
+				"Hostname {} - Checking WMI protocol status. WMI exception when performing a WQL SELECT request on {} namespace: ",
 				hostname,
 				WMI_AND_WINRM_TEST_NAMESPACE,
 				e
@@ -551,5 +558,59 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 
 		// Generate a metric from the WMI result
 		metricFactory.collectNumberMetric(hostMonitor, WMI_UP_METRIC, wmiResult != null ? UP : DOWN, strategyTime);
+	}
+
+	/**
+	 * Check WINRM protocol health on the hostname for the host monitor.
+	 *
+	 * <ul>
+	 * 	<li>Criteria: The query must not return an error for at least one of the root\cimv2 namespace.</li>
+	 * 	<li>Query: SELECT Name FROM Win32_ComputerSystem.</li>
+	 * 	<li>Success Conditions: No errors in the query result, indicating that the protocol is responding.</li>
+	 * </ul>
+	 *
+	 * @param hostMonitor   An endpoint host monitor
+	 * @param hostname      The hostname on which we perform health check
+	 * @param metricFactory The metric factory used to collect the health check metric
+	 */
+	public void checkWinRmHealth(String hostname, Monitor hostMonitor, MetricFactory metricFactory) {
+		// Create and set the WINRM result to null
+		List<List<String>> winRmResult = null;
+
+		// Retrieve WINRM Configuration from the telemetry manager host configuration
+		final WinRmConfiguration winRmConfiguration = (WinRmConfiguration) telemetryManager
+			.getHostConfiguration()
+			.getConfigurations()
+			.get(WinRmConfiguration.class);
+
+		// Stop the health check if there is not an WINRM configuration
+		if (winRmConfiguration == null) {
+			return;
+		}
+
+		log.info(
+			"Hostname {} - Checking WINRM protocol status. Sending a WQL SELECT request on {} namespace.",
+			hostname,
+			WMI_AND_WINRM_TEST_NAMESPACE
+		);
+
+		try {
+			winRmResult = clientsExecutor.executeWqlThroughWinRm(hostname, winRmConfiguration, WMI_AND_WINRM_TEST_QUERY, WMI_AND_WINRM_TEST_NAMESPACE);
+		} catch (ClientException e) {
+			if (WqlDetectionHelper.isAcceptableException(e)) {
+				// Generate a metric from the WINRM result
+				metricFactory.collectNumberMetric(hostMonitor, WINRM_UP_METRIC, UP, strategyTime);
+				return;
+			}
+			log.debug(
+				"Hostname {} - Checking WINRM protocol status. WINRM exception when performing a WQL SELECT request on {} namespace: ",
+				hostname,
+				WMI_AND_WINRM_TEST_NAMESPACE,
+				e
+			);
+		}
+
+		// Generate a metric from the WINRM result
+		metricFactory.collectNumberMetric(hostMonitor, WINRM_UP_METRIC, winRmResult != null ? UP : DOWN, strategyTime);
 	}
 }
