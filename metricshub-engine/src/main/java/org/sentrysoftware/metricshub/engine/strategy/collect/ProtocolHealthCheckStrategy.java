@@ -457,7 +457,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 */
 	public void checkWbemHealth(String hostname, Monitor hostMonitor, MetricFactory metricFactory) {
 		// Create and set the WBEM result to null
-		List<List<String>> wbemResults = null;
+		List<List<String>> wbemResult = null;
 
 		// Retrieve WBEM Configuration from the telemetry manager host configuration
 		final WbemConfiguration wbemConfiguration = (WbemConfiguration) telemetryManager
@@ -475,13 +475,13 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 			hostname
 		);
 
-		for (String wbemNamespace : WBEM_UP_TEST_NAMESPACES) {
+		for (final String wbemNamespace : WBEM_UP_TEST_NAMESPACES) {
 			try {
 				// Execute WBEM query
-				wbemResults = clientsExecutor.executeWbem(hostname, wbemConfiguration, WBEM_TEST_QUERY, wbemNamespace);
+				wbemResult = clientsExecutor.executeWbem(hostname, wbemConfiguration, WBEM_TEST_QUERY, wbemNamespace);
 
 				// The query on the WBEM namespace returned a result
-				if (wbemResults != null) {
+				if (wbemResult != null) {
 					// Collect the metric with a '1.0' value and stop the test
 					metricFactory.collectNumberMetric(hostMonitor, WBEM_UP_METRIC, UP, strategyTime);
 					return;
