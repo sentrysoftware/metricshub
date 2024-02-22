@@ -5,31 +5,31 @@ description: This page describes all the compute formats support by the connecto
 
 This page describes all the compute formats support by the connector.
 
-* [Format](#format)
-* [Add](#add)
-* [And](#and)
-* [ArrayTranslate](#array-translate)
-* [Awk](#awk)
-* [Convert](#convert)
-* [Divide](#divide)
-* [DuplicateColumn](#duplicate-column)
-* [ExcludeMatchingLines](#exclude-matching-lines)
-* [Extract](#extract)
-* [ExtractPropertyFromWbemPath](#extract-property-from-wbem-path)
-* [Json2Csv](#json2csv)
-* [KeepColumns](#keep-columns)
-* [KeepOnlyMatchingLines](#keep-only-matching-lines)
-* [LeftConcat](#left-concat)
-* [Multiply](#multiply)
-* [PerBitTranslation](#per-bit-translation)
-* [Replace](#replace)
-* [RightConcat](#right-concat)
-* [Subtract](#subtract)
-* [Substring](#substring)
-* [Translate](#translate)
-* [Xml2Csv](#xml2csv)
+* [Format](#Format)
+* [Add](#Add)
+* [And](#And)
+* [ArrayTranslate](#ArrayTranslate)
+* [Awk](#Awk)
+* [Convert](#Convert)
+* [Divide](#Divide)
+* [DuplicateColumn](#DuplicateColumn)
+* [ExcludeMatchingLines](#ExcludeMatchingLines)
+* [Extract](#Extract)
+* [ExtractPropertyFromWbemPath](#ExtractPropertyFromWbemPath)
+* [Json2Csv](#Json2csv)
+* [KeepColumns](#KeepColumns)
+* [KeepOnlyMatchingLines](#KeepOnlyMatchingLines)
+* [LeftConcat](#LeftConcat)
+* [Multiply](#Multiply)
+* [PerBitTranslation](#PerBitTranslation)
+* [Replace](#Replace)
+* [RightConcat](#RightConcat)
+* [Subtract](#Subtract)
+* [Substring](#Substring)
+* [Translate](#Translate)
+* [Xml2Csv](#Xml2csv)
 
-## <a id="format" />Format
+## Format
 
 ```yaml
 connector:
@@ -45,7 +45,7 @@ monitors:
           computes: # <compute-object-array>
 ```
 
-## <a id="add" />Add
+## Add
 
 The `Add` compute allows to perform an addition operation to the values of a column. The column values must be numerics (integer, float, double, ...).
 The `value` can be a number, or a reference to another column of the same table, using the '$' character followed by the column number.
@@ -67,7 +67,7 @@ monitors:
             value:  # <string>
 ```
 
-## <a id="and" />And
+## And
 
 The `And` compute allows make a bitwise `and` on the values of a column.
 The `value` can be a number, or a reference to another column of the same table, using the '$' character followed by the column number.
@@ -89,7 +89,7 @@ monitors:
             value:  # <string>
 ```
 
-## <a id="array-translate" />ArrayTranslate
+## ArrayTranslate
 
 The `ArrayTranslate` compute allows make to translate a column containing an array of values using a translation table. See the [Translation Table Section](translation-tables.md) for more details on how to implement them.
 The `arraySeparator` value can be used to define how are separated the values in the array to translate. Default value: "|".
@@ -114,7 +114,7 @@ monitors:
             resultSeparator: # <string>
 ```
 
-## <a id="awk" />Awk
+## Awk
 
 The `Awk` compute allows to process the table through an awk script.
 The script to execute can be put in an external embedded file for more readability and be called in the script value. 
@@ -142,7 +142,7 @@ monitors:
             selectColumns: # <string> | comma separated values
 ```
 
-## <a id="convert" />Convert
+## Convert
 
 The `Convert` compute allows make to convert a column from a hexadecimal value to a decimal value or an array of status into a simple status.
 
@@ -163,7 +163,7 @@ monitors:
             conversion: # <enum> | possible values: [ hex2Dec, array2SimpleStatus ]
 ```
 
-## <a id="divide" />Divide
+## Divide
 
 The `Divide` compute allows to perform an division operation to the values of a column. The column values must be numerics (integer, float, double, ...).
 The `value` can be a number other than '0', or a reference to another column of the same table, using the '$' character followed by the column number.
@@ -185,7 +185,7 @@ monitors:
             value: # <String>
 ```
 
-## <a id="duplicate-column" />DuplicateColumn
+## DuplicateColumn
 
 The `DuplicateColumn` compute allows to duplicate a column. The added column will be set next to the duplicated column.
 
@@ -206,7 +206,7 @@ monitors:
             column: # <number>
 ```
 
-## <a id="exclude-matching-lines" />ExcludeMatchingLines
+## ExcludeMatchingLines
 
 The `ExcludeMatchingLines` compute allows to remove the lines of your table where the selected column correspond to the `regExp` values or is equal to one of the values in the `valueList`.
 
@@ -228,7 +228,7 @@ monitors:
             valueList: # <string> | comma separated values
 ```
 
-## <a id="extract" />Extract
+## Extract
 
 The `Extract` compute allows to extract a part of a column and replace this column by this part.
 The `subSeparators` value is used to split the original column into an array and the `subColumn` value is used to chose a single column from this array.
@@ -251,7 +251,7 @@ monitors:
             subSeparators: # <string> 
 ```
 
-## <a id="extract-property-from-wbem-path" />ExtractPropertyFromWbemPath
+## ExtractPropertyFromWbemPath
 
 The `ExtractPropertyFromWbemPath` compute allows to extract the specified property from a WBEM ObjectPath in the specified column.
 
@@ -272,7 +272,7 @@ monitors:
             column: # <number>
 ```
 
-## <a id="json2csv" />Json2Csv
+## Json2Csv
 
 The `Json2Csv` compute allows to convert a JSON value to a CSV value.
 The `entryKey` value is the key in the JSON data that will be shown as a new entry in the resulting CSV (i.e. a new line).
@@ -296,7 +296,7 @@ monitors:
             separator: # <string> | default: ";"
 ```
 
-## <a id="keep-columns" />KeepColumns
+## KeepColumns
 
 The `KeepColumns` compute allows to keep only the selected columns from a table.
 
@@ -316,7 +316,7 @@ monitors:
             columnNumbers: # <string> | comma separated values
 ```
 
-## <a id="keep-only-matching-lines" />KeepOnlyMatchingLines
+## KeepOnlyMatchingLines
 
 The `KeepOnlyMatchingLines` compute allows to keep only the lines of your table where the selected column correspond to the `regExp` values or is equal to one of the values in the `valueList`.
 
@@ -338,7 +338,7 @@ monitors:
             valueList: # <string> | comma separated values
 ```
 
-## <a id="left-concat" />LeftConcat
+## LeftConcat
 
 The `LeftConcat` compute allow to concatenate a value at the beginning of all the lines in a selected column.
 The `value` can be a number, or a reference to another column of the same table, using the '$' character followed by the column number.
@@ -360,7 +360,7 @@ monitors:
             value: # <string>
 ```
 
-## <a id="multiply" />Multiply
+## Multiply
 
 The `Multiply` compute allows to perform an multiplication operation to the values of a column. The column values must be numerics (integer, float, double, ...).
 The `value` can be a number, or a reference to another column of the same table, using the '$' character followed by the column number.
@@ -382,7 +382,7 @@ monitors:
             value: # <string>
 ```
 
-## <a id="per-bit-translation" />PerBitTranslation
+## PerBitTranslation
 
 The `PerBitTranslation` allows to translate a numeric value into a string based on its bits, each bit having a different meaning. See the [Translation Table Section](translation-tables.md) for more details on how to implement them.
 The `BitList` is the list of bits to be taken into account.
@@ -405,7 +405,7 @@ monitors:
             translationTable: # <string>
 ```
 
-## <a id="replace" />Replace
+## Replace
 
 The `Replace` compute allows to replace a specific value in a column by another value.
 
@@ -427,7 +427,7 @@ monitors:
             newValue: # <string>
 ```
 
-## <a id="right-concat" />RightConcat
+## RightConcat
 
 The `RightConcat` compute allow to concatenate a value at the end of all the lines in a selected column.
 The `value` can be a number, or a reference to another column of the same table, using the '$' character followed by the column number.
@@ -449,7 +449,7 @@ monitors:
             value: # <string>
 ```
 
-## <a id="subtract" />Subtract
+## Subtract
 
 The `Subtract` compute allows to perform an subtraction operation to the values of a column. The column values must be numerics (integer, float, double, ...).
 The `value` can be a number, or a reference to another column of the same table, using the '$' character followed by the column number.
@@ -471,7 +471,7 @@ monitors:
             value: # <string>
 ```
 
-## <a id="substring" />Substring
+## Substring
 
 The `Substring` compute allows to extract a String from a column.
 
@@ -493,7 +493,7 @@ monitors:
             length: # <string>
 ```
 
-## <a id="translate" />Translate
+## Translate
 
 The `Translate` compute allows to translate values from specified column following a specified translation table.
 
@@ -514,7 +514,7 @@ monitors:
             translationTable:  # <string>
 ```
 
-## <a id="xml2csv" />Xml2Csv
+## Xml2Csv
 
 The `Xml2Csv` compute allows to convert a XML source to a character-separated table.
 

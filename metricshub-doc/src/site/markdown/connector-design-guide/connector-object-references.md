@@ -5,29 +5,29 @@ description: This page shows how to reference connector objects such as sources,
 
 This page shows how to reference connector objects such as sources, entries, columns and files, etc. inside the YAML document.
 
-* [Source Reference](#source)
+* [Source Reference](#Source_Reference)
     * [Format](#source-format)
     * [Example](#source-example)
-* [Entry Reference](#entry)
+* [Entry Reference](#Entry_Reference)
     * [Format](#entry-format)
     * [Example](#entry-example)
-* [Column Reference](#column)
+* [Column Reference](#Column_Reference)
     * [Format](#column-format)
     * [Example](#column-example)
-* [File Reference](#file)
+* [File Reference](#File_Reference)
     * [Format](#file-format)
     * [Example](#file-example)
-* [Mono-Instance Reference](#mono-instance)
+* [Mono-Instance Reference](#Mono-Instance_Reference)
     * [Format](#mono-instance-format)
     * [Example](#mono-instance-example)
-* [Translation Table Reference](#translation-table)
+* [Translation Table Reference](#Translation_Table_Reference)
     * [Format](#translation-table-format)
     * [Example](#translation-table-example)
-* [Awk Script Reference](#awk-script)
+* [Awk Script Reference](#Awk_Script_Reference)
     * [Format](#awk-script-format)
     * [Example](#awk-script-example)
 
-## <a id="source" />Source Reference
+## Source Reference
 
 ### <a id="source-format" />Format
 ```yaml
@@ -51,7 +51,7 @@ ${source::<fullSourcePath>}
           rightKeyColumn: 1
 ```
 
-## <a id="entry" />Entry Reference
+## Entry Reference
 
 ### <a id="entry-format" />Format
 ```yaml
@@ -69,7 +69,7 @@ $<columnNumber>
           url: /api/rest/StorageCenter/ScChassis/$2/PowerSupplyList
 ```
 
-## <a id="column" />Column Reference
+## Column Reference
 
 ### <a id="column-format" />Format
 ```yaml
@@ -90,7 +90,7 @@ $<columnNumber>
           name: $3
 ```
 
-## <a id="file" />File Reference
+## File Reference
 
 ### <a id="file-format" />Format
 ```yaml
@@ -106,7 +106,7 @@ ${file::<relativeFilePath>}
       errorMessage: No Adaptec Controller with Physical Disks attached or not enough rights to execute arcconf.
 ```
 
-## <a id="mono-instance" />Mono-Instance Reference
+## Mono-Instance Reference
 
 ### <a id="mono-instance-format" />Format
 ```yaml
@@ -127,7 +127,7 @@ ${attribute::<attribute-key>}
           selectColumns: "2,3,4,5,6,7,8,9"
 ```
 
-## <a id="translation-table" />Translation Table Reference
+## Translation Table Reference
 
 ### <a id="translation-table-format" />Format
 ```yaml
@@ -154,7 +154,7 @@ ${translation::<translationTable>}
             translationTable: ${translation::SensorStatusTranslationTable}
 ```
 
-## <a id="awk-script" />Awk Script Reference
+## Awk Script Reference
 
 ### <a id="awk-script-format" />Format
 ```yaml

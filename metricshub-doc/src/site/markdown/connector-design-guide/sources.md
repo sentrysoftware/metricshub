@@ -5,20 +5,20 @@ description: This page describes the format of the connector source
 
 This page describes the format of the connector source
 
-* [Format](#format)
-* [HTTP Source](#http)
-* [IPMI Source](#ipmi)
-* [OS Command Source](#os-command)
-* [Copy](#copy)
-* [Static](#static)
-* [SNMPGet Source](#snmpget)
-* [SNMP Table](#snmptable)
-* [Table Join](#table-join)
-* [Table Union](#table-union)
-* [WBEM Source](#wbem)
-* [WMI Source](#wmi)
+* [Format](#Format)
+* [HTTP Source](#HTTP_Source)
+* [IPMI Source](#IPMI_Source)
+* [OS Command Source](#OS_Command_Source)
+* [Copy](#Copy)
+* [Static](#Static)
+* [SNMPGet Source](#SNMPGet_Source)
+* [SNMP Table](#SNMP_Table)
+* [Table Join](#Table_Join)
+* [Table Union](#Table_Union)
+* [WBEM Source](#WBEM_Source)
+* [WMI Source](#WMI_Source)
 
-## <a id="format" />Format
+## Format
 
 One or many sources can be defined under the `pre` section or under the monitor \<job\> (`discovery`, `multiCollect`, `monoCollect`, `allAtOnce`) section:
 
@@ -37,7 +37,7 @@ monitors:
 
 Under each source we can define a set of computes. Refer to the [Computes Section](connector-design-guide/computes.md) page for more details.
 
-## <a id="http" />HTTP Source
+## HTTP Source
 
 ```yaml
 connector:
@@ -67,7 +67,7 @@ monitors:
           computes: # <compute-object-array>
 ```
 
-## <a id="ipmi" />IPMI Source
+## IPMI Source
 
 ```yaml
 connector:
@@ -85,7 +85,7 @@ monitors:
           computes: # <compute-object-array>
 ```
 
-## <a id="os-command" />OS Command Source
+## OS Command Source
 
 ```yaml
 connector:
@@ -117,7 +117,7 @@ monitors:
           computes: # <compute-object-array>
 ```
 
-## <a id="copy" />Copy
+## Copy
 
 ```yaml
 connector:
@@ -135,7 +135,7 @@ monitors:
           computes: # <compute-object-array>
 ```
 
-## <a id="static" />Static
+## Static
 
 ```yaml
 connector:
@@ -153,7 +153,7 @@ monitors:
           computes: # <compute-object-array>
 ```
 
-## <a id="snmpget" />SNMPGet Source
+## SNMPGet Source
 
 ```yaml
 connector:
@@ -177,7 +177,7 @@ monitors:
           computes: # <compute-object-array>
 ```
 
-## <a id="snmptable" />SNMP Table
+## SNMP Table
 
 ```yaml
 connector:
@@ -202,7 +202,7 @@ monitors:
           computes: # <compute-object-array>
 ```
 
-## <a id="table-join" />Table Join
+## Table Join
 
 ```yaml
 connector:
@@ -226,7 +226,7 @@ monitors:
           computes: <compute-object-array>
 ```
 
-## <a id="table-union" />Table Union
+## Table Union
 
 ```yaml
 connector:
@@ -245,7 +245,7 @@ monitors:
           computes: <compute-object-array>
 ```
 
-## <a id="wbem" />WBEM Source
+## WBEM Source
 
 ```yaml
 connector:
@@ -270,7 +270,7 @@ monitors:
           computes: <compute-object-array>
 ```
 
-## <a id="wmi" />WMI Source
+## WMI Source
 
 ```yaml
 connector:

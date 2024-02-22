@@ -7,42 +7,42 @@ In order for a connector to match a system, some criterion must be met. They are
 
 A maximum number of 99 detection criterion may be defined in a connector.
 
-* [HTTP](#http)
+* [HTTP](#HTTP)
     * [Input Properties](#http-input-properties)
     * [Example](#http-example)
-* [IPMI](#ipmi)
+* [IPMI](#IPMI)
     * [Input Properties](#ipmi-input-properties)
     * [Example](#ipmi-example)
-* [Product Requirements](#product-requirements)
+* [Product Requirements](#Product_Requirements)
     * [Input Properties](#product-requirements-input-properties)
     * [Example](#product-requirements-example)
-* [Device Type](#device-type)
+* [Device Type](#Device_Type)
     * [Input Properties](#device-type-input-properties)
     * [Supported OS List](#device-type-os-list)
     * [Example](#device-type-example)
-* [OS Command](#os-command)
+* [OS Command](#OS_Command)
     * [Input Properties](#os-command-input-properties)
     * [Example](#os-command-example)
-* [Process](#process)
+* [Process](#Process)
     * [Input Properties](#process-input-properties)
     * [Example](#process-example)
-* [Service](#service)
+* [Service](#Service)
     * [Input Properties](#service-input-properties)
     * [Example](#service-example)
-* [SNMP Get](#snmp-get)
+* [SNMP Get](#SNMP_Get)
     * [Input Properties](#snmp-get-input-properties)
     * [Example](#snmp-get-example)
-* [SNMP GetNext](#snmp-getnext)
+* [SNMP GetNext](#SNMP_GetNext)
     * [Input Properties](#snmp-getnext-input-properties)
     * [Example](#snmp-getnext-example)
-* [WBEM](#wbem)
+* [WBEM](#WBEM)
     * [Input Properties](#wbem-input-properties)
     * [Example](#wbem-example)
-* [WMI](#wmi)
+* [WMI](#WMI)
     * [Input Properties](#wmi-input-properties)
     * [Example](#wmi-example)
 
-## <a id="http" /> HTTP
+## HTTP
 
 The goal of this part is to see how to define HTTP criteria.
 
@@ -64,7 +64,7 @@ connector:
       errorMessage: # <string>
 ```
 
-### <a id="http-input-properties" /> Input Properties
+### <a id="http-input-properties" />Input Properties
 
 | Input Property        | Description       |
 | --------------------- | ----------------- |
@@ -78,7 +78,7 @@ connector:
 | `authenticationToken` | The authentication token (typically a reference to another source). |
 | `errorMessage` | The error message to display if the expectedResult regular expression evaluates to false. |
 
-### <a id="http-example" /> Example
+### <a id="http-example" />Example
 
 ```yaml
 connector:
@@ -92,7 +92,7 @@ connector:
       errorMessage: Failed to get response from API
 ```
 
-## <a id="ipmi" /> IPMI
+## IPMI
 
 The goal of this part is to see how to define IPMI criteria.
 
@@ -105,11 +105,11 @@ connector:
    - type: ipmi
 ```
 
-### <a id="ipmi-input-properties" /> Input Properties
+### <a id="ipmi-input-properties" />Input Properties
 
 None, the product will run an IPMI command to determine if IPMI is available.
 
-### <a id="ipmi-example" /> Example
+### <a id="ipmi-example" />Example
 ```yaml
 connector:
   detection:
@@ -117,7 +117,7 @@ connector:
     - type: ipmi
 ```
 
-## <a id="product-requirements" /> Product Requirements
+## Product Requirements
 
 The goal of this part is to see how to define Product Requirements criteria.
 
@@ -138,7 +138,7 @@ connector:
 | `kmVersion` | Minimum required KM version, using this format: x.y.z (ex: 3.1.01) |
 | `engineVersion` | Minimum required engine version, using this format: x.y.z (ex: 3.1.01) |
 
-### <a id="product-requirements-example" /> Example
+### <a id="product-requirements-example" />Example
 ```yaml
 connector:
   detection:
@@ -147,7 +147,7 @@ connector:
       engineVersion: 4.1.00
 ```
 
-## <a id="device-type" /> Device Type
+## Device Type
 
 The goal of this part is to see how to define Device Type criteria.
 
@@ -162,13 +162,13 @@ connector:
       exclude: # <enum-array> | possible values: [ vms, osf1, hp, rs6000, linux, oob, nt, network, storage, solaris, sunos ]
 ```
 
-### <a id="device-type-input-properties" /> Input Properties
+### <a id="device-type-input-properties" />Input Properties
 | Input Property | Description |
 | -------------- | ----------- |
 | `exclude` | List of operating systems, separated by commas, that should not match the monitored system |
 | `keep` | List of operating systems, separated by commas. The monitored system's OS must match one of the listed item |
 
-### <a id="device-type-os-list" /> Supported OS List
+### <a id="device-type-os-list" />Supported OS List
 | Operating System | OS Type |
 | -------------- | ------------------ |
 | HP OpenVMS | `VMS` |
@@ -182,7 +182,7 @@ connector:
 | Sun Solaris | `Solaris` |
 | Microsoft Windows | `NT`, `win` |
 
-### <a id="device-type-example" /> Example
+### <a id="device-type-example" />Example
 ```yaml
 connector:
   detection:
@@ -191,7 +191,7 @@ connector:
       keep: [ vms, osf1, hp, rs6000, linux, oob, nt, network, storage, solaris, sunos ]
 ```
 
-## <a id="os-command" /> OS Command
+## OS Command
 
 The goal of this part is to see how to define OS commands criteria.
 
@@ -209,7 +209,7 @@ connector:
       timeout: # <number>
 ```
 
-### <a id="os-command-input-properties" /> Input Properties
+### <a id="os-command-input-properties" />Input Properties
 | Input Property | Description |
 | -------------- | ----------- |
 | `commandLine` | Command-line to be executed. Macros such as `%{USERNAME}`, `%{PASSWORD}` or `%{HOSTNAME}` may be used |
@@ -218,7 +218,7 @@ connector:
 | `executeLocally` | Specifies if the command must be executed locally even when monitoring a remote system (`0`, `false`, `1`, `true`) |
 | `expectedResult` | Regular expression that is expected to match the result of the OS command |
 
-### <a id="os-command-example" /> Example
+### <a id="os-command-example" />Example
 ```yaml
 connector:
   detection:
@@ -230,7 +230,7 @@ connector:
       errorMessage: Not a Navisphere system
 ```
 
-## <a id="process" /> Process
+## Process
 
 The goal of this part is to see how to define process criteria.
 
@@ -244,12 +244,12 @@ connector:
       commandLine: # <string>
 ```
 
-### <a id="process-input-properties" /> Input Properties
+### <a id="process-input-properties" />Input Properties
 | Input Property | Description |
 | -------------- | ----------- |
 | `commandLine` | Regular expression that should match the command line of a process currently running on the monitored system |
 
-### <a id="process-example" /> Example
+### <a id="process-example" />Example
 ```yaml
 connector:
   detection:
@@ -258,7 +258,7 @@ connector:
       processCommandLine: naviseccli -help
 ```
 
-## <a id="service" /> Service
+## Service
 
 The goal of this part is to see how to define service criteria.
 
@@ -272,12 +272,12 @@ connector:
       name: # <string>
 ```
 
-### <a id="service-input-properties" /> Input Properties
+### <a id="service-input-properties" />Input Properties
 | Input Property | Description |
 | -------------- | ----------- |
 | `name` | Regular expression that must match the name of a service currently running on the monitored system |
 
-### <a id="service-example" /> Example
+### <a id="service-example" />Example
 ```yaml
 connector:
   detection:
@@ -286,7 +286,7 @@ connector:
       name: TWGIPC
 ```
 
-## <a id="snmp-get" /> SNMP Get
+## SNMP Get
 
 The goal of this part is to see how to define SNMP Get criteria.
 
@@ -301,13 +301,13 @@ connector:
       expectedResult: # <string>
 ```
 
-### <a id="snmp-get-input-properties" /> Input Properties
+### <a id="snmp-get-input-properties" />Input Properties
 | Input Property | Description |
 | -------------- | ----------- |
 | `oid` | Object Identifier (OID) used to perform the SNMP request. The request must be successful |
 | `expectedResult` | Regular expression that is expected to match the result of the SNMP request. If not specified, a successful SNMP request will be sufficient for the criteria to be met |
 
-### <a id="snmp-get-example" /> Example
+### <a id="snmp-get-example" />Example
 ```yaml
 connector:
   detection:
@@ -317,7 +317,7 @@ connector:
       expectedResult: PDU
 ```
 
-## <a id="snmp-getnext" /> SNMP GetNext
+## SNMP GetNext
 
 The goal of this part is to see how to define SNMP GetNext criteria.
 
@@ -332,13 +332,13 @@ connector:
       expectedResult: # <string>
 ```
 
-### <a id="snmp-getnext-input-properties" /> Input Properties
+### <a id="snmp-getnext-input-properties" />Input Properties
 | Input Property | Description |
 | -------------- | ----------- |
 | `oid` | Object Identifier (OID) used to perform the SNMP get next request. The value returned is the content of the variable that is lexicographically next in the MIB. The request must be successful and the result OID must be a child of the provided OID. |
 | `expectedResult` | Regular expression that is expected to match the result of the SNMP request . If not specified, a successful SNMP request will be sufficient for the criteria to be met |
 
-### <a id="snmp-getnext-example" /> Example
+### <a id="snmp-getnext-example" />Example
 ```yaml
 connector:
   detection:
@@ -347,7 +347,7 @@ connector:
       oid: 1.3.6.1.4.1.674.10892.5.5.1.20.130.4
 ```
 
-## <a id="wbem" /> WBEM
+## WBEM
 
 The goal of this part is to see how to define WBEM criteria.
 
@@ -363,14 +363,14 @@ connector:
       expectedResult: # <string>
 ```
 
-### <a id="wbem-input-properties" /> Input Properties
+### <a id="wbem-input-properties" />Input Properties
 | Input Property | Description |
 | -------------- | ----------- |
 | `query` | WBEM query to be executed |
 | `namespace` | WBEM namespace providing the context for the WBEM query. Use `automatic` so that the namespace automatically determined |
 | `expectedResult` | Regular expression that is expected to match the result of the WBEM Query |
 
-### <a id="wbem-example" /> Example
+### <a id="wbem-example" />Example
 ```yaml
 connector:
   detection:
@@ -381,7 +381,7 @@ connector:
       expectedResult: [;|]3|[0-9|]*;$
 ```
 
-## <a id="wmi" /> WMI
+## WMI
 
 The goal of this part is to see how to define WMI criteria.
 
@@ -397,14 +397,14 @@ connector:
       expectedResult: # <string>
 ```
 
-### <a id="wmi-input-properties" /> Input Properties
+### <a id="wmi-input-properties" />Input Properties
 | Input Property | Description |
 | -------------- | ----------- |
 | `query` | WMI query to be executed |
 | `namespace` | WMI namespace providing the context for the WMI query. Use `automatic` so that the namespace is automatically determined |
 | `expectedResult` | Regular expression that is expected to match the result of the WMI query |
 
-### <a id="wmi-example" /> Example
+### <a id="wmi-example" />Example
 ```yaml
 connector:
   detection:
