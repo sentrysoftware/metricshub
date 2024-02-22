@@ -179,8 +179,8 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 * Check HTTP protocol health on the hostname for the host monitor.
 	 * Criteria: The HTTP GET request to "/" must return a result.
 	 *
-	 * @param hostMonitor   An endpoint host monitor
 	 * @param hostname      The hostname on which we perform health check
+	 * @param hostMonitor   An endpoint host monitor
 	 * @param metricFactory The metric factory used to collect the health check metric
 	 */
 	public void checkHttpHealth(String hostname, Monitor hostMonitor, MetricFactory metricFactory) {
@@ -229,8 +229,8 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 * Check SNMP protocol health on the hostname for the host monitor.
 	 * Criteria: SNMP Get Next on '1.3.6.1' SNMP OID must be successful.
 	 *
-	 * @param hostMonitor   An endpoint host monitor
 	 * @param hostname      The hostname on which we perform health check
+	 * @param hostMonitor   An endpoint host monitor
 	 * @param metricFactory The metric factory used to collect the health check metric
 	 */
 	public void checkSnmpHealth(String hostname, Monitor hostMonitor, MetricFactory metricFactory) {
@@ -270,9 +270,9 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 * Check SSH protocol health on the hostname for the host monitor.
 	 * Criteria: The echo command must be working.
 	 *
-	 * @param hostMonitor   An endpoint host monitor
 	 * @param hostname      The hostname on which we perform health check
-	 * @param metricFactory The metric factory used to collect the health check
+	 * @param hostMonitor   An endpoint host monitor
+	 * @param metricFactory The metric factory used to collect the health check metric
 	 *                      metric
 	 */
 	public void checkSshHealth(String hostname, Monitor hostMonitor, MetricFactory metricFactory) {
@@ -309,7 +309,6 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 * Performs a local Os Command test to determine whether the SSH protocol is UP.
 	 *
 	 * @param hostname  The hostname on which we perform health check
-	 * @param sshResult The results that will be used to create protocol health check metric
 	 * @return The SSH health check result after performing the tests
 	 */
 	private Double localSshTest(String hostname) {
@@ -367,8 +366,8 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 * Check Ipmi protocol health on the hostname for the host monitor.
 	 * Criteria: The getChassisStatusAsStringResult IPMI Client request request must return a result.
 	 *
-	 * @param hostMonitor   An endpoint host monitor
 	 * @param hostname      The hostname on which we perform health check
+	 * @param hostMonitor   An endpoint host monitor
 	 * @param metricFactory The metric factory used to collect the health check metric
 	 */
 	public void checkIpmiHealth(String hostname, Monitor hostMonitor, MetricFactory metricFactory) {
@@ -426,14 +425,11 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 * 	<li>Success Conditions: CIM_ERR_INVALID_NAMESPACE and CIM_ERR_NOT_FOUND errors are considered successful, indicating that the protocol is responding.</li>
 	 * </ul>
 	 *
-	 * @param hostMonitor   An endpoint host monitor
 	 * @param hostname      The hostname on which we perform health check
+	 * @param hostMonitor   An endpoint host monitor
 	 * @param metricFactory The metric factory used to collect the health check metric
 	 */
 	public void checkWbemHealth(String hostname, Monitor hostMonitor, MetricFactory metricFactory) {
-		// Create and set the WBEM result to null
-		List<List<String>> wbemResult = null;
-
 		// Retrieve WBEM Configuration from the telemetry manager host configuration
 		final WbemConfiguration wbemConfiguration = (WbemConfiguration) telemetryManager
 			.getHostConfiguration()
@@ -452,11 +448,14 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 
 		for (final String wbemNamespace : WBEM_UP_TEST_NAMESPACES) {
 			try {
-				// Execute WBEM query
-				wbemResult = clientsExecutor.executeWbem(hostname, wbemConfiguration, WBEM_TEST_QUERY, wbemNamespace);
+				log.info(
+					"Hostname {} - Checking WBEM protocol status. Sending a WQL SELECT request on {} namespace.",
+					hostname,
+					wbemNamespace
+				);
 
 				// The query on the WBEM namespace returned a result
-				if (wbemResult != null) {
+				if (clientsExecutor.executeWbem(hostname, wbemConfiguration, WBEM_TEST_QUERY, wbemNamespace) != null) {
 					// Collect the metric with a '1.0' value and stop the test
 					metricFactory.collectNumberMetric(hostMonitor, WBEM_UP_METRIC, UP, strategyTime);
 					return;
