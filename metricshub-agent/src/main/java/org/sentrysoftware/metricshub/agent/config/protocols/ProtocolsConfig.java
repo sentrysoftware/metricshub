@@ -61,5 +61,5 @@ public class ProtocolsConfig {
 	private OsCommandProtocolConfig osCommand;
 
 	@JsonSetter(nulls = SKIP)
-	private WinRmProtocolConfig winRm;
+	private WinRmProtocolConfig winrm;
 }
