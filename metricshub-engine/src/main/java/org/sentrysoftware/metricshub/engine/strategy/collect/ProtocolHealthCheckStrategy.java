@@ -31,7 +31,6 @@ import org.sentrysoftware.ipmi.client.IpmiClient;
 import org.sentrysoftware.ipmi.client.IpmiClientConfiguration;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.client.http.HttpRequest;
-import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
@@ -513,8 +512,8 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 * 	<li>Success Conditions: No errors in the query result, indicating that the protocol is responding.</li>
 	 * </ul>
 	 *
-	 * @param hostMonitor   An endpoint host monitor
 	 * @param hostname      The hostname on which we perform health check
+	 * @param hostMonitor   An endpoint host monitor
 	 * @param metricFactory The metric factory used to collect the health check metric
 	 */
 	public void checkWmiHealth(String hostname, Monitor hostMonitor, MetricFactory metricFactory) {
@@ -541,7 +540,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 		try {
 			wmiResult =
 				clientsExecutor.executeWmi(hostname, wmiConfiguration, WMI_AND_WINRM_TEST_QUERY, WMI_AND_WINRM_TEST_NAMESPACE);
-		} catch (ClientException e) {
+		} catch (Exception e) {
 			if (WqlDetectionHelper.isAcceptableException(e)) {
 				// Generate a metric from the WMI result
 				metricFactory.collectNumberMetric(hostMonitor, WMI_UP_METRIC, UP, strategyTime);
