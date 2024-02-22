@@ -932,7 +932,7 @@ public class ConfigHelper {
 			return;
 		}
 
-		final WinRmProtocolConfig winRmConfig = protocolsConfig.getWinRm();
+		final WinRmProtocolConfig winRmConfig = protocolsConfig.getWinrm();
 		if (winRmConfig != null) {
 			validateWinRmInfo(resourceKey, winRmConfig.getPort(), winRmConfig.getTimeout(), winRmConfig.getUsername());
 		}
@@ -1063,14 +1063,6 @@ public class ConfigHelper {
 			INVALID_TIMEOUT_CHECKER,
 			() -> String.format(TIMEOUT_ERROR, resourceKey, displayName, snmpConfig.getTimeout())
 		);
-
-		if (intVersion == 3 && snmpVersion.getAuthType() != null) {
-			validateAttribute(
-				snmpConfig.getUsername(),
-				INVALID_STRING_CHECKER,
-				() -> String.format(USERNAME_ERROR, resourceKey, displayName)
-			);
-		}
 	}
 
 	/**
@@ -1226,7 +1218,7 @@ public class ConfigHelper {
 						protocols.getWmi(),
 						protocols.getOsCommand(),
 						protocols.getIpmi(),
-						protocols.getWinRm()
+						protocols.getWinrm()
 					)
 					.filter(Objects::nonNull)
 					.map(AbstractProtocolConfig::toConfiguration)

@@ -192,13 +192,7 @@ class SourceProcessorTest {
 		assertEquals(SourceTable.empty(), sourceProcessor.process(SnmpGetSource.builder().oid(OID).build()));
 
 		// classic case
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
-			.builder()
-			.username(USERNAME)
-			.password(PASSWORD.toCharArray())
-			.port(161)
-			.timeout(120L)
-			.build();
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().port(161).timeout(120L).build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(ECS1_01)
@@ -244,13 +238,7 @@ class SourceProcessorTest {
 		assertEquals(SourceTable.empty(), sourceProcessor.process(SnmpGetSource.builder().oid(OID).build()));
 
 		// no matches
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
-			.builder()
-			.username(USERNAME)
-			.password(PASSWORD.toCharArray())
-			.port(161)
-			.timeout(120L)
-			.build();
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().port(161).timeout(120L).build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(ECS1_01)
@@ -273,13 +261,7 @@ class SourceProcessorTest {
 
 	@Test
 	void testProcessSbmpGetTableExpectedResultMatches() throws Exception {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
-			.builder()
-			.username(USERNAME)
-			.password(PASSWORD.toCharArray())
-			.port(161)
-			.timeout(120L)
-			.build();
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().port(161).timeout(120L).build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(ECS1_01)
@@ -307,13 +289,7 @@ class SourceProcessorTest {
 
 	@Test
 	void testProcessTableJoinSource() {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
-			.builder()
-			.username(USERNAME)
-			.password(PASSWORD.toCharArray())
-			.port(161)
-			.timeout(120L)
-			.build();
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().port(161).timeout(120L).build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(ECS1_01)
@@ -574,13 +550,7 @@ class SourceProcessorTest {
 			Arrays.asList(LOWERCASE_V1, LOWERCASE_V2, LOWERCASE_V3)
 		);
 
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
-			.builder()
-			.username(USERNAME)
-			.password(PASSWORD.toCharArray())
-			.port(161)
-			.timeout(120L)
-			.build();
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().port(161).timeout(120L).build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(ECS1_01)
@@ -617,13 +587,7 @@ class SourceProcessorTest {
 
 	@Test
 	void testProcessCopySource() {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
-			.builder()
-			.username(USERNAME)
-			.password(PASSWORD.toCharArray())
-			.port(161)
-			.timeout(120L)
-			.build();
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().port(161).timeout(120L).build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(ECS1_01)
@@ -685,13 +649,7 @@ class SourceProcessorTest {
 
 	@Test
 	void testProcessStaticSource() {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
-			.builder()
-			.username(USERNAME)
-			.password(PASSWORD.toCharArray())
-			.port(161)
-			.timeout(120L)
-			.build();
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().port(161).timeout(120L).build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(ECS1_01)
