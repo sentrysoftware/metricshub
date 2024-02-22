@@ -9,6 +9,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HOSTNAME;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.DOWN;
@@ -20,8 +21,6 @@ import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHeal
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.UP;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WBEM_TEST_QUERY;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WBEM_UP_METRIC;
-import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WBEM_UP_TEST_NAMESPACES;
-import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WINRM_UP_METRIC;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WMI_AND_WINRM_TEST_NAMESPACE;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WMI_AND_WINRM_TEST_QUERY;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WMI_UP_METRIC;
@@ -29,6 +28,7 @@ import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHeal
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,6 +38,7 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
 import org.sentrysoftware.ipmi.client.IpmiClient;
 import org.sentrysoftware.ipmi.client.IpmiClientConfiguration;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
@@ -54,6 +55,8 @@ import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.wbem.javax.wbem.WBEMException;
+import org.sentrysoftware.wmi.exceptions.WmiComException;
 
 @ExtendWith(MockitoExtension.class)
 class ProtocolHealthCheckStrategyTest {
@@ -65,6 +68,8 @@ class ProtocolHealthCheckStrategyTest {
 
 	private static final String SUCCESS_RESPONSE = "Success";
 	private static final String NULL_RESPONSE = null;
+
+	private static final List<List<String>> WQL_SUCCESS_RESPONSE = List.of(List.of(SUCCESS_RESPONSE));
 	static Map<String, Map<String, Monitor>> monitors;
 
 	/**
@@ -184,9 +189,9 @@ class ProtocolHealthCheckStrategyTest {
 	}
 
 	/**
-	 * Creates and returns a TelemetryManager instance with an IPMI configuration.
+	 * Creates and returns a TelemetryManager instance with an WBEM configuration.
 	 *
-	 * @return A TelemetryManager instance configured with an IPMI configuration.
+	 * @return A TelemetryManager instance configured with an WBEM configuration.
 	 */
 	private TelemetryManager createTelemetryManagerWithWbemConfig() {
 		// Create a telemetry manager
@@ -583,7 +588,7 @@ class ProtocolHealthCheckStrategyTest {
 			clientsExecutorMock
 		);
 
-		// Mock IPMI protocol health check response
+		// Mock successful IPMI protocol health check response
 		try (MockedStatic<IpmiClient> staticIpmiClient = Mockito.mockStatic(IpmiClient.class)) {
 			staticIpmiClient
 				.when(() -> IpmiClient.getChassisStatusAsStringResult(any(IpmiClientConfiguration.class)))
@@ -608,7 +613,7 @@ class ProtocolHealthCheckStrategyTest {
 			clientsExecutorMock
 		);
 
-		// Mock IPMI protocol health check response
+		// Mock null IPMI protocol health check response
 		try (MockedStatic<IpmiClient> staticIpmiClient = Mockito.mockStatic(IpmiClient.class)) {
 			staticIpmiClient
 				.when(() -> IpmiClient.getChassisStatusAsStringResult(any(IpmiClientConfiguration.class)))
@@ -633,18 +638,59 @@ class ProtocolHealthCheckStrategyTest {
 			clientsExecutorMock
 		);
 
-		// Mock a positive result for each WBEM test namespace
-		for (final String namespace : WBEM_UP_TEST_NAMESPACES) {
-			// Mock WBEM protocol health check response
-			doAnswer(answer -> {
-					if (answer.getArgument(3).equals(namespace)) {
-						return List.of(List.of(SUCCESS_RESPONSE));
-					} else {
-						return null;
-					}
-				})
+		{
+			// Mock a positive response for every WBEM protocol health check test namespace
+			doReturn(WQL_SUCCESS_RESPONSE)
 				.when(clientsExecutorMock)
 				.executeWbem(anyString(), any(WbemConfiguration.class), eq(WBEM_TEST_QUERY), anyString());
+
+			// Start the WBEM Health Check strategy
+			wbemHealthCheckStrategy.run();
+
+			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(WBEM_UP_METRIC).getValue());
+		}
+
+		{
+			final Map<String, Answer<?>> answers = Map.of(
+				"root/Interop",
+				answer -> null,
+				"interop",
+				answer -> null,
+				"root/PG_Interop",
+				answer -> null,
+				"PG_Interop",
+				answer -> {
+					throw new RuntimeException(new WBEMException(WBEMException.CIM_ERR_INVALID_NAMESPACE));
+				}
+			);
+
+			for (Entry<String, Answer<?>> answerEntry : answers.entrySet()) {
+				// Mock a positive response for every WBEM protocol health check test namespace
+				doAnswer(answerEntry.getValue())
+					.when(clientsExecutorMock)
+					.executeWbem(anyString(), any(WbemConfiguration.class), eq(WBEM_TEST_QUERY), eq(answerEntry.getKey()));
+			}
+
+			// Start the WBEM Health Check strategy
+			wbemHealthCheckStrategy.run();
+
+			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(WBEM_UP_METRIC).getValue());
+		}
+
+		{
+			final Map<String, Answer<?>> answers = Map.of(
+				"root/Interop",
+				answer -> null,
+				"interop",
+				answer -> WQL_SUCCESS_RESPONSE
+			);
+
+			for (Entry<String, Answer<?>> answerEntry : answers.entrySet()) {
+				// Mock a positive response for every WBEM protocol health check test namespace
+				doAnswer(answerEntry.getValue())
+					.when(clientsExecutorMock)
+					.executeWbem(anyString(), any(WbemConfiguration.class), eq(WBEM_TEST_QUERY), eq(answerEntry.getKey()));
+			}
 
 			// Start the WBEM Health Check strategy
 			wbemHealthCheckStrategy.run();
@@ -665,15 +711,44 @@ class ProtocolHealthCheckStrategyTest {
 			clientsExecutorMock
 		);
 
-		// Mock a null WBEM protocol health check response
-		doReturn(null)
-			.when(clientsExecutorMock)
-			.executeWbem(anyString(), any(WbemConfiguration.class), eq(WBEM_TEST_QUERY), anyString());
+		{
+			// Mock a null WBEM protocol health check response
+			doReturn(null)
+				.when(clientsExecutorMock)
+				.executeWbem(anyString(), any(WbemConfiguration.class), eq(WBEM_TEST_QUERY), anyString());
 
-		// Start the WBEM Health Check strategy
-		wbemHealthCheckStrategy.run();
+			// Start the WBEM Health Check strategy
+			wbemHealthCheckStrategy.run();
 
-		assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(WBEM_UP_METRIC).getValue());
+			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(WBEM_UP_METRIC).getValue());
+		}
+
+		{
+			final Map<String, Answer<?>> answers = Map.of(
+				"root/Interop",
+				answer -> null,
+				"interop",
+				answer -> null,
+				"root/PG_Interop",
+				answer -> null,
+				"PG_Interop",
+				answer -> {
+					throw new RuntimeException(new WBEMException(WBEMException.CIM_ERR_FAILED));
+				}
+			);
+
+			for (Entry<String, Answer<?>> answerEntry : answers.entrySet()) {
+				// Mock a negative response for every WBEM protocol health check test namespace
+				doAnswer(answerEntry.getValue())
+					.when(clientsExecutorMock)
+					.executeWbem(anyString(), any(WbemConfiguration.class), eq(WBEM_TEST_QUERY), eq(answerEntry.getKey()));
+			}
+
+			// Start the WBEM Health Check strategy
+			wbemHealthCheckStrategy.run();
+
+			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(WBEM_UP_METRIC).getValue());
+		}
 	}
 
 	@Test
@@ -688,20 +763,39 @@ class ProtocolHealthCheckStrategyTest {
 			clientsExecutorMock
 		);
 
-		// Mock a positive WMI protocol health check response
-		doReturn(List.of(List.of(SUCCESS_RESPONSE)))
-			.when(clientsExecutorMock)
-			.executeWmi(
-				anyString(),
-				any(WmiConfiguration.class),
-				eq(WMI_AND_WINRM_TEST_QUERY),
-				eq(WMI_AND_WINRM_TEST_NAMESPACE)
-			);
+		{
+			// Mock a positive WMI protocol health check response
+			doReturn(WQL_SUCCESS_RESPONSE)
+				.when(clientsExecutorMock)
+				.executeWmi(
+					anyString(),
+					any(WmiConfiguration.class),
+					eq(WMI_AND_WINRM_TEST_QUERY),
+					eq(WMI_AND_WINRM_TEST_NAMESPACE)
+				);
 
-		// Start the WMI Health Check strategy
-		wmiHealthCheckStrategy.run();
+			// Start the WMI Health Check strategy
+			wmiHealthCheckStrategy.run();
 
-		assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(WMI_UP_METRIC).getValue());
+			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(WMI_UP_METRIC).getValue());
+		}
+
+		{
+			// Mock an acceptable WMI protocol health check exception
+			doThrow(new RuntimeException(new WmiComException("WBEM_E_INVALID_NAMESPACE")))
+				.when(clientsExecutorMock)
+				.executeWmi(
+					anyString(),
+					any(WmiConfiguration.class),
+					eq(WMI_AND_WINRM_TEST_QUERY),
+					eq(WMI_AND_WINRM_TEST_NAMESPACE)
+				);
+
+			// Start the WMI Health Check strategy
+			wmiHealthCheckStrategy.run();
+
+			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(WMI_UP_METRIC).getValue());
+		}
 	}
 
 	@Test
