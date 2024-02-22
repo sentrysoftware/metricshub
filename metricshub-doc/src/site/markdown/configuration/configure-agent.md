@@ -132,8 +132,7 @@ where:
   * `solaris` for Oracle Solaris systems
   * `tru64` for HP Tru64 systems
   * `vms` for HP Open VMS systems
-    For the enterprise edition, refer to [Monitored Systems](../enterprise-platform-requirements.html) for more details.
-    For the basic edition, refer to [Monitored Systems](../basic-platform-requirements.html) for more details.
+    For the community edition, refer to [Monitored Systems](../platform-requirements.html) for more details.
 
 * `<protocol-configuration>` is the protocol(s) **${solutionName}** will use to communicate with the resources: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](#protocol) for more details.
 
@@ -440,27 +439,11 @@ otel:
 resourceGroups: # ...
 ```
 
-On the other hand, the enterprise edition updates the community edition's behavior. The **MetricsHub Agent**'s internal `OTLP Exporter` includes the HTTP  `Authorization` request header to authenticate itself with the _OpenTelemetry Collector_'s [OTLP gRPC Receiver](configure-otel.md#OTLP_gRPC). A predefined *Basic Authentication Header* value is stored internally and included in each request when sending telemetry data.
-
-To customize the default value of the `OTLP Exporter` header, set the `otel.exporter.otlp.metrics.headers` and `otel.exporter.otlp.logs.headers` parameters under the `otel` section in your configuration file:
-
-```yaml
-otel:
-  otel.exporter.otlp.metrics.headers: Authorization=Basic <base64-credentials>
-  otel.exporter.otlp.logs.headers: Authorization=Basic <base64-credentials>
-
-resourceGroups: # ...
-```
-
-where `<base64-credentials>` are built by first joining your username and password with a colon (`myUsername:myPassword`) and then encoding the value in `base64`.
-
-> **Warning**: If you update the *Basic Authentication Header*, you must generate a new `.htpasswd` file for the [OpenTelemetry Collector Basic Authenticator](configure-otel.md#Basic_Authenticator).
-
 #### OTLP endpoint
 
 The **MetricsHub Agent**'s internal `OTLP Exporter` pushes telemetry [signals](https://opentelemetry.io/docs/concepts/signals/) to the [`OTLP Receiver`](https://github.com/open-telemetry/opentelemetry-collector/tree/main/receiver/otlpreceiver) through [gRPC](https://grpc.io/) on port **TCP/4317**.
 
-By default, the internal `OTLP Exporter` is configured to push data to the `OTLP Receiver` endpoint `https://localhost:4317`.
+By default, the internal `OTLP Exporter` is configured to push data to the `OTLP Receiver` endpoint `http://localhost:4317`.
 
 To override the OTLP endpoints, configure the `otel.exporter.otlp.metrics.endpoint` and `otel.exporter.otlp.logs.endpoint` parameters under the `otel` section in your configuration file:
 
@@ -472,7 +455,7 @@ otel:
 resourceGroups: #...
 ```
 
-#### Example Configuration for the **MetricsHub Agent** Community Edition to Transmit Metrics to the Prometheus OTLP Receiver
+##### Example Configuration for the **MetricsHub Agent** Community Edition to Transmit Metrics to the Prometheus OTLP Receiver
 
 ```yaml
 otel:
@@ -485,6 +468,20 @@ Replace `<prom-server-host>` with the server's hostname or IP address where *Pro
 
 > **Note:**
 > For specific configuration details, refer to the [OpenTelemetry Auto-Configure documentation](https://github.com/open-telemetry/opentelemetry-java/tree/main/sdk-extensions/autoconfigure). This resource provides information on the properties that should be configured according to your deployment requirements.
+
+#### Trusted certificates file
+
+If the internal **MetricsHub Agent**'s `OTLP Exporter` requires an `OTLP Receiver` certificate, you must configure the `otel.exporter.otlp.metrics.certificate` and `otel.exporter.otlp.logs.certificate` parameters under the `otel` section:
+
+```yaml
+otel:
+  otel.exporter.otlp.metrics.certificate: /opt/metricshub/security/new-server-cert.crt
+  otel.exporter.otlp.logs.certificate: /opt/metricshub/security/new-server-cert.crt
+
+resourceGroups: # ...
+```
+
+The file should contain one or more X.509 certificates in PEM format.
 
 ### Monitoring settings
 
@@ -523,7 +520,7 @@ By default, **${solutionName}** collects metrics from the monitored resources ev
 
 #### Connectors
 
-**${solutionName}** comes with the *Basic Connector Library* whereas the *Enterprise edition* includes hundreds of hardware connectors that describe how to discover components and detect failures. When running **${solutionName}**, the connectors are automatically selected based on the device type provided and the enabled protocols. However, you have the flexibility to specify which connectors should be utilized or omitted.
+When running **${solutionName}**, the connectors are automatically selected based on the device type provided and the enabled protocols. However, you have the flexibility to specify which connectors should be utilized or omitted.
 
 The `connectors` parameter allows you to enforce, select, or exclude specific connectors. Connector names or category tags should be separated by commas, as illustrated in the example below:
 
@@ -604,7 +601,7 @@ resourceGroups:
   The core engine will perform automatic detection on connectors categorized under `hardware`, excluding the `MIB2` connector.
 
 
-To know which connectors are available, refer to [Basic Monitored Systems](../basic-platform-requirements.html#!) or [Enterprise Monitored Systems](../enterprise-platform-requirements.html#!).
+To know which connectors are available, refer to [Community Monitored Systems](../platform-requirements.html#!).
 
 Otherwise, you can list the available connectors using the below command:
 
@@ -741,123 +738,3 @@ Timeouts, durations and periods are specified with the below format:
 | m    | minutes                         | 90m, 1m15s       |
 | h    | hours                           | 1h, 1h30m        |
 | d    | days (based on a 24-hour day)   | 1d               |
-
-### OpenTelemetry Collector process settings <span class="badge">Enterprise</span>
-
-> **Note**: These settings should not be changed unless specifically required.
-
-The **MetricsHub Agent** launches the _OpenTelemetry Collector_ as a child process by running the `otel/otelcol-contrib` executable which reads the `otel/otel-config.yaml` file to start its internal components.
-
-To customize the way the _OpenTelemetry Collector_ process is started, update the `otelCollector` section in `config/metricshub.yaml`:
-
-```yaml
-otelCollector:
-  commandLine: [<otelcol-contrib>, <arguments...>]
-  environment:
-    <ENV_KEY1>: <ENV_VALUE1>
-    <ENV_KEY2>: <ENV_VALUE2>
-    # ...
-  output: log|console|silent
-  workingDir: <PATH>
-  disabled: false
-
-resourceGroups: # ...
-```
-
-#### Command line
-
-By default, the **MetricsHub Agent** launches the _OpenTelemetry Collector_ process using the following command line: `otel/otelcol-contrib --config otel/otel-config.yaml --feature-gates=pkg.translator.prometheus.NormalizeName`.
-
-If you want to run your own distribution of the _OpenTelemetry Collector_ or update the default program's arguments such as the `--feature-gates` flag, you need to override the _OpenTelemetry Collector_ default command line by setting the `commandLine` property under the `otelCollector` section:
-
-```yaml
-otelCollector:
-  commandLine: 
-    - /opt/metricshub/otel/my-otelcol
-    - --config
-    - /opt/metricshub/otel/my-otel-config.yaml
-    - --feature-gates=pkg.translator.prometheus.NormalizeName
-
-resourceGroups: # ...
-```
-
-#### Disabling the collector (Not recommended)
-
-In some cases, you might want the **MetricsHub Agent** to send OpenTelemetry signals directly to an existing _OpenTelemetry Collector_ running the `gRPC OTLP Receiver`, in which case, running a local _OpenTelemetry Collector_ is unnecessary.
-
-To disable the _OpenTelemetry Collector_, set the `disabled` property to `true` under the `otelCollector` section:
-
-```yaml
-otelCollector:
-  disabled: true
-
-resourceGroups: # ...
-```
-
-#### Environment
-
-When **${solutionName}** is installed as a Windows service, the _OpenTelemetry Collector_ may fail to start if it cannot connect to the Windows service controller. To address this issue, you can set the `NO_WINDOWS_SERVICE` environment variable to `1` to force the _OpenTelemetry Collector_ to be started as if it were running in an interactive terminal.
-
-You can set additional [environment variables](https://opentelemetry.io/docs/collector/configuration/#configuration-environment-variables) to be used by the _OpenTelemetry Collector_ in the `otelCollector:environment` section (e.g.: HTTPS_PROXY):
-
-```yaml
-otelCollector:
-  environment:
-    HTTPS_PROXY: https://my-proxy.domain.internal.net
-    NO_WINDOWS_SERVICE: 1
-
-resourceGroups: # ...
-```
-
-#### Process output
-
-By default, the **MetricsHub Agent** listens to the _OpenTelemetry Collector_ standard output (STDOUT) and standard error (STDERR) and streams each output line to the `logs/otelcol-<timestamp>.log` file when the logger is enabled.
-
-To print the _OpenTelemetry Collector_ output to the console, set the `output` property to `console` under the `otelCollector` section:
-
-```yaml
-otelCollector:
-  output: console  # Default: log
-
-resourceGroups: # ...
-```
-
-To disable the _OpenTelemetry Collector_ output processor, set the `output` property to `silent` under the `otelCollector` section:
-
-```yaml
-otelCollector:
-  output: silent   # Default: log
-
-resourceGroups: # ...
-```
-
-#### Working directory
-
-By default, the _OpenTelemetry Collector_ working directory is set to `metricshub/otel`. If your working directory is different (typically in heavily customized setups), add the `workingDir` attribute under the `otelCollector` section in `config/metricshub.yaml`:
-
-```yaml
-otelCollector:
-  workingDir: /opt/metricshub/otel
-
-resourceGroups: # ...
-```
-
-> **Important**: The _OpenTelemetry Collector_ might not start if the value set for the `workingDir` attribute is not correct, more especially if the `otel/otel-config.yaml` file uses relative paths.
-
-### Security settings <span class="badge">Enterprise</span>
-
-#### Trusted certificates file
-
-A TLS handshake takes place when the **MetricsHub Agent**'s `OTLP Exporter` instantiates a communication with the `OTLP gRPC Receiver`. By default, the internal `OTLP Exporter` client is configured to trust the `OTLP gRPC Receiver`'s certificate `security/otel.crt`.
-
-If you generate a new server's certificate for the [OTLP gRPC Receiver](configure-otel.md#OTLP_gRPC), you must configure the `otel.exporter.otlp.metrics.certificate` and `otel.exporter.otlp.logs.certificate` parameters under the `otel` section:
-
-```yaml
-otel:
-  otel.exporter.otlp.metrics.certificate: /opt/metricshub/security/new-server-cert.crt
-  otel.exporter.otlp.logs.certificate: /opt/metricshub/security/new-server-cert.crt
-
-resourceGroups: # ...
-```
-
-The file should be stored in the `security` folder of the installation directory and should contain one or more X.509 certificates in PEM format.
