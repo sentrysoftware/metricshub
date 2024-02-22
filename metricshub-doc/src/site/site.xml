@@ -31,18 +31,13 @@
 
 		<menu name="Configuration">
 			<item name="MetricsHub Agent" href="configuration/configure-agent.html" />
-			<item name="Security" href="security/security.html">
-				<item name="Password Encryption" href="security/passwords.html" />
-				<item name="Security Settings &lt;span class=&quot;badge&quot;&gt;Enterprise&lt;/span&gt;" href="security/settings.html" />
-			</item>
-			<item name="OpenTelemetry Advanced Settings &lt;span class=&quot;badge&quot;&gt;Enterprise&lt;/span&gt;" href="configuration/configure-otel.html" />
+			<item name="Password Encryption" href="security/passwords.html" />
+			<item name="Security Settings" href="security/settings.html" />
 		</menu>
 
 		<menu name="Troubleshooting">
-			<item name="Health Check" href="troubleshooting/status.html" />
 			<item name="Debugging" href="troubleshooting/debug.html" />
 			<item name="MetricsHub CLI (&lt;code&gt;metricshub&lt;/code&gt;)" href="troubleshooting/cli.html" />
-			<item name="Self-Monitoring &lt;span class=&quot;badge&quot;&gt;Enterprise&lt;/span&gt;" href="troubleshooting/self-monitoring.html" />
 		</menu>
 
 		<menu name="Appendix">
