@@ -567,8 +567,8 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 * 	<li>Success Conditions: No errors in the query result, indicating that the protocol is responding.</li>
 	 * </ul>
 	 *
-	 * @param hostMonitor   An endpoint host monitor
 	 * @param hostname      The hostname on which we perform health check
+	 * @param hostMonitor   An endpoint host monitor
 	 * @param metricFactory The metric factory used to collect the health check metric
 	 */
 	public void checkWinRmHealth(String hostname, Monitor hostMonitor, MetricFactory metricFactory) {
@@ -600,7 +600,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 					WMI_AND_WINRM_TEST_QUERY,
 					WMI_AND_WINRM_TEST_NAMESPACE
 				);
-		} catch (ClientException e) {
+		} catch (Exception e) {
 			if (WqlDetectionHelper.isAcceptableException(e)) {
 				// Generate a metric from the WINRM result
 				metricFactory.collectNumberMetric(hostMonitor, WINRM_UP_METRIC, UP, strategyTime);

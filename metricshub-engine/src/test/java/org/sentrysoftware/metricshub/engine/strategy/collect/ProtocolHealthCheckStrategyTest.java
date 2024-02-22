@@ -21,6 +21,7 @@ import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHeal
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.UP;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WBEM_TEST_QUERY;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WBEM_UP_METRIC;
+import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WINRM_UP_METRIC;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WMI_AND_WINRM_TEST_NAMESPACE;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WMI_AND_WINRM_TEST_QUERY;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WMI_UP_METRIC;
@@ -57,6 +58,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.wbem.javax.wbem.WBEMException;
 import org.sentrysoftware.wmi.exceptions.WmiComException;
+import org.sentrysoftware.winrm.exceptions.WqlQuerySyntaxException;
 
 @ExtendWith(MockitoExtension.class)
 class ProtocolHealthCheckStrategyTest {
@@ -839,7 +841,7 @@ class ProtocolHealthCheckStrategyTest {
 		);
 
 		// Mock a positive WINRM protocol health check response
-		doReturn(List.of(List.of(SUCCESS_RESPONSE)))
+		doReturn(WQL_SUCCESS_RESPONSE)
 			.when(clientsExecutorMock)
 			.executeWqlThroughWinRm(
 				anyString(),
@@ -852,6 +854,23 @@ class ProtocolHealthCheckStrategyTest {
 		winRmHealthCheckStrategy.run();
 
 		assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(WINRM_UP_METRIC).getValue());
+
+		{
+			// Mock an acceptable WINRM protocol health check exception
+			doThrow(new RuntimeException(new WqlQuerySyntaxException("WQL Quert Syntax Exception")))
+				.when(clientsExecutorMock)
+				.executeWqlThroughWinRm(
+					anyString(),
+					any(WinRmConfiguration.class),
+					eq(WMI_AND_WINRM_TEST_QUERY),
+					eq(WMI_AND_WINRM_TEST_NAMESPACE)
+				);
+			
+			// Start the WINRM Health Check strategy
+			winRmHealthCheckStrategy.run();
+
+			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(WINRM_UP_METRIC).getValue());
+		}
 	}
 
 	@Test
