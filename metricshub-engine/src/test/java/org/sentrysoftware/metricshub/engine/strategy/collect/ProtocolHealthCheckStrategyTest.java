@@ -178,9 +178,9 @@ class ProtocolHealthCheckStrategyTest {
 	}
 
 	/**
-	 * Creates and returns a TelemetryManager instance with an IPMI configuration.
+	 * Creates and returns a TelemetryManager instance with an WBEM configuration.
 	 *
-	 * @return A TelemetryManager instance configured with an IPMI configuration.
+	 * @return A TelemetryManager instance configured with an WBEM configuration.
 	 */
 	private TelemetryManager createTelemetryManagerWithWbemConfig() {
 		// Create a telemetry manager
@@ -192,7 +192,6 @@ class ProtocolHealthCheckStrategyTest {
 					.builder()
 					.hostId(HOSTNAME)
 					.hostname(HOSTNAME)
-					.sequential(false)
 					.configurations(Map.of(WbemConfiguration.class, WbemConfiguration.builder().build()))
 					.build()
 			)
@@ -578,8 +577,7 @@ class ProtocolHealthCheckStrategyTest {
 
 		// Mock a positive result for each WBEM test namespace
 		for (final String namespace : WBEM_UP_TEST_NAMESPACES) {
-			
-			// Mock WBEM protocol health check response
+			// Mock a positive response for every WBEM protocol health check test namespace
 			doAnswer(answer -> {
 					if (answer.getArgument(3).equals(namespace)) {
 						return List.of(List.of(SUCCESS_RESPONSE));
