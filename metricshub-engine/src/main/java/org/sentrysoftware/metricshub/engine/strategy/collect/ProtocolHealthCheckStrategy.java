@@ -105,7 +105,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 * WMI Up metric
 	 */
 	public static final String WMI_UP_METRIC = String.format(UP_METRIC_FORMAT, "wmi");
-	
+
 	/**
 	 * WINRM Up metric
 	 */
@@ -595,7 +595,13 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 		);
 
 		try {
-			winRmResult = clientsExecutor.executeWqlThroughWinRm(hostname, winRmConfiguration, WMI_AND_WINRM_TEST_QUERY, WMI_AND_WINRM_TEST_NAMESPACE);
+			winRmResult =
+				clientsExecutor.executeWqlThroughWinRm(
+					hostname,
+					winRmConfiguration,
+					WMI_AND_WINRM_TEST_QUERY,
+					WMI_AND_WINRM_TEST_NAMESPACE
+				);
 		} catch (ClientException e) {
 			if (WqlDetectionHelper.isAcceptableException(e)) {
 				// Generate a metric from the WINRM result
