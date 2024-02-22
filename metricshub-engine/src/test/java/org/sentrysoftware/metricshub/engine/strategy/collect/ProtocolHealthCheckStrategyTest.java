@@ -57,8 +57,8 @@ import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.wbem.javax.wbem.WBEMException;
-import org.sentrysoftware.wmi.exceptions.WmiComException;
 import org.sentrysoftware.winrm.exceptions.WqlQuerySyntaxException;
+import org.sentrysoftware.wmi.exceptions.WmiComException;
 
 @ExtendWith(MockitoExtension.class)
 class ProtocolHealthCheckStrategyTest {
@@ -865,7 +865,7 @@ class ProtocolHealthCheckStrategyTest {
 					eq(WMI_AND_WINRM_TEST_QUERY),
 					eq(WMI_AND_WINRM_TEST_NAMESPACE)
 				);
-			
+
 			// Start the WINRM Health Check strategy
 			winRmHealthCheckStrategy.run();
 
