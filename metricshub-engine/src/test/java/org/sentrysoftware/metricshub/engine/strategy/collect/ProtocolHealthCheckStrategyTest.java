@@ -159,7 +159,6 @@ class ProtocolHealthCheckStrategyTest {
 					.builder()
 					.hostId(HOSTNAME)
 					.hostname(HOSTNAME)
-					.sequential(false)
 					.configurations(
 						Map.of(
 							IpmiConfiguration.class,
@@ -527,7 +526,7 @@ class ProtocolHealthCheckStrategyTest {
 			clientsExecutorMock
 		);
 
-		// Mock IPMI protocol health check response
+		// Mock successful IPMI protocol health check response
 		try (MockedStatic<IpmiClient> staticIpmiClient = Mockito.mockStatic(IpmiClient.class)) {
 			staticIpmiClient
 				.when(() -> IpmiClient.getChassisStatusAsStringResult(any(IpmiClientConfiguration.class)))
@@ -552,7 +551,7 @@ class ProtocolHealthCheckStrategyTest {
 			clientsExecutorMock
 		);
 
-		// Mock IPMI protocol health check response
+		// Mock null IPMI protocol health check response
 		try (MockedStatic<IpmiClient> staticIpmiClient = Mockito.mockStatic(IpmiClient.class)) {
 			staticIpmiClient
 				.when(() -> IpmiClient.getChassisStatusAsStringResult(any(IpmiClientConfiguration.class)))
