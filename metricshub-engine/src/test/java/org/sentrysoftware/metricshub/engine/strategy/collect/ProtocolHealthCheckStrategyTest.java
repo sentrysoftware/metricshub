@@ -9,6 +9,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HOSTNAME;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.DOWN;
@@ -20,7 +21,6 @@ import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHeal
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.UP;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WBEM_TEST_QUERY;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WBEM_UP_METRIC;
-import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WBEM_UP_TEST_NAMESPACES;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WMI_AND_WINRM_TEST_NAMESPACE;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WMI_AND_WINRM_TEST_QUERY;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WMI_UP_METRIC;
@@ -55,6 +55,7 @@ import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.wbem.javax.wbem.WBEMException;
+import org.sentrysoftware.wmi.exceptions.WmiComException;
 
 @ExtendWith(MockitoExtension.class)
 class ProtocolHealthCheckStrategyTest {
@@ -735,20 +736,39 @@ class ProtocolHealthCheckStrategyTest {
 			clientsExecutorMock
 		);
 
-		// Mock a positive WMI protocol health check response
-		doReturn(List.of(List.of(SUCCESS_RESPONSE)))
-			.when(clientsExecutorMock)
-			.executeWmi(
-				anyString(),
-				any(WmiConfiguration.class),
-				eq(WMI_AND_WINRM_TEST_QUERY),
-				eq(WMI_AND_WINRM_TEST_NAMESPACE)
-			);
+		{
+			// Mock a positive WMI protocol health check response
+			doReturn(WQL_SUCCESS_RESPONSE)
+				.when(clientsExecutorMock)
+				.executeWmi(
+					anyString(),
+					any(WmiConfiguration.class),
+					eq(WMI_AND_WINRM_TEST_QUERY),
+					eq(WMI_AND_WINRM_TEST_NAMESPACE)
+				);
 
-		// Start the WMI Health Check strategy
-		wmiHealthCheckStrategy.run();
+			// Start the WMI Health Check strategy
+			wmiHealthCheckStrategy.run();
 
-		assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(WMI_UP_METRIC).getValue());
+			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(WMI_UP_METRIC).getValue());
+		}
+
+		{
+			// Mock an acceptable WMI protocol health check exception
+			doThrow(new RuntimeException(new WmiComException("WBEM_E_INVALID_NAMESPACE")))
+				.when(clientsExecutorMock)
+				.executeWmi(
+					anyString(),
+					any(WmiConfiguration.class),
+					eq(WMI_AND_WINRM_TEST_QUERY),
+					eq(WMI_AND_WINRM_TEST_NAMESPACE)
+				);
+
+			// Start the WMI Health Check strategy
+			wmiHealthCheckStrategy.run();
+
+			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(WMI_UP_METRIC).getValue());
+		}
 	}
 
 	@Test
