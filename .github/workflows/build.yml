@@ -64,7 +64,7 @@ jobs:
       if: ${{ matrix.os == 'ubuntu-latest' }}
       with:
         name: metricshub-linux-package-${{ env.metricshub_version }}
-        path: ./metricshub-linux/target/metricshub-linux-*.tar.gz
+        path: ./metricshub-linux/target/metricshub-linux-${{ env.metricshub_version }}.tar.gz
 
     - name: Upload Windows Artifact
       uses: actions/upload-artifact@v4
