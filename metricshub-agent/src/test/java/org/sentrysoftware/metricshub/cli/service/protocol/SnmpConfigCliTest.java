@@ -17,9 +17,7 @@ class SnmpConfigCliTest {
 		snmpConfigCli.setSnmpVersion(SnmpConfiguration.SnmpVersion.V1);
 		snmpConfigCli.setPort(80);
 		snmpConfigCli.setCommunity("community");
-		snmpConfigCli.setPrivacy(SnmpConfiguration.Privacy.AES);
 		snmpConfigCli.setTimeout(120L);
-		snmpConfigCli.setPrivacyPassword(password.toCharArray());
 
 		// Create an SnmpConfiguration and call method toProtocol
 		final SnmpConfiguration snmpConfiguration = (SnmpConfiguration) snmpConfigCli.toProtocol(

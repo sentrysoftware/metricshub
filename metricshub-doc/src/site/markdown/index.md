@@ -22,7 +22,6 @@ Additionally, the MetricsHub empowers users to create directives specifying how 
 
 * **Enterprise edition**: In addition to the features included in the community edition, the enterprise edition includes the library of 250+ *Hardware Connectors*, **${solutionName}** becomes capable of performing the monitoring of almost any system from any manufacturer (**Cisco**, **Dell**, **EMC**, **Fujitsu**, **Hitachi**, **HP**, **IBM**, **Lenovo**, **NetApp**, **Oracle**, etc.) through `SNMP`, `IPMI`, `HTTP`, `WBEM`, `WMI`, `WINRM` or `SSH`.
 
-
   *${solutionName}* monitors the health of the internal electronic components of the system:
 
   * Batteries
@@ -58,7 +57,7 @@ Additionally, the MetricsHub empowers users to create directives specifying how 
 * The **MetricsHub Agent**
     * Its [configuration file](configuration/configure-agent.md) (`metricshub.yaml`)
     * The monitoring engine, with the [**Community Connectors**](#Community_Connectors): Windows, Linux, MIB2, Libre Hardware Monitor, HyperV, etc.
-* The *OpenTelemetry Collector Contrib* executable
+* The *OpenTelemetry Collector Contrib* executable <span class="badge">Enterprise</span>
     * The *OpenTelemetry* [configuration file](configuration/configure-otel.md) (`otel-config.yaml`)
 * MetricsHub CLI (`metricshub`)
 
@@ -82,7 +81,7 @@ The **MetricsHub Agent** is responsible for:
 3. Collecting metrics
 4. Pushing OTLP data to the OTLP receiver of the OpenTelemetry Collector.
 
-### OpenTelemetry Collector Contrib
+### OpenTelemetry Collector Contrib <span class="badge">Enterprise</span>
 
 The *OpenTelemetry Collector Contrib* is responsible for:
 
@@ -93,11 +92,17 @@ The *OpenTelemetry Collector Contrib* is responsible for:
 
 By default, **${solutionName}** incorporates the [**Community Connectors**](./metricshub-connector-reference.html), these connectors are compatible with diverse [operating systems and platforms](./platform-requirements.html), including Windows, Linux, VMware ESX, HyperV, and more. The ${solutionName} Community Connectors is an open-source project featuring connectors developed by community contributors. Depending on your requirements, you can submit enhancement requests on the [MetricsHub Community Connectors Repository](https://github.com/sentrysoftware/metricshub-community-connectors) or actively contribute to the creation of new connectors, allowing the entire community to reap the benefits.
 
-### Enterprise edition (Hardware Connector Library)
+### Enterprise edition <span class="badge">Enterprise</span>
 
 In the enterprise edition, the library of **250+** *Hardware Connectors* is provided as zip asset to be included in the **${solutionName}** installation. It is the same library that powers [Hardware Sentry KM for PATROL](https://www.sentrysoftware.com/products/km-hardware-sentry.html), the original and battle-seasoned module for PATROL, created in 2004 by Sentry Software and used on hundreds of thousands of systems around the world.
 
 The platforms that can be monitored by **${solutionName}** entirely depends on this library. More details about the *Hardware Connector Library* are available as a [separate documentation](https://www.sentrysoftware.com/docs/hardware-connectors/latest/index.html).
+
+Notably, the enterprise edition also introduces a pre-configured **OpenTelemetry Collector Contrib**. This addition enables users to seamlessly push signals (metrics, traces and logs) to any platform supporting OpenTelemetry.
+
+Moreover, the enterprise edition simplifies deployment with diverse installation options. It will be shipped as installable `.msi` for Windows and `.rpm`/`.deb` for Linux, allowing users to effortlessly set up the solution as services on their preferred operating system.
+
+Additionally, the enterprise edition unlocks advanced security features by activating the SNMPv3 protocol and the use of TLS for OTLP communications, ensuring a higher level of data protection and integrity in monitoring processes.
 
 ### MetricsHub CLI (`metricshub`)
 

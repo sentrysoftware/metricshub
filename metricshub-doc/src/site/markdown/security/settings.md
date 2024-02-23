@@ -3,6 +3,7 @@ description: How to configure ${solutionName} security settings.
 
 # Security Settings
 
+
 <!-- MACRO{toc|fromDepth=1|toDepth=3|id=toc} -->
 
 ## Customizing TLS Certificates
@@ -13,7 +14,7 @@ You can use your own certificate to secure the communications between the **Metr
 
 - The certificate file must be in PEM format and can contain one or more certificate chains. The first certificate compatible with the client's requirements will be automatically selected.
 - The private key must be non-encrypted and in PEM format.
-- The certificate must include the `subjectAltName` extension indicating `DNS:localhost,IP:127.0.0.1` because internal communications are on `localhost` only and the **MetricsHub Agent**'s `OTLP Exporter` performs hostname verification.
+- When the **OpenTelemetry Collector** and the **MetricsHub Agent** are hosted on the same machine, the certificate must include the `subjectAltName` extension with `DNS:localhost` and `IP:127.0.0.1` to accommodate internal communications via localhost. This requirement arises because the **MetricsHub Agent**'s OTLP Exporter verifies the hostname. On the other hand, if the **OpenTelemetry Collector** operates from a remote server, the certificate's `subjectAltName` extension needs to be adjusted to reflect the remote server's appropriate `DNS` and `IP` address.
 
 ### Procedure
 
@@ -34,12 +35,12 @@ You can use your own certificate to secure the communications between the **Metr
               authenticator: basicauth
     ```
 
-4. In the `config/metricshub.yaml` file, set your new certificate (`security/my-otel.crt`) as `trustedCertificatesFile` in the `OTLP Exporter` configuration section:
+4. In the `config/metricshub.yaml` file, set your new certificate (`security/my-otel.crt`) as `otel.exporter.otlp.metrics.certificate` and `otel.exporter.otlp.logs.certificate`  in the `OTLP Exporter` configuration section:
 
     ```yaml
-    exporter:
-      otlp:
-        trustedCertificatesFile: /opt/metricshub/security/my-otel.crt # Your new OTLP gRPC Receiver certificate.
+    otel:
+      otel.exporter.otlp.metrics.certificate: /opt/metricshub/security/my-otel.crt # Your new OTLP gRPC Receiver certificate.
+      otel.exporter.otlp.logs.certificate: /opt/metricshub/security/my-otel.crt # Your new OTLP gRPC Receiver certificate.
 
     resourceGroups: # ...
     ```
@@ -173,15 +174,12 @@ Access to the `htpasswd` tool:
    bXlVc2VybmFtZTpteVBhc3N3b3Jk
    ```
 
-6. In the `otel/otel-config.yaml` file, add a new `Authorization` header under the `exporter:otlp:headers` section:
+6. In the `config/metricshub.yaml` file, set a new `Authorization` header for the `otel.exporter.otlp.metrics.headers` and `otel.exporter.otlp.logs.headers` parameters under the `otel` sections:
 
    ```yaml
-   exporter:
-     otlp:
-       headers:
-        # ...
-
-        Authorization: Basic bXlVc2VybmFtZTpteVBhc3N3b3Jk # Basic <base64-credentials>
+   otel:
+     otel.exporter.otlp.metrics.headers: Authorization=Basic bXlVc2VybmFtZTpteVBhc3N3b3Jk # Basic <base64-credentials>
+     otel.exporter.otlp.logs.headers: Authorization=Basic bXlVc2VybmFtZTpteVBhc3N3b3Jk # Basic <base64-credentials>
    ```
 
    The `Authorization` header must be provided as `Basic <base64-credentials>`, where `<base64-credentials>` is the `base64` value you have generated in the previous step.
@@ -210,20 +208,21 @@ When you disable TLS on **${solutionName}**, the communications between the **Me
 2. In the `config/metricshub.yaml` file, update the `OTLP Exporter` endpoint to enable `HTTP`:
 
     ```yaml
-    exporter:
-      otlp:
-        endpoint: http://localhost:4317
+    otel:
+      otel.exporter.otlp.metrics.endpoint: http://localhost:4317 # gRPC OTLP Receiver metrics endpoint
+      otel.exporter.otlp.logs.endpoint: http://localhost:4317 # gRPC OTLP Receiver logs endpoint
 
     resourceGroups: # ...
     ```
 
-3. Remove or comment out the `trustedCertificatesFile` attribute of the `OTLP Exporter` in the `config/metricshub.yaml` file:
+3. Remove or comment out the `otel.exporter.otlp.metrics.certificate` and `otel.exporter.otlp.logs.certificate` attributes of the `OTLP Exporter` in the `config/metricshub.yaml` file:
 
     ```yaml
-    exporter:
-      otlp:
-        endpoint: http://localhost:4317
-        # trustedCertificatesFile: security/otel.crt
+    otel:
+      otel.exporter.otlp.metrics.endpoint: http://localhost:4317 # gRPC OTLP Receiver metrics endpoint
+      otel.exporter.otlp.logs.endpoint: http://localhost:4317 # gRPC OTLP Receiver logs endpoint
+      # otel.exporter.otlp.metrics.certificate: security/otel.crt
+      # otel.exporter.otlp.logs.certificate: security/otel.crt
 
     resourceGroups: # ...
     ```
@@ -262,15 +261,14 @@ If you disable the authentication on **${solutionName}**, incoming requests will
      # ...
    ```
 
-3. In the `config/metricshub.yaml` file, remove or comment out the `Authorization` header from the `OTLP Exporter` configuration:
+3. In the `config/metricshub.yaml` file, remove or comment out the `Authorization` header configuration from the `OTLP Exporter` configuration:
 
     ```yaml
-    exporter:
-      otlp:
-        trustedCertificatesFile: /opt/metricshub/security/otel.crt
-        headers:
-          # Authorization: Basic bXlVc2VybmFtZTpteVBhc3N3b3Jk # Basic <base64-credentials>
-
+    otel:
+      otel.exporter.otlp.metrics.certificate: /opt/metricshub/security/otel.crt
+      otel.exporter.otlp.logs.certificate: /opt/metricshub/security/otel.crt
+      # otel.exporter.otlp.metrics.headers: Authorization=Basic bXlVc2VybmFtZTpteVBhc3N3b3Jk # Basic <base64-credentials>
+      # otel.exporter.otlp.logs.headers: Authorization=Basic bXlVc2VybmFtZTpteVBhc3N3b3Jk # Basic <base64-credentials>
     resourceGroups: # ...
     ```
 

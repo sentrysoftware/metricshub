@@ -10,7 +10,7 @@
 	<packaging>pom</packaging>
 
 	<name>MetricsHub for Windows</name>
-	<description>MetricsHub Package for Windows (.msi)</description>
+	<description>MetricsHub Package for Windows</description>
 
 	<dependencies>
 		<dependency>
@@ -78,26 +78,6 @@
 				</executions>
 			</plugin>
 
-			<!-- Download OpenTelemetry Collector Contrib binary -->
-			<plugin>
-				<groupId>com.googlecode.maven-download-plugin</groupId>
-				<artifactId>download-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>download-otelcol-contrib-windows-amd64</id>
-						<phase>generate-resources</phase>
-						<goals>
-							<goal>wget</goal>
-						</goals>
-						<configuration>
-							<url>${otelColContribBaseUrl}/otelcol-contrib_${otelVersion}_windows_amd64.tar.gz</url>
-							<unpack>true</unpack>
-							<outputDirectory>${project.build.directory}/jpackage/metricshub/otel</outputDirectory>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
 			<!-- JPackage resources -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -126,7 +106,7 @@
 							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>${project.build.directory}/jpackage/override</outputDirectory>
+							<outputDirectory>${project.build.directory}/jpackage/metricshub</outputDirectory>
 							<resources>
 								<resource>
 									<directory>src/main/resources/bin</directory>
@@ -138,13 +118,13 @@
 				</executions>
 			</plugin>
 
-			<!-- Run jpackage command to generate MetricsHub .msi -->
+			<!-- Run jpackage command to generate MetricsHub app-image -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
 				<executions>
 					<execution>
-						<id>package-msi</id>
+						<id>package-exe</id>
 						<phase>package</phase>
 						<goals>
 							<goal>exec</goal>
@@ -164,22 +144,23 @@
 				</executions>
 			</plugin>
 
-			<!-- Rename the package -->
+			<!-- Assembly for the Windows ZIP Package -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-antrun-plugin</artifactId>
+				<artifactId>maven-assembly-plugin</artifactId>
 				<executions>
 					<execution>
-						<id>rename-package</id>
+						<id>windows-zip</id>
 						<phase>package</phase>
-						<configuration>
-							<target>
-								<move file="${project.build.directory}/metricshub-${project.version.noSnapshot}.msi" tofile="${project.build.directory}/${project.artifactId}-${project.version}.msi"/>
-							</target>
-						</configuration>
 						<goals>
-							<goal>run</goal>
+							<goal>single</goal>
 						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>src/assembly/windows-descriptor.xml</descriptor>
+							</descriptors>
+							<appendAssemblyId>false</appendAssemblyId>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
@@ -199,8 +180,8 @@
 						<configuration>
 							<artifacts>
 								<artifact>
-									<file>${project.build.directory}/${project.artifactId}-${project.version}.msi</file>
-									<type>msi</type>
+									<file>${project.build.directory}/${project.artifactId}-${project.version}.zip</file>
+									<type>zip</type>
 									<artifactId>${project.artifactId}</artifactId>
 								</artifact>
 							</artifacts>

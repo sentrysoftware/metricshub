@@ -58,6 +58,8 @@ public class ResourceGroupConfig {
 	private AlertingSystemConfig alertingSystemConfig;
 	private Boolean sequential;
 	private Boolean resolveHostnameToFqdn;
+
+	@JsonDeserialize(using = TimeDeserializer.class)
 	private Long jobTimeout;
 
 	@Default

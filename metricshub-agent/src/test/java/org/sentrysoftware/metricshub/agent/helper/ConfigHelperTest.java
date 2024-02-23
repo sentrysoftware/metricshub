@@ -283,7 +283,6 @@ class ConfigHelperTest {
 				.port(1234)
 				.timeout(60L)
 				.version(SnmpVersion.V1)
-				.username(null)
 				.build();
 
 			assertThrows(IllegalStateException.class, () -> ConfigHelper.validateSnmpInfo(RESOURCE_KEY, snmpProtocolConfig));
@@ -296,7 +295,6 @@ class ConfigHelperTest {
 				.port(1234)
 				.timeout(60L)
 				.version(SnmpVersion.V1)
-				.username(null)
 				.build();
 
 			assertThrows(IllegalStateException.class, () -> ConfigHelper.validateSnmpInfo(RESOURCE_KEY, snmpProtocolConfig));
@@ -309,7 +307,6 @@ class ConfigHelperTest {
 				.port(-1)
 				.timeout(60L)
 				.version(SnmpVersion.V1)
-				.username(null)
 				.build();
 
 			assertThrows(IllegalStateException.class, () -> ConfigHelper.validateSnmpInfo(RESOURCE_KEY, snmpProtocolConfig));
@@ -322,7 +319,6 @@ class ConfigHelperTest {
 				.port(66666)
 				.timeout(60L)
 				.version(SnmpVersion.V1)
-				.username(null)
 				.build();
 
 			assertThrows(IllegalStateException.class, () -> ConfigHelper.validateSnmpInfo(RESOURCE_KEY, snmpProtocolConfig));
@@ -335,7 +331,6 @@ class ConfigHelperTest {
 				.port(null)
 				.timeout(60L)
 				.version(SnmpVersion.V1)
-				.username(null)
 				.build();
 
 			assertThrows(IllegalStateException.class, () -> ConfigHelper.validateSnmpInfo(RESOURCE_KEY, snmpProtocolConfig));
@@ -348,7 +343,6 @@ class ConfigHelperTest {
 				.port(1234)
 				.timeout(-60L)
 				.version(SnmpVersion.V1)
-				.username(null)
 				.build();
 
 			assertThrows(IllegalStateException.class, () -> ConfigHelper.validateSnmpInfo(RESOURCE_KEY, snmpProtocolConfig));
@@ -361,62 +355,9 @@ class ConfigHelperTest {
 				.port(1234)
 				.timeout(null)
 				.version(SnmpVersion.V1)
-				.username(null)
 				.build();
 
 			assertThrows(IllegalStateException.class, () -> ConfigHelper.validateSnmpInfo(RESOURCE_KEY, snmpProtocolConfig));
-		}
-
-		{
-			final SnmpProtocolConfig snmpProtocolConfig = SnmpProtocolConfig
-				.builder()
-				.community(community)
-				.port(1234)
-				.timeout(60L)
-				.version(SnmpVersion.V3_SHA)
-				.username(null)
-				.build();
-
-			assertThrows(IllegalStateException.class, () -> ConfigHelper.validateSnmpInfo(RESOURCE_KEY, snmpProtocolConfig));
-		}
-
-		{
-			final SnmpProtocolConfig snmpProtocolConfig = SnmpProtocolConfig
-				.builder()
-				.community(community)
-				.port(1234)
-				.timeout(60L)
-				.version(SnmpVersion.V3_SHA)
-				.username("")
-				.build();
-
-			assertThrows(IllegalStateException.class, () -> ConfigHelper.validateSnmpInfo(RESOURCE_KEY, snmpProtocolConfig));
-		}
-
-		{
-			final SnmpProtocolConfig snmpProtocolConfig = SnmpProtocolConfig
-				.builder()
-				.community(community)
-				.port(1234)
-				.timeout(60L)
-				.version(SnmpVersion.V3_SHA)
-				.username(USERNAME_CONFIG_VALUE)
-				.build();
-
-			assertDoesNotThrow(() -> ConfigHelper.validateSnmpInfo(RESOURCE_KEY, snmpProtocolConfig));
-		}
-
-		{
-			final SnmpProtocolConfig snmpProtocolConfig = SnmpProtocolConfig
-				.builder()
-				.community(community)
-				.port(1234)
-				.timeout(60L)
-				.version(SnmpVersion.V3_NO_AUTH)
-				.username(null)
-				.build();
-
-			assertDoesNotThrow(() -> ConfigHelper.validateSnmpInfo(RESOURCE_KEY, snmpProtocolConfig));
 		}
 	}
 

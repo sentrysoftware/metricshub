@@ -40,7 +40,6 @@ import lombok.NonNull;
 public class SnmpConfiguration implements IConfiguration {
 
 	private static final String INVALID_SNMP_VERSION_EXCEPTION_MESSAGE = "Invalid SNMP version: ";
-	private static final String INVALID_PRIVACY_VALUE_EXCEPTION_MESSAGE = " Invalid Privacy value: ";
 
 	@Builder.Default
 	private final SnmpVersion version = SnmpVersion.V1;
@@ -54,27 +53,9 @@ public class SnmpConfiguration implements IConfiguration {
 	@Builder.Default
 	private final Long timeout = 120L;
 
-	private String contextName;
-
-	private Privacy privacy;
-	private char[] privacyPassword;
-	private String username;
-	private char[] password;
-
 	@Override
 	public String toString() {
-		String description = version.getDisplayName();
-		if (version == SnmpVersion.V1 || version == SnmpVersion.V2C) {
-			description = description + " (" + community + ")";
-		} else {
-			if (username != null) {
-				description = description + " as " + username;
-			}
-			if (privacy != null && privacy != Privacy.NO_ENCRYPTION) {
-				description = description + " (" + privacy + "-encrypted)";
-			}
-		}
-		return description;
+		return version.getDisplayName() + " (" + community + ")";
 	}
 
 	/**
@@ -85,29 +66,14 @@ public class SnmpConfiguration implements IConfiguration {
 		/**
 		 * SNMP version 1 (v1) without authentication.
 		 */
-		V1(1, null, "SNMP v1"),
+		V1(1, "SNMP v1"),
 		/**
 		 * SNMP version 2 (v2c) without authentication.
 		 */
-		V2C(2, null, "SNMP v2c"),
-		/**
-		 * SNMP version 3 (v3) without authentication.
-		 */
-		V3_NO_AUTH(3, null, "SNMP v3"),
-		/**
-		 * SNMP version 3 (v3) with MD5 authentication.
-		 */
-		V3_MD5(3, "MD5", "SNMP v3 with MD5 auth"),
-		/**
-		 * SNMP version 3 (v3) with SHA authentication.
-		 */
-		V3_SHA(3, "SHA", "SNMP v3 with SHA auth");
+		V2C(2, "SNMP v2c");
 
 		@Getter
 		private final int intVersion;
-
-		@Getter
-		private final String authType;
 
 		@Getter
 		private final String displayName;
@@ -130,58 +96,7 @@ public class SnmpConfiguration implements IConfiguration {
 				return SnmpConfiguration.SnmpVersion.V2C;
 			}
 
-			if (lowerCaseVersion.startsWith("3") || lowerCaseVersion.startsWith("v3")) {
-				if (lowerCaseVersion.contains("md5")) {
-					return SnmpConfiguration.SnmpVersion.V3_MD5;
-				}
-				if (lowerCaseVersion.contains("no") && lowerCaseVersion.contains("auth")) {
-					return SnmpConfiguration.SnmpVersion.V3_NO_AUTH;
-				}
-				return SnmpVersion.V3_SHA;
-			}
-
 			throw new IllegalArgumentException(INVALID_SNMP_VERSION_EXCEPTION_MESSAGE + version);
-		}
-	}
-
-	/**
-	 * SNMP v3 Privacy (encryption type). Represents the encryption algorithm to be used
-	 * in SNMP v3 connections.
-	 */
-	public enum Privacy {
-		/**
-		 * No encryption for SNMP v3 connections.
-		 */
-		NO_ENCRYPTION,
-		/**
-		 * Advanced Encryption Standard (AES) encryption for SNMP v3 connections.
-		 */
-		AES,
-		/**
-		 * Data Encryption Standard (DES) encryption for SNMP v3 connections.
-		 */
-		DES;
-
-		/**
-		 * Interpret the specified label and returns corresponding value.
-		 *
-		 * @param privacy String to be interpreted
-		 * @return Corresponding {@link Privacy} value
-		 */
-		public static Privacy interpretValueOf(@NonNull final String privacy) {
-			final String lowerCasePrivacy = privacy.toLowerCase();
-
-			if (lowerCasePrivacy.equals("des")) {
-				return DES;
-			}
-			if (lowerCasePrivacy.equals("aes")) {
-				return AES;
-			}
-			if (lowerCasePrivacy.equals("none") || lowerCasePrivacy.equals("no")) {
-				return NO_ENCRYPTION;
-			}
-
-			throw new IllegalArgumentException(INVALID_PRIVACY_VALUE_EXCEPTION_MESSAGE + privacy);
 		}
 	}
 }

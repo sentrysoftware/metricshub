@@ -277,27 +277,6 @@
 				</configuration>
 			</plugin>
 
-			<!-- OTEL Java Agent -->
-			<plugin>
-				<groupId>com.googlecode.maven-download-plugin</groupId>
-				<artifactId>download-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>install-otel-javaagent</id>
-						<phase>generate-resources</phase>
-						<goals>
-							<goal>wget</goal>
-						</goals>
-						<configuration>
-							<url>${otelJavaAgentUrl}</url>
-							<!-- We want the jar not the decompressed folders -->
-							<unpack>false</unpack>
-							<outputDirectory>${project.build.directory}/otel</outputDirectory>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
 			<!-- assembly -->
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>

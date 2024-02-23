@@ -27,9 +27,7 @@ Supported systems include:
 * SAN switches
 * Storage systems (disk arrays, filers, tape libraries)
 
-The detailed list of systems supported by the enterprise edition (manufacturer and product family and the required instrumentation stack) is listed in [Sentry's Enterprise Connectors Library](../enterprise-platform-requirements.html).
-
-The detailed list of systems supported by the basic edition (manufacturer and product family and the required instrumentation stack) is listed in [Sentry Basic Connectors Library](../basic-platform-requirements.html).
+The detailed list of systems supported by the **${solutionName}** community (manufacturer and product family and the required instrumentation stack) is listed in [Community Connectors Library](../platform-requirements.html).
 
 The quantity and quality of the information that **${solutionName}** will gather depends on the instrumentation stack available on the targeted resource (host).
 
@@ -114,13 +112,13 @@ This command will connect to the `HOST02` `Linux` system using `SNMP` version `1
 
 > Note: If no SNMP community is specified, **public** is assumed by default.
 
-### Storage System, SNMP v3
+### Storage System, SNMP v2c
 
 ```batch
-$ metricshub CISC03 -t sto --snmp 3-sha -u USER --snmp-privacy AES --snmp-privacy-password MYSECRET
+$ metricshub CISC03 -t sto --snmp 2
 ```
 
-This command will connect to the `CISC03` SAN switch (`sto`rage) using `SNMP` version `3` using `SHA`-based authentication as `USER`. Communication will be encrypted using `AES` with the `MYSECRET` privacy password.
+This command will connect to the `CISC03` SAN switch (`sto`rage) using `SNMP` version `2`.
 
 > Note: SAN switches fall into the **Storage** category of systems, like disk arrays and tape libraries, and not in the ~~Network~~ category, like network switches and IP routers.
 
@@ -134,15 +132,15 @@ This command will connect to the `WIN04` `Win`dows system using `SNMP` version `
 
 > Note: The WMI protocol can only be used from a Windows system to monitor another Windows system.
 
-### Windows, WMI and SNMP v3 (Alternate Credentials)
+### Windows, WMI and WBEM (Alternate Credentials)
 
 ```batch
-C:\Program Files\MetricsHub> metricshub WIN05 -t win --snmp 3-sha --snmp-username USERA --wmi --wmi-username WINUSER
+C:\Program Files\MetricsHub> metricshub WIN05 -t win --wbem --wbem-username USERA --wmi --wmi-username WINUSER
 ```
 
-This command will connect to the `WIN05` `Win`dows system using `SNMP` version `3` as `USERA`, and `WMI` as `WINUSER`. Both passwords will be asked for interactively.
+This command will connect to the `WIN05` `Win`dows system using `WBEM` as `USERA`, and `WMI` as `WINUSER`. The WBEM and WIM passwords will be asked for interactively.
 
-> Note: Instead of using the common `-u` or `--username` options, we had to use the `--snmp-username` and `--wmi-username` options to specify different credentials for SNMP and WMI.
+> Note: Instead of using the common `-u` or `--username` options, we had to use the `--wbem-username` and `--wmi-username` options to specify different credentials for WBEM and WMI.
 
 ### Ouf-of-band Management Card, IPMI-over-LAN
 
@@ -188,7 +186,7 @@ This command will connect to the `WIN09` system using the `WinRM` protocol to ex
 
 ## Automatic Detection vs Manual Selection
 
-**${solutionName}** is bundled with Sentry's **Connector Library**, a library which consists of a list of *connectors* (hundreds of hardware and storage connectors offered by the enterprise edition) that describe how to discover resource components (such as hardware, service and application components) and detect failures in a given system, with a specific instrumentation stack.
+**${solutionName}** is bundled with **Community Connector Library**, a library which consists of a list of *connectors*  that describe how to discover resource components (such as hardware, service and application components) and detect failures in a given system, with a specific instrumentation stack.
 
 Examples of connectors:
 
@@ -277,7 +275,7 @@ $ metricshub --list
 
 This will provide a list as below:
 
-![Output of the metricshub --list command, listing all connectors, their ID, applicable system types and display name](../images/metricshub-list.png)
+![Output of the metricshub --list command, listing all connectors, their ID, categories, applicable system types and display name](../images/metricshub-list.png)
 
 This list displays the internal name (**id**) of each connector, its applicable system types and its display name.
 

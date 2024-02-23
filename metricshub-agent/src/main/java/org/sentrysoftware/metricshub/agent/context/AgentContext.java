@@ -179,7 +179,6 @@ public class AgentContext {
 				"\nBuild number: {}" +
 				"\nBuild date: {}" +
 				"\nCommunity Connector Library version: {}" +
-				"\nOpenTelemetry Collector Contrib version: {}" +
 				"\nJava version: {}" +
 				"\nJava Runtime Environment directory: {}" +
 				"\nOperating System: {} {}" +
@@ -190,7 +189,6 @@ public class AgentContext {
 				applicationProperties.buildNumber(),
 				applicationProperties.buildDate(),
 				applicationProperties.ccVersion(),
-				applicationProperties.otelVersion(),
 				System.getProperty("java.version"),
 				System.getProperty("java.home"),
 				System.getProperty("os.name"),
