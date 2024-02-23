@@ -238,9 +238,9 @@ class ProtocolHealthCheckStrategyTest {
 	}
 
 	/**
-	 * Creates and returns a TelemetryManager instance with an WINRM configuration.
+	 * Creates and returns a TelemetryManager instance with an WinRM configuration.
 	 *
-	 * @return A TelemetryManager instance configured with an WINRM configuration.
+	 * @return A TelemetryManager instance configured with an WinRM configuration.
 	 */
 	private TelemetryManager createTelemetryManagerWithWinRmConfig() {
 		// Create a telemetry manager
@@ -830,7 +830,7 @@ class ProtocolHealthCheckStrategyTest {
 
 	@Test
 	void testCheckWinRmUpHealth() throws ClientException {
-		// Create a telemetry manager using a WINRM HostConfiguration
+		// Create a telemetry manager using a WinRM HostConfiguration
 		final TelemetryManager telemetryManager = createTelemetryManagerWithWinRmConfig();
 
 		// Create a new protocol health check strategy
@@ -840,7 +840,7 @@ class ProtocolHealthCheckStrategyTest {
 			clientsExecutorMock
 		);
 
-		// Mock a positive WINRM protocol health check response
+		// Mock a positive WinRM protocol health check response
 		doReturn(WQL_SUCCESS_RESPONSE)
 			.when(clientsExecutorMock)
 			.executeWqlThroughWinRm(
@@ -850,13 +850,13 @@ class ProtocolHealthCheckStrategyTest {
 				eq(WMI_AND_WINRM_TEST_NAMESPACE)
 			);
 
-		// Start the WINRM Health Check strategy
+		// Start the WinRM Health Check strategy
 		winRmHealthCheckStrategy.run();
 
 		assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(WINRM_UP_METRIC).getValue());
 
 		{
-			// Mock an acceptable WINRM protocol health check exception
+			// Mock an acceptable WinRM protocol health check exception
 			doThrow(new RuntimeException(new WqlQuerySyntaxException("WQL Quert Syntax Exception")))
 				.when(clientsExecutorMock)
 				.executeWqlThroughWinRm(
@@ -866,7 +866,7 @@ class ProtocolHealthCheckStrategyTest {
 					eq(WMI_AND_WINRM_TEST_NAMESPACE)
 				);
 
-			// Start the WINRM Health Check strategy
+			// Start the WinRM Health Check strategy
 			winRmHealthCheckStrategy.run();
 
 			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(WINRM_UP_METRIC).getValue());
@@ -875,7 +875,7 @@ class ProtocolHealthCheckStrategyTest {
 
 	@Test
 	void testCheckWinRmDownHealth() throws ClientException {
-		// Create a telemetry manager using a WINRM HostConfiguration
+		// Create a telemetry manager using a WinRM HostConfiguration
 		final TelemetryManager telemetryManager = createTelemetryManagerWithWinRmConfig();
 
 		// Create a new protocol health check strategy
@@ -885,7 +885,7 @@ class ProtocolHealthCheckStrategyTest {
 			clientsExecutorMock
 		);
 
-		// Mock a null WINRM protocol health check response
+		// Mock a null WinRM protocol health check response
 		doReturn(null)
 			.when(clientsExecutorMock)
 			.executeWqlThroughWinRm(
@@ -895,7 +895,7 @@ class ProtocolHealthCheckStrategyTest {
 				eq(WMI_AND_WINRM_TEST_NAMESPACE)
 			);
 
-		// Start the WINRM Health Check strategy
+		// Start the WinRM Health Check strategy
 		winRmHealthCheckStrategy.run();
 
 		assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(WINRM_UP_METRIC).getValue());
