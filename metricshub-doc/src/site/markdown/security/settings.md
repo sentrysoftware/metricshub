@@ -1,7 +1,7 @@
 keywords: security, password, encrypt, key, certificate, tls, authentication
 description: How to configure ${solutionName} security settings.
 
-# Security Settings <span class="badge">Enterprise</span>
+# Security Settings
 
 
 <!-- MACRO{toc|fromDepth=1|toDepth=3|id=toc} -->
@@ -14,7 +14,7 @@ You can use your own certificate to secure the communications between the **Metr
 
 - The certificate file must be in PEM format and can contain one or more certificate chains. The first certificate compatible with the client's requirements will be automatically selected.
 - The private key must be non-encrypted and in PEM format.
-- The certificate must include the `subjectAltName` extension indicating `DNS:localhost,IP:127.0.0.1` because internal communications are on `localhost` only and the **MetricsHub Agent**'s `OTLP Exporter` performs hostname verification.
+- When the **OpenTelemetry Collector** and the **MetricsHub Agent** are hosted on the same machine, the certificate must include the `subjectAltName` extension with `DNS:localhost` and `IP:127.0.0.1` to accommodate internal communications via localhost. This requirement arises because the **MetricsHub Agent**'s OTLP Exporter verifies the hostname. On the other hand, if the **OpenTelemetry Collector** operates from a remote server, the certificate's `subjectAltName` extension needs to be adjusted to reflect the remote server's appropriate `DNS` and `IP` address.
 
 ### Procedure
 
@@ -174,7 +174,7 @@ Access to the `htpasswd` tool:
    bXlVc2VybmFtZTpteVBhc3N3b3Jk
    ```
 
-6. In the `otel/otel-config.yaml` file, set a new `Authorization` header for the `otel:otel.exporter.otlp.metrics.headers` and `otel:otel.exporter.otlp.logs.headers` sections:
+6. In the `config/metricshub.yaml` file, set a new `Authorization` header for the `otel.exporter.otlp.metrics.headers` and `otel.exporter.otlp.logs.headers` parameters under the `otel` sections:
 
    ```yaml
    otel:
