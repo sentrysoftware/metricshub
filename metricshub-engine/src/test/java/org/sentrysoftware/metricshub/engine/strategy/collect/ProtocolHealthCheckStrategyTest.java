@@ -812,7 +812,7 @@ class ProtocolHealthCheckStrategyTest {
 			clientsExecutorMock
 		);
 
-		// Mock a positive WMI protocol health check response
+		// Mock a null WMI protocol health check response
 		doReturn(null)
 			.when(clientsExecutorMock)
 			.executeWmi(
@@ -885,7 +885,7 @@ class ProtocolHealthCheckStrategyTest {
 			clientsExecutorMock
 		);
 
-		// Mock a positive WINRM protocol health check response
+		// Mock a null WINRM protocol health check response
 		doReturn(null)
 			.when(clientsExecutorMock)
 			.executeWqlThroughWinRm(
