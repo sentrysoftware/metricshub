@@ -572,22 +572,22 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 * @param metricFactory The metric factory used to collect the health check metric
 	 */
 	public void checkWinRmHealth(String hostname, Monitor hostMonitor, MetricFactory metricFactory) {
-		// Create and set the WINRM result to null
+		// Create and set the WinRM result to null
 		List<List<String>> winRmResult = null;
 
-		// Retrieve WINRM Configuration from the telemetry manager host configuration
+		// Retrieve WinRM Configuration from the telemetry manager host configuration
 		final WinRmConfiguration winRmConfiguration = (WinRmConfiguration) telemetryManager
 			.getHostConfiguration()
 			.getConfigurations()
 			.get(WinRmConfiguration.class);
 
-		// Stop the health check if there is not an WINRM configuration
+		// Stop the health check if there is not an WinRM configuration
 		if (winRmConfiguration == null) {
 			return;
 		}
 
 		log.info(
-			"Hostname {} - Checking WINRM protocol status. Sending a WQL SELECT request on {} namespace.",
+			"Hostname {} - Checking WinRM protocol status. Sending a WQL SELECT request on {} namespace.",
 			hostname,
 			WMI_AND_WINRM_TEST_NAMESPACE
 		);
@@ -602,12 +602,12 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 				);
 		} catch (Exception e) {
 			if (WqlDetectionHelper.isAcceptableException(e)) {
-				// Generate a metric from the WINRM result
+				// Generate a metric from the WinRM result
 				metricFactory.collectNumberMetric(hostMonitor, WINRM_UP_METRIC, UP, strategyTime);
 				return;
 			}
 			log.debug(
-				"Hostname {} - Checking WINRM protocol status. WINRM exception when performing a WQL SELECT request on {} namespace: ",
+				"Hostname {} - Checking WinRM protocol status. WinRM exception when performing a WQL SELECT request on {} namespace: ",
 				hostname,
 				WMI_AND_WINRM_TEST_NAMESPACE,
 				e
