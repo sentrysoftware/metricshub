@@ -32,7 +32,7 @@ import org.sentrysoftware.winrm.service.client.auth.AuthenticationEnum;
 import picocli.CommandLine.Option;
 
 /**
- * This class is used by MetricsHubCliService to configure WinRm protocol when using the MetricsHub CLI.
+ * This class is used by MetricsHubCliService to configure WinRM protocol when using the MetricsHub CLI.
  * It create the engine's {@link WinRmConfiguration} object that is used to monitor a specific resource through WinRm.
  */
 @Data
@@ -40,7 +40,7 @@ import picocli.CommandLine.Option;
 public class WinRmConfigCli extends AbstractTransportProtocolCli {
 
 	/**
-	 * Default timeout in seconds for a WinRm operation
+	 * Default timeout in seconds for a WinRM operation
 	 */
 	public static final int DEFAULT_TIMEOUT = 30;
 	/**
