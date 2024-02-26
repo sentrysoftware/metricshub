@@ -277,6 +277,7 @@
 				</configuration>
 			</plugin>
 
+			<!-- maven-shade-plugin -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
@@ -322,34 +323,6 @@
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<executions>
-					<!-- <execution>
-						<id>metricshub-jar</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-						<configuration>
-							<descriptors>
-								<descriptor>src/assembly/metricshub-jar.xml</descriptor>
-							</descriptors>
-							<appendAssemblyId>false</appendAssemblyId>
-							<archive>
-								<manifest>
-									<mainClass>org.sentrysoftware.metricshub.agent.MetricsHubAgentApplication</mainClass>
-									<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-									<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-								</manifest>
-								<manifestEntries>
-									<Multi-Release>true</Multi-Release>
-								</manifestEntries>
-								<manifestSections>
-									<manifestSection>
-										<name>org/sentrysoftware/metricshub</name>
-									</manifestSection>
-								</manifestSections>
-							</archive>
-						</configuration>
-					</execution> -->
 					<execution>
 						<id>distributable-package</id>
 						<phase>package</phase>
