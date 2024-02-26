@@ -31,7 +31,6 @@ import org.sentrysoftware.ipmi.client.IpmiClient;
 import org.sentrysoftware.ipmi.client.IpmiClientConfiguration;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.client.http.HttpRequest;
-import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
@@ -204,8 +203,8 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 * Check HTTP protocol health on the hostname for the host monitor.
 	 * Criteria: The HTTP GET request to "/" must return a result.
 	 *
-	 * @param hostMonitor   An endpoint host monitor
 	 * @param hostname      The hostname on which we perform health check
+	 * @param hostMonitor   An endpoint host monitor
 	 * @param metricFactory The metric factory used to collect the health check metric
 	 */
 	public void checkHttpHealth(String hostname, Monitor hostMonitor, MetricFactory metricFactory) {
@@ -254,8 +253,8 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 * Check SNMP protocol health on the hostname for the host monitor.
 	 * Criteria: SNMP Get Next on '1.3.6.1' SNMP OID must be successful.
 	 *
-	 * @param hostMonitor   An endpoint host monitor
 	 * @param hostname      The hostname on which we perform health check
+	 * @param hostMonitor   An endpoint host monitor
 	 * @param metricFactory The metric factory used to collect the health check metric
 	 */
 	public void checkSnmpHealth(String hostname, Monitor hostMonitor, MetricFactory metricFactory) {
@@ -295,9 +294,9 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 * Check SSH protocol health on the hostname for the host monitor.
 	 * Criteria: The echo command must be working.
 	 *
-	 * @param hostMonitor   An endpoint host monitor
 	 * @param hostname      The hostname on which we perform health check
-	 * @param metricFactory The metric factory used to collect the health check
+	 * @param hostMonitor   An endpoint host monitor
+	 * @param metricFactory The metric factory used to collect the health check metric
 	 *                      metric
 	 */
 	public void checkSshHealth(String hostname, Monitor hostMonitor, MetricFactory metricFactory) {
@@ -334,7 +333,6 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 * Performs a local Os Command test to determine whether the SSH protocol is UP.
 	 *
 	 * @param hostname  The hostname on which we perform health check
-	 * @param sshResult The results that will be used to create protocol health check metric
 	 * @return The SSH health check result after performing the tests
 	 */
 	private Double localSshTest(String hostname) {
@@ -392,8 +390,8 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 * Check Ipmi protocol health on the hostname for the host monitor.
 	 * Criteria: The getChassisStatusAsStringResult IPMI Client request request must return a result.
 	 *
-	 * @param hostMonitor   An endpoint host monitor
 	 * @param hostname      The hostname on which we perform health check
+	 * @param hostMonitor   An endpoint host monitor
 	 * @param metricFactory The metric factory used to collect the health check metric
 	 */
 	public void checkIpmiHealth(String hostname, Monitor hostMonitor, MetricFactory metricFactory) {
@@ -451,14 +449,11 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 * 	<li>Success Conditions: CIM_ERR_INVALID_NAMESPACE and CIM_ERR_NOT_FOUND errors are considered successful, indicating that the protocol is responding.</li>
 	 * </ul>
 	 *
-	 * @param hostMonitor   An endpoint host monitor
 	 * @param hostname      The hostname on which we perform health check
+	 * @param hostMonitor   An endpoint host monitor
 	 * @param metricFactory The metric factory used to collect the health check metric
 	 */
 	public void checkWbemHealth(String hostname, Monitor hostMonitor, MetricFactory metricFactory) {
-		// Create and set the WBEM result to null
-		List<List<String>> wbemResults = null;
-
 		// Retrieve WBEM Configuration from the telemetry manager host configuration
 		final WbemConfiguration wbemConfiguration = (WbemConfiguration) telemetryManager
 			.getHostConfiguration()
@@ -471,17 +466,20 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 		}
 
 		log.info(
-			"Hostname {} - Checking WBEM protocol status. Sending a WBEM SELECT request on different namespaces.",
+			"Hostname {} - Checking WBEM protocol status. Sending a WQL SELECT request on different namespaces.",
 			hostname
 		);
 
-		for (String wbemNamespace : WBEM_UP_TEST_NAMESPACES) {
+		for (final String wbemNamespace : WBEM_UP_TEST_NAMESPACES) {
 			try {
-				// Execute WBEM query
-				wbemResults = clientsExecutor.executeWbem(hostname, wbemConfiguration, WBEM_TEST_QUERY, wbemNamespace);
+				log.info(
+					"Hostname {} - Checking WBEM protocol status. Sending a WQL SELECT request on {} namespace.",
+					hostname,
+					wbemNamespace
+				);
 
 				// The query on the WBEM namespace returned a result
-				if (wbemResults != null) {
+				if (clientsExecutor.executeWbem(hostname, wbemConfiguration, WBEM_TEST_QUERY, wbemNamespace) != null) {
 					// Collect the metric with a '1.0' value and stop the test
 					metricFactory.collectNumberMetric(hostMonitor, WBEM_UP_METRIC, UP, strategyTime);
 					return;
@@ -493,7 +491,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 					return;
 				}
 				log.debug(
-					"Hostname {} - Checking WBEM protocol status. WBEM exception when performing a WBEM SELECT query on '{}' namespace: ",
+					"Hostname {} - Checking WBEM protocol status. WBEM exception when performing a WQL SELECT query on '{}' namespace: ",
 					hostname,
 					wbemNamespace,
 					e
@@ -514,8 +512,8 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 * 	<li>Success Conditions: No errors in the query result, indicating that the protocol is responding.</li>
 	 * </ul>
 	 *
-	 * @param hostMonitor   An endpoint host monitor
 	 * @param hostname      The hostname on which we perform health check
+	 * @param hostMonitor   An endpoint host monitor
 	 * @param metricFactory The metric factory used to collect the health check metric
 	 */
 	public void checkWmiHealth(String hostname, Monitor hostMonitor, MetricFactory metricFactory) {
@@ -542,7 +540,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 		try {
 			wmiResult =
 				clientsExecutor.executeWmi(hostname, wmiConfiguration, WMI_AND_WINRM_TEST_QUERY, WMI_AND_WINRM_TEST_NAMESPACE);
-		} catch (ClientException e) {
+		} catch (Exception e) {
 			if (WqlDetectionHelper.isAcceptableException(e)) {
 				// Generate a metric from the WMI result
 				metricFactory.collectNumberMetric(hostMonitor, WMI_UP_METRIC, UP, strategyTime);
@@ -569,27 +567,27 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 * 	<li>Success Conditions: No errors in the query result, indicating that the protocol is responding.</li>
 	 * </ul>
 	 *
-	 * @param hostMonitor   An endpoint host monitor
 	 * @param hostname      The hostname on which we perform health check
+	 * @param hostMonitor   An endpoint host monitor
 	 * @param metricFactory The metric factory used to collect the health check metric
 	 */
 	public void checkWinRmHealth(String hostname, Monitor hostMonitor, MetricFactory metricFactory) {
-		// Create and set the WINRM result to null
+		// Create and set the WinRM result to null
 		List<List<String>> winRmResult = null;
 
-		// Retrieve WINRM Configuration from the telemetry manager host configuration
+		// Retrieve WinRM Configuration from the telemetry manager host configuration
 		final WinRmConfiguration winRmConfiguration = (WinRmConfiguration) telemetryManager
 			.getHostConfiguration()
 			.getConfigurations()
 			.get(WinRmConfiguration.class);
 
-		// Stop the health check if there is not an WINRM configuration
+		// Stop the health check if there is not an WinRM configuration
 		if (winRmConfiguration == null) {
 			return;
 		}
 
 		log.info(
-			"Hostname {} - Checking WINRM protocol status. Sending a WQL SELECT request on {} namespace.",
+			"Hostname {} - Checking WinRM protocol status. Sending a WQL SELECT request on {} namespace.",
 			hostname,
 			WMI_AND_WINRM_TEST_NAMESPACE
 		);
@@ -602,14 +600,14 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 					WMI_AND_WINRM_TEST_QUERY,
 					WMI_AND_WINRM_TEST_NAMESPACE
 				);
-		} catch (ClientException e) {
+		} catch (Exception e) {
 			if (WqlDetectionHelper.isAcceptableException(e)) {
-				// Generate a metric from the WINRM result
+				// Generate a metric from the WinRM result
 				metricFactory.collectNumberMetric(hostMonitor, WINRM_UP_METRIC, UP, strategyTime);
 				return;
 			}
 			log.debug(
-				"Hostname {} - Checking WINRM protocol status. WINRM exception when performing a WQL SELECT request on {} namespace: ",
+				"Hostname {} - Checking WinRM protocol status. WinRM exception when performing a WQL SELECT request on {} namespace: ",
 				hostname,
 				WMI_AND_WINRM_TEST_NAMESPACE,
 				e
