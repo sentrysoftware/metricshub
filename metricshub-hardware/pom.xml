@@ -2,15 +2,15 @@
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.sentrysoftware.metricshub</groupId>
+		<groupId>org.sentrysoftware</groupId>
 		<artifactId>metricshub-parent</artifactId>
 		<version>0.9.01-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>hardware</artifactId>
+	<artifactId>metricshub-hardware</artifactId>
 
-	<name>Hardware Energy and Sustainability Module</name>
-	<description>Hardware Energy and Sustainability Post Processing Module</description>
+	<name>MetricsHub Hardware Energy and Sustainability Module</name>
+	<description>MetricsHub Hardware Energy and Sustainability Post Processing Module</description>
 
 	<dependencies>
 		<!-- MetricsHub Engine -->
