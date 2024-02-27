@@ -4,7 +4,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.sentrysoftware.metricshub</groupId>
+	<groupId>org.sentrysoftware</groupId>
 	<artifactId>metricshub-parent</artifactId>
 	<version>0.9.01-SNAPSHOT</version>
 
@@ -108,7 +108,7 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>org.sentrysoftware.metricshub</groupId>
+				<groupId>org.sentrysoftware</groupId>
 				<artifactId>metricshub-engine</artifactId>
 				<version>${project.version}</version>
 			</dependency>
