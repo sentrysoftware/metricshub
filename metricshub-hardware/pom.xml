@@ -7,10 +7,10 @@
 		<version>0.9.01-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>hardware</artifactId>
+	<artifactId>metricshub-hardware</artifactId>
 
-	<name>Hardware Energy and Sustainability Module</name>
-	<description>Hardware Energy and Sustainability Post Processing Module</description>
+	<name>MetricsHub Hardware Energy and Sustainability Module</name>
+	<description>MetricsHub Hardware Energy and Sustainability Post Processing Module</description>
 
 	<dependencies>
 		<!-- MetricsHub Engine -->
