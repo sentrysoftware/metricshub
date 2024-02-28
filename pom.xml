@@ -12,6 +12,8 @@
 
 	<name>MetricsHub</name>
 
+	<description>Universal Metrics Collection for OpenTelemetry</description>
+
 	<url>https://sentrysoftware.org/metricshub</url>
 	<inceptionYear>2023</inceptionYear>
 
@@ -44,6 +46,50 @@
 		</license>
 	</licenses>
 
+	<developers>
+		<developer>
+			<name>Bertrand Martin (@bertysentry)</name>
+			<email>bertrand@sentrysoftware.com</email>
+			<roles>
+				<role>maintainer</role>
+			</roles>
+		</developer>
+		<developer>
+			<name>Nassim Boutekedjiret (@NassimBtk)</name>
+			<email>nassim@sentrysoftware.com</email>
+			<roles>
+				<role>maintainer</role>
+			</roles>
+		</developer>
+		<developer>
+			<name>Alex Gilbert (@alexdgilbert)</name>
+			<email>alex@sentrysoftware.com</email>
+			<roles>
+				<role>maintainer</role>
+			</roles>
+		</developer>
+		<developer>
+			<name>Mohamed Maalej (@MedMaalej)</name>
+			<email>maalej@sentrysoftware.com</email>
+			<roles>
+				<role>maintainer</role>
+			</roles>
+		</developer>
+		<developer>
+			<name>Elyes Cherfa (@CherfaElyes)</name>
+			<email>elyes@sentrysoftware.com</email>
+			<roles>
+				<role>maintainer</role>
+			</roles>
+		</developer>
+		<developer>
+			<name>Thomas Nohaic (@TNohaic)</name>
+			<email>thomas@sentrysoftware.com</email>
+			<roles>
+				<role>maintainer</role>
+			</roles>
+		</developer>
+	</developers>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -102,6 +148,13 @@
 							<skip>true</skip>
 						</configuration>
 					</plugin>
+					<plugin>
+						<groupId>org.sonatype.plugins</groupId>
+						<artifactId>nexus-staging-maven-plugin</artifactId>
+						<configuration>
+							<skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
+						</configuration>
+					</plugin>
 				</plugins>
 			</build>
 		</profile>
@@ -116,6 +169,48 @@
 				<module>metricshub-linux</module>
 			</modules>
 		</profile>
+			<!-- Profile for releasing the project -->
+			<profile>
+				<id>release</id>
+				<build>
+					<plugins>
+	
+						<!-- gpg to sign the released artifacts -->
+						<plugin>
+							<artifactId>maven-gpg-plugin</artifactId>
+							<version>3.1.0</version>
+							<executions>
+								<execution>
+									<id>sign-artifacts</id>
+									<phase>verify</phase>
+									<goals>
+										<goal>sign</goal>
+									</goals>
+									<configuration>
+										<updateReleaseInfo>true</updateReleaseInfo>
+										<gpgArguments>
+											<arg>--pinentry-mode</arg>
+											<arg>loopback</arg>
+										</gpgArguments>
+									</configuration>
+								</execution>
+							</executions>
+						</plugin>
+	
+						<!-- nexus-staging (Sonatype) -->
+						<plugin>
+							<groupId>org.sonatype.plugins</groupId>
+							<artifactId>nexus-staging-maven-plugin</artifactId>
+							<extensions>true</extensions>
+							<configuration>
+								<serverId>ossrh</serverId>
+								<nexusUrl>https://s01.oss.sonatype.org</nexusUrl>
+								<autoReleaseAfterClose>${env.AUTO_RELEASE_AFTER_CLOSE}</autoReleaseAfterClose>
+							</configuration>
+						</plugin>
+					</plugins>
+				</build>
+			</profile>
 	</profiles>
 
 	<dependencyManagement>
@@ -459,6 +554,11 @@
 					<artifactId>maven-deploy-plugin</artifactId>
 					<version>3.1.1</version>
 				</plugin>
+				<plugin>
+					<groupId>org.sonatype.plugins</groupId>
+					<artifactId>nexus-staging-maven-plugin</artifactId>
+					<version>1.6.13</version>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 
@@ -709,6 +809,20 @@
 			<!-- Maven Deploy Plugin-->
 			<plugin>
 				<artifactId>maven-deploy-plugin</artifactId>
+			</plugin>
+
+			<!-- Maven Source Plugin -->
+			<plugin>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>3.3.0</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 
 		</plugins>
