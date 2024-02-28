@@ -12,14 +12,17 @@
 
 	<name>MetricsHub</name>
 
-	<url>https://github.com/sentrysoftware/metricshub</url>
+	<url>https://sentrysoftware.org/metricshub</url>
 	<inceptionYear>2023</inceptionYear>
 
 	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
 		<repository>
-			<id>github</id>
-			<name>GitHub Apache Maven Packages for Sentry Software</name>
-			<url>https://maven.pkg.github.com/sentrysoftware/metricshub</url>
+			<id>ossrh</id>
+			<url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
 	</distributionManagement>
 
@@ -91,6 +94,16 @@
 			<modules>
 				<module>metricshub-windows</module>
 			</modules>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-deploy-plugin</artifactId>
+						<configuration>
+							<skip>true</skip>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
 		</profile>
 		<profile>
 			<id>linux</id>
@@ -442,6 +455,10 @@
 						</additionalJOptions>
 					</configuration>
 				</plugin>
+				<plugin>
+					<artifactId>maven-deploy-plugin</artifactId>
+					<version>3.1.1</version>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 
@@ -683,11 +700,16 @@
 					<execution>
 						<id>attach-javadocs</id>
 						<goals>
-						<goal>jar</goal>
-					</goals>
-				</execution>
-			</executions>
-		</plugin>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Maven Deploy Plugin-->
+			<plugin>
+				<artifactId>maven-deploy-plugin</artifactId>
+			</plugin>
 
 		</plugins>
 	</build>
