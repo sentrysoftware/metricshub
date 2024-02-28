@@ -1,7 +1,7 @@
-name: Build
+name: Deploy
 
 on:
-  pull_request:
+  push:
     branches: [ "main" ]
 
 # Default to bash
@@ -44,12 +44,15 @@ jobs:
       uses: s4u/maven-settings-action@v3.0.0
       with:
         repositories: '[{"id":"github","name":"MetricsHub JRE Builder","url":"https://maven.pkg.github.com/sentrysoftware/metricshub-jre-builder","snapshots":{"enabled":true},"releases":{"enabled":true}}]'
+        servers: '[{"id": "ossrh", "username": "${env.OSSRH_USERNAME}", "password": "${env.OSSRH_TOKEN}"}]'
         sonatypeSnapshots: true
 
     - name: Build with Maven on ${{ matrix.os }}
-      run: mvn -B -U verify --file pom.xml
+      run: mvn -B -U deploy --file pom.xml
       env:
         GITHUB_TOKEN: ${{ github.token }}
+        OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+        OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
 
     - name: Get version
       run: |
