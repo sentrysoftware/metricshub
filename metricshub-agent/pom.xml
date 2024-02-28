@@ -34,7 +34,7 @@
 			<version>${project.version}</version>
 		</dependency>
 
-		<!-- Hardware -->
+		<!-- MetricsHub Hardware -->
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>metricshub-hardware</artifactId>
