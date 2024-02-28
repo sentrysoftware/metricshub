@@ -11,7 +11,7 @@ You can install **${solutionName}** on the operating system of your choice as th
 
 ### Download
 
-From [MetricsHub Releases page](https://github.com/sentrysoftware/metricshub/releases), download:
+From [MetricsHub Release v${project.version}](https://github.com/sentrysoftware/metricshub/releases/tag/v${project.version}), download:
 * **metricshub-linux-${project.version}.tar.gz**
 
 ### Install
@@ -147,7 +147,7 @@ systemctl stop metricshub-service
 
 ### Download
 
-From [MetricsHub Releases page](https://github.com/sentrysoftware/metricshub/releases), download:
+From [MetricsHub Release v${project.version}](https://github.com/sentrysoftware/metricshub/releases/tag/v${project.version}), download:
 * **metricshub-windows-${project.version}.zip**
 
 ### Install
@@ -240,7 +240,7 @@ This action will terminate the execution of the **MetricsHub Service** running a
 
 ### Download
 
-From [MetricsHub Releases page](https://github.com/sentrysoftware/metricshub/releases), download:
+From [MetricsHub Release v${project.version}](https://github.com/sentrysoftware/metricshub/releases/tag/v${project.version}), download:
 * **metricshub-linux-${project.version}-docker.tar.gz**
 
 ### Install

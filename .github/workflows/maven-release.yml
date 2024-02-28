@@ -151,7 +151,6 @@ jobs:
         git checkout ${{ needs.prepare.outputs.tagName }} 2>/dev/null
 
     - name: Perform MetricsHub Artifacts release to Maven Central
-      if: ${{ matrix.os == 'ubuntu-latest' }}
       run: |
         mvn -B -U -Prelease deploy --file pom.xml \
         -Dgpg.passphraseServerId=gpg.passphrase \
@@ -162,12 +161,6 @@ jobs:
         MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
         OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
         OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
-
-    - name: Build with Maven on ${{ matrix.os }}
-      if: ${{ matrix.os == 'windows-latest' }}
-      run: mvn -B -U verify --file pom.xml
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
 
     - name: Upload Maven Site to GitHub Pages
       uses: actions/upload-pages-artifact@v3
