@@ -298,6 +298,18 @@ public class MetricsHubCliService implements Callable<Integer> {
 
 			if (connectorMonitors == null || connectorMonitors.isEmpty()) {
 				printWriter.print(Ansi.ansi().fgBrightRed().a("No connector detected. Stopping.").reset().toString());
+				printWriter.print(
+					Ansi
+						.ansi()
+						.newline()
+						.fgYellow()
+						.a(
+							"Please verify that your credentials are correct and that your network connection is stable and not blocking the communication. " +
+							"For detailed troubleshooting steps, use the -vvvvvv option to display more diagnostic logs."
+						)
+						.reset()
+						.toString()
+				);
 				printWriter.flush();
 				return CommandLine.ExitCode.SOFTWARE;
 			}
