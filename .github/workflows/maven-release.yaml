@@ -136,9 +136,6 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
         cache: 'maven'
-        server-id: ossrh
-        server-username: OSSRH_USERNAME
-        server-password: OSSRH_TOKEN
         gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
         gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
@@ -146,6 +143,7 @@ jobs:
       uses: s4u/maven-settings-action@v3.0.0
       with:
         repositories: '[{"id":"github","name":"MetricsHub JRE Builder","url":"https://maven.pkg.github.com/sentrysoftware/metricshub-jre-builder","snapshots":{"enabled":true},"releases":{"enabled":true}}]'
+        servers: '[{"id": "ossrh", "username": "${env.OSSRH_USERNAME}", "password": "${env.OSSRH_TOKEN}"}]'
         sonatypeSnapshots: true
 
     - name: Checkout ${{ needs.prepare.outputs.tagName }} branch
