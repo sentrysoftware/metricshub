@@ -568,6 +568,24 @@ public class MetricsHubCliService implements Callable<Integer> {
 		stagedConnectorIdsSet.addAll(stagedConnectorIds.getAutoDetectionConnectorIds());
 		stagedConnectorIdsSet.addAll(stagedConnectorIds.getForcedConnectorIds());
 
+		if (!connectorStore.getStore().isEmpty()) {
+			printWriter.println(
+				Ansi
+					.ansi()
+					.fgYellow()
+					.a(Attribute.INTENSITY_BOLD)
+					.a(String.format("%-40s ", "Connector Name"))
+					.fgMagenta()
+					.a(String.format("%-20s ", "Connector Tags"))
+					.fgCyan()
+					.a(String.format("%-70s ", "Connector Host Type"))
+					.fgDefault()
+					.a("Connector Display Name")
+					.a(Attribute.INTENSITY_BOLD_OFF)
+					.toString()
+			);
+		}
+
 		connectorStore
 			.getStore()
 			.entrySet()
