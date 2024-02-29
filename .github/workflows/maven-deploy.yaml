@@ -72,19 +72,18 @@ jobs:
       if: ${{ matrix.os == 'windows-latest' }}
       with:
         name: metricshub-windows-package-${{ env.metricshub_version }}
-        path: ./metricshub-windows/target/metricshub-windows-${{ env.metricshub_version }}.zip
+        path: ./metricshub-windows/target/metricshub-windows-*.zip
 
     - name: Upload Site Artifact
       uses: actions/upload-artifact@v4
       if: ${{ matrix.os == 'ubuntu-latest' }}
       with:
         name: metricshub-site-${{ env.metricshub_version }}
-        path: ./metricshub-doc/target/metricshub-doc-${{ env.metricshub_version }}-site.jar
+        path: ./metricshub-doc/target/metricshub-doc-*-site.jar
 
     - name: Upload Docker Artifact
       uses: actions/upload-artifact@v4
       if: ${{ matrix.os == 'ubuntu-latest' }}
       with:
         name: metricshub-docker-package-${{ env.metricshub_version }}
-        path: ./metricshub-linux/target/metricshub-linux-${{ env.metricshub_version }}-docker.tar.gz
- 
+        path: ./metricshub-linux/target/metricshub-linux-*-docker.tar.gz

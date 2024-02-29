@@ -116,49 +116,6 @@
 				<module>metricshub-linux</module>
 			</modules>
 		</profile>
-			<!-- Profile for releasing the project -->
-			<profile>
-				<id>release</id>
-				<build>
-					<plugins>
-	
-						<!-- gpg to sign the released artifacts -->
-						<plugin>
-							<artifactId>maven-gpg-plugin</artifactId>
-							<version>3.1.0</version>
-							<executions>
-								<execution>
-									<id>sign-artifacts</id>
-									<phase>verify</phase>
-									<goals>
-										<goal>sign</goal>
-									</goals>
-									<configuration>
-										<updateReleaseInfo>true</updateReleaseInfo>
-										<gpgArguments>
-											<arg>--pinentry-mode</arg>
-											<arg>loopback</arg>
-										</gpgArguments>
-									</configuration>
-								</execution>
-							</executions>
-						</plugin>
-	
-						<!-- nexus-staging (Sonatype) -->
-						<plugin>
-							<groupId>org.sonatype.plugins</groupId>
-							<artifactId>nexus-staging-maven-plugin</artifactId>
-							<version>1.6.13</version>
-							<extensions>true</extensions>
-							<configuration>
-								<serverId>ossrh</serverId>
-								<nexusUrl>https://s01.oss.sonatype.org</nexusUrl>
-								<autoReleaseAfterClose>${env.AUTO_RELEASE_AFTER_CLOSE}</autoReleaseAfterClose>
-							</configuration>
-						</plugin>
-					</plugins>
-				</build>
-			</profile>
 	</profiles>
 
 	<dependencyManagement>
