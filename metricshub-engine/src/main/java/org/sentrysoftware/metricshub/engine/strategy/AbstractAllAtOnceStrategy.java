@@ -53,6 +53,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Abstrac
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Discovery;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Mapping;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Simple;
+import org.sentrysoftware.metricshub.engine.strategy.preSource.PreSourceStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.source.OrderedSources;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.strategy.utils.MappingProcessor;
@@ -87,6 +88,26 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 	 * @param hostname
 	 */
 	private void process(final Connector currentConnector, final String hostname) {
+		if (!validateConnectorDetectionCriteria(currentConnector, hostname)) {
+			log.error(
+				"Hostname {} - The connector {} no longer matches the host. Stopping the connector's collect job.",
+				hostname,
+				currentConnector.getCompiledFilename()
+			);
+			return;
+		}
+
+		// Run PreSourceStrategy that executes pre sources
+
+		final PreSourceStrategy preSourceStrategy = PreSourceStrategy
+			.builder()
+			.clientsExecutor(clientsExecutor)
+			.strategyTime(strategyTime)
+			.telemetryManager(telemetryManager)
+			.build();
+
+		preSourceStrategy.run();
+
 		// Sort the connector monitor jobs according to the priority map
 		final Map<String, MonitorJob> connectorMonitorJobs = currentConnector
 			.getMonitors()
