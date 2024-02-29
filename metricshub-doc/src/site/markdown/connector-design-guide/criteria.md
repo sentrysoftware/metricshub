@@ -7,38 +7,38 @@ In order for a connector to match a system, some criterion must be met. They are
 
 A maximum number of 99 detection criterion may be defined in a connector.
 
-* [HTTP](#HTTP)
+* [HTTP](#http)
     * [Input Properties](#http-input-properties)
     * [Example](#http-example)
-* [IPMI](#IPMI)
+* [IPMI](#ipmi)
     * [Input Properties](#ipmi-input-properties)
     * [Example](#ipmi-example)
-* [Product Requirements](#Product_Requirements)
+* [Product Requirements](#product_requirements)
     * [Input Properties](#product-requirements-input-properties)
     * [Example](#product-requirements-example)
-* [Device Type](#Device_Type)
+* [Device Type](#device_type)
     * [Input Properties](#device-type-input-properties)
     * [Supported OS List](#device-type-os-list)
     * [Example](#device-type-example)
-* [OS Command](#OS_Command)
+* [OS Command](#os_command)
     * [Input Properties](#os-command-input-properties)
     * [Example](#os-command-example)
-* [Process](#Process)
+* [Process](#process)
     * [Input Properties](#process-input-properties)
     * [Example](#process-example)
-* [Service](#Service)
+* [Service](#service)
     * [Input Properties](#service-input-properties)
     * [Example](#service-example)
-* [SNMP Get](#SNMP_Get)
+* [SNMP Get](#snmp_get)
     * [Input Properties](#snmp-get-input-properties)
     * [Example](#snmp-get-example)
-* [SNMP GetNext](#SNMP_GetNext)
+* [SNMP GetNext](#snmp_getnext)
     * [Input Properties](#snmp-getnext-input-properties)
     * [Example](#snmp-getnext-example)
-* [WBEM](#WBEM)
+* [WBEM](#wbem)
     * [Input Properties](#wbem-input-properties)
     * [Example](#wbem-example)
-* [WMI](#WMI)
+* [WMI](#wmi)
     * [Input Properties](#wmi-input-properties)
     * [Example](#wmi-example)
 
@@ -133,6 +133,7 @@ connector:
 ```
 
 ### <a id="product-requirements-input-properties" />Input Properties
+
 | Input Property | Description |
 | -------------- | ----------- |
 | `kmVersion` | Minimum required KM version, using this format: x.y.z (ex: 3.1.01) |
@@ -163,12 +164,14 @@ connector:
 ```
 
 ### <a id="device-type-input-properties" />Input Properties
+
 | Input Property | Description |
 | -------------- | ----------- |
 | `exclude` | List of operating systems, separated by commas, that should not match the monitored system |
 | `keep` | List of operating systems, separated by commas. The monitored system's OS must match one of the listed item |
 
 ### <a id="device-type-os-list" />Supported OS List
+
 | Operating System | OS Type |
 | -------------- | ------------------ |
 | HP OpenVMS | `VMS` |
@@ -183,6 +186,7 @@ connector:
 | Microsoft Windows | `NT`, `win` |
 
 ### <a id="device-type-example" />Example
+
 ```yaml
 connector:
   detection:
@@ -210,6 +214,7 @@ connector:
 ```
 
 ### <a id="os-command-input-properties" />Input Properties
+
 | Input Property | Description |
 | -------------- | ----------- |
 | `commandLine` | Command-line to be executed. Macros such as `%{USERNAME}`, `%{PASSWORD}` or `%{HOSTNAME}` may be used |
@@ -219,6 +224,7 @@ connector:
 | `expectedResult` | Regular expression that is expected to match the result of the OS command |
 
 ### <a id="os-command-example" />Example
+
 ```yaml
 connector:
   detection:
@@ -245,11 +251,13 @@ connector:
 ```
 
 ### <a id="process-input-properties" />Input Properties
+
 | Input Property | Description |
 | -------------- | ----------- |
 | `commandLine` | Regular expression that should match the command line of a process currently running on the monitored system |
 
 ### <a id="process-example" />Example
+
 ```yaml
 connector:
   detection:
@@ -273,11 +281,13 @@ connector:
 ```
 
 ### <a id="service-input-properties" />Input Properties
+
 | Input Property | Description |
 | -------------- | ----------- |
 | `name` | Regular expression that must match the name of a service currently running on the monitored system |
 
 ### <a id="service-example" />Example
+
 ```yaml
 connector:
   detection:
@@ -302,12 +312,14 @@ connector:
 ```
 
 ### <a id="snmp-get-input-properties" />Input Properties
+
 | Input Property | Description |
 | -------------- | ----------- |
 | `oid` | Object Identifier (OID) used to perform the SNMP request. The request must be successful |
 | `expectedResult` | Regular expression that is expected to match the result of the SNMP request. If not specified, a successful SNMP request will be sufficient for the criteria to be met |
 
 ### <a id="snmp-get-example" />Example
+
 ```yaml
 connector:
   detection:
@@ -333,12 +345,14 @@ connector:
 ```
 
 ### <a id="snmp-getnext-input-properties" />Input Properties
+
 | Input Property | Description |
 | -------------- | ----------- |
 | `oid` | Object Identifier (OID) used to perform the SNMP get next request. The value returned is the content of the variable that is lexicographically next in the MIB. The request must be successful and the result OID must be a child of the provided OID. |
 | `expectedResult` | Regular expression that is expected to match the result of the SNMP request . If not specified, a successful SNMP request will be sufficient for the criteria to be met |
 
 ### <a id="snmp-getnext-example" />Example
+
 ```yaml
 connector:
   detection:
@@ -364,6 +378,7 @@ connector:
 ```
 
 ### <a id="wbem-input-properties" />Input Properties
+
 | Input Property | Description |
 | -------------- | ----------- |
 | `query` | WBEM query to be executed |
@@ -398,6 +413,7 @@ connector:
 ```
 
 ### <a id="wmi-input-properties" />Input Properties
+
 | Input Property | Description |
 | -------------- | ----------- |
 | `query` | WMI query to be executed |
@@ -405,6 +421,7 @@ connector:
 | `expectedResult` | Regular expression that is expected to match the result of the WMI query |
 
 ### <a id="wmi-example" />Example
+
 ```yaml
 connector:
   detection:

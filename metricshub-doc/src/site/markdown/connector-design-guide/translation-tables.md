@@ -20,6 +20,7 @@ translations: # <object>
 ```
 
 ## Example
+
 Note here that you must define target states that match the states defined in the [Metrics Section](metrics.md), that’s why `WARN` and `ALARM` are becoming `degraded` and `failed`.
 
 ```yaml

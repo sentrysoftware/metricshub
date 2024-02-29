@@ -5,34 +5,33 @@ description: This page shows how to reference connector objects such as sources,
 
 This page shows how to reference connector objects such as sources, entries, columns and files, etc. inside the YAML document.
 
-* [Source Reference](#Source_Reference)
+* [Source Reference](#source_reference)
     * [Format](#source-format)
     * [Example](#source-example)
-* [Entry Reference](#Entry_Reference)
+* [Entry Reference](#entry_reference)
     * [Format](#entry-format)
     * [Example](#entry-example)
-* [Column Reference](#Column_Reference)
+* [Column Reference](#column_reference)
     * [Format](#column-format)
     * [Example](#column-example)
-* [File Reference](#File_Reference)
+* [File Reference](#file_reference)
     * [Format](#file-format)
     * [Example](#file-example)
-* [Mono-Instance Reference](#Mono-Instance_Reference)
+* [Mono-Instance Reference](#mono-instance_reference)
     * [Format](#mono-instance-format)
     * [Example](#mono-instance-example)
-* [Translation Table Reference](#Translation_Table_Reference)
+* [Translation Table Reference](#translation_table_reference)
     * [Format](#translation-table-format)
     * [Example](#translation-table-example)
-* [Awk Script Reference](#Awk_Script_Reference)
+* [Awk Script Reference](#awk_script_reference)
     * [Format](#awk-script-format)
     * [Example](#awk-script-example)
 
 ## Source Reference
 
 ### <a id="source-format" />Format
-```yaml
-${source::<fullSourcePath>}
-```
+
+A Source can be referenced either with its full path or its relative path. A relative path can be used only if the referenced source is in the same monitor and same job as the current source.
 
 ### <a id="source-example" />Example
 ```yaml
@@ -40,13 +39,12 @@ ${source::<fullSourcePath>}
         # InstanceTable = Source(1)
         source: ${source::monitors.disk_controller.discovery.sources.source_discovery}
 ```
-------------------------------------
 
 ```yaml
         sourceDiscovery:
           type: tableJoin
-          leftTable: ${source::monitors.enclosure.collect.sources.source_chassis}
-          rightTable: ${source::monitors.enclosure.collect.sources.source_enclosure}
+          leftTable: ${source::monitors.enclosure.collect.sources.source_chassis} # full path for a source in another monitor
+          rightTable: ${source::source_enclosure} # relative path
           leftKeyColumn: 1
           rightKeyColumn: 1
 ```

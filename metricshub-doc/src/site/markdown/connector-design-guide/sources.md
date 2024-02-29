@@ -5,18 +5,18 @@ description: This page describes the format of the connector source
 
 This page describes the format of the connector source
 
-* [Format](#Format)
-* [HTTP Source](#HTTP_Source)
-* [IPMI Source](#IPMI_Source)
-* [OS Command Source](#OS_Command_Source)
-* [Copy](#Copy)
-* [Static](#Static)
-* [SNMPGet Source](#SNMPGet_Source)
-* [SNMP Table](#SNMP_Table)
-* [Table Join](#Table_Join)
-* [Table Union](#Table_Union)
-* [WBEM Source](#WBEM_Source)
-* [WMI Source](#WMI_Source)
+* [Format](#format)
+* [HTTP Source](#http_source)
+* [IPMI Source](#ipmi_source)
+* [OS Command Source](#os_command_source)
+* [Copy](#copy)
+* [Static](#static)
+* [SNMPGet Source](#snmpget_source)
+* [SNMP Table](#snmp_table)
+* [Table Join](#table_join)
+* [Table Union](#table_union)
+* [WBEM Source](#wbem_source)
+* [WMI Source](#wmi_source)
 
 ## Format
 
