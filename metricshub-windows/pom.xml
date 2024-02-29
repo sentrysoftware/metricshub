@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.sentrysoftware.metricshub</groupId>
+		<groupId>org.sentrysoftware</groupId>
 		<artifactId>metricshub-parent</artifactId>
 		<version>0.9.01-SNAPSHOT</version>
 	</parent>
@@ -190,6 +190,26 @@
 				</executions>
 			</plugin>
 
+			<!-- Deploy Windows Artifact -->
+			<plugin>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<configuration>
+					<skip>false</skip>
+				</configuration>
+			</plugin>
+
+			<!-- Stage artifact -->
+			<plugin>
+				<groupId>org.sonatype.plugins</groupId>
+				<artifactId>nexus-staging-maven-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<skipNexusStagingDeployMojo>false</skipNexusStagingDeployMojo>
+					<serverId>ossrh</serverId>
+					<nexusUrl>https://s01.oss.sonatype.org</nexusUrl>
+					<autoReleaseAfterClose>${env.AUTO_RELEASE_AFTER_CLOSE}</autoReleaseAfterClose>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 </project>

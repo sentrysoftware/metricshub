@@ -1,7 +1,7 @@
 # MetricsHub
 
 ![GitHub release (with filter)](https://img.shields.io/github/v/release/sentrysoftware/metricshub)
-![Build](https://img.shields.io/github/actions/workflow/status/sentrysoftware/metricshub/build.yml)
+![Build](https://img.shields.io/github/actions/workflow/status/sentrysoftware/metricshub/maven-build.yml)
 ![GitHub top language](https://img.shields.io/github/languages/top/sentrysoftware/metricshub)
 ![License](https://img.shields.io/github/license/sentrysoftware/metricshub)
 
@@ -11,7 +11,7 @@ This is a multi-module project:
 
 * **/**: The root (parent of all submodules)
 * **metricshub-engine**: The brain, the heart of this project. It houses the core logic and essential functionalities that power the entire system.
-* **hardware**: Hardware Energy and Sustainability module, dedicated to managing and monitoring hardware-related metrics, focusing on energy consumption and sustainability aspects.
+* **metricshub-hardware**: Hardware Energy and Sustainability module, dedicated to managing and monitoring hardware-related metrics, focusing on energy consumption and sustainability aspects.
 * **metricshub-agent**: The MetricsHub Agent module includes a Command-Line Interface (CLI) and is responsible for interacting with the MetricsHub engine. It acts as an entry point, collecting and transmitting data to the OpenTelemetry Collector.
 * **metricshub-windows**: Builds the `.zip` package for MetricsHub on Windows platforms.
 * **metricshub-linux**: Builds the `.tar.gz` package of MetricsHub on Linux platforms.

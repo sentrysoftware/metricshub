@@ -39,7 +39,7 @@ import org.sentrysoftware.metricshub.engine.configuration.WinRmConfiguration;
 import org.sentrysoftware.winrm.service.client.auth.AuthenticationEnum;
 
 /**
- * Configuration class for the WinRm (Windows Remote Management) protocol.
+ * Configuration class for the WinRM (Windows Remote Management) protocol.
  * Extends {@link AbstractProtocolConfig}.
  */
 @Data
