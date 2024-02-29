@@ -148,6 +148,13 @@
 							<skip>true</skip>
 						</configuration>
 					</plugin>
+					<plugin>
+						<groupId>org.sonatype.plugins</groupId>
+						<artifactId>nexus-staging-maven-plugin</artifactId>
+						<configuration>
+							<skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
+						</configuration>
+					</plugin>
 				</plugins>
 			</build>
 		</profile>
@@ -547,6 +554,11 @@
 				<plugin>
 					<artifactId>maven-deploy-plugin</artifactId>
 					<version>3.1.1</version>
+				</plugin>
+				<plugin>
+					<groupId>org.sonatype.plugins</groupId>
+					<artifactId>nexus-staging-maven-plugin</artifactId>
+					<version>1.6.13</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>

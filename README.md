@@ -1,7 +1,7 @@
 # MetricsHub
 
 ![GitHub release (with filter)](https://img.shields.io/github/v/release/sentrysoftware/metricshub)
-![Build](https://img.shields.io/github/actions/workflow/status/sentrysoftware/metricshub/build.yml)
+![Build](https://img.shields.io/github/actions/workflow/status/sentrysoftware/metricshub/maven-build.yml)
 ![GitHub top language](https://img.shields.io/github/languages/top/sentrysoftware/metricshub)
 ![License](https://img.shields.io/github/license/sentrysoftware/metricshub)
 
