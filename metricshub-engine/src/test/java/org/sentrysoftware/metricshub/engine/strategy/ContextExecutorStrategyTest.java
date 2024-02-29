@@ -12,7 +12,11 @@ class ContextExecutorStrategyTest implements IStrategy {
 	private ContextExecutor contextExecutor = null;
 
 	@Override
-	public void run() {}
+	public void run() {
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {}
+	}
 
 	/**
 	 * This test checks whether execute() is executed without errors if there is no strategy timeout nor thread interruption
