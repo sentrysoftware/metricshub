@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.engine.strategy.preSource;
+package org.sentrysoftware.metricshub.engine.strategy.pre_source;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -48,7 +48,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 
 @ExtendWith(MockitoExtension.class)
-class PreSourceStrategyTest {
+class PreSourcesStrategyTest {
 
 	// Connector path
 	public static final Path TEST_CONNECTOR_PATH = Paths.get(
@@ -57,7 +57,7 @@ class PreSourceStrategyTest {
 		"resources",
 		"test-files",
 		"strategy",
-		"preSource"
+		"pre_source"
 	);
 
 	@Mock
