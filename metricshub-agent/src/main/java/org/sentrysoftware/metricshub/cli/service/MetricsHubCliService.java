@@ -297,7 +297,18 @@ public class MetricsHubCliService implements Callable<Integer> {
 			);
 
 			if (connectorMonitors == null || connectorMonitors.isEmpty()) {
-				printWriter.print(Ansi.ansi().fgBrightRed().a("No connector detected. Stopping.").reset().toString());
+				printWriter.println(Ansi.ansi().fgBrightRed().a("No connector detected. Stopping.").reset().toString());
+				printWriter.println(
+					Ansi
+						.ansi()
+						.fgYellow()
+						.a(
+							"Please verify that your credentials are correct and that your network connection is stable and not blocking the communication. " +
+							"For detailed troubleshooting steps, use the -vvvvvv option to display more diagnostic logs."
+						)
+						.reset()
+						.toString()
+				);
 				printWriter.flush();
 				return CommandLine.ExitCode.SOFTWARE;
 			}
@@ -556,6 +567,24 @@ public class MetricsHubCliService implements Callable<Integer> {
 		final Set<String> stagedConnectorIdsSet = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 		stagedConnectorIdsSet.addAll(stagedConnectorIds.getAutoDetectionConnectorIds());
 		stagedConnectorIdsSet.addAll(stagedConnectorIds.getForcedConnectorIds());
+
+		if (!connectorStore.getStore().isEmpty()) {
+			printWriter.println(
+				Ansi
+					.ansi()
+					.fgYellow()
+					.a(Attribute.INTENSITY_BOLD)
+					.a(String.format("%-40s ", "ID"))
+					.fgMagenta()
+					.a(String.format("%-20s ", "Tags"))
+					.fgCyan()
+					.a(String.format("%-70s ", "System Types"))
+					.fgDefault()
+					.a("Display Name")
+					.a(Attribute.INTENSITY_BOLD_OFF)
+					.toString()
+			);
+		}
 
 		connectorStore
 			.getStore()
