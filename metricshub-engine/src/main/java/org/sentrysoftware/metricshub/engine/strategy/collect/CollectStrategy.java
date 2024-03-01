@@ -55,7 +55,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Abstrac
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Mapping;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.MultiInstanceCollect;
 import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
-import org.sentrysoftware.metricshub.engine.strategy.pre_source.PreSourcesStrategy;
+import org.sentrysoftware.metricshub.engine.strategy.pre.PreSourcesStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.source.OrderedSources;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.strategy.utils.MappingProcessor;

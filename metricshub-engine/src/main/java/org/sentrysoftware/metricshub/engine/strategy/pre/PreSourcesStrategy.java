@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.engine.strategy.pre_source;
+package org.sentrysoftware.metricshub.engine.strategy.pre;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
