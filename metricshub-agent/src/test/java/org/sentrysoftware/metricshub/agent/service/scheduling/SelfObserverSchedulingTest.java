@@ -14,6 +14,12 @@ import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_IN
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_INFO_CC_VERSION_NUMBER_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_INFO_NAME_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_INFO_VERSION_ATTRIBUTE_KEY;
+import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_RESOURCE_AGENT_HOST_NAME_ATTRIBUTE_KEY;
+import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_RESOURCE_HOST_ID_ATTRIBUTE_KEY;
+import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_RESOURCE_HOST_NAME_ATTRIBUTE_KEY;
+import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_RESOURCE_HOST_TYPE_ATTRIBUTE_KEY;
+import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_RESOURCE_OS_TYPE_ATTRIBUTE_KEY;
+import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_RESOURCE_SERVICE_NAME_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.TestConstants.COMPANY_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.TestConstants.COMPANY_ATTRIBUTE_VALUE;
 
@@ -107,6 +113,15 @@ class SelfObserverSchedulingTest {
 
 			final Attributes attributes = dataPoint.getAttributes();
 
+			// Verify resource attributes
+			assertNotNull(attributes.get(AttributeKey.stringKey(AGENT_RESOURCE_OS_TYPE_ATTRIBUTE_KEY)));
+			assertNotNull(attributes.get(AttributeKey.stringKey(AGENT_RESOURCE_HOST_TYPE_ATTRIBUTE_KEY)));
+			assertNotNull(attributes.get(AttributeKey.stringKey(AGENT_RESOURCE_AGENT_HOST_NAME_ATTRIBUTE_KEY)));
+			assertNotNull(attributes.get(AttributeKey.stringKey(AGENT_RESOURCE_HOST_ID_ATTRIBUTE_KEY)));
+			assertNotNull(attributes.get(AttributeKey.stringKey(AGENT_RESOURCE_HOST_NAME_ATTRIBUTE_KEY)));
+			assertNotNull(attributes.get(AttributeKey.stringKey(AGENT_RESOURCE_SERVICE_NAME_ATTRIBUTE_KEY)));
+
+			// Verify metric attributes
 			assertNotNull(attributes.get(AttributeKey.stringKey(AGENT_INFO_NAME_ATTRIBUTE_KEY)));
 			assertNotNull(attributes.get(AttributeKey.stringKey(AGENT_INFO_VERSION_ATTRIBUTE_KEY)));
 			assertNotNull(attributes.get(AttributeKey.stringKey(AGENT_INFO_BUILD_NUMBER_ATTRIBUTE_KEY)));

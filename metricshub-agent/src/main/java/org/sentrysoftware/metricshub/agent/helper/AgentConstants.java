@@ -34,12 +34,14 @@ import lombok.NoArgsConstructor;
 public class AgentConstants {
 
 	// Application YAML properties
+
 	/**
 	 * Application YAML file name
 	 */
 	public static final String APPLICATION_YAML_FILE_NAME = "application.yaml";
 
 	// Configuration file
+
 	/**
 	 * Product code
 	 */
@@ -86,30 +88,66 @@ public class AgentConstants {
 	public static final String FILE_PATH_FORMAT = "%s/%s";
 
 	// Agent attribute information constants
+
 	/**
 	 * Agent info community connectors version number attribute key
 	 */
 	public static final String AGENT_INFO_CC_VERSION_NUMBER_ATTRIBUTE_KEY = "cc_version";
+
 	/**
 	 * Agent info build date number attribute key
 	 */
 	public static final String AGENT_INFO_BUILD_DATE_NUMBER_ATTRIBUTE_KEY = "build_date";
+
 	/**
 	 * Agent info build number attribute key
 	 */
 	public static final String AGENT_INFO_BUILD_NUMBER_ATTRIBUTE_KEY = "build_number";
+
 	/**
 	 * Agent info version attribute key
 	 */
 	public static final String AGENT_INFO_VERSION_ATTRIBUTE_KEY = "version";
+
 	/**
 	 * Agent info name attribute key
 	 */
 	public static final String AGENT_INFO_NAME_ATTRIBUTE_KEY = "name";
 
-	// Object Mapper
 	/**
-	 * Object mapper
+	 *  Agent Resource operating system type attribute key
+	 */
+	public static final String AGENT_RESOURCE_OS_TYPE_ATTRIBUTE_KEY = "os.type";
+
+	/**
+	 *  Agent Resource host type attribute  key
+	 */
+	public static final String AGENT_RESOURCE_HOST_TYPE_ATTRIBUTE_KEY = "host.type";
+
+	/**
+	 *  Agent Resource agent's host name attribute key
+	 */
+	public static final String AGENT_RESOURCE_AGENT_HOST_NAME_ATTRIBUTE_KEY = "agent.host.name";
+
+	/**
+	 * Agent Resource host identifier attribute key
+	 */
+	public static final String AGENT_RESOURCE_HOST_ID_ATTRIBUTE_KEY = "host.id";
+
+	/**
+	 * Agent Resource host name attribute key
+	 */
+	public static final String AGENT_RESOURCE_HOST_NAME_ATTRIBUTE_KEY = "host.name";
+
+	/**
+	 * Agent Resource service name attribute key
+	 */
+	public static final String AGENT_RESOURCE_SERVICE_NAME_ATTRIBUTE_KEY = "service.name";
+
+	// Jackson Databind ObjectMapper
+
+	/**
+	 * Jackson Databind ObjectMapper
 	 */
 	public static final ObjectMapper OBJECT_MAPPER = ConfigHelper.newObjectMapper();
 }

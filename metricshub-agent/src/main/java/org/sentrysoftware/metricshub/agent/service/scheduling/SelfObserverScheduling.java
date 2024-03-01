@@ -113,7 +113,10 @@ public class SelfObserverScheduling extends AbstractScheduling {
 
 		final Map<String, String> attributeMap = new HashMap<>();
 
-		// Add our attributes
+		// Merge resource attributes
+		ConfigHelper.mergeAttributes(agentInfo.getResourceAttributes(), attributeMap);
+
+		// Merge metric attributes
 		ConfigHelper.mergeAttributes(agentInfo.getMetricAttributes(), attributeMap);
 
 		// Override with the user's attributes
