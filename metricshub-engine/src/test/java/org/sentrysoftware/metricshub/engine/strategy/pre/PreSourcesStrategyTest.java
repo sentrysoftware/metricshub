@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.engine.strategy.pre_source;
+package org.sentrysoftware.metricshub.engine.strategy.pre;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -51,14 +51,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 class PreSourcesStrategyTest {
 
 	// Connector path
-	public static final Path TEST_CONNECTOR_PATH = Paths.get(
-		"src",
-		"test",
-		"resources",
-		"test-files",
-		"strategy",
-		"pre_source"
-	);
+	public static final Path TEST_CONNECTOR_PATH = Paths.get("src", "test", "resources", "test-files", "strategy", "pre");
 
 	@Mock
 	private ClientsExecutor clientsExecutorMock;
