@@ -26,9 +26,14 @@ import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_IN
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_INFO_CC_VERSION_NUMBER_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_INFO_NAME_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_INFO_VERSION_ATTRIBUTE_KEY;
+import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_RESOURCE_AGENT_HOST_NAME_ATTRIBUTE_KEY;
+import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_RESOURCE_HOST_ID_ATTRIBUTE_KEY;
+import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_RESOURCE_HOST_NAME_ATTRIBUTE_KEY;
+import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_RESOURCE_HOST_TYPE_ATTRIBUTE_KEY;
+import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_RESOURCE_OS_TYPE_ATTRIBUTE_KEY;
+import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_RESOURCE_SERVICE_NAME_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.APPLICATION_YAML_FILE_NAME;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.OBJECT_MAPPER;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HOST_NAME;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.OTEL_AIX_OS_TYPE;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.OTEL_FREE_BSD_OS_TYPE;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.OTEL_HPUX_OS_TYPE;
@@ -135,12 +140,12 @@ public class AgentInfo {
 		// @formatter:off
 		resourceAttributes =
 			Map.of(
-				"service.name", project.name(),
-				"host.id", AGENT_HOSTNAME,
-				HOST_NAME, AGENT_HOSTNAME,
-				"agent.host.name", AGENT_HOSTNAME,
-				"host.type", "compute",
-				"os.type", OTEL_LOCAL_OS_TYPE
+				AGENT_RESOURCE_SERVICE_NAME_ATTRIBUTE_KEY, project.name(),
+				AGENT_RESOURCE_HOST_ID_ATTRIBUTE_KEY, AGENT_HOSTNAME,
+				AGENT_RESOURCE_HOST_NAME_ATTRIBUTE_KEY, AGENT_HOSTNAME,
+				AGENT_RESOURCE_AGENT_HOST_NAME_ATTRIBUTE_KEY, AGENT_HOSTNAME,
+				AGENT_RESOURCE_HOST_TYPE_ATTRIBUTE_KEY, "compute",
+				AGENT_RESOURCE_OS_TYPE_ATTRIBUTE_KEY, OTEL_LOCAL_OS_TYPE
 			);
 		// @formatter:on
 	}
