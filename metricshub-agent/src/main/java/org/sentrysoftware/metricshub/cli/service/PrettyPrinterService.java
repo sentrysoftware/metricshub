@@ -186,7 +186,7 @@ public class PrettyPrinterService {
 	 * @param indentation How much indentation to use
 	 */
 	void printMetrics(final Monitor monitor, final int indentation) {
-		if (monitor.getMetrics() != null && monitor.getMetrics().size() > 0) {
+		if (monitor.getMetrics() != null && !monitor.getMetrics().isEmpty()) {
 			// Print a new line
 			printWriter.println();
 
