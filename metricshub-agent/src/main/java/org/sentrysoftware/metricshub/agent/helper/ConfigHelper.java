@@ -1313,23 +1313,38 @@ public class ConfigHelper {
 
 	/**
 	 * Retrieves the metric definition map associated with the specified connector identifier
-	 * within the provided {@link ConnectorStore}.
+	 * within the provided {@link ConnectorStore}.<br>
+	 * This method ensures that the metric for connector status is always included in the
+	 * returned map, regardless of whether the specified connector has additional metrics defined or not.
 	 *
-	 * @param connectorStore Wrapper for all connectors
-	 * @param connectorId    The unique identifier of the connector
-	 * @return An Optional containing a Map of metric names to their definitions, or empty if metric definitions are not found
+	 * @param connectorStore Wrapper for all connectors.
+	 * @param connectorId    The unique identifier of the connector.
+	 * @return A Map of metric names to their definitions.
 	 */
-	public static Optional<Map<String, MetricDefinition>> fetchMetricDefinitions(
+	public static Map<String, MetricDefinition> fetchMetricDefinitions(
 		final ConnectorStore connectorStore,
 		final String connectorId
 	) {
+		final Map<String, MetricDefinition> metricDefinitions = new HashMap<>();
+
 		if (connectorStore != null && connectorId != null) {
 			final Connector connector = connectorStore.getStore().get(connectorId);
 			if (connector != null) {
-				return Optional.ofNullable(connector.getMetrics());
+				final Map<String, MetricDefinition> connectorMetricDefinitions = connector.getMetrics();
+				if (connectorMetricDefinitions != null) {
+					metricDefinitions.putAll(connectorMetricDefinitions);
+				}
 			}
 		}
-		return Optional.empty();
+
+		// If the connector status metric is not already associated with a definition,
+		// attempt to compute its definition.
+		metricDefinitions.computeIfAbsent(
+			MetricsHubConstants.CONNECTOR_STATUS_METRIC_KEY,
+			key -> MetricsHubConstants.CONNECTOR_STATUS_METRIC_DEFINITION
+		);
+
+		return metricDefinitions;
 	}
 
 	/**

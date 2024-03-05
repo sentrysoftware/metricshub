@@ -21,7 +21,6 @@ package org.sentrysoftware.metricshub.engine.strategy.detection;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.CONNECTOR_STATUS_METRIC_KEY;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_APPLIES_TO_OS;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_NAME;
@@ -52,7 +51,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.detection.ConnectorStagingManager.StagedConnectorIdentifiers;
 import org.sentrysoftware.metricshub.engine.telemetry.HostProperties;
-import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.MonitorFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -146,7 +144,7 @@ public class DetectionStrategy extends AbstractStrategy {
 		monitorFactory.createEndpointHostMonitor(hostProperties.isLocalhost());
 
 		// Create monitors
-		createMonitors(connectorTestResults);
+		createConnectorMonitors(connectorTestResults);
 
 		// Create configured connector monitor
 		createConfiguredConnectorMonitor(configuredConnectorId);
@@ -185,21 +183,18 @@ public class DetectionStrategy extends AbstractStrategy {
 			String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), configuredConnectorId)
 		);
 
-		telemetryManager.getHostProperties().getConnectorNamespace(configuredConnectorId).setStatusOk(true);
-
-		new MetricFactory(telemetryManager.getHostname())
-			.collectNumberMetric(monitor, CONNECTOR_STATUS_METRIC_KEY, 1.0, strategyTime);
+		collectConnectorStatus(true, configuredConnectorId, monitor);
 	}
 
 	/**
-	 * This method creates monitors in TelemetryManager given a list of ConnectorTestResult
+	 * This method creates monitors in TelemetryManager for the given list of ConnectorTestResult
 	 *
 	 * @param connectorTestResultList List of ConnectorTestResult
 	 */
-	void createMonitors(final List<ConnectorTestResult> connectorTestResultList) {
+	void createConnectorMonitors(final List<ConnectorTestResult> connectorTestResultList) {
 		connectorTestResultList.forEach(connectorTestResult -> {
-			// Create a monitor for each connector
-			createMonitor(connectorTestResult);
+			// Create the connector monitor
+			createConnectorMonitor(connectorTestResult);
 
 			// Verify SSH for each connector
 			verifySsh(connectorTestResult.getConnector());
@@ -207,11 +202,11 @@ public class DetectionStrategy extends AbstractStrategy {
 	}
 
 	/**
-	 * This method creates a monitor in TelemetryManager for a given ConnectorTestResult instance
+	 * This method creates a connector monitor in TelemetryManager for the given ConnectorTestResult instance
 	 *
-	 * @param connectorTestResult ConnectorTestResult instance
+	 * @param connectorTestResult The result of testing criteria for a connector during the detection process
 	 */
-	public void createMonitor(final ConnectorTestResult connectorTestResult) {
+	public void createConnectorMonitor(final ConnectorTestResult connectorTestResult) {
 		// Get the connector
 		final Connector connector = connectorTestResult.getConnector();
 
@@ -219,8 +214,10 @@ public class DetectionStrategy extends AbstractStrategy {
 		final Map<String, String> monitorAttributes = new HashMap<>();
 		final String hostId = telemetryManager.getHostConfiguration().getHostId();
 		final String connectorId = connector.getCompiledFilename();
+
 		monitorAttributes.put(MONITOR_ATTRIBUTE_ID, connectorId);
 		monitorAttributes.put(MONITOR_ATTRIBUTE_NAME, connectorId);
+
 		monitorAttributes.put(
 			MONITOR_ATTRIBUTE_APPLIES_TO_OS,
 			connector
@@ -232,7 +229,7 @@ public class DetectionStrategy extends AbstractStrategy {
 				.sorted()
 				.collect(Collectors.joining(MetricsHubConstants.COMMA))
 		);
-		monitorAttributes.put("description", connector.getConnectorIdentity().getInformation());
+
 		monitorAttributes.put(MONITOR_ATTRIBUTE_PARENT_ID, hostId);
 
 		// Create the monitor factory
@@ -250,7 +247,7 @@ public class DetectionStrategy extends AbstractStrategy {
 			String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), connectorId)
 		);
 
-		collectConnectorStatus(connectorTestResult, connector, connectorId, monitor);
+		collectConnectorStatus(connectorTestResult.isSuccess(), connectorId, monitor);
 	}
 
 	/**
