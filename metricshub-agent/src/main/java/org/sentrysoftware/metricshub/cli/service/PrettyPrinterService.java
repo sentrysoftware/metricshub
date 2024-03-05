@@ -186,65 +186,67 @@ public class PrettyPrinterService {
 	 * @param indentation How much indentation to use
 	 */
 	void printMetrics(final Monitor monitor, final int indentation) {
-		// Print a new line
-		printWriter.println();
+		if (monitor.getMetrics() != null && monitor.getMetrics().size() > 0) {
+			// Print a new line
+			printWriter.println();
 
-		// Add the margin
-		addMargin(indentation);
+			// Add the margin
+			addMargin(indentation);
 
-		// Add the header
-		printWriter.println("Metrics:");
+			// Add the header
+			printWriter.println("Metrics:");
 
-		// Get the metrics
-		final Map<String, AbstractMetric> metrics = monitor.getMetrics();
+			// Get the metrics
+			final Map<String, AbstractMetric> metrics = monitor.getMetrics();
 
-		// Store the maximum length of metric names
-		final int metricMaxLength = metrics.keySet().stream().mapToInt(String::length).max().orElseThrow();
+			// Store the maximum length of metric names
+			final int metricMaxLength = metrics.keySet().stream().mapToInt(String::length).max().orElseThrow();
 
-		// Generate a format string for formatting metric names.
-		// For a metric name of 20 characters, include a padding of 5 white
-		// spaces, resulting in the final format string: %-25s
-		final String metricNameFormat = String.format("%%-%ds", metricMaxLength + 5);
+			// Generate a format string for formatting metric names.
+			// For a metric name of 20 characters, include a padding of 5 white
+			// spaces, resulting in the final format string: %-25s
+			final String metricNameFormat = String.format("%%-%ds", metricMaxLength + 5);
 
-		final Optional<Map<String, MetricDefinition>> maybeMetricDefinitions;
-		// Get host monitor's metric definitions
-		if (monitor.isEndpointHost()) {
-			maybeMetricDefinitions = Optional.ofNullable(hostMetricDefinitions.metrics());
-		} else {
-			// Retrieves the metric definitions for any other monitor
-			maybeMetricDefinitions =
-				ConfigHelper.fetchMetricDefinitions(
-					telemetryManager.getConnectorStore(),
-					monitor.getAttribute(MONITOR_ATTRIBUTE_CONNECTOR_ID)
-				);
+			final Optional<Map<String, MetricDefinition>> maybeMetricDefinitions;
+			// Get host monitor's metric definitions
+			if (monitor.isEndpointHost()) {
+				maybeMetricDefinitions = Optional.ofNullable(hostMetricDefinitions.metrics());
+			} else {
+				// Retrieves the metric definitions for any other monitor
+				maybeMetricDefinitions =
+					ConfigHelper.fetchMetricDefinitions(
+						telemetryManager.getConnectorStore(),
+						monitor.getAttribute(MONITOR_ATTRIBUTE_CONNECTOR_ID)
+					);
+			}
+
+			// Iterate through the metrics, printing each metric name along with its corresponding value
+			metrics
+				.entrySet()
+				.stream()
+				.filter(entry -> shouldDisplayKey(entry.getKey()))
+				.filter(entry -> entry.getValue() != null)
+				.sorted((entry1, entry2) -> entry1.getKey().compareToIgnoreCase(entry2.getKey()))
+				.forEach(e -> {
+					final String metricName = e.getKey();
+					final AbstractMetric metric = e.getValue();
+
+					// Format the metric name
+					final String formattedMetricName = String.format(metricNameFormat, metricName);
+
+					// Add margin
+					addMargin(indentation);
+
+					if (metric instanceof NumberMetric numberMetric) {
+						final Optional<String> maybeUnit = fetchUnit(MetricFactory.extractName(metricName), maybeMetricDefinitions);
+						// Handle NumberMetric
+						printNumberMetric(formattedMetricName, numberMetric, maybeUnit);
+					} else if (metric instanceof StateSetMetric stateSetMetric) {
+						// Handle StateSetMetric
+						printStateSetMetric(formattedMetricName, stateSetMetric);
+					}
+				});
 		}
-
-		// Iterate through the metrics, printing each metric name along with its corresponding value
-		metrics
-			.entrySet()
-			.stream()
-			.filter(entry -> shouldDisplayKey(entry.getKey()))
-			.filter(entry -> entry.getValue() != null)
-			.sorted((entry1, entry2) -> entry1.getKey().compareToIgnoreCase(entry2.getKey()))
-			.forEach(e -> {
-				final String metricName = e.getKey();
-				final AbstractMetric metric = e.getValue();
-
-				// Format the metric name
-				final String formattedMetricName = String.format(metricNameFormat, metricName);
-
-				// Add margin
-				addMargin(indentation);
-
-				if (metric instanceof NumberMetric numberMetric) {
-					final Optional<String> maybeUnit = fetchUnit(MetricFactory.extractName(metricName), maybeMetricDefinitions);
-					// Handle NumberMetric
-					printNumberMetric(formattedMetricName, numberMetric, maybeUnit);
-				} else if (metric instanceof StateSetMetric stateSetMetric) {
-					// Handle StateSetMetric
-					printStateSetMetric(formattedMetricName, stateSetMetric);
-				}
-			});
 	}
 
 	/**
