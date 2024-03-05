@@ -425,7 +425,6 @@ public class PrettyPrinterService {
 	static Optional<String> fetchUnit(final String metricName, final Map<String, MetricDefinition> metricDefinitionMap) {
 		return Optional
 			.ofNullable(metricDefinitionMap.get(metricName))
-			.filter(Objects::nonNull)
 			.map(MetricDefinition::getUnit)
 			.filter(unit -> Objects.nonNull(unit) && !unit.isBlank());
 	}
