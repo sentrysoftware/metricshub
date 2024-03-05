@@ -220,7 +220,7 @@ $ metricshub SERVER01 -t oob --snmp v2c --community public --connectors +MIB2,#h
 
 - Example 1:
   ```batch
-  $ metricshub SERVER01 -t win --snmp v2c --community public --connectors #hardware
+  $ metricshub SERVER01 -t win --snmp v2c --community public --connectors "#hardware"
   ```
   The core engine will automatically detect connectors categorized under `hardware`.
 
@@ -262,7 +262,7 @@ $ metricshub SERVER01 -t oob --snmp v2c --community public --connectors +MIB2,#h
 
 - Example 8:
   ```batch
-  metricshub SERVER01 -t win --snmp v2c --community public --connectors #hardware,-MIB2
+  metricshub SERVER01 -t win --snmp v2c --community public --connectors "#hardware,-MIB2"
   ```
   The core engine will perform automatic detection on connectors categorized under `hardware`, excluding the `MIB2` connector.
 
