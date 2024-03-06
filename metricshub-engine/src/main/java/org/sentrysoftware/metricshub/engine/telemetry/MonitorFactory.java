@@ -141,6 +141,9 @@ public class MonitorFactory {
 			foundMonitor.setType(monitorType);
 			foundMonitor.setDiscoveryTime(discoveryTime);
 
+			// Set the connector identifier attribute
+			setConnectorIdAttribute(foundMonitor);
+
 			return foundMonitor;
 		} else {
 			final Monitor newMonitor = Monitor
@@ -152,13 +155,23 @@ public class MonitorFactory {
 				.discoveryTime(discoveryTime)
 				.build();
 
-			if (connectorId != null) {
-				newMonitor.addAttribute(MetricsHubConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID, connectorId);
-			}
+			// Set the connector identifier attribute
+			setConnectorIdAttribute(newMonitor);
 
 			telemetryManager.addNewMonitor(newMonitor, monitorType, id);
 
 			return newMonitor;
+		}
+	}
+
+	/**
+	 * Assigns the connector ID to the specified monitor as an attribute if the connector ID is not null.
+	 *
+	 * @param monitor The {@link Monitor} instance to which the connector ID attribute should be added.
+	 */
+	private void setConnectorIdAttribute(final Monitor monitor) {
+		if (connectorId != null) {
+			monitor.addAttribute(MetricsHubConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID, connectorId);
 		}
 	}
 
