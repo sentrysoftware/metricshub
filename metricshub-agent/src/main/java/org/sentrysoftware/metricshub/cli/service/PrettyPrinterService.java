@@ -186,6 +186,13 @@ public class PrettyPrinterService {
 	 * @param indentation How much indentation to use
 	 */
 	void printMetrics(final Monitor monitor, final int indentation) {
+		// Get the metrics
+		final Map<String, AbstractMetric> metrics = monitor.getMetrics();
+
+		if (metrics == null || metrics.isEmpty()) {
+			return;
+		}
+
 		// Print a new line
 		printWriter.println();
 
@@ -194,9 +201,6 @@ public class PrettyPrinterService {
 
 		// Add the header
 		printWriter.println("Metrics:");
-
-		// Get the metrics
-		final Map<String, AbstractMetric> metrics = monitor.getMetrics();
 
 		// Store the maximum length of metric names
 		final int metricMaxLength = metrics.keySet().stream().mapToInt(String::length).max().orElseThrow();
