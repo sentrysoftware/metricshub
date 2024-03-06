@@ -184,7 +184,7 @@ c:\Program Files\MetricsHub> MetricsHubServiceManager
 
 This will start **${solutionName}** with the default configuration file `C:\ProgramData\MetricsHub\config\metricshub.yaml`.
 
-Run the command below to can start **${solutionName}** with an alternate configuration file:
+Run the command below to start **${solutionName}** with an alternate configuration file:
 
 ```shell-session
 c:\> cd "c:\Program Files\MetricsHub"
