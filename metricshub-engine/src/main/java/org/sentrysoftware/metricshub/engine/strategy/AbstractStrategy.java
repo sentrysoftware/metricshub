@@ -41,9 +41,6 @@ import org.sentrysoftware.metricshub.engine.common.exception.RetryableException;
 import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
-import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;
-import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricType;
-import org.sentrysoftware.metricshub.engine.connector.model.metric.StateSet;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Compute;
 import org.sentrysoftware.metricshub.engine.strategy.detection.ConnectorSelection;
@@ -414,7 +411,7 @@ public abstract class AbstractStrategy implements IStrategy {
 			String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), connectorId)
 		);
 
-		collectConnectorStatus(connectorTestResult, currentConnector, connectorId, monitor);
+		collectConnectorStatus(connectorTestResult.isSuccess(), connectorId, monitor);
 
 		return connectorTestResult.isSuccess();
 	}
@@ -422,64 +419,33 @@ public abstract class AbstractStrategy implements IStrategy {
 	/**
 	 * Collects the connector status and sets the metric
 	 *
-	 * @param connectorTestResult	Criteria test results
-	 * @param connector				Connector instance
-	 * @param connectorId			Connector ID
-	 * @param monitor				Monitor instance
+	 * @param isSuccessCriteria Whether the connector's criteria are successfully executed or not
+	 * @param connectorId       Connector ID
+	 * @param monitor           Monitor instance
 	 */
 	protected void collectConnectorStatus(
-		final ConnectorTestResult connectorTestResult,
-		final Connector connector,
+		final boolean isSuccessCriteria,
 		final String connectorId,
 		final Monitor monitor
 	) {
-		// Get monitor metrics from connector
-		final Map<String, MetricDefinition> metricDefinitionMap = connector.getMetrics();
-
-		// Init the metric factory to collect metrics
+		// Initialize the metric factory to collect metrics
 		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
 
-		if (metricDefinitionMap == null) {
-			metricFactory.collectConnectorStatusNumberMetric(connectorTestResult, monitor, strategyTime);
-			return;
-		}
-
-		final MetricDefinition metricDefinition = metricDefinitionMap.get(CONNECTOR_STATUS_METRIC_KEY);
+		// Get the connector's namespace containing related settings
 		final ConnectorNamespace connectorNamespace = telemetryManager
 			.getHostProperties()
 			.getConnectorNamespace(connectorId);
 
-		// Check whether metric type is Enum
-		if (metricDefinition == null || (metricDefinition.getType() instanceof MetricType)) {
-			connectorNamespace.setStatusOk(
-				metricFactory.collectConnectorStatusNumberMetric(connectorTestResult, monitor, strategyTime)
-			);
-		} else if (metricDefinition.getType() instanceof StateSet stateSetType) {
-			// When metric type is stateSet
-			final String[] stateSet = stateSetType.getSet().stream().toArray(String[]::new);
-			if (connectorTestResult.isSuccess()) {
-				metricFactory.collectStateSetMetric(
-					monitor,
-					CONNECTOR_STATUS_METRIC_KEY,
-					STATE_SET_METRIC_OK,
-					stateSet,
-					strategyTime
-				);
+		// Collect the metric
+		metricFactory.collectStateSetMetric(
+			monitor,
+			CONNECTOR_STATUS_METRIC_KEY,
+			isSuccessCriteria ? STATE_SET_METRIC_OK : STATE_SET_METRIC_FAILED,
+			new String[] { STATE_SET_METRIC_OK, STATE_SET_METRIC_FAILED },
+			strategyTime
+		);
 
-				// Set isStatusOk to true in ConnectorNamespace
-				connectorNamespace.setStatusOk(true);
-			} else {
-				metricFactory.collectStateSetMetric(
-					monitor,
-					CONNECTOR_STATUS_METRIC_KEY,
-					STATE_SET_METRIC_FAILED,
-					stateSet,
-					strategyTime
-				);
-
-				// Set isStatusOk to false in ConnectorNamespace
-				connectorNamespace.setStatusOk(false);
-			}
-		}
+		// Set isStatusOk to true in ConnectorNamespace
+		connectorNamespace.setStatusOk(isSuccessCriteria);
 	}
 }

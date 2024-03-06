@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -526,22 +527,28 @@ class ConfigHelperTest {
 	@Test
 	void testFetchMetricDefinitions() {
 		final ConnectorStore connectorStore = new ConnectorStore();
-		final Map<String, MetricDefinition> metricDefintionsMap = Map.of(
+		final Map<String, MetricDefinition> metricDefintionMap = Map.of(
 			"metric",
 			MetricDefinition.builder().unit("unit").build()
 		);
 		connectorStore.setStore(
-			Map.of(PURE_STORAGE_REST_CONNECTOR_ID, Connector.builder().metrics(metricDefintionsMap).build())
+			Map.of(PURE_STORAGE_REST_CONNECTOR_ID, Connector.builder().metrics(metricDefintionMap).build())
 		);
 
-		assertEquals(
-			Optional.of(metricDefintionsMap),
-			ConfigHelper.fetchMetricDefinitions(connectorStore, PURE_STORAGE_REST_CONNECTOR_ID)
+		final Map<String, MetricDefinition> defaultMetricDefinitionMap = Map.of(
+			MetricsHubConstants.CONNECTOR_STATUS_METRIC_KEY,
+			MetricsHubConstants.CONNECTOR_STATUS_METRIC_DEFINITION
 		);
-		assertTrue(ConfigHelper.fetchMetricDefinitions(connectorStore, "other").isEmpty());
-		assertTrue(ConfigHelper.fetchMetricDefinitions(null, null).isEmpty());
-		assertTrue(ConfigHelper.fetchMetricDefinitions(null, PURE_STORAGE_REST_CONNECTOR_ID).isEmpty());
-		assertTrue(ConfigHelper.fetchMetricDefinitions(connectorStore, null).isEmpty());
+
+		final Map<String, MetricDefinition> expected = new HashMap<>();
+		expected.putAll(metricDefintionMap);
+		expected.putAll(defaultMetricDefinitionMap);
+
+		assertEquals(expected, ConfigHelper.fetchMetricDefinitions(connectorStore, PURE_STORAGE_REST_CONNECTOR_ID));
+		assertEquals(defaultMetricDefinitionMap, ConfigHelper.fetchMetricDefinitions(connectorStore, "other"));
+		assertEquals(defaultMetricDefinitionMap, ConfigHelper.fetchMetricDefinitions(null, null));
+		assertEquals(defaultMetricDefinitionMap, ConfigHelper.fetchMetricDefinitions(null, PURE_STORAGE_REST_CONNECTOR_ID));
+		assertEquals(defaultMetricDefinitionMap, ConfigHelper.fetchMetricDefinitions(connectorStore, null));
 	}
 
 	@Test

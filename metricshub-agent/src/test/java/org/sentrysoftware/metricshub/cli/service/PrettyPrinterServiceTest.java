@@ -310,13 +310,13 @@ class PrettyPrinterServiceTest {
 	@Test
 	void testFetchUnit() {
 		final String energyMetric = "hw.energy";
-		assertTrue(PrettyPrinterService.fetchUnit(energyMetric, Optional.empty()).isEmpty());
+		assertTrue(PrettyPrinterService.fetchUnit(energyMetric, Map.of()).isEmpty());
 		final String unit = "J";
 
 		final Map<String, MetricDefinition> metricDefintionsMap = Map.of(
 			energyMetric,
 			MetricDefinition.builder().unit(unit).build()
 		);
-		assertEquals(Optional.of(unit), PrettyPrinterService.fetchUnit(energyMetric, Optional.of(metricDefintionsMap)));
+		assertEquals(Optional.of(unit), PrettyPrinterService.fetchUnit(energyMetric, metricDefintionsMap));
 	}
 }

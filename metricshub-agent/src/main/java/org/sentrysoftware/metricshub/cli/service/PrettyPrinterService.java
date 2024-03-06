@@ -186,6 +186,13 @@ public class PrettyPrinterService {
 	 * @param indentation How much indentation to use
 	 */
 	void printMetrics(final Monitor monitor, final int indentation) {
+		// Get the metrics
+		final Map<String, AbstractMetric> metrics = monitor.getMetrics();
+
+		if (metrics == null || metrics.isEmpty()) {
+			return;
+		}
+
 		// Print a new line
 		printWriter.println();
 
@@ -195,9 +202,6 @@ public class PrettyPrinterService {
 		// Add the header
 		printWriter.println("Metrics:");
 
-		// Get the metrics
-		final Map<String, AbstractMetric> metrics = monitor.getMetrics();
-
 		// Store the maximum length of metric names
 		final int metricMaxLength = metrics.keySet().stream().mapToInt(String::length).max().orElseThrow();
 
@@ -206,13 +210,13 @@ public class PrettyPrinterService {
 		// spaces, resulting in the final format string: %-25s
 		final String metricNameFormat = String.format("%%-%ds", metricMaxLength + 5);
 
-		final Optional<Map<String, MetricDefinition>> maybeMetricDefinitions;
+		final Map<String, MetricDefinition> metricDefinitions;
 		// Get host monitor's metric definitions
 		if (monitor.isEndpointHost()) {
-			maybeMetricDefinitions = Optional.ofNullable(hostMetricDefinitions.metrics());
+			metricDefinitions = hostMetricDefinitions.metrics();
 		} else {
 			// Retrieves the metric definitions for any other monitor
-			maybeMetricDefinitions =
+			metricDefinitions =
 				ConfigHelper.fetchMetricDefinitions(
 					telemetryManager.getConnectorStore(),
 					monitor.getAttribute(MONITOR_ATTRIBUTE_CONNECTOR_ID)
@@ -237,7 +241,7 @@ public class PrettyPrinterService {
 				addMargin(indentation);
 
 				if (metric instanceof NumberMetric numberMetric) {
-					final Optional<String> maybeUnit = fetchUnit(MetricFactory.extractName(metricName), maybeMetricDefinitions);
+					final Optional<String> maybeUnit = fetchUnit(MetricFactory.extractName(metricName), metricDefinitions);
 					// Handle NumberMetric
 					printNumberMetric(formattedMetricName, numberMetric, maybeUnit);
 				} else if (metric instanceof StateSetMetric stateSetMetric) {
@@ -417,18 +421,14 @@ public class PrettyPrinterService {
 	/**
 	 * Retrieves the unit associated with the specified metric name from the provided metric definition map.
 	 *
-	 * @param metricName               The name of the metric, e.g., "hw.energy"
-	 * @param maybeMetricDefinitionMap Optional {@link Map} containing metric definitions
+	 * @param metricName          The name of the metric, e.g., "hw.energy".
+	 * @param metricDefinitionMap {@link Map} containing metric definitions.
 	 * @return An {@link Optional} of {@link String} representing the unit of the metric;
 	 *         an empty optional if the metric definition is absent, the metric is not found, or the unit is blank.
 	 */
-	static Optional<String> fetchUnit(
-		final String metricName,
-		final Optional<Map<String, MetricDefinition>> maybeMetricDefinitionMap
-	) {
-		return maybeMetricDefinitionMap
-			.map(map -> map.get(metricName))
-			.filter(Objects::nonNull)
+	static Optional<String> fetchUnit(final String metricName, final Map<String, MetricDefinition> metricDefinitionMap) {
+		return Optional
+			.ofNullable(metricDefinitionMap.get(metricName))
 			.map(MetricDefinition::getUnit)
 			.filter(unit -> Objects.nonNull(unit) && !unit.isBlank());
 	}

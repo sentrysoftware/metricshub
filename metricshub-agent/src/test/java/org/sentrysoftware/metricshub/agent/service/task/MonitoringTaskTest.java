@@ -33,7 +33,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -233,8 +232,9 @@ class MonitoringTaskTest {
 			final String expectedDescription = "description";
 
 			// Create metric definition map that defines the expected unit and description for the hw.temperature.limit metric
-			final Optional<Map<String, MetricDefinition>> metricDefinitionMapOpt = Optional.of(
-				Map.of(metricName, MetricDefinition.builder().unit(expectedUnit).description(expectedDescription).build())
+			final Map<String, MetricDefinition> metricDefinitionMap = Map.of(
+				metricName,
+				MetricDefinition.builder().unit(expectedUnit).description(expectedDescription).build()
 			);
 
 			// Create a mock metric entry
@@ -250,7 +250,7 @@ class MonitoringTaskTest {
 			);
 
 			// Initialize the metric observer
-			monitoringTask.initMetricObserver(monitor, metricDefinitionMapOpt, metricEntry);
+			monitoringTask.initMetricObserver(monitor, metricDefinitionMap, metricEntry);
 
 			// Collect metrics from the in-memory reader and perform assertions
 			final Collection<MetricData> metrics = inMemoryReader.collectAllMetrics();
