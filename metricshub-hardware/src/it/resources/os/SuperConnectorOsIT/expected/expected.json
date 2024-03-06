@@ -388,7 +388,6 @@
     "attributes" : {
       "name" : "SuperConnectorOS",
       "connector_id" : "SuperConnectorOS",
-      "description" : "This connector provides super power connector.",
       "applies_to_os" : "aix,hpux,linux,oob,solaris,storage,tru64,vms,windows",
       "parent.id" : "localhost",
       "id" : "SuperConnectorOS"

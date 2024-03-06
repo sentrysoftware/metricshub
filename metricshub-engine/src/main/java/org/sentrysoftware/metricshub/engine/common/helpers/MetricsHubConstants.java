@@ -31,10 +31,13 @@ import static org.sentrysoftware.metricshub.engine.connector.model.common.Device
 import static org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind.WINDOWS;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
+import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;
+import org.sentrysoftware.metricshub.engine.connector.model.metric.StateSet;
 
 /**
  * The MetricsHubConstants class provides constants used in the MetricsHub engine.
@@ -297,6 +300,15 @@ public class MetricsHubConstants {
 	 * StateSet Metric Failed
 	 */
 	public static final String STATE_SET_METRIC_FAILED = "failed";
+
+	/**
+	 * Connector Status Metric Definition
+	 **/
+	public static final MetricDefinition CONNECTOR_STATUS_METRIC_DEFINITION = MetricDefinition
+		.builder()
+		.description("Connector operational status.")
+		.type(StateSet.builder().set(Set.of(STATE_SET_METRIC_OK, STATE_SET_METRIC_FAILED)).build())
+		.build();
 
 	/**
 	 * LocalHost

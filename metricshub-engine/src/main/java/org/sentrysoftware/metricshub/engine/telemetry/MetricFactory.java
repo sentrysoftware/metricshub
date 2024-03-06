@@ -22,7 +22,6 @@ package org.sentrysoftware.metricshub.engine.telemetry;
  */
 
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.COMMA;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.CONNECTOR_STATUS_METRIC_KEY;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
 
@@ -40,7 +39,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;
 import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricType;
 import org.sentrysoftware.metricshub.engine.connector.model.metric.StateSet;
-import org.sentrysoftware.metricshub.engine.strategy.detection.ConnectorTestResult;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
@@ -195,28 +193,6 @@ public class MetricFactory {
 			);
 			return null;
 		}
-	}
-
-	/**
-	 * Collects the connector status metric as a number.
-	 *
-	 * @param connectorTestResult  Information about connector tests.
-	 * @param monitor              The monitor to collect the metric for.
-	 * @param strategyTime         Strategy time.
-	 * @return {@code true} if the connector test was successful, {@code false} otherwise.
-	 */
-	public boolean collectConnectorStatusNumberMetric(
-		final ConnectorTestResult connectorTestResult,
-		final Monitor monitor,
-		final long strategyTime
-	) {
-		final MetricFactory metricFactory = new MetricFactory(hostname);
-		if (connectorTestResult.isSuccess()) {
-			metricFactory.collectNumberMetric(monitor, CONNECTOR_STATUS_METRIC_KEY, 1.0, strategyTime);
-			return true;
-		}
-		metricFactory.collectNumberMetric(monitor, CONNECTOR_STATUS_METRIC_KEY, 0.0, strategyTime);
-		return false;
 	}
 
 	/**

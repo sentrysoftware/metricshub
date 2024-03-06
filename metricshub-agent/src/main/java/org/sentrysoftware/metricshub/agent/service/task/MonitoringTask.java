@@ -164,15 +164,16 @@ public class MonitoringTask implements Runnable {
 			.flatMap(Collection::stream)
 			.forEach(monitor -> {
 				if (monitor.isEndpointHost()) {
-					final Optional<Map<String, MetricDefinition>> maybeHostMetricDefinitions = Optional.ofNullable(
-						monitoringTaskInfo.getHostMetricDefinitions().metrics()
-					);
+					// The host's metric definitions cannot be null because they are available as resources in metricshub-host-metrics.yaml
+					final Map<String, MetricDefinition> hostMetricDefinitions = monitoringTaskInfo
+						.getHostMetricDefinitions()
+						.metrics();
 
 					// Initialize endpoint host metric observers
-					initMonitorMetricObservers(monitor, telemetryManager, maybeHostMetricDefinitions);
+					initMonitorMetricObservers(monitor, telemetryManager, hostMetricDefinitions);
 
 					// Initialize the metricshub.host.configured metric observer
-					initializeHostConfiguredMetricObserver(monitor, maybeHostMetricDefinitions);
+					initializeHostConfiguredMetricObserver(monitor, hostMetricDefinitions);
 				} else {
 					initMonitorMetricObservers(
 						monitor,
@@ -189,12 +190,12 @@ public class MonitoringTask implements Runnable {
 	/**
 	 * Initialize a periodic observer for the metricshub.host.configured metric
 	 *
-	 * @param host                       Host monitor instance
-	 * @param maybeHostMetricDefinitions Optional Metric definitions
+	 * @param host                  Host monitor instance
+	 * @param hostMetricDefinitions Map of the Host's metric definitions
 	 */
 	void initializeHostConfiguredMetricObserver(
 		final Monitor host,
-		final Optional<Map<String, MetricDefinition>> maybeHostMetricDefinitions
+		final Map<String, MetricDefinition> hostMetricDefinitions
 	) {
 		if (!isMetricObserverNotInitialized(host.getId(), HOST_CONFIGURED_METRIC_NAME)) {
 			return;
@@ -203,7 +204,7 @@ public class MonitoringTask implements Runnable {
 		// Get the metric definition from the metric definition map
 		final MetricDefinition metricDefinition = lookupMetricDefinition(
 			HOST_CONFIGURED_METRIC_NAME,
-			maybeHostMetricDefinitions
+			hostMetricDefinitions
 		);
 
 		// Merge main resource attributes and monitor attributes
@@ -246,14 +247,14 @@ public class MonitoringTask implements Runnable {
 	/**
 	 * Initialize an observer for each metric in the given monitor
 	 *
-	 * @param monitor                  {@link Monitor} instance
-	 * @param telemetryManager         Wraps monitors and metrics
-	 * @param maybeMetricDefinitionMap Optional Metric definitions
+	 * @param monitor             {@link Monitor} instance
+	 * @param telemetryManager    Wraps monitors and metrics
+	 * @param metricDefinitionMap Map of Metric definitions
 	 */
 	void initMonitorMetricObservers(
 		final Monitor monitor,
 		final TelemetryManager telemetryManager,
-		final Optional<Map<String, MetricDefinition>> maybeMetricDefinitionMap
+		final Map<String, MetricDefinition> metricDefinitionMap
 	) {
 		monitor
 			.getMetrics()
@@ -262,20 +263,20 @@ public class MonitoringTask implements Runnable {
 			.filter(entry -> Objects.nonNull(entry.getValue()))
 			.filter(entry -> OtelHelper.isAcceptedKey(entry.getKey()))
 			.filter(metricEntry -> isMetricObserverNotInitialized(monitor.getId(), metricEntry.getKey()))
-			.forEach(metricEntry -> initMetricObserver(monitor, maybeMetricDefinitionMap, metricEntry));
+			.forEach(metricEntry -> initMetricObserver(monitor, metricDefinitionMap, metricEntry));
 	}
 
 	/**
 	 * Initialize an observer for the given metric entry
 	 *
-	 * @param monitor                  {@link Monitor} instance
-	 * @param maybeMetricDefinitionMap Optional Metric definitions (E.g. metric definitions from Hardware.yaml or Storage.yaml)
-	 * @param metricEntry              Key-value where the key is the unique metric key and the value
-	 *                                 is the {@link AbstractMetric}
+	 * @param monitor             {@link Monitor} instance
+	 * @param metricDefinitionMap Map of Metric definitions (E.g. metric definitions from Hardware.yaml or Storage.yaml)
+	 * @param metricEntry         Key-value where the key is the unique metric key and the value
+	 *                            is the {@link AbstractMetric}
 	 */
 	void initMetricObserver(
 		final Monitor monitor,
-		final Optional<Map<String, MetricDefinition>> maybeMetricDefinitionMap,
+		final Map<String, MetricDefinition> metricDefinitionMap,
 		final Entry<String, AbstractMetric> metricEntry
 	) {
 		// Retrieve the metric unique key
@@ -285,7 +286,7 @@ public class MonitoringTask implements Runnable {
 		final String metricName = MetricFactory.extractName(metricKey);
 
 		// Get the metric definition from the metric definition map
-		final MetricDefinition metricDefinition = lookupMetricDefinition(metricName, maybeMetricDefinitionMap);
+		final MetricDefinition metricDefinition = lookupMetricDefinition(metricName, metricDefinitionMap);
 
 		// Merge main resource attributes and monitor attributes
 		final Map<String, String> attributesMap = new HashMap<>();
@@ -330,19 +331,18 @@ public class MonitoringTask implements Runnable {
 	}
 
 	/**
-	 * Search the {@link MetricDefinition} instance defined for the given metric
+	 * Search the {@link MetricDefinition} instance defined for the given metric.
 	 *
-	 * @param metricName               The name of the metric e.g. hw.status
-	 * @param maybeMetricDefinitionMap Optional Map of all the existing definitions
+	 * @param metricName          The name of the metric e.g. hw.status.
+	 * @param metricDefinitionMap All the existing metric definitions.
 	 * @return {@link MetricDefinition} instance, never <code>null</code>.
 	 */
 	static MetricDefinition lookupMetricDefinition(
 		final String metricName,
-		final Optional<Map<String, MetricDefinition>> maybeMetricDefinitionMap
+		final Map<String, MetricDefinition> metricDefinitionMap
 	) {
-		return maybeMetricDefinitionMap
-			.map(map -> map.get(metricName))
-			.filter(Objects::nonNull)
+		return Optional
+			.ofNullable(metricDefinitionMap.get(metricName))
 			.orElseGet(() ->
 				MetricDefinition.builder().description(String.format(GENERIC_METRIC_DESCRIPTION_FORMAT, metricName)).build()
 			);
@@ -351,8 +351,8 @@ public class MonitoringTask implements Runnable {
 	/**
 	 * Check if the metric observer is not initialized for the given monitor id and metric key
 	 *
-	 * @param monitorId  unique id of the monitor
-	 * @param metricKey  metric key. E.g. hw.energy{hw.type="fan"}
+	 * @param monitorId Unique id of the monitor
+	 * @param metricKey Metric key. E.g. hw.energy{hw.type="fan"}
 	 *
 	 * @return boolean value.
 	 */
