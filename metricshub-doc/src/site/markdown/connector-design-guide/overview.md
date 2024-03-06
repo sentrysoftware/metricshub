@@ -21,8 +21,6 @@ A connector is a `YAML` file that defines the necessary parameters and logic to 
 
 The primary purposes of a connector are to:
 
-Connectors serve essential functions in monitoring systems, primarily designed to:
-
 * Accurately identify and detect the resources to be monitored, such as Operating Systems, Hosts, Devices, Containers, Kubernetes clusters, and more.
 * Outline the techniques for data collection from these resources, utilizing local commands, network queries, or other relevant methods.
 * Establish the format of the gathered data, including metrics and attributes, and detail the processes for transforming this data prior to submission to OpenTelemetry.
