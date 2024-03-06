@@ -17,7 +17,6 @@ import static org.sentrysoftware.metricshub.engine.constants.Constants.AAC_CONNE
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HOSTNAME;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_ID;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.LOCALHOST;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.STATE_SET;
 import static org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy.CONNECTOR_ID_FORMAT;
 
 import java.io.IOException;
@@ -35,6 +34,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
+import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
@@ -44,13 +44,11 @@ import org.sentrysoftware.metricshub.engine.connector.model.identity.Detection;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.OsCommandCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;
 import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricType;
-import org.sentrysoftware.metricshub.engine.connector.model.metric.StateSet;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.OsCommandSource;
 import org.sentrysoftware.metricshub.engine.connector.parser.ConnectorLibraryParser;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
-import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
 
 class DetectionStrategyTest {
@@ -115,7 +113,7 @@ class DetectionStrategyTest {
 		connectorTestResultList.add(connectorTestResult);
 
 		// Call DetectionStrategy and invoke create monitors with the previously created connectorTestResultList instance
-		detectionStrategy.createMonitors(connectorTestResultList);
+		detectionStrategy.createConnectorMonitors(connectorTestResultList);
 
 		final String compiledFilename = connector.getCompiledFilename();
 
@@ -166,29 +164,27 @@ class DetectionStrategyTest {
 		);
 
 		// Check monitor metrics
-		NumberMetric numberMetric = (NumberMetric) telemetryManager
+		StateSetMetric stateSetMetric = telemetryManager
 			.getMonitors()
 			.get(KnownMonitorType.CONNECTOR.getKey())
 			.get(monitorId)
-			.getMetrics()
-			.get(CONNECTOR_STATUS_METRIC_KEY);
-		assertEquals(1.0, numberMetric.getValue());
+			.getMetric(CONNECTOR_STATUS_METRIC_KEY, StateSetMetric.class);
+		assertEquals(MetricsHubConstants.STATE_SET_METRIC_OK, stateSetMetric.getValue());
 
-		// Set criterion test result to isSuccess = false, call DetectionStrategy and expect the metric to be set to 0.0
+		// Set criterion test result to isSuccess = false, call DetectionStrategy and expect the metric to be set to failed
 		criterionTestResult.setSuccess(false);
-		detectionStrategy.createMonitors(connectorTestResultList);
-		numberMetric =
-			(NumberMetric) telemetryManager
+		detectionStrategy.createConnectorMonitors(connectorTestResultList);
+		stateSetMetric =
+			telemetryManager
 				.getMonitors()
 				.get(KnownMonitorType.CONNECTOR.getKey())
 				.get(monitorId)
-				.getMetrics()
-				.get(CONNECTOR_STATUS_METRIC_KEY);
-		assertEquals(0.0, numberMetric.getValue());
+				.getMetric(CONNECTOR_STATUS_METRIC_KEY, StateSetMetric.class);
+		assertEquals(MetricsHubConstants.STATE_SET_METRIC_FAILED, stateSetMetric.getValue());
 	}
 
 	@Test
-	void testCollectNumberMetricUsingConnectorResult() throws IOException {
+	void testCollectConnectorStatusMetricUsingConnectorResult() throws IOException {
 		// Retrieve connector from connectors directory
 		final Connector connector = getConnector();
 
@@ -221,76 +217,7 @@ class DetectionStrategyTest {
 			new ClientsExecutor(telemetryManager)
 		);
 
-		// Set a NumberMetric in the connector
-		connector.setMetrics(
-			Map.of(CONNECTOR_STATUS_METRIC_KEY, MetricDefinition.builder().type(MetricType.GAUGE).build())
-		);
-		detectionStrategy.createMonitor(connectorTestResult);
-
-		// Retrieve the created monitor
-		final Map<String, Monitor> connectorMonitorMap = telemetryManager
-			.getMonitors()
-			.get(KnownMonitorType.CONNECTOR.getKey());
-		final String compiledFilename = connector.getConnectorIdentity().getCompiledFilename();
-		final Monitor monitor = connectorMonitorMap.get(
-			String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), compiledFilename)
-		);
-
-		// Retrieve monitor's metric value (ConnectorResult is successful)
-		AbstractMetric metric = monitor.getMetrics().get(CONNECTOR_STATUS_METRIC_KEY);
-		assertTrue(metric instanceof NumberMetric);
-		assertEquals(1.0, ((NumberMetric) metric).getValue());
-
-		// Switch CriterionTestResult success to false
-		criterionTestResult.setSuccess(false);
-
-		// Call create monitor again with criterionTestResult set to failed
-		detectionStrategy.createMonitor(connectorTestResult);
-
-		// Retrieve monitor's metric value(ConnectorResult is failed)
-		metric = monitor.getMetrics().get(CONNECTOR_STATUS_METRIC_KEY);
-		assertEquals(0.0, ((NumberMetric) metric).getValue());
-	}
-
-	@Test
-	void testCollectStateSetMetricUsingConnectorResult() throws IOException {
-		// Retrieve connector from connectors directory
-		final Connector connector = getConnector();
-
-		// Create a list of CriterionTestResult
-		final List<CriterionTestResult> criterionTestResultList = new ArrayList<>();
-
-		// Create an instance of CriterionTestResult with success set to true and add to the CriterionTestResult list
-		final CriterionTestResult criterionTestResult = CriterionTestResult.builder().success(true).build();
-		criterionTestResultList.add(criterionTestResult);
-
-		// Create a ConnectorTestResult instance and set the connector and the previously created criterionTestResultList
-		final ConnectorTestResult connectorTestResult = ConnectorTestResult
-			.builder()
-			.connector(connector)
-			.criterionTestResults(criterionTestResultList)
-			.build();
-
-		// Initiate telemetryManager with host configuration
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(
-				HostConfiguration.builder().hostId(HOST_ID).hostType(DeviceKind.LINUX).hostname(LOCALHOST).build()
-			)
-			.build();
-
-		// Create detectionStrategy with the previously created telemetryManager
-		final DetectionStrategy detectionStrategy = new DetectionStrategy(
-			telemetryManager,
-			new Date().getTime(),
-			new ClientsExecutor(telemetryManager)
-		);
-
-		// Set a StateSetMetric in the connector
-		final StateSet stateSet = new StateSet();
-		stateSet.setSet(Set.of(STATE_SET[0], STATE_SET[1], STATE_SET[2]));
-		connector.setMetrics(Map.of(CONNECTOR_STATUS_METRIC_KEY, MetricDefinition.builder().type(stateSet).build()));
-		detectionStrategy.createMonitor(connectorTestResult);
+		detectionStrategy.createConnectorMonitor(connectorTestResult);
 
 		// Retrieve the created monitor
 		final Map<String, Monitor> connectorMonitorMap = telemetryManager
@@ -309,7 +236,7 @@ class DetectionStrategyTest {
 		criterionTestResult.setSuccess(false);
 
 		// Call create monitor again with criterionTestResult set to failed
-		detectionStrategy.createMonitor(connectorTestResult);
+		detectionStrategy.createConnectorMonitor(connectorTestResult);
 
 		// Retrieve monitor's metric value (ConnectorResult is failed)
 		metric = monitor.getMetrics().get(CONNECTOR_STATUS_METRIC_KEY);
@@ -347,7 +274,10 @@ class DetectionStrategyTest {
 		assertTrue(
 			telemetryManager.getHostProperties().getConnectorNamespace(METRICS_HUB_CONFIGURED_CONNECTOR_ID).isStatusOk()
 		);
-		assertEquals(1.0, configuredConnectorMonitor.getMetric(CONNECTOR_STATUS_METRIC_KEY, NumberMetric.class).getValue());
+		assertEquals(
+			MetricsHubConstants.STATE_SET_METRIC_OK,
+			configuredConnectorMonitor.getMetric(CONNECTOR_STATUS_METRIC_KEY, StateSetMetric.class).getValue()
+		);
 	}
 
 	/**

@@ -13,7 +13,6 @@ import org.sentrysoftware.metricshub.cli.helper.StringBuilderWriter;
 import org.sentrysoftware.metricshub.cli.service.MetricsHubCliService.CliPasswordReader;
 import org.sentrysoftware.metricshub.cli.service.protocol.HttpConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.IpmiConfigCli;
-import org.sentrysoftware.metricshub.cli.service.protocol.SnmpConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.SshConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.WbemConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.WinRmConfigCli;
