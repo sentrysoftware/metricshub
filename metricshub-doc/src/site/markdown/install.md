@@ -1,5 +1,5 @@
 keywords: install, upgrade, firewalls
-description: How to install ${solutionName} on Debian Linux, Docker, Red Hat Enterprise Linux, Windows.
+description: How to install ${solutionName} on Linux, Windows, and Docker.
 
 # Installation
 
@@ -11,12 +11,11 @@ You can install **${solutionName}** on the operating system of your choice as th
 
 ### Download
 
-From [MetricsHub Release v${project.version}](https://github.com/sentrysoftware/metricshub/releases/tag/v${project.version}), download:
-* **metricshub-linux-${project.version}.tar.gz**
+Download the Linux package, `metricshub-linux-${project.version}.tar.gz`, from the [MetricsHub Release v${project.version}](https://github.com/sentrysoftware/metricshub/releases/tag/v${project.version}) page.
 
 ### Install
 
-Unzip and untar the content of `metricshub-linux-${project.version}.tar.gz` into a program directory, like `/opt`. There is no need to create a specific subdirectory for `metricshub` as the zip archive already contains a `metricshub` directory.
+Unzip and untar the content of `metricshub-linux-${project.version}.tar.gz` into a program directory, like `/opt`. There is no need to create a specific subdirectory for `metricshub` as the archive already contains a `metricshub` directory.
 
 ```shell-session
 / $ cd /opt
@@ -25,22 +24,23 @@ Unzip and untar the content of `metricshub-linux-${project.version}.tar.gz` into
 
 ### Configure
 
-Under the installation directory `./metricshub`, configure the [`./lib/config/metricshub.yaml`](configuration/configure-agent.md) file to define the resources (hosts) that need to be monitored, along with their respective credentials, and set the [OpenTelemetry Protocol endpoint](configuration/configure-agent.md#otlp-endpoint) for receiving MetricsHub signals.
+In the `./lib/config/metricshub.yaml` file, located under the `./metricshub` installation directory, configure:
 
-Find a configuration example for the **MetricsHub Service** at `./lib/config/metricshub-example.yaml` within the installation directory (`./metricshub`).
+* the [resources to be monitored](./configuration/configure-agent.html#configure-monitored-resources)
+* the [OpenTelemetry Protocol endpoint](configuration/configure-agent.md#otlp-endpoint) that will receive the MetricsHub signals.
+
+To assist with the setup process, the configuration example `./lib/config/metricshub-example.yaml` is provided for guidance in the installation directory (`./metricshub`).
 
 ### Start
 
-To start **${solutionName}** in an interactive terminal, run the command below:
+To start **${solutionName}** in an interactive terminal with the default configuration file `./lib/config/metricshub.yaml`, run the command below:
 
 ```shell-session
 / $ cd /opt/metricshub/bin
 /opt/metricshub/bin $ ./service
 ```
 
-This will start **${solutionName}** with the default **MetricsHub Service**'s configuration file: `./lib/config/metricshub.yaml`.
-
-You can start **${solutionName}** with an alternate **MetricsHub Service**'s configuration file with the command below:
+To start **${solutionName}** with an alternate configuration file, run the command below:
 
 ```shell-session
 / $ cd /opt/metricshub/bin
@@ -58,7 +58,7 @@ To start **${solutionName}** as a **Linux service**, follow the steps below:
 
 * **Create a systemd service file**
 
-  Create a file, e.g., `/etc/systemd/system/metricshub-service.service`, and define the **MetricsHub Service** configuration as the following:
+  Create a file (for example: `/etc/systemd/system/metricshub-service.service`) and define the **MetricsHub Service** configuration as follows:
 
   ```
   [Unit]
@@ -73,7 +73,7 @@ To start **${solutionName}** as a **Linux service**, follow the steps below:
   ```
 * **Reload systemd**
 
-  After creating the Linux service file, reload systemd to recognize the new service.
+  After creating the Linux service file, reload `systemd` to recognize the new service.
 
   ```shell-session
   systemctl daemon-reload
@@ -104,40 +104,47 @@ To start **${solutionName}** as a **Linux service**, follow the steps below:
 
 **Interactive Terminal**
 
-To stop the **MetricsHub Service** manually in an interactive terminal, use the keyboard shortcut `CTRL+C`. This will interrupt the running process and terminate the **MetricsHub Service**.
+To manually stop the **MetricsHub Service** in an interactive terminal, use the keyboard shortcut `CTRL+C`. This will interrupt the running process and terminate the **MetricsHub Service**.
 
 **Background Process**
 
 If the **MetricsHub Service** is running in the background, follow these steps to stop it:
 
-1. Identify the process ID (PID) of the MetricsHub Service using the `ps` command:
+1. Run the `ps` command to get the **MetricsHub Service** PID:
+
    ```shell-session
    ps aux | grep service
    ```
-2. Note the PID associated with the MetricsHub Service.
-3. Terminate the process using the kill command, replacing `<PID>` with the actual process ID:
+
+2. Write down the PID associated with the **MetricsHub Service**.
+3. Terminate the process using the `kill` command below:
+
    ```shell-session
    kill -9 <PID>
    ```
+where `<PID>` should be replaced with the actual process ID.
 
 **Service**
 
-To stop the **MetricsHub Service** that is started as a **Linux service**, run the command below (assuming the systemd service file is `/etc/systemd/system/metricshub-service.service`):
+To stop the **MetricsHub Service** that is started as a **Linux service**, run the command below:
 
 ```shell-session
-systemctl stop metricshub-service
+systemctl stop <metricshub-service>
 ```
+
+where `<metricshub-service>` should be replaced with the actual service name. For example, `metricshub-service` if the `systemd` service file is `/etc/systemd/system/metricshub-service.service`
 
 ### Uninstall
 
-* Stop the **MetricsHub Service**.
-* Navigate to the directory where **${solutionName}** is located (e.g., `/opt`) and remove the entire `metricshub` directory.
+1. Stop the **MetricsHub Service**.
+2. Navigate to the directory where **${solutionName}** is located (e.g., `/opt`) and remove the entire `metricshub` directory.
 
   ```shell-session
   / $ cd /opt
   /opt $ rm -rf metricshub
   ```
-* To remove the **MetricsHub Service** if it is set up as a **Linux Service**, delete the file `/etc/systemd/system/metricshub-service.service` and then reload systemd using the following command:
+
+If the **MetricsHub Service** was set up as a **Linux Service**, delete the file `/etc/systemd/system/metricshub-service.service` and run the below command to reload `systemd`:
 
   ```shell-session
   systemctl daemon-reload
@@ -147,8 +154,7 @@ systemctl stop metricshub-service
 
 ### Download
 
-From [MetricsHub Release v${project.version}](https://github.com/sentrysoftware/metricshub/releases/tag/v${project.version}), download:
-* **metricshub-windows-${project.version}.zip**
+Download the Windows package, `metricshub-windows-${project.version}.zip`, from the [MetricsHub Release v${project.version}](https://github.com/sentrysoftware/metricshub/releases/tag/v${project.version}) page.
 
 ### Install
 
@@ -158,9 +164,12 @@ Unzip the content of `metricshub-windows-${project.version}.zip` into a program 
 
 ### Configure
 
-Configure the [`C:\ProgramData\MetricsHub\config\metricshub.yaml`](configuration/configure-agent.md) file to define the resources (hosts) that need to be monitored, along with their respective credentials, and set the [OpenTelemetry Protocol endpoint](configuration/configure-agent.md#otlp-endpoint) for receiving MetricsHub signals.
+In the `C:\ProgramData\MetricsHub\config\metricshub.yaml` file, configure:
 
-Find a configuration example for the **MetricsHub Service** at `.\config\metricshub-example.yaml` within the installation directory (e.g., `C:\Program Files\MetricsHub`).
+* the [resources to be monitored](./configuration/configure-agent.html#configure-monitored-resources)
+* the [OpenTelemetry Protocol endpoint](configuration/configure-agent.md#otlp-endpoint) that will receive the MetricsHub signals.
+
+To assist with the setup process, the configuration example `.\config\metricshub-example.yaml` is provided for guidance in the installation directory (typically, `C:\Program Files\MetricsHub`).
 
 ### Start
 
@@ -173,9 +182,9 @@ c:\Program Files\MetricsHub> MetricsHubServiceManager
 
 > Note: Run `CMD.EXE` or `Windows Terminal` with elevated privileges (**Run As Administrator**).
 
-This will start **${solutionName}** with the default **MetricsHub Service**'s configuration file: `C:\ProgramData\MetricsHub\config\metricshub.yaml`.
+This will start **${solutionName}** with the default configuration file `C:\ProgramData\MetricsHub\config\metricshub.yaml`.
 
-You can start **${solutionName}** with an alternate **MetricsHub Service**'s configuration file with the command below:
+Run the command below to start **${solutionName}** with an alternate configuration file:
 
 ```shell-session
 c:\> cd "c:\Program Files\MetricsHub"
@@ -200,7 +209,7 @@ c:\Program Files\MetricsHub> service-installer set MetricsHub DisplayName Metric
 c:\Program Files\MetricsHub> service-installer set MetricsHub Start SERVICE_AUTO_START
 ```
 
-The service will be named `MetricsHub` and will be visible in the `services.msc` console.
+The service will appear as `MetricsHub` in the `services.msc` console.
 
 ### Stop
 
@@ -210,7 +219,7 @@ To stop the **MetricsHub Service** manually, use the keyboard shortcut `CTRL+C`.
 
 **Background Process**
 
-If the **MetricsHub Service** is running in the background, use the command prompt to stop the process using the `taskkill` command. Open the command prompt and run:
+If the **MetricsHub Service** is running in the background, execute the `taskkill` command as follows:
 
 ```batch
 taskkill /F /IM MetricsHubServiceManager.exe
@@ -218,20 +227,19 @@ taskkill /F /IM MetricsHubServiceManager.exe
 
 **Service**
 
-To stop the **MetricsHub Service** started as a **Windows service**, follow these steps:
+To stop the **MetricsHub Service** started as a **Windows service**:
 
-1. Open the Services console by running `services.msc`.
-2. In the Services window, locate the manually created service named, for example, `MetricsHub`.
-3. Right-click on the MetricsHub service.
-4. Select *Stop* from the context menu.
-
-This action will terminate the execution of the **MetricsHub Service** running as a Windows service.
+1. Run `services.msc` to access all the Windows services.
+2. In the Services window, locate the `MetricsHub`service you manually created.
+3. Right-click the `MetricsHub` service and click **Stop**.
 
 ### Uninstall
 
-* Stop the **MetricsHub Service**.
-* Navigate to the folder where **${solutionName}** is installed (e.g., `C:\Program Files`) and remove the entire `MetricsHub` folder.
-* To remove the **MetricsHub Service** if it is set up as a **Windows Service**, run the following command:
+1. Stop the **MetricsHub Service**.
+2. Navigate to the folder where **${solutionName}** is installed (e.g., `C:\Program Files`) and delete the entire `MetricsHub` folder.
+
+If the **MetricsHub Service** was set up as a **Windows Service**, run the following command to remove it:
+
   ```batch
   sc delete MetricsHub
   ```
@@ -240,8 +248,7 @@ This action will terminate the execution of the **MetricsHub Service** running a
 
 ### Download
 
-From [MetricsHub Release v${project.version}](https://github.com/sentrysoftware/metricshub/releases/tag/v${project.version}), download:
-* **metricshub-linux-${project.version}-docker.tar.gz**
+Download the Docker package, `metricshub-linux-${project.version}-docker.tar.gz`, from the [MetricsHub Release v${project.version}](https://github.com/sentrysoftware/metricshub/releases/tag/v${project.version}) page.
 
 ### Install
 
@@ -252,31 +259,34 @@ Unzip and untar the content of `metricshub-linux-${project.version}-docker.tar.g
 /docker $ sudo tar xf /tmp/metricshub-linux-${project.version}-docker.tar.gz
 ```
 
-Then, build the docker image using the following command:
+### Configure
+
+In the `./lib/config/metricshub.yaml` file, locally under the `./metricshub` installation directory, configure:
+
+* the [resources to be monitored](./configuration/configure-agent.html#configure-monitored-resources)
+* the [OpenTelemetry Protocol endpoint](configuration/configure-agent.md#otlp-endpoint) that will receive the MetricsHub signals.
+
+To assist with the setup process, the configuration example `./lib/config/metricshub-example.yaml` is provided for guidance in the installation directory (`./metricshub`).
+
+### Build the docker image
+
+Run the following command to build the docker image:
 
 ```shell-session
 / $ cd /docker/metricshub
 /docker/metricshub $ sudo docker build -t metricshub:latest .
 ```
 
-### Configure
-
-Under the **./metricshub** directory, configure the [`./lib/config/metricshub.yaml`](configuration/configure-agent.md) file to define the resources (hosts) that need to be monitored, along with their respective credentials, and set the [OpenTelemetry Protocol endpoint](configuration/configure-agent.md#otlp-endpoint) for receiving MetricsHub signals.
-
-Find a configuration example for the **MetricsHub Service** at `./lib/config/metricshub-example.yaml` within the image directory (`./metricshub`).
-
 ### Start
 
-You can start **${solutionName}** with the command below:
+Run the following command to start **${solutionName}** with the default configuration file, `./lib/config/metricshub.yaml`:
 
 ```shell-session
 / $ cd /docker/metricshub
 /docker/metricshub $ sudo docker run --name=metricshub metricshub:latest
 ```
 
-This will start **${solutionName}** with the default **MetricsHub Service**'s configuration file: `./lib/config/metricshub.yaml`.
-
-You can start **${solutionName}** with an alternate **MetricsHub Service**'s configuration file with the command below:
+You can start **${solutionName}** with an alternate configuration file with the following command:
 
 ```shell-session
 / $ cd /docker/metricshub
@@ -310,7 +320,7 @@ services:
 
 ### Stop
 
-To stop **${solutionName}** started as docker container, run the following command:
+To stop **${solutionName}** started as a docker container, run the following command:
 
 ```shell-session
 /docker/metricshub $ sudo docker stop metricshub
@@ -318,7 +328,7 @@ To stop **${solutionName}** started as docker container, run the following comma
 
 **Docker Compose**:
 
-If you are using docker compose, from the `./metricshub` directory, run the following command to stop **${solutionName}**:
+If you are using docker compose from the `./metricshub` directory, run the following command to stop **${solutionName}**:
 
 ```shell-session
 /docker/metricshub $ sudo docker compose down
@@ -326,11 +336,11 @@ If you are using docker compose, from the `./metricshub` directory, run the foll
 
 ### Uninstall
 
-If you want to forcefully stop and remove the **${solutionName}** container, run the following commands:
+To force-stop and remove the **${solutionName}** container, run the following commands:
 
 ```shell-session
 /docker/metricshub $ sudo docker stop -f metricshub
 /docker/metricshub $ sudo docker rm -f metricshub
 ```
 
-Adjust the commands based on your specific requirements for stopping and removing the Docker container running **${solutionName}**.
+Adjust the commands to meet your specific requirements for stopping and removing the Docker container running **${solutionName}**.

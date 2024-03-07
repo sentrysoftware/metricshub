@@ -227,11 +227,12 @@ public class MetricsHubCliService implements Callable<Integer> {
 		// Check whether iterations is greater than 0. If it's not the case, throw a ParameterException
 		validateIterations(iterations);
 
-		final ConnectorStore connectorStore = new ConnectorStore(ConfigHelper.getSubDirectory("connectors", false));
-
 		// First, process special "list" option
 		if (listConnectors) {
-			return listAllConnectors(connectorStore, spec.commandLine().getOut());
+			return listAllConnectors(
+				new ConnectorStore(ConfigHelper.getSubDirectory("connectors", false)),
+				spec.commandLine().getOut()
+			);
 		}
 
 		// Validate inputs
@@ -260,7 +261,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		// Create the TelemetryManager using the connector store and the host configuration created above.
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
-			.connectorStore(connectorStore)
+			.connectorStore(new ConnectorStore(ConfigHelper.getSubDirectory("connectors", false)))
 			.hostConfiguration(hostConfiguration)
 			.build();
 
