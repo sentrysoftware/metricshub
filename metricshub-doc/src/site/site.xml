@@ -43,8 +43,6 @@
 			<item name="MetricsHub CLI (&lt;code&gt;metricshub&lt;/code&gt;)" href="troubleshooting/cli.html" />
 		</menu>
 
-	<!--
-=======
 		<menu name="Connector Design Guide">
 			<item name="Overview" href="connector-design-guide/overview.html" />
 			<item name="Connector General Form" href="connector-design-guide/general-form.html" />
@@ -66,6 +64,7 @@
 			<item name="Connector Object References" href="connector-design-guide/connector-object-references.html" />
 		</menu>
 
+		<!--
 		<menu name="Use Cases">
 			<item name="Custom Monitoring" href="usecases/custom.html" />
 		</menu>-->
