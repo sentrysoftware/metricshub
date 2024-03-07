@@ -635,7 +635,7 @@ For more information about the `metricshub` command, refer to [MetricsHub CLI (m
 
 #### Resource Attributes
 
-Add labels in the `attributes` section to override the data collected by the **MetricsHub Agent** or add additional attributes to the [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md). These attributes are added to each metric of that *Resource* when exported to time series platforms like Prometheus. 
+Add labels in the `attributes` section to override the data collected by the **MetricsHub Agent** or add additional attributes to the [Host Resource](https://opentelemetry.io/docs/specs/semconv/resource/host/). These attributes are added to each metric of that *Resource* when exported to time series platforms like Prometheus. 
 
 In the example below, we add a new `app` attribute and indicate that it is the `Jenkins` app:
 
@@ -659,7 +659,7 @@ resourceGroups:
 
 #### Hostname resolution
 
-By default, **${solutionName}** resolves the `hostname` of the resource to a Fully Qualified Domain Name (FQDN) and displays this value in the [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md) attribute `host.name`. To display the configured hostname instead, set `resolveHostnameToFqdn` to `false`:
+By default, **${solutionName}** resolves the `hostname` of the resource to a Fully Qualified Domain Name (FQDN) and displays this value in the [Host Resource](https://opentelemetry.io/docs/specs/semconv/resource/host/) attribute `host.name`. To display the configured hostname instead, set `resolveHostnameToFqdn` to `false`:
 
 ```yaml
 resolveHostnameToFqdn: false
