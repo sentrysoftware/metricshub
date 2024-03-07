@@ -60,9 +60,6 @@ import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
-import org.sentrysoftware.metricshub.hardware.strategy.HardwarePostCollectStrategy;
-import org.sentrysoftware.metricshub.hardware.strategy.HardwarePostDiscoveryStrategy;
-import org.sentrysoftware.metricshub.hardware.strategy.HardwareStrategy;
 
 /**
  * Task responsible for running the monitoring process, including detection, discovery, and collection strategies.
@@ -107,8 +104,7 @@ public class MonitoringTask implements Runnable {
 			telemetryManager.run(
 				new DetectionStrategy(telemetryManager, discoveryTime, clientsExecutor),
 				new DiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor),
-				new SimpleStrategy(telemetryManager, discoveryTime, clientsExecutor),
-				new HardwarePostDiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor)
+				new SimpleStrategy(telemetryManager, discoveryTime, clientsExecutor)
 			);
 
 			// Initialize the OpenTelemetry observers and LogEmitter after the discovery
@@ -125,12 +121,8 @@ public class MonitoringTask implements Runnable {
 			new PrepareCollectStrategy(telemetryManager, collectTime, clientsExecutor),
 			new ProtocolHealthCheckStrategy(telemetryManager, collectTime, clientsExecutor),
 			new CollectStrategy(telemetryManager, collectTime, clientsExecutor),
-			new SimpleStrategy(telemetryManager, collectTime, clientsExecutor),
-			new HardwarePostCollectStrategy(telemetryManager, collectTime, clientsExecutor)
+			new SimpleStrategy(telemetryManager, collectTime, clientsExecutor)
 		);
-
-		// Run the hardware strategy
-		telemetryManager.run(new HardwareStrategy(telemetryManager, collectTime));
 
 		// Initialize metric observers
 		initAllObservers(telemetryManager);
