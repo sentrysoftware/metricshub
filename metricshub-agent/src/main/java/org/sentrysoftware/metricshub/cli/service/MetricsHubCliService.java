@@ -66,9 +66,6 @@ import org.sentrysoftware.metricshub.engine.strategy.discovery.DiscoveryStrategy
 import org.sentrysoftware.metricshub.engine.strategy.simple.SimpleStrategy;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
-import org.sentrysoftware.metricshub.hardware.strategy.HardwarePostCollectStrategy;
-import org.sentrysoftware.metricshub.hardware.strategy.HardwarePostDiscoveryStrategy;
-import org.sentrysoftware.metricshub.hardware.strategy.HardwareStrategy;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -91,8 +88,7 @@ import picocli.CommandLine.Spec;
 	description = "This tool is the CLI version of the @|italic MetricsHub|@ engine. " +
 	"MetricsHub monitors diverse technologies, encompassing applications, servers, and devices, particularly those without readily available monitoring solutions.%n%n" +
 	"It natively leverages various system management protocols to discover the hardware components of a system " +
-	"and report their operational status.%n%n" +
-	"Additionally, MetricsHub measures the power consumption of the system, or makes an estimation if no power sensor is detected.",
+	"and report their operational status.",
 	parameterListHeading = "%n@|bold,underline Parameters|@:%n",
 	optionListHeading = "%n@|bold,underline Options|@:%n",
 	customSynopsis = {
@@ -322,8 +318,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		}
 		telemetryManager.run(
 			new DiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor),
-			new SimpleStrategy(telemetryManager, discoveryTime, clientsExecutor),
-			new HardwarePostDiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor)
+			new SimpleStrategy(telemetryManager, discoveryTime, clientsExecutor)
 		);
 
 		// Perform the collect operation "iterations" times
@@ -348,12 +343,8 @@ public class MetricsHubCliService implements Callable<Integer> {
 				new PrepareCollectStrategy(telemetryManager, collectTime, clientsExecutor),
 				new ProtocolHealthCheckStrategy(telemetryManager, collectTime, clientsExecutor),
 				new CollectStrategy(telemetryManager, collectTime, clientsExecutor),
-				new SimpleStrategy(telemetryManager, collectTime, clientsExecutor),
-				new HardwarePostCollectStrategy(telemetryManager, collectTime, clientsExecutor)
+				new SimpleStrategy(telemetryManager, collectTime, clientsExecutor)
 			);
-
-			// Run the hardware strategy
-			telemetryManager.run(new HardwareStrategy(telemetryManager, collectTime));
 
 			// If iterations > 1, add a sleep time between iterations
 			if (i != iterations - 1 && sleepIteration > 0) {

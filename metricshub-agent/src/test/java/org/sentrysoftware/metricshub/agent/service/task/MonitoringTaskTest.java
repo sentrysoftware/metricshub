@@ -57,9 +57,6 @@ import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
-import org.sentrysoftware.metricshub.hardware.strategy.HardwarePostCollectStrategy;
-import org.sentrysoftware.metricshub.hardware.strategy.HardwarePostDiscoveryStrategy;
-import org.sentrysoftware.metricshub.hardware.strategy.HardwareStrategy;
 
 @ExtendWith(MockitoExtension.class)
 class MonitoringTaskTest {
@@ -150,21 +147,14 @@ class MonitoringTaskTest {
 			monitoringTask.run(); // Collect
 
 			verify(telemetryManagerMock, times(1))
-				.run(
-					any(DetectionStrategy.class),
-					any(DiscoveryStrategy.class),
-					any(SimpleStrategy.class),
-					any(HardwarePostDiscoveryStrategy.class)
-				);
+				.run(any(DetectionStrategy.class), any(DiscoveryStrategy.class), any(SimpleStrategy.class));
 			verify(telemetryManagerMock, times(4))
 				.run(
 					any(PrepareCollectStrategy.class),
 					any(ProtocolHealthCheckStrategy.class),
 					any(CollectStrategy.class),
-					any(SimpleStrategy.class),
-					any(HardwarePostCollectStrategy.class)
+					any(SimpleStrategy.class)
 				);
-			verify(telemetryManagerMock, times(4)).run(any(HardwareStrategy.class));
 		}
 	}
 
