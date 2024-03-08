@@ -12,6 +12,7 @@ To ensure this process runs smoothly, you need to configure a few settings in th
 > * `C:\ProgramData\MetricsHub\config` on Windows systems
 > * `./metricshub/lib/config` on Linux systems.
 
+
 > **Important**: We recommend using an editor supporting the [Schemastore](https://www.schemastore.org/json#editors) to edit **${solutionName}**'s configuration YAML files (Example: [Visual Studio Code](https://code.visualstudio.com/download) and [vscode.dev](https://vscode.dev), with [RedHat's YAML extension](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml)).
 
 ## Configure resources
