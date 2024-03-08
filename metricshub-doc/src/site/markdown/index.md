@@ -1,34 +1,34 @@
 keywords: about
-description: ${solutionName} is a universal metrics collector for OpenTelemetry which extracts metrics from any resource and pushes them to any observability back-end.
+description: MetricsHub is a universal metrics collector for OpenTelemetry which extracts metrics from any resource and pushes them to any observability back-end.
 
 # Overview
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-## What is **${solutionName}**?
+## What is **MetricsHub**?
 
-**${solutionName}** is a universal metrics collector for [OpenTelemetry](https://opentelemetry.io/docs) which **extracts metrics from any resource** - either **locally** or **remotely** - and **pushes the collected data to any observability back-end** supporting OpenTelemetry like Prometheus, New Relic, ServiceNow, Splunk, etc.
+**MetricsHub** is a universal metrics collector for [OpenTelemetry](https://opentelemetry.io/docs) which **extracts metrics from any resource** - either **locally** or **remotely** - and **pushes the collected data to any observability back-end** supporting OpenTelemetry like Prometheus, New Relic, ServiceNow, Splunk, etc.
 
-## What is **${solutionName}** for?
+## What is **MetricsHub** for?
 
-**${solutionName}** natively collects metrics about:
+**MetricsHub** natively collects metrics about:
 
 * Operating systems (typically Windows and Linux)
 * A variety of platforms (VMware ESX, HyperV, MIB2, LibreHardwareMonitor, and more).
 
-Fully customizable, **${solutionName}**  can also be configured to **cover new use cases in no time**, such as the monitoring of systems or applications not covered out-of-the-box through protocols like `HTTP`, `IPMI`, `SNMP`,`SSH`, `WBEM`, `WinRM`, `WMI`.
+Fully customizable, **MetricsHub**  can also be configured to **cover new use cases in no time**, such as the monitoring of systems or applications not covered out-of-the-box through protocols like `HTTP`, `IPMI`, `SNMP`,`SSH`, `WBEM`, `WinRM`, `WMI`.
 
 Refer to [Community Connector Platforms](../metricshub-connector-reference.html) for the exhaustive list of supported platforms.
 
-## How does **${solutionName}** work?
+## How does **MetricsHub** work?
 
-**${solutionName}** comes with the **MetricsHub Agent**, also called the engine, which performs the monitoring of all the configured resources. It collects and sends metrics to the OTLP receiver of your observability back-end.
+**MetricsHub** comes with the **MetricsHub Agent**, also called the engine, which performs the monitoring of all the configured resources. It collects and sends metrics to the OTLP receiver of your observability back-end.
 
-**${solutionName}** also comes with a **CLI** (`metricshub`) you can invoke in a shell for troubleshooting the monitoring of a system, protocols, and credentials.
+**MetricsHub** also comes with a **CLI** (`metricshub`) you can invoke in a shell for troubleshooting the monitoring of a system, protocols, and credentials.
 
-## How will **${solutionName}** be licensed?
+## How will **MetricsHub** be licensed?
 
-**${solutionName}** will be available in two editions: the **Community** and **Enterprise** editions.
+**MetricsHub** will be available in two editions: the **Community** and **Enterprise** editions.
 
 The **Community Edition** will be **open-source** and come with **basic monitoring features**. With this edition, you will be able to:
 

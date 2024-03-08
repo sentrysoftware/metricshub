@@ -5,14 +5,14 @@ description: How to configure MetricsHub Agent to scrape hosts with various prot
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-The **MetricsHub Agent** collects the health of the monitored resources and pushes the collected data to the OTLP receiver. **${solutionName}** then processes the resource observability metrics and exposes them in the backend platform of your choice (Datadog, BMC Helix, Prometheus, Grafana, etc.).
+The **MetricsHub Agent** collects the health of the monitored resources and pushes the collected data to the OTLP receiver. **MetricsHub** then processes the resource observability metrics and exposes them in the backend platform of your choice (Datadog, BMC Helix, Prometheus, Grafana, etc.).
 
-To ensure this process runs smoothly, you need to configure a few settings in the `config/metricshub.yaml` file to allow **${solutionName}** to:
+To ensure this process runs smoothly, you need to configure a few settings in the `config/metricshub.yaml` file to allow **MetricsHub** to:
 
 * identify which site is monitored with this agent
 * monitor the resources in this site.
 
-> **Important**: We recommend using an editor supporting the [Schemastore](https://www.schemastore.org/json#editors) to edit **${solutionName}**'s configuration YAML files (Example: [Visual Studio Code](https://code.visualstudio.com/download) and [vscode.dev](https://vscode.dev), with [RedHat's YAML extension](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml)).
+> **Important**: We recommend using an editor supporting the [Schemastore](https://www.schemastore.org/json#editors) to edit **MetricsHub**'s configuration YAML files (Example: [Visual Studio Code](https://code.visualstudio.com/download) and [vscode.dev](https://vscode.dev), with [RedHat's YAML extension](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml)).
 
 > **Note**: The configurations described on this page are applicable to the `metricshub.yaml` file:
 > * On Windows, the `metricshub.yaml` configuration file is located at `C:\ProgramData\MetricsHub\config`.
@@ -59,7 +59,7 @@ If your intention is to associate monitored resources with a specific resource g
 resourceGroups:
   <resource-group-name>:
     resources:
-      <resource-id>:   
+      <resource-id>:
         attributes:
           host.name: <hostname>
           host.type: <type>
@@ -71,7 +71,7 @@ Alternatively, if you don't require the resource grouping feature, you can confi
 
 ```yaml
 resources:
-  <resource-id>:   
+  <resource-id>:
     attributes:
       host.name: <hostname>
       host.type: <type>
@@ -98,7 +98,7 @@ where:
   * `vms` for HP Open VMS systems
     For the community edition, refer to [Monitored Systems](../platform-requirements.html) for more details.
 
-* `<protocol-configuration>` is the protocol(s) **${solutionName}** will use to communicate with the resources: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](#protocol) for more details.
+* `<protocol-configuration>` is the protocol(s) **MetricsHub** will use to communicate with the resources: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](#protocol) for more details.
 
 ### Same characteristics resources
 
@@ -119,7 +119,7 @@ where:
 
 * `<hostname1>,<hostname2>, etc.` is a comma-delimited list of host resources to be monitored. Provide their hostname or IP address.
 * `<type>` is the type of the resource to be monitored.
-* `<protocol-configuration>` is the protocol(s) **${solutionName}** will use to communicate with the resource: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](#protocol) for more details.
+* `<protocol-configuration>` is the protocol(s) **MetricsHub** will use to communicate with the resource: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](#protocol) for more details.
 
 <a name="protocol"></a>
 
@@ -143,7 +143,7 @@ Use the parameters below to configure the HTTP protocol:
 resourceGroups:
   boston:
     resources:
-      myHost1:   
+      myHost1:
         attributes:
           host.name: my-host-01
           host.type: storage
@@ -277,7 +277,7 @@ resourceGroups:
             community: public
             port: 161
             timeout: 120s
-            
+
       myHost2:
         attributes:
           host.name: my-host-02
@@ -451,7 +451,7 @@ The file should contain one or more X.509 certificates in PEM format.
 
 #### Collect period
 
-By default, **${solutionName}** collects metrics from the monitored resources every minute. To change the default collect period:
+By default, **MetricsHub** collects metrics from the monitored resources every minute. To change the default collect period:
 
 * For all your resources, add the `collectPeriod` parameter just before the `resourceGroups` section:
 
@@ -477,14 +477,14 @@ By default, **${solutionName}** collects metrics from the monitored resources ev
                 community: public
                 port: 161
                 timeout: 120s
-            collectPeriod: 1m30s # Customized 
+            collectPeriod: 1m30s # Customized
     ```
 
 > **Warning**: Collecting metrics too frequently can cause CPU-intensive workloads.
 
 #### Connectors
 
-When running **${solutionName}**, the connectors are automatically selected based on the device type provided and the enabled protocols. However, you have the flexibility to specify which connectors should be utilized or omitted.
+When running **MetricsHub**, the connectors are automatically selected based on the device type provided and the enabled protocols. However, you have the flexibility to specify which connectors should be utilized or omitted.
 
 The `connectors` parameter allows you to enforce, select, or exclude specific connectors. Connector names or category tags should be separated by commas, as illustrated in the example below:
 
@@ -509,8 +509,8 @@ resourceGroups:
 - To stage a connector for processing by automatic detection, configure the connector identifier, for instance, `MIB2`.
 - To stage a category of connectors for processing by automatic detection, precede the category tag with a hash (`#`), such as `#hardware` or `#system`.
 - To exclude a category of connectors from automatic detection, precede the category tag to be excluded with a minus and a hash sign (`-#`), such as `-#system`.
-  
-> **Notes**: 
+
+> **Notes**:
 >- Any misspelled connector will be ignored.
 >- Misspelling a category tag will prevent automatic detection from functioning due to an empty connectors staging.
 
@@ -542,25 +542,25 @@ resourceGroups:
 
 - Example 5:
   ```yaml
-  connectors: [ DiskPart, "-#system" ] 
+  connectors: [ DiskPart, "-#system" ]
   ```
   The core engine will perform automatic detection exclusively on the `DiskPart` connector.
 
 - Example 6:
   ```yaml
-  connectors: [ +Linux, MIB2 ] 
+  connectors: [ +Linux, MIB2 ]
   ```
   The core engine will enforce the execution of the `Linux` connector and subsequently perform automatic detection on the `MIB2` connector.
 
 - Example 7:
   ```yaml
-  connectors: [ -Linux ] 
+  connectors: [ -Linux ]
   ```
   The core engine will perform automatic detection on all connectors except the `Linux` connector.
 
 - Example 8:
   ```yaml
-  connectors: [ "#hardware", -MIB2 ] 
+  connectors: [ "#hardware", -MIB2 ]
   ```
   The core engine will perform automatic detection on connectors categorized under `hardware`, excluding the `MIB2` connector.
 
@@ -577,7 +577,7 @@ For more information about the `metricshub` command, refer to [MetricsHub CLI (m
 
 #### Discovery cycle
 
-**${solutionName}** periodically performs discoveries to detect new components in your monitored environment. By default, **${solutionName}** runs a discovery after 30 collects. To change this default discovery cycle:
+**MetricsHub** periodically performs discoveries to detect new components in your monitored environment. By default, **MetricsHub** runs a discovery after 30 collects. To change this default discovery cycle:
 
 * For all your resources, add the `discoveryCycle` just before the `resourceGroups` section:
 
@@ -603,7 +603,7 @@ For more information about the `metricshub` command, refer to [MetricsHub CLI (m
                 community: public
                 port: 161
                 timeout: 120s
-            discoveryCycle: 5 # Customized 
+            discoveryCycle: 5 # Customized
     ```
 
 
@@ -613,7 +613,7 @@ and indicate the number of collects after which a discovery will be performed.
 
 #### Resource Attributes
 
-Add labels in the `attributes` section to override the data collected by the **MetricsHub Agent** or add additional attributes to the [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md). These attributes are added to each metric of that *Resource* when exported to time series platforms like Prometheus. 
+Add labels in the `attributes` section to override the data collected by the **MetricsHub Agent** or add additional attributes to the [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md). These attributes are added to each metric of that *Resource* when exported to time series platforms like Prometheus.
 
 In the example below, we add a new `app` attribute and indicate that it is the `Jenkins` app:
 
@@ -621,7 +621,7 @@ In the example below, we add a new `app` attribute and indicate that it is the `
 resourceGroups:
   boston:
     resources:
-      myHost1:   
+      myHost1:
         attributes:
           host.name: my-host-01
           host.type: other
@@ -637,7 +637,7 @@ resourceGroups:
 
 #### Hostname resolution
 
-By default, **${solutionName}** resolves the `hostname` of the resource to a Fully Qualified Domain Name (FQDN) and displays this value in the [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md) attribute `host.name`. To display the configured hostname instead, set `resolveHostnameToFqdn` to `false`:
+By default, **MetricsHub** resolves the `hostname` of the resource to a Fully Qualified Domain Name (FQDN) and displays this value in the [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md) attribute `host.name`. To display the configured hostname instead, set `resolveHostnameToFqdn` to `false`:
 
 ```yaml
 resolveHostnameToFqdn: false
@@ -647,7 +647,7 @@ resourceGroups:
 
 #### Job pool size
 
-By default, **${solutionName}** runs up to 20 discovery and collect jobs in parallel. To increase or decrease the number of jobs **${solutionName}** can run simultaneously and add the `jobPoolSize` parameter just before the `resourceGroups` section:
+By default, **MetricsHub** runs up to 20 discovery and collect jobs in parallel. To increase or decrease the number of jobs **MetricsHub** can run simultaneously and add the `jobPoolSize` parameter just before the `resourceGroups` section:
 
 ```yaml
 jobPoolSize: 40 # Customized
@@ -659,7 +659,7 @@ resourceGroups: # ...
 
 #### Sequential mode
 
-By default, **${solutionName}** sends the queries to the resource in parallel. Although the parallel mode is faster than the sequential one, too many requests at the same time can lead to the failure of the targeted system.
+By default, **MetricsHub** sends the queries to the resource in parallel. Although the parallel mode is faster than the sequential one, too many requests at the same time can lead to the failure of the targeted system.
 
 To force all the network calls to be executed in sequential order:
 
@@ -687,7 +687,7 @@ To force all the network calls to be executed in sequential order:
                 community: public
                 port: 161
                 timeout: 120s
-            sequential: true # Customized 
+            sequential: true # Customized
     ```
 
 > **Warning**: Sending requests in sequential mode slows down the monitoring significantly. Instead of using the sequential mode, you could increase the maximum number of allowed concurrent requests in the monitored system, if the manufacturer allows it.

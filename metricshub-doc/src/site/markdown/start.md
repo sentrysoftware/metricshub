@@ -15,4 +15,4 @@ Add and define the resources you wish to monitor in the **config/metricshub.yaml
 
 ## Step 3: Send the metrics to an OTLP Receiver
 
-Configure **${solutionName}** to send the collected metrics to the OTLP receiver of your choice (Datadog Agent, New Relic, Prometheus, and more) or to an OpenTelemetry collector through the `gRPC` or `http/protobuf` protocol.
+Configure **MetricsHub** to send the collected metrics to the OTLP receiver of your choice (Datadog Agent, New Relic, Prometheus, and more) or to an OpenTelemetry collector through the `gRPC` or `http/protobuf` protocol.

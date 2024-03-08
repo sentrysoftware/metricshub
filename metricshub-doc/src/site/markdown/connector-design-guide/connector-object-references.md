@@ -36,14 +36,14 @@ A Source can be referenced either with its full path or its relative path. A rel
 ### <a id="source-example" />Example
 ```yaml
       mapping:
-        source: ${source::monitors.disk_controller.discovery.sources.source_discovery}
+        source: ${esc.d}{source::monitors.disk_controller.discovery.sources.source_discovery}
 ```
 
 ```yaml
         sourceDiscovery:
           type: tableJoin
-          leftTable: ${source::monitors.enclosure.collect.sources.source_chassis} # full path for a source in another monitor
-          rightTable: ${source::source_enclosure} # relative path
+          leftTable: ${esc.d}{source::monitors.enclosure.collect.sources.source_chassis} # full path for a source in another monitor
+          rightTable: ${esc.d}{source::source_enclosure} # relative path
           leftKeyColumn: 1
           rightKeyColumn: 1
 ```
@@ -61,7 +61,7 @@ $<columnNumber>
           type: http
           method: GET
           executeForEachEntryOf:
-            source: ${source::monitors.enclosure.discovery.sources.source(2)}
+            source: ${esc.d}{source::monitors.enclosure.discovery.sources.source(2)}
             concatMethod: list
           path: /api/rest/StorageCenter/ScChassis/$2/PowerSupplyList
 ```
@@ -78,7 +78,7 @@ $<columnNumber>
       mapping:
         # PowerSupply
         # tableID;ID;DisplayName;objectType;enclosure/controllerID;deviceType
-        source: ${source::monitors.power_supply.discovery.sources.source(4)}
+        source: ${esc.d}{source::monitors.power_supply.discovery.sources.source(4)}
         attributes:
           id: $2
           __display_id: $3
@@ -91,14 +91,14 @@ $<columnNumber>
 
 ### <a id="file-format" />Format
 ```yaml
-${file::<relativeFilePath>}
+${esc.d}{file::<relativeFilePath>}
 ```
 
 ### <a id="file-example" />Example
 ```yaml
    criteria:
     - type: osCommand
-      commandLine: /bin/sh ${file::storman-drives.sh}
+      commandLine: /bin/sh ${esc.d}{file::storman-drives.sh}
       expectedResult: Hard drive
       errorMessage: No Adaptec Controller with Physical Disks attached or not enough rights to execute arcconf.
 ```
@@ -107,7 +107,7 @@ ${file::<relativeFilePath>}
 
 ### <a id="mono-instance-format" />Format
 ```yaml
-${attribute::<attribute-key>}
+${esc.d}{attribute::<attribute-key>}
 ```
 
 ### <a id="mono-instance-example" />Example
@@ -118,7 +118,7 @@ ${attribute::<attribute-key>}
       sources:
         source(1):
           type: osCommand
-          commandLine: /bin/sh ${file::script.sh} ${attribute::id}
+          commandLine: /bin/sh ${esc.d}{file::script.sh} ${esc.d}{attribute::id}
           keep: ^MSHW;
           separators: ;
           selectColumns: "2,3,4,5,6,7,8,9"
@@ -128,7 +128,7 @@ ${attribute::<attribute-key>}
 
 ### <a id="translation-table-format" />Format
 ```yaml
-${translation::<translationTable>}
+${esc.d}{translation::<translationTable>}
 ```
 
 ### <a id="translation-table-example" />Example
@@ -148,14 +148,14 @@ ${translation::<translationTable>}
             # ID;PatrolStatus;Value;
           - type: translate
             column: 2
-            translationTable: ${translation::SensorStatusTranslationTable}
+            translationTable: ${esc.d}{translation::SensorStatusTranslationTable}
 ```
 
 ## Awk Script Reference
 
 ### <a id="awk-script-format" />Format
 ```yaml
-${awk::<script>}
+${esc.d}{awk::<script>}
 ```
 
 ### <a id="awk-script-example" />Example
@@ -164,7 +164,7 @@ ${awk::<script>}
       battery:
         discovery:
           mapping:
-            source: ${source::monitors.battery.discovery.sources.source(1)}
+            source: ${esc.d}{source::monitors.battery.discovery.sources.source(1)}
             attributes:
-              name: ${awk::sprintf("%s (%s)", "Cisco", $1)}
+              name: ${esc.d}{awk::sprintf("%s (%s)", "Cisco", $1)}
 ```

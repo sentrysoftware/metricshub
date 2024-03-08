@@ -1,5 +1,5 @@
 keywords: troubleshooting, status, check, health
-description: There are several ways to easily assess the status of ${solutionName}
+description: There are several ways to easily assess the status of MetricsHub
 
 # Health Check
 
