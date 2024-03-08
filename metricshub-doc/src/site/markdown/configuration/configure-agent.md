@@ -1,29 +1,23 @@
 keywords: agent, configuration, protocols, snmp, wbem, wmi, ipmi, ssh, http, os command, winrm, sites
-description: How to configure MetricsHub Agent to scrape hosts with various protocols.
+description: How to configure the MetricsHub Agent to collect metrics from a variety of resources with various protocols.
 
-# Configure the MetricsHub Agent
+# Configure the Agent
 
-<!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
+<!-- MACRO{toc|fromDepth=1|toDepth=1|id=toc} -->
 
-The **MetricsHub Agent** collects the health of the monitored resources and pushes the collected data to the OTLP receiver. **MetricsHub** then processes the resource observability metrics and exposes them in the backend platform of your choice (Datadog, BMC Helix, Prometheus, Grafana, etc.).
+**MetricsHub** extracts metrics from any configured resource and pushes the collected data to an OTLP receiver (a.k.a OTLP endpoint).
 
-To ensure this process runs smoothly, you need to configure a few settings in the `config/metricshub.yaml` file to allow **MetricsHub** to:
+To ensure this process runs smoothly, you need to configure a few settings in the `config/metricshub.yaml`, which is stored under:
 
-* identify which site is monitored with this agent
-* monitor the resources in this site.
+> * `C:\ProgramData\MetricsHub\config` on Windows systems
+> * `./metricshub/lib/config` on Linux systems.
+
 
 > **Important**: We recommend using an editor supporting the [Schemastore](https://www.schemastore.org/json#editors) to edit **MetricsHub**'s configuration YAML files (Example: [Visual Studio Code](https://code.visualstudio.com/download) and [vscode.dev](https://vscode.dev), with [RedHat's YAML extension](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml)).
 
-> **Note**: The configurations described on this page are applicable to the `metricshub.yaml` file:
-> * On Windows, the `metricshub.yaml` configuration file is located at `C:\ProgramData\MetricsHub\config`.
-> * On Linux, the `metricshub.yaml` configuration file is located at `./metricshub/lib/config`.
+## Configure resources
 
-## Configure a site
-
-A site represents the data center, the server room or any other site in which all the resources to be monitored are located.
-
-In the `config/metricshub.yaml` file, establish a clear representation of your site by defining a `<resource-group-name>` within the designated `resourceGroups` section.
-Subsequently, define the `site` attribute, under the `attributes` section of your resource group. The following example demonstrates the structured approach:
+The structure of the `config/metricshub.yaml` file allows you to organize and manage your resources in a methodical manner:
 
 ```yaml
 resourceGroups:
@@ -32,60 +26,103 @@ resourceGroups:
       site: <site-name>
 ```
 
-Replace `<resource-group-name>` with a unique identifier for your resource group and `<site-name>` with the designated name for your site as shown in the following example:
+* `resourceGroups` is the highest hierarchical level grouping of all the different resource groups
+* a `resource group` is a container that holds the site to be monitored
+* a `site` is the data center, the server room, or any other location hosting the resources to be monitored.
 
-```yaml
-resourceGroups:
-  boston:
-    attributes:
-      site: boston
-```
+If you have:
 
-## Configure monitored resources
+* **a highly distributed infrastructure**, you can set each of your `sites` as a `resource group` containing the different `resources` to be monitored as follows:
 
-To collect metrics from your resources, you must provide the following information in the `config/metricshub.yaml` file:
+    ```yaml
+    resourceGroups:
+      <resource-group-name>:
+        resources:
+          <resource-id>:
+            attributes:
+              host.name: <hostname>
+              host.type: <type>
+            <protocol-configuration>
+    ```
 
-* the hostname of the resource to be monitored
-* its type
-* the protocol(s) to be used.
+  **Example:**
 
-You can either configure your resources individually or several at a times if they share the same characteristics (device type, protocols, credentials, etc.).
+    ```yaml
+      resourceGroups:
+        boston:
+          resources:
+            myBostonHost1:
+              attributes:
+                host.name: my-boston-host-01
+                host.type: storage
+              <protocol-configuration>
 
-### Monitored resources
+            myBostonHost2:
+              attributes:
+                host.name: my-boston-host-02
+                host.type: storage
+              <protocol-configuration>
 
-If your intention is to associate monitored resources with a specific resource group, set up your resource within the `resources` section under the designated resource group identified by `<resource-group-name>`. Here's an illustrative example:
+        chicago:
+          resources:
+            myChicagoHost1:
+              attributes:
+                host.name: my-chicago-host-01
+                host.type: storage
+              <protocol-configuration>
 
-```yaml
-resourceGroups:
-  <resource-group-name>:
+            myChicagoHost2:
+              attributes:
+                host.name: my-chicago-host-02
+                host.type: storage
+              <protocol-configuration>
+    ```
+
+* **a centralized infrastructure**, you can configure your resource directly under the `resources` section located at the top of the `config/metricshub.yaml` file. In that case, the `resourceGroups` attribute is not required:
+
+    ```yaml
     resources:
       <resource-id>:
         attributes:
           host.name: <hostname>
           host.type: <type>
         <protocol-configuration>
-```
-This configuration is particularly useful when configuring the **MetricsHub Agent** to monitor multiple sites, where each site serves as a resource group containing various resources.
+    # resourceGroups: #
+    ```
 
-Alternatively, if you don't require the resource grouping feature, you can configure your resource directly under the `resources` section located at the top level in the `config/metricshub.yaml` file:
+    **Example**
 
-```yaml
-resources:
-  <resource-id>:
-    attributes:
-      host.name: <hostname>
-      host.type: <type>
-    <protocol-configuration>
-# resourceGroups: # not required
-```
-This approach is suitable when resource grouping is unnecessary for your monitoring setup.
+If your resources have:
 
-where:
+* **unique characteristics**, use the syntax below for each resource:
 
-* `<resource-id>` is the unique id of your resource (e.g: host, application or service id)
-* `<hostname>` is the name of the host resource, or its IP address.
+  ```yaml
+  resources:
+    <resource-id>:
+      attributes:
+        host.name: <hostname>
+        host.type: <type>
+      <protocol-configuration>
+    ```
+
+* share the **same characteristics** (device kind, protocols, credentials, etc.), use the syntax below:
+
+  ```yaml
+  resourceGroups:
+    <resource-group-name>:
+      resources:
+        <resource-id>:
+          attributes:
+            host.names: [<hostname1>,<hostname2>, etc.]
+            host.type: <type>
+          <protocol-configuration>
+  ```
+
+where
+
+* `<resource-id>` is the unique id of your resource. It can for example be the id of a host, an application, or a service
+* `<hostname>` is the name or IP address of the resource; `<hostname1>,<hostname2>, etc.` is a comma-delimited list of resources to be monitored. Provide their hostname or IP address.
 * `<type>` is the type of the resource to be monitored. Possible values are:
-
   * `win` for Microsoft Windows systems
   * `linux` for Linux systems
   * `network` for network devices
@@ -95,33 +132,9 @@ where:
   * `hpux` for HP UX systems
   * `solaris` for Oracle Solaris systems
   * `tru64` for HP Tru64 systems
-  * `vms` for HP Open VMS systems
-    For the community edition, refer to [Monitored Systems](../platform-requirements.html) for more details.
+  * `vms` for HP Open VMS systems.
 
-* `<protocol-configuration>` is the protocol(s) **MetricsHub** will use to communicate with the resources: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](#protocol) for more details.
-
-### Same characteristics resources
-
-You can configure resources that share the same characteristics (device kind, protocols, credentials, etc.) using syntax below:
-
-```yaml
-resourceGroups:
-  <resource-group-name>:
-    resources:
-      <resource-id>:
-        attributes:
-          host.names: [<hostname1>,<hostname2>, etc.]
-          host.type: <type>
-        <protocol-configuration>
-```
-
-where:
-
-* `<hostname1>,<hostname2>, etc.` is a comma-delimited list of host resources to be monitored. Provide their hostname or IP address.
-* `<type>` is the type of the resource to be monitored.
-* `<protocol-configuration>` is the protocol(s) **MetricsHub** will use to communicate with the resource: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](#protocol) for more details.
-
-<a name="protocol"></a>
+* `<protocol-configuration>` is the protocol(s) **MetricsHub** will use to communicate with the resources: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](./configure-agent.html#protocols-and-credentials) for more details.
 
 ### Protocols and credentials
 
@@ -385,41 +398,24 @@ resourceGroups:
             authentications: [ntlm]
 ```
 
-## Additional settings (Optional)
+## Configure the OTLP Receiver
 
-### Authentication settings
+By default, the **MetricsHub Agent** pushes the collected metrics to the [`OTLP Receiver`](https://github.com/open-telemetry/opentelemetry-collector/tree/main/receiver/otlpreceiver) through gRPC on port **TCP/4317**. To push data to the OTLP receiver of your choice:
 
-#### Basic authentication header
-
-In the community edition, by default, the **MetricsHub Agent**'s internal `OTLP Exporter` operates without authentication when communicating with the `OTLP Receiver`.
-
-If your `OTLP Receiver` requires authentication headers, you will need to manually configure the `otel.exporter.otlp.metrics.headers` and `otel.exporter.otlp.logs.headers` parameters under the `otel` section in your configuration file:
+* locate the `otel` section in your configuration file
+* configure the `otel.exporter.otlp.metrics.endpoint` and `otel.exporter.otlp.logs.endpoint` parameters as follows:
 
 ```yaml
 otel:
-  otel.exporter.otlp.metrics.headers: <custom-header1>
-  otel.exporter.otlp.logs.headers: <custom-header2>
-
-resourceGroups: # ...
-```
-
-#### OTLP endpoint
-
-The **MetricsHub Agent**'s internal `OTLP Exporter` pushes telemetry [signals](https://opentelemetry.io/docs/concepts/signals/) to the [`OTLP Receiver`](https://github.com/open-telemetry/opentelemetry-collector/tree/main/receiver/otlpreceiver) through [gRPC](https://grpc.io/) on port **TCP/4317**.
-
-By default, the internal `OTLP Exporter` is configured to push data to the `OTLP Receiver` endpoint `http://localhost:4317`.
-
-To override the OTLP endpoints, configure the `otel.exporter.otlp.metrics.endpoint` and `otel.exporter.otlp.logs.endpoint` parameters under the `otel` section in your configuration file:
-
-```yaml
-otel:
-  otel.exporter.otlp.metrics.endpoint: https://my-host:4317
-  otel.exporter.otlp.logs.endpoint: https://my-host:4317
+  otel.exporter.otlp.metrics.endpoint: https://<my-host>:4317
+  otel.exporter.otlp.logs.endpoint: https://<my-host>:4317
 
 resourceGroups: #...
 ```
 
-##### Example Configuration for the **MetricsHub Agent** Community Edition to Transmit Metrics to the Prometheus OTLP Receiver
+where `<my-host>` should be replaced with the hostname or IP address of the server where the OTLP receiver is installed.
+
+Use the below syntax if you wish to push metrics to the Prometheus OTLP Receiver:
 
 ```yaml
 otel:
@@ -428,14 +424,14 @@ otel:
   otel.exporter.otlp.metrics.protocol: http/protobuf
 ```
 
-Replace `<prom-server-host>` with the server's hostname or IP address where *Prometheus* is running.
+where `<prom-server-host>` should be replaced with the hostname or IP address of the server where *Prometheus* is running.
 
 > **Note:**
-> For specific configuration details, refer to the [OpenTelemetry Auto-Configure documentation](https://github.com/open-telemetry/opentelemetry-java/tree/main/sdk-extensions/autoconfigure). This resource provides information on the properties that should be configured according to your deployment requirements.
+> For specific configuration details, refer to the [OpenTelemetry Auto-Configure documentation](https://github.com/open-telemetry/opentelemetry-java/tree/main/sdk-extensions/autoconfigure). This resource provides information about the properties to be configured depending on your deployment requirements.
 
 #### Trusted certificates file
 
-If the internal **MetricsHub Agent**'s `OTLP Exporter` requires an `OTLP Receiver` certificate, you must configure the `otel.exporter.otlp.metrics.certificate` and `otel.exporter.otlp.logs.certificate` parameters under the `otel` section:
+If an `OTLP Receiver` certificate is required, configure the `otel.exporter.otlp.metrics.certificate` and `otel.exporter.otlp.logs.certificate` parameters under the `otel` section:
 
 ```yaml
 otel:
@@ -446,6 +442,22 @@ resourceGroups: # ...
 ```
 
 The file should contain one or more X.509 certificates in PEM format.
+
+## (Optional) Additional settings
+
+### Authentication settings
+
+#### Basic authentication header
+
+If your `OTLP Receiver` requires authentication headers, configure the `otel.exporter.otlp.metrics.headers` and `otel.exporter.otlp.logs.headers` parameters under the `otel` section:
+
+```yaml
+otel:
+  otel.exporter.otlp.metrics.headers: <custom-header1>
+  otel.exporter.otlp.logs.headers: <custom-header2>
+
+resourceGroups: # ...
+```
 
 ### Monitoring settings
 
@@ -461,7 +473,7 @@ By default, **MetricsHub** collects metrics from the monitored resources every m
     resourceGroups: # ...
     ```
 
-* For a specific resource, add the `collectPeriod` parameter in the relevant configuration related to your resource (e.g: myHost1)
+* For a specific resource, add the `collectPeriod` parameter at the resource level. In the example below, we set the `collectPeriod` to `1m30s` for `myHost1`:
 
     ```yaml
     resourceGroups:
@@ -486,7 +498,7 @@ By default, **MetricsHub** collects metrics from the monitored resources every m
 
 When running **MetricsHub**, the connectors are automatically selected based on the device type provided and the enabled protocols. However, you have the flexibility to specify which connectors should be utilized or omitted.
 
-The `connectors` parameter allows you to enforce, select, or exclude specific connectors. Connector names or category tags should be separated by commas, as illustrated in the example below:
+The `connectors` parameter allows you to force, select, or exclude specific connectors. Connector names or category tags should be separated by commas, as illustrated in the example below:
 
 ```yaml
 resourceGroups:
@@ -504,68 +516,84 @@ resourceGroups:
         connectors: [ +VMwareESX4i, +VMwareESXi, "#system" ]
 ```
 
-- To force a connector, precede the connector identifier with a plus sign (`+`), as in `+MIB2`.
-- To exclude a connector from automatic detection, precede the connector identifier with a minus sign (`-`), like `-MIB2`.
-- To stage a connector for processing by automatic detection, configure the connector identifier, for instance, `MIB2`.
-- To stage a category of connectors for processing by automatic detection, precede the category tag with a hash (`#`), such as `#hardware` or `#system`.
-- To exclude a category of connectors from automatic detection, precede the category tag to be excluded with a minus and a hash sign (`-#`), such as `-#system`.
+* To force a connector, precede the connector identifier with a plus sign (`+`), as in `+MIB2`.
+* To exclude a connector from automatic detection, precede the connector identifier with a minus sign (`-`), like `-MIB2`.
+* To stage a connector for processing by automatic detection, configure the connector identifier, for instance, `MIB2`.
+* To stage a category of connectors for processing by automatic detection, precede the category tag with a hash (`#`), such as `#hardware` or `#system`.
+* To exclude a category of connectors from automatic detection, precede the category tag to be excluded with a minus and a hash sign (`-#`), such as `-#system`.
 
 > **Notes**:
->- Any misspelled connector will be ignored.
->- Misspelling a category tag will prevent automatic detection from functioning due to an empty connectors staging.
+>
+>* Any misspelled connector will be ignored.
+>* Misspelling a category tag will prevent automatic detection from functioning due to an empty connectors staging.
 
 ##### Examples
 
-- Example 1:
+* Example 1:
+
   ```yaml
   connectors: [ "#hardware" ]
   ```
-  The core engine will automatically detect connectors categorized under `hardware`.
 
-- Example 2:
+ The core engine will automatically detect connectors categorized under `hardware`.
+
+* Example 2:
+
   ```yaml
   connectors: [ "-#hardware", "#system" ]
   ```
+
   The core engine will perform automatic detection on connectors categorized under `system`, excluding those categorized under `hardware`.
 
-- Example 3:
+* Example 3:
+
   ```yaml
   connectors: [ DiskPart, MIB2, "#system" ]
   ```
+
   The core engine will automatically detect connectors named `DiskPart`, `MIB2`, and all connectors under the `system` category.
 
-- Example 4:
+* Example 4:
+
   ```yaml
   connectors: [ +DiskPart, MIB2, "#system" ]
   ```
-  The core engine will enforce the execution of the `DiskPart` connector and then proceed with the automatic detection of `MIB2` and all connectors under the `system` category.
 
-- Example 5:
+  The core engine will force the execution of the `DiskPart` connector and then proceed with the automatic detection of `MIB2` and all connectors under the `system` category.
+
+* Example 5:
+
   ```yaml
   connectors: [ DiskPart, "-#system" ]
   ```
+
   The core engine will perform automatic detection exclusively on the `DiskPart` connector.
 
-- Example 6:
+* Example 6:
+
   ```yaml
   connectors: [ +Linux, MIB2 ]
   ```
-  The core engine will enforce the execution of the `Linux` connector and subsequently perform automatic detection on the `MIB2` connector.
 
-- Example 7:
+  The core engine will force the execution of the `Linux` connector and subsequently perform automatic detection on the `MIB2` connector.
+
+* Example 7:
+
   ```yaml
   connectors: [ -Linux ]
   ```
+
   The core engine will perform automatic detection on all connectors except the `Linux` connector.
 
-- Example 8:
+* Example 8:
+
   ```yaml
   connectors: [ "#hardware", -MIB2 ]
   ```
+
   The core engine will perform automatic detection on connectors categorized under `hardware`, excluding the `MIB2` connector.
 
-
-To know which connectors are available, refer to [Community Monitored Systems](../platform-requirements.html#!).
+To know which connectors are available, refer to [Community Connector Platforms](../platform-requirements.html#!).
 
 Otherwise, you can list the available connectors using the below command:
 
@@ -587,7 +615,7 @@ For more information about the `metricshub` command, refer to [MetricsHub CLI (m
     resourceGroups: # ...
     ```
 
-* For a specific host, add the `discoveryCycle` parameter in the relevant configuration related to your resource (e.g: myHost1).
+* For a specific host, add the `discoveryCycle` parameter at the resource level and indicate the number of collects after which a discovery will be performed. In the example below, we set the `discoveryCycle` to be performed after `5` collects for `myHost1`:
 
     ```yaml
     resourceGroups:
@@ -606,14 +634,11 @@ For more information about the `metricshub` command, refer to [MetricsHub CLI (m
             discoveryCycle: 5 # Customized
     ```
 
-
-and indicate the number of collects after which a discovery will be performed.
-
 > **Warning**: Running discoveries too frequently can cause CPU-intensive workloads.
 
 #### Resource Attributes
 
-Add labels in the `attributes` section to override the data collected by the **MetricsHub Agent** or add additional attributes to the [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md). These attributes are added to each metric of that *Resource* when exported to time series platforms like Prometheus.
+Add labels in the `attributes` section to override the data collected by the **MetricsHub Agent** or add additional attributes to the [Host Resource](https://opentelemetry.io/docs/specs/semconv/resource/host/). These attributes are added to each metric of that *Resource* when exported to time series platforms like Prometheus.
 
 In the example below, we add a new `app` attribute and indicate that it is the `Jenkins` app:
 
@@ -637,7 +662,7 @@ resourceGroups:
 
 #### Hostname resolution
 
-By default, **MetricsHub** resolves the `hostname` of the resource to a Fully Qualified Domain Name (FQDN) and displays this value in the [Host Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/host.md) attribute `host.name`. To display the configured hostname instead, set `resolveHostnameToFqdn` to `false`:
+By default, **MetricsHub** resolves the `hostname` of the resource to a Fully Qualified Domain Name (FQDN) and displays this value in the [Host Resource](https://opentelemetry.io/docs/specs/semconv/resource/host/) attribute `host.name`. To display the configured hostname instead, set `resolveHostnameToFqdn` to `false`:
 
 ```yaml
 resolveHostnameToFqdn: false
@@ -647,7 +672,7 @@ resourceGroups:
 
 #### Job pool size
 
-By default, **MetricsHub** runs up to 20 discovery and collect jobs in parallel. To increase or decrease the number of jobs **MetricsHub** can run simultaneously and add the `jobPoolSize` parameter just before the `resourceGroups` section:
+By default, **MetricsHub** runs up to 20 discovery and collect jobs in parallel. To increase or decrease the number of jobs **MetricsHub** can run simultaneously, add the `jobPoolSize` parameter just before the `resourceGroups` section:
 
 ```yaml
 jobPoolSize: 40 # Customized
@@ -663,7 +688,7 @@ By default, **MetricsHub** sends the queries to the resource in parallel. Althou
 
 To force all the network calls to be executed in sequential order:
 
-* For all your resources, enable the `sequential` option just before the `resourceGroups` section (**NOT RECOMMENDED**):
+* For all your resources, add the `sequential` parameter before the `resourceGroups` section (**NOT RECOMMENDED**) and set it to `true`:
 
     ```yaml
     sequential: true
@@ -671,7 +696,7 @@ To force all the network calls to be executed in sequential order:
     resourceGroups: # ...
     ```
 
-* For a specific resource, enable the `sequential` option in the relevant configuration related to your resource (e.g: myHost1)
+* For a specific resource, add the `sequential` parameter at the resource level and set it to `true`. In the example below, we enabled the `sequential` mode for `myHost1`
 
     ```yaml
     resourceGroups:
@@ -690,7 +715,7 @@ To force all the network calls to be executed in sequential order:
             sequential: true # Customized
     ```
 
-> **Warning**: Sending requests in sequential mode slows down the monitoring significantly. Instead of using the sequential mode, you could increase the maximum number of allowed concurrent requests in the monitored system, if the manufacturer allows it.
+> **Warning**: Sending requests in sequential mode slows down the monitoring significantly. Instead of using the sequential mode, you can increase the maximum number of allowed concurrent requests in the monitored system, if the manufacturer allows it.
 
 #### Timeout, duration and period format
 
