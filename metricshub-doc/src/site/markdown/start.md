@@ -9,10 +9,10 @@ This quick start guide walks you through the step-by-step instructions you shoul
 
 [Install MetricsHub](./install.html) on a system that has network access to the resources to monitor (physical servers, switches, storage systems, application, etc.).
 
-## Step 2: Configure the MetricsHub Agent
+## Step 2: Configure the resources to be monitored
 
-Add and define the resources you wish to monitor in the **config/metricshub.yaml** file. Simply provide the [hostname and type](./configuration/configure-agent.html#Monitored_resources) of the resource to be monitored and the [protocols and credentials](./configuration/configure-agent.html#Protocols_and_credentials).
+[Add and define the resources](./configuration/configure-agent.html#configure-resources) you wish to monitor in the **config/metricshub.yaml** file.
 
 ## Step 3: Send the metrics to an OTLP Receiver
 
-Configure **${solutionName}** to send the collected metrics to the OTLP receiver of your choice (Datadog Agent, New Relic, Prometheus, and more) or to an OpenTelemetry collector through the `gRPC` or `http/protobuf` protocol.
+Configure **${solutionName}** to send the collected metrics to the [OTLP receiver](./configuration/configure-agent.html#configure-the-otlp-receiver) of your choice (Datadog Agent, New Relic, Prometheus, and more) or to an OpenTelemetry collector through the `gRPC` or `http/protobuf` protocol.
