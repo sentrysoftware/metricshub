@@ -361,13 +361,13 @@ public abstract class AbstractITJob implements ITJob {
 	public ITJob executeDiscoveryStrategy() {
 		final Long discoveryTime = System.currentTimeMillis();
 
+		assertTrue(isServerStarted(), () -> "Server not started.");
+
 		telemetryManager.run(
 			new DetectionStrategy(telemetryManager, discoveryTime, clientsExecutor),
 			new DiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor),
 			new SimpleStrategy(telemetryManager, discoveryTime, clientsExecutor)
 		);
-
-		assertTrue(isServerStarted(), () -> "Server not started.");
 
 		return this;
 	}
@@ -376,13 +376,13 @@ public abstract class AbstractITJob implements ITJob {
 	public ITJob executeCollectStrategy() {
 		final Long collectTime = System.currentTimeMillis();
 
+		assertTrue(isServerStarted(), () -> "Server not started.");
+
 		telemetryManager.run(
 			new PrepareCollectStrategy(telemetryManager, collectTime, clientsExecutor),
 			new CollectStrategy(telemetryManager, collectTime, clientsExecutor),
 			new SimpleStrategy(telemetryManager, collectTime, clientsExecutor)
 		);
-
-		assertTrue(isServerStarted(), () -> "Server not started.");
 
 		return this;
 	}
