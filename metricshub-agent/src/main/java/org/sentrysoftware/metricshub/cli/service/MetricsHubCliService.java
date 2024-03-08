@@ -88,8 +88,7 @@ import picocli.CommandLine.Spec;
 	description = "This tool is the CLI version of the @|italic MetricsHub|@ engine. " +
 	"MetricsHub monitors diverse technologies, encompassing applications, servers, and devices, particularly those without readily available monitoring solutions.%n%n" +
 	"It natively leverages various system management protocols to discover the hardware components of a system " +
-	"and report their operational status.%n%n" +
-	"Additionally, MetricsHub measures the power consumption of the system, or makes an estimation if no power sensor is detected.",
+	"and report their operational status.",
 	parameterListHeading = "%n@|bold,underline Parameters|@:%n",
 	optionListHeading = "%n@|bold,underline Options|@:%n",
 	customSynopsis = {

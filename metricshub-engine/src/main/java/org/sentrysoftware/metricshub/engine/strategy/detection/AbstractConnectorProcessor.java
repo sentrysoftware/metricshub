@@ -264,7 +264,7 @@ public abstract class AbstractConnectorProcessor {
 
 		if (monitorJobs == null || monitorJobs.isEmpty()) {
 			log.warn(
-				"Hostname {} - {} connector detection. On last resort filter: Connector {} has no hardware monitors.",
+				"Hostname {} - {} connector detection. On last resort filter: Connector {} has no monitors.",
 				hostname,
 				hostname,
 				connectorIdHolder[0]
