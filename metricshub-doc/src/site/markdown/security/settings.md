@@ -1,5 +1,5 @@
 keywords: security, password, encrypt, key, certificate, tls, authentication
-description: How to configure ${solutionName} security settings.
+description: How to configure MetricsHub security settings.
 
 # Security Settings
 
@@ -45,7 +45,7 @@ You can use your own certificate to secure the communications between the **Metr
     resourceGroups: # ...
     ```
 
-5. Restart **${solutionName}**. See [Installation](../install.md) for more details.
+5. Restart **MetricsHub**. See [Installation](../install.md) for more details.
 
 #### Generating a Self-Signed Certificate with OpenSSL (Example)
 
@@ -151,7 +151,7 @@ Access to the `htpasswd` tool:
 
       extensions: [health_check, basicauth] # basicauth is added to the extensions list
       pipelines:
-      
+
       # ...
     ```
 
@@ -184,11 +184,11 @@ Access to the `htpasswd` tool:
 
    The `Authorization` header must be provided as `Basic <base64-credentials>`, where `<base64-credentials>` is the `base64` value you have generated in the previous step.
 
-7. Restart **${solutionName}**.
+7. Restart **MetricsHub**.
 
 ## Disabling TLS (Not recommended)
 
-When you disable TLS on **${solutionName}**, the communications between the **MetricsHub Agent** and the **OpenTelemetry Collector** are not encrypted anymore.
+When you disable TLS on **MetricsHub**, the communications between the **MetricsHub Agent** and the **OpenTelemetry Collector** are not encrypted anymore.
 
 1. In the `otel/otel-config.yaml` file, remove or comment out the `tls` section from the `OTLP gRPC Receiver` configuration:
 
@@ -227,11 +227,11 @@ When you disable TLS on **${solutionName}**, the communications between the **Me
     resourceGroups: # ...
     ```
 
-4. Restart **${solutionName}**.
+4. Restart **MetricsHub**.
 
 ## Disabling Authentication (Not Recommended)
 
-If you disable the authentication on **${solutionName}**, incoming requests will no longer be authenticated by the **OpenTelemetry Collector**'s `OTLP gRPC Receiver` and might expose you to malicious attacks.
+If you disable the authentication on **MetricsHub**, incoming requests will no longer be authenticated by the **OpenTelemetry Collector**'s `OTLP gRPC Receiver` and might expose you to malicious attacks.
 
 1. In the `otel/otel-config.yaml` file, remove or comment out the `auth` section from the `OTLP gRPC Receiver` configuration:
 
@@ -257,7 +257,7 @@ If you disable the authentication on **${solutionName}**, incoming requests will
 
      extensions: [health_check] # basicauth is not added to the extensions list
      pipelines:
-     
+
      # ...
    ```
 
@@ -272,4 +272,4 @@ If you disable the authentication on **${solutionName}**, incoming requests will
     resourceGroups: # ...
     ```
 
-4. Restart **${solutionName}**.
+4. Restart **MetricsHub**.

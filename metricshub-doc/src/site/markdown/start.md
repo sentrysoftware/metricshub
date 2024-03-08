@@ -15,4 +15,4 @@ This quick start guide walks you through the step-by-step instructions you shoul
 
 ## Step 3: Send the metrics to an OTLP Receiver
 
-Configure **${solutionName}** to send the collected metrics to the [OTLP receiver](./configuration/configure-agent.html#configure-the-otlp-receiver) of your choice (Datadog Agent, New Relic, Prometheus, and more) or to an OpenTelemetry collector through the `gRPC` or `http/protobuf` protocol.
+Configure **MetricsHub** to send the collected metrics to the [OTLP receiver](./configuration/configure-agent.html#configure-the-otlp-receiver) of your choice (Datadog Agent, New Relic, Prometheus, and more) or to an OpenTelemetry collector through the `gRPC` or `http/protobuf` protocol.

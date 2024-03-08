@@ -27,9 +27,9 @@ Supported systems include:
 * SAN switches
 * Storage systems (disk arrays, filers, tape libraries)
 
-The detailed list of systems supported by the **${solutionName}** community (manufacturer and product family and the required instrumentation stack) is listed in [Community Connectors Library](../platform-requirements.html).
+The detailed list of systems supported by the **MetricsHub** community (manufacturer and product family and the required instrumentation stack) is listed in [Community Connectors Library](../platform-requirements.html).
 
-The quantity and quality of the information that **${solutionName}** will gather depends on the instrumentation stack available on the targeted resource (host).
+The quantity and quality of the information that **MetricsHub** will gather depends on the instrumentation stack available on the targeted resource (host).
 
 ![Output example for an Hitachi system](../images/metricshub-hitachi.png)
 
@@ -186,7 +186,7 @@ This command will connect to the `WIN09` system using the `WinRM` protocol to ex
 
 ## Automatic Detection vs Manual Selection
 
-**${solutionName}** is bundled with **Community Connector Library**, a library which consists of a list of *connectors*  that describe how to discover resource components (such as hardware, service and application components) and detect failures in a given system, with a specific instrumentation stack.
+**MetricsHub** is bundled with **Community Connector Library**, a library which consists of a list of *connectors*  that describe how to discover resource components (such as hardware, service and application components) and detect failures in a given system, with a specific instrumentation stack.
 
 Examples of connectors:
 
@@ -267,7 +267,7 @@ $ metricshub SERVER01 -t oob --snmp v2c --community public --connectors +MIB2,#h
   The core engine will perform automatic detection on connectors categorized under `hardware`, excluding the `MIB2` connector.
 
 
-To get the list of connectors bundled in **${solutionName}** and their corresponding internal name (**id**), you can run the below command:
+To get the list of connectors bundled in **MetricsHub** and their corresponding internal name (**id**), you can run the below command:
 
 ```batch
 $ metricshub --list

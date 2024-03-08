@@ -1,11 +1,11 @@
 keywords: install, upgrade, firewalls
-description: How to install ${solutionName} on Linux, Windows, and Docker.
+description: How to install MetricsHub on Linux, Windows, and Docker.
 
 # Installation
 
 <!-- MACRO{toc|fromDepth=1|toDepth=1|id=toc} -->
 
-You can install **${solutionName}** on the operating system of your choice as they are equally supported.
+You can install **MetricsHub** on the operating system of your choice as they are equally supported.
 
 ## On Linux
 
@@ -33,14 +33,14 @@ To assist with the setup process, the configuration example `./lib/config/metric
 
 ### Start
 
-To start **${solutionName}** in an interactive terminal with the default configuration file `./lib/config/metricshub.yaml`, run the command below:
+To start **MetricsHub** in an interactive terminal with the default configuration file `./lib/config/metricshub.yaml`, run the command below:
 
 ```shell-session
 / $ cd /opt/metricshub/bin
 /opt/metricshub/bin $ ./service
 ```
 
-To start **${solutionName}** with an alternate configuration file, run the command below:
+To start **MetricsHub** with an alternate configuration file, run the command below:
 
 ```shell-session
 / $ cd /opt/metricshub/bin
@@ -54,7 +54,7 @@ Example:
 /opt/metricshub/bin $ ./service --config config/my-metricshub.yaml
 ```
 
-To start **${solutionName}** as a **Linux service**, follow the steps below:  
+To start **MetricsHub** as a **Linux service**, follow the steps below:
 
 * **Create a systemd service file**
 
@@ -137,7 +137,7 @@ where `<metricshub-service>` should be replaced with the actual service name. Fo
 ### Uninstall
 
 1. Stop the **MetricsHub Service**.
-2. Navigate to the directory where **${solutionName}** is located (e.g., `/opt`) and remove the entire `metricshub` directory.
+2. Navigate to the directory where **MetricsHub** is located (e.g., `/opt`) and remove the entire `metricshub` directory.
 
   ```shell-session
   / $ cd /opt
@@ -182,9 +182,9 @@ c:\Program Files\MetricsHub> MetricsHubServiceManager
 
 > Note: Run `CMD.EXE` or `Windows Terminal` with elevated privileges (**Run As Administrator**).
 
-This will start **${solutionName}** with the default configuration file `C:\ProgramData\MetricsHub\config\metricshub.yaml`.
+This will start **MetricsHub** with the default configuration file `C:\ProgramData\MetricsHub\config\metricshub.yaml`.
 
-Run the command below to start **${solutionName}** with an alternate configuration file:
+Run the command below to start **MetricsHub** with an alternate configuration file:
 
 ```shell-session
 c:\> cd "c:\Program Files\MetricsHub"
@@ -198,7 +198,7 @@ c:\> cd "c:\Program Files\MetricsHub"
 c:\Program Files\MetricsHub> MetricsHubServiceManager --config C:\ProgramData\MetricsHub\config\my-metricshub.yaml
 ```
 
-To start **${solutionName}** as a **Windows service**, run the following commands under the installation folder (assuming the product has been installed in `C:\Program Files`):
+To start **MetricsHub** as a **Windows service**, run the following commands under the installation folder (assuming the product has been installed in `C:\Program Files`):
 
 ```shell-session
 c:\> cd "c:\Program Files\MetricsHub"
@@ -236,7 +236,7 @@ To stop the **MetricsHub Service** started as a **Windows service**:
 ### Uninstall
 
 1. Stop the **MetricsHub Service**.
-2. Navigate to the folder where **${solutionName}** is installed (e.g., `C:\Program Files`) and delete the entire `MetricsHub` folder.
+2. Navigate to the folder where **MetricsHub** is installed (e.g., `C:\Program Files`) and delete the entire `MetricsHub` folder.
 
 If the **MetricsHub Service** was set up as a **Windows Service**, run the following command to remove it:
 
@@ -279,14 +279,14 @@ Run the following command to build the docker image:
 
 ### Start
 
-Run the following command to start **${solutionName}** with the default configuration file, `./lib/config/metricshub.yaml`:
+Run the following command to start **MetricsHub** with the default configuration file, `./lib/config/metricshub.yaml`:
 
 ```shell-session
 / $ cd /docker/metricshub
 /docker/metricshub $ sudo docker run --name=metricshub metricshub:latest
 ```
 
-You can start **${solutionName}** with an alternate configuration file with the following command:
+You can start **MetricsHub** with an alternate configuration file with the following command:
 
 ```shell-session
 / $ cd /docker/metricshub
@@ -295,7 +295,7 @@ You can start **${solutionName}** with an alternate configuration file with the 
 
 **Docker Compose Example**
 
-You can start **${solutionName}** with docker compose:
+You can start **MetricsHub** with docker compose:
 
 ```shell-session
 /docker/metricshub $ sudo docker compose up -d --build
@@ -320,7 +320,7 @@ services:
 
 ### Stop
 
-To stop **${solutionName}** started as a docker container, run the following command:
+To stop **MetricsHub** started as a docker container, run the following command:
 
 ```shell-session
 /docker/metricshub $ sudo docker stop metricshub
@@ -328,7 +328,7 @@ To stop **${solutionName}** started as a docker container, run the following com
 
 **Docker Compose**:
 
-If you are using docker compose from the `./metricshub` directory, run the following command to stop **${solutionName}**:
+If you are using docker compose from the `./metricshub` directory, run the following command to stop **MetricsHub**:
 
 ```shell-session
 /docker/metricshub $ sudo docker compose down
@@ -336,11 +336,11 @@ If you are using docker compose from the `./metricshub` directory, run the follo
 
 ### Uninstall
 
-To force-stop and remove the **${solutionName}** container, run the following commands:
+To force-stop and remove the **MetricsHub** container, run the following commands:
 
 ```shell-session
 /docker/metricshub $ sudo docker stop -f metricshub
 /docker/metricshub $ sudo docker rm -f metricshub
 ```
 
-Adjust the commands to meet your specific requirements for stopping and removing the Docker container running **${solutionName}**.
+Adjust the commands to meet your specific requirements for stopping and removing the Docker container running **MetricsHub**.

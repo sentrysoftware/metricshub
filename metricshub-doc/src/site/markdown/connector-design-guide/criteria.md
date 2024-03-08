@@ -85,7 +85,7 @@ connector:
     - type: http
       method: GET
       path: /api/DeviceService/Devices
-      header: ${file::http-header}
+      header: ${esc.d}{file::http-header}
       expectedResult: api
       errorMessage: Failed to get response from API
 ```

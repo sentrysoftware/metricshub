@@ -42,7 +42,7 @@ pre: # <object>
   <sourceKey>: # <source-object>
 
 monitors:
-  <monitorType>: # <object> 
+  <monitorType>: # <object>
     <job>: # <object>
       sources: # <object>
         <sourceKey>: # <source-object>
@@ -62,7 +62,7 @@ pre: # <object>
   <sourceKey>: # <source-object>
 
 monitors:
-  <monitorType>: # <object> 
+  <monitorType>: # <object>
     <job>: # <object>
       sources: # <object>
         <sourceKey>: # <source-object>
@@ -84,7 +84,7 @@ pre: # <object>
   <sourceKey>: # <source-object>
 
 monitors:
-  <monitorType>: # <object> 
+  <monitorType>: # <object>
     <job>: # <object>
       sources: # <object>
         <sourceKey>: # <source-object>
@@ -96,7 +96,7 @@ monitors:
 
 ### <a id="and-example" />Example
 
-In this example, we will remove the high level bits of the column 1 of our source using a bitwise `and` with the value 1023. 
+In this example, we will remove the high level bits of the column 1 of our source using a bitwise `and` with the value 1023.
 
 ```yaml
           - type: and
@@ -117,7 +117,7 @@ pre: # <object>
   <sourceKey>: # <source-object>
 
 monitors:
-  <monitorType>: # <object> 
+  <monitorType>: # <object>
     <job>: # <object>
       sources: # <object>
         <sourceKey>: # <source-object>
@@ -136,7 +136,7 @@ In this example, we will use the `ArrayTranslate` compute to tranlate an operati
 ```yaml
           - type: arrayTranslate
             column: 2
-            translationTable: "${translation::OperationStatusTranslationTable}"
+            translationTable: "${esc.d}{translation::OperationStatusTranslationTable}"
 ```
 
 Here is the translation table we will use in our case.
@@ -168,7 +168,7 @@ Here is the translation table we will use in our case.
 
 The `Awk` compute allows to process the table through an awk script.<br />
 The script to execute can be put in an external embedded file for more readability and be called in the script value.<br />
-Eg: ```yaml script: ${file::embeddedFile-1}``` for an embedded file named embeddedFile-1 placed in the connector directory of your connector.<br />
+Eg: ```yaml script: ${esc.d}{file::embeddedFile-1}``` for an embedded file named embeddedFile-1 placed in the connector directory of your connector.<br />
 `keep` and `exclude` can be used to trim your result values with regular expressions.<br />
 `separators` and `selectColumns` can be used to separate your result value into multiple columns and keep only those of your choice.
 
@@ -179,7 +179,7 @@ pre: # <object>
   <sourceKey>: # <source-object>
 
 monitors:
-  <monitorType>: # <object> 
+  <monitorType>: # <object>
     <job>: # <object>
       sources: # <object>
         <sourceKey>: # <source-object>
@@ -199,7 +199,7 @@ Each line that results from the execution of this script will then be filtered u
 
 ```yaml
           - type: awk
-            script: "${file::embeddedFile-1}"
+            script: "${esc.d}{file::embeddedFile-1}"
             keep: ^MSHW;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8,9,10,11,12"
@@ -216,7 +216,7 @@ pre: # <object>
   <sourceKey>: # <source-object>
 
 monitors:
-  <monitorType>: # <object> 
+  <monitorType>: # <object>
     <job>: # <object>
       sources: # <object>
         <sourceKey>: # <source-object>
@@ -238,7 +238,7 @@ pre: # <object>
   <sourceKey>: # <source-object>
 
 monitors:
-  <monitorType>: # <object> 
+  <monitorType>: # <object>
     <job>: # <object>
       sources: # <object>
         <sourceKey>: # <source-object>
@@ -250,7 +250,7 @@ monitors:
 
 ## DuplicateColumn
 
-The `DuplicateColumn` compute allows to duplicate a column. The added column will be set next to the duplicated column and move all 
+The `DuplicateColumn` compute allows to duplicate a column. The added column will be set next to the duplicated column and move all
 
 ```yaml
 connector:
@@ -259,7 +259,7 @@ pre: # <object>
   <sourceKey>: # <source-object>
 
 monitors:
-  <monitorType>: # <object> 
+  <monitorType>: # <object>
     <job>: # <object>
       sources: # <object>
         <sourceKey>: # <source-object>
@@ -279,7 +279,7 @@ pre: # <object>
   <sourceKey>: # <source-object>
 
 monitors:
-  <monitorType>: # <object> 
+  <monitorType>: # <object>
     <job>: # <object>
       sources: # <object>
         <sourceKey>: # <source-object>
@@ -302,7 +302,7 @@ pre: # <object>
   <sourceKey>: # <source-object>
 
 monitors:
-  <monitorType>: # <object> 
+  <monitorType>: # <object>
     <job>: # <object>
       sources: # <object>
         <sourceKey>: # <source-object>
@@ -310,7 +310,7 @@ monitors:
           - type: extract
             column: # <number>
             subColumn: # <number>
-            subSeparators: # <string> 
+            subSeparators: # <string>
 ```
 
 ### <a id="extract-example" />Example
@@ -347,7 +347,7 @@ pre: # <object>
   <sourceKey>: # <source-object>
 
 monitors:
-  <monitorType>: # <object> 
+  <monitorType>: # <object>
     <job>: # <object>
       sources: # <object>
         <sourceKey>: # <source-object>
@@ -370,7 +370,7 @@ pre: # <object>
   <sourceKey>: # <source-object>
 
 monitors:
-  <monitorType>: # <object> 
+  <monitorType>: # <object>
     <job>: # <object>
       sources: # <object>
         <sourceKey>: # <source-object>
@@ -392,7 +392,7 @@ pre: # <object>
   <sourceKey>: # <source-object>
 
 monitors:
-  <monitorType>: # <object> 
+  <monitorType>: # <object>
     <job>: # <object>
       sources: # <object>
         <sourceKey>: # <source-object>
@@ -412,7 +412,7 @@ pre: # <object>
   <sourceKey>: # <source-object>
 
 monitors:
-  <monitorType>: # <object> 
+  <monitorType>: # <object>
     <job>: # <object>
       sources: # <object>
         <sourceKey>: # <source-object>
@@ -436,7 +436,7 @@ pre: # <object>
   <sourceKey>: # <source-object>
 
 monitors:
-  <monitorType>: # <object> 
+  <monitorType>: # <object>
     <job>: # <object>
       sources: # <object>
         <sourceKey>: # <source-object>
@@ -458,7 +458,7 @@ pre: # <object>
   <sourceKey>: # <source-object>
 
 monitors:
-  <monitorType>: # <object> 
+  <monitorType>: # <object>
     <job>: # <object>
       sources: # <object>
         <sourceKey>: # <source-object>
@@ -480,7 +480,7 @@ pre: # <object>
   <sourceKey>: # <source-object>
 
 monitors:
-  <monitorType>: # <object> 
+  <monitorType>: # <object>
     <job>: # <object>
       sources: # <object>
         <sourceKey>: # <source-object>
@@ -500,7 +500,7 @@ Here is an example of a `PerBitTranslation` compute.
           - type: perBitTranslation
             column: 2
             bitList: "0,2,3,6,7,8,9,10,11,12,13,14"
-            translationTable: "${translation::StatusInformationTranslationTable}"
+            translationTable: "${esc.d}{translation::StatusInformationTranslationTable}"
 ```
 
 And here is the associated translation table:
@@ -534,7 +534,7 @@ pre: # <object>
   <sourceKey>: # <source-object>
 
 monitors:
-  <monitorType>: # <object> 
+  <monitorType>: # <object>
     <job>: # <object>
       sources: # <object>
         <sourceKey>: # <source-object>
@@ -558,7 +558,7 @@ pre: # <object>
   <sourceKey>: # <source-object>
 
 monitors:
-  <monitorType>: # <object> 
+  <monitorType>: # <object>
     <job>: # <object>
       sources: # <object>
         <sourceKey>: # <source-object>
@@ -580,7 +580,7 @@ pre: # <object>
   <sourceKey>: # <source-object>
 
 monitors:
-  <monitorType>: # <object> 
+  <monitorType>: # <object>
     <job>: # <object>
       sources: # <object>
         <sourceKey>: # <source-object>
@@ -601,7 +601,7 @@ pre: # <object>
   <sourceKey>: # <source-object>
 
 monitors:
-  <monitorType>: # <object> 
+  <monitorType>: # <object>
     <job>: # <object>
       sources: # <object>
         <sourceKey>: # <source-object>
@@ -623,7 +623,7 @@ pre: # <object>
   <sourceKey>: # <source-object>
 
 monitors:
-  <monitorType>: # <object> 
+  <monitorType>: # <object>
     <job>: # <object>
       sources: # <object>
         <sourceKey>: # <source-object>
@@ -644,7 +644,7 @@ pre: # <object>
   <sourceKey>: # <source-object>
 
 monitors:
-  <monitorType>: # <object> 
+  <monitorType>: # <object>
     <job>: # <object>
       sources: # <object>
         <sourceKey>: # <source-object>
@@ -653,4 +653,3 @@ monitors:
             recordTag: # <string>
             properties:  # <string> | comma separated values
 ```
- 

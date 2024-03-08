@@ -5,7 +5,7 @@ description: Security mechanisms to encrypt passwords and secure the configurati
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-**${solutionName}** provides a set of security mechanisms to secure:
+**MetricsHub** provides a set of security mechanisms to secure:
 
 * The **MetricsHub Agent**'s passwords stored in the `config/metricshub.yaml` file
 * The communications instantiated between the **MetricsHub Agent** and the **OpenTelemetry Collector**.
@@ -29,7 +29,7 @@ To prevent malicious attacks, the `gRPC` listener is by default only opened on `
 
 ### Transport security
 
-**${solutionName}** secures the communications instantiated from the **MetricsHub Agent**'s internal `OTLP Exporter` to the **OpenTelemetry Collector**'s internal `OTLP gRPC Receiver` through TLS.
+**MetricsHub** secures the communications instantiated from the **MetricsHub Agent**'s internal `OTLP Exporter` to the **OpenTelemetry Collector**'s internal `OTLP gRPC Receiver` through TLS.
 
 The `OTLP gRPC Receiver` is configured as follows in the `otel/otel-config.yaml` file:
 

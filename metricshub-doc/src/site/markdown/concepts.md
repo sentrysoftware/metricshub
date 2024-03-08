@@ -33,4 +33,4 @@ Resource group helps organize and manage assets in a structured manner.
 
 ## Resource
 
-Generic term to cover anything monitored by **${solutionName}**. A resource can be a host, a service, an application, etc.
+Generic term to cover anything monitored by **MetricsHub**. A resource can be a host, a service, an application, etc.
