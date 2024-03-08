@@ -10,7 +10,7 @@ description: How to configure the MetricsHub Agent to collect metrics from a var
 To ensure this process runs smoothly, you need to configure a few settings in the `config/metricshub.yaml`, which is stored under:
 
 > * `C:\ProgramData\MetricsHub\config` on Windows systems
-> * located at `./metricshub/lib/config` on Linux systems.
+> * `./metricshub/lib/config` on Linux systems.
 
 > **Important**: We recommend using an editor supporting the [Schemastore](https://www.schemastore.org/json#editors) to edit **${solutionName}**'s configuration YAML files (Example: [Visual Studio Code](https://code.visualstudio.com/download) and [vscode.dev](https://vscode.dev), with [RedHat's YAML extension](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml)).
 
@@ -48,33 +48,33 @@ If you have:
 
     ```yaml
       resourceGroups:
-      boston:
-        resources:
-          myHost1:   
-            attributes:
-              host.name: my-host-01
-              host.type: storage
-            <protocol-configuration>
+        boston:
+          resources:
+            myBostonHost1:   
+              attributes:
+                host.name: my-boston-host-01
+                host.type: storage
+              <protocol-configuration>
 
-          myHost2:   
-            attributes:
-              host.name: my-host-02
-              host.type: storage
-            <protocol-configuration>
-      
-      chicago:
-        resources:
-          myHost1:   
-            attributes:
-              host.name: my-host-01
-              host.type: storage
-            <protocol-configuration>
+            myBostonHost2:   
+              attributes:
+                host.name: my-boston-host-02
+                host.type: storage
+              <protocol-configuration>
 
-          myHost2:   
-            attributes:
-              host.name: my-host-02
-              host.type: storage
-            <protocol-configuration>
+        chicago:
+          resources:
+            myChicagoHost1:   
+              attributes:
+                host.name: my-chicago-host-01
+                host.type: storage
+              <protocol-configuration>
+
+            myChicagoHost2:   
+              attributes:
+                host.name: my-chicago-host-02
+                host.type: storage
+              <protocol-configuration>
     ```
 
 * **a centralized infrastructure**, you can configure your resource directly under the `resources` section located at the top of the `config/metricshub.yaml` file. In that case, the `resourceGroups` attribute is not required:
@@ -411,7 +411,7 @@ otel:
 resourceGroups: #...
 ```
 
-where `<my host>` should be replaced with the hostname or IP address of the server where the OTLP receiver is installed.
+where `<my-host>` should be replaced with the hostname or IP address of the server where the OTLP receiver is installed.
 
 Use the below syntax if you wish to push metrics to the Prometheus OTLP Receiver:
 
@@ -425,7 +425,7 @@ otel:
 where `<prom-server-host>` should be replaced with the hostname or IP address of the server where *Prometheus* is running.
 
 > **Note:**
-> For specific configuration details, refer to the [OpenTelemetry Auto-Configure documentation](https://github.com/open-telemetry/opentelemetry-java/tree/main/sdk-extensions/autoconfigure). This resource provides information about the properties to be configured according depending on your deployment requirements.
+> For specific configuration details, refer to the [OpenTelemetry Auto-Configure documentation](https://github.com/open-telemetry/opentelemetry-java/tree/main/sdk-extensions/autoconfigure). This resource provides information about the properties to be configured depending on your deployment requirements.
 
 #### Trusted certificates file
 
