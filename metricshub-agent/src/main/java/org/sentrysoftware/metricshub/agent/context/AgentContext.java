@@ -1,5 +1,7 @@
 package org.sentrysoftware.metricshub.agent.context;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
  * MetricsHub Agent
@@ -42,6 +44,7 @@ import org.sentrysoftware.metricshub.agent.service.TaskSchedulingService;
 import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
+import org.sentrysoftware.metricshub.engine.connector.parser.EnvironmentProcessor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
@@ -103,8 +106,7 @@ public class AgentContext {
 		configFile = ConfigHelper.findConfigFile(alternateConfigFile);
 
 		// Read the agent configuration file (Default: metricshub.yaml)
-		agentConfig =
-			JsonHelper.deserialize(AGENT_CONFIG_OBJECT_MAPPER, new FileInputStream(configFile), AgentConfig.class);
+		agentConfig = loadConfiguration();
 
 		// Configure the global logger
 		ConfigHelper.configureGlobalLogger(agentConfig.getLoggerLevel(), agentConfig.getOutputDirectory());
@@ -146,6 +148,18 @@ public class AgentContext {
 		final Duration startupDuration = Duration.ofNanos(System.nanoTime() - startTime);
 
 		log.info("Started MetricsHub Agent in {} seconds.", startupDuration.toMillis() / 1000.0);
+	}
+	/**
+	 * Loads the agent configuration from the configuration file.
+	 *
+	 * @return	Agent config
+	 * @throws IOException
+	 */
+	private AgentConfig loadConfiguration() throws IOException {
+		JsonNode configNode = AGENT_CONFIG_OBJECT_MAPPER.readTree(new FileInputStream(configFile));
+		new EnvironmentProcessor().process(configNode);
+
+		return JsonHelper.deserialize(AGENT_CONFIG_OBJECT_MAPPER, configNode, AgentConfig.class);
 	}
 
 	/**
