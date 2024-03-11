@@ -81,6 +81,7 @@
 		<menu name="Getting Started">
 			<item name="Overview" href="index.html" />
 			<item name="Quick Start" href="start.html "/>
+			<item name="General Concepts" href="concepts.html "/>
 			<item name="Installation" href="install.html" />
 		</menu>
 
@@ -118,11 +119,6 @@
 			<item name="Translation Table" href="connector-design-guide/translation-tables.html" />
 			<item name="Connector Object References" href="connector-design-guide/connector-object-references.html" />
 		</menu>
-
-		<!--
-		<menu name="Use Cases">
-			<item name="Custom Monitoring" href="usecases/custom.html" />
-		</menu>-->
 
 		<menu name="Appendix">
 			<item name="Community Connectors Reference" href="metricshub-connector-reference.html" />
