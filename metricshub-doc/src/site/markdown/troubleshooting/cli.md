@@ -7,25 +7,7 @@ description: The MetricsHub CLI is the core MetricsHub's engine wrapped in a com
 
 ## Overview
 
-The `metricshub` CLI is the core MetricsHub's engine wrapped in a command line interface. System administrators can easily invoke this tool in a shell to discover and report problems related to the specified resources, including hardware, systems, applications, services, etc.
-
-Discovered components include:
-
-* Enclosure (manufacturer, model, serial number)
-* Processors
-* Memory modules
-* GPUs
-* Disks (HDD, SDD, RAID)
-* Network and Fiber Channel Adapters
-* Sensors (temperature, voltage, fans, power, LEDs)
-
-Supported systems include:
-
-* Servers (Linux, AIX, HP-UX, Solaris, Windows, in-band and out-of-band)
-* Blade chassis
-* Network switches
-* SAN switches
-* Storage systems (disk arrays, filers, tape libraries)
+The `metricshub` CLI is the core **MetricsHub**'s engine wrapped in a command line interface. System administrators can easily invoke this tool in a shell to discover and report problems related to the specified resources, including hardware, systems, applications, services, etc.
 
 The detailed list of systems supported by the **MetricsHub** community (manufacturer and product family and the required instrumentation stack) is listed in [Community Connectors Library](../platform-requirements.html).
 
@@ -38,17 +20,17 @@ Only a few options are required to run the `metricshub` command:
 * Hostname or IP address of the device to be monitored
 * Device type
 * Protocols to be used:
-    * HTTP
-    * IPMI-over-LAN
-    * SSH
-    * SNMP
-    * WBEM
-    * WMI (on Windows only)
+  * HTTP
+  * IPMI-over-LAN
+  * SSH
+  * SNMP
+  * WBEM
+  * WMI (on Windows only)
 * Credentials
 
 ![Usage of MetricsHub](../images/metricshub-usage.png)
 
-The `metricshub` command can be used to troubleshoot the monitoring performed by the **MetricsHub Agent** (the core engine) or by other *Sentry Software* products such as the KM for PATROL.
+The `metricshub` command can be used to troubleshoot the monitoring performed by the **MetricsHub Agent** (the core engine).
 
 ## The Basics
 
@@ -204,7 +186,7 @@ You can however specify manually which connectors must be used to monitor the sp
 
 The connectors are automatically selected based on the device type provided and the enabled protocols. However, you have the flexibility to specify which connectors should be utilized or omitted.
 
-The `--connectors` CLI option allows you to enforce, select, or exclude specific connectors. Connector identifiers or category tags should be separated by commas, as illustrated in the example below:
+The `--connectors` CLI option allows you to force, select, or exclude specific connectors. Connector identifiers or category tags should be separated by commas, as illustrated in the example below:
 
 ```batch
 $ metricshub SERVER01 -t oob --snmp v2c --community public --connectors +MIB2,#hardware,-Windows
@@ -240,7 +222,7 @@ $ metricshub SERVER01 -t oob --snmp v2c --community public --connectors +MIB2,#h
   ```batch
   $ metricshub SERVER01 -t win --snmp v2c --community public --wmi --connectors +DiskPart,MIB2,#system
   ```
-  The core engine will enforce the execution of the `DiskPart` connector and then proceed with the automatic detection of `MIB2` and all connectors under the `system` category.
+  The core engine will force the execution of the `DiskPart` connector and then proceed with the automatic detection of `MIB2` and all connectors under the `system` category.
 
 - Example 5:
   ```batch
@@ -252,7 +234,7 @@ $ metricshub SERVER01 -t oob --snmp v2c --community public --connectors +MIB2,#h
   ```batch
   $ metricshub SERVER01 -t win --snmp v2c --community public --connectors +Windows,MIB2
   ```
-  The core engine will enforce the execution of the `Windows` connector and subsequently perform automatic detection on the `MIB2` connector.
+  The core engine will force the execution of the `Windows` connector and subsequently perform automatic detection on the `MIB2` connector.
 
 - Example 7:
   ```batch
