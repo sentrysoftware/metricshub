@@ -200,7 +200,9 @@ class AgentContextTest {
 
 	@Test
 	void testInitializeWithEnvironmentVariables() throws IOException {
-		final AgentContext agentContext = new AgentContext("src/test/resources/config/metricshub-environmentVariables.yaml");
+		final AgentContext agentContext = new AgentContext(
+			"src/test/resources/config/metricshub-environmentVariables.yaml"
+		);
 
 		assertNotEquals("${env::JAVA_HOME}", agentContext.getAgentConfig().getOutputDirectory());
 	}

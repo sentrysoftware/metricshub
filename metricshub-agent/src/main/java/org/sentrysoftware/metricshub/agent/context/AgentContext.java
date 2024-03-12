@@ -1,7 +1,6 @@
 package org.sentrysoftware.metricshub.agent.context;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
  * MetricsHub Agent
@@ -149,6 +148,7 @@ public class AgentContext {
 
 		log.info("Started MetricsHub Agent in {} seconds.", startupDuration.toMillis() / 1000.0);
 	}
+
 	/**
 	 * Loads the agent configuration from the configuration file.
 	 *

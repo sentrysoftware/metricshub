@@ -27,7 +27,6 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -52,6 +51,12 @@ public class EnvironmentProcessor extends AbstractNodeProcessor {
 		super(null);
 	}
 
+	/**
+	 * Processes a JsonNode by replacing placeholder values with corresponding environment variables.
+	 *
+	 * @param node The JsonNode to be processed.
+	 * @return The processed JsonNode with placeholders replaced by environment variables.
+	 */
 	@Override
 	protected JsonNode processNode(JsonNode node) {
 		final UnaryOperator<String> updater = this::performEnvReplacements;
