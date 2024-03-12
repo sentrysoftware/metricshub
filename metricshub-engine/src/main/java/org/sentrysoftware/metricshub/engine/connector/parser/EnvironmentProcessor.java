@@ -27,8 +27,11 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 /**
  * Processor for replacing placeholder values in a JsonNode using environment variables.
@@ -73,20 +76,18 @@ public class EnvironmentProcessor extends AbstractNodeProcessor {
 	 * @return A new {@link String} with the placeholders replaced.
 	 */
 	private String performEnvReplacements(String value) {
-		if (value == null || value.isEmpty()) {
-			return value;
+		if (value == null || value.isEmpty() || "null".equals(value)) {
+			return null;
 		}
 
 		return ENV_PATTERN
-		.matcher(value)
-		.replaceAll(match -> {
-			final String variableValue = System.getenv(match.group(1));
-
-			if (variableValue != null) {
-				return Matcher.quoteReplacement(variableValue);
-			}
-
-			return Matcher.quoteReplacement(match.group());
-		});
+			.matcher(value)
+			.replaceAll(match -> {
+				final String variableValue = System.getenv(match.group(1));
+				if (variableValue != null) {
+					return Matcher.quoteReplacement(variableValue);
+				}
+				return Matcher.quoteReplacement(match.group());
+			});
 	}
 }
