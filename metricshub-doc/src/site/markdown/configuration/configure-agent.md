@@ -90,8 +90,6 @@ If you have:
     # resourceGroups: #
     ```
 
-    **Example**
-
 If your resources have:
 
 * **unique characteristics**, use the syntax below for each resource:
@@ -105,7 +103,7 @@ If your resources have:
       <protocol-configuration>
     ```
 
-* share the **same characteristics** (device kind, protocols, credentials, etc.), use the syntax below:
+* share the **same characteristics** (device type, protocols, credentials, etc.), use the syntax below:
 
   ```yaml
   resourceGroups:
@@ -640,7 +638,7 @@ For more information about the `metricshub` command, refer to [MetricsHub CLI (m
 
 Add labels in the `attributes` section to override the data collected by the **MetricsHub Agent** or add additional attributes to the [Host Resource](https://opentelemetry.io/docs/specs/semconv/resource/host/). These attributes are added to each metric of that *Resource* when exported to time series platforms like Prometheus.
 
-In the example below, we add a new `app` attribute and indicate that it is the `Jenkins` app:
+In the example below, we added a new `app` attribute and indicated that this is the `Jenkins` app:
 
 ```yaml
 resourceGroups:

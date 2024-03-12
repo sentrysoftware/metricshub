@@ -81,19 +81,16 @@
 		<menu name="Getting Started">
 			<item name="Overview" href="index.html" />
 			<item name="Quick Start" href="start.html "/>
+			<item name="General Concepts" href="concepts.html "/>
 			<item name="Installation" href="install.html" />
 		</menu>
 
 		<menu name="Configuration">
 			<item name="MetricsHub Agent" href="configuration/configure-agent.html" />
-			<item name="Security" href="security/security.html">
-				<item name="Password Encryption" href="security/passwords.html" />
-				<item name="Security Settings" href="security/settings.html" />
-			</item>
+			<item name="Password Encryption" href="security/passwords.html" />
 		</menu>
 
 		<menu name="Troubleshooting">
-			<item name="Health Check" href="troubleshooting/status.html" />
 			<item name="Debugging" href="troubleshooting/debug.html" />
 			<item name="MetricsHub CLI (&lt;code&gt;metricshub&lt;/code&gt;)" href="troubleshooting/cli.html" />
 		</menu>
@@ -118,11 +115,6 @@
 			<item name="Translation Table" href="connector-design-guide/translation-tables.html" />
 			<item name="Connector Object References" href="connector-design-guide/connector-object-references.html" />
 		</menu>
-
-		<!--
-		<menu name="Use Cases">
-			<item name="Custom Monitoring" href="usecases/custom.html" />
-		</menu>-->
 
 		<menu name="Appendix">
 			<item name="Community Connectors Reference" href="metricshub-connector-reference.html" />
