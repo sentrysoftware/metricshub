@@ -16,11 +16,13 @@ Enter the password to encrypt: <type the password>
 GkwzG6bx8cUhoeQW+/1ERI+2LOyB
 ```
 
+and provide the password to encrypt.
+
 > User must have Administrator privileges.
 
 ## Using Encrypted Passwords
 
-Once a password has been encrypted, it can be used in a `metricshub.yaml` configuration file instead of a readable password:
+You can paste the encrypted password in your `metricshub.yaml` configuration file:
 
 ```yaml
 resourceGroups:
