@@ -94,7 +94,7 @@ public class JsonNodeUpdater extends AbstractJsonNodeUpdater {
 				// Means it wrap sub JsonNode(s)
 				if (child.isContainerNode()) {
 					update(child);
-				} else {
+				} else if (!child.isNull()) {
 					// Perform the replacement
 					final String oldValue = child.asText();
 					// Transformation of the value is unnecessary if it lacks the placeholder
@@ -109,7 +109,7 @@ public class JsonNodeUpdater extends AbstractJsonNodeUpdater {
 				// Means this node is a JsonNode element
 				if (child.isContainerNode()) {
 					update(child);
-				} else {
+				} else if (!child.isNull()) {
 					// Means this is a simple array node
 					final String oldValue = child.asText();
 					// Transformation of the value is unnecessary if it lacks the placeholder

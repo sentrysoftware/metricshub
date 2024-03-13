@@ -1,6 +1,7 @@
 package org.sentrysoftware.metricshub.agent.context;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.sentrysoftware.metricshub.agent.helper.ConfigHelper.TOP_LEVEL_VIRTUAL_RESOURCE_GROUP_KEY;
@@ -195,5 +196,14 @@ class AgentContextTest {
 		assertEquals(Map.of("PureStorageREST", expectedConnectorVariables), variables);
 		// Case insensitive check
 		assertEquals(expectedConnectorVariables, variables.get("purestoragerest"));
+	}
+
+	@Test
+	void testInitializeWithEnvironmentVariables() throws IOException {
+		final AgentContext agentContext = new AgentContext(
+			"src/test/resources/config/metricshub-environmentVariables.yaml"
+		);
+
+		assertNotEquals("${env::JAVA_HOME}", agentContext.getAgentConfig().getOutputDirectory());
 	}
 }
