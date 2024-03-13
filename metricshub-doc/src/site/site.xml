@@ -4,7 +4,7 @@
 	<skin>
 		<groupId>org.sentrysoftware.maven</groupId>
 		<artifactId>sentry-maven-skin</artifactId>
-		<version>6.3.03</version>
+		<version>6.4.00</version>
 	</skin>
 
 	<bannerLeft>
@@ -75,7 +75,7 @@
 		</links>
 
 		<breadcrumbs>
-			<item name="MetricsHub&copy;" href="https://metricshub.com" />
+			<item name="MetricsHub&lt;sup&gt;&reg;&lt;/sup&gt;" href="https://metricshub.com" />
 		</breadcrumbs>
 
 		<menu name="Getting Started">

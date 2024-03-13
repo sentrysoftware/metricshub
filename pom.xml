@@ -14,7 +14,7 @@
 
 	<description>Universal Metrics Collection for OpenTelemetry</description>
 
-	<url>https://sentrysoftware.org/metricshub</url>
+	<url>https://metricshub.com</url>
 	<inceptionYear>2023</inceptionYear>
 
 	<distributionManagement>
@@ -30,12 +30,12 @@
 
 	<scm>
 		<connection>scm:git:https://github.com/sentrysoftware/metricshub.git</connection>
-		<url>https://maven.pkg.github.com/sentrysoftware/metricshub</url>
+		<url>https://github.com/sentrysoftware/metricshub</url>
 	</scm>
 
 	<organization>
 		<name>Sentry Software</name>
-		<url>https://metricshub.com</url>
+		<url>https://sentrysoftware.com</url>
 	</organization>
 
 	<licenses>

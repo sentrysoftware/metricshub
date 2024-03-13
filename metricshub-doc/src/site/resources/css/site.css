@@ -53,24 +53,31 @@
 	font-display: swap;
 }
 
- /* MetricsHub colors */
-body.metricshub {
-	--banner-bgcolor: #266fd0;
-	--link-color: #d50c37;
-	--alternate-color: #449b4d;
-	--title-heavy-font: "Poppins", sans-serif;
+/* MetricsHub fonts */
+:root {
 	--title-font: "Poppins", sans-serif;
+	--heading-font: "Poppins", sans-serif;
 	--content-font: "Poppins", sans-serif;
+
+	--content-font-size: medium;
+	--banner-font-size: 40px;
+	--banner-font-weight: 800;
+
 }
 
-body.metricshub.dark {
-	--link-color: #ff6989;
+ /* MetricsHub colors */
+body {
+	--main-fgcolor: #212529;
+	--banner-bgcolor: #266fd0;
+	--link-color: #266fd0;
+	--alternate-bgcolor: #266fd0;
+	--alternate-fgcolor: #fff;
 }
 
-/* Special hack to highlight in green the selected entry in left menu */
-body.metricshub nav.left-menu ul>li.active>a,
-body.metricshub nav.left-menu ul>li.active>a:hover {
-	background-color: var(--alternate-color);
+body.dark {
+	--link-color: #7cb6ff;
+	--main-bgcolor: #262626;
+	--main-fgcolor: #e9ecef;
 }
 
 /* Special PrismJS colors for <code> element containing JSON */
