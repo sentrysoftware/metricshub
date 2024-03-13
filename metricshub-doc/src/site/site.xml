@@ -4,7 +4,7 @@
 	<skin>
 		<groupId>org.sentrysoftware.maven</groupId>
 		<artifactId>sentry-maven-skin</artifactId>
-		<version>6.3.03</version>
+		<version>6.4.00</version>
 	</skin>
 
 	<bannerLeft>
@@ -75,7 +75,7 @@
 		</links>
 
 		<breadcrumbs>
-			<item name="MetricsHub&copy;" href="https://metricshub.com" />
+			<item name="MetricsHub&lt;sup&gt;&reg;&lt;/sup&gt;" href="https://metricshub.com" />
 		</breadcrumbs>
 
 		<menu name="Getting Started">
@@ -96,24 +96,24 @@
 		</menu>
 
 		<menu name="Connector Design Guide">
-			<item name="Overview" href="connector-design-guide/overview.html" />
-			<item name="Connector General Form" href="connector-design-guide/general-form.html" />
-			<item name="Connector" href="connector-design-guide/connector.html">
-				<item name="Detection" href="connector-design-guide/detection.html" />
-				<item name="Criteria" href="connector-design-guide/criteria.html" />
+			<item name="Overview" href="develop/overview.html" />
+			<item name="Connector General Form" href="develop/general-form.html" />
+			<item name="Connector" href="develop/connector.html">
+				<item name="Detection" href="develop/detection.html" />
+				<item name="Criteria" href="develop/criteria.html" />
 			</item>
-			<item name="Sudo Commands" href="connector-design-guide/sudo-commands.html" />
-			<item name="Extends" href="connector-design-guide/extends.html" />
-			<item name="Monitors" href="connector-design-guide/monitors.html">
-				<item name="Sources" href="connector-design-guide/sources.html" />
-				<item name="Computes" href="connector-design-guide/computes.html" />
-				<item name="Mapping" href="connector-design-guide/mapping.html" />
+			<item name="Sudo Commands" href="develop/sudo-commands.html" />
+			<item name="Extends" href="develop/extends.html" />
+			<item name="Monitors" href="develop/monitors.html">
+				<item name="Sources" href="develop/sources.html" />
+				<item name="Computes" href="develop/computes.html" />
+				<item name="Mapping" href="develop/mapping.html" />
 			</item>
-			<item name="Metrics" href="connector-design-guide/metrics.html" />
-			<item name="Constants" href="connector-design-guide/constants.html" />
-			<item name="PreSources" href="connector-design-guide/presources.html" />
-			<item name="Translation Table" href="connector-design-guide/translation-tables.html" />
-			<item name="Connector Object References" href="connector-design-guide/connector-object-references.html" />
+			<item name="Metrics" href="develop/metrics.html" />
+			<item name="Constants" href="develop/constants.html" />
+			<item name="PreSources" href="develop/presources.html" />
+			<item name="Translation Table" href="develop/translation-tables.html" />
+			<item name="Connector Object References" href="develop/connector-object-references.html" />
 		</menu>
 
 		<menu name="Appendix">
