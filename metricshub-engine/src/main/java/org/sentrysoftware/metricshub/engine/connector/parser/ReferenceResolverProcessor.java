@@ -61,6 +61,10 @@ public class ReferenceResolverProcessor extends AbstractNodeProcessor {
 	 * @return A string representing the updated value
 	 */
 	private String updateSourceReferences(String valueToUpdate, final String context) {
+		if (valueToUpdate == null || valueToUpdate.isEmpty() || context == null || context.isEmpty()) {
+			return valueToUpdate;
+		}
+
 		final var parts = context.split("\\.");
 
 		valueToUpdate =

@@ -79,8 +79,8 @@ public class EnvironmentProcessor extends AbstractNodeProcessor {
 	 * @return A new {@link String} with the placeholders replaced.
 	 */
 	private String performEnvReplacements(String value) {
-		if (value == null || value.isEmpty() || "null".equals(value)) {
-			return null;
+		if (value == null || value.isEmpty()) {
+			return value;
 		}
 
 		return ENV_PATTERN

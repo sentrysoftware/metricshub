@@ -149,10 +149,12 @@ public class AgentContext {
 	}
 
 	/**
-	 * Loads the agent configuration from the configuration file.
+	 * Loads the agent configuration from a YAML configuration file into an {@link AgentConfig} instance.
 	 *
-	 * @return	Agent config
-	 * @throws IOException
+	 * @return {@link AgentConfig} instance.
+	 * @throws IOException If an I/O error occurs during the initial reading of the YAML file, during
+	 *         the processing phase with {@link EnvironmentProcessor} or at the final deserialization
+	 *		   into an {@link AgentConfig}.
 	 */
 	private AgentConfig loadConfiguration() throws IOException {
 		JsonNode configNode = AGENT_CONFIG_OBJECT_MAPPER.readTree(new FileInputStream(configFile));
