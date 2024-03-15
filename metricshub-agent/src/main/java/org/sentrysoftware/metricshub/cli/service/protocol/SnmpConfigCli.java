@@ -44,7 +44,7 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 		order = 1,
 		defaultValue = "1",
 		paramLabel = "VERSION",
-		description = "Enables SNMP protocol version: 1, 2, 3-md5, 3-sha or 3-noauth",
+		description = "Enables SNMP protocol version: 1 or 2",
 		converter = SnmpVersionConverter.class
 	)
 	SnmpConfiguration.SnmpVersion snmpVersion;
