@@ -3,17 +3,19 @@ description: This page shows how to reference connector objects such as sources,
 
 # Connector Object References
 
+<div class="alert alert-warning"><span class="fa-solid fa-person-digging"></span> Documentation under construction...</div>
+
 <!-- MACRO{toc|fromDepth=1|toDepth=1|id=toc} -->
 
 This page shows how to reference connector objects such as sources, entries, columns and files, etc. inside the YAML document.
 
 ## Source Reference
 
-### <a id="source-format" />Format
+### Format
 
 A Source can be referenced either with its full path or its relative path. A relative path can be used only if the referenced source is in the same monitor and same job as the current source.
 
-### <a id="source-example" />Example
+### Example
 
 ```yaml
       mapping:
@@ -31,13 +33,13 @@ A Source can be referenced either with its full path or its relative path. A rel
 
 ## Entry Reference
 
-### <a id="entry-format" />Format
+### Format
 
 ```yaml
 $<columnNumber>
 ```
 
-### <a id="entry-example" />Example
+### Example
 
 ```yaml
         source(3):
@@ -51,13 +53,13 @@ $<columnNumber>
 
 ## Column Reference
 
-### <a id="column-format" />Format
+### Format
 
 ```yaml
 $<columnNumber>
 ```
 
-### <a id="column-example" />Example
+### Example
 
 ```yaml
       mapping:
@@ -74,13 +76,13 @@ $<columnNumber>
 
 ## File Reference
 
-### <a id="file-format" />Format
+### Format
 
 ```yaml
 ${esc.d}{file::<relativeFilePath>}
 ```
 
-### <a id="file-example" />Example
+### Example
 
 ```yaml
    criteria:
@@ -92,13 +94,13 @@ ${esc.d}{file::<relativeFilePath>}
 
 ## Mono-Instance Reference
 
-### <a id="mono-instance-format" />Format
+### Format
 
 ```yaml
 ${esc.d}{attribute::<attribute-key>}
 ```
 
-### <a id="mono-instance-example" />Example
+### Example
 
 ```yaml
  collect:
@@ -115,13 +117,13 @@ ${esc.d}{attribute::<attribute-key>}
 
 ## Translation Table Reference
 
-### <a id="translation-table-format" />Format
+### Format
 
 ```yaml
 ${esc.d}{translation::<translationTable>}
 ```
 
-### <a id="translation-table-example" />Example
+### Example
 
 ```yaml
     collect:
@@ -144,13 +146,13 @@ ${esc.d}{translation::<translationTable>}
 
 ## Awk Script Reference
 
-### <a id="awk-script-format" />Format
+### Format
 
 ```yaml
 ${esc.d}{awk::<script>}
 ```
 
-### <a id="awk-script-example" />Example
+### Example
 
 ```yaml
     monitors:

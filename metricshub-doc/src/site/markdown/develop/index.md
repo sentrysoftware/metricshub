@@ -1,7 +1,9 @@
 keywords: develop, connector, yaml, syntax, community, custom
 description: Master connector creation for MetricsHub. Dive into monitoring, from basic to advanced concepts. Perfect for MetricsHub enthusiasts and community contributors.
 
-# Connector Design Guide Overview
+# Connector Design Guide
+
+<div class="alert alert-warning"><span class="fa-solid fa-person-digging"></span> Documentation under construction...</div>
 
 <!-- MACRO{toc|fromDepth=1|toDepth=1|id=toc} -->
 

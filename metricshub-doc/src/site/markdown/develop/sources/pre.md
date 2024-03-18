@@ -1,7 +1,7 @@
 keywords: develop, connector, pre, presources
 description:This page define sources that need to be executed before each monitoring job (discovery, multiCollect, …).
 
-# Pre Sources
+# *Pre* Sources
 
 This page outlines the sources that must be run prior to each monitoring job (such as discovery, collect, simple etc.). These preliminary sources can be referenced in other sources within a monitoring job.
 

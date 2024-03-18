@@ -1,11 +1,32 @@
-keywords: develop, connector, translation, table, map
+keywords: translate, map, table, status
 description: This page describes how to define translation tables in a connector file.
 
-# Translation Tables
+# Translate
+
+The `Translate` compute allows to translate values from specified column following a specified translation table.
+
+```yaml
+connector:
+  # ...
+pre: # <object>
+  <sourceKey>: # <source-object>
+
+monitors:
+  <monitorType>: # <object>
+    <job>: # <object>
+      sources: # <object>
+        <sourceKey>: # <source-object>
+          computes: # <compute-object-array>
+          - type: translate
+            column: # <number>
+            translationTable:  # <string>
+```
+
+## Translation Tables
 
 This page describes how to define translation tables in a connector file.
 
-## Format
+### Format
 
 ```yaml
 connector:
@@ -19,7 +40,7 @@ translations: # <object>
     <key>: # <string>
 ```
 
-## Example
+### Example
 
 Note here that you must define target states that match the states defined in the [Metrics Section](metrics.md), that’s why `WARN` and `ALARM` are becoming `degraded` and `failed`.
 
