@@ -273,6 +273,35 @@
 				</executions>
 			</plugin>
 
+			<!-- The maven-invoker-plugin is required for extension system testing -->
+			<plugin>
+				<artifactId>maven-invoker-plugin</artifactId>
+				<configuration>
+					<debug>true</debug>
+					<cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
+					<pomIncludes>
+						<pomInclude>**/pom.xml</pomInclude>
+					</pomIncludes>
+					<projectsDirectory>src/it/resources/extensions</projectsDirectory>
+					<postBuildHookScript>verify</postBuildHookScript>
+					<localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
+					<settingsFile>src/it/resources/extensions/settings.xml</settingsFile>
+					<goals>
+						<goal>clean</goal>
+						<goal>package</goal>
+					</goals>
+				</configuration>
+				<executions>
+					<execution>
+						<id>integration-test</id>
+						<goals>
+							<goal>install</goal>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 			<!-- failsafe -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -317,6 +346,7 @@
 					</execution>
 				</executions>
 			</plugin>
+
 		</plugins>
 
 	</build>
