@@ -134,7 +134,7 @@
 				<item name="Convert" href="develop/computes/convert.html" />
 				<item name="Divide" href="develop/computes/divide.html" />
 				<item name="Duplicate Column" href="develop/computes/duplicate-column.html" />
-				<item name="Exclude Matching Lines" href="develop/computes/exclude-matchingy-lines.html" />
+				<item name="Exclude Matching Lines" href="develop/computes/exclude-matching-lines.html" />
 				<item name="Extract WBEM Property" href="develop/computes/extract-wbem-property.html" />
 				<item name="Extract" href="develop/computes/extract.html" />
 				<item name="JSON to CSV" href="develop/computes/json2csv.html" />
