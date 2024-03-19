@@ -117,7 +117,6 @@
 		<prettier-maven-plugin.version>0.21</prettier-maven-plugin.version>
 		<prettierJava.version>2.5.0</prettierJava.version>
 		<metricshub-jre.version>1.0.01</metricshub-jre.version>
-		<community-connectors.version>1.0.00-SNAPSHOT</community-connectors.version>
 		<project.build.outputTimestamp>2024-01-10T17:05:36Z</project.build.outputTimestamp>
 
 	</properties>
@@ -239,7 +238,7 @@
 			<dependency>
 				<groupId>org.sentrysoftware</groupId>
 				<artifactId>metricshub-community-connectors</artifactId>
-				<version>${community-connectors.version}</version>
+				<version>1.0.00</version>
 				<classifier>sources</classifier>
 			</dependency>
 			<dependency>
