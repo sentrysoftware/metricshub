@@ -3,6 +3,8 @@ description: This page defines the connector’s detection section.
 
 # Detection
 
+<div class="alert alert-warning"><span class="fa-solid fa-person-digging"></span> Documentation under construction...</div>
+
 The detection's goal is to see if the connector will be of use, given the specified system type and the protocol enabled in your configuration.
 
 ## Format
@@ -30,3 +32,9 @@ connector:
 | `disableAutoDetection` | When set to true prevent the connector from running a detection. |
 | `onLastResort` | Specifies that the connector is to be used as “last resort” only. The connector may be applied to monitor the system if no other connectors discovering the specified device type matches the system.<br />Example:<br />`onLastResort: enclosure`<br /> The connector will be activated if and only if no other connector matches and has an `$monitors.enclosure.discovery.mapping.source` or `$monitors.enclosure.simple.mapping.source`. |
 | `criteria` | Array of criterion objects that the engine executes to decide whether the connector should be staged to monitor the host or not. These criteria are also executed by the engine if the user selects specific connectors. See specification in the [Criteria Section](criteria.md). |
+
+## Criteria
+
+In order for a connector to match a system, some criterion must be met. They are defined in the [Detection Section](detection.md) of the connector and checked during the discovery. If all criterion are met, the connector matches and will be used to monitor the system. If a criteria is not met, MetricsHub stops processing the detection and as far as the target system is concerned, the connector will not be used.
+
+A maximum number of 99 detection criterion may be defined in a connector.
