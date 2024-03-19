@@ -6,7 +6,7 @@
 
 	<groupId>org.sentrysoftware</groupId>
 	<artifactId>metricshub-parent</artifactId>
-	<version>0.9.01-SNAPSHOT</version>
+	<version>0.9.01</version>
 
 	<packaging>pom</packaging>
 
@@ -117,7 +117,7 @@
 		<prettier-maven-plugin.version>0.21</prettier-maven-plugin.version>
 		<prettierJava.version>2.5.0</prettierJava.version>
 		<metricshub-jre.version>1.0.01</metricshub-jre.version>
-		<project.build.outputTimestamp>2024-01-10T17:05:36Z</project.build.outputTimestamp>
+		<project.build.outputTimestamp>2024-03-19T15:32:49Z</project.build.outputTimestamp>
 
 	</properties>
 
