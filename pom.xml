@@ -92,6 +92,7 @@
 	</developers>
 
 	<properties>
+		<community-connectors.version>1.0.00</community-connectors.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.release>17</maven.compiler.release>
 		<lombok.version>1.18.30</lombok.version>
@@ -238,7 +239,7 @@
 			<dependency>
 				<groupId>org.sentrysoftware</groupId>
 				<artifactId>metricshub-community-connectors</artifactId>
-				<version>1.0.00</version>
+				<version>${community-connectors.version}</version>
 				<classifier>sources</classifier>
 			</dependency>
 			<dependency>
