@@ -39,6 +39,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.MonitorJob;
 import org.sentrysoftware.metricshub.engine.connector.parser.ConnectorParser;
 import org.sentrysoftware.metricshub.engine.connector.parser.ReferenceResolverProcessor;
+import org.sentrysoftware.metricshub.engine.connector.parser.SourceKeyProcessor;
 import org.sentrysoftware.metricshub.engine.connector.update.ConnectorUpdateChain;
 
 /**
@@ -64,7 +65,7 @@ public class MonitorJobsDeserializer extends JsonDeserializer<Map<String, Monito
 		}
 
 		// Resolve relative source references through the ReferenceResolverProcessor
-		final JsonNode monitorsNode = new ReferenceResolverProcessor(null)
+		final JsonNode monitorsNode = new ReferenceResolverProcessor(new SourceKeyProcessor())
 			.process(JsonNodeFactory.instance.objectNode().set("monitors", jsonNode));
 
 		// Parse the connector like it is done by the engine for regular connectors

@@ -82,6 +82,12 @@ public class CustomDeserializer extends DelegatingDeserializer {
 	 */
 	private void callPostDeserialize(final Object deserializedObject) {
 		if (deserializedObject instanceof Source source) {
+			// Temporary remove the source key so that
+			// the 'references' method will not detect the key as a reference
+			// thus, a source will not reference itself incorrectly
+			final String sourceKey = source.getKey();
+			source.setKey(null);
+
 			final Set<String> refs = new HashSet<>();
 
 			references(
@@ -89,6 +95,9 @@ public class CustomDeserializer extends DelegatingDeserializer {
 				refs,
 				val -> REFERENCE_PATTERN.matcher(val).find()
 			);
+
+			// Set the source key
+			source.setKey(sourceKey);
 
 			source.setReferences(refs);
 		}

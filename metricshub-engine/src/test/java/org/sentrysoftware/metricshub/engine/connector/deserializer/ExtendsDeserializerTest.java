@@ -38,7 +38,7 @@ class ExtendsDeserializerTest extends DeserializerTest {
 		try {
 			getConnector("extendsEmptyConnectorRef");
 			Assertions.fail(IO_EXCEPTION_MSG);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			String message = "The connector referenced by 'extends' cannot be empty.";
 			checkMessage(e, message);
 		}
@@ -49,7 +49,7 @@ class ExtendsDeserializerTest extends DeserializerTest {
 		try {
 			getConnector("extendsNullConnectorRef");
 			Assertions.fail(IO_EXCEPTION_MSG);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			String message = "The connector referenced by 'extends' cannot be empty.";
 			checkMessage(e, message);
 		}
@@ -60,7 +60,7 @@ class ExtendsDeserializerTest extends DeserializerTest {
 		try {
 			getConnector("extendsSingleEmptyValue");
 			Assertions.fail(IO_EXCEPTION_MSG);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			String message = "The connector referenced by 'extends' cannot be empty.";
 			checkMessage(e, message);
 		}

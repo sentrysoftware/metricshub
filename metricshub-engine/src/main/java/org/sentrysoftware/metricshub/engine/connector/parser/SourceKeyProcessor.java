@@ -1,0 +1,139 @@
+package org.sentrysoftware.metricshub.engine.connector.parser;
+
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Engine
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+import java.io.IOException;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+/**
+ * Processes source keys in a given JSON node structure. This processor modifies the input JSON node by
+ * adding a "key" field to the source nodes. It is designed to work within a chain of node processors,
+ * handling specific node transformations related to source keys.
+ *
+ * <br>The processor handles two specific parts of the node structure:
+ * <ul>
+ *   <li>
+ *    Pre-nodes: Adds a "key" to each source node under "pre" based on the source name.
+ *    E.g. <strong>${source::pre.source_1}</strong>.
+ *   </li>
+ *   <li>
+ *    Monitor nodes: For specified monitor job types ("discovery", "collect", "simple"), adds a "key" to
+ *    each source node under "monitors" based on the monitor name, job type, and source name.
+ *    E.g. <strong>${source::monitors.system.collect.sources.source_1}</strong>.
+ *   </li>
+ * </ul>
+ *
+ * <p>This class extends {@link AbstractNodeProcessor}, allowing for chain-of-responsibility pattern implementation.</p>
+ */
+public class SourceKeyProcessor extends AbstractNodeProcessor {
+
+	/**
+	 * The source's key property
+	 */
+	private static final String SOURCE_KEY_PROPERTY = "key";
+
+	/**
+	 * Known monitor job type: discovery, collect and simple
+	 */
+	private static final Set<String> MONITOR_JOB_TYPES;
+
+	static {
+		final Set<String> monitorJobTypes = new LinkedHashSet<>();
+		monitorJobTypes.addAll(Set.of("discovery", "collect", "simple"));
+		MONITOR_JOB_TYPES = monitorJobTypes;
+	}
+
+	/**
+	 * Constructs a SourceKeyProcessor with a next processor.
+	 */
+	public SourceKeyProcessor(AbstractNodeProcessor next) {
+		super(next);
+	}
+
+	/**
+	 * Constructs a SourceKeyProcessor without a next processor.
+	 */
+	public SourceKeyProcessor() {
+		this(null);
+	}
+
+	@Override
+	protected JsonNode processNode(JsonNode node) throws IOException {
+		// Get the "pre" JSON node
+		final JsonNode preNode = node.get("pre");
+		// Make sure the node is available
+		if (preNode != null && !preNode.isNull()) {
+			// Loop over the source nodes and set the key property on each source node
+			preNode
+				.fields()
+				.forEachRemaining(sourceNodeEntry -> {
+					final String sourceName = sourceNodeEntry.getKey();
+					final JsonNode sourceNode = sourceNodeEntry.getValue();
+					final ObjectNode sourceObjectNode = (ObjectNode) sourceNode;
+					sourceObjectNode.set(SOURCE_KEY_PROPERTY, new TextNode(String.format("${source::pre.%s}", sourceName)));
+				});
+		}
+
+		// Attempt to get the "monitors" node
+		final JsonNode monitorsNode = node.get("monitors");
+		// Make sure the node is available
+		if (monitorsNode != null && !monitorsNode.isNull()) {
+			// Traverse the monitors until the source nodes and set the key of each source node
+			monitorsNode
+				.fields()
+				.forEachRemaining(monitorEntry -> {
+					final String monitorName = monitorEntry.getKey();
+					final JsonNode monitorJobsNode = monitorEntry.getValue();
+					monitorJobsNode
+						.fields()
+						.forEachRemaining(monitorJobEntry -> {
+							final String monitorJobType = monitorJobEntry.getKey();
+							// Make sure the node is a monitor job node (discovery, collect, simple)
+							if (MONITOR_JOB_TYPES.contains(monitorJobType)) {
+								final JsonNode monitorJobNode = monitorJobEntry.getValue();
+								final JsonNode sourcesNode = monitorJobNode.get("sources");
+								if (sourcesNode != null && !sourcesNode.isNull()) {
+									sourcesNode
+										.fields()
+										.forEachRemaining(sourceEntry -> {
+											final String sourceName = sourceEntry.getKey();
+											final JsonNode sourceNode = sourceEntry.getValue();
+											final ObjectNode sourceObjectNode = (ObjectNode) sourceNode;
+											sourceObjectNode.set(
+												SOURCE_KEY_PROPERTY,
+												new TextNode(
+													String.format("${source::monitors.%s.%s.sources.%s}", monitorName, monitorJobType, sourceName)
+												)
+											);
+										});
+								}
+							}
+						});
+				});
+		}
+		return node;
+	}
+}
