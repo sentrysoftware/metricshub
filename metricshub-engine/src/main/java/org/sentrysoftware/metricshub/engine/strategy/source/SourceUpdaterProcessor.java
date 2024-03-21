@@ -554,7 +554,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 		final String rawData = sourceTableToConcat.getRawData();
 
 		if (iEntryConcatMethod instanceof CustomConcatMethod customConcatMethod) {
-			appendCustomEntryResult(source, customConcatMethod, currentResult, row, rawData);
+			appendCustomEntryResult(customConcatMethod, currentResult, row, rawData);
 		} else {
 			final EntryConcatMethod entryConcatMethod = iEntryConcatMethod != null
 				? (EntryConcatMethod) iEntryConcatMethod
@@ -584,22 +584,15 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 		}
 	}
 
-	public static void main(String[] args) {
-		IEntryConcatMethod iEntryConcatMethod = null;
-		System.out.println(iEntryConcatMethod instanceof CustomConcatMethod customConcatMethod);
-	}
-
 	/**
 	 * Append the custom entry result <em>rawData</em> to the given <em>currentResult</em> {@link SourceTable}.
 	 *
-	 * @param source             The source defining the <em>entryConcatStart</em> and <em>entryConcatEnd</em> properties
-	 * @param customConcatMethod The {@link CustomConcatMethod} instance
-	 * @param currentResult      The {@link SourceTable} result to update
-	 * @param row                The row to concatenate in case we have the JSON_ARRAY_EXTENDED concatenation method
-	 * @param rawData            The rawData to append
+	 * @param customConcatMethod The {@link CustomConcatMethod} instance.
+	 * @param currentResult      The {@link SourceTable} result to update.
+	 * @param row                The row to concatenate in case we have the JSON_ARRAY_EXTENDED concatenation method.
+	 * @param rawData            The rawData to append.
 	 */
 	private void appendCustomEntryResult(
-		final Source source,
 		final CustomConcatMethod customConcatMethod,
 		final SourceTable currentResult,
 		final List<String> row,
