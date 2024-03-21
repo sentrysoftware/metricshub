@@ -49,15 +49,8 @@ public class ConstantsProcessor extends AbstractNodeProcessor {
 	/**
 	 * Constructs a ConstantsProcessor with a next processor.
 	 */
-	private ConstantsProcessor(AbstractNodeProcessor next) {
+	public ConstantsProcessor(AbstractNodeProcessor next) {
 		super(next);
-	}
-
-	/**
-	 * Constructs a ConstantsProcessor without a next processor.
-	 */
-	public ConstantsProcessor() {
-		this(null);
 	}
 
 	@Override

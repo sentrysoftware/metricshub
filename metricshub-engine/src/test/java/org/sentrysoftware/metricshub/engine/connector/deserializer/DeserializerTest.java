@@ -5,15 +5,18 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.Detection;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
+import org.sentrysoftware.metricshub.engine.connector.parser.SourceKeyProcessor;
 
 public abstract class DeserializerTest implements IDeserializerTest {
 
@@ -23,7 +26,8 @@ public abstract class DeserializerTest implements IDeserializerTest {
 
 	@Override
 	public Connector getConnector(String file) throws IOException {
-		return deserializer.deserialize(getTestResourceFile(file));
+		final JsonNode connectorNode = JsonHelper.buildYamlMapper().readTree(getTestResourceFile(file));
+		return deserializer.deserialize(new SourceKeyProcessor().process(connectorNode));
 	}
 
 	protected void checkMessage(Exception e, String message) {
