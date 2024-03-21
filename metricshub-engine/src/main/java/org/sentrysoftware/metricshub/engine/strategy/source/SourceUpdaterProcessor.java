@@ -550,16 +550,14 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 		final List<String> row,
 		final SourceTable sourceTableToConcat
 	) {
-		final IEntryConcatMethod ientryConcatMethod = source.getEntryConcatMethod();
+		final IEntryConcatMethod iEntryConcatMethod = source.getEntryConcatMethod();
 		final String rawData = sourceTableToConcat.getRawData();
 
-		if (ientryConcatMethod != null && ientryConcatMethod instanceof CustomConcatMethod) {
-			CustomConcatMethod customConcatMethod = (CustomConcatMethod) ientryConcatMethod;
-
+		if (iEntryConcatMethod instanceof CustomConcatMethod customConcatMethod) {
 			appendCustomEntryResult(source, customConcatMethod, currentResult, row, rawData);
 		} else {
-			final EntryConcatMethod entryConcatMethod = ientryConcatMethod != null
-				? (EntryConcatMethod) ientryConcatMethod
+			final EntryConcatMethod entryConcatMethod = iEntryConcatMethod != null
+				? (EntryConcatMethod) iEntryConcatMethod
 				: EntryConcatMethod.LIST;
 
 			switch (entryConcatMethod) {
@@ -586,13 +584,19 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 		}
 	}
 
+	public static void main(String[] args) {
+		IEntryConcatMethod iEntryConcatMethod = null;
+		System.out.println(iEntryConcatMethod instanceof CustomConcatMethod customConcatMethod);
+	}
+
 	/**
 	 * Append the custom entry result <em>rawData</em> to the given <em>currentResult</em> {@link SourceTable}.
 	 *
-	 * @param source         The source defining the <em>entryConcatStart</em> and <em>entryConcatEnd</em> properties
-	 * @param currentResult  The {@link SourceTable} result to update
-	 * @param row            The row to concatenate in case we have the JSON_ARRAY_EXTENDED concatenation method
-	 * @param rawData        The rawData to append
+	 * @param source             The source defining the <em>entryConcatStart</em> and <em>entryConcatEnd</em> properties
+	 * @param customConcatMethod The {@link CustomConcatMethod} instance
+	 * @param currentResult      The {@link SourceTable} result to update
+	 * @param row                The row to concatenate in case we have the JSON_ARRAY_EXTENDED concatenation method
+	 * @param rawData            The rawData to append
 	 */
 	private void appendCustomEntryResult(
 		final Source source,
