@@ -41,7 +41,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.sentrysoftware.metricshub.engine.connector.model.common.CustomConcatMethod;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EntryConcatMethod;
+import org.sentrysoftware.metricshub.engine.connector.model.common.IEntryConcatMethod;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CopySource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
@@ -548,32 +550,70 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 		final List<String> row,
 		final SourceTable sourceTableToConcat
 	) {
-		final EntryConcatMethod entryConcatMethod = source.getEntryConcatMethod() != null
-			? (EntryConcatMethod) source.getEntryConcatMethod()
-			: EntryConcatMethod.LIST;
+		final IEntryConcatMethod ientryConcatMethod = source.getEntryConcatMethod();
 		final String rawData = sourceTableToConcat.getRawData();
 
-		switch (entryConcatMethod) {
-			case JSON_ARRAY:
-				appendJsonToArray(currentResult, rawData);
-				break;
-			case JSON_ARRAY_EXTENDED:
-				appendExtendedJsonToArray(currentResult, row, sourceTableToConcat);
-				break;
-			default: // LIST or empty
-				if (rawData != null && !rawData.isBlank()) {
-					joinStringValue(currentResult, rawData, "\n");
-				}
+		if (ientryConcatMethod != null && ientryConcatMethod instanceof CustomConcatMethod) {
+			CustomConcatMethod customConcatMethod = (CustomConcatMethod) ientryConcatMethod;
 
-				final List<List<String>> table = sourceTableToConcat.getTable();
+			appendCustomEntryResult(source, customConcatMethod, currentResult, row, rawData);
+		} else {
+			final EntryConcatMethod entryConcatMethod = ientryConcatMethod != null
+				? (EntryConcatMethod) ientryConcatMethod
+				: EntryConcatMethod.LIST;
 
-				if (table != null && !table.isEmpty()) {
-					currentResult
-						.getTable()
-						.addAll(table.stream().filter(line -> !line.isEmpty()).collect(Collectors.toCollection(ArrayList::new)));
-				}
-				break;
+			switch (entryConcatMethod) {
+				case JSON_ARRAY:
+					appendJsonToArray(currentResult, rawData);
+					break;
+				case JSON_ARRAY_EXTENDED:
+					appendExtendedJsonToArray(currentResult, row, sourceTableToConcat);
+					break;
+				default:
+					if (rawData != null && !rawData.isBlank()) {
+						joinStringValue(currentResult, rawData, "\n");
+					}
+
+					final List<List<String>> table = sourceTableToConcat.getTable();
+
+					if (table != null && !table.isEmpty()) {
+						currentResult
+							.getTable()
+							.addAll(table.stream().filter(line -> !line.isEmpty()).collect(Collectors.toCollection(ArrayList::new)));
+					}
+					break;
+			}
 		}
+	}
+
+	/**
+	 * Append the custom entry result <em>rawData</em> to the given <em>currentResult</em> {@link SourceTable}.
+	 *
+	 * @param source         The source defining the <em>entryConcatStart</em> and <em>entryConcatEnd</em> properties
+	 * @param currentResult  The {@link SourceTable} result to update
+	 * @param row            The row to concatenate in case we have the JSON_ARRAY_EXTENDED concatenation method
+	 * @param rawData        The rawData to append
+	 */
+	private void appendCustomEntryResult(
+		final Source source,
+		final CustomConcatMethod customConcatMethod,
+		final SourceTable currentResult,
+		final List<String> row,
+		final String rawData
+	) {
+		if (rawData == null) {
+			return;
+		}
+		String entryConcatStart = customConcatMethod.getConcatStart() != null
+			? replaceDynamicEntry(customConcatMethod.getConcatStart(), row)
+			: EMPTY;
+		String entryConcatEnd = customConcatMethod.getConcatEnd() != null
+			? replaceDynamicEntry(customConcatMethod.getConcatEnd(), row)
+			: EMPTY;
+
+		currentResult.setRawData(
+			currentResult.getRawData().concat(entryConcatStart).concat(rawData).concat(entryConcatEnd)
+		);
 	}
 
 	/**
