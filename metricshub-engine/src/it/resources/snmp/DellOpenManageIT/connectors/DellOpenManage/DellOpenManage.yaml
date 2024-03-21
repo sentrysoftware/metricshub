@@ -585,10 +585,10 @@ monitors:
             existingValue: Intel
             newValue: ""
           # ID;vendor;modelCode;nominalSpeed;processorDeviceBrandName;
-          - type: leftConcat
+          - type: prepend
             column: 5
             value: MSHW
-          - type: rightConcat
+          - type: append
             column: 5
             value: MSHW
           # Replace \"MSHWMSHW\", i.e. a blank column with the modelCode.

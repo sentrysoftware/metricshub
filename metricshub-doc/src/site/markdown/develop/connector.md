@@ -379,7 +379,7 @@ monitors:
             column: # <number>
             regExp: # <string>
             valueList: # <string> | comma separated values
-          - type: leftConcat
+          - type: prepend
             column: # <number>
             value: # <string>
           - type: multiply
@@ -393,7 +393,7 @@ monitors:
             column: # <number>
             existingValue: # <string>
             newValue: # <string>
-          - type: rightConcat
+          - type: append
             column: # <number>
             value: # <string>
           - type: subtract

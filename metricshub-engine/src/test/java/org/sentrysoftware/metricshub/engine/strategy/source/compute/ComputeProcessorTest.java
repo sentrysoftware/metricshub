@@ -43,28 +43,8 @@ import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ITranslationTable;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ReferenceTranslationTable;
 import org.sentrysoftware.metricshub.engine.connector.model.common.TranslationTable;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Add;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.And;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.ArrayTranslate;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Awk;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Convert;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Divide;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.DuplicateColumn;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.ExcludeMatchingLines;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Extract;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.ExtractPropertyFromWbemPath;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Json2Csv;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.KeepColumns;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.KeepOnlyMatchingLines;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.LeftConcat;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Multiply;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.PerBitTranslation;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Replace;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.RightConcat;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Substring;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Subtract;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Translate;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Xml2Csv;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.*;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Prepend;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -601,13 +581,13 @@ class ComputeProcessorTest {
 	}
 
 	@Test
-	void testProcessLeftConcat() {
+	void testProcessPrepend() {
 		initializeSourceTable();
 
-		// Test with empty LeftConcat
-		final LeftConcat leftConcat = new LeftConcat();
+		// Test with empty Prepend
+		final Prepend prepend = new Prepend();
 
-		computeProcessor.process(leftConcat);
+		computeProcessor.process(prepend);
 
 		final List<List<String>> table = sourceTable.getTable();
 
@@ -615,19 +595,19 @@ class ComputeProcessorTest {
 		assertEquals(LINE_2, table.get(1));
 		assertEquals(LINE_3, table.get(2));
 
-		// Test with LeftConcat without Value
-		leftConcat.setColumn(3);
+		// Test with Prepend without Value
+		prepend.setColumn(3);
 
-		computeProcessor.process(leftConcat);
+		computeProcessor.process(prepend);
 
 		assertEquals(LINE_1, table.get(0));
 		assertEquals(LINE_2, table.get(1));
 		assertEquals(LINE_3, table.get(2));
 
-		// Test with correct LeftConcat
-		leftConcat.setValue(PREFIX);
+		// Test with correct Prepend
+		prepend.setValue(PREFIX);
 
-		computeProcessor.process(leftConcat);
+		computeProcessor.process(prepend);
 
 		assertEquals(LINE_1_RESULT_LEFT, table.get(0));
 		assertEquals(LINE_2_RESULT_LEFT, table.get(1));
@@ -638,23 +618,23 @@ class ComputeProcessorTest {
 		sourceTable.getTable().add(new ArrayList<>());
 		sourceTable.getTable().add(new ArrayList<>());
 		sourceTable.getTable().add(new ArrayList<>());
-		leftConcat.setColumn(1);
-		leftConcat.setValue(FOO);
-		computeProcessor.process(leftConcat);
+		prepend.setColumn(1);
+		prepend.setValue(FOO);
+		computeProcessor.process(prepend);
 		assertEquals(new ArrayList<>(Arrays.asList(FOO)), table.get(0));
 		assertEquals(new ArrayList<>(Arrays.asList(FOO)), table.get(1));
 		assertEquals(new ArrayList<>(Arrays.asList(FOO)), table.get(2));
 	}
 
 	@Test
-	void testProcessLeftConcatOneColumn() {
+	void testProcessPrependOneColumn() {
 		sourceTable.getTable().add(new ArrayList<>(LINE_1_ONE_COLUMN));
 		sourceTable.getTable().add(new ArrayList<>(LINE_2_ONE_COLUMN));
 		sourceTable.getTable().add(new ArrayList<>(LINE_3_ONE_COLUMN));
 
-		final LeftConcat leftConcat = LeftConcat.builder().column(1).value(PREFIX).build();
+		final Prepend prepend = Prepend.builder().column(1).value(PREFIX).build();
 
-		computeProcessor.process(leftConcat);
+		computeProcessor.process(prepend);
 
 		final List<List<String>> table = sourceTable.getTable();
 
@@ -664,12 +644,12 @@ class ComputeProcessorTest {
 	}
 
 	@Test
-	void testProcessLeftConcatColumn() {
+	void testProcessPrependColumn() {
 		initializeSourceTable();
 
-		final LeftConcat leftConcat = LeftConcat.builder().column(3).value(DOLLAR_1).build();
+		final Prepend prepend = Prepend.builder().column(3).value(DOLLAR_1).build();
 
-		computeProcessor.process(leftConcat);
+		computeProcessor.process(prepend);
 
 		final List<List<String>> table = sourceTable.getTable();
 
@@ -679,12 +659,12 @@ class ComputeProcessorTest {
 	}
 
 	@Test
-	void testProcessLeftConcatNotColumn1() {
+	void testProcessPrependNotColumn1() {
 		initializeSourceTable();
 
-		final LeftConcat leftConcat = LeftConcat.builder().column(3).value("$1_").build();
+		final Prepend prepend = Prepend.builder().column(3).value("$1_").build();
 
-		computeProcessor.process(leftConcat);
+		computeProcessor.process(prepend);
 
 		final List<List<String>> table = sourceTable.getTable();
 
@@ -694,12 +674,12 @@ class ComputeProcessorTest {
 	}
 
 	@Test
-	void testProcessLeftConcatNotColumn2() {
+	void testProcessPrependNotColumn2() {
 		initializeSourceTable();
 
-		final LeftConcat leftConcat = LeftConcat.builder().column(3).value(UNDERSCORE_DOLLAR_1).build();
+		final Prepend prepend = Prepend.builder().column(3).value(UNDERSCORE_DOLLAR_1).build();
 
-		computeProcessor.process(leftConcat);
+		computeProcessor.process(prepend);
 
 		final List<List<String>> table = sourceTable.getTable();
 
@@ -709,12 +689,12 @@ class ComputeProcessorTest {
 	}
 
 	@Test
-	void testProcessLeftConcatNewColumn() {
+	void testProcessPrependNewColumn() {
 		initializeSourceTable();
 
-		final LeftConcat leftConcat = LeftConcat.builder().column(3).value("new,Column;prefix_").build();
+		final Prepend prepend = Prepend.builder().column(3).value("new,Column;prefix_").build();
 
-		computeProcessor.process(leftConcat);
+		computeProcessor.process(prepend);
 
 		final List<List<String>> table = sourceTable.getTable();
 
@@ -733,12 +713,12 @@ class ComputeProcessorTest {
 	}
 
 	@Test
-	void testProcessLeftConcatTwoNewColumns() {
+	void testProcessPrependTwoNewColumns() {
 		initializeSourceTable();
 
-		final LeftConcat leftConcat = LeftConcat.builder().column(1).value("new,$4;AnotherNew.Column;prefix_").build();
+		final Prepend prepend = Prepend.builder().column(1).value("new,$4;AnotherNew.Column;prefix_").build();
 
-		computeProcessor.process(leftConcat);
+		computeProcessor.process(prepend);
 
 		final List<List<String>> table = sourceTable.getTable();
 
@@ -763,19 +743,14 @@ class ComputeProcessorTest {
 	}
 
 	@Test
-	void testProcessLeftConcatColumnIndexOutOfBand() {
+	void testProcessPrependColumnIndexOutOfBand() {
 		final List<List<String>> table = sourceTable.getTable();
 		table.clear();
 		table.add(new ArrayList<>(LINE_1));
 		table.add(new ArrayList<>(LINE_3_ONE_COLUMN));
-		final LeftConcat leftConcat = LeftConcat
-			.builder()
-			.column(2)
-			.value(PREFIX)
-			.type(LeftConcat.class.getSimpleName())
-			.build();
+		final Prepend prepend = Prepend.builder().column(2).value(PREFIX).type(Prepend.class.getSimpleName()).build();
 
-		computeProcessor.process(leftConcat);
+		computeProcessor.process(prepend);
 
 		assertEquals(PREFIX + NAME1, table.get(0).get(1));
 		assertEquals(1, table.get(1).size());
@@ -783,20 +758,15 @@ class ComputeProcessorTest {
 	}
 
 	@Test
-	void testProcessLeftConcatColumnValueOutOfBand() {
+	void testProcessPrependColumnValueOutOfBand() {
 		{
 			final List<List<String>> table = sourceTable.getTable();
 			table.clear();
 			table.add(new ArrayList<>(LINE_1));
 			table.add(new ArrayList<>(LINE_3_ONE_COLUMN));
-			final LeftConcat leftConcat = LeftConcat
-				.builder()
-				.column(1)
-				.value("$4")
-				.type(LeftConcat.class.getSimpleName())
-				.build();
+			final Prepend prepend = Prepend.builder().column(1).value("$4").type(Prepend.class.getSimpleName()).build();
 
-			computeProcessor.process(leftConcat);
+			computeProcessor.process(prepend);
 
 			assertEquals(NUMBER_OF_DISKS1 + ID1, table.get(0).get(0));
 			assertEquals(1, table.get(1).size());
@@ -808,14 +778,9 @@ class ComputeProcessorTest {
 			table.clear();
 			table.add(new ArrayList<>(LINE_1));
 			table.add(new ArrayList<>(LINE_3_ONE_COLUMN));
-			final LeftConcat leftConcat = LeftConcat
-				.builder()
-				.column(2)
-				.value("$1")
-				.type(LeftConcat.class.getSimpleName())
-				.build();
+			final Prepend prepend = Prepend.builder().column(2).value("$1").type(Prepend.class.getSimpleName()).build();
 
-			computeProcessor.process(leftConcat);
+			computeProcessor.process(prepend);
 
 			assertEquals(ID1 + NAME1, table.get(0).get(1));
 			assertEquals(1, table.get(1).size());
@@ -824,13 +789,13 @@ class ComputeProcessorTest {
 	}
 
 	@Test
-	void testProcessRightConcat() {
+	void testProcessAppend() {
 		initializeSourceTable();
 
-		// Test with empty RightConcat
-		final RightConcat rightConcat = new RightConcat();
+		// Test with empty Append
+		final Append append = new Append();
 
-		computeProcessor.process(rightConcat);
+		computeProcessor.process(append);
 
 		final List<List<String>> table = sourceTable.getTable();
 
@@ -838,27 +803,27 @@ class ComputeProcessorTest {
 		assertEquals(LINE_2, table.get(1));
 		assertEquals(LINE_3, table.get(2));
 
-		// Test with RightConcat without Value
-		rightConcat.setColumn(3);
+		// Test with Append without Value
+		append.setColumn(3);
 
-		computeProcessor.process(rightConcat);
+		computeProcessor.process(append);
 
 		assertEquals(LINE_1, table.get(0));
 		assertEquals(LINE_2, table.get(1));
 		assertEquals(LINE_3, table.get(2));
 
-		// Test with correct RightConcat
-		rightConcat.setValue(SUFFIX);
+		// Test with correct Append
+		append.setValue(SUFFIX);
 
-		computeProcessor.process(rightConcat);
+		computeProcessor.process(append);
 
 		assertEquals(LINE_1_RESULT_RIGHT, table.get(0));
 		assertEquals(LINE_2_RESULT_RIGHT, table.get(1));
 		assertEquals(LINE_3_RESULT_RIGHT, table.get(2));
 		// index = size + 1 => add new column
-		rightConcat.setColumn(5);
-		rightConcat.setValue(FOO);
-		computeProcessor.process(rightConcat);
+		append.setColumn(5);
+		append.setValue(FOO);
+		computeProcessor.process(append);
 		final List<List<String>> expected = Arrays.asList(LINE_1_RESULT_RIGHT, LINE_2_RESULT_RIGHT, LINE_3_RESULT_RIGHT);
 		expected.get(0).add(FOO);
 		expected.get(1).add(FOO);
@@ -866,21 +831,21 @@ class ComputeProcessorTest {
 		assertEquals(expected, table);
 
 		// index > size + 1  => out of bounds nothing changed
-		rightConcat.setColumn(15);
-		rightConcat.setValue(FOO);
-		computeProcessor.process(rightConcat);
+		append.setColumn(15);
+		append.setValue(FOO);
+		computeProcessor.process(append);
 		assertEquals(expected, table);
 	}
 
 	@Test
-	void testProcessRightConcatOneColumn() {
+	void testProcessAppendOneColumn() {
 		sourceTable.getTable().add(new ArrayList<>(LINE_1_ONE_COLUMN));
 		sourceTable.getTable().add(new ArrayList<>(LINE_2_ONE_COLUMN));
 		sourceTable.getTable().add(new ArrayList<>(LINE_3_ONE_COLUMN));
 
-		final RightConcat rightConcat = RightConcat.builder().column(1).value(SUFFIX).build();
+		final Append append = Append.builder().column(1).value(SUFFIX).build();
 
-		computeProcessor.process(rightConcat);
+		computeProcessor.process(append);
 
 		final List<List<String>> table = sourceTable.getTable();
 
@@ -890,12 +855,12 @@ class ComputeProcessorTest {
 	}
 
 	@Test
-	void testProcessRightConcatColumn() {
+	void testProcessAppendColumn() {
 		initializeSourceTable();
 
-		final RightConcat rightConcat = RightConcat.builder().column(3).value(DOLLAR_1).build();
+		final Append append = Append.builder().column(3).value(DOLLAR_1).build();
 
-		computeProcessor.process(rightConcat);
+		computeProcessor.process(append);
 
 		final List<List<String>> table = sourceTable.getTable();
 
@@ -905,12 +870,12 @@ class ComputeProcessorTest {
 	}
 
 	@Test
-	void testProcessRightConcatNotColumn1() {
+	void testProcessAppendNotColumn1() {
 		initializeSourceTable();
 
-		final RightConcat rightConcat = RightConcat.builder().column(3).value(UNDERSCORE_DOLLAR_1).build();
+		final Append append = Append.builder().column(3).value(UNDERSCORE_DOLLAR_1).build();
 
-		computeProcessor.process(rightConcat);
+		computeProcessor.process(append);
 
 		final List<List<String>> table = sourceTable.getTable();
 
@@ -920,12 +885,12 @@ class ComputeProcessorTest {
 	}
 
 	@Test
-	void testProcessRightConcatNewColumn() {
+	void testProcessAppendNewColumn() {
 		initializeSourceTable();
 
-		final RightConcat rightConcat = RightConcat.builder().column(3).value("_suffix;new,Column").build();
+		final Append append = Append.builder().column(3).value("_suffix;new,Column").build();
 
-		computeProcessor.process(rightConcat);
+		computeProcessor.process(append);
 
 		final List<List<String>> table = sourceTable.getTable();
 
@@ -944,12 +909,12 @@ class ComputeProcessorTest {
 	}
 
 	@Test
-	void testProcessRightConcatTwoNewColumns() {
+	void testProcessAppendTwoNewColumns() {
 		initializeSourceTable();
 
-		final RightConcat rightConcat = RightConcat.builder().column(1).value("_suffix;new,$4;AnotherNew.Column").build();
+		final Append append = Append.builder().column(1).value("_suffix;new,$4;AnotherNew.Column").build();
 
-		computeProcessor.process(rightConcat);
+		computeProcessor.process(append);
 
 		final List<List<String>> table = sourceTable.getTable();
 
@@ -974,82 +939,77 @@ class ComputeProcessorTest {
 	}
 
 	@Test
-	void testProcessRightConcatNoOperation() {
+	void testProcessAppendNoOperation() {
 		initializeSourceTable();
 
-		// RightConcat is null
+		// Append is null
 		computeProcessor.setSourceTable(SourceTable.empty());
-		computeProcessor.process((RightConcat) null);
+		computeProcessor.process((Append) null);
 		assertNotNull(computeProcessor.getSourceTable().getTable());
 		assertTrue(computeProcessor.getSourceTable().getTable().isEmpty());
 
-		// RightConcat is not null, RightConcat.getColumn() is not null, RightConcat.getValue() is not null,
-		// RightConcat.getColumn() <= 0
-		final RightConcat rightConcat = RightConcat.builder().value(SUFFIX).column(0).build();
-		computeProcessor.process(rightConcat);
+		// Append is not null, Append.getColumn() is not null, Append.getValue() is not null,
+		// Append.getColumn() <= 0
+		final Append append = Append.builder().value(SUFFIX).column(0).build();
+		computeProcessor.process(append);
 		assertTrue(computeProcessor.getSourceTable().getTable().isEmpty());
 
-		// RightConcat is not null, RightConcat.getColumn() is not null, RightConcat.getValue() is not null,
-		// RightConcat.getColumn() > 0,
+		// Append is not null, Append.getColumn() is not null, Append.getValue() is not null,
+		// Append.getColumn() > 0,
 		// computeProcessor.getSourceTable() is null
-		rightConcat.setColumn(1);
+		append.setColumn(1);
 		computeProcessor.setSourceTable(null);
-		computeProcessor.process(rightConcat);
+		computeProcessor.process(append);
 		assertNull(computeProcessor.getSourceTable());
 
-		// RightConcat is not null, RightConcat.getColumn() is not null, RightConcat.getValue() is not null,
-		// RightConcat.getColumn() > 0,
+		// Append is not null, Append.getColumn() is not null, Append.getValue() is not null,
+		// Append.getColumn() > 0,
 		// computeProcessor.getSourceTable() is not null, computeProcessor.getSourceTable().getTable() is null
 		computeProcessor.setSourceTable(SourceTable.builder().table(null).build());
-		computeProcessor.process(rightConcat);
+		computeProcessor.process(append);
 		assertNull(computeProcessor.getSourceTable().getTable());
 
-		// RightConcat is not null, RightConcat.getColumn() is not null, RightConcat.getValue() is not null,
-		// RightConcat.getColumn() > 0,
+		// Append is not null, Append.getColumn() is not null, Append.getValue() is not null,
+		// Append.getColumn() > 0,
 		// computeProcessor.getSourceTable() is not null, computeProcessor.getSourceTable().getTable() is not null,
 		// computeProcessor.getSourceTable().getTable().isEmpty()
 		computeProcessor.setSourceTable(SourceTable.empty());
-		computeProcessor.process(rightConcat);
+		computeProcessor.process(append);
 		assertTrue(computeProcessor.getSourceTable().getTable().isEmpty());
 
-		// RightConcat is not null, RightConcat.getColumn() is not null, RightConcat.getValue() is not null,
-		// RightConcat.getColumn() > 0,
+		// Append is not null, Append.getColumn() is not null, Append.getValue() is not null,
+		// Append.getColumn() > 0,
 		// computeProcessor.getSourceTable() is not null, computeProcessor.getSourceTable().getTable() is not null,
 		// computeProcessor.getSourceTable().getTable() is not empty,
-		// RightConcat.getColumn() > sourceTable.getTable().get(0).size()
+		// Append.getColumn() > sourceTable.getTable().get(0).size()
 		computeProcessor.setSourceTable(
 			SourceTable.builder().table(Collections.singletonList(Collections.singletonList(FOO))).build()
 		);
-		rightConcat.setColumn(5);
-		computeProcessor.process(rightConcat);
+		append.setColumn(5);
+		computeProcessor.process(append);
 		assertEquals(1, computeProcessor.getSourceTable().getTable().size());
 
-		// RightConcat is not null, RightConcat.getColumn() is not null, RightConcat.getValue() is not null,
-		// RightConcat.getColumn() > 0,
+		// Append is not null, Append.getColumn() is not null, Append.getValue() is not null,
+		// Append.getColumn() > 0,
 		// computeProcessor.getSourceTable() is not null, computeProcessor.getSourceTable().getTable() is not null,
 		// computeProcessor.getSourceTable().getTable() is not empty,
-		// RightConcat.getColumn() <= sourceTable.getTable().get(0).size(),
+		// Append.getColumn() <= sourceTable.getTable().get(0).size(),
 		// matcher.matches, concatColumnIndex < sourceTable.getTable().get(0).size()
-		rightConcat.setColumn(1);
-		rightConcat.setValue("$2");
-		computeProcessor.process(rightConcat);
+		append.setColumn(1);
+		append.setValue("$2");
+		computeProcessor.process(append);
 		assertEquals(1, computeProcessor.getSourceTable().getTable().size());
 	}
 
 	@Test
-	void testProcessRightConcatColumnIndexOutOfBand() {
+	void testProcessAppendColumnIndexOutOfBand() {
 		final List<List<String>> table = sourceTable.getTable();
 		table.clear();
 		table.add(new ArrayList<>(LINE_1));
 		table.add(new ArrayList<>(LINE_3_ONE_COLUMN));
-		final RightConcat rightConcat = RightConcat
-			.builder()
-			.column(2)
-			.value(SUFFIX)
-			.type(RightConcat.class.getSimpleName())
-			.build();
+		final Append append = Append.builder().column(2).value(SUFFIX).type(Append.class.getSimpleName()).build();
 
-		computeProcessor.process(rightConcat);
+		computeProcessor.process(append);
 
 		assertEquals(NAME1 + SUFFIX, table.get(0).get(1));
 		assertEquals(1, table.get(1).size());
@@ -1057,20 +1017,15 @@ class ComputeProcessorTest {
 	}
 
 	@Test
-	void testProcessRightConcatColumnValueOutOfBand() {
+	void testProcessAppendColumnValueOutOfBand() {
 		{
 			final List<List<String>> table = sourceTable.getTable();
 			table.clear();
 			table.add(new ArrayList<>(LINE_1));
 			table.add(new ArrayList<>(LINE_3_ONE_COLUMN));
-			final RightConcat rightConcat = RightConcat
-				.builder()
-				.column(1)
-				.value("$4")
-				.type(RightConcat.class.getSimpleName())
-				.build();
+			final Append append = Append.builder().column(1).value("$4").type(Append.class.getSimpleName()).build();
 
-			computeProcessor.process(rightConcat);
+			computeProcessor.process(append);
 
 			assertEquals(ID1 + NUMBER_OF_DISKS1, table.get(0).get(0));
 			assertEquals(1, table.get(1).size());
@@ -1081,14 +1036,9 @@ class ComputeProcessorTest {
 			table.clear();
 			table.add(new ArrayList<>(LINE_1));
 			table.add(new ArrayList<>(LINE_3_ONE_COLUMN));
-			final RightConcat rightConcat = RightConcat
-				.builder()
-				.column(2)
-				.value("$1")
-				.type(RightConcat.class.getSimpleName())
-				.build();
+			final Append append = Append.builder().column(2).value("$1").type(Append.class.getSimpleName()).build();
 
-			computeProcessor.process(rightConcat);
+			computeProcessor.process(append);
 
 			assertEquals(NAME1 + ID1, table.get(0).get(1));
 			assertEquals(1, table.get(1).size());

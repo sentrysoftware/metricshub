@@ -15,28 +15,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ConversionType;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ReferenceTranslationTable;
 import org.sentrysoftware.metricshub.engine.connector.model.common.TranslationTable;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Add;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.And;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.ArrayTranslate;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Awk;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Convert;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Divide;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.DuplicateColumn;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.ExcludeMatchingLines;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Extract;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.ExtractPropertyFromWbemPath;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Json2Csv;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.KeepColumns;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.KeepOnlyMatchingLines;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.LeftConcat;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Multiply;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.PerBitTranslation;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Replace;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.RightConcat;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Substring;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Subtract;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Translate;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Xml2Csv;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.*;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Append;
 
 @ExtendWith(MockitoExtension.class)
 class ComputeUpdaterProcessorTest {
@@ -87,16 +67,16 @@ class ComputeUpdaterProcessorTest {
 
 	@Test
 	void testProcessLeftConcat() {
-		doNothing().when(computeProcessor).process(any(LeftConcat.class));
-		computeUpdaterProcessor.process(LeftConcat.builder().column(1).value(EMPTY).build());
-		verify(computeProcessor, times(1)).process(any(LeftConcat.class));
+		doNothing().when(computeProcessor).process(any(Prepend.class));
+		computeUpdaterProcessor.process(Prepend.builder().column(1).value(EMPTY).build());
+		verify(computeProcessor, times(1)).process(any(Prepend.class));
 	}
 
 	@Test
 	void testProcessRightConcat() {
-		doNothing().when(computeProcessor).process(any(RightConcat.class));
-		computeUpdaterProcessor.process(RightConcat.builder().column(1).value(EMPTY).build());
-		verify(computeProcessor, times(1)).process(any(RightConcat.class));
+		doNothing().when(computeProcessor).process(any(Append.class));
+		computeUpdaterProcessor.process(Append.builder().column(1).value(EMPTY).build());
+		verify(computeProcessor, times(1)).process(any(Append.class));
 	}
 
 	@Test

@@ -8,6 +8,6 @@ pre:
     url: /testUrl/
 
     computes:
-      - type: leftConcat
+      - type: prepend
         column: 1
         value: column(n)
