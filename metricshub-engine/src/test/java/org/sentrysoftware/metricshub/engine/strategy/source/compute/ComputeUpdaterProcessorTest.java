@@ -15,8 +15,28 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ConversionType;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ReferenceTranslationTable;
 import org.sentrysoftware.metricshub.engine.connector.model.common.TranslationTable;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.*;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Add;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.And;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Append;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.ArrayTranslate;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Awk;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Convert;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Divide;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.DuplicateColumn;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.ExcludeMatchingLines;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Extract;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.ExtractPropertyFromWbemPath;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Json2Csv;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.KeepColumns;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.KeepOnlyMatchingLines;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Multiply;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.PerBitTranslation;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Prepend;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Replace;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Substring;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Subtract;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Translate;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Xml2Csv;
 
 @ExtendWith(MockitoExtension.class)
 class ComputeUpdaterProcessorTest {
