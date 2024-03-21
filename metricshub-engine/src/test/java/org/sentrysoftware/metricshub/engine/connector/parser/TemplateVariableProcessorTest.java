@@ -37,7 +37,7 @@ class TemplateVariableProcessorTest {
 		final TemplateVariableProcessor templateVariableProcessor = TemplateVariableProcessor
 			.builder()
 			.connectorVariables(Map.of("snmp-get-next", "snmpGetNext"))
-			.next(new ConstantsProcessor())
+			.next(new ConstantsProcessor(new SourceKeyProcessor()))
 			.build();
 
 		assertNotNull(templateVariableProcessor.getNext());
