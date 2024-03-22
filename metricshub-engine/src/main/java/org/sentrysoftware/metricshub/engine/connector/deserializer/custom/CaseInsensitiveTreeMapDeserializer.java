@@ -21,9 +21,7 @@ package org.sentrysoftware.metricshub.engine.connector.deserializer.custom;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationContext;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -33,11 +31,6 @@ import java.util.TreeMap;
  * comparator for case-insensitive key matching.
  */
 public class CaseInsensitiveTreeMapDeserializer extends AbstractMapDeserializer<String> {
-
-	@Override
-	protected void updateMapValues(JsonParser parser, DeserializationContext ctxt, Map<String, String> map) {
-		// No updates
-	}
 
 	@Override
 	protected String messageOnInvalidMap(String nodeKey) {

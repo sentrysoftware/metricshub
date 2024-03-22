@@ -26,7 +26,6 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.NEW_LINE;
 import static org.sentrysoftware.metricshub.engine.common.helpers.StringHelper.addNonNull;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -43,6 +42,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.common.EntryConcatMe
 import org.sentrysoftware.metricshub.engine.connector.model.common.ExecuteForEachEntryOf;
 import org.sentrysoftware.metricshub.engine.connector.model.common.IEntryConcatMethod;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Compute;
+import org.sentrysoftware.metricshub.engine.connector.parser.SourceKeyProcessor;
 import org.sentrysoftware.metricshub.engine.strategy.source.ISourceProcessor;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 
@@ -89,9 +89,9 @@ public abstract class Source implements Serializable {
 	protected boolean forceSerialization;
 
 	/**
-	 * A key associated with the source, excluded from JSON serialization using @JsonIgnore.
+	 * A key associated with the source, this key is automatically set during the pre processing phase of the connector.
+	 * See {@link SourceKeyProcessor}
 	 */
-	@JsonIgnore
 	protected String key;
 
 	/**

@@ -1,0 +1,112 @@
+---
+connector:
+  displayName: Connector
+  platforms: Test
+  reliesOn: Test
+  version: "1.0"
+  information: Test
+  detection:
+    connectionTypes:
+    - remote
+    - local
+    appliesTo:
+    - storage
+    criteria:
+    - type: http
+      method: get
+      path: /api/v1/version
+      resultContent: body
+      expectedResult: "test"
+monitors:
+  system:
+    discovery:
+      sources:
+        source_1: # Storage system IDs
+          type: http
+          path: /api/v1/systems
+          method: get
+          resultContent: body
+          computes:
+          - type: awk
+            script: |
+              /\.system/ {
+                sub("\.system", "");
+                printf($1 ";" $2 ";" $3 ";" $4 ";")
+                for (i=5; i<=NF; i++) {
+                  printf("%s ", $i)
+                }
+                printf("\n")
+              }
+            separators: ;
+        source_2:
+          type: http
+          method: get
+          resultContent: body
+          executeForEachEntryOf:
+            source: ${source::source_1}
+            concatMethod: list
+          path: /api/v1/system/$1
+          computes:
+          - type: json2Csv
+            entryKey: /
+            properties: id;model;device_count;spare_disk_count;cache_size_mb;local
+            separator: ;
+          - type: excludeMatchingLines
+            column: 6
+            valueList: "false"
+      mapping:
+        source: ${source::source_1}
+        attributes:
+          id: $2
+          __display_id: $2
+          name: $2
+          vendor: "Test"
+          family: "System"
+          model: $3
+          serial_number: $2
+        metrics:
+          size: $11
+          number_of_spare_disks: $5
+          number_of_volumes: $4
+          storage.usage{state="read_cache"}": $6
+          storage.usage{state="capacity"}: $10
+    collect:
+      sources:
+        source_1: # Storage system IDs
+          type: http
+          path: /api/v1/system/metrics
+          method: get
+          resultContent: body
+          computes:
+          - type: awk
+            script: |
+              /\.system/ {
+                sub("\.system", "");
+                printf($1 ";" $2 ";" $3 ";" $4 ";")
+                for (i=5; i<=NF; i++) {
+                  printf("%s ", $i)
+                }
+                printf("\n")
+              }
+            separators: ;
+        source_2:
+          type: http
+          method: get
+          resultContent: body
+          executeForEachEntryOf:
+            source: ${source::source_1}
+            concatMethod: list
+          path: /api/v1/system/metrics/$1
+          computes:
+          - type: json2Csv
+            entryKey: /
+            properties: id;local
+          - type: excludeMatchingLines
+            column: 3
+            valueList: "false"
+      mapping:
+        source: ${source::source_2}
+        attributes:
+          id: $1
+        metrics:
+          up_time: $12
