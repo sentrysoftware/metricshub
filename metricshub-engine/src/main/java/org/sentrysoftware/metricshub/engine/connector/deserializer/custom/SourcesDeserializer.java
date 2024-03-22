@@ -21,9 +21,7 @@ package org.sentrysoftware.metricshub.engine.connector.deserializer.custom;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationContext;
 import java.util.Map;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 
@@ -40,11 +38,6 @@ public class SourcesDeserializer extends AbstractLinkedHashMapDeserializer<Sourc
 	@Override
 	protected boolean isValidMap(Map<String, Source> map) {
 		return map.keySet().stream().noneMatch(key -> key == null || key.isBlank());
-	}
-
-	@Override
-	protected void updateMapValues(JsonParser parser, DeserializationContext ctxt, Map<String, Source> map) {
-		map.forEach((key, source) -> source.setKey(String.format("%s.%s}", nodePath, key)));
 	}
 
 	@Override

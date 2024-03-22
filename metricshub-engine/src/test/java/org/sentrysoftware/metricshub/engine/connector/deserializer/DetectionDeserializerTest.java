@@ -80,7 +80,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 		try {
 			getConnector("appliesToEmpty");
 			fail(IO_EXCEPTION_MSG);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			final String message = "' ' is not a supported device kind.";
 			checkMessage(e, message);
 		}
@@ -112,7 +112,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 		try {
 			getConnector("appliesToInvalid");
 			fail(IO_EXCEPTION_MSG);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			checkMessage(e, "'unknownValue' is not a supported device kind.");
 		}
 	}
@@ -147,7 +147,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 		try {
 			getConnector("connectionTypesEmpty");
 			fail(IO_EXCEPTION_MSG);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			final String message = "ConnectionType must be a known connection type (local, remote)";
 			checkMessage(e, message);
 		}
@@ -199,7 +199,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 		try {
 			getConnector("connectionTypesInvalid");
 			fail(IO_EXCEPTION_MSG);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			final String message = "ConnectionType must be a known connection type (local, remote)";
 			checkMessage(e, message);
 		}
@@ -288,7 +288,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 		try {
 			getConnector("supersedesEmpty");
 			fail(IO_EXCEPTION_MSG);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			String message = SUPERSEDES_ERROR_MSG;
 			assertTrue(
 				e.getMessage().contains(message),
@@ -338,7 +338,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 		try {
 			getConnector("supersedesNullList");
 			fail(IO_EXCEPTION_MSG);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			checkMessage(e, SUPERSEDES_ERROR_MSG);
 		}
 	}
@@ -353,7 +353,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 		try {
 			getConnector("supersedesEmptyList");
 			fail(IO_EXCEPTION_MSG);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			checkMessage(e, SUPERSEDES_ERROR_MSG);
 		}
 	}

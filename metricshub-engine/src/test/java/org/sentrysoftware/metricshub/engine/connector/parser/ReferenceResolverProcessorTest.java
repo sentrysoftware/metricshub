@@ -77,7 +77,7 @@ class ReferenceResolverProcessorTest {
 
 		JsonNode processedNode = ReferenceResolverProcessor
 			.builder()
-			.next(new ConstantsProcessor())
+			.next(new ConstantsProcessor(new SourceKeyProcessor()))
 			.build()
 			.processNode(rootNode);
 

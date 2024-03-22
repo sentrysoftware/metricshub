@@ -43,6 +43,7 @@ import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
+import org.sentrysoftware.metricshub.engine.connector.model.common.CustomConcatMethod;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EntryConcatMethod;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ExecuteForEachEntryOf;
@@ -175,6 +176,62 @@ class SourceUpdaterProcessorTest {
 				.process(httpSource);
 
 		assertEquals(EXPECTED_RESULT, result.getRawData());
+	}
+
+	@Test
+	void testProcessHTTPSourceCustomExecuteForEachEntry() {
+		final HttpConfiguration httpConfiguration = HttpConfiguration
+			.builder()
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
+			.port(161)
+			.timeout(120L)
+			.build();
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.hostname(LOCALHOST)
+			.hostId(LOCALHOST)
+			.hostType(DeviceKind.LINUX)
+			.configurations(Collections.singletonMap(HttpConfiguration.class, httpConfiguration))
+			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
+
+		final HttpSource httpSource = HttpSource.builder().url(URL).build();
+		final CustomConcatMethod customConcatMethod = CustomConcatMethod
+			.builder()
+			.concatStart("concatStart:{")
+			.concatEnd("}concatEnd;")
+			.build();
+		httpSource.setExecuteForEachEntryOf(
+			ExecuteForEachEntryOf.builder().source(ENCLOSURE_COLLECT_SOURCE_1).concatMethod(customConcatMethod).build()
+		);
+
+		final SourceTable sourceTable = SourceTable
+			.builder()
+			.table(
+				Arrays.asList(Arrays.asList(VALUE_VAL1, VALUE_VAL2, VALUE_VAL3), Arrays.asList(VALUE_A1, VALUE_B1, VALUE_C1))
+			)
+			.build();
+
+		final HostProperties hostProperties = HostProperties.builder().build();
+
+		hostProperties.getConnectorNamespace(MY_CONNECTOR_1_NAME).addSourceTable(ENCLOSURE_COLLECT_SOURCE_1, sourceTable);
+
+		telemetryManager.setHostProperties(hostProperties);
+
+		final SourceTable expected1 = SourceTable.builder().rawData(EXPECTED_VAL_1).build();
+		final SourceTable expected2 = SourceTable.builder().rawData(EXPECTED_VAL_2).build();
+		doReturn(expected1, expected2).when(sourceProcessor).process(any(HttpSource.class));
+
+		SourceTable result = new SourceUpdaterProcessor(
+			sourceProcessor,
+			telemetryManager,
+			MY_CONNECTOR_1_NAME,
+			Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
+		)
+			.process(httpSource);
+		final String expectedResult = "concatStart:{expectedVal1}concatEnd;concatStart:{expectedVal2}concatEnd;";
+		assertEquals(expectedResult, result.getRawData());
 	}
 
 	@Test

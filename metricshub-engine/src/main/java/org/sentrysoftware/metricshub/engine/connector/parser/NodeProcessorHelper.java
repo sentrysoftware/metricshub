@@ -34,12 +34,12 @@ import lombok.NoArgsConstructor;
 public class NodeProcessorHelper {
 
 	/**
-	 * Creates a new {@link ConstantsProcessor}.
+	 * Creates a new {@link ConstantsProcessor} with a {@link SourceKeyProcessor} as destination.
 	 *
 	 * @return A new {@link ConstantsProcessor} instance.
 	 */
-	private static AbstractNodeProcessor constantsProcessor() {
-		return new ConstantsProcessor();
+	private static AbstractNodeProcessor constantsProcessorWithSourceKeyProcessor() {
+		return new ConstantsProcessor(new SourceKeyProcessor());
 	}
 
 	/**
@@ -57,7 +57,7 @@ public class NodeProcessorHelper {
 			.builder()
 			.connectorDirectory(connectorDirectory)
 			.mapper(mapper)
-			.next(new ReferenceResolverProcessor(constantsProcessor()))
+			.next(new ReferenceResolverProcessor(constantsProcessorWithSourceKeyProcessor()))
 			.build();
 	}
 
@@ -82,7 +82,7 @@ public class NodeProcessorHelper {
 				TemplateVariableProcessor
 					.builder()
 					.connectorVariables(connectorVariables)
-					.next(new ReferenceResolverProcessor(constantsProcessor()))
+					.next(new ReferenceResolverProcessor(constantsProcessorWithSourceKeyProcessor()))
 					.build()
 			)
 			.mapper(mapper)
