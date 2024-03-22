@@ -1,5 +1,6 @@
 package org.sentrysoftware.metricshub.engine.strategy.collect;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -8,6 +9,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
@@ -15,8 +17,6 @@ import static org.sentrysoftware.metricshub.engine.constants.Constants.HOSTNAME;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.DOWN;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.HTTP_UP_METRIC;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.IPMI_UP_METRIC;
-import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.SNMP_OID;
-import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.SNMP_UP_METRIC;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.SSH_UP_METRIC;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.UP;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WBEM_TEST_QUERY;
@@ -30,8 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,11 +46,13 @@ import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
+import org.sentrysoftware.metricshub.engine.configuration.TestConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WinRmConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
+import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -67,6 +67,9 @@ class ProtocolHealthCheckStrategyTest {
 
 	@Mock
 	private static ClientsExecutor clientsExecutorMock;
+
+	@Mock
+	private static IProtocolExtension protocolExtensionMock;
 
 	private static final String SUCCESS_RESPONSE = "Success";
 	private static final String NULL_RESPONSE = null;
@@ -120,7 +123,7 @@ class ProtocolHealthCheckStrategyTest {
 					.builder()
 					.hostId(HOSTNAME)
 					.hostname(HOSTNAME)
-					.configurations(Map.of(SnmpConfiguration.class, SnmpConfiguration.builder().community("public").build()))
+					.configurations(Map.of(TestConfiguration.class, TestConfiguration.builder().build()))
 					.build()
 			)
 			.build();
@@ -289,7 +292,8 @@ class ProtocolHealthCheckStrategyTest {
 		final ProtocolHealthCheckStrategy httpHealthCheckStrategy = new ProtocolHealthCheckStrategy(
 			telemetryManager,
 			CURRENT_TIME_MILLIS,
-			clientsExecutorMock
+			clientsExecutorMock,
+			ExtensionManager.empty()
 		);
 
 		// Start the Health Check strategy
@@ -310,7 +314,8 @@ class ProtocolHealthCheckStrategyTest {
 		final ProtocolHealthCheckStrategy httpHealthCheckStrategy = new ProtocolHealthCheckStrategy(
 			telemetryManager,
 			CURRENT_TIME_MILLIS,
-			clientsExecutorMock
+			clientsExecutorMock,
+			ExtensionManager.empty()
 		);
 
 		// Start the Health Check strategy
@@ -320,49 +325,31 @@ class ProtocolHealthCheckStrategyTest {
 	}
 
 	@Test
-	void testCheckSnmpUpHealth() throws InterruptedException, ExecutionException, TimeoutException {
+	void testCheckHealth() throws Exception {
 		// Create a telemetry manager using an SNMP HostConfiguration.
 		final TelemetryManager telemetryManager = createTelemetryManagerWithSnmpConfig();
 
-		// Mock SNMP protocol health check response
-		doReturn(SUCCESS_RESPONSE)
-			.when(clientsExecutorMock)
-			.executeSNMPGetNext(eq(SNMP_OID), any(SnmpConfiguration.class), anyString(), anyBoolean());
+		// Create the Extension Manager
+		final ExtensionManager extensionManager = ExtensionManager
+			.builder()
+			.withProtocolExtensions(List.of(protocolExtensionMock))
+			.build();
+
+		doReturn(true)
+			.when(protocolExtensionMock)
+			.isValidConfiguration(telemetryManager.getHostConfiguration().getConfigurations().get(TestConfiguration.class));
+
+		doNothing().when(protocolExtensionMock).checkProtocol(any(TelemetryManager.class), anyLong());
 
 		// Create a new protocol health check strategy
-		final ProtocolHealthCheckStrategy snmpHealthCheckStrategy = new ProtocolHealthCheckStrategy(
+		final ProtocolHealthCheckStrategy healthCheckStrategy = new ProtocolHealthCheckStrategy(
 			telemetryManager,
 			CURRENT_TIME_MILLIS,
-			clientsExecutorMock
+			clientsExecutorMock,
+			extensionManager
 		);
 
-		// Start the SNMP Health Check strategy
-		snmpHealthCheckStrategy.run();
-
-		assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(SNMP_UP_METRIC).getValue());
-	}
-
-	@Test
-	void testCheckSnmpDownHealth() throws InterruptedException, ExecutionException, TimeoutException {
-		// Create a telemetry manager using an SNMP HostConfiguration.
-		final TelemetryManager telemetryManager = createTelemetryManagerWithSnmpConfig();
-
-		// Mock SNMP protocol health check response
-		doReturn(NULL_RESPONSE)
-			.when(clientsExecutorMock)
-			.executeSNMPGetNext(eq(SNMP_OID), any(SnmpConfiguration.class), anyString(), anyBoolean());
-
-		// Create a new protocol health check strategy
-		final ProtocolHealthCheckStrategy snmpHealthCheckStrategy = new ProtocolHealthCheckStrategy(
-			telemetryManager,
-			CURRENT_TIME_MILLIS,
-			clientsExecutorMock
-		);
-
-		// Start the SNMP Health Check strategy
-		snmpHealthCheckStrategy.run();
-
-		assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SNMP_UP_METRIC).getValue());
+		assertDoesNotThrow(() -> healthCheckStrategy.run());
 	}
 
 	@Test
@@ -374,7 +361,8 @@ class ProtocolHealthCheckStrategyTest {
 		final ProtocolHealthCheckStrategy sshHealthCheckStrategy = new ProtocolHealthCheckStrategy(
 			telemetryManager,
 			CURRENT_TIME_MILLIS,
-			clientsExecutorMock
+			clientsExecutorMock,
+			ExtensionManager.empty()
 		);
 
 		// Setting SSH host properties
@@ -411,7 +399,8 @@ class ProtocolHealthCheckStrategyTest {
 		final ProtocolHealthCheckStrategy sshHealthCheckStrategy = new ProtocolHealthCheckStrategy(
 			telemetryManager,
 			CURRENT_TIME_MILLIS,
-			clientsExecutorMock
+			clientsExecutorMock,
+			ExtensionManager.empty()
 		);
 
 		// Setting SSH host properties
@@ -455,7 +444,8 @@ class ProtocolHealthCheckStrategyTest {
 		final ProtocolHealthCheckStrategy sshHealthCheckStrategy = new ProtocolHealthCheckStrategy(
 			telemetryManager,
 			CURRENT_TIME_MILLIS,
-			clientsExecutorMock
+			clientsExecutorMock,
+			ExtensionManager.empty()
 		);
 
 		// Setting SSH host properties
@@ -540,7 +530,8 @@ class ProtocolHealthCheckStrategyTest {
 		final ProtocolHealthCheckStrategy sshHealthCheckStrategy = new ProtocolHealthCheckStrategy(
 			telemetryManager,
 			CURRENT_TIME_MILLIS,
-			clientsExecutorMock
+			clientsExecutorMock,
+			ExtensionManager.empty()
 		);
 
 		// Setting SSH host properties
@@ -563,7 +554,8 @@ class ProtocolHealthCheckStrategyTest {
 		final ProtocolHealthCheckStrategy sshHealthCheckStrategy = new ProtocolHealthCheckStrategy(
 			telemetryManager,
 			CURRENT_TIME_MILLIS,
-			clientsExecutorMock
+			clientsExecutorMock,
+			ExtensionManager.empty()
 		);
 
 		// Setting SSH host properties
@@ -587,7 +579,8 @@ class ProtocolHealthCheckStrategyTest {
 		final ProtocolHealthCheckStrategy ipmiHealthCheckStrategy = new ProtocolHealthCheckStrategy(
 			telemetryManager,
 			CURRENT_TIME_MILLIS,
-			clientsExecutorMock
+			clientsExecutorMock,
+			ExtensionManager.empty()
 		);
 
 		// Mock successful IPMI protocol health check response
@@ -612,7 +605,8 @@ class ProtocolHealthCheckStrategyTest {
 		final ProtocolHealthCheckStrategy ipmiHealthCheckStrategy = new ProtocolHealthCheckStrategy(
 			telemetryManager,
 			CURRENT_TIME_MILLIS,
-			clientsExecutorMock
+			clientsExecutorMock,
+			ExtensionManager.empty()
 		);
 
 		// Mock null IPMI protocol health check response
@@ -637,7 +631,8 @@ class ProtocolHealthCheckStrategyTest {
 		final ProtocolHealthCheckStrategy wbemHealthCheckStrategy = new ProtocolHealthCheckStrategy(
 			telemetryManager,
 			CURRENT_TIME_MILLIS,
-			clientsExecutorMock
+			clientsExecutorMock,
+			ExtensionManager.empty()
 		);
 
 		{
@@ -710,7 +705,8 @@ class ProtocolHealthCheckStrategyTest {
 		final ProtocolHealthCheckStrategy wbemHealthCheckStrategy = new ProtocolHealthCheckStrategy(
 			telemetryManager,
 			CURRENT_TIME_MILLIS,
-			clientsExecutorMock
+			clientsExecutorMock,
+			ExtensionManager.empty()
 		);
 
 		{
@@ -762,7 +758,8 @@ class ProtocolHealthCheckStrategyTest {
 		final ProtocolHealthCheckStrategy wmiHealthCheckStrategy = new ProtocolHealthCheckStrategy(
 			telemetryManager,
 			CURRENT_TIME_MILLIS,
-			clientsExecutorMock
+			clientsExecutorMock,
+			ExtensionManager.empty()
 		);
 
 		{
@@ -809,7 +806,8 @@ class ProtocolHealthCheckStrategyTest {
 		final ProtocolHealthCheckStrategy wmiHealthCheckStrategy = new ProtocolHealthCheckStrategy(
 			telemetryManager,
 			CURRENT_TIME_MILLIS,
-			clientsExecutorMock
+			clientsExecutorMock,
+			ExtensionManager.empty()
 		);
 
 		// Mock a null WMI protocol health check response
@@ -837,7 +835,8 @@ class ProtocolHealthCheckStrategyTest {
 		final ProtocolHealthCheckStrategy winRmHealthCheckStrategy = new ProtocolHealthCheckStrategy(
 			telemetryManager,
 			CURRENT_TIME_MILLIS,
-			clientsExecutorMock
+			clientsExecutorMock,
+			ExtensionManager.empty()
 		);
 
 		// Mock a positive WinRM protocol health check response
@@ -882,7 +881,8 @@ class ProtocolHealthCheckStrategyTest {
 		final ProtocolHealthCheckStrategy winRmHealthCheckStrategy = new ProtocolHealthCheckStrategy(
 			telemetryManager,
 			CURRENT_TIME_MILLIS,
-			clientsExecutorMock
+			clientsExecutorMock,
+			ExtensionManager.empty()
 		);
 
 		// Mock a null WinRM protocol health check response

@@ -13,9 +13,10 @@ import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
+import org.sentrysoftware.metricshub.engine.configuration.TestConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.MonitorFactory;
@@ -28,7 +29,7 @@ class PrepareCollectStrategyTest {
 
 	@Test
 	void testRunRefreshDiscoveredMetrics() {
-		final SnmpConfiguration snmpConfig = SnmpConfiguration.builder().community("public").build();
+		final TestConfiguration snmpConfig = TestConfiguration.builder().build();
 		final ConnectorStore connectorStore = new ConnectorStore();
 		connectorStore.setStore(Map.of());
 
@@ -40,11 +41,15 @@ class PrepareCollectStrategyTest {
 					.hostId(HOST_ID)
 					.hostname(MetricsHubConstants.HOST_NAME)
 					.sequential(false)
-					.configurations(Map.of(SnmpConfiguration.class, snmpConfig))
+					.configurations(Map.of(TestConfiguration.class, snmpConfig))
 					.build()
 			)
 			.connectorStore(connectorStore)
 			.build();
+
+		// The extension manager is not involved, so let's keep it empty
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final ClientsExecutor clientExecutor = new ClientsExecutor(telemetryManager);
 		final long collectTime = System.currentTimeMillis();
 		final MonitorFactory monitorFactory = MonitorFactory
@@ -70,7 +75,7 @@ class PrepareCollectStrategyTest {
 			true
 		);
 
-		new PrepareCollectStrategy(telemetryManager, collectTime, clientExecutor).run();
+		new PrepareCollectStrategy(telemetryManager, collectTime, clientExecutor, extensionManager).run();
 
 		final NumberMetric metric = monitor.getMetric(HW_METRIC, NumberMetric.class);
 

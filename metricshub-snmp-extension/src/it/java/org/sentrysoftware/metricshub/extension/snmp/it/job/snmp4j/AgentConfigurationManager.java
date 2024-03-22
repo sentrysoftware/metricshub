@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.engine.it.snmp;
+package org.sentrysoftware.metricshub.extension.snmp.it.job.snmp4j;
 
 import org.snmp4j.MessageDispatcher;
 import org.snmp4j.agent.AgentConfigManager;

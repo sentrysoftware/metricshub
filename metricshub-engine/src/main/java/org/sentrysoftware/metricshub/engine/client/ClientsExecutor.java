@@ -34,16 +34,11 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -64,13 +59,14 @@ import org.sentrysoftware.metricshub.engine.client.http.HttpRequest;
 import org.sentrysoftware.metricshub.engine.client.http.Url;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.common.exception.RetryableException;
+import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.NetworkHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
+import org.sentrysoftware.metricshub.engine.common.helpers.ThreadHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.TransportProtocols;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WinRmConfiguration;
@@ -79,7 +75,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import org.sentrysoftware.metricshub.engine.strategy.utils.RetryOperation;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
-import org.sentrysoftware.snmp.client.SnmpClient;
 import org.sentrysoftware.ssh.SshClient;
 import org.sentrysoftware.tablejoin.TableJoin;
 import org.sentrysoftware.vcenter.VCenterClient;
@@ -128,247 +123,6 @@ public class ClientsExecutor {
 	private TelemetryManager telemetryManager;
 
 	/**
-	 * Run the given {@link Callable} using the passed timeout in seconds.
-	 *
-	 * @param <T>
-	 * @param callable
-	 * @param timeout
-	 * @return {@link T} result returned by the callable.
-	 * @throws InterruptedException
-	 * @throws ExecutionException
-	 * @throws TimeoutException
-	 */
-	<T> T execute(final Callable<T> callable, final long timeout)
-		throws InterruptedException, ExecutionException, TimeoutException {
-		final ExecutorService executorService = Executors.newSingleThreadExecutor();
-		try {
-			final Future<T> handler = executorService.submit(callable);
-
-			return handler.get(timeout, TimeUnit.SECONDS);
-		} finally {
-			executorService.shutdownNow();
-		}
-	}
-
-	/**
-	 * Execute SNMP GetNext request
-	 *
-	 * @param oid            The Object Identifier (OID) for the SNMP GETNEXT request.
-	 * @param configuration  The SNMP configuration specifying parameters like version, community, etc.
-	 * @param hostname       The hostname or IP address of the SNMP-enabled device.
-	 * @param logMode        A boolean indicating whether to log errors and warnings during execution.
-	 * @return The SNMP response as a String value.
-	 * @throws InterruptedException If the execution is interrupted.
-	 * @throws ExecutionException  If an exception occurs during execution.
-	 * @throws TimeoutException    If the execution times out.
-	 */
-	@WithSpan("SNMP Get Next")
-	public String executeSNMPGetNext(
-		@NonNull @SpanAttribute("snmp.oid") final String oid,
-		@NonNull @SpanAttribute("snmp.config") final SnmpConfiguration configuration,
-		@NonNull @SpanAttribute("host.hostname") final String hostname,
-		final boolean logMode
-	) throws InterruptedException, ExecutionException, TimeoutException {
-		trace(() -> log.trace("Executing SNMP GetNext request:\n- OID: {}\n", oid));
-
-		final long startTime = System.currentTimeMillis();
-
-		String result = executeSNMPGetRequest(SnmpGetRequest.GETNEXT, oid, configuration, hostname, null, logMode);
-
-		final long responseTime = System.currentTimeMillis() - startTime;
-
-		trace(() ->
-			log.trace(
-				"Executed SNMP GetNext request:\n- OID: {}\n- Result: {}\n- response-time: {}\n",
-				oid,
-				result,
-				responseTime
-			)
-		);
-
-		return result;
-	}
-
-	/**
-	 * Execute SNMP Get request
-	 *
-	 * @param oid            The Object Identifier (OID) for the SNMP GET request.
-	 * @param configuration  The SNMP configuration specifying parameters like version, community, etc.
-	 * @param hostname       The hostname or IP address of the SNMP-enabled device.
-	 * @param logMode        A boolean indicating whether to log errors and warnings during execution.
-	 * @return The SNMP response as a String value.
-	 * @throws InterruptedException If the execution is interrupted.
-	 * @throws ExecutionException  If an exception occurs during execution.
-	 * @throws TimeoutException    If the execution times out.
-	 */
-	@WithSpan("SNMP Get")
-	public String executeSNMPGet(
-		@NonNull @SpanAttribute("snmp.oid") final String oid,
-		@NonNull @SpanAttribute("snmp.config") final SnmpConfiguration configuration,
-		@NonNull @SpanAttribute("host.hostname") final String hostname,
-		final boolean logMode
-	) throws InterruptedException, ExecutionException, TimeoutException {
-		trace(() -> log.trace("Executing SNMP Get request:\n- OID: {}\n", oid));
-
-		final long startTime = System.currentTimeMillis();
-
-		String result = executeSNMPGetRequest(SnmpGetRequest.GET, oid, configuration, hostname, null, logMode);
-
-		final long responseTime = System.currentTimeMillis() - startTime;
-
-		trace(() ->
-			log.trace("Executed SNMP Get request:\n- OID: {}\n- Result: {}\n- response-time: {}\n", oid, result, responseTime)
-		);
-
-		return result;
-	}
-
-	/**
-	 * Execute SNMP Table
-	 *
-	 * @param oid               The SNMP Object Identifier (OID) representing the table.
-	 * @param selectColumnArray An array of column names to select from the SNMP table.
-	 * @param configuration     The SNMP configuration containing connection details.
-	 * @param hostname          The hostname or IP address of the SNMP-enabled device.
-	 * @param logMode           Flag indicating whether to log warnings in case of errors.
-	 * @return A list of rows, where each row is a list of string cells representing the SNMP table.
-	 * @throws InterruptedException If the thread executing this method is interrupted.
-	 * @throws ExecutionException  If an exception occurs during the execution of the SNMP request.
-	 * @throws TimeoutException    If the SNMP request times out.
-	 */
-	@WithSpan("SNMP Get Table")
-	public List<List<String>> executeSNMPTable(
-		@NonNull @SpanAttribute("snmp.oid") final String oid,
-		@NonNull @SpanAttribute("snmp.columns") String[] selectColumnArray,
-		@NonNull @SpanAttribute("snmp.config") final SnmpConfiguration configuration,
-		@NonNull @SpanAttribute("host.hostname") final String hostname,
-		final boolean logMode
-	) throws InterruptedException, ExecutionException, TimeoutException {
-		trace(() ->
-			log.trace("Executing SNMP Table request:\n- OID: {}\n- Columns: {}\n", oid, Arrays.toString(selectColumnArray))
-		);
-
-		final long startTime = System.currentTimeMillis();
-
-		List<List<String>> result = executeSNMPGetRequest(
-			SnmpGetRequest.TABLE,
-			oid,
-			configuration,
-			hostname,
-			selectColumnArray,
-			logMode
-		);
-
-		final long responseTime = System.currentTimeMillis() - startTime;
-
-		trace(() ->
-			log.trace(
-				"Executed SNMP Table request:\n- OID: {}\n- Columns: {}\n- Result:\n{}\n- response-time: {}\n",
-				oid,
-				Arrays.toString(selectColumnArray),
-				TextTableHelper.generateTextTable(selectColumnArray, result),
-				responseTime
-			)
-		);
-
-		return result;
-	}
-
-	/**
-	 * Execute an SNMP Get request based on the specified SNMP Get Request type.
-	 *
-	 * @param request           The type of SNMP Get request (GET, GETNEXT, TABLE).
-	 * @param oid               The SNMP Object Identifier (OID) for the request.
-	 * @param protocol          The SNMP configuration containing connection details.
-	 * @param hostname          The hostname or IP address of the SNMP-enabled device.
-	 * @param selectColumnArray An array of column names for TABLE requests.
-	 * @param logMode           Flag indicating whether to log warnings in case of errors.
-	 * @return The result of the SNMP request, which can be a single value, a table, or null if an error occurs.
-	 * @throws InterruptedException If the thread executing this method is interrupted.
-	 * @throws ExecutionException  If an exception occurs during the execution of the SNMP request.
-	 * @throws TimeoutException    If the SNMP request times out.
-	 */
-	@SuppressWarnings("unchecked")
-	private <T> T executeSNMPGetRequest(
-		final SnmpGetRequest request,
-		final String oid,
-		final SnmpConfiguration protocol,
-		final String hostname,
-		final String[] selectColumnArray,
-		final boolean logMode
-	) throws InterruptedException, ExecutionException, TimeoutException {
-		// Create the SNMPClient and run the GetNext request
-		return (T) execute(
-			() -> {
-				final SnmpClient snmpClient = new SnmpClient(
-					hostname,
-					protocol.getPort(),
-					protocol.getVersion().getIntVersion(),
-					null,
-					protocol.getCommunity(),
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null
-				);
-
-				try {
-					switch (request) {
-						case GET:
-							return snmpClient.get(oid);
-						case GETNEXT:
-							return snmpClient.getNext(oid);
-						case TABLE:
-							return snmpClient.table(oid, selectColumnArray);
-						default:
-							throw new IllegalArgumentException("Not implemented.");
-					}
-				} catch (Exception e) {
-					if (logMode) {
-						log.warn(
-							"Hostname {} - Error detected when running SNMP {} Query OID: {}. Error message: {}.",
-							hostname,
-							request,
-							oid,
-							e.getMessage()
-						);
-					}
-					return null;
-				} finally {
-					snmpClient.freeResources();
-				}
-			},
-			protocol.getTimeout()
-		);
-	}
-
-	/**
-	 * Enum representing different types of SNMP requests.
-	 * These requests are used to specify the type of SNMP operation
-	 * when interacting with SNMP agents.
-	 */
-	public enum SnmpGetRequest {
-		/**
-		 * Represents an SNMP GET request.
-		 * Used to retrieve the value of a single SNMP object.
-		 */
-		GET,
-		/**
-		 * Represents an SNMP GETNEXT request.
-		 * Used to retrieve the value of the next SNMP object.
-		 */
-		GETNEXT,
-		/**
-		 * Represents an SNMP TABLE request.
-		 * Used to retrieve a table of SNMP objects.
-		 */
-		TABLE
-	}
-
-	/**
 	 * Execute TableJoin
 	 *
 	 * @param leftTable              The left table.
@@ -389,7 +143,7 @@ public class ClientsExecutor {
 		final boolean wbemKeyType,
 		boolean caseInsensitive
 	) {
-		trace(() ->
+		LoggingHelper.trace(() ->
 			log.trace(
 				"Executing Table Join request:\n- Left-table:\n{}\n- Right-table:\n{}\n",
 				TextTableHelper.generateTextTable(leftTable),
@@ -407,7 +161,7 @@ public class ClientsExecutor {
 			caseInsensitive
 		);
 
-		trace(() ->
+		LoggingHelper.trace(() ->
 			log.trace(
 				"Executed Table Join request:\n- Left-table:\n{}\n- Right-table:\n{}\n- Result:\n{}\n",
 				TextTableHelper.generateTextTable(leftTable),
@@ -453,7 +207,7 @@ public class ClientsExecutor {
 	 */
 	public String executeJson2Csv(String jsonSource, String jsonEntryKey, List<String> propertyList, String separator)
 		throws InterruptedException, ExecutionException, TimeoutException {
-		trace(() ->
+		LoggingHelper.trace(() ->
 			log.trace(
 				"Executing JSON to CSV conversion:\n- Json-source:\n{}\n- Json-entry-key: {}\n" + // NOSONAR
 				"- Property-list: {}\n- Separator: {}\n",
@@ -487,9 +241,9 @@ public class ClientsExecutor {
 			return null;
 		};
 
-		String result = execute(jflatToCSV, JSON_2_CSV_TIMEOUT);
+		String result = ThreadHelper.execute(jflatToCSV, JSON_2_CSV_TIMEOUT);
 
-		trace(() ->
+		LoggingHelper.trace(() ->
 			log.trace(
 				"Executed JSON to CSV conversion:\n- Json-source:\n{}\n- Json-entry-key: {}\n" + // NOSONAR
 				"- Property-list: {}\n- Separator: {}\n- Result:\n{}\n",
@@ -516,7 +270,7 @@ public class ClientsExecutor {
 	 */
 	public List<List<String>> executeXmlParsing(final String xml, final String properties, final String recordTag)
 		throws XFlatException {
-		trace(() ->
+		LoggingHelper.trace(() ->
 			log.trace(
 				"Executing XML parsing:\n- Xml-source:\n{}\n- Properties: {}\n- Record-tag: {}\n",
 				xml,
@@ -527,7 +281,7 @@ public class ClientsExecutor {
 
 		List<List<String>> result = XFlat.parseXml(xml, properties, recordTag);
 
-		trace(() ->
+		LoggingHelper.trace(() ->
 			log.trace(
 				"Executed XML parsing:\n- Xml-source:\n{}\n- Properties: {}\n- Record-tag: {}\n- Result:\n{}\n",
 				xml,
@@ -715,7 +469,7 @@ public class ClientsExecutor {
 	) throws ClientException {
 		VCenterClient.setDebug(() -> true, log::debug);
 		try {
-			String ticket = execute(
+			String ticket = ThreadHelper.execute(
 				() -> VCenterClient.requestCertificate(vCenter, username, new String(password), hostname),
 				timeout
 			);
@@ -776,7 +530,7 @@ public class ClientsExecutor {
 
 			final URL url = new URI(urlSpec).toURL();
 
-			trace(() ->
+			LoggingHelper.trace(() ->
 				log.trace(
 					"Executing WBEM request:\n- Hostname: {}\n- Port: {}\n- Protocol: {}\n- URL: {}\n" + // NOSONAR
 					"- Username: {}\n- Query: {}\n- Namespace: {}\n- Timeout: {} s\n",
@@ -807,7 +561,7 @@ public class ClientsExecutor {
 
 			List<List<String>> result = wbemQueryResult.getValues();
 
-			trace(() ->
+			LoggingHelper.trace(() ->
 				log.trace(
 					"Executed WBEM request:\n- Hostname: {}\n- Port: {}\n- Protocol: {}\n- URL: {}\n" + // NOSONAR
 					"- Username: {}\n- Query: {}\n- Namespace: {}\n- Timeout: {} s\n- Result:\n{}\n- response-time: {}\n",
@@ -854,7 +608,7 @@ public class ClientsExecutor {
 			? namespace
 			: String.format("\\\\%s\\%s", hostname, namespace);
 
-		trace(() ->
+		LoggingHelper.trace(() ->
 			log.trace(
 				"Executing WMI request:\n- Hostname: {}\n- Network-resource: {}\n- Username: {}\n- Query: {}\n" + // NOSONAR
 				"- Namespace: {}\n- Timeout: {} s\n",
@@ -888,7 +642,7 @@ public class ClientsExecutor {
 			// Build the table
 			List<List<String>> resultTable = buildWmiTable(result, properties);
 
-			trace(() ->
+			LoggingHelper.trace(() ->
 				log.trace(
 					"Executed WMI request:\n- Hostname: {}\n- Network-resource: {}\n- Username: {}\n- Query: {}\n" + // NOSONAR
 					"- Namespace: {}\n- Timeout: {} s\n- Result:\n{}\n- response-time: {}\n",
@@ -932,7 +686,7 @@ public class ClientsExecutor {
 		@SpanAttribute("wmi.local_files") final List<String> localFiles
 	) throws ClientException {
 		try {
-			trace(() ->
+			LoggingHelper.trace(() ->
 				log.trace(
 					"Executing WMI remote command:\n- Command: {}\n- Hostname: {}\n- Username: {}\n" + // NOSONAR
 					"- Timeout: {} s\n- Local-files: {}\n",
@@ -961,7 +715,7 @@ public class ClientsExecutor {
 
 			final long responseTime = System.currentTimeMillis() - startTime;
 
-			trace(() ->
+			LoggingHelper.trace(() ->
 				log.trace(
 					"Executed WMI remote command:\n- Command: {}\n- Hostname: {}\n- Username: {}\n" + // NOSONAR
 					"- Timeout: {} s\n- Local-files: {}\n- Result:\n{}\n- response-time: {}\n",
@@ -1086,7 +840,7 @@ public class ClientsExecutor {
 		// Build the full URL
 		final String fullUrl = Url.format(protocol, hostname, httpConfiguration.getPort(), path, url);
 
-		trace(() ->
+		LoggingHelper.trace(() ->
 			log.trace(
 				"Executing HTTP request: {} {}\n- hostname: {}\n- url: {}\n- path: {}\n" + // NOSONAR
 				"- Protocol: {}\n- Port: {}\n" +
@@ -1224,7 +978,7 @@ public class ClientsExecutor {
 					throw new IllegalArgumentException("Unsupported ResultContent: " + resultContent);
 			}
 
-			trace(() ->
+			LoggingHelper.trace(() ->
 				log.trace(
 					"Executed HTTP request: {} {}\n- Hostname: {}\n- Url: {}\n- Path: {}\n- Protocol: {}\n- Port: {}\n" + // NOSONAR
 					"- Request-headers:\n{}\n- Request-body:\n{}\n- Timeout: {} s\n" +
@@ -1329,7 +1083,7 @@ public class ClientsExecutor {
 		@SpanAttribute("ssh.local_files") final List<File> localFiles,
 		@SpanAttribute("ssh.command") final String noPasswordCommand
 	) throws ClientException {
-		trace(() ->
+		LoggingHelper.trace(() ->
 			log.trace(
 				"Executing Remote SSH command:\n- hostname: {}\n- username: {}\n- key-file-path: {}\n" + // NOSONAR
 				"- command: {}\n- timeout: {} s\n- local-files: {}\n",
@@ -1391,7 +1145,7 @@ public class ClientsExecutor {
 
 			String result = commandResult.result;
 
-			trace(() ->
+			LoggingHelper.trace(() ->
 				log.trace(
 					"Executed Remote SSH command:\n- Hostname: {}\n- Username: {}\n- Key-file-path: {}\n" + // NOSONAR
 					"- Command: {}\n- Timeout: {} s\n- Local-files: {}\n- Result:\n{}\n- response-time: {}\n",
@@ -1566,7 +1320,7 @@ public class ClientsExecutor {
 		@SpanAttribute("host.hostname") String hostname,
 		@SpanAttribute("ipmi.config") @NonNull IpmiConfiguration ipmiConfiguration
 	) throws InterruptedException, ExecutionException, TimeoutException {
-		trace(() ->
+		LoggingHelper.trace(() ->
 			log.trace(
 				"Executing IPMI detection request:\n- Hostname: {}\n- Username: {}\n- SkipAuth: {}\n" + "- Timeout: {} s\n", // NOSONAR
 				hostname,
@@ -1584,7 +1338,7 @@ public class ClientsExecutor {
 
 		final long responseTime = System.currentTimeMillis() - startTime;
 
-		trace(() ->
+		LoggingHelper.trace(() ->
 			log.trace(
 				"Executed IPMI detection request:\n- Hostname: {}\n- Username: {}\n- SkipAuth: {}\n" + // NOSONAR
 				"- Timeout: {} s\n- Result:\n{}\n- response-time: {}\n",
@@ -1644,7 +1398,7 @@ public class ClientsExecutor {
 		@SpanAttribute("host.hostname") String hostname,
 		@SpanAttribute("ipmi.config") @NonNull IpmiConfiguration ipmiConfiguration
 	) throws InterruptedException, ExecutionException, TimeoutException {
-		trace(() ->
+		LoggingHelper.trace(() ->
 			log.trace(
 				"Executing IPMI FRUs and Sensors request:\n- Hostname: {}\n- Username: {}\n- SkipAuth: {}\n" + // NOSONAR
 				"- Timeout: {} s\n",
@@ -1661,7 +1415,7 @@ public class ClientsExecutor {
 
 		final long responseTime = System.currentTimeMillis() - startTime;
 
-		trace(() ->
+		LoggingHelper.trace(() ->
 			log.trace(
 				"Executed IPMI FRUs and Sensors request:\n- Hostname: {}\n- Username: {}\n- SkipAuth: {}\n" + // NOSONAR
 				"- Timeout: {} s\n- Result:\n{}\n- response-time: {}\n",
@@ -1702,7 +1456,7 @@ public class ClientsExecutor {
 		final List<AuthenticationEnum> authentications = winRmConfiguration.getAuthentications();
 		final Long timeout = winRmConfiguration.getTimeout();
 
-		trace(() ->
+		LoggingHelper.trace(() ->
 			log.trace(
 				"Executing WinRM WQL request:\n- hostname: {}\n- username: {}\n- query: {}\n" + // NOSONAR
 				"- protocol: {}\n- port: {}\n- authentications: {}\n- timeout: {}\n- namespace: {}\n",
@@ -1738,7 +1492,7 @@ public class ClientsExecutor {
 
 			final List<List<String>> table = result.getRows();
 
-			trace(() ->
+			LoggingHelper.trace(() ->
 				log.trace(
 					"Executed WinRM WQL request:\n- hostname: {}\n- username: {}\n- query: {}\n" + // NOSONAR
 					"- protocol: {}\n- port: {}\n- authentications: {}\n- timeout: {}\n- namespace: {}\n- Result:\n{}\n- response-time: {}\n",
@@ -1785,7 +1539,7 @@ public class ClientsExecutor {
 		final List<AuthenticationEnum> authentications = winRmConfiguration.getAuthentications();
 		final Long timeout = winRmConfiguration.getTimeout();
 
-		trace(() ->
+		LoggingHelper.trace(() ->
 			log.trace(
 				"Executing WinRM remote command:\n- hostname: {}\n- username: {}\n- command: {}\n" + // NOSONAR
 				"- protocol: {}\n- port: {}\n- authentications: {}\n- timeout: {}\n",
@@ -1824,9 +1578,9 @@ public class ClientsExecutor {
 				throw new ClientException(String.format("WinRM remote command failed on %s: %s", hostname, result.getStderr()));
 			}
 
-			String resultStdout = result.getStdout();
+			final String resultStdout = result.getStdout();
 
-			trace(() ->
+			LoggingHelper.trace(() ->
 				log.trace(
 					"Executed WinRM remote command:\n- hostname: {}\n- username: {}\n- command: {}\n" + // NOSONAR
 					"- protocol: {}\n- port: {}\n- authentications: {}\n- timeout: {}\n- Result:\n{}\n- response-time: {}\n",
@@ -1846,17 +1600,6 @@ public class ClientsExecutor {
 		} catch (Exception e) {
 			log.error("Hostname {} - WinRM remote command failed. Errors:\n{}\n", hostname, StringHelper.getStackMessages(e));
 			throw new ClientException(String.format("WinRM remote command failed on %s.", hostname), e);
-		}
-	}
-
-	/**
-	 * Run the given runnable if the tracing mode of the logger is enabled
-	 *
-	 * @param runnable
-	 */
-	static void trace(final Runnable runnable) {
-		if (log.isTraceEnabled()) {
-			runnable.run();
 		}
 	}
 }

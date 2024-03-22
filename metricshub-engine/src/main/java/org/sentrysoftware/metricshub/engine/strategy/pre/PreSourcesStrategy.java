@@ -31,6 +31,7 @@ import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.JobInfo;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.source.OrderedSources;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -57,15 +58,17 @@ public class PreSourcesStrategy extends AbstractStrategy {
 	 * @param strategyTime     The execution time of the strategy, used for timing purpose.
 	 * @param clientsExecutor  An executor service for handling client operations within the pre-sources.
 	 * @param connector        The specific connector instance where the pre-sources are defined.
+	 * @param ExtensionManager The extension manager where all the required extensions are handled.
 	 */
 	@Builder
 	public PreSourcesStrategy(
 		@NonNull final TelemetryManager telemetryManager,
 		@NonNull final Long strategyTime,
 		@NonNull final ClientsExecutor clientsExecutor,
-		@NonNull final Connector connector
+		@NonNull final Connector connector,
+		@NonNull final ExtensionManager extensionManager
 	) {
-		super(telemetryManager, strategyTime, clientsExecutor);
+		super(telemetryManager, strategyTime, clientsExecutor, extensionManager);
 		this.connector = connector;
 	}
 

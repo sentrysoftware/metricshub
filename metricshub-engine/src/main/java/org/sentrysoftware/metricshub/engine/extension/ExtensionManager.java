@@ -23,10 +23,19 @@ package org.sentrysoftware.metricshub.engine.extension;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
+import lombok.NonNull;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
+import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
  * Manages and aggregates various types of extensions used within MetricsHub.
@@ -59,5 +68,92 @@ public class ExtensionManager {
 	 */
 	public static ExtensionManager empty() {
 		return ExtensionManager.builder().build();
+	}
+
+	/**
+	 * Find the extension which satisfies the processing of the given criterion according to the user's configuration.
+	 *
+	 * @param criterion        Any {@link Criterion} implementation
+	 * @param telemetryManager {@link TelemetryManager} instance where the configurations are located.
+	 * @return an {@link Optional} of an {@link IProtocolExtension} instance.
+	 */
+	public Optional<IProtocolExtension> findCriterionExtension(
+		final Criterion criterion,
+		final TelemetryManager telemetryManager
+	) {
+		return protocolExtensions
+			.stream()
+			.filter(extension ->
+				telemetryManager
+					.getHostConfiguration()
+					.getConfigurations()
+					.values()
+					.stream()
+					.anyMatch(extension::isValidConfiguration)
+			)
+			.filter(extension -> extension.getSupportedCriteria().contains(criterion.getClass()))
+			.findFirst();
+	}
+
+	/**
+	 * Find the extension which satisfies the processing of the given source according to the user's configuration.
+	 *
+	 * @param source           Any {@link Source} implementation
+	 * @param telemetryManager {@link TelemetryManager} instance where the configurations are located.
+	 * @return an {@link Optional} of an {@link IProtocolExtension} instance.
+	 */
+	public Optional<IProtocolExtension> findSourceExtension(
+		final Source source,
+		final TelemetryManager telemetryManager
+	) {
+		return protocolExtensions
+			.stream()
+			.filter(extension ->
+				telemetryManager
+					.getHostConfiguration()
+					.getConfigurations()
+					.values()
+					.stream()
+					.anyMatch(extension::isValidConfiguration)
+			)
+			.filter(extension -> extension.getSupportedSources().contains(source.getClass()))
+			.findFirst();
+	}
+
+	/**
+	 * Find the extensions that satisfy the protocol check according to the user's configuration.
+	 *
+	 * @param telemetryManager {@link TelemetryManager} instance where the configurations are located.
+	 * @return a {@link List} of {@link IProtocolExtension} instances.
+	 */
+	public List<IProtocolExtension> findProtocolCheckExtensions(@NonNull TelemetryManager telemetryManager) {
+		return protocolExtensions
+			.stream()
+			.filter(extension ->
+				telemetryManager
+					.getHostConfiguration()
+					.getConfigurations()
+					.values()
+					.stream()
+					.anyMatch(extension::isValidConfiguration)
+			)
+			.collect(Collectors.toList());
+	}
+
+	/**
+	 * Find a mapping between configuration classes and their corresponding sets
+	 * of source classes.
+	 * @return A map where the keys are classes extending {@link IConfiguration}
+	 *         representing different types of protocol configurations, and the
+	 *         values are sets of classes extending {@link Source}, indicating the
+	 *         sources that are compatible and can be utilized with each
+	 *         configuration type for data exchange operations.
+	 */
+	public Map<Class<? extends IConfiguration>, Set<Class<? extends Source>>> findConfigurationToSourceMapping() {
+		return protocolExtensions
+			.stream()
+			.map(IProtocolExtension::getConfigurationToSourceMapping)
+			.flatMap(map -> map.entrySet().stream())
+			.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue));
 	}
 }

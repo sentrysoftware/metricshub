@@ -39,11 +39,10 @@ import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.OsCommandSource;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpGetSource;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WbemSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WmiSource;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 
 /**
  * The HostConfiguration class represents the configuration for a host in the MetricsHub engine.
@@ -77,8 +76,6 @@ public class HostConfiguration {
 	static {
 		CONFIGURATION_TO_SOURCES_MAP =
 			Map.of(
-				SnmpConfiguration.class,
-				Set.of(SnmpGetSource.class, SnmpTableSource.class),
 				WmiConfiguration.class,
 				Collections.singleton(WmiSource.class),
 				WbemConfiguration.class,
@@ -102,11 +99,27 @@ public class HostConfiguration {
 	 * @param isLocalhost Whether the host should be localhost or not
 	 * @return {@link Set} of accepted source types
 	 */
-	public Set<Class<? extends Source>> determineAcceptedSources(final boolean isLocalhost) {
+	public Set<Class<? extends Source>> determineAcceptedSources(
+		final boolean isLocalhost,
+		final ExtensionManager extensionManager
+	) {
+		// Retrieve the configuration to Source mapping through the available extensions
+		// @formatter:off
+		final Map<Class<? extends IConfiguration>, Set<Class<? extends Source>>> configurationToSourceMappingFromExtensions =
+			extensionManager.findConfigurationToSourceMapping();
+		// @formatter:on
+
+		final Map<Class<? extends IConfiguration>, Set<Class<? extends Source>>> configurationToSourceMapping =
+			new HashMap<>();
+
+		configurationToSourceMapping.putAll(configurationToSourceMappingFromExtensions);
+		// TODO Remove this merge when all the extensions are developed
+		configurationToSourceMapping.putAll(CONFIGURATION_TO_SOURCES_MAP);
+
 		// protocolConfigurations and host cannot never be null
 		final Set<Class<? extends IConfiguration>> protocolTypes = configurations.keySet();
 
-		final Set<Class<? extends Source>> sources = CONFIGURATION_TO_SOURCES_MAP
+		final Set<Class<? extends Source>> sources = configurationToSourceMapping
 			.entrySet()
 			.stream()
 			.filter(protocolEntry -> protocolTypes.contains(protocolEntry.getKey()))

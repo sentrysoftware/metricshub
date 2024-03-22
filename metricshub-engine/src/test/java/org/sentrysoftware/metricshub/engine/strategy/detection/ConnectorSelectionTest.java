@@ -19,6 +19,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.ConnectorIdentity;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.Detection;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.telemetry.HostProperties;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -29,19 +30,35 @@ class ConnectorSelectionTest {
 	void testRunNull() {
 		final TelemetryManager telemetryManager = new TelemetryManager();
 		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
 		final Set<String> emptySet = Collections.emptySet();
-		assertThrows(IllegalArgumentException.class, () -> new ConnectorSelection(null, clientsExecutor, emptySet));
-		assertThrows(IllegalArgumentException.class, () -> new ConnectorSelection(telemetryManager, null, emptySet));
-		assertThrows(IllegalArgumentException.class, () -> new ConnectorSelection(telemetryManager, clientsExecutor, null));
+		assertThrows(
+			IllegalArgumentException.class,
+			() -> new ConnectorSelection(null, clientsExecutor, emptySet, extensionManager)
+		);
+		assertThrows(
+			IllegalArgumentException.class,
+			() -> new ConnectorSelection(telemetryManager, null, emptySet, extensionManager)
+		);
+		assertThrows(
+			IllegalArgumentException.class,
+			() -> new ConnectorSelection(telemetryManager, clientsExecutor, null, extensionManager)
+		);
+		assertThrows(
+			IllegalArgumentException.class,
+			() -> new ConnectorSelection(telemetryManager, clientsExecutor, emptySet, null)
+		);
 	}
 
 	@Test
 	void testRunEmptyTelemetryManager() {
 		TelemetryManager telemetryManager = new TelemetryManager();
 		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
+		final ExtensionManager extensionManager = ExtensionManager.empty();
 		assertEquals(
 			Collections.emptyList(),
-			new ConnectorSelection(telemetryManager, clientsExecutor, Collections.emptySet()).run()
+			new ConnectorSelection(telemetryManager, clientsExecutor, Collections.emptySet(), extensionManager).run()
 		);
 	}
 
@@ -74,9 +91,13 @@ class ConnectorSelectionTest {
 			STRATEGY_TIME
 		);
 		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
+
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		assertEquals(
 			Collections.emptyList(),
-			new ConnectorSelection(telemetryManager, clientsExecutor, Collections.emptySet()).run()
+			new ConnectorSelection(telemetryManager, clientsExecutor, Collections.emptySet(), extensionManager).run()
 		);
 	}
 
@@ -111,9 +132,12 @@ class ConnectorSelectionTest {
 		);
 		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
 
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		assertEquals(
 			Collections.emptyList(),
-			new ConnectorSelection(telemetryManager, clientsExecutor, Set.of(CONNECTOR)).run()
+			new ConnectorSelection(telemetryManager, clientsExecutor, Set.of(CONNECTOR), extensionManager).run()
 		);
 	}
 }

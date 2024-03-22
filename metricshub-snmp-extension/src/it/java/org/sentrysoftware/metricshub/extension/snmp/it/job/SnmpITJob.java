@@ -1,15 +1,16 @@
-package org.sentrysoftware.metricshub.engine.it.job;
+package org.sentrysoftware.metricshub.extension.snmp.it.job;
 
 import lombok.NonNull;
-import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
-import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
-import org.sentrysoftware.metricshub.engine.it.snmp.SnmpAgent;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.extension.snmp.SnmpConfiguration;
+import org.sentrysoftware.metricshub.extension.snmp.it.job.snmp4j.SnmpAgent;
+import org.sentrysoftware.metricshub.it.job.AbstractITJob;
+import org.sentrysoftware.metricshub.it.job.ITJob;
 
 public class SnmpITJob extends AbstractITJob {
 
-	public SnmpITJob(@NonNull ClientsExecutor clientsExecutor, @NonNull TelemetryManager telemetryManager) {
-		super(clientsExecutor, telemetryManager);
+	public SnmpITJob(@NonNull TelemetryManager telemetryManager) {
+		super(telemetryManager);
 	}
 
 	private SnmpAgent snmpAgent;

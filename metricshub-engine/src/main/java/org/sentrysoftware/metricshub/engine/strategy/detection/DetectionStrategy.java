@@ -48,6 +48,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.C
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.OsCommandCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.OsCommandSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.detection.ConnectorStagingManager.StagedConnectorIdentifiers;
 import org.sentrysoftware.metricshub.engine.telemetry.HostProperties;
@@ -75,14 +76,16 @@ public class DetectionStrategy extends AbstractStrategy {
 	 * @param telemetryManager The telemetry manager for managing monitors and metrics.
 	 * @param strategyTime     The time at which the detection strategy is executed.
 	 * @param clientsExecutor  The executor for running connector clients.
+	 * @param ExtensionManager The extension manager where all the required extensions are handled.
 	 */
 	@Builder
 	public DetectionStrategy(
 		@NonNull final TelemetryManager telemetryManager,
 		@NonNull final Long strategyTime,
-		@NonNull final ClientsExecutor clientsExecutor
+		@NonNull final ClientsExecutor clientsExecutor,
+		@NonNull final ExtensionManager extensionManager
 	) {
-		super(telemetryManager, strategyTime, clientsExecutor);
+		super(telemetryManager, strategyTime, clientsExecutor, extensionManager);
 	}
 
 	@Override
@@ -117,7 +120,12 @@ public class DetectionStrategy extends AbstractStrategy {
 		// Process forced connectors
 		if (stagedConnectorIdentifiers.isForcedStaging()) {
 			connectorTestResults.addAll(
-				new ConnectorSelection(telemetryManager, clientsExecutor, stagedConnectorIdentifiers.getForcedConnectorIds())
+				new ConnectorSelection(
+					telemetryManager,
+					clientsExecutor,
+					stagedConnectorIdentifiers.getForcedConnectorIds(),
+					extensionManager
+				)
 					.run()
 			);
 		}
@@ -129,7 +137,8 @@ public class DetectionStrategy extends AbstractStrategy {
 				new AutomaticDetection(
 					telemetryManager,
 					clientsExecutor,
-					stagedConnectorIdentifiers.getAutoDetectionConnectorIds()
+					stagedConnectorIdentifiers.getAutoDetectionConnectorIds(),
+					extensionManager
 				)
 					.run()
 			);
