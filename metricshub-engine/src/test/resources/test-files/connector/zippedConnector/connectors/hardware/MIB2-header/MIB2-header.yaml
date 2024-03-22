@@ -143,10 +143,10 @@ monitors:
           computes:
             # Now add MSHW to the Left and Right of the ifMIBObjects SpeedMBS
             # PortID;Description;SpeedMBps;PATROLStatus;StatusInformation;LinkStatus;ReceivedBytes;ReceivedPackets;ReceivedNonUnicastPackets;TotalErrors;TransmittedBytes;TransmittedPackets;TransmittedNonUnicastPackets;TransmittedErrors;PortID;SpeedMBs;
-          - type: leftConcat
+          - type: prepend
             column: 16
             value: MSHW
-          - type: rightConcat
+          - type: append
             column: 16
             value: MSHW
             # Replace "MSHWMSHW", i.e. a blank column with the ifTable value.

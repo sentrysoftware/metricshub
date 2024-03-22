@@ -3,7 +3,7 @@ description: Use the "prepend" operation to prepend (insert at the beginning) a 
 
 # `prepend`
 
-The `prepend` compute allow to concatenate a value at the beginning of all the lines in a selected column.
+The `Prepend` compute allow to concatenate a value at the beginning of all the lines in a selected column.
 The `value` can be a number, or a reference to another column of the same table, using the '$' character followed by the column number.
 Since the data is converted from a CSV to a Table, you can add columns by adding ';' characters using the append.
 

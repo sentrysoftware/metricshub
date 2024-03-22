@@ -86,14 +86,14 @@ class ComputeUpdaterProcessorTest {
 	}
 
 	@Test
-	void testProcessLeftConcat() {
+	void testProcessPrepend() {
 		doNothing().when(computeProcessor).process(any(Prepend.class));
 		computeUpdaterProcessor.process(Prepend.builder().column(1).value(EMPTY).build());
 		verify(computeProcessor, times(1)).process(any(Prepend.class));
 	}
 
 	@Test
-	void testProcessRightConcat() {
+	void testProcessAppend() {
 		doNothing().when(computeProcessor).process(any(Append.class));
 		computeUpdaterProcessor.process(Append.builder().column(1).value(EMPTY).build());
 		verify(computeProcessor, times(1)).process(any(Append.class));
