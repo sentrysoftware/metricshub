@@ -43,6 +43,7 @@ import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Compute;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.strategy.detection.ConnectorSelection;
 import org.sentrysoftware.metricshub.engine.strategy.detection.ConnectorTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.source.ISourceProcessor;
@@ -75,6 +76,9 @@ public abstract class AbstractStrategy implements IStrategy {
 
 	@NonNull
 	protected ClientsExecutor clientsExecutor;
+
+	@NonNull
+	protected ExtensionManager extensionManager;
 
 	private static final String COMPUTE = "compute";
 	private static final String SOURCE = "source";
@@ -249,6 +253,7 @@ public abstract class AbstractStrategy implements IStrategy {
 			.connectorId(connectorId)
 			.clientsExecutor(clientsExecutor)
 			.telemetryManager(telemetryManager)
+			.extensionManager(extensionManager)
 			.build();
 
 		final Supplier<SourceTable> executable = () ->
@@ -402,7 +407,8 @@ public abstract class AbstractStrategy implements IStrategy {
 		final ConnectorTestResult connectorTestResult = new ConnectorSelection(
 			telemetryManager,
 			clientsExecutor,
-			Collections.emptySet()
+			Collections.emptySet(),
+			extensionManager
 		)
 			.runConnectorDetectionCriteria(currentConnector, hostname);
 		final String connectorId = currentConnector.getCompiledFilename();

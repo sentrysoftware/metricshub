@@ -124,6 +124,8 @@
 
 	<modules>
 		<module>metricshub-engine</module>
+		<module>metricshub-it-common</module>
+		<module>metricshub-snmp-extension</module>
 		<module>metricshub-agent</module>
 		<module>metricshub-doc</module>
 	</modules>
@@ -217,6 +219,11 @@
 			<dependency>
 				<groupId>org.sentrysoftware</groupId>
 				<artifactId>metricshub-engine</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.sentrysoftware</groupId>
+				<artifactId>metricshub-it-common</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

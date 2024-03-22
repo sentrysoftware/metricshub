@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import javax.management.Query;
-import org.sentrysoftware.metricshub.engine.it.snmp.SnmpAgent;
+import org.sentrysoftware.metricshub.extension.snmp.it.job.snmp4j.SnmpAgent;
 import org.snmp4j.CommandResponderEvent;
 import org.snmp4j.PDU;
 import org.snmp4j.SNMP4JSettings;

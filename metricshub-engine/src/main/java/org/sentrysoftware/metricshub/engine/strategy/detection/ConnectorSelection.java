@@ -33,6 +33,7 @@ import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
@@ -56,16 +57,18 @@ public class ConnectorSelection extends AbstractConnectorProcessor {
 	/**
 	 * Constructs a new {@code ConnectorSelection} instance using the provided telemetry manager and clients executor.
 	 *
-	 * @param telemetryManager The telemetry manager responsible for managing telemetry-related operations.
-	 * @param clientsExecutor  The executor for managing clients used in the strategy.
-	 * @param connectorIds     The set of connector identifiers that represent the connectors involved in the connector selection.
+	 * @param telemetryManager  The telemetry manager responsible for managing telemetry-related operations.
+	 * @param clientsExecutor   The executor for managing clients used in the strategy.
+	 * @param connectorIds      The set of connector identifiers that represent the connectors involved in the connector selection.
+	 * @param extensionManager The extension manager where all the required extensions are handled.
 	 */
 	public ConnectorSelection(
 		@NonNull final TelemetryManager telemetryManager,
 		@NonNull final ClientsExecutor clientsExecutor,
-		@NonNull final Set<String> connectorIds
+		@NonNull final Set<String> connectorIds,
+		@NonNull final ExtensionManager extensionManager
 	) {
-		super(telemetryManager, clientsExecutor, connectorIds);
+		super(telemetryManager, clientsExecutor, connectorIds, extensionManager);
 	}
 
 	@Override

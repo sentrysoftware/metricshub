@@ -46,13 +46,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.client.http.HttpRequest;
 import org.sentrysoftware.metricshub.engine.common.helpers.FilterResultHelper;
-import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
+import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IWinConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
@@ -67,6 +66,8 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.TableUnionSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WbemSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WmiSource;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
+import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.strategy.utils.IpmiHelper;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandResult;
@@ -86,6 +87,7 @@ public class SourceProcessor implements ISourceProcessor {
 	private TelemetryManager telemetryManager;
 	private String connectorId;
 	private ClientsExecutor clientsExecutor;
+	private ExtensionManager extensionManager;
 
 	@WithSpan("Source Copy Exec")
 	@Override
@@ -188,7 +190,7 @@ public class SourceProcessor implements ISourceProcessor {
 				return SourceTable.builder().rawData(result).build();
 			}
 		} catch (Exception e) {
-			logSourceError(
+			LoggingHelper.logSourceError(
 				connectorId,
 				httpSource.getKey(),
 				String.format("HTTP %s %s", httpSource.getMethod(), httpSource.getUrl()),
@@ -259,7 +261,7 @@ public class SourceProcessor implements ISourceProcessor {
 				log.error("Hostname {} - IPMI-over-LAN request returned <null> result. Returning an empty table.", hostname);
 			}
 		} catch (Exception e) {
-			logSourceError(connectorId, sourceKey, "IPMI-over-LAN", hostname, e);
+			LoggingHelper.logSourceError(connectorId, sourceKey, "IPMI-over-LAN", hostname, e);
 		}
 
 		return SourceTable.empty();
@@ -317,7 +319,13 @@ public class SourceProcessor implements ISourceProcessor {
 
 			log.debug("Hostname {} - IPMI OS command: {}:\n{}", hostname, fruCommand, fruResult);
 		} catch (Exception e) {
-			logSourceError(connectorId, sourceKey, String.format("IPMI OS command: %s.", fruCommand), hostname, e);
+			LoggingHelper.logSourceError(
+				connectorId,
+				sourceKey,
+				String.format("IPMI OS command: %s.", fruCommand),
+				hostname,
+				e
+			);
 
 			Thread.currentThread().interrupt();
 
@@ -336,7 +344,13 @@ public class SourceProcessor implements ISourceProcessor {
 			}
 			log.debug("Hostname {} - IPMI OS command: {}:\n{}", hostname, sdrCommand, sensorResult);
 		} catch (Exception e) {
-			logSourceError(connectorId, sourceKey, String.format("IPMI OS command: %s.", sdrCommand), hostname, e);
+			LoggingHelper.logSourceError(
+				connectorId,
+				sourceKey,
+				String.format("IPMI OS command: %s.", sdrCommand),
+				hostname,
+				e
+			);
 
 			Thread.currentThread().interrupt();
 
@@ -433,7 +447,7 @@ public class SourceProcessor implements ISourceProcessor {
 		try {
 			result = clientsExecutor.executeWql(hostname, winConfiguration, wmiQuery, namespace);
 		} catch (Exception exception) {
-			logSourceError(
+			LoggingHelper.logSourceError(
 				connectorId,
 				sourceKey,
 				String.format(
@@ -510,7 +524,7 @@ public class SourceProcessor implements ISourceProcessor {
 				)
 				.build();
 		} catch (Exception e) {
-			logSourceError(
+			LoggingHelper.logSourceError(
 				connectorId,
 				osCommandSource.getKey(),
 				String.format("OS command: %s.", osCommandSource.getCommandLine()),
@@ -525,121 +539,15 @@ public class SourceProcessor implements ISourceProcessor {
 	@WithSpan("Source SNMP Get Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final SnmpGetSource snmpGetSource) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		if (snmpGetSource == null) {
-			log.error(
-				"Hostname {} - SNMP Get Source cannot be null, the SNMP Get operation will return an empty result.",
-				hostname
-			);
-			return SourceTable.empty();
-		}
-
-		final SnmpConfiguration snmpConfiguration = (SnmpConfiguration) telemetryManager
-			.getHostConfiguration()
-			.getConfigurations()
-			.get(SnmpConfiguration.class);
-
-		if (snmpConfiguration == null) {
-			log.debug(
-				"Hostname {} - The SNMP credentials are not configured. Returning an empty table for SNMP Get Source {}.",
-				hostname,
-				snmpGetSource
-			);
-			return SourceTable.empty();
-		}
-
-		try {
-			final String result = clientsExecutor.executeSNMPGet(snmpGetSource.getOid(), snmpConfiguration, hostname, true);
-
-			if (result != null) {
-				return SourceTable
-					.builder()
-					.table(
-						Stream
-							.of(
-								Stream.of(result).collect(Collectors.toList()) // NOSONAR
-							)
-							.collect(Collectors.toList()) // NOSONAR
-					)
-					.build();
-			}
-		} catch (Exception e) { // NOSONAR on interruption
-			logSourceError(
-				connectorId,
-				snmpGetSource.getKey(),
-				String.format("SNMP Get: %s.", snmpGetSource.getOid()),
-				hostname,
-				e
-			);
-		}
-
-		return SourceTable.empty();
+		final Optional<IProtocolExtension> extensions = extensionManager.findSourceExtension(snmpGetSource, telemetryManager);
+		return extensions.map(extension -> extension.processSource(snmpGetSource, connectorId, telemetryManager)).orElseGet(SourceTable::empty);
 	}
 
 	@WithSpan("Source SNMP Table Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final SnmpTableSource snmpTableSource) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		if (snmpTableSource == null) {
-			log.error(
-				"Hostname {} - SNMP Get Table Source cannot be null, the SNMP Get Table operation will return an empty result.",
-				hostname
-			);
-			return SourceTable.empty();
-		}
-
-		// run the Client in order to execute the snmpTable
-		// receives a List structure
-		SourceTable sourceTable = new SourceTable();
-		String selectedColumns = snmpTableSource.getSelectColumns();
-
-		if (selectedColumns.isBlank()) {
-			return SourceTable.empty();
-		}
-
-		// The selectedColumns String is like "column1, column2, column3" and we want to split it into ["column1", "column2", "column3"]
-		final String[] selectedColumnArray = selectedColumns.split("\\s*,\\s*");
-
-		final SnmpConfiguration protocol = (SnmpConfiguration) telemetryManager
-			.getHostConfiguration()
-			.getConfigurations()
-			.get(SnmpConfiguration.class);
-
-		if (protocol == null) {
-			log.debug(
-				"Hostname {} - The SNMP credentials are not configured. Returning an empty table for SNMP Get Table Source {}.",
-				hostname,
-				snmpTableSource
-			);
-			return SourceTable.empty();
-		}
-
-		try {
-			final List<List<String>> result = clientsExecutor.executeSNMPTable(
-				snmpTableSource.getOid(),
-				selectedColumnArray,
-				protocol,
-				hostname,
-				true
-			);
-
-			sourceTable.setHeaders(Arrays.asList(selectedColumnArray));
-			sourceTable.setTable(result);
-
-			return sourceTable;
-		} catch (Exception e) { // NOSONAR on interruption
-			logSourceError(
-				connectorId,
-				snmpTableSource.getKey(),
-				String.format("SNMP Table: %s", snmpTableSource.getOid()),
-				hostname,
-				e
-			);
-
-			return SourceTable.empty();
-		}
+		final Optional<IProtocolExtension> extensions = extensionManager.findSourceExtension(snmpTableSource, telemetryManager);
+		return extensions.map(extension -> extension.processSource(snmpTableSource, connectorId, telemetryManager)).orElseGet(SourceTable::empty);
 	}
 
 	@WithSpan("Source Static Exec")
@@ -935,7 +843,7 @@ public class SourceProcessor implements ISourceProcessor {
 
 			return SourceTable.builder().table(table).build();
 		} catch (Exception e) {
-			logSourceError(
+			LoggingHelper.logSourceError(
 				connectorId,
 				wbemSource.getKey(),
 				String.format(
@@ -1024,7 +932,7 @@ public class SourceProcessor implements ISourceProcessor {
 
 			return SourceTable.builder().table(table).build();
 		} catch (Exception e) {
-			logSourceError(
+			LoggingHelper.logSourceError(
 				connectorId,
 				wmiSource.getKey(),
 				String.format(
@@ -1039,48 +947,6 @@ public class SourceProcessor implements ISourceProcessor {
 			);
 
 			return SourceTable.empty();
-		}
-	}
-
-	/**
-	 * Log the given throwable
-	 *
-	 * @param connectorId  The identifier of the connector
-	 * @param sourceKey    The key of the source
-	 * @param hostname     The host's hostname
-	 * @param context      Additional information about the operation
-	 * @param throwable    The catched throwable to log
-	 */
-	private static void logSourceError(
-		final String connectorId,
-		final String sourceKey,
-		final String context,
-		final String hostname,
-		final Throwable throwable
-	) {
-		if (log.isErrorEnabled()) {
-			log.error(
-				"Hostname {} - Source [{}] was unsuccessful due to an exception." +
-				" Context [{}]. Connector: [{}]. Returning an empty table. Errors:\n{}\n",
-				hostname,
-				sourceKey,
-				context,
-				connectorId,
-				StringHelper.getStackMessages(throwable)
-			);
-		}
-
-		if (log.isDebugEnabled()) {
-			log.debug(
-				String.format(
-					"Hostname %s - Source [%s] was unsuccessful due to an exception. Context [%s]. Connector: [%s]. Returning an empty table. Stack trace:",
-					hostname,
-					sourceKey,
-					context,
-					connectorId
-				),
-				throwable
-			);
 		}
 	}
 

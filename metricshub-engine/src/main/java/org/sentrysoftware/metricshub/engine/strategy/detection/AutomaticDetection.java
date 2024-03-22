@@ -39,6 +39,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.ConnectionType;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
@@ -65,13 +66,15 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 	 * @param telemetryManager The telemetry manager responsible for managing telemetry-related operations.
 	 * @param clientsExecutor  The executor for managing clients used in the strategy.
 	 * @param connectorIds     The set of connector identifiers that represent the connectors involved in the automatic detection.
+	 * @param extensionManager The extension manager where all the required extensions are handled.
 	 */
 	public AutomaticDetection(
 		@NonNull final TelemetryManager telemetryManager,
 		@NonNull final ClientsExecutor clientsExecutor,
-		@NonNull final Set<String> connectorIds
+		@NonNull final Set<String> connectorIds,
+		@NonNull final ExtensionManager extensionManager
 	) {
-		super(telemetryManager, clientsExecutor, connectorIds);
+		super(telemetryManager, clientsExecutor, connectorIds, extensionManager);
 	}
 
 	@Override
@@ -100,7 +103,7 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 		final DeviceKind deviceKind = hostConfiguration.getHostType();
 
 		final boolean isLocalhost = telemetryManager.getHostProperties().isLocalhost();
-		final Set<Class<? extends Source>> acceptedSources = hostConfiguration.determineAcceptedSources(isLocalhost);
+		final Set<Class<? extends Source>> acceptedSources = hostConfiguration.determineAcceptedSources(isLocalhost, extensionManager);
 
 		if (connectorStore.isEmpty()) {
 			log.error("Hostname {} - No connector to detect. Stopping detection operation.", hostname);

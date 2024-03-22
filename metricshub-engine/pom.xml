@@ -54,10 +54,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.sentrysoftware</groupId>
-			<artifactId>snmp</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sentrysoftware</groupId>
 			<artifactId>wbem</artifactId>
 		</dependency>
 		<dependency>

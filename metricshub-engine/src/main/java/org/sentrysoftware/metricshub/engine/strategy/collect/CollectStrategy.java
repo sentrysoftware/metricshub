@@ -54,6 +54,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.StandardMoni
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.AbstractCollect;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Mapping;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.MultiInstanceCollect;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.pre.PreSourcesStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.source.OrderedSources;
@@ -89,14 +90,16 @@ public class CollectStrategy extends AbstractStrategy {
 	 * @param telemetryManager The telemetry manager responsible for managing telemetry-related operations.
 	 * @param strategyTime     The time when the strategy is executed.
 	 * @param clientsExecutor  The executor for managing clients used in the strategy.
+	 * @param ExtensionManager The extension manager where all the required extensions are handled.
 	 */
 	@Builder
 	public CollectStrategy(
 		@NonNull final TelemetryManager telemetryManager,
 		@NonNull final Long strategyTime,
-		@NonNull final ClientsExecutor clientsExecutor
+		@NonNull final ClientsExecutor clientsExecutor,
+		@NonNull final ExtensionManager extensionManager
 	) {
-		super(telemetryManager, strategyTime, clientsExecutor);
+		super(telemetryManager, strategyTime, clientsExecutor, extensionManager);
 	}
 
 	/**
@@ -122,6 +125,7 @@ public class CollectStrategy extends AbstractStrategy {
 			.strategyTime(strategyTime)
 			.telemetryManager(telemetryManager)
 			.connector(currentConnector)
+			.extensionManager(extensionManager)
 			.build();
 
 		preSourcesStrategy.run();

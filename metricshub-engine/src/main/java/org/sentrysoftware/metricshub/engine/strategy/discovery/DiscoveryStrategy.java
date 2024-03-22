@@ -29,6 +29,7 @@ import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.MonitorJob;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.StandardMonitorJob;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.AbstractMonitorTask;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.strategy.AbstractAllAtOnceStrategy;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
@@ -52,14 +53,16 @@ public class DiscoveryStrategy extends AbstractAllAtOnceStrategy {
 	 * @param telemetryManager The telemetry manager for managing monitors and metrics.
 	 * @param strategyTime     The time at which the discovery strategy is executed.
 	 * @param clientsExecutor  The executor for running connector clients.
+	 * @param ExtensionManager The extension manager where all the required extensions are handled.
 	 */
 	@Builder
 	public DiscoveryStrategy(
 		@NonNull final TelemetryManager telemetryManager,
 		@NonNull final Long strategyTime,
-		@NonNull final ClientsExecutor clientsExecutor
+		@NonNull final ClientsExecutor clientsExecutor,
+		@NonNull final ExtensionManager extensionManager
 	) {
-		super(telemetryManager, strategyTime, clientsExecutor);
+		super(telemetryManager, strategyTime, clientsExecutor, extensionManager);
 	}
 
 	@Override

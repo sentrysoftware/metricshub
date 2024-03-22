@@ -74,7 +74,7 @@ public class Constants {
 		List.of("1", "ps", "root", "0", "ps -A -o pid,comm,ruser,ppid,args"),
 		List.of("10564", "eclipse.exe", "user", "11068", "\"C:\\Users\\huan\\eclipse\\eclipse.exe\"")
 	);
-	public static final String OID = "1.3.6.1.4.1.674.10893.1.20";
+
 	public static final String EMPTY = "";
 	public static final String SINGLE_SPACE = " ";
 	public static final String ROOT = "root";
@@ -144,6 +144,7 @@ public class Constants {
 		"\"Value\":expectedVal2\n" +
 		"}\n" +
 		"}]";
+	public static final String OID = "1.3.6.1.4.1.674.10893.1.20";
 	public static final String SNMP_WRONG_COLUMNS = "ID, ID9, ID11, ID49";
 	public static final List<String> SNMP_WRONG_COLUMNS_LIST = Arrays.asList("ID", "ID9", "ID11", "ID49");
 	public static final List<List<String>> EXPECTED_SNMP_TABLE_DATA = Arrays.asList(
@@ -369,11 +370,7 @@ public class Constants {
 	public static final String SNMP_GET_NEXT_THIRD_RESULT = "1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT 2.4.6";
 	public static final String SNMP_GET_NEXT_FOURTH_RESULT = "1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT";
 	public static final String SNMP_GET_NEXT_CRITERION_VERSION = "2.4.6";
-	public static final String SNMP_GET_NEXT_TIMEOUT_EXCEPTION_MESSAGE = "SNMPGetNext timeout";
-	public static final String SNMP_GET_NEXT_TIMEOUT_MESSAGE =
-		"Hostname host-win - SNMP test failed - SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 " +
-		"was unsuccessful due to an exception. " +
-		"Message: SNMPGetNext timeout";
+
 	public static final String FAILED_SNMP_GET_NEXT_NULL_MESSAGE =
 		"Hostname host-win - SNMP test failed - SNMP GetNext " +
 		"of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful " +

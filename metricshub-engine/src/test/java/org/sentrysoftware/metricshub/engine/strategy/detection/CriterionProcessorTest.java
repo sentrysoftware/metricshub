@@ -17,7 +17,79 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mockStatic;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.WMI_PROCESS_QUERY;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.*;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.BMC;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.COMMAND_FILE_ABSOLUTE_PATH;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.CONFIGURED_OS_NT_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.CONFIGURED_OS_SOLARIS_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.CRITERION_WMI_NAMESPACE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.EMPTY;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.ERROR;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.EXCUTE_WBEM_RESULT;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.EXECUTE_WMI_RESULT;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.FAILED_OS_DETECTION;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HIGH_VERSION_NUMBER;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_ID;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_LINUX;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_OS_IS_NOT_WINDOWS_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_WIN;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HTTP;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HTTP_GET;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.INVALID_SOLARIS_VERSION;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.INVALID_SSH_RESPONSE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.IPMI_CONNECTION_SUCCESS_WITH_IMPI_OVER_LAN_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.IPMI_CONNECTION_SUCCESS_WITH_IN_BAND_DRIVER_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.IPMI_FAILURE_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.IPMI_RESULT_EXAMPLE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.IPMI_SUCCESS_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.IPMI_TOOL_COMMAND;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.LINUX_BUILD_IPMI_COMMAND;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.LIPMI;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.LIST_ALL_LINUX_PROCESSES_RESULT;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.LOCALHOST;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.LOW_VERSION_NUMBER;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.MANAGEMENT_CARD_HOST;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.MY_CONNECTOR_1_NAME;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.NEITHER_WMI_NOR_WINRM_ERROR;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.NO_OS_CONFIGURATION_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.NO_RUNNING_PROCESS_MATCH_REGEX_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.NO_TEST_WILL_BE_PERFORMED_AIX_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.NO_TEST_WILL_BE_PERFORMED_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.NO_TEST_WILL_BE_PERFORMED_REMOTELY_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.NO_TEST_WILL_BE_PERFORMED_UNKNOWN_OS_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.OLD_SOLARIS_VERSION;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.OLD_SOLARIS_VERSION_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.OOB_NULL_RESULT_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.PASSWORD;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.PATH;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.PROCESS_CRITERION_COMMAND_LINE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.RESULT;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.RUNNING_PROCESS_MATCH_REGEX_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.SERVICE_NAME_NOT_SPECIFIED_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.SOLARIS_VERSION_NOT_IDENTIFIED_MESSAGE_TOKEN;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.SSH_SUDO_COMMAND;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.STRATEGY_TIMEOUT;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.SUCCESSFUL_OS_DETECTION;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.SUDO_KEYWORD;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.SYSTEM_POWER_UP_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.TEST;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.TEST_BODY;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.TWGIPC;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.UNKNOWN_SOLARIS_VERSION;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.USERNAME;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.VALID_SOLARIS_VERSION_NINE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.VALID_SOLARIS_VERSION_TEN;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_CREDENTIALS_NOT_CONFIGURED;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_CRITERION_NO_RESULT_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_CRITERION_UNEXPECTED_RESULT_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_MALFORMED_CRITERION_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_QUERY;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.WEBM_CRITERION_FAILURE_EXPECTED_RESULT;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.WEBM_CRITERION_SUCCESS_EXPECTED_RESULT;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.WMI_CREDENTIALS_NOT_CONFIGURED;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.WMI_CRITERION_TEST_SUCCEED_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.WMI_CRITERION_UNEXPECTED_RESULT_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.WMI_QUERY_EMPTY_VALUE_MESSAGE;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -27,7 +99,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.TimeoutException;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,7 +118,6 @@ import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
@@ -60,8 +131,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.O
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.ProcessCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.ProductRequirementsCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.ServiceCriterion;
-import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetCriterion;
-import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetNextCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WbemCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WmiCriterion;
 import org.sentrysoftware.metricshub.engine.strategy.utils.CriterionProcessVisitor;
@@ -203,263 +272,6 @@ class CriterionProcessorTest {
 		assertTrue(result.getException() instanceof ClientException);
 	}
 
-	private void initSNMP() {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
-			.builder()
-			.community(SNMP_CONFIGURATION_COMMUNITY)
-			.version(SnmpConfiguration.SnmpVersion.V1)
-			.port(161)
-			.timeout(120L)
-			.build();
-
-		telemetryManager =
-			TelemetryManager
-				.builder()
-				.hostConfiguration(
-					HostConfiguration
-						.builder()
-						.hostname(HOST_WIN)
-						.hostId(HOST_WIN)
-						.hostType(DeviceKind.LINUX)
-						.configurations(Map.of(SnmpConfiguration.class, snmpConfiguration))
-						.build()
-				)
-				.build();
-	}
-
-	@Test
-	void testProcessSNMPGetNextException() throws Exception {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doThrow(new TimeoutException(SNMP_GET_NEXT_TIMEOUT_EXCEPTION_MESSAGE))
-			.when(clientsExecutorMock)
-			.executeSNMPGetNext(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(SnmpGetNextCriterion.builder().oid(OID).build());
-		final CriterionTestResult expected = CriterionTestResult.builder().message(SNMP_GET_NEXT_TIMEOUT_MESSAGE).build();
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void testProcessSNMPGetNextNullResult() throws Exception {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(null).when(clientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(SnmpGetNextCriterion.builder().oid(OID).build());
-		final CriterionTestResult expected = CriterionTestResult
-			.builder()
-			.message(FAILED_SNMP_GET_NEXT_NULL_MESSAGE)
-			.build();
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void testProcessSNMPGetNextEmptyResult() throws Exception {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(EMPTY).when(clientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(SnmpGetNextCriterion.builder().oid(OID).build());
-		final CriterionTestResult expected = CriterionTestResult
-			.builder()
-			.message(FAILED_SNMP_GET_NEXT_EMPTY_MESSAGE)
-			.result(EMPTY)
-			.build();
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void testProcessSNMPGetNextNotSameSubTreeOID() throws Exception {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(SNMP_GET_NEXT_FIRST_RESULT).when(clientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(SnmpGetNextCriterion.builder().oid(OID).build());
-		final CriterionTestResult expected = CriterionTestResult
-			.builder()
-			.message(FAILED_SNMP_GET_NEXT_WRONG_OID_MESSAGE)
-			.result(SNMP_GET_NEXT_FIRST_RESULT)
-			.build();
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void testProcessSNMPGetNextSuccessWithNoExpectedResult() throws Exception {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(SNMP_GET_NEXT_SECOND_RESULT).when(clientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(SnmpGetNextCriterion.builder().oid(OID).build());
-		final CriterionTestResult expected = CriterionTestResult
-			.builder()
-			.message(SUCCESSFUL_SNMP_GET_NEXT_WITHOUT_EXPECTED_RESULT_MESSAGE)
-			.result(SNMP_GET_NEXT_SECOND_RESULT)
-			.success(true)
-			.build();
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void testProcessSNMPGetNextExpectedResultNotMatches() throws Exception {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(SNMP_GET_NEXT_SECOND_RESULT).when(clientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(
-			SnmpGetNextCriterion.builder().oid(OID).expectedResult(SNMP_GET_NEXT_CRITERION_VERSION).build()
-		);
-		final CriterionTestResult expected = CriterionTestResult
-			.builder()
-			.message(FAILED_SNMP_GET_NEXT_OID_NOT_MATCHING_MESSAGE)
-			.result(SNMP_GET_NEXT_SECOND_RESULT)
-			.build();
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void testProcessSNMPGetNextExpectedResultMatches() throws Exception {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(SNMP_GET_NEXT_THIRD_RESULT).when(clientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(
-			SnmpGetNextCriterion.builder().oid(OID).expectedResult(SNMP_GET_NEXT_CRITERION_VERSION).build()
-		);
-		final CriterionTestResult expected = CriterionTestResult
-			.builder()
-			.message(SUCCESSFUL_SNMP_GET_NEXT_MATCHING_EXPECTED_RESULT_MESSAGE)
-			.result(SNMP_GET_NEXT_THIRD_RESULT)
-			.success(true)
-			.build();
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void testProcessSNMPGetNextExpectedResultCannotExtract() throws Exception {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(SNMP_GET_NEXT_FOURTH_RESULT).when(clientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(
-			SnmpGetNextCriterion.builder().oid(OID).expectedResult(SNMP_GET_NEXT_CRITERION_VERSION).build()
-		);
-		final CriterionTestResult expected = CriterionTestResult
-			.builder()
-			.message(FAILED_SNMP_GET_NEXT_WRONG_EXTRACTED_VALUE_MESSAGE)
-			.result(SNMP_GET_NEXT_FOURTH_RESULT)
-			.build();
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void testProcessSNMPGetNextReturnsEmptyResult() {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		assertEquals(CriterionTestResult.empty(), criterionProcessor.process((SnmpGetNextCriterion) null));
-		assertEquals(CriterionTestResult.empty(), criterionProcessor.process((SnmpGetNextCriterion) null));
-		assertNull(criterionProcessor.process(SnmpGetNextCriterion.builder().oid(OID).build()).getResult());
-	}
-
-	@Test
-	void testProcessSNMPGetReturnsEmptyResult() {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		assertEquals(CriterionTestResult.empty(), criterionProcessor.process((SnmpGetCriterion) null));
-		assertNull(criterionProcessor.process(SnmpGetCriterion.builder().oid(OID).build()).getResult());
-	}
-
-	@Test
-	void testProcessSNMPGetExpectedResultMatches() throws Exception {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(EXECUTE_SNMP_GET_RESULT).when(clientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(
-			SnmpGetCriterion.builder().oid(OID).expectedResult(EXPECTED_SNMP_RESULT).build()
-		);
-		final CriterionTestResult expected = CriterionTestResult
-			.builder()
-			.message(SNMP_GET_EXPECTED_RESULT_MATCHES_MESSAGE)
-			.result(EXECUTE_SNMP_GET_RESULT)
-			.success(true)
-			.build();
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void testProcessSNMPGetExpectedResultNotMatches() throws Exception {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(EXECUTE_SNMP_GET_RESULT).when(clientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(
-			SnmpGetCriterion.builder().oid(OID).expectedResult(SNMP_VERSION).build()
-		);
-		final CriterionTestResult expected = CriterionTestResult
-			.builder()
-			.message(SNMP_GET_EXPECTED_RESULT_NOT_MATCHES_MESSAGE)
-			.result(EXECUTE_SNMP_GET_RESULT)
-			.build();
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void testProcessSNMPGetSuccessWithNoExpectedResult() throws Exception {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(EXECUTE_SNMP_GET_RESULT).when(clientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(SnmpGetCriterion.builder().oid(OID).build());
-		final CriterionTestResult expected = CriterionTestResult
-			.builder()
-			.message(SNMP_GET_SUCCESS_WITH_NO_EXPECTED_RESULT_MESSAGE)
-			.result(EXECUTE_SNMP_GET_RESULT)
-			.success(true)
-			.build();
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void testProcessSNMPGetEmptyResult() throws Exception {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(EMPTY).when(clientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(SnmpGetCriterion.builder().oid(OID).build());
-		final CriterionTestResult expected = CriterionTestResult
-			.builder()
-			.message(SNMP_GET_EMPTY_RESULT_MESSAGE)
-			.result(EMPTY)
-			.build();
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void testProcessSNMPGetNullResult() throws Exception {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(null).when(clientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(SnmpGetCriterion.builder().oid(OID).build());
-		final CriterionTestResult expected = CriterionTestResult.builder().message(SNMP_GET_NULL_RESULT_MESSAGE).build();
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void testProcessSNMPGetException() throws Exception {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doThrow(new TimeoutException(SNMP_GET_TIMEOUT_MESSAGE))
-			.when(clientsExecutorMock)
-			.executeSNMPGet(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(SnmpGetCriterion.builder().oid(OID).build());
-		final CriterionTestResult expected = CriterionTestResult.builder().message(SNMP_GET_EXCEPTION_MESSAGE).build();
-		assertEquals(expected, actual);
-	}
 
 	@Test
 	void testProcessProcessProcessNull() {

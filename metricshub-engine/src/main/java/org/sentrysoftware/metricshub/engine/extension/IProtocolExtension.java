@@ -1,5 +1,7 @@
 package org.sentrysoftware.metricshub.engine.extension;
 
+import java.util.Map;
+
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
  * MetricsHub Engine
@@ -57,21 +59,24 @@ public interface IProtocolExtension {
 	Set<Class<? extends Source>> getSupportedSources();
 
 	/**
+	 * Provides a mapping between configuration classes and their corresponding sets
+	 * of source classes.
+	 *
+	 * @return A map where the keys are classes extending {@link IConfiguration}
+	 *         representing different types of protocol configurations, and the
+	 *         values are sets of classes extending {@link Source}, indicating the
+	 *         sources that are compatible and can be utilized with each
+	 *         configuration type for data exchange operations.
+	 */
+	Map<Class<? extends IConfiguration>, Set<Class<? extends Source>>> getConfigurationToSourceMapping();
+
+	/**
 	 * Retrieves the set of criterion classes that this extension supports. Criteria
 	 * represent specific conditions or checks that the engine execute to match connectors.
 	 *
 	 * @return A set of classes extending {@link Criterion}, representing the supported criteria.
 	 */
 	Set<Class<? extends Criterion>> getSupportedCriteria();
-
-	/**
-	 * Checks if protocol verification is supported for a given configuration type.
-	 * This determines if a specific type of configuration can undergo protocol checks.
-	 *
-	 * @param configurationType The class of the configuration to check.
-	 * @return {@code true} if protocol checks are supported for the given configuration type, otherwise {@code false}.
-	 */
-	boolean isProtocolCheckSupported(Class<? extends IConfiguration> configurationType);
 
 	/**
 	 * Performs a protocol check based on the given telemetry manager and collect time. This method
@@ -91,7 +96,7 @@ public interface IProtocolExtension {
 	 * @param telemetryManager The telemetry manager to use for monitoring.
 	 * @return A {@link SourceTable} object representing the result of the source execution.
 	 */
-	SourceTable executeSource(Source source, String connectorId, TelemetryManager telemetryManager);
+	SourceTable processSource(Source source, String connectorId, TelemetryManager telemetryManager);
 
 	/**
 	 * Executes a criterion check based on the given criterion and configuration within the telemetry manager.
@@ -101,5 +106,5 @@ public interface IProtocolExtension {
 	 * @param telemetryManager The telemetry manager to use for monitoring.
 	 * @return A {@link CriterionTestResult} object representing the result of the criterion execution.
 	 */
-	CriterionTestResult executeCriterion(Criterion criterion, String connectorId, TelemetryManager telemetryManager);
+	CriterionTestResult processCriterion(Criterion criterion, String connectorId, TelemetryManager telemetryManager);
 }
