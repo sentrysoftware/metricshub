@@ -1,7 +1,5 @@
 package org.sentrysoftware.metricshub.engine.extension;
 
-import java.util.Map;
-
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
  * MetricsHub Engine

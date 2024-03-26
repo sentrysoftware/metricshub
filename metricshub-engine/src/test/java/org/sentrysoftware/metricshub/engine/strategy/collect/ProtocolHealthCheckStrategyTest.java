@@ -67,6 +67,7 @@ class ProtocolHealthCheckStrategyTest {
 
 	@Mock
 	private static ClientsExecutor clientsExecutorMock;
+
 	@Mock
 	private static IProtocolExtension protocolExtensionMock;
 

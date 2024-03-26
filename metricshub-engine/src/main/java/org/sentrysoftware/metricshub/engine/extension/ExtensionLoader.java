@@ -32,13 +32,11 @@ import java.util.ServiceLoader.Provider;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import org.sentrysoftware.agentclassloader.ClassLoaderAgent;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.sentrysoftware.agentclassloader.ClassLoaderAgent;
 
 /**
  * Manages the loading of extensions from a specified directory and produces an {@link ExtensionManager}.

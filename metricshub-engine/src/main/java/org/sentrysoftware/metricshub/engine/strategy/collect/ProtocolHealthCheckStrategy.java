@@ -24,7 +24,6 @@ import static org.sentrysoftware.metricshub.engine.configuration.OsCommandConfig
 
 import java.util.Collections;
 import java.util.List;
-
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
