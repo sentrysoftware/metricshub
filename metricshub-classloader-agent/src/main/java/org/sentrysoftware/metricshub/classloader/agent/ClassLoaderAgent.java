@@ -1,4 +1,4 @@
-package org.sentrysoftware.agentclassloader;
+package org.sentrysoftware.metricshub.classloader.agent;
 
 import java.lang.instrument.Instrumentation;
 import java.util.Optional;
@@ -9,8 +9,6 @@ import java.util.jar.JarFile;
  * java 11)
  * 
  * @link https://cgjennings.ca/articles/java-9-dynamic-jar-loading/
- * 
- *
  */
 public class ClassLoaderAgent {
 

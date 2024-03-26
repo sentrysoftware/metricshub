@@ -17,6 +17,10 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>org.sentrysoftware</groupId>
+			<artifactId>metricshub-classloader-agent</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<scope>compile</scope>
@@ -164,11 +168,6 @@
 			<groupId>org.snmp4j</groupId>
 			<artifactId>snmp4j-agent</artifactId>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.sentrysoftware</groupId>
-			<artifactId>agent-class-loader</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 

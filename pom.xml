@@ -123,6 +123,7 @@
 	</properties>
 
 	<modules>
+		<module>metricshub-classloader-agent</module>
 		<module>metricshub-engine</module>
 		<module>metricshub-it-common</module>
 		<module>metricshub-snmp-extension</module>
@@ -219,6 +220,11 @@
 			<dependency>
 				<groupId>org.sentrysoftware</groupId>
 				<artifactId>metricshub-engine</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.sentrysoftware</groupId>
+				<artifactId>metricshub-classloader-agent</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
