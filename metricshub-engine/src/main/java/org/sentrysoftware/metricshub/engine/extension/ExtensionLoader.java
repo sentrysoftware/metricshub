@@ -29,8 +29,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.ServiceLoader.Provider;
+import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.sentrysoftware.agentclassloader.ClassLoaderAgent;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
@@ -73,7 +77,7 @@ public class ExtensionLoader {
 			final File jarFile = extensionJars[i];
 
 			// Make sure to add the jar to the system class loader search
-
+			ClassLoaderAgent.addToClassPath(new JarFile(jarFile));
 			urls[i] = jarFile.toURI().toURL();
 		}
 
