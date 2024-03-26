@@ -30,8 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -69,6 +67,9 @@ class ProtocolHealthCheckStrategyTest {
 
 	@Mock
 	private static ClientsExecutor clientsExecutorMock;
+	@Mock
+	private static IProtocolExtension protocolExtensionMock;
+
 	@Mock
 	private static IProtocolExtension protocolExtensionMock;
 
@@ -295,7 +296,6 @@ class ProtocolHealthCheckStrategyTest {
 			CURRENT_TIME_MILLIS,
 			clientsExecutorMock,
 			ExtensionManager.empty()
-			
 		);
 
 		// Start the Health Check strategy
@@ -327,14 +327,19 @@ class ProtocolHealthCheckStrategyTest {
 	}
 
 	@Test
-	void testCheckHealth() throws InterruptedException, ExecutionException, TimeoutException {
+	void testCheckHealth() throws Exception {
 		// Create a telemetry manager using an SNMP HostConfiguration.
 		final TelemetryManager telemetryManager = createTelemetryManagerWithSnmpConfig();
 
 		// Create the Extension Manager
-		final ExtensionManager extensionManager = ExtensionManager.builder().withProtocolExtensions(List.of(protocolExtensionMock)).build();
+		final ExtensionManager extensionManager = ExtensionManager
+			.builder()
+			.withProtocolExtensions(List.of(protocolExtensionMock))
+			.build();
 
-		doReturn(true).when(protocolExtensionMock).isValidConfiguration(telemetryManager.getHostConfiguration().getConfigurations().get(TestConfiguration.class));
+		doReturn(true)
+			.when(protocolExtensionMock)
+			.isValidConfiguration(telemetryManager.getHostConfiguration().getConfigurations().get(TestConfiguration.class));
 
 		doNothing().when(protocolExtensionMock).checkProtocol(any(TelemetryManager.class), anyLong());
 
@@ -345,7 +350,6 @@ class ProtocolHealthCheckStrategyTest {
 			clientsExecutorMock,
 			extensionManager
 		);
-			
 		assertDoesNotThrow(() -> healthCheckStrategy.run());
 	}
 

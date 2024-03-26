@@ -103,7 +103,10 @@ public class AutomaticDetection extends AbstractConnectorProcessor {
 		final DeviceKind deviceKind = hostConfiguration.getHostType();
 
 		final boolean isLocalhost = telemetryManager.getHostProperties().isLocalhost();
-		final Set<Class<? extends Source>> acceptedSources = hostConfiguration.determineAcceptedSources(isLocalhost, extensionManager);
+		final Set<Class<? extends Source>> acceptedSources = hostConfiguration.determineAcceptedSources(
+			isLocalhost,
+			extensionManager
+		);
 
 		if (connectorStore.isEmpty()) {
 			log.error("Hostname {} - No connector to detect. Stopping detection operation.", hostname);

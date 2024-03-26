@@ -16,6 +16,7 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.spy;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.WMI_PROCESS_QUERY;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.BMC;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.COMMAND_FILE_ABSOLUTE_PATH;
@@ -99,7 +100,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -119,6 +119,7 @@ import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
+import org.sentrysoftware.metricshub.engine.configuration.TestConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
@@ -133,6 +134,8 @@ import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.P
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.ServiceCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WbemCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WmiCriterion;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
+import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.strategy.utils.CriterionProcessVisitor;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandResult;
@@ -152,11 +155,11 @@ class CriterionProcessorTest {
 	@Mock
 	private WqlDetectionHelper wqlDetectionHelperMock;
 
-	@InjectMocks
-	private CriterionProcessor criterionProcessor;
-
 	@Mock
 	private TelemetryManager telemetryManagerMock;
+
+	@InjectMocks
+	private CriterionProcessor criterionProcessor;
 
 	private TelemetryManager telemetryManager;
 	private WmiConfiguration wmiConfiguration;
@@ -178,6 +181,96 @@ class CriterionProcessorTest {
 				)
 				.build();
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+	}
+
+	private void initSnmp() {
+		final TestConfiguration snmpConfiguration = new TestConfiguration();
+
+		telemetryManager =
+			TelemetryManager
+				.builder()
+				.hostConfiguration(
+					HostConfiguration
+						.builder()
+						.hostname(LOCALHOST)
+						.hostId(LOCALHOST)
+						.hostType(DeviceKind.LINUX)
+						.configurations(Map.of(TestConfiguration.class, snmpConfiguration))
+						.build()
+				)
+				.build();
+	}
+
+	@Test
+	void testProcessSnmpGetCriterion() {
+		initSnmp();
+
+		final IProtocolExtension protocolExtensionMock = spy(IProtocolExtension.class);
+
+		final ExtensionManager extensionManager = ExtensionManager
+			.builder()
+			.withProtocolExtensions(List.of(protocolExtensionMock))
+			.build();
+
+		doReturn(true)
+			.when(protocolExtensionMock)
+			.isValidConfiguration(telemetryManager.getHostConfiguration().getConfigurations().get(TestConfiguration.class));
+
+		doReturn(Set.of(SnmpGetCriterion.class, SnmpGetNextCriterion.class))
+			.when(protocolExtensionMock)
+			.getSupportedCriteria();
+
+		final SnmpGetCriterion snmpGetCriterion = SnmpGetCriterion.builder().oid("1.2.3.4.5.6").build();
+
+		final CriterionTestResult expected = CriterionTestResult.builder().success(true).message("success").build();
+
+		doReturn(expected)
+			.when(protocolExtensionMock)
+			.processCriterion(snmpGetCriterion, MY_CONNECTOR_1_NAME, telemetryManager);
+
+		final CriterionProcessor criterionProcessor = new CriterionProcessor(
+			clientsExecutorMock,
+			telemetryManager,
+			MY_CONNECTOR_1_NAME,
+			extensionManager
+		);
+		assertEquals(expected, criterionProcessor.process(snmpGetCriterion));
+	}
+
+	@Test
+	void testProcessSnmpGetNextCriterion() {
+		initSnmp();
+
+		final IProtocolExtension protocolExtensionMock = spy(IProtocolExtension.class);
+
+		final ExtensionManager extensionManager = ExtensionManager
+			.builder()
+			.withProtocolExtensions(List.of(protocolExtensionMock))
+			.build();
+
+		doReturn(true)
+			.when(protocolExtensionMock)
+			.isValidConfiguration(telemetryManager.getHostConfiguration().getConfigurations().get(TestConfiguration.class));
+
+		doReturn(Set.of(SnmpGetCriterion.class, SnmpGetNextCriterion.class))
+			.when(protocolExtensionMock)
+			.getSupportedCriteria();
+
+		final SnmpGetNextCriterion snmpGetNextCriterion = SnmpGetNextCriterion.builder().oid("1.2.3.4.5").build();
+
+		final CriterionTestResult expected = CriterionTestResult.builder().success(true).message("success").build();
+
+		doReturn(expected)
+			.when(protocolExtensionMock)
+			.processCriterion(snmpGetNextCriterion, MY_CONNECTOR_1_NAME, telemetryManager);
+
+		final CriterionProcessor criterionProcessor = new CriterionProcessor(
+			clientsExecutorMock,
+			telemetryManager,
+			MY_CONNECTOR_1_NAME,
+			extensionManager
+		);
+		assertEquals(expected, criterionProcessor.process(snmpGetNextCriterion));
 	}
 
 	@Test
@@ -271,7 +364,6 @@ class CriterionProcessorTest {
 		assertFalse(result.isSuccess());
 		assertTrue(result.getException() instanceof ClientException);
 	}
-
 
 	@Test
 	void testProcessProcessProcessNull() {
@@ -753,10 +845,15 @@ class CriterionProcessorTest {
 			.build();
 
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
+
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 
 		assertEquals(CriterionTestResult.empty(), criterionProcessor.process(httpCriterion));
@@ -776,10 +873,15 @@ class CriterionProcessorTest {
 			.build();
 
 		final TelemetryManager telemetryManager = TelemetryManager.builder().build();
+
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 
 		assertEquals(CriterionTestResult.empty(), criterionProcessor.process(httpCriterion));
@@ -822,10 +924,14 @@ class CriterionProcessorTest {
 			.build();
 		doReturn(result).when(clientsExecutorMock).executeHttp(httpRequest, false);
 
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 
 		final String message = String.format(
@@ -882,10 +988,14 @@ class CriterionProcessorTest {
 			.build();
 		doReturn(RESULT).when(clientsExecutorMock).executeHttp(httpRequest, false);
 
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 
 		final String message = "Hostname PC-120 - HTTP test succeeded. Returned result: result.";
@@ -1551,10 +1661,14 @@ class CriterionProcessorTest {
 			.hostConfiguration(hostConfiguration)
 			.build();
 
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 
 		// The result is not the same as the expected result
@@ -1618,10 +1732,14 @@ class CriterionProcessorTest {
 			.hostConfiguration(hostConfiguration)
 			.build();
 
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 
 		OsCommandResult result = new OsCommandResult(RESULT, SSH_SUDO_COMMAND);
@@ -1683,10 +1801,14 @@ class CriterionProcessorTest {
 			.hostConfiguration(hostConfiguration)
 			.build();
 
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 
 		OsCommandResult result = new OsCommandResult(RESULT, COMMAND_FILE_ABSOLUTE_PATH);
@@ -1740,10 +1862,14 @@ class CriterionProcessorTest {
 
 		final TelemetryManager telemetryManager = TelemetryManager.builder().build();
 
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
 
@@ -1769,10 +1895,14 @@ class CriterionProcessorTest {
 
 		final TelemetryManager telemetryManager = TelemetryManager.builder().build();
 
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
 
@@ -1800,10 +1930,14 @@ class CriterionProcessorTest {
 
 		final TelemetryManager telemetryManager = TelemetryManager.builder().build();
 
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
 
@@ -1851,10 +1985,14 @@ class CriterionProcessorTest {
 			.hostProperties(hostProperties)
 			.build();
 
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
@@ -1904,10 +2042,14 @@ class CriterionProcessorTest {
 			.hostProperties(hostProperties)
 			.build();
 
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
@@ -1961,10 +2103,14 @@ class CriterionProcessorTest {
 			.hostProperties(hostProperties)
 			.build();
 
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
@@ -2014,10 +2160,14 @@ class CriterionProcessorTest {
 			.hostProperties(hostProperties)
 			.build();
 
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
@@ -2069,10 +2219,14 @@ class CriterionProcessorTest {
 			.hostProperties(hostProperties)
 			.build();
 
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
@@ -2124,10 +2278,14 @@ class CriterionProcessorTest {
 			.hostProperties(hostProperties)
 			.build();
 
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
@@ -2175,10 +2333,14 @@ class CriterionProcessorTest {
 			.hostProperties(hostProperties)
 			.build();
 
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);

@@ -62,8 +62,12 @@ public class SnmpGetCriterionProcessor {
 		}
 
 		try {
-			final String result = snmpRequestExecutor
-				.executeSNMPGet(snmpGetCriterion.getOid(), snmpConfiguration, hostname, false);
+			final String result = snmpRequestExecutor.executeSNMPGet(
+				snmpGetCriterion.getOid(),
+				snmpConfiguration,
+				hostname,
+				false
+			);
 
 			final CriterionTestResult criterionTestResult = checkSNMPGetResult(
 				hostname,

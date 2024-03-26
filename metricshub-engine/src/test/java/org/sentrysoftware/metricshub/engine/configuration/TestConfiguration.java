@@ -7,6 +7,4 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 @Builder
-public class TestConfiguration implements IConfiguration {
-
-}
+public class TestConfiguration implements IConfiguration {}

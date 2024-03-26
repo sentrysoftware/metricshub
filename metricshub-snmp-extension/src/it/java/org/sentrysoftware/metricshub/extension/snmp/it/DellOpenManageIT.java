@@ -83,9 +83,9 @@ class DellOpenManageIT {
 				new DiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor, extensionManager)
 			)
 			.executeStrategies(
-					new PrepareCollectStrategy(telemetryManager, collectTime, clientsExecutor, extensionManager),
-					new ProtocolHealthCheckStrategy(telemetryManager, collectTime, clientsExecutor, extensionManager),
-					new CollectStrategy(telemetryManager, collectTime, clientsExecutor, extensionManager)
+				new PrepareCollectStrategy(telemetryManager, collectTime, clientsExecutor, extensionManager),
+				new ProtocolHealthCheckStrategy(telemetryManager, collectTime, clientsExecutor, extensionManager),
+				new CollectStrategy(telemetryManager, collectTime, clientsExecutor, extensionManager)
 			)
 			.verifyExpected("snmp/DellOpenManageIT/expected/expected.json");
 	}

@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -80,10 +79,23 @@ class SnmpExtensionTest {
 		doThrow(new TimeoutException("SNMPGetNext timeout"))
 			.when(snmpRequestExecutorMock)
 			.executeSNMPGetNext(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = snmpExtension.processCriterion(SnmpGetNextCriterion.builder().oid(OID).build(), CONNECTOR_ID, telemetryManager);
-		final CriterionTestResult expected = CriterionTestResult.builder().message(String.format("Hostname %s - SNMP test failed - SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 " +
-				"was unsuccessful due to an exception. " +
-				"Message: SNMPGetNext timeout. Connector ID: %s.", HOST_NAME, CONNECTOR_ID)).build();
+		final CriterionTestResult actual = snmpExtension.processCriterion(
+			SnmpGetNextCriterion.builder().oid(OID).build(),
+			CONNECTOR_ID,
+			telemetryManager
+		);
+		final CriterionTestResult expected = CriterionTestResult
+			.builder()
+			.message(
+				String.format(
+					"Hostname %s - SNMP test failed - SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 " +
+					"was unsuccessful due to an exception. " +
+					"Message: SNMPGetNext timeout. Connector ID: %s.",
+					HOST_NAME,
+					CONNECTOR_ID
+				)
+			)
+			.build();
 		assertEquals(expected, actual);
 	}
 
@@ -92,12 +104,21 @@ class SnmpExtensionTest {
 		initSnmp();
 
 		doReturn(null).when(snmpRequestExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = snmpExtension.processCriterion(SnmpGetNextCriterion.builder().oid(OID).build(), CONNECTOR_ID, telemetryManager);
+		final CriterionTestResult actual = snmpExtension.processCriterion(
+			SnmpGetNextCriterion.builder().oid(OID).build(),
+			CONNECTOR_ID,
+			telemetryManager
+		);
 		final CriterionTestResult expected = CriterionTestResult
 			.builder()
-			.message(String.format("Hostname %s - SNMP test failed - SNMP GetNext " +
+			.message(
+				String.format(
+					"Hostname %s - SNMP test failed - SNMP GetNext " +
 					"of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful " +
-					"due to a null result.", HOST_NAME))
+					"due to a null result.",
+					HOST_NAME
+				)
+			)
 			.build();
 		assertEquals(expected, actual);
 	}
@@ -107,11 +128,20 @@ class SnmpExtensionTest {
 		initSnmp();
 
 		doReturn("").when(snmpRequestExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = snmpExtension.processCriterion(SnmpGetNextCriterion.builder().oid(OID).build(), CONNECTOR_ID, telemetryManager);
+		final CriterionTestResult actual = snmpExtension.processCriterion(
+			SnmpGetNextCriterion.builder().oid(OID).build(),
+			CONNECTOR_ID,
+			telemetryManager
+		);
 		final CriterionTestResult expected = CriterionTestResult
 			.builder()
-			.message(String.format("Hostname %s - SNMP test failed - SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 " +
-					"was unsuccessful due to an empty result.", HOST_NAME))
+			.message(
+				String.format(
+					"Hostname %s - SNMP test failed - SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 " +
+					"was unsuccessful due to an empty result.",
+					HOST_NAME
+				)
+			)
 			.result("")
 			.build();
 		assertEquals(expected, actual);
@@ -124,12 +154,21 @@ class SnmpExtensionTest {
 		final String snmpGetNextResult = "1.3.6.1.4.1.674.99999.1.20.1 ASN_INTEGER 1";
 
 		doReturn(snmpGetNextResult).when(snmpRequestExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = snmpExtension.processCriterion(SnmpGetNextCriterion.builder().oid(OID).build(), CONNECTOR_ID, telemetryManager);
+		final CriterionTestResult actual = snmpExtension.processCriterion(
+			SnmpGetNextCriterion.builder().oid(OID).build(),
+			CONNECTOR_ID,
+			telemetryManager
+		);
 		final CriterionTestResult expected = CriterionTestResult
 			.builder()
-			.message(String.format("Hostname %s - SNMP test failed - SNMP " +
+			.message(
+				String.format(
+					"Hostname %s - SNMP test failed - SNMP " +
 					"GetNext of 1.3.6.1.4.1.674.10893.1.20 was successful but the returned OID is" +
-					" not under the same tree. Returned OID: 1.3.6.1.4.1.674.99999.1.20.1.", HOST_NAME))
+					" not under the same tree. Returned OID: 1.3.6.1.4.1.674.99999.1.20.1.",
+					HOST_NAME
+				)
+			)
 			.result(snmpGetNextResult)
 			.build();
 		assertEquals(expected, actual);
@@ -139,13 +178,24 @@ class SnmpExtensionTest {
 	void testProcessSnmpGetNextCriterionSuccessWithNoExpectedResult() throws Exception {
 		initSnmp();
 
-		doReturn(SNMP_GET_NEXT_SECOND_RESULT).when(snmpRequestExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = snmpExtension.processCriterion(SnmpGetNextCriterion.builder().oid(OID).build(), CONNECTOR_ID, telemetryManager);
+		doReturn(SNMP_GET_NEXT_SECOND_RESULT)
+			.when(snmpRequestExecutorMock)
+			.executeSNMPGetNext(any(), any(), any(), eq(false));
+		final CriterionTestResult actual = snmpExtension.processCriterion(
+			SnmpGetNextCriterion.builder().oid(OID).build(),
+			CONNECTOR_ID,
+			telemetryManager
+		);
 		final CriterionTestResult expected = CriterionTestResult
 			.builder()
-			.message(String.format("Hostname %s - Successful SNMP GetNext of " +
+			.message(
+				String.format(
+					"Hostname %s - Successful SNMP GetNext of " +
 					"1.3.6.1.4.1.674.10893.1.20. Returned result: " +
-					"1.3.6.1.4.1.674.10893.1.20.1 ASN_INTEGER 1.", HOST_NAME))
+					"1.3.6.1.4.1.674.10893.1.20.1 ASN_INTEGER 1.",
+					HOST_NAME
+				)
+			)
 			.result(SNMP_GET_NEXT_SECOND_RESULT)
 			.success(true)
 			.build();
@@ -156,15 +206,24 @@ class SnmpExtensionTest {
 	void testProcessSnmpGetNextCriterionExpectedResultNotMatches() throws Exception {
 		initSnmp();
 
-		doReturn(SNMP_GET_NEXT_SECOND_RESULT).when(snmpRequestExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
+		doReturn(SNMP_GET_NEXT_SECOND_RESULT)
+			.when(snmpRequestExecutorMock)
+			.executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = snmpExtension.processCriterion(
-			SnmpGetNextCriterion.builder().oid(OID).expectedResult(SNMP_VERSION).build()
-			, CONNECTOR_ID, telemetryManager);
+			SnmpGetNextCriterion.builder().oid(OID).expectedResult(SNMP_VERSION).build(),
+			CONNECTOR_ID,
+			telemetryManager
+		);
 		final CriterionTestResult expected = CriterionTestResult
 			.builder()
-			.message(String.format("Hostname %s - SNMP test failed - " +
+			.message(
+				String.format(
+					"Hostname %s - SNMP test failed - " +
 					"SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 was successful but the value of " +
-					"the returned OID did not match with the expected result. Expected value: 2.4.6 - returned value 1.", HOST_NAME))
+					"the returned OID did not match with the expected result. Expected value: 2.4.6 - returned value 1.",
+					HOST_NAME
+				)
+			)
 			.result(SNMP_GET_NEXT_SECOND_RESULT)
 			.build();
 		assertEquals(expected, actual);
@@ -174,15 +233,24 @@ class SnmpExtensionTest {
 	void testProcessSnmpGetNextExpectedResultMatches() throws Exception {
 		initSnmp();
 
-		doReturn(SNMP_GET_NEXT_THIRD_RESULT).when(snmpRequestExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
+		doReturn(SNMP_GET_NEXT_THIRD_RESULT)
+			.when(snmpRequestExecutorMock)
+			.executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = snmpExtension.processCriterion(
-			SnmpGetNextCriterion.builder().oid(OID).expectedResult(SNMP_VERSION).build()
-			, CONNECTOR_ID, telemetryManager);
+			SnmpGetNextCriterion.builder().oid(OID).expectedResult(SNMP_VERSION).build(),
+			CONNECTOR_ID,
+			telemetryManager
+		);
 		final CriterionTestResult expected = CriterionTestResult
 			.builder()
-			.message(String.format("Hostname %s - Successful SNMP GetNext of " +
+			.message(
+				String.format(
+					"Hostname %s - Successful SNMP GetNext of " +
 					"1.3.6.1.4.1.674.10893.1.20. " +
-					"Returned result: 1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT 2.4.6.", HOST_NAME))
+					"Returned result: 1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT 2.4.6.",
+					HOST_NAME
+				)
+			)
 			.result(SNMP_GET_NEXT_THIRD_RESULT)
 			.success(true)
 			.build();
@@ -193,15 +261,24 @@ class SnmpExtensionTest {
 	void testProcessSnmpGetNextCriterionExpectedResultCannotExtract() throws Exception {
 		initSnmp();
 
-		doReturn(SNMP_GET_NEXT_FOURTH_RESULT).when(snmpRequestExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
+		doReturn(SNMP_GET_NEXT_FOURTH_RESULT)
+			.when(snmpRequestExecutorMock)
+			.executeSNMPGetNext(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = snmpExtension.processCriterion(
-			SnmpGetNextCriterion.builder().oid(OID).expectedResult(SNMP_VERSION).build()
-			, CONNECTOR_ID, telemetryManager);
+			SnmpGetNextCriterion.builder().oid(OID).expectedResult(SNMP_VERSION).build(),
+			CONNECTOR_ID,
+			telemetryManager
+		);
 		final CriterionTestResult expected = CriterionTestResult
 			.builder()
-			.message(String.format("Hostname %s - SNMP test failed - SNMP GetNext " +
+			.message(
+				String.format(
+					"Hostname %s - SNMP test failed - SNMP GetNext " +
 					"of 1.3.6.1.4.1.674.10893.1.20 was successful " +
-					"but the value cannot be extracted. Returned result: 1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT.", HOST_NAME))
+					"but the value cannot be extracted. Returned result: 1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT.",
+					HOST_NAME
+				)
+			)
 			.result(SNMP_GET_NEXT_FOURTH_RESULT)
 			.build();
 		assertEquals(expected, actual);
@@ -211,14 +288,22 @@ class SnmpExtensionTest {
 	void testProcessSnmpGetNextReturnsEmptyResult() {
 		initSnmp();
 
-		assertNull(snmpExtension.processCriterion(SnmpGetNextCriterion.builder().oid(OID).build(), CONNECTOR_ID, telemetryManager).getResult());
+		assertNull(
+			snmpExtension
+				.processCriterion(SnmpGetNextCriterion.builder().oid(OID).build(), CONNECTOR_ID, telemetryManager)
+				.getResult()
+		);
 	}
 
 	@Test
 	void testProcessSnmpGetCriterionReturnsEmptyResult() {
 		initSnmp();
 
-		assertNull(snmpExtension.processCriterion(SnmpGetCriterion.builder().oid(OID).build(), CONNECTOR_ID, telemetryManager).getResult());
+		assertNull(
+			snmpExtension
+				.processCriterion(SnmpGetCriterion.builder().oid(OID).build(), CONNECTOR_ID, telemetryManager)
+				.getResult()
+		);
 	}
 
 	@Test
@@ -227,11 +312,18 @@ class SnmpExtensionTest {
 
 		doReturn(EXECUTE_SNMP_GET_RESULT).when(snmpRequestExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = snmpExtension.processCriterion(
-			SnmpGetCriterion.builder().oid(OID).expectedResult("CMC").build()
-			, CONNECTOR_ID, telemetryManager);
+			SnmpGetCriterion.builder().oid(OID).expectedResult("CMC").build(),
+			CONNECTOR_ID,
+			telemetryManager
+		);
 		final CriterionTestResult expected = CriterionTestResult
 			.builder()
-			.message(String.format("Hostname %s - Successful SNMP Get of 1.3.6.1.4.1.674.10893.1.20. Returned result: CMC DELL", HOST_NAME))
+			.message(
+				String.format(
+					"Hostname %s - Successful SNMP Get of 1.3.6.1.4.1.674.10893.1.20. Returned result: CMC DELL",
+					HOST_NAME
+				)
+			)
 			.result(EXECUTE_SNMP_GET_RESULT)
 			.success(true)
 			.build();
@@ -244,13 +336,20 @@ class SnmpExtensionTest {
 
 		doReturn(EXECUTE_SNMP_GET_RESULT).when(snmpRequestExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
 		final CriterionTestResult actual = snmpExtension.processCriterion(
-			SnmpGetCriterion.builder().oid(OID).expectedResult(SNMP_VERSION).build()
-			, CONNECTOR_ID, telemetryManager);
+			SnmpGetCriterion.builder().oid(OID).expectedResult(SNMP_VERSION).build(),
+			CONNECTOR_ID,
+			telemetryManager
+		);
 		final CriterionTestResult expected = CriterionTestResult
 			.builder()
-			.message(String.format("Hostname %s - SNMP test failed - " +
+			.message(
+				String.format(
+					"Hostname %s - SNMP test failed - " +
 					"SNMP Get of 1.3.6.1.4.1.674.10893.1.20 was successful but the value of the returned " +
-					"OID did not match with the expected result. Expected value: 2.4.6 - returned value CMC DELL.", HOST_NAME))
+					"OID did not match with the expected result. Expected value: 2.4.6 - returned value CMC DELL.",
+					HOST_NAME
+				)
+			)
 			.result(EXECUTE_SNMP_GET_RESULT)
 			.build();
 		assertEquals(expected, actual);
@@ -261,10 +360,19 @@ class SnmpExtensionTest {
 		initSnmp();
 
 		doReturn(EXECUTE_SNMP_GET_RESULT).when(snmpRequestExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = snmpExtension.processCriterion(SnmpGetCriterion.builder().oid(OID).build(), CONNECTOR_ID, telemetryManager);
+		final CriterionTestResult actual = snmpExtension.processCriterion(
+			SnmpGetCriterion.builder().oid(OID).build(),
+			CONNECTOR_ID,
+			telemetryManager
+		);
 		final CriterionTestResult expected = CriterionTestResult
 			.builder()
-			.message(String.format("Hostname %s - Successful SNMP Get of 1.3.6.1.4.1.674.10893.1.20. Returned result: CMC DELL.", HOST_NAME))
+			.message(
+				String.format(
+					"Hostname %s - Successful SNMP Get of 1.3.6.1.4.1.674.10893.1.20. Returned result: CMC DELL.",
+					HOST_NAME
+				)
+			)
 			.result(EXECUTE_SNMP_GET_RESULT)
 			.success(true)
 			.build();
@@ -276,11 +384,20 @@ class SnmpExtensionTest {
 		initSnmp();
 
 		doReturn("").when(snmpRequestExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = snmpExtension.processCriterion(SnmpGetCriterion.builder().oid(OID).build(), CONNECTOR_ID, telemetryManager);
+		final CriterionTestResult actual = snmpExtension.processCriterion(
+			SnmpGetCriterion.builder().oid(OID).build(),
+			CONNECTOR_ID,
+			telemetryManager
+		);
 		final CriterionTestResult expected = CriterionTestResult
 			.builder()
-			.message(String.format("Hostname %s - SNMP test failed - SNMP Get " +
-					"of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful due to an empty result.", HOST_NAME))
+			.message(
+				String.format(
+					"Hostname %s - SNMP test failed - SNMP Get " +
+					"of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful due to an empty result.",
+					HOST_NAME
+				)
+			)
 			.result("")
 			.build();
 		assertEquals(expected, actual);
@@ -291,9 +408,21 @@ class SnmpExtensionTest {
 		initSnmp();
 
 		doReturn(null).when(snmpRequestExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = snmpExtension.processCriterion(SnmpGetCriterion.builder().oid(OID).build(), CONNECTOR_ID, telemetryManager);
-		final CriterionTestResult expected = CriterionTestResult.builder().message(String.format("Hostname %s - SNMP test failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 was " +
-				"unsuccessful due to a null result", HOST_NAME)).build();
+		final CriterionTestResult actual = snmpExtension.processCriterion(
+			SnmpGetCriterion.builder().oid(OID).build(),
+			CONNECTOR_ID,
+			telemetryManager
+		);
+		final CriterionTestResult expected = CriterionTestResult
+			.builder()
+			.message(
+				String.format(
+					"Hostname %s - SNMP test failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 was " +
+					"unsuccessful due to a null result",
+					HOST_NAME
+				)
+			)
+			.build();
 		assertEquals(expected, actual);
 	}
 
@@ -304,10 +433,23 @@ class SnmpExtensionTest {
 		doThrow(new TimeoutException("SNMPGet timeout"))
 			.when(snmpRequestExecutorMock)
 			.executeSNMPGet(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = snmpExtension.processCriterion(SnmpGetCriterion.builder().oid(OID).build(), CONNECTOR_ID, telemetryManager);
-		final CriterionTestResult expected = CriterionTestResult.builder().message(String.format("Hostname %s - SNMP test failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful " +
-				"due to an exception. " +
-				"Message: SNMPGet timeout. Connector ID: %s.", HOST_NAME, CONNECTOR_ID)).build();
+		final CriterionTestResult actual = snmpExtension.processCriterion(
+			SnmpGetCriterion.builder().oid(OID).build(),
+			CONNECTOR_ID,
+			telemetryManager
+		);
+		final CriterionTestResult expected = CriterionTestResult
+			.builder()
+			.message(
+				String.format(
+					"Hostname %s - SNMP test failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful " +
+					"due to an exception. " +
+					"Message: SNMPGet timeout. Connector ID: %s.",
+					HOST_NAME,
+					CONNECTOR_ID
+				)
+			)
+			.build();
 		assertEquals(expected, actual);
 	}
 
@@ -318,7 +460,9 @@ class SnmpExtensionTest {
 	 */
 	private TelemetryManager createTelemetryManagerWithSnmpConfig() {
 		final Monitor hostMonitor = Monitor.builder().type(HOST.getKey()).isEndpoint(true).build();
-		final Map<String, Map<String, Monitor>> monitors = new HashMap<>(Map.of(HOST.getKey(), Map.of(HOST_NAME, hostMonitor)));
+		final Map<String, Map<String, Monitor>> monitors = new HashMap<>(
+			Map.of(HOST.getKey(), Map.of(HOST_NAME, hostMonitor))
+		);
 		// Create a telemetry manager
 		return TelemetryManager
 			.builder()
@@ -350,7 +494,10 @@ class SnmpExtensionTest {
 		// Start the SNMP protocol check
 		snmpExtension.checkProtocol(telemetryManager, collectTime);
 
-		assertEquals(SnmpExtension.UP, telemetryManager.getEndpointHostMonitor().getMetric(SnmpExtension.SNMP_UP_METRIC).getValue());
+		assertEquals(
+			SnmpExtension.UP,
+			telemetryManager.getEndpointHostMonitor().getMetric(SnmpExtension.SNMP_UP_METRIC).getValue()
+		);
 	}
 
 	@Test
@@ -369,8 +516,9 @@ class SnmpExtensionTest {
 		// Start the SNMP protocol check
 		snmpExtension.checkProtocol(telemetryManager, collectTime);
 
-		assertEquals(SnmpExtension.DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SnmpExtension.SNMP_UP_METRIC).getValue());
+		assertEquals(
+			SnmpExtension.DOWN,
+			telemetryManager.getEndpointHostMonitor().getMetric(SnmpExtension.SNMP_UP_METRIC).getValue()
+		);
 	}
-
-
 }

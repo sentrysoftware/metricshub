@@ -96,14 +96,23 @@ public class HostConfiguration {
 	/**
 	 * Determine the accepted sources that can be executed using the current engine configuration
 	 *
-	 * @param isLocalhost Whether the host should be localhost or not
+	 * @param isLocalhost      Whether the host should be localhost or not.
+	 * @param extensionManager Where all the extensions are managed.
 	 * @return {@link Set} of accepted source types
 	 */
-	public Set<Class<? extends Source>> determineAcceptedSources(final boolean isLocalhost, final ExtensionManager extensionManager) {
-
+	public Set<Class<? extends Source>> determineAcceptedSources(
+		final boolean isLocalhost,
+		final ExtensionManager extensionManager
+	) {
 		// Retrieve the configuration to Source mapping through the available extensions
-		final Map<Class<? extends IConfiguration>, Set<Class<? extends Source>>> configurationToSourceMappingFromExtensions = extensionManager.findConfigurationToSourceMapping();
-		final Map<Class<? extends IConfiguration>, Set<Class<? extends Source>>> configurationToSourceMapping = new HashMap<>();
+		// @formatter:off
+		final Map<Class<? extends IConfiguration>, Set<Class<? extends Source>>> configurationToSourceMappingFromExtensions =
+			extensionManager.findConfigurationToSourceMapping();
+		// @formatter:on
+
+		final Map<Class<? extends IConfiguration>, Set<Class<? extends Source>>> configurationToSourceMapping =
+			new HashMap<>();
+
 		configurationToSourceMapping.putAll(configurationToSourceMappingFromExtensions);
 		// TODO Remove this merge when all the extensions are developed
 		configurationToSourceMapping.putAll(CONFIGURATION_TO_SOURCES_MAP);

@@ -69,8 +69,12 @@ public class SnmpGetNextCriterionProcessor {
 		}
 
 		try {
-			final String result = snmpRequestExecutor
-				.executeSNMPGetNext(snmpGetNextCriterion.getOid(), snmpConfiguration, hostname, false);
+			final String result = snmpRequestExecutor.executeSNMPGetNext(
+				snmpGetNextCriterion.getOid(),
+				snmpConfiguration,
+				hostname,
+				false
+			);
 
 			final CriterionTestResult criterionTestResult = checkSNMPGetNextResult(
 				hostname,
@@ -104,7 +108,11 @@ public class SnmpGetNextCriterionProcessor {
 	 * @param result   The result of the SNMP GetNext operation.
 	 * @return {@link TestResult} wrapping the message and the success status.
 	 */
-	private static CriterionTestResult checkSNMPGetNextValue(final String hostname, final String oid, final String result) {
+	private static CriterionTestResult checkSNMPGetNextValue(
+		final String hostname,
+		final String oid,
+		final String result
+	) {
 		String message;
 		boolean success = false;
 		if (result == null) {

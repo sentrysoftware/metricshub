@@ -120,7 +120,12 @@ public class DetectionStrategy extends AbstractStrategy {
 		// Process forced connectors
 		if (stagedConnectorIdentifiers.isForcedStaging()) {
 			connectorTestResults.addAll(
-				new ConnectorSelection(telemetryManager, clientsExecutor, stagedConnectorIdentifiers.getForcedConnectorIds(), extensionManager)
+				new ConnectorSelection(
+					telemetryManager,
+					clientsExecutor,
+					stagedConnectorIdentifiers.getForcedConnectorIds(),
+					extensionManager
+				)
 					.run()
 			);
 		}

@@ -1,7 +1,5 @@
 package org.sentrysoftware.metricshub.extension.snmp;
 
-import java.util.Map;
-
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
  * MetricsHub Engine
@@ -23,6 +21,7 @@ import java.util.Map;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.Map;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
@@ -161,9 +160,11 @@ public class SnmpExtension implements IProtocolExtension {
 		TelemetryManager telemetryManager
 	) {
 		if (criterion instanceof SnmpGetCriterion snmpGetCriterion) {
-			return new SnmpGetCriterionProcessor(snmpRequestExecutor).process(snmpGetCriterion, connectorId, telemetryManager);
+			return new SnmpGetCriterionProcessor(snmpRequestExecutor)
+				.process(snmpGetCriterion, connectorId, telemetryManager);
 		} else if (criterion instanceof SnmpGetNextCriterion snmpGetNextCriterion) {
-			return new SnmpGetNextCriterionProcessor(snmpRequestExecutor).process(snmpGetNextCriterion, connectorId, telemetryManager);
+			return new SnmpGetNextCriterionProcessor(snmpRequestExecutor)
+				.process(snmpGetNextCriterion, connectorId, telemetryManager);
 		}
 		throw new IllegalArgumentException(
 			String.format(
@@ -178,5 +179,4 @@ public class SnmpExtension implements IProtocolExtension {
 	public Map<Class<? extends IConfiguration>, Set<Class<? extends Source>>> getConfigurationToSourceMapping() {
 		return Map.of(SnmpConfiguration.class, Set.of(SnmpTableSource.class, SnmpGetSource.class));
 	}
-
 }

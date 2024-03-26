@@ -27,17 +27,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
-import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
-import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NonNull;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
+import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
  * Manages and aggregates various types of extensions used within MetricsHub.
@@ -85,15 +83,16 @@ public class ExtensionManager {
 	) {
 		return protocolExtensions
 			.stream()
-			.filter(extension -> telemetryManager
+			.filter(extension ->
+				telemetryManager
 					.getHostConfiguration()
 					.getConfigurations()
 					.values()
 					.stream()
-					.anyMatch(extension::isValidConfiguration))
+					.anyMatch(extension::isValidConfiguration)
+			)
 			.filter(extension -> extension.getSupportedCriteria().contains(criterion.getClass()))
 			.findFirst();
-
 	}
 
 	/**
@@ -105,17 +104,20 @@ public class ExtensionManager {
 	 */
 	public Optional<IProtocolExtension> findSourceExtension(
 		final Source source,
-		final TelemetryManager telemetryManager) {
+		final TelemetryManager telemetryManager
+	) {
 		return protocolExtensions
-				.stream()
-				.filter(extension -> telemetryManager
-						.getHostConfiguration()
-						.getConfigurations()
-						.values()
-						.stream()
-						.anyMatch(extension::isValidConfiguration))
-				.filter(extension -> extension.getSupportedSources().contains(source.getClass()))
-				.findFirst();
+			.stream()
+			.filter(extension ->
+				telemetryManager
+					.getHostConfiguration()
+					.getConfigurations()
+					.values()
+					.stream()
+					.anyMatch(extension::isValidConfiguration)
+			)
+			.filter(extension -> extension.getSupportedSources().contains(source.getClass()))
+			.findFirst();
 	}
 
 	/**
@@ -126,14 +128,16 @@ public class ExtensionManager {
 	 */
 	public List<IProtocolExtension> findProtocolCheckExtensions(@NonNull TelemetryManager telemetryManager) {
 		return protocolExtensions
-				.stream()
-				.filter(extension -> telemetryManager
-						.getHostConfiguration()
-						.getConfigurations()
-						.values()
-						.stream()
-						.anyMatch(extension::isValidConfiguration))
-				.collect(Collectors.toList());
+			.stream()
+			.filter(extension ->
+				telemetryManager
+					.getHostConfiguration()
+					.getConfigurations()
+					.values()
+					.stream()
+					.anyMatch(extension::isValidConfiguration)
+			)
+			.collect(Collectors.toList());
 	}
 
 	/**

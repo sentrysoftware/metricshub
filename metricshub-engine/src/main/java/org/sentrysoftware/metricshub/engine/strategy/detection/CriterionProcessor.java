@@ -104,7 +104,6 @@ public class CriterionProcessor implements ICriterionProcessor {
 		"Hostname %s - Could not identify Solaris version %s. Exception: %s";
 	private static final String HTTP_TEST_SUCCESS = "Hostname %s - HTTP test succeeded. Returned result: %s.";
 
-
 	private ClientsExecutor clientsExecutor;
 
 	private ExtensionManager extensionManager;
@@ -830,8 +829,13 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 */
 	@WithSpan("Criterion SNMP Get Exec")
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") SnmpGetCriterion snmpGetCriterion) {
-		final Optional<IProtocolExtension> extensions = extensionManager.findCriterionExtension(snmpGetCriterion, telemetryManager);
-		return extensions.map(extension -> extension.processCriterion(snmpGetCriterion, connectorId, telemetryManager)).orElseGet(CriterionTestResult::empty);
+		final Optional<IProtocolExtension> maybeExtension = extensionManager.findCriterionExtension(
+			snmpGetCriterion,
+			telemetryManager
+		);
+		return maybeExtension
+			.map(extension -> extension.processCriterion(snmpGetCriterion, connectorId, telemetryManager))
+			.orElseGet(CriterionTestResult::empty);
 	}
 
 	/**
@@ -842,8 +846,13 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 */
 	@WithSpan("Criterion SNMP GetNext Exec")
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") SnmpGetNextCriterion snmpGetNextCriterion) {
-		final Optional<IProtocolExtension> extensions = extensionManager.findCriterionExtension(snmpGetNextCriterion, telemetryManager);
-		return extensions.map(extension -> extension.processCriterion(snmpGetNextCriterion, connectorId, telemetryManager)).orElseGet(CriterionTestResult::empty);
+		final Optional<IProtocolExtension> maybeExtension = extensionManager.findCriterionExtension(
+			snmpGetNextCriterion,
+			telemetryManager
+		);
+		return maybeExtension
+			.map(extension -> extension.processCriterion(snmpGetNextCriterion, connectorId, telemetryManager))
+			.orElseGet(CriterionTestResult::empty);
 	}
 
 	/**

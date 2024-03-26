@@ -539,15 +539,25 @@ public class SourceProcessor implements ISourceProcessor {
 	@WithSpan("Source SNMP Get Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final SnmpGetSource snmpGetSource) {
-		final Optional<IProtocolExtension> extensions = extensionManager.findSourceExtension(snmpGetSource, telemetryManager);
-		return extensions.map(extension -> extension.processSource(snmpGetSource, connectorId, telemetryManager)).orElseGet(SourceTable::empty);
+		final Optional<IProtocolExtension> extensions = extensionManager.findSourceExtension(
+			snmpGetSource,
+			telemetryManager
+		);
+		return extensions
+			.map(extension -> extension.processSource(snmpGetSource, connectorId, telemetryManager))
+			.orElseGet(SourceTable::empty);
 	}
 
 	@WithSpan("Source SNMP Table Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final SnmpTableSource snmpTableSource) {
-		final Optional<IProtocolExtension> extensions = extensionManager.findSourceExtension(snmpTableSource, telemetryManager);
-		return extensions.map(extension -> extension.processSource(snmpTableSource, connectorId, telemetryManager)).orElseGet(SourceTable::empty);
+		final Optional<IProtocolExtension> extensions = extensionManager.findSourceExtension(
+			snmpTableSource,
+			telemetryManager
+		);
+		return extensions
+			.map(extension -> extension.processSource(snmpTableSource, connectorId, telemetryManager))
+			.orElseGet(SourceTable::empty);
 	}
 
 	@WithSpan("Source Static Exec")

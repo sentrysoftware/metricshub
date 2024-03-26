@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -137,11 +136,16 @@ class CollectStrategyTest {
 		final ConnectorStore connectorStore = new ConnectorStore(TEST_CONNECTOR_PATH);
 		telemetryManager.setConnectorStore(connectorStore);
 
-		final ExtensionManager extensionManager = ExtensionManager.builder().withProtocolExtensions(List.of(protocolExtensionMock)).build();
+		final ExtensionManager extensionManager = ExtensionManager
+			.builder()
+			.withProtocolExtensions(List.of(protocolExtensionMock))
+			.build();
 
 		doReturn(true).when(protocolExtensionMock).isValidConfiguration(snmpConfig);
 		doReturn(Set.of(SnmpGetSource.class, SnmpTableSource.class)).when(protocolExtensionMock).getSupportedSources();
-		doReturn(Set.of(SnmpGetNextCriterion.class, SnmpGetCriterion.class)).when(protocolExtensionMock).getSupportedCriteria();
+		doReturn(Set.of(SnmpGetNextCriterion.class, SnmpGetCriterion.class))
+			.when(protocolExtensionMock)
+			.getSupportedCriteria();
 
 		collectStrategy =
 			CollectStrategy
@@ -153,30 +157,43 @@ class CollectStrategyTest {
 				.build();
 
 		// Mock detection criteria result
-		final SnmpGetNextCriterion snmpGetNextCriterion = SnmpGetNextCriterion.builder().oid("1.3.6.1.4.1.795.10.1.1.3.1.1").type("snmpGetNext").build();
-		doReturn(
-			CriterionTestResult.success(snmpGetNextCriterion, "1.3.6.1.4.1.795.10.1.1.3.1.1.0	ASN_OCTET_STR	Test")
-		).when(protocolExtensionMock).processCriterion(eq(snmpGetNextCriterion), anyString(), any(TelemetryManager.class));
+		final SnmpGetNextCriterion snmpGetNextCriterion = SnmpGetNextCriterion
+			.builder()
+			.oid("1.3.6.1.4.1.795.10.1.1.3.1.1")
+			.type("snmpGetNext")
+			.build();
+		doReturn(CriterionTestResult.success(snmpGetNextCriterion, "1.3.6.1.4.1.795.10.1.1.3.1.1.0	ASN_OCTET_STR	Test"))
+			.when(protocolExtensionMock)
+			.processCriterion(eq(snmpGetNextCriterion), anyString(), any(TelemetryManager.class));
 
 		// Mock source table information for enclosure
-		final SnmpTableSource enclosureSource = SnmpTableSource.builder().oid("1.3.6.1.4.1.795.10.1.1.30.1").selectColumns("ID,1,2").type("snmpTable").key("${source::monitors.enclosure.collect.sources.source(1)}").build();
-		doReturn(SourceTable.builder().table(SourceTable.csvToTable("enclosure-1;1;healthy", MetricsHubConstants.TABLE_SEP)).build())
+		final SnmpTableSource enclosureSource = SnmpTableSource
+			.builder()
+			.oid("1.3.6.1.4.1.795.10.1.1.30.1")
+			.selectColumns("ID,1,2")
+			.type("snmpTable")
+			.key("${source::monitors.enclosure.collect.sources.source(1)}")
+			.build();
+		doReturn(
+			SourceTable
+				.builder()
+				.table(SourceTable.csvToTable("enclosure-1;1;healthy", MetricsHubConstants.TABLE_SEP))
+				.build()
+		)
 			.when(protocolExtensionMock)
-			.processSource(
-				eq(enclosureSource),
-				anyString(),
-				any(TelemetryManager.class)
-			);
+			.processSource(eq(enclosureSource), anyString(), any(TelemetryManager.class));
 
 		// Mock source table information for disk_controller
-		final SnmpTableSource diskControllerSource = SnmpTableSource.builder().oid("1.3.6.1.4.1.795.10.1.1.31.1").selectColumns("ID,1,2").type("snmpTable").key("${source::monitors.disk_controller.collect.sources.source(1)}").build();
+		final SnmpTableSource diskControllerSource = SnmpTableSource
+			.builder()
+			.oid("1.3.6.1.4.1.795.10.1.1.31.1")
+			.selectColumns("ID,1,2")
+			.type("snmpTable")
+			.key("${source::monitors.disk_controller.collect.sources.source(1)}")
+			.build();
 		doReturn(SourceTable.builder().table(SourceTable.csvToTable("1;1;healthy", MetricsHubConstants.TABLE_SEP)).build())
 			.when(protocolExtensionMock)
-			.processSource(
-					eq(diskControllerSource),
-					anyString(),
-					any(TelemetryManager.class)
-			);
+			.processSource(eq(diskControllerSource), anyString(), any(TelemetryManager.class));
 
 		collectStrategy.run();
 

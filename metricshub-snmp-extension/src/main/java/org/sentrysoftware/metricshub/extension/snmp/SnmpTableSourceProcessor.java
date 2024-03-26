@@ -23,7 +23,6 @@ package org.sentrysoftware.metricshub.extension.snmp;
 
 import java.util.Arrays;
 import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
@@ -51,7 +50,7 @@ public class SnmpTableSourceProcessor {
 	 * @param snmpTableSource      The {@link SnmpTableSource} defining the SNMP OID and the SNMP columns to request.
 	 * @param connectorId          The connector identifier used for logging purposes.
 	 * @param telemetryManager     The telemetry manager providing access to host configuration and SNMP credentials.
-	 * @param snmpRequestExtension 
+	 * @param snmpRequestExtension
 	 * @return a {@link SourceTable} containing the fetched SNMP table data, or an empty table if processing fails.
 	 */
 	public SourceTable process(
@@ -96,8 +95,13 @@ public class SnmpTableSourceProcessor {
 		}
 
 		try {
-			final List<List<String>> result = snmpRequestExecutor
-				.executeSNMPTable(snmpTableSource.getOid(), selectedColumnArray, snmpConfiguration, hostname, true);
+			final List<List<String>> result = snmpRequestExecutor.executeSNMPTable(
+				snmpTableSource.getOid(),
+				selectedColumnArray,
+				snmpConfiguration,
+				hostname,
+				true
+			);
 
 			sourceTable.setHeaders(Arrays.asList(selectedColumnArray));
 			sourceTable.setTable(result);

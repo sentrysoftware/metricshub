@@ -4,11 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.when;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.AUTOMATIC;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.ECS1_01;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.EMPTY;
@@ -19,8 +19,6 @@ import static org.sentrysoftware.metricshub.engine.constants.Constants.OID;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.PASSWORD;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.SNMP_SELECTED_COLUMNS;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.SNMP_SELECTED_COLUMNS_LIST;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.SNMP_WRONG_COLUMNS;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.SNMP_WRONG_COLUMNS_LIST;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.TAB1_REF;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.URL;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.USERNAME;
@@ -37,8 +35,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -54,8 +52,8 @@ import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IWinConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
+import org.sentrysoftware.metricshub.engine.configuration.TestConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
@@ -71,6 +69,8 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.TableUnionSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WbemSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WmiSource;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
+import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandResult;
 import org.sentrysoftware.metricshub.engine.telemetry.ConnectorNamespace;
@@ -82,6 +82,9 @@ class SourceProcessorTest {
 
 	@Mock
 	private ClientsExecutor clientsExecutorMock;
+
+	@Mock
+	private IProtocolExtension protocolExtensionMock;
 
 	private static final String LOWERCASE_A = "a";
 	private static final String LOWERCASE_B = "b";
@@ -172,63 +175,74 @@ class SourceProcessorTest {
 			.builder()
 			.hostConfiguration(HostConfiguration.builder().build())
 			.build();
+		final ExtensionManager extensionManager = ExtensionManager
+			.builder()
+			.withProtocolExtensions(List.of(protocolExtensionMock))
+			.build();
+
 		final SourceProcessor sourceProcessor = SourceProcessor
 			.builder()
 			.telemetryManager(telemetryManager)
 			.clientsExecutor(clientsExecutorMock)
+			.extensionManager(extensionManager)
+			.connectorId(CONNECTOR_ID)
 			.build();
 
-		assertEquals(SourceTable.empty(), sourceProcessor.process(SnmpGetSource.builder().oid(OID).build()));
-		assertEquals(SourceTable.empty(), sourceProcessor.process(new SnmpGetSource()));
-
 		// no snmp protocol
-		HostConfiguration hostConfigurationNoProtocol = HostConfiguration
+		final HostConfiguration hostConfigurationNoProtocol = HostConfiguration
 			.builder()
 			.hostname(ECS1_01)
 			.hostId(ECS1_01)
 			.hostType(DeviceKind.LINUX)
 			.build();
 		telemetryManager.setHostConfiguration(hostConfigurationNoProtocol);
-		assertEquals(SourceTable.empty(), sourceProcessor.process(SnmpGetSource.builder().oid(OID).build()));
 
 		// classic case
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().port(161).timeout(120L).build();
+		final TestConfiguration snmpConfiguration = TestConfiguration.builder().build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(ECS1_01)
 			.hostId(ECS1_01)
 			.hostType(DeviceKind.LINUX)
-			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
+			.configurations(Collections.singletonMap(TestConfiguration.class, snmpConfiguration))
 			.build();
 		telemetryManager.setHostConfiguration(hostConfiguration);
-		doReturn(ECS1_01).when(clientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(true));
-		final SourceTable actual = sourceProcessor.process(SnmpGetSource.builder().oid(OID).build());
-		final SourceTable expected = SourceTable.builder().table(Arrays.asList(Arrays.asList(ECS1_01))).build();
-		assertEquals(expected, actual);
+		final SnmpGetSource snmpGetSource = SnmpGetSource.builder().oid(OID).build();
 
-		// test that the exception is correctly caught and still returns a result
-		when(clientsExecutorMock.executeSNMPGet(any(), any(), any(), eq(true))).thenThrow(TimeoutException.class);
-		assertEquals(SourceTable.empty(), sourceProcessor.process(SnmpGetSource.builder().oid(OID).build()));
+		doReturn(true).when(protocolExtensionMock).isValidConfiguration(snmpConfiguration);
+		doReturn(Set.of(SnmpGetSource.class, SnmpTableSource.class)).when(protocolExtensionMock).getSupportedSources();
+
+		final SourceTable expected = SourceTable.builder().table(Arrays.asList(Arrays.asList(ECS1_01))).build();
+		doReturn(expected)
+			.when(protocolExtensionMock)
+			.processSource(eq(snmpGetSource), anyString(), any(TelemetryManager.class));
+
+		final SourceTable actual = sourceProcessor.process(snmpGetSource);
+		assertEquals(expected, actual);
 	}
 
 	@Test
-	void testProcessSnmpGetTableExpectedResultNotMatches() throws Exception {
+	void testProcessSnmpGetTable() throws Exception {
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
 			.hostConfiguration(HostConfiguration.builder().build())
 			.build();
+
+		final ExtensionManager extensionManager = ExtensionManager
+			.builder()
+			.withProtocolExtensions(List.of(protocolExtensionMock))
+			.build();
+
 		final SourceProcessor sourceProcessor = SourceProcessor
 			.builder()
 			.telemetryManager(telemetryManager)
 			.clientsExecutor(clientsExecutorMock)
+			.extensionManager(extensionManager)
+			.connectorId(CONNECTOR_ID)
 			.build();
-		assertEquals(
-			SourceTable.empty(),
-			sourceProcessor.process(SnmpTableSource.builder().oid(OID).selectColumns(SNMP_WRONG_COLUMNS).build())
-		);
 
 		// no snmp protocol
-		HostConfiguration hostConfigurationNoProtocol = HostConfiguration
+		final HostConfiguration hostConfigurationNoProtocol = HostConfiguration
 			.builder()
 			.hostname(ECS1_01)
 			.hostId(ECS1_01)
@@ -237,65 +251,45 @@ class SourceProcessorTest {
 		telemetryManager.setHostConfiguration(hostConfigurationNoProtocol);
 		assertEquals(SourceTable.empty(), sourceProcessor.process(SnmpGetSource.builder().oid(OID).build()));
 
-		// no matches
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().port(161).timeout(120L).build();
+		final TestConfiguration snmpConfiguration = TestConfiguration.builder().build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(ECS1_01)
 			.hostId(ECS1_01)
 			.hostType(DeviceKind.LINUX)
-			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
+			.configurations(Collections.singletonMap(TestConfiguration.class, snmpConfiguration))
 			.build();
 		telemetryManager.setHostConfiguration(hostConfiguration);
-		doReturn(new ArrayList<>()).when(clientsExecutorMock).executeSNMPTable(any(), any(), any(), any(), eq(true));
-		final SourceTable actual = sourceProcessor.process(
-			SnmpTableSource.builder().oid(OID).selectColumns(SNMP_WRONG_COLUMNS).build()
-		);
-		final SourceTable expected = SourceTable
-			.builder()
-			.table(new ArrayList<>())
-			.headers(SNMP_WRONG_COLUMNS_LIST)
-			.build();
-		assertEquals(expected, actual);
-	}
 
-	@Test
-	void testProcessSbmpGetTableExpectedResultMatches() throws Exception {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().port(161).timeout(120L).build();
-		final HostConfiguration hostConfiguration = HostConfiguration
+		doReturn(true).when(protocolExtensionMock).isValidConfiguration(snmpConfiguration);
+		doReturn(Set.of(SnmpGetSource.class, SnmpTableSource.class)).when(protocolExtensionMock).getSupportedSources();
+
+		final SnmpTableSource snmpTableSource = SnmpTableSource
 			.builder()
-			.hostname(ECS1_01)
-			.hostId(ECS1_01)
-			.hostType(DeviceKind.LINUX)
-			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
+			.oid(OID)
+			.selectColumns(SNMP_SELECTED_COLUMNS)
 			.build();
-		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
-		final SourceProcessor sourceProcessor = SourceProcessor
-			.builder()
-			.telemetryManager(telemetryManager)
-			.clientsExecutor(clientsExecutorMock)
-			.build();
-		doReturn(EXPECTED_SNMP_TABLE_DATA).when(clientsExecutorMock).executeSNMPTable(any(), any(), any(), any(), eq(true));
-		final SourceTable actual = sourceProcessor.process(
-			SnmpTableSource.builder().oid(OID).selectColumns(SNMP_SELECTED_COLUMNS).build()
-		);
 		final SourceTable expected = SourceTable
 			.builder()
 			.table(EXPECTED_SNMP_TABLE_DATA)
 			.headers(SNMP_SELECTED_COLUMNS_LIST)
 			.build();
+		doReturn(expected)
+			.when(protocolExtensionMock)
+			.processSource(eq(snmpTableSource), anyString(), any(TelemetryManager.class));
+		final SourceTable actual = sourceProcessor.process(snmpTableSource);
 		assertEquals(expected, actual);
 	}
 
 	@Test
 	void testProcessTableJoinSource() {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().port(161).timeout(120L).build();
+		final TestConfiguration snmpConfiguration = TestConfiguration.builder().build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(ECS1_01)
 			.hostId(ECS1_01)
 			.hostType(DeviceKind.LINUX)
-			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
+			.configurations(Collections.singletonMap(TestConfiguration.class, snmpConfiguration))
 			.build();
 
 		final Map<String, SourceTable> mapSources = new HashMap<>();
@@ -550,13 +544,13 @@ class SourceProcessorTest {
 			Arrays.asList(LOWERCASE_V1, LOWERCASE_V2, LOWERCASE_V3)
 		);
 
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().port(161).timeout(120L).build();
+		final TestConfiguration snmpConfiguration = TestConfiguration.builder().build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(ECS1_01)
 			.hostId(ECS1_01)
 			.hostType(DeviceKind.LINUX)
-			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
+			.configurations(Collections.singletonMap(TestConfiguration.class, snmpConfiguration))
 			.build();
 		ConnectorNamespace connectorNamespace = ConnectorNamespace.builder().sourceTables(mapSources).build();
 
@@ -587,13 +581,13 @@ class SourceProcessorTest {
 
 	@Test
 	void testProcessCopySource() {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().port(161).timeout(120L).build();
+		final TestConfiguration snmpConfiguration = TestConfiguration.builder().build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(ECS1_01)
 			.hostId(ECS1_01)
 			.hostType(DeviceKind.LINUX)
-			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
+			.configurations(Collections.singletonMap(TestConfiguration.class, snmpConfiguration))
 			.build();
 
 		final List<List<String>> expectedTable = new ArrayList<>(
@@ -649,13 +643,13 @@ class SourceProcessorTest {
 
 	@Test
 	void testProcessStaticSource() {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().port(161).timeout(120L).build();
+		final TestConfiguration snmpConfiguration = TestConfiguration.builder().build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(ECS1_01)
 			.hostId(ECS1_01)
 			.hostType(DeviceKind.LINUX)
-			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
+			.configurations(Collections.singletonMap(TestConfiguration.class, snmpConfiguration))
 			.build();
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 		final SourceProcessor sourceProcessor = SourceProcessor
@@ -811,13 +805,7 @@ class SourceProcessorTest {
 
 	@Test
 	void testProcessWmiSourceMalformed() {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
-			.builder()
-			.community("public")
-			.version(SnmpConfiguration.SnmpVersion.V1)
-			.port(161)
-			.timeout(120L)
-			.build();
+		final TestConfiguration snmpConfiguration = TestConfiguration.builder().build();
 		final HttpConfiguration httpConfiguration = HttpConfiguration
 			.builder()
 			.username(USERNAME)
@@ -834,7 +822,7 @@ class SourceProcessorTest {
 					.hostId(ECS1_01)
 					.hostType(DeviceKind.LINUX)
 					.configurations(
-						Map.of(SnmpConfiguration.class, snmpConfiguration, HttpConfiguration.class, httpConfiguration)
+						Map.of(TestConfiguration.class, snmpConfiguration, HttpConfiguration.class, httpConfiguration)
 					)
 					.build()
 			)
