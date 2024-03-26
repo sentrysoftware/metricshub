@@ -23,10 +23,10 @@ monitors:
           computes:
             # Now add MSHW to the Left and Right of the ifMIBObjects SpeedMBS
             # PortID;Description;PortType;MacAddress;AdminStatus;ID;Name;Alias;
-          - type: leftConcat
+          - type: prepend
             column: 7
             value: MSHW
-          - type: rightConcat
+          - type: append
             column: 7
             value: MSHW
             # Replace "MSHWMSHW", i.e. a blank column with the ifTable value.

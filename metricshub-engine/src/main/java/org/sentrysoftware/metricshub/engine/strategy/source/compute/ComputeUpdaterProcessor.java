@@ -28,6 +28,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Add;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.And;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Append;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.ArrayTranslate;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Awk;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Compute;
@@ -40,11 +41,10 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Json2Csv;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.KeepColumns;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.KeepOnlyMatchingLines;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.LeftConcat;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Multiply;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.PerBitTranslation;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Prepend;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Replace;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.RightConcat;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Substring;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Subtract;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Translate;
@@ -137,8 +137,8 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 	}
 
 	@Override
-	public void process(final LeftConcat leftConcat) {
-		processCompute(leftConcat);
+	public void process(final Prepend prepend) {
+		processCompute(prepend);
 	}
 
 	@Override
@@ -157,8 +157,8 @@ public class ComputeUpdaterProcessor implements IComputeProcessor {
 	}
 
 	@Override
-	public void process(final RightConcat rightConcat) {
-		processCompute(rightConcat);
+	public void process(final Append append) {
+		processCompute(append);
 	}
 
 	@Override

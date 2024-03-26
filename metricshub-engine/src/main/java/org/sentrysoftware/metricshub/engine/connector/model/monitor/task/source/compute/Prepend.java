@@ -31,17 +31,17 @@ import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.strategy.source.compute.IComputeProcessor;
 
 /**
- * Represents a LeftConcat computation task for monitoring.
+ * Represents a Prepend computation task for monitoring.
  */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class LeftConcat extends AbstractConcat {
+public class Prepend extends AbstractConcat {
 
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Construct a new instance of LeftConcat.
+	 * Construct a new instance of Prepend.
 	 *
 	 * @param type   The type of the computation task.
 	 * @param column The column index used in the computation.
@@ -49,7 +49,7 @@ public class LeftConcat extends AbstractConcat {
 	 */
 	@Builder
 	@JsonCreator
-	public LeftConcat(
+	public Prepend(
 		@JsonProperty("type") String type,
 		@JsonProperty(value = "column", required = true) @NonNull Integer column,
 		@JsonProperty(value = "value", required = true) @NonNull String value
@@ -63,8 +63,8 @@ public class LeftConcat extends AbstractConcat {
 	}
 
 	@Override
-	public LeftConcat copy() {
-		return LeftConcat.builder().type(type).column(column).value(value).build();
+	public Prepend copy() {
+		return Prepend.builder().type(type).column(column).value(value).build();
 	}
 
 	@Override

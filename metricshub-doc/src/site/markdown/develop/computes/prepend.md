@@ -1,11 +1,11 @@
 keywords: string, prepend, insert, concat
-description: Use the "leftConcat" operation to prepend (insert at the beginning) a specified string into a source in MetricsHub.
+description: Use the "prepend" operation to prepend (insert at the beginning) a specified string into a source in MetricsHub.
 
-# `leftConcat`
+# `prepend`
 
-The `leftConcat` compute allow to concatenate a value at the beginning of all the lines in a selected column.
+The `Prepend` compute allow to concatenate a value at the beginning of all the lines in a selected column.
 The `value` can be a number, or a reference to another column of the same table, using the '$' character followed by the column number.
-Since the data is converted from a CSV to a Table, you can add columns by adding ';' characters using the rightConcat.
+Since the data is converted from a CSV to a Table, you can add columns by adding ';' characters using the append.
 
 ```yaml
 connector:
@@ -19,7 +19,7 @@ monitors:
       sources: # <object>
         <sourceKey>: # <source-object>
           computes: # <compute-object-array>
-          - type: leftConcat
+          - type: prepend
             column: # <number>
             value: # <string>
 ```
