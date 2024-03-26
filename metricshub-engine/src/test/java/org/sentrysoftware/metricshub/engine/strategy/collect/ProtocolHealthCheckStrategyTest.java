@@ -71,9 +71,6 @@ class ProtocolHealthCheckStrategyTest {
 	@Mock
 	private static IProtocolExtension protocolExtensionMock;
 
-	@Mock
-	private static IProtocolExtension protocolExtensionMock;
-
 	private static final String SUCCESS_RESPONSE = "Success";
 	private static final String NULL_RESPONSE = null;
 
