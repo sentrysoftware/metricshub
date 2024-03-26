@@ -36,7 +36,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.sentrysoftware.agentclassloader.ClassLoaderAgent;
+import org.sentrysoftware.metricshub.classloader.agent.ClassLoaderAgent;
 
 /**
  * Manages the loading of extensions from a specified directory and produces an {@link ExtensionManager}.
