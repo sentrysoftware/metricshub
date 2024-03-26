@@ -21,13 +21,16 @@ package org.sentrysoftware.metricshub.extension.snmp;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
+import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 
 /**
  * The SnmpConfiguration class represents the configuration for SNMP in the MetricsHub engine.
@@ -42,21 +45,23 @@ public class SnmpConfiguration implements IConfiguration {
 
 	private static final String INVALID_SNMP_VERSION_EXCEPTION_MESSAGE = "Invalid SNMP version: ";
 
-	@Builder.Default
+	@Default
+	@JsonDeserialize(using = SnmpVersionDeserializer.class)
 	private final SnmpVersion version = SnmpVersion.V1;
 
-	@Builder.Default
-	private final String community = "public";
+	@Default
+	private char[] community = new char[] { 'p', 'u', 'b', 'l', 'i', 'c' };
 
-	@Builder.Default
+	@Default
 	private Integer port = 161;
 
-	@Builder.Default
+	@Default
+	@JsonDeserialize(using = TimeDeserializer.class)
 	private final Long timeout = 120L;
 
 	@Override
 	public String toString() {
-		return version.getDisplayName() + " (" + community + ")";
+		return version.getDisplayName() + " (" + new String(community) + ")";
 	}
 
 	/**

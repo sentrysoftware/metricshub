@@ -51,7 +51,7 @@ class SnmpExtensionTest {
 	private void initSnmp() {
 		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
 			.builder()
-			.community("public")
+			.community("public".toCharArray())
 			.version(SnmpConfiguration.SnmpVersion.V1)
 			.port(161)
 			.timeout(120L)

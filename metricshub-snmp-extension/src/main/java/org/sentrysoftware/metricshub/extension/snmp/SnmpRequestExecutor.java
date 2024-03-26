@@ -196,7 +196,7 @@ public class SnmpRequestExecutor {
 					protocol.getPort(),
 					protocol.getVersion().getIntVersion(),
 					null,
-					protocol.getCommunity(),
+					new String(protocol.getCommunity()),
 					null,
 					null,
 					null,

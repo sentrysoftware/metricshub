@@ -56,7 +56,7 @@ public class PrepareCollectStrategy extends AbstractStrategy {
 	 * @param telemetryManager The telemetry manager responsible for managing telemetry-related operations.
 	 * @param strategyTime     The time when the strategy is executed.
 	 * @param clientsExecutor  The executor for managing clients used in the strategy.
-	 * @param ExtensionManager The extension manager where all the required extensions are handled.
+	 * @param extensionManager The extension manager where all the required extensions are handled.
 	 */
 	public PrepareCollectStrategy(
 		@NonNull final TelemetryManager telemetryManager,

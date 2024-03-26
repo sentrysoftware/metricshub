@@ -1,8 +1,8 @@
-package org.sentrysoftware.metricshub.agent.deserialization;
+package org.sentrysoftware.metricshub.extension.snmp;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
- * MetricsHub Agent
+ * MetricsHub SNMP Extension
  * ჻჻჻჻჻჻
  * Copyright 2023 - 2024 Sentry Software
  * ჻჻჻჻჻჻
@@ -25,7 +25,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import java.io.IOException;
-import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration.SnmpVersion;
+import org.sentrysoftware.metricshub.extension.snmp.SnmpConfiguration.SnmpVersion;
 
 /**
  * Custom deserializer for converting SNMP version values from JSON during deserialization.

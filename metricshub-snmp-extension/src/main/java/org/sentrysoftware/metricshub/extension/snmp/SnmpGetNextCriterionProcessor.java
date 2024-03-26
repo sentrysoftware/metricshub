@@ -52,9 +52,9 @@ public class SnmpGetNextCriterionProcessor {
 	 * and checks the result against the expected value defined in the criterion. It then returns a
 	 * {@link CriterionTestResult} indicating the success or failure of the criterion evaluation.
 	 *
-	 * @param snmpGetCriterion The criterion including the OID to query and the expected result.
-	 * @param connectorId      The connector identifier used for logging.
-	 * @param telemetryManager The telemetry manager providing access to host configuration and SNMP credentials.
+	 * @param snmpGetNextCriterion The criterion including the OID to query and the expected result.
+	 * @param connectorId          The connector identifier used for logging.
+	 * @param telemetryManager     The telemetry manager providing access to host configuration and SNMP credentials.
 	 * @return A {@link CriterionTestResult} representing the outcome of the criterion evaluation.
 	 */
 	public CriterionTestResult process(

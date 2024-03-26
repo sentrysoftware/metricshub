@@ -21,8 +21,12 @@ package org.sentrysoftware.metricshub.extension.snmp;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
@@ -178,5 +182,22 @@ public class SnmpExtension implements IProtocolExtension {
 	@Override
 	public Map<Class<? extends IConfiguration>, Set<Class<? extends Source>>> getConfigurationToSourceMapping() {
 		return Map.of(SnmpConfiguration.class, Set.of(SnmpTableSource.class, SnmpGetSource.class));
+	}
+
+	@Override
+	public Optional<IConfiguration> buildConfiguration(
+		String configurationType,
+		JsonNode jsonNode,
+		UnaryOperator<char[]> decrypt
+	) {
+		if ("snmp".equalsIgnoreCase(configurationType) && jsonNode != null) {
+			try {
+				return Optional.of(new ObjectMapper().treeToValue(jsonNode, SnmpConfiguration.class));
+			} catch (Exception e) {
+				log.error("Error while reading SNMP Configuration: {}. Error: {}", jsonNode, e.getMessage());
+				log.debug("Error while reading SNMP Configuration: {}. Stack trace:", jsonNode, e);
+			}
+		}
+		return Optional.empty();
 	}
 }

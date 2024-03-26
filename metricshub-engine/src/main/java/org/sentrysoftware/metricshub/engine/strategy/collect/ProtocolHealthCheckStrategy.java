@@ -142,7 +142,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 * @param strategyTime     The time when the strategy is executed.
 	 * @param clientsExecutor  The executor for managing clients used in the
 	 *                         strategy.
-	 * @param ExtensionManager The extension manager where all the required extensions are handled.
+	 * @param extensionManager The extension manager where all the required extensions are handled.
 	 */
 	@Builder
 	public ProtocolHealthCheckStrategy(

@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.agent.deserialization;
+package org.sentrysoftware.metricshub.engine.deserialization;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

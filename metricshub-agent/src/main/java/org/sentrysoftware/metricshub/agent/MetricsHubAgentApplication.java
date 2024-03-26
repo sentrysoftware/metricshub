@@ -32,6 +32,7 @@ import org.sentrysoftware.metricshub.agent.helper.ConfigHelper;
 import org.sentrysoftware.metricshub.agent.service.OtelCollectorProcessService;
 import org.sentrysoftware.metricshub.agent.service.TaskSchedulingService;
 import org.sentrysoftware.metricshub.agent.service.task.FileWatcherTask;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionLoader;
 import picocli.CommandLine;
 import picocli.CommandLine.Option;
 
@@ -69,8 +70,14 @@ public class MetricsHubAgentApplication implements Runnable {
 	@Override
 	public void run() {
 		try {
+			// Initialize the extension loader to load all the extensions which will be handled
+			// by the ExtensionManager
+			final ExtensionLoader extensionLoader = new ExtensionLoader(
+				ConfigHelper.getSubDirectory("extensions", false).toFile()
+			);
+
 			// Initialize the application context
-			final AgentContext agentContext = new AgentContext(alternateConfigFile);
+			final AgentContext agentContext = new AgentContext(alternateConfigFile, extensionLoader.load());
 
 			// Start OpenTelemetry Collector process
 			agentContext.getOtelCollectorProcessService().launch();

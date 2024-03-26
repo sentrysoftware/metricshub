@@ -21,11 +21,13 @@ package org.sentrysoftware.metricshub.engine.extension;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -155,5 +157,18 @@ public class ExtensionManager {
 			.map(IProtocolExtension::getConfigurationToSourceMapping)
 			.flatMap(map -> map.entrySet().stream())
 			.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue));
+	}
+
+	public Optional<IConfiguration> buildConfigurationFromJsonNode(
+		final String configurationType,
+		final JsonNode jsonNode,
+		final UnaryOperator<char[]> decrypt
+	) {
+		return protocolExtensions
+			.stream()
+			.map(extension -> extension.buildConfiguration(configurationType, jsonNode, decrypt))
+			.filter(Optional::isPresent)
+			.findFirst()
+			.orElse(Optional.empty());
 	}
 }

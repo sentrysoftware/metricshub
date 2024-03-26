@@ -1,6 +1,5 @@
 package org.sentrysoftware.metricshub.agent.context;
 
-import com.fasterxml.jackson.databind.JsonNode;
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
  * MetricsHub Agent
@@ -21,6 +20,9 @@ import com.fasterxml.jackson.databind.JsonNode;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
+
+import com.fasterxml.jackson.databind.InjectableValues;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,6 +45,7 @@ import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.parser.EnvironmentProcessor;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
@@ -54,11 +57,6 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 @Slf4j
 public class AgentContext {
 
-	/**
-	 * ObjectMapper instance for deserializing agent configuration.
-	 */
-	public static final ObjectMapper AGENT_CONFIG_OBJECT_MAPPER = newAgentConfigObjectMapper();
-
 	private AgentInfo agentInfo;
 	private File configFile;
 	private AgentConfig agentConfig;
@@ -69,14 +67,17 @@ public class AgentContext {
 	private OtelCollectorProcessService otelCollectorProcessService;
 	private TaskSchedulingService taskSchedulingService;
 	private MetricDefinitions hostMetricDefinitions;
+	protected ExtensionManager extensionManager;
 
 	/**
 	 * Instantiate the global context
 	 *
 	 * @param alternateConfigFile Alternation configuration file passed by the user
+	 * @param extensionManager    Manages and aggregates various types of extensions used within MetricsHub.
 	 * @throws IOException Signals that an I/O exception has occurred
 	 */
-	public AgentContext(final String alternateConfigFile) throws IOException {
+	public AgentContext(final String alternateConfigFile, final ExtensionManager extensionManager) throws IOException {
+		this.extensionManager = extensionManager;
 		build(alternateConfigFile, true);
 	}
 
@@ -157,10 +158,13 @@ public class AgentContext {
 	 *		   into an {@link AgentConfig}.
 	 */
 	private AgentConfig loadConfiguration() throws IOException {
-		JsonNode configNode = AGENT_CONFIG_OBJECT_MAPPER.readTree(new FileInputStream(configFile));
+		final ObjectMapper objectMapper = newAgentConfigObjectMapper();
+
+		JsonNode configNode = objectMapper.readTree(new FileInputStream(configFile));
+
 		new EnvironmentProcessor().process(configNode);
 
-		return JsonHelper.deserialize(AGENT_CONFIG_OBJECT_MAPPER, configNode, AgentConfig.class);
+		return JsonHelper.deserialize(objectMapper, configNode, AgentConfig.class);
 	}
 
 	/**
@@ -169,10 +173,15 @@ public class AgentContext {
 	 *
 	 * @return new {@link ObjectMapper} instance
 	 */
-	private static ObjectMapper newAgentConfigObjectMapper() {
+	private ObjectMapper newAgentConfigObjectMapper() {
 		final ObjectMapper objectMapper = ConfigHelper.newObjectMapper();
 
 		PostConfigDeserializeHelper.addPostDeserializeSupport(objectMapper);
+
+		// Inject the extension manager in the deserialization context
+		final InjectableValues.Std injectableValues = new InjectableValues.Std();
+		injectableValues.addValue(ExtensionManager.class, extensionManager);
+		objectMapper.setInjectableValues(injectableValues);
 
 		return objectMapper;
 	}

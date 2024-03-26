@@ -76,7 +76,7 @@ public class DetectionStrategy extends AbstractStrategy {
 	 * @param telemetryManager The telemetry manager for managing monitors and metrics.
 	 * @param strategyTime     The time at which the detection strategy is executed.
 	 * @param clientsExecutor  The executor for running connector clients.
-	 * @param ExtensionManager The extension manager where all the required extensions are handled.
+	 * @param extensionManager The extension manager where all the required extensions are handled.
 	 */
 	@Builder
 	public DetectionStrategy(

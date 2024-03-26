@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.agent.deserialization;
+package org.sentrysoftware.metricshub.extension.snmp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration.SnmpVersion;
+import org.sentrysoftware.metricshub.extension.snmp.SnmpConfiguration.SnmpVersion;
 
 @ExtendWith(MockitoExtension.class)
 class SnmpVersionDeserializerTest {

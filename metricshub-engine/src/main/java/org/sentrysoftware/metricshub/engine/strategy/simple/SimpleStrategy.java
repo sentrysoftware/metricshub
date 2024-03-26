@@ -53,7 +53,7 @@ public class SimpleStrategy extends AbstractAllAtOnceStrategy {
 	 * @param telemetryManager The telemetry manager for managing monitors and metrics.
 	 * @param strategyTime     The time at which the strategy is executed.
 	 * @param clientsExecutor  The executor for running connector clients.
-	 * @param ExtensionManager The extension manager where all the required extensions are handled.
+	 * @param extensionManager The extension manager where all the required extensions are handled.
 	 */
 	@Builder
 	public SimpleStrategy(

@@ -29,7 +29,7 @@ import java.util.jar.JarFile;
  * Class Loader Agent for dynamic class loading. (Needed for module-winrm and
  * java 11)
  *
- * @link https://cgjennings.ca/articles/java-9-dynamic-jar-loading/
+ * See: https://cgjennings.ca/articles/java-9-dynamic-jar-loading/
  */
 public class ClassLoaderAgent {
 
@@ -39,7 +39,6 @@ public class ClassLoaderAgent {
 
 	/**
 	 * Called by the JRE. <em>Do not call this method from user code.</em>
-	 * <p>
 	 *
 	 * @param unusedArgs      currently ignored
 	 * @param instrumentation provided by the JRE
@@ -50,7 +49,6 @@ public class ClassLoaderAgent {
 
 	/**
 	 * Called by the JRE. <em>Do not call this method from user code.</em>
-	 * <p>
 	 *
 	 * @param unusedArgs      currently ignored
 	 * @param instrumentation provided by the JRE

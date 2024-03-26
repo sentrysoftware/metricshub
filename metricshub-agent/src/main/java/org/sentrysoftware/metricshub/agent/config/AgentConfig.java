@@ -35,10 +35,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.agent.config.otel.OtelCollectorConfig;
 import org.sentrysoftware.metricshub.agent.deserialization.AttributesDeserializer;
-import org.sentrysoftware.metricshub.agent.deserialization.TimeDeserializer;
 import org.sentrysoftware.metricshub.agent.helper.AgentConstants;
 import org.sentrysoftware.metricshub.agent.helper.OtelSdkConfigConstants;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
+import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 
 /**
  * AgentConfig represents the configuration for the MetricsHub agent. It includes settings for

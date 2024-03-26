@@ -58,7 +58,7 @@ public class PreSourcesStrategy extends AbstractStrategy {
 	 * @param strategyTime     The execution time of the strategy, used for timing purpose.
 	 * @param clientsExecutor  An executor service for handling client operations within the pre-sources.
 	 * @param connector        The specific connector instance where the pre-sources are defined.
-	 * @param ExtensionManager The extension manager where all the required extensions are handled.
+	 * @param extensionManager The extension manager where all the required extensions are handled.
 	 */
 	@Builder
 	public PreSourcesStrategy(
