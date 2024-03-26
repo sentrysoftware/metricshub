@@ -96,7 +96,8 @@ public class HostConfiguration {
 	/**
 	 * Determine the accepted sources that can be executed using the current engine configuration
 	 *
-	 * @param isLocalhost Whether the host should be localhost or not
+	 * @param isLocalhost      Whether the host should be localhost or not.
+	 * @param extensionManager Where all the extensions are managed.
 	 * @return {@link Set} of accepted source types
 	 */
 	public Set<Class<? extends Source>> determineAcceptedSources(

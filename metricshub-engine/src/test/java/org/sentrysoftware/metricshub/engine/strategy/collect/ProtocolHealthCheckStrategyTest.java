@@ -348,7 +348,6 @@ class ProtocolHealthCheckStrategyTest {
 			clientsExecutorMock,
 			extensionManager
 		);
-
 		assertDoesNotThrow(() -> healthCheckStrategy.run());
 	}
 
