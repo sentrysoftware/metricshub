@@ -55,7 +55,7 @@ public class ExtensionConfigDeserializer extends JsonDeserializer<IConfiguration
 		return extensionManager
 			.buildConfigurationFromJsonNode(configurationType, jsonNode, ConfigHelper::decrypt)
 			.orElseThrow(() ->
-				new IOException("Cannot read " + configurationType + " credentials. Check extensions presence.")
+				new IOException("Cannot read " + configurationType + " credentials. Check the snmp configuration format and extensions presence.")
 			);
 	}
 }

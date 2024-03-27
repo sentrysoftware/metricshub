@@ -185,12 +185,16 @@ public class SnmpExtension implements IProtocolExtension {
 	}
 
 	@Override
+	public boolean isSupportedConfigurationType(String configurationType) {
+		return "snmp".equalsIgnoreCase(configurationType);
+	}
+
+	@Override
 	public Optional<IConfiguration> buildConfiguration(
-		String configurationType,
 		JsonNode jsonNode,
 		UnaryOperator<char[]> decrypt
 	) {
-		if ("snmp".equalsIgnoreCase(configurationType) && jsonNode != null) {
+		if (jsonNode != null) {
 			try {
 				return Optional.of(new ObjectMapper().treeToValue(jsonNode, SnmpConfiguration.class));
 			} catch (Exception e) {
@@ -200,4 +204,6 @@ public class SnmpExtension implements IProtocolExtension {
 		}
 		return Optional.empty();
 	}
+
+
 }

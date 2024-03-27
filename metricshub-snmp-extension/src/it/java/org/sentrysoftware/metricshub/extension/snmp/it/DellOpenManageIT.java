@@ -69,7 +69,7 @@ class DellOpenManageIT {
 
 		clientsExecutor = new ClientsExecutor(telemetryManager);
 
-		extensionManager.setProtocolExtensions(List.of(new SnmpExtension()));
+		extensionManager = ExtensionManager.builder().withProtocolExtensions(List.of(new SnmpExtension())).build();
 	}
 
 	@Test

@@ -111,6 +111,15 @@ public interface IProtocolExtension {
 	CriterionTestResult processCriterion(Criterion criterion, String connectorId, TelemetryManager telemetryManager);
 
 	/**
+	 * Whether the configuration type expressed in the {@code configurationType} argument is supported or not
+	 * @param configurationType A string representing the type of configuration to be checked. This type is used
+	 *                          to select the appropriate configuration constructor through the {@code buildConfiguration}
+	 *                          method.
+	 * @return <code>true</code> if the configuration type is supported otherwise false.
+	 */
+	boolean isSupportedConfigurationType(String configurationType);
+
+	/**
 	 * Creates and returns an optional configuration object of the specified type based on the provided JSON node.
 	 * This method is designed to parse and construct a configuration instance specific to a protocol (e.g., HTTP, SNMP)
 	 * using the provided JSON structure. The method uses the {@code configurationType} parameter to determine the type
@@ -127,7 +136,6 @@ public interface IProtocolExtension {
 	 *         and the JSON data is valid for the specified configuration type; otherwise, an empty {@link Optional} is returned.
 	 */
 	Optional<IConfiguration> buildConfiguration(
-		String configurationType,
 		JsonNode jsonNode,
 		UnaryOperator<char[]> decrypt
 	);
