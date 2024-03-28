@@ -31,8 +31,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.agent.deserialization.TimeDeserializer;
+import org.sentrysoftware.metricshub.engine.configuration.CommandLineConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration;
 
 /**
  * Configuration class for the OS command protocol.
@@ -43,7 +43,7 @@ import org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class OsCommandProtocolConfig extends AbstractProtocolConfig {
+public class CommandLineProtocolConfig extends AbstractProtocolConfig {
 
 	private boolean useSudo;
 
@@ -58,13 +58,13 @@ public class OsCommandProtocolConfig extends AbstractProtocolConfig {
 	private Long timeout = 120L;
 
 	/**
-	 * Create a new {@link OsCommandConfiguration} instance based on the current members
+	 * Create a new {@link CommandLineConfiguration} instance based on the current members
 	 *
-	 * @return The {@link OsCommandConfiguration} instance
+	 * @return The {@link CommandLineConfiguration} instance
 	 */
 	@Override
 	public IConfiguration toConfiguration() {
-		return OsCommandConfiguration
+		return CommandLineConfiguration
 			.builder()
 			.useSudo(useSudo)
 			.useSudoCommands(useSudoCommands)

@@ -86,7 +86,7 @@ ${esc.d}{file::<relativeFilePath>}
 
 ```yaml
    criteria:
-    - type: osCommand
+    - type: commandLine
       commandLine: /bin/sh ${esc.d}{file::storman-drives.sh}
       expectedResult: Hard drive
       errorMessage: No Adaptec Controller with Physical Disks attached or not enough rights to execute arcconf.
@@ -108,7 +108,7 @@ ${esc.d}{attribute::<attribute-key>}
       type: monoInstance
       sources:
         source(1):
-          type: osCommand
+          type: commandLine
           commandLine: /bin/sh ${esc.d}{file::script.sh} ${esc.d}{attribute::id}
           keep: ^MSHW;
           separators: ;

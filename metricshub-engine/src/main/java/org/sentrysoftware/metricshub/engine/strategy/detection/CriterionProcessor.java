@@ -47,19 +47,19 @@ import org.sentrysoftware.metricshub.engine.common.exception.IpmiCommandForSolar
 import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import org.sentrysoftware.metricshub.engine.common.helpers.VersionHelper;
+import org.sentrysoftware.metricshub.engine.configuration.CommandLineConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IWinConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.CommandLineCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.DeviceTypeCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.HttpCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.IpmiCriterion;
-import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.OsCommandCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.ProcessCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.ProductRequirementsCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.ServiceCriterion;
@@ -68,9 +68,9 @@ import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.S
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WbemCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WmiCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WqlCriterion;
+import org.sentrysoftware.metricshub.engine.strategy.utils.CommandLineHelper;
+import org.sentrysoftware.metricshub.engine.strategy.utils.CommandLineResult;
 import org.sentrysoftware.metricshub.engine.strategy.utils.CriterionProcessVisitor;
-import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
-import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandResult;
 import org.sentrysoftware.metricshub.engine.strategy.utils.PslUtils;
 import org.sentrysoftware.metricshub.engine.strategy.utils.WqlDetectionHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -320,15 +320,15 @@ public class CriterionProcessor implements ICriterionProcessor {
 			.getConfigurations()
 			.get(SshConfiguration.class);
 
-		// Retrieve the sudo and timeout settings from OSCommandConfig for localhost, or directly from SSH for remote
-		final OsCommandConfiguration osCommandConfiguration = telemetryManager.getHostProperties().isLocalhost()
-			? (OsCommandConfiguration) telemetryManager
+		// Retrieve the sudo and timeout settings from CommandLineConfig for localhost, or directly from SSH for remote
+		final CommandLineConfiguration commandLineConfiguration = telemetryManager.getHostProperties().isLocalhost()
+			? (CommandLineConfiguration) telemetryManager
 				.getHostConfiguration()
 				.getConfigurations()
-				.get(OsCommandConfiguration.class)
+				.get(CommandLineConfiguration.class)
 			: sshConfiguration;
 
-		if (osCommandConfiguration == null) {
+		if (commandLineConfiguration == null) {
 			final String message = String.format(
 				"Hostname %s - No OS command configuration for this host. Returning an empty result",
 				hostname
@@ -337,9 +337,10 @@ public class CriterionProcessor implements ICriterionProcessor {
 			return CriterionTestResult.builder().success(false).result("").message(message).build();
 		}
 
-		final int defaultTimeout = osCommandConfiguration.getTimeout().intValue();
+		final int defaultTimeout = commandLineConfiguration.getTimeout().intValue();
 		if (ipmitoolCommand == null || ipmitoolCommand.isEmpty()) {
-			ipmitoolCommand = buildIpmiCommand(hostType, hostname, sshConfiguration, osCommandConfiguration, defaultTimeout);
+			ipmitoolCommand =
+				buildIpmiCommand(hostType, hostname, sshConfiguration, commandLineConfiguration, defaultTimeout);
 		}
 
 		// buildIpmiCommand method can either return the actual result of the built command or an error. If it is an error we display it in the error message
@@ -350,7 +351,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 		// execute the command
 		try {
 			String result = null;
-			result = runOsCommand(ipmitoolCommand, hostname, sshConfiguration, defaultTimeout);
+			result = runCommandLine(ipmitoolCommand, hostname, sshConfiguration, defaultTimeout);
 			if (result != null && !result.contains("IPMI Version")) {
 				// Didn't find what we expected: exit
 				return CriterionTestResult
@@ -437,7 +438,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 * @param hostType               The type of the host.
 	 * @param hostname               The hostname.
 	 * @param sshConfiguration       The SSH configuration.
-	 * @param osCommandConfiguration The OS command configuration.
+	 * @param commandLineConfiguration The OS command configuration.
 	 * @param defaultTimeout         The default timeout.
 	 * @return String : The IPMI Command.
 	 */
@@ -445,7 +446,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 		final DeviceKind hostType,
 		final String hostname,
 		final SshConfiguration sshConfiguration,
-		final OsCommandConfiguration osCommandConfiguration,
+		final CommandLineConfiguration commandLineConfiguration,
 		final int defaultTimeout
 	) {
 		// do we need to use sudo or not?
@@ -453,11 +454,11 @@ public class CriterionProcessor implements ICriterionProcessor {
 		// Or if the command is listed in useSudoCommandList (possible only in classic
 		// wizard) --> yes
 		String ipmitoolCommand; // Sonar don't agree with modifying arguments
-		if (doesIpmitoolRequireSudo(osCommandConfiguration)) {
+		if (doesIpmitoolRequireSudo(commandLineConfiguration)) {
 			ipmitoolCommand =
 				"PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;%{SUDO:ipmitool}ipmitool -I ".replace(
 						"%{SUDO:ipmitool}",
-						osCommandConfiguration.getSudoCommand()
+						commandLineConfiguration.getSudoCommand()
 					);
 		} else {
 			ipmitoolCommand = "PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;ipmitool -I ";
@@ -469,7 +470,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 			try {
 				// Execute "/usr/bin/uname -r" command in order to obtain the OS Version
 				// (Solaris)
-				solarisOsVersion = runOsCommand("/usr/bin/uname -r", hostname, sshConfiguration, defaultTimeout);
+				solarisOsVersion = runCommandLine("/usr/bin/uname -r", hostname, sshConfiguration, defaultTimeout);
 			} catch (final Exception e) { // NOSONAR on interruption
 				final String message = String.format(
 					IPMI_SOLARIS_VERSION_NOT_IDENTIFIED,
@@ -510,17 +511,17 @@ public class CriterionProcessor implements ICriterionProcessor {
 	/**
 	 * Whether the ipmitool command requires sudo
 	 *
-	 * @param osCommandConfiguration User's configuration.
+	 * @param commandLineConfiguration User's configuration.
 	 * @return boolean value whether IPMI tool require Sudo or not.
 	 */
-	private boolean doesIpmitoolRequireSudo(final OsCommandConfiguration osCommandConfiguration) {
+	private boolean doesIpmitoolRequireSudo(final CommandLineConfiguration commandLineConfiguration) {
 		// CHECKSTYLE:OFF
 		// @formatter:off
 		return (
-			osCommandConfiguration.isUseSudo() ||
+			commandLineConfiguration.isUseSudo() ||
 			(
-				osCommandConfiguration.getUseSudoCommands() != null &&
-				osCommandConfiguration.getUseSudoCommands().contains("ipmitool")
+				commandLineConfiguration.getUseSudoCommands() != null &&
+				commandLineConfiguration.getUseSudoCommands().contains("ipmitool")
 			)
 		);
 		// @formatter:on
@@ -591,71 +592,71 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 * @throws ClientException      If an error occurs in the client.
 	 * @throws ControlledSshException If an error occurs in the controlled SSH.
 	 */
-	String runOsCommand(
+	String runCommandLine(
 		final String ipmitoolCommand,
 		final String hostname,
 		final SshConfiguration sshConfiguration,
 		final int timeout
 	) throws InterruptedException, IOException, TimeoutException, ClientException, ControlledSshException {
 		return telemetryManager.getHostProperties().isLocalhost()
-			? OsCommandHelper.runLocalCommand(ipmitoolCommand, timeout, null) // or we can use NetworkHelper.isLocalhost(hostname)
-			: OsCommandHelper.runSshCommand(ipmitoolCommand, hostname, sshConfiguration, timeout, null, null);
+			? CommandLineHelper.runLocalCommand(ipmitoolCommand, timeout, null) // or we can use NetworkHelper.isLocalhost(hostname)
+			: CommandLineHelper.runSshCommand(ipmitoolCommand, hostname, sshConfiguration, timeout, null, null);
 	}
 
 	/**
-	 * Process the given {@link OsCommandCriterion} through Client and return the {@link CriterionTestResult}
+	 * Process the given {@link CommandLineCriterion} through Client and return the {@link CriterionTestResult}
 	 *
-	 * @param osCommandCriterion The {@link OsCommandCriterion} to process.
+	 * @param commandLineCriterion The {@link CommandLineCriterion} to process.
 	 * @return {@link CriterionTestResult} instance.
 	 */
 	@WithSpan("Criterion OS Command Exec")
-	public CriterionTestResult process(@SpanAttribute("criterion.definition") OsCommandCriterion osCommandCriterion) {
-		if (osCommandCriterion == null) {
-			return CriterionTestResult.error(osCommandCriterion, "Malformed OSCommand criterion.");
+	public CriterionTestResult process(@SpanAttribute("criterion.definition") CommandLineCriterion commandLineCriterion) {
+		if (commandLineCriterion == null) {
+			return CriterionTestResult.error(commandLineCriterion, "Malformed commandLine criterion.");
 		}
 
 		if (
-			osCommandCriterion.getCommandLine().isEmpty() ||
-			osCommandCriterion.getExpectedResult() == null ||
-			osCommandCriterion.getExpectedResult().isEmpty()
+			commandLineCriterion.getCommandLine().isEmpty() ||
+			commandLineCriterion.getExpectedResult() == null ||
+			commandLineCriterion.getExpectedResult().isEmpty()
 		) {
 			return CriterionTestResult.success(
-				osCommandCriterion,
+				commandLineCriterion,
 				"CommandLine or ExpectedResult are empty. Skipping this test."
 			);
 		}
 
 		try {
-			final OsCommandResult osCommandResult = OsCommandHelper.runOsCommand(
-				osCommandCriterion.getCommandLine(),
+			final CommandLineResult commandLineResult = CommandLineHelper.runCommandLine(
+				commandLineCriterion.getCommandLine(),
 				telemetryManager,
-				osCommandCriterion.getTimeout(),
-				osCommandCriterion.getExecuteLocally(),
+				commandLineCriterion.getTimeout(),
+				commandLineCriterion.getExecuteLocally(),
 				telemetryManager.getHostProperties().isLocalhost()
 			);
 
-			final OsCommandCriterion osCommandNoPassword = OsCommandCriterion
+			final CommandLineCriterion commandLineNoPassword = CommandLineCriterion
 				.builder()
-				.commandLine(osCommandResult.getNoPasswordCommand())
-				.executeLocally(osCommandCriterion.getExecuteLocally())
-				.timeout(osCommandCriterion.getTimeout())
-				.expectedResult(osCommandCriterion.getExpectedResult())
+				.commandLine(commandLineResult.getNoPasswordCommand())
+				.executeLocally(commandLineCriterion.getExecuteLocally())
+				.timeout(commandLineCriterion.getTimeout())
+				.expectedResult(commandLineCriterion.getExpectedResult())
 				.build();
 
 			final Matcher matcher = Pattern
 				.compile(
-					PslUtils.psl2JavaRegex(osCommandCriterion.getExpectedResult()),
+					PslUtils.psl2JavaRegex(commandLineCriterion.getExpectedResult()),
 					Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
 				)
-				.matcher(osCommandResult.getResult());
+				.matcher(commandLineResult.getResult());
 
 			return matcher.find()
-				? CriterionTestResult.success(osCommandNoPassword, osCommandResult.getResult())
-				: CriterionTestResult.failure(osCommandNoPassword, osCommandResult.getResult());
+				? CriterionTestResult.success(commandLineNoPassword, commandLineResult.getResult())
+				: CriterionTestResult.failure(commandLineNoPassword, commandLineResult.getResult());
 		} catch (NoCredentialProvidedException noCredentialProvidedException) {
-			return CriterionTestResult.error(osCommandCriterion, noCredentialProvidedException.getMessage());
+			return CriterionTestResult.error(commandLineCriterion, noCredentialProvidedException.getMessage());
 		} catch (Exception exception) { // NOSONAR on interruption
-			return CriterionTestResult.error(osCommandCriterion, exception);
+			return CriterionTestResult.error(commandLineCriterion, exception);
 		}
 	}
 

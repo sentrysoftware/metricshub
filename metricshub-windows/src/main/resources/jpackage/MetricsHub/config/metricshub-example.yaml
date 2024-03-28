@@ -208,7 +208,7 @@ resourceGroups:
       #     host.name: server-10
       #     host.type: linux
       #   protocols:
-      #     osCommand:
+      #     commandLine:
       #       timeout: 120
       #       useSudo: true
       #       useSudoCommands: [ ]

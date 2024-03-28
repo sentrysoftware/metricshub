@@ -44,10 +44,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.connector.model.common.CustomConcatMethod;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EntryConcatMethod;
 import org.sentrysoftware.metricshub.engine.connector.model.common.IEntryConcatMethod;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CommandLineSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CopySource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.OsCommandSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpGetSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
@@ -106,8 +106,8 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 	}
 
 	@Override
-	public SourceTable process(final OsCommandSource osCommandSource) {
-		return processSource(osCommandSource.copy());
+	public SourceTable process(final CommandLineSource commandLineSource) {
+		return processSource(commandLineSource.copy());
 	}
 
 	@Override

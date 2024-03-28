@@ -36,9 +36,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.alert.AlertInfo;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CommandLineSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.OsCommandSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpGetSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
@@ -84,13 +84,13 @@ public class HostConfiguration {
 				WbemConfiguration.class,
 				Collections.singleton(WbemSource.class),
 				SshConfiguration.class,
-				Collections.singleton(OsCommandSource.class),
+				Collections.singleton(CommandLineSource.class),
 				HttpConfiguration.class,
 				Collections.singleton(HttpSource.class),
 				IpmiConfiguration.class,
 				Collections.singleton(IpmiSource.class),
-				OsCommandConfiguration.class,
-				Collections.singleton(OsCommandSource.class),
+				CommandLineConfiguration.class,
+				Collections.singleton(CommandLineSource.class),
 				WinRmConfiguration.class,
 				Collections.singleton(WmiSource.class)
 			);
@@ -121,13 +121,13 @@ public class HostConfiguration {
 		// Add IPMI through WMI
 		if (DeviceKind.WINDOWS.equals(hostType) && sources.contains(WmiSource.class)) {
 			sources.add(IpmiSource.class);
-			// Add OSCommand through Remote WMI Commands
+			// Add CommandLine through Remote WMI Commands
 			if (!isLocalhost) {
-				sources.add(OsCommandSource.class);
+				sources.add(CommandLineSource.class);
 			}
 		}
 
-		// Add IPMI through OSCommand remote (SSH)
+		// Add IPMI through CommandLine remote (SSH)
 		if ((DeviceKind.LINUX.equals(hostType) || DeviceKind.SOLARIS.equals(hostType)) && !isLocalhost) {
 			sources.add(IpmiSource.class);
 		}
@@ -135,7 +135,7 @@ public class HostConfiguration {
 		// Handle localhost protocols
 		if (isLocalhost) {
 			// OS Command always enabled locally
-			sources.add(OsCommandSource.class);
+			sources.add(CommandLineSource.class);
 
 			// IPMI executed locally on Linux through OS Command
 			if (DeviceKind.LINUX.equals(hostType) || DeviceKind.SOLARIS.equals(hostType)) {

@@ -76,7 +76,7 @@ import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WinRmConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
-import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
+import org.sentrysoftware.metricshub.engine.strategy.utils.CommandLineHelper;
 import org.sentrysoftware.metricshub.engine.strategy.utils.RetryOperation;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.snmp.client.SnmpClient;
@@ -1490,7 +1490,7 @@ public class ClientsExecutor {
 					command,
 					(s, file) ->
 						command.replaceAll(
-							OsCommandHelper.toCaseInsensitiveRegex(file.getAbsolutePath()),
+							CommandLineHelper.toCaseInsensitiveRegex(file.getAbsolutePath()),
 							SSH_REMOTE_DIRECTORY + file.getName()
 						),
 					(s1, s2) -> null

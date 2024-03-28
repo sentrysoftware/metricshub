@@ -52,10 +52,12 @@ import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type", visible = true)
 @JsonSubTypes(
 	{
+		@JsonSubTypes.Type(value = CommandLineSource.class, name = "commandLine"),
 		@JsonSubTypes.Type(value = CopySource.class, name = "copy"),
 		@JsonSubTypes.Type(value = HttpSource.class, name = "http"),
 		@JsonSubTypes.Type(value = IpmiSource.class, name = "ipmi"),
-		@JsonSubTypes.Type(value = OsCommandSource.class, name = "osCommand"),
+		@JsonSubTypes.Type(value = CommandLineSource.class, name = "osCommand"),
+		@JsonSubTypes.Type(value = CommandLineSource.class, name = "commandLine"),
 		@JsonSubTypes.Type(value = SnmpGetSource.class, name = "snmpGet"),
 		@JsonSubTypes.Type(value = SnmpTableSource.class, name = "snmpTable"),
 		@JsonSubTypes.Type(value = StaticSource.class, name = "static"),

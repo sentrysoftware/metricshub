@@ -35,7 +35,7 @@ import lombok.NoArgsConstructor;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-public class SshConfiguration extends OsCommandConfiguration {
+public class SshConfiguration extends CommandLineConfiguration {
 
 	private String username;
 	private char[] password;

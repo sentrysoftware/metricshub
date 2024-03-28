@@ -58,7 +58,7 @@ public class ProtocolsConfig {
 	private HttpProtocolConfig http;
 
 	@JsonSetter(nulls = SKIP)
-	private OsCommandProtocolConfig osCommand;
+	private CommandLineProtocolConfig commandLine;
 
 	@JsonSetter(nulls = SKIP)
 	private WinRmProtocolConfig winrm;

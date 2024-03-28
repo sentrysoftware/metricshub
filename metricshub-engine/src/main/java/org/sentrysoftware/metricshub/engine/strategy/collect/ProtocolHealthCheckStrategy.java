@@ -20,7 +20,7 @@ package org.sentrysoftware.metricshub.engine.strategy.collect;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
-import static org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration.DEFAULT_TIMEOUT;
+import static org.sentrysoftware.metricshub.engine.configuration.CommandLineConfiguration.DEFAULT_TIMEOUT;
 
 import java.util.Collections;
 import java.util.List;
@@ -40,7 +40,7 @@ import org.sentrysoftware.metricshub.engine.configuration.WinRmConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
 import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
-import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
+import org.sentrysoftware.metricshub.engine.strategy.utils.CommandLineHelper;
 import org.sentrysoftware.metricshub.engine.strategy.utils.WqlDetectionHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
@@ -317,11 +317,11 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 		log.info("Hostname {} - Checking SSH protocol status. Sending an SSH 'echo test' command.", hostname);
 
 		// Execute Local test
-		if (telemetryManager.getHostProperties().isOsCommandExecutesLocally()) {
+		if (telemetryManager.getHostProperties().isCommandLineExecutesLocally()) {
 			sshResult = localSshTest(hostname);
 		}
 
-		if (telemetryManager.getHostProperties().isOsCommandExecutesRemotely()) {
+		if (telemetryManager.getHostProperties().isCommandLineExecutesRemotely()) {
 			sshResult = remoteSshTest(hostname, sshResult, sshConfiguration);
 		}
 
@@ -337,7 +337,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 */
 	private Double localSshTest(String hostname) {
 		try {
-			if (OsCommandHelper.runLocalCommand(SSH_TEST_COMMAND, DEFAULT_TIMEOUT, null) == null) {
+			if (CommandLineHelper.runLocalCommand(SSH_TEST_COMMAND, DEFAULT_TIMEOUT, null) == null) {
 				log.debug(
 					"Hostname {} - Checking SSH protocol status. Local OS command has not returned any results.",
 					hostname
@@ -361,14 +361,12 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 *
 	 * @param hostname           The hostname on which we perform health check
 	 * @param previousSshStatus  The results that will be used to create protocol health check metric
-	 * @param sshConfiguration   The SSH configuration retrieved from the telemetryManager
+	 * @param sshConfig   The SSH configuration retrieved from the telemetryManager
 	 * @return The updated SSH status after performing the remote SSH test or the previous SSH status if the SSH test succeeds.
 	 */
-	private Double remoteSshTest(String hostname, Double previousSshStatus, SshConfiguration sshConfiguration) {
+	private Double remoteSshTest(String hostname, Double previousSshStatus, SshConfiguration sshConfig) {
 		try {
-			if (
-				OsCommandHelper.runSshCommand(SSH_TEST_COMMAND, hostname, sshConfiguration, DEFAULT_TIMEOUT, null, null) == null
-			) {
+			if (CommandLineHelper.runSshCommand(SSH_TEST_COMMAND, hostname, sshConfig, DEFAULT_TIMEOUT, null, null) == null) {
 				log.debug(
 					"Hostname {} - Checking SSH protocol status. Remote SSH command has not returned any results.",
 					hostname

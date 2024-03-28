@@ -52,8 +52,8 @@ public class HostProperties {
 	private Set<String> possibleWbemNamespaces = new TreeSet<>();
 
 	private String vCenterTicket;
-	private boolean osCommandExecutesLocally;
-	private boolean osCommandExecutesRemotely;
+	private boolean commandLineExecutesLocally;
+	private boolean commandLineExecutesRemotely;
 	private boolean mustCheckSshStatus;
 
 	@Default

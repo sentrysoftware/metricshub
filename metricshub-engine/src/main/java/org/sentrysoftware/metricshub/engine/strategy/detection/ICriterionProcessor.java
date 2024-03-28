@@ -21,10 +21,10 @@ package org.sentrysoftware.metricshub.engine.strategy.detection;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.CommandLineCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.DeviceTypeCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.HttpCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.IpmiCriterion;
-import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.OsCommandCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.ProcessCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.ProductRequirementsCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.ServiceCriterion;
@@ -96,10 +96,10 @@ public interface ICriterionProcessor {
 	/**
 	 * Process the OS command criterion.
 	 *
-	 * @param osCommandCriterion The OS command criterion to process.
+	 * @param commandLineCriterion The OS command criterion to process.
 	 * @return The result of the criterion test.
 	 */
-	CriterionTestResult process(OsCommandCriterion osCommandCriterion);
+	CriterionTestResult process(CommandLineCriterion commandLineCriterion);
 
 	/**
 	 * Process the IPMI criterion.

@@ -25,7 +25,7 @@ resources:
       host.name: localhost
       host.type: linux
     protocols:
-      osCommand:
+      commandLine:
         timeout: 120
 
   #═══════════════════════════════════════════════════
@@ -200,7 +200,7 @@ resourceGroups:
       #       privateKey: /tmp/ssh-key.txt
 
       #═══════════════════════════════════════════════════
-      # OSCommand configuration        
+      # Command Line configuration
       #═══════════════════════════════════════════════════
 
       # server-10:
@@ -208,7 +208,7 @@ resourceGroups:
       #     host.name: server-10
       #     host.type: linux
       #   protocols:
-      #     osCommand:
+      #     commandLine:
       #       timeout: 120
       #       useSudo: true
       #       useSudoCommands: [ ]

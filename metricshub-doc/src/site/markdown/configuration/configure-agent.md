@@ -132,7 +132,7 @@ where
   * `tru64` for HP Tru64 systems
   * `vms` for HP Open VMS systems.
 
-* `<protocol-configuration>` is the protocol(s) **MetricsHub** will use to communicate with the resources: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](./configure-agent.html#protocols-and-credentials) for more details.
+* `<protocol-configuration>` is the protocol(s) **MetricsHub** will use to communicate with the resources: `http`, `ipmi`, `commandline`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](./configure-agent.html#protocols-and-credentials) for more details.
 
 ### Protocols and credentials
 
@@ -198,8 +198,8 @@ resourceGroups:
 Use the parameters below to configure OS Commands that are executed locally:
 
 | Parameter       | Description                                                                           |
-| --------------- | ------------------------------------------------------------------------------------- |
-| osCommand       | Protocol used to access the host.                                                     |
+|-----------------| ------------------------------------------------------------------------------------- |
+| commandLine     | Protocol used to access the host.                                                     |
 | timeout         | How long until the local OS Commands time out (Default: 120s).                        |
 | useSudo         | Whether sudo is used or not for the local OS Command: true or false (Default: false). |
 | useSudoCommands | List of commands for which sudo is required.                                          |
@@ -216,7 +216,7 @@ resourceGroups:
           host.name: my-host-01
           host.type: linux
         protocols:
-          osCommand:
+          commandLine:
             timeout: 120
             useSudo: true
             useSudoCommands: [ cmd1, cmd2 ]

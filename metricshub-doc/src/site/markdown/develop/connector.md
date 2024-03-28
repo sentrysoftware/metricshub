@@ -130,8 +130,8 @@ connector:
     - type: deviceType
       keep: # <enum-array> | possible values: [ vms, osf1, hp, rs6000, linux, oob, nt, network, storage, solaris, sunos ]
       exclude: # <enum-array> | possible values: [ vms, osf1, hp, rs6000, linux, oob, nt, network, storage, solaris, sunos ]
-    # OsCommand criterion
-    - type: osCommand
+    # CommandLine criterion
+    - type: commandLine
       commandLine: # <string>
       errorMessage: # <string>
       expectedResult: # <string>
@@ -223,9 +223,9 @@ monitors:
           type: ipmi
           forceSerialization: <boolean>
           computes: # <compute-object-array>
-        # OsCommand Source
-        <osCommand-sourceKey>: # <source-object>
-          type: osCommand
+        # CommandLine Source
+        <commandLine-sourceKey>: # <source-object>
+          type: commandLine
           commandLine: # <string>
           timeout: # <number>
           executeLocally: # <boolean>
