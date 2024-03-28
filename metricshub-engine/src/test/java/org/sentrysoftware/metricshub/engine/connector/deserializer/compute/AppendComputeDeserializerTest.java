@@ -12,22 +12,22 @@ import org.sentrysoftware.metricshub.engine.connector.deserializer.DeserializerT
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Append;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Compute;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.LeftConcat;
 
-class LeftConcatComputeDeserializerTest extends DeserializerTest {
+class AppendComputeDeserializerTest extends DeserializerTest {
 
 	@Override
 	public String getResourcePath() {
-		return "src/test/resources/test-files/compute/leftConcat/";
+		return "src/test/resources/test-files/compute/append/";
 	}
 
 	@Test
 	void testDeserializeCompute() throws IOException {
-		final Connector connector = getConnector("leftConcat");
+		final Connector connector = getConnector("append");
 
 		final List<Compute> computes = new ArrayList<>();
-		computes.add(LeftConcat.builder().type("leftConcat").column(1).value("column(n)").build());
+		computes.add(Append.builder().type("append").column(1).value("column(n)").build());
 
 		final Map<String, Source> expected = new LinkedHashMap<>(
 			Map.of(

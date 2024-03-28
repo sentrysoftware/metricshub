@@ -23,6 +23,7 @@ package org.sentrysoftware.metricshub.engine.strategy.source.compute;
 
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Add;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.And;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Append;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.ArrayTranslate;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Awk;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Convert;
@@ -34,11 +35,10 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Json2Csv;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.KeepColumns;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.KeepOnlyMatchingLines;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.LeftConcat;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Multiply;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.PerBitTranslation;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Prepend;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Replace;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.RightConcat;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Substring;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Subtract;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Translate;
@@ -48,7 +48,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
  * Interface for a ComputeProcessor responsible for processing various compute operations on source data.
  * Implementations of this interface should handle specific types of compute operations, such as Add, And,
  * ArrayTranslate, Awk, Convert, Divide, DuplicateColumn, ExcludeMatchingLines, Extract, ExtractPropertyFromWbemPath,
- * Json2Csv, KeepColumns, KeepOnlyMatchingLines, LeftConcat, Multiply, PerBitTranslation, Replace, RightConcat,
+ * Json2Csv, KeepColumns, KeepOnlyMatchingLines, Prepend, Multiply, PerBitTranslation, Replace, Append,
  * Substring, Subtract, Translate, and Xml2Csv.
  */
 public interface IComputeProcessor {
@@ -144,11 +144,11 @@ public interface IComputeProcessor {
 	void process(KeepOnlyMatchingLines keepOnlyMatchingLines);
 
 	/**
-	 * Processes the LeftConcat compute operation on the source data.
+	 * Processes the Prepend compute operation on the source data.
 	 *
-	 * @param leftConcat The LeftConcat compute operation to be processed.
+	 * @param prepend The Prepend compute operation to be processed.
 	 */
-	void process(LeftConcat leftConcat);
+	void process(Prepend prepend);
 
 	/**
 	 * Processes the Multiply compute operation on the source data.
@@ -172,11 +172,11 @@ public interface IComputeProcessor {
 	void process(Replace replace);
 
 	/**
-	 * Processes the RightConcat compute operation on the source data.
+	 * Processes the Append compute operation on the source data.
 	 *
-	 * @param rightConcat The RightConcat compute operation to be processed.
+	 * @param append The Append compute operation to be processed.
 	 */
-	void process(RightConcat rightConcat);
+	void process(Append append);
 
 	/**
 	 * Processes the Substring compute operation on the source data.

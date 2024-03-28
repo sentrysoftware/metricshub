@@ -71,6 +71,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.AbstractMatchingLines;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Add;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.And;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Append;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.ArrayTranslate;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Awk;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Compute;
@@ -83,11 +84,10 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Json2Csv;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.KeepColumns;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.KeepOnlyMatchingLines;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.LeftConcat;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Multiply;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.PerBitTranslation;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Prepend;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Replace;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.RightConcat;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Substring;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Subtract;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Translate;
@@ -994,9 +994,9 @@ public class ComputeProcessor implements IComputeProcessor {
 	}
 
 	@Override
-	@WithSpan("Compute LeftConcat Exec")
-	public void process(@SpanAttribute("compute.definition") final LeftConcat leftConcat) {
-		processAbstractConcat(leftConcat);
+	@WithSpan("Compute Prepend Exec")
+	public void process(@SpanAttribute("compute.definition") final Prepend prepend) {
+		processAbstractConcat(prepend);
 	}
 
 	@Override
@@ -1228,9 +1228,9 @@ public class ComputeProcessor implements IComputeProcessor {
 	}
 
 	@Override
-	@WithSpan("Compute RightConcat Exec")
-	public void process(@SpanAttribute("compute.definition") final RightConcat rightConcat) {
-		processAbstractConcat(rightConcat);
+	@WithSpan("Compute Append Exec")
+	public void process(@SpanAttribute("compute.definition") final Append append) {
+		processAbstractConcat(append);
 	}
 
 	@Override
@@ -1671,7 +1671,7 @@ public class ComputeProcessor implements IComputeProcessor {
 	}
 
 	/**
-	 * Process the LeftConcat and RightConcat Computes
+	 * Process the Prepend and Append Computes
 	 * @param abstractConcat
 	 */
 	private void processAbstractConcat(final AbstractConcat abstractConcat) {
@@ -1745,7 +1745,7 @@ public class ComputeProcessor implements IComputeProcessor {
 			return;
 		}
 
-		final String result = abstractConcat instanceof LeftConcat
+		final String result = abstractConcat instanceof Prepend
 			? line.get(concatColumnIndex).concat(line.get(columnIndex))
 			: line.get(columnIndex).concat(line.get(concatColumnIndex));
 
@@ -1773,7 +1773,7 @@ public class ComputeProcessor implements IComputeProcessor {
 			return;
 		}
 
-		final String result = abstractConcat instanceof LeftConcat
+		final String result = abstractConcat instanceof Prepend
 			? abstractConcat.getValue().concat(line.get(columnIndex))
 			: line.get(columnIndex).concat(abstractConcat.getValue());
 
