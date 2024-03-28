@@ -195,8 +195,11 @@ public class SnmpExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public IConfiguration buildConfiguration(@NonNull JsonNode jsonNode, UnaryOperator<char[]> decrypt)
-		throws InvalidConfigurationException {
+	public IConfiguration buildConfiguration(
+		@NonNull String configurationType,
+		@NonNull JsonNode jsonNode,
+		UnaryOperator<char[]> decrypt
+	) throws InvalidConfigurationException {
 		try {
 			final SnmpConfiguration snmpConfiguration = newObjectMapper().treeToValue(jsonNode, SnmpConfiguration.class);
 

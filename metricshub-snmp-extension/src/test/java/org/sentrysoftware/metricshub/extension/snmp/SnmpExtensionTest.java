@@ -584,7 +584,7 @@ class SnmpExtensionTest {
 				.timeout(120L)
 				.version(SnmpVersion.V1)
 				.build(),
-			snmpExtension.buildConfiguration(configuration, value -> value)
+			snmpExtension.buildConfiguration("snmp", configuration, value -> value)
 		);
 		assertEquals(
 			SnmpConfiguration
@@ -594,7 +594,7 @@ class SnmpExtensionTest {
 				.timeout(120L)
 				.version(SnmpVersion.V1)
 				.build(),
-			snmpExtension.buildConfiguration(configuration, null)
+			snmpExtension.buildConfiguration("snmp", configuration, null)
 		);
 	}
 }

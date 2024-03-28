@@ -186,7 +186,7 @@ public class ExtensionManager {
 	) throws InvalidConfigurationException {
 		for (IProtocolExtension extension : protocolExtensions) {
 			if (extension.isSupportedConfigurationType(configurationType)) {
-				return Optional.ofNullable(extension.buildConfiguration(configurationJsonNode, decrypt));
+				return Optional.ofNullable(extension.buildConfiguration(configurationType, configurationJsonNode, decrypt));
 			}
 		}
 

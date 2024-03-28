@@ -128,6 +128,9 @@ public interface IProtocolExtension {
 	 * contain valid data or if the specified configuration type is not supported, the {@link InvalidConfigurationException} should
 	 * be thrown.
 	 *
+	 * @param configurationType A string representing the type of configuration to be checked. This type is used
+	 *                          to select the appropriate configuration constructor. This type should be used when several
+	 *                          configurations are managed by the same extension.
 	 * @param jsonNode          A {@link JsonNode} containing the configuration data in JSON format. This data is parsed
 	 *                          to construct the configuration object.
 	 * @param decrypt           Decrypt function.
@@ -135,6 +138,6 @@ public interface IProtocolExtension {
 	 *         and the JSON data is valid; otherwise, the {@link InvalidConfigurationException} should be thrown.
 	 * @throws InvalidConfigurationException if the provided {@link JsonNode} is invalid and cannot be parsed.
 	 */
-	IConfiguration buildConfiguration(JsonNode jsonNode, UnaryOperator<char[]> decrypt)
+	IConfiguration buildConfiguration(String configurationType, JsonNode jsonNode, UnaryOperator<char[]> decrypt)
 		throws InvalidConfigurationException;
 }
