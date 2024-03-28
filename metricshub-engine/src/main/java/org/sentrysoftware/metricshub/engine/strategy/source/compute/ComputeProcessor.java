@@ -22,6 +22,7 @@ package org.sentrysoftware.metricshub.engine.strategy.source.compute;
  */
 
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.COLUMN_PATTERN;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.COLUMN_REFERENCE_PATTERN;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.COMMA;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DEFAULT;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DOUBLE_PATTERN;
@@ -1773,9 +1774,18 @@ public class ComputeProcessor implements IComputeProcessor {
 			return;
 		}
 
+		String concatValue = abstractConcat.getValue();
+		Matcher matcher = COLUMN_REFERENCE_PATTERN.matcher(concatValue);
+
+		while (matcher.find()) {
+			int concatColumnIndex = Integer.parseInt(matcher.group(1)) - 1;
+
+			concatValue = concatValue.replace(matcher.group(0), line.get(concatColumnIndex));
+		}
+
 		final String result = abstractConcat instanceof Prepend
-			? abstractConcat.getValue().concat(line.get(columnIndex))
-			: line.get(columnIndex).concat(abstractConcat.getValue());
+			? concatValue.concat(line.get(columnIndex))
+			: line.get(columnIndex).concat(concatValue);
 
 		line.set(columnIndex, result);
 	}

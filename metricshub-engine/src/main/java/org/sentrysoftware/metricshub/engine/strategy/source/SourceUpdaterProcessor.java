@@ -21,6 +21,7 @@ package org.sentrysoftware.metricshub.engine.strategy.source;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.COLUMN_REFERENCE_PATTERN;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.NEW_LINE;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.SEMICOLON;
@@ -71,7 +72,6 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 @Slf4j
 public class SourceUpdaterProcessor implements ISourceProcessor {
 
-	private static final Pattern COLUMN_REF_PATTERN = Pattern.compile("(?<!\\$)\\$([1-9]\\d*)", Pattern.CASE_INSENSITIVE);
 	private static final Pattern MONO_INSTANCE_REPLACEMENT_PATTERN = Pattern.compile(
 		"\\$\\{attribute::(\\w+)\\}",
 		Pattern.CASE_INSENSITIVE
@@ -523,7 +523,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 			return null;
 		}
 
-		final Matcher matcher = COLUMN_REF_PATTERN.matcher(dataValue);
+		final Matcher matcher = COLUMN_REFERENCE_PATTERN.matcher(dataValue);
 
 		final StringBuffer sb = new StringBuffer();
 		while (matcher.find()) {
