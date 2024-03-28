@@ -124,6 +124,21 @@ class ComputeProcessorTest {
 	private static final String PREFIX_MANUFACTURER1 = "prefix_MANUFACTURER1";
 	private static final String PREFIX_MANUFACTURER2 = "prefix_MANUFACTURER2";
 	private static final String PREFIX_MANUFACTURER3 = "prefix_MANUFACTURER3";
+	private static final String SUFFIX_APPEND_REF_MANUFACTURER1 = "MANUFACTURER1prefix_ID1_middle_NAME1_suffix";
+	private static final String SUFFIX_APPEND_REF_MANUFACTURER2 = "MANUFACTURER2prefix_ID2_middle_NAME2_suffix";
+	private static final String SUFFIX_APPEND_REF_MANUFACTURER3 = "MANUFACTURER3prefix_ID3_middle_NAME3_suffix";
+	private static final String PREFIX_PREPEND_REF_MANUFACTURER1 = "prefix_ID1_middle_NAME1_suffixMANUFACTURER1";
+	private static final String PREFIX_PREPEND_REF_MANUFACTURER2 = "prefix_ID2_middle_NAME2_suffixMANUFACTURER2";
+	private static final String PREFIX_PREPEND_REF_MANUFACTURER3 = "prefix_ID3_middle_NAME3_suffixMANUFACTURER3";
+	private static final String PREFIX_PREPEND_REF_MANUFACTURER1_PROTECTED =
+		"prefix_$$1_middle_NAME1_suffixMANUFACTURER1";
+	private static final String PREFIX_PREPEND_REF_MANUFACTURER2_PROTECTED =
+		"prefix_$$1_middle_NAME2_suffixMANUFACTURER2";
+	private static final String PREFIX_PREPEND_REF_MANUFACTURER3_PROTECTED =
+		"prefix_$$1_middle_NAME3_suffixMANUFACTURER3";
+	private static final String SUFFIX_APPEND_REF_MANUFACTURER1_PROTECTED = "MANUFACTURER1prefix_$$1_middle_NAME1_suffix";
+	private static final String SUFFIX_APPEND_REF_MANUFACTURER2_PROTECTED = "MANUFACTURER2prefix_$$1_middle_NAME2_suffix";
+	private static final String SUFFIX_APPEND_REF_MANUFACTURER3_PROTECTED = "MANUFACTURER3prefix_$$1_middle_NAME3_suffix";
 	private static final String MANUFACTURER1_SUFFIX = "MANUFACTURER1_suffix";
 	private static final String MANUFACTURER2_SUFFIX = "MANUFACTURER2_suffix";
 	private static final String MANUFACTURER3_SUFFIX = "MANUFACTURER3_suffix";
@@ -131,11 +146,14 @@ class ComputeProcessorTest {
 	private static final String NAME2 = "NAME2";
 	private static final String NAME3 = "NAME3";
 	private static final String NEW_COMMA_COLUMN = "new,Column";
-	private static final String NEW_COMMA_DOLLAR_4 = "new,$4";
+	private static final String NEW_COMMA_NUMBER_OF_DISKS1 = "new,NUMBER_OF_DISKS1";
+	private static final String NEW_COMMA_NUMBER_OF_DISKS2 = "new,NUMBER_OF_DISKS2";
+	private static final String NEW_COMMA_NUMBER_OF_DISKS3 = "new,NUMBER_OF_DISKS3";
 	private static final String NUMBER_OF_DISKS1 = "NUMBER_OF_DISKS1";
 	private static final String NUMBER_OF_DISKS2 = "NUMBER_OF_DISKS2";
 	private static final String NUMBER_OF_DISKS3 = "NUMBER_OF_DISKS3";
 	private static final String PREFIX = "prefix_";
+	private static final String MIDDLE_VALUE = "_middle_";
 	private static final String SUFFIX = "_suffix";
 	private static final String TYPE1 = "TYPE1";
 	private static final String TYPE2 = "TYPE2";
@@ -163,6 +181,46 @@ class ComputeProcessorTest {
 	);
 	private static final List<String> LINE_3_RESULT_RIGHT = new ArrayList<>(
 		Arrays.asList(ID3, NAME3, MANUFACTURER3_SUFFIX, NUMBER_OF_DISKS3)
+	);
+
+	private static final List<String> LINE_1_RESULT_APPEND_REF = new ArrayList<>(
+		Arrays.asList(ID1, NAME1, SUFFIX_APPEND_REF_MANUFACTURER1, NUMBER_OF_DISKS1)
+	);
+	private static final List<String> LINE_2_RESULT_APPEND_REF = new ArrayList<>(
+		Arrays.asList(ID2, NAME2, SUFFIX_APPEND_REF_MANUFACTURER2, NUMBER_OF_DISKS2)
+	);
+	private static final List<String> LINE_3_RESULT_APPEND_REF = new ArrayList<>(
+		Arrays.asList(ID3, NAME3, SUFFIX_APPEND_REF_MANUFACTURER3, NUMBER_OF_DISKS3)
+	);
+
+	private static final List<String> LINE_1_RESULT_PREPEND_REF = new ArrayList<>(
+		Arrays.asList(ID1, NAME1, PREFIX_PREPEND_REF_MANUFACTURER1, NUMBER_OF_DISKS1)
+	);
+	private static final List<String> LINE_2_RESULT_PREPEND_REF = new ArrayList<>(
+		Arrays.asList(ID2, NAME2, PREFIX_PREPEND_REF_MANUFACTURER2, NUMBER_OF_DISKS2)
+	);
+	private static final List<String> LINE_3_RESULT_PREPEND_REF = new ArrayList<>(
+		Arrays.asList(ID3, NAME3, PREFIX_PREPEND_REF_MANUFACTURER3, NUMBER_OF_DISKS3)
+	);
+
+	private static final List<String> LINE_1_RESULT_PREPEND_REF_PROTECTED = new ArrayList<>(
+		Arrays.asList(ID1, NAME1, PREFIX_PREPEND_REF_MANUFACTURER1_PROTECTED, NUMBER_OF_DISKS1)
+	);
+	private static final List<String> LINE_2_RESULT_PREPEND_REF_PROTECTED = new ArrayList<>(
+		Arrays.asList(ID2, NAME2, PREFIX_PREPEND_REF_MANUFACTURER2_PROTECTED, NUMBER_OF_DISKS2)
+	);
+	private static final List<String> LINE_3_RESULT_PREPEND_REF_PROTECTED = new ArrayList<>(
+		Arrays.asList(ID3, NAME3, PREFIX_PREPEND_REF_MANUFACTURER3_PROTECTED, NUMBER_OF_DISKS3)
+	);
+
+	private static final List<String> LINE_1_RESULT_APPEND_REF_PROTECTED = new ArrayList<>(
+		Arrays.asList(ID1, NAME1, SUFFIX_APPEND_REF_MANUFACTURER1_PROTECTED, NUMBER_OF_DISKS1)
+	);
+	private static final List<String> LINE_2_RESULT_APPEND_REF_PROTECTED = new ArrayList<>(
+		Arrays.asList(ID2, NAME2, SUFFIX_APPEND_REF_MANUFACTURER2_PROTECTED, NUMBER_OF_DISKS2)
+	);
+	private static final List<String> LINE_3_RESULT_APPEND_REF_PROTECTED = new ArrayList<>(
+		Arrays.asList(ID3, NAME3, SUFFIX_APPEND_REF_MANUFACTURER3_PROTECTED, NUMBER_OF_DISKS3)
 	);
 
 	private static final List<String> LINE_1_ONE_COLUMN = new ArrayList<>(Collections.singletonList(ID1));
@@ -688,9 +746,9 @@ class ComputeProcessorTest {
 
 		final List<List<String>> table = sourceTable.getTable();
 
-		assertEquals(new ArrayList<>(Arrays.asList(ID1, NAME1, "$1_MANUFACTURER1", NUMBER_OF_DISKS1)), table.get(0));
-		assertEquals(new ArrayList<>(Arrays.asList(ID2, NAME2, "$1_MANUFACTURER2", NUMBER_OF_DISKS2)), table.get(1));
-		assertEquals(new ArrayList<>(Arrays.asList(ID3, NAME3, "$1_MANUFACTURER3", NUMBER_OF_DISKS3)), table.get(2));
+		assertEquals(new ArrayList<>(Arrays.asList(ID1, NAME1, "ID1_MANUFACTURER1", NUMBER_OF_DISKS1)), table.get(0));
+		assertEquals(new ArrayList<>(Arrays.asList(ID2, NAME2, "ID2_MANUFACTURER2", NUMBER_OF_DISKS2)), table.get(1));
+		assertEquals(new ArrayList<>(Arrays.asList(ID3, NAME3, "ID3_MANUFACTURER3", NUMBER_OF_DISKS3)), table.get(2));
 	}
 
 	@Test
@@ -703,9 +761,9 @@ class ComputeProcessorTest {
 
 		final List<List<String>> table = sourceTable.getTable();
 
-		assertEquals(new ArrayList<>(Arrays.asList(ID1, NAME1, "_$1MANUFACTURER1", NUMBER_OF_DISKS1)), table.get(0));
-		assertEquals(new ArrayList<>(Arrays.asList(ID2, NAME2, "_$1MANUFACTURER2", NUMBER_OF_DISKS2)), table.get(1));
-		assertEquals(new ArrayList<>(Arrays.asList(ID3, NAME3, "_$1MANUFACTURER3", NUMBER_OF_DISKS3)), table.get(2));
+		assertEquals(new ArrayList<>(Arrays.asList(ID1, NAME1, "_ID1MANUFACTURER1", NUMBER_OF_DISKS1)), table.get(0));
+		assertEquals(new ArrayList<>(Arrays.asList(ID2, NAME2, "_ID2MANUFACTURER2", NUMBER_OF_DISKS2)), table.get(1));
+		assertEquals(new ArrayList<>(Arrays.asList(ID3, NAME3, "_ID3MANUFACTURER3", NUMBER_OF_DISKS3)), table.get(2));
 	}
 
 	@Test
@@ -744,19 +802,40 @@ class ComputeProcessorTest {
 
 		assertEquals(
 			new ArrayList<>(
-				Arrays.asList(NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, PREFIX_ID1, NAME1, MANUFACTURER1, NUMBER_OF_DISKS1)
+				Arrays.asList(
+					NEW_COMMA_NUMBER_OF_DISKS1,
+					ANOTHER_NEW_COLUMN,
+					PREFIX_ID1,
+					NAME1,
+					MANUFACTURER1,
+					NUMBER_OF_DISKS1
+				)
 			),
 			table.get(0)
 		);
 		assertEquals(
 			new ArrayList<>(
-				Arrays.asList(NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, PREFIX_ID2, NAME2, MANUFACTURER2, NUMBER_OF_DISKS2)
+				Arrays.asList(
+					NEW_COMMA_NUMBER_OF_DISKS2,
+					ANOTHER_NEW_COLUMN,
+					PREFIX_ID2,
+					NAME2,
+					MANUFACTURER2,
+					NUMBER_OF_DISKS2
+				)
 			),
 			table.get(1)
 		);
 		assertEquals(
 			new ArrayList<>(
-				Arrays.asList(NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, PREFIX_ID3, NAME3, MANUFACTURER3, NUMBER_OF_DISKS3)
+				Arrays.asList(
+					NEW_COMMA_NUMBER_OF_DISKS3,
+					ANOTHER_NEW_COLUMN,
+					PREFIX_ID3,
+					NAME3,
+					MANUFACTURER3,
+					NUMBER_OF_DISKS3
+				)
 			),
 			table.get(2)
 		);
@@ -806,6 +885,35 @@ class ComputeProcessorTest {
 			assertEquals(1, table.get(1).size());
 			assertEquals(LINE_3_ONE_COLUMN, table.get(1));
 		}
+	}
+
+	@Test
+	void testProcessPrependColumnReferenceInString() {
+		initializeSourceTable();
+
+		final Prepend prepend = new Prepend();
+
+		final List<List<String>> table = sourceTable.getTable();
+
+		prepend.setColumn(3);
+		prepend.setValue(String.format("%s%s%s%s%s", PREFIX, "$1", MIDDLE_VALUE, "$2", SUFFIX));
+
+		computeProcessor.process(prepend);
+
+		assertEquals(LINE_1_RESULT_PREPEND_REF, table.get(0));
+		assertEquals(LINE_2_RESULT_PREPEND_REF, table.get(1));
+		assertEquals(LINE_3_RESULT_PREPEND_REF, table.get(2));
+
+		// Check with a protected '$'
+		initializeSourceTable();
+		prepend.setColumn(3);
+		prepend.setValue(String.format("%s%s%s%s%s", PREFIX, "$$1", MIDDLE_VALUE, "$2", SUFFIX));
+
+		computeProcessor.process(prepend);
+
+		assertEquals(LINE_1_RESULT_PREPEND_REF_PROTECTED, table.get(0));
+		assertEquals(LINE_2_RESULT_PREPEND_REF_PROTECTED, table.get(1));
+		assertEquals(LINE_3_RESULT_PREPEND_REF_PROTECTED, table.get(2));
 	}
 
 	@Test
@@ -899,9 +1007,9 @@ class ComputeProcessorTest {
 
 		final List<List<String>> table = sourceTable.getTable();
 
-		assertEquals(new ArrayList<>(Arrays.asList(ID1, NAME1, "MANUFACTURER1_$1", NUMBER_OF_DISKS1)), table.get(0));
-		assertEquals(new ArrayList<>(Arrays.asList(ID2, NAME2, "MANUFACTURER2_$1", NUMBER_OF_DISKS2)), table.get(1));
-		assertEquals(new ArrayList<>(Arrays.asList(ID3, NAME3, "MANUFACTURER3_$1", NUMBER_OF_DISKS3)), table.get(2));
+		assertEquals(new ArrayList<>(Arrays.asList(ID1, NAME1, "MANUFACTURER1_ID1", NUMBER_OF_DISKS1)), table.get(0));
+		assertEquals(new ArrayList<>(Arrays.asList(ID2, NAME2, "MANUFACTURER2_ID2", NUMBER_OF_DISKS2)), table.get(1));
+		assertEquals(new ArrayList<>(Arrays.asList(ID3, NAME3, "MANUFACTURER3_ID3", NUMBER_OF_DISKS3)), table.get(2));
 	}
 
 	@Test
@@ -940,19 +1048,40 @@ class ComputeProcessorTest {
 
 		assertEquals(
 			new ArrayList<>(
-				Arrays.asList(ID1_SUFFIX, NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, NAME1, MANUFACTURER1, NUMBER_OF_DISKS1)
+				Arrays.asList(
+					ID1_SUFFIX,
+					NEW_COMMA_NUMBER_OF_DISKS1,
+					ANOTHER_NEW_COLUMN,
+					NAME1,
+					MANUFACTURER1,
+					NUMBER_OF_DISKS1
+				)
 			),
 			table.get(0)
 		);
 		assertEquals(
 			new ArrayList<>(
-				Arrays.asList(ID2_SUFFIX, NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, NAME2, MANUFACTURER2, NUMBER_OF_DISKS2)
+				Arrays.asList(
+					ID2_SUFFIX,
+					NEW_COMMA_NUMBER_OF_DISKS2,
+					ANOTHER_NEW_COLUMN,
+					NAME2,
+					MANUFACTURER2,
+					NUMBER_OF_DISKS2
+				)
 			),
 			table.get(1)
 		);
 		assertEquals(
 			new ArrayList<>(
-				Arrays.asList(ID3_SUFFIX, NEW_COMMA_DOLLAR_4, ANOTHER_NEW_COLUMN, NAME3, MANUFACTURER3, NUMBER_OF_DISKS3)
+				Arrays.asList(
+					ID3_SUFFIX,
+					NEW_COMMA_NUMBER_OF_DISKS3,
+					ANOTHER_NEW_COLUMN,
+					NAME3,
+					MANUFACTURER3,
+					NUMBER_OF_DISKS3
+				)
 			),
 			table.get(2)
 		);
@@ -1064,6 +1193,35 @@ class ComputeProcessorTest {
 			assertEquals(1, table.get(1).size());
 			assertEquals(LINE_3_ONE_COLUMN, table.get(1));
 		}
+	}
+
+	@Test
+	void testProcessAppendColumnReferenceInString() {
+		initializeSourceTable();
+
+		final Append append = new Append();
+
+		final List<List<String>> table = sourceTable.getTable();
+
+		append.setColumn(3);
+		append.setValue(String.format("%s%s%s%s%s", PREFIX, "$1", MIDDLE_VALUE, "$2", SUFFIX));
+
+		computeProcessor.process(append);
+
+		assertEquals(LINE_1_RESULT_APPEND_REF, table.get(0));
+		assertEquals(LINE_2_RESULT_APPEND_REF, table.get(1));
+		assertEquals(LINE_3_RESULT_APPEND_REF, table.get(2));
+
+		// Check with a protected '$'
+		initializeSourceTable();
+		append.setColumn(3);
+		append.setValue(String.format("%s%s%s%s%s", PREFIX, "$$1", MIDDLE_VALUE, "$2", SUFFIX));
+
+		computeProcessor.process(append);
+
+		assertEquals(LINE_1_RESULT_APPEND_REF_PROTECTED, table.get(0));
+		assertEquals(LINE_2_RESULT_APPEND_REF_PROTECTED, table.get(1));
+		assertEquals(LINE_3_RESULT_APPEND_REF_PROTECTED, table.get(2));
 	}
 
 	@Test
