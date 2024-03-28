@@ -382,7 +382,7 @@ public class MetricsHubConstants {
 	/**
 	 * Column Reference pattern
 	 */
-	public static final Pattern COLUMN_REFERENCE_PATTERN = Pattern.compile("\\$(\\d+)");
+	public static final Pattern COLUMN_REFERENCE_PATTERN = Pattern.compile("(?<!\\$)\\$([1-9]\\d*)");
 
 	/**
 	 * Double Pattern
