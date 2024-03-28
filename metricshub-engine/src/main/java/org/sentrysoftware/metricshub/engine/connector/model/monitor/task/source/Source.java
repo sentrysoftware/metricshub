@@ -188,4 +188,13 @@ public abstract class Source implements Serializable {
 	public String getExecuteForEachEntryOf() {
 		return executeForEachEntryOf != null ? executeForEachEntryOf.getSource() : null;
 	}
+
+	/**
+	 * Get the executeForEachEntryOf sleep Integer value
+	 *
+	 * @return Integer value
+	 */
+	public Integer getSleepExecuteForEachEntryOf() {
+		return executeForEachEntryOf != null ? executeForEachEntryOf.getSleep() : null;
+	}
 }

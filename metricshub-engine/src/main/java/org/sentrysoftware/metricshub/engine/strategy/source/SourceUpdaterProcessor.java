@@ -490,6 +490,8 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 
 		final SourceTable result = SourceTable.builder().rawData(EMPTY).build();
 
+		final Integer sleep = source.getSleepExecuteForEachEntryOf();
+
 		for (List<String> row : maybeSourceTable.get().getTable()) {
 			final Source copy = source.copy();
 
@@ -505,6 +507,14 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 			copy.update(value -> replaceSourceReference(value, copy));
 
 			concatEntryResult(source, result, row, copy.accept(sourceProcessor));
+			if (sleep != null && sleep > 0) {
+				try {
+					Thread.sleep(sleep);
+				} catch (InterruptedException e) {
+					log.error("threadSleep", "Thread interrupted during sleep between two requests.");
+					Thread.currentThread().interrupt();
+				}
+			}
 		}
 
 		return result;
