@@ -395,6 +395,7 @@ resourceGroups:
             timeout: 120s
             authentications: [ntlm]
 ```
+
 ## (Optional) Customize resource monitoring
 
 If the connectors included in **MetricsHub** do not collect the metrics you need, you can configure one or several monitors to obtain this data from your resource and specify its corresponding attributes and metrics in **MetricsHub**.
