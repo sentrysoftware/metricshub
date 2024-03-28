@@ -28,6 +28,7 @@ import lombok.Data;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.context.MetricDefinitions;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
@@ -55,4 +56,7 @@ public class MonitoringTaskInfo {
 
 	@NonNull
 	private MetricDefinitions hostMetricDefinitions;
+
+	@NonNull
+	private ExtensionManager extensionManager;
 }

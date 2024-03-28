@@ -21,6 +21,9 @@ package org.sentrysoftware.metricshub.agent.context;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
+
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,11 +34,16 @@ import java.lang.management.ManagementFactory;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.agent.config.AgentConfig;
 import org.sentrysoftware.metricshub.agent.context.ApplicationProperties.Project;
 import org.sentrysoftware.metricshub.agent.deserialization.PostConfigDeserializer;
+import org.sentrysoftware.metricshub.agent.helper.AgentConstants;
 import org.sentrysoftware.metricshub.agent.helper.ConfigHelper;
 import org.sentrysoftware.metricshub.agent.helper.OtelConfigHelper;
 import org.sentrysoftware.metricshub.agent.helper.PostConfigDeserializeHelper;
@@ -90,6 +98,18 @@ public class AgentContext {
 	public void build(final String alternateConfigFile, final boolean createConnectorStore) throws IOException {
 		final long startTime = System.nanoTime();
 
+		// Find the configuration file
+		configFile = ConfigHelper.findConfigFile(alternateConfigFile);
+
+		// Load the logging configuration before starting any processing
+		// because we want to log any potential error at the start up of the application.
+		final LoggingConfig loggingConfig = loadLoggingConfig();
+
+		// Configure the global logger
+		ConfigHelper.configureGlobalLogger(loggingConfig.getLoggerLevel(), loggingConfig.getOutputDirectory());
+
+		log.info("Starting MetricsHub Agent...");
+
 		// Set the current PID
 		pid = findPid();
 
@@ -101,16 +121,8 @@ public class AgentContext {
 		// Initialize agent information
 		agentInfo = new AgentInfo();
 
-		// Find the configuration file
-		configFile = ConfigHelper.findConfigFile(alternateConfigFile);
-
 		// Read the agent configuration file (Default: metricshub.yaml)
 		agentConfig = loadConfiguration();
-
-		// Configure the global logger
-		ConfigHelper.configureGlobalLogger(agentConfig.getLoggerLevel(), agentConfig.getOutputDirectory());
-
-		log.info("Starting MetricsHub Agent...");
 
 		logProductInformation();
 
@@ -142,11 +154,22 @@ public class AgentContext {
 				.withSchedules(new HashMap<>())
 				.withOtelSdkConfiguration(otelSdkConfiguration)
 				.withHostMetricDefinitions(hostMetricDefinitions)
+				.withExtensionManager(extensionManager)
 				.build();
 
 		final Duration startupDuration = Duration.ofNanos(System.nanoTime() - startTime);
 
 		log.info("Started MetricsHub Agent in {} seconds.", startupDuration.toMillis() / 1000.0);
+	}
+
+	/**
+	 * Load the {@link LoggingConfig} instance
+	 * @return new {@link LoggingConfig} instance.
+	 * @throws IOException  If an I/O error occurs during the initial reading of the YAML file.
+	 */
+	private LoggingConfig loadLoggingConfig() throws IOException {
+		final ObjectMapper objectMapper = ConfigHelper.newObjectMapper();
+		return JsonHelper.deserialize(objectMapper, new FileInputStream(configFile), LoggingConfig.class);
 	}
 
 	/**
@@ -158,7 +181,7 @@ public class AgentContext {
 	 *		   into an {@link AgentConfig}.
 	 */
 	private AgentConfig loadConfiguration() throws IOException {
-		final ObjectMapper objectMapper = newAgentConfigObjectMapper();
+		final ObjectMapper objectMapper = newAgentConfigObjectMapper(extensionManager);
 
 		JsonNode configNode = objectMapper.readTree(new FileInputStream(configFile));
 
@@ -171,9 +194,10 @@ public class AgentContext {
 	 * Create a new {@link ObjectMapper} instance then add to it the
 	 * {@link PostConfigDeserializer}
 	 *
+	 * @param extensionManager Manages and aggregates various types of extensions used within MetricsHub.
 	 * @return new {@link ObjectMapper} instance
 	 */
-	private ObjectMapper newAgentConfigObjectMapper() {
+	public static ObjectMapper newAgentConfigObjectMapper(final ExtensionManager extensionManager) {
 		final ObjectMapper objectMapper = ConfigHelper.newObjectMapper();
 
 		PostConfigDeserializeHelper.addPostDeserializeSupport(objectMapper);
@@ -244,5 +268,20 @@ public class AgentContext {
 		} catch (Throwable ex) { // NOSONAR
 			return MetricsHubConstants.EMPTY;
 		}
+	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class LoggingConfig {
+
+		@Default
+		@JsonSetter(nulls = SKIP)
+		private String loggerLevel = "error";
+
+		@Default
+		@JsonSetter(nulls = SKIP)
+		private String outputDirectory = AgentConstants.DEFAULT_OUTPUT_DIRECTORY.toString();
 	}
 }

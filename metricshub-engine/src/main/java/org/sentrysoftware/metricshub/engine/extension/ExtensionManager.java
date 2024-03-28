@@ -34,6 +34,7 @@ import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NonNull;
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
@@ -159,16 +160,36 @@ public class ExtensionManager {
 			.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue));
 	}
 
+	/**
+	 * Constructs a configuration object from a given JSON node based on the specified configuration type.
+	 * This method iterates over a collection of protocol extensions to find the first extension that supports
+	 * the specified configuration type. It then uses this extension to build a configuration object from the
+	 * provided JSON node. If no suitable extension is found, an <code>null</code> value is returned.
+	 *
+	 * @param configurationType     A {@link String} representing the type of configuration to be created.
+	 *                              This is used to identify the appropriate protocol extension that can
+	 *                              handle the specified configuration type.
+	 * @param configurationJsonNode A {@link JsonNode} containing the configuration data in JSON format.
+	 *                              This data is used by the selected protocol extension to build the configuration object.
+	 * @param decrypt               A {@link UnaryOperator} function that takes a {@code char[]} array and
+	 *                              returns a {@code char[]} array. This function is intended to decrypt the configuration
+	 *                              data if necessary before building the configuration object.
+	 * @return An {@link Optional} of {@link IConfiguration} representing the constructed configuration object.
+	 *         Returns an empty {@link Optional} if no suitable protocol extension is found or if the configuration
+	 *         object cannot be created for any reason.
+	 * @throws InvalidConfigurationException If the given configuration JSON node is invalid.
+	 */
 	public Optional<IConfiguration> buildConfigurationFromJsonNode(
 		final String configurationType,
-		final JsonNode jsonNode,
+		final JsonNode configurationJsonNode,
 		final UnaryOperator<char[]> decrypt
-	) {
-		return protocolExtensions
-			.stream()
-			.map(extension -> extension.buildConfiguration(configurationType, jsonNode, decrypt))
-			.filter(Optional::isPresent)
-			.findFirst()
-			.orElse(Optional.empty());
+	) throws InvalidConfigurationException {
+		for (IProtocolExtension extension : protocolExtensions) {
+			if (extension.isSupportedConfigurationType(configurationType)) {
+				return Optional.ofNullable(extension.buildConfiguration(configurationJsonNode, decrypt));
+			}
+		}
+
+		return Optional.empty();
 	}
 }

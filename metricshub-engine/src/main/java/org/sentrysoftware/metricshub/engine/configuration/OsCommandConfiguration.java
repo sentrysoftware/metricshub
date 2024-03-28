@@ -26,6 +26,7 @@ import java.util.Set;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 
 /**
  * The OsCommandConfiguration class represents the configuration for executing OS commands in the MetricsHub engine.
@@ -68,5 +69,10 @@ public class OsCommandConfiguration implements IConfiguration {
 	@Override
 	public String toString() {
 		return "Local Commands";
+	}
+
+	@Override
+	public void validateConfiguration(String resourceKey) throws InvalidConfigurationException {
+		// TODO implement the validation
 	}
 }

@@ -21,13 +21,18 @@ package org.sentrysoftware.metricshub.extension.snmp;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.UnaryOperator;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetCriterion;
@@ -190,20 +195,43 @@ public class SnmpExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public Optional<IConfiguration> buildConfiguration(
-		JsonNode jsonNode,
-		UnaryOperator<char[]> decrypt
-	) {
-		if (jsonNode != null) {
-			try {
-				return Optional.of(new ObjectMapper().treeToValue(jsonNode, SnmpConfiguration.class));
-			} catch (Exception e) {
-				log.error("Error while reading SNMP Configuration: {}. Error: {}", jsonNode, e.getMessage());
-				log.debug("Error while reading SNMP Configuration: {}. Stack trace:", jsonNode, e);
+	public IConfiguration buildConfiguration(@NonNull JsonNode jsonNode, UnaryOperator<char[]> decrypt)
+		throws InvalidConfigurationException {
+		try {
+			final SnmpConfiguration snmpConfiguration = newObjectMapper().treeToValue(jsonNode, SnmpConfiguration.class);
+
+			if (decrypt != null) {
+				// Decrypt the community
+				final char[] communityDecypted = decrypt.apply(snmpConfiguration.getCommunity());
+				snmpConfiguration.setCommunity(communityDecypted);
 			}
+
+			return snmpConfiguration;
+		} catch (Exception e) {
+			final String errorMessage = String.format(
+				"Error while reading SNMP Configuration: %s. Error: %s",
+				jsonNode,
+				e.getMessage()
+			);
+			log.error(errorMessage);
+			log.debug("Error while reading SNMP Configuration: {}. Stack trace:", jsonNode, e);
+			throw new InvalidConfigurationException(errorMessage, e);
 		}
-		return Optional.empty();
 	}
 
-
+	/**
+	 * Creates and configures a new instance of the Jackson ObjectMapper for handling YAML data.
+	 *
+	 * @return A configured ObjectMapper instance.
+	 */
+	public static JsonMapper newObjectMapper() {
+		return JsonMapper
+			.builder(new YAMLFactory())
+			.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+			.enable(SerializationFeature.INDENT_OUTPUT)
+			.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+			.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false)
+			.build();
+	}
 }

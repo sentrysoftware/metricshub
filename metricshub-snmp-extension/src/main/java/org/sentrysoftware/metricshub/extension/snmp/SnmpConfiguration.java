@@ -29,6 +29,8 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 
@@ -95,14 +97,58 @@ public class SnmpConfiguration implements IConfiguration {
 			final String lowerCaseVersion = version.toLowerCase();
 
 			if ("1".equals(lowerCaseVersion) || "v1".equals(lowerCaseVersion)) {
-				return SnmpConfiguration.SnmpVersion.V1;
+				return V1;
 			}
 
 			if ("2".equals(lowerCaseVersion) || "v2".equals(lowerCaseVersion) || "v2c".equals(lowerCaseVersion)) {
-				return SnmpConfiguration.SnmpVersion.V2C;
+				return V2C;
 			}
 
 			throw new IllegalArgumentException(INVALID_SNMP_VERSION_EXCEPTION_MESSAGE + version);
 		}
+	}
+
+	@Override
+	public void validateConfiguration(final String resourceKey) throws InvalidConfigurationException {
+		final SnmpVersion snmpVersion = version;
+
+		final String displayName = snmpVersion.getDisplayName();
+
+		StringHelper.validateConfigurationAttribute(
+			community,
+			attr -> attr == null || attr.length == 0,
+			() ->
+				String.format(
+					"Resource %s - No community string configured for %s. This resource will not be monitored.",
+					resourceKey,
+					displayName
+				)
+		);
+
+		StringHelper.validateConfigurationAttribute(
+			port,
+			attr -> attr == null || attr < 1 || attr > 65535,
+			() ->
+				String.format(
+					"Resource %s - Invalid port configured for protocol %s. Port value returned: %s." +
+					" This resource will not be monitored. Please verify the configured port value.",
+					resourceKey,
+					displayName,
+					port
+				)
+		);
+
+		StringHelper.validateConfigurationAttribute(
+			timeout,
+			attr -> attr == null || attr < 0L,
+			() ->
+				String.format(
+					"Resource %s - Timeout value is invalid for protocol %s." +
+					" Timeout value returned: %s. This resource will not be monitored. Please verify the configured timeout value.",
+					resourceKey,
+					displayName,
+					timeout
+				)
+		);
 	}
 }

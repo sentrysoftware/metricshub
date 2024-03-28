@@ -42,4 +42,4 @@ node_modules
 
 ### Connectors used for testing ###
 /metricshub-agent/connectors
-/metricshub-agent/dependency-reduced-pom.xml
+**/dependency-reduced-pom.xml

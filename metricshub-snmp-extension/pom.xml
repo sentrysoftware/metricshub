@@ -155,7 +155,7 @@
 										<limit>
 											<counter>COMPLEXITY</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.5</minimum>
+											<minimum>0.6</minimum>
 										</limit>
 									</limits>
 								</rule>
@@ -165,6 +165,7 @@
 				</executions>
 				<configuration>
 					<excludes>
+						<exclude>org/sentrysoftware/metricshub/extension/snmp/*SnmpConfigurationBuilder*</exclude>
 					</excludes>
 				</configuration>
 			</plugin>

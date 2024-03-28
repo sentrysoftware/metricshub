@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
+import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.agent.helper.ConfigHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
@@ -34,6 +35,7 @@ import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
  * Custom JSON deserializer for deserializing a JSON object into an {@link IConfiguration} implementation
  * using the {@link ExtensionManager}.
  */
+@Slf4j
 public class ExtensionConfigDeserializer extends JsonDeserializer<IConfiguration> {
 
 	@Override
@@ -42,6 +44,7 @@ public class ExtensionConfigDeserializer extends JsonDeserializer<IConfiguration
 			return null;
 		}
 
+		// Retrieve the ExtensionManager which has been injected in the ObjectMapper currently managed in the AgentContext.
 		final ExtensionManager extensionManager = (ExtensionManager) ctxt.findInjectableValue(
 			ExtensionManager.class.getName(),
 			null,
@@ -52,10 +55,16 @@ public class ExtensionConfigDeserializer extends JsonDeserializer<IConfiguration
 
 		final String configurationType = parser.getCurrentName();
 
-		return extensionManager
-			.buildConfigurationFromJsonNode(configurationType, jsonNode, ConfigHelper::decrypt)
-			.orElseThrow(() ->
-				new IOException("Cannot read " + configurationType + " credentials. Check the snmp configuration format and extensions presence.")
-			);
+		try {
+			return extensionManager
+				.buildConfigurationFromJsonNode(configurationType, jsonNode, ConfigHelper::decrypt)
+				.orElse(null);
+		} catch (Exception e) {
+			final String errorMessage =
+				"Cannot read " + configurationType + " credentials. Check the snmp configuration format.";
+			log.error(errorMessage);
+			log.debug(errorMessage, e);
+			throw new IOException(errorMessage, e);
+		}
 	}
 }

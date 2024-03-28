@@ -32,9 +32,9 @@ import java.util.ServiceLoader.Provider;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.classloader.agent.ClassLoaderAgent;
 
@@ -44,12 +44,14 @@ import org.sentrysoftware.metricshub.classloader.agent.ClassLoaderAgent;
  * of MetricsHub. The extensions are expected to be jar files located in the specified extensions directory.
  */
 @Data
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Slf4j
 public class ExtensionLoader {
 
 	@NonNull
 	private File extensionsDirectory;
+
+	private ExtensionManager extensionManager;
 
 	/**
 	 * Loads extensions from the {@code extensionsDirectory} and returns an {@link ExtensionManager} that wraps
@@ -60,11 +62,15 @@ public class ExtensionLoader {
 	 * @throws IOException If an I/O error occurs reading from the directory or a JAR file.
 	 */
 	public ExtensionManager load() throws IOException {
+		if (extensionManager != null) {
+			return extensionManager;
+		}
+
 		// Get the jar files located under the extension directory
 		final File[] extensionJars = extensionsDirectory.listFiles((unused, fileName) -> fileName.endsWith(".jar"));
 
 		// If there is no extension then create an empty extension manger and skip the current loading
-		if (extensionJars.length == 0) {
+		if (extensionJars == null || extensionJars.length == 0) {
 			log.debug("No extension to load from {}. Stop extension loading.", extensionsDirectory);
 			return ExtensionManager.empty();
 		}
@@ -110,12 +116,15 @@ public class ExtensionLoader {
 		);
 
 		// Build the extension manager
-		return ExtensionManager
-			.builder()
-			.withProtocolExtensions(convertProviderStreamToList(protocolExtensions.stream()))
-			.withStrategyProviderExtensions(convertProviderStreamToList(strategyProviderExtensions.stream()))
-			.withConnectorStoreProviderExtensions(convertProviderStreamToList(connectorStoreProviderExtensions.stream()))
-			.build();
+		extensionManager =
+			ExtensionManager
+				.builder()
+				.withProtocolExtensions(convertProviderStreamToList(protocolExtensions.stream()))
+				.withStrategyProviderExtensions(convertProviderStreamToList(strategyProviderExtensions.stream()))
+				.withConnectorStoreProviderExtensions(convertProviderStreamToList(connectorStoreProviderExtensions.stream()))
+				.build();
+
+		return extensionManager;
 	}
 
 	/**

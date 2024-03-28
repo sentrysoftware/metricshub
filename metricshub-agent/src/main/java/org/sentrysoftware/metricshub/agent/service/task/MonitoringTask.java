@@ -50,6 +50,7 @@ import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.strategy.collect.CollectStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.collect.PrepareCollectStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy;
@@ -87,6 +88,7 @@ public class MonitoringTask implements Runnable {
 		final TelemetryManager telemetryManager = monitoringTaskInfo.getTelemetryManager();
 		final ResourceConfig resourceConfig = monitoringTaskInfo.getResourceConfig();
 		final int discoveryCycle = resourceConfig.getDiscoveryCycle();
+		final ExtensionManager extensionManager = monitoringTaskInfo.getExtensionManager();
 
 		final String hostId = telemetryManager.getHostConfiguration().getHostId();
 
@@ -101,10 +103,11 @@ public class MonitoringTask implements Runnable {
 
 			// Run detection and discovery strategies first, the collect strategy will be run when all the OpenTelemetry
 			// observers are registered
+
 			telemetryManager.run(
-				new DetectionStrategy(telemetryManager, discoveryTime, clientsExecutor),
-				new DiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor),
-				new SimpleStrategy(telemetryManager, discoveryTime, clientsExecutor)
+				new DetectionStrategy(telemetryManager, discoveryTime, clientsExecutor, extensionManager),
+				new DiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor, extensionManager),
+				new SimpleStrategy(telemetryManager, discoveryTime, clientsExecutor, extensionManager)
 			);
 
 			// Initialize the OpenTelemetry observers and LogEmitter after the discovery
@@ -118,10 +121,10 @@ public class MonitoringTask implements Runnable {
 
 		// One more, run only prepare, collect simple and post strategies
 		telemetryManager.run(
-			new PrepareCollectStrategy(telemetryManager, collectTime, clientsExecutor),
-			new ProtocolHealthCheckStrategy(telemetryManager, collectTime, clientsExecutor),
-			new CollectStrategy(telemetryManager, collectTime, clientsExecutor),
-			new SimpleStrategy(telemetryManager, collectTime, clientsExecutor)
+			new PrepareCollectStrategy(telemetryManager, collectTime, clientsExecutor, extensionManager),
+			new ProtocolHealthCheckStrategy(telemetryManager, collectTime, clientsExecutor, extensionManager),
+			new CollectStrategy(telemetryManager, collectTime, clientsExecutor, extensionManager),
+			new SimpleStrategy(telemetryManager, collectTime, clientsExecutor, extensionManager)
 		);
 
 		// Initialize metric observers

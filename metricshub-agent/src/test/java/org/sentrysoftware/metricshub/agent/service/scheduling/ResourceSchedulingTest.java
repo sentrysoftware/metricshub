@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.helper.ConfigHelper;
 import org.sentrysoftware.metricshub.agent.service.task.MonitoringTask;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -51,6 +52,7 @@ class ResourceSchedulingTest {
 			.withResourceKey(HOSTNAME)
 			.withSchedules(new HashMap<>())
 			.withTaskScheduler(taskSchedulerMock)
+			.withExtensionManager(ExtensionManager.empty())
 			.build();
 
 		resourceScheduling.schedule();

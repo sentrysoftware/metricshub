@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.UnaryOperator;
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
@@ -115,28 +116,25 @@ public interface IProtocolExtension {
 	 * @param configurationType A string representing the type of configuration to be checked. This type is used
 	 *                          to select the appropriate configuration constructor through the {@code buildConfiguration}
 	 *                          method.
-	 * @return <code>true</code> if the configuration type is supported otherwise false.
+	 * @return <code>true</code> if the configuration type is supported otherwise <code>false</code>.
 	 */
 	boolean isSupportedConfigurationType(String configurationType);
 
 	/**
-	 * Creates and returns an optional configuration object of the specified type based on the provided JSON node.
+	 * Creates and returns a configuration object of the specified type based on the provided JSON node.
 	 * This method is designed to parse and construct a configuration instance specific to a protocol (e.g., HTTP, SNMP)
-	 * using the provided JSON structure. The method uses the {@code configurationType} parameter to determine the type
-	 * of configuration to create. If the provided JSON node contains valid data for constructing a configuration of the
-	 * specified type, an {@link Optional} containing the configuration instance is returned. If the JSON node does not
-	 * contain valid data or if the specified configuration type is not supported, an empty {@link Optional} is returned.
+	 * using the provided JSON structure. If the provided JSON node contains valid data for constructing a configuration,
+	 * an {@link IConfiguration} configuration instance is returned. If the JSON node does not
+	 * contain valid data or if the specified configuration type is not supported, the {@link InvalidConfigurationException} should
+	 * be thrown.
 	 *
-	 * @param configurationType A string representing the type of configuration to be created. This type is used
-	 *                          to select the appropriate configuration constructor.
 	 * @param jsonNode          A {@link JsonNode} containing the configuration data in JSON format. This data is parsed
 	 *                          to construct the configuration object.
 	 * @param decrypt           Decrypt function.
 	 * @return An {@link Optional} containing the created {@link IConfiguration} object if the construction is successful
-	 *         and the JSON data is valid for the specified configuration type; otherwise, an empty {@link Optional} is returned.
+	 *         and the JSON data is valid; otherwise, the {@link InvalidConfigurationException} should be thrown.
+	 * @throws InvalidConfigurationException if the provided {@link JsonNode} is invalid and cannot be parsed.
 	 */
-	Optional<IConfiguration> buildConfiguration(
-		JsonNode jsonNode,
-		UnaryOperator<char[]> decrypt
-	);
+	IConfiguration buildConfiguration(JsonNode jsonNode, UnaryOperator<char[]> decrypt)
+		throws InvalidConfigurationException;
 }

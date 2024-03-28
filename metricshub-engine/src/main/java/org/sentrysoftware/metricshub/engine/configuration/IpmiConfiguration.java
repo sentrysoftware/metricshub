@@ -25,6 +25,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 
 /**
  * The IpmiConfiguration class represents the configuration for IPMI (Intelligent Platform Management Interface) connections
@@ -51,5 +52,10 @@ public class IpmiConfiguration implements IConfiguration {
 			description = description + " as " + username;
 		}
 		return description;
+	}
+
+	@Override
+	public void validateConfiguration(String resourceKey) throws InvalidConfigurationException {
+		// TODO implement the validation
 	}
 }
