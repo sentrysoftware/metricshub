@@ -115,7 +115,7 @@ class HttpSourceDeserializerTest extends DeserializerTest {
 					.type("http")
 					.url("/device-detail/$entry.column(1)$")
 					.method(GET)
-					.executeForEachEntryOf(new ExecuteForEachEntryOf("${source::pre.devices}", EntryConcatMethod.LIST))
+					.executeForEachEntryOf(new ExecuteForEachEntryOf("${source::pre.devices}", EntryConcatMethod.LIST, 0))
 					.build()
 			)
 		);
