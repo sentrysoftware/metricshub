@@ -41,10 +41,10 @@ import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.ConnectorIdentity;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.Detection;
-import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.OsCommandCriterion;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.CommandLineCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;
 import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricType;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.OsCommandSource;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CommandLineSource;
 import org.sentrysoftware.metricshub.engine.connector.parser.ConnectorLibraryParser;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -320,14 +320,14 @@ class DetectionStrategyTest {
 		// verify SSH protocol using
 		detectionStrategy.verifySsh(connector);
 
-		// verify Ssh without Source Type and OsCommandCriteria
+		// verify Ssh without Source Type and CommandLineCriteria
 		assertFalse(telemetryManager.getHostProperties().isMustCheckSshStatus());
-		assertFalse(telemetryManager.getHostProperties().isOsCommandExecutesLocally());
-		assertFalse(telemetryManager.getHostProperties().isOsCommandExecutesRemotely());
+		assertFalse(telemetryManager.getHostProperties().isCommandLineExecutesLocally());
+		assertFalse(telemetryManager.getHostProperties().isCommandLineExecutesRemotely());
 
-		// verify Ssh with OsCommandSource and OsCommandCriterion that executes locally
-		connector.setSourceTypes(Set.of(OsCommandSource.class));
-		OsCommandCriterion localCriterion = OsCommandCriterion
+		// verify Ssh with CommandLineSource and CommandLineCriterion that executes locally
+		connector.setSourceTypes(Set.of(CommandLineSource.class));
+		CommandLineCriterion localCriterion = CommandLineCriterion
 			.builder()
 			.executeLocally(true)
 			.commandLine("command")
@@ -337,27 +337,27 @@ class DetectionStrategyTest {
 		detectionStrategy.verifySsh(connector);
 
 		assertTrue(telemetryManager.getHostProperties().isMustCheckSshStatus());
-		assertTrue(telemetryManager.getHostProperties().isOsCommandExecutesLocally());
-		assertFalse(telemetryManager.getHostProperties().isOsCommandExecutesRemotely());
+		assertTrue(telemetryManager.getHostProperties().isCommandLineExecutesLocally());
+		assertFalse(telemetryManager.getHostProperties().isCommandLineExecutesRemotely());
 
-		// verify Ssh with OsCommandSource and OsCommandCriterion that executes remotely
-		OsCommandCriterion remoteCriterion = OsCommandCriterion.builder().commandLine("command").build();
+		// verify Ssh with CommandLineSource and CommandLineCriterion that executes remotely
+		CommandLineCriterion remoteCriterion = CommandLineCriterion.builder().commandLine("command").build();
 		connector.getConnectorIdentity().getDetection().setCriteria(List.of(remoteCriterion));
 
 		detectionStrategy.verifySsh(connector);
 
 		assertTrue(telemetryManager.getHostProperties().isMustCheckSshStatus());
-		assertFalse(telemetryManager.getHostProperties().isOsCommandExecutesLocally());
-		assertTrue(telemetryManager.getHostProperties().isOsCommandExecutesRemotely());
+		assertFalse(telemetryManager.getHostProperties().isCommandLineExecutesLocally());
+		assertTrue(telemetryManager.getHostProperties().isCommandLineExecutesRemotely());
 
-		// verify Ssh with OsCommandSource and OsCommandCriteria that executes locally and remotely
+		// verify Ssh with CommandLineSource and CommandLineCriteria that executes locally and remotely
 		connector.getConnectorIdentity().getDetection().setCriteria(List.of(localCriterion, remoteCriterion));
 
 		detectionStrategy.verifySsh(connector);
 
 		assertTrue(telemetryManager.getHostProperties().isMustCheckSshStatus());
-		assertTrue(telemetryManager.getHostProperties().isOsCommandExecutesLocally());
-		assertTrue(telemetryManager.getHostProperties().isOsCommandExecutesRemotely());
+		assertTrue(telemetryManager.getHostProperties().isCommandLineExecutesLocally());
+		assertTrue(telemetryManager.getHostProperties().isCommandLineExecutesRemotely());
 	}
 
 	@Test
@@ -367,8 +367,8 @@ class DetectionStrategyTest {
 		TelemetryManager telemetryManager = detectionStrategy.getTelemetryManager();
 		Connector connector = telemetryManager.getConnectorStore().getStore().get("connector");
 
-		// Verify that verifySshCriteria correctly handles a OsCommandCriterion configured to execute only locally
-		OsCommandCriterion localCriterion = OsCommandCriterion
+		// Verify that verifySshCriteria correctly handles a CommandLineCriterion configured to execute only locally
+		CommandLineCriterion localCriterion = CommandLineCriterion
 			.builder()
 			.executeLocally(true)
 			.commandLine("command")
@@ -377,33 +377,33 @@ class DetectionStrategyTest {
 
 		detectionStrategy.verifySshCriteria(connector.getConnectorIdentity().getDetection().getCriteria());
 
-		assertTrue(telemetryManager.getHostProperties().isOsCommandExecutesLocally());
-		assertFalse(telemetryManager.getHostProperties().isOsCommandExecutesRemotely());
+		assertTrue(telemetryManager.getHostProperties().isCommandLineExecutesLocally());
+		assertFalse(telemetryManager.getHostProperties().isCommandLineExecutesRemotely());
 
-		// Verify that verifySshCriteria correctly handles a OsCommandCriterion configured to execute only remotely
-		OsCommandCriterion remoteCriterion = OsCommandCriterion.builder().commandLine("command").build();
+		// Verify that verifySshCriteria correctly handles a CommandLineCriterion configured to execute only remotely
+		CommandLineCriterion remoteCriterion = CommandLineCriterion.builder().commandLine("command").build();
 		connector.getConnectorIdentity().getDetection().setCriteria(List.of(remoteCriterion));
 
 		detectionStrategy.verifySshCriteria(connector.getConnectorIdentity().getDetection().getCriteria());
 
-		assertFalse(telemetryManager.getHostProperties().isOsCommandExecutesLocally());
-		assertTrue(telemetryManager.getHostProperties().isOsCommandExecutesRemotely());
+		assertFalse(telemetryManager.getHostProperties().isCommandLineExecutesLocally());
+		assertTrue(telemetryManager.getHostProperties().isCommandLineExecutesRemotely());
 
-		// Verify that verifySshCriteria correctly handles OsCommandCriteria that executes locally and remotely
+		// Verify that verifySshCriteria correctly handles CommandLineCriteria that executes locally and remotely
 		connector.getConnectorIdentity().getDetection().setCriteria(List.of(localCriterion, remoteCriterion));
 
 		detectionStrategy.verifySshCriteria(connector.getConnectorIdentity().getDetection().getCriteria());
 
-		assertTrue(telemetryManager.getHostProperties().isOsCommandExecutesLocally());
-		assertTrue(telemetryManager.getHostProperties().isOsCommandExecutesRemotely());
+		assertTrue(telemetryManager.getHostProperties().isCommandLineExecutesLocally());
+		assertTrue(telemetryManager.getHostProperties().isCommandLineExecutesRemotely());
 
-		// Verify that verifySshCriteria correctly return false when there are no OsCommandCriteria
+		// Verify that verifySshCriteria correctly return false when there are no CommandLineCriteria
 		connector.getConnectorIdentity().getDetection().setCriteria(Collections.emptyList());
 
 		detectionStrategy.verifySshCriteria(connector.getConnectorIdentity().getDetection().getCriteria());
 
-		assertFalse(telemetryManager.getHostProperties().isOsCommandExecutesLocally());
-		assertFalse(telemetryManager.getHostProperties().isOsCommandExecutesRemotely());
+		assertFalse(telemetryManager.getHostProperties().isCommandLineExecutesLocally());
+		assertFalse(telemetryManager.getHostProperties().isCommandLineExecutesRemotely());
 	}
 
 	@Test
@@ -413,12 +413,12 @@ class DetectionStrategyTest {
 		TelemetryManager telemetryManager = detectionStrategy.getTelemetryManager();
 		Connector connector = telemetryManager.getConnectorStore().getStore().get("connector");
 
-		// check that "IsMustCheckSshStatus" is false when there are no OsCommandSources
+		// check that "IsMustCheckSshStatus" is false when there are no CommandLineSources
 		detectionStrategy.verifySshSources(connector.getSourceTypes());
 		assertFalse(telemetryManager.getHostProperties().isMustCheckSshStatus());
 
-		// check that "IsMustCheckSshStatus" is true when there are OsCommandSources
-		connector.setSourceTypes(Set.of(OsCommandSource.class));
+		// check that "IsMustCheckSshStatus" is true when there are CommandLineSources
+		connector.setSourceTypes(Set.of(CommandLineSource.class));
 		detectionStrategy.verifySshSources(connector.getSourceTypes());
 		assertTrue(telemetryManager.getHostProperties().isMustCheckSshStatus());
 	}

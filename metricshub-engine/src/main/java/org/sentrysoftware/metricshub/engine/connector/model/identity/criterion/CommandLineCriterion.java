@@ -48,7 +48,7 @@ import org.sentrysoftware.metricshub.engine.strategy.detection.ICriterionProcess
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class OsCommandCriterion extends Criterion {
+public class CommandLineCriterion extends Criterion {
 
 	private static final long serialVersionUID = 1L;
 
@@ -83,7 +83,7 @@ public class OsCommandCriterion extends Criterion {
 	private Long timeout;
 
 	/**
-	 * Builder for constructing instances of {@link OsCommandCriterion}.
+	 * Builder for constructing instances of {@link CommandLineCriterion}.
 	 *
 	 * @param type                Type of the criterion.
 	 * @param forceSerialization Flag indicating whether serialization should be forced.
@@ -95,7 +95,7 @@ public class OsCommandCriterion extends Criterion {
 	 */
 	@Builder
 	@JsonCreator
-	public OsCommandCriterion(
+	public CommandLineCriterion(
 		@JsonProperty("type") String type,
 		@JsonProperty("forceSerialization") boolean forceSerialization,
 		@JsonProperty(value = "commandLine", required = true) @NonNull String commandLine,

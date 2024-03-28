@@ -46,7 +46,8 @@ import org.sentrysoftware.metricshub.engine.strategy.detection.ICriterionProcess
 		@JsonSubTypes.Type(value = WmiCriterion.class, name = "wmi"),
 		@JsonSubTypes.Type(value = WbemCriterion.class, name = "wbem"),
 		@JsonSubTypes.Type(value = ServiceCriterion.class, name = "service"),
-		@JsonSubTypes.Type(value = OsCommandCriterion.class, name = "osCommand")
+		@JsonSubTypes.Type(value = CommandLineCriterion.class, name = "osCommand"),
+		@JsonSubTypes.Type(value = CommandLineCriterion.class, name = "commandLine")
 	}
 )
 @Data

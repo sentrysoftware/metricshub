@@ -53,7 +53,7 @@ import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WinRmConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
-import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
+import org.sentrysoftware.metricshub.engine.strategy.utils.CommandLineHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.wbem.javax.wbem.WBEMException;
@@ -379,11 +379,11 @@ class ProtocolHealthCheckStrategyTest {
 
 		// Setting SSH host properties
 		telemetryManager.getHostProperties().setMustCheckSshStatus(true);
-		telemetryManager.getHostProperties().setOsCommandExecutesLocally(true);
+		telemetryManager.getHostProperties().setCommandLineExecutesLocally(true);
 
-		try (MockedStatic<OsCommandHelper> staticOsCommandHelper = Mockito.mockStatic(OsCommandHelper.class)) {
-			staticOsCommandHelper
-				.when(() -> OsCommandHelper.runLocalCommand(anyString(), anyLong(), any()))
+		try (MockedStatic<CommandLineHelper> staticCommandLineHelper = Mockito.mockStatic(CommandLineHelper.class)) {
+			staticCommandLineHelper
+				.when(() -> CommandLineHelper.runLocalCommand(anyString(), anyLong(), any()))
 				.thenReturn(SUCCESS_RESPONSE);
 
 			// Start the SSH Health Check strategy
@@ -392,8 +392,10 @@ class ProtocolHealthCheckStrategyTest {
 			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
 		}
 
-		try (MockedStatic<OsCommandHelper> staticOsCommandHelper = Mockito.mockStatic(OsCommandHelper.class)) {
-			staticOsCommandHelper.when(() -> OsCommandHelper.runLocalCommand(anyString(), anyLong(), any())).thenReturn(null);
+		try (MockedStatic<CommandLineHelper> staticCommandLineHelper = Mockito.mockStatic(CommandLineHelper.class)) {
+			staticCommandLineHelper
+				.when(() -> CommandLineHelper.runLocalCommand(anyString(), anyLong(), any()))
+				.thenReturn(null);
 
 			// Start the SSH Health Check strategy
 			sshHealthCheckStrategy.run();
@@ -416,13 +418,20 @@ class ProtocolHealthCheckStrategyTest {
 
 		// Setting SSH host properties
 		telemetryManager.getHostProperties().setMustCheckSshStatus(true);
-		telemetryManager.getHostProperties().setOsCommandExecutesLocally(false);
-		telemetryManager.getHostProperties().setOsCommandExecutesRemotely(true);
+		telemetryManager.getHostProperties().setCommandLineExecutesLocally(false);
+		telemetryManager.getHostProperties().setCommandLineExecutesRemotely(true);
 
-		try (MockedStatic<OsCommandHelper> staticOsCommandHelper = Mockito.mockStatic(OsCommandHelper.class)) {
-			staticOsCommandHelper
+		try (MockedStatic<CommandLineHelper> commandLineCommandHelper = Mockito.mockStatic(CommandLineHelper.class)) {
+			commandLineCommandHelper
 				.when(() ->
-					OsCommandHelper.runSshCommand(anyString(), anyString(), any(SshConfiguration.class), anyLong(), any(), any())
+					CommandLineHelper.runSshCommand(
+						anyString(),
+						anyString(),
+						any(SshConfiguration.class),
+						anyLong(),
+						any(),
+						any()
+					)
 				)
 				.thenReturn(SUCCESS_RESPONSE);
 
@@ -432,10 +441,17 @@ class ProtocolHealthCheckStrategyTest {
 			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
 		}
 
-		try (MockedStatic<OsCommandHelper> staticOsCommandHelper = Mockito.mockStatic(OsCommandHelper.class)) {
-			staticOsCommandHelper
+		try (MockedStatic<CommandLineHelper> staticCommandLineHelper = Mockito.mockStatic(CommandLineHelper.class)) {
+			staticCommandLineHelper
 				.when(() ->
-					OsCommandHelper.runSshCommand(anyString(), anyString(), any(SshConfiguration.class), anyLong(), any(), any())
+					CommandLineHelper.runSshCommand(
+						anyString(),
+						anyString(),
+						any(SshConfiguration.class),
+						anyLong(),
+						any(),
+						any()
+					)
 				)
 				.thenReturn(null);
 
@@ -460,19 +476,26 @@ class ProtocolHealthCheckStrategyTest {
 
 		// Setting SSH host properties
 		telemetryManager.getHostProperties().setMustCheckSshStatus(true);
-		telemetryManager.getHostProperties().setOsCommandExecutesLocally(true);
-		telemetryManager.getHostProperties().setOsCommandExecutesRemotely(true);
+		telemetryManager.getHostProperties().setCommandLineExecutesLocally(true);
+		telemetryManager.getHostProperties().setCommandLineExecutesRemotely(true);
 
 		// Both local and remote commands working fine
-		try (MockedStatic<OsCommandHelper> staticOsCommandHelper = Mockito.mockStatic(OsCommandHelper.class)) {
-			staticOsCommandHelper
+		try (MockedStatic<CommandLineHelper> staticCommandLineHelper = Mockito.mockStatic(CommandLineHelper.class)) {
+			staticCommandLineHelper
 				.when(() ->
-					OsCommandHelper.runSshCommand(anyString(), anyString(), any(SshConfiguration.class), anyLong(), any(), any())
+					CommandLineHelper.runSshCommand(
+						anyString(),
+						anyString(),
+						any(SshConfiguration.class),
+						anyLong(),
+						any(),
+						any()
+					)
 				)
 				.thenReturn(SUCCESS_RESPONSE);
 
-			staticOsCommandHelper
-				.when(() -> OsCommandHelper.runLocalCommand(anyString(), anyLong(), any()))
+			staticCommandLineHelper
+				.when(() -> CommandLineHelper.runLocalCommand(anyString(), anyLong(), any()))
 				.thenReturn(SUCCESS_RESPONSE);
 
 			// Start the SSH Health Check strategy
@@ -482,14 +505,23 @@ class ProtocolHealthCheckStrategyTest {
 		}
 
 		// Local commands not working
-		try (MockedStatic<OsCommandHelper> staticOsCommandHelper = Mockito.mockStatic(OsCommandHelper.class)) {
-			staticOsCommandHelper
+		try (MockedStatic<CommandLineHelper> staticCommandLineHelper = Mockito.mockStatic(CommandLineHelper.class)) {
+			staticCommandLineHelper
 				.when(() ->
-					OsCommandHelper.runSshCommand(anyString(), anyString(), any(SshConfiguration.class), anyLong(), any(), any())
+					CommandLineHelper.runSshCommand(
+						anyString(),
+						anyString(),
+						any(SshConfiguration.class),
+						anyLong(),
+						any(),
+						any()
+					)
 				)
 				.thenReturn(SUCCESS_RESPONSE);
 
-			staticOsCommandHelper.when(() -> OsCommandHelper.runLocalCommand(anyString(), anyLong(), any())).thenReturn(null);
+			staticCommandLineHelper
+				.when(() -> CommandLineHelper.runLocalCommand(anyString(), anyLong(), any()))
+				.thenReturn(null);
 
 			// Start the SSH Health Check strategy
 			sshHealthCheckStrategy.run();
@@ -497,15 +529,22 @@ class ProtocolHealthCheckStrategyTest {
 			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
 		}
 		// remote command not working
-		try (MockedStatic<OsCommandHelper> staticOsCommandHelper = Mockito.mockStatic(OsCommandHelper.class)) {
-			staticOsCommandHelper
+		try (MockedStatic<CommandLineHelper> staticCommandLineHelper = Mockito.mockStatic(CommandLineHelper.class)) {
+			staticCommandLineHelper
 				.when(() ->
-					OsCommandHelper.runSshCommand(anyString(), anyString(), any(SshConfiguration.class), anyLong(), any(), any())
+					CommandLineHelper.runSshCommand(
+						anyString(),
+						anyString(),
+						any(SshConfiguration.class),
+						anyLong(),
+						any(),
+						any()
+					)
 				)
 				.thenReturn(null);
 
-			staticOsCommandHelper
-				.when(() -> OsCommandHelper.runLocalCommand(anyString(), anyLong(), any()))
+			staticCommandLineHelper
+				.when(() -> CommandLineHelper.runLocalCommand(anyString(), anyLong(), any()))
 				.thenReturn(SUCCESS_RESPONSE);
 
 			// Start the SSH Health Check strategy
@@ -515,14 +554,23 @@ class ProtocolHealthCheckStrategyTest {
 		}
 
 		// Both local and remote commands not working, but not throwing exceptions
-		try (MockedStatic<OsCommandHelper> staticOsCommandHelper = Mockito.mockStatic(OsCommandHelper.class)) {
-			staticOsCommandHelper
+		try (MockedStatic<CommandLineHelper> staticCommandLineHelper = Mockito.mockStatic(CommandLineHelper.class)) {
+			staticCommandLineHelper
 				.when(() ->
-					OsCommandHelper.runSshCommand(anyString(), anyString(), any(SshConfiguration.class), anyLong(), any(), any())
+					CommandLineHelper.runSshCommand(
+						anyString(),
+						anyString(),
+						any(SshConfiguration.class),
+						anyLong(),
+						any(),
+						any()
+					)
 				)
 				.thenReturn(null);
 
-			staticOsCommandHelper.when(() -> OsCommandHelper.runLocalCommand(anyString(), anyLong(), any())).thenReturn(null);
+			staticCommandLineHelper
+				.when(() -> CommandLineHelper.runLocalCommand(anyString(), anyLong(), any()))
+				.thenReturn(null);
 
 			// Start the SSH Health Check strategy
 			sshHealthCheckStrategy.run();
@@ -545,8 +593,8 @@ class ProtocolHealthCheckStrategyTest {
 
 		// Setting SSH host properties
 		telemetryManager.getHostProperties().setMustCheckSshStatus(false);
-		telemetryManager.getHostProperties().setOsCommandExecutesLocally(true);
-		telemetryManager.getHostProperties().setOsCommandExecutesRemotely(true);
+		telemetryManager.getHostProperties().setCommandLineExecutesLocally(true);
+		telemetryManager.getHostProperties().setCommandLineExecutesRemotely(true);
 
 		// Start the SSH Health Check strategy
 		sshHealthCheckStrategy.run();
@@ -568,8 +616,8 @@ class ProtocolHealthCheckStrategyTest {
 
 		// Setting SSH host properties
 		telemetryManager.getHostProperties().setMustCheckSshStatus(false);
-		telemetryManager.getHostProperties().setOsCommandExecutesLocally(true);
-		telemetryManager.getHostProperties().setOsCommandExecutesRemotely(true);
+		telemetryManager.getHostProperties().setCommandLineExecutesLocally(true);
+		telemetryManager.getHostProperties().setCommandLineExecutesRemotely(true);
 
 		// Start the SSH Health Check strategy
 		sshHealthCheckStrategy.run();

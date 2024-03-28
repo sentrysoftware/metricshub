@@ -49,21 +49,21 @@ import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
 import org.sentrysoftware.metricshub.engine.common.helpers.ResourceHelper;
+import org.sentrysoftware.metricshub.engine.configuration.CommandLineConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IWinConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.common.HttpMethod;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CommandLineSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CopySource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.OsCommandSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpGetSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.StaticSource;
@@ -71,8 +71,8 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.TableUnionSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WbemSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WmiSource;
-import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
-import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandResult;
+import org.sentrysoftware.metricshub.engine.strategy.utils.CommandLineHelper;
+import org.sentrysoftware.metricshub.engine.strategy.utils.CommandLineResult;
 import org.sentrysoftware.metricshub.engine.telemetry.ConnectorNamespace;
 import org.sentrysoftware.metricshub.engine.telemetry.HostProperties;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -965,8 +965,8 @@ class SourceProcessorTest {
 	}
 
 	@Test
-	void testProcessOsCommandSource() {
-		final OsCommandConfiguration osCommandConfiguration = OsCommandConfiguration.builder().timeout(120L).build();
+	void testProcessCommandLineSource() {
+		final CommandLineConfiguration commandLineConfiguration = CommandLineConfiguration.builder().timeout(120L).build();
 
 		final HostProperties hostProperties = HostProperties.builder().isLocalhost(true).build();
 
@@ -978,7 +978,7 @@ class SourceProcessorTest {
 					.hostname(LOCALHOST)
 					.hostId(LOCALHOST)
 					.hostType(DeviceKind.LINUX)
-					.configurations(Map.of(OsCommandConfiguration.class, osCommandConfiguration))
+					.configurations(Map.of(CommandLineConfiguration.class, commandLineConfiguration))
 					.build()
 			)
 			.hostProperties(hostProperties)
@@ -988,26 +988,26 @@ class SourceProcessorTest {
 			.telemetryManager(telemetryManager)
 			.clientsExecutor(clientsExecutorMock)
 			.build();
-		assertEquals(SourceTable.empty(), sourceProcessor.process((OsCommandSource) null));
-		assertEquals(SourceTable.empty(), sourceProcessor.process(new OsCommandSource()));
-		assertEquals(SourceTable.empty(), sourceProcessor.process(OsCommandSource.builder().commandLine("").build()));
+		assertEquals(SourceTable.empty(), sourceProcessor.process((CommandLineSource) null));
+		assertEquals(SourceTable.empty(), sourceProcessor.process(new CommandLineSource()));
+		assertEquals(SourceTable.empty(), sourceProcessor.process(CommandLineSource.builder().commandLine("").build()));
 
 		final String commandLine = "/usr/sbin/ioscan -kFC ext_bus";
 		final String keepOnlyRegExp = ":ext_bus:";
 		final String separators = ":";
 		final String selectColumns = "2-4,5,6";
 
-		final OsCommandSource commandSource = new OsCommandSource();
+		final CommandLineSource commandSource = new CommandLineSource();
 		commandSource.setCommandLine(commandLine);
 		commandSource.setKeep(keepOnlyRegExp);
 		commandSource.setSeparators(separators);
 		commandSource.setSelectColumns(selectColumns);
 		commandSource.setExecuteLocally(true);
 
-		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
-			mockedOsCommandHelper
+		try (final MockedStatic<CommandLineHelper> mockedCommandLineHelper = mockStatic(CommandLineHelper.class)) {
+			mockedCommandLineHelper
 				.when(() ->
-					OsCommandHelper.runOsCommand(
+					CommandLineHelper.runCommandLine(
 						commandLine,
 						telemetryManager,
 						commandSource.getTimeout(),
@@ -1020,10 +1020,10 @@ class SourceProcessorTest {
 			assertEquals(SourceTable.empty(), sourceProcessor.process(commandSource));
 		}
 
-		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
-			mockedOsCommandHelper
+		try (final MockedStatic<CommandLineHelper> mockedCommandLineHelper = mockStatic(CommandLineHelper.class)) {
+			mockedCommandLineHelper
 				.when(() ->
-					OsCommandHelper.runOsCommand(
+					CommandLineHelper.runCommandLine(
 						commandLine,
 						telemetryManager,
 						commandSource.getTimeout(),
@@ -1036,13 +1036,13 @@ class SourceProcessorTest {
 			assertEquals(SourceTable.empty(), sourceProcessor.process(commandSource));
 		}
 
-		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
+		try (final MockedStatic<CommandLineHelper> mockedCommandLineHelper = mockStatic(CommandLineHelper.class)) {
 			final String result = "xxxxxx\n" + "xxxxxx\n" + "0:1:ext_bus:3:4:5:6:7:8\n" + "xxxxxx\n" + "xxxxxx\n";
-			final OsCommandResult commandResult = new OsCommandResult(result, commandLine);
+			final CommandLineResult commandResult = new CommandLineResult(result, commandLine);
 
-			mockedOsCommandHelper
+			mockedCommandLineHelper
 				.when(() ->
-					OsCommandHelper.runOsCommand(
+					CommandLineHelper.runCommandLine(
 						commandLine,
 						telemetryManager,
 						commandSource.getTimeout(),
@@ -1307,7 +1307,7 @@ class SourceProcessorTest {
 			.configurations(
 				Map.of(
 					HttpConfiguration.class,
-					OsCommandConfiguration.builder().build(),
+					CommandLineConfiguration.builder().build(),
 					SshConfiguration.class,
 					sshConfiguration
 				)
@@ -1331,12 +1331,12 @@ class SourceProcessorTest {
 			.build();
 
 		// local
-		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
+		try (MockedStatic<CommandLineHelper> oscmd = mockStatic(CommandLineHelper.class)) {
 			oscmd
-				.when(() -> OsCommandHelper.runLocalCommand(eq("ipmiCommandfru"), anyLong(), eq(null)))
+				.when(() -> CommandLineHelper.runLocalCommand(eq("ipmiCommandfru"), anyLong(), eq(null)))
 				.thenReturn("impiResultFru");
 			oscmd
-				.when(() -> OsCommandHelper.runLocalCommand(eq("ipmiCommand-v sdr elist all"), anyLong(), eq(null)))
+				.when(() -> CommandLineHelper.runLocalCommand(eq("ipmiCommand-v sdr elist all"), anyLong(), eq(null)))
 				.thenReturn("impiResultSdr");
 			final SourceTable ipmiResult = sourceProcessor.process(new IpmiSource());
 			assertEquals(SourceTable.empty(), ipmiResult);
@@ -1348,12 +1348,12 @@ class SourceProcessorTest {
 		String fruResult = ResourceHelper.getResourceAsString(fru, this.getClass());
 		String sensorResult = ResourceHelper.getResourceAsString(sensor, this.getClass());
 
-		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
+		try (MockedStatic<CommandLineHelper> oscmd = mockStatic(CommandLineHelper.class)) {
 			oscmd
-				.when(() -> OsCommandHelper.runLocalCommand(eq("ipmiCommand" + "fru"), anyLong(), any()))
+				.when(() -> CommandLineHelper.runLocalCommand(eq("ipmiCommand" + "fru"), anyLong(), any()))
 				.thenReturn(fruResult);
 			oscmd
-				.when(() -> OsCommandHelper.runLocalCommand(eq("ipmiCommand" + "-v sdr elist all"), anyLong(), any()))
+				.when(() -> CommandLineHelper.runLocalCommand(eq("ipmiCommand" + "-v sdr elist all"), anyLong(), any()))
 				.thenReturn(sensorResult);
 			final SourceTable ipmiResult = sourceProcessor.process(new IpmiSource());
 			String expectedResult = ResourceHelper.getResourceAsString(expected, this.getClass());
@@ -1365,13 +1365,13 @@ class SourceProcessorTest {
 		// remote
 		hostProperties.setLocalhost(false);
 
-		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
+		try (MockedStatic<CommandLineHelper> oscmd = mockStatic(CommandLineHelper.class)) {
 			oscmd
-				.when(() -> OsCommandHelper.runSshCommand(eq("ipmiCommand" + "fru"), any(), any(), anyLong(), any(), any()))
+				.when(() -> CommandLineHelper.runSshCommand(eq("ipmiCommand" + "fru"), any(), any(), anyLong(), any(), any()))
 				.thenReturn("impiResultFru");
 			oscmd
 				.when(() ->
-					OsCommandHelper.runSshCommand(eq("ipmiCommand" + "-v sdr elist all"), any(), any(), anyLong(), any(), any())
+					CommandLineHelper.runSshCommand(eq("ipmiCommand" + "-v sdr elist all"), any(), any(), anyLong(), any(), any())
 				)
 				.thenReturn("impiResultSdr");
 			final SourceTable ipmiResult = sourceProcessor.process(new IpmiSource());
@@ -1388,7 +1388,7 @@ class SourceProcessorTest {
 		ipmiResultEmpty = sourceProcessor.process(new IpmiSource());
 		assertEquals(SourceTable.empty(), ipmiResultEmpty);
 
-		// osCommandConfig is null
+		// commandLineConfig is null
 		hostProperties.setLocalhost(true);
 		hostProperties.setIpmitoolCommand("ipmiCommand");
 		ipmiResultEmpty = sourceProcessor.process(new IpmiSource());

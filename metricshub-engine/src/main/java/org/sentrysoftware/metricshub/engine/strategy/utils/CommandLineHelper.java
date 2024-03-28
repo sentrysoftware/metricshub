@@ -69,9 +69,9 @@ import org.sentrysoftware.metricshub.engine.common.exception.ClientRuntimeExcept
 import org.sentrysoftware.metricshub.engine.common.exception.ControlledSshException;
 import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
+import org.sentrysoftware.metricshub.engine.configuration.CommandLineConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IWinConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
@@ -82,28 +82,28 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
  * Utility class for handling OS commands, including local and remote execution.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class OsCommandHelper {
+public class CommandLineHelper {
 
 	private static final String NEGATIVE_TIMEOUT = "timeout mustn't be negative nor zero.";
 	private static final Pattern SUDO_COMMAND_PATTERN = Pattern.compile(
 		"%\\{SUDO:([^\\}]*)\\}",
 		Pattern.CASE_INSENSITIVE
 	);
-	static final Function<String, File> TEMP_FILE_CREATOR = OsCommandHelper::createEmbeddedTempFile;
+	static final Function<String, File> TEMP_FILE_CREATOR = CommandLineHelper::createEmbeddedTempFile;
 
 	/**
 	 * Create the temporary embedded files in the given command line.
 	 *
 	 * @param commandLine              The command line to process.
-	 * @param osCommandConfiguration   The OS Command Configuration.
+	 * @param commandLineConfiguration   The OS Command Configuration.
 	 * @param commandLineEmbeddedFiles A map of embedded files referenced in the command line.
 	 * @param tempFileCreator          The function that creates a temporary file.
 	 * @return A map with EmbeddedFile tags as keys and corresponding temporary File objects.
 	 * @throws IOException If an error occurs during temp file creation.
 	 */
-	public static Map<String, File> createOsCommandEmbeddedFiles(
+	public static Map<String, File> createCommandLineEmbeddedFiles(
 		@NonNull final String commandLine,
-		final OsCommandConfiguration osCommandConfiguration,
+		final CommandLineConfiguration commandLineConfiguration,
 		@NonNull final Map<String, EmbeddedFile> commandLineEmbeddedFiles,
 		final Function<String, File> tempFileCreator
 	) throws IOException {
@@ -131,7 +131,7 @@ public class OsCommandHelper {
 						state(content != null, () -> "EmbeddedFile content is null. File name: " + fileName);
 
 						try {
-							return createTempFileWithEmbeddedFileContent(embeddedFile, osCommandConfiguration, tempFileCreator);
+							return createTempFileWithEmbeddedFileContent(embeddedFile, commandLineConfiguration, tempFileCreator);
 						} catch (final IOException e) {
 							throw new TempFileCreationException(e);
 						}
@@ -153,14 +153,14 @@ public class OsCommandHelper {
 	 * Create a temporary file with the content of the embeddedFile.
 	 *
 	 * @param embeddedFile           {@link EmbeddedFile} instance used to write the file content (mandatory)
-	 * @param osCommandConfiguration The OS Command Configuration.
+	 * @param commandLineConfiguration The OS Command Configuration.
 	 * @param tempFileCreator        The function that creates a temporary file.
 	 * @return The File.
 	 * @throws IOException
 	 */
 	static File createTempFileWithEmbeddedFileContent(
 		final EmbeddedFile embeddedFile,
-		final OsCommandConfiguration osCommandConfiguration,
+		final CommandLineConfiguration commandLineConfiguration,
 		Function<String, File> tempFileCreator
 	) throws IOException {
 		final String extension = embeddedFile.getType() != null ? "." + embeddedFile.getType() : EMPTY;
@@ -173,7 +173,7 @@ public class OsCommandHelper {
 				StandardCharsets.UTF_8
 			)
 		) {
-			bufferedWriter.write(replaceSudo(embeddedFile.getContent(), osCommandConfiguration));
+			bufferedWriter.write(replaceSudo(embeddedFile.getContent(), commandLineConfiguration));
 		}
 		return tempFile;
 	}
@@ -195,15 +195,15 @@ public class OsCommandHelper {
 
 	/**
 	 * Replace the %{SUDO:xxx}% tag in the given text with the sudo command.
-	 * The replacement is based on the configuration in the provided OsCommandConfiguration.
+	 * The replacement is based on the configuration in the provided CommandLineConfiguration.
 	 * If the useSudo configuration is enabled and the sudo command is associated with the specified file,
 	 * it replaces the tag with the sudo command; otherwise, it replaces it with an empty string.
 	 *
 	 * @param text                    The text containing %{SUDO:xxx}% tags to be replaced.
-	 * @param osCommandConfiguration The configuration for OS commands.
+	 * @param commandLineConfiguration The configuration for OS commands.
 	 * @return The text with %{SUDO:xxx}% tags replaced with the sudo command or empty string.
 	 */
-	static String replaceSudo(final String text, final OsCommandConfiguration osCommandConfiguration) {
+	static String replaceSudo(final String text, final CommandLineConfiguration commandLineConfiguration) {
 		if (text == null || text.isBlank()) {
 			return text;
 		}
@@ -211,10 +211,10 @@ public class OsCommandHelper {
 		final Optional<String> maybeSudoFile = getFileNameFromSudoCommand(text);
 
 		final String sudoReplace = maybeSudoFile.isPresent() &&
-			osCommandConfiguration != null &&
-			osCommandConfiguration.isUseSudo() &&
-			osCommandConfiguration.getUseSudoCommands().contains(maybeSudoFile.get())
-			? osCommandConfiguration.getSudoCommand()
+			commandLineConfiguration != null &&
+			commandLineConfiguration.isUseSudo() &&
+			commandLineConfiguration.getUseSudoCommands().contains(maybeSudoFile.get())
+			? commandLineConfiguration.getSudoCommand()
 			: EMPTY;
 
 		return maybeSudoFile
@@ -236,8 +236,8 @@ public class OsCommandHelper {
 	@WithSpan("OS Command")
 	public static String runLocalCommand(
 		@NonNull final String command,
-		@SpanAttribute("OSCommand.timeout") final long timeout,
-		@SpanAttribute("OSCommand.command") final String noPasswordCommand
+		@SpanAttribute("CommandLine.timeout") final long timeout,
+		@SpanAttribute("CommandLine.command") final String noPasswordCommand
 	) throws InterruptedException, IOException, TimeoutException {
 		isTrue(timeout > 0, NEGATIVE_TIMEOUT);
 
@@ -403,14 +403,14 @@ public class OsCommandHelper {
 	 * </ul>
 	 *
 	 * @param commandTimeout         The OS command timeout in seconds.
-	 * @param osCommandConfiguration The configuration specific to OS command execution.
+	 * @param commandLineConfiguration The configuration specific to OS command execution.
 	 * @param configuration          The general configuration, either an instance of {@link IWinConfiguration} or {@link SshConfiguration}.
 	 * @param defaultTimeout         The default timeout in seconds.
 	 * @return The timeout in seconds.
 	 */
 	public static long getTimeout(
 		final Long commandTimeout,
-		final OsCommandConfiguration osCommandConfiguration,
+		final CommandLineConfiguration commandLineConfiguration,
 		final IConfiguration configuration,
 		final long defaultTimeout
 	) {
@@ -418,8 +418,8 @@ public class OsCommandHelper {
 			return commandTimeout.intValue();
 		}
 
-		if (osCommandConfiguration != null && osCommandConfiguration.getTimeout() != null) {
-			return osCommandConfiguration.getTimeout().intValue();
+		if (commandLineConfiguration != null && commandLineConfiguration.getTimeout() != null) {
+			return commandLineConfiguration.getTimeout().intValue();
 		}
 
 		if (configuration == null) {
@@ -492,7 +492,7 @@ public class OsCommandHelper {
 	 * @throws NoCredentialProvidedException When there's no user provided for a remote command.
 	 * @throws ControlledSshException        When an error occurs during controlled SSH execution.
 	 */
-	public static OsCommandResult runOsCommand(
+	public static CommandLineResult runCommandLine(
 		@NonNull final String commandLine,
 		@NonNull final TelemetryManager telemetryManager,
 		final Long commandTimeout,
@@ -519,14 +519,14 @@ public class OsCommandHelper {
 
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
-		final OsCommandConfiguration osCommandConfiguration = (OsCommandConfiguration) telemetryManager
+		final CommandLineConfiguration commandLineConfiguration = (CommandLineConfiguration) telemetryManager
 			.getHostConfiguration()
 			.getConfigurations()
-			.get(OsCommandConfiguration.class);
+			.get(CommandLineConfiguration.class);
 
-		final Map<String, File> embeddedTempFiles = createOsCommandEmbeddedFiles(
+		final Map<String, File> embeddedTempFiles = createCommandLineEmbeddedFiles(
 			commandLine,
-			osCommandConfiguration,
+			commandLineConfiguration,
 			EmbeddedFileHelper.findEmbeddedFiles(commandLine),
 			TEMP_FILE_CREATOR
 		);
@@ -540,7 +540,7 @@ public class OsCommandHelper {
 			hostname
 		);
 
-		final String updatedSudoCommand = replaceSudo(updatedHostnameCommand, osCommandConfiguration);
+		final String updatedSudoCommand = replaceSudo(updatedHostnameCommand, commandLineConfiguration);
 
 		final String updatedEmbeddedFilesCommand = embeddedTempFiles
 			.entrySet()
@@ -568,7 +568,7 @@ public class OsCommandHelper {
 		try {
 			final long timeout = getTimeout(
 				commandTimeout,
-				osCommandConfiguration,
+				commandLineConfiguration,
 				configuration,
 				telemetryManager.getHostConfiguration().getStrategyTimeout()
 			);
@@ -601,7 +601,7 @@ public class OsCommandHelper {
 					);
 			}
 
-			return new OsCommandResult(commandResult, noPasswordCommand);
+			return new CommandLineResult(commandResult, noPasswordCommand);
 		} finally {
 			//noinspection ResultOfMethodCallIgnored
 			embeddedTempFiles.values().forEach(File::delete);

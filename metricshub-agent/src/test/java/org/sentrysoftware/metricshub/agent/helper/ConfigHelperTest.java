@@ -450,10 +450,10 @@ class ConfigHelperTest {
 	}
 
 	@Test
-	void testValidateOsCommandInfo() {
-		assertThrows(IllegalStateException.class, () -> ConfigHelper.validateOsCommandInfo(RESOURCE_KEY, -60L));
-		assertThrows(IllegalStateException.class, () -> ConfigHelper.validateOsCommandInfo(RESOURCE_KEY, null));
-		assertDoesNotThrow(() -> ConfigHelper.validateOsCommandInfo(RESOURCE_KEY, 60L));
+	void testValidateCommandLineInfo() {
+		assertThrows(IllegalStateException.class, () -> ConfigHelper.validateCommandLineInfo(RESOURCE_KEY, -60L));
+		assertThrows(IllegalStateException.class, () -> ConfigHelper.validateCommandLineInfo(RESOURCE_KEY, null));
+		assertDoesNotThrow(() -> ConfigHelper.validateCommandLineInfo(RESOURCE_KEY, 60L));
 	}
 
 	@Test

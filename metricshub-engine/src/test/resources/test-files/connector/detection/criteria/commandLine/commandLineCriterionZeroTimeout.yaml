@@ -3,7 +3,7 @@ connector:
   detection:
     appliesTo: [ linux ]
     criteria:
-      - type: osCommand
+      - type: commandLine
         forceSerialization: true
         commandLine: naviseccli -help
         expectedResult: Navisphere

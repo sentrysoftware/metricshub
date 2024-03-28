@@ -2305,8 +2305,8 @@ class ComputeProcessorTest {
 			assertEquals(expectedRawData, sourceTable.getRawData());
 		}
 
-		final List<List<String>> osCommandResultTable = List.of(List.of("OS command result"));
-		sourceTable.setTable(osCommandResultTable);
+		final List<List<String>> commandLineResultTable = List.of(List.of("Command Line result"));
+		sourceTable.setTable(commandLineResultTable);
 		sourceTable.setRawData(null);
 		awkOK =
 			Awk
@@ -2327,7 +2327,7 @@ class ComputeProcessorTest {
 			assertEquals(Collections.emptyList(), sourceTable.getTable());
 		}
 
-		sourceTable.setTable(osCommandResultTable);
+		sourceTable.setTable(commandLineResultTable);
 		sourceTable.setRawData(null);
 		awkOK =
 			Awk

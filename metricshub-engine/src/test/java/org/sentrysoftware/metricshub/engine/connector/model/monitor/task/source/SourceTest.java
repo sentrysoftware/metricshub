@@ -65,10 +65,10 @@ class SourceTest {
 	}
 
 	@Test
-	void testReferencesOsCommand() throws IOException {
-		final String osCommandYaml =
+	void testReferencesCommandLine() throws IOException {
+		final String commandLineYaml =
 			"""
-			type: osCommand
+			type: commandLine
 			forceSerialization: false
 			commandLine: ${source::monitors.cpu.discovery.sources.source1}
 			exclude: exclude
@@ -79,7 +79,7 @@ class SourceTest {
 			selectColumns: 1,2,3
 			""";
 
-		final Source source = MAPPER.readValue(osCommandYaml, Source.class);
+		final Source source = MAPPER.readValue(commandLineYaml, Source.class);
 		assertEquals(Set.of(SOURCE_REF1), source.getReferences());
 	}
 

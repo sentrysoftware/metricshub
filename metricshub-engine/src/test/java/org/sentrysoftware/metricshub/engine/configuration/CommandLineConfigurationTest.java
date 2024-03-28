@@ -6,13 +6,13 @@ import static org.sentrysoftware.metricshub.engine.constants.Constants.OS_COMMAN
 import org.junit.jupiter.api.Test;
 
 /**
- * Test of {@link OsCommandConfiguration}
+ * Test of {@link CommandLineConfiguration}
  */
-class OsCommandConfigurationTest {
+class CommandLineConfigurationTest {
 
 	@Test
 	void testToString() {
-		final OsCommandConfiguration osCommandConfiguration = new OsCommandConfiguration();
-		assertEquals(OS_COMMAND_CONFIGURATION_TO_STRING, osCommandConfiguration.toString());
+		final CommandLineConfiguration commandLineConfiguration = new CommandLineConfiguration();
+		assertEquals(OS_COMMAND_CONFIGURATION_TO_STRING, commandLineConfiguration.toString());
 	}
 }

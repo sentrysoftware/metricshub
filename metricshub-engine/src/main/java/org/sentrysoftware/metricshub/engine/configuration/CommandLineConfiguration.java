@@ -28,11 +28,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * The OsCommandConfiguration class represents the configuration for executing OS commands in the MetricsHub engine.
+ * The CommandLineConfiguration class represents the configuration for executing OS commands in the MetricsHub engine.
  */
 @Data
 @NoArgsConstructor
-public class OsCommandConfiguration implements IConfiguration {
+public class CommandLineConfiguration implements IConfiguration {
 
 	private static final String SUDO = "sudo";
 	/**
@@ -45,7 +45,7 @@ public class OsCommandConfiguration implements IConfiguration {
 	private Long timeout = DEFAULT_TIMEOUT;
 
 	/**
-	 * Creates a new instance of OsCommandConfiguration using the provided parameters.
+	 * Creates a new instance of CommandLineConfiguration using the provided parameters.
 	 *
 	 * @param useSudo          Indicates whether to use sudo for executing commands.
 	 * @param useSudoCommands  The set of commands for which sudo will be used.
@@ -53,7 +53,7 @@ public class OsCommandConfiguration implements IConfiguration {
 	 * @param timeout          The timeout for executing commands.
 	 */
 	@Builder
-	public OsCommandConfiguration(
+	public CommandLineConfiguration(
 		final boolean useSudo,
 		final Set<String> useSudoCommands,
 		final String sudoCommand,

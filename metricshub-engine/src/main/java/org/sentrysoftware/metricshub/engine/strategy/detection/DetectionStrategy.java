@@ -44,9 +44,9 @@ import org.sentrysoftware.metricshub.engine.common.helpers.NetworkHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.ConnectorIdentity;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.CommandLineCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
-import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.OsCommandCriterion;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.OsCommandSource;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CommandLineSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.detection.ConnectorStagingManager.StagedConnectorIdentifiers;
@@ -251,12 +251,12 @@ public class DetectionStrategy extends AbstractStrategy {
 	}
 
 	/**
-	 * Verify the given set of sources instances to check if they are OsCommandSources
+	 * Verify the given set of sources instances to check if they are CommandLineSources
 	 *
 	 * @param sourceTypes Connector source types
 	 */
 	void verifySshSources(final Set<Class<? extends Source>> sourceTypes) {
-		if (sourceTypes.contains(OsCommandSource.class)) {
+		if (sourceTypes.contains(CommandLineSource.class)) {
 			telemetryManager.getHostProperties().setMustCheckSshStatus(true);
 		}
 	}
@@ -267,29 +267,29 @@ public class DetectionStrategy extends AbstractStrategy {
 	 * @param criteria Connector detection criteria list
 	 */
 	void verifySshCriteria(final List<Criterion> criteria) {
-		boolean osCommandExecuteLocally = false;
-		boolean osCommandExecuteRemotely = false;
+		boolean commandLineExecuteLocally = false;
+		boolean commandLineExecuteRemotely = false;
 
 		for (final Criterion criterion : criteria) {
-			if (criterion instanceof OsCommandCriterion osCommandCriterion) {
-				boolean executeLocally = osCommandCriterion.getExecuteLocally();
+			if (criterion instanceof CommandLineCriterion commandLineCriterion) {
+				boolean executeLocally = commandLineCriterion.getExecuteLocally();
 
-				// if osCommandExecuteLocally is false, it will take the executeLocally value
-				osCommandExecuteLocally |= executeLocally;
+				// if CommandLineExecuteLocally is false, it will take the executeLocally value
+				commandLineExecuteLocally |= executeLocally;
 
-				// if osCommandExecuteRemotely is false, it will take the executeLocally's opposite value
-				osCommandExecuteRemotely |= !executeLocally;
+				// if CommandLineExecuteRemotely is false, it will take the executeLocally's opposite value
+				commandLineExecuteRemotely |= !executeLocally;
 			}
 
 			// Stop if both variables are true
-			if (osCommandExecuteLocally && osCommandExecuteRemotely) {
+			if (commandLineExecuteLocally && commandLineExecuteRemotely) {
 				break;
 			}
 		}
 
 		// Store the values in the Host Properties
-		telemetryManager.getHostProperties().setOsCommandExecutesLocally(osCommandExecuteLocally);
-		telemetryManager.getHostProperties().setOsCommandExecutesRemotely(osCommandExecuteRemotely);
+		telemetryManager.getHostProperties().setCommandLineExecutesLocally(commandLineExecuteLocally);
+		telemetryManager.getHostProperties().setCommandLineExecutesRemotely(commandLineExecuteRemotely);
 	}
 
 	/**

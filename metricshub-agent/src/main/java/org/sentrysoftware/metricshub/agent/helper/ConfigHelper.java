@@ -70,9 +70,9 @@ import org.sentrysoftware.metricshub.agent.config.ConnectorVariables;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.AbstractProtocolConfig;
+import org.sentrysoftware.metricshub.agent.config.protocols.CommandLineProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.HttpProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.IpmiProtocolConfig;
-import org.sentrysoftware.metricshub.agent.config.protocols.OsCommandProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.ProtocolsConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.SnmpProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.SshProtocolConfig;
@@ -108,7 +108,7 @@ import org.springframework.core.io.ClassPathResource;
 @Slf4j
 public class ConfigHelper {
 
-	private static final String OS_COMMAND = "OSCommand";
+	private static final String COMMAND_LINE = "CommandLine";
 	private static final String HTTP_PROTOCOL = "HTTP";
 	private static final String WMI_PROTOCOL = "WMI";
 	private static final String WBEM_PROTOCOL = "WBEM";
@@ -973,9 +973,9 @@ public class ConfigHelper {
 			validateHttpInfo(resourceKey, httpConfig.getTimeout(), httpConfig.getPort());
 		}
 
-		final OsCommandProtocolConfig osCommandConfig = protocolsConfig.getOsCommand();
-		if (osCommandConfig != null) {
-			validateOsCommandInfo(resourceKey, osCommandConfig.getTimeout());
+		final CommandLineProtocolConfig commandLineConfig = protocolsConfig.getCommandLine();
+		if (commandLineConfig != null) {
+			validateCommandLineInfo(resourceKey, commandLineConfig.getTimeout());
 		}
 	}
 
@@ -1183,11 +1183,11 @@ public class ConfigHelper {
 	 * @param resourceKey Resource unique identifier
 	 * @param timeout     How long until the command times out
 	 */
-	static void validateOsCommandInfo(final String resourceKey, final Long timeout) {
+	static void validateCommandLineInfo(final String resourceKey, final Long timeout) {
 		validateAttribute(
 			timeout,
 			INVALID_TIMEOUT_CHECKER,
-			() -> String.format(TIMEOUT_ERROR, resourceKey, OS_COMMAND, timeout)
+			() -> String.format(TIMEOUT_ERROR, resourceKey, COMMAND_LINE, timeout)
 		);
 	}
 
@@ -1216,7 +1216,7 @@ public class ConfigHelper {
 						protocols.getHttp(),
 						protocols.getWbem(),
 						protocols.getWmi(),
-						protocols.getOsCommand(),
+						protocols.getCommandLine(),
 						protocols.getIpmi(),
 						protocols.getWinrm()
 					)

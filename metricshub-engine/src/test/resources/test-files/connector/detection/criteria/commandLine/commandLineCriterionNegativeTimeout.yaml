@@ -3,10 +3,10 @@ connector:
   detection:
     appliesTo: [ linux ]
     criteria:
-      - type: osCommand
+      - type: commandLine
         forceSerialization: true
         commandLine: naviseccli -help
         expectedResult: Navisphere
         executeLocally: true
         errorMessage: Not a Navisphere system
-        timeout: str
+        timeout: -1234

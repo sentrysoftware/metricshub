@@ -21,10 +21,10 @@ package org.sentrysoftware.metricshub.engine.strategy.source;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CommandLineSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CopySource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.OsCommandSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpGetSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.StaticSource;
@@ -63,12 +63,12 @@ public interface ISourceProcessor {
 	SourceTable process(IpmiSource ipmiSource);
 
 	/**
-	 * Process the OsCommandSource and return a SourceTable.
+	 * Process the CommandLineSource and return a SourceTable.
 	 *
-	 * @param osCommandSource The OsCommandSource to process.
+	 * @param commandLineSource The CommandLineSource to process.
 	 * @return The SourceTable result.
 	 */
-	SourceTable process(OsCommandSource osCommandSource);
+	SourceTable process(CommandLineSource commandLineSource);
 
 	/**
 	 * Process the SnmpGetSource and return a SourceTable.
