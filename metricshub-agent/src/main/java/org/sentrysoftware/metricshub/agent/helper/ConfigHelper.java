@@ -1246,7 +1246,7 @@ public class ConfigHelper {
 		return HostConfiguration
 			.builder()
 			.strategyTimeout(resourceConfig.getJobTimeout())
-			.configurations(protocolConfigurationsDeprecated)
+			.configurations(protocolConfigurations)
 			.connectors(connectorsConfiguration)
 			.hostname(hostname)
 			.hostId(hostId)

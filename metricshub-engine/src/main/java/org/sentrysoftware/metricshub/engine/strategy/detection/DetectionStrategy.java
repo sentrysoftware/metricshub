@@ -42,6 +42,7 @@ import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.common.helpers.NetworkHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.ConnectorIdentity;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
@@ -93,11 +94,22 @@ public class DetectionStrategy extends AbstractStrategy {
 		final HostConfiguration hostConfiguration = telemetryManager.getHostConfiguration();
 		final HostProperties hostProperties = telemetryManager.getHostProperties();
 		if (hostConfiguration == null) {
+			log.error("No host configuration provided. Skip detection.");
 			return;
 		}
 
 		final String hostname = hostConfiguration.getHostname();
 		log.debug("Hostname {} - Start detection strategy.", hostname);
+
+		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = hostConfiguration.getConfigurations();
+		if (configurations == null || configurations.isEmpty()) {
+			log.error(
+				"Hostname {} - No protocol configuration provided. Please check the protocol configuration for resource {}.",
+				hostname,
+				hostConfiguration.getHostId()
+			);
+			return;
+		}
 
 		// Detect if we monitor localhost then set the localhost property in the HostProperties instance
 		hostProperties.setLocalhost(NetworkHelper.isLocalhost(hostname));

@@ -60,8 +60,10 @@ public class ExtensionConfigDeserializer extends JsonDeserializer<IConfiguration
 				.buildConfigurationFromJsonNode(configurationType, jsonNode, ConfigHelper::decrypt)
 				.orElse(null);
 		} catch (Exception e) {
-			final String errorMessage =
-				"Cannot read " + configurationType + " credentials. Check the snmp configuration format.";
+			final String errorMessage = String.format(
+				"Cannot read %1$s credentials. Check %1$s configuration format.",
+				configurationType
+			);
 			log.error(errorMessage);
 			log.debug(errorMessage, e);
 			throw new IOException(errorMessage, e);

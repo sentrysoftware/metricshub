@@ -7,7 +7,7 @@
 --vendor "Sentry Software"
 --app-version ${project.version.noSnapshot}
 --dest "${project.build.directory}"
---app-content metricshub/config,metricshub/LICENSE,metricshub/connectors,metricshub/site
+--app-content metricshub/config,metricshub/LICENSE,metricshub/connectors,metricshub/site,metricshub/extensions
 --main-class org.sentrysoftware.metricshub.cli.MetricsHubCliApplication
 --java-options --add-exports
 --java-options java.xml/com.sun.org.apache.xerces.internal.parsers=ALL-UNNAMED
@@ -19,3 +19,4 @@
 --java-options java.base/sun.net.www.protocol.http=ALL-UNNAMED
 --java-options --add-opens
 --java-options java.base/sun.security.ssl=ALL-UNNAMED
+--java-options -javaagent:$APPDIR/lib/extensions/metricshub-classloader-agent-${project.version}.jar

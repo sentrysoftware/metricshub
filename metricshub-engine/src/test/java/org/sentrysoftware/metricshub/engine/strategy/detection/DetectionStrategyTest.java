@@ -36,6 +36,7 @@ import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
+import org.sentrysoftware.metricshub.engine.configuration.TestConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
@@ -258,6 +259,7 @@ class DetectionStrategyTest {
 					.hostType(DeviceKind.LINUX)
 					.hostname(LOCALHOST)
 					.configuredConnectorId(METRICS_HUB_CONFIGURED_CONNECTOR_ID)
+					.configurations(Map.of(TestConfiguration.class, TestConfiguration.builder().build()))
 					.build()
 			)
 			.connectorStore(new ConnectorStore())

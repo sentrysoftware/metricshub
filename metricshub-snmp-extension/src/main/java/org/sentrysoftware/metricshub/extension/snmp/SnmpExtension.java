@@ -76,7 +76,7 @@ public class SnmpExtension implements IProtocolExtension {
 	/**
 	 * Up metric name format that will be saved by the metric factory
 	 */
-	static final String SNMP_UP_METRIC = "metricshub.host.up{operation=\"snmp\"}";
+	static final String SNMP_UP_METRIC = "metricshub.host.up{protocol=\"snmp\"}";
 
 	/**
 	 * The SNMP OID value to use in the health check test
