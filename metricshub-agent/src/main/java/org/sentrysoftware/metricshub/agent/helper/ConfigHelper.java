@@ -70,7 +70,7 @@ import org.sentrysoftware.metricshub.agent.config.ConnectorVariables;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.AbstractProtocolConfig;
-import org.sentrysoftware.metricshub.agent.config.protocols.CommandLineProtocolConfig;
+import org.sentrysoftware.metricshub.agent.config.protocols.OsCommandProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.HttpProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.IpmiProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.ProtocolsConfig;
@@ -973,7 +973,7 @@ public class ConfigHelper {
 			validateHttpInfo(resourceKey, httpConfig.getTimeout(), httpConfig.getPort());
 		}
 
-		final CommandLineProtocolConfig commandLineConfig = protocolsConfig.getCommandLine();
+		final OsCommandProtocolConfig commandLineConfig = protocolsConfig.getCommandLine();
 		if (commandLineConfig != null) {
 			validateCommandLineInfo(resourceKey, commandLineConfig.getTimeout());
 		}

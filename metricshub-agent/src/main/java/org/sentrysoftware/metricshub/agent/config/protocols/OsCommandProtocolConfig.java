@@ -43,7 +43,7 @@ import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class CommandLineProtocolConfig extends AbstractProtocolConfig {
+public class OsCommandProtocolConfig extends AbstractProtocolConfig {
 
 	private boolean useSudo;
 
