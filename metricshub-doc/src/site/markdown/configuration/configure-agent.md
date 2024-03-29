@@ -438,12 +438,6 @@ Refer to [Monitors](../develop/monitors.md) for more information on how to confi
 
 In the example below, we configured a monitor for a Grafana service. This monitor collects data from the Grafana health API and maps the response to the most relevant attributes and metrics in **MetricsHub**.
 
-Refer to [monitors documentation page](../develop/monitors.md) for more information on how to configrue the monitors.
-
-### Example: Monitoring a Grafana Service
-
-In the example below, we configured a monitor for a Grafana service. This monitor collects data from the Grafana health API and maps the response to the most relevant attributes and metrics in **MetricsHub**.
-
 ```yaml
 service-group:  
   grafana-service:
