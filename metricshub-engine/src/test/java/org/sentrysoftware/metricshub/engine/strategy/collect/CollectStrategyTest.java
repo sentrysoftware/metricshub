@@ -2,7 +2,6 @@ package org.sentrysoftware.metricshub.engine.strategy.collect;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -25,7 +24,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -34,9 +35,16 @@ import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
+import org.sentrysoftware.metricshub.engine.configuration.TestConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetCriterion;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetNextCriterion;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpGetSource;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
+import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.strategy.IStrategy;
+import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.MonitorFactory;
@@ -59,6 +67,9 @@ class CollectStrategyTest {
 	@Mock
 	private ClientsExecutor clientsExecutorMock;
 
+	@Mock
+	private IProtocolExtension protocolExtensionMock;
+
 	private IStrategy collectStrategy;
 
 	static Long strategyTime = new Date().getTime();
@@ -80,7 +91,7 @@ class CollectStrategyTest {
 			)
 		);
 
-		final SnmpConfiguration snmpConfig = SnmpConfiguration.builder().community("public").build();
+		final TestConfiguration snmpConfig = TestConfiguration.builder().build();
 
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
@@ -91,7 +102,7 @@ class CollectStrategyTest {
 					.hostId(HOST_ID)
 					.hostname(HOST_NAME)
 					.sequential(false)
-					.configurations(Map.of(SnmpConfiguration.class, snmpConfig))
+					.configurations(Map.of(TestConfiguration.class, snmpConfig))
 					.build()
 			)
 			.build();
@@ -125,40 +136,64 @@ class CollectStrategyTest {
 		final ConnectorStore connectorStore = new ConnectorStore(TEST_CONNECTOR_PATH);
 		telemetryManager.setConnectorStore(connectorStore);
 
+		final ExtensionManager extensionManager = ExtensionManager
+			.builder()
+			.withProtocolExtensions(List.of(protocolExtensionMock))
+			.build();
+
+		doReturn(true).when(protocolExtensionMock).isValidConfiguration(snmpConfig);
+		doReturn(Set.of(SnmpGetSource.class, SnmpTableSource.class)).when(protocolExtensionMock).getSupportedSources();
+		doReturn(Set.of(SnmpGetNextCriterion.class, SnmpGetCriterion.class))
+			.when(protocolExtensionMock)
+			.getSupportedCriteria();
+
 		collectStrategy =
 			CollectStrategy
 				.builder()
 				.clientsExecutor(clientsExecutorMock)
 				.strategyTime(strategyTime)
 				.telemetryManager(telemetryManager)
+				.extensionManager(extensionManager)
 				.build();
 
 		// Mock detection criteria result
-		doReturn("1.3.6.1.4.1.795.10.1.1.3.1.1.0	ASN_OCTET_STR	Test")
-			.when(clientsExecutorMock)
-			.executeSNMPGetNext(eq("1.3.6.1.4.1.795.10.1.1.3.1.1"), any(SnmpConfiguration.class), anyString(), anyBoolean());
+		final SnmpGetNextCriterion snmpGetNextCriterion = SnmpGetNextCriterion
+			.builder()
+			.oid("1.3.6.1.4.1.795.10.1.1.3.1.1")
+			.type("snmpGetNext")
+			.build();
+		doReturn(CriterionTestResult.success(snmpGetNextCriterion, "1.3.6.1.4.1.795.10.1.1.3.1.1.0	ASN_OCTET_STR	Test"))
+			.when(protocolExtensionMock)
+			.processCriterion(eq(snmpGetNextCriterion), anyString(), any(TelemetryManager.class));
 
 		// Mock source table information for enclosure
-		doReturn(SourceTable.csvToTable("enclosure-1;1;healthy", MetricsHubConstants.TABLE_SEP))
-			.when(clientsExecutorMock)
-			.executeSNMPTable(
-				eq("1.3.6.1.4.1.795.10.1.1.30.1"),
-				any(String[].class),
-				any(SnmpConfiguration.class),
-				anyString(),
-				eq(true)
-			);
+		final SnmpTableSource enclosureSource = SnmpTableSource
+			.builder()
+			.oid("1.3.6.1.4.1.795.10.1.1.30.1")
+			.selectColumns("ID,1,2")
+			.type("snmpTable")
+			.key("${source::monitors.enclosure.collect.sources.source(1)}")
+			.build();
+		doReturn(
+			SourceTable
+				.builder()
+				.table(SourceTable.csvToTable("enclosure-1;1;healthy", MetricsHubConstants.TABLE_SEP))
+				.build()
+		)
+			.when(protocolExtensionMock)
+			.processSource(eq(enclosureSource), anyString(), any(TelemetryManager.class));
 
 		// Mock source table information for disk_controller
-		doReturn(SourceTable.csvToTable("1;1;healthy", MetricsHubConstants.TABLE_SEP))
-			.when(clientsExecutorMock)
-			.executeSNMPTable(
-				eq("1.3.6.1.4.1.795.10.1.1.31.1"),
-				any(String[].class),
-				any(SnmpConfiguration.class),
-				anyString(),
-				eq(true)
-			);
+		final SnmpTableSource diskControllerSource = SnmpTableSource
+			.builder()
+			.oid("1.3.6.1.4.1.795.10.1.1.31.1")
+			.selectColumns("ID,1,2")
+			.type("snmpTable")
+			.key("${source::monitors.disk_controller.collect.sources.source(1)}")
+			.build();
+		doReturn(SourceTable.builder().table(SourceTable.csvToTable("1;1;healthy", MetricsHubConstants.TABLE_SEP)).build())
+			.when(protocolExtensionMock)
+			.processSource(eq(diskControllerSource), anyString(), any(TelemetryManager.class));
 
 		collectStrategy.run();
 

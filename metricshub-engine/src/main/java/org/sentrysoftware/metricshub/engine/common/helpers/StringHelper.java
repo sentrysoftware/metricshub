@@ -30,17 +30,21 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.concurrent.Callable;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 
 /**
  * Helper class for working with strings.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Slf4j
 public class StringHelper {
 
 	/**
@@ -213,5 +217,24 @@ public class StringHelper {
 	 */
 	public static boolean nonNullNonBlank(final String value) {
 		return value != null && !value.isBlank();
+	}
+
+	/**
+	 * Validate the attribute against a predetermined test
+	 *
+	 * @param attribute       Value getting compared
+	 * @param errorChecker    Logic test comparing our value
+	 * @param messageSupplier error message supplier
+	 * @throws InvalidConfigurationException in case the validation fail
+	 */
+	public static <T> void validateConfigurationAttribute(
+		final T attribute,
+		final Predicate<T> errorChecker,
+		final Supplier<String> messageSupplier
+	) throws InvalidConfigurationException {
+		if (errorChecker.test(attribute)) {
+			log.error(messageSupplier.get());
+			throw new InvalidConfigurationException(messageSupplier.get());
+		}
 	}
 }

@@ -55,7 +55,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.AccessLevel;
@@ -74,25 +73,27 @@ import org.sentrysoftware.metricshub.agent.config.protocols.HttpProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.IpmiProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.OsCommandProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.ProtocolsConfig;
-import org.sentrysoftware.metricshub.agent.config.protocols.SnmpProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.SshProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.WbemProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.WinRmProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.WmiProtocolConfig;
 import org.sentrysoftware.metricshub.agent.context.MetricDefinitions;
 import org.sentrysoftware.metricshub.agent.security.PasswordEncrypt;
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.common.helpers.ResourceHelper;
+import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration.SnmpVersion;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.ConnectorIdentity;
 import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionLoader;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.security.SecurityManager;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.springframework.core.io.ClassPathResource;
@@ -925,8 +926,10 @@ public class ConfigHelper {
 	 *
 	 * @param resourceKey    Resource unique identifier
 	 * @param resourceConfig {@link ResourceConfig} instance configured by the user
+	 * @throws InvalidConfigurationException
 	 */
-	private static void validateProtocols(@NonNull final String resourceKey, final ResourceConfig resourceConfig) {
+	private static void validateProtocols(@NonNull final String resourceKey, final ResourceConfig resourceConfig)
+		throws InvalidConfigurationException {
 		final ProtocolsConfig protocolsConfig = resourceConfig.getProtocols();
 		if (protocolsConfig == null) {
 			return;
@@ -937,9 +940,9 @@ public class ConfigHelper {
 			validateWinRmInfo(resourceKey, winRmConfig.getPort(), winRmConfig.getTimeout(), winRmConfig.getUsername());
 		}
 
-		final SnmpProtocolConfig snmpConfig = protocolsConfig.getSnmp();
+		final IConfiguration snmpConfig = protocolsConfig.getSnmp();
 		if (snmpConfig != null) {
-			validateSnmpInfo(resourceKey, snmpConfig);
+			snmpConfig.validateConfiguration(resourceKey);
 		}
 
 		final IpmiProtocolConfig ipmiConfig = protocolsConfig.getIpmi();
@@ -980,88 +983,36 @@ public class ConfigHelper {
 	}
 
 	/**
-	 * Validate the attribute against a predetermined test
-	 *
-	 * @param attribute       Value getting compared
-	 * @param errorChecker    Logic test comparing our value
-	 * @param messageSupplier error message supplier
-	 * @throws IllegalStateException in case the validation fail
-	 */
-	private static <T> void validateAttribute(
-		final T attribute,
-		final Predicate<T> errorChecker,
-		final Supplier<String> messageSupplier
-	) {
-		if (errorChecker.test(attribute)) {
-			log.error(messageSupplier.get());
-			throw new IllegalStateException(messageSupplier.get());
-		}
-	}
-
-	/**
 	 * Validate the given WinRM information (port, timeout, username and command)
 	 *
 	 * @param resourceKey  Resource unique identifier
 	 * @param port         The port number used to perform WQL queries and commands
 	 * @param timeout      How long until the WinRM request times out
 	 * @param username	   Name used to establish the connection with the host via the WinRM protocol
+	 * @throws InvalidConfigurationException
 	 */
 	static void validateWinRmInfo(
 		final String resourceKey,
 		final Integer port,
 		final Long timeout,
 		final String username
-	) {
-		validateAttribute(port, INVALID_PORT_CHECKER, () -> String.format(PORT_ERROR, resourceKey, WIN_RM_PROTOCOL, port));
+	) throws InvalidConfigurationException {
+		StringHelper.validateConfigurationAttribute(
+			port,
+			INVALID_PORT_CHECKER,
+			() -> String.format(PORT_ERROR, resourceKey, WIN_RM_PROTOCOL, port)
+		);
 
-		validateAttribute(
+		StringHelper.validateConfigurationAttribute(
 			timeout,
 			INVALID_TIMEOUT_CHECKER,
 			() -> String.format(TIMEOUT_ERROR, resourceKey, WIN_RM_PROTOCOL, timeout)
 		);
 
-		validateAttribute(
+		StringHelper.validateConfigurationAttribute(
 			username,
 			INVALID_STRING_CHECKER,
 			() -> String.format(USERNAME_ERROR, resourceKey, WIN_RM_PROTOCOL)
-		);
-	}
-
-	/**
-	 * Validate the given SNMP information (resourceKey, snmpConfig)
-	 *
-	 * @param resourceKey Resource unique identifier
-	 * @param snmpConfig  {@link SnmpProtocolConfig} object of the {@link ResourceConfig} instance
-	 */
-	static void validateSnmpInfo(final String resourceKey, SnmpProtocolConfig snmpConfig) {
-		final SnmpVersion snmpVersion = snmpConfig.getVersion();
-
-		final String displayName = snmpVersion.getDisplayName();
-		final int intVersion = snmpVersion.getIntVersion();
-
-		if (intVersion != 3) {
-			validateAttribute(
-				snmpConfig.getCommunity(),
-				attr -> attr == null || attr.length == 0,
-				() ->
-					String.format(
-						"Resource %s - No community string configured for %s. This resource will not be monitored.",
-						resourceKey,
-						displayName
-					)
-			);
-		}
-
-		validateAttribute(
-			snmpConfig.getPort(),
-			INVALID_PORT_CHECKER,
-			() -> String.format(PORT_ERROR, resourceKey, displayName, snmpConfig.getPort())
-		);
-
-		validateAttribute(
-			snmpConfig.getTimeout(),
-			INVALID_TIMEOUT_CHECKER,
-			() -> String.format(TIMEOUT_ERROR, resourceKey, displayName, snmpConfig.getTimeout())
 		);
 	}
 
@@ -1071,15 +1022,17 @@ public class ConfigHelper {
 	 * @param resourceKey Resource unique identifier
 	 * @param username    Name used to establish the connection with the host via the IPMI protocol
 	 * @param timeout     How long until the IPMI request times out
+	 * @throws InvalidConfigurationException
 	 */
-	static void validateIpmiInfo(final String resourceKey, final String username, final Long timeout) {
-		validateAttribute(
+	static void validateIpmiInfo(final String resourceKey, final String username, final Long timeout)
+		throws InvalidConfigurationException {
+		StringHelper.validateConfigurationAttribute(
 			username,
 			INVALID_STRING_CHECKER,
 			() -> String.format(USERNAME_ERROR, resourceKey, IPMI_PROTOCOL)
 		);
 
-		validateAttribute(
+		StringHelper.validateConfigurationAttribute(
 			timeout,
 			INVALID_TIMEOUT_CHECKER,
 			() -> String.format(TIMEOUT_ERROR, resourceKey, IPMI_PROTOCOL, timeout)
@@ -1092,11 +1045,17 @@ public class ConfigHelper {
 	 * @param resourceKey Resource unique identifier
 	 * @param username    Name to use for performing the SSH query
 	 * @param timeout     How long until the command times out
+	 * @throws InvalidConfigurationException
 	 */
-	static void validateSshInfo(final String resourceKey, final String username, final Long timeout) {
-		validateAttribute(username, INVALID_STRING_CHECKER, () -> String.format(USERNAME_ERROR, resourceKey, SSH_PROTOCOL));
+	static void validateSshInfo(final String resourceKey, final String username, final Long timeout)
+		throws InvalidConfigurationException {
+		StringHelper.validateConfigurationAttribute(
+			username,
+			INVALID_STRING_CHECKER,
+			() -> String.format(USERNAME_ERROR, resourceKey, SSH_PROTOCOL)
+		);
 
-		validateAttribute(
+		StringHelper.validateConfigurationAttribute(
 			timeout,
 			INVALID_TIMEOUT_CHECKER,
 			() -> String.format(TIMEOUT_ERROR, resourceKey, SSH_PROTOCOL, timeout)
@@ -1111,6 +1070,7 @@ public class ConfigHelper {
 	 * @param timeout     How long until the WBEM request times out
 	 * @param port        The HTTP/HTTPS port number used to perform WBEM queries
 	 * @param vCenter     vCenter hostname providing the authentication ticket, if applicable
+	 * @throws InvalidConfigurationException
 	 */
 	static void validateWbemInfo(
 		final String resourceKey,
@@ -1118,22 +1078,26 @@ public class ConfigHelper {
 		final Long timeout,
 		final Integer port,
 		final String vCenter
-	) {
-		validateAttribute(
+	) throws InvalidConfigurationException {
+		StringHelper.validateConfigurationAttribute(
 			timeout,
 			INVALID_TIMEOUT_CHECKER,
 			() -> String.format(TIMEOUT_ERROR, resourceKey, WBEM_PROTOCOL, timeout)
 		);
 
-		validateAttribute(port, INVALID_PORT_CHECKER, () -> String.format(PORT_ERROR, resourceKey, WBEM_PROTOCOL, port));
+		StringHelper.validateConfigurationAttribute(
+			port,
+			INVALID_PORT_CHECKER,
+			() -> String.format(PORT_ERROR, resourceKey, WBEM_PROTOCOL, port)
+		);
 
-		validateAttribute(
+		StringHelper.validateConfigurationAttribute(
 			username,
 			INVALID_STRING_CHECKER,
 			() -> String.format(USERNAME_ERROR, resourceKey, WBEM_PROTOCOL)
 		);
 
-		validateAttribute(
+		StringHelper.validateConfigurationAttribute(
 			vCenter,
 			EMPTY_STRING_CHECKER,
 			() ->
@@ -1151,9 +1115,10 @@ public class ConfigHelper {
 	 *
 	 * @param resourceKey Resource unique identifier
 	 * @param timeout     How long until the WMI request times out
+	 * @throws InvalidConfigurationException
 	 */
-	static void validateWmiInfo(final String resourceKey, final Long timeout) {
-		validateAttribute(
+	static void validateWmiInfo(final String resourceKey, final Long timeout) throws InvalidConfigurationException {
+		StringHelper.validateConfigurationAttribute(
 			timeout,
 			INVALID_TIMEOUT_CHECKER,
 			() -> String.format(TIMEOUT_ERROR, resourceKey, WMI_PROTOCOL, timeout)
@@ -1166,15 +1131,21 @@ public class ConfigHelper {
 	 * @param resourceKey Resource unique identifier
 	 * @param timeout     How long until the HTTP request times out
 	 * @param port        The HTTP port number used to perform REST queries
+	 * @throws InvalidConfigurationException
 	 */
-	static void validateHttpInfo(final String resourceKey, final Long timeout, final Integer port) {
-		validateAttribute(
+	static void validateHttpInfo(final String resourceKey, final Long timeout, final Integer port)
+		throws InvalidConfigurationException {
+		StringHelper.validateConfigurationAttribute(
 			timeout,
 			INVALID_TIMEOUT_CHECKER,
 			() -> String.format(TIMEOUT_ERROR, resourceKey, HTTP_PROTOCOL, timeout)
 		);
 
-		validateAttribute(port, INVALID_PORT_CHECKER, () -> String.format(PORT_ERROR, resourceKey, HTTP_PROTOCOL, port));
+		StringHelper.validateConfigurationAttribute(
+			port,
+			INVALID_PORT_CHECKER,
+			() -> String.format(PORT_ERROR, resourceKey, HTTP_PROTOCOL, port)
+		);
 	}
 
 	/**
@@ -1182,9 +1153,10 @@ public class ConfigHelper {
 	 *
 	 * @param resourceKey Resource unique identifier
 	 * @param timeout     How long until the command times out
+	 * @throws InvalidConfigurationException
 	 */
-	static void validateOsCommandInfo(final String resourceKey, final Long timeout) {
-		validateAttribute(
+	static void validateOsCommandInfo(final String resourceKey, final Long timeout) throws InvalidConfigurationException {
+		StringHelper.validateConfigurationAttribute(
 			timeout,
 			INVALID_TIMEOUT_CHECKER,
 			() -> String.format(TIMEOUT_ERROR, resourceKey, OS_COMMAND, timeout)
@@ -1206,12 +1178,11 @@ public class ConfigHelper {
 	) {
 		final ProtocolsConfig protocols = resourceConfig.getProtocols();
 
-		final Map<Class<? extends IConfiguration>, IConfiguration> protocolConfigurations = protocols == null
+		final Map<Class<? extends IConfiguration>, IConfiguration> protocolConfigurationsDeprecated = protocols == null
 			? new HashMap<>()
 			: new HashMap<>(
 				Stream
 					.of(
-						protocols.getSnmp(),
 						protocols.getSsh(),
 						protocols.getHttp(),
 						protocols.getWbem(),
@@ -1225,6 +1196,20 @@ public class ConfigHelper {
 					.filter(Objects::nonNull)
 					.collect(Collectors.toMap(IConfiguration::getClass, Function.identity()))
 			);
+
+		// TODO Temporary: when all the configurations are IConfiguration we will remove protocolConfigurationsDeprecated variable
+		final Map<Class<? extends IConfiguration>, IConfiguration> protocolConfigurations = protocols == null
+			? new HashMap<>()
+			: new HashMap<>(
+				Stream
+					.of(protocols.getSnmp())
+					.filter(Objects::nonNull)
+					.collect(Collectors.toMap(IConfiguration::getClass, Function.identity()))
+			);
+
+		// TODO remove when protocolConfigurationsDeprecated is removed, means all the configuration are IConfguration
+		// protocols
+		protocolConfigurations.putAll(protocolConfigurationsDeprecated);
 
 		final Map<String, String> attributes = resourceConfig.getAttributes();
 
@@ -1360,6 +1345,19 @@ public class ConfigHelper {
 			return new BigInteger(1, hash).toString(16);
 		} catch (Exception e) {
 			return null;
+		}
+	}
+
+	/**
+	 * Load the {@link ExtensionManager} instance from the extensions directory.
+	 *
+	 * @return new {@link ExtensionManager} instance.
+	 */
+	public static ExtensionManager loadExtensionManager() {
+		try {
+			return new ExtensionLoader(getSubDirectory("extensions", false).toFile()).load();
+		} catch (Throwable e) {
+			throw new IllegalStateException("Cannot load extensions.", e);
 		}
 	}
 }

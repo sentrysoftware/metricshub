@@ -14,6 +14,7 @@ import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.alert.AlertRule;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.strategy.collect.CollectStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.collect.PrepareCollectStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.detection.DetectionStrategy;
@@ -203,7 +204,7 @@ public abstract class AbstractITJob implements ITJob {
 	 */
 	private static void assertResource(final Monitor expectedMonitor, final Monitor actualMonitor) {
 		final Resource expectedResource = expectedMonitor.getResource();
-		final Resource actualResource = expectedMonitor.getResource();
+		final Resource actualResource = actualMonitor.getResource();
 
 		final String expectedMonitorId = expectedMonitor.getId();
 		if (expectedResource != null) {
@@ -363,10 +364,11 @@ public abstract class AbstractITJob implements ITJob {
 
 		assertTrue(isServerStarted(), () -> "Server not started.");
 
+		final ExtensionManager emptyExtensionManager = ExtensionManager.empty();
 		telemetryManager.run(
-			new DetectionStrategy(telemetryManager, discoveryTime, clientsExecutor),
-			new DiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor),
-			new SimpleStrategy(telemetryManager, discoveryTime, clientsExecutor)
+			new DetectionStrategy(telemetryManager, discoveryTime, clientsExecutor, emptyExtensionManager),
+			new DiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor, emptyExtensionManager),
+			new SimpleStrategy(telemetryManager, discoveryTime, clientsExecutor, emptyExtensionManager)
 		);
 
 		return this;
@@ -378,10 +380,11 @@ public abstract class AbstractITJob implements ITJob {
 
 		assertTrue(isServerStarted(), () -> "Server not started.");
 
+		final ExtensionManager emptyExtensionManager = ExtensionManager.empty();
 		telemetryManager.run(
-			new PrepareCollectStrategy(telemetryManager, collectTime, clientsExecutor),
-			new CollectStrategy(telemetryManager, collectTime, clientsExecutor),
-			new SimpleStrategy(telemetryManager, collectTime, clientsExecutor)
+			new PrepareCollectStrategy(telemetryManager, collectTime, clientsExecutor, emptyExtensionManager),
+			new CollectStrategy(telemetryManager, collectTime, clientsExecutor, emptyExtensionManager),
+			new SimpleStrategy(telemetryManager, collectTime, clientsExecutor, emptyExtensionManager)
 		);
 
 		return this;

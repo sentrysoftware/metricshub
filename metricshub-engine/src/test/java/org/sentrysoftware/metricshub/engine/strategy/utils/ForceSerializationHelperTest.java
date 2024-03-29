@@ -3,8 +3,9 @@ package org.sentrysoftware.metricshub.engine.strategy.utils;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
@@ -13,6 +14,7 @@ import static org.sentrysoftware.metricshub.engine.constants.Constants.EXPECTED_
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -20,18 +22,28 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
+import org.sentrysoftware.metricshub.engine.configuration.TestConfiguration;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpGetSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
+import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.strategy.source.ISourceProcessor;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceProcessor;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
+@ExtendWith(MockitoExtension.class)
 class ForceSerializationHelperTest {
+
+	@Mock
+	private IProtocolExtension protocolExtensionMock;
 
 	private static final String HOST_NAME = "host.test.force.serialization";
 	private static final String SELECT_COLUMNS = "ID,1,3";
@@ -183,20 +195,33 @@ class ForceSerializationHelperTest {
 				HostConfiguration
 					.builder()
 					.hostname(HOST_NAME)
-					.configurations(Map.of(SnmpConfiguration.class, SnmpConfiguration.builder().build()))
+					.configurations(Map.of(TestConfiguration.class, TestConfiguration.builder().build()))
 					.build()
 			)
 			.build();
 
 		telemetryManager.getHostProperties().getConnectorNamespace(CONNECTOR_ID);
 
-		doReturn(EXPECTED_SNMP_TABLE_DATA).when(clientsExecutor).executeSNMPTable(any(), any(), any(), any(), anyBoolean());
+		final ExtensionManager extensionManager = ExtensionManager
+			.builder()
+			.withProtocolExtensions(List.of(protocolExtensionMock))
+			.build();
+
+		doReturn(true)
+			.when(protocolExtensionMock)
+			.isValidConfiguration(telemetryManager.getHostConfiguration().getConfigurations().get(TestConfiguration.class));
+		doReturn(Set.of(SnmpGetSource.class, SnmpTableSource.class)).when(protocolExtensionMock).getSupportedSources();
+
+		doReturn(EXPECTED_SOURCE_TABLE)
+			.when(protocolExtensionMock)
+			.processSource(eq(snmpTableSource), anyString(), any(TelemetryManager.class));
 
 		final ISourceProcessor processor = SourceProcessor
 			.builder()
 			.connectorId(CONNECTOR_ID)
 			.clientsExecutor(clientsExecutor)
 			.telemetryManager(telemetryManager)
+			.extensionManager(extensionManager)
 			.build();
 
 		assertEquals(
@@ -228,20 +253,33 @@ class ForceSerializationHelperTest {
 				HostConfiguration
 					.builder()
 					.hostname(HOST_NAME)
-					.configurations(Map.of(SnmpConfiguration.class, SnmpConfiguration.builder().build()))
+					.configurations(Map.of(TestConfiguration.class, TestConfiguration.builder().build()))
 					.build()
 			)
 			.build();
 
 		telemetryManager.getHostProperties().getConnectorNamespace(CONNECTOR_ID);
+		final ExtensionManager extensionManager = ExtensionManager
+			.builder()
+			.withProtocolExtensions(List.of(protocolExtensionMock))
+			.build();
 
-		doReturn(EXPECTED_SNMP_TABLE_DATA).when(clientsExecutor).executeSNMPTable(any(), any(), any(), any(), anyBoolean());
+		// Mock source table information for enclosure
+		doReturn(true)
+			.when(protocolExtensionMock)
+			.isValidConfiguration(telemetryManager.getHostConfiguration().getConfigurations().get(TestConfiguration.class));
+		doReturn(Set.of(SnmpGetSource.class, SnmpTableSource.class)).when(protocolExtensionMock).getSupportedSources();
+
+		doReturn(EXPECTED_SOURCE_TABLE)
+			.when(protocolExtensionMock)
+			.processSource(eq(snmpTableSource), anyString(), any(TelemetryManager.class));
 
 		final ISourceProcessor processor = SourceProcessor
 			.builder()
 			.connectorId(CONNECTOR_ID)
 			.clientsExecutor(clientsExecutor)
 			.telemetryManager(telemetryManager)
+			.extensionManager(extensionManager)
 			.build();
 
 		final ExecutorService threadsPool = Executors.newFixedThreadPool(2);

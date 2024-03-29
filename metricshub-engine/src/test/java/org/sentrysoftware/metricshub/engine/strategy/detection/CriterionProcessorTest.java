@@ -16,8 +16,81 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.spy;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.WMI_PROCESS_QUERY;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.*;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.BMC;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.COMMAND_FILE_ABSOLUTE_PATH;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.CONFIGURED_OS_NT_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.CONFIGURED_OS_SOLARIS_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.CRITERION_WMI_NAMESPACE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.EMPTY;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.ERROR;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.EXCUTE_WBEM_RESULT;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.EXECUTE_WMI_RESULT;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.FAILED_OS_DETECTION;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HIGH_VERSION_NUMBER;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_ID;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_LINUX;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_OS_IS_NOT_WINDOWS_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_WIN;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HTTP;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HTTP_GET;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.INVALID_SOLARIS_VERSION;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.INVALID_SSH_RESPONSE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.IPMI_CONNECTION_SUCCESS_WITH_IMPI_OVER_LAN_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.IPMI_CONNECTION_SUCCESS_WITH_IN_BAND_DRIVER_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.IPMI_FAILURE_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.IPMI_RESULT_EXAMPLE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.IPMI_SUCCESS_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.IPMI_TOOL_COMMAND;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.LINUX_BUILD_IPMI_COMMAND;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.LIPMI;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.LIST_ALL_LINUX_PROCESSES_RESULT;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.LOCALHOST;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.LOW_VERSION_NUMBER;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.MANAGEMENT_CARD_HOST;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.MY_CONNECTOR_1_NAME;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.NEITHER_WMI_NOR_WINRM_ERROR;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.NO_OS_CONFIGURATION_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.NO_RUNNING_PROCESS_MATCH_REGEX_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.NO_TEST_WILL_BE_PERFORMED_AIX_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.NO_TEST_WILL_BE_PERFORMED_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.NO_TEST_WILL_BE_PERFORMED_REMOTELY_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.NO_TEST_WILL_BE_PERFORMED_UNKNOWN_OS_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.OLD_SOLARIS_VERSION;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.OLD_SOLARIS_VERSION_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.OOB_NULL_RESULT_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.PASSWORD;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.PATH;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.PROCESS_CRITERION_COMMAND_LINE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.RESULT;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.RUNNING_PROCESS_MATCH_REGEX_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.SERVICE_NAME_NOT_SPECIFIED_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.SOLARIS_VERSION_NOT_IDENTIFIED_MESSAGE_TOKEN;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.SSH_SUDO_COMMAND;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.STRATEGY_TIMEOUT;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.SUCCESSFUL_OS_DETECTION;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.SUDO_KEYWORD;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.SYSTEM_POWER_UP_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.TEST;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.TEST_BODY;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.TWGIPC;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.UNKNOWN_SOLARIS_VERSION;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.USERNAME;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.VALID_SOLARIS_VERSION_NINE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.VALID_SOLARIS_VERSION_TEN;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_CREDENTIALS_NOT_CONFIGURED;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_CRITERION_NO_RESULT_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_CRITERION_UNEXPECTED_RESULT_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_MALFORMED_CRITERION_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_QUERY;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.WEBM_CRITERION_FAILURE_EXPECTED_RESULT;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.WEBM_CRITERION_SUCCESS_EXPECTED_RESULT;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.WMI_CREDENTIALS_NOT_CONFIGURED;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.WMI_CRITERION_TEST_SUCCEED_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.WMI_CRITERION_UNEXPECTED_RESULT_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.WMI_QUERY_EMPTY_VALUE_MESSAGE;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -27,7 +100,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.TimeoutException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,8 +118,8 @@ import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
+import org.sentrysoftware.metricshub.engine.configuration.TestConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
@@ -64,6 +136,8 @@ import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.S
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetNextCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WbemCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WmiCriterion;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
+import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.strategy.utils.CriterionProcessVisitor;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandResult;
@@ -83,11 +157,11 @@ class CriterionProcessorTest {
 	@Mock
 	private WqlDetectionHelper wqlDetectionHelperMock;
 
-	@InjectMocks
-	private CriterionProcessor criterionProcessor;
-
 	@Mock
 	private TelemetryManager telemetryManagerMock;
+
+	@InjectMocks
+	private CriterionProcessor criterionProcessor;
 
 	private TelemetryManager telemetryManager;
 	private WmiConfiguration wmiConfiguration;
@@ -109,6 +183,96 @@ class CriterionProcessorTest {
 				)
 				.build();
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+	}
+
+	private void initSnmp() {
+		final TestConfiguration snmpConfiguration = new TestConfiguration();
+
+		telemetryManager =
+			TelemetryManager
+				.builder()
+				.hostConfiguration(
+					HostConfiguration
+						.builder()
+						.hostname(LOCALHOST)
+						.hostId(LOCALHOST)
+						.hostType(DeviceKind.LINUX)
+						.configurations(Map.of(TestConfiguration.class, snmpConfiguration))
+						.build()
+				)
+				.build();
+	}
+
+	@Test
+	void testProcessSnmpGetCriterion() {
+		initSnmp();
+
+		final IProtocolExtension protocolExtensionMock = spy(IProtocolExtension.class);
+
+		final ExtensionManager extensionManager = ExtensionManager
+			.builder()
+			.withProtocolExtensions(List.of(protocolExtensionMock))
+			.build();
+
+		doReturn(true)
+			.when(protocolExtensionMock)
+			.isValidConfiguration(telemetryManager.getHostConfiguration().getConfigurations().get(TestConfiguration.class));
+
+		doReturn(Set.of(SnmpGetCriterion.class, SnmpGetNextCriterion.class))
+			.when(protocolExtensionMock)
+			.getSupportedCriteria();
+
+		final SnmpGetCriterion snmpGetCriterion = SnmpGetCriterion.builder().oid("1.2.3.4.5.6").build();
+
+		final CriterionTestResult expected = CriterionTestResult.builder().success(true).message("success").build();
+
+		doReturn(expected)
+			.when(protocolExtensionMock)
+			.processCriterion(snmpGetCriterion, MY_CONNECTOR_1_NAME, telemetryManager);
+
+		final CriterionProcessor criterionProcessor = new CriterionProcessor(
+			clientsExecutorMock,
+			telemetryManager,
+			MY_CONNECTOR_1_NAME,
+			extensionManager
+		);
+		assertEquals(expected, criterionProcessor.process(snmpGetCriterion));
+	}
+
+	@Test
+	void testProcessSnmpGetNextCriterion() {
+		initSnmp();
+
+		final IProtocolExtension protocolExtensionMock = spy(IProtocolExtension.class);
+
+		final ExtensionManager extensionManager = ExtensionManager
+			.builder()
+			.withProtocolExtensions(List.of(protocolExtensionMock))
+			.build();
+
+		doReturn(true)
+			.when(protocolExtensionMock)
+			.isValidConfiguration(telemetryManager.getHostConfiguration().getConfigurations().get(TestConfiguration.class));
+
+		doReturn(Set.of(SnmpGetCriterion.class, SnmpGetNextCriterion.class))
+			.when(protocolExtensionMock)
+			.getSupportedCriteria();
+
+		final SnmpGetNextCriterion snmpGetNextCriterion = SnmpGetNextCriterion.builder().oid("1.2.3.4.5").build();
+
+		final CriterionTestResult expected = CriterionTestResult.builder().success(true).message("success").build();
+
+		doReturn(expected)
+			.when(protocolExtensionMock)
+			.processCriterion(snmpGetNextCriterion, MY_CONNECTOR_1_NAME, telemetryManager);
+
+		final CriterionProcessor criterionProcessor = new CriterionProcessor(
+			clientsExecutorMock,
+			telemetryManager,
+			MY_CONNECTOR_1_NAME,
+			extensionManager
+		);
+		assertEquals(expected, criterionProcessor.process(snmpGetNextCriterion));
 	}
 
 	@Test
@@ -201,264 +365,6 @@ class CriterionProcessorTest {
 		final CriterionTestResult result = criterionProcessor.process(wbemCriterion);
 		assertFalse(result.isSuccess());
 		assertTrue(result.getException() instanceof ClientException);
-	}
-
-	private void initSNMP() {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
-			.builder()
-			.community(SNMP_CONFIGURATION_COMMUNITY)
-			.version(SnmpConfiguration.SnmpVersion.V1)
-			.port(161)
-			.timeout(120L)
-			.build();
-
-		telemetryManager =
-			TelemetryManager
-				.builder()
-				.hostConfiguration(
-					HostConfiguration
-						.builder()
-						.hostname(HOST_WIN)
-						.hostId(HOST_WIN)
-						.hostType(DeviceKind.LINUX)
-						.configurations(Map.of(SnmpConfiguration.class, snmpConfiguration))
-						.build()
-				)
-				.build();
-	}
-
-	@Test
-	void testProcessSNMPGetNextException() throws Exception {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doThrow(new TimeoutException(SNMP_GET_NEXT_TIMEOUT_EXCEPTION_MESSAGE))
-			.when(clientsExecutorMock)
-			.executeSNMPGetNext(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(SnmpGetNextCriterion.builder().oid(OID).build());
-		final CriterionTestResult expected = CriterionTestResult.builder().message(SNMP_GET_NEXT_TIMEOUT_MESSAGE).build();
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void testProcessSNMPGetNextNullResult() throws Exception {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(null).when(clientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(SnmpGetNextCriterion.builder().oid(OID).build());
-		final CriterionTestResult expected = CriterionTestResult
-			.builder()
-			.message(FAILED_SNMP_GET_NEXT_NULL_MESSAGE)
-			.build();
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void testProcessSNMPGetNextEmptyResult() throws Exception {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(EMPTY).when(clientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(SnmpGetNextCriterion.builder().oid(OID).build());
-		final CriterionTestResult expected = CriterionTestResult
-			.builder()
-			.message(FAILED_SNMP_GET_NEXT_EMPTY_MESSAGE)
-			.result(EMPTY)
-			.build();
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void testProcessSNMPGetNextNotSameSubTreeOID() throws Exception {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(SNMP_GET_NEXT_FIRST_RESULT).when(clientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(SnmpGetNextCriterion.builder().oid(OID).build());
-		final CriterionTestResult expected = CriterionTestResult
-			.builder()
-			.message(FAILED_SNMP_GET_NEXT_WRONG_OID_MESSAGE)
-			.result(SNMP_GET_NEXT_FIRST_RESULT)
-			.build();
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void testProcessSNMPGetNextSuccessWithNoExpectedResult() throws Exception {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(SNMP_GET_NEXT_SECOND_RESULT).when(clientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(SnmpGetNextCriterion.builder().oid(OID).build());
-		final CriterionTestResult expected = CriterionTestResult
-			.builder()
-			.message(SUCCESSFUL_SNMP_GET_NEXT_WITHOUT_EXPECTED_RESULT_MESSAGE)
-			.result(SNMP_GET_NEXT_SECOND_RESULT)
-			.success(true)
-			.build();
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void testProcessSNMPGetNextExpectedResultNotMatches() throws Exception {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(SNMP_GET_NEXT_SECOND_RESULT).when(clientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(
-			SnmpGetNextCriterion.builder().oid(OID).expectedResult(SNMP_GET_NEXT_CRITERION_VERSION).build()
-		);
-		final CriterionTestResult expected = CriterionTestResult
-			.builder()
-			.message(FAILED_SNMP_GET_NEXT_OID_NOT_MATCHING_MESSAGE)
-			.result(SNMP_GET_NEXT_SECOND_RESULT)
-			.build();
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void testProcessSNMPGetNextExpectedResultMatches() throws Exception {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(SNMP_GET_NEXT_THIRD_RESULT).when(clientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(
-			SnmpGetNextCriterion.builder().oid(OID).expectedResult(SNMP_GET_NEXT_CRITERION_VERSION).build()
-		);
-		final CriterionTestResult expected = CriterionTestResult
-			.builder()
-			.message(SUCCESSFUL_SNMP_GET_NEXT_MATCHING_EXPECTED_RESULT_MESSAGE)
-			.result(SNMP_GET_NEXT_THIRD_RESULT)
-			.success(true)
-			.build();
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void testProcessSNMPGetNextExpectedResultCannotExtract() throws Exception {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(SNMP_GET_NEXT_FOURTH_RESULT).when(clientsExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(
-			SnmpGetNextCriterion.builder().oid(OID).expectedResult(SNMP_GET_NEXT_CRITERION_VERSION).build()
-		);
-		final CriterionTestResult expected = CriterionTestResult
-			.builder()
-			.message(FAILED_SNMP_GET_NEXT_WRONG_EXTRACTED_VALUE_MESSAGE)
-			.result(SNMP_GET_NEXT_FOURTH_RESULT)
-			.build();
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void testProcessSNMPGetNextReturnsEmptyResult() {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		assertEquals(CriterionTestResult.empty(), criterionProcessor.process((SnmpGetNextCriterion) null));
-		assertEquals(CriterionTestResult.empty(), criterionProcessor.process((SnmpGetNextCriterion) null));
-		assertNull(criterionProcessor.process(SnmpGetNextCriterion.builder().oid(OID).build()).getResult());
-	}
-
-	@Test
-	void testProcessSNMPGetReturnsEmptyResult() {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		assertEquals(CriterionTestResult.empty(), criterionProcessor.process((SnmpGetCriterion) null));
-		assertNull(criterionProcessor.process(SnmpGetCriterion.builder().oid(OID).build()).getResult());
-	}
-
-	@Test
-	void testProcessSNMPGetExpectedResultMatches() throws Exception {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(EXECUTE_SNMP_GET_RESULT).when(clientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(
-			SnmpGetCriterion.builder().oid(OID).expectedResult(EXPECTED_SNMP_RESULT).build()
-		);
-		final CriterionTestResult expected = CriterionTestResult
-			.builder()
-			.message(SNMP_GET_EXPECTED_RESULT_MATCHES_MESSAGE)
-			.result(EXECUTE_SNMP_GET_RESULT)
-			.success(true)
-			.build();
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void testProcessSNMPGetExpectedResultNotMatches() throws Exception {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(EXECUTE_SNMP_GET_RESULT).when(clientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(
-			SnmpGetCriterion.builder().oid(OID).expectedResult(SNMP_VERSION).build()
-		);
-		final CriterionTestResult expected = CriterionTestResult
-			.builder()
-			.message(SNMP_GET_EXPECTED_RESULT_NOT_MATCHES_MESSAGE)
-			.result(EXECUTE_SNMP_GET_RESULT)
-			.build();
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void testProcessSNMPGetSuccessWithNoExpectedResult() throws Exception {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(EXECUTE_SNMP_GET_RESULT).when(clientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(SnmpGetCriterion.builder().oid(OID).build());
-		final CriterionTestResult expected = CriterionTestResult
-			.builder()
-			.message(SNMP_GET_SUCCESS_WITH_NO_EXPECTED_RESULT_MESSAGE)
-			.result(EXECUTE_SNMP_GET_RESULT)
-			.success(true)
-			.build();
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void testProcessSNMPGetEmptyResult() throws Exception {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(EMPTY).when(clientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(SnmpGetCriterion.builder().oid(OID).build());
-		final CriterionTestResult expected = CriterionTestResult
-			.builder()
-			.message(SNMP_GET_EMPTY_RESULT_MESSAGE)
-			.result(EMPTY)
-			.build();
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void testProcessSNMPGetNullResult() throws Exception {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(null).when(clientsExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(SnmpGetCriterion.builder().oid(OID).build());
-		final CriterionTestResult expected = CriterionTestResult.builder().message(SNMP_GET_NULL_RESULT_MESSAGE).build();
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void testProcessSNMPGetException() throws Exception {
-		initSNMP();
-
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doThrow(new TimeoutException(SNMP_GET_TIMEOUT_MESSAGE))
-			.when(clientsExecutorMock)
-			.executeSNMPGet(any(), any(), any(), eq(false));
-		final CriterionTestResult actual = criterionProcessor.process(SnmpGetCriterion.builder().oid(OID).build());
-		final CriterionTestResult expected = CriterionTestResult.builder().message(SNMP_GET_EXCEPTION_MESSAGE).build();
-		assertEquals(expected, actual);
 	}
 
 	@Test
@@ -941,10 +847,15 @@ class CriterionProcessorTest {
 			.build();
 
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
+
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 
 		assertEquals(CriterionTestResult.empty(), criterionProcessor.process(httpCriterion));
@@ -964,10 +875,15 @@ class CriterionProcessorTest {
 			.build();
 
 		final TelemetryManager telemetryManager = TelemetryManager.builder().build();
+
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 
 		assertEquals(CriterionTestResult.empty(), criterionProcessor.process(httpCriterion));
@@ -1010,10 +926,14 @@ class CriterionProcessorTest {
 			.build();
 		doReturn(result).when(clientsExecutorMock).executeHttp(httpRequest, false);
 
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 
 		final String message = String.format(
@@ -1070,10 +990,14 @@ class CriterionProcessorTest {
 			.build();
 		doReturn(RESULT).when(clientsExecutorMock).executeHttp(httpRequest, false);
 
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 
 		final String message = "Hostname PC-120 - HTTP test succeeded. Returned result: result.";
@@ -1739,10 +1663,14 @@ class CriterionProcessorTest {
 			.hostConfiguration(hostConfiguration)
 			.build();
 
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 
 		// The result is not the same as the expected result
@@ -1806,10 +1734,14 @@ class CriterionProcessorTest {
 			.hostConfiguration(hostConfiguration)
 			.build();
 
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 
 		OsCommandResult result = new OsCommandResult(RESULT, SSH_SUDO_COMMAND);
@@ -1871,10 +1803,14 @@ class CriterionProcessorTest {
 			.hostConfiguration(hostConfiguration)
 			.build();
 
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 
 		OsCommandResult result = new OsCommandResult(RESULT, COMMAND_FILE_ABSOLUTE_PATH);
@@ -1928,10 +1864,14 @@ class CriterionProcessorTest {
 
 		final TelemetryManager telemetryManager = TelemetryManager.builder().build();
 
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
 
@@ -1957,10 +1897,14 @@ class CriterionProcessorTest {
 
 		final TelemetryManager telemetryManager = TelemetryManager.builder().build();
 
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
 
@@ -1988,10 +1932,14 @@ class CriterionProcessorTest {
 
 		final TelemetryManager telemetryManager = TelemetryManager.builder().build();
 
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
 
@@ -2039,10 +1987,14 @@ class CriterionProcessorTest {
 			.hostProperties(hostProperties)
 			.build();
 
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
@@ -2092,10 +2044,14 @@ class CriterionProcessorTest {
 			.hostProperties(hostProperties)
 			.build();
 
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
@@ -2149,10 +2105,14 @@ class CriterionProcessorTest {
 			.hostProperties(hostProperties)
 			.build();
 
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
@@ -2202,10 +2162,14 @@ class CriterionProcessorTest {
 			.hostProperties(hostProperties)
 			.build();
 
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
@@ -2257,10 +2221,14 @@ class CriterionProcessorTest {
 			.hostProperties(hostProperties)
 			.build();
 
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
@@ -2312,10 +2280,14 @@ class CriterionProcessorTest {
 			.hostProperties(hostProperties)
 			.build();
 
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
@@ -2363,10 +2335,14 @@ class CriterionProcessorTest {
 			.hostProperties(hostProperties)
 			.build();
 
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutorMock,
 			telemetryManager,
-			MY_CONNECTOR_1_NAME
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
 
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);

@@ -38,6 +38,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.NonBlankDeserializer;
+import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.PositiveIntegerDeserializer;
 
 /**
  * Represents a configuration for executing an operation for each entry of a specified source.
@@ -63,19 +64,29 @@ public class ExecuteForEachEntryOf implements Serializable {
 	private IEntryConcatMethod concatMethod = EntryConcatMethod.LIST;
 
 	/**
+	 * The sleep integer in ms.
+	 */
+	@JsonDeserialize(using = PositiveIntegerDeserializer.class)
+	@JsonSetter(nulls = SKIP)
+	private Integer sleep;
+
+	/**
 	 * Constructs an instance of {@link ExecuteForEachEntryOf}.
 	 *
 	 * @param source       The source for executing the operation for each entry.
 	 * @param concatMethod The method used to concatenate entries.
+	 * @param sleep        The sleep integer in ms.
 	 */
 	@Builder
 	@JsonCreator
 	public ExecuteForEachEntryOf(
 		@JsonProperty(value = "source", required = true) @NonNull String source,
-		@JsonProperty("concatMethod") IEntryConcatMethod concatMethod
+		@JsonProperty("concatMethod") IEntryConcatMethod concatMethod,
+		@JsonProperty(value = "sleep", required = false) Integer sleep
 	) {
 		this.source = source;
 		this.concatMethod = concatMethod == null ? EntryConcatMethod.LIST : concatMethod;
+		this.sleep = sleep;
 	}
 
 	/**
@@ -84,7 +95,7 @@ public class ExecuteForEachEntryOf implements Serializable {
 	 * @return A new instance of {@link ExecuteForEachEntryOf} with the same source and concatenation method.
 	 */
 	public ExecuteForEachEntryOf copy() {
-		return ExecuteForEachEntryOf.builder().source(source).concatMethod(concatMethod.copy()).build();
+		return ExecuteForEachEntryOf.builder().source(source).concatMethod(concatMethod.copy()).sleep(sleep).build();
 	}
 
 	@Override
@@ -93,6 +104,7 @@ public class ExecuteForEachEntryOf implements Serializable {
 
 		addNonNull(stringJoiner, "- executeForEachEntryOf=", source);
 		addNonNull(stringJoiner, "- concatMethod=", concatMethod != null ? concatMethod.getDescription() : EMPTY);
+		addNonNull(stringJoiner, "- sleep=", sleep);
 
 		return stringJoiner.toString();
 	}

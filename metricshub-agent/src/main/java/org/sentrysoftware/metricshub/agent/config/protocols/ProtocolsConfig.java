@@ -24,10 +24,13 @@ package org.sentrysoftware.metricshub.agent.config.protocols;
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.sentrysoftware.metricshub.agent.deserialization.ExtensionConfigDeserializer;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 
 /**
  * Configuration class for various protocols.
@@ -40,7 +43,8 @@ import lombok.NoArgsConstructor;
 public class ProtocolsConfig {
 
 	@JsonSetter(nulls = SKIP)
-	private SnmpProtocolConfig snmp;
+	@JsonDeserialize(using = ExtensionConfigDeserializer.class)
+	private IConfiguration snmp;
 
 	@JsonSetter(nulls = SKIP)
 	private IpmiProtocolConfig ipmi;

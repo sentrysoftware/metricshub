@@ -41,11 +41,12 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
+import org.sentrysoftware.metricshub.agent.extension.SnmpTestConfiguration;
 import org.sentrysoftware.metricshub.agent.helper.OtelHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.strategy.IStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.collect.CollectStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.collect.PrepareCollectStrategy;
@@ -77,7 +78,7 @@ class MonitoringTaskTest {
 				.hostname(HOSTNAME)
 				.hostId(HOSTNAME)
 				.hostType(DeviceKind.LINUX)
-				.configurations(Map.of(SnmpConfiguration.class, SnmpConfiguration.builder().build()))
+				.configurations(Map.of(SnmpTestConfiguration.class, SnmpTestConfiguration.builder().build()))
 				.build();
 	}
 
@@ -119,6 +120,8 @@ class MonitoringTaskTest {
 		doReturn(hostConfiguration).when(telemetryManagerMock).getHostConfiguration();
 
 		doNothing().when(telemetryManagerMock).run(any(IStrategy[].class));
+
+		doReturn(ExtensionManager.empty()).when(monitoringTaskInfoMock).getExtensionManager();
 
 		try (MockedStatic<OtelHelper> otelHelperMockedStatic = mockStatic(OtelHelper.class)) {
 			otelHelperMockedStatic

@@ -32,6 +32,7 @@ import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.context.MetricDefinitions;
 import org.sentrysoftware.metricshub.agent.service.task.MonitoringTask;
 import org.sentrysoftware.metricshub.agent.service.task.MonitoringTaskInfo;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.PeriodicTrigger;
@@ -66,6 +67,9 @@ public class ResourceScheduling extends AbstractScheduling {
 	@NonNull
 	private MetricDefinitions hostMetricDefinitions;
 
+	@NonNull
+	private ExtensionManager extensionManager;
+
 	/**
 	 * Constructs a new instance of {@code ResourceScheduling}.
 	 *
@@ -79,6 +83,7 @@ public class ResourceScheduling extends AbstractScheduling {
 	 * @param telemetryManager      Telemetry manager responsible for collecting and
 	 *                              processing metrics for the resource.
 	 * @param hostMetricDefinitions Definitions of metrics for the host.
+	 * @param extensionManager      Manages and aggregates various types of extensions used within MetricsHub.
 	 */
 	@Builder(setterPrefix = "with")
 	public ResourceScheduling(
@@ -89,7 +94,8 @@ public class ResourceScheduling extends AbstractScheduling {
 		@NonNull final String resourceKey,
 		@NonNull final ResourceConfig resourceConfig,
 		@NonNull final TelemetryManager telemetryManager,
-		@NonNull final MetricDefinitions hostMetricDefinitions
+		@NonNull final MetricDefinitions hostMetricDefinitions,
+		@NonNull final ExtensionManager extensionManager
 	) {
 		super(taskScheduler, schedules, otelSdkConfiguration);
 		this.resourceGroupKey = resourceGroupKey;
@@ -97,6 +103,7 @@ public class ResourceScheduling extends AbstractScheduling {
 		this.resourceConfig = resourceConfig;
 		this.telemetryManager = telemetryManager;
 		this.hostMetricDefinitions = hostMetricDefinitions;
+		this.extensionManager = extensionManager;
 	}
 
 	@Override
@@ -116,6 +123,7 @@ public class ResourceScheduling extends AbstractScheduling {
 				.resourceKey(resourceKey)
 				.otelSdkConfiguration(otelSdkConfiguration)
 				.hostMetricDefinitions(hostMetricDefinitions)
+				.extensionManager(extensionManager)
 				.build()
 		);
 

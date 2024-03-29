@@ -26,6 +26,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.winrm.service.client.auth.AuthenticationEnum;
 
 /**
@@ -59,5 +60,10 @@ public class WinRmConfiguration implements IWinConfiguration {
 			description = description + " as " + username;
 		}
 		return description;
+	}
+
+	@Override
+	public void validateConfiguration(String resourceKey) throws InvalidConfigurationException {
+		// TODO implement the validation
 	}
 }

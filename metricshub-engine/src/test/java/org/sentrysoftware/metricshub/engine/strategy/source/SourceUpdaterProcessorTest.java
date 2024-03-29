@@ -42,7 +42,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
+import org.sentrysoftware.metricshub.engine.configuration.TestConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.CustomConcatMethod;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EntryConcatMethod;
@@ -235,14 +235,53 @@ class SourceUpdaterProcessorTest {
 	}
 
 	@Test
+	void testProcessHTTPSourceExecuteForEachEntrySleep() {
+		final HttpSource httpSource = HttpSource.builder().url(URL).build();
+		assertNull(httpSource.getSleepExecuteForEachEntryOf());
+
+		httpSource.setExecuteForEachEntryOf(
+			ExecuteForEachEntryOf.builder().source(ENCLOSURE_COLLECT_SOURCE_1).concatMethod(EntryConcatMethod.LIST).build()
+		);
+
+		assertEquals(null, httpSource.getSleepExecuteForEachEntryOf());
+
+		httpSource.setExecuteForEachEntryOf(
+			ExecuteForEachEntryOf
+				.builder()
+				.source(ENCLOSURE_COLLECT_SOURCE_1)
+				.concatMethod(EntryConcatMethod.LIST)
+				.sleep(200)
+				.build()
+		);
+
+		assertEquals(200, httpSource.getSleepExecuteForEachEntryOf());
+
+		final CustomConcatMethod customConcatMethod = CustomConcatMethod
+			.builder()
+			.concatStart("concatStart:{")
+			.concatEnd("}concatEnd;")
+			.build();
+
+		httpSource.setExecuteForEachEntryOf(
+			ExecuteForEachEntryOf
+				.builder()
+				.source(ENCLOSURE_COLLECT_SOURCE_1)
+				.concatMethod(customConcatMethod)
+				.sleep(400)
+				.build()
+		);
+		assertEquals(400, httpSource.getSleepExecuteForEachEntryOf());
+	}
+
+	@Test
 	void testProcessSNMPGetSource() {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().port(161).timeout(120L).build();
+		final TestConfiguration snmpConfiguration = TestConfiguration.builder().build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(LOCALHOST)
 			.hostId(LOCALHOST)
 			.hostType(DeviceKind.LINUX)
-			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
+			.configurations(Collections.singletonMap(TestConfiguration.class, snmpConfiguration))
 			.build();
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 
@@ -275,13 +314,13 @@ class SourceUpdaterProcessorTest {
 
 	@Test
 	void testProcessSNMPGetTableSource() {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().port(161).timeout(120L).build();
+		final TestConfiguration snmpConfiguration = TestConfiguration.builder().build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(LOCALHOST)
 			.hostId(LOCALHOST)
 			.hostType(DeviceKind.LINUX)
-			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
+			.configurations(Collections.singletonMap(TestConfiguration.class, snmpConfiguration))
 			.build();
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(SnmpTableSource.class));
@@ -316,13 +355,13 @@ class SourceUpdaterProcessorTest {
 
 	@Test
 	void testProcessTableJoinSource() {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().port(161).timeout(120L).build();
+		final TestConfiguration snmpConfiguration = TestConfiguration.builder().build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(LOCALHOST)
 			.hostId(LOCALHOST)
 			.hostType(DeviceKind.LINUX)
-			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
+			.configurations(Collections.singletonMap(TestConfiguration.class, snmpConfiguration))
 			.build();
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(TableJoinSource.class));
@@ -340,13 +379,13 @@ class SourceUpdaterProcessorTest {
 
 	@Test
 	void testProcessTableUnionSource() {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().port(161).timeout(120L).build();
+		final TestConfiguration snmpConfiguration = TestConfiguration.builder().build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(LOCALHOST)
 			.hostId(LOCALHOST)
 			.hostType(DeviceKind.LINUX)
-			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
+			.configurations(Collections.singletonMap(TestConfiguration.class, snmpConfiguration))
 			.build();
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(TableUnionSource.class));
@@ -364,13 +403,13 @@ class SourceUpdaterProcessorTest {
 
 	@Test
 	void testProcessCopySource() {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().port(161).timeout(120L).build();
+		final TestConfiguration snmpConfiguration = TestConfiguration.builder().build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(LOCALHOST)
 			.hostId(LOCALHOST)
 			.hostType(DeviceKind.LINUX)
-			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
+			.configurations(Collections.singletonMap(TestConfiguration.class, snmpConfiguration))
 			.build();
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(CopySource.class));
@@ -420,13 +459,13 @@ class SourceUpdaterProcessorTest {
 
 	@Test
 	void testProcessStaticSource() {
-		final SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().port(161).timeout(120L).build();
+		final TestConfiguration snmpConfiguration = TestConfiguration.builder().build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(LOCALHOST)
 			.hostId(LOCALHOST)
 			.hostType(DeviceKind.LINUX)
-			.configurations(Collections.singletonMap(SnmpConfiguration.class, snmpConfiguration))
+			.configurations(Collections.singletonMap(TestConfiguration.class, snmpConfiguration))
 			.build();
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 

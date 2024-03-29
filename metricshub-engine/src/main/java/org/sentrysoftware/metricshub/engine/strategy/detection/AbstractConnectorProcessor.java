@@ -49,6 +49,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.C
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.MonitorJob;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.SimpleMonitorJob;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.StandardMonitorJob;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.strategy.utils.ForceSerializationHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
@@ -76,6 +77,9 @@ public abstract class AbstractConnectorProcessor {
 
 	@NonNull
 	protected Set<String> connectorIds;
+
+	@NonNull
+	protected ExtensionManager extensionManager;
 
 	/**
 	 * Run the Detection job and returns the detected {@link ConnectorTestResult}
@@ -317,7 +321,8 @@ public abstract class AbstractConnectorProcessor {
 		final CriterionProcessor criterionProcessor = new CriterionProcessor(
 			clientsExecutor,
 			telemetryManager,
-			connector.getConnectorIdentity().getCompiledFilename()
+			connector.getConnectorIdentity().getCompiledFilename(),
+			extensionManager
 		);
 
 		final Supplier<CriterionTestResult> executable;

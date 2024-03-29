@@ -39,6 +39,7 @@ import org.sentrysoftware.metricshub.agent.service.scheduling.ResourceGroupSched
 import org.sentrysoftware.metricshub.agent.service.scheduling.ResourceScheduling;
 import org.sentrysoftware.metricshub.agent.service.scheduling.SelfObserverScheduling;
 import org.sentrysoftware.metricshub.agent.service.signal.SimpleGaugeMetricObserver;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
@@ -60,6 +61,7 @@ public class TaskSchedulingService {
 	private Map<String, Map<String, TelemetryManager>> telemetryManagers;
 	private Map<String, String> otelSdkConfiguration;
 	private MetricDefinitions hostMetricDefinitions;
+	private ExtensionManager extensionManager;
 
 	/**
 	 * Start scheduling
@@ -196,6 +198,7 @@ public class TaskSchedulingService {
 			.withResourceConfig(resourceConfig)
 			.withTelemetryManager(telemetryManager)
 			.withHostMetricDefinitions(hostMetricDefinitions)
+			.withExtensionManager(extensionManager)
 			.build()
 			.schedule();
 	}

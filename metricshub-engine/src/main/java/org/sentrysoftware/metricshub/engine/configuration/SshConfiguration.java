@@ -27,6 +27,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 
 /**
  * Configuration class for SSH connections. It represents the configuration for SSH (Secure Shell) connections
@@ -75,5 +76,10 @@ public class SshConfiguration extends OsCommandConfiguration {
 			description = description + " as " + username;
 		}
 		return description;
+	}
+
+	@Override
+	public void validateConfiguration(String resourceKey) throws InvalidConfigurationException {
+		// TODO implement the validation
 	}
 }

@@ -69,7 +69,6 @@ resourceGroups:
             timeout: 30s
             community: public
             version: v2c
-            contextName: <my-context-name>
       # Resource configuration
       grafana-service:
         attributes:

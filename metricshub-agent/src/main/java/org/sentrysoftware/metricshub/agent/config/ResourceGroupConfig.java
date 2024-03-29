@@ -33,7 +33,7 @@ import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.agent.deserialization.AttributesDeserializer;
-import org.sentrysoftware.metricshub.agent.deserialization.TimeDeserializer;
+import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 
 /**
  * Configuration class representing the configuration for a resource group in

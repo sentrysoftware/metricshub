@@ -25,6 +25,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 
 /**
  * The HttpConfiguration class represents the configuration for HTTP connections in the MetricsHub engine.
@@ -55,5 +56,10 @@ public class HttpConfiguration implements IConfiguration {
 			port,
 			username != null ? " as " + username : ""
 		);
+	}
+
+	@Override
+	public void validateConfiguration(String resourceKey) throws InvalidConfigurationException {
+		// TODO implement the validation
 	}
 }

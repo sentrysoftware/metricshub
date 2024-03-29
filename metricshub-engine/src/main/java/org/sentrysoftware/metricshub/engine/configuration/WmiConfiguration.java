@@ -25,6 +25,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 
 /**
  * The WmiConfiguration interface represents the configuration for the Windows Management Instrumentation protocol in the MetricsHub engine.
@@ -49,5 +50,10 @@ public class WmiConfiguration implements IWinConfiguration {
 			description = description + " as " + username;
 		}
 		return description;
+	}
+
+	@Override
+	public void validateConfiguration(String resourceKey) throws InvalidConfigurationException {
+		// TODO implement the validation
 	}
 }

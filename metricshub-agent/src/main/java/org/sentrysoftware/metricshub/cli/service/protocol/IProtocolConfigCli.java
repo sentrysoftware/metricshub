@@ -21,6 +21,7 @@ package org.sentrysoftware.metricshub.cli.service.protocol;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 
 /**
@@ -34,6 +35,7 @@ public interface IProtocolConfigCli {
 	 * @param defaultPassword Password to use in case the protocol password is undefined
 	 *
 	 * @return Instance of {@link IConfiguration}
+	 * @throws InvalidConfigurationException if the configuration is invalid.
 	 */
-	IConfiguration toProtocol(String defaultUsername, char[] defaultPassword);
+	IConfiguration toProtocol(String defaultUsername, char[] defaultPassword) throws InvalidConfigurationException;
 }

@@ -1,5 +1,7 @@
 package org.sentrysoftware.metricshub.engine.configuration;
 
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
  * MetricsHub Engine
@@ -25,4 +27,17 @@ package org.sentrysoftware.metricshub.engine.configuration;
  * This interface represents the generic configuration that's used and implemented by various protocol configurations like
  * HttpConfiguration, IpmiConfiguration, etc ...
  */
-public interface IConfiguration {}
+public interface IConfiguration {
+	/**
+	 * Validates the current configuration for the given configured resource key. This method ensures that
+	 * the configuration meets all required criteria.
+	 * Criteria may include checking for necessary fields, verifying values against allowed ranges or formats,
+	 * and ensuring compatibility with the resource's requirements.
+	 *
+	 * @param resourceKey    A {@link String} representing the unique identifier for the resource
+	 *                       used for logging purpose.
+	 * @throws InvalidConfigurationException if the provided configuration does not meet the
+	 *         necessary criteria.
+	 */
+	void validateConfiguration(String resourceKey) throws InvalidConfigurationException;
+}

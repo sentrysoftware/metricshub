@@ -30,9 +30,9 @@ import lombok.Builder.Default;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.sentrysoftware.metricshub.agent.deserialization.TimeDeserializer;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration;
+import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 
 /**
  * Configuration class for the OS command protocol.

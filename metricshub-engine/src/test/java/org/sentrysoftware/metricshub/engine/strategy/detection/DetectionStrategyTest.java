@@ -36,6 +36,7 @@ import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
+import org.sentrysoftware.metricshub.engine.configuration.TestConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
@@ -46,6 +47,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinit
 import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricType;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.OsCommandSource;
 import org.sentrysoftware.metricshub.engine.connector.parser.ConnectorLibraryParser;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
@@ -91,7 +93,8 @@ class DetectionStrategyTest {
 		final DetectionStrategy detectionStrategy = new DetectionStrategy(
 			telemetryManager,
 			new Date().getTime(),
-			new ClientsExecutor(telemetryManager)
+			new ClientsExecutor(telemetryManager),
+			ExtensionManager.empty()
 		);
 
 		// Create a list of CriterionTestResult
@@ -214,7 +217,8 @@ class DetectionStrategyTest {
 		final DetectionStrategy detectionStrategy = new DetectionStrategy(
 			telemetryManager,
 			new Date().getTime(),
-			new ClientsExecutor(telemetryManager)
+			new ClientsExecutor(telemetryManager),
+			ExtensionManager.empty()
 		);
 
 		detectionStrategy.createConnectorMonitor(connectorTestResult);
@@ -255,13 +259,20 @@ class DetectionStrategyTest {
 					.hostType(DeviceKind.LINUX)
 					.hostname(LOCALHOST)
 					.configuredConnectorId(METRICS_HUB_CONFIGURED_CONNECTOR_ID)
+					.configurations(Map.of(TestConfiguration.class, TestConfiguration.builder().build()))
 					.build()
 			)
 			.connectorStore(new ConnectorStore())
 			.build();
 
 		// Create detectionStrategy with the previously created telemetryManager
-		new DetectionStrategy(telemetryManager, new Date().getTime(), new ClientsExecutor(telemetryManager)).run();
+		new DetectionStrategy(
+			telemetryManager,
+			new Date().getTime(),
+			new ClientsExecutor(telemetryManager),
+			ExtensionManager.empty()
+		)
+			.run();
 
 		final Monitor configuredConnectorMonitor = telemetryManager.findMonitorByTypeAndId(
 			KnownMonitorType.CONNECTOR.getKey(),
@@ -307,7 +318,12 @@ class DetectionStrategyTest {
 			.connectorStore(store)
 			.build();
 
-		return new DetectionStrategy(telemetryManager, CURRENT_TIME_MILLIS, new ClientsExecutor());
+		return new DetectionStrategy(
+			telemetryManager,
+			CURRENT_TIME_MILLIS,
+			new ClientsExecutor(),
+			ExtensionManager.empty()
+		);
 	}
 
 	@Test

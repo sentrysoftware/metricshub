@@ -42,12 +42,14 @@ import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.common.helpers.NetworkHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.ConnectorIdentity;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.OsCommandCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.OsCommandSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.detection.ConnectorStagingManager.StagedConnectorIdentifiers;
 import org.sentrysoftware.metricshub.engine.telemetry.HostProperties;
@@ -75,14 +77,16 @@ public class DetectionStrategy extends AbstractStrategy {
 	 * @param telemetryManager The telemetry manager for managing monitors and metrics.
 	 * @param strategyTime     The time at which the detection strategy is executed.
 	 * @param clientsExecutor  The executor for running connector clients.
+	 * @param extensionManager The extension manager where all the required extensions are handled.
 	 */
 	@Builder
 	public DetectionStrategy(
 		@NonNull final TelemetryManager telemetryManager,
 		@NonNull final Long strategyTime,
-		@NonNull final ClientsExecutor clientsExecutor
+		@NonNull final ClientsExecutor clientsExecutor,
+		@NonNull final ExtensionManager extensionManager
 	) {
-		super(telemetryManager, strategyTime, clientsExecutor);
+		super(telemetryManager, strategyTime, clientsExecutor, extensionManager);
 	}
 
 	@Override
@@ -90,11 +94,22 @@ public class DetectionStrategy extends AbstractStrategy {
 		final HostConfiguration hostConfiguration = telemetryManager.getHostConfiguration();
 		final HostProperties hostProperties = telemetryManager.getHostProperties();
 		if (hostConfiguration == null) {
+			log.error("No host configuration provided. Skip detection.");
 			return;
 		}
 
 		final String hostname = hostConfiguration.getHostname();
 		log.debug("Hostname {} - Start detection strategy.", hostname);
+
+		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = hostConfiguration.getConfigurations();
+		if (configurations == null || configurations.isEmpty()) {
+			log.error(
+				"Hostname {} - No protocol configuration provided. Please check the protocol configuration for resource {}.",
+				hostname,
+				hostConfiguration.getHostId()
+			);
+			return;
+		}
 
 		// Detect if we monitor localhost then set the localhost property in the HostProperties instance
 		hostProperties.setLocalhost(NetworkHelper.isLocalhost(hostname));
@@ -117,7 +132,12 @@ public class DetectionStrategy extends AbstractStrategy {
 		// Process forced connectors
 		if (stagedConnectorIdentifiers.isForcedStaging()) {
 			connectorTestResults.addAll(
-				new ConnectorSelection(telemetryManager, clientsExecutor, stagedConnectorIdentifiers.getForcedConnectorIds())
+				new ConnectorSelection(
+					telemetryManager,
+					clientsExecutor,
+					stagedConnectorIdentifiers.getForcedConnectorIds(),
+					extensionManager
+				)
 					.run()
 			);
 		}
@@ -129,7 +149,8 @@ public class DetectionStrategy extends AbstractStrategy {
 				new AutomaticDetection(
 					telemetryManager,
 					clientsExecutor,
-					stagedConnectorIdentifiers.getAutoDetectionConnectorIds()
+					stagedConnectorIdentifiers.getAutoDetectionConnectorIds(),
+					extensionManager
 				)
 					.run()
 			);
