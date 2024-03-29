@@ -38,6 +38,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.NonBlankDeserializer;
+import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.PositiveIntegerDeserializer;
 
 /**
  * Represents a configuration for executing an operation for each entry of a specified source.
@@ -65,6 +66,7 @@ public class ExecuteForEachEntryOf implements Serializable {
 	/**
 	 * The sleep integer in ms.
 	 */
+	@JsonDeserialize(using = PositiveIntegerDeserializer.class)
 	@JsonSetter(nulls = SKIP)
 	private Integer sleep;
 
@@ -84,7 +86,7 @@ public class ExecuteForEachEntryOf implements Serializable {
 	) {
 		this.source = source;
 		this.concatMethod = concatMethod == null ? EntryConcatMethod.LIST : concatMethod;
-		this.sleep = sleep == null ? 0 : sleep;
+		this.sleep = sleep;
 	}
 
 	/**

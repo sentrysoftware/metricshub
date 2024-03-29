@@ -507,11 +507,14 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 			copy.update(value -> replaceSourceReference(value, copy));
 
 			concatEntryResult(source, result, row, copy.accept(sourceProcessor));
-			if (sleep != null && sleep > 0) {
+			if (sleep != null && sleep != 0) {
 				try {
 					Thread.sleep(sleep);
 				} catch (InterruptedException e) {
-					log.error("threadSleep", "Thread interrupted during sleep between two requests.");
+					log.error(
+						"Hostname {} - Thread interrupted during sleep between two 'execute for each entry' requests.",
+						hostname
+					);
 					Thread.currentThread().interrupt();
 				}
 			}

@@ -243,7 +243,7 @@ class SourceUpdaterProcessorTest {
 			ExecuteForEachEntryOf.builder().source(ENCLOSURE_COLLECT_SOURCE_1).concatMethod(EntryConcatMethod.LIST).build()
 		);
 
-		assertEquals(0, httpSource.getSleepExecuteForEachEntryOf());
+		assertEquals(null, httpSource.getSleepExecuteForEachEntryOf());
 
 		httpSource.setExecuteForEachEntryOf(
 			ExecuteForEachEntryOf
