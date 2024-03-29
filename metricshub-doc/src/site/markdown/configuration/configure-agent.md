@@ -396,6 +396,93 @@ resourceGroups:
             authentications: [ntlm]
 ```
 
+## (Optional) Customize resource monitoring
+
+If the connectors included in **MetricsHub** do not collect the metrics you need, you can configure one or several monitors to obtain this data from your resource and specify its corresponding attributes and metrics in **MetricsHub**.
+
+A monitor defines how **MetricsHub** collects and processes data for the resource. For each monitor, you must provide the following information:
+
+* its name
+* the type of job it performs (e.g., `simple` for straightforward monitoring tasks)
+* the data sources from which metrics are collected
+* how the collected metrics are mapped to **MetricsHub**'s monitoring model.
+
+### Configuration
+
+Follow the structure below to declare your monitor:
+
+```yaml
+<resource-group>:
+  <resource-key>:
+    attributes:
+      # <attributes...>
+    protocols:
+      # <credentials...>
+    monitors:
+      <monitor-name>:
+        <job>: # Job type, e.g., "simple"
+          sources:
+            <source-name>:
+              # <source-content>
+          mapping:
+            source: <mapping-source-reference>
+            attributes:
+              # <attributes-mapping...>
+            metrics:
+              # <metrics-mapping...>
+```
+
+Refer to [Monitors](../develop/monitors.md) for more information on how to configure custom resource monitoring.
+
+### Example: Monitoring a Grafana Service
+
+In the example below, we configured a monitor for a Grafana service. This monitor collects data from the Grafana health API and maps the response to the most relevant attributes and metrics in **MetricsHub**.
+
+Refer to [monitors documentation page](../develop/monitors.md) for more information on how to configrue the monitors.
+
+### Example: Monitoring a Grafana Service
+
+In the example below, we configured a monitor for a Grafana service. This monitor collects data from the Grafana health API and maps the response to the most relevant attributes and metrics in **MetricsHub**.
+
+```yaml
+service-group:  
+  grafana-service:
+    attributes:
+      service.name: Grafana
+      host.name: hws-demo.sentrysoftware.com
+    protocols:
+      http:
+        https: true
+        port: 443
+    monitors:
+      grafana:
+        simple: # "simple" job type. Creates monitors and collects associated metrics. 
+          sources:
+            grafanaHealth:
+              type: http
+              path: /api/health
+              method: get
+              header: "Accept: application/json"
+              computes:
+              - type: json2Csv
+                entryKey: /
+                properties: commit;database;version
+                separator: ;
+              - type: translate
+                column: 3
+                translationTable:
+                  ok: 1
+                  default: 0
+          mapping:
+            source: ${esc.d}{source::grafanaHealth}
+            attributes:
+              id: $2
+              service.instance.id: $2
+              service.version: $4
+            metrics:
+              grafana.db.state: $3
+```
+
 ## Configure the OTLP Receiver
 
 By default, the **MetricsHub Agent** pushes the collected metrics to the [`OTLP Receiver`](https://github.com/open-telemetry/opentelemetry-collector/tree/main/receiver/otlpreceiver) through gRPC on port **TCP/4317**. To push data to the OTLP receiver of your choice:
