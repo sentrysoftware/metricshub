@@ -235,6 +235,45 @@ class SourceUpdaterProcessorTest {
 	}
 
 	@Test
+	void testProcessHTTPSourceExecuteForEachEntrySleep() {
+		final HttpSource httpSource = HttpSource.builder().url(URL).build();
+		assertNull(httpSource.getSleepExecuteForEachEntryOf());
+
+		httpSource.setExecuteForEachEntryOf(
+			ExecuteForEachEntryOf.builder().source(ENCLOSURE_COLLECT_SOURCE_1).concatMethod(EntryConcatMethod.LIST).build()
+		);
+
+		assertEquals(null, httpSource.getSleepExecuteForEachEntryOf());
+
+		httpSource.setExecuteForEachEntryOf(
+			ExecuteForEachEntryOf
+				.builder()
+				.source(ENCLOSURE_COLLECT_SOURCE_1)
+				.concatMethod(EntryConcatMethod.LIST)
+				.sleep(200)
+				.build()
+		);
+
+		assertEquals(200, httpSource.getSleepExecuteForEachEntryOf());
+
+		final CustomConcatMethod customConcatMethod = CustomConcatMethod
+			.builder()
+			.concatStart("concatStart:{")
+			.concatEnd("}concatEnd;")
+			.build();
+
+		httpSource.setExecuteForEachEntryOf(
+			ExecuteForEachEntryOf
+				.builder()
+				.source(ENCLOSURE_COLLECT_SOURCE_1)
+				.concatMethod(customConcatMethod)
+				.sleep(400)
+				.build()
+		);
+		assertEquals(400, httpSource.getSleepExecuteForEachEntryOf());
+	}
+
+	@Test
 	void testProcessSNMPGetSource() {
 		final TestConfiguration snmpConfiguration = TestConfiguration.builder().build();
 		final HostConfiguration hostConfiguration = HostConfiguration
