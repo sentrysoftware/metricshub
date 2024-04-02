@@ -9,10 +9,10 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.engine.connector.deserializer.DeserializerTest;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.OsCommandSource;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CommandLineSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 
-class OsCommandSourceDeserializerTest extends DeserializerTest {
+class CommandLineSourceDeserializerTest extends DeserializerTest {
 
 	@Override
 	public String getResourcePath() {
@@ -26,7 +26,7 @@ class OsCommandSourceDeserializerTest extends DeserializerTest {
 		Map<String, Source> expected = new LinkedHashMap<>();
 		expected.put(
 			"oscommand1",
-			OsCommandSource
+			CommandLineSource
 				.builder()
 				.key("${source::pre.oscommand1}")
 				.type("osCommand")
