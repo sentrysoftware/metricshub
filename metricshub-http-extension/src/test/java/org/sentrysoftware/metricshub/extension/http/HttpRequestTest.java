@@ -1,14 +1,10 @@
-package org.sentrysoftware.metricshub.engine.client.http;
+package org.sentrysoftware.metricshub.extension.http;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mockStatic;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.EMBEDDED_FILE_1_REF;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.EMBEDDED_FILE_2_REF;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.MY_CONNECTOR_1_NAME;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -17,8 +13,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
+import org.sentrysoftware.metricshub.engine.client.http.EmbeddedFileBody;
+import org.sentrysoftware.metricshub.engine.client.http.EmbeddedFileHeader;
+import org.sentrysoftware.metricshub.engine.client.http.HttpRequest;
 import org.sentrysoftware.metricshub.engine.client.http.HttpRequest.HttpRequestBuilder;
-import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
+import org.sentrysoftware.metricshub.engine.client.http.StringBody;
+import org.sentrysoftware.metricshub.engine.client.http.StringHeader;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 import org.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
 
@@ -31,6 +31,10 @@ class HttpRequestTest {
 		""";
 	private static final HttpConfiguration HTTP_CONFIG = HttpConfiguration.builder().build();
 	private static Map<String, EmbeddedFile> commandLineEmbeddedFiles;
+	public static final String HOST = "host";
+	public static final String MY_CONNECTOR_1_NAME = "myConnector1";
+	public static final String EMBEDDED_FILE_1_REF = "${file::EmbeddedFile(1)}";
+	public static final String EMBEDDED_FILE_2_REF = "${file::EmbeddedFile(2)}";
 
 	/**
 	 * Setup unit tests.

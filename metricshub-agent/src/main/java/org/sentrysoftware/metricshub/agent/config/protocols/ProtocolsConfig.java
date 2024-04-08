@@ -59,7 +59,8 @@ public class ProtocolsConfig {
 	private WmiProtocolConfig wmi;
 
 	@JsonSetter(nulls = SKIP)
-	private HttpProtocolConfig http;
+	@JsonDeserialize(using = ExtensionConfigDeserializer.class)
+	private IConfiguration http;
 
 	@JsonSetter(nulls = SKIP)
 	private OsCommandProtocolConfig osCommand;

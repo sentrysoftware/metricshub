@@ -41,7 +41,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.TestConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.CustomConcatMethod;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
@@ -59,6 +58,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.TableUnionSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WbemSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WmiSource;
+import org.sentrysoftware.metricshub.engine.extension.HttpTestConfiguration;
 import org.sentrysoftware.metricshub.engine.telemetry.HostProperties;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
@@ -70,7 +70,7 @@ class SourceUpdaterProcessorTest {
 
 	@Test
 	void testProcessHTTPSource() {
-		final HttpConfiguration httpConfiguration = HttpConfiguration
+		final HttpTestConfiguration httpConfiguration = HttpTestConfiguration
 			.builder()
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
@@ -82,7 +82,7 @@ class SourceUpdaterProcessorTest {
 			.hostname(LOCALHOST)
 			.hostId(LOCALHOST)
 			.hostType(DeviceKind.LINUX)
-			.configurations(Collections.singletonMap(HttpConfiguration.class, httpConfiguration))
+			.configurations(Collections.singletonMap(HttpTestConfiguration.class, httpConfiguration))
 			.build();
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 
@@ -180,7 +180,7 @@ class SourceUpdaterProcessorTest {
 
 	@Test
 	void testProcessHTTPSourceCustomExecuteForEachEntry() {
-		final HttpConfiguration httpConfiguration = HttpConfiguration
+		final HttpTestConfiguration httpConfiguration = HttpTestConfiguration
 			.builder()
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
@@ -192,7 +192,7 @@ class SourceUpdaterProcessorTest {
 			.hostname(LOCALHOST)
 			.hostId(LOCALHOST)
 			.hostType(DeviceKind.LINUX)
-			.configurations(Collections.singletonMap(HttpConfiguration.class, httpConfiguration))
+			.configurations(Collections.singletonMap(HttpTestConfiguration.class, httpConfiguration))
 			.build();
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 

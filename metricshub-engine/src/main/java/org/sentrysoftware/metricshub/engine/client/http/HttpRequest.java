@@ -30,7 +30,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
 import org.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
@@ -46,7 +46,7 @@ import org.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
 public class HttpRequest {
 
 	@NonNull
-	private HttpConfiguration httpConfiguration;
+	private IConfiguration httpConfiguration;
 
 	@NonNull
 	private String hostname;

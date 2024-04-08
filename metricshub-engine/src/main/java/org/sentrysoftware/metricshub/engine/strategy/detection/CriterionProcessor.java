@@ -39,15 +39,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
-import org.sentrysoftware.metricshub.engine.client.http.HttpRequest;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.common.exception.ControlledSshException;
 import org.sentrysoftware.metricshub.engine.common.exception.IpmiCommandForSolarisException;
 import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import org.sentrysoftware.metricshub.engine.common.helpers.VersionHelper;
-import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IWinConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration;
@@ -98,11 +95,9 @@ public class CriterionProcessor implements ICriterionProcessor {
 		"Neither WMI nor WinRM credentials are configured for this host.";
 	private static final String WMI_QUERY = "SELECT Description FROM ComputerSystem";
 	private static final String WMI_NAMESPACE = "root\\hardware";
-	private static final String EXPECTED_VALUE_RETURNED_VALUE = "Expected value: %s - returned value %s.";
 	private static final String CONFIGURE_OS_TYPE_MESSAGE = "Configured OS type : ";
 	private static final String IPMI_SOLARIS_VERSION_NOT_IDENTIFIED =
 		"Hostname %s - Could not identify Solaris version %s. Exception: %s";
-	private static final String HTTP_TEST_SUCCESS = "Hostname %s - HTTP test succeeded. Returned result: %s.";
 
 	private ClientsExecutor clientsExecutor;
 
@@ -204,53 +199,13 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 */
 	@WithSpan("Criterion HTTP Exec")
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") HttpCriterion httpCriterion) {
-		if (httpCriterion == null) {
-			return CriterionTestResult.empty();
-		}
-
-		final HostConfiguration hostConfiguration = telemetryManager.getHostConfiguration();
-
-		if (hostConfiguration == null) {
-			log.debug("There is no host configuration. Cannot process HTTP detection {}.", httpCriterion);
-			return CriterionTestResult.empty();
-		}
-
-		final String hostname = hostConfiguration.getHostname();
-
-		final HttpConfiguration httpConfiguration = (HttpConfiguration) hostConfiguration
-			.getConfigurations()
-			.get(HttpConfiguration.class);
-
-		if (httpConfiguration == null) {
-			log.debug(
-				"Hostname {} - The HTTP credentials are not configured for this host. Cannot process HTTP detection {}.",
-				hostname,
-				httpCriterion
-			);
-			return CriterionTestResult.empty();
-		}
-
-		try {
-			final String result = clientsExecutor.executeHttp(
-				HttpRequest
-					.builder()
-					.hostname(hostname)
-					.method(httpCriterion.getMethod().toString())
-					.url(httpCriterion.getUrl())
-					.path(httpCriterion.getPath())
-					.header(httpCriterion.getHeader(), connectorId, hostname)
-					.body(httpCriterion.getBody(), connectorId, hostname)
-					.httpConfiguration(httpConfiguration)
-					.resultContent(httpCriterion.getResultContent())
-					.authenticationToken(httpCriterion.getAuthenticationToken())
-					.build(),
-				false
-			);
-
-			return checkHttpResult(hostname, result, httpCriterion.getExpectedResult());
-		} catch (Exception e) {
-			return CriterionTestResult.error(httpCriterion, e);
-		}
+		final Optional<IProtocolExtension> maybeExtension = extensionManager.findCriterionExtension(
+			httpCriterion,
+			telemetryManager
+		);
+		return maybeExtension
+			.map(extension -> extension.processCriterion(httpCriterion, connectorId, telemetryManager))
+			.orElseGet(CriterionTestResult::empty);
 	}
 
 	/**
@@ -1062,45 +1017,5 @@ public class CriterionProcessor implements ICriterionProcessor {
 
 		// Run the test
 		return wqlDetectionHelper.performDetectionTest(hostname, wbemConfiguration, wbemCriterion);
-	}
-
-	/**
-	 * @param hostname       The hostname against which the HTTP test has been carried out.
-	 * @param result         The actual result of the HTTP test.
-	 * @param expectedResult The expected result of the HTTP test.
-	 * @return A {@link CriterionTestResult} summarizing the outcome of the HTTP test.
-	 */
-	private CriterionTestResult checkHttpResult(final String hostname, final String result, final String expectedResult) {
-		String message;
-		boolean success = false;
-
-		if (expectedResult == null) {
-			if (result == null || result.isEmpty()) {
-				message = String.format("Hostname %s - HTTP test failed - The HTTP test did not return any result.", hostname);
-			} else {
-				message = String.format(HTTP_TEST_SUCCESS, hostname, result);
-				success = true;
-			}
-		} else {
-			// We convert the PSL regex from the expected result into a Java regex to be able to compile and test it
-			final Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(expectedResult), Pattern.CASE_INSENSITIVE);
-			if (result != null && pattern.matcher(result).find()) {
-				message = String.format(HTTP_TEST_SUCCESS, hostname, result);
-				success = true;
-			} else {
-				message =
-					String.format(
-						"Hostname %s - HTTP test failed - The result (%s) returned by the HTTP test did not match the expected result (%s).",
-						hostname,
-						result,
-						expectedResult
-					);
-				message += String.format(EXPECTED_VALUE_RETURNED_VALUE, expectedResult, result);
-			}
-		}
-
-		log.debug(message);
-
-		return CriterionTestResult.builder().result(result).message(message).success(success).build();
 	}
 }
