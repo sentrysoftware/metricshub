@@ -36,8 +36,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.alert.AlertInfo;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CommandLineSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.OsCommandSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WbemSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WmiSource;
@@ -80,11 +80,11 @@ public class HostConfiguration {
 				WbemConfiguration.class,
 				Collections.singleton(WbemSource.class),
 				SshConfiguration.class,
-				Collections.singleton(OsCommandSource.class),
+				Collections.singleton(CommandLineSource.class),
 				IpmiConfiguration.class,
 				Collections.singleton(IpmiSource.class),
 				OsCommandConfiguration.class,
-				Collections.singleton(OsCommandSource.class),
+				Collections.singleton(CommandLineSource.class),
 				WinRmConfiguration.class,
 				Collections.singleton(WmiSource.class)
 			);
@@ -134,7 +134,7 @@ public class HostConfiguration {
 			sources.add(IpmiSource.class);
 			// Add OSCommand through Remote WMI Commands
 			if (!isLocalhost) {
-				sources.add(OsCommandSource.class);
+				sources.add(CommandLineSource.class);
 			}
 		}
 
@@ -146,7 +146,7 @@ public class HostConfiguration {
 		// Handle localhost protocols
 		if (isLocalhost) {
 			// OS Command always enabled locally
-			sources.add(OsCommandSource.class);
+			sources.add(CommandLineSource.class);
 
 			// IPMI executed locally on Linux through OS Command
 			if (DeviceKind.LINUX.equals(hostType) || DeviceKind.SOLARIS.equals(hostType)) {

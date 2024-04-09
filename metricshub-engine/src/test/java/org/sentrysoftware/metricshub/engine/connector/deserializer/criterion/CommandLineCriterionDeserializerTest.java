@@ -13,10 +13,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.engine.connector.deserializer.DeserializerTest;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.CommandLineCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
-import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.OsCommandCriterion;
 
-class OsCommandCriterionDeserializerTest extends DeserializerTest {
+class CommandLineCriterionDeserializerTest extends DeserializerTest {
 
 	@Override
 	public String getResourcePath() {
@@ -42,7 +42,7 @@ class OsCommandCriterionDeserializerTest extends DeserializerTest {
 		final Long timeout = 1234L;
 
 		expected.add(
-			new OsCommandCriterion("osCommand", true, commandLine, errorMessage, expectedResult, executeLocally, timeout)
+			new CommandLineCriterion("osCommand", true, commandLine, errorMessage, expectedResult, executeLocally, timeout)
 		);
 
 		assertNotNull(osCommand);

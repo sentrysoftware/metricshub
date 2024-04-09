@@ -53,10 +53,10 @@ import org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration
 import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CommandLineSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CopySource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.OsCommandSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpGetSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.StaticSource;
@@ -424,11 +424,13 @@ public class SourceProcessor implements ISourceProcessor {
 
 	@WithSpan("Source OS Command Exec")
 	@Override
-	public SourceTable process(@SpanAttribute("source.definition") final OsCommandSource osCommandSource) {
+	public SourceTable process(@SpanAttribute("source.definition") final CommandLineSource commandLineSource) {
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
 		if (
-			osCommandSource == null || osCommandSource.getCommandLine() == null || osCommandSource.getCommandLine().isEmpty()
+			commandLineSource == null ||
+			commandLineSource.getCommandLine() == null ||
+			commandLineSource.getCommandLine().isEmpty()
 		) {
 			log.error("Hostname {} - Malformed OS command source.", hostname);
 			return SourceTable.empty();
@@ -436,10 +438,10 @@ public class SourceProcessor implements ISourceProcessor {
 
 		try {
 			final OsCommandResult osCommandResult = OsCommandHelper.runOsCommand(
-				osCommandSource.getCommandLine(),
+				commandLineSource.getCommandLine(),
 				telemetryManager,
-				osCommandSource.getTimeout(),
-				osCommandSource.getExecuteLocally(),
+				commandLineSource.getTimeout(),
+				commandLineSource.getExecuteLocally(),
 				telemetryManager.getHostProperties().isLocalhost()
 			);
 
@@ -448,16 +450,16 @@ public class SourceProcessor implements ISourceProcessor {
 
 			final List<String> filteredLines = FilterResultHelper.filterLines(
 				resultLines,
-				osCommandSource.getBeginAtLineNumber(),
-				osCommandSource.getEndAtLineNumber(),
-				osCommandSource.getExclude(),
-				osCommandSource.getKeep()
+				commandLineSource.getBeginAtLineNumber(),
+				commandLineSource.getEndAtLineNumber(),
+				commandLineSource.getExclude(),
+				commandLineSource.getKeep()
 			);
 
 			final List<String> selectedColumnsLines = FilterResultHelper.selectedColumns(
 				filteredLines,
-				osCommandSource.getSeparators(),
-				osCommandSource.getSelectColumns()
+				commandLineSource.getSeparators(),
+				commandLineSource.getSelectColumns()
 			);
 
 			return SourceTable
@@ -473,8 +475,8 @@ public class SourceProcessor implements ISourceProcessor {
 		} catch (Exception e) {
 			LoggingHelper.logSourceError(
 				connectorId,
-				osCommandSource.getKey(),
-				String.format("OS command: %s.", osCommandSource.getCommandLine()),
+				commandLineSource.getKey(),
+				String.format("OS command: %s.", commandLineSource.getCommandLine()),
 				hostname,
 				e
 			);

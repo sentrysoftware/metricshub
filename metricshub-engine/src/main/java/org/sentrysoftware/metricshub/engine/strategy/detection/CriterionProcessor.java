@@ -51,10 +51,10 @@ import org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration
 import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.CommandLineCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.DeviceTypeCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.HttpCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.IpmiCriterion;
-import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.OsCommandCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.ProcessCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.ProductRequirementsCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.ServiceCriterion;
@@ -557,48 +557,48 @@ public class CriterionProcessor implements ICriterionProcessor {
 	}
 
 	/**
-	 * Process the given {@link OsCommandCriterion} through Client and return the {@link CriterionTestResult}
+	 * Process the given {@link CommandLineCriterion} through Client and return the {@link CriterionTestResult}
 	 *
-	 * @param osCommandCriterion The {@link OsCommandCriterion} to process.
+	 * @param commandLineCriterion The {@link CommandLineCriterion} to process.
 	 * @return {@link CriterionTestResult} instance.
 	 */
 	@WithSpan("Criterion OS Command Exec")
-	public CriterionTestResult process(@SpanAttribute("criterion.definition") OsCommandCriterion osCommandCriterion) {
-		if (osCommandCriterion == null) {
-			return CriterionTestResult.error(osCommandCriterion, "Malformed OSCommand criterion.");
+	public CriterionTestResult process(@SpanAttribute("criterion.definition") CommandLineCriterion commandLineCriterion) {
+		if (commandLineCriterion == null) {
+			return CriterionTestResult.error(commandLineCriterion, "Malformed OSCommand criterion.");
 		}
 
 		if (
-			osCommandCriterion.getCommandLine().isEmpty() ||
-			osCommandCriterion.getExpectedResult() == null ||
-			osCommandCriterion.getExpectedResult().isEmpty()
+			commandLineCriterion.getCommandLine().isEmpty() ||
+			commandLineCriterion.getExpectedResult() == null ||
+			commandLineCriterion.getExpectedResult().isEmpty()
 		) {
 			return CriterionTestResult.success(
-				osCommandCriterion,
+				commandLineCriterion,
 				"CommandLine or ExpectedResult are empty. Skipping this test."
 			);
 		}
 
 		try {
 			final OsCommandResult osCommandResult = OsCommandHelper.runOsCommand(
-				osCommandCriterion.getCommandLine(),
+				commandLineCriterion.getCommandLine(),
 				telemetryManager,
-				osCommandCriterion.getTimeout(),
-				osCommandCriterion.getExecuteLocally(),
+				commandLineCriterion.getTimeout(),
+				commandLineCriterion.getExecuteLocally(),
 				telemetryManager.getHostProperties().isLocalhost()
 			);
 
-			final OsCommandCriterion osCommandNoPassword = OsCommandCriterion
+			final CommandLineCriterion osCommandNoPassword = CommandLineCriterion
 				.builder()
 				.commandLine(osCommandResult.getNoPasswordCommand())
-				.executeLocally(osCommandCriterion.getExecuteLocally())
-				.timeout(osCommandCriterion.getTimeout())
-				.expectedResult(osCommandCriterion.getExpectedResult())
+				.executeLocally(commandLineCriterion.getExecuteLocally())
+				.timeout(commandLineCriterion.getTimeout())
+				.expectedResult(commandLineCriterion.getExpectedResult())
 				.build();
 
 			final Matcher matcher = Pattern
 				.compile(
-					PslUtils.psl2JavaRegex(osCommandCriterion.getExpectedResult()),
+					PslUtils.psl2JavaRegex(commandLineCriterion.getExpectedResult()),
 					Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
 				)
 				.matcher(osCommandResult.getResult());
@@ -607,9 +607,9 @@ public class CriterionProcessor implements ICriterionProcessor {
 				? CriterionTestResult.success(osCommandNoPassword, osCommandResult.getResult())
 				: CriterionTestResult.failure(osCommandNoPassword, osCommandResult.getResult());
 		} catch (NoCredentialProvidedException noCredentialProvidedException) {
-			return CriterionTestResult.error(osCommandCriterion, noCredentialProvidedException.getMessage());
+			return CriterionTestResult.error(commandLineCriterion, noCredentialProvidedException.getMessage());
 		} catch (Exception exception) { // NOSONAR on interruption
-			return CriterionTestResult.error(osCommandCriterion, exception);
+			return CriterionTestResult.error(commandLineCriterion, exception);
 		}
 	}
 
