@@ -45,9 +45,9 @@ import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.ConnectorIdentity;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.CommandLineCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
-import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.OsCommandCriterion;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.OsCommandSource;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CommandLineSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
@@ -277,7 +277,7 @@ public class DetectionStrategy extends AbstractStrategy {
 	 * @param sourceTypes Connector source types
 	 */
 	void verifySshSources(final Set<Class<? extends Source>> sourceTypes) {
-		if (sourceTypes.contains(OsCommandSource.class)) {
+		if (sourceTypes.contains(CommandLineSource.class)) {
 			telemetryManager.getHostProperties().setMustCheckSshStatus(true);
 		}
 	}
@@ -292,8 +292,8 @@ public class DetectionStrategy extends AbstractStrategy {
 		boolean osCommandExecuteRemotely = false;
 
 		for (final Criterion criterion : criteria) {
-			if (criterion instanceof OsCommandCriterion osCommandCriterion) {
-				boolean executeLocally = osCommandCriterion.getExecuteLocally();
+			if (criterion instanceof CommandLineCriterion commandLineCriterion) {
+				boolean executeLocally = commandLineCriterion.getExecuteLocally();
 
 				// if osCommandExecuteLocally is false, it will take the executeLocally value
 				osCommandExecuteLocally |= executeLocally;
