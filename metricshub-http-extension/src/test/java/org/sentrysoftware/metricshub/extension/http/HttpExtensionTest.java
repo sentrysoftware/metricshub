@@ -7,6 +7,11 @@ import static org.mockito.Mockito.doReturn;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 import static org.sentrysoftware.metricshub.extension.http.HttpExtension.HTTP_UP_METRIC;
 
+import com.fasterxml.jackson.databind.node.BooleanNode;
+import com.fasterxml.jackson.databind.node.IntNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -125,5 +130,39 @@ class HttpExtensionTest {
 	void testIsSupportedConfigurationType() {
 		assertTrue(httpExtension.isSupportedConfigurationType("http"));
 		assertFalse(httpExtension.isSupportedConfigurationType("snmp"));
+	}
+
+	@Test
+	void testBuildConfiguration() throws InvalidConfigurationException {
+		final ObjectNode configuration = JsonNodeFactory.instance.objectNode();
+		configuration.set("https", BooleanNode.FALSE);
+		configuration.set("username", new TextNode("username"));
+		configuration.set("password", new TextNode("password"));
+		configuration.set("port", new IntNode(443));
+		configuration.set("timeout", new TextNode("120"));
+
+		assertEquals(
+			HttpConfiguration
+				.builder()
+				.https(false)
+				.username("username")
+				.password("password".toCharArray())
+				.port(443)
+				.timeout(120L)
+				.build(),
+			httpExtension.buildConfiguration("http", configuration, value -> value)
+		);
+
+		assertEquals(
+			HttpConfiguration
+				.builder()
+				.https(false)
+				.username("username")
+				.password("password".toCharArray())
+				.port(443)
+				.timeout(120L)
+				.build(),
+			httpExtension.buildConfiguration("http", configuration, null)
+		);
 	}
 }

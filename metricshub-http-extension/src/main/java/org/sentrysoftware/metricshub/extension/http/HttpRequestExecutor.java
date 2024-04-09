@@ -46,6 +46,11 @@ import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent
 import org.sentrysoftware.metricshub.engine.strategy.utils.RetryOperation;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
+/**
+ * Executes HTTP requests configured through {@link HttpRequest} objects.
+ * This executor supports dynamic substitution of request parameters,
+ * authentication handling, and logging of request execution details.
+ */
 @Slf4j
 public class HttpRequestExecutor {
 
@@ -59,6 +64,7 @@ public class HttpRequestExecutor {
 	 *
 	 * @param httpRequest The {@link HttpRequest} values.
 	 * @param logMode     Whether or not logging is enabled.
+	 * @param telemetryManager The telemetry manager providing access to host configuration.
 	 * @return The result of the execution of the given HTTP request.
 	 */
 	@WithSpan("HTTP")

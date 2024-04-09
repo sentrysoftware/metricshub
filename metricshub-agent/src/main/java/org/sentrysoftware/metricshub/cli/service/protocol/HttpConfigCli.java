@@ -112,7 +112,10 @@ public class HttpConfigCli extends AbstractTransportProtocolCli {
 		final ObjectNode configuration = JsonNodeFactory.instance.objectNode();
 		configuration.set("https", BooleanNode.valueOf(isHttps()));
 		configuration.set("username", new TextNode(username == null ? defaultUsername : username));
-		configuration.set("password", new TextNode(username == null ? defaultPassword.toString() : password.toString()));
+		configuration.set(
+			"password",
+			new TextNode(username == null ? String.valueOf(defaultPassword) : String.valueOf(password))
+		);
 		configuration.set("port", new IntNode(getOrDeducePortNumber()));
 		configuration.set("timeout", new TextNode(timeout));
 

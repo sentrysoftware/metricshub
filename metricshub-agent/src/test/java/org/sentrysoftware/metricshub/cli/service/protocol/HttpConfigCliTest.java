@@ -1,7 +1,6 @@
 package org.sentrysoftware.metricshub.cli.service.protocol;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mockStatic;
 
@@ -56,9 +55,10 @@ class HttpConfigCliTest {
 			HttpTestConfiguration result = (HttpTestConfiguration) httpConfigCli.toProtocol(null, null);
 
 			assertNotNull(result);
-			assertEquals(expected.getHttps(), result.getHttps());
-			assertEquals(expected.getTimeout(), result.getTimeout());
-			assertEquals(expected.getPort(), result.getPort());
+			assertEquals(expected, result);
+			//			assertEquals(expected.getHttps(), result.getHttps());
+			//			assertEquals(expected.getTimeout(), result.getTimeout());
+			//			assertEquals(expected.getPort(), result.getPort());
 
 			httpConfigCli = new HttpConfigCli();
 			httpConfigCli.setTimeout(timeout);
@@ -66,9 +66,10 @@ class HttpConfigCliTest {
 
 			result = (HttpTestConfiguration) httpConfigCli.toProtocol(username, password);
 			assertNotNull(result);
-			assertEquals(expected.getHttps(), result.getHttps());
-			assertEquals(expected.getTimeout(), result.getTimeout());
-			assertEquals(expected.getPort(), result.getPort());
+			assertEquals(expected, result);
+			//			assertEquals(expected.getHttps(), result.getHttps());
+			//			assertEquals(expected.getTimeout(), result.getTimeout());
+			//			assertEquals(expected.getPort(), result.getPort());
 		}
 	}
 

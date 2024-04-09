@@ -33,6 +33,12 @@ import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResu
 import org.sentrysoftware.metricshub.engine.strategy.utils.PslUtils;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
+/**
+ * This class is responsible for executing HTTP tests based on the provided
+ * {@link HttpCriterion} and generating {@link CriterionTestResult} based on the
+ * outcome of these tests. It utilizes an {@link HttpRequestExecutor} to perform
+ * the actual HTTP requests.
+ */
 @Slf4j
 @AllArgsConstructor
 public class HttpCriterionProcessor {
@@ -46,6 +52,7 @@ public class HttpCriterionProcessor {
 	 *
 	 * @param httpCriterion The HTTP criterion to process.
 	 * @param connectorId   The Id of the connector
+	 * @param telemetryManager The telemetry manager providing access to host configuration.
 	 * @return New {@link CriterionTestResult} instance.
 	 */
 	@WithSpan("Criterion HTTP Exec")
