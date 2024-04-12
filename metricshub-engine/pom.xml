@@ -84,20 +84,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.sentrysoftware</groupId>
-			<artifactId>ipmi</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-api</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-simple</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.sentrysoftware</groupId>
 			<artifactId>ssh</artifactId>
 		</dependency>
 		<dependency>

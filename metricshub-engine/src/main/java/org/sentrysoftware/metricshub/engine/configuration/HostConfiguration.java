@@ -84,8 +84,6 @@ public class HostConfiguration {
 				Collections.singleton(OsCommandSource.class),
 				HttpConfiguration.class,
 				Collections.singleton(HttpSource.class),
-				IpmiConfiguration.class,
-				Collections.singleton(IpmiSource.class),
 				OsCommandConfiguration.class,
 				Collections.singleton(OsCommandSource.class),
 				WinRmConfiguration.class,

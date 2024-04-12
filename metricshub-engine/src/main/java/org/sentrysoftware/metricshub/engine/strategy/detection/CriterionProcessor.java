@@ -49,7 +49,6 @@ import org.sentrysoftware.metricshub.engine.common.helpers.VersionHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IWinConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
@@ -268,7 +267,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 		} else if (DeviceKind.LINUX.equals(hostType) || DeviceKind.SOLARIS.equals(hostType)) {
 			return processUnixIpmiDetection(hostType);
 		} else if (DeviceKind.OOB.equals(hostType)) {
-			return processOutOfBandIpmiDetection();
+			return processOutOfBandIpmiDetection(ipmiCriterion);
 		}
 
 		return CriterionTestResult
@@ -387,46 +386,14 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 *
 	 * @return {@link CriterionTestResult} wrapping the status of the criterion execution
 	 */
-	private CriterionTestResult processOutOfBandIpmiDetection() {
-		final IpmiConfiguration configuration = (IpmiConfiguration) telemetryManager
-			.getHostConfiguration()
-			.getConfigurations()
-			.get(IpmiConfiguration.class);
-
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		if (configuration == null) {
-			log.debug(
-				"Hostname {} - The IPMI credentials are not configured for this host. Cannot process IPMI-over-LAN detection.",
-				hostname
-			);
-			return CriterionTestResult.empty();
-		}
-
-		try {
-			final String result = clientsExecutor.executeIpmiDetection(hostname, configuration);
-			if (result == null) {
-				return CriterionTestResult
-					.builder()
-					.message("Received <null> result after connecting to the IPMI BMC chip with the IPMI-over-LAN interface.")
-					.build();
-			}
-
-			return CriterionTestResult
-				.builder()
-				.result(result)
-				.message("Successfully connected to the IPMI BMC chip with the IPMI-over-LAN interface.")
-				.success(true)
-				.build();
-		} catch (final Exception e) { // NOSONAR on interruption
-			final String message = String.format(
-				"Hostname %s - Cannot execute IPMI-over-LAN command to get the chassis status. Exception: %s",
-				hostname,
-				e.getMessage()
-			);
-			log.debug(message, e);
-			return CriterionTestResult.builder().message(message).build();
-		}
+	private CriterionTestResult processOutOfBandIpmiDetection(IpmiCriterion ipmiCriterion) {
+		final Optional<IProtocolExtension> maybeExtension = extensionManager.findCriterionExtension(
+			ipmiCriterion,
+			telemetryManager
+		);
+		return maybeExtension
+			.map(extension -> extension.processCriterion(ipmiCriterion, connectorId, telemetryManager))
+			.orElseGet(CriterionTestResult::empty);
 	}
 
 	/**

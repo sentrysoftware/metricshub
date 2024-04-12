@@ -1,18 +1,20 @@
-package org.sentrysoftware.metricshub.engine.configuration;
+package org.sentrysoftware;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.BMC_KEY;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.IMPI_CONFIGURATION_TO_STRING;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.IPMI;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.PASSWORD;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.USERNAME;
 
 import org.junit.jupiter.api.Test;
+import org.sentrysoftware.metricshub.extension.ipmi.IpmiConfiguration;
 
 /**
  * Test of {@link IpmiConfiguration}
  */
 class IpmiConfigurationTest {
+
+	private static final byte[] BMC_KEY = new byte[] { 0x06, 0x66 };
+	private static final String USERNAME = "testUser";
+	private static final String PASSWORD = "testPassword";
+	public static final String IPMI = "IPMI";
+	public static final String IPMI_CONFIGURATION_TO_STRING = "IPMI as testUser";
 
 	@Test
 	void testToString() {
@@ -23,7 +25,7 @@ class IpmiConfigurationTest {
 		ipmiConfiguration.setPassword(PASSWORD.toCharArray());
 		ipmiConfiguration.setBmcKey(BMC_KEY);
 		ipmiConfiguration.setSkipAuth(false);
-		assertEquals(IMPI_CONFIGURATION_TO_STRING, ipmiConfiguration.toString());
+		assertEquals(IPMI_CONFIGURATION_TO_STRING, ipmiConfiguration.toString());
 
 		// When the userName is null, it's not appended to the result
 		ipmiConfiguration.setUsername(null);

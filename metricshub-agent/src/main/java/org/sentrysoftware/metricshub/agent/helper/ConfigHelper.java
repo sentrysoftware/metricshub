@@ -70,7 +70,6 @@ import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.AbstractProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.HttpProtocolConfig;
-import org.sentrysoftware.metricshub.agent.config.protocols.IpmiProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.OsCommandProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.ProtocolsConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.SshProtocolConfig;
@@ -945,9 +944,9 @@ public class ConfigHelper {
 			snmpConfig.validateConfiguration(resourceKey);
 		}
 
-		final IpmiProtocolConfig ipmiConfig = protocolsConfig.getIpmi();
+		final IConfiguration ipmiConfig = protocolsConfig.getIpmi();
 		if (ipmiConfig != null) {
-			validateIpmiInfo(resourceKey, ipmiConfig.getUsername(), ipmiConfig.getTimeout());
+			ipmiConfig.validateConfiguration(resourceKey);
 		}
 
 		final SshProtocolConfig sshConfig = protocolsConfig.getSsh();
@@ -1188,7 +1187,6 @@ public class ConfigHelper {
 						protocols.getWbem(),
 						protocols.getWmi(),
 						protocols.getOsCommand(),
-						protocols.getIpmi(),
 						protocols.getWinrm()
 					)
 					.filter(Objects::nonNull)

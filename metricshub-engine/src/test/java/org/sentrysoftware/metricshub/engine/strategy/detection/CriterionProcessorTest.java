@@ -116,7 +116,6 @@ import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.TestConfiguration;
@@ -198,6 +197,24 @@ class CriterionProcessorTest {
 						.hostId(LOCALHOST)
 						.hostType(DeviceKind.LINUX)
 						.configurations(Map.of(TestConfiguration.class, snmpConfiguration))
+						.build()
+				)
+				.build();
+	}
+
+	private void initIpmi() {
+		final TestConfiguration ipmiConfiguration = new TestConfiguration();
+
+		telemetryManager =
+			TelemetryManager
+				.builder()
+				.hostConfiguration(
+					HostConfiguration
+						.builder()
+						.hostname(LOCALHOST)
+						.hostId(LOCALHOST)
+						.hostType(DeviceKind.OOB)
+						.configurations(Map.of(TestConfiguration.class, ipmiConfiguration))
 						.build()
 				)
 				.build();
@@ -1392,25 +1409,22 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void testProcessIPMIOutOfBandConfigurationNotFound() {
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(
-				HostConfiguration
-					.builder()
-					.hostId(MANAGEMENT_CARD_HOST)
-					.hostType(DeviceKind.OOB)
-					.hostname(MANAGEMENT_CARD_HOST)
-					.configurations(Collections.emptyMap())
-					.build()
-			)
-			.build();
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		assertEquals(CriterionTestResult.empty(), criterionProcessor.process(new IpmiCriterion()));
-	}
-
-	@Test
 	void testProcessIPMIOutOfBand() throws Exception {
+		initIpmi();
+
+		final IProtocolExtension protocolExtensionMock = spy(IProtocolExtension.class);
+
+		final ExtensionManager extensionManager = ExtensionManager
+			.builder()
+			.withProtocolExtensions(List.of(protocolExtensionMock))
+			.build();
+
+		doReturn(true)
+			.when(protocolExtensionMock)
+			.isValidConfiguration(telemetryManager.getHostConfiguration().getConfigurations().get(TestConfiguration.class));
+
+		doReturn(Set.of(IpmiCriterion.class)).when(protocolExtensionMock).getSupportedCriteria();
+
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
 			.hostConfiguration(
@@ -1419,19 +1433,29 @@ class CriterionProcessorTest {
 					.hostId(MANAGEMENT_CARD_HOST)
 					.hostType(DeviceKind.OOB)
 					.hostname(MANAGEMENT_CARD_HOST)
-					.configurations(
-						Map.of(
-							IpmiConfiguration.class,
-							IpmiConfiguration.builder().username(USERNAME).password(PASSWORD.toCharArray()).build()
-						)
-					)
+					.configurations(Map.of(TestConfiguration.class, TestConfiguration.builder().build()))
 					.build()
 			)
 			.build();
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(SYSTEM_POWER_UP_MESSAGE)
-			.when(clientsExecutorMock)
-			.executeIpmiDetection(eq(MANAGEMENT_CARD_HOST), any(IpmiConfiguration.class));
+
+		final IpmiCriterion ipmiCriterion = IpmiCriterion.builder().build();
+
+		CriterionTestResult result = CriterionTestResult
+			.builder()
+			.result(SYSTEM_POWER_UP_MESSAGE)
+			.message(IPMI_CONNECTION_SUCCESS_WITH_IMPI_OVER_LAN_MESSAGE)
+			.success(true)
+			.build();
+
+		doReturn(result).when(protocolExtensionMock).processCriterion(ipmiCriterion, MY_CONNECTOR_1_NAME, telemetryManager);
+
+		final CriterionProcessor criterionProcessor = new CriterionProcessor(
+			clientsExecutorMock,
+			telemetryManager,
+			MY_CONNECTOR_1_NAME,
+			extensionManager
+		);
+
 		assertEquals(
 			CriterionTestResult
 				.builder()
@@ -1445,35 +1469,33 @@ class CriterionProcessorTest {
 
 	@Test
 	void testProcessIPMIOutOfBandNullResult() throws Exception {
-		final IpmiConfiguration ipmiConfiguration = IpmiConfiguration
-			.builder()
-			.username(USERNAME)
-			.password(PASSWORD.toCharArray())
-			.build();
-		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
+		initIpmi();
 
-		configurations.put(IpmiConfiguration.class, ipmiConfiguration);
-		final HostConfiguration hostConfiguration = HostConfiguration
+		final IProtocolExtension protocolExtensionMock = spy(IProtocolExtension.class);
+
+		final ExtensionManager extensionManager = ExtensionManager
 			.builder()
-			.hostId(MANAGEMENT_CARD_HOST)
-			.hostType(DeviceKind.OOB)
-			.hostname(MANAGEMENT_CARD_HOST)
-			.configurations(configurations)
-			.build();
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostProperties(HostProperties.builder().isLocalhost(true).build())
-			.hostConfiguration(hostConfiguration)
+			.withProtocolExtensions(List.of(protocolExtensionMock))
 			.build();
 
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(null)
-			.when(clientsExecutorMock)
-			.executeIpmiDetection(eq(MANAGEMENT_CARD_HOST), any(IpmiConfiguration.class));
-		assertEquals(
-			CriterionTestResult.builder().message(OOB_NULL_RESULT_MESSAGE).build().getMessage(),
-			criterionProcessor.process(new IpmiCriterion()).getMessage()
+		doReturn(true)
+			.when(protocolExtensionMock)
+			.isValidConfiguration(telemetryManager.getHostConfiguration().getConfigurations().get(TestConfiguration.class));
+
+		doReturn(Set.of(IpmiCriterion.class)).when(protocolExtensionMock).getSupportedCriteria();
+
+		final IpmiCriterion ipmiCriterion = IpmiCriterion.builder().build();
+
+		doReturn(null).when(protocolExtensionMock).processCriterion(ipmiCriterion, MY_CONNECTOR_1_NAME, telemetryManager);
+
+		final CriterionProcessor criterionProcessor = new CriterionProcessor(
+			clientsExecutorMock,
+			telemetryManager,
+			MY_CONNECTOR_1_NAME,
+			extensionManager
 		);
+
+		assertEquals(CriterionTestResult.empty(), criterionProcessor.process(new IpmiCriterion()));
 	}
 
 	@Test
