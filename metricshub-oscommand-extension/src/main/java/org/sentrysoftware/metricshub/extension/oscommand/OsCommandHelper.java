@@ -1,8 +1,8 @@
-package org.sentrysoftware.metricshub.engine.strategy.utils;
+package org.sentrysoftware.metricshub.extension.oscommand;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
- * MetricsHub Engine
+ * MetricsHub OsCommand Extension
  * ჻჻჻჻჻჻
  * Copyright 2023 - 2024 Sentry Software
  * ჻჻჻჻჻჻
@@ -71,10 +71,9 @@ import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvide
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IWinConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
+import org.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.SshSemaphoreFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
@@ -312,16 +311,15 @@ public class OsCommandHelper {
 		final String noPasswordCommand
 	) throws ClientException, InterruptedException, ControlledSshException {
 		isTrue(timeout > 0, NEGATIVE_TIMEOUT);
-
 		try {
 			return runControlledSshCommand(
 				() -> {
 					try {
-						return ClientsExecutor.runRemoteSshCommand(
+						return OsCommandRequestExecutor.runRemoteSshCommand(
 							hostname,
 							sshConfiguration.getUsername(),
 							sshConfiguration.getPassword(),
-							sshConfiguration.getPrivateKey(),
+							sshConfiguration.getPrivateKey() == null ? null : new File(sshConfiguration.getPrivateKey()),
 							command,
 							timeout,
 							localFiles,

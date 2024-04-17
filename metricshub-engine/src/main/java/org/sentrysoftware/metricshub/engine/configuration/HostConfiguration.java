@@ -80,14 +80,10 @@ public class HostConfiguration {
 				Collections.singleton(WmiSource.class),
 				WbemConfiguration.class,
 				Collections.singleton(WbemSource.class),
-				SshConfiguration.class,
-				Collections.singleton(CommandLineSource.class),
 				HttpConfiguration.class,
 				Collections.singleton(HttpSource.class),
 				IpmiConfiguration.class,
 				Collections.singleton(IpmiSource.class),
-				OsCommandConfiguration.class,
-				Collections.singleton(CommandLineSource.class),
 				WinRmConfiguration.class,
 				Collections.singleton(WmiSource.class)
 			);

@@ -1,8 +1,8 @@
-package org.sentrysoftware.metricshub.engine.strategy.utils;
+package org.sentrysoftware.metricshub.extension.oscommand;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
- * MetricsHub Engine
+ * MetricsHub OsCommand Extension
  * ჻჻჻჻჻჻
  * Copyright 2023 - 2024 Sentry Software
  * ჻჻჻჻჻჻

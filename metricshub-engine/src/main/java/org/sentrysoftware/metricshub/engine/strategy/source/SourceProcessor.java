@@ -24,7 +24,6 @@ package org.sentrysoftware.metricshub.engine.strategy.source;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.AUTOMATIC_NAMESPACE;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.NEW_LINE;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.SEMICOLON;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.TABLE_SEP;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.WMI_DEFAULT_NAMESPACE;
 
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
@@ -37,7 +36,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -45,14 +43,11 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.client.http.HttpRequest;
-import org.sentrysoftware.metricshub.engine.common.helpers.FilterResultHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IWinConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CommandLineSource;
@@ -69,8 +64,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.strategy.utils.IpmiHelper;
-import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
-import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandResult;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
@@ -218,7 +211,7 @@ public class SourceProcessor implements ISourceProcessor {
 		if (DeviceKind.WINDOWS.equals(hostType)) {
 			return processWindowsIpmiSource(sourceKey);
 		} else if (DeviceKind.LINUX.equals(hostType) || DeviceKind.SOLARIS.equals(hostType)) {
-			return processUnixIpmiSource(sourceKey);
+			return processUnixIpmiSource(sourceKey, ipmiSource);
 		} else if (DeviceKind.OOB.equals(hostType)) {
 			return processOutOfBandIpmiSource(sourceKey);
 		}
@@ -274,90 +267,11 @@ public class SourceProcessor implements ISourceProcessor {
 	 *
 	 * @return {@link SourceTable} containing the IPMI result expected by the IPMI connector embedded AWK script
 	 */
-	SourceTable processUnixIpmiSource(final String sourceKey) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		// get the ipmiTool command to execute
-		String ipmitoolCommand = telemetryManager.getHostProperties().getIpmitoolCommand();
-		if (ipmitoolCommand == null || ipmitoolCommand.isEmpty()) {
-			final String message = String.format(
-				"Hostname %s - IPMI tool command cannot be found. Returning an empty result.",
-				hostname
-			);
-			log.error(message);
-			return SourceTable.empty();
-		}
-
-		final boolean isLocalHost = telemetryManager.getHostProperties().isLocalhost();
-
-		final SshConfiguration sshConfiguration = (SshConfiguration) telemetryManager
-			.getHostConfiguration()
-			.getConfigurations()
-			.get(SshConfiguration.class);
-
-		final OsCommandConfiguration osCommandConfiguration = (OsCommandConfiguration) telemetryManager
-			.getHostConfiguration()
-			.getConfigurations()
-			.get(OsCommandConfiguration.class);
-
-		final int defaultTimeout = osCommandConfiguration != null
-			? osCommandConfiguration.getTimeout().intValue()
-			: OsCommandConfiguration.DEFAULT_TIMEOUT.intValue();
-
-		// fru command
-		String fruCommand = ipmitoolCommand + "fru";
-		String fruResult;
-		try {
-			if (isLocalHost) {
-				fruResult = OsCommandHelper.runLocalCommand(fruCommand, defaultTimeout, null);
-			} else if (sshConfiguration != null) {
-				fruResult = OsCommandHelper.runSshCommand(fruCommand, hostname, sshConfiguration, defaultTimeout, null, null);
-			} else {
-				log.warn("Hostname {} - Could not process UNIX IPMI Source. SSH protocol credentials are missing.", hostname);
-				return SourceTable.empty();
-			}
-
-			log.debug("Hostname {} - IPMI OS command: {}:\n{}", hostname, fruCommand, fruResult);
-		} catch (Exception e) {
-			LoggingHelper.logSourceError(
-				connectorId,
-				sourceKey,
-				String.format("IPMI OS command: %s.", fruCommand),
-				hostname,
-				e
-			);
-
-			Thread.currentThread().interrupt();
-
-			return SourceTable.empty();
-		}
-
-		// "-v sdr elist all"
-		String sdrCommand = ipmitoolCommand + "-v sdr elist all";
-		String sensorResult;
-		try {
-			if (isLocalHost) {
-				sensorResult = OsCommandHelper.runLocalCommand(sdrCommand, defaultTimeout, null);
-			} else {
-				sensorResult =
-					OsCommandHelper.runSshCommand(sdrCommand, hostname, sshConfiguration, defaultTimeout, null, null);
-			}
-			log.debug("Hostname {} - IPMI OS command: {}:\n{}", hostname, sdrCommand, sensorResult);
-		} catch (Exception e) {
-			LoggingHelper.logSourceError(
-				connectorId,
-				sourceKey,
-				String.format("IPMI OS command: %s.", sdrCommand),
-				hostname,
-				e
-			);
-
-			Thread.currentThread().interrupt();
-
-			return SourceTable.empty();
-		}
-
-		return SourceTable.builder().table(IpmiHelper.ipmiTranslateFromIpmitool(fruResult, sensorResult)).build();
+	SourceTable processUnixIpmiSource(final String sourceKey, IpmiSource ipmiSource) {
+		final Optional<IProtocolExtension> extensions = extensionManager.findSourceExtension(ipmiSource, telemetryManager);
+		return extensions
+			.map(extension -> extension.processSource(ipmiSource, connectorId, telemetryManager))
+			.orElseGet(SourceTable::empty);
 	}
 
 	/**
@@ -478,64 +392,13 @@ public class SourceProcessor implements ISourceProcessor {
 	@WithSpan("Source OS Command Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final CommandLineSource commandLineSource) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		if (
-			commandLineSource == null ||
-			commandLineSource.getCommandLine() == null ||
-			commandLineSource.getCommandLine().isEmpty()
-		) {
-			log.error("Hostname {} - Malformed OS command source.", hostname);
-			return SourceTable.empty();
-		}
-
-		try {
-			final OsCommandResult osCommandResult = OsCommandHelper.runOsCommand(
-				commandLineSource.getCommandLine(),
-				telemetryManager,
-				commandLineSource.getTimeout(),
-				commandLineSource.getExecuteLocally(),
-				telemetryManager.getHostProperties().isLocalhost()
-			);
-
-			// transform to lines
-			final List<String> resultLines = SourceTable.lineToList(osCommandResult.getResult(), NEW_LINE);
-
-			final List<String> filteredLines = FilterResultHelper.filterLines(
-				resultLines,
-				commandLineSource.getBeginAtLineNumber(),
-				commandLineSource.getEndAtLineNumber(),
-				commandLineSource.getExclude(),
-				commandLineSource.getKeep()
-			);
-
-			final List<String> selectedColumnsLines = FilterResultHelper.selectedColumns(
-				filteredLines,
-				commandLineSource.getSeparators(),
-				commandLineSource.getSelectColumns()
-			);
-
-			return SourceTable
-				.builder()
-				.rawData(selectedColumnsLines.stream().collect(Collectors.joining(NEW_LINE)))
-				.table(
-					selectedColumnsLines
-						.stream()
-						.map(line -> Stream.of(line.split(TABLE_SEP)).collect(Collectors.toList()))
-						.collect(Collectors.toList())
-				)
-				.build();
-		} catch (Exception e) {
-			LoggingHelper.logSourceError(
-				connectorId,
-				commandLineSource.getKey(),
-				String.format("OS command: %s.", commandLineSource.getCommandLine()),
-				hostname,
-				e
-			);
-
-			return SourceTable.empty();
-		}
+		final Optional<IProtocolExtension> extensions = extensionManager.findSourceExtension(
+			commandLineSource,
+			telemetryManager
+		);
+		return extensions
+			.map(extension -> extension.processSource(commandLineSource, connectorId, telemetryManager))
+			.orElseGet(SourceTable::empty);
 	}
 
 	@WithSpan("Source SNMP Get Exec")

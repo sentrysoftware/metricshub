@@ -9,7 +9,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration;
+import org.sentrysoftware.metricshub.engine.configuration.OsCommandTestConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.it.job.SuperConnectorITJob;
@@ -36,7 +36,10 @@ class SuperConnectorOsIT {
 
 	@BeforeAll
 	static void setUp() throws Exception {
-		final OsCommandConfiguration osCommandConfiguration = OsCommandConfiguration.builder().timeout(120L).build();
+		final OsCommandTestConfiguration osCommandConfiguration = OsCommandTestConfiguration
+			.builder()
+			.timeout(120L)
+			.build();
 
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
@@ -44,7 +47,7 @@ class SuperConnectorOsIT {
 			.hostname(LOCALHOST)
 			.hostType(DeviceKind.STORAGE)
 			.connectors(Set.of("+" + CONNECTOR_ID))
-			.configurations(Map.of(OsCommandConfiguration.class, osCommandConfiguration))
+			.configurations(Map.of(OsCommandTestConfiguration.class, osCommandConfiguration))
 			.build();
 
 		final ConnectorStore connectorStore = new ConnectorStore(CONNECTOR_DIRECTORY);

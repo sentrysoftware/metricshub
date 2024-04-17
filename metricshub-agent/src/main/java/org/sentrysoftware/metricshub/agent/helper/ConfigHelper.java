@@ -71,9 +71,7 @@ import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.AbstractProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.HttpProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.IpmiProtocolConfig;
-import org.sentrysoftware.metricshub.agent.config.protocols.OsCommandProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.ProtocolsConfig;
-import org.sentrysoftware.metricshub.agent.config.protocols.SshProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.WbemProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.WinRmProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.WmiProtocolConfig;
@@ -109,11 +107,9 @@ import org.springframework.core.io.ClassPathResource;
 @Slf4j
 public class ConfigHelper {
 
-	private static final String OS_COMMAND = "OSCommand";
 	private static final String HTTP_PROTOCOL = "HTTP";
 	private static final String WMI_PROTOCOL = "WMI";
 	private static final String WBEM_PROTOCOL = "WBEM";
-	private static final String SSH_PROTOCOL = "SSH";
 	private static final String IPMI_PROTOCOL = "IPMI";
 	private static final String WIN_RM_PROTOCOL = "WinRM";
 	private static final String TIMEOUT_ERROR =
@@ -950,9 +946,9 @@ public class ConfigHelper {
 			validateIpmiInfo(resourceKey, ipmiConfig.getUsername(), ipmiConfig.getTimeout());
 		}
 
-		final SshProtocolConfig sshConfig = protocolsConfig.getSsh();
+		final IConfiguration sshConfig = protocolsConfig.getSsh();
 		if (sshConfig != null) {
-			validateSshInfo(resourceKey, sshConfig.getUsername(), sshConfig.getTimeout());
+			sshConfig.validateConfiguration(resourceKey);
 		}
 
 		final WbemProtocolConfig wbemConfig = protocolsConfig.getWbem();
@@ -976,9 +972,9 @@ public class ConfigHelper {
 			validateHttpInfo(resourceKey, httpConfig.getTimeout(), httpConfig.getPort());
 		}
 
-		final OsCommandProtocolConfig osCommandConfig = protocolsConfig.getOsCommand();
+		final IConfiguration osCommandConfig = protocolsConfig.getOsCommand();
 		if (osCommandConfig != null) {
-			validateOsCommandInfo(resourceKey, osCommandConfig.getTimeout());
+			osCommandConfig.validateConfiguration(resourceKey);
 		}
 	}
 
@@ -1036,29 +1032,6 @@ public class ConfigHelper {
 			timeout,
 			INVALID_TIMEOUT_CHECKER,
 			() -> String.format(TIMEOUT_ERROR, resourceKey, IPMI_PROTOCOL, timeout)
-		);
-	}
-
-	/**
-	 * Validate the given SSH information (username, timeout)
-	 *
-	 * @param resourceKey Resource unique identifier
-	 * @param username    Name to use for performing the SSH query
-	 * @param timeout     How long until the command times out
-	 * @throws InvalidConfigurationException
-	 */
-	static void validateSshInfo(final String resourceKey, final String username, final Long timeout)
-		throws InvalidConfigurationException {
-		StringHelper.validateConfigurationAttribute(
-			username,
-			INVALID_STRING_CHECKER,
-			() -> String.format(USERNAME_ERROR, resourceKey, SSH_PROTOCOL)
-		);
-
-		StringHelper.validateConfigurationAttribute(
-			timeout,
-			INVALID_TIMEOUT_CHECKER,
-			() -> String.format(TIMEOUT_ERROR, resourceKey, SSH_PROTOCOL, timeout)
 		);
 	}
 
@@ -1149,21 +1122,6 @@ public class ConfigHelper {
 	}
 
 	/**
-	 * Validate the given OS Command information: timeout
-	 *
-	 * @param resourceKey Resource unique identifier
-	 * @param timeout     How long until the command times out
-	 * @throws InvalidConfigurationException
-	 */
-	static void validateOsCommandInfo(final String resourceKey, final Long timeout) throws InvalidConfigurationException {
-		StringHelper.validateConfigurationAttribute(
-			timeout,
-			INVALID_TIMEOUT_CHECKER,
-			() -> String.format(TIMEOUT_ERROR, resourceKey, OS_COMMAND, timeout)
-		);
-	}
-
-	/**
 	 * Build the {@link HostConfiguration} expected by the internal engine
 	 *
 	 * @param resourceConfig          User's resource configuration
@@ -1182,15 +1140,7 @@ public class ConfigHelper {
 			? new HashMap<>()
 			: new HashMap<>(
 				Stream
-					.of(
-						protocols.getSsh(),
-						protocols.getHttp(),
-						protocols.getWbem(),
-						protocols.getWmi(),
-						protocols.getOsCommand(),
-						protocols.getIpmi(),
-						protocols.getWinrm()
-					)
+					.of(protocols.getHttp(), protocols.getWbem(), protocols.getWmi(), protocols.getIpmi(), protocols.getWinrm())
 					.filter(Objects::nonNull)
 					.map(AbstractProtocolConfig::toConfiguration)
 					.filter(Objects::nonNull)
@@ -1202,7 +1152,7 @@ public class ConfigHelper {
 			? new HashMap<>()
 			: new HashMap<>(
 				Stream
-					.of(protocols.getSnmp())
+					.of(protocols.getSnmp(), protocols.getOsCommand(), protocols.getSsh())
 					.filter(Objects::nonNull)
 					.collect(Collectors.toMap(IConfiguration::getClass, Function.identity()))
 			);
