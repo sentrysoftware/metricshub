@@ -26,12 +26,12 @@ import io.opentelemetry.instrumentation.annotations.WithSpan;
 import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.sentrysoftware.metricshub.engine.client.http.HttpRequest;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.HttpCriterion;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.utils.PslUtils;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.extension.http.utils.HttpRequest;
 
 /**
  * This class is responsible for executing HTTP tests based on the provided
@@ -50,8 +50,8 @@ public class HttpCriterionProcessor {
 	/**
 	 * Process the given {@link HttpCriterion} through Client and return the {@link CriterionTestResult}
 	 *
-	 * @param httpCriterion The HTTP criterion to process.
-	 * @param connectorId   The Id of the connector
+	 * @param httpCriterion    The HTTP criterion to process.
+	 * @param connectorId      The Id of the connector
 	 * @param telemetryManager The telemetry manager providing access to host configuration.
 	 * @return New {@link CriterionTestResult} instance.
 	 */

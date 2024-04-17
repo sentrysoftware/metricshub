@@ -115,7 +115,6 @@ import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.TestConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
@@ -133,8 +132,8 @@ import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.S
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WbemCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WmiCriterion;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
-import org.sentrysoftware.metricshub.engine.extension.HttpTestConfiguration;
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
+import org.sentrysoftware.metricshub.engine.extension.TestConfiguration;
 import org.sentrysoftware.metricshub.engine.strategy.utils.CriterionProcessVisitor;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandResult;
@@ -182,8 +181,8 @@ class CriterionProcessorTest {
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 	}
 
-	private void initSnmp() {
-		final TestConfiguration snmpConfiguration = new TestConfiguration();
+	private void initTestConfiguration() {
+		final TestConfiguration testConfiguration = new TestConfiguration();
 
 		telemetryManager =
 			TelemetryManager
@@ -194,7 +193,7 @@ class CriterionProcessorTest {
 						.hostname(LOCALHOST)
 						.hostId(LOCALHOST)
 						.hostType(DeviceKind.LINUX)
-						.configurations(Map.of(TestConfiguration.class, snmpConfiguration))
+						.configurations(Map.of(TestConfiguration.class, testConfiguration))
 						.build()
 				)
 				.build();
@@ -202,7 +201,7 @@ class CriterionProcessorTest {
 
 	@Test
 	void testProcessSnmpGetCriterion() {
-		initSnmp();
+		initTestConfiguration();
 
 		final IProtocolExtension protocolExtensionMock = spy(IProtocolExtension.class);
 
@@ -238,7 +237,7 @@ class CriterionProcessorTest {
 
 	@Test
 	void testProcessSnmpGetNextCriterion() {
-		initSnmp();
+		initTestConfiguration();
 
 		final IProtocolExtension protocolExtensionMock = spy(IProtocolExtension.class);
 
@@ -833,8 +832,18 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void HttpCriterionProcessHttpCriterionNullTest() {
-		final HttpCriterion httpCriterion = null;
+	void testProcessHttpCriterion() throws IOException {
+		final HttpCriterion httpCriterion = HttpCriterion
+			.builder()
+			.type(HTTP)
+			.method(HttpMethod.GET)
+			.url(TEST)
+			.body(TEST_BODY)
+			.resultContent(ResultContent.ALL)
+			.expectedResult(RESULT)
+			.errorMessage(ERROR)
+			.build();
+
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(HOST_ID)
@@ -843,72 +852,6 @@ class CriterionProcessorTest {
 			.configurations(Map.of(TestConfiguration.class, TestConfiguration.builder().build()))
 			.build();
 
-		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
-
-		// The extension manager is empty because it is not involved in this test
-		final ExtensionManager extensionManager = ExtensionManager.empty();
-
-		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			clientsExecutorMock,
-			telemetryManager,
-			MY_CONNECTOR_1_NAME,
-			extensionManager
-		);
-
-		assertEquals(CriterionTestResult.empty(), criterionProcessor.process(httpCriterion));
-	}
-
-	@Test
-	void HttpCriterionProcessHttpConfigurationNullTest() {
-		final HttpCriterion httpCriterion = HttpCriterion
-			.builder()
-			.type(HTTP)
-			.method(HttpMethod.GET)
-			.url(TEST)
-			.body(TEST_BODY)
-			.resultContent(ResultContent.ALL)
-			.expectedResult(RESULT)
-			.errorMessage(ERROR)
-			.build();
-
-		final TelemetryManager telemetryManager = TelemetryManager.builder().build();
-
-		// The extension manager is empty because it is not involved in this test
-		final ExtensionManager extensionManager = ExtensionManager.empty();
-
-		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			clientsExecutorMock,
-			telemetryManager,
-			MY_CONNECTOR_1_NAME,
-			extensionManager
-		);
-
-		assertEquals(CriterionTestResult.empty(), criterionProcessor.process(httpCriterion));
-	}
-
-	@Test
-	void HttpCriterionProcessRequestWrongResultTest() throws IOException {
-		final HttpCriterion httpCriterion = HttpCriterion
-			.builder()
-			.type(HTTP)
-			.method(HttpMethod.GET)
-			.url(TEST)
-			.body(TEST_BODY)
-			.resultContent(ResultContent.ALL)
-			.expectedResult(RESULT)
-			.errorMessage(ERROR)
-			.build();
-
-		final HostConfiguration hostConfiguration = HostConfiguration
-			.builder()
-			.hostname(HOST_ID)
-			.hostId(HOST_ID)
-			.hostType(DeviceKind.LINUX)
-			.configurations(Map.of(HttpTestConfiguration.class, HttpTestConfiguration.builder().build()))
-			.build();
-
-		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
-
 		final IProtocolExtension protocolExtensionMock = spy(IProtocolExtension.class);
 
 		final ExtensionManager extensionManager = ExtensionManager
@@ -916,79 +859,17 @@ class CriterionProcessorTest {
 			.withProtocolExtensions(List.of(protocolExtensionMock))
 			.build();
 
-		final CriterionTestResult expected = CriterionTestResult
-			.builder()
-			.success(false)
-			.result("Something went Wrong")
-			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
+
+		final CriterionTestResult expected = CriterionTestResult.builder().success(true).result(RESULT).build();
 
 		doReturn(true)
 			.when(protocolExtensionMock)
-			.isValidConfiguration(
-				telemetryManager.getHostConfiguration().getConfigurations().get(HttpTestConfiguration.class)
-			);
+			.isValidConfiguration(telemetryManager.getHostConfiguration().getConfigurations().get(TestConfiguration.class));
 
 		doReturn(Set.of(HttpCriterion.class)).when(protocolExtensionMock).getSupportedCriteria();
 
 		doReturn(expected)
-			.when(protocolExtensionMock)
-			.processCriterion(any(HttpCriterion.class), anyString(), any(TelemetryManager.class));
-
-		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			clientsExecutorMock,
-			telemetryManager,
-			MY_CONNECTOR_1_NAME,
-			extensionManager
-		);
-
-		final CriterionTestResult criterionTestResult = criterionProcessor.process(httpCriterion);
-
-		assertEquals(expected, criterionTestResult);
-		assertFalse(criterionTestResult.isSuccess());
-		assertNull(criterionTestResult.getException());
-	}
-
-	@Test
-	void HttpCriterionProcessOKTest() throws IOException {
-		final HttpCriterion httpCriterion = HttpCriterion
-			.builder()
-			.type(HTTP)
-			.method(HttpMethod.GET)
-			.url(TEST)
-			.body(TEST_BODY)
-			.resultContent(ResultContent.ALL)
-			.expectedResult(RESULT)
-			.errorMessage(ERROR)
-			.build();
-
-		final HostConfiguration hostConfiguration = HostConfiguration
-			.builder()
-			.hostname(HOST_ID)
-			.hostId(HOST_ID)
-			.hostType(DeviceKind.LINUX)
-			.configurations(Map.of(HttpTestConfiguration.class, HttpTestConfiguration.builder().build()))
-			.build();
-
-		final IProtocolExtension protocolExtensionMock = spy(IProtocolExtension.class);
-
-		final ExtensionManager extensionManager = ExtensionManager
-			.builder()
-			.withProtocolExtensions(List.of(protocolExtensionMock))
-			.build();
-
-		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
-
-		final CriterionTestResult result = CriterionTestResult.builder().success(true).result(RESULT).build();
-
-		doReturn(true)
-			.when(protocolExtensionMock)
-			.isValidConfiguration(
-				telemetryManager.getHostConfiguration().getConfigurations().get(HttpTestConfiguration.class)
-			);
-
-		doReturn(Set.of(HttpCriterion.class)).when(protocolExtensionMock).getSupportedCriteria();
-
-		doReturn(result)
 			.when(protocolExtensionMock)
 			.processCriterion(any(HttpCriterion.class), anyString(), any(TelemetryManager.class));
 
@@ -1112,7 +993,7 @@ class CriterionProcessorTest {
 			.configurations(
 				Map.of(
 					TestConfiguration.class,
-					HttpTestConfiguration.builder().timeout(STRATEGY_TIMEOUT).build(),
+					TestConfiguration.builder().build(),
 					OsCommandConfiguration.class,
 					OsCommandConfiguration.builder().timeout(STRATEGY_TIMEOUT).build()
 				)
@@ -1127,8 +1008,8 @@ class CriterionProcessorTest {
 
 		hostConfiguration.setConfigurations(
 			Map.of(
-				HttpTestConfiguration.class,
-				HttpTestConfiguration.builder().build(),
+				TestConfiguration.class,
+				TestConfiguration.builder().build(),
 				OsCommandConfiguration.class,
 				OsCommandConfiguration.builder().useSudoCommands(Sets.newSet()).timeout(STRATEGY_TIMEOUT).build(),
 				SshConfiguration.class,
@@ -1156,8 +1037,8 @@ class CriterionProcessorTest {
 			.hostType(DeviceKind.LINUX)
 			.configurations(
 				Map.of(
-					HttpTestConfiguration.class,
-					HttpTestConfiguration.builder().timeout(STRATEGY_TIMEOUT).build(),
+					TestConfiguration.class,
+					TestConfiguration.builder().build(),
 					OsCommandConfiguration.class,
 					OsCommandConfiguration.builder().useSudoCommands(Sets.newSet()).timeout(STRATEGY_TIMEOUT).build()
 				)
@@ -1192,9 +1073,7 @@ class CriterionProcessorTest {
 			.hostname(HOST_LINUX)
 			.hostId(HOST_LINUX)
 			.hostType(DeviceKind.LINUX)
-			.configurations(
-				Map.of(HttpTestConfiguration.class, HttpTestConfiguration.builder().timeout(STRATEGY_TIMEOUT).build())
-			)
+			.configurations(Map.of(TestConfiguration.class, TestConfiguration.builder().build()))
 			.build();
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
@@ -1227,8 +1106,8 @@ class CriterionProcessorTest {
 			.hostType(DeviceKind.LINUX)
 			.configurations(
 				Map.of(
-					HttpTestConfiguration.class,
-					HttpTestConfiguration.builder().timeout(STRATEGY_TIMEOUT).build(),
+					TestConfiguration.class,
+					TestConfiguration.builder().build(),
 					OsCommandConfiguration.class,
 					OsCommandConfiguration.builder().useSudoCommands(Sets.newSet()).timeout(STRATEGY_TIMEOUT).build()
 				)

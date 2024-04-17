@@ -12,7 +12,7 @@
 	<artifactId>metricshub-http-extension</artifactId>
 
 	<name>MetricsHub HTTP Extension</name>
-	<description>MetricsHub HTTP Extension implementation providing a set of functionalities used to perform process HTTP criteria and sources.</description>
+	<description>MetricsHub HTTP Extension implementation providing a set of functionalities used to process HTTP criteria and sources.</description>
 
 	<dependencies>
 		<dependency>
@@ -143,7 +143,7 @@
 										<limit>
 											<counter>COMPLEXITY</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.2</minimum>
+											<minimum>0.55</minimum>
 										</limit>
 									</limits>
 								</rule>
@@ -154,6 +154,11 @@
 				<configuration>
 					<excludes>
 						<exclude>org/sentrysoftware/metricshub/extension/http/*HttpConfigurationBuilder*</exclude>
+						<exclude>org/sentrysoftware/metricshub/extension/http/utils/*EmbeddedFileBodyBuilder*</exclude>
+						<exclude>org/sentrysoftware/metricshub/extension/http/utils/*EmbeddedFileHeaderBuilder*</exclude>
+						<exclude>org/sentrysoftware/metricshub/extension/http/utils/*HttpRequestBuilder*</exclude>
+						<exclude>org/sentrysoftware/metricshub/extension/http/utils/*StringBodyBuilder*</exclude>
+						<exclude>org/sentrysoftware/metricshub/extension/http/utils/*StringHeaderBuilder*</exclude>
 					</excludes>
 				</configuration>
 			</plugin>

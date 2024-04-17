@@ -31,9 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 import lombok.extern.slf4j.Slf4j;
-import org.sentrysoftware.metricshub.engine.client.http.HttpRequest;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
-import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
@@ -46,6 +44,7 @@ import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.extension.http.utils.HttpRequest;
 
 /**
  * This class implements the {@link IProtocolExtension} contract, reports the supported features,
@@ -101,7 +100,7 @@ public class HttpExtension implements IProtocolExtension {
 	@Override
 	public void checkProtocol(TelemetryManager telemetryManager, Long collectTime) {
 		// Retrieve the hostname
-		String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
 		// Retrieve the host endpoint monitor
 		final Monitor hostMonitor = telemetryManager.getEndpointHostMonitor();
@@ -157,76 +156,16 @@ public class HttpExtension implements IProtocolExtension {
 
 	@Override
 	public SourceTable processSource(Source source, String connectorId, TelemetryManager telemetryManager) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-		if (source == null) {
-			log.error(
-				"Hostname {} - HttpSource cannot be null, the HttpSource operation will return an empty result.",
-				hostname
-			);
-			return SourceTable.empty();
+		if (source instanceof HttpSource httpSource) {
+			return new HttpSourceProcessor(httpRequestExecutor).process(httpSource, connectorId, telemetryManager);
 		}
-
-		if (!(source instanceof HttpSource)) {
-			throw new IllegalArgumentException(
-				String.format(
-					"Hostname %s - Cannot process source %s.",
-					telemetryManager.getHostname(),
-					source.getClass().getSimpleName()
-				)
-			);
-		}
-
-		final HttpConfiguration httpConfiguration = (HttpConfiguration) telemetryManager
-			.getHostConfiguration()
-			.getConfigurations()
-			.get(HttpConfiguration.class);
-
-		if (httpConfiguration == null) {
-			log.debug(
-				"Hostname {} - The HTTP credentials are not configured. Returning an empty table for HttpSource {}.",
-				hostname,
-				source
-			);
-
-			return SourceTable.empty();
-		}
-
-		// Cast the source into an HttpSource
-		HttpSource httpSource = (HttpSource) source;
-
-		try {
-			final String result = new HttpRequestExecutor()
-				.executeHttp(
-					HttpRequest
-						.builder()
-						.hostname(hostname)
-						.method(httpSource.getMethod().toString())
-						.url(httpSource.getUrl())
-						.path(httpSource.getPath())
-						.header(httpSource.getHeader(), connectorId, hostname)
-						.body(httpSource.getBody(), connectorId, hostname)
-						.resultContent(httpSource.getResultContent())
-						.authenticationToken(httpSource.getAuthenticationToken())
-						.httpConfiguration(httpConfiguration)
-						.build(),
-					true,
-					telemetryManager
-				);
-
-			if (result != null && !result.isEmpty()) {
-				return SourceTable.builder().rawData(result).build();
-			}
-		} catch (Exception e) {
-			LoggingHelper.logSourceError(
-				connectorId,
-				source.getKey(),
-				String.format("HTTP %s %s", httpSource.getMethod(), httpSource.getUrl()),
-				hostname,
-				e
-			);
-		}
-
-		return SourceTable.empty();
+		throw new IllegalArgumentException(
+			String.format(
+				"Hostname %s - Cannot process source %s.",
+				telemetryManager.getHostname(),
+				source != null ? source.getClass().getSimpleName() : "<null>"
+			)
+		);
 	}
 
 	@Override
@@ -242,7 +181,7 @@ public class HttpExtension implements IProtocolExtension {
 			String.format(
 				"Hostname %s - Cannot process criterion %s.",
 				telemetryManager.getHostname(),
-				criterion.getClass().getSimpleName()
+				criterion != null ? criterion.getClass().getSimpleName() : "<null>"
 			)
 		);
 	}

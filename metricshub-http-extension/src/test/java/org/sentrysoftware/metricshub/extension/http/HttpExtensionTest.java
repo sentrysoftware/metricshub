@@ -1,9 +1,15 @@
 package org.sentrysoftware.metricshub.extension.http;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 import static org.sentrysoftware.metricshub.extension.http.HttpExtension.HTTP_UP_METRIC;
 
@@ -12,21 +18,28 @@ import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.sentrysoftware.metricshub.engine.client.http.HttpRequest;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
+import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
+import org.sentrysoftware.metricshub.engine.connector.model.common.HttpMethod;
+import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.HttpCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
+import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
+import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.extension.http.utils.HttpRequest;
 
 @ExtendWith(MockitoExtension.class)
 class HttpExtensionTest {
@@ -37,39 +50,48 @@ class HttpExtensionTest {
 	@InjectMocks
 	private HttpExtension httpExtension;
 
-	static Map<String, Map<String, Monitor>> monitors;
+	private TelemetryManager telemetryManager;
 
-	private static final String HOSTNAME = "test-host";
+	private static final String TEST_URL = "/test";
+	private static final String HTTP_CRITERION_TYPE = "http";
+	private static final String HOST_NAME = "test-host" + UUID.randomUUID().toString();
+	private static final String CONNECTOR_ID = "connector";
+	private static final String TEST_BODY = "test body";
+	private static final String RESULT = "result";
+	private static final String ERROR = "error";
+	private static final String HTTP_GET = "GET";
 
 	/**
-	 * Creates and returns a TelemetryManager instance with an HTTP configuration.
-	 *
-	 * @return A TelemetryManager instance configured with an HTTP configuration.
+	 * Creates a TelemetryManager instance with an HTTP configuration.
 	 */
-	private TelemetryManager createTelemetryManagerWithHttpConfig() {
-		Monitor hostMonitor = Monitor.builder().type(HOST.getKey()).isEndpoint(true).build();
+	void initHttp() {
+		final Monitor hostMonitor = Monitor.builder().type(HOST.getKey()).isEndpoint(true).build();
 
-		monitors = new HashMap<>(Map.of(HOST.getKey(), Map.of(HOSTNAME, hostMonitor)));
+		final Map<String, Map<String, Monitor>> monitors = new HashMap<>(
+			Map.of(HOST.getKey(), Map.of(HOST_NAME, hostMonitor))
+		);
 
-		// Create a telemetry manager
-		return TelemetryManager
-			.builder()
-			.monitors(monitors)
-			.hostConfiguration(
-				HostConfiguration
-					.builder()
-					.hostId(HOSTNAME)
-					.hostname(HOSTNAME)
-					.configurations(Map.of(HttpConfiguration.class, HttpConfiguration.builder().build()))
-					.build()
-			)
-			.build();
+		final HttpConfiguration httpConfiguration = HttpConfiguration.builder().build();
+
+		telemetryManager =
+			TelemetryManager
+				.builder()
+				.monitors(monitors)
+				.hostConfiguration(
+					HostConfiguration
+						.builder()
+						.hostname(HOST_NAME)
+						.hostId(HOST_NAME)
+						.hostType(DeviceKind.LINUX)
+						.configurations(Map.of(HttpConfiguration.class, httpConfiguration))
+						.build()
+				)
+				.build();
 	}
 
 	@Test
 	void testCheckHttpDownHealth() {
-		// Create a telemetry manager using an HTTP HostConfiguration.
-		final TelemetryManager telemetryManager = createTelemetryManagerWithHttpConfig();
+		initHttp();
 
 		// Mock HTTP protocol health check response
 		doReturn(null)
@@ -83,8 +105,7 @@ class HttpExtensionTest {
 
 	@Test
 	void testCheckHttpUpHealth() {
-		// Create a telemetry manager using an HTTP HostConfiguration.
-		final TelemetryManager telemetryManager = createTelemetryManagerWithHttpConfig();
+		initHttp();
 
 		// Mock HTTP protocol health check response
 		doReturn("success")
@@ -128,7 +149,7 @@ class HttpExtensionTest {
 
 	@Test
 	void testIsSupportedConfigurationType() {
-		assertTrue(httpExtension.isSupportedConfigurationType("http"));
+		assertTrue(httpExtension.isSupportedConfigurationType(HTTP_CRITERION_TYPE));
 		assertFalse(httpExtension.isSupportedConfigurationType("snmp"));
 	}
 
@@ -150,7 +171,7 @@ class HttpExtensionTest {
 				.port(443)
 				.timeout(120L)
 				.build(),
-			httpExtension.buildConfiguration("http", configuration, value -> value)
+			httpExtension.buildConfiguration(HTTP_CRITERION_TYPE, configuration, value -> value)
 		);
 
 		assertEquals(
@@ -162,7 +183,221 @@ class HttpExtensionTest {
 				.port(443)
 				.timeout(120L)
 				.build(),
-			httpExtension.buildConfiguration("http", configuration, null)
+			httpExtension.buildConfiguration(HTTP_CRITERION_TYPE, configuration, null)
+		);
+	}
+
+	@Test
+	void testProcessCriterionNullTest() {
+		initHttp();
+
+		final HttpCriterion httpCriterion = null;
+
+		assertThrows(
+			IllegalArgumentException.class,
+			() -> httpExtension.processCriterion(httpCriterion, CONNECTOR_ID, telemetryManager)
+		);
+	}
+
+	@Test
+	void testProcessCriterionConfigurationNullTest() {
+		initHttp();
+
+		telemetryManager.getHostConfiguration().setConfigurations(Map.of());
+
+		final HttpCriterion httpCriterion = HttpCriterion
+			.builder()
+			.type(HTTP_CRITERION_TYPE)
+			.method(HttpMethod.GET)
+			.url(TEST_URL)
+			.body(TEST_BODY)
+			.resultContent(ResultContent.ALL)
+			.expectedResult(RESULT)
+			.errorMessage(ERROR)
+			.build();
+
+		assertEquals(
+			CriterionTestResult.empty(),
+			httpExtension.processCriterion(httpCriterion, CONNECTOR_ID, telemetryManager)
+		);
+	}
+
+	@Test
+	void testProcessCriterionRequestWrongResultTest() throws IOException {
+		initHttp();
+
+		final HttpCriterion httpCriterion = HttpCriterion
+			.builder()
+			.type(HTTP_CRITERION_TYPE)
+			.method(HttpMethod.GET)
+			.url(TEST_URL)
+			.body(TEST_BODY)
+			.resultContent(ResultContent.ALL)
+			.expectedResult(RESULT)
+			.errorMessage(ERROR)
+			.build();
+
+		final String result = "Something went Wrong";
+		final HttpRequest httpRequest = HttpRequest
+			.builder()
+			.hostname(HOST_NAME)
+			.method(HTTP_GET)
+			.url(httpCriterion.getUrl())
+			.header(httpCriterion.getHeader(), CONNECTOR_ID, HOST_NAME)
+			.body(httpCriterion.getBody(), CONNECTOR_ID, HOST_NAME)
+			.httpConfiguration(
+				(HttpConfiguration) telemetryManager.getHostConfiguration().getConfigurations().get(HttpConfiguration.class)
+			)
+			.resultContent(httpCriterion.getResultContent())
+			.authenticationToken(httpCriterion.getAuthenticationToken())
+			.build();
+		doReturn(result).when(httpRequestExecutorMock).executeHttp(httpRequest, false, telemetryManager);
+
+		final String message = String.format(
+			"Hostname %s - HTTP test failed - " +
+			"The result (%s) returned by the HTTP test did not match the expected result (%s)." +
+			"Expected value: %s - returned value %s.",
+			HOST_NAME,
+			result,
+			RESULT,
+			RESULT,
+			result
+		);
+		final CriterionTestResult criterionTestResult = httpExtension.processCriterion(
+			httpCriterion,
+			CONNECTOR_ID,
+			telemetryManager
+		);
+
+		assertEquals(result, criterionTestResult.getResult());
+		assertFalse(criterionTestResult.isSuccess());
+		assertEquals(message, criterionTestResult.getMessage());
+		assertNull(criterionTestResult.getException());
+	}
+
+	@Test
+	void testProcessCriterionOk() throws IOException {
+		initHttp();
+
+		final HttpCriterion httpCriterion = HttpCriterion
+			.builder()
+			.type(HTTP_CRITERION_TYPE)
+			.method(HttpMethod.GET)
+			.url(TEST_URL)
+			.body(TEST_BODY)
+			.resultContent(ResultContent.ALL)
+			.expectedResult(RESULT)
+			.errorMessage(ERROR)
+			.build();
+
+		final HttpRequest httpRequest = HttpRequest
+			.builder()
+			.hostname(HOST_NAME)
+			.method(HTTP_GET)
+			.url(httpCriterion.getUrl())
+			.header(httpCriterion.getHeader(), CONNECTOR_ID, HOST_NAME)
+			.body(httpCriterion.getBody(), CONNECTOR_ID, HOST_NAME)
+			.httpConfiguration(
+				(HttpConfiguration) telemetryManager.getHostConfiguration().getConfigurations().get(HttpConfiguration.class)
+			)
+			.resultContent(httpCriterion.getResultContent())
+			.authenticationToken(httpCriterion.getAuthenticationToken())
+			.build();
+		doReturn(RESULT).when(httpRequestExecutorMock).executeHttp(httpRequest, false, telemetryManager);
+
+		final String message = String.format("Hostname %s - HTTP test succeeded. Returned result: result.", HOST_NAME);
+		final CriterionTestResult criterionTestResult = httpExtension.processCriterion(
+			httpCriterion,
+			CONNECTOR_ID,
+			telemetryManager
+		);
+
+		assertEquals(RESULT, criterionTestResult.getResult());
+		assertTrue(criterionTestResult.isSuccess());
+		assertEquals(message, criterionTestResult.getMessage());
+		assertNull(criterionTestResult.getException());
+	}
+
+	@Test
+	void testProcessHttpSourceOk() {
+		initHttp();
+
+		doReturn(RESULT)
+			.when(httpRequestExecutorMock)
+			.executeHttp(any(HttpRequest.class), eq(true), any(TelemetryManager.class));
+		final SourceTable actual = httpExtension.processSource(
+			HttpSource.builder().url(TEST_URL).method(HttpMethod.GET).build(),
+			CONNECTOR_ID,
+			telemetryManager
+		);
+
+		final SourceTable expected = SourceTable.builder().rawData(RESULT).build();
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	void testProcessHttpSourceThrowsException() {
+		initHttp();
+
+		doThrow(new RuntimeException("excepton"))
+			.when(httpRequestExecutorMock)
+			.executeHttp(any(HttpRequest.class), eq(true), any(TelemetryManager.class));
+		final SourceTable actual = httpExtension.processSource(
+			HttpSource.builder().url(TEST_URL).method(HttpMethod.GET).build(),
+			CONNECTOR_ID,
+			telemetryManager
+		);
+
+		final SourceTable expected = SourceTable.empty();
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	void testProcessHttpSourceEmptyResult() {
+		initHttp();
+
+		{
+			doReturn(null)
+				.when(httpRequestExecutorMock)
+				.executeHttp(any(HttpRequest.class), eq(true), any(TelemetryManager.class));
+			final SourceTable actual = httpExtension.processSource(
+				HttpSource.builder().url(TEST_URL).method(HttpMethod.GET).build(),
+				CONNECTOR_ID,
+				telemetryManager
+			);
+
+			final SourceTable expected = SourceTable.empty();
+			assertEquals(expected, actual);
+		}
+
+		{
+			doReturn("")
+				.when(httpRequestExecutorMock)
+				.executeHttp(any(HttpRequest.class), eq(true), any(TelemetryManager.class));
+			final SourceTable actual = httpExtension.processSource(
+				HttpSource.builder().url(TEST_URL).method(HttpMethod.GET).build(),
+				CONNECTOR_ID,
+				telemetryManager
+			);
+
+			final SourceTable expected = SourceTable.empty();
+			assertEquals(expected, actual);
+		}
+	}
+
+	@Test
+	void testProcessHttpSourceNoHttpConfiguration() {
+		initHttp();
+
+		telemetryManager.getHostConfiguration().setConfigurations(Map.of());
+
+		assertEquals(
+			SourceTable.empty(),
+			httpExtension.processSource(
+				HttpSource.builder().url(TEST_URL).method(HttpMethod.GET).build(),
+				CONNECTOR_ID,
+				telemetryManager
+			)
 		);
 	}
 }

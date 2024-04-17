@@ -34,17 +34,17 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.http.HttpClient;
 import org.sentrysoftware.http.HttpResponse;
-import org.sentrysoftware.metricshub.engine.client.http.Body;
-import org.sentrysoftware.metricshub.engine.client.http.Header;
-import org.sentrysoftware.metricshub.engine.client.http.HttpMacrosUpdater;
-import org.sentrysoftware.metricshub.engine.client.http.HttpRequest;
-import org.sentrysoftware.metricshub.engine.client.http.Url;
 import org.sentrysoftware.metricshub.engine.common.exception.RetryableException;
 import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
 import org.sentrysoftware.metricshub.engine.strategy.utils.RetryOperation;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.extension.http.utils.Body;
+import org.sentrysoftware.metricshub.extension.http.utils.Header;
+import org.sentrysoftware.metricshub.extension.http.utils.HttpMacrosUpdater;
+import org.sentrysoftware.metricshub.extension.http.utils.HttpRequest;
+import org.sentrysoftware.metricshub.extension.http.utils.UrlHelper;
 
 /**
  * Executes HTTP requests configured through {@link HttpRequest} objects.
@@ -70,10 +70,10 @@ public class HttpRequestExecutor {
 	@WithSpan("HTTP")
 	public String executeHttp(
 		@SpanAttribute("http.config") @NonNull HttpRequest httpRequest,
-		boolean logMode,
-		TelemetryManager telemetryManager
+		final boolean logMode,
+		final TelemetryManager telemetryManager
 	) {
-		final HttpConfiguration httpConfiguration = (HttpConfiguration) httpRequest.getHttpConfiguration();
+		final HttpConfiguration httpConfiguration = httpRequest.getHttpConfiguration();
 		notNull(httpConfiguration, PROTOCOL_CANNOT_BE_NULL);
 
 		final String hostname = httpRequest.getHostname();
@@ -141,7 +141,7 @@ public class HttpRequestExecutor {
 		final String url = HttpMacrosUpdater.update(httpRequestUrl, username, password, authenticationToken, hostname);
 
 		// Build the full URL
-		final String fullUrl = Url.format(protocol, hostname, httpConfiguration.getPort(), path, url);
+		final String fullUrl = UrlHelper.format(protocol, hostname, httpConfiguration.getPort(), path, url);
 
 		LoggingHelper.trace(() ->
 			log.trace(

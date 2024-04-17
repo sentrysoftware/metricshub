@@ -57,7 +57,15 @@ class SnmpExtensionTest {
 
 	private TelemetryManager telemetryManager;
 
+	/**
+	 * Creates a TelemetryManager instance with an SNMP configuration.
+	 */
 	private void initSnmp() {
+		final Monitor hostMonitor = Monitor.builder().type(HOST.getKey()).isEndpoint(true).build();
+		final Map<String, Map<String, Monitor>> monitors = new HashMap<>(
+			Map.of(HOST.getKey(), Map.of(HOST_NAME, hostMonitor))
+		);
+
 		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
 			.builder()
 			.community("public".toCharArray())
@@ -69,6 +77,7 @@ class SnmpExtensionTest {
 		telemetryManager =
 			TelemetryManager
 				.builder()
+				.monitors(monitors)
 				.hostConfiguration(
 					HostConfiguration
 						.builder()
@@ -462,35 +471,10 @@ class SnmpExtensionTest {
 		assertEquals(expected, actual);
 	}
 
-	/**
-	 * Creates and returns a TelemetryManager instance with an SNMP configuration.
-	 *
-	 * @return A TelemetryManager instance configured with an SNMP configuration.
-	 */
-	private TelemetryManager createTelemetryManagerWithSnmpConfig() {
-		final Monitor hostMonitor = Monitor.builder().type(HOST.getKey()).isEndpoint(true).build();
-		final Map<String, Map<String, Monitor>> monitors = new HashMap<>(
-			Map.of(HOST.getKey(), Map.of(HOST_NAME, hostMonitor))
-		);
-		// Create a telemetry manager
-		return TelemetryManager
-			.builder()
-			.monitors(monitors)
-			.hostConfiguration(
-				HostConfiguration
-					.builder()
-					.hostId(HOST_NAME)
-					.hostname(HOST_NAME)
-					.configurations(Map.of(SnmpConfiguration.class, SnmpConfiguration.builder().build()))
-					.build()
-			)
-			.build();
-	}
-
 	@Test
 	void testCheckSnmpUpHealth() throws InterruptedException, ExecutionException, TimeoutException {
 		// Create a telemetry manager using an SNMP HostConfiguration.
-		final TelemetryManager telemetryManager = createTelemetryManagerWithSnmpConfig();
+		initSnmp();
 
 		// The time at which the collect of the protocol up metric is triggered.
 		final long collectTime = System.currentTimeMillis();
@@ -512,7 +496,7 @@ class SnmpExtensionTest {
 	@Test
 	void testCheckSnmpDownHealth() throws InterruptedException, ExecutionException, TimeoutException {
 		// Create a telemetry manager using an SNMP HostConfiguration.
-		final TelemetryManager telemetryManager = createTelemetryManagerWithSnmpConfig();
+		initSnmp();
 
 		// The time at which the collect of the protocol up metric is triggered.
 		final long collectTime = System.currentTimeMillis();

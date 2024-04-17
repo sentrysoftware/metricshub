@@ -1,8 +1,8 @@
-package org.sentrysoftware.metricshub.engine.client.http;
+package org.sentrysoftware.metricshub.extension.http.utils;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
- * MetricsHub Engine
+ * MetricsHub HTTP Extension
  * ჻჻჻჻჻჻
  * Copyright 2023 - 2024 Sentry Software
  * ჻჻჻჻჻჻
@@ -30,10 +30,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
 import org.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
+import org.sentrysoftware.metricshub.extension.http.HttpConfiguration;
 
 /**
  * Represents an HTTP request.
@@ -46,7 +46,7 @@ import org.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
 public class HttpRequest {
 
 	@NonNull
-	private IConfiguration httpConfiguration;
+	private HttpConfiguration httpConfiguration;
 
 	@NonNull
 	private String hostname;
@@ -150,7 +150,7 @@ public class HttpRequest {
 				throw new IllegalStateException(hostname);
 			}
 
-			return embeddedFiles.values().stream().findAny();
+			return embeddedFiles.values().stream().findFirst();
 		}
 	}
 }

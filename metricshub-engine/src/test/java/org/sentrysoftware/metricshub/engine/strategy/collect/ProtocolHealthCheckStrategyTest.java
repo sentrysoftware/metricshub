@@ -43,12 +43,12 @@ import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.TestConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WinRmConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
+import org.sentrysoftware.metricshub.engine.extension.TestConfiguration;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -83,11 +83,11 @@ class ProtocolHealthCheckStrategyTest {
 	}
 
 	/**
-	 * Creates and returns a TelemetryManager instance with an SNMP configuration.
+	 * Creates and returns a TelemetryManager instance with a Test configuration.
 	 *
-	 * @return A TelemetryManager instance configured with an SNMP configuration.
+	 * @return A TelemetryManager instance configured with a Test configuration.
 	 */
-	private TelemetryManager createTelemetryManagerWithSnmpConfig() {
+	private TelemetryManager createTelemetryManagerWithTestConfig() {
 		// Create a telemetry manager
 		return TelemetryManager
 			.builder()
@@ -256,8 +256,8 @@ class ProtocolHealthCheckStrategyTest {
 
 	@Test
 	void testCheckHealth() throws Exception {
-		// Create a telemetry manager using an SNMP HostConfiguration.
-		final TelemetryManager telemetryManager = createTelemetryManagerWithSnmpConfig();
+		// Create a telemetry manager using a test configuration.
+		final TelemetryManager telemetryManager = createTelemetryManagerWithTestConfig();
 
 		// Create the Extension Manager
 		final ExtensionManager extensionManager = ExtensionManager

@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.extension.http;
+package org.sentrysoftware.metricshub.extension.http.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -13,14 +13,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
-import org.sentrysoftware.metricshub.engine.client.http.EmbeddedFileBody;
-import org.sentrysoftware.metricshub.engine.client.http.EmbeddedFileHeader;
-import org.sentrysoftware.metricshub.engine.client.http.HttpRequest;
-import org.sentrysoftware.metricshub.engine.client.http.HttpRequest.HttpRequestBuilder;
-import org.sentrysoftware.metricshub.engine.client.http.StringBody;
-import org.sentrysoftware.metricshub.engine.client.http.StringHeader;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 import org.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
+import org.sentrysoftware.metricshub.extension.http.HttpConfiguration;
+import org.sentrysoftware.metricshub.extension.http.utils.HttpRequest.HttpRequestBuilder;
 
 class HttpRequestTest {
 

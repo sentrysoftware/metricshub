@@ -32,14 +32,14 @@ class HttpConfigCliTest {
 		httpConfigCli.setTimeout(timeout);
 		httpConfigCli.setHttpOrHttps(httpOrHttps);
 
-		try (MockedStatic<CliExtensionManager> CliExtensionManagerMock = mockStatic(CliExtensionManager.class)) {
+		try (MockedStatic<CliExtensionManager> cliExtensionManagerMock = mockStatic(CliExtensionManager.class)) {
 			// Initialize the extension manager required by the agent context
 			final ExtensionManager extensionManager = ExtensionManager
 				.builder()
 				.withProtocolExtensions(List.of(new HttpTestExtension()))
 				.build();
 
-			CliExtensionManagerMock
+			cliExtensionManagerMock
 				.when(() -> CliExtensionManager.getExtensionManagerSingleton())
 				.thenReturn(extensionManager);
 
@@ -56,9 +56,6 @@ class HttpConfigCliTest {
 
 			assertNotNull(result);
 			assertEquals(expected, result);
-			//			assertEquals(expected.getHttps(), result.getHttps());
-			//			assertEquals(expected.getTimeout(), result.getTimeout());
-			//			assertEquals(expected.getPort(), result.getPort());
 
 			httpConfigCli = new HttpConfigCli();
 			httpConfigCli.setTimeout(timeout);
@@ -67,9 +64,6 @@ class HttpConfigCliTest {
 			result = (HttpTestConfiguration) httpConfigCli.toProtocol(username, password);
 			assertNotNull(result);
 			assertEquals(expected, result);
-			//			assertEquals(expected.getHttps(), result.getHttps());
-			//			assertEquals(expected.getTimeout(), result.getTimeout());
-			//			assertEquals(expected.getPort(), result.getPort());
 		}
 	}
 

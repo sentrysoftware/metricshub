@@ -52,7 +52,6 @@ import org.sentrysoftware.metricshub.engine.configuration.IWinConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.TestConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
@@ -69,8 +68,8 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WbemSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WmiSource;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
-import org.sentrysoftware.metricshub.engine.extension.HttpTestConfiguration;
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
+import org.sentrysoftware.metricshub.engine.extension.TestConfiguration;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandResult;
 import org.sentrysoftware.metricshub.engine.telemetry.ConnectorNamespace;
@@ -121,20 +120,14 @@ class SourceProcessorTest {
 	private static final String CONNECTOR_ID = "myConnector";
 
 	@Test
-	void testProcessHttpSourceOK() {
-		final HttpTestConfiguration httpConfiguration = HttpTestConfiguration
-			.builder()
-			.username(USERNAME)
-			.password(PASSWORD.toCharArray())
-			.port(161)
-			.timeout(120L)
-			.build();
+	void testProcessHttpSource() {
+		final TestConfiguration httpConfiguration = TestConfiguration.builder().build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(ECS1_01)
 			.hostId(ECS1_01)
 			.hostType(DeviceKind.LINUX)
-			.configurations(Collections.singletonMap(HttpTestConfiguration.class, httpConfiguration))
+			.configurations(Collections.singletonMap(TestConfiguration.class, httpConfiguration))
 			.build();
 
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
@@ -152,11 +145,7 @@ class SourceProcessorTest {
 			.connectorId(CONNECTOR_ID)
 			.build();
 
-		doReturn(true)
-			.when(protocolExtensionMock)
-			.isValidConfiguration(
-				telemetryManager.getHostConfiguration().getConfigurations().get(HttpTestConfiguration.class)
-			);
+		doReturn(true).when(protocolExtensionMock).isValidConfiguration(httpConfiguration);
 
 		doReturn(Set.of(HttpSource.class)).when(protocolExtensionMock).getSupportedSources();
 
@@ -169,28 +158,6 @@ class SourceProcessorTest {
 		final SourceTable actual = sourceProcessor.process(source);
 
 		assertEquals(expected, actual);
-	}
-
-	@Test
-	void testProcessHttpSourceNoHttpConfiguration() {
-		final HostConfiguration hostConfiguration = HostConfiguration
-			.builder()
-			.hostname(ECS1_01)
-			.hostId(ECS1_01)
-			.hostType(DeviceKind.LINUX)
-			.build();
-
-		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
-		final SourceProcessor sourceProcessor = SourceProcessor
-			.builder()
-			.telemetryManager(telemetryManager)
-			.extensionManager(ExtensionManager.empty())
-			.build();
-
-		assertEquals(
-			SourceTable.empty(),
-			sourceProcessor.process(HttpSource.builder().url("my/url").method(HttpMethod.GET).build())
-		);
 	}
 
 	@Test
@@ -829,14 +796,7 @@ class SourceProcessorTest {
 
 	@Test
 	void testProcessWmiSourceMalformed() {
-		final TestConfiguration snmpConfiguration = TestConfiguration.builder().build();
-		final HttpTestConfiguration httpConfiguration = HttpTestConfiguration
-			.builder()
-			.username(USERNAME)
-			.password(PASSWORD.toCharArray())
-			.port(161)
-			.timeout(120L)
-			.build();
+		final TestConfiguration httpConfiguration = TestConfiguration.builder().build();
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
 			.hostConfiguration(
@@ -845,9 +805,7 @@ class SourceProcessorTest {
 					.hostname(ECS1_01)
 					.hostId(ECS1_01)
 					.hostType(DeviceKind.LINUX)
-					.configurations(
-						Map.of(TestConfiguration.class, snmpConfiguration, HttpTestConfiguration.class, httpConfiguration)
-					)
+					.configurations(Map.of(TestConfiguration.class, httpConfiguration))
 					.build()
 			)
 			.build();
@@ -1279,19 +1237,13 @@ class SourceProcessorTest {
 
 	@Test
 	void testProcessWindowsIpmiSourceWmiProtocolNull() throws Exception {
-		final HttpTestConfiguration httpConfiguration = HttpTestConfiguration
-			.builder()
-			.username("username")
-			.password("password".toCharArray())
-			.port(161)
-			.timeout(120L)
-			.build();
+		final TestConfiguration httpConfiguration = TestConfiguration.builder().build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(ECS1_01)
 			.hostId(ECS1_01)
 			.hostType(DeviceKind.WINDOWS)
-			.configurations(Collections.singletonMap(HttpTestConfiguration.class, httpConfiguration))
+			.configurations(Collections.singletonMap(TestConfiguration.class, httpConfiguration))
 			.build();
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 		final SourceProcessor sourceProcessor = SourceProcessor
@@ -1318,7 +1270,7 @@ class SourceProcessorTest {
 			.hostType(DeviceKind.LINUX)
 			.configurations(
 				Map.of(
-					HttpTestConfiguration.class,
+					TestConfiguration.class,
 					OsCommandConfiguration.builder().build(),
 					SshConfiguration.class,
 					sshConfiguration
