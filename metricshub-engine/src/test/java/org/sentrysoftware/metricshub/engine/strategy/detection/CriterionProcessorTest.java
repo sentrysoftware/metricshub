@@ -124,10 +124,10 @@ import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.common.HttpMethod;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.CommandLineCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.DeviceTypeCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.HttpCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.IpmiCriterion;
-import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.OsCommandCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.ProcessCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.ProductRequirementsCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.ServiceCriterion;
@@ -1655,8 +1655,8 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void testProcessOsCommandNotExpectedResult() {
-		final OsCommandCriterion osCommandCriterion = OsCommandCriterion
+	void testProcessCommandLineNotExpectedResult() {
+		final CommandLineCriterion commandLineCriterion = CommandLineCriterion
 			.builder()
 			.commandLine(SSH_SUDO_COMMAND)
 			.errorMessage(EMPTY)
@@ -1702,10 +1702,10 @@ class CriterionProcessorTest {
 			osCommandHelper
 				.when(() -> OsCommandHelper.runOsCommand(SSH_SUDO_COMMAND, telemetryManager, 30L, true, true))
 				.thenReturn(result);
-			final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
+			final CriterionTestResult criterionTestResult = criterionProcessor.process(commandLineCriterion);
 
 			final String message = String.format(
-				"OsCommandCriterion test ran but failed:\n" +
+				"CommandLineCriterion test ran but failed:\n" +
 				"- CommandLine: %s\n" +
 				"- ExecuteLocally: true\n" +
 				"- ExpectedResult: %s\n" +
@@ -1726,8 +1726,8 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void testProcessOsCommandOK() {
-		final OsCommandCriterion osCommandCriterion = OsCommandCriterion
+	void testProcessCommandLineOK() {
+		final CommandLineCriterion commandLineCriterion = CommandLineCriterion
 			.builder()
 			.commandLine(SSH_SUDO_COMMAND)
 			.errorMessage(EMPTY)
@@ -1772,10 +1772,10 @@ class CriterionProcessorTest {
 			osCommandHelper
 				.when(() -> OsCommandHelper.runOsCommand(SSH_SUDO_COMMAND, telemetryManager, 30L, true, true))
 				.thenReturn(result);
-			final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
+			final CriterionTestResult criterionTestResult = criterionProcessor.process(commandLineCriterion);
 
 			final String message = String.format(
-				"OsCommandCriterion test succeeded:\n" +
+				"CommandLineCriterion test succeeded:\n" +
 				"- CommandLine: %s\n" +
 				"- ExecuteLocally: true\n" +
 				"- ExpectedResult: %s\n" +
@@ -1795,8 +1795,8 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void testProcessOsCommandEmbeddedFileOK() {
-		final OsCommandCriterion osCommandCriterion = OsCommandCriterion
+	void testProcessCommandLineEmbeddedFileOK() {
+		final CommandLineCriterion commandLineCriterion = CommandLineCriterion
 			.builder()
 			.commandLine(COMMAND_FILE_ABSOLUTE_PATH)
 			.errorMessage(EMPTY)
@@ -1841,10 +1841,10 @@ class CriterionProcessorTest {
 			osCommandHelper
 				.when(() -> OsCommandHelper.runOsCommand(COMMAND_FILE_ABSOLUTE_PATH, telemetryManager, 120L, true, true))
 				.thenReturn(result);
-			final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
+			final CriterionTestResult criterionTestResult = criterionProcessor.process(commandLineCriterion);
 
 			final String message = String.format(
-				"OsCommandCriterion test succeeded:\n" +
+				"CommandLineCriterion test succeeded:\n" +
 				"- CommandLine: %s\n" +
 				"- ExecuteLocally: true\n" +
 				"- ExpectedResult: %s\n" +
@@ -1864,10 +1864,10 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void testVisitOsCommandNull() {
-		final OsCommandCriterion osCommandCriterion = null;
+	void testVisitCommandLineNull() {
+		final CommandLineCriterion commandLineCriterion = null;
 
-		final CriterionTestResult criterionTestResult = new CriterionProcessor().process(osCommandCriterion);
+		final CriterionTestResult criterionTestResult = new CriterionProcessor().process(commandLineCriterion);
 
 		assertNotNull(criterionTestResult);
 		assertFalse(criterionTestResult.isSuccess());
@@ -1876,13 +1876,13 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void testVisitOsCommandExpectedResultNull() {
-		final OsCommandCriterion osCommandCriterion = new OsCommandCriterion();
-		osCommandCriterion.setCommandLine(
+	void testVisitCommandLineExpectedResultNull() {
+		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
+		commandLineCriterion.setCommandLine(
 			"naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent"
 		);
-		osCommandCriterion.setExecuteLocally(true);
-		osCommandCriterion.setErrorMessage("Unable to connect using Navisphere");
+		commandLineCriterion.setExecuteLocally(true);
+		commandLineCriterion.setErrorMessage("Unable to connect using Navisphere");
 
 		final TelemetryManager telemetryManager = TelemetryManager.builder().build();
 
@@ -1895,13 +1895,13 @@ class CriterionProcessorTest {
 			MY_CONNECTOR_1_NAME,
 			extensionManager
 		);
-		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
+		final CriterionTestResult criterionTestResult = criterionProcessor.process(commandLineCriterion);
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
 		assertEquals(
-			"OsCommandCriterion test succeeded:\n" +
-			osCommandCriterion.toString() +
+			"CommandLineCriterion test succeeded:\n" +
+			commandLineCriterion.toString() +
 			"\n\n" +
 			"Result: CommandLine or ExpectedResult are empty. Skipping this test.",
 			criterionTestResult.getMessage()
@@ -1910,12 +1910,12 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void testVisitOsCommandLineEmpty() {
-		final OsCommandCriterion osCommandCriterion = new OsCommandCriterion();
-		osCommandCriterion.setCommandLine("");
-		osCommandCriterion.setExpectedResult("Agent Rev:");
-		osCommandCriterion.setExecuteLocally(true);
-		osCommandCriterion.setErrorMessage("Unable to connect using Navisphere");
+	void testVisitCommandLineLineEmpty() {
+		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
+		commandLineCriterion.setCommandLine("");
+		commandLineCriterion.setExpectedResult("Agent Rev:");
+		commandLineCriterion.setExecuteLocally(true);
+		commandLineCriterion.setErrorMessage("Unable to connect using Navisphere");
 
 		final TelemetryManager telemetryManager = TelemetryManager.builder().build();
 
@@ -1928,13 +1928,13 @@ class CriterionProcessorTest {
 			MY_CONNECTOR_1_NAME,
 			extensionManager
 		);
-		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
+		final CriterionTestResult criterionTestResult = criterionProcessor.process(commandLineCriterion);
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
 		assertEquals(
-			"OsCommandCriterion test succeeded:\n" +
-			osCommandCriterion.toString() +
+			"CommandLineCriterion test succeeded:\n" +
+			commandLineCriterion.toString() +
 			"\n\n" +
 			"Result: CommandLine or ExpectedResult are empty. Skipping this test.",
 			criterionTestResult.getMessage()
@@ -1943,14 +1943,14 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void testVisitOsCommandExpectedResultEmpty() {
-		final OsCommandCriterion osCommandCriterion = new OsCommandCriterion();
-		osCommandCriterion.setCommandLine(
+	void testVisitCommandLineExpectedResultEmpty() {
+		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
+		commandLineCriterion.setCommandLine(
 			"naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent"
 		);
-		osCommandCriterion.setExpectedResult("");
-		osCommandCriterion.setExecuteLocally(true);
-		osCommandCriterion.setErrorMessage("Unable to connect using Navisphere");
+		commandLineCriterion.setExpectedResult("");
+		commandLineCriterion.setExecuteLocally(true);
+		commandLineCriterion.setErrorMessage("Unable to connect using Navisphere");
 
 		final TelemetryManager telemetryManager = TelemetryManager.builder().build();
 
@@ -1963,13 +1963,13 @@ class CriterionProcessorTest {
 			MY_CONNECTOR_1_NAME,
 			extensionManager
 		);
-		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
+		final CriterionTestResult criterionTestResult = criterionProcessor.process(commandLineCriterion);
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
 		assertEquals(
-			"OsCommandCriterion test succeeded:\n" +
-			osCommandCriterion.toString() +
+			"CommandLineCriterion test succeeded:\n" +
+			commandLineCriterion.toString() +
 			"\n\n" +
 			"Result: CommandLine or ExpectedResult are empty. Skipping this test.",
 			criterionTestResult.getMessage()
@@ -1978,14 +1978,14 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void testVisitOsCommandRemoteNoUser() {
-		final OsCommandCriterion osCommandCriterion = new OsCommandCriterion();
-		osCommandCriterion.setCommandLine(
+	void testVisitCommandLineRemoteNoUser() {
+		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
+		commandLineCriterion.setCommandLine(
 			"naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent"
 		);
-		osCommandCriterion.setExpectedResult("Agent Rev:");
-		osCommandCriterion.setExecuteLocally(false);
-		osCommandCriterion.setErrorMessage("Unable to connect using Navisphere");
+		commandLineCriterion.setExpectedResult("Agent Rev:");
+		commandLineCriterion.setExecuteLocally(false);
+		commandLineCriterion.setErrorMessage("Unable to connect using Navisphere");
 
 		final SshConfiguration sshConfiguration = SshConfiguration
 			.sshConfigurationBuilder()
@@ -2019,12 +2019,12 @@ class CriterionProcessorTest {
 			extensionManager
 		);
 
-		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
+		final CriterionTestResult criterionTestResult = criterionProcessor.process(commandLineCriterion);
 
 		assertNotNull(criterionTestResult);
 		assertFalse(criterionTestResult.isSuccess());
 		assertEquals(
-			"Error in OsCommandCriterion test:\n" + osCommandCriterion.toString() + "\n\n" + "No credentials provided.",
+			"Error in CommandLineCriterion test:\n" + commandLineCriterion.toString() + "\n\n" + "No credentials provided.",
 			criterionTestResult.getMessage()
 		);
 		assertNull(criterionTestResult.getResult());
@@ -2032,12 +2032,12 @@ class CriterionProcessorTest {
 
 	@Test
 	@EnabledOnOs(WINDOWS)
-	void testVisitOsCommandWindowsError() {
-		final OsCommandCriterion osCommandCriterion = new OsCommandCriterion();
-		osCommandCriterion.setCommandLine("PAUSE");
-		osCommandCriterion.setExpectedResult(" ");
-		osCommandCriterion.setExecuteLocally(true);
-		osCommandCriterion.setErrorMessage("No date.");
+	void testVisitCommandLineWindowsError() {
+		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
+		commandLineCriterion.setCommandLine("PAUSE");
+		commandLineCriterion.setExpectedResult(" ");
+		commandLineCriterion.setExecuteLocally(true);
+		commandLineCriterion.setErrorMessage("No date.");
 
 		final SshConfiguration sshConfiguration = SshConfiguration
 			.sshConfigurationBuilder()
@@ -2076,13 +2076,13 @@ class CriterionProcessorTest {
 			extensionManager
 		);
 
-		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
+		final CriterionTestResult criterionTestResult = criterionProcessor.process(commandLineCriterion);
 
 		assertNotNull(criterionTestResult);
 		assertFalse(criterionTestResult.isSuccess());
 		assertEquals(
-			"Error in OsCommandCriterion test:\n" +
-			osCommandCriterion.toString() +
+			"Error in CommandLineCriterion test:\n" +
+			commandLineCriterion.toString() +
 			"\n\n" +
 			"TimeoutException: Command \"PAUSE\" execution has timed out after 1 s",
 			criterionTestResult.getMessage()
@@ -2092,13 +2092,13 @@ class CriterionProcessorTest {
 
 	@Test
 	@EnabledOnOs(LINUX)
-	void testVisitOsCommandLinuxError() {
-		final OsCommandCriterion osCommandCriterion = new OsCommandCriterion();
-		osCommandCriterion.setCommandLine("sleep 5");
-		osCommandCriterion.setExpectedResult(" ");
-		osCommandCriterion.setExecuteLocally(true);
-		osCommandCriterion.setErrorMessage("No date.");
-		osCommandCriterion.setTimeout(1L);
+	void testVisitCommandLineLinuxError() {
+		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
+		commandLineCriterion.setCommandLine("sleep 5");
+		commandLineCriterion.setExpectedResult(" ");
+		commandLineCriterion.setExecuteLocally(true);
+		commandLineCriterion.setErrorMessage("No date.");
+		commandLineCriterion.setTimeout(1L);
 
 		final SshConfiguration sshConfiguration = SshConfiguration
 			.sshConfigurationBuilder()
@@ -2137,13 +2137,13 @@ class CriterionProcessorTest {
 			extensionManager
 		);
 
-		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
+		final CriterionTestResult criterionTestResult = criterionProcessor.process(commandLineCriterion);
 
 		assertNotNull(criterionTestResult);
 		assertFalse(criterionTestResult.isSuccess());
 		assertEquals(
-			"Error in OsCommandCriterion test:\n" +
-			osCommandCriterion.toString() +
+			"Error in CommandLineCriterion test:\n" +
+			commandLineCriterion.toString() +
 			"\n\n" +
 			"TimeoutException: Command \"sleep 5\" execution has timed out after 1 s",
 			criterionTestResult.getMessage()
@@ -2153,14 +2153,14 @@ class CriterionProcessorTest {
 
 	@Test
 	@EnabledOnOs(WINDOWS)
-	void testVisitOsCommandLocalWindowsFailedToMatchCriteria() {
+	void testVisitCommandLineLocalWindowsFailedToMatchCriteria() {
 		final String result = "Test";
 
-		final OsCommandCriterion osCommandCriterion = new OsCommandCriterion();
-		osCommandCriterion.setCommandLine("ECHO Test");
-		osCommandCriterion.setExpectedResult("Nothing");
-		osCommandCriterion.setExecuteLocally(true);
-		osCommandCriterion.setErrorMessage("No display.");
+		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
+		commandLineCriterion.setCommandLine("ECHO Test");
+		commandLineCriterion.setExpectedResult("Nothing");
+		commandLineCriterion.setExecuteLocally(true);
+		commandLineCriterion.setErrorMessage("No display.");
 
 		final SshConfiguration sshConfiguration = SshConfiguration
 			.sshConfigurationBuilder()
@@ -2194,13 +2194,13 @@ class CriterionProcessorTest {
 			extensionManager
 		);
 
-		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
+		final CriterionTestResult criterionTestResult = criterionProcessor.process(commandLineCriterion);
 
 		assertNotNull(criterionTestResult);
 		assertFalse(criterionTestResult.isSuccess());
 		assertEquals(
-			"OsCommandCriterion test ran but failed:\n" +
-			osCommandCriterion.toString() +
+			"CommandLineCriterion test ran but failed:\n" +
+			commandLineCriterion.toString() +
 			"\n\n" +
 			"Actual result:\n" +
 			result,
@@ -2211,14 +2211,14 @@ class CriterionProcessorTest {
 
 	@Test
 	@EnabledOnOs(LINUX)
-	void testVisitOsCommandLocalLinuxFailedToMatchCriteria() {
+	void testVisitCommandLineLocalLinuxFailedToMatchCriteria() {
 		final String result = "Test";
 
-		final OsCommandCriterion osCommandCriterion = new OsCommandCriterion();
-		osCommandCriterion.setCommandLine("echo Test");
-		osCommandCriterion.setExpectedResult("Nothing");
-		osCommandCriterion.setExecuteLocally(true);
-		osCommandCriterion.setErrorMessage("No display.");
+		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
+		commandLineCriterion.setCommandLine("echo Test");
+		commandLineCriterion.setExpectedResult("Nothing");
+		commandLineCriterion.setExecuteLocally(true);
+		commandLineCriterion.setErrorMessage("No display.");
 
 		final SshConfiguration sshConfiguration = SshConfiguration
 			.sshConfigurationBuilder()
@@ -2253,13 +2253,13 @@ class CriterionProcessorTest {
 			extensionManager
 		);
 
-		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
+		final CriterionTestResult criterionTestResult = criterionProcessor.process(commandLineCriterion);
 
 		assertNotNull(criterionTestResult);
 		assertFalse(criterionTestResult.isSuccess());
 		assertEquals(
-			"OsCommandCriterion test ran but failed:\n" +
-			osCommandCriterion.toString() +
+			"CommandLineCriterion test ran but failed:\n" +
+			commandLineCriterion.toString() +
 			"\n\n" +
 			"Actual result:\n" +
 			result,
@@ -2270,14 +2270,14 @@ class CriterionProcessorTest {
 
 	@Test
 	@EnabledOnOs(WINDOWS)
-	void testVisitOsCommandLocalWindows() {
+	void testVisitCommandLineLocalWindows() {
 		final String result = "Test";
 
-		final OsCommandCriterion osCommandCriterion = new OsCommandCriterion();
-		osCommandCriterion.setCommandLine("ECHO Test");
-		osCommandCriterion.setExpectedResult(result);
-		osCommandCriterion.setExecuteLocally(true);
-		osCommandCriterion.setErrorMessage("No display.");
+		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
+		commandLineCriterion.setCommandLine("ECHO Test");
+		commandLineCriterion.setExpectedResult(result);
+		commandLineCriterion.setExecuteLocally(true);
+		commandLineCriterion.setErrorMessage("No display.");
 
 		final SshConfiguration sshConfiguration = SshConfiguration
 			.sshConfigurationBuilder()
@@ -2312,12 +2312,12 @@ class CriterionProcessorTest {
 			extensionManager
 		);
 
-		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
+		final CriterionTestResult criterionTestResult = criterionProcessor.process(commandLineCriterion);
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
 		assertEquals(
-			"OsCommandCriterion test succeeded:\n" + osCommandCriterion.toString() + "\n\n" + "Result: " + result,
+			"CommandLineCriterion test succeeded:\n" + commandLineCriterion.toString() + "\n\n" + "Result: " + result,
 			criterionTestResult.getMessage()
 		);
 		assertEquals(result, criterionTestResult.getResult());
@@ -2325,14 +2325,14 @@ class CriterionProcessorTest {
 
 	@Test
 	@EnabledOnOs(LINUX)
-	void testVisitOsCommandLocalLinux() {
+	void testVisitCommandLineLocalLinux() {
 		final String result = "Test";
 
-		final OsCommandCriterion osCommandCriterion = new OsCommandCriterion();
-		osCommandCriterion.setCommandLine("echo Test");
-		osCommandCriterion.setExpectedResult(result);
-		osCommandCriterion.setExecuteLocally(true);
-		osCommandCriterion.setErrorMessage("No display.");
+		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
+		commandLineCriterion.setCommandLine("echo Test");
+		commandLineCriterion.setExpectedResult(result);
+		commandLineCriterion.setExecuteLocally(true);
+		commandLineCriterion.setErrorMessage("No display.");
 
 		final SshConfiguration sshConfiguration = SshConfiguration
 			.sshConfigurationBuilder()
@@ -2367,12 +2367,12 @@ class CriterionProcessorTest {
 			extensionManager
 		);
 
-		final CriterionTestResult criterionTestResult = criterionProcessor.process(osCommandCriterion);
+		final CriterionTestResult criterionTestResult = criterionProcessor.process(commandLineCriterion);
 
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
 		assertEquals(
-			"OsCommandCriterion test succeeded:\n" + osCommandCriterion.toString() + "\n\n" + "Result: " + result,
+			"CommandLineCriterion test succeeded:\n" + commandLineCriterion.toString() + "\n\n" + "Result: " + result,
 			criterionTestResult.getMessage()
 		);
 		assertEquals(result, criterionTestResult.getResult());

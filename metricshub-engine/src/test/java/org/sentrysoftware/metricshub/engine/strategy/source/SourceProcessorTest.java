@@ -57,10 +57,10 @@ import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.common.HttpMethod;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CommandLineSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CopySource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.OsCommandSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpGetSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.StaticSource;
@@ -975,16 +975,16 @@ class SourceProcessorTest {
 			.telemetryManager(telemetryManager)
 			.clientsExecutor(clientsExecutorMock)
 			.build();
-		assertEquals(SourceTable.empty(), sourceProcessor.process((OsCommandSource) null));
-		assertEquals(SourceTable.empty(), sourceProcessor.process(new OsCommandSource()));
-		assertEquals(SourceTable.empty(), sourceProcessor.process(OsCommandSource.builder().commandLine("").build()));
+		assertEquals(SourceTable.empty(), sourceProcessor.process((CommandLineSource) null));
+		assertEquals(SourceTable.empty(), sourceProcessor.process(new CommandLineSource()));
+		assertEquals(SourceTable.empty(), sourceProcessor.process(CommandLineSource.builder().commandLine("").build()));
 
 		final String commandLine = "/usr/sbin/ioscan -kFC ext_bus";
 		final String keepOnlyRegExp = ":ext_bus:";
 		final String separators = ":";
 		final String selectColumns = "2-4,5,6";
 
-		final OsCommandSource commandSource = new OsCommandSource();
+		final CommandLineSource commandSource = new CommandLineSource();
 		commandSource.setCommandLine(commandLine);
 		commandSource.setKeep(keepOnlyRegExp);
 		commandSource.setSeparators(separators);

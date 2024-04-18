@@ -48,10 +48,10 @@ import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EntryConcatMethod;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ExecuteForEachEntryOf;
 import org.sentrysoftware.metricshub.engine.connector.model.common.HttpMethod;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CommandLineSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CopySource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.OsCommandSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpGetSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.StaticSource;
@@ -535,7 +535,7 @@ class SourceUpdaterProcessorTest {
 
 	@Test
 	void testProcessOSCommandSource() {
-		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(OsCommandSource.class));
+		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(CommandLineSource.class));
 
 		assertEquals(
 			SourceTable.empty(),
@@ -546,7 +546,10 @@ class SourceUpdaterProcessorTest {
 				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
 			)
 				.process(
-					OsCommandSource.builder().commandLine("/usr/sbin/pvdisplay /dev/dsk/%PhysicalDisk.Collect.DeviceID%").build()
+					CommandLineSource
+						.builder()
+						.commandLine("/usr/sbin/pvdisplay /dev/dsk/%PhysicalDisk.Collect.DeviceID%")
+						.build()
 				)
 		);
 	}

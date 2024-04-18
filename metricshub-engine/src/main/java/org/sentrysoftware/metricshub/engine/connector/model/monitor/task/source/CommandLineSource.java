@@ -56,7 +56,7 @@ import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class OsCommandSource extends Source {
+public class CommandLineSource extends Source {
 
 	private static final String WHITE_SPACE_TAB = WHITE_SPACE + TAB;
 	private static final long serialVersionUID = 1L;
@@ -132,7 +132,7 @@ public class OsCommandSource extends Source {
 	 */
 	@Builder
 	@JsonCreator
-	public OsCommandSource(
+	public CommandLineSource(
 		@JsonProperty("type") String type,
 		@JsonProperty("computes") List<Compute> computes,
 		@JsonProperty("forceSerialization") boolean forceSerialization,
@@ -163,10 +163,10 @@ public class OsCommandSource extends Source {
 	/**
 	 * Copy the current instance
 	 *
-	 * @return new {@link OsCommandSource} instance
+	 * @return new {@link CommandLineSource} instance
 	 */
-	public OsCommandSource copy() {
-		return OsCommandSource
+	public CommandLineSource copy() {
+		return CommandLineSource
 			.builder()
 			.type(type)
 			.key(key)
