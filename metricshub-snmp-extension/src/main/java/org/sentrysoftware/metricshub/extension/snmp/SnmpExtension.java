@@ -99,7 +99,7 @@ public class SnmpExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public void checkProtocol(TelemetryManager telemetryManager, Long collectTime) {
+	public void checkProtocol(TelemetryManager telemetryManager) {
 		// Retrieve the hostname
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 

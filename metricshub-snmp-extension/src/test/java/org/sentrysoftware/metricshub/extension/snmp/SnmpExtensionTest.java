@@ -476,16 +476,13 @@ class SnmpExtensionTest {
 		// Create a telemetry manager using an SNMP HostConfiguration.
 		initSnmp();
 
-		// The time at which the collect of the protocol up metric is triggered.
-		final long collectTime = System.currentTimeMillis();
-
 		// Mock SNMP protocol health check response
 		doReturn("success")
 			.when(snmpRequestExecutorMock)
 			.executeSNMPGetNext(eq(SnmpExtension.SNMP_OID), any(SnmpConfiguration.class), anyString(), anyBoolean());
 
 		// Start the SNMP protocol check
-		snmpExtension.checkProtocol(telemetryManager, collectTime);
+		snmpExtension.checkProtocol(telemetryManager);
 
 		assertEquals(
 			SnmpExtension.UP,
@@ -498,16 +495,13 @@ class SnmpExtensionTest {
 		// Create a telemetry manager using an SNMP HostConfiguration.
 		initSnmp();
 
-		// The time at which the collect of the protocol up metric is triggered.
-		final long collectTime = System.currentTimeMillis();
-
 		// Mock SNMP protocol health check response
 		doReturn(null)
 			.when(snmpRequestExecutorMock)
 			.executeSNMPGetNext(eq(SnmpExtension.SNMP_OID), any(SnmpConfiguration.class), anyString(), anyBoolean());
 
 		// Start the SNMP protocol check
-		snmpExtension.checkProtocol(telemetryManager, collectTime);
+		snmpExtension.checkProtocol(telemetryManager);
 
 		assertEquals(
 			SnmpExtension.DOWN,

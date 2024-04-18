@@ -82,14 +82,13 @@ public interface IProtocolExtension {
 	Set<Class<? extends Criterion>> getSupportedCriteria();
 
 	/**
-	 * Performs a protocol check based on the given telemetry manager and collect time. This method
+	 * Performs a protocol check based on the given telemetry manager and its strategy time. This method
 	 * is used to verify if a specific protocol or condition is met for the hostname defined by the
 	 * telemetry manager.
 	 *
 	 * @param telemetryManager The telemetry manager to use for monitoring.
-	 * @param collectTime      The time at which the collect is started.
 	 */
-	void checkProtocol(TelemetryManager telemetryManager, Long collectTime);
+	void checkProtocol(TelemetryManager telemetryManager);
 
 	/**
 	 * Executes a source operation based on the given source and configuration within the telemetry manager.

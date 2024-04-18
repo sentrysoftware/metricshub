@@ -232,7 +232,7 @@ class ProtocolHealthCheckStrategyTest {
 			.when(protocolExtensionMock)
 			.isValidConfiguration(telemetryManager.getHostConfiguration().getConfigurations().get(TestConfiguration.class));
 
-		doNothing().when(protocolExtensionMock).checkProtocol(any(TelemetryManager.class), anyLong());
+		doNothing().when(protocolExtensionMock).checkProtocol(any(TelemetryManager.class));
 
 		// Create a new protocol health check strategy
 		final ProtocolHealthCheckStrategy healthCheckStrategy = new ProtocolHealthCheckStrategy(
