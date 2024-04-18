@@ -1,8 +1,8 @@
-package org.sentrysoftware.metricshub.engine.client.http;
+package org.sentrysoftware.metricshub.extension.http.utils;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
- * MetricsHub Engine
+ * MetricsHub HTTP Extension
  * ჻჻჻჻჻჻
  * Copyright 2023 - 2024 Sentry Software
  * ჻჻჻჻჻჻
@@ -40,9 +40,9 @@ import lombok.NonNull;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class HttpMacrosUpdater {
 
-	private static final String PASSWORD_BASE64_MACRO = "%{PASSWORD_BASE64}";
-	private static final String BASIC_AUTH_BASE64_MACRO = "%{BASIC_AUTH_BASE64}";
-	private static final String SHA256_AUTH_MACRO = "%{SHA256_AUTH}";
+	static final String PASSWORD_BASE64_MACRO = "%{PASSWORD_BASE64}";
+	static final String BASIC_AUTH_BASE64_MACRO = "%{BASIC_AUTH_BASE64}";
+	static final String SHA256_AUTH_MACRO = "%{SHA256_AUTH}";
 
 	/**
 	 * Replaces each known HTTP macro in the given text with the literal target sequences:<br>

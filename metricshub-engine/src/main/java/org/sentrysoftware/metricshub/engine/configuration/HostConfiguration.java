@@ -37,7 +37,6 @@ import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.alert.AlertInfo;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CommandLineSource;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WbemSource;
@@ -82,8 +81,6 @@ public class HostConfiguration {
 				Collections.singleton(WbemSource.class),
 				SshConfiguration.class,
 				Collections.singleton(CommandLineSource.class),
-				HttpConfiguration.class,
-				Collections.singleton(HttpSource.class),
 				IpmiConfiguration.class,
 				Collections.singleton(IpmiSource.class),
 				OsCommandConfiguration.class,

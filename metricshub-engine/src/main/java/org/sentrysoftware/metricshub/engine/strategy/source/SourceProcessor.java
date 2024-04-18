@@ -44,11 +44,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
-import org.sentrysoftware.metricshub.engine.client.http.HttpRequest;
 import org.sentrysoftware.metricshub.engine.common.helpers.FilterResultHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
-import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IWinConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration;
@@ -145,61 +143,10 @@ public class SourceProcessor implements ISourceProcessor {
 	@WithSpan("Source HTTP Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final HttpSource httpSource) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-		if (httpSource == null) {
-			log.error(
-				"Hostname {} - HttpSource cannot be null, the HttpSource operation will return an empty result.",
-				hostname
-			);
-			return SourceTable.empty();
-		}
-
-		final HttpConfiguration httpConfiguration = (HttpConfiguration) telemetryManager
-			.getHostConfiguration()
-			.getConfigurations()
-			.get(HttpConfiguration.class);
-
-		if (httpConfiguration == null) {
-			log.debug(
-				"Hostname {} - The HTTP credentials are not configured. Returning an empty table for HttpSource {}.",
-				hostname,
-				httpSource
-			);
-
-			return SourceTable.empty();
-		}
-
-		try {
-			final String result = clientsExecutor.executeHttp(
-				HttpRequest
-					.builder()
-					.hostname(hostname)
-					.method(httpSource.getMethod().toString())
-					.url(httpSource.getUrl())
-					.path(httpSource.getPath())
-					.header(httpSource.getHeader(), connectorId, hostname)
-					.body(httpSource.getBody(), connectorId, hostname)
-					.resultContent(httpSource.getResultContent())
-					.authenticationToken(httpSource.getAuthenticationToken())
-					.httpConfiguration(httpConfiguration)
-					.build(),
-				true
-			);
-
-			if (result != null && !result.isEmpty()) {
-				return SourceTable.builder().rawData(result).build();
-			}
-		} catch (Exception e) {
-			LoggingHelper.logSourceError(
-				connectorId,
-				httpSource.getKey(),
-				String.format("HTTP %s %s", httpSource.getMethod(), httpSource.getUrl()),
-				hostname,
-				e
-			);
-		}
-
-		return SourceTable.empty();
+		final Optional<IProtocolExtension> extensions = extensionManager.findSourceExtension(httpSource, telemetryManager);
+		return extensions
+			.map(extension -> extension.processSource(httpSource, connectorId, telemetryManager))
+			.orElseGet(SourceTable::empty);
 	}
 
 	@WithSpan("Source IPMI Exec")

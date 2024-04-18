@@ -80,10 +80,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.sentrysoftware</groupId>
-			<artifactId>http</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sentrysoftware</groupId>
 			<artifactId>ipmi</artifactId>
 			<exclusions>
 				<exclusion>

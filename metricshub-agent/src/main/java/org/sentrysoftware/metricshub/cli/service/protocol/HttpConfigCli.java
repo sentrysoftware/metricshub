@@ -21,17 +21,23 @@ package org.sentrysoftware.metricshub.cli.service.protocol;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import com.fasterxml.jackson.databind.node.BooleanNode;
+import com.fasterxml.jackson.databind.node.IntNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
+import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
 /**
  * This class is used by MetricsHubCliService to configure Http protocol when using the MetricsHub CLI.
- * It create the engine's {@link HttpConfiguration} object that is used to monitor a specific resource through REST.
+ * It create the engine's {@link IConfiguration} for HTTP object that is used to monitor a specific resource through REST.
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -92,23 +98,31 @@ public class HttpConfigCli extends AbstractTransportProtocolCli {
 		defaultValue = "" + DEFAULT_TIMEOUT,
 		description = "Timeout in seconds for HTTP operations (default: ${DEFAULT-VALUE} s)"
 	)
-	private long timeout;
+	private String timeout;
 
 	/**
 	 * @param defaultUsername Username specified at the top level of the CLI (with the --username option)
 	 * @param defaultPassword Password specified at the top level of the CLI (with the --password option)
 	 * @return an HttpProtocol instance corresponding to the options specified by the user in the CLI
+	 * @throws InvalidConfigurationException
 	 */
 	@Override
-	public IConfiguration toProtocol(String defaultUsername, char[] defaultPassword) {
-		return HttpConfiguration
-			.builder()
-			.https(isHttps())
-			.port(getOrDeducePortNumber())
-			.username(username == null ? defaultUsername : username)
-			.password(username == null ? defaultPassword : password)
-			.timeout(timeout)
-			.build();
+	public IConfiguration toProtocol(String defaultUsername, char[] defaultPassword)
+		throws InvalidConfigurationException {
+		final ObjectNode configuration = JsonNodeFactory.instance.objectNode();
+		configuration.set("https", BooleanNode.valueOf(isHttps()));
+		configuration.set("username", new TextNode(username == null ? defaultUsername : username));
+		configuration.set(
+			"password",
+			new TextNode(username == null ? String.valueOf(defaultPassword) : String.valueOf(password))
+		);
+		configuration.set("port", new IntNode(getOrDeducePortNumber()));
+		configuration.set("timeout", new TextNode(timeout));
+
+		return CliExtensionManager
+			.getExtensionManagerSingleton()
+			.buildConfigurationFromJsonNode("http", configuration, value -> value)
+			.orElseThrow();
 	}
 
 	/**

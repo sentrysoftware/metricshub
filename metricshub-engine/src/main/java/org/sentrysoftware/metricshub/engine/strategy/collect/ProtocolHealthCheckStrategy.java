@@ -30,14 +30,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.ipmi.client.IpmiClient;
 import org.sentrysoftware.ipmi.client.IpmiClientConfiguration;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
-import org.sentrysoftware.metricshub.engine.client.http.HttpRequest;
-import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WinRmConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
-import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
@@ -75,11 +72,6 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 * Up metric name format that will be saved by the metric factory
 	 */
 	private static final String UP_METRIC_FORMAT = "metricshub.host.up{protocol=\"%s\"}";
-
-	/**
-	 * HTTP Up metric
-	 */
-	public static final String HTTP_UP_METRIC = String.format(UP_METRIC_FORMAT, "http");
 
 	/**
 	 * SSH Up metric
@@ -177,7 +169,6 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 		final MetricFactory metricFactory = new MetricFactory(hostname);
 
 		// Check the hostname protocols health
-		checkHttpHealth(hostname, hostMonitor, metricFactory);
 		checkSshHealth(hostname, hostMonitor, metricFactory);
 		checkIpmiHealth(hostname, hostMonitor, metricFactory);
 		checkWbemHealth(hostname, hostMonitor, metricFactory);
@@ -193,56 +184,6 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	@Override
 	public Long getStrategyTime() {
 		return telemetryManager.getStrategyTime();
-	}
-
-	/**
-	 * Check HTTP protocol health on the hostname for the host monitor.
-	 * Criteria: The HTTP GET request to "/" must return a result.
-	 *
-	 * @param hostname      The hostname on which we perform health check
-	 * @param hostMonitor   An endpoint host monitor
-	 * @param metricFactory The metric factory used to collect the health check metric
-	 */
-	public void checkHttpHealth(String hostname, Monitor hostMonitor, MetricFactory metricFactory) {
-		// Create and set the HTTP result to null
-		String httpResult = null;
-
-		// Retrieve HTTP configuration from the telemetry manager
-		final HttpConfiguration httpConfiguration = (HttpConfiguration) telemetryManager
-			.getHostConfiguration()
-			.getConfigurations()
-			.get(HttpConfiguration.class);
-
-		// Stop the HTTP health check if there is not an HTTP configuration
-		if (httpConfiguration == null) {
-			return;
-		}
-
-		log.info("Hostname {} - Checking HTTP protocol status. Sending GET request to '/'.", hostname);
-
-		// Execute HTTP test request
-		try {
-			// Create an Http request
-			final HttpRequest request = HttpRequest
-				.builder()
-				.hostname(hostname)
-				.path("/")
-				.httpConfiguration(httpConfiguration)
-				.resultContent(ResultContent.ALL)
-				.build();
-
-			// Execute Http test request
-			httpResult = clientsExecutor.executeHttp(request, true);
-		} catch (Exception e) {
-			log.debug(
-				"Hostname {} - Checking HTTP protocol status. HTTP exception when performing a GET request to '/': ",
-				hostname,
-				e
-			);
-		}
-
-		// Generate a metric from the Http result
-		metricFactory.collectNumberMetric(hostMonitor, HTTP_UP_METRIC, httpResult != null ? UP : DOWN, strategyTime);
 	}
 
 	/**

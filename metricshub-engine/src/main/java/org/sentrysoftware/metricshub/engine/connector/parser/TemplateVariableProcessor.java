@@ -34,6 +34,17 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 
+/**
+ * Processes template variables within JSON nodes by substituting placeholders
+ * with actual values from a set of connector variables. This processor extends
+ * the {@link AbstractNodeProcessor} to allow for chained node processing in the
+ * context of JSON data parsing and manipulation within the MetricsHub Engine.
+ *
+ * <p>It leverages regular expressions to identify placeholders matching a specific
+ * pattern and replaces them with corresponding values provided in a map of connector
+ * variables. This mechanism facilitates dynamic data manipulation based on the
+ * configuration provided at runtime.</p>
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class TemplateVariableProcessor extends AbstractNodeProcessor {
@@ -41,6 +52,12 @@ public class TemplateVariableProcessor extends AbstractNodeProcessor {
 	@NonNull
 	private Map<String, String> connectorVariables = new HashMap<>();
 
+	/**
+	 * Constructs a new {@code TemplateVariableProcessor} with the specified map of connector
+	 * variables and the next processor in the chain. This constructor initializes the processor
+	 * with a set of key-value pairs representing the variables to be substituted within JSON
+	 * templates and optionally, a next {@link AbstractNodeProcessor} for further processing.
+	 */
 	@Builder
 	public TemplateVariableProcessor(@NonNull Map<String, String> connectorVariables, AbstractNodeProcessor next) {
 		super(next);
