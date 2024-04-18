@@ -26,14 +26,14 @@ class SnmpConfigCliTest {
 		snmpConfigCli.setCommunity("community");
 		snmpConfigCli.setTimeout("120");
 
-		try (MockedStatic<CliExtensionManager> CliExtensionManagerMock = mockStatic(CliExtensionManager.class)) {
+		try (MockedStatic<CliExtensionManager> cliExtensionManagerMock = mockStatic(CliExtensionManager.class)) {
 			// Initialize the extension manager required by the agent context
 			final ExtensionManager extensionManager = ExtensionManager
 				.builder()
 				.withProtocolExtensions(List.of(new SnmpTestExtension()))
 				.build();
 
-			CliExtensionManagerMock
+			cliExtensionManagerMock
 				.when(() -> CliExtensionManager.getExtensionManagerSingleton())
 				.thenReturn(extensionManager);
 
