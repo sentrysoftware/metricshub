@@ -39,24 +39,24 @@ class IpmiConfigurationTest {
 		final String resourceKey = "resourceKey";
 		{
 			final IpmiConfiguration ipmiConfig = IpmiConfiguration
-					.builder()
-					.username(USERNAME)
-					.password(PASSWORD.toCharArray())
-					.bmcKey(BMC_KEY)
-					.timeout(-60L)
-					.build();
+				.builder()
+				.username(USERNAME)
+				.password(PASSWORD.toCharArray())
+				.bmcKey(BMC_KEY)
+				.timeout(-60L)
+				.build();
 
 			assertThrows(InvalidConfigurationException.class, () -> ipmiConfig.validateConfiguration(resourceKey));
 		}
 
 		{
 			final IpmiConfiguration ipmiConfig = IpmiConfiguration
-					.builder()
-					.username(USERNAME)
-					.password(PASSWORD.toCharArray())
-					.bmcKey(BMC_KEY)
-					.timeout(null)
-					.build();
+				.builder()
+				.username(USERNAME)
+				.password(PASSWORD.toCharArray())
+				.bmcKey(BMC_KEY)
+				.timeout(null)
+				.build();
 
 			assertThrows(InvalidConfigurationException.class, () -> ipmiConfig.validateConfiguration(resourceKey));
 		}

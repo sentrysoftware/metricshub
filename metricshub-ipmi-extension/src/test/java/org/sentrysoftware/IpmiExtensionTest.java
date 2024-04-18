@@ -110,7 +110,7 @@ class IpmiExtensionTest {
 				.thenReturn(SUCCESS_RESPONSE);
 
 			// Start the IPMI Health Check strategy
-			ipmiExtension.checkProtocol(telemetryManager, collectTime);
+			ipmiExtension.checkProtocol(telemetryManager);
 
 			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(IPMI_UP_METRIC).getValue());
 		}
@@ -130,7 +130,7 @@ class IpmiExtensionTest {
 				.thenReturn(null);
 
 			// Start the IPMI Health Check strategy
-			ipmiExtension.checkProtocol(telemetryManager, collectTime);
+			ipmiExtension.checkProtocol(telemetryManager);
 
 			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(IPMI_UP_METRIC).getValue());
 		}

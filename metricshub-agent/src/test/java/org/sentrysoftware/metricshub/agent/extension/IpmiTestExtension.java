@@ -23,21 +23,6 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 @Slf4j
 public class IpmiTestExtension implements IProtocolExtension {
 
-	/**
-	 * Protocol up status value '1.0'
-	 */
-	public static final Double UP = 1.0;
-
-	/**
-	 * Protocol down status value '0.0'
-	 */
-	public static final Double DOWN = 0.0;
-
-	/**
-	 * Up metric name format that will be saved by the metric factory
-	 */
-	static final String IPMI_UP_METRIC = "metricshub.host.up{operation=\"ipmi\"}";
-
 	@Override
 	public boolean isValidConfiguration(IConfiguration configuration) {
 		return configuration instanceof IpmiTestConfiguration;
@@ -54,7 +39,7 @@ public class IpmiTestExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public void checkProtocol(TelemetryManager telemetryManager, Long collectTime) {}
+	public void checkProtocol(TelemetryManager telemetryManager) {}
 
 	@Override
 	public SourceTable processSource(Source source, String connectorId, TelemetryManager telemetryManager) {

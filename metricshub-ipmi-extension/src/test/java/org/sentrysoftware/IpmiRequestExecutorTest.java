@@ -1,5 +1,11 @@
 package org.sentrysoftware;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mockStatic;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.sentrysoftware.ipmi.client.IpmiClient;
@@ -7,21 +13,15 @@ import org.sentrysoftware.ipmi.client.IpmiClientConfiguration;
 import org.sentrysoftware.metricshub.extension.ipmi.IpmiConfiguration;
 import org.sentrysoftware.metricshub.extension.ipmi.IpmiRequestExecutor;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mockStatic;
-
 class IpmiRequestExecutorTest {
 
 	final IpmiConfiguration ipmiConfiguration = IpmiConfiguration
-			.builder()
-			.username("username")
-			.password("password".toCharArray())
-			.timeout(120L)
-			.bmcKey("0x0102")
-			.build();
+		.builder()
+		.username("username")
+		.password("password".toCharArray())
+		.timeout(120L)
+		.bmcKey("0x0102")
+		.build();
 
 	@Test
 	void testExecuteIpmiDetection() throws Exception {
@@ -43,7 +43,6 @@ class IpmiRequestExecutorTest {
 	@Test
 	void testExecuteIpmiDetectionThrowsException() throws Exception {
 		try (MockedStatic<IpmiClient> ipmiClientMock = mockStatic(IpmiClient.class)) {
-
 			ipmiClientMock
 				.when(() -> IpmiClient.getChassisStatus(any(IpmiClientConfiguration.class)))
 				.thenThrow(new InterruptedException());
@@ -62,8 +61,8 @@ class IpmiRequestExecutorTest {
 			final String expected = "result";
 
 			ipmiClientMock
-					.when(() -> IpmiClient.getFrusAndSensorsAsStringResult(any(IpmiClientConfiguration.class)))
-					.thenReturn(expected);
+				.when(() -> IpmiClient.getFrusAndSensorsAsStringResult(any(IpmiClientConfiguration.class)))
+				.thenReturn(expected);
 
 			final String hostname = "hostname";
 
@@ -74,7 +73,6 @@ class IpmiRequestExecutorTest {
 	@Test
 	void testExecuteIpmiGetSensorsThrowsException() {
 		try (MockedStatic<IpmiClient> ipmiClientMock = mockStatic(IpmiClient.class)) {
-
 			ipmiClientMock
 				.when(() -> IpmiClient.getFrusAndSensorsAsStringResult(any(IpmiClientConfiguration.class)))
 				.thenThrow(new InterruptedException());

@@ -1,5 +1,7 @@
 package org.sentrysoftware.metricshub.engine.client;
 
+import static org.springframework.util.Assert.isTrue;
+
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
  * MetricsHub Engine
@@ -20,10 +22,6 @@ package org.sentrysoftware.metricshub.engine.client;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
-
-import static org.springframework.util.Assert.isTrue;
-import static org.springframework.util.Assert.notNull;
-
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import java.io.File;
