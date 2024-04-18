@@ -36,7 +36,7 @@ import org.sentrysoftware.snmp.client.SnmpClient;
 
 /**
  * The SnmpRequestExecutor class provides utility methods for executing
- * various SNMP requests on a remote hosts.
+ * various SNMP requests on local or remote hosts.
  */
 @Slf4j
 public class SnmpRequestExecutor {

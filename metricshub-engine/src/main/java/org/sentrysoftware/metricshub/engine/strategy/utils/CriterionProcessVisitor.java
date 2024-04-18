@@ -35,7 +35,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.ProcessCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WmiCriterion;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.springframework.util.Assert;
 
@@ -49,7 +51,9 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 	private static final String CRITERION_PROCESSOR_VISITOR_LOG_MESSAGE = "Hostname {} - Process Criterion, {}";
 
 	@NonNull
-	private final String command;
+	private final ExtensionManager extensionManger;
+	@NonNull
+	private final ProcessCriterion processCriterion;
 
 	private final WqlDetectionHelper wqlDetectionHelper;
 	private final String hostname;
@@ -59,23 +63,9 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 
 	@Override
 	public void visit(final LocalOsHandler.Windows os) {
-		Assert.state(wqlDetectionHelper != null, "wqlDetectionHelper cannot be null.");
-
-		final WmiConfiguration localWmiConfiguration = WmiConfiguration
-			.builder()
-			.username(null)
-			.password(null)
-			.timeout(30L)
-			.build();
-
-		final WmiCriterion criterion = WmiCriterion
-			.builder()
-			.query(WMI_PROCESS_QUERY)
-			.namespace(WMI_DEFAULT_NAMESPACE)
-			.expectedResult(command)
-			.build();
-
-		criterionTestResult = wqlDetectionHelper.performDetectionTest(LOCALHOST, localWmiConfiguration, criterion);
+		extensionManger.findExtensionByType("wmi")
+			.map(extension -> extension.processCriterion(processCriterion, null, null))
+			.ifPresent(result -> criterionTestResult = result);
 	}
 
 	@Override

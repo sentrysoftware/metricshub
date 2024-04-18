@@ -21,8 +21,6 @@ package org.sentrysoftware.metricshub.extension.http;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import io.opentelemetry.instrumentation.annotations.SpanAttribute;
-import io.opentelemetry.instrumentation.annotations.WithSpan;
 import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,11 +53,10 @@ public class HttpCriterionProcessor {
 	 * @param telemetryManager The telemetry manager providing access to host configuration.
 	 * @return New {@link CriterionTestResult} instance.
 	 */
-	@WithSpan("Criterion HTTP Exec")
 	public CriterionTestResult process(
-		@SpanAttribute("criterion.definition") HttpCriterion httpCriterion,
-		String connectorId,
-		TelemetryManager telemetryManager
+		final HttpCriterion httpCriterion,
+		final String connectorId,
+		final TelemetryManager telemetryManager
 	) {
 		final HostConfiguration hostConfiguration = telemetryManager.getHostConfiguration();
 

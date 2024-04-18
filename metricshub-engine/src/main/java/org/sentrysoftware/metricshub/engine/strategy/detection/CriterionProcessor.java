@@ -664,13 +664,20 @@ public class CriterionProcessor implements ICriterionProcessor {
 		}
 
 		final CriterionProcessVisitor localOSVisitor = new CriterionProcessVisitor(
-			processCriterion.getCommandLine(),
+			extensionManager,
+			processCriterion,
 			wqlDetectionHelper,
 			hostname
 		);
 
 		maybeLocalOS.get().accept(localOSVisitor);
-		return localOSVisitor.getCriterionTestResult();
+		final CriterionTestResult result = localOSVisitor.getCriterionTestResult();
+
+		if (result != null) {
+			return result;
+		} else {
+			return CriterionTestResult.error(processCriterion, "Process presence check: No result returned by the criterion processor.");
+		}
 	}
 
 	/**
