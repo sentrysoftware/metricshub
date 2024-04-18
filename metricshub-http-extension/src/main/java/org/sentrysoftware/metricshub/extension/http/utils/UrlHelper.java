@@ -1,8 +1,8 @@
-package org.sentrysoftware.metricshub.engine.client.http;
+package org.sentrysoftware.metricshub.extension.http.utils;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
- * MetricsHub Engine
+ * MetricsHub HTTP Extension
  * ჻჻჻჻჻჻
  * Copyright 2023 - 2024 Sentry Software
  * ჻჻჻჻჻჻
@@ -32,7 +32,7 @@ import lombok.NonNull;
  * Utility class for formatting URLs.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class Url {
+public class UrlHelper {
 
 	/**
 	 * Generate the full URL based on the Path only.
@@ -97,13 +97,13 @@ public class Url {
 	) {
 		if (nonNullNonBlank(url) && nonNullNonBlank(path)) {
 			// Both URL and path have been specified. Consequently, the full URL will be the concatenation of them in that way: 'url/path'
-			return Url.format(url, path);
+			return UrlHelper.format(url, path);
 		} else if (nonNullNonBlank(url)) {
 			// URL is already specified by the user
 			return url;
 		} else if (nonNullNonBlank(path)) {
 			// Only Path is specified. Consequently, the full URL is generated from it and other fields.
-			return Url.format(hostname, port, path, protocol);
+			return UrlHelper.format(hostname, port, path, protocol);
 		}
 
 		// None of the URL and path have been specified, an exception is thrown

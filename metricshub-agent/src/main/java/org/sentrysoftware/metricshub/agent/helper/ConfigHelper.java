@@ -69,7 +69,6 @@ import org.sentrysoftware.metricshub.agent.config.ConnectorVariables;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.AbstractProtocolConfig;
-import org.sentrysoftware.metricshub.agent.config.protocols.HttpProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.OsCommandProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.ProtocolsConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.SshProtocolConfig;
@@ -109,7 +108,6 @@ import org.springframework.core.io.ClassPathResource;
 public class ConfigHelper {
 
 	private static final String OS_COMMAND = "OSCommand";
-	private static final String HTTP_PROTOCOL = "HTTP";
 	private static final String WMI_PROTOCOL = "WMI";
 	private static final String WBEM_PROTOCOL = "WBEM";
 	private static final String SSH_PROTOCOL = "SSH";
@@ -970,9 +968,9 @@ public class ConfigHelper {
 			validateWmiInfo(resourceKey, wmiConfig.getTimeout());
 		}
 
-		final HttpProtocolConfig httpConfig = protocolsConfig.getHttp();
+		final IConfiguration httpConfig = protocolsConfig.getHttp();
 		if (httpConfig != null) {
-			validateHttpInfo(resourceKey, httpConfig.getTimeout(), httpConfig.getPort());
+			httpConfig.validateConfiguration(resourceKey);
 		}
 
 		final OsCommandProtocolConfig osCommandConfig = protocolsConfig.getOsCommand();
@@ -1125,29 +1123,6 @@ public class ConfigHelper {
 	}
 
 	/**
-	 * Validate the given HTTP information (timeout and port)
-	 *
-	 * @param resourceKey Resource unique identifier
-	 * @param timeout     How long until the HTTP request times out
-	 * @param port        The HTTP port number used to perform REST queries
-	 * @throws InvalidConfigurationException
-	 */
-	static void validateHttpInfo(final String resourceKey, final Long timeout, final Integer port)
-		throws InvalidConfigurationException {
-		StringHelper.validateConfigurationAttribute(
-			timeout,
-			INVALID_TIMEOUT_CHECKER,
-			() -> String.format(TIMEOUT_ERROR, resourceKey, HTTP_PROTOCOL, timeout)
-		);
-
-		StringHelper.validateConfigurationAttribute(
-			port,
-			INVALID_PORT_CHECKER,
-			() -> String.format(PORT_ERROR, resourceKey, HTTP_PROTOCOL, port)
-		);
-	}
-
-	/**
 	 * Validate the given OS Command information: timeout
 	 *
 	 * @param resourceKey Resource unique identifier
@@ -1183,7 +1158,6 @@ public class ConfigHelper {
 				Stream
 					.of(
 						protocols.getSsh(),
-						protocols.getHttp(),
 						protocols.getWbem(),
 						protocols.getWmi(),
 						protocols.getOsCommand(),
@@ -1200,7 +1174,7 @@ public class ConfigHelper {
 			? new HashMap<>()
 			: new HashMap<>(
 				Stream
-					.of(protocols.getSnmp())
+					.of(protocols.getSnmp(), protocols.getHttp())
 					.filter(Objects::nonNull)
 					.collect(Collectors.toMap(IConfiguration::getClass, Function.identity()))
 			);

@@ -1,8 +1,8 @@
-package org.sentrysoftware.metricshub.engine.client.http;
+package org.sentrysoftware.metricshub.extension.http.utils;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
- * MetricsHub Engine
+ * MetricsHub HTTP Extension
  * ჻჻჻჻჻჻
  * Copyright 2023 - 2024 Sentry Software
  * ჻჻჻჻჻჻
@@ -21,8 +21,8 @@ package org.sentrysoftware.metricshub.engine.client.http;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import java.util.HashMap;
-import java.util.Map;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
+
 import java.util.function.UnaryOperator;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,49 +32,44 @@ import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 
 /**
- * Represents the header of an HTTP request containing an embedded file.
+ * Represents the body of an HTTP request containing an embedded file.
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class EmbeddedFileHeader implements Header {
+public class EmbeddedFileBody implements Body {
 
-	private static final long serialVersionUID = 7171137961999511622L;
+	private static final long serialVersionUID = -8300191804094179578L;
 
 	/**
-	 * The embedded file header content.
+	 * The embedded file body content.
 	 */
-	private EmbeddedFile header;
+	private EmbeddedFile body;
 
 	@Override
-	public Map<String, String> getContent(
-		String username,
-		char[] password,
-		String authenticationToken,
-		@NonNull String hostname
-	) {
-		if (header == null) {
-			return new HashMap<>();
+	public String getContent(String username, char[] password, String authenticationToken, @NonNull String hostname) {
+		if (body == null) {
+			return EMPTY;
 		}
 
-		return Header.resolveAndParseHeader(header.getContent(), username, password, authenticationToken, hostname);
+		return HttpMacrosUpdater.update(body.getContent(), username, password, authenticationToken, hostname);
 	}
 
 	@Override
-	public Header copy() {
-		return EmbeddedFileHeader.builder().header(header.copy()).build();
+	public Body copy() {
+		return EmbeddedFileBody.builder().body(body.copy()).build();
 	}
 
 	@Override
 	public String description() {
-		return header != null ? header.description() : null;
+		return body != null ? body.description() : null;
 	}
 
 	@Override
 	public void update(UnaryOperator<String> updater) {
-		if (header != null) {
-			header.update(updater);
+		if (body != null) {
+			body.update(updater);
 		}
 	}
 }

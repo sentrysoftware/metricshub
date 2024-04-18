@@ -157,7 +157,7 @@ public class SnmpExtension implements IProtocolExtension {
 			String.format(
 				"Hostname %s - Cannot process source %s.",
 				telemetryManager.getHostname(),
-				source.getClass().getSimpleName()
+				source != null ? source.getClass().getSimpleName() : "<null>"
 			)
 		);
 	}
@@ -179,7 +179,7 @@ public class SnmpExtension implements IProtocolExtension {
 			String.format(
 				"Hostname %s - Cannot process criterion %s.",
 				telemetryManager.getHostname(),
-				criterion.getClass().getSimpleName()
+				criterion != null ? criterion.getClass().getSimpleName() : "<null>"
 			)
 		);
 	}

@@ -41,7 +41,6 @@ import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.common.helpers.ResourceHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;
@@ -192,7 +191,6 @@ class ConfigHelperTest {
 		);
 
 		assertEquals(Set.of("+" + PURE_STORAGE_REST_CONNECTOR_ID), hostConfiguration.getConnectors());
-		assertNotNull(hostConfiguration.getConfigurations().get(HttpConfiguration.class));
 	}
 
 	@Test
@@ -246,7 +244,6 @@ class ConfigHelperTest {
 		);
 
 		assertEquals(Set.of("+" + PURE_STORAGE_REST_CONNECTOR_ID), hostConfiguration.getConnectors());
-		assertNotNull(hostConfiguration.getConfigurations().get(HttpConfiguration.class));
 
 		// Check resources under agent config (top-level resources)
 		final Map<String, TelemetryManager> topLevelResourcesTelemetryManagers = telemetryManagers.get(
@@ -340,16 +337,6 @@ class ConfigHelperTest {
 		assertThrows(InvalidConfigurationException.class, () -> ConfigHelper.validateWmiInfo(RESOURCE_KEY, -60L));
 		assertThrows(InvalidConfigurationException.class, () -> ConfigHelper.validateWmiInfo(RESOURCE_KEY, null));
 		assertDoesNotThrow(() -> ConfigHelper.validateWmiInfo(RESOURCE_KEY, 60L));
-	}
-
-	@Test
-	void testValidateHttpInfo() {
-		assertThrows(InvalidConfigurationException.class, () -> ConfigHelper.validateHttpInfo(RESOURCE_KEY, -60L, 1234));
-		assertThrows(InvalidConfigurationException.class, () -> ConfigHelper.validateHttpInfo(RESOURCE_KEY, null, 1234));
-		assertThrows(InvalidConfigurationException.class, () -> ConfigHelper.validateHttpInfo(RESOURCE_KEY, 60L, -1));
-		assertThrows(InvalidConfigurationException.class, () -> ConfigHelper.validateHttpInfo(RESOURCE_KEY, 60L, null));
-		assertThrows(InvalidConfigurationException.class, () -> ConfigHelper.validateHttpInfo(RESOURCE_KEY, 60L, 66666));
-		assertDoesNotThrow(() -> ConfigHelper.validateHttpInfo(RESOURCE_KEY, 60L, 1234));
 	}
 
 	@Test

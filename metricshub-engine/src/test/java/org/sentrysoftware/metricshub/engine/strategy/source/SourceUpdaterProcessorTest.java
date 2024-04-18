@@ -17,12 +17,10 @@ import static org.sentrysoftware.metricshub.engine.constants.Constants.LOCALHOST
 import static org.sentrysoftware.metricshub.engine.constants.Constants.MONITOR_ID_ATTRIBUTE_VALUE;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.MY_CONNECTOR_1_NAME;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.OID;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.PASSWORD;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.SNMP_SELECTED_COLUMNS;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.SNMP_SELECTED_COLUMNS_LIST;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.TAB1_REF;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.URL;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.USERNAME;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.VALUE_A1;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.VALUE_B1;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.VALUE_C1;
@@ -41,8 +39,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.TestConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.CustomConcatMethod;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EntryConcatMethod;
@@ -59,6 +55,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.TableUnionSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WbemSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WmiSource;
+import org.sentrysoftware.metricshub.engine.extension.TestConfiguration;
 import org.sentrysoftware.metricshub.engine.telemetry.HostProperties;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
@@ -69,20 +66,14 @@ class SourceUpdaterProcessorTest {
 	private ISourceProcessor sourceProcessor;
 
 	@Test
-	void testProcessHTTPSource() {
-		final HttpConfiguration httpConfiguration = HttpConfiguration
-			.builder()
-			.username(USERNAME)
-			.password(PASSWORD.toCharArray())
-			.port(161)
-			.timeout(120L)
-			.build();
+	void testProcessHttpPSource() {
+		final TestConfiguration httpConfiguration = TestConfiguration.builder().build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(LOCALHOST)
 			.hostId(LOCALHOST)
 			.hostType(DeviceKind.LINUX)
-			.configurations(Collections.singletonMap(HttpConfiguration.class, httpConfiguration))
+			.configurations(Collections.singletonMap(TestConfiguration.class, httpConfiguration))
 			.build();
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 
@@ -179,20 +170,14 @@ class SourceUpdaterProcessorTest {
 	}
 
 	@Test
-	void testProcessHTTPSourceCustomExecuteForEachEntry() {
-		final HttpConfiguration httpConfiguration = HttpConfiguration
-			.builder()
-			.username(USERNAME)
-			.password(PASSWORD.toCharArray())
-			.port(161)
-			.timeout(120L)
-			.build();
+	void testProcessHttpSourceCustomExecuteForEachEntry() {
+		final TestConfiguration httpConfiguration = TestConfiguration.builder().build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(LOCALHOST)
 			.hostId(LOCALHOST)
 			.hostType(DeviceKind.LINUX)
-			.configurations(Collections.singletonMap(HttpConfiguration.class, httpConfiguration))
+			.configurations(Collections.singletonMap(TestConfiguration.class, httpConfiguration))
 			.build();
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 
@@ -235,7 +220,7 @@ class SourceUpdaterProcessorTest {
 	}
 
 	@Test
-	void testProcessHTTPSourceExecuteForEachEntrySleep() {
+	void testProcessHttpSourceExecuteForEachEntrySleep() {
 		final HttpSource httpSource = HttpSource.builder().url(URL).build();
 		assertNull(httpSource.getSleepExecuteForEachEntryOf());
 

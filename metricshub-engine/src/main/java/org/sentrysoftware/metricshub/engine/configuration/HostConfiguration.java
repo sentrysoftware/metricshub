@@ -82,8 +82,6 @@ public class HostConfiguration {
 				Collections.singleton(WbemSource.class),
 				SshConfiguration.class,
 				Collections.singleton(CommandLineSource.class),
-				HttpConfiguration.class,
-				Collections.singleton(HttpSource.class),
 				OsCommandConfiguration.class,
 				Collections.singleton(CommandLineSource.class),
 				WinRmConfiguration.class,

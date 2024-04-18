@@ -1,9 +1,10 @@
-package org.sentrysoftware.metricshub.engine.configuration;
+package org.sentrysoftware.metricshub.engine.extension;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 
 @Data
 @AllArgsConstructor
