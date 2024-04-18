@@ -8,9 +8,10 @@
     </parent>
 
     <artifactId>metricshub-ipmi-extension</artifactId>
+    <name>MetricsHub IPMI Extension</name>
+    <description>MetricsHub IPMI Extension implementation providing a set of functionalities used to perform process IPMI-over-lan criterion and source.</description>
     <packaging>jar</packaging>
 
-    <name>metricshub-ipmi-extension</name>
     <url>http://maven.apache.org</url>
 
     <properties>

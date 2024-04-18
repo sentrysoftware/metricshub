@@ -241,7 +241,7 @@
 			</plugin>
 
 			<!-- Stage artifact -->
-			<!-- <plugin>
+			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
 				<artifactId>nexus-staging-maven-plugin</artifactId>
 				<extensions>true</extensions>
@@ -251,7 +251,7 @@
 					<nexusUrl>https://s01.oss.sonatype.org</nexusUrl>
 					<autoReleaseAfterClose>${env.AUTO_RELEASE_AFTER_CLOSE}</autoReleaseAfterClose>
 				</configuration>
-			</plugin> -->
+			</plugin>
 		</plugins>
 	</build>
 </project>

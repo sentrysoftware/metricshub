@@ -65,19 +65,6 @@ public class IpmiConfiguration implements IConfiguration {
 	@Override
 	public void validateConfiguration(String resourceKey) throws InvalidConfigurationException {
 		StringHelper.validateConfigurationAttribute(
-			username,
-			attr -> attr == null || attr == "",
-			() ->
-				String.format(
-					"Resource %s - Username value is invalid for protocol %s." +
-					" Timeout value returned: %s. This resource will not be monitored. Please verify the configured timeout value.",
-					resourceKey,
-					"HTTP",
-					timeout
-				)
-		);
-
-		StringHelper.validateConfigurationAttribute(
 			timeout,
 			attr -> attr == null || attr < 0L,
 			() ->
@@ -85,33 +72,7 @@ public class IpmiConfiguration implements IConfiguration {
 					"Resource %s - Timeout value is invalid for protocol %s." +
 					" Timeout value returned: %s. This resource will not be monitored. Please verify the configured timeout value.",
 					resourceKey,
-					"HTTP",
-					timeout
-				)
-		);
-
-		StringHelper.validateConfigurationAttribute(
-			timeout,
-			attr -> attr == null || attr < 0L,
-			() ->
-				String.format(
-					"Resource %s - Timeout value is invalid for protocol %s." +
-					" Timeout value returned: %s. This resource will not be monitored. Please verify the configured timeout value.",
-					resourceKey,
-					"HTTP",
-					timeout
-				)
-		);
-
-		StringHelper.validateConfigurationAttribute(
-			timeout,
-			attr -> attr == null || attr < 0L,
-			() ->
-				String.format(
-					"Resource %s - Timeout value is invalid for protocol %s." +
-					" Timeout value returned: %s. This resource will not be monitored. Please verify the configured timeout value.",
-					resourceKey,
-					"HTTP",
+					"IPMI",
 					timeout
 				)
 		);

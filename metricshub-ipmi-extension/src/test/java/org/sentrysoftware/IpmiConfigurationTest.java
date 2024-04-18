@@ -1,8 +1,10 @@
 package org.sentrysoftware;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.extension.ipmi.IpmiConfiguration;
 
 /**
@@ -30,5 +32,21 @@ class IpmiConfigurationTest {
 		// When the userName is null, it's not appended to the result
 		ipmiConfiguration.setUsername(null);
 		assertEquals(IPMI, ipmiConfiguration.toString());
+	}
+
+	@Test
+	void testValidateConfiguration() {
+		final String resourceKey = "resourceKey";
+		{
+			final IpmiConfiguration ipmiConfig = IpmiConfiguration
+				.builder()
+				.username(USERNAME)
+				.password(PASSWORD.toCharArray())
+				.bmcKey(BMC_KEY)
+				.timeout(-60L)
+				.build();
+
+			assertThrows(InvalidConfigurationException.class, () -> ipmiConfig.validateConfiguration(resourceKey));
+		}
 	}
 }

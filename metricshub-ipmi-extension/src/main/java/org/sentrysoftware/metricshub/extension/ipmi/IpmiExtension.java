@@ -50,6 +50,8 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 @Slf4j
 public class IpmiExtension implements IProtocolExtension {
 
+	private IpmiRequestExecutor ipmiRequestExecutor = new IpmiRequestExecutor();
+
 	/**
 	 * Protocol up status value '1.0'
 	 */
@@ -159,7 +161,7 @@ public class IpmiExtension implements IProtocolExtension {
 		}
 
 		try {
-			final String result = new IpmiRequestExecutor().executeIpmiGetSensors(hostname, ipmiConfiguration);
+			final String result = ipmiRequestExecutor.executeIpmiGetSensors(hostname, ipmiConfiguration);
 
 			if (result != null) {
 				return SourceTable.builder().rawData(result).build();
@@ -195,7 +197,7 @@ public class IpmiExtension implements IProtocolExtension {
 		}
 
 		try {
-			final String result = new IpmiRequestExecutor().executeIpmiDetection(hostname, configuration);
+			final String result = ipmiRequestExecutor.executeIpmiDetection(hostname, configuration);
 			if (result == null) {
 				return CriterionTestResult
 					.builder()
