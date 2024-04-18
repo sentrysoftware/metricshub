@@ -85,7 +85,7 @@ public class HttpTestExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public void checkProtocol(TelemetryManager telemetryManager, Long collectTime) {}
+	public void checkProtocol(TelemetryManager telemetryManager) {}
 
 	@Override
 	public SourceTable processSource(Source source, String connectorId, TelemetryManager telemetryManager) {

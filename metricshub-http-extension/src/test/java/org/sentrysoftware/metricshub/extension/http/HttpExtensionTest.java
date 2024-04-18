@@ -98,7 +98,7 @@ class HttpExtensionTest {
 			.when(httpRequestExecutorMock)
 			.executeHttp(any(HttpRequest.class), anyBoolean(), any(TelemetryManager.class));
 
-		httpExtension.checkProtocol(telemetryManager, System.currentTimeMillis());
+		httpExtension.checkProtocol(telemetryManager);
 
 		assertEquals(HttpExtension.DOWN, telemetryManager.getEndpointHostMonitor().getMetric(HTTP_UP_METRIC).getValue());
 	}
@@ -112,7 +112,7 @@ class HttpExtensionTest {
 			.when(httpRequestExecutorMock)
 			.executeHttp(any(HttpRequest.class), anyBoolean(), any(TelemetryManager.class));
 
-		httpExtension.checkProtocol(telemetryManager, System.currentTimeMillis());
+		httpExtension.checkProtocol(telemetryManager);
 
 		assertEquals(HttpExtension.UP, telemetryManager.getEndpointHostMonitor().getMetric(HTTP_UP_METRIC).getValue());
 	}

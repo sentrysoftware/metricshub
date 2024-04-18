@@ -150,7 +150,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	public void run() {
 		// Call the extensions to check the protocol health
 		final List<IProtocolExtension> protocolExtensions = extensionManager.findProtocolCheckExtensions(telemetryManager);
-		protocolExtensions.forEach(protocolExtension -> protocolExtension.checkProtocol(telemetryManager, strategyTime));
+		protocolExtensions.forEach(protocolExtension -> protocolExtension.checkProtocol(telemetryManager));
 
 		// Retrieve the hostname
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
