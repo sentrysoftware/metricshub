@@ -31,6 +31,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.ipmi.client.IpmiClient;
 import org.sentrysoftware.ipmi.client.IpmiClientConfiguration;
+import org.sentrysoftware.metricshub.engine.common.helpers.ArrayHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
 
 @Slf4j
@@ -108,7 +109,7 @@ public class IpmiRequestExecutor {
 			hostname,
 			username,
 			password,
-			ipmiConfiguration.getBmcKey(),
+			ArrayHelper.hexToByteArray(ipmiConfiguration.getBmcKey()),
 			ipmiConfiguration.isSkipAuth(),
 			timeout
 		);

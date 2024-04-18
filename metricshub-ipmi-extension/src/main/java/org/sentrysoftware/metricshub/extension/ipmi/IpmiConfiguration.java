@@ -44,8 +44,8 @@ public class IpmiConfiguration implements IConfiguration {
 
 	private String username;
 	private char[] password;
-	private byte[] bmcKey;
 	private boolean skipAuth;
+	private String bmcKey;
 
 	@Override
 	public String toString() {

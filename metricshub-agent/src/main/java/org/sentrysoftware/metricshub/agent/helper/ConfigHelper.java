@@ -1014,29 +1014,6 @@ public class ConfigHelper {
 	}
 
 	/**
-	 * Validate the given IPMI information (username and timeout)
-	 *
-	 * @param resourceKey Resource unique identifier
-	 * @param username    Name used to establish the connection with the host via the IPMI protocol
-	 * @param timeout     How long until the IPMI request times out
-	 * @throws InvalidConfigurationException
-	 */
-	static void validateIpmiInfo(final String resourceKey, final String username, final Long timeout)
-		throws InvalidConfigurationException {
-		StringHelper.validateConfigurationAttribute(
-			username,
-			INVALID_STRING_CHECKER,
-			() -> String.format(USERNAME_ERROR, resourceKey, IPMI_PROTOCOL)
-		);
-
-		StringHelper.validateConfigurationAttribute(
-			timeout,
-			INVALID_TIMEOUT_CHECKER,
-			() -> String.format(TIMEOUT_ERROR, resourceKey, IPMI_PROTOCOL, timeout)
-		);
-	}
-
-	/**
 	 * Validate the given SSH information (username, timeout)
 	 *
 	 * @param resourceKey Resource unique identifier

@@ -12,7 +12,7 @@ import org.sentrysoftware.metricshub.extension.ipmi.IpmiConfiguration;
  */
 class IpmiConfigurationTest {
 
-	private static final byte[] BMC_KEY = new byte[] { 0x06, 0x66 };
+	private static final String BMC_KEY = "bmckey";
 	private static final String USERNAME = "testUser";
 	private static final String PASSWORD = "testPassword";
 	public static final String IPMI = "IPMI";
@@ -39,12 +39,24 @@ class IpmiConfigurationTest {
 		final String resourceKey = "resourceKey";
 		{
 			final IpmiConfiguration ipmiConfig = IpmiConfiguration
-				.builder()
-				.username(USERNAME)
-				.password(PASSWORD.toCharArray())
-				.bmcKey(BMC_KEY)
-				.timeout(-60L)
-				.build();
+					.builder()
+					.username(USERNAME)
+					.password(PASSWORD.toCharArray())
+					.bmcKey(BMC_KEY)
+					.timeout(-60L)
+					.build();
+
+			assertThrows(InvalidConfigurationException.class, () -> ipmiConfig.validateConfiguration(resourceKey));
+		}
+
+		{
+			final IpmiConfiguration ipmiConfig = IpmiConfiguration
+					.builder()
+					.username(USERNAME)
+					.password(PASSWORD.toCharArray())
+					.bmcKey(BMC_KEY)
+					.timeout(null)
+					.build();
 
 			assertThrows(InvalidConfigurationException.class, () -> ipmiConfig.validateConfiguration(resourceKey));
 		}

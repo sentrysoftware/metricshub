@@ -23,7 +23,7 @@ public class IpmiTestConfiguration implements IConfiguration {
 
 	private String username;
 	private char[] password;
-	private byte[] bmcKey;
+	private String bmcKey;
 	private boolean skipAuth;
 
 	@Override
@@ -49,32 +49,6 @@ public class IpmiTestConfiguration implements IConfiguration {
 			() ->
 				String.format(
 					"Resource %s - Username value is invalid for protocol %s." +
-					" Timeout value returned: %s. This resource will not be monitored. Please verify the configured timeout value.",
-					resourceKey,
-					"HTTP",
-					timeout
-				)
-		);
-
-		StringHelper.validateConfigurationAttribute(
-			timeout,
-			attr -> attr == null || attr < 0L,
-			() ->
-				String.format(
-					"Resource %s - Timeout value is invalid for protocol %s." +
-					" Timeout value returned: %s. This resource will not be monitored. Please verify the configured timeout value.",
-					resourceKey,
-					"HTTP",
-					timeout
-				)
-		);
-
-		StringHelper.validateConfigurationAttribute(
-			timeout,
-			attr -> attr == null || attr < 0L,
-			() ->
-				String.format(
-					"Resource %s - Timeout value is invalid for protocol %s." +
 					" Timeout value returned: %s. This resource will not be monitored. Please verify the configured timeout value.",
 					resourceKey,
 					"HTTP",

@@ -13,6 +13,7 @@ import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHeal
 import static org.sentrysoftware.metricshub.extension.ipmi.IpmiExtension.IPMI_UP_METRIC;
 
 import com.fasterxml.jackson.databind.node.BinaryNode;
+import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -50,7 +51,7 @@ class IpmiExtensionTest {
 	private static final String CONNECTOR_ID = "connector";
 	private static final String HOST_NAME = "test-host" + UUID.randomUUID();
 	private static final String SUCCESS_RESPONSE = "Success";
-	private static final byte[] BMC_KEY = new byte[] { 0x06, 0x66 };
+	private static final String BMC_KEY = "0x0102";
 	private static final String USERNAME = "testUser";
 	private static final String PASSWORD = "testPassword";
 	private static final String IPMI_CRITERION_TYPE = "ipmi";
@@ -177,7 +178,8 @@ class IpmiExtensionTest {
 		configuration.set("username", new TextNode(USERNAME));
 		configuration.set("password", new TextNode(PASSWORD));
 		configuration.set("timeout", new TextNode("120"));
-		configuration.set("bmcKey", new BinaryNode(BMC_KEY));
+		configuration.set("bmcKey", new TextNode(BMC_KEY));
+		configuration.set("skipAuth", BooleanNode.valueOf(false));
 
 		assertEquals(
 			IpmiConfiguration

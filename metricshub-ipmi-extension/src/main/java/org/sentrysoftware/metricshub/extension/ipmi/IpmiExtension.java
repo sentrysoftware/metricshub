@@ -34,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.ipmi.client.IpmiClient;
 import org.sentrysoftware.ipmi.client.IpmiClientConfiguration;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.common.helpers.ArrayHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
@@ -121,7 +122,7 @@ public class IpmiExtension implements IProtocolExtension {
 						hostname,
 						ipmiConfiguration.getUsername(),
 						ipmiConfiguration.getPassword(),
-						ipmiConfiguration.getBmcKey(),
+						ArrayHelper.hexToByteArray(ipmiConfiguration.getBmcKey()),
 						ipmiConfiguration.isSkipAuth(),
 						ipmiConfiguration.getTimeout()
 					)

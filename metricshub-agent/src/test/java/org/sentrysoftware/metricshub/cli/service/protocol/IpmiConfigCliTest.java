@@ -1,25 +1,21 @@
 package org.sentrysoftware.metricshub.cli.service.protocol;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.mockStatic;
-
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.sentrysoftware.metricshub.agent.extension.IpmiTestConfiguration;
 import org.sentrysoftware.metricshub.agent.extension.IpmiTestExtension;
-import org.sentrysoftware.metricshub.agent.extension.SnmpTestConfiguration;
-import org.sentrysoftware.metricshub.agent.extension.SnmpTestExtension;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 
-class IpmiConfigCliTest {
+import java.util.List;
 
-	@Mock
-	IpmiConfigCli ipmiConfigCli;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.mockStatic;
+
+class IpmiConfigCliTest {
 
 	@Test
 	void testToProtocol() throws InvalidConfigurationException {
@@ -32,14 +28,14 @@ class IpmiConfigCliTest {
 		ipmiConfigCli.setUsername(username);
 		ipmiConfigCli.setTimeout(timeout);
 
-		try (MockedStatic<CliExtensionManager> CliExtensionManagerMock = mockStatic(CliExtensionManager.class)) {
+		try (MockedStatic<CliExtensionManager> cliExtensionManagerMock = mockStatic(CliExtensionManager.class)) {
 			// Initialize the extension manager required by the agent context
 			final ExtensionManager extensionManager = ExtensionManager
 				.builder()
 				.withProtocolExtensions(List.of(new IpmiTestExtension()))
 				.build();
 
-			CliExtensionManagerMock
+			cliExtensionManagerMock
 				.when(() -> CliExtensionManager.getExtensionManagerSingleton())
 				.thenReturn(extensionManager);
 
@@ -55,10 +51,8 @@ class IpmiConfigCliTest {
 				.builder()
 				.username(username)
 				.password(password)
-				.timeout(120L)
 				.build();
 
-			assertEquals(ipmiConfigurationExpected, ipmiConfigCli.toProtocol(username, password));
 			assertEquals(ipmiConfigurationExpected, ipmiConfigCli.toProtocol(username, password));
 		}
 	}

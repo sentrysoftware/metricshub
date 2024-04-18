@@ -9,7 +9,7 @@
 
     <artifactId>metricshub-ipmi-extension</artifactId>
     <name>MetricsHub IPMI Extension</name>
-    <description>MetricsHub IPMI Extension implementation providing a set of functionalities used to perform process IPMI-over-lan criterion and source.</description>
+    <description>MetricsHub IPMI Extension implementation providing a set of functionalities used to process IPMI-over-lan criterion and source.</description>
     <packaging>jar</packaging>
 
     <url>http://maven.apache.org</url>
@@ -89,11 +89,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.snmp4j</groupId>
             <artifactId>snmp4j-agent</artifactId>
             <scope>test</scope>
@@ -107,15 +102,6 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
-
-        <testResources>
-            <testResource>
-                <directory>src/test/resources</directory>
-            </testResource>
-            <testResource>
-                <directory>src/it/resources</directory>
-            </testResource>
-        </testResources>
 
         <plugins>
             <!-- surefire -->
@@ -172,53 +158,8 @@
                 </executions>
                 <configuration>
                     <excludes>
-                        <exclude>org/sentrysoftware/metricshub/extension/ipmi/*SnmpConfigurationBuilder*</exclude>
+                        <exclude>org/sentrysoftware/metricshub/extension/ipmi/*IpmiConfigurationBuilder*</exclude>
                     </excludes>
-                </configuration>
-            </plugin>
-
-            <!-- build-helper-maven-plugin -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>add-test-source</id>
-                        <phase>generate-test-sources</phase>
-                        <goals>
-                            <goal>add-test-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>src/it/java</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <!-- failsafe -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>integration-test</id>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <forkCount>1</forkCount>
-                    <reuseForks>false</reuseForks>
-                    <argLine>@{argLine}</argLine>
-                    <includes>
-                        <include>**/*IT.java</include>
-                    </includes>
-                    <classesDirectory>${project.build.outputDirectory}</classesDirectory>
-                    <trimStackTrace>false</trimStackTrace>
                 </configuration>
             </plugin>
 
@@ -238,6 +179,9 @@
                                     <include>org.sentrysoftware:ipmi</include>
                                     <include>org.sentrysoftware:metricshub-ipmi-extension</include>
                                 </includes>
+                                <excludes>
+                                    <exclude>org/slf4j/**</exclude>
+                                </excludes>
                             </artifactSet>
                             <minimizeJar>false</minimizeJar>
                         </configuration>

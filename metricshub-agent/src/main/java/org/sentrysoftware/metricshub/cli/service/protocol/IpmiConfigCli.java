@@ -21,6 +21,7 @@ package org.sentrysoftware.metricshub.cli.service.protocol;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -110,6 +111,8 @@ public class IpmiConfigCli implements IProtocolConfigCli {
 			new TextNode(username == null ? String.valueOf(defaultPassword) : String.valueOf(password))
 		);
 		configuration.set("timeout", new TextNode(timeout));
+		configuration.set("skipAuth", BooleanNode.valueOf(skipAuth));
+		configuration.set("bmcKey", new TextNode(bmcKey));
 
 		return CliExtensionManager
 			.getExtensionManagerSingleton()
