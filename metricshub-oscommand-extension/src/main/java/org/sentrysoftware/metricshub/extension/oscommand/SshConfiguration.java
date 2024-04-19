@@ -34,6 +34,11 @@ import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfiguratio
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 
+/**
+ * Configuration class for SSH-based operations. It includes SSH-specific settings such as username, password,
+ * private key, and sudo command configurations. It extends {@link OsCommandConfiguration} by adding more
+ * specific fields and validation logic pertinent to SSH configurations.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

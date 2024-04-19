@@ -31,12 +31,19 @@ import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResu
 import org.sentrysoftware.metricshub.engine.strategy.utils.PslUtils;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
+/**
+ * Processes command-line criteria to evaluate operating system command queries against specified expectations.
+ * This class facilitates the execution of local or remote OS commands, evaluates the results, and generates
+ * criterion test results based on the expected outcomes.
+ */
 public class CommandLineCriterionProcessor {
 
 	/**
-	 * Process the given {@link CommandLineCriterion} through Client and return the {@link CriterionTestResult}
+	 * Processes a given {@link CommandLineCriterion}, executes the corresponding OS command, and evaluates the
+	 * command's output against the expected result.
 	 *
 	 * @param commandLineCriterion The {@link CommandLineCriterion} to process.
+	 * @param telemetryManager The telemetry manager providing access to host configuration.
 	 * @return {@link CriterionTestResult} instance.
 	 */
 	@WithSpan("Criterion OS Command Exec")

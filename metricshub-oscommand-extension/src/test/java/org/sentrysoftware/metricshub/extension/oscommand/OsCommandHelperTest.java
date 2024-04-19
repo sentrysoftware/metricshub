@@ -14,67 +14,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.AGENT_REV_RESULT;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.ARCCONF_PATH;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.AWK_EMBEDDED_CONTENT_PERCENT_SUDO;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.AWK_EMBEDDED_CONTENT_SUDO;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.BAT;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.BAT_FILE_EXTENSION;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.CLEAR_PASSWORD_COMMAND;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.CMD;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.CMD_COMMAND;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.COMMAND_TO_UPDATE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.ECHO_HELLO_WORLD;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.ECHO_OS;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.ECHO_TEST_LOWER_CASE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.ECHO_TEST_UPPER_CASE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.EMBEDDED_FILE_1_COPY_COMMAND_LINE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.EMBEDDED_FILE_1_REF;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.EMBEDDED_FILE_2_REF;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.EMBEDDED_TEMP_FILE_PREFIX;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.EMPTY;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.END_OF_LINE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.END_OF_LINE_IN_BRACKETS;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.ERROR_IN_FILE1;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.HARD_DRIVE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.HOSTNAME;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.HOSTNAME_MACRO;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_CAMEL_CASE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.ID;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.KEY;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.NAVISECCLI_CAMEL_CASE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.NAVISECCLI_COMMAND;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.NO_PASSWORD_COMMAND;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.PASSWORD;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.PAUSE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.PERCENT_USERNAME;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.PWD_COMMAND;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.Q_HOST;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.Q_HOSTNAME;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.Q_USERNAME;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.RAIDCTL_COMMAND;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.RAIDCTL_PATH;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.RESULT;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.SEN_EMBEDDED_0001_PATH;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.SH_EMBEDDED_FILE_1;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.SH_SEN_EMBEDDED_0001_PATH;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.SINGLE_SPACE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.SLEEP_5;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.SPACE_KEY;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.SUDO_KEY;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.SUDO_KEYWORD;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.SUDO_KEY_RESULT;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.SUDO_NAVISECCLI_COMMAND;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.SUDO_RAIDCTL_COMMAND;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.TEMP_EMBEDDED_1;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.TEMP_EMBEDDED_2;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.TEST_RESULT;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.TEXT;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.UPDATED_COMMAND;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.USERNAME;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.WINDOWS_NT_HELLO_WORLD;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.WMI_EXCEPTION_OTHER_MESSAGE;
 import static org.sentrysoftware.metricshub.extension.oscommand.OsCommandHelper.TEMP_FILE_CREATOR;
 
 import java.io.File;
@@ -102,7 +41,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.exception.ControlledSshException;
 import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
@@ -119,6 +57,138 @@ class OsCommandHelperTest {
 
 	private static final Map<String, EmbeddedFile> EMPTY_EMBEDDED_FILE_MAP = Collections.emptyMap();
 	private static Map<String, EmbeddedFile> commandLineEmbeddedFiles;
+
+	/****************************************/
+
+	public static final String USERNAME = "testUser";
+	public static final String PASSWORD = "testPassword";
+	public static final String EMPTY = "";
+	public static final String SINGLE_SPACE = " ";
+	public static final String HOSTNAME_MACRO = "%{HOSTNAME}";
+	public static final String CMD = "cmd";
+	public static final String ID = "id";
+	public static final String BAT = "bat";
+	public static final String ECHO_OS = "ECHO %OS%";
+	public static final String ARCCONF_PATH = "/[opt|usr]/StorMan/arcconf";
+	public static final String PWD_COMMAND = "pwd";
+	public static final String AGENT_REV_RESULT = "Agent Rev:";
+	public static final String NAVISECCLI_COMMAND =
+		"%{SUDO:naviseccli} naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent";
+	public static final String ECHO_HELLO_WORLD = "echo Hello World";
+	public static final String WINDOWS_NT_HELLO_WORLD = "Windows_NT\nHello World";
+	public static final String END_OF_LINE = "\n";
+	public static final String END_OF_LINE_IN_BRACKETS = "[\r\n]";
+	public static final String TEXT = "text";
+	public static final String KEY = "key";
+	public static final String SPACE_KEY = SINGLE_SPACE + KEY;
+	public static final String SUDO_KEY = "%{SUDO:key} key";
+	public static final String SUDO_KEY_RESULT = "sudo key\nsudo key";
+	public static final String PAUSE = "PAUSE";
+	public static final String NAVISECCLI_CAMEL_CASE = "NaviSecCli";
+	public static final String SLEEP_5 = "sleep 5";
+	public static final String ECHO_TEST_UPPER_CASE = "ECHO Test";
+	public static final String ECHO_TEST_LOWER_CASE = "echo Test";
+	public static final String TEST_RESULT = "Test";
+	public static final String RAIDCTL_PATH = "/usr/sbin/raidctl";
+	public static final String Q_HOST = "(?i)\\QHost\\E";
+	public static final String Q_USERNAME = "(?i)\\Q%{UserName}\\E";
+	public static final String Q_HOSTNAME = "(?i)\\Q%{HOSTNAME}\\E";
+	public static final String PERCENT_USERNAME = "%{UserName}";
+	public static final String HARD_DRIVE = "Hard drive";
+	public static final String TAB1_REF = "${source::monitors.cpu.discovery.sources.tab1}";
+	public static final String TABLE_SEP = ";";
+
+	// Embedded files
+	public static final String TEMP_EMBEDDED_1 = "/tmp/SEN_Embedded_1.bat";
+	public static final String TEMP_EMBEDDED_2 = "/tmp/SEN_Embedded_2";
+	public static final String AWK_EMBEDDED_CONTENT_PERCENT_SUDO =
+		"# Awk (or nawk)\n" +
+		"if [ -f /usr/xpg4/bin/awk ]; then\n" +
+		"	AWK=\"/usr/xpg4/bin/awk\";\n" +
+		"elif [ -f /usr/bin/nawk ]; then\n" +
+		"	AWK=\"/usr/bin/nawk\";\n" +
+		"else\n" +
+		"	AWK=\"awk\";\n" +
+		"fi\n" +
+		"if [ -f /opt/StorMan/arcconf ]; then\n" +
+		"       STORMAN=\"/opt/StorMan\";\n" +
+		"elif [ -f /usr/StorMan/arcconf ]; then\n" +
+		"       STORMAN=\"/usr/StorMan\";\n" +
+		"else\n" +
+		"	echo No Storman Installed; exit;\n" +
+		"fi\n" +
+		"DEVICES=`%{SUDO:/[opt|usr]/StorMan/arcconf} $STORMAN/arcconf getversion | $AWK '($1 ~ /Controller/ && $2 ~ /#[0-9]/) {controller=$2;gsub(/#/,\"\",controller);print(controller)}'`\n" +
+		"for CTRL in $DEVICES\n" +
+		"                do\n" +
+		"                echo MSHWController $CTRL\n" +
+		"                %{SUDO:/[opt|usr]/StorMan/arcconf} $STORMAN/arcconf getconfig $CTRL PD\n" +
+		"                done";
+	public static final String AWK_EMBEDDED_CONTENT_SUDO =
+		"# Awk (or nawk)\n" +
+		"if [ -f /usr/xpg4/bin/awk ]; then\n" +
+		"	AWK=\"/usr/xpg4/bin/awk\";\n" +
+		"elif [ -f /usr/bin/nawk ]; then\n" +
+		"	AWK=\"/usr/bin/nawk\";\n" +
+		"else\n" +
+		"	AWK=\"awk\";\n" +
+		"fi\n" +
+		"if [ -f /opt/StorMan/arcconf ]; then\n" +
+		"       STORMAN=\"/opt/StorMan\";\n" +
+		"elif [ -f /usr/StorMan/arcconf ]; then\n" +
+		"       STORMAN=\"/usr/StorMan\";\n" +
+		"else\n" +
+		"	echo No Storman Installed; exit;\n" +
+		"fi\n" +
+		"DEVICES=`sudo $STORMAN/arcconf getversion | $AWK '($1 ~ /Controller/ && $2 ~ /#[0-9]/) {controller=$2;gsub(/#/,\"\",controller);print(controller)}'`\n" +
+		"for CTRL in $DEVICES\n" +
+		"                do\n" +
+		"                echo MSHWController $CTRL\n" +
+		"                sudo $STORMAN/arcconf getconfig $CTRL PD\n" +
+		"                done";
+	public static final String SH_EMBEDDED_FILE_1 = "/bin/sh ${file::EmbeddedFile(1)}";
+	public static final String EMBEDDED_FILE_1_REF = "${file::EmbeddedFile(1)}";
+	public static final String EMBEDDED_FILE_2_REF = "${file::EmbeddedFile(2)}";
+	public static final String EMBEDDED_FILE_1_COPY_COMMAND_LINE =
+		"copy ${file::EmbeddedFile(1)} ${file::EmbeddedFile(1)}.bat > NUL & ${file::EmbeddedFile(1)}.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q ${file::EmbeddedFile(1)}.bat & del /F /Q ${file::EmbeddedFile(2)}.bat ";
+	public static final String CMD_COMMAND = "CMD.EXE /C cmd";
+	public static final String NO_PASSWORD_COMMAND =
+		" naviseccli -User testUser -Password ******** -Address host -Scope 1 getagent";
+	public static final String CLEAR_PASSWORD_COMMAND =
+		" naviseccli -User testUser -Password pwd -Address host -Scope 1 getagent";
+	public static final String COMMAND_TO_UPDATE =
+		"copy ${file::EmbeddedFile(2)} ${file::EmbeddedFile(2)}.bat > NUL" +
+		" & ${file::EmbeddedFile(1)}" +
+		" & ${file::EmbeddedFile(2)}.bat" +
+		" & del /F /Q ${file::EmbeddedFile(1)}" +
+		" & del /F /Q ${file::EmbeddedFile(2)}.bat";
+	public static final String UPDATED_COMMAND =
+		"copy /tmp/SEN_Embedded_2 /tmp/SEN_Embedded_2.bat > NUL" +
+		" & /tmp/SEN_Embedded_1.bat" +
+		" & /tmp/SEN_Embedded_2.bat" +
+		" & del /F /Q /tmp/SEN_Embedded_1.bat" +
+		" & del /F /Q /tmp/SEN_Embedded_2.bat";
+	public static final String RAIDCTL_COMMAND = "/usr/sbin/raidctl -S";
+	public static final String SUDO_RAIDCTL_COMMAND = "%{SUDO:/usr/sbin/raidctl} /usr/sbin/raidctl -S";
+	public static final String SUDO_NAVISECCLI_COMMAND =
+		"%{Sudo:NaviSecCli} NaviSecCli -User %{USERNAME} -Password %{PASSWORD} -Address host -Scope 1 getagent";
+	public static final String SEN_EMBEDDED_0001_PATH = "/tmp/SEN_Embedded_0001";
+	public static final String SH_SEN_EMBEDDED_0001_PATH = "/bin/sh /tmp/SEN_Embedded_0001";
+	public static final String EMBEDDED_TEMP_FILE_PREFIX = "SEN_Embedded_";
+	public static final String BAT_FILE_EXTENSION = "\\w+\\.bat";
+
+	// Host information
+	public static final String HOST = "host";
+	public static final String HOSTNAME = "hostname";
+	public static final String HOST_CAMEL_CASE = "Host";
+
+	public static final String SUDO_KEYWORD = "sudo";
+
+	public static final String ERROR_IN_FILE1 = "error in file1";
+	public static final String WMI_EXCEPTION_OTHER_MESSAGE = "other";
+
+	public static final String RESULT = "result";
+
+	/****************************************/
 
 	@TempDir
 	static File tempDir;
@@ -423,7 +493,9 @@ class OsCommandHelperTest {
 			() -> OsCommandHelper.runSshCommand(CMD, HOST, sshConfiguration, 0, null, null)
 		);
 
-		try (final MockedStatic<ClientsExecutor> mockedClientsExecutor = mockStatic(ClientsExecutor.class)) {
+		try (
+			final MockedStatic<OsCommandRequestExecutor> mockedClientsExecutor = mockStatic(OsCommandRequestExecutor.class)
+		) {
 			when(sshConfiguration.getUsername()).thenReturn(USERNAME);
 			when(sshConfiguration.getPassword()).thenReturn(PASSWORD.toCharArray());
 
@@ -490,7 +562,7 @@ class OsCommandHelperTest {
 		assertEquals(30, OsCommandHelper.getTimeout(null, new OsCommandConfiguration(), sshConfiguration, 5));
 		assertEquals(120, OsCommandHelper.getTimeout(null, null, new WmiConfiguration(), 5));
 		assertEquals(
-			30,
+			120,
 			OsCommandHelper.getTimeout(
 				null,
 				null,
@@ -747,79 +819,6 @@ class OsCommandHelperTest {
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 
 		assertEquals(expect, OsCommandHelper.runOsCommand(ECHO_TEST_LOWER_CASE, telemetryManager, 120L, true, false));
-	}
-
-	@Test
-	void testRunOsCommandRemoteWindows() throws Exception {
-		commandLineEmbeddedFiles.put(EMBEDDED_FILE_1_REF, new EmbeddedFile(ECHO_OS, BAT, EMBEDDED_FILE_1_REF));
-		commandLineEmbeddedFiles.put(EMBEDDED_FILE_2_REF, new EmbeddedFile(ECHO_HELLO_WORLD, null, EMBEDDED_FILE_2_REF));
-
-		final File file1 = mock(File.class);
-		final File file2 = mock(File.class);
-		final Map<String, File> embeddedTempFiles = new HashMap<>();
-		embeddedTempFiles.put(EMBEDDED_FILE_1_REF, file1);
-		embeddedTempFiles.put(EMBEDDED_FILE_2_REF, file2);
-
-		final WmiConfiguration wmiConfiguration = new WmiConfiguration();
-		wmiConfiguration.setUsername(USERNAME);
-		wmiConfiguration.setPassword(PWD_COMMAND.toCharArray());
-
-		final HostConfiguration hostConfiguration = HostConfiguration
-			.builder()
-			.hostId(ID)
-			.hostname(HOST)
-			.hostType(DeviceKind.WINDOWS)
-			.configurations(Map.of(wmiConfiguration.getClass(), wmiConfiguration))
-			.build();
-
-		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
-
-		try (
-			final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class);
-			final MockedStatic<ClientsExecutor> mockedClientsExecutor = mockStatic(ClientsExecutor.class);
-			final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)
-		) {
-			mockedOsCommandHelper.when(() -> OsCommandHelper.getUsername(wmiConfiguration)).thenCallRealMethod();
-			mockedOsCommandHelper
-				.when(() -> OsCommandHelper.getTimeout(120L, null, wmiConfiguration, 300))
-				.thenCallRealMethod();
-			mockedOsCommandHelper.when(() -> OsCommandHelper.getPassword(wmiConfiguration)).thenCallRealMethod();
-			mockedOsCommandHelper.when(() -> OsCommandHelper.replaceSudo(anyString(), isNull())).thenCallRealMethod();
-			mockedOsCommandHelper.when(() -> OsCommandHelper.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
-			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
-			mockedEmbeddedFileHelper
-				.when(() -> EmbeddedFileHelper.findEmbeddedFiles(anyString()))
-				.thenReturn(commandLineEmbeddedFiles);
-
-			mockedOsCommandHelper
-				.when(() ->
-					OsCommandHelper.createOsCommandEmbeddedFiles(
-						COMMAND_TO_UPDATE,
-						null,
-						commandLineEmbeddedFiles,
-						TEMP_FILE_CREATOR
-					)
-				)
-				.thenReturn(embeddedTempFiles);
-
-			doReturn(TEMP_EMBEDDED_1).when(file1).getAbsolutePath();
-			doReturn(TEMP_EMBEDDED_2).when(file2).getAbsolutePath();
-
-			mockedClientsExecutor
-				.when(() ->
-					OsCommandRequestExecutor.executeWinRemoteCommand(eq(HOST), eq(wmiConfiguration), eq(UPDATED_COMMAND), any())
-				)
-				.thenReturn(WINDOWS_NT_HELLO_WORLD);
-
-			mockedOsCommandHelper
-				.when(() -> OsCommandHelper.runOsCommand(COMMAND_TO_UPDATE, telemetryManager, 120L, false, false))
-				.thenCallRealMethod();
-
-			final OsCommandResult expect = new OsCommandResult(WINDOWS_NT_HELLO_WORLD, UPDATED_COMMAND);
-
-			final OsCommandResult res = OsCommandHelper.runOsCommand(COMMAND_TO_UPDATE, telemetryManager, 120L, false, false);
-			assertEquals(expect, res);
-		}
 	}
 
 	@Test

@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.extension.oscommand;
+package org.sentrysoftware.metricshub.extension.oscommand.ipmi;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
@@ -30,7 +30,14 @@ import org.sentrysoftware.metricshub.engine.common.exception.IpmiCommandForSolar
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.extension.oscommand.OsCommandConfiguration;
+import org.sentrysoftware.metricshub.extension.oscommand.OsCommandHelper;
+import org.sentrysoftware.metricshub.extension.oscommand.SshConfiguration;
 
+/**
+ * Processes IPMI criteria for Unix-based systems, particularly handling command construction
+ * and execution depending on the system's specific requirements and configurations.
+ */
 @Slf4j
 public class UnixIpmiCriterionProcessor {
 
@@ -40,14 +47,11 @@ public class UnixIpmiCriterionProcessor {
 	/**
 	 * Process IPMI detection for the Unix system
 	 *
-	 * @param hostType
+	 * @param hostType               The host type (windows, linux, storage, oob ...)
+	 * @param telemetryManager       The telemetry manager.
 	 * @return new {@link CriterionTestResult} instance
 	 */
-	public CriterionTestResult processUnixIpmiDetection(
-		final DeviceKind hostType,
-		String connectorId,
-		TelemetryManager telemetryManager
-	) {
+	public CriterionTestResult processUnixIpmiDetection(final DeviceKind hostType, TelemetryManager telemetryManager) {
 		String ipmitoolCommand = telemetryManager.getHostProperties().getIpmitoolCommand();
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 		final SshConfiguration sshConfiguration = (SshConfiguration) telemetryManager
@@ -135,6 +139,7 @@ public class UnixIpmiCriterionProcessor {
 	 * @param sshConfiguration       The SSH configuration.
 	 * @param osCommandConfiguration The OS command configuration.
 	 * @param defaultTimeout         The default timeout.
+	 * @param telemetryManager ......The telemetry manager.
 	 * @return String : The IPMI Command.
 	 */
 	public String buildIpmiCommand(

@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.extension.oscommand;
+package org.sentrysoftware.metricshub.extension.oscommand.ipmi;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
@@ -25,8 +25,10 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
-import org.sentrysoftware.metricshub.engine.strategy.utils.IpmiHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.extension.oscommand.OsCommandConfiguration;
+import org.sentrysoftware.metricshub.extension.oscommand.OsCommandHelper;
+import org.sentrysoftware.metricshub.extension.oscommand.SshConfiguration;
 
 @Slf4j
 @AllArgsConstructor
@@ -39,7 +41,7 @@ public class UnixIpmiSourceProcessor {
 	 *
 	 * @return {@link SourceTable} containing the IPMI result expected by the IPMI connector embedded AWK script
 	 */
-	SourceTable processUnixIpmiSource(
+	public SourceTable processUnixIpmiSource(
 		final String sourceKey,
 		final String connectorId,
 		final TelemetryManager telemetryManager

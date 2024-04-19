@@ -34,9 +34,21 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
+/**
+ * Processes command-line data sources to extract and transform the output into structured {@link SourceTable} format.
+ * This class handles the execution of operating system commands provided through {@link CommandLineSource}, applies line and column filtering, and builds a structured table from the results.
+ */
 @Slf4j
 public class CommandLineSourceProcessor {
 
+	/**
+	 * Processes an OS command defined in a {@link CommandLineSource}, executes it, and converts the output into a structured {@link SourceTable}.
+	 *
+	 * @param commandLineSource The command line source configuration containing the command, filtering, and selection settings.
+	 * @param connectorId       Identifier for the connector instance processing this source.
+	 * @param telemetryManager  Provides access to system and host configurations necessary for command execution.
+	 * @return A {@link SourceTable} containing the processed and formatted output of the OS command. Returns an empty table if an error occurs or if the command line is invalid.
+	 */
 	public SourceTable process(
 		final CommandLineSource commandLineSource,
 		String connectorId,

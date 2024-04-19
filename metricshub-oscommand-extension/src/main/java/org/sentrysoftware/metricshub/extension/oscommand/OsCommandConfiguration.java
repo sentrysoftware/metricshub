@@ -34,13 +34,17 @@ import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 
+/**
+ * Configuration class for handling OS command execution settings. This class provides options to configure
+ * command execution specifics.
+ */
 @Data
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 public class OsCommandConfiguration implements IConfiguration {
 
-	static final Long DEFAULT_TIMEOUT = 30L;
+	public static final Long DEFAULT_TIMEOUT = 30L;
 
 	private boolean useSudo;
 

@@ -59,11 +59,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientRuntimeException;
 import org.sentrysoftware.metricshub.engine.common.exception.ControlledSshException;
@@ -577,17 +575,8 @@ public class OsCommandHelper {
 			if (isLocalhost || isExecuteLocally) {
 				final String localCommandResult = runLocalCommand(command, timeout, noPasswordCommand);
 				commandResult = localCommandResult != null ? localCommandResult : EMPTY;
-				// Case Windows Remote
-			} else if (DeviceKind.WINDOWS.equals(telemetryManager.getHostConfiguration().getHostType())) {
-				commandResult =
-					ClientsExecutor.executeWinRemoteCommand(
-						hostname,
-						configuration,
-						command,
-						embeddedTempFiles.values().stream().map(File::getAbsolutePath).collect(Collectors.toList()) // NOSONAR
-					);
-				// Case others (Linux) Remote
 			} else {
+				// Case others (Linux) Remote
 				commandResult =
 					runSshCommand(
 						command,

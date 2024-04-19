@@ -24,7 +24,6 @@ import static org.sentrysoftware.metricshub.engine.constants.Constants.FAILED_OS
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HIGH_VERSION_NUMBER;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_ID;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_LINUX;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_OS_IS_NOT_WINDOWS_MESSAGE;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_WIN;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HTTP;
@@ -38,7 +37,6 @@ import static org.sentrysoftware.metricshub.engine.constants.Constants.LOW_VERSI
 import static org.sentrysoftware.metricshub.engine.constants.Constants.MANAGEMENT_CARD_HOST;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.MY_CONNECTOR_1_NAME;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.NEITHER_WMI_NOR_WINRM_ERROR;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.NO_OS_CONFIGURATION_MESSAGE;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.NO_RUNNING_PROCESS_MATCH_REGEX_MESSAGE;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.NO_TEST_WILL_BE_PERFORMED_AIX_MESSAGE;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.NO_TEST_WILL_BE_PERFORMED_MESSAGE;
@@ -1073,37 +1071,6 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void testProcessIpmiLinuxWithNullOsConfiguration() {
-		// Init configurations
-		final HostConfiguration hostConfiguration = HostConfiguration
-			.builder()
-			.hostname(HOST_LINUX)
-			.hostId(HOST_LINUX)
-			.hostType(DeviceKind.LINUX)
-			.configurations(Map.of(HttpConfiguration.class, HttpConfiguration.builder().timeout(STRATEGY_TIMEOUT).build()))
-			.build();
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(hostConfiguration)
-			.hostProperties(HostProperties.builder().isLocalhost(true).build())
-			.build();
-
-		// Mock getHostConfiguration and getHostProperties
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(telemetryManager.getHostProperties()).when(telemetryManagerMock).getHostProperties();
-
-		assertEquals(
-			CriterionTestResult
-				.builder()
-				.result("")
-				.success(false)
-				.message("Hostname " + HOST_LINUX + NO_OS_CONFIGURATION_MESSAGE)
-				.build(),
-			criterionProcessor.process(new IpmiCriterion())
-		);
-	}
-
-	@Test
 	void testProcessIPMIOutOfBandConfigurationNotFound() {
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
@@ -1186,6 +1153,31 @@ class CriterionProcessorTest {
 			CriterionTestResult.builder().message(OOB_NULL_RESULT_MESSAGE).build().getMessage(),
 			criterionProcessor.process(new IpmiCriterion()).getMessage()
 		);
+	}
+
+	@Test
+	void testVisitCommandLineLineEmpty() {
+		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
+		commandLineCriterion.setCommandLine("");
+		commandLineCriterion.setExpectedResult("Agent Rev:");
+		commandLineCriterion.setExecuteLocally(true);
+		commandLineCriterion.setErrorMessage("Unable to connect using Navisphere");
+
+		final TelemetryManager telemetryManager = TelemetryManager.builder().build();
+
+		// The extension manager is empty because it is not involved in this test
+		final ExtensionManager extensionManager = ExtensionManager.empty();
+
+		final CriterionProcessor criterionProcessor = new CriterionProcessor(
+			clientsExecutorMock,
+			telemetryManager,
+			MY_CONNECTOR_1_NAME,
+			extensionManager
+		);
+
+		final CriterionTestResult criterionTestResult = criterionProcessor.process(commandLineCriterion);
+
+		assertNotNull(criterionTestResult);
 	}
 
 	@Test
@@ -1345,233 +1337,6 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void testVisitCommandLineNull() {
-		final CommandLineCriterion commandLineCriterion = null;
-
-		final CriterionTestResult criterionTestResult = new CriterionProcessor().process(commandLineCriterion);
-
-		assertNotNull(criterionTestResult);
-		assertFalse(criterionTestResult.isSuccess());
-		assertTrue(criterionTestResult.getMessage().toLowerCase().contains("malformed"));
-		assertNull(criterionTestResult.getResult());
-	}
-
-	@Test
-	void testVisitCommandLineExpectedResultNull() {
-		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
-		commandLineCriterion.setCommandLine(
-			"naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent"
-		);
-		commandLineCriterion.setExecuteLocally(true);
-		commandLineCriterion.setErrorMessage("Unable to connect using Navisphere");
-
-		final TelemetryManager telemetryManager = TelemetryManager.builder().build();
-
-		// The extension manager is empty because it is not involved in this test
-		final ExtensionManager extensionManager = ExtensionManager.empty();
-
-		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			clientsExecutorMock,
-			telemetryManager,
-			MY_CONNECTOR_1_NAME,
-			extensionManager
-		);
-		final CriterionTestResult criterionTestResult = criterionProcessor.process(commandLineCriterion);
-
-		assertNotNull(criterionTestResult);
-		assertTrue(criterionTestResult.isSuccess());
-		assertEquals(
-			"CommandLineCriterion test succeeded:\n" +
-			commandLineCriterion.toString() +
-			"\n\n" +
-			"Result: CommandLine or ExpectedResult are empty. Skipping this test.",
-			criterionTestResult.getMessage()
-		);
-		assertEquals("CommandLine or ExpectedResult are empty. Skipping this test.", criterionTestResult.getResult());
-	}
-
-	@Test
-	void testVisitCommandLineLineEmpty() {
-		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
-		commandLineCriterion.setCommandLine("");
-		commandLineCriterion.setExpectedResult("Agent Rev:");
-		commandLineCriterion.setExecuteLocally(true);
-		commandLineCriterion.setErrorMessage("Unable to connect using Navisphere");
-
-		final TelemetryManager telemetryManager = TelemetryManager.builder().build();
-
-		// The extension manager is empty because it is not involved in this test
-		final ExtensionManager extensionManager = ExtensionManager.empty();
-
-		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			clientsExecutorMock,
-			telemetryManager,
-			MY_CONNECTOR_1_NAME,
-			extensionManager
-		);
-		final CriterionTestResult criterionTestResult = criterionProcessor.process(commandLineCriterion);
-
-		assertNotNull(criterionTestResult);
-		assertTrue(criterionTestResult.isSuccess());
-		assertEquals(
-			"CommandLineCriterion test succeeded:\n" +
-			commandLineCriterion.toString() +
-			"\n\n" +
-			"Result: CommandLine or ExpectedResult are empty. Skipping this test.",
-			criterionTestResult.getMessage()
-		);
-		assertEquals("CommandLine or ExpectedResult are empty. Skipping this test.", criterionTestResult.getResult());
-	}
-
-	@Test
-	void testVisitCommandLineExpectedResultEmpty() {
-		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
-		commandLineCriterion.setCommandLine(
-			"naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent"
-		);
-		commandLineCriterion.setExpectedResult("");
-		commandLineCriterion.setExecuteLocally(true);
-		commandLineCriterion.setErrorMessage("Unable to connect using Navisphere");
-
-		final TelemetryManager telemetryManager = TelemetryManager.builder().build();
-
-		// The extension manager is empty because it is not involved in this test
-		final ExtensionManager extensionManager = ExtensionManager.empty();
-
-		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			clientsExecutorMock,
-			telemetryManager,
-			MY_CONNECTOR_1_NAME,
-			extensionManager
-		);
-		final CriterionTestResult criterionTestResult = criterionProcessor.process(commandLineCriterion);
-
-		assertNotNull(criterionTestResult);
-		assertTrue(criterionTestResult.isSuccess());
-		assertEquals(
-			"CommandLineCriterion test succeeded:\n" +
-			commandLineCriterion.toString() +
-			"\n\n" +
-			"Result: CommandLine or ExpectedResult are empty. Skipping this test.",
-			criterionTestResult.getMessage()
-		);
-		assertEquals("CommandLine or ExpectedResult are empty. Skipping this test.", criterionTestResult.getResult());
-	}
-
-	@Test
-	void testVisitCommandLineRemoteNoUser() {
-		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
-		commandLineCriterion.setCommandLine(
-			"naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent"
-		);
-		commandLineCriterion.setExpectedResult("Agent Rev:");
-		commandLineCriterion.setExecuteLocally(false);
-		commandLineCriterion.setErrorMessage("Unable to connect using Navisphere");
-
-		final SshTestConfiguration sshConfiguration = SshTestConfiguration
-			.builder()
-			.username(" ")
-			.password("pwd".toCharArray())
-			.build();
-
-		final HostConfiguration hostConfiguration = HostConfiguration
-			.builder()
-			.hostId("id")
-			.hostname("host")
-			.hostType(DeviceKind.LINUX)
-			.configurations(Map.of(sshConfiguration.getClass(), sshConfiguration))
-			.build();
-
-		final HostProperties hostProperties = HostProperties.builder().isLocalhost(false).build();
-
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(hostConfiguration)
-			.hostProperties(hostProperties)
-			.build();
-
-		// The extension manager is empty because it is not involved in this test
-		final ExtensionManager extensionManager = ExtensionManager.empty();
-
-		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			clientsExecutorMock,
-			telemetryManager,
-			MY_CONNECTOR_1_NAME,
-			extensionManager
-		);
-
-		final CriterionTestResult criterionTestResult = criterionProcessor.process(commandLineCriterion);
-
-		assertNotNull(criterionTestResult);
-		assertFalse(criterionTestResult.isSuccess());
-		assertEquals(
-			"Error in CommandLineCriterion test:\n" + commandLineCriterion.toString() + "\n\n" + "No credentials provided.",
-			criterionTestResult.getMessage()
-		);
-		assertNull(criterionTestResult.getResult());
-	}
-
-	@Test
-	@EnabledOnOs(WINDOWS)
-	void testVisitCommandLineWindowsError() {
-		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
-		commandLineCriterion.setCommandLine("PAUSE");
-		commandLineCriterion.setExpectedResult(" ");
-		commandLineCriterion.setExecuteLocally(true);
-		commandLineCriterion.setErrorMessage("No date.");
-
-		final SshTestConfiguration sshConfiguration = SshTestConfiguration
-			.builder()
-			.username(" ")
-			.password("pwd".toCharArray())
-			.build();
-
-		final OsCommandTestConfiguration osCommandConfiguration = new OsCommandTestConfiguration();
-		osCommandConfiguration.setTimeout(1L);
-
-		final HostConfiguration hostConfiguration = HostConfiguration
-			.builder()
-			.hostId("id")
-			.hostname("localhost")
-			.hostType(DeviceKind.WINDOWS)
-			.configurations(
-				Map.of(sshConfiguration.getClass(), sshConfiguration, osCommandConfiguration.getClass(), osCommandConfiguration)
-			)
-			.build();
-
-		final HostProperties hostProperties = HostProperties.builder().isLocalhost(true).build();
-
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(hostConfiguration)
-			.hostProperties(hostProperties)
-			.build();
-
-		// The extension manager is empty because it is not involved in this test
-		final ExtensionManager extensionManager = ExtensionManager.empty();
-
-		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			clientsExecutorMock,
-			telemetryManager,
-			MY_CONNECTOR_1_NAME,
-			extensionManager
-		);
-
-		final CriterionTestResult criterionTestResult = criterionProcessor.process(commandLineCriterion);
-
-		assertNotNull(criterionTestResult);
-		assertFalse(criterionTestResult.isSuccess());
-		assertEquals(
-			"Error in CommandLineCriterion test:\n" +
-			commandLineCriterion.toString() +
-			"\n\n" +
-			"TimeoutException: Command \"PAUSE\" execution has timed out after 1 s",
-			criterionTestResult.getMessage()
-		);
-		assertNull(criterionTestResult.getResult());
-	}
-
-	@Test
 	@EnabledOnOs(LINUX)
 	void testVisitCommandLineLinuxError() {
 		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
@@ -1633,64 +1398,6 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	@EnabledOnOs(WINDOWS)
-	void testVisitCommandLineLocalWindowsFailedToMatchCriteria() {
-		final String result = "Test";
-
-		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
-		commandLineCriterion.setCommandLine("ECHO Test");
-		commandLineCriterion.setExpectedResult("Nothing");
-		commandLineCriterion.setExecuteLocally(true);
-		commandLineCriterion.setErrorMessage("No display.");
-
-		final SshTestConfiguration sshConfiguration = SshTestConfiguration
-			.builder()
-			.username(" ")
-			.password("pwd".toCharArray())
-			.build();
-
-		final HostConfiguration hostConfiguration = HostConfiguration
-			.builder()
-			.hostId("id")
-			.hostname("localhost")
-			.hostType(DeviceKind.WINDOWS)
-			.configurations(Map.of(sshConfiguration.getClass(), sshConfiguration))
-			.build();
-
-		final HostProperties hostProperties = HostProperties.builder().isLocalhost(true).build();
-
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(hostConfiguration)
-			.hostProperties(hostProperties)
-			.build();
-
-		// The extension manager is empty because it is not involved in this test
-		final ExtensionManager extensionManager = ExtensionManager.empty();
-
-		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			clientsExecutorMock,
-			telemetryManager,
-			MY_CONNECTOR_1_NAME,
-			extensionManager
-		);
-
-		final CriterionTestResult criterionTestResult = criterionProcessor.process(commandLineCriterion);
-
-		assertNotNull(criterionTestResult);
-		assertFalse(criterionTestResult.isSuccess());
-		assertEquals(
-			"CommandLineCriterion test ran but failed:\n" +
-			commandLineCriterion.toString() +
-			"\n\n" +
-			"Actual result:\n" +
-			result,
-			criterionTestResult.getMessage()
-		);
-		assertEquals(result, criterionTestResult.getResult());
-	}
-
-	@Test
 	@EnabledOnOs(LINUX)
 	void testVisitCommandLineLocalLinuxFailedToMatchCriteria() {
 		final String result = "Test";
@@ -1744,61 +1451,6 @@ class CriterionProcessorTest {
 			"\n\n" +
 			"Actual result:\n" +
 			result,
-			criterionTestResult.getMessage()
-		);
-		assertEquals(result, criterionTestResult.getResult());
-	}
-
-	@Test
-	@EnabledOnOs(WINDOWS)
-	void testVisitCommandLineLocalWindows() {
-		final String result = "Test";
-
-		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
-		commandLineCriterion.setCommandLine("ECHO Test");
-		commandLineCriterion.setExpectedResult(result);
-		commandLineCriterion.setExecuteLocally(true);
-		commandLineCriterion.setErrorMessage("No display.");
-
-		final SshTestConfiguration sshConfiguration = SshTestConfiguration
-			.builder()
-			.username(" ")
-			.password("pwd".toCharArray())
-			.timeout(1L)
-			.build();
-
-		final HostConfiguration hostConfiguration = HostConfiguration
-			.builder()
-			.hostId("id")
-			.hostname("localhost")
-			.hostType(DeviceKind.WINDOWS)
-			.configurations(Map.of(sshConfiguration.getClass(), sshConfiguration))
-			.build();
-
-		final HostProperties hostProperties = HostProperties.builder().isLocalhost(true).build();
-
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(hostConfiguration)
-			.hostProperties(hostProperties)
-			.build();
-
-		// The extension manager is empty because it is not involved in this test
-		final ExtensionManager extensionManager = ExtensionManager.empty();
-
-		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			clientsExecutorMock,
-			telemetryManager,
-			MY_CONNECTOR_1_NAME,
-			extensionManager
-		);
-
-		final CriterionTestResult criterionTestResult = criterionProcessor.process(commandLineCriterion);
-
-		assertNotNull(criterionTestResult);
-		assertTrue(criterionTestResult.isSuccess());
-		assertEquals(
-			"CommandLineCriterion test succeeded:\n" + commandLineCriterion.toString() + "\n\n" + "Result: " + result,
 			criterionTestResult.getMessage()
 		);
 		assertEquals(result, criterionTestResult.getResult());

@@ -45,7 +45,13 @@ import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResu
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.extension.oscommand.ipmi.UnixIpmiCriterionProcessor;
+import org.sentrysoftware.metricshub.extension.oscommand.ipmi.UnixIpmiSourceProcessor;
 
+/**
+ * Provides an extension to handle SSH and OS command-based protocols for device monitoring. This extension
+ * supports configuration validation, source and criterion processing, and protocol health checks.
+ */
 @Slf4j
 public class OsCommandExtension implements IProtocolExtension {
 
@@ -82,8 +88,8 @@ public class OsCommandExtension implements IProtocolExtension {
 	@Override
 	public Map<Class<? extends IConfiguration>, Set<Class<? extends Source>>> getConfigurationToSourceMapping() {
 		return Map.ofEntries(
-			Map.entry(SshConfiguration.class, Set.of(CommandLineSource.class, IpmiSource.class)),
-			Map.entry(OsCommandConfiguration.class, Set.of(CommandLineSource.class, IpmiSource.class))
+			Map.entry(SshConfiguration.class, Set.of(CommandLineSource.class)),
+			Map.entry(OsCommandConfiguration.class, Set.of(CommandLineSource.class))
 		);
 	}
 
@@ -131,14 +137,14 @@ public class OsCommandExtension implements IProtocolExtension {
 	public SourceTable processSource(Source source, String connectorId, TelemetryManager telemetryManager) {
 		if (source instanceof CommandLineSource commandLineSource) {
 			return new CommandLineSourceProcessor().process(commandLineSource, connectorId, telemetryManager);
-		} else if (source instanceof IpmiSource ipmiSource) {
+		} else if (source instanceof IpmiSource) {
 			return new UnixIpmiSourceProcessor().processUnixIpmiSource(connectorId, connectorId, telemetryManager);
 		}
 		throw new IllegalArgumentException(
 			String.format(
 				"Hostname %s - Cannot process source %s.",
 				telemetryManager.getHostname(),
-				source.getClass().getSimpleName()
+				source != null ? source.getClass().getSimpleName() : "<null>"
 			)
 		);
 	}
@@ -151,15 +157,15 @@ public class OsCommandExtension implements IProtocolExtension {
 	) {
 		if (criterion instanceof CommandLineCriterion commandLineCriterion) {
 			return new CommandLineCriterionProcessor().process(commandLineCriterion, telemetryManager);
-		} else if (criterion instanceof IpmiCriterion ipmiCriterion) {
+		} else if (criterion instanceof IpmiCriterion) {
 			final DeviceKind hostType = telemetryManager.getHostConfiguration().getHostType();
-			return new UnixIpmiCriterionProcessor().processUnixIpmiDetection(hostType, connectorId, telemetryManager);
+			return new UnixIpmiCriterionProcessor().processUnixIpmiDetection(hostType, telemetryManager);
 		}
 		throw new IllegalArgumentException(
 			String.format(
 				"Hostname %s - Cannot process criterion %s.",
 				telemetryManager.getHostname(),
-				criterion.getClass().getSimpleName()
+				criterion != null ? criterion.getClass().getSimpleName() : "<null>"
 			)
 		);
 	}

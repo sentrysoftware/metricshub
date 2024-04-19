@@ -79,6 +79,13 @@
 			<artifactId>slf4j-simple</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.sentrysoftware</groupId>
+			<artifactId>metricshub-it-common</artifactId>
+			<classifier>tests</classifier>
+			<scope>test</scope>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -217,8 +224,8 @@
 							<artifactSet>
 								<includes>
 									<include>org.sentrysoftware:ssh</include>
-									<include>com.trilead:trilead-ssh2</include>
 									<include>org.sentrysoftware:metricshub-oscommand-extension</include>
+									<include>org.connectbot:sshlib</include>
 								</includes>
 							</artifactSet>
 							<minimizeJar>false</minimizeJar>

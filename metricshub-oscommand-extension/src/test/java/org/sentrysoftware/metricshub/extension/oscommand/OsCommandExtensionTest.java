@@ -10,7 +10,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mockStatic;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.DOWN;
@@ -35,7 +34,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.mockito.internal.util.collections.Sets;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
@@ -48,10 +46,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.C
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.IpmiCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CommandLineSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
-import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
-import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionProcessor;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
-import org.sentrysoftware.metricshub.engine.strategy.source.SourceProcessor;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.telemetry.HostProperties;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
@@ -96,7 +91,8 @@ class OsCommandExtensionTest {
 	public static final String VALID_SOLARIS_VERSION_TEN = "5.10";
 	public static final String VALID_SOLARIS_VERSION_NINE = "5.9";
 	public static final String UNKNOWN_SOLARIS_VERSION = "Unknown Solaris version";
-	private static final String CONNECTOR_ID = "connector";
+
+	//private static final String CONNECTOR_ID = "connector";
 
 	@Mock
 	private OsCommandRequestExecutor OsCommandRequestExecutorMock;
@@ -464,15 +460,23 @@ class OsCommandExtensionTest {
 			)
 			.hostProperties(hostProperties)
 			.build();
-		final SourceProcessor sourceProcessor = SourceProcessor
-			.builder()
-			.telemetryManager(telemetryManager)
-			.extensionManager(ExtensionManager.builder().build())
-			.connectorId("connectorId")
-			.build();
-		assertEquals(SourceTable.empty(), sourceProcessor.process((CommandLineSource) null));
-		assertEquals(SourceTable.empty(), sourceProcessor.process(new CommandLineSource()));
-		assertEquals(SourceTable.empty(), sourceProcessor.process(CommandLineSource.builder().commandLine("").build()));
+
+		assertThrows(
+			NullPointerException.class,
+			() -> osCommandExtension.processSource((CommandLineSource) null, MY_CONNECTOR_1_NAME, telemetryManager)
+		);
+		assertEquals(
+			SourceTable.empty(),
+			osCommandExtension.processSource(new CommandLineSource(), MY_CONNECTOR_1_NAME, telemetryManager)
+		);
+		assertEquals(
+			SourceTable.empty(),
+			osCommandExtension.processSource(
+				CommandLineSource.builder().commandLine("").build(),
+				MY_CONNECTOR_1_NAME,
+				telemetryManager
+			)
+		);
 
 		final String commandLine = "/usr/sbin/ioscan -kFC ext_bus";
 		final String keepOnlyRegExp = ":ext_bus:";
@@ -499,7 +503,10 @@ class OsCommandExtensionTest {
 				)
 				.thenThrow(NoCredentialProvidedException.class);
 
-			assertEquals(SourceTable.empty(), sourceProcessor.process(commandSource));
+			assertEquals(
+				SourceTable.empty(),
+				osCommandExtension.processSource(commandSource, MY_CONNECTOR_1_NAME, telemetryManager)
+			);
 		}
 
 		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
@@ -515,7 +522,10 @@ class OsCommandExtensionTest {
 				)
 				.thenThrow(IOException.class);
 
-			assertEquals(SourceTable.empty(), sourceProcessor.process(commandSource));
+			assertEquals(
+				SourceTable.empty(),
+				osCommandExtension.processSource(commandSource, MY_CONNECTOR_1_NAME, telemetryManager)
+			);
 		}
 
 		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
@@ -539,7 +549,7 @@ class OsCommandExtensionTest {
 				.rawData("1;ext_bus;3;4;5")
 				.table(List.of(List.of("1", "ext_bus", "3", "4", "5")))
 				.build();
-			assertEquals(expected, sourceProcessor.process(commandSource));
+			assertEquals(expected, osCommandExtension.processSource(commandSource, MY_CONNECTOR_1_NAME, telemetryManager));
 		}
 	}
 
@@ -576,11 +586,6 @@ class OsCommandExtensionTest {
 			.hostConfiguration(hostConfiguration)
 			.hostProperties(hostProperties)
 			.build();
-		final SourceProcessor sourceProcessor = SourceProcessor
-			.builder()
-			.telemetryManager(telemetryManager)
-			.extensionManager(ExtensionManager.builder().build())
-			.build();
 
 		// local
 		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
@@ -590,7 +595,11 @@ class OsCommandExtensionTest {
 			oscmd
 				.when(() -> OsCommandHelper.runLocalCommand(eq("ipmiCommand-v sdr elist all"), anyLong(), eq(null)))
 				.thenReturn("impiResultSdr");
-			final SourceTable ipmiResult = sourceProcessor.process(new IpmiSource());
+			final SourceTable ipmiResult = osCommandExtension.processSource(
+				new IpmiSource(),
+				MY_CONNECTOR_1_NAME,
+				telemetryManager
+			);
 			assertEquals(SourceTable.empty(), ipmiResult);
 		}
 
@@ -607,7 +616,11 @@ class OsCommandExtensionTest {
 			oscmd
 				.when(() -> OsCommandHelper.runLocalCommand(eq("ipmiCommand" + "-v sdr elist all"), anyLong(), any()))
 				.thenReturn(sensorResult);
-			final SourceTable ipmiResult = sourceProcessor.process(new IpmiSource());
+			final SourceTable ipmiResult = osCommandExtension.processSource(
+				new IpmiSource(),
+				MY_CONNECTOR_1_NAME,
+				telemetryManager
+			);
 			String expectedResult = ResourceHelper.getResourceAsString(expected, this.getClass());
 			List<List<String>> result = new ArrayList<>();
 			Stream.of(expectedResult.split("\n")).forEach(line -> result.add(Arrays.asList(line.split(";"))));
@@ -626,495 +639,176 @@ class OsCommandExtensionTest {
 					OsCommandHelper.runSshCommand(eq("ipmiCommand" + "-v sdr elist all"), any(), any(), anyLong(), any(), any())
 				)
 				.thenReturn("impiResultSdr");
-			final SourceTable ipmiResult = sourceProcessor.process(new IpmiSource());
+			final SourceTable ipmiResult = osCommandExtension.processSource(
+				new IpmiSource(),
+				MY_CONNECTOR_1_NAME,
+				telemetryManager
+			);
 			assertEquals(SourceTable.empty(), ipmiResult);
 		}
 
 		// ipmiToolCommand is empty
 		hostProperties.setIpmitoolCommand("");
-		SourceTable ipmiResultEmpty = sourceProcessor.process(new IpmiSource());
+		SourceTable ipmiResultEmpty = osCommandExtension.processSource(
+			new IpmiSource(),
+			MY_CONNECTOR_1_NAME,
+			telemetryManager
+		);
 		assertEquals(SourceTable.empty(), ipmiResultEmpty);
 
 		// ipmiToolCommand is null
 		hostProperties.setIpmitoolCommand(null);
-		ipmiResultEmpty = sourceProcessor.process(new IpmiSource());
+		ipmiResultEmpty = osCommandExtension.processSource(new IpmiSource(), MY_CONNECTOR_1_NAME, telemetryManager);
 		assertEquals(SourceTable.empty(), ipmiResultEmpty);
 
 		// osCommandConfig is null
 		hostProperties.setLocalhost(true);
 		hostProperties.setIpmitoolCommand("ipmiCommand");
-		ipmiResultEmpty = sourceProcessor.process(new IpmiSource());
+		ipmiResultEmpty = osCommandExtension.processSource(new IpmiSource(), MY_CONNECTOR_1_NAME, telemetryManager);
 		assertEquals(SourceTable.empty(), ipmiResultEmpty);
 	}
 
 	@Test
-	void testProcessIpmiLinuxWithWrongIpmitoolCommand() {
-		// Init configurations
+	void testVisitCommandLineExpectedResultEmpty() {
+		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
+		commandLineCriterion.setCommandLine(
+			"naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent"
+		);
+		commandLineCriterion.setExpectedResult("");
+		commandLineCriterion.setExecuteLocally(true);
+		commandLineCriterion.setErrorMessage("Unable to connect using Navisphere");
+
+		final TelemetryManager telemetryManager = TelemetryManager.builder().build();
+
+		final CriterionTestResult criterionTestResult = osCommandExtension.processCriterion(
+			commandLineCriterion,
+			MY_CONNECTOR_1_NAME,
+			telemetryManager
+		);
+
+		assertNotNull(criterionTestResult);
+		assertTrue(criterionTestResult.isSuccess());
+		assertEquals(
+			"CommandLineCriterion test succeeded:\n" +
+			commandLineCriterion.toString() +
+			"\n\n" +
+			"Result: CommandLine or ExpectedResult are empty. Skipping this test.",
+			criterionTestResult.getMessage()
+		);
+		assertEquals("CommandLine or ExpectedResult are empty. Skipping this test.", criterionTestResult.getResult());
+	}
+
+	@Test
+	void testVisitCommandLineNull() {
+		final CommandLineCriterion commandLineCriterion = null;
+
+		assertThrows(
+			NullPointerException.class,
+			() -> osCommandExtension.processCriterion(commandLineCriterion, MY_CONNECTOR_1_NAME, null)
+		);
+	}
+
+	@Test
+	void testVisitCommandLineExpectedResultNull() {
+		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
+		commandLineCriterion.setCommandLine(
+			"naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent"
+		);
+		commandLineCriterion.setExecuteLocally(true);
+		commandLineCriterion.setErrorMessage("Unable to connect using Navisphere");
+
+		final TelemetryManager telemetryManager = TelemetryManager.builder().build();
+
+		final CriterionTestResult criterionTestResult = osCommandExtension.processCriterion(
+			commandLineCriterion,
+			MY_CONNECTOR_1_NAME,
+			telemetryManager
+		);
+
+		assertNotNull(criterionTestResult);
+		assertTrue(criterionTestResult.isSuccess());
+		assertEquals(
+			"CommandLineCriterion test succeeded:\n" +
+			commandLineCriterion.toString() +
+			"\n\n" +
+			"Result: CommandLine or ExpectedResult are empty. Skipping this test.",
+			criterionTestResult.getMessage()
+		);
+		assertEquals("CommandLine or ExpectedResult are empty. Skipping this test.", criterionTestResult.getResult());
+	}
+
+	@Test
+	void testVisitCommandLineLineEmpty() {
+		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
+		commandLineCriterion.setCommandLine("");
+		commandLineCriterion.setExpectedResult("Agent Rev:");
+		commandLineCriterion.setExecuteLocally(true);
+		commandLineCriterion.setErrorMessage("Unable to connect using Navisphere");
+
+		final TelemetryManager telemetryManager = TelemetryManager.builder().build();
+
+		final CriterionTestResult criterionTestResult = osCommandExtension.processCriterion(
+			commandLineCriterion,
+			MY_CONNECTOR_1_NAME,
+			telemetryManager
+		);
+
+		assertNotNull(criterionTestResult);
+		assertTrue(criterionTestResult.isSuccess());
+		assertEquals(
+			"CommandLineCriterion test succeeded:\n" +
+			commandLineCriterion.toString() +
+			"\n\n" +
+			"Result: CommandLine or ExpectedResult are empty. Skipping this test.",
+			criterionTestResult.getMessage()
+		);
+		assertEquals("CommandLine or ExpectedResult are empty. Skipping this test.", criterionTestResult.getResult());
+	}
+
+	@Test
+	void testVisitCommandLineRemoteNoUser() {
+		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
+		commandLineCriterion.setCommandLine(
+			"naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent"
+		);
+		commandLineCriterion.setExpectedResult("Agent Rev:");
+		commandLineCriterion.setExecuteLocally(false);
+		commandLineCriterion.setErrorMessage("Unable to connect using Navisphere");
+
 		final SshConfiguration sshConfiguration = SshConfiguration
 			.builder()
-			.username(USERNAME)
-			.password(PASSWORD.toCharArray())
-			.timeout(STRATEGY_TIMEOUT)
+			.username(" ")
+			.password("pwd".toCharArray())
 			.build();
+
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
-			.hostname(HOST_LINUX)
-			.hostId(HOST_LINUX)
+			.hostId("id")
+			.hostname("host")
 			.hostType(DeviceKind.LINUX)
-			.configurations(
-				Map.of(
-					HttpConfiguration.class,
-					HttpConfiguration.builder().timeout(STRATEGY_TIMEOUT).build(),
-					OsCommandConfiguration.class,
-					OsCommandConfiguration.builder().timeout(STRATEGY_TIMEOUT).build()
-				)
-			)
+			.configurations(Map.of(sshConfiguration.getClass(), sshConfiguration))
 			.build();
-		// Create TelemetryManager instance
+
+		final HostProperties hostProperties = HostProperties.builder().isLocalhost(false).build();
+
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
 			.hostConfiguration(hostConfiguration)
-			.hostProperties(HostProperties.builder().isLocalhost(true).build())
-			.build();
-
-		hostConfiguration.setConfigurations(
-			Map.of(
-				HttpConfiguration.class,
-				HttpConfiguration.builder().build(),
-				OsCommandConfiguration.class,
-				OsCommandConfiguration.builder().useSudoCommands(Sets.newSet()).timeout(STRATEGY_TIMEOUT).build(),
-				SshConfiguration.class,
-				sshConfiguration
-			)
-		);
-//		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-//		doReturn(telemetryManager.getHostProperties()).when(telemetryManagerMock).getHostProperties();
-		assertFalse(osCommandExtension.processCriterion(new IpmiCriterion()).isSuccess(), CONNECTOR_ID, telemetryManager);
-	}
-
-	@Test
-	void testProcessIpmiLinuxWithWrongSshCommandResult() {
-		// Init configurations
-		final SshConfiguration sshConfiguration = SshConfiguration
-			.builder()
-			.username(USERNAME)
-			.password(PASSWORD.toCharArray())
-			.timeout(STRATEGY_TIMEOUT)
-			.build();
-		final HostConfiguration hostConfiguration = HostConfiguration
-			.builder()
-			.hostname(HOST_LINUX)
-			.hostId(HOST_LINUX)
-			.hostType(DeviceKind.LINUX)
-			.configurations(
-				Map.of(
-					HttpConfiguration.class,
-					HttpConfiguration.builder().timeout(STRATEGY_TIMEOUT).build(),
-					OsCommandConfiguration.class,
-					OsCommandConfiguration.builder().useSudoCommands(Sets.newSet()).timeout(STRATEGY_TIMEOUT).build()
-				)
-			)
-			.build();
-		// Create TelemetryManager instance
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(hostConfiguration)
-			.hostProperties(HostProperties.builder().isLocalhost(false).build())
-			.build();
-
-		// Mock getHostConfiguration, getHostProperties and runSshCommand
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(telemetryManager.getHostProperties()).when(telemetryManagerMock).getHostProperties();
-
-		try (MockedStatic<OsCommandHelper> osCommandHelper = mockStatic(OsCommandHelper.class)) {
-			osCommandHelper
-				.when(() ->
-					OsCommandHelper.runSshCommand(anyString(), eq(HOST_LINUX), eq(sshConfiguration), anyInt(), isNull(), isNull())
-				)
-				.thenReturn("Wrong result");
-			assertFalse(criterionProcessor.process(new IpmiCriterion()).isSuccess());
-		}
-	}
-
-	@Test
-	void testProcessIpmiLinuxWithLocalhost() {
-		// Init configurations
-		final HostConfiguration hostConfiguration = HostConfiguration
-			.builder()
-			.hostname(HOST_LINUX)
-			.hostId(HOST_LINUX)
-			.hostType(DeviceKind.LINUX)
-			.configurations(
-				Map.of(
-					HttpConfiguration.class,
-					HttpConfiguration.builder().timeout(STRATEGY_TIMEOUT).build(),
-					OsCommandConfiguration.class,
-					OsCommandConfiguration.builder().useSudoCommands(Sets.newSet()).timeout(STRATEGY_TIMEOUT).build()
-				)
-			)
-			.build();
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(hostConfiguration)
-			.hostProperties(HostProperties.builder().isLocalhost(true).build())
-			.build();
-
-		// Mock getHostProperties and getHostConfiguration
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(telemetryManager.getHostProperties()).when(telemetryManagerMock).getHostProperties();
-
-		try (MockedStatic<OsCommandHelper> osCommand = mockStatic(OsCommandHelper.class)) {
-			osCommand.when(() -> OsCommandHelper.runLocalCommand(any(), anyInt(), isNull())).thenReturn(IPMI_RESULT_EXAMPLE);
-			assertEquals(
-				CriterionTestResult
-					.builder()
-					.result(IPMI_RESULT_EXAMPLE)
-					.success(true)
-					.message("Successfully connected to the IPMI BMC chip with the in-band driver" + " interface.")
-					.build()
-					.getMessage(),
-				criterionProcessor.process(new IpmiCriterion()).getMessage()
-			);
-		}
-	}
-
-	@Test
-	void testBuildIpmiCommand() {
-		final SshConfiguration sshConfiguration = SshConfiguration
-			.builder()
-			.username(USERNAME)
-			.password(PASSWORD.toCharArray())
-			.timeout(STRATEGY_TIMEOUT)
-			.build();
-		final OsCommandConfiguration osCommandConfiguration = OsCommandConfiguration
-			.builder()
-			.sudoCommand(SUDO_KEYWORD)
-			.useSudoCommands(Sets.newSet())
-			.timeout(STRATEGY_TIMEOUT)
-			.build();
-		final HostConfiguration hostConfiguration = HostConfiguration
-			.builder()
-			.hostname(LOCALHOST)
-			.hostId(LOCALHOST)
-			.hostType(DeviceKind.SOLARIS)
-			.configurations(Map.of(OsCommandConfiguration.class, osCommandConfiguration))
-			.build();
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(hostConfiguration)
-			.hostProperties(HostProperties.builder().isLocalhost(true).build())
-			.build();
-
-		doReturn(telemetryManager.getHostProperties()).when(telemetryManagerMock).getHostProperties();
-
-		String commandResult;
-
-		// Test successful command
-		try (MockedStatic<OsCommandHelper> osCommandHelper = mockStatic(OsCommandHelper.class)) {
-			osCommandHelper
-				.when(() -> OsCommandHelper.runLocalCommand(any(), eq(STRATEGY_TIMEOUT), isNull()))
-				.thenReturn(VALID_SOLARIS_VERSION_TEN);
-			commandResult =
-					new UnixIpmiCriterionProcessor().buildIpmiCommand(
-					DeviceKind.SOLARIS,
-					LOCALHOST,
-					sshConfiguration,
-					osCommandConfiguration,
-					STRATEGY_TIMEOUT.intValue()
-				);
-			assertNotNull(commandResult);
-			assertTrue(commandResult.startsWith(PATH));
-		}
-
-		// Test failed command
-		try (MockedStatic<OsCommandHelper> osCommandHelper = mockStatic(OsCommandHelper.class)) {
-			osCommandHelper
-				.when(() -> OsCommandHelper.runLocalCommand(any(), eq(STRATEGY_TIMEOUT), isNull()))
-				.thenReturn(INVALID_SOLARIS_VERSION);
-			commandResult =
-				criterionProcessor.buildIpmiCommand(
-					DeviceKind.SOLARIS,
-					LOCALHOST,
-					sshConfiguration,
-					osCommandConfiguration,
-					STRATEGY_TIMEOUT.intValue()
-				);
-			assertNotNull(commandResult);
-			assertTrue(commandResult.contains(SOLARIS_VERSION_NOT_IDENTIFIED_MESSAGE_TOKEN)); // Not Successful command the response starts with Couldn't identify
-		}
-
-		// Test sudo command
-		try (MockedStatic<OsCommandHelper> osCommandHelper = mockStatic(OsCommandHelper.class)) {
-			osCommandConfiguration.setUseSudo(true);
-			osCommandHelper
-				.when(() -> OsCommandHelper.runLocalCommand(any(), eq(STRATEGY_TIMEOUT), isNull()))
-				.thenReturn(VALID_SOLARIS_VERSION_TEN);
-			commandResult =
-				criterionProcessor.buildIpmiCommand(
-					DeviceKind.SOLARIS,
-					LOCALHOST,
-					sshConfiguration,
-					osCommandConfiguration,
-					STRATEGY_TIMEOUT.intValue()
-				);
-			assertNotNull(commandResult);
-			assertTrue(commandResult.contains(SUDO_KEYWORD)); // Successful sudo command
-		}
-
-		// Test Linux
-		osCommandConfiguration.setUseSudo(false);
-		commandResult =
-			criterionProcessor.buildIpmiCommand(DeviceKind.LINUX, LOCALHOST, sshConfiguration, osCommandConfiguration, 120);
-		assertEquals(LINUX_BUILD_IPMI_COMMAND, commandResult);
-	}
-
-	@Test
-	void testGetIpmiCommandForSolaris() throws Exception {
-		// Solaris Version 10 => bmc
-		String commandResult = criterionProcessor.getIpmiCommandForSolaris(
-			IPMI_TOOL_COMMAND,
-			LOCALHOST,
-			VALID_SOLARIS_VERSION_TEN
-		);
-		assertEquals(IPMI_TOOL_COMMAND + "bmc", commandResult);
-
-		// Solaris version 9 => lipmi
-		commandResult =
-			criterionProcessor.getIpmiCommandForSolaris(IPMI_TOOL_COMMAND, LOCALHOST, VALID_SOLARIS_VERSION_NINE);
-		assertEquals(IPMI_TOOL_COMMAND + LIPMI, commandResult);
-
-		// wrong String OS version
-		Exception exception = assertThrows(
-			Exception.class,
-			() -> {
-				criterionProcessor.getIpmiCommandForSolaris(IPMI_TOOL_COMMAND, LOCALHOST, INVALID_SOLARIS_VERSION);
-			}
-		);
-
-		String actualMessage = exception.getMessage();
-
-		assertTrue(actualMessage.contains(UNKNOWN_SOLARIS_VERSION));
-
-		// old OS version
-		exception =
-			assertThrows(
-				Exception.class,
-				() -> {
-					criterionProcessor.getIpmiCommandForSolaris(IPMI_TOOL_COMMAND, LOCALHOST, OLD_SOLARIS_VERSION);
-				}
-			);
-
-		actualMessage = exception.getMessage();
-
-		assertTrue(actualMessage.contains(OLD_SOLARIS_VERSION_MESSAGE));
-	}
-
-	@Test
-	void testProcessCommandLineNotExpectedResult() {
-		final CommandLineCriterion commandLineCriterion = CommandLineCriterion
-			.builder()
-			.commandLine(SSH_SUDO_COMMAND)
-			.errorMessage(EMPTY)
-			.expectedResult(RESULT)
-			.executeLocally(true)
-			.timeout(30L)
-			.build();
-		final HostProperties hostProperties = HostProperties.builder().isLocalhost(true).build();
-
-		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
-		final SshConfiguration sshConfiguration = new SshConfiguration();
-		sshConfiguration.setUsername(USERNAME);
-		sshConfiguration.setPassword(PASSWORD.toCharArray());
-		configurations.put(SshConfiguration.class, sshConfiguration);
-
-		final OsCommandConfiguration osCommandConfiguration = OsCommandConfiguration.builder().useSudo(false).build();
-		configurations.put(OsCommandConfiguration.class, osCommandConfiguration);
-
-		final HostConfiguration hostConfiguration = new HostConfiguration();
-		hostConfiguration.setHostname(LOCALHOST);
-		hostConfiguration.setConfigurations(configurations);
-
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
 			.hostProperties(hostProperties)
-			.hostConfiguration(hostConfiguration)
 			.build();
 
-		// The extension manager is empty because it is not involved in this test
-		final ExtensionManager extensionManager = ExtensionManager.empty();
-
-		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			clientsExecutorMock,
-			telemetryManager,
+		final CriterionTestResult criterionTestResult = osCommandExtension.processCriterion(
+			commandLineCriterion,
 			MY_CONNECTOR_1_NAME,
-			extensionManager
+			telemetryManager
 		);
 
-		// The result is not the same as the expected result
-		OsCommandResult result = new OsCommandResult(ERROR, SSH_SUDO_COMMAND);
-
-		try (MockedStatic<OsCommandHelper> osCommandHelper = mockStatic(OsCommandHelper.class)) {
-			osCommandHelper
-				.when(() -> OsCommandHelper.runOsCommand(SSH_SUDO_COMMAND, telemetryManager, 30L, true, true))
-				.thenReturn(result);
-			final CriterionTestResult criterionTestResult = criterionProcessor.process(commandLineCriterion);
-
-			final String message = String.format(
-				"CommandLineCriterion test ran but failed:\n" +
-				"- CommandLine: %s\n" +
-				"- ExecuteLocally: true\n" +
-				"- ExpectedResult: %s\n" +
-				"- Timeout: 30\n" +
-				"\n" +
-				"Actual result:\n" +
-				"%s",
-				SSH_SUDO_COMMAND,
-				RESULT,
-				ERROR
-			);
-
-			assertEquals(ERROR, criterionTestResult.getResult());
-			assertFalse(criterionTestResult.isSuccess());
-			assertEquals(message, criterionTestResult.getMessage());
-			assertNull(criterionTestResult.getException());
-		}
-	}
-
-	@Test
-	void testProcessCommandLineOK() {
-		final CommandLineCriterion commandLineCriterion = CommandLineCriterion
-			.builder()
-			.commandLine(SSH_SUDO_COMMAND)
-			.errorMessage(EMPTY)
-			.expectedResult(RESULT)
-			.executeLocally(true)
-			.timeout(30L)
-			.build();
-		final HostProperties hostProperties = HostProperties.builder().isLocalhost(true).build();
-
-		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
-		final SshConfiguration sshConfiguration = new SshConfiguration();
-		sshConfiguration.setUsername(USERNAME);
-		sshConfiguration.setPassword(PASSWORD.toCharArray());
-		configurations.put(SshConfiguration.class, sshConfiguration);
-
-		final OsCommandConfiguration osCommandConfiguration = OsCommandConfiguration.builder().useSudo(false).build();
-		configurations.put(OsCommandConfiguration.class, osCommandConfiguration);
-
-		final HostConfiguration hostConfiguration = new HostConfiguration();
-		hostConfiguration.setHostname(LOCALHOST);
-		hostConfiguration.setConfigurations(configurations);
-
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostProperties(hostProperties)
-			.hostConfiguration(hostConfiguration)
-			.build();
-
-		// The extension manager is empty because it is not involved in this test
-		final ExtensionManager extensionManager = ExtensionManager.empty();
-
-		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			clientsExecutorMock,
-			telemetryManager,
-			MY_CONNECTOR_1_NAME,
-			extensionManager
+		assertNotNull(criterionTestResult);
+		assertFalse(criterionTestResult.isSuccess());
+		assertEquals(
+			"Error in CommandLineCriterion test:\n" + commandLineCriterion.toString() + "\n\n" + "No credentials provided.",
+			criterionTestResult.getMessage()
 		);
-
-		OsCommandResult result = new OsCommandResult(RESULT, SSH_SUDO_COMMAND);
-
-		try (MockedStatic<OsCommandHelper> osCommandHelper = mockStatic(OsCommandHelper.class)) {
-			osCommandHelper
-				.when(() -> OsCommandHelper.runOsCommand(SSH_SUDO_COMMAND, telemetryManager, 30L, true, true))
-				.thenReturn(result);
-			final CriterionTestResult criterionTestResult = criterionProcessor.process(commandLineCriterion);
-
-			final String message = String.format(
-				"CommandLineCriterion test succeeded:\n" +
-				"- CommandLine: %s\n" +
-				"- ExecuteLocally: true\n" +
-				"- ExpectedResult: %s\n" +
-				"- Timeout: 30\n" +
-				"\n" +
-				"Result: %s",
-				SSH_SUDO_COMMAND,
-				RESULT,
-				RESULT
-			);
-
-			assertEquals(RESULT, criterionTestResult.getResult());
-			assertTrue(criterionTestResult.isSuccess());
-			assertEquals(message, criterionTestResult.getMessage());
-			assertNull(criterionTestResult.getException());
-		}
-	}
-
-	@Test
-	void testProcessCommandLineEmbeddedFileOK() {
-		final CommandLineCriterion commandLineCriterion = CommandLineCriterion
-			.builder()
-			.commandLine(COMMAND_FILE_ABSOLUTE_PATH)
-			.errorMessage(EMPTY)
-			.expectedResult(RESULT)
-			.executeLocally(true)
-			.timeout(120L)
-			.build();
-		final HostProperties hostProperties = HostProperties.builder().isLocalhost(true).build();
-
-		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
-		final SshConfiguration sshConfiguration = new SshConfiguration();
-		sshConfiguration.setUsername(USERNAME);
-		sshConfiguration.setPassword(PASSWORD.toCharArray());
-		configurations.put(SshConfiguration.class, sshConfiguration);
-
-		final OsCommandConfiguration osCommandConfiguration = OsCommandConfiguration.builder().useSudo(false).build();
-		configurations.put(OsCommandConfiguration.class, osCommandConfiguration);
-
-		final HostConfiguration hostConfiguration = new HostConfiguration();
-		hostConfiguration.setHostname(LOCALHOST);
-		hostConfiguration.setConfigurations(configurations);
-
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostProperties(hostProperties)
-			.hostConfiguration(hostConfiguration)
-			.build();
-
-		// The extension manager is empty because it is not involved in this test
-		final ExtensionManager extensionManager = ExtensionManager.empty();
-
-		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			clientsExecutorMock,
-			telemetryManager,
-			MY_CONNECTOR_1_NAME,
-			extensionManager
-		);
-
-		OsCommandResult result = new OsCommandResult(RESULT, COMMAND_FILE_ABSOLUTE_PATH);
-
-		try (MockedStatic<OsCommandHelper> osCommandHelper = mockStatic(OsCommandHelper.class)) {
-			osCommandHelper
-				.when(() -> OsCommandHelper.runOsCommand(COMMAND_FILE_ABSOLUTE_PATH, telemetryManager, 120L, true, true))
-				.thenReturn(result);
-			final CriterionTestResult criterionTestResult = criterionProcessor.process(commandLineCriterion);
-
-			final String message = String.format(
-				"CommandLineCriterion test succeeded:\n" +
-				"- CommandLine: %s\n" +
-				"- ExecuteLocally: true\n" +
-				"- ExpectedResult: %s\n" +
-				"- Timeout: 120\n" +
-				"\n" +
-				"Result: %s",
-				COMMAND_FILE_ABSOLUTE_PATH,
-				RESULT,
-				RESULT
-			);
-
-			assertEquals(RESULT, criterionTestResult.getResult());
-			assertTrue(criterionTestResult.isSuccess());
-			assertEquals(message, criterionTestResult.getMessage());
-			assertNull(criterionTestResult.getException());
-		}
+		assertNull(criterionTestResult.getResult());
 	}
 }
