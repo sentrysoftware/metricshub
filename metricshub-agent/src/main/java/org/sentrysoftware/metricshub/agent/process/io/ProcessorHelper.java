@@ -94,7 +94,7 @@ public class ProcessorHelper {
 	}
 
 	/**
-	 * Create a new {@link Slf4jStreamProcessor} wrapped by the {@link NamedStreamProcessor}
+	 * Create a new {@link Slf4jSafeStreamProcessor} wrapped by the {@link NamedStreamProcessor}
 	 *
 	 * @param name    The name which each line starts with
 	 * @param logger  Slf4j {@link Logger}
