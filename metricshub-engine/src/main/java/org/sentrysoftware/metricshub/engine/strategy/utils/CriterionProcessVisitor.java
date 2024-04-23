@@ -52,6 +52,7 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 
 	@NonNull
 	private final ExtensionManager extensionManger;
+
 	@NonNull
 	private final ProcessCriterion processCriterion;
 
@@ -63,7 +64,8 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 
 	@Override
 	public void visit(final LocalOsHandler.Windows os) {
-		extensionManger.findExtensionByType("wmi")
+		extensionManger
+			.findExtensionByType("wmi")
 			.map(extension -> extension.processCriterion(processCriterion, null, null))
 			.ifPresent(result -> criterionTestResult = result);
 	}

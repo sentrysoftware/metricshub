@@ -40,7 +40,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
+import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.CommandLineCriterion;
@@ -49,6 +49,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.S
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WmiCriterion;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
+import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandResult;
 import org.sentrysoftware.metricshub.engine.strategy.utils.PslUtils;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
@@ -107,6 +108,7 @@ public class WmiCriteriaProcessor {
 	private IWinRequestExecutor winRequestExecutor;
 	private Function<TelemetryManager, IWinConfiguration> configurationRetriever;
 	private String connectorId;
+	private WinCommandService winCommandService;
 
 	/**
 	 * Creates a new {@code WmiCriteriaProcessor} with a specified WMI request
@@ -119,11 +121,15 @@ public class WmiCriteriaProcessor {
 	 *                               {@link TelemetryManager}. This can be null if no dynamic configuration retrieval is needed.
 	 * @param connectorId            An identifier used to uniquely identify the connector, can be null if not used.
 	 */
-	public WmiCriteriaProcessor(@NonNull IWinRequestExecutor winRequestExecutor,
-			Function<TelemetryManager, IWinConfiguration> configurationRetriever, String connectorId) {
+	public WmiCriteriaProcessor(
+		@NonNull IWinRequestExecutor winRequestExecutor,
+		Function<TelemetryManager, IWinConfiguration> configurationRetriever,
+		String connectorId
+	) {
 		this.winRequestExecutor = winRequestExecutor;
 		this.configurationRetriever = configurationRetriever;
 		this.connectorId = connectorId;
+		winCommandService = new WinCommandService(winRequestExecutor);
 	}
 
 	/**
@@ -207,7 +213,10 @@ public class WmiCriteriaProcessor {
 		final IWinConfiguration winConfiguration = configurationRetriever.apply(telemetryManager);
 
 		if (winConfiguration == null) {
-			return CriterionTestResult.error(serviceCriterion, "Neither WMI nor WinRM credentials are configured for this host.");
+			return CriterionTestResult.error(
+				serviceCriterion,
+				"Neither WMI nor WinRM credentials are configured for this host."
+			);
 		}
 
 		// The host system must be Windows
@@ -236,11 +245,7 @@ public class WmiCriteriaProcessor {
 			.build();
 
 		// Perform this WMI test
-		CriterionTestResult wmiTestResult = performDetectionTest(
-			hostname,
-			winConfiguration,
-			serviceWmiCriterion
-		);
+		CriterionTestResult wmiTestResult = performDetectionTest(hostname, winConfiguration, serviceWmiCriterion);
 		if (!wmiTestResult.isSuccess()) {
 			return wmiTestResult;
 		}
@@ -528,9 +533,105 @@ public class WmiCriteriaProcessor {
 		return PossibleNamespacesResult.builder().possibleNamespaces(possibleWmiNamespaces).success(true).build();
 	}
 
+	/**
+	 * Processes a {@link CommandLineCriterion} using the provided {@link TelemetryManager} to test
+	 * command execution outcomes based on expected results. The method validates the criterion and,
+	 * based on system properties, decides whether to proceed with command execution or not.
+	 *
+	 * @param commandLineCriterion The command line criterion to be evaluated.
+	 * @param telemetryManager     Provides system configuration and properties for context.
+	 * @return {@link CriterionTestResult} reflecting the outcome of the evaluation.
+	 */
 	public CriterionTestResult process(CommandLineCriterion commandLineCriterion, TelemetryManager telemetryManager) {
-		
-		return null;
+		if (commandLineCriterion == null) {
+			return CriterionTestResult.error(commandLineCriterion, "Malformed CommandLine criterion.");
+		}
+
+		if (
+			commandLineCriterion.getCommandLine().isEmpty() ||
+			commandLineCriterion.getExpectedResult() == null ||
+			commandLineCriterion.getExpectedResult().isEmpty()
+		) {
+			return CriterionTestResult.success(
+				commandLineCriterion,
+				"CommandLine or ExpectedResult are empty. Skipping this test."
+			);
+		}
+
+		if (Boolean.FALSE.equals(commandLineCriterion.getExecuteLocally())) {
+			return CriterionTestResult.error(
+				commandLineCriterion,
+				"The CommandLine criterion cannot be executed locally through WMI. Skipping this test."
+			);
+		}
+
+		final boolean isLocalhost = telemetryManager.getHostProperties().isLocalhost();
+		final DeviceKind hostType = telemetryManager.getHostConfiguration().getHostType();
+
+		if (isLocalhost || hostType != DeviceKind.WINDOWS) {
+			return CriterionTestResult.error(
+				commandLineCriterion,
+				String.format(
+					"Cannot process CommandLine criterion for %s host of type %s.",
+					isLocalhost ? "local" : "remote",
+					hostType
+				)
+			);
+		}
+
+		try {
+			final OsCommandResult osCommandResult = winCommandService.runOsCommand(
+				commandLineCriterion.getCommandLine(),
+				telemetryManager.getHostname(),
+				configurationRetriever.apply(telemetryManager)
+			);
+
+			final CommandLineCriterion osCommandNoPassword = CommandLineCriterion
+				.builder()
+				.commandLine(osCommandResult.getNoPasswordCommand())
+				.executeLocally(commandLineCriterion.getExecuteLocally())
+				.timeout(commandLineCriterion.getTimeout())
+				.expectedResult(commandLineCriterion.getExpectedResult())
+				.build();
+
+			final Matcher matcher = Pattern
+				.compile(
+					PslUtils.psl2JavaRegex(commandLineCriterion.getExpectedResult()),
+					Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
+				)
+				.matcher(osCommandResult.getResult());
+
+			return matcher.find()
+				? CriterionTestResult.success(osCommandNoPassword, osCommandResult.getResult())
+				: CriterionTestResult.failure(osCommandNoPassword, osCommandResult.getResult());
+		} catch (NoCredentialProvidedException noCredentialProvidedException) {
+			return CriterionTestResult.error(commandLineCriterion, noCredentialProvidedException.getMessage());
+		} catch (Exception exception) { // NOSONAR on interruption
+			return CriterionTestResult.error(commandLineCriterion, exception);
+		}
+	}
+
+	/**
+	 * Processes the given {@link ProcessCriterion} using the specified Windows configuration to evaluate
+	 * if a process is running based on the command line provided. This method constructs a WMI query criterion,
+	 * then executes a detection test against the localhost machine.
+	 *
+	 * @param processCriterion      The process criterion that specifies the command line to look for in the running processes.
+	 * @param localWinConfiguration The Windows configuration to be used for the WMI query execution.
+	 * @return A {@link CriterionTestResult} indicating the result of the detection test.
+	 */
+	public CriterionTestResult process(
+		final ProcessCriterion processCriterion,
+		final IWinConfiguration localWinConfiguration
+	) {
+		final WmiCriterion criterion = WmiCriterion
+			.builder()
+			.query(WMI_PROCESS_QUERY)
+			.namespace(WMI_DEFAULT_NAMESPACE)
+			.expectedResult(processCriterion.getCommandLine())
+			.build();
+
+		return performDetectionTest(LOCALHOST, localWinConfiguration, criterion);
 	}
 
 	/**
@@ -557,28 +658,4 @@ public class WmiCriteriaProcessor {
 		private String namespace;
 		private CriterionTestResult result;
 	}
-
-	/**
-	 * Processes the given {@link ProcessCriterion} using the specified Windows configuration to evaluate
-	 * if a process is running based on the command line provided. This method constructs a WMI query criterion,
-	 * then executes a detection test against the localhost machine.
-	 *
-	 * @param processCriterion      The process criterion that specifies the command line to look for in the running processes.
-	 * @param localWinConfiguration The Windows configuration to be used for the WMI query execution.
-	 * @return A {@link CriterionTestResult} indicating the result of the detection test.
-	 */
-	public CriterionTestResult process(final ProcessCriterion processCriterion, final IWinConfiguration localWinConfiguration) {
-
-		final WmiCriterion criterion = WmiCriterion
-			.builder()
-			.query(WMI_PROCESS_QUERY)
-			.namespace(WMI_DEFAULT_NAMESPACE)
-			.expectedResult(processCriterion.getCommandLine())
-			.build();
-
-		return performDetectionTest(LOCALHOST, localWinConfiguration, criterion);
-	}
-
-
-
 }

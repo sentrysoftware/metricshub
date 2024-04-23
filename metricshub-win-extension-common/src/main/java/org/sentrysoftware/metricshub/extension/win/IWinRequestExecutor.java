@@ -1,9 +1,5 @@
 package org.sentrysoftware.metricshub.extension.win;
 
-import java.util.List;
-import lombok.NonNull;
-import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
-
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
  * MetricsHub Win Extension Common
@@ -24,6 +20,10 @@ import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
+
+import java.util.List;
+import lombok.NonNull;
+import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 
 /**
  * Interface defining the contract for executing Windows Management Instrumentation (WMI) requests
@@ -56,4 +56,22 @@ public interface IWinRequestExecutor {
 	 * @return whether specified exception is acceptable while performing namespace detection
 	 */
 	boolean isAcceptableException(Throwable e);
+
+	/**
+	 * Perform a Windows remote command query, either WinRM or WMI
+	 * <br>
+	 *
+	 * @param hostname         The hostname of the device where the WMI or WinRm service is running
+	 * @param winConfiguration Windows Protocol configuration (credentials, timeout). E.g. WMI or WinRm
+	 * @param command          Windows remote command to execute
+	 * @param embeddedFiles    The list of embedded files used in the wql remote command query
+	 * @return A {@link String} value resulting from the execution of the query.
+	 * @throws ClientException when anything wrong happens
+	 */
+	String executeWinRemoteCommand(
+		final String hostname,
+		final IWinConfiguration winConfiguration,
+		final String command,
+		final List<String> embeddedFiles
+	) throws ClientException;
 }

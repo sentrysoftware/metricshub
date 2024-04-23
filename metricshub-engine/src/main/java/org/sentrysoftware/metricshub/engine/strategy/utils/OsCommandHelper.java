@@ -89,7 +89,7 @@ public class OsCommandHelper {
 		"%\\{SUDO:([^\\}]*)\\}",
 		Pattern.CASE_INSENSITIVE
 	);
-	static final Function<String, File> TEMP_FILE_CREATOR = OsCommandHelper::createEmbeddedTempFile;
+	public static final Function<String, File> TEMP_FILE_CREATOR = OsCommandHelper::createEmbeddedTempFile;
 
 	/**
 	 * Create the temporary embedded files in the given command line.
@@ -203,7 +203,7 @@ public class OsCommandHelper {
 	 * @param osCommandConfiguration The configuration for OS commands.
 	 * @return The text with %{SUDO:xxx}% tags replaced with the sudo command or empty string.
 	 */
-	static String replaceSudo(final String text, final OsCommandConfiguration osCommandConfiguration) {
+	public static String replaceSudo(final String text, final OsCommandConfiguration osCommandConfiguration) {
 		if (text == null || text.isBlank()) {
 			return text;
 		}

@@ -151,11 +151,11 @@ public class ExtensionManager {
 	 * @param type       The configuration type to match.
 	 * @return An {@code Optional} describing the first matching extension, or an empty {@code Optional} if none match.
 	 */
-	private Optional<IProtocolExtension> findExtensionByType(final List<IProtocolExtension> extensions, final String type) {
-		return extensions
-			.stream()
-			.filter(extension -> extension.isSupportedConfigurationType(type))
-			.findFirst();
+	private Optional<IProtocolExtension> findExtensionByType(
+		final List<IProtocolExtension> extensions,
+		final String type
+	) {
+		return extensions.stream().filter(extension -> extension.isSupportedConfigurationType(type)).findFirst();
 	}
 
 	/**

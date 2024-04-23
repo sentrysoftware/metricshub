@@ -643,7 +643,10 @@ public class CriterionProcessor implements ICriterionProcessor {
 		if (result != null) {
 			return result;
 		} else {
-			return CriterionTestResult.error(processCriterion, "Process presence check: No result returned by the criterion processor.");
+			return CriterionTestResult.error(
+				processCriterion,
+				"Process presence check: No result returned by the criterion processor."
+			);
 		}
 	}
 

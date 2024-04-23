@@ -169,35 +169,25 @@ public class WmiExtension implements IProtocolExtension {
 		String connectorId,
 		TelemetryManager telemetryManager
 	) {
-		final Function<TelemetryManager, IWinConfiguration> configurationRetriever = manager -> (IWinConfiguration) manager.getHostConfiguration().getConfigurations().get(WmiConfiguration.class);
+		final Function<TelemetryManager, IWinConfiguration> configurationRetriever = manager ->
+			(IWinConfiguration) manager.getHostConfiguration().getConfigurations().get(WmiConfiguration.class);
 
 		if (criterion instanceof WmiCriterion wmiCriterion) {
 			return new WmiCriteriaProcessor(
 				wmiRequestExecutor,
 				manager -> (IWinConfiguration) manager.getHostConfiguration().getConfigurations().get(WmiConfiguration.class),
 				connectorId
-			).process(wmiCriterion, telemetryManager);
+			)
+				.process(wmiCriterion, telemetryManager);
 		} else if (criterion instanceof ServiceCriterion serviceCriterion) {
-			return new WmiCriteriaProcessor(
-					wmiRequestExecutor,
-					configurationRetriever,
-					connectorId
-				).process(serviceCriterion, telemetryManager);
+			return new WmiCriteriaProcessor(wmiRequestExecutor, configurationRetriever, connectorId)
+				.process(serviceCriterion, telemetryManager);
 		} else if (criterion instanceof CommandLineCriterion commandLineCriterion) {
-			return new WmiCriteriaProcessor(
-					wmiRequestExecutor,
-					configurationRetriever,
-					connectorId
-				).process(commandLineCriterion, telemetryManager);
+			return new WmiCriteriaProcessor(wmiRequestExecutor, configurationRetriever, connectorId)
+				.process(commandLineCriterion, telemetryManager);
 		} else if (criterion instanceof ProcessCriterion processCriterion) {
-			return new WmiCriteriaProcessor(
-					wmiRequestExecutor
-				).process(processCriterion, WmiConfiguration.builder()
-					.username(null)
-					.password(null)
-					.timeout(30L)
-					.build()
-				);
+			return new WmiCriteriaProcessor(wmiRequestExecutor)
+				.process(processCriterion, WmiConfiguration.builder().username(null).password(null).timeout(30L).build());
 		}
 
 		throw new IllegalArgumentException(

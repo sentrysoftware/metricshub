@@ -23,6 +23,7 @@ package org.sentrysoftware.metricshub.extension.wmi;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
@@ -42,7 +43,7 @@ public class WmiConfiguration implements IWinConfiguration {
 	private char[] password;
 	private String namespace;
 
-	@Builder.Default
+	@Default
 	private Long timeout = 120L;
 
 	@Override

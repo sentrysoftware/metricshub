@@ -58,6 +58,7 @@ import org.sentrysoftware.metricshub.extension.win.IWinRequestExecutor;
 import org.sentrysoftware.wmi.WmiHelper;
 import org.sentrysoftware.wmi.WmiStringConverter;
 import org.sentrysoftware.wmi.exceptions.WmiComException;
+import org.sentrysoftware.wmi.remotecommand.WinRemoteCommandExecutor;
 import org.sentrysoftware.wmi.wbem.WmiWbemServices;
 
 /**
@@ -78,6 +79,7 @@ public class WmiRequestExecutor implements IWinRequestExecutor {
 	 * @throws ClientException when anything goes wrong (details in cause)
 	 */
 	@WithSpan("WMI")
+	@Override
 	public List<List<String>> executeWmi(
 		@SpanAttribute("host.hostname") final String hostname,
 		@SpanAttribute("wmi.config") @NonNull final IWinConfiguration wmiConfig,
@@ -147,6 +149,78 @@ public class WmiRequestExecutor implements IWinRequestExecutor {
 	}
 
 	/**
+	 * Execute a command on a remote Windows system through Client and return an object with
+	 * the output of the command.
+	 *
+	 * @param command    The command to execute. (Mandatory)
+	 * @param hostname   The host to connect to.  (Mandatory)
+	 * @param username   The username.
+	 * @param password   The password.
+	 * @param timeout    Timeout in seconds
+	 * @param localFiles The local files list
+	 * @return The output of the executed command.
+	 * @throws ClientException For any problem encountered.
+	 */
+	@WithSpan("Remote Command WMI")
+	public String executeWmiRemoteCommand(
+		@SpanAttribute("wmi.command") final String command,
+		@SpanAttribute("host.hostname") final String hostname,
+		@SpanAttribute("wmi.username") final String username,
+		final char[] password,
+		@SpanAttribute("wmi.timeout") final int timeout,
+		@SpanAttribute("wmi.local_files") final List<String> localFiles
+	) throws ClientException {
+		try {
+			LoggingHelper.trace(() ->
+				log.trace(
+					"Executing WMI remote command:\n- Command: {}\n- Hostname: {}\n- Username: {}\n" + // NOSONAR
+					"- Timeout: {} s\n- Local-files: {}\n",
+					command,
+					hostname,
+					username,
+					timeout,
+					localFiles
+				)
+			);
+
+			final long startTime = System.currentTimeMillis();
+
+			final WinRemoteCommandExecutor result = WinRemoteCommandExecutor.execute(
+				command,
+				hostname,
+				username,
+				password,
+				null,
+				timeout * 1000L,
+				localFiles,
+				true
+			);
+
+			String resultStdout = result.getStdout();
+
+			final long responseTime = System.currentTimeMillis() - startTime;
+
+			LoggingHelper.trace(() ->
+				log.trace(
+					"Executed WMI remote command:\n- Command: {}\n- Hostname: {}\n- Username: {}\n" + // NOSONAR
+					"- Timeout: {} s\n- Local-files: {}\n- Result:\n{}\n- response-time: {}\n",
+					command,
+					hostname,
+					username,
+					timeout,
+					localFiles,
+					resultStdout,
+					responseTime
+				)
+			);
+
+			return resultStdout;
+		} catch (Exception e) {
+			throw new ClientException((Exception) e.getCause());
+		}
+	}
+
+	/**
 	 * Convert the given result to a {@link List} of {@link List} table
 	 *
 	 * @param result     The result we want to process
@@ -180,6 +254,7 @@ public class WmiRequestExecutor implements IWinRequestExecutor {
 	 * @param t Throwable to verify
 	 * @return whether specified exception is acceptable while performing namespace detection
 	 */
+	@Override
 	public boolean isAcceptableException(Throwable t) {
 		if (t == null) {
 			return false;
@@ -215,5 +290,22 @@ public class WmiRequestExecutor implements IWinRequestExecutor {
 			// @formatter:on
 		);
 		// CHECKSTYLE:ON
+	}
+
+	@Override
+	public String executeWinRemoteCommand(
+		String hostname,
+		IWinConfiguration winConfiguration,
+		String command,
+		List<String> embeddedFiles
+	) throws ClientException {
+		return executeWmiRemoteCommand(
+			command,
+			hostname,
+			winConfiguration.getUsername(),
+			winConfiguration.getPassword(),
+			winConfiguration.getTimeout().intValue(),
+			embeddedFiles
+		);
 	}
 }
