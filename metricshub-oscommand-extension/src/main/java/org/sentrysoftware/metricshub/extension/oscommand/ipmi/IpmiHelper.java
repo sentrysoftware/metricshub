@@ -60,7 +60,7 @@ public class IpmiHelper {
 	private static final String SENSOR_ID = "Sensor ID ";
 
 	private static final String STATES_ASSERTED = "States Asserted";
-	
+
 	private static final String SENSOR_ID_REGEX = "^Sensor ID.*";
 
 	private static final String OEM_SPECIFIC = "OEM Specific";
@@ -298,7 +298,7 @@ public class IpmiHelper {
 		ipmiTable.put(FRU_LIST, fruList);
 		return ipmiTable;
 	}
-	
+
 	/**
 	 * Add temperature, fan, voltage, current, and power consumption information from sensors to the given ipmiTable.
 	 *
@@ -571,7 +571,7 @@ public class IpmiHelper {
 			threshold2
 		);
 	}
-	
+
 	/**
 	 * Add sensor information to the global device list. Check if this entityID was already put into the list,
 	 * then complete its description with the given status; otherwise, insert a new sensor entry.

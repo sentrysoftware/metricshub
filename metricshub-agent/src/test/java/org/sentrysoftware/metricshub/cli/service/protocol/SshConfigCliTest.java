@@ -40,13 +40,13 @@ class SshConfigCliTest {
 				.when(() -> CliExtensionManager.getExtensionManagerSingleton())
 				.thenReturn(extensionManager);
 
-			// Create an SnmpTestConfiguration and call method toProtocol
+			// Create an SshTestConfiguration and call method toProtocol
 			final SshTestConfiguration sshConfiguration = (SshTestConfiguration) sshConfigCli.toProtocol(username, password);
 
-			// Check the resulting snmp configuration
+			// Check the resulting ssh configuration
 			assertNotNull(sshConfiguration);
 			assertEquals(username, sshConfiguration.getUsername());
-			assertEquals(password, String.valueOf(sshConfiguration.getPassword()));
+			assertEquals(String.valueOf(password), String.valueOf(sshConfiguration.getPassword()));
 		}
 	}
 }

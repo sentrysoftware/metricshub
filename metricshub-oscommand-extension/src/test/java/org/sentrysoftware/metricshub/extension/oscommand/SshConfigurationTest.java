@@ -19,7 +19,7 @@ class SshConfigurationTest {
 	@Test
 	void testBuilder() {
 		final SshConfiguration sshConfiguration = SshConfiguration
-			.builder()
+			.sshConfigurationBuilder()
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
 			.sudoCommand(SSH_SUDO_COMMAND)

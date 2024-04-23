@@ -21,42 +21,49 @@ package org.sentrysoftware.metricshub.extension.oscommand;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.HashSet;
 import java.util.Set;
-import lombok.AllArgsConstructor;
-import lombok.Builder.Default;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
-import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 
 /**
  * Configuration class for handling OS command execution settings. This class provides options to configure
  * command execution specifics.
  */
 @Data
-@SuperBuilder
-@AllArgsConstructor
 @NoArgsConstructor
 public class OsCommandConfiguration implements IConfiguration {
 
 	public static final Long DEFAULT_TIMEOUT = 30L;
+	boolean useSudo;
+	Set<String> useSudoCommands = new HashSet<>();
+	String sudoCommand = "sudo";
+	Long timeout = DEFAULT_TIMEOUT;
 
-	private boolean useSudo;
-
-	@Default
-	private Set<String> useSudoCommands = new HashSet<>();
-
-	@Default
-	private String sudoCommand = "sudo";
-
-	@Default
-	@JsonDeserialize(using = TimeDeserializer.class)
-	private Long timeout = DEFAULT_TIMEOUT;
+	/**
+	 * Creates a new instance of OsCommandConfiguration using the provided parameters.
+	 *
+	 * @param useSudo          Indicates whether to use sudo for executing commands.
+	 * @param useSudoCommands  The set of commands for which sudo will be used.
+	 * @param sudoCommand      The sudo command to use.
+	 * @param timeout          The timeout for executing commands.
+	 */
+	@Builder
+	public OsCommandConfiguration(
+		final boolean useSudo,
+		final Set<String> useSudoCommands,
+		final String sudoCommand,
+		final Long timeout
+	) {
+		this.useSudo = useSudo;
+		this.useSudoCommands = useSudoCommands == null ? new HashSet<>() : useSudoCommands;
+		this.sudoCommand = sudoCommand == null ? "sudo" : sudoCommand;
+		this.timeout = timeout == null ? DEFAULT_TIMEOUT : timeout;
+	}
 
 	@Override
 	public void validateConfiguration(String resourceKey) throws InvalidConfigurationException {

@@ -30,6 +30,10 @@ import org.sentrysoftware.metricshub.extension.oscommand.OsCommandConfiguration;
 import org.sentrysoftware.metricshub.extension.oscommand.OsCommandHelper;
 import org.sentrysoftware.metricshub.extension.oscommand.SshConfiguration;
 
+/**
+ * Processes IPMI source information for Unix systems, leveraging telemetry configurations to execute and retrieve data
+ * from IPMI tool commands. It handles both local and remote command executions based on system configuration.
+ */
 @Slf4j
 @AllArgsConstructor
 public class UnixIpmiSourceProcessor {

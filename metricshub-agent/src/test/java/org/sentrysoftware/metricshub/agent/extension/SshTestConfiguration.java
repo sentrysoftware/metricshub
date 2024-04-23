@@ -21,40 +21,38 @@ package org.sentrysoftware.metricshub.agent.extension;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import java.util.HashSet;
 import java.util.Set;
-import lombok.AllArgsConstructor;
-import lombok.Builder.Default;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
-import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 
 @Data
-@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-@SuperBuilder
-@EqualsAndHashCode(callSuper = false)
 public class SshTestConfiguration extends OsCommandTestConfiguration {
-
-	@Default
-	@JsonDeserialize(using = TimeDeserializer.class)
-	private Long timeout = 120L;
 
 	private String username;
 	private char[] password;
 	private String privateKey;
-	private boolean useSudo;
 
-	@Default
-	private Set<String> useSudoCommands = new HashSet<>();
-
-	@Default
-	private String sudoCommand = "sudo";
+	@Builder(builderMethodName = "sshConfigurationBuilder")
+	public SshTestConfiguration(
+		boolean useSudo,
+		Set<String> useSudoCommands,
+		String sudoCommand,
+		Long timeout,
+		String username,
+		char[] password,
+		String privateKey
+	) {
+		super(useSudo, useSudoCommands, sudoCommand, timeout);
+		this.username = username;
+		this.password = password;
+		this.privateKey = privateKey;
+	}
 
 	@Override
 	public void validateConfiguration(String resourceKey) throws InvalidConfigurationException {

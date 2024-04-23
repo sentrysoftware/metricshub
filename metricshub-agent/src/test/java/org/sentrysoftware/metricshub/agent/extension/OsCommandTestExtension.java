@@ -1,5 +1,6 @@
 package org.sentrysoftware.metricshub.agent.extension;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
  * MetricsHub OsCommand Extension
@@ -22,6 +23,10 @@ package org.sentrysoftware.metricshub.agent.extension;
  */
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.UnaryOperator;
@@ -99,13 +104,60 @@ public class OsCommandTestExtension implements IProtocolExtension {
 
 	@Override
 	public boolean isSupportedConfigurationType(String configurationType) {
-		Set<String> supportedConfigurations = Set.of("ssh", "oscommand", "wmi", "winrm");
+		Set<String> supportedConfigurations = Set.of("ssh", "oscommand");
 		return supportedConfigurations.contains(configurationType.toLowerCase());
 	}
 
 	@Override
 	public IConfiguration buildConfiguration(String configurationType, JsonNode jsonNode, UnaryOperator<char[]> decrypt)
 		throws InvalidConfigurationException {
-		return OsCommandTestConfiguration.builder().build();
+		if (configurationType.equalsIgnoreCase("ssh")) {
+			try {
+				final SshTestConfiguration sshConfiguration = newObjectMapper()
+					.treeToValue(jsonNode, SshTestConfiguration.class);
+
+				if (decrypt != null) {
+					// Decrypt the password
+					final char[] passwordDecypted = decrypt.apply(sshConfiguration.getPassword());
+					sshConfiguration.setPassword(passwordDecypted);
+				}
+
+				return sshConfiguration;
+			} catch (Exception e) {
+				final String errorMessage = String.format(
+					"Error while reading SSH Configuration: %s. Error: %s",
+					jsonNode,
+					e.getMessage()
+				);
+				throw new InvalidConfigurationException(errorMessage, e);
+			}
+		} else if (configurationType.equalsIgnoreCase("oscommand")) {
+			try {
+				return newObjectMapper().treeToValue(jsonNode, OsCommandTestConfiguration.class);
+			} catch (Exception e) {
+				final String errorMessage = String.format(
+					"Error while reading OsCommand Configuration: %s. Error: %s",
+					jsonNode,
+					e.getMessage()
+				);
+				throw new InvalidConfigurationException(errorMessage, e);
+			}
+		}
+		final String errorMessage = String.format(
+			"Unhandled %s configuration in the OsCommandExtension.",
+			configurationType
+		);
+		throw new InvalidConfigurationException(errorMessage);
+	}
+
+	public static JsonMapper newObjectMapper() {
+		return JsonMapper
+			.builder(new YAMLFactory())
+			.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+			.enable(SerializationFeature.INDENT_OUTPUT)
+			.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+			.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false)
+			.build();
 	}
 }

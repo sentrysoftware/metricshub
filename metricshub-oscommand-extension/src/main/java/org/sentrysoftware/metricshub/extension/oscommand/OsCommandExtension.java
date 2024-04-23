@@ -172,7 +172,7 @@ public class OsCommandExtension implements IProtocolExtension {
 
 	@Override
 	public boolean isSupportedConfigurationType(String configurationType) {
-		Set<String> supportedConfigurations = Set.of("ssh", "oscommand", "wmi", "winrm");
+		Set<String> supportedConfigurations = Set.of("ssh", "oscommand");
 		return supportedConfigurations.contains(configurationType.toLowerCase());
 	}
 
@@ -184,9 +184,9 @@ public class OsCommandExtension implements IProtocolExtension {
 				final SshConfiguration sshConfiguration = newObjectMapper().treeToValue(jsonNode, SshConfiguration.class);
 
 				if (decrypt != null) {
-					// Decrypt the community
-					final char[] communityDecypted = decrypt.apply(sshConfiguration.getPassword());
-					sshConfiguration.setPassword(communityDecypted);
+					// Decrypt the password
+					final char[] passwordDecypted = decrypt.apply(sshConfiguration.getPassword());
+					sshConfiguration.setPassword(passwordDecypted);
 				}
 
 				return sshConfiguration;

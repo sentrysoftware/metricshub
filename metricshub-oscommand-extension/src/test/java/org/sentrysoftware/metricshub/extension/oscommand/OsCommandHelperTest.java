@@ -548,7 +548,7 @@ class OsCommandHelperTest {
 		wmiConfiguration.setTimeout(3L);
 
 		final SshConfiguration sshConfiguration = SshConfiguration
-			.builder()
+			.sshConfigurationBuilder()
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
 			.build();
@@ -562,11 +562,11 @@ class OsCommandHelperTest {
 		assertEquals(30, OsCommandHelper.getTimeout(null, new OsCommandConfiguration(), sshConfiguration, 5));
 		assertEquals(120, OsCommandHelper.getTimeout(null, null, new WmiConfiguration(), 5));
 		assertEquals(
-			120,
+			30,
 			OsCommandHelper.getTimeout(
 				null,
 				null,
-				SshConfiguration.builder().username(USERNAME).password(PASSWORD.toCharArray()).build(),
+				SshConfiguration.sshConfigurationBuilder().username(USERNAME).password(PASSWORD.toCharArray()).build(),
 				5
 			)
 		);
@@ -579,7 +579,7 @@ class OsCommandHelperTest {
 		assertEquals(Optional.empty(), OsCommandHelper.getUsername(new WmiConfiguration()));
 		assertEquals(
 			Optional.empty(),
-			OsCommandHelper.getUsername(SshConfiguration.builder().password(PASSWORD.toCharArray()).build())
+			OsCommandHelper.getUsername(SshConfiguration.sshConfigurationBuilder().password(PASSWORD.toCharArray()).build())
 		);
 
 		final WmiConfiguration wmiConfiguration = new WmiConfiguration();
@@ -589,7 +589,7 @@ class OsCommandHelperTest {
 		assertEquals(
 			Optional.of(USERNAME),
 			OsCommandHelper.getUsername(
-				SshConfiguration.builder().username(USERNAME).password(PASSWORD.toCharArray()).build()
+				SshConfiguration.sshConfigurationBuilder().username(USERNAME).password(PASSWORD.toCharArray()).build()
 			)
 		);
 	}
@@ -599,7 +599,10 @@ class OsCommandHelperTest {
 		assertEquals(Optional.empty(), OsCommandHelper.getPassword(null));
 		assertEquals(Optional.empty(), OsCommandHelper.getPassword(new OsCommandConfiguration()));
 		assertEquals(Optional.empty(), OsCommandHelper.getPassword(new WmiConfiguration()));
-		assertEquals(Optional.empty(), OsCommandHelper.getPassword(SshConfiguration.builder().username(USERNAME).build()));
+		assertEquals(
+			Optional.empty(),
+			OsCommandHelper.getPassword(SshConfiguration.sshConfigurationBuilder().username(USERNAME).build())
+		);
 
 		final WmiConfiguration wmiConfiguration = new WmiConfiguration();
 		char[] charArrayPassword = PASSWORD.toCharArray();
@@ -608,7 +611,9 @@ class OsCommandHelperTest {
 
 		assertEquals(
 			Optional.of(charArrayPassword),
-			OsCommandHelper.getPassword(SshConfiguration.builder().username(USERNAME).password(charArrayPassword).build())
+			OsCommandHelper.getPassword(
+				SshConfiguration.sshConfigurationBuilder().username(USERNAME).password(charArrayPassword).build()
+			)
 		);
 	}
 
@@ -629,7 +634,7 @@ class OsCommandHelperTest {
 	@Test
 	void testRunOsCommandRemoteNoUser() {
 		final SshConfiguration sshConfiguration = SshConfiguration
-			.builder()
+			.sshConfigurationBuilder()
 			.username(SINGLE_SPACE)
 			.password(PWD_COMMAND.toCharArray())
 			.build();
@@ -705,7 +710,7 @@ class OsCommandHelperTest {
 	@EnabledOnOs(OS.WINDOWS)
 	void testRunOsCommandWindowsError() {
 		final SshConfiguration sshConfiguration = SshConfiguration
-			.builder()
+			.sshConfigurationBuilder()
 			.username(USERNAME)
 			.password(PWD_COMMAND.toCharArray())
 			.build();
@@ -767,7 +772,7 @@ class OsCommandHelperTest {
 	@EnabledOnOs(OS.LINUX)
 	void testRunOsCommandLocalLinux() throws Exception {
 		final SshConfiguration sshConfiguration = SshConfiguration
-			.builder()
+			.sshConfigurationBuilder()
 			.username(USERNAME)
 			.password(PWD_COMMAND.toCharArray())
 			.build();
@@ -824,7 +829,7 @@ class OsCommandHelperTest {
 	@Test
 	void testRunOsCommandRemoteLinuxOSCommandConfigNull() throws Exception {
 		final SshConfiguration sshConfiguration = SshConfiguration
-			.builder()
+			.sshConfigurationBuilder()
 			.username(USERNAME)
 			.password(PWD_COMMAND.toCharArray())
 			.build();
@@ -885,7 +890,7 @@ class OsCommandHelperTest {
 	@Test
 	void testRunOsCommandRemoteLinuxNoSudo() throws Exception {
 		final SshConfiguration sshConfiguration = SshConfiguration
-			.builder()
+			.sshConfigurationBuilder()
 			.username(USERNAME)
 			.password(PWD_COMMAND.toCharArray())
 			.build();
@@ -953,7 +958,7 @@ class OsCommandHelperTest {
 	@Test
 	void testRunOsCommandRemoteLinuxNotInUseSudoCommands() throws Exception {
 		final SshConfiguration sshConfiguration = SshConfiguration
-			.builder()
+			.sshConfigurationBuilder()
 			.username(USERNAME)
 			.password(PWD_COMMAND.toCharArray())
 			.build();
@@ -1022,7 +1027,7 @@ class OsCommandHelperTest {
 	@Test
 	void testRunOsCommandRemoteLinuxWithSudoReplaced() throws Exception {
 		final SshConfiguration sshConfiguration = SshConfiguration
-			.builder()
+			.sshConfigurationBuilder()
 			.username(USERNAME)
 			.password(PWD_COMMAND.toCharArray())
 			.build();
@@ -1104,7 +1109,7 @@ class OsCommandHelperTest {
 		osCommandConfiguration.setUseSudoCommands(Collections.singleton(ARCCONF_PATH));
 
 		final SshConfiguration sshConfiguration = SshConfiguration
-			.builder()
+			.sshConfigurationBuilder()
 			.username(USERNAME)
 			.password(PWD_COMMAND.toCharArray())
 			.build();
