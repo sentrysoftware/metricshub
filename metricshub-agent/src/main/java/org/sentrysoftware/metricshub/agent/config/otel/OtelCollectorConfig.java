@@ -70,10 +70,6 @@ public class OtelCollectorConfig {
 	}
 
 	/**
-	 * Default executable name for the OpenTelemetry Collector.
-	 */
-	public static final String EXECUTABLE_NAME = "otelcol-contrib";
-	/**
 	 * Default executable output ID for the OpenTelemetry Collector.
 	 */
 	public static final String EXECUTABLE_OUTPUT_ID = "otelcol";
@@ -109,8 +105,11 @@ public class OtelCollectorConfig {
 	private static List<String> buildDefaultCommandLine() {
 		final List<String> commandLine = new ArrayList<>();
 
+		// Default executable file name for the OpenTelemetry Collector.
+		final String executableFileName = LocalOsHandler.isWindows() ? "otelcol-contrib.exe" : "otelcol-contrib";
+
 		// Executable path
-		commandLine.add(ConfigHelper.getSubPath(OTEL_DIRECTORY_NAME + "/" + EXECUTABLE_NAME).toString());
+		commandLine.add(ConfigHelper.getSubPath(OTEL_DIRECTORY_NAME + "/" + executableFileName).toString());
 
 		// Configuration path
 		commandLine.add("--config");
