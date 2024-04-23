@@ -12,7 +12,7 @@
 	<artifactId>metricshub-snmp-extension</artifactId>
 
 	<name>MetricsHub SNMP Extension</name>
-	<description>MetricsHub SNMP Extension implementation providing a set of functionalities used to perform process SNMP criteria and sources.</description>
+	<description>MetricsHub SNMP Extension implementation providing a set of functionalities used to process SNMP criteria and sources.</description>
 
 	<dependencies>
 		<dependency>

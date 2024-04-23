@@ -16,7 +16,6 @@ public class Constants {
 	public static final String WBEM_NAMESPACE = "testWbemNamespace";
 	public static final String WINRM_NAMESPACE = "testWinRmNamespace";
 	public static final String WBEM_VCENTER = "testWbemVCenter";
-	public static final byte[] BMC_KEY = new byte[] { 0x06, 0x66 };
 	public static final Long SSH_CONFIGURATION_TIMEOUT = 50L;
 	public static final Long STRATEGY_TIMEOUT = 100L;
 	public static final Long STRATEGY_TIME = 100L;
@@ -24,7 +23,6 @@ public class Constants {
 	public static final Long RETRY_DELAY = 30L;
 	public static final String SSH_SUDO_COMMAND = "sudo pwd";
 	public static final String DETECTION_FOLDER = "src/test/resources/test-files/connector/detection";
-	public static final String CONNECTOR_YAML = "connector.yaml";
 	public static final String IPMI_SUCCESS_MESSAGE = "System description;";
 	public static final String IPMI_FAILURE_MESSAGE = "No result";
 	public static final String HTTP_GET = "GET";
@@ -145,8 +143,6 @@ public class Constants {
 		"}\n" +
 		"}]";
 	public static final String OID = "1.3.6.1.4.1.674.10893.1.20";
-	public static final String SNMP_WRONG_COLUMNS = "ID, ID9, ID11, ID49";
-	public static final List<String> SNMP_WRONG_COLUMNS_LIST = Arrays.asList("ID", "ID9", "ID11", "ID49");
 	public static final List<List<String>> EXPECTED_SNMP_TABLE_DATA = Arrays.asList(
 		Arrays.asList("1", "PowerEdge R630", "FSJR3N2", "34377965102")
 	);
@@ -282,15 +278,12 @@ public class Constants {
 
 	// Configuration toString output
 	public static final String HTTP_CONFIGURATION_TO_STRING = "HTTPS/443 as testUser";
-	public static final String IMPI_CONFIGURATION_TO_STRING = "IPMI as testUser";
 
 	public static final String WBEM_CONFIGURATION_TO_STRING = "https/5989 as testUser";
 	public static final String WINRM_CONFIGURATION_TO_STRING = "WinRM as testUser";
 	public static final String OS_COMMAND_CONFIGURATION_TO_STRING = "Local Commands";
 	public static final String WMI_CONFIGURATION_TO_STRING = "WMI as testUser";
 	public static final String SSH_CONFIGURATION_TO_STRING = "SSH as testUser";
-	public static final String SNMP_CONFIGURATION_V1_TO_STRING = "SNMP v1 (public)";
-	public static final String SNMP_CONFIGURATION_V2C_TO_STRING = "SNMP v2c (public)";
 	public static final String HOST_CONFIGURATION_TO_STRING =
 		"HostConfiguration(hostname=localhost, hostId=localhost," +
 		" hostType=LINUX, strategyTimeout=100, connectors=null," +
@@ -329,7 +322,6 @@ public class Constants {
 	// Exception messages
 
 	public static final String INVALID_PROTOCOL_EXCEPTION_MESSAGE = "Invalid protocol value: ";
-	public static final String INVALID_SNMP_VERSION = "Invalid SNMP version: ";
 	public static final String ERROR_IN_FILE1 = "error in file1";
 
 	// Protocols
@@ -341,63 +333,6 @@ public class Constants {
 	public static final String WMI = "WMI";
 	public static final String WINRM = "WinRM";
 	public static final String WBEM_HTTPS = "https/5989";
-	public static final String IPMI = "IPMI";
-	public static final String SNMP_VERSION = "2.4.6";
-	public static final String EXECUTE_SNMP_GET_RESULT = "CMC DELL";
-	public static final String EXPECTED_SNMP_RESULT = "CMC";
-	public static final String SNMP_CONFIGURATION_COMMUNITY = "public";
-	public static final String SNMP_GET_EXPECTED_RESULT_MATCHES_MESSAGE =
-		"Hostname host-win - Successful SNMP Get of 1.3.6.1.4.1.674.10893.1.20. " + "Returned result: CMC DELL";
-	public static final String SNMP_GET_EXPECTED_RESULT_NOT_MATCHES_MESSAGE =
-		"Hostname host-win - SNMP test failed - " +
-		"SNMP Get of 1.3.6.1.4.1.674.10893.1.20 was successful but the value of the returned " +
-		"OID did not match with the expected result. Expected value: 2.4.6 - returned value CMC DELL.";
-	public static final String SNMP_GET_SUCCESS_WITH_NO_EXPECTED_RESULT_MESSAGE =
-		"Hostname host-win - Successful SNMP Get " + "of 1.3.6.1.4.1.674.10893.1.20. Returned result: CMC DELL.";
-	public static final String SNMP_GET_EMPTY_RESULT_MESSAGE =
-		"Hostname host-win - SNMP test failed - SNMP Get " +
-		"of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful due to an empty result.";
-	public static final String SNMP_GET_NULL_RESULT_MESSAGE =
-		"Hostname host-win - SNMP test failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 was " +
-		"unsuccessful due to a null result";
-	public static final String SNMP_GET_EXCEPTION_MESSAGE =
-		"Hostname host-win - SNMP test failed - SNMP Get of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful " +
-		"due to an exception. " +
-		"Message: SNMPGet timeout";
-	public static final String SNMP_GET_TIMEOUT_MESSAGE = "SNMPGet timeout";
-	public static final String SNMP_GET_NEXT_FIRST_RESULT = "1.3.6.1.4.1.674.99999.1.20.1 ASN_INTEGER 1";
-	public static final String SNMP_GET_NEXT_SECOND_RESULT = "1.3.6.1.4.1.674.10893.1.20.1 ASN_INTEGER 1";
-	public static final String SNMP_GET_NEXT_THIRD_RESULT = "1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT 2.4.6";
-	public static final String SNMP_GET_NEXT_FOURTH_RESULT = "1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT";
-	public static final String SNMP_GET_NEXT_CRITERION_VERSION = "2.4.6";
-
-	public static final String FAILED_SNMP_GET_NEXT_NULL_MESSAGE =
-		"Hostname host-win - SNMP test failed - SNMP GetNext " +
-		"of 1.3.6.1.4.1.674.10893.1.20 was unsuccessful " +
-		"due to a null result.";
-	public static final String FAILED_SNMP_GET_NEXT_EMPTY_MESSAGE =
-		"Hostname host-win - SNMP test failed - SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 " +
-		"was unsuccessful due to an empty result.";
-	public static final String FAILED_SNMP_GET_NEXT_WRONG_OID_MESSAGE =
-		"Hostname host-win - SNMP test failed - SNMP " +
-		"GetNext of 1.3.6.1.4.1.674.10893.1.20 was successful but the returned OID is" +
-		" not under the same tree. Returned OID: 1.3.6.1.4.1.674.99999.1.20.1.";
-	public static final String SUCCESSFUL_SNMP_GET_NEXT_WITHOUT_EXPECTED_RESULT_MESSAGE =
-		"Hostname host-win - Successful SNMP GetNext of " +
-		"1.3.6.1.4.1.674.10893.1.20. Returned result: " +
-		"1.3.6.1.4.1.674.10893.1.20.1 ASN_INTEGER 1.";
-	public static final String FAILED_SNMP_GET_NEXT_OID_NOT_MATCHING_MESSAGE =
-		"Hostname host-win - SNMP test failed - " +
-		"SNMP GetNext of 1.3.6.1.4.1.674.10893.1.20 was successful but the value of " +
-		"the returned OID did not match with the expected result. Expected value: 2.4.6 - returned value 1.";
-	public static final String SUCCESSFUL_SNMP_GET_NEXT_MATCHING_EXPECTED_RESULT_MESSAGE =
-		"Hostname host-win - Successful SNMP GetNext of " +
-		"1.3.6.1.4.1.674.10893.1.20. " +
-		"Returned result: 1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT 2.4.6.";
-	public static final String FAILED_SNMP_GET_NEXT_WRONG_EXTRACTED_VALUE_MESSAGE =
-		"Hostname host-win - SNMP test failed - SNMP GetNext " +
-		"of 1.3.6.1.4.1.674.10893.1.20 was successful " +
-		"but the value cannot be extracted. Returned result: 1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT.";
 	public static final String CRITERION_WMI_NAMESPACE = "root\\cimv2";
 	public static final String WMI_EXCEPTION_OTHER_MESSAGE = "other";
 	public static final String SNMP_TABLE = "snmpTable";
@@ -430,13 +365,6 @@ public class Constants {
 		"${awk::sprintf(\"%s (%s - %s)\", $1, $4, bytes2HumanFormatBase10($6))}";
 	public static final String SOURCE = "source(1)";
 
-	// Encryption
-
-	public static final String AES = "aes";
-	public static final String DES = "des";
-	public static final String NO = "no";
-	public static final String NONE = "none";
-	public static final String INVALID_PRIVACY_VALUE = "sha-256";
 	// OS
 	public static final String LINUX = "LINUX";
 	public static final String WINDOWS = "WINDOWS";

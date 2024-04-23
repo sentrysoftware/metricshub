@@ -85,8 +85,8 @@ public class ProcessOutput {
 	 */
 	public static ProcessOutput log(final Logger logger) {
 		return builder()
-			.outputProcessor(ProcessorHelper.logger(logger, Slf4jLevel.DEBUG))
-			.errorProcessor(ProcessorHelper.logger(logger, Slf4jLevel.ERROR))
+			.outputProcessor(ProcessorHelper.safeLogger(logger, Slf4jLevel.DEBUG))
+			.errorProcessor(ProcessorHelper.safeLogger(logger, Slf4jLevel.ERROR))
 			.build();
 	}
 
@@ -98,6 +98,6 @@ public class ProcessOutput {
 	 * @return a new {@link ProcessOutput}
 	 */
 	public static ProcessOutput logOutput(final Logger logger) {
-		return builder().outputProcessor(ProcessorHelper.logger(logger, Slf4jLevel.DEBUG)).build();
+		return builder().outputProcessor(ProcessorHelper.safeLogger(logger, Slf4jLevel.DEBUG)).build();
 	}
 }

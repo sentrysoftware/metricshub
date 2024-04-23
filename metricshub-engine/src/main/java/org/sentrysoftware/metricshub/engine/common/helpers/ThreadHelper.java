@@ -30,20 +30,25 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Helper class for Thread operations
+ * Provides utility methods for thread management, including executing tasks
+ * with a specified timeout. This class is part of the MetricsHub Engine's
+ * common helper utilities.
  */
 public class ThreadHelper {
 
 	/**
-	 * Run the given {@link Callable} using the passed timeout in seconds.
+	 * Executes a {@link Callable} task with a specified timeout. This method
+	 * creates a single-threaded executor to run the provided task. If the task
+	 * completes within the given timeout, its result is returned. Otherwise, a
+	 * {@link TimeoutException} is thrown.
 	 *
-	 * @param <T>
-	 * @param callable
-	 * @param timeout
-	 * @return {@link T} result returned by the callable.
-	 * @throws InterruptedException
-	 * @throws ExecutionException
-	 * @throws TimeoutException
+	 * @param <T>      the type of the result returned by the {@code callable}
+	 * @param callable the task to be executed
+	 * @param timeout  the maximum time to wait for the task to complete, in seconds
+	 * @return the result of the executed task
+	 * @throws InterruptedException if the current thread was interrupted while waiting
+	 * @throws ExecutionException   if the computation threw an exception
+	 * @throws TimeoutException     if the wait timed out
 	 */
 	public static <T> T execute(final Callable<T> callable, final long timeout)
 		throws InterruptedException, ExecutionException, TimeoutException {

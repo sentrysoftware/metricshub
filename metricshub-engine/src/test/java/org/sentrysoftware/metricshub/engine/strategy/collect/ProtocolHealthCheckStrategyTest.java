@@ -3,7 +3,6 @@ package org.sentrysoftware.metricshub.engine.strategy.collect;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -14,8 +13,6 @@ import static org.mockito.Mockito.doThrow;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HOSTNAME;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.DOWN;
-import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.HTTP_UP_METRIC;
-import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.IPMI_UP_METRIC;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.UP;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WBEM_TEST_QUERY;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WBEM_UP_METRIC;
@@ -36,20 +33,15 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
-import org.sentrysoftware.ipmi.client.IpmiClient;
-import org.sentrysoftware.ipmi.client.IpmiClientConfiguration;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
-import org.sentrysoftware.metricshub.engine.client.http.HttpRequest;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.TestConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WinRmConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
+import org.sentrysoftware.metricshub.engine.extension.TestConfiguration;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.wbem.javax.wbem.WBEMException;
@@ -68,7 +60,6 @@ class ProtocolHealthCheckStrategyTest {
 	private static IProtocolExtension protocolExtensionMock;
 
 	private static final String SUCCESS_RESPONSE = "Success";
-	private static final String NULL_RESPONSE = null;
 
 	private static final List<List<String>> WQL_SUCCESS_RESPONSE = List.of(List.of(SUCCESS_RESPONSE));
 	static Map<String, Map<String, Monitor>> monitors;
@@ -84,32 +75,11 @@ class ProtocolHealthCheckStrategyTest {
 	}
 
 	/**
-	 * Creates and returns a TelemetryManager instance with an HTTP configuration.
+	 * Creates and returns a TelemetryManager instance with a Test configuration.
 	 *
-	 * @return A TelemetryManager instance configured with an HTTP configuration.
+	 * @return A TelemetryManager instance configured with a Test configuration.
 	 */
-	private TelemetryManager createTelemetryManagerWithHttpConfig() {
-		// Create a telemetry manager
-		return TelemetryManager
-			.builder()
-			.monitors(monitors)
-			.hostConfiguration(
-				HostConfiguration
-					.builder()
-					.hostId(HOSTNAME)
-					.hostname(HOSTNAME)
-					.configurations(Map.of(HttpConfiguration.class, HttpConfiguration.builder().build()))
-					.build()
-			)
-			.build();
-	}
-
-	/**
-	 * Creates and returns a TelemetryManager instance with an SNMP configuration.
-	 *
-	 * @return A TelemetryManager instance configured with an SNMP configuration.
-	 */
-	private TelemetryManager createTelemetryManagerWithSnmpConfig() {
+	private TelemetryManager createTelemetryManagerWithTestConfig() {
 		// Create a telemetry manager
 		return TelemetryManager
 			.builder()
@@ -120,39 +90,6 @@ class ProtocolHealthCheckStrategyTest {
 					.hostId(HOSTNAME)
 					.hostname(HOSTNAME)
 					.configurations(Map.of(TestConfiguration.class, TestConfiguration.builder().build()))
-					.build()
-			)
-			.build();
-	}
-
-	/**
-	 * Creates and returns a TelemetryManager instance with an IPMI configuration.
-	 *
-	 * @return A TelemetryManager instance configured with an IPMI configuration.
-	 */
-	private TelemetryManager createTelemetryManagerWithIpmiConfig() {
-		// Create a telemetry manager
-		return TelemetryManager
-			.builder()
-			.monitors(monitors)
-			.hostConfiguration(
-				HostConfiguration
-					.builder()
-					.hostId(HOSTNAME)
-					.hostname(HOSTNAME)
-					.configurations(
-						Map.of(
-							IpmiConfiguration.class,
-							IpmiConfiguration
-								.builder()
-								.username("username")
-								.password("password".toCharArray())
-								.bmcKey(null)
-								.skipAuth(false)
-								.timeout(60L)
-								.build()
-						)
-					)
 					.build()
 			)
 			.build();
@@ -232,53 +169,9 @@ class ProtocolHealthCheckStrategyTest {
 	}
 
 	@Test
-	void testCheckHttpDownHealth() {
-		// Create a telemetry manager using an HTTP HostConfiguration.
-		final TelemetryManager telemetryManager = createTelemetryManagerWithHttpConfig();
-
-		// Mock HTTP protocol health check response
-		doReturn(NULL_RESPONSE).when(clientsExecutorMock).executeHttp(any(HttpRequest.class), anyBoolean());
-
-		// Create a new health check strategy
-		final ProtocolHealthCheckStrategy httpHealthCheckStrategy = new ProtocolHealthCheckStrategy(
-			telemetryManager,
-			CURRENT_TIME_MILLIS,
-			clientsExecutorMock,
-			ExtensionManager.empty()
-		);
-
-		// Start the Health Check strategy
-		httpHealthCheckStrategy.run();
-
-		assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(HTTP_UP_METRIC).getValue());
-	}
-
-	@Test
-	void testCheckHttpUpHealth() {
-		// Create a telemetry manager using an HTTP HostConfiguration.
-		final TelemetryManager telemetryManager = createTelemetryManagerWithHttpConfig();
-
-		// Mock HTTP protocol health check response
-		doReturn(SUCCESS_RESPONSE).when(clientsExecutorMock).executeHttp(any(HttpRequest.class), anyBoolean());
-
-		// Create a new health check strategy
-		final ProtocolHealthCheckStrategy httpHealthCheckStrategy = new ProtocolHealthCheckStrategy(
-			telemetryManager,
-			CURRENT_TIME_MILLIS,
-			clientsExecutorMock,
-			ExtensionManager.empty()
-		);
-
-		// Start the Health Check strategy
-		httpHealthCheckStrategy.run();
-
-		assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(HTTP_UP_METRIC).getValue());
-	}
-
-	@Test
 	void testCheckHealth() throws Exception {
-		// Create a telemetry manager using an SNMP HostConfiguration.
-		final TelemetryManager telemetryManager = createTelemetryManagerWithSnmpConfig();
+		// Create a telemetry manager using a test configuration.
+		final TelemetryManager telemetryManager = createTelemetryManagerWithTestConfig();
 
 		// Create the Extension Manager
 		final ExtensionManager extensionManager = ExtensionManager
@@ -290,7 +183,7 @@ class ProtocolHealthCheckStrategyTest {
 			.when(protocolExtensionMock)
 			.isValidConfiguration(telemetryManager.getHostConfiguration().getConfigurations().get(TestConfiguration.class));
 
-		doNothing().when(protocolExtensionMock).checkProtocol(any(TelemetryManager.class), anyLong());
+		doNothing().when(protocolExtensionMock).checkProtocol(any(TelemetryManager.class));
 
 		// Create a new protocol health check strategy
 		final ProtocolHealthCheckStrategy healthCheckStrategy = new ProtocolHealthCheckStrategy(
@@ -300,58 +193,6 @@ class ProtocolHealthCheckStrategyTest {
 			extensionManager
 		);
 		assertDoesNotThrow(() -> healthCheckStrategy.run());
-	}
-
-	@Test
-	void testCheckIpmiUpHealth() {
-		// Create a telemetry manager using an IPMI HostConfiguration.
-		final TelemetryManager telemetryManager = createTelemetryManagerWithIpmiConfig();
-
-		// Create a new protocol health check strategy
-		final ProtocolHealthCheckStrategy ipmiHealthCheckStrategy = new ProtocolHealthCheckStrategy(
-			telemetryManager,
-			CURRENT_TIME_MILLIS,
-			clientsExecutorMock,
-			ExtensionManager.empty()
-		);
-
-		// Mock successful IPMI protocol health check response
-		try (MockedStatic<IpmiClient> staticIpmiClient = Mockito.mockStatic(IpmiClient.class)) {
-			staticIpmiClient
-				.when(() -> IpmiClient.getChassisStatusAsStringResult(any(IpmiClientConfiguration.class)))
-				.thenReturn(SUCCESS_RESPONSE);
-
-			// Start the IPMI Health Check strategy
-			ipmiHealthCheckStrategy.run();
-
-			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(IPMI_UP_METRIC).getValue());
-		}
-	}
-
-	@Test
-	void testCheckIpmiDownHealth() {
-		// Create a telemetry manager using an IPMI HostConfiguration.
-		final TelemetryManager telemetryManager = createTelemetryManagerWithIpmiConfig();
-
-		// Create a new protocol health check strategy
-		final ProtocolHealthCheckStrategy ipmiHealthCheckStrategy = new ProtocolHealthCheckStrategy(
-			telemetryManager,
-			CURRENT_TIME_MILLIS,
-			clientsExecutorMock,
-			ExtensionManager.empty()
-		);
-
-		// Mock null IPMI protocol health check response
-		try (MockedStatic<IpmiClient> staticIpmiClient = Mockito.mockStatic(IpmiClient.class)) {
-			staticIpmiClient
-				.when(() -> IpmiClient.getChassisStatusAsStringResult(any(IpmiClientConfiguration.class)))
-				.thenReturn(null);
-
-			// Start the IPMI Health Check strategy
-			ipmiHealthCheckStrategy.run();
-
-			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(IPMI_UP_METRIC).getValue());
-		}
 	}
 
 	@Test

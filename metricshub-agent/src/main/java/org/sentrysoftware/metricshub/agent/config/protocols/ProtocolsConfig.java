@@ -47,7 +47,8 @@ public class ProtocolsConfig {
 	private IConfiguration snmp;
 
 	@JsonSetter(nulls = SKIP)
-	private IpmiProtocolConfig ipmi;
+	@JsonDeserialize(using = ExtensionConfigDeserializer.class)
+	private IConfiguration ipmi;
 
 	@JsonSetter(nulls = SKIP)
 	@JsonDeserialize(using = ExtensionConfigDeserializer.class)
@@ -60,7 +61,8 @@ public class ProtocolsConfig {
 	private WmiProtocolConfig wmi;
 
 	@JsonSetter(nulls = SKIP)
-	private HttpProtocolConfig http;
+	@JsonDeserialize(using = ExtensionConfigDeserializer.class)
+	private IConfiguration http;
 
 	@JsonSetter(nulls = SKIP)
 	@JsonDeserialize(using = ExtensionConfigDeserializer.class)

@@ -1,5 +1,7 @@
 package org.sentrysoftware.metricshub.engine.client;
 
+import static org.springframework.util.Assert.isTrue;
+
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
  * MetricsHub Engine
@@ -21,17 +23,12 @@ package org.sentrysoftware.metricshub.engine.client;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
-import static org.springframework.util.Assert.notNull;
-
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -42,34 +39,20 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.sentrysoftware.http.HttpClient;
-import org.sentrysoftware.http.HttpResponse;
-import org.sentrysoftware.ipmi.client.IpmiClient;
-import org.sentrysoftware.ipmi.client.IpmiClientConfiguration;
 import org.sentrysoftware.jflat.JFlat;
 import org.sentrysoftware.metricshub.engine.awk.AwkException;
 import org.sentrysoftware.metricshub.engine.awk.AwkExecutor;
-import org.sentrysoftware.metricshub.engine.client.http.Body;
-import org.sentrysoftware.metricshub.engine.client.http.Header;
-import org.sentrysoftware.metricshub.engine.client.http.HttpMacrosUpdater;
-import org.sentrysoftware.metricshub.engine.client.http.HttpRequest;
-import org.sentrysoftware.metricshub.engine.client.http.Url;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
-import org.sentrysoftware.metricshub.engine.common.exception.RetryableException;
 import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.NetworkHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.ThreadHelper;
-import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.TransportProtocols;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WinRmConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
-import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
-import org.sentrysoftware.metricshub.engine.strategy.utils.RetryOperation;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.tablejoin.TableJoin;
 import org.sentrysoftware.vcenter.VCenterClient;
@@ -102,13 +85,9 @@ import org.sentrysoftware.xflat.exceptions.XFlatException;
 @NoArgsConstructor
 public class ClientsExecutor {
 
-	private static final String MASK = "*****";
-	private static final char[] CHAR_ARRAY_MASK = MASK.toCharArray();
 	private static final String TIMEOUT_CANNOT_BE_NULL = "Timeout cannot be null";
 	private static final String PASSWORD_CANNOT_BE_NULL = "Password cannot be null";
 	private static final String USERNAME_CANNOT_BE_NULL = "Username cannot be null";
-	private static final String HOSTNAME_CANNOT_BE_NULL = "hostname cannot be null";
-	private static final String PROTOCOL_CANNOT_BE_NULL = "protocol cannot be null";
 
 	private static final long JSON_2_CSV_TIMEOUT = 60; //seconds
 
@@ -752,429 +731,6 @@ public class ClientsExecutor {
 			}
 		});
 		return table;
-	}
-
-	/**
-	 * Executes the given HTTP request
-	 *
-	 * @param httpRequest The {@link HttpRequest} values.
-	 * @param logMode     Whether or not logging is enabled.
-	 * @return The result of the execution of the given HTTP request.
-	 */
-	@WithSpan("HTTP")
-	public String executeHttp(@SpanAttribute("http.config") @NonNull HttpRequest httpRequest, boolean logMode) {
-		final HttpConfiguration httpConfiguration = httpRequest.getHttpConfiguration();
-		notNull(httpConfiguration, PROTOCOL_CANNOT_BE_NULL);
-
-		final String hostname = httpRequest.getHostname();
-		notNull(hostname, HOSTNAME_CANNOT_BE_NULL);
-
-		// Get the HTTP method (GET, POST, DELETE, PUT, ...). Default: GET
-		String requestMethod = httpRequest.getMethod();
-		final String method = requestMethod != null ? requestMethod : "GET";
-
-		// Username and password
-		final String username = httpConfiguration.getUsername();
-		final char[] password = httpConfiguration.getPassword();
-
-		// Update macros in the authentication token
-		final String httpRequestAuthToken = httpRequest.getAuthenticationToken();
-		final String authenticationToken = HttpMacrosUpdater.update(
-			httpRequestAuthToken,
-			username,
-			password,
-			httpRequestAuthToken,
-			hostname
-		);
-
-		// Get the header to send
-		final Header header = httpRequest.getHeader();
-
-		// This will get the header content as a new map by updating all the known macros
-		final Map<String, String> headerContent = header == null
-			? Collections.emptyMap()
-			: header.getContent(username, password, authenticationToken, hostname);
-
-		// This will get the header content as a new map by updating all the known macros
-		// except sensitive data such as password and authentication token
-		final Map<String, String> headerContentProtected = header == null
-			? Collections.emptyMap()
-			: header.getContent(username, CHAR_ARRAY_MASK, MASK, hostname);
-
-		// Get the body to send
-		final Body body = httpRequest.getBody();
-
-		// This will get the body content as map by updating all the known macros
-		final String bodyContent = body == null
-			? EMPTY
-			: body.getContent(username, password, authenticationToken, hostname);
-
-		// This will get the body content as map by updating all the known macros
-		// except sensitive data such as password and authentication token
-		final String bodyContentProtected = body == null
-			? EMPTY
-			: body.getContent(username, CHAR_ARRAY_MASK, MASK, hostname);
-
-		// Set the protocol http or https
-		final String protocol = Boolean.TRUE.equals(httpConfiguration.getHttps()) ? "https" : "http";
-
-		// Get the HTTP request URL
-		final String httpRequestUrl = httpRequest.getUrl();
-
-		// Get the HTTP request Path
-		final String httpRequestPath = httpRequest.getPath();
-
-		// Update the known HTTP macros, and return empty if the httpRequestPath is null
-		final String path = HttpMacrosUpdater.update(httpRequestPath, username, password, authenticationToken, hostname);
-
-		// Update the known HTTP macros, and return empty if the httpRequestUrl is null
-		final String url = HttpMacrosUpdater.update(httpRequestUrl, username, password, authenticationToken, hostname);
-
-		// Build the full URL
-		final String fullUrl = Url.format(protocol, hostname, httpConfiguration.getPort(), path, url);
-
-		LoggingHelper.trace(() ->
-			log.trace(
-				"Executing HTTP request: {} {}\n- hostname: {}\n- url: {}\n- path: {}\n" + // NOSONAR
-				"- Protocol: {}\n- Port: {}\n" +
-				"- Request-headers:\n{}\n- Request-body:\n{}\n- Timeout: {} s\n- Get-result-content: {}\n",
-				method,
-				fullUrl,
-				hostname,
-				url,
-				path,
-				protocol,
-				httpConfiguration.getPort(),
-				StringHelper.prettyHttpHeaders(headerContentProtected),
-				bodyContentProtected,
-				httpConfiguration.getTimeout().intValue(),
-				httpRequest.getResultContent()
-			)
-		);
-
-		return RetryOperation
-			.<String>builder()
-			.withDescription(String.format("%s %s", method, fullUrl))
-			.withWaitStrategy((int) telemetryManager.getHostConfiguration().getRetryDelay())
-			.withMaxRetries(1)
-			.withHostname(hostname)
-			.withDefaultValue(EMPTY)
-			.build()
-			.run(() ->
-				doHttpRequest(
-					httpRequest.getResultContent(),
-					logMode,
-					httpConfiguration,
-					hostname,
-					method,
-					username,
-					password,
-					headerContent,
-					headerContentProtected,
-					bodyContent,
-					bodyContentProtected,
-					url,
-					path,
-					protocol,
-					fullUrl
-				)
-			);
-	}
-
-	/**
-	 * Execute the HTTP request
-	 *
-	 * @param resultContent          Which result should be returned. E.g. HTTP status, body, header or all
-	 * @param logMode                Whether or not logging is enabled
-	 * @param httpConfiguration      HTTP protocol configuration
-	 * @param hostname               The device hostname
-	 * @param method                 The HTTP method: GET, POST, DELETE, ...etc.
-	 * @param username               The HTTP server username
-	 * @param password               The HTTP server password
-	 * @param headerContent          The HTTP header
-	 * @param headerContentProtected The HTTP header without sensitive information
-	 * @param bodyContent            The HTTP body
-	 * @param bodyContentProtected   The HTTP body without sensitive information
-	 * @param url                    The HTTP URL
-	 * @param path                    The HTTP URL path
-	 * @param protocol               The protocol: http or https
-	 * @param fullUrl                The full HTTP URL. E.g. <pre>http://www.example.com:1080/api/v1/examples</pre>
-	 * @return String value
-	 */
-	private String doHttpRequest(
-		final ResultContent resultContent,
-		final boolean logMode,
-		final HttpConfiguration httpConfiguration,
-		final String hostname,
-		final String method,
-		final String username,
-		final char[] password,
-		final Map<String, String> headerContent,
-		final Map<String, String> headerContentProtected,
-		final String bodyContent,
-		final String bodyContentProtected,
-		final String url,
-		final String path,
-		final String protocol,
-		final String fullUrl
-	) {
-		try {
-			final long startTime = System.currentTimeMillis();
-
-			// Sending the request
-			HttpResponse httpResponse = sendHttpRequest(
-				fullUrl,
-				method,
-				username,
-				password,
-				headerContent,
-				bodyContent,
-				httpConfiguration.getTimeout().intValue()
-			);
-
-			// Compute the response time
-			final long responseTime = System.currentTimeMillis() - startTime;
-
-			// The request returned an error
-			final int statusCode = httpResponse.getStatusCode();
-			if (statusCode >= HTTP_BAD_REQUEST) {
-				log.warn("Hostname {} - Bad response for HTTP request {} {}: {}.", hostname, method, fullUrl, statusCode);
-
-				// Retry the request when receiving the following HTTP statuses
-				// 500 Internal Server Error
-				// 503 Service Unavailable
-				// 504 Gateway Timeout
-				// 507 Insufficient Storage
-				if (statusCode == 500 || statusCode == 503 || statusCode == 504 || statusCode == 507) {
-					throw new RetryableException();
-				}
-
-				return "";
-			}
-
-			// The request has been successful
-			String result;
-			switch (resultContent) {
-				case BODY:
-					result = httpResponse.getBody();
-					break;
-				case HEADER:
-					result = httpResponse.getHeader();
-					break;
-				case HTTP_STATUS:
-					result = String.valueOf(statusCode);
-					break;
-				case ALL:
-					result = httpResponse.toString();
-					break;
-				default:
-					throw new IllegalArgumentException("Unsupported ResultContent: " + resultContent);
-			}
-
-			LoggingHelper.trace(() ->
-				log.trace(
-					"Executed HTTP request: {} {}\n- Hostname: {}\n- Url: {}\n- Path: {}\n- Protocol: {}\n- Port: {}\n" + // NOSONAR
-					"- Request-headers:\n{}\n- Request-body:\n{}\n- Timeout: {} s\n" +
-					"- get-result-content: {}\n- response-status: {}\n- response-headers:\n{}\n" +
-					"- response-body:\n{}\n- response-time: {}\n",
-					method,
-					fullUrl,
-					hostname,
-					url,
-					path,
-					protocol,
-					httpConfiguration.getPort(),
-					StringHelper.prettyHttpHeaders(headerContentProtected),
-					bodyContentProtected,
-					httpConfiguration.getTimeout().intValue(),
-					resultContent,
-					statusCode,
-					httpResponse.getHeader(),
-					httpResponse.getBody(),
-					responseTime
-				)
-			);
-
-			return result;
-		} catch (IOException e) {
-			if (logMode) {
-				log.error(
-					"Hostname {} - Error detected when running HTTP request {} {}: {}\nReturning null.",
-					hostname,
-					method,
-					fullUrl,
-					e.getMessage()
-				);
-
-				log.debug("Hostname {} - Exception detected when running HTTP request {} {}:", hostname, method, fullUrl, e);
-			}
-		}
-
-		return null;
-	}
-
-	/**
-	 * @param url           The full URL of the HTTP request.
-	 * @param method        The HTTP method (GET, POST, ...).
-	 * @param username      The username for the connexion.
-	 * @param password      The password for the connexion.
-	 * @param headerContent The {@link Map} of properties-values in the header.
-	 * @param bodyContent   The body as a plain text.
-	 * @param timeout       The timeout of the request.
-	 * @return The {@link HttpResponse} returned by the server.
-	 * @throws IOException If a reading or writing operation fails.
-	 */
-	private HttpResponse sendHttpRequest(
-		String url,
-		String method,
-		String username,
-		char[] password,
-		Map<String, String> headerContent,
-		String bodyContent,
-		int timeout
-	) throws IOException {
-		return HttpClient.sendRequest(
-			url,
-			method,
-			null,
-			username,
-			password,
-			null,
-			0,
-			null,
-			null,
-			null,
-			headerContent,
-			bodyContent,
-			timeout,
-			null
-		);
-	}
-
-	/**
-	 * Runs IPMI detection to determine the Chassis power state.
-	 *
-	 * @param hostname          The host name or IP address to query.
-	 * @param ipmiConfiguration The MetricsHub {@link IpmiConfiguration} instance with required fields for IPMI requests.
-	 * @return A string value, e.g., "System power state is up."
-	 * @throws InterruptedException If the execution is interrupted.
-	 * @throws ExecutionException   If the execution encounters an exception.
-	 * @throws TimeoutException     If the operation times out.
-	 */
-	@WithSpan("IPMI Chassis Status")
-	public String executeIpmiDetection(
-		@SpanAttribute("host.hostname") String hostname,
-		@SpanAttribute("ipmi.config") @NonNull IpmiConfiguration ipmiConfiguration
-	) throws InterruptedException, ExecutionException, TimeoutException {
-		LoggingHelper.trace(() ->
-			log.trace(
-				"Executing IPMI detection request:\n- Hostname: {}\n- Username: {}\n- SkipAuth: {}\n" + "- Timeout: {} s\n", // NOSONAR
-				hostname,
-				ipmiConfiguration.getUsername(),
-				ipmiConfiguration.isSkipAuth(),
-				ipmiConfiguration.getTimeout()
-			)
-		);
-
-		final long startTime = System.currentTimeMillis();
-
-		final String result = IpmiClient.getChassisStatusAsStringResult(
-			buildIpmiConfiguration(hostname, ipmiConfiguration)
-		);
-
-		final long responseTime = System.currentTimeMillis() - startTime;
-
-		LoggingHelper.trace(() ->
-			log.trace(
-				"Executed IPMI detection request:\n- Hostname: {}\n- Username: {}\n- SkipAuth: {}\n" + // NOSONAR
-				"- Timeout: {} s\n- Result:\n{}\n- response-time: {}\n",
-				hostname,
-				ipmiConfiguration.getUsername(),
-				ipmiConfiguration.isSkipAuth(),
-				ipmiConfiguration.getTimeout(),
-				result,
-				responseTime
-			)
-		);
-
-		return result;
-	}
-
-	/**
-	 * Build IPMI configuration
-	 *
-	 * @param hostname          The host we wish to set in the {@link IpmiConfiguration}
-	 * @param ipmiConfiguration MetricsHub {@link IpmiConfiguration} instance including all the required fields to perform IPMI requests
-	 * @return new instance of {@link IpmiClientConfiguration}
-	 */
-	private static IpmiClientConfiguration buildIpmiConfiguration(
-		@NonNull String hostname,
-		@NonNull IpmiConfiguration ipmiConfiguration
-	) {
-		String username = ipmiConfiguration.getUsername();
-		char[] password = ipmiConfiguration.getPassword();
-		Long timeout = ipmiConfiguration.getTimeout();
-
-		notNull(username, USERNAME_CANNOT_BE_NULL);
-		notNull(password, PASSWORD_CANNOT_BE_NULL);
-		notNull(timeout, TIMEOUT_CANNOT_BE_NULL);
-
-		return new IpmiClientConfiguration(
-			hostname,
-			username,
-			password,
-			ipmiConfiguration.getBmcKey(),
-			ipmiConfiguration.isSkipAuth(),
-			timeout
-		);
-	}
-
-	/**
-	 * Executes an IPMI Over-LAN request to retrieve information about all sensors.
-	 *
-	 * @param hostname          The host for which the {@link IpmiConfiguration} is set.
-	 * @param ipmiConfiguration The MetricsHub {@link IpmiConfiguration} instance containing the required fields for IPMI requests.
-	 * @return A string containing information about FRUs, sensor states, and readings.
-	 * @throws InterruptedException If the execution is interrupted.
-	 * @throws ExecutionException   If the execution encounters an exception.
-	 * @throws TimeoutException     If the operation times out.
-	 */
-	@WithSpan("IPMI Sensors")
-	public String executeIpmiGetSensors(
-		@SpanAttribute("host.hostname") String hostname,
-		@SpanAttribute("ipmi.config") @NonNull IpmiConfiguration ipmiConfiguration
-	) throws InterruptedException, ExecutionException, TimeoutException {
-		LoggingHelper.trace(() ->
-			log.trace(
-				"Executing IPMI FRUs and Sensors request:\n- Hostname: {}\n- Username: {}\n- SkipAuth: {}\n" + // NOSONAR
-				"- Timeout: {} s\n",
-				hostname,
-				ipmiConfiguration.getUsername(),
-				ipmiConfiguration.isSkipAuth(),
-				ipmiConfiguration.getTimeout()
-			)
-		);
-
-		final long startTime = System.currentTimeMillis();
-
-		String result = IpmiClient.getFrusAndSensorsAsStringResult(buildIpmiConfiguration(hostname, ipmiConfiguration));
-
-		final long responseTime = System.currentTimeMillis() - startTime;
-
-		LoggingHelper.trace(() ->
-			log.trace(
-				"Executed IPMI FRUs and Sensors request:\n- Hostname: {}\n- Username: {}\n- SkipAuth: {}\n" + // NOSONAR
-				"- Timeout: {} s\n- Result:\n{}\n- response-time: {}\n",
-				hostname,
-				ipmiConfiguration.getUsername(),
-				ipmiConfiguration.isSkipAuth(),
-				ipmiConfiguration.getTimeout(),
-				result,
-				responseTime
-			)
-		);
-
-		return result;
 	}
 
 	/**

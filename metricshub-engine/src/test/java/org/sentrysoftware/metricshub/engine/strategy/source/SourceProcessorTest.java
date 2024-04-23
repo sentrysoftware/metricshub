@@ -40,9 +40,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IWinConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.TestConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
@@ -108,52 +106,44 @@ class SourceProcessorTest {
 	private static final String CONNECTOR_ID = "myConnector";
 
 	@Test
-	void testProcessHttpSourceOK() {
-		final HttpConfiguration httpConfiguration = HttpConfiguration
-			.builder()
-			.username(USERNAME)
-			.password(PASSWORD.toCharArray())
-			.port(161)
-			.timeout(120L)
-			.build();
+	void testProcessHttpSource() {
+		final TestConfiguration httpConfiguration = TestConfiguration.builder().build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(ECS1_01)
 			.hostId(ECS1_01)
 			.hostType(DeviceKind.LINUX)
-			.configurations(Collections.singletonMap(HttpConfiguration.class, httpConfiguration))
+			.configurations(Collections.singletonMap(TestConfiguration.class, httpConfiguration))
 			.build();
 
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
+
+		final ExtensionManager extensionManager = ExtensionManager
+			.builder()
+			.withProtocolExtensions(List.of(protocolExtensionMock))
+			.build();
+
 		final SourceProcessor sourceProcessor = SourceProcessor
 			.builder()
 			.telemetryManager(telemetryManager)
 			.clientsExecutor(clientsExecutorMock)
+			.extensionManager(extensionManager)
+			.connectorId(CONNECTOR_ID)
 			.build();
 
-		doReturn(ECS1_01).when(clientsExecutorMock).executeHttp(any(), eq(true));
-		final SourceTable actual = sourceProcessor.process(HttpSource.builder().url(URL).method(HttpMethod.GET).build());
+		doReturn(true).when(protocolExtensionMock).isValidConfiguration(httpConfiguration);
+
+		doReturn(Set.of(HttpSource.class)).when(protocolExtensionMock).getSupportedSources();
 
 		final SourceTable expected = SourceTable.builder().rawData(ECS1_01).build();
+
+		final HttpSource source = HttpSource.builder().url(URL).method(HttpMethod.GET).build();
+
+		doReturn(expected).when(protocolExtensionMock).processSource(eq(source), anyString(), any(TelemetryManager.class));
+
+		final SourceTable actual = sourceProcessor.process(source);
+
 		assertEquals(expected, actual);
-	}
-
-	@Test
-	void testProcessHttpSourceNoHttpConfiguration() {
-		final HostConfiguration hostConfiguration = HostConfiguration
-			.builder()
-			.hostname(ECS1_01)
-			.hostId(ECS1_01)
-			.hostType(DeviceKind.LINUX)
-			.build();
-
-		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
-		final SourceProcessor sourceProcessor = SourceProcessor.builder().telemetryManager(telemetryManager).build();
-
-		assertEquals(
-			SourceTable.empty(),
-			sourceProcessor.process(HttpSource.builder().url("my/url").method(HttpMethod.GET).build())
-		);
 	}
 
 	@Test
@@ -792,14 +782,7 @@ class SourceProcessorTest {
 
 	@Test
 	void testProcessWmiSourceMalformed() {
-		final TestConfiguration snmpConfiguration = TestConfiguration.builder().build();
-		final HttpConfiguration httpConfiguration = HttpConfiguration
-			.builder()
-			.username(USERNAME)
-			.password(PASSWORD.toCharArray())
-			.port(161)
-			.timeout(120L)
-			.build();
+		final TestConfiguration httpConfiguration = TestConfiguration.builder().build();
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
 			.hostConfiguration(
@@ -808,9 +791,7 @@ class SourceProcessorTest {
 					.hostname(ECS1_01)
 					.hostId(ECS1_01)
 					.hostType(DeviceKind.LINUX)
-					.configurations(
-						Map.of(TestConfiguration.class, snmpConfiguration, HttpConfiguration.class, httpConfiguration)
-					)
+					.configurations(Map.of(TestConfiguration.class, httpConfiguration))
 					.build()
 			)
 			.build();
@@ -939,7 +920,6 @@ class SourceProcessorTest {
 		assertEquals(SourceTable.empty(), sourceProcessor.process(wmiSource));
 	}
 
-	@Test
 	void testProcessIpmiSourceStorageHost() {
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
@@ -953,102 +933,6 @@ class SourceProcessorTest {
 			.telemetryManager(telemetryManager)
 			.clientsExecutor(clientsExecutorMock)
 			.build();
-		assertEquals(SourceTable.empty(), sourceProcessor.process(new IpmiSource()));
-	}
-
-	@Test
-	void testProcessIpmiSourceOobHostNoIpmiConfig() {
-		final HostConfiguration hostConfiguration = HostConfiguration
-			.builder()
-			.hostname(ECS1_01)
-			.hostId(ECS1_01)
-			.hostType(DeviceKind.OOB)
-			.build();
-		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
-
-		final SourceProcessor sourceProcessor = SourceProcessor
-			.builder()
-			.telemetryManager(telemetryManager)
-			.clientsExecutor(clientsExecutorMock)
-			.build();
-		assertEquals(SourceTable.empty(), sourceProcessor.process(new IpmiSource()));
-	}
-
-	@Test
-	void testProcessIpmiSourceOob() throws Exception {
-		final IpmiConfiguration ipmiConfiguration = IpmiConfiguration
-			.builder()
-			.username(USERNAME)
-			.password(PASSWORD.toCharArray())
-			.build();
-		final HostConfiguration hostConfiguration = HostConfiguration
-			.builder()
-			.hostname(ECS1_01)
-			.hostId(ECS1_01)
-			.hostType(DeviceKind.OOB)
-			.configurations(Collections.singletonMap(IpmiConfiguration.class, ipmiConfiguration))
-			.build();
-		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
-		final SourceProcessor sourceProcessor = SourceProcessor
-			.builder()
-			.telemetryManager(telemetryManager)
-			.clientsExecutor(clientsExecutorMock)
-			.build();
-		String ipmiResult =
-			"FRU;IBM;System x3650 M2;KD9098C - 794722G\n" +
-			"System Board;1;System Board 1;IBM;System x3650 M2;KD9098C - 794722G;Base board 1=Device Present";
-		doReturn(ipmiResult).when(clientsExecutorMock).executeIpmiGetSensors(eq(ECS1_01), any(IpmiConfiguration.class));
-		assertEquals(SourceTable.builder().rawData(ipmiResult).build(), sourceProcessor.process(new IpmiSource()));
-	}
-
-	@Test
-	void testProessIpmiSourceOobNullResult() throws Exception {
-		final IpmiConfiguration ipmiConfiguration = IpmiConfiguration
-			.builder()
-			.username(USERNAME)
-			.password(PASSWORD.toCharArray())
-			.build();
-		final HostConfiguration hostConfiguration = HostConfiguration
-			.builder()
-			.hostname(ECS1_01)
-			.hostId(ECS1_01)
-			.hostType(DeviceKind.OOB)
-			.configurations(Collections.singletonMap(IpmiConfiguration.class, ipmiConfiguration))
-			.build();
-		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
-		final SourceProcessor sourceProcessor = SourceProcessor
-			.builder()
-			.telemetryManager(telemetryManager)
-			.clientsExecutor(clientsExecutorMock)
-			.build();
-		doReturn(null).when(clientsExecutorMock).executeIpmiGetSensors(eq(ECS1_01), any(IpmiConfiguration.class));
-		assertEquals(SourceTable.empty(), sourceProcessor.process(new IpmiSource()));
-	}
-
-	@Test
-	void testVisitIpmiSourceOobException() throws Exception {
-		final IpmiConfiguration ipmiConfiguration = IpmiConfiguration
-			.builder()
-			.username(USERNAME)
-			.password(PASSWORD.toCharArray())
-			.build();
-		final HostConfiguration hostConfiguration = HostConfiguration
-			.builder()
-			.hostname(ECS1_01)
-			.hostId(ECS1_01)
-			.hostType(DeviceKind.OOB)
-			.configurations(Collections.singletonMap(IpmiConfiguration.class, ipmiConfiguration))
-			.build();
-		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
-
-		final SourceProcessor sourceProcessor = SourceProcessor
-			.builder()
-			.telemetryManager(telemetryManager)
-			.clientsExecutor(clientsExecutorMock)
-			.build();
-		doThrow(new ExecutionException(new Exception("Exception from tests")))
-			.when(clientsExecutorMock)
-			.executeIpmiGetSensors(eq(ECS1_01), any(IpmiConfiguration.class));
 		assertEquals(SourceTable.empty(), sourceProcessor.process(new IpmiSource()));
 	}
 
@@ -1145,19 +1029,13 @@ class SourceProcessorTest {
 
 	@Test
 	void testProcessWindowsIpmiSourceWmiProtocolNull() throws Exception {
-		final HttpConfiguration httpConfiguration = HttpConfiguration
-			.builder()
-			.username("username")
-			.password("password".toCharArray())
-			.port(161)
-			.timeout(120L)
-			.build();
+		final TestConfiguration httpConfiguration = TestConfiguration.builder().build();
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostname(ECS1_01)
 			.hostId(ECS1_01)
 			.hostType(DeviceKind.WINDOWS)
-			.configurations(Collections.singletonMap(HttpConfiguration.class, httpConfiguration))
+			.configurations(Collections.singletonMap(TestConfiguration.class, httpConfiguration))
 			.build();
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 		final SourceProcessor sourceProcessor = SourceProcessor
