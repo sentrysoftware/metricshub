@@ -918,7 +918,7 @@ public class ConfigHelper {
 	 *
 	 * @param resourceKey    Resource unique identifier
 	 * @param resourceConfig {@link ResourceConfig} instance configured by the user
-	 * @throws InvalidConfigurationException
+	 * @throws InvalidConfigurationException thrown if a configuration validation fails
 	 */
 	private static void validateProtocols(@NonNull final String resourceKey, final ResourceConfig resourceConfig)
 		throws InvalidConfigurationException {
@@ -981,7 +981,7 @@ public class ConfigHelper {
 	 * @param port         The port number used to perform WQL queries and commands
 	 * @param timeout      How long until the WinRM request times out
 	 * @param username	   Name used to establish the connection with the host via the WinRM protocol
-	 * @throws InvalidConfigurationException
+	 * @throws InvalidConfigurationException thrown if a configuration validation fails
 	 */
 	static void validateWinRmInfo(
 		final String resourceKey,
@@ -1016,7 +1016,7 @@ public class ConfigHelper {
 	 * @param timeout     How long until the WBEM request times out
 	 * @param port        The HTTP/HTTPS port number used to perform WBEM queries
 	 * @param vCenter     vCenter hostname providing the authentication ticket, if applicable
-	 * @throws InvalidConfigurationException
+	 * @throws InvalidConfigurationException thrown if a configuration validation fails
 	 */
 	static void validateWbemInfo(
 		final String resourceKey,
@@ -1061,7 +1061,7 @@ public class ConfigHelper {
 	 *
 	 * @param resourceKey Resource unique identifier
 	 * @param timeout     How long until the WMI request times out
-	 * @throws InvalidConfigurationException
+	 * @throws InvalidConfigurationException thrown if a configuration validation fails
 	 */
 	static void validateWmiInfo(final String resourceKey, final Long timeout) throws InvalidConfigurationException {
 		StringHelper.validateConfigurationAttribute(
@@ -1090,11 +1090,7 @@ public class ConfigHelper {
 			? new HashMap<>()
 			: new HashMap<>(
 				Stream
-					.of(
-						protocols.getWbem(),
-						protocols.getWmi(),
-						protocols.getWinrm()
-					)
+					.of(protocols.getWbem(), protocols.getWmi(), protocols.getWinrm())
 					.filter(Objects::nonNull)
 					.map(AbstractProtocolConfig::toConfiguration)
 					.filter(Objects::nonNull)
@@ -1106,7 +1102,13 @@ public class ConfigHelper {
 			? new HashMap<>()
 			: new HashMap<>(
 				Stream
-					.of(protocols.getSnmp(), protocols.getHttp(), protocols.getIpmi(), protocols.getOsCommand(), protocols.getSsh())
+					.of(
+						protocols.getSnmp(),
+						protocols.getHttp(),
+						protocols.getIpmi(),
+						protocols.getOsCommand(),
+						protocols.getSsh()
+					)
 					.filter(Objects::nonNull)
 					.collect(Collectors.toMap(IConfiguration::getClass, Function.identity()))
 			);

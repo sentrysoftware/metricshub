@@ -40,7 +40,6 @@ import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfiguratio
 import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
 import org.sentrysoftware.metricshub.engine.common.helpers.ResourceHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.CommandLineCriterion;
@@ -286,7 +285,7 @@ class OsCommandExtensionTest {
 				.thenReturn(SUCCESS_RESPONSE);
 
 			// Start the SSH Health Check strategy
-			osCommandExtension.checkProtocol(telemetryManager, System.currentTimeMillis());
+			osCommandExtension.checkProtocol(telemetryManager);
 
 			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
 		}
@@ -295,7 +294,7 @@ class OsCommandExtensionTest {
 			staticOsCommandHelper.when(() -> OsCommandHelper.runLocalCommand(anyString(), anyLong(), any())).thenReturn(null);
 
 			// Start the SSH Health Check strategy
-			osCommandExtension.checkProtocol(telemetryManager, System.currentTimeMillis());
+			osCommandExtension.checkProtocol(telemetryManager);
 
 			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
 		}
@@ -319,7 +318,7 @@ class OsCommandExtensionTest {
 				.thenReturn(SUCCESS_RESPONSE);
 
 			// Start the SSH Health Check strategy
-			osCommandExtension.checkProtocol(telemetryManager, System.currentTimeMillis());
+			osCommandExtension.checkProtocol(telemetryManager);
 
 			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
 		}
@@ -332,7 +331,7 @@ class OsCommandExtensionTest {
 				.thenReturn(null);
 
 			// Start the SSH Health Check strategy
-			osCommandExtension.checkProtocol(telemetryManager, System.currentTimeMillis());
+			osCommandExtension.checkProtocol(telemetryManager);
 
 			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
 		}
@@ -361,7 +360,7 @@ class OsCommandExtensionTest {
 				.thenReturn(SUCCESS_RESPONSE);
 
 			// Start the SSH Health Check strategy
-			osCommandExtension.checkProtocol(telemetryManager, System.currentTimeMillis());
+			osCommandExtension.checkProtocol(telemetryManager);
 
 			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
 		}
@@ -377,7 +376,7 @@ class OsCommandExtensionTest {
 			staticOsCommandHelper.when(() -> OsCommandHelper.runLocalCommand(anyString(), anyLong(), any())).thenReturn(null);
 
 			// Start the SSH Health Check strategy
-			osCommandExtension.checkProtocol(telemetryManager, System.currentTimeMillis());
+			osCommandExtension.checkProtocol(telemetryManager);
 
 			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
 		}
@@ -394,7 +393,7 @@ class OsCommandExtensionTest {
 				.thenReturn(SUCCESS_RESPONSE);
 
 			// Start the SSH Health Check strategy
-			osCommandExtension.checkProtocol(telemetryManager, System.currentTimeMillis());
+			osCommandExtension.checkProtocol(telemetryManager);
 
 			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
 		}
@@ -410,7 +409,7 @@ class OsCommandExtensionTest {
 			staticOsCommandHelper.when(() -> OsCommandHelper.runLocalCommand(anyString(), anyLong(), any())).thenReturn(null);
 
 			// Start the SSH Health Check strategy
-			osCommandExtension.checkProtocol(telemetryManager, System.currentTimeMillis());
+			osCommandExtension.checkProtocol(telemetryManager);
 
 			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
 		}
@@ -427,7 +426,7 @@ class OsCommandExtensionTest {
 		telemetryManager.getHostProperties().setOsCommandExecutesRemotely(true);
 
 		// Start the SSH Health Check strategy
-		osCommandExtension.checkProtocol(telemetryManager, System.currentTimeMillis());
+		osCommandExtension.checkProtocol(telemetryManager);
 
 		assertNull(telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC));
 	}
@@ -443,7 +442,7 @@ class OsCommandExtensionTest {
 		telemetryManager.getHostProperties().setOsCommandExecutesRemotely(true);
 
 		// Start the SSH Health Check strategy
-		osCommandExtension.checkProtocol(telemetryManager, System.currentTimeMillis());
+		osCommandExtension.checkProtocol(telemetryManager);
 
 		// make sure that SSH health check is not performed if an SSH config is not present
 		assertNull(telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC));
@@ -872,12 +871,7 @@ class OsCommandExtensionTest {
 			.hostId("localhost")
 			.hostType(DeviceKind.LINUX)
 			.configurations(
-				Map.of(
-					HttpConfiguration.class,
-					OsCommandConfiguration.builder().build(),
-					SshConfiguration.class,
-					sshConfiguration
-				)
+				Map.of(IConfiguration.class, OsCommandConfiguration.builder().build(), SshConfiguration.class, sshConfiguration)
 			)
 			.build();
 

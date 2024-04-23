@@ -1,7 +1,5 @@
 package org.sentrysoftware.metricshub.engine.client;
 
-import static org.springframework.util.Assert.isTrue;
-
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
  * MetricsHub Engine
@@ -25,7 +23,6 @@ import static org.springframework.util.Assert.isTrue;
 
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -84,10 +81,6 @@ import org.sentrysoftware.xflat.exceptions.XFlatException;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ClientsExecutor {
-
-	private static final String TIMEOUT_CANNOT_BE_NULL = "Timeout cannot be null";
-	private static final String PASSWORD_CANNOT_BE_NULL = "Password cannot be null";
-	private static final String USERNAME_CANNOT_BE_NULL = "Username cannot be null";
 
 	private static final long JSON_2_CSV_TIMEOUT = 60; //seconds
 

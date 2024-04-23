@@ -99,7 +99,7 @@ public class OsCommandExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public void checkProtocol(TelemetryManager telemetryManager, Long collectTime) {
+	public void checkProtocol(TelemetryManager telemetryManager) {
 		// Create and set the SSH result to null
 		Double sshResult = UP;
 
@@ -129,8 +129,15 @@ public class OsCommandExtension implements IProtocolExtension {
 		}
 
 		// Generate a metric from the SSH result
+		// CHECKSTYLE:OFF
 		new MetricFactory()
-			.collectNumberMetric(telemetryManager.getEndpointHostMonitor(), SSH_UP_METRIC, sshResult, collectTime);
+			.collectNumberMetric(
+				telemetryManager.getEndpointHostMonitor(),
+				SSH_UP_METRIC,
+				sshResult,
+				telemetryManager.getStrategyTime()
+			);
+		// CHECKSTYLE:ON
 	}
 
 	@Override
