@@ -26,6 +26,7 @@ class ProcessorHelperTest {
 		assertEquals(ConsoleStreamProcessor.class, ProcessorHelper.console(false).getClass());
 		assertEquals(NamedStreamProcessor.class, ProcessorHelper.namedConsole("test", false).getClass());
 		assertEquals(Slf4jStreamProcessor.class, ProcessorHelper.logger(logger, Slf4jLevel.INFO).getClass());
+		assertEquals(Slf4jSafeStreamProcessor.class, ProcessorHelper.safeLogger(logger, Slf4jLevel.INFO).getClass());
 		assertEquals(NamedStreamProcessor.class, ProcessorHelper.namedLogger("test", logger, Slf4jLevel.INFO).getClass());
 	}
 
