@@ -43,6 +43,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.CommandLineCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.ProcessCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.ServiceCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WmiCriterion;
@@ -527,6 +528,11 @@ public class WmiCriteriaProcessor {
 		return PossibleNamespacesResult.builder().possibleNamespaces(possibleWmiNamespaces).success(true).build();
 	}
 
+	public CriterionTestResult process(CommandLineCriterion commandLineCriterion, TelemetryManager telemetryManager) {
+		
+		return null;
+	}
+
 	/**
 	 * Data class representing the result of querying for possible namespaces.
 	 * Provides information about the possible namespaces, success status, and an error message if applicable.
@@ -572,5 +578,7 @@ public class WmiCriteriaProcessor {
 
 		return performDetectionTest(LOCALHOST, localWinConfiguration, criterion);
 	}
+
+
 
 }

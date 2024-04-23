@@ -172,19 +172,25 @@ public class WmiExtension implements IProtocolExtension {
 		final Function<TelemetryManager, IWinConfiguration> configurationRetriever = manager -> (IWinConfiguration) manager.getHostConfiguration().getConfigurations().get(WmiConfiguration.class);
 
 		if (criterion instanceof WmiCriterion wmiCriterion) {
-			new WmiCriteriaProcessor(
+			return new WmiCriteriaProcessor(
 				wmiRequestExecutor,
 				manager -> (IWinConfiguration) manager.getHostConfiguration().getConfigurations().get(WmiConfiguration.class),
 				connectorId
 			).process(wmiCriterion, telemetryManager);
 		} else if (criterion instanceof ServiceCriterion serviceCriterion) {
-			new WmiCriteriaProcessor(
+			return new WmiCriteriaProcessor(
 					wmiRequestExecutor,
 					configurationRetriever,
 					connectorId
 				).process(serviceCriterion, telemetryManager);
+		} else if (criterion instanceof CommandLineCriterion commandLineCriterion) {
+			return new WmiCriteriaProcessor(
+					wmiRequestExecutor,
+					configurationRetriever,
+					connectorId
+				).process(commandLineCriterion, telemetryManager);
 		} else if (criterion instanceof ProcessCriterion processCriterion) {
-			new WmiCriteriaProcessor(
+			return new WmiCriteriaProcessor(
 					wmiRequestExecutor
 				).process(processCriterion, WmiConfiguration.builder()
 					.username(null)
