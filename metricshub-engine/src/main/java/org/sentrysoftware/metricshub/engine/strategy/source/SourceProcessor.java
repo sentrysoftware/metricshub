@@ -48,7 +48,6 @@ import org.sentrysoftware.metricshub.engine.common.helpers.FilterResultHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IWinConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
@@ -167,7 +166,7 @@ public class SourceProcessor implements ISourceProcessor {
 		} else if (DeviceKind.LINUX.equals(hostType) || DeviceKind.SOLARIS.equals(hostType)) {
 			return processUnixIpmiSource(sourceKey);
 		} else if (DeviceKind.OOB.equals(hostType)) {
-			return processOutOfBandIpmiSource(sourceKey);
+			return processOutOfBandIpmiSource(ipmiSource);
 		}
 
 		log.info(
@@ -182,36 +181,15 @@ public class SourceProcessor implements ISourceProcessor {
 	/**
 	 * Process IPMI source via IPMI Over-LAN
 	 *
-	 * @param sourceKey The key of the source
+	 * @param ipmiSource
 	 *
 	 * @return {@link SourceTable} containing the IPMI result expected by the IPMI connector embedded AWK script
 	 */
-	SourceTable processOutOfBandIpmiSource(final String sourceKey) {
-		final IpmiConfiguration ipmiConfiguration = (IpmiConfiguration) telemetryManager
-			.getHostConfiguration()
-			.getConfigurations()
-			.get(IpmiConfiguration.class);
-
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		if (ipmiConfiguration == null) {
-			log.warn("Hostname {} - The IPMI credentials are not configured. Cannot process IPMI-over-LAN source.", hostname);
-			return SourceTable.empty();
-		}
-
-		try {
-			final String result = clientsExecutor.executeIpmiGetSensors(hostname, ipmiConfiguration);
-
-			if (result != null) {
-				return SourceTable.builder().rawData(result).build();
-			} else {
-				log.error("Hostname {} - IPMI-over-LAN request returned <null> result. Returning an empty table.", hostname);
-			}
-		} catch (Exception e) {
-			LoggingHelper.logSourceError(connectorId, sourceKey, "IPMI-over-LAN", hostname, e);
-		}
-
-		return SourceTable.empty();
+	SourceTable processOutOfBandIpmiSource(final IpmiSource ipmiSource) {
+		final Optional<IProtocolExtension> extensions = extensionManager.findSourceExtension(ipmiSource, telemetryManager);
+		return extensions
+			.map(extension -> extension.processSource(ipmiSource, connectorId, telemetryManager))
+			.orElseGet(SourceTable::empty);
 	}
 
 	/**

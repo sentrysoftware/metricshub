@@ -47,7 +47,8 @@ public class ProtocolsConfig {
 	private IConfiguration snmp;
 
 	@JsonSetter(nulls = SKIP)
-	private IpmiProtocolConfig ipmi;
+	@JsonDeserialize(using = ExtensionConfigDeserializer.class)
+	private IConfiguration ipmi;
 
 	@JsonSetter(nulls = SKIP)
 	private SshProtocolConfig ssh;

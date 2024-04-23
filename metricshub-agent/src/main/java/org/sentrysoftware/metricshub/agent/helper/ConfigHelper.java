@@ -69,7 +69,6 @@ import org.sentrysoftware.metricshub.agent.config.ConnectorVariables;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.AbstractProtocolConfig;
-import org.sentrysoftware.metricshub.agent.config.protocols.IpmiProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.OsCommandProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.ProtocolsConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.SshProtocolConfig;
@@ -112,7 +111,6 @@ public class ConfigHelper {
 	private static final String WMI_PROTOCOL = "WMI";
 	private static final String WBEM_PROTOCOL = "WBEM";
 	private static final String SSH_PROTOCOL = "SSH";
-	private static final String IPMI_PROTOCOL = "IPMI";
 	private static final String WIN_RM_PROTOCOL = "WinRM";
 	private static final String TIMEOUT_ERROR =
 		"Resource %s - Timeout value is invalid for protocol %s." +
@@ -943,9 +941,9 @@ public class ConfigHelper {
 			snmpConfig.validateConfiguration(resourceKey);
 		}
 
-		final IpmiProtocolConfig ipmiConfig = protocolsConfig.getIpmi();
+		final IConfiguration ipmiConfig = protocolsConfig.getIpmi();
 		if (ipmiConfig != null) {
-			validateIpmiInfo(resourceKey, ipmiConfig.getUsername(), ipmiConfig.getTimeout());
+			ipmiConfig.validateConfiguration(resourceKey);
 		}
 
 		final SshProtocolConfig sshConfig = protocolsConfig.getSsh();
@@ -1011,29 +1009,6 @@ public class ConfigHelper {
 			username,
 			INVALID_STRING_CHECKER,
 			() -> String.format(USERNAME_ERROR, resourceKey, WIN_RM_PROTOCOL)
-		);
-	}
-
-	/**
-	 * Validate the given IPMI information (username and timeout)
-	 *
-	 * @param resourceKey Resource unique identifier
-	 * @param username    Name used to establish the connection with the host via the IPMI protocol
-	 * @param timeout     How long until the IPMI request times out
-	 * @throws InvalidConfigurationException
-	 */
-	static void validateIpmiInfo(final String resourceKey, final String username, final Long timeout)
-		throws InvalidConfigurationException {
-		StringHelper.validateConfigurationAttribute(
-			username,
-			INVALID_STRING_CHECKER,
-			() -> String.format(USERNAME_ERROR, resourceKey, IPMI_PROTOCOL)
-		);
-
-		StringHelper.validateConfigurationAttribute(
-			timeout,
-			INVALID_TIMEOUT_CHECKER,
-			() -> String.format(TIMEOUT_ERROR, resourceKey, IPMI_PROTOCOL, timeout)
 		);
 	}
 
@@ -1162,7 +1137,6 @@ public class ConfigHelper {
 						protocols.getWbem(),
 						protocols.getWmi(),
 						protocols.getOsCommand(),
-						protocols.getIpmi(),
 						protocols.getWinrm()
 					)
 					.filter(Objects::nonNull)

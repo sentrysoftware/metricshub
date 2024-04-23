@@ -1,5 +1,7 @@
 package org.sentrysoftware.metricshub.engine.client;
 
+import static org.springframework.util.Assert.isTrue;
+
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
  * MetricsHub Engine
@@ -20,10 +22,6 @@ package org.sentrysoftware.metricshub.engine.client;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
-
-import static org.springframework.util.Assert.isTrue;
-import static org.springframework.util.Assert.notNull;
-
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import java.io.File;
@@ -42,8 +40,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.sentrysoftware.ipmi.client.IpmiClient;
-import org.sentrysoftware.ipmi.client.IpmiClientConfiguration;
 import org.sentrysoftware.jflat.JFlat;
 import org.sentrysoftware.metricshub.engine.awk.AwkException;
 import org.sentrysoftware.metricshub.engine.awk.AwkExecutor;
@@ -54,7 +50,6 @@ import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.ThreadHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.TransportProtocols;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WinRmConfiguration;
@@ -988,132 +983,6 @@ public class ClientsExecutor {
 			sshClient.close();
 			throw new ClientException(e);
 		}
-	}
-
-	/**
-	 * Runs IPMI detection to determine the Chassis power state.
-	 *
-	 * @param hostname          The host name or IP address to query.
-	 * @param ipmiConfiguration The MetricsHub {@link IpmiConfiguration} instance with required fields for IPMI requests.
-	 * @return A string value, e.g., "System power state is up."
-	 * @throws InterruptedException If the execution is interrupted.
-	 * @throws ExecutionException   If the execution encounters an exception.
-	 * @throws TimeoutException     If the operation times out.
-	 */
-	@WithSpan("IPMI Chassis Status")
-	public String executeIpmiDetection(
-		@SpanAttribute("host.hostname") String hostname,
-		@SpanAttribute("ipmi.config") @NonNull IpmiConfiguration ipmiConfiguration
-	) throws InterruptedException, ExecutionException, TimeoutException {
-		LoggingHelper.trace(() ->
-			log.trace(
-				"Executing IPMI detection request:\n- Hostname: {}\n- Username: {}\n- SkipAuth: {}\n" + "- Timeout: {} s\n", // NOSONAR
-				hostname,
-				ipmiConfiguration.getUsername(),
-				ipmiConfiguration.isSkipAuth(),
-				ipmiConfiguration.getTimeout()
-			)
-		);
-
-		final long startTime = System.currentTimeMillis();
-
-		final String result = IpmiClient.getChassisStatusAsStringResult(
-			buildIpmiConfiguration(hostname, ipmiConfiguration)
-		);
-
-		final long responseTime = System.currentTimeMillis() - startTime;
-
-		LoggingHelper.trace(() ->
-			log.trace(
-				"Executed IPMI detection request:\n- Hostname: {}\n- Username: {}\n- SkipAuth: {}\n" + // NOSONAR
-				"- Timeout: {} s\n- Result:\n{}\n- response-time: {}\n",
-				hostname,
-				ipmiConfiguration.getUsername(),
-				ipmiConfiguration.isSkipAuth(),
-				ipmiConfiguration.getTimeout(),
-				result,
-				responseTime
-			)
-		);
-
-		return result;
-	}
-
-	/**
-	 * Build IPMI configuration
-	 *
-	 * @param hostname          The host we wish to set in the {@link IpmiConfiguration}
-	 * @param ipmiConfiguration MetricsHub {@link IpmiConfiguration} instance including all the required fields to perform IPMI requests
-	 * @return new instance of {@link IpmiClientConfiguration}
-	 */
-	private static IpmiClientConfiguration buildIpmiConfiguration(
-		@NonNull String hostname,
-		@NonNull IpmiConfiguration ipmiConfiguration
-	) {
-		String username = ipmiConfiguration.getUsername();
-		char[] password = ipmiConfiguration.getPassword();
-		Long timeout = ipmiConfiguration.getTimeout();
-
-		notNull(username, USERNAME_CANNOT_BE_NULL);
-		notNull(password, PASSWORD_CANNOT_BE_NULL);
-		notNull(timeout, TIMEOUT_CANNOT_BE_NULL);
-
-		return new IpmiClientConfiguration(
-			hostname,
-			username,
-			password,
-			ipmiConfiguration.getBmcKey(),
-			ipmiConfiguration.isSkipAuth(),
-			timeout
-		);
-	}
-
-	/**
-	 * Executes an IPMI Over-LAN request to retrieve information about all sensors.
-	 *
-	 * @param hostname          The host for which the {@link IpmiConfiguration} is set.
-	 * @param ipmiConfiguration The MetricsHub {@link IpmiConfiguration} instance containing the required fields for IPMI requests.
-	 * @return A string containing information about FRUs, sensor states, and readings.
-	 * @throws InterruptedException If the execution is interrupted.
-	 * @throws ExecutionException   If the execution encounters an exception.
-	 * @throws TimeoutException     If the operation times out.
-	 */
-	@WithSpan("IPMI Sensors")
-	public String executeIpmiGetSensors(
-		@SpanAttribute("host.hostname") String hostname,
-		@SpanAttribute("ipmi.config") @NonNull IpmiConfiguration ipmiConfiguration
-	) throws InterruptedException, ExecutionException, TimeoutException {
-		LoggingHelper.trace(() ->
-			log.trace(
-				"Executing IPMI FRUs and Sensors request:\n- Hostname: {}\n- Username: {}\n- SkipAuth: {}\n" + // NOSONAR
-				"- Timeout: {} s\n",
-				hostname,
-				ipmiConfiguration.getUsername(),
-				ipmiConfiguration.isSkipAuth(),
-				ipmiConfiguration.getTimeout()
-			)
-		);
-
-		final long startTime = System.currentTimeMillis();
-
-		String result = IpmiClient.getFrusAndSensorsAsStringResult(buildIpmiConfiguration(hostname, ipmiConfiguration));
-
-		final long responseTime = System.currentTimeMillis() - startTime;
-
-		LoggingHelper.trace(() ->
-			log.trace(
-				"Executed IPMI FRUs and Sensors request:\n- Hostname: {}\n- Username: {}\n- SkipAuth: {}\n" + // NOSONAR
-				"- Timeout: {} s\n- Result:\n{}\n- response-time: {}\n",
-				hostname,
-				ipmiConfiguration.getUsername(),
-				ipmiConfiguration.isSkipAuth(),
-				ipmiConfiguration.getTimeout(),
-				result,
-				responseTime
-			)
-		);
-
-		return result;
 	}
 
 	/**

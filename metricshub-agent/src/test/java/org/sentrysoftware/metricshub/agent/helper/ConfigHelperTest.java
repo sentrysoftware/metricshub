@@ -278,21 +278,6 @@ class ConfigHelperTest {
 	}
 
 	@Test
-	void testValidateIpmiInfo() {
-		assertThrows(InvalidConfigurationException.class, () -> ConfigHelper.validateIpmiInfo(RESOURCE_KEY, "", 60L));
-		assertThrows(InvalidConfigurationException.class, () -> ConfigHelper.validateIpmiInfo(RESOURCE_KEY, null, 60L));
-		assertThrows(
-			InvalidConfigurationException.class,
-			() -> ConfigHelper.validateIpmiInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, -60L)
-		);
-		assertThrows(
-			InvalidConfigurationException.class,
-			() -> ConfigHelper.validateIpmiInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, null)
-		);
-		assertDoesNotThrow(() -> ConfigHelper.validateIpmiInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, 60L));
-	}
-
-	@Test
 	void testValidateSshInfo() {
 		assertThrows(InvalidConfigurationException.class, () -> ConfigHelper.validateSshInfo(RESOURCE_KEY, "", 60L));
 		assertThrows(InvalidConfigurationException.class, () -> ConfigHelper.validateSshInfo(RESOURCE_KEY, null, 60L));
