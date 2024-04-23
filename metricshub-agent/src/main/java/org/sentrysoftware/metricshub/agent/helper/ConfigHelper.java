@@ -1150,7 +1150,7 @@ public class ConfigHelper {
 			? new HashMap<>()
 			: new HashMap<>(
 				Stream
-					.of(protocols.getSnmp(), protocols.getHttp())
+					.of(protocols.getSnmp(), protocols.getHttp(), protocols.getIpmi())
 					.filter(Objects::nonNull)
 					.collect(Collectors.toMap(IConfiguration::getClass, Function.identity()))
 			);
