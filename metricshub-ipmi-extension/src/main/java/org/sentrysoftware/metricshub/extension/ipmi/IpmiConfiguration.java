@@ -1,8 +1,8 @@
-package org.sentrysoftware.metricshub.agent.config.protocols;
+package org.sentrysoftware.metricshub.extension.ipmi;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
- * MetricsHub Agent
+ * MetricsHub Engine
  * ჻჻჻჻჻჻
  * Copyright 2023 - 2024 Sentry Software
  * ჻჻჻჻჻჻
@@ -21,63 +21,60 @@ package org.sentrysoftware.metricshub.agent.config.protocols;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Builder.Default;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
-import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 
 /**
- * Configuration class for the IPMI protocol.
- * Extends {@link AbstractProtocolConfig}.
+ * The IpmiConfiguration class represents the configuration for IPMI (Intelligent Platform Management Interface) connections
+ * in the MetricsHub engine.
  */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = false)
-public class IpmiProtocolConfig extends AbstractProtocolConfig {
+public class IpmiConfiguration implements IConfiguration {
 
-	@Default
-	@JsonDeserialize(using = TimeDeserializer.class)
-	private Long timeout = 120L;
+	@Builder.Default
+	private final Long timeout = 120L;
 
 	private String username;
-
 	private char[] password;
-
-	private byte[] bmcKey;
-
 	private boolean skipAuth;
-
-	/**
-	 * Create a new {@link IpmiConfiguration} instance based on the current members
-	 *
-	 * @return The {@link IpmiConfiguration} instance
-	 */
-	@Override
-	public IConfiguration toConfiguration() {
-		return IpmiConfiguration
-			.builder()
-			.username(username)
-			.password(super.decrypt(password))
-			.bmcKey(bmcKey)
-			.skipAuth(skipAuth)
-			.timeout(timeout)
-			.build();
-	}
+	private String bmcKey;
 
 	@Override
 	public String toString() {
-		String desc = "IPMI";
+		String description = "IPMI";
 		if (username != null) {
-			desc = desc + " as " + username;
+			description = description + " as " + username;
 		}
-		return desc;
+		return description;
+	}
+
+	/**
+	 * Validate the given IPMI information (username and timeout)
+	 *
+	 * @param resourceKey Resource unique identifier
+	 * @throws InvalidConfigurationException
+	 */
+	@Override
+	public void validateConfiguration(String resourceKey) throws InvalidConfigurationException {
+		StringHelper.validateConfigurationAttribute(
+			timeout,
+			attr -> attr == null || attr < 0L,
+			() ->
+				String.format(
+					"Resource %s - Timeout value is invalid for protocol %s." +
+					" Timeout value returned: %s. This resource will not be monitored. Please verify the configured timeout value.",
+					resourceKey,
+					"IPMI",
+					timeout
+				)
+		);
 	}
 }

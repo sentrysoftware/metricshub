@@ -82,7 +82,19 @@ public class ProcessorHelper {
 	}
 
 	/**
-	 * Create a new {@link Slf4jStreamProcessor} wrapped by the {@link NamedStreamProcessor}
+	 * Constructs a new {@link Slf4jStreamProcessor} using the specified logger to log output messages,
+	 * and then encapsulates it within a {@link Slf4jSafeStreamProcessor} for enhanced logging safety.
+	 *
+	 * @param logger Slf4j {@link Logger}
+	 * @param level  Level used to log messages
+	 * @return new {@link StreamProcessor}
+	 */
+	public static StreamProcessor safeLogger(final Logger logger, final Slf4jLevel level) {
+		return new Slf4jSafeStreamProcessor(logger(logger, level));
+	}
+
+	/**
+	 * Create a new {@link Slf4jSafeStreamProcessor} wrapped by the {@link NamedStreamProcessor}
 	 *
 	 * @param name    The name which each line starts with
 	 * @param logger  Slf4j {@link Logger}
@@ -90,7 +102,7 @@ public class ProcessorHelper {
 	 * @return new {@link StreamProcessor}
 	 */
 	public static StreamProcessor namedLogger(final String name, final Logger logger, final Slf4jLevel level) {
-		return named(name, logger(logger, level));
+		return named(name, safeLogger(logger, level));
 	}
 
 	/**

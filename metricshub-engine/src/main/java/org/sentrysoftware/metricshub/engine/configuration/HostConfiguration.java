@@ -1,5 +1,13 @@
 package org.sentrysoftware.metricshub.engine.configuration;
 
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DEFAULT_JOB_TIMEOUT;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
  * MetricsHub Engine
@@ -20,15 +28,6 @@ package org.sentrysoftware.metricshub.engine.configuration;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
-
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DEFAULT_JOB_TIMEOUT;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -81,8 +80,6 @@ public class HostConfiguration {
 				Collections.singleton(WbemSource.class),
 				SshConfiguration.class,
 				Collections.singleton(CommandLineSource.class),
-				IpmiConfiguration.class,
-				Collections.singleton(IpmiSource.class),
 				OsCommandConfiguration.class,
 				Collections.singleton(CommandLineSource.class),
 				WinRmConfiguration.class,

@@ -20,6 +20,7 @@ package org.sentrysoftware.metricshub.engine.strategy.collect;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
+
 import static org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration.DEFAULT_TIMEOUT;
 
 import java.util.Collections;
@@ -27,10 +28,7 @@ import java.util.List;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.sentrysoftware.ipmi.client.IpmiClient;
-import org.sentrysoftware.ipmi.client.IpmiClientConfiguration;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
-import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WinRmConfiguration;
@@ -77,11 +75,6 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 * SSH Up metric
 	 */
 	public static final String SSH_UP_METRIC = String.format(UP_METRIC_FORMAT, "ssh");
-
-	/**
-	 * IPMI Up metric
-	 */
-	public static final String IPMI_UP_METRIC = String.format(UP_METRIC_FORMAT, "ipmi");
 
 	/**
 	 * WBEM Up metric
@@ -170,7 +163,6 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 
 		// Check the hostname protocols health
 		checkSshHealth(hostname, hostMonitor, metricFactory);
-		checkIpmiHealth(hostname, hostMonitor, metricFactory);
 		checkWbemHealth(hostname, hostMonitor, metricFactory);
 		checkWmiHealth(hostname, hostMonitor, metricFactory);
 		checkWinRmHealth(hostname, hostMonitor, metricFactory);
@@ -280,59 +272,6 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 			return DOWN;
 		}
 		return previousSshStatus;
-	}
-
-	/**
-	 * Check Ipmi protocol health on the hostname for the host monitor.
-	 * Criteria: The getChassisStatusAsStringResult IPMI Client request request must return a result.
-	 *
-	 * @param hostname      The hostname on which we perform health check
-	 * @param hostMonitor   An endpoint host monitor
-	 * @param metricFactory The metric factory used to collect the health check metric
-	 */
-	public void checkIpmiHealth(String hostname, Monitor hostMonitor, MetricFactory metricFactory) {
-		// Create and set the IPMI result to null
-		String ipmiResult = null;
-
-		// Retrieve IPMI Configuration from the telemetry manager host configuration
-		final IpmiConfiguration ipmiConfiguration = (IpmiConfiguration) telemetryManager
-			.getHostConfiguration()
-			.getConfigurations()
-			.get(IpmiConfiguration.class);
-
-		// Stop the IPMI health check if there is not an IPMI configuration
-		if (ipmiConfiguration == null) {
-			return;
-		}
-
-		log.info(
-			"Hostname {} - Checking IPMI protocol status. Sending a IPMI 'Get Chassis Status As String Result' request.",
-			hostname
-		);
-
-		// Execute IPMI test command
-		try {
-			ipmiResult =
-				IpmiClient.getChassisStatusAsStringResult(
-					new IpmiClientConfiguration(
-						hostname,
-						ipmiConfiguration.getUsername(),
-						ipmiConfiguration.getPassword(),
-						ipmiConfiguration.getBmcKey(),
-						ipmiConfiguration.isSkipAuth(),
-						ipmiConfiguration.getTimeout()
-					)
-				);
-		} catch (Exception e) {
-			log.debug(
-				"Hostname {} - Checking IPMI protocol status. IPMI exception when performing a IPMI 'Get Chassis Status As String Result' query: ",
-				hostname,
-				e
-			);
-		}
-
-		// Generate a metric from the IPMI result
-		metricFactory.collectNumberMetric(hostMonitor, IPMI_UP_METRIC, ipmiResult != null ? UP : DOWN, strategyTime);
 	}
 
 	/**

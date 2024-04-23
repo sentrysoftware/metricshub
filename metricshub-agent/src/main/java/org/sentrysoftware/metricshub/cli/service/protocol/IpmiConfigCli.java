@@ -21,18 +21,21 @@ package org.sentrysoftware.metricshub.cli.service.protocol;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import com.fasterxml.jackson.databind.node.BooleanNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import lombok.Data;
-import org.sentrysoftware.metricshub.engine.common.helpers.ArrayHelper;
+import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.IpmiConfiguration;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Spec;
 
 /**
  * This class is used by MetricsHubCliService to configure Ipmi protocol when using the MetricsHub CLI.
- * It create the engine's {@link IpmiConfiguration} object that is used to monitor a specific resource through IPMI.
+ * It create the engine's {@link IConfiguration} object that is used to monitor a specific resource through IPMI.
  */
 @Data
 public class IpmiConfigCli implements IProtocolConfigCli {
@@ -89,28 +92,31 @@ public class IpmiConfigCli implements IProtocolConfigCli {
 		defaultValue = "" + DEFAULT_TIMEOUT,
 		description = "Timeout in seconds for HTTP operations (default: ${DEFAULT-VALUE} s)"
 	)
-	private long timeout;
+	private String timeout;
 
 	/**
-	 * This method creates an {@link IpmiConfiguration} for a given username and a given password
+	 * This method creates an {@link IConfiguration} for a given username and a given password
 	 *
 	 * @param defaultUsername Username specified at the top level of the CLI (with the --username option)
 	 * @param defaultPassword Password specified at the top level of the CLI (with the --password option)
-	 * @return an {@link IpmiConfiguration} instance corresponding to the options specified by the user in the CLI
+	 * @return an {@link IConfiguration} instance corresponding to the options specified by the user in the CLI
 	 */
 	@Override
-	public IConfiguration toProtocol(final String defaultUsername, final char[] defaultPassword) {
-		try {
-			return IpmiConfiguration
-				.builder()
-				.username(username == null ? defaultUsername : username)
-				.password(username == null ? defaultPassword : password)
-				.bmcKey(ArrayHelper.hexToByteArray(bmcKey))
-				.skipAuth(skipAuth)
-				.timeout(timeout)
-				.build();
-		} catch (Exception e) {
-			throw new ParameterException(spec.commandLine(), e.getMessage());
-		}
+	public IConfiguration toProtocol(final String defaultUsername, final char[] defaultPassword)
+		throws InvalidConfigurationException {
+		final ObjectNode configuration = JsonNodeFactory.instance.objectNode();
+		configuration.set("username", new TextNode(username == null ? defaultUsername : username));
+		configuration.set(
+			"password",
+			new TextNode(username == null ? String.valueOf(defaultPassword) : String.valueOf(password))
+		);
+		configuration.set("timeout", new TextNode(timeout));
+		configuration.set("skipAuth", BooleanNode.valueOf(skipAuth));
+		configuration.set("bmcKey", new TextNode(bmcKey));
+
+		return CliExtensionManager
+			.getExtensionManagerSingleton()
+			.buildConfigurationFromJsonNode("ipmi", configuration, value -> value)
+			.orElseThrow();
 	}
 }
