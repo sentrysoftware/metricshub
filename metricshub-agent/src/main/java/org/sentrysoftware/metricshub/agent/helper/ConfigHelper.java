@@ -111,7 +111,6 @@ public class ConfigHelper {
 	private static final String WMI_PROTOCOL = "WMI";
 	private static final String WBEM_PROTOCOL = "WBEM";
 	private static final String SSH_PROTOCOL = "SSH";
-	private static final String IPMI_PROTOCOL = "IPMI";
 	private static final String WIN_RM_PROTOCOL = "WinRM";
 	private static final String TIMEOUT_ERROR =
 		"Resource %s - Timeout value is invalid for protocol %s." +

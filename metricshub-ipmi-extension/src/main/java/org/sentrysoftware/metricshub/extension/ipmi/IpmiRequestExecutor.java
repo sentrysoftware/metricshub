@@ -21,8 +21,6 @@ package org.sentrysoftware.metricshub.extension.ipmi;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import static org.springframework.util.Assert.notNull;
-
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import java.util.concurrent.ExecutionException;
@@ -100,10 +98,6 @@ public class IpmiRequestExecutor {
 		String username = ipmiConfiguration.getUsername();
 		char[] password = ipmiConfiguration.getPassword();
 		Long timeout = ipmiConfiguration.getTimeout();
-
-		notNull(username, "Username cannot be null");
-		notNull(password, "Password cannot be null");
-		notNull(timeout, "Timeout cannot be null");
 
 		return new IpmiClientConfiguration(
 			hostname,

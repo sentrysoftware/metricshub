@@ -30,6 +30,11 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>metricshub-ipmi-extension</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.sentrysoftware</groupId>
 			<artifactId>metricshub-jre-linux</artifactId>
 			<version>${metricshub-jre.version}</version>
@@ -101,6 +106,11 @@
 								<artifactItem>
 									<groupId>${project.groupId}</groupId>
 									<artifactId>metricshub-http-extension</artifactId>
+									<version>${project.version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>metricshub-ipmi-extension</artifactId>
 									<version>${project.version}</version>
 								</artifactItem>
 								<artifactItem>

@@ -12,7 +12,6 @@ import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHeal
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.UP;
 import static org.sentrysoftware.metricshub.extension.ipmi.IpmiExtension.IPMI_UP_METRIC;
 
-import com.fasterxml.jackson.databind.node.BinaryNode;
 import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -100,9 +99,6 @@ class IpmiExtensionTest {
 	void testCheckIpmiUpHealth() {
 		initIpmi();
 
-		// The time at which the collect of the protocol up metric is triggered.
-		final long collectTime = System.currentTimeMillis();
-
 		// Mock successful IPMI protocol health check response
 		try (MockedStatic<IpmiClient> staticIpmiClient = Mockito.mockStatic(IpmiClient.class)) {
 			staticIpmiClient
@@ -119,9 +115,6 @@ class IpmiExtensionTest {
 	@Test
 	void testCheckIpmiDownHealth() {
 		initIpmi();
-
-		// The time at which the collect of the protocol up metric is triggered.
-		final long collectTime = System.currentTimeMillis();
 
 		// Mock null IPMI protocol health check response
 		try (MockedStatic<IpmiClient> staticIpmiClient = Mockito.mockStatic(IpmiClient.class)) {

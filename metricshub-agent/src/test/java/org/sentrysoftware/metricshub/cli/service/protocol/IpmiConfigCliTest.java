@@ -6,7 +6,6 @@ import static org.mockito.Mockito.mockStatic;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.sentrysoftware.metricshub.agent.extension.IpmiTestConfiguration;
 import org.sentrysoftware.metricshub.agent.extension.IpmiTestExtension;
