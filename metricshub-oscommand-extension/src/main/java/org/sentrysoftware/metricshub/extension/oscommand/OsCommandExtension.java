@@ -238,7 +238,7 @@ public class OsCommandExtension implements IProtocolExtension {
 	 */
 	private Double localSshTest(String hostname) {
 		try {
-			if (OsCommandHelper.runLocalCommand(SSH_TEST_COMMAND, OsCommandConfiguration.DEFAULT_TIMEOUT, null) == null) {
+			if (OsCommandService.runLocalCommand(SSH_TEST_COMMAND, OsCommandConfiguration.DEFAULT_TIMEOUT, null) == null) {
 				log.debug(
 					"Hostname {} - Checking SSH protocol status. Local OS command has not returned any results.",
 					hostname
@@ -269,7 +269,7 @@ public class OsCommandExtension implements IProtocolExtension {
 		// CHECKSTYLE:OFF
 		try {
 			if (
-				OsCommandHelper.runSshCommand(
+				OsCommandService.runSshCommand(
 					SSH_TEST_COMMAND,
 					hostname,
 					sshConfiguration,

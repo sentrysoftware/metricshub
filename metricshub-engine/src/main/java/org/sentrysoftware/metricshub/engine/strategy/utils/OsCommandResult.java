@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.extension.oscommand;
+package org.sentrysoftware.metricshub.engine.strategy.utils;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲

@@ -31,7 +31,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.extension.oscommand.OsCommandConfiguration;
-import org.sentrysoftware.metricshub.extension.oscommand.OsCommandHelper;
+import org.sentrysoftware.metricshub.extension.oscommand.OsCommandService;
 import org.sentrysoftware.metricshub.extension.oscommand.SshConfiguration;
 
 /**
@@ -302,7 +302,7 @@ public class UnixIpmiCriterionProcessor {
 		final TelemetryManager telemetryManager
 	) throws InterruptedException, IOException, TimeoutException, ClientException, ControlledSshException {
 		return telemetryManager.getHostProperties().isLocalhost()
-			? OsCommandHelper.runLocalCommand(ipmitoolCommand, timeout, null) // or we can use NetworkHelper.isLocalhost(hostname)
-			: OsCommandHelper.runSshCommand(ipmitoolCommand, hostname, sshConfiguration, timeout, null, null);
+			? OsCommandService.runLocalCommand(ipmitoolCommand, timeout, null) // or we can use NetworkHelper.isLocalhost(hostname)
+			: OsCommandService.runSshCommand(ipmitoolCommand, hostname, sshConfiguration, timeout, null, null);
 	}
 }

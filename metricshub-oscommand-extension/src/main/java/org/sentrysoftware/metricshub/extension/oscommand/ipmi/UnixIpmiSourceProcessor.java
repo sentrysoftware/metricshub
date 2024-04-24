@@ -27,7 +27,7 @@ import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.extension.oscommand.OsCommandConfiguration;
-import org.sentrysoftware.metricshub.extension.oscommand.OsCommandHelper;
+import org.sentrysoftware.metricshub.extension.oscommand.OsCommandService;
 import org.sentrysoftware.metricshub.extension.oscommand.SshConfiguration;
 
 /**
@@ -84,9 +84,9 @@ public class UnixIpmiSourceProcessor {
 		String fruResult;
 		try {
 			if (isLocalHost) {
-				fruResult = OsCommandHelper.runLocalCommand(fruCommand, defaultTimeout, null);
+				fruResult = OsCommandService.runLocalCommand(fruCommand, defaultTimeout, null);
 			} else if (sshConfiguration != null) {
-				fruResult = OsCommandHelper.runSshCommand(fruCommand, hostname, sshConfiguration, defaultTimeout, null, null);
+				fruResult = OsCommandService.runSshCommand(fruCommand, hostname, sshConfiguration, defaultTimeout, null, null);
 			} else {
 				log.warn("Hostname {} - Could not process UNIX IPMI Source. SSH protocol credentials are missing.", hostname);
 				return SourceTable.empty();
@@ -112,10 +112,10 @@ public class UnixIpmiSourceProcessor {
 		String sensorResult;
 		try {
 			if (isLocalHost) {
-				sensorResult = OsCommandHelper.runLocalCommand(sdrCommand, defaultTimeout, null);
+				sensorResult = OsCommandService.runLocalCommand(sdrCommand, defaultTimeout, null);
 			} else {
 				sensorResult =
-					OsCommandHelper.runSshCommand(sdrCommand, hostname, sshConfiguration, defaultTimeout, null, null);
+					OsCommandService.runSshCommand(sdrCommand, hostname, sshConfiguration, defaultTimeout, null, null);
 			}
 			log.debug("Hostname {} - IPMI OS command: {}:\n{}", hostname, sdrCommand, sensorResult);
 		} catch (Exception e) {

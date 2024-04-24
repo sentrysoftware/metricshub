@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.CommandLineCriterion;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
+import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandResult;
 import org.sentrysoftware.metricshub.engine.strategy.utils.PslUtils;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
@@ -67,7 +68,7 @@ public class CommandLineCriterionProcessor {
 		}
 
 		try {
-			final OsCommandResult osCommandResult = OsCommandHelper.runOsCommand(
+			final OsCommandResult osCommandResult = OsCommandService.runOsCommand(
 				commandLineCriterion.getCommandLine(),
 				telemetryManager,
 				commandLineCriterion.getTimeout(),

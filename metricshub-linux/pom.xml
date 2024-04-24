@@ -112,8 +112,8 @@
 									<groupId>${project.groupId}</groupId>
 									<artifactId>metricshub-oscommand-extension</artifactId>
 									<version>${project.version}</version>
-								</dependency>
-								<dependency>
+								</artifactItem>
+								<artifactItem>
 									<groupId>${project.groupId}</groupId>
 									<artifactId>metricshub-http-extension</artifactId>
 									<version>${project.version}</version>

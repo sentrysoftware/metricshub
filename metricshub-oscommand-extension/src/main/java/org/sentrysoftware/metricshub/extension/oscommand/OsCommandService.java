@@ -72,6 +72,7 @@ import org.sentrysoftware.metricshub.engine.configuration.IWinConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 import org.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
+import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandResult;
 import org.sentrysoftware.metricshub.engine.telemetry.SshSemaphoreFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
@@ -79,14 +80,14 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
  * Utility class for handling OS commands, including local and remote execution.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class OsCommandHelper {
+public class OsCommandService {
 
 	private static final String NEGATIVE_TIMEOUT = "timeout mustn't be negative nor zero.";
 	private static final Pattern SUDO_COMMAND_PATTERN = Pattern.compile(
 		"%\\{SUDO:([^\\}]*)\\}",
 		Pattern.CASE_INSENSITIVE
 	);
-	static final Function<String, File> TEMP_FILE_CREATOR = OsCommandHelper::createEmbeddedTempFile;
+	static final Function<String, File> TEMP_FILE_CREATOR = OsCommandService::createEmbeddedTempFile;
 
 	/**
 	 * Create the temporary embedded files in the given command line.

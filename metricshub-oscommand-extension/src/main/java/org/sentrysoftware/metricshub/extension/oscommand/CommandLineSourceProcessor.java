@@ -32,6 +32,7 @@ import org.sentrysoftware.metricshub.engine.common.helpers.FilterResultHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CommandLineSource;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
+import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandResult;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
@@ -66,7 +67,7 @@ public class CommandLineSourceProcessor {
 		}
 
 		try {
-			final OsCommandResult osCommandResult = OsCommandHelper.runOsCommand(
+			final OsCommandResult osCommandResult = OsCommandService.runOsCommand(
 				commandLineSource.getCommandLine(),
 				telemetryManager,
 				commandLineSource.getTimeout(),

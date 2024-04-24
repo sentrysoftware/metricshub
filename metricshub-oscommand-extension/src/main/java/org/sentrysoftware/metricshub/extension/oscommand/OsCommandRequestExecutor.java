@@ -230,7 +230,7 @@ public class OsCommandRequestExecutor {
 					command,
 					(s, file) ->
 						command.replaceAll(
-							OsCommandHelper.toCaseInsensitiveRegex(file.getAbsolutePath()),
+							OsCommandService.toCaseInsensitiveRegex(file.getAbsolutePath()),
 							SSH_REMOTE_DIRECTORY + file.getName()
 						),
 					(s1, s2) -> null
