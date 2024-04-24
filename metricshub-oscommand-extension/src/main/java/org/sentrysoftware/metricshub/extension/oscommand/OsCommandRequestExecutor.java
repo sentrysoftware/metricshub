@@ -33,6 +33,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
+import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import org.sentrysoftware.ssh.SshClient;
 
 /**
@@ -230,7 +231,7 @@ public class OsCommandRequestExecutor {
 					command,
 					(s, file) ->
 						command.replaceAll(
-							OsCommandService.toCaseInsensitiveRegex(file.getAbsolutePath()),
+							OsCommandHelper.toCaseInsensitiveRegex(file.getAbsolutePath()),
 							SSH_REMOTE_DIRECTORY + file.getName()
 						),
 					(s1, s2) -> null

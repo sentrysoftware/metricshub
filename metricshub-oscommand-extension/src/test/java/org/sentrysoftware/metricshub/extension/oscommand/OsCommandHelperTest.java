@@ -14,7 +14,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
-import static org.sentrysoftware.metricshub.extension.oscommand.OsCommandService.TEMP_FILE_CREATOR;
+import static org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper.TEMP_FILE_CREATOR;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -49,7 +49,9 @@ import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 import org.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
+import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandResult;
+import org.sentrysoftware.metricshub.engine.strategy.utils.SudoInformation;
 import org.sentrysoftware.metricshub.engine.telemetry.SshSemaphoreFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
@@ -240,14 +242,14 @@ class OsCommandHelperTest {
 
 		assertThrows(
 			IllegalArgumentException.class,
-			() -> OsCommandService.createOsCommandEmbeddedFiles(null, null, EMPTY_EMBEDDED_FILE_MAP, jUnitTempFileCreator)
+			() -> OsCommandHelper.createOsCommandEmbeddedFiles(null, null, EMPTY_EMBEDDED_FILE_MAP, jUnitTempFileCreator)
 		);
 
 		// Embedded files are referenced in the command line but cannot be found
 		assertThrows(
 			IllegalStateException.class,
 			() ->
-				OsCommandService.createOsCommandEmbeddedFiles(
+				OsCommandHelper.createOsCommandEmbeddedFiles(
 					EMBEDDED_FILE_1_COPY_COMMAND_LINE,
 					null,
 					EMPTY_EMBEDDED_FILE_MAP,
@@ -257,7 +259,7 @@ class OsCommandHelperTest {
 
 		assertEquals(
 			Collections.emptyMap(),
-			OsCommandService.createOsCommandEmbeddedFiles(CMD, null, EMPTY_EMBEDDED_FILE_MAP, jUnitTempFileCreator)
+			OsCommandHelper.createOsCommandEmbeddedFiles(CMD, null, EMPTY_EMBEDDED_FILE_MAP, jUnitTempFileCreator)
 		);
 
 		// case embeddedFile not found
@@ -265,7 +267,7 @@ class OsCommandHelperTest {
 		assertThrows(
 			IllegalStateException.class,
 			() ->
-				OsCommandService.createOsCommandEmbeddedFiles(
+				OsCommandHelper.createOsCommandEmbeddedFiles(
 					EMBEDDED_FILE_1_COPY_COMMAND_LINE,
 					null,
 					commandLineEmbeddedFiles,
@@ -277,7 +279,7 @@ class OsCommandHelperTest {
 		assertThrows(
 			IllegalStateException.class,
 			() ->
-				OsCommandService.createOsCommandEmbeddedFiles(
+				OsCommandHelper.createOsCommandEmbeddedFiles(
 					EMBEDDED_FILE_1_COPY_COMMAND_LINE,
 					null,
 					commandLineEmbeddedFiles,
@@ -288,17 +290,17 @@ class OsCommandHelperTest {
 		checkNoTempEmbeddedFileExist();
 
 		// case IOException in temp file creation
-		try (final MockedStatic<OsCommandService> mockedOsCommandHelper = mockStatic(OsCommandService.class)) {
+		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
 			commandLineEmbeddedFiles.put(EMBEDDED_FILE_1_REF, new EmbeddedFile(ECHO_OS, BAT, EMBEDDED_FILE_1_REF));
 			commandLineEmbeddedFiles.put(EMBEDDED_FILE_2_REF, new EmbeddedFile(ECHO_HELLO_WORLD, null, EMBEDDED_FILE_2_REF));
 
 			mockedOsCommandHelper
-				.when(() -> OsCommandService.createTempFileWithEmbeddedFileContent(any(EmbeddedFile.class), isNull(), any()))
+				.when(() -> OsCommandHelper.createTempFileWithEmbeddedFileContent(any(EmbeddedFile.class), isNull(), any()))
 				.thenThrow(IOException.class);
 
 			mockedOsCommandHelper
 				.when(() ->
-					OsCommandService.createOsCommandEmbeddedFiles(
+					OsCommandHelper.createOsCommandEmbeddedFiles(
 						EMBEDDED_FILE_1_COPY_COMMAND_LINE,
 						null,
 						commandLineEmbeddedFiles,
@@ -310,7 +312,7 @@ class OsCommandHelperTest {
 			assertThrows(
 				IOException.class,
 				() ->
-					OsCommandService.createOsCommandEmbeddedFiles(
+					OsCommandHelper.createOsCommandEmbeddedFiles(
 						EMBEDDED_FILE_1_COPY_COMMAND_LINE,
 						null,
 						commandLineEmbeddedFiles,
@@ -328,7 +330,7 @@ class OsCommandHelperTest {
 				new EmbeddedFile(AWK_EMBEDDED_CONTENT_PERCENT_SUDO, null, EMBEDDED_FILE_2_REF)
 			);
 
-			final Map<String, File> embeddedTempFiles = OsCommandService.createOsCommandEmbeddedFiles(
+			final Map<String, File> embeddedTempFiles = OsCommandHelper.createOsCommandEmbeddedFiles(
 				EMBEDDED_FILE_1_COPY_COMMAND_LINE,
 				new SudoInformation(true, Set.of(ARCCONF_PATH), SudoInformation.SUDO),
 				commandLineEmbeddedFiles,
@@ -509,23 +511,23 @@ class OsCommandHelperTest {
 
 	@Test
 	void testGetFileNameFromSudoCommand() {
-		assertThrows(IllegalArgumentException.class, () -> OsCommandService.getFileNameFromSudoCommand(null));
-		assertEquals(Optional.empty(), OsCommandService.getFileNameFromSudoCommand(RAIDCTL_COMMAND));
-		assertEquals(Optional.of(RAIDCTL_PATH), OsCommandService.getFileNameFromSudoCommand(SUDO_RAIDCTL_COMMAND));
+		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper.getFileNameFromSudoCommand(null));
+		assertEquals(Optional.empty(), OsCommandHelper.getFileNameFromSudoCommand(RAIDCTL_COMMAND));
+		assertEquals(Optional.of(RAIDCTL_PATH), OsCommandHelper.getFileNameFromSudoCommand(SUDO_RAIDCTL_COMMAND));
 		assertEquals(
 			Optional.of(NAVISECCLI_CAMEL_CASE),
-			OsCommandService.getFileNameFromSudoCommand(SUDO_NAVISECCLI_COMMAND)
+			OsCommandHelper.getFileNameFromSudoCommand(SUDO_NAVISECCLI_COMMAND)
 		);
 	}
 
 	@Test
 	void testToCaseInsensitiveRegex() {
-		assertThrows(IllegalArgumentException.class, () -> OsCommandService.toCaseInsensitiveRegex(null));
-		assertThrows(IllegalArgumentException.class, () -> OsCommandService.toCaseInsensitiveRegex(EMPTY));
-		assertEquals(SINGLE_SPACE, OsCommandService.toCaseInsensitiveRegex(SINGLE_SPACE));
-		assertEquals(Q_HOST, OsCommandService.toCaseInsensitiveRegex(HOST_CAMEL_CASE));
-		assertEquals(Q_USERNAME, OsCommandService.toCaseInsensitiveRegex(PERCENT_USERNAME));
-		assertEquals(Q_HOSTNAME, OsCommandService.toCaseInsensitiveRegex(HOSTNAME_MACRO));
+		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper.toCaseInsensitiveRegex(null));
+		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper.toCaseInsensitiveRegex(EMPTY));
+		assertEquals(SINGLE_SPACE, OsCommandHelper.toCaseInsensitiveRegex(SINGLE_SPACE));
+		assertEquals(Q_HOST, OsCommandHelper.toCaseInsensitiveRegex(HOST_CAMEL_CASE));
+		assertEquals(Q_USERNAME, OsCommandHelper.toCaseInsensitiveRegex(PERCENT_USERNAME));
+		assertEquals(Q_HOSTNAME, OsCommandHelper.toCaseInsensitiveRegex(HOSTNAME_MACRO));
 	}
 
 	@Test
@@ -665,11 +667,12 @@ class OsCommandHelperTest {
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 
 		try (
-			final MockedStatic<OsCommandService> mockedOsCommandHelper = mockStatic(OsCommandService.class);
+			final MockedStatic<OsCommandService> mockedOsCommandService = mockStatic(OsCommandService.class);
+			final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class);
 			final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)
 		) {
-			mockedOsCommandHelper.when(() -> OsCommandService.getUsername(wmiConfiguration)).thenCallRealMethod();
-			mockedOsCommandHelper
+			mockedOsCommandService.when(() -> OsCommandService.getUsername(wmiConfiguration)).thenCallRealMethod();
+			mockedOsCommandService
 				.when(() -> OsCommandService.runOsCommand(COMMAND_TO_UPDATE, telemetryManager, 120L, false, false))
 				.thenCallRealMethod();
 
@@ -679,7 +682,7 @@ class OsCommandHelperTest {
 
 			mockedOsCommandHelper
 				.when(() ->
-					OsCommandService.createOsCommandEmbeddedFiles(
+					OsCommandHelper.createOsCommandEmbeddedFiles(
 						COMMAND_TO_UPDATE,
 						null,
 						commandLineEmbeddedFiles,
@@ -833,18 +836,21 @@ class OsCommandHelperTest {
 
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 
-		try (final MockedStatic<OsCommandService> mockedOsCommandHelper = mockStatic(OsCommandService.class)) {
-			mockedOsCommandHelper.when(() -> OsCommandService.getUsername(sshConfiguration)).thenCallRealMethod();
-			mockedOsCommandHelper
+		try (
+			final MockedStatic<OsCommandService> mockedOsCommandService = mockStatic(OsCommandService.class);
+			final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class);
+		) {
+			mockedOsCommandService.when(() -> OsCommandService.getUsername(sshConfiguration)).thenCallRealMethod();
+			mockedOsCommandService
 				.when(() -> OsCommandService.getTimeout(120L, null, sshConfiguration, 300))
 				.thenCallRealMethod();
-			mockedOsCommandHelper.when(() -> OsCommandService.getPassword(sshConfiguration)).thenCallRealMethod();
-			mockedOsCommandHelper.when(() -> OsCommandService.replaceSudo(anyString(), isNull())).thenCallRealMethod();
-			mockedOsCommandHelper.when(() -> OsCommandService.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
-			mockedOsCommandHelper.when(() -> OsCommandService.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
+			mockedOsCommandService.when(() -> OsCommandService.getPassword(sshConfiguration)).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.replaceSudo(anyString(), isNull())).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper
 				.when(() ->
-					OsCommandService.createOsCommandEmbeddedFiles(
+					OsCommandHelper.createOsCommandEmbeddedFiles(
 						NAVISECCLI_COMMAND,
 						null,
 						commandLineEmbeddedFiles,
@@ -853,7 +859,7 @@ class OsCommandHelperTest {
 				)
 				.thenCallRealMethod();
 
-			mockedOsCommandHelper
+			mockedOsCommandService
 				.when(() -> {
 					OsCommandService.runSshCommand(
 						CLEAR_PASSWORD_COMMAND,
@@ -866,7 +872,7 @@ class OsCommandHelperTest {
 				})
 				.thenReturn(AGENT_REV_RESULT);
 
-			mockedOsCommandHelper
+			mockedOsCommandService
 				.when(() -> OsCommandService.runOsCommand(NAVISECCLI_COMMAND, telemetryManager, 120L, false, false))
 				.thenCallRealMethod();
 
@@ -904,20 +910,23 @@ class OsCommandHelperTest {
 		);
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 
-		try (final MockedStatic<OsCommandService> mockedOsCommandHelper = mockStatic(OsCommandService.class)) {
-			mockedOsCommandHelper.when(() -> OsCommandService.getUsername(sshConfiguration)).thenCallRealMethod();
-			mockedOsCommandHelper
+		try (
+			final MockedStatic<OsCommandService> mockedOsCommandService = mockStatic(OsCommandService.class);
+			final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class);
+		) {
+			mockedOsCommandService.when(() -> OsCommandService.getUsername(sshConfiguration)).thenCallRealMethod();
+			mockedOsCommandService
 				.when(() -> OsCommandService.getTimeout(120L, osCommandConfiguration, sshConfiguration, 300))
 				.thenCallRealMethod();
-			mockedOsCommandHelper.when(() -> OsCommandService.getPassword(sshConfiguration)).thenCallRealMethod();
+			mockedOsCommandService.when(() -> OsCommandService.getPassword(sshConfiguration)).thenCallRealMethod();
 			mockedOsCommandHelper
 				.when(() -> OsCommandHelper.replaceSudo(anyString(), eq(sudoInformation)))
 				.thenCallRealMethod();
-			mockedOsCommandHelper.when(() -> OsCommandService.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
-			mockedOsCommandHelper.when(() -> OsCommandService.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper
 				.when(() ->
-					OsCommandService.createOsCommandEmbeddedFiles(
+					OsCommandHelper.createOsCommandEmbeddedFiles(
 						NAVISECCLI_COMMAND,
 						sudoInformation,
 						commandLineEmbeddedFiles,
@@ -926,7 +935,7 @@ class OsCommandHelperTest {
 				)
 				.thenCallRealMethod();
 
-			mockedOsCommandHelper
+			mockedOsCommandService
 				.when(() ->
 					OsCommandService.runSshCommand(
 						CLEAR_PASSWORD_COMMAND,
@@ -939,7 +948,7 @@ class OsCommandHelperTest {
 				)
 				.thenReturn(AGENT_REV_RESULT);
 
-			mockedOsCommandHelper
+			mockedOsCommandService
 				.when(() -> OsCommandService.runOsCommand(NAVISECCLI_COMMAND, telemetryManager, 120L, false, false))
 				.thenCallRealMethod();
 
@@ -978,20 +987,23 @@ class OsCommandHelperTest {
 		);
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 
-		try (final MockedStatic<OsCommandService> mockedOsCommandHelper = mockStatic(OsCommandService.class)) {
-			mockedOsCommandHelper.when(() -> OsCommandService.getUsername(sshConfiguration)).thenCallRealMethod();
-			mockedOsCommandHelper
+		try (
+			final MockedStatic<OsCommandService> mockedOsCommandService = mockStatic(OsCommandService.class);
+			final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)
+		) {
+			mockedOsCommandService.when(() -> OsCommandService.getUsername(sshConfiguration)).thenCallRealMethod();
+			mockedOsCommandService
 				.when(() -> OsCommandService.getTimeout(120L, osCommandConfiguration, sshConfiguration, 300))
 				.thenCallRealMethod();
-			mockedOsCommandHelper.when(() -> OsCommandService.getPassword(sshConfiguration)).thenCallRealMethod();
+			mockedOsCommandService.when(() -> OsCommandService.getPassword(sshConfiguration)).thenCallRealMethod();
 			mockedOsCommandHelper
 				.when(() -> OsCommandHelper.replaceSudo(anyString(), eq(sudoInformation)))
 				.thenCallRealMethod();
-			mockedOsCommandHelper.when(() -> OsCommandService.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
-			mockedOsCommandHelper.when(() -> OsCommandService.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper
 				.when(() ->
-					OsCommandService.createOsCommandEmbeddedFiles(
+					OsCommandHelper.createOsCommandEmbeddedFiles(
 						NAVISECCLI_COMMAND,
 						sudoInformation,
 						commandLineEmbeddedFiles,
@@ -1000,7 +1012,7 @@ class OsCommandHelperTest {
 				)
 				.thenCallRealMethod();
 
-			mockedOsCommandHelper
+			mockedOsCommandService
 				.when(() ->
 					OsCommandService.runSshCommand(
 						CLEAR_PASSWORD_COMMAND,
@@ -1013,7 +1025,7 @@ class OsCommandHelperTest {
 				)
 				.thenReturn(AGENT_REV_RESULT);
 
-			mockedOsCommandHelper
+			mockedOsCommandService
 				.when(() -> OsCommandService.runOsCommand(NAVISECCLI_COMMAND, telemetryManager, 120L, false, false))
 				.thenCallRealMethod();
 
@@ -1052,20 +1064,23 @@ class OsCommandHelperTest {
 		);
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 
-		try (final MockedStatic<OsCommandService> mockedOsCommandHelper = mockStatic(OsCommandService.class)) {
-			mockedOsCommandHelper.when(() -> OsCommandService.getUsername(sshConfiguration)).thenCallRealMethod();
-			mockedOsCommandHelper
+		try (
+			final MockedStatic<OsCommandService> mockedOsCommandService = mockStatic(OsCommandService.class);
+			final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class);
+		) {
+			mockedOsCommandService.when(() -> OsCommandService.getUsername(sshConfiguration)).thenCallRealMethod();
+			mockedOsCommandService
 				.when(() -> OsCommandService.getTimeout(120L, osCommandConfiguration, sshConfiguration, 300))
 				.thenCallRealMethod();
-			mockedOsCommandHelper.when(() -> OsCommandService.getPassword(sshConfiguration)).thenCallRealMethod();
+			mockedOsCommandService.when(() -> OsCommandService.getPassword(sshConfiguration)).thenCallRealMethod();
 			mockedOsCommandHelper
 				.when(() -> OsCommandHelper.replaceSudo(anyString(), eq(sudoInformation)))
 				.thenCallRealMethod();
-			mockedOsCommandHelper.when(() -> OsCommandService.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
-			mockedOsCommandHelper.when(() -> OsCommandService.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper
 				.when(() ->
-					OsCommandService.createOsCommandEmbeddedFiles(
+					OsCommandHelper.createOsCommandEmbeddedFiles(
 						NAVISECCLI_COMMAND,
 						sudoInformation,
 						commandLineEmbeddedFiles,
@@ -1074,7 +1089,7 @@ class OsCommandHelperTest {
 				)
 				.thenCallRealMethod();
 
-			mockedOsCommandHelper
+			mockedOsCommandService
 				.when(() -> {
 					OsCommandService.runSshCommand(
 						SUDO_KEYWORD + CLEAR_PASSWORD_COMMAND,
@@ -1087,7 +1102,7 @@ class OsCommandHelperTest {
 				})
 				.thenReturn(AGENT_REV_RESULT);
 
-			mockedOsCommandHelper
+			mockedOsCommandService
 				.when(() -> OsCommandService.runOsCommand(NAVISECCLI_COMMAND, telemetryManager, 120L, false, false))
 				.thenCallRealMethod();
 
@@ -1136,23 +1151,24 @@ class OsCommandHelperTest {
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 
 		try (
-			final MockedStatic<OsCommandService> mockedOsCommandHelper = mockStatic(OsCommandService.class);
+			final MockedStatic<OsCommandService> mockedOsCommandService = mockStatic(OsCommandService.class);
+			final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class);
 			final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)
 		) {
-			mockedOsCommandHelper.when(() -> OsCommandService.getUsername(sshConfiguration)).thenCallRealMethod();
-			mockedOsCommandHelper
+			mockedOsCommandService.when(() -> OsCommandService.getUsername(sshConfiguration)).thenCallRealMethod();
+			mockedOsCommandService
 				.when(() -> OsCommandService.getTimeout(120L, osCommandConfiguration, sshConfiguration, 300))
 				.thenCallRealMethod();
-			mockedOsCommandHelper.when(() -> OsCommandService.getPassword(sshConfiguration)).thenCallRealMethod();
-			mockedOsCommandHelper.when(() -> OsCommandService.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
-			mockedOsCommandHelper.when(() -> OsCommandService.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
+			mockedOsCommandService.when(() -> OsCommandService.getPassword(sshConfiguration)).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
+			mockedOsCommandHelper.when(() -> OsCommandHelper.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper
 				.when(() -> OsCommandHelper.replaceSudo(anyString(), eq(sudoInformation)))
 				.thenCallRealMethod();
 
 			mockedOsCommandHelper
 				.when(() ->
-					OsCommandService.createOsCommandEmbeddedFiles(
+					OsCommandHelper.createOsCommandEmbeddedFiles(
 						SH_EMBEDDED_FILE_1,
 						sudoInformation,
 						commandLineEmbeddedFiles,

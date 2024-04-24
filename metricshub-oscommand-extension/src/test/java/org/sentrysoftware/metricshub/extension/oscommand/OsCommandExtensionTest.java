@@ -292,7 +292,9 @@ class OsCommandExtensionTest {
 		}
 
 		try (MockedStatic<OsCommandService> staticOsCommandHelper = Mockito.mockStatic(OsCommandService.class)) {
-			staticOsCommandHelper.when(() -> OsCommandService.runLocalCommand(anyString(), anyLong(), any())).thenReturn(null);
+			staticOsCommandHelper
+				.when(() -> OsCommandService.runLocalCommand(anyString(), anyLong(), any()))
+				.thenReturn(null);
 
 			// Start the SSH Health Check strategy
 			osCommandExtension.checkProtocol(telemetryManager);
@@ -374,7 +376,9 @@ class OsCommandExtensionTest {
 				)
 				.thenReturn(SUCCESS_RESPONSE);
 
-			staticOsCommandHelper.when(() -> OsCommandService.runLocalCommand(anyString(), anyLong(), any())).thenReturn(null);
+			staticOsCommandHelper
+				.when(() -> OsCommandService.runLocalCommand(anyString(), anyLong(), any()))
+				.thenReturn(null);
 
 			// Start the SSH Health Check strategy
 			osCommandExtension.checkProtocol(telemetryManager);
@@ -407,7 +411,9 @@ class OsCommandExtensionTest {
 				)
 				.thenReturn(null);
 
-			staticOsCommandHelper.when(() -> OsCommandService.runLocalCommand(anyString(), anyLong(), any())).thenReturn(null);
+			staticOsCommandHelper
+				.when(() -> OsCommandService.runLocalCommand(anyString(), anyLong(), any()))
+				.thenReturn(null);
 
 			// Start the SSH Health Check strategy
 			osCommandExtension.checkProtocol(telemetryManager);
