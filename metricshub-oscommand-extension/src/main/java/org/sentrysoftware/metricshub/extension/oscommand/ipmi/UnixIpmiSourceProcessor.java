@@ -39,11 +39,13 @@ import org.sentrysoftware.metricshub.extension.oscommand.SshConfiguration;
 public class UnixIpmiSourceProcessor {
 
 	/**
-	 * Process IPMI Source for the Unix system
+	 * Executes IPMI commands to collect data from Unix systems and constructs a {@link SourceTable} with the results.
+	 * Handles command execution both locally and remotely, depending on the system configuration.
 	 *
-	 * @param sourceKey The key of the source
-	 *
-	 * @return {@link SourceTable} containing the IPMI result expected by the IPMI connector embedded AWK script
+	 * @param sourceKey The key identifier for the IPMI source being processed.
+	 * @param connectorId Identifier for the connector instance processing this source.
+	 * @param telemetryManager Provides context and configuration for accessing system properties and executing commands.
+	 * @return A {@link SourceTable} containing processed IPMI data. Returns an empty table if errors occur or if no data is available.
 	 */
 	public SourceTable processUnixIpmiSource(
 		final String sourceKey,

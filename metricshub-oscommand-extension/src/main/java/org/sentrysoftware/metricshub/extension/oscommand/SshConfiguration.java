@@ -43,6 +43,17 @@ public class SshConfiguration extends OsCommandConfiguration {
 	private char[] password;
 	private String privateKey;
 
+	/**
+	 * Constructs an SshConfiguration with specific settings for SSH operations.
+	 *
+	 * @param useSudo Indicates whether sudo should be used for the commands.
+	 * @param useSudoCommands A set of commands that should be executed with sudo.
+	 * @param sudoCommand The sudo command to use.
+	 * @param timeout The default timeout for SSH operations.
+	 * @param username The SSH username.
+	 * @param password The SSH password.
+	 * @param privateKey The path to the SSH private key file.
+	 */
 	@Builder(builderMethodName = "sshConfigurationBuilder")
 	public SshConfiguration(
 		boolean useSudo,

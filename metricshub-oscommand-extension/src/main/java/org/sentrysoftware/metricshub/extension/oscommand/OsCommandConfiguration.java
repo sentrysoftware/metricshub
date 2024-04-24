@@ -38,6 +38,9 @@ import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 @NoArgsConstructor
 public class OsCommandConfiguration implements IConfiguration {
 
+	/**
+	 * Default Os Command timeout
+	 */
 	public static final Long DEFAULT_TIMEOUT = 30L;
 	boolean useSudo;
 	Set<String> useSudoCommands = new HashSet<>();

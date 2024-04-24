@@ -71,7 +71,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.SshSemaphoreFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
- * Utility class for handling OS commands, including local and remote execution.
+ * Os Command Service that handles OS commands, including local and remote execution.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OsCommandService {
