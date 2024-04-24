@@ -27,6 +27,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.strategy.utils.SudoInformation;
 
 /**
  * The OsCommandConfiguration class represents the configuration for executing OS commands in the MetricsHub engine.
@@ -35,14 +36,13 @@ import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfiguratio
 @NoArgsConstructor
 public class OsCommandConfiguration implements IConfiguration {
 
-	private static final String SUDO = "sudo";
 	/**
 	 * Default Timeout
 	 */
 	public static final Long DEFAULT_TIMEOUT = 30L;
 	private boolean useSudo;
 	private Set<String> useSudoCommands = new HashSet<>();
-	private String sudoCommand = SUDO;
+	private String sudoCommand = SudoInformation.SUDO;
 	private Long timeout = DEFAULT_TIMEOUT;
 
 	/**
@@ -62,7 +62,7 @@ public class OsCommandConfiguration implements IConfiguration {
 	) {
 		this.useSudo = useSudo;
 		this.useSudoCommands = useSudoCommands == null ? new HashSet<>() : useSudoCommands;
-		this.sudoCommand = sudoCommand == null ? SUDO : sudoCommand;
+		this.sudoCommand = sudoCommand == null ? SudoInformation.SUDO : sudoCommand;
 		this.timeout = timeout == null ? DEFAULT_TIMEOUT : timeout;
 	}
 

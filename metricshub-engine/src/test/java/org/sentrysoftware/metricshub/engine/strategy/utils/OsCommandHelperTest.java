@@ -260,7 +260,7 @@ class OsCommandHelperTest {
 
 			final Map<String, File> embeddedTempFiles = OsCommandHelper.createOsCommandEmbeddedFiles(
 				EMBEDDED_FILE_1_COPY_COMMAND_LINE,
-				OsCommandConfiguration.builder().useSudo(true).useSudoCommands(Set.of(ARCCONF_PATH)).build(),
+				new SudoInformation(true, Set.of(ARCCONF_PATH), SudoInformation.SUDO),
 				commandLineEmbeddedFiles,
 				jUnitTempFileCreator
 			);
@@ -300,45 +300,33 @@ class OsCommandHelperTest {
 	@Test
 	void testReplaceSudo() {
 		assertNull(OsCommandHelper.replaceSudo(null, null));
-		assertNull(OsCommandHelper.replaceSudo(null, OsCommandConfiguration.builder().build()));
+		final SudoInformation defaultSudoInformation = new SudoInformation(false, Set.of(), SudoInformation.SUDO);
+		assertNull(OsCommandHelper.replaceSudo(null, defaultSudoInformation));
 
 		assertEquals(EMPTY, OsCommandHelper.replaceSudo(EMPTY, null));
-		assertEquals(EMPTY, OsCommandHelper.replaceSudo(EMPTY, OsCommandConfiguration.builder().build()));
+		assertEquals(EMPTY, OsCommandHelper.replaceSudo(EMPTY, defaultSudoInformation));
 		assertEquals(SINGLE_SPACE, OsCommandHelper.replaceSudo(SINGLE_SPACE, null));
-		assertEquals(SINGLE_SPACE, OsCommandHelper.replaceSudo(SINGLE_SPACE, OsCommandConfiguration.builder().build()));
+		assertEquals(SINGLE_SPACE, OsCommandHelper.replaceSudo(SINGLE_SPACE, defaultSudoInformation));
 
 		assertEquals(TEXT, OsCommandHelper.replaceSudo(TEXT, null));
-		assertEquals(TEXT, OsCommandHelper.replaceSudo(TEXT, OsCommandConfiguration.builder().build()));
+		assertEquals(TEXT, OsCommandHelper.replaceSudo(TEXT, defaultSudoInformation));
 
 		// Check replace sudo tag with empty string.
 		assertEquals(SPACE_KEY, OsCommandHelper.replaceSudo(SUDO_KEY, null));
-		assertEquals(SPACE_KEY, OsCommandHelper.replaceSudo(SUDO_KEY, OsCommandConfiguration.builder().build()));
-		assertEquals(
-			SPACE_KEY,
-			OsCommandHelper.replaceSudo(SUDO_KEY, OsCommandConfiguration.builder().useSudo(true).build())
-		);
+		assertEquals(SPACE_KEY, OsCommandHelper.replaceSudo(SUDO_KEY, defaultSudoInformation));
+		final SudoInformation useSudoInformation = new SudoInformation(true, Set.of(), SudoInformation.SUDO);
+		assertEquals(SPACE_KEY, OsCommandHelper.replaceSudo(SUDO_KEY, useSudoInformation));
 		assertEquals(
 			SPACE_KEY + END_OF_LINE + SPACE_KEY,
-			OsCommandHelper.replaceSudo(
-				SUDO_KEY + END_OF_LINE + SUDO_KEY,
-				OsCommandConfiguration.builder().useSudo(true).build()
-			)
+			OsCommandHelper.replaceSudo(SUDO_KEY + END_OF_LINE + SUDO_KEY, useSudoInformation)
 		);
 
-		assertEquals(
-			SUDO_KEYWORD + SPACE_KEY,
-			OsCommandHelper.replaceSudo(
-				SUDO_KEY,
-				OsCommandConfiguration.builder().useSudo(true).useSudoCommands(Set.of(KEY)).build()
-			)
-		);
+		final SudoInformation useSudoKeyInformation = new SudoInformation(true, Set.of(KEY), SudoInformation.SUDO);
+		assertEquals(SUDO_KEYWORD + SPACE_KEY, OsCommandHelper.replaceSudo(SUDO_KEY, useSudoKeyInformation));
 
 		assertEquals(
 			SUDO_KEY_RESULT,
-			OsCommandHelper.replaceSudo(
-				SUDO_KEY + END_OF_LINE + SUDO_KEY,
-				OsCommandConfiguration.builder().useSudo(true).useSudoCommands(Set.of(KEY)).build()
-			)
+			OsCommandHelper.replaceSudo(SUDO_KEY + END_OF_LINE + SUDO_KEY, useSudoKeyInformation)
 		);
 	}
 
@@ -899,6 +887,11 @@ class OsCommandHelperTest {
 			)
 			.build();
 
+		final SudoInformation sudoInformation = new SudoInformation(
+			osCommandConfiguration.isUseSudo(),
+			osCommandConfiguration.getUseSudoCommands(),
+			osCommandConfiguration.getSudoCommand()
+		);
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 
 		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
@@ -908,7 +901,7 @@ class OsCommandHelperTest {
 				.thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.getPassword(sshConfiguration)).thenCallRealMethod();
 			mockedOsCommandHelper
-				.when(() -> OsCommandHelper.replaceSudo(anyString(), eq(osCommandConfiguration)))
+				.when(() -> OsCommandHelper.replaceSudo(anyString(), eq(sudoInformation)))
 				.thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
@@ -916,7 +909,7 @@ class OsCommandHelperTest {
 				.when(() ->
 					OsCommandHelper.createOsCommandEmbeddedFiles(
 						NAVISECCLI_COMMAND,
-						osCommandConfiguration,
+						sudoInformation,
 						commandLineEmbeddedFiles,
 						TEMP_FILE_CREATOR
 					)
@@ -968,6 +961,11 @@ class OsCommandHelperTest {
 			)
 			.build();
 
+		final SudoInformation sudoInformation = new SudoInformation(
+			osCommandConfiguration.isUseSudo(),
+			osCommandConfiguration.getUseSudoCommands(),
+			osCommandConfiguration.getSudoCommand()
+		);
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 
 		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
@@ -977,7 +975,7 @@ class OsCommandHelperTest {
 				.thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.getPassword(sshConfiguration)).thenCallRealMethod();
 			mockedOsCommandHelper
-				.when(() -> OsCommandHelper.replaceSudo(anyString(), eq(osCommandConfiguration)))
+				.when(() -> OsCommandHelper.replaceSudo(anyString(), eq(sudoInformation)))
 				.thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
@@ -985,7 +983,7 @@ class OsCommandHelperTest {
 				.when(() ->
 					OsCommandHelper.createOsCommandEmbeddedFiles(
 						NAVISECCLI_COMMAND,
-						osCommandConfiguration,
+						sudoInformation,
 						commandLineEmbeddedFiles,
 						TEMP_FILE_CREATOR
 					)
@@ -1037,6 +1035,11 @@ class OsCommandHelperTest {
 			)
 			.build();
 
+		final SudoInformation sudoInformation = new SudoInformation(
+			osCommandConfiguration.isUseSudo(),
+			osCommandConfiguration.getUseSudoCommands(),
+			osCommandConfiguration.getSudoCommand()
+		);
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 
 		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
@@ -1046,7 +1049,7 @@ class OsCommandHelperTest {
 				.thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.getPassword(sshConfiguration)).thenCallRealMethod();
 			mockedOsCommandHelper
-				.when(() -> OsCommandHelper.replaceSudo(anyString(), eq(osCommandConfiguration)))
+				.when(() -> OsCommandHelper.replaceSudo(anyString(), eq(sudoInformation)))
 				.thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
@@ -1054,7 +1057,7 @@ class OsCommandHelperTest {
 				.when(() ->
 					OsCommandHelper.createOsCommandEmbeddedFiles(
 						NAVISECCLI_COMMAND,
-						osCommandConfiguration,
+						sudoInformation,
 						commandLineEmbeddedFiles,
 						TEMP_FILE_CREATOR
 					)
@@ -1115,6 +1118,11 @@ class OsCommandHelperTest {
 			)
 			.build();
 
+		final SudoInformation sudoInformation = new SudoInformation(
+			osCommandConfiguration.isUseSudo(),
+			osCommandConfiguration.getUseSudoCommands(),
+			osCommandConfiguration.getSudoCommand()
+		);
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 
 		try (
@@ -1129,14 +1137,14 @@ class OsCommandHelperTest {
 			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper
-				.when(() -> OsCommandHelper.replaceSudo(anyString(), eq(osCommandConfiguration)))
+				.when(() -> OsCommandHelper.replaceSudo(anyString(), eq(sudoInformation)))
 				.thenCallRealMethod();
 
 			mockedOsCommandHelper
 				.when(() ->
 					OsCommandHelper.createOsCommandEmbeddedFiles(
 						SH_EMBEDDED_FILE_1,
-						osCommandConfiguration,
+						sudoInformation,
 						commandLineEmbeddedFiles,
 						TEMP_FILE_CREATOR
 					)
