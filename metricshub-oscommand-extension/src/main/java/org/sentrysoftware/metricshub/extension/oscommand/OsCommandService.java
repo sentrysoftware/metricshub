@@ -93,7 +93,7 @@ public class OsCommandService {
 	 * Create the temporary embedded files in the given command line.
 	 *
 	 * @param commandLine              The command line to process.
-	 * @param osCommandConfiguration   The OS Command Configuration.
+	 * @param sudoInformation          The Sudo Information of the Os Command configuration.
 	 * @param commandLineEmbeddedFiles A map of embedded files referenced in the command line.
 	 * @param tempFileCreator          The function that creates a temporary file.
 	 * @return A map with EmbeddedFile tags as keys and corresponding temporary File objects.
@@ -101,7 +101,7 @@ public class OsCommandService {
 	 */
 	public static Map<String, File> createOsCommandEmbeddedFiles(
 		@NonNull final String commandLine,
-		final OsCommandConfiguration osCommandConfiguration,
+		final SudoInformation sudoInformation,
 		@NonNull final Map<String, EmbeddedFile> commandLineEmbeddedFiles,
 		final Function<String, File> tempFileCreator
 	) throws IOException {
@@ -129,7 +129,7 @@ public class OsCommandService {
 						state(content != null, () -> "EmbeddedFile content is null. File name: " + fileName);
 
 						try {
-							return createTempFileWithEmbeddedFileContent(embeddedFile, osCommandConfiguration, tempFileCreator);
+							return createTempFileWithEmbeddedFileContent(embeddedFile, sudoInformation, tempFileCreator);
 						} catch (final IOException e) {
 							throw new TempFileCreationException(e);
 						}
@@ -150,15 +150,15 @@ public class OsCommandService {
 	/**
 	 * Create a temporary file with the content of the embeddedFile.
 	 *
-	 * @param embeddedFile           {@link EmbeddedFile} instance used to write the file content (mandatory)
-	 * @param osCommandConfiguration The OS Command Configuration.
-	 * @param tempFileCreator        The function that creates a temporary file.
+	 * @param embeddedFile    {@link EmbeddedFile} instance used to write the file content (mandatory)
+	 * @param sudoInformation The Sudo Information of the Os Command configuration.
+	 * @param tempFileCreator The function that creates a temporary file.
 	 * @return The File.
 	 * @throws IOException
 	 */
 	static File createTempFileWithEmbeddedFileContent(
 		final EmbeddedFile embeddedFile,
-		final OsCommandConfiguration osCommandConfiguration,
+		final SudoInformation sudoInformation,
 		Function<String, File> tempFileCreator
 	) throws IOException {
 		final String extension = embeddedFile.getType() != null ? "." + embeddedFile.getType() : EMPTY;
@@ -171,7 +171,7 @@ public class OsCommandService {
 				StandardCharsets.UTF_8
 			)
 		) {
-			bufferedWriter.write(replaceSudo(embeddedFile.getContent(), osCommandConfiguration));
+			bufferedWriter.write(replaceSudo(embeddedFile.getContent(), sudoInformation));
 		}
 		return tempFile;
 	}
@@ -197,11 +197,11 @@ public class OsCommandService {
 	 * If the useSudo configuration is enabled and the sudo command is associated with the specified file,
 	 * it replaces the tag with the sudo command; otherwise, it replaces it with an empty string.
 	 *
-	 * @param text                    The text containing %{SUDO:xxx}% tags to be replaced.
-	 * @param osCommandConfiguration The configuration for OS commands.
+	 * @param text            The text containing %{SUDO:xxx}% tags to be replaced.
+	 * @param sudoInformation The Sudo Information of the Os Command configuration.
 	 * @return The text with %{SUDO:xxx}% tags replaced with the sudo command or empty string.
 	 */
-	static String replaceSudo(final String text, final OsCommandConfiguration osCommandConfiguration) {
+	static String replaceSudo(final String text, final SudoInformation sudoInformation) {
 		if (text == null || text.isBlank()) {
 			return text;
 		}
@@ -209,10 +209,10 @@ public class OsCommandService {
 		final Optional<String> maybeSudoFile = getFileNameFromSudoCommand(text);
 
 		final String sudoReplace = maybeSudoFile.isPresent() &&
-			osCommandConfiguration != null &&
-			osCommandConfiguration.isUseSudo() &&
-			osCommandConfiguration.getUseSudoCommands().contains(maybeSudoFile.get())
-			? osCommandConfiguration.getSudoCommand()
+			sudoInformation != null &&
+			sudoInformation.isUseSudo() &&
+			sudoInformation.useSudoCommands().contains(maybeSudoFile.get())
+			? sudoInformation.sudoCommand()
 			: EMPTY;
 
 		return maybeSudoFile
@@ -521,9 +521,19 @@ public class OsCommandService {
 			.getConfigurations()
 			.get(OsCommandConfiguration.class);
 
+		SudoInformation sudoInformation = null;
+		if (osCommandConfiguration != null) {
+			sudoInformation =
+				new SudoInformation(
+					osCommandConfiguration.isUseSudo(),
+					osCommandConfiguration.getUseSudoCommands(),
+					osCommandConfiguration.getSudoCommand()
+				);
+		}
+
 		final Map<String, File> embeddedTempFiles = createOsCommandEmbeddedFiles(
 			commandLine,
-			osCommandConfiguration,
+			sudoInformation,
 			EmbeddedFileHelper.findEmbeddedFiles(commandLine),
 			TEMP_FILE_CREATOR
 		);
@@ -537,7 +547,7 @@ public class OsCommandService {
 			hostname
 		);
 
-		final String updatedSudoCommand = replaceSudo(updatedHostnameCommand, osCommandConfiguration);
+		final String updatedSudoCommand = replaceSudo(updatedHostnameCommand, sudoInformation);
 
 		final String updatedEmbeddedFilesCommand = embeddedTempFiles
 			.entrySet()
