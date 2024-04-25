@@ -79,6 +79,7 @@ public class MappingProcessor {
 	private static final double MEBIBYTE_2_BYTE_FACTOR = 1_048_576.0;
 	private static final double MEGABIT_2_BIT_FACTOR = 1_000_000.0;
 	private static final double MEGAHERTZ_2_HERTZ_FACTOR = 1_000_000.0;
+	private static final double MILLIVOLT_2_VOLT_FACTOR = 0.001;
 	private static final double PERCENT_2_RATIO_FACTOR = 0.01;
 
 	private static final String ZERO = "0";
@@ -96,6 +97,10 @@ public class MappingProcessor {
 	);
 	private static final Pattern MEGAHERTZ_2_HERTZ_PATTERN = Pattern.compile(
 		"megahertz2hertz\\((.+)\\)",
+		Pattern.CASE_INSENSITIVE
+	);
+	private static final Pattern MILLIVOLT_2_VOLT_PATTERN = Pattern.compile(
+		"millivolt2volt\\((.+)\\)",
 		Pattern.CASE_INSENSITIVE
 	);
 	private static final Pattern PERCENT_2_RATIO_PATTERN = Pattern.compile(
@@ -238,6 +243,8 @@ public class MappingProcessor {
 			result.put(key, megaHertz2Hertz(value, key));
 		} else if (isMebiByte2ByteFunction(value)) {
 			result.put(key, mebiByte2Byte(value, key));
+		} else if (isMilliVolt2VoltFunction(value)) {
+			result.put(key, milliVolt2Volt(value, key));
 		} else if (isBooleanFunction(value)) {
 			result.put(key, booleanFunction(value, key));
 		} else if (isLegacyLedStatusFunction(value)) {
@@ -938,6 +945,34 @@ public class MappingProcessor {
 	 */
 	private boolean isMebiByte2ByteFunction(String value) {
 		return MEBIBYTE_2_BYTE_PATTERN.matcher(value).find();
+	}
+
+	/**
+	 * Converts millivolt values to volt values
+	 *
+	 * @param value String representing a millivolt2volt function with a value in millivolt
+	 * @param key   The attribute key
+	 * @return String representing a double value in volt
+	 */
+	private String milliVolt2Volt(String value, String key) {
+		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
+
+		final Optional<Double> maybeDoubleValue = extractDoubleValue(functionArguments.get(0), key);
+		if (maybeDoubleValue.isPresent()) {
+			return multiplyValueByFactor(maybeDoubleValue.get(), MILLIVOLT_2_VOLT_FACTOR);
+		}
+
+		return EMPTY;
+	}
+
+	/**
+	 * Checks to see if the value contains a millivolt2volt function "millivolt2volt()"
+	 *
+	 * @param value Value to be parsed
+	 * @return Returns true if the function is found
+	 */
+	private boolean isMilliVolt2VoltFunction(String value) {
+		return MILLIVOLT_2_VOLT_PATTERN.matcher(value).find();
 	}
 
 	/**
