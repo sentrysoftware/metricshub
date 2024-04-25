@@ -62,6 +62,7 @@ class MappingProcessorTest {
 			final Map<String, String> expected = new LinkedHashMap<>();
 			expected.put("testMebiByte2Byte", "1048576.0");
 			expected.put("testMegaHertz2Hertz", "1000000.0");
+			expected.put("testMilliVolt2Volt", "0.001");
 			expected.put("testMegaBit2Bit", "1000000.0");
 			expected.put("testPercent2Ratio", "0.1");
 			expected.put("testValue", "10");
@@ -73,6 +74,8 @@ class MappingProcessorTest {
 				"mebibyte2byte(1)",
 				"testMegaHertz2Hertz",
 				"megahertz2hertz(1)",
+				"testMilliVolt2Volt",
+				"milliVolt2Volt(1)",
 				"testMegaBit2Bit",
 				"megabit2bit(1)",
 				"testPercent2Ratio",
@@ -95,6 +98,8 @@ class MappingProcessorTest {
 				"1048576.0",
 				"testMegaHertz2Hertz",
 				"1000000.0",
+				"testMilliVolt2Volt",
+				"0.001",
 				"testMegaBit2Bit",
 				"1000000.0",
 				"testPercent2Ratio",
@@ -108,6 +113,8 @@ class MappingProcessorTest {
 				"mebibyte2byte($1)",
 				"testMegaHertz2Hertz",
 				"megahertz2hertz($2)",
+				"testMilliVolt2Volt",
+				"milliVolt2Volt($2)",
 				"testMegaBit2Bit",
 				"megabit2bit($3)",
 				"testPercent2Ratio",
