@@ -950,9 +950,9 @@ public class MappingProcessor {
 	/**
 	 * Converts millivolt values to volt values
 	 *
-	 * @param value		String representing a millivolt2volt function with a value in millivolt
-	 * @param key		The attribute key
-	 * @return			String representing a double value in volt
+	 * @param value String representing a millivolt2volt function with a value in millivolt
+	 * @param key   The attribute key
+	 * @return String representing a double value in volt
 	 */
 	private String milliVolt2Volt(String value, String key) {
 		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
@@ -968,8 +968,8 @@ public class MappingProcessor {
 	/**
 	 * Checks to see if the value contains a millivolt2volt function "millivolt2volt()"
 	 *
-	 * @param value		Value to be parsed
-	 * @return 			Returns true if the function is found
+	 * @param value Value to be parsed
+	 * @return Returns true if the function is found
 	 */
 	private boolean isMilliVolt2VoltFunction(String value) {
 		return MILLIVOLT_2_VOLT_PATTERN.matcher(value).find();
