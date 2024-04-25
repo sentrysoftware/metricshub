@@ -203,7 +203,7 @@ public class OsCommandHelper {
 	 * @param sudoInformation The Sudo Information of the Os Command configuration.
 	 * @return The text with %{SUDO:xxx}% tags replaced with the sudo command or empty string.
 	 */
-	static String replaceSudo(final String text, final SudoInformation sudoInformation) {
+	public static String replaceSudo(final String text, final SudoInformation sudoInformation) {
 		if (text == null || text.isBlank()) {
 			return text;
 		}
