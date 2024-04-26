@@ -127,6 +127,7 @@
 		<module>metricshub-engine</module>
 		<module>metricshub-it-common</module>
 		<module>metricshub-snmp-extension</module>
+		<module>metricshub-oscommand-extension</module>
 		<module>metricshub-ipmi-extension</module>
 		<module>metricshub-http-extension</module>
 		<module>metricshub-agent</module>

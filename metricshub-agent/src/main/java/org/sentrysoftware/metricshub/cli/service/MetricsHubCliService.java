@@ -311,7 +311,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 						.fgYellow()
 						.a(
 							"Please verify that your credentials are correct and that your network connection is stable and not blocking the communication. " +
-							"For detailed troubleshooting steps, use the -vvvvvv option to display more diagnostic logs."
+							"For detailed troubleshooting steps, use the -vvvv option to display more diagnostic logs."
 						)
 						.reset()
 						.toString()
