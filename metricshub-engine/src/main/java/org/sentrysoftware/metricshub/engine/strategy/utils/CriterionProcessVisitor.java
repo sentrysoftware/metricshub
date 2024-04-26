@@ -21,11 +21,8 @@ package org.sentrysoftware.metricshub.engine.strategy.utils;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.LOCALHOST;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.NEW_LINE;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.TABLE_SEP;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.WMI_DEFAULT_NAMESPACE;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.WMI_PROCESS_QUERY;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,12 +31,9 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
-import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.ProcessCriterion;
-import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WmiCriterion;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
-import org.springframework.util.Assert;
 
 /**
  * Visitor class for handling local operating system details related to process criteria.
@@ -56,7 +50,6 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 	@NonNull
 	private final ProcessCriterion processCriterion;
 
-	private final WqlDetectionHelper wqlDetectionHelper;
 	private final String hostname;
 
 	@Getter
@@ -149,7 +142,7 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 	private void processResult(final List<List<String>> result) {
 		result
 			.stream()
-			.filter(line -> line.get(1).matches(command))
+			.filter(line -> line.get(1).matches(processCriterion.getCommandLine()))
 			.findFirst()
 			.ifPresentOrElse(
 				line ->
@@ -157,7 +150,7 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 						String.format(
 							"One or more currently running processes match the following regular expression:\n- " +
 							"Regexp (should match with the command-line): %s",
-							command
+							processCriterion.getCommandLine()
 						)
 					),
 				() ->
@@ -168,7 +161,7 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 							- Regexp (should match with the command-line): %s
 							- Currently running process list:
 							%s""",
-							command,
+							processCriterion.getCommandLine(),
 							result
 								.stream()
 								.map(line -> line.stream().collect(Collectors.joining(TABLE_SEP)))

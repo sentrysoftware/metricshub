@@ -51,7 +51,8 @@ public class ProtocolsConfig {
 	private IConfiguration ipmi;
 
 	@JsonSetter(nulls = SKIP)
-	private SshProtocolConfig ssh;
+	@JsonDeserialize(using = ExtensionConfigDeserializer.class)
+	private IConfiguration ssh;
 
 	@JsonSetter(nulls = SKIP)
 	private WbemProtocolConfig wbem;
@@ -64,7 +65,8 @@ public class ProtocolsConfig {
 	private IConfiguration http;
 
 	@JsonSetter(nulls = SKIP)
-	private OsCommandProtocolConfig osCommand;
+	@JsonDeserialize(using = ExtensionConfigDeserializer.class)
+	private IConfiguration osCommand;
 
 	@JsonSetter(nulls = SKIP)
 	private WinRmProtocolConfig winrm;

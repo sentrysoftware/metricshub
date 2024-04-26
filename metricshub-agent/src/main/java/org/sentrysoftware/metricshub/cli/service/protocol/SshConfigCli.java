@@ -21,18 +21,23 @@ package org.sentrysoftware.metricshub.cli.service.protocol;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import java.io.File;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.BooleanNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.Set;
 import lombok.Data;
+import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
 
 /**
  * This class is used by MetricsHubCliService to configure SSH protocol when using the MetricsHub CLI.
- * It create the engine's {@link SshConfiguration} object that is used to monitor a specific resource.
+ * It create the engine's {@link IConfiguration} object that is used to monitor a specific resource.
  */
 @Data
 public class SshConfigCli implements IProtocolConfigCli {
@@ -67,7 +72,7 @@ public class SshConfigCli implements IProtocolConfigCli {
 		paramLabel = "PATH",
 		description = "Path to the private key file for SSH authentication"
 	)
-	private File privateKey;
+	private String privateKey;
 
 	@Option(
 		names = "--ssh-timeout",
@@ -76,7 +81,7 @@ public class SshConfigCli implements IProtocolConfigCli {
 		description = "Timeout in seconds for SSH operations (default: ${DEFAULT-VALUE} s)",
 		defaultValue = "" + DEFAULT_TIMEOUT
 	)
-	private long timeout;
+	private String timeout;
 
 	@Option(
 		names = "--ssh-usesudo-commands",
@@ -97,23 +102,37 @@ public class SshConfigCli implements IProtocolConfigCli {
 	private String sudoCommand;
 
 	/**
-	 * This method creates an {@link SshConfiguration} for a given username and a given password
+	 * This method creates an {@link IConfiguration} for a given username and a given password
 	 *
 	 * @param defaultUsername Username specified at the top level of the CLI (with the --username option)
 	 * @param defaultPassword Password specified at the top level of the CLI (with the --password option)
-	 * @return an {@link SshConfiguration} instance corresponding to the options specified by the user in the CLI
+	 * @return an {@link IConfiguration} instance corresponding to the options specified by the user in the CLI
+	 * @throws InvalidConfigurationException
 	 */
 	@Override
-	public IConfiguration toProtocol(final String defaultUsername, final char[] defaultPassword) {
-		return SshConfiguration
-			.sshConfigurationBuilder()
-			.username(username == null ? defaultUsername : username)
-			.password(username == null ? defaultPassword : password)
-			.privateKey(privateKey)
-			.useSudoCommands(useSudoCommands)
-			.useSudo(true)
-			.sudoCommand(sudoCommand)
-			.timeout(timeout)
-			.build();
+	public IConfiguration toProtocol(final String defaultUsername, final char[] defaultPassword)
+		throws InvalidConfigurationException {
+		final ObjectNode configuration = JsonNodeFactory.instance.objectNode();
+		// Create an arrayNode that will contain all the sudo commands that the user introduced
+		ArrayNode sudoCommands = JsonNodeFactory.instance.arrayNode();
+		// Add all the introduced sudo commands
+		if (useSudoCommands != null) {
+			useSudoCommands.stream().forEach(value -> sudoCommands.add(value));
+		}
+		configuration.set("username", new TextNode(username == null ? defaultUsername : username));
+		configuration.set(
+			"password",
+			new TextNode(username == null ? String.valueOf(defaultPassword) : String.valueOf(password))
+		);
+		configuration.set("privateKey", new TextNode(privateKey));
+		configuration.set("useSudoCommands", sudoCommands);
+		configuration.set("useSudo", BooleanNode.TRUE);
+		configuration.set("sudoCommand", new TextNode(sudoCommand));
+		configuration.set("timeout", new TextNode(timeout));
+
+		return CliExtensionManager
+			.getExtensionManagerSingleton()
+			.buildConfigurationFromJsonNode("ssh", configuration, value -> value)
+			.orElseThrow();
 	}
 }
