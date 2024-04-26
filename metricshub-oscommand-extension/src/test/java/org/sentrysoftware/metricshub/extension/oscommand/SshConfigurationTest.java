@@ -1,12 +1,6 @@
-package org.sentrysoftware.metricshub.engine.configuration;
+package org.sentrysoftware.metricshub.extension.oscommand;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.PASSWORD;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.SSH;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.SSH_CONFIGURATION_TIMEOUT;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.SSH_CONFIGURATION_TO_STRING;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.SSH_SUDO_COMMAND;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.USERNAME;
 
 import org.junit.jupiter.api.Test;
 
@@ -14,6 +8,13 @@ import org.junit.jupiter.api.Test;
  * Test of {@link SshConfiguration}
  */
 class SshConfigurationTest {
+
+	public static final String USERNAME = "testUser";
+	public static final String PASSWORD = "testPassword";
+	public static final String SSH_SUDO_COMMAND = "sudo pwd";
+	public static final String SSH_CONFIGURATION_TO_STRING = "SSH as testUser";
+	public static final String SSH = "SSH";
+	public static final Long SSH_CONFIGURATION_TIMEOUT = 50L;
 
 	@Test
 	void testBuilder() {

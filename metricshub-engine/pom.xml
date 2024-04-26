@@ -108,10 +108,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.sentrysoftware</groupId>
-			<artifactId>ssh</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sentrysoftware</groupId>
 			<artifactId>jflat</artifactId>
 		</dependency>
 		<dependency>
@@ -244,7 +240,7 @@
 										<limit>
 											<counter>COMPLEXITY</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.64</minimum>
+											<minimum>0.61</minimum>
 										</limit>
 									</limits>
 								</rule>

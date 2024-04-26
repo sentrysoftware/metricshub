@@ -44,6 +44,7 @@ import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvide
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.CommandLineCriterion;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.IpmiCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.ProcessCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.ServiceCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WmiCriterion;
@@ -61,20 +62,12 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 @Slf4j
 public class WmiCriteriaProcessor {
 
-	/**
-	 * WMI Process Query
-	 */
-	public static final String WMI_PROCESS_QUERY = "SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process";
+	private static final String NEITHER_WMI_NOR_WIN_RM_ERROR_MSG = "Neither WMI nor WinRM credentials are configured for this host.";
 
 	/**
 	 * WMI Default Namespace
 	 */
 	public static final String WMI_DEFAULT_NAMESPACE = "root\\cimv2";
-
-	/**
-	 * WMI interop namespace
-	 */
-	private static final String INTEROP_LOWER_CASE = "interop";
 
 	/**
 	 * Namespace prefix used for filtering
@@ -166,7 +159,7 @@ public class WmiCriteriaProcessor {
 		final IWinConfiguration winConfiguration = configurationRetriever.apply(telemetryManager);
 
 		if (winConfiguration == null) {
-			return CriterionTestResult.error(wmiCriterion, "Neither WMI nor WinRM credentials are configured for this host.");
+			return CriterionTestResult.error(wmiCriterion, NEITHER_WMI_NOR_WIN_RM_ERROR_MSG);
 		}
 
 		// If namespace is specified as "Automatic"
@@ -215,7 +208,7 @@ public class WmiCriteriaProcessor {
 		if (winConfiguration == null) {
 			return CriterionTestResult.error(
 				serviceCriterion,
-				"Neither WMI nor WinRM credentials are configured for this host."
+				NEITHER_WMI_NOR_WIN_RM_ERROR_MSG
 			);
 		}
 
@@ -241,7 +234,7 @@ public class WmiCriteriaProcessor {
 		WmiCriterion serviceWmiCriterion = WmiCriterion
 			.builder()
 			.query(String.format("SELECT Name, State FROM Win32_Service WHERE Name = '%s'", serviceName))
-			.namespace("root\\hardware")
+			.namespace(WMI_DEFAULT_NAMESPACE)
 			.build();
 
 		// Perform this WMI test
@@ -492,7 +485,7 @@ public class WmiCriteriaProcessor {
 				.map(row -> row.get(0))
 				.filter(Objects::nonNull)
 				.filter(namespace -> !namespace.isBlank())
-				.filter(namespace -> !namespace.toLowerCase().contains(INTEROP_LOWER_CASE))
+				.filter(namespace -> !namespace.toLowerCase().contains("interop"))
 				.filter(namespace -> !IGNORED_WMI_NAMESPACES.contains(namespace))
 				.filter(namespace ->
 					IGNORED_WMI_NAMESPACES
@@ -626,12 +619,34 @@ public class WmiCriteriaProcessor {
 	) {
 		final WmiCriterion criterion = WmiCriterion
 			.builder()
-			.query(WMI_PROCESS_QUERY)
+			.query("SELECT ProcessId,Name,ParentProcessId,CommandLine FROM Win32_Process")
 			.namespace(WMI_DEFAULT_NAMESPACE)
 			.expectedResult(processCriterion.getCommandLine())
 			.build();
 
 		return performDetectionTest(LOCALHOST, localWinConfiguration, criterion);
+	}
+
+	/**
+	 * Processes an {@link IpmiCriterion} using the telemetry manager to perform a detection test
+	 * based on the Windows management protocol configuration. This method retrieves the Windows
+	 * configuration for the telemetry context, constructs a WMI query, and executes a detection test
+	 * using a new WMI criterion.
+	 *
+	 * @param ipmiCriterion    The IPMI criterion to be tested.
+	 * @param telemetryManager Provides host configuration and properties.
+	 * @return {@link CriterionTestResult} indicating the result of the detection test, including success or error information.
+	 */
+	public CriterionTestResult process(final IpmiCriterion ipmiCriterion, TelemetryManager telemetryManager) {
+		// Find the configured Windows protocol (WMI or WinRM)
+		final IWinConfiguration winConfiguration = configurationRetriever.apply(telemetryManager);
+		if (winConfiguration == null) {
+			return CriterionTestResult.error(ipmiCriterion, NEITHER_WMI_NOR_WIN_RM_ERROR_MSG);
+		}
+
+		final WmiCriterion ipmiWmiCriterion = WmiCriterion.builder().query("SELECT Description FROM ComputerSystem").namespace("root\\hardware").build();
+
+		return performDetectionTest(telemetryManager.getHostname(), winConfiguration, ipmiWmiCriterion);
 	}
 
 	/**
@@ -658,4 +673,5 @@ public class WmiCriteriaProcessor {
 		private String namespace;
 		private CriterionTestResult result;
 	}
+
 }

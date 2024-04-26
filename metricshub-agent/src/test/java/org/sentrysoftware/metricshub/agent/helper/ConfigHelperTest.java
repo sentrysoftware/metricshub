@@ -278,21 +278,6 @@ class ConfigHelperTest {
 	}
 
 	@Test
-	void testValidateSshInfo() {
-		assertThrows(InvalidConfigurationException.class, () -> ConfigHelper.validateSshInfo(RESOURCE_KEY, "", 60L));
-		assertThrows(InvalidConfigurationException.class, () -> ConfigHelper.validateSshInfo(RESOURCE_KEY, null, 60L));
-		assertThrows(
-			InvalidConfigurationException.class,
-			() -> ConfigHelper.validateSshInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, -60L)
-		);
-		assertThrows(
-			InvalidConfigurationException.class,
-			() -> ConfigHelper.validateSshInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, null)
-		);
-		assertDoesNotThrow(() -> ConfigHelper.validateSshInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, 60L));
-	}
-
-	@Test
 	void testValidateWbemInfo() {
 		assertThrows(
 			InvalidConfigurationException.class,
@@ -337,13 +322,6 @@ class ConfigHelperTest {
 		assertThrows(InvalidConfigurationException.class, () -> ConfigHelper.validateWmiInfo(RESOURCE_KEY, -60L));
 		assertThrows(InvalidConfigurationException.class, () -> ConfigHelper.validateWmiInfo(RESOURCE_KEY, null));
 		assertDoesNotThrow(() -> ConfigHelper.validateWmiInfo(RESOURCE_KEY, 60L));
-	}
-
-	@Test
-	void testValidateOsCommandInfo() {
-		assertThrows(InvalidConfigurationException.class, () -> ConfigHelper.validateOsCommandInfo(RESOURCE_KEY, -60L));
-		assertThrows(InvalidConfigurationException.class, () -> ConfigHelper.validateOsCommandInfo(RESOURCE_KEY, null));
-		assertDoesNotThrow(() -> ConfigHelper.validateOsCommandInfo(RESOURCE_KEY, 60L));
 	}
 
 	@Test

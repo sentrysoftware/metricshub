@@ -1,13 +1,15 @@
-package org.sentrysoftware.metricshub.engine.it.job;
+package org.sentrysoftware.metricshub.extension.oscommand.it.job;
 
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.it.job.AbstractITJob;
+import org.sentrysoftware.metricshub.it.job.ITJob;
 
 public class SuperConnectorITJob extends AbstractITJob {
 
 	public SuperConnectorITJob(@NonNull ClientsExecutor clientsExecutor, @NonNull TelemetryManager telemetryManager) {
-		super(clientsExecutor, telemetryManager);
+		super(telemetryManager);
 	}
 
 	@Override

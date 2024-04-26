@@ -185,7 +185,10 @@ public class WmiExtension implements IProtocolExtension {
 		} else if (criterion instanceof CommandLineCriterion commandLineCriterion) {
 			return new WmiCriteriaProcessor(wmiRequestExecutor, configurationRetriever, connectorId)
 				.process(commandLineCriterion, telemetryManager);
-		} else if (criterion instanceof ProcessCriterion processCriterion) {
+		} else if (criterion instanceof IpmiCriterion ipmiCriterion) {
+			return new WmiCriteriaProcessor(wmiRequestExecutor, configurationRetriever, connectorId)
+					.process(ipmiCriterion, telemetryManager);
+		} else  if (criterion instanceof ProcessCriterion processCriterion) {
 			return new WmiCriteriaProcessor(wmiRequestExecutor)
 				.process(processCriterion, WmiConfiguration.builder().username(null).password(null).timeout(30L).build());
 		}
