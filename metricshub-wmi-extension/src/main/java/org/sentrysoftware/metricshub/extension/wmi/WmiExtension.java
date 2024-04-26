@@ -47,7 +47,13 @@ import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.extension.win.IWinConfiguration;
-import org.sentrysoftware.metricshub.extension.win.WmiCriteriaProcessor;
+import org.sentrysoftware.metricshub.extension.win.WinCommandService;
+import org.sentrysoftware.metricshub.extension.win.detection.CommandLineCriterionProcessor;
+import org.sentrysoftware.metricshub.extension.win.detection.IpmiCriterionProcessor;
+import org.sentrysoftware.metricshub.extension.win.detection.ProcessCriterionProcessor;
+import org.sentrysoftware.metricshub.extension.win.detection.ServiceCriterionProcessor;
+import org.sentrysoftware.metricshub.extension.win.detection.WmiCriterionProcessor;
+import org.sentrysoftware.metricshub.extension.win.detection.WmiDetectionService;
 
 /**
  * This class implements the {@link IProtocolExtension} contract, reports the supported features,
@@ -77,12 +83,16 @@ public class WmiExtension implements IProtocolExtension {
 	public static final String WMI_TEST_NAMESPACE = "root\\cimv2";
 
 	private WmiRequestExecutor wmiRequestExecutor;
+	private WmiDetectionService wmiDetectionService;
+	private WinCommandService winCommandService;
 
 	/**
 	 * Creates a new instance of the {@link WmiExtension} implementation.
 	 */
 	public WmiExtension() {
 		wmiRequestExecutor = new WmiRequestExecutor();
+		wmiDetectionService = new WmiDetectionService(wmiRequestExecutor);
+		winCommandService = new WinCommandService(wmiRequestExecutor);
 	}
 
 	@Override
@@ -173,23 +183,23 @@ public class WmiExtension implements IProtocolExtension {
 			(IWinConfiguration) manager.getHostConfiguration().getConfigurations().get(WmiConfiguration.class);
 
 		if (criterion instanceof WmiCriterion wmiCriterion) {
-			return new WmiCriteriaProcessor(
-				wmiRequestExecutor,
-				manager -> (IWinConfiguration) manager.getHostConfiguration().getConfigurations().get(WmiConfiguration.class),
+			return new WmiCriterionProcessor(
+				wmiDetectionService,
+				configurationRetriever,
 				connectorId
 			)
 				.process(wmiCriterion, telemetryManager);
 		} else if (criterion instanceof ServiceCriterion serviceCriterion) {
-			return new WmiCriteriaProcessor(wmiRequestExecutor, configurationRetriever, connectorId)
+			return new ServiceCriterionProcessor(wmiDetectionService, configurationRetriever)
 				.process(serviceCriterion, telemetryManager);
 		} else if (criterion instanceof CommandLineCriterion commandLineCriterion) {
-			return new WmiCriteriaProcessor(wmiRequestExecutor, configurationRetriever, connectorId)
+			return new CommandLineCriterionProcessor(winCommandService, configurationRetriever)
 				.process(commandLineCriterion, telemetryManager);
 		} else if (criterion instanceof IpmiCriterion ipmiCriterion) {
-			return new WmiCriteriaProcessor(wmiRequestExecutor, configurationRetriever, connectorId)
+			return new IpmiCriterionProcessor(wmiDetectionService, configurationRetriever)
 					.process(ipmiCriterion, telemetryManager);
-		} else  if (criterion instanceof ProcessCriterion processCriterion) {
-			return new WmiCriteriaProcessor(wmiRequestExecutor)
+		} else if (criterion instanceof ProcessCriterion processCriterion) {
+			return new ProcessCriterionProcessor(wmiDetectionService)
 				.process(processCriterion, WmiConfiguration.builder().username(null).password(null).timeout(30L).build());
 		}
 
