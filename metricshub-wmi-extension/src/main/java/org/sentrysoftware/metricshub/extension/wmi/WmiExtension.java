@@ -54,6 +54,9 @@ import org.sentrysoftware.metricshub.extension.win.detection.ProcessCriterionPro
 import org.sentrysoftware.metricshub.extension.win.detection.ServiceCriterionProcessor;
 import org.sentrysoftware.metricshub.extension.win.detection.WmiCriterionProcessor;
 import org.sentrysoftware.metricshub.extension.win.detection.WmiDetectionService;
+import org.sentrysoftware.metricshub.extension.win.source.CommandLineSourceProcessor;
+import org.sentrysoftware.metricshub.extension.win.source.IpmiSourceProcessor;
+import org.sentrysoftware.metricshub.extension.win.source.WmiSourceProcessor;
 
 /**
  * This class implements the {@link IProtocolExtension} contract, reports the supported features,
@@ -183,11 +186,7 @@ public class WmiExtension implements IProtocolExtension {
 			(IWinConfiguration) manager.getHostConfiguration().getConfigurations().get(WmiConfiguration.class);
 
 		if (criterion instanceof WmiCriterion wmiCriterion) {
-			return new WmiCriterionProcessor(
-				wmiDetectionService,
-				configurationRetriever,
-				connectorId
-			)
+			return new WmiCriterionProcessor(wmiDetectionService, configurationRetriever, connectorId)
 				.process(wmiCriterion, telemetryManager);
 		} else if (criterion instanceof ServiceCriterion serviceCriterion) {
 			return new ServiceCriterionProcessor(wmiDetectionService, configurationRetriever)
@@ -197,7 +196,7 @@ public class WmiExtension implements IProtocolExtension {
 				.process(commandLineCriterion, telemetryManager);
 		} else if (criterion instanceof IpmiCriterion ipmiCriterion) {
 			return new IpmiCriterionProcessor(wmiDetectionService, configurationRetriever)
-					.process(ipmiCriterion, telemetryManager);
+				.process(ipmiCriterion, telemetryManager);
 		} else if (criterion instanceof ProcessCriterion processCriterion) {
 			return new ProcessCriterionProcessor(wmiDetectionService)
 				.process(processCriterion, WmiConfiguration.builder().username(null).password(null).timeout(30L).build());
@@ -214,8 +213,27 @@ public class WmiExtension implements IProtocolExtension {
 
 	@Override
 	public SourceTable processSource(Source source, String connectorId, TelemetryManager telemetryManager) {
-		// TODO Auto-generated method stub
-		return null;
+		final Function<TelemetryManager, IWinConfiguration> configurationRetriever = manager ->
+			(IWinConfiguration) manager.getHostConfiguration().getConfigurations().get(WmiConfiguration.class);
+
+		if (source instanceof WmiSource wmiSource) {
+			return new WmiSourceProcessor(wmiRequestExecutor, configurationRetriever, connectorId)
+				.process(wmiSource, telemetryManager);
+		} else if (source instanceof IpmiSource ipmiSource) {
+			return new IpmiSourceProcessor(wmiRequestExecutor, configurationRetriever, connectorId)
+				.process(ipmiSource, telemetryManager);
+		} else if (source instanceof CommandLineSource commandLineSource) {
+			return new CommandLineSourceProcessor(winCommandService, configurationRetriever, connectorId)
+				.process(commandLineSource, telemetryManager);
+		}
+
+		throw new IllegalArgumentException(
+			String.format(
+				"Hostname %s - Cannot process source %s.",
+				telemetryManager.getHostname(),
+				source != null ? source.getClass().getSimpleName() : "<null>"
+			)
+		);
 	}
 
 	@Override

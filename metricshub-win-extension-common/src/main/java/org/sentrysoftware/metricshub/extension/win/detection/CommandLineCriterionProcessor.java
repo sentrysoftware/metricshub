@@ -24,7 +24,8 @@ package org.sentrysoftware.metricshub.extension.win.detection;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.CommandLineCriterion;
@@ -34,9 +35,6 @@ import org.sentrysoftware.metricshub.engine.strategy.utils.PslUtils;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.extension.win.IWinConfiguration;
 import org.sentrysoftware.metricshub.extension.win.WinCommandService;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 
 /**
  * A class responsible for processing CommandLine criteria to evaluate command lines against specified criteria.
@@ -48,6 +46,7 @@ public class CommandLineCriterionProcessor {
 
 	@NonNull
 	private WinCommandService winCommandService;
+
 	@NonNull
 	private Function<TelemetryManager, IWinConfiguration> configurationRetriever;
 

@@ -26,17 +26,15 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WmiCriterion;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.strategy.utils.PslUtils;
 import org.sentrysoftware.metricshub.extension.win.IWinConfiguration;
 import org.sentrysoftware.metricshub.extension.win.IWinRequestExecutor;
-
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 
 /**
  * A class responsible for processing WMI criteria to evaluate WMI queries against specified criteria.
@@ -102,5 +100,4 @@ public class WmiDetectionService {
 		// No match!
 		return CriterionTestResult.failure(wmiCriterion, actualResult);
 	}
-
 }
