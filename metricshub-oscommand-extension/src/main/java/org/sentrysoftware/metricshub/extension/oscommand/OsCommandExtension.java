@@ -191,9 +191,11 @@ public class OsCommandExtension implements IProtocolExtension {
 				final SshConfiguration sshConfiguration = newObjectMapper().treeToValue(jsonNode, SshConfiguration.class);
 
 				if (decrypt != null) {
-					// Decrypt the password
-					final char[] passwordDecypted = decrypt.apply(sshConfiguration.getPassword());
-					sshConfiguration.setPassword(passwordDecypted);
+					char[] password = sshConfiguration.getPassword();
+					if (password != null) {
+						// Decrypt the password
+						sshConfiguration.setPassword(decrypt.apply(password));
+					}
 				}
 
 				return sshConfiguration;

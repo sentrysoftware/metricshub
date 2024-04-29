@@ -22,15 +22,13 @@ package org.sentrysoftware.metricshub.extension.win.detection;
  */
 
 import java.util.function.Function;
-
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.IpmiCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WmiCriterion;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.extension.win.IWinConfiguration;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 
 /**
  * A class responsible for processing IPMI criteria to evaluate IPMI result against specified criteria.
@@ -38,10 +36,11 @@ import lombok.RequiredArgsConstructor;
  * and generate criterion test results accordingly.
  */
 @RequiredArgsConstructor
-public class IpmiCriterionProcessor {
+public class WinIpmiCriterionProcessor {
 
 	@NonNull
 	private WmiDetectionService wmiDetectionService;
+
 	@NonNull
 	private Function<TelemetryManager, IWinConfiguration> configurationRetriever;
 
@@ -59,10 +58,17 @@ public class IpmiCriterionProcessor {
 		// Find the configured Windows protocol (WMI or WinRM)
 		final IWinConfiguration winConfiguration = configurationRetriever.apply(telemetryManager);
 		if (winConfiguration == null) {
-			return CriterionTestResult.error(ipmiCriterion, "Neither WMI nor WinRM credentials are configured for this host.");
+			return CriterionTestResult.error(
+				ipmiCriterion,
+				"Neither WMI nor WinRM credentials are configured for this host."
+			);
 		}
 
-		final WmiCriterion ipmiWmiCriterion = WmiCriterion.builder().query("SELECT Description FROM ComputerSystem").namespace("root\\hardware").build();
+		final WmiCriterion ipmiWmiCriterion = WmiCriterion
+			.builder()
+			.query("SELECT Description FROM ComputerSystem")
+			.namespace("root\\hardware")
+			.build();
 
 		return wmiDetectionService.performDetectionTest(telemetryManager.getHostname(), winConfiguration, ipmiWmiCriterion);
 	}

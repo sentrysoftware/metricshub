@@ -69,9 +69,9 @@ public interface IWinRequestExecutor {
 	 * @throws ClientException when anything wrong happens
 	 */
 	String executeWinRemoteCommand(
-		final String hostname,
-		final IWinConfiguration winConfiguration,
-		final String command,
-		final List<String> embeddedFiles
+		String hostname,
+		IWinConfiguration winConfiguration,
+		String command,
+		List<String> embeddedFiles
 	) throws ClientException;
 }

@@ -24,7 +24,8 @@ package org.sentrysoftware.metricshub.extension.win.detection;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.TABLE_SEP;
 
 import java.util.function.Function;
-
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.ServiceCriterion;
@@ -33,18 +34,17 @@ import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResu
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.extension.win.IWinConfiguration;
 
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-
 /**
  * A class responsible for processing Service criteria to evaluate service states.
  * It provides a method to retrieve service informations through WMI or WinRm , evaluate the results against expected outcomes,
  * and generate criterion test results accordingly.
  */
 @RequiredArgsConstructor
-public class ServiceCriterionProcessor {
+public class WinServiceCriterionProcessor {
+
 	@NonNull
 	private WmiDetectionService wmiDetectionService;
+
 	@NonNull
 	private Function<TelemetryManager, IWinConfiguration> configurationRetriever;
 
@@ -100,7 +100,11 @@ public class ServiceCriterionProcessor {
 			.build();
 
 		// Perform this WMI test
-		final CriterionTestResult wmiTestResult = wmiDetectionService.performDetectionTest(hostname, winConfiguration, serviceWmiCriterion);
+		final CriterionTestResult wmiTestResult = wmiDetectionService.performDetectionTest(
+			hostname,
+			winConfiguration,
+			serviceWmiCriterion
+		);
 		if (!wmiTestResult.isSuccess()) {
 			return wmiTestResult;
 		}
@@ -122,5 +126,4 @@ public class ServiceCriterionProcessor {
 			String.format("The %s Windows Service is not reported as running:\n%s", serviceName, result) //NOSONAR
 		);
 	}
-
 }

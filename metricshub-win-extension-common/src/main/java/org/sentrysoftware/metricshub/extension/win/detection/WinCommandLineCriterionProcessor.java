@@ -24,7 +24,8 @@ package org.sentrysoftware.metricshub.extension.win.detection;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.CommandLineCriterion;
@@ -35,19 +36,17 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.extension.win.IWinConfiguration;
 import org.sentrysoftware.metricshub.extension.win.WinCommandService;
 
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-
 /**
  * A class responsible for processing CommandLine criteria to evaluate command lines against specified criteria.
  * It provides a method to run Windows remote commands through WMI or WinRm , evaluate the results against expected outcomes,
  * and generate criterion test results accordingly.
  */
 @RequiredArgsConstructor
-public class CommandLineCriterionProcessor {
+public class WinCommandLineCriterionProcessor {
 
 	@NonNull
 	private WinCommandService winCommandService;
+
 	@NonNull
 	private Function<TelemetryManager, IWinConfiguration> configurationRetriever;
 

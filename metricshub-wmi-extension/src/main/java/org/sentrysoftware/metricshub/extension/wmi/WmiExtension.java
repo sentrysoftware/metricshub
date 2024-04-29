@@ -21,12 +21,18 @@ package org.sentrysoftware.metricshub.extension.wmi;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
@@ -48,12 +54,15 @@ import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.extension.win.IWinConfiguration;
 import org.sentrysoftware.metricshub.extension.win.WinCommandService;
-import org.sentrysoftware.metricshub.extension.win.detection.CommandLineCriterionProcessor;
-import org.sentrysoftware.metricshub.extension.win.detection.IpmiCriterionProcessor;
-import org.sentrysoftware.metricshub.extension.win.detection.ProcessCriterionProcessor;
-import org.sentrysoftware.metricshub.extension.win.detection.ServiceCriterionProcessor;
+import org.sentrysoftware.metricshub.extension.win.detection.WinCommandLineCriterionProcessor;
+import org.sentrysoftware.metricshub.extension.win.detection.WinIpmiCriterionProcessor;
+import org.sentrysoftware.metricshub.extension.win.detection.WinProcessCriterionProcessor;
+import org.sentrysoftware.metricshub.extension.win.detection.WinServiceCriterionProcessor;
 import org.sentrysoftware.metricshub.extension.win.detection.WmiCriterionProcessor;
 import org.sentrysoftware.metricshub.extension.win.detection.WmiDetectionService;
+import org.sentrysoftware.metricshub.extension.win.source.WinCommandLineSourceProcessor;
+import org.sentrysoftware.metricshub.extension.win.source.WinIpmiSourceProcessor;
+import org.sentrysoftware.metricshub.extension.win.source.WmiSourceProcessor;
 
 /**
  * This class implements the {@link IProtocolExtension} contract, reports the supported features,
@@ -183,23 +192,19 @@ public class WmiExtension implements IProtocolExtension {
 			(IWinConfiguration) manager.getHostConfiguration().getConfigurations().get(WmiConfiguration.class);
 
 		if (criterion instanceof WmiCriterion wmiCriterion) {
-			return new WmiCriterionProcessor(
-				wmiDetectionService,
-				configurationRetriever,
-				connectorId
-			)
+			return new WmiCriterionProcessor(wmiDetectionService, configurationRetriever, connectorId)
 				.process(wmiCriterion, telemetryManager);
 		} else if (criterion instanceof ServiceCriterion serviceCriterion) {
-			return new ServiceCriterionProcessor(wmiDetectionService, configurationRetriever)
+			return new WinServiceCriterionProcessor(wmiDetectionService, configurationRetriever)
 				.process(serviceCriterion, telemetryManager);
 		} else if (criterion instanceof CommandLineCriterion commandLineCriterion) {
-			return new CommandLineCriterionProcessor(winCommandService, configurationRetriever)
+			return new WinCommandLineCriterionProcessor(winCommandService, configurationRetriever)
 				.process(commandLineCriterion, telemetryManager);
 		} else if (criterion instanceof IpmiCriterion ipmiCriterion) {
-			return new IpmiCriterionProcessor(wmiDetectionService, configurationRetriever)
-					.process(ipmiCriterion, telemetryManager);
+			return new WinIpmiCriterionProcessor(wmiDetectionService, configurationRetriever)
+				.process(ipmiCriterion, telemetryManager);
 		} else if (criterion instanceof ProcessCriterion processCriterion) {
-			return new ProcessCriterionProcessor(wmiDetectionService)
+			return new WinProcessCriterionProcessor(wmiDetectionService)
 				.process(processCriterion, WmiConfiguration.builder().username(null).password(null).timeout(30L).build());
 		}
 
@@ -214,8 +219,27 @@ public class WmiExtension implements IProtocolExtension {
 
 	@Override
 	public SourceTable processSource(Source source, String connectorId, TelemetryManager telemetryManager) {
-		// TODO Auto-generated method stub
-		return null;
+		final Function<TelemetryManager, IWinConfiguration> configurationRetriever = manager ->
+			(IWinConfiguration) manager.getHostConfiguration().getConfigurations().get(WmiConfiguration.class);
+
+		if (source instanceof WmiSource wmiSource) {
+			return new WmiSourceProcessor(wmiRequestExecutor, configurationRetriever, connectorId)
+				.process(wmiSource, telemetryManager);
+		} else if (source instanceof IpmiSource ipmiSource) {
+			return new WinIpmiSourceProcessor(wmiRequestExecutor, configurationRetriever, connectorId)
+				.process(ipmiSource, telemetryManager);
+		} else if (source instanceof CommandLineSource commandLineSource) {
+			return new WinCommandLineSourceProcessor(winCommandService, configurationRetriever, connectorId)
+				.process(commandLineSource, telemetryManager);
+		}
+
+		throw new IllegalArgumentException(
+			String.format(
+				"Hostname %s - Cannot process source %s.",
+				telemetryManager.getHostname(),
+				source != null ? source.getClass().getSimpleName() : "<null>"
+			)
+		);
 	}
 
 	@Override
@@ -224,9 +248,48 @@ public class WmiExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public IConfiguration buildConfiguration(String configurationType, JsonNode jsonNode, UnaryOperator<char[]> decrypt)
-		throws InvalidConfigurationException {
-		// TODO Auto-generated method stub
-		return null;
+	public IConfiguration buildConfiguration(
+		@NonNull String configurationType,
+		@NonNull JsonNode jsonNode,
+		UnaryOperator<char[]> decrypt
+	) throws InvalidConfigurationException {
+		try {
+			final WmiConfiguration wmiConfiguration = newObjectMapper().treeToValue(jsonNode, WmiConfiguration.class);
+
+			if (decrypt != null) {
+				final char[] password = wmiConfiguration.getPassword();
+				if (password != null) {
+					// Decrypt the password
+					wmiConfiguration.setPassword(decrypt.apply(password));
+				}
+			}
+
+			return wmiConfiguration;
+		} catch (Exception e) {
+			final String errorMessage = String.format(
+				"Error while reading WMI Configuration: %s. Error: %s",
+				jsonNode,
+				e.getMessage()
+			);
+			log.error(errorMessage);
+			log.debug("Error while reading WMI Configuration: {}. Stack trace:", jsonNode, e);
+			throw new InvalidConfigurationException(errorMessage, e);
+		}
+	}
+
+	/**
+	 * Creates and configures a new instance of the Jackson ObjectMapper for handling YAML data.
+	 *
+	 * @return A configured ObjectMapper instance.
+	 */
+	public static JsonMapper newObjectMapper() {
+		return JsonMapper
+			.builder(new YAMLFactory())
+			.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+			.enable(SerializationFeature.INDENT_OUTPUT)
+			.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+			.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false)
+			.build();
 	}
 }
