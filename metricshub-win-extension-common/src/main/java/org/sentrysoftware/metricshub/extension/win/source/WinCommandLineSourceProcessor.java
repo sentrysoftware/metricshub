@@ -70,11 +70,7 @@ public class WinCommandLineSourceProcessor {
 	public SourceTable process(final CommandLineSource commandLineSource, final TelemetryManager telemetryManager) {
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
-		if (
-			commandLineSource == null ||
-			commandLineSource.getCommandLine() == null ||
-			commandLineSource.getCommandLine().isEmpty()
-		) {
+		if (commandLineSource == null || commandLineSource.getCommandLine().isEmpty()) {
 			log.error("Hostname {} - Malformed OS command source.", hostname);
 			return SourceTable.empty();
 		}

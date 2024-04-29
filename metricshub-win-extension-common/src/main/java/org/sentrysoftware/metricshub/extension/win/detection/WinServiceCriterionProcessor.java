@@ -81,7 +81,7 @@ public class WinServiceCriterionProcessor {
 
 		// Our local system must be Windows
 		if (!LocalOsHandler.isWindows()) {
-			return CriterionTestResult.success(serviceCriterion, "Local OS is not Windows. Skipping this test.");
+			return CriterionTestResult.error(serviceCriterion, "Local OS is not Windows. Skipping this test.");
 		}
 
 		// Check the service name

@@ -91,6 +91,11 @@ public class WmiExtension implements IProtocolExtension {
 	 */
 	public static final String WMI_TEST_NAMESPACE = "root\\cimv2";
 
+	/**
+	 * WMI Query used by the protocol health check
+	 */
+	public static final String WMI_TEST_QUERY = "SELECT Name FROM Win32_ComputerSystem";
+
 	private WmiRequestExecutor wmiRequestExecutor;
 	private WmiDetectionService wmiDetectionService;
 	private WinCommandService winCommandService;
@@ -157,13 +162,7 @@ public class WmiExtension implements IProtocolExtension {
 		final Long strategyTime = telemetryManager.getStrategyTime();
 
 		try {
-			wmiResult =
-				wmiRequestExecutor.executeWmi(
-					hostname,
-					wmiConfiguration,
-					"Select Name FROM Win32_ComputerSystem",
-					WMI_TEST_NAMESPACE
-				);
+			wmiResult = wmiRequestExecutor.executeWmi(hostname, wmiConfiguration, WMI_TEST_QUERY, WMI_TEST_NAMESPACE);
 		} catch (Exception e) {
 			if (wmiRequestExecutor.isAcceptableException(e)) {
 				// Generate a metric from the WMI result

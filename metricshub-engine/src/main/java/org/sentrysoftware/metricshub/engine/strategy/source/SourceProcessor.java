@@ -31,7 +31,6 @@ import io.opentelemetry.instrumentation.annotations.WithSpan;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -44,7 +43,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
-import org.sentrysoftware.metricshub.engine.configuration.IWinConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CommandLineSource;
@@ -53,6 +51,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpGetSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.StaticSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.TableJoinSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.TableUnionSource;
@@ -60,7 +59,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WmiSource;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
-import org.sentrysoftware.metricshub.engine.strategy.utils.IpmiHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
@@ -135,9 +133,22 @@ public class SourceProcessor implements ISourceProcessor {
 	@WithSpan("Source HTTP Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final HttpSource httpSource) {
-		final Optional<IProtocolExtension> extensions = extensionManager.findSourceExtension(httpSource, telemetryManager);
-		return extensions
-			.map(extension -> extension.processSource(httpSource, connectorId, telemetryManager))
+		return processSourceThroughExtension(httpSource);
+	}
+
+	/**
+	 * Processes a given {@link Source} by using an appropriate {@link IProtocolExtension} found through
+	 * an {@link ExtensionManager}. This method delegates the processing of the source to the protocol extension
+	 * if available, or returns an empty {@link SourceTable} if no suitable extension is found.
+	 *
+	 * @param source The source data to be processed.
+	 * @return A {@link SourceTable} containing the results from processing the source through the extension,
+	 *         or an empty table if no extension can process the source.
+	 */
+	private SourceTable processSourceThroughExtension(final Source source) {
+		final Optional<IProtocolExtension> maybeExtension = extensionManager.findSourceExtension(source, telemetryManager);
+		return maybeExtension
+			.map(extension -> extension.processSource(source, connectorId, telemetryManager))
 			.orElseGet(SourceTable::empty);
 	}
 
@@ -151,15 +162,15 @@ public class SourceProcessor implements ISourceProcessor {
 			return SourceTable.empty();
 		}
 
-		String sourceKey = ipmiSource.getKey();
 		final DeviceKind hostType = telemetryManager.getHostConfiguration().getHostType();
 
-		if (DeviceKind.WINDOWS.equals(hostType)) {
-			return processWindowsIpmiSource(sourceKey);
-		} else if (DeviceKind.LINUX.equals(hostType) || DeviceKind.SOLARIS.equals(hostType)) {
-			return processUnixIpmiSource(sourceKey, ipmiSource);
-		} else if (DeviceKind.OOB.equals(hostType)) {
-			return processOutOfBandIpmiSource(ipmiSource);
+		if (
+			DeviceKind.WINDOWS.equals(hostType) ||
+			DeviceKind.LINUX.equals(hostType) ||
+			DeviceKind.SOLARIS.equals(hostType) ||
+			DeviceKind.OOB.equals(hostType)
+		) {
+			return processSourceThroughExtension(ipmiSource);
 		}
 
 		log.info(
@@ -171,183 +182,22 @@ public class SourceProcessor implements ISourceProcessor {
 		return SourceTable.empty();
 	}
 
-	/**
-	 * Process IPMI source via IPMI Over-LAN
-	 *
-	 * @param ipmiSource
-	 *
-	 * @return {@link SourceTable} containing the IPMI result expected by the IPMI connector embedded AWK script
-	 */
-	SourceTable processOutOfBandIpmiSource(final IpmiSource ipmiSource) {
-		final Optional<IProtocolExtension> extensions = extensionManager.findSourceExtension(ipmiSource, telemetryManager);
-		return extensions
-			.map(extension -> extension.processSource(ipmiSource, connectorId, telemetryManager))
-			.orElseGet(SourceTable::empty);
-	}
-
-	/**
-	 * Process IPMI Source for the Unix system
-	 *
-	 * @param sourceKey The key of the source
-	 *
-	 * @return {@link SourceTable} containing the IPMI result expected by the IPMI connector embedded AWK script
-	 */
-	SourceTable processUnixIpmiSource(final String sourceKey, IpmiSource ipmiSource) {
-		final Optional<IProtocolExtension> extensions = extensionManager.findSourceExtension(ipmiSource, telemetryManager);
-		return extensions
-			.map(extension -> extension.processSource(ipmiSource, connectorId, telemetryManager))
-			.orElseGet(SourceTable::empty);
-	}
-
-	/**
-	 * Process IPMI source for the Windows (NT) system
-	 *
-	 * @param sourceKey The key of the source
-	 *
-	 * @return {@link SourceTable} containing the IPMI result expected by the IPMI connector embedded AWK script
-	 */
-	SourceTable processWindowsIpmiSource(final String sourceKey) {
-		// Find the configured protocol (WinRM or WMI)
-
-		final IWinConfiguration winConfiguration = (IWinConfiguration) telemetryManager
-			.getHostConfiguration()
-			.getWinConfiguration();
-
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		if (winConfiguration == null) {
-			log.warn(
-				"Hostname {} - The Windows protocols credentials are not configured. Cannot process Windows IPMI source.",
-				hostname
-			);
-			return SourceTable.empty();
-		}
-
-		final String nameSpaceRootCimv2 = "root/cimv2";
-		final String nameSpaceRootHardware = "root/hardware";
-
-		String wmiQuery = "SELECT IdentifyingNumber,Name,Vendor FROM Win32_ComputerSystemProduct";
-		List<List<String>> wmiCollection1 = executeIpmiWmiRequest(
-			hostname,
-			winConfiguration,
-			wmiQuery,
-			nameSpaceRootCimv2,
-			sourceKey
-		);
-
-		wmiQuery =
-			"SELECT BaseUnits,CurrentReading,Description,LowerThresholdCritical,LowerThresholdNonCritical,SensorType,UnitModifier,UpperThresholdCritical,UpperThresholdNonCritical" +
-			" FROM NumericSensor";
-		List<List<String>> wmiCollection2 = executeIpmiWmiRequest(
-			hostname,
-			winConfiguration,
-			wmiQuery,
-			nameSpaceRootHardware,
-			sourceKey
-		);
-
-		wmiQuery = "SELECT CurrentState,Description FROM Sensor";
-		List<List<String>> wmiCollection3 = executeIpmiWmiRequest(
-			hostname,
-			winConfiguration,
-			wmiQuery,
-			nameSpaceRootHardware,
-			sourceKey
-		);
-
-		return SourceTable
-			.builder()
-			.table(IpmiHelper.ipmiTranslateFromWmi(wmiCollection1, wmiCollection2, wmiCollection3))
-			.build();
-	}
-
-	/**
-	 * Call the client executor to execute a WMI request.
-	 *
-	 * @param hostname		The host against the query will be run.
-	 * @param winConfiguration	The information used to connect to the host and perform the query.
-	 * @param wmiQuery		The query that will be executed.
-	 * @param namespace		The namespace in which the query will be executed.
-	 * @param sourceKey		The key of the source.
-	 *
-	 * @return				The result of the execution of the query.
-	 */
-	private List<List<String>> executeIpmiWmiRequest(
-		final String hostname,
-		final IWinConfiguration winConfiguration,
-		final String wmiQuery,
-		final String namespace,
-		final String sourceKey
-	) {
-		log.info("Hostname {} - Executing IPMI Query for source [{}]:\nWMI Query: {}:\n", hostname, sourceKey, wmiQuery);
-
-		List<List<String>> result;
-
-		try {
-			result = clientsExecutor.executeWql(hostname, winConfiguration, wmiQuery, namespace);
-		} catch (Exception exception) {
-			LoggingHelper.logSourceError(
-				connectorId,
-				sourceKey,
-				String.format(
-					"IPMI WMI query=%s, Hostname=%s, Username=%s, Timeout=%d, Namespace=%s",
-					wmiQuery,
-					hostname,
-					winConfiguration.getUsername(),
-					winConfiguration.getTimeout(),
-					namespace
-				),
-				hostname,
-				exception
-			);
-
-			result = Collections.emptyList();
-		}
-
-		log.info(
-			"Hostname {} - IPMI query for [{}] result:\n{}\n",
-			hostname,
-			sourceKey,
-			TextTableHelper.generateTextTable(result)
-		);
-
-		return result;
-	}
-
 	@WithSpan("Source OS Command Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final CommandLineSource commandLineSource) {
-		final Optional<IProtocolExtension> extensions = extensionManager.findSourceExtension(
-			commandLineSource,
-			telemetryManager
-		);
-		return extensions
-			.map(extension -> extension.processSource(commandLineSource, connectorId, telemetryManager))
-			.orElseGet(SourceTable::empty);
+		return processSourceThroughExtension(commandLineSource);
 	}
 
 	@WithSpan("Source SNMP Get Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final SnmpGetSource snmpGetSource) {
-		final Optional<IProtocolExtension> extensions = extensionManager.findSourceExtension(
-			snmpGetSource,
-			telemetryManager
-		);
-		return extensions
-			.map(extension -> extension.processSource(snmpGetSource, connectorId, telemetryManager))
-			.orElseGet(SourceTable::empty);
+		return processSourceThroughExtension(snmpGetSource);
 	}
 
 	@WithSpan("Source SNMP Table Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final SnmpTableSource snmpTableSource) {
-		final Optional<IProtocolExtension> extensions = extensionManager.findSourceExtension(
-			snmpTableSource,
-			telemetryManager
-		);
-		return extensions
-			.map(extension -> extension.processSource(snmpTableSource, connectorId, telemetryManager))
-			.orElseGet(SourceTable::empty);
+		return processSourceThroughExtension(snmpTableSource);
 	}
 
 	@WithSpan("Source Static Exec")
@@ -662,28 +512,6 @@ public class SourceProcessor implements ISourceProcessor {
 	}
 
 	/**
-	 * Get the namespace to use for the execution of the given {@link WmiSource} instance
-	 *
-	 * @param wmiSource {@link WmiSource} instance from which we want to extract the namespace. Expected "automatic", null or <em>any
-	 *                  string</em>
-	 * @return {@link String} value
-	 */
-	String getNamespace(final WmiSource wmiSource) {
-		final String sourceNamespace = wmiSource.getNamespace();
-
-		if (sourceNamespace == null) {
-			return WMI_DEFAULT_NAMESPACE;
-		}
-
-		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(sourceNamespace)) {
-			// The namespace should be detected correctly in the detection strategy phase
-			return telemetryManager.getHostProperties().getConnectorNamespace(connectorId).getAutomaticWmiNamespace();
-		}
-
-		return sourceNamespace;
-	}
-
-	/**
 	 * This method processes {@link WmiSource} source
 	 * @param wmiSource {@link WmiSource} source instance
 	 * @return {@link SourceTable} instance
@@ -691,63 +519,7 @@ public class SourceProcessor implements ISourceProcessor {
 	@WithSpan("Source WMI Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final WmiSource wmiSource) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		if (wmiSource == null || wmiSource.getQuery() == null) {
-			log.warn("Hostname {} - Malformed WMI source {}. Returning an empty table.", hostname, wmiSource);
-			return SourceTable.empty();
-		}
-
-		// Find the configured protocol (WinRM or WMI)
-		final IWinConfiguration winConfiguration = telemetryManager.getWinConfiguration();
-
-		if (winConfiguration == null) {
-			log.debug(
-				"Hostname {} - Neither WMI nor WinRM credentials are configured for this host. Returning an empty table for WMI source {}.",
-				hostname,
-				wmiSource.getKey()
-			);
-			return SourceTable.empty();
-		}
-
-		// Get the namespace
-		final String namespace = getNamespace(wmiSource);
-
-		if (namespace == null) {
-			log.error(
-				"Hostname {} - Failed to retrieve the WMI namespace to run the WMI source {}. Returning an empty table.",
-				hostname,
-				wmiSource.getKey()
-			);
-			return SourceTable.empty();
-		}
-
-		try {
-			final List<List<String>> table = clientsExecutor.executeWql(
-				hostname,
-				winConfiguration,
-				wmiSource.getQuery(),
-				namespace
-			);
-
-			return SourceTable.builder().table(table).build();
-		} catch (Exception e) {
-			LoggingHelper.logSourceError(
-				connectorId,
-				wmiSource.getKey(),
-				String.format(
-					"WMI query=%s, Username=%s, Timeout=%d, Namespace=%s",
-					wmiSource.getQuery(),
-					winConfiguration.getUsername(),
-					winConfiguration.getTimeout(),
-					namespace
-				),
-				hostname,
-				e
-			);
-
-			return SourceTable.empty();
-		}
+		return processSourceThroughExtension(wmiSource);
 	}
 
 	/**

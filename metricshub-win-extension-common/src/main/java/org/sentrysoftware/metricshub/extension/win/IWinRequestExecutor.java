@@ -34,11 +34,11 @@ public interface IWinRequestExecutor {
 	 * Execute a WMI query
 	 *
 	 * @param hostname         The hostname of the device where the WMI service is running (<code>null</code> for localhost)
-	 * @param winConfiguration Windows Protocol configuration (credentials, timeout). E.g. WMI or WinRm
-	 * @param wbemQuery        The WQL to execute
-	 * @param namespace        The WBEM namespace where all the classes reside
+	 * @param winConfiguration Windows Protocol configuration (credentials, timeout). E.g. WMI or WinRm.
+	 * @param query            The WQL to execute.
+	 * @param namespace        The WMI namespace where all the classes reside.
 	 * @return A list of rows, where each row is represented as a list of strings.
-	 * @throws ClientException when anything goes wrong (details in cause)
+	 * @throws ClientException when anything goes wrong (details in cause).
 	 */
 	List<List<String>> executeWmi(
 		String hostname,
@@ -52,21 +52,21 @@ public interface IWinRequestExecutor {
 	 * requested namespace of class doesn't exist, which is considered okay.
 	 * <br>
 	 *
-	 * @param t Throwable to verify
-	 * @return whether specified exception is acceptable while performing namespace detection
+	 * @param t Throwable to verify.
+	 * @return whether specified exception is acceptable while performing namespace detection.
 	 */
-	boolean isAcceptableException(Throwable e);
+	boolean isAcceptableException(Throwable t);
 
 	/**
-	 * Perform a Windows remote command query, either WinRM or WMI
+	 * Perform a Windows remote command query, either WinRM or WMI.
 	 * <br>
 	 *
-	 * @param hostname         The hostname of the device where the WMI or WinRm service is running
-	 * @param winConfiguration Windows Protocol configuration (credentials, timeout). E.g. WMI or WinRm
-	 * @param command          Windows remote command to execute
-	 * @param embeddedFiles    The list of embedded files used in the wql remote command query
+	 * @param hostname         The hostname of the device where the WMI or WinRm service is running.
+	 * @param winConfiguration Windows Protocol configuration (credentials, timeout). E.g. WMI or WinRm.
+	 * @param command          Windows remote command to execute.
+	 * @param embeddedFiles    The list of embedded files used in the wql remote command query.
 	 * @return A {@link String} value resulting from the execution of the query.
-	 * @throws ClientException when anything wrong happens
+	 * @throws ClientException when anything wrong happens.
 	 */
 	String executeWinRemoteCommand(
 		String hostname,

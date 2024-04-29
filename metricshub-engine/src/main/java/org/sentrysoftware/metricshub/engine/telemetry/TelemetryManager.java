@@ -45,7 +45,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.IWinConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.strategy.ContextExecutor;
 import org.sentrysoftware.metricshub.engine.strategy.IStrategy;
@@ -167,16 +166,6 @@ public class TelemetryManager {
 				monitorsVo.addAll(monitorList);
 			});
 		return monitorsVo;
-	}
-
-	/**
-	 * Get the protocol configuration used to execute requests on Windows machines.
-	 * (WinRM or WMI)<br> WinRM is prioritized.
-	 *
-	 * @return {@link org.sentrysoftware.metricshub.engine.configuration.IWinConfiguration} instance.
-	 */
-	public IWinConfiguration getWinConfiguration() {
-		return hostConfiguration.getWinConfiguration();
 	}
 
 	/**

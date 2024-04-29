@@ -69,7 +69,7 @@ public class WmiSourceProcessor {
 	public SourceTable process(final WmiSource wmiSource, final TelemetryManager telemetryManager) {
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
-		if (wmiSource == null || wmiSource.getQuery() == null) {
+		if (wmiSource == null) {
 			log.warn("Hostname {} - Malformed WMI source {}. Returning an empty table.", hostname, wmiSource);
 			return SourceTable.empty();
 		}

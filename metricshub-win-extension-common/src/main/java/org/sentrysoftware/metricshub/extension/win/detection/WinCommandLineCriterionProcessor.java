@@ -75,7 +75,7 @@ public class WinCommandLineCriterionProcessor {
 			);
 		}
 
-		if (Boolean.FALSE.equals(commandLineCriterion.getExecuteLocally())) {
+		if (Boolean.TRUE.equals(commandLineCriterion.getExecuteLocally())) {
 			return CriterionTestResult.error(
 				commandLineCriterion,
 				"The CommandLine criterion cannot be executed locally through WMI. Skipping this test."

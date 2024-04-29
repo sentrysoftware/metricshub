@@ -51,6 +51,16 @@ import org.sentrysoftware.metricshub.extension.win.IWinConfiguration;
 public class WmiCriterionProcessor {
 
 	/**
+	 * WQL to get the available WMI namespaces
+	 */
+	static final String NAMESPACE_WQL = "SELECT Name FROM __NAMESPACE";
+
+	/**
+	 * Root WMI namespace
+	 */
+	static final String ROOT_NAMESPACE = "root";
+
+	/**
 	 * Namespace prefix used for filtering
 	 */
 	private static final String ROOT_SLASH = "root/";
@@ -308,7 +318,7 @@ public class WmiCriterionProcessor {
 		try {
 			wmiDetectionService
 				.getWinRequestExecutor()
-				.executeWmi(hostname, winConfiguration, "SELECT Name FROM __NAMESPACE", "root")
+				.executeWmi(hostname, winConfiguration, NAMESPACE_WQL, ROOT_NAMESPACE)
 				.stream()
 				.filter(row -> !row.isEmpty())
 				.map(row -> row.get(0))

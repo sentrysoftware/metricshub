@@ -40,13 +40,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.IWinConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WqlCriterion;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.wbem.javax.wbem.WBEMException;
-import org.sentrysoftware.wmi.exceptions.WmiComException;
 
 /**
  * Helper class for WBEM/WMI namespace detection using WQL queries.
@@ -63,27 +61,6 @@ public class WqlDetectionHelper {
 	private static final String ROOT_SLASH = "root/";
 
 	private ClientsExecutor clientsExecutor;
-
-	private static final Set<String> IGNORED_WMI_NAMESPACES = Set.of(
-		"SECURITY",
-		"RSOP",
-		"Cli",
-		"aspnet",
-		"SecurityCenter",
-		"WMI",
-		"Policy",
-		"DEFAULT",
-		"directory",
-		"subscription",
-		"vm",
-		"perform",
-		"MSCluster",
-		"MicrosoftActiveDirectory",
-		"MicrosoftNLB",
-		"Microsoft",
-		"ServiceModel",
-		"nap"
-	);
 
 	private static final List<WqlQuery> WBEM_INTEROP_QUERIES = List.of(
 		new WqlQuery("SELECT Name FROM __NAMESPACE", "root"),
@@ -178,77 +155,6 @@ public class WqlDetectionHelper {
 
 		// Yay!
 		return PossibleNamespacesResult.builder().possibleNamespaces(possibleWbemNamespaces).success(true).build();
-	}
-
-	/**
-	 * Find the possible WMI namespaces on specified hostname with specified credentials.
-	 *
-	 * @param hostname      The hostname of the device.
-	 * @param configuration Win configuration (credentials, timeout)
-	 * @return A {@link PossibleNamespacesResult} wrapping the success state, the message in case of errors
-	 * and the possibleWmiNamespaces {@link Set}.
-	 */
-	public PossibleNamespacesResult findPossibleNamespaces(final String hostname, final IWinConfiguration configuration) {
-		// If the user specified a namespace, we return it as if it was the only namespace available
-		// and for which we're going to test our connector
-		if (configuration.getNamespace() != null && !configuration.getNamespace().isBlank()) {
-			return PossibleNamespacesResult
-				.builder()
-				.possibleNamespaces(Collections.singleton(configuration.getNamespace()))
-				.success(true)
-				.build();
-		}
-
-		// Possible namespace will be stored in this set
-		Set<String> possibleWmiNamespaces = new TreeSet<>();
-
-		try {
-			clientsExecutor
-				.executeWql(hostname, configuration, "SELECT Name FROM __NAMESPACE", "root")
-				.stream()
-				.filter(row -> !row.isEmpty())
-				.map(row -> row.get(0))
-				.filter(Objects::nonNull)
-				.filter(namespace -> !namespace.isBlank())
-				.filter(namespace -> !namespace.toLowerCase().contains(INTEROP_LOWER_CASE))
-				.filter(namespace -> !IGNORED_WMI_NAMESPACES.contains(namespace))
-				.filter(namespace ->
-					IGNORED_WMI_NAMESPACES
-						.stream()
-						.noneMatch(ignoredNamespace -> (ROOT_SLASH + ignoredNamespace).equalsIgnoreCase(namespace))
-				)
-				.filter(namespace ->
-					IGNORED_WMI_NAMESPACES
-						.stream()
-						.noneMatch(ignoredNamespace -> ("root\\" + ignoredNamespace).equalsIgnoreCase(namespace))
-				)
-				.map(namespace -> ROOT_SLASH + namespace)
-				.forEach(possibleWmiNamespaces::add);
-		} catch (final ClientException e) {
-			// Get the cause in the exception
-			Throwable cause = e.getCause();
-
-			String message = String.format(
-				"Hostname %s - Does not respond to WMI requests. %s: %s\nCancelling namespace detection.",
-				hostname,
-				cause != null ? cause.getClass().getSimpleName() : e.getClass().getSimpleName(),
-				cause != null ? cause.getMessage() : e.getMessage()
-			);
-
-			log.debug(message);
-
-			return PossibleNamespacesResult.builder().errorMessage(message).success(false).build();
-		}
-
-		if (possibleWmiNamespaces.isEmpty()) {
-			return PossibleNamespacesResult
-				.builder()
-				.errorMessage("No suitable namespace could be found to query host " + hostname + ".")
-				.success(false)
-				.build();
-		}
-
-		return PossibleNamespacesResult.builder().possibleNamespaces(possibleWmiNamespaces).success(true).build();
 	}
 
 	/**
@@ -401,14 +307,10 @@ public class WqlDetectionHelper {
 		if (t instanceof WBEMException wbemException) {
 			final int cimErrorType = wbemException.getID();
 			return isAcceptableWbemError(cimErrorType);
-		} else if (t instanceof WmiComException) {
-			final String message = t.getMessage();
-			return isAcceptableWmiComError(message);
 		} else if (
 			// CHECKSTYLE:OFF
 			t instanceof org.sentrysoftware.wbem.client.exceptions.WqlQuerySyntaxException ||
-			t instanceof org.sentrysoftware.winrm.exceptions.WqlQuerySyntaxException ||
-			t instanceof org.sentrysoftware.wmi.exceptions.WqlQuerySyntaxException
+			t instanceof org.sentrysoftware.winrm.exceptions.WqlQuerySyntaxException
 			// CHECKSTYLE:ON
 		) {
 			return true;
@@ -416,27 +318,6 @@ public class WqlDetectionHelper {
 
 		// Now check recursively the cause
 		return isAcceptableException(t.getCause());
-	}
-
-	/**
-	 * Whether this error message is an acceptable WMI COM error.
-	 *
-	 * @param errorMessage string value representing the message of the WMI COM exception
-	 * @return boolean value
-	 */
-	private static boolean isAcceptableWmiComError(final String errorMessage) {
-		// CHECKSTYLE:OFF
-		return (
-			errorMessage != null &&
-			// @formatter:off
-			(
-				errorMessage.contains("WBEM_E_NOT_FOUND") ||
-				errorMessage.contains("WBEM_E_INVALID_NAMESPACE") ||
-				errorMessage.contains("WBEM_E_INVALID_CLASS")
-			)
-			// @formatter:on
-		);
-		// CHECKSTYLE:ON
 	}
 
 	/**

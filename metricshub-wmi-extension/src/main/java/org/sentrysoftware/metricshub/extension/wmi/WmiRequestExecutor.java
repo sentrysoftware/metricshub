@@ -48,6 +48,19 @@ import org.sentrysoftware.wmi.wbem.WmiWbemServices;
 public class WmiRequestExecutor implements IWinRequestExecutor {
 
 	/**
+	 * WMI invalid class error message.
+	 */
+	static final String WBEM_E_INVALID_CLASS = "WBEM_E_INVALID_CLASS";
+	/**
+	 * WMI invalid namespace error message.
+	 */
+	static final String WBEM_E_INVALID_NAMESPACE = "WBEM_E_INVALID_NAMESPACE";
+	/**
+	 * WMI error message when the WMI repository is corrupted.
+	 */
+	static final String WBEM_E_NOT_FOUND = "WBEM_E_NOT_FOUND";
+
+	/**
 	 * Execute a WMI query
 	 *
 	 * @param hostname  The hostname of the device where the WMI service is running (<code>null</code> for localhost)
@@ -262,9 +275,9 @@ public class WmiRequestExecutor implements IWinRequestExecutor {
 			errorMessage != null &&
 			// @formatter:off
 			(
-				errorMessage.contains("WBEM_E_NOT_FOUND") ||
-				errorMessage.contains("WBEM_E_INVALID_NAMESPACE") ||
-				errorMessage.contains("WBEM_E_INVALID_CLASS")
+				errorMessage.contains(WBEM_E_NOT_FOUND) ||
+				errorMessage.contains(WBEM_E_INVALID_NAMESPACE) ||
+				errorMessage.contains(WBEM_E_INVALID_CLASS)
 			)
 			// @formatter:on
 		);

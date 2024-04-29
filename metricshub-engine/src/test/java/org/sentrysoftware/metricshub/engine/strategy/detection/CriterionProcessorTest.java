@@ -6,19 +6,52 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.condition.OS.LINUX;
-import static org.junit.jupiter.api.condition.OS.WINDOWS;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.WMI_PROCESS_QUERY;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.*;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.CONFIGURED_OS_NT_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.CONFIGURED_OS_SOLARIS_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.ERROR;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.EXCUTE_WBEM_RESULT;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.EXECUTE_WMI_RESULT;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.FAILED_OS_DETECTION;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HIGH_VERSION_NUMBER;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_ID;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HTTP;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.IPMI_CONNECTION_SUCCESS_WITH_IMPI_OVER_LAN_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.LIST_ALL_LINUX_PROCESSES_RESULT;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.LOCALHOST;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.LOW_VERSION_NUMBER;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.MANAGEMENT_CARD_HOST;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.MY_CONNECTOR_1_NAME;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.NO_RUNNING_PROCESS_MATCH_REGEX_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.NO_TEST_WILL_BE_PERFORMED_AIX_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.NO_TEST_WILL_BE_PERFORMED_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.NO_TEST_WILL_BE_PERFORMED_REMOTELY_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.NO_TEST_WILL_BE_PERFORMED_UNKNOWN_OS_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.PROCESS_CRITERION_COMMAND_LINE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.RESULT;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.RUNNING_PROCESS_MATCH_REGEX_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.SUCCESSFUL_OS_DETECTION;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.SYSTEM_POWER_UP_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.TEST;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.TEST_BODY;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.TWGIPC;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_CREDENTIALS_NOT_CONFIGURED;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_CRITERION_NO_RESULT_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_CRITERION_UNEXPECTED_RESULT_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_MALFORMED_CRITERION_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_QUERY;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.WEBM_CRITERION_FAILURE_EXPECTED_RESULT;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.WEBM_CRITERION_SUCCESS_EXPECTED_RESULT;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,17 +62,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.OsCommandTestConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SshTestConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.common.HttpMethod;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
@@ -81,7 +111,6 @@ class CriterionProcessorTest {
 	private CriterionProcessor criterionProcessor;
 
 	private TelemetryManager telemetryManager;
-	private WmiConfiguration wmiConfiguration;
 	private WbemConfiguration wbemConfiguration;
 
 	private void initWbem() {
@@ -114,6 +143,24 @@ class CriterionProcessorTest {
 						.hostname(LOCALHOST)
 						.hostId(LOCALHOST)
 						.hostType(DeviceKind.LINUX)
+						.configurations(Map.of(TestConfiguration.class, testConfiguration))
+						.build()
+				)
+				.build();
+	}
+
+	private void initWinTestConfiguration() {
+		final TestConfiguration testConfiguration = new TestConfiguration();
+
+		telemetryManager =
+			TelemetryManager
+				.builder()
+				.hostConfiguration(
+					HostConfiguration
+						.builder()
+						.hostname(LOCALHOST)
+						.hostId(LOCALHOST)
+						.hostType(DeviceKind.WINDOWS)
 						.configurations(Map.of(TestConfiguration.class, testConfiguration))
 						.build()
 				)
@@ -172,6 +219,179 @@ class CriterionProcessorTest {
 			extensionManager
 		);
 		assertEquals(expected, criterionProcessor.process(snmpGetCriterion));
+	}
+
+	@Test
+	void testProcessWmiCriterion() {
+		initWinTestConfiguration();
+
+		final IProtocolExtension protocolExtensionMock = spy(IProtocolExtension.class);
+
+		final ExtensionManager extensionManager = ExtensionManager
+			.builder()
+			.withProtocolExtensions(List.of(protocolExtensionMock))
+			.build();
+
+		doReturn(true)
+			.when(protocolExtensionMock)
+			.isValidConfiguration(telemetryManager.getHostConfiguration().getConfigurations().get(TestConfiguration.class));
+
+		doReturn(Set.of(WmiCriterion.class)).when(protocolExtensionMock).getSupportedCriteria();
+
+		final WmiCriterion wmiCriterion = WmiCriterion
+			.builder()
+			.query(WBEM_QUERY)
+			.expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT)
+			.build();
+
+		final CriterionTestResult expected = CriterionTestResult.builder().success(true).message("success").build();
+
+		doReturn(expected)
+			.when(protocolExtensionMock)
+			.processCriterion(wmiCriterion, MY_CONNECTOR_1_NAME, telemetryManager);
+
+		final CriterionProcessor criterionProcessor = new CriterionProcessor(
+			clientsExecutorMock,
+			telemetryManager,
+			MY_CONNECTOR_1_NAME,
+			extensionManager
+		);
+		assertEquals(expected, criterionProcessor.process(wmiCriterion));
+	}
+
+	@Test
+	void testProcessServiceCriterion() {
+		initWinTestConfiguration();
+
+		final IProtocolExtension protocolExtensionMock = spy(IProtocolExtension.class);
+
+		final ExtensionManager extensionManager = ExtensionManager
+			.builder()
+			.withProtocolExtensions(List.of(protocolExtensionMock))
+			.build();
+
+		doReturn(true)
+			.when(protocolExtensionMock)
+			.isValidConfiguration(telemetryManager.getHostConfiguration().getConfigurations().get(TestConfiguration.class));
+
+		doReturn(Set.of(ServiceCriterion.class)).when(protocolExtensionMock).getSupportedCriteria();
+
+		final ServiceCriterion serviceCriterion = ServiceCriterion.builder().name(TWGIPC).build();
+
+		final CriterionTestResult expected = CriterionTestResult.builder().success(true).message("success").build();
+
+		doReturn(expected)
+			.when(protocolExtensionMock)
+			.processCriterion(serviceCriterion, MY_CONNECTOR_1_NAME, telemetryManager);
+
+		final CriterionProcessor criterionProcessor = new CriterionProcessor(
+			clientsExecutorMock,
+			telemetryManager,
+			MY_CONNECTOR_1_NAME,
+			extensionManager
+		);
+		assertEquals(expected, criterionProcessor.process(serviceCriterion));
+	}
+
+	@Test
+	void testProcessIpmiCriterion() {
+		initWinTestConfiguration();
+
+		final IProtocolExtension protocolExtensionMock = spy(IProtocolExtension.class);
+
+		final ExtensionManager extensionManager = ExtensionManager
+			.builder()
+			.withProtocolExtensions(List.of(protocolExtensionMock))
+			.build();
+
+		doReturn(true)
+			.when(protocolExtensionMock)
+			.isValidConfiguration(telemetryManager.getHostConfiguration().getConfigurations().get(TestConfiguration.class));
+
+		doReturn(Set.of(IpmiCriterion.class)).when(protocolExtensionMock).getSupportedCriteria();
+
+		final IpmiCriterion ipmiCriterion = new IpmiCriterion();
+
+		final CriterionTestResult expected = CriterionTestResult.builder().success(true).message("success").build();
+
+		doReturn(expected)
+			.when(protocolExtensionMock)
+			.processCriterion(ipmiCriterion, MY_CONNECTOR_1_NAME, telemetryManager);
+
+		final CriterionProcessor criterionProcessor = new CriterionProcessor(
+			clientsExecutorMock,
+			telemetryManager,
+			MY_CONNECTOR_1_NAME,
+			extensionManager
+		);
+		assertEquals(expected, criterionProcessor.process(ipmiCriterion));
+	}
+
+	@Test
+	void testProcessCommandLineCriterion() {
+		initWinTestConfiguration();
+
+		final IProtocolExtension protocolExtensionMock = spy(IProtocolExtension.class);
+
+		final ExtensionManager extensionManager = ExtensionManager
+			.builder()
+			.withProtocolExtensions(List.of(protocolExtensionMock))
+			.build();
+
+		doReturn(true)
+			.when(protocolExtensionMock)
+			.isValidConfiguration(telemetryManager.getHostConfiguration().getConfigurations().get(TestConfiguration.class));
+
+		doReturn(Set.of(CommandLineCriterion.class)).when(protocolExtensionMock).getSupportedCriteria();
+
+		final CommandLineCriterion commandLineCriterion = CommandLineCriterion.builder().commandLine("show system").build();
+
+		final CriterionTestResult expected = CriterionTestResult.builder().success(true).message("success").build();
+
+		doReturn(expected)
+			.when(protocolExtensionMock)
+			.processCriterion(commandLineCriterion, MY_CONNECTOR_1_NAME, telemetryManager);
+
+		final CriterionProcessor criterionProcessor = new CriterionProcessor(
+			clientsExecutorMock,
+			telemetryManager,
+			MY_CONNECTOR_1_NAME,
+			extensionManager
+		);
+		assertEquals(expected, criterionProcessor.process(commandLineCriterion));
+	}
+
+	@Test
+	void testProcessProcessWindows() throws Exception {
+		initWinTestConfiguration();
+		final ProcessCriterion processCriterion = new ProcessCriterion();
+		processCriterion.setCommandLine(PROCESS_CRITERION_COMMAND_LINE);
+
+		doReturn(HostConfiguration.builder().hostname(HOST_ID).build()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(HostProperties.builder().isLocalhost(true).build()).when(telemetryManagerMock).getHostProperties();
+
+		final IProtocolExtension protocolExtensionMock = spy(IProtocolExtension.class);
+
+		final ExtensionManager extensionManager = spy(ExtensionManager.class);
+
+		doReturn(Optional.of(protocolExtensionMock)).when(extensionManager).findExtensionByType("wmi");
+
+		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class)) {
+			mockedLocalOSHandler.when(LocalOsHandler::getOS).thenReturn(Optional.of(LocalOsHandler.WINDOWS));
+			mockedLocalOSHandler.when(LocalOsHandler::getSystemOsVersion).thenReturn(Optional.of("5.1"));
+
+			final CriterionTestResult expected = CriterionTestResult.builder().success(true).message("success").build();
+
+			doReturn(expected).when(protocolExtensionMock).processCriterion(processCriterion, null, null);
+
+			final CriterionProcessor criterionProcessor = new CriterionProcessor(
+				clientsExecutorMock,
+				telemetryManagerMock,
+				MY_CONNECTOR_1_NAME,
+				extensionManager
+			);
+			assertEquals(expected, criterionProcessor.process(processCriterion));
+		}
 	}
 
 	@Test
@@ -388,88 +608,6 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void testProcessProcessWindowsEmptyResult() {
-		// Init the mocks
-		MockitoAnnotations.openMocks(this);
-
-		final ProcessCriterion processCriterion = new ProcessCriterion();
-		processCriterion.setCommandLine(PROCESS_CRITERION_COMMAND_LINE);
-
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(
-				HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build()
-			)
-			.hostProperties(HostProperties.builder().isLocalhost(true).build())
-			.build();
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(telemetryManager.getHostProperties()).when(telemetryManagerMock).getHostProperties();
-
-		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class)) {
-			mockedLocalOSHandler.when(LocalOsHandler::getOS).thenReturn(Optional.of(LocalOsHandler.WINDOWS));
-			mockedLocalOSHandler.when(LocalOsHandler::getSystemOsVersion).thenReturn(Optional.of("5.1"));
-
-			doReturn(CriterionTestResult.error(processCriterion, WMI_QUERY_EMPTY_VALUE_MESSAGE))
-				.when(wqlDetectionHelperMock)
-				.performDetectionTest(any(), any(), any());
-
-			final CriterionTestResult criterionTestResult = criterionProcessor.process(processCriterion);
-
-			assertNotNull(criterionTestResult);
-			assertFalse(criterionTestResult.isSuccess());
-			assertTrue(criterionTestResult.getMessage().contains(WMI_QUERY_EMPTY_VALUE_MESSAGE));
-			assertNull(criterionTestResult.getResult());
-		}
-	}
-
-	@Test
-	void testProcessProcessWindowsOK() throws Exception {
-		final ProcessCriterion processCriterion = new ProcessCriterion();
-		processCriterion.setCommandLine(PROCESS_CRITERION_COMMAND_LINE);
-
-		final WmiConfiguration wmiConfiguration = WmiConfiguration.builder().timeout(STRATEGY_TIMEOUT).build();
-
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(
-				HostConfiguration
-					.builder()
-					.hostname(LOCALHOST)
-					.hostId(LOCALHOST)
-					.hostType(DeviceKind.WINDOWS)
-					.configurations(Map.of(WmiConfiguration.class, wmiConfiguration))
-					.build()
-			)
-			.hostProperties(HostProperties.builder().isLocalhost(true).build())
-			.build();
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(telemetryManager.getHostProperties()).when(telemetryManagerMock).getHostProperties();
-
-		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class)) {
-			mockedLocalOSHandler.when(LocalOsHandler::getOS).thenReturn(Optional.of(LocalOsHandler.WINDOWS));
-			mockedLocalOSHandler.when(LocalOsHandler::getSystemOsVersion).thenReturn(Optional.of("5.1"));
-
-			final WmiConfiguration localWmiConfiguration = WmiConfiguration
-				.builder()
-				.username(null)
-				.password(null)
-				.timeout(30L)
-				.build();
-
-			doReturn(EXECUTE_WMI_RESULT)
-				.when(clientsExecutorMock)
-				.executeWql(LOCALHOST, localWmiConfiguration, WMI_PROCESS_QUERY, CRITERION_WMI_NAMESPACE);
-
-			final CriterionTestResult criterionTestResult = criterionProcessor.process(processCriterion);
-
-			assertNotNull(criterionTestResult);
-			assertTrue(criterionTestResult.isSuccess());
-			assertEquals(WMI_CRITERION_TEST_SUCCEED_MESSAGE, criterionTestResult.getMessage());
-			assertEquals("MBM6.exe", criterionTestResult.getResult());
-		}
-	}
-
-	@Test
 	void testProcessProcessLinuxNoProcess() {
 		final ProcessCriterion process = new ProcessCriterion();
 		process.setCommandLine(PROCESS_CRITERION_COMMAND_LINE);
@@ -564,99 +702,6 @@ class CriterionProcessorTest {
 			assertEquals(NO_TEST_WILL_BE_PERFORMED_AIX_MESSAGE, criterionTestResult.getMessage());
 			assertNull(criterionTestResult.getResult());
 		}
-	}
-
-	@Test
-	void testProcessServiceCheckServiceNull() {
-		final ServiceCriterion serviceCriterion = null;
-		assertTrue(criterionProcessor.process(serviceCriterion).getMessage().contains("Malformed Service criterion."));
-	}
-
-	@Test
-	void testProcessServiceCheckProtocolNull() {
-		final ServiceCriterion serviceCriterion = new ServiceCriterion();
-		serviceCriterion.setName(TWGIPC);
-
-		assertTrue(criterionProcessor.process(serviceCriterion).getMessage().contains(NEITHER_WMI_NOR_WINRM_ERROR));
-	}
-
-	@Test
-	void testProcessServiceCheckOsNull() {
-		final WmiConfiguration wmiConfiguration = WmiConfiguration
-			.builder()
-			.username(USERNAME)
-			.password(PASSWORD.toCharArray())
-			.timeout(STRATEGY_TIMEOUT)
-			.build();
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(
-				HostConfiguration
-					.builder()
-					.hostname(HOST_WIN)
-					.hostId(HOST_WIN)
-					.configurations(Map.of(WmiConfiguration.class, wmiConfiguration))
-					.build()
-			)
-			.build();
-		doReturn(wmiConfiguration).when(telemetryManagerMock).getWinConfiguration();
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-
-		final ServiceCriterion serviceCriterion = new ServiceCriterion();
-		serviceCriterion.setName(TWGIPC);
-
-		final CriterionTestResult criterionTestResult = criterionProcessor.process(serviceCriterion);
-
-		assertNotNull(criterionTestResult);
-		assertFalse(criterionTestResult.isSuccess());
-		assertTrue(criterionTestResult.getMessage().contains(HOST_OS_IS_NOT_WINDOWS_MESSAGE));
-		assertNull(criterionTestResult.getResult());
-	}
-
-	@Test
-	void testProcessServiceCheckOsNotWindows() {
-		final ServiceCriterion serviceCriterion = new ServiceCriterion();
-		serviceCriterion.setName(TWGIPC);
-
-		final CriterionTestResult criterionTestResult = criterionProcessor.process(serviceCriterion);
-
-		assertNotNull(criterionTestResult);
-		assertFalse(criterionTestResult.isSuccess());
-		assertNull(criterionTestResult.getResult());
-	}
-
-	@Test
-	@EnabledOnOs(WINDOWS)
-	void testProcessServiceCheckServiceNameEmpty() {
-		final WmiConfiguration wmiConfiguration = WmiConfiguration
-			.builder()
-			.username(USERNAME)
-			.password(PASSWORD.toCharArray())
-			.timeout(STRATEGY_TIMEOUT)
-			.build();
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(
-				HostConfiguration
-					.builder()
-					.hostname(LOCALHOST)
-					.hostId(LOCALHOST)
-					.hostType(DeviceKind.WINDOWS)
-					.configurations(Map.of(wmiConfiguration.getClass(), wmiConfiguration))
-					.build()
-			)
-			.build();
-		doReturn(wmiConfiguration).when(telemetryManagerMock).getWinConfiguration();
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		final ServiceCriterion serviceCriterion = new ServiceCriterion();
-		serviceCriterion.setName("");
-
-		final CriterionTestResult criterionTestResult = criterionProcessor.process(serviceCriterion);
-
-		assertNotNull(criterionTestResult);
-		assertTrue(criterionTestResult.isSuccess());
-		assertTrue(criterionTestResult.getMessage().contains(SERVICE_NAME_NOT_SPECIFIED_MESSAGE));
-		assertNotNull(criterionTestResult.getResult());
 	}
 
 	@Test
@@ -827,95 +872,6 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void testProcessIpmiWindowsSuccess() {
-		// Init the mocks
-		MockitoAnnotations.openMocks(this);
-
-		// Init configurations
-		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
-		final WmiConfiguration wmiProtocol = WmiConfiguration
-			.builder()
-			.namespace(HOST_WIN)
-			.username(USERNAME)
-			.password(PASSWORD.toCharArray())
-			.timeout(STRATEGY_TIMEOUT)
-			.build();
-
-		final IpmiCriterion ipmi = IpmiCriterion.builder().forceSerialization(true).build();
-
-		// Add configurations to configurations Map
-		configurations.put(wmiProtocol.getClass(), wmiProtocol);
-		final HostConfiguration hostConfiguration = HostConfiguration
-			.builder()
-			.hostname(HOST_WIN)
-			.hostId(HOST_WIN)
-			.hostType(DeviceKind.WINDOWS)
-			.configurations(configurations)
-			.build();
-
-		// Create a TelemetryManager instance
-		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
-		// Mock getHostConfiguration and getWinConfiguration
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(configurations.get(wmiProtocol.getClass())).when(telemetryManagerMock).getWinConfiguration();
-
-		// Mock performDetectionTest
-		doReturn(CriterionTestResult.success(ipmi, IPMI_SUCCESS_MESSAGE))
-			.when(wqlDetectionHelperMock)
-			.performDetectionTest(any(), any(), any());
-
-		final CriterionTestResult criterionTestResult = criterionProcessor.process(ipmi);
-
-		assertNotNull(criterionTestResult);
-		assertEquals(IPMI_SUCCESS_MESSAGE, criterionTestResult.getResult());
-		assertTrue(criterionTestResult.isSuccess());
-	}
-
-	@Test
-	void testProcessIpmiWindowsFailure() {
-		// Init the mocks
-		MockitoAnnotations.openMocks(this);
-
-		// Init configurations
-		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
-		final WmiConfiguration wmiProtocol = WmiConfiguration
-			.builder()
-			.namespace(HOST_WIN)
-			.username(USERNAME)
-			.password(PASSWORD.toCharArray())
-			.timeout(STRATEGY_TIMEOUT)
-			.build();
-
-		final IpmiCriterion ipmi = IpmiCriterion.builder().forceSerialization(true).build();
-
-		// Add configurations to configurations map
-		configurations.put(wmiProtocol.getClass(), wmiProtocol);
-
-		// Create a TelemetryManager instance
-		final HostConfiguration hostConfiguration = HostConfiguration
-			.builder()
-			.hostname(HOST_WIN)
-			.hostId(HOST_WIN)
-			.hostType(DeviceKind.WINDOWS)
-			.configurations(configurations)
-			.build();
-		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
-
-		// mock getHostConfiguration, getWinConfiguration and performDetectionTest
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(configurations.get(wmiProtocol.getClass())).when(telemetryManagerMock).getWinConfiguration();
-		doReturn(CriterionTestResult.success(ipmi, IPMI_FAILURE_MESSAGE))
-			.when(wqlDetectionHelperMock)
-			.performDetectionTest(any(), any(), any());
-
-		final CriterionTestResult criterionTestResult = criterionProcessor.process(ipmi);
-
-		assertNotNull(criterionTestResult);
-		assertEquals(IPMI_FAILURE_MESSAGE, criterionTestResult.getResult());
-		assertTrue(criterionTestResult.isSuccess());
-	}
-
-	@Test
 	void testProcessIPMIOutOfBand() throws Exception {
 		initIpmi();
 
@@ -1071,119 +1027,6 @@ class CriterionProcessorTest {
 			.build();
 
 		assertFalse(new CriterionProcessor().process(productRequirementsCriterion).isSuccess());
-	}
-
-	private void initWmi() {
-		wmiConfiguration = WmiConfiguration.builder().build();
-		telemetryManager =
-			TelemetryManager
-				.builder()
-				.hostConfiguration(
-					HostConfiguration
-						.builder()
-						.hostname(LOCALHOST)
-						.hostId(LOCALHOST)
-						.hostType(DeviceKind.WINDOWS)
-						.configurations(Map.of(WmiConfiguration.class, wmiConfiguration))
-						.build()
-				)
-				.build();
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(telemetryManager.getHostConfiguration().getConfigurations().get(WmiConfiguration.class))
-			.when(telemetryManagerMock)
-			.getWinConfiguration();
-	}
-
-	@Test
-	void testProcessWmiCriterionSuccess() throws Exception {
-		initWmi();
-		doReturn(EXCUTE_WBEM_RESULT).when(clientsExecutorMock).executeWql(any(), eq(wmiConfiguration), any(), any());
-		final WmiCriterion wmiCriterion = WmiCriterion
-			.builder()
-			.query(WBEM_QUERY)
-			.expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT)
-			.build();
-
-		final CriterionTestResult result = criterionProcessor.process(wmiCriterion);
-		assertTrue(result.isSuccess());
-	}
-
-	@Test
-	void testProcessWmiCriterionActualResultIsNotExpectedResult() throws Exception {
-		initWmi();
-		doReturn(EXCUTE_WBEM_RESULT).when(clientsExecutorMock).executeWql(any(), eq(wmiConfiguration), any(), any());
-		final WmiCriterion wmiCriterion = WmiCriterion
-			.builder()
-			.query(WBEM_QUERY)
-			.expectedResult(WEBM_CRITERION_FAILURE_EXPECTED_RESULT)
-			.build();
-		final CriterionTestResult result = criterionProcessor.process(wmiCriterion);
-		assertFalse(result.isSuccess());
-		assertTrue(result.getMessage().contains(WMI_CRITERION_UNEXPECTED_RESULT_MESSAGE));
-	}
-
-	@Test
-	void testProcessWmiCriterionMalformedCriterion() throws Exception {
-		final CriterionTestResult result = criterionProcessor.process((WmiCriterion) null);
-		assertFalse(result.isSuccess());
-		assertTrue(result.getMessage().contains(WBEM_MALFORMED_CRITERION_MESSAGE));
-	}
-
-	@Test
-	void testProcessWmiEmptyQueryResult() throws Exception {
-		initWmi();
-		doReturn(List.of()).when(clientsExecutorMock).executeWql(any(), eq(wmiConfiguration), any(), any());
-		final WmiCriterion wmiCriterion = WmiCriterion
-			.builder()
-			.query(WBEM_QUERY)
-			.expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT)
-			.build();
-
-		final CriterionTestResult result = criterionProcessor.process(wmiCriterion);
-		assertFalse(result.isSuccess());
-		assertEquals(WBEM_CRITERION_NO_RESULT_MESSAGE, result.getResult());
-	}
-
-	@Test
-	void testProcessWmiCriterionWithNullWmiConfiguration() throws Exception {
-		wmiConfiguration = null;
-		telemetryManager =
-			TelemetryManager
-				.builder()
-				.hostConfiguration(
-					HostConfiguration
-						.builder()
-						.hostname(LOCALHOST)
-						.hostId(LOCALHOST)
-						.hostType(DeviceKind.LINUX)
-						.configurations(Map.of())
-						.build()
-				)
-				.build();
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		final WmiCriterion wmiCriterion = WmiCriterion
-			.builder()
-			.query(WBEM_QUERY)
-			.expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT)
-			.build();
-
-		final CriterionTestResult result = criterionProcessor.process(wmiCriterion);
-		assertFalse(result.isSuccess());
-		assertTrue(result.getMessage().contains(WMI_CREDENTIALS_NOT_CONFIGURED));
-	}
-
-	@Test
-	void testProcessWmiCriterionWithClientException() throws Exception {
-		initWmi();
-		doThrow(ClientException.class).when(clientsExecutorMock).executeWql(any(), eq(wmiConfiguration), any(), any());
-		final WmiCriterion wmiCriterion = WmiCriterion
-			.builder()
-			.query(WBEM_QUERY)
-			.expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT)
-			.build();
-		final CriterionTestResult result = criterionProcessor.process(wmiCriterion);
-		assertFalse(result.isSuccess());
-		assertTrue(result.getException() instanceof ClientException);
 	}
 
 	@Test

@@ -44,12 +44,12 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 
 	private static final String CRITERION_PROCESSOR_VISITOR_LOG_MESSAGE = "Hostname {} - Process Criterion, {}";
 
-	@NonNull
 	private final ExtensionManager extensionManger;
 
 	@NonNull
 	private final ProcessCriterion processCriterion;
 
+	@NonNull
 	private final String hostname;
 
 	@Getter
@@ -57,6 +57,9 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 
 	@Override
 	public void visit(final LocalOsHandler.Windows os) {
+		if (extensionManger == null) {
+			throw new IllegalStateException("The ExtensionManager cannot be null for Local Windows Process criterion check.");
+		}
 		extensionManger
 			.findExtensionByType("wmi")
 			.map(extension -> extension.processCriterion(processCriterion, null, null))
