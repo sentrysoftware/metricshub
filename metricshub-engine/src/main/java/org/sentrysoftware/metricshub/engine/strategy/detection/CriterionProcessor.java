@@ -345,7 +345,6 @@ public class CriterionProcessor implements ICriterionProcessor {
 		final CriterionProcessVisitor localOSVisitor = new CriterionProcessVisitor(
 			extensionManager,
 			processCriterion,
-			wqlDetectionHelper,
 			hostname
 		);
 

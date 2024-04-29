@@ -117,7 +117,7 @@ public class SshConfigCli implements IProtocolConfigCli {
 		ArrayNode sudoCommands = JsonNodeFactory.instance.arrayNode();
 		// Add all the introduced sudo commands
 		if (useSudoCommands != null) {
-			useSudoCommands.stream().forEach(value -> sudoCommands.add(value));
+			useSudoCommands.stream().forEach(sudoCommands::add);
 		}
 		configuration.set("username", new TextNode(username == null ? defaultUsername : username));
 		configuration.set(

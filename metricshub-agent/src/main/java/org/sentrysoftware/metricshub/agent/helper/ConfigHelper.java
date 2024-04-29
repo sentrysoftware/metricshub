@@ -107,7 +107,6 @@ public class ConfigHelper {
 
 	private static final String WMI_PROTOCOL = "WMI";
 	private static final String WBEM_PROTOCOL = "WBEM";
-	private static final String WIN_RM_PROTOCOL = "WinRM";
 	private static final String TIMEOUT_ERROR =
 		"Resource %s - Timeout value is invalid for protocol %s." +
 		" Timeout value returned: %s. This resource will not be monitored. Please verify the configured timeout value.";
@@ -989,23 +988,7 @@ public class ConfigHelper {
 		final Long timeout,
 		final String username
 	) throws InvalidConfigurationException {
-		StringHelper.validateConfigurationAttribute(
-			port,
-			INVALID_PORT_CHECKER,
-			() -> String.format(PORT_ERROR, resourceKey, WIN_RM_PROTOCOL, port)
-		);
-
-		StringHelper.validateConfigurationAttribute(
-			timeout,
-			INVALID_TIMEOUT_CHECKER,
-			() -> String.format(TIMEOUT_ERROR, resourceKey, WIN_RM_PROTOCOL, timeout)
-		);
-
-		StringHelper.validateConfigurationAttribute(
-			username,
-			INVALID_STRING_CHECKER,
-			() -> String.format(USERNAME_ERROR, resourceKey, WIN_RM_PROTOCOL)
-		);
+		
 	}
 
 	/**
