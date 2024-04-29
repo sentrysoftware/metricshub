@@ -31,17 +31,15 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WmiCriterion;
-import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
-import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
-import org.sentrysoftware.metricshub.extension.win.IWinConfiguration;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WmiCriterion;
+import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
+import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.extension.win.IWinConfiguration;
 
 /**
  * A class responsible for processing WMI criteria to evaluate WMI queries against specified criteria.
@@ -83,11 +81,12 @@ public class WmiCriterionProcessor {
 
 	@NonNull
 	private WmiDetectionService wmiDetectionService;
+
 	@NonNull
 	private Function<TelemetryManager, IWinConfiguration> configurationRetriever;
+
 	@NonNull
 	private String connectorId;
-
 
 	/**
 	 * Processes a WMI criterion by executing a WMI request and evaluating the result.
@@ -167,7 +166,11 @@ public class WmiCriterionProcessor {
 			tentativeCriterion.setNamespace(namespace);
 
 			// Do the request
-			final CriterionTestResult testResult = wmiDetectionService.performDetectionTest(hostname, configuration, tentativeCriterion);
+			final CriterionTestResult testResult = wmiDetectionService.performDetectionTest(
+				hostname,
+				configuration,
+				tentativeCriterion
+			);
 
 			// If the result matched then the namespace is selected
 			if (testResult.isSuccess()) {
@@ -376,5 +379,4 @@ public class WmiCriterionProcessor {
 		private String namespace;
 		private CriterionTestResult result;
 	}
-
 }
