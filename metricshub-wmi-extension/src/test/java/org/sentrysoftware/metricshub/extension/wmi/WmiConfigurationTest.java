@@ -1,6 +1,7 @@
 package org.sentrysoftware.metricshub.extension.wmi;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,20 @@ class WmiConfigurationTest {
 					.timeout(-15L) // Bad timeout
 					.build()
 					.validateConfiguration("resourceKey")
+		);
+	}
+
+	@Test
+	void testToString() {
+		assertEquals(
+			"WMI as Administrator",
+			WmiConfiguration
+				.builder()
+				.username("Administrator")
+				.password("passwd".toCharArray())
+				.timeout(15L)
+				.build()
+				.toString()
 		);
 	}
 }
