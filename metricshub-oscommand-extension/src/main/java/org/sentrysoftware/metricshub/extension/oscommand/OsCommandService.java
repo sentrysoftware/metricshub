@@ -62,8 +62,6 @@ import org.sentrysoftware.metricshub.engine.common.exception.ControlledSshExcept
 import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.IWinConfiguration;
-import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandResult;
 import org.sentrysoftware.metricshub.engine.strategy.utils.SudoInformation;
@@ -236,7 +234,7 @@ public class OsCommandService {
 	 *
 	 * @param commandTimeout         The OS command timeout in seconds.
 	 * @param osCommandConfiguration The configuration specific to OS command execution.
-	 * @param configuration          The general configuration, either an instance of {@link IWinConfiguration} or {@link SshConfiguration}.
+	 * @param configuration          The general {@link SshConfiguration} configuration.
 	 * @param defaultTimeout         The default timeout in seconds.
 	 * @return The timeout in seconds.
 	 */
@@ -258,24 +256,20 @@ public class OsCommandService {
 			return defaultTimeout;
 		}
 
-		final Long timeout = configuration instanceof IWinConfiguration winConfiguration
-			? winConfiguration.getTimeout()
-			: ((SshConfiguration) configuration).getTimeout();
+		final Long timeout = ((SshConfiguration) configuration).getTimeout();
 
 		return timeout != null ? timeout : defaultTimeout;
 	}
 
 	/**
-	 * Get the username from the IWinProtocol or the SSHProtocol.
-	 * @param configuration IWinProtocol or SSHProtocol.
-	 * @return An optional with the username if found. An empty optional otherwise.
+	 * Retrieves the username associated with an SSH configuration.
+	 *
+	 * @param configuration The configuration object of type {@link IConfiguration}.
+	 * @return An {@link Optional} containing the username if the configuration is of type {@link SshConfiguration} and has a username set; otherwise, an empty optional.
 	 */
 	public static Optional<String> getUsername(final IConfiguration configuration) {
 		if (configuration == null) {
 			return Optional.empty();
-		}
-		if (configuration instanceof IWinConfiguration winConfiguration) {
-			return Optional.ofNullable(winConfiguration.getUsername());
 		}
 		if (configuration instanceof SshConfiguration sshConfiguration) {
 			return Optional.ofNullable(sshConfiguration.getUsername());
@@ -284,16 +278,14 @@ public class OsCommandService {
 	}
 
 	/**
-	 * Get the password from the IWinProtocol or the SSHProtocol.
-	 * @param protocolConfiguration IWinProtocol or SSHProtocol.
-	 * @return An optional with the password if found. An empty optional otherwise.
+	 * Retrieves the password associated with an SSH configuration.
+	 *
+	 * @param protocolConfiguration The configuration object of type {@link IConfiguration}.
+	 * @return An {@link Optional} containing the password as a char array if the configuration is of type {@link SshConfiguration} and has a password set; otherwise, an empty optional.
 	 */
 	public static Optional<char[]> getPassword(final IConfiguration protocolConfiguration) {
 		if (protocolConfiguration == null) {
 			return Optional.empty();
-		}
-		if (protocolConfiguration instanceof IWinConfiguration winConfiguration) {
-			return Optional.ofNullable(winConfiguration.getPassword());
 		}
 		if (protocolConfiguration instanceof SshConfiguration sshConfiguration) {
 			return Optional.ofNullable(sshConfiguration.getPassword());
@@ -305,7 +297,6 @@ public class OsCommandService {
 	 * Run the OS Command on:
 	 * <ul>
 	 *   <li>Local (use java Process)</li>
-	 *   <li>Remote windows (use WMI/WinRm command)</li>
 	 *   <li>Remote Linux (use SSH)</li>
 	 * </ul>
 	 * <p>It replaces Host name, User name, Password, Sudo, Embedded files macros in the command line.</p>
@@ -334,11 +325,7 @@ public class OsCommandService {
 		throws IOException, ClientException, InterruptedException, TimeoutException, NoCredentialProvidedException, ControlledSshException {
 		final IConfiguration configuration;
 
-		if (!isLocalhost && telemetryManager.getHostConfiguration().getHostType() == DeviceKind.WINDOWS) {
-			configuration = telemetryManager.getWinConfiguration();
-		} else {
-			configuration = telemetryManager.getHostConfiguration().getConfigurations().get(SshConfiguration.class);
-		}
+		configuration = telemetryManager.getHostConfiguration().getConfigurations().get(SshConfiguration.class);
 
 		final Optional<String> maybeUsername = getUsername(configuration);
 

@@ -45,7 +45,6 @@ import org.sentrysoftware.metricshub.engine.common.exception.ControlledSshExcept
 import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 import org.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
@@ -535,9 +534,6 @@ class OsCommandHelperTest {
 		final OsCommandConfiguration osCommandConfig = new OsCommandConfiguration();
 		osCommandConfig.setTimeout(2L);
 
-		final WmiConfiguration wmiConfiguration = new WmiConfiguration();
-		wmiConfiguration.setTimeout(3L);
-
 		final SshConfiguration sshConfiguration = SshConfiguration
 			.sshConfigurationBuilder()
 			.username(USERNAME)
@@ -547,11 +543,9 @@ class OsCommandHelperTest {
 
 		assertEquals(1, OsCommandService.getTimeout(1L, osCommandConfig, sshConfiguration, 5));
 		assertEquals(2, OsCommandService.getTimeout(null, osCommandConfig, sshConfiguration, 5));
-		assertEquals(3, OsCommandService.getTimeout(null, null, wmiConfiguration, 5));
 		assertEquals(4, OsCommandService.getTimeout(null, null, sshConfiguration, 5));
 		assertEquals(5, OsCommandService.getTimeout(null, null, null, 5));
 		assertEquals(30, OsCommandService.getTimeout(null, new OsCommandConfiguration(), sshConfiguration, 5));
-		assertEquals(120, OsCommandService.getTimeout(null, null, new WmiConfiguration(), 5));
 		assertEquals(
 			30,
 			OsCommandService.getTimeout(
@@ -567,15 +561,10 @@ class OsCommandHelperTest {
 	void testGetUsername() {
 		assertEquals(Optional.empty(), OsCommandService.getUsername(null));
 		assertEquals(Optional.empty(), OsCommandService.getUsername(new OsCommandConfiguration()));
-		assertEquals(Optional.empty(), OsCommandService.getUsername(new WmiConfiguration()));
 		assertEquals(
 			Optional.empty(),
 			OsCommandService.getUsername(SshConfiguration.sshConfigurationBuilder().password(PASSWORD.toCharArray()).build())
 		);
-
-		final WmiConfiguration wmiConfiguration = new WmiConfiguration();
-		wmiConfiguration.setUsername(USERNAME);
-		assertEquals(Optional.of(USERNAME), OsCommandService.getUsername(wmiConfiguration));
 
 		assertEquals(
 			Optional.of(USERNAME),
@@ -589,16 +578,12 @@ class OsCommandHelperTest {
 	void testGetPassword() {
 		assertEquals(Optional.empty(), OsCommandService.getPassword(null));
 		assertEquals(Optional.empty(), OsCommandService.getPassword(new OsCommandConfiguration()));
-		assertEquals(Optional.empty(), OsCommandService.getPassword(new WmiConfiguration()));
 		assertEquals(
 			Optional.empty(),
 			OsCommandService.getPassword(SshConfiguration.sshConfigurationBuilder().username(USERNAME).build())
 		);
 
-		final WmiConfiguration wmiConfiguration = new WmiConfiguration();
 		char[] charArrayPassword = PASSWORD.toCharArray();
-		wmiConfiguration.setPassword(charArrayPassword);
-		assertEquals(Optional.of(charArrayPassword), OsCommandService.getPassword(wmiConfiguration));
 
 		assertEquals(
 			Optional.of(charArrayPassword),
@@ -647,21 +632,43 @@ class OsCommandHelperTest {
 	}
 
 	@Test
-	void testRunOsCommandRemoteWindowsEmbeddedFilesError() {
-		final Map<String, EmbeddedFile> embeddedFiles = new HashMap<>();
-		embeddedFiles.put(EMBEDDED_FILE_1_REF, new EmbeddedFile(ECHO_OS, BAT, EMBEDDED_FILE_1_REF));
-		embeddedFiles.put(EMBEDDED_FILE_2_REF, new EmbeddedFile(ECHO_HELLO_WORLD, null, EMBEDDED_FILE_2_REF));
-
-		final WmiConfiguration wmiConfiguration = new WmiConfiguration();
-		wmiConfiguration.setUsername(USERNAME);
-		wmiConfiguration.setPassword(PWD_COMMAND.toCharArray());
+	@EnabledOnOs(OS.WINDOWS)
+	void testRunOsCommandWindowsError() {
+		final SshConfiguration sshConfiguration = SshConfiguration
+			.sshConfigurationBuilder()
+			.username(USERNAME)
+			.password(PWD_COMMAND.toCharArray())
+			.build();
 
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostId(ID)
 			.hostname(HOST)
 			.hostType(DeviceKind.WINDOWS)
-			.configurations(Map.of(wmiConfiguration.getClass(), wmiConfiguration))
+			.configurations(Map.of(sshConfiguration.getClass(), sshConfiguration))
+			.build();
+
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
+
+		assertThrows(TimeoutException.class, () -> OsCommandService.runOsCommand(PAUSE, telemetryManager, 1L, false, true));
+	}
+
+	@Test
+	void testRunOsCommandRemoteWindowsEmbeddedFilesError() {
+		final Map<String, EmbeddedFile> embeddedFiles = new HashMap<>();
+		embeddedFiles.put(EMBEDDED_FILE_1_REF, new EmbeddedFile(ECHO_OS, BAT, EMBEDDED_FILE_1_REF));
+		embeddedFiles.put(EMBEDDED_FILE_2_REF, new EmbeddedFile(ECHO_HELLO_WORLD, null, EMBEDDED_FILE_2_REF));
+
+		final SshConfiguration osCommandConfiguration = new SshConfiguration();
+		osCommandConfiguration.setUsername(USERNAME);
+		osCommandConfiguration.setPassword(PWD_COMMAND.toCharArray());
+
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.hostId(ID)
+			.hostname(HOST)
+			.hostType(DeviceKind.WINDOWS)
+			.configurations(Map.of(osCommandConfiguration.getClass(), osCommandConfiguration))
 			.build();
 
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
@@ -671,7 +678,7 @@ class OsCommandHelperTest {
 			final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class);
 			final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)
 		) {
-			mockedOsCommandService.when(() -> OsCommandService.getUsername(wmiConfiguration)).thenCallRealMethod();
+			mockedOsCommandService.when(() -> OsCommandService.getUsername(osCommandConfiguration)).thenCallRealMethod();
 			mockedOsCommandService
 				.when(() -> OsCommandService.runOsCommand(COMMAND_TO_UPDATE, telemetryManager, 120L, false, false))
 				.thenCallRealMethod();
@@ -699,28 +706,6 @@ class OsCommandHelperTest {
 	}
 
 	@Test
-	@EnabledOnOs(OS.WINDOWS)
-	void testRunOsCommandWindowsError() {
-		final SshConfiguration sshConfiguration = SshConfiguration
-			.sshConfigurationBuilder()
-			.username(USERNAME)
-			.password(PWD_COMMAND.toCharArray())
-			.build();
-
-		final HostConfiguration hostConfiguration = HostConfiguration
-			.builder()
-			.hostId(ID)
-			.hostname(HOST)
-			.hostType(DeviceKind.WINDOWS)
-			.configurations(Map.of(sshConfiguration.getClass(), sshConfiguration))
-			.build();
-
-		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
-
-		assertThrows(TimeoutException.class, () -> OsCommandService.runOsCommand(PAUSE, telemetryManager, 1L, false, true));
-	}
-
-	@Test
 	@EnabledOnOs(OS.LINUX)
 	void testRunOsCommandLinuxError() {
 		final HostConfiguration hostConfiguration = HostConfiguration
@@ -741,16 +726,11 @@ class OsCommandHelperTest {
 	@Test
 	@EnabledOnOs(OS.WINDOWS)
 	void testRunOsCommandLocalWindows() throws Exception {
-		final WmiConfiguration wmiConfiguration = new WmiConfiguration();
-		wmiConfiguration.setUsername(USERNAME);
-		wmiConfiguration.setPassword(PWD_COMMAND.toCharArray());
-
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.hostId(ID)
 			.hostname(HOST)
 			.hostType(DeviceKind.WINDOWS)
-			.configurations(Map.of(wmiConfiguration.getClass(), wmiConfiguration))
 			.build();
 
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
