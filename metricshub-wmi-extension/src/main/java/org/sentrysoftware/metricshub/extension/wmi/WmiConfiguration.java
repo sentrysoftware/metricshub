@@ -1,6 +1,5 @@
 package org.sentrysoftware.metricshub.extension.wmi;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
  * MetricsHub WMI Extension
@@ -22,6 +21,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
