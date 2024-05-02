@@ -41,7 +41,6 @@ import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IWinConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WqlCriterion;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
@@ -103,81 +102,6 @@ public class WqlDetectionHelper {
 	 */
 	public WqlDetectionHelper(final ClientsExecutor clientsExecutor) {
 		this.clientsExecutor = clientsExecutor;
-	}
-
-	/**
-	 * Find the possible WBEM namespaces using the configured {@link WbemConfiguration}.
-	 *
-	 * @param hostname      The hostname of the host device.
-	 * @param configuration The user's configured {@link WbemConfiguration}.
-	 * @return A {@link PossibleNamespacesResult} wrapping the success state, the message in case of errors
-	 * and the possibleWmiNamespaces {@link Set}.
-	 */
-	public PossibleNamespacesResult findPossibleNamespaces(final String hostname, final WbemConfiguration configuration) {
-		// If the user specified a namespace, we return it as if it was the only namespace available
-		// and for which we're going to test our connector
-		if (configuration.getNamespace() != null && !configuration.getNamespace().isBlank()) {
-			return PossibleNamespacesResult
-				.builder()
-				.possibleNamespaces(Collections.singleton(configuration.getNamespace()))
-				.success(true)
-				.build();
-		}
-
-		// Possible namespace will be stored in this set
-		Set<String> possibleWbemNamespaces = new TreeSet<>();
-
-		// Try all "interop" queries that could retrieve a list of namespaces in this CIM server
-		for (WqlQuery interopQuery : WBEM_INTEROP_QUERIES) {
-			try {
-				clientsExecutor
-					.executeWbem(hostname, configuration, interopQuery.getWql(), interopQuery.getNamespace())
-					.stream()
-					.filter(row -> !row.isEmpty())
-					.map(row -> row.get(0))
-					.filter(Objects::nonNull)
-					.filter(namespace -> !namespace.isBlank())
-					.filter(namespace -> !namespace.toLowerCase().contains(INTEROP_LOWER_CASE))
-					.filter(namespace -> !IGNORED_WBEM_NAMESPACES.contains(namespace))
-					.map(namespace -> ROOT_SLASH + namespace)
-					.forEach(namespace -> possibleWbemNamespaces.add(namespace));
-			} catch (final ClientException e) {
-				// If the CIM server doesn't know the requested class, we will get a WBEM exception
-				// saying so. Such exceptions are okay and will not fail the detection.
-				// That's why we return in failure if and only if the error type is neither "invalid namespace",
-				// nor "invalid class", nor "not found".
-
-				if (!isAcceptableException(e)) {
-					// This error indicates that the CIM server will probably never respond to anything
-					// (timeout, or bad credentials), so there's no point in pursuing our efforts here.
-					Throwable cause = e.getCause();
-					final String messageFormat =
-						"Hostname %s - Does not respond to WBEM requests. %s: %s\nCancelling namespace detection.";
-					String message = String.format(
-						messageFormat,
-						hostname,
-						cause != null ? cause.getClass().getSimpleName() : e.getClass().getSimpleName(),
-						cause != null ? cause.getMessage() : e.getMessage()
-					);
-
-					log.debug(message);
-
-					return PossibleNamespacesResult.builder().errorMessage(message).success(false).build();
-				}
-			}
-		}
-
-		// No namespace love?
-		if (possibleWbemNamespaces.isEmpty()) {
-			return PossibleNamespacesResult
-				.builder()
-				.errorMessage("No suitable namespace could be found to query host " + hostname + ".")
-				.success(false)
-				.build();
-		}
-
-		// Yay!
-		return PossibleNamespacesResult.builder().possibleNamespaces(possibleWbemNamespaces).success(true).build();
 	}
 
 	/**

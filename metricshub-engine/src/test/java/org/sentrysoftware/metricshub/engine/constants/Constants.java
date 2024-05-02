@@ -13,9 +13,7 @@ public class Constants {
 
 	public static final String USERNAME = "testUser";
 	public static final String PASSWORD = "testPassword";
-	public static final String WBEM_NAMESPACE = "testWbemNamespace";
 	public static final String WINRM_NAMESPACE = "testWinRmNamespace";
-	public static final String WBEM_VCENTER = "testWbemVCenter";
 	public static final Long SSH_CONFIGURATION_TIMEOUT = 50L;
 	public static final Long STRATEGY_TIMEOUT = 100L;
 	public static final Long STRATEGY_TIME = 100L;
@@ -25,7 +23,6 @@ public class Constants {
 	public static final String DETECTION_FOLDER = "src/test/resources/test-files/connector/detection";
 	public static final String IPMI_SUCCESS_MESSAGE = "System description;";
 	public static final String IPMI_FAILURE_MESSAGE = "No result";
-	public static final String HTTP_GET = "GET";
 	public static final String MY_CONNECTOR_1_NAME = "myConnector1";
 	public static final String NO_TEST_WILL_BE_PERFORMED_MESSAGE = "Process presence check: No test will be performed.";
 	public static final String NO_TEST_WILL_BE_PERFORMED_UNKNOWN_OS_MESSAGE =
@@ -242,10 +239,8 @@ public class Constants {
 	public static final String HOST_NAME = "host.name";
 	public static final String[] STATE_SET = { "ok", "degraded", "failed" };
 	public static final String HARDCODED_SOURCE = "Hardcoded Source";
-	public static final String SOURCE_REF_KEY = "${source::monitors.cpu.discovery.sources.source5}";
 	public static final String DISK_CONTROLLER = "disk_controller";
 	public static final String PHYSICAL_DISK = "physical_disk";
-	public static final String LOGICAL_DISK = "logical_disk";
 	public static final String CONNECTOR = "connector";
 	public static final String ENCLOSURE = "enclosure";
 	public static final String DISCOVERY_MAPPING_NAME = "name";
@@ -259,14 +254,6 @@ public class Constants {
 		"${file::src\\test\\resources\\test-files\\embedded\\connector2\\command.txt}";
 	public static final String EMBEDDED_TEMP_FILE_PREFIX = "SEN_Embedded_";
 	public static final String BAT_FILE_EXTENSION = "\\w+\\.bat";
-	public static final Path YAML_TEST_PATH = Paths.get(
-		"src",
-		"test",
-		"resources",
-		"test-files",
-		"connector",
-		"connectorLibraryParser"
-	);
 
 	// Host information
 	public static final String LOCALHOST = "localhost";
@@ -277,9 +264,6 @@ public class Constants {
 	public static final String HOST_CAMEL_CASE = "Host";
 
 	// Configuration toString output
-	public static final String HTTP_CONFIGURATION_TO_STRING = "HTTPS/443 as testUser";
-
-	public static final String WBEM_CONFIGURATION_TO_STRING = "https/5989 as testUser";
 	public static final String WINRM_CONFIGURATION_TO_STRING = "WinRM as testUser";
 	public static final String OS_COMMAND_CONFIGURATION_TO_STRING = "Local Commands";
 	public static final String WMI_CONFIGURATION_TO_STRING = "WMI as testUser";
@@ -300,9 +284,6 @@ public class Constants {
 		"Product Name              : Unknown (0x316)";
 	public static final String SUDO_KEYWORD = "sudo";
 	public static final String INVALID_SSH_RESPONSE = "Wrong result";
-
-	public static final String OOB_NULL_RESULT_MESSAGE =
-		"Received <null> result after connecting to the IPMI BMC chip with the IPMI-over-LAN interface.";
 	public static final String SYSTEM_POWER_UP_MESSAGE = "System power state is up";
 	public static final String IPMI_CONNECTION_SUCCESS_WITH_IMPI_OVER_LAN_MESSAGE =
 		"Successfully connected to the IPMI BMC chip with the IPMI-over-LAN " + "interface.";
@@ -328,11 +309,9 @@ public class Constants {
 	public static final String INVALID_PROTOCOL = "SFTPST";
 	public static final String HTTP = "HTTP";
 	public static final String HTTPS = "HTTPS";
-	public static final String HTTPS_WITH_PORT = "HTTPS/443";
 	public static final String SSH = "SSH";
 	public static final String WMI = "WMI";
 	public static final String WINRM = "WinRM";
-	public static final String WBEM_HTTPS = "https/5989";
 	public static final String CRITERION_WMI_NAMESPACE = "root\\cimv2";
 	public static final String WMI_EXCEPTION_OTHER_MESSAGE = "other";
 	public static final String SNMP_TABLE = "snmpTable";

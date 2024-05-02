@@ -38,7 +38,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CommandLineSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WbemSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WmiSource;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 
@@ -76,8 +75,6 @@ public class HostConfiguration {
 			Map.of(
 				WmiConfiguration.class,
 				Collections.singleton(WmiSource.class),
-				WbemConfiguration.class,
-				Collections.singleton(WbemSource.class),
 				SshConfiguration.class,
 				Collections.singleton(CommandLineSource.class),
 				OsCommandConfiguration.class,

@@ -18,77 +18,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.WMI_PROCESS_QUERY;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.BMC;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.COMMAND_FILE_ABSOLUTE_PATH;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.CONFIGURED_OS_NT_MESSAGE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.CONFIGURED_OS_SOLARIS_MESSAGE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.CRITERION_WMI_NAMESPACE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.EMPTY;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.ERROR;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.EXCUTE_WBEM_RESULT;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.EXECUTE_WMI_RESULT;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.FAILED_OS_DETECTION;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.HIGH_VERSION_NUMBER;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_ID;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_LINUX;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_OS_IS_NOT_WINDOWS_MESSAGE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_WIN;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.HTTP;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.INVALID_SOLARIS_VERSION;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.INVALID_SSH_RESPONSE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.IPMI_CONNECTION_SUCCESS_WITH_IMPI_OVER_LAN_MESSAGE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.IPMI_CONNECTION_SUCCESS_WITH_IN_BAND_DRIVER_MESSAGE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.IPMI_FAILURE_MESSAGE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.IPMI_RESULT_EXAMPLE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.IPMI_SUCCESS_MESSAGE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.IPMI_TOOL_COMMAND;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.LINUX_BUILD_IPMI_COMMAND;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.LIPMI;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.LIST_ALL_LINUX_PROCESSES_RESULT;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.LOCALHOST;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.LOW_VERSION_NUMBER;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.MANAGEMENT_CARD_HOST;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.MY_CONNECTOR_1_NAME;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.NEITHER_WMI_NOR_WINRM_ERROR;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.NO_OS_CONFIGURATION_MESSAGE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.NO_RUNNING_PROCESS_MATCH_REGEX_MESSAGE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.NO_TEST_WILL_BE_PERFORMED_AIX_MESSAGE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.NO_TEST_WILL_BE_PERFORMED_MESSAGE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.NO_TEST_WILL_BE_PERFORMED_REMOTELY_MESSAGE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.NO_TEST_WILL_BE_PERFORMED_UNKNOWN_OS_MESSAGE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.OLD_SOLARIS_VERSION;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.OLD_SOLARIS_VERSION_MESSAGE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.OOB_NULL_RESULT_MESSAGE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.PASSWORD;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.PATH;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.PROCESS_CRITERION_COMMAND_LINE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.RESULT;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.RUNNING_PROCESS_MATCH_REGEX_MESSAGE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.SERVICE_NAME_NOT_SPECIFIED_MESSAGE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.SOLARIS_VERSION_NOT_IDENTIFIED_MESSAGE_TOKEN;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.SSH_SUDO_COMMAND;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.STRATEGY_TIMEOUT;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.SUCCESSFUL_OS_DETECTION;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.SUDO_KEYWORD;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.SYSTEM_POWER_UP_MESSAGE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.TEST;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.TEST_BODY;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.TWGIPC;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.UNKNOWN_SOLARIS_VERSION;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.USERNAME;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.VALID_SOLARIS_VERSION_NINE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.VALID_SOLARIS_VERSION_TEN;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_CREDENTIALS_NOT_CONFIGURED;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_CRITERION_NO_RESULT_MESSAGE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_CRITERION_UNEXPECTED_RESULT_MESSAGE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_MALFORMED_CRITERION_MESSAGE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_QUERY;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.WEBM_CRITERION_FAILURE_EXPECTED_RESULT;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.WEBM_CRITERION_SUCCESS_EXPECTED_RESULT;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.WMI_CREDENTIALS_NOT_CONFIGURED;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.WMI_CRITERION_TEST_SUCCEED_MESSAGE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.WMI_CRITERION_UNEXPECTED_RESULT_MESSAGE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.WMI_QUERY_EMPTY_VALUE_MESSAGE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.*;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -114,7 +44,6 @@ import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.common.HttpMethod;
@@ -128,7 +57,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.P
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.ServiceCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetNextCriterion;
-import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WbemCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WmiCriterion;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
@@ -160,10 +88,9 @@ class CriterionProcessorTest {
 
 	private TelemetryManager telemetryManager;
 	private WmiConfiguration wmiConfiguration;
-	private WbemConfiguration wbemConfiguration;
 
 	private void initWbem() {
-		wbemConfiguration = WbemConfiguration.builder().build();
+		final TestConfiguration wbemConfiguration = new TestConfiguration();
 		telemetryManager =
 			TelemetryManager
 				.builder()
@@ -173,7 +100,7 @@ class CriterionProcessorTest {
 						.hostname(LOCALHOST)
 						.hostId(LOCALHOST)
 						.hostType(DeviceKind.LINUX)
-						.configurations(Map.of(WbemConfiguration.class, wbemConfiguration))
+						.configurations(Map.of(TestConfiguration.class, wbemConfiguration))
 						.build()
 				)
 				.build();
@@ -286,98 +213,6 @@ class CriterionProcessorTest {
 			extensionManager
 		);
 		assertEquals(expected, criterionProcessor.process(snmpGetNextCriterion));
-	}
-
-	@Test
-	void testProcessWbemCriterionSuccess() throws Exception {
-		initWbem();
-		doReturn(EXCUTE_WBEM_RESULT).when(clientsExecutorMock).executeWql(any(), eq(wbemConfiguration), any(), any());
-		final WbemCriterion wbemCriterion = WbemCriterion
-			.builder()
-			.query(WBEM_QUERY)
-			.expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT)
-			.build();
-
-		final CriterionTestResult result = criterionProcessor.process(wbemCriterion);
-		assertTrue(result.isSuccess());
-	}
-
-	@Test
-	void testProcessWbemCriterionActualResultIsNotExpectedResult() throws Exception {
-		initWbem();
-		doReturn(EXCUTE_WBEM_RESULT).when(clientsExecutorMock).executeWql(any(), eq(wbemConfiguration), any(), any());
-		final WbemCriterion wbemCriterion = WbemCriterion
-			.builder()
-			.query(WBEM_QUERY)
-			.expectedResult(WEBM_CRITERION_FAILURE_EXPECTED_RESULT)
-			.build();
-		final CriterionTestResult result = criterionProcessor.process(wbemCriterion);
-		assertFalse(result.isSuccess());
-		assertTrue(result.getMessage().contains(WBEM_CRITERION_UNEXPECTED_RESULT_MESSAGE));
-	}
-
-	@Test
-	void testProcessWbemCriterionMalformedCriterion() throws Exception {
-		final CriterionTestResult result = criterionProcessor.process((WbemCriterion) null);
-		assertFalse(result.isSuccess());
-		assertTrue(result.getMessage().contains(WBEM_MALFORMED_CRITERION_MESSAGE));
-	}
-
-	@Test
-	void testProcessWbemEmptyQueryResult() throws Exception {
-		initWbem();
-		doReturn(List.of()).when(clientsExecutorMock).executeWql(any(), eq(wbemConfiguration), any(), any());
-		final WbemCriterion wbemCriterion = WbemCriterion
-			.builder()
-			.query(WBEM_QUERY)
-			.expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT)
-			.build();
-
-		final CriterionTestResult result = criterionProcessor.process(wbemCriterion);
-		assertFalse(result.isSuccess());
-		assertEquals(WBEM_CRITERION_NO_RESULT_MESSAGE, result.getResult());
-	}
-
-	@Test
-	void testProcessWbemCriterionWithNullWbemConfiguration() throws Exception {
-		wbemConfiguration = null;
-		telemetryManager =
-			TelemetryManager
-				.builder()
-				.hostConfiguration(
-					HostConfiguration
-						.builder()
-						.hostname(LOCALHOST)
-						.hostId(LOCALHOST)
-						.hostType(DeviceKind.LINUX)
-						.configurations(Map.of())
-						.build()
-				)
-				.build();
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		final WbemCriterion wbemCriterion = WbemCriterion
-			.builder()
-			.query(WBEM_QUERY)
-			.expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT)
-			.build();
-
-		final CriterionTestResult result = criterionProcessor.process(wbemCriterion);
-		assertFalse(result.isSuccess());
-		assertTrue(result.getMessage().contains(WBEM_CREDENTIALS_NOT_CONFIGURED));
-	}
-
-	@Test
-	void testProcessWbemCriterionWithClientException() throws Exception {
-		initWbem();
-		doThrow(ClientException.class).when(clientsExecutorMock).executeWql(any(), eq(wbemConfiguration), any(), any());
-		final WbemCriterion wbemCriterion = WbemCriterion
-			.builder()
-			.query(WBEM_QUERY)
-			.expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT)
-			.build();
-		final CriterionTestResult result = criterionProcessor.process(wbemCriterion);
-		assertFalse(result.isSuccess());
-		assertTrue(result.getException() instanceof ClientException);
 	}
 
 	@Test

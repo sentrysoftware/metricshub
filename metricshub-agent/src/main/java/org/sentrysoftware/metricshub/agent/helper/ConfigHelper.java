@@ -72,7 +72,6 @@ import org.sentrysoftware.metricshub.agent.config.protocols.AbstractProtocolConf
 import org.sentrysoftware.metricshub.agent.config.protocols.OsCommandProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.ProtocolsConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.SshProtocolConfig;
-import org.sentrysoftware.metricshub.agent.config.protocols.WbemProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.WinRmProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.WmiProtocolConfig;
 import org.sentrysoftware.metricshub.agent.context.MetricDefinitions;
@@ -951,15 +950,9 @@ public class ConfigHelper {
 			validateSshInfo(resourceKey, sshConfig.getUsername(), sshConfig.getTimeout());
 		}
 
-		final WbemProtocolConfig wbemConfig = protocolsConfig.getWbem();
+		final IConfiguration wbemConfig = protocolsConfig.getWbem();
 		if (wbemConfig != null) {
-			validateWbemInfo(
-				resourceKey,
-				wbemConfig.getUsername(),
-				wbemConfig.getTimeout(),
-				wbemConfig.getPort(),
-				wbemConfig.getVCenter()
-			);
+			wbemConfig.validateConfiguration(resourceKey);
 		}
 
 		final WmiProtocolConfig wmiConfig = protocolsConfig.getWmi();
@@ -1132,13 +1125,7 @@ public class ConfigHelper {
 			? new HashMap<>()
 			: new HashMap<>(
 				Stream
-					.of(
-						protocols.getSsh(),
-						protocols.getWbem(),
-						protocols.getWmi(),
-						protocols.getOsCommand(),
-						protocols.getWinrm()
-					)
+					.of(protocols.getSsh(), protocols.getWmi(), protocols.getOsCommand(), protocols.getWinrm())
 					.filter(Objects::nonNull)
 					.map(AbstractProtocolConfig::toConfiguration)
 					.filter(Objects::nonNull)

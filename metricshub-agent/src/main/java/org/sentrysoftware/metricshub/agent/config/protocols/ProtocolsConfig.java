@@ -54,7 +54,8 @@ public class ProtocolsConfig {
 	private SshProtocolConfig ssh;
 
 	@JsonSetter(nulls = SKIP)
-	private WbemProtocolConfig wbem;
+	@JsonDeserialize(using = ExtensionConfigDeserializer.class)
+	private IConfiguration wbem;
 
 	@JsonSetter(nulls = SKIP)
 	private WmiProtocolConfig wmi;

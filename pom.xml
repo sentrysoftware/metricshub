@@ -129,6 +129,7 @@
 		<module>metricshub-snmp-extension</module>
 		<module>metricshub-ipmi-extension</module>
 		<module>metricshub-http-extension</module>
+		<module>metricshub-wbem-extension</module>
 		<module>metricshub-agent</module>
 		<module>metricshub-doc</module>
     </modules>

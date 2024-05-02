@@ -48,7 +48,6 @@ import org.sentrysoftware.metricshub.engine.common.helpers.VersionHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IWinConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.CommandLineCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.DeviceTypeCriterion;
@@ -885,104 +884,19 @@ public class CriterionProcessor implements ICriterionProcessor {
 	}
 
 	/**
-	 * Find the namespace to use for the execution of the given {@link WbemCriterion}.
-	 *
-	 * @param hostname          The hostname of the host device
-	 * @param wbemConfiguration The WBEM protocol configuration (port, credentials, etc.)
-	 * @param wbemCriterion     The WQL criterion with an "Automatic" namespace
-	 * @return A {@link CriterionTestResult} telling whether we found the proper namespace for the specified WQL
-	 */
-	private CriterionTestResult findNamespace(
-		final String hostname,
-		final WbemConfiguration wbemConfiguration,
-		final WbemCriterion wbemCriterion
-	) {
-		// Get the list of possible namespaces on this host
-		Set<String> possibleWbemNamespaces = telemetryManager.getHostProperties().getPossibleWbemNamespaces();
-
-		// Only one thread at a time must be figuring out the possible namespaces on a given host
-		synchronized (possibleWbemNamespaces) {
-			if (possibleWbemNamespaces.isEmpty()) {
-				// If we don't have this list already, figure it out now
-				final WqlDetectionHelper.PossibleNamespacesResult possibleWbemNamespacesResult =
-					wqlDetectionHelper.findPossibleNamespaces(hostname, wbemConfiguration);
-
-				// If we can't detect the namespace then we must stop
-				if (!possibleWbemNamespacesResult.isSuccess()) {
-					return CriterionTestResult.error(wbemCriterion, possibleWbemNamespacesResult.getErrorMessage());
-				}
-
-				// Store the list of possible namespaces in HostMonitoring, for next time we need it
-				possibleWbemNamespaces.clear();
-				possibleWbemNamespaces.addAll(possibleWbemNamespacesResult.getPossibleNamespaces());
-			}
-		}
-
-		// Perform a namespace detection
-		WqlDetectionHelper.NamespaceResult namespaceResult = wqlDetectionHelper.detectNamespace(
-			hostname,
-			wbemConfiguration,
-			wbemCriterion,
-			Collections.unmodifiableSet(possibleWbemNamespaces)
-		);
-
-		// If that was successful, remember it in HostMonitoring, so we don't perform this
-		// (costly) detection again
-		if (namespaceResult.getResult().isSuccess()) {
-			telemetryManager
-				.getHostProperties()
-				.getConnectorNamespace(connectorId)
-				.setAutomaticWbemNamespace(namespaceResult.getNamespace());
-		}
-
-		return namespaceResult.getResult();
-	}
-
-	/**
 	 * Process the given {@link WbemCriterion} through Client and return the {@link CriterionTestResult}
 	 *
 	 * @param wbemCriterion The WBEM criterion to process.
 	 * @return The result of the criterion test processing.
 	 */
 	@WithSpan("Criterion WBEM Exec")
-	public CriterionTestResult process(@SpanAttribute("criterion.definition") WbemCriterion wbemCriterion) {
-		// Sanity check
-		if (wbemCriterion == null) {
-			return CriterionTestResult.error(wbemCriterion, "Malformed criterion. Cannot perform detection.");
-		}
-
-		// Gather the necessary info on the test that needs to be performed
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		final WbemConfiguration wbemConfiguration = (WbemConfiguration) telemetryManager
-			.getHostConfiguration()
-			.getConfigurations()
-			.get(WbemConfiguration.class);
-		if (wbemConfiguration == null) {
-			return CriterionTestResult.error(wbemCriterion, "The WBEM credentials are not configured for this host.");
-		}
-
-		// If namespace is specified as "Automatic"
-		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(wbemCriterion.getNamespace())) {
-			final String cachedNamespace = telemetryManager
-				.getHostProperties()
-				.getConnectorNamespace(connectorId)
-				.getAutomaticWbemNamespace();
-
-			// If not detected already, find the namespace
-			if (cachedNamespace == null) {
-				return findNamespace(hostname, wbemConfiguration, wbemCriterion);
-			}
-
-			// Update the criterion with the cached namespace
-			WqlCriterion cachedNamespaceCriterion = wbemCriterion.copy();
-			cachedNamespaceCriterion.setNamespace(cachedNamespace);
-
-			// Run the test
-			return wqlDetectionHelper.performDetectionTest(hostname, wbemConfiguration, cachedNamespaceCriterion);
-		}
-
-		// Run the test
-		return wqlDetectionHelper.performDetectionTest(hostname, wbemConfiguration, wbemCriterion);
+	public CriterionTestResult process(WbemCriterion wbemCriterion) {
+		final Optional<IProtocolExtension> maybeExtension = extensionManager.findCriterionExtension(
+			wbemCriterion,
+			telemetryManager
+		);
+		return maybeExtension
+			.map(extension -> extension.processCriterion(wbemCriterion, connectorId, telemetryManager))
+			.orElseGet(CriterionTestResult::empty);
 	}
 }
