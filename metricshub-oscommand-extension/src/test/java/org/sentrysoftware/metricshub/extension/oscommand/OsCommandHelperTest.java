@@ -654,6 +654,58 @@ class OsCommandHelperTest {
 	}
 
 	@Test
+	void testRunOsCommandRemoteWindowsEmbeddedFilesError() {
+		final Map<String, EmbeddedFile> embeddedFiles = new HashMap<>();
+		embeddedFiles.put(EMBEDDED_FILE_1_REF, new EmbeddedFile(ECHO_OS, BAT, EMBEDDED_FILE_1_REF));
+		embeddedFiles.put(EMBEDDED_FILE_2_REF, new EmbeddedFile(ECHO_HELLO_WORLD, null, EMBEDDED_FILE_2_REF));
+
+		final SshConfiguration osCommandConfiguration = new SshConfiguration();
+		osCommandConfiguration.setUsername(USERNAME);
+		osCommandConfiguration.setPassword(PWD_COMMAND.toCharArray());
+
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.hostId(ID)
+			.hostname(HOST)
+			.hostType(DeviceKind.WINDOWS)
+			.configurations(Map.of(osCommandConfiguration.getClass(), osCommandConfiguration))
+			.build();
+
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
+
+		try (
+			final MockedStatic<OsCommandService> mockedOsCommandService = mockStatic(OsCommandService.class);
+			final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class);
+			final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)
+		) {
+			mockedOsCommandService.when(() -> OsCommandService.getUsername(osCommandConfiguration)).thenCallRealMethod();
+			mockedOsCommandService
+				.when(() -> OsCommandService.runOsCommand(COMMAND_TO_UPDATE, telemetryManager, 120L, false, false))
+				.thenCallRealMethod();
+
+			mockedEmbeddedFileHelper
+				.when(() -> EmbeddedFileHelper.findEmbeddedFiles(anyString()))
+				.thenReturn(commandLineEmbeddedFiles);
+
+			mockedOsCommandHelper
+				.when(() ->
+					OsCommandHelper.createOsCommandEmbeddedFiles(
+						COMMAND_TO_UPDATE,
+						null,
+						commandLineEmbeddedFiles,
+						TEMP_FILE_CREATOR
+					)
+				)
+				.thenThrow(new IOException(ERROR_IN_FILE1));
+
+			assertThrows(
+				IOException.class,
+				() -> OsCommandService.runOsCommand(COMMAND_TO_UPDATE, telemetryManager, 120L, false, false)
+			);
+		}
+	}
+
+	@Test
 	@EnabledOnOs(OS.LINUX)
 	void testRunOsCommandLinuxError() {
 		final HostConfiguration hostConfiguration = HostConfiguration
