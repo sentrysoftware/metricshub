@@ -27,27 +27,17 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.TimeoutException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
-import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
-import org.sentrysoftware.metricshub.engine.common.exception.ControlledSshException;
-import org.sentrysoftware.metricshub.engine.common.exception.IpmiCommandForSolarisException;
-import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import org.sentrysoftware.metricshub.engine.common.helpers.VersionHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IWinConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.CommandLineCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.DeviceTypeCriterion;
@@ -64,9 +54,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.W
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.strategy.utils.CriterionProcessVisitor;
-import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
-import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandResult;
-import org.sentrysoftware.metricshub.engine.strategy.utils.PslUtils;
 import org.sentrysoftware.metricshub.engine.strategy.utils.WqlDetectionHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
@@ -94,8 +81,6 @@ public class CriterionProcessor implements ICriterionProcessor {
 	private static final String WMI_QUERY = "SELECT Description FROM ComputerSystem";
 	private static final String WMI_NAMESPACE = "root\\hardware";
 	private static final String CONFIGURE_OS_TYPE_MESSAGE = "Configured OS type : ";
-	private static final String IPMI_SOLARIS_VERSION_NOT_IDENTIFIED =
-		"Hostname %s - Could not identify Solaris version %s. Exception: %s";
 
 	private ClientsExecutor clientsExecutor;
 
@@ -219,7 +204,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 		if (DeviceKind.WINDOWS.equals(hostType)) {
 			return processWindowsIpmiDetection(ipmiCriterion);
 		} else if (DeviceKind.LINUX.equals(hostType) || DeviceKind.SOLARIS.equals(hostType)) {
-			return processUnixIpmiDetection(hostType);
+			return processUnixIpmiDetection(hostType, ipmiCriterion);
 		} else if (DeviceKind.OOB.equals(hostType)) {
 			return processOutOfBandIpmiDetection(ipmiCriterion);
 		}
@@ -264,75 +249,14 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 * @param hostType
 	 * @return new {@link CriterionTestResult} instance
 	 */
-	private CriterionTestResult processUnixIpmiDetection(final DeviceKind hostType) {
-		String ipmitoolCommand = telemetryManager.getHostProperties().getIpmitoolCommand();
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-		final SshConfiguration sshConfiguration = (SshConfiguration) telemetryManager
-			.getHostConfiguration()
-			.getConfigurations()
-			.get(SshConfiguration.class);
-
-		// Retrieve the sudo and timeout settings from OSCommandConfig for localhost, or directly from SSH for remote
-		final OsCommandConfiguration osCommandConfiguration = telemetryManager.getHostProperties().isLocalhost()
-			? (OsCommandConfiguration) telemetryManager
-				.getHostConfiguration()
-				.getConfigurations()
-				.get(OsCommandConfiguration.class)
-			: sshConfiguration;
-
-		if (osCommandConfiguration == null) {
-			final String message = String.format(
-				"Hostname %s - No OS command configuration for this host. Returning an empty result",
-				hostname
-			);
-			log.warn(message);
-			return CriterionTestResult.builder().success(false).result("").message(message).build();
-		}
-
-		final int defaultTimeout = osCommandConfiguration.getTimeout().intValue();
-		if (ipmitoolCommand == null || ipmitoolCommand.isEmpty()) {
-			ipmitoolCommand = buildIpmiCommand(hostType, hostname, sshConfiguration, osCommandConfiguration, defaultTimeout);
-		}
-
-		// buildIpmiCommand method can either return the actual result of the built command or an error. If it is an error we display it in the error message
-		if (!ipmitoolCommand.startsWith("PATH=")) {
-			return CriterionTestResult.builder().success(false).result("").message(ipmitoolCommand).build();
-		}
-
-		// execute the command
-		try {
-			String result = null;
-			result = runOsCommand(ipmitoolCommand, hostname, sshConfiguration, defaultTimeout);
-			if (result != null && !result.contains("IPMI Version")) {
-				// Didn't find what we expected: exit
-				return CriterionTestResult
-					.builder()
-					.success(false)
-					.result(result)
-					.message("Did not get the expected result from the IPMI tool command: " + ipmitoolCommand)
-					.build();
-			} else {
-				// everything goes well
-				telemetryManager
-					.getHostProperties()
-					.setIpmiExecutionCount(telemetryManager.getHostProperties().getIpmiExecutionCount() + 1);
-				return CriterionTestResult
-					.builder()
-					.success(true)
-					.result(result)
-					.message("Successfully connected to the IPMI BMC chip with the in-band driver interface.")
-					.build();
-			}
-		} catch (final Exception e) { // NOSONAR on interruption
-			final String message = String.format(
-				"Hostname %s - Cannot execute the IPMI tool command %s. Exception: %s.",
-				hostname,
-				ipmitoolCommand,
-				e.getMessage()
-			);
-			log.debug(message, e);
-			return CriterionTestResult.builder().success(false).message(message).build();
-		}
+	private CriterionTestResult processUnixIpmiDetection(final DeviceKind hostType, IpmiCriterion ipmiCriterion) {
+		final Optional<IProtocolExtension> maybeExtension = extensionManager.findCriterionExtension(
+			ipmiCriterion,
+			telemetryManager
+		);
+		return maybeExtension
+			.map(extension -> extension.processCriterion(ipmiCriterion, connectorId, telemetryManager))
+			.orElseGet(CriterionTestResult::empty);
 	}
 
 	/**
@@ -351,178 +275,6 @@ public class CriterionProcessor implements ICriterionProcessor {
 	}
 
 	/**
-	 * Check the OS type and version and build the correct IPMI command. If the
-	 * process fails, return the corresponding error.
-	 *
-	 * @param hostType               The type of the host.
-	 * @param hostname               The hostname.
-	 * @param sshConfiguration       The SSH configuration.
-	 * @param osCommandConfiguration The OS command configuration.
-	 * @param defaultTimeout         The default timeout.
-	 * @return String : The IPMI Command.
-	 */
-	public String buildIpmiCommand(
-		final DeviceKind hostType,
-		final String hostname,
-		final SshConfiguration sshConfiguration,
-		final OsCommandConfiguration osCommandConfiguration,
-		final int defaultTimeout
-	) {
-		// do we need to use sudo or not?
-		// If we have enabled useSudo (possible only in Web UI and CMA) --> yes
-		// Or if the command is listed in useSudoCommandList (possible only in classic
-		// wizard) --> yes
-		String ipmitoolCommand; // Sonar don't agree with modifying arguments
-		if (doesIpmitoolRequireSudo(osCommandConfiguration)) {
-			ipmitoolCommand =
-				"PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;%{SUDO:ipmitool}ipmitool -I ".replace(
-						"%{SUDO:ipmitool}",
-						osCommandConfiguration.getSudoCommand()
-					);
-		} else {
-			ipmitoolCommand = "PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;ipmitool -I ";
-		}
-
-		// figure out the version of the Solaris OS
-		if (DeviceKind.SOLARIS.equals(hostType)) {
-			String solarisOsVersion = null;
-			try {
-				// Execute "/usr/bin/uname -r" command in order to obtain the OS Version
-				// (Solaris)
-				solarisOsVersion = runOsCommand("/usr/bin/uname -r", hostname, sshConfiguration, defaultTimeout);
-			} catch (final Exception e) { // NOSONAR on interruption
-				final String message = String.format(
-					IPMI_SOLARIS_VERSION_NOT_IDENTIFIED,
-					hostname,
-					ipmitoolCommand,
-					e.getMessage()
-				);
-				log.debug(message, e);
-				return message;
-			}
-			// Get IPMI command
-			if (solarisOsVersion != null) {
-				try {
-					ipmitoolCommand = getIpmiCommandForSolaris(ipmitoolCommand, hostname, solarisOsVersion);
-				} catch (final IpmiCommandForSolarisException e) {
-					final String message = String.format(
-						IPMI_SOLARIS_VERSION_NOT_IDENTIFIED,
-						hostname,
-						ipmitoolCommand,
-						e.getMessage()
-					);
-					log.debug(message, e);
-					return message;
-				}
-			}
-		} else {
-			// If not Solaris, then we're on Linux
-			// On Linux, the IPMI interface driver is always 'open'
-			ipmitoolCommand = ipmitoolCommand + "open";
-		}
-		telemetryManager.getHostProperties().setIpmitoolCommand(ipmitoolCommand);
-
-		// At the very end of the command line, the actual IPMI command
-		ipmitoolCommand = ipmitoolCommand + " bmc info";
-		return ipmitoolCommand;
-	}
-
-	/**
-	 * Whether the ipmitool command requires sudo
-	 *
-	 * @param osCommandConfiguration User's configuration.
-	 * @return boolean value whether IPMI tool require Sudo or not.
-	 */
-	private boolean doesIpmitoolRequireSudo(final OsCommandConfiguration osCommandConfiguration) {
-		// CHECKSTYLE:OFF
-		// @formatter:off
-		return (
-			osCommandConfiguration.isUseSudo() ||
-			(
-				osCommandConfiguration.getUseSudoCommands() != null &&
-				osCommandConfiguration.getUseSudoCommands().contains("ipmitool")
-			)
-		);
-		// @formatter:on
-		// CHECKSTYLE:ON
-	}
-
-	/**
-	 * Get IPMI command based on Solaris version. If version == 9, then use 'lipmi'.
-	 * If version > 9, then use 'bmc'. Otherwise, return an error.
-	 *
-	 * @param ipmitoolCommand    The base IPMI tool command.
-	 * @param hostname           The hostname.
-	 * @param solarisOsVersion   The Solaris OS version.
-	 * @return String : IPMI command for Solaris.
-	 * @throws IpmiCommandForSolarisException If an error occurs while determining the IPMI command.
-	 */
-	public String getIpmiCommandForSolaris(String ipmitoolCommand, final String hostname, final String solarisOsVersion)
-		throws IpmiCommandForSolarisException {
-		final String[] split = solarisOsVersion.split("\\.");
-		if (split.length < 2) {
-			throw new IpmiCommandForSolarisException(
-				String.format(
-					"Unknown Solaris version (%s) for host: %s IPMI cannot be executed. Returning an empty result.",
-					solarisOsVersion,
-					hostname
-				)
-			);
-		}
-
-		final String solarisVersion = split[1];
-		try {
-			final int versionInt = Integer.parseInt(solarisVersion);
-			if (versionInt == 9) {
-				// On Solaris 9, the IPMI interface drive is 'lipmi'
-				ipmitoolCommand = ipmitoolCommand + "lipmi";
-			} else if (versionInt < 9) {
-				throw new IpmiCommandForSolarisException(
-					String.format(
-						"Solaris version (%s) is too old for the host: %s IPMI cannot be executed. Returning an empty result.",
-						solarisOsVersion,
-						hostname
-					)
-				);
-			} else {
-				// On more modern versions of Solaris, the IPMI interface driver is 'bmc'
-				ipmitoolCommand = ipmitoolCommand + "bmc";
-			}
-		} catch (final NumberFormatException e) {
-			throw new IpmiCommandForSolarisException(
-				"Could not identify Solaris version as a valid one.\nThe 'uname -r' command returned: " + solarisOsVersion + "."
-			);
-		}
-
-		return ipmitoolCommand;
-	}
-
-	/**
-	 * Run SSH command. Check if we can execute on localhost or remote.
-	 *
-	 * @param ipmitoolCommand    The IPMI tool command to execute.
-	 * @param hostname           The hostname.
-	 * @param sshConfiguration   The SSH configuration.
-	 * @param timeout            The timeout for command execution.
-	 * @return Command execution output.
-	 * @throws InterruptedException If the operation is interrupted.
-	 * @throws IOException          If an I/O error occurs.
-	 * @throws TimeoutException     If the operation times out.
-	 * @throws ClientException      If an error occurs in the client.
-	 * @throws ControlledSshException If an error occurs in the controlled SSH.
-	 */
-	String runOsCommand(
-		final String ipmitoolCommand,
-		final String hostname,
-		final SshConfiguration sshConfiguration,
-		final int timeout
-	) throws InterruptedException, IOException, TimeoutException, ClientException, ControlledSshException {
-		return telemetryManager.getHostProperties().isLocalhost()
-			? OsCommandHelper.runLocalCommand(ipmitoolCommand, timeout, null) // or we can use NetworkHelper.isLocalhost(hostname)
-			: OsCommandHelper.runSshCommand(ipmitoolCommand, hostname, sshConfiguration, timeout, null, null);
-	}
-
-	/**
 	 * Process the given {@link CommandLineCriterion} through Client and return the {@link CriterionTestResult}
 	 *
 	 * @param commandLineCriterion The {@link CommandLineCriterion} to process.
@@ -530,53 +282,13 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 */
 	@WithSpan("Criterion OS Command Exec")
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") CommandLineCriterion commandLineCriterion) {
-		if (commandLineCriterion == null) {
-			return CriterionTestResult.error(commandLineCriterion, "Malformed OSCommand criterion.");
-		}
-
-		if (
-			commandLineCriterion.getCommandLine().isEmpty() ||
-			commandLineCriterion.getExpectedResult() == null ||
-			commandLineCriterion.getExpectedResult().isEmpty()
-		) {
-			return CriterionTestResult.success(
-				commandLineCriterion,
-				"CommandLine or ExpectedResult are empty. Skipping this test."
-			);
-		}
-
-		try {
-			final OsCommandResult osCommandResult = OsCommandHelper.runOsCommand(
-				commandLineCriterion.getCommandLine(),
-				telemetryManager,
-				commandLineCriterion.getTimeout(),
-				commandLineCriterion.getExecuteLocally(),
-				telemetryManager.getHostProperties().isLocalhost()
-			);
-
-			final CommandLineCriterion osCommandNoPassword = CommandLineCriterion
-				.builder()
-				.commandLine(osCommandResult.getNoPasswordCommand())
-				.executeLocally(commandLineCriterion.getExecuteLocally())
-				.timeout(commandLineCriterion.getTimeout())
-				.expectedResult(commandLineCriterion.getExpectedResult())
-				.build();
-
-			final Matcher matcher = Pattern
-				.compile(
-					PslUtils.psl2JavaRegex(commandLineCriterion.getExpectedResult()),
-					Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
-				)
-				.matcher(osCommandResult.getResult());
-
-			return matcher.find()
-				? CriterionTestResult.success(osCommandNoPassword, osCommandResult.getResult())
-				: CriterionTestResult.failure(osCommandNoPassword, osCommandResult.getResult());
-		} catch (NoCredentialProvidedException noCredentialProvidedException) {
-			return CriterionTestResult.error(commandLineCriterion, noCredentialProvidedException.getMessage());
-		} catch (Exception exception) { // NOSONAR on interruption
-			return CriterionTestResult.error(commandLineCriterion, exception);
-		}
+		final Optional<IProtocolExtension> maybeExtension = extensionManager.findCriterionExtension(
+			commandLineCriterion,
+			telemetryManager
+		);
+		return maybeExtension
+			.map(extension -> extension.processCriterion(commandLineCriterion, connectorId, telemetryManager))
+			.orElseGet(CriterionTestResult::empty);
 	}
 
 	/**

@@ -1,0 +1,1536 @@
+Sensor ID              : Ambient (0x1)
+ Entity ID             : 39.0 (External Environment)
+ Sensor Type (Threshold)  : Temperature (0x01)
+ Sensor Reading        : 16.500 (+/- 0) degrees C
+ Status                : ok
+ Positive Hysteresis   : 1.750
+ Negative Hysteresis   : 1.750
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : lcr lnc unc ucr
+ Assertion Events      :
+ Assertions Enabled    : lnc- lcr- unc+ ucr+
+ Deassertions Enabled  : lnc- lcr- unc+ ucr+
+
+Sensor ID              : Systemboard 1 (0x2)
+ Entity ID             : 7.0 (System Board)
+ Sensor Type (Threshold)  : Temperature (0x01)
+ Sensor Reading        : 17 (+/- 0) degrees C
+ Status                : ok
+ Positive Hysteresis   : 1.000
+ Negative Hysteresis   : 1.000
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : unc ucr
+ Assertion Events      :
+ Assertions Enabled    : unc+ ucr+
+ Deassertions Enabled  : unc+ ucr+
+
+Sensor ID              : Systemboard 2 (0x3)
+ Entity ID             : 7.0 (System Board)
+ Sensor Type (Threshold)  : Temperature (0x01)
+ Sensor Reading        : 28 (+/- 0) degrees C
+ Status                : ok
+ Positive Hysteresis   : 1.000
+ Negative Hysteresis   : 1.000
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : unc ucr
+ Assertion Events      :
+ Assertions Enabled    : unc+ ucr+
+ Deassertions Enabled  : unc+ ucr+
+
+Sensor ID              : CPU1 (0x4)
+ Entity ID             : 3.0 (Processor)
+ Sensor Type (Threshold)  : Temperature (0x01)
+ Sensor Reading        : 30 (+/- 0) degrees C
+ Status                : ok
+ Positive Hysteresis   : 1.000
+ Negative Hysteresis   : Unspecified
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : -1.000
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : unc ucr
+ Assertion Events      :
+ Assertions Enabled    : unc+ ucr+
+ Deassertions Enabled  : unc+ ucr+
+
+Sensor ID              : CPU2 (0x5)
+ Entity ID             : 3.1 (Processor)
+ Sensor Type (Threshold)  : Temperature (0x01)
+ Sensor Reading        : 30 (+/- 0) degrees C
+ Status                : ok
+ Positive Hysteresis   : 1.000
+ Negative Hysteresis   : Unspecified
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : -1.000
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : unc ucr
+ Assertion Events      :
+ Assertions Enabled    : unc+ ucr+
+ Deassertions Enabled  : unc+ ucr+
+
+Sensor ID              : MEM A (0x6)
+ Entity ID             : 32.0 (Memory Device)
+ Sensor Type (Threshold)  : Temperature (0x01)
+ Sensor Reading        : 30 (+/- 0) degrees C
+ Status                : ok
+ Positive Hysteresis   : 1.000
+ Negative Hysteresis   : 1.000
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : unc ucr
+ Assertion Events      :
+ Assertions Enabled    : unc+ ucr+
+ Deassertions Enabled  : unc+ ucr+
+
+Sensor ID              : MEM B (0x7)
+ Entity ID             : 32.1 (Memory Device)
+ Sensor Type (Threshold)  : Temperature (0x01)
+ Sensor Reading        : No Reading
+ Status                : Not Available
+ Positive Hysteresis   : 1.000
+ Negative Hysteresis   : 1.000
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : unc ucr
+ Event Status          : Unavailable
+ Assertions Enabled    : unc+ ucr+
+ Deassertions Enabled  : unc+ ucr+
+
+Sensor ID              : MEM C (0x8)
+ Entity ID             : 32.2 (Memory Device)
+ Sensor Type (Threshold)  : Temperature (0x01)
+ Sensor Reading        : No Reading
+ Status                : Not Available
+ Positive Hysteresis   : 1.000
+ Negative Hysteresis   : 1.000
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : unc ucr
+ Event Status          : Unavailable
+ Assertions Enabled    : unc+ ucr+
+ Deassertions Enabled  : unc+ ucr+
+
+Sensor ID              : MEM D (0x9)
+ Entity ID             : 32.3 (Memory Device)
+ Sensor Type (Threshold)  : Temperature (0x01)
+ Sensor Reading        : No Reading
+ Status                : Not Available
+ Positive Hysteresis   : 1.000
+ Negative Hysteresis   : 1.000
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : unc ucr
+ Event Status          : Unavailable
+ Assertions Enabled    : unc+ ucr+
+ Deassertions Enabled  : unc+ ucr+
+
+Sensor ID              : MEM E (0xa)
+ Entity ID             : 32.4 (Memory Device)
+ Sensor Type (Threshold)  : Temperature (0x01)
+ Sensor Reading        : 30 (+/- 0) degrees C
+ Status                : ok
+ Positive Hysteresis   : 1.000
+ Negative Hysteresis   : 1.000
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : unc ucr
+ Assertion Events      :
+ Assertions Enabled    : unc+ ucr+
+ Deassertions Enabled  : unc+ ucr+
+
+Sensor ID              : MEM F (0xb)
+ Entity ID             : 32.5 (Memory Device)
+ Sensor Type (Threshold)  : Temperature (0x01)
+ Sensor Reading        : No Reading
+ Status                : Not Available
+ Positive Hysteresis   : 1.000
+ Negative Hysteresis   : 1.000
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : unc ucr
+ Event Status          : Unavailable
+ Assertions Enabled    : unc+ ucr+
+ Deassertions Enabled  : unc+ ucr+
+
+Sensor ID              : MEM G (0xc)
+ Entity ID             : 32.6 (Memory Device)
+ Sensor Type (Threshold)  : Temperature (0x01)
+ Sensor Reading        : No Reading
+ Status                : Not Available
+ Positive Hysteresis   : 1.000
+ Negative Hysteresis   : 1.000
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : unc ucr
+ Event Status          : Unavailable
+ Assertions Enabled    : unc+ ucr+
+ Deassertions Enabled  : unc+ ucr+
+
+Sensor ID              : MEM H (0xd)
+ Entity ID             : 32.7 (Memory Device)
+ Sensor Type (Threshold)  : Temperature (0x01)
+ Sensor Reading        : No Reading
+ Status                : Not Available
+ Positive Hysteresis   : 1.000
+ Negative Hysteresis   : 1.000
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : unc ucr
+ Event Status          : Unavailable
+ Assertions Enabled    : unc+ ucr+
+ Deassertions Enabled  : unc+ ucr+
+
+Sensor ID              : PSU1 Inlet (0xe)
+ Entity ID             : 10.4 (Power Supply)
+ Sensor Type (Threshold)  : Temperature (0x01)
+ Sensor Reading        : 19 (+/- 0) degrees C
+ Status                : ok
+ Positive Hysteresis   : 1.000
+ Negative Hysteresis   : Unspecified
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : unc ucr
+ Assertion Events      :
+ Assertions Enabled    : unc+ ucr+
+ Deassertions Enabled  : unc+ ucr+
+
+Sensor ID              : PSU2 Inlet (0xf)
+ Entity ID             : 10.8 (Power Supply)
+ Sensor Type (Threshold)  : Temperature (0x01)
+ Sensor Reading        : 18 (+/- 0) degrees C
+ Status                : ok
+ Positive Hysteresis   : 1.000
+ Negative Hysteresis   : Unspecified
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : unc ucr
+ Assertion Events      :
+ Assertions Enabled    : unc+ ucr+
+ Deassertions Enabled  : unc+ ucr+
+
+Sensor ID              : PSU1 (0x10)
+ Entity ID             : 10.4 (Power Supply)
+ Sensor Type (Threshold)  : Temperature (0x01)
+ Sensor Reading        : 47 (+/- 0) degrees C
+ Status                : ok
+ Positive Hysteresis   : 1.000
+ Negative Hysteresis   : Unspecified
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : unc ucr
+ Assertion Events      :
+ Assertions Enabled    : unc+ ucr+
+ Deassertions Enabled  : unc+ ucr+
+
+Sensor ID              : PSU2 (0x11)
+ Entity ID             : 10.8 (Power Supply)
+ Sensor Type (Threshold)  : Temperature (0x01)
+ Sensor Reading        : 47 (+/- 0) degrees C
+ Status                : ok
+ Positive Hysteresis   : 1.000
+ Negative Hysteresis   : Unspecified
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : unc ucr
+ Assertion Events      :
+ Assertions Enabled    : unc+ ucr+
+ Deassertions Enabled  : unc+ ucr+
+
+Sensor ID              : BATT 3.0V (0x12)
+ Entity ID             : 40.0 (Battery)
+ Sensor Type (Threshold)  : Voltage (0x02)
+ Sensor Reading        : 3.210 (+/- 0) Volts
+ Status                : ok
+ Nominal Reading       : 3.000
+ Positive Hysteresis   : 0.075
+ Negative Hysteresis   : 0.075
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : lcr lnc ucr
+ Assertion Events      :
+ Assertions Enabled    : lnc- lcr- ucr+
+ Deassertions Enabled  : lnc- lcr- ucr+
+
+Sensor ID              : STBY 12V (0x13)
+ Entity ID             : 7.0 (System Board)
+ Sensor Type (Threshold)  : Voltage (0x02)
+ Sensor Reading        : 11.760 (+/- 0) Volts
+ Status                : ok
+ Nominal Reading       : 12.000
+ Positive Hysteresis   : 0.360
+ Negative Hysteresis   : 0.360
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : lcr ucr
+ Assertion Events      :
+ Assertions Enabled    : lcr- ucr+
+ Deassertions Enabled  : lcr- ucr+
+
+Sensor ID              : STBY 5V (0x14)
+ Entity ID             : 7.0 (System Board)
+ Sensor Type (Threshold)  : Voltage (0x02)
+ Sensor Reading        : 5.099 (+/- 0) Volts
+ Status                : ok
+ Nominal Reading       : 5.000
+ Positive Hysteresis   : 0.174
+ Negative Hysteresis   : 0.124
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : lcr ucr
+ Assertion Events      :
+ Assertions Enabled    : lcr- ucr+
+ Deassertions Enabled  : lcr- ucr+
+
+Sensor ID              : STBY 3.3V (0x15)
+ Entity ID             : 7.0 (System Board)
+ Sensor Type (Threshold)  : Voltage (0x02)
+ Sensor Reading        : 3.283 (+/- 0) Volts
+ Status                : ok
+ Nominal Reading       : 3.300
+ Positive Hysteresis   : 0.100
+ Negative Hysteresis   : 0.100
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : lcr ucr
+ Assertion Events      :
+ Assertions Enabled    : lcr- ucr+
+ Deassertions Enabled  : lcr- ucr+
+
+Sensor ID              : LAN 1.8V STBY (0x16)
+ Entity ID             : 7.0 (System Board)
+ Sensor Type (Threshold)  : Voltage (0x02)
+ Sensor Reading        : 1.810 (+/- 0) Volts
+ Status                : ok
+ Nominal Reading       : 1.800
+ Positive Hysteresis   : 0.040
+ Negative Hysteresis   : 0.040
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : lcr ucr
+ Assertion Events      :
+ Assertions Enabled    : lcr- ucr+
+ Deassertions Enabled  : lcr- ucr+
+
+Sensor ID              : iRMC 1.5V STBY (0x17)
+ Entity ID             : 7.0 (System Board)
+ Sensor Type (Threshold)  : Voltage (0x02)
+ Sensor Reading        : 1.470 (+/- 0) Volts
+ Status                : ok
+ Nominal Reading       : 1.500
+ Positive Hysteresis   : 0.030
+ Negative Hysteresis   : 0.030
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : lcr ucr
+ Assertion Events      :
+ Assertions Enabled    : lcr- ucr+
+ Deassertions Enabled  : lcr- ucr+
+
+Sensor ID              : LAN 1.0V STBY (0x18)
+ Entity ID             : 7.0 (System Board)
+ Sensor Type (Threshold)  : Voltage (0x02)
+ Sensor Reading        : 0.980 (+/- 0) Volts
+ Status                : ok
+ Nominal Reading       : 1.000
+ Positive Hysteresis   : 0.030
+ Negative Hysteresis   : 0.020
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : lcr ucr
+ Assertion Events      :
+ Assertions Enabled    : lcr- ucr+
+ Deassertions Enabled  : lcr- ucr+
+
+Sensor ID              : MAIN 12V (0x19)
+ Entity ID             : 7.0 (System Board)
+ Sensor Type (Threshold)  : Voltage (0x02)
+ Sensor Reading        : 12.159 (+/- 0) Volts
+ Status                : ok
+ Nominal Reading       : 12.000
+ Positive Hysteresis   : 0.371
+ Negative Hysteresis   : 0.265
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : lcr ucr
+ Assertion Events      :
+ Assertions Enabled    : lcr- ucr+
+ Deassertions Enabled  : lcr- ucr+
+
+Sensor ID              : MAIN 5V (0x1a)
+ Entity ID             : 7.0 (System Board)
+ Sensor Type (Threshold)  : Voltage (0x02)
+ Sensor Reading        : 5 (+/- 0) Volts
+ Status                : ok
+ Nominal Reading       : 5.000
+ Positive Hysteresis   : 0.174
+ Negative Hysteresis   : 0.124
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : lcr ucr
+ Assertion Events      :
+ Assertions Enabled    : lcr- ucr+
+ Deassertions Enabled  : lcr- ucr+
+
+Sensor ID              : MAIN 3.3V (0x1b)
+ Entity ID             : 7.0 (System Board)
+ Sensor Type (Threshold)  : Voltage (0x02)
+ Sensor Reading        : 3.317 (+/- 0) Volts
+ Status                : ok
+ Nominal Reading       : 3.300
+ Positive Hysteresis   : 0.100
+ Negative Hysteresis   : 0.100
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : lcr ucr
+ Assertion Events      :
+ Assertions Enabled    : lcr- ucr+
+ Deassertions Enabled  : lcr- ucr+
+
+Sensor ID              : PCH 1.5V (0x1c)
+ Entity ID             : 7.0 (System Board)
+ Sensor Type (Threshold)  : Voltage (0x02)
+ Sensor Reading        : 1.480 (+/- 0) Volts
+ Status                : ok
+ Nominal Reading       : 1.500
+ Positive Hysteresis   : 0.030
+ Negative Hysteresis   : 0.030
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : lcr ucr
+ Assertion Events      :
+ Assertions Enabled    : lcr- ucr+
+ Deassertions Enabled  : lcr- ucr+
+
+Sensor ID              : PCH 1.1V (0x1d)
+ Entity ID             : 7.0 (System Board)
+ Sensor Type (Threshold)  : Voltage (0x02)
+ Sensor Reading        : 1.080 (+/- 0) Volts
+ Status                : ok
+ Nominal Reading       : 1.100
+ Positive Hysteresis   : 0.020
+ Negative Hysteresis   : 0.020
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : lcr ucr
+ Assertion Events      :
+ Assertions Enabled    : lcr- ucr+
+ Deassertions Enabled  : lcr- ucr+
+
+Sensor ID              : CPU1 1.05V (0x1e)
+ Entity ID             : 7.0 (System Board)
+ Sensor Type (Threshold)  : Voltage (0x02)
+ Sensor Reading        : 1.030 (+/- 0) Volts
+ Status                : ok
+ Nominal Reading       : 1.050
+ Positive Hysteresis   : 0.020
+ Negative Hysteresis   : 0.020
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : lcr ucr
+ Assertion Events      :
+ Assertions Enabled    : lcr- ucr+
+ Deassertions Enabled  : lcr- ucr+
+
+Sensor ID              : CPU2 1.05V (0x1f)
+ Entity ID             : 7.0 (System Board)
+ Sensor Type (Threshold)  : Voltage (0x02)
+ Sensor Reading        : 1.030 (+/- 0) Volts
+ Status                : ok
+ Nominal Reading       : 1.050
+ Positive Hysteresis   : 0.020
+ Negative Hysteresis   : 0.020
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : lcr ucr
+ Assertion Events      :
+ Assertions Enabled    : lcr- ucr+
+ Deassertions Enabled  : lcr- ucr+
+
+Sensor ID              : FAN1 SYS (0x20)
+ Entity ID             : 29.0 (Fan Device)
+ Sensor Type (Threshold)  : Fan (0x04)
+ Sensor Reading        : 4680 (+/- 30) RPM
+ Status                : ok
+ Positive Hysteresis   : Unspecified
+ Negative Hysteresis   : 240.000
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Assertion Events      :
+ Assertions Enabled    :
+
+Sensor ID              : FAN2 SYS (0x21)
+ Entity ID             : 29.1 (Fan Device)
+ Sensor Type (Threshold)  : Fan (0x04)
+ Sensor Reading        : 4980 (+/- 30) RPM
+ Status                : ok
+ Positive Hysteresis   : Unspecified
+ Negative Hysteresis   : 240.000
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Assertion Events      :
+ Assertions Enabled    :
+
+Sensor ID              : FAN3 SYS (0x22)
+ Entity ID             : 29.2 (Fan Device)
+ Sensor Type (Threshold)  : Fan (0x04)
+ Sensor Reading        : 4560 (+/- 30) RPM
+ Status                : ok
+ Positive Hysteresis   : Unspecified
+ Negative Hysteresis   : 240.000
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Assertion Events      :
+ Assertions Enabled    :
+
+Sensor ID              : FAN4 SYS (0x23)
+ Entity ID             : 29.3 (Fan Device)
+ Sensor Type (Threshold)  : Fan (0x04)
+ Sensor Reading        : 4860 (+/- 30) RPM
+ Status                : ok
+ Positive Hysteresis   : Unspecified
+ Negative Hysteresis   : 240.000
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Assertion Events      :
+ Assertions Enabled    :
+
+Sensor ID              : FAN5 SYS (0x24)
+ Entity ID             : 29.4 (Fan Device)
+ Sensor Type (Threshold)  : Fan (0x04)
+ Sensor Reading        : 4680 (+/- 30) RPM
+ Status                : ok
+ Positive Hysteresis   : Unspecified
+ Negative Hysteresis   : 240.000
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Assertion Events      :
+ Assertions Enabled    :
+
+Sensor ID              : FAN PSU1 (0x25)
+ Entity ID             : 10.4 (Power Supply)
+ Sensor Type (Threshold)  : Fan (0x04)
+ Sensor Reading        : 1520 (+/- 0) RPM
+ Status                : ok
+ Positive Hysteresis   : Unspecified
+ Negative Hysteresis   : 640.000
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Assertion Events      :
+ Assertions Enabled    :
+
+Sensor ID              : FAN PSU2 (0x26)
+ Entity ID             : 10.8 (Power Supply)
+ Sensor Type (Threshold)  : Fan (0x04)
+ Sensor Reading        : 1440 (+/- 0) RPM
+ Status                : ok
+ Positive Hysteresis   : Unspecified
+ Negative Hysteresis   : 640.000
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Assertion Events      :
+ Assertions Enabled    :
+
+Sensor ID              : CPU1 Power (0x27)
+ Entity ID             : 3.0 (Processor)
+ Sensor Type (Threshold)  : Other (0x0b)
+ Sensor Reading        : 20 (+/- 0) Watts
+ Status                : ok
+ Positive Hysteresis   : Unspecified
+ Negative Hysteresis   : Unspecified
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Assertion Events      :
+ Assertions Enabled    :
+
+Sensor ID              : CPU2 Power (0x28)
+ Entity ID             : 3.1 (Processor)
+ Sensor Type (Threshold)  : Other (0x0b)
+ Sensor Reading        : 20 (+/- 0) Watts
+ Status                : ok
+ Positive Hysteresis   : Unspecified
+ Negative Hysteresis   : Unspecified
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Assertion Events      :
+ Assertions Enabled    :
+
+Sensor ID              : System Power (0x29)
+ Entity ID             : 7.0 (System Board)
+ Sensor Type (Threshold)  : Other (0x0b)
+ Sensor Reading        : 34 (+/- 0) Watts
+ Status                : ok
+ Positive Hysteresis   : Unspecified
+ Negative Hysteresis   : Unspecified
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Assertion Events      :
+ Assertions Enabled    :
+
+Sensor ID              : HDD Power (0x2a)
+ Entity ID             : 26.0 (Disk Drive Bay)
+ Sensor Type (Threshold)  : Other (0x0b)
+ Sensor Reading        : 2 (+/- 0) Watts
+ Status                : ok
+ Positive Hysteresis   : Unspecified
+ Negative Hysteresis   : Unspecified
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Assertion Events      :
+ Assertions Enabled    :
+
+Sensor ID              : PSU1 Power (0x2b)
+ Entity ID             : 10.100 (Power Supply)
+ Sensor Type (Threshold)  : Other (0x0b)
+ Sensor Reading        : 52 (+/- 0) Watts
+ Status                : ok
+ Normal Maximum        : 452.000
+ Positive Hysteresis   : Unspecified
+ Negative Hysteresis   : Unspecified
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Assertion Events      :
+ Assertions Enabled    :
+
+Sensor ID              : PSU2 Power (0x2c)
+ Entity ID             : 10.104 (Power Supply)
+ Sensor Type (Threshold)  : Other (0x0b)
+ Sensor Reading        : 48 (+/- 0) Watts
+ Status                : ok
+ Normal Maximum        : 452.000
+ Positive Hysteresis   : Unspecified
+ Negative Hysteresis   : Unspecified
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Assertion Events      :
+ Assertions Enabled    :
+
+Sensor ID              : Total Power (0x2d)
+ Entity ID             : 224.0 (Unknown (0xE0))
+ Sensor Type (Threshold)  : Other (0x0b)
+ Sensor Reading        : 100 (+/- 0) Watts
+ Status                : ok
+ Normal Minimum        : 108.000
+ Normal Maximum        : 476.000
+ Positive Hysteresis   : Unspecified
+ Negative Hysteresis   : Unspecified
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : ucr
+ Assertion Events      :
+ Assertions Enabled    : ucr+
+ Deassertions Enabled  : ucr+
+
+Sensor ID              : Total Power Out (0x2e)
+ Entity ID             : 224.1 (Unknown (0xE0))
+ Sensor Type (Threshold)  : Other (0x0b)
+ Sensor Reading        : 72 (+/- 0) Watts
+ Status                : ok
+ Normal Minimum        : 100.000
+ Normal Maximum        : 448.000
+ Positive Hysteresis   : Unspecified
+ Negative Hysteresis   : Unspecified
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : Unspecified
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Assertion Events      :
+ Assertions Enabled    :
+
+Sensor ID              : I2C1 error ratio (0x2f)
+ Entity ID             : 6.1 (System Management Module)
+ Sensor Type (Threshold)  : Unknown (0xc0)
+ Sensor Reading        : 0 (+/- 0) percent
+ Status                : ok
+ Positive Hysteresis   : Unspecified
+ Negative Hysteresis   : Unspecified
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : 100.000
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : unc ucr
+ Assertion Events      :
+ Assertions Enabled    : unc+ ucr+
+ Deassertions Enabled  : unc+ ucr+
+
+Sensor ID              : I2C2 error ratio (0x30)
+ Entity ID             : 6.2 (System Management Module)
+ Sensor Type (Threshold)  : Unknown (0xc0)
+ Sensor Reading        : 0 (+/- 0) percent
+ Status                : ok
+ Positive Hysteresis   : Unspecified
+ Negative Hysteresis   : Unspecified
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : 100.000
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : unc ucr
+ Assertion Events      :
+ Assertions Enabled    : unc+ ucr+
+ Deassertions Enabled  : unc+ ucr+
+
+Sensor ID              : I2C3 error ratio (0x31)
+ Entity ID             : 6.3 (System Management Module)
+ Sensor Type (Threshold)  : Unknown (0xc0)
+ Sensor Reading        : 0 (+/- 0) percent
+ Status                : ok
+ Positive Hysteresis   : Unspecified
+ Negative Hysteresis   : Unspecified
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : 100.000
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : unc ucr
+ Assertion Events      :
+ Assertions Enabled    : unc+ ucr+
+ Deassertions Enabled  : unc+ ucr+
+
+Sensor ID              : I2C4 error ratio (0x32)
+ Entity ID             : 6.4 (System Management Module)
+ Sensor Type (Threshold)  : Unknown (0xc0)
+ Sensor Reading        : 0 (+/- 0) percent
+ Status                : ok
+ Positive Hysteresis   : Unspecified
+ Negative Hysteresis   : Unspecified
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : 100.000
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : unc ucr
+ Assertion Events      :
+ Assertions Enabled    : unc+ ucr+
+ Deassertions Enabled  : unc+ ucr+
+
+Sensor ID              : I2C5 error ratio (0x33)
+ Entity ID             : 6.5 (System Management Module)
+ Sensor Type (Threshold)  : Unknown (0xc0)
+ Sensor Reading        : 0 (+/- 0) percent
+ Status                : ok
+ Positive Hysteresis   : Unspecified
+ Negative Hysteresis   : Unspecified
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : 100.000
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : unc ucr
+ Assertion Events      :
+ Assertions Enabled    : unc+ ucr+
+ Deassertions Enabled  : unc+ ucr+
+
+Sensor ID              : I2C6 error ratio (0x34)
+ Entity ID             : 6.6 (System Management Module)
+ Sensor Type (Threshold)  : Unknown (0xc0)
+ Sensor Reading        : 0 (+/- 0) percent
+ Status                : ok
+ Positive Hysteresis   : Unspecified
+ Negative Hysteresis   : Unspecified
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : 100.000
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : unc ucr
+ Assertion Events      :
+ Assertions Enabled    : unc+ ucr+
+ Deassertions Enabled  : unc+ ucr+
+
+Sensor ID              : I2C7 error ratio (0x35)
+ Entity ID             : 6.7 (System Management Module)
+ Sensor Type (Threshold)  : Unknown (0xc0)
+ Sensor Reading        : 0 (+/- 0) percent
+ Status                : ok
+ Positive Hysteresis   : Unspecified
+ Negative Hysteresis   : Unspecified
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : 100.000
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : unc ucr
+ Assertion Events      :
+ Assertions Enabled    : unc+ ucr+
+ Deassertions Enabled  : unc+ ucr+
+
+Sensor ID              : I2C8 error ratio (0x36)
+ Entity ID             : 6.8 (System Management Module)
+ Sensor Type (Threshold)  : Unknown (0xc0)
+ Sensor Reading        : 0 (+/- 0) percent
+ Status                : ok
+ Positive Hysteresis   : Unspecified
+ Negative Hysteresis   : Unspecified
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : 100.000
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : unc ucr
+ Assertion Events      :
+ Assertions Enabled    : unc+ ucr+
+ Deassertions Enabled  : unc+ ucr+
+
+Sensor ID              : SEL Level (0x37)
+ Entity ID             : 6.0 (System Management Module)
+ Sensor Type (Threshold)  : Monitor ASIC (0x26)
+ Sensor Reading        : 0 (+/- 0) percent
+ Status                : ok
+ Positive Hysteresis   : Unspecified
+ Negative Hysteresis   : Unspecified
+ Minimum sensor range  : Unspecified
+ Maximum sensor range  : 100.000
+ Event Message Control : Per-threshold
+ Readable Thresholds   : Thresholds Fixed
+ Settable Thresholds   : Thresholds Fixed
+ Threshold Read Mask   : unc
+ Assertion Events      :
+ Assertions Enabled    : unc+
+
+Sensor ID              : Ambient (0x38)
+ Entity ID             : 39.0 (External Environment)
+ Sensor Type (Discrete): Temperature (0x01)
+ Sensor Reading        : 1h
+ Event Message Control : Per-threshold
+ States Asserted       : Temperature
+                         [Device Present]
+ Assertions Enabled    : Temperature
+                         [Device Absent]
+                         [Device Present]
+ OEM                   : 0
+
+Sensor ID              : CPU1 (0x39)
+ Entity ID             : 3.0 (Processor)
+ Sensor Type (Discrete): Processor (0x07)
+ Sensor Reading        : 0h
+ Event Message Control : Per-threshold
+ States Asserted       : Processor
+                         [Presence detected]
+ Assertions Enabled    : Processor
+                         [IERR]
+                         [Thermal Trip]
+                         [Configuration Error]
+                         [Presence detected]
+ Deassertions Enabled  : Processor
+                         [Presence detected]
+ OEM                   : 1
+
+Sensor ID              : CPU2 (0x3a)
+ Entity ID             : 3.1 (Processor)
+ Sensor Type (Discrete): Processor (0x07)
+ Sensor Reading        : 0h
+ Event Message Control : Per-threshold
+ States Asserted       : Processor
+                         [Presence detected]
+ Assertions Enabled    : Processor
+                         [IERR]
+                         [Thermal Trip]
+                         [Configuration Error]
+                         [Presence detected]
+ Deassertions Enabled  : Processor
+                         [Presence detected]
+ OEM                   : 1
+
+Sensor ID              : Power Unit (0x3b)
+ Entity ID             : 19.1 (Power Unit)
+ Sensor Type (Discrete): Power Unit (0x09)
+ Sensor Reading        : 2h
+ Event Message Control : Per-threshold
+ States Asserted       : Power Unit
+                         [Fully Redundant]
+ Assertions Enabled    : Power Unit
+                         [Fully Redundant]
+                         [Redundancy Lost]
+                         [Non-Redundant: Insufficient Resources]
+ OEM                   : 80
+
+Sensor ID              : PSU Config (0x3c)
+ Entity ID             : 19.0 (Power Unit)
+ Sensor Type (Discrete): Version Change (0x2b)
+ Sensor Reading        : 77h
+ Event Message Control : Per-threshold
+ States Asserted       : Version Change
+                         [Hardware change detected]
+ Assertions Enabled    : Version Change
+                         [Hardware incompatibility detected]
+ OEM                   : 80
+
+Sensor ID              : PSU (0x3d)
+ Entity ID             : 19.0 (Power Unit)
+ Sensor Type (Discrete): Power Unit (0x09)
+ Sensor Reading        : No Reading
+ Event Message Control : Per-threshold
+ OEM                   : 0
+
+Sensor ID              : PSU1 (0x3e)
+ Entity ID             : 10.4 (Power Supply)
+ Sensor Type (Discrete): Unknown (0xe8)
+ Sensor Reading        : 2h
+ Event Message Control : Per-threshold
+ OEM                   : 80
+
+Sensor ID              : PSU2 (0x3f)
+ Entity ID             : 10.8 (Power Supply)
+ Sensor Type (Discrete): Unknown (0xe8)
+ Sensor Reading        : 2h
+ Event Message Control : Per-threshold
+ OEM                   : 80
+
+Sensor ID              : Power Level (0x40)
+ Entity ID             : 224.2 (Unknown (0xE0))
+ Sensor Type (Discrete): Unknown (0xdd)
+ Sensor Reading        : 3h
+ Event Message Control : Per-threshold
+ OEM                   : 80
+
+Sensor ID              : P-STATE Throttle (0x41)
+ Entity ID             : 46.0 (Management Controller Firmware)
+ Sensor Type (Discrete): Unknown (0xeb)
+ Sensor Reading        : 0h
+ Event Message Control : Per-threshold
+ OEM                   : 0
+
+Sensor ID              : FAN1 SYS (0x42)
+ Entity ID             : 29.0 (Fan Device)
+ Sensor Type (Discrete): Unknown (0xe6)
+ Sensor Reading        : 0h
+ Event Message Control : Per-threshold
+ OEM                   : 81
+
+Sensor ID              : FAN2 SYS (0x43)
+ Entity ID             : 29.1 (Fan Device)
+ Sensor Type (Discrete): Unknown (0xe6)
+ Sensor Reading        : 0h
+ Event Message Control : Per-threshold
+ OEM                   : 81
+
+Sensor ID              : FAN3 SYS (0x44)
+ Entity ID             : 29.2 (Fan Device)
+ Sensor Type (Discrete): Unknown (0xe6)
+ Sensor Reading        : 0h
+ Event Message Control : Per-threshold
+ OEM                   : 81
+
+Sensor ID              : FAN4 SYS (0x45)
+ Entity ID             : 29.3 (Fan Device)
+ Sensor Type (Discrete): Unknown (0xe6)
+ Sensor Reading        : 0h
+ Event Message Control : Per-threshold
+ OEM                   : 81
+
+Sensor ID              : FAN5 SYS (0x46)
+ Entity ID             : 29.4 (Fan Device)
+ Sensor Type (Discrete): Unknown (0xe6)
+ Sensor Reading        : 0h
+ Event Message Control : Per-threshold
+ OEM                   : 81
+
+Sensor ID              : FAN PSU1 (0x47)
+ Entity ID             : 10.4 (Power Supply)
+ Sensor Type (Discrete): Unknown (0xe6)
+ Sensor Reading        : 0h
+ Event Message Control : Per-threshold
+ OEM                   : 80
+
+Sensor ID              : FAN PSU2 (0x48)
+ Entity ID             : 10.8 (Power Supply)
+ Sensor Type (Discrete): Unknown (0xe6)
+ Sensor Reading        : 0h
+ Event Message Control : Per-threshold
+ OEM                   : 80
+
+Sensor ID              : Watchdog (0x49)
+ Entity ID             : 0.0 (Unspecified)
+ Sensor Type (Discrete): Watchdog2 (0x23)
+ Sensor Reading        : 0h
+ Event Message Control : Per-threshold
+ Assertions Enabled    : Watchdog2
+                         [Timer expired]
+                         [Hard reset]
+                         [Power down]
+                         [Power cycle]
+                         [reserved]
+                         [Timer interrupt]
+ OEM                   : 0
+
+Sensor ID              : Housing open (0x4a)
+ Entity ID             : 23.0 (System Chassis)
+ Sensor Type (Discrete): Physical Security (0x05)
+ Sensor Reading        : No Reading
+ Event Message Control : Per-threshold
+ Event Status          : Unavailable
+ Assertions Enabled    : Physical Security
+                         [General Chassis intrusion]
+ Deassertions Enabled  : Physical Security
+                         [General Chassis intrusion]
+ OEM                   : 0
+
+Sensor ID              : CPU detection (0x4b)
+ Entity ID             : 7.0 (System Board)
+ Sensor Type (Discrete): System Event (0x12)
+ Sensor Reading        : 3h
+ Event Message Control : Per-threshold
+ Assertions Enabled    : System Event
+                         [Undetermined system hardware failure]
+ OEM                   : 0
+
+Sensor ID              : iRMC request (0x4c)
+ Entity ID             : 6.0 (System Management Module)
+ Sensor Type (Discrete): Unknown (0xea)
+ Sensor Reading        : 0h
+ Event Message Control : Per-threshold
+ OEM                   : 0
+
+Sensor ID              : I2C1 (0x4d)
+ Entity ID             : 6.1 (System Management Module)
+ Sensor Type (Discrete): Unknown (0xc0)
+ Sensor Reading        : 0h
+ Event Message Control : Per-threshold
+ OEM                   : 0
+
+Sensor ID              : I2C2 (0x4e)
+ Entity ID             : 6.2 (System Management Module)
+ Sensor Type (Discrete): Unknown (0xc0)
+ Sensor Reading        : 0h
+ Event Message Control : Per-threshold
+ OEM                   : 0
+
+Sensor ID              : I2C3 (0x4f)
+ Entity ID             : 6.3 (System Management Module)
+ Sensor Type (Discrete): Unknown (0xc0)
+ Sensor Reading        : 0h
+ Event Message Control : Per-threshold
+ OEM                   : 0
+
+Sensor ID              : I2C4 (0x50)
+ Entity ID             : 6.4 (System Management Module)
+ Sensor Type (Discrete): Unknown (0xc0)
+ Sensor Reading        : 0h
+ Event Message Control : Per-threshold
+ OEM                   : 0
+
+Sensor ID              : I2C5 (0x51)
+ Entity ID             : 6.5 (System Management Module)
+ Sensor Type (Discrete): Unknown (0xc0)
+ Sensor Reading        : 0h
+ Event Message Control : Per-threshold
+ OEM                   : 0
+
+Sensor ID              : I2C6 (0x52)
+ Entity ID             : 6.6 (System Management Module)
+ Sensor Type (Discrete): Unknown (0xc0)
+ Sensor Reading        : 0h
+ Event Message Control : Per-threshold
+ OEM                   : 0
+
+Sensor ID              : I2C7 (0x53)
+ Entity ID             : 6.7 (System Management Module)
+ Sensor Type (Discrete): Unknown (0xc0)
+ Sensor Reading        : 0h
+ Event Message Control : Per-threshold
+ OEM                   : 0
+
+Sensor ID              : I2C8 (0x54)
+ Entity ID             : 6.8 (System Management Module)
+ Sensor Type (Discrete): Unknown (0xc0)
+ Sensor Reading        : 0h
+ Event Message Control : Per-threshold
+ OEM                   : 0
+
+Sensor ID              : Config backup (0x55)
+ Entity ID             : 33.0 (System Management Software)
+ Sensor Type (Discrete): Unknown (0xef)
+ Sensor Reading        : 0h
+ Event Message Control : Per-threshold
+ OEM                   : 0
+
+Sensor ID              : Systemboard Pwr (0x56)
+ Entity ID             : 7.0 (System Board)
+ Sensor Type (Discrete): Entity Presence (0x25)
+ Sensor Reading        : 0h
+ Event Message Control : Per-threshold
+ States Asserted       : Entity Presence
+                         [Present]
+ OEM                   : 0
+
+Sensor ID              : PSU1 Power (0x57)
+ Entity ID             : 10.100 (Power Supply)
+ Sensor Type (Discrete): Entity Presence (0x25)
+ Sensor Reading        : 0h
+ Event Message Control : Per-threshold
+ States Asserted       : Entity Presence
+                         [Present]
+ OEM                   : 80
+
+Sensor ID              : PSU2 Power (0x58)
+ Entity ID             : 10.104 (Power Supply)
+ Sensor Type (Discrete): Entity Presence (0x25)
+ Sensor Reading        : 0h
+ Event Message Control : Per-threshold
+ States Asserted       : Entity Presence
+                         [Present]
+ OEM                   : 80
+
+Sensor ID              : Total Power (0x59)
+ Entity ID             : 224.0 (Unknown (0xE0))
+ Sensor Type (Discrete): Entity Presence (0x25)
+ Sensor Reading        : 0h
+ Event Message Control : Per-threshold
+ States Asserted       : Entity Presence
+                         [Present]
+ OEM                   : 0
+
+Sensor ID              : Total Power Out (0x5a)
+ Entity ID             : 224.1 (Unknown (0xE0))
+ Sensor Type (Discrete): Entity Presence (0x25)
+ Sensor Reading        : 0h
+ Event Message Control : Per-threshold
+ States Asserted       : Entity Presence
+                         [Present]
+ OEM                   : 0
+
+Sensor ID              : Power Level (0x5b)
+ Entity ID             : 224.2 (Unknown (0xE0))
+ Sensor Type (Discrete): Entity Presence (0x25)
+ Sensor Reading        : 3h
+ Event Message Control : Per-threshold
+ States Asserted       : Entity Presence
+                         [Present]
+ OEM                   : 80
+
+Sensor ID              : System Mgmt SW (0x93)
+ Entity ID             : 33.0 (System Management Software)
+ Sensor Type (Discrete): Unknown (0xee)
+ Sensor Reading        : No Reading
+ Event Message Control : Per-threshold
+ Event Status          : Unavailable
+ OEM                   : 0
+
+Sensor ID              : Local Monitor (0x94)
+ Entity ID             : 33.0 (System Management Software)
+ Sensor Type (Discrete): Other FRU (0x1a)
+ Sensor Reading        : 1h
+ Event Message Control : Per-threshold
+ States Asserted       : Other FRU
+                         [Device Enabled]
+ Assertions Enabled    : Other FRU
+                         [Device Disabled]
+                         [Device Enabled]
+ OEM                   : 0
+
+Sensor ID              : Pwr Btn override (0x95)
+ Entity ID             : 12.0 (Front Panel Board)
+ Sensor Type (Discrete): System ACPI Power State (0x22)
+ Sensor Reading        : 0h
+ Event Message Control : Per-threshold
+ Assertions Enabled    : System ACPI Power State
+                         [S5: entered by override]
+ OEM                   : 0
+
+Sensor ID              : NMI (0x96)
+ Entity ID             : 33.0 (System Management Software)
+ Sensor Type (Discrete): Critical Interrupt (0x13)
+ Sensor Reading        : 0h
+ Event Message Control : Per-threshold
+ Assertions Enabled    : Critical Interrupt
+                         [NMI/Diag Interrupt]
+                         [Software NMI]
+                         [Fatal NMI]
+ OEM                   : 0
+
+Sensor ID              : System BIOS (0xc0)
+ Entity ID             : 34.0 (BIOS)
+ Sensor Type (Discrete): Unknown (0xee)
+ Sensor Reading        : No Reading
+ Event Message Control : Per-threshold
+ Event Status          : Unavailable
+ OEM                   : 0
+
+Sensor ID              : iRMC (0xfe)
+ Entity ID             : 6.0 (System Management Module)
+ Sensor Type (Discrete): Unknown (0xee)
+ Sensor Reading        : No Reading
+ Event Message Control : Per-threshold
+ OEM                   : 0
+
+Device ID              : RDSA
+Entity ID              : 220.0 (Unknown (0xDC))
+Device Access Address  : 20h
+Logical FRU Device     : 01h
+Channel Number         : 0h
+LUN.Bus                : 0h.0h
+Device Type.Modifier   : C0h.2h (Unknown (0xC002))
+OEM                    : 00h
+
+Device ID              : Chassis
+Entity ID              : 23.0 (System Chassis)
+Device Access Address  : 20h
+Logical FRU Device     : 02h
+Channel Number         : 0h
+LUN.Bus                : 0h.0h
+Device Type.Modifier   : 9h.2h (Unknown (0x902))
+OEM                    : 00h
+
+Device ID              : MainBoard
+Entity ID              : 7.0 (System Board)
+Device Access Address  : 20h
+Logical FRU Device     : 03h
+Channel Number         : 0h
+LUN.Bus                : 0h.0h
+Device Type.Modifier   : 9h.2h (Unknown (0x902))
+OEM                    : 00h
+
+Device ID              : CMOS LOW 1
+Entity ID              : 34.0 (BIOS)
+Device Access Address  : 20h
+Logical FRU Device     : 04h
+Channel Number         : 0h
+LUN.Bus                : 0h.0h
+Device Type.Modifier   : C1h.0h (Unknown (0xC100))
+OEM                    : 00h
+
+Device ID              : CMOS LOW 2
+Entity ID              : 34.1 (BIOS)
+Device Access Address  : 20h
+Logical FRU Device     : 05h
+Channel Number         : 0h
+LUN.Bus                : 0h.0h
+Device Type.Modifier   : C1h.0h (Unknown (0xC100))
+OEM                    : 00h
+
+Device ID              : CMOS HIGH 1
+Entity ID              : 34.2 (BIOS)
+Device Access Address  : 20h
+Logical FRU Device     : 06h
+Channel Number         : 0h
+LUN.Bus                : 0h.0h
+Device Type.Modifier   : C1h.0h (Unknown (0xC100))
+OEM                    : 00h
+
+Device ID              : CMOS HIGH 2
+Entity ID              : 34.3 (BIOS)
+Device Access Address  : 20h
+Logical FRU Device     : 07h
+Channel Number         : 0h
+LUN.Bus                : 0h.0h
+Device Type.Modifier   : C1h.0h (Unknown (0xC100))
+OEM                    : 00h
+
+Device ID              : WHEA
+Entity ID              : 35.0 (Operating System)
+Device Access Address  : 20h
+Logical FRU Device     : 08h
+Channel Number         : 0h
+LUN.Bus                : 0h.0h
+Device Type.Modifier   : C1h.1h (Unknown (0xC101))
+OEM                    : 00h
+
+Device ID              : BSPBR
+Entity ID              : 34.0 (BIOS)
+Device Access Address  : 20h
+Logical FRU Device     : 09h
+Channel Number         : 0h
+LUN.Bus                : 0h.0h
+Device Type.Modifier   : C1h.2h (Unknown (0xC102))
+OEM                    : 00h
+
+Device ID              : PNI
+Entity ID              : 42.0 (Connectivity Switch)
+Device Access Address  : 20h
+Logical FRU Device     : F0h
+Channel Number         : 0h
+LUN.Bus                : 0h.0h
+Device Type.Modifier   : C0h.0h (Unknown (0xC000))
+OEM                    : 00h
+
+Device ID              : VReg CPU1 VCCP
+Entity ID              : 20.0 (Power Module)
+Device Access Address  : 20h
+Logical FRU Device     : 0Ah
+Channel Number         : 0h
+LUN.Bus                : 0h.0h
+Device Type.Modifier   : BFh.0h (Unknown (0xBF00))
+OEM                    : 00h
+
+Device ID              : VReg CPU1 VSA
+Entity ID              : 20.1 (Power Module)
+Device Access Address  : 20h
+Logical FRU Device     : 0Bh
+Channel Number         : 0h
+LUN.Bus                : 0h.0h
+Device Type.Modifier   : BFh.0h (Unknown (0xBF00))
+OEM                    : 00h
+
+Device ID              : VReg CPU2 VCCP
+Entity ID              : 20.2 (Power Module)
+Device Access Address  : 20h
+Logical FRU Device     : 0Ch
+Channel Number         : 0h
+LUN.Bus                : 0h.0h
+Device Type.Modifier   : BFh.0h (Unknown (0xBF00))
+OEM                    : 00h
+
+Device ID              : VReg CPU2 VSA
+Entity ID              : 20.3 (Power Module)
+Device Access Address  : 20h
+Logical FRU Device     : 0Dh
+Channel Number         : 0h
+LUN.Bus                : 0h.0h
+Device Type.Modifier   : BFh.0h (Unknown (0xBF00))
+OEM                    : 00h
+
+Device ID              : VReg MEM0
+Entity ID              : 20.4 (Power Module)
+Device Access Address  : 20h
+Logical FRU Device     : 0Eh
+Channel Number         : 0h
+LUN.Bus                : 0h.0h
+Device Type.Modifier   : BFh.0h (Unknown (0xBF00))
+OEM                    : 00h
+
+Device ID              : VReg MEM1
+Entity ID              : 20.5 (Power Module)
+Device Access Address  : 20h
+Logical FRU Device     : 0Fh
+Channel Number         : 0h
+LUN.Bus                : 0h.0h
+Device Type.Modifier   : BFh.0h (Unknown (0xBF00))
+OEM                    : 00h
+
+Device ID              : VReg MEM2
+Entity ID              : 20.6 (Power Module)
+Device Access Address  : 20h
+Logical FRU Device     : 10h
+Channel Number         : 0h
+LUN.Bus                : 0h.0h
+Device Type.Modifier   : BFh.0h (Unknown (0xBF00))
+OEM                    : 00h
+
+Device ID              : VReg MEM3
+Entity ID              : 20.7 (Power Module)
+Device Access Address  : 20h
+Logical FRU Device     : 11h
+Channel Number         : 0h
+LUN.Bus                : 0h.0h
+Device Type.Modifier   : BFh.0h (Unknown (0xBF00))
+OEM                    : 00h
+
+Device ID              : PSU1
+Entity ID              : 10.4 (Power Supply)
+Device Access Address  : 20h
+Logical FRU Device     : 12h
+Channel Number         : 0h
+LUN.Bus                : 0h.0h
+Device Type.Modifier   : 9h.2h (Unknown (0x902))
+OEM                    : 80h
+
+Device ID              : PSU2
+Entity ID              : 10.8 (Power Supply)
+Device Access Address  : 20h
+Logical FRU Device     : 13h
+Channel Number         : 0h
+LUN.Bus                : 0h.0h
+Device Type.Modifier   : 9h.2h (Unknown (0x902))
+OEM                    : 80h
+
+Device ID              : MotherBoardCtrl
+Entity ID              : 211.0 (Unknown (0xD3))
+Device Access Address  : 20h
+Logical FRU Device     : 14h
+Channel Number         : 0h
+LUN.Bus                : 0h.0h
+Device Type.Modifier   : BFh.0h (Unknown (0xBF00))
+OEM                    : 00h
+
+Device ID              : PwrBackplaneCtrl
+Entity ID              : 212.0 (Unknown (0xD4))
+Device Access Address  : 20h
+Logical FRU Device     : 15h
+Channel Number         : 0h
+LUN.Bus                : 0h.0h
+Device Type.Modifier   : BFh.0h (Unknown (0xBF00))
+OEM                    : 00h
+
+Device ID              : OperationPanel
+Entity ID              : 222.0 (Unknown (0xDE))
+Device Access Address  : 20h
+Logical FRU Device     : 16h
+Channel Number         : 0h
+LUN.Bus                : 0h.0h
+Device Type.Modifier   : BFh.0h (Unknown (0xBF00))
+OEM                    : 00h
+
+Device ID              : LocalView
+Entity ID              : 210.0 (Unknown (0xD2))
+Device Access Address  : 20h
+Logical FRU Device     : 17h
+Channel Number         : 0h
+LUN.Bus                : 0h.0h
+Device Type.Modifier   : 1Fh.0h (Unknown (0x1F00))
+OEM                    : 00h
+
+Device ID              : PCF8563
+Entity ID              : 6.1 (System Management Module)
+Device Access Address  : 00h
+Device Slave Address   : A2h
+Address Span           : 00h
+Channel Number         : 0h
+LUN.Bus                : 0h.1h
+Device Type.Modifier   : 19h.0h (Unknown (0x1900))
+OEM                    : 03h
+
+Device ID              : iRMC S3
+Entity ID              : 0.0 (Unspecified)
+Device Slave Address   : 20h
+Channel Number         : 0h
+ACPI System P/S Notif  : Not Required
+ACPI Device P/S Notif  : Not Required
+Controller Presence    : Dynamic
+Logs Init Agent Errors : No
+Event Message Gen      : Enable
+Device Capabilities
+ Chassis Device        : Yes
+ Bridge                : Yes
+ IPMB Event Generator  : Yes
+ IPMB Event Receiver   : Yes
+ FRU Inventory Device  : Yes
+ SEL Device            : Yes
+ SDR Repository        : Yes
+ Sensor Device         : Yes

@@ -3,17 +3,14 @@ package org.sentrysoftware.metricshub.engine.strategy.source;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mockStatic;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.AUTOMATIC;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.ECS1_01;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.EMPTY;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.EXPECTED_SNMP_TABLE_DATA;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.LOCALHOST;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.MY_CONNECTOR_1_NAME;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.OID;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.PASSWORD;
@@ -28,7 +25,6 @@ import static org.sentrysoftware.metricshub.engine.constants.Constants.VALUE_VAL
 import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_QUERY;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.WMI_NAMESPACE;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,24 +32,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
-import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
-import org.sentrysoftware.metricshub.engine.common.helpers.ResourceHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IWinConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.OsCommandConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.common.HttpMethod;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CommandLineSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CopySource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
@@ -66,8 +55,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.extension.TestConfiguration;
-import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
-import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandResult;
 import org.sentrysoftware.metricshub.engine.telemetry.ConnectorNamespace;
 import org.sentrysoftware.metricshub.engine.telemetry.HostProperties;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -845,172 +832,6 @@ class SourceProcessorTest {
 		assertEquals(SourceTable.empty(), sourceProcessor.process(wmiSource));
 	}
 
-	@Test
-	void testProcessOsCommandSource() {
-		final OsCommandConfiguration osCommandConfiguration = OsCommandConfiguration.builder().timeout(120L).build();
-
-		final HostProperties hostProperties = HostProperties.builder().isLocalhost(true).build();
-
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(
-				HostConfiguration
-					.builder()
-					.hostname(LOCALHOST)
-					.hostId(LOCALHOST)
-					.hostType(DeviceKind.LINUX)
-					.configurations(Map.of(OsCommandConfiguration.class, osCommandConfiguration))
-					.build()
-			)
-			.hostProperties(hostProperties)
-			.build();
-		final SourceProcessor sourceProcessor = SourceProcessor
-			.builder()
-			.telemetryManager(telemetryManager)
-			.clientsExecutor(clientsExecutorMock)
-			.build();
-		assertEquals(SourceTable.empty(), sourceProcessor.process((CommandLineSource) null));
-		assertEquals(SourceTable.empty(), sourceProcessor.process(new CommandLineSource()));
-		assertEquals(SourceTable.empty(), sourceProcessor.process(CommandLineSource.builder().commandLine("").build()));
-
-		final String commandLine = "/usr/sbin/ioscan -kFC ext_bus";
-		final String keepOnlyRegExp = ":ext_bus:";
-		final String separators = ":";
-		final String selectColumns = "2-4,5,6";
-
-		final CommandLineSource commandSource = new CommandLineSource();
-		commandSource.setCommandLine(commandLine);
-		commandSource.setKeep(keepOnlyRegExp);
-		commandSource.setSeparators(separators);
-		commandSource.setSelectColumns(selectColumns);
-		commandSource.setExecuteLocally(true);
-
-		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
-			mockedOsCommandHelper
-				.when(() ->
-					OsCommandHelper.runOsCommand(
-						commandLine,
-						telemetryManager,
-						commandSource.getTimeout(),
-						commandSource.getExecuteLocally(),
-						hostProperties.isLocalhost()
-					)
-				)
-				.thenThrow(NoCredentialProvidedException.class);
-
-			assertEquals(SourceTable.empty(), sourceProcessor.process(commandSource));
-		}
-
-		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
-			mockedOsCommandHelper
-				.when(() ->
-					OsCommandHelper.runOsCommand(
-						commandLine,
-						telemetryManager,
-						commandSource.getTimeout(),
-						commandSource.getExecuteLocally(),
-						hostProperties.isLocalhost()
-					)
-				)
-				.thenThrow(IOException.class);
-
-			assertEquals(SourceTable.empty(), sourceProcessor.process(commandSource));
-		}
-
-		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
-			final String result = "xxxxxx\n" + "xxxxxx\n" + "0:1:ext_bus:3:4:5:6:7:8\n" + "xxxxxx\n" + "xxxxxx\n";
-			final OsCommandResult commandResult = new OsCommandResult(result, commandLine);
-
-			mockedOsCommandHelper
-				.when(() ->
-					OsCommandHelper.runOsCommand(
-						commandLine,
-						telemetryManager,
-						commandSource.getTimeout(),
-						commandSource.getExecuteLocally(),
-						hostProperties.isLocalhost()
-					)
-				)
-				.thenReturn(commandResult);
-
-			final SourceTable expected = SourceTable
-				.builder()
-				.rawData("1;ext_bus;3;4;5")
-				.table(List.of(List.of("1", "ext_bus", "3", "4", "5")))
-				.build();
-			assertEquals(expected, sourceProcessor.process(commandSource));
-		}
-	}
-
-	@Test
-	void testProcessIpmiSourceOob() throws Exception {
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(HostConfiguration.builder().build())
-			.build();
-
-		final ExtensionManager extensionManager = ExtensionManager
-			.builder()
-			.withProtocolExtensions(List.of(protocolExtensionMock))
-			.build();
-
-		final SourceProcessor sourceProcessor = SourceProcessor
-			.builder()
-			.telemetryManager(telemetryManager)
-			.clientsExecutor(clientsExecutorMock)
-			.extensionManager(extensionManager)
-			.connectorId(CONNECTOR_ID)
-			.build();
-
-		final TestConfiguration ipmiConfiguration = TestConfiguration.builder().build();
-
-		final HostConfiguration hostConfiguration = HostConfiguration
-			.builder()
-			.hostname(ECS1_01)
-			.hostId(ECS1_01)
-			.hostType(DeviceKind.OOB)
-			.configurations(Collections.singletonMap(TestConfiguration.class, ipmiConfiguration))
-			.build();
-		telemetryManager.setHostConfiguration(hostConfiguration);
-
-		final IpmiSource ipmiSource = IpmiSource.builder().build();
-
-		doReturn(true).when(protocolExtensionMock).isValidConfiguration(ipmiConfiguration);
-		doReturn(Set.of(IpmiSource.class)).when(protocolExtensionMock).getSupportedSources();
-
-		final SourceTable expected = SourceTable.builder().table(Arrays.asList(Arrays.asList(ECS1_01))).build();
-		doReturn(expected)
-			.when(protocolExtensionMock)
-			.processSource(eq(ipmiSource), anyString(), any(TelemetryManager.class));
-
-		final SourceTable actual = sourceProcessor.process(ipmiSource);
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	void testProcessIpmiSourceOobNullResult() throws Exception {
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(HostConfiguration.builder().hostType(DeviceKind.OOB).build())
-			.build();
-
-		final ExtensionManager extensionManager = ExtensionManager
-			.builder()
-			.withProtocolExtensions(List.of(protocolExtensionMock))
-			.build();
-
-		final SourceProcessor sourceProcessor = SourceProcessor
-			.builder()
-			.telemetryManager(telemetryManager)
-			.clientsExecutor(clientsExecutorMock)
-			.extensionManager(extensionManager)
-			.connectorId(CONNECTOR_ID)
-			.build();
-
-		assertEquals(SourceTable.empty(), sourceProcessor.process(new IpmiSource()));
-	}
-
-	@Test
 	void testProcessIpmiSourceStorageHost() {
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
@@ -1136,109 +957,5 @@ class SourceProcessorTest {
 			.build();
 
 		assertEquals(SourceTable.empty(), sourceProcessor.process(new IpmiSource()));
-	}
-
-	@Test
-	void testProcessUnixIpmiSource() {
-		// classic case
-		final SshConfiguration sshConfiguration = SshConfiguration
-			.sshConfigurationBuilder()
-			.username("root")
-			.password("nationale".toCharArray())
-			.build();
-		final HostConfiguration hostConfiguration = HostConfiguration
-			.builder()
-			.hostname("localhost")
-			.hostId("localhost")
-			.hostType(DeviceKind.LINUX)
-			.configurations(
-				Map.of(
-					TestConfiguration.class,
-					OsCommandConfiguration.builder().build(),
-					SshConfiguration.class,
-					sshConfiguration
-				)
-			)
-			.build();
-
-		final HostProperties hostProperties = HostProperties
-			.builder()
-			.isLocalhost(true)
-			.ipmitoolCommand("ipmiCommand")
-			.build();
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(hostConfiguration)
-			.hostProperties(hostProperties)
-			.build();
-		final SourceProcessor sourceProcessor = SourceProcessor
-			.builder()
-			.telemetryManager(telemetryManager)
-			.clientsExecutor(clientsExecutorMock)
-			.build();
-
-		// local
-		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
-			oscmd
-				.when(() -> OsCommandHelper.runLocalCommand(eq("ipmiCommandfru"), anyLong(), eq(null)))
-				.thenReturn("impiResultFru");
-			oscmd
-				.when(() -> OsCommandHelper.runLocalCommand(eq("ipmiCommand-v sdr elist all"), anyLong(), eq(null)))
-				.thenReturn("impiResultSdr");
-			final SourceTable ipmiResult = sourceProcessor.process(new IpmiSource());
-			assertEquals(SourceTable.empty(), ipmiResult);
-		}
-
-		String fru = "/data/IpmiFruBabbage";
-		String sensor = "/data/IpmiSensorBabbage";
-		String expected = "/data/ipmiProcessingResult";
-		String fruResult = ResourceHelper.getResourceAsString(fru, this.getClass());
-		String sensorResult = ResourceHelper.getResourceAsString(sensor, this.getClass());
-
-		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
-			oscmd
-				.when(() -> OsCommandHelper.runLocalCommand(eq("ipmiCommand" + "fru"), anyLong(), any()))
-				.thenReturn(fruResult);
-			oscmd
-				.when(() -> OsCommandHelper.runLocalCommand(eq("ipmiCommand" + "-v sdr elist all"), anyLong(), any()))
-				.thenReturn(sensorResult);
-			final SourceTable ipmiResult = sourceProcessor.process(new IpmiSource());
-			String expectedResult = ResourceHelper.getResourceAsString(expected, this.getClass());
-			List<List<String>> result = new ArrayList<>();
-			Stream.of(expectedResult.split("\n")).forEach(line -> result.add(Arrays.asList(line.split(";"))));
-			assertEquals(result, ipmiResult.getTable());
-		}
-
-		// remote
-		hostProperties.setLocalhost(false);
-
-		try (MockedStatic<OsCommandHelper> oscmd = mockStatic(OsCommandHelper.class)) {
-			oscmd
-				.when(() -> OsCommandHelper.runSshCommand(eq("ipmiCommand" + "fru"), any(), any(), anyLong(), any(), any()))
-				.thenReturn("impiResultFru");
-			oscmd
-				.when(() ->
-					OsCommandHelper.runSshCommand(eq("ipmiCommand" + "-v sdr elist all"), any(), any(), anyLong(), any(), any())
-				)
-				.thenReturn("impiResultSdr");
-			final SourceTable ipmiResult = sourceProcessor.process(new IpmiSource());
-			assertEquals(SourceTable.empty(), ipmiResult);
-		}
-
-		// ipmiToolCommand is empty
-		hostProperties.setIpmitoolCommand("");
-		SourceTable ipmiResultEmpty = sourceProcessor.process(new IpmiSource());
-		assertEquals(SourceTable.empty(), ipmiResultEmpty);
-
-		// ipmiToolCommand is null
-		hostProperties.setIpmitoolCommand(null);
-		ipmiResultEmpty = sourceProcessor.process(new IpmiSource());
-		assertEquals(SourceTable.empty(), ipmiResultEmpty);
-
-		// osCommandConfig is null
-		hostProperties.setLocalhost(true);
-		hostProperties.setIpmitoolCommand("ipmiCommand");
-		ipmiResultEmpty = sourceProcessor.process(new IpmiSource());
-		assertEquals(SourceTable.empty(), ipmiResultEmpty);
 	}
 }

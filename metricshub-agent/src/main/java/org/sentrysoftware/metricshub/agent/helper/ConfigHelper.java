@@ -69,9 +69,7 @@ import org.sentrysoftware.metricshub.agent.config.ConnectorVariables;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.AbstractProtocolConfig;
-import org.sentrysoftware.metricshub.agent.config.protocols.OsCommandProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.ProtocolsConfig;
-import org.sentrysoftware.metricshub.agent.config.protocols.SshProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.WinRmProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.WmiProtocolConfig;
 import org.sentrysoftware.metricshub.agent.context.MetricDefinitions;
@@ -106,10 +104,8 @@ import org.springframework.core.io.ClassPathResource;
 @Slf4j
 public class ConfigHelper {
 
-	private static final String OS_COMMAND = "OSCommand";
 	private static final String WMI_PROTOCOL = "WMI";
 	private static final String WBEM_PROTOCOL = "WBEM";
-	private static final String SSH_PROTOCOL = "SSH";
 	private static final String WIN_RM_PROTOCOL = "WinRM";
 	private static final String TIMEOUT_ERROR =
 		"Resource %s - Timeout value is invalid for protocol %s." +
@@ -921,7 +917,7 @@ public class ConfigHelper {
 	 *
 	 * @param resourceKey    Resource unique identifier
 	 * @param resourceConfig {@link ResourceConfig} instance configured by the user
-	 * @throws InvalidConfigurationException
+	 * @throws InvalidConfigurationException thrown if a configuration validation fails
 	 */
 	private static void validateProtocols(@NonNull final String resourceKey, final ResourceConfig resourceConfig)
 		throws InvalidConfigurationException {
@@ -945,9 +941,9 @@ public class ConfigHelper {
 			ipmiConfig.validateConfiguration(resourceKey);
 		}
 
-		final SshProtocolConfig sshConfig = protocolsConfig.getSsh();
+		final IConfiguration sshConfig = protocolsConfig.getSsh();
 		if (sshConfig != null) {
-			validateSshInfo(resourceKey, sshConfig.getUsername(), sshConfig.getTimeout());
+			sshConfig.validateConfiguration(resourceKey);
 		}
 
 		final IConfiguration wbemConfig = protocolsConfig.getWbem();
@@ -965,9 +961,9 @@ public class ConfigHelper {
 			httpConfig.validateConfiguration(resourceKey);
 		}
 
-		final OsCommandProtocolConfig osCommandConfig = protocolsConfig.getOsCommand();
+		final IConfiguration osCommandConfig = protocolsConfig.getOsCommand();
 		if (osCommandConfig != null) {
-			validateOsCommandInfo(resourceKey, osCommandConfig.getTimeout());
+			osCommandConfig.validateConfiguration(resourceKey);
 		}
 	}
 
@@ -978,7 +974,7 @@ public class ConfigHelper {
 	 * @param port         The port number used to perform WQL queries and commands
 	 * @param timeout      How long until the WinRM request times out
 	 * @param username	   Name used to establish the connection with the host via the WinRM protocol
-	 * @throws InvalidConfigurationException
+	 * @throws InvalidConfigurationException thrown if a configuration validation fails
 	 */
 	static void validateWinRmInfo(
 		final String resourceKey,
@@ -1006,29 +1002,6 @@ public class ConfigHelper {
 	}
 
 	/**
-	 * Validate the given SSH information (username, timeout)
-	 *
-	 * @param resourceKey Resource unique identifier
-	 * @param username    Name to use for performing the SSH query
-	 * @param timeout     How long until the command times out
-	 * @throws InvalidConfigurationException
-	 */
-	static void validateSshInfo(final String resourceKey, final String username, final Long timeout)
-		throws InvalidConfigurationException {
-		StringHelper.validateConfigurationAttribute(
-			username,
-			INVALID_STRING_CHECKER,
-			() -> String.format(USERNAME_ERROR, resourceKey, SSH_PROTOCOL)
-		);
-
-		StringHelper.validateConfigurationAttribute(
-			timeout,
-			INVALID_TIMEOUT_CHECKER,
-			() -> String.format(TIMEOUT_ERROR, resourceKey, SSH_PROTOCOL, timeout)
-		);
-	}
-
-	/**
 	 * Validate the given WBEM information (username, timeout, port and vCenter)
 	 *
 	 * @param resourceKey Resource unique identifier
@@ -1036,7 +1009,7 @@ public class ConfigHelper {
 	 * @param timeout     How long until the WBEM request times out
 	 * @param port        The HTTP/HTTPS port number used to perform WBEM queries
 	 * @param vCenter     vCenter hostname providing the authentication ticket, if applicable
-	 * @throws InvalidConfigurationException
+	 * @throws InvalidConfigurationException thrown if a configuration validation fails
 	 */
 	static void validateWbemInfo(
 		final String resourceKey,
@@ -1081,28 +1054,13 @@ public class ConfigHelper {
 	 *
 	 * @param resourceKey Resource unique identifier
 	 * @param timeout     How long until the WMI request times out
-	 * @throws InvalidConfigurationException
+	 * @throws InvalidConfigurationException thrown if a configuration validation fails
 	 */
 	static void validateWmiInfo(final String resourceKey, final Long timeout) throws InvalidConfigurationException {
 		StringHelper.validateConfigurationAttribute(
 			timeout,
 			INVALID_TIMEOUT_CHECKER,
 			() -> String.format(TIMEOUT_ERROR, resourceKey, WMI_PROTOCOL, timeout)
-		);
-	}
-
-	/**
-	 * Validate the given OS Command information: timeout
-	 *
-	 * @param resourceKey Resource unique identifier
-	 * @param timeout     How long until the command times out
-	 * @throws InvalidConfigurationException
-	 */
-	static void validateOsCommandInfo(final String resourceKey, final Long timeout) throws InvalidConfigurationException {
-		StringHelper.validateConfigurationAttribute(
-			timeout,
-			INVALID_TIMEOUT_CHECKER,
-			() -> String.format(TIMEOUT_ERROR, resourceKey, OS_COMMAND, timeout)
 		);
 	}
 
@@ -1125,7 +1083,7 @@ public class ConfigHelper {
 			? new HashMap<>()
 			: new HashMap<>(
 				Stream
-					.of(protocols.getSsh(), protocols.getWmi(), protocols.getOsCommand(), protocols.getWinrm())
+					.of(protocols.getWmi(), protocols.getWinrm())
 					.filter(Objects::nonNull)
 					.map(AbstractProtocolConfig::toConfiguration)
 					.filter(Objects::nonNull)
@@ -1137,7 +1095,13 @@ public class ConfigHelper {
 			? new HashMap<>()
 			: new HashMap<>(
 				Stream
-					.of(protocols.getSnmp(), protocols.getHttp(), protocols.getIpmi())
+					.of(
+						protocols.getSnmp(),
+						protocols.getHttp(),
+						protocols.getIpmi(),
+						protocols.getOsCommand(),
+						protocols.getSsh()
+					)
 					.filter(Objects::nonNull)
 					.collect(Collectors.toMap(IConfiguration::getClass, Function.identity()))
 			);

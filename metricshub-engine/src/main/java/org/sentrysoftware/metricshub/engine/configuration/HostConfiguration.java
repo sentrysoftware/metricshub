@@ -75,10 +75,6 @@ public class HostConfiguration {
 			Map.of(
 				WmiConfiguration.class,
 				Collections.singleton(WmiSource.class),
-				SshConfiguration.class,
-				Collections.singleton(CommandLineSource.class),
-				OsCommandConfiguration.class,
-				Collections.singleton(CommandLineSource.class),
 				WinRmConfiguration.class,
 				Collections.singleton(WmiSource.class)
 			);
