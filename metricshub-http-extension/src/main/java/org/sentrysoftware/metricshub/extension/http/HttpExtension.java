@@ -198,9 +198,11 @@ public class HttpExtension implements IProtocolExtension {
 			final HttpConfiguration httpConfiguration = newObjectMapper().treeToValue(jsonNode, HttpConfiguration.class);
 
 			if (decrypt != null) {
-				// Decrypt the password
-				final char[] passwordDecypted = decrypt.apply(httpConfiguration.getPassword());
-				httpConfiguration.setPassword(passwordDecypted);
+				final char[] password = httpConfiguration.getPassword();
+				if (password != null) {
+					// Decrypt the password
+					httpConfiguration.setPassword(decrypt.apply(password));
+				}
 			}
 
 			return httpConfiguration;

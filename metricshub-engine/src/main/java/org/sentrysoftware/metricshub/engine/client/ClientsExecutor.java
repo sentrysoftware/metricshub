@@ -25,9 +25,7 @@ import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -41,7 +39,6 @@ import org.sentrysoftware.metricshub.engine.awk.AwkException;
 import org.sentrysoftware.metricshub.engine.awk.AwkExecutor;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
-import org.sentrysoftware.metricshub.engine.common.helpers.NetworkHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.ThreadHelper;
@@ -49,7 +46,6 @@ import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.TransportProtocols;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WinRmConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.tablejoin.TableJoin;
 import org.sentrysoftware.vcenter.VCenterClient;
@@ -61,20 +57,14 @@ import org.sentrysoftware.winrm.WindowsRemoteCommandResult;
 import org.sentrysoftware.winrm.command.WinRMCommandExecutor;
 import org.sentrysoftware.winrm.service.client.auth.AuthenticationEnum;
 import org.sentrysoftware.winrm.wql.WinRMWqlExecutor;
-import org.sentrysoftware.wmi.WmiHelper;
-import org.sentrysoftware.wmi.WmiStringConverter;
-import org.sentrysoftware.wmi.remotecommand.WinRemoteCommandExecutor;
-import org.sentrysoftware.wmi.wbem.WmiWbemServices;
 import org.sentrysoftware.xflat.XFlat;
 import org.sentrysoftware.xflat.exceptions.XFlatException;
 
 /**
  * The ClientsExecutor class provides utility methods for executing
  * various operations through Clients. It includes functionalities for executing
- * requests, running scripts, and handling general execution tasks. The
- * execution is done on a remote host, and various protocols, clients, and
- * utilities like AWK, HTTP, IPMI, JFlat, SNMP, SSH, TableJoin, VCenter, WBEM,
- * WMI, WinRM, and XFlat are supported.
+ * computations and running scripts. The execution is done on utilities like
+ * AWK, JFlat, TableJoin and XFlat are supported.
  */
 @Slf4j
 @Data
@@ -264,7 +254,7 @@ public class ClientsExecutor {
 	 * <br>
 	 *
 	 * @param hostname      Hostname
-	 * @param configuration The WbemConfiguration or WmiConfiguration object specifying how to connect to specified host
+	 * @param configuration The configuration object specifying how to connect to specified host
 	 * @param query         WQL query to execute
 	 * @param namespace     The namespace
 	 * @return A table (as a {@link List} of {@link List} of {@link String}s)
@@ -279,8 +269,6 @@ public class ClientsExecutor {
 	) throws ClientException {
 		if (configuration instanceof WbemConfiguration wbemConfiguration) {
 			return executeWbem(hostname, wbemConfiguration, query, namespace);
-		} else if (configuration instanceof WmiConfiguration wmiConfiguration) {
-			return executeWmi(hostname, wmiConfiguration, query, namespace);
 		} else if (configuration instanceof WinRmConfiguration winRmConfiguration) {
 			return executeWqlThroughWinRm(hostname, winRmConfiguration, query, namespace);
 		}
@@ -293,7 +281,7 @@ public class ClientsExecutor {
 	 * <br>
 	 *
 	 * @param hostname      Hostname
-	 * @param configuration The WbemConfiguration or WmiConfiguration object specifying how to connect to specified host
+	 * @param configuration The configuration object specifying how to connect to specified host
 	 * @param command       Windows remote command to execute
 	 * @param embeddedFiles The list of embedded files used in the wql remote command query
 	 * @return A table (as a {@link List} of {@link List} of {@link String}s)
@@ -306,16 +294,7 @@ public class ClientsExecutor {
 		final String command,
 		final List<String> embeddedFiles
 	) throws ClientException {
-		if (configuration instanceof WmiConfiguration wmiConfiguration) {
-			return executeWmiRemoteCommand(
-				command,
-				hostname,
-				wmiConfiguration.getUsername(),
-				wmiConfiguration.getPassword(),
-				wmiConfiguration.getTimeout().intValue(),
-				embeddedFiles
-			);
-		} else if (configuration instanceof WinRmConfiguration winRmConfiguration) {
+		if (configuration instanceof WinRmConfiguration winRmConfiguration) {
 			return executeRemoteWinRmCommand(hostname, winRmConfiguration, command);
 		}
 
@@ -547,183 +526,6 @@ public class ClientsExecutor {
 		} catch (Exception e) { // NOSONAR an exception is already thrown
 			throw new ClientException("WBEM query failed on " + hostname + ".", e);
 		}
-	}
-
-	/**
-	 * Execute a WMI query
-	 *
-	 * @param hostname  The hostname of the device where the WMI service is running (<code>null</code> for localhost)
-	 * @param wmiConfig WMI Protocol configuration (credentials, timeout)
-	 * @param wbemQuery The WQL to execute
-	 * @param namespace The WBEM namespace where all the classes reside
-	 * @return A list of rows, where each row is represented as a list of strings.
-	 * @throws ClientException when anything goes wrong (details in cause)
-	 */
-	@WithSpan("WMI")
-	public List<List<String>> executeWmi(
-		@SpanAttribute("host.hostname") final String hostname,
-		@SpanAttribute("wmi.config") @NonNull final WmiConfiguration wmiConfig,
-		@SpanAttribute("wmi.query") @NonNull final String wbemQuery,
-		@SpanAttribute("wmi.namespace") @NonNull final String namespace
-	) throws ClientException {
-		// Where to connect to?
-		// Local: namespace
-		// Remote: hostname\namespace
-		final String networkResource = NetworkHelper.isLocalhost(hostname)
-			? namespace
-			: String.format("\\\\%s\\%s", hostname, namespace);
-
-		LoggingHelper.trace(() ->
-			log.trace(
-				"Executing WMI request:\n- Hostname: {}\n- Network-resource: {}\n- Username: {}\n- Query: {}\n" + // NOSONAR
-				"- Namespace: {}\n- Timeout: {} s\n",
-				hostname,
-				networkResource,
-				wmiConfig.getUsername(),
-				wbemQuery,
-				namespace,
-				wmiConfig.getTimeout()
-			)
-		);
-
-		// Go!
-		try (
-			WmiWbemServices wbemServices = WmiWbemServices.getInstance(
-				networkResource,
-				wmiConfig.getUsername(),
-				wmiConfig.getPassword()
-			)
-		) {
-			final long startTime = System.currentTimeMillis();
-
-			// Execute the WQL and get the result
-			final List<Map<String, Object>> result = wbemServices.executeWql(wbemQuery, wmiConfig.getTimeout() * 1000);
-
-			final long responseTime = System.currentTimeMillis() - startTime;
-
-			// Extract the exact property names (case sensitive), in the right order
-			final List<String> properties = WmiHelper.extractPropertiesFromResult(result, wbemQuery);
-
-			// Build the table
-			List<List<String>> resultTable = buildWmiTable(result, properties);
-
-			LoggingHelper.trace(() ->
-				log.trace(
-					"Executed WMI request:\n- Hostname: {}\n- Network-resource: {}\n- Username: {}\n- Query: {}\n" + // NOSONAR
-					"- Namespace: {}\n- Timeout: {} s\n- Result:\n{}\n- response-time: {}\n",
-					hostname,
-					networkResource,
-					wmiConfig.getUsername(),
-					wbemQuery,
-					namespace,
-					wmiConfig.getTimeout(),
-					TextTableHelper.generateTextTable(properties, resultTable),
-					responseTime
-				)
-			);
-
-			return resultTable;
-		} catch (Exception e) {
-			throw new ClientException("WMI query failed on " + hostname + ".", e);
-		}
-	}
-
-	/**
-	 * Execute a command on a remote Windows system through Client and return an object with
-	 * the output of the command.
-	 *
-	 * @param command    The command to execute. (Mandatory)
-	 * @param hostname   The host to connect to.  (Mandatory)
-	 * @param username   The username.
-	 * @param password   The password.
-	 * @param timeout    Timeout in seconds
-	 * @param localFiles The local files list
-	 * @return The output of the executed command.
-	 * @throws ClientException For any problem encountered.
-	 */
-	@WithSpan("Remote Command WMI")
-	public static String executeWmiRemoteCommand(
-		@SpanAttribute("wmi.command") final String command,
-		@SpanAttribute("host.hostname") final String hostname,
-		@SpanAttribute("wmi.username") final String username,
-		final char[] password,
-		@SpanAttribute("wmi.timeout") final int timeout,
-		@SpanAttribute("wmi.local_files") final List<String> localFiles
-	) throws ClientException {
-		try {
-			LoggingHelper.trace(() ->
-				log.trace(
-					"Executing WMI remote command:\n- Command: {}\n- Hostname: {}\n- Username: {}\n" + // NOSONAR
-					"- Timeout: {} s\n- Local-files: {}\n",
-					command,
-					hostname,
-					username,
-					timeout,
-					localFiles
-				)
-			);
-
-			final long startTime = System.currentTimeMillis();
-
-			final WinRemoteCommandExecutor result = WinRemoteCommandExecutor.execute(
-				command,
-				hostname,
-				username,
-				password,
-				null,
-				timeout * 1000L,
-				localFiles,
-				true
-			);
-
-			String resultStdout = result.getStdout();
-
-			final long responseTime = System.currentTimeMillis() - startTime;
-
-			LoggingHelper.trace(() ->
-				log.trace(
-					"Executed WMI remote command:\n- Command: {}\n- Hostname: {}\n- Username: {}\n" + // NOSONAR
-					"- Timeout: {} s\n- Local-files: {}\n- Result:\n{}\n- response-time: {}\n",
-					command,
-					hostname,
-					username,
-					timeout,
-					localFiles,
-					resultStdout,
-					responseTime
-				)
-			);
-
-			return resultStdout;
-		} catch (Exception e) {
-			throw new ClientException((Exception) e.getCause());
-		}
-	}
-
-	/**
-	 * Convert the given result to a {@link List} of {@link List} table
-	 *
-	 * @param result     The result we want to process
-	 * @param properties The ordered properties
-	 * @return {@link List} of {@link List} table
-	 */
-	List<List<String>> buildWmiTable(final List<Map<String, Object>> result, final List<String> properties) {
-		final List<List<String>> table = new ArrayList<>();
-		final WmiStringConverter stringConverter = new WmiStringConverter();
-
-		// Transform the result to a list of list
-		result.forEach(row -> {
-			final List<String> line = new ArrayList<>();
-
-			// loop over the right order
-			properties.forEach(property -> line.add(stringConverter.convert(row.get(property))));
-
-			// We have a line?
-			if (!line.isEmpty()) {
-				table.add(line);
-			}
-		});
-		return table;
 	}
 
 	/**

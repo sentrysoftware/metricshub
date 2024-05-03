@@ -105,11 +105,18 @@ public class IpmiConfigCli implements IProtocolConfigCli {
 	public IConfiguration toProtocol(final String defaultUsername, final char[] defaultPassword)
 		throws InvalidConfigurationException {
 		final ObjectNode configuration = JsonNodeFactory.instance.objectNode();
-		configuration.set("username", new TextNode(username == null ? defaultUsername : username));
-		configuration.set(
-			"password",
-			new TextNode(username == null ? String.valueOf(defaultPassword) : String.valueOf(password))
-		);
+
+		final String finalUsername = username == null ? defaultUsername : username;
+		configuration.set("username", new TextNode(finalUsername));
+
+		final char[] finalPassword = username == null ? defaultPassword : password;
+		if (finalPassword != null) {
+			configuration.set(
+					"password",
+					new TextNode(String.valueOf(finalPassword))
+				);
+		}
+
 		configuration.set("timeout", new TextNode(timeout));
 		configuration.set("skipAuth", BooleanNode.valueOf(skipAuth));
 		configuration.set("bmcKey", new TextNode(bmcKey));

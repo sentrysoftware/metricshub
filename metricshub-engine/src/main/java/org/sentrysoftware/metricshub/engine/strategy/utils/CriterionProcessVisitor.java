@@ -21,11 +21,8 @@ package org.sentrysoftware.metricshub.engine.strategy.utils;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.LOCALHOST;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.NEW_LINE;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.TABLE_SEP;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.WMI_DEFAULT_NAMESPACE;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.WMI_PROCESS_QUERY;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,10 +31,9 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
-import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
-import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WmiCriterion;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.ProcessCriterion;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
-import org.springframework.util.Assert;
 
 /**
  * Visitor class for handling local operating system details related to process criteria.
@@ -48,10 +44,12 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 
 	private static final String CRITERION_PROCESSOR_VISITOR_LOG_MESSAGE = "Hostname {} - Process Criterion, {}";
 
-	@NonNull
-	private final String command;
+	private final ExtensionManager extensionManger;
 
-	private final WqlDetectionHelper wqlDetectionHelper;
+	@NonNull
+	private final ProcessCriterion processCriterion;
+
+	@NonNull
 	private final String hostname;
 
 	@Getter
@@ -59,23 +57,13 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 
 	@Override
 	public void visit(final LocalOsHandler.Windows os) {
-		Assert.state(wqlDetectionHelper != null, "wqlDetectionHelper cannot be null.");
-
-		final WmiConfiguration localWmiConfiguration = WmiConfiguration
-			.builder()
-			.username(null)
-			.password(null)
-			.timeout(30L)
-			.build();
-
-		final WmiCriterion criterion = WmiCriterion
-			.builder()
-			.query(WMI_PROCESS_QUERY)
-			.namespace(WMI_DEFAULT_NAMESPACE)
-			.expectedResult(command)
-			.build();
-
-		criterionTestResult = wqlDetectionHelper.performDetectionTest(LOCALHOST, localWmiConfiguration, criterion);
+		if (extensionManger == null) {
+			throw new IllegalStateException("The ExtensionManager cannot be null for Local Windows Process criterion check.");
+		}
+		extensionManger
+			.findExtensionByType("wmi")
+			.map(extension -> extension.processCriterion(processCriterion, null, null))
+			.ifPresent(result -> criterionTestResult = result);
 	}
 
 	@Override
@@ -157,7 +145,7 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 	private void processResult(final List<List<String>> result) {
 		result
 			.stream()
-			.filter(line -> line.get(1).matches(command))
+			.filter(line -> line.get(1).matches(processCriterion.getCommandLine()))
 			.findFirst()
 			.ifPresentOrElse(
 				line ->
@@ -165,7 +153,7 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 						String.format(
 							"One or more currently running processes match the following regular expression:\n- " +
 							"Regexp (should match with the command-line): %s",
-							command
+							processCriterion.getCommandLine()
 						)
 					),
 				() ->
@@ -176,7 +164,7 @@ public class CriterionProcessVisitor implements LocalOsHandler.ILocalOsVisitor {
 							- Regexp (should match with the command-line): %s
 							- Currently running process list:
 							%s""",
-							command,
+							processCriterion.getCommandLine(),
 							result
 								.stream()
 								.map(line -> line.stream().collect(Collectors.joining(TABLE_SEP)))

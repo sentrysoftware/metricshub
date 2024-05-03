@@ -63,7 +63,9 @@ public interface IProtocolExtension {
 
 	/**
 	 * Provides a mapping between configuration classes and their corresponding sets
-	 * of source classes.
+	 * of source classes.<br>
+	 * This method must provide a strict mapping between the configuration
+	 * and the evident source to process.
 	 *
 	 * @return A map where the keys are classes extending {@link IConfiguration}
 	 *         representing different types of protocol configurations, and the

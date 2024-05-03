@@ -29,6 +29,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
@@ -40,6 +42,7 @@ import org.sentrysoftware.ssh.SshClient;
  * Provides functionality to execute remote SSH commands, manage SSH authentication, and transfer files to remote hosts.
  */
 @Slf4j
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OsCommandRequestExecutor {
 
 	private static final String SSH_FILE_MODE = "0700";

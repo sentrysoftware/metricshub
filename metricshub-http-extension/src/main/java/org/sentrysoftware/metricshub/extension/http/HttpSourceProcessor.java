@@ -21,8 +21,6 @@ package org.sentrysoftware.metricshub.extension.http;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import io.opentelemetry.instrumentation.annotations.SpanAttribute;
-import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
@@ -54,11 +52,10 @@ public class HttpSourceProcessor {
 	 * @param telemetryManager The telemetry manager providing access to host configuration and HTTP credentials.
 	 * @return a {@link SourceTable} containing the fetched HTTP raw data, or an empty table if processing fails.
 	 */
-	@WithSpan("Source HTTP Exec")
 	public SourceTable process(
-		@SpanAttribute("source.definition") HttpSource httpSource,
-		String connectorId,
-		TelemetryManager telemetryManager
+		final HttpSource httpSource,
+		final String connectorId,
+		final TelemetryManager telemetryManager
 	) {
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 

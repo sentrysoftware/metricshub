@@ -56,6 +56,11 @@ import org.sentrysoftware.metricshub.extension.oscommand.ipmi.UnixIpmiSourceProc
 public class OsCommandExtension implements IProtocolExtension {
 
 	/**
+	 * Supported configuration types
+	 */
+	private static final Set<String> SUPPORTED_CONFIGURATION_TYPES = Set.of("ssh", "oscommand");
+
+	/**
 	 * Protocol up status value '1.0'
 	 */
 	public static final Double UP = 1.0;
@@ -179,8 +184,7 @@ public class OsCommandExtension implements IProtocolExtension {
 
 	@Override
 	public boolean isSupportedConfigurationType(String configurationType) {
-		Set<String> supportedConfigurations = Set.of("ssh", "oscommand");
-		return supportedConfigurations.contains(configurationType.toLowerCase());
+		return SUPPORTED_CONFIGURATION_TYPES.contains(configurationType.toLowerCase());
 	}
 
 	@Override
@@ -191,9 +195,11 @@ public class OsCommandExtension implements IProtocolExtension {
 				final SshConfiguration sshConfiguration = newObjectMapper().treeToValue(jsonNode, SshConfiguration.class);
 
 				if (decrypt != null) {
-					// Decrypt the password
-					final char[] passwordDecypted = decrypt.apply(sshConfiguration.getPassword());
-					sshConfiguration.setPassword(passwordDecypted);
+					final char[] password = sshConfiguration.getPassword();
+					if (password != null) {
+						// Decrypt the password
+						sshConfiguration.setPassword(decrypt.apply(password));
+					}
 				}
 
 				return sshConfiguration;

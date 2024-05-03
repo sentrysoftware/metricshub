@@ -204,9 +204,11 @@ public class SnmpExtension implements IProtocolExtension {
 			final SnmpConfiguration snmpConfiguration = newObjectMapper().treeToValue(jsonNode, SnmpConfiguration.class);
 
 			if (decrypt != null) {
-				// Decrypt the community
-				final char[] communityDecypted = decrypt.apply(snmpConfiguration.getCommunity());
-				snmpConfiguration.setCommunity(communityDecypted);
+				char[] community = snmpConfiguration.getCommunity();
+				if (community != null) {
+					// Decrypt the community
+					snmpConfiguration.setCommunity(decrypt.apply(community));
+				}
 			}
 
 			return snmpConfiguration;
