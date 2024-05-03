@@ -235,9 +235,11 @@ public class IpmiExtension implements IProtocolExtension {
 			final IpmiConfiguration ipmiConfiguration = newObjectMapper().treeToValue(jsonNode, IpmiConfiguration.class);
 
 			if (decrypt != null) {
-				// Decrypt the password
-				final char[] passwordDecrypted = decrypt.apply(ipmiConfiguration.getPassword());
-				ipmiConfiguration.setPassword(passwordDecrypted);
+				final char[] password = ipmiConfiguration.getPassword();
+				if (password != null) {
+					// Decrypt the password
+					ipmiConfiguration.setPassword(decrypt.apply(password));
+				}
 			}
 
 			return ipmiConfiguration;

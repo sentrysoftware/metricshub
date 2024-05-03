@@ -21,6 +21,9 @@ package org.sentrysoftware.metricshub.extension.http;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
+
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,12 +45,15 @@ import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 public class HttpConfiguration implements IConfiguration {
 
 	@Default
+	@JsonSetter(nulls = SKIP)
 	private final Boolean https = true;
 
 	@Default
+	@JsonSetter(nulls = SKIP)
 	private final Integer port = 443;
 
 	@Default
+	@JsonSetter(nulls = SKIP)
 	@JsonDeserialize(using = TimeDeserializer.class)
 	private final Long timeout = 120L;
 

@@ -15,7 +15,6 @@ import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHeal
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WINRM_UP_METRIC;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WMI_AND_WINRM_TEST_NAMESPACE;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WMI_AND_WINRM_TEST_QUERY;
-import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WMI_UP_METRIC;
 
 import java.util.HashMap;
 import java.util.List;
@@ -25,16 +24,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WinRmConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.extension.TestConfiguration;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.wbem.javax.wbem.WBEMException;
 import org.sentrysoftware.winrm.exceptions.WqlQuerySyntaxException;
 import org.sentrysoftware.wmi.exceptions.WmiComException;
 
@@ -80,32 +80,6 @@ class ProtocolHealthCheckStrategyTest {
 					.hostId(HOSTNAME)
 					.hostname(HOSTNAME)
 					.configurations(Map.of(TestConfiguration.class, TestConfiguration.builder().build()))
-					.build()
-			)
-			.build();
-	}
-
-	/**
-	 * Creates and returns a TelemetryManager instance with an WMI configuration.
-	 *
-	 * @return A TelemetryManager instance configured with an WMI configuration.
-	 */
-	private TelemetryManager createTelemetryManagerWithWmiConfig() {
-		// Create a telemetry manager
-		return TelemetryManager
-			.builder()
-			.monitors(monitors)
-			.hostConfiguration(
-				HostConfiguration
-					.builder()
-					.hostId(HOSTNAME)
-					.hostname(HOSTNAME)
-					.configurations(
-						Map.of(
-							WmiConfiguration.class,
-							WmiConfiguration.builder().username("username").password("password".toCharArray()).timeout(60L).build()
-						)
-					)
 					.build()
 			)
 			.build();
@@ -162,83 +136,6 @@ class ProtocolHealthCheckStrategyTest {
 			extensionManager
 		);
 		assertDoesNotThrow(() -> healthCheckStrategy.run());
-	}
-
-	@Test
-	void testCheckWmiUpHealth() throws ClientException {
-		// Create a telemetry manager using a WMI HostConfiguration
-		final TelemetryManager telemetryManager = createTelemetryManagerWithWmiConfig();
-
-		// Create a new protocol health check strategy
-		final ProtocolHealthCheckStrategy wmiHealthCheckStrategy = new ProtocolHealthCheckStrategy(
-			telemetryManager,
-			CURRENT_TIME_MILLIS,
-			clientsExecutorMock,
-			ExtensionManager.empty()
-		);
-
-		{
-			// Mock a positive WMI protocol health check response
-			doReturn(WQL_SUCCESS_RESPONSE)
-				.when(clientsExecutorMock)
-				.executeWmi(
-					anyString(),
-					any(WmiConfiguration.class),
-					eq(WMI_AND_WINRM_TEST_QUERY),
-					eq(WMI_AND_WINRM_TEST_NAMESPACE)
-				);
-
-			// Start the WMI Health Check strategy
-			wmiHealthCheckStrategy.run();
-
-			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(WMI_UP_METRIC).getValue());
-		}
-
-		{
-			// Mock an acceptable WMI protocol health check exception
-			doThrow(new RuntimeException(new WmiComException("WBEM_E_INVALID_NAMESPACE")))
-				.when(clientsExecutorMock)
-				.executeWmi(
-					anyString(),
-					any(WmiConfiguration.class),
-					eq(WMI_AND_WINRM_TEST_QUERY),
-					eq(WMI_AND_WINRM_TEST_NAMESPACE)
-				);
-
-			// Start the WMI Health Check strategy
-			wmiHealthCheckStrategy.run();
-
-			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(WMI_UP_METRIC).getValue());
-		}
-	}
-
-	@Test
-	void testCheckWmiDownHealth() throws ClientException {
-		// Create a telemetry manager using a WMI HostConfiguration
-		final TelemetryManager telemetryManager = createTelemetryManagerWithWmiConfig();
-
-		// Create a new protocol health check strategy
-		final ProtocolHealthCheckStrategy wmiHealthCheckStrategy = new ProtocolHealthCheckStrategy(
-			telemetryManager,
-			CURRENT_TIME_MILLIS,
-			clientsExecutorMock,
-			ExtensionManager.empty()
-		);
-
-		// Mock a null WMI protocol health check response
-		doReturn(null)
-			.when(clientsExecutorMock)
-			.executeWmi(
-				anyString(),
-				any(WmiConfiguration.class),
-				eq(WMI_AND_WINRM_TEST_QUERY),
-				eq(WMI_AND_WINRM_TEST_NAMESPACE)
-			);
-
-		// Start the WMI Health Check strategy
-		wmiHealthCheckStrategy.run();
-
-		assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(WMI_UP_METRIC).getValue());
 	}
 
 	@Test

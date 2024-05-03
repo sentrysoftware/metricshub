@@ -27,7 +27,6 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.configuration.WinRmConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
@@ -69,11 +68,6 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	 * WBEM Up metric
 	 */
 	public static final String WBEM_UP_METRIC = String.format(UP_METRIC_FORMAT, "wbem");
-
-	/**
-	 * WMI Up metric
-	 */
-	public static final String WMI_UP_METRIC = String.format(UP_METRIC_FORMAT, "wmi");
 
 	/**
 	 * WINRM Up metric
@@ -134,7 +128,6 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 		final MetricFactory metricFactory = new MetricFactory(hostname);
 
 		// Check the hostname protocols health
-		checkWmiHealth(hostname, hostMonitor, metricFactory);
 		checkWinRmHealth(hostname, hostMonitor, metricFactory);
 	}
 
@@ -146,61 +139,6 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	@Override
 	public Long getStrategyTime() {
 		return telemetryManager.getStrategyTime();
-	}
-
-	/**
-	 * Check WMI protocol health on the hostname for the host monitor.
-	 *
-	 * <ul>
-	 * 	<li>Criteria: The query must not return an error for at least one of the root\cimv2 namespace.</li>
-	 * 	<li>Query: SELECT Name FROM Win32_ComputerSystem.</li>
-	 * 	<li>Success Conditions: No errors in the query result, indicating that the protocol is responding.</li>
-	 * </ul>
-	 *
-	 * @param hostname      The hostname on which we perform health check
-	 * @param hostMonitor   An endpoint host monitor
-	 * @param metricFactory The metric factory used to collect the health check metric
-	 */
-	public void checkWmiHealth(String hostname, Monitor hostMonitor, MetricFactory metricFactory) {
-		// Create and set the WMI result to null
-		List<List<String>> wmiResult = null;
-
-		// Retrieve WMI Configuration from the telemetry manager host configuration
-		final WmiConfiguration wmiConfiguration = (WmiConfiguration) telemetryManager
-			.getHostConfiguration()
-			.getConfigurations()
-			.get(WmiConfiguration.class);
-
-		// Stop the health check if there is not an WMI configuration
-		if (wmiConfiguration == null) {
-			return;
-		}
-
-		log.info(
-			"Hostname {} - Checking WMI protocol status. Sending a WQL SELECT request on {} namespace.",
-			hostname,
-			WMI_AND_WINRM_TEST_NAMESPACE
-		);
-
-		try {
-			wmiResult =
-				clientsExecutor.executeWmi(hostname, wmiConfiguration, WMI_AND_WINRM_TEST_QUERY, WMI_AND_WINRM_TEST_NAMESPACE);
-		} catch (Exception e) {
-			if (WqlDetectionHelper.isAcceptableException(e)) {
-				// Generate a metric from the WMI result
-				metricFactory.collectNumberMetric(hostMonitor, WMI_UP_METRIC, UP, strategyTime);
-				return;
-			}
-			log.debug(
-				"Hostname {} - Checking WMI protocol status. WMI exception when performing a WQL SELECT request on {} namespace: ",
-				hostname,
-				WMI_AND_WINRM_TEST_NAMESPACE,
-				e
-			);
-		}
-
-		// Generate a metric from the WMI result
-		metricFactory.collectNumberMetric(hostMonitor, WMI_UP_METRIC, wmiResult != null ? UP : DOWN, strategyTime);
 	}
 
 	/**

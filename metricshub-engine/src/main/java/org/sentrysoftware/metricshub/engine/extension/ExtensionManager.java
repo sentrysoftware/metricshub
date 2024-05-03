@@ -29,13 +29,16 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
+import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -53,6 +56,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
  */
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder(setterPrefix = "with")
 public class ExtensionManager {
 
@@ -84,7 +88,7 @@ public class ExtensionManager {
 		final Criterion criterion,
 		final TelemetryManager telemetryManager
 	) {
-		return protocolExtensions
+		final List<IProtocolExtension> criterionExtensions = protocolExtensions
 			.stream()
 			.filter(extension ->
 				telemetryManager
@@ -95,7 +99,75 @@ public class ExtensionManager {
 					.anyMatch(extension::isValidConfiguration)
 			)
 			.filter(extension -> extension.getSupportedCriteria().contains(criterion.getClass()))
-			.findFirst();
+			.toList();
+
+		return filterWithBusinessLogic(telemetryManager, criterionExtensions);
+	}
+
+	/**
+	 * Filters a list of {@link IProtocolExtension} based on the business logic tied to the telemetry context
+	 * and the type of host configuration. The method selects the appropriate protocol extension based on the
+	 * type of host (Windows vs. others) and whether the operation is performed on localhost or not.
+	 *
+	 * The method first checks for extensions supporting "wmi", "winrm", and "oscommand" configuration types.
+	 * If the host is of type WINDOWS and it is not localhost, it prioritizes "wmi" and "winrm" extensions.
+	 * Otherwise, it returns the "oscommand" extension if present. If none of these conditions are met,
+	 * the method simply returns the first available extension from the list.
+	 *
+	 * @param telemetryManager    The {@link TelemetryManager} instance used to access host configuration and properties.
+	 * @param candidateExtensions A list of {@link IProtocolExtension} to be filtered based on the supported configuration.
+	 * @return An {@link Optional} containing the selected {@link IProtocolExtension}, or empty if no suitable extension is found.
+	 */
+	private Optional<IProtocolExtension> filterWithBusinessLogic(
+		final TelemetryManager telemetryManager,
+		final List<IProtocolExtension> candidateExtensions
+	) {
+		final Optional<IProtocolExtension> maybeWmiExtension = findExtensionByType(candidateExtensions, "wmi");
+		final Optional<IProtocolExtension> maybeWinrmExtension = findExtensionByType(candidateExtensions, "winrm");
+		final Optional<IProtocolExtension> maybeOsCommandExtension = findExtensionByType(candidateExtensions, "oscommand");
+
+		if ((maybeWmiExtension.isPresent() || maybeWinrmExtension.isPresent()) && maybeOsCommandExtension.isPresent()) {
+			if (
+				// CHECKSTYLE:OFF
+				DeviceKind.WINDOWS == telemetryManager.getHostConfiguration().getHostType() &&
+				!telemetryManager.getHostProperties().isLocalhost()
+				// CHECKSTYLE:ON
+			) {
+				return Stream
+					.of(maybeWmiExtension, maybeWinrmExtension)
+					.filter(Optional::isPresent)
+					.map(Optional::get)
+					.findFirst();
+			} else {
+				return maybeOsCommandExtension;
+			}
+		}
+
+		return candidateExtensions.stream().findFirst();
+	}
+
+	/**
+	 * Finds the first protocol extension that supports the specified type.
+	 *
+	 * @param extensions List of extensions to search.
+	 * @param type       The configuration type to match.
+	 * @return An {@code Optional} describing the first matching extension, or an empty {@code Optional} if none match.
+	 */
+	private Optional<IProtocolExtension> findExtensionByType(
+		final List<IProtocolExtension> extensions,
+		final String type
+	) {
+		return extensions.stream().filter(extension -> extension.isSupportedConfigurationType(type)).findFirst();
+	}
+
+	/**
+	 * Finds the first protocol extension that supports the specified type.
+	 *
+	 * @param type       The configuration type to match.
+	 * @return An {@code Optional} describing the first matching extension, or an empty {@code Optional} if none match.
+	 */
+	public Optional<IProtocolExtension> findExtensionByType(final String type) {
+		return findExtensionByType(protocolExtensions, type);
 	}
 
 	/**
@@ -109,7 +181,7 @@ public class ExtensionManager {
 		final Source source,
 		final TelemetryManager telemetryManager
 	) {
-		return protocolExtensions
+		final List<IProtocolExtension> sourceExtensions = protocolExtensions
 			.stream()
 			.filter(extension ->
 				telemetryManager
@@ -120,7 +192,9 @@ public class ExtensionManager {
 					.anyMatch(extension::isValidConfiguration)
 			)
 			.filter(extension -> extension.getSupportedSources().contains(source.getClass()))
-			.findFirst();
+			.toList();
+
+		return filterWithBusinessLogic(telemetryManager, sourceExtensions);
 	}
 
 	/**

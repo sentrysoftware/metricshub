@@ -59,7 +59,8 @@ public class ProtocolsConfig {
 	private IConfiguration wbem;
 
 	@JsonSetter(nulls = SKIP)
-	private WmiProtocolConfig wmi;
+	@JsonDeserialize(using = ExtensionConfigDeserializer.class)
+	private IConfiguration wmi;
 
 	@JsonSetter(nulls = SKIP)
 	@JsonDeserialize(using = ExtensionConfigDeserializer.class)

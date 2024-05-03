@@ -21,25 +21,17 @@ package org.sentrysoftware.metricshub.engine.strategy.detection;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.AUTOMATIC_NAMESPACE;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.SUCCESSFUL_OS_DETECTION_MESSAGE;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.TABLE_SEP;
-
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import org.sentrysoftware.metricshub.engine.common.helpers.VersionHelper;
-import org.sentrysoftware.metricshub.engine.configuration.IWinConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.CommandLineCriterion;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.DeviceTypeCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.HttpCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.IpmiCriterion;
@@ -50,12 +42,18 @@ import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.S
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetNextCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WbemCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WmiCriterion;
-import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WqlCriterion;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.strategy.utils.CriterionProcessVisitor;
 import org.sentrysoftware.metricshub.engine.strategy.utils.WqlDetectionHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.SUCCESSFUL_OS_DETECTION_MESSAGE;
 
 /**
  * The `CriterionProcessor` class is responsible for processing various criteria,
@@ -76,10 +74,6 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 @NoArgsConstructor
 public class CriterionProcessor implements ICriterionProcessor {
 
-	private static final String NEITHER_WMI_NOR_WINRM_ERROR =
-		"Neither WMI nor WinRM credentials are configured for this host.";
-	private static final String WMI_QUERY = "SELECT Description FROM ComputerSystem";
-	private static final String WMI_NAMESPACE = "root\\hardware";
 	private static final String CONFIGURE_OS_TYPE_MESSAGE = "Configured OS type : ";
 
 	private ClientsExecutor clientsExecutor;
@@ -108,7 +102,6 @@ public class CriterionProcessor implements ICriterionProcessor {
 		this.clientsExecutor = clientsExecutor;
 		this.telemetryManager = telemetryManager;
 		this.connectorId = connectorId;
-		this.wqlDetectionHelper = new WqlDetectionHelper(clientsExecutor);
 		this.extensionManager = extensionManager;
 	}
 
@@ -182,13 +175,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 */
 	@WithSpan("Criterion HTTP Exec")
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") HttpCriterion httpCriterion) {
-		final Optional<IProtocolExtension> maybeExtension = extensionManager.findCriterionExtension(
-			httpCriterion,
-			telemetryManager
-		);
-		return maybeExtension
-			.map(extension -> extension.processCriterion(httpCriterion, connectorId, telemetryManager))
-			.orElseGet(CriterionTestResult::empty);
+		return processCriterionThroughExtension(httpCriterion);
 	}
 
 	/**
@@ -201,12 +188,13 @@ public class CriterionProcessor implements ICriterionProcessor {
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") IpmiCriterion ipmiCriterion) {
 		final DeviceKind hostType = telemetryManager.getHostConfiguration().getHostType();
 
-		if (DeviceKind.WINDOWS.equals(hostType)) {
-			return processWindowsIpmiDetection(ipmiCriterion);
-		} else if (DeviceKind.LINUX.equals(hostType) || DeviceKind.SOLARIS.equals(hostType)) {
-			return processUnixIpmiDetection(hostType, ipmiCriterion);
-		} else if (DeviceKind.OOB.equals(hostType)) {
-			return processOutOfBandIpmiDetection(ipmiCriterion);
+		if (
+			DeviceKind.WINDOWS.equals(hostType) ||
+			DeviceKind.LINUX.equals(hostType) ||
+			DeviceKind.SOLARIS.equals(hostType) ||
+			DeviceKind.OOB.equals(hostType)
+		) {
+			return processCriterionThroughExtension(ipmiCriterion);
 		}
 
 		return CriterionTestResult
@@ -223,58 +211,6 @@ public class CriterionProcessor implements ICriterionProcessor {
 	}
 
 	/**
-	 * Process IPMI detection for the Windows (NT) system
-	 *
-	 * @param ipmiCriterion instance of IpmiCriterion
-	 * @return new {@link CriterionTestResult} instance
-	 */
-	private CriterionTestResult processWindowsIpmiDetection(final IpmiCriterion ipmiCriterion) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		// Find the configured protocol (WinRM or WMI)
-		final IWinConfiguration configuration = telemetryManager.getWinConfiguration();
-
-		if (configuration == null) {
-			return CriterionTestResult.error(ipmiCriterion, NEITHER_WMI_NOR_WINRM_ERROR);
-		}
-
-		WmiCriterion ipmiWmiCriterion = WmiCriterion.builder().query(WMI_QUERY).namespace(WMI_NAMESPACE).build();
-
-		return wqlDetectionHelper.performDetectionTest(hostname, configuration, ipmiWmiCriterion);
-	}
-
-	/**
-	 * Process IPMI detection for the Unix system
-	 *
-	 * @param hostType
-	 * @return new {@link CriterionTestResult} instance
-	 */
-	private CriterionTestResult processUnixIpmiDetection(final DeviceKind hostType, IpmiCriterion ipmiCriterion) {
-		final Optional<IProtocolExtension> maybeExtension = extensionManager.findCriterionExtension(
-			ipmiCriterion,
-			telemetryManager
-		);
-		return maybeExtension
-			.map(extension -> extension.processCriterion(ipmiCriterion, connectorId, telemetryManager))
-			.orElseGet(CriterionTestResult::empty);
-	}
-
-	/**
-	 * Process IPMI detection for the Out-Of-Band device
-	 *
-	 * @return {@link CriterionTestResult} wrapping the status of the criterion execution
-	 */
-	private CriterionTestResult processOutOfBandIpmiDetection(IpmiCriterion ipmiCriterion) {
-		final Optional<IProtocolExtension> maybeExtension = extensionManager.findCriterionExtension(
-			ipmiCriterion,
-			telemetryManager
-		);
-		return maybeExtension
-			.map(extension -> extension.processCriterion(ipmiCriterion, connectorId, telemetryManager))
-			.orElseGet(CriterionTestResult::empty);
-	}
-
-	/**
 	 * Process the given {@link CommandLineCriterion} through Client and return the {@link CriterionTestResult}
 	 *
 	 * @param commandLineCriterion The {@link CommandLineCriterion} to process.
@@ -282,13 +218,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 */
 	@WithSpan("Criterion OS Command Exec")
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") CommandLineCriterion commandLineCriterion) {
-		final Optional<IProtocolExtension> maybeExtension = extensionManager.findCriterionExtension(
-			commandLineCriterion,
-			telemetryManager
-		);
-		return maybeExtension
-			.map(extension -> extension.processCriterion(commandLineCriterion, connectorId, telemetryManager))
-			.orElseGet(CriterionTestResult::empty);
+		return processCriterionThroughExtension(commandLineCriterion);
 	}
 
 	/**
@@ -342,13 +272,22 @@ public class CriterionProcessor implements ICriterionProcessor {
 		}
 
 		final CriterionProcessVisitor localOSVisitor = new CriterionProcessVisitor(
-			processCriterion.getCommandLine(),
-			wqlDetectionHelper,
+			extensionManager,
+			processCriterion,
 			hostname
 		);
 
 		maybeLocalOS.get().accept(localOSVisitor);
-		return localOSVisitor.getCriterionTestResult();
+		final CriterionTestResult result = localOSVisitor.getCriterionTestResult();
+
+		if (result != null) {
+			return result;
+		} else {
+			return CriterionTestResult.error(
+				processCriterion,
+				"Process presence check: No result returned by the criterion processor."
+			);
+		}
 	}
 
 	/**
@@ -389,69 +328,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 */
 	@WithSpan("Criterion Service Exec")
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") ServiceCriterion serviceCriterion) {
-		// Sanity checks
-		if (serviceCriterion == null) {
-			return CriterionTestResult.error(serviceCriterion, "Malformed Service criterion.");
-		}
-
-		// Find the configured protocol (WinRM or WMI)
-		final IWinConfiguration winConfiguration = telemetryManager.getWinConfiguration();
-
-		if (winConfiguration == null) {
-			return CriterionTestResult.error(serviceCriterion, NEITHER_WMI_NOR_WINRM_ERROR);
-		}
-
-		// The host system must be Windows
-		if (!DeviceKind.WINDOWS.equals(telemetryManager.getHostConfiguration().getHostType())) {
-			return CriterionTestResult.error(serviceCriterion, "Host OS is not Windows. Skipping this test.");
-		}
-
-		// Our local system must be Windows
-		if (!LocalOsHandler.isWindows()) {
-			return CriterionTestResult.success(serviceCriterion, "Local OS is not Windows. Skipping this test.");
-		}
-
-		// Check the service name
-		final String serviceName = serviceCriterion.getName();
-		if (serviceName.isBlank()) {
-			return CriterionTestResult.success(serviceCriterion, "Service name is not specified. Skipping this test.");
-		}
-
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		// Build a new WMI criterion to check the service existence
-		WmiCriterion serviceWmiCriterion = WmiCriterion
-			.builder()
-			.query(String.format("SELECT Name, State FROM Win32_Service WHERE Name = '%s'", serviceName))
-			.namespace(WMI_NAMESPACE)
-			.build();
-
-		// Perform this WMI test
-		CriterionTestResult wmiTestResult = wqlDetectionHelper.performDetectionTest(
-			hostname,
-			winConfiguration,
-			serviceWmiCriterion
-		);
-		if (!wmiTestResult.isSuccess()) {
-			return wmiTestResult;
-		}
-
-		// The result contains ServiceName;State
-		final String result = wmiTestResult.getResult();
-
-		// Check whether the reported state is "Running"
-		if (result != null && result.toLowerCase().contains(TABLE_SEP + "running")) {
-			return CriterionTestResult.success(
-				serviceCriterion,
-				String.format("The %s Windows Service is currently running.", serviceName)
-			);
-		}
-
-		// We're here: no good!
-		return CriterionTestResult.failure(
-			serviceWmiCriterion,
-			String.format("The %s Windows Service is not reported as running:\n%s", serviceName, result) //NOSONAR
-		);
+		return processCriterionThroughExtension(serviceCriterion);
 	}
 
 	/**
@@ -462,12 +339,24 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 */
 	@WithSpan("Criterion SNMP Get Exec")
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") SnmpGetCriterion snmpGetCriterion) {
+		return processCriterionThroughExtension(snmpGetCriterion);
+	}
+
+	/**
+	 * Processes the given {@link Criterion} by attempting to find a suitable {@link IProtocolExtension} via the
+	 * {@link ExtensionManager}. If an extension is found, it processes the criterion accordingly; otherwise,
+	 * it returns an empty {@link CriterionTestResult}.
+	 *
+	 * @param criterion The criterion to be evaluated.
+	 * @return A {@link CriterionTestResult} containing the outcome of the criterion processing, or an empty result if no suitable extension is found.
+	 */
+	private CriterionTestResult processCriterionThroughExtension(Criterion criterion) {
 		final Optional<IProtocolExtension> maybeExtension = extensionManager.findCriterionExtension(
-			snmpGetCriterion,
+			criterion,
 			telemetryManager
 		);
 		return maybeExtension
-			.map(extension -> extension.processCriterion(snmpGetCriterion, connectorId, telemetryManager))
+			.map(extension -> extension.processCriterion(criterion, connectorId, telemetryManager))
 			.orElseGet(CriterionTestResult::empty);
 	}
 
@@ -479,13 +368,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 */
 	@WithSpan("Criterion SNMP GetNext Exec")
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") SnmpGetNextCriterion snmpGetNextCriterion) {
-		final Optional<IProtocolExtension> maybeExtension = extensionManager.findCriterionExtension(
-			snmpGetNextCriterion,
-			telemetryManager
-		);
-		return maybeExtension
-			.map(extension -> extension.processCriterion(snmpGetNextCriterion, connectorId, telemetryManager))
-			.orElseGet(CriterionTestResult::empty);
+		return processCriterionThroughExtension(snmpGetNextCriterion);
 	}
 
 	/**
@@ -496,103 +379,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 */
 	@WithSpan("Criterion WMI Exec")
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") WmiCriterion wmiCriterion) {
-		// Sanity check
-		if (wmiCriterion == null) {
-			return CriterionTestResult.error(wmiCriterion, "Malformed criterion. Cannot perform detection.");
-		}
-
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		// Find the configured protocol (WinRM or WMI)
-		final IWinConfiguration winConfiguration = telemetryManager.getWinConfiguration();
-
-		if (winConfiguration == null) {
-			return CriterionTestResult.error(wmiCriterion, NEITHER_WMI_NOR_WINRM_ERROR);
-		}
-
-		// If namespace is specified as "Automatic"
-		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(wmiCriterion.getNamespace())) {
-			final String cachedNamespace = telemetryManager
-				.getHostProperties()
-				.getConnectorNamespace(connectorId)
-				.getAutomaticWmiNamespace();
-
-			// If not detected already, find the namespace
-			if (cachedNamespace == null) {
-				return findNamespace(hostname, winConfiguration, wmiCriterion);
-			}
-
-			// Update the criterion with the cached namespace
-			WqlCriterion cachedNamespaceCriterion = wmiCriterion.copy();
-			cachedNamespaceCriterion.setNamespace(cachedNamespace);
-
-			// Run the test
-			return wqlDetectionHelper.performDetectionTest(hostname, winConfiguration, cachedNamespaceCriterion);
-		}
-
-		// Run the test
-		return wqlDetectionHelper.performDetectionTest(hostname, winConfiguration, wmiCriterion);
-	}
-
-	/**
-	 * Find the namespace to use for the execution of the given {@link WqlCriterion}.
-	 *
-	 * @param hostname         The hostname of the device
-	 * @param winConfiguration The Win protocol configuration (credentials, etc.)
-	 * @param wqlCriterion     The WQL criterion with an "Automatic" namespace
-	 * @return A {@link CriterionTestResult} telling whether we found the proper namespace for the specified WQL
-	 */
-	CriterionTestResult findNamespace(
-		final String hostname,
-		final IWinConfiguration winConfiguration,
-		final WqlCriterion wqlCriterion
-	) {
-		// Get the list of possible namespaces on this host
-		Set<String> possibleWmiNamespaces = telemetryManager.getHostProperties().getPossibleWmiNamespaces();
-
-		// Only one thread at a time must be figuring out the possible namespaces on a given host
-		synchronized (possibleWmiNamespaces) {
-			if (possibleWmiNamespaces.isEmpty()) {
-				// If we don't have this list already, figure it out now
-				final WqlDetectionHelper.PossibleNamespacesResult possibleWmiNamespacesResult =
-					wqlDetectionHelper.findPossibleNamespaces(hostname, winConfiguration);
-
-				// If we can't detect the namespace then we must stop
-				if (!possibleWmiNamespacesResult.isSuccess()) {
-					return CriterionTestResult.error(wqlCriterion, possibleWmiNamespacesResult.getErrorMessage());
-				}
-
-				// Store the list of possible namespaces in HostMonitoring, for next time we need it
-				possibleWmiNamespaces.clear();
-				possibleWmiNamespaces.addAll(possibleWmiNamespacesResult.getPossibleNamespaces());
-			}
-		}
-
-		// Perform a namespace detection
-		WqlDetectionHelper.NamespaceResult namespaceResult = wqlDetectionHelper.detectNamespace(
-			hostname,
-			winConfiguration,
-			wqlCriterion,
-			Collections.unmodifiableSet(possibleWmiNamespaces)
-		);
-
-		// If that was successful, remember it in HostMonitoring, so we don't perform this
-		// (costly) detection again
-		if (namespaceResult.getResult().isSuccess()) {
-			if (wqlCriterion instanceof WmiCriterion) {
-				telemetryManager
-					.getHostProperties()
-					.getConnectorNamespace(connectorId)
-					.setAutomaticWmiNamespace(namespaceResult.getNamespace());
-			} else {
-				telemetryManager
-					.getHostProperties()
-					.getConnectorNamespace(connectorId)
-					.setAutomaticWbemNamespace(namespaceResult.getNamespace());
-			}
-		}
-
-		return namespaceResult.getResult();
+		return processCriterionThroughExtension(wmiCriterion);
 	}
 
 	/**

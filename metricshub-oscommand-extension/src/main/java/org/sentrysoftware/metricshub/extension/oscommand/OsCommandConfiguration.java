@@ -21,6 +21,9 @@ package org.sentrysoftware.metricshub.extension.oscommand;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
+
+import com.fasterxml.jackson.annotation.JsonSetter;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.Builder;
@@ -42,9 +45,16 @@ public class OsCommandConfiguration implements IConfiguration {
 	 * Default Os Command timeout
 	 */
 	public static final Long DEFAULT_TIMEOUT = 30L;
+
 	boolean useSudo;
+
+	@JsonSetter(nulls = SKIP)
 	Set<String> useSudoCommands = new HashSet<>();
+
+	@JsonSetter(nulls = SKIP)
 	String sudoCommand = "sudo";
+
+	@JsonSetter(nulls = SKIP)
 	Long timeout = DEFAULT_TIMEOUT;
 
 	/**

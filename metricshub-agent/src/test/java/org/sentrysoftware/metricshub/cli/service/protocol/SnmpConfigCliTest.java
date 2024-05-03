@@ -10,13 +10,12 @@ import org.mockito.MockedStatic;
 import org.sentrysoftware.metricshub.agent.extension.SnmpTestConfiguration;
 import org.sentrysoftware.metricshub.agent.extension.SnmpTestExtension;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
-import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 
 class SnmpConfigCliTest {
 
 	@Test
-	void testToProtocol() throws InvalidConfigurationException {
+	void testToProtocol() throws Exception {
 		final String password = "pwd";
 
 		// Create a SnmpConfigCli instance and set its data

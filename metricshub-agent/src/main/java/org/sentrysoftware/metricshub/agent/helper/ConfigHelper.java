@@ -71,7 +71,6 @@ import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.AbstractProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.ProtocolsConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.WinRmProtocolConfig;
-import org.sentrysoftware.metricshub.agent.config.protocols.WmiProtocolConfig;
 import org.sentrysoftware.metricshub.agent.context.MetricDefinitions;
 import org.sentrysoftware.metricshub.agent.security.PasswordEncrypt;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
@@ -104,7 +103,6 @@ import org.springframework.core.io.ClassPathResource;
 @Slf4j
 public class ConfigHelper {
 
-	private static final String WMI_PROTOCOL = "WMI";
 	private static final String WBEM_PROTOCOL = "WBEM";
 	private static final String WIN_RM_PROTOCOL = "WinRM";
 	private static final String TIMEOUT_ERROR =
@@ -951,9 +949,9 @@ public class ConfigHelper {
 			wbemConfig.validateConfiguration(resourceKey);
 		}
 
-		final WmiProtocolConfig wmiConfig = protocolsConfig.getWmi();
+		final IConfiguration wmiConfig = protocolsConfig.getWmi();
 		if (wmiConfig != null) {
-			validateWmiInfo(resourceKey, wmiConfig.getTimeout());
+			wmiConfig.validateConfiguration(resourceKey);
 		}
 
 		final IConfiguration httpConfig = protocolsConfig.getHttp();
@@ -1050,21 +1048,6 @@ public class ConfigHelper {
 	}
 
 	/**
-	 * Validate the given WMI information: timeout
-	 *
-	 * @param resourceKey Resource unique identifier
-	 * @param timeout     How long until the WMI request times out
-	 * @throws InvalidConfigurationException thrown if a configuration validation fails
-	 */
-	static void validateWmiInfo(final String resourceKey, final Long timeout) throws InvalidConfigurationException {
-		StringHelper.validateConfigurationAttribute(
-			timeout,
-			INVALID_TIMEOUT_CHECKER,
-			() -> String.format(TIMEOUT_ERROR, resourceKey, WMI_PROTOCOL, timeout)
-		);
-	}
-
-	/**
 	 * Build the {@link HostConfiguration} expected by the internal engine
 	 *
 	 * @param resourceConfig          User's resource configuration
@@ -1079,18 +1062,6 @@ public class ConfigHelper {
 	) {
 		final ProtocolsConfig protocols = resourceConfig.getProtocols();
 
-		final Map<Class<? extends IConfiguration>, IConfiguration> protocolConfigurationsDeprecated = protocols == null
-			? new HashMap<>()
-			: new HashMap<>(
-				Stream
-					.of(protocols.getWmi(), protocols.getWinrm())
-					.filter(Objects::nonNull)
-					.map(AbstractProtocolConfig::toConfiguration)
-					.filter(Objects::nonNull)
-					.collect(Collectors.toMap(IConfiguration::getClass, Function.identity()))
-			);
-
-		// TODO Temporary: when all the configurations are IConfiguration we will remove protocolConfigurationsDeprecated variable
 		final Map<Class<? extends IConfiguration>, IConfiguration> protocolConfigurations = protocols == null
 			? new HashMap<>()
 			: new HashMap<>(
@@ -1100,15 +1071,13 @@ public class ConfigHelper {
 						protocols.getHttp(),
 						protocols.getIpmi(),
 						protocols.getOsCommand(),
-						protocols.getSsh()
+						protocols.getSsh(),
+						protocols.getWmi(),
+						protocols.getWbem()
 					)
 					.filter(Objects::nonNull)
 					.collect(Collectors.toMap(IConfiguration::getClass, Function.identity()))
 			);
-
-		// TODO remove when protocolConfigurationsDeprecated is removed, means all the configuration are IConfguration
-		// protocols
-		protocolConfigurations.putAll(protocolConfigurationsDeprecated);
 
 		final Map<String, String> attributes = resourceConfig.getAttributes();
 

@@ -21,6 +21,9 @@ package org.sentrysoftware.metricshub.extension.snmp;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
+
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -49,15 +52,19 @@ public class SnmpConfiguration implements IConfiguration {
 
 	@Default
 	@JsonDeserialize(using = SnmpVersionDeserializer.class)
+	@JsonSetter(nulls = SKIP)
 	private final SnmpVersion version = SnmpVersion.V1;
 
 	@Default
+	@JsonSetter(nulls = SKIP)
 	private char[] community = new char[] { 'p', 'u', 'b', 'l', 'i', 'c' };
 
 	@Default
+	@JsonSetter(nulls = SKIP)
 	private Integer port = 161;
 
 	@Default
+	@JsonSetter(nulls = SKIP)
 	@JsonDeserialize(using = TimeDeserializer.class)
 	private final Long timeout = 120L;
 

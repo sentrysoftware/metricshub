@@ -6,24 +6,19 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.AUTOMATIC;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.ECS1_01;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.EMPTY;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.EXPECTED_SNMP_TABLE_DATA;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.MY_CONNECTOR_1_NAME;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.OID;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.PASSWORD;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.SNMP_SELECTED_COLUMNS;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.SNMP_SELECTED_COLUMNS_LIST;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.TAB1_REF;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.URL;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.USERNAME;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.VALUE_VAL1;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.VALUE_VAL2;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.VALUE_VAL3;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_QUERY;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.WMI_NAMESPACE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,8 +34,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.IWinConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.common.HttpMethod;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CopySource;
@@ -78,7 +71,6 @@ class SourceProcessorTest {
 	private static final String LOWERCASE_C2 = "c2";
 	private static final String UPPERCASE_B2 = "B2";
 	private static final String UPPERCASE_C2 = "C2";
-	private static final String PC14 = "pc14";
 	private static final String LOWERCASE_T = "t";
 	private static final String LOWERCASE_U = "u";
 	private static final String LOWERCASE_V = "v";
@@ -139,6 +131,49 @@ class SourceProcessorTest {
 		doReturn(expected).when(protocolExtensionMock).processSource(eq(source), anyString(), any(TelemetryManager.class));
 
 		final SourceTable actual = sourceProcessor.process(source);
+
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	void testProcessWmiSource() {
+		final TestConfiguration wmiConfiguration = TestConfiguration.builder().build();
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.hostname(ECS1_01)
+			.hostId(ECS1_01)
+			.hostType(DeviceKind.WINDOWS)
+			.configurations(Collections.singletonMap(TestConfiguration.class, wmiConfiguration))
+			.build();
+
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
+
+		final ExtensionManager extensionManager = ExtensionManager
+			.builder()
+			.withProtocolExtensions(List.of(protocolExtensionMock))
+			.build();
+
+		final SourceProcessor sourceProcessor = SourceProcessor
+			.builder()
+			.telemetryManager(telemetryManager)
+			.clientsExecutor(clientsExecutorMock)
+			.extensionManager(extensionManager)
+			.connectorId(CONNECTOR_ID)
+			.build();
+
+		doReturn(true).when(protocolExtensionMock).isValidConfiguration(wmiConfiguration);
+
+		doReturn(Set.of(WmiSource.class)).when(protocolExtensionMock).getSupportedSources();
+
+		final SourceTable expected = SourceTable.builder().rawData(ECS1_01).build();
+
+		final WmiSource wmiSource = WmiSource.builder().query(WBEM_QUERY).namespace(AUTOMATIC).build();
+
+		doReturn(expected)
+			.when(protocolExtensionMock)
+			.processSource(eq(wmiSource), anyString(), any(TelemetryManager.class));
+
+		final SourceTable actual = sourceProcessor.process(wmiSource);
 
 		assertEquals(expected, actual);
 	}
@@ -692,146 +727,6 @@ class SourceProcessorTest {
 		assertEquals(expected, actual);
 	}
 
-	@Test
-	void testProcessWmiSourceMalformed() {
-		final TestConfiguration httpConfiguration = TestConfiguration.builder().build();
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(
-				HostConfiguration
-					.builder()
-					.hostname(ECS1_01)
-					.hostId(ECS1_01)
-					.hostType(DeviceKind.LINUX)
-					.configurations(Map.of(TestConfiguration.class, httpConfiguration))
-					.build()
-			)
-			.build();
-		final SourceProcessor sourceProcessor = SourceProcessor
-			.builder()
-			.telemetryManager(telemetryManager)
-			.clientsExecutor(clientsExecutorMock)
-			.build();
-		assertEquals(SourceTable.empty(), sourceProcessor.process((WmiSource) null));
-		assertEquals(SourceTable.empty(), sourceProcessor.process(WmiSource.builder().query(WBEM_QUERY).build()));
-	}
-
-	@Test
-	void testProcessWmiSourceButWmiNotConfigured() {
-		final WmiSource wmiSource = WmiSource.builder().query(WBEM_QUERY).build();
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(
-				HostConfiguration
-					.builder()
-					.hostname(ECS1_01)
-					.hostId(ECS1_01)
-					.hostType(DeviceKind.LINUX)
-					.configurations(Collections.emptyMap())
-					.build()
-			)
-			.build();
-		final SourceProcessor sourceProcessor = SourceProcessor
-			.builder()
-			.telemetryManager(telemetryManager)
-			.clientsExecutor(clientsExecutorMock)
-			.build();
-		assertEquals(SourceTable.empty(), sourceProcessor.process(wmiSource));
-	}
-
-	@Test
-	void testProcessWmiSourceNoNamespace() {
-		final WmiSource wmiSource = WmiSource.builder().query(WBEM_QUERY).namespace(AUTOMATIC).build();
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(
-				HostConfiguration
-					.builder()
-					.hostname(ECS1_01)
-					.hostId(ECS1_01)
-					.hostType(DeviceKind.LINUX)
-					.configurations(
-						Map.of(
-							WmiConfiguration.class,
-							WmiConfiguration.builder().username(ECS1_01 + "\\" + USERNAME).password(PASSWORD.toCharArray()).build()
-						)
-					)
-					.build()
-			)
-			.build();
-		final SourceProcessor sourceProcessor = SourceProcessor
-			.builder()
-			.telemetryManager(telemetryManager)
-			.clientsExecutor(clientsExecutorMock)
-			.connectorId(CONNECTOR_ID)
-			.build();
-		assertEquals(SourceTable.empty(), sourceProcessor.process(wmiSource));
-	}
-
-	@Test
-	void testProcessWmiSource() throws Exception {
-		final WmiSource wmiSource = WmiSource.builder().query(WBEM_QUERY).namespace(WMI_NAMESPACE).build();
-		final WmiConfiguration wmiConfiguration = WmiConfiguration
-			.builder()
-			.username(ECS1_01 + "\\" + USERNAME)
-			.password(PASSWORD.toCharArray())
-			.build();
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(
-				HostConfiguration
-					.builder()
-					.hostname(ECS1_01)
-					.hostId(ECS1_01)
-					.hostType(DeviceKind.LINUX)
-					.configurations(Map.of(WmiConfiguration.class, wmiConfiguration))
-					.build()
-			)
-			.build();
-		final List<List<String>> expected = Arrays.asList(
-			Arrays.asList("1.1", "0|4587"),
-			Arrays.asList("1.2", "2|4587"),
-			Arrays.asList("1.3", "1|4587")
-		);
-		doReturn(expected).when(clientsExecutorMock).executeWql(ECS1_01, wmiConfiguration, WBEM_QUERY, WMI_NAMESPACE);
-		final SourceProcessor sourceProcessor = SourceProcessor
-			.builder()
-			.telemetryManager(telemetryManager)
-			.clientsExecutor(clientsExecutorMock)
-			.connectorId(CONNECTOR_ID)
-			.build();
-		assertEquals(SourceTable.builder().table(expected).build(), sourceProcessor.process(wmiSource));
-	}
-
-	@Test
-	void testProcessWmiSourceTimeout() {
-		final WmiSource wmiSource = WmiSource.builder().query(WBEM_QUERY).namespace(AUTOMATIC).build();
-		final WmiConfiguration wmiConfiguration = WmiConfiguration
-			.builder()
-			.username(ECS1_01 + "\\" + USERNAME)
-			.password(PASSWORD.toCharArray())
-			.build();
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(
-				HostConfiguration
-					.builder()
-					.hostname(ECS1_01)
-					.hostId(ECS1_01)
-					.hostType(DeviceKind.LINUX)
-					.configurations(Map.of(WmiConfiguration.class, wmiConfiguration))
-					.build()
-			)
-			.build();
-		final SourceProcessor sourceProcessor = SourceProcessor
-			.builder()
-			.telemetryManager(telemetryManager)
-			.clientsExecutor(clientsExecutorMock)
-			.connectorId(CONNECTOR_ID)
-			.build();
-		assertEquals(SourceTable.empty(), sourceProcessor.process(wmiSource));
-	}
-
 	void testProcessIpmiSourceStorageHost() {
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
@@ -845,117 +740,6 @@ class SourceProcessorTest {
 			.telemetryManager(telemetryManager)
 			.clientsExecutor(clientsExecutorMock)
 			.build();
-		assertEquals(SourceTable.empty(), sourceProcessor.process(new IpmiSource()));
-	}
-
-	@Test
-	void testProcessWindowsIpmiSource() throws Exception {
-		final IWinConfiguration wmiConfiguration = WmiConfiguration
-			.builder()
-			.username(PC14 + "\\" + "Administrator")
-			.password("password".toCharArray())
-			.timeout(120L)
-			.build();
-		final HostConfiguration hostConfiguration = HostConfiguration
-			.builder()
-			.hostname(PC14)
-			.hostId(PC14)
-			.hostType(DeviceKind.WINDOWS)
-			.configurations(Collections.singletonMap(WmiConfiguration.class, wmiConfiguration))
-			.build();
-		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
-		final SourceProcessor sourceProcessor = SourceProcessor
-			.builder()
-			.telemetryManager(telemetryManager)
-			.clientsExecutor(clientsExecutorMock)
-			.build();
-		final List<List<String>> wmiResult1 = Arrays.asList(Arrays.asList("IdentifyingNumber", "Name", "Vendor"));
-		doReturn(wmiResult1)
-			.when(clientsExecutorMock)
-			.executeWql(
-				PC14,
-				wmiConfiguration,
-				"SELECT IdentifyingNumber,Name,Vendor FROM Win32_ComputerSystemProduct",
-				"root/cimv2"
-			);
-
-		final List<List<String>> wmiResult2 = Arrays.asList(
-			Arrays.asList("2", "20", "sensorName(sensorId):description for deviceId", "10", "15", "2", "0", "30", "25")
-		);
-		doReturn(wmiResult2)
-			.when(clientsExecutorMock)
-			.executeWql(
-				PC14,
-				wmiConfiguration,
-				"SELECT BaseUnits,CurrentReading,Description,LowerThresholdCritical,LowerThresholdNonCritical,SensorType,UnitModifier,UpperThresholdCritical,UpperThresholdNonCritical FROM NumericSensor",
-				"root/hardware"
-			);
-
-		final List<List<String>> wmiResult3 = Arrays.asList(
-			Arrays.asList("state", "sensorName(sensorId):description for deviceType deviceId")
-		);
-		doReturn(wmiResult3)
-			.when(clientsExecutorMock)
-			.executeWql(PC14, wmiConfiguration, "SELECT CurrentState,Description FROM Sensor", "root/hardware");
-
-		final List<List<String>> expected = Arrays.asList(
-			Arrays.asList("FRU", "Vendor", "Name", "IdentifyingNumber"),
-			Arrays.asList("Temperature", "sensorId", "sensorName", "deviceId", "20.0", "25.0", "30.0"),
-			Arrays.asList("deviceType", "deviceId", "deviceType deviceId", EMPTY, EMPTY, EMPTY, "sensorName=state")
-		);
-		SourceTable result = sourceProcessor.process(new IpmiSource());
-		assertEquals(SourceTable.builder().table(expected).build(), result);
-	}
-
-	@Test
-	void testProcessWindowsIpmiSourceWmiException() throws Exception {
-		final IWinConfiguration wmiConfiguration = WmiConfiguration
-			.builder()
-			.username(PC14 + "\\" + "Administrator")
-			.password("password".toCharArray())
-			.timeout(120L)
-			.build();
-		final HostConfiguration hostConfiguration = HostConfiguration
-			.builder()
-			.hostname(PC14)
-			.hostId(PC14)
-			.hostType(DeviceKind.WINDOWS)
-			.configurations(Collections.singletonMap(WmiConfiguration.class, wmiConfiguration))
-			.build();
-		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
-		final SourceProcessor sourceProcessor = SourceProcessor
-			.builder()
-			.telemetryManager(telemetryManager)
-			.clientsExecutor(clientsExecutorMock)
-			.build();
-		doThrow(ClientException.class)
-			.when(clientsExecutorMock)
-			.executeWql(
-				PC14,
-				wmiConfiguration,
-				"SELECT IdentifyingNumber,Name,Vendor FROM Win32_ComputerSystemProduct",
-				"root/cimv2"
-			);
-		assertEquals(SourceTable.empty(), sourceProcessor.process(new IpmiSource()));
-	}
-
-	@Test
-	void testProcessWindowsIpmiSourceWmiProtocolNull() throws Exception {
-		final TestConfiguration httpConfiguration = TestConfiguration.builder().build();
-		final HostConfiguration hostConfiguration = HostConfiguration
-			.builder()
-			.hostname(ECS1_01)
-			.hostId(ECS1_01)
-			.hostType(DeviceKind.WINDOWS)
-			.configurations(Collections.singletonMap(TestConfiguration.class, httpConfiguration))
-			.build();
-		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
-		final SourceProcessor sourceProcessor = SourceProcessor
-			.builder()
-			.telemetryManager(telemetryManager)
-			.clientsExecutor(clientsExecutorMock)
-			.build();
-
 		assertEquals(SourceTable.empty(), sourceProcessor.process(new IpmiSource()));
 	}
 }

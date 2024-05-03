@@ -975,7 +975,7 @@ class OsCommandExtensionTest {
 	}
 
 	@Test
-	void testVisitCommandLineExpectedResultEmpty() {
+	void testProcessCommandLineExpectedResultEmpty() {
 		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
 		commandLineCriterion.setCommandLine(
 			"naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent"
@@ -1005,17 +1005,20 @@ class OsCommandExtensionTest {
 	}
 
 	@Test
-	void testVisitCommandLineNull() {
+	void testProcessCommandLineNull() {
 		final CommandLineCriterion commandLineCriterion = null;
 
+		final HostConfiguration hostConfiguration = HostConfiguration.builder().hostname(HOSTNAME).build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
+
 		assertThrows(
-			NullPointerException.class,
-			() -> osCommandExtension.processCriterion(commandLineCriterion, MY_CONNECTOR_1_NAME, null)
+			IllegalArgumentException.class,
+			() -> osCommandExtension.processCriterion(commandLineCriterion, MY_CONNECTOR_1_NAME, telemetryManager)
 		);
 	}
 
 	@Test
-	void testVisitCommandLineExpectedResultNull() {
+	void testProcessCommandLineExpectedResultNull() {
 		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
 		commandLineCriterion.setCommandLine(
 			"naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent"
@@ -1044,7 +1047,7 @@ class OsCommandExtensionTest {
 	}
 
 	@Test
-	void testVisitCommandLineLineEmpty() {
+	void testProcessCommandLineLineEmpty() {
 		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
 		commandLineCriterion.setCommandLine("");
 		commandLineCriterion.setExpectedResult("Agent Rev:");
@@ -1072,7 +1075,7 @@ class OsCommandExtensionTest {
 	}
 
 	@Test
-	void testVisitCommandLineRemoteNoUser() {
+	void testProcessCommandLineRemoteNoUser() {
 		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
 		commandLineCriterion.setCommandLine(
 			"naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent"
