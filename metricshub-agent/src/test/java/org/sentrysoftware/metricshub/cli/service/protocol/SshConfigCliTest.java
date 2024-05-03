@@ -11,13 +11,12 @@ import org.mockito.MockedStatic;
 import org.sentrysoftware.metricshub.agent.extension.OsCommandTestExtension;
 import org.sentrysoftware.metricshub.agent.extension.SshTestConfiguration;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
-import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 
 class SshConfigCliTest {
 
 	@Test
-	void testToProtocol() throws InvalidConfigurationException {
+	void testToProtocol() throws Exception {
 		SshConfigCli sshConfigCli = new SshConfigCli();
 		final char[] password = "value".toCharArray();
 		final String username = "username";

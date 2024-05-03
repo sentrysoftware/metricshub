@@ -1,6 +1,7 @@
 package org.sentrysoftware.metricshub.cli.service.protocol;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mockStatic;
 
 import java.util.List;
@@ -9,13 +10,12 @@ import org.mockito.MockedStatic;
 import org.sentrysoftware.metricshub.agent.extension.WmiTestConfiguration;
 import org.sentrysoftware.metricshub.agent.extension.WmiTestExtension;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
-import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 
 class WmiConfigCliTest {
 
 	@Test
-	void testToProtocol() throws InvalidConfigurationException {
+	void testToProtocol() throws Exception {
 		// Create a WmiConfigCli instance and set its data
 		final WmiConfigCli wmiConfigCli = new WmiConfigCli();
 		final String username = "username";
@@ -39,7 +39,7 @@ class WmiConfigCliTest {
 				.thenReturn(extensionManager);
 
 			// Create an WmiTestConfiguration and call method toProtocol
-			final WmiTestConfiguration wmiConfiguration = (WmiTestConfiguration) wmiConfigCli.toProtocol(null, null);
+			WmiTestConfiguration wmiConfiguration = (WmiTestConfiguration) wmiConfigCli.toProtocol(null, null);
 
 			final WmiTestConfiguration expected = WmiTestConfiguration
 				.builder()
@@ -50,6 +50,14 @@ class WmiConfigCliTest {
 				.build();
 			// Check the resulting WMI configuration
 			assertEquals(expected, wmiConfiguration);
+
+			// Check null password and null username
+			wmiConfigCli.setPassword(null);
+			wmiConfigCli.setUsername(null);
+			wmiConfiguration = (WmiTestConfiguration) wmiConfigCli.toProtocol(null, null);
+
+			assertNull(wmiConfiguration.getPassword());
+			assertNull(wmiConfiguration.getUsername());
 		}
 	}
 }

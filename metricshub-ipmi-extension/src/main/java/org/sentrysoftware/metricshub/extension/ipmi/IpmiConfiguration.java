@@ -21,6 +21,9 @@ package org.sentrysoftware.metricshub.extension.ipmi;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
+
+import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -40,6 +43,7 @@ import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 public class IpmiConfiguration implements IConfiguration {
 
 	@Builder.Default
+	@JsonSetter(nulls = SKIP)
 	private final Long timeout = 120L;
 
 	private String username;

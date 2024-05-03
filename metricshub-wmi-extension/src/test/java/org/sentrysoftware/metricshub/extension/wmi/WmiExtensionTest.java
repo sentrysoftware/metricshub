@@ -2,6 +2,7 @@ package org.sentrysoftware.metricshub.extension.wmi;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -452,5 +453,12 @@ class WmiExtensionTest {
 			WmiConfiguration.builder().username(USERNAME).password(PASSWORD).namespace(namespace).timeout(120L).build(),
 			wmiExtension.buildConfiguration("wmi", configuration, null)
 		);
+		configuration.set("namespace", new TextNode(null));
+		final WmiConfiguration wmiConfiguration = (WmiConfiguration) wmiExtension.buildConfiguration(
+			"wmi",
+			configuration,
+			null
+		);
+		assertNull(wmiConfiguration.getNamespace());
 	}
 }

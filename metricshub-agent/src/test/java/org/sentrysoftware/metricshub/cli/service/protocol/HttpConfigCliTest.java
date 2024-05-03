@@ -12,7 +12,6 @@ import org.sentrysoftware.metricshub.agent.extension.HttpTestConfiguration;
 import org.sentrysoftware.metricshub.agent.extension.HttpTestExtension;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
 import org.sentrysoftware.metricshub.cli.service.protocol.HttpConfigCli.HttpOrHttps;
-import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 
 class HttpConfigCliTest {
@@ -21,7 +20,7 @@ class HttpConfigCliTest {
 	HttpConfigCli httpConfigCli;
 
 	@Test
-	void testToProtocol() throws InvalidConfigurationException {
+	void testToProtocol() throws Exception {
 		HttpConfigCli httpConfigCli = new HttpConfigCli();
 		final char[] password = "p4ssw0rd".toCharArray();
 		final String username = "username";
