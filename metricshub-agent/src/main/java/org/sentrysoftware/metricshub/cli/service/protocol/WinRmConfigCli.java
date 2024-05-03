@@ -1,5 +1,10 @@
 package org.sentrysoftware.metricshub.cli.service.protocol;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.IntNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
  * MetricsHub Agent
@@ -24,18 +29,10 @@ package org.sentrysoftware.metricshub.cli.service.protocol;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.WinRmConfiguration;
-
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.IntNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-
 import picocli.CommandLine.Option;
 
 /**
@@ -128,11 +125,11 @@ public class WinRmConfigCli extends AbstractTransportProtocolCli {
 	 * @param defaultUsername Username specified at the top level of the CLI (with the --username option)
 	 * @param defaultPassword Password specified at the top level of the CLI (with the --password option)
 	 * @return a WinRmProtocol instance corresponding to the options specified by the user in the CLI
-	 * @throws InvalidConfigurationException 
+	 * @throws InvalidConfigurationException
 	 */
 	@Override
-	public IConfiguration toProtocol(String defaultUsername, char[] defaultPassword) throws InvalidConfigurationException {
-
+	public IConfiguration toProtocol(String defaultUsername, char[] defaultPassword)
+		throws InvalidConfigurationException {
 		final ObjectNode configuration = JsonNodeFactory.instance.objectNode();
 		// Create an arrayNode that will contain all the authentications that the user introduced
 		ArrayNode authenticationsList = JsonNodeFactory.instance.arrayNode();
@@ -141,7 +138,10 @@ public class WinRmConfigCli extends AbstractTransportProtocolCli {
 			authentications.stream().forEach(authentication -> authenticationsList.add(authentication));
 		}
 		configuration.set("username", new TextNode(username == null ? defaultUsername : username));
-		configuration.set("password", new TextNode(username == null ? String.valueOf(defaultPassword) : String.valueOf(password)));
+		configuration.set(
+			"password",
+			new TextNode(username == null ? String.valueOf(defaultPassword) : String.valueOf(password))
+		);
 		configuration.set("namespace", new TextNode(namespace));
 		configuration.set("port", new IntNode(getOrDeducePortNumber()));
 		configuration.set("protocol", new TextNode(protocol));

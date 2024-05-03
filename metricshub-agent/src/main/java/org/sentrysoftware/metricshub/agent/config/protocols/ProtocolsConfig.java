@@ -69,5 +69,6 @@ public class ProtocolsConfig {
 	private IConfiguration osCommand;
 
 	@JsonSetter(nulls = SKIP)
-	private WinRmProtocolConfig winrm;
+	@JsonDeserialize(using = ExtensionConfigDeserializer.class)
+	private IConfiguration winrm;
 }

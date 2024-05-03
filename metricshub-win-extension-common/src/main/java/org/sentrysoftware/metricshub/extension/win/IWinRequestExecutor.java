@@ -35,8 +35,8 @@ public interface IWinRequestExecutor {
 	 *
 	 * @param hostname         The hostname of the device where the WMI service is running (<code>null</code> for localhost)
 	 * @param winConfiguration Windows Protocol configuration (credentials, timeout). E.g. WMI or WinRm
-	 * @param wbemQuery        The WQL to execute
-	 * @param namespace        The WBEM namespace where all the classes reside
+	 * @param query            The WQL to execute
+	 * @param namespace        The namespace where all the classes reside
 	 * @return A list of rows, where each row is represented as a list of strings.
 	 * @throws ClientException when anything goes wrong (details in cause)
 	 */
@@ -55,7 +55,7 @@ public interface IWinRequestExecutor {
 	 * @param t Throwable to verify
 	 * @return whether specified exception is acceptable while performing namespace detection
 	 */
-	boolean isAcceptableException(Throwable e);
+	boolean isAcceptableException(Throwable t);
 
 	/**
 	 * Perform a Windows remote command query, either WinRM or WMI
@@ -69,9 +69,9 @@ public interface IWinRequestExecutor {
 	 * @throws ClientException when anything wrong happens
 	 */
 	String executeWinRemoteCommand(
-		final String hostname,
-		final IWinConfiguration winConfiguration,
-		final String command,
-		final List<String> embeddedFiles
+		String hostname,
+		IWinConfiguration winConfiguration,
+		String command,
+		List<String> embeddedFiles
 	) throws ClientException;
 }

@@ -78,7 +78,7 @@ public class WinCommandService {
 	 *
 	 * @param commandLine      The command Line. (mandatory)
 	 * @param hostname         The hostname of the remote device where the WMI or WinRm service is running. (mandatory)
-	 * @param commandTimeout   The CommandLine criterion/source parameter for the timeout.
+	 * @param configuration    The IWinConfiguration to use.
 	 *
 	 * @return The command execution return and the command with password masked (if present).
 	 * @throws IOException                   When an I/O error occurred on local command execution or embedded file creation.

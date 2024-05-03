@@ -2,7 +2,7 @@ package org.sentrysoftware.metricshub.extension.winrm;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
- * MetricsHub WMI Extension
+ * MetricsHub WinRm Extension
  * ჻჻჻჻჻჻
  * Copyright 2023 - 2024 Sentry Software
  * ჻჻჻჻჻჻
@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
-import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.CommandLineCriterion;
@@ -76,7 +75,7 @@ public class WinRmExtension implements IProtocolExtension {
 	 */
 	public static final String WMI_TEST_NAMESPACE = "root\\cimv2";
 
-	private WmiRequestExecutor wmiRequestExecutor;
+	private WinRmRequestExecutor wmiRequestExecutor;
 	private WmiDetectionService wmiDetectionService;
 	private WinCommandService winCommandService;
 
@@ -84,7 +83,7 @@ public class WinRmExtension implements IProtocolExtension {
 	 * Creates a new instance of the {@link WinRmExtension} implementation.
 	 */
 	public WinRmExtension() {
-		wmiRequestExecutor = new WmiRequestExecutor();
+		wmiRequestExecutor = new WinRmRequestExecutor();
 		wmiDetectionService = new WmiDetectionService(wmiRequestExecutor);
 		winCommandService = new WinCommandService(wmiRequestExecutor);
 	}
@@ -110,9 +109,7 @@ public class WinRmExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public void checkProtocol(TelemetryManager telemetryManager) {
-		
-	}
+	public void checkProtocol(TelemetryManager telemetryManager) {}
 
 	@Override
 	public CriterionTestResult processCriterion(
@@ -124,11 +121,7 @@ public class WinRmExtension implements IProtocolExtension {
 			(IWinConfiguration) manager.getHostConfiguration().getConfigurations().get(WinRmConfiguration.class);
 
 		if (criterion instanceof WmiCriterion wmiCriterion) {
-			return new WmiCriterionProcessor(
-				wmiDetectionService,
-				configurationRetriever,
-				connectorId
-			)
+			return new WmiCriterionProcessor(wmiDetectionService, configurationRetriever, connectorId)
 				.process(wmiCriterion, telemetryManager);
 		} else if (criterion instanceof ServiceCriterion serviceCriterion) {
 			return new ServiceCriterionProcessor(wmiDetectionService, configurationRetriever)
@@ -138,7 +131,7 @@ public class WinRmExtension implements IProtocolExtension {
 				.process(commandLineCriterion, telemetryManager);
 		} else if (criterion instanceof IpmiCriterion ipmiCriterion) {
 			return new IpmiCriterionProcessor(wmiDetectionService, configurationRetriever)
-					.process(ipmiCriterion, telemetryManager);
+				.process(ipmiCriterion, telemetryManager);
 		}
 
 		throw new IllegalArgumentException(

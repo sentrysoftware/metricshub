@@ -63,7 +63,5 @@ public class WinRmConfiguration implements IWinConfiguration {
 	}
 
 	@Override
-	public void validateConfiguration(String resourceKey) throws InvalidConfigurationException {
-		// TODO implement the validation
-	}
+	public void validateConfiguration(String resourceKey) throws InvalidConfigurationException {}
 }

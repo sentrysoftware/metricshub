@@ -2,7 +2,7 @@ package org.sentrysoftware.metricshub.extension.winrm;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
- * MetricsHub WMI Extension
+ * MetricsHub WinRm Extension
  * ჻჻჻჻჻჻
  * Copyright 2023 - 2024 Sentry Software
  * ჻჻჻჻჻჻
@@ -24,27 +24,6 @@ package org.sentrysoftware.metricshub.extension.winrm;
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import java.util.ArrayList;
-/*-
- * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
- * MetricsHub WMI Extension
- * ჻჻჻჻჻჻
- * Copyright 2023 - 2024 Sentry Software
- * ჻჻჻჻჻჻
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
- */
-
 import java.util.List;
 import java.util.Map;
 import lombok.NonNull;
@@ -66,7 +45,7 @@ import org.sentrysoftware.wmi.wbem.WmiWbemServices;
  * various WMI requests locally or on remote hosts.
  */
 @Slf4j
-public class WmiRequestExecutor implements IWinRequestExecutor {
+public class WinRmRequestExecutor implements IWinRequestExecutor {
 
 	/**
 	 * Execute a WMI query

@@ -1,7 +1,5 @@
 package org.sentrysoftware.metricshub.extension.win.source;
 
-import java.util.Collections;
-import java.util.List;
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
  * MetricsHub Win Extension Common
@@ -23,6 +21,8 @@ import java.util.List;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Function;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;

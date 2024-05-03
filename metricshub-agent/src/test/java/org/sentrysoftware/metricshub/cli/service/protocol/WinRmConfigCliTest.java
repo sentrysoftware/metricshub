@@ -3,22 +3,23 @@ package org.sentrysoftware.metricshub.cli.service.protocol;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.configuration.TransportProtocols;
 import org.sentrysoftware.metricshub.engine.configuration.WinRmConfiguration;
 
 class WinRmConfigCliTest {
 
 	@Test
-	void testToProtocol() {
+	void testToProtocol() throws InvalidConfigurationException {
 		WinRmConfigCli winRmConfigCli = new WinRmConfigCli();
 		final char[] password = "p4ssw0rd".toCharArray();
 		final String username = "username";
-		final int timeout = 120;
+		final String timeout = "120";
 		final TransportProtocols transportProtocolHttp = TransportProtocols.HTTP;
 		winRmConfigCli.setPassword(password);
 		winRmConfigCli.setUsername(username);
 		winRmConfigCli.setTimeout(timeout);
-		winRmConfigCli.setProtocol(transportProtocolHttp);
+		winRmConfigCli.setProtocol(transportProtocolHttp.toString());
 		assertEquals(
 			WinRmConfiguration
 				.builder()
@@ -32,7 +33,7 @@ class WinRmConfigCliTest {
 		);
 		winRmConfigCli = new WinRmConfigCli();
 		winRmConfigCli.setTimeout(timeout);
-		winRmConfigCli.setProtocol(transportProtocolHttp);
+		winRmConfigCli.setProtocol(transportProtocolHttp.toString());
 		assertEquals(
 			WinRmConfiguration
 				.builder()
@@ -53,9 +54,9 @@ class WinRmConfigCliTest {
 		winRmConfigCli.setPort(expectedPortNumber);
 		assertEquals(expectedPortNumber, winRmConfigCli.getOrDeducePortNumber());
 		winRmConfigCli.setPort(null);
-		winRmConfigCli.setProtocol(TransportProtocols.HTTPS);
+		winRmConfigCli.setProtocol(TransportProtocols.HTTPS.toString());
 		assertEquals(5986, winRmConfigCli.getOrDeducePortNumber());
-		winRmConfigCli.setProtocol(TransportProtocols.HTTP);
+		winRmConfigCli.setProtocol(TransportProtocols.HTTP.toString());
 		assertEquals(5985, winRmConfigCli.getOrDeducePortNumber());
 	}
 }

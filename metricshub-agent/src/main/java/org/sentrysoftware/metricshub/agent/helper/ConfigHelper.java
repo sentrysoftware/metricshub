@@ -71,7 +71,6 @@ import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.AbstractProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.ProtocolsConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.WbemProtocolConfig;
-import org.sentrysoftware.metricshub.agent.config.protocols.WinRmProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.WmiProtocolConfig;
 import org.sentrysoftware.metricshub.agent.context.MetricDefinitions;
 import org.sentrysoftware.metricshub.agent.security.PasswordEncrypt;
@@ -926,9 +925,9 @@ public class ConfigHelper {
 			return;
 		}
 
-		final WinRmProtocolConfig winRmConfig = protocolsConfig.getWinrm();
+		final IConfiguration winRmConfig = protocolsConfig.getWinrm();
 		if (winRmConfig != null) {
-			validateWinRmInfo(resourceKey, winRmConfig.getPort(), winRmConfig.getTimeout(), winRmConfig.getUsername());
+			winRmConfig.validateConfiguration(resourceKey);
 		}
 
 		final IConfiguration snmpConfig = protocolsConfig.getSnmp();
@@ -987,9 +986,7 @@ public class ConfigHelper {
 		final Integer port,
 		final Long timeout,
 		final String username
-	) throws InvalidConfigurationException {
-		
-	}
+	) throws InvalidConfigurationException {}
 
 	/**
 	 * Validate the given WBEM information (username, timeout, port and vCenter)
@@ -1073,7 +1070,7 @@ public class ConfigHelper {
 			? new HashMap<>()
 			: new HashMap<>(
 				Stream
-					.of(protocols.getWbem(), protocols.getWmi(), protocols.getWinrm())
+					.of(protocols.getWbem(), protocols.getWmi())
 					.filter(Objects::nonNull)
 					.map(AbstractProtocolConfig::toConfiguration)
 					.filter(Objects::nonNull)
@@ -1090,7 +1087,8 @@ public class ConfigHelper {
 						protocols.getHttp(),
 						protocols.getIpmi(),
 						protocols.getOsCommand(),
-						protocols.getSsh()
+						protocols.getSsh(),
+						protocols.getWinrm()
 					)
 					.filter(Objects::nonNull)
 					.collect(Collectors.toMap(IConfiguration::getClass, Function.identity()))
