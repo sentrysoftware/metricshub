@@ -30,7 +30,6 @@ import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -772,9 +771,7 @@ public class ClientsExecutor {
 		final String namespace
 	) throws ClientException {
 		try {
-			String urlSpec = String.format("%s://%s:%d", wbemConfig.getProtocol().toString(), hostname, wbemConfig.getPort());
-
-			final URL url = new URI(urlSpec).toURL();
+			final URL url = NetworkHelper.createUrl(wbemConfig.getProtocol().toString(), hostname, wbemConfig.getPort());
 
 			trace(() ->
 				log.trace(
