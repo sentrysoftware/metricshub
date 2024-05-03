@@ -39,6 +39,9 @@ import org.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandResult;
 
+/**
+ * Provides a service for executing Windows commands through Windows Management Instrumentation (WMI).
+ */
 @RequiredArgsConstructor
 public class WinCommandService {
 

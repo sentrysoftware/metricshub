@@ -38,7 +38,7 @@ import org.sentrysoftware.metricshub.extension.win.IWinRequestExecutor;
 /**
  * A class responsible for processing IPMI sources producing the {@link SourceTable} result.
  * It provides a method to run WMI or WinRm requests to get hardware information, gets the response,
- * and generate the {@link SourceTable} using the response.
+ * and generates the {@link SourceTable} using the response.
  */
 @RequiredArgsConstructor
 @Slf4j

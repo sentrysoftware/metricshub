@@ -55,12 +55,11 @@ class WmiCriterionProcessorTest {
 	private static final String FIRST_NAMESPACE = "namespace1";
 	private static final String SECOND_NAMESPACE = "namespace2";
 	private static final String WQL_CUSTOM = "SELECT Name from Win32_Process WHERE Name = 'MetricsHub'";
-	public static final String WQL_RESULT_VALUE = "metricshub";
-	public static final List<List<String>> WQL_RESULT = List.of(List.of(WQL_RESULT_VALUE));
-	public static final String CRITERION_DEFAULT_WMI_NAMESPACE = "root\\cimv2";
+	private static final String WQL_RESULT_VALUE = "metricshub";
+	private static final String CRITERION_DEFAULT_WMI_NAMESPACE = "root\\cimv2";
 	private static final String TIMEOUT_MSG = "timeout";
 	private static final String CLIENT_ERROR_MSG = "error";
-	public static final String NOT_MATCHING_EXPECTED_RESULT = "^metrics[^huuuu]b";
+	private static final String NOT_MATCHING_EXPECTED_RESULT = "^metrics[^huuuu]b";
 
 	@BeforeEach
 	void setup() {

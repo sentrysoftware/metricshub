@@ -41,7 +41,7 @@ import org.sentrysoftware.metricshub.extension.win.IWinRequestExecutor;
 /**
  * A class responsible for processing WMI sources producing the {@link SourceTable} result.
  * It provides a method to run WMI queries through WMI or WinRm, gets the WMI response,
- * and generate the {@link SourceTable} using the WMI response.
+ * and generates the {@link SourceTable} using the WMI response.
  */
 @Slf4j
 @RequiredArgsConstructor

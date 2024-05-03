@@ -34,7 +34,6 @@ class WmiSourceProcessorTest {
 	private static final char[] PASSWORD = "pwd".toCharArray();
 	private static final String USERNAME = "user";
 	private static final String WMI_QUERY = "SELECT Name FROM Win32_Process";
-	public static final String WQL_RESULT_VALUE = "metricshub";
 
 	@Mock
 	IWinRequestExecutor winRequestExecutorMock;

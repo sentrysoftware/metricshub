@@ -178,13 +178,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 */
 	@WithSpan("Criterion HTTP Exec")
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") HttpCriterion httpCriterion) {
-		final Optional<IProtocolExtension> maybeExtension = extensionManager.findCriterionExtension(
-			httpCriterion,
-			telemetryManager
-		);
-		return maybeExtension
-			.map(extension -> extension.processCriterion(httpCriterion, connectorId, telemetryManager))
-			.orElseGet(CriterionTestResult::empty);
+		return processCriterionThroughExtension(httpCriterion);
 	}
 
 	/**
@@ -352,7 +346,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 	}
 
 	/**
-	 * Processes a given {@link Criterion} by attempting to find a suitable {@link IProtocolExtension} via an
+	 * Processes the given {@link Criterion} by attempting to find a suitable {@link IProtocolExtension} via the
 	 * {@link ExtensionManager}. If an extension is found, it processes the criterion accordingly; otherwise,
 	 * it returns an empty {@link CriterionTestResult}.
 	 *
@@ -377,13 +371,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 */
 	@WithSpan("Criterion SNMP GetNext Exec")
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") SnmpGetNextCriterion snmpGetNextCriterion) {
-		final Optional<IProtocolExtension> maybeExtension = extensionManager.findCriterionExtension(
-			snmpGetNextCriterion,
-			telemetryManager
-		);
-		return maybeExtension
-			.map(extension -> extension.processCriterion(snmpGetNextCriterion, connectorId, telemetryManager))
-			.orElseGet(CriterionTestResult::empty);
+		return processCriterionThroughExtension(snmpGetNextCriterion);
 	}
 
 	/**

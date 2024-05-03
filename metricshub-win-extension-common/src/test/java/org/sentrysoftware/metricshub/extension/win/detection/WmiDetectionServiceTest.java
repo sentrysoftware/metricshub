@@ -31,8 +31,8 @@ class WmiDetectionServiceTest {
 
 	private static final String WMI_QUERY = "SELECT Name FROM Win32_Process";
 	private static final String WMI_NAMESPACE = "root/cimv2";
-	public static final String WQL_RESULT_VALUE = "metricshub";
-	public static final List<List<String>> WQL_RESULT = List.of(List.of(WQL_RESULT_VALUE));
+	private static final String WQL_RESULT_VALUE = "metricshub";
+	private static final List<List<String>> WQL_RESULT = List.of(List.of(WQL_RESULT_VALUE));
 	private static final String CLIENT_ERROR_MSG = "error";
 	private static final String HOST_NAME = "test-host" + UUID.randomUUID().toString();
 	private static final String WQL_CUSTOM = "SELECT Name from Win32_Process WHERE Name = 'MetricsHub'";

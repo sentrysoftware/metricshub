@@ -43,7 +43,7 @@ import org.sentrysoftware.metricshub.extension.win.WinCommandService;
 /**
  * A class responsible for processing CommandLine sources producing the {@link SourceTable} result.
  * It provides a method to run Windows remote commands through WMI or WinRm, gets the response,
- * and generate the {@link SourceTable} using the command line response.
+ * and generates the {@link SourceTable} using the command line response.
  */
 @RequiredArgsConstructor
 @Slf4j

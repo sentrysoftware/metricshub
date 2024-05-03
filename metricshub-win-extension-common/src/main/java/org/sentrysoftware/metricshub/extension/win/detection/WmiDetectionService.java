@@ -38,8 +38,8 @@ import org.sentrysoftware.metricshub.extension.win.IWinRequestExecutor;
 
 /**
  * A class responsible for processing WMI criteria to evaluate WMI queries against specified criteria.
- * It provides methods to execute WMI queries, evaluate the results against expected outcomes,
- * and generate criterion test results accordingly. This service is intended to be used by any processor
+ * It provides methods to execute WMI queries, evaluates the results against expected outcomes,
+ * and generates criterion test results accordingly. This service is intended to be used by any processor
  * which requires {@link WmiCriterion} evaluation.
  */
 @RequiredArgsConstructor

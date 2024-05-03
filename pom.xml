@@ -134,7 +134,7 @@
 		<module>metricshub-wmi-extension</module>
 		<module>metricshub-agent</module>
 		<module>metricshub-doc</module>
-    </modules>
+	</modules>
 
 	<profiles>
 		<profile>

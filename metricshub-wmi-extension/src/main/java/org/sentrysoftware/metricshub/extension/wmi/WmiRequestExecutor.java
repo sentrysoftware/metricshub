@@ -41,7 +41,7 @@ import org.sentrysoftware.wmi.remotecommand.WinRemoteCommandExecutor;
 import org.sentrysoftware.wmi.wbem.WmiWbemServices;
 
 /**
- * The SnmpRequestExecutor class provides utility methods for executing
+ * The WmiRequestExecutor class provides utility methods for executing
  * various WMI requests locally or on remote hosts.
  */
 @Slf4j

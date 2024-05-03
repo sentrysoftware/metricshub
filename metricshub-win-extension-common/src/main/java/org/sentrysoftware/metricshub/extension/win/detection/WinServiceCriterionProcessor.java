@@ -36,8 +36,8 @@ import org.sentrysoftware.metricshub.extension.win.IWinConfiguration;
 
 /**
  * A class responsible for processing Service criteria to evaluate service states.
- * It provides a method to retrieve service informations through WMI or WinRm , evaluate the results against expected outcomes,
- * and generate criterion test results accordingly.
+ * It provides a method to retrieve service informations through WMI or WinRm , evaluates the results against expected outcomes,
+ * and generates criterion test results accordingly.
  */
 @RequiredArgsConstructor
 public class WinServiceCriterionProcessor {

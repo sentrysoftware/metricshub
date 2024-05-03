@@ -131,7 +131,10 @@ class CriterionProcessorTest {
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 	}
 
-	private void initTestConfiguration() {
+	/**
+	 * Initialize the {@link TelemetryManager} with a Linux host configuration
+	 */
+	private void initLinuxTestConfiguration() {
 		final TestConfiguration testConfiguration = new TestConfiguration();
 
 		telemetryManager =
@@ -149,7 +152,10 @@ class CriterionProcessorTest {
 				.build();
 	}
 
-	private void initWinTestConfiguration() {
+	/**
+	 * Initialize the {@link TelemetryManager} with a Windows host configuration
+	 */
+	private void initWindowsTestConfiguration() {
 		final TestConfiguration testConfiguration = new TestConfiguration();
 
 		telemetryManager =
@@ -167,6 +173,9 @@ class CriterionProcessorTest {
 				.build();
 	}
 
+	/**
+	 * Initialize the {@link TelemetryManager} with a OOB host configuration
+	 */
 	private void initIpmi() {
 		final TestConfiguration ipmiConfiguration = new TestConfiguration();
 
@@ -187,7 +196,7 @@ class CriterionProcessorTest {
 
 	@Test
 	void testProcessSnmpGetCriterion() {
-		initTestConfiguration();
+		initLinuxTestConfiguration();
 
 		final IProtocolExtension protocolExtensionMock = spy(IProtocolExtension.class);
 
@@ -223,7 +232,7 @@ class CriterionProcessorTest {
 
 	@Test
 	void testProcessWmiCriterion() {
-		initWinTestConfiguration();
+		initWindowsTestConfiguration();
 
 		final IProtocolExtension protocolExtensionMock = spy(IProtocolExtension.class);
 
@@ -261,7 +270,7 @@ class CriterionProcessorTest {
 
 	@Test
 	void testProcessServiceCriterion() {
-		initWinTestConfiguration();
+		initWindowsTestConfiguration();
 
 		final IProtocolExtension protocolExtensionMock = spy(IProtocolExtension.class);
 
@@ -295,7 +304,7 @@ class CriterionProcessorTest {
 
 	@Test
 	void testProcessIpmiCriterion() {
-		initWinTestConfiguration();
+		initWindowsTestConfiguration();
 
 		final IProtocolExtension protocolExtensionMock = spy(IProtocolExtension.class);
 
@@ -329,7 +338,7 @@ class CriterionProcessorTest {
 
 	@Test
 	void testProcessCommandLineCriterion() {
-		initWinTestConfiguration();
+		initWindowsTestConfiguration();
 
 		final IProtocolExtension protocolExtensionMock = spy(IProtocolExtension.class);
 
@@ -363,7 +372,7 @@ class CriterionProcessorTest {
 
 	@Test
 	void testProcessProcessWindows() throws Exception {
-		initWinTestConfiguration();
+		initWindowsTestConfiguration();
 		final ProcessCriterion processCriterion = new ProcessCriterion();
 		processCriterion.setCommandLine(PROCESS_CRITERION_COMMAND_LINE);
 
@@ -396,7 +405,7 @@ class CriterionProcessorTest {
 
 	@Test
 	void testProcessSnmpGetNextCriterion() {
-		initTestConfiguration();
+		initLinuxTestConfiguration();
 
 		final IProtocolExtension protocolExtensionMock = spy(IProtocolExtension.class);
 

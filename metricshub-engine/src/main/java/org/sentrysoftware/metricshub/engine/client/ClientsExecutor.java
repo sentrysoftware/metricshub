@@ -63,10 +63,8 @@ import org.sentrysoftware.xflat.exceptions.XFlatException;
 /**
  * The ClientsExecutor class provides utility methods for executing
  * various operations through Clients. It includes functionalities for executing
- * requests, running scripts, and handling general execution tasks. The
- * execution is done on a remote host, and various protocols, clients, and
- * utilities like AWK, HTTP, IPMI, JFlat, SNMP, SSH, TableJoin, VCenter, WBEM,
- * WMI, WinRM, and XFlat are supported.
+ * computations and running scripts. The execution is done on utilities like
+ * AWK, JFlat, TableJoin and XFlat are supported.
  */
 @Slf4j
 @Data
@@ -256,7 +254,7 @@ public class ClientsExecutor {
 	 * <br>
 	 *
 	 * @param hostname      Hostname
-	 * @param configuration The WbemConfiguration or WmiConfiguration object specifying how to connect to specified host
+	 * @param configuration The configuration object specifying how to connect to specified host
 	 * @param query         WQL query to execute
 	 * @param namespace     The namespace
 	 * @return A table (as a {@link List} of {@link List} of {@link String}s)
@@ -283,7 +281,7 @@ public class ClientsExecutor {
 	 * <br>
 	 *
 	 * @param hostname      Hostname
-	 * @param configuration The WbemConfiguration or WmiConfiguration object specifying how to connect to specified host
+	 * @param configuration The configuration object specifying how to connect to specified host
 	 * @param command       Windows remote command to execute
 	 * @param embeddedFiles The list of embedded files used in the wql remote command query
 	 * @return A table (as a {@link List} of {@link List} of {@link String}s)

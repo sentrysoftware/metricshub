@@ -33,7 +33,8 @@ import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 import org.sentrysoftware.metricshub.extension.win.IWinConfiguration;
 
 /**
- * The WmiConfiguration interface represents the configuration for the Windows Management Instrumentation protocol in the MetricsHub engine.
+ * The WmiConfiguration interface represents the configuration for the Windows Management Instrumentation protocol
+ * in the MetricsHub extension system.
  */
 @Data
 @Builder

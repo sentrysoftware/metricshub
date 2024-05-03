@@ -43,15 +43,15 @@ import org.sentrysoftware.metricshub.extension.win.IWinConfiguration;
 
 /**
  * A class responsible for processing WMI criteria to evaluate WMI queries against specified criteria.
- * It provides methods to perform WMI operations, find possible WMI namespaces, detect WMI namespaces, evaluate the results
- * against expected outcomes, and generate criterion test results accordingly.
+ * It provides methods to perform WMI operations, finds possible WMI namespaces, detects WMI namespaces, evaluates the results
+ * against expected outcomes, and generates criterion test results accordingly.
  */
 @Slf4j
 @RequiredArgsConstructor
 public class WmiCriterionProcessor {
 
 	/**
-	 * WQL to get the available WMI namespaces
+	 * WMI query used to get available WMI namespaces
 	 */
 	static final String NAMESPACE_WQL = "SELECT Name FROM __NAMESPACE";
 
@@ -148,7 +148,7 @@ public class WmiCriterionProcessor {
 	}
 
 	/**
-	 * Detect the WBEM/WMI namespace applicable to the specified WBEM/WMI criterion.
+	 * Detect the WMI namespace applicable to the specified WMI criterion.
 	 * <br>
 	 * The namespace in the criterion must be "Automatic".
 	 * <br>
