@@ -318,13 +318,6 @@ class ConfigHelperTest {
 	}
 
 	@Test
-	void testValidateWmiInfo() {
-		assertThrows(InvalidConfigurationException.class, () -> ConfigHelper.validateWmiInfo(RESOURCE_KEY, -60L));
-		assertThrows(InvalidConfigurationException.class, () -> ConfigHelper.validateWmiInfo(RESOURCE_KEY, null));
-		assertDoesNotThrow(() -> ConfigHelper.validateWmiInfo(RESOURCE_KEY, 60L));
-	}
-
-	@Test
 	void testValidateWinRm() {
 		assertThrows(
 			InvalidConfigurationException.class,

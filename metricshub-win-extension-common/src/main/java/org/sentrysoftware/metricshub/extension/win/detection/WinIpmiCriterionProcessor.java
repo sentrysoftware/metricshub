@@ -32,11 +32,11 @@ import org.sentrysoftware.metricshub.extension.win.IWinConfiguration;
 
 /**
  * A class responsible for processing IPMI criteria to evaluate IPMI result against specified criteria.
- * It provides a method to retrieve hardware informations through WMI or WinRm , evaluate the results against expected outcomes,
- * and generate criterion test results accordingly.
+ * It provides a method to retrieve hardware informations through WMI or WinRm , evaluates the results against expected outcomes,
+ * and generates criterion test results accordingly.
  */
 @RequiredArgsConstructor
-public class IpmiCriterionProcessor {
+public class WinIpmiCriterionProcessor {
 
 	@NonNull
 	private WmiDetectionService wmiDetectionService;

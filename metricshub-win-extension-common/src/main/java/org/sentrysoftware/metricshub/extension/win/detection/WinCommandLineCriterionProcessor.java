@@ -38,11 +38,11 @@ import org.sentrysoftware.metricshub.extension.win.WinCommandService;
 
 /**
  * A class responsible for processing CommandLine criteria to evaluate command lines against specified criteria.
- * It provides a method to run Windows remote commands through WMI or WinRm , evaluate the results against expected outcomes,
- * and generate criterion test results accordingly.
+ * It provides a method to run Windows remote commands through WMI or WinRm , evaluates the results against expected outcomes,
+ * and generates criterion test results accordingly.
  */
 @RequiredArgsConstructor
-public class CommandLineCriterionProcessor {
+public class WinCommandLineCriterionProcessor {
 
 	@NonNull
 	private WinCommandService winCommandService;
@@ -75,7 +75,7 @@ public class CommandLineCriterionProcessor {
 			);
 		}
 
-		if (Boolean.FALSE.equals(commandLineCriterion.getExecuteLocally())) {
+		if (Boolean.TRUE.equals(commandLineCriterion.getExecuteLocally())) {
 			return CriterionTestResult.error(
 				commandLineCriterion,
 				"The CommandLine criterion cannot be executed locally through WMI. Skipping this test."

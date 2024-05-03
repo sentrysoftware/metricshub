@@ -21,6 +21,7 @@ package org.sentrysoftware.metricshub.extension.wmi;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -28,10 +29,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
+import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 import org.sentrysoftware.metricshub.extension.win.IWinConfiguration;
 
 /**
- * The WmiConfiguration interface represents the configuration for the Windows Management Instrumentation protocol in the MetricsHub engine.
+ * The WmiConfiguration interface represents the configuration for the Windows Management Instrumentation protocol
+ * in the MetricsHub extension system.
  */
 @Data
 @Builder
@@ -44,6 +47,7 @@ public class WmiConfiguration implements IWinConfiguration {
 	private String namespace;
 
 	@Default
+	@JsonDeserialize(using = TimeDeserializer.class)
 	private Long timeout = 120L;
 
 	@Override

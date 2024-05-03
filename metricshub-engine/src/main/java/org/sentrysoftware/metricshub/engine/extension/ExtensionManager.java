@@ -34,6 +34,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
@@ -55,6 +56,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
  */
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder(setterPrefix = "with")
 public class ExtensionManager {
 

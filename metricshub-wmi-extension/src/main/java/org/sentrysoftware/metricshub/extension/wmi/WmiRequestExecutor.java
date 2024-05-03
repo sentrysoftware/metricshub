@@ -24,27 +24,6 @@ package org.sentrysoftware.metricshub.extension.wmi;
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import java.util.ArrayList;
-/*-
- * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
- * MetricsHub WMI Extension
- * ჻჻჻჻჻჻
- * Copyright 2023 - 2024 Sentry Software
- * ჻჻჻჻჻჻
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
- */
-
 import java.util.List;
 import java.util.Map;
 import lombok.NonNull;
@@ -62,11 +41,24 @@ import org.sentrysoftware.wmi.remotecommand.WinRemoteCommandExecutor;
 import org.sentrysoftware.wmi.wbem.WmiWbemServices;
 
 /**
- * The SnmpRequestExecutor class provides utility methods for executing
+ * The WmiRequestExecutor class provides utility methods for executing
  * various WMI requests locally or on remote hosts.
  */
 @Slf4j
 public class WmiRequestExecutor implements IWinRequestExecutor {
+
+	/**
+	 * WMI invalid class error message.
+	 */
+	static final String WBEM_E_INVALID_CLASS = "WBEM_E_INVALID_CLASS";
+	/**
+	 * WMI invalid namespace error message.
+	 */
+	static final String WBEM_E_INVALID_NAMESPACE = "WBEM_E_INVALID_NAMESPACE";
+	/**
+	 * WMI error message when the WMI repository is corrupted.
+	 */
+	static final String WBEM_E_NOT_FOUND = "WBEM_E_NOT_FOUND";
 
 	/**
 	 * Execute a WMI query
@@ -283,9 +275,9 @@ public class WmiRequestExecutor implements IWinRequestExecutor {
 			errorMessage != null &&
 			// @formatter:off
 			(
-				errorMessage.contains("WBEM_E_NOT_FOUND") ||
-				errorMessage.contains("WBEM_E_INVALID_NAMESPACE") ||
-				errorMessage.contains("WBEM_E_INVALID_CLASS")
+				errorMessage.contains(WBEM_E_NOT_FOUND) ||
+				errorMessage.contains(WBEM_E_INVALID_NAMESPACE) ||
+				errorMessage.contains(WBEM_E_INVALID_CLASS)
 			)
 			// @formatter:on
 		);

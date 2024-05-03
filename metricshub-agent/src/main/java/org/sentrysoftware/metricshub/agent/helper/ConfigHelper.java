@@ -71,7 +71,6 @@ import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.AbstractProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.ProtocolsConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.WbemProtocolConfig;
-import org.sentrysoftware.metricshub.agent.config.protocols.WmiProtocolConfig;
 import org.sentrysoftware.metricshub.agent.context.MetricDefinitions;
 import org.sentrysoftware.metricshub.agent.security.PasswordEncrypt;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
@@ -104,7 +103,6 @@ import org.springframework.core.io.ClassPathResource;
 @Slf4j
 public class ConfigHelper {
 
-	private static final String WMI_PROTOCOL = "WMI";
 	private static final String WBEM_PROTOCOL = "WBEM";
 	private static final String TIMEOUT_ERROR =
 		"Resource %s - Timeout value is invalid for protocol %s." +
@@ -956,9 +954,9 @@ public class ConfigHelper {
 			);
 		}
 
-		final WmiProtocolConfig wmiConfig = protocolsConfig.getWmi();
+		final IConfiguration wmiConfig = protocolsConfig.getWmi();
 		if (wmiConfig != null) {
-			validateWmiInfo(resourceKey, wmiConfig.getTimeout());
+			wmiConfig.validateConfiguration(resourceKey);
 		}
 
 		final IConfiguration httpConfig = protocolsConfig.getHttp();
@@ -1037,21 +1035,6 @@ public class ConfigHelper {
 	}
 
 	/**
-	 * Validate the given WMI information: timeout
-	 *
-	 * @param resourceKey Resource unique identifier
-	 * @param timeout     How long until the WMI request times out
-	 * @throws InvalidConfigurationException thrown if a configuration validation fails
-	 */
-	static void validateWmiInfo(final String resourceKey, final Long timeout) throws InvalidConfigurationException {
-		StringHelper.validateConfigurationAttribute(
-			timeout,
-			INVALID_TIMEOUT_CHECKER,
-			() -> String.format(TIMEOUT_ERROR, resourceKey, WMI_PROTOCOL, timeout)
-		);
-	}
-
-	/**
 	 * Build the {@link HostConfiguration} expected by the internal engine
 	 *
 	 * @param resourceConfig          User's resource configuration
@@ -1070,7 +1053,7 @@ public class ConfigHelper {
 			? new HashMap<>()
 			: new HashMap<>(
 				Stream
-					.of(protocols.getWbem(), protocols.getWmi())
+					.of(protocols.getWbem())
 					.filter(Objects::nonNull)
 					.map(AbstractProtocolConfig::toConfiguration)
 					.filter(Objects::nonNull)
@@ -1088,6 +1071,7 @@ public class ConfigHelper {
 						protocols.getIpmi(),
 						protocols.getOsCommand(),
 						protocols.getSsh(),
+						protocols.getWmi(),
 						protocols.getWinrm()
 					)
 					.filter(Objects::nonNull)

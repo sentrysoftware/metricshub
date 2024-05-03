@@ -39,6 +39,9 @@ import org.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandResult;
 
+/**
+ * Provides a service for executing Windows commands through Windows Management Instrumentation (WMI).
+ */
 @RequiredArgsConstructor
 public class WinCommandService {
 
@@ -51,7 +54,7 @@ public class WinCommandService {
 	 * @param configuration IWinConfiguration instance.
 	 * @return An optional with the username if found. An empty optional otherwise.
 	 */
-	public static Optional<String> getUsername(final IWinConfiguration configuration) {
+	public Optional<String> getUsername(final IWinConfiguration configuration) {
 		if (configuration == null) {
 			return Optional.empty();
 		}
@@ -64,7 +67,7 @@ public class WinCommandService {
 	 * @param configuration IWinConfiguration instance.
 	 * @return An optional with the password if found. An empty optional otherwise.
 	 */
-	public static Optional<char[]> getPassword(final IWinConfiguration configuration) {
+	public Optional<char[]> getPassword(final IWinConfiguration configuration) {
 		if (configuration == null) {
 			return Optional.empty();
 		}
@@ -76,9 +79,9 @@ public class WinCommandService {
 	 * <p>It replaces Host name, User name, Password, Sudo, Embedded files macros in the command line.</p>
 	 * <p>If necessary, it creates embedded files and deletes them after the command execution.</p>
 	 *
-	 * @param commandLine      The command Line. (mandatory)
-	 * @param hostname         The hostname of the remote device where the WMI or WinRm service is running. (mandatory)
-	 * @param configuration    The IWinConfiguration to use.
+	 * @param commandLine    The command Line. (mandatory)
+	 * @param hostname       The hostname of the remote device where the WMI or WinRm service is running. (mandatory)
+	 * @param configuration  Windows Protocol configuration (credentials, timeout). E.g. WMI or WinRm.
 	 *
 	 * @return The command execution return and the command with password masked (if present).
 	 * @throws IOException                   When an I/O error occurred on local command execution or embedded file creation.
