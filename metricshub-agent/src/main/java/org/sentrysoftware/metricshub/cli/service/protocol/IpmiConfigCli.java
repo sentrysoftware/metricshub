@@ -111,10 +111,7 @@ public class IpmiConfigCli implements IProtocolConfigCli {
 
 		final char[] finalPassword = username == null ? defaultPassword : password;
 		if (finalPassword != null) {
-			configuration.set(
-					"password",
-					new TextNode(String.valueOf(finalPassword))
-				);
+			configuration.set("password", new TextNode(String.valueOf(finalPassword)));
 		}
 
 		configuration.set("timeout", new TextNode(timeout));

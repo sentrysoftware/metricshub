@@ -23,7 +23,6 @@ package org.sentrysoftware.metricshub.engine.client;
 
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
-import java.net.URI;
 import java.net.URL;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -39,6 +38,7 @@ import org.sentrysoftware.metricshub.engine.awk.AwkException;
 import org.sentrysoftware.metricshub.engine.awk.AwkExecutor;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
+import org.sentrysoftware.metricshub.engine.common.helpers.NetworkHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.ThreadHelper;
@@ -470,9 +470,7 @@ public class ClientsExecutor {
 		final String namespace
 	) throws ClientException {
 		try {
-			String urlSpec = String.format("%s://%s:%d", wbemConfig.getProtocol().toString(), hostname, wbemConfig.getPort());
-
-			final URL url = new URI(urlSpec).toURL();
+			final URL url = NetworkHelper.createUrl(wbemConfig.getProtocol().toString(), hostname, wbemConfig.getPort());
 
 			LoggingHelper.trace(() ->
 				log.trace(
