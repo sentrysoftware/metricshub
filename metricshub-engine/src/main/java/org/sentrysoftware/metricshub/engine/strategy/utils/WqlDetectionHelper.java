@@ -24,12 +24,9 @@ package org.sentrysoftware.metricshub.engine.strategy.utils;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
-import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.wbem.javax.wbem.WBEMException;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -108,20 +105,5 @@ public class WqlDetectionHelper {
 
 		private String namespace;
 		private CriterionTestResult result;
-	}
-
-	/**
-	 * Represents a WQL Query (i.e. a query in a namespace)
-	 */
-	@Data
-	private static class WqlQuery {
-
-		private String wql;
-		private String namespace;
-
-		WqlQuery(final String wql, final String namespace) {
-			this.wql = wql;
-			this.namespace = namespace;
-		}
 	}
 }

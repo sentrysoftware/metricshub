@@ -7,7 +7,6 @@ import static org.mockito.Mockito.mockStatic;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
-import org.sentrysoftware.metricshub.agent.extension.IpmiTestConfiguration;
 import org.sentrysoftware.metricshub.agent.extension.WbemTestConfiguration;
 import org.sentrysoftware.metricshub.agent.extension.WbemTestExtension;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
@@ -24,11 +23,14 @@ class WbemConfigCliTest {
 		final String username = "username";
 		final String namespace = "root/sentrysoftware";
 		final String timeout = "120";
+		final String vCenter= "vcenter";
+		final int port = 443;
 		wbemConfigCli.setPassword(password);
 		wbemConfigCli.setUsername(username);
 		wbemConfigCli.setTimeout(timeout);
-		wbemConfigCli.setProtocol(TransportProtocols.HTTPS);
 		wbemConfigCli.setNamespace(namespace);
+		wbemConfigCli.setPort(port);
+		wbemConfigCli.setVcenter(vCenter);
 
 		try (MockedStatic<CliExtensionManager> cliExtensionManagerMock = mockStatic(CliExtensionManager.class)) {
 			// Initialize the extension manager required by the agent context
@@ -41,7 +43,7 @@ class WbemConfigCliTest {
 				.when(() -> CliExtensionManager.getExtensionManagerSingleton())
 				.thenReturn(extensionManager);
 
-			// Create an IpmiTestConfiguration and call method toProtocol
+			// Create a WbemTestConfiguration and call method toProtocol
 			final WbemTestConfiguration wbemConfiguration = (WbemTestConfiguration) wbemConfigCli.toProtocol(
 				username,
 				password
@@ -49,13 +51,16 @@ class WbemConfigCliTest {
 
 			assertNotNull(wbemConfiguration);
 
-			final IpmiTestConfiguration ipmiConfigurationExpected = IpmiTestConfiguration
+			final WbemTestConfiguration wbemConfigurationExpected = WbemTestConfiguration
 				.builder()
 				.username(username)
 				.password(password)
+				.namespace(namespace)
+				.port(port)
+				.vCenter(vCenter)
 				.build();
 
-			assertEquals(ipmiConfigurationExpected, wbemConfigCli.toProtocol(username, password));
+			assertEquals(wbemConfigurationExpected, wbemConfigCli.toProtocol(username, password));
 		}
 	}
 

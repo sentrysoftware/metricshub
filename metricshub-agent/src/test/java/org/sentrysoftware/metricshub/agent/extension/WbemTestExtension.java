@@ -18,7 +18,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
  * This class implements the {@link IProtocolExtension} contract, reports the supported features,
- * processes IPMI sources and criteria.
+ * processes WBEM sources and criteria.
  */
 @Slf4j
 public class WbemTestExtension implements IProtocolExtension {
@@ -82,12 +82,12 @@ public class WbemTestExtension implements IProtocolExtension {
 			return wbemConfiguration;
 		} catch (Exception e) {
 			final String errorMessage = String.format(
-				"Error while reading IPMI Configuration: %s. Error: %s",
+				"Error while reading WBEM Configuration: %s. Error: %s",
 				jsonNode,
 				e.getMessage()
 			);
 			log.error(errorMessage);
-			log.debug("Error while reading IPMI Configuration: {}. Stack trace:", jsonNode, e);
+			log.debug("Error while reading WBEM Configuration: {}. Stack trace:", jsonNode, e);
 			throw new InvalidConfigurationException(errorMessage, e);
 		}
 	}

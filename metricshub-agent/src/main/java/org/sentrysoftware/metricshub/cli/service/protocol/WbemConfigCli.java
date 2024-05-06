@@ -22,6 +22,7 @@ package org.sentrysoftware.metricshub.cli.service.protocol;
  */
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.LongNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import lombok.Data;
@@ -117,14 +118,11 @@ public class WbemConfigCli extends AbstractTransportProtocolCli {
 		throws InvalidConfigurationException {
 		final ObjectNode configuration = JsonNodeFactory.instance.objectNode();
 		configuration.set("username", new TextNode(username == null ? defaultUsername : username));
-		configuration.set(
-			"password",
-			new TextNode(username == null ? String.valueOf(defaultPassword) : String.valueOf(password))
-		);
+		configuration.set("password", new TextNode(new String(username == null ? defaultPassword : password)));
 		configuration.set("timeout", new TextNode(timeout));
-		configuration.set("protocol", new TextNode(username == null ? defaultUsername : username));
-		configuration.set("namespace", new TextNode(username == null ? defaultUsername : username));
-		configuration.set("vcenter", new TextNode(username == null ? defaultUsername : username));
+		configuration.set("namespace", new TextNode(namespace));
+		configuration.set("vcenter", new TextNode(getVcenter()));
+		configuration.set("port", new LongNode(getPort()));
 
 		return CliExtensionManager
 			.getExtensionManagerSingleton()

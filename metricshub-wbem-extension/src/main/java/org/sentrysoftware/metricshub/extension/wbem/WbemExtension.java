@@ -100,16 +100,14 @@ public class WbemExtension implements IProtocolExtension {
 	/**
 	 * List of WBEM protocol health check test Namespaces
 	 */
-	public static final List<String> WBEM_UP_TEST_NAMESPACES = Collections.unmodifiableList(
-		List.of("root/Interop", INTEROP_LOWER_CASE, "root/PG_Interop", "PG_Interop")
-	);
-
-	private final WbemRequestExecutor wbemRequestExecutor = new WbemRequestExecutor();
+	public static final List<String> WBEM_UP_TEST_NAMESPACES = List.of("root/Interop", INTEROP_LOWER_CASE, "root/PG_Interop", "PG_Interop");
 
 	/**
 	 * WQL Query to test WBEM protocol health check
 	 */
 	public static final String WBEM_TEST_QUERY = "SELECT Name FROM CIM_NameSpace";
+
+	private final WbemRequestExecutor wbemRequestExecutor = new WbemRequestExecutor();
 
 	@Override
 	public boolean isValidConfiguration(IConfiguration configuration) {

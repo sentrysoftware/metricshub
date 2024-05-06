@@ -276,47 +276,7 @@ class ConfigHelperTest {
 		assertTrue(store.containsKey("custom-connector-1"));
 		assertTrue(store.containsKey("noTemplateVariable"));
 	}
-
-	@Test
-	void testValidateWbemInfo() {
-		assertThrows(
-			InvalidConfigurationException.class,
-			() -> ConfigHelper.validateWbemInfo(RESOURCE_KEY, null, -60L, 1234, VCENTER_HOSTNAME)
-		);
-		assertThrows(
-			InvalidConfigurationException.class,
-			() -> ConfigHelper.validateWbemInfo(RESOURCE_KEY, "", null, 1234, VCENTER_HOSTNAME)
-		);
-		assertThrows(
-			InvalidConfigurationException.class,
-			() -> ConfigHelper.validateWbemInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, -60L, 1234, VCENTER_HOSTNAME)
-		);
-		assertThrows(
-			InvalidConfigurationException.class,
-			() -> ConfigHelper.validateWbemInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, null, 1234, VCENTER_HOSTNAME)
-		);
-		assertThrows(
-			InvalidConfigurationException.class,
-			() -> ConfigHelper.validateWbemInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, 60L, -1, VCENTER_HOSTNAME)
-		);
-		assertThrows(
-			InvalidConfigurationException.class,
-			() -> ConfigHelper.validateWbemInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, 60L, null, VCENTER_HOSTNAME)
-		);
-		assertThrows(
-			InvalidConfigurationException.class,
-			() -> ConfigHelper.validateWbemInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, 60L, 66666, VCENTER_HOSTNAME)
-		);
-		assertThrows(
-			InvalidConfigurationException.class,
-			() -> ConfigHelper.validateWbemInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, 60L, null, "")
-		);
-		assertDoesNotThrow(() ->
-			ConfigHelper.validateWbemInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, 60L, 1234, VCENTER_HOSTNAME)
-		);
-		assertDoesNotThrow(() -> ConfigHelper.validateWbemInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, 60L, 1234, null));
-	}
-
+	
 	@Test
 	void testValidateWinRm() {
 		assertThrows(
