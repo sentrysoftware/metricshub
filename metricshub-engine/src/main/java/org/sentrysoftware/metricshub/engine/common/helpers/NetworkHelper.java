@@ -22,10 +22,16 @@ package org.sentrysoftware.metricshub.engine.common.helpers;
  */
 
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Set;
+import java.util.regex.Pattern;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -33,6 +39,12 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class NetworkHelper {
+
+	/**
+	 * Pattern for IPv6 address enclosed in square brackets ('[' and ']') as specified by
+	 * <a href="https://www.ietf.org/rfc/rfc2732.txt">RFC 2732</a>
+	 */
+	private static final Pattern IPV6_ENCLOSED_IN_SQUARE_BRACKETS_PATTERN = Pattern.compile("^\\[.*\\]$");
 
 	/**
 	 * Typical localhost names, which we should figure out immediately
@@ -151,5 +163,38 @@ public class NetworkHelper {
 		}
 
 		return hostname;
+	}
+
+	/**
+	 * Constructs a URL from the specified protocol, hostname or IP address, and port.
+	 * It properly formats the URL for both IPv4 and IPv6 addresses.
+	 *
+	 * @param protocol     The communication protocol (e.g., "http", "https")
+	 * @param hostnameOrIp The host name or IP address, IPv4 or IPv6
+	 * @param portNumber   The port number
+	 * @return a URL object constructed from the provided parameters
+	 * @throws MalformedURLException if no protocol is specified, or an unknown protocol is found
+	 * @throws UnknownHostException  if the IP address or hostname cannot be resolved
+	 * @throws URISyntaxException    if the URI string constructed from the input parameters is syntactically incorrect
+	 */
+	public static URL createUrl(@NonNull String protocol, @NonNull String hostnameOrIp, @NonNull Integer portNumber)
+		throws MalformedURLException, UnknownHostException, URISyntaxException {
+		// Detect if the host is an IPv6 address
+		final InetAddress address = InetAddress.getByName(hostnameOrIp);
+
+		final String uriHost;
+		if (
+			// CHECKSTYLE:OFF
+			address instanceof java.net.Inet6Address &&
+			!IPV6_ENCLOSED_IN_SQUARE_BRACKETS_PATTERN.matcher(hostnameOrIp).matches()
+			// CHECKSTYLE:ON
+		) {
+			uriHost = "[" + hostnameOrIp + "]";
+		} else {
+			uriHost = hostnameOrIp;
+		}
+
+		// Format the URI and convert to URL
+		return new URI(String.format("%s://%s:%d", protocol, uriHost, portNumber)).toURL();
 	}
 }
