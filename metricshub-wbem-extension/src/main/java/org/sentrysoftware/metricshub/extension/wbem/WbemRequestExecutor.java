@@ -26,12 +26,17 @@ import io.opentelemetry.instrumentation.annotations.WithSpan;
 import java.net.URI;
 import java.net.URL;
 import java.util.List;
+import java.util.Set;
+
+import lombok.Builder;
+import lombok.Data;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.ThreadHelper;
+import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.vcenter.VCenterClient;
 import org.sentrysoftware.wbem.client.WbemExecutor;
@@ -40,6 +45,25 @@ import org.sentrysoftware.wbem.javax.wbem.WBEMException;
 
 @Slf4j
 public class WbemRequestExecutor {
+
+	/**
+	 * Invalid namespace Exception. Thrown when the specified namespace does not
+	 * exist.
+	 */
+	public static final int CIM_ERR_INVALID_NAMESPACE = 3;
+
+	/**
+	 * Invalid class specified. For e.g. when one tries to add an instance for a
+	 * class that does not exist. This error message uses one parameter, the
+	 * invalid class name.
+	 */
+	public static final int CIM_ERR_INVALID_CLASS = 5;
+
+	/**
+	 * Element cannot be found. This error message uses one parameter, the
+	 * element that cannot be found.
+	 */
+	public static final int CIM_ERR_NOT_FOUND = 6;
 
 	/**
 	 * Determine if a vCenter server is configured and call the appropriate method to run the WBEM query.
@@ -268,5 +292,75 @@ public class WbemRequestExecutor {
 		} catch (Exception e) { // NOSONAR an exception is already thrown
 			throw new ClientException("WBEM query failed on " + hostname + ".", e);
 		}
+	}
+
+	/**
+	 * Assess whether an exception (or any of its causes) is simply an error saying that the
+	 * requested namespace of class doesn't exist, which is considered okay.
+	 * <br>
+	 *
+	 * @param t Exception to verify
+	 * @return whether specified exception is acceptable while performing namespace detection
+	 */
+	public static boolean isAcceptableException(Throwable t) {
+		if (t == null) {
+			return false;
+		}
+
+		if (t instanceof WBEMException wbemException) {
+			final int cimErrorType = wbemException.getID();
+			return isAcceptableWbemError(cimErrorType);
+		} else if (
+			// CHECKSTYLE:OFF
+				t instanceof org.sentrysoftware.wbem.client.exceptions.WqlQuerySyntaxException ||
+						t instanceof org.sentrysoftware.winrm.exceptions.WqlQuerySyntaxException
+			// CHECKSTYLE:ON
+		) {
+			return true;
+		}
+
+		// Now check recursively the cause
+		return isAcceptableException(t.getCause());
+	}
+
+	/**
+	 * Whether this error id is an acceptable WBEM error.
+	 *
+	 * @param errorId integer value representing the id of the WBEM exception
+	 * @return boolean value
+	 */
+	private static boolean isAcceptableWbemError(final int errorId) {
+		// CHECKSTYLE:OFF
+		return (
+				errorId == WBEMException.CIM_ERR_INVALID_NAMESPACE ||
+						errorId == WBEMException.CIM_ERR_INVALID_CLASS ||
+						errorId == WBEMException.CIM_ERR_NOT_FOUND
+		);
+		// CHECKSTYLE:ON
+	}
+
+	/**
+	 * Data class representing the result of querying for possible namespaces.
+	 * Provides information about the possible namespaces, success status, and an error message if applicable.
+	 */
+	@Data
+	@Builder
+	public static class PossibleNamespacesResult {
+
+		private Set<String> possibleNamespaces;
+		private boolean success;
+		private String errorMessage;
+	}
+
+	/**
+	 * Data class representing the result for a specific namespace.
+	 * Contains information about the namespace itself and a CriterionTestResult.
+	 */
+	@Data
+	@Builder
+	public static class NamespaceResult {
+
+		private String namespace;
+		private CriterionTestResult result;
 	}
 }

@@ -276,7 +276,7 @@ class ConfigHelperTest {
 		assertTrue(store.containsKey("custom-connector-1"));
 		assertTrue(store.containsKey("noTemplateVariable"));
 	}
-	
+
 	@Test
 	void testValidateWinRm() {
 		assertThrows(

@@ -107,7 +107,14 @@ public class WbemExtension implements IProtocolExtension {
 	 */
 	public static final String WBEM_TEST_QUERY = "SELECT Name FROM CIM_NameSpace";
 
-	private final WbemRequestExecutor wbemRequestExecutor = new WbemRequestExecutor();
+	private final WbemRequestExecutor wbemRequestExecutor;
+
+	/**
+	 * Creates a new instance of the {@link WbemExtension} implementation.
+	 */
+	public WbemExtension() {
+		wbemRequestExecutor = new WbemRequestExecutor();
+	}
 
 	@Override
 	public boolean isValidConfiguration(IConfiguration configuration) {

@@ -8,14 +8,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WbemCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WbemSource;
@@ -26,14 +23,13 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.extension.wbem.WbemConfiguration;
 import org.sentrysoftware.metricshub.extension.wbem.WbemExtension;
 import org.sentrysoftware.metricshub.extension.wbem.WbemRequestExecutor;
-import org.sentrysoftware.wbem.client.WbemClient;
-import org.sentrysoftware.wmi.exceptions.WmiComException;
+import org.sentrysoftware.wbem.javax.wbem.WBEMException;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -47,7 +43,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.DOWN;
-import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.UP;
+import static org.sentrysoftware.metricshub.extension.wbem.WbemExtension.WBEM_TEST_QUERY;
 
 @ExtendWith(MockitoExtension.class)
 public class WbemExtensionTest {
@@ -58,8 +54,13 @@ public class WbemExtensionTest {
 	private static final String USERNAME = "testUser";
 	private static final String PASSWORD = "testPassword";
 	private static final String WBEM_CRITERION_TYPE = "wbem";
-	private static final String RESULT = "result";
 	private static final String WBEM_TEST_NAMESPACE = "namespace";
+	private static final String RESULT = "result";
+
+	public static final List<List<String>> EXECUTE_WBEM_RESULT = Arrays.asList(
+			Arrays.asList("value1a", "value2a", "value3a"),
+			Arrays.asList("value1b", "value2b", "value3b")
+	);
 
 	@Mock
 	private WbemRequestExecutor wbemRequestExecutorMock;
@@ -101,22 +102,22 @@ public class WbemExtensionTest {
 
 	@Test
 	void testCheckProtocolUp() throws ClientException {
-		// Create a telemetry manager using a WMI HostConfiguration
+		// Create a telemetry manager using a WBEM HostConfiguration
 		initWbem();
 
 		{
-			// Mock a positive WMI protocol health check response
-			doReturn(SUCCESS_RESPONSE)
+			// Mock a positive WBEM protocol health check response
+			doReturn(EXECUTE_WBEM_RESULT)
 					.when(wbemRequestExecutorMock)
 					.executeWbem(
 							anyString(),
 							any(WbemConfiguration.class),
-							eq(WbemExtension.WBEM_TEST_QUERY),
-							eq(WBEM_TEST_NAMESPACE),
-							telemetryManager
+							anyString(),
+							anyString(),
+							any(TelemetryManager.class)
 					);
 
-			// Start the WMI Health Check strategy
+			// Start the WBEM Health Check strategy
 			wbemExtension.checkProtocol(telemetryManager);
 
 			assertEquals(
@@ -126,20 +127,19 @@ public class WbemExtensionTest {
 		}
 
 		{
-			// Mock an acceptable WMI protocol health check exception
-			doThrow(new RuntimeException(new WmiComException("WBEM_E_INVALID_NAMESPACE")))
+			doThrow(new RuntimeException(new WBEMException("WBEM_INVALID_NAMESPACE")))
 					.when(wbemRequestExecutorMock)
 					.executeWbem(
 							anyString(),
 							any(WbemConfiguration.class),
-							eq(WbemExtension.WBEM_TEST_QUERY),
+							eq(WBEM_TEST_QUERY),
 							eq(WBEM_TEST_NAMESPACE),
 							telemetryManager
 					);
 
 			doCallRealMethod().when(wbemRequestExecutorMock).isAcceptableException(any());
 
-			// Start the WMI Health Check
+			// Start the WBEM Health Check
 			wbemExtension.checkProtocol(telemetryManager);
 
 			assertEquals(
@@ -155,14 +155,14 @@ public class WbemExtensionTest {
 		initWbem();
 
 		// Mock null WBEM protocol health check response
-		doReturn(SUCCESS_RESPONSE)
+		doReturn(EXECUTE_WBEM_RESULT)
 				.when(wbemRequestExecutorMock)
 				.executeWbem(
 						anyString(),
 						any(WbemConfiguration.class),
-						eq(WbemExtension.WBEM_TEST_QUERY),
+						eq(WBEM_TEST_QUERY),
 						eq(WBEM_TEST_NAMESPACE),
-						telemetryManager
+						eq(telemetryManager)
 				);
 
 		// Start the WBEM Health Check strategy
@@ -252,7 +252,7 @@ public class WbemExtensionTest {
 	}
 
 	@Test
-	void testProcessCriterionNullResultTest() throws ExecutionException, InterruptedException, TimeoutException {
+	void testProcessCriterionNullResultTest() throws ClientException {
 		initWbem();
 
 		final WbemCriterion wbemCriterion = WbemCriterion.builder().type(WBEM_CRITERION_TYPE).build();
@@ -262,7 +262,12 @@ public class WbemExtensionTest {
 				.getConfigurations()
 				.get(WbemConfiguration.class);
 
-		doReturn(null).when(wbemRequestExecutorMock).executeWbemDetection(HOST_NAME, configuration);
+		doReturn(null).when(wbemRequestExecutorMock).executeWbem(
+				anyString(),
+				configuration,
+				eq(WBEM_TEST_QUERY),
+				eq(WBEM_TEST_NAMESPACE),
+				telemetryManager);
 
 		final String message =
 				"Received <null> result after connecting to the WBEM BMC chip with the WBEM-over-LAN interface.";
@@ -279,7 +284,7 @@ public class WbemExtensionTest {
 	}
 
 	@Test
-	void testProcessCriterionOk() throws ExecutionException, InterruptedException, TimeoutException {
+	void testProcessCriterionOk() throws ClientException {
 		initWbem();
 
 		final WbemCriterion wbemCriterion = WbemCriterion.builder().type(WBEM_CRITERION_TYPE).build();
@@ -289,7 +294,7 @@ public class WbemExtensionTest {
 				.getConfigurations()
 				.get(WbemConfiguration.class);
 
-		doReturn(RESULT).when(wbemRequestExecutorMock).executeWbemDetection(HOST_NAME, configuration);
+		doReturn(EXECUTE_WBEM_RESULT).when(wbemRequestExecutorMock).executeWbem(HOST_NAME, configuration, WBEM_TEST_QUERY, WBEM_TEST_NAMESPACE, telemetryManager);
 
 		final String message = "Successfully connected to the WBEM BMC chip with the WBEM-over-LAN interface.";
 		final CriterionTestResult criterionTestResult = wbemExtension.processCriterion(
@@ -298,14 +303,14 @@ public class WbemExtensionTest {
 				telemetryManager
 		);
 
-		assertEquals(RESULT, criterionTestResult.getResult());
+		assertEquals(EXECUTE_WBEM_RESULT, criterionTestResult.getResult());
 		assertTrue(criterionTestResult.isSuccess());
 		assertEquals(message, criterionTestResult.getMessage());
 		assertNull(criterionTestResult.getException());
 	}
 
 	@Test
-	void testProcessWbemSourceOk() throws ExecutionException, InterruptedException, TimeoutException {
+	void testProcessWbemSourceOk() throws ClientException {
 		initWbem();
 
 		final WbemConfiguration configuration = (WbemConfiguration) telemetryManager
@@ -313,7 +318,7 @@ public class WbemExtensionTest {
 				.getConfigurations()
 				.get(WbemConfiguration.class);
 
-		doReturn(RESULT).when(wbemRequestExecutorMock).executeWbemGetSensors(HOST_NAME, configuration);
+		doReturn(EXECUTE_WBEM_RESULT).when(wbemRequestExecutorMock).executeWbem(HOST_NAME, configuration, WBEM_TEST_QUERY, WBEM_TEST_NAMESPACE, telemetryManager);
 		final SourceTable actual = wbemExtension.processSource(
 				WbemSource.builder().build(),
 				CONNECTOR_ID,
@@ -325,7 +330,7 @@ public class WbemExtensionTest {
 	}
 
 	@Test
-	void testProcessWbemSourceThrowsException() throws ExecutionException, InterruptedException, TimeoutException {
+	void testProcessWbemSourceThrowsException() throws ClientException {
 		initWbem();
 
 		final WbemConfiguration configuration = (WbemConfiguration) telemetryManager
@@ -335,7 +340,12 @@ public class WbemExtensionTest {
 
 		doThrow(new RuntimeException("exception"))
 				.when(wbemRequestExecutorMock)
-				.executeWbemGetSensors(HOST_NAME, configuration);
+				.executeWbem(
+						anyString(),
+						configuration,
+						eq(WBEM_TEST_QUERY),
+						eq(WBEM_TEST_NAMESPACE),
+						eq(telemetryManager));
 		final SourceTable actual = wbemExtension.processSource(
 				WbemSource.builder().build(),
 				CONNECTOR_ID,
@@ -347,7 +357,7 @@ public class WbemExtensionTest {
 	}
 
 	@Test
-	void testProcessWbemSourceEmptyResult() throws ExecutionException, InterruptedException, TimeoutException {
+	void testProcessWbemSourceEmptyResult() throws ClientException {
 		initWbem();
 
 		final WbemConfiguration configuration = (WbemConfiguration) telemetryManager
@@ -356,7 +366,7 @@ public class WbemExtensionTest {
 				.get(WbemConfiguration.class);
 
 		{
-			doReturn(null).when(wbemRequestExecutorMock).executeWbemGetSensors(HOST_NAME, configuration);
+			doReturn(null).when(wbemRequestExecutorMock).executeWbem(HOST_NAME, configuration, WBEM_TEST_QUERY, WBEM_TEST_NAMESPACE, telemetryManager);
 			final SourceTable actual = wbemExtension.processSource(
 					WbemSource.builder().build(),
 					CONNECTOR_ID,
@@ -368,7 +378,7 @@ public class WbemExtensionTest {
 		}
 
 		{
-			doReturn("").when(wbemRequestExecutorMock).executeWbemGetSensors(HOST_NAME, configuration);
+			doReturn("").when(wbemRequestExecutorMock).executeWbem(HOST_NAME, configuration, WBEM_TEST_QUERY, WBEM_TEST_NAMESPACE, telemetryManager);
 			final SourceTable actual = wbemExtension.processSource(
 					WbemSource.builder().build(),
 					CONNECTOR_ID,

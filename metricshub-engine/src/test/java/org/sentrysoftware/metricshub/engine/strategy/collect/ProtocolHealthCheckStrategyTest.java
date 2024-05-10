@@ -34,9 +34,7 @@ import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.extension.TestConfiguration;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
-import org.sentrysoftware.wbem.javax.wbem.WBEMException;
 import org.sentrysoftware.winrm.exceptions.WqlQuerySyntaxException;
-import org.sentrysoftware.wmi.exceptions.WmiComException;
 
 @ExtendWith(MockitoExtension.class)
 class ProtocolHealthCheckStrategyTest {
