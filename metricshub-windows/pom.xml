@@ -27,6 +27,11 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
+			<artifactId>metricshub-snmpv3-extension</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>metricshub-oscommand-extension</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -117,6 +122,11 @@
 								<artifactItem>
 									<groupId>${project.groupId}</groupId>
 									<artifactId>metricshub-snmp-extension</artifactId>
+									<version>${project.version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>metricshub-snmpv3-extension</artifactId>
 									<version>${project.version}</version>
 								</artifactItem>
 								<artifactItem>
