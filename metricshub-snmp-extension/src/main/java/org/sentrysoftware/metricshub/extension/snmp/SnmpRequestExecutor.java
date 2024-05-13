@@ -20,26 +20,48 @@ package org.sentrysoftware.metricshub.extension.snmp;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
-
-import io.opentelemetry.instrumentation.annotations.SpanAttribute;
-import io.opentelemetry.instrumentation.annotations.WithSpan;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
+
 import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.ThreadHelper;
 import org.sentrysoftware.snmp.client.SnmpClient;
+
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub SNMP Extension
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The SnmpRequestExecutor class provides utility methods for executing
  * various SNMP requests on local or remote hosts.
  */
 @Slf4j
-public class SnmpRequestExecutor {
+public class SnmpRequestExecutor implements ISnmpRequestExecutor {
 
 	/**
 	 * Execute SNMP GetNext request
@@ -54,9 +76,10 @@ public class SnmpRequestExecutor {
 	 * @throws TimeoutException    If the execution times out.
 	 */
 	@WithSpan("SNMP Get Next")
+	@Override
 	public String executeSNMPGetNext(
 		@NonNull @SpanAttribute("snmp.oid") final String oid,
-		@NonNull @SpanAttribute("snmp.config") final SnmpConfiguration configuration,
+		@NonNull @SpanAttribute("snmp.config") final ISnmpConfiguration configuration,
 		@NonNull @SpanAttribute("host.hostname") final String hostname,
 		final boolean logMode
 	) throws InterruptedException, ExecutionException, TimeoutException {
@@ -93,9 +116,10 @@ public class SnmpRequestExecutor {
 	 * @throws TimeoutException    If the execution times out.
 	 */
 	@WithSpan("SNMP Get")
+	@Override
 	public String executeSNMPGet(
 		@NonNull @SpanAttribute("snmp.oid") final String oid,
-		@NonNull @SpanAttribute("snmp.config") final SnmpConfiguration configuration,
+		@NonNull @SpanAttribute("snmp.config") final ISnmpConfiguration configuration,
 		@NonNull @SpanAttribute("host.hostname") final String hostname,
 		final boolean logMode
 	) throws InterruptedException, ExecutionException, TimeoutException {
@@ -128,10 +152,11 @@ public class SnmpRequestExecutor {
 	 * @throws TimeoutException    If the SNMP request times out.
 	 */
 	@WithSpan("SNMP Get Table")
+	@Override
 	public List<List<String>> executeSNMPTable(
 		@NonNull @SpanAttribute("snmp.oid") final String oid,
 		@NonNull @SpanAttribute("snmp.columns") String[] selectColumnArray,
-		@NonNull @SpanAttribute("snmp.config") final SnmpConfiguration configuration,
+		@NonNull @SpanAttribute("snmp.config") final ISnmpConfiguration configuration,
 		@NonNull @SpanAttribute("host.hostname") final String hostname,
 		final boolean logMode
 	) throws InterruptedException, ExecutionException, TimeoutException {
@@ -183,7 +208,7 @@ public class SnmpRequestExecutor {
 	private <T> T executeSNMPGetRequest(
 		final SnmpGetRequest request,
 		final String oid,
-		final SnmpConfiguration protocol,
+		final ISnmpConfiguration protocol,
 		final String hostname,
 		final String[] selectColumnArray,
 		final boolean logMode
@@ -194,7 +219,7 @@ public class SnmpRequestExecutor {
 				final SnmpClient snmpClient = new SnmpClient(
 					hostname,
 					protocol.getPort(),
-					protocol.getVersion().getIntVersion(),
+					protocol.getIntVersion(),
 					null,
 					new String(protocol.getCommunity()),
 					null,

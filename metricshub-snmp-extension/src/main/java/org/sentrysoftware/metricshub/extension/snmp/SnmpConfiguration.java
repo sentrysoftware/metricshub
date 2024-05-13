@@ -23,8 +23,13 @@ package org.sentrysoftware.metricshub.extension.snmp;
 
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
+import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
+
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -32,21 +37,17 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
-import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
-import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
-import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 
 /**
  * The SnmpConfiguration class represents the configuration for SNMP in the MetricsHub engine.
- * It implements the IConfiguration interface and includes settings such as SNMP version, community,
+ * It implements the ISnmpConfiguration interface and includes settings such as SNMP version, community,
  * port, timeout, context name, privacy, privacy password, username, and password.
  */
 @Data
-@Builder
+@Builder 
 @AllArgsConstructor
 @NoArgsConstructor
-public class SnmpConfiguration implements IConfiguration {
+public class SnmpConfiguration implements ISnmpConfiguration {
 
 	private static final String INVALID_SNMP_VERSION_EXCEPTION_MESSAGE = "Invalid SNMP version: ";
 
@@ -158,4 +159,10 @@ public class SnmpConfiguration implements IConfiguration {
 				)
 		);
 	}
+
+	@Override
+	public int getIntVersion(){
+		return version.intVersion;
+	}
+
 }
