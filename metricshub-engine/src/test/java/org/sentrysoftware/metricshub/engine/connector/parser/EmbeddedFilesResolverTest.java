@@ -17,6 +17,7 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.sentrysoftware.metricshub.engine.common.helpers.FileHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
+import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 
 class EmbeddedFilesResolverTest {
 
@@ -81,21 +82,21 @@ class EmbeddedFilesResolverTest {
 
 		final Set<URI> parents = Set.of(CONNECTOR_2_DIRECTORY.toUri());
 
-		new EmbeddedFilesResolver(connector, CONNECTOR_1_DIRECTORY, parents).internalize();
+		new EmbeddedFilesResolver(connector, CONNECTOR_1_DIRECTORY, parents).process();
 
 		// Verify the full JsonNode object
 		assertEquals(OBJECT_MAPPER.readTree(expectedYaml), connector);
 	}
 
 	@Test
-	void testInternalizeFailureOnFileNotFound() throws IOException {
+	void testProcessFailureOnFileNotFound() throws IOException {
 		final EmbeddedFilesResolver embeddedFilesResolver = new EmbeddedFilesResolver(
 			OBJECT_MAPPER.readTree(CONNECTOR_2_FILE),
 			CONNECTOR_2_DIRECTORY,
 			Collections.emptySet()
 		);
 
-		assertThrows(IllegalStateException.class, () -> embeddedFilesResolver.internalize());
+		assertThrows(IllegalStateException.class, () -> embeddedFilesResolver.process());
 	}
 
 	@Test
@@ -111,7 +112,7 @@ class EmbeddedFilesResolverTest {
 	}
 
 	/**
-	 * Test the {@link EmbeddedFilesResolver#findAbsoluteUri(String, Path)} method.
+	 * Test the {@link EmbeddedFilesResolver#processFile(String, Path)} method.
 	 * @param schemePrefix The scheme prefix for the URI.
 	 * @throws Exception If an error occurs during the test.
 	 */
@@ -135,10 +136,10 @@ class EmbeddedFilesResolverTest {
 		);
 
 		final URI connectorDirUri = URI.create(connectorDirUriStr);
-		final URI result = FileHelper.fileSystemTask(
+		final EmbeddedFile result = FileHelper.fileSystemTask(
 			connectorDirUri,
 			Collections.emptyMap(),
-			() -> embeddedFilesResolver.findAbsoluteUri("diskPart.awk", Paths.get(connectorDirUri))
+			() -> embeddedFilesResolver.processFile("diskPart.awk", Paths.get(connectorDirUri))
 		);
 
 		assertEquals(uriStrExpected, result.toString());
@@ -164,7 +165,7 @@ class EmbeddedFilesResolverTest {
 		);
 		assertEquals(
 			new File("src/test/resources/test-files/connector/zippedConnector/connectors/hardware/MIB2/exit.txt").toURI(),
-			embeddedFilesResolver.findAbsoluteUri("exit.txt", yamlTestPath)
+			embeddedFilesResolver.processFile("exit.txt", yamlTestPath)
 		);
 	}
 }

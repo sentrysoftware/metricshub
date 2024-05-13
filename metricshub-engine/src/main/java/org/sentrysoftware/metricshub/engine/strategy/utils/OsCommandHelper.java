@@ -31,12 +31,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.AccessLevel;
@@ -54,7 +55,7 @@ public class OsCommandHelper {
 		"%\\{SUDO:([^\\}]*)\\}",
 		Pattern.CASE_INSENSITIVE
 	);
-	public static final Function<String, File> TEMP_FILE_CREATOR = OsCommandHelper::createEmbeddedTempFile;
+	public static final BiFunction<String, String, File> TEMP_FILE_CREATOR = OsCommandHelper::createEmbeddedTempFile;
 
 	/**
 	 * Create the temporary embedded files in the given command line.
@@ -69,31 +70,31 @@ public class OsCommandHelper {
 	public static Map<String, File> createOsCommandEmbeddedFiles(
 		@NonNull final String commandLine,
 		final SudoInformation sudoInformation,
-		@NonNull final Map<String, EmbeddedFile> commandLineEmbeddedFiles,
-		final Function<String, File> tempFileCreator
+		@NonNull final Map<Integer, EmbeddedFile> commandLineEmbeddedFiles,
+		@NonNull final BiFunction<String, String, File> tempFileCreator
 	) throws IOException {
 		final Map<String, File> embeddedTempFiles = new HashMap<>();
 		try {
 			final Matcher matcher = FILE_PATTERN.matcher(commandLine);
 			while (matcher.find()) {
-				// ${file::file-absolute-path} fileName is file-absolute-path // NOSONAR on comment
-				final String fileName = matcher.group(1);
+				// ${file::embedded-file-number} // NOSONAR on comment
+				final Integer fileNumber = Integer.parseInt(matcher.group(1));
 
-				// Example: ${file::file-absolute-path} // NOSONAR on comment
+				// Example: ${file::embedded-file-number} // NOSONAR on comment
 				final String fileNameRef = matcher.group();
 
 				embeddedTempFiles.computeIfAbsent(
 					fileNameRef,
 					k -> {
 						// The embedded file is available in the connector
-						final EmbeddedFile embeddedFile = commandLineEmbeddedFiles.get(fileNameRef);
+						final EmbeddedFile embeddedFile = commandLineEmbeddedFiles.get(fileNumber);
 
-						// This means there is a design problem or the HDF developer indicated a wrong embedded file
-						state(embeddedFile != null, () -> "Cannot get the EmbeddedFile from the Connector. File name: " + fileName);
-						final String content = embeddedFile.getContent();
+						// This means there is a design problem
+						state(embeddedFile != null, () -> "Cannot get the EmbeddedFile from the Connector. File name: " + fileNumber);
+						final byte[] content = embeddedFile.getContent();
 
 						// This means there is a design problem, the content can never be null
-						state(content != null, () -> "EmbeddedFile content is null. File name: " + fileName);
+						state(content != null, () -> "EmbeddedFile content is null. File name: " + fileNumber);
 
 						try {
 							return createTempFileWithEmbeddedFileContent(embeddedFile, sudoInformation, tempFileCreator);
@@ -126,20 +127,26 @@ public class OsCommandHelper {
 	public static File createTempFileWithEmbeddedFileContent(
 		final EmbeddedFile embeddedFile,
 		final SudoInformation sudoInformation,
-		Function<String, File> tempFileCreator
+		final BiFunction<String, String, File> tempFileCreator
 	) throws IOException {
-		final String extension = embeddedFile.getType() != null ? "." + embeddedFile.getType() : EMPTY;
+		final String extension = embeddedFile.getFileExtension();
+		final String baseName = embeddedFile.getBaseName();
 
-		final File tempFile = tempFileCreator.apply(extension);
+		final File tempFile = tempFileCreator.apply(baseName, extension);
+		final Path tempFilePath = Paths.get(tempFile.getAbsolutePath());
+		final String contentAsString = embeddedFile.getContentAsString();
 
-		try (
-			BufferedWriter bufferedWriter = Files.newBufferedWriter(
-				Paths.get(tempFile.getAbsolutePath()),
-				StandardCharsets.UTF_8
-			)
-		) {
-			bufferedWriter.write(replaceSudo(embeddedFile.getContent(), sudoInformation));
+		// Should we replace SUDO commands?
+		if (contentAsString.contains("%{SUDO:")) {
+			
+			try (BufferedWriter bufferedWriter = Files.newBufferedWriter(tempFilePath,
+					StandardCharsets.UTF_8)) {
+				bufferedWriter.write(replaceSudo(contentAsString, sudoInformation));
+			}
+		} else {
+			Files.write(tempFilePath, embeddedFile.getContent());
 		}
+
 		return tempFile;
 	}
 
@@ -147,12 +154,13 @@ public class OsCommandHelper {
 	 * Create a temporary file with the given extension.<br>
 	 * The temporary file name is prefixed with "SEN_Embedded_"
 	 *
+	 * @param baseName  Base name of the file. (File name without extension).
 	 * @param extension File's name suffix (e.g. .bat)
 	 * @return {@link File} instance
 	 */
-	public static File createEmbeddedTempFile(final String extension) {
+	public static File createEmbeddedTempFile(final String baseName, final String extension) {
 		try {
-			return File.createTempFile("SEN_Embedded_", extension);
+			return File.createTempFile("SEN_Embedded_" + baseName, extension);
 		} catch (IOException e) {
 			throw new TempFileCreationException(e);
 		}

@@ -27,6 +27,9 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
+
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
@@ -36,18 +39,27 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
+
 import org.sentrysoftware.metricshub.engine.common.helpers.FileHelper;
+import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 
 /**
  * Resolves and internalizes embedded files within a JsonNode.
  */
+@Slf4j
 public class EmbeddedFilesResolver {
 
 	private final JsonNode connector;
 	private final Path connectorDirectory;
 	private final Set<URI> parents;
-	private final Map<String, URI> alreadyProcessedEmbeddedFiles;
+
+	/**
+	 *  Mapping of embedded files where each embedded file is associated with the path.
+	 */
+	private final Map<String, EmbeddedFile> alreadyProcessedEmbeddedFiles;
 
 	/**
 	 * Constructs an EmbeddedFilesResolver with the given parameters.
@@ -64,12 +76,12 @@ public class EmbeddedFilesResolver {
 	}
 
 	/**
-	 * Look for all references of embedded files that look like: $file("...")$,
+	 * Look for all references of embedded files that look like: ${file::},
 	 * find the referenced file, add its content in a new node at the end of the connector
 	 * and replace the reference to the external file by a reference to the internalized embedded file
 	 * @throws IOException If there is an issue finding the embedded file or processing the JSON structure.
 	 */
-	public void internalize() throws IOException {
+	public void process() throws IOException {
 		final JsonParser jsonParser = connector.traverse();
 		JsonToken token = jsonParser.nextToken();
 
@@ -85,7 +97,19 @@ public class EmbeddedFilesResolver {
 			while (fileMatcher.find()) {
 				final String fileName = fileMatcher.group(1);
 
-				alreadyProcessedEmbeddedFiles.computeIfAbsent(fileName, name -> findAbsoluteUri(name, connectorDirectory));
+				alreadyProcessedEmbeddedFiles.computeIfAbsent(fileName, name -> {
+					try {
+						return processFile(name, connectorDirectory);
+					} catch (Exception e) {
+						final String errorMessage = String.format(
+							"Error while processing file: %s. Current Connector directory: %s .",
+							name,
+							connectorDirectory
+						);
+						log.error(errorMessage, e);
+						throw new EmbeddedFileProcessingException(errorMessage, e);
+					}
+				});
 			}
 
 			token = jsonParser.nextToken();
@@ -106,19 +130,21 @@ public class EmbeddedFilesResolver {
 	}
 
 	/**
-	 * Find the absolute URI of the file in parameter
+	 * Reads the file content and generate an {@link EmbeddedFile} instance.
+	 *
 	 * @param fileName           The name or relative path of the file
 	 * @param connectorDirectory The name of the connector directory where to look for the file
 	 * @return The absolute path of the file if found, null otherwise.
+	 * @throws IOException 
 	 * @throws IllegalStateException when the file can't be found
 	 */
-	public URI findAbsoluteUri(final String fileName, final Path connectorDirectory) {
+	public EmbeddedFile processFile(final String fileName, final Path connectorDirectory) throws IOException {
 		// Let's check if the file exists.
 		final Path filePath = connectorDirectory.resolve(fileName).normalize();
 
 		// If the file is in the zip, then checking its existence is easy
 		if (Files.exists(filePath)) {
-			return filePath.toUri();
+			return createEmbeddedFile(filePath);
 		}
 
 		// If the file doesn't exist in the zip using the fileName, lets check the parents
@@ -129,7 +155,7 @@ public class EmbeddedFilesResolver {
 
 			// We do the same checks with the parents
 			if (Files.exists(path)) {
-				return path.toUri();
+				return createEmbeddedFile(path);
 			}
 		}
 
@@ -139,12 +165,32 @@ public class EmbeddedFilesResolver {
 			if (connectorsDirectoryPath != null) {
 				final Path connectorPathFile = connectorsDirectoryPath.resolve(fileName).normalize();
 				if (Files.exists(connectorPathFile)) {
-					return connectorPathFile.toUri();
+					return createEmbeddedFile(connectorPathFile);
 				}
 			}
 		}
 
 		throw new IllegalStateException(CANT_FIND_EMBEDDED_FILE + fileName);
+	}
+
+	/**
+	 * Creates an {@link EmbeddedFile} instance from a file specified by the given {@code filePath}.
+	 * This method reads all bytes from the file and sets these as the content of the new embedded file.
+	 * It also assigns a unique identifier based on the current count of already processed embedded files
+	 * and sets the file name from the file path.
+	 *
+	 * @param filePath The {@link Path} to the file from which the embedded file will be created.
+	 * @return An {@link EmbeddedFile} with the unique ID, filename, and content loaded from the specified file.
+	 * @throws IOException If there is an error reading the file at the specified path, such as if the file does not exist,
+	 *         or if there is an issue with file permissions.
+	 */
+	private EmbeddedFile createEmbeddedFile(final Path filePath) throws IOException {
+		return EmbeddedFile
+			.builder()
+			.id(alreadyProcessedEmbeddedFiles.size() + 1)
+			.filename(filePath.getFileName().toString())
+			.content(Files.readAllBytes(filePath))
+			.build();
 	}
 
 	/**
@@ -176,7 +222,44 @@ public class EmbeddedFilesResolver {
 	 * @return The modified value with the file reference replaced.
 	 */
 	private String replaceFileReference(final Matcher matcher, final String value) {
-		final String replacement = alreadyProcessedEmbeddedFiles.get(matcher.group(1)).toString();
-		return value.replace(matcher.group(1), replacement);
+		final String groupOne = matcher.group(1);
+		final Integer replacement = alreadyProcessedEmbeddedFiles.get(groupOne).getId();
+		return value.replace(groupOne, replacement.toString());
+	}
+
+	/**
+	 * Collects all processed embedded files into a map where each file is indexed
+	 * by its unique identifier.
+	 * 
+	 * @return A {@link Map} with integer keys representing the unique ID of each
+	 *         embedded file and values as the corresponding {@link EmbeddedFile} instances.
+	 */
+	public Map<Integer, EmbeddedFile> collectEmbeddedFiles() {
+		return alreadyProcessedEmbeddedFiles.values().stream()
+				.collect(Collectors.toMap(EmbeddedFile::getId, Function.identity(), (k1, k2) -> k1));
+	}
+
+	/**
+	 * A custom exception class for errors that occur during the processing of embedded files.
+	 * This class extends {@link RuntimeException} and provides constructor that allows the
+	 * inclusion of an error message and a throwable cause.
+	 */
+	private class EmbeddedFileProcessingException extends RuntimeException {
+
+		private static final long serialVersionUID = 1L;
+
+		/**
+		 * Constructs a new exception with the specified detail message and cause.
+		 * 
+		 * @param message The detail message. The detail message is saved for later
+		 *                retrieval by the {@link Throwable#getMessage()} method.
+		 * @param cause   The cause (which is saved for later retrieval by the
+		 *                {@link Throwable#getCause()} method). (A null value is
+		 *                permitted, and indicates that the cause is nonexistent or
+		 *                unknown.)
+		 */
+		private EmbeddedFileProcessingException(String message, Throwable cause) {
+			super(message, cause);
+		}
 	}
 }

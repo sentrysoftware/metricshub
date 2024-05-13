@@ -23,6 +23,9 @@ package org.sentrysoftware.metricshub.extension.oscommand;
 
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
@@ -37,7 +40,11 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
  * This class facilitates the execution of local or remote OS commands, evaluates the results, and generates
  * criterion test results based on the expected outcomes.
  */
+@RequiredArgsConstructor
 public class CommandLineCriterionProcessor {
+
+	@NonNull
+	private String connectorId;
 
 	/**
 	 * Processes a given {@link CommandLineCriterion}, executes the corresponding OS command, and evaluates the
@@ -73,7 +80,8 @@ public class CommandLineCriterionProcessor {
 				telemetryManager,
 				commandLineCriterion.getTimeout(),
 				commandLineCriterion.getExecuteLocally(),
-				telemetryManager.getHostProperties().isLocalhost()
+				telemetryManager.getHostProperties().isLocalhost(),
+				telemetryManager.getEmbeddedFiles(connectorId)
 			);
 
 			final CommandLineCriterion osCommandNoPassword = CommandLineCriterion
