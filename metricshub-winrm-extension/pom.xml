@@ -38,6 +38,10 @@
 		</dependency>
 		<dependency>
 			<groupId>org.sentrysoftware</groupId>
+			<artifactId>wmi</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sentrysoftware</groupId>
 			<artifactId>winrm</artifactId>
 		</dependency>
 		<dependency>

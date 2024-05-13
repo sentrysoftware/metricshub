@@ -28,7 +28,6 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.WinRmConfiguration;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
@@ -143,7 +142,6 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 
 		// Check the hostname protocols health
 		checkWbemHealth(hostname, hostMonitor, metricFactory);
-		checkWinRmHealth(hostname, hostMonitor, metricFactory);
 	}
 
 	@Override
@@ -218,65 +216,5 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 
 		// Collect the WBEM metric with a '0.0' value as the queries response was not positive
 		metricFactory.collectNumberMetric(hostMonitor, WBEM_UP_METRIC, DOWN, strategyTime);
-	}
-
-	/**
-	 * Check WINRM protocol health on the hostname for the host monitor.
-	 *
-	 * <ul>
-	 * 	<li>Criteria: The query must not return an error for at least one of the root\cimv2 namespace.</li>
-	 * 	<li>Query: SELECT Name FROM Win32_ComputerSystem.</li>
-	 * 	<li>Success Conditions: No errors in the query result, indicating that the protocol is responding.</li>
-	 * </ul>
-	 *
-	 * @param hostname      The hostname on which we perform health check
-	 * @param hostMonitor   An endpoint host monitor
-	 * @param metricFactory The metric factory used to collect the health check metric
-	 */
-	public void checkWinRmHealth(String hostname, Monitor hostMonitor, MetricFactory metricFactory) {
-		// Create and set the WinRM result to null
-		List<List<String>> winRmResult = null;
-
-		// Retrieve WinRM Configuration from the telemetry manager host configuration
-		final WinRmConfiguration winRmConfiguration = (WinRmConfiguration) telemetryManager
-			.getHostConfiguration()
-			.getConfigurations()
-			.get(WinRmConfiguration.class);
-
-		// Stop the health check if there is not an WinRM configuration
-		if (winRmConfiguration == null) {
-			return;
-		}
-
-		log.info(
-			"Hostname {} - Checking WinRM protocol status. Sending a WQL SELECT request on {} namespace.",
-			hostname,
-			WMI_AND_WINRM_TEST_NAMESPACE
-		);
-
-		try {
-			winRmResult =
-				clientsExecutor.executeWqlThroughWinRm(
-					hostname,
-					winRmConfiguration,
-					WMI_AND_WINRM_TEST_QUERY,
-					WMI_AND_WINRM_TEST_NAMESPACE
-				);
-		} catch (Exception e) {
-			if (WqlDetectionHelper.isAcceptableException(e)) {
-				// Generate a metric from the WinRM result
-				metricFactory.collectNumberMetric(hostMonitor, WINRM_UP_METRIC, UP, strategyTime);
-				return;
-			}
-			log.debug(
-				"Hostname {} - Checking WinRM protocol status. WinRM exception when performing a WQL SELECT request on {} namespace: ",
-				hostname,
-				WMI_AND_WINRM_TEST_NAMESPACE,
-				e
-			);
-		}
-
-		// Generate a metric from the WINRM result
-		metricFactory.collectNumberMetric(hostMonitor, WINRM_UP_METRIC, winRmResult != null ? UP : DOWN, strategyTime);
 	}
 }

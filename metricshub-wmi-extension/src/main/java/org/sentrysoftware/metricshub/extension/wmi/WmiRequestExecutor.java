@@ -263,27 +263,6 @@ public class WmiRequestExecutor implements IWinRequestExecutor {
 		return isAcceptableException(t.getCause());
 	}
 
-	/**
-	 * Whether this error message is an acceptable WMI COM error.
-	 *
-	 * @param errorMessage string value representing the message of the WMI COM exception
-	 * @return boolean value
-	 */
-	private boolean isAcceptableWmiComError(final String errorMessage) {
-		// CHECKSTYLE:OFF
-		return (
-			errorMessage != null &&
-			// @formatter:off
-			(
-				errorMessage.contains(WBEM_E_NOT_FOUND) ||
-				errorMessage.contains(WBEM_E_INVALID_NAMESPACE) ||
-				errorMessage.contains(WBEM_E_INVALID_CLASS)
-			)
-			// @formatter:on
-		);
-		// CHECKSTYLE:ON
-	}
-
 	@Override
 	public String executeWinRemoteCommand(
 		String hostname,

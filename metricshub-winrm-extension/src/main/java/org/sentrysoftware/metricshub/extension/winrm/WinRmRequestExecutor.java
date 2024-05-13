@@ -23,252 +23,134 @@ package org.sentrysoftware.metricshub.extension.winrm;
 
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
-import org.sentrysoftware.metricshub.engine.common.helpers.NetworkHelper;
+import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
+import org.sentrysoftware.metricshub.engine.configuration.TransportProtocols;
 import org.sentrysoftware.metricshub.extension.win.IWinConfiguration;
 import org.sentrysoftware.metricshub.extension.win.IWinRequestExecutor;
-import org.sentrysoftware.wmi.WmiHelper;
-import org.sentrysoftware.wmi.WmiStringConverter;
-import org.sentrysoftware.wmi.exceptions.WmiComException;
-import org.sentrysoftware.wmi.remotecommand.WinRemoteCommandExecutor;
-import org.sentrysoftware.wmi.wbem.WmiWbemServices;
+import org.sentrysoftware.winrm.WinRMHttpProtocolEnum;
+import org.sentrysoftware.winrm.WindowsRemoteCommandResult;
+import org.sentrysoftware.winrm.command.WinRMCommandExecutor;
+import org.sentrysoftware.winrm.exceptions.WindowsRemoteException;
+import org.sentrysoftware.winrm.service.client.auth.AuthenticationEnum;
+import org.sentrysoftware.winrm.wql.WinRMWqlExecutor;
 
 /**
- * The SnmpRequestExecutor class provides utility methods for executing
- * various WMI requests locally or on remote hosts.
+ * The WinRmRequestExecutor class provides utility methods for executing
+ * various WinRm requests locally or on remote hosts.
  */
 @Slf4j
 public class WinRmRequestExecutor implements IWinRequestExecutor {
 
 	/**
-	 * Execute a WMI query
+	 * Execute a WinRM query
 	 *
-	 * @param hostname  The hostname of the device where the WMI service is running (<code>null</code> for localhost)
-	 * @param wmiConfig WMI Protocol configuration (credentials, timeout)
-	 * @param wbemQuery The WQL to execute
-	 * @param namespace The WBEM namespace where all the classes reside
-	 * @return A list of rows, where each row is represented as a list of strings.
+	 * @param hostname           The hostname of the device where the WinRM service is running (<code>null</code> for localhost)
+	 * @param winConfiguration   WinRM Protocol configuration (credentials, timeout)
+	 * @param query              The query to execute
+	 * @param namespace          The namespace on which to execute the query
+	 * @return The result of the query
 	 * @throws ClientException when anything goes wrong (details in cause)
 	 */
-	@WithSpan("WMI")
 	@Override
+	@WithSpan("WinRM")
 	public List<List<String>> executeWmi(
-		@SpanAttribute("host.hostname") final String hostname,
-		@SpanAttribute("wmi.config") @NonNull final IWinConfiguration wmiConfig,
-		@SpanAttribute("wmi.query") @NonNull final String wbemQuery,
-		@SpanAttribute("wmi.namespace") @NonNull final String namespace
+		@SpanAttribute("host.hostname") @NonNull final String hostname,
+		@SpanAttribute("winrm.config") @NonNull final IWinConfiguration winConfiguration,
+		@SpanAttribute("winrm.query") @NonNull final String query,
+		@SpanAttribute("winrm.namespace") @NonNull final String namespace
 	) throws ClientException {
-		// Where to connect to?
-		// Local: namespace
-		// Remote: hostname\namespace
-		final String networkResource = NetworkHelper.isLocalhost(hostname)
-			? namespace
-			: String.format("\\\\%s\\%s", hostname, namespace);
+		if (!(winConfiguration instanceof WinRmConfiguration winRmConfiguration)) {
+			throw new ClientException("Invalid WinRmConfiguration on " + hostname);
+		}
+		final String username = winRmConfiguration.getUsername();
+		final WinRMHttpProtocolEnum httpProtocol = TransportProtocols.HTTP.equals(winRmConfiguration.getProtocol())
+			? WinRMHttpProtocolEnum.HTTP
+			: WinRMHttpProtocolEnum.HTTPS;
+		final Integer port = winRmConfiguration.getPort();
+		final List<AuthenticationEnum> authentications = winRmConfiguration.getAuthentications();
+		final Long timeout = winRmConfiguration.getTimeout();
 
 		LoggingHelper.trace(() ->
 			log.trace(
-				"Executing WMI request:\n- Hostname: {}\n- Network-resource: {}\n- Username: {}\n- Query: {}\n" + // NOSONAR
-				"- Namespace: {}\n- Timeout: {} s\n",
+				"Executing WinRM WQL request:\n- hostname: {}\n- username: {}\n- query: {}\n" + // NOSONAR
+				"- protocol: {}\n- port: {}\n- authentications: {}\n- timeout: {}\n- namespace: {}\n",
 				hostname,
-				networkResource,
-				wmiConfig.getUsername(),
-				wbemQuery,
-				namespace,
-				wmiConfig.getTimeout()
+				username,
+				query,
+				httpProtocol,
+				port,
+				authentications,
+				timeout,
+				namespace
 			)
 		);
 
-		// Go!
-		try (
-			WmiWbemServices wbemServices = WmiWbemServices.getInstance(
-				networkResource,
-				wmiConfig.getUsername(),
-				wmiConfig.getPassword()
-			)
-		) {
-			final long startTime = System.currentTimeMillis();
-
-			// Execute the WQL and get the result
-			final List<Map<String, Object>> result = wbemServices.executeWql(wbemQuery, wmiConfig.getTimeout() * 1000);
-
-			final long responseTime = System.currentTimeMillis() - startTime;
-
-			// Extract the exact property names (case sensitive), in the right order
-			final List<String> properties = WmiHelper.extractPropertiesFromResult(result, wbemQuery);
-
-			// Build the table
-			List<List<String>> resultTable = buildWmiTable(result, properties);
-
-			LoggingHelper.trace(() ->
-				log.trace(
-					"Executed WMI request:\n- Hostname: {}\n- Network-resource: {}\n- Username: {}\n- Query: {}\n" + // NOSONAR
-					"- Namespace: {}\n- Timeout: {} s\n- Result:\n{}\n- response-time: {}\n",
-					hostname,
-					networkResource,
-					wmiConfig.getUsername(),
-					wbemQuery,
-					namespace,
-					wmiConfig.getTimeout(),
-					TextTableHelper.generateTextTable(properties, resultTable),
-					responseTime
-				)
-			);
-
-			return resultTable;
-		} catch (Exception e) {
-			throw new ClientException("WMI query failed on " + hostname + ".", e);
-		}
-	}
-
-	/**
-	 * Execute a command on a remote Windows system through Client and return an object with
-	 * the output of the command.
-	 *
-	 * @param command    The command to execute. (Mandatory)
-	 * @param hostname   The host to connect to.  (Mandatory)
-	 * @param username   The username.
-	 * @param password   The password.
-	 * @param timeout    Timeout in seconds
-	 * @param localFiles The local files list
-	 * @return The output of the executed command.
-	 * @throws ClientException For any problem encountered.
-	 */
-	@WithSpan("Remote Command WMI")
-	public String executeWmiRemoteCommand(
-		@SpanAttribute("wmi.command") final String command,
-		@SpanAttribute("host.hostname") final String hostname,
-		@SpanAttribute("wmi.username") final String username,
-		final char[] password,
-		@SpanAttribute("wmi.timeout") final int timeout,
-		@SpanAttribute("wmi.local_files") final List<String> localFiles
-	) throws ClientException {
+		// launching the request
 		try {
-			LoggingHelper.trace(() ->
-				log.trace(
-					"Executing WMI remote command:\n- Command: {}\n- Hostname: {}\n- Username: {}\n" + // NOSONAR
-					"- Timeout: {} s\n- Local-files: {}\n",
-					command,
-					hostname,
-					username,
-					timeout,
-					localFiles
-				)
-			);
-
 			final long startTime = System.currentTimeMillis();
 
-			final WinRemoteCommandExecutor result = WinRemoteCommandExecutor.execute(
-				command,
+			WinRMWqlExecutor result = WinRMWqlExecutor.executeWql(
+				httpProtocol,
 				hostname,
+				port,
 				username,
-				password,
-				null,
+				winRmConfiguration.getPassword(),
+				namespace,
+				query,
 				timeout * 1000L,
-				localFiles,
-				true
+				null,
+				authentications
 			);
-
-			String resultStdout = result.getStdout();
 
 			final long responseTime = System.currentTimeMillis() - startTime;
 
+			final List<List<String>> table = result.getRows();
+
 			LoggingHelper.trace(() ->
 				log.trace(
-					"Executed WMI remote command:\n- Command: {}\n- Hostname: {}\n- Username: {}\n" + // NOSONAR
-					"- Timeout: {} s\n- Local-files: {}\n- Result:\n{}\n- response-time: {}\n",
-					command,
+					"Executed WinRM WQL request:\n- hostname: {}\n- username: {}\n- query: {}\n" + // NOSONAR
+					"- protocol: {}\n- port: {}\n- authentications: {}\n- timeout: {}\n- namespace: {}\n- Result:\n{}\n- response-time: {}\n",
 					hostname,
 					username,
+					query,
+					httpProtocol,
+					port,
+					authentications,
 					timeout,
-					localFiles,
-					resultStdout,
+					namespace,
+					TextTableHelper.generateTextTable(table),
 					responseTime
 				)
 			);
 
-			return resultStdout;
+			return table;
 		} catch (Exception e) {
-			throw new ClientException((Exception) e.getCause());
+			log.error("Hostname {} - WinRM WQL request failed. Errors:\n{}\n", hostname, StringHelper.getStackMessages(e));
+			throw new ClientException(String.format("WinRM WQL request failed on %s.", hostname), e);
 		}
 	}
 
-	/**
-	 * Convert the given result to a {@link List} of {@link List} table
-	 *
-	 * @param result     The result we want to process
-	 * @param properties The ordered properties
-	 * @return {@link List} of {@link List} table
-	 */
-	List<List<String>> buildWmiTable(final List<Map<String, Object>> result, final List<String> properties) {
-		final List<List<String>> table = new ArrayList<>();
-		final WmiStringConverter stringConverter = new WmiStringConverter();
-
-		// Transform the result to a list of list
-		result.forEach(row -> {
-			final List<String> line = new ArrayList<>();
-
-			// loop over the right order
-			properties.forEach(property -> line.add(stringConverter.convert(row.get(property))));
-
-			// We have a line?
-			if (!line.isEmpty()) {
-				table.add(line);
-			}
-		});
-		return table;
-	}
-
-	/**
-	 * Assess whether an exception (or any of its causes) is simply an error saying that the
-	 * requested namespace of class doesn't exist, which is considered okay.
-	 * <br>
-	 *
-	 * @param t Throwable to verify
-	 * @return whether specified exception is acceptable while performing namespace detection
-	 */
 	@Override
 	public boolean isAcceptableException(Throwable t) {
 		if (t == null) {
 			return false;
 		}
 
-		if (t instanceof WmiComException) {
+		if (t instanceof WindowsRemoteException) {
 			final String message = t.getMessage();
 			return isAcceptableWmiComError(message);
-		} else if (t instanceof org.sentrysoftware.wmi.exceptions.WqlQuerySyntaxException) {
+		} else if (t instanceof org.sentrysoftware.winrm.exceptions.WqlQuerySyntaxException) {
 			return true;
 		}
 
 		// Now check recursively the cause
 		return isAcceptableException(t.getCause());
-	}
-
-	/**
-	 * Whether this error message is an acceptable WMI COM error.
-	 *
-	 * @param errorMessage string value representing the message of the WMI COM exception
-	 * @return boolean value
-	 */
-	private boolean isAcceptableWmiComError(final String errorMessage) {
-		// CHECKSTYLE:OFF
-		return (
-			errorMessage != null &&
-			// @formatter:off
-			(
-				errorMessage.contains("WBEM_E_NOT_FOUND") ||
-				errorMessage.contains("WBEM_E_INVALID_NAMESPACE") ||
-				errorMessage.contains("WBEM_E_INVALID_CLASS")
-			)
-			// @formatter:on
-		);
-		// CHECKSTYLE:ON
 	}
 
 	@Override
@@ -278,13 +160,97 @@ public class WinRmRequestExecutor implements IWinRequestExecutor {
 		String command,
 		List<String> embeddedFiles
 	) throws ClientException {
-		return executeWmiRemoteCommand(
-			command,
-			hostname,
-			winConfiguration.getUsername(),
-			winConfiguration.getPassword(),
-			winConfiguration.getTimeout().intValue(),
-			embeddedFiles
+		if (winConfiguration instanceof WinRmConfiguration winRmConfiguration) {
+			return executeRemoteWinRmCommand(hostname, winRmConfiguration, command);
+		}
+
+		throw new IllegalStateException("Windows commands can be executed only in WMI and WinRM protocols.");
+	}
+
+	/**
+	 * Execute a WinRM remote command
+	 *
+	 * @param hostname           The hostname of the device where the WinRM service is running (<code>null</code> for localhost)
+	 * @param winRmConfiguration WinRM Protocol configuration (credentials, timeout)
+	 * @param command            The command to execute
+	 * @return The result of the query
+	 * @throws ClientException when anything goes wrong (details in cause)
+	 */
+	@WithSpan("Remote Command WinRM")
+	public static String executeRemoteWinRmCommand(
+		@SpanAttribute("host.hostname") @NonNull final String hostname,
+		@SpanAttribute("winrm.config") @NonNull final WinRmConfiguration winRmConfiguration,
+		@SpanAttribute("winrm.command") @NonNull final String command
+	) throws ClientException {
+		final String username = winRmConfiguration.getUsername();
+		final WinRMHttpProtocolEnum httpProtocol = TransportProtocols.HTTP.equals(winRmConfiguration.getProtocol())
+			? WinRMHttpProtocolEnum.HTTP
+			: WinRMHttpProtocolEnum.HTTPS;
+		final Integer port = winRmConfiguration.getPort();
+		final List<AuthenticationEnum> authentications = winRmConfiguration.getAuthentications();
+		final Long timeout = winRmConfiguration.getTimeout();
+
+		LoggingHelper.trace(() ->
+			log.trace(
+				"Executing WinRM remote command:\n- hostname: {}\n- username: {}\n- command: {}\n" + // NOSONAR
+				"- protocol: {}\n- port: {}\n- authentications: {}\n- timeout: {}\n",
+				hostname,
+				username,
+				command,
+				httpProtocol,
+				port,
+				authentications,
+				timeout
+			)
 		);
+
+		// launching the command
+		try {
+			final long startTime = System.currentTimeMillis();
+
+			WindowsRemoteCommandResult result = WinRMCommandExecutor.execute(
+				command,
+				httpProtocol,
+				hostname,
+				port,
+				username,
+				winRmConfiguration.getPassword(),
+				null,
+				timeout * 1000L,
+				null,
+				null,
+				authentications
+			);
+
+			final long responseTime = System.currentTimeMillis() - startTime;
+
+			// If the command returns an error
+			if (result.getStatusCode() != 0) {
+				throw new ClientException(String.format("WinRM remote command failed on %s: %s", hostname, result.getStderr()));
+			}
+
+			final String resultStdout = result.getStdout();
+
+			LoggingHelper.trace(() ->
+				log.trace(
+					"Executed WinRM remote command:\n- hostname: {}\n- username: {}\n- command: {}\n" + // NOSONAR
+					"- protocol: {}\n- port: {}\n- authentications: {}\n- timeout: {}\n- Result:\n{}\n- response-time: {}\n",
+					hostname,
+					username,
+					command,
+					httpProtocol,
+					port,
+					authentications,
+					timeout,
+					resultStdout,
+					responseTime
+				)
+			);
+
+			return resultStdout;
+		} catch (Exception e) {
+			log.error("Hostname {} - WinRM remote command failed. Errors:\n{}\n", hostname, StringHelper.getStackMessages(e));
+			throw new ClientException(String.format("WinRM remote command failed on %s.", hostname), e);
+		}
 	}
 }

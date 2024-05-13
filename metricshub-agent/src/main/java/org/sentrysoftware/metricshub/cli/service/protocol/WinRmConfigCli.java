@@ -1,10 +1,5 @@
 package org.sentrysoftware.metricshub.cli.service.protocol;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.IntNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
  * MetricsHub Agent
@@ -26,18 +21,22 @@ import com.fasterxml.jackson.databind.node.TextNode;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.IntNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.WinRmConfiguration;
 import picocli.CommandLine.Option;
 
 /**
  * This class is used by MetricsHubCliService to configure WinRM protocol when using the MetricsHub CLI.
- * It create the engine's {@link WinRmConfiguration} object that is used to monitor a specific resource through WinRm.
+ * It create the engine's {@link IConfiguration} object that is used to monitor a specific resource through WinRm.
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -135,7 +134,7 @@ public class WinRmConfigCli extends AbstractTransportProtocolCli {
 		ArrayNode authenticationsList = JsonNodeFactory.instance.arrayNode();
 		// Add all the introduced authentications
 		if (authentications != null) {
-			authentications.stream().forEach(authentication -> authenticationsList.add(authentication));
+			authentications.stream().forEach(authenticationsList::add);
 		}
 		configuration.set("username", new TextNode(username == null ? defaultUsername : username));
 		configuration.set(
