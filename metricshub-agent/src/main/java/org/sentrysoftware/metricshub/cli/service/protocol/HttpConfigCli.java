@@ -110,12 +110,17 @@ public class HttpConfigCli extends AbstractTransportProtocolCli {
 	public IConfiguration toProtocol(String defaultUsername, char[] defaultPassword)
 		throws InvalidConfigurationException {
 		final ObjectNode configuration = JsonNodeFactory.instance.objectNode();
+
 		configuration.set("https", BooleanNode.valueOf(isHttps()));
-		configuration.set("username", new TextNode(username == null ? defaultUsername : username));
-		configuration.set(
-			"password",
-			new TextNode(username == null ? String.valueOf(defaultPassword) : String.valueOf(password))
-		);
+
+		final String finalUsername = username == null ? defaultUsername : username;
+		configuration.set("username", new TextNode(finalUsername));
+
+		final char[] finalPassword = username == null ? defaultPassword : password;
+		if (finalPassword != null) {
+			configuration.set("password", new TextNode(String.valueOf(finalPassword)));
+		}
+
 		configuration.set("port", new IntNode(getOrDeducePortNumber()));
 		configuration.set("timeout", new TextNode(timeout));
 

@@ -10,13 +10,12 @@ import org.mockito.MockedStatic;
 import org.sentrysoftware.metricshub.agent.extension.IpmiTestConfiguration;
 import org.sentrysoftware.metricshub.agent.extension.IpmiTestExtension;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
-import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 
 class IpmiConfigCliTest {
 
 	@Test
-	void testToProtocol() throws InvalidConfigurationException {
+	void testToProtocol() throws Exception {
 		IpmiConfigCli ipmiConfigCli = new IpmiConfigCli();
 		final char[] password = "value".toCharArray();
 		final String username = "username";

@@ -119,11 +119,14 @@ public class SshConfigCli implements IProtocolConfigCli {
 		if (useSudoCommands != null) {
 			useSudoCommands.stream().forEach(sudoCommands::add);
 		}
-		configuration.set("username", new TextNode(username == null ? defaultUsername : username));
-		configuration.set(
-			"password",
-			new TextNode(username == null ? String.valueOf(defaultPassword) : String.valueOf(password))
-		);
+		final String finalUsername = username == null ? defaultUsername : username;
+		configuration.set("username", new TextNode(finalUsername));
+
+		final char[] finalPassword = username == null ? defaultPassword : password;
+		if (finalPassword != null) {
+			configuration.set("password", new TextNode(String.valueOf(finalPassword)));
+		}
+
 		configuration.set("privateKey", new TextNode(privateKey));
 		configuration.set("useSudoCommands", sudoCommands);
 		configuration.set("useSudo", BooleanNode.TRUE);
