@@ -90,7 +90,10 @@ public class OsCommandHelper {
 						final EmbeddedFile embeddedFile = commandLineEmbeddedFiles.get(fileNumber);
 
 						// This means there is a design problem
-						state(embeddedFile != null, () -> "Cannot get the EmbeddedFile from the Connector. File name: " + fileNumber);
+						state(
+							embeddedFile != null,
+							() -> "Cannot get the EmbeddedFile from the Connector. File name: " + fileNumber
+						);
 						final byte[] content = embeddedFile.getContent();
 
 						// This means there is a design problem, the content can never be null
@@ -138,9 +141,7 @@ public class OsCommandHelper {
 
 		// Should we replace SUDO commands?
 		if (contentAsString.contains("%{SUDO:")) {
-			
-			try (BufferedWriter bufferedWriter = Files.newBufferedWriter(tempFilePath,
-					StandardCharsets.UTF_8)) {
+			try (BufferedWriter bufferedWriter = Files.newBufferedWriter(tempFilePath, StandardCharsets.UTF_8)) {
 				bufferedWriter.write(replaceSudo(contentAsString, sudoInformation));
 			}
 		} else {

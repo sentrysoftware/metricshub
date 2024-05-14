@@ -88,7 +88,11 @@ public class ConnectorParser {
 
 			node = processor.process(node);
 
-			final EmbeddedFilesResolver embeddedFilesResolver = new EmbeddedFilesResolver(node, connectorDirectory, parents.keySet());
+			final EmbeddedFilesResolver embeddedFilesResolver = new EmbeddedFilesResolver(
+				node,
+				connectorDirectory,
+				parents.keySet()
+			);
 			embeddedFilesResolver.process();
 			embeddedFiles = embeddedFilesResolver.collectEmbeddedFiles();
 		}
@@ -131,7 +135,11 @@ public class ConnectorParser {
 			resolveParents(node, connectorFolderUri, parents);
 
 			node = processor.process(node);
-			final EmbeddedFilesResolver embeddedFilesResolver = new EmbeddedFilesResolver(node, Paths.get(connectorFolderUri), parents.keySet());
+			final EmbeddedFilesResolver embeddedFilesResolver = new EmbeddedFilesResolver(
+				node,
+				Paths.get(connectorFolderUri),
+				parents.keySet()
+			);
 			embeddedFilesResolver.process();
 			embeddedFiles = embeddedFilesResolver.collectEmbeddedFiles();
 		}

@@ -353,13 +353,13 @@ public class ComputeProcessor implements IComputeProcessor {
 			maybeEmbeddedFile = Optional.of(EmbeddedFile.fromString(script));
 		} else {
 			try {
-				maybeEmbeddedFile = EmbeddedFileHelper
-					.findEmbeddedFile(
+				maybeEmbeddedFile =
+					EmbeddedFileHelper.findEmbeddedFile(
 						awk.getScript(),
 						telemetryManager.getEmbeddedFiles(connectorId),
 						hostname,
 						connectorId
-						);
+					);
 			} catch (Exception exception) {
 				log.warn(
 					"Hostname {} - Compute Operation (Awk) script {} has not been set correctly, the table remains unchanged.",

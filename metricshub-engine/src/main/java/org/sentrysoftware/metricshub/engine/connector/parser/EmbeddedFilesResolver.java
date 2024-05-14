@@ -27,9 +27,6 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
-
-import lombok.extern.slf4j.Slf4j;
-
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
@@ -42,7 +39,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
-
+import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.helpers.FileHelper;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 
@@ -97,19 +94,22 @@ public class EmbeddedFilesResolver {
 			while (fileMatcher.find()) {
 				final String fileName = fileMatcher.group(1);
 
-				alreadyProcessedEmbeddedFiles.computeIfAbsent(fileName, name -> {
-					try {
-						return processFile(name, connectorDirectory);
-					} catch (Exception e) {
-						final String errorMessage = String.format(
-							"Error while processing file: %s. Current Connector directory: %s .",
-							name,
-							connectorDirectory
-						);
-						log.error(errorMessage, e);
-						throw new EmbeddedFileProcessingException(errorMessage, e);
+				alreadyProcessedEmbeddedFiles.computeIfAbsent(
+					fileName,
+					name -> {
+						try {
+							return processFile(name, connectorDirectory);
+						} catch (Exception e) {
+							final String errorMessage = String.format(
+								"Error while processing file: %s. Current Connector directory: %s .",
+								name,
+								connectorDirectory
+							);
+							log.error(errorMessage, e);
+							throw new EmbeddedFileProcessingException(errorMessage, e);
+						}
 					}
-				});
+				);
 			}
 
 			token = jsonParser.nextToken();
@@ -135,7 +135,7 @@ public class EmbeddedFilesResolver {
 	 * @param fileName           The name or relative path of the file
 	 * @param connectorDirectory The name of the connector directory where to look for the file
 	 * @return The absolute path of the file if found, null otherwise.
-	 * @throws IOException 
+	 * @throws IOException
 	 * @throws IllegalStateException when the file can't be found
 	 */
 	public EmbeddedFile processFile(final String fileName, final Path connectorDirectory) throws IOException {
@@ -230,13 +230,15 @@ public class EmbeddedFilesResolver {
 	/**
 	 * Collects all processed embedded files into a map where each file is indexed
 	 * by its unique identifier.
-	 * 
+	 *
 	 * @return A {@link Map} with integer keys representing the unique ID of each
 	 *         embedded file and values as the corresponding {@link EmbeddedFile} instances.
 	 */
 	public Map<Integer, EmbeddedFile> collectEmbeddedFiles() {
-		return alreadyProcessedEmbeddedFiles.values().stream()
-				.collect(Collectors.toMap(EmbeddedFile::getId, Function.identity(), (k1, k2) -> k1));
+		return alreadyProcessedEmbeddedFiles
+			.values()
+			.stream()
+			.collect(Collectors.toMap(EmbeddedFile::getId, Function.identity(), (k1, k2) -> k1));
 	}
 
 	/**
@@ -250,7 +252,7 @@ public class EmbeddedFilesResolver {
 
 		/**
 		 * Constructs a new exception with the specified detail message and cause.
-		 * 
+		 *
 		 * @param message The detail message. The detail message is saved for later
 		 *                retrieval by the {@link Throwable#getMessage()} method.
 		 * @param cause   The cause (which is saved for later retrieval by the

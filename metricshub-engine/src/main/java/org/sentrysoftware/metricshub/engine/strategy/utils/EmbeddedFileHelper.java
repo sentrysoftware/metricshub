@@ -23,7 +23,6 @@ package org.sentrysoftware.metricshub.engine.strategy.utils;
 
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.FILE_PATTERN;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +34,6 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 
 /**
@@ -53,9 +51,11 @@ public class EmbeddedFileHelper {
 	 * @param value                  The value can be a command line or any value referencing multiple embedded files.
 	 * @param connectorEmbeddedFiles All the embedded files referenced in the connector.
 	 * @return A map of the file reference to {@link EmbeddedFile} instance.
-	 * @throws IOException If an I/O error occurs while processing the embedded files.
 	 */
-	public static Map<Integer, EmbeddedFile> findEmbeddedFiles(@NonNull final String value, @NonNull final Map<Integer, EmbeddedFile> connectorEmbeddedFiles)  {
+	public static Map<Integer, EmbeddedFile> findEmbeddedFiles(
+		@NonNull final String value,
+		@NonNull final Map<Integer, EmbeddedFile> connectorEmbeddedFiles
+	) {
 		final Map<Integer, EmbeddedFile> embeddedFiles = new HashMap<>();
 		final List<Integer> alreadyProcessedFiles = new ArrayList<>();
 
@@ -80,11 +80,10 @@ public class EmbeddedFileHelper {
 	 * Finds one embedded file that is referenced in the given string.
 	 *
 	 * @param value                  The value which references the embedded file, it can be an AWK directive, header, body, etc.
-	 * @param connectorEmbeddedFiles All the embedded files referenced in the connector.	 * @param hostname               The hostname of the host being monitored and used to log the failure where many embedded files are retrieved.
+	 * @param connectorEmbeddedFiles All the embedded files referenced in the connector.
 	 * @param hostname               The hostname of the host being monitored and used to log the failure where many embedded files are retrieved.
 	 * @param connectorId            The identifier of the connector used for logging.
 	 * @return An Optional of {@link EmbeddedFile} instance.
-	 * @throws IOException If an I/O error occurs while processing the embedded files.
 	 */
 	public static Optional<EmbeddedFile> findEmbeddedFile(
 		@NonNull final String value,
@@ -107,5 +106,4 @@ public class EmbeddedFileHelper {
 
 		return embeddedFiles.entrySet().stream().map(Entry::getValue).findFirst();
 	}
-
 }

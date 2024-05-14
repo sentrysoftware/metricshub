@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
-import org.sentrysoftware.metricshub.agent.extension.OsCommandTestExtension;
-import org.sentrysoftware.metricshub.agent.extension.SshTestConfiguration;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
+import org.sentrysoftware.metricshub.extension.oscommand.OsCommandExtension;
+import org.sentrysoftware.metricshub.extension.oscommand.SshConfiguration;
 
 class SshConfigCliTest {
 
@@ -32,7 +32,7 @@ class SshConfigCliTest {
 			// Initialize the extension manager required by the agent context
 			final ExtensionManager extensionManager = ExtensionManager
 				.builder()
-				.withProtocolExtensions(List.of(new OsCommandTestExtension()))
+				.withProtocolExtensions(List.of(new OsCommandExtension()))
 				.build();
 
 			CliExtensionManagerMock
@@ -40,7 +40,7 @@ class SshConfigCliTest {
 				.thenReturn(extensionManager);
 
 			// Create an SshTestConfiguration and call method toProtocol
-			final SshTestConfiguration sshConfiguration = (SshTestConfiguration) sshConfigCli.toProtocol(username, password);
+			final SshConfiguration sshConfiguration = (SshConfiguration) sshConfigCli.toProtocol(username, password);
 
 			// Check the resulting ssh configuration
 			assertNotNull(sshConfiguration);

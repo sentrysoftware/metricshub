@@ -88,7 +88,12 @@ public class HttpRequest {
 			final String hostname
 		) {
 			if (value != null) {
-				final Optional<EmbeddedFile> maybeEmbeddedFile = EmbeddedFileHelper.findEmbeddedFile(value, connectorEmbeddedFiles, hostname, connectorId);
+				final Optional<EmbeddedFile> maybeEmbeddedFile = EmbeddedFileHelper.findEmbeddedFile(
+					value,
+					connectorEmbeddedFiles,
+					hostname,
+					connectorId
+				);
 				if (maybeEmbeddedFile.isPresent()) {
 					this.header = new EmbeddedFileHeader(maybeEmbeddedFile.get());
 				} else {
@@ -107,9 +112,19 @@ public class HttpRequest {
 		 * @param hostname               The hostname of the host being monitored.
 		 * @return This builder.
 		 */
-		public HttpRequestBuilder body(final String value, final Map<Integer, EmbeddedFile> connectorEmbeddedFiles, final String connectorId, final String hostname){
+		public HttpRequestBuilder body(
+			final String value,
+			final Map<Integer, EmbeddedFile> connectorEmbeddedFiles,
+			final String connectorId,
+			final String hostname
+		) {
 			if (value != null) {
-				final Optional<EmbeddedFile> maybeEmbeddedFile = EmbeddedFileHelper.findEmbeddedFile(value, connectorEmbeddedFiles, hostname, connectorId);
+				final Optional<EmbeddedFile> maybeEmbeddedFile = EmbeddedFileHelper.findEmbeddedFile(
+					value,
+					connectorEmbeddedFiles,
+					hostname,
+					connectorId
+				);
 				if (maybeEmbeddedFile.isPresent()) {
 					this.body = new EmbeddedFileBody(maybeEmbeddedFile.get());
 				} else {
@@ -119,6 +134,5 @@ public class HttpRequest {
 
 			return this;
 		}
-
 	}
 }

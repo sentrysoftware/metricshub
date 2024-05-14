@@ -21,11 +21,9 @@ package org.sentrysoftware.metricshub.extension.http;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.Map;
-
 import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
@@ -81,7 +79,6 @@ public class HttpSourceProcessor {
 		final Map<Integer, EmbeddedFile> connectorEmbeddedFiles = telemetryManager.getEmbeddedFiles(connectorId);
 
 		try {
-
 			final String result = httpRequestExecutor.executeHttp(
 				HttpRequest
 					.builder()

@@ -2421,13 +2421,9 @@ class ComputeProcessorTest {
 
 	@Test
 	void testProcessAwk() throws Exception {
-
 		final EmbeddedFile embeddedFile = EmbeddedFile.builder().content(BAZ.getBytes()).id(1).build();
 		final String connectorId = "connectorId";
-		final Connector connector = Connector
-			.builder()
-			.embeddedFiles(Map.of(1, embeddedFile))
-			.build();
+		final Connector connector = Connector.builder().embeddedFiles(Map.of(1, embeddedFile)).build();
 
 		final Map<String, Connector> store = Map.of(connectorId, connector);
 
@@ -2509,24 +2505,17 @@ class ComputeProcessorTest {
 		doReturn(SourceTable.tableToCsv(table, TABLE_SEP, true)).when(clientsExecutorMock).executeAwkScript(any(), any());
 
 		computeProcessor.process(
-				Awk.builder().script(embeddedFileName).exclude(ID1).keep(ID2).separators(TABLE_SEP).selectColumns("2,3").build()
-			);
-			assertEquals("NAME2;MANUFACTURER2;", sourceTable.getRawData());
-			assertEquals(Arrays.asList(Arrays.asList(NAME2, MANUFACTURER2)), sourceTable.getTable());
+			Awk.builder().script(embeddedFileName).exclude(ID1).keep(ID2).separators(TABLE_SEP).selectColumns("2,3").build()
+		);
+		assertEquals("NAME2;MANUFACTURER2;", sourceTable.getRawData());
+		assertEquals(Arrays.asList(Arrays.asList(NAME2, MANUFACTURER2)), sourceTable.getTable());
 
 		// Let's try with a space character in the selectColumns list
 		doReturn(SourceTable.tableToCsv(table, TABLE_SEP, true)).when(clientsExecutorMock).executeAwkScript(any(), any());
 
 		computeProcessor.process(
-				Awk
-					.builder()
-					.script(embeddedFileName)
-					.exclude(ID1)
-					.keep(ID2)
-					.separators(TABLE_SEP)
-					.selectColumns("2, 3")
-					.build()
-			);
+			Awk.builder().script(embeddedFileName).exclude(ID1).keep(ID2).separators(TABLE_SEP).selectColumns("2, 3").build()
+		);
 		assertEquals("NAME2;MANUFACTURER2;", sourceTable.getRawData());
 		assertEquals(Arrays.asList(Arrays.asList(NAME2, MANUFACTURER2)), sourceTable.getTable());
 	}

@@ -35,7 +35,6 @@ import org.junit.jupiter.api.io.TempDir;
 import org.mockito.MockedStatic;
 import org.sentrysoftware.metricshub.agent.config.AgentConfig;
 import org.sentrysoftware.metricshub.agent.context.AgentContext;
-import org.sentrysoftware.metricshub.agent.extension.SnmpTestExtension;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
@@ -46,6 +45,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.extension.snmp.SnmpExtension;
 
 class ConfigHelperTest {
 
@@ -60,7 +60,7 @@ class ConfigHelperTest {
 	// Initialize the extension manager required by the agent context
 	final ExtensionManager extensionManager = ExtensionManager
 		.builder()
-		.withProtocolExtensions(List.of(new SnmpTestExtension()))
+		.withProtocolExtensions(List.of(new SnmpExtension()))
 		.build();
 
 	@Test

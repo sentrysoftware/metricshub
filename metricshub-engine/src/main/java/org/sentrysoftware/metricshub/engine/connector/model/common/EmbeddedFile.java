@@ -25,15 +25,13 @@ import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.function.UnaryOperator;
-
-import org.sentrysoftware.metricshub.engine.common.helpers.FileHelper;
-import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import org.sentrysoftware.metricshub.engine.common.helpers.FileHelper;
+import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 
 /**
  * Represents an embedded file within a connector.
@@ -81,7 +79,7 @@ public class EmbeddedFile implements Serializable {
 	 * Applies a specified transformation to the content of the embedded file, if content is present. The file content
 	 * is initially decoded using UTF-8 charset into a {@link String}, transformed by the provided {@link UnaryOperator},
 	 * and then re-encoded back into bytes using UTF-8.
-	 * 
+	 *
 	 * <b>Note:</b> This method assumes that the content is text-based and can be correctly encoded and decoded using UTF-8.
 	 * Non-text content or content that does not conform to UTF-8 encoding may result in data corruption or loss.
 	 *
@@ -103,7 +101,7 @@ public class EmbeddedFile implements Serializable {
 	 * @return An {@link EmbeddedFile} with the provided string content encoded into bytes.
 	 */
 	public static EmbeddedFile fromString(@NonNull final String value, @NonNull final Charset charset) {
-	    return EmbeddedFile.builder().content(value.getBytes(charset)).build();
+		return EmbeddedFile.builder().content(value.getBytes(charset)).build();
 	}
 
 	/**
@@ -114,7 +112,7 @@ public class EmbeddedFile implements Serializable {
 	 * @return An {@link EmbeddedFile} with the content encoded as UTF-8 bytes.
 	 */
 	public static EmbeddedFile fromString(@NonNull final String value) {
-	    return fromString(value, StandardCharsets.UTF_8);
+		return fromString(value, StandardCharsets.UTF_8);
 	}
 
 	/**
@@ -124,7 +122,7 @@ public class EmbeddedFile implements Serializable {
 	 * @return The string representation of the embedded file's content.
 	 */
 	public String getContentAsString(@NonNull final Charset charset) {
-	    return new String(content, charset);
+		return new String(content, charset);
 	}
 
 	/**
@@ -133,10 +131,10 @@ public class EmbeddedFile implements Serializable {
 	 * @return The string representation of the embedded file's content, decoded using UTF-8.
 	 */
 	public String getContentAsString() {
-	    return new String(content, StandardCharsets.UTF_8);
+		return new String(content, StandardCharsets.UTF_8);
 	}
 
-	/** 
+	/**
 	 * Retrieves the file extension from the filename of this object.
 	 * If the filename is not available an empty string is returned.
 	 *
@@ -149,7 +147,7 @@ public class EmbeddedFile implements Serializable {
 		return MetricsHubConstants.EMPTY;
 	}
 
-	/** 
+	/**
 	 * Retrieves the filename without its extension.
 	 * If the filename is not available an empty string is returned.
 	 *

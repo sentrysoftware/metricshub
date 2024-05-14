@@ -8,7 +8,6 @@ class FileHelperTest {
 
 	@Test
 	void testGetExtension() {
-
 		// Verify extensions
 		assertEquals("pdf", FileHelper.getExtension("example.pdf"));
 		assertEquals("gz", FileHelper.getExtension("archive.tar.gz"));

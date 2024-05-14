@@ -23,11 +23,10 @@ package org.sentrysoftware.metricshub.extension.oscommand;
 
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.CommandLineCriterion;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;

@@ -1,7 +1,5 @@
 package org.sentrysoftware.metricshub.extension.http;
 
-import java.util.Map;
-
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
  * MetricsHub HTTP Extension
@@ -23,6 +21,7 @@ import java.util.Map;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.Map;
 import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -96,7 +95,6 @@ public class HttpCriterionProcessor {
 		final Map<Integer, EmbeddedFile> connectorEmbeddedFiles = telemetryManager.getEmbeddedFiles(connectorId);
 
 		try {
-
 			final String result = httpRequestExecutor.executeHttp(
 				HttpRequest
 					.builder()

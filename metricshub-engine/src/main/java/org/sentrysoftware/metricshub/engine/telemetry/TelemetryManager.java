@@ -311,10 +311,6 @@ public class TelemetryManager {
 	 * @return A non-null {@link Map} of integer IDs to {@link EmbeddedFile} instances.
 	 */
 	public Map<Integer, EmbeddedFile> getEmbeddedFiles(final String connectorId) {
-		return
-		connectorStore
-		.getStore()
-		.get(connectorId)
-		.getEmbeddedFiles();
+		return connectorStore.getStore().get(connectorId).getEmbeddedFiles();
 	}
 }

@@ -7,10 +7,10 @@ import static org.mockito.Mockito.mockStatic;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
-import org.sentrysoftware.metricshub.agent.extension.IpmiTestConfiguration;
-import org.sentrysoftware.metricshub.agent.extension.IpmiTestExtension;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
+import org.sentrysoftware.metricshub.extension.ipmi.IpmiConfiguration;
+import org.sentrysoftware.metricshub.extension.ipmi.IpmiExtension;
 
 class IpmiConfigCliTest {
 
@@ -29,7 +29,7 @@ class IpmiConfigCliTest {
 			// Initialize the extension manager required by the agent context
 			final ExtensionManager extensionManager = ExtensionManager
 				.builder()
-				.withProtocolExtensions(List.of(new IpmiTestExtension()))
+				.withProtocolExtensions(List.of(new IpmiExtension()))
 				.build();
 
 			cliExtensionManagerMock
@@ -37,14 +37,14 @@ class IpmiConfigCliTest {
 				.thenReturn(extensionManager);
 
 			// Create an IpmiTestConfiguration and call method toProtocol
-			final IpmiTestConfiguration ipmiConfiguration = (IpmiTestConfiguration) ipmiConfigCli.toProtocol(
+			final IpmiConfiguration ipmiConfiguration = (IpmiConfiguration) ipmiConfigCli.toProtocol(
 				username,
 				password
 			);
 
 			assertNotNull(ipmiConfiguration);
 
-			final IpmiTestConfiguration ipmiConfigurationExpected = IpmiTestConfiguration
+			final IpmiConfiguration ipmiConfigurationExpected = IpmiConfiguration
 				.builder()
 				.username(username)
 				.password(password)
