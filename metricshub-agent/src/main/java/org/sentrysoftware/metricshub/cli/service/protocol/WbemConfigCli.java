@@ -21,8 +21,8 @@ package org.sentrysoftware.metricshub.cli.service.protocol;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.LongNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import lombok.Data;
@@ -117,12 +117,19 @@ public class WbemConfigCli extends AbstractTransportProtocolCli {
 	public IConfiguration toProtocol(final String defaultUsername, final char[] defaultPassword)
 		throws InvalidConfigurationException {
 		final ObjectNode configuration = JsonNodeFactory.instance.objectNode();
-		configuration.set("username", new TextNode(username == null ? defaultUsername : username));
-		configuration.set("password", new TextNode(new String(username == null ? defaultPassword : password)));
+
+		final String finalUsername = username == null ? defaultUsername : username;
+		configuration.set("username", new TextNode(finalUsername));
+
+		final char[] finalPassword = username == null ? defaultPassword : password;
+		if (finalPassword != null) {
+			configuration.set("password", new TextNode(String.valueOf(finalPassword)));
+		}
+
 		configuration.set("timeout", new TextNode(timeout));
 		configuration.set("namespace", new TextNode(namespace));
 		configuration.set("vcenter", new TextNode(getVcenter()));
-		configuration.set("port", new LongNode(getPort()));
+		configuration.set("port", new IntNode(getOrDeducePortNumber()));
 
 		return CliExtensionManager
 			.getExtensionManagerSingleton()

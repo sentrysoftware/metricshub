@@ -2,7 +2,7 @@ package org.sentrysoftware.metricshub.extension.wbem;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
- * MetricsHub Ipmi Extension
+ * MetricsHub Wbem Extension
  * ჻჻჻჻჻჻
  * Copyright 2023 - 2024 Sentry Software
  * ჻჻჻჻჻჻
@@ -27,7 +27,6 @@ import java.net.URI;
 import java.net.URL;
 import java.util.List;
 import java.util.Set;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
@@ -312,8 +311,8 @@ public class WbemRequestExecutor {
 			return isAcceptableWbemError(cimErrorType);
 		} else if (
 			// CHECKSTYLE:OFF
-				t instanceof org.sentrysoftware.wbem.client.exceptions.WqlQuerySyntaxException ||
-						t instanceof org.sentrysoftware.winrm.exceptions.WqlQuerySyntaxException
+			t instanceof org.sentrysoftware.wbem.client.exceptions.WqlQuerySyntaxException ||
+			t instanceof org.sentrysoftware.winrm.exceptions.WqlQuerySyntaxException
 			// CHECKSTYLE:ON
 		) {
 			return true;
@@ -332,9 +331,9 @@ public class WbemRequestExecutor {
 	private static boolean isAcceptableWbemError(final int errorId) {
 		// CHECKSTYLE:OFF
 		return (
-				errorId == WBEMException.CIM_ERR_INVALID_NAMESPACE ||
-						errorId == WBEMException.CIM_ERR_INVALID_CLASS ||
-						errorId == WBEMException.CIM_ERR_NOT_FOUND
+			errorId == WBEMException.CIM_ERR_INVALID_NAMESPACE ||
+			errorId == WBEMException.CIM_ERR_INVALID_CLASS ||
+			errorId == WBEMException.CIM_ERR_NOT_FOUND
 		);
 		// CHECKSTYLE:ON
 	}

@@ -23,8 +23,8 @@ class WbemConfigCliTest {
 		final String username = "username";
 		final String namespace = "root/sentrysoftware";
 		final String timeout = "120";
-		final String vCenter= "vcenter";
-		final int port = 443;
+		final String vCenter = "vcenter";
+		final int port = 5989;
 		wbemConfigCli.setPassword(password);
 		wbemConfigCli.setUsername(username);
 		wbemConfigCli.setTimeout(timeout);

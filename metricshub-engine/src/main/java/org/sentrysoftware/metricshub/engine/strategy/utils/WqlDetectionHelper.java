@@ -21,13 +21,12 @@ package org.sentrysoftware.metricshub.engine.strategy.utils;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.Set;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.wbem.javax.wbem.WBEMException;
-
-import java.util.Set;
 
 /**
  * Helper class for WBEM/WMI namespace detection using WQL queries.

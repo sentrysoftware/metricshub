@@ -142,6 +142,10 @@
 								<artifactItem>
 									<groupId>${project.groupId}</groupId>
 									<artifactId>metricshub-wbem-extension</artifactId>
+									<version>${project.version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>${project.groupId}</groupId>
 									<artifactId>metricshub-wmi-extension</artifactId>
 									<version>${project.version}</version>
 								</artifactItem>
