@@ -119,7 +119,7 @@ public class WinRmExtension implements IProtocolExtension {
 
 	@Override
 	public Map<Class<? extends IConfiguration>, Set<Class<? extends Source>>> getConfigurationToSourceMapping() {
-		return Map.of(WinRmConfiguration.class, Set.of(WmiSource.class, IpmiSource.class, CommandLineSource.class));
+		return Map.of(WinRmConfiguration.class, Set.of(WmiSource.class));
 	}
 
 	@Override
@@ -129,11 +129,6 @@ public class WinRmExtension implements IProtocolExtension {
 
 	@Override
 	public void checkProtocol(TelemetryManager telemetryManager) {
-		// Create and set the WinRM result to null
-		List<List<String>> winRmResult = null;
-
-		final String hostname = telemetryManager.getHostname();
-
 		// Retrieve WinRM Configuration from the telemetry manager host configuration
 		final WinRmConfiguration winRmConfiguration = (WinRmConfiguration) telemetryManager
 			.getHostConfiguration()
@@ -144,6 +139,12 @@ public class WinRmExtension implements IProtocolExtension {
 		if (winRmConfiguration == null) {
 			return;
 		}
+
+		// Create and set the WinRM result to null
+		List<List<String>> winRmResult = null;
+
+		// Retrieve the hostname
+		final String hostname = telemetryManager.getHostname();
 
 		log.info(
 			"Hostname {} - Checking WinRM protocol status. Sending a WQL SELECT request on {} namespace.",
@@ -177,7 +178,7 @@ public class WinRmExtension implements IProtocolExtension {
 			);
 		}
 
-		// Generate a metric from the WINRM result
+		// Generate a metric from the WinRm result
 		metricFactory.collectNumberMetric(hostMonitor, WINRM_UP_METRIC, winRmResult != null ? UP : DOWN, strategyTime);
 	}
 
@@ -247,7 +248,7 @@ public class WinRmExtension implements IProtocolExtension {
 	public IConfiguration buildConfiguration(
 		@NonNull String configurationType,
 		@NonNull JsonNode jsonNode,
-		@NonNull UnaryOperator<char[]> decrypt
+		UnaryOperator<char[]> decrypt
 	) throws InvalidConfigurationException {
 		try {
 			final WinRmConfiguration winRmConfiguration = newObjectMapper().treeToValue(jsonNode, WinRmConfiguration.class);

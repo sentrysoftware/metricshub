@@ -68,7 +68,6 @@ import org.sentrysoftware.metricshub.agent.config.AlertingSystemConfig;
 import org.sentrysoftware.metricshub.agent.config.ConnectorVariables;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
-import org.sentrysoftware.metricshub.agent.config.protocols.AbstractProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.ProtocolsConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.WbemProtocolConfig;
 import org.sentrysoftware.metricshub.agent.context.MetricDefinitions;
@@ -943,7 +942,7 @@ public class ConfigHelper {
 			sshConfig.validateConfiguration(resourceKey);
 		}
 
-		final WbemProtocolConfig wbemConfig = protocolsConfig.getWbem();
+		final WbemProtocolConfig wbemConfig = (WbemProtocolConfig) protocolsConfig.getWbem();
 		if (wbemConfig != null) {
 			validateWbemInfo(
 				resourceKey,
@@ -1048,19 +1047,6 @@ public class ConfigHelper {
 		final String resourceKey
 	) {
 		final ProtocolsConfig protocols = resourceConfig.getProtocols();
-
-		final Map<Class<? extends IConfiguration>, IConfiguration> protocolConfigurationsDeprecated = protocols == null
-			? new HashMap<>()
-			: new HashMap<>(
-				Stream
-					.of(protocols.getWbem())
-					.filter(Objects::nonNull)
-					.map(AbstractProtocolConfig::toConfiguration)
-					.filter(Objects::nonNull)
-					.collect(Collectors.toMap(IConfiguration::getClass, Function.identity()))
-			);
-
-		// TODO Temporary: when all the configurations are IConfiguration we will remove protocolConfigurationsDeprecated variable
 		final Map<Class<? extends IConfiguration>, IConfiguration> protocolConfigurations = protocols == null
 			? new HashMap<>()
 			: new HashMap<>(
@@ -1072,15 +1058,12 @@ public class ConfigHelper {
 						protocols.getOsCommand(),
 						protocols.getSsh(),
 						protocols.getWmi(),
+						protocols.getWbem(),
 						protocols.getWinrm()
 					)
 					.filter(Objects::nonNull)
 					.collect(Collectors.toMap(IConfiguration::getClass, Function.identity()))
 			);
-
-		// TODO remove when protocolConfigurationsDeprecated is removed, means all the configuration are IConfguration
-		// protocols
-		protocolConfigurations.putAll(protocolConfigurationsDeprecated);
 
 		final Map<String, String> attributes = resourceConfig.getAttributes();
 

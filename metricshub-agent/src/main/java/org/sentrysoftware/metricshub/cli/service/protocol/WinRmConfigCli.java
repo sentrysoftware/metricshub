@@ -130,21 +130,19 @@ public class WinRmConfigCli extends AbstractTransportProtocolCli {
 	public IConfiguration toProtocol(String defaultUsername, char[] defaultPassword)
 		throws InvalidConfigurationException {
 		final ObjectNode configuration = JsonNodeFactory.instance.objectNode();
-		// Create an arrayNode that will contain all the authentications that the user introduced
-		ArrayNode authenticationsList = JsonNodeFactory.instance.arrayNode();
-		// Add all the introduced authentications
-		if (authentications != null) {
-			authentications.stream().forEach(authenticationsList::add);
+
+		final String finalUsername = username == null ? defaultUsername : username;
+		final char[] finalPassword = username == null ? defaultPassword : password;
+
+		configuration.set("username", new TextNode(finalUsername));
+		if (finalPassword != null) {
+			configuration.set("password", new TextNode(String.valueOf(finalPassword)));
 		}
-		configuration.set("username", new TextNode(username == null ? defaultUsername : username));
-		configuration.set(
-			"password",
-			new TextNode(username == null ? String.valueOf(defaultPassword) : String.valueOf(password))
-		);
+
 		configuration.set("namespace", new TextNode(namespace));
 		configuration.set("port", new IntNode(getOrDeducePortNumber()));
 		configuration.set("protocol", new TextNode(protocol));
-		configuration.set("authentications", authenticationsList);
+		configuration.set("authentications", getAuthentications());
 		configuration.set("timeout", new TextNode(timeout));
 
 		return CliExtensionManager
@@ -168,12 +166,26 @@ public class WinRmConfigCli extends AbstractTransportProtocolCli {
 	}
 
 	/**
+	 * @return authentication list if specified, null otherwise
+	 */
+	protected ArrayNode getAuthentications() {
+		// Create an arrayNode that will contain all the authentications that the user introduced
+		ArrayNode authenticationsList = null;
+		if (authentications != null) {
+			authenticationsList = JsonNodeFactory.instance.arrayNode();
+			// Add all the introduced authentications
+			authentications.stream().forEach(authenticationsList::add);
+		}
+		return authenticationsList;
+	}
+
+	/**
 	 * Whether HTTPS is configured or not
 	 *
 	 * @return boolean value
 	 */
 	@Override
 	protected boolean isHttps() {
-		return "https".equals(protocol);
+		return "https".equalsIgnoreCase(protocol);
 	}
 }

@@ -309,8 +309,7 @@ public class WqlDetectionHelper {
 			return isAcceptableWbemError(cimErrorType);
 		} else if (
 			// CHECKSTYLE:OFF
-			t instanceof org.sentrysoftware.wbem.client.exceptions.WqlQuerySyntaxException ||
-			t instanceof org.sentrysoftware.winrm.exceptions.WqlQuerySyntaxException
+			t instanceof org.sentrysoftware.wbem.client.exceptions.WqlQuerySyntaxException
 			// CHECKSTYLE:ON
 		) {
 			return true;

@@ -94,7 +94,7 @@ public interface IWinRequestExecutor {
 	 * @param errorMessage string value representing the message of the WMI COM exception
 	 * @return boolean value
 	 */
-	default boolean isAcceptableWmiComError(final String errorMessage) {
+	static boolean isAcceptableWmiComError(final String errorMessage) {
 		// CHECKSTYLE:OFF
 		return (
 			errorMessage != null &&

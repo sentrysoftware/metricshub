@@ -37,6 +37,7 @@ import org.sentrysoftware.winrm.WinRMHttpProtocolEnum;
 import org.sentrysoftware.winrm.WindowsRemoteCommandResult;
 import org.sentrysoftware.winrm.command.WinRMCommandExecutor;
 import org.sentrysoftware.winrm.exceptions.WindowsRemoteException;
+import org.sentrysoftware.winrm.exceptions.WqlQuerySyntaxException;
 import org.sentrysoftware.winrm.service.client.auth.AuthenticationEnum;
 import org.sentrysoftware.winrm.wql.WinRMWqlExecutor;
 
@@ -144,8 +145,8 @@ public class WinRmRequestExecutor implements IWinRequestExecutor {
 
 		if (t instanceof WindowsRemoteException) {
 			final String message = t.getMessage();
-			return isAcceptableWmiComError(message);
-		} else if (t instanceof org.sentrysoftware.winrm.exceptions.WqlQuerySyntaxException) {
+			return IWinRequestExecutor.isAcceptableWmiComError(message);
+		} else if (t instanceof WqlQuerySyntaxException) {
 			return true;
 		}
 

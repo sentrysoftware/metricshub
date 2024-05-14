@@ -254,7 +254,7 @@ public class WmiRequestExecutor implements IWinRequestExecutor {
 
 		if (t instanceof WmiComException) {
 			final String message = t.getMessage();
-			return isAcceptableWmiComError(message);
+			return IWinRequestExecutor.isAcceptableWmiComError(message);
 		} else if (t instanceof org.sentrysoftware.wmi.exceptions.WqlQuerySyntaxException) {
 			return true;
 		}

@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.extension.winrm;
+package org.sentrysoftware.metricshub.agent.extension;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
@@ -33,10 +33,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.TransportProtocols;
 import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
-import org.sentrysoftware.metricshub.extension.win.IWinConfiguration;
-import org.sentrysoftware.winrm.service.client.auth.AuthenticationEnum;
 
 /**
  * The WinRmConfiguration interface represents the configuration for the Windows Management Instrumentation protocol
@@ -46,7 +45,7 @@ import org.sentrysoftware.winrm.service.client.auth.AuthenticationEnum;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class WinRmConfiguration implements IWinConfiguration {
+public class WinRmTestConfiguration implements IConfiguration {
 
 	private String username;
 
@@ -61,13 +60,12 @@ public class WinRmConfiguration implements IWinConfiguration {
 	@JsonSetter(nulls = SKIP)
 	private TransportProtocols protocol = TransportProtocols.HTTP;
 
-	private List<AuthenticationEnum> authentications;
+	private List<String> authentications;
 
 	@Default
 	@JsonDeserialize(using = TimeDeserializer.class)
 	private Long timeout = 120L;
 
-	@Override
 	public void validateConfiguration(String resourceKey) throws InvalidConfigurationException {
 		StringHelper.validateConfigurationAttribute(
 			port,
@@ -90,7 +88,7 @@ public class WinRmConfiguration implements IWinConfiguration {
 					"Resource %s - Timeout value is invalid for protocol %s." +
 					" Timeout value returned: %s. This resource will not be monitored. Please verify the configured timeout value.",
 					resourceKey,
-					"WinRm",
+					"WinRM",
 					timeout
 				)
 		);
