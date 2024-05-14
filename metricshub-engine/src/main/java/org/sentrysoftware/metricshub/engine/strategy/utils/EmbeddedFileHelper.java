@@ -34,6 +34,8 @@ import java.util.regex.Matcher;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 
 /**
@@ -42,6 +44,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
  * The class is designed to have a private no-argument constructor to prevent instantiation.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Slf4j
 public class EmbeddedFileHelper {
 
 	/**
@@ -52,7 +55,7 @@ public class EmbeddedFileHelper {
 	 * @return A map of the file reference to {@link EmbeddedFile} instance.
 	 * @throws IOException If an I/O error occurs while processing the embedded files.
 	 */
-	public static Map<Integer, EmbeddedFile> findEmbeddedFiles(@NonNull final String value, @NonNull final Map<Integer, EmbeddedFile> connectorEmbeddedFiles) throws IOException {
+	public static Map<Integer, EmbeddedFile> findEmbeddedFiles(@NonNull final String value, @NonNull final Map<Integer, EmbeddedFile> connectorEmbeddedFiles)  {
 		final Map<Integer, EmbeddedFile> embeddedFiles = new HashMap<>();
 		final List<Integer> alreadyProcessedFiles = new ArrayList<>();
 
@@ -77,13 +80,32 @@ public class EmbeddedFileHelper {
 	 * Finds one embedded file that is referenced in the given string.
 	 *
 	 * @param value                  The value which references the embedded file, it can be an AWK directive, header, body, etc.
-	 * @param connectorEmbeddedFiles All the embedded files referenced in the connector.
+	 * @param connectorEmbeddedFiles All the embedded files referenced in the connector.	 * @param hostname               The hostname of the host being monitored and used to log the failure where many embedded files are retrieved.
+	 * @param hostname               The hostname of the host being monitored and used to log the failure where many embedded files are retrieved.
+	 * @param connectorId            The identifier of the connector used for logging.
 	 * @return An Optional of {@link EmbeddedFile} instance.
 	 * @throws IOException If an I/O error occurs while processing the embedded files.
 	 */
-	public static Optional<EmbeddedFile> findEmbeddedFile(@NonNull final String value,
-			@NonNull final Map<Integer, EmbeddedFile> connectorEmbeddedFiles) throws IOException {
-		return findEmbeddedFiles(value, connectorEmbeddedFiles).entrySet().stream().map(Entry::getValue).findFirst();
+	public static Optional<EmbeddedFile> findEmbeddedFile(
+		@NonNull final String value,
+		@NonNull final Map<Integer, EmbeddedFile> connectorEmbeddedFiles,
+		@NonNull String hostname,
+		@NonNull String connectorId
+	) {
+		final Map<Integer, EmbeddedFile> embeddedFiles = findEmbeddedFiles(value, connectorEmbeddedFiles);
+
+		if (embeddedFiles.size() > 1) {
+			final String message = String.format(
+				"Hostname %s - Many embedded files are referenced in value: %s. Connector: %s.",
+				hostname,
+				value,
+				connectorId
+			);
+			log.error(message);
+			throw new IllegalStateException(message);
+		}
+
+		return embeddedFiles.entrySet().stream().map(Entry::getValue).findFirst();
 	}
 
 }

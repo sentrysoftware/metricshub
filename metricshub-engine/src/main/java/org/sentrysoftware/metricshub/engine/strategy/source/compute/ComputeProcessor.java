@@ -356,7 +356,9 @@ public class ComputeProcessor implements IComputeProcessor {
 				maybeEmbeddedFile = EmbeddedFileHelper
 					.findEmbeddedFile(
 						awk.getScript(),
-						telemetryManager.getEmbeddedFiles(connectorId)
+						telemetryManager.getEmbeddedFiles(connectorId),
+						hostname,
+						connectorId
 						);
 			} catch (Exception exception) {
 				log.warn(

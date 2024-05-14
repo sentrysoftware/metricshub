@@ -18,7 +18,7 @@ class FileHelperTest {
 
 	@Test
 	void testGetBaseName() {
-		// Verify extensions
+		// Verify base names
 		assertEquals("example", FileHelper.getBaseName("example.pdf"));
 		assertEquals("archive.tar", FileHelper.getBaseName("archive.tar.gz"));
 		assertEquals(".env", FileHelper.getBaseName(".env"));

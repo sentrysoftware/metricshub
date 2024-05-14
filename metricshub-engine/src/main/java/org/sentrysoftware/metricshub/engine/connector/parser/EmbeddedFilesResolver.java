@@ -244,7 +244,7 @@ public class EmbeddedFilesResolver {
 	 * This class extends {@link RuntimeException} and provides constructor that allows the
 	 * inclusion of an error message and a throwable cause.
 	 */
-	private class EmbeddedFileProcessingException extends RuntimeException {
+	public class EmbeddedFileProcessingException extends RuntimeException {
 
 		private static final long serialVersionUID = 1L;
 

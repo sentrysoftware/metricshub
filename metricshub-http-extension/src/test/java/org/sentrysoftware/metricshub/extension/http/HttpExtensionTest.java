@@ -243,8 +243,8 @@ class HttpExtensionTest {
 			.hostname(HOST_NAME)
 			.method(HTTP_GET)
 			.url(httpCriterion.getUrl())
-			.header(httpCriterion.getHeader(), CONNECTOR_ID, HOST_NAME)
-			.body(httpCriterion.getBody(), CONNECTOR_ID, HOST_NAME)
+			.header(httpCriterion.getHeader(), Map.of(), CONNECTOR_ID, HOST_NAME)
+			.body(httpCriterion.getBody(), Map.of(), CONNECTOR_ID, HOST_NAME)
 			.httpConfiguration(
 				(HttpConfiguration) telemetryManager.getHostConfiguration().getConfigurations().get(HttpConfiguration.class)
 			)
@@ -295,8 +295,8 @@ class HttpExtensionTest {
 			.hostname(HOST_NAME)
 			.method(HTTP_GET)
 			.url(httpCriterion.getUrl())
-			.header(httpCriterion.getHeader(), CONNECTOR_ID, HOST_NAME)
-			.body(httpCriterion.getBody(), CONNECTOR_ID, HOST_NAME)
+			.header(httpCriterion.getHeader(), Map.of(), CONNECTOR_ID, HOST_NAME)
+			.body(httpCriterion.getBody(), Map.of(), CONNECTOR_ID, HOST_NAME)
 			.httpConfiguration(
 				(HttpConfiguration) telemetryManager.getHostConfiguration().getConfigurations().get(HttpConfiguration.class)
 			)
