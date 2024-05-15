@@ -46,6 +46,16 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 
 	/**
+	 * Protocol up status value '1.0'
+	 */
+	public static final Double UP = 1.0;
+
+	/**
+	 * Protocol down status value '0.0'
+	 */
+	public static final Double DOWN = 0.0;
+
+	/**
 	 * Constructs a new {@code HealthCheckStrategy} using the provided telemetry
 	 * manager, strategy time, and clients executor.
 	 *

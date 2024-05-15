@@ -39,7 +39,7 @@ import org.sentrysoftware.metricshub.extension.win.IWinConfiguration;
 import org.sentrysoftware.winrm.service.client.auth.AuthenticationEnum;
 
 /**
- * The WinRmConfiguration interface represents the configuration for the Windows Management Instrumentation protocol
+ * The WinRmConfiguration interface represents the configuration for the Windows Remote Management protocol
  * in the MetricsHub Extension System.
  */
 @Data
