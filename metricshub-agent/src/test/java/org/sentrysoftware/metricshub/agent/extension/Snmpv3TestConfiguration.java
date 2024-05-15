@@ -1,12 +1,6 @@
 package org.sentrysoftware.metricshub.agent.extension;
 
-import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
-import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
-import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
-import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -14,6 +8,10 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
+import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 
 /**
  * The SnmpV3Configuration class represents the configuration for SNMP V3 in the
@@ -57,32 +55,62 @@ public class Snmpv3TestConfiguration implements IConfiguration {
 
 	@Override
 	public void validateConfiguration(final String resourceKey) throws InvalidConfigurationException {
-		StringHelper.validateConfigurationAttribute(community, attr -> attr == null || attr.length == 0,
-				() -> String.format(
-						"Resource %s - No community string configured for %s. This resource will not be monitored.",
-						resourceKey, community));
+		StringHelper.validateConfigurationAttribute(
+			community,
+			attr -> attr == null || attr.length == 0,
+			() ->
+				String.format(
+					"Resource %s - No community string configured for %s. This resource will not be monitored.",
+					resourceKey,
+					community
+				)
+		);
 
-		StringHelper.validateConfigurationAttribute(port, attr -> attr == null || attr < 1 || attr > 65535,
-				() -> String.format(
-						"Resource %s - Invalid port configured: %s. Please verify the configured port value.",
-						resourceKey, port));
+		StringHelper.validateConfigurationAttribute(
+			port,
+			attr -> attr == null || attr < 1 || attr > 65535,
+			() ->
+				String.format(
+					"Resource %s - Invalid port configured: %s. Please verify the configured port value.",
+					resourceKey,
+					port
+				)
+		);
 
-		StringHelper.validateConfigurationAttribute(timeout, attr -> attr == null || attr < 0L,
-				() -> String.format(
-						"Resource %s - Timeout value is invalid: %s. Please verify the configured timeout value.",
-						resourceKey, timeout));
+		StringHelper.validateConfigurationAttribute(
+			timeout,
+			attr -> attr == null || attr < 0L,
+			() ->
+				String.format(
+					"Resource %s - Timeout value is invalid: %s. Please verify the configured timeout value.",
+					resourceKey,
+					timeout
+				)
+		);
 
-		StringHelper
-				.validateConfigurationAttribute(username, attr -> attr == null || attr.isEmpty(),
-						() -> String.format("Resource %s - No username configured for protocol %s."
-								+ " This resource will not be monitored. Please verify the configured username.",
-								resourceKey, username));
+		StringHelper.validateConfigurationAttribute(
+			username,
+			attr -> attr == null || attr.isEmpty(),
+			() ->
+				String.format(
+					"Resource %s - No username configured for protocol %s." +
+					" This resource will not be monitored. Please verify the configured username.",
+					resourceKey,
+					username
+				)
+		);
 
-		StringHelper
-				.validateConfigurationAttribute(authType, attr -> attr == null,
-						() -> String.format("Resource %s - No username configured for protocol %s."
-								+ " This resource will not be monitored. Please verify the configured authtype.",
-								resourceKey, authType));
+		StringHelper.validateConfigurationAttribute(
+			authType,
+			attr -> attr == null,
+			() ->
+				String.format(
+					"Resource %s - No username configured for protocol %s." +
+					" This resource will not be monitored. Please verify the configured authtype.",
+					resourceKey,
+					authType
+				)
+		);
 	}
 
 	/**
@@ -90,7 +118,9 @@ public class Snmpv3TestConfiguration implements IConfiguration {
 	 */
 	@AllArgsConstructor
 	public enum AuthType {
-		NO_AUTH("no"), MD5("md5"), SHA("sha");
+		NO_AUTH("no"),
+		MD5("md5"),
+		SHA("sha");
 
 		@Getter
 		private final String stringAuthType;
@@ -120,7 +150,9 @@ public class Snmpv3TestConfiguration implements IConfiguration {
 	 */
 	@AllArgsConstructor
 	public enum Privacy {
-		NO_ENCRYPTION("No encryption"), AES("AES encryption"), DES("DES encryption");
+		NO_ENCRYPTION("No encryption"),
+		AES("AES encryption"),
+		DES("DES encryption");
 
 		@Getter
 		private final String privacyType;
@@ -143,9 +175,8 @@ public class Snmpv3TestConfiguration implements IConfiguration {
 			throw new IllegalArgumentException(INVALID_PRIVACY_VALUE_EXCEPTION_MESSAGE + privacy);
 		}
 	}
-	
+
 	public int getIntVersion() {
 		return V3;
 	}
-
 }

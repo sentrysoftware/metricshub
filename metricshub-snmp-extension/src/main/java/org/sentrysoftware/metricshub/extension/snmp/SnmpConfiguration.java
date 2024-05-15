@@ -23,7 +23,6 @@ package org.sentrysoftware.metricshub.extension.snmp;
 
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 
-
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;

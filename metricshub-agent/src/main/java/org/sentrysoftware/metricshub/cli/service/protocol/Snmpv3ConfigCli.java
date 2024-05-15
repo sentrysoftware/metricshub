@@ -42,10 +42,7 @@ public class Snmpv3ConfigCli implements IProtocolConfigCli {
 	 */
 	public static final int DEFAULT_TIMEOUT = 30;
 
-	@Option(names = "--snmp3",
-			order = 1,
-			description = "Enable SNMPv3 protocol"
-	)
+	@Option(names = "--snmp3", order = 1, description = "Enable SNMPv3 protocol")
 	private boolean useSnmpv3;
 
 	@Option(

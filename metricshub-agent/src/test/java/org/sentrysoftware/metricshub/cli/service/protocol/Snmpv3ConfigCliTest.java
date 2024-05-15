@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mockStatic;
 
 import java.util.List;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.sentrysoftware.metricshub.agent.extension.Snmpv3TestConfiguration;
@@ -51,7 +50,7 @@ class Snmpv3ConfigCliTest {
 			assertEquals("SNMP V3 (community)", snmpv3Configuration.toString());
 			assertEquals(Snmpv3TestConfiguration.Privacy.AES, snmpv3Configuration.getPrivacy());
 			assertArrayEquals("passwordPrivacy".toCharArray(), snmpv3Configuration.getPrivacyPassword());
-        	assertEquals(Snmpv3TestConfiguration.AuthType.SHA, snmpv3Configuration.getAuthType());
+			assertEquals(Snmpv3TestConfiguration.AuthType.SHA, snmpv3Configuration.getAuthType());
 			assertEquals("testUser", snmpv3Configuration.getUsername());
 			assertArrayEquals("testPassword".toCharArray(), snmpv3Configuration.getPassword());
 			assertEquals("testContext", snmpv3Configuration.getContextName());

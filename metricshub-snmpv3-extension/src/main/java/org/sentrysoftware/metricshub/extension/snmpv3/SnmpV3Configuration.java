@@ -31,8 +31,6 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.Builder.Default;
-
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
@@ -53,7 +51,7 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 	private static final int V3 = 3;
 	private static final String INVALID_AUTH_TYPE_EXCEPTION_MESSAGE = "Invalid authentication type: ";
 	private static final String INVALID_PRIVACY_VALUE_EXCEPTION_MESSAGE = "Invalid privacy value: ";
-	
+
 	@Builder.Default
 	@JsonSetter(nulls = SKIP)
 	private char[] community = new char[] { 'p', 'u', 'b', 'l', 'i', 'c' };
@@ -202,5 +200,4 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 	public int getIntVersion() {
 		return V3;
 	}
-
 }

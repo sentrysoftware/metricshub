@@ -146,7 +146,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline SNMP Options|@:%n")
 	SnmpConfigCli snmpConfigCli;
-	
+
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline SNMP V3 Options|@:%n")
 	Snmpv3ConfigCli snmpv3ConfigCli;
 
@@ -423,7 +423,16 @@ public class MetricsHubCliService implements Callable<Integer> {
 	 */
 	private Map<Class<? extends IConfiguration>, IConfiguration> buildConfigurations() {
 		return Stream
-			.of(ipmiConfigCli, snmpConfigCli, snmpv3ConfigCli, sshConfigCli, httpConfigCli, wmiConfigCli, winRmConfigCli, wbemConfigCli)
+			.of(
+				ipmiConfigCli,
+				snmpConfigCli,
+				snmpv3ConfigCli,
+				sshConfigCli,
+				httpConfigCli,
+				wmiConfigCli,
+				winRmConfigCli,
+				wbemConfigCli
+			)
 			.filter(Objects::nonNull)
 			.map(protocolConfig -> {
 				try {
@@ -451,7 +460,16 @@ public class MetricsHubCliService implements Callable<Integer> {
 
 		// No protocol at all?
 		final boolean protocolsNotConfigured = Stream
-			.of(ipmiConfigCli, snmpConfigCli, snmpv3ConfigCli, sshConfigCli, httpConfigCli, wmiConfigCli, winRmConfigCli, wbemConfigCli)
+			.of(
+				ipmiConfigCli,
+				snmpConfigCli,
+				snmpv3ConfigCli,
+				sshConfigCli,
+				httpConfigCli,
+				wmiConfigCli,
+				winRmConfigCli,
+				wbemConfigCli
+			)
 			.allMatch(Objects::isNull);
 
 		if (protocolsNotConfigured) {
