@@ -8,7 +8,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.function.Function;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,9 +25,10 @@ public class SnmpGetSourceProcessorTest {
 
 	@Mock
 	private ISnmpRequestExecutor snmpRequestExecutor;
+
 	@Mock
 	private Function<TelemetryManager, ISnmpConfiguration> configurationRetriever;
-	
+
 	private SnmpGetSourceProcessor snmpGetSourceProcessor;
 
 	@BeforeEach
@@ -39,7 +39,6 @@ public class SnmpGetSourceProcessorTest {
 	// Test case when snmpGetSource is null.
 	@Test
 	public void testProcess_WhenSourceIsNull_ReturnsEmptySourceTable() {
-
 		SnmpGetSource snmpGetSource = null;
 		TelemetryManager telemetryManager = mockTelemetryManager();
 
@@ -50,7 +49,6 @@ public class SnmpGetSourceProcessorTest {
 	// Test case for when snmpconfiguration is null."
 	@Test
 	public void testProcess_WhenConfigurationIsNull_ReturnsEmptySourceTable() {
-
 		SnmpGetSource snmpGetSource = SnmpGetSource.builder().oid("test_oid").build();
 		TelemetryManager telemetryManager = mockTelemetryManager();
 		when(configurationRetriever.apply(telemetryManager)).thenReturn(null);
@@ -61,16 +59,15 @@ public class SnmpGetSourceProcessorTest {
 
 	// Test case when the requestExecutor throws an exception.
 	@Test
-	public void testProcess_WhenRequestExecutorThrowsException_ReturnsEmptySourceTable() throws Exception{
-
+	public void testProcess_WhenRequestExecutorThrowsException_ReturnsEmptySourceTable() throws Exception {
 		SnmpGetSource snmpGetSource = SnmpGetSource.builder().oid("test_oid").build();
 		TelemetryManager telemetryManager = mockTelemetryManager();
 		ISnmpConfiguration snmpConfiguration = mock(ISnmpConfiguration.class);
 		when(configurationRetriever.apply(telemetryManager)).thenReturn(snmpConfiguration);
-		doThrow(new InterruptedException(
-				"Test exception")).when(snmpRequestExecutor)
-	    .executeSNMPGet("test_oid", snmpConfiguration, "hostname", true);
-		
+		doThrow(new InterruptedException("Test exception"))
+			.when(snmpRequestExecutor)
+			.executeSNMPGet("test_oid", snmpConfiguration, "hostname", true);
+
 		SourceTable result = snmpGetSourceProcessor.process(snmpGetSource, "connectorId", telemetryManager);
 		assertEquals(SourceTable.empty(), result);
 	}
@@ -78,7 +75,6 @@ public class SnmpGetSourceProcessorTest {
 	//Test case when requestExecutor returns a valid result.
 	@Test
 	public void testProcess_WhenRequestExecutorReturnsValidResult_ReturnsSourceTableWithResult() throws Exception {
-
 		SnmpGetSource snmpGetSource = SnmpGetSource.builder().oid("test_oid").build();
 		TelemetryManager telemetryManager = mockTelemetryManager();
 		ISnmpConfiguration snmpConfiguration = mock(ISnmpConfiguration.class);
@@ -86,7 +82,7 @@ public class SnmpGetSourceProcessorTest {
 		when(snmpRequestExecutor.executeSNMPGet("test_oid", snmpConfiguration, "hostname", true)).thenReturn("result");
 
 		SourceTable result = snmpGetSourceProcessor.process(snmpGetSource, "connectorId", telemetryManager);
-		
+
 		assertNotNull(result);
 		assertTrue(result.getTable().size() == 1);
 		assertEquals("result", result.getTable().get(0).get(0));

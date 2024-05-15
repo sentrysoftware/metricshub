@@ -28,37 +28,31 @@ import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
  * protocols in the MetricsHub extension system.
  */
 public interface ISnmpConfiguration extends IConfiguration {
-
 	/**
 	 * Gets the timeout for the Snmp protocol
-	 * 
+	 *
 	 * @return The timeout as a Long value.
 	 */
-	public Long getTimeout();
+	Long getTimeout();
 
 	/**
 	 * Gets the community for the snmp protocol.
 	 *
 	 * @return The community as a character array.
 	 */
-	public char[] getCommunity();
+	char[] getCommunity();
 
 	/**
 	 * Gets the version for the Snmp protocol
-	 * 
+	 *
 	 * @return The version as a int value.
 	 */
-
-	/**
-	 * @return
-	 */
-	public int getIntVersion();
+	int getIntVersion();
 
 	/**
 	 * Gets the port for the Snmp protocol
-	 * 
+	 *
 	 * @return The port as a Integer value.
 	 */
-	public Integer getPort();
-
+	Integer getPort();
 }

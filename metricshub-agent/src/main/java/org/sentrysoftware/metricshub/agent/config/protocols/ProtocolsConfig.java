@@ -48,6 +48,10 @@ public class ProtocolsConfig {
 
 	@JsonSetter(nulls = SKIP)
 	@JsonDeserialize(using = ExtensionConfigDeserializer.class)
+	private IConfiguration snmpv3;
+
+	@JsonSetter(nulls = SKIP)
+	@JsonDeserialize(using = ExtensionConfigDeserializer.class)
 	private IConfiguration ipmi;
 
 	@JsonSetter(nulls = SKIP)

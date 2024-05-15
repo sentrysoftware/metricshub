@@ -1,10 +1,8 @@
 package org.sentrysoftware.metricshub.extension.snmp.detection;
 
-import java.util.function.Function;
-
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
- * MetricsHub SNMP Extension
+ * MetricsHub SNMP Extension Common
  * ჻჻჻჻჻჻
  * Copyright 2023 - 2024 Sentry Software
  * ჻჻჻჻჻჻
@@ -23,6 +21,7 @@ import java.util.function.Function;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
@@ -46,7 +45,7 @@ public class SnmpGetNextCriterionProcessor {
 
 	@NonNull
 	private ISnmpRequestExecutor snmpRequestExecutor;
-	
+
 	@NonNull
 	private Function<TelemetryManager, ISnmpConfiguration> configurationRetriever;
 
@@ -82,10 +81,10 @@ public class SnmpGetNextCriterionProcessor {
 			);
 			return CriterionTestResult.empty();
 		}
-		
+
 		// Find the configured protocol (Snmp or SnmpV3)
 		final ISnmpConfiguration snmpConfiguration = configurationRetriever.apply(telemetryManager);
-		
+
 		if (snmpConfiguration == null) {
 			log.debug(
 				"Hostname {} - The SNMP credentials are not configured. Cannot process SNMP GetNext criterion {}. Connector ID: {}.",

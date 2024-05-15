@@ -114,31 +114,33 @@ class SnmpV3ConfigurationTest {
 
 			assertThrows(InvalidConfigurationException.class, () -> snmpConfig.validateConfiguration(resourceKey));
 		}
-		
-	    {
-	        final SnmpV3Configuration snmpConfig = SnmpV3Configuration.builder()
-	            .community(community)
-	            .port(1234)
-	            .timeout(60L)
-	            .authType(null)
-	            .privacy(Privacy.NO_ENCRYPTION)
-	            .build();
 
-	        assertThrows(InvalidConfigurationException.class, () -> snmpConfig.validateConfiguration(resourceKey));
-	    }
-	   
-	    // Test when username is null
-	    {
-	        final SnmpV3Configuration snmpConfig = SnmpV3Configuration.builder()
-	            .community(community)
-	            .port(1234)
-	            .timeout(60L)
-	            .authType(AuthType.NO_AUTH)
-	            .privacy(Privacy.AES)
-	            .username(null)
-	            .build();
+		{
+			final SnmpV3Configuration snmpConfig = SnmpV3Configuration
+				.builder()
+				.community(community)
+				.port(1234)
+				.timeout(60L)
+				.authType(null)
+				.privacy(Privacy.NO_ENCRYPTION)
+				.build();
 
-	        assertThrows(InvalidConfigurationException.class, () -> snmpConfig.validateConfiguration(resourceKey));
-	    }  
+			assertThrows(InvalidConfigurationException.class, () -> snmpConfig.validateConfiguration(resourceKey));
+		}
+
+		// Test when username is null
+		{
+			final SnmpV3Configuration snmpConfig = SnmpV3Configuration
+				.builder()
+				.community(community)
+				.port(1234)
+				.timeout(60L)
+				.authType(AuthType.NO_AUTH)
+				.privacy(Privacy.AES)
+				.username(null)
+				.build();
+
+			assertThrows(InvalidConfigurationException.class, () -> snmpConfig.validateConfiguration(resourceKey));
+		}
 	}
 }

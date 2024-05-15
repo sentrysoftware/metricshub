@@ -23,13 +23,9 @@ package org.sentrysoftware.metricshub.extension.snmp;
 
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 
-import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
-import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
-import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -37,6 +33,9 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
+import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 
 /**
  * The SnmpConfiguration class represents the configuration for SNMP in the MetricsHub engine.
@@ -44,7 +43,7 @@ import lombok.NonNull;
  * port, timeout, context name, privacy, privacy password, username, and password.
  */
 @Data
-@Builder 
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class SnmpConfiguration implements ISnmpConfiguration {
@@ -161,8 +160,7 @@ public class SnmpConfiguration implements ISnmpConfiguration {
 	}
 
 	@Override
-	public int getIntVersion(){
+	public int getIntVersion() {
 		return version.intVersion;
 	}
-
 }

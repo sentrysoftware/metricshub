@@ -20,16 +20,9 @@ package org.sentrysoftware.metricshub.extension.snmp;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 
-import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
-import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
-import org.sentrysoftware.metricshub.engine.common.helpers.ThreadHelper;
-import org.sentrysoftware.snmp.client.SnmpClient;
-
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
  * MetricsHub SNMP Extension
@@ -50,11 +43,16 @@ import org.sentrysoftware.snmp.client.SnmpClient;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
-
-import io.opentelemetry.instrumentation.annotations.SpanAttribute;
-import io.opentelemetry.instrumentation.annotations.WithSpan;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
+import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
+import org.sentrysoftware.metricshub.engine.common.helpers.ThreadHelper;
+import org.sentrysoftware.snmp.client.SnmpClient;
 
 /**
  * The SnmpRequestExecutor class provides utility methods for executing

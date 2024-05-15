@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,7 +33,6 @@ public class SnmpTableSourceProcessorTest {
 
 	@BeforeEach
 	public void setUp() {
-
 		snmpTableSourceProcessor = new SnmpTableSourceProcessor(snmpRequestExecutor, configurationRetriever);
 	}
 
@@ -52,8 +50,11 @@ public class SnmpTableSourceProcessorTest {
 	// Test when snmpConfiguration is null
 	@Test
 	public void testProcess_WhenConfigurationIsNull_ReturnsEmptySourceTable() {
-		SnmpTableSource snmpTableSource = SnmpTableSource.builder().oid("test_oid").selectColumns("column1, column2")
-				.build();
+		SnmpTableSource snmpTableSource = SnmpTableSource
+			.builder()
+			.oid("test_oid")
+			.selectColumns("column1, column2")
+			.build();
 		TelemetryManager telemetryManager = mockTelemetryManager();
 		when(configurationRetriever.apply(telemetryManager)).thenReturn(null);
 
@@ -76,14 +77,18 @@ public class SnmpTableSourceProcessorTest {
 	// Test when the executor throws an exception
 	@Test
 	public void testProcess_WhenExecutorThrowsException_ReturnsEmptySourceTable() throws Exception {
-		SnmpTableSource snmpTableSource = SnmpTableSource.builder().oid("test_oid").selectColumns("column1, column2")
-				.build();
+		SnmpTableSource snmpTableSource = SnmpTableSource
+			.builder()
+			.oid("test_oid")
+			.selectColumns("column1, column2")
+			.build();
 		TelemetryManager telemetryManager = mockTelemetryManager();
 		ISnmpConfiguration snmpConfiguration = mock(ISnmpConfiguration.class);
 		when(configurationRetriever.apply(telemetryManager)).thenReturn(snmpConfiguration);
 
-		doThrow(new InterruptedException("Test exception")).when(snmpRequestExecutor).executeSNMPTable("test_oid",
-				new String[] { "column1", "column2" }, snmpConfiguration, "hostname", true);
+		doThrow(new InterruptedException("Test exception"))
+			.when(snmpRequestExecutor)
+			.executeSNMPTable("test_oid", new String[] { "column1", "column2" }, snmpConfiguration, "hostname", true);
 
 		SourceTable result = snmpTableSourceProcessor.process(snmpTableSource, "connectorId", telemetryManager);
 
@@ -93,15 +98,28 @@ public class SnmpTableSourceProcessorTest {
 	// Test when the executor returns a valid result
 	@Test
 	public void testProcess_WhenExecutorReturnsValidResult_ReturnsSourceTableWithResult() throws Exception {
-		SnmpTableSource snmpTableSource = SnmpTableSource.builder().oid("test_oid").selectColumns("column1, column2")
-				.build();
+		SnmpTableSource snmpTableSource = SnmpTableSource
+			.builder()
+			.oid("test_oid")
+			.selectColumns("column1, column2")
+			.build();
 		TelemetryManager telemetryManager = mockTelemetryManager();
 		ISnmpConfiguration snmpConfiguration = mock(ISnmpConfiguration.class);
 		when(configurationRetriever.apply(telemetryManager)).thenReturn(snmpConfiguration);
-		List<List<String>> expectedResult = Arrays.asList(Arrays.asList("value1", "value2"),
-				Arrays.asList("value3", "value4"));
-		when(snmpRequestExecutor.executeSNMPTable("test_oid", new String[] { "column1", "column2" }, snmpConfiguration,
-				"hostname", true)).thenReturn(expectedResult);
+		List<List<String>> expectedResult = Arrays.asList(
+			Arrays.asList("value1", "value2"),
+			Arrays.asList("value3", "value4")
+		);
+		when(
+			snmpRequestExecutor.executeSNMPTable(
+				"test_oid",
+				new String[] { "column1", "column2" },
+				snmpConfiguration,
+				"hostname",
+				true
+			)
+		)
+			.thenReturn(expectedResult);
 
 		SourceTable result = snmpTableSourceProcessor.process(snmpTableSource, "connectorId", telemetryManager);
 

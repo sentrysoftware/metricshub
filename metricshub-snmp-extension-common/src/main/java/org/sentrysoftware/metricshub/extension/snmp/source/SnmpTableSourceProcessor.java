@@ -24,7 +24,6 @@ package org.sentrysoftware.metricshub.extension.snmp.source;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
-
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +45,7 @@ public class SnmpTableSourceProcessor {
 
 	@NonNull
 	private ISnmpRequestExecutor snmpRequestExecutor;
-	
+
 	@NonNull
 	private Function<TelemetryManager, ISnmpConfiguration> configurationRetriever;
 

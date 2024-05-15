@@ -21,11 +21,18 @@ package org.sentrysoftware.metricshub.extension.snmp;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
-
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
@@ -45,37 +52,6 @@ import org.sentrysoftware.metricshub.extension.snmp.detection.SnmpGetNextCriteri
 import org.sentrysoftware.metricshub.extension.snmp.source.SnmpGetSourceProcessor;
 import org.sentrysoftware.metricshub.extension.snmp.source.SnmpTableSourceProcessor;
 
-/*-
- * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
- * MetricsHub SNMP Extension
- * ჻჻჻჻჻჻
- * Copyright 2023 - 2024 Sentry Software
- * ჻჻჻჻჻჻
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
- */
-
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * This class implements the {@link IProtocolExtension} contract, reports the supported features,
  * processes SNMP sources and criteria.
@@ -85,7 +61,7 @@ public class SnmpExtension implements IProtocolExtension {
 
 	@NonNull
 	private SnmpRequestExecutor snmpRequestExecutor;
-	
+
 	/**
 	 * Creates a new instance of the {@link SnmpExtension} implementation.
 	 */
@@ -178,16 +154,15 @@ public class SnmpExtension implements IProtocolExtension {
 
 	@Override
 	public SourceTable processSource(Source source, String connectorId, TelemetryManager telemetryManager) {
-		
 		final Function<TelemetryManager, ISnmpConfiguration> configurationRetriever = manager ->
-		(ISnmpConfiguration) manager.getHostConfiguration().getConfigurations().get(SnmpConfiguration.class);
-		
+			(ISnmpConfiguration) manager.getHostConfiguration().getConfigurations().get(SnmpConfiguration.class);
+
 		if (source instanceof SnmpTableSource snmpTableSource) {
 			return new SnmpTableSourceProcessor(snmpRequestExecutor, configurationRetriever)
-					.process(snmpTableSource, connectorId, telemetryManager);
+				.process(snmpTableSource, connectorId, telemetryManager);
 		} else if (source instanceof SnmpGetSource snmpGetSource) {
 			return new SnmpGetSourceProcessor(snmpRequestExecutor, configurationRetriever)
-					.process(snmpGetSource, connectorId, telemetryManager);
+				.process(snmpGetSource, connectorId, telemetryManager);
 		}
 		throw new IllegalArgumentException(
 			String.format(
@@ -205,13 +180,13 @@ public class SnmpExtension implements IProtocolExtension {
 		TelemetryManager telemetryManager
 	) {
 		final Function<TelemetryManager, ISnmpConfiguration> configurationRetriever = manager ->
-		(ISnmpConfiguration) manager.getHostConfiguration().getConfigurations().get(SnmpConfiguration.class);
+			(ISnmpConfiguration) manager.getHostConfiguration().getConfigurations().get(SnmpConfiguration.class);
 
 		if (criterion instanceof SnmpGetCriterion snmpGetCriterion) {
 			return new SnmpGetCriterionProcessor(snmpRequestExecutor, configurationRetriever)
-				.process(snmpGetCriterion,connectorId, telemetryManager);
+				.process(snmpGetCriterion, connectorId, telemetryManager);
 		} else if (criterion instanceof SnmpGetNextCriterion snmpGetNextCriterion) {
-			return new SnmpGetNextCriterionProcessor(snmpRequestExecutor, configurationRetriever )
+			return new SnmpGetNextCriterionProcessor(snmpRequestExecutor, configurationRetriever)
 				.process(snmpGetNextCriterion, connectorId, telemetryManager);
 		}
 		throw new IllegalArgumentException(

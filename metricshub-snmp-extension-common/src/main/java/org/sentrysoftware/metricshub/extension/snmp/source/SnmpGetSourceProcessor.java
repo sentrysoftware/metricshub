@@ -1,8 +1,5 @@
 package org.sentrysoftware.metricshub.extension.snmp.source;
 
-import java.util.function.Function;
-
-
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
  * MetricsHub SNMP Extension Common
@@ -25,6 +22,7 @@ import java.util.function.Function;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
@@ -48,7 +46,7 @@ public class SnmpGetSourceProcessor {
 
 	@NonNull
 	private ISnmpRequestExecutor snmpRequestExecutor;
-	
+
 	@NonNull
 	private Function<TelemetryManager, ISnmpConfiguration> configurationRetriever;
 

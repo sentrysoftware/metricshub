@@ -41,7 +41,7 @@ import org.sentrysoftware.snmp.client.SnmpClient;
  * various SNMP requests on a remote hosts.
  */
 @Slf4j
-public class SnmpV3RequestExecutor implements ISnmpRequestExecutor{
+public class SnmpV3RequestExecutor implements ISnmpRequestExecutor {
 
 	/**
 	 * Execute SNMP GetNext request
@@ -67,7 +67,14 @@ public class SnmpV3RequestExecutor implements ISnmpRequestExecutor{
 
 		final long startTime = System.currentTimeMillis();
 
-		String result = executeSNMPGetRequest(SnmpGetRequest.GETNEXT, oid, ( SnmpV3Configuration)configuration, hostname, null, logMode);
+		String result = executeSNMPGetRequest(
+			SnmpGetRequest.GETNEXT,
+			oid,
+			(SnmpV3Configuration) configuration,
+			hostname,
+			null,
+			logMode
+		);
 
 		final long responseTime = System.currentTimeMillis() - startTime;
 
@@ -107,7 +114,14 @@ public class SnmpV3RequestExecutor implements ISnmpRequestExecutor{
 
 		final long startTime = System.currentTimeMillis();
 
-		String result = executeSNMPGetRequest(SnmpGetRequest.GET, oid,( SnmpV3Configuration) configuration, hostname, null, logMode);
+		String result = executeSNMPGetRequest(
+			SnmpGetRequest.GET,
+			oid,
+			(SnmpV3Configuration) configuration,
+			hostname,
+			null,
+			logMode
+		);
 
 		final long responseTime = System.currentTimeMillis() - startTime;
 
@@ -154,7 +168,7 @@ public class SnmpV3RequestExecutor implements ISnmpRequestExecutor{
 		List<List<String>> result = executeSNMPGetRequest(
 			SnmpGetRequest.TABLE,
 			oid,
-			( SnmpV3Configuration)configuration,
+			(SnmpV3Configuration) configuration,
 			hostname,
 			selectColumnArray,
 			logMode
@@ -193,11 +207,11 @@ public class SnmpV3RequestExecutor implements ISnmpRequestExecutor{
 	private <T> T executeSNMPGetRequest(
 		final SnmpGetRequest request,
 		final String oid,
-		final  SnmpV3Configuration protocol,
+		final SnmpV3Configuration protocol,
 		final String hostname,
 		final String[] selectColumnArray,
 		final boolean logMode
-	) throws InterruptedException, ExecutionException, TimeoutException { 
+	) throws InterruptedException, ExecutionException, TimeoutException {
 		// Create the SNMPClient and run the GetNext request
 		return (T) ThreadHelper.execute(
 			() -> {

@@ -1,15 +1,5 @@
 package org.sentrysoftware.metricshub.extension.snmpv3;
 
-import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
-import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
-import org.sentrysoftware.metricshub.extension.snmp.ISnmpConfiguration;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.Setter;
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
  * MetricsHub SNMP V3 Extension
@@ -31,30 +21,50 @@ import lombok.Setter;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
+
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.Builder.Default;
+
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
+import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
+import org.sentrysoftware.metricshub.extension.snmp.ISnmpConfiguration;
+
 /**
  * The SnmpV3Configuration class represents the configuration for SNMP v3 in the
  * MetricsHub engine. It implements the ISnmpConfiguration interface and includes
  * settings such as SNMP version, community, port, timeout, context name,
  * authentication type, privacy, privacy password, username, and password.
  */
-@Getter
-@Setter
+@Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class SnmpV3Configuration implements ISnmpConfiguration {
-	
-	private static final int V3=3;
+
+	private static final int V3 = 3;
 	private static final String INVALID_AUTH_TYPE_EXCEPTION_MESSAGE = "Invalid authentication type: ";
 	private static final String INVALID_PRIVACY_VALUE_EXCEPTION_MESSAGE = "Invalid privacy value: ";
-
+	
 	@Builder.Default
+	@JsonSetter(nulls = SKIP)
 	private char[] community = new char[] { 'p', 'u', 'b', 'l', 'i', 'c' };
 
 	@Builder.Default
+	@JsonSetter(nulls = SKIP)
 	private Integer port = 161;
 
 	@Builder.Default
+	@JsonSetter(nulls = SKIP)
+	@JsonDeserialize(using = TimeDeserializer.class)
 	private Long timeout = 120L;
 
 	private String contextName;
@@ -99,31 +109,30 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 					timeout
 				)
 		);
-		
+
 		StringHelper.validateConfigurationAttribute(
 			username,
-				attr -> attr == null || attr.isEmpty(),
-				() ->
-					String.format(
-						"Resource %s - No username configured for protocol %s."	+ 
-					    " This resource will not be monitored. Please verify the configured username.",
-						resourceKey,
-						username
-					)
+			attr -> attr == null || attr.isEmpty(),
+			() ->
+				String.format(
+					"Resource %s - No username configured for protocol %s." +
+					" This resource will not be monitored. Please verify the configured username.",
+					resourceKey,
+					username
+				)
 		);
-		
+
 		StringHelper.validateConfigurationAttribute(
-				authType,
-					attr -> attr == null,
-					() ->
-						String.format(
-							"Resource %s - No username configured for protocol %s."	+ 
-						    " This resource will not be monitored. Please verify the configured authtype.",
-							resourceKey,
-							authType
-						)
-			);			
-						
+			authType,
+			attr -> attr == null,
+			() ->
+				String.format(
+					"Resource %s - No username configured for protocol %s." +
+					" This resource will not be monitored. Please verify the configured authtype.",
+					resourceKey,
+					authType
+				)
+		);
 	}
 
 	/**

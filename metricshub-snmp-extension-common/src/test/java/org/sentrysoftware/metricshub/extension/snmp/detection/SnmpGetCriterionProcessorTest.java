@@ -8,7 +8,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.function.Function;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +25,7 @@ public class SnmpGetCriterionProcessorTest {
 
 	@Mock
 	private ISnmpRequestExecutor snmpRequestExecutor;
+
 	@Mock
 	private Function<TelemetryManager, ISnmpConfiguration> configurationRetriever;
 
@@ -47,7 +47,6 @@ public class SnmpGetCriterionProcessorTest {
 	// Test case for successful process
 	@Test
 	public void testProcess_Success() throws Exception {
-
 		TelemetryManager telemetryManager = createMockTelemetryManagerWithHostConfiguration();
 
 		ISnmpConfiguration snmpConfiguration = mock(ISnmpConfiguration.class);
@@ -58,13 +57,19 @@ public class SnmpGetCriterionProcessorTest {
 		String expectedHostname = "hostname";
 
 		when(snmpRequestExecutor.executeSNMPGet(expectedOid, snmpConfiguration, expectedHostname, false))
-				.thenReturn(expectedResult);
+			.thenReturn(expectedResult);
 
-		SnmpGetCriterion snmpGetCriterion = SnmpGetCriterion.builder().oid(expectedOid).expectedResult(expectedResult)
-				.build();
+		SnmpGetCriterion snmpGetCriterion = SnmpGetCriterion
+			.builder()
+			.oid(expectedOid)
+			.expectedResult(expectedResult)
+			.build();
 
-		CriterionTestResult criterionTestResult = snmpGetCriterionProcessor.process(snmpGetCriterion, "connectorId",
-				telemetryManager);
+		CriterionTestResult criterionTestResult = snmpGetCriterionProcessor.process(
+			snmpGetCriterion,
+			"connectorId",
+			telemetryManager
+		);
 
 		assertNotNull(snmpConfiguration);
 		assertNotNull(criterionTestResult);
@@ -88,8 +93,7 @@ public class SnmpGetCriterionProcessorTest {
 
 		SnmpGetCriterion snmpGetCriterion = SnmpGetCriterion.builder().oid("1.3.6.1.2.1.1.1.0").build();
 
-		CriterionTestResult result = snmpGetCriterionProcessor.process(snmpGetCriterion, "connectorId",
-				telemetryManager);
+		CriterionTestResult result = snmpGetCriterionProcessor.process(snmpGetCriterion, "connectorId", telemetryManager);
 
 		assertFalse(result.isSuccess());
 	}
@@ -102,15 +106,20 @@ public class SnmpGetCriterionProcessorTest {
 		ISnmpConfiguration snmpConfiguration = mock(ISnmpConfiguration.class);
 		when(configurationRetriever.apply(telemetryManager)).thenReturn(snmpConfiguration);
 
-		when(snmpRequestExecutor.executeSNMPGet(any(String.class), any(ISnmpConfiguration.class), any(String.class),
-				any(Boolean.class))).thenThrow(new InterruptedException("Test exception"));
+		when(
+			snmpRequestExecutor.executeSNMPGet(
+				any(String.class),
+				any(ISnmpConfiguration.class),
+				any(String.class),
+				any(Boolean.class)
+			)
+		)
+			.thenThrow(new InterruptedException("Test exception"));
 
 		SnmpGetCriterion snmpGetCriterion = SnmpGetCriterion.builder().oid("1.3.6.1.2.1.1.1.0").build();
 
-		CriterionTestResult result = snmpGetCriterionProcessor.process(snmpGetCriterion, "connectorId",
-				telemetryManager);
+		CriterionTestResult result = snmpGetCriterionProcessor.process(snmpGetCriterion, "connectorId", telemetryManager);
 
 		assertFalse(result.isSuccess());
 	}
-
 }
