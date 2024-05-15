@@ -46,7 +46,7 @@ public class Snmpv3ConfigCli implements IProtocolConfigCli {
 	private boolean useSnmpv3;
 
 	@Option(
-		names = { "--snmp3-community", "--community" },
+		names = "--snmp3-community",
 		order = 2,
 		paramLabel = "COMMUNITY",
 		defaultValue = "public",
