@@ -1,37 +1,64 @@
 package org.sentrysoftware.metricshub.cli.service.protocol;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.mockStatic;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.sentrysoftware.metricshub.engine.configuration.TransportProtocols;
-import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
+import org.mockito.MockedStatic;
+import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
+import org.sentrysoftware.metricshub.extension.wbem.WbemConfiguration;
+import org.sentrysoftware.metricshub.extension.wbem.WbemExtension;
 
 class WbemConfigCliTest {
 
 	@Test
-	void testToProtocol() {
+	void testToProtocol() throws InvalidConfigurationException {
 		final WbemConfigCli wbemConfigCli = new WbemConfigCli();
 		final char[] password = "value".toCharArray();
 		final String username = "username";
 		final String namespace = "root/sentrysoftware";
-		final int timeout = 120;
+		final String timeout = "120";
+		final String vCenter = "vcenter";
+		final int port = 5989;
 		wbemConfigCli.setPassword(password);
 		wbemConfigCli.setUsername(username);
 		wbemConfigCli.setTimeout(timeout);
-		wbemConfigCli.setProtocol(TransportProtocols.HTTPS);
 		wbemConfigCli.setNamespace(namespace);
-		final WbemConfiguration wbemConfiguration = WbemConfiguration
-			.builder()
-			.username(username)
-			.password(password)
-			.timeout(120L)
-			.port(5989)
-			.namespace(namespace)
-			.protocol(TransportProtocols.HTTPS)
-			.build();
-		assertEquals(wbemConfiguration, wbemConfigCli.toProtocol(null, null));
+		wbemConfigCli.setPort(port);
+		wbemConfigCli.setProtocol("HTTPS");
+		wbemConfigCli.setVcenter(vCenter);
 
-		assertEquals(wbemConfiguration, wbemConfigCli.toProtocol(username, password));
+		try (MockedStatic<CliExtensionManager> cliExtensionManagerMock = mockStatic(CliExtensionManager.class)) {
+			// Initialize the extension manager required by the agent context
+			final ExtensionManager extensionManager = ExtensionManager
+				.builder()
+				.withProtocolExtensions(List.of(new WbemExtension()))
+				.build();
+
+			cliExtensionManagerMock
+				.when(() -> CliExtensionManager.getExtensionManagerSingleton())
+				.thenReturn(extensionManager);
+
+			// Create a WbemTestConfiguration and call method toProtocol
+			final WbemConfiguration wbemConfiguration = (WbemConfiguration) wbemConfigCli.toProtocol(username, password);
+
+			assertNotNull(wbemConfiguration);
+
+			final WbemConfiguration wbemConfigurationExpected = WbemConfiguration
+				.builder()
+				.username(username)
+				.password(password)
+				.namespace(namespace)
+				.port(port)
+				.vCenter(vCenter)
+				.build();
+
+			assertEquals(wbemConfigurationExpected, wbemConfigCli.toProtocol(username, password));
+		}
 	}
 
 	@Test
@@ -41,9 +68,9 @@ class WbemConfigCliTest {
 		wbemConfigCli.setPort(expectedPortNumber);
 		assertEquals(expectedPortNumber, wbemConfigCli.getOrDeducePortNumber());
 		wbemConfigCli.setPort(null);
-		wbemConfigCli.setProtocol(TransportProtocols.HTTPS);
+		wbemConfigCli.setProtocol("HTTPS");
 		assertEquals(5989, wbemConfigCli.getOrDeducePortNumber());
-		wbemConfigCli.setProtocol(TransportProtocols.HTTP);
+		wbemConfigCli.setProtocol("HTTP");
 		assertEquals(5988, wbemConfigCli.getOrDeducePortNumber());
 	}
 }

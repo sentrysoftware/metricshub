@@ -21,20 +21,14 @@ package org.sentrysoftware.metricshub.engine.strategy.collect;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import java.util.Collections;
 import java.util.List;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
-import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.WinRmConfiguration;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
-import org.sentrysoftware.metricshub.engine.strategy.utils.WqlDetectionHelper;
-import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
-import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
@@ -67,26 +61,9 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	private static final String UP_METRIC_FORMAT = "metricshub.host.up{protocol=\"%s\"}";
 
 	/**
-	 * WBEM Up metric
-	 */
-	public static final String WBEM_UP_METRIC = String.format(UP_METRIC_FORMAT, "wbem");
-
-	/**
 	 * WINRM Up metric
 	 */
 	public static final String WINRM_UP_METRIC = String.format(UP_METRIC_FORMAT, "winrm");
-
-	/**
-	 * List of WBEM protocol health check test Namespaces
-	 */
-	public static final List<String> WBEM_UP_TEST_NAMESPACES = Collections.unmodifiableList(
-		List.of("root/Interop", "interop", "root/PG_Interop", "PG_Interop")
-	);
-
-	/**
-	 * WQL Query to test WBEM protocol health check
-	 */
-	public static final String WBEM_TEST_QUERY = "SELECT Name FROM CIM_NameSpace";
 
 	/**
 	 * WQL Query to test WMI and WinRM protocols health check
@@ -121,29 +98,14 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 
 	@Override
 	public void run() {
-		// Call the extensions to check the protocol health
-		final List<IProtocolExtension> protocolExtensions = extensionManager.findProtocolCheckExtensions(telemetryManager);
-		protocolExtensions.forEach(protocolExtension -> protocolExtension.checkProtocol(telemetryManager));
-
 		// Retrieve the hostname
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
-		// Retrieve the host endpoint monitor
-		final Monitor hostMonitor = telemetryManager.getEndpointHostMonitor();
-
-		// If the host monitor does not exist, the strategy is aborted
-		if (hostMonitor == null) {
-			return;
-		}
-
 		log.info("Hostname {} - Performing protocol health check.", hostname);
 
-		// Create a metric factory
-		final MetricFactory metricFactory = new MetricFactory(hostname);
-
-		// Check the hostname protocols health
-		checkWbemHealth(hostname, hostMonitor, metricFactory);
-		checkWinRmHealth(hostname, hostMonitor, metricFactory);
+		// Call the extensions to check the protocol health
+		final List<IProtocolExtension> protocolExtensions = extensionManager.findProtocolCheckExtensions(telemetryManager);
+		protocolExtensions.forEach(protocolExtension -> protocolExtension.checkProtocol(telemetryManager));
 	}
 
 	@Override
@@ -154,129 +116,5 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	@Override
 	public Long getStrategyTime() {
 		return telemetryManager.getStrategyTime();
-	}
-
-	/**
-	 * Check WBEM protocol health on the hostname for the host monitor.
-	 *
-	 * <ul>
-	 * 	<li>Criteria: The query must not return an error for at least one of the following namespaces:
-	 * 		"root/Interop", "interop", "root/PG_Interop", "PG_Interop"</li>
-	 * 	<li>Query: SELECT Name FROM CIM_NameSpace.</li>
-	 * 	<li>Success Conditions: CIM_ERR_INVALID_NAMESPACE and CIM_ERR_NOT_FOUND errors are considered successful, indicating that the protocol is responding.</li>
-	 * </ul>
-	 *
-	 * @param hostname      The hostname on which we perform health check
-	 * @param hostMonitor   An endpoint host monitor
-	 * @param metricFactory The metric factory used to collect the health check metric
-	 */
-	public void checkWbemHealth(String hostname, Monitor hostMonitor, MetricFactory metricFactory) {
-		// Retrieve WBEM Configuration from the telemetry manager host configuration
-		final WbemConfiguration wbemConfiguration = (WbemConfiguration) telemetryManager
-			.getHostConfiguration()
-			.getConfigurations()
-			.get(WbemConfiguration.class);
-
-		// Stop the health check if there is not an WBEM configuration
-		if (wbemConfiguration == null) {
-			return;
-		}
-
-		log.info(
-			"Hostname {} - Checking WBEM protocol status. Sending a WQL SELECT request on different namespaces.",
-			hostname
-		);
-
-		for (final String wbemNamespace : WBEM_UP_TEST_NAMESPACES) {
-			try {
-				log.info(
-					"Hostname {} - Checking WBEM protocol status. Sending a WQL SELECT request on {} namespace.",
-					hostname,
-					wbemNamespace
-				);
-
-				// The query on the WBEM namespace returned a result
-				if (clientsExecutor.executeWbem(hostname, wbemConfiguration, WBEM_TEST_QUERY, wbemNamespace) != null) {
-					// Collect the metric with a '1.0' value and stop the test
-					metricFactory.collectNumberMetric(hostMonitor, WBEM_UP_METRIC, UP, strategyTime);
-					return;
-				}
-			} catch (Exception e) {
-				if (WqlDetectionHelper.isAcceptableException(e)) {
-					// Collect the WBEM metric with a '1.0' value and stop the test as the thrown exception is acceptable
-					metricFactory.collectNumberMetric(hostMonitor, WBEM_UP_METRIC, UP, strategyTime);
-					return;
-				}
-				log.debug(
-					"Hostname {} - Checking WBEM protocol status. WBEM exception when performing a WQL SELECT query on '{}' namespace: ",
-					hostname,
-					wbemNamespace,
-					e
-				);
-			}
-		}
-
-		// Collect the WBEM metric with a '0.0' value as the queries response was not positive
-		metricFactory.collectNumberMetric(hostMonitor, WBEM_UP_METRIC, DOWN, strategyTime);
-	}
-
-	/**
-	 * Check WINRM protocol health on the hostname for the host monitor.
-	 *
-	 * <ul>
-	 * 	<li>Criteria: The query must not return an error for at least one of the root\cimv2 namespace.</li>
-	 * 	<li>Query: SELECT Name FROM Win32_ComputerSystem.</li>
-	 * 	<li>Success Conditions: No errors in the query result, indicating that the protocol is responding.</li>
-	 * </ul>
-	 *
-	 * @param hostname      The hostname on which we perform health check
-	 * @param hostMonitor   An endpoint host monitor
-	 * @param metricFactory The metric factory used to collect the health check metric
-	 */
-	public void checkWinRmHealth(String hostname, Monitor hostMonitor, MetricFactory metricFactory) {
-		// Create and set the WinRM result to null
-		List<List<String>> winRmResult = null;
-
-		// Retrieve WinRM Configuration from the telemetry manager host configuration
-		final WinRmConfiguration winRmConfiguration = (WinRmConfiguration) telemetryManager
-			.getHostConfiguration()
-			.getConfigurations()
-			.get(WinRmConfiguration.class);
-
-		// Stop the health check if there is not an WinRM configuration
-		if (winRmConfiguration == null) {
-			return;
-		}
-
-		log.info(
-			"Hostname {} - Checking WinRM protocol status. Sending a WQL SELECT request on {} namespace.",
-			hostname,
-			WMI_AND_WINRM_TEST_NAMESPACE
-		);
-
-		try {
-			winRmResult =
-				clientsExecutor.executeWqlThroughWinRm(
-					hostname,
-					winRmConfiguration,
-					WMI_AND_WINRM_TEST_QUERY,
-					WMI_AND_WINRM_TEST_NAMESPACE
-				);
-		} catch (Exception e) {
-			if (WqlDetectionHelper.isAcceptableException(e)) {
-				// Generate a metric from the WinRM result
-				metricFactory.collectNumberMetric(hostMonitor, WINRM_UP_METRIC, UP, strategyTime);
-				return;
-			}
-			log.debug(
-				"Hostname {} - Checking WinRM protocol status. WinRM exception when performing a WQL SELECT request on {} namespace: ",
-				hostname,
-				WMI_AND_WINRM_TEST_NAMESPACE,
-				e
-			);
-		}
-
-		// Generate a metric from the WINRM result
-		metricFactory.collectNumberMetric(hostMonitor, WINRM_UP_METRIC, winRmResult != null ? UP : DOWN, strategyTime);
 	}
 }

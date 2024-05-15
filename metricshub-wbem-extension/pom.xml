@@ -2,17 +2,22 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
 	<parent>
 		<groupId>org.sentrysoftware</groupId>
 		<artifactId>metricshub-parent</artifactId>
 		<version>0.9.03-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>metricshub-http-extension</artifactId>
+	<artifactId>metricshub-wbem-extension</artifactId>
+	<name>MetricsHub WBEM Extension</name>
+	<description>MetricsHub WBEM Extension implementation providing a set of functionalities used to process WBEM criterion and source.</description>
+	<packaging>jar</packaging>
 
-	<name>MetricsHub HTTP Extension</name>
-	<description>MetricsHub HTTP Extension implementation providing a set of functionalities used to process HTTP criteria and sources.</description>
+	<url>http://maven.apache.org</url>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 
 	<dependencies>
 		<dependency>
@@ -35,7 +40,17 @@
 		</dependency>
 		<dependency>
 			<groupId>org.sentrysoftware</groupId>
-			<artifactId>http</artifactId>
+			<artifactId>wbem</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-simple</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
@@ -74,11 +89,6 @@
 			<artifactId>mockito-inline</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-simple</artifactId>
-			<scope>test</scope>
-		</dependency>
 	</dependencies>
 
 	<build>
@@ -88,12 +98,6 @@
 				<filtering>true</filtering>
 			</resource>
 		</resources>
-
-		<testResources>
-			<testResource>
-				<directory>src/test/resources</directory>
-			</testResource>
-		</testResources>
 
 		<plugins>
 			<!-- surefire -->
@@ -140,7 +144,7 @@
 										<limit>
 											<counter>COMPLEXITY</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.54</minimum>
+											<minimum>0.2</minimum>
 										</limit>
 									</limits>
 								</rule>
@@ -150,12 +154,7 @@
 				</executions>
 				<configuration>
 					<excludes>
-						<exclude>org/sentrysoftware/metricshub/extension/http/*HttpConfigurationBuilder*</exclude>
-						<exclude>org/sentrysoftware/metricshub/extension/http/utils/*EmbeddedFileBodyBuilder*</exclude>
-						<exclude>org/sentrysoftware/metricshub/extension/http/utils/*EmbeddedFileHeaderBuilder*</exclude>
-						<exclude>org/sentrysoftware/metricshub/extension/http/utils/*HttpRequestBuilder*</exclude>
-						<exclude>org/sentrysoftware/metricshub/extension/http/utils/*StringBodyBuilder*</exclude>
-						<exclude>org/sentrysoftware/metricshub/extension/http/utils/*StringHeaderBuilder*</exclude>
+						<exclude>org/sentrysoftware/metricshub/extension/wbem/*WbemConfigurationBuilder*</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
@@ -173,18 +172,13 @@
 						<configuration>
 							<artifactSet>
 								<includes>
-									<include>org.sentrysoftware:http</include>
-									<include>org.sentrysoftware:metricshub-http-extension</include>
+									<include>org.sentrysoftware:wbem</include>
+									<include>org.sentrysoftware:metricshub-wbem-extension</include>
 								</includes>
+								<excludes>
+									<exclude>org/slf4j/**</exclude>
+								</excludes>
 							</artifactSet>
-							<transformers>
-								<transformer
-									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<manifestEntries>
-										<Multi-Release>true</Multi-Release>
-									</manifestEntries>
-								</transformer>
-							</transformers>
 							<minimizeJar>false</minimizeJar>
 						</configuration>
 					</execution>

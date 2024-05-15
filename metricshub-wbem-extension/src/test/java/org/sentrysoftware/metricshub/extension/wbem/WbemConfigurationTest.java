@@ -1,12 +1,6 @@
-package org.sentrysoftware.metricshub.engine.configuration;
+package org.sentrysoftware.metricshub.extension.wbem;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.PASSWORD;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.USERNAME;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_CONFIGURATION_TO_STRING;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_HTTPS;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_NAMESPACE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_VCENTER;
 
 import org.junit.jupiter.api.Test;
 
@@ -14,6 +8,13 @@ import org.junit.jupiter.api.Test;
  * Test of {@link WbemConfiguration}
  */
 class WbemConfigurationTest {
+
+	private static final String USERNAME = "testUser";
+	public static final String PASSWORD = "testPassword";
+	public static final String WBEM_NAMESPACE = "testWbemNamespace";
+	public static final String WBEM_VCENTER = "testWbemVCenter";
+	public static final String WBEM_CONFIGURATION_TO_STRING = "https/5989 as testUser";
+	public static final String WBEM_HTTPS = "https/5989";
 
 	@Test
 	void testToString() {

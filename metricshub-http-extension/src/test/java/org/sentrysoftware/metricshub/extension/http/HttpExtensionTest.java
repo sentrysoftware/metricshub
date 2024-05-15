@@ -30,6 +30,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
+import org.sentrysoftware.metricshub.engine.connector.model.Connector;
+import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.common.HttpMethod;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
@@ -73,6 +75,13 @@ class HttpExtensionTest {
 
 		final HttpConfiguration httpConfiguration = HttpConfiguration.builder().build();
 
+		final Connector connector = Connector.builder().build();
+
+		final Map<String, Connector> store = Map.of(CONNECTOR_ID, connector);
+
+		final ConnectorStore connectorStore = new ConnectorStore();
+		connectorStore.setStore(store);
+
 		telemetryManager =
 			TelemetryManager
 				.builder()
@@ -86,6 +95,7 @@ class HttpExtensionTest {
 						.configurations(Map.of(HttpConfiguration.class, httpConfiguration))
 						.build()
 				)
+				.connectorStore(connectorStore)
 				.build();
 	}
 

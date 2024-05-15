@@ -24,7 +24,6 @@ package org.sentrysoftware.metricshub.cli.service.protocol;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.sentrysoftware.metricshub.cli.service.converter.TransportProtocolConverter;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.TransportProtocols;
 import org.sentrysoftware.metricshub.engine.configuration.WinRmConfiguration;
@@ -60,10 +59,9 @@ public class WinRmConfigCli extends AbstractTransportProtocolCli {
 		order = 2,
 		paramLabel = "HTTP|HTTPS",
 		defaultValue = "HTTP",
-		description = "Transport protocol for WinRM (default: ${DEFAULT-VALUE})",
-		converter = TransportProtocolConverter.class
+		description = "Transport protocol for WinRM (default: ${DEFAULT-VALUE})"
 	)
-	private TransportProtocols protocol;
+	private String protocol;
 
 	@Option(
 		names = { "--winrm-username" },
@@ -131,7 +129,7 @@ public class WinRmConfigCli extends AbstractTransportProtocolCli {
 			.password(username == null ? defaultPassword : password)
 			.namespace(namespace)
 			.port(getOrDeducePortNumber())
-			.protocol(protocol)
+			.protocol(TransportProtocols.interpretValueOf(protocol))
 			.authentications(authentications)
 			.timeout(timeout)
 			.build();
@@ -158,6 +156,6 @@ public class WinRmConfigCli extends AbstractTransportProtocolCli {
 	 */
 	@Override
 	protected boolean isHttps() {
-		return TransportProtocols.HTTPS.equals(protocol);
+		return "https".equalsIgnoreCase(protocol);
 	}
 }

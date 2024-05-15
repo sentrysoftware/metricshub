@@ -76,7 +76,7 @@ public class EmbeddedFilesResolver {
 	 * Look for all references of embedded files that look like: ${file::},
 	 * find the referenced file, load its content as byte array to create a new {@link EmbeddedFile} instance,
 	 * store the created embedded file in the {@link #processedEmbeddedFiles} lookup and replace the reference
-	 * to the external file by a reference to the internalized embedded file in the {@link JsonNode} representing 
+	 * to the external file by a reference to the internalized embedded file in the {@link JsonNode} representing
 	 * the connector.
 	 * @throws IOException If there is an issue finding the embedded file or processing the JSON structure.
 	 */
