@@ -125,7 +125,7 @@ public class WbemConfigCli extends AbstractTransportProtocolCli {
 
 		configuration.set("timeout", new TextNode(timeout));
 		configuration.set("namespace", new TextNode(namespace));
-		configuration.set("vcenter", new TextNode(getVcenter()));
+		configuration.set("vcenter", new TextNode(vcenter));
 		configuration.set("protocol", new TextNode(protocol));
 		configuration.set("port", new IntNode(getOrDeducePortNumber()));
 
