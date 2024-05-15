@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
@@ -123,6 +124,8 @@ public class WbemExtensionTest {
 			doThrow(new RuntimeException(new WBEMException(WBEMException.CIM_ERR_INVALID_NAMESPACE)))
 				.when(wbemRequestExecutorMock)
 				.executeWbem(anyString(), any(WbemConfiguration.class), anyString(), anyString(), any(TelemetryManager.class));
+
+			doCallRealMethod().when(wbemRequestExecutorMock).isAcceptableException(any());
 
 			// Start the WBEM Health Check
 			wbemExtension.checkProtocol(telemetryManager);

@@ -26,16 +26,12 @@ import io.opentelemetry.instrumentation.annotations.WithSpan;
 import java.net.URI;
 import java.net.URL;
 import java.util.List;
-import java.util.Set;
-import lombok.Builder;
-import lombok.Data;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.ThreadHelper;
-import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.vcenter.VCenterClient;
 import org.sentrysoftware.wbem.client.WbemExecutor;
@@ -301,7 +297,7 @@ public class WbemRequestExecutor {
 	 * @param t Exception to verify
 	 * @return whether specified exception is acceptable while performing namespace detection
 	 */
-	public static boolean isAcceptableException(Throwable t) {
+	public boolean isAcceptableException(Throwable t) {
 		if (t == null) {
 			return false;
 		}
@@ -328,7 +324,7 @@ public class WbemRequestExecutor {
 	 * @param errorId integer value representing the id of the WBEM exception
 	 * @return boolean value
 	 */
-	private static boolean isAcceptableWbemError(final int errorId) {
+	private boolean isAcceptableWbemError(final int errorId) {
 		// CHECKSTYLE:OFF
 		return (
 			errorId == WBEMException.CIM_ERR_INVALID_NAMESPACE ||
@@ -336,30 +332,5 @@ public class WbemRequestExecutor {
 			errorId == WBEMException.CIM_ERR_NOT_FOUND
 		);
 		// CHECKSTYLE:ON
-	}
-
-	/**
-	 * Data class representing the result of querying for possible namespaces.
-	 * Provides information about the possible namespaces, success status, and an error message if applicable.
-	 */
-	@Data
-	@Builder
-	public static class PossibleNamespacesResult {
-
-		private Set<String> possibleNamespaces;
-		private boolean success;
-		private String errorMessage;
-	}
-
-	/**
-	 * Data class representing the result for a specific namespace.
-	 * Contains information about the namespace itself and a CriterionTestResult.
-	 */
-	@Data
-	@Builder
-	public static class NamespaceResult {
-
-		private String namespace;
-		private CriterionTestResult result;
 	}
 }

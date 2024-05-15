@@ -28,10 +28,8 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
-import org.sentrysoftware.metricshub.cli.service.converter.TransportProtocolConverter;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.TransportProtocols;
 import picocli.CommandLine.Option;
 
 /**
@@ -55,10 +53,9 @@ public class WbemConfigCli extends AbstractTransportProtocolCli {
 		order = 2,
 		defaultValue = "HTTPS",
 		paramLabel = "HTTP|HTTPS",
-		description = "Transport protocol for WBEM (default: ${DEFAULT-VALUE})",
-		converter = TransportProtocolConverter.class
+		description = "Transport protocol for WBEM (default: ${DEFAULT-VALUE})"
 	)
-	private TransportProtocols protocol;
+	private String protocol;
 
 	@Option(
 		names = "--wbem-port",
@@ -129,6 +126,7 @@ public class WbemConfigCli extends AbstractTransportProtocolCli {
 		configuration.set("timeout", new TextNode(timeout));
 		configuration.set("namespace", new TextNode(namespace));
 		configuration.set("vcenter", new TextNode(getVcenter()));
+		configuration.set("protocol", new TextNode(protocol));
 		configuration.set("port", new IntNode(getOrDeducePortNumber()));
 
 		return CliExtensionManager
@@ -160,6 +158,6 @@ public class WbemConfigCli extends AbstractTransportProtocolCli {
 	 */
 	@Override
 	protected boolean isHttps() {
-		return TransportProtocols.HTTPS.equals(protocol);
+		return "https".equalsIgnoreCase(protocol);
 	}
 }

@@ -21,8 +21,6 @@ package org.sentrysoftware.metricshub.extension.wbem;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import static org.sentrysoftware.metricshub.extension.wbem.WbemRequestExecutor.isAcceptableException;
-
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -33,14 +31,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.UnaryOperator;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
-import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WbemCriterion;
-import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WqlCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WbemSource;
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
@@ -171,7 +166,7 @@ public class WbemExtension implements IProtocolExtension {
 					return;
 				}
 			} catch (Exception e) {
-				if (isAcceptableException(e)) {
+				if (wbemRequestExecutor.isAcceptableException(e)) {
 					// Collect the WBEM metric with a '1.0' value and stop the test as the thrown exception is acceptable
 					metricFactory.collectNumberMetric(hostMonitor, WBEM_UP_METRIC, UP, strategyTime);
 					return;
@@ -198,59 +193,8 @@ public class WbemExtension implements IProtocolExtension {
 		TelemetryManager telemetryManager
 	) {
 		if (criterion instanceof WbemCriterion wbemCriterion) {
-			// Sanity check
-			if (criterion == null) {
-				return CriterionTestResult.error(wbemCriterion, "Malformed criterion. Cannot perform detection.");
-			}
-
-			// Gather the necessary info on the test that needs to be performed
-			final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-			final WbemConfiguration wbemConfiguration = (WbemConfiguration) telemetryManager
-				.getHostConfiguration()
-				.getConfigurations()
-				.get(WbemConfiguration.class);
-			if (wbemConfiguration == null) {
-				return CriterionTestResult.error(wbemCriterion, "The WBEM credentials are not configured for this host.");
-			}
-
-			WbemCriterionProcessor wbemCriterionProcessor = new WbemCriterionProcessor(wbemRequestExecutor);
-
-			// If namespace is specified as "Automatic"
-			if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(wbemCriterion.getNamespace())) {
-				final String cachedNamespace = telemetryManager
-					.getHostProperties()
-					.getConnectorNamespace(connectorId)
-					.getAutomaticWbemNamespace();
-
-				// If not detected already, find the namespace
-				if (cachedNamespace == null) {
-					return wbemCriterionProcessor.findNamespace(
-						hostname,
-						wbemConfiguration,
-						wbemCriterion,
-						telemetryManager,
-						connectorId
-					);
-				}
-
-				// Update the criterion with the cached namespace
-				WqlCriterion cachedNamespaceCriterion = wbemCriterion.copy();
-				cachedNamespaceCriterion.setNamespace(cachedNamespace);
-
-				// Run the test
-				return wbemCriterionProcessor.performDetectionTest(
-					hostname,
-					wbemConfiguration,
-					cachedNamespaceCriterion,
-					telemetryManager
-				);
-			}
-
-			// Run the test
-			return wbemCriterionProcessor.performDetectionTest(hostname, wbemConfiguration, wbemCriterion, telemetryManager);
+			return new WbemCriterionProcessor(wbemRequestExecutor, connectorId).process(wbemCriterion, telemetryManager);
 		}
-
 		throw new IllegalArgumentException(
 			String.format(
 				"Hostname %s - Cannot process criterion %s.",
@@ -260,70 +204,18 @@ public class WbemExtension implements IProtocolExtension {
 		);
 	}
 
+	@Override
 	public SourceTable processSource(Source source, String connectorId, TelemetryManager telemetryManager) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		WbemSource wbemSource = (WbemSource) source;
-
-		if (wbemSource == null || wbemSource.getQuery() == null) {
-			log.error("Hostname {} - Malformed WBEM Source {}. Returning an empty table.", hostname, wbemSource);
-			return SourceTable.empty();
+		if (source instanceof WbemSource wbemSource) {
+			return new WbemSourceProcessor(wbemRequestExecutor, connectorId).process(wbemSource, telemetryManager);
 		}
-
-		final WbemConfiguration wbemConfiguration = (WbemConfiguration) telemetryManager
-			.getHostConfiguration()
-			.getConfigurations()
-			.get(WbemConfiguration.class);
-
-		if (wbemConfiguration == null) {
-			log.debug(
-				"Hostname {} - The WBEM credentials are not configured. Returning an empty table for WBEM source {}.",
-				hostname,
-				wbemSource.getKey()
-			);
-			return SourceTable.empty();
-		}
-
-		WbemSourceProcessor wbemSourceProcessor = new WbemSourceProcessor();
-		// Get the namespace, the default one is : root/cimv2
-		final String namespace = wbemSourceProcessor.getNamespace(wbemSource, telemetryManager, connectorId);
-
-		try {
-			if (hostname == null) {
-				log.error("Hostname {} - No hostname indicated, the URL cannot be built.", hostname);
-				return SourceTable.empty();
-			}
-			if (wbemConfiguration.getPort() == null || wbemConfiguration.getPort() == 0) {
-				log.error("Hostname {} - No port indicated to connect to the host", hostname);
-				return SourceTable.empty();
-			}
-
-			final List<List<String>> table = wbemRequestExecutor.executeWbem(
-				hostname,
-				wbemConfiguration,
-				wbemSource.getQuery(),
-				namespace,
-				telemetryManager
-			);
-
-			return SourceTable.builder().table(table).build();
-		} catch (Exception e) {
-			LoggingHelper.logSourceError(
-				connectorId,
-				wbemSource.getKey(),
-				String.format(
-					"WBEM query=%s, Username=%s, Timeout=%d, Namespace=%s",
-					wbemSource.getQuery(),
-					wbemConfiguration.getUsername(),
-					wbemConfiguration.getTimeout(),
-					namespace
-				),
-				hostname,
-				e
-			);
-
-			return SourceTable.empty();
-		}
+		throw new IllegalArgumentException(
+			String.format(
+				"Hostname %s - Cannot process source %s.",
+				telemetryManager.getHostname(),
+				source != null ? source.getClass().getSimpleName() : "<null>"
+			)
+		);
 	}
 
 	@Override
@@ -370,20 +262,5 @@ public class WbemExtension implements IProtocolExtension {
 			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 			.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false)
 			.build();
-	}
-
-	/**
-	 * Represents a WQL Query (i.e. a query in a namespace)
-	 */
-	@Data
-	static class WqlQuery {
-
-		private String wql;
-		private String namespace;
-
-		WqlQuery(final String wql, final String namespace) {
-			this.wql = wql;
-			this.namespace = namespace;
-		}
 	}
 }

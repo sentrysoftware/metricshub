@@ -445,11 +445,9 @@ public class SourceProcessor implements ISourceProcessor {
 	 */
 
 	@WithSpan("Source WBEM HTTP Exec")
+	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final WbemSource wbemSource) {
-		final Optional<IProtocolExtension> extensions = extensionManager.findSourceExtension(wbemSource, telemetryManager);
-		return extensions
-			.map(extension -> extension.processSource(wbemSource, connectorId, telemetryManager))
-			.orElseGet(SourceTable::empty);
+		return processSourceThroughExtension(wbemSource);
 	}
 
 	/**

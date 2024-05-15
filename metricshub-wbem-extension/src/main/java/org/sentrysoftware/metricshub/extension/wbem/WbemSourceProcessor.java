@@ -24,15 +24,30 @@ package org.sentrysoftware.metricshub.extension.wbem;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.AUTOMATIC_NAMESPACE;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.WMI_DEFAULT_NAMESPACE;
 
+import java.util.List;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WbemSource;
+import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
+@RequiredArgsConstructor
+@Slf4j
 public class WbemSourceProcessor {
+
+	@NonNull
+	private WbemRequestExecutor wbemRequestExecutor;
+
+	@NonNull
+	private String connectorId;
 
 	/**
 	 * Get the namespace to use for the execution of the given {@link WbemSource} instance
 	 *
 	 * @param wbemSource {@link WbemSource} instance from which we want to extract the namespace. Expected "automatic", null or <em>any string</em>
+	 * @param telemetryManager {@link TelemetryManager} instance from which we fetch the automatic wbem namespace
 	 * @return {@link String} value
 	 */
 	String getNamespace(final WbemSource wbemSource, final TelemetryManager telemetryManager, final String connectorId) {
@@ -43,5 +58,75 @@ public class WbemSourceProcessor {
 			namespace = telemetryManager.getHostProperties().getConnectorNamespace(connectorId).getAutomaticWbemNamespace();
 		}
 		return namespace;
+	}
+
+	/**
+	 * Process the given {@link WbemSource} and return the resulting {@link SourceTable}
+	 *
+	 * @param wbemSource {@link WbemSource} instance we wish to run
+	 * @param telemetryManager {@link TelemetryManager} instance from which we fetch the hostname and related configuration
+	 * @return {@link SourceTable} instance
+	 */
+	public SourceTable process(WbemSource wbemSource, TelemetryManager telemetryManager) {
+		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+
+		if (wbemSource == null) {
+			log.error("Hostname {} - Malformed WBEM Source {}. Returning an empty table.", hostname, wbemSource);
+			return SourceTable.empty();
+		}
+
+		final WbemConfiguration wbemConfiguration = (WbemConfiguration) telemetryManager
+			.getHostConfiguration()
+			.getConfigurations()
+			.get(WbemConfiguration.class);
+
+		if (wbemConfiguration == null) {
+			log.debug(
+				"Hostname {} - The WBEM credentials are not configured. Returning an empty table for WBEM source {}.",
+				hostname,
+				wbemSource.getKey()
+			);
+			return SourceTable.empty();
+		}
+
+		// Get the namespace, the default one is : root/cimv2
+		final String namespace = getNamespace(wbemSource, telemetryManager, connectorId);
+
+		try {
+			if (hostname == null) {
+				log.error("Hostname {} - No hostname indicated, the URL cannot be built.", hostname);
+				return SourceTable.empty();
+			}
+			if (wbemConfiguration.getPort() == null || wbemConfiguration.getPort() == 0) {
+				log.error("Hostname {} - No port indicated to connect to the host", hostname);
+				return SourceTable.empty();
+			}
+
+			final List<List<String>> table = wbemRequestExecutor.executeWbem(
+				hostname,
+				wbemConfiguration,
+				wbemSource.getQuery(),
+				namespace,
+				telemetryManager
+			);
+
+			return SourceTable.builder().table(table).build();
+		} catch (Exception e) {
+			LoggingHelper.logSourceError(
+				connectorId,
+				wbemSource.getKey(),
+				String.format(
+					"WBEM query=%s, Username=%s, Timeout=%d, Namespace=%s",
+					wbemSource.getQuery(),
+					wbemConfiguration.getUsername(),
+					wbemConfiguration.getTimeout(),
+					namespace
+				),
+				hostname,
+				e
+			);
+
+			return SourceTable.empty();
+		}
 	}
 }

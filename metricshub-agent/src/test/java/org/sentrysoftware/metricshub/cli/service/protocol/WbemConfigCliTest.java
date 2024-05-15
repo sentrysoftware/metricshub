@@ -30,6 +30,7 @@ class WbemConfigCliTest {
 		wbemConfigCli.setTimeout(timeout);
 		wbemConfigCli.setNamespace(namespace);
 		wbemConfigCli.setPort(port);
+		wbemConfigCli.setProtocol("HTTPS");
 		wbemConfigCli.setVcenter(vCenter);
 
 		try (MockedStatic<CliExtensionManager> cliExtensionManagerMock = mockStatic(CliExtensionManager.class)) {
@@ -71,9 +72,9 @@ class WbemConfigCliTest {
 		wbemConfigCli.setPort(expectedPortNumber);
 		assertEquals(expectedPortNumber, wbemConfigCli.getOrDeducePortNumber());
 		wbemConfigCli.setPort(null);
-		wbemConfigCli.setProtocol(TransportProtocols.HTTPS);
+		wbemConfigCli.setProtocol("HTTPS");
 		assertEquals(5989, wbemConfigCli.getOrDeducePortNumber());
-		wbemConfigCli.setProtocol(TransportProtocols.HTTP);
+		wbemConfigCli.setProtocol("HTTP");
 		assertEquals(5988, wbemConfigCli.getOrDeducePortNumber());
 	}
 }

@@ -72,12 +72,12 @@ import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.P
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.ServiceCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetNextCriterion;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WbemCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WmiCriterion;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.extension.TestConfiguration;
 import org.sentrysoftware.metricshub.engine.strategy.utils.CriterionProcessVisitor;
-import org.sentrysoftware.metricshub.engine.strategy.utils.WqlDetectionHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.HostProperties;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
@@ -89,9 +89,6 @@ class CriterionProcessorTest {
 
 	@Mock
 	private ClientsExecutor clientsExecutorMock;
-
-	@Mock
-	private WqlDetectionHelper wqlDetectionHelperMock;
 
 	@Mock
 	private TelemetryManager telemetryManagerMock;
@@ -236,6 +233,44 @@ class CriterionProcessorTest {
 			extensionManager
 		);
 		assertEquals(expected, criterionProcessor.process(wmiCriterion));
+	}
+
+	@Test
+	void testProcessWbemCriterion() {
+		initWindowsTestConfiguration();
+
+		final IProtocolExtension protocolExtensionMock = spy(IProtocolExtension.class);
+
+		final ExtensionManager extensionManager = ExtensionManager
+			.builder()
+			.withProtocolExtensions(List.of(protocolExtensionMock))
+			.build();
+
+		doReturn(true)
+			.when(protocolExtensionMock)
+			.isValidConfiguration(telemetryManager.getHostConfiguration().getConfigurations().get(TestConfiguration.class));
+
+		doReturn(Set.of(WbemCriterion.class)).when(protocolExtensionMock).getSupportedCriteria();
+
+		final WbemCriterion wbemCriterion = WbemCriterion
+			.builder()
+			.query(WBEM_QUERY)
+			.expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT)
+			.build();
+
+		final CriterionTestResult expected = CriterionTestResult.builder().success(true).message("success").build();
+
+		doReturn(expected)
+			.when(protocolExtensionMock)
+			.processCriterion(wbemCriterion, MY_CONNECTOR_1_NAME, telemetryManager);
+
+		final CriterionProcessor criterionProcessor = new CriterionProcessor(
+			clientsExecutorMock,
+			telemetryManager,
+			MY_CONNECTOR_1_NAME,
+			extensionManager
+		);
+		assertEquals(expected, criterionProcessor.process(wbemCriterion));
 	}
 
 	@Test

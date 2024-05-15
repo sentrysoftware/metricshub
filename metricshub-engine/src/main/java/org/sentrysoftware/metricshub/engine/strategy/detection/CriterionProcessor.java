@@ -51,7 +51,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.W
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.strategy.utils.CriterionProcessVisitor;
-import org.sentrysoftware.metricshub.engine.strategy.utils.WqlDetectionHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
@@ -82,8 +81,6 @@ public class CriterionProcessor implements ICriterionProcessor {
 	private TelemetryManager telemetryManager;
 
 	private String connectorId;
-
-	private WqlDetectionHelper wqlDetectionHelper;
 
 	/**
 	 * Constructor for the CriterionProcessor class.
@@ -388,13 +385,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 * @return The result of the criterion test processing.
 	 */
 	@WithSpan("Criterion WBEM Exec")
-	public CriterionTestResult process(WbemCriterion wbemCriterion) {
-		final Optional<IProtocolExtension> maybeExtension = extensionManager.findCriterionExtension(
-			wbemCriterion,
-			telemetryManager
-		);
-		return maybeExtension
-			.map(extension -> extension.processCriterion(wbemCriterion, connectorId, telemetryManager))
-			.orElseGet(CriterionTestResult::empty);
+	public CriterionTestResult process(@SpanAttribute("criterion.definition") WbemCriterion wbemCriterion) {
+		return processCriterionThroughExtension(wbemCriterion);
 	}
 }
