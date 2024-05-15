@@ -24,16 +24,14 @@ package org.sentrysoftware.metricshub.extension.snmp;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
-
 import lombok.NonNull;
 
 /**
- * 
+ *
  * Interface defining the contract for executing SNMP (Simple Network Management Protocol) requests
  * on a specified host.
  */
 public interface ISnmpRequestExecutor {
-
 	/**
 	 * Execute SNMP GetNext request
 	 *
@@ -46,8 +44,12 @@ public interface ISnmpRequestExecutor {
 	 * @throws ExecutionException  If an exception occurs during execution.
 	 * @throws TimeoutException    If the execution times out.
 	 */
-	String executeSNMPGetNext(@NonNull String oid, @NonNull ISnmpConfiguration configuration, @NonNull String hostname,
-			boolean logMode) throws InterruptedException, ExecutionException, TimeoutException;
+	String executeSNMPGetNext(
+		@NonNull String oid,
+		@NonNull ISnmpConfiguration configuration,
+		@NonNull String hostname,
+		boolean logMode
+	) throws InterruptedException, ExecutionException, TimeoutException;
 
 	/**
 	 * Execute SNMP Get request
@@ -61,8 +63,12 @@ public interface ISnmpRequestExecutor {
 	 * @throws ExecutionException  If an exception occurs during execution.
 	 * @throws TimeoutException    If the execution times out.
 	 */
-	String executeSNMPGet(@NonNull String oid, @NonNull ISnmpConfiguration configuration, @NonNull String hostname,
-			boolean logMode) throws InterruptedException, ExecutionException, TimeoutException;
+	String executeSNMPGet(
+		@NonNull String oid,
+		@NonNull ISnmpConfiguration configuration,
+		@NonNull String hostname,
+		boolean logMode
+	) throws InterruptedException, ExecutionException, TimeoutException;
 
 	/**
 	 * Execute SNMP Table
@@ -77,8 +83,11 @@ public interface ISnmpRequestExecutor {
 	 * @throws ExecutionException  If an exception occurs during the execution of the SNMP request.
 	 * @throws TimeoutException    If the SNMP request times out.
 	 */
-	List<List<String>> executeSNMPTable(@NonNull String oid, @NonNull String[] selectColumnArray,
-			@NonNull ISnmpConfiguration configuration, @NonNull String hostname, boolean logMode)
-			throws InterruptedException, ExecutionException, TimeoutException;
-	
+	List<List<String>> executeSNMPTable(
+		@NonNull String oid,
+		@NonNull String[] selectColumnArray,
+		@NonNull ISnmpConfiguration configuration,
+		@NonNull String hostname,
+		boolean logMode
+	) throws InterruptedException, ExecutionException, TimeoutException;
 }
