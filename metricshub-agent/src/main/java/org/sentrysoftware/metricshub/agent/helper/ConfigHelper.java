@@ -68,9 +68,7 @@ import org.sentrysoftware.metricshub.agent.config.AlertingSystemConfig;
 import org.sentrysoftware.metricshub.agent.config.ConnectorVariables;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
-import org.sentrysoftware.metricshub.agent.config.protocols.AbstractProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.ProtocolsConfig;
-import org.sentrysoftware.metricshub.agent.config.protocols.WbemProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.WinRmProtocolConfig;
 import org.sentrysoftware.metricshub.agent.context.MetricDefinitions;
 import org.sentrysoftware.metricshub.agent.security.PasswordEncrypt;
@@ -945,15 +943,9 @@ public class ConfigHelper {
 			sshConfig.validateConfiguration(resourceKey);
 		}
 
-		final WbemProtocolConfig wbemConfig = protocolsConfig.getWbem();
+		final IConfiguration wbemConfig = protocolsConfig.getWbem();
 		if (wbemConfig != null) {
-			validateWbemInfo(
-				resourceKey,
-				wbemConfig.getUsername(),
-				wbemConfig.getTimeout(),
-				wbemConfig.getPort(),
-				wbemConfig.getVCenter()
-			);
+			wbemConfig.validateConfiguration(resourceKey);
 		}
 
 		final IConfiguration wmiConfig = protocolsConfig.getWmi();
@@ -1069,18 +1061,6 @@ public class ConfigHelper {
 	) {
 		final ProtocolsConfig protocols = resourceConfig.getProtocols();
 
-		final Map<Class<? extends IConfiguration>, IConfiguration> protocolConfigurationsDeprecated = protocols == null
-			? new HashMap<>()
-			: new HashMap<>(
-				Stream
-					.of(protocols.getWbem(), protocols.getWinrm())
-					.filter(Objects::nonNull)
-					.map(AbstractProtocolConfig::toConfiguration)
-					.filter(Objects::nonNull)
-					.collect(Collectors.toMap(IConfiguration::getClass, Function.identity()))
-			);
-
-		// TODO Temporary: when all the configurations are IConfiguration we will remove protocolConfigurationsDeprecated variable
 		final Map<Class<? extends IConfiguration>, IConfiguration> protocolConfigurations = protocols == null
 			? new HashMap<>()
 			: new HashMap<>(
@@ -1091,15 +1071,12 @@ public class ConfigHelper {
 						protocols.getIpmi(),
 						protocols.getOsCommand(),
 						protocols.getSsh(),
-						protocols.getWmi()
+						protocols.getWmi(),
+						protocols.getWbem()
 					)
 					.filter(Objects::nonNull)
 					.collect(Collectors.toMap(IConfiguration::getClass, Function.identity()))
 			);
-
-		// TODO remove when protocolConfigurationsDeprecated is removed, means all the configuration are IConfguration
-		// protocols
-		protocolConfigurations.putAll(protocolConfigurationsDeprecated);
 
 		final Map<String, String> attributes = resourceConfig.getAttributes();
 

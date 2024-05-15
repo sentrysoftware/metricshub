@@ -21,17 +21,20 @@ package org.sentrysoftware.metricshub.cli.service.protocol;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import com.fasterxml.jackson.databind.node.IntNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.sentrysoftware.metricshub.cli.service.converter.TransportProtocolConverter;
+import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.TransportProtocols;
-import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import picocli.CommandLine.Option;
 
 /**
  * This class is used by MetricsHubCliService to configure WBEM protocol when using the MetricsHub CLI.
- * It create the engine's {@link WbemConfiguration} object that is used to monitor a specific resource using WBEM.
+ * It creates the engine's {@link IConfiguration} object that is used to monitor a specific resource using WBEM.
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -50,10 +53,9 @@ public class WbemConfigCli extends AbstractTransportProtocolCli {
 		order = 2,
 		defaultValue = "HTTPS",
 		paramLabel = "HTTP|HTTPS",
-		description = "Transport protocol for WBEM (default: ${DEFAULT-VALUE})",
-		converter = TransportProtocolConverter.class
+		description = "Transport protocol for WBEM (default: ${DEFAULT-VALUE})"
 	)
-	TransportProtocols protocol;
+	private String protocol;
 
 	@Option(
 		names = "--wbem-port",
@@ -61,7 +63,7 @@ public class WbemConfigCli extends AbstractTransportProtocolCli {
 		paramLabel = "PORT",
 		description = "Port of the WBEM server (default: 5988 for HTTP, 5989 for HTTPS)"
 	)
-	Integer port;
+	private Integer port;
 
 	@Option(names = "--wbem-username", order = 4, paramLabel = "USER", description = "Username for WBEM authentication")
 	String username;
@@ -74,7 +76,7 @@ public class WbemConfigCli extends AbstractTransportProtocolCli {
 		interactive = true,
 		arity = "0..1"
 	)
-	char[] password;
+	private char[] password;
 
 	@Option(
 		names = "--wbem-timeout",
@@ -83,7 +85,7 @@ public class WbemConfigCli extends AbstractTransportProtocolCli {
 		paramLabel = "TIMEOUT",
 		description = "Timeout in seconds for WBEM operations (default: ${DEFAULT-VALUE} s)"
 	)
-	long timeout;
+	private String timeout;
 
 	@Option(
 		names = "--wbem-force-namespace",
@@ -91,7 +93,7 @@ public class WbemConfigCli extends AbstractTransportProtocolCli {
 		paramLabel = "NAMESPACE",
 		description = "Forces a specific namespace for connectors that perform namespace auto-detection (advanced)"
 	)
-	String namespace;
+	private String namespace;
 
 	@Option(
 		names = "--wbem-vcenter",
@@ -99,27 +101,38 @@ public class WbemConfigCli extends AbstractTransportProtocolCli {
 		paramLabel = "VCENTER",
 		description = "VCenter hostname providing the authentication ticket (if applicable)"
 	)
-	String vcenter;
+	private String vcenter;
 
 	/**
-	 * This method creates an {@link WbemConfiguration} for a given username and a given password
+	 * This method creates an {@link IConfiguration} for a given username and a given password
 	 *
 	 * @param defaultUsername Username specified at the top level of the CLI (with the --username option)
 	 * @param defaultPassword Password specified at the top level of the CLI (with the --password option)
-	 * @return an {@link WbemConfiguration} instance corresponding to the options specified by the user in the CLI
+	 * @return an {@link IConfiguration} instance corresponding to the options specified by the user in the CLI
 	 */
 	@Override
-	public IConfiguration toProtocol(final String defaultUsername, final char[] defaultPassword) {
-		return WbemConfiguration
-			.builder()
-			.protocol(protocol)
-			.port(getOrDeducePortNumber())
-			.username(username == null ? defaultUsername : username)
-			.password(username == null ? defaultPassword : password)
-			.namespace(namespace)
-			.timeout(timeout)
-			.vCenter(vcenter)
-			.build();
+	public IConfiguration toProtocol(final String defaultUsername, final char[] defaultPassword)
+		throws InvalidConfigurationException {
+		final ObjectNode configuration = JsonNodeFactory.instance.objectNode();
+
+		final String finalUsername = username == null ? defaultUsername : username;
+		configuration.set("username", new TextNode(finalUsername));
+
+		final char[] finalPassword = username == null ? defaultPassword : password;
+		if (finalPassword != null) {
+			configuration.set("password", new TextNode(String.valueOf(finalPassword)));
+		}
+
+		configuration.set("timeout", new TextNode(timeout));
+		configuration.set("namespace", new TextNode(namespace));
+		configuration.set("vcenter", new TextNode(vcenter));
+		configuration.set("protocol", new TextNode(protocol));
+		configuration.set("port", new IntNode(getOrDeducePortNumber()));
+
+		return CliExtensionManager
+			.getExtensionManagerSingleton()
+			.buildConfigurationFromJsonNode("wbem", configuration, value -> value)
+			.orElseThrow();
 	}
 
 	/**
@@ -145,6 +158,6 @@ public class WbemConfigCli extends AbstractTransportProtocolCli {
 	 */
 	@Override
 	protected boolean isHttps() {
-		return TransportProtocols.HTTPS.equals(protocol);
+		return "https".equalsIgnoreCase(protocol);
 	}
 }

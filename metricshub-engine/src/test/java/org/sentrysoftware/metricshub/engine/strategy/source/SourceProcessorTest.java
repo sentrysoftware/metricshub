@@ -6,24 +6,19 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.AUTOMATIC;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.ECS1_01;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.EMPTY;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.EXPECTED_SNMP_TABLE_DATA;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.MY_CONNECTOR_1_NAME;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.OID;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.PASSWORD;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.SNMP_SELECTED_COLUMNS;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.SNMP_SELECTED_COLUMNS_LIST;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.TAB1_REF;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.URL;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.USERNAME;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.VALUE_VAL1;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.VALUE_VAL2;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.VALUE_VAL3;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_QUERY;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.WMI_NAMESPACE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +34,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.common.HttpMethod;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CopySource;
@@ -50,7 +44,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.StaticSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.TableJoinSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.TableUnionSource;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WbemSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WmiSource;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
@@ -695,128 +688,43 @@ class SourceProcessorTest {
 
 	@Test
 	void testProcessWbemSource() throws ClientException {
-		final WbemConfiguration wbemConfiguration = WbemConfiguration
+		final TestConfiguration wbemConfiguration = TestConfiguration.builder().build();
+		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
-			.username(ECS1_01 + "\\" + USERNAME)
-			.password(PASSWORD.toCharArray())
+			.hostname(ECS1_01)
+			.hostId(ECS1_01)
+			.hostType(DeviceKind.LINUX)
+			.configurations(Collections.singletonMap(TestConfiguration.class, wbemConfiguration))
 			.build();
-		final TelemetryManager telemetryManager = TelemetryManager
+
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
+
+		final ExtensionManager extensionManager = ExtensionManager
 			.builder()
-			.hostConfiguration(
-				HostConfiguration
-					.builder()
-					.hostname(ECS1_01)
-					.hostId(ECS1_01)
-					.hostType(DeviceKind.LINUX)
-					.configurations(Map.of(WbemConfiguration.class, wbemConfiguration))
-					.build()
-			)
+			.withProtocolExtensions(List.of(protocolExtensionMock))
 			.build();
 
 		final SourceProcessor sourceProcessor = SourceProcessor
 			.builder()
 			.telemetryManager(telemetryManager)
 			.clientsExecutor(clientsExecutorMock)
+			.extensionManager(extensionManager)
 			.connectorId(CONNECTOR_ID)
 			.build();
-		assertEquals(SourceTable.empty(), sourceProcessor.process((WbemSource) null));
-		assertEquals(SourceTable.empty(), sourceProcessor.process(WbemSource.builder().query(EMPTY).build()));
 
-		final WbemSource wbemSource = WbemSource.builder().query(WBEM_QUERY).build();
-		telemetryManager.setHostConfiguration(HostConfiguration.builder().configurations(Collections.emptyMap()).build());
+		doReturn(true).when(protocolExtensionMock).isValidConfiguration(wbemConfiguration);
 
-		// no wbem configuration
-		assertEquals(SourceTable.empty(), sourceProcessor.process(wbemSource));
+		doReturn(Set.of(HttpSource.class)).when(protocolExtensionMock).getSupportedSources();
 
-		telemetryManager.setHostConfiguration(
-			HostConfiguration
-				.builder()
-				.configurations(Map.of(WbemConfiguration.class, WbemConfiguration.builder().build()))
-				.build()
-		);
+		final SourceTable expected = SourceTable.builder().rawData(ECS1_01).build();
 
-		// empty configuration
-		assertEquals(SourceTable.empty(), sourceProcessor.process(wbemSource));
+		final HttpSource source = HttpSource.builder().url(URL).method(HttpMethod.GET).build();
 
-		telemetryManager.setHostConfiguration(
-			HostConfiguration
-				.builder()
-				.configurations(
-					Map.of(
-						WbemConfiguration.class,
-						WbemConfiguration.builder().username(USERNAME).password(PASSWORD.toCharArray()).build()
-					)
-				)
-				.build()
-		);
+		doReturn(expected).when(protocolExtensionMock).processSource(eq(source), anyString(), any(TelemetryManager.class));
 
-		// no namespace
-		assertEquals(SourceTable.empty(), sourceProcessor.process(wbemSource));
+		final SourceTable actual = sourceProcessor.process(source);
 
-		telemetryManager.setHostConfiguration(
-			HostConfiguration
-				.builder()
-				.configurations(
-					Map.of(
-						WbemConfiguration.class,
-						WbemConfiguration
-							.builder()
-							.username(USERNAME)
-							.password(PASSWORD.toCharArray())
-							.namespace(WMI_NAMESPACE)
-							.build()
-					)
-				)
-				.build()
-		);
-
-		// unable to build URL : no port
-		assertEquals(SourceTable.empty(), sourceProcessor.process(wbemSource));
-
-		telemetryManager.setHostConfiguration(
-			HostConfiguration
-				.builder()
-				.hostname(null)
-				.configurations(
-					Map.of(
-						WbemConfiguration.class,
-						WbemConfiguration
-							.builder()
-							.username(USERNAME)
-							.password(PASSWORD.toCharArray())
-							.namespace(WMI_NAMESPACE)
-							.port(5989)
-							.build()
-					)
-				)
-				.build()
-		);
-
-		// unable to build URL : no hostname
-		assertEquals(SourceTable.empty(), sourceProcessor.process(wbemSource));
-
-		telemetryManager.setHostConfiguration(
-			HostConfiguration
-				.builder()
-				.hostname(ECS1_01)
-				.hostId(ECS1_01)
-				.strategyTimeout(120L)
-				.hostType(DeviceKind.LINUX)
-				.configurations(Map.of(WbemConfiguration.class, wbemConfiguration))
-				.build()
-		);
-
-		final List<List<String>> listValues = Arrays.asList(
-			Arrays.asList("a1", "b2", "c2"),
-			Arrays.asList("v1", "v2", "v3")
-		);
-
-		doReturn(listValues).when(clientsExecutorMock).executeWbem(any(), any(), any(), any());
-		assertEquals(listValues, sourceProcessor.process(wbemSource).getTable());
-
-		// handle exception
-		doThrow(new ClientException()).when(clientsExecutorMock).executeWbem(any(), any(), any(), any());
-		assertEquals(SourceTable.empty(), sourceProcessor.process(wbemSource));
+		assertEquals(expected, actual);
 	}
 
 	void testProcessIpmiSourceStorageHost() {

@@ -18,7 +18,7 @@ class WinRmConfigCliTest {
 		winRmConfigCli.setPassword(password);
 		winRmConfigCli.setUsername(username);
 		winRmConfigCli.setTimeout(timeout);
-		winRmConfigCli.setProtocol(transportProtocolHttp);
+		winRmConfigCli.setProtocol("HTTP");
 		assertEquals(
 			WinRmConfiguration
 				.builder()
@@ -32,7 +32,7 @@ class WinRmConfigCliTest {
 		);
 		winRmConfigCli = new WinRmConfigCli();
 		winRmConfigCli.setTimeout(timeout);
-		winRmConfigCli.setProtocol(transportProtocolHttp);
+		winRmConfigCli.setProtocol("HTTP");
 		assertEquals(
 			WinRmConfiguration
 				.builder()
@@ -53,9 +53,9 @@ class WinRmConfigCliTest {
 		winRmConfigCli.setPort(expectedPortNumber);
 		assertEquals(expectedPortNumber, winRmConfigCli.getOrDeducePortNumber());
 		winRmConfigCli.setPort(null);
-		winRmConfigCli.setProtocol(TransportProtocols.HTTPS);
+		winRmConfigCli.setProtocol("HTTPS");
 		assertEquals(5986, winRmConfigCli.getOrDeducePortNumber());
-		winRmConfigCli.setProtocol(TransportProtocols.HTTP);
+		winRmConfigCli.setProtocol("HTTP");
 		assertEquals(5985, winRmConfigCli.getOrDeducePortNumber());
 	}
 }
