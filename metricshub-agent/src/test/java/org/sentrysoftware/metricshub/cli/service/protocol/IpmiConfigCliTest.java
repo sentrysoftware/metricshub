@@ -37,10 +37,7 @@ class IpmiConfigCliTest {
 				.thenReturn(extensionManager);
 
 			// Create an IpmiTestConfiguration and call method toProtocol
-			final IpmiConfiguration ipmiConfiguration = (IpmiConfiguration) ipmiConfigCli.toProtocol(
-				username,
-				password
-			);
+			final IpmiConfiguration ipmiConfiguration = (IpmiConfiguration) ipmiConfigCli.toProtocol(username, password);
 
 			assertNotNull(ipmiConfiguration);
 

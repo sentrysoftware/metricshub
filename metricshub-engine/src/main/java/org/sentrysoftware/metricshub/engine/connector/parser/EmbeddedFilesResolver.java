@@ -56,7 +56,7 @@ public class EmbeddedFilesResolver {
 	/**
 	 *  Mapping of embedded files where each embedded file is associated with the path.
 	 */
-	private final Map<String, EmbeddedFile> alreadyProcessedEmbeddedFiles;
+	private final Map<String, EmbeddedFile> processedEmbeddedFiles;
 
 	/**
 	 * Constructs an EmbeddedFilesResolver with the given parameters.
@@ -69,13 +69,15 @@ public class EmbeddedFilesResolver {
 		this.connector = connector;
 		this.connectorDirectory = connectorDirectory;
 		this.parents = parents;
-		alreadyProcessedEmbeddedFiles = new HashMap<>();
+		processedEmbeddedFiles = new HashMap<>();
 	}
 
 	/**
 	 * Look for all references of embedded files that look like: ${file::},
-	 * find the referenced file, add its content in a new node at the end of the connector
-	 * and replace the reference to the external file by a reference to the internalized embedded file
+	 * find the referenced file, load its content as byte array to create a new {@link EmbeddedFile} instance,
+	 * store the created embedded file in the {@link #processedEmbeddedFiles} lookup and replace the reference
+	 * to the external file by a reference to the internalized embedded file in the {@link JsonNode} representing 
+	 * the connector.
 	 * @throws IOException If there is an issue finding the embedded file or processing the JSON structure.
 	 */
 	public void process() throws IOException {
@@ -94,7 +96,7 @@ public class EmbeddedFilesResolver {
 			while (fileMatcher.find()) {
 				final String fileName = fileMatcher.group(1);
 
-				alreadyProcessedEmbeddedFiles.computeIfAbsent(
+				processedEmbeddedFiles.computeIfAbsent(
 					fileName,
 					name -> {
 						try {
@@ -116,7 +118,7 @@ public class EmbeddedFilesResolver {
 		}
 
 		// If there were no embedded files to process, no need to continue
-		if (alreadyProcessedEmbeddedFiles.isEmpty()) {
+		if (processedEmbeddedFiles.isEmpty()) {
 			return;
 		}
 
@@ -187,7 +189,7 @@ public class EmbeddedFilesResolver {
 	private EmbeddedFile createEmbeddedFile(final Path filePath) throws IOException {
 		return EmbeddedFile
 			.builder()
-			.id(alreadyProcessedEmbeddedFiles.size() + 1)
+			.id(processedEmbeddedFiles.size() + 1)
 			.filename(filePath.getFileName().toString())
 			.content(Files.readAllBytes(filePath))
 			.build();
@@ -223,7 +225,7 @@ public class EmbeddedFilesResolver {
 	 */
 	private String replaceFileReference(final Matcher matcher, final String value) {
 		final String groupOne = matcher.group(1);
-		final Integer replacement = alreadyProcessedEmbeddedFiles.get(groupOne).getId();
+		final Integer replacement = processedEmbeddedFiles.get(groupOne).getId();
 		return value.replace(groupOne, replacement.toString());
 	}
 
@@ -235,7 +237,7 @@ public class EmbeddedFilesResolver {
 	 *         embedded file and values as the corresponding {@link EmbeddedFile} instances.
 	 */
 	public Map<Integer, EmbeddedFile> collectEmbeddedFiles() {
-		return alreadyProcessedEmbeddedFiles
+		return processedEmbeddedFiles
 			.values()
 			.stream()
 			.collect(Collectors.toMap(EmbeddedFile::getId, Function.identity(), (k1, k2) -> k1));

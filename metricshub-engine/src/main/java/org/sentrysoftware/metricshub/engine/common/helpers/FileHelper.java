@@ -144,7 +144,7 @@ public class FileHelper {
 	 *
 	 *
 	 * @param filename The filename from which to extract the extension.
-	 * @return The extension of the file or an empty string if no extension exists.
+	 * @return The extension of the file (E.g <b>.awk</b>)or an empty string if no extension exists.
 	 */
 	public static String getExtension(String filename) {
 		// Find the last index of '.' in the filename
@@ -152,7 +152,7 @@ public class FileHelper {
 
 		// Check if the '.' is in a valid position
 		if (lastIndex > 0 && lastIndex < filename.length() - 1) {
-			return filename.substring(lastIndex + 1);
+			return filename.substring(lastIndex);
 		}
 
 		// Return an empty string if no extension found

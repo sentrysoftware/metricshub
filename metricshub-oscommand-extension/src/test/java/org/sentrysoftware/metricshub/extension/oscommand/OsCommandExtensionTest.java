@@ -29,6 +29,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -41,6 +43,8 @@ import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvide
 import org.sentrysoftware.metricshub.engine.common.helpers.ResourceHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
+import org.sentrysoftware.metricshub.engine.connector.model.Connector;
+import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.CommandLineCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.IpmiCriterion;
@@ -457,6 +461,13 @@ class OsCommandExtensionTest {
 
 	@Test
 	void testProcessOsCommandSource() {
+		final Connector connector = Connector.builder().build();
+
+		final Map<String, Connector> store = Map.of(MY_CONNECTOR_1_NAME, connector);
+
+		final ConnectorStore connectorStore = new ConnectorStore();
+		connectorStore.setStore(store);
+
 		final OsCommandConfiguration osCommandConfiguration = OsCommandConfiguration.builder().timeout(120L).build();
 
 		final HostProperties hostProperties = HostProperties.builder().isLocalhost(true).build();
@@ -472,6 +483,7 @@ class OsCommandExtensionTest {
 					.configurations(Map.of(OsCommandConfiguration.class, osCommandConfiguration))
 					.build()
 			)
+			.connectorStore(connectorStore)
 			.hostProperties(hostProperties)
 			.build();
 
@@ -512,7 +524,8 @@ class OsCommandExtensionTest {
 						telemetryManager,
 						commandSource.getTimeout(),
 						commandSource.getExecuteLocally(),
-						hostProperties.isLocalhost()
+						hostProperties.isLocalhost(),
+						Map.of()
 					)
 				)
 				.thenThrow(NoCredentialProvidedException.class);
@@ -531,7 +544,8 @@ class OsCommandExtensionTest {
 						telemetryManager,
 						commandSource.getTimeout(),
 						commandSource.getExecuteLocally(),
-						hostProperties.isLocalhost()
+						hostProperties.isLocalhost(),
+						Map.of()
 					)
 				)
 				.thenThrow(IOException.class);
@@ -553,7 +567,8 @@ class OsCommandExtensionTest {
 						telemetryManager,
 						commandSource.getTimeout(),
 						commandSource.getExecuteLocally(),
-						hostProperties.isLocalhost()
+						hostProperties.isLocalhost(),
+						Map.of()
 					)
 				)
 				.thenReturn(commandResult);
@@ -1076,6 +1091,13 @@ class OsCommandExtensionTest {
 
 	@Test
 	void testProcessCommandLineRemoteNoUser() {
+		final Connector connector = Connector.builder().build();
+
+		final Map<String, Connector> store = Map.of(MY_CONNECTOR_1_NAME, connector);
+
+		final ConnectorStore connectorStore = new ConnectorStore();
+		connectorStore.setStore(store);
+
 		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
 		commandLineCriterion.setCommandLine(
 			"naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent"
@@ -1104,6 +1126,7 @@ class OsCommandExtensionTest {
 			.builder()
 			.hostConfiguration(hostConfiguration)
 			.hostProperties(hostProperties)
+			.connectorStore(connectorStore)
 			.build();
 
 		final CriterionTestResult criterionTestResult = osCommandExtension.processCriterion(
@@ -1119,5 +1142,162 @@ class OsCommandExtensionTest {
 			criterionTestResult.getMessage()
 		);
 		assertNull(criterionTestResult.getResult());
+	}
+
+	@Test
+	@EnabledOnOs(OS.LINUX)
+	void testProcessCommandLineLinuxError() {
+		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
+		commandLineCriterion.setCommandLine("sleep 5");
+		commandLineCriterion.setExpectedResult(" ");
+		commandLineCriterion.setExecuteLocally(true);
+		commandLineCriterion.setErrorMessage("No date.");
+		commandLineCriterion.setTimeout(1L);
+
+		final SshConfiguration sshConfiguration = SshConfiguration
+			.sshConfigurationBuilder()
+			.username(" ")
+			.password("pwd".toCharArray())
+			.build();
+
+		final OsCommandConfiguration osCommandConfiguration = new OsCommandConfiguration();
+		osCommandConfiguration.setTimeout(1L);
+
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.hostId("id")
+			.hostname("localhost")
+			.hostType(DeviceKind.WINDOWS)
+			.configurations(
+				Map.of(sshConfiguration.getClass(), sshConfiguration, osCommandConfiguration.getClass(), osCommandConfiguration)
+			)
+			.build();
+
+		final HostProperties hostProperties = HostProperties.builder().isLocalhost(true).build();
+
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(hostConfiguration)
+			.hostProperties(hostProperties)
+			.build();
+
+		final CriterionTestResult criterionTestResult = osCommandExtension.processCriterion(
+			commandLineCriterion,
+			MY_CONNECTOR_1_NAME,
+			telemetryManager
+		);
+
+		assertNotNull(criterionTestResult);
+		assertFalse(criterionTestResult.isSuccess());
+		assertEquals(
+			"Error in CommandLineCriterion test:\n" +
+			commandLineCriterion.toString() +
+			"\n\n" +
+			"TimeoutException: Command \"sleep 5\" execution has timed out after 1 s",
+			criterionTestResult.getMessage()
+		);
+		assertNull(criterionTestResult.getResult());
+	}
+
+	@Test
+	@EnabledOnOs(OS.LINUX)
+	void testProcessCommandLineLocalLinuxFailedToMatchCriteria() {
+		final String result = "Test";
+
+		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
+		commandLineCriterion.setCommandLine("echo Test");
+		commandLineCriterion.setExpectedResult("Nothing");
+		commandLineCriterion.setExecuteLocally(true);
+		commandLineCriterion.setErrorMessage("No display.");
+
+		final SshConfiguration sshConfiguration = SshConfiguration
+			.sshConfigurationBuilder()
+			.username(" ")
+			.password("pwd".toCharArray())
+			.timeout(1L)
+			.build();
+
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.hostId("id")
+			.hostname("localhost")
+			.hostType(DeviceKind.LINUX)
+			.configurations(Map.of(sshConfiguration.getClass(), sshConfiguration))
+			.build();
+
+		final HostProperties hostProperties = HostProperties.builder().isLocalhost(true).build();
+
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(hostConfiguration)
+			.hostProperties(hostProperties)
+			.build();
+
+		final CriterionTestResult criterionTestResult = osCommandExtension.processCriterion(
+			commandLineCriterion,
+			MY_CONNECTOR_1_NAME,
+			telemetryManager
+		);
+
+		assertNotNull(criterionTestResult);
+		assertFalse(criterionTestResult.isSuccess());
+		assertEquals(
+			"CommandLineCriterion test ran but failed:\n" +
+			commandLineCriterion.toString() +
+			"\n\n" +
+			"Actual result:\n" +
+			result,
+			criterionTestResult.getMessage()
+		);
+		assertEquals(result, criterionTestResult.getResult());
+	}
+
+	@Test
+	@EnabledOnOs(OS.LINUX)
+	void testProcessCommandLineLocalLinux() {
+		final String result = "Test";
+
+		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
+		commandLineCriterion.setCommandLine("echo Test");
+		commandLineCriterion.setExpectedResult(result);
+		commandLineCriterion.setExecuteLocally(true);
+		commandLineCriterion.setErrorMessage("No display.");
+
+		final SshConfiguration sshConfiguration = SshConfiguration
+			.sshConfigurationBuilder()
+			.username(" ")
+			.password("pwd".toCharArray())
+			.timeout(1L)
+			.build();
+
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.hostId("id")
+			.hostname("localhost")
+			.hostType(DeviceKind.LINUX)
+			.configurations(Map.of(sshConfiguration.getClass(), sshConfiguration))
+			.build();
+
+		final HostProperties hostProperties = HostProperties.builder().isLocalhost(true).build();
+
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(hostConfiguration)
+			.hostProperties(hostProperties)
+			.build();
+
+		final CriterionTestResult criterionTestResult = osCommandExtension.processCriterion(
+			commandLineCriterion,
+			MY_CONNECTOR_1_NAME,
+			telemetryManager
+		);
+
+		assertNotNull(criterionTestResult);
+		assertTrue(criterionTestResult.isSuccess());
+		assertEquals(
+			"CommandLineCriterion test succeeded:\n" + commandLineCriterion.toString() + "\n\n" + "Result: " + result,
+			criterionTestResult.getMessage()
+		);
+		assertEquals(result, criterionTestResult.getResult());
 	}
 }

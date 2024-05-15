@@ -116,7 +116,7 @@ class EmbeddedFilesResolverTest {
 		assertEquals(1, result.getId());
 		assertEquals("diskPart.awk", result.getFilename());
 		assertEquals("diskPart", result.getBaseName());
-		assertEquals("awk", result.getFileExtension());
+		assertEquals(".awk", result.getFileExtension());
 	}
 
 	@Test
