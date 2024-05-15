@@ -23,7 +23,6 @@ package org.sentrysoftware.metricshub.engine.client;
 
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
-import java.net.URL;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -31,24 +30,15 @@ import java.util.concurrent.TimeoutException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.jflat.JFlat;
 import org.sentrysoftware.metricshub.engine.awk.AwkException;
 import org.sentrysoftware.metricshub.engine.awk.AwkExecutor;
-import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
-import org.sentrysoftware.metricshub.engine.common.helpers.NetworkHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.ThreadHelper;
-import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.tablejoin.TableJoin;
-import org.sentrysoftware.vcenter.VCenterClient;
-import org.sentrysoftware.wbem.client.WbemExecutor;
-import org.sentrysoftware.wbem.client.WbemQueryResult;
-import org.sentrysoftware.wbem.javax.wbem.WBEMException;
 import org.sentrysoftware.xflat.XFlat;
 import org.sentrysoftware.xflat.exceptions.XFlatException;
 
@@ -238,256 +228,5 @@ public class ClientsExecutor {
 		);
 
 		return result;
-	}
-
-	/**
-	 * Perform a WQL query, either against a CIM server (WBEM) or WMI
-	 *
-	 * <br>
-	 *
-	 * @param hostname      Hostname
-	 * @param configuration The configuration object specifying how to connect to specified host
-	 * @param query         WQL query to execute
-	 * @param namespace     The namespace
-	 * @return A table (as a {@link List} of {@link List} of {@link String}s)
-	 * resulting from the execution of the query.
-	 * @throws ClientException when anything wrong happens
-	 */
-	public List<List<String>> executeWql(
-		final String hostname,
-		final IConfiguration configuration,
-		final String query,
-		final String namespace
-	) throws ClientException {
-		if (configuration instanceof WbemConfiguration wbemConfiguration) {
-			return executeWbem(hostname, wbemConfiguration, query, namespace);
-		}
-
-		throw new IllegalStateException("WQL queries can be executed only in WBEM, WMI and WinRM protocols.");
-	}
-
-	/**
-	 * Determine if a vCenter server is configured and call the appropriate method to run the WBEM query.
-	 * <br>
-	 *
-	 * @param hostname   Hostname
-	 * @param wbemConfig WBEM Protocol configuration, incl. credentials
-	 * @param query      WQL query to execute
-	 * @param namespace  WBEM namespace
-	 * @return A table (as a {@link List} of {@link List} of {@link String}s)
-	 * resulting from the execution of the query.
-	 * @throws ClientException when anything goes wrong (details in cause)
-	 */
-	@WithSpan("WBEM")
-	public List<List<String>> executeWbem(
-		@NonNull @SpanAttribute("host.hostname") final String hostname,
-		@NonNull @SpanAttribute("wbem.config") final WbemConfiguration wbemConfig,
-		@NonNull @SpanAttribute("wbem.query") final String query,
-		@NonNull @SpanAttribute("wbem.namespace") final String namespace
-	) throws ClientException {
-		// handle vCenter case
-		if (wbemConfig.getVCenter() != null) {
-			return doVCenterQuery(hostname, wbemConfig, query, namespace);
-		} else {
-			return doWbemQuery(hostname, wbemConfig, query, namespace);
-		}
-	}
-
-	/**
-	 * Perform a WBEM query using vCenter ticket authentication.
-	 * <br>
-	 *
-	 * @param hostname   Hostname
-	 * @param wbemConfig WBEM Protocol configuration, incl. credentials
-	 * @param query      WQL query to execute
-	 * @param namespace  WBEM namespace
-	 * @return A table (as a {@link List} of {@link List} of {@link String}s)
-	 * resulting from the execution of the query.
-	 * @throws ClientException when anything goes wrong (details in cause)
-	 */
-	private List<List<String>> doVCenterQuery(
-		@NonNull final String hostname,
-		@NonNull final WbemConfiguration wbemConfig,
-		@NonNull final String query,
-		@NonNull final String namespace
-	) throws ClientException {
-		String ticket = telemetryManager.getHostProperties().getVCenterTicket();
-
-		if (ticket == null) {
-			ticket =
-				refreshVCenterTicket(
-					wbemConfig.getVCenter(),
-					wbemConfig.getUsername(),
-					wbemConfig.getPassword(),
-					hostname,
-					wbemConfig.getTimeout()
-				);
-		}
-
-		final WbemConfiguration vCenterWbemConfig = WbemConfiguration
-			.builder()
-			.username(ticket)
-			.password(ticket.toCharArray())
-			.namespace(wbemConfig.getNamespace())
-			.port(wbemConfig.getPort())
-			.protocol(wbemConfig.getProtocol())
-			.timeout(wbemConfig.getTimeout())
-			.build();
-
-		try {
-			return doWbemQuery(hostname, vCenterWbemConfig, query, namespace);
-		} catch (ClientException e) {
-			if (isRefreshTicketNeeded(e.getCause())) {
-				ticket =
-					refreshVCenterTicket(
-						wbemConfig.getVCenter(),
-						wbemConfig.getUsername(),
-						wbemConfig.getPassword(),
-						hostname,
-						wbemConfig.getTimeout()
-					);
-				vCenterWbemConfig.setUsername(ticket);
-				vCenterWbemConfig.setPassword(ticket.toCharArray());
-				return doWbemQuery(hostname, vCenterWbemConfig, query, namespace);
-			} else {
-				throw e;
-			}
-		} finally {
-			telemetryManager.getHostProperties().setVCenterTicket(ticket);
-		}
-	}
-
-	/**
-	 * Perform a query to a vCenterServer in order to obtain an authentication ticket.
-	 * <br>
-	 *
-	 * @param vCenter  vCenter server FQDN or IP
-	 * @param username Username
-	 * @param password Password
-	 * @param hostname Hostname
-	 * @param timeout  Timeout
-	 * @return A ticket String
-	 * @throws ClientException when anything goes wrong (details in cause)
-	 */
-	private String refreshVCenterTicket(
-		@NonNull String vCenter,
-		@NonNull String username,
-		@NonNull char[] password,
-		@NonNull String hostname,
-		@NonNull Long timeout
-	) throws ClientException {
-		VCenterClient.setDebug(() -> true, log::debug);
-		try {
-			String ticket = ThreadHelper.execute(
-				() -> VCenterClient.requestCertificate(vCenter, username, new String(password), hostname),
-				timeout
-			);
-			if (ticket == null) {
-				throw new ClientException("Cannot get the ticket through vCenter module");
-			}
-			return ticket;
-		} catch (Exception e) {
-			if (e instanceof InterruptedException) {
-				Thread.currentThread().interrupt();
-			}
-			log.error("Hostname {} - Vcenter ticket refresh query failed. Exception: {}", e);
-			throw new ClientException("vCenter refresh ticket query failed on " + hostname + ".", e);
-		}
-	}
-
-	/**
-	 * Assess whether the exception (or any of its causes) is an access denied error saying that we must refresh the vCenter ticket.
-	 * <br>
-	 *
-	 * @param t Exception to verify
-	 * @return whether specified exception tells us that the ticket needs to be refreshed
-	 */
-	private static boolean isRefreshTicketNeeded(Throwable t) {
-		if (t == null) {
-			return false;
-		}
-
-		if (t instanceof WBEMException wbemException) {
-			final int cimErrorType = wbemException.getID();
-			return cimErrorType == WBEMException.CIM_ERR_ACCESS_DENIED;
-		}
-
-		// Now check recursively the cause
-		return isRefreshTicketNeeded(t.getCause());
-	}
-
-	/**
-	 * Perform a WBEM query.
-	 * <br>
-	 *
-	 * @param hostname   Hostname
-	 * @param wbemConfig WBEM Protocol configuration, incl. credentials
-	 * @param query      WQL query to execute
-	 * @param namespace  WBEM namespace
-	 * @return A table (as a {@link List} of {@link List} of {@link String}s)
-	 * resulting from the execution of the query.
-	 * @throws ClientException when anything goes wrong (details in cause)
-	 */
-	private List<List<String>> doWbemQuery(
-		final String hostname,
-		final WbemConfiguration wbemConfig,
-		final String query,
-		final String namespace
-	) throws ClientException {
-		try {
-			final URL url = NetworkHelper.createUrl(wbemConfig.getProtocol().toString(), hostname, wbemConfig.getPort());
-
-			LoggingHelper.trace(() ->
-				log.trace(
-					"Executing WBEM request:\n- Hostname: {}\n- Port: {}\n- Protocol: {}\n- URL: {}\n" + // NOSONAR
-					"- Username: {}\n- Query: {}\n- Namespace: {}\n- Timeout: {} s\n",
-					hostname,
-					wbemConfig.getPort(),
-					wbemConfig.getProtocol().toString(),
-					url,
-					wbemConfig.getUsername(),
-					query,
-					namespace,
-					wbemConfig.getTimeout()
-				)
-			);
-
-			final long startTime = System.currentTimeMillis();
-
-			WbemQueryResult wbemQueryResult = WbemExecutor.executeWql(
-				url,
-				namespace,
-				wbemConfig.getUsername(),
-				wbemConfig.getPassword(),
-				query,
-				wbemConfig.getTimeout().intValue() * 1000,
-				null
-			);
-
-			final long responseTime = System.currentTimeMillis() - startTime;
-
-			List<List<String>> result = wbemQueryResult.getValues();
-
-			LoggingHelper.trace(() ->
-				log.trace(
-					"Executed WBEM request:\n- Hostname: {}\n- Port: {}\n- Protocol: {}\n- URL: {}\n" + // NOSONAR
-					"- Username: {}\n- Query: {}\n- Namespace: {}\n- Timeout: {} s\n- Result:\n{}\n- response-time: {}\n",
-					hostname,
-					wbemConfig.getPort(),
-					wbemConfig.getProtocol().toString(),
-					url,
-					wbemConfig.getUsername(),
-					query,
-					namespace,
-					wbemConfig.getTimeout(),
-					TextTableHelper.generateTextTable(wbemQueryResult.getProperties(), result),
-					responseTime
-				)
-			);
-
-			return result;
-		} catch (Exception e) { // NOSONAR an exception is already thrown
-			throw new ClientException("WBEM query failed on " + hostname + ".", e);
-		}
 	}
 }

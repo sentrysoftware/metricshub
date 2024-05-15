@@ -1,40 +1,27 @@
 package org.sentrysoftware.metricshub.engine.strategy.collect;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HOSTNAME;
-import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.DOWN;
-import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.UP;
-import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WBEM_TEST_QUERY;
-import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.WBEM_UP_METRIC;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.stubbing.Answer;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
-import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.extension.TestConfiguration;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
-import org.sentrysoftware.wbem.javax.wbem.WBEMException;
 
 @ExtendWith(MockitoExtension.class)
 class ProtocolHealthCheckStrategyTest {
@@ -47,9 +34,6 @@ class ProtocolHealthCheckStrategyTest {
 	@Mock
 	private static IProtocolExtension protocolExtensionMock;
 
-	private static final String SUCCESS_RESPONSE = "Success";
-
-	private static final List<List<String>> WQL_SUCCESS_RESPONSE = List.of(List.of(SUCCESS_RESPONSE));
 	static Map<String, Map<String, Monitor>> monitors;
 
 	/**
@@ -83,27 +67,6 @@ class ProtocolHealthCheckStrategyTest {
 			.build();
 	}
 
-	/**
-	 * Creates and returns a TelemetryManager instance with an WBEM configuration.
-	 *
-	 * @return A TelemetryManager instance configured with an WBEM configuration.
-	 */
-	private TelemetryManager createTelemetryManagerWithWbemConfig() {
-		// Create a telemetry manager
-		return TelemetryManager
-			.builder()
-			.monitors(monitors)
-			.hostConfiguration(
-				HostConfiguration
-					.builder()
-					.hostId(HOSTNAME)
-					.hostname(HOSTNAME)
-					.configurations(Map.of(WbemConfiguration.class, WbemConfiguration.builder().build()))
-					.build()
-			)
-			.build();
-	}
-
 	@Test
 	void testCheckHealth() throws Exception {
 		// Create a telemetry manager using a test configuration.
@@ -129,132 +92,5 @@ class ProtocolHealthCheckStrategyTest {
 			extensionManager
 		);
 		assertDoesNotThrow(() -> healthCheckStrategy.run());
-	}
-
-	@Test
-	void testCheckWbemUpHealthNamespaces() throws ClientException {
-		// Create a telemetry manager using a WBEM HostConfiguration
-		final TelemetryManager telemetryManager = createTelemetryManagerWithWbemConfig();
-
-		// Create a new protocol health check strategy
-		final ProtocolHealthCheckStrategy wbemHealthCheckStrategy = new ProtocolHealthCheckStrategy(
-			telemetryManager,
-			CURRENT_TIME_MILLIS,
-			clientsExecutorMock,
-			ExtensionManager.empty()
-		);
-
-		{
-			// Mock a positive response for every WBEM protocol health check test namespace
-			doReturn(WQL_SUCCESS_RESPONSE)
-				.when(clientsExecutorMock)
-				.executeWbem(anyString(), any(WbemConfiguration.class), eq(WBEM_TEST_QUERY), anyString());
-
-			// Start the WBEM Health Check strategy
-			wbemHealthCheckStrategy.run();
-
-			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(WBEM_UP_METRIC).getValue());
-		}
-
-		{
-			final Map<String, Answer<?>> answers = Map.of(
-				"root/Interop",
-				answer -> null,
-				"interop",
-				answer -> null,
-				"root/PG_Interop",
-				answer -> null,
-				"PG_Interop",
-				answer -> {
-					throw new RuntimeException(new WBEMException(WBEMException.CIM_ERR_INVALID_NAMESPACE));
-				}
-			);
-
-			for (Entry<String, Answer<?>> answerEntry : answers.entrySet()) {
-				// Mock a positive response for every WBEM protocol health check test namespace
-				doAnswer(answerEntry.getValue())
-					.when(clientsExecutorMock)
-					.executeWbem(anyString(), any(WbemConfiguration.class), eq(WBEM_TEST_QUERY), eq(answerEntry.getKey()));
-			}
-
-			// Start the WBEM Health Check strategy
-			wbemHealthCheckStrategy.run();
-
-			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(WBEM_UP_METRIC).getValue());
-		}
-
-		{
-			final Map<String, Answer<?>> answers = Map.of(
-				"root/Interop",
-				answer -> null,
-				"interop",
-				answer -> WQL_SUCCESS_RESPONSE
-			);
-
-			for (Entry<String, Answer<?>> answerEntry : answers.entrySet()) {
-				// Mock a positive response for every WBEM protocol health check test namespace
-				doAnswer(answerEntry.getValue())
-					.when(clientsExecutorMock)
-					.executeWbem(anyString(), any(WbemConfiguration.class), eq(WBEM_TEST_QUERY), eq(answerEntry.getKey()));
-			}
-
-			// Start the WBEM Health Check strategy
-			wbemHealthCheckStrategy.run();
-
-			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(WBEM_UP_METRIC).getValue());
-		}
-	}
-
-	@Test
-	void testCheckWbemDownHealth() throws ClientException {
-		// Create a telemetry manager using a WBEM HostConfiguration
-		final TelemetryManager telemetryManager = createTelemetryManagerWithWbemConfig();
-
-		// Create a new protocol health check strategy
-		final ProtocolHealthCheckStrategy wbemHealthCheckStrategy = new ProtocolHealthCheckStrategy(
-			telemetryManager,
-			CURRENT_TIME_MILLIS,
-			clientsExecutorMock,
-			ExtensionManager.empty()
-		);
-
-		{
-			// Mock a null WBEM protocol health check response
-			doReturn(null)
-				.when(clientsExecutorMock)
-				.executeWbem(anyString(), any(WbemConfiguration.class), eq(WBEM_TEST_QUERY), anyString());
-
-			// Start the WBEM Health Check strategy
-			wbemHealthCheckStrategy.run();
-
-			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(WBEM_UP_METRIC).getValue());
-		}
-
-		{
-			final Map<String, Answer<?>> answers = Map.of(
-				"root/Interop",
-				answer -> null,
-				"interop",
-				answer -> null,
-				"root/PG_Interop",
-				answer -> null,
-				"PG_Interop",
-				answer -> {
-					throw new RuntimeException(new WBEMException(WBEMException.CIM_ERR_FAILED));
-				}
-			);
-
-			for (Entry<String, Answer<?>> answerEntry : answers.entrySet()) {
-				// Mock a negative response for every WBEM protocol health check test namespace
-				doAnswer(answerEntry.getValue())
-					.when(clientsExecutorMock)
-					.executeWbem(anyString(), any(WbemConfiguration.class), eq(WBEM_TEST_QUERY), eq(answerEntry.getKey()));
-			}
-
-			// Start the WBEM Health Check strategy
-			wbemHealthCheckStrategy.run();
-
-			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(WBEM_UP_METRIC).getValue());
-		}
 	}
 }

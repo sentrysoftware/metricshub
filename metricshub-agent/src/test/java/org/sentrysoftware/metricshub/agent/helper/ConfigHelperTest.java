@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -36,7 +35,6 @@ import org.mockito.MockedStatic;
 import org.sentrysoftware.metricshub.agent.config.AgentConfig;
 import org.sentrysoftware.metricshub.agent.context.AgentContext;
 import org.sentrysoftware.metricshub.agent.extension.SnmpTestExtension;
-import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.common.helpers.ResourceHelper;
@@ -49,8 +47,6 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 class ConfigHelperTest {
 
-	private static final String USERNAME_CONFIG_VALUE = "username";
-	private static final String VCENTER_HOSTNAME = "vcenter";
 	private static final String RESOURCE_KEY = "resource-test-key";
 	private static final String PURE_STORAGE_REST_CONNECTOR_ID = "PureStorageREST";
 
@@ -275,46 +271,6 @@ class ConfigHelperTest {
 		assertEquals(2, store.size());
 		assertTrue(store.containsKey("custom-connector-1"));
 		assertTrue(store.containsKey("noTemplateVariable"));
-	}
-
-	@Test
-	void testValidateWbemInfo() {
-		assertThrows(
-			InvalidConfigurationException.class,
-			() -> ConfigHelper.validateWbemInfo(RESOURCE_KEY, null, -60L, 1234, VCENTER_HOSTNAME)
-		);
-		assertThrows(
-			InvalidConfigurationException.class,
-			() -> ConfigHelper.validateWbemInfo(RESOURCE_KEY, "", null, 1234, VCENTER_HOSTNAME)
-		);
-		assertThrows(
-			InvalidConfigurationException.class,
-			() -> ConfigHelper.validateWbemInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, -60L, 1234, VCENTER_HOSTNAME)
-		);
-		assertThrows(
-			InvalidConfigurationException.class,
-			() -> ConfigHelper.validateWbemInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, null, 1234, VCENTER_HOSTNAME)
-		);
-		assertThrows(
-			InvalidConfigurationException.class,
-			() -> ConfigHelper.validateWbemInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, 60L, -1, VCENTER_HOSTNAME)
-		);
-		assertThrows(
-			InvalidConfigurationException.class,
-			() -> ConfigHelper.validateWbemInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, 60L, null, VCENTER_HOSTNAME)
-		);
-		assertThrows(
-			InvalidConfigurationException.class,
-			() -> ConfigHelper.validateWbemInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, 60L, 66666, VCENTER_HOSTNAME)
-		);
-		assertThrows(
-			InvalidConfigurationException.class,
-			() -> ConfigHelper.validateWbemInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, 60L, null, "")
-		);
-		assertDoesNotThrow(() ->
-			ConfigHelper.validateWbemInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, 60L, 1234, VCENTER_HOSTNAME)
-		);
-		assertDoesNotThrow(() -> ConfigHelper.validateWbemInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, 60L, 1234, null));
 	}
 
 	@Test

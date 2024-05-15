@@ -69,7 +69,6 @@ import org.sentrysoftware.metricshub.agent.config.ConnectorVariables;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.ProtocolsConfig;
-import org.sentrysoftware.metricshub.agent.config.protocols.WbemProtocolConfig;
 import org.sentrysoftware.metricshub.agent.context.MetricDefinitions;
 import org.sentrysoftware.metricshub.agent.security.PasswordEncrypt;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
@@ -942,15 +941,9 @@ public class ConfigHelper {
 			sshConfig.validateConfiguration(resourceKey);
 		}
 
-		final WbemProtocolConfig wbemConfig = (WbemProtocolConfig) protocolsConfig.getWbem();
+		final IConfiguration wbemConfig = protocolsConfig.getWbem();
 		if (wbemConfig != null) {
-			validateWbemInfo(
-				resourceKey,
-				wbemConfig.getUsername(),
-				wbemConfig.getTimeout(),
-				wbemConfig.getPort(),
-				wbemConfig.getVCenter()
-			);
+			wbemConfig.validateConfiguration(resourceKey);
 		}
 
 		final IConfiguration wmiConfig = protocolsConfig.getWmi();

@@ -35,7 +35,7 @@ class WinRmConfigCliTest {
 		winRmConfigCli.setTimeout(timeout);
 		winRmConfigCli.setNamespace(namespace);
 		winRmConfigCli.setAuthentications(authentications);
-		winRmConfigCli.setProtocol(transportProtocolHttp.toString());
+		winRmConfigCli.setProtocol("HTTP");
 
 		try (MockedStatic<CliExtensionManager> cliExtensionManagerMock = mockStatic(CliExtensionManager.class)) {
 			// Initialize the extension manager required by the agent context
@@ -80,9 +80,9 @@ class WinRmConfigCliTest {
 		winRmConfigCli.setPort(expectedPortNumber);
 		assertEquals(expectedPortNumber, winRmConfigCli.getOrDeducePortNumber());
 		winRmConfigCli.setPort(null);
-		winRmConfigCli.setProtocol(TransportProtocols.HTTPS.toString());
+		winRmConfigCli.setProtocol("HTTPS");
 		assertEquals(5986, winRmConfigCli.getOrDeducePortNumber());
-		winRmConfigCli.setProtocol(TransportProtocols.HTTP.toString());
+		winRmConfigCli.setProtocol("HTTP");
 		assertEquals(5985, winRmConfigCli.getOrDeducePortNumber());
 	}
 
