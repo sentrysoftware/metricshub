@@ -1147,7 +1147,6 @@ class OsCommandExtensionTest {
 	@Test
 	@EnabledOnOs(OS.LINUX)
 	void testProcessCommandLineLinuxError() {
-
 		final Connector connector = Connector.builder().build();
 
 		final Map<String, Connector> store = Map.of(MY_CONNECTOR_1_NAME, connector);
@@ -1211,7 +1210,6 @@ class OsCommandExtensionTest {
 	@Test
 	@EnabledOnOs(OS.LINUX)
 	void testProcessCommandLineLocalLinuxFailedToMatchCriteria() {
-
 		final Connector connector = Connector.builder().build();
 
 		final Map<String, Connector> store = Map.of(MY_CONNECTOR_1_NAME, connector);
@@ -1273,7 +1271,6 @@ class OsCommandExtensionTest {
 	@Test
 	@EnabledOnOs(OS.LINUX)
 	void testProcessCommandLineLocalLinux() {
-
 		final Connector connector = Connector.builder().build();
 
 		final Map<String, Connector> store = Map.of(MY_CONNECTOR_1_NAME, connector);

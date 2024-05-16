@@ -21,8 +21,6 @@ package org.sentrysoftware.metricshub.extension.oscommand;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import io.opentelemetry.instrumentation.annotations.SpanAttribute;
-import io.opentelemetry.instrumentation.annotations.WithSpan;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.NonNull;
@@ -53,10 +51,7 @@ public class CommandLineCriterionProcessor {
 	 * @param telemetryManager The telemetry manager providing access to host configuration.
 	 * @return {@link CriterionTestResult} instance.
 	 */
-	public CriterionTestResult process(
-		CommandLineCriterion commandLineCriterion,
-		TelemetryManager telemetryManager
-	) {
+	public CriterionTestResult process(CommandLineCriterion commandLineCriterion, TelemetryManager telemetryManager) {
 		if (commandLineCriterion == null) {
 			return CriterionTestResult.error(commandLineCriterion, "Malformed OSCommand criterion.");
 		}
