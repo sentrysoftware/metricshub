@@ -88,6 +88,7 @@ public class IpmiExtension implements IProtocolExtension {
 		return Set.of(IpmiCriterion.class);
 	}
 
+	@Override
 	public void checkProtocol(TelemetryManager telemetryManager) {
 		// Retrieve the hostname
 		String hostname = telemetryManager.getHostConfiguration().getHostname();
