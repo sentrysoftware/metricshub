@@ -217,21 +217,25 @@ public class SnmpV3Extension implements IProtocolExtension {
 		try {
 			final SnmpV3Configuration snmpV3Configuration = newObjectMapper()
 				.treeToValue(jsonNode, SnmpV3Configuration.class);
-			
-			if (decrypt != null) {
-			    char[][] credentials = {
-			        snmpV3Configuration.getCommunity(),
-			        snmpV3Configuration.getPassword(),
-			        snmpV3Configuration.getPrivacyPassword()
-			    };
 
-			    // Loop through each credential and decrypt it if it is not null
-			    for (int i = 0; i < credentials.length; i++) {
-			        if (credentials[i] != null) {
-			            credentials[i] = decrypt.apply(credentials[i]);
-			        }
-			    }
-			}    
+			if (decrypt != null) {
+				char[] community = snmpV3Configuration.getCommunity();
+				char[] password = snmpV3Configuration.getPassword();
+				char[] privacyPassword = snmpV3Configuration.getPrivacyPassword();
+				if (community != null) {
+					// Decrypt the community
+					snmpV3Configuration.setCommunity(decrypt.apply(community));
+				}
+				if (password != null) {
+					// Decrypt the password
+					snmpV3Configuration.setCommunity(decrypt.apply(password));
+				}
+				if (privacyPassword != null) {
+					// Decrypt the privacyPasswd
+					snmpV3Configuration.setCommunity(decrypt.apply(privacyPassword));
+				}
+			}
+			
 			return snmpV3Configuration;
 		} catch (Exception e) {
 			final String errorMessage = String.format(
