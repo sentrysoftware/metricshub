@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.extension.snmp;
+package org.sentrysoftware.metricshub.extension.snmpv3;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 

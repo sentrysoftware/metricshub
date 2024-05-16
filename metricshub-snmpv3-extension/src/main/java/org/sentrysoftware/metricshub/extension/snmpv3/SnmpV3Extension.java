@@ -55,7 +55,7 @@ import org.sentrysoftware.metricshub.extension.snmp.source.SnmpTableSourceProces
 
 /**
  * This class implements the {@link IProtocolExtension} contract, reports the supported features,
- * processes SNMP sources and criteria.
+ * processes SNMP V3 sources and criteria.
  */
 @Slf4j
 public class SnmpV3Extension implements IProtocolExtension {
@@ -76,7 +76,7 @@ public class SnmpV3Extension implements IProtocolExtension {
 	public static final String SNMPV3_UP_METRIC = "metricshub.host.up{protocol=\"snmpv3\"}";
 
 	/**
-	 * The SNMP OID value to use in the health check test
+	 * The SNMP V3 OID value to use in the health check test
 	 */
 	public static final String SNMPV3_OID = "1.3.6.1";
 
@@ -126,14 +126,14 @@ public class SnmpV3Extension implements IProtocolExtension {
 			return;
 		}
 
-		log.info("Hostname {} - Checking SNMP protocol status. Sending Get Next request on {}.", hostname, SNMPV3_OID);
+		log.info("Hostname {} - Checking SNMP V3 protocol status. Sending Get Next request on {}.", hostname, SNMPV3_OID);
 
 		// Execute SNMP test command
 		try {
 			snmpResult = snmpV3RequestExecutor.executeSNMPGetNext(SNMPV3_OID, snmpV3Configuration, hostname, true);
 		} catch (Exception e) {
 			log.debug(
-				"Hostname {} - Checking SNMP protocol status. SNMP exception when performing a SNMP Get Next query on {}: ",
+				"Hostname {} - Checking SNMP V3 protocol status. SNMP V3 exception when performing a SNMP Get Next query on {}: ",
 				hostname,
 				SNMPV3_OID,
 				e
@@ -205,7 +205,7 @@ public class SnmpV3Extension implements IProtocolExtension {
 
 	@Override
 	public boolean isSupportedConfigurationType(String configurationType) {
-		return "snmp".equalsIgnoreCase(configurationType);
+		return "snmpv3".equalsIgnoreCase(configurationType);
 	}
 
 	@Override

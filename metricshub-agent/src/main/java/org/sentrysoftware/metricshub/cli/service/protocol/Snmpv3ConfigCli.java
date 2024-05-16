@@ -42,7 +42,10 @@ public class Snmpv3ConfigCli implements IProtocolConfigCli {
 	 */
 	public static final int DEFAULT_TIMEOUT = 30;
 
-	@Option(names = "--snmp3", order = 1, description = "Enable SNMPv3 protocol")
+	@Option(names = "--snmp3", 
+			order = 1,
+			description = "Enable SNMPV3 protocol"
+	)
 	private boolean useSnmpv3;
 
 	@Option(
@@ -64,7 +67,7 @@ public class Snmpv3ConfigCli implements IProtocolConfigCli {
 
 	@Option(
 		names = "--snmp3-privacy-password",
-		order = 3,
+		order = 4,
 		paramLabel = "PRIVACY-PASSWORD",
 		description = "Privacy password protocol for SNMPV3 (e.g., aes, des)"
 	)
@@ -72,7 +75,7 @@ public class Snmpv3ConfigCli implements IProtocolConfigCli {
 
 	@Option(
 		names = "--snmp3-auth",
-		order = 4,
+		order = 5,
 		paramLabel = "AUTH",
 		description = "Authentication protocol for SNMPV3 (e.g., sha, md5)"
 	)
@@ -80,7 +83,7 @@ public class Snmpv3ConfigCli implements IProtocolConfigCli {
 
 	@Option(
 		names = "--snmp3-username",
-		order = 5,
+		order = 6,
 		paramLabel = "USERNAME",
 		description = "Username for SNMPV3 authentication"
 	)
@@ -88,7 +91,7 @@ public class Snmpv3ConfigCli implements IProtocolConfigCli {
 
 	@Option(
 		names = "--snmp3-password",
-		order = 6,
+		order = 7,
 		paramLabel = "PASSWORD",
 		description = "Password for SNMPV3 authentication"
 	)
@@ -96,7 +99,7 @@ public class Snmpv3ConfigCli implements IProtocolConfigCli {
 
 	@Option(
 		names = "--snmp3-context-name",
-		order = 7,
+		order = 8,
 		paramLabel = "CONTEXT-NAME",
 		description = "Context name for SNMPV3"
 	)
@@ -104,7 +107,7 @@ public class Snmpv3ConfigCli implements IProtocolConfigCli {
 
 	@Option(
 		names = "--snmp3-timeout",
-		order = 8,
+		order = 9,
 		paramLabel = "TIMEOUT",
 		defaultValue = "" + DEFAULT_TIMEOUT,
 		description = "Timeout in seconds for SNMP operations (default: ${DEFAULT-VALUE} s)"
@@ -113,7 +116,7 @@ public class Snmpv3ConfigCli implements IProtocolConfigCli {
 
 	@Option(
 		names = "--snmp3-port",
-		order = 9,
+		order = 10,
 		paramLabel = "PORT",
 		defaultValue = "161",
 		description = "Port for SNMPV3 operations"

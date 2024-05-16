@@ -301,6 +301,49 @@ resourceGroups:
             timeout: 120s
 ```
 
+#### SNMP
+
+Use the parameters below to configure the SNMP V3 protocol:
+
+| Parameter        | Description                                                                    					|
+| ---------------- | -------------------------------------------------------------------------------------------------- |
+| snmpv3           | Protocol used to access the host using SNMP v3.                               		    			|
+| timeout          | How long until the SNMP request times out (Default: 120s).                     					|
+| version          | The version of the SNMP protocol (v3).                                 	   		    			|
+| community        | The SNMP Community string (Default: public). 														|
+| port             | The SNMP port number used to perform SNMP V3 queries (Default: 161).           					|
+| contextName      | The name of the SNMP v3 context, used to identify the collection of management information.		|                                              
+| authType         | The SNMP v3 authentication protocol (MD5, SHA or NoAuth) to ensure message authenticity.    		|
+| privacy          | The SNMP v3 privacy protocol (DES, AES NO_ENCRYPTION) used to encrypt messages for confidentiality.| 
+| username         | The username used for SNMP v3 authentication.                     	  								|
+| privacyPassword  | The password used to encrypt SNMP v3 messages for confidentiality.						            |
+| password         | The password used for SNMP v3 authentication.                 										|
+| retryIntervals   | The intervals (in seconds) between SNMP request retries.                						    |
+
+**Example**
+
+```yaml
+resourceGroups:
+  boston:
+    resources:
+      myHost3:
+        attributes:
+          host.name: my-host-03
+          host.type: linux
+        protocols:
+          snmpv3:
+            version: 3
+            community: public
+            port: 161
+            timeout: 120s
+            contextName: myContext
+            authType: SHA
+            privacy: AES
+            username: myUser
+            privacyPassword: myPrivacyPassword
+            password: myAuthPassword 
+```
+
 #### WBEM
 
 Use the parameters below to configure the WBEM protocol:
