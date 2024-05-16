@@ -42,14 +42,14 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 	 */
 	public static final int DEFAULT_TIMEOUT = 30;
 
-	@Option(names = "--snmp3", 
+	@Option(names = "--snmpv3", 
 			order = 1,
 			description = "Enable SNMPV3 protocol"
 	)
 	private boolean useSnmpv3;
 
 	@Option(
-		names = "--snmp3-community",
+		names = "--snmpv3-community",
 		order = 2,
 		paramLabel = "COMMUNITY",
 		defaultValue = "public",
@@ -58,7 +58,7 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 	private String community;
 
 	@Option(
-		names = "--snmp3-privacy",
+		names = "--snmpv3-privacy",
 		order = 3,
 		paramLabel = "PRIVACY",
 		description = "Privacy protocol for SNMPV3 (e.g., aes, des)"
@@ -66,7 +66,7 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 	private String privacy;
 
 	@Option(
-		names = "--snmp3-privacy-password",
+		names = "--snmpv3-privacy-password",
 		order = 4,
 		paramLabel = "PRIVACY-PASSWORD",
 		description = "Privacy password protocol for SNMPV3 (e.g., aes, des)"
@@ -74,7 +74,7 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 	private String privacyPassword;
 
 	@Option(
-		names = "--snmp3-auth",
+		names = "--snmpv3-auth",
 		order = 5,
 		paramLabel = "AUTH",
 		description = "Authentication protocol for SNMPV3 (e.g., sha, md5)"
@@ -82,7 +82,7 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 	private String authType;
 
 	@Option(
-		names = "--snmp3-username",
+		names = "--snmpv3-username",
 		order = 6,
 		paramLabel = "USERNAME",
 		description = "Username for SNMPV3 authentication"
@@ -90,7 +90,7 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 	private String username;
 
 	@Option(
-		names = "--snmp3-password",
+		names = "--snmpv3-password",
 		order = 7,
 		paramLabel = "PASSWORD",
 		description = "Password for SNMPV3 authentication"
@@ -98,7 +98,7 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 	private String password;
 
 	@Option(
-		names = "--snmp3-context-name",
+		names = "--snmpv3-context-name",
 		order = 8,
 		paramLabel = "CONTEXT-NAME",
 		description = "Context name for SNMPV3"
@@ -106,7 +106,7 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 	private String contextName;
 
 	@Option(
-		names = "--snmp3-timeout",
+		names = "--snmpv3-timeout",
 		order = 9,
 		paramLabel = "TIMEOUT",
 		defaultValue = "" + DEFAULT_TIMEOUT,
@@ -115,7 +115,7 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 	private String timeout;
 
 	@Option(
-		names = "--snmp3-port",
+		names = "--snmpv3-port",
 		order = 10,
 		paramLabel = "PORT",
 		defaultValue = "161",

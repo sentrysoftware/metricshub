@@ -217,13 +217,21 @@ public class SnmpV3Extension implements IProtocolExtension {
 		try {
 			final SnmpV3Configuration snmpV3Configuration = newObjectMapper()
 				.treeToValue(jsonNode, SnmpV3Configuration.class);
-
+			
 			if (decrypt != null) {
-				// Decrypt the community
-				final char[] communityDecypted = decrypt.apply(snmpV3Configuration.getCommunity());
-				snmpV3Configuration.setCommunity(communityDecypted);
-			}
+			    char[][] credentials = {
+			        snmpV3Configuration.getCommunity(),
+			        snmpV3Configuration.getPassword(),
+			        snmpV3Configuration.getPrivacyPassword()
+			    };
 
+			    // Loop through each credential and decrypt it if it is not null
+			    for (int i = 0; i < credentials.length; i++) {
+			        if (credentials[i] != null) {
+			            credentials[i] = decrypt.apply(credentials[i]);
+			        }
+			    }
+			}    
 			return snmpV3Configuration;
 		} catch (Exception e) {
 			final String errorMessage = String.format(
