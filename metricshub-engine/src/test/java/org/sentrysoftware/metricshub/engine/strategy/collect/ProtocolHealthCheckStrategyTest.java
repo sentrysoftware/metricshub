@@ -34,9 +34,6 @@ class ProtocolHealthCheckStrategyTest {
 	@Mock
 	private static IProtocolExtension protocolExtensionMock;
 
-	private static final String SUCCESS_RESPONSE = "Success";
-
-	private static final List<List<String>> WQL_SUCCESS_RESPONSE = List.of(List.of(SUCCESS_RESPONSE));
 	static Map<String, Map<String, Monitor>> monitors;
 
 	/**

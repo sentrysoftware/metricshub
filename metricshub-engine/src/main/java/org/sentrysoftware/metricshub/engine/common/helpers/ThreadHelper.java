@@ -28,12 +28,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 /**
  * Provides utility methods for thread management, including executing tasks
  * with a specified timeout. This class is part of the MetricsHub Engine's
  * common helper utilities.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ThreadHelper {
 
 	/**

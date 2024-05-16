@@ -27,7 +27,7 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>metricshub-oscommand-extension</artifactId>
+			<artifactId>metricshub-http-extension</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -37,7 +37,12 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>metricshub-http-extension</artifactId>
+			<artifactId>metricshub-oscommand-extension</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>metricshub-wmi-extension</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -47,7 +52,7 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>metricshub-wmi-extension</artifactId>
+			<artifactId>metricshub-winrm-extension</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -126,7 +131,7 @@
 								</artifactItem>
 								<artifactItem>
 									<groupId>${project.groupId}</groupId>
-									<artifactId>metricshub-oscommand-extension</artifactId>
+									<artifactId>metricshub-http-extension</artifactId>
 									<version>${project.version}</version>
 								</artifactItem>
 								<artifactItem>
@@ -136,7 +141,12 @@
 								</artifactItem>
 								<artifactItem>
 									<groupId>${project.groupId}</groupId>
-									<artifactId>metricshub-http-extension</artifactId>
+									<artifactId>metricshub-oscommand-extension</artifactId>
+									<version>${project.version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>metricshub-wmi-extension</artifactId>
 									<version>${project.version}</version>
 								</artifactItem>
 								<artifactItem>
@@ -146,7 +156,7 @@
 								</artifactItem>
 								<artifactItem>
 									<groupId>${project.groupId}</groupId>
-									<artifactId>metricshub-wmi-extension</artifactId>
+									<artifactId>metricshub-winrm-extension</artifactId>
 									<version>${project.version}</version>
 								</artifactItem>
 								<artifactItem>
