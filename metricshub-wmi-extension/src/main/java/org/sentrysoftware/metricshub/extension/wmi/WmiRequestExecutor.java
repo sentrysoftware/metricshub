@@ -254,34 +254,13 @@ public class WmiRequestExecutor implements IWinRequestExecutor {
 
 		if (t instanceof WmiComException) {
 			final String message = t.getMessage();
-			return isAcceptableWmiComError(message);
+			return IWinRequestExecutor.isAcceptableWmiComError(message);
 		} else if (t instanceof org.sentrysoftware.wmi.exceptions.WqlQuerySyntaxException) {
 			return true;
 		}
 
 		// Now check recursively the cause
 		return isAcceptableException(t.getCause());
-	}
-
-	/**
-	 * Whether this error message is an acceptable WMI COM error.
-	 *
-	 * @param errorMessage string value representing the message of the WMI COM exception
-	 * @return boolean value
-	 */
-	private boolean isAcceptableWmiComError(final String errorMessage) {
-		// CHECKSTYLE:OFF
-		return (
-			errorMessage != null &&
-			// @formatter:off
-			(
-				errorMessage.contains(WBEM_E_NOT_FOUND) ||
-				errorMessage.contains(WBEM_E_INVALID_NAMESPACE) ||
-				errorMessage.contains(WBEM_E_INVALID_CLASS)
-			)
-			// @formatter:on
-		);
-		// CHECKSTYLE:ON
 	}
 
 	@Override

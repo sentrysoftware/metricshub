@@ -2,7 +2,6 @@ package org.sentrysoftware.metricshub.engine.configuration;
 
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DEFAULT_JOB_TIMEOUT;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -68,12 +67,6 @@ public class HostConfiguration {
 
 	private String configuredConnectorId;
 
-	private static final Map<Class<? extends IConfiguration>, Set<Class<? extends Source>>> CONFIGURATION_TO_SOURCES_MAP;
-
-	static {
-		CONFIGURATION_TO_SOURCES_MAP = Map.of(WinRmConfiguration.class, Collections.singleton(WmiSource.class));
-	}
-
 	/**
 	 * Determine the accepted sources that can be executed using the current engine configuration
 	 *
@@ -95,8 +88,6 @@ public class HostConfiguration {
 			new HashMap<>();
 
 		configurationToSourceMapping.putAll(configurationToSourceMappingFromExtensions);
-		// TODO Remove this merge when all the extensions are developed
-		configurationToSourceMapping.putAll(CONFIGURATION_TO_SOURCES_MAP);
 
 		// protocolConfigurations and host cannot never be null
 		final Set<Class<? extends IConfiguration>> protocolTypes = configurations.keySet();

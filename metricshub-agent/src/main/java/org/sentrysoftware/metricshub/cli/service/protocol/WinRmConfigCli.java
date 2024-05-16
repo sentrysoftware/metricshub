@@ -21,18 +21,22 @@ package org.sentrysoftware.metricshub.cli.service.protocol;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.IntNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.TransportProtocols;
-import org.sentrysoftware.metricshub.engine.configuration.WinRmConfiguration;
-import org.sentrysoftware.winrm.service.client.auth.AuthenticationEnum;
 import picocli.CommandLine.Option;
 
 /**
  * This class is used by MetricsHubCliService to configure WinRM protocol when using the MetricsHub CLI.
- * It create the engine's {@link WinRmConfiguration} object that is used to monitor a specific resource through WinRm.
+ * It create the engine's {@link IConfiguration} object that is used to monitor a specific resource through WinRm.
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -96,7 +100,7 @@ public class WinRmConfigCli extends AbstractTransportProtocolCli {
 		defaultValue = "" + DEFAULT_TIMEOUT,
 		description = "Timeout in seconds for WinRM operations (default: ${DEFAULT-VALUE} s)"
 	)
-	private long timeout;
+	private String timeout;
 
 	@Option(
 		names = "--winrm-auth",
@@ -106,7 +110,7 @@ public class WinRmConfigCli extends AbstractTransportProtocolCli {
 		paramLabel = "AUTH",
 		split = ","
 	)
-	private List<AuthenticationEnum> authentications;
+	private List<String> authentications;
 
 	@Option(
 		names = { "--winrm-force-namespace" },
@@ -120,19 +124,31 @@ public class WinRmConfigCli extends AbstractTransportProtocolCli {
 	 * @param defaultUsername Username specified at the top level of the CLI (with the --username option)
 	 * @param defaultPassword Password specified at the top level of the CLI (with the --password option)
 	 * @return a WinRmProtocol instance corresponding to the options specified by the user in the CLI
+	 * @throws InvalidConfigurationException
 	 */
 	@Override
-	public IConfiguration toProtocol(String defaultUsername, char[] defaultPassword) {
-		return WinRmConfiguration
-			.builder()
-			.username(username == null ? defaultUsername : username)
-			.password(username == null ? defaultPassword : password)
-			.namespace(namespace)
-			.port(getOrDeducePortNumber())
-			.protocol(TransportProtocols.interpretValueOf(protocol))
-			.authentications(authentications)
-			.timeout(timeout)
-			.build();
+	public IConfiguration toProtocol(String defaultUsername, char[] defaultPassword)
+		throws InvalidConfigurationException {
+		final ObjectNode configuration = JsonNodeFactory.instance.objectNode();
+
+		final String finalUsername = username == null ? defaultUsername : username;
+		final char[] finalPassword = username == null ? defaultPassword : password;
+
+		configuration.set("username", new TextNode(finalUsername));
+		if (finalPassword != null) {
+			configuration.set("password", new TextNode(String.valueOf(finalPassword)));
+		}
+
+		configuration.set("namespace", new TextNode(namespace));
+		configuration.set("port", new IntNode(getOrDeducePortNumber()));
+		configuration.set("protocol", new TextNode(protocol));
+		configuration.set("authentications", getAuthentications());
+		configuration.set("timeout", new TextNode(timeout));
+
+		return CliExtensionManager
+			.getExtensionManagerSingleton()
+			.buildConfigurationFromJsonNode("winrm", configuration, value -> value)
+			.orElseThrow();
 	}
 
 	/**
@@ -147,6 +163,20 @@ public class WinRmConfigCli extends AbstractTransportProtocolCli {
 	 */
 	protected int defaultHttpPortNumber() {
 		return 5985;
+	}
+
+	/**
+	 * @return authentication list if specified, null otherwise
+	 */
+	protected ArrayNode getAuthentications() {
+		// Create an arrayNode that will contain all the authentications that the user introduced
+		ArrayNode authenticationsList = null;
+		if (authentications != null) {
+			authenticationsList = JsonNodeFactory.instance.arrayNode();
+			// Add all the introduced authentications
+			authentications.stream().forEach(authenticationsList::add);
+		}
+		return authenticationsList;
 	}
 
 	/**
