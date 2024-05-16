@@ -72,7 +72,7 @@ public class EmbeddedFile implements Serializable {
 	 * @return A string representing the reference to the embedded file.
 	 */
 	public String description() {
-		return String.format("EmbeddedFile %d: %s", id, filename != null ? filename : "anonyme");
+		return String.format("EmbeddedFile %d: %s", id, filename != null ? filename : "<inline>");
 	}
 
 	/**

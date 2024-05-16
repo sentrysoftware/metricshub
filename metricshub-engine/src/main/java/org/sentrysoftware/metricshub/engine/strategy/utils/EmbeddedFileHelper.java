@@ -95,7 +95,7 @@ public class EmbeddedFileHelper {
 
 		if (embeddedFiles.size() > 1) {
 			final String message = String.format(
-				"Hostname %s - Many embedded files are referenced in value: %s. Connector: %s.",
+				"Hostname %s - Many embedded files are referenced in value: %s. Expected 1 embedded file reference. Connector: %s.",
 				hostname,
 				value,
 				connectorId
