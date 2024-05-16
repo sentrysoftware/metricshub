@@ -301,7 +301,7 @@ resourceGroups:
             timeout: 120s
 ```
 
-#### SNMP
+#### SNMP V3
 
 Use the parameters below to configure the SNMP V3 protocol:
 
