@@ -35,7 +35,7 @@ import picocli.CommandLine.Option;
  * It create the engine's {@link IConfiguration} for SNMP object that is used to monitor a specific resource.
  */
 @Data
-public class Snmpv3ConfigCli implements IProtocolConfigCli {
+public class SnmpV3ConfigCli implements IProtocolConfigCli {
 
 	/**
 	 * Default timeout in seconds for an SNMP operation

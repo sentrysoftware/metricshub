@@ -46,7 +46,7 @@ import org.sentrysoftware.metricshub.cli.service.converter.DeviceKindConverter;
 import org.sentrysoftware.metricshub.cli.service.protocol.HttpConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.IpmiConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.SnmpConfigCli;
-import org.sentrysoftware.metricshub.cli.service.protocol.Snmpv3ConfigCli;
+import org.sentrysoftware.metricshub.cli.service.protocol.SnmpV3ConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.SshConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.WbemConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.WinRmConfigCli;
@@ -148,7 +148,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 	SnmpConfigCli snmpConfigCli;
 
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline SNMP V3 Options|@:%n")
-	Snmpv3ConfigCli snmpv3ConfigCli;
+	SnmpV3ConfigCli snmpv3ConfigCli;
 
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline HTTP Options|@:%n")
 	HttpConfigCli httpConfigCli;

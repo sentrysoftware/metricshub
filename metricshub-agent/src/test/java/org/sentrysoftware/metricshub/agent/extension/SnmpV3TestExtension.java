@@ -21,7 +21,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
  * processes SNMP V3 sources and criteria.
  */
 @Slf4j
-public class Snmpv3TestExtension implements IProtocolExtension {
+public class SnmpV3TestExtension implements IProtocolExtension {
 
 	/**
 	 * Protocol up status value '1.0'
@@ -45,7 +45,7 @@ public class Snmpv3TestExtension implements IProtocolExtension {
 
 	@Override
 	public boolean isValidConfiguration(IConfiguration configuration) {
-		return configuration instanceof Snmpv3TestConfiguration;
+		return configuration instanceof SnmpV3TestConfiguration;
 	}
 
 	@Override
@@ -92,8 +92,8 @@ public class Snmpv3TestExtension implements IProtocolExtension {
 		UnaryOperator<char[]> decrypt
 	) throws InvalidConfigurationException {
 		try {
-			final Snmpv3TestConfiguration snmpv3Configuration = new ObjectMapper()
-				.treeToValue(jsonNode, Snmpv3TestConfiguration.class);
+			final SnmpV3TestConfiguration snmpv3Configuration = new ObjectMapper()
+				.treeToValue(jsonNode, SnmpV3TestConfiguration.class);
 
 			// Decrypt the community
 			final char[] communityDecypted = decrypt.apply(snmpv3Configuration.getCommunity());

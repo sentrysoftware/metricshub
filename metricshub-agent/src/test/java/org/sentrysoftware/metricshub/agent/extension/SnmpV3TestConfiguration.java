@@ -24,7 +24,7 @@ import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Snmpv3TestConfiguration implements IConfiguration {
+public class SnmpV3TestConfiguration implements IConfiguration {
 
 	private static final int V3 = 3;
 	private static final String INVALID_AUTH_TYPE_EXCEPTION_MESSAGE = "Invalid authentication type: ";
