@@ -53,9 +53,8 @@ public class CommandLineCriterionProcessor {
 	 * @param telemetryManager The telemetry manager providing access to host configuration.
 	 * @return {@link CriterionTestResult} instance.
 	 */
-	@WithSpan("Criterion OS Command Exec")
 	public CriterionTestResult process(
-		@SpanAttribute("criterion.definition") CommandLineCriterion commandLineCriterion,
+		CommandLineCriterion commandLineCriterion,
 		TelemetryManager telemetryManager
 	) {
 		if (commandLineCriterion == null) {

@@ -1147,6 +1147,14 @@ class OsCommandExtensionTest {
 	@Test
 	@EnabledOnOs(OS.LINUX)
 	void testProcessCommandLineLinuxError() {
+
+		final Connector connector = Connector.builder().build();
+
+		final Map<String, Connector> store = Map.of(MY_CONNECTOR_1_NAME, connector);
+
+		final ConnectorStore connectorStore = new ConnectorStore();
+		connectorStore.setStore(store);
+
 		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
 		commandLineCriterion.setCommandLine("sleep 5");
 		commandLineCriterion.setExpectedResult(" ");
@@ -1179,6 +1187,7 @@ class OsCommandExtensionTest {
 			.builder()
 			.hostConfiguration(hostConfiguration)
 			.hostProperties(hostProperties)
+			.connectorStore(connectorStore)
 			.build();
 
 		final CriterionTestResult criterionTestResult = osCommandExtension.processCriterion(
@@ -1202,6 +1211,14 @@ class OsCommandExtensionTest {
 	@Test
 	@EnabledOnOs(OS.LINUX)
 	void testProcessCommandLineLocalLinuxFailedToMatchCriteria() {
+
+		final Connector connector = Connector.builder().build();
+
+		final Map<String, Connector> store = Map.of(MY_CONNECTOR_1_NAME, connector);
+
+		final ConnectorStore connectorStore = new ConnectorStore();
+		connectorStore.setStore(store);
+
 		final String result = "Test";
 
 		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
@@ -1231,6 +1248,7 @@ class OsCommandExtensionTest {
 			.builder()
 			.hostConfiguration(hostConfiguration)
 			.hostProperties(hostProperties)
+			.connectorStore(connectorStore)
 			.build();
 
 		final CriterionTestResult criterionTestResult = osCommandExtension.processCriterion(
@@ -1255,6 +1273,14 @@ class OsCommandExtensionTest {
 	@Test
 	@EnabledOnOs(OS.LINUX)
 	void testProcessCommandLineLocalLinux() {
+
+		final Connector connector = Connector.builder().build();
+
+		final Map<String, Connector> store = Map.of(MY_CONNECTOR_1_NAME, connector);
+
+		final ConnectorStore connectorStore = new ConnectorStore();
+		connectorStore.setStore(store);
+
 		final String result = "Test";
 
 		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
@@ -1284,6 +1310,7 @@ class OsCommandExtensionTest {
 			.builder()
 			.hostConfiguration(hostConfiguration)
 			.hostProperties(hostProperties)
+			.connectorStore(connectorStore)
 			.build();
 
 		final CriterionTestResult criterionTestResult = osCommandExtension.processCriterion(
