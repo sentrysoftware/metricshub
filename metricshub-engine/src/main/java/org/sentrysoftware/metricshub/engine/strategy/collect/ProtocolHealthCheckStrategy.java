@@ -56,26 +56,6 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	public static final Double DOWN = 0.0;
 
 	/**
-	 * Up metric name format that will be saved by the metric factory
-	 */
-	private static final String UP_METRIC_FORMAT = "metricshub.host.up{protocol=\"%s\"}";
-
-	/**
-	 * WINRM Up metric
-	 */
-	public static final String WINRM_UP_METRIC = String.format(UP_METRIC_FORMAT, "winrm");
-
-	/**
-	 * WQL Query to test WMI and WinRM protocols health check
-	 */
-	public static final String WMI_AND_WINRM_TEST_QUERY = "Select Name FROM Win32_ComputerSystem";
-
-	/**
-	 * WMI and WinRM protocol health check test Namespace
-	 */
-	public static final String WMI_AND_WINRM_TEST_NAMESPACE = "root\\cimv2";
-
-	/**
 	 * Constructs a new {@code HealthCheckStrategy} using the provided telemetry
 	 * manager, strategy time, and clients executor.
 	 *

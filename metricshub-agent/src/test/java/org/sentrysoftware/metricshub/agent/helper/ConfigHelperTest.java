@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -49,8 +48,6 @@ import org.sentrysoftware.metricshub.extension.snmp.SnmpExtension;
 
 class ConfigHelperTest {
 
-	private static final String USERNAME_CONFIG_VALUE = "username";
-	private static final String VCENTER_HOSTNAME = "vcenter";
 	private static final String RESOURCE_KEY = "resource-test-key";
 	private static final String PURE_STORAGE_REST_CONNECTOR_ID = "PureStorageREST";
 
@@ -275,35 +272,6 @@ class ConfigHelperTest {
 		assertEquals(2, store.size());
 		assertTrue(store.containsKey("custom-connector-1"));
 		assertTrue(store.containsKey("noTemplateVariable"));
-	}
-
-	@Test
-	void testValidateWinRm() {
-		assertThrows(
-			InvalidConfigurationException.class,
-			() -> ConfigHelper.validateWinRmInfo(RESOURCE_KEY, 1234, -60L, USERNAME_CONFIG_VALUE)
-		);
-		assertThrows(
-			InvalidConfigurationException.class,
-			() -> ConfigHelper.validateWinRmInfo(RESOURCE_KEY, 1234, null, USERNAME_CONFIG_VALUE)
-		);
-		assertThrows(
-			InvalidConfigurationException.class,
-			() -> ConfigHelper.validateWinRmInfo(RESOURCE_KEY, null, 60L, USERNAME_CONFIG_VALUE)
-		);
-		assertThrows(
-			InvalidConfigurationException.class,
-			() -> ConfigHelper.validateWinRmInfo(RESOURCE_KEY, -1234, 60L, USERNAME_CONFIG_VALUE)
-		);
-		assertThrows(
-			InvalidConfigurationException.class,
-			() -> ConfigHelper.validateWinRmInfo(RESOURCE_KEY, 1234, 60L, null)
-		);
-		assertThrows(
-			InvalidConfigurationException.class,
-			() -> ConfigHelper.validateWinRmInfo(RESOURCE_KEY, 1234, 60L, "")
-		);
-		assertDoesNotThrow(() -> ConfigHelper.validateWinRmInfo(RESOURCE_KEY, 1234, 60L, USERNAME_CONFIG_VALUE));
 	}
 
 	@Test

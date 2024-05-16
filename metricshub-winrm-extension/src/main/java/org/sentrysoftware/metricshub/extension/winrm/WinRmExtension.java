@@ -1,8 +1,8 @@
-package org.sentrysoftware.metricshub.extension.wmi;
+package org.sentrysoftware.metricshub.extension.winrm;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
- * MetricsHub WMI Extension
+ * MetricsHub WinRm Extension
  * ჻჻჻჻჻჻
  * Copyright 2023 - 2024 Sentry Software
  * ჻჻჻჻჻჻
@@ -39,7 +39,6 @@ import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.CommandLineCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.IpmiCriterion;
-import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.ProcessCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.ServiceCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WmiCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CommandLineSource;
@@ -56,7 +55,6 @@ import org.sentrysoftware.metricshub.extension.win.IWinConfiguration;
 import org.sentrysoftware.metricshub.extension.win.WinCommandService;
 import org.sentrysoftware.metricshub.extension.win.detection.WinCommandLineCriterionProcessor;
 import org.sentrysoftware.metricshub.extension.win.detection.WinIpmiCriterionProcessor;
-import org.sentrysoftware.metricshub.extension.win.detection.WinProcessCriterionProcessor;
 import org.sentrysoftware.metricshub.extension.win.detection.WinServiceCriterionProcessor;
 import org.sentrysoftware.metricshub.extension.win.detection.WmiCriterionProcessor;
 import org.sentrysoftware.metricshub.extension.win.detection.WmiDetectionService;
@@ -66,10 +64,10 @@ import org.sentrysoftware.metricshub.extension.win.source.WmiSourceProcessor;
 
 /**
  * This class implements the {@link IProtocolExtension} contract, reports the supported features,
- * processes WMI sources and criteria.
+ * processes WMI sources and criteria through WinRm.
  */
 @Slf4j
-public class WmiExtension implements IProtocolExtension {
+public class WinRmExtension implements IProtocolExtension {
 
 	/**
 	 * Protocol up status value '1.0'
@@ -82,36 +80,36 @@ public class WmiExtension implements IProtocolExtension {
 	public static final Double DOWN = 0.0;
 
 	/**
-	 * Up metric name format that will be saved by the metric factory
+	 * WinRm Up metric name format that will be saved by the metric factory
 	 */
-	public static final String WMI_UP_METRIC = "metricshub.host.up{protocol=\"wmi\"}";
+	public static final String WINRM_UP_METRIC = "metricshub.host.up{protocol=\"winrm\"}";
 
 	/**
-	 * WMI namespace
+	 * WinRm Test Query
 	 */
-	public static final String WMI_TEST_NAMESPACE = "root\\cimv2";
+	public static final String WINRM_TEST_QUERY = "Select Name FROM Win32_ComputerSystem";
 
 	/**
-	 * WMI Query used by the protocol health check
+	 * WinRm namespace
 	 */
-	public static final String WMI_TEST_QUERY = "SELECT Name FROM Win32_ComputerSystem";
+	public static final String WINRM_TEST_NAMESPACE = "root\\cimv2";
 
-	private WmiRequestExecutor wmiRequestExecutor;
+	private WinRmRequestExecutor winRmRequestExecutor;
 	private WmiDetectionService wmiDetectionService;
 	private WinCommandService winCommandService;
 
 	/**
-	 * Creates a new instance of the {@link WmiExtension} implementation.
+	 * Creates a new instance of the {@link WinRmExtension} implementation.
 	 */
-	public WmiExtension() {
-		wmiRequestExecutor = new WmiRequestExecutor();
-		wmiDetectionService = new WmiDetectionService(wmiRequestExecutor);
-		winCommandService = new WinCommandService(wmiRequestExecutor);
+	public WinRmExtension() {
+		winRmRequestExecutor = new WinRmRequestExecutor();
+		wmiDetectionService = new WmiDetectionService(winRmRequestExecutor);
+		winCommandService = new WinCommandService(winRmRequestExecutor);
 	}
 
 	@Override
 	public boolean isValidConfiguration(IConfiguration configuration) {
-		return configuration instanceof WmiConfiguration;
+		return configuration instanceof WinRmConfiguration;
 	}
 
 	@Override
@@ -121,7 +119,7 @@ public class WmiExtension implements IProtocolExtension {
 
 	@Override
 	public Map<Class<? extends IConfiguration>, Set<Class<? extends Source>>> getConfigurationToSourceMapping() {
-		return Map.of(WmiConfiguration.class, Set.of(WmiSource.class));
+		return Map.of(WinRmConfiguration.class, Set.of(WmiSource.class));
 	}
 
 	@Override
@@ -131,31 +129,31 @@ public class WmiExtension implements IProtocolExtension {
 
 	@Override
 	public void checkProtocol(TelemetryManager telemetryManager) {
-		// Create and set the WMI result to null
-		List<List<String>> wmiResult = null;
+		// Retrieve WinRM Configuration from the telemetry manager host configuration
+		final WinRmConfiguration winRmConfiguration = (WinRmConfiguration) telemetryManager
+			.getHostConfiguration()
+			.getConfigurations()
+			.get(WinRmConfiguration.class);
+
+		// Stop the health check if there is not an WinRM configuration
+		if (winRmConfiguration == null) {
+			return;
+		}
+
+		// Create and set the WinRM result to null
+		List<List<String>> winRmResult = null;
 
 		// Retrieve the hostname
 		final String hostname = telemetryManager.getHostname();
 
-		// Retrieve WMI Configuration from the telemetry manager host configuration
-		final WmiConfiguration wmiConfiguration = (WmiConfiguration) telemetryManager
-			.getHostConfiguration()
-			.getConfigurations()
-			.get(WmiConfiguration.class);
+		log.info(
+			"Hostname {} - Checking WinRM protocol status. Sending a WQL SELECT request on {} namespace.",
+			hostname,
+			WINRM_TEST_NAMESPACE
+		);
 
 		// Retrieve the host endpoint monitor
 		final Monitor hostMonitor = telemetryManager.getEndpointHostMonitor();
-
-		// Stop the health check if there is not an WMI configuration
-		if (wmiConfiguration == null) {
-			return;
-		}
-
-		log.info(
-			"Hostname {} - Checking WMI protocol status. Sending a WQL SELECT request on {} namespace.",
-			hostname,
-			WMI_TEST_NAMESPACE
-		);
 
 		// Create the MetricFactory in order to collect the up metric
 		final MetricFactory metricFactory = new MetricFactory();
@@ -164,23 +162,24 @@ public class WmiExtension implements IProtocolExtension {
 		final Long strategyTime = telemetryManager.getStrategyTime();
 
 		try {
-			wmiResult = wmiRequestExecutor.executeWmi(hostname, wmiConfiguration, WMI_TEST_QUERY, WMI_TEST_NAMESPACE);
+			winRmResult =
+				winRmRequestExecutor.executeWmi(hostname, winRmConfiguration, WINRM_TEST_QUERY, WINRM_TEST_NAMESPACE);
 		} catch (Exception e) {
-			if (wmiRequestExecutor.isAcceptableException(e)) {
-				// Generate a metric from the WMI result
-				metricFactory.collectNumberMetric(hostMonitor, WMI_UP_METRIC, UP, strategyTime);
+			if (winRmRequestExecutor.isAcceptableException(e)) {
+				// Generate a metric from the WinRM result
+				metricFactory.collectNumberMetric(hostMonitor, WINRM_UP_METRIC, UP, strategyTime);
 				return;
 			}
 			log.debug(
-				"Hostname {} - Checking WMI protocol status. WMI exception when performing a WQL SELECT request on {} namespace: ",
+				"Hostname {} - Checking WinRM protocol status. WinRM exception when performing a WQL SELECT request on {} namespace: ",
 				hostname,
-				WMI_TEST_NAMESPACE,
+				WINRM_TEST_NAMESPACE,
 				e
 			);
 		}
 
-		// Generate a metric from the WMI result
-		metricFactory.collectNumberMetric(hostMonitor, WMI_UP_METRIC, wmiResult != null ? UP : DOWN, strategyTime);
+		// Generate a metric from the WinRm result
+		metricFactory.collectNumberMetric(hostMonitor, WINRM_UP_METRIC, winRmResult != null ? UP : DOWN, strategyTime);
 	}
 
 	@Override
@@ -190,7 +189,7 @@ public class WmiExtension implements IProtocolExtension {
 		TelemetryManager telemetryManager
 	) {
 		final Function<TelemetryManager, IWinConfiguration> configurationRetriever = manager ->
-			(IWinConfiguration) manager.getHostConfiguration().getConfigurations().get(WmiConfiguration.class);
+			(IWinConfiguration) manager.getHostConfiguration().getConfigurations().get(WinRmConfiguration.class);
 
 		if (criterion instanceof WmiCriterion wmiCriterion) {
 			return new WmiCriterionProcessor(wmiDetectionService, configurationRetriever, connectorId)
@@ -204,9 +203,6 @@ public class WmiExtension implements IProtocolExtension {
 		} else if (criterion instanceof IpmiCriterion ipmiCriterion) {
 			return new WinIpmiCriterionProcessor(wmiDetectionService, configurationRetriever)
 				.process(ipmiCriterion, telemetryManager);
-		} else if (criterion instanceof ProcessCriterion processCriterion) {
-			return new WinProcessCriterionProcessor(wmiDetectionService)
-				.process(processCriterion, WmiConfiguration.builder().username(null).password(null).timeout(30L).build());
 		}
 
 		throw new IllegalArgumentException(
@@ -221,13 +217,13 @@ public class WmiExtension implements IProtocolExtension {
 	@Override
 	public SourceTable processSource(Source source, String connectorId, TelemetryManager telemetryManager) {
 		final Function<TelemetryManager, IWinConfiguration> configurationRetriever = manager ->
-			(IWinConfiguration) manager.getHostConfiguration().getConfigurations().get(WmiConfiguration.class);
+			(IWinConfiguration) manager.getHostConfiguration().getConfigurations().get(WinRmConfiguration.class);
 
 		if (source instanceof WmiSource wmiSource) {
-			return new WmiSourceProcessor(wmiRequestExecutor, configurationRetriever, connectorId)
+			return new WmiSourceProcessor(winRmRequestExecutor, configurationRetriever, connectorId)
 				.process(wmiSource, telemetryManager);
 		} else if (source instanceof IpmiSource ipmiSource) {
-			return new WinIpmiSourceProcessor(wmiRequestExecutor, configurationRetriever, connectorId)
+			return new WinIpmiSourceProcessor(winRmRequestExecutor, configurationRetriever, connectorId)
 				.process(ipmiSource, telemetryManager);
 		} else if (source instanceof CommandLineSource commandLineSource) {
 			return new WinCommandLineSourceProcessor(winCommandService, configurationRetriever, connectorId)
@@ -245,7 +241,7 @@ public class WmiExtension implements IProtocolExtension {
 
 	@Override
 	public boolean isSupportedConfigurationType(String configurationType) {
-		return "wmi".equalsIgnoreCase(configurationType);
+		return "winrm".equalsIgnoreCase(configurationType);
 	}
 
 	@Override
@@ -255,25 +251,25 @@ public class WmiExtension implements IProtocolExtension {
 		UnaryOperator<char[]> decrypt
 	) throws InvalidConfigurationException {
 		try {
-			final WmiConfiguration wmiConfiguration = newObjectMapper().treeToValue(jsonNode, WmiConfiguration.class);
+			final WinRmConfiguration winRmConfiguration = newObjectMapper().treeToValue(jsonNode, WinRmConfiguration.class);
 
 			if (decrypt != null) {
-				final char[] password = wmiConfiguration.getPassword();
+				final char[] password = winRmConfiguration.getPassword();
 				if (password != null) {
 					// Decrypt the password
-					wmiConfiguration.setPassword(decrypt.apply(password));
+					winRmConfiguration.setPassword(decrypt.apply(password));
 				}
 			}
 
-			return wmiConfiguration;
+			return winRmConfiguration;
 		} catch (Exception e) {
 			final String errorMessage = String.format(
-				"Error while reading WMI Configuration: %s. Error: %s",
+				"Error while reading WinRm Configuration: %s. Error: %s",
 				jsonNode,
 				e.getMessage()
 			);
 			log.error(errorMessage);
-			log.debug("Error while reading WMI Configuration: {}. Stack trace:", jsonNode, e);
+			log.debug("Error while reading WinRm Configuration: {}. Stack trace:", jsonNode, e);
 			throw new InvalidConfigurationException(errorMessage, e);
 		}
 	}
