@@ -2,6 +2,7 @@ package org.sentrysoftware.metricshub.engine.connector.model.common;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 
@@ -11,11 +12,17 @@ class EmbeddedFileTest {
 	void testDescription() {
 		assertEquals(
 			"EmbeddedFile 1: script.bat",
-			EmbeddedFile.builder().content("value".getBytes()).filename("script.bat").id(1).build().description()
+			EmbeddedFile
+				.builder()
+				.content("value".getBytes(StandardCharsets.UTF_8))
+				.filename("script.bat")
+				.id(1)
+				.build()
+				.description()
 		);
 		assertEquals(
 			"EmbeddedFile 1: <inline>",
-			EmbeddedFile.builder().content("value".getBytes()).id(1).build().description()
+			EmbeddedFile.builder().content("value".getBytes(StandardCharsets.UTF_8)).id(1).build().description()
 		);
 	}
 
@@ -23,7 +30,7 @@ class EmbeddedFileTest {
 	void testGetContentAsString() {
 		final EmbeddedFile embeddedFile = EmbeddedFile
 			.builder()
-			.content("value".getBytes())
+			.content("value".getBytes(StandardCharsets.UTF_8))
 			.filename("script.bat")
 			.id(1)
 			.build();
@@ -34,7 +41,7 @@ class EmbeddedFileTest {
 	void testUpdate() {
 		final EmbeddedFile embeddedFile = EmbeddedFile
 			.builder()
-			.content("value".getBytes())
+			.content("value".getBytes(StandardCharsets.UTF_8))
 			.filename("script.bat")
 			.id(1)
 			.build();
@@ -45,7 +52,7 @@ class EmbeddedFileTest {
 	@Test
 	void testFromString() {
 		final EmbeddedFile embeddedFile = EmbeddedFile.fromString("value");
-		final EmbeddedFile expected = EmbeddedFile.builder().content("value".getBytes()).build();
+		final EmbeddedFile expected = EmbeddedFile.builder().content("value".getBytes(StandardCharsets.UTF_8)).build();
 		assertEquals(expected, embeddedFile);
 	}
 
@@ -54,7 +61,7 @@ class EmbeddedFileTest {
 		{
 			final EmbeddedFile embeddedFile = EmbeddedFile
 				.builder()
-				.content("value".getBytes())
+				.content("value".getBytes(StandardCharsets.UTF_8))
 				.filename("script.bat")
 				.id(1)
 				.build();
@@ -63,14 +70,18 @@ class EmbeddedFileTest {
 		{
 			final EmbeddedFile embeddedFile = EmbeddedFile
 				.builder()
-				.content("value".getBytes())
+				.content("value".getBytes(StandardCharsets.UTF_8))
 				.filename("script")
 				.id(1)
 				.build();
 			assertEquals(MetricsHubConstants.EMPTY, embeddedFile.getFileExtension());
 		}
 		{
-			final EmbeddedFile embeddedFile = EmbeddedFile.builder().content("value".getBytes()).id(1).build();
+			final EmbeddedFile embeddedFile = EmbeddedFile
+				.builder()
+				.content("value".getBytes(StandardCharsets.UTF_8))
+				.id(1)
+				.build();
 			assertEquals(MetricsHubConstants.EMPTY, embeddedFile.getFileExtension());
 		}
 	}
@@ -80,7 +91,7 @@ class EmbeddedFileTest {
 		{
 			final EmbeddedFile embeddedFile = EmbeddedFile
 				.builder()
-				.content("value".getBytes())
+				.content("value".getBytes(StandardCharsets.UTF_8))
 				.filename("script.bat")
 				.id(1)
 				.build();
@@ -89,14 +100,18 @@ class EmbeddedFileTest {
 		{
 			final EmbeddedFile embeddedFile = EmbeddedFile
 				.builder()
-				.content("value".getBytes())
+				.content("value".getBytes(StandardCharsets.UTF_8))
 				.filename("script")
 				.id(1)
 				.build();
 			assertEquals("script", embeddedFile.getBaseName());
 		}
 		{
-			final EmbeddedFile embeddedFile = EmbeddedFile.builder().content("value".getBytes()).id(1).build();
+			final EmbeddedFile embeddedFile = EmbeddedFile
+				.builder()
+				.content("value".getBytes(StandardCharsets.UTF_8))
+				.id(1)
+				.build();
 			assertEquals(MetricsHubConstants.EMPTY, embeddedFile.getBaseName());
 		}
 	}

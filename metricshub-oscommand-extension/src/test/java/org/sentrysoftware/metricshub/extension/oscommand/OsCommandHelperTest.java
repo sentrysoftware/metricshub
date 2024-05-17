@@ -102,8 +102,8 @@ class OsCommandHelperTest {
 	public static final String TABLE_SEP = ";";
 
 	// Embedded files
-	public static final String TEMP_EMBEDDED_1 = "/tmp/SEN_Embedded_1.bat";
-	public static final String TEMP_EMBEDDED_2 = "/tmp/SEN_Embedded_2";
+	public static final String TEMP_EMBEDDED_1 = "/tmp/metricshub_embedded_1.bat";
+	public static final String TEMP_EMBEDDED_2 = "/tmp/metricshub_embedded_2";
 	public static final String AWK_EMBEDDED_CONTENT_PERCENT_SUDO =
 		"# Awk (or nawk)\n" +
 		"if [ -f /usr/xpg4/bin/awk ]; then\n" +
@@ -165,18 +165,18 @@ class OsCommandHelperTest {
 		" & del /F /Q ${file::1}" +
 		" & del /F /Q ${file::2}.bat";
 	public static final String UPDATED_COMMAND =
-		"copy /tmp/SEN_Embedded_2 /tmp/SEN_Embedded_2.bat > NUL" +
-		" & /tmp/SEN_Embedded_1.bat" +
-		" & /tmp/SEN_Embedded_2.bat" +
-		" & del /F /Q /tmp/SEN_Embedded_1.bat" +
-		" & del /F /Q /tmp/SEN_Embedded_2.bat";
+		"copy /tmp/metricshub_embedded_2 /tmp/metricshub_embedded_2.bat > NUL" +
+		" & /tmp/metricshub_embedded_1.bat" +
+		" & /tmp/metricshub_embedded_2.bat" +
+		" & del /F /Q /tmp/metricshub_embedded_1.bat" +
+		" & del /F /Q /tmp/metricshub_embedded_2.bat";
 	public static final String RAIDCTL_COMMAND = "/usr/sbin/raidctl -S";
 	public static final String SUDO_RAIDCTL_COMMAND = "%{SUDO:/usr/sbin/raidctl} /usr/sbin/raidctl -S";
 	public static final String SUDO_NAVISECCLI_COMMAND =
 		"%{Sudo:NaviSecCli} NaviSecCli -User %{USERNAME} -Password %{PASSWORD} -Address host -Scope 1 getagent";
-	public static final String SEN_EMBEDDED_0001_PATH = "/tmp/SEN_Embedded_0001";
-	public static final String SH_SEN_EMBEDDED_0001_PATH = "/bin/sh /tmp/SEN_Embedded_0001";
-	public static final String EMBEDDED_TEMP_FILE_PREFIX = "SEN_Embedded_";
+	public static final String SEN_EMBEDDED_0001_PATH = "/tmp/metricshub_embedded_0001";
+	public static final String SH_SEN_EMBEDDED_0001_PATH = "/bin/sh /tmp/metricshub_embedded_0001";
+	public static final String EMBEDDED_TEMP_FILE_PREFIX = "metricshub_embedded_";
 	public static final String AWK_FILE_EXTENSION = "\\w+\\.awk";
 	public static final String AWK_FILE_NAME = "script.awk";
 	public static final String AWK_SCRIPT_BASE_NAME = "script";

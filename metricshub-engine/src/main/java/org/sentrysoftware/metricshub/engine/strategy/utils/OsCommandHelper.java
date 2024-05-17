@@ -153,7 +153,8 @@ public class OsCommandHelper {
 
 	/**
 	 * Create a temporary file with the given extension.<br>
-	 * The temporary file name is prefixed with "SEN_Embedded_"
+	 * The temporary file name is prefixed with "metricshub_embedded_" to easily identify
+	 * and clean up files in case of issues, preventing potential filesystem overloads.
 	 *
 	 * @param baseName  Base name of the file. (File name without extension).
 	 * @param extension File's name suffix (e.g. .bat)
@@ -161,7 +162,7 @@ public class OsCommandHelper {
 	 */
 	public static File createEmbeddedTempFile(final String baseName, final String extension) {
 		try {
-			return File.createTempFile("SEN_Embedded_" + baseName, extension);
+			return File.createTempFile("metricshub_embedded_" + baseName, extension);
 		} catch (IOException e) {
 			throw new TempFileCreationException(e);
 		}
