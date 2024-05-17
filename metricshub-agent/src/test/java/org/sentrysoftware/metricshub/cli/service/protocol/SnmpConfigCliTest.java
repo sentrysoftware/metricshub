@@ -22,7 +22,8 @@ class SnmpConfigCliTest {
 		final SnmpConfigCli snmpConfigCli = new SnmpConfigCli();
 		snmpConfigCli.setSnmpVersion("v1");
 		snmpConfigCli.setPort(80);
-		snmpConfigCli.setCommunity("community");
+		final char[] community = "community".toCharArray();
+		snmpConfigCli.setCommunity(community);
 		snmpConfigCli.setTimeout("120");
 
 		try (MockedStatic<CliExtensionManager> cliExtensionManagerMock = mockStatic(CliExtensionManager.class)) {

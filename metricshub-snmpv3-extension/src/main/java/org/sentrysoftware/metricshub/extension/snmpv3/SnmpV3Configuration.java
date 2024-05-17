@@ -72,6 +72,7 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 	private String username;
 	private char[] privacyPassword;
 	private char[] password;
+	private int[] retryIntervals;
 
 	@Override
 	public String toString() {

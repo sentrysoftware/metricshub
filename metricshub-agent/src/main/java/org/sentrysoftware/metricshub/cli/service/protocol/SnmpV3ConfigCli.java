@@ -42,10 +42,7 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 	 */
 	public static final int DEFAULT_TIMEOUT = 30;
 
-	@Option(names = "--snmpv3", 
-			order = 1,
-			description = "Enable SNMPV3 protocol"
-	)
+	@Option(names = "--snmpv3", order = 1, description = "Enable SNMPV3 protocol")
 	private boolean useSnmpv3;
 
 	@Option(
@@ -55,7 +52,7 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 		defaultValue = "public",
 		description = "Community string for SNMP V3"
 	)
-	private String community;
+	private char[] community;
 
 	@Option(
 		names = "--snmpv3-privacy",
@@ -71,7 +68,7 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 		paramLabel = "PRIVACY-PASSWORD",
 		description = "Privacy password protocol for SNMPV3 (e.g., aes, des)"
 	)
-	private String privacyPassword;
+	private char[] privacyPassword;
 
 	@Option(
 		names = "--snmpv3-auth",
@@ -95,7 +92,7 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 		paramLabel = "PASSWORD",
 		description = "Password for SNMPV3 authentication"
 	)
-	private String password;
+	private char[] password;
 
 	@Option(
 		names = "--snmpv3-context-name",
@@ -135,12 +132,22 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 	public IConfiguration toProtocol(final String defaultUsername, final char[] defaultPassword)
 		throws InvalidConfigurationException {
 		final ObjectNode configuration = JsonNodeFactory.instance.objectNode();
-		configuration.set("community", new TextNode(community));
+
+		final String finalUsername = username == null ? defaultUsername : username;
+		configuration.set("username", new TextNode(finalUsername));
+
+		final char[] finalPassword = password == null ? defaultPassword : password;
+		if (finalPassword != null) {
+			configuration.set("password", new TextNode(String.valueOf(finalPassword)));
+		}
+		if (community != null) {
+			configuration.set("community", new TextNode((String.valueOf(community))));
+		}
 		configuration.set("privacy", new TextNode(privacy));
-		configuration.set("privacyPassword", new TextNode(privacyPassword));
+		if (privacyPassword != null) {
+			configuration.set("privacyPassword", new TextNode((String.valueOf(privacyPassword))));
+		}
 		configuration.set("authType", new TextNode(authType));
-		configuration.set("username", new TextNode(username));
-		configuration.set("password", new TextNode(password));
 		configuration.set("contextName", new TextNode(contextName));
 		configuration.set("timeout", new TextNode(timeout));
 		configuration.set("port", new IntNode(port));

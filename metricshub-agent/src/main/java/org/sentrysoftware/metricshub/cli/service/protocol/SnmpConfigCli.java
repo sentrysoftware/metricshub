@@ -59,7 +59,7 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 		defaultValue = "public",
 		description = "Community string for SNMP version 1 and 2 (default: ${DEFAULT-VALUE})"
 	)
-	String community;
+	char[] community;
 
 	@Option(
 		names = "--snmp-port",
@@ -92,7 +92,9 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 		throws InvalidConfigurationException {
 		final ObjectNode configuration = JsonNodeFactory.instance.objectNode();
 		configuration.set("version", new TextNode(snmpVersion));
-		configuration.set("community", new TextNode(community));
+		if (community != null) {
+			configuration.set("community", new TextNode((String.valueOf(community))));
+		}
 		configuration.set("port", new IntNode(port));
 		configuration.set("timeout", new TextNode(timeout));
 
