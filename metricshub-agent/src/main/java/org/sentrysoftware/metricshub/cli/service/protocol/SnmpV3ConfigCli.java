@@ -1,5 +1,8 @@
 package org.sentrysoftware.metricshub.cli.service.protocol;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
  * MetricsHub Agent
@@ -25,10 +28,34 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import lombok.Data;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import picocli.CommandLine.Option;
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Agent
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
 
 /**
  * This class is used by MetricsHubCliService to configure SNMP V3 protocol when using the MetricsHub CLI.
@@ -42,7 +69,10 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 	 */
 	public static final int DEFAULT_TIMEOUT = 30;
 
-	@Option(names = "--snmpv3", order = 1, description = "Enable SNMPV3 protocol")
+	@Option(names = "--snmpv3", 
+			order = 1,
+			description = "Enable SNMPV3 protocol"
+			)
 	private boolean useSnmpv3;
 
 	@Option(
@@ -61,6 +91,14 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 		description = "Privacy protocol for SNMPV3 (e.g., aes, des)"
 	)
 	private String privacy;
+	
+	@Option(
+			names = "--snmpv3-retryIntervals",
+			order = 3,
+			paramLabel = "RETRY INTERVALS",
+			description = "retry Intervals for SNMPV3 (e.g., aes, des)"
+		)
+	private int[] retryIntervals;
 
 	@Option(
 		names = "--snmpv3-privacy-password",
@@ -151,7 +189,14 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 		configuration.set("contextName", new TextNode(contextName));
 		configuration.set("timeout", new TextNode(timeout));
 		configuration.set("port", new IntNode(port));
-
+		if (retryIntervals!= null) {
+			 // Creating the JSON array for retryIntervals
+		    ArrayNode retryIntervalsNode = JsonNodeFactory.instance.arrayNode();
+		    Arrays.stream(retryIntervals)
+		            .mapToObj(IntNode::valueOf)
+		            .forEach(retryIntervalsNode::add);
+		    configuration.set("retryIntervals", retryIntervalsNode);		
+		}
 		return CliExtensionManager
 			.getExtensionManagerSingleton()
 			.buildConfigurationFromJsonNode("snmpv3", configuration, value -> value)

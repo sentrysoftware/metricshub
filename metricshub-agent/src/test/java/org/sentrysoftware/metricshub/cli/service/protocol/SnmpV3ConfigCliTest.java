@@ -21,6 +21,8 @@ class SnmpV3ConfigCliTest {
 		final char[] community = "community".toCharArray();
 		snmpV3ConfigCli.setCommunity(community);
 		snmpV3ConfigCli.setPrivacy("AES");
+		final int[] retryIntervals = {20,30,50};
+		snmpV3ConfigCli.setRetryIntervals(retryIntervals);
 		final char[] passwordPrivacy = "passwordPrivacy".toCharArray();
 		snmpV3ConfigCli.setPrivacyPassword(passwordPrivacy);
 		snmpV3ConfigCli.setAuthType("SHA");
@@ -57,6 +59,7 @@ class SnmpV3ConfigCliTest {
 			assertEquals(SnmpV3Configuration.AuthType.SHA, snmpV3Configuration.getAuthType());
 			assertEquals(username, snmpV3Configuration.getUsername());
 			assertArrayEquals("password".toCharArray(), snmpV3Configuration.getPassword());
+			assertArrayEquals(retryIntervals, snmpV3Configuration.getRetryIntervals());
 			assertEquals("testContext", snmpV3Configuration.getContextName());
 		}
 	}
