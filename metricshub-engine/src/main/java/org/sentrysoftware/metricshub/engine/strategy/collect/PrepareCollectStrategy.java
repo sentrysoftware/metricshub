@@ -27,6 +27,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
@@ -55,13 +56,15 @@ public class PrepareCollectStrategy extends AbstractStrategy {
 	 * @param telemetryManager The telemetry manager responsible for managing telemetry-related operations.
 	 * @param strategyTime     The time when the strategy is executed.
 	 * @param clientsExecutor  The executor for managing clients used in the strategy.
+	 * @param extensionManager The extension manager where all the required extensions are handled.
 	 */
 	public PrepareCollectStrategy(
 		@NonNull final TelemetryManager telemetryManager,
 		@NonNull final Long strategyTime,
-		@NonNull final ClientsExecutor clientsExecutor
+		@NonNull final ClientsExecutor clientsExecutor,
+		@NonNull final ExtensionManager extensionManager
 	) {
-		super(telemetryManager, strategyTime, clientsExecutor);
+		super(telemetryManager, strategyTime, clientsExecutor, extensionManager);
 	}
 
 	@Override

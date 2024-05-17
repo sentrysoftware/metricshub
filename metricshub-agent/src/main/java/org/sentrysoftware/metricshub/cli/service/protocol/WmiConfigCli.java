@@ -21,14 +21,18 @@ package org.sentrysoftware.metricshub.cli.service.protocol;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import lombok.Data;
+import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.WmiConfiguration;
 import picocli.CommandLine.Option;
 
 /**
  * This class is used by MetricsHubCliService to configure Wmi protocol when using the MetricsHub CLI.
- * It create the engine's {@link WmiConfiguration} object that is used to monitor a specific resource.
+ * It create the engine's {@link IConfiguration} object that is used to monitor a specific resource.
  */
 @Data
 public class WmiConfigCli implements IProtocolConfigCli {
@@ -68,9 +72,9 @@ public class WmiConfigCli implements IProtocolConfigCli {
 		order = 4,
 		paramLabel = "TIMEOUT",
 		defaultValue = "" + DEFAULT_TIMEOUT,
-		description = "Timeout in seconds for WBEM operations (default: ${DEFAULT-VALUE} s)"
+		description = "Timeout in seconds for WMI operations (default: ${DEFAULT-VALUE} s)"
 	)
-	private Long timeout;
+	private String timeout;
 
 	/**
 	 * Forces a specific namespace for connectors that perform namespace auto-detection
@@ -84,20 +88,32 @@ public class WmiConfigCli implements IProtocolConfigCli {
 	private String namespace;
 
 	/**
-	 * This method creates an {@link WmiConfiguration} for a given username and a given password
+	 * This method creates an {@link IConfiguration} for a given username and a given password.
 	 *
-	 * @param defaultUsername Username specified at the top level of the CLI (with the --username option)
-	 * @param defaultPassword Password specified at the top level of the CLI (with the --password option)
-	 * @return an WMIProtocol instance corresponding to the options specified by the user in the CLI
+	 * @param defaultUsername Username specified at the top level of the CLI (with the --username option).
+	 * @param defaultPassword Password specified at the top level of the CLI (with the --password option).
+	 * @return an WMIProtocol instance corresponding to the options specified by the user in the CLI.
+	 * @throws InvalidConfigurationException If the WMI extension is unable to parse WMI configuration inputs.
 	 */
 	@Override
-	public IConfiguration toProtocol(String defaultUsername, char[] defaultPassword) {
-		return WmiConfiguration
-			.builder()
-			.username(username == null ? defaultUsername : username)
-			.password(username == null ? defaultPassword : password)
-			.namespace(namespace)
-			.timeout(timeout)
-			.build();
+	public IConfiguration toProtocol(String defaultUsername, char[] defaultPassword)
+		throws InvalidConfigurationException {
+		final ObjectNode configuration = JsonNodeFactory.instance.objectNode();
+
+		final String finalUsername = username == null ? defaultUsername : username;
+		configuration.set("username", new TextNode(finalUsername));
+
+		final char[] finalPassword = username == null ? defaultPassword : password;
+		if (finalPassword != null) {
+			configuration.set("password", new TextNode(String.valueOf(finalPassword)));
+		}
+
+		configuration.set("timeout", new TextNode(timeout));
+		configuration.set("namespace", new TextNode(namespace));
+
+		return CliExtensionManager
+			.getExtensionManagerSingleton()
+			.buildConfigurationFromJsonNode("wmi", configuration, value -> value)
+			.orElseThrow();
 	}
 }

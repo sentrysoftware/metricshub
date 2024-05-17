@@ -24,10 +24,13 @@ package org.sentrysoftware.metricshub.agent.config.protocols;
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.sentrysoftware.metricshub.agent.deserialization.ExtensionConfigDeserializer;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 
 /**
  * Configuration class for various protocols.
@@ -40,26 +43,34 @@ import lombok.NoArgsConstructor;
 public class ProtocolsConfig {
 
 	@JsonSetter(nulls = SKIP)
-	private SnmpProtocolConfig snmp;
+	@JsonDeserialize(using = ExtensionConfigDeserializer.class)
+	private IConfiguration snmp;
 
 	@JsonSetter(nulls = SKIP)
-	private IpmiProtocolConfig ipmi;
+	@JsonDeserialize(using = ExtensionConfigDeserializer.class)
+	private IConfiguration ipmi;
 
 	@JsonSetter(nulls = SKIP)
-	private SshProtocolConfig ssh;
+	@JsonDeserialize(using = ExtensionConfigDeserializer.class)
+	private IConfiguration ssh;
 
 	@JsonSetter(nulls = SKIP)
-	private WbemProtocolConfig wbem;
+	@JsonDeserialize(using = ExtensionConfigDeserializer.class)
+	private IConfiguration wbem;
 
 	@JsonSetter(nulls = SKIP)
-	private WmiProtocolConfig wmi;
+	@JsonDeserialize(using = ExtensionConfigDeserializer.class)
+	private IConfiguration wmi;
 
 	@JsonSetter(nulls = SKIP)
-	private HttpProtocolConfig http;
+	@JsonDeserialize(using = ExtensionConfigDeserializer.class)
+	private IConfiguration http;
 
 	@JsonSetter(nulls = SKIP)
-	private OsCommandProtocolConfig osCommand;
+	@JsonDeserialize(using = ExtensionConfigDeserializer.class)
+	private IConfiguration osCommand;
 
 	@JsonSetter(nulls = SKIP)
-	private WinRmProtocolConfig winrm;
+	@JsonDeserialize(using = ExtensionConfigDeserializer.class)
+	private IConfiguration winrm;
 }

@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -24,6 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -33,28 +33,31 @@ import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.MockedStatic;
 import org.sentrysoftware.metricshub.agent.config.AgentConfig;
-import org.sentrysoftware.metricshub.agent.config.protocols.SnmpProtocolConfig;
 import org.sentrysoftware.metricshub.agent.context.AgentContext;
 import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.common.helpers.ResourceHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.HttpConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration.SnmpVersion;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.extension.snmp.SnmpExtension;
 
 class ConfigHelperTest {
 
-	private static final String USERNAME_CONFIG_VALUE = "username";
-	private static final String VCENTER_HOSTNAME = "vcenter";
 	private static final String RESOURCE_KEY = "resource-test-key";
 	private static final String PURE_STORAGE_REST_CONNECTOR_ID = "PureStorageREST";
 
 	@TempDir
 	static Path tempDir;
+
+	// Initialize the extension manager required by the agent context
+	final ExtensionManager extensionManager = ExtensionManager
+		.builder()
+		.withProtocolExtensions(List.of(new SnmpExtension()))
+		.build();
 
 	@Test
 	@EnabledOnOs(OS.WINDOWS)
@@ -154,7 +157,7 @@ class ConfigHelperTest {
 		connectorStore.addOne(PURE_STORAGE_REST_CONNECTOR_ID, connector);
 
 		final AgentConfig agentConfig = JsonHelper.deserialize(
-			AgentContext.AGENT_CONFIG_OBJECT_MAPPER,
+			AgentContext.newAgentConfigObjectMapper(extensionManager),
 			new FileInputStream(configFile),
 			AgentConfig.class
 		);
@@ -184,7 +187,6 @@ class ConfigHelperTest {
 		);
 
 		assertEquals(Set.of("+" + PURE_STORAGE_REST_CONNECTOR_ID), hostConfiguration.getConnectors());
-		assertNotNull(hostConfiguration.getConfigurations().get(HttpConfiguration.class));
 	}
 
 	@Test
@@ -200,7 +202,7 @@ class ConfigHelperTest {
 
 		// Create the agent configuration
 		final AgentConfig agentConfig = JsonHelper.deserialize(
-			AgentContext.AGENT_CONFIG_OBJECT_MAPPER,
+			AgentContext.newAgentConfigObjectMapper(extensionManager),
 			new FileInputStream(configFile),
 			AgentConfig.class
 		);
@@ -238,7 +240,6 @@ class ConfigHelperTest {
 		);
 
 		assertEquals(Set.of("+" + PURE_STORAGE_REST_CONNECTOR_ID), hostConfiguration.getConnectors());
-		assertNotNull(hostConfiguration.getConfigurations().get(HttpConfiguration.class));
 
 		// Check resources under agent config (top-level resources)
 		final Map<String, TelemetryManager> topLevelResourcesTelemetryManagers = telemetryManagers.get(
@@ -270,213 +271,6 @@ class ConfigHelperTest {
 		assertEquals(2, store.size());
 		assertTrue(store.containsKey("custom-connector-1"));
 		assertTrue(store.containsKey("noTemplateVariable"));
-	}
-
-	@Test
-	void testValidateSnmpInfo() {
-		final char[] community = "public".toCharArray();
-		final char[] emptyCommunity = new char[] {};
-
-		{
-			final SnmpProtocolConfig snmpProtocolConfig = SnmpProtocolConfig
-				.builder()
-				.community(emptyCommunity)
-				.port(1234)
-				.timeout(60L)
-				.version(SnmpVersion.V1)
-				.build();
-
-			assertThrows(IllegalStateException.class, () -> ConfigHelper.validateSnmpInfo(RESOURCE_KEY, snmpProtocolConfig));
-		}
-
-		{
-			final SnmpProtocolConfig snmpProtocolConfig = SnmpProtocolConfig
-				.builder()
-				.community(null)
-				.port(1234)
-				.timeout(60L)
-				.version(SnmpVersion.V1)
-				.build();
-
-			assertThrows(IllegalStateException.class, () -> ConfigHelper.validateSnmpInfo(RESOURCE_KEY, snmpProtocolConfig));
-		}
-
-		{
-			final SnmpProtocolConfig snmpProtocolConfig = SnmpProtocolConfig
-				.builder()
-				.community(community)
-				.port(-1)
-				.timeout(60L)
-				.version(SnmpVersion.V1)
-				.build();
-
-			assertThrows(IllegalStateException.class, () -> ConfigHelper.validateSnmpInfo(RESOURCE_KEY, snmpProtocolConfig));
-		}
-
-		{
-			final SnmpProtocolConfig snmpProtocolConfig = SnmpProtocolConfig
-				.builder()
-				.community(community)
-				.port(66666)
-				.timeout(60L)
-				.version(SnmpVersion.V1)
-				.build();
-
-			assertThrows(IllegalStateException.class, () -> ConfigHelper.validateSnmpInfo(RESOURCE_KEY, snmpProtocolConfig));
-		}
-
-		{
-			final SnmpProtocolConfig snmpProtocolConfig = SnmpProtocolConfig
-				.builder()
-				.community(community)
-				.port(null)
-				.timeout(60L)
-				.version(SnmpVersion.V1)
-				.build();
-
-			assertThrows(IllegalStateException.class, () -> ConfigHelper.validateSnmpInfo(RESOURCE_KEY, snmpProtocolConfig));
-		}
-
-		{
-			final SnmpProtocolConfig snmpProtocolConfig = SnmpProtocolConfig
-				.builder()
-				.community(community)
-				.port(1234)
-				.timeout(-60L)
-				.version(SnmpVersion.V1)
-				.build();
-
-			assertThrows(IllegalStateException.class, () -> ConfigHelper.validateSnmpInfo(RESOURCE_KEY, snmpProtocolConfig));
-		}
-
-		{
-			final SnmpProtocolConfig snmpProtocolConfig = SnmpProtocolConfig
-				.builder()
-				.community(community)
-				.port(1234)
-				.timeout(null)
-				.version(SnmpVersion.V1)
-				.build();
-
-			assertThrows(IllegalStateException.class, () -> ConfigHelper.validateSnmpInfo(RESOURCE_KEY, snmpProtocolConfig));
-		}
-	}
-
-	@Test
-	void testValidateIpmiInfo() {
-		assertThrows(IllegalStateException.class, () -> ConfigHelper.validateIpmiInfo(RESOURCE_KEY, "", 60L));
-		assertThrows(IllegalStateException.class, () -> ConfigHelper.validateIpmiInfo(RESOURCE_KEY, null, 60L));
-		assertThrows(
-			IllegalStateException.class,
-			() -> ConfigHelper.validateIpmiInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, -60L)
-		);
-		assertThrows(
-			IllegalStateException.class,
-			() -> ConfigHelper.validateIpmiInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, null)
-		);
-		assertDoesNotThrow(() -> ConfigHelper.validateIpmiInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, 60L));
-	}
-
-	@Test
-	void testValidateSshInfo() {
-		assertThrows(IllegalStateException.class, () -> ConfigHelper.validateSshInfo(RESOURCE_KEY, "", 60L));
-		assertThrows(IllegalStateException.class, () -> ConfigHelper.validateSshInfo(RESOURCE_KEY, null, 60L));
-		assertThrows(
-			IllegalStateException.class,
-			() -> ConfigHelper.validateSshInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, -60L)
-		);
-		assertThrows(
-			IllegalStateException.class,
-			() -> ConfigHelper.validateSshInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, null)
-		);
-		assertDoesNotThrow(() -> ConfigHelper.validateSshInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, 60L));
-	}
-
-	@Test
-	void testValidateWbemInfo() {
-		assertThrows(
-			IllegalStateException.class,
-			() -> ConfigHelper.validateWbemInfo(RESOURCE_KEY, null, -60L, 1234, VCENTER_HOSTNAME)
-		);
-		assertThrows(
-			IllegalStateException.class,
-			() -> ConfigHelper.validateWbemInfo(RESOURCE_KEY, "", null, 1234, VCENTER_HOSTNAME)
-		);
-		assertThrows(
-			IllegalStateException.class,
-			() -> ConfigHelper.validateWbemInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, -60L, 1234, VCENTER_HOSTNAME)
-		);
-		assertThrows(
-			IllegalStateException.class,
-			() -> ConfigHelper.validateWbemInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, null, 1234, VCENTER_HOSTNAME)
-		);
-		assertThrows(
-			IllegalStateException.class,
-			() -> ConfigHelper.validateWbemInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, 60L, -1, VCENTER_HOSTNAME)
-		);
-		assertThrows(
-			IllegalStateException.class,
-			() -> ConfigHelper.validateWbemInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, 60L, null, VCENTER_HOSTNAME)
-		);
-		assertThrows(
-			IllegalStateException.class,
-			() -> ConfigHelper.validateWbemInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, 60L, 66666, VCENTER_HOSTNAME)
-		);
-		assertThrows(
-			IllegalStateException.class,
-			() -> ConfigHelper.validateWbemInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, 60L, null, "")
-		);
-		assertDoesNotThrow(() ->
-			ConfigHelper.validateWbemInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, 60L, 1234, VCENTER_HOSTNAME)
-		);
-		assertDoesNotThrow(() -> ConfigHelper.validateWbemInfo(RESOURCE_KEY, USERNAME_CONFIG_VALUE, 60L, 1234, null));
-	}
-
-	@Test
-	void testValidateWmiInfo() {
-		assertThrows(IllegalStateException.class, () -> ConfigHelper.validateWmiInfo(RESOURCE_KEY, -60L));
-		assertThrows(IllegalStateException.class, () -> ConfigHelper.validateWmiInfo(RESOURCE_KEY, null));
-		assertDoesNotThrow(() -> ConfigHelper.validateWmiInfo(RESOURCE_KEY, 60L));
-	}
-
-	@Test
-	void testValidateHttpInfo() {
-		assertThrows(IllegalStateException.class, () -> ConfigHelper.validateHttpInfo(RESOURCE_KEY, -60L, 1234));
-		assertThrows(IllegalStateException.class, () -> ConfigHelper.validateHttpInfo(RESOURCE_KEY, null, 1234));
-		assertThrows(IllegalStateException.class, () -> ConfigHelper.validateHttpInfo(RESOURCE_KEY, 60L, -1));
-		assertThrows(IllegalStateException.class, () -> ConfigHelper.validateHttpInfo(RESOURCE_KEY, 60L, null));
-		assertThrows(IllegalStateException.class, () -> ConfigHelper.validateHttpInfo(RESOURCE_KEY, 60L, 66666));
-		assertDoesNotThrow(() -> ConfigHelper.validateHttpInfo(RESOURCE_KEY, 60L, 1234));
-	}
-
-	@Test
-	void testValidateOsCommandInfo() {
-		assertThrows(IllegalStateException.class, () -> ConfigHelper.validateOsCommandInfo(RESOURCE_KEY, -60L));
-		assertThrows(IllegalStateException.class, () -> ConfigHelper.validateOsCommandInfo(RESOURCE_KEY, null));
-		assertDoesNotThrow(() -> ConfigHelper.validateOsCommandInfo(RESOURCE_KEY, 60L));
-	}
-
-	@Test
-	void testValidateWinRm() {
-		assertThrows(
-			IllegalStateException.class,
-			() -> ConfigHelper.validateWinRmInfo(RESOURCE_KEY, 1234, -60L, USERNAME_CONFIG_VALUE)
-		);
-		assertThrows(
-			IllegalStateException.class,
-			() -> ConfigHelper.validateWinRmInfo(RESOURCE_KEY, 1234, null, USERNAME_CONFIG_VALUE)
-		);
-		assertThrows(
-			IllegalStateException.class,
-			() -> ConfigHelper.validateWinRmInfo(RESOURCE_KEY, null, 60L, USERNAME_CONFIG_VALUE)
-		);
-		assertThrows(
-			IllegalStateException.class,
-			() -> ConfigHelper.validateWinRmInfo(RESOURCE_KEY, -1234, 60L, USERNAME_CONFIG_VALUE)
-		);
-		assertThrows(IllegalStateException.class, () -> ConfigHelper.validateWinRmInfo(RESOURCE_KEY, 1234, 60L, null));
-		assertThrows(IllegalStateException.class, () -> ConfigHelper.validateWinRmInfo(RESOURCE_KEY, 1234, 60L, ""));
-		assertDoesNotThrow(() -> ConfigHelper.validateWinRmInfo(RESOURCE_KEY, 1234, 60L, USERNAME_CONFIG_VALUE));
 	}
 
 	@Test

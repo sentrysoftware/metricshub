@@ -1,5 +1,12 @@
 package org.sentrysoftware.metricshub.engine.configuration;
 
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DEFAULT_JOB_TIMEOUT;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
  * MetricsHub Engine
@@ -20,15 +27,6 @@ package org.sentrysoftware.metricshub.engine.configuration;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
-
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DEFAULT_JOB_TIMEOUT;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -37,13 +35,10 @@ import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.alert.AlertInfo;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CommandLineSource;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpGetSource;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WbemSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WmiSource;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 
 /**
  * The HostConfiguration class represents the configuration for a host in the MetricsHub engine.
@@ -72,41 +67,32 @@ public class HostConfiguration {
 
 	private String configuredConnectorId;
 
-	private static final Map<Class<? extends IConfiguration>, Set<Class<? extends Source>>> CONFIGURATION_TO_SOURCES_MAP;
-
-	static {
-		CONFIGURATION_TO_SOURCES_MAP =
-			Map.of(
-				SnmpConfiguration.class,
-				Set.of(SnmpGetSource.class, SnmpTableSource.class),
-				WmiConfiguration.class,
-				Collections.singleton(WmiSource.class),
-				WbemConfiguration.class,
-				Collections.singleton(WbemSource.class),
-				SshConfiguration.class,
-				Collections.singleton(CommandLineSource.class),
-				HttpConfiguration.class,
-				Collections.singleton(HttpSource.class),
-				IpmiConfiguration.class,
-				Collections.singleton(IpmiSource.class),
-				OsCommandConfiguration.class,
-				Collections.singleton(CommandLineSource.class),
-				WinRmConfiguration.class,
-				Collections.singleton(WmiSource.class)
-			);
-	}
-
 	/**
 	 * Determine the accepted sources that can be executed using the current engine configuration
 	 *
-	 * @param isLocalhost Whether the host should be localhost or not
+	 * @param isLocalhost      Whether the host should be localhost or not.
+	 * @param extensionManager Where all the extensions are managed.
 	 * @return {@link Set} of accepted source types
 	 */
-	public Set<Class<? extends Source>> determineAcceptedSources(final boolean isLocalhost) {
+	public Set<Class<? extends Source>> determineAcceptedSources(
+		final boolean isLocalhost,
+		final ExtensionManager extensionManager
+	) {
+		// Retrieve the configuration to Source mapping through the available extensions
+		// @formatter:off
+		final Map<Class<? extends IConfiguration>, Set<Class<? extends Source>>> configurationToSourceMappingFromExtensions =
+			extensionManager.findConfigurationToSourceMapping();
+		// @formatter:on
+
+		final Map<Class<? extends IConfiguration>, Set<Class<? extends Source>>> configurationToSourceMapping =
+			new HashMap<>();
+
+		configurationToSourceMapping.putAll(configurationToSourceMappingFromExtensions);
+
 		// protocolConfigurations and host cannot never be null
 		final Set<Class<? extends IConfiguration>> protocolTypes = configurations.keySet();
 
-		final Set<Class<? extends Source>> sources = CONFIGURATION_TO_SOURCES_MAP
+		final Set<Class<? extends Source>> sources = configurationToSourceMapping
 			.entrySet()
 			.stream()
 			.filter(protocolEntry -> protocolTypes.contains(protocolEntry.getKey()))
@@ -144,23 +130,5 @@ public class HostConfiguration {
 		}
 
 		return sources;
-	}
-
-	/**
-	 * Get the protocol configuration used to execute requests on Windows machines.
-	 *  (WinRM or WMI)<br> WinRM is prioritized.
-	 *
-	 * @return {@link IWinConfiguration} instance.
-	 */
-	public IWinConfiguration getWinConfiguration() {
-		// We prioritize WinRM over WMI as it's more efficient.
-		final IWinConfiguration protocol = (IWinConfiguration) this.getConfigurations().get(WinRmConfiguration.class);
-
-		// Let's try WMI if the WinRM is not available
-		if (protocol == null) {
-			return (IWinConfiguration) this.getConfigurations().get(WmiConfiguration.class);
-		}
-
-		return protocol;
 	}
 }

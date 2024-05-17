@@ -21,15 +21,19 @@ package org.sentrysoftware.metricshub.cli.service.protocol;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import com.fasterxml.jackson.databind.node.IntNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import lombok.Data;
-import org.sentrysoftware.metricshub.cli.service.converter.SnmpVersionConverter;
+import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import picocli.CommandLine.Option;
 
 /**
- * This class is used by MetricsHubCliService to configure Snmp protocol when using the MetricsHub CLI.
- * It create the engine's {@link SnmpConfiguration} object that is used to monitor a specific resource.
+ * This class is used by MetricsHubCliService to configure SNMP protocol when using the MetricsHub CLI.
+ * It create the engine's {@link IConfiguration} for SNMP object that is used to monitor a specific resource.
  */
 @Data
 public class SnmpConfigCli implements IProtocolConfigCli {
@@ -44,10 +48,9 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 		order = 1,
 		defaultValue = "1",
 		paramLabel = "VERSION",
-		description = "Enables SNMP protocol version: 1 or 2",
-		converter = SnmpVersionConverter.class
+		description = "Enables SNMP protocol version: 1 or 2"
 	)
-	SnmpConfiguration.SnmpVersion snmpVersion;
+	String snmpVersion;
 
 	@Option(
 		names = { "--snmp-community", "--community" },
@@ -74,17 +77,28 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 		defaultValue = "" + DEFAULT_TIMEOUT,
 		description = "Timeout in seconds for SNMP operations (default: ${DEFAULT-VALUE} s)"
 	)
-	long timeout;
+	String timeout;
 
 	/**
-	 * This method creates an {@link SnmpConfiguration} for a given username and a given password
+	 * This method creates an {@link IConfiguration} for a given username and a given password
 	 *
 	 * @param defaultUsername Username specified at the top level of the CLI (with the --username option)
 	 * @param defaultPassword Password specified at the top level of the CLI (with the --password option)
-	 * @return a {@link SnmpConfiguration} instance corresponding to the options specified by the user in the CLI
+	 * @return an {@link IConfiguration} instance corresponding to the options specified by the user in the CLI
+	 * @throws InvalidConfigurationException If the given configuration JSON node is invalid.
 	 */
 	@Override
-	public IConfiguration toProtocol(final String defaultUsername, final char[] defaultPassword) {
-		return SnmpConfiguration.builder().version(snmpVersion).community(community).port(port).timeout(timeout).build();
+	public IConfiguration toProtocol(final String defaultUsername, final char[] defaultPassword)
+		throws InvalidConfigurationException {
+		final ObjectNode configuration = JsonNodeFactory.instance.objectNode();
+		configuration.set("version", new TextNode(snmpVersion));
+		configuration.set("community", new TextNode(community));
+		configuration.set("port", new IntNode(port));
+		configuration.set("timeout", new TextNode(timeout));
+
+		return CliExtensionManager
+			.getExtensionManagerSingleton()
+			.buildConfigurationFromJsonNode("snmp", configuration, value -> value)
+			.orElseThrow();
 	}
 }

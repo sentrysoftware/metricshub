@@ -41,9 +41,9 @@ import org.sentrysoftware.metricshub.agent.config.protocols.ProtocolsConfig;
 import org.sentrysoftware.metricshub.agent.deserialization.AttributesDeserializer;
 import org.sentrysoftware.metricshub.agent.deserialization.ConnectorVariablesDeserializer;
 import org.sentrysoftware.metricshub.agent.deserialization.MonitorJobsDeserializer;
-import org.sentrysoftware.metricshub.agent.deserialization.TimeDeserializer;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.MonitorJob;
+import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 
 /**
  * Configuration class representing the configuration for a resource in

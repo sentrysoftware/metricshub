@@ -1,50 +1,51 @@
 package org.sentrysoftware.metricshub.cli.service.protocol;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.mockStatic;
 
-import java.io.File;
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
-import org.sentrysoftware.metricshub.engine.configuration.SshConfiguration;
+import org.mockito.MockedStatic;
+import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
+import org.sentrysoftware.metricshub.extension.oscommand.OsCommandExtension;
+import org.sentrysoftware.metricshub.extension.oscommand.SshConfiguration;
 
 class SshConfigCliTest {
 
 	@Test
-	void testToProtocol() {
+	void testToProtocol() throws Exception {
 		SshConfigCli sshConfigCli = new SshConfigCli();
 		final char[] password = "value".toCharArray();
 		final String username = "username";
-		final int timeout = 120;
-		final File privateKey = new File("privateKey");
-		final String sudoCommand = "sudoCommand";
-		final Set<String> useSudoCommands = Set.of("command1", "command2");
-
-		final SshConfiguration sshConfiguration = SshConfiguration
-			.sshConfigurationBuilder()
-			.username(username)
-			.password(password)
-			.timeout(120L)
-			.privateKey(privateKey)
-			.sudoCommand(sudoCommand)
-			.useSudoCommands(useSudoCommands)
-			.useSudo(true)
-			.build();
 
 		sshConfigCli.setPassword(password);
 		sshConfigCli.setUsername(username);
-		sshConfigCli.setTimeout(timeout);
-		sshConfigCli.setPrivateKey(privateKey);
-		sshConfigCli.setSudoCommand(sudoCommand);
-		sshConfigCli.setUseSudoCommands(useSudoCommands);
+		sshConfigCli.setTimeout("120");
+		sshConfigCli.setPrivateKey("privateKey");
+		sshConfigCli.setSudoCommand("sudoCommand");
+		sshConfigCli.setUseSudoCommands(Set.of("command1", "command2"));
 
-		assertEquals(sshConfiguration, sshConfigCli.toProtocol(null, null));
+		try (MockedStatic<CliExtensionManager> CliExtensionManagerMock = mockStatic(CliExtensionManager.class)) {
+			// Initialize the extension manager required by the agent context
+			final ExtensionManager extensionManager = ExtensionManager
+				.builder()
+				.withProtocolExtensions(List.of(new OsCommandExtension()))
+				.build();
 
-		sshConfigCli = new SshConfigCli();
-		sshConfigCli.setTimeout(timeout);
-		sshConfigCli.setPrivateKey(privateKey);
-		sshConfigCli.setSudoCommand(sudoCommand);
-		sshConfigCli.setUseSudoCommands(useSudoCommands);
+			CliExtensionManagerMock
+				.when(() -> CliExtensionManager.getExtensionManagerSingleton())
+				.thenReturn(extensionManager);
 
-		assertEquals(sshConfiguration, sshConfigCli.toProtocol(username, password));
+			// Create an SshTestConfiguration and call method toProtocol
+			final SshConfiguration sshConfiguration = (SshConfiguration) sshConfigCli.toProtocol(username, password);
+
+			// Check the resulting ssh configuration
+			assertNotNull(sshConfiguration);
+			assertEquals(username, sshConfiguration.getUsername());
+			assertEquals(String.valueOf(password), String.valueOf(sshConfiguration.getPassword()));
+		}
 	}
 }

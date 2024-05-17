@@ -1,6 +1,5 @@
 package org.sentrysoftware.metricshub.agent.context;
 
-import com.fasterxml.jackson.databind.JsonNode;
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
  * MetricsHub Agent
@@ -21,6 +20,12 @@ import com.fasterxml.jackson.databind.JsonNode;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
+
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
+
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.InjectableValues;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,11 +34,16 @@ import java.lang.management.ManagementFactory;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.agent.config.AgentConfig;
 import org.sentrysoftware.metricshub.agent.context.ApplicationProperties.Project;
 import org.sentrysoftware.metricshub.agent.deserialization.PostConfigDeserializer;
+import org.sentrysoftware.metricshub.agent.helper.AgentConstants;
 import org.sentrysoftware.metricshub.agent.helper.ConfigHelper;
 import org.sentrysoftware.metricshub.agent.helper.OtelConfigHelper;
 import org.sentrysoftware.metricshub.agent.helper.PostConfigDeserializeHelper;
@@ -43,6 +53,7 @@ import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.parser.EnvironmentProcessor;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
@@ -54,11 +65,6 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 @Slf4j
 public class AgentContext {
 
-	/**
-	 * ObjectMapper instance for deserializing agent configuration.
-	 */
-	public static final ObjectMapper AGENT_CONFIG_OBJECT_MAPPER = newAgentConfigObjectMapper();
-
 	private AgentInfo agentInfo;
 	private File configFile;
 	private AgentConfig agentConfig;
@@ -69,14 +75,17 @@ public class AgentContext {
 	private OtelCollectorProcessService otelCollectorProcessService;
 	private TaskSchedulingService taskSchedulingService;
 	private MetricDefinitions hostMetricDefinitions;
+	protected ExtensionManager extensionManager;
 
 	/**
 	 * Instantiate the global context
 	 *
 	 * @param alternateConfigFile Alternation configuration file passed by the user
+	 * @param extensionManager    Manages and aggregates various types of extensions used within MetricsHub.
 	 * @throws IOException Signals that an I/O exception has occurred
 	 */
-	public AgentContext(final String alternateConfigFile) throws IOException {
+	public AgentContext(final String alternateConfigFile, final ExtensionManager extensionManager) throws IOException {
+		this.extensionManager = extensionManager;
 		build(alternateConfigFile, true);
 	}
 
@@ -89,27 +98,30 @@ public class AgentContext {
 	public void build(final String alternateConfigFile, final boolean createConnectorStore) throws IOException {
 		final long startTime = System.nanoTime();
 
+		// Find the configuration file
+		configFile = ConfigHelper.findConfigFile(alternateConfigFile);
+
+		// Load the logging configuration before starting any processing
+		// because we want to log any potential error at the start up of the application.
+		final LoggingConfig loggingConfig = loadLoggingConfig();
+
+		// Configure the global logger
+		ConfigHelper.configureGlobalLogger(loggingConfig.getLoggerLevel(), loggingConfig.getOutputDirectory());
+
+		log.info("Starting MetricsHub Agent...");
+
 		// Set the current PID
 		pid = findPid();
 
 		if (createConnectorStore) {
-			// Parse the connector store
-			connectorStore = new ConnectorStore(ConfigHelper.getSubDirectory("connectors", false));
+			connectorStore = ConfigHelper.buildConnectorStore(extensionManager);
 		}
 
 		// Initialize agent information
 		agentInfo = new AgentInfo();
 
-		// Find the configuration file
-		configFile = ConfigHelper.findConfigFile(alternateConfigFile);
-
 		// Read the agent configuration file (Default: metricshub.yaml)
 		agentConfig = loadConfiguration();
-
-		// Configure the global logger
-		ConfigHelper.configureGlobalLogger(agentConfig.getLoggerLevel(), agentConfig.getOutputDirectory());
-
-		log.info("Starting MetricsHub Agent...");
 
 		logProductInformation();
 
@@ -141,11 +153,22 @@ public class AgentContext {
 				.withSchedules(new HashMap<>())
 				.withOtelSdkConfiguration(otelSdkConfiguration)
 				.withHostMetricDefinitions(hostMetricDefinitions)
+				.withExtensionManager(extensionManager)
 				.build();
 
 		final Duration startupDuration = Duration.ofNanos(System.nanoTime() - startTime);
 
 		log.info("Started MetricsHub Agent in {} seconds.", startupDuration.toMillis() / 1000.0);
+	}
+
+	/**
+	 * Load the {@link LoggingConfig} instance
+	 * @return new {@link LoggingConfig} instance.
+	 * @throws IOException  If an I/O error occurs during the initial reading of the YAML file.
+	 */
+	private LoggingConfig loadLoggingConfig() throws IOException {
+		final ObjectMapper objectMapper = ConfigHelper.newObjectMapper();
+		return JsonHelper.deserialize(objectMapper, new FileInputStream(configFile), LoggingConfig.class);
 	}
 
 	/**
@@ -157,22 +180,31 @@ public class AgentContext {
 	 *		   into an {@link AgentConfig}.
 	 */
 	private AgentConfig loadConfiguration() throws IOException {
-		JsonNode configNode = AGENT_CONFIG_OBJECT_MAPPER.readTree(new FileInputStream(configFile));
+		final ObjectMapper objectMapper = newAgentConfigObjectMapper(extensionManager);
+
+		JsonNode configNode = objectMapper.readTree(new FileInputStream(configFile));
+
 		new EnvironmentProcessor().process(configNode);
 
-		return JsonHelper.deserialize(AGENT_CONFIG_OBJECT_MAPPER, configNode, AgentConfig.class);
+		return JsonHelper.deserialize(objectMapper, configNode, AgentConfig.class);
 	}
 
 	/**
 	 * Create a new {@link ObjectMapper} instance then add to it the
 	 * {@link PostConfigDeserializer}
 	 *
+	 * @param extensionManager Manages and aggregates various types of extensions used within MetricsHub.
 	 * @return new {@link ObjectMapper} instance
 	 */
-	private static ObjectMapper newAgentConfigObjectMapper() {
+	public static ObjectMapper newAgentConfigObjectMapper(final ExtensionManager extensionManager) {
 		final ObjectMapper objectMapper = ConfigHelper.newObjectMapper();
 
 		PostConfigDeserializeHelper.addPostDeserializeSupport(objectMapper);
+
+		// Inject the extension manager in the deserialization context
+		final InjectableValues.Std injectableValues = new InjectableValues.Std();
+		injectableValues.addValue(ExtensionManager.class, extensionManager);
+		objectMapper.setInjectableValues(injectableValues);
 
 		return objectMapper;
 	}
@@ -235,5 +267,20 @@ public class AgentContext {
 		} catch (Throwable ex) { // NOSONAR
 			return MetricsHubConstants.EMPTY;
 		}
+	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class LoggingConfig {
+
+		@Default
+		@JsonSetter(nulls = SKIP)
+		private String loggerLevel = "error";
+
+		@Default
+		@JsonSetter(nulls = SKIP)
+		private String outputDirectory = AgentConstants.DEFAULT_OUTPUT_DIRECTORY.toString();
 	}
 }

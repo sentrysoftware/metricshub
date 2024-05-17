@@ -25,7 +25,7 @@ import org.sentrysoftware.metricshub.agent.helper.ConfigHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 
 /**
- * This abstract class defines a generic protocol configuration that will be extended to configure all the protocols such as {@link SshProtocolConfig} or {@link IpmiProtocolConfig}).
+ * This abstract class defines a generic protocol configuration that will be extended to configure all the protocols.
  */
 public abstract class AbstractProtocolConfig {
 

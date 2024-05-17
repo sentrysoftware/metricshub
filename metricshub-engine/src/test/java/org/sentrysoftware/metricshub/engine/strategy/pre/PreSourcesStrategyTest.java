@@ -3,7 +3,6 @@ package org.sentrysoftware.metricshub.engine.strategy.pre;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -25,7 +24,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -34,11 +35,18 @@ import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetCriterion;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetNextCriterion;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpGetSource;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
+import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
+import org.sentrysoftware.metricshub.engine.extension.TestConfiguration;
 import org.sentrysoftware.metricshub.engine.strategy.IStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.collect.CollectStrategy;
+import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.discovery.DiscoveryStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.telemetry.ConnectorNamespace;
@@ -55,6 +63,9 @@ class PreSourcesStrategyTest {
 
 	@Mock
 	private ClientsExecutor clientsExecutorMock;
+
+	@Mock
+	private IProtocolExtension protocolExtensionMock;
 
 	private IStrategy collectStrategy;
 
@@ -79,7 +90,7 @@ class PreSourcesStrategyTest {
 			)
 		);
 
-		final SnmpConfiguration snmpConfig = SnmpConfiguration.builder().community("public").build();
+		final TestConfiguration snmpConfig = TestConfiguration.builder().build();
 
 		telemetryManager =
 			TelemetryManager
@@ -92,7 +103,7 @@ class PreSourcesStrategyTest {
 						.hostname(HOST_NAME)
 						.hostType(DeviceKind.LINUX)
 						.sequential(false)
-						.configurations(Map.of(SnmpConfiguration.class, snmpConfig))
+						.configurations(Map.of(TestConfiguration.class, snmpConfig))
 						.build()
 				)
 				.build();
@@ -131,51 +142,83 @@ class PreSourcesStrategyTest {
 	void testRunFromCollect() throws Exception {
 		initTest();
 
+		final ExtensionManager extensionManager = ExtensionManager
+			.builder()
+			.withProtocolExtensions(List.of(protocolExtensionMock))
+			.build();
+
 		collectStrategy =
 			CollectStrategy
 				.builder()
 				.clientsExecutor(clientsExecutorMock)
 				.strategyTime(strategyTime)
 				.telemetryManager(telemetryManager)
+				.extensionManager(extensionManager)
 				.build();
 
-		// Mock detection criteria result
-		doReturn("1.3.6.1.4.1.795.10.1.1.3.1.1.0	ASN_OCTET_STR	Test")
-			.when(clientsExecutorMock)
-			.executeSNMPGetNext(eq("1.3.6.1.4.1.795.10.1.1.3.1.1"), any(SnmpConfiguration.class), anyString(), anyBoolean());
+		doReturn(true)
+			.when(protocolExtensionMock)
+			.isValidConfiguration(telemetryManager.getHostConfiguration().getConfigurations().get(TestConfiguration.class));
+		doReturn(Set.of(SnmpGetSource.class, SnmpTableSource.class)).when(protocolExtensionMock).getSupportedSources();
+		doReturn(Set.of(SnmpGetNextCriterion.class, SnmpGetCriterion.class))
+			.when(protocolExtensionMock)
+			.getSupportedCriteria();
+
+		// Mock the criterion
+		final SnmpGetNextCriterion snmpGetNextCriterion = SnmpGetNextCriterion
+			.builder()
+			.oid("1.3.6.1.4.1.795.10.1.1.3.1.1")
+			.type("snmpGetNext")
+			.build();
+		doReturn(CriterionTestResult.success(snmpGetNextCriterion, "1.3.6.1.4.1.795.10.1.1.3.1.1.0	ASN_OCTET_STR	Test"))
+			.when(protocolExtensionMock)
+			.processCriterion(eq(snmpGetNextCriterion), anyString(), any(TelemetryManager.class));
 
 		// Mock source table information for enclosure
-		doReturn(SourceTable.csvToTable("enclosure-1;1;healthy", MetricsHubConstants.TABLE_SEP))
-			.when(clientsExecutorMock)
-			.executeSNMPTable(
-				eq("1.3.6.1.4.1.795.10.1.1.30.1"),
-				any(String[].class),
-				any(SnmpConfiguration.class),
-				anyString(),
-				eq(true)
-			);
+		final SnmpTableSource enclosureSource = SnmpTableSource
+			.builder()
+			.oid("1.3.6.1.4.1.795.10.1.1.30.1")
+			.selectColumns("ID,1,2")
+			.type("snmpTable")
+			.key("${source::monitors.enclosure.collect.sources.source(1)}")
+			.build();
+		doReturn(
+			SourceTable
+				.builder()
+				.table(SourceTable.csvToTable("enclosure-1;1;healthy", MetricsHubConstants.TABLE_SEP))
+				.build()
+		)
+			.when(protocolExtensionMock)
+			.processSource(eq(enclosureSource), anyString(), any(TelemetryManager.class));
 
 		// Mock source table information for disk_controller
-		doReturn(SourceTable.csvToTable("1;1;healthy", MetricsHubConstants.TABLE_SEP))
-			.when(clientsExecutorMock)
-			.executeSNMPTable(
-				eq("1.3.6.1.4.1.795.10.1.1.31.1"),
-				any(String[].class),
-				any(SnmpConfiguration.class),
-				anyString(),
-				eq(true)
-			);
+		final SnmpTableSource diskControllerSource = SnmpTableSource
+			.builder()
+			.oid("1.3.6.1.4.1.795.10.1.1.31.1")
+			.selectColumns("ID,1,2")
+			.type("snmpTable")
+			.key("${source::monitors.disk_controller.collect.sources.source(1)}")
+			.build();
+		doReturn(SourceTable.builder().table(SourceTable.csvToTable("1;1;healthy", MetricsHubConstants.TABLE_SEP)).build())
+			.when(protocolExtensionMock)
+			.processSource(eq(diskControllerSource), anyString(), any(TelemetryManager.class));
 
+		final SnmpTableSource preSource = SnmpTableSource
+			.builder()
+			.oid("1.3.6.1.4.1.795.10.1.1.4.5")
+			.selectColumns("ID,1,3,7,8")
+			.type("snmpTable")
+			.key("${source::pre.snmpSource}")
+			.build();
 		// Mock source table information for the snmp pre source
-		doReturn(SourceTable.csvToTable("preSource-1;1;2;3;4;5;6;7;healthy;health-ok", MetricsHubConstants.TABLE_SEP))
-			.when(clientsExecutorMock)
-			.executeSNMPTable(
-				eq("1.3.6.1.4.1.795.10.1.1.4.5"),
-				any(String[].class),
-				any(SnmpConfiguration.class),
-				anyString(),
-				eq(true)
-			);
+		doReturn(
+			SourceTable
+				.builder()
+				.table(SourceTable.csvToTable("preSource-1;1;2;3;4;5;6;7;healthy;health-ok", MetricsHubConstants.TABLE_SEP))
+				.build()
+		)
+			.when(protocolExtensionMock)
+			.processSource(eq(preSource), anyString(), any(TelemetryManager.class));
 
 		collectStrategy.run();
 
@@ -195,21 +238,27 @@ class PreSourcesStrategyTest {
 		assertNotNull(connectorNamespace);
 		final SourceTable sourceTable = connectorNamespace.getSourceTables().get("${source::pre.snmpSource}");
 		assertNotNull(sourceTable);
-		assertEquals("preSource-1", sourceTable.getTable().get(0).get(0));
-		assertEquals("1", sourceTable.getTable().get(0).get(1));
-		assertEquals("2", sourceTable.getTable().get(0).get(2));
-		assertEquals("3", sourceTable.getTable().get(0).get(3));
-		assertEquals("4", sourceTable.getTable().get(0).get(4));
-		assertEquals("5", sourceTable.getTable().get(0).get(5));
-		assertEquals("6", sourceTable.getTable().get(0).get(6));
-		assertEquals("7", sourceTable.getTable().get(0).get(7));
-		assertEquals("healthy", sourceTable.getTable().get(0).get(8));
-		assertEquals("health-ok", sourceTable.getTable().get(0).get(9));
+		List<String> sourceTableLine = sourceTable.getTable().get(0);
+		assertEquals("preSource-1", sourceTableLine.get(0));
+		assertEquals("1", sourceTableLine.get(1));
+		assertEquals("2", sourceTableLine.get(2));
+		assertEquals("3", sourceTableLine.get(3));
+		assertEquals("4", sourceTableLine.get(4));
+		assertEquals("5", sourceTableLine.get(5));
+		assertEquals("6", sourceTableLine.get(6));
+		assertEquals("7", sourceTableLine.get(7));
+		assertEquals("healthy", sourceTableLine.get(8));
+		assertEquals("health-ok", sourceTableLine.get(9));
 	}
 
 	@Test
 	void testRunFromDiscovery() throws Exception {
 		initTest();
+
+		final ExtensionManager extensionManager = ExtensionManager
+			.builder()
+			.withProtocolExtensions(List.of(protocolExtensionMock))
+			.build();
 
 		discoveryStrategy =
 			DiscoveryStrategy
@@ -217,45 +266,81 @@ class PreSourcesStrategyTest {
 				.clientsExecutor(clientsExecutorMock)
 				.strategyTime(strategyTime)
 				.telemetryManager(telemetryManager)
+				.extensionManager(extensionManager)
 				.build();
 
 		// Mock detection criteria result
-		doReturn("1.3.6.1.4.1.795.10.1.1.3.1.1.0	ASN_OCTET_STR	Test")
-			.when(clientsExecutorMock)
-			.executeSNMPGetNext(eq("1.3.6.1.4.1.795.10.1.1.3.1.1"), any(SnmpConfiguration.class), anyString(), anyBoolean());
+		doReturn(true)
+			.when(protocolExtensionMock)
+			.isValidConfiguration(telemetryManager.getHostConfiguration().getConfigurations().get(TestConfiguration.class));
+		doReturn(Set.of(SnmpGetSource.class, SnmpTableSource.class)).when(protocolExtensionMock).getSupportedSources();
+		doReturn(Set.of(SnmpGetNextCriterion.class, SnmpGetCriterion.class))
+			.when(protocolExtensionMock)
+			.getSupportedCriteria();
+
+		// Mock the criterion
+		final SnmpGetNextCriterion snmpGetNextCriterion = SnmpGetNextCriterion
+			.builder()
+			.oid("1.3.6.1.4.1.795.10.1.1.3.1.1")
+			.type("snmpGetNext")
+			.build();
+		doReturn(CriterionTestResult.success(snmpGetNextCriterion, "1.3.6.1.4.1.795.10.1.1.3.1.1.0	ASN_OCTET_STR	Test"))
+			.when(protocolExtensionMock)
+			.processCriterion(eq(snmpGetNextCriterion), anyString(), any(TelemetryManager.class));
 
 		// Mock source table information for enclosure
-		doReturn(SourceTable.csvToTable("enclosure-1;1;2;3;4;5;6;7;healthy;health-ok", MetricsHubConstants.TABLE_SEP))
-			.when(clientsExecutorMock)
-			.executeSNMPTable(
-				eq("1.3.6.1.4.1.795.10.1.1.3.1"),
-				any(String[].class),
-				any(SnmpConfiguration.class),
-				anyString(),
-				eq(true)
-			);
+		final SnmpTableSource enclosureSource = SnmpTableSource
+			.builder()
+			.oid("1.3.6.1.4.1.795.10.1.1.3.1")
+			.selectColumns("ID,1,3,7,8")
+			.type("snmpTable")
+			.key("${source::monitors.enclosure.discovery.sources.source(1)}")
+			.build();
+		doReturn(
+			SourceTable
+				.builder()
+				.table(SourceTable.csvToTable("enclosure-1;1;healthy", MetricsHubConstants.TABLE_SEP))
+				.build()
+		)
+			.when(protocolExtensionMock)
+			.processSource(eq(enclosureSource), anyString(), any(TelemetryManager.class));
 
 		// Mock source table information for disk_controller
-		doReturn(SourceTable.csvToTable("diskController-1;1;2;3;4;5;6;7;healthy;health-ok", MetricsHubConstants.TABLE_SEP))
-			.when(clientsExecutorMock)
-			.executeSNMPTable(
-				eq("1.3.6.1.4.1.795.10.1.1.4.1"),
-				any(String[].class),
-				any(SnmpConfiguration.class),
-				anyString(),
-				eq(true)
-			);
+		final SnmpTableSource diskControllerSource = SnmpTableSource
+			.builder()
+			.oid("1.3.6.1.4.1.795.10.1.1.4.1")
+			.selectColumns("ID,1,3,7,8")
+			.type("snmpTable")
+			.key("${source::monitors.disk_controller.discovery.sources.source(1)}")
+			.build();
+		doReturn(
+			SourceTable
+				.builder()
+				.table(
+					SourceTable.csvToTable("diskController-1;1;2;3;4;5;6;7;healthy;health-ok", MetricsHubConstants.TABLE_SEP)
+				)
+				.build()
+		)
+			.when(protocolExtensionMock)
+			.processSource(eq(diskControllerSource), anyString(), any(TelemetryManager.class));
 
 		// Mock source table information for the snmp pre source
-		doReturn(SourceTable.csvToTable("preSource-1;1;2;3;4;5;6;7;healthy;health-ok", MetricsHubConstants.TABLE_SEP))
-			.when(clientsExecutorMock)
-			.executeSNMPTable(
-				eq("1.3.6.1.4.1.795.10.1.1.4.5"),
-				any(String[].class),
-				any(SnmpConfiguration.class),
-				anyString(),
-				eq(true)
-			);
+		final SnmpTableSource preSource = SnmpTableSource
+			.builder()
+			.oid("1.3.6.1.4.1.795.10.1.1.4.5")
+			.selectColumns("ID,1,3,7,8")
+			.type("snmpTable")
+			.key("${source::pre.snmpSource}")
+			.build();
+		// Mock source table information for the snmp pre source
+		doReturn(
+			SourceTable
+				.builder()
+				.table(SourceTable.csvToTable("preSource-1;1;2;3;4;5;6;7;healthy;health-ok", MetricsHubConstants.TABLE_SEP))
+				.build()
+		)
+			.when(protocolExtensionMock)
+			.processSource(eq(preSource), anyString(), any(TelemetryManager.class));
 
 		discoveryStrategy.run();
 

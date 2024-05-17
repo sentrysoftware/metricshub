@@ -53,6 +53,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Abstrac
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Discovery;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Mapping;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Simple;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.strategy.pre.PreSourcesStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.source.OrderedSources;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
@@ -76,9 +77,10 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 	protected AbstractAllAtOnceStrategy(
 		@NonNull final TelemetryManager telemetryManager,
 		final long strategyTime,
-		@NonNull final ClientsExecutor clientsExecutor
+		@NonNull final ClientsExecutor clientsExecutor,
+		@NonNull final ExtensionManager extensionManager
 	) {
-		super(telemetryManager, strategyTime, clientsExecutor);
+		super(telemetryManager, strategyTime, clientsExecutor, extensionManager);
 	}
 
 	/**
@@ -105,6 +107,7 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 			.strategyTime(strategyTime)
 			.telemetryManager(telemetryManager)
 			.connector(currentConnector)
+			.extensionManager(extensionManager)
 			.build();
 
 		preSourcesStrategy.run();

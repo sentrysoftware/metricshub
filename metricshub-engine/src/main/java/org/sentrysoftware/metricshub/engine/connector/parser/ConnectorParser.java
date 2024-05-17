@@ -46,8 +46,9 @@ import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import org.sentrysoftware.metricshub.engine.connector.deserializer.ConnectorDeserializer;
 import org.sentrysoftware.metricshub.engine.connector.deserializer.PostDeserializeHelper;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
+import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 import org.sentrysoftware.metricshub.engine.connector.update.AvailableSourceUpdate;
-import org.sentrysoftware.metricshub.engine.connector.update.CompiledFilenameUpdate;
+import org.sentrysoftware.metricshub.engine.connector.update.CompiledFilenameUpdater;
 import org.sentrysoftware.metricshub.engine.connector.update.ConnectorUpdateChain;
 import org.sentrysoftware.metricshub.engine.connector.update.MonitorTaskSourceDepUpdate;
 import org.sentrysoftware.metricshub.engine.connector.update.PreSourceDepUpdate;
@@ -77,6 +78,8 @@ public class ConnectorParser {
 	public Connector parse(final File file) throws IOException {
 		JsonNode node = deserializer.getMapper().readTree(file);
 
+		Map<Integer, EmbeddedFile> embeddedFiles = null;
+
 		// PRE-Processing
 		if (processor != null) {
 			final Map<URI, JsonNode> parents = new HashMap<>();
@@ -85,11 +88,20 @@ public class ConnectorParser {
 
 			node = processor.process(node);
 
-			new EmbeddedFilesResolver(node, connectorDirectory, parents.keySet()).internalize();
+			final EmbeddedFilesResolver embeddedFilesResolver = new EmbeddedFilesResolver(
+				node,
+				connectorDirectory,
+				parents.keySet()
+			);
+			embeddedFilesResolver.process();
+			embeddedFiles = embeddedFilesResolver.collectEmbeddedFiles();
 		}
 
 		// POST-Processing
 		final Connector connector = deserializer.deserialize(node);
+
+		// Assigns the map of embedded files to the connector
+		populateEmbeddedFiles(embeddedFiles, connector);
 
 		// Run the update chain
 		if (connectorUpdateChain != null) {
@@ -97,7 +109,7 @@ public class ConnectorParser {
 		}
 
 		// Update the compiled filename
-		new CompiledFilenameUpdate(file.getName()).update(connector);
+		new CompiledFilenameUpdater(file.getName()).update(connector);
 
 		return connector;
 	}
@@ -114,17 +126,29 @@ public class ConnectorParser {
 	public Connector parse(final InputStream inputStream, final URI connectorFolderUri, final String fileName)
 		throws IOException {
 		JsonNode node = deserializer.getMapper().readTree(inputStream);
+
+		Map<Integer, EmbeddedFile> embeddedFiles = null;
+
 		// PRE-Processing
 		if (processor != null) {
 			final Map<URI, JsonNode> parents = new HashMap<>();
 			resolveParents(node, connectorFolderUri, parents);
 
 			node = processor.process(node);
-			new EmbeddedFilesResolver(node, Paths.get(connectorFolderUri), parents.keySet()).internalize();
+			final EmbeddedFilesResolver embeddedFilesResolver = new EmbeddedFilesResolver(
+				node,
+				Paths.get(connectorFolderUri),
+				parents.keySet()
+			);
+			embeddedFilesResolver.process();
+			embeddedFiles = embeddedFilesResolver.collectEmbeddedFiles();
 		}
 
 		// POST-Processing
 		final Connector connector = deserializer.deserialize(node);
+
+		// Assigns the map of embedded files to the connector
+		populateEmbeddedFiles(embeddedFiles, connector);
 
 		// Run the update chain
 		if (connectorUpdateChain != null) {
@@ -132,9 +156,21 @@ public class ConnectorParser {
 		}
 
 		// Update the compiled filename
-		new CompiledFilenameUpdate(fileName).update(connector);
+		new CompiledFilenameUpdater(fileName).update(connector);
 
 		return connector;
+	}
+
+	/**
+	 * Assigns a map of embedded files to the specified connector, if the map is not null.
+	 *
+	 * @param embeddedFiles A {@link Map} where keys are integers representing embedded file IDs, and values are {@link EmbeddedFile} objects.
+	 * @param connector     The {@link Connector} to which the embedded files will be assigned.
+	 */
+	private void populateEmbeddedFiles(final Map<Integer, EmbeddedFile> embeddedFiles, final Connector connector) {
+		if (embeddedFiles != null) {
+			connector.setEmbeddedFiles(embeddedFiles);
+		}
 	}
 
 	/**

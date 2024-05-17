@@ -41,13 +41,21 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.SimpleMonito
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Mapping;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Simple;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.extension.snmp.SnmpExtension;
 
 class AgentContextTest {
 
+	// Initialize the extension manager required by the agent context
+	final ExtensionManager extensionManager = ExtensionManager
+		.builder()
+		.withProtocolExtensions(List.of(new SnmpExtension()))
+		.build();
+
 	@Test
 	void testInitialize() throws IOException {
-		final AgentContext agentContext = new AgentContext(TEST_CONFIG_FILE_PATH);
+		final AgentContext agentContext = new AgentContext(TEST_CONFIG_FILE_PATH, extensionManager);
 
 		assertNotNull(agentContext.getAgentInfo());
 		assertNotNull(agentContext.getConfigFile());
@@ -151,7 +159,8 @@ class AgentContextTest {
 	void testInitializeWithTopLevelResources() throws IOException {
 		// Create the agent context using the configuration file path
 		final AgentContext agentContext = new AgentContext(
-			"src/test/resources/config/top-level-resource-agent-context-test.yaml"
+			"src/test/resources/config/top-level-resource-agent-context-test.yaml",
+			extensionManager
 		);
 
 		// Check AgentContext fields
@@ -174,7 +183,10 @@ class AgentContextTest {
 
 	@Test
 	void testInitializeWithConnectorVariables() throws IOException {
-		final AgentContext agentContext = new AgentContext("src/test/resources/config/metricshub-connectorVariables.yaml");
+		final AgentContext agentContext = new AgentContext(
+			"src/test/resources/config/metricshub-connectorVariables.yaml",
+			extensionManager
+		);
 
 		assertNotNull(agentContext.getAgentInfo());
 		assertNotNull(agentContext.getConfigFile());
@@ -201,7 +213,8 @@ class AgentContextTest {
 	@Test
 	void testInitializeWithEnvironmentVariables() throws IOException {
 		final AgentContext agentContext = new AgentContext(
-			"src/test/resources/config/metricshub-environmentVariables.yaml"
+			"src/test/resources/config/metricshub-environmentVariables.yaml",
+			extensionManager
 		);
 
 		assertNotEquals("${env::JAVA_HOME}", agentContext.getAgentConfig().getOutputDirectory());

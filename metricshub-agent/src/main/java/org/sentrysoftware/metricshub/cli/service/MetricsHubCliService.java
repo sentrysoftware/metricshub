@@ -32,6 +32,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.ThreadContext;
@@ -50,6 +51,7 @@ import org.sentrysoftware.metricshub.cli.service.protocol.WbemConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.WinRmConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.WmiConfigCli;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
@@ -110,6 +112,7 @@ import picocli.CommandLine.Spec;
  * </ul>
  */
 @Data
+@NoArgsConstructor
 public class MetricsHubCliService implements Callable<Integer> {
 
 	@Spec
@@ -229,7 +232,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		// First, process special "list" option
 		if (listConnectors) {
 			return listAllConnectors(
-				new ConnectorStore(ConfigHelper.getSubDirectory("connectors", false)),
+				ConfigHelper.buildConnectorStore(CliExtensionManager.getExtensionManagerSingleton()),
 				spec.commandLine().getOut()
 			);
 		}
@@ -260,7 +263,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		// Create the TelemetryManager using the connector store and the host configuration created above.
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
-			.connectorStore(new ConnectorStore(ConfigHelper.getSubDirectory("connectors", false)))
+			.connectorStore(ConfigHelper.buildConnectorStore(CliExtensionManager.getExtensionManagerSingleton()))
 			.hostConfiguration(hostConfiguration)
 			.build();
 
@@ -285,7 +288,14 @@ public class MetricsHubCliService implements Callable<Integer> {
 			printWriter.println("...");
 			printWriter.flush();
 		}
-		telemetryManager.run(new DetectionStrategy(telemetryManager, discoveryTime, clientsExecutor));
+		telemetryManager.run(
+			new DetectionStrategy(
+				telemetryManager,
+				discoveryTime,
+				clientsExecutor,
+				CliExtensionManager.getExtensionManagerSingleton()
+			)
+		);
 
 		// Discovery
 		if (ConsoleService.hasConsole()) {
@@ -301,7 +311,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 						.fgYellow()
 						.a(
 							"Please verify that your credentials are correct and that your network connection is stable and not blocking the communication. " +
-							"For detailed troubleshooting steps, use the -vvvvvv option to display more diagnostic logs."
+							"For detailed troubleshooting steps, use the -vvvv option to display more diagnostic logs."
 						)
 						.reset()
 						.toString()
@@ -317,8 +327,18 @@ public class MetricsHubCliService implements Callable<Integer> {
 			printWriter.flush();
 		}
 		telemetryManager.run(
-			new DiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor),
-			new SimpleStrategy(telemetryManager, discoveryTime, clientsExecutor)
+			new DiscoveryStrategy(
+				telemetryManager,
+				discoveryTime,
+				clientsExecutor,
+				CliExtensionManager.getExtensionManagerSingleton()
+			),
+			new SimpleStrategy(
+				telemetryManager,
+				discoveryTime,
+				clientsExecutor,
+				CliExtensionManager.getExtensionManagerSingleton()
+			)
 		);
 
 		// Perform the collect operation "iterations" times
@@ -340,10 +360,30 @@ public class MetricsHubCliService implements Callable<Integer> {
 			final long collectTime = System.currentTimeMillis();
 			// One more, run only prepare, collect simple and post strategies
 			telemetryManager.run(
-				new PrepareCollectStrategy(telemetryManager, collectTime, clientsExecutor),
-				new ProtocolHealthCheckStrategy(telemetryManager, collectTime, clientsExecutor),
-				new CollectStrategy(telemetryManager, collectTime, clientsExecutor),
-				new SimpleStrategy(telemetryManager, collectTime, clientsExecutor)
+				new PrepareCollectStrategy(
+					telemetryManager,
+					collectTime,
+					clientsExecutor,
+					CliExtensionManager.getExtensionManagerSingleton()
+				),
+				new ProtocolHealthCheckStrategy(
+					telemetryManager,
+					collectTime,
+					clientsExecutor,
+					CliExtensionManager.getExtensionManagerSingleton()
+				),
+				new CollectStrategy(
+					telemetryManager,
+					collectTime,
+					clientsExecutor,
+					CliExtensionManager.getExtensionManagerSingleton()
+				),
+				new SimpleStrategy(
+					telemetryManager,
+					collectTime,
+					clientsExecutor,
+					CliExtensionManager.getExtensionManagerSingleton()
+				)
 			);
 
 			// If iterations > 1, add a sleep time between iterations
@@ -381,7 +421,13 @@ public class MetricsHubCliService implements Callable<Integer> {
 		return Stream
 			.of(ipmiConfigCli, snmpConfigCli, sshConfigCli, httpConfigCli, wmiConfigCli, winRmConfigCli, wbemConfigCli)
 			.filter(Objects::nonNull)
-			.map(protocolConfig -> protocolConfig.toProtocol(username, password))
+			.map(protocolConfig -> {
+				try {
+					return protocolConfig.toProtocol(username, password);
+				} catch (InvalidConfigurationException e) {
+					throw new IllegalStateException("Invalid configuration detected.", e);
+				}
+			})
 			.collect(Collectors.toMap(IConfiguration::getClass, Function.identity()));
 	}
 

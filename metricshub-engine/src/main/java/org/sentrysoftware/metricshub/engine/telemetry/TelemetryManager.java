@@ -45,8 +45,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.IWinConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
+import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 import org.sentrysoftware.metricshub.engine.strategy.ContextExecutor;
 import org.sentrysoftware.metricshub.engine.strategy.IStrategy;
 
@@ -167,16 +167,6 @@ public class TelemetryManager {
 				monitorsVo.addAll(monitorList);
 			});
 		return monitorsVo;
-	}
-
-	/**
-	 * Get the protocol configuration used to execute requests on Windows machines.
-	 * (WinRM or WMI)<br> WinRM is prioritized.
-	 *
-	 * @return {@link org.sentrysoftware.metricshub.engine.configuration.IWinConfiguration} instance.
-	 */
-	public IWinConfiguration getWinConfiguration() {
-		return hostConfiguration.getWinConfiguration();
 	}
 
 	/**
@@ -312,5 +302,15 @@ public class TelemetryManager {
 		}
 		final String connectorId = currentMonitor.getAttribute(MetricsHubConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID);
 		return null != connectorId && hostProperties.getConnectorNamespace(connectorId).isStatusOk();
+	}
+
+	/**
+	 * Retrieves a map of {@link EmbeddedFile} objects indexed by their unique integer identifiers, associated
+	 * with a specific connector identified by {@code connectorId}.
+	 * @param connectorId The unique identifier of the connector whose embedded files are to be retrieved.
+	 * @return A non-null {@link Map} of integer IDs to {@link EmbeddedFile} instances.
+	 */
+	public Map<Integer, EmbeddedFile> getEmbeddedFiles(final String connectorId) {
+		return connectorStore.getStore().get(connectorId).getEmbeddedFiles();
 	}
 }
