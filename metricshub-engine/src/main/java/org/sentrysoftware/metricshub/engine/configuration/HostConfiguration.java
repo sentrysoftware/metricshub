@@ -2,7 +2,6 @@ package org.sentrysoftware.metricshub.engine.configuration;
 
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DEFAULT_JOB_TIMEOUT;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -38,7 +37,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CommandLineSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WbemSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WmiSource;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 
@@ -69,18 +67,6 @@ public class HostConfiguration {
 
 	private String configuredConnectorId;
 
-	private static final Map<Class<? extends IConfiguration>, Set<Class<? extends Source>>> CONFIGURATION_TO_SOURCES_MAP;
-
-	static {
-		CONFIGURATION_TO_SOURCES_MAP =
-			Map.of(
-				WbemConfiguration.class,
-				Collections.singleton(WbemSource.class),
-				WinRmConfiguration.class,
-				Collections.singleton(WmiSource.class)
-			);
-	}
-
 	/**
 	 * Determine the accepted sources that can be executed using the current engine configuration
 	 *
@@ -102,8 +88,6 @@ public class HostConfiguration {
 			new HashMap<>();
 
 		configurationToSourceMapping.putAll(configurationToSourceMappingFromExtensions);
-		// TODO Remove this merge when all the extensions are developed
-		configurationToSourceMapping.putAll(CONFIGURATION_TO_SOURCES_MAP);
 
 		// protocolConfigurations and host cannot never be null
 		final Set<Class<? extends IConfiguration>> protocolTypes = configurations.keySet();

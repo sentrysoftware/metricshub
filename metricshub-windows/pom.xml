@@ -52,6 +52,16 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
+			<artifactId>metricshub-wbem-extension</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>metricshub-winrm-extension</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>metricshub-classloader-agent</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -147,6 +157,16 @@
 								<artifactItem>
 									<groupId>${project.groupId}</groupId>
 									<artifactId>metricshub-wmi-extension</artifactId>
+									<version>${project.version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>metricshub-wbem-extension</artifactId>
+									<version>${project.version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>metricshub-winrm-extension</artifactId>
 									<version>${project.version}</version>
 								</artifactItem>
 								<artifactItem>

@@ -68,10 +68,7 @@ import org.sentrysoftware.metricshub.agent.config.AlertingSystemConfig;
 import org.sentrysoftware.metricshub.agent.config.ConnectorVariables;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
-import org.sentrysoftware.metricshub.agent.config.protocols.AbstractProtocolConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.ProtocolsConfig;
-import org.sentrysoftware.metricshub.agent.config.protocols.WbemProtocolConfig;
-import org.sentrysoftware.metricshub.agent.config.protocols.WinRmProtocolConfig;
 import org.sentrysoftware.metricshub.agent.context.MetricDefinitions;
 import org.sentrysoftware.metricshub.agent.security.PasswordEncrypt;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
@@ -105,7 +102,6 @@ import org.springframework.core.io.ClassPathResource;
 public class ConfigHelper {
 
 	private static final String WBEM_PROTOCOL = "WBEM";
-	private static final String WIN_RM_PROTOCOL = "WinRM";
 	private static final String TIMEOUT_ERROR =
 		"Resource %s - Timeout value is invalid for protocol %s." +
 		" Timeout value returned: %s. This resource will not be monitored. Please verify the configured timeout value.";
@@ -925,9 +921,9 @@ public class ConfigHelper {
 			return;
 		}
 
-		final WinRmProtocolConfig winRmConfig = protocolsConfig.getWinrm();
+		final IConfiguration winRmConfig = protocolsConfig.getWinrm();
 		if (winRmConfig != null) {
-			validateWinRmInfo(resourceKey, winRmConfig.getPort(), winRmConfig.getTimeout(), winRmConfig.getUsername());
+			winRmConfig.validateConfiguration(resourceKey);
 		}
 
 		final IConfiguration snmpConfig = protocolsConfig.getSnmp();
@@ -950,15 +946,9 @@ public class ConfigHelper {
 			sshConfig.validateConfiguration(resourceKey);
 		}
 
-		final WbemProtocolConfig wbemConfig = protocolsConfig.getWbem();
+		final IConfiguration wbemConfig = protocolsConfig.getWbem();
 		if (wbemConfig != null) {
-			validateWbemInfo(
-				resourceKey,
-				wbemConfig.getUsername(),
-				wbemConfig.getTimeout(),
-				wbemConfig.getPort(),
-				wbemConfig.getVCenter()
-			);
+			wbemConfig.validateConfiguration(resourceKey);
 		}
 
 		final IConfiguration wmiConfig = protocolsConfig.getWmi();
@@ -991,25 +981,7 @@ public class ConfigHelper {
 		final Integer port,
 		final Long timeout,
 		final String username
-	) throws InvalidConfigurationException {
-		StringHelper.validateConfigurationAttribute(
-			port,
-			INVALID_PORT_CHECKER,
-			() -> String.format(PORT_ERROR, resourceKey, WIN_RM_PROTOCOL, port)
-		);
-
-		StringHelper.validateConfigurationAttribute(
-			timeout,
-			INVALID_TIMEOUT_CHECKER,
-			() -> String.format(TIMEOUT_ERROR, resourceKey, WIN_RM_PROTOCOL, timeout)
-		);
-
-		StringHelper.validateConfigurationAttribute(
-			username,
-			INVALID_STRING_CHECKER,
-			() -> String.format(USERNAME_ERROR, resourceKey, WIN_RM_PROTOCOL)
-		);
-	}
+	) throws InvalidConfigurationException {}
 
 	/**
 	 * Validate the given WBEM information (username, timeout, port and vCenter)
@@ -1073,19 +1045,6 @@ public class ConfigHelper {
 		final String resourceKey
 	) {
 		final ProtocolsConfig protocols = resourceConfig.getProtocols();
-
-		final Map<Class<? extends IConfiguration>, IConfiguration> protocolConfigurationsDeprecated = protocols == null
-			? new HashMap<>()
-			: new HashMap<>(
-				Stream
-					.of(protocols.getWbem(), protocols.getWinrm())
-					.filter(Objects::nonNull)
-					.map(AbstractProtocolConfig::toConfiguration)
-					.filter(Objects::nonNull)
-					.collect(Collectors.toMap(IConfiguration::getClass, Function.identity()))
-			);
-
-		// TODO Temporary: when all the configurations are IConfiguration we will remove protocolConfigurationsDeprecated variable
 		final Map<Class<? extends IConfiguration>, IConfiguration> protocolConfigurations = protocols == null
 			? new HashMap<>()
 			: new HashMap<>(
@@ -1097,15 +1056,13 @@ public class ConfigHelper {
 						protocols.getIpmi(),
 						protocols.getOsCommand(),
 						protocols.getSsh(),
-						protocols.getWmi()
+						protocols.getWmi(),
+						protocols.getWbem(),
+						protocols.getWinrm()
 					)
 					.filter(Objects::nonNull)
 					.collect(Collectors.toMap(IConfiguration::getClass, Function.identity()))
 			);
-
-		// TODO remove when protocolConfigurationsDeprecated is removed, means all the configuration are IConfguration
-		// protocols
-		protocolConfigurations.putAll(protocolConfigurationsDeprecated);
 
 		final Map<String, String> attributes = resourceConfig.getAttributes();
 

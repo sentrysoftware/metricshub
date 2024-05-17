@@ -133,6 +133,8 @@ public class WmiExtension implements IProtocolExtension {
 	public void checkProtocol(TelemetryManager telemetryManager) {
 		// Create and set the WMI result to null
 		List<List<String>> wmiResult = null;
+
+		// Retrieve the hostname
 		final String hostname = telemetryManager.getHostname();
 
 		// Retrieve WMI Configuration from the telemetry manager host configuration

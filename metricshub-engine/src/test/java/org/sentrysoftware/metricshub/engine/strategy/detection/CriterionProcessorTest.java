@@ -8,15 +8,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.condition.OS.LINUX;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.CONFIGURED_OS_NT_MESSAGE;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.CONFIGURED_OS_SOLARIS_MESSAGE;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.ERROR;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.EXCUTE_WBEM_RESULT;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.EXECUTE_WMI_RESULT;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.FAILED_OS_DETECTION;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HIGH_VERSION_NUMBER;
@@ -41,12 +38,7 @@ import static org.sentrysoftware.metricshub.engine.constants.Constants.SYSTEM_PO
 import static org.sentrysoftware.metricshub.engine.constants.Constants.TEST;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.TEST_BODY;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.TWGIPC;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_CREDENTIALS_NOT_CONFIGURED;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_CRITERION_NO_RESULT_MESSAGE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_CRITERION_UNEXPECTED_RESULT_MESSAGE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_MALFORMED_CRITERION_MESSAGE;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_QUERY;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.WEBM_CRITERION_FAILURE_EXPECTED_RESULT;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.WEBM_CRITERION_SUCCESS_EXPECTED_RESULT;
 
 import java.io.IOException;
@@ -64,12 +56,10 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
-import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.OsCommandTestConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.SshTestConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.WbemConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.common.HttpMethod;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
@@ -88,7 +78,6 @@ import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.extension.TestConfiguration;
 import org.sentrysoftware.metricshub.engine.strategy.utils.CriterionProcessVisitor;
-import org.sentrysoftware.metricshub.engine.strategy.utils.WqlDetectionHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.HostProperties;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
@@ -102,34 +91,12 @@ class CriterionProcessorTest {
 	private ClientsExecutor clientsExecutorMock;
 
 	@Mock
-	private WqlDetectionHelper wqlDetectionHelperMock;
-
-	@Mock
 	private TelemetryManager telemetryManagerMock;
 
 	@InjectMocks
 	private CriterionProcessor criterionProcessor;
 
 	private TelemetryManager telemetryManager;
-	private WbemConfiguration wbemConfiguration;
-
-	private void initWbem() {
-		wbemConfiguration = WbemConfiguration.builder().build();
-		telemetryManager =
-			TelemetryManager
-				.builder()
-				.hostConfiguration(
-					HostConfiguration
-						.builder()
-						.hostname(LOCALHOST)
-						.hostId(LOCALHOST)
-						.hostType(DeviceKind.LINUX)
-						.configurations(Map.of(WbemConfiguration.class, wbemConfiguration))
-						.build()
-				)
-				.build();
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-	}
 
 	/**
 	 * Initialize the {@link TelemetryManager} with a Linux host configuration
@@ -266,6 +233,44 @@ class CriterionProcessorTest {
 			extensionManager
 		);
 		assertEquals(expected, criterionProcessor.process(wmiCriterion));
+	}
+
+	@Test
+	void testProcessWbemCriterion() {
+		initWindowsTestConfiguration();
+
+		final IProtocolExtension protocolExtensionMock = spy(IProtocolExtension.class);
+
+		final ExtensionManager extensionManager = ExtensionManager
+			.builder()
+			.withProtocolExtensions(List.of(protocolExtensionMock))
+			.build();
+
+		doReturn(true)
+			.when(protocolExtensionMock)
+			.isValidConfiguration(telemetryManager.getHostConfiguration().getConfigurations().get(TestConfiguration.class));
+
+		doReturn(Set.of(WbemCriterion.class)).when(protocolExtensionMock).getSupportedCriteria();
+
+		final WbemCriterion wbemCriterion = WbemCriterion
+			.builder()
+			.query(WBEM_QUERY)
+			.expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT)
+			.build();
+
+		final CriterionTestResult expected = CriterionTestResult.builder().success(true).message("success").build();
+
+		doReturn(expected)
+			.when(protocolExtensionMock)
+			.processCriterion(wbemCriterion, MY_CONNECTOR_1_NAME, telemetryManager);
+
+		final CriterionProcessor criterionProcessor = new CriterionProcessor(
+			clientsExecutorMock,
+			telemetryManager,
+			MY_CONNECTOR_1_NAME,
+			extensionManager
+		);
+		assertEquals(expected, criterionProcessor.process(wbemCriterion));
 	}
 
 	@Test
@@ -437,98 +442,6 @@ class CriterionProcessorTest {
 			extensionManager
 		);
 		assertEquals(expected, criterionProcessor.process(snmpGetNextCriterion));
-	}
-
-	@Test
-	void testProcessWbemCriterionSuccess() throws Exception {
-		initWbem();
-		doReturn(EXCUTE_WBEM_RESULT).when(clientsExecutorMock).executeWql(any(), eq(wbemConfiguration), any(), any());
-		final WbemCriterion wbemCriterion = WbemCriterion
-			.builder()
-			.query(WBEM_QUERY)
-			.expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT)
-			.build();
-
-		final CriterionTestResult result = criterionProcessor.process(wbemCriterion);
-		assertTrue(result.isSuccess());
-	}
-
-	@Test
-	void testProcessWbemCriterionActualResultIsNotExpectedResult() throws Exception {
-		initWbem();
-		doReturn(EXCUTE_WBEM_RESULT).when(clientsExecutorMock).executeWql(any(), eq(wbemConfiguration), any(), any());
-		final WbemCriterion wbemCriterion = WbemCriterion
-			.builder()
-			.query(WBEM_QUERY)
-			.expectedResult(WEBM_CRITERION_FAILURE_EXPECTED_RESULT)
-			.build();
-		final CriterionTestResult result = criterionProcessor.process(wbemCriterion);
-		assertFalse(result.isSuccess());
-		assertTrue(result.getMessage().contains(WBEM_CRITERION_UNEXPECTED_RESULT_MESSAGE));
-	}
-
-	@Test
-	void testProcessWbemCriterionMalformedCriterion() throws Exception {
-		final CriterionTestResult result = criterionProcessor.process((WbemCriterion) null);
-		assertFalse(result.isSuccess());
-		assertTrue(result.getMessage().contains(WBEM_MALFORMED_CRITERION_MESSAGE));
-	}
-
-	@Test
-	void testProcessWbemEmptyQueryResult() throws Exception {
-		initWbem();
-		doReturn(List.of()).when(clientsExecutorMock).executeWql(any(), eq(wbemConfiguration), any(), any());
-		final WbemCriterion wbemCriterion = WbemCriterion
-			.builder()
-			.query(WBEM_QUERY)
-			.expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT)
-			.build();
-
-		final CriterionTestResult result = criterionProcessor.process(wbemCriterion);
-		assertFalse(result.isSuccess());
-		assertEquals(WBEM_CRITERION_NO_RESULT_MESSAGE, result.getResult());
-	}
-
-	@Test
-	void testProcessWbemCriterionWithNullWbemConfiguration() throws Exception {
-		wbemConfiguration = null;
-		telemetryManager =
-			TelemetryManager
-				.builder()
-				.hostConfiguration(
-					HostConfiguration
-						.builder()
-						.hostname(LOCALHOST)
-						.hostId(LOCALHOST)
-						.hostType(DeviceKind.LINUX)
-						.configurations(Map.of())
-						.build()
-				)
-				.build();
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		final WbemCriterion wbemCriterion = WbemCriterion
-			.builder()
-			.query(WBEM_QUERY)
-			.expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT)
-			.build();
-
-		final CriterionTestResult result = criterionProcessor.process(wbemCriterion);
-		assertFalse(result.isSuccess());
-		assertTrue(result.getMessage().contains(WBEM_CREDENTIALS_NOT_CONFIGURED));
-	}
-
-	@Test
-	void testProcessWbemCriterionWithClientException() throws Exception {
-		initWbem();
-		doThrow(ClientException.class).when(clientsExecutorMock).executeWql(any(), eq(wbemConfiguration), any(), any());
-		final WbemCriterion wbemCriterion = WbemCriterion
-			.builder()
-			.query(WBEM_QUERY)
-			.expectedResult(WEBM_CRITERION_SUCCESS_EXPECTED_RESULT)
-			.build();
-		final CriterionTestResult result = criterionProcessor.process(wbemCriterion);
-		assertFalse(result.isSuccess());
-		assertTrue(result.getException() instanceof ClientException);
 	}
 
 	@Test
