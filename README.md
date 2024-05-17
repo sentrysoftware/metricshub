@@ -28,6 +28,8 @@ This is a multi-module project:
 * **metricshub-linux**: Builds the `.tar.gz` package of MetricsHub on Linux platforms.
 * **metricshub-doc**: Houses the documentation for MetricsHub.
 
+> [!TIP]
+> Looking for connectors? Check the [MetricsHub Community Connectors](https://github.com/sentrysoftware/metricshub-community-connectors) repository.
 
 ## How to build the Project
 
