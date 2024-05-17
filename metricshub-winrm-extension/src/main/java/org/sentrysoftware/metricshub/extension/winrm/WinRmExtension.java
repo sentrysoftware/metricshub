@@ -198,7 +198,7 @@ public class WinRmExtension implements IProtocolExtension {
 			return new WinServiceCriterionProcessor(wmiDetectionService, configurationRetriever)
 				.process(serviceCriterion, telemetryManager);
 		} else if (criterion instanceof CommandLineCriterion commandLineCriterion) {
-			return new WinCommandLineCriterionProcessor(winCommandService, configurationRetriever)
+			return new WinCommandLineCriterionProcessor(winCommandService, configurationRetriever, connectorId)
 				.process(commandLineCriterion, telemetryManager);
 		} else if (criterion instanceof IpmiCriterion ipmiCriterion) {
 			return new WinIpmiCriterionProcessor(wmiDetectionService, configurationRetriever)

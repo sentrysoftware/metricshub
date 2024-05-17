@@ -21,24 +21,19 @@ package org.sentrysoftware.metricshub.engine.strategy.utils;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.CANT_FIND_EMBEDDED_FILE;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.FILE_PATTERN;
 
-import java.io.IOException;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import org.sentrysoftware.metricshub.engine.common.helpers.FileHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 
 /**
@@ -47,32 +42,34 @@ import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
  * The class is designed to have a private no-argument constructor to prevent instantiation.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Slf4j
 public class EmbeddedFileHelper {
 
 	/**
 	 * Finds all the embedded files that are referenced in the given string.
 	 *
-	 * @param value The value can be a command line, AWK directive, header, body, etc.
+	 * @param value                  The value can be a command line or any value referencing multiple embedded files.
+	 * @param connectorEmbeddedFiles All the embedded files referenced in the connector.
 	 * @return A map of the file reference to {@link EmbeddedFile} instance.
-	 * @throws IOException If an I/O error occurs while processing the embedded files.
 	 */
-	public static Map<String, EmbeddedFile> findEmbeddedFiles(@NonNull final String value) throws IOException {
-		final Map<String, EmbeddedFile> embeddedFiles = new HashMap<>();
-		final List<String> alreadyProcessedFiles = new ArrayList<>();
+	public static Map<Integer, EmbeddedFile> findEmbeddedFiles(
+		@NonNull final String value,
+		@NonNull final Map<Integer, EmbeddedFile> connectorEmbeddedFiles
+	) {
+		final Map<Integer, EmbeddedFile> embeddedFiles = new HashMap<>();
+		final List<Integer> alreadyProcessedFiles = new ArrayList<>();
 
 		final Matcher fileMatcher = FILE_PATTERN.matcher(value);
 
+		// Verify the embedded file reference. Example: ${file::embedded-file-number} // NOSONAR on comment
 		while (fileMatcher.find()) {
-			// The absolute path of the file
-			final String fileUri = fileMatcher.group(1);
-
-			// The file reference in the connector. Example: ${file::file-absolute-path} // NOSONAR on comment
-			final String fileNameRef = fileMatcher.group();
+			// The number of the embedded file
+			final Integer fileNumber = Integer.parseInt(fileMatcher.group(1));
 
 			// If the embeddedFile has already been processed, no need to continue
-			if (!alreadyProcessedFiles.contains(fileNameRef)) {
-				embeddedFiles.put(fileNameRef, runNewEmbeddedFileObjectTask(URI.create(fileUri), fileNameRef));
-				alreadyProcessedFiles.add(fileNameRef);
+			if (!alreadyProcessedFiles.contains(fileNumber)) {
+				embeddedFiles.put(fileNumber, connectorEmbeddedFiles.get(fileNumber));
+				alreadyProcessedFiles.add(fileNumber);
 			}
 		}
 
@@ -80,85 +77,33 @@ public class EmbeddedFileHelper {
 	}
 
 	/**
-	 * Runs a task to create a new instance of an EmbeddedFileObject based on the specified URI and file name reference.
-	 * If the URI scheme is "jar," the task is executed within a file system context for JAR files (ZIP).
+	 * Finds one embedded file that is referenced in the given string.
 	 *
-	 * @param fileUri      The URI of the file for which the EmbeddedFileObject is created.
-	 * @param fileNameRef  The reference to the file name.
-	 * @return A new instance of EmbeddedFileObject representing the specified file.
-	 * @throws IOException If an error occurs during the task execution or while creating the EmbeddedFileObject.
+	 * @param value                  The value which references the embedded file, it can be an AWK directive, header, body, etc.
+	 * @param connectorEmbeddedFiles All the embedded files referenced in the connector.
+	 * @param hostname               The hostname of the host being monitored and used to log the failure where many embedded files are retrieved.
+	 * @param connectorId            The identifier of the connector used for logging.
+	 * @return An Optional of {@link EmbeddedFile} instance.
 	 */
-	private static EmbeddedFile runNewEmbeddedFileObjectTask(final URI fileUri, final String fileNameRef)
-		throws IOException {
-		if ("jar".equals(fileUri.getScheme())) {
-			try {
-				return FileHelper.fileSystemTask(
-					fileUri,
-					Collections.emptyMap(),
-					() -> {
-						try {
-							return newEmbeddedFileObject(fileUri, fileNameRef);
-						} catch (IOException e) {
-							throw new IllegalStateException(e);
-						}
-					}
-				);
-			} catch (Exception e) {
-				if (e instanceof IOException ioException) {
-					throw ioException;
-				}
+	public static Optional<EmbeddedFile> findEmbeddedFile(
+		@NonNull final String value,
+		@NonNull final Map<Integer, EmbeddedFile> connectorEmbeddedFiles,
+		@NonNull String hostname,
+		@NonNull String connectorId
+	) {
+		final Map<Integer, EmbeddedFile> embeddedFiles = findEmbeddedFiles(value, connectorEmbeddedFiles);
 
-				if (e.getCause() instanceof IOException ioException) {
-					throw ioException;
-				}
-
-				throw new IOException(e);
-			}
+		if (embeddedFiles.size() > 1) {
+			final String message = String.format(
+				"Hostname %s - Many embedded files are referenced in value: %s. Expected 1 embedded file reference. Connector: %s.",
+				hostname,
+				value,
+				connectorId
+			);
+			log.error(message);
+			throw new IllegalStateException(message);
 		}
-		return newEmbeddedFileObject(fileUri, fileNameRef);
-	}
 
-	/**
-	 * Create a new {@link EmbeddedFile} object
-	 *
-	 * @param fileName    The file name used to get the path
-	 * @param fileNameRef The file name reference. E.g. ${file::script.awk}
-	 * @return a new {@link EmbeddedFile} instance
-	 * @throws IOException If the file cannot be found or parsed.
-	 */
-	private static EmbeddedFile newEmbeddedFileObject(final URI fileUri, final String fileNameRef) throws IOException {
-		final Path filePath = Paths.get(fileUri);
-		if (!Files.exists(filePath)) {
-			throw new IOException(CANT_FIND_EMBEDDED_FILE + fileUri.getPath());
-		}
-		return new EmbeddedFile(parseEmbeddedFile(filePath), findExtension(fileUri.toString()), fileNameRef);
-	}
-
-	/**
-	 * Returns the extension of a file from the given the file name.
-	 *
-	 * @param uriString URI string representation.
-	 * @return File extension as a string.
-	 */
-	static String findExtension(final String uriString) {
-		final int index = uriString.lastIndexOf('.');
-		final int separatorIndex = Math.max(uriString.lastIndexOf('/'), uriString.lastIndexOf('\\'));
-		// We want to find the index of the last '.' only if it's in the last file of the path
-		// in case the file is in an .zip archive (or any kind of archive)
-		if (index > separatorIndex) {
-			return uriString.substring(index + 1);
-		}
-		return null;
-	}
-
-	/**
-	 * Parse an embedded file located in a .zip file given its URI.
-	 *
-	 * @param filePath The path of the file we want to parse.
-	 * @return The content of the file.
-	 * @throws IOException When an I/O error occurs opening the file.
-	 */
-	private static String parseEmbeddedFile(final Path filePath) throws IOException {
-		return FileHelper.readFileContent(filePath);
+		return embeddedFiles.entrySet().stream().map(Entry::getValue).findFirst();
 	}
 }

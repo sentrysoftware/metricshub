@@ -232,7 +232,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		// First, process special "list" option
 		if (listConnectors) {
 			return listAllConnectors(
-				new ConnectorStore(ConfigHelper.getSubDirectory("connectors", false)),
+				ConfigHelper.buildConnectorStore(CliExtensionManager.getExtensionManagerSingleton()),
 				spec.commandLine().getOut()
 			);
 		}
@@ -263,7 +263,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		// Create the TelemetryManager using the connector store and the host configuration created above.
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
-			.connectorStore(new ConnectorStore(ConfigHelper.getSubDirectory("connectors", false)))
+			.connectorStore(ConfigHelper.buildConnectorStore(CliExtensionManager.getExtensionManagerSingleton()))
 			.hostConfiguration(hostConfiguration)
 			.build();
 

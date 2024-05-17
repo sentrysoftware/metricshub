@@ -7,10 +7,10 @@ import static org.mockito.Mockito.mockStatic;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
-import org.sentrysoftware.metricshub.agent.extension.SnmpTestConfiguration;
-import org.sentrysoftware.metricshub.agent.extension.SnmpTestExtension;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
+import org.sentrysoftware.metricshub.extension.snmp.SnmpConfiguration;
+import org.sentrysoftware.metricshub.extension.snmp.SnmpExtension;
 
 class SnmpConfigCliTest {
 
@@ -29,7 +29,7 @@ class SnmpConfigCliTest {
 			// Initialize the extension manager required by the agent context
 			final ExtensionManager extensionManager = ExtensionManager
 				.builder()
-				.withProtocolExtensions(List.of(new SnmpTestExtension()))
+				.withProtocolExtensions(List.of(new SnmpExtension()))
 				.build();
 
 			cliExtensionManagerMock
@@ -37,14 +37,14 @@ class SnmpConfigCliTest {
 				.thenReturn(extensionManager);
 
 			// Create an SnmpTestConfiguration and call method toProtocol
-			final SnmpTestConfiguration snmpConfiguration = (SnmpTestConfiguration) snmpConfigCli.toProtocol(
+			final SnmpConfiguration snmpConfiguration = (SnmpConfiguration) snmpConfigCli.toProtocol(
 				"user1",
 				password.toCharArray()
 			);
 
 			// Check the resulting snmp configuration
 			assertNotNull(snmpConfiguration);
-			assertEquals(SnmpTestConfiguration.SnmpVersion.V1, snmpConfiguration.getVersion());
+			assertEquals(SnmpConfiguration.SnmpVersion.V1, snmpConfiguration.getVersion());
 			assertEquals("SNMP v1 (community)", snmpConfiguration.toString());
 		}
 	}

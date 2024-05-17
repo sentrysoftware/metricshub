@@ -7,12 +7,11 @@ import static org.mockito.Mockito.mockStatic;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
-import org.sentrysoftware.metricshub.agent.extension.WbemTestConfiguration;
-import org.sentrysoftware.metricshub.agent.extension.WbemTestExtension;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
-import org.sentrysoftware.metricshub.engine.configuration.TransportProtocols;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
+import org.sentrysoftware.metricshub.extension.wbem.WbemConfiguration;
+import org.sentrysoftware.metricshub.extension.wbem.WbemExtension;
 
 class WbemConfigCliTest {
 
@@ -37,7 +36,7 @@ class WbemConfigCliTest {
 			// Initialize the extension manager required by the agent context
 			final ExtensionManager extensionManager = ExtensionManager
 				.builder()
-				.withProtocolExtensions(List.of(new WbemTestExtension()))
+				.withProtocolExtensions(List.of(new WbemExtension()))
 				.build();
 
 			cliExtensionManagerMock
@@ -45,14 +44,11 @@ class WbemConfigCliTest {
 				.thenReturn(extensionManager);
 
 			// Create a WbemTestConfiguration and call method toProtocol
-			final WbemTestConfiguration wbemConfiguration = (WbemTestConfiguration) wbemConfigCli.toProtocol(
-				username,
-				password
-			);
+			final WbemConfiguration wbemConfiguration = (WbemConfiguration) wbemConfigCli.toProtocol(username, password);
 
 			assertNotNull(wbemConfiguration);
 
-			final WbemTestConfiguration wbemConfigurationExpected = WbemTestConfiguration
+			final WbemConfiguration wbemConfigurationExpected = WbemConfiguration
 				.builder()
 				.username(username)
 				.password(password)

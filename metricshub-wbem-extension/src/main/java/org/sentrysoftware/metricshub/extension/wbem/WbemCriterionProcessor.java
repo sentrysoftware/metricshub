@@ -226,7 +226,7 @@ public class WbemCriterionProcessor {
 	 * @param hostname      The hostname of the host device.
 	 * @param configuration The user's configured {@link WbemConfiguration}.
 	 * @return A {@link PossibleNamespacesResult} wrapping the success state, the message in case of errors
-	 * and the possibleWmiNamespaces {@link Set}.
+	 * and the possibleWbemNamespaces {@link Set}.
 	 */
 	public PossibleNamespacesResult findPossibleNamespaces(
 		final String hostname,

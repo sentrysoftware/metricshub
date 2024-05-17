@@ -21,10 +21,12 @@ package org.sentrysoftware.metricshub.extension.http;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.Map;
 import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
+import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.HttpCriterion;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.utils.PslUtils;
@@ -90,6 +92,8 @@ public class HttpCriterionProcessor {
 			return CriterionTestResult.empty();
 		}
 
+		final Map<Integer, EmbeddedFile> connectorEmbeddedFiles = telemetryManager.getEmbeddedFiles(connectorId);
+
 		try {
 			final String result = httpRequestExecutor.executeHttp(
 				HttpRequest
@@ -98,8 +102,8 @@ public class HttpCriterionProcessor {
 					.method(httpCriterion.getMethod().toString())
 					.url(httpCriterion.getUrl())
 					.path(httpCriterion.getPath())
-					.header(httpCriterion.getHeader(), connectorId, hostname)
-					.body(httpCriterion.getBody(), connectorId, hostname)
+					.header(httpCriterion.getHeader(), connectorEmbeddedFiles, connectorId, hostname)
+					.body(httpCriterion.getBody(), connectorEmbeddedFiles, connectorId, hostname)
 					.httpConfiguration(httpConfiguration)
 					.resultContent(httpCriterion.getResultContent())
 					.authenticationToken(httpCriterion.getAuthenticationToken())

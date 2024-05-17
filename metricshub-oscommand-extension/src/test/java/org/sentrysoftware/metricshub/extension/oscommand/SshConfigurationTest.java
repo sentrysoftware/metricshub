@@ -1,8 +1,12 @@
 package org.sentrysoftware.metricshub.extension.oscommand;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.Set;
 import org.junit.jupiter.api.Test;
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 
 /**
  * Test of {@link SshConfiguration}
@@ -48,5 +52,35 @@ class SshConfigurationTest {
 		// When the userName is null, it's not appended to the result
 		sshConfiguration.setUsername(null);
 		assertEquals(SSH, sshConfiguration.toString());
+	}
+
+	@Test
+	void testValidateConfiguration() {
+		final String resourceKey = "resource";
+		final SshConfiguration sshConfiguration = SshConfiguration
+			.sshConfigurationBuilder()
+			.username("username")
+			.password("password".toCharArray())
+			.timeout(120L)
+			.privateKey("privateKey")
+			.useSudoCommands(Set.of("sudo"))
+			.useSudo(true)
+			.sudoCommand("sudo")
+			.timeout(120L)
+			.build();
+
+		assertDoesNotThrow(() -> sshConfiguration.validateConfiguration(resourceKey));
+
+		sshConfiguration.setTimeout(null);
+		assertThrows(InvalidConfigurationException.class, () -> sshConfiguration.validateConfiguration(resourceKey));
+
+		sshConfiguration.setTimeout(-1L);
+		assertThrows(InvalidConfigurationException.class, () -> sshConfiguration.validateConfiguration(resourceKey));
+
+		sshConfiguration.setUsername(null);
+		assertThrows(InvalidConfigurationException.class, () -> sshConfiguration.validateConfiguration(resourceKey));
+
+		sshConfiguration.setUsername(" ");
+		assertThrows(InvalidConfigurationException.class, () -> sshConfiguration.validateConfiguration(resourceKey));
 	}
 }

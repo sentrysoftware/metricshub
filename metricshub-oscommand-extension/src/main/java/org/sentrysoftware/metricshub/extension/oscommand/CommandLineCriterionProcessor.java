@@ -21,10 +21,10 @@ package org.sentrysoftware.metricshub.extension.oscommand;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import io.opentelemetry.instrumentation.annotations.SpanAttribute;
-import io.opentelemetry.instrumentation.annotations.WithSpan;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.CommandLineCriterion;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
@@ -37,7 +37,11 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
  * This class facilitates the execution of local or remote OS commands, evaluates the results, and generates
  * criterion test results based on the expected outcomes.
  */
+@RequiredArgsConstructor
 public class CommandLineCriterionProcessor {
+
+	@NonNull
+	private String connectorId;
 
 	/**
 	 * Processes a given {@link CommandLineCriterion}, executes the corresponding OS command, and evaluates the
@@ -47,11 +51,7 @@ public class CommandLineCriterionProcessor {
 	 * @param telemetryManager The telemetry manager providing access to host configuration.
 	 * @return {@link CriterionTestResult} instance.
 	 */
-	@WithSpan("Criterion OS Command Exec")
-	public CriterionTestResult process(
-		@SpanAttribute("criterion.definition") CommandLineCriterion commandLineCriterion,
-		TelemetryManager telemetryManager
-	) {
+	public CriterionTestResult process(CommandLineCriterion commandLineCriterion, TelemetryManager telemetryManager) {
 		if (commandLineCriterion == null) {
 			return CriterionTestResult.error(commandLineCriterion, "Malformed OSCommand criterion.");
 		}
@@ -73,7 +73,8 @@ public class CommandLineCriterionProcessor {
 				telemetryManager,
 				commandLineCriterion.getTimeout(),
 				commandLineCriterion.getExecuteLocally(),
-				telemetryManager.getHostProperties().isLocalhost()
+				telemetryManager.getHostProperties().isLocalhost(),
+				telemetryManager.getEmbeddedFiles(connectorId)
 			);
 
 			final CommandLineCriterion osCommandNoPassword = CommandLineCriterion

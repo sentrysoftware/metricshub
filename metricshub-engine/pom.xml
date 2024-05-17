@@ -58,10 +58,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.sentrysoftware</groupId>
-			<artifactId>wbem</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sentrysoftware</groupId>
 			<artifactId>jflat</artifactId>
 		</dependency>
 		<dependency>
@@ -122,11 +118,6 @@
 		<dependency>
 			<groupId>io.opentelemetry.instrumentation</groupId>
 			<artifactId>opentelemetry-instrumentation-annotations</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.snmp4j</groupId>
-			<artifactId>snmp4j-agent</artifactId>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
