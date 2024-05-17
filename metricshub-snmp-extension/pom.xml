@@ -80,16 +80,21 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.snmp4j</groupId>
-			<artifactId>snmp4j-agent</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.sentrysoftware</groupId>
 			<artifactId>metricshub-it-common</artifactId>
 			<classifier>tests</classifier>
 			<scope>test</scope>
 			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.snmp4j</groupId>
+			<artifactId>snmp4j-agent</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.snmp4j</groupId>
+			<artifactId>snmp4j</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 

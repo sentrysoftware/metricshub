@@ -22,7 +22,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.extension.snmp.SnmpConfiguration;
 import org.sentrysoftware.metricshub.extension.snmp.SnmpConfiguration.SnmpVersion;
 import org.sentrysoftware.metricshub.extension.snmp.SnmpExtension;
-import org.sentrysoftware.metricshub.extension.snmp.it.job.SnmpITJob;
+import org.sentrysoftware.metricshub.it.job.snmp.SnmpITJob;
 
 class DellOpenManageIT {
 	static {
@@ -72,11 +72,26 @@ class DellOpenManageIT {
 		extensionManager = ExtensionManager.builder().withProtocolExtensions(List.of(new SnmpExtension())).build();
 	}
 
+	/**
+	 * Updates the port in the given configuration to allow the engine access to this port.
+	 *
+	 * @param telemetryManager the telemetry manager where metrics are collected
+	 * @param port             the port of the configuration to be updated
+	 */
+	static void updateSnmpPort(TelemetryManager telemetryManager, Integer port) {
+		final SnmpConfiguration snmpConfiguration = (SnmpConfiguration) telemetryManager
+			.getHostConfiguration()
+			.getConfigurations()
+			.get(SnmpConfiguration.class);
+
+		snmpConfiguration.setPort(port);
+	}
+
 	@Test
 	void test() throws Exception {
 		long discoveryTime = System.currentTimeMillis();
 		long collectTime = discoveryTime + 60 * 2 * 1000;
-		new SnmpITJob(telemetryManager)
+		new SnmpITJob(telemetryManager, DellOpenManageIT::updateSnmpPort)
 			.withServerRecordData("snmp/DellOpenManageIT/input/input.snmp")
 			.executeStrategies(
 				new DetectionStrategy(telemetryManager, discoveryTime, clientsExecutor, extensionManager),

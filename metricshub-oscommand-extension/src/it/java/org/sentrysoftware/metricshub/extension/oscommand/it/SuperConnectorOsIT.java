@@ -21,7 +21,7 @@ import org.sentrysoftware.metricshub.engine.strategy.discovery.DiscoveryStrategy
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.extension.oscommand.OsCommandConfiguration;
 import org.sentrysoftware.metricshub.extension.oscommand.OsCommandExtension;
-import org.sentrysoftware.metricshub.extension.oscommand.it.job.SuperConnectorITJob;
+import org.sentrysoftware.metricshub.it.job.oscommand.SuperConnectorITJob;
 
 class SuperConnectorOsIT {
 	static {

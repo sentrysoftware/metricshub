@@ -30,6 +30,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.UnaryOperator;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
@@ -52,6 +53,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
  * processes SNMP sources and criteria.
  */
 @Slf4j
+@AllArgsConstructor
 public class SnmpExtension implements IProtocolExtension {
 
 	private SnmpRequestExecutor snmpRequestExecutor;
