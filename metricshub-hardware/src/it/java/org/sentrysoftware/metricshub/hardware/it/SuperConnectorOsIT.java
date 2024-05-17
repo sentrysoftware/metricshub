@@ -21,6 +21,9 @@ import org.sentrysoftware.metricshub.engine.strategy.discovery.DiscoveryStrategy
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.extension.oscommand.OsCommandConfiguration;
 import org.sentrysoftware.metricshub.extension.oscommand.OsCommandExtension;
+import org.sentrysoftware.metricshub.hardware.strategy.HardwarePostCollectStrategy;
+import org.sentrysoftware.metricshub.hardware.strategy.HardwarePostDiscoveryStrategy;
+import org.sentrysoftware.metricshub.hardware.strategy.HardwareStrategy;
 import org.sentrysoftware.metricshub.it.job.oscommand.SuperConnectorITJob;
 
 class SuperConnectorOsIT {
@@ -73,12 +76,15 @@ class SuperConnectorOsIT {
 		new SuperConnectorITJob(clientsExecutor, telemetryManager)
 			.executeStrategies(
 				new DetectionStrategy(telemetryManager, discoveryTime, clientsExecutor, extensionManager),
-				new DiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor, extensionManager)
+				new DiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor, extensionManager),
+				new HardwarePostDiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor, extensionManager)
 			)
 			.executeStrategies(
 				new PrepareCollectStrategy(telemetryManager, collectTime, clientsExecutor, extensionManager),
 				new ProtocolHealthCheckStrategy(telemetryManager, collectTime, clientsExecutor, extensionManager),
-				new CollectStrategy(telemetryManager, collectTime, clientsExecutor, extensionManager)
+				new CollectStrategy(telemetryManager, collectTime, clientsExecutor, extensionManager),
+				new HardwarePostCollectStrategy(telemetryManager, collectTime, clientsExecutor, extensionManager),
+				new HardwareStrategy(telemetryManager, collectTime)
 			)
 			.verifyExpected("os/SuperConnectorOsIT/expected/expected.json");
 	}
