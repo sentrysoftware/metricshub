@@ -138,4 +138,42 @@ public class FileHelper {
 			return lines.collect(Collectors.joining(NEW_LINE));
 		}
 	}
+
+	/**
+	 * Extracts the extension of a provided filename.
+	 *
+	 * @param filename The filename from which to extract the extension.
+	 * @return The extension of the file (E.g <b>.awk</b>)or an empty string if no extension exists.
+	 */
+	public static String getExtension(String filename) {
+		// Find the last index of '.' in the filename
+		final int lastIndex = filename.lastIndexOf('.');
+
+		// Check if the '.' is in a valid position
+		if (lastIndex > 0 && lastIndex < filename.length() - 1) {
+			return filename.substring(lastIndex);
+		}
+
+		// Return an empty string if no extension found
+		return MetricsHubConstants.EMPTY;
+	}
+
+	/**
+	 * Extracts the filename without its extension.
+	 *
+	 * @param filename The filename from which to remove the extension.
+	 * @return The filename without its extension.
+	 */
+	public static String getBaseName(String filename) {
+		// Find the last index of '.' in the filename
+		final int lastIndex = filename.lastIndexOf('.');
+
+		// Check if the '.' is in a valid position
+		if (lastIndex > 0) {
+			return filename.substring(0, lastIndex);
+		}
+
+		// Return the whole filename if no valid '.' found
+		return filename;
+	}
 }

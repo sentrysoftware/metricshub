@@ -41,7 +41,6 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
-import org.sentrysoftware.metricshub.agent.extension.SnmpTestConfiguration;
 import org.sentrysoftware.metricshub.agent.helper.OtelHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
@@ -60,6 +59,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 import org.sentrysoftware.metricshub.hardware.strategy.HardwarePostCollectStrategy;
 import org.sentrysoftware.metricshub.hardware.strategy.HardwarePostDiscoveryStrategy;
+import org.sentrysoftware.metricshub.extension.snmp.SnmpConfiguration;
 
 @ExtendWith(MockitoExtension.class)
 class MonitoringTaskTest {
@@ -80,7 +80,7 @@ class MonitoringTaskTest {
 				.hostname(HOSTNAME)
 				.hostId(HOSTNAME)
 				.hostType(DeviceKind.LINUX)
-				.configurations(Map.of(SnmpTestConfiguration.class, SnmpTestConfiguration.builder().build()))
+				.configurations(Map.of(SnmpConfiguration.class, SnmpConfiguration.builder().build()))
 				.build();
 	}
 

@@ -33,7 +33,6 @@ import org.sentrysoftware.metricshub.agent.config.AgentConfig;
 import org.sentrysoftware.metricshub.agent.config.ConnectorVariables;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
-import org.sentrysoftware.metricshub.agent.extension.SnmpTestExtension;
 import org.sentrysoftware.metricshub.agent.helper.OtelSdkConfigConstants;
 import org.sentrysoftware.metricshub.engine.common.helpers.MapHelper;
 import org.sentrysoftware.metricshub.engine.connector.model.common.HttpMethod;
@@ -44,13 +43,14 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Simple;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.extension.snmp.SnmpExtension;
 
 class AgentContextTest {
 
 	// Initialize the extension manager required by the agent context
 	final ExtensionManager extensionManager = ExtensionManager
 		.builder()
-		.withProtocolExtensions(List.of(new SnmpTestExtension()))
+		.withProtocolExtensions(List.of(new SnmpExtension()))
 		.build();
 
 	@Test

@@ -1,4 +1,4 @@
-package org.sentrysoftware;
+package org.sentrysoftware.metricshub.extension.wbem;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -40,13 +40,10 @@ import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResu
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
-import org.sentrysoftware.metricshub.extension.wbem.WbemConfiguration;
-import org.sentrysoftware.metricshub.extension.wbem.WbemExtension;
-import org.sentrysoftware.metricshub.extension.wbem.WbemRequestExecutor;
 import org.sentrysoftware.wbem.javax.wbem.WBEMException;
 
 @ExtendWith(MockitoExtension.class)
-public class WbemExtensionTest {
+class WbemExtensionTest {
 
 	private static final String CONNECTOR_ID = "connector";
 	private static final String HOST_NAME = "test-host" + UUID.randomUUID();

@@ -1,9 +1,8 @@
-package org.sentrysoftware;
+package org.sentrysoftware.metricshub.extension.wbem;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
-import org.sentrysoftware.metricshub.extension.wbem.WbemConfiguration;
 
 /**
  * Test of {@link WbemConfiguration}

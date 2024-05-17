@@ -1,13 +1,12 @@
-package org.sentrysoftware;
+package org.sentrysoftware.metricshub.extension.wbem;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
-import org.sentrysoftware.metricshub.extension.wbem.WbemRequestExecutor;
 import org.sentrysoftware.wbem.javax.wbem.WBEMException;
 
-public class WbemRequestExecutorTest {
+class WbemRequestExecutorTest {
 
 	WbemRequestExecutor wbemRequestExecutor = new WbemRequestExecutor();
 

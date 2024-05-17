@@ -35,6 +35,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
+import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 import org.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandResult;
@@ -79,9 +80,10 @@ public class WinCommandService {
 	 * <p>It replaces Host name, User name, Password, Sudo, Embedded files macros in the command line.</p>
 	 * <p>If necessary, it creates embedded files and deletes them after the command execution.</p>
 	 *
-	 * @param commandLine    The command Line. (mandatory)
-	 * @param hostname       The hostname of the remote device where the WMI or WinRm service is running. (mandatory)
-	 * @param configuration  Windows Protocol configuration (credentials, timeout). E.g. WMI or WinRm.
+	 * @param commandLine            The command Line. (mandatory)
+	 * @param hostname               The hostname of the remote device where the WMI or WinRm service is running. (mandatory)
+	 * @param configuration          Windows Protocol configuration (credentials, timeout). E.g. WMI or WinRm.
+	 * @param connectorEmbeddedFiles All the embedded files defined by the connector object. (mandatory)
 	 *
 	 * @return The command execution return and the command with password masked (if present).
 	 * @throws IOException                   When an I/O error occurred on local command execution or embedded file creation.
@@ -91,7 +93,8 @@ public class WinCommandService {
 	public OsCommandResult runOsCommand(
 		@NonNull final String commandLine,
 		@NonNull final String hostname,
-		final IWinConfiguration configuration
+		final IWinConfiguration configuration,
+		@NonNull Map<Integer, EmbeddedFile> connectorEmbeddedFiles
 	) throws IOException, ClientException, NoCredentialProvidedException {
 		final Optional<String> maybeUsername = getUsername(configuration);
 
@@ -105,7 +108,7 @@ public class WinCommandService {
 		final Map<String, File> embeddedTempFiles = OsCommandHelper.createOsCommandEmbeddedFiles(
 			commandLine,
 			null,
-			EmbeddedFileHelper.findEmbeddedFiles(commandLine),
+			EmbeddedFileHelper.findEmbeddedFiles(commandLine, connectorEmbeddedFiles),
 			OsCommandHelper.TEMP_FILE_CREATOR
 		);
 

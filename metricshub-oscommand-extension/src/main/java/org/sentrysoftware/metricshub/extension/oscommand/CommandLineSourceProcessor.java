@@ -72,7 +72,8 @@ public class CommandLineSourceProcessor {
 				telemetryManager,
 				commandLineSource.getTimeout(),
 				commandLineSource.getExecuteLocally(),
-				telemetryManager.getHostProperties().isLocalhost()
+				telemetryManager.getHostProperties().isLocalhost(),
+				telemetryManager.getEmbeddedFiles(connectorId)
 			);
 
 			// transform to lines

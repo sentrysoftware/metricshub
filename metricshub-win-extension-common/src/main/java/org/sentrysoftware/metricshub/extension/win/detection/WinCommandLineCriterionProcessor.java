@@ -50,6 +50,9 @@ public class WinCommandLineCriterionProcessor {
 	@NonNull
 	private Function<TelemetryManager, IWinConfiguration> configurationRetriever;
 
+	@NonNull
+	private String connectorId;
+
 	/**
 	 * Processes a {@link CommandLineCriterion} using the provided {@link TelemetryManager} to test
 	 * command execution outcomes based on expected results. The method validates the criterion and,
@@ -100,7 +103,8 @@ public class WinCommandLineCriterionProcessor {
 			final OsCommandResult osCommandResult = winCommandService.runOsCommand(
 				commandLineCriterion.getCommandLine(),
 				telemetryManager.getHostname(),
-				configurationRetriever.apply(telemetryManager)
+				configurationRetriever.apply(telemetryManager),
+				telemetryManager.getEmbeddedFiles(connectorId)
 			);
 
 			final CommandLineCriterion osCommandNoPassword = CommandLineCriterion

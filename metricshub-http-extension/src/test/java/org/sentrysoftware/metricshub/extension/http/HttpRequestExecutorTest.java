@@ -67,10 +67,10 @@ class HttpRequestExecutorTest {
 				.builder()
 				.path(path)
 				.method(method)
-				.body(bodyContent, "connector", hostname)
+				.body(bodyContent, Map.of(), "connector", hostname)
 				.hostname(hostname)
 				.httpConfiguration(httpConfiguration)
-				.header("Connection: keep-alive", "connector", hostname)
+				.header("Connection: keep-alive", Map.of(), "connector", hostname)
 				.resultContent(ResultContent.BODY)
 				.build();
 			final TelemetryManager telemetryManager = TelemetryManager
@@ -136,10 +136,10 @@ class HttpRequestExecutorTest {
 				.builder()
 				.path(path)
 				.method(method)
-				.body(bodyContent, "connector", hostname)
+				.body(bodyContent, Map.of(), "connector", hostname)
 				.hostname(hostname)
 				.httpConfiguration(httpConfiguration)
-				.header("Connection: keep-alive", "connector", hostname)
+				.header("Connection: keep-alive", Map.of(), "connector", hostname)
 				.resultContent(ResultContent.HEADER)
 				.build();
 			final TelemetryManager telemetryManager = TelemetryManager
@@ -204,10 +204,10 @@ class HttpRequestExecutorTest {
 				.builder()
 				.path(path)
 				.method(method)
-				.body(bodyContent, "connector", hostname)
+				.body(bodyContent, Map.of(), "connector", hostname)
 				.hostname(hostname)
 				.httpConfiguration(httpConfiguration)
-				.header("Connection: keep-alive", "connector", hostname)
+				.header("Connection: keep-alive", Map.of(), "connector", hostname)
 				.resultContent(ResultContent.HTTP_STATUS)
 				.build();
 			final TelemetryManager telemetryManager = TelemetryManager
@@ -274,10 +274,10 @@ class HttpRequestExecutorTest {
 				.builder()
 				.path(path)
 				.method(method)
-				.body(bodyContent, "connector", hostname)
+				.body(bodyContent, Map.of(), "connector", hostname)
 				.hostname(hostname)
 				.httpConfiguration(httpConfiguration)
-				.header("Connection: keep-alive", "connector", hostname)
+				.header("Connection: keep-alive", Map.of(), "connector", hostname)
 				.resultContent(ResultContent.ALL)
 				.build();
 			final TelemetryManager telemetryManager = TelemetryManager
@@ -344,10 +344,10 @@ class HttpRequestExecutorTest {
 				.builder()
 				.path(path)
 				.method(method)
-				.body(bodyContent, "connector", hostname)
+				.body(bodyContent, Map.of(), "connector", hostname)
 				.hostname(hostname)
 				.httpConfiguration(httpConfiguration)
-				.header("Connection: keep-alive", "connector", hostname)
+				.header("Connection: keep-alive", Map.of(), "connector", hostname)
 				.resultContent(ResultContent.ALL)
 				.build();
 			final TelemetryManager telemetryManager = TelemetryManager
@@ -420,10 +420,10 @@ class HttpRequestExecutorTest {
 				.builder()
 				.path(path)
 				.method(method)
-				.body(bodyContent, "connector", hostname)
+				.body(bodyContent, Map.of(), "connector", hostname)
 				.hostname(hostname)
 				.httpConfiguration(httpConfiguration)
-				.header("Connection: keep-alive", "connector", hostname)
+				.header("Connection: keep-alive", Map.of(), "connector", hostname)
 				.resultContent(ResultContent.BODY)
 				.build();
 			final TelemetryManager telemetryManager = TelemetryManager

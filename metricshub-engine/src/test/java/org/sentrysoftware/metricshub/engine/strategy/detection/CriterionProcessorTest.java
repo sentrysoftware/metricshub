@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.condition.OS.LINUX;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
@@ -49,7 +48,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -58,8 +56,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.OsCommandTestConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.SshTestConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.common.HttpMethod;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
@@ -909,21 +905,21 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void productRequirementsCriterionProcessCriterionNullTest() {
+	void testProductRequirementsCriterionProcessCriterionNull() {
 		final ProductRequirementsCriterion productRequirementsCriterion = null;
 
 		assertTrue(new CriterionProcessor().process(productRequirementsCriterion).isSuccess());
 	}
 
 	@Test
-	void productRequirementsCriterionProcessCriterionNullVersionTest() {
+	void testProductRequirementsCriterionProcessCriterionNullVersion() {
 		final ProductRequirementsCriterion productRequirementsCriterion = ProductRequirementsCriterion.builder().build();
 
 		assertTrue(new CriterionProcessor().process(productRequirementsCriterion).isSuccess());
 	}
 
 	@Test
-	void productRequirementsCriterionProcessCriterionEmptyVersionTest() {
+	void testProductRequirementsCriterionProcessCriterionEmptyVersion() {
 		final ProductRequirementsCriterion productRequirementsCriterion = ProductRequirementsCriterion
 			.builder()
 			.engineVersion("")
@@ -933,7 +929,7 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void productRequirementsCriterionProcessCriterionOKTest() {
+	void testProductRequirementsCriterionProcessCriterionOK() {
 		final ProductRequirementsCriterion productRequirementsCriterion = ProductRequirementsCriterion
 			.builder()
 			.engineVersion(LOW_VERSION_NUMBER)
@@ -942,187 +938,12 @@ class CriterionProcessorTest {
 	}
 
 	@Test
-	void productRequirementsCriterionProcessCriterionNOKTest() {
+	void testProductRequirementsCriterionProcessCriterionNOK() {
 		final ProductRequirementsCriterion productRequirementsCriterion = ProductRequirementsCriterion
 			.builder()
 			.engineVersion(HIGH_VERSION_NUMBER) // We will need to update the test once we reach metricshub-engine version 1000
 			.build();
 
 		assertFalse(new CriterionProcessor().process(productRequirementsCriterion).isSuccess());
-	}
-
-	@Test
-	@EnabledOnOs(LINUX)
-	void testVisitCommandLineLinuxError() {
-		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
-		commandLineCriterion.setCommandLine("sleep 5");
-		commandLineCriterion.setExpectedResult(" ");
-		commandLineCriterion.setExecuteLocally(true);
-		commandLineCriterion.setErrorMessage("No date.");
-		commandLineCriterion.setTimeout(1L);
-
-		final SshTestConfiguration sshConfiguration = SshTestConfiguration
-			.builder()
-			.username(" ")
-			.password("pwd".toCharArray())
-			.build();
-
-		final OsCommandTestConfiguration osCommandConfiguration = new OsCommandTestConfiguration();
-		osCommandConfiguration.setTimeout(1L);
-
-		final HostConfiguration hostConfiguration = HostConfiguration
-			.builder()
-			.hostId("id")
-			.hostname("localhost")
-			.hostType(DeviceKind.WINDOWS)
-			.configurations(
-				Map.of(sshConfiguration.getClass(), sshConfiguration, osCommandConfiguration.getClass(), osCommandConfiguration)
-			)
-			.build();
-
-		final HostProperties hostProperties = HostProperties.builder().isLocalhost(true).build();
-
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(hostConfiguration)
-			.hostProperties(hostProperties)
-			.build();
-
-		// The extension manager is empty because it is not involved in this test
-		final ExtensionManager extensionManager = ExtensionManager.empty();
-
-		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			clientsExecutorMock,
-			telemetryManager,
-			MY_CONNECTOR_1_NAME,
-			extensionManager
-		);
-
-		final CriterionTestResult criterionTestResult = criterionProcessor.process(commandLineCriterion);
-
-		assertNotNull(criterionTestResult);
-		assertFalse(criterionTestResult.isSuccess());
-		assertEquals(
-			"Error in CommandLineCriterion test:\n" +
-			commandLineCriterion.toString() +
-			"\n\n" +
-			"TimeoutException: Command \"sleep 5\" execution has timed out after 1 s",
-			criterionTestResult.getMessage()
-		);
-		assertNull(criterionTestResult.getResult());
-	}
-
-	@Test
-	@EnabledOnOs(LINUX)
-	void testVisitCommandLineLocalLinuxFailedToMatchCriteria() {
-		final String result = "Test";
-
-		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
-		commandLineCriterion.setCommandLine("echo Test");
-		commandLineCriterion.setExpectedResult("Nothing");
-		commandLineCriterion.setExecuteLocally(true);
-		commandLineCriterion.setErrorMessage("No display.");
-
-		final SshTestConfiguration sshConfiguration = SshTestConfiguration
-			.builder()
-			.username(" ")
-			.password("pwd".toCharArray())
-			.timeout(1L)
-			.build();
-
-		final HostConfiguration hostConfiguration = HostConfiguration
-			.builder()
-			.hostId("id")
-			.hostname("localhost")
-			.hostType(DeviceKind.LINUX)
-			.configurations(Map.of(sshConfiguration.getClass(), sshConfiguration))
-			.build();
-
-		final HostProperties hostProperties = HostProperties.builder().isLocalhost(true).build();
-
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(hostConfiguration)
-			.hostProperties(hostProperties)
-			.build();
-
-		// The extension manager is empty because it is not involved in this test
-		final ExtensionManager extensionManager = ExtensionManager.empty();
-
-		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			clientsExecutorMock,
-			telemetryManager,
-			MY_CONNECTOR_1_NAME,
-			extensionManager
-		);
-
-		final CriterionTestResult criterionTestResult = criterionProcessor.process(commandLineCriterion);
-
-		assertNotNull(criterionTestResult);
-		assertFalse(criterionTestResult.isSuccess());
-		assertEquals(
-			"CommandLineCriterion test ran but failed:\n" +
-			commandLineCriterion.toString() +
-			"\n\n" +
-			"Actual result:\n" +
-			result,
-			criterionTestResult.getMessage()
-		);
-		assertEquals(result, criterionTestResult.getResult());
-	}
-
-	@Test
-	@EnabledOnOs(LINUX)
-	void testVisitCommandLineLocalLinux() {
-		final String result = "Test";
-
-		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
-		commandLineCriterion.setCommandLine("echo Test");
-		commandLineCriterion.setExpectedResult(result);
-		commandLineCriterion.setExecuteLocally(true);
-		commandLineCriterion.setErrorMessage("No display.");
-
-		final SshTestConfiguration sshConfiguration = SshTestConfiguration
-			.builder()
-			.username(" ")
-			.password("pwd".toCharArray())
-			.timeout(1L)
-			.build();
-
-		final HostConfiguration hostConfiguration = HostConfiguration
-			.builder()
-			.hostId("id")
-			.hostname("localhost")
-			.hostType(DeviceKind.LINUX)
-			.configurations(Map.of(sshConfiguration.getClass(), sshConfiguration))
-			.build();
-
-		final HostProperties hostProperties = HostProperties.builder().isLocalhost(true).build();
-
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(hostConfiguration)
-			.hostProperties(hostProperties)
-			.build();
-
-		// The extension manager is empty because it is not involved in this test
-		final ExtensionManager extensionManager = ExtensionManager.empty();
-
-		final CriterionProcessor criterionProcessor = new CriterionProcessor(
-			clientsExecutorMock,
-			telemetryManager,
-			MY_CONNECTOR_1_NAME,
-			extensionManager
-		);
-
-		final CriterionTestResult criterionTestResult = criterionProcessor.process(commandLineCriterion);
-
-		assertNotNull(criterionTestResult);
-		assertTrue(criterionTestResult.isSuccess());
-		assertEquals(
-			"CommandLineCriterion test succeeded:\n" + commandLineCriterion.toString() + "\n\n" + "Result: " + result,
-			criterionTestResult.getMessage()
-		);
-		assertEquals(result, criterionTestResult.getResult());
 	}
 }

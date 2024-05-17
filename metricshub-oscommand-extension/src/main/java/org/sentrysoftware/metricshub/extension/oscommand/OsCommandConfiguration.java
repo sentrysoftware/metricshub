@@ -24,6 +24,7 @@ package org.sentrysoftware.metricshub.extension.oscommand;
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.Builder;
@@ -32,6 +33,7 @@ import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
+import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 
 /**
  * Configuration class for handling OS command execution settings. This class provides options to configure
@@ -55,6 +57,7 @@ public class OsCommandConfiguration implements IConfiguration {
 	String sudoCommand = "sudo";
 
 	@JsonSetter(nulls = SKIP)
+	@JsonDeserialize(using = TimeDeserializer.class)
 	Long timeout = DEFAULT_TIMEOUT;
 
 	/**

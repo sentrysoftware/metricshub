@@ -43,6 +43,8 @@ import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.TransportProtocols;
+import org.sentrysoftware.metricshub.engine.connector.model.Connector;
+import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.CommandLineCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.IpmiCriterion;
@@ -112,6 +114,13 @@ class WinRmExtensionTest {
 			.timeout(120L)
 			.build();
 
+		final Connector connector = Connector.builder().build();
+
+		final Map<String, Connector> store = Map.of(CONNECTOR_ID, connector);
+
+		final ConnectorStore connectorStore = new ConnectorStore();
+		connectorStore.setStore(store);
+
 		telemetryManager =
 			TelemetryManager
 				.builder()
@@ -125,6 +134,7 @@ class WinRmExtensionTest {
 						.configurations(Map.of(WinRmConfiguration.class, winRmConfiguration))
 						.build()
 				)
+				.connectorStore(connectorStore)
 				.strategyTime(System.currentTimeMillis())
 				.build();
 	}
@@ -225,6 +235,13 @@ class WinRmExtensionTest {
 			.timeout(15L)
 			.build();
 
+		final Connector connector = Connector.builder().build();
+
+		final Map<String, Connector> store = Map.of(CONNECTOR_ID, connector);
+
+		final ConnectorStore connectorStore = new ConnectorStore();
+		connectorStore.setStore(store);
+
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
 			.hostConfiguration(
@@ -236,6 +253,7 @@ class WinRmExtensionTest {
 					.configurations(Map.of(WinRmConfiguration.class, winRmConfiguration))
 					.build()
 			)
+			.connectorStore(connectorStore)
 			.build();
 
 		{
@@ -275,7 +293,7 @@ class WinRmExtensionTest {
 
 			doReturn(new OsCommandResult("result", COMMAND_LINE))
 				.when(winCommandServiceMock)
-				.runOsCommand(commandLineCriterion.getCommandLine(), HOST_NAME, winRmConfiguration);
+				.runOsCommand(commandLineCriterion.getCommandLine(), HOST_NAME, winRmConfiguration, Map.of());
 			assertTrue(WinRmExtension.processCriterion(commandLineCriterion, CONNECTOR_ID, telemetryManager).isSuccess());
 		}
 		{
@@ -319,6 +337,13 @@ class WinRmExtensionTest {
 			.timeout(15L)
 			.build();
 
+		final Connector connector = Connector.builder().build();
+
+		final Map<String, Connector> store = Map.of(CONNECTOR_ID, connector);
+
+		final ConnectorStore connectorStore = new ConnectorStore();
+		connectorStore.setStore(store);
+
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
 			.hostConfiguration(
@@ -330,6 +355,7 @@ class WinRmExtensionTest {
 					.configurations(Map.of(WinRmConfiguration.class, winRmConfiguration))
 					.build()
 			)
+			.connectorStore(connectorStore)
 			.build();
 		{
 			final WbemSource wbemSource = WbemSource.builder().query("SELECT Name FROM CIM_StorageSystem").build();
@@ -353,7 +379,7 @@ class WinRmExtensionTest {
 				""";
 			doReturn(new OsCommandResult(expectedCommandLineResult, COMMAND_LINE))
 				.when(winCommandServiceMock)
-				.runOsCommand(COMMAND_LINE, HOST_NAME, winRmConfiguration);
+				.runOsCommand(COMMAND_LINE, HOST_NAME, winRmConfiguration, Map.of());
 
 			final List<List<String>> expected = List.of(List.of("16384 MB"), List.of("8192 MB"));
 			assertEquals(

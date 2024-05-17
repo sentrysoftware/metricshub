@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -38,6 +39,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
+import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
@@ -265,5 +267,25 @@ public class ExtensionManager {
 		}
 
 		return Optional.empty();
+	}
+
+	/**
+	 * Aggregates connector stores from various provider extensions into a single {@link ConnectorStore}.
+	 * This method initializes a new {@link ConnectorStore} and iteratively loads data from each registered
+	 * connector store provider extension. All connectors from each extension are added to the newly created store.
+	 *
+	 * This centralized store can be used to manage or interpret connectors across different extensions efficiently,
+	 * providing a unified view of all connectors available in MetricsHub.
+	 *
+	 * @return A {@link ConnectorStore} containing all connectors from various extensions combined into one store.
+	 */
+	public ConnectorStore aggregateExtensionConnectorStores() {
+		final ConnectorStore connectorStore = new ConnectorStore();
+		connectorStore.setStore(new TreeMap<>(String.CASE_INSENSITIVE_ORDER));
+		connectorStoreProviderExtensions.forEach(connectorStoreProviderExtension -> {
+			connectorStoreProviderExtension.load();
+			connectorStore.addMany(connectorStoreProviderExtension.getConnectorStore().getStore());
+		});
+		return connectorStore;
 	}
 }

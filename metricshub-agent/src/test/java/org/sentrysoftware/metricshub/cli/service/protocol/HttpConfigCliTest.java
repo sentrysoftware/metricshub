@@ -8,11 +8,11 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
-import org.sentrysoftware.metricshub.agent.extension.HttpTestConfiguration;
-import org.sentrysoftware.metricshub.agent.extension.HttpTestExtension;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
 import org.sentrysoftware.metricshub.cli.service.protocol.HttpConfigCli.HttpOrHttps;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
+import org.sentrysoftware.metricshub.extension.http.HttpConfiguration;
+import org.sentrysoftware.metricshub.extension.http.HttpExtension;
 
 class HttpConfigCliTest {
 
@@ -35,14 +35,14 @@ class HttpConfigCliTest {
 			// Initialize the extension manager required by the agent context
 			final ExtensionManager extensionManager = ExtensionManager
 				.builder()
-				.withProtocolExtensions(List.of(new HttpTestExtension()))
+				.withProtocolExtensions(List.of(new HttpExtension()))
 				.build();
 
 			cliExtensionManagerMock
 				.when(() -> CliExtensionManager.getExtensionManagerSingleton())
 				.thenReturn(extensionManager);
 
-			HttpTestConfiguration expected = HttpTestConfiguration
+			HttpConfiguration expected = HttpConfiguration
 				.builder()
 				.username(username)
 				.password(password)
@@ -51,7 +51,7 @@ class HttpConfigCliTest {
 				.https(false)
 				.build();
 
-			HttpTestConfiguration result = (HttpTestConfiguration) httpConfigCli.toProtocol(null, null);
+			HttpConfiguration result = (HttpConfiguration) httpConfigCli.toProtocol(null, null);
 
 			assertNotNull(result);
 			assertEquals(expected, result);
@@ -60,7 +60,7 @@ class HttpConfigCliTest {
 			httpConfigCli.setTimeout(timeout);
 			httpConfigCli.setHttpOrHttps(httpOrHttps);
 
-			result = (HttpTestConfiguration) httpConfigCli.toProtocol(username, password);
+			result = (HttpConfiguration) httpConfigCli.toProtocol(username, password);
 			assertNotNull(result);
 			assertEquals(expected, result);
 		}

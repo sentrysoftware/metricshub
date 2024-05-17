@@ -34,7 +34,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 @RequiredArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(callSuper = true)
-public class CompiledFilenameUpdate extends AbstractConnectorUpdateChain {
+public class CompiledFilenameUpdater extends AbstractConnectorUpdateChain {
 
 	@NonNull
 	private String filename;
