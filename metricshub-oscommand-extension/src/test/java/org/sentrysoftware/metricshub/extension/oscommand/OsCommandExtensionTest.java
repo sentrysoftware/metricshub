@@ -221,6 +221,41 @@ class OsCommandExtensionTest {
 		);
 	}
 
+	@Test
+	void testBuildConfigurationKO() {
+		{
+			final ObjectNode sshConfiguration = JsonNodeFactory.instance.objectNode();
+			sshConfiguration.set("timeout", new TextNode("NaN"));
+			assertThrows(
+				InvalidConfigurationException.class,
+				() -> osCommandExtension.buildConfiguration("ssh", sshConfiguration, null)
+			);
+		}
+		{
+			final ObjectNode osCommandconfiguration = JsonNodeFactory.instance.objectNode();
+			osCommandconfiguration.set("timeout", new TextNode("NaN"));
+			assertThrows(
+				InvalidConfigurationException.class,
+				() -> osCommandExtension.buildConfiguration("oscommand", osCommandconfiguration, null)
+			);
+		}
+		{
+			final ObjectNode sshConfiguration = JsonNodeFactory.instance.objectNode();
+			sshConfiguration.set("username", new TextNode("username"));
+			sshConfiguration.set("password", new TextNode("password"));
+			sshConfiguration.set("timeout", new TextNode("120"));
+			sshConfiguration.set("privateKey", new TextNode("privateKey"));
+			sshConfiguration.set("useSudoCommands", JsonNodeFactory.instance.arrayNode().add("sudo"));
+			sshConfiguration.set("useSudo", BooleanNode.TRUE);
+			sshConfiguration.set("sudoCommand", new TextNode("sudo"));
+			sshConfiguration.set("timeout", new TextNode("120"));
+			assertThrows(
+				InvalidConfigurationException.class,
+				() -> osCommandExtension.buildConfiguration("snmp", sshConfiguration, null)
+			);
+		}
+	}
+
 	void setup() {
 		Monitor hostMonitor = Monitor.builder().type(HOST.getKey()).isEndpoint(true).build();
 		monitors = new HashMap<>(Map.of(HOST.getKey(), Map.of(HOSTNAME, hostMonitor)));
