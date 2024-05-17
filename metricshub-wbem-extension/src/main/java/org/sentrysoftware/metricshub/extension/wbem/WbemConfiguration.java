@@ -90,7 +90,7 @@ public class WbemConfiguration implements IConfiguration {
 			() ->
 				String.format(
 					"Resource %s - Invalid port configured for protocol %s. Port value returned: %s." +
-					" Port value returned: %s. This resource will not be monitored. Please verify the configured port value.",
+					" This resource will not be monitored. Please verify the configured port value.",
 					resourceKey,
 					"WBEM",
 					port
