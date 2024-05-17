@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -30,7 +31,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,8 +58,8 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 @ExtendWith(MockitoExtension.class)
 class OsCommandHelperTest {
 
-	private static final Map<String, EmbeddedFile> EMPTY_EMBEDDED_FILE_MAP = Collections.emptyMap();
-	private static Map<String, EmbeddedFile> commandLineEmbeddedFiles;
+	private static final Map<Integer, EmbeddedFile> EMPTY_EMBEDDED_FILE_MAP = Collections.emptyMap();
+	private static Map<Integer, EmbeddedFile> commandLineEmbeddedFiles;
 
 	/****************************************/
 
@@ -101,8 +102,8 @@ class OsCommandHelperTest {
 	public static final String TABLE_SEP = ";";
 
 	// Embedded files
-	public static final String TEMP_EMBEDDED_1 = "/tmp/SEN_Embedded_1.bat";
-	public static final String TEMP_EMBEDDED_2 = "/tmp/SEN_Embedded_2";
+	public static final String TEMP_EMBEDDED_1 = "/tmp/metricshub_embedded_1.bat";
+	public static final String TEMP_EMBEDDED_2 = "/tmp/metricshub_embedded_2";
 	public static final String AWK_EMBEDDED_CONTENT_PERCENT_SUDO =
 		"# Awk (or nawk)\n" +
 		"if [ -f /usr/xpg4/bin/awk ]; then\n" +
@@ -147,36 +148,38 @@ class OsCommandHelperTest {
 		"                echo MSHWController $CTRL\n" +
 		"                sudo $STORMAN/arcconf getconfig $CTRL PD\n" +
 		"                done";
-	public static final String SH_EMBEDDED_FILE_1 = "/bin/sh ${file::EmbeddedFile(1)}";
-	public static final String EMBEDDED_FILE_1_REF = "${file::EmbeddedFile(1)}";
-	public static final String EMBEDDED_FILE_2_REF = "${file::EmbeddedFile(2)}";
+	public static final String SH_EMBEDDED_FILE_1 = "/bin/sh ${file::1}";
+	public static final Integer EMBEDDED_FILE_1_REF = 1;
+	public static final Integer EMBEDDED_FILE_2_REF = 2;
 	public static final String EMBEDDED_FILE_1_COPY_COMMAND_LINE =
-		"copy ${file::EmbeddedFile(1)} ${file::EmbeddedFile(1)}.bat > NUL & ${file::EmbeddedFile(1)}.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q ${file::EmbeddedFile(1)}.bat & del /F /Q ${file::EmbeddedFile(2)}.bat ";
+		"copy ${file::1} ${file::1}.bat > NUL & ${file::1}.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q ${file::1}.bat & del /F /Q ${file::2}.bat ";
 	public static final String CMD_COMMAND = "CMD.EXE /C cmd";
 	public static final String NO_PASSWORD_COMMAND =
 		" naviseccli -User testUser -Password ******** -Address host -Scope 1 getagent";
 	public static final String CLEAR_PASSWORD_COMMAND =
 		" naviseccli -User testUser -Password pwd -Address host -Scope 1 getagent";
 	public static final String COMMAND_TO_UPDATE =
-		"copy ${file::EmbeddedFile(2)} ${file::EmbeddedFile(2)}.bat > NUL" +
-		" & ${file::EmbeddedFile(1)}" +
-		" & ${file::EmbeddedFile(2)}.bat" +
-		" & del /F /Q ${file::EmbeddedFile(1)}" +
-		" & del /F /Q ${file::EmbeddedFile(2)}.bat";
+		"copy ${file::2} ${file::2}.bat > NUL" +
+		" & ${file::1}" +
+		" & ${file::2}.bat" +
+		" & del /F /Q ${file::1}" +
+		" & del /F /Q ${file::2}.bat";
 	public static final String UPDATED_COMMAND =
-		"copy /tmp/SEN_Embedded_2 /tmp/SEN_Embedded_2.bat > NUL" +
-		" & /tmp/SEN_Embedded_1.bat" +
-		" & /tmp/SEN_Embedded_2.bat" +
-		" & del /F /Q /tmp/SEN_Embedded_1.bat" +
-		" & del /F /Q /tmp/SEN_Embedded_2.bat";
+		"copy /tmp/metricshub_embedded_2 /tmp/metricshub_embedded_2.bat > NUL" +
+		" & /tmp/metricshub_embedded_1.bat" +
+		" & /tmp/metricshub_embedded_2.bat" +
+		" & del /F /Q /tmp/metricshub_embedded_1.bat" +
+		" & del /F /Q /tmp/metricshub_embedded_2.bat";
 	public static final String RAIDCTL_COMMAND = "/usr/sbin/raidctl -S";
 	public static final String SUDO_RAIDCTL_COMMAND = "%{SUDO:/usr/sbin/raidctl} /usr/sbin/raidctl -S";
 	public static final String SUDO_NAVISECCLI_COMMAND =
 		"%{Sudo:NaviSecCli} NaviSecCli -User %{USERNAME} -Password %{PASSWORD} -Address host -Scope 1 getagent";
-	public static final String SEN_EMBEDDED_0001_PATH = "/tmp/SEN_Embedded_0001";
-	public static final String SH_SEN_EMBEDDED_0001_PATH = "/bin/sh /tmp/SEN_Embedded_0001";
-	public static final String EMBEDDED_TEMP_FILE_PREFIX = "SEN_Embedded_";
-	public static final String BAT_FILE_EXTENSION = "\\w+\\.bat";
+	public static final String SEN_EMBEDDED_0001_PATH = "/tmp/metricshub_embedded_0001";
+	public static final String SH_SEN_EMBEDDED_0001_PATH = "/bin/sh /tmp/metricshub_embedded_0001";
+	public static final String EMBEDDED_TEMP_FILE_PREFIX = "metricshub_embedded_";
+	public static final String AWK_FILE_EXTENSION = "\\w+\\.awk";
+	public static final String AWK_FILE_NAME = "script.awk";
+	public static final String AWK_SCRIPT_BASE_NAME = "script";
 
 	// Host information
 	public static final String HOST = "host";
@@ -195,7 +198,7 @@ class OsCommandHelperTest {
 	@TempDir
 	static File tempDir;
 
-	static Function<String, File> jUnitTempFileCreator;
+	static BiFunction<String, String, File> jUnitTempFileCreator;
 
 	/**
 	 * Setup unit tests.
@@ -204,9 +207,9 @@ class OsCommandHelperTest {
 	static void setup() {
 		// Initialize temporary file creator for JUnit tests.
 		jUnitTempFileCreator =
-			extension -> {
+			(name, extension) -> {
 				try {
-					return File.createTempFile(EMBEDDED_TEMP_FILE_PREFIX, extension, tempDir);
+					return File.createTempFile(EMBEDDED_TEMP_FILE_PREFIX + name, extension, tempDir);
 				} catch (IOException e) {
 					throw new OsCommandService.TempFileCreationException(e);
 				}
@@ -290,8 +293,11 @@ class OsCommandHelperTest {
 
 		// case IOException in temp file creation
 		try (final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)) {
-			commandLineEmbeddedFiles.put(EMBEDDED_FILE_1_REF, new EmbeddedFile(ECHO_OS, BAT, EMBEDDED_FILE_1_REF));
-			commandLineEmbeddedFiles.put(EMBEDDED_FILE_2_REF, new EmbeddedFile(ECHO_HELLO_WORLD, null, EMBEDDED_FILE_2_REF));
+			commandLineEmbeddedFiles.put(EMBEDDED_FILE_1_REF, new EmbeddedFile(ECHO_OS.getBytes(), BAT, EMBEDDED_FILE_1_REF));
+			commandLineEmbeddedFiles.put(
+				EMBEDDED_FILE_2_REF,
+				new EmbeddedFile(ECHO_HELLO_WORLD.getBytes(), null, EMBEDDED_FILE_2_REF)
+			);
 
 			mockedOsCommandHelper
 				.when(() -> OsCommandHelper.createTempFileWithEmbeddedFileContent(any(EmbeddedFile.class), isNull(), any()))
@@ -326,7 +332,7 @@ class OsCommandHelperTest {
 
 			commandLineEmbeddedFiles.put(
 				EMBEDDED_FILE_2_REF,
-				new EmbeddedFile(AWK_EMBEDDED_CONTENT_PERCENT_SUDO, null, EMBEDDED_FILE_2_REF)
+				new EmbeddedFile(AWK_EMBEDDED_CONTENT_PERCENT_SUDO.getBytes(), AWK_FILE_NAME, EMBEDDED_FILE_2_REF)
 			);
 
 			final Map<String, File> embeddedTempFiles = OsCommandHelper.createOsCommandEmbeddedFiles(
@@ -339,10 +345,10 @@ class OsCommandHelperTest {
 			assertEquals(2, embeddedTempFiles.size());
 
 			{
-				final File file = embeddedTempFiles.get(EMBEDDED_FILE_1_REF);
+				final File file = embeddedTempFiles.get(String.format("${file::%d}", EMBEDDED_FILE_1_REF));
 				assertNotNull(file);
 				assertTrue(file.exists());
-				assertTrue(file.getName().matches(EMBEDDED_TEMP_FILE_PREFIX + BAT_FILE_EXTENSION));
+				assertTrue(file.getName().matches(EMBEDDED_TEMP_FILE_PREFIX + BAT + "\\w+"));
 				assertEquals(
 					ECHO_OS,
 					Files.readAllLines(Paths.get(file.getAbsolutePath())).stream().collect(Collectors.joining())
@@ -350,10 +356,10 @@ class OsCommandHelperTest {
 				file.delete();
 			}
 			{
-				final File file = embeddedTempFiles.get(EMBEDDED_FILE_2_REF);
+				final File file = embeddedTempFiles.get(String.format("${file::%d}", EMBEDDED_FILE_2_REF));
 				assertNotNull(file);
 				assertTrue(file.exists());
-				assertTrue(file.getName().matches(EMBEDDED_TEMP_FILE_PREFIX + "\\w+"));
+				assertTrue(file.getName().matches(EMBEDDED_TEMP_FILE_PREFIX + AWK_SCRIPT_BASE_NAME + AWK_FILE_EXTENSION));
 				/*
 				 * assertEquals(
 -						expectedContent.replaceAll("[\r\n]", EMPTY),
@@ -596,15 +602,20 @@ class OsCommandHelperTest {
 	@Test
 	void testRunOsCommandCommandLineNull() {
 		final TelemetryManager telemetryManager = TelemetryManager.builder().build();
+		final Map<Integer, EmbeddedFile> connectorEmbeddedFiles = Map.of();
 		assertThrows(
 			IllegalArgumentException.class,
-			() -> OsCommandService.runOsCommand(null, telemetryManager, 120L, false, false)
+			() -> OsCommandService.runOsCommand(null, telemetryManager, 120L, false, false, connectorEmbeddedFiles)
 		);
 	}
 
 	@Test
 	void testRunOsCommandTelemetryManagerNull() {
-		assertThrows(IllegalArgumentException.class, () -> OsCommandService.runOsCommand(CMD, null, 120L, false, false));
+		final Map<Integer, EmbeddedFile> connectorEmbeddedFiles = Map.of();
+		assertThrows(
+			IllegalArgumentException.class,
+			() -> OsCommandService.runOsCommand(CMD, null, 120L, false, false, connectorEmbeddedFiles)
+		);
 	}
 
 	@Test
@@ -627,13 +638,14 @@ class OsCommandHelperTest {
 
 		assertThrows(
 			NoCredentialProvidedException.class,
-			() -> OsCommandService.runOsCommand(NAVISECCLI_COMMAND, telemetryManager, 120L, false, false)
+			() -> OsCommandService.runOsCommand(NAVISECCLI_COMMAND, telemetryManager, 120L, false, false, Map.of())
 		);
 	}
 
 	@Test
 	@EnabledOnOs(OS.WINDOWS)
 	void testRunOsCommandWindowsError() {
+		final Map<Integer, EmbeddedFile> connectorEmbeddedFiles = Map.of();
 		final SshConfiguration sshConfiguration = SshConfiguration
 			.sshConfigurationBuilder()
 			.username(USERNAME)
@@ -650,14 +662,17 @@ class OsCommandHelperTest {
 
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 
-		assertThrows(TimeoutException.class, () -> OsCommandService.runOsCommand(PAUSE, telemetryManager, 1L, false, true));
+		assertThrows(
+			TimeoutException.class,
+			() -> OsCommandService.runOsCommand(PAUSE, telemetryManager, 1L, false, true, connectorEmbeddedFiles)
+		);
 	}
 
 	@Test
 	void testRunOsCommandRemoteWindowsEmbeddedFilesError() {
-		final Map<String, EmbeddedFile> embeddedFiles = new HashMap<>();
-		embeddedFiles.put(EMBEDDED_FILE_1_REF, new EmbeddedFile(ECHO_OS, BAT, EMBEDDED_FILE_1_REF));
-		embeddedFiles.put(EMBEDDED_FILE_2_REF, new EmbeddedFile(ECHO_HELLO_WORLD, null, EMBEDDED_FILE_2_REF));
+		final Map<Integer, EmbeddedFile> embeddedFiles = new HashMap<>();
+		embeddedFiles.put(EMBEDDED_FILE_1_REF, new EmbeddedFile(ECHO_OS.getBytes(), BAT, EMBEDDED_FILE_1_REF));
+		embeddedFiles.put(EMBEDDED_FILE_2_REF, new EmbeddedFile(ECHO_HELLO_WORLD.getBytes(), null, EMBEDDED_FILE_2_REF));
 
 		final SshConfiguration osCommandConfiguration = new SshConfiguration();
 		osCommandConfiguration.setUsername(USERNAME);
@@ -680,11 +695,13 @@ class OsCommandHelperTest {
 		) {
 			mockedOsCommandService.when(() -> OsCommandService.getUsername(osCommandConfiguration)).thenCallRealMethod();
 			mockedOsCommandService
-				.when(() -> OsCommandService.runOsCommand(COMMAND_TO_UPDATE, telemetryManager, 120L, false, false))
+				.when(() ->
+					OsCommandService.runOsCommand(COMMAND_TO_UPDATE, telemetryManager, 120L, false, false, embeddedFiles)
+				)
 				.thenCallRealMethod();
 
 			mockedEmbeddedFileHelper
-				.when(() -> EmbeddedFileHelper.findEmbeddedFiles(anyString()))
+				.when(() -> EmbeddedFileHelper.findEmbeddedFiles(anyString(), anyMap()))
 				.thenReturn(commandLineEmbeddedFiles);
 
 			mockedOsCommandHelper
@@ -700,7 +717,7 @@ class OsCommandHelperTest {
 
 			assertThrows(
 				IOException.class,
-				() -> OsCommandService.runOsCommand(COMMAND_TO_UPDATE, telemetryManager, 120L, false, false)
+				() -> OsCommandService.runOsCommand(COMMAND_TO_UPDATE, telemetryManager, 120L, false, false, embeddedFiles)
 			);
 		}
 	}
@@ -719,7 +736,7 @@ class OsCommandHelperTest {
 
 		assertThrows(
 			TimeoutException.class,
-			() -> OsCommandService.runOsCommand(SLEEP_5, telemetryManager, 1L, false, true)
+			() -> OsCommandService.runOsCommand(SLEEP_5, telemetryManager, 1L, false, true, Map.of())
 		);
 	}
 
@@ -737,7 +754,10 @@ class OsCommandHelperTest {
 
 		final OsCommandResult expect = new OsCommandResult(TEST_RESULT, ECHO_TEST_UPPER_CASE);
 
-		assertEquals(expect, OsCommandService.runOsCommand(ECHO_TEST_UPPER_CASE, telemetryManager, 120L, false, true));
+		assertEquals(
+			expect,
+			OsCommandService.runOsCommand(ECHO_TEST_UPPER_CASE, telemetryManager, 120L, false, true, Map.of())
+		);
 	}
 
 	@Test
@@ -761,7 +781,10 @@ class OsCommandHelperTest {
 
 		final OsCommandResult expect = new OsCommandResult(TEST_RESULT, ECHO_TEST_LOWER_CASE);
 
-		assertEquals(expect, OsCommandService.runOsCommand(ECHO_TEST_LOWER_CASE, telemetryManager, 120L, false, true));
+		assertEquals(
+			expect,
+			OsCommandService.runOsCommand(ECHO_TEST_LOWER_CASE, telemetryManager, 120L, false, true, Map.of())
+		);
 	}
 
 	@Test
@@ -778,7 +801,10 @@ class OsCommandHelperTest {
 
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 
-		assertEquals(expect, OsCommandService.runOsCommand(ECHO_TEST_UPPER_CASE, telemetryManager, 120L, true, false));
+		assertEquals(
+			expect,
+			OsCommandService.runOsCommand(ECHO_TEST_UPPER_CASE, telemetryManager, 120L, true, false, Map.of())
+		);
 	}
 
 	@Test
@@ -795,7 +821,10 @@ class OsCommandHelperTest {
 
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 
-		assertEquals(expect, OsCommandService.runOsCommand(ECHO_TEST_LOWER_CASE, telemetryManager, 120L, true, false));
+		assertEquals(
+			expect,
+			OsCommandService.runOsCommand(ECHO_TEST_LOWER_CASE, telemetryManager, 120L, true, false, Map.of())
+		);
 	}
 
 	@Test
@@ -853,12 +882,15 @@ class OsCommandHelperTest {
 				.thenReturn(AGENT_REV_RESULT);
 
 			mockedOsCommandService
-				.when(() -> OsCommandService.runOsCommand(NAVISECCLI_COMMAND, telemetryManager, 120L, false, false))
+				.when(() -> OsCommandService.runOsCommand(NAVISECCLI_COMMAND, telemetryManager, 120L, false, false, Map.of()))
 				.thenCallRealMethod();
 
 			final OsCommandResult expect = new OsCommandResult(AGENT_REV_RESULT, NO_PASSWORD_COMMAND);
 
-			assertEquals(expect, OsCommandService.runOsCommand(NAVISECCLI_COMMAND, telemetryManager, 120L, false, false));
+			assertEquals(
+				expect,
+				OsCommandService.runOsCommand(NAVISECCLI_COMMAND, telemetryManager, 120L, false, false, Map.of())
+			);
 		}
 	}
 
@@ -929,12 +961,15 @@ class OsCommandHelperTest {
 				.thenReturn(AGENT_REV_RESULT);
 
 			mockedOsCommandService
-				.when(() -> OsCommandService.runOsCommand(NAVISECCLI_COMMAND, telemetryManager, 120L, false, false))
+				.when(() -> OsCommandService.runOsCommand(NAVISECCLI_COMMAND, telemetryManager, 120L, false, false, Map.of()))
 				.thenCallRealMethod();
 
 			final OsCommandResult expect = new OsCommandResult(AGENT_REV_RESULT, NO_PASSWORD_COMMAND);
 
-			assertEquals(expect, OsCommandService.runOsCommand(NAVISECCLI_COMMAND, telemetryManager, 120L, false, false));
+			assertEquals(
+				expect,
+				OsCommandService.runOsCommand(NAVISECCLI_COMMAND, telemetryManager, 120L, false, false, Map.of())
+			);
 		}
 	}
 
@@ -1006,12 +1041,15 @@ class OsCommandHelperTest {
 				.thenReturn(AGENT_REV_RESULT);
 
 			mockedOsCommandService
-				.when(() -> OsCommandService.runOsCommand(NAVISECCLI_COMMAND, telemetryManager, 120L, false, false))
+				.when(() -> OsCommandService.runOsCommand(NAVISECCLI_COMMAND, telemetryManager, 120L, false, false, Map.of()))
 				.thenCallRealMethod();
 
 			final OsCommandResult expect = new OsCommandResult(AGENT_REV_RESULT, NO_PASSWORD_COMMAND);
 
-			assertEquals(expect, OsCommandService.runOsCommand(NAVISECCLI_COMMAND, telemetryManager, 120L, false, false));
+			assertEquals(
+				expect,
+				OsCommandService.runOsCommand(NAVISECCLI_COMMAND, telemetryManager, 120L, false, false, Map.of())
+			);
 		}
 	}
 
@@ -1083,12 +1121,15 @@ class OsCommandHelperTest {
 				.thenReturn(AGENT_REV_RESULT);
 
 			mockedOsCommandService
-				.when(() -> OsCommandService.runOsCommand(NAVISECCLI_COMMAND, telemetryManager, 120L, false, false))
+				.when(() -> OsCommandService.runOsCommand(NAVISECCLI_COMMAND, telemetryManager, 120L, false, false, Map.of()))
 				.thenCallRealMethod();
 
 			final OsCommandResult expect = new OsCommandResult(AGENT_REV_RESULT, SUDO_KEYWORD + NO_PASSWORD_COMMAND);
 
-			assertEquals(expect, OsCommandService.runOsCommand(NAVISECCLI_COMMAND, telemetryManager, 120L, false, false));
+			assertEquals(
+				expect,
+				OsCommandService.runOsCommand(NAVISECCLI_COMMAND, telemetryManager, 120L, false, false, Map.of())
+			);
 		}
 	}
 
@@ -1096,12 +1137,12 @@ class OsCommandHelperTest {
 	void testRunOsCommandRemoteLinuxWithEmbeddedFilesReplaced() throws Exception {
 		commandLineEmbeddedFiles.put(
 			EMBEDDED_FILE_1_REF,
-			new EmbeddedFile(AWK_EMBEDDED_CONTENT_PERCENT_SUDO, null, EMBEDDED_FILE_1_REF)
+			new EmbeddedFile(AWK_EMBEDDED_CONTENT_PERCENT_SUDO.getBytes(), null, EMBEDDED_FILE_1_REF)
 		);
 
 		final File localFile = mock(File.class);
 		final Map<String, File> embeddedTempFiles = new HashMap<>();
-		embeddedTempFiles.put(EMBEDDED_FILE_1_REF, localFile);
+		embeddedTempFiles.put(String.format("${file::%d}", EMBEDDED_FILE_1_REF), localFile);
 
 		final OsCommandConfiguration osCommandConfiguration = new OsCommandConfiguration();
 		osCommandConfiguration.setUseSudo(true);
@@ -1158,7 +1199,7 @@ class OsCommandHelperTest {
 				.thenReturn(embeddedTempFiles);
 
 			mockedEmbeddedFileHelper
-				.when(() -> EmbeddedFileHelper.findEmbeddedFiles(anyString()))
+				.when(() -> EmbeddedFileHelper.findEmbeddedFiles(anyString(), anyMap()))
 				.thenReturn(commandLineEmbeddedFiles);
 
 			doReturn(SEN_EMBEDDED_0001_PATH).when(localFile).getAbsolutePath();
@@ -1177,7 +1218,16 @@ class OsCommandHelperTest {
 				.thenReturn(HARD_DRIVE);
 
 			mockedOsCommandHelper
-				.when(() -> OsCommandService.runOsCommand(SH_EMBEDDED_FILE_1, telemetryManager, 120L, false, false))
+				.when(() ->
+					OsCommandService.runOsCommand(
+						SH_EMBEDDED_FILE_1,
+						telemetryManager,
+						120L,
+						false,
+						false,
+						commandLineEmbeddedFiles
+					)
+				)
 				.thenCallRealMethod();
 
 			final OsCommandResult expect = new OsCommandResult(HARD_DRIVE, SH_SEN_EMBEDDED_0001_PATH);
@@ -1186,7 +1236,8 @@ class OsCommandHelperTest {
 				telemetryManager,
 				120L,
 				false,
-				false
+				false,
+				commandLineEmbeddedFiles
 			);
 			assertEquals(expect, actual);
 		}

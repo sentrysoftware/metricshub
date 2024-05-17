@@ -43,6 +43,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.BiFunction;
@@ -346,13 +347,19 @@ public class ComputeProcessor implements IComputeProcessor {
 		final String script = awk.getScript();
 
 		// An Awk Script is supposed to be only the reference to the EmbeddedFile, so the map contains only one item which is our EmbeddedFile
-		final EmbeddedFile awkScript;
+		final Optional<EmbeddedFile> maybeEmbeddedFile;
 
 		if (!FILE_PATTERN.matcher(script).find()) {
-			awkScript = EmbeddedFile.builder().content(script).reference("inline-awk").build();
+			maybeEmbeddedFile = Optional.of(EmbeddedFile.fromString(script));
 		} else {
 			try {
-				awkScript = EmbeddedFileHelper.findEmbeddedFiles(awk.getScript()).get(script);
+				maybeEmbeddedFile =
+					EmbeddedFileHelper.findEmbeddedFile(
+						awk.getScript(),
+						telemetryManager.getEmbeddedFiles(connectorId),
+						hostname,
+						connectorId
+					);
 			} catch (Exception exception) {
 				log.warn(
 					"Hostname {} - Compute Operation (Awk) script {} has not been set correctly, the table remains unchanged.",
@@ -363,7 +370,7 @@ public class ComputeProcessor implements IComputeProcessor {
 			}
 		}
 
-		if (awkScript == null) {
+		if (maybeEmbeddedFile.isEmpty()) {
 			log.warn(
 				"Hostname {} - Compute Operation (Awk) script {} embedded file can't be found, the table remains unchanged.",
 				hostname,
@@ -378,10 +385,13 @@ public class ComputeProcessor implements IComputeProcessor {
 
 		final String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, this.index);
 
-		log.debug("Hostname {} - Compute Operation [{}]. AWK Script:\n{}\n", hostname, computeKey, awkScript.getContent());
+		final EmbeddedFile embeddedFile = maybeEmbeddedFile.get();
+		final String awkScript = embeddedFile.getContentAsString();
+
+		log.debug("Hostname {} - Compute Operation [{}]. AWK Script:\n{}\n", hostname, computeKey, awkScript);
 
 		try {
-			String awkResult = clientsExecutor.executeAwkScript(awkScript.getContent(), input);
+			String awkResult = clientsExecutor.executeAwkScript(awkScript, input);
 
 			if (awkResult == null || awkResult.isEmpty()) {
 				log.warn(
@@ -423,7 +433,7 @@ public class ComputeProcessor implements IComputeProcessor {
 			sourceTable.setRawData(awkResult);
 			sourceTable.setTable(SourceTable.csvToTable(awkResult, TABLE_SEP));
 		} catch (Exception e) {
-			logComputeError(connectorId, computeKey, "AWK: " + awkScript.description(), e, hostname);
+			logComputeError(connectorId, computeKey, "AWK: " + embeddedFile.description(), e, hostname);
 		}
 	}
 

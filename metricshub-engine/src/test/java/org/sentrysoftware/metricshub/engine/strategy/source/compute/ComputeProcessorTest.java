@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mockStatic;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.EMPTY;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.LOCALHOST;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.SINGLE_SPACE;
@@ -29,7 +28,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
@@ -66,7 +64,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Translate;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Xml2Csv;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
-import org.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 @ExtendWith(MockitoExtension.class)
@@ -2424,6 +2421,19 @@ class ComputeProcessorTest {
 
 	@Test
 	void testProcessAwk() throws Exception {
+		final EmbeddedFile embeddedFile = EmbeddedFile.builder().content(BAZ.getBytes()).id(1).build();
+		final String connectorId = "connectorId";
+		final Connector connector = Connector.builder().embeddedFiles(Map.of(1, embeddedFile)).build();
+
+		final Map<String, Connector> store = Map.of(connectorId, connector);
+
+		final TelemetryManager telemetryManager = TelemetryManager.builder().connectorStore(connectorStoreMock).build();
+
+		doReturn(store).when(connectorStoreMock).getStore();
+
+		computeProcessor.setConnectorId(connectorId);
+		computeProcessor.setTelemetryManager(telemetryManager);
+
 		List<List<String>> table = Arrays.asList(LINE_1, LINE_2, LINE_3);
 
 		sourceTable.setTable(table);
@@ -2433,7 +2443,9 @@ class ComputeProcessorTest {
 
 		sourceTable.setTable(null);
 		sourceTable.setRawData(null);
-		final String embeddedFileName = "${file::embeddedFile-1}";
+
+		final String embeddedFileName = "${file::1}";
+
 		Awk awkOK = Awk
 			.builder()
 			.script(embeddedFileName)
@@ -2442,26 +2454,18 @@ class ComputeProcessorTest {
 			.separators(TABLE_SEP)
 			.selectColumns(ONE_TWO_THREE)
 			.build();
-		final Map<String, EmbeddedFile> embeddedFileMap = Collections.singletonMap(
-			embeddedFileName,
-			EmbeddedFile.builder().content(BAZ).build()
-		);
 
 		doReturn(
 			"FOO;ID1;NAME1;MANUFACTURER1;NUMBER_OF_DISKS1\nBAR;ID2;NAME2;MANUFACTURER2;NUMBER_OF_DISKS2\nBAZ;ID3;NAME3;MANUFACTURER3;NUMBER_OF_DISKS3"
 		)
 			.when(clientsExecutorMock)
 			.executeAwkScript(any(), any());
-		try (final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)) {
-			mockedEmbeddedFileHelper
-				.when(() -> EmbeddedFileHelper.findEmbeddedFiles(embeddedFileName))
-				.thenReturn(embeddedFileMap);
-			computeProcessor.process(awkOK);
-			String expectedRawData = "FOO;ID1;NAME1;";
-			List<List<String>> expectedTable = Arrays.asList(Arrays.asList(FOO, ID1, NAME1));
-			assertEquals(expectedTable, sourceTable.getTable());
-			assertEquals(expectedRawData, sourceTable.getRawData());
-		}
+
+		computeProcessor.process(awkOK);
+		String expectedRawData = "FOO;ID1;NAME1;";
+		List<List<String>> expectedTable = Arrays.asList(Arrays.asList(FOO, ID1, NAME1));
+		assertEquals(expectedTable, sourceTable.getTable());
+		assertEquals(expectedRawData, sourceTable.getRawData());
 
 		final List<List<String>> osCommandResultTable = List.of(List.of("OS command result"));
 		sourceTable.setTable(osCommandResultTable);
@@ -2477,13 +2481,8 @@ class ComputeProcessorTest {
 				.build();
 		doReturn(null).when(clientsExecutorMock).executeAwkScript(any(), any());
 
-		try (final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)) {
-			mockedEmbeddedFileHelper
-				.when(() -> EmbeddedFileHelper.findEmbeddedFiles(embeddedFileName))
-				.thenReturn(embeddedFileMap);
-			computeProcessor.process(awkOK);
-			assertEquals(Collections.emptyList(), sourceTable.getTable());
-		}
+		computeProcessor.process(awkOK);
+		assertEquals(Collections.emptyList(), sourceTable.getTable());
 
 		sourceTable.setTable(osCommandResultTable);
 		sourceTable.setRawData(null);
@@ -2497,47 +2496,28 @@ class ComputeProcessorTest {
 				.selectColumns(ONE_TWO_THREE)
 				.build();
 		doReturn(EMPTY).when(clientsExecutorMock).executeAwkScript(any(), any());
-		try (final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)) {
-			mockedEmbeddedFileHelper
-				.when(() -> EmbeddedFileHelper.findEmbeddedFiles(embeddedFileName))
-				.thenReturn(embeddedFileMap);
-			computeProcessor.process(awkOK);
-			assertEquals(Collections.emptyList(), sourceTable.getTable());
-		}
+
+		computeProcessor.process(awkOK);
+		assertEquals(Collections.emptyList(), sourceTable.getTable());
 
 		sourceTable.setRawData(null);
 		sourceTable.setTable(table);
 		doReturn(SourceTable.tableToCsv(table, TABLE_SEP, true)).when(clientsExecutorMock).executeAwkScript(any(), any());
-		try (final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)) {
-			mockedEmbeddedFileHelper
-				.when(() -> EmbeddedFileHelper.findEmbeddedFiles(embeddedFileName))
-				.thenReturn(embeddedFileMap);
-			computeProcessor.process(
-				Awk.builder().script(embeddedFileName).exclude(ID1).keep(ID2).separators(TABLE_SEP).selectColumns("2,3").build()
-			);
-			assertEquals("NAME2;MANUFACTURER2;", sourceTable.getRawData());
-			assertEquals(Arrays.asList(Arrays.asList(NAME2, MANUFACTURER2)), sourceTable.getTable());
-		}
+
+		computeProcessor.process(
+			Awk.builder().script(embeddedFileName).exclude(ID1).keep(ID2).separators(TABLE_SEP).selectColumns("2,3").build()
+		);
+		assertEquals("NAME2;MANUFACTURER2;", sourceTable.getRawData());
+		assertEquals(Arrays.asList(Arrays.asList(NAME2, MANUFACTURER2)), sourceTable.getTable());
 
 		// Let's try with a space character in the selectColumns list
 		doReturn(SourceTable.tableToCsv(table, TABLE_SEP, true)).when(clientsExecutorMock).executeAwkScript(any(), any());
-		try (final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)) {
-			mockedEmbeddedFileHelper
-				.when(() -> EmbeddedFileHelper.findEmbeddedFiles(embeddedFileName))
-				.thenReturn(embeddedFileMap);
-			computeProcessor.process(
-				Awk
-					.builder()
-					.script(embeddedFileName)
-					.exclude(ID1)
-					.keep(ID2)
-					.separators(TABLE_SEP)
-					.selectColumns("2, 3")
-					.build()
-			);
-			assertEquals("NAME2;MANUFACTURER2;", sourceTable.getRawData());
-			assertEquals(Arrays.asList(Arrays.asList(NAME2, MANUFACTURER2)), sourceTable.getTable());
-		}
+
+		computeProcessor.process(
+			Awk.builder().script(embeddedFileName).exclude(ID1).keep(ID2).separators(TABLE_SEP).selectColumns("2, 3").build()
+		);
+		assertEquals("NAME2;MANUFACTURER2;", sourceTable.getRawData());
+		assertEquals(Arrays.asList(Arrays.asList(NAME2, MANUFACTURER2)), sourceTable.getTable());
 	}
 
 	@Test

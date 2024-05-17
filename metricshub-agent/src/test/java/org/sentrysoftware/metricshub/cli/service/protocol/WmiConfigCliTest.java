@@ -7,10 +7,10 @@ import static org.mockito.Mockito.mockStatic;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
-import org.sentrysoftware.metricshub.agent.extension.WmiTestConfiguration;
-import org.sentrysoftware.metricshub.agent.extension.WmiTestExtension;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
+import org.sentrysoftware.metricshub.extension.wmi.WmiConfiguration;
+import org.sentrysoftware.metricshub.extension.wmi.WmiExtension;
 
 class WmiConfigCliTest {
 
@@ -31,7 +31,7 @@ class WmiConfigCliTest {
 			// Initialize the extension manager required by the agent context
 			final ExtensionManager extensionManager = ExtensionManager
 				.builder()
-				.withProtocolExtensions(List.of(new WmiTestExtension()))
+				.withProtocolExtensions(List.of(new WmiExtension()))
 				.build();
 
 			cliExtensionManagerMock
@@ -39,9 +39,9 @@ class WmiConfigCliTest {
 				.thenReturn(extensionManager);
 
 			// Create an WmiTestConfiguration and call method toProtocol
-			WmiTestConfiguration wmiConfiguration = (WmiTestConfiguration) wmiConfigCli.toProtocol(null, null);
+			WmiConfiguration wmiConfiguration = (WmiConfiguration) wmiConfigCli.toProtocol(null, null);
 
-			final WmiTestConfiguration expected = WmiTestConfiguration
+			final WmiConfiguration expected = WmiConfiguration
 				.builder()
 				.username(username)
 				.password(password)
@@ -54,7 +54,7 @@ class WmiConfigCliTest {
 			// Check null password and null username
 			wmiConfigCli.setPassword(null);
 			wmiConfigCli.setUsername(null);
-			wmiConfiguration = (WmiTestConfiguration) wmiConfigCli.toProtocol(null, null);
+			wmiConfiguration = (WmiConfiguration) wmiConfigCli.toProtocol(null, null);
 
 			assertNull(wmiConfiguration.getPassword());
 			assertNull(wmiConfiguration.getUsername());

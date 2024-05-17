@@ -8,12 +8,13 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
-import org.sentrysoftware.metricshub.agent.extension.WinRmTestConfiguration;
-import org.sentrysoftware.metricshub.agent.extension.WinRmTestExtension;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.configuration.TransportProtocols;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
+import org.sentrysoftware.metricshub.extension.winrm.WinRmConfiguration;
+import org.sentrysoftware.metricshub.extension.winrm.WinRmExtension;
+import org.sentrysoftware.winrm.service.client.auth.AuthenticationEnum;
 
 class WinRmConfigCliTest {
 
@@ -41,7 +42,7 @@ class WinRmConfigCliTest {
 			// Initialize the extension manager required by the agent context
 			final ExtensionManager extensionManager = ExtensionManager
 				.builder()
-				.withProtocolExtensions(List.of(new WinRmTestExtension()))
+				.withProtocolExtensions(List.of(new WinRmExtension()))
 				.build();
 
 			cliExtensionManagerMock
@@ -49,15 +50,15 @@ class WinRmConfigCliTest {
 				.thenReturn(extensionManager);
 
 			// Create a WinRmTestConfiguration and call method toProtocol
-			WinRmTestConfiguration winRmConfiguration = (WinRmTestConfiguration) winRmConfigCli.toProtocol(null, null);
-			final WinRmTestConfiguration expected = WinRmTestConfiguration
+			WinRmConfiguration winRmConfiguration = (WinRmConfiguration) winRmConfigCli.toProtocol(null, null);
+			final WinRmConfiguration expected = WinRmConfiguration
 				.builder()
 				.username(username)
 				.password(password)
 				.port(port)
 				.timeout(120L)
 				.namespace(namespace)
-				.authentications(List.of("kerberos"))
+				.authentications(List.of(AuthenticationEnum.KERBEROS))
 				.protocol(transportProtocolHttp)
 				.build();
 			// Check the resulting WinRm configuration
@@ -66,7 +67,7 @@ class WinRmConfigCliTest {
 			// Check null password and null username
 			winRmConfigCli.setPassword(null);
 			winRmConfigCli.setUsername(null);
-			winRmConfiguration = (WinRmTestConfiguration) winRmConfigCli.toProtocol(null, null);
+			winRmConfiguration = (WinRmConfiguration) winRmConfigCli.toProtocol(null, null);
 
 			assertNull(winRmConfiguration.getPassword());
 			assertNull(winRmConfiguration.getUsername());

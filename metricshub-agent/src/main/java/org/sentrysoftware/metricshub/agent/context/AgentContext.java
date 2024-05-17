@@ -114,8 +114,7 @@ public class AgentContext {
 		pid = findPid();
 
 		if (createConnectorStore) {
-			// Parse the connector store
-			connectorStore = new ConnectorStore(ConfigHelper.getSubDirectory("connectors", false));
+			connectorStore = ConfigHelper.buildConnectorStore(extensionManager);
 		}
 
 		// Initialize agent information
