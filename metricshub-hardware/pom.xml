@@ -55,11 +55,13 @@
 		<dependency>
 			<groupId>org.sentrysoftware</groupId>
 			<artifactId>metricshub-snmp-extension</artifactId>
+			<scope>test</scope>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.sentrysoftware</groupId>
 			<artifactId>metricshub-oscommand-extension</artifactId>
+			<scope>test</scope>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

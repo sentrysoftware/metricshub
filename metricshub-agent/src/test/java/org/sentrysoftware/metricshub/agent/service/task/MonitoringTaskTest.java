@@ -57,9 +57,9 @@ import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
+import org.sentrysoftware.metricshub.extension.snmp.SnmpConfiguration;
 import org.sentrysoftware.metricshub.hardware.strategy.HardwarePostCollectStrategy;
 import org.sentrysoftware.metricshub.hardware.strategy.HardwarePostDiscoveryStrategy;
-import org.sentrysoftware.metricshub.extension.snmp.SnmpConfiguration;
 
 @ExtendWith(MockitoExtension.class)
 class MonitoringTaskTest {
