@@ -3,6 +3,7 @@ package org.sentrysoftware.metricshub.extension.snmpv3;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -565,7 +566,7 @@ class SnmpV3ExtensionTest {
 
 		assertEquals(
 			SnmpV3Configuration.builder().community("public".toCharArray()).port(161).timeout(120L).build(),
-			snmpV3Extension.buildConfiguration("snmp", configuration, null)
+			snmpV3Extension.buildConfiguration("snmp v3", configuration, null)
 		);
 	}
 }

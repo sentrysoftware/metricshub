@@ -21,14 +21,13 @@ package org.sentrysoftware.metricshub.cli.service.protocol;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import lombok.Data;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.Arrays;
-
+import lombok.Data;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
@@ -71,7 +70,8 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 		names = "--snmpv3-retryIntervals",
 		order = 4,
 		paramLabel = "RETRY INTERVALS",
-		description = "retry Intervals for SNMPV3"
+		split = ",",
+		description = "Retry intervals for SNMPV3, separated by commas"
 	)
 	private int[] retryIntervals;
 
