@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.extension.oscommand.it.job;
+package org.sentrysoftware.metricshub.it.job.oscommand;
 
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;

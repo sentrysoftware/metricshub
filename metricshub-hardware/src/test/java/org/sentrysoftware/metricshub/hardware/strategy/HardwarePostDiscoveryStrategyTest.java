@@ -8,23 +8,25 @@ import static org.sentrysoftware.metricshub.hardware.util.HwConstants.CONNECTOR;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.ENCLOSURE;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.MonitorFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
+import org.sentrysoftware.metricshub.extension.snmp.SnmpConfiguration;
 
 class HardwarePostDiscoveryStrategyTest {
 
 	@Test
 	void testRunMissingDeviceDetection() {
-		final SnmpConfiguration snmpConfig = SnmpConfiguration.builder().community("public").build();
+		final SnmpConfiguration snmpConfig = SnmpConfiguration.builder().community("public".toCharArray()).build();
 		final ConnectorStore connectorStore = new ConnectorStore();
 		connectorStore.setStore(Map.of());
 
@@ -55,11 +57,13 @@ class HardwarePostDiscoveryStrategyTest {
 
 		final Monitor monitor = monitorFactory.createOrUpdateMonitor();
 
-		new HardwarePostDiscoveryStrategy(telemetryManager, previousDiscoveryTime, clientsExecutor).run();
+		ExtensionManager extensionManager = ExtensionManager.builder().build();
+
+		new HardwarePostDiscoveryStrategy(telemetryManager, previousDiscoveryTime, clientsExecutor, extensionManager).run();
 
 		assertEquals(1.0, monitor.getMetric(ENCLOSURE_PRESENT_METRIC, NumberMetric.class).getValue());
 
-		new HardwarePostDiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor).run();
+		new HardwarePostDiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor, extensionManager).run();
 		assertEquals(0.0, monitor.getMetric(ENCLOSURE_PRESENT_METRIC, NumberMetric.class).getValue());
 	}
 }

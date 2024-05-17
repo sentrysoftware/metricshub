@@ -2,6 +2,7 @@ package org.sentrysoftware.metricshub.hardware.it;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -9,12 +10,19 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration.SnmpVersion;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
+import org.sentrysoftware.metricshub.engine.strategy.collect.CollectStrategy;
+import org.sentrysoftware.metricshub.engine.strategy.collect.PrepareCollectStrategy;
+import org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy;
+import org.sentrysoftware.metricshub.engine.strategy.detection.DetectionStrategy;
+import org.sentrysoftware.metricshub.engine.strategy.discovery.DiscoveryStrategy;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
-import org.sentrysoftware.metricshub.hardware.it.job.SnmpITJob;
+import org.sentrysoftware.metricshub.extension.snmp.SnmpConfiguration;
+import org.sentrysoftware.metricshub.extension.snmp.SnmpConfiguration.SnmpVersion;
+import org.sentrysoftware.metricshub.extension.snmp.SnmpExtension;
+import org.sentrysoftware.metricshub.it.job.snmp.SnmpITJob;
 
 class DellOpenManageIT {
 	static {
@@ -34,12 +42,13 @@ class DellOpenManageIT {
 
 	private static TelemetryManager telemetryManager;
 	private static ClientsExecutor clientsExecutor;
+	private static ExtensionManager extensionManager;
 
 	@BeforeAll
 	static void setUp() throws Exception {
 		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
 			.builder()
-			.community("public")
+			.community("public".toCharArray())
 			.version(SnmpVersion.V1)
 			.timeout(120L)
 			.build();
@@ -59,14 +68,40 @@ class DellOpenManageIT {
 			TelemetryManager.builder().connectorStore(connectorStore).hostConfiguration(hostConfiguration).build();
 
 		clientsExecutor = new ClientsExecutor(telemetryManager);
+
+		extensionManager = ExtensionManager.builder().withProtocolExtensions(List.of(new SnmpExtension())).build();
+	}
+
+	/**
+	 * Updates the port in the given configuration to allow the engine access to this port.
+	 *
+	 * @param telemetryManager the telemetry manager where metrics are collected
+	 * @param port             the port of the configuration to be updated
+	 */
+	static void updateSnmpPort(TelemetryManager telemetryManager, Integer port) {
+		final SnmpConfiguration snmpConfiguration = (SnmpConfiguration) telemetryManager
+			.getHostConfiguration()
+			.getConfigurations()
+			.get(SnmpConfiguration.class);
+
+		snmpConfiguration.setPort(port);
 	}
 
 	@Test
 	void test() throws Exception {
-		new SnmpITJob(clientsExecutor, telemetryManager)
+		long discoveryTime = System.currentTimeMillis();
+		long collectTime = discoveryTime + 60 * 2 * 1000;
+		new SnmpITJob(telemetryManager, DellOpenManageIT::updateSnmpPort)
 			.withServerRecordData("snmp/DellOpenManageIT/input/input.snmp")
-			.executeDiscoveryStrategy()
-			.executeCollectStrategy()
+			.executeStrategies(
+				new DetectionStrategy(telemetryManager, discoveryTime, clientsExecutor, extensionManager),
+				new DiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor, extensionManager)
+			)
+			.executeStrategies(
+				new PrepareCollectStrategy(telemetryManager, collectTime, clientsExecutor, extensionManager),
+				new ProtocolHealthCheckStrategy(telemetryManager, collectTime, clientsExecutor, extensionManager),
+				new CollectStrategy(telemetryManager, collectTime, clientsExecutor, extensionManager)
+			)
 			.verifyExpected("snmp/DellOpenManageIT/expected/expected.json");
 	}
 }

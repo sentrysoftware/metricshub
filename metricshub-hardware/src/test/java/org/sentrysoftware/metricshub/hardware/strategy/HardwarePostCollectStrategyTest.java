@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -26,8 +27,8 @@ import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import org.sentrysoftware.metricshub.engine.configuration.SnmpConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
+import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.strategy.IStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.collect.CollectStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
@@ -35,6 +36,9 @@ import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.MonitorFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
+import org.sentrysoftware.metricshub.extension.snmp.SnmpConfiguration;
+import org.sentrysoftware.metricshub.extension.snmp.SnmpExtension;
+import org.sentrysoftware.metricshub.extension.snmp.SnmpRequestExecutor;
 
 @ExtendWith(MockitoExtension.class)
 class HardwarePostCollectStrategyTest {
@@ -42,7 +46,7 @@ class HardwarePostCollectStrategyTest {
 	private static final Path TEST_CONNECTOR_PATH = Paths.get("src", "test", "resources", "strategy", "collect");
 
 	@Mock
-	private ClientsExecutor clientsExecutorMock;
+	private SnmpRequestExecutor snmpRequestExecutorMock;
 
 	private IStrategy collectStrategy;
 
@@ -50,6 +54,8 @@ class HardwarePostCollectStrategyTest {
 
 	@Test
 	void testRunRefreshPresentMetrics() throws Exception {
+		final ClientsExecutor clientsExecutor = new ClientsExecutor();
+
 		final String connectorId = "TestConnector";
 
 		// Create host and connector monitors and set them in the telemetry manager
@@ -64,7 +70,7 @@ class HardwarePostCollectStrategyTest {
 			)
 		);
 
-		final SnmpConfiguration snmpConfig = SnmpConfiguration.builder().community("public").build();
+		final SnmpConfiguration snmpConfig = SnmpConfiguration.builder().community("public".toCharArray()).build();
 
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
@@ -111,26 +117,32 @@ class HardwarePostCollectStrategyTest {
 		final ConnectorStore connectorStore = new ConnectorStore(TEST_CONNECTOR_PATH);
 		telemetryManager.setConnectorStore(connectorStore);
 
+		ExtensionManager extensionManager = ExtensionManager
+			.builder()
+			.withProtocolExtensions(List.of(new SnmpExtension(snmpRequestExecutorMock)))
+			.build();
+
 		// Call HardwarePostDiscoveryStrategy to set the present and the missing monitors
-		new HardwarePostDiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutorMock).run();
+		new HardwarePostDiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor, extensionManager).run();
 
 		// Build the collect strategy
 		collectStrategy =
 			CollectStrategy
 				.builder()
-				.clientsExecutor(clientsExecutorMock)
+				.clientsExecutor(clientsExecutor)
 				.strategyTime(strategyTime)
 				.telemetryManager(telemetryManager)
+				.extensionManager(extensionManager)
 				.build();
 
 		// Mock detection criteria result
 		doReturn("1.3.6.1.4.1.795.10.1.1.3.1.1.0	ASN_OCTET_STR	Test")
-			.when(clientsExecutorMock)
+			.when(snmpRequestExecutorMock)
 			.executeSNMPGetNext(eq("1.3.6.1.4.1.795.10.1.1.3.1.1"), any(SnmpConfiguration.class), anyString(), anyBoolean());
 
 		// Mock source table information for enclosure
 		doReturn(SourceTable.csvToTable("enclosure-1;1;healthy", MetricsHubConstants.TABLE_SEP))
-			.when(clientsExecutorMock)
+			.when(snmpRequestExecutorMock)
 			.executeSNMPTable(
 				eq("1.3.6.1.4.1.795.10.1.1.30.1"),
 				any(String[].class),
@@ -141,7 +153,7 @@ class HardwarePostCollectStrategyTest {
 
 		// Mock source table information for disk_controller
 		doReturn(SourceTable.csvToTable("1;1;healthy", MetricsHubConstants.TABLE_SEP))
-			.when(clientsExecutorMock)
+			.when(snmpRequestExecutorMock)
 			.executeSNMPTable(
 				eq("1.3.6.1.4.1.795.10.1.1.31.1"),
 				any(String[].class),
@@ -166,7 +178,7 @@ class HardwarePostCollectStrategyTest {
 		assertNotNull(enclosurePresentMetric);
 		assertEquals(discoveryTime, enclosurePresentMetric.getCollectTime());
 
-		new HardwarePostCollectStrategy(telemetryManager, strategyTime, clientsExecutorMock).run();
+		new HardwarePostCollectStrategy(telemetryManager, strategyTime, clientsExecutor, extensionManager).run();
 
 		assertNotNull(enclosurePresentMetric);
 		assertEquals(1.0, enclosure.getMetric(ENCLOSURE_PRESENT_METRIC, NumberMetric.class).getValue());
