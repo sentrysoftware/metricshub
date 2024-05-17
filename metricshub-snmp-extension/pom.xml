@@ -171,7 +171,6 @@
 				<configuration>
 					<excludes>
 						<exclude>org/sentrysoftware/metricshub/extension/snmp/*SnmpConfigurationBuilder*</exclude>
-						<exclude>org/sentrysoftware/metricshub/extension/snmp/*SnmpExtensionBuilder*</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
