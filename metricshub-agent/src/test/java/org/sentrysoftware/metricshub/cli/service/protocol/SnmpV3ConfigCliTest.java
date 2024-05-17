@@ -21,7 +21,7 @@ class SnmpV3ConfigCliTest {
 		final char[] community = "community".toCharArray();
 		snmpV3ConfigCli.setCommunity(community);
 		snmpV3ConfigCli.setPrivacy("AES");
-		final int[] retryIntervals = {20,30,50};
+		final int[] retryIntervals = { 20, 30, 50 };
 		snmpV3ConfigCli.setRetryIntervals(retryIntervals);
 		final char[] passwordPrivacy = "passwordPrivacy".toCharArray();
 		snmpV3ConfigCli.setPrivacyPassword(passwordPrivacy);
@@ -47,8 +47,8 @@ class SnmpV3ConfigCliTest {
 
 			// Create an Snmpv3TestConfiguration and call method toProtocol
 			final SnmpV3Configuration snmpV3Configuration = (SnmpV3Configuration) snmpV3ConfigCli.toProtocol(
-				 username,
-				 password
+				username,
+				password
 			);
 
 			assertNotNull(snmpV3Configuration);

@@ -88,32 +88,62 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 
 	@Override
 	public void validateConfiguration(final String resourceKey) throws InvalidConfigurationException {
-		StringHelper.validateConfigurationAttribute(community, attr -> attr == null || attr.length == 0,
-				() -> String.format(
-						"Resource %s - No community string configured for %s. This resource will not be monitored.",
-						resourceKey, community));
+		StringHelper.validateConfigurationAttribute(
+			community,
+			attr -> attr == null || attr.length == 0,
+			() ->
+				String.format(
+					"Resource %s - No community string configured for %s. This resource will not be monitored.",
+					resourceKey,
+					community
+				)
+		);
 
-		StringHelper.validateConfigurationAttribute(port, attr -> attr == null || attr < 1 || attr > 65535,
-				() -> String.format(
-						"Resource %s - Invalid port configured: %s. Please verify the configured port value.",
-						resourceKey, port));
+		StringHelper.validateConfigurationAttribute(
+			port,
+			attr -> attr == null || attr < 1 || attr > 65535,
+			() ->
+				String.format(
+					"Resource %s - Invalid port configured: %s. Please verify the configured port value.",
+					resourceKey,
+					port
+				)
+		);
 
-		StringHelper.validateConfigurationAttribute(timeout, attr -> attr == null || attr < 0L,
-				() -> String.format(
-						"Resource %s - Timeout value is invalid: %s. Please verify the configured timeout value.",
-						resourceKey, timeout));
+		StringHelper.validateConfigurationAttribute(
+			timeout,
+			attr -> attr == null || attr < 0L,
+			() ->
+				String.format(
+					"Resource %s - Timeout value is invalid: %s. Please verify the configured timeout value.",
+					resourceKey,
+					timeout
+				)
+		);
 
-		StringHelper
-				.validateConfigurationAttribute(username, attr -> attr == null || attr.isEmpty(),
-						() -> String.format("Resource %s - No username configured for protocol %s."
-								+ " This resource will not be monitored. Please verify the configured username.",
-								resourceKey, username));
+		StringHelper.validateConfigurationAttribute(
+			username,
+			attr -> attr == null || attr.isEmpty(),
+			() ->
+				String.format(
+					"Resource %s - No username configured for protocol %s." +
+					" This resource will not be monitored. Please verify the configured username.",
+					resourceKey,
+					username
+				)
+		);
 
-		StringHelper
-				.validateConfigurationAttribute(authType, attr -> attr == null,
-						() -> String.format("Resource %s - No username configured for protocol %s."
-								+ " This resource will not be monitored. Please verify the configured authtype.",
-								resourceKey, authType));
+		StringHelper.validateConfigurationAttribute(
+			authType,
+			attr -> attr == null,
+			() ->
+				String.format(
+					"Resource %s - No username configured for protocol %s." +
+					" This resource will not be monitored. Please verify the configured authtype.",
+					resourceKey,
+					authType
+				)
+		);
 	}
 
 	/**
@@ -121,7 +151,9 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 	 */
 	@AllArgsConstructor
 	public enum AuthType {
-		NO_AUTH("NO_AUTH"), MD5("MD5"), SHA("SHA");
+		NO_AUTH("NO_AUTH"),
+		MD5("MD5"),
+		SHA("SHA");
 
 		@Getter
 		private final String stringAuthType;
@@ -151,7 +183,9 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 	 */
 	@AllArgsConstructor
 	public enum Privacy {
-		NO_ENCRYPTION("NO_ENCRYPTION"), AES("AES"), DES("DES");
+		NO_ENCRYPTION("NO_ENCRYPTION"),
+		AES("AES"),
+		DES("DES");
 
 		@Getter
 		private final String privacyType;

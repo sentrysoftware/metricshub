@@ -235,7 +235,7 @@ public class SnmpV3Extension implements IProtocolExtension {
 					snmpV3Configuration.setCommunity(decrypt.apply(privacyPassword));
 				}
 			}
-			
+
 			return snmpV3Configuration;
 		} catch (Exception e) {
 			final String errorMessage = String.format(
