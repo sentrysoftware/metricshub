@@ -11,7 +11,7 @@
 
 	<artifactId>metricshub-snmp-extension-common</artifactId>
 	<name>MetricsHub SNMP Extension Common</name>
-	<description>Common module for MetricsHub snmp extensions</description>
+	<description>Common module for MetricsHub SNMP extensions</description>
 
 	<dependencies>
 		<dependency>

@@ -55,7 +55,7 @@ public class SnmpV3RequestExecutor implements ISnmpRequestExecutor {
 	 * @throws ExecutionException  If an exception occurs during execution.
 	 * @throws TimeoutException    If the execution times out.
 	 */
-	@WithSpan("SNMP Get Next")
+	@WithSpan("SNMP V3 Get Next")
 	@Override
 	public String executeSNMPGetNext(
 		@NonNull @SpanAttribute("snmp.oid") final String oid,
@@ -150,7 +150,7 @@ public class SnmpV3RequestExecutor implements ISnmpRequestExecutor {
 	 * @throws ExecutionException  If an exception occurs during the execution of the SNMP request.
 	 * @throws TimeoutException    If the SNMP request times out.
 	 */
-	@WithSpan("SNMP Get Table")
+	@WithSpan("SNMP V3 Get Table")
 	@Override
 	public List<List<String>> executeSNMPTable(
 		@NonNull @SpanAttribute("snmp.oid") final String oid,
@@ -221,10 +221,10 @@ public class SnmpV3RequestExecutor implements ISnmpRequestExecutor {
 					protocol.getIntVersion(),
 					protocol.getRetryIntervals(),
 					new String(protocol.getCommunity()),
-					protocol.getAuthType().getStringAuthType(),
+					protocol.getAuthType().toString(),
 					protocol.getUsername(),
 					new String(protocol.getPassword()),
-					protocol.getPrivacy().getPrivacyType(),
+					protocol.getPrivacy().toString(),
 					new String(protocol.getPrivacyPassword()),
 					protocol.getContextName(),
 					null

@@ -338,11 +338,6 @@
 			</dependency>
 			<dependency>
 				<groupId>org.sentrysoftware</groupId>
-				<artifactId>snmpv3</artifactId>
-				<version>1.0.01</version>
-			</dependency>
-			<dependency>
-				<groupId>org.sentrysoftware</groupId>
 				<artifactId>wmi</artifactId>
 				<version>1.0.01</version>
 			</dependency>

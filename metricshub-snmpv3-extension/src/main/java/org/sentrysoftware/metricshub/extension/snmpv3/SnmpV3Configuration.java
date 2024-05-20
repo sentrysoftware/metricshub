@@ -28,7 +28,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
@@ -151,12 +150,9 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 	 */
 	@AllArgsConstructor
 	public enum AuthType {
-		NO_AUTH("NO_AUTH"),
-		MD5("MD5"),
-		SHA("SHA");
-
-		@Getter
-		private final String stringAuthType;
+		NO_AUTH,
+		MD5,
+		SHA;
 
 		/**
 		 * Interpret the specified label and returns corresponding value.
@@ -167,10 +163,12 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 		public static AuthType interpretValueOf(@NonNull final String authType) {
 			final String lowerCaseAuthType = authType.toLowerCase();
 
-			for (AuthType type : AuthType.values()) {
-				if (type.getStringAuthType().equals(lowerCaseAuthType)) {
-					return type;
-				}
+			if (lowerCaseAuthType.contains("no") && lowerCaseAuthType.contains("auth")) {
+				return NO_AUTH;
+			} else if (lowerCaseAuthType.contains("md5")) {
+				return MD5;
+			} else if (lowerCaseAuthType.contains("sha")) {
+				return SHA;
 			}
 
 			throw new IllegalArgumentException(INVALID_AUTH_TYPE_EXCEPTION_MESSAGE + authType);
@@ -183,12 +181,9 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 	 */
 	@AllArgsConstructor
 	public enum Privacy {
-		NO_ENCRYPTION("NO_ENCRYPTION"),
-		AES("AES"),
-		DES("DES");
-
-		@Getter
-		private final String privacyType;
+		NO_ENCRYPTION,
+		AES,
+		DES;
 
 		/**
 		 * Interpret the specified label and returns corresponding value.
@@ -199,10 +194,12 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 		public static Privacy interpretValueOf(@NonNull final String privacy) {
 			final String lowerCasePrivacy = privacy.toLowerCase();
 
-			for (Privacy type : Privacy.values()) {
-				if (type.getPrivacyType().toLowerCase().equals(lowerCasePrivacy)) {
-					return type;
-				}
+			if (lowerCasePrivacy.equals("none") || lowerCasePrivacy.equals("no")) {
+				return NO_ENCRYPTION;
+			} else if (lowerCasePrivacy.equals("aes")) {
+				return AES;
+			} else if (lowerCasePrivacy.equals("des")) {
+				return DES;
 			}
 
 			throw new IllegalArgumentException(INVALID_PRIVACY_VALUE_EXCEPTION_MESSAGE + privacy);

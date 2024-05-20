@@ -46,7 +46,7 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 	 */
 	public static final int DEFAULT_TIMEOUT = 30;
 
-	@Option(names = "--snmpv3", order = 1, description = "Enable SNMPV3 protocol")
+	@Option(names = "--snmpv3", order = 1, description = "Enable SNMP version 3 protocol")
 	private boolean useSnmpv3;
 
 	@Option(
@@ -54,84 +54,84 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 		order = 2,
 		paramLabel = "COMMUNITY",
 		defaultValue = "public",
-		description = "Community string for SNMP V3"
+		description = "Community string for SNMP version 3"
 	)
 	private char[] community;
 
 	@Option(
 		names = "--snmpv3-privacy",
 		order = 3,
-		paramLabel = "PRIVACY",
-		description = "Privacy protocol for SNMPV3 (e.g., aes, des)"
+		paramLabel = "DES|AES",
+		description = "Privacy (encryption type) for SNMP version 3 (DES, AES, or none)"
 	)
 	private String privacy;
 
 	@Option(
-		names = "--snmpv3-retryIntervals",
-		order = 4,
-		paramLabel = "RETRY INTERVALS",
-		split = ",",
-		description = "Retry intervals for SNMPV3, separated by commas"
-	)
-	private int[] retryIntervals;
-
-	@Option(
 		names = "--snmpv3-privacy-password",
-		order = 5,
+		order = 4,
 		paramLabel = "PRIVACY-PASSWORD",
-		description = "Privacy password protocol for SNMPV3"
+		description = "Privacy (encryption) password for SNMP version 3"
 	)
 	private char[] privacyPassword;
 
 	@Option(
 		names = "--snmpv3-auth",
-		order = 6,
-		paramLabel = "AUTH",
-		description = "Authentication protocol for SNMPV3 (e.g., sha, md5)"
+		order = 5,
+		paramLabel = "SHA|MD5",
+		description = "Authentication type for SNMP version 3 (SHA, MD5 or NO_AUTH)"
 	)
 	private String authType;
 
 	@Option(
 		names = "--snmpv3-username",
-		order = 7,
+		order = 6,
 		paramLabel = "USERNAME",
-		description = "Username for SNMPV3 authentication"
+		description = "Username for SNMP version 3 with MD5 or SHA"
 	)
 	private String username;
 
 	@Option(
 		names = "--snmpv3-password",
-		order = 8,
+		order = 7,
 		paramLabel = "PASSWORD",
-		description = "Password for SNMPV3 authentication"
+		description = "Password for SNMP version 3 with MD5 or SHA"
 	)
 	private char[] password;
 
 	@Option(
 		names = "--snmpv3-context-name",
-		order = 9,
+		order = 8,
 		paramLabel = "CONTEXT-NAME",
-		description = "Context name for SNMPV3"
+		description = "Context name for SNMP version 3"
 	)
 	private String contextName;
 
 	@Option(
 		names = "--snmpv3-timeout",
-		order = 10,
+		order = 9,
 		paramLabel = "TIMEOUT",
 		defaultValue = "" + DEFAULT_TIMEOUT,
-		description = "Timeout in seconds for SNMP operations (default: ${DEFAULT-VALUE} s)"
+		description = "Timeout in seconds for SNMP version 3 operations (default: ${DEFAULT-VALUE} s)"
 	)
 	private String timeout;
 
 	@Option(
 		names = "--snmpv3-port",
-		order = 11,
+		order = 10,
 		paramLabel = "PORT",
 		defaultValue = "161",
-		description = "Port for SNMPV3 operations"
+		description = "Port of the SNMP version 3 agent (default: ${DEFAULT-VALUE})"
 	)
 	private int port;
+
+	@Option(
+		names = "--snmpv3-retryIntervals",
+		order = 11,
+		paramLabel = "RETRY INTERVALS",
+		split = ",",
+		description = "Comma-separated retry intervals in milliseconds for SNMP version 3 operations"
+	)
+	private int[] retryIntervals;
 
 	/**
 	 * This method creates an {@link IConfiguration} for a given username and a
@@ -171,7 +171,7 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 		configuration.set("port", new IntNode(port));
 		if (retryIntervals != null) {
 			// Creating the JSON array for retryIntervals
-			ArrayNode retryIntervalsNode = JsonNodeFactory.instance.arrayNode();
+			final ArrayNode retryIntervalsNode = JsonNodeFactory.instance.arrayNode();
 			Arrays.stream(retryIntervals).mapToObj(IntNode::valueOf).forEach(retryIntervalsNode::add);
 			configuration.set("retryIntervals", retryIntervalsNode);
 		}

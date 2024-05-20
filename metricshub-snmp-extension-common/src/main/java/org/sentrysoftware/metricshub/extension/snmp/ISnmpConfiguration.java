@@ -2,7 +2,7 @@ package org.sentrysoftware.metricshub.extension.snmp;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
- * MetricsHub Snmp Extension Common
+ * MetricsHub SNMP Extension Common
  * ჻჻჻჻჻჻
  * Copyright 2023 - 2024 Sentry Software
  * ჻჻჻჻჻჻
@@ -24,33 +24,33 @@ package org.sentrysoftware.metricshub.extension.snmp;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 
 /**
- * The ISnmpConfiguration interface represents the configuration for Snmp
+ * The ISnmpConfiguration interface represents the configuration for SNMP
  * protocols in the MetricsHub extension system.
  */
 public interface ISnmpConfiguration extends IConfiguration {
 	/**
-	 * Gets the timeout for the Snmp protocol
+	 * Gets the timeout for the SNMP protocol
 	 *
 	 * @return The timeout as a Long value.
 	 */
 	Long getTimeout();
 
 	/**
-	 * Gets the community for the snmp protocol.
+	 * Gets the community for the SNMP protocol.
 	 *
 	 * @return The community as a character array.
 	 */
 	char[] getCommunity();
 
 	/**
-	 * Gets the version for the Snmp protocol
+	 * Gets the version for the SNMP protocol
 	 *
 	 * @return The version as a int value.
 	 */
 	int getIntVersion();
 
 	/**
-	 * Gets the port for the Snmp protocol
+	 * Gets the port for the SNMP protocol
 	 *
 	 * @return The port as a Integer value.
 	 */

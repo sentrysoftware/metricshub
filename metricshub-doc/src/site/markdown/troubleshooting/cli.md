@@ -108,12 +108,12 @@ This command will connect to the `CISC03` SAN switch (`sto`rage) using `SNMP` ve
 ### Storage System, SNMP v3
 
 ```batch
-$ metricshub netapp9-san -t storage --snmpv3 --snmpv3-auth SHA --snmpv3-username USERA --snmpv3-password MySECRET --snmpv3-privacy --snmpv3-retryIntervals 5,10,15 DES --snmpv3-privacy-password MyPrivacySECRET
+$ metricshub STOR02 -t storage --snmpv3 --snmpv3-auth SHA --snmpv3-username USERA --snmpv3-password MySECRET --snmpv3-privacy DES --snmpv3-retryIntervals 5,10,15 --snmpv3-privacy-password MyPrivacySECRET
 ```
 
-This command will connect to the `netapp9-san` SAN switch (`sto`rage) using `SNMP` version `3`.
+This command will connect to the `STOR02` storage system (`storage`) using `SNMP` version `3`.
 
-> Note: If no SNMP V3 community is specified, **public** is assumed by default.
+> Note: If no SNMP version 3 community is specified, **public** is assumed by default.
 
 ### Windows, WMI and SNMP v2c
 

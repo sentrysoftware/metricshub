@@ -5,7 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
-import org.sentrysoftware.metricshub.extension.snmpv3.SnmpV3Configuration.*;
+import org.sentrysoftware.metricshub.extension.snmpv3.SnmpV3Configuration.AuthType;
+import org.sentrysoftware.metricshub.extension.snmpv3.SnmpV3Configuration.Privacy;
 
 class SnmpV3ConfigurationTest {
 
@@ -176,7 +177,7 @@ class SnmpV3ConfigurationTest {
 
 	@Test
 	void testPrivacyInterpretValueOf_ValidValues() {
-		assertEquals(Privacy.NO_ENCRYPTION, Privacy.interpretValueOf("NO_ENCRYPTION"));
+		assertEquals(Privacy.NO_ENCRYPTION, Privacy.interpretValueOf("no"));
 		assertEquals(Privacy.AES, Privacy.interpretValueOf("AES"));
 		assertEquals(Privacy.DES, Privacy.interpretValueOf("DES"));
 	}
