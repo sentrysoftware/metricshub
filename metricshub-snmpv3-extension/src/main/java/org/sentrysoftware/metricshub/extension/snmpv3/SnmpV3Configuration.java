@@ -66,8 +66,12 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 
 	private String contextName;
 
+	@JsonDeserialize(using = AuthTypeDeserializer.class)
 	private AuthType authType;
+
+	@JsonDeserialize(using = PrivacyDeserializer.class)
 	private Privacy privacy;
+
 	private String username;
 	private char[] privacyPassword;
 	private char[] password;
