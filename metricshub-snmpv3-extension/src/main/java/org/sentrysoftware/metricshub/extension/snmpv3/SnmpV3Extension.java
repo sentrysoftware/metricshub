@@ -228,11 +228,11 @@ public class SnmpV3Extension implements IProtocolExtension {
 				}
 				if (password != null) {
 					// Decrypt the password
-					snmpV3Configuration.setCommunity(decrypt.apply(password));
+					snmpV3Configuration.setPassword(decrypt.apply(password));
 				}
 				if (privacyPassword != null) {
 					// Decrypt the privacyPasswd
-					snmpV3Configuration.setCommunity(decrypt.apply(privacyPassword));
+					snmpV3Configuration.setPrivacyPassword(decrypt.apply(privacyPassword));
 				}
 			}
 

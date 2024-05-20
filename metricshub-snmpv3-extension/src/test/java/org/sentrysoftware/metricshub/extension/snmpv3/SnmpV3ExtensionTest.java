@@ -11,6 +11,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 
 import com.fasterxml.jackson.databind.node.IntNode;
@@ -33,14 +34,15 @@ import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetNextCriterion;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
+import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
-import org.sentrysoftware.metricshub.extension.snmpv3.SnmpV3Configuration;
+import org.sentrysoftware.metricshub.extension.snmp.source.SnmpTableSourceProcessor;
 import org.sentrysoftware.metricshub.extension.snmpv3.SnmpV3Configuration.AuthType;
 import org.sentrysoftware.metricshub.extension.snmpv3.SnmpV3Configuration.Privacy;
-import org.sentrysoftware.metricshub.extension.snmpv3.SnmpV3Extension;
-import org.sentrysoftware.metricshub.extension.snmpv3.SnmpV3RequestExecutor;
 
 @ExtendWith(MockitoExtension.class)
 class SnmpV3ExtensionTest {
@@ -63,7 +65,7 @@ class SnmpV3ExtensionTest {
 	private TelemetryManager telemetryManager;
 
 	/**
-	 * Creates a TelemetryManager instance with an SNMP configuration.
+	 * Creates a TelemetryManager instance with an SNMP V3 configuration.
 	 */
 	private void initSnmp() {
 		final Monitor hostMonitor = Monitor.builder().type(HOST.getKey()).isEndpoint(true).build();
@@ -77,6 +79,7 @@ class SnmpV3ExtensionTest {
 			.port(161)
 			.timeout(120L)
 			.username("username")
+			.retryIntervals(new int[] { 20, 30, 50 })
 			.password("password".toCharArray())
 			.authType(AuthType.NO_AUTH)
 			.privacy(Privacy.AES)
@@ -556,17 +559,33 @@ class SnmpV3ExtensionTest {
 	void testBuildConfiguration() throws InvalidConfigurationException {
 		final ObjectNode configuration = JsonNodeFactory.instance.objectNode();
 		configuration.set("community", new TextNode("public"));
+		configuration.set("password", new TextNode("passwordTest"));
+		configuration.set("privacyPassword", new TextNode("privacyPasswordTest"));
 		configuration.set("port", new IntNode(161));
 		configuration.set("timeout", new TextNode("2m"));
 
 		assertEquals(
-			SnmpV3Configuration.builder().community("public".toCharArray()).port(161).timeout(120L).build(),
-			snmpV3Extension.buildConfiguration("snmp v3", configuration, value -> value)
+			SnmpV3Configuration
+				.builder()
+				.community("public".toCharArray())
+				.password("passwordTest".toCharArray())
+				.privacyPassword("privacyPasswordTest".toCharArray())
+				.port(161)
+				.timeout(120L)
+				.build(),
+			snmpV3Extension.buildConfiguration("snmpv3", configuration, value -> value)
 		);
 
 		assertEquals(
-			SnmpV3Configuration.builder().community("public".toCharArray()).port(161).timeout(120L).build(),
-			snmpV3Extension.buildConfiguration("snmp v3", configuration, null)
+			SnmpV3Configuration
+				.builder()
+				.community("public".toCharArray())
+				.password("passwordTest".toCharArray())
+				.privacyPassword("privacyPasswordTest".toCharArray())
+				.port(161)
+				.timeout(120L)
+				.build(),
+			snmpV3Extension.buildConfiguration("snmpv3", configuration, null)
 		);
 	}
 }
