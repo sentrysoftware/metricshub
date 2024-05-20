@@ -24,6 +24,7 @@ Only a few options are required to run the `metricshub` command:
   * IPMI-over-LAN
   * SSH
   * SNMP
+  * SNMPV3
   * WBEM
   * WMI (on Windows only)
 * Credentials
@@ -44,7 +45,7 @@ The `metricshub` command requires a few parameters to run:
 
 * the hostname to connect to
 * the type of the resource (Windows, Linux, Management, Storage, Network, AIX, HP-UX, Solaris)
-* the protocols to use to gather information from the resource (HTTP, IPMI, SNMP, SSH, WBEM or WMI)
+* the protocols to use to gather information from the resource (HTTP, IPMI, SNMP, SNMPV3, SSH, WBEM or WMI)
 * the credentials
 
 Example:
@@ -103,6 +104,16 @@ $ metricshub CISC03 -t sto --snmp 2
 This command will connect to the `CISC03` SAN switch (`sto`rage) using `SNMP` version `2`.
 
 > Note: SAN switches fall into the **Storage** category of systems, like disk arrays and tape libraries, and not in the ~~Network~~ category, like network switches and IP routers.
+
+### Storage System, SNMP v3
+
+```batch
+$ metricshub STOR02 -t storage --snmpv3 --snmpv3-auth SHA --snmpv3-username USERA --snmpv3-password MySECRET --snmpv3-privacy DES --snmpv3-retryIntervals 5,10,15 --snmpv3-privacy-password MyPrivacySECRET
+```
+
+This command will connect to the `STOR02` storage system (`storage`) using `SNMP` version `3`.
+
+> Note: If no SNMP version 3 community is specified, **public** is assumed by default.
 
 ### Windows, WMI and SNMP v2c
 

@@ -127,7 +127,9 @@
 		<module>metricshub-engine</module>
 		<module>metricshub-it-common</module>
 		<module>metricshub-win-extension-common</module>
+		<module>metricshub-snmp-extension-common</module>
 		<module>metricshub-snmp-extension</module>
+		<module>metricshub-snmpv3-extension</module>
 		<module>metricshub-oscommand-extension</module>
 		<module>metricshub-ipmi-extension</module>
 		<module>metricshub-http-extension</module>
@@ -233,6 +235,11 @@
 			<dependency>
 				<groupId>org.sentrysoftware</groupId>
 				<artifactId>metricshub-win-extension-common</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.sentrysoftware</groupId>
+				<artifactId>metricshub-snmp-extension-common</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

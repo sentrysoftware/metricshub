@@ -46,6 +46,7 @@ import org.sentrysoftware.metricshub.cli.service.converter.DeviceKindConverter;
 import org.sentrysoftware.metricshub.cli.service.protocol.HttpConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.IpmiConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.SnmpConfigCli;
+import org.sentrysoftware.metricshub.cli.service.protocol.SnmpV3ConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.SshConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.WbemConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.WinRmConfigCli;
@@ -149,6 +150,9 @@ public class MetricsHubCliService implements Callable<Integer> {
 
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline SNMP Options|@:%n")
 	SnmpConfigCli snmpConfigCli;
+
+	@ArgGroup(exclusive = false, heading = "%n@|bold,underline SNMP V3 Options|@:%n")
+	SnmpV3ConfigCli snmpv3ConfigCli;
 
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline HTTP Options|@:%n")
 	HttpConfigCli httpConfigCli;
@@ -438,7 +442,16 @@ public class MetricsHubCliService implements Callable<Integer> {
 	 */
 	private Map<Class<? extends IConfiguration>, IConfiguration> buildConfigurations() {
 		return Stream
-			.of(ipmiConfigCli, snmpConfigCli, sshConfigCli, httpConfigCli, wmiConfigCli, winRmConfigCli, wbemConfigCli)
+			.of(
+				ipmiConfigCli,
+				snmpConfigCli,
+				snmpv3ConfigCli,
+				sshConfigCli,
+				httpConfigCli,
+				wmiConfigCli,
+				winRmConfigCli,
+				wbemConfigCli
+			)
 			.filter(Objects::nonNull)
 			.map(protocolConfig -> {
 				try {
@@ -466,13 +479,22 @@ public class MetricsHubCliService implements Callable<Integer> {
 
 		// No protocol at all?
 		final boolean protocolsNotConfigured = Stream
-			.of(ipmiConfigCli, snmpConfigCli, sshConfigCli, httpConfigCli, wmiConfigCli, winRmConfigCli, wbemConfigCli)
+			.of(
+				ipmiConfigCli,
+				snmpConfigCli,
+				snmpv3ConfigCli,
+				sshConfigCli,
+				httpConfigCli,
+				wmiConfigCli,
+				winRmConfigCli,
+				wbemConfigCli
+			)
 			.allMatch(Objects::isNull);
 
 		if (protocolsNotConfigured) {
 			throw new ParameterException(
 				spec.commandLine(),
-				"At least one protocol must be specified: --http[s], --ipmi, --snmp, --ssh, --wbem, --wmi, --winrm."
+				"At least one protocol must be specified: --http[s], --ipmi, --snmp,--snmpv3,--ssh, --wbem, --wmi, --winrm."
 			);
 		}
 	}
