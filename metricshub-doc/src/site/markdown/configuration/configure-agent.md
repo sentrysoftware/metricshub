@@ -318,7 +318,7 @@ Use the parameters below to configure the SNMP version 3 protocol:
 | username         | The username used for SNMP version 3 authentication.                                               |
 | privacyPassword  | The password used to encrypt SNMP version 3 messages for confidentiality.                          |
 | password         | The password used for SNMP version 3 authentication.                                               |
-| retryIntervals   | The intervals (in seconds) between SNMP request retries.                                           |
+| retryIntervals   | The intervals (in milliseconds) between SNMP request retries.                                      |
 
 **Example**
 
