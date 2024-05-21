@@ -95,7 +95,6 @@
 		<community-connectors.version>1.0.00</community-connectors.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.release>17</maven.compiler.release>
-		<protocVersion>3.11.4</protocVersion>
 		<hwgraf.version>4</hwgraf.version>
 		<metricshub-jre.version>1.0.01</metricshub-jre.version>
 		<project.build.outputTimestamp>2024-03-28T15:07:12Z</project.build.outputTimestamp>
