@@ -124,7 +124,7 @@ jobs:
 
     - name: Setup GitHub Pages
       id: pages
-      uses: actions/configure-pages@v4
+      uses: actions/configure-pages@v5
       with:
         enablement: true
 
