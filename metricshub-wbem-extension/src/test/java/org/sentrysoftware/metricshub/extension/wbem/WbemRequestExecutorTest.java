@@ -58,37 +58,35 @@ class WbemRequestExecutorTest {
 				.timeout(120L)
 				.build();
 
-			{
-				final List<String> properties = Arrays.asList("value1a", "value2a", "value3a");
+			final List<String> properties = Arrays.asList("value1a", "value2a", "value3a");
 
-				final List<List<String>> values = Arrays.asList(
-					Arrays.asList("value1a", "value2a", "value3a"),
-					Arrays.asList("value1b", "value2b", "value3b")
-				);
+			final List<List<String>> values = Arrays.asList(
+				Arrays.asList("value1a", "value2a", "value3a"),
+				Arrays.asList("value1b", "value2b", "value3b")
+			);
 
-				assertThrows(
-					ClientException.class,
-					() -> wbemRequestExecutor.doWbemQuery(HOST_NAME, wbemConfiguration, QUERY, NAMESPACE)
-				);
+			assertThrows(
+				ClientException.class,
+				() -> wbemRequestExecutor.doWbemQuery(HOST_NAME, wbemConfiguration, QUERY, NAMESPACE)
+			);
 
-				WbemQueryResult wbemQueryResult = new WbemQueryResult(properties, values);
+			WbemQueryResult wbemQueryResult = new WbemQueryResult(properties, values);
 
-				wbemExecutorMock
-					.when(() ->
-						WbemExecutor.executeWql(
-							any(URL.class),
-							anyString(),
-							anyString(),
-							eq(PASSWORD.toCharArray()),
-							anyString(),
-							anyInt(),
-							eq(null)
-						)
+			wbemExecutorMock
+				.when(() ->
+					WbemExecutor.executeWql(
+						any(URL.class),
+						anyString(),
+						anyString(),
+						eq(PASSWORD.toCharArray()),
+						anyString(),
+						anyInt(),
+						eq(null)
 					)
-					.thenReturn(wbemQueryResult);
+				)
+				.thenReturn(wbemQueryResult);
 
-				assertEquals(values, wbemRequestExecutor.doWbemQuery(HOST_NAME, wbemConfiguration, QUERY, NAMESPACE));
-			}
+			assertEquals(values, wbemRequestExecutor.doWbemQuery(HOST_NAME, wbemConfiguration, QUERY, NAMESPACE));
 		}
 	}
 }

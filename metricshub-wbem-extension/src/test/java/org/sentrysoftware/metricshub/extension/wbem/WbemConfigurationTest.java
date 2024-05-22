@@ -17,7 +17,7 @@ class WbemConfigurationTest {
 	public static final String WBEM_NAMESPACE = "testWbemNamespace";
 	public static final String WBEM_VCENTER = "testWbemVCenter";
 	public static final String WBEM_CONFIGURATION_TO_STRING = "https/5989 as testUser";
-	public static final String WBEM_WbemS = "https/5989";
+	public static final String WBEM_SECURE = "https/5989";
 
 	@Test
 	void testToString() {
@@ -32,7 +32,7 @@ class WbemConfigurationTest {
 
 		// When the userName is null, it's not appended to the result
 		wbemConfiguration.setUsername(null);
-		assertEquals(WBEM_WbemS, wbemConfiguration.toString());
+		assertEquals(WBEM_SECURE, wbemConfiguration.toString());
 	}
 
 	@Test
