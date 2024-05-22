@@ -61,6 +61,9 @@ import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
+import org.sentrysoftware.metricshub.hardware.strategy.HardwarePostCollectStrategy;
+import org.sentrysoftware.metricshub.hardware.strategy.HardwarePostDiscoveryStrategy;
+import org.sentrysoftware.metricshub.hardware.strategy.HardwareStrategy;
 
 /**
  * Task responsible for running the monitoring process, including detection, discovery, and collection strategies.
@@ -107,7 +110,8 @@ public class MonitoringTask implements Runnable {
 			telemetryManager.run(
 				new DetectionStrategy(telemetryManager, discoveryTime, clientsExecutor, extensionManager),
 				new DiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor, extensionManager),
-				new SimpleStrategy(telemetryManager, discoveryTime, clientsExecutor, extensionManager)
+				new SimpleStrategy(telemetryManager, discoveryTime, clientsExecutor, extensionManager),
+				new HardwarePostDiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor, extensionManager)
 			);
 
 			// Initialize the OpenTelemetry observers and LogEmitter after the discovery
@@ -124,8 +128,12 @@ public class MonitoringTask implements Runnable {
 			new PrepareCollectStrategy(telemetryManager, collectTime, clientsExecutor, extensionManager),
 			new ProtocolHealthCheckStrategy(telemetryManager, collectTime, clientsExecutor, extensionManager),
 			new CollectStrategy(telemetryManager, collectTime, clientsExecutor, extensionManager),
-			new SimpleStrategy(telemetryManager, collectTime, clientsExecutor, extensionManager)
+			new SimpleStrategy(telemetryManager, collectTime, clientsExecutor, extensionManager),
+			new HardwarePostCollectStrategy(telemetryManager, collectTime, clientsExecutor, extensionManager)
 		);
+
+		// Run the hardware strategy
+		telemetryManager.run(new HardwareStrategy(telemetryManager, collectTime));
 
 		// Initialize metric observers
 		initAllObservers(telemetryManager);

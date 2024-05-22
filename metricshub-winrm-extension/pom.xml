@@ -200,7 +200,6 @@
 										<exclude>META-INF/*.DSA</exclude>
 										<exclude>META-INF/*.RSA</exclude>
 										<exclude>org/slf4j/**</exclude>
-										<exclude>org.sentrysoftware:community-simple</exclude>
 									</excludes>
 								</filter>
 							</filters>

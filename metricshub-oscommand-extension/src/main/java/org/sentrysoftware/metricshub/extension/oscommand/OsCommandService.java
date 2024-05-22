@@ -62,6 +62,7 @@ import org.sentrysoftware.metricshub.engine.common.exception.ControlledSshExcept
 import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
+import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 import org.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandResult;
 import org.sentrysoftware.metricshub.engine.strategy.utils.SudoInformation;
@@ -302,11 +303,12 @@ public class OsCommandService {
 	 * <p>It replaces Host name, User name, Password, Sudo, Embedded files macros in the command line.</p>
 	 * <p>If necessary, it creates embedded files and deletes them after the command execution.</p>
 	 *
-	 * @param commandLine         The command Line. (mandatory)
-	 * @param telemetryManager    The engine configuration and host properties. (mandatory)
-	 * @param commandTimeout      The OS command parameter for the timeout.
-	 * @param isExecuteLocally    The OS command parameter to indicate if the command should be executed locally.
-	 * @param isLocalhost         The parameter in Host Monitoring to indicate if the command is executed locally.
+	 * @param commandLine            The command Line. (mandatory)
+	 * @param telemetryManager       The engine configuration and host properties. (mandatory)
+	 * @param commandTimeout         The OS command parameter for the timeout.
+	 * @param isExecuteLocally       The OS command parameter to indicate if the command should be executed locally.
+	 * @param isLocalhost            The parameter in Host Monitoring to indicate if the command is executed locally.
+	 * @param connectorEmbeddedFiles All the embedded files map defined in the Connector instance.
 	 * @return The command execution return and the command with password masked (if present).
 	 * @throws IOException                   When an I/O error occurred on local command execution or embedded file creation.
 	 * @throws ClientException               When an error occurred on remote execution.
@@ -320,7 +322,8 @@ public class OsCommandService {
 		@NonNull final TelemetryManager telemetryManager,
 		final Long commandTimeout,
 		final boolean isExecuteLocally,
-		final boolean isLocalhost
+		final boolean isLocalhost,
+		@NonNull final Map<Integer, EmbeddedFile> connectorEmbeddedFiles
 	)
 		throws IOException, ClientException, InterruptedException, TimeoutException, NoCredentialProvidedException, ControlledSshException {
 		final IConfiguration configuration;
@@ -356,7 +359,7 @@ public class OsCommandService {
 		final Map<String, File> embeddedTempFiles = createOsCommandEmbeddedFiles(
 			commandLine,
 			sudoInformation,
-			EmbeddedFileHelper.findEmbeddedFiles(commandLine),
+			EmbeddedFileHelper.findEmbeddedFiles(commandLine, connectorEmbeddedFiles),
 			TEMP_FILE_CREATOR
 		);
 

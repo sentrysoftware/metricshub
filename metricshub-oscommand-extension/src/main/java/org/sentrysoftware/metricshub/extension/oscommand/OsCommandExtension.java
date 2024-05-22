@@ -168,7 +168,7 @@ public class OsCommandExtension implements IProtocolExtension {
 		TelemetryManager telemetryManager
 	) {
 		if (criterion instanceof CommandLineCriterion commandLineCriterion) {
-			return new CommandLineCriterionProcessor().process(commandLineCriterion, telemetryManager);
+			return new CommandLineCriterionProcessor(connectorId).process(commandLineCriterion, telemetryManager);
 		} else if (criterion instanceof IpmiCriterion) {
 			final DeviceKind hostType = telemetryManager.getHostConfiguration().getHostType();
 			return new UnixIpmiCriterionProcessor().processUnixIpmiDetection(hostType, telemetryManager);

@@ -17,6 +17,8 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.sentrysoftware.metricshub.engine.common.helpers.FileHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
+import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
+import org.sentrysoftware.metricshub.engine.connector.parser.EmbeddedFilesResolver.EmbeddedFileProcessingException;
 
 class EmbeddedFilesResolverTest {
 
@@ -27,7 +29,7 @@ class EmbeddedFilesResolverTest {
 	private static final Path CONNECTOR_2_DIRECTORY = Path.of(BASE_DIRECTORY, "connector2");
 	private static final Path CONNECTOR_1_DIRECTORY = Path.of(BASE_DIRECTORY, "connector1");
 
-	private static final String WINDOWS_EXPECTED_YAML = String.format(
+	private static final String EXPECTED_YAML =
 		"""
 		---
 		connector:
@@ -38,84 +40,53 @@ class EmbeddedFilesResolverTest {
 		    - type: http
 		      method: GET
 		      url: /redfish/v1/
-		      header: "${file::%s}"
-		      body: "${file::%s}"
+		      header: "${file::1}"
+		      body: "${file::2}"
 		      expectedResult: iLO 4
 		      errorMessage: Invalid credentials / not an HP iLO 4
-		""",
-		Paths.get("src/test/resources/test-files/embedded/connector1/header.txt").toUri().toString(),
-		Paths.get("src/test/resources/test-files/embedded/connector2/embedded2/body.txt").toUri().toString()
-	);
-
-	/**
-	 *  Path separator on LINUX is /
-	 *  Replace the WINDOWS path separator '\' with the LINUX one '/' to get clean paths
-	 *  in the LINUX expected YAML
-	 */
-	private static final String LINUX_EXPECTED_YAML = WINDOWS_EXPECTED_YAML
-		.replace("\\\\", "/") // YAML escaped paths
-		.replace("\\", "/"); // YAML not escaped paths
+		""";
 
 	@Test
-	@EnabledOnOs(value = OS.WINDOWS)
-	void testInternalizeWindows() throws IOException {
-		assertResolvedConnector(WINDOWS_EXPECTED_YAML);
-	}
-
-	@Test
-	@EnabledOnOs(value = OS.LINUX)
-	void testInternalizeLinux() throws IOException {
-		assertResolvedConnector(LINUX_EXPECTED_YAML);
-	}
-
-	/**
-	 * Call {@link EmbeddedFilesResolver} to resolve embedded files in the
-	 * connector then compare the updated connector with the given expected
-	 * YAML connector.
-	 *
-	 * @param expectedYaml
-	 * @throws IOException
-	 */
-	private void assertResolvedConnector(final String expectedYaml) throws IOException {
+	void testProcess() throws IOException {
 		final JsonNode connector = OBJECT_MAPPER.readTree(CONNECTOR_1_FILE);
 
 		final Set<URI> parents = Set.of(CONNECTOR_2_DIRECTORY.toUri());
 
-		new EmbeddedFilesResolver(connector, CONNECTOR_1_DIRECTORY, parents).internalize();
+		new EmbeddedFilesResolver(connector, CONNECTOR_1_DIRECTORY, parents).process();
 
 		// Verify the full JsonNode object
-		assertEquals(OBJECT_MAPPER.readTree(expectedYaml), connector);
+		assertEquals(OBJECT_MAPPER.readTree(EXPECTED_YAML), connector);
 	}
 
 	@Test
-	void testInternalizeFailureOnFileNotFound() throws IOException {
+	void testProcessFailureOnFileNotFound() throws IOException {
 		final EmbeddedFilesResolver embeddedFilesResolver = new EmbeddedFilesResolver(
 			OBJECT_MAPPER.readTree(CONNECTOR_2_FILE),
 			CONNECTOR_2_DIRECTORY,
 			Collections.emptySet()
 		);
 
-		assertThrows(IllegalStateException.class, () -> embeddedFilesResolver.internalize());
+		assertThrows(EmbeddedFileProcessingException.class, () -> embeddedFilesResolver.process());
 	}
 
 	@Test
 	@EnabledOnOs(OS.WINDOWS)
-	void testFindAbsoluteUriZipWindows() throws Exception {
-		testFindAbsoluteUriZip("jar:file:///");
+	void testProcessFileInZipWindows() throws Exception {
+		testProcessFileInZip("jar:file:///");
 	}
 
 	@Test
 	@EnabledOnOs(OS.LINUX)
-	void testFindAbsoluteUriZipLinux() throws Exception {
-		testFindAbsoluteUriZip("jar:file://");
+	void testProcessFileInZipLinux() throws Exception {
+		testProcessFileInZip("jar:file://");
 	}
 
 	/**
-	 * Test the {@link EmbeddedFilesResolver#findAbsoluteUri(String, Path)} method.
+	 * Test the {@link EmbeddedFilesResolver#processFile(String, Path)} method.
 	 * @param schemePrefix The scheme prefix for the URI.
 	 * @throws Exception If an error occurs during the test.
 	 */
-	private void testFindAbsoluteUriZip(final String schemePrefix) throws Exception {
+	private void testProcessFileInZip(final String schemePrefix) throws Exception {
 		final EmbeddedFilesResolver embeddedFilesResolver = new EmbeddedFilesResolver(
 			OBJECT_MAPPER.readTree(CONNECTOR_2_FILE),
 			CONNECTOR_2_DIRECTORY,
@@ -123,11 +94,7 @@ class EmbeddedFilesResolverTest {
 		);
 
 		final String absolutePath = Paths.get("src/test/resources").toAbsolutePath().toString().replace("\\", "/");
-		final String uriStrExpected = String.format(
-			"%s%s/test-files/connector/zippedConnector/connectors/connectors.zip!/hardware/DiskPart/diskPart.awk",
-			schemePrefix,
-			absolutePath
-		);
+
 		final String connectorDirUriStr = String.format(
 			"%s%s/test-files/connector/zippedConnector/connectors/connectors.zip!/hardware/DiskPart",
 			schemePrefix,
@@ -135,17 +102,25 @@ class EmbeddedFilesResolverTest {
 		);
 
 		final URI connectorDirUri = URI.create(connectorDirUriStr);
-		final URI result = FileHelper.fileSystemTask(
+		final EmbeddedFile result = FileHelper.fileSystemTask(
 			connectorDirUri,
 			Collections.emptyMap(),
-			() -> embeddedFilesResolver.findAbsoluteUri("diskPart.awk", Paths.get(connectorDirUri))
+			() -> embeddedFilesResolver.processFile("diskPart.awk", Paths.get(connectorDirUri))
 		);
 
-		assertEquals(uriStrExpected, result.toString());
+		final String actualAwkScriptNormalized = result.getContentAsString().replaceAll("\r\n", "").replaceAll("\n", "");
+		final String expected =
+			"""
+			BEGIN {	foundHeader = 0}($1 == "Volume" && $2 == "###" && $3 == "Ltr" && $4 == "Label" && $5 == "Fs" && $6 == "Type" && $7 == "Size" && $8 == "Status" && $9 == "Info") {	ltrIndex = index($0, "Ltr")	labelIndex = index($0, "Label")	fsIndex = index($0, "Fs")	typeIndex = index($0, "Type")	sizeIndex = index($0, "Size")	statusIndex = index($0, "Status")	infoIndex = index($0, "Info")	foundHeader = 1}($1 == "Volume" && $2 ~ /^[0-9]+$/ && foundHeader == 1) {	# Get the fields	volumeID = $2	letter = substr($0, ltrIndex, 3)	label = substr($0, labelIndex, fsIndex - labelIndex)	fs = substr($0, fsIndex, typeIndex - fsIndex)	type = substr($0, typeIndex, sizeIndex - typeIndex)	sizeT = substr($0, sizeIndex, statusIndex - sizeIndex)	status = substr($0, statusIndex, infoIndex - statusIndex)	info = substr($0, infoIndex, length($0) - infoIndex + 1)	# Do some processing, remove unnecessary white spaces	gsub(" ", "", letter)	sub("^ +", "", label)	sub(" +$", "", label)	sub("^ +", "", fs)	sub(" +$", "", fs)	sub("^ +", "", type)	sub(" +$", "", type)	gsub(" ", "", sizeT)	sub("^ +", "", status)	sub(" +$", "", status)	sub("^ +", "", info)	sub(" +$", "", info)	# Convert size to bytes	size = ""	if (substr(sizeT, length(sizeT), 1) == "B") {		size = substr(sizeT, 1, length(sizeT) - 1)		# Handle unit multipliers		if (substr(size, length(size), 1) == "K") {			size = substr(size, 1, length(size) - 1) * 1024		} else if (substr(size, length(size), 1) == "M") {			size = substr(size, 1, length(size) - 1) * 1024 * 1024		} else if (substr(size, length(size), 1) == "G") {			size = substr(size, 1, length(size) - 1) * 1024 * 1024 * 1024		} else if (substr(size, length(size), 1) == "T") {			size = substr(size, 1, length(size) - 1) * 1024 * 1024 * 1024 * 1024		}		# Make sure we got a number		if (size !~ /^[0-9]+$/) {			size = ""		}	}	# Add a colon to the drive letter, if any	if (letter ~ /^[A-Z]$/) {		letter = letter ":"	}	# Build the displayID from label and letter	if (letter != "" && label != "") {		displayID = letter " - " label	} else if (letter != "" && label == "") {		displayID = letter	} else if (letter == "" && label != "") {		displayID = label	} else {		displayID = ""	}	# Replace "Partition" type with nothing	if (type == "Partition") {		type = ""	}	print "MSHW;" volumeID ";" displayID ";" letter ";" type ";" fs ";" size ";" status ";" info ";"}""";
+		assertEquals(expected, actualAwkScriptNormalized);
+		assertEquals(1, result.getId());
+		assertEquals("diskPart.awk", result.getFilename());
+		assertEquals("diskPart", result.getBaseName());
+		assertEquals(".awk", result.getFileExtension());
 	}
 
 	@Test
-	void testFindAbsoluteUri() throws IOException {
+	void testProcessFile() throws IOException {
 		final EmbeddedFilesResolver embeddedFilesResolver = new EmbeddedFilesResolver(
 			OBJECT_MAPPER.readTree(CONNECTOR_2_FILE),
 			CONNECTOR_2_DIRECTORY,
@@ -162,9 +137,6 @@ class EmbeddedFilesResolverTest {
 			"hardware",
 			"MIB2"
 		);
-		assertEquals(
-			new File("src/test/resources/test-files/connector/zippedConnector/connectors/hardware/MIB2/exit.txt").toURI(),
-			embeddedFilesResolver.findAbsoluteUri("exit.txt", yamlTestPath)
-		);
+		assertEquals("exit", embeddedFilesResolver.processFile("exit.txt", yamlTestPath).getContentAsString().trim());
 	}
 }

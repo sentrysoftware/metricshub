@@ -53,7 +53,7 @@ public class EmbeddedFileBody implements Body {
 			return EMPTY;
 		}
 
-		return HttpMacrosUpdater.update(body.getContent(), username, password, authenticationToken, hostname);
+		return HttpMacrosUpdater.update(body.getContentAsString(), username, password, authenticationToken, hostname);
 	}
 
 	@Override

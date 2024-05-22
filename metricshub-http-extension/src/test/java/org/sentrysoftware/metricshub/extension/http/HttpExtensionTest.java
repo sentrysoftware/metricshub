@@ -30,6 +30,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
+import org.sentrysoftware.metricshub.engine.connector.model.Connector;
+import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.common.HttpMethod;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
@@ -73,6 +75,13 @@ class HttpExtensionTest {
 
 		final HttpConfiguration httpConfiguration = HttpConfiguration.builder().build();
 
+		final Connector connector = Connector.builder().build();
+
+		final Map<String, Connector> store = Map.of(CONNECTOR_ID, connector);
+
+		final ConnectorStore connectorStore = new ConnectorStore();
+		connectorStore.setStore(store);
+
 		telemetryManager =
 			TelemetryManager
 				.builder()
@@ -86,6 +95,7 @@ class HttpExtensionTest {
 						.configurations(Map.of(HttpConfiguration.class, httpConfiguration))
 						.build()
 				)
+				.connectorStore(connectorStore)
 				.build();
 	}
 
@@ -223,6 +233,29 @@ class HttpExtensionTest {
 	}
 
 	@Test
+	void testProcessCriterionNoHostConfiguration() {
+		initHttp();
+
+		telemetryManager.setHostConfiguration(null);
+
+		final HttpCriterion httpCriterion = HttpCriterion
+			.builder()
+			.type(HTTP_CRITERION_TYPE)
+			.method(HttpMethod.GET)
+			.url(TEST_URL)
+			.body(TEST_BODY)
+			.resultContent(ResultContent.ALL)
+			.expectedResult(RESULT)
+			.errorMessage(ERROR)
+			.build();
+
+		assertEquals(
+			CriterionTestResult.empty(),
+			httpExtension.processCriterion(httpCriterion, CONNECTOR_ID, telemetryManager)
+		);
+	}
+
+	@Test
 	void testProcessCriterionRequestWrongResultTest() throws IOException {
 		initHttp();
 
@@ -243,8 +276,8 @@ class HttpExtensionTest {
 			.hostname(HOST_NAME)
 			.method(HTTP_GET)
 			.url(httpCriterion.getUrl())
-			.header(httpCriterion.getHeader(), CONNECTOR_ID, HOST_NAME)
-			.body(httpCriterion.getBody(), CONNECTOR_ID, HOST_NAME)
+			.header(httpCriterion.getHeader(), Map.of(), CONNECTOR_ID, HOST_NAME)
+			.body(httpCriterion.getBody(), Map.of(), CONNECTOR_ID, HOST_NAME)
 			.httpConfiguration(
 				(HttpConfiguration) telemetryManager.getHostConfiguration().getConfigurations().get(HttpConfiguration.class)
 			)
@@ -277,6 +310,95 @@ class HttpExtensionTest {
 
 	@Test
 	void testProcessCriterionOk() throws IOException {
+		// Test case where the HTTP request is executed successfully and matches the
+		// expected result
+		{
+			initHttp();
+
+			final HttpCriterion httpCriterion = HttpCriterion
+				.builder()
+				.type(HTTP_CRITERION_TYPE)
+				.method(HttpMethod.GET)
+				.url(TEST_URL)
+				.body(TEST_BODY)
+				.resultContent(ResultContent.ALL)
+				.expectedResult(RESULT)
+				.errorMessage(ERROR)
+				.build();
+
+			final HttpRequest httpRequest = HttpRequest
+				.builder()
+				.hostname(HOST_NAME)
+				.method(HTTP_GET)
+				.url(httpCriterion.getUrl())
+				.header(httpCriterion.getHeader(), Map.of(), CONNECTOR_ID, HOST_NAME)
+				.body(httpCriterion.getBody(), Map.of(), CONNECTOR_ID, HOST_NAME)
+				.httpConfiguration(
+					(HttpConfiguration) telemetryManager.getHostConfiguration().getConfigurations().get(HttpConfiguration.class)
+				)
+				.resultContent(httpCriterion.getResultContent())
+				.authenticationToken(httpCriterion.getAuthenticationToken())
+				.build();
+			doReturn(RESULT).when(httpRequestExecutorMock).executeHttp(httpRequest, false, telemetryManager);
+
+			final String message = String.format("Hostname %s - HTTP test succeeded. Returned result: result.", HOST_NAME);
+			final CriterionTestResult criterionTestResult = httpExtension.processCriterion(
+				httpCriterion,
+				CONNECTOR_ID,
+				telemetryManager
+			);
+
+			assertEquals(RESULT, criterionTestResult.getResult());
+			assertTrue(criterionTestResult.isSuccess());
+			assertEquals(message, criterionTestResult.getMessage());
+			assertNull(criterionTestResult.getException());
+		}
+		// Test case where the HTTP request is executed successfully and there is no expected matching result
+		{
+			initHttp();
+
+			final HttpCriterion httpCriterion = HttpCriterion
+				.builder()
+				.type(HTTP_CRITERION_TYPE)
+				.method(HttpMethod.GET)
+				.url(TEST_URL)
+				.body(TEST_BODY)
+				.resultContent(ResultContent.ALL)
+				.expectedResult(null)
+				.errorMessage(ERROR)
+				.build();
+
+			final HttpRequest httpRequest = HttpRequest
+				.builder()
+				.hostname(HOST_NAME)
+				.method(HTTP_GET)
+				.url(httpCriterion.getUrl())
+				.header(httpCriterion.getHeader(), Map.of(), CONNECTOR_ID, HOST_NAME)
+				.body(httpCriterion.getBody(), Map.of(), CONNECTOR_ID, HOST_NAME)
+				.httpConfiguration(
+					(HttpConfiguration) telemetryManager.getHostConfiguration().getConfigurations().get(HttpConfiguration.class)
+				)
+				.resultContent(httpCriterion.getResultContent())
+				.authenticationToken(httpCriterion.getAuthenticationToken())
+				.build();
+			doReturn(RESULT).when(httpRequestExecutorMock).executeHttp(httpRequest, false, telemetryManager);
+
+			final String message = String.format("Hostname %s - HTTP test succeeded. Returned result: result.", HOST_NAME);
+			final CriterionTestResult criterionTestResult = httpExtension.processCriterion(
+				httpCriterion,
+				CONNECTOR_ID,
+				telemetryManager
+			);
+
+			assertEquals(RESULT, criterionTestResult.getResult());
+			assertTrue(criterionTestResult.isSuccess());
+			assertEquals(message, criterionTestResult.getMessage());
+			assertNull(criterionTestResult.getException());
+		}
+	}
+
+	@Test
+	void testProcessCriterionNullResultKo() {
 		initHttp();
 
 		final HttpCriterion httpCriterion = HttpCriterion
@@ -286,7 +408,7 @@ class HttpExtensionTest {
 			.url(TEST_URL)
 			.body(TEST_BODY)
 			.resultContent(ResultContent.ALL)
-			.expectedResult(RESULT)
+			.expectedResult(null)
 			.errorMessage(ERROR)
 			.build();
 
@@ -295,27 +417,23 @@ class HttpExtensionTest {
 			.hostname(HOST_NAME)
 			.method(HTTP_GET)
 			.url(httpCriterion.getUrl())
-			.header(httpCriterion.getHeader(), CONNECTOR_ID, HOST_NAME)
-			.body(httpCriterion.getBody(), CONNECTOR_ID, HOST_NAME)
+			.header(httpCriterion.getHeader(), Map.of(), CONNECTOR_ID, HOST_NAME)
+			.body(httpCriterion.getBody(), Map.of(), CONNECTOR_ID, HOST_NAME)
 			.httpConfiguration(
 				(HttpConfiguration) telemetryManager.getHostConfiguration().getConfigurations().get(HttpConfiguration.class)
 			)
 			.resultContent(httpCriterion.getResultContent())
 			.authenticationToken(httpCriterion.getAuthenticationToken())
 			.build();
-		doReturn(RESULT).when(httpRequestExecutorMock).executeHttp(httpRequest, false, telemetryManager);
+		doReturn(null).when(httpRequestExecutorMock).executeHttp(httpRequest, false, telemetryManager);
 
-		final String message = String.format("Hostname %s - HTTP test succeeded. Returned result: result.", HOST_NAME);
 		final CriterionTestResult criterionTestResult = httpExtension.processCriterion(
 			httpCriterion,
 			CONNECTOR_ID,
 			telemetryManager
 		);
 
-		assertEquals(RESULT, criterionTestResult.getResult());
-		assertTrue(criterionTestResult.isSuccess());
-		assertEquals(message, criterionTestResult.getMessage());
-		assertNull(criterionTestResult.getException());
+		assertFalse(criterionTestResult.isSuccess());
 	}
 
 	@Test

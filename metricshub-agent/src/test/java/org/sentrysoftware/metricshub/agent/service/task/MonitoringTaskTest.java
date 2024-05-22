@@ -41,7 +41,6 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
-import org.sentrysoftware.metricshub.agent.extension.SnmpTestConfiguration;
 import org.sentrysoftware.metricshub.agent.helper.OtelHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
@@ -58,6 +57,9 @@ import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
+import org.sentrysoftware.metricshub.extension.snmp.SnmpConfiguration;
+import org.sentrysoftware.metricshub.hardware.strategy.HardwarePostCollectStrategy;
+import org.sentrysoftware.metricshub.hardware.strategy.HardwarePostDiscoveryStrategy;
 
 @ExtendWith(MockitoExtension.class)
 class MonitoringTaskTest {
@@ -78,7 +80,7 @@ class MonitoringTaskTest {
 				.hostname(HOSTNAME)
 				.hostId(HOSTNAME)
 				.hostType(DeviceKind.LINUX)
-				.configurations(Map.of(SnmpTestConfiguration.class, SnmpTestConfiguration.builder().build()))
+				.configurations(Map.of(SnmpConfiguration.class, SnmpConfiguration.builder().build()))
 				.build();
 	}
 
@@ -150,13 +152,19 @@ class MonitoringTaskTest {
 			monitoringTask.run(); // Collect
 
 			verify(telemetryManagerMock, times(1))
-				.run(any(DetectionStrategy.class), any(DiscoveryStrategy.class), any(SimpleStrategy.class));
+				.run(
+					any(DetectionStrategy.class),
+					any(DiscoveryStrategy.class),
+					any(SimpleStrategy.class),
+					any(HardwarePostDiscoveryStrategy.class)
+				);
 			verify(telemetryManagerMock, times(4))
 				.run(
 					any(PrepareCollectStrategy.class),
 					any(ProtocolHealthCheckStrategy.class),
 					any(CollectStrategy.class),
-					any(SimpleStrategy.class)
+					any(SimpleStrategy.class),
+					any(HardwarePostCollectStrategy.class)
 				);
 		}
 	}

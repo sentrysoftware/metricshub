@@ -931,6 +931,11 @@ public class ConfigHelper {
 			snmpConfig.validateConfiguration(resourceKey);
 		}
 
+		final IConfiguration snmpV3Config = protocolsConfig.getSnmpv3();
+		if (snmpV3Config != null) {
+			snmpV3Config.validateConfiguration(resourceKey);
+		}
+
 		final IConfiguration ipmiConfig = protocolsConfig.getIpmi();
 		if (ipmiConfig != null) {
 			ipmiConfig.validateConfiguration(resourceKey);
@@ -1046,6 +1051,7 @@ public class ConfigHelper {
 				Stream
 					.of(
 						protocols.getSnmp(),
+						protocols.getSnmpv3(),
 						protocols.getHttp(),
 						protocols.getIpmi(),
 						protocols.getOsCommand(),
@@ -1206,5 +1212,27 @@ public class ConfigHelper {
 		} catch (Throwable e) {
 			throw new IllegalStateException("Cannot load extensions.", e);
 		}
+	}
+
+	/**
+	 * Constructs and populates a {@link ConnectorStore} by aggregating connector
+	 * stores from various extensions managed by the provided {@link ExtensionManager}
+	 * and from a specific subdirectory defined for connectors. This method first
+	 * aggregates all extension-based connector stores into one central store and
+	 * then adds additional connectors found in a designated subdirectory.
+	 *
+	 * @param extensionManager The manager responsible for handling all
+	 *                         extension-based connector stores.
+	 * @return A fully populated {@link ConnectorStore} containing connectors from
+	 *         various sources.
+	 */
+	public static ConnectorStore buildConnectorStore(final ExtensionManager extensionManager) {
+		// Get extension connector stores
+		final ConnectorStore connectorStore = extensionManager.aggregateExtensionConnectorStores();
+
+		// Parse and add connectors from a specific subdirectory
+		connectorStore.addMany(new ConnectorStore(getSubDirectory("connectors", false)).getStore());
+
+		return connectorStore;
 	}
 }

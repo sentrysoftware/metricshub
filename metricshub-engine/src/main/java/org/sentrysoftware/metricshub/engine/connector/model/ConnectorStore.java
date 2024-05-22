@@ -26,10 +26,10 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.connector.parser.ConnectorLibraryParser;
 
@@ -39,10 +39,9 @@ import org.sentrysoftware.metricshub.engine.connector.parser.ConnectorLibraryPar
  */
 @Slf4j
 @NoArgsConstructor
+@Data
 public class ConnectorStore {
 
-	@Getter
-	@Setter
 	private Map<String, Connector> store;
 
 	@Getter

@@ -58,7 +58,7 @@ public class EmbeddedFileHeader implements Header {
 			return new HashMap<>();
 		}
 
-		return Header.resolveAndParseHeader(header.getContent(), username, password, authenticationToken, hostname);
+		return Header.resolveAndParseHeader(header.getContentAsString(), username, password, authenticationToken, hostname);
 	}
 
 	@Override

@@ -34,11 +34,11 @@ import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
 import org.sentrysoftware.metricshub.agent.config.protocols.ProtocolsConfig;
 import org.sentrysoftware.metricshub.agent.context.AgentInfo;
-import org.sentrysoftware.metricshub.agent.extension.SnmpTestConfiguration;
 import org.sentrysoftware.metricshub.agent.helper.ConfigHelper;
 import org.sentrysoftware.metricshub.agent.helper.OtelConfigHelper;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.extension.snmp.SnmpConfiguration;
 import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
@@ -148,7 +148,7 @@ class TaskSchedulingServiceTest {
 				.attributes(
 					Map.of(HOST_NAME, resourceKey1, HOST_ID_ATTRIBUTE_KEY, resourceKey1, HOST_TYPE_ATTRIBUTE_KEY, OS_LINUX)
 				)
-				.protocols(ProtocolsConfig.builder().snmp(SnmpTestConfiguration.builder().build()).build())
+				.protocols(ProtocolsConfig.builder().snmp(SnmpConfiguration.builder().build()).build())
 				.collectPeriod(AgentConfig.DEFAULT_COLLECT_PERIOD)
 				.build()
 		);
@@ -161,7 +161,7 @@ class TaskSchedulingServiceTest {
 				.attributes(
 					Map.of(HOST_NAME, resourceKey2, HOST_ID_ATTRIBUTE_KEY, resourceKey2, HOST_TYPE_ATTRIBUTE_KEY, OS_LINUX)
 				)
-				.protocols(ProtocolsConfig.builder().snmp(SnmpTestConfiguration.builder().build()).build())
+				.protocols(ProtocolsConfig.builder().snmp(SnmpConfiguration.builder().build()).build())
 				.collectPeriod(AgentConfig.DEFAULT_COLLECT_PERIOD)
 				.build()
 		);

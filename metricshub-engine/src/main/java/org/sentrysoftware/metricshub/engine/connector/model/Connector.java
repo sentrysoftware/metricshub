@@ -23,6 +23,7 @@ package org.sentrysoftware.metricshub.engine.connector.model;
 
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -43,6 +44,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.ExtendsDeserializer;
 import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.SourcesDeserializer;
+import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 import org.sentrysoftware.metricshub.engine.connector.model.common.TranslationTable;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.ConnectorIdentity;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.Detection;
@@ -128,6 +130,13 @@ public class Connector implements Serializable {
 	 */
 	@Default
 	private List<Set<String>> preSourceDep = new ArrayList<>();
+
+	/**
+	 * Mapping of embedded files where each embedded file is associated with a unique identifier.
+	 */
+	@Default
+	@JsonIgnore
+	private Map<Integer, EmbeddedFile> embeddedFiles = new HashMap<>();
 
 	/**
 	 * Get the connector identity and create it if it is not created yet.

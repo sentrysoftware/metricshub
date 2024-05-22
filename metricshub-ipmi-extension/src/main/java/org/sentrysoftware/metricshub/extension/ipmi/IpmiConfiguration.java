@@ -24,6 +24,7 @@ package org.sentrysoftware.metricshub.extension.ipmi;
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -31,6 +32,7 @@ import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
+import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 
 /**
  * The IpmiConfiguration class represents the configuration for IPMI (Intelligent Platform Management Interface) connections
@@ -44,6 +46,7 @@ public class IpmiConfiguration implements IConfiguration {
 
 	@Builder.Default
 	@JsonSetter(nulls = SKIP)
+	@JsonDeserialize(using = TimeDeserializer.class)
 	private final Long timeout = 120L;
 
 	private String username;

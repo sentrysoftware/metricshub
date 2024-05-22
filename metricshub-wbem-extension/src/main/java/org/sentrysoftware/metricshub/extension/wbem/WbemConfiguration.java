@@ -21,6 +21,7 @@ package org.sentrysoftware.metricshub.extension.wbem;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,6 +30,7 @@ import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfiguratio
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.TransportProtocols;
+import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 
 /**
  * The WbemConfiguration interface represents the configuration for the Web-Based Enterprise Management protocol in the MetricsHub engine.
@@ -48,6 +50,7 @@ public class WbemConfiguration implements IConfiguration {
 	private String namespace;
 
 	@Builder.Default
+	@JsonDeserialize(using = TimeDeserializer.class)
 	private final Long timeout = 120L;
 
 	String username;

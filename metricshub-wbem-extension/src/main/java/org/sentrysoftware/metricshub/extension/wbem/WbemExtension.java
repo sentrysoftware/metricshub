@@ -48,7 +48,9 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 @Slf4j
 public class WbemExtension implements IProtocolExtension {
 
-	private static final String AUTOMATIC_NAMESPACE = "automatic";
+	/**
+	 * INTEROP WBEM namespace
+	 */
 	private static final String INTEROP_LOWER_CASE = "interop";
 
 	/**

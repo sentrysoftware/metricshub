@@ -1,7 +1,7 @@
 # MetricsHub
 
 ![GitHub release (with filter)](https://img.shields.io/github/v/release/sentrysoftware/metricshub)
-![Build](https://img.shields.io/github/actions/workflow/status/sentrysoftware/metricshub/maven-build.yml)
+![Build](https://img.shields.io/github/actions/workflow/status/sentrysoftware/metricshub/maven-deploy.yml)
 ![GitHub top language](https://img.shields.io/github/languages/top/sentrysoftware/metricshub)
 ![License](https://img.shields.io/github/license/sentrysoftware/metricshub)
 
@@ -12,10 +12,24 @@ This is a multi-module project:
 * **/**: The root (parent of all submodules)
 * **metricshub-engine**: The brain, the heart of this project. It houses the core logic and essential functionalities that power the entire system.
 * **metricshub-agent**: The MetricsHub Agent module includes a Command-Line Interface (CLI) and is responsible for interacting with the MetricsHub engine. It acts as an entry point, collecting and transmitting data to the OpenTelemetry Collector.
+* **metricshub-classloader-agent**: Manages class loading for extensions, ensuring that they are loaded correctly within the JVM.
+* **metricshub-ipmi-extension**: Provides support for the Intelligent Platform Management Interface (IPMI) to monitor and manage hardware at the firmware level.
+* **metricshub-oscommand-extension**: Allows execution of OS-level commands and scripts to gather metrics and other data from the operating system.
+* **metricshub-snmp-extension-common**: Contains common functionalities and utilities used by SNMP-based extensions.
+* **metricshub-snmp-extension**: Enables Simple Network Management Protocol (SNMP) for monitoring and managing network devices.
+* **metricshub-snmpv3-extension**: Adds support for SNMPv3, which includes enhanced security features like authentication and encryption.
+* **metricshub-win-extension-common**: Contains common functionalities and utilities used by Windows-specific extensions.
+* **metricshub-wmi-extension**: Provides support for Windows Management Instrumentation (WMI) to gather detailed information about Windows systems.
+* **metricshub-winrm-extension**: Enables the use of Windows Remote Management (WinRM) for remote management and monitoring of Windows-based systems.
+* **metricshub-wbem-extension**: Supports the Web-Based Enterprise Management (WBEM) standard for accessing management information.
+* **metricshub-hardware**: Hardware Energy and Sustainability module, dedicated to managing and monitoring hardware-related metrics, focusing on energy consumption and sustainability aspects.
+* **metricshub-it-common**: Contains common code and utilities used by integration tests across various modules.
 * **metricshub-windows**: Builds the `.zip` package for MetricsHub on Windows platforms.
 * **metricshub-linux**: Builds the `.tar.gz` package of MetricsHub on Linux platforms.
 * **metricshub-doc**: Houses the documentation for MetricsHub.
 
+> [!TIP]
+> Looking for connectors? Check the [MetricsHub Community Connectors](https://github.com/sentrysoftware/metricshub-community-connectors) repository.
 
 ## How to build the Project
 

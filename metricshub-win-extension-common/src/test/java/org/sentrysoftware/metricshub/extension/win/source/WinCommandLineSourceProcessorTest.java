@@ -15,6 +15,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
+import org.sentrysoftware.metricshub.engine.connector.model.Connector;
+import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CommandLineSource;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
@@ -89,6 +91,13 @@ class WinCommandLineSourceProcessorTest {
 
 	@Test
 	void testProcessCommandLineSourceOk() throws Exception {
+		final Connector connector = Connector.builder().build();
+
+		final Map<String, Connector> store = Map.of(CONNECTOR_ID, connector);
+
+		final ConnectorStore connectorStore = new ConnectorStore();
+		connectorStore.setStore(store);
+
 		final CommandLineSource commandLineSource = new CommandLineSource();
 		commandLineSource.setCommandLine(COMMAND_LINE);
 		commandLineSource.setKeep("Total\\|Available");
@@ -112,6 +121,7 @@ class WinCommandLineSourceProcessorTest {
 					.configurations(Map.of(WmiTestConfiguration.class, wmiConfiguration))
 					.build()
 			)
+			.connectorStore(connectorStore)
 			.build();
 		doReturn(wmiConfiguration).when(configurationRetrieverMock).apply(telemetryManager);
 
@@ -122,7 +132,7 @@ class WinCommandLineSourceProcessorTest {
 			""";
 		doReturn(new OsCommandResult(expectedCommandLineResult, COMMAND_LINE))
 			.when(winCommandServiceMock)
-			.runOsCommand(COMMAND_LINE, HOST_NAME, wmiConfiguration);
+			.runOsCommand(COMMAND_LINE, HOST_NAME, wmiConfiguration, Map.of());
 
 		final List<List<String>> expected = List.of(List.of("16384 MB"), List.of("8192 MB"));
 		assertEquals(
@@ -133,6 +143,13 @@ class WinCommandLineSourceProcessorTest {
 
 	@Test
 	void testProcessCommandLineSourceThrowsException() throws Exception {
+		final Connector connector = Connector.builder().build();
+
+		final Map<String, Connector> store = Map.of(CONNECTOR_ID, connector);
+
+		final ConnectorStore connectorStore = new ConnectorStore();
+		connectorStore.setStore(store);
+
 		final CommandLineSource commandLineSource = new CommandLineSource();
 		commandLineSource.setCommandLine(COMMAND_LINE);
 		commandLineSource.setKeep("Total\\|Available");
@@ -156,10 +173,13 @@ class WinCommandLineSourceProcessorTest {
 					.configurations(Map.of(WmiTestConfiguration.class, wmiConfiguration))
 					.build()
 			)
+			.connectorStore(connectorStore)
 			.build();
 		doReturn(wmiConfiguration).when(configurationRetrieverMock).apply(telemetryManager);
 
-		doThrow(new ClientException()).when(winCommandServiceMock).runOsCommand(COMMAND_LINE, HOST_NAME, wmiConfiguration);
+		doThrow(new ClientException())
+			.when(winCommandServiceMock)
+			.runOsCommand(COMMAND_LINE, HOST_NAME, wmiConfiguration, Map.of());
 
 		assertEquals(SourceTable.empty(), winCommandLineSourceProcessor.process(commandLineSource, telemetryManager));
 	}

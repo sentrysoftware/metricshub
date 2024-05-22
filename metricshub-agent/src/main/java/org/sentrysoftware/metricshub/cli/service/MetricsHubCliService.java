@@ -46,6 +46,7 @@ import org.sentrysoftware.metricshub.cli.service.converter.DeviceKindConverter;
 import org.sentrysoftware.metricshub.cli.service.protocol.HttpConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.IpmiConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.SnmpConfigCli;
+import org.sentrysoftware.metricshub.cli.service.protocol.SnmpV3ConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.SshConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.WbemConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.WinRmConfigCli;
@@ -68,6 +69,9 @@ import org.sentrysoftware.metricshub.engine.strategy.discovery.DiscoveryStrategy
 import org.sentrysoftware.metricshub.engine.strategy.simple.SimpleStrategy;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.hardware.strategy.HardwarePostCollectStrategy;
+import org.sentrysoftware.metricshub.hardware.strategy.HardwarePostDiscoveryStrategy;
+import org.sentrysoftware.metricshub.hardware.strategy.HardwareStrategy;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -90,7 +94,8 @@ import picocli.CommandLine.Spec;
 	description = "This tool is the CLI version of the @|italic MetricsHub|@ engine. " +
 	"MetricsHub monitors diverse technologies, encompassing applications, servers, and devices, particularly those without readily available monitoring solutions.%n%n" +
 	"It natively leverages various system management protocols to discover the hardware components of a system " +
-	"and report their operational status.",
+	"and report their operational status.%n%n" +
+	"Additionally, MetricsHub measures the power consumption of the system, or makes an estimation if no power sensor is detected.",
 	parameterListHeading = "%n@|bold,underline Parameters|@:%n",
 	optionListHeading = "%n@|bold,underline Options|@:%n",
 	customSynopsis = {
@@ -145,6 +150,9 @@ public class MetricsHubCliService implements Callable<Integer> {
 
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline SNMP Options|@:%n")
 	SnmpConfigCli snmpConfigCli;
+
+	@ArgGroup(exclusive = false, heading = "%n@|bold,underline SNMP V3 Options|@:%n")
+	SnmpV3ConfigCli snmpv3ConfigCli;
 
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline HTTP Options|@:%n")
 	HttpConfigCli httpConfigCli;
@@ -232,7 +240,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		// First, process special "list" option
 		if (listConnectors) {
 			return listAllConnectors(
-				new ConnectorStore(ConfigHelper.getSubDirectory("connectors", false)),
+				ConfigHelper.buildConnectorStore(CliExtensionManager.getExtensionManagerSingleton()),
 				spec.commandLine().getOut()
 			);
 		}
@@ -263,7 +271,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		// Create the TelemetryManager using the connector store and the host configuration created above.
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
-			.connectorStore(new ConnectorStore(ConfigHelper.getSubDirectory("connectors", false)))
+			.connectorStore(ConfigHelper.buildConnectorStore(CliExtensionManager.getExtensionManagerSingleton()))
 			.hostConfiguration(hostConfiguration)
 			.build();
 
@@ -338,6 +346,12 @@ public class MetricsHubCliService implements Callable<Integer> {
 				discoveryTime,
 				clientsExecutor,
 				CliExtensionManager.getExtensionManagerSingleton()
+			),
+			new HardwarePostDiscoveryStrategy(
+				telemetryManager,
+				discoveryTime,
+				clientsExecutor,
+				CliExtensionManager.getExtensionManagerSingleton()
 			)
 		);
 
@@ -383,8 +397,17 @@ public class MetricsHubCliService implements Callable<Integer> {
 					collectTime,
 					clientsExecutor,
 					CliExtensionManager.getExtensionManagerSingleton()
+				),
+				new HardwarePostCollectStrategy(
+					telemetryManager,
+					collectTime,
+					clientsExecutor,
+					CliExtensionManager.getExtensionManagerSingleton()
 				)
 			);
+
+			// Run the hardware strategy
+			telemetryManager.run(new HardwareStrategy(telemetryManager, collectTime));
 
 			// If iterations > 1, add a sleep time between iterations
 			if (i != iterations - 1 && sleepIteration > 0) {
@@ -419,7 +442,16 @@ public class MetricsHubCliService implements Callable<Integer> {
 	 */
 	private Map<Class<? extends IConfiguration>, IConfiguration> buildConfigurations() {
 		return Stream
-			.of(ipmiConfigCli, snmpConfigCli, sshConfigCli, httpConfigCli, wmiConfigCli, winRmConfigCli, wbemConfigCli)
+			.of(
+				ipmiConfigCli,
+				snmpConfigCli,
+				snmpv3ConfigCli,
+				sshConfigCli,
+				httpConfigCli,
+				wmiConfigCli,
+				winRmConfigCli,
+				wbemConfigCli
+			)
 			.filter(Objects::nonNull)
 			.map(protocolConfig -> {
 				try {
@@ -447,13 +479,22 @@ public class MetricsHubCliService implements Callable<Integer> {
 
 		// No protocol at all?
 		final boolean protocolsNotConfigured = Stream
-			.of(ipmiConfigCli, snmpConfigCli, sshConfigCli, httpConfigCli, wmiConfigCli, winRmConfigCli, wbemConfigCli)
+			.of(
+				ipmiConfigCli,
+				snmpConfigCli,
+				snmpv3ConfigCli,
+				sshConfigCli,
+				httpConfigCli,
+				wmiConfigCli,
+				winRmConfigCli,
+				wbemConfigCli
+			)
 			.allMatch(Objects::isNull);
 
 		if (protocolsNotConfigured) {
 			throw new ParameterException(
 				spec.commandLine(),
-				"At least one protocol must be specified: --http[s], --ipmi, --snmp, --ssh, --wbem, --wmi, --winrm."
+				"At least one protocol must be specified: --http[s], --ipmi, --snmp,--snmpv3,--ssh, --wbem, --wmi, --winrm."
 			);
 		}
 	}

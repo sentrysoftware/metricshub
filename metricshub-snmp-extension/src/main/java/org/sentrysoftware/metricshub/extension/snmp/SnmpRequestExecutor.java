@@ -39,7 +39,7 @@ import org.sentrysoftware.snmp.client.SnmpClient;
  * various SNMP requests on local or remote hosts.
  */
 @Slf4j
-public class SnmpRequestExecutor {
+public class SnmpRequestExecutor implements ISnmpRequestExecutor {
 
 	/**
 	 * Execute SNMP GetNext request
@@ -54,9 +54,10 @@ public class SnmpRequestExecutor {
 	 * @throws TimeoutException    If the execution times out.
 	 */
 	@WithSpan("SNMP Get Next")
+	@Override
 	public String executeSNMPGetNext(
 		@NonNull @SpanAttribute("snmp.oid") final String oid,
-		@NonNull @SpanAttribute("snmp.config") final SnmpConfiguration configuration,
+		@NonNull @SpanAttribute("snmp.config") final ISnmpConfiguration configuration,
 		@NonNull @SpanAttribute("host.hostname") final String hostname,
 		final boolean logMode
 	) throws InterruptedException, ExecutionException, TimeoutException {
@@ -93,9 +94,10 @@ public class SnmpRequestExecutor {
 	 * @throws TimeoutException    If the execution times out.
 	 */
 	@WithSpan("SNMP Get")
+	@Override
 	public String executeSNMPGet(
 		@NonNull @SpanAttribute("snmp.oid") final String oid,
-		@NonNull @SpanAttribute("snmp.config") final SnmpConfiguration configuration,
+		@NonNull @SpanAttribute("snmp.config") final ISnmpConfiguration configuration,
 		@NonNull @SpanAttribute("host.hostname") final String hostname,
 		final boolean logMode
 	) throws InterruptedException, ExecutionException, TimeoutException {
@@ -128,10 +130,11 @@ public class SnmpRequestExecutor {
 	 * @throws TimeoutException    If the SNMP request times out.
 	 */
 	@WithSpan("SNMP Get Table")
+	@Override
 	public List<List<String>> executeSNMPTable(
 		@NonNull @SpanAttribute("snmp.oid") final String oid,
 		@NonNull @SpanAttribute("snmp.columns") String[] selectColumnArray,
-		@NonNull @SpanAttribute("snmp.config") final SnmpConfiguration configuration,
+		@NonNull @SpanAttribute("snmp.config") final ISnmpConfiguration configuration,
 		@NonNull @SpanAttribute("host.hostname") final String hostname,
 		final boolean logMode
 	) throws InterruptedException, ExecutionException, TimeoutException {
@@ -183,7 +186,7 @@ public class SnmpRequestExecutor {
 	private <T> T executeSNMPGetRequest(
 		final SnmpGetRequest request,
 		final String oid,
-		final SnmpConfiguration protocol,
+		final ISnmpConfiguration protocol,
 		final String hostname,
 		final String[] selectColumnArray,
 		final boolean logMode
@@ -194,7 +197,7 @@ public class SnmpRequestExecutor {
 				final SnmpClient snmpClient = new SnmpClient(
 					hostname,
 					protocol.getPort(),
-					protocol.getVersion().getIntVersion(),
+					protocol.getIntVersion(),
 					null,
 					new String(protocol.getCommunity()),
 					null,

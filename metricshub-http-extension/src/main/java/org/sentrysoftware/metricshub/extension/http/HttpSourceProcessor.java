@@ -21,9 +21,11 @@ package org.sentrysoftware.metricshub.extension.http;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
+import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -74,6 +76,8 @@ public class HttpSourceProcessor {
 			return SourceTable.empty();
 		}
 
+		final Map<Integer, EmbeddedFile> connectorEmbeddedFiles = telemetryManager.getEmbeddedFiles(connectorId);
+
 		try {
 			final String result = httpRequestExecutor.executeHttp(
 				HttpRequest
@@ -82,8 +86,8 @@ public class HttpSourceProcessor {
 					.method(httpSource.getMethod().toString())
 					.url(httpSource.getUrl())
 					.path(httpSource.getPath())
-					.header(httpSource.getHeader(), connectorId, hostname)
-					.body(httpSource.getBody(), connectorId, hostname)
+					.header(httpSource.getHeader(), connectorEmbeddedFiles, connectorId, hostname)
+					.body(httpSource.getBody(), connectorEmbeddedFiles, connectorId, hostname)
 					.resultContent(httpSource.getResultContent())
 					.authenticationToken(httpSource.getAuthenticationToken())
 					.httpConfiguration(httpConfiguration)

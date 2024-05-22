@@ -79,7 +79,8 @@ public class WinCommandLineSourceProcessor {
 			final OsCommandResult osCommandResult = winCommandService.runOsCommand(
 				commandLineSource.getCommandLine(),
 				hostname,
-				configurationRetriever.apply(telemetryManager)
+				configurationRetriever.apply(telemetryManager),
+				telemetryManager.getEmbeddedFiles(connectorId)
 			);
 
 			// transform to lines

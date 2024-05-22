@@ -11,13 +11,15 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
+import org.sentrysoftware.metricshub.engine.connector.model.Connector;
+import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.CommandLineCriterion;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
@@ -34,14 +36,21 @@ class WinCommandLineCriterionProcessorTest {
 	private static final String COMMAND_LINE =
 		"naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent";
 
-	@Mock
-	WinCommandService winCommandService;
+	private static final String CONNECTOR_ID = "connectorId";
 
 	@Mock
-	Function<TelemetryManager, IWinConfiguration> configurationRetriever;
+	WinCommandService winCommandServiceMock;
 
-	@InjectMocks
+	@Mock
+	Function<TelemetryManager, IWinConfiguration> configurationRetrieverMock;
+
 	WinCommandLineCriterionProcessor winCommandLineCriterionProcessor;
+
+	@BeforeEach
+	void setup() {
+		winCommandLineCriterionProcessor =
+			new WinCommandLineCriterionProcessor(winCommandServiceMock, configurationRetrieverMock, CONNECTOR_ID);
+	}
 
 	private static final String HOST_NAME = "test-host" + UUID.randomUUID().toString();
 	private static final char[] PASSWORD = "pwd".toCharArray();
@@ -230,6 +239,13 @@ class WinCommandLineCriterionProcessorTest {
 	 */
 	private void testCommandLineCriterionProcessing(String expectedResult, String commandLineResult, boolean isSuccess)
 		throws Exception {
+		final Connector connector = Connector.builder().build();
+
+		final Map<String, Connector> store = Map.of(CONNECTOR_ID, connector);
+
+		final ConnectorStore connectorStore = new ConnectorStore();
+		connectorStore.setStore(store);
+
 		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
 		commandLineCriterion.setCommandLine(COMMAND_LINE);
 		commandLineCriterion.setExpectedResult(expectedResult);
@@ -256,12 +272,13 @@ class WinCommandLineCriterionProcessorTest {
 			.builder()
 			.hostConfiguration(hostConfiguration)
 			.hostProperties(hostProperties)
+			.connectorStore(connectorStore)
 			.build();
 
-		doReturn(wmiConfiguration).when(configurationRetriever).apply(telemetryManager);
+		doReturn(wmiConfiguration).when(configurationRetrieverMock).apply(telemetryManager);
 		doReturn(new OsCommandResult(commandLineResult, COMMAND_LINE))
-			.when(winCommandService)
-			.runOsCommand(commandLineCriterion.getCommandLine(), HOST_NAME, wmiConfiguration);
+			.when(winCommandServiceMock)
+			.runOsCommand(commandLineCriterion.getCommandLine(), HOST_NAME, wmiConfiguration, Map.of());
 
 		final CriterionTestResult criterionTestResult = winCommandLineCriterionProcessor.process(
 			commandLineCriterion,
@@ -278,6 +295,13 @@ class WinCommandLineCriterionProcessorTest {
 
 	@Test
 	void testProcessCommandLineCriterionThrowsNoCredentialProvidedException() throws Exception {
+		final Connector connector = Connector.builder().build();
+
+		final Map<String, Connector> store = Map.of(CONNECTOR_ID, connector);
+
+		final ConnectorStore connectorStore = new ConnectorStore();
+		connectorStore.setStore(store);
+
 		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
 		commandLineCriterion.setCommandLine(COMMAND_LINE);
 		commandLineCriterion.setExpectedResult("Agent Rev:");
@@ -304,12 +328,13 @@ class WinCommandLineCriterionProcessorTest {
 			.builder()
 			.hostConfiguration(hostConfiguration)
 			.hostProperties(hostProperties)
+			.connectorStore(connectorStore)
 			.build();
 
-		doReturn(wmiConfiguration).when(configurationRetriever).apply(telemetryManager);
+		doReturn(wmiConfiguration).when(configurationRetrieverMock).apply(telemetryManager);
 		doThrow(new NoCredentialProvidedException())
-			.when(winCommandService)
-			.runOsCommand(commandLineCriterion.getCommandLine(), HOST_NAME, wmiConfiguration);
+			.when(winCommandServiceMock)
+			.runOsCommand(commandLineCriterion.getCommandLine(), HOST_NAME, wmiConfiguration, Map.of());
 
 		final CriterionTestResult criterionTestResult = winCommandLineCriterionProcessor.process(
 			commandLineCriterion,
@@ -321,6 +346,13 @@ class WinCommandLineCriterionProcessorTest {
 
 	@Test
 	void testProcessCommandLineCriterionThrowsException() throws Exception {
+		final Connector connector = Connector.builder().build();
+
+		final Map<String, Connector> store = Map.of(CONNECTOR_ID, connector);
+
+		final ConnectorStore connectorStore = new ConnectorStore();
+		connectorStore.setStore(store);
+
 		final CommandLineCriterion commandLineCriterion = new CommandLineCriterion();
 		commandLineCriterion.setCommandLine(COMMAND_LINE);
 		commandLineCriterion.setExpectedResult("Agent Rev:");
@@ -347,12 +379,13 @@ class WinCommandLineCriterionProcessorTest {
 			.builder()
 			.hostConfiguration(hostConfiguration)
 			.hostProperties(hostProperties)
+			.connectorStore(connectorStore)
 			.build();
 
-		doReturn(wmiConfiguration).when(configurationRetriever).apply(telemetryManager);
+		doReturn(wmiConfiguration).when(configurationRetrieverMock).apply(telemetryManager);
 		doThrow(new IOException("error"))
-			.when(winCommandService)
-			.runOsCommand(commandLineCriterion.getCommandLine(), HOST_NAME, wmiConfiguration);
+			.when(winCommandServiceMock)
+			.runOsCommand(commandLineCriterion.getCommandLine(), HOST_NAME, wmiConfiguration, Map.of());
 
 		final CriterionTestResult criterionTestResult = winCommandLineCriterionProcessor.process(
 			commandLineCriterion,
