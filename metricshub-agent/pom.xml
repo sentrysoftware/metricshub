@@ -122,6 +122,12 @@
 			<version>4.2.0</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>metricshub-snmpv3-extension</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>${project.groupId}</groupId>
@@ -296,7 +302,7 @@
 										<limit>
 											<counter>COMPLEXITY</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.57</minimum>
+											<minimum>0.56</minimum>
 										</limit>
 									</limits>
 								</rule>

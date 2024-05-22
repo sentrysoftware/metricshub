@@ -931,6 +931,11 @@ public class ConfigHelper {
 			snmpConfig.validateConfiguration(resourceKey);
 		}
 
+		final IConfiguration snmpV3Config = protocolsConfig.getSnmpv3();
+		if (snmpV3Config != null) {
+			snmpV3Config.validateConfiguration(resourceKey);
+		}
+
 		final IConfiguration ipmiConfig = protocolsConfig.getIpmi();
 		if (ipmiConfig != null) {
 			ipmiConfig.validateConfiguration(resourceKey);
@@ -1046,6 +1051,7 @@ public class ConfigHelper {
 				Stream
 					.of(
 						protocols.getSnmp(),
+						protocols.getSnmpv3(),
 						protocols.getHttp(),
 						protocols.getIpmi(),
 						protocols.getOsCommand(),

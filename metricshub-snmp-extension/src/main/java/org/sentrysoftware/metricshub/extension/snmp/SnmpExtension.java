@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -47,6 +48,10 @@ import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.extension.snmp.detection.SnmpGetCriterionProcessor;
+import org.sentrysoftware.metricshub.extension.snmp.detection.SnmpGetNextCriterionProcessor;
+import org.sentrysoftware.metricshub.extension.snmp.source.SnmpGetSourceProcessor;
+import org.sentrysoftware.metricshub.extension.snmp.source.SnmpTableSourceProcessor;
 
 /**
  * This class implements the {@link IProtocolExtension} contract, reports the supported features,
@@ -56,6 +61,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 @AllArgsConstructor
 public class SnmpExtension implements IProtocolExtension {
 
+	@NonNull
 	private SnmpRequestExecutor snmpRequestExecutor;
 
 	/**
@@ -150,10 +156,15 @@ public class SnmpExtension implements IProtocolExtension {
 
 	@Override
 	public SourceTable processSource(Source source, String connectorId, TelemetryManager telemetryManager) {
+		final Function<TelemetryManager, ISnmpConfiguration> configurationRetriever = manager ->
+			(ISnmpConfiguration) manager.getHostConfiguration().getConfigurations().get(SnmpConfiguration.class);
+
 		if (source instanceof SnmpTableSource snmpTableSource) {
-			return new SnmpTableSourceProcessor(snmpRequestExecutor).process(snmpTableSource, connectorId, telemetryManager);
+			return new SnmpTableSourceProcessor(snmpRequestExecutor, configurationRetriever)
+				.process(snmpTableSource, connectorId, telemetryManager);
 		} else if (source instanceof SnmpGetSource snmpGetSource) {
-			return new SnmpGetSourceProcessor(snmpRequestExecutor).process(snmpGetSource, connectorId, telemetryManager);
+			return new SnmpGetSourceProcessor(snmpRequestExecutor, configurationRetriever)
+				.process(snmpGetSource, connectorId, telemetryManager);
 		}
 		throw new IllegalArgumentException(
 			String.format(
@@ -170,11 +181,14 @@ public class SnmpExtension implements IProtocolExtension {
 		String connectorId,
 		TelemetryManager telemetryManager
 	) {
+		final Function<TelemetryManager, ISnmpConfiguration> configurationRetriever = manager ->
+			(ISnmpConfiguration) manager.getHostConfiguration().getConfigurations().get(SnmpConfiguration.class);
+
 		if (criterion instanceof SnmpGetCriterion snmpGetCriterion) {
-			return new SnmpGetCriterionProcessor(snmpRequestExecutor)
+			return new SnmpGetCriterionProcessor(snmpRequestExecutor, configurationRetriever)
 				.process(snmpGetCriterion, connectorId, telemetryManager);
 		} else if (criterion instanceof SnmpGetNextCriterion snmpGetNextCriterion) {
-			return new SnmpGetNextCriterionProcessor(snmpRequestExecutor)
+			return new SnmpGetNextCriterionProcessor(snmpRequestExecutor, configurationRetriever)
 				.process(snmpGetNextCriterion, connectorId, telemetryManager);
 		}
 		throw new IllegalArgumentException(
