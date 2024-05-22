@@ -1,17 +1,5 @@
 package org.sentrysoftware.metricshub.extension.wbem;
 
-import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
-import org.sentrysoftware.wbem.client.WbemExecutor;
-import org.sentrysoftware.wbem.client.WbemQueryResult;
-import org.sentrysoftware.wbem.javax.wbem.WBEMException;
-
-import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -21,6 +9,17 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mockStatic;
+
+import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
+import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
+import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
+import org.sentrysoftware.wbem.client.WbemExecutor;
+import org.sentrysoftware.wbem.client.WbemQueryResult;
+import org.sentrysoftware.wbem.javax.wbem.WBEMException;
 
 class WbemRequestExecutorTest {
 
