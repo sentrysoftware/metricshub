@@ -32,7 +32,6 @@ import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.agent.config.AgentConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
-import org.sentrysoftware.metricshub.agent.config.protocols.ProtocolsConfig;
 import org.sentrysoftware.metricshub.agent.context.AgentInfo;
 import org.sentrysoftware.metricshub.agent.helper.ConfigHelper;
 import org.sentrysoftware.metricshub.agent.helper.OtelConfigHelper;
