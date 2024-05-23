@@ -54,7 +54,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -74,7 +73,6 @@ import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.common.helpers.ResourceHelper;
-import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
@@ -99,20 +97,6 @@ import org.springframework.core.io.ClassPathResource;
 @Slf4j
 public class ConfigHelper {
 
-	private static final String WBEM_PROTOCOL = "WBEM";
-	private static final String TIMEOUT_ERROR =
-		"Resource %s - Timeout value is invalid for protocol %s." +
-		" Timeout value returned: %s. This resource will not be monitored. Please verify the configured timeout value.";
-	private static final String PORT_ERROR =
-		"Resource %s - Invalid port configured for protocol %s. Port value returned: %s." +
-		" This resource will not be monitored. Please verify the configured port value.";
-	private static final String USERNAME_ERROR =
-		"Resource %s - No username configured for protocol %s." +
-		" This resource will not be monitored. Please verify the configured username.";
-	private static final Predicate<String> INVALID_STRING_CHECKER = attr -> attr == null || attr.isBlank();
-	private static final Predicate<Integer> INVALID_PORT_CHECKER = attr -> attr == null || attr < 1 || attr > 65535;
-	private static final Predicate<Long> INVALID_TIMEOUT_CHECKER = attr -> attr == null || attr < 0L;
-	private static final Predicate<String> EMPTY_STRING_CHECKER = attr -> attr != null && attr.isBlank();
 	public static final String TOP_LEVEL_VIRTUAL_RESOURCE_GROUP_KEY = "metricshub-top-level-rg";
 
 	/**
@@ -925,70 +909,6 @@ public class ConfigHelper {
 				protocolConfig.validateConfiguration(resourceKey);
 			}
 		}
-	}
-
-	/**
-	 * Validate the given WinRM information (port, timeout, username and command)
-	 *
-	 * @param resourceKey  Resource unique identifier
-	 * @param port         The port number used to perform WQL queries and commands
-	 * @param timeout      How long until the WinRM request times out
-	 * @param username	   Name used to establish the connection with the host via the WinRM protocol
-	 * @throws InvalidConfigurationException thrown if a configuration validation fails
-	 */
-	static void validateWinRmInfo(
-		final String resourceKey,
-		final Integer port,
-		final Long timeout,
-		final String username
-	) throws InvalidConfigurationException {}
-
-	/**
-	 * Validate the given WBEM information (username, timeout, port and vCenter)
-	 *
-	 * @param resourceKey Resource unique identifier
-	 * @param username    Name used to establish the connection with the host via the WBEM protocol
-	 * @param timeout     How long until the WBEM request times out
-	 * @param port        The HTTP/HTTPS port number used to perform WBEM queries
-	 * @param vCenter     vCenter hostname providing the authentication ticket, if applicable
-	 * @throws InvalidConfigurationException thrown if a configuration validation fails
-	 */
-	static void validateWbemInfo(
-		final String resourceKey,
-		final String username,
-		final Long timeout,
-		final Integer port,
-		final String vCenter
-	) throws InvalidConfigurationException {
-		StringHelper.validateConfigurationAttribute(
-			timeout,
-			INVALID_TIMEOUT_CHECKER,
-			() -> String.format(TIMEOUT_ERROR, resourceKey, WBEM_PROTOCOL, timeout)
-		);
-
-		StringHelper.validateConfigurationAttribute(
-			port,
-			INVALID_PORT_CHECKER,
-			() -> String.format(PORT_ERROR, resourceKey, WBEM_PROTOCOL, port)
-		);
-
-		StringHelper.validateConfigurationAttribute(
-			username,
-			INVALID_STRING_CHECKER,
-			() -> String.format(USERNAME_ERROR, resourceKey, WBEM_PROTOCOL)
-		);
-
-		StringHelper.validateConfigurationAttribute(
-			vCenter,
-			EMPTY_STRING_CHECKER,
-			() ->
-				String.format(
-					"Resource %s - Empty vCenter hostname configured for protocol %s." +
-					" This resource will not be monitored. Please verify the configured vCenter hostname.",
-					resourceKey,
-					WBEM_PROTOCOL
-				)
-		);
 	}
 
 	/**
