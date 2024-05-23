@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.agent.helper.ConfigHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
@@ -64,15 +65,16 @@ public class ExtensionProtocolsDeserializer extends JsonDeserializer<Map<String,
 			node
 				.fields()
 				.forEachRemaining(entry -> {
-					String protocolName = entry.getKey();
-					JsonNode protocolConfigNode = entry.getValue();
+					final String protocolName = entry.getKey();
+					final JsonNode protocolConfigNode = entry.getValue();
 
-					IConfiguration protocolConfig = buildConfigurationFromJsonNode(
+					final Optional<IConfiguration> protocolConfig = buildConfigurationFromJsonNode(
 						extensionManager,
 						protocolName,
 						protocolConfigNode
 					);
-					protocols.put(protocolName, protocolConfig);
+
+					protocolConfig.ifPresent(config -> protocols.put(protocolName, config));
 				});
 		}
 
@@ -87,24 +89,22 @@ public class ExtensionProtocolsDeserializer extends JsonDeserializer<Map<String,
 	 * @param configNode       the JSON node containing the protocol configuration
 	 * @return an IConfiguration instance or null if an error occurs
 	 */
-	private IConfiguration buildConfigurationFromJsonNode(
+	private Optional<IConfiguration> buildConfigurationFromJsonNode(
 		ExtensionManager extensionManager,
 		String protocolName,
 		JsonNode configNode
 	) {
-		if (configNode == null || protocolName == null || protocolName.isEmpty()) {
+		if (protocolName.isBlank() || configNode == null) {
 			log.error("Invalid protocol name or configuration node.");
-			return null;
+			return Optional.empty();
 		}
 
 		try {
-			return extensionManager
-				.buildConfigurationFromJsonNode(protocolName, configNode, ConfigHelper::decrypt)
-				.orElse(null);
+			return extensionManager.buildConfigurationFromJsonNode(protocolName, configNode, ConfigHelper::decrypt);
 		} catch (Exception e) {
 			log.error("Failed to build protocol configuration for {}: {}", protocolName, e.getMessage());
 			log.debug("Failed to build protocol configuration for {}", protocolName, e);
-			return null;
+			return Optional.empty();
 		}
 	}
 }
