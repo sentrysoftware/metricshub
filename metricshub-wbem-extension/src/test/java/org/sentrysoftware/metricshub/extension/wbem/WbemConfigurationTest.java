@@ -1,8 +1,11 @@
 package org.sentrysoftware.metricshub.extension.wbem;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
+import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 
 /**
  * Test of {@link WbemConfiguration}
@@ -14,7 +17,7 @@ class WbemConfigurationTest {
 	public static final String WBEM_NAMESPACE = "testWbemNamespace";
 	public static final String WBEM_VCENTER = "testWbemVCenter";
 	public static final String WBEM_CONFIGURATION_TO_STRING = "https/5989 as testUser";
-	public static final String WBEM_HTTPS = "https/5989";
+	public static final String WBEM_SECURE = "https/5989";
 
 	@Test
 	void testToString() {
@@ -29,6 +32,51 @@ class WbemConfigurationTest {
 
 		// When the userName is null, it's not appended to the result
 		wbemConfiguration.setUsername(null);
-		assertEquals(WBEM_HTTPS, wbemConfiguration.toString());
+		assertEquals(WBEM_SECURE, wbemConfiguration.toString());
+	}
+
+	@Test
+	void testValidateConfiguration() {
+		final String resourceKey = "resourceKey";
+		assertThrows(
+			InvalidConfigurationException.class,
+			() ->
+				WbemConfiguration.builder().timeout(-60L).port(1234).vCenter(null).build().validateConfiguration(resourceKey)
+		);
+		assertThrows(
+			InvalidConfigurationException.class,
+			() -> WbemConfiguration.builder().timeout(null).port(1234).build().validateConfiguration(resourceKey)
+		);
+		assertThrows(
+			InvalidConfigurationException.class,
+			() -> WbemConfiguration.builder().timeout(60L).port(-1).build().validateConfiguration(resourceKey)
+		);
+		assertThrows(
+			InvalidConfigurationException.class,
+			() -> WbemConfiguration.builder().timeout(60L).port(null).build().validateConfiguration(resourceKey)
+		);
+		assertThrows(
+			InvalidConfigurationException.class,
+			() -> WbemConfiguration.builder().timeout(60L).port(66666).build().validateConfiguration(resourceKey)
+		);
+		assertThrows(
+			InvalidConfigurationException.class,
+			() -> WbemConfiguration.builder().timeout(60L).username("").build().validateConfiguration(resourceKey)
+		);
+		assertThrows(
+			InvalidConfigurationException.class,
+			() -> WbemConfiguration.builder().timeout(60L).vCenter("").build().validateConfiguration(resourceKey)
+		);
+		assertDoesNotThrow(() ->
+			WbemConfiguration
+				.builder()
+				.timeout(60L)
+				.port(1234)
+				.vCenter("vCenter")
+				.username("username")
+				.password("password".toCharArray())
+				.build()
+				.validateConfiguration(resourceKey)
+		);
 	}
 }
