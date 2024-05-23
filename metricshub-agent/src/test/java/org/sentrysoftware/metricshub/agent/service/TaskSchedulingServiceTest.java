@@ -32,7 +32,6 @@ import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.agent.config.AgentConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
-import org.sentrysoftware.metricshub.agent.config.protocols.ProtocolsConfig;
 import org.sentrysoftware.metricshub.agent.context.AgentInfo;
 import org.sentrysoftware.metricshub.agent.helper.ConfigHelper;
 import org.sentrysoftware.metricshub.agent.helper.OtelConfigHelper;
@@ -148,7 +147,7 @@ class TaskSchedulingServiceTest {
 				.attributes(
 					Map.of(HOST_NAME, resourceKey1, HOST_ID_ATTRIBUTE_KEY, resourceKey1, HOST_TYPE_ATTRIBUTE_KEY, OS_LINUX)
 				)
-				.protocols(ProtocolsConfig.builder().snmp(SnmpConfiguration.builder().build()).build())
+				.protocols(Map.of("snmp", SnmpConfiguration.builder().build()))
 				.collectPeriod(AgentConfig.DEFAULT_COLLECT_PERIOD)
 				.build()
 		);
@@ -161,7 +160,7 @@ class TaskSchedulingServiceTest {
 				.attributes(
 					Map.of(HOST_NAME, resourceKey2, HOST_ID_ATTRIBUTE_KEY, resourceKey2, HOST_TYPE_ATTRIBUTE_KEY, OS_LINUX)
 				)
-				.protocols(ProtocolsConfig.builder().snmp(SnmpConfiguration.builder().build()).build())
+				.protocols(Map.of("snmp", SnmpConfiguration.builder().build()))
 				.collectPeriod(AgentConfig.DEFAULT_COLLECT_PERIOD)
 				.build()
 		);
