@@ -56,7 +56,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -68,7 +67,6 @@ import org.sentrysoftware.metricshub.agent.config.AlertingSystemConfig;
 import org.sentrysoftware.metricshub.agent.config.ConnectorVariables;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
-import org.sentrysoftware.metricshub.agent.config.protocols.ProtocolsConfig;
 import org.sentrysoftware.metricshub.agent.context.MetricDefinitions;
 import org.sentrysoftware.metricshub.agent.security.PasswordEncrypt;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
@@ -916,54 +914,16 @@ public class ConfigHelper {
 	 */
 	private static void validateProtocols(@NonNull final String resourceKey, final ResourceConfig resourceConfig)
 		throws InvalidConfigurationException {
-		final ProtocolsConfig protocolsConfig = resourceConfig.getProtocols();
-		if (protocolsConfig == null) {
+		final Map<String, IConfiguration> protocols = resourceConfig.getProtocols();
+		if (protocols == null) {
 			return;
 		}
 
-		final IConfiguration winRmConfig = protocolsConfig.getWinrm();
-		if (winRmConfig != null) {
-			winRmConfig.validateConfiguration(resourceKey);
-		}
-
-		final IConfiguration snmpConfig = protocolsConfig.getSnmp();
-		if (snmpConfig != null) {
-			snmpConfig.validateConfiguration(resourceKey);
-		}
-
-		final IConfiguration snmpV3Config = protocolsConfig.getSnmpv3();
-		if (snmpV3Config != null) {
-			snmpV3Config.validateConfiguration(resourceKey);
-		}
-
-		final IConfiguration ipmiConfig = protocolsConfig.getIpmi();
-		if (ipmiConfig != null) {
-			ipmiConfig.validateConfiguration(resourceKey);
-		}
-
-		final IConfiguration sshConfig = protocolsConfig.getSsh();
-		if (sshConfig != null) {
-			sshConfig.validateConfiguration(resourceKey);
-		}
-
-		final IConfiguration wbemConfig = protocolsConfig.getWbem();
-		if (wbemConfig != null) {
-			wbemConfig.validateConfiguration(resourceKey);
-		}
-
-		final IConfiguration wmiConfig = protocolsConfig.getWmi();
-		if (wmiConfig != null) {
-			wmiConfig.validateConfiguration(resourceKey);
-		}
-
-		final IConfiguration httpConfig = protocolsConfig.getHttp();
-		if (httpConfig != null) {
-			httpConfig.validateConfiguration(resourceKey);
-		}
-
-		final IConfiguration osCommandConfig = protocolsConfig.getOsCommand();
-		if (osCommandConfig != null) {
-			osCommandConfig.validateConfiguration(resourceKey);
+		for (Map.Entry<String, IConfiguration> entry : protocols.entrySet()) {
+			IConfiguration protocolConfig = entry.getValue();
+			if (protocolConfig != null) {
+				protocolConfig.validateConfiguration(resourceKey);
+			}
 		}
 	}
 
@@ -1044,25 +1004,14 @@ public class ConfigHelper {
 		final Set<String> connectorsConfiguration,
 		final String resourceKey
 	) {
-		final ProtocolsConfig protocols = resourceConfig.getProtocols();
+		final Map<String, IConfiguration> protocols = resourceConfig.getProtocols();
 		final Map<Class<? extends IConfiguration>, IConfiguration> protocolConfigurations = protocols == null
 			? new HashMap<>()
-			: new HashMap<>(
-				Stream
-					.of(
-						protocols.getSnmp(),
-						protocols.getSnmpv3(),
-						protocols.getHttp(),
-						protocols.getIpmi(),
-						protocols.getOsCommand(),
-						protocols.getSsh(),
-						protocols.getWmi(),
-						protocols.getWbem(),
-						protocols.getWinrm()
-					)
-					.filter(Objects::nonNull)
-					.collect(Collectors.toMap(IConfiguration::getClass, Function.identity()))
-			);
+			: protocols
+				.values()
+				.stream()
+				.filter(Objects::nonNull)
+				.collect(Collectors.toMap(IConfiguration::getClass, Function.identity()));
 
 		final Map<String, String> attributes = resourceConfig.getAttributes();
 
