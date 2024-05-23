@@ -35,8 +35,10 @@ After completing this tutorial, you'll be able to:
    ```shell
    sudo mkdir -p /opt/prometheus && sudo tar -xzvf prometheus-{version}.linux-{architecture}.tar.gz -C prometheus --strip-components=1
    ```
-   - Make sure to replace `{version}` and `{architecture}` by the prometheus version and your processor architecture.
-   - Prometheus will be installed under `/opt/prometheus`.
+
+   > **Note:**
+   > Make sure to replace `{version}` and `{architecture}` by the prometheus version and your processor architecture.
+   > Prometheus will be installed under `/opt/prometheus`.
 
 ## MetricsHub Agent Configuration
 
@@ -49,7 +51,7 @@ After completing this tutorial, you'll be able to:
 
 ### Host Configuration
 
-The configuration file `/opt/metricshub/lib/config/metricshub.yaml` contains resource configuration examples for various protocols such as Http, Snmp, Ssh, Ipmi, Wbem, Wmi, WinRm. For example, you can configure your localhost using the Wmi protocol under `resources` as follows:
+The configuration file `/opt/metricshub/lib/config/metricshub.yaml` contains resource configuration examples for various protocols such as Http, Snmp, Ssh, Ipmi, Wbem, Wmi, WinRm. For example, you can configure your localhost using the `osCommand` protocol under `resources` as follows:
 
 ```yaml
 resources:
@@ -61,6 +63,7 @@ resources:
       osCommand:
         timeout: 120
 ```
+
 ### Prometheus Configuration on `metricshub.yaml`
 
 To enable MetricsHub to stream metrics to Prometheus, add the following configuration lines in `/opt/metricshub/lib/config/metricshub.yaml` under the `otel` section:
@@ -72,6 +75,7 @@ otel:
 ```
 
 ## Launch Prometheus and MetricsHub
+
 ### Launch Prometheus
 
 1. Navigate to the Prometheus directory using terminal:
@@ -103,6 +107,7 @@ sudo ./service
 This will start MetricsHub with the configuration file located at `/opt/metricsHub/lib/config/metricshub.yaml`.
 
 ### Find metrics on Prometheus
+
 To check whether the metrics are correctly received in Prometheus, search for any metric that starts with `metricshub_` or `hw_` in the expression search bar, then click on execute.
 
    ![Prometheus interface](images/prometheus-interface.png)

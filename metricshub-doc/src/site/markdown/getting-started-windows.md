@@ -29,7 +29,7 @@ After completing this tutorial, you'll be able to:
 
 ### Create a Configuration File
 
-1. From `C:\Program Files\MetricsHub\`, copy `MetricsHub/config/metricshub-example.yaml` to `C:\ProgramData\metricshub\config`.
+1. Copy `C:\Program Files\MetricsHub\config\metricshub-example.yaml` to `C:\ProgramData\metricshub\config`.
 2. Rename `C:\ProgramData\metricshub\config\metricshub-example.yaml` to `C:\ProgramData\metricshub\config\metricshub.yaml`.
 
 ### Host Configuration
@@ -57,6 +57,7 @@ otel:
 ```
 
 ## Launch Prometheus and MetricsHub
+
 ### Launch Prometheus
 
 1. Open a CLI **as an Administrator**:
@@ -97,6 +98,7 @@ MetricsHubServiceManager.exe
 This will start MetricsHub with the configuration file located at `C:\ProgramData\MetricsHub\config\metricshub.yaml`.
 
 ### Find metrics on Prometheus
+
 To check whether the metrics are correctly received in Prometheus, search for any metric that starts with `metricshub_` in the expression search bar, then click on execute.
 
    ![Prometheus interface](images/prometheus-interface.png)
@@ -105,7 +107,7 @@ To check whether the metrics are correctly received in Prometheus, search for an
 
 After launching the Agent, a log file is created for each configured host, in addition to a global MetricsHub log file. The logs can be found at:
 
-```makefile
+```shell
 C:\Users\{Username}\AppData\Local\metricshub\logs
 ```
 
@@ -113,7 +115,7 @@ Replace {Username} with your local system username.
 
 #### Example:
 
-```makefile
+```shell
 C:\Users\BertrandMartin\AppData\Local\metricshub\logs
 ```
 
