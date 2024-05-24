@@ -37,10 +37,11 @@ import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.sentrysoftware.metricshub.agent.config.protocols.ProtocolsConfig;
 import org.sentrysoftware.metricshub.agent.deserialization.AttributesDeserializer;
 import org.sentrysoftware.metricshub.agent.deserialization.ConnectorVariablesDeserializer;
+import org.sentrysoftware.metricshub.agent.deserialization.ExtensionProtocolsDeserializer;
 import org.sentrysoftware.metricshub.agent.deserialization.MonitorJobsDeserializer;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.MonitorJob;
 import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
@@ -82,7 +83,10 @@ public class ResourceConfig {
 	@JsonSetter(nulls = SKIP)
 	private Map<String, Double> metrics = new HashMap<>();
 
-	private ProtocolsConfig protocols;
+	@Default
+	@JsonSetter(nulls = SKIP)
+	@JsonDeserialize(using = ExtensionProtocolsDeserializer.class)
+	private Map<String, IConfiguration> protocols = new HashMap<>();
 
 	@Default
 	@JsonSetter(nulls = SKIP)
