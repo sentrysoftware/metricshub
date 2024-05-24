@@ -152,7 +152,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 	SnmpConfigCli snmpConfigCli;
 
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline SNMP V3 Options|@:%n")
-	SnmpV3ConfigCli snmpv3ConfigCli;
+	SnmpV3ConfigCli snmpV3ConfigCli;
 
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline HTTP Options|@:%n")
 	HttpConfigCli httpConfigCli;
@@ -445,7 +445,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 			.of(
 				ipmiConfigCli,
 				snmpConfigCli,
-				snmpv3ConfigCli,
+				snmpV3ConfigCli,
 				sshConfigCli,
 				httpConfigCli,
 				wmiConfigCli,
@@ -482,7 +482,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 			.of(
 				ipmiConfigCli,
 				snmpConfigCli,
-				snmpv3ConfigCli,
+				snmpV3ConfigCli,
 				sshConfigCli,
 				httpConfigCli,
 				wmiConfigCli,
@@ -554,6 +554,8 @@ public class MetricsHubCliService implements Callable<Integer> {
 		tryInteractiveWbemPassword(passwordReader);
 
 		tryInteractiveWinRmPassword(passwordReader);
+
+		tryInteractiveSnmpV3Password(passwordReader);
 	}
 
 	/**
@@ -630,6 +632,17 @@ public class MetricsHubCliService implements Callable<Integer> {
 	void tryInteractiveWinRmPassword(final CliPasswordReader<char[]> passwordReader) {
 		if (winRmConfigCli != null && winRmConfigCli.getUsername() != null && winRmConfigCli.getPassword() == null) {
 			winRmConfigCli.setPassword(passwordReader.read("%s password for WinRM: ", winRmConfigCli.getUsername()));
+		}
+	}
+
+	/**
+	 * Try to start the interactive mode to request and set SNMP V3 password
+	 *
+	 * @param passwordReader password reader which displays the prompt text and wait for user's input
+	 */
+	void tryInteractiveSnmpV3Password(final CliPasswordReader<char[]> passwordReader) {
+		if (snmpV3ConfigCli != null && snmpV3ConfigCli.getUsername() != null && snmpV3ConfigCli.getPassword() == null) {
+			snmpV3ConfigCli.setPassword(passwordReader.read("%s password for SNMP V3: ", snmpV3ConfigCli.getUsername()));
 		}
 	}
 
