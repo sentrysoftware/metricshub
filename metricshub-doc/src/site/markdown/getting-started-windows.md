@@ -3,6 +3,8 @@ description: Short step-by-step instructions to follow for installing and config
 
 # Quick Start - Windows
 
+<!-- MACRO{toc|fromDepth=1|toDepth=1|id=toc} -->
+
 This quick start guide provides step-by-step instructions for operating MetricsHub and Prometheus in a Windows environment, ensuring you can efficiently monitor your systems.
 
 After completing this quick start, you will have:
@@ -31,7 +33,7 @@ The easiest way to create your configuration file is to copy the configuration e
 
 ### Configure localhost monitoring
 
-You can configure the monitoring of your localhost through WMI by setting the `resources` section as follows: 
+Set the `resources` section as follows to monitor your localhost through WMI: 
 
 ```yaml
 resources:
@@ -86,17 +88,17 @@ MetricsHubServiceManager.exe
 
 ### Verify that metrics are sent to Prometheus
 
-In [Prometheus](http://localhost:9090), search for any metrics starting with `metricshub_` to confirm that data is actually received. 
+In [Prometheus](http://localhost:9090), search for any metrics starting with `metricshub_` or `hw_` to confirm that data is actually received. 
 
 
 ### Check Logs
 
-Several log files are created under `C:\Users\{Username}\AppData\Local\metricshub\logs` as soon as the MetricsHub agent is started:
+Several log files are created under `C:\Users\{Username}\AppData\Local\metricshub\logs` as soon as the MetricsHub Agent is started:
 
 * a global `MetricsHub` log file
 * one log file per configured host. 
 
-You can set the log level in the `C:\ProgramData\metricshub\config\metricshub.yaml` file by setting the `loggerLevel` parameter to:
+You can configure the log level in the `C:\ProgramData\metricshub\config\metricshub.yaml` file by setting the `loggerLevel` parameter to:
 
 * `info` for high level information
 * `warn` for logging warning messages that indicate potential issues which are not immediately critical
@@ -107,7 +109,7 @@ The most common errors you may encounter are:
 
 1. **Incorrect Indentation**
 
-    An incorrect indentation in the `metricshub.yaml` file prevents the MetricsHub Agent from starting and  generates the `metricshub-agent-global-error-{timestamp}.log` file with the following exception:
+    An incorrect indentation in the `metricshub.yaml` file prevents the MetricsHub Agent from starting and  generates the following exception in the `metricshub-agent-global-error-{timestamp}.log`:
 
     ```
     [2024-04-30T15:56:16,944][ERROR][o.s.m.a.MetricsHubAgentApplication] Failed to start MetricsHub Agent.
