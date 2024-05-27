@@ -123,6 +123,8 @@ public class PrettyPrinterService {
 				excludedMonitorTypes.add(type.substring(1));
 			}
 		}
+		
+		// Build monitor children hierarchy
 		final MonitorChildren root = MonitorChildren.build(
 			telemetryManager.getEndpointHostMonitor(),
 			telemetryManager
