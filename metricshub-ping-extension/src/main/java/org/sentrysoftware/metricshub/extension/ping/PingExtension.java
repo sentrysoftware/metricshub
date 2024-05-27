@@ -99,7 +99,7 @@ public class PingExtension implements IProtocolExtension {
 		final Monitor hostMonitor = telemetryManager.getEndpointHostMonitor();
 
 		// Create and set the Ping result to null
-		Boolean pingResult = false;
+		boolean pingResult = false;
 
 		// Retrieve Ping configuration from the telemetry manager
 		final PingConfiguration pingConfiguration = (PingConfiguration) telemetryManager
@@ -115,12 +115,7 @@ public class PingExtension implements IProtocolExtension {
 
 		// Execute a Ping request
 		try {
-			pingResult =
-				pingRequestExecutor.ping(
-					hostname,
-					pingConfiguration.getMaxAttempts(),
-					(int) (long) pingConfiguration.getTimeout()
-				);
+			pingResult = pingRequestExecutor.ping(hostname, (int) pingConfiguration.getTimeout().longValue());
 		} catch (Exception e) {
 			log.debug("Hostname {} - Checking Ping protocol status. Exception when performing a Ping request: ", hostname, e);
 		}
@@ -128,12 +123,7 @@ public class PingExtension implements IProtocolExtension {
 		// Generate a metric from the Ping result
 		// CHECKSTYLE:OFF
 		new MetricFactory()
-			.collectNumberMetric(
-				hostMonitor,
-				PING_UP_METRIC,
-				Boolean.TRUE.equals(pingResult) ? UP : DOWN,
-				telemetryManager.getStrategyTime()
-			);
+			.collectNumberMetric(hostMonitor, PING_UP_METRIC, pingResult ? UP : DOWN, telemetryManager.getStrategyTime());
 		// CHECKSTYLE:ON
 	}
 

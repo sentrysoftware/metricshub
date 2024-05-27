@@ -46,10 +46,6 @@ public class PingConfiguration implements IConfiguration {
 
 	@Default
 	@JsonSetter(nulls = SKIP)
-	private final Integer maxAttempts = 0;
-
-	@Default
-	@JsonSetter(nulls = SKIP)
 	@JsonDeserialize(using = TimeDeserializer.class)
 	private final Long timeout = 2L;
 
@@ -65,19 +61,6 @@ public class PingConfiguration implements IConfiguration {
 					resourceKey,
 					"Ping",
 					timeout
-				)
-		);
-
-		StringHelper.validateConfigurationAttribute(
-			maxAttempts,
-			attr -> attr == null || attr < 0,
-			() ->
-				String.format(
-					"Resource %s - Invalid maximum attempts number configured for %s. Max attemps value returned: %s." +
-					" This resource will not be monitored. Please verify the configured maxAttempts value.",
-					resourceKey,
-					"Ping",
-					maxAttempts
 				)
 		);
 	}

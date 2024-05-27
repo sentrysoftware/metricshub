@@ -90,7 +90,7 @@ class PingExtensionTest {
 		initPing();
 
 		// Mock false protocol health check response
-		doReturn(false).when(pingRequestExecutorMock).ping(anyString(), anyInt(), anyInt());
+		doReturn(false).when(pingRequestExecutorMock).ping(anyString(), anyInt());
 
 		pingExtension.checkProtocol(telemetryManager);
 
@@ -102,7 +102,7 @@ class PingExtensionTest {
 		initPing();
 
 		// Mock ICMP Ping protocol health check response
-		doReturn(true).when(pingRequestExecutorMock).ping(anyString(), anyInt(), anyInt());
+		doReturn(true).when(pingRequestExecutorMock).ping(anyString(), anyInt());
 
 		pingExtension.checkProtocol(telemetryManager);
 
@@ -150,12 +150,12 @@ class PingExtensionTest {
 		configuration.set("timeout", new TextNode("120"));
 
 		assertEquals(
-			PingConfiguration.builder().maxAttempts(443).timeout(120L).build(),
+			PingConfiguration.builder().timeout(120L).build(),
 			pingExtension.buildConfiguration("ping", configuration, value -> value)
 		);
 
 		assertEquals(
-			PingConfiguration.builder().maxAttempts(443).timeout(120L).build(),
+			PingConfiguration.builder().timeout(120L).build(),
 			pingExtension.buildConfiguration("ping", configuration, null)
 		);
 	}

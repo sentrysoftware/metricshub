@@ -21,29 +21,22 @@ package org.sentrysoftware.metricshub.extension.ping;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import org.sentrysoftware.metricshub.engine.strategy.utils.RetryOperation;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class PingRequestExecutor {
 
-	Boolean ping(String hostname, int maxAttempts, int timeout) throws UnknownHostException {
-		InetAddress pingAddress = InetAddress.getByName(hostname);
+	boolean ping(String hostname, int timeout) throws UnknownHostException {
+		final InetAddress pingAddress = InetAddress.getByName(hostname);
 
-		return RetryOperation
-			.<Boolean>builder()
-			.withDescription(String.format("Ping %s", hostname))
-			.withDefaultValue(false)
-			.withMaxRetries(maxAttempts)
-			.withHostname(hostname)
-			.build()
-			.run(() -> {
-				try {
-					return pingAddress.isReachable(timeout);
-				} catch (Exception e) {
-					e.printStackTrace();
-					return false;
-				}
-			});
+		try {
+			return pingAddress.isReachable(timeout);
+		} catch (IOException e) {
+			log.error("Hostname {}. A network error occurred: %s", hostname, e);
+			return false;
+		}
 	}
 }

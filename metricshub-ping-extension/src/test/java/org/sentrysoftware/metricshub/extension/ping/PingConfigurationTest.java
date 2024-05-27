@@ -17,22 +17,12 @@ class PingConfigurationTest {
 	void testValidateConfiguration() {
 		assertThrows(
 			InvalidConfigurationException.class,
-			() -> PingConfiguration.builder().timeout(-60L).maxAttempts(1234).build().validateConfiguration(RESOURCE_KEY)
+			() -> PingConfiguration.builder().timeout(-60L).build().validateConfiguration(RESOURCE_KEY)
 		);
 		assertThrows(
 			InvalidConfigurationException.class,
-			() -> PingConfiguration.builder().timeout(null).maxAttempts(1234).build().validateConfiguration(RESOURCE_KEY)
+			() -> PingConfiguration.builder().timeout(null).build().validateConfiguration(RESOURCE_KEY)
 		);
-		assertThrows(
-			InvalidConfigurationException.class,
-			() -> PingConfiguration.builder().timeout(60L).maxAttempts(-1).build().validateConfiguration(RESOURCE_KEY)
-		);
-		assertThrows(
-			InvalidConfigurationException.class,
-			() -> PingConfiguration.builder().timeout(60L).maxAttempts(null).build().validateConfiguration(RESOURCE_KEY)
-		);
-		assertDoesNotThrow(() ->
-			PingConfiguration.builder().timeout(60L).maxAttempts(1234).build().validateConfiguration(RESOURCE_KEY)
-		);
+		assertDoesNotThrow(() -> PingConfiguration.builder().timeout(60L).build().validateConfiguration(RESOURCE_KEY));
 	}
 }
