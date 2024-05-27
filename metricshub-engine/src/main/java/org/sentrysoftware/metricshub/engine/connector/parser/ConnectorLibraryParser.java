@@ -82,8 +82,14 @@ public class ConnectorLibraryParser {
 			}
 			final ConnectorParser connectorParser = ConnectorParser.withNodeProcessorAndUpdateChain(file.getParent());
 
-			final Connector connector = connectorParser.parse(file.toFile());
-			connectorsMap.put(filename.substring(0, filename.lastIndexOf('.')), connector);
+			try {
+				final Connector connector = connectorParser.parse(file.toFile());
+				connectorsMap.put(filename.substring(0, filename.lastIndexOf('.')), connector);
+			} catch (Exception e) {
+				log.error("Error while parsing connector {}", filename);
+				log.trace("Error while parsing connector {}: {}", filename, e.getMessage());
+				return FileVisitResult.CONTINUE;
+			}
 
 			return FileVisitResult.CONTINUE;
 		}
