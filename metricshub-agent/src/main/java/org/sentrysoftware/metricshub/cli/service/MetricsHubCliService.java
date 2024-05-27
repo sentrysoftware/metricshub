@@ -237,7 +237,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		order = 10,
 		paramLabel = "<types>",
 		split = ",",
-		description = "Comma-separated list of monitor types to filter and display. Examples: disk,file_system,memory,cpu "
+		description = "Comma-separated list of monitor types to filter. %nExamples: +disk,+file_system,-memory"
 	)
 	Set<String> monitorTypes;
 

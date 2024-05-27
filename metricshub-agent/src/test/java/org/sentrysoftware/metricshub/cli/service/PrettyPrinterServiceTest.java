@@ -202,9 +202,9 @@ class PrettyPrinterServiceTest {
 		final PrintWriter printWriter = new PrintWriter(writer);
 
 		HashSet<String> monitorTypes = new HashSet<>();
-		monitorTypes.add(battery2.getType());
-		monitorTypes.add(battery1.getType());
-		monitorTypes.add(enclosure.getType());
+		monitorTypes.add("+" + battery2.getType());
+		monitorTypes.add("+" + battery1.getType());
+		monitorTypes.add("+" + enclosure.getType());
 
 		// Create a new PrettyPrinterService using the TelemetryManager and PrintWriter
 		// and call the print method

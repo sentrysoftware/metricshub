@@ -295,9 +295,10 @@ $ metricshub SERVER01 -t oob --snmp v2c --community public --iterations 2 --slee
 ## Filtering Monitor Types
 
 Use the `--monitors` option to filter and display specific monitor types. This option accepts a comma-separated list of monitor types.
+Inclusion has priority over exclusion.
 
 ```batch
-$ metricshub STOR02 -t storage --snmpv3 --snmpv3-auth SHA --snmpv3-username USERA --snmpv3-password MySECRET --snmpv3-privacy DES --snmpv3-retryIntervals 5,10,15 --snmpv3-privacy-password MyPrivacySECRET --monitors memory,cpu,file_system
+$ metricshub STOR02 -t storage --snmpv3 --snmpv3-auth SHA --snmpv3-username USERA --snmpv3-password MySECRET --snmpv3-privacy DES --snmpv3-retryIntervals 5,10,15 --snmpv3-privacy-password MyPrivacySECRET --monitors +memory,-cpu,+file_system
 ```
 
 
