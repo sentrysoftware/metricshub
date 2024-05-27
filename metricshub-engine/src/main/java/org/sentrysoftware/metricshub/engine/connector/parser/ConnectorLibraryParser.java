@@ -87,8 +87,7 @@ public class ConnectorLibraryParser {
 				connectorsMap.put(filename.substring(0, filename.lastIndexOf('.')), connector);
 			} catch (Exception e) {
 				log.error("Error while parsing connector {}", filename);
-				log.trace("Error while parsing connector {}: {}", filename, e.getMessage());
-				return FileVisitResult.CONTINUE;
+				log.debug("Error while parsing connector {}: {}", filename, e.getMessage());
 			}
 
 			return FileVisitResult.CONTINUE;
@@ -133,10 +132,11 @@ public class ConnectorLibraryParser {
 									final Connector connector;
 									try {
 										connector = connectorParser.parse(Files.newInputStream(path), connectorFolderUri, fileName);
-									} catch (IOException e) {
-										throw new IllegalStateException(e);
+										connectorsMap.put(fileName.substring(0, fileName.lastIndexOf('.')), connector);
+									} catch (Exception e) {
+										log.error("Error while parsing connector {}", fileName);
+										log.debug("Error while parsing connector {}: {}", fileName, e.getMessage());
 									}
-									connectorsMap.put(fileName.substring(0, fileName.lastIndexOf('.')), connector);
 								}
 							);
 
