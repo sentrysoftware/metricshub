@@ -136,6 +136,8 @@ public class PrettyPrinterService {
 				.filter(monitor -> !excludedMonitorTypes.contains(monitor.getType()))
 				.toList()
 		);
+		
+		// Run the print over the root element
 		print(root, 0);
 	}
 
