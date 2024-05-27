@@ -26,9 +26,21 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * PingRequestExecutor is responsible for sending ping requests to a specified host to verify its reachability.
+ * It utilizes the ICMP protocol to perform the ping operation.
+ */
 @Slf4j
 public class PingRequestExecutor {
 
+	/**
+	 * Sends a ping request to the specified host to verify its reachability using the ICMP protocol.
+	 * 
+	 * @param hostname The name of the host that will be tested. It must be a valid hostname or IP address.
+	 * @param timeout  The timeout in milliseconds for the ping request.
+	 * @return true if the host is reachable within the specified timeout; false otherwise.
+	 * @throws UnknownHostException if the host cannot be determined from the given hostname.
+	 */
 	boolean ping(String hostname, int timeout) throws UnknownHostException {
 		final InetAddress pingAddress = InetAddress.getByName(hostname);
 
