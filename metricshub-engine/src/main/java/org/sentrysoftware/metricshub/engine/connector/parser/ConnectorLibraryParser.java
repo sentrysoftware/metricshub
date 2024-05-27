@@ -46,6 +46,8 @@ import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 @Slf4j
 public class ConnectorLibraryParser {
 
+	public static final String CONNECTOR_PARSING_ERROR = "Error while parsing connector {}: {}";
+
 	/**
 	 * The ObjectMapper instance for handling YAML files.
 	 */
@@ -86,8 +88,8 @@ public class ConnectorLibraryParser {
 				final Connector connector = connectorParser.parse(file.toFile());
 				connectorsMap.put(filename.substring(0, filename.lastIndexOf('.')), connector);
 			} catch (Exception e) {
-				log.error("Error while parsing connector {}", filename);
-				log.debug("Error while parsing connector {}: {}", filename, e.getMessage());
+				log.error(CONNECTOR_PARSING_ERROR, filename, e.getMessage());
+				log.debug(CONNECTOR_PARSING_ERROR, filename, e);
 			}
 
 			return FileVisitResult.CONTINUE;
@@ -134,8 +136,8 @@ public class ConnectorLibraryParser {
 										connector = connectorParser.parse(Files.newInputStream(path), connectorFolderUri, fileName);
 										connectorsMap.put(fileName.substring(0, fileName.lastIndexOf('.')), connector);
 									} catch (Exception e) {
-										log.error("Error while parsing connector {}", fileName);
-										log.debug("Error while parsing connector {}: {}", fileName, e.getMessage());
+										log.error(CONNECTOR_PARSING_ERROR, fileName, e.getMessage());
+										log.debug(CONNECTOR_PARSING_ERROR, fileName, e);
 									}
 								}
 							);
