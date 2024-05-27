@@ -110,8 +110,6 @@ This will start MetricsHub with the configuration file located at `/opt/metricsH
 
 To check whether the metrics are correctly received in Prometheus, search for any metric that starts with `metricshub_` or `hw_` in the expression search bar, then click on execute.
 
-   ![Prometheus interface](images/prometheus-interface.png)
-
 ### Check Logs
 
 After launching the Agent, a log file is created for each configured host, in addition to a global MetricsHub log file. The logs can be found at:
@@ -135,11 +133,7 @@ Set the `loggerLevel` parameter to:
 
     If the indentation is not respected in the `metricshub.yaml` configuration file, the MetricsHub agent will not start.
 
-    ![Wrong Indentation](images/wrong-indentation.png)
-
     An error log file `metricshub-agent-global-error-{timestamp}.log` will be generated in the logs directory.
-
-    ![MetricsHub Agent global error log file](images/metricshub-agent-global-error-log.png)
 
     This will include the following exception:
 
@@ -154,12 +148,3 @@ Set the `loggerLevel` parameter to:
     ```
 
     If the host is correct, make sure to test your network, and check if it is reachable by pinging it.
-
-
-3. **Problem During Connectors Deserialization**
-
-    If you modified a connector, or tried to create a new connector that does not parse, MetricsHub will not be able to run for any host. The global log file named `metricshub-agent-global--{timestamp}.log` will include the following exception:
-
-    ![Deserialization Exception](images/deserialization-exception.png)
-
-    To remedy this, make sure to use only the original connectors that parse correctly.
