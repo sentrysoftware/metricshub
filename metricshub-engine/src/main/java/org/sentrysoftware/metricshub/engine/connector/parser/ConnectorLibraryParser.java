@@ -89,7 +89,7 @@ public class ConnectorLibraryParser {
 				connectorsMap.put(filename.substring(0, filename.lastIndexOf('.')), connector);
 			} catch (Exception e) {
 				log.error(CONNECTOR_PARSING_ERROR, filename, e.getMessage());
-				log.debug(CONNECTOR_PARSING_ERROR, filename, e);
+				log.debug("Exception: ", e);
 			}
 
 			return FileVisitResult.CONTINUE;
@@ -137,7 +137,7 @@ public class ConnectorLibraryParser {
 										connectorsMap.put(fileName.substring(0, fileName.lastIndexOf('.')), connector);
 									} catch (Exception e) {
 										log.error(CONNECTOR_PARSING_ERROR, fileName, e.getMessage());
-										log.debug(CONNECTOR_PARSING_ERROR, fileName, e);
+										log.debug("Exception: ", e);
 									}
 								}
 							);
