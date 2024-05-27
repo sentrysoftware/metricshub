@@ -115,12 +115,13 @@ public class PrettyPrinterService {
 		final Set<String> includedMonitorTypes = new HashSet<>();
 		final Set<String> excludedMonitorTypes = new HashSet<>();
 
-		// Separate included and excluded monitor types based on + and - prefixes
-		for (String type : monitorTypes) {
-			if (type.startsWith("+")) {
-				includedMonitorTypes.add(type.substring(1));
-			} else if (type.startsWith("-")) {
-				excludedMonitorTypes.add(type.substring(1));
+		if (monitorTypes != null) {
+			for (String type : monitorTypes) {
+				if (type.startsWith("+")) {
+					includedMonitorTypes.add(type.substring(1));
+				} else if (type.startsWith("-")) {
+					excludedMonitorTypes.add(type.substring(1));
+				}
 			}
 		}
 
@@ -134,8 +135,8 @@ public class PrettyPrinterService {
 				.map(Map::values)
 				.flatMap(Collection::stream)
 				.filter(monitor -> !monitor.isEndpointHost())
-				.filter(monitor -> includedMonitorTypes.contains(monitor.getType()))
-				.filter(monitor -> !excludedMonitorTypes.contains(monitor.getType()))
+				.filter(monitor -> monitorTypes == null || includedMonitorTypes.contains(monitor.getType()))
+				.filter(monitor -> monitorTypes == null || !excludedMonitorTypes.contains(monitor.getType()))
 				.toList()
 		);
 
