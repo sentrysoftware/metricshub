@@ -292,3 +292,12 @@ duration in seconds of the pause between two collect operations.
 ```batch
 $ metricshub SERVER01 -t oob --snmp v2c --community public --iterations 2 --sleep-iteration 5
 ```
+## Filtering Monitor Types
+
+Use the `--monitors` option to filter and display specific monitor types. This option accepts a comma-separated list of monitor types.
+
+```batch
+$ metricshub STOR02 -t storage --snmpv3 --snmpv3-auth SHA --snmpv3-username USERA --snmpv3-password MySECRET --snmpv3-privacy DES --snmpv3-retryIntervals 5,10,15 --snmpv3-privacy-password MyPrivacySECRET --monitors memory,cpu,file_system
+```
+
+

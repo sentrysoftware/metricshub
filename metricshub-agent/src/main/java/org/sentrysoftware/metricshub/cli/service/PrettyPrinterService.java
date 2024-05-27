@@ -40,6 +40,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -68,6 +69,11 @@ import org.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
 @Data
 public class PrettyPrinterService {
 
+	// Constant for red color ANSI escape sequence
+	private static final String ANSI_RED = "\u001B[31m";
+	// Constant to reset the color to default
+	private static final String ANSI_RESET = "\u001B[0m";
+
 	// @formatter:off
 	/**
 	 * Defines the priority order for different monitor types
@@ -91,6 +97,8 @@ public class PrettyPrinterService {
 
 	private MetricDefinitions hostMetricDefinitions;
 
+	private Set<String> monitorsToDisplay;
+
 	/**
 	 * Constructs a new {@code PrettyPrinterService} instance with the specified {@link TelemetryManager} and {@link PrintWriter}.
 	 *
@@ -106,24 +114,51 @@ public class PrettyPrinterService {
 	}
 
 	/**
-	 * Print the current {@link TelemetryManager} result in a human-readable way.
+	 * Prints the current {@link TelemetryManager} result in a human-readable way.
+	 *
+	 * @param monitorTypes The set of monitor types to print. If null or empty, all monitors are printed.
 	 */
-	public void print() {
-		// Build monitor children hierarchy
+	public void print(Set<String> monitorTypes) {
+		final List<Monitor> monitors = getMonitorsExcludingEndpointHosts();
+		validateMonitorTypes(monitorTypes, monitors);
 		final MonitorChildren root = MonitorChildren.build(
 			telemetryManager.getEndpointHostMonitor(),
-			telemetryManager
-				.getMonitors()
-				.values()
-				.stream()
-				.map(Map::values)
-				.flatMap(Collection::stream)
-				.filter(monitor -> !monitor.isEndpointHost())
-				.toList()
+			monitors.stream().filter(monitor -> monitorTypes.contains(monitor.getType())).toList()
 		);
-
-		// Run the print over the root element
 		print(root, 0);
+	}
+
+	/**
+	 * Retrieves monitors excluding endpoint hosts.
+	 *
+	 * @return List of monitors excluding endpoint hosts.
+	 */
+	private List<Monitor> getMonitorsExcludingEndpointHosts() {
+		return telemetryManager
+			.getMonitors()
+			.values()
+			.stream()
+			.map(Map::values)
+			.flatMap(Collection::stream)
+			.filter(monitor -> !monitor.isEndpointHost())
+			.toList();
+	}
+
+	/**
+	 * Validates provided monitor types against existing monitors and prints error messages if any monitor type does not exist.
+	 *
+	 * @param monitorTypes The set of monitor types to validate.
+	 * @param monitors     The list of existing monitors.
+	 */
+	private void validateMonitorTypes(final Set<String> monitorTypes, final List<Monitor> monitors) {
+		final Set<String> existingMonitorTypes = monitors.stream().map(Monitor::getType).collect(Collectors.toSet());
+
+		for (final String monitorType : monitorTypes) {
+			if (!existingMonitorTypes.contains(monitorType)) {
+				// Print error message in red
+				System.err.println(ANSI_RED + "Monitor type '" + monitorType + "' does not exist." + ANSI_RESET);
+			}
+		}
 	}
 
 	/**
