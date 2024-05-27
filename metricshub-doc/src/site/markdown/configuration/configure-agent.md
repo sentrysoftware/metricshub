@@ -592,7 +592,7 @@ resourceGroups:
             timeout: 120s
             username: myusername
             password: mypwd
-        connectors: [ +VMwareESX4i, +VMwareESXi, "#system" ]
+        connectors: [ "#system" ]
 ```
 
 * To force a connector, precede the connector identifier with a plus sign (`+`), as in `+MIB2`.
