@@ -35,7 +35,7 @@ public class PingRequestExecutor {
 
 	/**
 	 * Sends a ping request to the specified host to verify its reachability using the ICMP protocol.
-	 * 
+	 *
 	 * @param hostname The name of the host that will be tested. It must be a valid hostname or IP address.
 	 * @param timeout  The timeout in milliseconds for the ping request.
 	 * @return true if the host is reachable within the specified timeout; false otherwise.
