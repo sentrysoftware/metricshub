@@ -204,10 +204,10 @@ $ metricshub SERVER01 -t oob --snmp v2c --community public --connectors +MIB2,#h
 ```
 
 - To force a connector, precede the connector identifier with a plus sign (`+`), as in `+MIB2`.
-- To exclude a connector from automatic detection, precede the connector identifier with a minus sign (`-`), like `-Windows`.
+- To exclude a connector from automatic detection, precede the connector identifier with an exclamation mark (`!`), like `-Windows`.
 - To stage a connector for processing by automatic detection, configure the connector identifier, for instance, `MIB2`.
 - To stage a category of connectors for processing by automatic detection, precede the category tag with a hash (`#`), such as `#hardware` or `#system`.
-- To exclude a category of connectors from automatic detection, precede the category tag to be excluded with a minus and a hash sign (`-#`), such as `-#system`.
+- To exclude a category of connectors from automatic detection, precede the category tag to be excluded with an exclamation mark and a hash sign (`!#`), such as `!#system`.
 
 #### Examples
 
@@ -219,7 +219,7 @@ $ metricshub SERVER01 -t oob --snmp v2c --community public --connectors +MIB2,#h
 
 - Example 2:
   ```batch
-  $ metricshub SERVER01 -t win --wmi --connectors -#hardware,#system
+  $ metricshub SERVER01 -t win --wmi --connectors !#hardware,#system
   ```
   The core engine will perform automatic detection on connectors categorized under `system`, excluding those categorized under `hardware`.
 
@@ -237,7 +237,7 @@ $ metricshub SERVER01 -t oob --snmp v2c --community public --connectors +MIB2,#h
 
 - Example 5:
   ```batch
-  $ metricshub SERVER01 -t win --wmi --connectors DiskPart,-#system
+  $ metricshub SERVER01 -t win --wmi --connectors DiskPart,!#system
   ```
   The core engine will perform automatic detection exclusively on the `DiskPart` connector.
 
@@ -255,7 +255,7 @@ $ metricshub SERVER01 -t oob --snmp v2c --community public --connectors +MIB2,#h
 
 - Example 8:
   ```batch
-  metricshub SERVER01 -t win --snmp v2c --community public --connectors "#hardware,-MIB2"
+  metricshub SERVER01 -t win --snmp v2c --community public --connectors "#hardware,!MIB2"
   ```
   The core engine will perform automatic detection on connectors categorized under `hardware`, excluding the `MIB2` connector.
 
