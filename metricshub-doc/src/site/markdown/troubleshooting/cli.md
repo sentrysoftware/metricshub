@@ -249,7 +249,7 @@ $ metricshub SERVER01 -t oob --snmp v2c --community public --connectors +MIB2,#h
 
 - Example 7:
   ```batch
-  metricshub SERVER01 -t win --snmp v2c --community public --connectors -Linux
+  metricshub SERVER01 -t win --snmp v2c --community public --connectors !Linux
   ```
   The core engine will perform automatic detection on all connectors except the `Linux` connector.
 
