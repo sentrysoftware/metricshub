@@ -200,11 +200,11 @@ The connectors are automatically selected based on the device type provided and 
 The `--connectors` CLI option allows you to force, select, or exclude specific connectors. Connector identifiers or category tags should be separated by commas, as illustrated in the example below:
 
 ```batch
-$ metricshub SERVER01 -t oob --snmp v2c --community public --connectors +MIB2,#hardware,-Windows
+$ metricshub SERVER01 -t oob --snmp v2c --community public --connectors +MIB2,#hardware,!Windows
 ```
 
 - To force a connector, precede the connector identifier with a plus sign (`+`), as in `+MIB2`.
-- To exclude a connector from automatic detection, precede the connector identifier with an exclamation mark (`!`), like `-Windows`.
+- To exclude a connector from automatic detection, precede the connector identifier with an exclamation mark (`!`), like `!Windows`.
 - To stage a connector for processing by automatic detection, configure the connector identifier, for instance, `MIB2`.
 - To stage a category of connectors for processing by automatic detection, precede the category tag with a hash (`#`), such as `#hardware` or `#system`.
 - To exclude a category of connectors from automatic detection, precede the category tag to be excluded with an exclamation mark and a hash sign (`!#`), such as `!#system`.
