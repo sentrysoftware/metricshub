@@ -109,7 +109,8 @@ public class PrettyPrinterService {
 	/**
 	 * Prints the current {@link TelemetryManager} result in a human-readable way.
 	 *
-	 * @param monitorTypes The set of monitor types to print. If null or empty, all monitors are printed.
+	 * @param monitorTypes monitorTypes The set of monitor types to print.
+	 *  			If null, all monitors are printed.
 	 */
 	public void print(Set<String> monitorTypes) {
 		final Set<String> includedMonitorTypes = new HashSet<>();
@@ -119,7 +120,7 @@ public class PrettyPrinterService {
 			for (String type : monitorTypes) {
 				if (type.startsWith("+")) {
 					includedMonitorTypes.add(type.substring(1));
-				} else if (type.startsWith("-")) {
+				} else if (type.startsWith("!")) {
 					excludedMonitorTypes.add(type.substring(1));
 				}
 			}
@@ -135,8 +136,8 @@ public class PrettyPrinterService {
 				.map(Map::values)
 				.flatMap(Collection::stream)
 				.filter(monitor -> !monitor.isEndpointHost())
-				.filter(monitor -> monitorTypes == null || includedMonitorTypes.contains(monitor.getType()))
-				.filter(monitor -> monitorTypes == null || !excludedMonitorTypes.contains(monitor.getType()))
+				.filter(monitor -> includedMonitorTypes.isEmpty() || includedMonitorTypes.contains(monitor.getType()))
+				.filter(monitor -> excludedMonitorTypes.isEmpty() || !excludedMonitorTypes.contains(monitor.getType()))
 				.toList()
 		);
 

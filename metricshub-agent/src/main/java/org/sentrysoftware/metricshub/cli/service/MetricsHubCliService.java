@@ -233,11 +233,11 @@ public class MetricsHubCliService implements Callable<Integer> {
 	long sleepIteration;
 
 	@Option(
-		names = { "--monitors" },
+		names = { "-m", "--monitors" },
 		order = 10,
-		paramLabel = "<types>",
+		paramLabel = "MONITORS",
 		split = ",",
-		description = "Comma-separated list of monitor types to filter. %nExamples: +disk,+file_system,-memory"
+		description = "Comma-separated list of monitor types to filter. %nExamples: +disk,+file_system,!memory"
 	)
 	Set<String> monitorTypes;
 
