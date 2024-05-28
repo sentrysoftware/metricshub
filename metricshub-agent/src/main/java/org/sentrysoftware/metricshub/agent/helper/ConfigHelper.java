@@ -521,7 +521,10 @@ public class ConfigHelper {
 		}
 
 		// Set agent attributes in the agent configuration attributes map
-		mergeAttributes(agentConfig.getAttributes(), resourceConfig.getAttributes());
+		final Map<String, String> attributes = new HashMap<>();
+		mergeAttributes(agentConfig.getAttributes(), attributes);
+		mergeAttributes(resourceConfig.getAttributes(), attributes);
+		resourceConfig.setAttributes(attributes);
 
 		// Create an identity for the configured connector
 		normalizeConfiguredConnector(
@@ -596,7 +599,10 @@ public class ConfigHelper {
 		}
 
 		// Set agent attributes in the resource group attributes map
-		mergeAttributes(resourceGroupConfig.getAttributes(), resourceConfig.getAttributes());
+		final Map<String, String> attributes = new HashMap<>();
+		mergeAttributes(resourceGroupConfig.getAttributes(), attributes);
+		mergeAttributes(resourceConfig.getAttributes(), attributes);
+		resourceConfig.setAttributes(attributes);
 
 		// Create an identity for the configured connector
 		normalizeConfiguredConnector(
@@ -667,7 +673,10 @@ public class ConfigHelper {
 		}
 
 		// Set agent attributes in the resource group attributes map
-		mergeAttributes(agentConfig.getAttributes(), resourceGroupConfig.getAttributes());
+		final Map<String, String> attributes = new HashMap<>();
+		mergeAttributes(agentConfig.getAttributes(), attributes);
+		mergeAttributes(resourceGroupConfig.getAttributes(), attributes);
+		resourceGroupConfig.setAttributes(attributes);
 	}
 
 	/**
