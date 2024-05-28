@@ -232,6 +232,15 @@ public class MetricsHubCliService implements Callable<Integer> {
 	)
 	long sleepIteration;
 
+	@Option(
+		names = { "-m", "--monitors" },
+		order = 10,
+		paramLabel = "MONITOR",
+		split = ",",
+		description = "Comma-separated list of monitor types to filter. %nExamples: +disk,+file_system,!memory"
+	)
+	Set<String> monitorTypes;
+
 	@Override
 	public Integer call() throws Exception {
 		// Check whether iterations is greater than 0. If it's not the case, throw a ParameterException
@@ -422,7 +431,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		}
 
 		// Print the result
-		new PrettyPrinterService(telemetryManager, printWriter).print();
+		new PrettyPrinterService(telemetryManager, printWriter).print(monitorTypes);
 
 		return CommandLine.ExitCode.OK;
 	}
