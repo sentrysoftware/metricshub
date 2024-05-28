@@ -143,22 +143,6 @@ $ metricshub MGMT06 -t oob --ipmi -u USER
 
 This command will connect to the `MGMT06` out-of-band `management` card (typically a BMC chip) using the `IPMI`-over-LAN protocol as `USER`.
 
-### VMware ESX, WBEM
-
-```batch
-$ metricshub ESX07 -t esx --wbem -u admin
-```
-
-This command will connect to the `ESX07` VMware `ESX` host using the `WBEM` protocol (HTTPS/5989 by default) with the `admin` account.
-
-### VMware vCenter, WBEM
-
-```batch
-$ metricshub ESX08 -t esx --wbem -u admin --wbem-vcenter=vcenter01
-```
-
-This command uses the multi-tier authentication `vcenter01` server, which provides a connection ticket to access the `ESX08` VMware `ESX` host via the `WBEM` protocol (HTTPS/5989 by default) with the `admin` account.
-
 ### Solaris, SSH
 
 ```batch
@@ -186,7 +170,6 @@ Examples of connectors:
 * Dell OpenManage Server Administrator (SNMP)
 * Network Cards on Windows (WMI)
 * IBM AIX physical disks, using system commands
-* VMware ESX (WBEM)
 * etc.
 
 When running the `metricshub` command, the connectors are automatically selected based on the specified system type and the protocol enabled. This is the detection phase.
@@ -292,3 +275,25 @@ duration in seconds of the pause between two collect operations.
 ```batch
 $ metricshub SERVER01 -t oob --snmp v2c --community public --iterations 2 --sleep-iteration 5
 ```
+## Filtering Monitor Types
+
+Use the `--monitors` option to filter the monitor types according to the specified inclusion or exclusion criteria.
+
+> **Note:** If both inclusion and exclusion are configured, the inclusion (`+`) has priority over exclusion (`!`).
+
+### Example 1: Display Only a Set of Monitor Types
+
+To display only specific monitor types, use the `--monitors` option with a `+` sign before each monitor type you want to include. For example, to display only memory and file system monitors:
+
+```batch
+$ metricshub STOR02 -t storage --snmpv3 --snmpv3-auth SHA --snmpv3-username USERA --snmpv3-password MySECRET --snmpv3-privacy DES --snmpv3-retryIntervals 5,10,15 --snmpv3-privacy-password MyPrivacySECRET --monitors +memory,+file_system
+```
+
+### Example 2: Exclude a Set of Monitor Types
+
+To exclude specific monitor types, use the `--monitors` option with a `!` sign before each monitor type you want to exclude. For example, to exclude CPU and disk monitors:
+
+```batch
+$ metricshub STOR02 -t storage --snmpv3 --snmpv3-auth SHA --snmpv3-username USERA --snmpv3-password MySECRET --snmpv3-privacy DES --snmpv3-retryIntervals 5,10,15 --snmpv3-privacy-password MyPrivacySECRET --monitors !cpu,!disk
+```
+

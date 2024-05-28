@@ -32,6 +32,7 @@ import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -106,9 +107,25 @@ public class PrettyPrinterService {
 	}
 
 	/**
-	 * Print the current {@link TelemetryManager} result in a human-readable way.
+	 * Prints the current {@link TelemetryManager} result in a human-readable way.
+	 *
+	 * @param monitorTypes monitorTypes The set of monitor types to print.
+	 *  			If null, all monitors are printed.
 	 */
-	public void print() {
+	public void print(Set<String> monitorTypes) {
+		final Set<String> includedMonitorTypes = new HashSet<>();
+		final Set<String> excludedMonitorTypes = new HashSet<>();
+
+		if (monitorTypes != null) {
+			for (String type : monitorTypes) {
+				if (type.startsWith("+")) {
+					includedMonitorTypes.add(type.substring(1));
+				} else if (type.startsWith("!")) {
+					excludedMonitorTypes.add(type.substring(1));
+				}
+			}
+		}
+
 		// Build monitor children hierarchy
 		final MonitorChildren root = MonitorChildren.build(
 			telemetryManager.getEndpointHostMonitor(),
@@ -119,6 +136,8 @@ public class PrettyPrinterService {
 				.map(Map::values)
 				.flatMap(Collection::stream)
 				.filter(monitor -> !monitor.isEndpointHost())
+				.filter(monitor -> includedMonitorTypes.isEmpty() || includedMonitorTypes.contains(monitor.getType()))
+				.filter(monitor -> !excludedMonitorTypes.contains(monitor.getType()))
 				.toList()
 		);
 
