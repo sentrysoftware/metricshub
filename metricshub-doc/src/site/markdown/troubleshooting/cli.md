@@ -275,3 +275,25 @@ duration in seconds of the pause between two collect operations.
 ```batch
 $ metricshub SERVER01 -t oob --snmp v2c --community public --iterations 2 --sleep-iteration 5
 ```
+## Filtering Monitor Types
+
+Use the `--monitors` option to filter the monitor types according to the specified inclusion or exclusion criteria.
+
+> **Note:** If both inclusion and exclusion are configured, the inclusion (`+`) has priority over exclusion (`!`).
+
+### Example 1: Display Only a Set of Monitor Types
+
+To display only specific monitor types, use the `--monitors` option with a `+` sign before each monitor type you want to include. For example, to display only memory and file system monitors:
+
+```batch
+$ metricshub STOR02 -t storage --snmpv3 --snmpv3-auth SHA --snmpv3-username USERA --snmpv3-password MySECRET --snmpv3-privacy DES --snmpv3-retryIntervals 5,10,15 --snmpv3-privacy-password MyPrivacySECRET --monitors +memory,+file_system
+```
+
+### Example 2: Exclude a Set of Monitor Types
+
+To exclude specific monitor types, use the `--monitors` option with a `!` sign before each monitor type you want to exclude. For example, to exclude CPU and disk monitors:
+
+```batch
+$ metricshub STOR02 -t storage --snmpv3 --snmpv3-auth SHA --snmpv3-username USERA --snmpv3-password MySECRET --snmpv3-privacy DES --snmpv3-retryIntervals 5,10,15 --snmpv3-privacy-password MyPrivacySECRET --monitors !cpu,!disk
+```
+
