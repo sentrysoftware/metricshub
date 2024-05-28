@@ -137,7 +137,7 @@ public class PrettyPrinterService {
 				.flatMap(Collection::stream)
 				.filter(monitor -> !monitor.isEndpointHost())
 				.filter(monitor -> includedMonitorTypes.isEmpty() || includedMonitorTypes.contains(monitor.getType()))
-				.filter(monitor -> excludedMonitorTypes.isEmpty() || !excludedMonitorTypes.contains(monitor.getType()))
+				.filter(monitor ->!excludedMonitorTypes.contains(monitor.getType()))
 				.toList()
 		);
 
