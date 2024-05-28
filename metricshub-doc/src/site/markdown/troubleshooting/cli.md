@@ -143,22 +143,6 @@ $ metricshub MGMT06 -t oob --ipmi -u USER
 
 This command will connect to the `MGMT06` out-of-band `management` card (typically a BMC chip) using the `IPMI`-over-LAN protocol as `USER`.
 
-### VMware ESX, WBEM
-
-```batch
-$ metricshub ESX07 -t esx --wbem -u admin
-```
-
-This command will connect to the `ESX07` VMware `ESX` host using the `WBEM` protocol (HTTPS/5989 by default) with the `admin` account.
-
-### VMware vCenter, WBEM
-
-```batch
-$ metricshub ESX08 -t esx --wbem -u admin --wbem-vcenter=vcenter01
-```
-
-This command uses the multi-tier authentication `vcenter01` server, which provides a connection ticket to access the `ESX08` VMware `ESX` host via the `WBEM` protocol (HTTPS/5989 by default) with the `admin` account.
-
 ### Solaris, SSH
 
 ```batch
@@ -186,7 +170,6 @@ Examples of connectors:
 * Dell OpenManage Server Administrator (SNMP)
 * Network Cards on Windows (WMI)
 * IBM AIX physical disks, using system commands
-* VMware ESX (WBEM)
 * etc.
 
 When running the `metricshub` command, the connectors are automatically selected based on the specified system type and the protocol enabled. This is the detection phase.
