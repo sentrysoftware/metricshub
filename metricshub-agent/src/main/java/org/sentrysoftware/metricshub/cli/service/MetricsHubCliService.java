@@ -235,7 +235,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 	@Option(
 		names = { "-m", "--monitors" },
 		order = 10,
-		paramLabel = "MONITORS",
+		paramLabel = "MONITOR",
 		split = ",",
 		description = "Comma-separated list of monitor types to filter. %nExamples: +disk,+file_system,!memory"
 	)
