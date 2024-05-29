@@ -45,7 +45,7 @@ There is no need to create a specific subdirectory for `metricshub` as the archi
    sudo mkdir -p /opt/prometheus && sudo tar -xzvf /tmp/prometheus-{version}.linux-{architecture}.tar.gz -C /opt/prometheus --strip-components=1
    ```
 
-> Note: Make sure to use the corresponding Prometheus version and CPU architecture for `{version}` and `{architecture}`. For example, `prometheus-2.52.0.linux-amd64` for version `2.52.0` and `amd64` architecture. Refer to the [Prometheus download site](https://prometheus.io/download/) to find the version of Prometheus as well as the CPU architecture.
+> Note: Make sure to use the corresponding Prometheus version and CPU architecture for `{version}` and `{architecture}`. For example, `prometheus-2.52.0.linux-amd64` for version `2.52.0` and `amd64` architecture. Refer to the [Prometheus download site](https://prometheus.io/download/) to find the right Prometheus package.
 
 ## Step 3: Configure the MetricsHub Agent
 
