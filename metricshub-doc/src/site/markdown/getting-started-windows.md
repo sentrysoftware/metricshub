@@ -15,25 +15,38 @@ After completing this quick start, you will have:
 
 ## Step 1: Install MetricsHub
 
-1. Download the latest package, `metricshub-windows-${project.version}.zip`, from the [MetricsHub Releases](https://github.com/sentrysoftware/metricshub/releases/) page.
-2. Unzip the content of `metricshub-windows-${project.version}.zip` under `C:\Program Files`. There is no need to create a specific subdirectory for `MetricsHub` as the zip archive already contains a `MetricsHub` directory.
+1. Download the latest package, `metricshub-windows-${project.version}.zip`, from the [MetricsHub Releases](https://github.com/sentrysoftware/metricshub/releases/) page
+
+2. Right-click on the downloaded ZIP file and select "Extract All...", enter `C:\Program Files\` when prompted then click Extract. This will extract the `MetricsHub` directory to `C:\Program Files\`.
 
 > Note: You will need administrative privileges to unzip into C:\Program Files.
 
 ## Step 2: Install Prometheus
 
-1. Download [Prometheus](https://prometheus.io/download/).
-2. Extract the content of the archive under `C:\Program Files`. There is no need to create a specific subdirectory for `Prometheus` as the zip archive already contains a `Prometheus` directory.
+1. Download [prometheus-{version}.windows-{architecture}.zip](https://prometheus.io/download/)
+
+2. Right-click on the downloaded ZIP file and select "Extract All...", enter `C:\Program Files\` when prompted then click Extract. This will extract the `prometheus-{version}.windows-{architecture}` directory to `C:\Program Files\`
+
+3. Under `C:\Program Files\` rename the `prometheus-{version}.windows-{architecture}` directory to `Prometheus`.
+
+> Note: Make sure to use the corresponding Prometheus version and architecture for `{version}` and `{architecture}`. For example, `prometheus-2.45.5.windows-amd64` for version `2.45.5` and `amd64` architecture.
 
 ## Step 3: Configure the MetricsHub Agent
 
 ### Create your configuration file
 
-The easiest way to create your configuration file is to copy the configuration example `metricshub-example.yaml` available in `C:\Program Files\MetricsHub\config\`, paste it into `C:\ProgramData\metricshub\config\` and rename the file to `metricshub.yaml`.
+1. Before creating your configuration file (`metricshub.yaml`), ensure that the required directories exist. Open a Command Prompt and run the following commands to create the required directories if they do not already exist:
+
+   ```shell
+   mkdir C:\ProgramData\metricshub
+   mkdir C:\ProgramData\metricshub\config
+   ```
+
+2. Copy the configuration example `metricshub-example.yaml` available in `C:\Program Files\MetricsHub\config\`, paste it into `C:\ProgramData\metricshub\config\` and rename the file to `metricshub.yaml`.
 
 ### Configure localhost monitoring
 
-Set the `resources` section as follows to monitor your localhost through WMI: 
+The `metricshub-example.yaml` file you copied already contains the necessary configuration to monitor your localhost through WMI. The relevant section should look like this:
 
 ```yaml
 resources:
@@ -45,11 +58,14 @@ resources:
       wmi:
         timeout: 120
 ```
-If you wish to use a protocol other than `WMI` (such as `HTTP`, `SNMP`, `SSH`, `IPMI`, `WBEM`, or `WinRM`),  refer to the configuration examples provided in `C:\ProgramData\metricshub\config\metricshub.yaml`.
+
+You can verify that this configuration is in place by opening the file `C:\ProgramData\metricshub\config\metricshub.yaml` and ensuring it contains the above section.
+
+If you wish to use a protocol other than `WMI` (such as `HTTP`, `PING`, `SNMP`, `SSH`, `IPMI`, `WBEM`, or `WinRM`), refer to the configuration examples provided in `C:\ProgramData\metricshub\config\metricshub.yaml`.
 
 ### Configure Prometheus to receive MetricsHub data
 
-Add the below configuration under the `otel` section to push metrics to Prometheus:
+Add the below configuration under the `otel` section in the same configuration file (`C:\ProgramData\metricshub\config\metricshub.yaml`) to push metrics to Prometheus:
 
 ```yaml
 otel:

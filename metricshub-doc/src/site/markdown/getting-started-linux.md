@@ -41,7 +41,7 @@ There is no need to create a specific subdirectory for `metricshub` as the archi
    sudo mkdir -p /opt/prometheus && sudo tar -xzvf prometheus-<version>.linux-<architecture>.tar.gz -C prometheus --strip-components=1
    ```
 
-where `<version>` and `<architecture>` should be replaced by the prometheus version and processor architecture.
+   where `<version>` and `<architecture>` should be replaced by the prometheus version and processor architecture.
 
 ## Step 3: Configure the MetricsHub Agent
 
@@ -55,7 +55,7 @@ Run the below command to create your configuration file:
 
 ### Configure localhost monitoring
 
-Set the `resources` section as follows to monitor your localhost using the `osCommand` protocol:
+The `metricshub-example.yaml` file you copied already contains the necessary configuration to monitor your localhost through OS Command. The relevant section should look like this:
 
 ```yaml
 resources:
@@ -67,7 +67,10 @@ resources:
       osCommand:
         timeout: 120
 ```
-If you wish to use a protocol other than `osCommand` (such as `HTTP`, `SNMP`, `SSH`, or `IPMI`), refer to the configuration file `/opt/metricshub/lib/config/metricshub.yaml`.
+
+You can verify that this configuration is in place by opening the file `/opt/metricshub/lib/config/metricshub.yaml` and ensuring it contains the above section.
+
+If you wish to use a protocol other than `osCommand` (such as `HTTP`, `PING`, `SNMP`, `SSH`, `IPMI`, `WBEM` or `WinRM`), refer to the configuration file `/opt/metricshub/lib/config/metricshub.yaml`.
 
 ### Configure Prometheus to receive MetricsHub data
 
@@ -118,7 +121,7 @@ Several logs are created as soon as the **MetricsHub Agent** is started:
 * a global `MetricsHub` log file
 * one log file per configured host.
 
-They are stored in ```makefile /opt/metricshub/lib/logs```
+They are stored in `makefile /opt/metricshub/lib/logs`.
 
 You can configure the log level in the `/opt/metricsHub/lib/config/metricshub.yaml` file by setting the `loggerLevel` parameter to:
 
