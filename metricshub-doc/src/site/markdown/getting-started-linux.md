@@ -72,9 +72,9 @@ resources:
         timeout: 120
 ```
 
-You can verify that this configuration is in place by opening the file `/opt/metricshub/lib/config/metricshub.yaml` and ensuring it contains the above section.
+Open the `/opt/metricshub/lib/config/metricshub.yaml` file and search for the above section to verify that this configuration is active.
 
-If you wish to use a protocol other than `osCommand` (such as `HTTP`, `PING`, `SNMP`, `SSH`, `IPMI`, `WBEM` or `WinRM`), refer to the configuration file `/opt/metricshub/lib/config/metricshub.yaml`.
+If you wish to use a protocol other than `osCommand` (such as `HTTP`, `PING`, `SNMP`, `SSH`, `IPMI`, `WBEM` or `WinRM`), refer to the configuration examples provided in `/opt/metricshub/lib/config/metricshub.yaml`.
 
 ### Configure Prometheus to receive MetricsHub data
 

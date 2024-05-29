@@ -17,17 +17,17 @@ After completing this quick start, you will have:
 
 1. Download the latest package, `metricshub-windows-${project.version}.zip`, from the [MetricsHub Releases](https://github.com/sentrysoftware/metricshub/releases/) page
 
-2. Right-click on the downloaded ZIP file and select "Extract All...", enter `C:\Program Files\` when prompted then click Extract. This will extract the `MetricsHub` directory to `C:\Program Files\`.
+2. Right-click on the archive, select **Extract All...**, enter `C:\Program Files\`, and click **Extract**. This will place the `MetricsHub` directory in `C:\Program Files\`.
 
-> Note: You will need administrative privileges to unzip into C:\Program Files.
+> Note: You will need administrative privileges to unzip into `C:\Program Files`.
 
 ## Step 2: Install Prometheus
 
 1. Download [prometheus-{version}.windows-{architecture}.zip](https://prometheus.io/download/)
 
-2. Right-click on the downloaded ZIP file and select "Extract All...", enter `C:\Program Files\` when prompted then click Extract. This will extract the `prometheus-{version}.windows-{architecture}` directory to `C:\Program Files\`
+2. Right-click the archive, select **Extract All...**", enter `C:\Program Files\`, and click **Extract**. This will place the `prometheus-{version}.windows-{architecture}` directory in `C:\Program Files\`
 
-3. Under `C:\Program Files\` rename the `prometheus-{version}.windows-{architecture}` directory to `Prometheus`.
+3. Under `C:\Program Files\`, rename the `prometheus-{version}.windows-{architecture}` directory to `Prometheus`.
 
 > Note: Make sure to use the corresponding Prometheus version and CPU architecture for `{version}` and `{architecture}`. For example, `prometheus-2.52.0.windows-amd64` for version `2.52.0` and `amd64` architecture.
 
@@ -35,7 +35,7 @@ After completing this quick start, you will have:
 
 ### Create your configuration file
 
-1. Before creating your configuration file (`metricshub.yaml`), ensure that the required directories exist. Open a Command Prompt and run the following commands to create the required directories if they do not already exist:
+1. Before creating your configuration file (`metricshub.yaml`), ensure that the required directories exist. If they do not, open a Command Prompt and run the following commands to create them:
 
    ```shell
    mkdir C:\ProgramData\metricshub
@@ -59,13 +59,14 @@ resources:
         timeout: 120
 ```
 
-You can verify that this configuration is in place by opening the file `C:\ProgramData\metricshub\config\metricshub.yaml` and ensuring it contains the above section.
+
+Open the `C:\ProgramData\metricshub\config\metricshub.yaml` file and search for the above section to verify that the configuration is active. 
 
 If you wish to use a protocol other than `WMI` (such as `HTTP`, `PING`, `SNMP`, `SSH`, `IPMI`, `WBEM`, or `WinRM`), refer to the configuration examples provided in `C:\ProgramData\metricshub\config\metricshub.yaml`.
 
 ### Configure Prometheus to receive MetricsHub data
 
-Add the below configuration under the `otel` section in the same configuration file (`C:\ProgramData\metricshub\config\metricshub.yaml`) to push metrics to Prometheus:
+In the same configuration file (`C:\ProgramData\metricshub\config\metricshub.yaml`), add the below configuration under the `otel` section to push metrics to Prometheus:
 
 ```yaml
 otel:
@@ -125,7 +126,7 @@ The most common errors you may encounter are:
 
 1. **Incorrect Indentation**
 
-    An incorrect indentation in the `metricshub.yaml` file prevents the MetricsHub Agent from starting and  generates the following exception in the `metricshub-agent-global-error-{timestamp}.log`:
+    An incorrect indentation in the `metricshub.yaml` file prevents the MetricsHub Agent from starting and  generates the following exception in the `metricshub-agent-global-error-{timestamp}.log` file:
 
     ```
     [2024-04-30T15:56:16,944][ERROR][o.s.m.a.MetricsHubAgentApplication] Failed to start MetricsHub Agent.
