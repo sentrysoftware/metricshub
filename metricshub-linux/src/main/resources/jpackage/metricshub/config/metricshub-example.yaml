@@ -249,6 +249,18 @@ resourceGroups:
       #       vcenter: server-vcenter
 
       #═══════════════════════════════════════════════════
+      # ICMP Ping protocol configuration    
+      #═══════════════════════════════════════════════════
+
+      # server-13:
+      #   attributes:
+      #     host.name: server-13
+      #     host.type: storage
+      #   protocols:
+      #     ping:
+      #       timeout: 10s
+
+      #═══════════════════════════════════════════════════
       # Host Group SNMP v1 protocol configuration
       #═══════════════════════════════════════════════════
 
