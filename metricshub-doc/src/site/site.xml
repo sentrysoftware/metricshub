@@ -70,7 +70,7 @@
 
 		<links>
 			<item name="Open Sentry" href="https://sentrysoftware.org" />
-			<item name="&lt;i class='fa-brands fa-github'&gt;&lt;/i&gt; GitHub" href="${project.scm.url}" />
+			<item name="&lt;i class='fa-brands fa-github'&gt;&lt;/i&gt; GitHub" href="https://github.com/sentrysoftware/metricshub" />
 			<item name="OpenTelemetry" href="https://opentelemetry.io" />
 		</links>
 
