@@ -15,13 +15,18 @@ After completing this quick start, you will have:
 
 ## Step 1: Install MetricsHub
 
-1. Download the latest package `metricshub-linux-${project.version}.tar.gz` from the [MetricsHub Releases](https://github.com/sentrysoftware/metricshub/releases/) page.
+1. Download the latest package `metricshub-linux-${project.version}.tar.gz` using `wget` and save it under `/tmp`:
+   
+   ```shell
+   sudo wget -O /tmp/metricshub-linux-${project.version}.tar.gz https://github.com/sentrysoftware/metricshub/releases/download/v${project.version}/metricshub-linux-${project.version}.tar.gz
+   ```
 
-2. Run the below command to unzip `metricshub-linux-${project.version}.tar.gz` under `/opt`:
+2. Run the below command to unzip `/tmp/metricshub-linux-${project.version}.tar.gz` under `/opt`:
 
-    ```shell
-    sudo tar -xf ~/Downloads/metricshub-linux-${project.version}.tar.gz -C /opt/
-    ```
+   ```shell
+   sudo tar -xzvf /tmp/metricshub-linux-${project.version}.tar.gz -C /opt/
+   ```
+
 There is no need to create a specific subdirectory for `metricshub` as the archive already contains a `metricshub` directory.
 
 ## Step 2: Install Prometheus
@@ -29,19 +34,18 @@ There is no need to create a specific subdirectory for `metricshub` as the archi
 1. Run the below command to download Prometheus:
 
    ```shell
-   cd /opt && sudo curl -LO url -LO https://github.com/prometheus/prometheus/releases/download/v<version>/prometheus-<version>.linux-<architecture>.tar.gz
+   sudo wget -O /tmp/prometheus-{version}.linux-{architecture}.tar.gz https://github.com/prometheus/prometheus/releases/download/v{version}/prometheus-{version}.linux-{architecture}.tar.gz
    ```
 
-   where `<version>` and `<architecture>` should be replaced by the prometheus version and processor architecture.
-
+   where `{version}` and `{architecture}` should be replaced by the prometheus version and processor architecture.
 
 2. Run the below command to extract the package into `/opt/prometheus`:
 
    ```shell
-   sudo mkdir -p /opt/prometheus && sudo tar -xzvf prometheus-<version>.linux-<architecture>.tar.gz -C prometheus --strip-components=1
+   sudo mkdir -p /opt/prometheus && sudo tar -xzvf /tmp/prometheus-{version}.linux-{architecture}.tar.gz -C /opt/prometheus --strip-components=1
    ```
 
-   where `<version>` and `<architecture>` should be replaced by the prometheus version and processor architecture.
+> Note: Make sure to use the corresponding Prometheus version and CPU architecture for `{version}` and `{architecture}`. For example, `prometheus-2.52.0.linux-amd64` for version `2.52.0` and `amd64` architecture. Refer to the [Prometheus download site](https://prometheus.io/download/) to find the version of Prometheus as well as the CPU architecture.
 
 ## Step 3: Configure the MetricsHub Agent
 

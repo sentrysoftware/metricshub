@@ -29,7 +29,7 @@ After completing this quick start, you will have:
 
 3. Under `C:\Program Files\` rename the `prometheus-{version}.windows-{architecture}` directory to `Prometheus`.
 
-> Note: Make sure to use the corresponding Prometheus version and architecture for `{version}` and `{architecture}`. For example, `prometheus-2.45.5.windows-amd64` for version `2.45.5` and `amd64` architecture.
+> Note: Make sure to use the corresponding Prometheus version and CPU architecture for `{version}` and `{architecture}`. For example, `prometheus-2.52.0.windows-amd64` for version `2.52.0` and `amd64` architecture.
 
 ## Step 3: Configure the MetricsHub Agent
 
