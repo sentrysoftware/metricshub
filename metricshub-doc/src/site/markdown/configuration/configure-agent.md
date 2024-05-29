@@ -229,6 +229,7 @@ Use the parameter below to configure the ICMP ping protocol:
 
 | Parameter       | Description                                                                               |
 | --------------- | ----------------------------------------------------------------------------------------- |
+| ping            | Protocol used to test the host reachability through ICMP.                                 |
 | timeout         | How long until the ping command times out (Default: 2s)                                   |
 
 **Example**
@@ -244,7 +245,6 @@ resourceGroups:
         protocols:
           ping:
             timeout: 10s
-
 ```
 
 #### SSH
