@@ -53,6 +53,10 @@
 			</exclusions>
 		</dependency>
 		<dependency>
+			<groupId>org.sentrysoftware</groupId>
+			<artifactId>vcenter</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
@@ -173,6 +177,8 @@
 							<artifactSet>
 								<includes>
 									<include>org.sentrysoftware:wbem</include>
+									<include>org.sentrysoftware:vcenter</include>
+									<include>com.vmware:vijava</include>
 									<include>org.sentrysoftware:metricshub-wbem-extension</include>
 								</includes>
 								<excludes>

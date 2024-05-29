@@ -112,10 +112,6 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.sentrysoftware</groupId>
-			<artifactId>vcenter</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>io.opentelemetry.instrumentation</groupId>
 			<artifactId>opentelemetry-instrumentation-annotations</artifactId>
 		</dependency>
