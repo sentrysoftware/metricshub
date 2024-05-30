@@ -134,7 +134,7 @@ where
 
 * `<protocol-configuration>` is the protocol(s) **MetricsHub** will use to communicate with the resources: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](./configure-agent.html#protocols-and-credentials) for more details.
 
-> Note: You can use the `${env::ENV_VARIABLE_NAME}` syntax in the `config/metricshub.yaml` file to call your environment variables.
+> Note: You can use the `${esc.d}{env::ENV_VARIABLE_NAME}` syntax in the `config/metricshub.yaml` file to call your environment variables.
 
 ### Protocols and credentials
 
