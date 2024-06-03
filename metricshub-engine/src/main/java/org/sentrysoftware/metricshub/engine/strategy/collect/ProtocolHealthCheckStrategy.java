@@ -24,7 +24,6 @@ package org.sentrysoftware.metricshub.engine.strategy.collect;
 import java.util.List;
 import lombok.Builder;
 import lombok.NonNull;
-
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
@@ -85,7 +84,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 			new MetricFactory()
 				.collectNumberMetric(
 					telemetryManager.getEndpointHostMonitor(),
-					"metricshub.host.protocol.up{protocol=\" + protocolExtension.getIdentifier() + \"}",
+					"metricshub.host.up{protocol=\"" + protocolExtension.getIdentifier() + "\"}",
 					protocolExtension.checkProtocol(telemetryManager) ? UP : DOWN,
 					telemetryManager.getStrategyTime()
 				);
