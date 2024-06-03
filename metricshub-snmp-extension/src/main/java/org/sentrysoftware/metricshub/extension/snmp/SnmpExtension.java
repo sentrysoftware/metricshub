@@ -184,7 +184,7 @@ public class SnmpExtension implements IProtocolExtension {
 
 	@Override
 	public boolean isSupportedConfigurationType(String configurationType) {
-		return "snmp".equalsIgnoreCase(configurationType);
+		return IDENTIFIER.equalsIgnoreCase(configurationType);
 	}
 
 	@Override
@@ -233,6 +233,7 @@ public class SnmpExtension implements IProtocolExtension {
 			.build();
 	}
 
+	@Override
 	public String getIdentifier() {
 		return IDENTIFIER;
 	}
