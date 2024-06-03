@@ -24,6 +24,7 @@ package org.sentrysoftware.metricshub.engine.strategy.collect;
 import java.util.List;
 import lombok.Builder;
 import lombok.NonNull;
+
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
@@ -42,7 +43,6 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
  * responding or not.
  * </p>
  */
-
 public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 
 	/**

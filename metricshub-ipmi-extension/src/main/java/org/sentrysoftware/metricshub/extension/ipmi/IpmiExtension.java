@@ -49,6 +49,9 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 @Slf4j
 public class IpmiExtension implements IProtocolExtension {
 
+	/**
+	 * The identifier for the WinRm protocol.
+	 */
 	private static final String IDENTIFIER = "ipmi";
 
 	private IpmiRequestExecutor ipmiRequestExecutor = new IpmiRequestExecutor();

@@ -483,6 +483,6 @@ class WmiExtensionTest {
 	void testGetIdentifier() {
 		String identifier = wmiExtension.getIdentifier();
 
-		assertEquals("wmi", identifier);   
+		assertEquals("wmi", identifier);
 	}
 }
