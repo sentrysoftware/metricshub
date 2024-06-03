@@ -482,12 +482,9 @@ class SnmpExtensionTest {
 			.executeSNMPGetNext(eq(SnmpExtension.SNMP_OID), any(SnmpConfiguration.class), anyString(), anyBoolean());
 
 		// Start the SNMP protocol check
-		snmpExtension.checkProtocol(telemetryManager);
+		boolean result = snmpExtension.checkProtocol(telemetryManager);
 
-		assertEquals(
-			SnmpExtension.UP,
-			telemetryManager.getEndpointHostMonitor().getMetric(SnmpExtension.SNMP_UP_METRIC).getValue()
-		);
+		assertTrue(result);
 	}
 
 	@Test
@@ -501,12 +498,9 @@ class SnmpExtensionTest {
 			.executeSNMPGetNext(eq(SnmpExtension.SNMP_OID), any(SnmpConfiguration.class), anyString(), anyBoolean());
 
 		// Start the SNMP protocol check
-		snmpExtension.checkProtocol(telemetryManager);
+		boolean result = snmpExtension.checkProtocol(telemetryManager);
 
-		assertEquals(
-			SnmpExtension.DOWN,
-			telemetryManager.getEndpointHostMonitor().getMetric(SnmpExtension.SNMP_UP_METRIC).getValue()
-		);
+		assertFalse(result);
 	}
 
 	@Test

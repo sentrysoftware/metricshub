@@ -13,11 +13,8 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mockStatic;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
-import static org.sentrysoftware.metricshub.extension.winrm.WinRmExtension.DOWN;
-import static org.sentrysoftware.metricshub.extension.winrm.WinRmExtension.UP;
 import static org.sentrysoftware.metricshub.extension.winrm.WinRmExtension.WINRM_TEST_NAMESPACE;
 import static org.sentrysoftware.metricshub.extension.winrm.WinRmExtension.WINRM_TEST_QUERY;
-import static org.sentrysoftware.metricshub.extension.winrm.WinRmExtension.WINRM_UP_METRIC;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
@@ -150,10 +147,10 @@ class WinRmExtensionTest {
 				.when(winRmRequestExecutorMock)
 				.executeWmi(anyString(), any(WinRmConfiguration.class), eq(WINRM_TEST_QUERY), eq(WINRM_TEST_NAMESPACE));
 
-			// Start the WinRm Health Check strategy
-			WinRmExtension.checkProtocol(telemetryManager);
+			// Start the WinRm Health Check
+			boolean result = WinRmExtension.checkProtocol(telemetryManager);
 
-			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(WINRM_UP_METRIC).getValue());
+			assertTrue(result);
 		}
 
 		{
@@ -165,9 +162,9 @@ class WinRmExtensionTest {
 			doCallRealMethod().when(winRmRequestExecutorMock).isAcceptableException(any());
 
 			// Start the WinRm Health Check
-			WinRmExtension.checkProtocol(telemetryManager);
+			boolean result = WinRmExtension.checkProtocol(telemetryManager);
 
-			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(WINRM_UP_METRIC).getValue());
+			assertTrue(result);
 		}
 	}
 
@@ -182,9 +179,9 @@ class WinRmExtensionTest {
 			.executeWmi(anyString(), any(WinRmConfiguration.class), eq(WINRM_TEST_QUERY), eq(WINRM_TEST_NAMESPACE));
 
 		// Start the WinRm Health Check
-		WinRmExtension.checkProtocol(telemetryManager);
+		boolean result = WinRmExtension.checkProtocol(telemetryManager);
 
-		assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(WINRM_UP_METRIC).getValue());
+		assertFalse(result);
 	}
 
 	@Test

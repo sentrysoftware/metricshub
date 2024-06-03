@@ -12,9 +12,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mockStatic;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
-import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.DOWN;
-import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.UP;
-import static org.sentrysoftware.metricshub.extension.oscommand.OsCommandExtension.SSH_UP_METRIC;
 
 import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -325,9 +322,10 @@ class OsCommandExtensionTest {
 				.thenReturn(SUCCESS_RESPONSE);
 
 			// Start the SSH Health Check strategy
-			osCommandExtension.checkProtocol(telemetryManager);
+			boolean result = osCommandExtension.checkProtocol(telemetryManager);
 
-			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
+			// Assert the result
+			assertTrue(result);
 		}
 
 		try (MockedStatic<OsCommandService> staticOsCommandHelper = Mockito.mockStatic(OsCommandService.class)) {
@@ -336,9 +334,10 @@ class OsCommandExtensionTest {
 				.thenReturn(null);
 
 			// Start the SSH Health Check strategy
-			osCommandExtension.checkProtocol(telemetryManager);
+			boolean result = osCommandExtension.checkProtocol(telemetryManager);
 
-			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
+			// Assert the result
+			assertFalse(result);
 		}
 	}
 
@@ -360,9 +359,10 @@ class OsCommandExtensionTest {
 				.thenReturn(SUCCESS_RESPONSE);
 
 			// Start the SSH Health Check strategy
-			osCommandExtension.checkProtocol(telemetryManager);
+			boolean result = osCommandExtension.checkProtocol(telemetryManager);
 
-			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
+			// Assert the result
+			assertTrue(result);
 		}
 
 		try (MockedStatic<OsCommandService> staticOsCommandHelper = Mockito.mockStatic(OsCommandService.class)) {
@@ -373,9 +373,10 @@ class OsCommandExtensionTest {
 				.thenReturn(null);
 
 			// Start the SSH Health Check strategy
-			osCommandExtension.checkProtocol(telemetryManager);
+			boolean result = osCommandExtension.checkProtocol(telemetryManager);
 
-			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
+			// Assert the result
+			assertFalse(result);
 		}
 	}
 
@@ -402,9 +403,10 @@ class OsCommandExtensionTest {
 				.thenReturn(SUCCESS_RESPONSE);
 
 			// Start the SSH Health Check strategy
-			osCommandExtension.checkProtocol(telemetryManager);
+			boolean result = osCommandExtension.checkProtocol(telemetryManager);
 
-			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
+			// Assert the result
+			assertTrue(result);
 		}
 
 		// Local commands not working
@@ -420,9 +422,10 @@ class OsCommandExtensionTest {
 				.thenReturn(null);
 
 			// Start the SSH Health Check strategy
-			osCommandExtension.checkProtocol(telemetryManager);
+			boolean result = osCommandExtension.checkProtocol(telemetryManager);
 
-			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
+			// Assert the result
+			assertFalse(result);
 		}
 		// remote command not working
 		try (MockedStatic<OsCommandService> staticOsCommandHelper = Mockito.mockStatic(OsCommandService.class)) {
@@ -437,9 +440,10 @@ class OsCommandExtensionTest {
 				.thenReturn(SUCCESS_RESPONSE);
 
 			// Start the SSH Health Check strategy
-			osCommandExtension.checkProtocol(telemetryManager);
+			boolean result = osCommandExtension.checkProtocol(telemetryManager);
 
-			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
+			// Assert the result
+			assertFalse(result);
 		}
 
 		// Both local and remote commands not working, but not throwing exceptions
@@ -454,10 +458,10 @@ class OsCommandExtensionTest {
 				.when(() -> OsCommandService.runLocalCommand(anyString(), anyLong(), any()))
 				.thenReturn(null);
 
-			// Start the SSH Health Check strategy
-			osCommandExtension.checkProtocol(telemetryManager);
+			boolean result = osCommandExtension.checkProtocol(telemetryManager);
 
-			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC).getValue());
+			// Assert the result
+			assertFalse(result);
 		}
 	}
 
@@ -472,9 +476,10 @@ class OsCommandExtensionTest {
 		telemetryManager.getHostProperties().setOsCommandExecutesRemotely(true);
 
 		// Start the SSH Health Check strategy
-		osCommandExtension.checkProtocol(telemetryManager);
+		boolean result = osCommandExtension.checkProtocol(telemetryManager);
 
-		assertNull(telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC));
+		// Assert the result
+		assertFalse(result);
 	}
 
 	@Test
@@ -488,10 +493,10 @@ class OsCommandExtensionTest {
 		telemetryManager.getHostProperties().setOsCommandExecutesRemotely(true);
 
 		// Start the SSH Health Check strategy
-		osCommandExtension.checkProtocol(telemetryManager);
+		boolean result = osCommandExtension.checkProtocol(telemetryManager);
 
-		// make sure that SSH health check is not performed if an SSH config is not present
-		assertNull(telemetryManager.getEndpointHostMonitor().getMetric(SSH_UP_METRIC));
+		// Assert the result
+		assertFalse(result);
 	}
 
 	@Test

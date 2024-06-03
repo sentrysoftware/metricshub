@@ -45,8 +45,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
-import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
-import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.extension.snmp.detection.SnmpGetCriterionProcessor;
 import org.sentrysoftware.metricshub.extension.snmp.detection.SnmpGetNextCriterionProcessor;
@@ -72,24 +70,14 @@ public class SnmpExtension implements IProtocolExtension {
 	}
 
 	/**
-	 * Protocol up status value '1.0'
-	 */
-	public static final Double UP = 1.0;
-
-	/**
-	 * Protocol down status value '0.0'
-	 */
-	public static final Double DOWN = 0.0;
-
-	/**
-	 * Up metric name format that will be saved by the metric factory
-	 */
-	static final String SNMP_UP_METRIC = "metricshub.host.up{protocol=\"snmp\"}";
-
-	/**
 	 * The SNMP OID value to use in the health check test
 	 */
 	public static final String SNMP_OID = "1.3.6.1";
+
+	/**
+	 * The identifier for the Snmp protocol.
+	 */
+	private static final String IDENTIFIER = "snmp";
 
 	@Override
 	public boolean isValidConfiguration(IConfiguration configuration) {
@@ -107,12 +95,11 @@ public class SnmpExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public void checkProtocol(TelemetryManager telemetryManager) {
+	public boolean checkProtocol(TelemetryManager telemetryManager) {
 		// Retrieve the hostname
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
-		// Retrieve the host endpoint monitor
-		final Monitor hostMonitor = telemetryManager.getEndpointHostMonitor();
+		log.info("Hostname {} - Performing protocol health check.", hostname);
 
 		// Create and set the SNMP result to null
 		String snmpResult = null;
@@ -125,7 +112,7 @@ public class SnmpExtension implements IProtocolExtension {
 
 		// Stop the SNMP health check if there is not an SNMP configuration
 		if (snmpConfiguration == null) {
-			return;
+			return false;
 		}
 
 		log.info("Hostname {} - Checking SNMP protocol status. Sending Get Next request on {}.", hostname, SNMP_OID);
@@ -141,17 +128,7 @@ public class SnmpExtension implements IProtocolExtension {
 				e
 			);
 		}
-
-		// Generate a metric from the SNMP result
-		// CHECKSTYLE:OFF
-		new MetricFactory()
-			.collectNumberMetric(
-				hostMonitor,
-				SNMP_UP_METRIC,
-				snmpResult != null ? UP : DOWN,
-				telemetryManager.getStrategyTime()
-			);
-		// CHECKSTYLE:ON
+		return snmpResult != null;
 	}
 
 	@Override
@@ -254,5 +231,9 @@ public class SnmpExtension implements IProtocolExtension {
 			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 			.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false)
 			.build();
+	}
+
+	public String getIdentifier() {
+		return IDENTIFIER;
 	}
 }

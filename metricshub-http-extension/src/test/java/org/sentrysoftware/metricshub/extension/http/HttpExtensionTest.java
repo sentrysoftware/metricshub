@@ -11,7 +11,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
-import static org.sentrysoftware.metricshub.extension.http.HttpExtension.HTTP_UP_METRIC;
 
 import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.IntNode;
@@ -108,9 +107,10 @@ class HttpExtensionTest {
 			.when(httpRequestExecutorMock)
 			.executeHttp(any(HttpRequest.class), anyBoolean(), any(TelemetryManager.class));
 
-		httpExtension.checkProtocol(telemetryManager);
+		boolean result = httpExtension.checkProtocol(telemetryManager);
 
-		assertEquals(HttpExtension.DOWN, telemetryManager.getEndpointHostMonitor().getMetric(HTTP_UP_METRIC).getValue());
+		// Assert the result
+		assertFalse(result);
 	}
 
 	@Test
@@ -122,9 +122,10 @@ class HttpExtensionTest {
 			.when(httpRequestExecutorMock)
 			.executeHttp(any(HttpRequest.class), anyBoolean(), any(TelemetryManager.class));
 
-		httpExtension.checkProtocol(telemetryManager);
+		boolean result = httpExtension.checkProtocol(telemetryManager);
 
-		assertEquals(HttpExtension.UP, telemetryManager.getEndpointHostMonitor().getMetric(HTTP_UP_METRIC).getValue());
+		// Assert the result
+		assertTrue(result);
 	}
 
 	@Test

@@ -48,8 +48,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
-import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
-import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.extension.win.IWinConfiguration;
 import org.sentrysoftware.metricshub.extension.win.WinCommandService;
@@ -70,21 +68,6 @@ import org.sentrysoftware.metricshub.extension.win.source.WmiSourceProcessor;
 public class WinRmExtension implements IProtocolExtension {
 
 	/**
-	 * Protocol up status value '1.0'
-	 */
-	public static final Double UP = 1.0;
-
-	/**
-	 * Protocol down status value '0.0'
-	 */
-	public static final Double DOWN = 0.0;
-
-	/**
-	 * WinRm Up metric name format that will be saved by the metric factory
-	 */
-	public static final String WINRM_UP_METRIC = "metricshub.host.up{protocol=\"winrm\"}";
-
-	/**
 	 * WinRm Test Query
 	 */
 	public static final String WINRM_TEST_QUERY = "Select Name FROM Win32_ComputerSystem";
@@ -93,6 +76,11 @@ public class WinRmExtension implements IProtocolExtension {
 	 * WinRm namespace
 	 */
 	public static final String WINRM_TEST_NAMESPACE = "root\\cimv2";
+
+	/**
+	 * The identifier for the WinRm protocol.
+	 */
+	private static final String IDENTIFIER = "winrm";
 
 	private WinRmRequestExecutor winRmRequestExecutor;
 	private WmiDetectionService wmiDetectionService;
@@ -128,7 +116,7 @@ public class WinRmExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public void checkProtocol(TelemetryManager telemetryManager) {
+	public boolean checkProtocol(TelemetryManager telemetryManager) {
 		// Retrieve WinRM Configuration from the telemetry manager host configuration
 		final WinRmConfiguration winRmConfiguration = (WinRmConfiguration) telemetryManager
 			.getHostConfiguration()
@@ -137,7 +125,7 @@ public class WinRmExtension implements IProtocolExtension {
 
 		// Stop the health check if there is not an WinRM configuration
 		if (winRmConfiguration == null) {
-			return;
+			return false;
 		}
 
 		// Create and set the WinRM result to null
@@ -146,29 +134,20 @@ public class WinRmExtension implements IProtocolExtension {
 		// Retrieve the hostname
 		final String hostname = telemetryManager.getHostname();
 
+		log.info("Hostname {} - Performing protocol health check.", hostname);
+
 		log.info(
 			"Hostname {} - Checking WinRM protocol status. Sending a WQL SELECT request on {} namespace.",
 			hostname,
 			WINRM_TEST_NAMESPACE
 		);
 
-		// Retrieve the host endpoint monitor
-		final Monitor hostMonitor = telemetryManager.getEndpointHostMonitor();
-
-		// Create the MetricFactory in order to collect the up metric
-		final MetricFactory metricFactory = new MetricFactory();
-
-		// Get the strategy time which represents the collect time of the up metric
-		final Long strategyTime = telemetryManager.getStrategyTime();
-
 		try {
 			winRmResult =
 				winRmRequestExecutor.executeWmi(hostname, winRmConfiguration, WINRM_TEST_QUERY, WINRM_TEST_NAMESPACE);
 		} catch (Exception e) {
 			if (winRmRequestExecutor.isAcceptableException(e)) {
-				// Generate a metric from the WinRM result
-				metricFactory.collectNumberMetric(hostMonitor, WINRM_UP_METRIC, UP, strategyTime);
-				return;
+				return true;
 			}
 			log.debug(
 				"Hostname {} - Checking WinRM protocol status. WinRM exception when performing a WQL SELECT request on {} namespace: ",
@@ -178,8 +157,7 @@ public class WinRmExtension implements IProtocolExtension {
 			);
 		}
 
-		// Generate a metric from the WinRm result
-		metricFactory.collectNumberMetric(hostMonitor, WINRM_UP_METRIC, winRmResult != null ? UP : DOWN, strategyTime);
+		return winRmResult != null;
 	}
 
 	@Override
@@ -241,7 +219,7 @@ public class WinRmExtension implements IProtocolExtension {
 
 	@Override
 	public boolean isSupportedConfigurationType(String configurationType) {
-		return "winrm".equalsIgnoreCase(configurationType);
+		return IDENTIFIER.equalsIgnoreCase(configurationType);
 	}
 
 	@Override
@@ -288,5 +266,10 @@ public class WinRmExtension implements IProtocolExtension {
 			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 			.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false)
 			.build();
+	}
+
+	@Override
+	public String getIdentifier() {
+		return IDENTIFIER;
 	}
 }

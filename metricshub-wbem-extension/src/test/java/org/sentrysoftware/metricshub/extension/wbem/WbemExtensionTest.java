@@ -14,7 +14,6 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mockStatic;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.AUTOMATIC_NAMESPACE;
-import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.DOWN;
 import static org.sentrysoftware.metricshub.extension.wbem.WbemExtension.WBEM_TEST_QUERY;
 
 import com.fasterxml.jackson.databind.node.BooleanNode;
@@ -113,12 +112,9 @@ class WbemExtensionTest {
 				.doWbemQuery(anyString(), any(WbemConfiguration.class), anyString(), anyString());
 
 			// Start the WBEM Health Check strategy
-			wbemExtension.checkProtocol(telemetryManager);
+			boolean result = wbemExtension.checkProtocol(telemetryManager);
 
-			assertEquals(
-				WbemExtension.UP,
-				telemetryManager.getEndpointHostMonitor().getMetric(WbemExtension.WBEM_UP_METRIC).getValue()
-			);
+			assertTrue(result);
 		}
 
 		{
@@ -130,13 +126,10 @@ class WbemExtensionTest {
 
 			doCallRealMethod().when(wbemRequestExecutorSpy).isAcceptableException(any());
 
-			// Start the WBEM Health Check
-			wbemExtension.checkProtocol(telemetryManager);
+			// Start the WBEM Health Check strategy
+			boolean result = wbemExtension.checkProtocol(telemetryManager);
 
-			assertEquals(
-				WbemExtension.UP,
-				telemetryManager.getEndpointHostMonitor().getMetric(WbemExtension.WBEM_UP_METRIC).getValue()
-			);
+			assertTrue(result);
 		}
 	}
 
@@ -150,9 +143,9 @@ class WbemExtensionTest {
 			.doWbemQuery(anyString(), any(WbemConfiguration.class), anyString(), anyString());
 
 		// Start the WBEM Health Check strategy
-		wbemExtension.checkProtocol(telemetryManager);
+		boolean result = wbemExtension.checkProtocol(telemetryManager);
 
-		assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(WbemExtension.WBEM_UP_METRIC).getValue());
+		assertFalse(result);
 	}
 
 	@Test

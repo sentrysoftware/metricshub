@@ -3,7 +3,6 @@ package org.sentrysoftware.metricshub.extension.snmpv3;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -11,7 +10,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 
 import com.fasterxml.jackson.databind.node.IntNode;
@@ -34,13 +32,9 @@ import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetNextCriterion;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
-import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
-import org.sentrysoftware.metricshub.extension.snmp.source.SnmpTableSourceProcessor;
 import org.sentrysoftware.metricshub.extension.snmpv3.SnmpV3Configuration.AuthType;
 import org.sentrysoftware.metricshub.extension.snmpv3.SnmpV3Configuration.Privacy;
 
@@ -494,12 +488,9 @@ class SnmpV3ExtensionTest {
 			.executeSNMPGetNext(eq(SnmpV3Extension.SNMPV3_OID), any(SnmpV3Configuration.class), anyString(), anyBoolean());
 
 		// Start the SNMP protocol check
-		snmpV3Extension.checkProtocol(telemetryManager);
+		boolean result = snmpV3Extension.checkProtocol(telemetryManager);
 
-		assertEquals(
-			SnmpV3Extension.UP,
-			telemetryManager.getEndpointHostMonitor().getMetric(SnmpV3Extension.SNMPV3_UP_METRIC).getValue()
-		);
+		assertTrue(result);
 	}
 
 	@Test
@@ -513,12 +504,9 @@ class SnmpV3ExtensionTest {
 			.executeSNMPGetNext(eq(SnmpV3Extension.SNMPV3_OID), any(SnmpV3Configuration.class), anyString(), anyBoolean());
 
 		// Start the SNMP protocol check
-		snmpV3Extension.checkProtocol(telemetryManager);
+		boolean result = snmpV3Extension.checkProtocol(telemetryManager);
 
-		assertEquals(
-			SnmpV3Extension.DOWN,
-			telemetryManager.getEndpointHostMonitor().getMetric(SnmpV3Extension.SNMPV3_UP_METRIC).getValue()
-		);
+		assertFalse(result);
 	}
 
 	@Test

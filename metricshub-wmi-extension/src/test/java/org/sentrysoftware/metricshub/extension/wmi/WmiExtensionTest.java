@@ -145,12 +145,9 @@ class WmiExtensionTest {
 				);
 
 			// Start the WMI Health Check strategy
-			wmiExtension.checkProtocol(telemetryManager);
+			boolean result = wmiExtension.checkProtocol(telemetryManager);
 
-			assertEquals(
-				WmiExtension.UP,
-				telemetryManager.getEndpointHostMonitor().getMetric(WmiExtension.WMI_UP_METRIC).getValue()
-			);
+			assertTrue(result);
 		}
 
 		{
@@ -167,12 +164,9 @@ class WmiExtensionTest {
 			doCallRealMethod().when(wmiRequestExecutorMock).isAcceptableException(any());
 
 			// Start the WMI Health Check
-			wmiExtension.checkProtocol(telemetryManager);
+			boolean result = wmiExtension.checkProtocol(telemetryManager);
 
-			assertEquals(
-				WmiExtension.UP,
-				telemetryManager.getEndpointHostMonitor().getMetric(WmiExtension.WMI_UP_METRIC).getValue()
-			);
+			assertTrue(result);
 		}
 	}
 
@@ -192,12 +186,9 @@ class WmiExtensionTest {
 			);
 
 		// Start the WMI Health Check
-		wmiExtension.checkProtocol(telemetryManager);
+		boolean result = wmiExtension.checkProtocol(telemetryManager);
 
-		assertEquals(
-			WmiExtension.DOWN,
-			telemetryManager.getEndpointHostMonitor().getMetric(WmiExtension.WMI_UP_METRIC).getValue()
-		);
+		assertFalse(result);
 	}
 
 	@Test
@@ -486,5 +477,12 @@ class WmiExtensionTest {
 			null
 		);
 		assertNull(wmiConfiguration.getNamespace());
+	}
+
+	@Test
+	void testGetIdentifier() {
+		String identifier = wmiExtension.getIdentifier();
+
+		assertEquals("wmi", identifier);   
 	}
 }

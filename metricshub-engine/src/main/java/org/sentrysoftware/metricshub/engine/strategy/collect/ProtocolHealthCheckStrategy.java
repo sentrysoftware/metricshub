@@ -24,11 +24,11 @@ package org.sentrysoftware.metricshub.engine.strategy.collect;
 import java.util.List;
 import lombok.Builder;
 import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
+import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
@@ -42,7 +42,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
  * responding or not.
  * </p>
  */
-@Slf4j
+
 public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 
 	/**
@@ -78,14 +78,19 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 
 	@Override
 	public void run() {
-		// Retrieve the hostname
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		log.info("Hostname {} - Performing protocol health check.", hostname);
-
 		// Call the extensions to check the protocol health
 		final List<IProtocolExtension> protocolExtensions = extensionManager.findProtocolCheckExtensions(telemetryManager);
-		protocolExtensions.forEach(protocolExtension -> protocolExtension.checkProtocol(telemetryManager));
+		protocolExtensions.forEach(protocolExtension -> {
+			// CHECKSTYLE:OFF
+			new MetricFactory()
+				.collectNumberMetric(
+					telemetryManager.getEndpointHostMonitor(),
+					"metricshub.host.protocol.up{protocol=\" + protocolExtension.getIdentifier() + \"}",
+					protocolExtension.checkProtocol(telemetryManager) ? UP : DOWN,
+					telemetryManager.getStrategyTime()
+				);
+			// CHECKSTYLE:OFF
+		});
 	}
 
 	@Override

@@ -8,9 +8,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
-import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.DOWN;
-import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.UP;
-import static org.sentrysoftware.metricshub.extension.ipmi.IpmiExtension.IPMI_UP_METRIC;
 
 import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -106,9 +103,9 @@ class IpmiExtensionTest {
 				.thenReturn(SUCCESS_RESPONSE);
 
 			// Start the IPMI Health Check strategy
-			ipmiExtension.checkProtocol(telemetryManager);
+			boolean result = ipmiExtension.checkProtocol(telemetryManager);
 
-			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(IPMI_UP_METRIC).getValue());
+			assertTrue(result);
 		}
 	}
 
@@ -123,9 +120,9 @@ class IpmiExtensionTest {
 				.thenReturn(null);
 
 			// Start the IPMI Health Check strategy
-			ipmiExtension.checkProtocol(telemetryManager);
+			boolean result = ipmiExtension.checkProtocol(telemetryManager);
 
-			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(IPMI_UP_METRIC).getValue());
+			assertFalse(result);
 		}
 	}
 

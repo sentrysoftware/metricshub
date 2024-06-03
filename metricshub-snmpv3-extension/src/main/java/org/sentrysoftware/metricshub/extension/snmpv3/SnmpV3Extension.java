@@ -44,8 +44,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
-import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
-import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.extension.snmp.ISnmpConfiguration;
 import org.sentrysoftware.metricshub.extension.snmp.detection.SnmpGetCriterionProcessor;
@@ -61,24 +59,14 @@ import org.sentrysoftware.metricshub.extension.snmp.source.SnmpTableSourceProces
 public class SnmpV3Extension implements IProtocolExtension {
 
 	/**
-	 * Protocol up status value '1.0'
-	 */
-	public static final Double UP = 1.0;
-
-	/**
-	 * Protocol down status value '0.0'
-	 */
-	public static final Double DOWN = 0.0;
-
-	/**
-	 * Up metric name format that will be saved by the metric factory
-	 */
-	public static final String SNMPV3_UP_METRIC = "metricshub.host.up{protocol=\"snmpv3\"}";
-
-	/**
 	 * The SNMP V3 OID value to use in the health check test
 	 */
 	public static final String SNMPV3_OID = "1.3.6.1";
+
+	/**
+	 * The identifier for the Snmp version 3  protocol.
+	 */
+	private static final String IDENTIFIER = "snmpv3";
 
 	private SnmpV3RequestExecutor snmpV3RequestExecutor;
 
@@ -105,15 +93,14 @@ public class SnmpV3Extension implements IProtocolExtension {
 	}
 
 	@Override
-	public void checkProtocol(TelemetryManager telemetryManager) {
+	public boolean checkProtocol(TelemetryManager telemetryManager) {
 		// Retrieve the hostname
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
-		// Retrieve the host endpoint monitor
-		final Monitor hostMonitor = telemetryManager.getEndpointHostMonitor();
+		log.info("Hostname {} - Performing protocol health check.", hostname);
 
 		// Create and set the SNMP V3 result to null
-		String snmpResult = null;
+		String snmpV3Result = null;
 
 		// Retrieve SNMP V3 Configuration from the telemetry manager host configuration
 		final SnmpV3Configuration snmpV3Configuration = (SnmpV3Configuration) telemetryManager
@@ -123,14 +110,14 @@ public class SnmpV3Extension implements IProtocolExtension {
 
 		// Stop the SNMP V3 health check if there is not an SNMP V3 configuration
 		if (snmpV3Configuration == null) {
-			return;
+			return false;
 		}
 
 		log.info("Hostname {} - Checking SNMP V3 protocol status. Sending Get Next request on {}.", hostname, SNMPV3_OID);
 
 		// Execute SNMP test command
 		try {
-			snmpResult = snmpV3RequestExecutor.executeSNMPGetNext(SNMPV3_OID, snmpV3Configuration, hostname, true);
+			snmpV3Result = snmpV3RequestExecutor.executeSNMPGetNext(SNMPV3_OID, snmpV3Configuration, hostname, true);
 		} catch (Exception e) {
 			log.debug(
 				"Hostname {} - Checking SNMP V3 protocol status. SNMP V3 exception when performing a SNMP Get Next query on {}: ",
@@ -139,17 +126,7 @@ public class SnmpV3Extension implements IProtocolExtension {
 				e
 			);
 		}
-
-		// Generate a metric from the SNMP result
-		// CHECKSTYLE:OFF
-		new MetricFactory()
-			.collectNumberMetric(
-				hostMonitor,
-				SNMPV3_UP_METRIC,
-				snmpResult != null ? UP : DOWN,
-				telemetryManager.getStrategyTime()
-			);
-		// CHECKSTYLE:ON
+		return snmpV3Result != null;
 	}
 
 	@Override
@@ -205,7 +182,7 @@ public class SnmpV3Extension implements IProtocolExtension {
 
 	@Override
 	public boolean isSupportedConfigurationType(String configurationType) {
-		return "snmpv3".equalsIgnoreCase(configurationType);
+		return IDENTIFIER.equalsIgnoreCase(configurationType);
 	}
 
 	@Override
@@ -263,5 +240,10 @@ public class SnmpV3Extension implements IProtocolExtension {
 			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 			.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false)
 			.build();
+	}
+
+	@Override
+	public String getIdentifier() {
+		return IDENTIFIER;
 	}
 }

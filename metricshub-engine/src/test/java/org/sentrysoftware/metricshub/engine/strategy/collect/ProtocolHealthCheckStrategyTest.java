@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.extension.TestConfiguration;
@@ -82,7 +83,7 @@ class ProtocolHealthCheckStrategyTest {
 			.when(protocolExtensionMock)
 			.isValidConfiguration(telemetryManager.getHostConfiguration().getConfigurations().get(TestConfiguration.class));
 
-		doNothing().when(protocolExtensionMock).checkProtocol(any(TelemetryManager.class));
+		//	doNothing().when(protocolExtensionMock).checkProtocol(telemetryManager.getHostname(), TelemetryManager.class));
 
 		// Create a new protocol health check strategy
 		final ProtocolHealthCheckStrategy healthCheckStrategy = new ProtocolHealthCheckStrategy(

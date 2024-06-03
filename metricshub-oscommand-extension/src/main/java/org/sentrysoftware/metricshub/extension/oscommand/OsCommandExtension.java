@@ -43,7 +43,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
-import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.extension.oscommand.ipmi.UnixIpmiCriterionProcessor;
 import org.sentrysoftware.metricshub.extension.oscommand.ipmi.UnixIpmiSourceProcessor;
@@ -69,11 +68,6 @@ public class OsCommandExtension implements IProtocolExtension {
 	 * Protocol down status value '0.0'
 	 */
 	public static final Double DOWN = 0.0;
-
-	/**
-	 * Up metric name format that will be saved by the metric factory
-	 */
-	public static final String SSH_UP_METRIC = "metricshub.host.up{protocol=\"ssh\"}";
 
 	/**
 	 * SSH test command to execute
@@ -104,12 +98,14 @@ public class OsCommandExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public void checkProtocol(TelemetryManager telemetryManager) {
+	public boolean checkProtocol(TelemetryManager telemetryManager) {
 		// Create and set the SSH result to null
 		Double sshResult = UP;
 
 		// Retrieve the hostname
 		String hostname = telemetryManager.getHostConfiguration().getHostname();
+
+		log.info("Hostname {} - Performing protocol health check.", hostname);
 
 		// Retrieve SSH Configuration
 		final SshConfiguration sshConfiguration = (SshConfiguration) telemetryManager
@@ -119,7 +115,7 @@ public class OsCommandExtension implements IProtocolExtension {
 
 		// Stop the SSH health check if there is not any SSH configuration
 		if (sshConfiguration == null || !telemetryManager.getHostProperties().isMustCheckSshStatus()) {
-			return;
+			return false;
 		}
 
 		log.info("Hostname {} - Checking SSH protocol status. Sending an SSH 'echo test' command.", hostname);
@@ -133,16 +129,8 @@ public class OsCommandExtension implements IProtocolExtension {
 			sshResult = remoteSshTest(hostname, sshResult, sshConfiguration);
 		}
 
-		// Generate a metric from the SSH result
-		// CHECKSTYLE:OFF
-		new MetricFactory()
-			.collectNumberMetric(
-				telemetryManager.getEndpointHostMonitor(),
-				SSH_UP_METRIC,
-				sshResult,
-				telemetryManager.getStrategyTime()
-			);
-		// CHECKSTYLE:ON
+		//Return true if sshResult is UP, else false
+		return sshResult == UP;
 	}
 
 	@Override
@@ -317,5 +305,10 @@ public class OsCommandExtension implements IProtocolExtension {
 			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 			.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false)
 			.build();
+	}
+
+	@Override
+	public String getIdentifier() {
+		return "ssh";
 	}
 }
