@@ -79,21 +79,21 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	public void run() {
 		// Call the extensions to check the protocol health
 		final List<IProtocolExtension> protocolExtensions = extensionManager.findProtocolCheckExtensions(telemetryManager);
-				// CHECKSTYLE:OFF
-				protocolExtensions.forEach(protocolExtension ->
-					protocolExtension
-						.checkProtocol(telemetryManager)
-						.ifPresent(isUp ->
-							new MetricFactory()
-								.collectNumberMetric(
-									telemetryManager.getEndpointHostMonitor(),
-									"metricshub.host.up{protocol=\"" + protocolExtension.getIdentifier() + "\"}",
-									isUp ? UP : DOWN,
-									telemetryManager.getStrategyTime()
-								)
+		// CHECKSTYLE:OFF
+		protocolExtensions.forEach(protocolExtension ->
+			protocolExtension
+				.checkProtocol(telemetryManager)
+				.ifPresent(isUp ->
+					new MetricFactory()
+						.collectNumberMetric(
+							telemetryManager.getEndpointHostMonitor(),
+							"metricshub.host.up{protocol=\"" + protocolExtension.getIdentifier() + "\"}",
+							isUp ? UP : DOWN,
+							telemetryManager.getStrategyTime()
 						)
-				);
-				// CHECKSTYLE:ON
+				)
+		);
+		// CHECKSTYLE:ON
 	}
 
 	@Override
