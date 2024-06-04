@@ -1,7 +1,6 @@
 package org.sentrysoftware.metricshub.extension.sql;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -98,8 +97,8 @@ class SqlClientExecutorTest {
 			.build();
 
 		// Sql tables null
-		assertNull(sqlClientExecutor.executeQuery(null, "SQL QUERY;"));
-		assertNull(sqlClientExecutor.executeQuery(new ArrayList<>(), null));
+		assertEquals(new ArrayList<>(), sqlClientExecutor.executeQuery(null, "SQL QUERY;"));
+		assertEquals(new ArrayList<>(), sqlClientExecutor.executeQuery(new ArrayList<>(), null));
 
 		// SqlSource with empty tables
 		List<SqlColumn> columnsTable1 = new ArrayList<>();
@@ -109,7 +108,7 @@ class SqlClientExecutorTest {
 
 		final List<SqlTable> sqlTables = Arrays.asList(sqlTable1, sqlTable2);
 
-		assertNull(sqlClientExecutor.executeQuery(sqlTables, "SQL QUERY;"));
+		assertEquals(new ArrayList<>(), sqlClientExecutor.executeQuery(sqlTables, "SQL QUERY;"));
 
 		// SqlSource well formed
 		SqlColumn sqlColumn1Table1 = SqlColumn.builder().name("COL1_1").number(1).type("VARCHAR(255)").build();

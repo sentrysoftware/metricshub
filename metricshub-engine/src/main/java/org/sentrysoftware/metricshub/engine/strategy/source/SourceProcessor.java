@@ -161,8 +161,7 @@ public class SourceProcessor implements ISourceProcessor {
 	 */
 	private SourceTable processSourceComputationThroughExtension(final Source source) {
 		final Optional<ISourceComputationExtension> maybeExtension = extensionManager.findSourceComputationExtension(
-			source,
-			telemetryManager
+			source
 		);
 		return maybeExtension
 			.map(extension -> extension.processSource(source, connectorId, telemetryManager))

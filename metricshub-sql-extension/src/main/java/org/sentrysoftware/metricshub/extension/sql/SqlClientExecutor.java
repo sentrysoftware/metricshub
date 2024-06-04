@@ -64,33 +64,46 @@ public class SqlClientExecutor {
 	public List<List<String>> executeQuery(final List<SqlTable> sqlTables, final String query) {
 		if (sqlTables == null) {
 			log.error("Malformed SQL Source, no SQL Table is provided.");
-			return null;
+			return new ArrayList<>();
 		}
 
 		if (query == null) {
 			log.error("Malformed SQL Source, no SQL Query is provided.");
-			return null;
+			return new ArrayList<>();
 		}
+
+		final String hostId = telemetryManager.getHostConfiguration().getHostId();
+		final String connectionName = "jdbc:h2:mem:" + hostId;
 
 		// Creation of the connection to the H2 database in memory
-		final Connection connection;
-		try {
-			connection = DriverManager.getConnection("jdbc:h2:mem:");
+		try (Connection connection = DriverManager.getConnection(connectionName)) {
+			// Prepare the SQL tables
+			for (SqlTable sqlTable : sqlTables) {
+				createAndInsert(sqlTable, connection);
+			}
+
+			return executeQuery(query, connection);
 		} catch (SQLException exception) {
 			log.error("Error when creating the SQL database: {}", exception);
-			return null;
+			return new ArrayList<>();
 		}
+	}
 
-		for (SqlTable sqlTable : sqlTables) {
-			createAndInsert(sqlTable, connection);
-		}
-
+	/**
+	 * Execute a SQL query on the connection object and return the result in a form
+	 * of a list of lists of strings.
+	 *
+	 * @param query      The query to execute.
+	 * @param connection The connection to the database.
+	 * @return The result of the query.
+	 */
+	private List<List<String>> executeQuery(final String query, Connection connection) {
 		final List<List<String>> result = new ArrayList<>();
 
 		try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(query)) {
 			if (resultSet == null) {
-				log.error("the SQL query {} returned a null result.", query);
-				return null;
+				log.error("The SQL query {} returned a null result.", query);
+				return result;
 			}
 
 			final ResultSetMetaData rsmd = resultSet.getMetaData();
@@ -98,16 +111,15 @@ public class SqlClientExecutor {
 			final int columnsNumber = rsmd.getColumnCount();
 
 			while (resultSet.next()) {
-				List<String> row = new ArrayList<>();
+				final List<String> row = new ArrayList<>();
 				for (int i = 1; i <= columnsNumber; i++) {
 					row.add(resultSet.getString(i));
 				}
 				result.add(row);
 			}
-			connection.close();
 		} catch (SQLException exception) {
-			log.error("Error when executing query {}: {}", query, exception);
-			return null;
+			log.error("Error when executing SQL query {}: {}", query, exception.getMessage());
+			log.debug("SQL Exception: ", exception);
 		}
 
 		return result;
@@ -263,7 +275,8 @@ public class SqlClientExecutor {
 			final List<String> rowValues = new ArrayList<>();
 			for (final SqlColumn sqlColumn : sqlColumns) {
 				final String separator = sqlColumn.getType().contains("VARCHAR") ? "'" : "";
-				rowValues.add(separator + row.get(sqlColumn.getNumber() - 1) + separator);
+				final String value = row.get(sqlColumn.getNumber() - 1);
+				rowValues.add(separator + value + separator);
 			}
 			columnValues.add("(" + String.join(",", rowValues) + ")");
 		}

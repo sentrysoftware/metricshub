@@ -26,6 +26,7 @@ import static com.fasterxml.jackson.annotation.Nulls.FAIL;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -41,7 +42,9 @@ import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.NonBla
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SqlColumn {
+public class SqlColumn implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * The name of the column in the SQL database.

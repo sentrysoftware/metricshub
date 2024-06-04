@@ -27,9 +27,9 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.StringHelper.a
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -45,17 +45,19 @@ import lombok.NonNull;
 @NoArgsConstructor
 public class SqlTable implements Serializable {
 
-	private static final long serialVersionUID = 2338817623743864427L;
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * The name of the source.
 	 */
+	@NonNull
 	@JsonSetter(nulls = FAIL)
 	private String source;
 
 	/**
 	 * The source alias.
 	 */
+	@NonNull
 	@JsonSetter(nulls = FAIL)
 	private String alias;
 
@@ -72,7 +74,7 @@ public class SqlTable implements Serializable {
 	 * @return A new instance of {@link SqlTable} with the same source, alias and columns.
 	 */
 	public SqlTable copy() {
-		return SqlTable.builder().source(source).alias(alias).columns(columns).build();
+		return SqlTable.builder().source(source).alias(alias).columns(new ArrayList<>(columns)).build();
 	}
 
 	@Override
@@ -81,8 +83,9 @@ public class SqlTable implements Serializable {
 
 		addNonNull(stringJoiner, "Source ", source);
 		addNonNull(stringJoiner, " AS ", alias);
-		if (columns != null && columns.size() != 0) {
-			stringJoiner.add(columns.stream().map(column -> column.toString()).collect(Collectors.joining(",\n", "(", ")")));
+		if (columns != null && !columns.isEmpty()) {
+			stringJoiner.add(" Columns:");
+			columns.stream().forEach(column -> stringJoiner.add(" - " + column.toString()));
 		}
 
 		return stringJoiner.toString();

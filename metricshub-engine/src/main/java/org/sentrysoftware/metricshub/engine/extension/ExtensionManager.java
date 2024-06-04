@@ -293,21 +293,12 @@ public class ExtensionManager {
 	}
 
 	/**
-	 * Find the extension which satisfies the processing of the given source according to the user's configuration.
+	 * Find the extension which satisfies the processing of the given source according to its type.
 	 *
-	 * @param source           Any {@link Source} implementation
-	 * @param telemetryManager {@link TelemetryManager} instance where the configurations are located.
+	 * @param source Any {@link Source} implementation
 	 * @return an {@link Optional} of an {@link ISourceComputationExtension} instance.
 	 */
-	public Optional<ISourceComputationExtension> findSourceComputationExtension(
-		final Source source,
-		final TelemetryManager telemetryManager
-	) {
-		final List<ISourceComputationExtension> sourceExtensions = sourceComputationExtensions
-			.stream()
-			.filter(extension -> extension.isValidSource(source))
-			.toList();
-
-		return sourceExtensions.stream().findFirst();
+	public Optional<ISourceComputationExtension> findSourceComputationExtension(final Source source) {
+		return sourceComputationExtensions.stream().filter(extension -> extension.isValidSource(source)).findFirst();
 	}
 }

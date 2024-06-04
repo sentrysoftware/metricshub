@@ -21,7 +21,6 @@ package org.sentrysoftware.metricshub.engine.connector.deserializer.custom;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -38,8 +37,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.common.SqlTable;
 public class SqlTableDeserializer extends JsonDeserializer<List<SqlTable>> {
 
 	@Override
-	public List<SqlTable> deserialize(JsonParser parser, DeserializationContext ctxt)
-		throws IOException, JacksonException {
+	public List<SqlTable> deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException {
 		if (parser == null) {
 			return new ArrayList<>();
 		}

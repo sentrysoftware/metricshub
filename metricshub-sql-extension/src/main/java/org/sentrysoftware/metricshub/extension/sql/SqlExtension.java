@@ -39,7 +39,7 @@ public class SqlExtension implements ISourceComputationExtension {
 
 	@Override
 	public SourceTable processSource(Source source, String connectorId, TelemetryManager telemetryManager) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final String hostname = telemetryManager.getHostname();
 
 		if (source == null) {
 			log.warn("Hostname {} - SQL Source cannot be null, the SQL operation will return an empty result.", hostname);
@@ -76,7 +76,7 @@ public class SqlExtension implements ISourceComputationExtension {
 
 		SourceTable sourceTable = new SourceTable();
 
-		if (executeSqlQuery != null) {
+		if (!executeSqlQuery.isEmpty()) {
 			sourceTable.setTable(executeSqlQuery);
 		}
 		return sourceTable;

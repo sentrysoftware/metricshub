@@ -345,11 +345,6 @@
 			</dependency>
 			<dependency>
 				<groupId>org.sentrysoftware</groupId>
-				<artifactId>sql</artifactId>
-				<version>1.0.01</version>
-			</dependency>
-			<dependency>
-				<groupId>org.sentrysoftware</groupId>
 				<artifactId>jflat</artifactId>
 				<version>1.0.01</version>
 			</dependency>

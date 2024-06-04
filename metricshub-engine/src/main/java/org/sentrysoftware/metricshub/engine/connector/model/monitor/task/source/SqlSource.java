@@ -111,7 +111,9 @@ public class SqlSource extends Source {
 			.forceSerialization(forceSerialization)
 			.computes(getComputes() != null ? new ArrayList<>(getComputes()) : null)
 			.executeForEachEntryOf(executeForEachEntryOf != null ? executeForEachEntryOf.copy() : null)
-			.tables(tables != null ? new ArrayList<>(tables) : null)
+			.tables(
+				tables != null ? tables.stream().map(SqlTable::copy).collect(Collectors.toCollection(ArrayList::new)) : null
+			)
 			.query(query)
 			.build();
 	}
@@ -128,7 +130,7 @@ public class SqlSource extends Source {
 		stringJoiner.add(super.toString());
 
 		if (tables != null && !tables.isEmpty()) {
-			final String tablesString = tables.stream().map(table -> table.toString()).collect(Collectors.joining(NEW_LINE));
+			final String tablesString = tables.stream().map(SqlTable::toString).collect(Collectors.joining(NEW_LINE));
 			addNonNull(stringJoiner, "- tables=", tablesString);
 		}
 
