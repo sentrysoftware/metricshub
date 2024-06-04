@@ -44,6 +44,9 @@ import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 @NoArgsConstructor
 public class PingConfiguration implements IConfiguration {
 
+	/**
+	 * The timeout in seconds for the ping request.
+	 */
 	@Default
 	@JsonSetter(nulls = SKIP)
 	@JsonDeserialize(using = TimeDeserializer.class)

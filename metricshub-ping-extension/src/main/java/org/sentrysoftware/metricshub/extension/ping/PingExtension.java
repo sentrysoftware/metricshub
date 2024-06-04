@@ -115,7 +115,7 @@ public class PingExtension implements IProtocolExtension {
 
 		// Execute a Ping request
 		try {
-			pingResult = pingRequestExecutor.ping(hostname, (int) pingConfiguration.getTimeout().longValue());
+			pingResult = pingRequestExecutor.ping(hostname, (int) pingConfiguration.getTimeout().longValue() * 1000);
 		} catch (Exception e) {
 			log.debug("Hostname {} - Checking Ping protocol status. Exception when performing a Ping request: ", hostname, e);
 		}
