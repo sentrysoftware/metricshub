@@ -48,6 +48,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpGetSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SqlSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.StaticSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.TableJoinSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.TableUnionSource;
@@ -55,6 +56,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WmiSource;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
+import org.sentrysoftware.metricshub.engine.extension.ISourceComputationExtension;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
@@ -143,6 +145,25 @@ public class SourceProcessor implements ISourceProcessor {
 	 */
 	private SourceTable processSourceThroughExtension(final Source source) {
 		final Optional<IProtocolExtension> maybeExtension = extensionManager.findSourceExtension(source, telemetryManager);
+		return maybeExtension
+			.map(extension -> extension.processSource(source, connectorId, telemetryManager))
+			.orElseGet(SourceTable::empty);
+	}
+
+	/**
+	 * Processes a given {@link Source} by using an appropriate {@link ISourceComputation} found through
+	 * an {@link ExtensionManager}. This method delegates the processing of the source to the extension
+	 * if available, or returns an empty {@link SourceTable} if no suitable extension is found.
+	 *
+	 * @param source The source data to be processed.
+	 * @return A {@link SourceTable} containing the results from processing the source through the extension,
+	 *         or an empty table if no extension can process the source.
+	 */
+	private SourceTable processSourceComputationThroughExtension(final Source source) {
+		final Optional<ISourceComputationExtension> maybeExtension = extensionManager.findSourceComputationExtension(
+			source,
+			telemetryManager
+		);
 		return maybeExtension
 			.map(extension -> extension.processSource(source, connectorId, telemetryManager))
 			.orElseGet(SourceTable::empty);
@@ -515,5 +536,11 @@ public class SourceProcessor implements ISourceProcessor {
 			sourceTable.getRawData(),
 			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable())
 		);
+	}
+
+	@WithSpan("Source SqlSource Exec")
+	@Override
+	public SourceTable process(@SpanAttribute("source.definition") final SqlSource sqlSource) {
+		return processSourceComputationThroughExtension(sqlSource);
 	}
 }
