@@ -79,7 +79,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	public void run() {
 		// Call the extensions to check the protocol health
 		final List<IProtocolExtension> protocolExtensions = extensionManager.findProtocolCheckExtensions(telemetryManager);
-		        // CHECKSTYLE:OFF
+				// CHECKSTYLE:OFF
 				protocolExtensions.forEach(protocolExtension ->
 					protocolExtension
 						.checkProtocol(telemetryManager)
@@ -93,7 +93,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 								)
 						)
 				);
-		        // CHECKSTYLE:ON
+				// CHECKSTYLE:ON
 	}
 
 	@Override
