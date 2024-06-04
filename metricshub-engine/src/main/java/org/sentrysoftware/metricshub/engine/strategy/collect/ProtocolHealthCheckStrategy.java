@@ -83,10 +83,8 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 		protocolExtensions.forEach(protocolExtension -> {
 			Optional<Boolean> protocolCheckResult = protocolExtension.checkProtocol(telemetryManager);
 
-			if (!protocolCheckResult.isPresent()) {
+			if (protocolCheckResult.isEmpty()) {
 				return;
-			} else {
-				metricValue = protocolCheckResult.get() ? UP : DOWN;
 			}
 
 			// CHECKSTYLE:OFF
