@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
@@ -116,7 +117,7 @@ public class WinRmExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public boolean checkProtocol(TelemetryManager telemetryManager) {
+	public Optional<Boolean> checkProtocol(TelemetryManager telemetryManager) {
 		// Retrieve WinRM Configuration from the telemetry manager host configuration
 		final WinRmConfiguration winRmConfiguration = (WinRmConfiguration) telemetryManager
 			.getHostConfiguration()
@@ -125,7 +126,7 @@ public class WinRmExtension implements IProtocolExtension {
 
 		// Stop the health check if there is not an WinRM configuration
 		if (winRmConfiguration == null) {
-			return false;
+			return Optional.empty();
 		}
 
 		// Create and set the WinRM result to null
@@ -134,7 +135,7 @@ public class WinRmExtension implements IProtocolExtension {
 		// Retrieve the hostname
 		final String hostname = telemetryManager.getHostname();
 
-		log.info("Hostname {} - Performing protocol health check.", hostname);
+		log.info("Hostname {} - Performing {} protocol health check.", hostname, getIdentifier());
 
 		log.info(
 			"Hostname {} - Checking WinRM protocol status. Sending a WQL SELECT request on {} namespace.",
@@ -147,7 +148,7 @@ public class WinRmExtension implements IProtocolExtension {
 				winRmRequestExecutor.executeWmi(hostname, winRmConfiguration, WINRM_TEST_QUERY, WINRM_TEST_NAMESPACE);
 		} catch (Exception e) {
 			if (winRmRequestExecutor.isAcceptableException(e)) {
-				return true;
+				return Optional.of(true);
 			}
 			log.debug(
 				"Hostname {} - Checking WinRM protocol status. WinRM exception when performing a WQL SELECT request on {} namespace: ",
@@ -157,7 +158,7 @@ public class WinRmExtension implements IProtocolExtension {
 			);
 		}
 
-		return winRmResult != null;
+		return Optional.of(winRmResult != null);
 	}
 
 	@Override

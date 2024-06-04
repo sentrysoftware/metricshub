@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
@@ -93,11 +94,9 @@ public class SnmpV3Extension implements IProtocolExtension {
 	}
 
 	@Override
-	public boolean checkProtocol(TelemetryManager telemetryManager) {
+	public Optional<Boolean> checkProtocol(TelemetryManager telemetryManager) {
 		// Retrieve the hostname
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		log.info("Hostname {} - Performing protocol health check.", hostname);
 
 		// Create and set the SNMP V3 result to null
 		String snmpV3Result = null;
@@ -110,9 +109,10 @@ public class SnmpV3Extension implements IProtocolExtension {
 
 		// Stop the SNMP V3 health check if there is not an SNMP V3 configuration
 		if (snmpV3Configuration == null) {
-			return false;
+			return Optional.empty();
 		}
 
+		log.info("Hostname {} - Performing protocol health check.", hostname);
 		log.info("Hostname {} - Checking SNMP V3 protocol status. Sending Get Next request on {}.", hostname, SNMPV3_OID);
 
 		// Execute SNMP test command
@@ -126,7 +126,7 @@ public class SnmpV3Extension implements IProtocolExtension {
 				e
 			);
 		}
-		return snmpV3Result != null;
+		return Optional.of(snmpV3Result != null);
 	}
 
 	@Override

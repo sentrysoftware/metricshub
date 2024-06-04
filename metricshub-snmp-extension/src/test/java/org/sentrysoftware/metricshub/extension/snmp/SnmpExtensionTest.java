@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -482,9 +483,9 @@ class SnmpExtensionTest {
 			.executeSNMPGetNext(eq(SnmpExtension.SNMP_OID), any(SnmpConfiguration.class), anyString(), anyBoolean());
 
 		// Start the SNMP protocol check
-		boolean result = snmpExtension.checkProtocol(telemetryManager);
+		Optional<Boolean> result = snmpExtension.checkProtocol(telemetryManager);
 
-		assertTrue(result);
+		assertTrue(result.get());
 	}
 
 	@Test
@@ -498,9 +499,9 @@ class SnmpExtensionTest {
 			.executeSNMPGetNext(eq(SnmpExtension.SNMP_OID), any(SnmpConfiguration.class), anyString(), anyBoolean());
 
 		// Start the SNMP protocol check
-		boolean result = snmpExtension.checkProtocol(telemetryManager);
+		Optional<Boolean> result = snmpExtension.checkProtocol(telemetryManager);
 
-		assertFalse(result);
+		assertFalse(result.get());
 	}
 
 	@Test

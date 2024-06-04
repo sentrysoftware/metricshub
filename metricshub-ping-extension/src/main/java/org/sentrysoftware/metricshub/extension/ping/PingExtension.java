@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 import lombok.extern.slf4j.Slf4j;
@@ -79,10 +80,9 @@ public class PingExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public boolean checkProtocol(TelemetryManager telemetryManager) {
+	public Optional<Boolean> checkProtocol(TelemetryManager telemetryManager) {
 		// Retrieve the hostname
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-		log.info("Hostname {} - Performing protocol health check.", hostname);
 
 		// Create and set the Ping result to null
 		boolean pingResult = false;
@@ -95,8 +95,10 @@ public class PingExtension implements IProtocolExtension {
 
 		// Stop the Ping check if there is not a Ping configuration
 		if (pingConfiguration == null) {
-			return false;
+			return Optional.empty();
 		}
+
+		log.info("Hostname {} - Performing protocol health check.", hostname);
 		log.info("Hostname {} - Checking Ping protocol status. Sending a ping to '/'.", hostname);
 
 		// Execute a Ping request
@@ -105,7 +107,7 @@ public class PingExtension implements IProtocolExtension {
 		} catch (Exception e) {
 			log.debug("Hostname {} - Checking Ping protocol status. Exception when performing a Ping request: ", hostname, e);
 		}
-		return pingResult;
+		return Optional.of(pingResult);
 	}
 
 	@Override
@@ -122,9 +124,6 @@ public class PingExtension implements IProtocolExtension {
 		return CriterionTestResult.empty();
 	}
 
-	/**
-	 *
-	 */
 	@Override
 	public boolean isSupportedConfigurationType(String configurationType) {
 		return IDENTIFIER.equalsIgnoreCase(configurationType);

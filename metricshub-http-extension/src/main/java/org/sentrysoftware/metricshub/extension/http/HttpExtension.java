@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 import lombok.extern.slf4j.Slf4j;
@@ -86,11 +87,9 @@ public class HttpExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public boolean checkProtocol(TelemetryManager telemetryManager) {
+	public Optional<Boolean> checkProtocol(TelemetryManager telemetryManager) {
 		// Retrieve the hostname
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		log.info("Hostname {} - Performing protocol health check.", hostname);
 
 		// Create and set the HTTP result to null
 		String httpResult = null;
@@ -103,9 +102,10 @@ public class HttpExtension implements IProtocolExtension {
 
 		// Stop the HTTP health check if there is not an HTTP configuration
 		if (httpConfiguration == null) {
-			return false;
+			return Optional.of(false);
 		}
 
+		log.info("Hostname {} - Performing protocol health check.", hostname);
 		log.info("Hostname {} - Checking HTTP protocol status. Sending GET request to '/'.", hostname);
 
 		// Execute HTTP test request
@@ -129,7 +129,7 @@ public class HttpExtension implements IProtocolExtension {
 			);
 		}
 
-		return httpResult != null;
+		return Optional.of(httpResult != null);
 	}
 
 	@Override

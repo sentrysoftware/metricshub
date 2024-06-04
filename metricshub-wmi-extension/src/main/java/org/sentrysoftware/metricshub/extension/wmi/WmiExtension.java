@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
@@ -118,14 +119,12 @@ public class WmiExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public boolean checkProtocol(TelemetryManager telemetryManager) {
+	public Optional<Boolean> checkProtocol(TelemetryManager telemetryManager) {
 		// Create and set the WMI result to null
 		List<List<String>> wmiResult = null;
 
 		// Retrieve the hostname
 		final String hostname = telemetryManager.getHostname();
-
-		log.info("Hostname {} - Performing protocol health check.", hostname);
 
 		// Retrieve WMI Configuration from the telemetry manager host configuration
 		final WmiConfiguration wmiConfiguration = (WmiConfiguration) telemetryManager
@@ -135,9 +134,10 @@ public class WmiExtension implements IProtocolExtension {
 
 		// Stop the health check if there is not an WMI configuration
 		if (wmiConfiguration == null) {
-			return false;
+			return Optional.empty();
 		}
 
+		log.info("Hostname {} - Performing protocol health check.", hostname);
 		log.info(
 			"Hostname {} - Checking WMI protocol status. Sending a WQL SELECT request on {} namespace.",
 			hostname,
@@ -148,7 +148,7 @@ public class WmiExtension implements IProtocolExtension {
 			wmiResult = wmiRequestExecutor.executeWmi(hostname, wmiConfiguration, WMI_TEST_QUERY, WMI_TEST_NAMESPACE);
 		} catch (Exception e) {
 			if (wmiRequestExecutor.isAcceptableException(e)) {
-				return true;
+				return Optional.of(true);
 			}
 			log.debug(
 				"Hostname {} - Checking WMI protocol status. WMI exception when performing a WQL SELECT request on {} namespace: ",
@@ -157,7 +157,7 @@ public class WmiExtension implements IProtocolExtension {
 				e
 			);
 		}
-		return wmiResult != null;
+		return Optional.of(wmiResult != null);
 	}
 
 	@Override

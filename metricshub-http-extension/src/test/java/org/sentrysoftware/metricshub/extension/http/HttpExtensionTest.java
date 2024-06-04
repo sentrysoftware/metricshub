@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -107,10 +108,10 @@ class HttpExtensionTest {
 			.when(httpRequestExecutorMock)
 			.executeHttp(any(HttpRequest.class), anyBoolean(), any(TelemetryManager.class));
 
-		boolean result = httpExtension.checkProtocol(telemetryManager);
+		Optional<Boolean> result = httpExtension.checkProtocol(telemetryManager);
 
 		// Assert the result
-		assertFalse(result);
+		assertFalse(result.get());
 	}
 
 	@Test
@@ -122,10 +123,10 @@ class HttpExtensionTest {
 			.when(httpRequestExecutorMock)
 			.executeHttp(any(HttpRequest.class), anyBoolean(), any(TelemetryManager.class));
 
-		boolean result = httpExtension.checkProtocol(telemetryManager);
+		Optional<Boolean> result = httpExtension.checkProtocol(telemetryManager);
 
 		// Assert the result
-		assertTrue(result);
+		assertTrue(result.get());
 	}
 
 	@Test

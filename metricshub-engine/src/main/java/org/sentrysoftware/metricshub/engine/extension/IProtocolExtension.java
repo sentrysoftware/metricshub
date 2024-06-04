@@ -89,9 +89,9 @@ public interface IProtocolExtension {
 	 * telemetry manager.
 	 *
 	 * @param telemetryManager The telemetry manager to use for monitoring.
-	 * @return true if the protocol check succeeds, false otherwise.
+	 * @return Optional.of(true) if the protocol check succeeds, Optional.of(false) otherwise.
 	 */
-	boolean checkProtocol(TelemetryManager telemetryManager);
+	Optional<Boolean> checkProtocol(TelemetryManager telemetryManager);
 
 	/**
 	 * Executes a source operation based on the given source and configuration within the telemetry manager.

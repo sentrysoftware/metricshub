@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -148,9 +149,9 @@ class WinRmExtensionTest {
 				.executeWmi(anyString(), any(WinRmConfiguration.class), eq(WINRM_TEST_QUERY), eq(WINRM_TEST_NAMESPACE));
 
 			// Start the WinRm Health Check
-			boolean result = WinRmExtension.checkProtocol(telemetryManager);
+			Optional<Boolean> result = WinRmExtension.checkProtocol(telemetryManager);
 
-			assertTrue(result);
+			assertTrue(result.get());
 		}
 
 		{
@@ -162,9 +163,9 @@ class WinRmExtensionTest {
 			doCallRealMethod().when(winRmRequestExecutorMock).isAcceptableException(any());
 
 			// Start the WinRm Health Check
-			boolean result = WinRmExtension.checkProtocol(telemetryManager);
+			Optional<Boolean> result = WinRmExtension.checkProtocol(telemetryManager);
 
-			assertTrue(result);
+			assertTrue(result.get());
 		}
 	}
 
@@ -179,9 +180,9 @@ class WinRmExtensionTest {
 			.executeWmi(anyString(), any(WinRmConfiguration.class), eq(WINRM_TEST_QUERY), eq(WINRM_TEST_NAMESPACE));
 
 		// Start the WinRm Health Check
-		boolean result = WinRmExtension.checkProtocol(telemetryManager);
+		Optional<Boolean> result = WinRmExtension.checkProtocol(telemetryManager);
 
-		assertFalse(result);
+		assertFalse(result.get());
 	}
 
 	@Test

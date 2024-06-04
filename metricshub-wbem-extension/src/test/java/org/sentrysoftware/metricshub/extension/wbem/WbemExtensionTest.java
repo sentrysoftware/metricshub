@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -112,9 +113,9 @@ class WbemExtensionTest {
 				.doWbemQuery(anyString(), any(WbemConfiguration.class), anyString(), anyString());
 
 			// Start the WBEM Health Check strategy
-			boolean result = wbemExtension.checkProtocol(telemetryManager);
+			Optional<Boolean> result = wbemExtension.checkProtocol(telemetryManager);
 
-			assertTrue(result);
+			assertTrue(result.get());
 		}
 
 		{
@@ -127,9 +128,9 @@ class WbemExtensionTest {
 			doCallRealMethod().when(wbemRequestExecutorSpy).isAcceptableException(any());
 
 			// Start the WBEM Health Check strategy
-			boolean result = wbemExtension.checkProtocol(telemetryManager);
+			Optional<Boolean> result = wbemExtension.checkProtocol(telemetryManager);
 
-			assertTrue(result);
+			assertTrue(result.get());
 		}
 	}
 

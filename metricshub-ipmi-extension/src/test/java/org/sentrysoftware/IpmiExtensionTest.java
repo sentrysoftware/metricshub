@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -103,9 +104,9 @@ class IpmiExtensionTest {
 				.thenReturn(SUCCESS_RESPONSE);
 
 			// Start the IPMI Health Check strategy
-			boolean result = ipmiExtension.checkProtocol(telemetryManager);
+			Optional<Boolean> result = ipmiExtension.checkProtocol(telemetryManager);
 
-			assertTrue(result);
+			assertTrue(result.get());
 		}
 	}
 
@@ -120,9 +121,9 @@ class IpmiExtensionTest {
 				.thenReturn(null);
 
 			// Start the IPMI Health Check strategy
-			boolean result = ipmiExtension.checkProtocol(telemetryManager);
+			Optional<Boolean> result = ipmiExtension.checkProtocol(telemetryManager);
 
-			assertFalse(result);
+			assertFalse(result.get());
 		}
 	}
 

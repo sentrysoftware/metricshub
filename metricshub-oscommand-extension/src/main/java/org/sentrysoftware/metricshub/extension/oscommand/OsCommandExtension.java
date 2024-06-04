@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 import lombok.extern.slf4j.Slf4j;
@@ -98,14 +99,12 @@ public class OsCommandExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public boolean checkProtocol(TelemetryManager telemetryManager) {
+	public Optional<Boolean> checkProtocol(TelemetryManager telemetryManager) {
 		// Create and set the SSH result to null
 		Double sshResult = UP;
 
 		// Retrieve the hostname
 		String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		log.info("Hostname {} - Performing protocol health check.", hostname);
 
 		// Retrieve SSH Configuration
 		final SshConfiguration sshConfiguration = (SshConfiguration) telemetryManager
@@ -115,9 +114,10 @@ public class OsCommandExtension implements IProtocolExtension {
 
 		// Stop the SSH health check if there is not any SSH configuration
 		if (sshConfiguration == null || !telemetryManager.getHostProperties().isMustCheckSshStatus()) {
-			return false;
+			return Optional.empty();
 		}
 
+		log.info("Hostname {} - Performing protocol health check.", hostname);
 		log.info("Hostname {} - Checking SSH protocol status. Sending an SSH 'echo test' command.", hostname);
 
 		// Execute Local test
@@ -129,8 +129,7 @@ public class OsCommandExtension implements IProtocolExtension {
 			sshResult = remoteSshTest(hostname, sshResult, sshConfiguration);
 		}
 
-		//Return true if sshResult is UP, else false
-		return sshResult == UP;
+		return Optional.of(sshResult == UP);
 	}
 
 	@Override

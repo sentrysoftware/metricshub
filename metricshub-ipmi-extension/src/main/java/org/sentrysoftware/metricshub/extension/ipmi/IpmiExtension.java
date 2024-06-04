@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 import lombok.extern.slf4j.Slf4j;
@@ -77,11 +78,9 @@ public class IpmiExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public boolean checkProtocol(TelemetryManager telemetryManager) {
+	public Optional<Boolean> checkProtocol(TelemetryManager telemetryManager) {
 		// Retrieve the hostname
 		String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		log.info("Hostname {} - Performing protocol health check.", hostname);
 
 		// Create and set the IPMI result to null
 		String ipmiResult = null;
@@ -94,9 +93,10 @@ public class IpmiExtension implements IProtocolExtension {
 
 		// Stop the IPMI health check if there is not an IPMI configuration
 		if (ipmiConfiguration == null) {
-			return false;
+			return Optional.empty();
 		}
 
+		log.info("Hostname {} - Performing protocol health check.", hostname);
 		log.info(
 			"Hostname {} - Checking IPMI protocol status. Sending a IPMI 'Get Chassis Status As String Result' request.",
 			hostname
@@ -122,7 +122,7 @@ public class IpmiExtension implements IProtocolExtension {
 				e
 			);
 		}
-		return ipmiResult != null;
+		return Optional.of(ipmiResult != null);
 	}
 
 	@Override

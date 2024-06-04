@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -145,9 +146,9 @@ class WmiExtensionTest {
 				);
 
 			// Start the WMI Health Check strategy
-			boolean result = wmiExtension.checkProtocol(telemetryManager);
+			Optional<Boolean> result = wmiExtension.checkProtocol(telemetryManager);
 
-			assertTrue(result);
+			assertTrue(result.get());
 		}
 
 		{
@@ -164,9 +165,9 @@ class WmiExtensionTest {
 			doCallRealMethod().when(wmiRequestExecutorMock).isAcceptableException(any());
 
 			// Start the WMI Health Check
-			boolean result = wmiExtension.checkProtocol(telemetryManager);
+			Optional<Boolean> result = wmiExtension.checkProtocol(telemetryManager);
 
-			assertTrue(result);
+			assertTrue(result.get());
 		}
 	}
 
@@ -186,9 +187,9 @@ class WmiExtensionTest {
 			);
 
 		// Start the WMI Health Check
-		boolean result = wmiExtension.checkProtocol(telemetryManager);
+		Optional<Boolean> result = wmiExtension.checkProtocol(telemetryManager);
 
-		assertFalse(result);
+		assertFalse(result.get());
 	}
 
 	@Test

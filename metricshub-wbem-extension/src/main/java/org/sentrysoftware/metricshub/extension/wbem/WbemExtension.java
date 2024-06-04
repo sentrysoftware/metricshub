@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 import lombok.extern.slf4j.Slf4j;
@@ -101,11 +102,9 @@ public class WbemExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public boolean checkProtocol(TelemetryManager telemetryManager) {
+	public Optional<Boolean> checkProtocol(TelemetryManager telemetryManager) {
 		// Retrieve the hostname
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		log.info("Hostname {} - Performing protocol health check.", hostname);
 
 		// Create and set the WBEM result to null
 		List<List<String>> wbemResult = null;
@@ -118,9 +117,10 @@ public class WbemExtension implements IProtocolExtension {
 
 		// Stop the WBEM health check if there is not an WBEM configuration
 		if (wbemConfiguration == null) {
-			return false;
+			return Optional.empty();
 		}
 
+		log.info("Hostname {} - Performing protocol health check.", hostname);
 		log.info(
 			"Hostname {} - Checking WBEM protocol status. Sending a WQL SELECT request on different namespaces.",
 			hostname
@@ -142,12 +142,9 @@ public class WbemExtension implements IProtocolExtension {
 						wbemNamespace,
 						telemetryManager
 					);
-				if (wbemResult != null) {
-					return true;
-				}
 			} catch (Exception e) {
 				if (wbemRequestExecutor.isAcceptableException(e)) {
-					return true;
+					return Optional.of(true);
 				}
 				log.debug(
 					"Hostname {} - Checking WBEM protocol status. WBEM exception when performing a WQL SELECT query on '{}' namespace: ",
@@ -157,7 +154,7 @@ public class WbemExtension implements IProtocolExtension {
 				);
 			}
 		}
-		return false;
+		return Optional.of(wbemResult != null);
 	}
 
 	@Override

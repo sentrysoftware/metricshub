@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -91,10 +92,10 @@ class PingExtensionTest {
 		// Mock false protocol health check response
 		doReturn(false).when(pingRequestExecutorMock).ping(anyString(), anyInt());
 
-		boolean result = pingExtension.checkProtocol(telemetryManager);
+		Optional<Boolean> result = pingExtension.checkProtocol(telemetryManager);
 
 		// Assert the result
-		assertFalse(result);
+		assertFalse(result.get());
 	}
 
 	@Test
@@ -104,10 +105,10 @@ class PingExtensionTest {
 		// Mock ICMP Ping protocol health check response
 		doReturn(true).when(pingRequestExecutorMock).ping(anyString(), anyInt());
 
-		boolean result = pingExtension.checkProtocol(telemetryManager);
+		Optional<Boolean> result = pingExtension.checkProtocol(telemetryManager);
 
 		// Assert the result
-		assertTrue(result);
+		assertTrue(result.get());
 	}
 
 	@Test
