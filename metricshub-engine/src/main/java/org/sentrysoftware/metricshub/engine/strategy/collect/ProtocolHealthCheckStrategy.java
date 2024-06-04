@@ -83,9 +83,8 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 		protocolExtensions.forEach(protocolExtension -> {
 			Optional<Boolean> protocolCheckResult = protocolExtension.checkProtocol(telemetryManager);
 
-			double metricValue;
 			if (!protocolCheckResult.isPresent()) {
-				metricValue = DOWN;
+				return;
 			} else {
 				metricValue = protocolCheckResult.get() ? UP : DOWN;
 			}
@@ -95,7 +94,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 				.collectNumberMetric(
 					telemetryManager.getEndpointHostMonitor(),
 					"metricshub.host.up{protocol=\"" + protocolExtension.getIdentifier() + "\"}",
-					metricValue,
+					protocolCheckResult.get() ? UP : DOWN,
 					telemetryManager.getStrategyTime()
 				);
 			// CHECKSTYLE:OFF
