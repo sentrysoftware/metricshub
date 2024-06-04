@@ -144,9 +144,9 @@ class WbemExtensionTest {
 			.doWbemQuery(anyString(), any(WbemConfiguration.class), anyString(), anyString());
 
 		// Start the WBEM Health Check strategy
-		boolean result = wbemExtension.checkProtocol(telemetryManager);
+		Optional<Boolean> result = wbemExtension.checkProtocol(telemetryManager);
 
-		assertFalse(result);
+		assertFalse(result.get());
 	}
 
 	@Test

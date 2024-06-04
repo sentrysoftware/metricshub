@@ -480,7 +480,7 @@ class OsCommandExtensionTest {
 		Optional<Boolean> result = osCommandExtension.checkProtocol(telemetryManager);
 
 		// Assert the result
-		assertEquals(Optional.empty(),result);
+		assertEquals(Optional.empty(), result);
 	}
 
 	@Test
@@ -497,7 +497,7 @@ class OsCommandExtensionTest {
 		Optional<Boolean> result = osCommandExtension.checkProtocol(telemetryManager);
 
 		// Assert the result
-		assertEquals(Optional.empty(),result);
+		assertEquals(Optional.empty(), result);
 	}
 
 	@Test
