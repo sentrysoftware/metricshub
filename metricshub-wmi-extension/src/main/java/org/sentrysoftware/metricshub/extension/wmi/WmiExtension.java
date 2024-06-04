@@ -80,7 +80,7 @@ public class WmiExtension implements IProtocolExtension {
 	public static final String WMI_TEST_QUERY = "SELECT Name FROM Win32_ComputerSystem";
 
 	/**
-	 * The identifier for the WinRm protocol.
+	 * The identifier for the Wmi protocol.
 	 */
 	private static final String IDENTIFIER = "wmi";
 

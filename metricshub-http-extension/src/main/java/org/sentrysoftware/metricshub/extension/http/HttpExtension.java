@@ -51,6 +51,9 @@ import org.sentrysoftware.metricshub.extension.http.utils.HttpRequest;
 @Slf4j
 public class HttpExtension implements IProtocolExtension {
 
+	/**
+	 * The identifier for the Http protocol.
+	 */
 	private static final String IDENTIFIER = "http";
 
 	private HttpRequestExecutor httpRequestExecutor;
