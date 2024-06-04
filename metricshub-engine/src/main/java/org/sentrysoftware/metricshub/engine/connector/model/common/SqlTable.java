@@ -30,6 +30,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -74,7 +75,12 @@ public class SqlTable implements Serializable {
 	 * @return A new instance of {@link SqlTable} with the same source, alias and columns.
 	 */
 	public SqlTable copy() {
-		return SqlTable.builder().source(source).alias(alias).columns(new ArrayList<>(columns)).build();
+		return SqlTable
+			.builder()
+			.source(source)
+			.alias(alias)
+			.columns(columns.stream().map(SqlColumn::copy).collect(Collectors.toCollection(ArrayList::new)))
+			.build();
 	}
 
 	@Override

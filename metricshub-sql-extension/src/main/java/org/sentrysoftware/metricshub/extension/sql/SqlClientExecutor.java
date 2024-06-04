@@ -29,6 +29,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -73,7 +74,7 @@ public class SqlClientExecutor {
 		}
 
 		final String hostId = telemetryManager.getHostConfiguration().getHostId();
-		final String connectionName = "jdbc:h2:mem:" + hostId;
+		final String connectionName = "jdbc:h2:mem:" + hostId + UUID.randomUUID().toString();
 
 		// Creation of the connection to the H2 database in memory
 		try (Connection connection = DriverManager.getConnection(connectionName)) {
@@ -143,7 +144,8 @@ public class SqlClientExecutor {
 			statement.execute(createTableQuery);
 			log.debug("Executing CREATE TABLE query: {}", createTableQuery);
 		} catch (SQLException exception) {
-			log.error("Error when executing query {}: {}", createTableQuery, exception);
+			log.error("Error when executing CREATE TABLE query {}: {}", createTableQuery, exception.getMessage());
+			log.debug("CREATE TABLE SQL Exception: ", exception);
 			return;
 		}
 
@@ -156,9 +158,10 @@ public class SqlClientExecutor {
 			final Statement statement = connection.createStatement();
 
 			statement.execute(insertTableQuery);
-			log.trace("Executing INSERT TABLE query: {}", insertTableQuery);
+			log.debug("Executing INSERT TABLE query: {}", insertTableQuery);
 		} catch (SQLException exception) {
-			log.error("Error when executing query {}: {}", insertTableQuery, exception);
+			log.error("Error when executing INSERT TABLE query {}: {}", insertTableQuery, exception.getMessage());
+			log.debug("INSERT TABLE SQL Exception: ", exception);
 			return;
 		}
 	}
@@ -274,7 +277,7 @@ public class SqlClientExecutor {
 		for (final List<String> row : table) {
 			final List<String> rowValues = new ArrayList<>();
 			for (final SqlColumn sqlColumn : sqlColumns) {
-				final String separator = sqlColumn.getType().contains("VARCHAR") ? "'" : "";
+				final String separator = sqlColumn.getType().contains("CHAR") ? "'" : "";
 				final String value = row.get(sqlColumn.getNumber() - 1);
 				rowValues.add(separator + value + separator);
 			}

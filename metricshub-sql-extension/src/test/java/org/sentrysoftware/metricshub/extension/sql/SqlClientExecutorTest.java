@@ -51,7 +51,7 @@ class SqlClientExecutorTest {
 			.build();
 
 		final Map<String, SourceTable> mapSources = new HashMap<>();
-		final SourceTable tabl1 = SourceTable
+		SourceTable tabl1 = SourceTable
 			.builder()
 			.table(
 				Arrays.asList(
@@ -276,5 +276,30 @@ class SqlClientExecutorTest {
 			sqlClientExecutor.executeQuery(sqlTables, "SELECT COL1_2, COL2_2, LOCATE('V', CONCAT(COL1_2, COL2_2)) FROM T2;");
 
 		assertEquals(expectedResult, result);
+
+		expectedResult =
+			Arrays.asList(
+				Arrays.asList(LOWERCASE_A, LOWERCASE_V1),
+				Arrays.asList(LOWERCASE_B, LOWERCASE_V2),
+				Arrays.asList(LOWERCASE_C, LOWERCASE_V3),
+				Arrays.asList(LOWERCASE_D, null)
+			);
+
+		tabl1 =
+			SourceTable
+				.builder()
+				.table(
+					Arrays.asList(
+						Arrays.asList(LOWERCASE_A, LOWERCASE_V1, TRUE, ONE),
+						Arrays.asList(LOWERCASE_B, LOWERCASE_V2, TRUE, TWO),
+						Arrays.asList(LOWERCASE_C, LOWERCASE_V3, FALSE, THREE),
+						Arrays.asList(LOWERCASE_D, null, FALSE, FOUR)
+					)
+				)
+				.build();
+		sqlColumn1Table1 = SqlColumn.builder().name("COL1_1").number(1).type("VARCHAR(255)").build();
+		sqlColumn2Table1 = SqlColumn.builder().name("COL2_1").number(2).type("BOOLEAN").build();
+		sqlTable1.setColumns(columnsTable1);
+		result = sqlClientExecutor.executeQuery(sqlTables, "SELECT COL1_1, COL2_1, END FROM T1;");
 	}
 }
