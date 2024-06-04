@@ -50,7 +50,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 public class IpmiExtension implements IProtocolExtension {
 
 	/**
-	 * The identifier for the WinRm protocol.
+	 * The identifier for the Ipmi protocol.
 	 */
 	private static final String IDENTIFIER = "ipmi";
 
