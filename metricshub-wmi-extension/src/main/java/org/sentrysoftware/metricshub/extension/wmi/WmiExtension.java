@@ -137,7 +137,7 @@ public class WmiExtension implements IProtocolExtension {
 			return Optional.empty();
 		}
 
-		log.info("Hostname {} - Performing protocol health check.", hostname);
+		log.info("Hostname {} - Performing {} protocol health check.", hostname, getIdentifier());
 		log.info(
 			"Hostname {} - Checking WMI protocol status. Sending a WQL SELECT request on {} namespace.",
 			hostname,

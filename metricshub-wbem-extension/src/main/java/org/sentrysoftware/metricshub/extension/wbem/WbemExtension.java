@@ -120,7 +120,7 @@ public class WbemExtension implements IProtocolExtension {
 			return Optional.empty();
 		}
 
-		log.info("Hostname {} - Performing protocol health check.", hostname);
+		log.info("Hostname {} - Performing {} protocol health check.", hostname, getIdentifier());
 		log.info(
 			"Hostname {} - Checking WBEM protocol status. Sending a WQL SELECT request on different namespaces.",
 			hostname

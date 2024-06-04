@@ -117,7 +117,7 @@ public class OsCommandExtension implements IProtocolExtension {
 			return Optional.empty();
 		}
 
-		log.info("Hostname {} - Performing protocol health check.", hostname);
+		log.info("Hostname {} - Performing {} protocol health check.", hostname, getIdentifier());
 		log.info("Hostname {} - Checking SSH protocol status. Sending an SSH 'echo test' command.", hostname);
 
 		// Execute Local test

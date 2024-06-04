@@ -112,7 +112,7 @@ public class SnmpV3Extension implements IProtocolExtension {
 			return Optional.empty();
 		}
 
-		log.info("Hostname {} - Performing protocol health check.", hostname);
+		log.info("Hostname {} - Performing {} protocol health check.", hostname, getIdentifier());
 		log.info("Hostname {} - Checking SNMP V3 protocol status. Sending Get Next request on {}.", hostname, SNMPV3_OID);
 
 		// Execute SNMP test command
