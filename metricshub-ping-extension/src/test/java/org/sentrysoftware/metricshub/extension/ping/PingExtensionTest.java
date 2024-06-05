@@ -7,7 +7,6 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
-import static org.sentrysoftware.metricshub.extension.ping.PingExtension.PING_UP_METRIC;
 
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -16,6 +15,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -92,9 +92,10 @@ class PingExtensionTest {
 		// Mock false protocol health check response
 		doReturn(false).when(pingRequestExecutorMock).ping(anyString(), anyInt());
 
-		pingExtension.checkProtocol(telemetryManager);
+		Optional<Boolean> result = pingExtension.checkProtocol(telemetryManager);
 
-		assertEquals(PingExtension.DOWN, telemetryManager.getEndpointHostMonitor().getMetric(PING_UP_METRIC).getValue());
+		// Assert the result
+		assertFalse(result.get());
 	}
 
 	@Test
@@ -104,9 +105,10 @@ class PingExtensionTest {
 		// Mock ICMP Ping protocol health check response
 		doReturn(true).when(pingRequestExecutorMock).ping(anyString(), anyInt());
 
-		pingExtension.checkProtocol(telemetryManager);
+		Optional<Boolean> result = pingExtension.checkProtocol(telemetryManager);
 
-		assertEquals(PingExtension.UP, telemetryManager.getEndpointHostMonitor().getMetric(PING_UP_METRIC).getValue());
+		// Assert the result
+		assertTrue(result.get());
 	}
 
 	@Test
