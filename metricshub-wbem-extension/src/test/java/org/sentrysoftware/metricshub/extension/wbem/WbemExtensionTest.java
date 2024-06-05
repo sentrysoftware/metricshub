@@ -14,7 +14,6 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mockStatic;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.AUTOMATIC_NAMESPACE;
-import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.DOWN;
 import static org.sentrysoftware.metricshub.extension.wbem.WbemExtension.WBEM_TEST_QUERY;
 
 import com.fasterxml.jackson.databind.node.BooleanNode;
@@ -27,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -113,12 +113,9 @@ class WbemExtensionTest {
 				.doWbemQuery(anyString(), any(WbemConfiguration.class), anyString(), anyString());
 
 			// Start the WBEM Health Check strategy
-			wbemExtension.checkProtocol(telemetryManager);
+			Optional<Boolean> result = wbemExtension.checkProtocol(telemetryManager);
 
-			assertEquals(
-				WbemExtension.UP,
-				telemetryManager.getEndpointHostMonitor().getMetric(WbemExtension.WBEM_UP_METRIC).getValue()
-			);
+			assertTrue(result.get());
 		}
 
 		{
@@ -130,13 +127,10 @@ class WbemExtensionTest {
 
 			doCallRealMethod().when(wbemRequestExecutorSpy).isAcceptableException(any());
 
-			// Start the WBEM Health Check
-			wbemExtension.checkProtocol(telemetryManager);
+			// Start the WBEM Health Check strategy
+			Optional<Boolean> result = wbemExtension.checkProtocol(telemetryManager);
 
-			assertEquals(
-				WbemExtension.UP,
-				telemetryManager.getEndpointHostMonitor().getMetric(WbemExtension.WBEM_UP_METRIC).getValue()
-			);
+			assertTrue(result.get());
 		}
 	}
 
@@ -150,9 +144,9 @@ class WbemExtensionTest {
 			.doWbemQuery(anyString(), any(WbemConfiguration.class), anyString(), anyString());
 
 		// Start the WBEM Health Check strategy
-		wbemExtension.checkProtocol(telemetryManager);
+		Optional<Boolean> result = wbemExtension.checkProtocol(telemetryManager);
 
-		assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(WbemExtension.WBEM_UP_METRIC).getValue());
+		assertFalse(result.get());
 	}
 
 	@Test
