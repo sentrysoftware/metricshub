@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 import lombok.extern.slf4j.Slf4j;
@@ -38,8 +39,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
-import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
-import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
@@ -49,26 +48,16 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 @Slf4j
 public class PingExtension implements IProtocolExtension {
 
+	/**
+	 * The identifier for ping.
+	 */
+	private static final String IDENTIFIER = "ping";
+
 	private PingRequestExecutor pingRequestExecutor;
 
 	public PingExtension() {
 		pingRequestExecutor = new PingRequestExecutor();
 	}
-
-	/**
-	 * Protocol up status value '1.0'
-	 */
-	public static final Double UP = 1.0;
-
-	/**
-	 * Protocol down status value '0.0'
-	 */
-	public static final Double DOWN = 0.0;
-
-	/**
-	 * ICMP Ping Up metric name format that will be saved by the metric factory
-	 */
-	public static final String PING_UP_METRIC = "metricshub.host.up{protocol=\"ping\"}";
 
 	@Override
 	public boolean isValidConfiguration(IConfiguration configuration) {
@@ -91,12 +80,9 @@ public class PingExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public void checkProtocol(TelemetryManager telemetryManager) {
+	public Optional<Boolean> checkProtocol(TelemetryManager telemetryManager) {
 		// Retrieve the hostname
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		// Retrieve the host endpoint monitor
-		final Monitor hostMonitor = telemetryManager.getEndpointHostMonitor();
 
 		// Create and set the Ping result to null
 		boolean pingResult = false;
@@ -109,8 +95,10 @@ public class PingExtension implements IProtocolExtension {
 
 		// Stop the Ping check if there is not a Ping configuration
 		if (pingConfiguration == null) {
-			return;
+			return Optional.empty();
 		}
+
+		log.info("Hostname {} - Performing {} protocol health check.", hostname, getIdentifier());
 		log.info("Hostname {} - Checking Ping protocol status. Sending a ping to '/'.", hostname);
 
 		// Execute a Ping request
@@ -119,12 +107,7 @@ public class PingExtension implements IProtocolExtension {
 		} catch (Exception e) {
 			log.debug("Hostname {} - Checking Ping protocol status. Exception when performing a Ping request: ", hostname, e);
 		}
-
-		// Generate a metric from the Ping result
-		// CHECKSTYLE:OFF
-		new MetricFactory()
-			.collectNumberMetric(hostMonitor, PING_UP_METRIC, pingResult ? UP : DOWN, telemetryManager.getStrategyTime());
-		// CHECKSTYLE:ON
+		return Optional.of(pingResult);
 	}
 
 	@Override
@@ -143,7 +126,7 @@ public class PingExtension implements IProtocolExtension {
 
 	@Override
 	public boolean isSupportedConfigurationType(String configurationType) {
-		return "ping".equalsIgnoreCase(configurationType);
+		return IDENTIFIER.equalsIgnoreCase(configurationType);
 	}
 
 	@Override
@@ -177,5 +160,10 @@ public class PingExtension implements IProtocolExtension {
 			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 			.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false)
 			.build();
+	}
+
+	@Override
+	public String getIdentifier() {
+		return IDENTIFIER;
 	}
 }
