@@ -213,7 +213,7 @@ public class ComputeProcessor implements IComputeProcessor {
 		final List<List<String>> resultTable = new ArrayList<>();
 		List<String> resultRow;
 
-		for (List<String> row : extractSourceTableListOfList()) {
+		for (List<String> row : sourceTable.getTable()) {
 			if (columnIndex >= row.size()) {
 				log.warn(
 					"Hostname {} - The index of the column is {} but the row size is {}, the translate computation cannot be performed.",
@@ -244,17 +244,7 @@ public class ComputeProcessor implements IComputeProcessor {
 		}
 
 		sourceTable.setTable(resultTable);
-		sourceTable.setRawData(SourceTable.tableToCsv(extractSourceTableListOfList(), TABLE_SEP, false));
-	}
-
-	/**
-	 * Find the source table list of list from the sourceTable instance.
-	 *
-	 * @return The source table as list of list
-	 */
-	private List<List<String>> extractSourceTableListOfList() {
-		final List<List<String>> result = sourceTable.getTable();
-		return result == null ? new ArrayList<>() : result;
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	@Override
@@ -288,7 +278,7 @@ public class ComputeProcessor implements IComputeProcessor {
 
 		int colOperand2 = getColumnIndex(operand2);
 
-		for (List<String> line : extractSourceTableListOfList()) {
+		for (List<String> line : sourceTable.getTable()) {
 			try {
 				if (columnIndex < line.size()) {
 					// Set the column value of the 'line' at 'columnIndex' to the result of a bitwise 'AND' operation
@@ -313,7 +303,7 @@ public class ComputeProcessor implements IComputeProcessor {
 			}
 		}
 
-		sourceTable.setRawData(SourceTable.tableToCsv(extractSourceTableListOfList(), TABLE_SEP, false));
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	@Override
@@ -390,7 +380,7 @@ public class ComputeProcessor implements IComputeProcessor {
 		}
 
 		final String input = (sourceTable.getRawData() == null || sourceTable.getRawData().isEmpty())
-			? SourceTable.tableToCsv(extractSourceTableListOfList(), TABLE_SEP, true)
+			? SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, true)
 			: sourceTable.getRawData();
 
 		final String computeKey = String.format(LOG_COMPUTE_KEY_SUFFIX_TEMPLATE, sourceKey, this.index);
@@ -481,7 +471,8 @@ public class ComputeProcessor implements IComputeProcessor {
 	 * @param columnIndex The column number
 	 */
 	void convertHex2Dec(final Integer columnIndex) {
-		extractSourceTableListOfList()
+		sourceTable
+			.getTable()
 			.forEach(row -> {
 				if (columnIndex < row.size()) {
 					final String value = row.get(columnIndex).replace("0x", EMPTY).replace(":", EMPTY).replaceAll("\\s*", EMPTY);
@@ -498,7 +489,7 @@ public class ComputeProcessor implements IComputeProcessor {
 					columnIndex
 				);
 			});
-		sourceTable.setRawData(SourceTable.tableToCsv(extractSourceTableListOfList(), TABLE_SEP, false));
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	/**
@@ -507,7 +498,8 @@ public class ComputeProcessor implements IComputeProcessor {
 	 * @param columnIndex The column number
 	 */
 	void convertArray2SimpleStatus(final Integer columnIndex) {
-		extractSourceTableListOfList()
+		sourceTable
+			.getTable()
 			.forEach(row -> {
 				if (columnIndex < row.size()) {
 					final String value = PslUtils.nthArg(row.get(columnIndex), "1-", VERTICAL_BAR, NEW_LINE);
@@ -521,7 +513,7 @@ public class ComputeProcessor implements IComputeProcessor {
 					columnIndex
 				);
 			});
-		sourceTable.setRawData(SourceTable.tableToCsv(extractSourceTableListOfList(), TABLE_SEP, false));
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	/**
@@ -600,12 +592,12 @@ public class ComputeProcessor implements IComputeProcessor {
 		// for each list in the list, duplicate the column of the given index
 		int columnIndex = duplicateColumn.getColumn() - 1;
 
-		for (List<String> elementList : extractSourceTableListOfList()) {
+		for (List<String> elementList : sourceTable.getTable()) {
 			if (columnIndex >= 0 && columnIndex < elementList.size()) {
 				elementList.add(columnIndex, elementList.get(columnIndex));
 			}
 		}
-		sourceTable.setRawData(SourceTable.tableToCsv(extractSourceTableListOfList(), TABLE_SEP, false));
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	@Override
@@ -644,7 +636,8 @@ public class ComputeProcessor implements IComputeProcessor {
 				: null;
 
 			// If there are both a regex and a valueList, both are applied, one after the other.
-			final List<List<String>> filteredTable = extractSourceTableListOfList()
+			final List<List<String>> filteredTable = sourceTable
+				.getTable()
 				.stream()
 				.filter(line ->
 					columnIndex < line.size() &&
@@ -654,7 +647,7 @@ public class ComputeProcessor implements IComputeProcessor {
 				.collect(Collectors.toList());
 
 			sourceTable.setTable(filteredTable);
-			sourceTable.setRawData(SourceTable.tableToCsv(extractSourceTableListOfList(), TABLE_SEP, false));
+			sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 		}
 	}
 
@@ -695,8 +688,8 @@ public class ComputeProcessor implements IComputeProcessor {
 			abstractMatchingLines.getColumn() != null &&
 			abstractMatchingLines.getColumn() > 0 &&
 			sourceTable != null &&
-			extractSourceTableListOfList() != null &&
-			!extractSourceTableListOfList().isEmpty()
+			sourceTable.getTable() != null &&
+			!sourceTable.getTable().isEmpty()
 		);
 		// CHECKSTYLE:ON
 	}
@@ -786,7 +779,7 @@ public class ComputeProcessor implements IComputeProcessor {
 		String text;
 		List<List<String>> resultTable = new ArrayList<>();
 		List<String> resultRow;
-		for (List<String> row : extractSourceTableListOfList()) {
+		for (List<String> row : sourceTable.getTable()) {
 			if (columnIndex >= row.size()) {
 				log.warn("Hostname {} - Invalid column index: {}. The table remains unchanged.", hostname, column);
 				return;
@@ -807,7 +800,7 @@ public class ComputeProcessor implements IComputeProcessor {
 		}
 
 		sourceTable.setTable(resultTable);
-		sourceTable.setRawData(SourceTable.tableToCsv(extractSourceTableListOfList(), TABLE_SEP, false));
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	@Override
@@ -838,7 +831,7 @@ public class ComputeProcessor implements IComputeProcessor {
 
 		columnIndex--;
 
-		for (final List<String> line : extractSourceTableListOfList()) {
+		for (final List<String> line : sourceTable.getTable()) {
 			if (columnIndex < line.size()) {
 				final String columnValue = line.get(columnIndex);
 
@@ -861,7 +854,7 @@ public class ComputeProcessor implements IComputeProcessor {
 				}
 			}
 		}
-		sourceTable.setRawData(SourceTable.tableToCsv(extractSourceTableListOfList(), TABLE_SEP, false));
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	/**
@@ -977,7 +970,7 @@ public class ComputeProcessor implements IComputeProcessor {
 		List<List<String>> resultTable = new ArrayList<>();
 		List<String> resultRow;
 		columnNumbers = columnNumbers.stream().filter(Objects::nonNull).sorted().collect(Collectors.toList());
-		for (List<String> row : extractSourceTableListOfList()) {
+		for (List<String> row : sourceTable.getTable()) {
 			resultRow = new ArrayList<>();
 			for (Integer columnIndex : columnNumbers) {
 				if (columnIndex < 1 || columnIndex > row.size()) {
@@ -998,7 +991,7 @@ public class ComputeProcessor implements IComputeProcessor {
 		}
 
 		sourceTable.setTable(resultTable);
-		sourceTable.setRawData(SourceTable.tableToCsv(extractSourceTableListOfList(), TABLE_SEP, false));
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	/**
@@ -1110,7 +1103,7 @@ public class ComputeProcessor implements IComputeProcessor {
 			return;
 		}
 
-		for (List<String> line : extractSourceTableListOfList()) {
+		for (List<String> line : sourceTable.getTable()) {
 			if (columnIndex < line.size()) {
 				long valueToBeReplacedLong;
 
@@ -1132,7 +1125,7 @@ public class ComputeProcessor implements IComputeProcessor {
 				line.set(columnIndex, columnResult);
 			}
 		}
-		sourceTable.setRawData(SourceTable.tableToCsv(extractSourceTableListOfList(), TABLE_SEP, false));
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	/**
@@ -1175,11 +1168,12 @@ public class ComputeProcessor implements IComputeProcessor {
 		if (COLUMN_PATTERN.matcher(replacement).matches()) {
 			final int replacementColumnIndex = getColumnIndex(replacement);
 
-			if (!extractSourceTableListOfList().isEmpty()) {
+			if (!sourceTable.getTable().isEmpty()) {
 				// If strToReplace is like "$n", the strToReplace is actually the content of the column n.
 				if (COLUMN_PATTERN.matcher(strToReplace).matches()) {
 					final int strToReplaceColumnIndex = getColumnIndex(strToReplace);
-					extractSourceTableListOfList()
+					sourceTable
+						.getTable()
 						.forEach(line -> {
 							if (validateSizeAndIndices(line.size(), columnIndex, replacementColumnIndex, strToReplaceColumnIndex)) {
 								line.set(
@@ -1189,7 +1183,8 @@ public class ComputeProcessor implements IComputeProcessor {
 							}
 						});
 				} else {
-					extractSourceTableListOfList()
+					sourceTable
+						.getTable()
 						.forEach(line -> {
 							if (validateSizeAndIndices(line.size(), columnIndex, replacementColumnIndex)) {
 								line.set(columnIndex, line.get(columnIndex).replace(strToReplace, line.get(replacementColumnIndex)));
@@ -1201,8 +1196,9 @@ public class ComputeProcessor implements IComputeProcessor {
 			// If strToReplace is like "$n", the strToReplace is actually the content of the column n.
 			if (COLUMN_PATTERN.matcher(strToReplace).matches()) {
 				final int strToReplaceColumnIndex = getColumnIndex(strToReplace);
-				if (!extractSourceTableListOfList().isEmpty()) {
-					extractSourceTableListOfList()
+				if (!sourceTable.getTable().isEmpty()) {
+					sourceTable
+						.getTable()
 						.forEach(line -> {
 							if (validateSizeAndIndices(line.size(), columnIndex, strToReplaceColumnIndex)) {
 								line.set(columnIndex, line.get(columnIndex).replace(line.get(strToReplaceColumnIndex), replacement));
@@ -1210,7 +1206,8 @@ public class ComputeProcessor implements IComputeProcessor {
 						});
 				}
 			} else {
-				extractSourceTableListOfList()
+				sourceTable
+					.getTable()
 					.forEach(line -> {
 						if (validateSizeAndIndices(line.size(), columnIndex)) {
 							line.set(columnIndex, line.get(columnIndex).replace(strToReplace, replacement));
@@ -1220,9 +1217,9 @@ public class ComputeProcessor implements IComputeProcessor {
 		}
 
 		sourceTable.setTable(
-			SourceTable.csvToTable(SourceTable.tableToCsv(extractSourceTableListOfList(), TABLE_SEP, false), TABLE_SEP)
+			SourceTable.csvToTable(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false), TABLE_SEP)
 		);
-		sourceTable.setRawData(SourceTable.tableToCsv(extractSourceTableListOfList(), TABLE_SEP, false));
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	/**
@@ -1344,7 +1341,8 @@ public class ComputeProcessor implements IComputeProcessor {
 		final Function<ComputeValue, String> startFunction = getValueFunction(startColumnIndex);
 		final Function<ComputeValue, String> endFunction = getValueFunction(endColumnIndex);
 
-		extractSourceTableListOfList()
+		sourceTable
+			.getTable()
 			.forEach(row -> {
 				if (columnIndex < row.size()) {
 					final String columnValue = row.get(columnIndex);
@@ -1383,7 +1381,7 @@ public class ComputeProcessor implements IComputeProcessor {
 				log.warn("Hostname {} - Cannot perform substring on row {} on column index {}", hostname, row, columnIndex);
 			});
 
-		sourceTable.setRawData(SourceTable.tableToCsv(extractSourceTableListOfList(), TABLE_SEP, false));
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	/**
@@ -1471,7 +1469,7 @@ public class ComputeProcessor implements IComputeProcessor {
 
 		final String defaultTranslation = translations.get(DEFAULT);
 
-		for (List<String> line : extractSourceTableListOfList()) {
+		for (List<String> line : sourceTable.getTable()) {
 			if (columnIndex < line.size()) {
 				final String valueToBeReplaced = line.get(columnIndex).toLowerCase();
 				final String newValue = translations.getOrDefault(valueToBeReplaced, defaultTranslation);
@@ -1493,11 +1491,11 @@ public class ComputeProcessor implements IComputeProcessor {
 
 		if (needSerialization) {
 			sourceTable.setTable(
-				SourceTable.csvToTable(SourceTable.tableToCsv(extractSourceTableListOfList(), TABLE_SEP, false), TABLE_SEP)
+				SourceTable.csvToTable(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false), TABLE_SEP)
 			);
 		}
 
-		sourceTable.setRawData(SourceTable.tableToCsv(extractSourceTableListOfList(), TABLE_SEP, false));
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	/**
@@ -1521,7 +1519,7 @@ public class ComputeProcessor implements IComputeProcessor {
 
 			if (xmlResult != null && !xmlResult.isEmpty()) {
 				sourceTable.setTable(xmlResult);
-				sourceTable.setRawData(SourceTable.tableToCsv(extractSourceTableListOfList(), TABLE_SEP, false));
+				sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 			}
 		} catch (Exception e) {
 			logComputeError(
@@ -1598,11 +1596,11 @@ public class ComputeProcessor implements IComputeProcessor {
 		final String operand2,
 		final int operand2Index
 	) {
-		for (List<String> line : extractSourceTableListOfList()) {
+		for (List<String> line : sourceTable.getTable()) {
 			performMathComputeOnLine(computeOperation, columnIndex, operand2, operand2Index, line);
 		}
 
-		sourceTable.setRawData(SourceTable.tableToCsv(extractSourceTableListOfList(), TABLE_SEP, false));
+		sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 	}
 
 	/**
@@ -1694,12 +1692,12 @@ public class ComputeProcessor implements IComputeProcessor {
 			abstractConcat.getColumn() != null &&
 			abstractConcat.getColumn() > 0 &&
 			sourceTable != null &&
-			extractSourceTableListOfList() != null &&
-			!extractSourceTableListOfList().isEmpty();
+			sourceTable.getTable() != null &&
+			!sourceTable.getTable().isEmpty();
 
 		if (firstChecks) {
 			// Case 1 : concatenation with an exiting column
-			if (abstractConcat.getColumn() <= extractSourceTableListOfList().get(0).size()) {
+			if (abstractConcat.getColumn() <= sourceTable.getTable().get(0).size()) {
 				int columnIndex = abstractConcat.getColumn() - 1;
 				String concatString = abstractConcat.getValue();
 
@@ -1708,30 +1706,26 @@ public class ComputeProcessor implements IComputeProcessor {
 				Matcher matcher = COLUMN_PATTERN.matcher(concatString);
 				if (matcher.matches()) {
 					int concatColumnIndex = Integer.parseInt(matcher.group(1)) - 1;
-					extractSourceTableListOfList()
-						.forEach(line -> concatColumns(line, columnIndex, concatColumnIndex, abstractConcat));
+					sourceTable.getTable().forEach(line -> concatColumns(line, columnIndex, concatColumnIndex, abstractConcat));
 				} else {
-					extractSourceTableListOfList().forEach(line -> concatString(line, columnIndex, abstractConcat));
+					sourceTable.getTable().forEach(line -> concatString(line, columnIndex, abstractConcat));
 
 					// Serialize and deserialize
 					// in case the String to concat contains a ';'
 					// so that a new column is created.
 					if (concatString.contains(TABLE_SEP)) {
 						sourceTable.setTable(
-							SourceTable.csvToTable(
-								SourceTable.tableToCsv(extractSourceTableListOfList(), TABLE_SEP, false),
-								TABLE_SEP
-							)
+							SourceTable.csvToTable(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false), TABLE_SEP)
 						);
 					}
 				}
-			} else if (abstractConcat.getColumn() == extractSourceTableListOfList().get(0).size() + 1) {
+			} else if (abstractConcat.getColumn() == sourceTable.getTable().get(0).size() + 1) {
 				// Case 2 : concatenation with non existing column
 
 				// add at the end of the list (or at the beginning if the list is empty)
-				extractSourceTableListOfList().forEach(line -> line.add(abstractConcat.getValue()));
+				sourceTable.getTable().forEach(line -> line.add(abstractConcat.getValue()));
 			}
-			sourceTable.setRawData(SourceTable.tableToCsv(extractSourceTableListOfList(), TABLE_SEP, false));
+			sourceTable.setRawData(SourceTable.tableToCsv(sourceTable.getTable(), TABLE_SEP, false));
 		}
 	}
 
