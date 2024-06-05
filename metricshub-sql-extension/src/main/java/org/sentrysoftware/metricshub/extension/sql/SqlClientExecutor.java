@@ -279,7 +279,7 @@ public class SqlClientExecutor {
 			for (final SqlColumn sqlColumn : sqlColumns) {
 				final String separator = sqlColumn.getType().contains("CHAR") ? "'" : "";
 				final String value = row.get(sqlColumn.getNumber() - 1);
-				rowValues.add(separator + value + separator);
+				rowValues.add(value != null ? (separator + value + separator) : "NULL");
 			}
 			columnValues.add("(" + String.join(",", rowValues) + ")");
 		}

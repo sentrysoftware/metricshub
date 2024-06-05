@@ -277,13 +277,7 @@ class SqlClientExecutorTest {
 
 		assertEquals(expectedResult, result);
 
-		expectedResult =
-			Arrays.asList(
-				Arrays.asList(LOWERCASE_A, LOWERCASE_V1),
-				Arrays.asList(LOWERCASE_B, LOWERCASE_V2),
-				Arrays.asList(LOWERCASE_C, LOWERCASE_V3),
-				Arrays.asList(LOWERCASE_D, null)
-			);
+		expectedResult = Arrays.asList(Arrays.asList(LOWERCASE_D, null));
 
 		tabl1 =
 			SourceTable
@@ -291,15 +285,22 @@ class SqlClientExecutorTest {
 				.table(
 					Arrays.asList(
 						Arrays.asList(LOWERCASE_A, LOWERCASE_V1, TRUE, ONE),
-						Arrays.asList(LOWERCASE_B, LOWERCASE_V2, TRUE, TWO),
+						Arrays.asList(LOWERCASE_B, "", TRUE, TWO),
 						Arrays.asList(LOWERCASE_C, LOWERCASE_V3, FALSE, THREE),
 						Arrays.asList(LOWERCASE_D, null, FALSE, FOUR)
 					)
 				)
 				.build();
+		mapSources.put(TAB1_REF, tabl1);
+		mapSources.put(TAB2_REF, tabl2);
+		connectorNamespace.setSourceTables(mapSources);
+
 		sqlColumn1Table1 = SqlColumn.builder().name("COL1_1").number(1).type("VARCHAR(255)").build();
-		sqlColumn2Table1 = SqlColumn.builder().name("COL2_1").number(2).type("BOOLEAN").build();
+		sqlColumn2Table1 = SqlColumn.builder().name("COL2_1").number(2).type("VARCHAR(255)").build();
+		columnsTable1 = Arrays.asList(sqlColumn1Table1, sqlColumn2Table1);
 		sqlTable1.setColumns(columnsTable1);
-		result = sqlClientExecutor.executeQuery(sqlTables, "SELECT COL1_1, COL2_1, END FROM T1;");
+		result =
+			sqlClientExecutor.executeQuery(Arrays.asList(sqlTable1), "SELECT COL1_1, COL2_1 FROM T1 WHERE COL2_1 IS NULL;");
+		assertEquals(expectedResult, result);
 	}
 }
