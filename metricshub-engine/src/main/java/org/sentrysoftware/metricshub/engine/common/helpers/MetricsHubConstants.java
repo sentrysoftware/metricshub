@@ -170,7 +170,7 @@ public class MetricsHubConstants {
 	/**
 	 * Thread Timeout
 	 */
-	public static final long THREAD_TIMEOUT = 2 * 60L; // 15 minutes
+	public static final long THREAD_TIMEOUT = 15 * 60L; // 15 minutes
 
 	// MetricsHub / OpenTelemetry mappings
 
