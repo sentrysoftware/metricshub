@@ -50,7 +50,8 @@ class ExtensionProtocolsDeserializerTest {
 			assertEquals(Collections.emptyMap(), deserializer.deserialize(yamlParserMock, deserializeContext));
 		}
 
-		// Assert that the returned value is an empty map when the parser returns null for a configured protocol
+		// Assert that the returned value is a map containing the default configuration when the user doesn't configure
+		// the protocol's properties
 		// Example:
 		// protocols:
 		//   ping:
@@ -70,7 +71,7 @@ class ExtensionProtocolsDeserializerTest {
 			assertEquals(PingConfiguration.builder().build(), protocols.get("ping"));
 		}
 
-		// Assert normal deserialization
+		// Assert ordinary deserialization
 		{
 			final ObjectNode protocolsNode = JsonNodeFactory.instance.objectNode();
 			final ObjectNode pingNode = JsonNodeFactory.instance.objectNode();
