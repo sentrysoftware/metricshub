@@ -115,6 +115,15 @@ public class ExtensionLoader {
 			log.info("Loaded connector store provider extension {}.", extension.getClass().getSimpleName())
 		);
 
+		// Load source computation extensions
+		final ServiceLoader<ISourceComputationExtension> sourceComputationExtensions = ServiceLoader.load(
+			ISourceComputationExtension.class,
+			classLoader
+		);
+		sourceComputationExtensions.forEach(extension ->
+			log.info("Loaded source computation extension {}.", extension.getClass().getSimpleName())
+		);
+
 		// Build the extension manager
 		extensionManager =
 			ExtensionManager
@@ -122,6 +131,7 @@ public class ExtensionLoader {
 				.withProtocolExtensions(convertProviderStreamToList(protocolExtensions.stream()))
 				.withStrategyProviderExtensions(convertProviderStreamToList(strategyProviderExtensions.stream()))
 				.withConnectorStoreProviderExtensions(convertProviderStreamToList(connectorStoreProviderExtensions.stream()))
+				.withSourceComputationExtensions(convertProviderStreamToList(sourceComputationExtensions.stream()))
 				.build();
 
 		return extensionManager;

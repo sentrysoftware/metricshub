@@ -48,8 +48,8 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 /**
  * Manages and aggregates various types of extensions used within MetricsHub.
  * This class acts as a central point for accessing and managing protocol
- * extensions, strategy provider extensions, and connector store provider
- * extensions.
+ * extensions, strategy provider extensions, connector store provider
+ * extensions and source computation extensions.
  * <p>
  * The {@link ExtensionManager} is designed to be flexible and extensible,
  * supporting various types of extensions that can be added or removed as
@@ -70,6 +70,9 @@ public class ExtensionManager {
 
 	@Default
 	private List<IConnectorStoreProviderExtension> connectorStoreProviderExtensions = new ArrayList<>();
+
+	@Default
+	private List<ISourceComputationExtension> sourceComputationExtensions = new ArrayList<>();
 
 	/**
 	 * Create a new empty instance of the Extension Manager.
@@ -287,5 +290,15 @@ public class ExtensionManager {
 			connectorStore.addMany(connectorStoreProviderExtension.getConnectorStore().getStore());
 		});
 		return connectorStore;
+	}
+
+	/**
+	 * Find the extension which satisfies the processing of the given source according to its type.
+	 *
+	 * @param source Any {@link Source} implementation
+	 * @return an {@link Optional} of an {@link ISourceComputationExtension} instance.
+	 */
+	public Optional<ISourceComputationExtension> findSourceComputationExtension(final Source source) {
+		return sourceComputationExtensions.stream().filter(extension -> extension.isValidSource(source)).findFirst();
 	}
 }
