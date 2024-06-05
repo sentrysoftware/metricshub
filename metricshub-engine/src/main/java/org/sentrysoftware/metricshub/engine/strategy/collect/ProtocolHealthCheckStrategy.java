@@ -22,7 +22,6 @@ package org.sentrysoftware.metricshub.engine.strategy.collect;
  */
 
 import java.util.List;
-import java.util.Optional;
 import lombok.Builder;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
@@ -80,26 +79,21 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	public void run() {
 		// Call the extensions to check the protocol health
 		final List<IProtocolExtension> protocolExtensions = extensionManager.findProtocolCheckExtensions(telemetryManager);
-		protocolExtensions.forEach(protocolExtension -> {
-			Optional<Boolean> protocolCheckResult = protocolExtension.checkProtocol(telemetryManager);
-
-			double metricValue;
-			if (!protocolCheckResult.isPresent()) {
-				metricValue = DOWN;
-			} else {
-				metricValue = protocolCheckResult.get() ? UP : DOWN;
-			}
-
-			// CHECKSTYLE:OFF
-			new MetricFactory()
-				.collectNumberMetric(
-					telemetryManager.getEndpointHostMonitor(),
-					"metricshub.host.up{protocol=\"" + protocolExtension.getIdentifier() + "\"}",
-					metricValue,
-					telemetryManager.getStrategyTime()
-				);
-			// CHECKSTYLE:OFF
-		});
+		// CHECKSTYLE:OFF
+		protocolExtensions.forEach(protocolExtension ->
+			protocolExtension
+				.checkProtocol(telemetryManager)
+				.ifPresent(isUp ->
+					new MetricFactory()
+						.collectNumberMetric(
+							telemetryManager.getEndpointHostMonitor(),
+							"metricshub.host.up{protocol=\"" + protocolExtension.getIdentifier() + "\"}",
+							isUp ? UP : DOWN,
+							telemetryManager.getStrategyTime()
+						)
+				)
+		);
+		// CHECKSTYLE:ON
 	}
 
 	@Override

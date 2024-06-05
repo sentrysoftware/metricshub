@@ -96,7 +96,7 @@ public class IpmiExtension implements IProtocolExtension {
 			return Optional.empty();
 		}
 
-		log.info("Hostname {} - Performing protocol health check.", hostname);
+		log.info("Hostname {} - Performing {} protocol health check.", hostname, getIdentifier());
 		log.info(
 			"Hostname {} - Checking IPMI protocol status. Sending a IPMI 'Get Chassis Status As String Result' request.",
 			hostname

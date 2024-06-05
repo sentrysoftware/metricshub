@@ -102,10 +102,10 @@ public class HttpExtension implements IProtocolExtension {
 
 		// Stop the HTTP health check if there is not an HTTP configuration
 		if (httpConfiguration == null) {
-			return Optional.of(false);
+			return Optional.empty();
 		}
 
-		log.info("Hostname {} - Performing protocol health check.", hostname);
+		log.info("Hostname {} - Performing {} protocol health check.", hostname, getIdentifier());
 		log.info("Hostname {} - Checking HTTP protocol status. Sending GET request to '/'.", hostname);
 
 		// Execute HTTP test request
