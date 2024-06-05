@@ -122,12 +122,6 @@
 			<version>4.2.0</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>metricshub-snmpv3-extension</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>
 
 		<dependency>
 			<groupId>${project.groupId}</groupId>
@@ -174,6 +168,18 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>metricshub-winrm-extension</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>metricshub-snmpv3-extension</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>metricshub-ping-extension</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>

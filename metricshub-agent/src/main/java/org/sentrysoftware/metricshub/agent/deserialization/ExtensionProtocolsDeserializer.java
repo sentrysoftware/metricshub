@@ -25,6 +25,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,19 +45,23 @@ public class ExtensionProtocolsDeserializer extends JsonDeserializer<Map<String,
 	/**
 	 * Deserializes JSON content into a Map of protocol configurations.
 	 *
-	 * @param parser the JSON parser
-	 * @param ctxt   the deserialization context
+	 * @param parser  the JSON parser
+	 * @param context the deserialization context
 	 * @return a Map of protocol names to IConfiguration instances
 	 * @throws IOException if an I/O error occurs
 	 */
 	@Override
-	public Map<String, IConfiguration> deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException {
-		JsonNode node = parser.getCodec().readTree(parser);
+	public Map<String, IConfiguration> deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+		if (parser == null || context == null) {
+			return new HashMap<>();
+		}
+
+		final JsonNode node = parser.readValueAsTree();
 		Map<String, IConfiguration> protocols = new HashMap<>();
 
 		if (node != null) {
 			// Retrieve the ExtensionManager from the context
-			final ExtensionManager extensionManager = (ExtensionManager) ctxt.findInjectableValue(
+			final ExtensionManager extensionManager = (ExtensionManager) context.findInjectableValue(
 				ExtensionManager.class.getName(),
 				null,
 				null
@@ -90,13 +95,20 @@ public class ExtensionProtocolsDeserializer extends JsonDeserializer<Map<String,
 	 * @return an IConfiguration instance or null if an error occurs
 	 */
 	private Optional<IConfiguration> buildConfigurationFromJsonNode(
-		ExtensionManager extensionManager,
-		String protocolName,
+		final ExtensionManager extensionManager,
+		final String protocolName,
 		JsonNode configNode
 	) {
-		if (protocolName.isBlank() || configNode == null) {
-			log.error("Invalid protocol name or configuration node.");
+		if (protocolName.isBlank()) {
+			log.error("The protocol name cannot be blank. Returning an empty protocols configuration.");
 			return Optional.empty();
+		}
+
+		// If the configuration node is null the extension should return a default configuration
+		// The underlying extension will decide if it should return a default configuration or not
+		// and the configuration's validation will be done by the extension itself.
+		if (configNode == null || configNode.isNull()) {
+			configNode = JsonNodeFactory.instance.objectNode();
 		}
 
 		try {
