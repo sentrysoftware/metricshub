@@ -52,12 +52,13 @@ public class ExtensionProtocolsDeserializer extends JsonDeserializer<Map<String,
 	 */
 	@Override
 	public Map<String, IConfiguration> deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+		final Map<String, IConfiguration> protocols = new HashMap<>();
+
 		if (parser == null || context == null) {
-			return new HashMap<>();
+			return protocols;
 		}
 
 		final JsonNode node = parser.readValueAsTree();
-		Map<String, IConfiguration> protocols = new HashMap<>();
 
 		if (node != null) {
 			// Retrieve the ExtensionManager from the context
@@ -100,13 +101,12 @@ public class ExtensionProtocolsDeserializer extends JsonDeserializer<Map<String,
 		JsonNode configNode
 	) {
 		if (protocolName.isBlank()) {
-			log.error("The protocol name cannot be blank. Returning an empty protocols configuration.");
+			log.error("The protocol name cannot be blank. Returning an empty configuration.");
 			return Optional.empty();
 		}
 
-		// If the configuration node is null the extension should return a default configuration
-		// The underlying extension will decide if it should return a default configuration or not
-		// and the configuration's validation will be done by the extension itself.
+		// If the configuration node is null, the extension should return a default configuration
+		// The underlying extension will decide whether the configuration is valid or not
 		if (configNode == null || configNode.isNull()) {
 			configNode = JsonNodeFactory.instance.objectNode();
 		}
