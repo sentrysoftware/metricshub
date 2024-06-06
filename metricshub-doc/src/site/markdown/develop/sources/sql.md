@@ -1,7 +1,7 @@
 keywords: sql, h2, database
 description: The SQL source allows to perform SQL queries on other Sources.
 
-# SNMP Get (Source)
+# SQL Source
 
 ```yaml
 connector:
