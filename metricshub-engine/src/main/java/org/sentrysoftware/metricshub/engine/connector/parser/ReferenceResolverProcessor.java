@@ -40,7 +40,7 @@ public class ReferenceResolverProcessor extends AbstractNodeProcessor {
 	private static final String SOURCE_REF_FORMAT = "${source::%s}";
 
 	private static final Pattern REGEX_SOURCE_REF_MONITORS = Pattern.compile(
-		"\\$\\{source::(?!((?i)monitors\\.([\\w()\\.-]+)\\.(discovery|collect|simple)\\.sources\\.([\\w()\\.-]+)\\}))([\\w()\\.-]+)\\}"
+		"\\$\\{source::(?!((?i)monitors\\.([\\w()\\.-]+)\\.(discovery|collect|simple)\\.sources\\.([\\w()\\.-]+)\\}|pre\\.([\\w()\\.-]+)\\}))([\\w()\\.-]+)\\}"
 	);
 	private static final Pattern REGEX_SOURCE_REF_PRE = Pattern.compile(
 		"\\$\\{source::(?!((?i)pre\\.([\\w()\\.-]+)\\}))([\\w()\\.-]+)\\}"
@@ -83,7 +83,7 @@ public class ReferenceResolverProcessor extends AbstractNodeProcessor {
 						return Matcher.quoteReplacement(
 							String.format(
 								SOURCE_REF_FORMAT,
-								Stream.of(parts[0], parts[1], parts[2], "sources", match.group(5)).collect(Collectors.joining("."))
+								Stream.of(parts[0], parts[1], parts[2], "sources", match.group(6)).collect(Collectors.joining("."))
 							)
 						);
 					}
