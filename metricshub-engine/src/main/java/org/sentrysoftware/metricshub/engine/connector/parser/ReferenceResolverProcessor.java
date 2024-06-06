@@ -40,7 +40,7 @@ public class ReferenceResolverProcessor extends AbstractNodeProcessor {
 	private static final String SOURCE_REF_FORMAT = "${source::%s}";
 
 	private static final Pattern REGEX_SOURCE_REF_MONITORS = Pattern.compile(
-		"\\$\\{source::(?!((?i)monitors\\.([\\w()\\.-]+)\\.(discovery|collect|simple)\\.sources\\.([\\w()\\.-]+)\\}|pre\\.([\\w()\\.-]+)\\}))([\\w()\\.-]+)\\}"
+		"\\$\\{source::(?!((?i)monitors\\.([\\w()\\.-]+)\\.(discovery|collect|simple)\\.sources\\.([\\w()\\.-]+)\\}|(?i)pre\\.([\\w()\\.-]+)\\}))([\\w()\\.-]+)\\}"
 	);
 	private static final Pattern REGEX_SOURCE_REF_PRE = Pattern.compile(
 		"\\$\\{source::(?!((?i)pre\\.([\\w()\\.-]+)\\}))([\\w()\\.-]+)\\}"
