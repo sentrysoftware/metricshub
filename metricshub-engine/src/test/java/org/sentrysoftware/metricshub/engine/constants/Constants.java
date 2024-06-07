@@ -116,6 +116,7 @@ public class Constants {
 
 	// Yaml test files
 	public static final String AAC_CONNECTOR_ID = "AAC";
+	public static final String AAC_CONNECTOR_NAME = "Adaptec Storage Manager Web Edition (AAC)";
 	public static final String TEST_CONNECTOR_ID = "TestConnector";
 
 	// Host information

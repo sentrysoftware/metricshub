@@ -14,6 +14,7 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.STATE_SET_METRIC_FAILED;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.STATE_SET_METRIC_OK;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.AAC_CONNECTOR_ID;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.AAC_CONNECTOR_NAME;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HOSTNAME;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_ID;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.LOCALHOST;
@@ -135,7 +136,7 @@ class DetectionStrategyTest {
 				.get(MONITOR_ATTRIBUTE_ID)
 		);
 		assertEquals(
-			AAC_CONNECTOR_ID,
+			AAC_CONNECTOR_NAME,
 			telemetryManager
 				.getMonitors()
 				.get(KnownMonitorType.CONNECTOR.getKey())

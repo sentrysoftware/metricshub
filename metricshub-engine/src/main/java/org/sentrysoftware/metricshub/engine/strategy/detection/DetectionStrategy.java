@@ -235,9 +235,11 @@ public class DetectionStrategy extends AbstractStrategy {
 		final Map<String, String> monitorAttributes = new HashMap<>();
 		final String hostId = telemetryManager.getHostConfiguration().getHostId();
 		final String connectorId = connector.getCompiledFilename();
+		final String connectorName = connector.getConnectorIdentity().getDisplayName();
 
 		monitorAttributes.put(MONITOR_ATTRIBUTE_ID, connectorId);
-		monitorAttributes.put(MONITOR_ATTRIBUTE_NAME, connectorId);
+		monitorAttributes.put(MONITOR_ATTRIBUTE_NAME, connectorName);
+		monitorAttributes.put("filename", connectorName + ".yaml");
 
 		monitorAttributes.put(
 			MONITOR_ATTRIBUTE_APPLIES_TO_OS,
