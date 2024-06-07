@@ -329,6 +329,19 @@ monitors:
               concatStart: # <string>
               concatEnd: # <string>
           computes: <compute-object-array>
+        # SQL Source
+        <sql-sourceKey>: # <source-object>
+        <sourceKey>:
+          type: sql
+          tables: <sqltable-object-array>
+          - source: <string>
+            alias: <string>
+            columns: <sqlcolumn-object-array>
+            - name: <string>
+              number: <integer>
+              type: <string>
+          query: <string>
+          computes: <compute-object-array>
 
         # Computes
         <sourceKey>: # <source-object>

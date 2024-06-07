@@ -47,6 +47,12 @@ class ReferenceResolverProcessorTest {
 			        http.source7: # <source-object>
 			          # ${source::monitors.enclosure.discovery.sources.http.source6}/${source::monitors.enclosure.discovery.sources.http-source4}
 			          type1: ${source::http.source6}/${source::http-source4}
+			        http.source8:
+			          type: http
+			          method: get
+			          resultContent: body
+			          executeForEachEntryOf:
+			            source: ${source::pre.systemId}
 			      mapping:
 			        source1: ${source::httpSource2} # ${source::monitors.enclosure.discovery.sources.httpSource2}
 			    collect: # <object> | <job> key possible values [ discovery, collect, simple]
@@ -159,6 +165,19 @@ class ReferenceResolverProcessorTest {
 				.get("sources")
 				.get("http.source7")
 				.get("type1")
+				.asText()
+		);
+
+		assertEquals(
+			"${source::pre.systemId}",
+			processedNode
+				.get("monitors")
+				.get("enclosure")
+				.get("discovery")
+				.get("sources")
+				.get("http.source8")
+				.get("executeForEachEntryOf")
+				.get("source")
 				.asText()
 		);
 
