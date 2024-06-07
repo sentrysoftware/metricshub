@@ -131,7 +131,7 @@ resourceGroups:
       #       community: public
       #       port: 161
       #       timeout: 120
-      #   connectors: [ -SunF15K ]
+      #   connectors: [ "!SunF15K" ]
 
       #═══════════════════════════════════════════════════
       # SNMP v2c protocol configuration
@@ -249,12 +249,24 @@ resourceGroups:
       #       vcenter: server-vcenter
 
       #═══════════════════════════════════════════════════
+      # ICMP Ping protocol configuration    
+      #═══════════════════════════════════════════════════
+
+      # server-13:
+      #   attributes:
+      #     host.name: server-13
+      #     host.type: storage
+      #   protocols:
+      #     ping:
+      #       timeout: 10s
+
+      #═══════════════════════════════════════════════════
       # Host Group SNMP v1 protocol configuration
       #═══════════════════════════════════════════════════
 
       # group-1:
       #   attributes:
-      #     host.names: [server-13, server-14, server-15]
+      #     host.names: [server-14, server-15, server-16]
       #     host.type: linux
       #   protocols:
       #     snmp:

@@ -224,7 +224,7 @@ public class WbemRequestExecutor {
 	 * resulting from the execution of the query.
 	 * @throws ClientException when anything goes wrong (details in cause)
 	 */
-	private List<List<String>> doWbemQuery(
+	public List<List<String>> doWbemQuery(
 		final String hostname,
 		final WbemConfiguration wbemConfig,
 		final String query,

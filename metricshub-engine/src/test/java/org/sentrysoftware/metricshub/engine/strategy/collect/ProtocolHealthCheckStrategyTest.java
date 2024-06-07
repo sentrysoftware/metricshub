@@ -1,8 +1,6 @@
 package org.sentrysoftware.metricshub.engine.strategy.collect;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HOSTNAME;
@@ -81,8 +79,6 @@ class ProtocolHealthCheckStrategyTest {
 		doReturn(true)
 			.when(protocolExtensionMock)
 			.isValidConfiguration(telemetryManager.getHostConfiguration().getConfigurations().get(TestConfiguration.class));
-
-		doNothing().when(protocolExtensionMock).checkProtocol(any(TelemetryManager.class));
 
 		// Create a new protocol health check strategy
 		final ProtocolHealthCheckStrategy healthCheckStrategy = new ProtocolHealthCheckStrategy(

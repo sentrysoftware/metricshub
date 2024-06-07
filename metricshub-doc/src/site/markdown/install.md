@@ -19,7 +19,7 @@ Unzip and untar the content of `metricshub-linux-${project.version}.tar.gz` into
 
 ```shell-session
 / $ cd /opt
-/opt $ sudo tar xf /tmp/metricshub-linux-${project.version}.tar.gz
+/opt $ sudo tar xzf /tmp/metricshub-linux-${project.version}.tar.gz
 ```
 
 ### Configure
@@ -256,7 +256,7 @@ Unzip and untar the content of `metricshub-linux-${project.version}-docker.tar.g
 
 ```shell-session
 / $ cd /docker
-/docker $ sudo tar xf /tmp/metricshub-linux-${project.version}-docker.tar.gz
+/docker $ sudo tar xzf /tmp/metricshub-linux-${project.version}-docker.tar.gz
 ```
 
 ### Configure

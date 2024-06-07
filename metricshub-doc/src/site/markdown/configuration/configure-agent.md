@@ -134,6 +134,8 @@ where
 
 * `<protocol-configuration>` is the protocol(s) **MetricsHub** will use to communicate with the resources: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](./configure-agent.html#protocols-and-credentials) for more details.
 
+> Note: You can use the `${esc.d}{env::ENV_VARIABLE_NAME}` syntax in the `config/metricshub.yaml` file to call your environment variables.
+
 ### Protocols and credentials
 
 #### HTTP
@@ -221,6 +223,30 @@ resourceGroups:
             useSudo: true
             useSudoCommands: [ cmd1, cmd2 ]
             sudoCommand: sudo
+```
+
+#### ICMP Ping 
+
+Use the parameter below to configure the ICMP ping protocol:
+
+| Parameter       | Description                                                |
+| --------------- | ---------------------------------------------------------- |
+| ping            | Protocol used to test the host reachability through ICMP.  |
+| timeout         | How long until the ping command times out (Default: 5s).   |
+
+**Example**
+
+```yaml
+resourceGroups:
+  boston:
+    resources:
+      myHost1:
+        attributes:
+          host.name: my-host-01
+          host.type: linux
+        protocols:
+          ping:
+            timeout: 10s
 ```
 
 #### SSH
@@ -635,14 +661,14 @@ resourceGroups:
             timeout: 120s
             username: myusername
             password: mypwd
-        connectors: [ +VMwareESX4i, +VMwareESXi, "#system" ]
+        connectors: [ "#system" ]
 ```
 
 * To force a connector, precede the connector identifier with a plus sign (`+`), as in `+MIB2`.
-* To exclude a connector from automatic detection, precede the connector identifier with a minus sign (`-`), like `-MIB2`.
+* To exclude a connector from automatic detection, precede the connector identifier with an exclamation mark (`!`), like `!MIB2`.
 * To stage a connector for processing by automatic detection, configure the connector identifier, for instance, `MIB2`.
 * To stage a category of connectors for processing by automatic detection, precede the category tag with a hash (`#`), such as `#hardware` or `#system`.
-* To exclude a category of connectors from automatic detection, precede the category tag to be excluded with a minus and a hash sign (`-#`), such as `-#system`.
+* To exclude a category of connectors from automatic detection, precede the category tag to be excluded with an exclamation mark and a hash sign (`!#`), such as `!#system`.
 
 > **Notes**:
 >
@@ -662,7 +688,7 @@ resourceGroups:
 * Example 2:
 
   ```yaml
-  connectors: [ "-#hardware", "#system" ]
+  connectors: [ "!#hardware", "#system" ]
   ```
 
   The core engine will perform automatic detection on connectors categorized under `system`, excluding those categorized under `hardware`.
@@ -686,7 +712,7 @@ resourceGroups:
 * Example 5:
 
   ```yaml
-  connectors: [ DiskPart, "-#system" ]
+  connectors: [ DiskPart, "!#system" ]
   ```
 
   The core engine will perform automatic detection exclusively on the `DiskPart` connector.
@@ -702,7 +728,7 @@ resourceGroups:
 * Example 7:
 
   ```yaml
-  connectors: [ -Linux ]
+  connectors: [ "!Linux" ]
   ```
 
   The core engine will perform automatic detection on all connectors except the `Linux` connector.
@@ -710,7 +736,7 @@ resourceGroups:
 * Example 8:
 
   ```yaml
-  connectors: [ "#hardware", -MIB2 ]
+  connectors: [ "#hardware", "!MIB2" ]
   ```
 
   The core engine will perform automatic detection on connectors categorized under `hardware`, excluding the `MIB2` connector.

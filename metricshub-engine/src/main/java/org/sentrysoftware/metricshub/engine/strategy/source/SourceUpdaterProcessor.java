@@ -52,6 +52,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpGetSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SqlSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.StaticSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.TableJoinSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.TableUnionSource;
@@ -138,6 +139,11 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 	@Override
 	public SourceTable process(final WbemSource wbemSource) {
 		return processSource(wbemSource.copy());
+	}
+
+	@Override
+	public SourceTable process(final SqlSource sqlSource) {
+		return processSource(sqlSource.copy());
 	}
 
 	/**

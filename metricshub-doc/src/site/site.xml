@@ -70,7 +70,7 @@
 
 		<links>
 			<item name="Open Sentry" href="https://sentrysoftware.org" />
-			<item name="&lt;i class='fa-brands fa-github'&gt;&lt;/i&gt; GitHub" href="${project.scm.url}" />
+			<item name="&lt;i class='fa-brands fa-github'&gt;&lt;/i&gt; GitHub" href="https://github.com/sentrysoftware/metricshub" />
 			<item name="OpenTelemetry" href="https://opentelemetry.io" />
 		</links>
 
@@ -80,7 +80,8 @@
 
 		<menu name="Getting Started">
 			<item name="Overview" href="index.html" />
-			<item name="Quick Start" href="start.html "/>
+			<item name="Getting Started - Windows" href="getting-started-windows.html "/>
+			<item name="Getting Started - Linux" href="getting-started-linux.html "/>
 			<item name="General Concepts" href="concepts.html "/>
 			<item name="Installation" href="install.html" />
 		</menu>
@@ -125,6 +126,7 @@
 				<item name="WMI" href="develop/sources/wmi.html" />
 				<item name="Static (Constant)" href="develop/sources/static.html" />
 				<item name="Copy (Duplicate)" href="develop/sources/copy.html" />
+				<item name="SQL" href="develop/sources/sql.html" />
 				<item name="Pre-Sources" href="develop/sources/pre.html" />
 			</item>
 			<item name="Computes" href="develop/computes/index.html" >
