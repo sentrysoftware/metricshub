@@ -287,7 +287,6 @@ class DetectionStrategyTest {
 			"connector_" + METRICS_HUB_CONFIGURED_CONNECTOR_ID
 		);
 
-		assertNotNull(telemetryManager);
 		assertNotNull(configuredConnectorMonitor);
 		assertEquals(METRICS_HUB_CONFIGURED_CONNECTOR_ID, configuredConnectorMonitor.getAttribute(MONITOR_ATTRIBUTE_ID));
 		assertEquals(
