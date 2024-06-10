@@ -883,7 +883,7 @@ public class ConfigHelper {
 
 			// Set the compiled filename of the connector to the unique identifier
 			identity.setCompiledFilename(connectorId);
-
+			// Set the display name of the connector
 			identity.setDisplayName(connectorName);
 		}
 	}
