@@ -150,9 +150,9 @@ public abstract class AbstractStrategy implements IStrategy {
 				.build()
 				.run(() -> runSource(connectorId, attributes, source, previousSourceTable));
 
-			if (sourceTable == null) {
+			if (sourceTable == null || sourceTable.isEmpty()) {
 				log.warn(
-					"Hostname {} - Received null source table for Source key {} - Connector {} - Monitor {}.",
+					"Hostname {} - Received null or empty source table for Source key {} - Connector {} - Monitor {}.",
 					hostname,
 					sourceKey,
 					connectorId,
