@@ -877,8 +877,8 @@ public class ConfigHelper {
 			final String connectorId = String.format("MetricsHub-Configured-Connector-%s-%s", resourceGroupKey, resourceKey);
 			final String connectorName = String.format(
 				"Configured Connector on resource %s (Group %s)",
-				resourceGroupKey,
-				resourceKey
+				resourceKey,
+				resourceGroupKey
 			);
 
 			// Set the compiled filename of the connector to the unique identifier
