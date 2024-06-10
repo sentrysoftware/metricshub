@@ -875,9 +875,16 @@ public class ConfigHelper {
 			// Create a unique connector identifier based on resource keys
 			final ConnectorIdentity identity = configuredConnector.getOrCreateConnectorIdentity();
 			final String connectorId = String.format("MetricsHub-Configured-Connector-%s-%s", resourceGroupKey, resourceKey);
+			final String connectorName = String.format(
+				"Configured Connector on resource %s (Group %s)",
+				resourceKey,
+				resourceGroupKey
+			);
 
 			// Set the compiled filename of the connector to the unique identifier
 			identity.setCompiledFilename(connectorId);
+			// Set the display name of the connector
+			identity.setDisplayName(connectorName);
 		}
 	}
 
