@@ -57,6 +57,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
 class DetectionStrategyTest {
 
 	private static final String METRICS_HUB_CONFIGURED_CONNECTOR_ID = "MetricsHub-Configured-Connector";
+	private static final String METRICS_HUB_CONFIGURED_CONNECTOR_NAME = "MetricsHub-Configured-Connector-Name";
 	private static final long CURRENT_TIME_MILLIS = System.currentTimeMillis();
 
 	Connector getConnector() throws IOException {
@@ -260,6 +261,7 @@ class DetectionStrategyTest {
 					.hostType(DeviceKind.LINUX)
 					.hostname(LOCALHOST)
 					.configuredConnectorId(METRICS_HUB_CONFIGURED_CONNECTOR_ID)
+					.configuredConnectorName(METRICS_HUB_CONFIGURED_CONNECTOR_NAME)
 					.configurations(Map.of(TestConfiguration.class, TestConfiguration.builder().build()))
 					.build()
 			)
@@ -280,15 +282,13 @@ class DetectionStrategyTest {
 			"connector_" + METRICS_HUB_CONFIGURED_CONNECTOR_ID
 		);
 
-		// Debugging outputs
-		System.out.println("Configured Connector Monitor: " + configuredConnectorMonitor);
-		// Debugging outputs
-		System.out.println("Configuredtelemor: " + telemetryManager);
-
 		assertNotNull(telemetryManager);
 		assertNotNull(configuredConnectorMonitor);
 		assertEquals(METRICS_HUB_CONFIGURED_CONNECTOR_ID, configuredConnectorMonitor.getAttribute(MONITOR_ATTRIBUTE_ID));
-		assertEquals("tst", configuredConnectorMonitor.getAttribute(MONITOR_ATTRIBUTE_NAME));
+		assertEquals(
+			METRICS_HUB_CONFIGURED_CONNECTOR_NAME,
+			configuredConnectorMonitor.getAttribute(MONITOR_ATTRIBUTE_NAME)
+		);
 		assertEquals(HOST_ID, configuredConnectorMonitor.getAttribute(MONITOR_ATTRIBUTE_PARENT_ID));
 		assertTrue(
 			telemetryManager.getHostProperties().getConnectorNamespace(METRICS_HUB_CONFIGURED_CONNECTOR_ID).isStatusOk()
