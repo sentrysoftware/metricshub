@@ -105,7 +105,8 @@ public class IpmiRequestExecutor {
 			password,
 			ArrayHelper.hexToByteArray(ipmiConfiguration.getBmcKey()),
 			ipmiConfiguration.isSkipAuth(),
-			timeout
+			timeout,
+			0L // Turn off keep-alive messages sent to the remote host
 		);
 	}
 
