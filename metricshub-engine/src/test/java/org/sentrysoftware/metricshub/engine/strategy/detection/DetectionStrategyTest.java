@@ -271,7 +271,7 @@ class DetectionStrategyTest {
 					.build()
 			)
 			.connectorStore(connectorStore)
-		        .build();
+			.build();
 
 		// Create detectionStrategy with the previously created telemetryManager
 		new DetectionStrategy(
