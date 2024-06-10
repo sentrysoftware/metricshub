@@ -66,7 +66,6 @@ public class HostConfiguration {
 	private Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
 
 	private String configuredConnectorId;
-	private String configuredConnectorName;
 
 	/**
 	 * Determine the accepted sources that can be executed using the current engine configuration

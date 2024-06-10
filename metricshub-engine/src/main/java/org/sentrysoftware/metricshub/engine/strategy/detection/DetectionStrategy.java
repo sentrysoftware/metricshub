@@ -117,9 +117,6 @@ public class DetectionStrategy extends AbstractStrategy {
 		// Get the configured connector
 		final String configuredConnectorId = hostConfiguration.getConfiguredConnectorId();
 
-		// Get the configured connector
-		final String configuredConnectorName = hostConfiguration.getConfiguredConnectorName();
-
 		// Initialize a new manager to stage connectors
 		final ConnectorStagingManager connectorStagingManager = new ConnectorStagingManager(hostname);
 
@@ -171,16 +168,15 @@ public class DetectionStrategy extends AbstractStrategy {
 		createConnectorMonitors(connectorTestResults);
 
 		// Create configured connector monitor
-		createConfiguredConnectorMonitor(configuredConnectorId, configuredConnectorName);
+		createConfiguredConnectorMonitor(configuredConnectorId);
 	}
 
 	/**
 	 * Create a new connector monitor for the configured connector
 	 *
 	 * @param configuredConnectorId the unique identifier of the connector
-	 * @param configuredConnectorName  the name of the connector
 	 */
-	void createConfiguredConnectorMonitor(final String configuredConnectorId, final String configuredConnectorName) {
+	void createConfiguredConnectorMonitor(final String configuredConnectorId) {
 		if (configuredConnectorId == null) {
 			return;
 		}
@@ -190,7 +186,10 @@ public class DetectionStrategy extends AbstractStrategy {
 		// Set monitor attributes
 		final Map<String, String> monitorAttributes = new HashMap<>();
 		monitorAttributes.put(MONITOR_ATTRIBUTE_ID, configuredConnectorId);
-		monitorAttributes.put(MONITOR_ATTRIBUTE_NAME, configuredConnectorName);
+		monitorAttributes.put(
+			MONITOR_ATTRIBUTE_NAME,
+			telemetryManager.getConnectorStore().getStore().get(configuredConnectorId).getConnectorIdentity().getDisplayName()
+		);
 		monitorAttributes.put(MONITOR_ATTRIBUTE_PARENT_ID, hostId);
 
 		// Create the monitor factory

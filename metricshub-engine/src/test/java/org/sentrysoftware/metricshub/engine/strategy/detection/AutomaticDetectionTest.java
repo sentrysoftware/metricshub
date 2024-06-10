@@ -107,7 +107,6 @@ class AutomaticDetectionTest {
 			0,
 			null,
 			configurations,
-			null,
 			null
 		);
 
@@ -158,7 +157,6 @@ class AutomaticDetectionTest {
 			0,
 			null,
 			configurations,
-			null,
 			null
 		);
 
@@ -224,7 +222,6 @@ class AutomaticDetectionTest {
 			0,
 			null,
 			configurations,
-			null,
 			null
 		);
 
@@ -290,7 +287,6 @@ class AutomaticDetectionTest {
 			0,
 			null,
 			configurations,
-			null,
 			null
 		);
 
@@ -356,7 +352,6 @@ class AutomaticDetectionTest {
 			0,
 			null,
 			configurations,
-			null,
 			null
 		);
 

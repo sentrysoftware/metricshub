@@ -251,6 +251,12 @@ class DetectionStrategyTest {
 
 	@Test
 	void testCreateConfiguredConnectorMonitor() {
+		final Connector connector = new Connector();
+		final ConnectorIdentity identity = new ConnectorIdentity();
+		identity.setDisplayName(METRICS_HUB_CONFIGURED_CONNECTOR_NAME);
+		connector.setConnectorIdentity(identity);
+		final ConnectorStore connectorStore = new ConnectorStore();
+		connectorStore.setStore(Map.of(METRICS_HUB_CONFIGURED_CONNECTOR_ID, connector));
 		// Initiate telemetryManager with host configuration
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
@@ -261,12 +267,11 @@ class DetectionStrategyTest {
 					.hostType(DeviceKind.LINUX)
 					.hostname(LOCALHOST)
 					.configuredConnectorId(METRICS_HUB_CONFIGURED_CONNECTOR_ID)
-					.configuredConnectorName(METRICS_HUB_CONFIGURED_CONNECTOR_NAME)
 					.configurations(Map.of(TestConfiguration.class, TestConfiguration.builder().build()))
 					.build()
 			)
-			.connectorStore(new ConnectorStore())
-			.build();
+			.connectorStore(connectorStore)
+		        .build();
 
 		// Create detectionStrategy with the previously created telemetryManager
 		new DetectionStrategy(
