@@ -875,9 +875,16 @@ public class ConfigHelper {
 			// Create a unique connector identifier based on resource keys
 			final ConnectorIdentity identity = configuredConnector.getOrCreateConnectorIdentity();
 			final String connectorId = String.format("MetricsHub-Configured-Connector-%s-%s", resourceGroupKey, resourceKey);
+			final String connectorName = String.format(
+				"Configured Connector on resource %s (Group %s)",
+				resourceGroupKey,
+				resourceKey
+			);
 
 			// Set the compiled filename of the connector to the unique identifier
 			identity.setCompiledFilename(connectorId);
+
+			identity.setDisplayName(connectorName);
 		}
 	}
 
@@ -965,6 +972,7 @@ public class ConfigHelper {
 			hostType = detectHostTypeFromAttribute(hostTypeAttribute);
 		}
 
+		String configuredConnectorName = null;
 		String configuredConnectorId = null;
 		// Retrieve the connector specified by the user in the metricshub.yaml configuration
 		final Connector configuredConnector = resourceConfig.getConnector();
@@ -972,6 +980,7 @@ public class ConfigHelper {
 		if (configuredConnector != null) {
 			// The custom connector is considered a selected connector from the engine's perspective
 			configuredConnectorId = configuredConnector.getCompiledFilename();
+			configuredConnectorName = configuredConnector.getConnectorIdentity().getDisplayName();
 		}
 
 		return HostConfiguration
@@ -984,6 +993,7 @@ public class ConfigHelper {
 			.hostType(hostType)
 			.sequential(Boolean.TRUE.equals(resourceConfig.getSequential()))
 			.configuredConnectorId(configuredConnectorId)
+			.configuredConnectorName(configuredConnectorName)
 			.build();
 	}
 

@@ -132,7 +132,7 @@ public class Constants {
 		"HostConfiguration(hostname=localhost, hostId=localhost," +
 		" hostType=LINUX, strategyTimeout=100, connectors=null," +
 		" sequential=false, alertTrigger=null," +
-		" retryDelay=30, connectorVariables=null, configurations={}, configuredConnectorId=null)";
+		" retryDelay=30, connectorVariables=null, configurations={}, configuredConnectorId=null, configuredConnectorName=null)";
 	public static final String IPMI_CONNECTION_SUCCESS_WITH_IMPI_OVER_LAN_MESSAGE =
 		"Successfully connected to the IPMI BMC chip with the IPMI-over-LAN " + "interface.";
 	public static final String TWGIPC = "TWGIPC";

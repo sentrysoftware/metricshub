@@ -67,6 +67,8 @@ public class HostConfiguration {
 
 	private String configuredConnectorId;
 
+	private String configuredConnectorName;
+
 	/**
 	 * Determine the accepted sources that can be executed using the current engine configuration
 	 *

@@ -279,9 +279,16 @@ class DetectionStrategyTest {
 			KnownMonitorType.CONNECTOR.getKey(),
 			"connector_" + METRICS_HUB_CONFIGURED_CONNECTOR_ID
 		);
+
+		// Debugging outputs
+		System.out.println("Configured Connector Monitor: " + configuredConnectorMonitor);
+		// Debugging outputs
+		System.out.println("Configuredtelemor: " + telemetryManager);
+
+		assertNotNull(telemetryManager);
 		assertNotNull(configuredConnectorMonitor);
 		assertEquals(METRICS_HUB_CONFIGURED_CONNECTOR_ID, configuredConnectorMonitor.getAttribute(MONITOR_ATTRIBUTE_ID));
-		assertEquals(METRICS_HUB_CONFIGURED_CONNECTOR_ID, configuredConnectorMonitor.getAttribute(MONITOR_ATTRIBUTE_NAME));
+		assertEquals("tst", configuredConnectorMonitor.getAttribute(MONITOR_ATTRIBUTE_NAME));
 		assertEquals(HOST_ID, configuredConnectorMonitor.getAttribute(MONITOR_ATTRIBUTE_PARENT_ID));
 		assertTrue(
 			telemetryManager.getHostProperties().getConnectorNamespace(METRICS_HUB_CONFIGURED_CONNECTOR_ID).isStatusOk()
