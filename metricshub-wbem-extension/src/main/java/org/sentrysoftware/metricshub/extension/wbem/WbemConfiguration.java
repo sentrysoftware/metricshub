@@ -21,9 +21,13 @@ package org.sentrysoftware.metricshub.extension.wbem;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
+
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
@@ -41,15 +45,18 @@ import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 @NoArgsConstructor
 public class WbemConfiguration implements IConfiguration {
 
-	@Builder.Default
+	@Default
+	@JsonSetter(nulls = SKIP)
 	private final TransportProtocols protocol = TransportProtocols.HTTPS;
 
-	@Builder.Default
+	@Default
+	@JsonSetter(nulls = SKIP)
 	private final Integer port = 5989;
 
 	private String namespace;
 
-	@Builder.Default
+	@Default
+	@JsonSetter(nulls = SKIP)
 	@JsonDeserialize(using = TimeDeserializer.class)
 	private final Long timeout = 120L;
 

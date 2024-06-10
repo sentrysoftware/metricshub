@@ -65,6 +65,7 @@ public class WinRmConfiguration implements IWinConfiguration {
 	private List<AuthenticationEnum> authentications;
 
 	@Default
+	@JsonSetter(nulls = SKIP)
 	@JsonDeserialize(using = TimeDeserializer.class)
 	private Long timeout = 120L;
 

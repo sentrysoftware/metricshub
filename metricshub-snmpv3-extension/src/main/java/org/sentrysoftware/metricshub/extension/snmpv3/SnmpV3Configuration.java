@@ -27,6 +27,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -51,15 +52,15 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 	private static final String INVALID_AUTH_TYPE_EXCEPTION_MESSAGE = "Invalid authentication type: ";
 	private static final String INVALID_PRIVACY_VALUE_EXCEPTION_MESSAGE = "Invalid privacy value: ";
 
-	@Builder.Default
+	@Default
 	@JsonSetter(nulls = SKIP)
 	private char[] community = new char[] { 'p', 'u', 'b', 'l', 'i', 'c' };
 
-	@Builder.Default
+	@Default
 	@JsonSetter(nulls = SKIP)
 	private Integer port = 161;
 
-	@Builder.Default
+	@Default
 	@JsonSetter(nulls = SKIP)
 	@JsonDeserialize(using = TimeDeserializer.class)
 	private Long timeout = 120L;

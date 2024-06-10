@@ -50,8 +50,8 @@ public class SnmpConfiguration implements ISnmpConfiguration {
 	private static final String INVALID_SNMP_VERSION_EXCEPTION_MESSAGE = "Invalid SNMP version: ";
 
 	@Default
-	@JsonDeserialize(using = SnmpVersionDeserializer.class)
 	@JsonSetter(nulls = SKIP)
+	@JsonDeserialize(using = SnmpVersionDeserializer.class)
 	private final SnmpVersion version = SnmpVersion.V1;
 
 	@Default
