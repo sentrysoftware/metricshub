@@ -14,6 +14,7 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.STATE_SET_METRIC_FAILED;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.STATE_SET_METRIC_OK;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.AAC_CONNECTOR_ID;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.AAC_CONNECTOR_NAME;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HOSTNAME;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_ID;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.LOCALHOST;
@@ -56,6 +57,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
 class DetectionStrategyTest {
 
 	private static final String METRICS_HUB_CONFIGURED_CONNECTOR_ID = "MetricsHub-Configured-Connector";
+	private static final String METRICS_HUB_CONFIGURED_CONNECTOR_NAME = "MetricsHub-Configured-Connector-Name";
 	private static final long CURRENT_TIME_MILLIS = System.currentTimeMillis();
 
 	Connector getConnector() throws IOException {
@@ -135,7 +137,7 @@ class DetectionStrategyTest {
 				.get(MONITOR_ATTRIBUTE_ID)
 		);
 		assertEquals(
-			AAC_CONNECTOR_ID,
+			AAC_CONNECTOR_NAME,
 			telemetryManager
 				.getMonitors()
 				.get(KnownMonitorType.CONNECTOR.getKey())
@@ -249,6 +251,12 @@ class DetectionStrategyTest {
 
 	@Test
 	void testCreateConfiguredConnectorMonitor() {
+		final Connector connector = new Connector();
+		final ConnectorIdentity identity = new ConnectorIdentity();
+		identity.setDisplayName(METRICS_HUB_CONFIGURED_CONNECTOR_NAME);
+		connector.setConnectorIdentity(identity);
+		final ConnectorStore connectorStore = new ConnectorStore();
+		connectorStore.setStore(Map.of(METRICS_HUB_CONFIGURED_CONNECTOR_ID, connector));
 		// Initiate telemetryManager with host configuration
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
@@ -262,7 +270,7 @@ class DetectionStrategyTest {
 					.configurations(Map.of(TestConfiguration.class, TestConfiguration.builder().build()))
 					.build()
 			)
-			.connectorStore(new ConnectorStore())
+			.connectorStore(connectorStore)
 			.build();
 
 		// Create detectionStrategy with the previously created telemetryManager
@@ -278,9 +286,13 @@ class DetectionStrategyTest {
 			KnownMonitorType.CONNECTOR.getKey(),
 			"connector_" + METRICS_HUB_CONFIGURED_CONNECTOR_ID
 		);
+
 		assertNotNull(configuredConnectorMonitor);
 		assertEquals(METRICS_HUB_CONFIGURED_CONNECTOR_ID, configuredConnectorMonitor.getAttribute(MONITOR_ATTRIBUTE_ID));
-		assertEquals(METRICS_HUB_CONFIGURED_CONNECTOR_ID, configuredConnectorMonitor.getAttribute(MONITOR_ATTRIBUTE_NAME));
+		assertEquals(
+			METRICS_HUB_CONFIGURED_CONNECTOR_NAME,
+			configuredConnectorMonitor.getAttribute(MONITOR_ATTRIBUTE_NAME)
+		);
 		assertEquals(HOST_ID, configuredConnectorMonitor.getAttribute(MONITOR_ATTRIBUTE_PARENT_ID));
 		assertTrue(
 			telemetryManager.getHostProperties().getConnectorNamespace(METRICS_HUB_CONFIGURED_CONNECTOR_ID).isStatusOk()

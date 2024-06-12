@@ -381,7 +381,7 @@
       }
     },
     "attributes" : {
-      "name" : "SuperConnectorOS",
+      "name" : "SuperConnector Test OS",
       "connector_id" : "SuperConnectorOS",
       "applies_to_os" : "aix,hpux,linux,oob,solaris,storage,tru64,vms,windows",
       "parent.id" : "localhost",

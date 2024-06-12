@@ -55,6 +55,7 @@ public class WinRmConfiguration implements IWinConfiguration {
 	private String namespace;
 
 	@Default
+	@JsonSetter(nulls = SKIP)
 	private Integer port = 5985;
 
 	@Default
@@ -64,6 +65,7 @@ public class WinRmConfiguration implements IWinConfiguration {
 	private List<AuthenticationEnum> authentications;
 
 	@Default
+	@JsonSetter(nulls = SKIP)
 	@JsonDeserialize(using = TimeDeserializer.class)
 	private Long timeout = 120L;
 
