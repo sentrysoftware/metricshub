@@ -96,9 +96,15 @@ public class OsCommandService {
 	) throws InterruptedException, IOException, TimeoutException {
 		isTrue(timeout > 0, NEGATIVE_TIMEOUT);
 
-		final String cmd = LocalOsHandler.isWindows() ? "CMD.EXE /C " + command : command;
+		final ProcessBuilder builder = new ProcessBuilder();
+		if (LocalOsHandler.isWindows()) {
+			builder.command(System.getenv("ComSpec"), "/C", command);
+		} else {
+			builder.command(System.getenv("SHELL"), "-c", command);
+		}
 
-		final Process process = Runtime.getRuntime().exec(cmd);
+		final Process process = builder.start();
+
 		if (process == null) {
 			throw new IllegalStateException("Local command Process is null.");
 		}
