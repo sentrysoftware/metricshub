@@ -157,7 +157,11 @@ public class OsCommandService {
 		if (LocalOsHandler.isWindows()) {
 			builder.command(System.getenv("ComSpec"), "/C", command);
 		} else {
-			builder.command(System.getenv("SHELL"), "-c", command);
+			String shell = System.getenv("SHELL");
+			if (shell == null) {
+				shell = "/bin/sh";
+			}
+			builder.command(shell, "-c", command);
 		}
 		return builder;
 	}
