@@ -440,6 +440,7 @@ class OsCommandHelperTest {
 	void testCreateProcessBuilderLinux() {
 		final ProcessBuilder processBuilder = OsCommandService.createProcessBuilder(CMD);
 		assertNotNull(processBuilder);
+		System.out.println("SHELL Env: " + System.getenv("SHELL"));
 		final List<String> command = processBuilder.command();
 		assertNotNull(command.get(0));
 		assertEquals("-c", command.get(1));
