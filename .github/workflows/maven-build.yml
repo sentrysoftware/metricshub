@@ -52,7 +52,7 @@ jobs:
         sonatypeSnapshots: true
 
     - name: Build with Maven on ${{ matrix.os }}
-      run: mvn -B -U verify --file pom.xml
+      run: mvn -X -B -U verify --file pom.xml
       env:
         GITHUB_TOKEN: ${{ github.token }}
 
