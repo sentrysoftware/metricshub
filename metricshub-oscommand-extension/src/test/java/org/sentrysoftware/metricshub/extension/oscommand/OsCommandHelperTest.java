@@ -429,9 +429,10 @@ class OsCommandHelperTest {
 	void testCreateProcessBuilderWindows() {
 		final ProcessBuilder processBuilder = OsCommandService.createProcessBuilder(CMD);
 		assertNotNull(processBuilder);
-		assertNotNull(processBuilder.command().get(0));
-		assertEquals("/C", processBuilder.command().get(1));
-		assertEquals(CMD, processBuilder.command().get(2));
+		final List<String> command = processBuilder.command();
+		assertNotNull(command.get(0));
+		assertEquals("/C", command.get(1));
+		assertEquals(CMD, command.get(2));
 	}
 
 	@Test
@@ -439,9 +440,10 @@ class OsCommandHelperTest {
 	void testCreateProcessBuilderLinux() {
 		final ProcessBuilder processBuilder = OsCommandService.createProcessBuilder(CMD);
 		assertNotNull(processBuilder);
-		assertNotNull(processBuilder.command().get(0));
-		assertEquals("-c", processBuilder.command().get(1));
-		assertEquals(CMD, processBuilder.command().get(2));
+		final List<String> command = processBuilder.command();
+		assertNotNull(command.get(0));
+		assertEquals("-c", command.get(1));
+		assertEquals(CMD, command.get(2));
 	}
 
 	@Test
