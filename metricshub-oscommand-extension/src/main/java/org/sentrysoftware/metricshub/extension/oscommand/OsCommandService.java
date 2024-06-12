@@ -96,12 +96,7 @@ public class OsCommandService {
 	) throws InterruptedException, IOException, TimeoutException {
 		isTrue(timeout > 0, NEGATIVE_TIMEOUT);
 
-		final ProcessBuilder builder = new ProcessBuilder();
-		if (LocalOsHandler.isWindows()) {
-			builder.command(System.getenv("ComSpec"), "/C", command);
-		} else {
-			builder.command(System.getenv("SHELL"), "-c", command);
-		}
+		final ProcessBuilder builder = createProcessBuilder(command);
 
 		final Process process = builder.start();
 
@@ -148,6 +143,23 @@ public class OsCommandService {
 		} finally {
 			executor.shutdownNow();
 		}
+	}
+
+	/**
+	 * Create a process builder for the given command. The start method of the
+	 * builder should be called to execute the command.
+	 *
+	 * @param command The command to be executed.
+	 * @return The process builder for the given command.
+	 */
+	static ProcessBuilder createProcessBuilder(final String command) {
+		final ProcessBuilder builder = new ProcessBuilder();
+		if (LocalOsHandler.isWindows()) {
+			builder.command(System.getenv("ComSpec"), "/C", command);
+		} else {
+			builder.command(System.getenv("SHELL"), "-c", command);
+		}
+		return builder;
 	}
 
 	/**

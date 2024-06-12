@@ -413,30 +413,35 @@ class OsCommandHelperTest {
 		assertThrows(IllegalArgumentException.class, () -> OsCommandService.runLocalCommand(CMD, -1, null));
 		assertThrows(IllegalArgumentException.class, () -> OsCommandService.runLocalCommand(CMD, 0, null));
 
-		// case Process null Linux
-		final Runtime runtime = mock(Runtime.class);
-		try (
-			final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class);
-			final MockedStatic<Runtime> mockedRuntime = mockStatic(Runtime.class)
-		) {
-			mockedLocalOSHandler.when(LocalOsHandler::isWindows).thenReturn(false);
-			mockedRuntime.when(Runtime::getRuntime).thenReturn(runtime);
-			when(runtime.exec(CMD)).thenReturn(null);
+		// Case IllegalStateException when the process cannot be created
+		final ProcessBuilder processBuilderMock = mock(ProcessBuilder.class);
+		try (final MockedStatic<OsCommandService> mockedOsCommandService = mockStatic(OsCommandService.class);) {
+			mockedOsCommandService.when(() -> OsCommandService.runLocalCommand(CMD, 1, null)).thenCallRealMethod();
+			mockedOsCommandService.when(() -> OsCommandService.createProcessBuilder(CMD)).thenReturn(processBuilderMock);
+			when(processBuilderMock.start()).thenReturn(null);
 
 			assertThrows(IllegalStateException.class, () -> OsCommandService.runLocalCommand(CMD, 1, null));
 		}
+	}
 
-		// case Process null Windows
-		try (
-			final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class);
-			final MockedStatic<Runtime> mockedRuntime = mockStatic(Runtime.class)
-		) {
-			mockedLocalOSHandler.when(LocalOsHandler::isWindows).thenReturn(true);
-			mockedRuntime.when(Runtime::getRuntime).thenReturn(runtime);
-			when(runtime.exec(CMD_COMMAND)).thenReturn(null);
+	@Test
+	@EnabledOnOs(OS.WINDOWS)
+	void testCreateProcessBuilderWindows() {
+		final ProcessBuilder processBuilder = OsCommandService.createProcessBuilder(CMD);
+		assertNotNull(processBuilder);
+		assertNotNull(processBuilder.command().get(0));
+		assertEquals("/C", processBuilder.command().get(1));
+		assertEquals(CMD, processBuilder.command().get(2));
+	}
 
-			assertThrows(IllegalStateException.class, () -> OsCommandService.runLocalCommand(CMD, 1, null));
-		}
+	@Test
+	@EnabledOnOs(OS.LINUX)
+	void testCreateProcessBuilderLinux() {
+		final ProcessBuilder processBuilder = OsCommandService.createProcessBuilder(CMD);
+		assertNotNull(processBuilder);
+		assertNotNull(processBuilder.command().get(0));
+		assertEquals("-c", processBuilder.command().get(1));
+		assertEquals(CMD, processBuilder.command().get(2));
 	}
 
 	@Test
