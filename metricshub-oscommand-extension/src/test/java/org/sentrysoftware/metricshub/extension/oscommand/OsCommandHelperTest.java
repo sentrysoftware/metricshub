@@ -44,7 +44,6 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.common.exception.ControlledSshException;
 import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
-import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
@@ -440,7 +439,6 @@ class OsCommandHelperTest {
 	void testCreateProcessBuilderLinux() {
 		final ProcessBuilder processBuilder = OsCommandService.createProcessBuilder(CMD);
 		assertNotNull(processBuilder);
-		System.out.println("SHELL Env: " + System.getenv("SHELL"));
 		final List<String> command = processBuilder.command();
 		assertNotNull(command.get(0));
 		assertEquals("-c", command.get(1));

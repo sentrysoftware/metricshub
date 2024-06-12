@@ -77,6 +77,8 @@ public class OsCommandService {
 
 	private static final String NEGATIVE_TIMEOUT = "timeout mustn't be negative nor zero.";
 
+	private static final String[] LOCAL_SHELL_COMMAND = buildShellCommand();
+
 	/**
 	 * Run the given command on the localhost machine.
 	 *
@@ -153,13 +155,67 @@ public class OsCommandService {
 	 * @return The process builder for the given command.
 	 */
 	static ProcessBuilder createProcessBuilder(final String command) {
-		final ProcessBuilder builder = new ProcessBuilder();
+		return new ProcessBuilder().command(LOCAL_SHELL_COMMAND[0], LOCAL_SHELL_COMMAND[1], command);
+	}
+
+	/**
+	 * Build the shell to be used for the local command execution based on the operating system.
+	 *
+	 * @return The shell command to be used.
+	 */
+	private static String[] buildShellCommand() {
 		if (LocalOsHandler.isWindows()) {
-			builder.command(System.getenv("ComSpec"), "/C", command);
+			return new String[] { getComSpecEnvVar(), "/C" };
 		} else {
-			builder.command(System.getenv("SHELL"), "-c", command);
+			return new String[] { getShellEnvVar(), "-c" };
 		}
-		return builder;
+	}
+
+	/**
+	 * Get the shell environment variable for Linux/Unix systems.
+	 *
+	 * @return The shell environment variable or /bin/sh if not found.
+	 */
+	private static String getShellEnvVar() {
+		var shell = System.getenv("SHELL");
+		if (shell == null || shell.isBlank()) {
+			// List of common shells to check
+			final String[] commonShells = {
+				"/bin/bash",
+				"/usr/bin/bash",
+				"/bin/sh",
+				"/usr/bin/sh",
+				"/bin/zsh",
+				"/usr/bin/zsh",
+				"/bin/ksh",
+				"/usr/bin/ksh"
+			};
+
+			// Find the first common shell that exists
+			for (String s : commonShells) {
+				if (new File(s).exists()) {
+					shell = s;
+					break;
+				}
+			}
+			// Fallback if no common shell is found
+			if (shell == null || shell.isBlank()) {
+				shell = "/bin/sh"; // Minimal fallback
+			}
+		}
+		return shell;
+	}
+
+	/**
+	 * Get the ComSpec environment variable for Windows systems.
+	 * @return The ComSpec environment variable or cmd.exe if not found.
+	 */
+	private static String getComSpecEnvVar() {
+		var comSpec = System.getenv("ComSpec");
+		if (comSpec == null || comSpec.isBlank()) {
+			comSpec = "cmd.exe";
+		}
+		return comSpec;
 	}
 
 	/**
