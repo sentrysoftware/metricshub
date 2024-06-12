@@ -77,6 +77,8 @@ public class OsCommandService {
 
 	private static final String NEGATIVE_TIMEOUT = "timeout mustn't be negative nor zero.";
 
+	private static final String[] LOCAL_SHELL_COMMAND = buildShellCommand();
+
 	/**
 	 * Run the given command on the localhost machine.
 	 *
@@ -96,9 +98,10 @@ public class OsCommandService {
 	) throws InterruptedException, IOException, TimeoutException {
 		isTrue(timeout > 0, NEGATIVE_TIMEOUT);
 
-		final String cmd = LocalOsHandler.isWindows() ? "CMD.EXE /C " + command : command;
+		final ProcessBuilder builder = createProcessBuilder(command);
 
-		final Process process = Runtime.getRuntime().exec(cmd);
+		final Process process = builder.start();
+
 		if (process == null) {
 			throw new IllegalStateException("Local command Process is null.");
 		}
@@ -142,6 +145,77 @@ public class OsCommandService {
 		} finally {
 			executor.shutdownNow();
 		}
+	}
+
+	/**
+	 * Create a process builder for the given command. The start method of the
+	 * builder should be called to execute the command.
+	 *
+	 * @param command The command to be executed.
+	 * @return The process builder for the given command.
+	 */
+	static ProcessBuilder createProcessBuilder(final String command) {
+		return new ProcessBuilder().command(LOCAL_SHELL_COMMAND[0], LOCAL_SHELL_COMMAND[1], command);
+	}
+
+	/**
+	 * Build the shell to be used for the local command execution based on the operating system.
+	 *
+	 * @return The shell command to be used.
+	 */
+	private static String[] buildShellCommand() {
+		if (LocalOsHandler.isWindows()) {
+			return new String[] { getComSpecEnvVar(), "/C" };
+		} else {
+			return new String[] { getShellEnvVar(), "-c" };
+		}
+	}
+
+	/**
+	 * Get the shell environment variable for Linux/Unix systems.
+	 *
+	 * @return The shell environment variable or /bin/sh if not found.
+	 */
+	private static String getShellEnvVar() {
+		var shell = System.getenv("SHELL");
+		if (shell == null || shell.isBlank()) {
+			// List of common shells to check
+			final String[] commonShells = {
+				"/bin/bash",
+				"/usr/bin/bash",
+				"/bin/sh",
+				"/usr/bin/sh",
+				"/bin/zsh",
+				"/usr/bin/zsh",
+				"/bin/ksh",
+				"/usr/bin/ksh"
+			};
+
+			// Find the first common shell that exists
+			for (String s : commonShells) {
+				if (new File(s).exists()) {
+					shell = s;
+					break;
+				}
+			}
+			// Fallback if no common shell is found
+			if (shell == null || shell.isBlank()) {
+				shell = "/bin/sh"; // Minimal fallback
+			}
+		}
+		return shell;
+	}
+
+	/**
+	 * Get the ComSpec environment variable for Windows systems.
+	 * @return The ComSpec environment variable or cmd.exe if not found.
+	 */
+	private static String getComSpecEnvVar() {
+		var comSpec = System.getenv("ComSpec");
+		if (comSpec == null || comSpec.isBlank()) {
+			comSpec = "cmd.exe";
+		}
+		return comSpec;
 	}
 
 	/**

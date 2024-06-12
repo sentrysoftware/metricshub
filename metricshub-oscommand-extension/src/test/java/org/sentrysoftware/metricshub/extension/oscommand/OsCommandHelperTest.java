@@ -44,7 +44,6 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.common.exception.ControlledSshException;
 import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
-import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
@@ -413,30 +412,37 @@ class OsCommandHelperTest {
 		assertThrows(IllegalArgumentException.class, () -> OsCommandService.runLocalCommand(CMD, -1, null));
 		assertThrows(IllegalArgumentException.class, () -> OsCommandService.runLocalCommand(CMD, 0, null));
 
-		// case Process null Linux
-		final Runtime runtime = mock(Runtime.class);
-		try (
-			final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class);
-			final MockedStatic<Runtime> mockedRuntime = mockStatic(Runtime.class)
-		) {
-			mockedLocalOSHandler.when(LocalOsHandler::isWindows).thenReturn(false);
-			mockedRuntime.when(Runtime::getRuntime).thenReturn(runtime);
-			when(runtime.exec(CMD)).thenReturn(null);
+		// Case IllegalStateException when the process cannot be created
+		final ProcessBuilder processBuilderMock = mock(ProcessBuilder.class);
+		try (final MockedStatic<OsCommandService> mockedOsCommandService = mockStatic(OsCommandService.class);) {
+			mockedOsCommandService.when(() -> OsCommandService.runLocalCommand(CMD, 1, null)).thenCallRealMethod();
+			mockedOsCommandService.when(() -> OsCommandService.createProcessBuilder(CMD)).thenReturn(processBuilderMock);
+			when(processBuilderMock.start()).thenReturn(null);
 
 			assertThrows(IllegalStateException.class, () -> OsCommandService.runLocalCommand(CMD, 1, null));
 		}
+	}
 
-		// case Process null Windows
-		try (
-			final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class);
-			final MockedStatic<Runtime> mockedRuntime = mockStatic(Runtime.class)
-		) {
-			mockedLocalOSHandler.when(LocalOsHandler::isWindows).thenReturn(true);
-			mockedRuntime.when(Runtime::getRuntime).thenReturn(runtime);
-			when(runtime.exec(CMD_COMMAND)).thenReturn(null);
+	@Test
+	@EnabledOnOs(OS.WINDOWS)
+	void testCreateProcessBuilderWindows() {
+		final ProcessBuilder processBuilder = OsCommandService.createProcessBuilder(CMD);
+		assertNotNull(processBuilder);
+		final List<String> command = processBuilder.command();
+		assertNotNull(command.get(0));
+		assertEquals("/C", command.get(1));
+		assertEquals(CMD, command.get(2));
+	}
 
-			assertThrows(IllegalStateException.class, () -> OsCommandService.runLocalCommand(CMD, 1, null));
-		}
+	@Test
+	@EnabledOnOs(OS.LINUX)
+	void testCreateProcessBuilderLinux() {
+		final ProcessBuilder processBuilder = OsCommandService.createProcessBuilder(CMD);
+		assertNotNull(processBuilder);
+		final List<String> command = processBuilder.command();
+		assertNotNull(command.get(0));
+		assertEquals("-c", command.get(1));
+		assertEquals(CMD, command.get(2));
 	}
 
 	@Test
