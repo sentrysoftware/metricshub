@@ -368,9 +368,6 @@
 										<exclude>META-INF/*.SF</exclude>
 										<exclude>META-INF/*.DSA</exclude>
 										<exclude>META-INF/*.RSA</exclude>
-										<exclude>org.sentrysoftware:ipmi</exclude>
-										<exclude>org.sentrysoftware:winrm</exclude>
-										<exclude>org.sentrysoftware:jawk</exclude>
 									</excludes>
 								</filter>
 							</filters>
