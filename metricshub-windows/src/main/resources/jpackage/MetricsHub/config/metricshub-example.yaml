@@ -294,23 +294,3 @@ resourceGroups:
       #       community: public
       #       port: 161
       #       timeout: 120
-
-      #═══════════════════════════════════════════════════
-      # Host Group SNMP v3 protocol configuration
-      #═══════════════════════════════════════════════════
-
-      # group-2:
-      #   attributes:
-      #     host.name: [server-15, server16, server-17]
-      #     host.type: linux
-      #   protocols:
-      #     snmpv3:
-      #       community: public
-      #       port: 161
-      #       timeout: 120s
-      #       contextName: <snmp-v3-context>
-      #       authType: SHA
-      #       privacy: AES
-      #       username: <username>
-      #       privacyPassword: <privacy-password>
-      #       password: <auth-password>
