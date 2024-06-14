@@ -152,9 +152,9 @@ resourceGroups:
       # WBEM protocol configuration
       #═══════════════════════════════════════════════════
 
-      # server-7:
+      # server-6:
       #   attributes:
-      #     host.name: server-7
+      #     host.name: server-6
       #     host.type: storage
       #   protocols:
       #     wbem:
@@ -168,9 +168,9 @@ resourceGroups:
       # HTTP protocol configuration    
       #═══════════════════════════════════════════════════
 
-      # server-8:
+      # server-7:
       #   attributes:
-      #     host.name: server-8
+      #     host.name: server-7
       #     host.type: storage
       #   protocols:
       #     http:
@@ -185,9 +185,9 @@ resourceGroups:
       # SSH protocol configuration     
       #═══════════════════════════════════════════════════
 
-      # server-9:
+      # server-8:
       #   attributes:
-      #     host.name: server-9
+      #     host.name: server-8
       #     host.type: linux
       #   protocols:
       #     ssh:
@@ -203,9 +203,9 @@ resourceGroups:
       # OSCommand configuration        
       #═══════════════════════════════════════════════════
 
-      # server-10:
+      # server-9:
       #   attributes:
-      #     host.name: server-10
+      #     host.name: server-9
       #     host.type: linux
       #   protocols:
       #     osCommand:
@@ -218,9 +218,9 @@ resourceGroups:
       # WinRM configuration            
       #═══════════════════════════════════════════════════
 
-      # server-11:
+      # server-10:
       #   attributes:
-      #     host.name: server-11
+      #     host.name: server-10
       #     host.type: win
       #   protocols:
       #     winrm:
@@ -235,9 +235,9 @@ resourceGroups:
       # vCenter WBEM configuration            
       #═══════════════════════════════════════════════════
 
-      # server-12:
+      # server-11:
       #   attributes:
-      #     host.name: server-12
+      #     host.name: server-11
       #     host.type: oob
       #   protocols:
       #     wbem:
@@ -252,13 +252,33 @@ resourceGroups:
       # ICMP Ping protocol configuration    
       #═══════════════════════════════════════════════════
 
-      # server-13:
+      # server-12:
       #   attributes:
-      #     host.name: server-13
+      #     host.name: server-12
       #     host.type: storage
       #   protocols:
       #     ping:
       #       timeout: 10s
+
+      #═══════════════════════════════════════════════════
+      # SNMP v3 SHA protocol configuration 
+      #═══════════════════════════════════════════════════
+
+      # server-13:
+      #   attributes:
+      #     host.name: server-13
+      #     host.type: linux
+      #   protocols:
+      #     snmpv3:
+      #       community: public
+      #       port: 161
+      #       timeout: 120s
+      #       contextName: <snmp-v3-context>
+      #       authType: SHA
+      #       privacy: AES
+      #       username: <username>
+      #       privacyPassword: <privacy-password>
+      #       password: <auth-password>
 
       #═══════════════════════════════════════════════════
       # Host Group SNMP v1 protocol configuration
@@ -274,3 +294,23 @@ resourceGroups:
       #       community: public
       #       port: 161
       #       timeout: 120
+
+      #═══════════════════════════════════════════════════
+      # Host Group SNMP v3 protocol configuration
+      #═══════════════════════════════════════════════════
+
+      # group-2:
+      #   attributes:
+      #     host.name: [server-15, server16, server-17]
+      #     host.type: linux
+      #   protocols:
+      #     snmpv3:
+      #       community: public
+      #       port: 161
+      #       timeout: 120s
+      #       contextName: <snmp-v3-context>
+      #       authType: SHA
+      #       privacy: AES
+      #       username: <username>
+      #       privacyPassword: <privacy-password>
+      #       password: <auth-password>
