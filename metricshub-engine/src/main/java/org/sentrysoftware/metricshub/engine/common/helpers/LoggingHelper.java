@@ -84,4 +84,15 @@ public class LoggingHelper {
 			runnable.run();
 		}
 	}
+
+	/**
+	 * Run the given runnable if the debug mode of the logger is enabled
+	 *
+	 * @param runnable
+	 */
+	public static void debug(final Runnable runnable) {
+		if (log.isDebugEnabled()) {
+			runnable.run();
+		}
+	}
 }

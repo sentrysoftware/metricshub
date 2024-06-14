@@ -82,7 +82,7 @@ public class SqlExtension implements ISourceComputationExtension {
 			sourceTable.setTable(executeSqlQuery);
 		}
 
-		LoggingHelper.trace(() ->
+		LoggingHelper.debug(() ->
 			log.trace("Executed SQL request:{}\n- Result:\n{}\n", query, TextTableHelper.generateTextTable(executeSqlQuery))
 		);
 
