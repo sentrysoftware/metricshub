@@ -166,8 +166,8 @@ class SqlClientExecutorTest {
 				Arrays.asList(LOWERCASE_A, ONE, ONE, UPPERCASE_V2),
 				Arrays.asList(LOWERCASE_A, ONE, ONE, UPPERCASE_V3),
 				Arrays.asList(LOWERCASE_B, TWO, TWO, UPPERCASE_V4),
-				Arrays.asList(LOWERCASE_C, THREE, null, null),
-				Arrays.asList(LOWERCASE_D, FOUR, null, null)
+				Arrays.asList(LOWERCASE_C, THREE, "", ""),
+				Arrays.asList(LOWERCASE_D, FOUR, "", "")
 			);
 		result =
 			sqlClientExecutor.executeQuery(
@@ -277,7 +277,7 @@ class SqlClientExecutorTest {
 
 		assertEquals(expectedResult, result);
 
-		expectedResult = Arrays.asList(Arrays.asList(LOWERCASE_D, null));
+		expectedResult = Arrays.asList(Arrays.asList(LOWERCASE_D, ""));
 
 		tabl1 =
 			SourceTable
