@@ -21,10 +21,10 @@ package org.sentrysoftware.metricshub.extension.sql;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.TABLE_SEP;
-
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
+import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.connector.model.common.SqlTable;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SqlSource;
@@ -80,8 +80,11 @@ public class SqlExtension implements ISourceComputationExtension {
 
 		if (!executeSqlQuery.isEmpty()) {
 			sourceTable.setTable(executeSqlQuery);
-			sourceTable.setRawData(SourceTable.tableToCsv(executeSqlQuery, TABLE_SEP, false));
 		}
+
+		LoggingHelper.trace(() ->
+			log.trace("Executed SQL request:{}\n- Result:\n{}\n", query, TextTableHelper.generateTextTable(executeSqlQuery))
+		);
 
 		return sourceTable;
 	}
