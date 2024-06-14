@@ -21,6 +21,8 @@ package org.sentrysoftware.metricshub.extension.sql;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.TABLE_SEP;
+
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.connector.model.common.SqlTable;
@@ -78,7 +80,9 @@ public class SqlExtension implements ISourceComputationExtension {
 
 		if (!executeSqlQuery.isEmpty()) {
 			sourceTable.setTable(executeSqlQuery);
+			sourceTable.setRawData(SourceTable.tableToCsv(executeSqlQuery, TABLE_SEP, false));
 		}
+
 		return sourceTable;
 	}
 
