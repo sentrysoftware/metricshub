@@ -114,7 +114,8 @@ public class SqlClientExecutor {
 			while (resultSet.next()) {
 				final List<String> row = new ArrayList<>();
 				for (int i = 1; i <= columnsNumber; i++) {
-					row.add(resultSet.getString(i));
+					final String resultValue = resultSet.getString(i);
+					row.add(resultValue != null ? resultValue : "");
 				}
 				result.add(row);
 			}
