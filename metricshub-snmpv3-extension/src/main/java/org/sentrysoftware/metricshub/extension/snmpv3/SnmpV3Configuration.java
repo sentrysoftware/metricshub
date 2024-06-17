@@ -39,7 +39,7 @@ import org.sentrysoftware.metricshub.extension.snmp.ISnmpConfiguration;
 /**
  * The SnmpV3Configuration class represents the configuration for SNMP v3 in the
  * MetricsHub engine. It implements the ISnmpConfiguration interface and
- * includes settings such as SNMP version, community, port, timeout, context
+ * includes settings such as SNMP version, port, timeout, context
  * name, authentication type, privacy, privacy password, username, and password.
  */
 @Data
@@ -51,10 +51,6 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 	private static final int V3 = 3;
 	private static final String INVALID_AUTH_TYPE_EXCEPTION_MESSAGE = "Invalid authentication type: ";
 	private static final String INVALID_PRIVACY_VALUE_EXCEPTION_MESSAGE = "Invalid privacy value: ";
-
-	@Default
-	@JsonSetter(nulls = SKIP)
-	private char[] community = new char[] { 'p', 'u', 'b', 'l', 'i', 'c' };
 
 	@Default
 	@JsonSetter(nulls = SKIP)
@@ -92,17 +88,6 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 
 	@Override
 	public void validateConfiguration(final String resourceKey) throws InvalidConfigurationException {
-		StringHelper.validateConfigurationAttribute(
-			community,
-			attr -> attr == null || attr.length == 0,
-			() ->
-				String.format(
-					"Resource %s - No community string configured for %s. This resource will not be monitored.",
-					resourceKey,
-					community
-				)
-		);
-
 		StringHelper.validateConfigurationAttribute(
 			port,
 			attr -> attr == null || attr < 1 || attr > 65535,

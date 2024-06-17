@@ -270,7 +270,6 @@ resourceGroups:
       #     host.type: linux
       #   protocols:
       #     snmpv3:
-      #       community: public
       #       port: 161
       #       timeout: 120s
       #       contextName: <snmp-v3-context>

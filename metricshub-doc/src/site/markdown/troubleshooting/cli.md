@@ -113,8 +113,6 @@ $ metricshub STOR02 -t storage --snmpv3 --snmpv3-auth SHA --snmpv3-username USER
 
 This command will connect to the `STOR02` storage system (`storage`) using `SNMP` version `3`.
 
-> Note: If no SNMP version 3 community is specified, **public** is assumed by default.
-
 ### Windows, WMI and SNMP v2c
 
 ```batch

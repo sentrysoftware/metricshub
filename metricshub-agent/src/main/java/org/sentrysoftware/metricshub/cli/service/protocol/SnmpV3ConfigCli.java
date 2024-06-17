@@ -50,15 +50,6 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 	private boolean useSnmpv3;
 
 	@Option(
-		names = "--snmpv3-community",
-		order = 2,
-		paramLabel = "COMMUNITY",
-		defaultValue = "public",
-		description = "Community string for SNMP version 3"
-	)
-	private char[] community;
-
-	@Option(
 		names = "--snmpv3-privacy",
 		order = 3,
 		paramLabel = "DES|AES",
@@ -157,9 +148,6 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 		final char[] finalPassword = username == null ? defaultPassword : password;
 		if (finalPassword != null) {
 			configuration.set("password", new TextNode(String.valueOf(finalPassword)));
-		}
-		if (community != null) {
-			configuration.set("community", new TextNode((String.valueOf(community))));
 		}
 		configuration.set("privacy", new TextNode(privacy));
 		if (privacyPassword != null) {
