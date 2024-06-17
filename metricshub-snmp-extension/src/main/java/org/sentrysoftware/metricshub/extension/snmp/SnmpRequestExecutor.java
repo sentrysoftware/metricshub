@@ -199,7 +199,7 @@ public class SnmpRequestExecutor implements ISnmpRequestExecutor {
 					protocol.getPort(),
 					protocol.getIntVersion(),
 					null,
-					new String(protocol.getCommunity()),
+					new String(((SnmpConfiguration) protocol).getCommunity()),
 					null,
 					null,
 					null,
