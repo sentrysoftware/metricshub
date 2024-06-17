@@ -51,7 +51,7 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 
 	@Option(
 		names = "--snmpv3-privacy",
-		order = 3,
+		order = 2,
 		paramLabel = "DES|AES",
 		description = "Privacy (encryption type) for SNMP version 3 (DES, AES, or none)"
 	)
@@ -59,7 +59,7 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 
 	@Option(
 		names = "--snmpv3-privacy-password",
-		order = 4,
+		order = 3,
 		paramLabel = "PRIVACY-PASSWORD",
 		description = "Privacy (encryption) password for SNMP version 3"
 	)
@@ -67,7 +67,7 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 
 	@Option(
 		names = "--snmpv3-auth",
-		order = 5,
+		order = 4,
 		paramLabel = "SHA|MD5",
 		description = "Authentication type for SNMP version 3 (SHA, MD5 or NO_AUTH)"
 	)
@@ -75,7 +75,7 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 
 	@Option(
 		names = "--snmpv3-username",
-		order = 6,
+		order = 5,
 		paramLabel = "USERNAME",
 		description = "Username for SNMP version 3 with MD5 or SHA"
 	)
@@ -83,7 +83,7 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 
 	@Option(
 		names = "--snmpv3-password",
-		order = 7,
+		order = 6,
 		paramLabel = "PASSWORD",
 		description = "Password for SNMP version 3 with MD5 or SHA"
 	)
@@ -91,7 +91,7 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 
 	@Option(
 		names = "--snmpv3-context-name",
-		order = 8,
+		order = 7,
 		paramLabel = "CONTEXT-NAME",
 		description = "Context name for SNMP version 3"
 	)
@@ -99,7 +99,7 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 
 	@Option(
 		names = "--snmpv3-timeout",
-		order = 9,
+		order = 8,
 		paramLabel = "TIMEOUT",
 		defaultValue = "" + DEFAULT_TIMEOUT,
 		description = "Timeout in seconds for SNMP version 3 operations (default: ${DEFAULT-VALUE} s)"
@@ -108,7 +108,7 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 
 	@Option(
 		names = "--snmpv3-port",
-		order = 10,
+		order = 9,
 		paramLabel = "PORT",
 		defaultValue = "161",
 		description = "Port of the SNMP version 3 agent (default: ${DEFAULT-VALUE})"
@@ -117,7 +117,7 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 
 	@Option(
 		names = "--snmpv3-retryIntervals",
-		order = 11,
+		order = 10,
 		paramLabel = "RETRY INTERVALS",
 		split = ",",
 		description = "Comma-separated retry intervals in milliseconds for SNMP version 3 operations"
