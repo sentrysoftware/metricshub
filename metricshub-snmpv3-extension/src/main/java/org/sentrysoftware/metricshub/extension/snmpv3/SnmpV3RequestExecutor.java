@@ -220,7 +220,7 @@ public class SnmpV3RequestExecutor implements ISnmpRequestExecutor {
 					protocol.getPort(),
 					protocol.getIntVersion(),
 					protocol.getRetryIntervals(),
-					new String(protocol.getCommunity()),
+					null,
 					protocol.getAuthType().toString(),
 					protocol.getUsername(),
 					new String(protocol.getPassword()),

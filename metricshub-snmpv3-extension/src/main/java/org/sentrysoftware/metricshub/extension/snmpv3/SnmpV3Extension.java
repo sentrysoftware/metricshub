@@ -196,13 +196,8 @@ public class SnmpV3Extension implements IProtocolExtension {
 				.treeToValue(jsonNode, SnmpV3Configuration.class);
 
 			if (decrypt != null) {
-				char[] community = snmpV3Configuration.getCommunity();
 				char[] password = snmpV3Configuration.getPassword();
 				char[] privacyPassword = snmpV3Configuration.getPrivacyPassword();
-				if (community != null) {
-					// Decrypt the community
-					snmpV3Configuration.setCommunity(decrypt.apply(community));
-				}
 				if (password != null) {
 					// Decrypt the password
 					snmpV3Configuration.setPassword(decrypt.apply(password));

@@ -18,8 +18,6 @@ class SnmpV3ConfigCliTest {
 	@Test
 	void testToProtocol() throws Exception {
 		final SnmpV3ConfigCli snmpV3ConfigCli = new SnmpV3ConfigCli();
-		final char[] community = "community".toCharArray();
-		snmpV3ConfigCli.setCommunity(community);
 		snmpV3ConfigCli.setPrivacy("AES");
 		final int[] retryIntervals = { 20, 30, 50 };
 		snmpV3ConfigCli.setRetryIntervals(retryIntervals);

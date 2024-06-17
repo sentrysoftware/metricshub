@@ -36,13 +36,6 @@ public interface ISnmpConfiguration extends IConfiguration {
 	Long getTimeout();
 
 	/**
-	 * Gets the community for the SNMP protocol.
-	 *
-	 * @return The community as a character array.
-	 */
-	char[] getCommunity();
-
-	/**
 	 * Gets the version for the SNMP protocol
 	 *
 	 * @return The version as a int value.

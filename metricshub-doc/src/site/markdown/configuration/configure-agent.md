@@ -335,7 +335,6 @@ Use the parameters below to configure the SNMP version 3 protocol:
 | ---------------- | ---------------------------------------------------------------------------------------------------- |
 | snmpv3           | Protocol used to access the host using SNMP version 3.                                               |
 | timeout          | How long until the SNMP request times out (Default: 120s).                                           |
-| community        | The SNMP Community string (Default: public).                                                         |
 | port             | The SNMP port number used to perform SNMP version 3 queries (Default: 161).                          |
 | contextName      | The name of the SNMP version 3 context, used to identify the collection of management information.   |
 | authType         | The SNMP version 3 authentication protocol (MD5, SHA or NoAuth) to ensure message authenticity.      |
@@ -358,7 +357,6 @@ resourceGroups:
         protocols:
           snmpv3:
             version: 3
-            community: public
             port: 161
             timeout: 120s
             contextName: myContext

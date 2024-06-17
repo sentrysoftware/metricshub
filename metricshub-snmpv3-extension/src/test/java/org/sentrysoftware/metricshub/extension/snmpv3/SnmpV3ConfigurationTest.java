@@ -14,42 +14,10 @@ class SnmpV3ConfigurationTest {
 	void testValidateConfiguration() {
 		final String resourceKey = "resourceKey";
 
-		final char[] community = "public".toCharArray();
-		final char[] emptyCommunity = new char[] {};
-
-		// Test when community is empty
-		{
-			final SnmpV3Configuration snmpV3Config = SnmpV3Configuration
-				.builder()
-				.community(emptyCommunity)
-				.port(1234)
-				.timeout(60L)
-				.authType(AuthType.NO_AUTH)
-				.privacy(Privacy.NO_ENCRYPTION)
-				.build();
-
-			assertThrows(InvalidConfigurationException.class, () -> snmpV3Config.validateConfiguration(resourceKey));
-		}
-
-		// Test when community is null
-		{
-			final SnmpV3Configuration snmpV3Config = SnmpV3Configuration
-				.builder()
-				.community(null)
-				.port(1234)
-				.timeout(60L)
-				.authType(AuthType.NO_AUTH)
-				.privacy(Privacy.NO_ENCRYPTION)
-				.build();
-
-			assertThrows(InvalidConfigurationException.class, () -> snmpV3Config.validateConfiguration(resourceKey));
-		}
-
 		// Test when port is negative
 		{
 			final SnmpV3Configuration snmpV3Config = SnmpV3Configuration
 				.builder()
-				.community(community)
 				.port(-1)
 				.timeout(60L)
 				.authType(AuthType.NO_AUTH)
@@ -63,7 +31,6 @@ class SnmpV3ConfigurationTest {
 		{
 			final SnmpV3Configuration snmpConfig = SnmpV3Configuration
 				.builder()
-				.community(community)
 				.port(66666)
 				.timeout(60L)
 				.authType(AuthType.NO_AUTH)
@@ -77,7 +44,6 @@ class SnmpV3ConfigurationTest {
 		{
 			final SnmpV3Configuration snmpV3Config = SnmpV3Configuration
 				.builder()
-				.community(community)
 				.port(null)
 				.timeout(60L)
 				.authType(AuthType.NO_AUTH)
@@ -91,7 +57,6 @@ class SnmpV3ConfigurationTest {
 		{
 			final SnmpV3Configuration snmpV3Config = SnmpV3Configuration
 				.builder()
-				.community(community)
 				.port(1234)
 				.timeout(-60L)
 				.authType(AuthType.NO_AUTH)
@@ -105,7 +70,6 @@ class SnmpV3ConfigurationTest {
 		{
 			final SnmpV3Configuration snmpV3Config = SnmpV3Configuration
 				.builder()
-				.community(community)
 				.port(1234)
 				.timeout(null)
 				.authType(AuthType.NO_AUTH)
@@ -119,7 +83,6 @@ class SnmpV3ConfigurationTest {
 		{
 			final SnmpV3Configuration snmpV3Config = SnmpV3Configuration
 				.builder()
-				.community(community)
 				.port(1234)
 				.timeout(60L)
 				.authType(AuthType.NO_AUTH)
@@ -134,7 +97,6 @@ class SnmpV3ConfigurationTest {
 		{
 			final SnmpV3Configuration snmpV3Config = SnmpV3Configuration
 				.builder()
-				.community(community)
 				.port(1234)
 				.timeout(0L)
 				.authType(AuthType.NO_AUTH)
@@ -148,7 +110,6 @@ class SnmpV3ConfigurationTest {
 		{
 			final SnmpV3Configuration snmpV3Config = SnmpV3Configuration
 				.builder()
-				.community(community)
 				.port(1234)
 				.timeout(60L)
 				.authType(AuthType.SHA)
@@ -163,7 +124,6 @@ class SnmpV3ConfigurationTest {
 		{
 			final SnmpV3Configuration snmpV3Config = SnmpV3Configuration
 				.builder()
-				.community(community)
 				.port(1234)
 				.timeout(60L)
 				.authType(null)

@@ -70,7 +70,6 @@ class SnmpV3ExtensionTest {
 
 		final SnmpV3Configuration snmpV3Configuration = SnmpV3Configuration
 			.builder()
-			.community("public".toCharArray())
 			.port(161)
 			.timeout(120L)
 			.username("username")
@@ -556,7 +555,6 @@ class SnmpV3ExtensionTest {
 		assertEquals(
 			SnmpV3Configuration
 				.builder()
-				.community("public".toCharArray())
 				.password("passwordTest".toCharArray())
 				.privacyPassword("privacyPasswordTest".toCharArray())
 				.port(161)
@@ -568,7 +566,6 @@ class SnmpV3ExtensionTest {
 		assertEquals(
 			SnmpV3Configuration
 				.builder()
-				.community("public".toCharArray())
 				.password("passwordTest".toCharArray())
 				.privacyPassword("privacyPasswordTest".toCharArray())
 				.port(161)
