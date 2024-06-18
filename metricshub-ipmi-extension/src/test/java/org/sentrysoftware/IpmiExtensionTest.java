@@ -135,6 +135,18 @@ class IpmiExtensionTest {
 				new IConfiguration() {
 					@Override
 					public void validateConfiguration(String resourceKey) throws InvalidConfigurationException {}
+
+					@Override
+					public String getHostname() {
+						// TODO Auto-generated method stub
+						return null;
+					}
+
+					@Override
+					public void setHostname(String hostname) {
+						// TODO Auto-generated method stub
+
+					}
 				}
 			)
 		);

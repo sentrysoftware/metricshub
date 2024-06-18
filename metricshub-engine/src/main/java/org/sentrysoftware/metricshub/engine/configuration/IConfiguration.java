@@ -29,6 +29,19 @@ import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfiguratio
  */
 public interface IConfiguration {
 	/**
+	 * Retrieves the declared hostname of the IConfiguration.
+	 *
+	 * @return the IConfiguration hostname value.
+	 */
+	String getHostname();
+
+	/**
+	 * Sets a hostname.
+	 *
+	 * @param hostname the hostname of the local or remote device.
+	 */
+	void setHostname(String hostname);
+	/**
 	 * Validates the current configuration for the given configured resource key. This method ensures that
 	 * the configuration meets all required criteria.
 	 * Criteria may include checking for necessary fields, verifying values against allowed ranges or formats,

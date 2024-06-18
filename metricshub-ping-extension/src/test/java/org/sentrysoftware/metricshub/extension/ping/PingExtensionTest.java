@@ -59,7 +59,7 @@ class PingExtensionTest {
 			Map.of(HOST.getKey(), Map.of(HOST_NAME, hostMonitor))
 		);
 
-		final PingConfiguration pingConfiguration = PingConfiguration.builder().build();
+		final PingConfiguration pingConfiguration = PingConfiguration.builder().hostname(HOST_NAME).build();
 
 		final Connector connector = Connector.builder().build();
 
@@ -119,6 +119,18 @@ class PingExtensionTest {
 				new IConfiguration() {
 					@Override
 					public void validateConfiguration(String resourceKey) throws InvalidConfigurationException {}
+
+					@Override
+					public String getHostname() {
+						// TODO Auto-generated method stub
+						return null;
+					}
+
+					@Override
+					public void setHostname(String hostname) {
+						// TODO Auto-generated method stub
+
+					}
 				}
 			)
 		);

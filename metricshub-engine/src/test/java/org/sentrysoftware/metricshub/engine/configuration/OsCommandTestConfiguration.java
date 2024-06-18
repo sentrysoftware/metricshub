@@ -43,6 +43,8 @@ public class OsCommandTestConfiguration implements IConfiguration {
 
 	private boolean useSudo;
 
+	private String hostname;
+
 	@Default
 	private Set<String> useSudoCommands = new HashSet<>();
 

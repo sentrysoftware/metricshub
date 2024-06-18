@@ -52,6 +52,8 @@ public class PingConfiguration implements IConfiguration {
 	@JsonDeserialize(using = TimeDeserializer.class)
 	private final Long timeout = 5L;
 
+	private String hostname;
+
 	@Override
 	public void validateConfiguration(String resourceKey) throws InvalidConfigurationException {
 		StringHelper.validateConfigurationAttribute(
