@@ -81,12 +81,6 @@ public class PingExtension implements IProtocolExtension {
 
 	@Override
 	public Optional<Boolean> checkProtocol(TelemetryManager telemetryManager) {
-		// Retrieve the hostname
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		// Create and set the Ping result to null
-		boolean pingResult = false;
-
 		// Retrieve Ping configuration from the telemetry manager
 		final PingConfiguration pingConfiguration = (PingConfiguration) telemetryManager
 			.getHostConfiguration()
@@ -97,6 +91,12 @@ public class PingExtension implements IProtocolExtension {
 		if (pingConfiguration == null) {
 			return Optional.empty();
 		}
+
+		// Retrieve the hostname
+		final String hostname = pingConfiguration.getHostname();
+
+		// Create and set the Ping result to null
+		boolean pingResult = false;
 
 		log.info("Hostname {} - Performing {} protocol health check.", hostname, getIdentifier());
 		log.info("Hostname {} - Checking Ping protocol status. Sending a ping to '/'.", hostname);

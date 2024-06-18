@@ -54,6 +54,8 @@ public class WinRmConfiguration implements IWinConfiguration {
 
 	private String namespace;
 
+	private String hostname;
+
 	@Default
 	@JsonSetter(nulls = SKIP)
 	private Integer port = 5985;

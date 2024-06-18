@@ -60,6 +60,8 @@ public class OsCommandConfiguration implements IConfiguration {
 	@JsonDeserialize(using = TimeDeserializer.class)
 	Long timeout = DEFAULT_TIMEOUT;
 
+	private String hostname;
+
 	/**
 	 * Creates a new instance of OsCommandConfiguration using the provided parameters.
 	 *
