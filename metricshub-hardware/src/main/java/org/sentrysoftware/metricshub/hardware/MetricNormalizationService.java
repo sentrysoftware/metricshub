@@ -31,6 +31,12 @@ import org.sentrysoftware.metricshub.engine.delegate.IPostExecutionService;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
+/**
+ * Service class for normalizing hardware monitor metrics.
+ * This service retrieves all monitors from the {@link TelemetryManager}, filters the hardware monitors,
+ * and normalizes their metrics based on their type.
+ * Implements the {@link IPostExecutionService} interface to define the post-execution metric normalization logic.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -47,12 +53,25 @@ public class MetricNormalizationService implements IPostExecutionService {
 		KnownMonitorType.HOST.name()
 	);
 
+	/**
+	 * Checks if the given monitor is a hardware monitor.
+	 * This method determines if a given monitor is a hardware monitor by
+	 * checking if its type is not included in the {@code EXCLUDED_MONITOR_TYPES} set.
+	 * @param monitor the monitor to check
+	 * @return {@code true} if the monitor is a hardware monitor, {@code false} otherwise
+	 */
 	private boolean isHardwareMonitor(final Monitor monitor) {
 		return !EXCLUDED_MONITOR_TYPES.contains(monitor.getType());
 	}
 
+	/**
+	 * Normalizes hardware monitors metrics.
+	 * Retrieves all monitors from the {@code telemetryManager}, filters for hardware monitors,
+	 * and normalizes the metrics of each monitor based on its type.
+	 */
 	@Override
 	public void run() {
+		// Retrieve hardware monitors from the TelemetryManager
 		final List<Monitor> hardwareMonitors = telemetryManager
 			.getMonitors()
 			.values()
@@ -61,6 +80,7 @@ public class MetricNormalizationService implements IPostExecutionService {
 			.filter(this::isHardwareMonitor)
 			.toList();
 
+		// For each hardware monitor type, call the corresponding metric normalization class
 		hardwareMonitors.forEach(monitor -> {
 			switch (monitor.getType()) {
 				case "cpu":

@@ -64,6 +64,7 @@ public class HardwareStrategy implements IStrategy {
 	public void run() {
 		if (hasHardwareMonitors(telemetryManager)) {
 			new HardwareEnergyPostExecutionService(telemetryManager).run();
+			// Call the service responsible for the monitor metrics normalization
 			new MetricNormalizationService(telemetryManager).run();
 		}
 	}

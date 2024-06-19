@@ -24,6 +24,11 @@ import java.util.Map;
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
 
+/**
+ * An abstract class that provides methods for normalizing metrics in a monitoring system.
+ * This class contains utility methods to check the availability of the monitor metrics and to adjust their values
+ * based on specified conditions.
+ */
 public abstract class AbstractMetricNormalizer {
 
 	/**
@@ -36,6 +41,7 @@ public abstract class AbstractMetricNormalizer {
 	 *         {@code false} otherwise
 	 */
 	private boolean containsAllEntries(Map<String, String> firstMap, Map<String, String> secondMap) {
+		// Checks if the second map entries are all contained within the first map
 		return secondMap
 			.entrySet()
 			.stream()
@@ -59,15 +65,35 @@ public abstract class AbstractMetricNormalizer {
 		final String prefix,
 		final Map<String, String> attributes
 	) {
+		// Extract the metric name prefix
 		final String metricNamePrefix = MetricFactory.extractName(metricName);
+
 		if (!prefix.equals(metricNamePrefix)) {
 			return false;
 		}
+
+		// Extract the metric attributes
 		final Map<String, String> metricAttributes = MetricFactory.extractAttributesFromMetricName(metricName);
+
+		// Check all the attributes are available in the extracted metric attributes
 		return containsAllEntries(metricAttributes, attributes);
 	}
 
+	/**
+	 * Adjusts the corresponding monitor's metric as follows:
+	 * If the hw.MONITOR_TYPE.METRIC{limit_type="low.critical"} metric is not available while the  hw.MONITOR_TYPE.METRIC{limit_type="low.degraded"}
+	 * metric is, set hw.MONITOR_TYPE.METRIC{limit_type="low.critical"} to hw.MONITOR_TYPE.METRIC{limit_type="low.degraded"} * 0.9.
+	 * We need to manage the following use case as well:
+	 * If the hw.MONITOR_TYPE.METRIC{limit_type="low.critical"} metric is not available while the hw.MONITOR_TYPE.METRIC{limit_type="low.degraded",
+	 * unknown_attr="value"} metric is, set hw.MONITOR_TYPE.METRIC{limit_type="low.critical", unknown_attr="value"} to
+	 * hw.MONITOR_TYPE.METRIC{limit_type="low.degraded", unknown_attr="value"} * 0.9.
+	 * @param metric A given monitor's Number metric
+	 */
 	public abstract void normalize(AbstractMetric metric);
 
+	/**
+	 * Adjusts the metric hw.errors.limit.
+	 * @param metric A given monitor's Number metric
+	 */
 	public abstract void normalizeErrorsLimitMetric(AbstractMetric metric);
 }
