@@ -805,7 +805,7 @@ public class ConfigHelper {
 				resourceKey
 			);
 
-			// Validate protocols
+			// Validate protocols and update the configuration's hostname if required.
 			validateAndNormalizeProtocols(resourceKey, resourceConfig, hostConfiguration.getHostname());
 
 			addConfiguredConnector(resourceConnectorStore, resourceConfig.getConnector());
@@ -906,17 +906,19 @@ public class ConfigHelper {
 	}
 
 	/**
-	 * Validate the protocols configured under the given {@link ResourceConfig} instance
+	 * Validates the protocols configured under the given {@link ResourceConfig} instance.
+	 * Also, it normalizes the configuration's hostname by duplicating the hostname attribute on each configuration.
+	 * This duplication is done only if the configuration's hostname is null.
 	 *
 	 * @param resourceKey    Resource unique identifier
-	 * @param resourceConfig {@link ResourceConfig} instance configured by the user
-	 * @param hostname
-	 * @throws InvalidConfigurationException thrown if a configuration validation fails
+	 * @param resourceConfig {@link ResourceConfig} instance configured by the user.
+	 * @param hostname       The hostname that will be duplicated on each configuration if required.
+	 * @throws InvalidConfigurationException thrown if a configuration validation fails.
 	 */
 	private static void validateAndNormalizeProtocols(
 		@NonNull final String resourceKey,
 		final ResourceConfig resourceConfig,
-		String hostname
+		final String hostname
 	) throws InvalidConfigurationException {
 		final Map<String, IConfiguration> protocols = resourceConfig.getProtocols();
 		if (protocols == null) {
