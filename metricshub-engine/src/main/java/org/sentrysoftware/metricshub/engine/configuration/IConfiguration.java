@@ -36,7 +36,7 @@ public interface IConfiguration {
 	String getHostname();
 
 	/**
-	 * Sets a hostname.
+	 * Replaces the IConfiguration's hostname value by the hostname parameter's value.
 	 *
 	 * @param hostname the hostname of the local or remote device.
 	 */

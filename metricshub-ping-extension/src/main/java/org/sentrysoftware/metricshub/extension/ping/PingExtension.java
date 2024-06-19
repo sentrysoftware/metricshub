@@ -92,7 +92,7 @@ public class PingExtension implements IProtocolExtension {
 			return Optional.empty();
 		}
 
-		// Retrieve the hostname
+		// Retrieve the hostname from the Ping Configuration
 		final String hostname = pingConfiguration.getHostname();
 
 		// Create and set the Ping result to null
