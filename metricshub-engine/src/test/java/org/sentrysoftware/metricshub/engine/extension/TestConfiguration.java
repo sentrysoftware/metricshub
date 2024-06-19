@@ -16,13 +16,9 @@ public class TestConfiguration implements IConfiguration {
 
 	@Override
 	public String getHostname() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void setHostname(String hostname) {
-		// TODO Auto-generated method stub
-
-	}
+	public void setHostname(String hostname) {}
 }
