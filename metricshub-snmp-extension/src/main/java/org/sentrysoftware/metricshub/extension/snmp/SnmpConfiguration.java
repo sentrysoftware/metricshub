@@ -67,6 +67,8 @@ public class SnmpConfiguration implements ISnmpConfiguration {
 	@JsonDeserialize(using = TimeDeserializer.class)
 	private final Long timeout = 120L;
 
+	private String hostname;
+
 	@Override
 	public String toString() {
 		return version.getDisplayName() + " (" + new String(community) + ")";

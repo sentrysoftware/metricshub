@@ -275,6 +275,8 @@ public class MetricsHubCliService implements Callable<Integer> {
 
 		// Set the configurations
 		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = buildConfigurations();
+		// Duplicate the main hostname on each configuration. By design, the extensions retrieve the hostname from the configuration.
+		configurations.values().forEach(configuration -> configuration.setHostname(hostname));
 		hostConfiguration.setConfigurations(configurations);
 
 		// Create the TelemetryManager using the connector store and the host configuration created above.

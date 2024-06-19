@@ -13,6 +13,8 @@ public class WmiTestConfiguration implements IWinConfiguration {
 	private char[] password;
 	private String namespace;
 
+	private String hostname;
+
 	@Default
 	private Long timeout = 120L;
 

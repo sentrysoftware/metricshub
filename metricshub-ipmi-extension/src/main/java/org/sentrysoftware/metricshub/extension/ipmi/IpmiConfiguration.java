@@ -55,6 +55,8 @@ public class IpmiConfiguration implements IConfiguration {
 	private boolean skipAuth;
 	private String bmcKey;
 
+	private String hostname;
+
 	@Override
 	public String toString() {
 		String description = "IPMI";
