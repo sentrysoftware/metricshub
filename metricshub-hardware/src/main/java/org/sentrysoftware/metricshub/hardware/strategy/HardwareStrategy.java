@@ -31,6 +31,7 @@ import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.strategy.IStrategy;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.hardware.HardwareEnergyPostExecutionService;
+import org.sentrysoftware.metricshub.hardware.MetricNormalizationService;
 
 @RequiredArgsConstructor
 @Data
@@ -63,6 +64,7 @@ public class HardwareStrategy implements IStrategy {
 	public void run() {
 		if (hasHardwareMonitors(telemetryManager)) {
 			new HardwareEnergyPostExecutionService(telemetryManager).run();
+			new MetricNormalizationService(telemetryManager).run();
 		}
 	}
 
