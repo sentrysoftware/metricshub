@@ -71,6 +71,7 @@ class IpmiExtensionTest {
 
 		final IpmiConfiguration ipmiConfiguration = IpmiConfiguration
 			.builder()
+			.hostname(HOST_NAME)
 			.username(USERNAME)
 			.password(PASSWORD.toCharArray())
 			.bmcKey(BMC_KEY)
