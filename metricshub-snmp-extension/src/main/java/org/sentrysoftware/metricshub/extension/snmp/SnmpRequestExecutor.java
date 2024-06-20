@@ -46,7 +46,6 @@ public class SnmpRequestExecutor implements ISnmpRequestExecutor {
 	 *
 	 * @param oid            The Object Identifier (OID) for the SNMP GETNEXT request.
 	 * @param configuration  The SNMP configuration specifying parameters like version, community, etc.
-	 * @param hostname       The hostname or IP address of the SNMP-enabled device.
 	 * @param logMode        A boolean indicating whether to log errors and warnings during execution.
 	 * @return The SNMP response as a String value.
 	 * @throws InterruptedException If the execution is interrupted.
@@ -58,9 +57,11 @@ public class SnmpRequestExecutor implements ISnmpRequestExecutor {
 	public String executeSNMPGetNext(
 		@NonNull @SpanAttribute("snmp.oid") final String oid,
 		@NonNull @SpanAttribute("snmp.config") final ISnmpConfiguration configuration,
-		@NonNull @SpanAttribute("host.hostname") final String hostname,
 		final boolean logMode
 	) throws InterruptedException, ExecutionException, TimeoutException {
+		// Retrieve the hostname from the configuration
+		final String hostname = configuration.getHostname();
+
 		LoggingHelper.trace(() -> log.trace("Executing SNMP GetNext request:\n- OID: {}\n", oid));
 
 		final long startTime = System.currentTimeMillis();
@@ -86,7 +87,6 @@ public class SnmpRequestExecutor implements ISnmpRequestExecutor {
 	 *
 	 * @param oid            The Object Identifier (OID) for the SNMP GET request.
 	 * @param configuration  The SNMP configuration specifying parameters like version, community, etc.
-	 * @param hostname       The hostname or IP address of the SNMP-enabled device.
 	 * @param logMode        A boolean indicating whether to log errors and warnings during execution.
 	 * @return The SNMP response as a String value.
 	 * @throws InterruptedException If the execution is interrupted.
@@ -98,9 +98,11 @@ public class SnmpRequestExecutor implements ISnmpRequestExecutor {
 	public String executeSNMPGet(
 		@NonNull @SpanAttribute("snmp.oid") final String oid,
 		@NonNull @SpanAttribute("snmp.config") final ISnmpConfiguration configuration,
-		@NonNull @SpanAttribute("host.hostname") final String hostname,
 		final boolean logMode
 	) throws InterruptedException, ExecutionException, TimeoutException {
+		// Retrieve the hostname from the configuration
+		final String hostname = configuration.getHostname();
+
 		LoggingHelper.trace(() -> log.trace("Executing SNMP Get request:\n- OID: {}\n", oid));
 
 		final long startTime = System.currentTimeMillis();
@@ -122,7 +124,6 @@ public class SnmpRequestExecutor implements ISnmpRequestExecutor {
 	 * @param oid               The SNMP Object Identifier (OID) representing the table.
 	 * @param selectColumnArray An array of column names to select from the SNMP table.
 	 * @param configuration     The SNMP configuration containing connection details.
-	 * @param hostname          The hostname or IP address of the SNMP-enabled device.
 	 * @param logMode           Flag indicating whether to log warnings in case of errors.
 	 * @return A list of rows, where each row is a list of string cells representing the SNMP table.
 	 * @throws InterruptedException If the thread executing this method is interrupted.
@@ -135,12 +136,14 @@ public class SnmpRequestExecutor implements ISnmpRequestExecutor {
 		@NonNull @SpanAttribute("snmp.oid") final String oid,
 		@NonNull @SpanAttribute("snmp.columns") String[] selectColumnArray,
 		@NonNull @SpanAttribute("snmp.config") final ISnmpConfiguration configuration,
-		@NonNull @SpanAttribute("host.hostname") final String hostname,
 		final boolean logMode
 	) throws InterruptedException, ExecutionException, TimeoutException {
 		LoggingHelper.trace(() ->
 			log.trace("Executing SNMP Table request:\n- OID: {}\n- Columns: {}\n", oid, Arrays.toString(selectColumnArray))
 		);
+
+		// Retrieve the hostname from the configuration
+		final String hostname = configuration.getHostname();
 
 		final long startTime = System.currentTimeMillis();
 

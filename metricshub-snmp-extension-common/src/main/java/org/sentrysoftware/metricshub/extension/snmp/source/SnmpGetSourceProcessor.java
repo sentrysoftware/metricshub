@@ -88,12 +88,7 @@ public class SnmpGetSourceProcessor {
 		}
 
 		try {
-			final String result = snmpRequestExecutor.executeSNMPGet(
-				snmpGetSource.getOid(),
-				snmpConfiguration,
-				hostname,
-				true
-			);
+			final String result = snmpRequestExecutor.executeSNMPGet(snmpGetSource.getOid(), snmpConfiguration, true);
 
 			if (result != null) {
 				return SourceTable

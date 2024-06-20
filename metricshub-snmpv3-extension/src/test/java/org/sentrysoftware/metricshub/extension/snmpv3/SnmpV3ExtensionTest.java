@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -102,7 +101,7 @@ class SnmpV3ExtensionTest {
 
 		doThrow(new TimeoutException("SNMPGetNext timeout"))
 			.when(snmpv3RequestExecutorMock)
-			.executeSNMPGetNext(any(), any(), any(), eq(false));
+			.executeSNMPGetNext(any(), any(), eq(false));
 		final CriterionTestResult actual = snmpV3Extension.processCriterion(
 			SnmpGetNextCriterion.builder().oid(OID).build(),
 			CONNECTOR_ID,
@@ -127,7 +126,7 @@ class SnmpV3ExtensionTest {
 	void testProcessSnmpGetNextCriterionNullResult() throws Exception {
 		initSnmp();
 
-		doReturn(null).when(snmpv3RequestExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
+		doReturn(null).when(snmpv3RequestExecutorMock).executeSNMPGetNext(any(), any(), eq(false));
 		final CriterionTestResult actual = snmpV3Extension.processCriterion(
 			SnmpGetNextCriterion.builder().oid(OID).build(),
 			CONNECTOR_ID,
@@ -151,7 +150,7 @@ class SnmpV3ExtensionTest {
 	void testProcessSnmpGetNextCriterionEmptyResult() throws Exception {
 		initSnmp();
 
-		doReturn("").when(snmpv3RequestExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
+		doReturn("").when(snmpv3RequestExecutorMock).executeSNMPGetNext(any(), any(), eq(false));
 		final CriterionTestResult actual = snmpV3Extension.processCriterion(
 			SnmpGetNextCriterion.builder().oid(OID).build(),
 			CONNECTOR_ID,
@@ -177,7 +176,7 @@ class SnmpV3ExtensionTest {
 
 		final String snmpGetNextResult = "1.3.6.1.4.1.674.99999.1.20.1 ASN_INTEGER 1";
 
-		doReturn(snmpGetNextResult).when(snmpv3RequestExecutorMock).executeSNMPGetNext(any(), any(), any(), eq(false));
+		doReturn(snmpGetNextResult).when(snmpv3RequestExecutorMock).executeSNMPGetNext(any(), any(), eq(false));
 		final CriterionTestResult actual = snmpV3Extension.processCriterion(
 			SnmpGetNextCriterion.builder().oid(OID).build(),
 			CONNECTOR_ID,
@@ -202,9 +201,7 @@ class SnmpV3ExtensionTest {
 	void testProcessSnmpGetNextCriterionSuccessWithNoExpectedResult() throws Exception {
 		initSnmp();
 
-		doReturn(SNMP_GET_NEXT_SECOND_RESULT)
-			.when(snmpv3RequestExecutorMock)
-			.executeSNMPGetNext(any(), any(), any(), eq(false));
+		doReturn(SNMP_GET_NEXT_SECOND_RESULT).when(snmpv3RequestExecutorMock).executeSNMPGetNext(any(), any(), eq(false));
 		final CriterionTestResult actual = snmpV3Extension.processCriterion(
 			SnmpGetNextCriterion.builder().oid(OID).build(),
 			CONNECTOR_ID,
@@ -230,9 +227,7 @@ class SnmpV3ExtensionTest {
 	void testProcessSnmpGetNextCriterionExpectedResultNotMatches() throws Exception {
 		initSnmp();
 
-		doReturn(SNMP_GET_NEXT_SECOND_RESULT)
-			.when(snmpv3RequestExecutorMock)
-			.executeSNMPGetNext(any(), any(), any(), eq(false));
+		doReturn(SNMP_GET_NEXT_SECOND_RESULT).when(snmpv3RequestExecutorMock).executeSNMPGetNext(any(), any(), eq(false));
 		final CriterionTestResult actual = snmpV3Extension.processCriterion(
 			SnmpGetNextCriterion.builder().oid(OID).expectedResult(SNMP_VERSION).build(),
 			CONNECTOR_ID,
@@ -257,9 +252,7 @@ class SnmpV3ExtensionTest {
 	void testProcessSnmpGetNextExpectedResultMatches() throws Exception {
 		initSnmp();
 
-		doReturn(SNMP_GET_NEXT_THIRD_RESULT)
-			.when(snmpv3RequestExecutorMock)
-			.executeSNMPGetNext(any(), any(), any(), eq(false));
+		doReturn(SNMP_GET_NEXT_THIRD_RESULT).when(snmpv3RequestExecutorMock).executeSNMPGetNext(any(), any(), eq(false));
 		final CriterionTestResult actual = snmpV3Extension.processCriterion(
 			SnmpGetNextCriterion.builder().oid(OID).expectedResult(SNMP_VERSION).build(),
 			CONNECTOR_ID,
@@ -285,9 +278,7 @@ class SnmpV3ExtensionTest {
 	void testProcessSnmpGetNextCriterionExpectedResultCannotExtract() throws Exception {
 		initSnmp();
 
-		doReturn(SNMP_GET_NEXT_FOURTH_RESULT)
-			.when(snmpv3RequestExecutorMock)
-			.executeSNMPGetNext(any(), any(), any(), eq(false));
+		doReturn(SNMP_GET_NEXT_FOURTH_RESULT).when(snmpv3RequestExecutorMock).executeSNMPGetNext(any(), any(), eq(false));
 		final CriterionTestResult actual = snmpV3Extension.processCriterion(
 			SnmpGetNextCriterion.builder().oid(OID).expectedResult(SNMP_VERSION).build(),
 			CONNECTOR_ID,
@@ -334,7 +325,7 @@ class SnmpV3ExtensionTest {
 	void testProcessSnmpGetExpectedResultMatches() throws Exception {
 		initSnmp();
 
-		doReturn(EXECUTE_SNMP_GET_RESULT).when(snmpv3RequestExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
+		doReturn(EXECUTE_SNMP_GET_RESULT).when(snmpv3RequestExecutorMock).executeSNMPGet(any(), any(), eq(false));
 		final CriterionTestResult actual = snmpV3Extension.processCriterion(
 			SnmpGetCriterion.builder().oid(OID).expectedResult("CMC").build(),
 			CONNECTOR_ID,
@@ -358,7 +349,7 @@ class SnmpV3ExtensionTest {
 	void testProcessSnmpGetExpectedResultNotMatches() throws Exception {
 		initSnmp();
 
-		doReturn(EXECUTE_SNMP_GET_RESULT).when(snmpv3RequestExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
+		doReturn(EXECUTE_SNMP_GET_RESULT).when(snmpv3RequestExecutorMock).executeSNMPGet(any(), any(), eq(false));
 		final CriterionTestResult actual = snmpV3Extension.processCriterion(
 			SnmpGetCriterion.builder().oid(OID).expectedResult(SNMP_VERSION).build(),
 			CONNECTOR_ID,
@@ -383,7 +374,7 @@ class SnmpV3ExtensionTest {
 	void testProcessSnmpGetSuccessWithNoExpectedResult() throws Exception {
 		initSnmp();
 
-		doReturn(EXECUTE_SNMP_GET_RESULT).when(snmpv3RequestExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
+		doReturn(EXECUTE_SNMP_GET_RESULT).when(snmpv3RequestExecutorMock).executeSNMPGet(any(), any(), eq(false));
 		final CriterionTestResult actual = snmpV3Extension.processCriterion(
 			SnmpGetCriterion.builder().oid(OID).build(),
 			CONNECTOR_ID,
@@ -407,7 +398,7 @@ class SnmpV3ExtensionTest {
 	void testProcessSnmpGetEmptyResult() throws Exception {
 		initSnmp();
 
-		doReturn("").when(snmpv3RequestExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
+		doReturn("").when(snmpv3RequestExecutorMock).executeSNMPGet(any(), any(), eq(false));
 		final CriterionTestResult actual = snmpV3Extension.processCriterion(
 			SnmpGetCriterion.builder().oid(OID).build(),
 			CONNECTOR_ID,
@@ -431,7 +422,7 @@ class SnmpV3ExtensionTest {
 	void testProcessSnmpGetNullResult() throws Exception {
 		initSnmp();
 
-		doReturn(null).when(snmpv3RequestExecutorMock).executeSNMPGet(any(), any(), any(), eq(false));
+		doReturn(null).when(snmpv3RequestExecutorMock).executeSNMPGet(any(), any(), eq(false));
 		final CriterionTestResult actual = snmpV3Extension.processCriterion(
 			SnmpGetCriterion.builder().oid(OID).build(),
 			CONNECTOR_ID,
@@ -456,7 +447,7 @@ class SnmpV3ExtensionTest {
 
 		doThrow(new TimeoutException("SNMPGet timeout"))
 			.when(snmpv3RequestExecutorMock)
-			.executeSNMPGet(any(), any(), any(), eq(false));
+			.executeSNMPGet(any(), any(), eq(false));
 		final CriterionTestResult actual = snmpV3Extension.processCriterion(
 			SnmpGetCriterion.builder().oid(OID).build(),
 			CONNECTOR_ID,
@@ -485,7 +476,7 @@ class SnmpV3ExtensionTest {
 		// Mock SNMP protocol health check response
 		doReturn("success")
 			.when(snmpv3RequestExecutorMock)
-			.executeSNMPGetNext(eq(SnmpV3Extension.SNMPV3_OID), any(SnmpV3Configuration.class), anyString(), anyBoolean());
+			.executeSNMPGetNext(eq(SnmpV3Extension.SNMPV3_OID), any(SnmpV3Configuration.class), anyBoolean());
 
 		// Start the SNMP protocol check
 		Optional<Boolean> result = snmpV3Extension.checkProtocol(telemetryManager);
@@ -501,7 +492,7 @@ class SnmpV3ExtensionTest {
 		// Mock SNMP protocol health check response
 		doReturn(null)
 			.when(snmpv3RequestExecutorMock)
-			.executeSNMPGetNext(eq(SnmpV3Extension.SNMPV3_OID), any(SnmpV3Configuration.class), anyString(), anyBoolean());
+			.executeSNMPGetNext(eq(SnmpV3Extension.SNMPV3_OID), any(SnmpV3Configuration.class), anyBoolean());
 
 		// Start the SNMP protocol check
 		Optional<Boolean> result = snmpV3Extension.checkProtocol(telemetryManager);

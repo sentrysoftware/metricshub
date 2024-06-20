@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.IS_ENDPOINT;
@@ -138,29 +137,17 @@ class HardwarePostCollectStrategyTest {
 		// Mock detection criteria result
 		doReturn("1.3.6.1.4.1.795.10.1.1.3.1.1.0	ASN_OCTET_STR	Test")
 			.when(snmpRequestExecutorMock)
-			.executeSNMPGetNext(eq("1.3.6.1.4.1.795.10.1.1.3.1.1"), any(SnmpConfiguration.class), anyString(), anyBoolean());
+			.executeSNMPGetNext(eq("1.3.6.1.4.1.795.10.1.1.3.1.1"), any(SnmpConfiguration.class), anyBoolean());
 
 		// Mock source table information for enclosure
 		doReturn(SourceTable.csvToTable("enclosure-1;1;healthy", MetricsHubConstants.TABLE_SEP))
 			.when(snmpRequestExecutorMock)
-			.executeSNMPTable(
-				eq("1.3.6.1.4.1.795.10.1.1.30.1"),
-				any(String[].class),
-				any(SnmpConfiguration.class),
-				anyString(),
-				eq(true)
-			);
+			.executeSNMPTable(eq("1.3.6.1.4.1.795.10.1.1.30.1"), any(String[].class), any(SnmpConfiguration.class), eq(true));
 
 		// Mock source table information for disk_controller
 		doReturn(SourceTable.csvToTable("1;1;healthy", MetricsHubConstants.TABLE_SEP))
 			.when(snmpRequestExecutorMock)
-			.executeSNMPTable(
-				eq("1.3.6.1.4.1.795.10.1.1.31.1"),
-				any(String[].class),
-				any(SnmpConfiguration.class),
-				anyString(),
-				eq(true)
-			);
+			.executeSNMPTable(eq("1.3.6.1.4.1.795.10.1.1.31.1"), any(String[].class), any(SnmpConfiguration.class), eq(true));
 
 		collectStrategy.run();
 

@@ -99,7 +99,6 @@ public class SnmpGetNextCriterionProcessor {
 			final String result = snmpRequestExecutor.executeSNMPGetNext(
 				snmpGetNextCriterion.getOid(),
 				snmpConfiguration,
-				hostname,
 				false
 			);
 

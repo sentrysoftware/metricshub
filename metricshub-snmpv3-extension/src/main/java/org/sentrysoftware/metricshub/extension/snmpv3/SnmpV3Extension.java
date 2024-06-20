@@ -95,12 +95,6 @@ public class SnmpV3Extension implements IProtocolExtension {
 
 	@Override
 	public Optional<Boolean> checkProtocol(TelemetryManager telemetryManager) {
-		// Retrieve the hostname
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		// Create and set the SNMP V3 result to null
-		String snmpV3Result = null;
-
 		// Retrieve SNMP V3 Configuration from the telemetry manager host configuration
 		final SnmpV3Configuration snmpV3Configuration = (SnmpV3Configuration) telemetryManager
 			.getHostConfiguration()
@@ -112,12 +106,18 @@ public class SnmpV3Extension implements IProtocolExtension {
 			return Optional.empty();
 		}
 
+		// Retrieve the hostname
+		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+
+		// Create and set the SNMP V3 result to null
+		String snmpV3Result = null;
+
 		log.info("Hostname {} - Performing {} protocol health check.", hostname, getIdentifier());
 		log.info("Hostname {} - Checking SNMP V3 protocol status. Sending Get Next request on {}.", hostname, SNMPV3_OID);
 
 		// Execute SNMP test command
 		try {
-			snmpV3Result = snmpV3RequestExecutor.executeSNMPGetNext(SNMPV3_OID, snmpV3Configuration, hostname, true);
+			snmpV3Result = snmpV3RequestExecutor.executeSNMPGetNext(SNMPV3_OID, snmpV3Configuration, true);
 		} catch (Exception e) {
 			log.debug(
 				"Hostname {} - Checking SNMP V3 protocol status. SNMP V3 exception when performing a SNMP Get Next query on {}: ",

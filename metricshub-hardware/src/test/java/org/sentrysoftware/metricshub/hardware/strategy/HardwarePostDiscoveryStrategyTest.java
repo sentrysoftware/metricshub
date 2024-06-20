@@ -8,7 +8,6 @@ import static org.sentrysoftware.metricshub.hardware.util.HwConstants.CONNECTOR;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.ENCLOSURE;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
