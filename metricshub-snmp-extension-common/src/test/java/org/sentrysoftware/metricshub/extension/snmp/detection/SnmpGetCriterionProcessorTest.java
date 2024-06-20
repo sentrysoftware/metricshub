@@ -40,7 +40,6 @@ public class SnmpGetCriterionProcessorTest {
 		TelemetryManager telemetryManager = mock(TelemetryManager.class);
 		HostConfiguration hostConfigurationMock = mock(HostConfiguration.class);
 		when(telemetryManager.getHostConfiguration()).thenReturn(hostConfigurationMock);
-		when(hostConfigurationMock.getHostname()).thenReturn("hostname");
 		return telemetryManager;
 	}
 
@@ -51,6 +50,7 @@ public class SnmpGetCriterionProcessorTest {
 
 		ISnmpConfiguration snmpConfiguration = mock(ISnmpConfiguration.class);
 		when(configurationRetriever.apply(any(TelemetryManager.class))).thenReturn(snmpConfiguration);
+		when(snmpConfiguration.getHostname()).thenReturn("hostname");
 
 		String expectedOid = "1.3.6.1.2.1.1.1.0";
 		String expectedResult = "TestValue";

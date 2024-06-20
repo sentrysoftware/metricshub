@@ -104,7 +104,7 @@ public class SnmpTableSourceProcessor {
 				snmpTableSource.getOid(),
 				selectedColumnArray,
 				snmpConfiguration,
-				hostname,
+				snmpConfiguration.getHostname(),
 				true
 			);
 

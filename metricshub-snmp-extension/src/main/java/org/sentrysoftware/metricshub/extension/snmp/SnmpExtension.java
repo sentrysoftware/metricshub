@@ -119,7 +119,8 @@ public class SnmpExtension implements IProtocolExtension {
 
 		// Execute SNMP test command
 		try {
-			snmpResult = snmpRequestExecutor.executeSNMPGetNext(SNMP_OID, snmpConfiguration, hostname, true);
+			snmpResult =
+				snmpRequestExecutor.executeSNMPGetNext(SNMP_OID, snmpConfiguration, snmpConfiguration.getHostname(), true);
 		} catch (Exception e) {
 			log.debug(
 				"Hostname {} - Checking SNMP protocol status. SNMP exception when performing a SNMP Get Next query on {}: ",

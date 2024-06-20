@@ -106,6 +106,7 @@ public class SnmpTableSourceProcessorTest {
 		TelemetryManager telemetryManager = mockTelemetryManager();
 		ISnmpConfiguration snmpConfiguration = mock(ISnmpConfiguration.class);
 		when(configurationRetriever.apply(telemetryManager)).thenReturn(snmpConfiguration);
+		when(snmpConfiguration.getHostname()).thenReturn("hostname");
 		List<List<String>> expectedResult = Arrays.asList(
 			Arrays.asList("value1", "value2"),
 			Arrays.asList("value3", "value4")
@@ -131,7 +132,6 @@ public class SnmpTableSourceProcessorTest {
 		TelemetryManager telemetryManager = mock(TelemetryManager.class);
 		HostConfiguration hostConfigurationMock = mock(HostConfiguration.class);
 		when(telemetryManager.getHostConfiguration()).thenReturn(hostConfigurationMock);
-		when(hostConfigurationMock.getHostname()).thenReturn("hostname");
 		return telemetryManager;
 	}
 }

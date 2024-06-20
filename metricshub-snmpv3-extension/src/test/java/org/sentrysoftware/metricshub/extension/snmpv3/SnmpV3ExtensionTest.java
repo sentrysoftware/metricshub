@@ -70,6 +70,7 @@ class SnmpV3ExtensionTest {
 
 		final SnmpV3Configuration snmpV3Configuration = SnmpV3Configuration
 			.builder()
+			.hostname(HOST_NAME)
 			.port(161)
 			.timeout(120L)
 			.username("username")

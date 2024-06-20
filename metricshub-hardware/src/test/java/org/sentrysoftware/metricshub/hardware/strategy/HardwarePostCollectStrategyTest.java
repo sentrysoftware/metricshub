@@ -70,7 +70,11 @@ class HardwarePostCollectStrategyTest {
 			)
 		);
 
-		final SnmpConfiguration snmpConfig = SnmpConfiguration.builder().community("public".toCharArray()).build();
+		final SnmpConfiguration snmpConfig = SnmpConfiguration
+			.builder()
+			.hostname("ec-01")
+			.community("public".toCharArray())
+			.build();
 
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
