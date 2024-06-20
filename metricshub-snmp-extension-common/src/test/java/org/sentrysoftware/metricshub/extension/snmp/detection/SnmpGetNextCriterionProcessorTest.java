@@ -55,8 +55,10 @@ public class SnmpGetNextCriterionProcessorTest {
 
 		String expectedOid = "1.3.6.1.2.1.1.1.0";
 		String expectedResult = "1.3.6.1.2.1.1.1.0 OID_TYPE TestValue";
+		String expectedHostname = "hostname";
 
-		when(snmpRequestExecutor.executeSNMPGetNext(expectedOid, snmpConfiguration, false)).thenReturn(expectedResult);
+		when(snmpRequestExecutor.executeSNMPGetNext(expectedOid, snmpConfiguration, expectedHostname, false))
+			.thenReturn(expectedResult);
 
 		SnmpGetNextCriterion snmpGetNextCriterion = SnmpGetNextCriterion
 			.builder()
@@ -110,7 +112,14 @@ public class SnmpGetNextCriterionProcessorTest {
 		ISnmpConfiguration snmpConfiguration = mock(ISnmpConfiguration.class);
 		when(configurationRetriever.apply(telemetryManager)).thenReturn(snmpConfiguration);
 
-		when(snmpRequestExecutor.executeSNMPGetNext(any(String.class), any(ISnmpConfiguration.class), any(Boolean.class)))
+		when(
+			snmpRequestExecutor.executeSNMPGetNext(
+				any(String.class),
+				any(ISnmpConfiguration.class),
+				any(String.class),
+				any(Boolean.class)
+			)
+		)
 			.thenThrow((new RuntimeException("Test exception")));
 
 		SnmpGetNextCriterion snmpGetNextCriterion = SnmpGetNextCriterion.builder().oid("1.3.6.1.2.1.1.1.0").build();

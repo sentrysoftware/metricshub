@@ -37,28 +37,38 @@ public interface ISnmpRequestExecutor {
 	 *
 	 * @param oid            The Object Identifier (OID) for the SNMP GETNEXT request.
 	 * @param configuration  The SNMP configuration specifying parameters like version, community, etc.
+	 * @param hostname       The hostname or IP address of the SNMP-enabled device.
 	 * @param logMode        A boolean indicating whether to log errors and warnings during execution.
 	 * @return The SNMP response as a String value.
 	 * @throws InterruptedException If the execution is interrupted.
 	 * @throws ExecutionException  If an exception occurs during execution.
 	 * @throws TimeoutException    If the execution times out.
 	 */
-	String executeSNMPGetNext(@NonNull String oid, @NonNull ISnmpConfiguration configuration, boolean logMode)
-		throws InterruptedException, ExecutionException, TimeoutException;
+	String executeSNMPGetNext(
+		@NonNull String oid,
+		@NonNull ISnmpConfiguration configuration,
+		@NonNull String hostname,
+		boolean logMode
+	) throws InterruptedException, ExecutionException, TimeoutException;
 
 	/**
 	 * Execute SNMP Get request
 	 *
 	 * @param oid            The Object Identifier (OID) for the SNMP GET request.
 	 * @param configuration  The SNMP configuration specifying parameters like version, community, etc.
+	 * @param hostname       The hostname or IP address of the SNMP-enabled device.
 	 * @param logMode        A boolean indicating whether to log errors and warnings during execution.
 	 * @return The SNMP response as a String value.
 	 * @throws InterruptedException If the execution is interrupted.
 	 * @throws ExecutionException  If an exception occurs during execution.
 	 * @throws TimeoutException    If the execution times out.
 	 */
-	String executeSNMPGet(@NonNull String oid, @NonNull ISnmpConfiguration configuration, boolean logMode)
-		throws InterruptedException, ExecutionException, TimeoutException;
+	String executeSNMPGet(
+		@NonNull String oid,
+		@NonNull ISnmpConfiguration configuration,
+		@NonNull String hostname,
+		boolean logMode
+	) throws InterruptedException, ExecutionException, TimeoutException;
 
 	/**
 	 * Execute SNMP Table
@@ -66,6 +76,7 @@ public interface ISnmpRequestExecutor {
 	 * @param oid               The SNMP Object Identifier (OID) representing the table.
 	 * @param selectColumnArray An array of column names to select from the SNMP table.
 	 * @param configuration     The SNMP configuration containing connection details.
+	 * @param hostname          The hostname or IP address of the SNMP-enabled device.
 	 * @param logMode           Flag indicating whether to log warnings in case of errors.
 	 * @return A list of rows, where each row is a list of string cells representing the SNMP table.
 	 * @throws InterruptedException If the thread executing this method is interrupted.
@@ -76,6 +87,7 @@ public interface ISnmpRequestExecutor {
 		@NonNull String oid,
 		@NonNull String[] selectColumnArray,
 		@NonNull ISnmpConfiguration configuration,
+		@NonNull String hostname,
 		boolean logMode
 	) throws InterruptedException, ExecutionException, TimeoutException;
 }

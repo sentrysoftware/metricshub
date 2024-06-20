@@ -97,6 +97,12 @@ public class SnmpExtension implements IProtocolExtension {
 
 	@Override
 	public Optional<Boolean> checkProtocol(TelemetryManager telemetryManager) {
+		// Retrieve the hostname
+		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+
+		// Create and set the SNMP result to null
+		String snmpResult = null;
+
 		// Retrieve SNMP Configuration from the telemetry manager host configuration
 		final SnmpConfiguration snmpConfiguration = (SnmpConfiguration) telemetryManager
 			.getHostConfiguration()
@@ -108,18 +114,12 @@ public class SnmpExtension implements IProtocolExtension {
 			return Optional.empty();
 		}
 
-		// Retrieve the hostname the will be used for the logs
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		// Create and set the SNMP result to null
-		String snmpResult = null;
-
 		log.info("Hostname {} - Performing {} protocol health check.", hostname, getIdentifier());
 		log.info("Hostname {} - Checking SNMP protocol status. Sending Get Next request on {}.", hostname, SNMP_OID);
 
 		// Execute SNMP test command
 		try {
-			snmpResult = snmpRequestExecutor.executeSNMPGetNext(SNMP_OID, snmpConfiguration, true);
+			snmpResult = snmpRequestExecutor.executeSNMPGetNext(SNMP_OID, snmpConfiguration, hostname, true);
 		} catch (Exception e) {
 			log.debug(
 				"Hostname {} - Checking SNMP protocol status. SNMP exception when performing a SNMP Get Next query on {}: ",
