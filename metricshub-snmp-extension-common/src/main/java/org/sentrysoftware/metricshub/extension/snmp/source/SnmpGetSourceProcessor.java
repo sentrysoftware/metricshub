@@ -91,7 +91,7 @@ public class SnmpGetSourceProcessor {
 			final String result = snmpRequestExecutor.executeSNMPGet(
 				snmpGetSource.getOid(),
 				snmpConfiguration,
-				hostname,
+				snmpConfiguration.getHostname(),
 				true
 			);
 

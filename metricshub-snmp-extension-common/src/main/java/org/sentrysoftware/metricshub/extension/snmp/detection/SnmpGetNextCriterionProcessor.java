@@ -96,15 +96,17 @@ public class SnmpGetNextCriterionProcessor {
 		}
 
 		try {
+			// Retrieve the hostname from the SNMP Configuration
+			final String configHostname = snmpConfiguration.getHostname();
 			final String result = snmpRequestExecutor.executeSNMPGetNext(
 				snmpGetNextCriterion.getOid(),
 				snmpConfiguration,
-				hostname,
+				configHostname,
 				false
 			);
 
 			final CriterionTestResult criterionTestResult = checkSNMPGetNextResult(
-				hostname,
+				configHostname,
 				snmpGetNextCriterion.getOid(),
 				snmpGetNextCriterion.getExpectedResult(),
 				result

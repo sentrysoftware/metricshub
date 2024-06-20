@@ -117,7 +117,13 @@ public class SnmpV3Extension implements IProtocolExtension {
 
 		// Execute SNMP test command
 		try {
-			snmpV3Result = snmpV3RequestExecutor.executeSNMPGetNext(SNMPV3_OID, snmpV3Configuration, hostname, true);
+			snmpV3Result =
+				snmpV3RequestExecutor.executeSNMPGetNext(
+					SNMPV3_OID,
+					snmpV3Configuration,
+					snmpV3Configuration.getHostname(),
+					true
+				);
 		} catch (Exception e) {
 			log.debug(
 				"Hostname {} - Checking SNMP V3 protocol status. SNMP V3 exception when performing a SNMP Get Next query on {}: ",
