@@ -21,7 +21,16 @@ package org.sentrysoftware.metricshub.hardware.threshold;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ERRORS_LIMIT_LIMIT_TYPE_CRITICAL_HW_TYPE_CPU;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ERRORS_LIMIT_LIMIT_TYPE_DEGRADED_HW_TYPE_CPU;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.METRIC_CRITICAL_ATTRIBUTES;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.METRIC_DEGRADED_ATTRIBUTES;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.METRIC_PREFIX;
+
+import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
+import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
+import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 
 /**
  * TODO: Complete the Javadoc for this Class.
@@ -32,11 +41,37 @@ public class CpuMetricNormalizer extends AbstractMetricNormalizer {
 	 * TODO: Complete the Javadoc for this method.
 	 */
 	@Override
-	public void normalize(AbstractMetric metric) {}
-
-	/**
-	 * TODO: Complete the Javadoc for this method.
-	 */
-	@Override
-	public void normalizeErrorsLimitMetric(AbstractMetric metric) {}
+	public void normalizeErrorsLimitMetric(final Monitor monitor, final AbstractMetric metric) {
+		final boolean isCriticalMetricAvailable = isMetricAvailable(
+			HW_ERRORS_LIMIT_LIMIT_TYPE_CRITICAL_HW_TYPE_CPU,
+			METRIC_PREFIX,
+			METRIC_CRITICAL_ATTRIBUTES
+		);
+		final boolean isDegradedMetricAvailable = isMetricAvailable(
+			HW_ERRORS_LIMIT_LIMIT_TYPE_DEGRADED_HW_TYPE_CPU,
+			METRIC_PREFIX,
+			METRIC_DEGRADED_ATTRIBUTES
+		);
+		final MetricFactory metricFactory = MetricFactory.builder().build();
+		if (!isCriticalMetricAvailable && !isDegradedMetricAvailable) {
+			metricFactory.collectNumberMetric(
+				monitor,
+				HW_ERRORS_LIMIT_LIMIT_TYPE_CRITICAL_HW_TYPE_CPU,
+				1.0,
+				System.currentTimeMillis()
+			);
+		} else if (isCriticalMetricAvailable && isDegradedMetricAvailable) {
+			final NumberMetric criticalMetric = monitor.getMetric(
+				HW_ERRORS_LIMIT_LIMIT_TYPE_CRITICAL_HW_TYPE_CPU,
+				NumberMetric.class
+			);
+			final NumberMetric degradedMetric = monitor.getMetric(
+				HW_ERRORS_LIMIT_LIMIT_TYPE_DEGRADED_HW_TYPE_CPU,
+				NumberMetric.class
+			);
+			if (criticalMetric.getValue() < degradedMetric.getValue()) {
+				swapMetricsValues(monitor, criticalMetric, degradedMetric);
+			}
+		}
+	}
 }

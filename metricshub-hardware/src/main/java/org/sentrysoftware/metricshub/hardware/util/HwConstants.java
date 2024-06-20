@@ -21,6 +21,7 @@ package org.sentrysoftware.metricshub.hardware.util;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.Map;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -70,4 +71,24 @@ public class HwConstants {
 	public static final String CONNECTOR = "connector";
 	public static final String ENCLOSURE = "enclosure";
 	public static final String PRESENT_STATUS = "hw.status{hw.type=\"%s\", state=\"present\"}";
+
+	// Metric normalization constants
+
+	public static final String METRIC_PREFIX = "hw.errors.limit";
+	public static final Map<String, String> METRIC_CRITICAL_ATTRIBUTES = Map.of(
+		"limit_type",
+		"critical",
+		"hw.type",
+		"cpu"
+	);
+	public static final Map<String, String> METRIC_DEGRADED_ATTRIBUTES = Map.of(
+		"limit_type",
+		"degraded",
+		"hw.type",
+		"cpu"
+	);
+	public static final String HW_ERRORS_LIMIT_LIMIT_TYPE_CRITICAL_HW_TYPE_CPU =
+		METRIC_PREFIX + "{limit_type=\"critical\", hw.type=\"cpu\"}";
+	public static final String HW_ERRORS_LIMIT_LIMIT_TYPE_DEGRADED_HW_TYPE_CPU =
+		METRIC_PREFIX + "{limit_type=\"degraded\", hw.type=\"cpu\"}";
 }

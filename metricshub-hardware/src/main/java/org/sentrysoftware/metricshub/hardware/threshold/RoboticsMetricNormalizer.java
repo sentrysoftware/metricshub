@@ -21,6 +21,7 @@ package org.sentrysoftware.metricshub.hardware.threshold;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
 
 /**
@@ -32,11 +33,11 @@ public class RoboticsMetricNormalizer extends AbstractMetricNormalizer {
 	 * TODO: Complete the Javadoc for this method.
 	 */
 	@Override
-	public void normalize(AbstractMetric metric) {}
+	public void normalize(Monitor monitor) {}
 
 	/**
 	 * TODO: Complete the Javadoc for this method.
 	 */
 	@Override
-	public void normalizeErrorsLimitMetric(AbstractMetric metric) {}
+	public void normalizeErrorsLimitMetric(Monitor monitor, AbstractMetric metric) {}
 }
