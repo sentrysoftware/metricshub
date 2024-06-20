@@ -81,12 +81,13 @@ public abstract class AbstractMetricNormalizer {
 
 	/**
 	 * Adjusts the corresponding monitor's metric as follows:
-	 * If the hw.MONITOR_TYPE.METRIC{limit_type="low.critical"} metric is not available while the  hw.MONITOR_TYPE.METRIC{limit_type="low.degraded"}
-	 * metric is, set hw.MONITOR_TYPE.METRIC{limit_type="low.critical"} to hw.MONITOR_TYPE.METRIC{limit_type="low.degraded"} * 0.9.
+	 * For example:
+	 * If the hw.fan.speed.limit{limit_type="low.critical"} metric is not available while the hw.fan.speed.limit{limit_type="low.degraded"}
+	 * metric is, set hw.fan.speed.limit{limit_type="low.critical"} to hw.fan.speed.limit{limit_type="low.degraded"} * 0.9.
 	 * We need to manage the following use case as well:
-	 * If the hw.MONITOR_TYPE.METRIC{limit_type="low.critical"} metric is not available while the hw.MONITOR_TYPE.METRIC{limit_type="low.degraded",
-	 * unknown_attr="value"} metric is, set hw.MONITOR_TYPE.METRIC{limit_type="low.critical", unknown_attr="value"} to
-	 * hw.MONITOR_TYPE.METRIC{limit_type="low.degraded", unknown_attr="value"} * 0.9.
+	 * If the hw.fan.speed.limit{limit_type="low.critical"} metric is not available while the hw.fan.speed.limit{limit_type="low.degraded",
+	 * unknown_attr="value"} metric is, set hw.fan.speed.limit{limit_type="low.critical", unknown_attr="value"} to
+	 * hw.fan.speed.limit{limit_type="low.degraded", unknown_attr="value"} * 0.9.
 	 * @param metric A given monitor's Number metric
 	 */
 	public abstract void normalize(AbstractMetric metric);

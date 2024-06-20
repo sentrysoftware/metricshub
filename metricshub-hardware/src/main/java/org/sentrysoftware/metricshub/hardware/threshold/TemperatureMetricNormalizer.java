@@ -23,11 +23,20 @@ package org.sentrysoftware.metricshub.hardware.threshold;
 
 import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
 
+/**
+ * TODO: Complete the Javadoc for this Class.
+ */
 public class TemperatureMetricNormalizer extends AbstractMetricNormalizer {
 
+	/**
+	 * TODO: Complete the Javadoc for this method.
+	 */
 	@Override
 	public void normalize(AbstractMetric metric) {}
 
+	/**
+	 * TODO: Complete the Javadoc for this method.
+	 */
 	@Override
 	public void normalizeErrorsLimitMetric(AbstractMetric metric) {}
 }
