@@ -59,8 +59,6 @@ public class HttpSourceProcessor {
 		final String connectorId,
 		final TelemetryManager telemetryManager
 	) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
 		final HttpConfiguration httpConfiguration = (HttpConfiguration) telemetryManager
 			.getHostConfiguration()
 			.getConfigurations()
@@ -69,12 +67,15 @@ public class HttpSourceProcessor {
 		if (httpConfiguration == null) {
 			log.debug(
 				"Hostname {} - The HTTP credentials are not configured. Returning an empty table for HttpSource {}.",
-				hostname,
+				telemetryManager.getHostname(),
 				httpSource
 			);
 
 			return SourceTable.empty();
 		}
+
+		// Retrieve the hostname from the HTTP Configuration
+		final String hostname = httpConfiguration.getHostname();
 
 		final Map<Integer, EmbeddedFile> connectorEmbeddedFiles = telemetryManager.getEmbeddedFiles(connectorId);
 
