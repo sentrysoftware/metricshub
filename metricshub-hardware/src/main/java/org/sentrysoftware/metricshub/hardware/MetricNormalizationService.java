@@ -30,6 +30,7 @@ import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.delegate.IPostExecutionService;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.hardware.threshold.CpuMetricNormalizer;
 
 /**
  * Service class for normalizing hardware monitor metrics.
@@ -84,7 +85,10 @@ public class MetricNormalizationService implements IPostExecutionService {
 		hardwareMonitors.forEach(monitor -> {
 			switch (monitor.getType()) {
 				case "cpu":
-				//TODO
+					final CpuMetricNormalizer cpuMetricNormalizer = new CpuMetricNormalizer();
+					cpuMetricNormalizer.normalize(monitor);
+					cpuMetricNormalizer.normalizeErrorsLimitMetric(monitor);
+					break;
 				case "fan":
 				//TODO
 				case "gpu":

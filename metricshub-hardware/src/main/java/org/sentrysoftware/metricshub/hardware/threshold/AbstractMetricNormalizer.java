@@ -43,7 +43,7 @@ public abstract class AbstractMetricNormalizer {
 	 * @return {@code true} if all entries of the second map are contained in the first map,
 	 * {@code false} otherwise
 	 */
-	private boolean containsAllEntries(Map<String, String> firstMap, Map<String, String> secondMap) {
+	static boolean containsAllEntries(Map<String, String> firstMap, Map<String, String> secondMap) {
 		// Checks if the second map entries are all contained within the first map
 		return secondMap
 			.entrySet()
@@ -143,9 +143,8 @@ public abstract class AbstractMetricNormalizer {
 	/**
 	 * Adjusts the metric hw.errors.limit.
 	 * @param monitor A given {@link Monitor}
-	 * @param metric A given monitor's Number metric
 	 */
-	public abstract void normalizeErrorsLimitMetric(Monitor monitor, AbstractMetric metric);
+	public abstract void normalizeErrorsLimitMetric(Monitor monitor);
 
 	/**
 	 * Swaps the values of two metrics for a given monitor.

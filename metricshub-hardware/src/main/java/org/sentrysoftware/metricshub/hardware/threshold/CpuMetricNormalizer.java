@@ -29,19 +29,23 @@ import static org.sentrysoftware.metricshub.hardware.util.HwConstants.METRIC_PRE
 
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
-import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 
 /**
- * TODO: Complete the Javadoc for this Class.
+ * The CpuMetricNormalizer class is responsible for normalizing CPU metrics.
+ * It extends the AbstractMetricNormalizer class to provide specific
+ * normalization logic for CPU monitor hardware metrics.
  */
 public class CpuMetricNormalizer extends AbstractMetricNormalizer {
 
 	/**
-	 * TODO: Complete the Javadoc for this method.
+	 * Normalizes the errors limit metric for CPU hardware types.
+	 * This method checks the availability of critical and degraded error limit metrics,
+	 * adjusts them if necessary, and collects a new metric if neither is available.
+	 * @param monitor The monitor instance used to retrieve and update metrics.
 	 */
 	@Override
-	public void normalizeErrorsLimitMetric(final Monitor monitor, final AbstractMetric metric) {
+	public void normalizeErrorsLimitMetric(final Monitor monitor) {
 		final boolean isCriticalMetricAvailable = isMetricAvailable(
 			HW_ERRORS_LIMIT_LIMIT_TYPE_CRITICAL_HW_TYPE_CPU,
 			METRIC_PREFIX,
