@@ -79,12 +79,6 @@ public class IpmiExtension implements IProtocolExtension {
 
 	@Override
 	public Optional<Boolean> checkProtocol(TelemetryManager telemetryManager) {
-		// Retrieve the hostname
-		String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		// Create and set the IPMI result to null
-		String ipmiResult = null;
-
 		// Retrieve IPMI Configuration from the telemetry manager host configuration
 		final IpmiConfiguration ipmiConfiguration = (IpmiConfiguration) telemetryManager
 			.getHostConfiguration()
@@ -95,6 +89,12 @@ public class IpmiExtension implements IProtocolExtension {
 		if (ipmiConfiguration == null) {
 			return Optional.empty();
 		}
+
+		// Retrieve the hostname
+		String hostname = telemetryManager.getHostConfiguration().getHostname();
+
+		// Create and set the IPMI result to null
+		String ipmiResult = null;
 
 		log.info("Hostname {} - Performing {} protocol health check.", hostname, getIdentifier());
 		log.info(
@@ -107,7 +107,7 @@ public class IpmiExtension implements IProtocolExtension {
 			ipmiResult =
 				IpmiClient.getChassisStatusAsStringResult(
 					new IpmiClientConfiguration(
-						hostname,
+						ipmiConfiguration.getHostname(),
 						ipmiConfiguration.getUsername(),
 						ipmiConfiguration.getPassword(),
 						ArrayHelper.hexToByteArray(ipmiConfiguration.getBmcKey()),
@@ -140,7 +140,10 @@ public class IpmiExtension implements IProtocolExtension {
 		}
 
 		try {
-			final String result = ipmiRequestExecutor.executeIpmiGetSensors(hostname, ipmiConfiguration);
+			final String result = ipmiRequestExecutor.executeIpmiGetSensors(
+				ipmiConfiguration.getHostname(),
+				ipmiConfiguration
+			);
 
 			if (result != null) {
 				return SourceTable.builder().rawData(result).build();
@@ -160,14 +163,14 @@ public class IpmiExtension implements IProtocolExtension {
 		String connectorId,
 		TelemetryManager telemetryManager
 	) {
-		final IpmiConfiguration configuration = (IpmiConfiguration) telemetryManager
+		final IpmiConfiguration ipmiConfiguration = (IpmiConfiguration) telemetryManager
 			.getHostConfiguration()
 			.getConfigurations()
 			.get(IpmiConfiguration.class);
 
 		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 
-		if (configuration == null) {
+		if (ipmiConfiguration == null) {
 			log.debug(
 				"Hostname {} - The IPMI credentials are not configured for this host. Cannot process IPMI-over-LAN detection.",
 				hostname
@@ -176,7 +179,10 @@ public class IpmiExtension implements IProtocolExtension {
 		}
 
 		try {
-			final String result = ipmiRequestExecutor.executeIpmiDetection(hostname, configuration);
+			final String result = ipmiRequestExecutor.executeIpmiDetection(
+				ipmiConfiguration.getHostname(),
+				ipmiConfiguration
+			);
 			if (result == null) {
 				return CriterionTestResult
 					.builder()
