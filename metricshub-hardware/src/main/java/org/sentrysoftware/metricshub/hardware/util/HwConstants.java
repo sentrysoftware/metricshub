@@ -74,7 +74,7 @@ public class HwConstants {
 
 	// Metric normalization constants
 
-	public static final String METRIC_PREFIX = "hw.errors.limit";
+	public static final String HW_ERRORS_LIMIT = "hw.errors.limit";
 	public static final Map<String, String> METRIC_CRITICAL_ATTRIBUTES = Map.of(
 		"limit_type",
 		"critical",
@@ -88,7 +88,7 @@ public class HwConstants {
 		"cpu"
 	);
 	public static final String HW_ERRORS_LIMIT_LIMIT_TYPE_CRITICAL_HW_TYPE_CPU =
-		METRIC_PREFIX + "{limit_type=\"critical\", hw.type=\"cpu\"}";
+		HW_ERRORS_LIMIT + "{limit_type=\"critical\", hw.type=\"cpu\"}";
 	public static final String HW_ERRORS_LIMIT_LIMIT_TYPE_DEGRADED_HW_TYPE_CPU =
-		METRIC_PREFIX + "{limit_type=\"degraded\", hw.type=\"cpu\"}";
+		HW_ERRORS_LIMIT + "{limit_type=\"degraded\", hw.type=\"cpu\"}";
 }

@@ -22,9 +22,14 @@ package org.sentrysoftware.metricshub.hardware.threshold;
  */
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
+import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
+
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ERRORS_LIMIT;
 
 /**
  * An abstract class that provides methods for normalizing metrics in a monitoring system.
@@ -46,9 +51,9 @@ public abstract class AbstractMetricNormalizer {
 	static boolean containsAllEntries(Map<String, String> firstMap, Map<String, String> secondMap) {
 		// Checks if the second map entries are all contained within the first map
 		return secondMap
-			.entrySet()
-			.stream()
-			.allMatch(entry -> firstMap.containsKey(entry.getKey()) && firstMap.get(entry.getKey()).equals(entry.getValue()));
+				.entrySet()
+				.stream()
+				.allMatch(entry -> firstMap.containsKey(entry.getKey()) && firstMap.get(entry.getKey()).equals(entry.getValue()));
 	}
 
 	/**
@@ -58,29 +63,40 @@ public abstract class AbstractMetricNormalizer {
 	 * from the metric name and checks if all the specified attributes are present in the extracted
 	 * attributes.
 	 *
-	 * @param metricName the name of the metric to check
 	 * @param prefix     the prefix to compare against the extracted metric name prefix
 	 * @param attributes the attributes to verify against the extracted attributes from the metric name
 	 * @return {@code true} if the metric name has the specified prefix and contains all the specified attributes,
 	 * {@code false} otherwise
 	 */
 	protected boolean isMetricAvailable(
-		final String metricName,
-		final String prefix,
-		final Map<String, String> attributes
+			final Map<String, AbstractMetric> metrics,
+			final String prefix,
+			final Map<String, String> attributes,
+			final AtomicReference<NumberMetric> matchingMetric
 	) {
-		// Extract the metric name prefix
-		final String metricNamePrefix = MetricFactory.extractName(metricName);
+		return metrics.values().stream().anyMatch(metric -> {
+			// Extract the metric name prefix
+			final String metricNamePrefix = MetricFactory.extractName(metric.getName());
 
-		if (!prefix.equals(metricNamePrefix)) {
-			return false;
-		}
+			if (!prefix.equals(metricNamePrefix)) {
+				return false;
+			}
 
-		// Extract the metric attributes
-		final Map<String, String> metricAttributes = MetricFactory.extractAttributesFromMetricName(metricName);
+			// Extract the metric attributes
+			final Map<String, String> metricAttributes = MetricFactory.extractAttributesFromMetricName(metric.getName());
 
-		// Check all the attributes are available in the extracted metric attributes
-		return containsAllEntries(metricAttributes, attributes);
+			// Check if all the attributes are available in the extracted metric attributes
+			final boolean containsAllAttributes = containsAllEntries(metricAttributes, attributes);
+			if (containsAllAttributes) {
+				matchingMetric.set(NumberMetric.builder()
+						.value(metric.getValue())
+						.name(metric.getName())
+						.collectTime(metric.getCollectTime())
+						.attributes(metricAttributes)
+						.build());
+			}
+			return containsAllAttributes;
+		});
 	}
 
 	/**
@@ -92,9 +108,12 @@ public abstract class AbstractMetricNormalizer {
 	 * If the hw.fan.speed.limit{limit_type="low.critical"} metric is not available while the hw.fan.speed.limit{limit_type="low.degraded",
 	 * unknown_attr="value"} metric is, set hw.fan.speed.limit{limit_type="low.critical", unknown_attr="value"} to
 	 * hw.fan.speed.limit{limit_type="low.degraded", unknown_attr="value"} * 0.9.
+	 *
 	 * @param monitor A given {@link Monitor}
 	 */
 	public void normalize(final Monitor monitor) {
+		AtomicReference<NumberMetric> matchingMetric = new AtomicReference<>();
+
 		// Define the attributes for critical and degraded metrics
 		final Map<String, String> criticalMetricAttributes = Map.of("limit_type", "low.critical");
 		final Map<String, String> degradedMetricAttributes = Map.of("limit_type", "low.degraded");
@@ -103,75 +122,76 @@ public abstract class AbstractMetricNormalizer {
 		final MetricFactory metricFactory = MetricFactory.builder().build();
 
 		// Iterate over all metrics in the monitor
-		monitor
-			.getMetrics()
-			.values()
-			.forEach(metric -> {
-				// Get the name of the current metric
-				final String metricName = metric.getName();
 
-				// Check if a critical metric with the same name is available
-				final boolean isCriticalMetricAvailable = isMetricAvailable(
-					metricName,
-					MetricFactory.extractName(metricName),
-					criticalMetricAttributes
-				);
-
-				// Check if a degraded metric with the same name is available
-				final boolean isDegradedMetricAvailable = isMetricAvailable(
-					metricName,
-					MetricFactory.extractName(metricName),
-					degradedMetricAttributes
-				);
-
-				// If the critical metric is not available but the degraded metric is available,
-				// create a new critical metric with adjusted value
-				if (!isCriticalMetricAvailable && isDegradedMetricAvailable) {
-					final String criticalMetricName = metricName.replace("low.degraded", "low.critical");
-
-					// Collect the new critical metric with the value equals to the degraded metric value multiplied by 0.9
-					metricFactory.collectNumberMetric(
-						monitor,
-						criticalMetricName,
-						Double.parseDouble(metric.getValue()) * 0.9,
-						System.currentTimeMillis()
+					// Check if a critical metric with the same name is available
+					final boolean isCriticalMetricAvailable = isMetricAvailable(
+							monitor.getMetrics(),
+							HW_ERRORS_LIMIT,
+							criticalMetricAttributes,
+							matchingMetric
 					);
-				}
-			});
+
+					// Check if a degraded metric with the same name is available
+					final boolean isDegradedMetricAvailable = isMetricAvailable(
+							monitor.getMetrics(),
+							HW_ERRORS_LIMIT,
+							degradedMetricAttributes,
+							matchingMetric
+					);
+
+					// If the critical metric is not available but the degraded metric is available,
+					// create a new critical metric with adjusted value
+					if (!isCriticalMetricAvailable && isDegradedMetricAvailable) {
+						final String criticalMetricName = matchingMetric.get().getName().replace("low.degraded", "low.critical");
+
+						// Collect the new critical metric with the value equals to the degraded metric value multiplied by 0.9
+						metricFactory.collectNumberMetric(
+								monitor,
+								criticalMetricName,
+								matchingMetric.get().getValue() * 0.9,
+								System.currentTimeMillis()
+						);
+					}
+
 	}
 
 	/**
 	 * Adjusts the metric hw.errors.limit.
+	 *
 	 * @param monitor A given {@link Monitor}
 	 */
 	public abstract void normalizeErrorsLimitMetric(Monitor monitor);
 
 	/**
 	 * Swaps the values of two metrics for a given monitor.
+	 *
 	 * @param monitor      the {@link Monitor} associated with the metrics
 	 * @param firstMetric  the first metric to swap
 	 * @param secondMetric the second metric to swap
 	 */
 	public void swapMetricsValues(
-		final Monitor monitor,
-		final AbstractMetric firstMetric,
-		final AbstractMetric secondMetric
+			final Monitor monitor,
+			final NumberMetric firstMetric,
+			final NumberMetric secondMetric
 	) {
+		// Use an auxiliary variable to save first metric value
+		Double temp = 0.0;
+		temp = firstMetric.getValue();
 		// Create an instance of MetricFactory
 		final MetricFactory metricFactory = MetricFactory.builder().build();
 		// Collect the metric for the first metric name with the value of the second metric
 		metricFactory.collectNumberMetric(
-			monitor,
-			firstMetric.getName(),
-			Double.valueOf(secondMetric.getValue()),
-			System.currentTimeMillis()
+				monitor,
+				firstMetric.getName(),
+				secondMetric.getValue(),
+				System.currentTimeMillis()
 		);
 		// Collect the metric for the second metric name with the value of the first metric
 		metricFactory.collectNumberMetric(
-			monitor,
-			secondMetric.getName(),
-			Double.valueOf(firstMetric.getValue()),
-			System.currentTimeMillis()
+				monitor,
+				secondMetric.getName(),
+				temp,
+				System.currentTimeMillis()
 		);
 	}
 }
