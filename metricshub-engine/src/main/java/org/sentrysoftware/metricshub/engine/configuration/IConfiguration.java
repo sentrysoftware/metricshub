@@ -41,6 +41,7 @@ public interface IConfiguration {
 	 * @param hostname the hostname of the local or remote device.
 	 */
 	void setHostname(String hostname);
+
 	/**
 	 * Validates the current configuration for the given configured resource key. This method ensures that
 	 * the configuration meets all required criteria.
