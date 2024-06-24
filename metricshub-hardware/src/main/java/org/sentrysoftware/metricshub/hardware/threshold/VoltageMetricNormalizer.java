@@ -29,14 +29,17 @@ import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 public class VoltageMetricNormalizer extends AbstractMetricNormalizer {
 
 	/**
-	 * TODO: Complete the Javadoc for this method.
+	 * Constructs a new instance with the specified strategy time.
+	 * @param strategyTime The strategy time in milliseconds
+	 * @param hostname     The hostname of the monitor
 	 */
-	@Override
-	public void normalize(Monitor monitor) {}
+	public VoltageMetricNormalizer(long strategyTime, String hostname) {
+		super(strategyTime, hostname);
+	}
 
 	/**
 	 * TODO: Complete the Javadoc for this method.
 	 */
 	@Override
-	public void normalizeErrorsLimitMetric(Monitor monitor) {}
+	public void normalize(Monitor monitor) {}
 }

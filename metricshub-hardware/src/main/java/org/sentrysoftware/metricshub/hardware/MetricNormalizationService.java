@@ -20,7 +20,7 @@ package org.sentrysoftware.metricshub.hardware;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
-import java.util.List;
+
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -73,49 +73,45 @@ public class MetricNormalizationService implements IPostExecutionService {
 	@Override
 	public void run() {
 		// Retrieve hardware monitors from the TelemetryManager
-		final List<Monitor> hardwareMonitors = telemetryManager
+		telemetryManager
 			.getMonitors()
 			.values()
 			.stream()
 			.flatMap(monitors -> monitors.values().stream())
 			.filter(this::isHardwareMonitor)
-			.toList();
-
-		// For each hardware monitor type, call the corresponding metric normalization class
-		hardwareMonitors.forEach(monitor -> {
-			switch (monitor.getType()) {
-				case "cpu":
-					final CpuMetricNormalizer cpuMetricNormalizer = new CpuMetricNormalizer();
-					cpuMetricNormalizer.normalize(monitor);
-					cpuMetricNormalizer.normalizeErrorsLimitMetric(monitor);
-					break;
-				case "fan":
-				//TODO
-				case "gpu":
-				//TODO
-				case "logical_disk":
-				//TODO
-				case "lun":
-				//TODO
-				case "memory":
-				//TODO
-				case "network":
-				//TODO
-				case "other_device":
-				//TODO
-				case "physical_disk":
-				//TODO
-				case "robotics":
-				//TODO
-				case "tape_drive":
-				//TODO
-				case "temperature":
-				//TODO
-				case "voltage":
-				//TODO
-				default:
-				//TODO other hardware monitor types
-			}
-		});
+			.forEach(monitor -> {
+				switch (monitor.getType()) {
+					case "cpu":
+						new CpuMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
+							.normalize(monitor);
+						break;
+					case "fan":
+					//TODO
+					case "gpu":
+					//TODO
+					case "logical_disk":
+					//TODO
+					case "lun":
+					//TODO
+					case "memory":
+					//TODO
+					case "network":
+					//TODO
+					case "other_device":
+					//TODO
+					case "physical_disk":
+					//TODO
+					case "robotics":
+					//TODO
+					case "tape_drive":
+					//TODO
+					case "temperature":
+					//TODO
+					case "voltage":
+					//TODO
+					default:
+					//TODO other hardware monitor types
+				}
+			});
 	}
 }
