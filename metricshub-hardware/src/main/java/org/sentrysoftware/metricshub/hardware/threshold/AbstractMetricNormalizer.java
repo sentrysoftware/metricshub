@@ -23,13 +23,10 @@ package org.sentrysoftware.metricshub.hardware.threshold;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
-
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
-
-import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ERRORS_LIMIT;
 
 /**
  * An abstract class that provides methods for normalizing metrics in a monitoring system.
@@ -51,9 +48,9 @@ public abstract class AbstractMetricNormalizer {
 	static boolean containsAllEntries(Map<String, String> firstMap, Map<String, String> secondMap) {
 		// Checks if the second map entries are all contained within the first map
 		return secondMap
-				.entrySet()
-				.stream()
-				.allMatch(entry -> firstMap.containsKey(entry.getKey()) && firstMap.get(entry.getKey()).equals(entry.getValue()));
+			.entrySet()
+			.stream()
+			.allMatch(entry -> firstMap.containsKey(entry.getKey()) && firstMap.get(entry.getKey()).equals(entry.getValue()));
 	}
 
 	/**
@@ -62,41 +59,48 @@ public abstract class AbstractMetricNormalizer {
 	 * If they do not match, the metric is considered unavailable. It then extracts the attributes
 	 * from the metric name and checks if all the specified attributes are present in the extracted
 	 * attributes.
-	 *
-	 * @param prefix     the prefix to compare against the extracted metric name prefix
-	 * @param attributes the attributes to verify against the extracted attributes from the metric name
+	 * @param metrics Monitor metrics
+	 * @param prefix     The prefix to compare against the extracted metric name prefix
+	 * @param attributes The attributes to verify against the extracted attributes from the metric name
+	 * @param matchingMetric The found metric that matches given prefix and attributes
 	 * @return {@code true} if the metric name has the specified prefix and contains all the specified attributes,
 	 * {@code false} otherwise
 	 */
 	protected boolean isMetricAvailable(
-			final Map<String, AbstractMetric> metrics,
-			final String prefix,
-			final Map<String, String> attributes,
-			final AtomicReference<NumberMetric> matchingMetric
+		final Map<String, AbstractMetric> metrics,
+		final String prefix,
+		final Map<String, String> attributes,
+		final AtomicReference<NumberMetric> matchingMetric
 	) {
-		return metrics.values().stream().anyMatch(metric -> {
-			// Extract the metric name prefix
-			final String metricNamePrefix = MetricFactory.extractName(metric.getName());
+		return metrics
+			.values()
+			.stream()
+			.anyMatch(metric -> {
+				// Extract the metric name prefix
+				final String metricNamePrefix = MetricFactory.extractName(metric.getName());
 
-			if (!prefix.equals(metricNamePrefix)) {
-				return false;
-			}
+				if (!prefix.equals(metricNamePrefix)) {
+					return false;
+				}
 
-			// Extract the metric attributes
-			final Map<String, String> metricAttributes = MetricFactory.extractAttributesFromMetricName(metric.getName());
+				// Extract the metric attributes
+				final Map<String, String> metricAttributes = MetricFactory.extractAttributesFromMetricName(metric.getName());
 
-			// Check if all the attributes are available in the extracted metric attributes
-			final boolean containsAllAttributes = containsAllEntries(metricAttributes, attributes);
-			if (containsAllAttributes) {
-				matchingMetric.set(NumberMetric.builder()
-						.value(metric.getValue())
-						.name(metric.getName())
-						.collectTime(metric.getCollectTime())
-						.attributes(metricAttributes)
-						.build());
-			}
-			return containsAllAttributes;
-		});
+				// Check if all the attributes are available in the extracted metric attributes
+				final boolean containsAllAttributes = containsAllEntries(metricAttributes, attributes);
+				if (containsAllAttributes) {
+					matchingMetric.set(
+						NumberMetric
+							.builder()
+							.value(metric.getValue())
+							.name(metric.getName())
+							.collectTime(metric.getCollectTime())
+							.attributes(metricAttributes)
+							.build()
+					);
+				}
+				return containsAllAttributes;
+			});
 	}
 
 	/**
@@ -128,9 +132,9 @@ public abstract class AbstractMetricNormalizer {
 	 * @param secondMetric the second metric to swap
 	 */
 	public void swapMetricsValues(
-			final Monitor monitor,
-			final NumberMetric firstMetric,
-			final NumberMetric secondMetric
+		final Monitor monitor,
+		final NumberMetric firstMetric,
+		final NumberMetric secondMetric
 	) {
 		// Use an auxiliary variable to save first metric value
 		Double temp = 0.0;
@@ -139,17 +143,12 @@ public abstract class AbstractMetricNormalizer {
 		final MetricFactory metricFactory = MetricFactory.builder().build();
 		// Collect the metric for the first metric name with the value of the second metric
 		metricFactory.collectNumberMetric(
-				monitor,
-				firstMetric.getName(),
-				secondMetric.getValue(),
-				System.currentTimeMillis()
+			monitor,
+			firstMetric.getName(),
+			secondMetric.getValue(),
+			System.currentTimeMillis()
 		);
 		// Collect the metric for the second metric name with the value of the first metric
-		metricFactory.collectNumberMetric(
-				monitor,
-				secondMetric.getName(),
-				temp,
-				System.currentTimeMillis()
-		);
+		metricFactory.collectNumberMetric(monitor, secondMetric.getName(), temp, System.currentTimeMillis());
 	}
 }

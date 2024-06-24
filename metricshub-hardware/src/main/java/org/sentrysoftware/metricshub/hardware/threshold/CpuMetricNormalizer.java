@@ -21,14 +21,6 @@ package org.sentrysoftware.metricshub.hardware.threshold;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
-import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
-import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
-
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
-
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ERRORS_LIMIT;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ERRORS_LIMIT_LIMIT_TYPE_CRITICAL_HW_TYPE_CPU;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ERRORS_LIMIT_LIMIT_TYPE_DEGRADED_HW_TYPE_CPU;
@@ -36,6 +28,13 @@ import static org.sentrysoftware.metricshub.hardware.util.HwConstants.LOW_CRITIC
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.LOW_DEGRADED;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.METRIC_CRITICAL_ATTRIBUTES;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.METRIC_DEGRADED_ATTRIBUTES;
+
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
+import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
+import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 
 /**
  * The CpuMetricNormalizer class is responsible for normalizing CPU metrics.
@@ -63,18 +62,18 @@ public class CpuMetricNormalizer extends AbstractMetricNormalizer {
 
 		// Check if a critical metric with the same name is available
 		final boolean isCriticalMetricAvailable = isMetricAvailable(
-				monitor.getMetrics(),
-				HW_ERRORS_LIMIT,
-				criticalMetricAttributes,
-				matchingMetric
+			monitor.getMetrics(),
+			HW_ERRORS_LIMIT,
+			criticalMetricAttributes,
+			matchingMetric
 		);
 
 		// Check if a degraded metric with the same name is available
 		final boolean isDegradedMetricAvailable = isMetricAvailable(
-				monitor.getMetrics(),
-				HW_ERRORS_LIMIT,
-				degradedMetricAttributes,
-				matchingMetric
+			monitor.getMetrics(),
+			HW_ERRORS_LIMIT,
+			degradedMetricAttributes,
+			matchingMetric
 		);
 
 		// If the critical metric is not available but the degraded metric is available,
@@ -84,10 +83,10 @@ public class CpuMetricNormalizer extends AbstractMetricNormalizer {
 
 			// Collect the new critical metric with the value equals to the degraded metric value multiplied by 0.9
 			metricFactory.collectNumberMetric(
-					monitor,
-					criticalMetricName,
-					matchingMetric.get().getValue() * 0.9,
-					System.currentTimeMillis()
+				monitor,
+				criticalMetricName,
+				matchingMetric.get().getValue() * 0.9,
+				System.currentTimeMillis()
 			);
 		}
 	}
@@ -106,41 +105,30 @@ public class CpuMetricNormalizer extends AbstractMetricNormalizer {
 
 		AtomicReference<NumberMetric> matchingMetric = new AtomicReference<>();
 
-		if (isMetricAvailable(
-				monitor.getMetrics(),
-				HW_ERRORS_LIMIT,
-				METRIC_CRITICAL_ATTRIBUTES,
-				matchingMetric
-		)) {
+		if (isMetricAvailable(monitor.getMetrics(), HW_ERRORS_LIMIT, METRIC_CRITICAL_ATTRIBUTES, matchingMetric)) {
 			isCriticalMetricAvailable.set(true);
 		}
-		if (isMetricAvailable(
-				monitor.getMetrics(),
-				HW_ERRORS_LIMIT,
-				METRIC_DEGRADED_ATTRIBUTES,
-				matchingMetric
-		)) {
+		if (isMetricAvailable(monitor.getMetrics(), HW_ERRORS_LIMIT, METRIC_DEGRADED_ATTRIBUTES, matchingMetric)) {
 			isDegradedMetricAvailable.set(true);
 		}
-
 
 		final MetricFactory metricFactory = MetricFactory.builder().build();
 
 		if (!isCriticalMetricAvailable.get() && !isDegradedMetricAvailable.get()) {
 			metricFactory.collectNumberMetric(
-					monitor,
-					HW_ERRORS_LIMIT_LIMIT_TYPE_CRITICAL_HW_TYPE_CPU,
-					1.0,
-					System.currentTimeMillis()
+				monitor,
+				HW_ERRORS_LIMIT_LIMIT_TYPE_CRITICAL_HW_TYPE_CPU,
+				1.0,
+				System.currentTimeMillis()
 			);
 		} else if (isCriticalMetricAvailable.get() && isDegradedMetricAvailable.get()) {
 			final NumberMetric criticalMetric = monitor.getMetric(
-					HW_ERRORS_LIMIT_LIMIT_TYPE_CRITICAL_HW_TYPE_CPU,
-					NumberMetric.class
+				HW_ERRORS_LIMIT_LIMIT_TYPE_CRITICAL_HW_TYPE_CPU,
+				NumberMetric.class
 			);
 			final NumberMetric degradedMetric = monitor.getMetric(
-					HW_ERRORS_LIMIT_LIMIT_TYPE_DEGRADED_HW_TYPE_CPU,
-					NumberMetric.class
+				HW_ERRORS_LIMIT_LIMIT_TYPE_DEGRADED_HW_TYPE_CPU,
+				NumberMetric.class
 			);
 			if (criticalMetric != null && degradedMetric != null && criticalMetric.getValue() < degradedMetric.getValue()) {
 				swapMetricsValues(monitor, criticalMetric, degradedMetric);
