@@ -8,7 +8,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ERRORS_LIMIT_LIMIT_TYPE_CRITICAL_HW_TYPE_CPU;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ERRORS_LIMIT_LIMIT_TYPE_DEGRADED_HW_TYPE_CPU;
-
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ERRORS_LIMIT_LIMIT_TYPE_LOW_CRITICAL_HW_TYPE_CPU;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ERRORS_LIMIT_LIMIT_TYPE_LOW_DEGRADED_HW_TYPE_CPU;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -119,10 +120,10 @@ public class CpuMetricNormalizerTest {
 						NumberMetric.builder().value(1.0).name("hw.errors.limit{limit_type=\"low.degraded\", hw.type=\"cpu\"}").build())))
 				.build();
 		cpuMetricNormalizer.normalize(monitorWithOnlyDegradedMetric);
-		final NumberMetric criticalMonitorMetric = monitorWithOnlyDegradedMetric.getMetric(HW_ERRORS_LIMIT_LIMIT_TYPE_CRITICAL_HW_TYPE_CPU,
+		final NumberMetric criticalMonitorMetric = monitorWithOnlyDegradedMetric.getMetric(HW_ERRORS_LIMIT_LIMIT_TYPE_LOW_CRITICAL_HW_TYPE_CPU,
 				NumberMetric.class);
 
-		final NumberMetric degradedMonitorMetric = monitorWithOnlyDegradedMetric.getMetric(HW_ERRORS_LIMIT_LIMIT_TYPE_DEGRADED_HW_TYPE_CPU,
+		final NumberMetric degradedMonitorMetric = monitorWithOnlyDegradedMetric.getMetric(HW_ERRORS_LIMIT_LIMIT_TYPE_LOW_DEGRADED_HW_TYPE_CPU,
 				NumberMetric.class);
 		assertNotNull(criticalMonitorMetric);
 		assertNotNull(degradedMonitorMetric);

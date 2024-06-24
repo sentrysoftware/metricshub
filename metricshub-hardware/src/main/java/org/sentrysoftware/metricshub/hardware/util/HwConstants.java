@@ -91,4 +91,8 @@ public class HwConstants {
 		HW_ERRORS_LIMIT + "{limit_type=\"critical\", hw.type=\"cpu\"}";
 	public static final String HW_ERRORS_LIMIT_LIMIT_TYPE_DEGRADED_HW_TYPE_CPU =
 		HW_ERRORS_LIMIT + "{limit_type=\"degraded\", hw.type=\"cpu\"}";
+	public static final String HW_ERRORS_LIMIT_LIMIT_TYPE_LOW_CRITICAL_HW_TYPE_CPU =
+			HW_ERRORS_LIMIT + "{limit_type=\"low.critical\", hw.type=\"cpu\"}";
+		public static final String HW_ERRORS_LIMIT_LIMIT_TYPE_LOW_DEGRADED_HW_TYPE_CPU =
+			HW_ERRORS_LIMIT + "{limit_type=\"low.degraded\", hw.type=\"cpu\"}";
 }
