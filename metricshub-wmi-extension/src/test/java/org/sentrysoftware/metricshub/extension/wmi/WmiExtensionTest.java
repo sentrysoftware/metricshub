@@ -101,6 +101,7 @@ class WmiExtensionTest {
 			.builder()
 			.password("pass".toCharArray())
 			.username("user")
+			.hostname(HOST_NAME)
 			.timeout(120L)
 			.build();
 
@@ -243,6 +244,7 @@ class WmiExtensionTest {
 			.builder()
 			.username(USERNAME)
 			.password(PASSWORD)
+			.hostname(HOST_NAME)
 			.timeout(15L)
 			.build();
 
@@ -352,6 +354,7 @@ class WmiExtensionTest {
 	void testProcessSource() throws Exception {
 		final WmiConfiguration wmiConfiguration = WmiConfiguration
 			.builder()
+			.hostname(HOST_NAME)
 			.username(USERNAME)
 			.password(PASSWORD)
 			.timeout(15L)

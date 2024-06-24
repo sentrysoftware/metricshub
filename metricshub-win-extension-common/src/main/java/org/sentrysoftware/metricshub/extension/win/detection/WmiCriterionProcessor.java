@@ -109,18 +109,19 @@ public class WmiCriterionProcessor {
 	 * @return A {@link CriterionTestResult} representing the outcome of the criterion evaluation.
 	 */
 	public CriterionTestResult process(final WmiCriterion wmiCriterion, final TelemetryManager telemetryManager) {
-		// Sanity check
-		if (wmiCriterion == null) {
-			return CriterionTestResult.error(wmiCriterion, "Malformed criterion. Cannot perform detection.");
-		}
-
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
 		// Find the configured Windows protocol (WMI or WinRM)
 		final IWinConfiguration winConfiguration = configurationRetriever.apply(telemetryManager);
 
 		if (winConfiguration == null) {
 			return CriterionTestResult.error(wmiCriterion, "Neither WMI nor WinRM credentials are configured for this host.");
+		}
+
+		// Retrieve the hostname from the IWinConfiguration
+		final String hostname = winConfiguration.getHostname();
+
+		// Sanity check
+		if (wmiCriterion == null) {
+			return CriterionTestResult.error(wmiCriterion, "Malformed criterion. Cannot perform detection.");
 		}
 
 		// If namespace is specified as "Automatic"

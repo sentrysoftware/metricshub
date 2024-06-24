@@ -106,6 +106,7 @@ class WinRmExtensionTest {
 			.builder()
 			.password(PASSWORD)
 			.username(USERNAME)
+			.hostname(HOST_NAME)
 			.namespace(NAMESPACE)
 			.port(443)
 			.protocol(TransportProtocols.HTTP)
@@ -236,6 +237,7 @@ class WinRmExtensionTest {
 			.builder()
 			.username(USERNAME)
 			.password(PASSWORD)
+			.hostname(HOST_NAME)
 			.namespace(NAMESPACE)
 			.port(443)
 			.timeout(15L)
@@ -340,6 +342,7 @@ class WinRmExtensionTest {
 			.builder()
 			.username(USERNAME)
 			.password(PASSWORD)
+			.hostname(HOST_NAME)
 			.timeout(15L)
 			.build();
 

@@ -68,7 +68,11 @@ public class WinCommandLineSourceProcessor {
 	 *         Returns an empty table if an error occurs or if the command line is invalid.
 	 */
 	public SourceTable process(final CommandLineSource commandLineSource, final TelemetryManager telemetryManager) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		// Retrieve the IWinConfiguration from the telemetryManager (WMI or WinRm)
+		final IWinConfiguration winConfiguration = configurationRetriever.apply(telemetryManager);
+
+		// Retrieve the hostname from the IWinConfiguration
+		final String hostname = winConfiguration.getHostname();
 
 		if (commandLineSource == null || commandLineSource.getCommandLine().isEmpty()) {
 			log.error("Hostname {} - Malformed OS command source.", hostname);
@@ -79,7 +83,7 @@ public class WinCommandLineSourceProcessor {
 			final OsCommandResult osCommandResult = winCommandService.runOsCommand(
 				commandLineSource.getCommandLine(),
 				hostname,
-				configurationRetriever.apply(telemetryManager),
+				winConfiguration,
 				telemetryManager.getEmbeddedFiles(connectorId)
 			);
 

@@ -87,6 +87,7 @@ class WmiSourceProcessorTest {
 			.builder()
 			.username(HOST_NAME + "\\" + USERNAME)
 			.password(PASSWORD)
+			.hostname(HOST_NAME)
 			.build();
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
@@ -149,6 +150,7 @@ class WmiSourceProcessorTest {
 			.builder()
 			.username(HOST_NAME + "\\" + USERNAME)
 			.password(PASSWORD)
+			.hostname(HOST_NAME)
 			.build();
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()

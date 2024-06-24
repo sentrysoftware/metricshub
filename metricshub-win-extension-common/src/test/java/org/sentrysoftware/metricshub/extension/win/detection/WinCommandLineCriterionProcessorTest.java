@@ -254,6 +254,7 @@ class WinCommandLineCriterionProcessorTest {
 
 		final WmiTestConfiguration wmiConfiguration = WmiTestConfiguration
 			.builder()
+			.hostname(HOST_NAME)
 			.username(USERNAME)
 			.password(PASSWORD)
 			.build();

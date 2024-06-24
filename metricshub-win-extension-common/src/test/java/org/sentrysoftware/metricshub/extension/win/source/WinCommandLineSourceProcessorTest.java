@@ -56,6 +56,7 @@ class WinCommandLineSourceProcessorTest {
 			.builder()
 			.username(HOST_NAME + "\\" + USERNAME)
 			.password(PASSWORD)
+			.hostname(HOST_NAME)
 			.build();
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
@@ -69,6 +70,8 @@ class WinCommandLineSourceProcessorTest {
 					.build()
 			)
 			.build();
+
+		doReturn(wmiConfiguration).when(configurationRetrieverMock).apply(telemetryManager);
 
 		// Command line null
 		assertEquals(SourceTable.empty(), winCommandLineSourceProcessor.process(null, telemetryManager));
@@ -109,6 +112,7 @@ class WinCommandLineSourceProcessorTest {
 			.builder()
 			.username(HOST_NAME + "\\" + USERNAME)
 			.password(PASSWORD)
+			.hostname(HOST_NAME)
 			.build();
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()

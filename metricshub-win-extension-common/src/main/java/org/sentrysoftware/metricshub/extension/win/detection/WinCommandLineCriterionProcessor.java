@@ -99,11 +99,14 @@ public class WinCommandLineCriterionProcessor {
 			);
 		}
 
+		// Retrieve the configuration from the telemetryManager
+		final IWinConfiguration winConfiguration = configurationRetriever.apply(telemetryManager);
+
 		try {
 			final OsCommandResult osCommandResult = winCommandService.runOsCommand(
 				commandLineCriterion.getCommandLine(),
-				telemetryManager.getHostname(),
-				configurationRetriever.apply(telemetryManager),
+				winConfiguration.getHostname(),
+				winConfiguration,
 				telemetryManager.getEmbeddedFiles(connectorId)
 			);
 

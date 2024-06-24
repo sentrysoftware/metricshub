@@ -53,6 +53,7 @@ class WinIpmiSourceProcessorTest {
 			.builder()
 			.username(USERNAME)
 			.password(PASSWORD)
+			.hostname(HOST_NAME)
 			.timeout(120L)
 			.build();
 		final HostConfiguration hostConfiguration = HostConfiguration

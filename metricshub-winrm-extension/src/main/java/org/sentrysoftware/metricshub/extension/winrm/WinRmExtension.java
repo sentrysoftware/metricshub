@@ -132,8 +132,8 @@ public class WinRmExtension implements IProtocolExtension {
 		// Create and set the WinRM result to null
 		List<List<String>> winRmResult = null;
 
-		// Retrieve the hostname
-		final String hostname = telemetryManager.getHostname();
+		// Retrieve the hostname from the WinRm Configuration
+		final String hostname = winRmConfiguration.getHostname();
 
 		log.info("Hostname {} - Performing {} protocol health check.", hostname, getIdentifier());
 		log.info(

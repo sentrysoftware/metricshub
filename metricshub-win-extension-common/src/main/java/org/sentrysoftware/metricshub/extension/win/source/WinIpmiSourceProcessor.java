@@ -67,15 +67,17 @@ public class WinIpmiSourceProcessor {
 		// Find the configured protocol (WinRM or WMI)
 		final IWinConfiguration winConfiguration = configurationRetriever.apply(telemetryManager);
 
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
 		if (winConfiguration == null) {
 			log.warn(
 				"Hostname {} - The Windows protocol credentials are not configured. Cannot process Windows IPMI source.",
-				hostname
+				telemetryManager.getHostname()
 			);
 			return SourceTable.empty();
 		}
+
+		// Retrieve the hostname from the IWinConfiguration.
+		final String hostname = winConfiguration.getHostname();
+
 		final String sourceKey = ipmiSource.getKey();
 		final String nameSpaceRootCimv2 = "root/cimv2";
 		final String nameSpaceRootHardware = "root/hardware";

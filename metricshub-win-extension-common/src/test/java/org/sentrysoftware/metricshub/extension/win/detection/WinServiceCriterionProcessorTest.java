@@ -82,8 +82,26 @@ class WinServiceCriterionProcessorTest {
 	@Test
 	void testProcessServiceCheckServiceNull() {
 		final ServiceCriterion serviceCriterion = null;
+		final WmiTestConfiguration wmiConfiguration = WmiTestConfiguration.builder().hostname(HOST_NAME).build();
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostname(HOST_NAME)
+					.hostId(HOST_NAME)
+					.configurations(Map.of(WmiTestConfiguration.class, wmiConfiguration))
+					.build()
+			)
+			.build();
+
+		doReturn(wmiConfiguration).when(configurationRetrieverMock).apply(telemetryManager);
+
 		assertTrue(
-			winServiceCriterionProcessor.process(serviceCriterion, null).getMessage().contains("Malformed Service criterion.")
+			winServiceCriterionProcessor
+				.process(serviceCriterion, telemetryManager)
+				.getMessage()
+				.contains("Malformed Service criterion.")
 		);
 	}
 

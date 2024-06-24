@@ -189,6 +189,7 @@ class WmiCriterionProcessorTest {
 			.builder()
 			.username(USERNAME)
 			.password(PASSWORD)
+			.hostname(HOST_NAME)
 			.timeout(15L)
 			.build();
 
@@ -203,6 +204,8 @@ class WmiCriterionProcessorTest {
 					.build()
 			)
 			.build();
+
+		doReturn(wmiConfiguration).when(configurationRetrieverMock).apply(telemetryManager);
 
 		final CriterionTestResult result = wmiCriterionProcessor.process(null, telemetryManager);
 		assertFalse(result.isSuccess());

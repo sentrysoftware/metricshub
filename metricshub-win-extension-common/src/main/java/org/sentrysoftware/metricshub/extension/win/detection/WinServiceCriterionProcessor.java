@@ -59,11 +59,6 @@ public class WinServiceCriterionProcessor {
 	 * @return A {@link CriterionTestResult} representing the outcome of the criterion evaluation.
 	 */
 	public CriterionTestResult process(final ServiceCriterion serviceCriterion, final TelemetryManager telemetryManager) {
-		// Sanity checks
-		if (serviceCriterion == null) {
-			return CriterionTestResult.error(serviceCriterion, "Malformed Service criterion.");
-		}
-
 		// Find the configured protocol (WinRM or WMI)
 		final IWinConfiguration winConfiguration = configurationRetriever.apply(telemetryManager);
 
@@ -72,6 +67,11 @@ public class WinServiceCriterionProcessor {
 				serviceCriterion,
 				"Neither WMI nor WinRM credentials are configured for this host."
 			);
+		}
+
+		// Sanity checks
+		if (serviceCriterion == null) {
+			return CriterionTestResult.error(serviceCriterion, "Malformed Service criterion.");
 		}
 
 		// The host system must be Windows
@@ -90,7 +90,7 @@ public class WinServiceCriterionProcessor {
 			return CriterionTestResult.success(serviceCriterion, "Service name is not specified. Skipping this test.");
 		}
 
-		final String hostname = telemetryManager.getHostname();
+		final String hostname = winConfiguration.getHostname();
 
 		// Build a new WMI criterion to check the service existence
 		final WmiCriterion serviceWmiCriterion = WmiCriterion

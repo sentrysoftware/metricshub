@@ -70,6 +70,6 @@ public class WinIpmiCriterionProcessor {
 			.namespace("root\\hardware")
 			.build();
 
-		return wmiDetectionService.performDetectionTest(telemetryManager.getHostname(), winConfiguration, ipmiWmiCriterion);
+		return wmiDetectionService.performDetectionTest(winConfiguration.getHostname(), winConfiguration, ipmiWmiCriterion);
 	}
 }
