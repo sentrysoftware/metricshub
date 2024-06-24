@@ -25,12 +25,15 @@ import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ERRORS_LIMIT;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ERRORS_LIMIT_LIMIT_TYPE_CRITICAL_HW_TYPE_CPU;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ERRORS_LIMIT_LIMIT_TYPE_DEGRADED_HW_TYPE_CPU;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.LOW_CRITICAL;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.LOW_DEGRADED;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.METRIC_CRITICAL_ATTRIBUTES;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.METRIC_DEGRADED_ATTRIBUTES;
 
@@ -40,6 +43,54 @@ import static org.sentrysoftware.metricshub.hardware.util.HwConstants.METRIC_DEG
  * normalization logic for CPU monitor hardware metrics.
  */
 public class CpuMetricNormalizer extends AbstractMetricNormalizer {
+
+	/**
+	 * Adjusts the corresponding monitor's metric as follows:
+	 * @param monitor A given {@link Monitor}
+	 */
+	@Override
+	public void normalize(Monitor monitor) {
+		AtomicReference<NumberMetric> matchingMetric = new AtomicReference<>();
+
+		// Define the attributes for critical and degraded metrics
+		final Map<String, String> criticalMetricAttributes = Map.of("limit_type", LOW_CRITICAL);
+		final Map<String, String> degradedMetricAttributes = Map.of("limit_type", LOW_DEGRADED);
+
+		// Create an instance of MetricFactory
+		final MetricFactory metricFactory = MetricFactory.builder().build();
+
+		// Iterate over all metrics in the monitor
+
+		// Check if a critical metric with the same name is available
+		final boolean isCriticalMetricAvailable = isMetricAvailable(
+				monitor.getMetrics(),
+				HW_ERRORS_LIMIT,
+				criticalMetricAttributes,
+				matchingMetric
+		);
+
+		// Check if a degraded metric with the same name is available
+		final boolean isDegradedMetricAvailable = isMetricAvailable(
+				monitor.getMetrics(),
+				HW_ERRORS_LIMIT,
+				degradedMetricAttributes,
+				matchingMetric
+		);
+
+		// If the critical metric is not available but the degraded metric is available,
+		// create a new critical metric with adjusted value
+		if (!isCriticalMetricAvailable && isDegradedMetricAvailable) {
+			final String criticalMetricName = matchingMetric.get().getName().replace("low.degraded", "low.critical");
+
+			// Collect the new critical metric with the value equals to the degraded metric value multiplied by 0.9
+			metricFactory.collectNumberMetric(
+					monitor,
+					criticalMetricName,
+					matchingMetric.get().getValue() * 0.9,
+					System.currentTimeMillis()
+			);
+		}
+	}
 
 	/**
 	 * Normalizes the errors limit metric for CPU hardware types.

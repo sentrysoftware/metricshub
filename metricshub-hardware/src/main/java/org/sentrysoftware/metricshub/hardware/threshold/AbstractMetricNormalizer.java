@@ -111,49 +111,7 @@ public abstract class AbstractMetricNormalizer {
 	 *
 	 * @param monitor A given {@link Monitor}
 	 */
-	public void normalize(final Monitor monitor) {
-		AtomicReference<NumberMetric> matchingMetric = new AtomicReference<>();
-
-		// Define the attributes for critical and degraded metrics
-		final Map<String, String> criticalMetricAttributes = Map.of("limit_type", "low.critical");
-		final Map<String, String> degradedMetricAttributes = Map.of("limit_type", "low.degraded");
-
-		// Create an instance of MetricFactory
-		final MetricFactory metricFactory = MetricFactory.builder().build();
-
-		// Iterate over all metrics in the monitor
-
-					// Check if a critical metric with the same name is available
-					final boolean isCriticalMetricAvailable = isMetricAvailable(
-							monitor.getMetrics(),
-							HW_ERRORS_LIMIT,
-							criticalMetricAttributes,
-							matchingMetric
-					);
-
-					// Check if a degraded metric with the same name is available
-					final boolean isDegradedMetricAvailable = isMetricAvailable(
-							monitor.getMetrics(),
-							HW_ERRORS_LIMIT,
-							degradedMetricAttributes,
-							matchingMetric
-					);
-
-					// If the critical metric is not available but the degraded metric is available,
-					// create a new critical metric with adjusted value
-					if (!isCriticalMetricAvailable && isDegradedMetricAvailable) {
-						final String criticalMetricName = matchingMetric.get().getName().replace("low.degraded", "low.critical");
-
-						// Collect the new critical metric with the value equals to the degraded metric value multiplied by 0.9
-						metricFactory.collectNumberMetric(
-								monitor,
-								criticalMetricName,
-								matchingMetric.get().getValue() * 0.9,
-								System.currentTimeMillis()
-						);
-					}
-
-	}
+	public abstract void normalize(Monitor monitor);
 
 	/**
 	 * Adjusts the metric hw.errors.limit.
