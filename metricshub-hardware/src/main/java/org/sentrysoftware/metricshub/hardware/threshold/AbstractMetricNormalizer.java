@@ -79,9 +79,10 @@ public abstract class AbstractMetricNormalizer {
 	 * Whether the 'hw.errors' metric is collected or not for the given monitor.
 	 *
 	 * @param monitor The monitor instance where the metric is collected.
+	 * @param metricPrefix The prefix of the metric name.
 	 * @return true if the 'hw.errors' metric is collected, false otherwise.
 	 */
-	private boolean isHwErrorsMetricCollected(final Monitor monitor) {
+	private boolean isHwErrorsMetricCollected(final Monitor monitor, final String metricPrefix) {
 		// Check if the 'hw.errors' metric is collected
 		return monitor
 			.getMetrics()
@@ -93,7 +94,7 @@ public abstract class AbstractMetricNormalizer {
 				final Map<String, String> metricAttriutes = metric.getAttributes();
 				// CHECKSTYLE:OFF
 				return (
-					"hw.errors".equals(metricNamePrefix) &&
+					metricPrefix.equals(metricNamePrefix) &&
 					(metricAttriutes.isEmpty() || monitor.getType().equals(metricAttriutes.get("hw.type"))) &&
 					metric.isUpdated()
 				);
@@ -147,7 +148,7 @@ public abstract class AbstractMetricNormalizer {
 	 * @param monitor The monitor to normalize
 	 */
 	protected void normalizeErrorsLimitMetric(Monitor monitor) {
-		if (!isHwErrorsMetricCollected(monitor)) {
+		if (!isHwErrorsMetricCollected(monitor, "hw.errors")) {
 			return;
 		}
 
@@ -165,7 +166,7 @@ public abstract class AbstractMetricNormalizer {
 			Map.of("limit_type", "critical", "hw.type", monitor.getType())
 		);
 
-		// If the degraded metric is not available, set the critical metric to 1
+		// If both the degraded and critical metrics are not available, create a critical metric with the value 1
 		if (!maybeDegradedMetric.isPresent() && !maybeCriticalMetric.isPresent()) {
 			final MetricFactory metricFactory = new MetricFactory(hostname);
 			metricFactory.collectNumberMetric(
