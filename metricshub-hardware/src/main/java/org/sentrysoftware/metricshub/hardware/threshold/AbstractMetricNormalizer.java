@@ -81,7 +81,7 @@ public abstract class AbstractMetricNormalizer {
 	 * @param monitor The monitor instance where the metric is collected.
 	 * @return true if the 'hw.errors' metric is collected, false otherwise.
 	 */
-	private boolean isHwErrorsMetricCollected(final Monitor monitor) {
+	protected boolean isMetricCollected(final Monitor monitor, String metricPrefix) {
 		// Check if the 'hw.errors' metric is collected
 		return monitor
 			.getMetrics()
@@ -93,7 +93,7 @@ public abstract class AbstractMetricNormalizer {
 				final Map<String, String> metricAttriutes = metric.getAttributes();
 				// CHECKSTYLE:OFF
 				return (
-					"hw.errors".equals(metricNamePrefix) &&
+					metricPrefix.equals(metricNamePrefix) &&
 					(metricAttriutes.isEmpty() || monitor.getType().equals(metricAttriutes.get("hw.type"))) &&
 					metric.isUpdated()
 				);
@@ -147,7 +147,7 @@ public abstract class AbstractMetricNormalizer {
 	 * @param monitor The monitor to normalize
 	 */
 	protected void normalizeErrorsLimitMetric(Monitor monitor) {
-		if (!isHwErrorsMetricCollected(monitor)) {
+		if (!isMetricCollected(monitor,"hw.errors")) {
 			return;
 		}
 
