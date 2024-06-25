@@ -88,12 +88,6 @@ public class HttpExtension implements IProtocolExtension {
 
 	@Override
 	public Optional<Boolean> checkProtocol(TelemetryManager telemetryManager) {
-		// Retrieve the hostname
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		// Create and set the HTTP result to null
-		String httpResult = null;
-
 		// Retrieve HTTP configuration from the telemetry manager
 		final HttpConfiguration httpConfiguration = (HttpConfiguration) telemetryManager
 			.getHostConfiguration()
@@ -105,13 +99,19 @@ public class HttpExtension implements IProtocolExtension {
 			return Optional.empty();
 		}
 
+		// Retrieve the hostname from the HTTP Configuration
+		final String hostname = httpConfiguration.getHostname();
+
+		// Create and set the HTTP result to null
+		String httpResult = null;
+
 		log.info("Hostname {} - Performing {} protocol health check.", hostname, getIdentifier());
 		log.info("Hostname {} - Checking HTTP protocol status. Sending GET request to '/'.", hostname);
 
 		// Execute HTTP test request
 		try {
 			// Create an Http request
-			final HttpRequest request = HttpRequest
+			final HttpRequest httpRequest = HttpRequest
 				.builder()
 				.hostname(hostname)
 				.path("/")
@@ -120,7 +120,7 @@ public class HttpExtension implements IProtocolExtension {
 				.build();
 
 			// Execute Http test request
-			httpResult = httpRequestExecutor.executeHttp(request, true, telemetryManager);
+			httpResult = httpRequestExecutor.executeHttp(httpRequest, true, telemetryManager);
 		} catch (Exception e) {
 			log.debug(
 				"Hostname {} - Checking HTTP protocol status. HTTP exception when performing a GET request to '/': ",

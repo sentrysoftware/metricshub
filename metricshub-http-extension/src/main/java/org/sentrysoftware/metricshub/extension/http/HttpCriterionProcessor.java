@@ -67,18 +67,6 @@ public class HttpCriterionProcessor {
 			return CriterionTestResult.empty();
 		}
 
-		final String hostname = hostConfiguration.getHostname();
-
-		if (httpCriterion == null) {
-			log.error(
-				"Hostname {} - Malformed SNMP Get criterion {}. Cannot process SNMP Get detection. Connector ID: {}.",
-				hostname,
-				httpCriterion,
-				connectorId
-			);
-			return CriterionTestResult.empty();
-		}
-
 		final HttpConfiguration httpConfiguration = (HttpConfiguration) hostConfiguration
 			.getConfigurations()
 			.get(HttpConfiguration.class);
@@ -86,9 +74,15 @@ public class HttpCriterionProcessor {
 		if (httpConfiguration == null) {
 			log.debug(
 				"Hostname {} - The HTTP credentials are not configured for this host. Cannot process HTTP detection {}.",
-				hostname,
+				telemetryManager.getHostname(),
 				httpCriterion
 			);
+			return CriterionTestResult.empty();
+		}
+
+		final String hostname = httpConfiguration.getHostname();
+
+		if (httpCriterion == null) {
 			return CriterionTestResult.empty();
 		}
 

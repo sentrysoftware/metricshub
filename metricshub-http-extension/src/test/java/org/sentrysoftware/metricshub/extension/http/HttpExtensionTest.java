@@ -73,7 +73,7 @@ class HttpExtensionTest {
 			Map.of(HOST.getKey(), Map.of(HOST_NAME, hostMonitor))
 		);
 
-		final HttpConfiguration httpConfiguration = HttpConfiguration.builder().build();
+		final HttpConfiguration httpConfiguration = HttpConfiguration.builder().hostname(HOST_NAME).build();
 
 		final Connector connector = Connector.builder().build();
 
