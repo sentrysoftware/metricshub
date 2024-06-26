@@ -195,7 +195,7 @@ class AbstractMetricNormalizerTest {
 				.attributes(Map.of("limit_type", "degraded", "hw.type", "cpu"))
 				.build();
 
-			final Monitor monitorWithHwErrorsMetric = Monitor
+			final Monitor monitorWithHwErrorsLimitMetric = Monitor
 				.builder()
 				.id("monitorOne")
 				.type("cpu")
@@ -213,16 +213,16 @@ class AbstractMetricNormalizerTest {
 				)
 				.build();
 
-			new CpuMetricNormalizer(STRATEGY_TIME, HOSTNAME).normalizeErrorsLimitMetric(monitorWithHwErrorsMetric);
+			new CpuMetricNormalizer(STRATEGY_TIME, HOSTNAME).normalizeErrorsLimitMetric(monitorWithHwErrorsLimitMetric);
 			assertEquals(
 				2.0,
-				monitorWithHwErrorsMetric
+				monitorWithHwErrorsLimitMetric
 					.getMetric(HW_ERRORS_LIMIT_LIMIT_TYPE_CRITICAL_HW_TYPE_CPU, NumberMetric.class)
 					.getValue()
 			);
 			assertEquals(
 				1.0,
-				monitorWithHwErrorsMetric
+				monitorWithHwErrorsLimitMetric
 					.getMetric(HW_ERRORS_LIMIT_LIMIT_TYPE_DEGRADED_HW_TYPE_CPU, NumberMetric.class)
 					.getValue()
 			);
@@ -245,7 +245,7 @@ class AbstractMetricNormalizerTest {
 				.attributes(Map.of("limit_type", "degraded", "hw.type", "cpu"))
 				.build();
 
-			final Monitor monitorWithHwErrorsMetric = Monitor
+			final Monitor monitorWithHwErrorsLimitMetric = Monitor
 				.builder()
 				.id("monitorOne")
 				.type("cpu")
@@ -263,16 +263,16 @@ class AbstractMetricNormalizerTest {
 				)
 				.build();
 
-			new CpuMetricNormalizer(STRATEGY_TIME, HOSTNAME).normalizeErrorsLimitMetric(monitorWithHwErrorsMetric);
+			new CpuMetricNormalizer(STRATEGY_TIME, HOSTNAME).normalizeErrorsLimitMetric(monitorWithHwErrorsLimitMetric);
 			assertEquals(
 				2.0,
-				monitorWithHwErrorsMetric
+				monitorWithHwErrorsLimitMetric
 					.getMetric(HW_ERRORS_LIMIT_LIMIT_TYPE_CRITICAL_HW_TYPE_CPU, NumberMetric.class)
 					.getValue()
 			);
 			assertEquals(
 				1.0,
-				monitorWithHwErrorsMetric
+				monitorWithHwErrorsLimitMetric
 					.getMetric(HW_ERRORS_LIMIT_LIMIT_TYPE_DEGRADED_HW_TYPE_CPU, NumberMetric.class)
 					.getValue()
 			);

@@ -76,26 +76,25 @@ public abstract class AbstractMetricNormalizer {
 	public abstract void normalize(Monitor monitor);
 
 	/**
-	 * Whether the 'hw.errors' metric is collected or not for the given monitor.
+	 * Whether a metric with a given metricNamePrefix is collected or not for the given monitor.
 	 *
 	 * @param monitor The monitor instance where the metric is collected.
-	 * @param metricPrefix The prefix of the metric name.
-	 * @return true if the 'hw.errors' metric is collected, false otherwise.
+	 * @param metricNamePrefix The prefix of the metric name to check for.
+	 * @return true if a metric with a given metricNamePrefix is collected, false otherwise.
 	 */
-	private boolean isHwErrorsMetricCollected(final Monitor monitor, final String metricPrefix) {
-		// Check if the 'hw.errors' metric is collected
+	private boolean isMetricCollected(final Monitor monitor, final String metricNamePrefix) {
 		return monitor
 			.getMetrics()
 			.values()
 			.stream()
 			.anyMatch(metric -> {
 				// Extract the metric name prefix
-				final String metricNamePrefix = MetricFactory.extractName(metric.getName());
-				final Map<String, String> metricAttriutes = metric.getAttributes();
+				final String currentMetricNamePrefix = MetricFactory.extractName(metric.getName());
+				final Map<String, String> metricAttributes = metric.getAttributes();
 				// CHECKSTYLE:OFF
 				return (
-					metricPrefix.equals(metricNamePrefix) &&
-					(metricAttriutes.isEmpty() || monitor.getType().equals(metricAttriutes.get("hw.type"))) &&
+					metricNamePrefix.equals(currentMetricNamePrefix) &&
+					(metricAttributes.isEmpty() || monitor.getType().equals(metricAttributes.get("hw.type"))) &&
 					metric.isUpdated()
 				);
 				// CHECKSTYLE:ON
@@ -148,7 +147,7 @@ public abstract class AbstractMetricNormalizer {
 	 * @param monitor The monitor to normalize
 	 */
 	protected void normalizeErrorsLimitMetric(Monitor monitor) {
-		if (!isHwErrorsMetricCollected(monitor, "hw.errors")) {
+		if (!isMetricCollected(monitor, "hw.errors")) {
 			return;
 		}
 
