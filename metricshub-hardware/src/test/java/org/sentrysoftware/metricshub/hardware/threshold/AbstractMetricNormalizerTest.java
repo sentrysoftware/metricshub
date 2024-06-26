@@ -89,15 +89,15 @@ class AbstractMetricNormalizerTest {
 				.attributes(Map.of("hw.type", "cpu"))
 				.build();
 
-			final Monitor monitorDiskType = Monitor
+			final Monitor diskMonitor = Monitor
 				.builder()
 				.id("monitorOne")
 				.type("disk")
 				.metrics(new HashMap<>(Map.of("hw.errors{hw.type=\"cpu\"}", hwErrorsMetric)))
 				.build();
 
-			new CpuMetricNormalizer(STRATEGY_TIME, HOSTNAME).normalizeErrorsLimitMetric(monitorDiskType);
-			assertNull(monitorDiskType.getMetric(HW_ERRORS_LIMIT_LIMIT_TYPE_CRITICAL_HW_TYPE_CPU, NumberMetric.class));
+			new CpuMetricNormalizer(STRATEGY_TIME, HOSTNAME).normalizeErrorsLimitMetric(diskMonitor);
+			assertNull(diskMonitor.getMetric(HW_ERRORS_LIMIT_LIMIT_TYPE_CRITICAL_HW_TYPE_CPU, NumberMetric.class));
 		}
 
 		{
