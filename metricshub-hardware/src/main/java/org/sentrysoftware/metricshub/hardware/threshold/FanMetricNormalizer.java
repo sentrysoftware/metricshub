@@ -39,7 +39,7 @@ public class FanMetricNormalizer extends AbstractMetricNormalizer {
 	/**
 	 * Constructs a new instance with the specified strategy time.
 	 * @param strategyTime The strategy time in milliseconds
-	 * @param hostname     The hostname of the monitor
+	 * @param hostname The hostname of the monitor
 	 */
 	public FanMetricNormalizer(long strategyTime, String hostname) {
 		super(strategyTime, hostname);
@@ -92,10 +92,10 @@ public class FanMetricNormalizer extends AbstractMetricNormalizer {
 		if (!maybeLowDegradedMetric.isPresent() && !maybeLowCriticalMetric.isPresent()) {
 			final MetricFactory metricFactory = new MetricFactory(hostname);
 			metricFactory.collectNumberMetric(
-				monitor,
-				String.format(metricPrefix + "{limit_type=\"low.degraded\", hw.type=\"%s\"}", monitor.getType()),
-				DefaultLowDegradedValueMetric,
-				strategyTime
+					monitor,
+					String.format(metricPrefix + "{limit_type=\"low.degraded\", hw.type=\"%s\"}", monitor.getType()),
+					DefaultLowDegradedValueMetric,
+					strategyTime
 			);
 			metricFactory.collectNumberMetric(
 					monitor,
