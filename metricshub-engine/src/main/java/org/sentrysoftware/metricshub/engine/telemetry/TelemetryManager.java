@@ -45,6 +45,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 import org.sentrysoftware.metricshub.engine.strategy.ContextExecutor;
@@ -302,6 +303,27 @@ public class TelemetryManager {
 		}
 		final String connectorId = currentMonitor.getAttribute(MetricsHubConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID);
 		return null != connectorId && hostProperties.getConnectorNamespace(connectorId).isStatusOk();
+	}
+
+	/**
+	 * This method returns the hostname from the provided list of configurations, otherwise the telemetryManager hostname.
+	 *
+	 * Given a List of IConfigurations classes, this method will search from the user's configurations to find the ones that
+	 * are mentionned in the IConfiguration's List.
+	 * In the case of an empty set of configurations, it will return the telemetry manager's hostname.
+	 *
+	 * @param configurations A List of IConfigurations from which we try to retrieve the hostname.
+	 * @return the hostname value
+	 */
+	public String getHostname(List<Class<? extends IConfiguration>> configurations) {
+		return configurations
+			.stream()
+			.map(config -> getHostConfiguration().getConfigurations().get(config)) // Get the configuration from the user's configuration map
+			.filter(Objects::nonNull) // Filter out null configurations
+			.map(IConfiguration::getHostname) // Map to hostname
+			.filter(Objects::nonNull) // Filter out null hostnames
+			.findFirst() // Get the first matching hostname
+			.orElse(getHostname()); // Fallback to telemetry manager hostname
 	}
 
 	/**

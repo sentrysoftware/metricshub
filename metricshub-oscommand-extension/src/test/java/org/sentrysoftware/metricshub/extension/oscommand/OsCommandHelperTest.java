@@ -1150,9 +1150,11 @@ class OsCommandHelperTest {
 		final Map<String, File> embeddedTempFiles = new HashMap<>();
 		embeddedTempFiles.put(String.format("${file::%d}", EMBEDDED_FILE_1_REF), localFile);
 
-		final OsCommandConfiguration osCommandConfiguration = new OsCommandConfiguration();
-		osCommandConfiguration.setUseSudo(true);
-		osCommandConfiguration.setUseSudoCommands(Collections.singleton(ARCCONF_PATH));
+		final OsCommandConfiguration osCommandConfiguration = OsCommandConfiguration
+			.builder()
+			.useSudo(true)
+			.useSudoCommands(Collections.singleton(ARCCONF_PATH))
+			.build();
 
 		final SshConfiguration sshConfiguration = SshConfiguration
 			.sshConfigurationBuilder()

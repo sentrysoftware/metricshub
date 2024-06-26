@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -100,12 +101,6 @@ public class OsCommandExtension implements IProtocolExtension {
 
 	@Override
 	public Optional<Boolean> checkProtocol(TelemetryManager telemetryManager) {
-		// Create and set the SSH result to null
-		Double sshResult = UP;
-
-		// Retrieve the hostname
-		String hostname = telemetryManager.getHostConfiguration().getHostname();
-
 		// Retrieve SSH Configuration
 		final SshConfiguration sshConfiguration = (SshConfiguration) telemetryManager
 			.getHostConfiguration()
@@ -117,8 +112,14 @@ public class OsCommandExtension implements IProtocolExtension {
 			return Optional.empty();
 		}
 
+		// Retrieve the hostname from the configuration, otherwise from telemetryManager.
+		String hostname = telemetryManager.getHostname(List.of(SshConfiguration.class));
+
 		log.info("Hostname {} - Performing {} protocol health check.", hostname, getIdentifier());
 		log.info("Hostname {} - Checking SSH protocol status. Sending an SSH 'echo test' command.", hostname);
+
+		// Create and set the SSH result to null
+		Double sshResult = UP;
 
 		// Execute Local test
 		if (telemetryManager.getHostProperties().isOsCommandExecutesLocally()) {

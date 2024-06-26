@@ -73,12 +73,14 @@ public class OsCommandConfiguration implements IConfiguration {
 		final boolean useSudo,
 		final Set<String> useSudoCommands,
 		final String sudoCommand,
-		final Long timeout
+		final Long timeout,
+		final String hostname
 	) {
 		this.useSudo = useSudo;
 		this.useSudoCommands = useSudoCommands == null ? new HashSet<>() : useSudoCommands;
 		this.sudoCommand = sudoCommand == null ? "sudo" : sudoCommand;
 		this.timeout = timeout == null ? DEFAULT_TIMEOUT : timeout;
+		this.hostname = hostname;
 	}
 
 	@Override
