@@ -1,10 +1,5 @@
 package org.sentrysoftware.metricshub.hardware.threshold;
 
-import java.util.Map;
-import java.util.Optional;
-
-import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
-
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
  * MetricsHub Hardware Energy and Sustainability Module
@@ -26,6 +21,9 @@ import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.Map;
+import java.util.Optional;
+import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 
@@ -35,6 +33,11 @@ import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
  * normalization logic for FAN monitor hardware metrics.
  */
 public class FanMetricNormalizer extends AbstractMetricNormalizer {
+
+	private static final Double DEFAULT_LOW_DEGRADED_VALUE_SPEED_LIMIT_METRIC = 500.0;
+	private static final Double DEFAULT_LOW_CRITICAL_VALUE_SPEED_LIMIT_METRIC = 0.0;
+	private static final Double DEFAULT_LOW_DEGRADED_VALUE_SPEED_RATIO_LIMIT_METRIC = 0.05;
+	private static final Double DEFAULT_LOW_CRITICAL_VALUE_SPEED_RATIO_LIMIT_METRIC = 0.0;
 
 	/**
 	 * Constructs a new instance with the specified strategy time.
@@ -46,45 +49,53 @@ public class FanMetricNormalizer extends AbstractMetricNormalizer {
 	}
 
 	/**
-	 * Normalizes fan speed limit metrics
+	 * Normalizes fan speed and speed ratio limit metrics
 	 * @param monitor A given {@link Monitor}
 	 */
 	@Override
 	public void normalize(Monitor monitor) {
-		normalizeSpeedLimitMetric(monitor, "hw.fan.speed.limit" , 500D , 0D );
-		normalizeSpeedLimitMetric(monitor, "hw.fan.speed_ratio.limit" , 0.05D , 0D );
+		normalizeSpeedLimitMetric(
+			monitor,
+			"hw.fan.speed.limit",
+			DEFAULT_LOW_DEGRADED_VALUE_SPEED_LIMIT_METRIC,
+			DEFAULT_LOW_CRITICAL_VALUE_SPEED_LIMIT_METRIC
+		);
+		normalizeSpeedLimitMetric(
+			monitor,
+			"hw.fan.speed_ratio.limit",
+			DEFAULT_LOW_DEGRADED_VALUE_SPEED_RATIO_LIMIT_METRIC,
+			DEFAULT_LOW_CRITICAL_VALUE_SPEED_RATIO_LIMIT_METRIC
+		);
 	}
-	
-	
+
 	/**
 	 * Normalizes the speed limit metrics.
 	 * @param monitor The monitor to normalize
-	 * @param metricPrefix The prefix of the metric name to be normalized.
-	 * @param lowDegradedValueMetric The default value for the low degraded limit metric.
-	 * @param lowCriticalValueMetric The default value for the low critical limit metric.
+	 * @param metricNamePrefix The prefix of the metric name.
+	 * @param defaultLowDegradedValueMetric The default value for the low degraded limit metric.
+	 * @param defaultLowCriticalValueMetric The default value for the low critical limit metric.
 	 */
 	public void normalizeSpeedLimitMetric(
-			Monitor monitor,
-			final String metricPrefix,
-			final Double DefaultLowDegradedValueMetric ,
-			final Double DefaultLowCriticalValueMetric 
+		Monitor monitor,
+		final String metricNamePrefix,
+		final Double defaultLowDegradedValueMetric,
+		final Double defaultLowCriticalValueMetric
 	) {
-		
-		if (!isMetricCollected(monitor, metricPrefix.replace(".limit", ""))) {
+		if (!isMetricCollected(monitor, metricNamePrefix.replace(".limit", ""))) {
 			return;
 		}
 
 		// Get the degraded metric
 		final Optional<NumberMetric> maybeLowDegradedMetric = findMetricByNamePrefixAndAttributes(
 			monitor,
-			metricPrefix,
+			metricNamePrefix,
 			Map.of("limit_type", "low.degraded", "hw.type", monitor.getType())
 		);
 
 		// Get the critical metric
 		final Optional<NumberMetric> maybeLowCriticalMetric = findMetricByNamePrefixAndAttributes(
 			monitor,
-			metricPrefix,
+			metricNamePrefix,
 			Map.of("limit_type", "low.critical", "hw.type", monitor.getType())
 		);
 
@@ -92,17 +103,17 @@ public class FanMetricNormalizer extends AbstractMetricNormalizer {
 		if (!maybeLowDegradedMetric.isPresent() && !maybeLowCriticalMetric.isPresent()) {
 			final MetricFactory metricFactory = new MetricFactory(hostname);
 			metricFactory.collectNumberMetric(
-					monitor,
-					String.format(metricPrefix + "{limit_type=\"low.degraded\", hw.type=\"%s\"}", monitor.getType()),
-					DefaultLowDegradedValueMetric,
-					strategyTime
+				monitor,
+				String.format(metricNamePrefix + "{limit_type=\"low.degraded\", hw.type=\"%s\"}", monitor.getType()),
+				defaultLowDegradedValueMetric,
+				strategyTime
 			);
 			metricFactory.collectNumberMetric(
-					monitor,
-					String.format(metricPrefix + "{limit_type=\"low.critical\", hw.type=\"%s\"}", monitor.getType()),
-					DefaultLowCriticalValueMetric,
-					strategyTime
-				);
+				monitor,
+				String.format(metricNamePrefix + "{limit_type=\"low.critical\", hw.type=\"%s\"}", monitor.getType()),
+				defaultLowCriticalValueMetric,
+				strategyTime
+			);
 		} else if (maybeLowDegradedMetric.isPresent() && maybeLowCriticalMetric.isPresent()) {
 			// If both the degraded and critical metrics are available, adjust the values
 			final NumberMetric lowDegradedMetric = maybeLowDegradedMetric.get();
@@ -117,28 +128,25 @@ public class FanMetricNormalizer extends AbstractMetricNormalizer {
 				lowDegradedMetric.setValue(lowCriticalValue);
 				lowCriticalMetric.setValue(temp);
 			}
-		}
-		else if (!maybeLowDegradedMetric.isPresent() && maybeLowCriticalMetric.isPresent()) {
+		} else if (!maybeLowDegradedMetric.isPresent() && maybeLowCriticalMetric.isPresent()) {
 			// If only critical metric is available, adjust degraded metric
 			final NumberMetric lowCriticalMetric = maybeLowCriticalMetric.get();
 			final Double lowCriticalValue = lowCriticalMetric.getValue();
 			final MetricFactory metricFactory = new MetricFactory(hostname);
 			metricFactory.collectNumberMetric(
 				monitor,
-				String.format(metricPrefix + "{limit_type=\"low.degraded\", hw.type=\"%s\"}", monitor.getType()),
+				String.format(metricNamePrefix + "{limit_type=\"low.degraded\", hw.type=\"%s\"}", monitor.getType()),
 				lowCriticalValue * 1.1,
 				strategyTime
 			);
-		}
-		
-		else if (maybeLowDegradedMetric.isPresent() && !maybeLowCriticalMetric.isPresent()) {
+		} else if (maybeLowDegradedMetric.isPresent() && !maybeLowCriticalMetric.isPresent()) {
 			// If only degraded metric is available, adjust critical metric
 			final NumberMetric lowDegradedMetric = maybeLowDegradedMetric.get();
 			final Double lowDegradedValue = lowDegradedMetric.getValue();
 			final MetricFactory metricFactory = new MetricFactory(hostname);
 			metricFactory.collectNumberMetric(
 				monitor,
-				String.format(metricPrefix + "{limit_type=\"low.critical\", hw.type=\"%s\"}", monitor.getType()),
+				String.format(metricNamePrefix + "{limit_type=\"low.critical\", hw.type=\"%s\"}", monitor.getType()),
 				lowDegradedValue * 0.9,
 				strategyTime
 			);

@@ -82,7 +82,7 @@ public abstract class AbstractMetricNormalizer {
 	 * @param metricNamePrefix The prefix of the metric name to check for.
 	 * @return true if a metric with a given metricNamePrefix is collected, false otherwise.
 	 */
-	private boolean isMetricCollected(final Monitor monitor, final String metricNamePrefix) {
+	protected boolean isMetricCollected(final Monitor monitor, final String metricNamePrefix) {
 		return monitor
 			.getMetrics()
 			.values()
