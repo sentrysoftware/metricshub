@@ -426,6 +426,20 @@
         "type" : "NumberMetric",
         "updated" : true
       },
+      "hw.errors.limit{limit_type=\"critical\", hw.type=\"cpu\"}" : {
+        "name" : "hw.errors.limit{limit_type=\"critical\", hw.type=\"cpu\"}",
+        "collectTime" : 1715961290898,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "limit_type" : "critical",
+          "hw.type" : "cpu"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
       "hw.status{hw.type=\"cpu\"}" : {
         "name" : "hw.status{hw.type=\"cpu\"}",
         "collectTime" : 1715961673910,
@@ -542,6 +556,20 @@
         "type" : "NumberMetric",
         "updated" : true
       },
+      "hw.errors.limit{limit_type=\"critical\", hw.type=\"cpu\"}" : {
+        "name" : "hw.errors.limit{limit_type=\"critical\", hw.type=\"cpu\"}",
+        "collectTime" : 1715961290898,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "limit_type" : "critical",
+          "hw.type" : "cpu"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
       "hw.status{hw.type=\"cpu\"}" : {
         "name" : "hw.status{hw.type=\"cpu\"}",
         "collectTime" : 1715961673910,
@@ -654,6 +682,20 @@
         },
         "resetMetricTime" : false,
         "value" : 15.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.errors.limit{limit_type=\"critical\", hw.type=\"cpu\"}" : {
+        "name" : "hw.errors.limit{limit_type=\"critical\", hw.type=\"cpu\"}",
+        "collectTime" : 1715961290898,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "limit_type" : "critical",
+          "hw.type" : "cpu"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
         "previousValue" : null,
         "type" : "NumberMetric",
         "updated" : true

@@ -21,7 +21,7 @@ package org.sentrysoftware.metricshub.hardware.threshold;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
+import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 
 /**
  * TODO: Complete the Javadoc for this Class.
@@ -29,14 +29,17 @@ import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
 public class VoltageMetricNormalizer extends AbstractMetricNormalizer {
 
 	/**
-	 * TODO: Complete the Javadoc for this method.
+	 * Constructs a new instance with the specified strategy time.
+	 * @param strategyTime The strategy time in milliseconds
+	 * @param hostname     The hostname of the monitor
 	 */
-	@Override
-	public void normalize(AbstractMetric metric) {}
+	public VoltageMetricNormalizer(long strategyTime, String hostname) {
+		super(strategyTime, hostname);
+	}
 
 	/**
 	 * TODO: Complete the Javadoc for this method.
 	 */
 	@Override
-	public void normalizeErrorsLimitMetric(AbstractMetric metric) {}
+	public void normalize(Monitor monitor) {}
 }
