@@ -95,7 +95,7 @@ public abstract class AbstractMetricNormalizer {
 				return (
 					metricNamePrefix.equals(currentMetricNamePrefix) &&
 					(!metricAttributes.containsKey("hw.type") ||
-						monitor.getType().equals(metricAttributes.get("hw.type"))) &&
+							monitor.getType().equals(metricAttributes.get("hw.type"))) &&
 					metric.isUpdated()
 				);
 				// CHECKSTYLE:ON
