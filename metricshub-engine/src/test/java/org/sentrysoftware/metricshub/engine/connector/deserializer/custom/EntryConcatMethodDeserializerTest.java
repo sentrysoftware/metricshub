@@ -36,14 +36,15 @@ class EntryConcatMethodDeserializerTest {
 
 	@Test
 	void testCustomConcatMethodValue() throws IOException {
-		final String yaml =
+		// Test without isJsonArray
+		String yaml =
 			"""
 
 			  concatStart: "<tag>"
 			  concatEnd: "</tag>"
 			""";
 
-		final ExecuteForEachEntryOf executeForEachEntry = JsonHelper.deserialize(
+		ExecuteForEachEntryOf executeForEachEntry = JsonHelper.deserialize(
 			mapper,
 			new ByteArrayInputStream(EXECUTE_FOR_EACH_ENTRY_OF_YAML.replace(REPLACE_ME, yaml).getBytes()),
 			ExecuteForEachEntryOf.class
@@ -52,7 +53,55 @@ class EntryConcatMethodDeserializerTest {
 			ExecuteForEachEntryOf
 				.builder()
 				.source(SOURCE_REF)
-				.concatMethod(new CustomConcatMethod("<tag>", "</tag>"))
+				.concatMethod(new CustomConcatMethod("<tag>", "</tag>", false))
+				.build(),
+			executeForEachEntry
+		);
+
+		// Test with isJsonArray true
+		yaml =
+			"""
+
+			  concatStart: "<tag>"
+			  concatEnd: "</tag>"
+			  isJsonArray: true
+			""";
+
+		executeForEachEntry =
+			JsonHelper.deserialize(
+				mapper,
+				new ByteArrayInputStream(EXECUTE_FOR_EACH_ENTRY_OF_YAML.replace(REPLACE_ME, yaml).getBytes()),
+				ExecuteForEachEntryOf.class
+			);
+		assertEquals(
+			ExecuteForEachEntryOf
+				.builder()
+				.source(SOURCE_REF)
+				.concatMethod(new CustomConcatMethod("<tag>", "</tag>", true))
+				.build(),
+			executeForEachEntry
+		);
+
+		// Test with isJsonArray false
+		yaml =
+			"""
+
+			  concatStart: "<tag>"
+			  concatEnd: "</tag>"
+			  isJsonArray: false
+			""";
+
+		executeForEachEntry =
+			JsonHelper.deserialize(
+				mapper,
+				new ByteArrayInputStream(EXECUTE_FOR_EACH_ENTRY_OF_YAML.replace(REPLACE_ME, yaml).getBytes()),
+				ExecuteForEachEntryOf.class
+			);
+		assertEquals(
+			ExecuteForEachEntryOf
+				.builder()
+				.source(SOURCE_REF)
+				.concatMethod(new CustomConcatMethod("<tag>", "</tag>", false))
 				.build(),
 			executeForEachEntry
 		);

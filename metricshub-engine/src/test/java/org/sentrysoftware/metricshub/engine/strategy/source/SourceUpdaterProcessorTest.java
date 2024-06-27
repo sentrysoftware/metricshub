@@ -186,6 +186,7 @@ class SourceUpdaterProcessorTest {
 			.builder()
 			.concatStart("concatStart:{")
 			.concatEnd("}concatEnd")
+			.isJsonArray(true)
 			.build();
 		httpSource.setExecuteForEachEntryOf(
 			ExecuteForEachEntryOf.builder().source(ENCLOSURE_COLLECT_SOURCE_1).concatMethod(customConcatMethod).build()
@@ -215,7 +216,26 @@ class SourceUpdaterProcessorTest {
 			Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
 		)
 			.process(httpSource);
-		final String expectedResult = "[concatStart:{expectedVal1}concatEnd,concatStart:{expectedVal2}concatEnd]";
+		String expectedResult = "[concatStart:{expectedVal1}concatEnd,concatStart:{expectedVal2}concatEnd]";
+		assertEquals(expectedResult, result.getRawData());
+
+		// Test if isJsonArray is false
+		customConcatMethod.setJsonArray(false);
+		httpSource.setExecuteForEachEntryOf(
+			ExecuteForEachEntryOf.builder().source(ENCLOSURE_COLLECT_SOURCE_1).concatMethod(customConcatMethod).build()
+		);
+
+		doReturn(expected1, expected2).when(sourceProcessor).process(any(HttpSource.class));
+
+		result =
+			new SourceUpdaterProcessor(
+				sourceProcessor,
+				telemetryManager,
+				MY_CONNECTOR_1_NAME,
+				Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
+			)
+				.process(httpSource);
+		expectedResult = "concatStart:{expectedVal1}concatEndconcatStart:{expectedVal2}concatEnd";
 		assertEquals(expectedResult, result.getRawData());
 	}
 
@@ -245,6 +265,7 @@ class SourceUpdaterProcessorTest {
 			.builder()
 			.concatStart("concatStart:{")
 			.concatEnd("}concatEnd")
+			.isJsonArray(false)
 			.build();
 
 		httpSource.setExecuteForEachEntryOf(

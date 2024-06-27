@@ -23,5 +23,6 @@ monitors:
             concatMethod: # onOf [ <enum>, <object> ] | possible values for <enum> : [ list, json_array, json_array_extended ]
               concatStart: # <string>
               concatEnd: # <string>
+              isJsonArray: # <boolean>
           computes: <compute-object-array>
 ```

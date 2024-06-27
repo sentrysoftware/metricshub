@@ -271,7 +271,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 		return (
 			EntryConcatMethod.JSON_ARRAY_EXTENDED.equals(entryConcatMethod) ||
 			EntryConcatMethod.JSON_ARRAY.equals(entryConcatMethod) ||
-			entryConcatMethod instanceof CustomConcatMethod
+			(entryConcatMethod instanceof CustomConcatMethod customConcatMethod && customConcatMethod.isJsonArray())
 		);
 		// CHECKSTYLE:ON
 	}
@@ -633,7 +633,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 		currentResult.setRawData(
 			currentResult
 				.getRawData()
-				.concat(currentResult.getRawData().isBlank() ? EMPTY : ",")
+				.concat(!currentResult.getRawData().isBlank() && customConcatMethod.isJsonArray() ? "," : EMPTY)
 				.concat(entryConcatStart)
 				.concat(rawData)
 				.concat(entryConcatEnd)

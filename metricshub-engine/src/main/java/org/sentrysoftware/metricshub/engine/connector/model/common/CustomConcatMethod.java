@@ -22,6 +22,7 @@ package org.sentrysoftware.metricshub.engine.connector.model.common;
  */
 
 import static com.fasterxml.jackson.annotation.Nulls.FAIL;
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -55,6 +56,12 @@ public class CustomConcatMethod implements IEntryConcatMethod {
 	private String concatEnd;
 
 	/**
+	 * Wether or not we wrap the final result in a JSON array.
+	 */
+	@JsonSetter(nulls = SKIP)
+	private boolean isJsonArray = false;
+
+	/**
 	 * Constructor to create a CustomConcatMethod instance.
 	 *
 	 * @param concatStart The concatenation start string.
@@ -64,19 +71,21 @@ public class CustomConcatMethod implements IEntryConcatMethod {
 	@JsonCreator
 	public CustomConcatMethod(
 		@JsonProperty(value = "concatStart", required = true) @NonNull String concatStart,
-		@JsonProperty(value = "concatEnd", required = true) @NonNull String concatEnd
+		@JsonProperty(value = "concatEnd", required = true) @NonNull String concatEnd,
+		@JsonProperty(value = "isJsonArray", required = false) boolean isJsonArray
 	) {
 		this.concatStart = concatStart;
 		this.concatEnd = concatEnd;
+		this.isJsonArray = isJsonArray;
 	}
 
 	@Override
 	public CustomConcatMethod copy() {
-		return CustomConcatMethod.builder().concatStart(concatStart).concatEnd(concatEnd).build();
+		return CustomConcatMethod.builder().concatStart(concatStart).concatEnd(concatEnd).isJsonArray(isJsonArray).build();
 	}
 
 	@Override
 	public String getDescription() {
-		return String.format("custom[concatStart=%s, concatEnd=%s]", concatStart, concatEnd);
+		return String.format("custom[concatStart=%s, concatEnd=%s, isJsonArray=%s]", concatStart, concatEnd, isJsonArray);
 	}
 }
