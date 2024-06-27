@@ -260,15 +260,18 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 
 	/**
 	 * Whether this source copy indicates and entry concatenation method for JSON array or JSON array extended
+	 * or if it uses a custom concatenation method.
 	 *
 	 * @param copy {@link Source} instance copy
 	 * @return boolean value
 	 */
 	private boolean isEntryConcatMethodJsonArrayOrExtended(final Source copy) {
 		// CHECKSTYLE:OFF
+		final IEntryConcatMethod entryConcatMethod = copy.getEntryConcatMethod();
 		return (
-			EntryConcatMethod.JSON_ARRAY_EXTENDED.equals(copy.getEntryConcatMethod()) ||
-			EntryConcatMethod.JSON_ARRAY.equals(copy.getEntryConcatMethod())
+			EntryConcatMethod.JSON_ARRAY_EXTENDED.equals(entryConcatMethod) ||
+			EntryConcatMethod.JSON_ARRAY.equals(entryConcatMethod) ||
+			entryConcatMethod instanceof CustomConcatMethod
 		);
 		// CHECKSTYLE:ON
 	}
@@ -628,7 +631,12 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 			: EMPTY;
 
 		currentResult.setRawData(
-			currentResult.getRawData().concat(entryConcatStart).concat(rawData).concat(entryConcatEnd)
+			currentResult
+				.getRawData()
+				.concat(currentResult.getRawData().isBlank() ? EMPTY : ",")
+				.concat(entryConcatStart)
+				.concat(rawData)
+				.concat(entryConcatEnd)
 		);
 	}
 

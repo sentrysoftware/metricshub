@@ -185,7 +185,7 @@ class SourceUpdaterProcessorTest {
 		final CustomConcatMethod customConcatMethod = CustomConcatMethod
 			.builder()
 			.concatStart("concatStart:{")
-			.concatEnd("}concatEnd;")
+			.concatEnd("}concatEnd")
 			.build();
 		httpSource.setExecuteForEachEntryOf(
 			ExecuteForEachEntryOf.builder().source(ENCLOSURE_COLLECT_SOURCE_1).concatMethod(customConcatMethod).build()
@@ -215,7 +215,7 @@ class SourceUpdaterProcessorTest {
 			Map.of(MONITOR_ATTRIBUTE_ID, MONITOR_ID_ATTRIBUTE_VALUE)
 		)
 			.process(httpSource);
-		final String expectedResult = "concatStart:{expectedVal1}concatEnd;concatStart:{expectedVal2}concatEnd;";
+		final String expectedResult = "[concatStart:{expectedVal1}concatEnd,concatStart:{expectedVal2}concatEnd]";
 		assertEquals(expectedResult, result.getRawData());
 	}
 
@@ -244,7 +244,7 @@ class SourceUpdaterProcessorTest {
 		final CustomConcatMethod customConcatMethod = CustomConcatMethod
 			.builder()
 			.concatStart("concatStart:{")
-			.concatEnd("}concatEnd;")
+			.concatEnd("}concatEnd")
 			.build();
 
 		httpSource.setExecuteForEachEntryOf(
