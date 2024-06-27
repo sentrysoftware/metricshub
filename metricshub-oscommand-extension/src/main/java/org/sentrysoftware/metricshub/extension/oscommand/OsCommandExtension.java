@@ -112,7 +112,7 @@ public class OsCommandExtension implements IProtocolExtension {
 			return Optional.empty();
 		}
 
-		// Retrieve the hostname from the configuration, otherwise from telemetryManager.
+		// Retrieve the hostname from the SshConfiguration, otherwise from the telemetryManager
 		String hostname = telemetryManager.getHostname(List.of(SshConfiguration.class));
 
 		log.info("Hostname {} - Performing {} protocol health check.", hostname, getIdentifier());

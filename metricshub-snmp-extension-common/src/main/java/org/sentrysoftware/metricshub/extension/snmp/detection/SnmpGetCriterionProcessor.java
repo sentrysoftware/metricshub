@@ -21,6 +21,7 @@ package org.sentrysoftware.metricshub.extension.snmp.detection;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
@@ -64,11 +65,10 @@ public class SnmpGetCriterionProcessor {
 		final String connectorId,
 		final TelemetryManager telemetryManager
 	) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 		if (snmpGetCriterion == null) {
 			log.error(
 				"Hostname {} - Malformed SNMP Get criterion {}. Cannot process SNMP Get detection. Connector ID: {}.",
-				hostname,
+				telemetryManager.getHostname(),
 				snmpGetCriterion,
 				connectorId
 			);
@@ -81,12 +81,15 @@ public class SnmpGetCriterionProcessor {
 		if (snmpConfiguration == null) {
 			log.debug(
 				"Hostname {} - The SNMP credentials are not configured. Cannot process SNMP Get criterion {}. Connector ID: {}.",
-				hostname,
+				telemetryManager.getHostname(),
 				snmpGetCriterion,
 				connectorId
 			);
 			return CriterionTestResult.empty();
 		}
+
+		// Retrieve the hostname from the ISnmpConfiguration, otherwise from the telemetryManager
+		final String hostname = telemetryManager.getHostname(List.of(snmpConfiguration.getClass()));
 
 		try {
 			final String result = snmpRequestExecutor.executeSNMPGet(

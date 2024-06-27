@@ -381,7 +381,7 @@ public class WbemCriterionProcessor {
 			return CriterionTestResult.error(wbemCriterion, "The WBEM credentials are not configured for this host.");
 		}
 
-		// Retrieve the hostname from a WbemConfiguration, otherwise from the telemetryManager
+		// Retrieve the hostname from the WbemConfiguration, otherwise from the telemetryManager
 		final String hostname = telemetryManager.getHostname(List.of(WbemConfiguration.class));
 
 		// If namespace is specified as "Automatic"

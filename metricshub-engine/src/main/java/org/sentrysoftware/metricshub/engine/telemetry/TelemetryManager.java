@@ -306,19 +306,23 @@ public class TelemetryManager {
 	}
 
 	/**
-	 * This method returns the hostname from the provided list of configurations, otherwise the telemetryManager hostname.
+	 * Retrieves the hostname from the provided list of configuration classes, considering the order of the list.
 	 *
-	 * Given a List of IConfigurations classes, this method will search from the user's configurations to find the ones that
-	 * are mentionned in the IConfiguration's List.
-	 * In the case of an empty set of configurations, it will return the telemetry manager's hostname.
+	 * This method searches through the user's configurations, as specified by the list of `IConfiguration` classes,
+	 * to find and return the first non-null hostname. The order of the configurations in the list is significant.
+	 * For example, calling `getHostname(SshConfiguration.class, OsCommandConfiguration.class)` may yield a different
+	 * result compared to `getHostname(OsCommandConfiguration.class, SshConfiguration.class)` if both configurations exist.
 	 *
-	 * @param configurations A List of IConfigurations from which we try to retrieve the hostname.
-	 * @return the hostname value
+	 * If the list of configurations is empty or none of the configurations provide a non-null hostname, the method
+	 * will return the telemetry manager's hostname as a fallback.
+	 *
+	 * @param configurations A list of `IConfiguration` classes to search for the hostname.
+	 * @return the first non-null hostname from the provided configurations, or the telemetry manager's hostname if none are found.
 	 */
 	public String getHostname(List<Class<? extends IConfiguration>> configurations) {
 		return configurations
 			.stream()
-			.map(config -> getHostConfiguration().getConfigurations().get(config)) // Get the configuration from the user's configuration map
+			.map(config -> hostConfiguration.getConfigurations().get(config)) // Get the configuration from the user's configuration map
 			.filter(Objects::nonNull) // Filter out null configurations
 			.map(IConfiguration::getHostname) // Map to hostname
 			.filter(Objects::nonNull) // Filter out null hostnames

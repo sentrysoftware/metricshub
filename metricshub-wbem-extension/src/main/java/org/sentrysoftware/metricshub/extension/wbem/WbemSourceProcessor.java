@@ -68,6 +68,7 @@ public class WbemSourceProcessor {
 	 * @return {@link SourceTable} instance
 	 */
 	public SourceTable process(WbemSource wbemSource, TelemetryManager telemetryManager) {
+		// Retrieve the hostname from the WbemConfiguration, otherwise from the telemetryManager
 		final String hostname = telemetryManager.getHostname(List.of(WbemConfiguration.class));
 
 		if (wbemSource == null) {

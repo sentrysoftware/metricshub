@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -79,8 +80,8 @@ public class IpmiExtension implements IProtocolExtension {
 
 	@Override
 	public Optional<Boolean> checkProtocol(TelemetryManager telemetryManager) {
-		// Retrieve the hostname
-		String hostname = telemetryManager.getHostConfiguration().getHostname();
+		// Retrieve the hostname from the IpmiConfiguration, otherwise from the telemetryManager
+		String hostname = telemetryManager.getHostname(List.of(IpmiConfiguration.class));
 
 		// Create and set the IPMI result to null
 		String ipmiResult = null;
@@ -132,12 +133,16 @@ public class IpmiExtension implements IProtocolExtension {
 			.getConfigurations()
 			.get(IpmiConfiguration.class);
 
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
 		if (ipmiConfiguration == null) {
-			log.warn("Hostname {} - The IPMI credentials are not configured. Cannot process IPMI-over-LAN source.", hostname);
+			log.warn(
+				"Hostname {} - The IPMI credentials are not configured. Cannot process IPMI-over-LAN source.",
+				telemetryManager.getHostname()
+			);
 			return SourceTable.empty();
 		}
+
+		// Retrieve the hostname from the IpmiConfiguration, otherwise from the telemetryManager
+		final String hostname = telemetryManager.getHostname(List.of(IpmiConfiguration.class));
 
 		try {
 			final String result = ipmiRequestExecutor.executeIpmiGetSensors(hostname, ipmiConfiguration);
@@ -165,15 +170,16 @@ public class IpmiExtension implements IProtocolExtension {
 			.getConfigurations()
 			.get(IpmiConfiguration.class);
 
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
 		if (configuration == null) {
 			log.debug(
 				"Hostname {} - The IPMI credentials are not configured for this host. Cannot process IPMI-over-LAN detection.",
-				hostname
+				telemetryManager.getHostname()
 			);
 			return CriterionTestResult.empty();
 		}
+
+		// Retrieve the hostname from the IpmiConfiguration, otherwise from the telemetryManager
+		final String hostname = telemetryManager.getHostname(List.of(IpmiConfiguration.class));
 
 		try {
 			final String result = ipmiRequestExecutor.executeIpmiDetection(hostname, configuration);

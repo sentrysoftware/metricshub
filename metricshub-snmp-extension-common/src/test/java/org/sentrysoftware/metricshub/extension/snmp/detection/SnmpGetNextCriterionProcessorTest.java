@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Map;
 import java.util.function.Function;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,18 +38,21 @@ public class SnmpGetNextCriterionProcessorTest {
 		snmpGetNextCriterionProcessor = new SnmpGetNextCriterionProcessor(snmpRequestExecutor, configurationRetriever);
 	}
 
-	private TelemetryManager createMockTelemetryManagerWithHostConfiguration() {
-		TelemetryManager telemetryManager = mock(TelemetryManager.class);
-		HostConfiguration hostConfigurationMock = mock(HostConfiguration.class);
-		when(telemetryManager.getHostConfiguration()).thenReturn(hostConfigurationMock);
-		when(hostConfigurationMock.getHostname()).thenReturn("hostname");
+	// Utility method to create the telemetryManager
+	private TelemetryManager createTelemetryManagerWithHostConfiguration() {
+		HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.hostname("hostname")
+			.configurations(Map.of())
+			.build();
+		TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 		return telemetryManager;
 	}
 
 	// Test case for successful process
 	@Test
 	public void testProcess_Success() throws Exception {
-		TelemetryManager telemetryManager = createMockTelemetryManagerWithHostConfiguration();
+		TelemetryManager telemetryManager = createTelemetryManagerWithHostConfiguration();
 
 		ISnmpConfiguration snmpConfiguration = mock(ISnmpConfiguration.class);
 		when(configurationRetriever.apply(telemetryManager)).thenReturn(snmpConfiguration);
@@ -81,7 +85,7 @@ public class SnmpGetNextCriterionProcessorTest {
 	// Test case when snmpGetCriterion is null
 	@Test
 	public void testProcess_NullCriterion() {
-		TelemetryManager telemetryManager = createMockTelemetryManagerWithHostConfiguration();
+		TelemetryManager telemetryManager = createTelemetryManagerWithHostConfiguration();
 		CriterionTestResult result = snmpGetNextCriterionProcessor.process(null, "connectorId", telemetryManager);
 		assertFalse(result.isSuccess());
 	}
@@ -89,7 +93,7 @@ public class SnmpGetNextCriterionProcessorTest {
 	// Test case when snmpConfiguration is null
 	@Test
 	public void testProcess_NullSnmpConfiguration() {
-		TelemetryManager telemetryManager = createMockTelemetryManagerWithHostConfiguration();
+		TelemetryManager telemetryManager = createTelemetryManagerWithHostConfiguration();
 
 		when(configurationRetriever.apply(any(TelemetryManager.class))).thenReturn(null);
 
@@ -107,7 +111,7 @@ public class SnmpGetNextCriterionProcessorTest {
 	// Test case when the requestExecutor throws an exception.
 	@Test
 	public void testProcess_SnmpRequestException() throws Exception {
-		TelemetryManager telemetryManager = createMockTelemetryManagerWithHostConfiguration();
+		TelemetryManager telemetryManager = createTelemetryManagerWithHostConfiguration();
 
 		ISnmpConfiguration snmpConfiguration = mock(ISnmpConfiguration.class);
 		when(configurationRetriever.apply(telemetryManager)).thenReturn(snmpConfiguration);

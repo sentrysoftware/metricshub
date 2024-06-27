@@ -440,7 +440,7 @@ public class OsCommandService {
 			.map(username -> commandLine.replaceAll(toCaseInsensitiveRegex(USERNAME_MACRO), username))
 			.orElse(commandLine);
 
-		// Retrieve the hostname from the configurations, otherwise from telemetryManager.
+		// Retrieve the hostname from the configurations, otherwise from the telemetryManager.
 		final String hostname = telemetryManager.getHostname(List.of(SshConfiguration.class, OsCommandConfiguration.class));
 
 		final String updatedHostnameCommand = updatedUserCommand.replaceAll(

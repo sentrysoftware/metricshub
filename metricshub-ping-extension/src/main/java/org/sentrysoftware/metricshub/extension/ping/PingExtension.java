@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -92,8 +93,8 @@ public class PingExtension implements IProtocolExtension {
 			return Optional.empty();
 		}
 
-		// Retrieve the hostname from the Ping Configuration
-		final String hostname = pingConfiguration.getHostname();
+		// Retrieve the hostname from the PingConfiguration, otherwise from the telemetryManager
+		final String hostname = telemetryManager.getHostname(List.of(PingConfiguration.class));
 
 		// Create and set the Ping result to null
 		boolean pingResult = false;
