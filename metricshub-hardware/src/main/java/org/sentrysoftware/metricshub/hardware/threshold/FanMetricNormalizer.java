@@ -85,21 +85,21 @@ public class FanMetricNormalizer extends AbstractMetricNormalizer {
 			return;
 		}
 
-		// Get the degraded metric
+		// Get the low degraded metric
 		final Optional<NumberMetric> maybeLowDegradedMetric = findMetricByNamePrefixAndAttributes(
 			monitor,
 			metricNamePrefix,
 			Map.of("limit_type", "low.degraded")
 		);
 
-		// Get the critical metric
+		// Get the low critical metric
 		final Optional<NumberMetric> maybeLowCriticalMetric = findMetricByNamePrefixAndAttributes(
 			monitor,
 			metricNamePrefix,
 			Map.of("limit_type", "low.critical")
 		);
 
-		// If neither degraded nor critical metrics are available, create both
+		// If neither low degraded nor low critical metrics are available, create both
 		if (!maybeLowDegradedMetric.isPresent() && !maybeLowCriticalMetric.isPresent()) {
 			final MetricFactory metricFactory = new MetricFactory(hostname);
 			metricFactory.collectNumberMetric(
@@ -115,21 +115,21 @@ public class FanMetricNormalizer extends AbstractMetricNormalizer {
 				strategyTime
 			);
 		} else if (maybeLowDegradedMetric.isPresent() && maybeLowCriticalMetric.isPresent()) {
-			// If both the degraded and critical metrics are available, adjust the values
+			// If both the low degraded and low critical metrics are available, adjust the values
 			final NumberMetric lowDegradedMetric = maybeLowDegradedMetric.get();
 			final NumberMetric lowCriticalMetric = maybeLowCriticalMetric.get();
 
 			final Double lowDegradedValue = lowDegradedMetric.getValue();
 			final Double lowCriticalValue = lowCriticalMetric.getValue();
 
-			// If the degraded value is smaller than the critical value, swap the values
+			// If the low degraded value is smaller than the low critical value, swap the values
 			if (lowDegradedValue < lowCriticalValue) {
 				final Double temp = lowDegradedValue;
 				lowDegradedMetric.setValue(lowCriticalValue);
 				lowCriticalMetric.setValue(temp);
 			}
 		} else if (!maybeLowDegradedMetric.isPresent() && maybeLowCriticalMetric.isPresent()) {
-			// If only critical metric is available, adjust degraded metric
+			// If only low critical metric is available, adjust low degraded metric
 			final NumberMetric lowCriticalMetric = maybeLowCriticalMetric.get();
 			final Double lowCriticalValue = lowCriticalMetric.getValue();
 			final MetricFactory metricFactory = new MetricFactory(hostname);
@@ -140,7 +140,7 @@ public class FanMetricNormalizer extends AbstractMetricNormalizer {
 				strategyTime
 			);
 		} else if (maybeLowDegradedMetric.isPresent() && !maybeLowCriticalMetric.isPresent()) {
-			// If only degraded metric is available, adjust critical metric
+			// If only low degraded metric is available, adjust low critical metric
 			final NumberMetric lowDegradedMetric = maybeLowDegradedMetric.get();
 			final Double lowDegradedValue = lowDegradedMetric.getValue();
 			final MetricFactory metricFactory = new MetricFactory(hostname);
