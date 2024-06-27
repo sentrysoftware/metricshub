@@ -99,29 +99,19 @@ public class FanMetricNormalizer extends AbstractMetricNormalizer {
 			Map.of("limit_type", "low.critical")
 		);
 
-		// If neither low degraded nor low critical metrics are available, create both
 		if (maybeLowDegradedMetric.isEmpty() && maybeLowCriticalMetric.isEmpty()) {
-			final MetricFactory metricFactory = new MetricFactory(hostname);
-			collectMetric(monitor, metricNamePrefix, metricFactory, "low.degraded", defaultLowDegradedValueMetric);
-			collectMetric(monitor, metricNamePrefix, metricFactory, "low.critical", defaultLowCriticalValueMetric);
+			// Create both metrics if neither are present
+			collectMetric(monitor, metricNamePrefix, "low.degraded", defaultLowDegradedValueMetric);
+			collectMetric(monitor, metricNamePrefix, "low.critical", defaultLowCriticalValueMetric);
 		} else if (maybeLowDegradedMetric.isPresent() && maybeLowCriticalMetric.isPresent()) {
-			// If both the low degraded and low critical metrics are available, adjust the values
-			final NumberMetric lowDegradedMetric = maybeLowDegradedMetric.get();
-			final NumberMetric lowCriticalMetric = maybeLowCriticalMetric.get();
-
-			adjustMetricsIfNecessary(lowDegradedMetric, lowCriticalMetric);
+			// Adjust values if both metrics are present
+			adjustMetricsIfNecessary(maybeLowDegradedMetric.get(), maybeLowCriticalMetric.get());
 		} else if (maybeLowDegradedMetric.isEmpty()) {
-			// If only low critical metric is available, adjust low degraded metric
-			final NumberMetric lowCriticalMetric = maybeLowCriticalMetric.get();
-			final Double lowCriticalValue = lowCriticalMetric.getValue();
-			final MetricFactory metricFactory = new MetricFactory(hostname);
-			collectMetric(monitor, metricNamePrefix, metricFactory, "low.degraded", lowCriticalValue * 1.1);
+			// Create degraded metric if only critical is present
+			collectMetric(monitor, metricNamePrefix, "low.degraded", maybeLowCriticalMetric.get().getValue() * 1.1);
 		} else {
-			// If only low degraded metric is available, adjust low critical metric
-			final NumberMetric lowDegradedMetric = maybeLowDegradedMetric.get();
-			final Double lowDegradedValue = lowDegradedMetric.getValue();
-			final MetricFactory metricFactory = new MetricFactory(hostname);
-			collectMetric(monitor, metricNamePrefix, metricFactory, "low.critical", lowDegradedValue * 0.9);
+			// Create critical metric if only degraded is present
+			collectMetric(monitor, metricNamePrefix, "low.critical", maybeLowDegradedMetric.get().getValue() * 0.9);
 		}
 	}
 
@@ -147,17 +137,16 @@ public class FanMetricNormalizer extends AbstractMetricNormalizer {
 	 *
 	 * @param monitor          The monitor to collect the metric
 	 * @param metricNamePrefix The prefix of the metric name
-	 * @param metricFactory    The factory used to collect the metric
 	 * @param limitType        The limit type of the metric (e.g., "low.degraded", "low.critical")
 	 * @param value The value of the metric
 	 */
 	private void collectMetric(
 		final Monitor monitor,
 		final String metricNamePrefix,
-		final MetricFactory metricFactory,
 		final String limitType,
 		final Double value
 	) {
+		final MetricFactory metricFactory = new MetricFactory(hostname);
 		metricFactory.collectNumberMetric(
 			monitor,
 			String.format("%s.limit{limit_type=\"%s\"}", metricNamePrefix, limitType),
