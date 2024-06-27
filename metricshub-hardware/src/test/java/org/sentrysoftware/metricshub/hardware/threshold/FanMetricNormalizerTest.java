@@ -13,16 +13,16 @@ class FanMetricNormalizerTest {
 	private static final long STRATEGY_TIME = System.currentTimeMillis();
 	private static final String HOSTNAME = "hostname";
 	private static final String HW_FAN_SPEED_LIMIT = "hw.fan.speed.limit";
-	public static final String HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_CRITICAL_HW_TYPE_FAN =
-		HW_FAN_SPEED_LIMIT + "{limit_type=\"low.critical\", hw.type=\"fan\"}";
-	public static final String HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_DEGRADED_HW_TYPE_FAN =
-		HW_FAN_SPEED_LIMIT + "{limit_type=\"low.degraded\", hw.type=\"fan\"}";
+	public static final String HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_CRITICAL =
+		HW_FAN_SPEED_LIMIT + "{limit_type=\"low.critical\"}";
+	public static final String HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_DEGRADED =
+		HW_FAN_SPEED_LIMIT + "{limit_type=\"low.degraded\"}";
 
 	private static final String HW_FAN_SPEED_RATIO_LIMIT = "hw.fan.speed_ratio.limit";
-	public static final String HW_FAN_SPEED_RATIO_LIMIT_LIMIT_TYPE_LOW_CRITICAL_HW_TYPE_FAN =
-		HW_FAN_SPEED_RATIO_LIMIT + "{limit_type=\"low.critical\", hw.type=\"fan\"}";
-	public static final String HW_FAN_SPEED_RATIO_LIMIT_LIMIT_TYPE_LOW_DEGRADED_HW_TYPE_FAN =
-		HW_FAN_SPEED_RATIO_LIMIT + "{limit_type=\"low.degraded\", hw.type=\"fan\"}";
+	public static final String HW_FAN_SPEED_RATIO_LIMIT_LIMIT_TYPE_LOW_CRITICAL =
+		HW_FAN_SPEED_RATIO_LIMIT + "{limit_type=\"low.critical\"}";
+	public static final String HW_FAN_SPEED_RATIO_LIMIT_LIMIT_TYPE_LOW_DEGRADED =
+		HW_FAN_SPEED_RATIO_LIMIT + "{limit_type=\"low.degraded\"}";
 
 	@Test
 	void testNormalize() {
@@ -33,14 +33,14 @@ class FanMetricNormalizerTest {
 			final NumberMetric hwFanSpeedLimitCriticalMetric = NumberMetric
 				.builder()
 				.value(2.0)
-				.name(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_CRITICAL_HW_TYPE_FAN)
-				.attributes(Map.of("limit_type", "low.critical", "hw.type", "fan"))
+				.name(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_CRITICAL)
+				.attributes(Map.of("limit_type", "low.critical"))
 				.build();
 			final NumberMetric hwFanSpeedLimitDegradedMetric = NumberMetric
 				.builder()
 				.value(1.0)
-				.name(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_DEGRADED_HW_TYPE_FAN)
-				.attributes(Map.of("limit_type", "low.degraded", "hw.type", "fan"))
+				.name(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_DEGRADED)
+				.attributes(Map.of("limit_type", "low.degraded"))
 				.build();
 
 			final Monitor monitorWithhwFanSpeedLimitMetric = Monitor
@@ -52,9 +52,9 @@ class FanMetricNormalizerTest {
 						Map.of(
 							"hw.fan.speed",
 							hwFanSpeedMetric,
-							HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_CRITICAL_HW_TYPE_FAN,
+							HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_CRITICAL,
 							hwFanSpeedLimitCriticalMetric,
-							HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_DEGRADED_HW_TYPE_FAN,
+							HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_DEGRADED,
 							hwFanSpeedLimitDegradedMetric
 						)
 					)
@@ -65,13 +65,13 @@ class FanMetricNormalizerTest {
 			assertEquals(
 				1.0,
 				monitorWithhwFanSpeedLimitMetric
-					.getMetric(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_CRITICAL_HW_TYPE_FAN, NumberMetric.class)
+					.getMetric(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_CRITICAL, NumberMetric.class)
 					.getValue()
 			);
 			assertEquals(
 				2.0,
 				monitorWithhwFanSpeedLimitMetric
-					.getMetric(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_DEGRADED_HW_TYPE_FAN, NumberMetric.class)
+					.getMetric(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_DEGRADED, NumberMetric.class)
 					.getValue()
 			);
 		}
@@ -83,14 +83,14 @@ class FanMetricNormalizerTest {
 			final NumberMetric hwFanSpeedLimitCriticalMetric = NumberMetric
 				.builder()
 				.value(1.0)
-				.name(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_CRITICAL_HW_TYPE_FAN)
-				.attributes(Map.of("limit_type", "low.critical", "hw.type", "fan"))
+				.name(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_CRITICAL)
+				.attributes(Map.of("limit_type", "low.critical"))
 				.build();
 			final NumberMetric hwFanSpeedLimitDegradedMetric = NumberMetric
 				.builder()
 				.value(2.0)
-				.name(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_DEGRADED_HW_TYPE_FAN)
-				.attributes(Map.of("limit_type", "low.degraded", "hw.type", "fan"))
+				.name(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_DEGRADED)
+				.attributes(Map.of("limit_type", "low.degraded"))
 				.build();
 
 			final Monitor monitorWithHwFanSpeedLimitMetric = Monitor
@@ -102,9 +102,9 @@ class FanMetricNormalizerTest {
 						Map.of(
 							"hw.fan.speed",
 							hwFanSpeedMetric,
-							HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_CRITICAL_HW_TYPE_FAN,
+							HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_CRITICAL,
 							hwFanSpeedLimitCriticalMetric,
-							HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_DEGRADED_HW_TYPE_FAN,
+							HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_DEGRADED,
 							hwFanSpeedLimitDegradedMetric
 						)
 					)
@@ -115,13 +115,13 @@ class FanMetricNormalizerTest {
 			assertEquals(
 				1.0,
 				monitorWithHwFanSpeedLimitMetric
-					.getMetric(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_CRITICAL_HW_TYPE_FAN, NumberMetric.class)
+					.getMetric(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_CRITICAL, NumberMetric.class)
 					.getValue()
 			);
 			assertEquals(
 				2.0,
 				monitorWithHwFanSpeedLimitMetric
-					.getMetric(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_DEGRADED_HW_TYPE_FAN, NumberMetric.class)
+					.getMetric(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_DEGRADED, NumberMetric.class)
 					.getValue()
 			);
 		}
@@ -143,14 +143,14 @@ class FanMetricNormalizerTest {
 			assertEquals(
 				0.0,
 				monitorWithoutHwFanSpeedLimit
-					.getMetric(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_CRITICAL_HW_TYPE_FAN, NumberMetric.class)
+					.getMetric(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_CRITICAL, NumberMetric.class)
 					.getValue()
 			);
 
 			assertEquals(
 				500,
 				monitorWithoutHwFanSpeedLimit
-					.getMetric(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_DEGRADED_HW_TYPE_FAN, NumberMetric.class)
+					.getMetric(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_DEGRADED, NumberMetric.class)
 					.getValue()
 			);
 		}
@@ -162,8 +162,8 @@ class FanMetricNormalizerTest {
 			final NumberMetric hwFanSpeedLimitCriticalMetric = NumberMetric
 				.builder()
 				.value(2.0)
-				.name(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_CRITICAL_HW_TYPE_FAN)
-				.attributes(Map.of("limit_type", "low.critical", "hw.type", "fan"))
+				.name(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_CRITICAL)
+				.attributes(Map.of("limit_type", "low.critical"))
 				.build();
 			final Monitor monitorWithHwFanSpeedLimitMetric = Monitor
 				.builder()
@@ -174,7 +174,7 @@ class FanMetricNormalizerTest {
 						Map.of(
 							"hw.fan.speed",
 							hwFanSpeedMetric,
-							HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_CRITICAL_HW_TYPE_FAN,
+							HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_CRITICAL,
 							hwFanSpeedLimitCriticalMetric
 						)
 					)
@@ -184,7 +184,7 @@ class FanMetricNormalizerTest {
 			assertEquals(
 				2.2,
 				monitorWithHwFanSpeedLimitMetric
-					.getMetric(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_DEGRADED_HW_TYPE_FAN, NumberMetric.class)
+					.getMetric(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_DEGRADED, NumberMetric.class)
 					.getValue()
 			);
 		}
@@ -196,8 +196,8 @@ class FanMetricNormalizerTest {
 			final NumberMetric hwFanSpeedLimitDegradedMetric = NumberMetric
 				.builder()
 				.value(2.0)
-				.name(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_DEGRADED_HW_TYPE_FAN)
-				.attributes(Map.of("limit_type", "low.degraded", "hw.type", "fan"))
+				.name(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_DEGRADED)
+				.attributes(Map.of("limit_type", "low.degraded"))
 				.build();
 			final Monitor monitorWithHwFanSpeedLimitMetric = Monitor
 				.builder()
@@ -208,7 +208,7 @@ class FanMetricNormalizerTest {
 						Map.of(
 							"hw.fan.speed",
 							hwFanSpeedMetric,
-							HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_DEGRADED_HW_TYPE_FAN,
+							HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_DEGRADED,
 							hwFanSpeedLimitDegradedMetric
 						)
 					)
@@ -218,7 +218,7 @@ class FanMetricNormalizerTest {
 			assertEquals(
 				1.8,
 				monitorWithHwFanSpeedLimitMetric
-					.getMetric(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_CRITICAL_HW_TYPE_FAN, NumberMetric.class)
+					.getMetric(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_CRITICAL, NumberMetric.class)
 					.getValue()
 			);
 		}
@@ -240,14 +240,14 @@ class FanMetricNormalizerTest {
 			assertEquals(
 				0.0,
 				monitorWithoutHwFanSpeedRatioLimit
-					.getMetric(HW_FAN_SPEED_RATIO_LIMIT_LIMIT_TYPE_LOW_CRITICAL_HW_TYPE_FAN, NumberMetric.class)
+					.getMetric(HW_FAN_SPEED_RATIO_LIMIT_LIMIT_TYPE_LOW_CRITICAL, NumberMetric.class)
 					.getValue()
 			);
 
 			assertEquals(
 				0.05,
 				monitorWithoutHwFanSpeedRatioLimit
-					.getMetric(HW_FAN_SPEED_RATIO_LIMIT_LIMIT_TYPE_LOW_DEGRADED_HW_TYPE_FAN, NumberMetric.class)
+					.getMetric(HW_FAN_SPEED_RATIO_LIMIT_LIMIT_TYPE_LOW_DEGRADED, NumberMetric.class)
 					.getValue()
 			);
 		}
@@ -259,8 +259,8 @@ class FanMetricNormalizerTest {
 			final NumberMetric hwFanSpeedLimitCriticalMetric = NumberMetric
 				.builder()
 				.value(2.0)
-				.name(HW_FAN_SPEED_RATIO_LIMIT_LIMIT_TYPE_LOW_CRITICAL_HW_TYPE_FAN)
-				.attributes(Map.of("limit_type", "low.critical", "hw.type", "fan"))
+				.name(HW_FAN_SPEED_RATIO_LIMIT_LIMIT_TYPE_LOW_CRITICAL)
+				.attributes(Map.of("limit_type", "low.critical"))
 				.build();
 			final Monitor monitorWithHwFanSpeedRatioLimitMetric = Monitor
 				.builder()
@@ -271,7 +271,7 @@ class FanMetricNormalizerTest {
 						Map.of(
 							"hw.fan.speed_ratio",
 							hwFanSpeeRatiodMetric,
-							HW_FAN_SPEED_RATIO_LIMIT_LIMIT_TYPE_LOW_CRITICAL_HW_TYPE_FAN,
+							HW_FAN_SPEED_RATIO_LIMIT_LIMIT_TYPE_LOW_CRITICAL,
 							hwFanSpeedLimitCriticalMetric
 						)
 					)
@@ -281,7 +281,7 @@ class FanMetricNormalizerTest {
 			assertEquals(
 				2.2,
 				monitorWithHwFanSpeedRatioLimitMetric
-					.getMetric(HW_FAN_SPEED_RATIO_LIMIT_LIMIT_TYPE_LOW_DEGRADED_HW_TYPE_FAN, NumberMetric.class)
+					.getMetric(HW_FAN_SPEED_RATIO_LIMIT_LIMIT_TYPE_LOW_DEGRADED, NumberMetric.class)
 					.getValue()
 			);
 		}
@@ -303,14 +303,14 @@ class FanMetricNormalizerTest {
 			assertEquals(
 				0.0,
 				monitorWithoutHwFanSpeedRatioLimit
-					.getMetric(HW_FAN_SPEED_RATIO_LIMIT_LIMIT_TYPE_LOW_CRITICAL_HW_TYPE_FAN, NumberMetric.class)
+					.getMetric(HW_FAN_SPEED_RATIO_LIMIT_LIMIT_TYPE_LOW_CRITICAL, NumberMetric.class)
 					.getValue()
 			);
 
 			assertEquals(
 				0.05,
 				monitorWithoutHwFanSpeedRatioLimit
-					.getMetric(HW_FAN_SPEED_RATIO_LIMIT_LIMIT_TYPE_LOW_DEGRADED_HW_TYPE_FAN, NumberMetric.class)
+					.getMetric(HW_FAN_SPEED_RATIO_LIMIT_LIMIT_TYPE_LOW_DEGRADED, NumberMetric.class)
 					.getValue()
 			);
 		}

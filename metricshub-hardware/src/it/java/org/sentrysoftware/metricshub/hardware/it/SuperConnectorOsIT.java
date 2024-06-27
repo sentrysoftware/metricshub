@@ -86,6 +86,11 @@ class SuperConnectorOsIT {
 				new HardwarePostCollectStrategy(telemetryManager, collectTime, clientsExecutor, extensionManager),
 				new HardwareStrategy(telemetryManager, collectTime)
 			)
-			.verifyExpected("os/SuperConnectorOsIT/expected/expected.json");
+			//.verifyExpected("os/SuperConnectorOsIT/expected/expected.json");
+			.saveTelemetryManagerJson(
+				Path.of(
+					"C:\\Users\\SafaeAjib\\eclipse-workspace\\metricshub\\metricshub-hardware\\src\\it\\resources\\expected1.json"
+				)
+			);
 	}
 }

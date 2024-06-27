@@ -89,14 +89,14 @@ public class FanMetricNormalizer extends AbstractMetricNormalizer {
 		final Optional<NumberMetric> maybeLowDegradedMetric = findMetricByNamePrefixAndAttributes(
 			monitor,
 			metricNamePrefix,
-			Map.of("limit_type", "low.degraded", "hw.type", monitor.getType())
+			Map.of("limit_type", "low.degraded")
 		);
 
 		// Get the critical metric
 		final Optional<NumberMetric> maybeLowCriticalMetric = findMetricByNamePrefixAndAttributes(
 			monitor,
 			metricNamePrefix,
-			Map.of("limit_type", "low.critical", "hw.type", monitor.getType())
+			Map.of("limit_type", "low.critical")
 		);
 
 		// If neither degraded nor critical metrics are available, create both
@@ -104,13 +104,13 @@ public class FanMetricNormalizer extends AbstractMetricNormalizer {
 			final MetricFactory metricFactory = new MetricFactory(hostname);
 			metricFactory.collectNumberMetric(
 				monitor,
-				String.format(metricNamePrefix + "{limit_type=\"low.degraded\", hw.type=\"%s\"}", monitor.getType()),
+				String.format("%s{limit_type=\"low.degraded\"}", metricNamePrefix),
 				defaultLowDegradedValueMetric,
 				strategyTime
 			);
 			metricFactory.collectNumberMetric(
 				monitor,
-				String.format(metricNamePrefix + "{limit_type=\"low.critical\", hw.type=\"%s\"}", monitor.getType()),
+				String.format("%s{limit_type=\"low.critical\"}", metricNamePrefix),
 				defaultLowCriticalValueMetric,
 				strategyTime
 			);
@@ -135,7 +135,7 @@ public class FanMetricNormalizer extends AbstractMetricNormalizer {
 			final MetricFactory metricFactory = new MetricFactory(hostname);
 			metricFactory.collectNumberMetric(
 				monitor,
-				String.format(metricNamePrefix + "{limit_type=\"low.degraded\", hw.type=\"%s\"}", monitor.getType()),
+				String.format("%s{limit_type=\"low.degraded\"}", metricNamePrefix),
 				lowCriticalValue * 1.1,
 				strategyTime
 			);
@@ -146,7 +146,7 @@ public class FanMetricNormalizer extends AbstractMetricNormalizer {
 			final MetricFactory metricFactory = new MetricFactory(hostname);
 			metricFactory.collectNumberMetric(
 				monitor,
-				String.format(metricNamePrefix + "{limit_type=\"low.critical\", hw.type=\"%s\"}", monitor.getType()),
+				String.format("%s{limit_type=\"low.critical\"}", metricNamePrefix),
 				lowDegradedValue * 0.9,
 				strategyTime
 			);
