@@ -94,7 +94,9 @@ public abstract class AbstractMetricNormalizer {
 				// CHECKSTYLE:OFF
 				return (
 					metricNamePrefix.equals(currentMetricNamePrefix) &&
-					(metricAttributes.isEmpty() || monitor.getType().equals(metricAttributes.get("hw.type"))) &&
+					(metricAttributes.isEmpty() ||
+						!metricAttributes.containsKey("hw.type") ||
+						monitor.getType().equals(metricAttributes.get("hw.type"))) &&
 					metric.isUpdated()
 				);
 				// CHECKSTYLE:ON
@@ -166,7 +168,7 @@ public abstract class AbstractMetricNormalizer {
 		);
 
 		// If both the degraded and critical metrics are not available, create a critical metric with the value 1
-		if (!maybeDegradedMetric.isPresent() && !maybeCriticalMetric.isPresent()) {
+		if (maybeDegradedMetric.isEmpty() && maybeCriticalMetric.isEmpty()) {
 			final MetricFactory metricFactory = new MetricFactory(hostname);
 			metricFactory.collectNumberMetric(
 				monitor,
@@ -178,16 +180,24 @@ public abstract class AbstractMetricNormalizer {
 			// If both the degraded and critical metrics are available, adjust the values
 			final NumberMetric degradedMetric = maybeDegradedMetric.get();
 			final NumberMetric criticalMetric = maybeCriticalMetric.get();
+			adjustMetricsIfNecessary(criticalMetric, degradedMetric);
+		}
+	}
 
-			final Double degradedValue = degradedMetric.getValue();
-			final Double criticalValue = criticalMetric.getValue();
+	/**
+	 * Adjusts the values of degraded and critical metrics if necessary.
+	 * If the critical value is smaller than the degraded value, their values are swapped.
+	 *
+	 * @param criticalMetric The critical metric
+	 * @param degradedMetric The degraded metric
+	 */
+	private void adjustMetricsIfNecessary(final NumberMetric criticalMetric, final NumberMetric degradedMetric) {
+		final Double degradedValue = degradedMetric.getValue();
+		final Double criticalValue = criticalMetric.getValue();
 
-			// If the degraded value is greater than the critical value, swap the values
-			if (degradedValue > criticalValue) {
-				final Double temp = degradedValue;
-				degradedMetric.setValue(criticalValue);
-				criticalMetric.setValue(temp);
-			}
+		if (criticalValue < degradedValue) {
+			degradedMetric.setValue(criticalValue);
+			criticalMetric.setValue(degradedValue);
 		}
 	}
 }
