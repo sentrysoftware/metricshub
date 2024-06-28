@@ -16,7 +16,7 @@ description: MetricsHub is a universal metrics collector for OpenTelemetry which
 * Operating systems (typically Windows and Linux)
 * A variety of platforms (HyperV, MIB2, LibreHardwareMonitor, and more).
 
-Fully customizable, **MetricsHub**  can also be configured to **cover new use cases in no time**, such as the monitoring of systems or applications not covered out-of-the-box through protocols like `HTTP`, `IPMI`, `SNMP`,`SSH`, `WBEM`, `WinRM`, `WMI`.
+Fully customizable, **MetricsHub**  can also be configured to **cover new use cases in no time**, such as the monitoring of systems or applications not covered out-of-the-box through protocols like `HTTP`, `IPMI`, `PING`, `SNMP`,`SSH`, `WBEM`, `WinRM`, `WMI`.
 
 Refer to [Community Connector Platforms](../metricshub-connector-reference.html) for the exhaustive list of supported platforms.
 
