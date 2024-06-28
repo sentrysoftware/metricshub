@@ -1,4 +1,4 @@
-keywords: agent, configuration, protocols, snmp, wbem, wmi, ipmi, ssh, http, os command, winrm, sites
+keywords: agent, configuration, protocols, snmp, wbem, wmi, ping, ipmi, ssh, http, os command, winrm, sites
 description: How to configure the MetricsHub Agent to collect metrics from a variety of resources with various protocols.
 
 # Configure the Agent
@@ -132,7 +132,7 @@ where
   * `tru64` for HP Tru64 systems
   * `vms` for HP Open VMS systems.
 
-* `<protocol-configuration>` is the protocol(s) **MetricsHub** will use to communicate with the resources: `http`, `ipmi`, `oscommand`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](./configure-agent.html#protocols-and-credentials) for more details.
+* `<protocol-configuration>` is the protocol(s) **MetricsHub** will use to communicate with the resources: `http`, `ipmi`, `oscommand`, `ping`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and credentials](./configure-agent.html#protocols-and-credentials) for more details.
 
 > Note: You can use the `${esc.d}{env::ENV_VARIABLE_NAME}` syntax in the `config/metricshub.yaml` file to call your environment variables.
 
