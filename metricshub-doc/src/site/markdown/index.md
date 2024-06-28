@@ -35,6 +35,6 @@ The **Community Edition** will be **open-source** and come with **basic monitori
 * submit enhancement requests on the [MetricsHub Community Connectors Repository](https://github.com/sentrysoftware/metricshub-community-connectors)
 * contribute to the project by [creating new connectors](./develop/index.html).
 
-The **Enterprise Edition** will grant access to a library of 250+ connectors which allows **monitoring the hardware of hundreds of systems** from any manufacturer (**Cisco**, **Dell**, **EMC**, **Fujitsu**, **Hitachi**, **HP**, **IBM**, **Lenovo**, **NetApp**, **Oracle**, etc.) through `HTTP`, `IPMI`, `SSH`, `SNMP`, `WBEM`, `WMI`, or `WINRM`.
+The **Enterprise Edition** will grant access to a library of 250+ connectors which allows **monitoring the hardware of hundreds of systems** from any manufacturer (**Cisco**, **Dell**, **EMC**, **Fujitsu**, **Hitachi**, **HP**, **IBM**, **Lenovo**, **NetApp**, **Oracle**, etc.) through `HTTP`, `IPMI`, `PING`, `SSH`, `SNMP`, `WBEM`, `WMI`, or `WINRM`.
 
 This impressive library is the result of 20+ years of a development effort led by [Sentry Software](https://sentrysoftware.com). This library is used in production on hundreds of thousands of systems around the world.
