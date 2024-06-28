@@ -123,6 +123,7 @@ public abstract class AbstractMetricNormalizer {
 			.filter(metric -> {
 				// Extract the metric name prefix and check if the metric attributes are contained in the given attributes
 				final boolean result =
+					metric.isUpdated() &&
 					metricNamePrefix.equals(MetricFactory.extractName(metric.getName())) &&
 					containsAllEntries(metric.getAttributes(), metricAttributes);
 
@@ -197,5 +198,17 @@ public abstract class AbstractMetricNormalizer {
 			degradedMetric.setValue(criticalValue);
 			criticalMetric.setValue(degradedValue);
 		}
+	}
+
+	/**
+	 * Collect a metric using a given metric name and a given value.
+	 *
+	 * @param monitor The monitor to collect the metric
+	 * @param metricName The metric name
+	 * @param value The value of the metric
+	 */
+	protected void collectMetric(final Monitor monitor, final String metricName, final Double value) {
+		final MetricFactory metricFactory = new MetricFactory(hostname);
+		metricFactory.collectNumberMetric(monitor, metricName, value, strategyTime);
 	}
 }

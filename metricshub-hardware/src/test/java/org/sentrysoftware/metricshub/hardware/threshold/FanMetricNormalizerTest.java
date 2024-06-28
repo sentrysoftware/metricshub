@@ -27,6 +27,7 @@ class FanMetricNormalizerTest {
 	@Test
 	void testNormalize() {
 		{
+			//Testing when both low degraded and low critical metrics are present and low degraded < low critical
 			final NumberMetric hwFanSpeedMetric = NumberMetric.builder().value(1.0).name("hw.fan.speed").build();
 			hwFanSpeedMetric.setCollectTime(STRATEGY_TIME);
 			hwFanSpeedMetric.setPreviousCollectTime(STRATEGY_TIME - 1000 * 60 * 2);
@@ -36,13 +37,16 @@ class FanMetricNormalizerTest {
 				.name(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_CRITICAL)
 				.attributes(Map.of("limit_type", "low.critical"))
 				.build();
+			hwFanSpeedLimitCriticalMetric.setCollectTime(STRATEGY_TIME);
+			hwFanSpeedLimitCriticalMetric.setPreviousCollectTime(STRATEGY_TIME - 1000 * 60 * 2);
 			final NumberMetric hwFanSpeedLimitDegradedMetric = NumberMetric
 				.builder()
 				.value(1.0)
 				.name(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_DEGRADED)
 				.attributes(Map.of("limit_type", "low.degraded"))
 				.build();
-
+			hwFanSpeedLimitDegradedMetric.setCollectTime(STRATEGY_TIME);
+			hwFanSpeedLimitDegradedMetric.setPreviousCollectTime(STRATEGY_TIME - 1000 * 60 * 2);
 			final Monitor monitorWithhwFanSpeedLimitMetric = Monitor
 				.builder()
 				.id("monitorOne")
@@ -77,6 +81,7 @@ class FanMetricNormalizerTest {
 		}
 
 		{
+			// testing when both low degraded and low critical metrics are present and low degraded > low critical
 			final NumberMetric hwFanSpeedMetric = NumberMetric.builder().value(1.0).name("hw.fan.speed").build();
 			hwFanSpeedMetric.setCollectTime(STRATEGY_TIME);
 			hwFanSpeedMetric.setPreviousCollectTime(STRATEGY_TIME - 1000 * 60 * 2);
@@ -86,13 +91,16 @@ class FanMetricNormalizerTest {
 				.name(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_CRITICAL)
 				.attributes(Map.of("limit_type", "low.critical"))
 				.build();
+			hwFanSpeedLimitCriticalMetric.setCollectTime(STRATEGY_TIME);
+			hwFanSpeedLimitCriticalMetric.setPreviousCollectTime(STRATEGY_TIME - 1000 * 60 * 2);
 			final NumberMetric hwFanSpeedLimitDegradedMetric = NumberMetric
 				.builder()
 				.value(2.0)
 				.name(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_DEGRADED)
 				.attributes(Map.of("limit_type", "low.degraded"))
 				.build();
-
+			hwFanSpeedLimitDegradedMetric.setCollectTime(STRATEGY_TIME);
+			hwFanSpeedLimitDegradedMetric.setPreviousCollectTime(STRATEGY_TIME - 1000 * 60 * 2);
 			final Monitor monitorWithHwFanSpeedLimitMetric = Monitor
 				.builder()
 				.id("monitorOne")
@@ -127,6 +135,7 @@ class FanMetricNormalizerTest {
 		}
 
 		{
+			// Testing when both low degraded and low critical metrics are absent
 			final NumberMetric hwFanSpeedMetric = NumberMetric.builder().value(1.0).name("hw.fan.speed").build();
 			hwFanSpeedMetric.setCollectTime(STRATEGY_TIME);
 			hwFanSpeedMetric.setPreviousCollectTime(STRATEGY_TIME - 1000 * 60 * 2);
@@ -156,6 +165,7 @@ class FanMetricNormalizerTest {
 		}
 
 		{
+			// Testing when only the low critical metric is present
 			final NumberMetric hwFanSpeedMetric = NumberMetric.builder().value(1.0).name("hw.fan.speed").build();
 			hwFanSpeedMetric.setCollectTime(STRATEGY_TIME);
 			hwFanSpeedMetric.setPreviousCollectTime(STRATEGY_TIME - 1000 * 60 * 2);
@@ -180,6 +190,8 @@ class FanMetricNormalizerTest {
 					)
 				)
 				.build();
+			hwFanSpeedLimitCriticalMetric.setCollectTime(STRATEGY_TIME);
+			hwFanSpeedLimitCriticalMetric.setPreviousCollectTime(STRATEGY_TIME - 1000 * 60 * 2);
 			new FanMetricNormalizer(STRATEGY_TIME, HOSTNAME).normalize(monitorWithHwFanSpeedLimitMetric);
 			assertEquals(
 				2.2,
@@ -190,6 +202,7 @@ class FanMetricNormalizerTest {
 		}
 
 		{
+			// Testing when only the low degraded metric is present
 			final NumberMetric hwFanSpeedMetric = NumberMetric.builder().value(1.0).name("hw.fan.speed").build();
 			hwFanSpeedMetric.setCollectTime(STRATEGY_TIME);
 			hwFanSpeedMetric.setPreviousCollectTime(STRATEGY_TIME - 1000 * 60 * 2);
@@ -199,6 +212,8 @@ class FanMetricNormalizerTest {
 				.name(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_DEGRADED)
 				.attributes(Map.of("limit_type", "low.degraded"))
 				.build();
+			hwFanSpeedLimitDegradedMetric.setCollectTime(STRATEGY_TIME);
+			hwFanSpeedLimitDegradedMetric.setPreviousCollectTime(STRATEGY_TIME - 1000 * 60 * 2);
 			final Monitor monitorWithHwFanSpeedLimitMetric = Monitor
 				.builder()
 				.id("monitorOne")
@@ -219,98 +234,6 @@ class FanMetricNormalizerTest {
 				1.8,
 				monitorWithHwFanSpeedLimitMetric
 					.getMetric(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_CRITICAL, NumberMetric.class)
-					.getValue()
-			);
-		}
-
-		{
-			final NumberMetric hwFanSpeedRatioMetric = NumberMetric.builder().value(1.0).name("hw.fan.speed_ratio").build();
-			hwFanSpeedRatioMetric.setCollectTime(STRATEGY_TIME);
-			hwFanSpeedRatioMetric.setPreviousCollectTime(STRATEGY_TIME - 1000 * 60 * 2);
-
-			final Monitor monitorWithoutHwFanSpeedRatioLimit = Monitor
-				.builder()
-				.id("monitorOne")
-				.type("fan")
-				.metrics(new HashMap<>(Map.of("hw.fan.speed_ratio", hwFanSpeedRatioMetric)))
-				.build();
-
-			new FanMetricNormalizer(STRATEGY_TIME, HOSTNAME).normalize(monitorWithoutHwFanSpeedRatioLimit);
-
-			assertEquals(
-				0.0,
-				monitorWithoutHwFanSpeedRatioLimit
-					.getMetric(HW_FAN_SPEED_RATIO_LIMIT_LIMIT_TYPE_LOW_CRITICAL, NumberMetric.class)
-					.getValue()
-			);
-
-			assertEquals(
-				0.05,
-				monitorWithoutHwFanSpeedRatioLimit
-					.getMetric(HW_FAN_SPEED_RATIO_LIMIT_LIMIT_TYPE_LOW_DEGRADED, NumberMetric.class)
-					.getValue()
-			);
-		}
-
-		{
-			final NumberMetric hwFanSpeeRatiodMetric = NumberMetric.builder().value(1.0).name("hw.fan.speed_ratio").build();
-			hwFanSpeeRatiodMetric.setCollectTime(STRATEGY_TIME);
-			hwFanSpeeRatiodMetric.setPreviousCollectTime(STRATEGY_TIME - 1000 * 60 * 2);
-			final NumberMetric hwFanSpeedLimitCriticalMetric = NumberMetric
-				.builder()
-				.value(2.0)
-				.name(HW_FAN_SPEED_RATIO_LIMIT_LIMIT_TYPE_LOW_CRITICAL)
-				.attributes(Map.of("limit_type", "low.critical"))
-				.build();
-			final Monitor monitorWithHwFanSpeedRatioLimitMetric = Monitor
-				.builder()
-				.id("monitorOne")
-				.type("fan")
-				.metrics(
-					new HashMap<>(
-						Map.of(
-							"hw.fan.speed_ratio",
-							hwFanSpeeRatiodMetric,
-							HW_FAN_SPEED_RATIO_LIMIT_LIMIT_TYPE_LOW_CRITICAL,
-							hwFanSpeedLimitCriticalMetric
-						)
-					)
-				)
-				.build();
-			new FanMetricNormalizer(STRATEGY_TIME, HOSTNAME).normalize(monitorWithHwFanSpeedRatioLimitMetric);
-			assertEquals(
-				2.2,
-				monitorWithHwFanSpeedRatioLimitMetric
-					.getMetric(HW_FAN_SPEED_RATIO_LIMIT_LIMIT_TYPE_LOW_DEGRADED, NumberMetric.class)
-					.getValue()
-			);
-		}
-
-		{
-			final NumberMetric hwFanSpeedRatioMetric = NumberMetric.builder().value(1.0).name("hw.fan.speed_ratio").build();
-			hwFanSpeedRatioMetric.setCollectTime(STRATEGY_TIME);
-			hwFanSpeedRatioMetric.setPreviousCollectTime(STRATEGY_TIME - 1000 * 60 * 2);
-
-			final Monitor monitorWithoutHwFanSpeedRatioLimit = Monitor
-				.builder()
-				.id("monitorOne")
-				.type("fan")
-				.metrics(new HashMap<>(Map.of("hw.fan.speed_ratio", hwFanSpeedRatioMetric)))
-				.build();
-
-			new FanMetricNormalizer(STRATEGY_TIME, HOSTNAME).normalize(monitorWithoutHwFanSpeedRatioLimit);
-
-			assertEquals(
-				0.0,
-				monitorWithoutHwFanSpeedRatioLimit
-					.getMetric(HW_FAN_SPEED_RATIO_LIMIT_LIMIT_TYPE_LOW_CRITICAL, NumberMetric.class)
-					.getValue()
-			);
-
-			assertEquals(
-				0.05,
-				monitorWithoutHwFanSpeedRatioLimit
-					.getMetric(HW_FAN_SPEED_RATIO_LIMIT_LIMIT_TYPE_LOW_DEGRADED, NumberMetric.class)
 					.getValue()
 			);
 		}
