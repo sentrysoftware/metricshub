@@ -38,7 +38,11 @@ public class SnmpGetNextCriterionProcessorTest {
 		snmpGetNextCriterionProcessor = new SnmpGetNextCriterionProcessor(snmpRequestExecutor, configurationRetriever);
 	}
 
-	// Utility method to create the telemetryManager
+	/**
+	 * Utility method to create a telemetryManager
+	 * 
+	 * @return a configured telemetryManager instance
+	 */
 	private TelemetryManager createTelemetryManagerWithHostConfiguration() {
 		HostConfiguration hostConfiguration = HostConfiguration
 			.builder()

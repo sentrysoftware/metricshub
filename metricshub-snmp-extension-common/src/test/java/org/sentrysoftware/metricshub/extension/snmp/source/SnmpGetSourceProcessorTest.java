@@ -89,7 +89,11 @@ class SnmpGetSourceProcessorTest {
 		assertEquals("result", result.getTable().get(0).get(0));
 	}
 
-	// Utility method to create a telemetryManager
+	/**
+	 * Utility method to create a telemetryManager
+	 * 
+	 * @return a configured telemetryManager instance
+	 */
 	private TelemetryManager createTelemetryManagerWithHostConfiguration() {
 		HostConfiguration hostConfiguration = HostConfiguration
 			.builder()

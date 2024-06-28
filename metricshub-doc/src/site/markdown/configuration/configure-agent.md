@@ -887,9 +887,10 @@ Timeouts, durations and periods are specified with the below format:
 
 By default, the `host.name` attribute is used as:
 1. The hostname or IP address of the resource
-2. A hostname on each metric in Prometheus.
+2. The hostname of each OpenTelemetry metric attached to the host resource.
 
-If the `hostname` parameter is specified in the protocol configuration, it overrides the `host.name` attribute for client requests. The `host.name` will be used only as a metric hostname in Prometheus.
+
+If the hostname parameter is specified in the protocol configuration, it overrides the host.name attribute for client requests. The host.name will be used only as a metric attribute.
 
 ### Example
 ```yaml
