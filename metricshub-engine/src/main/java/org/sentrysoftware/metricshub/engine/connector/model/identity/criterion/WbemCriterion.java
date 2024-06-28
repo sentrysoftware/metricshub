@@ -28,8 +28,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
-import org.sentrysoftware.metricshub.engine.strategy.detection.ICriterionProcessor;
 
 /**
  * Represents a detection criterion based on Wbem queries.
@@ -80,10 +78,5 @@ public class WbemCriterion extends WqlCriterion {
 	@Override
 	public String toString() {
 		return super.toString();
-	}
-
-	@Override
-	public CriterionTestResult accept(ICriterionProcessor criterionProcessor) {
-		return criterionProcessor.process(this);
 	}
 }
