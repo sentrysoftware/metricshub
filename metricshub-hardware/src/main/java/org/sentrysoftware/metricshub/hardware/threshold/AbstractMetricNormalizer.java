@@ -82,7 +82,7 @@ public abstract class AbstractMetricNormalizer {
 	 * @param metricNamePrefix The prefix of the metric name to check for.
 	 * @return true if a metric with a given metricNamePrefix is collected, false otherwise.
 	 */
-	private boolean isMetricCollected(final Monitor monitor, final String metricNamePrefix) {
+	protected boolean isMetricCollected(final Monitor monitor, final String metricNamePrefix) {
 		return monitor
 			.getMetrics()
 			.values()
@@ -94,7 +94,7 @@ public abstract class AbstractMetricNormalizer {
 				// CHECKSTYLE:OFF
 				return (
 					metricNamePrefix.equals(currentMetricNamePrefix) &&
-					(metricAttributes.isEmpty() || monitor.getType().equals(metricAttributes.get("hw.type"))) &&
+					(!metricAttributes.containsKey("hw.type") || monitor.getType().equals(metricAttributes.get("hw.type"))) &&
 					metric.isUpdated()
 				);
 				// CHECKSTYLE:ON
@@ -123,6 +123,7 @@ public abstract class AbstractMetricNormalizer {
 			.filter(metric -> {
 				// Extract the metric name prefix and check if the metric attributes are contained in the given attributes
 				final boolean result =
+					metric.isUpdated() &&
 					metricNamePrefix.equals(MetricFactory.extractName(metric.getName())) &&
 					containsAllEntries(metric.getAttributes(), metricAttributes);
 
@@ -166,7 +167,7 @@ public abstract class AbstractMetricNormalizer {
 		);
 
 		// If both the degraded and critical metrics are not available, create a critical metric with the value 1
-		if (!maybeDegradedMetric.isPresent() && !maybeCriticalMetric.isPresent()) {
+		if (maybeDegradedMetric.isEmpty() && maybeCriticalMetric.isEmpty()) {
 			final MetricFactory metricFactory = new MetricFactory(hostname);
 			metricFactory.collectNumberMetric(
 				monitor,
@@ -178,16 +179,36 @@ public abstract class AbstractMetricNormalizer {
 			// If both the degraded and critical metrics are available, adjust the values
 			final NumberMetric degradedMetric = maybeDegradedMetric.get();
 			final NumberMetric criticalMetric = maybeCriticalMetric.get();
-
-			final Double degradedValue = degradedMetric.getValue();
-			final Double criticalValue = criticalMetric.getValue();
-
-			// If the degraded value is greater than the critical value, swap the values
-			if (degradedValue > criticalValue) {
-				final Double temp = degradedValue;
-				degradedMetric.setValue(criticalValue);
-				criticalMetric.setValue(temp);
-			}
+			adjustMetricsIfNecessary(criticalMetric, degradedMetric);
 		}
+	}
+
+	/**
+	 * Adjusts the values of degraded and critical metrics if necessary.
+	 * If the critical value is smaller than the degraded value, their values are swapped.
+	 *
+	 * @param criticalMetric The critical metric
+	 * @param degradedMetric The degraded metric
+	 */
+	private void adjustMetricsIfNecessary(final NumberMetric criticalMetric, final NumberMetric degradedMetric) {
+		final Double degradedValue = degradedMetric.getValue();
+		final Double criticalValue = criticalMetric.getValue();
+
+		if (criticalValue < degradedValue) {
+			degradedMetric.setValue(criticalValue);
+			criticalMetric.setValue(degradedValue);
+		}
+	}
+
+	/**
+	 * Collect a metric using a given metric name and a given value.
+	 *
+	 * @param monitor The monitor to collect the metric
+	 * @param metricName The metric name
+	 * @param value The value of the metric
+	 */
+	protected void collectMetric(final Monitor monitor, final String metricName, final Double value) {
+		final MetricFactory metricFactory = new MetricFactory(hostname);
+		metricFactory.collectNumberMetric(monitor, metricName, value, strategyTime);
 	}
 }

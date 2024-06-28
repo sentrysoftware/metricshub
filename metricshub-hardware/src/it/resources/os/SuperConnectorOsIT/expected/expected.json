@@ -1152,6 +1152,32 @@
         "type" : "NumberMetric",
         "updated" : true
       },
+      "hw.fan.speed.limit{limit_type=\"low.critical\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.critical\"}",
+        "collectTime" : 1719416516433,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "limit_type" : "low.critical"
+        },
+        "resetMetricTime" : false,
+        "value" : 0.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed.limit{limit_type=\"low.degraded\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.degraded\"}",
+        "collectTime" : 1719416516433,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "limit_type" : "low.degraded"
+        },
+        "resetMetricTime" : false,
+        "value" : 500.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
       "hw.status{hw.type=\"fan\", state=\"present\"}" : {
         "name" : "hw.status{hw.type=\"fan\", state=\"present\"}",
         "collectTime" : 1715961673910,
@@ -1171,6 +1197,32 @@
         "collectTime" : 1715961673910,
         "previousCollectTime" : null,
         "attributes" : { },
+        "resetMetricTime" : false,
+        "value" : 0.05,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed_ratio.limit{limit_type=\"low.critical\"}" : {
+        "name" : "hw.fan.speed_ratio.limit{limit_type=\"low.critical\"}",
+        "collectTime" : 1719416516433,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "limit_type" : "low.critical"
+        },
+        "resetMetricTime" : false,
+        "value" : 0.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed_ratio.limit{limit_type=\"low.degraded\"}" : {
+        "name" : "hw.fan.speed_ratio.limit{limit_type=\"low.degraded\"}",
+        "collectTime" : 1719416516433,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "limit_type" : "low.degraded"
+        },
         "resetMetricTime" : false,
         "value" : 0.05,
         "previousValue" : null,
@@ -1238,6 +1290,32 @@
         "type" : "NumberMetric",
         "updated" : true
       },
+      "hw.fan.speed.limit{limit_type=\"low.critical\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.critical\"}",
+        "collectTime" : 1719416516433,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "limit_type" : "low.critical"
+        },
+        "resetMetricTime" : false,
+        "value" : 0.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed.limit{limit_type=\"low.degraded\"}" : {
+        "name" : "hw.fan.speed.limit{limit_type=\"low.degraded\"}",
+        "collectTime" : 1719416516433,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "limit_type" : "low.degraded"
+        },
+        "resetMetricTime" : false,
+        "value" : 500.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
       "hw.status{hw.type=\"fan\", state=\"present\"}" : {
         "name" : "hw.status{hw.type=\"fan\", state=\"present\"}",
         "collectTime" : 1715961673910,
@@ -1259,6 +1337,32 @@
         "attributes" : { },
         "resetMetricTime" : false,
         "value" : 0.98,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed_ratio.limit{limit_type=\"low.critical\"}" : {
+        "name" : "hw.fan.speed_ratio.limit{limit_type=\"low.critical\"}",
+        "collectTime" : 1719416516433,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "limit_type" : "low.critical"
+        },
+        "resetMetricTime" : false,
+        "value" : 0.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.fan.speed_ratio.limit{limit_type=\"low.degraded\"}" : {
+        "name" : "hw.fan.speed_ratio.limit{limit_type=\"low.degraded\"}",
+        "collectTime" : 1719416516433,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "limit_type" : "low.degraded"
+        },
+        "resetMetricTime" : false,
+        "value" : 0.05,
         "previousValue" : null,
         "type" : "NumberMetric",
         "updated" : true
