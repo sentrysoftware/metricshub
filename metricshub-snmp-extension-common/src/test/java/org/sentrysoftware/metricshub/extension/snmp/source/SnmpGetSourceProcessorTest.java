@@ -91,7 +91,7 @@ class SnmpGetSourceProcessorTest {
 
 	/**
 	 * Utility method to create a telemetryManager
-	 * 
+	 *
 	 * @return a configured telemetryManager instance
 	 */
 	private TelemetryManager createTelemetryManagerWithHostConfiguration() {
