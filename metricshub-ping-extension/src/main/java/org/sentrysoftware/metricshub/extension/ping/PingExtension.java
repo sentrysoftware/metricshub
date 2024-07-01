@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -81,12 +82,6 @@ public class PingExtension implements IProtocolExtension {
 
 	@Override
 	public Optional<Boolean> checkProtocol(TelemetryManager telemetryManager) {
-		// Retrieve the hostname
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		// Create and set the Ping result to null
-		boolean pingResult = false;
-
 		// Retrieve Ping configuration from the telemetry manager
 		final PingConfiguration pingConfiguration = (PingConfiguration) telemetryManager
 			.getHostConfiguration()
@@ -97,6 +92,12 @@ public class PingExtension implements IProtocolExtension {
 		if (pingConfiguration == null) {
 			return Optional.empty();
 		}
+
+		// Retrieve the hostname from the PingConfiguration, otherwise from the telemetryManager
+		final String hostname = telemetryManager.getHostname(List.of(PingConfiguration.class));
+
+		// Create and set the Ping result to null
+		boolean pingResult = false;
 
 		log.info("Hostname {} - Performing {} protocol health check.", hostname, getIdentifier());
 		log.info("Hostname {} - Checking Ping protocol status. Sending a ping to '/'.", hostname);

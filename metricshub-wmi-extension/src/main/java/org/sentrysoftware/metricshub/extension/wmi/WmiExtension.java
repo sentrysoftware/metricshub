@@ -123,9 +123,6 @@ public class WmiExtension implements IProtocolExtension {
 		// Create and set the WMI result to null
 		List<List<String>> wmiResult = null;
 
-		// Retrieve the hostname
-		final String hostname = telemetryManager.getHostname();
-
 		// Retrieve WMI Configuration from the telemetry manager host configuration
 		final WmiConfiguration wmiConfiguration = (WmiConfiguration) telemetryManager
 			.getHostConfiguration()
@@ -136,6 +133,9 @@ public class WmiExtension implements IProtocolExtension {
 		if (wmiConfiguration == null) {
 			return Optional.empty();
 		}
+
+		// Retrieve the hostname from the WmiConfiguration, otherwise from the telemetryManager
+		final String hostname = telemetryManager.getHostname(List.of(WmiConfiguration.class));
 
 		log.info("Hostname {} - Performing {} protocol health check.", hostname, getIdentifier());
 		log.info(

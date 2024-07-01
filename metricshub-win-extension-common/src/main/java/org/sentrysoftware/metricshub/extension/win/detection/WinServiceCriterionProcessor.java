@@ -23,6 +23,7 @@ package org.sentrysoftware.metricshub.extension.win.detection;
 
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.TABLE_SEP;
 
+import java.util.List;
 import java.util.function.Function;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -90,7 +91,8 @@ public class WinServiceCriterionProcessor {
 			return CriterionTestResult.success(serviceCriterion, "Service name is not specified. Skipping this test.");
 		}
 
-		final String hostname = telemetryManager.getHostname();
+		// Retrieve the hostname from the IWinConfiguration, otherwise from the telemetryManager
+		final String hostname = telemetryManager.getHostname(List.of(winConfiguration.getClass()));
 
 		// Build a new WMI criterion to check the service existence
 		final WmiCriterion serviceWmiCriterion = WmiCriterion

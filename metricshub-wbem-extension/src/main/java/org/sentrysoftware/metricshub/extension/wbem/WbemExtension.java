@@ -103,8 +103,8 @@ public class WbemExtension implements IProtocolExtension {
 
 	@Override
 	public Optional<Boolean> checkProtocol(TelemetryManager telemetryManager) {
-		// Retrieve the hostname
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		// Retrieve the hostname from the WbemConfiguration, otherwise from the telemetryManager.
+		final String hostname = telemetryManager.getHostname(List.of(WbemConfiguration.class));
 
 		// Create and set the WBEM result to null
 		List<List<String>> wbemResult = null;
