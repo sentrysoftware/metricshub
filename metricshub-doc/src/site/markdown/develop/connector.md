@@ -217,6 +217,7 @@ monitors:
             concatMethod: # onOf [ <enum>, <object> ] | possible values for <enum> : [ list, json_array, json_array_extended ]
               concatStart: # <string>
               concatEnd: # <string>
+              isJsonArray: # <boolean>
           computes: # <compute-object-array>
         # Ipmi Source
         <ipmi-sourceKey>: # <source-object>
@@ -241,6 +242,7 @@ monitors:
             concatMethod: # onOf [ <enum>, <object> ] | possible values for <enum> : [ list, json_array, json_array_extended ]
               concatStart: # <string>
               concatEnd: # <string>
+              isJsonArray: # <boolean>
           computes: # <compute-object-array>
         # Copy Source
         <copy-sourceKey>: # <source-object>
@@ -262,6 +264,7 @@ monitors:
             concatMethod: # onOf [ <enum>, <object> ] | possible values for <enum> : [ list, json_array, json_array_extended ]
               concatStart: # <string>
               concatEnd: # <string>
+              isJsonArray: # <boolean>
           computes: # <compute-object-array>
         <snmpTable-sourceKey>: # <source-object>
           type: snmpTable
@@ -273,6 +276,7 @@ monitors:
             concatMethod: # onOf [ <enum>, <object> ] | possible values for <enum> : [ list, json_array, json_array_extended ]
               concatStart: # <string>
               concatEnd: # <string>
+              isJsonArray: # <boolean>
           computes: # <compute-object-array>
         # TableJoin Source
         <tableJoin-sourceKey>: # <source-object>
@@ -304,6 +308,7 @@ monitors:
             concatMethod: # onOf [ <enum>, <object> ] | possible values for <enum> : [ list, json_array, json_array_extended ]
               concatStart: # <string>
               concatEnd: # <string>
+              isJsonArray: # <boolean>
           computes: <compute-object-array>
         # Wbem Source
         <wbem-sourceKey>: # <source-object>
@@ -316,6 +321,7 @@ monitors:
             concatMethod: # onOf [ <enum>, <object> ] | possible values for <enum> : [ list, json_array, json_array_extended ]
               concatStart: # <string>
               concatEnd: # <string>
+              isJsonArray: # <boolean>
           computes: <compute-object-array>
         # Wmi Source
         <wmi-sourceKey>: # <source-object>
@@ -328,6 +334,7 @@ monitors:
             concatMethod: # onOf [ <enum>, <object> ] | possible values for <enum> : [ list, json_array, json_array_extended ]
               concatStart: # <string>
               concatEnd: # <string>
+              isJsonArray: # <boolean>
           computes: <compute-object-array>
         # SQL Source
         <sql-sourceKey>: # <source-object>
