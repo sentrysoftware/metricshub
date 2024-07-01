@@ -74,6 +74,8 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 	private char[] password;
 	private int[] retryIntervals;
 
+	private String hostname;
+
 	@Override
 	public String toString() {
 		String description = "SNMP V3";
