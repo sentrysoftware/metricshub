@@ -190,7 +190,7 @@ public abstract class AbstractMetricNormalizer {
 	 * @param criticalMetric The critical metric
 	 * @param degradedMetric The degraded metric
 	 */
-	private void adjustMetricsIfNecessary(final NumberMetric criticalMetric, final NumberMetric degradedMetric) {
+	protected void adjustMetricsIfNecessary(final NumberMetric criticalMetric, final NumberMetric degradedMetric) {
 		final Double degradedValue = degradedMetric.getValue();
 		final Double criticalValue = criticalMetric.getValue();
 
