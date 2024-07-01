@@ -93,7 +93,6 @@
 
 		<menu name="Troubleshooting">
 			<item name="Debugging" href="troubleshooting/debug.html" />
-			<item name="Solving Minor Setbacks" href="troubleshooting/solving.html" />
 			<item name="MetricsHub CLI (&lt;code&gt;metricshub&lt;/code&gt;)" href="troubleshooting/cli.html" />
 		</menu>
 
