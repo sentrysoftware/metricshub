@@ -83,7 +83,14 @@
 			<item name="Getting Started - Windows" href="getting-started-windows.html "/>
 			<item name="Getting Started - Linux" href="getting-started-linux.html "/>
 			<item name="General Concepts" href="concepts.html "/>
-			<item name="Installation" href="install.html" />
+		</menu>
+
+		<menu name="Install">
+			<item name="Overview" href="install/index.html "/>
+			<item name="On Debian Linux" href="install/debian-linux.html "/>
+			<item name="On Docker" href="install/docker.html "/>
+			<item name="On Red Hat Enteprise Linux" href="install/redhat-linux.html "/>
+			<item name="On Windows" href="install/windows.html "/>
 		</menu>
 
 		<menu name="Configuration">
