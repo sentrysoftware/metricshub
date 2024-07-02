@@ -62,9 +62,10 @@ public class SshConfiguration extends OsCommandConfiguration {
 		Long timeout,
 		String username,
 		char[] password,
-		String privateKey
+		String privateKey,
+		String hostname
 	) {
-		super(useSudo, useSudoCommands, sudoCommand, timeout);
+		super(useSudo, useSudoCommands, sudoCommand, timeout, hostname);
 		this.username = username;
 		this.password = password;
 		this.privateKey = privateKey;

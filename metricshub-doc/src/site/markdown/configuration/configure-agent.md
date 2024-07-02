@@ -142,13 +142,14 @@ where
 
 Use the parameters below to configure the HTTP protocol:
 
-| Parameter  | Description                                                                    |
-|------------|--------------------------------------------------------------------------------|
-| http       | Protocol used to access the host.                                              |
-| port       | The HTTPS port number used to perform HTTP requests (Default: 443).            |
-| username   | Name used to establish the connection with the host via the HTTP protocol.     |
-| password   | Password used to establish the connection with the host via the HTTP protocol. |
-| timeout    | How long until the HTTP request times out (Default: 60s).                      |
+| Parameter  | Description                                                                                       |
+|------------|-------------------------------------------------------------------------------------------------- |
+| http       | Protocol used to access the host.                                                                 |
+| hostname   | The name or IP address of the resource. If not specified, the `host.name` attribute will be used. |
+| port       | The HTTPS port number used to perform HTTP requests (Default: 443).                               |
+| username   | Name used to establish the connection with the host via the HTTP protocol.                        |
+| password   | Password used to establish the connection with the host via the HTTP protocol.                    |
+| timeout    | How long until the HTTP request times out (Default: 60s).                                         |
 
 **Example**
 
@@ -173,11 +174,12 @@ resourceGroups:
 
 Use the parameters below to configure the IPMI protocol:
 
-| Parameter | Description                                                                    |
-| --------- | ------------------------------------------------------------------------------ |
-| ipmi      | Protocol used to access the host.                                              |
-| username  | Name used to establish the connection with the host via the IPMI protocol.     |
-| password  | Password used to establish the connection with the host via the IPMI protocol. |
+| Parameter | Description                                                                                       |
+| --------- | ------------------------------------------------------------------------------------------------- |
+| ipmi      | Protocol used to access the host.                                                                 |
+| hostname  | The name or IP address of the resource. If not specified, the `host.name` attribute will be used. |
+| username  | Name used to establish the connection with the host via the IPMI protocol.                        |
+| password  | Password used to establish the connection with the host via the IPMI protocol.                    |
 
 **Example**
 
@@ -199,13 +201,14 @@ resourceGroups:
 
 Use the parameters below to configure OS Commands that are executed locally:
 
-| Parameter       | Description                                                                           |
-| --------------- | ------------------------------------------------------------------------------------- |
-| osCommand       | Protocol used to access the host.                                                     |
-| timeout         | How long until the local OS Commands time out (Default: 120s).                        |
-| useSudo         | Whether sudo is used or not for the local OS Command: true or false (Default: false). |
-| useSudoCommands | List of commands for which sudo is required.                                          |
-| sudoCommand     | Sudo command to be used (Default: sudo).                                              |
+| Parameter       | Description                                                                                       |
+| --------------- | ------------------------------------------------------------------------------------------------- |
+| osCommand       | Protocol used to access the host.                                                                 |
+| hostname        | The name or IP address of the resource. If not specified, the `host.name` attribute will be used. |
+| timeout         | How long until the local OS Commands time out (Default: 120s).                                    |
+| useSudo         | Whether sudo is used or not for the local OS Command: true or false (Default: false).             |
+| useSudoCommands | List of commands for which sudo is required.                                                      |
+| sudoCommand     | Sudo command to be used (Default: sudo).                                                          |
 
 **Example**
 
@@ -229,10 +232,11 @@ resourceGroups:
 
 Use the parameter below to configure the ICMP ping protocol:
 
-| Parameter       | Description                                                |
-| --------------- | ---------------------------------------------------------- |
-| ping            | Protocol used to test the host reachability through ICMP.  |
-| timeout         | How long until the ping command times out (Default: 5s).   |
+| Parameter       | Description                                                                                       |
+| --------------- | ------------------------------------------------------------------------------------------------- |
+| hostname        | The name or IP address of the resource. If not specified, the `host.name` attribute will be used. |
+| ping            | Protocol used to test the host reachability through ICMP.                                         |
+| timeout         | How long until the ping command times out (Default: 5s).                                          |
 
 **Example**
 
@@ -253,16 +257,17 @@ resourceGroups:
 
 Use the parameters below to configure the SSH protocol:
 
-| Parameter       | Description                                                                               |
-| --------------- | ----------------------------------------------------------------------------------------- |
-| ssh             | Protocol used to access the host.                                                         |
-| timeout         | How long until the command times out (Default: 120s).                                     |
-| useSudo         | Whether sudo is used or not for the SSH Command (true or false).                          |
-| useSudoCommands | List of commands for which sudo is required.                                              |
-| sudoCommand     | Sudo command to be used (Default: sudo).                                                  |
-| username        | Name to use for performing the SSH query.                                                 |
-| password        | Password to use for performing the SSH query.                                             |
-| privateKey      | Private Key File to use to establish the connection to the host through the SSH protocol. |
+| Parameter       | Description                                                                                       |
+| --------------- | ------------------------------------------------------------------------------------------------- |
+| ssh             | Protocol used to access the host.                                                                 |
+| hostname        | The name or IP address of the resource. If not specified, the `host.name` attribute will be used. |
+| timeout         | How long until the command times out (Default: 120s).                                             |
+| useSudo         | Whether sudo is used or not for the SSH Command (true or false).                                  |
+| useSudoCommands | List of commands for which sudo is required.                                                      |
+| sudoCommand     | Sudo command to be used (Default: sudo).                                                          |
+| username        | Name to use for performing the SSH query.                                                         |
+| password        | Password to use for performing the SSH query.                                                     |
+| privateKey      | Private Key File to use to establish the connection to the host through the SSH protocol.         |
 
 **Example**
 
@@ -290,13 +295,14 @@ resourceGroups:
 
 Use the parameters below to configure the SNMP protocol:
 
-| Parameter        | Description                                                                    |
-| ---------------- | ------------------------------------------------------------------------------ |
-| snmp             | Protocol used to access the host.                                              |
-| version          | The version of the SNMP protocol (v1, v2c).                                    |
-| community        | The SNMP Community string to use to perform SNMP v1 queries (Default: public). |
-| port             | The SNMP port number used to perform SNMP queries (Default: 161).              |
-| timeout          | How long until the SNMP request times out (Default: 120s).                     |
+| Parameter        | Description                                                                                       |
+| ---------------- | ------------------------------------------------------------------------------------------------- |
+| snmp             | Protocol used to access the host.                                                                 |
+| hostname         | The name or IP address of the resource. If not specified, the `host.name` attribute will be used. |
+| version          | The version of the SNMP protocol (v1, v2c).                                                       |
+| community        | The SNMP Community string to use to perform SNMP v1 queries (Default: public).                    |
+| port             | The SNMP port number used to perform SNMP queries (Default: 161).                                 |
+| timeout          | How long until the SNMP request times out (Default: 120s).                                        |
 
 **Example**
 
@@ -334,6 +340,7 @@ Use the parameters below to configure the SNMP version 3 protocol:
 | Parameter        | Description                                                                                          |
 | ---------------- | ---------------------------------------------------------------------------------------------------- |
 | snmpv3           | Protocol used to access the host using SNMP version 3.                                               |
+| hostname         | The name or IP address of the resource. If not specified, the `host.name` attribute will be used.    |
 | timeout          | How long until the SNMP request times out (Default: 120s).                                           |
 | port             | The SNMP port number used to perform SNMP version 3 queries (Default: 161).                          |
 | contextName      | The name of the SNMP version 3 context, used to identify the collection of management information.   |
@@ -371,15 +378,16 @@ resourceGroups:
 
 Use the parameters below to configure the WBEM protocol:
 
-| Parameter | Description                                                                                    |
-| --------- | ---------------------------------------------------------------------------------------------- |
-| wbem      | Protocol used to access the host.                                                              |
-| protocol  | The protocol used to access the host.                                                          |
-| port      | The HTTPS port number used to perform WBEM queries (Default: 5989 for HTTPS or 5988 for HTTP). |
-| timeout   | How long until the WBEM request times out (Default: 120s).                                     |
-| username  | Name used to establish the connection with the host via the WBEM protocol.                     |
-| password  | Password used to establish the connection with the host via the WBEM protocol.                 |
-| vcenter   | vCenter hostname providing the authentication ticket, if applicable.                           |
+| Parameter | Description                                                                                       |
+| --------- | ------------------------------------------------------------------------------------------------- |
+| wbem      | Protocol used to access the host.                                                                 |
+| hostname  | The name or IP address of the resource. If not specified, the `host.name` attribute will be used. |
+| protocol  | The protocol used to access the host.                                                             |
+| port      | The HTTPS port number used to perform WBEM queries (Default: 5989 for HTTPS or 5988 for HTTP).    |
+| timeout   | How long until the WBEM request times out (Default: 120s).                                        |
+| username  | Name used to establish the connection with the host via the WBEM protocol.                        |
+| password  | Password used to establish the connection with the host via the WBEM protocol.                    |
+| vcenter   | vCenter hostname providing the authentication ticket, if applicable.                              |
 
 **Example**
 
@@ -404,12 +412,13 @@ resourceGroups:
 
 Use the parameters below to configure the WMI protocol:
 
-| Parameter | Description                                                                   |
-| --------- | ----------------------------------------------------------------------------- |
-| wmi       | Protocol used to access the host.                                             |
-| timeout   | How long until the WMI request times out (Default: 120s).                     |
-| username  | Name used to establish the connection with the host via the WMI protocol.     |
-| password  | Password used to establish the connection with the host via the WMI protocol. |
+| Parameter | Description                                                                                       |
+| --------- | ------------------------------------------------------------------------------------------------- |
+| wmi       | Protocol used to access the host.                                                                 |
+| hostname  | The name or IP address of the resource. If not specified, the `host.name` attribute will be used. |
+| timeout   | How long until the WMI request times out (Default: 120s).                                         |
+| username  | Name used to establish the connection with the host via the WMI protocol.                         |
+| password  | Password used to establish the connection with the host via the WMI protocol.                     |
 
 **Example**
 
@@ -435,6 +444,7 @@ Use the parameters below to configure the WinRM protocol:
 | Parameter       | Description                                                                                          |
 | --------------- | ---------------------------------------------------------------------------------------------------- |
 | winrm           | Protocol used to access the host.                                                                    |
+| hostname        | The name or IP address of the resource. If not specified, the `host.name` attribute will be used.    |
 | timeout         | How long until the WinRM request times out (Default: 120s).                                          |
 | username        | Name used to establish the connection with the host via the WinRM protocol.                          |
 | password        | Password used to establish the connection with the host via the WinRM protocol.                      |
@@ -872,3 +882,32 @@ Timeouts, durations and periods are specified with the below format:
 | m    | minutes                         | 90m, 1m15s       |
 | h    | hours                           | 1h, 1h30m        |
 | d    | days (based on a 24-hour day)   | 1d               |
+
+## Customise the hostname
+
+By default, the `host.name` attribute is used as:
+1. The hostname or IP address of the resource
+2. The hostname of each OpenTelemetry metric attached to the host resource.
+
+
+If the hostname parameter is specified in the protocol configuration, it overrides the host.name attribute for client requests. The host.name will be used only as a metric attribute.
+
+### Example
+```yaml
+resources:
+  myHost1:
+    attributes:
+      # `custom-hostname` will be the hostname value in the collected metrics.
+      host.name: custom-hostname
+      host.type: linux
+    protocols:
+      snmp:
+        # my-host-01 will be used to send requests to the host.
+        hostname: my-host-01
+        version: v1
+        community: public
+        port: 161
+        timeout: 1m
+```
+
+In this example, since `hostname` (my-host-01) is specified under the SNMP protocol, this will be used to send different requests to the host. Consequently, `host.name` will only be used as the hostname in the metrics.

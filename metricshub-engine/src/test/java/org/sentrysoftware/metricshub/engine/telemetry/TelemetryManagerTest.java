@@ -30,6 +30,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
+import org.sentrysoftware.metricshub.engine.configuration.OsCommandTestConfiguration;
+import org.sentrysoftware.metricshub.engine.configuration.SshTestConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetCriterion;
@@ -206,5 +208,35 @@ class TelemetryManagerTest {
 			PHYSICAL_DISK.getKey()
 		);
 		assertEquals(expectedOrder, discoveredMonitors.keySet());
+	}
+
+	@Test
+	void testGetHostname() {
+		// Create two configurations, with a different hostname each.
+		OsCommandTestConfiguration osCommandConfiguration = OsCommandTestConfiguration
+			.builder()
+			.hostname("OsCommandHostname")
+			.build();
+		SshTestConfiguration sshConfiguration = SshTestConfiguration.builder().hostname("SshHostname").build();
+		// Inject the configurations in the hostConfiguration
+		HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.hostname("TelemetryManagerHostname")
+			.configurations(
+				Map.of(OsCommandTestConfiguration.class, osCommandConfiguration, SshTestConfiguration.class, sshConfiguration)
+			)
+			.build();
+		TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
+
+		// Test that the order is maintained
+		assertEquals(
+			"SshHostname",
+			telemetryManager.getHostname(List.of(SshTestConfiguration.class, OsCommandTestConfiguration.class))
+		);
+		assertEquals(
+			"OsCommandHostname",
+			telemetryManager.getHostname(List.of(OsCommandTestConfiguration.class, SshTestConfiguration.class))
+		);
+		assertEquals("TelemetryManagerHostname", telemetryManager.getHostname(List.of()));
 	}
 }

@@ -112,7 +112,15 @@ public class DetectionStrategy extends AbstractStrategy {
 		}
 
 		// Detect if we monitor localhost then set the localhost property in the HostProperties instance
-		hostProperties.setLocalhost(NetworkHelper.isLocalhost(hostname));
+		// If one configuration's hostname is not localhost, then we are dealing with a remote host for sure!
+		// This means that remote support connector will be staged for the automatic detection.
+		hostProperties.setLocalhost(
+			hostConfiguration
+				.getConfigurations()
+				.values()
+				.stream()
+				.allMatch(config -> NetworkHelper.isLocalhost(config.getHostname()))
+		);
 
 		// Get the configured connector
 		final String configuredConnectorId = hostConfiguration.getConfiguredConnectorId();

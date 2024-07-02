@@ -309,14 +309,14 @@ public class OsCommandService {
 	 *
 	 * @param commandTimeout         The OS command timeout in seconds.
 	 * @param osCommandConfiguration The configuration specific to OS command execution.
-	 * @param configuration          The general {@link SshConfiguration} configuration.
+	 * @param sshConfiguration          The general {@link SshConfiguration} configuration.
 	 * @param defaultTimeout         The default timeout in seconds.
 	 * @return The timeout in seconds.
 	 */
 	public static long getTimeout(
 		final Long commandTimeout,
 		final OsCommandConfiguration osCommandConfiguration,
-		final IConfiguration configuration,
+		final IConfiguration sshConfiguration,
 		final long defaultTimeout
 	) {
 		if (commandTimeout != null) {
@@ -327,11 +327,11 @@ public class OsCommandService {
 			return osCommandConfiguration.getTimeout().intValue();
 		}
 
-		if (configuration == null) {
+		if (sshConfiguration == null) {
 			return defaultTimeout;
 		}
 
-		final Long timeout = ((SshConfiguration) configuration).getTimeout();
+		final Long timeout = ((SshConfiguration) sshConfiguration).getTimeout();
 
 		return timeout != null ? timeout : defaultTimeout;
 	}
@@ -400,20 +400,19 @@ public class OsCommandService {
 		@NonNull final Map<Integer, EmbeddedFile> connectorEmbeddedFiles
 	)
 		throws IOException, ClientException, InterruptedException, TimeoutException, NoCredentialProvidedException, ControlledSshException {
-		final IConfiguration configuration;
+		final IConfiguration sshConfiguration = telemetryManager
+			.getHostConfiguration()
+			.getConfigurations()
+			.get(SshConfiguration.class);
 
-		configuration = telemetryManager.getHostConfiguration().getConfigurations().get(SshConfiguration.class);
-
-		final Optional<String> maybeUsername = getUsername(configuration);
+		final Optional<String> maybeUsername = getUsername(sshConfiguration);
 
 		// If remote command and no username
 		if ((maybeUsername.isEmpty() || maybeUsername.get().isBlank()) && !isExecuteLocally && !isLocalhost) {
 			throw new NoCredentialProvidedException();
 		}
 
-		final Optional<char[]> maybePassword = getPassword(configuration);
-
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final Optional<char[]> maybePassword = getPassword(sshConfiguration);
 
 		final OsCommandConfiguration osCommandConfiguration = (OsCommandConfiguration) telemetryManager
 			.getHostConfiguration()
@@ -440,6 +439,9 @@ public class OsCommandService {
 		final String updatedUserCommand = maybeUsername
 			.map(username -> commandLine.replaceAll(toCaseInsensitiveRegex(USERNAME_MACRO), username))
 			.orElse(commandLine);
+
+		// Retrieve the hostname from the configurations, otherwise from the telemetryManager.
+		final String hostname = telemetryManager.getHostname(List.of(SshConfiguration.class, OsCommandConfiguration.class));
 
 		final String updatedHostnameCommand = updatedUserCommand.replaceAll(
 			toCaseInsensitiveRegex(HOSTNAME_MACRO),
@@ -475,7 +477,7 @@ public class OsCommandService {
 			final long timeout = getTimeout(
 				commandTimeout,
 				osCommandConfiguration,
-				configuration,
+				sshConfiguration,
 				telemetryManager.getHostConfiguration().getStrategyTimeout()
 			);
 
@@ -491,7 +493,7 @@ public class OsCommandService {
 					runSshCommand(
 						command,
 						hostname,
-						(SshConfiguration) configuration,
+						(SshConfiguration) sshConfiguration,
 						timeout,
 						new ArrayList<>(embeddedTempFiles.values()),
 						noPasswordCommand
