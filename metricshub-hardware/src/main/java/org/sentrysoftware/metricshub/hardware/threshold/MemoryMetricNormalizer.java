@@ -24,12 +24,14 @@ package org.sentrysoftware.metricshub.hardware.threshold;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 
 /**
- * TODO: Complete the Javadoc for this Class.
+ * The MemoryMetricNormalizer class is responsible for normalizing memory metrics.
+ * It extends the AbstractMetricNormalizer class to provide specific
+ * normalization logic for memory monitor hardware metrics.
  */
 public class MemoryMetricNormalizer extends AbstractMetricNormalizer {
 
 	/**
-	 * Constructs a new instance with the specified strategy time.
+	 * Constructs a new instance of MemoryMetricNormalizer with the specified strategy time.
 	 * @param strategyTime The strategy time in milliseconds
 	 * @param hostname     The hostname of the monitor
 	 */
@@ -38,8 +40,11 @@ public class MemoryMetricNormalizer extends AbstractMetricNormalizer {
 	}
 
 	/**
-	 * TODO: Complete the Javadoc for this method.
+	 * Normalizes the metrics of the given monitor.
+	 * @param monitor The monitor containing the metrics to be normalized
 	 */
 	@Override
-	public void normalize(Monitor monitor) {}
+	public void normalize(Monitor monitor) {
+		normalizeErrorsLimitMetric(monitor);
+	}
 }

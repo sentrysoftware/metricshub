@@ -32,6 +32,8 @@ import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.hardware.threshold.CpuMetricNormalizer;
 import org.sentrysoftware.metricshub.hardware.threshold.FanMetricNormalizer;
+import org.sentrysoftware.metricshub.hardware.threshold.LogicalDiskMetricNormalizer;
+import org.sentrysoftware.metricshub.hardware.threshold.MemoryMetricNormalizer;
 
 /**
  * Service class for normalizing hardware monitor metrics.
@@ -93,11 +95,13 @@ public class MetricNormalizationService implements IPostExecutionService {
 					case "gpu":
 					//TODO
 					case "logical_disk":
-					//TODO
+						new LogicalDiskMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
+							.normalize(monitor);
 					case "lun":
 					//TODO
 					case "memory":
-					//TODO
+						new MemoryMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
+							.normalize(monitor);
 					case "network":
 					//TODO
 					case "other_device":
