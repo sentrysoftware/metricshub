@@ -71,6 +71,7 @@ class SnmpExtensionTest {
 			.builder()
 			.community("public".toCharArray())
 			.version(SnmpConfiguration.SnmpVersion.V1)
+			.hostname(HOST_NAME)
 			.port(161)
 			.timeout(120L)
 			.build();
@@ -512,6 +513,14 @@ class SnmpExtensionTest {
 				new IConfiguration() {
 					@Override
 					public void validateConfiguration(String resourceKey) throws InvalidConfigurationException {}
+
+					@Override
+					public String getHostname() {
+						return null;
+					}
+
+					@Override
+					public void setHostname(String hostname) {}
 				}
 			)
 		);

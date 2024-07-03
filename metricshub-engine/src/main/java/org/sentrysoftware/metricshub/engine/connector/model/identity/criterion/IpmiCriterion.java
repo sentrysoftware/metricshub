@@ -24,8 +24,6 @@ package org.sentrysoftware.metricshub.engine.connector.model.identity.criterion;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
-import org.sentrysoftware.metricshub.engine.strategy.detection.ICriterionProcessor;
 
 /**
  * Represents an IPMI (Intelligent Platform Management Interface) detection criterion.
@@ -51,10 +49,5 @@ public class IpmiCriterion extends Criterion {
 	@Override
 	public String toString() {
 		return "- IPMI";
-	}
-
-	@Override
-	public CriterionTestResult accept(ICriterionProcessor criterionProcessor) {
-		return criterionProcessor.process(this);
 	}
 }

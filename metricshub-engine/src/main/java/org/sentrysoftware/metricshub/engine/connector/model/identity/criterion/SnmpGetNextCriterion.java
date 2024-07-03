@@ -29,8 +29,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.ToString;
-import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
-import org.sentrysoftware.metricshub.engine.strategy.detection.ICriterionProcessor;
 
 /**
  * Represents an SNMP GET-NEXT criterion used for detection.
@@ -60,10 +58,5 @@ public class SnmpGetNextCriterion extends SnmpCriterion {
 		@JsonProperty("expectedResult") String expectedResult
 	) {
 		super(type, forceSerialization, oid, expectedResult);
-	}
-
-	@Override
-	public CriterionTestResult accept(ICriterionProcessor criterionProcessor) {
-		return criterionProcessor.process(this);
 	}
 }
