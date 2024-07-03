@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -95,8 +96,8 @@ public class SnmpV3Extension implements IProtocolExtension {
 
 	@Override
 	public Optional<Boolean> checkProtocol(TelemetryManager telemetryManager) {
-		// Retrieve the hostname
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		// Retrieve the hostname from the SnmpV3Configuration, otherwise from the telemetryManager
+		final String hostname = telemetryManager.getHostname(List.of(SnmpV3Configuration.class));
 
 		// Create and set the SNMP V3 result to null
 		String snmpV3Result = null;

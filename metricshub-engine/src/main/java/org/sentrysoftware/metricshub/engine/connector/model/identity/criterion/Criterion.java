@@ -27,8 +27,6 @@ import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
-import org.sentrysoftware.metricshub.engine.strategy.detection.ICriterionProcessor;
 
 /**
  * Abstract class representing a detection criterion.
@@ -65,12 +63,4 @@ public abstract class Criterion implements Serializable {
 	 * Flag indicating whether serialization should be forced.
 	 */
 	protected boolean forceSerialization;
-
-	/**
-	 * Accepts the given criterion processor for evaluation.
-	 *
-	 * @param criterionProcessor The criterion processor to accept.
-	 * @return The result of the criterion test.
-	 */
-	public abstract CriterionTestResult accept(ICriterionProcessor criterionProcessor);
 }

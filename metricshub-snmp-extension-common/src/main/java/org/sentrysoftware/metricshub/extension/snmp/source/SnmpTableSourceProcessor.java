@@ -65,12 +65,10 @@ public class SnmpTableSourceProcessor {
 		final String connectorId,
 		final TelemetryManager telemetryManager
 	) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
 		if (snmpTableSource == null) {
 			log.error(
 				"Hostname {} - SNMP Get Table Source cannot be null, the SNMP Get Table operation will return an empty result.",
-				hostname
+				telemetryManager.getHostname()
 			);
 			return SourceTable.empty();
 		}
@@ -93,11 +91,14 @@ public class SnmpTableSourceProcessor {
 		if (snmpConfiguration == null) {
 			log.debug(
 				"Hostname {} - The SNMP credentials are not configured. Returning an empty table for SNMP Get Table Source {}.",
-				hostname,
+				telemetryManager.getHostname(),
 				snmpTableSource
 			);
 			return SourceTable.empty();
 		}
+
+		// Retrieve the hostname from the ISnmpConfiguration, otherwise from the telemetryManager
+		final String hostname = telemetryManager.getHostname(List.of(snmpConfiguration.getClass()));
 
 		try {
 			final List<List<String>> result = snmpRequestExecutor.executeSNMPTable(

@@ -327,8 +327,8 @@ public abstract class AbstractConnectorProcessor {
 
 		final Supplier<CriterionTestResult> executable;
 
-		// Based on the type of criterion, store the call of the process method in the supplier
-		executable = () -> criterion.accept(criterionProcessor);
+		// Based on the type of criterion, store the call to the test method in the supplier
+		executable = () -> criterionProcessor.test(criterion);
 
 		// If isForceSerialization is true, call forceSerialization
 		if (criterion.isForceSerialization()) {
@@ -347,9 +347,9 @@ public abstract class AbstractConnectorProcessor {
 
 	/**
 	 * Return true if the name of the {@link Connector} is in the set of connector names
-	 * @param connector
-	 * @param connectorIdSet
-	 * @return boolean value
+	 * @param connector      The connector to check
+	 * @param connectorIdSet The set of connector names
+	 * @return boolean value indicating if the connector is contained in the set
 	 */
 	protected boolean isConnectorContainedInSet(
 		@NonNull final Connector connector,

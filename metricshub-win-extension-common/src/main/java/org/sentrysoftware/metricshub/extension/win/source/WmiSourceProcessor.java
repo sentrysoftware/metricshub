@@ -67,10 +67,12 @@ public class WmiSourceProcessor {
 	 * @return A {@link SourceTable} containing the results of the executed query or an empty table in case of an error.
 	 */
 	public SourceTable process(final WmiSource wmiSource, final TelemetryManager telemetryManager) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
 		if (wmiSource == null) {
-			log.warn("Hostname {} - Malformed WMI source {}. Returning an empty table.", hostname, wmiSource);
+			log.warn(
+				"Hostname {} - Malformed WMI source {}. Returning an empty table.",
+				telemetryManager.getHostname(),
+				wmiSource
+			);
 			return SourceTable.empty();
 		}
 
@@ -80,11 +82,14 @@ public class WmiSourceProcessor {
 		if (winConfiguration == null) {
 			log.debug(
 				"Hostname {} - Neither WMI nor WinRM credentials are configured for this host. Returning an empty table for WMI source {}.",
-				hostname,
+				telemetryManager.getHostname(),
 				wmiSource.getKey()
 			);
 			return SourceTable.empty();
 		}
+
+		// Retrieve the hostname from the IWinConfiguration, otherwise from the telemetryManager
+		final String hostname = telemetryManager.getHostname(List.of(winConfiguration.getClass()));
 
 		// Get the namespace
 		final String namespace = getNamespace(wmiSource, telemetryManager);

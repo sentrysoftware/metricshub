@@ -45,6 +45,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 import org.sentrysoftware.metricshub.engine.strategy.ContextExecutor;
@@ -302,6 +303,31 @@ public class TelemetryManager {
 		}
 		final String connectorId = currentMonitor.getAttribute(MetricsHubConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID);
 		return null != connectorId && hostProperties.getConnectorNamespace(connectorId).isStatusOk();
+	}
+
+	/**
+	 * Retrieves the hostname from the provided list of configuration classes, considering the order of the list.
+	 *
+	 * This method searches through the user's configurations, as specified by the list of `IConfiguration` classes,
+	 * to find and return the first non-null hostname. The order of the configurations in the list is significant.
+	 * For example, calling `getHostname(SshConfiguration.class, OsCommandConfiguration.class)` may yield a different
+	 * result compared to `getHostname(OsCommandConfiguration.class, SshConfiguration.class)` if both configurations exist.
+	 *
+	 * If the list of configurations is empty or none of the configurations provide a non-null hostname, the method
+	 * will return the telemetry manager's hostname as a fallback.
+	 *
+	 * @param configurations A list of `IConfiguration` classes to search for the hostname.
+	 * @return the first non-null hostname from the provided configurations, or the telemetry manager's hostname if none are found.
+	 */
+	public String getHostname(List<Class<? extends IConfiguration>> configurations) {
+		return configurations
+			.stream()
+			.map(config -> hostConfiguration.getConfigurations().get(config)) // Get the configuration from the user's configuration map
+			.filter(Objects::nonNull) // Filter out null configurations
+			.map(IConfiguration::getHostname) // Map to hostname
+			.filter(Objects::nonNull) // Filter out null hostnames
+			.findFirst() // Get the first matching hostname
+			.orElse(getHostname()); // Fallback to telemetry manager hostname
 	}
 
 	/**

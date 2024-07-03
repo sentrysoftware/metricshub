@@ -39,7 +39,7 @@ class CpuMetricNormalizerTest {
 			.build();
 		hwErrorsLimitDegradedMetric.setCollectTime(STRATEGY_TIME);
 		hwErrorsLimitDegradedMetric.setPreviousCollectTime(STRATEGY_TIME - 1000 * 60 * 2);
-		final Monitor monitorWithoutHwErrorsMetric = Monitor
+		final Monitor monitorWithHwErrorsMetric = Monitor
 			.builder()
 			.id("monitorOne")
 			.type("cpu")
@@ -57,16 +57,16 @@ class CpuMetricNormalizerTest {
 			)
 			.build();
 
-		new CpuMetricNormalizer(STRATEGY_TIME, HOSTNAME).normalize(monitorWithoutHwErrorsMetric);
+		new CpuMetricNormalizer(STRATEGY_TIME, HOSTNAME).normalize(monitorWithHwErrorsMetric);
 		assertEquals(
 			2.0,
-			monitorWithoutHwErrorsMetric
+			monitorWithHwErrorsMetric
 				.getMetric(HW_ERRORS_LIMIT_LIMIT_TYPE_CRITICAL_HW_TYPE_CPU, NumberMetric.class)
 				.getValue()
 		);
 		assertEquals(
 			1.0,
-			monitorWithoutHwErrorsMetric
+			monitorWithHwErrorsMetric
 				.getMetric(HW_ERRORS_LIMIT_LIMIT_TYPE_DEGRADED_HW_TYPE_CPU, NumberMetric.class)
 				.getValue()
 		);

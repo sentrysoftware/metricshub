@@ -21,15 +21,21 @@ package org.sentrysoftware.metricshub.hardware.threshold;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.Map;
+import java.util.Optional;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
+import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 
 /**
- * TODO: Complete the Javadoc for this Class.
+ * The GpuMetricNormalizer class is responsible for normalizing GPU metrics.
+ * It extends the AbstractMetricNormalizer class to provide specific
+ * normalization logic for GPU monitor hardware metrics.
  */
 public class GpuMetricNormalizer extends AbstractMetricNormalizer {
 
 	/**
 	 * Constructs a new instance with the specified strategy time.
+	 *
 	 * @param strategyTime The strategy time in milliseconds
 	 * @param hostname     The hostname of the monitor
 	 */
@@ -38,8 +44,81 @@ public class GpuMetricNormalizer extends AbstractMetricNormalizer {
 	}
 
 	/**
-	 * TODO: Complete the Javadoc for this method.
+	 * Normalizes GPU utilization limit metrics for a given monitor and metric name prefix.
+	 * If both degraded and critical metrics are absent, it collects default values for them.
+	 * If both metrics are present, it ensures the degraded value is not greater than the critical value.
+	 * If only one of the metrics is absent, it calculates and collects a value for the missing metric.
+	 *
+	 * @param monitor              The monitor object where the metrics are collected.
+	 * @param metricNamePrefix     The prefix of the metric names to be normalized.
+	 * @param defaultCriticalValue The default value to use for the critical metric.
+	 * @param defaultDegradedValue The default value to use for the degraded metric.
+	 */
+	protected void normalizeGpuLimitMetric(
+		final Monitor monitor,
+		final String metricNamePrefix,
+		final double defaultCriticalValue,
+		final double defaultDegradedValue
+	) {
+		final String metricNamePrefixWithLimit = metricNamePrefix + ".limit";
+		// Check if the metric is collected
+		if (!isMetricCollected(monitor, metricNamePrefix)) {
+			return;
+		}
+
+		// Get the degraded metric
+		final Optional<NumberMetric> maybeDegradedMetric = findMetricByNamePrefixAndAttributes(
+			monitor,
+			metricNamePrefixWithLimit,
+			Map.of("limit_type", "degraded")
+		);
+
+		// Get the critical metric
+		final Optional<NumberMetric> maybeCriticalMetric = findMetricByNamePrefixAndAttributes(
+			monitor,
+			metricNamePrefixWithLimit,
+			Map.of("limit_type", "critical")
+		);
+
+		if (maybeDegradedMetric.isEmpty() && maybeCriticalMetric.isEmpty()) {
+			// Collect default metrics if both are absent
+			collectMetric(monitor, metricNamePrefixWithLimit + "{limit_type=\"critical\"}", defaultCriticalValue);
+			collectMetric(monitor, metricNamePrefixWithLimit + "{limit_type=\"degraded\"}", defaultDegradedValue);
+		} else if (maybeDegradedMetric.isPresent() && maybeCriticalMetric.isPresent()) {
+			// If both the degraded and critical metrics are available, adjust the values if necessary
+			adjustMetricsIfNecessary(maybeCriticalMetric.get(), maybeDegradedMetric.get());
+		} else if (maybeDegradedMetric.isEmpty()) {
+			// If the degraded metric is absent, create and collect a new degraded metric
+			collectMetric(
+				monitor,
+				maybeCriticalMetric.get().getName().replace("critical", "degraded"),
+				maybeCriticalMetric.get().getValue() * 0.9
+			);
+		} else {
+			// If the critical metric is absent, create and collect a new critical metric
+			collectMetric(
+				monitor,
+				maybeDegradedMetric.get().getName().replace("degraded", "critical"),
+				100 - ((100 - maybeDegradedMetric.get().getValue()) * 0.5)
+			);
+		}
+	}
+
+	/**
+	 * Normalizes various metrics for the given monitor.
+	 * This method includes normalization for error limits and GPU utilization metrics.
+	 *
+	 * @param monitor The monitor object where the metrics are collected.
 	 */
 	@Override
-	public void normalize(Monitor monitor) {}
+	public void normalize(Monitor monitor) {
+		// Normalize the errors limit metric
+		normalizeErrorsLimitMetric(monitor);
+
+		// Normalize the GPU memory utilization limit metric with default critical and degraded values
+		normalizeGpuLimitMetric(monitor, "hw.gpu.memory.utilization", 0.95, 0.9);
+
+		// Normalize the GPU utilization limit metric with default critical and degraded values
+		normalizeGpuLimitMetric(monitor, "hw.gpu.utilization", 0.9, 0.8);
+	}
 }
