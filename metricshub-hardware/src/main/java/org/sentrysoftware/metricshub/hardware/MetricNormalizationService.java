@@ -32,8 +32,8 @@ import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.hardware.threshold.CpuMetricNormalizer;
 import org.sentrysoftware.metricshub.hardware.threshold.FanMetricNormalizer;
-import org.sentrysoftware.metricshub.hardware.threshold.LogicalDiskMetricNormalizer;
 import org.sentrysoftware.metricshub.hardware.threshold.GpuMetricNormalizer;
+import org.sentrysoftware.metricshub.hardware.threshold.LogicalDiskMetricNormalizer;
 
 /**
  * Service class for normalizing hardware monitor metrics.
