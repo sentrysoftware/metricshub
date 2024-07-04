@@ -49,6 +49,8 @@ public class WmiConfiguration implements IWinConfiguration {
 	private char[] password;
 	private String namespace;
 
+	private String hostname;
+
 	@Default
 	@JsonSetter(nulls = SKIP)
 	@JsonDeserialize(using = TimeDeserializer.class)

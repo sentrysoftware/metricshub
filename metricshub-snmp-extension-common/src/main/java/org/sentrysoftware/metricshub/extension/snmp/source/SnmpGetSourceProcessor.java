@@ -22,6 +22,7 @@ package org.sentrysoftware.metricshub.extension.snmp.source;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -66,12 +67,10 @@ public class SnmpGetSourceProcessor {
 		final String connectorId,
 		final TelemetryManager telemetryManager
 	) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
 		if (snmpGetSource == null) {
 			log.error(
 				"Hostname {} - SNMP Get Source cannot be null, the SNMP Get operation will return an empty result.",
-				hostname
+				telemetryManager.getHostname()
 			);
 			return SourceTable.empty();
 		}
@@ -81,11 +80,14 @@ public class SnmpGetSourceProcessor {
 		if (snmpConfiguration == null) {
 			log.debug(
 				"Hostname {} - The SNMP credentials are not configured. Returning an empty table for SNMP Get Source {}.",
-				hostname,
+				telemetryManager.getHostname(),
 				snmpGetSource
 			);
 			return SourceTable.empty();
 		}
+
+		// Retrieve the hostname from the ISnmpConfiguration, otherwise from the telemetryManager
+		final String hostname = telemetryManager.getHostname(List.of(snmpConfiguration.getClass()));
 
 		try {
 			final String result = snmpRequestExecutor.executeSNMPGet(

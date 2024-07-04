@@ -22,6 +22,7 @@ package org.sentrysoftware.metricshub.extension.oscommand.ipmi;
  */
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
@@ -53,7 +54,6 @@ public class UnixIpmiCriterionProcessor {
 	 */
 	public CriterionTestResult processUnixIpmiDetection(final DeviceKind hostType, TelemetryManager telemetryManager) {
 		String ipmitoolCommand = telemetryManager.getHostProperties().getIpmitoolCommand();
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 		final SshConfiguration sshConfiguration = (SshConfiguration) telemetryManager
 			.getHostConfiguration()
 			.getConfigurations()
@@ -70,11 +70,14 @@ public class UnixIpmiCriterionProcessor {
 		if (osCommandConfiguration == null) {
 			final String message = String.format(
 				"Hostname %s - No OS command configuration for this host. Returning an empty result",
-				hostname
+				telemetryManager.getHostname()
 			);
 			log.warn(message);
 			return CriterionTestResult.builder().success(false).result("").message(message).build();
 		}
+
+		// Retrieve the hostname from the configurations, otherwise from telemetryManager.
+		final String hostname = telemetryManager.getHostname(List.of(SshConfiguration.class, OsCommandConfiguration.class));
 
 		final int defaultTimeout = osCommandConfiguration.getTimeout().intValue();
 		if (ipmitoolCommand == null || ipmitoolCommand.isEmpty()) {

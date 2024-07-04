@@ -799,14 +799,14 @@ public class ConfigHelper {
 			// Create a new connector store for this resource configuration
 			final ConnectorStore resourceConnectorStore = connectorStore.newConnectorStore();
 
-			// Validate protocols
-			validateProtocols(resourceKey, resourceConfig);
-
 			final HostConfiguration hostConfiguration = buildHostConfiguration(
 				resourceConfig,
 				resourceConfig.getConnectors(),
 				resourceKey
 			);
+
+			// Validate protocols and update the configuration's hostname if required.
+			validateAndNormalizeProtocols(resourceKey, resourceConfig, hostConfiguration.getHostname());
 
 			addConfiguredConnector(resourceConnectorStore, resourceConfig.getConnector());
 
@@ -906,14 +906,20 @@ public class ConfigHelper {
 	}
 
 	/**
-	 * Validate the protocols configured under the given {@link ResourceConfig} instance
+	 * Validates the protocols configured under the given {@link ResourceConfig} instance.
+	 * Also, it normalizes the configuration's hostname by duplicating the hostname attribute on each configuration.
+	 * This duplication is done only if the configuration's hostname is null.
 	 *
 	 * @param resourceKey    Resource unique identifier
-	 * @param resourceConfig {@link ResourceConfig} instance configured by the user
-	 * @throws InvalidConfigurationException thrown if a configuration validation fails
+	 * @param resourceConfig {@link ResourceConfig} instance configured by the user.
+	 * @param hostname       The hostname that will be duplicated on each configuration if required.
+	 * @throws InvalidConfigurationException thrown if a configuration validation fails.
 	 */
-	private static void validateProtocols(@NonNull final String resourceKey, final ResourceConfig resourceConfig)
-		throws InvalidConfigurationException {
+	private static void validateAndNormalizeProtocols(
+		@NonNull final String resourceKey,
+		final ResourceConfig resourceConfig,
+		final String hostname
+	) throws InvalidConfigurationException {
 		final Map<String, IConfiguration> protocols = resourceConfig.getProtocols();
 		if (protocols == null) {
 			return;
@@ -923,6 +929,9 @@ public class ConfigHelper {
 			IConfiguration protocolConfig = entry.getValue();
 			if (protocolConfig != null) {
 				protocolConfig.validateConfiguration(resourceKey);
+				if (protocolConfig.getHostname() == null) {
+					protocolConfig.setHostname(hostname);
+				}
 			}
 		}
 	}

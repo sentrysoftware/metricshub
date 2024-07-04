@@ -155,3 +155,14 @@ The most common errors you may encounter are:
     ```
 
     If the host is correctly configured, ensure it is reachable by pinging it and testing your network.
+
+3. **Failure to export metrics**
+
+The following error occurs if a local OTLP receiver is unavailable to collect MetricsHub logs:
+
+```
+Feb 27, 2024 1:24:26 PM io.opentelemetry.sdk.internal.ThrottlingLogger doLog WARNING: Failed to export metrics. 
+Server responded with gRPC status code 2. Error message: Failed to connect to localhost/[0:0:0:0:0:0:0:1]:4317
+```
+
+To solve this problem, ensure that the `OTLP` receiver and more specifically the `otel.exporter.otlp.metrics.endpoint` and `otel.exporter.otlp.logs.endpoint` parameters are [correctly set](../configuration/configure-agent.html#configure-the-otlp-receiver) in the `metricshub.yaml` configuration file.

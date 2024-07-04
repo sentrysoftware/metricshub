@@ -64,6 +64,8 @@ public class WbemConfiguration implements IConfiguration {
 	char[] password;
 	String vCenter;
 
+	private String hostname;
+
 	@Override
 	public String toString() {
 		String description = protocol + "/" + port;
