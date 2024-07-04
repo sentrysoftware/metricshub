@@ -58,7 +58,7 @@ class MemoryMetricNormalizerTest {
 				)
 				.build();
 
-			new LogicalDiskMetricNormalizer(STRATEGY_TIME, HOSTNAME).normalize(monitorWithHwErrorsLimitMetric);
+			new MemoryMetricNormalizer(STRATEGY_TIME, HOSTNAME).normalize(monitorWithHwErrorsLimitMetric);
 			assertEquals(
 				2.0,
 				monitorWithHwErrorsLimitMetric
@@ -111,7 +111,7 @@ class MemoryMetricNormalizerTest {
 				)
 				.build();
 
-			new LogicalDiskMetricNormalizer(STRATEGY_TIME, HOSTNAME).normalize(monitorWithHwErrorsLimitMetric);
+			new MemoryMetricNormalizer(STRATEGY_TIME, HOSTNAME).normalize(monitorWithHwErrorsLimitMetric);
 			assertEquals(
 				2.0,
 				monitorWithHwErrorsLimitMetric
