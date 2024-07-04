@@ -2577,6 +2577,20 @@
         "type" : "NumberMetric",
         "updated" : true
       },
+      "hw.errors.limit{limit_type=\"critical\", hw.type=\"logical_disk\"}" : {
+        "name" : "hw.errors.limit{limit_type=\"critical\", hw.type=\"logical_disk\"}",
+        "collectTime" : 1719825820126,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "limit_type" : "critical",
+          "hw.type" : "logical_disk"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
       "hw.logical_disk.usage{state=\"free\"}" : {
         "name" : "hw.logical_disk.usage{state=\"free\"}",
         "collectTime" : 1715961673910,

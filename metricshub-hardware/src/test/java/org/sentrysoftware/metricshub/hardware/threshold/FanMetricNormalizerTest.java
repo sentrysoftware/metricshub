@@ -1,6 +1,6 @@
 package org.sentrysoftware.metricshub.hardware.threshold;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,12 +17,6 @@ class FanMetricNormalizerTest {
 		HW_FAN_SPEED_LIMIT + "{limit_type=\"low.critical\"}";
 	public static final String HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_DEGRADED =
 		HW_FAN_SPEED_LIMIT + "{limit_type=\"low.degraded\"}";
-
-	private static final String HW_FAN_SPEED_RATIO_LIMIT = "hw.fan.speed_ratio.limit";
-	public static final String HW_FAN_SPEED_RATIO_LIMIT_LIMIT_TYPE_LOW_CRITICAL =
-		HW_FAN_SPEED_RATIO_LIMIT + "{limit_type=\"low.critical\"}";
-	public static final String HW_FAN_SPEED_RATIO_LIMIT_LIMIT_TYPE_LOW_DEGRADED =
-		HW_FAN_SPEED_RATIO_LIMIT + "{limit_type=\"low.degraded\"}";
 
 	@Test
 	void testNormalize() {
@@ -47,7 +41,7 @@ class FanMetricNormalizerTest {
 				.build();
 			hwFanSpeedLimitDegradedMetric.setCollectTime(STRATEGY_TIME);
 			hwFanSpeedLimitDegradedMetric.setPreviousCollectTime(STRATEGY_TIME - 1000 * 60 * 2);
-			final Monitor monitorWithhwFanSpeedLimitMetric = Monitor
+			final Monitor monitorWithHwFanSpeedLimitMetric = Monitor
 				.builder()
 				.id("monitorOne")
 				.type("fan")
@@ -65,16 +59,16 @@ class FanMetricNormalizerTest {
 				)
 				.build();
 
-			new FanMetricNormalizer(STRATEGY_TIME, HOSTNAME).normalize(monitorWithhwFanSpeedLimitMetric);
+			new FanMetricNormalizer(STRATEGY_TIME, HOSTNAME).normalize(monitorWithHwFanSpeedLimitMetric);
 			assertEquals(
 				1.0,
-				monitorWithhwFanSpeedLimitMetric
+				monitorWithHwFanSpeedLimitMetric
 					.getMetric(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_CRITICAL, NumberMetric.class)
 					.getValue()
 			);
 			assertEquals(
 				2.0,
-				monitorWithhwFanSpeedLimitMetric
+				monitorWithHwFanSpeedLimitMetric
 					.getMetric(HW_FAN_SPEED_LIMIT_LIMIT_TYPE_LOW_DEGRADED, NumberMetric.class)
 					.getValue()
 			);
