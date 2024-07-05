@@ -21,15 +21,20 @@ package org.sentrysoftware.metricshub.hardware.threshold;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.Map;
+import java.util.Optional;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
+import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 
 /**
- * TODO: Complete the Javadoc for this Class.
+ * The OtherDeviceMetricNormalize class is responsible for normalizing other device metrics.
+ * It extends the AbstractMetricNormalizer class to provide specific
+ * normalization logic for other device monitor hardware metrics.
  */
 public class OtherDeviceMetricNormalizer extends AbstractMetricNormalizer {
 
 	/**
-	 * Constructs a new instance with the specified strategy time.
+	 * Constructs a new instance of OtherDeviceMetricNormalizer with the specified strategy time.
 	 * @param strategyTime The strategy time in milliseconds
 	 * @param hostname     The hostname of the monitor
 	 */
@@ -38,8 +43,70 @@ public class OtherDeviceMetricNormalizer extends AbstractMetricNormalizer {
 	}
 
 	/**
-	 * TODO: Complete the Javadoc for this method.
+	 * Normalizes the metrics of the given monitor.
+	 * @param monitor The monitor containing the metrics to be normalized
 	 */
 	@Override
-	public void normalize(Monitor monitor) {}
+	public void normalize(Monitor monitor) {
+		normalizeOtherDeviceLimitMetric(monitor, "hw.other_device.uses");
+		normalizeOtherDeviceLimitMetric(monitor, "hw.other_device.value");
+	}
+
+	/**
+	 * Normalizes the speed limit metrics.
+	 * @param monitor The monitor to normalize
+	 * @param metricNamePrefix The prefix of the metric name.
+	 */
+	private void normalizeOtherDeviceLimitMetric(final Monitor monitor, final String metricNamePrefix) {
+		if (!isMetricCollected(monitor, metricNamePrefix)) {
+			return;
+		}
+
+		// Get the degraded metric
+		final Optional<NumberMetric> maybeDegradedMetric = findMetricByNamePrefixAndAttributes(
+			monitor,
+			String.format("%s.limit", metricNamePrefix),
+			Map.of("limit_type", "degraded")
+		);
+
+		// Get the critical metric
+		final Optional<NumberMetric> maybeCriticalMetric = findMetricByNamePrefixAndAttributes(
+			monitor,
+			String.format("%s.limit", metricNamePrefix),
+			Map.of("limit_type", "critical")
+		);
+
+		if (maybeDegradedMetric.isPresent() && maybeCriticalMetric.isPresent()) {
+			// Adjust values if both metrics are present
+			adjustOtherDeviceMetricsIfNecessary(maybeDegradedMetric.get(), maybeCriticalMetric.get());
+		} else if (maybeCriticalMetric.isPresent()) {
+			// Create degraded metric if only critical is present
+			final NumberMetric criticalMetric = maybeCriticalMetric.get();
+			collectMetric(monitor, criticalMetric.getName().replace("critical", "degraded"), criticalMetric.getValue() * 0.9);
+		} else if (maybeDegradedMetric.isPresent()) {
+			// Create critical metric if only degraded is present
+			final NumberMetric degradedMetric = maybeDegradedMetric.get();
+			collectMetric(monitor, degradedMetric.getName().replace("degraded", "critical"), degradedMetric.getValue() * 1.1);
+		}
+	}
+
+	/**
+	 * Adjusts the values of degraded and critical metrics if necessary.
+	 * If the degraded value is smaller than the critical value, their values are swapped.
+	 *
+	 * @param degradedMetric The degraded metric
+	 * @param criticalMetric The critical metric
+	 */
+	private void adjustOtherDeviceMetricsIfNecessary(
+		final NumberMetric degradedMetric,
+		final NumberMetric criticalMetric
+	) {
+		final Double degradedValue = degradedMetric.getValue();
+		final Double criticalValue = criticalMetric.getValue();
+
+		if (degradedValue < criticalValue) {
+			degradedMetric.setValue(criticalValue);
+			criticalMetric.setValue(degradedValue);
+		}
+	}
 }
