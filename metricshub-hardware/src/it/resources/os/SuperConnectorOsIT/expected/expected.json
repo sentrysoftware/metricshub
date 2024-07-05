@@ -2934,6 +2934,20 @@
         "type" : "NumberMetric",
         "updated" : true
       },
+      "hw.errors.limit{limit_type=\"critical\", hw.type=\"memory\"}" : {
+        "name" : "hw.errors.limit{limit_type=\"critical\", hw.type=\"memory\"}",
+        "collectTime" : 1719922351652,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "limit_type" : "critical",
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
       "hw.status{hw.type=\"memory\"}" : {
         "name" : "hw.status{hw.type=\"memory\"}",
         "collectTime" : 1715961673910,
@@ -3127,6 +3141,20 @@
         },
         "resetMetricTime" : false,
         "value" : 5.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.errors.limit{limit_type=\"critical\", hw.type=\"memory\"}" : {
+        "name" : "hw.errors.limit{limit_type=\"critical\", hw.type=\"memory\"}",
+        "collectTime" : 1719922351652,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "limit_type" : "critical",
+          "hw.type" : "memory"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
         "previousValue" : null,
         "type" : "NumberMetric",
         "updated" : true
