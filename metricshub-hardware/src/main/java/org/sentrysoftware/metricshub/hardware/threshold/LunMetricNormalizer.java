@@ -21,25 +21,104 @@ package org.sentrysoftware.metricshub.hardware.threshold;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.Map;
+import java.util.Optional;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
+import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 
 /**
- * TODO: Complete the Javadoc for this Class.
+ * The LunMetricNormalizer class is responsible for normalizing LUN (Logical Unit Number)
+ * metrics for a given monitor. It extends the AbstractMetricNormalizer class and implements
+ * methods to normalize specific LUN path limits.
  */
 public class LunMetricNormalizer extends AbstractMetricNormalizer {
 
 	/**
-	 * Constructs a new instance with the specified strategy time.
-	 * @param strategyTime The strategy time in milliseconds
-	 * @param hostname     The hostname of the monitor
+	 * Constructs a new instance of LunMetricNormalizer with the specified strategy time and hostname.
+	 *
+	 * @param strategyTime The strategy time in milliseconds.
+	 * @param hostname     The hostname of the monitor.
 	 */
 	public LunMetricNormalizer(long strategyTime, String hostname) {
 		super(strategyTime, hostname);
 	}
 
 	/**
-	 * TODO: Complete the Javadoc for this method.
+	 * Normalizes LUN path limit metrics for the given monitor.
+	 * This method retrieves various LUN path metrics such as available, expected, low degraded,
+	 * low critical, and maximum metrics. It performs normalization by adjusting the low degraded
+	 * and expected metrics based on the available metric values.
+	 *
+	 * @param monitor The monitor instance containing the metrics to be normalized.
+	 */
+	private void normalizeLunPathsLimit(final Monitor monitor) {
+		// Get the hw.lun.paths available metric
+		final Optional<NumberMetric> maybeAvailableMetric = findMetricByNamePrefixAndAttributes(
+			monitor,
+			"hw.lun.paths",
+			Map.of("type", "available")
+		);
+
+		// Get the hw.lun.paths expected metric
+		final Optional<NumberMetric> maybeExpectedMetric = findMetricByNamePrefixAndAttributes(
+			monitor,
+			"hw.lun.paths",
+			Map.of("type", "expected")
+		);
+
+		// Get the low degraded metric
+		final Optional<NumberMetric> maybeLowDegradedMetric = findMetricByNamePrefixAndAttributes(
+			monitor,
+			"hw.lun.paths.limit",
+			Map.of("limit_type", "low.degraded")
+		);
+
+		// Get the maximum metric
+		final Optional<NumberMetric> maybeMaximumMetric = findMetricByNamePrefixAndAttributes(
+			monitor,
+			"hw.lun.paths.limit",
+			Map.of("limit_type", "maximum")
+		);
+
+		// Normalization logic for low degraded metric
+		if (maybeLowDegradedMetric.isEmpty()) {
+			if (maybeAvailableMetric.isPresent() && maybeAvailableMetric.get().getValue() > 1.0) {
+				collectLowDegradedMetric(monitor, maybeAvailableMetric.get().getValue() - 1);
+			}
+		} else {
+			if (
+				maybeMaximumMetric.isPresent() &&
+				maybeAvailableMetric.isPresent() &&
+				maybeAvailableMetric.get().getValue() > maybeMaximumMetric.get().getValue() &&
+				maybeAvailableMetric.get().getValue() > 1.0
+			) {
+				collectLowDegradedMetric(monitor, maybeAvailableMetric.get().getValue() - 1);
+			}
+		}
+
+		// Normalization logic for expected metric
+		if (maybeExpectedMetric.isEmpty() && maybeAvailableMetric.isPresent()) {
+			collectMetric(monitor, "hw.lun.paths{type=\"expected\"}", maybeAvailableMetric.get().getValue() + 1);
+		}
+	}
+
+	/**
+	 * Collects the low degraded LUN paths limit metric for the given monitor.
+	 *
+	 * @param monitor  The monitor instance where the metric is collected.
+	 * @param newValue The new value for the low degraded LUN paths limit metric.
+	 */
+	private void collectLowDegradedMetric(final Monitor monitor, final Double newValue) {
+		collectMetric(monitor, "hw.lun.paths.limit{limit_type=\"low.degraded\"}", newValue);
+	}
+
+	/**
+	 * Normalizes the metrics for the given monitor by calling the appropriate normalization methods.
+	 *
+	 * @param monitor The monitor instance containing the metrics to be normalized.
 	 */
 	@Override
-	public void normalize(Monitor monitor) {}
+	public void normalize(Monitor monitor) {
+		normalizeLunPathsLimit(monitor);
+	}
 }
