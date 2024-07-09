@@ -37,9 +37,11 @@ import org.sentrysoftware.metricshub.hardware.threshold.CpuMetricNormalizer;
 import org.sentrysoftware.metricshub.hardware.threshold.FanMetricNormalizer;
 import org.sentrysoftware.metricshub.hardware.threshold.GpuMetricNormalizer;
 import org.sentrysoftware.metricshub.hardware.threshold.LogicalDiskMetricNormalizer;
+import org.sentrysoftware.metricshub.hardware.threshold.LunMetricNormalizer;
 import org.sentrysoftware.metricshub.hardware.threshold.MemoryMetricNormalizer;
 import org.sentrysoftware.metricshub.hardware.threshold.NetworkMetricNormalizer;
 import org.sentrysoftware.metricshub.hardware.threshold.OtherDeviceMetricNormalizer;
+import org.sentrysoftware.metricshub.hardware.threshold.RoboticsMetricNormalizer;
 
 /**
  * Service class for normalizing hardware monitor metrics.
@@ -100,49 +102,51 @@ public class MetricNormalizationService implements IPostExecutionService {
 				KnownMonitorType.fromString(monitor.getType()).map(type -> new KnownMonitor(monitor, type)).stream()
 			)
 			.forEach(knownMonitor -> {
+				final Monitor monitor = knownMonitor.getMonitor();
+				final String hostname = telemetryManager.getHostname();
+				final Long strategyTime = telemetryManager.getStrategyTime();
 				switch (knownMonitor.getType()) {
 					case CPU:
-						new CpuMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
-							.normalize(knownMonitor.getMonitor());
+						new CpuMetricNormalizer(strategyTime, hostname).normalize(monitor);
 						break;
 					case FAN:
-						new FanMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
-							.normalize(knownMonitor.getMonitor());
+						new FanMetricNormalizer(strategyTime, hostname).normalize(monitor);
 						break;
 					case GPU:
-						new GpuMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
-							.normalize(knownMonitor.getMonitor());
+						new GpuMetricNormalizer(strategyTime, hostname).normalize(monitor);
 						break;
 					case LOGICAL_DISK:
-						new LogicalDiskMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
-							.normalize(knownMonitor.getMonitor());
+						new LogicalDiskMetricNormalizer(strategyTime, hostname).normalize(monitor);
 						break;
 					case LUN:
-					//TODO
+						new LunMetricNormalizer(strategyTime, hostname).normalize(monitor);
+						break;
 					case MEMORY:
-						new MemoryMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
-							.normalize(knownMonitor.getMonitor());
+						new MemoryMetricNormalizer(strategyTime, hostname).normalize(monitor);
 						break;
 					case NETWORK:
-						new NetworkMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
-							.normalize(knownMonitor.getMonitor());
+						new NetworkMetricNormalizer(strategyTime, hostname).normalize(monitor);
 						break;
 					case OTHER_DEVICE:
-						new OtherDeviceMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
-							.normalize(knownMonitor.getMonitor());
+						new OtherDeviceMetricNormalizer(strategyTime, hostname).normalize(monitor);
 						break;
 					case PHYSICAL_DISK:
-					//TODO
+						//TODO
+						break;
 					case ROBOTICS:
-					//TODO
+						new RoboticsMetricNormalizer(strategyTime, hostname).normalize(monitor);
+						break;
 					case TAPE_DRIVE:
-					//TODO
+						//TODO
+						break;
 					case TEMPERATURE:
-					//TODO
+						//TODO
+						break;
 					case VOLTAGE:
-					//TODO
+						//TODO
+						break;
 					default:
-					//TODO other hardware monitor types
+						break;
 				}
 			});
 	}

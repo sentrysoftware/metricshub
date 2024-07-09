@@ -59756,6 +59756,20 @@
         "type" : "NumberMetric",
         "updated" : true
       },
+      "hw.errors.limit{limit_type=\"critical\", hw.type=\"robotics\"}" : {
+        "name" : "hw.errors.limit{limit_type=\"critical\", hw.type=\"robotics\"}",
+        "collectTime" : 1720173233805,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "limit_type" : "critical",
+          "hw.type" : "robotics"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
       "hw.status{hw.type=\"robotics\", state=\"present\"}" : {
         "name" : "hw.status{hw.type=\"robotics\", state=\"present\"}",
         "collectTime" : 1715961673910,
@@ -59849,6 +59863,20 @@
         "type" : "NumberMetric",
         "updated" : true
       },
+      "hw.errors.limit{limit_type=\"critical\", hw.type=\"robotics\"}" : {
+        "name" : "hw.errors.limit{limit_type=\"critical\", hw.type=\"robotics\"}",
+        "collectTime" : 1720173233805,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "limit_type" : "critical",
+          "hw.type" : "robotics"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
       "hw.status{hw.type=\"robotics\", state=\"present\"}" : {
         "name" : "hw.status{hw.type=\"robotics\", state=\"present\"}",
         "collectTime" : 1715961673910,
@@ -59938,6 +59966,20 @@
         },
         "resetMetricTime" : false,
         "value" : 10.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.errors.limit{limit_type=\"critical\", hw.type=\"robotics\"}" : {
+        "name" : "hw.errors.limit{limit_type=\"critical\", hw.type=\"robotics\"}",
+        "collectTime" : 1720173233805,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "limit_type" : "critical",
+          "hw.type" : "robotics"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
         "previousValue" : null,
         "type" : "NumberMetric",
         "updated" : true
