@@ -37,6 +37,7 @@ import org.sentrysoftware.metricshub.hardware.threshold.LogicalDiskMetricNormali
 import org.sentrysoftware.metricshub.hardware.threshold.LunMetricNormalizer;
 import org.sentrysoftware.metricshub.hardware.threshold.MemoryMetricNormalizer;
 import org.sentrysoftware.metricshub.hardware.threshold.OtherDeviceMetricNormalizer;
+import org.sentrysoftware.metricshub.hardware.threshold.RoboticsMetricNormalizer;
 
 /**
  * Service class for normalizing hardware monitor metrics.
@@ -120,7 +121,9 @@ public class MetricNormalizationService implements IPostExecutionService {
 					case "physical_disk":
 					//TODO
 					case "robotics":
-					//TODO
+						new RoboticsMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
+							.normalize(monitor);
+						break;
 					case "tape_drive":
 					//TODO
 					case "temperature":
