@@ -146,15 +146,15 @@ public class MetricNormalizationService implements IPostExecutionService {
 				}
 			});
 	}
-}
 
-/**
- * Stores a monitor and its type.
- */
-@Data
-@AllArgsConstructor
-class KnownMonitor {
+	/**
+	 * Stores a monitor and its type.
+	 */
+	@Data
+	@AllArgsConstructor
+	class KnownMonitor {
 
-	private Monitor monitor;
-	private KnownMonitorType type;
+		private Monitor monitor;
+		private KnownMonitorType type;
+	}
 }
