@@ -21,25 +21,71 @@ package org.sentrysoftware.metricshub.hardware.threshold;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.Map;
+import java.util.Optional;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
+import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 
 /**
- * TODO: Complete the Javadoc for this Class.
+ * The NetworkMetricNormalizer class is responsible for normalizing network-related metrics.
+ * This class extends AbstractMetricNormalizer and provides functionality specific to network error ratio metrics.
  */
 public class NetworkMetricNormalizer extends AbstractMetricNormalizer {
 
 	/**
-	 * Constructs a new instance with the specified strategy time.
-	 * @param strategyTime The strategy time in milliseconds
-	 * @param hostname     The hostname of the monitor
+	 * Constructs a new instance of NetworkMetricNormalizer with the specified strategy time and hostname.
+	 *
+	 * @param strategyTime The strategy time in milliseconds.
+	 * @param hostname     The hostname of the monitor.
 	 */
 	public NetworkMetricNormalizer(long strategyTime, String hostname) {
 		super(strategyTime, hostname);
 	}
 
 	/**
-	 * TODO: Complete the Javadoc for this method.
+	 * Normalizes the network error ratio metric for the given monitor.
+	 * If the metric is not collected, it returns immediately. It then retrieves
+	 * the degraded and critical metrics and ensures they are correctly set.
+	 * If both metrics are absent, it collects default values. If both are present,
+	 * it ensures the critical metric is not less than the degraded metric.
+	 *
+	 * @param monitor The monitor object containing the metrics to be normalized.
+	 */
+	private void normalizeNetworkErrorRationMetric(final Monitor monitor) {
+		if (!isMetricCollected(monitor, "hw.network.error_ratio")) {
+			return;
+		}
+		// Get the degraded metric
+		final Optional<NumberMetric> maybeDegradedMetric = findMetricByNamePrefixAndAttributes(
+			monitor,
+			"hw.network.error_ratio.limit",
+			Map.of("limit_type", "degraded", "hw.type", monitor.getType())
+		);
+
+		// Get the critical metric
+		final Optional<NumberMetric> maybeCriticalMetric = findMetricByNamePrefixAndAttributes(
+			monitor,
+			"hw.network.error_ratio.limit",
+			Map.of("limit_type", "critical", "hw.type", monitor.getType())
+		);
+
+		if (maybeCriticalMetric.isEmpty() && maybeDegradedMetric.isEmpty()) {
+			collectMetric(monitor, "hw.network.error_ratio.limit{limit_type=\"degraded\", hw.type=\"network\"}", 0.2);
+			collectMetric(monitor, "hw.network.error_ratio.limit{limit_type=\"critical\", hw.type=\"network\"}", 0.3);
+		} else if (maybeCriticalMetric.isPresent() && maybeDegradedMetric.isPresent()) {
+			if (maybeCriticalMetric.get().getValue() < maybeDegradedMetric.get().getValue()) {
+				adjustMetricsIfNecessary(maybeCriticalMetric.get(), maybeDegradedMetric.get());
+			}
+		}
+	}
+
+	/**
+	 * Normalizes the metrics for the given monitor by invoking the method to normalize network error ratio metrics.
+	 *
+	 * @param monitor The monitor object containing the metrics to be normalized.
 	 */
 	@Override
-	public void normalize(Monitor monitor) {}
+	public void normalize(final Monitor monitor) {
+		normalizeNetworkErrorRationMetric(monitor);
+	}
 }
