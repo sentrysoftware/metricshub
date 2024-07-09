@@ -51,7 +51,7 @@ public class NetworkMetricNormalizer extends AbstractMetricNormalizer {
 	 *
 	 * @param monitor The monitor object containing the metrics to be normalized.
 	 */
-	private void normalizeNetworkErrorRationMetric(final Monitor monitor) {
+	private void normalizeNetworkErrorRatioMetric(final Monitor monitor) {
 		if (!isMetricCollected(monitor, "hw.network.error_ratio")) {
 			return;
 		}
@@ -86,6 +86,6 @@ public class NetworkMetricNormalizer extends AbstractMetricNormalizer {
 	 */
 	@Override
 	public void normalize(final Monitor monitor) {
-		normalizeNetworkErrorRationMetric(monitor);
+		normalizeNetworkErrorRatioMetric(monitor);
 	}
 }
