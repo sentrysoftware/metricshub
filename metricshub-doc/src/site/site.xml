@@ -159,8 +159,8 @@
 		</menu>
 
 		<menu name="Appendix">
-			<item name="Community Connectors Reference" href="metricshub-connector-reference.html" />
-			<item name="Community Connector Platforms" href="platform-requirements.html" />
+			<item name="Connectors Reference" href="metricshub-connector-reference.html" />
+			<item name="Connector Platforms" href="platform-requirements.html" />
 		</menu>
 
 		<menu ref="reports" />
