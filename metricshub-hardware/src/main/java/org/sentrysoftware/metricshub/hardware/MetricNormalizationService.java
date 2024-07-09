@@ -21,9 +21,10 @@ package org.sentrysoftware.metricshub.hardware;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import java.util.Arrays;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -55,31 +56,30 @@ public class MetricNormalizationService implements IPostExecutionService {
 	private TelemetryManager telemetryManager;
 
 	/**
-	 * The connector and hosts are generic kinds, so they are excluded from the physical types
+	 * The connector and hosts are generic kinds, so they are excluded from the
+	 * physical types
 	 */
-	private static final Set<String> EXCLUDED_MONITOR_TYPES = Set.of(
-		KnownMonitorType.CONNECTOR.getKey(),
-		KnownMonitorType.HOST.getKey()
+	private static final Set<KnownMonitorType> EXCLUDED_MONITOR_TYPES = Set.of(
+		KnownMonitorType.CONNECTOR,
+		KnownMonitorType.HOST
 	);
 
 	// Hardware monitor types
-	private static final Set<KnownMonitorType> HARDWARE_MONITOR_TYPES = Arrays
-		.stream(KnownMonitorType.values())
-		.filter(type ->
-			EXCLUDED_MONITOR_TYPES.stream().noneMatch(excludedType -> excludedType.equalsIgnoreCase(type.getKey()))
-		)
-		.collect(Collectors.toSet());
+	private static final Set<String> HARDWARE_MONITOR_TYPES = Stream
+		.of(KnownMonitorType.values())
+		.filter(type -> !EXCLUDED_MONITOR_TYPES.contains(type))
+		.map(KnownMonitorType::getKey)
+		.collect(Collectors.toCollection(() -> new TreeSet<>(String.CASE_INSENSITIVE_ORDER)));
 
 	/**
 	 * Checks if the given monitor is a hardware monitor.
 	 *
 	 * @param monitor the monitor to check
-	 * @return {@code true} if the monitor is a hardware monitor, {@code false} otherwise
+	 * @return {@code true} if the monitor is a hardware monitor, {@code false}
+	 *         otherwise
 	 */
 	private boolean isHardwareMonitor(final Monitor monitor) {
-		return HARDWARE_MONITOR_TYPES
-			.stream()
-			.anyMatch(monitorType -> monitorType.getKey().equalsIgnoreCase(monitor.getType()));
+		return HARDWARE_MONITOR_TYPES.contains(monitor.getType());
 	}
 
 	/**
@@ -96,37 +96,40 @@ public class MetricNormalizationService implements IPostExecutionService {
 			.stream()
 			.flatMap(monitors -> monitors.values().stream())
 			.filter(this::isHardwareMonitor)
-			.forEach(monitor -> {
-				switch (KnownMonitorType.fromString(monitor.getType())) {
+			.flatMap(monitor ->
+				KnownMonitorType.fromString(monitor.getType()).map(type -> new KnownMonitor(monitor, type)).stream()
+			)
+			.forEach(knownMonitor -> {
+				switch (knownMonitor.getType()) {
 					case CPU:
 						new CpuMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
-							.normalize(monitor);
+							.normalize(knownMonitor.getMonitor());
 						break;
 					case FAN:
 						new FanMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
-							.normalize(monitor);
+							.normalize(knownMonitor.getMonitor());
 						break;
 					case GPU:
 						new GpuMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
-							.normalize(monitor);
+							.normalize(knownMonitor.getMonitor());
 						break;
 					case LOGICAL_DISK:
 						new LogicalDiskMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
-							.normalize(monitor);
+							.normalize(knownMonitor.getMonitor());
 						break;
 					case LUN:
 					//TODO
 					case MEMORY:
 						new MemoryMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
-							.normalize(monitor);
+							.normalize(knownMonitor.getMonitor());
 						break;
 					case NETWORK:
 						new NetworkMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
-							.normalize(monitor);
+							.normalize(knownMonitor.getMonitor());
 						break;
 					case OTHER_DEVICE:
 						new OtherDeviceMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
-							.normalize(monitor);
+							.normalize(knownMonitor.getMonitor());
 						break;
 					case PHYSICAL_DISK:
 					//TODO
@@ -143,4 +146,15 @@ public class MetricNormalizationService implements IPostExecutionService {
 				}
 			});
 	}
+}
+
+/**
+ * Stores a monitor and its type.
+ */
+@Data
+@AllArgsConstructor
+class KnownMonitor {
+
+	private Monitor monitor;
+	private KnownMonitorType type;
 }

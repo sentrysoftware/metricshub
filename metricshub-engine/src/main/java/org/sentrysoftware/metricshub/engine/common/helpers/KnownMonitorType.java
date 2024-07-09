@@ -21,6 +21,8 @@ package org.sentrysoftware.metricshub.engine.common.helpers;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.Optional;
+import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -127,14 +129,9 @@ public enum KnownMonitorType {
 	 * ignoring case.
 	 *
 	 * @param monitorType the string representation to match against enum constants.
-	 * @return the matching {@code KnownMonitorType} enum constant, or {@code null} if no match is found.
+	 * @return the matching value which is an Optional of {@code KnownMonitorType}.
 	 */
-	public static KnownMonitorType fromString(final String monitorType) {
-		for (KnownMonitorType type : KnownMonitorType.values()) {
-			if (type.getKey().equalsIgnoreCase(monitorType)) {
-				return type;
-			}
-		}
-		return null;
+	public static Optional<KnownMonitorType> fromString(final String monitorType) {
+		return Stream.of(KnownMonitorType.values()).filter(type -> type.key.equalsIgnoreCase(monitorType)).findFirst();
 	}
 }
