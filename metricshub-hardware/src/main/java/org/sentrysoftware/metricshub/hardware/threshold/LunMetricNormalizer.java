@@ -93,10 +93,10 @@ public class LunMetricNormalizer extends AbstractMetricNormalizer {
 		// @CHECKSTYLE:OFF
 		if (
 				available > 1.0 &&
-						(
-								maybeLowDegradedMetric.isEmpty() ||
-										(maybeMaximumMetric.isPresent() && available > maybeMaximumMetric.get().getValue())
-						)
+				(
+					maybeLowDegradedMetric.isEmpty() ||
+					(maybeMaximumMetric.isPresent() && available > maybeMaximumMetric.get().getValue())
+				)
 		) {
 			collectLowDegradedMetric(monitor, available - 1);
 		}
