@@ -121,4 +121,20 @@ public enum KnownMonitorType {
 	VOLTAGE("voltage");
 
 	private String key;
+
+	/**
+	 * Retrieves the {@code KnownMonitorType} enum constant that matches the given string representation,
+	 * ignoring case.
+	 *
+	 * @param monitorType the string representation to match against enum constants.
+	 * @return the matching {@code KnownMonitorType} enum constant, or {@code null} if no match is found.
+	 */
+	public static KnownMonitorType fromString(final String monitorType) {
+		for (KnownMonitorType type : KnownMonitorType.values()) {
+			if (type.getKey().equalsIgnoreCase(monitorType)) {
+				return type;
+			}
+		}
+		return null;
+	}
 }

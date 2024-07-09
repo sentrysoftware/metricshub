@@ -21,7 +21,9 @@ package org.sentrysoftware.metricshub.hardware;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -56,19 +58,28 @@ public class MetricNormalizationService implements IPostExecutionService {
 	 * The connector and hosts are generic kinds, so they are excluded from the physical types
 	 */
 	private static final Set<String> EXCLUDED_MONITOR_TYPES = Set.of(
-		KnownMonitorType.CONNECTOR.name(),
-		KnownMonitorType.HOST.name()
+		KnownMonitorType.CONNECTOR.getKey(),
+		KnownMonitorType.HOST.getKey()
 	);
+
+	// Hardware monitor types
+	private static final Set<KnownMonitorType> HARDWARE_MONITOR_TYPES = Arrays
+		.stream(KnownMonitorType.values())
+		.filter(type ->
+			EXCLUDED_MONITOR_TYPES.stream().noneMatch(excludedType -> excludedType.equalsIgnoreCase(type.getKey()))
+		)
+		.collect(Collectors.toSet());
 
 	/**
 	 * Checks if the given monitor is a hardware monitor.
-	 * This method determines if a given monitor is a hardware monitor by
-	 * checking if its type is not included in the {@code EXCLUDED_MONITOR_TYPES} set.
+	 *
 	 * @param monitor the monitor to check
 	 * @return {@code true} if the monitor is a hardware monitor, {@code false} otherwise
 	 */
 	private boolean isHardwareMonitor(final Monitor monitor) {
-		return !EXCLUDED_MONITOR_TYPES.contains(monitor.getType());
+		return HARDWARE_MONITOR_TYPES
+			.stream()
+			.anyMatch(monitorType -> monitorType.getKey().equalsIgnoreCase(monitor.getType()));
 	}
 
 	/**
@@ -86,46 +97,46 @@ public class MetricNormalizationService implements IPostExecutionService {
 			.flatMap(monitors -> monitors.values().stream())
 			.filter(this::isHardwareMonitor)
 			.forEach(monitor -> {
-				switch (monitor.getType()) {
-					case "cpu":
+				switch (KnownMonitorType.fromString(monitor.getType())) {
+					case CPU:
 						new CpuMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
 							.normalize(monitor);
 						break;
-					case "fan":
+					case FAN:
 						new FanMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
 							.normalize(monitor);
 						break;
-					case "gpu":
+					case GPU:
 						new GpuMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
 							.normalize(monitor);
 						break;
-					case "logical_disk":
+					case LOGICAL_DISK:
 						new LogicalDiskMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
 							.normalize(monitor);
 						break;
-					case "lun":
+					case LUN:
 					//TODO
-					case "memory":
+					case MEMORY:
 						new MemoryMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
 							.normalize(monitor);
 						break;
-					case "network":
+					case NETWORK:
 						new NetworkMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
 							.normalize(monitor);
 						break;
-					case "other_device":
+					case OTHER_DEVICE:
 						new OtherDeviceMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
 							.normalize(monitor);
 						break;
-					case "physical_disk":
+					case PHYSICAL_DISK:
 					//TODO
-					case "robotics":
+					case ROBOTICS:
 					//TODO
-					case "tape_drive":
+					case TAPE_DRIVE:
 					//TODO
-					case "temperature":
+					case TEMPERATURE:
 					//TODO
-					case "voltage":
+					case VOLTAGE:
 					//TODO
 					default:
 					//TODO other hardware monitor types
