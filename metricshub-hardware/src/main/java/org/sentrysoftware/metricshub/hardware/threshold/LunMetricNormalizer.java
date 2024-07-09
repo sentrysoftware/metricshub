@@ -59,6 +59,11 @@ public class LunMetricNormalizer extends AbstractMetricNormalizer {
 			Map.of("type", "available")
 		);
 
+		// If the hw.lun.paths available metric is absent, there is no metrics normalization
+		if (maybeAvailableMetric.isEmpty()) {
+			return;
+		}
+
 		// Get the hw.lun.paths expected metric
 		final Optional<NumberMetric> maybeExpectedMetric = findMetricByNamePrefixAndAttributes(
 			monitor,
@@ -80,25 +85,28 @@ public class LunMetricNormalizer extends AbstractMetricNormalizer {
 			Map.of("limit_type", "maximum")
 		);
 
+		// Retrieve hw.lun.paths available metric value
+		final Double available = maybeAvailableMetric.get().getValue();
+
 		// Normalization logic for low degraded metric
-		if (maybeLowDegradedMetric.isEmpty()) {
-			if (maybeAvailableMetric.isPresent() && maybeAvailableMetric.get().getValue() > 1.0) {
-				collectLowDegradedMetric(monitor, maybeAvailableMetric.get().getValue() - 1);
-			}
-		} else {
-			if (
-				maybeMaximumMetric.isPresent() &&
-				maybeAvailableMetric.isPresent() &&
-				maybeAvailableMetric.get().getValue() > maybeMaximumMetric.get().getValue() &&
-				maybeAvailableMetric.get().getValue() > 1.0
-			) {
-				collectLowDegradedMetric(monitor, maybeAvailableMetric.get().getValue() - 1);
-			}
+		// @formatter:off
+		// @CHECKSTYLE:OFF
+		if (
+				available > 1.0 &&
+						(
+								maybeLowDegradedMetric.isEmpty() ||
+										(maybeMaximumMetric.isPresent() && available > maybeMaximumMetric.get().getValue())
+						)
+		) {
+			collectLowDegradedMetric(monitor, available - 1);
 		}
 
+		// @CHECKSTYLE:ON
+		// @formatter:on
+
 		// Normalization logic for expected metric
-		if (maybeExpectedMetric.isEmpty() && maybeAvailableMetric.isPresent()) {
-			collectMetric(monitor, "hw.lun.paths{type=\"expected\"}", maybeAvailableMetric.get().getValue() + 1);
+		if (maybeExpectedMetric.isEmpty()) {
+			collectMetric(monitor, "hw.lun.paths{type=\"expected\"}", available + 1);
 		}
 	}
 
