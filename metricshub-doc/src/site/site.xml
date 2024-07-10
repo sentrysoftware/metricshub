@@ -80,7 +80,6 @@
 
 		<menu name="Getting Started">
 			<item name="Overview" href="index.html" />
-			<item name="General Concepts" href="concepts.html "/>
 			<item name="Installation" href="install.html" />
 		</menu>
 
