@@ -78,7 +78,7 @@ public class OtherDeviceMetricNormalizer extends AbstractMetricNormalizer {
 
 		if (maybeDegradedMetric.isPresent() && maybeCriticalMetric.isPresent()) {
 			// Adjust values if both metrics are present
-			adjustMetricsIfNecessary(maybeDegradedMetric.get(), maybeCriticalMetric.get());
+			swapIfFirstLessThanSecond(maybeDegradedMetric.get(), maybeCriticalMetric.get());
 		} else if (maybeCriticalMetric.isPresent()) {
 			// Create degraded metric if only critical is present
 			final NumberMetric criticalMetric = maybeCriticalMetric.get();

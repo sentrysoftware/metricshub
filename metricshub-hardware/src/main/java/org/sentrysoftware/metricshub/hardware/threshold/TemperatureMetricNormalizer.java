@@ -77,7 +77,7 @@ public class TemperatureMetricNormalizer extends AbstractMetricNormalizer {
 
 		if (maybeHighDegradedMetric.isPresent() && maybeHighCriticalMetric.isPresent()) {
 			// Adjust values if both metrics are present
-			adjustMetricsIfNecessary(maybeHighCriticalMetric.get(), maybeHighDegradedMetric.get());
+			swapIfFirstLessThanSecond(maybeHighCriticalMetric.get(), maybeHighDegradedMetric.get());
 		} else if (maybeHighCriticalMetric.isPresent()) {
 			// Create high degraded metric if only high critical is present
 			final NumberMetric criticalMetric = maybeHighCriticalMetric.get();
