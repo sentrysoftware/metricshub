@@ -22,6 +22,9 @@ package org.sentrysoftware.metricshub.hardware;
  */
 
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -34,9 +37,13 @@ import org.sentrysoftware.metricshub.hardware.threshold.CpuMetricNormalizer;
 import org.sentrysoftware.metricshub.hardware.threshold.FanMetricNormalizer;
 import org.sentrysoftware.metricshub.hardware.threshold.GpuMetricNormalizer;
 import org.sentrysoftware.metricshub.hardware.threshold.LogicalDiskMetricNormalizer;
+import org.sentrysoftware.metricshub.hardware.threshold.LunMetricNormalizer;
 import org.sentrysoftware.metricshub.hardware.threshold.MemoryMetricNormalizer;
+import org.sentrysoftware.metricshub.hardware.threshold.NetworkMetricNormalizer;
 import org.sentrysoftware.metricshub.hardware.threshold.OtherDeviceMetricNormalizer;
+import org.sentrysoftware.metricshub.hardware.threshold.PhysicalDiskMetricNormalizer;
 import org.sentrysoftware.metricshub.hardware.threshold.RoboticsMetricNormalizer;
+import org.sentrysoftware.metricshub.hardware.threshold.TapeDriveMetricNormalizer;
 import org.sentrysoftware.metricshub.hardware.threshold.TemperatureMetricNormalizer;
 
 /**
@@ -54,22 +61,30 @@ public class MetricNormalizationService implements IPostExecutionService {
 	private TelemetryManager telemetryManager;
 
 	/**
-	 * The connector and hosts are generic kinds, so they are excluded from the physical types
+	 * The connector and hosts are generic kinds, so they are excluded from the
+	 * physical types
 	 */
-	private static final Set<String> EXCLUDED_MONITOR_TYPES = Set.of(
-		KnownMonitorType.CONNECTOR.name(),
-		KnownMonitorType.HOST.name()
+	private static final Set<KnownMonitorType> EXCLUDED_MONITOR_TYPES = Set.of(
+		KnownMonitorType.CONNECTOR,
+		KnownMonitorType.HOST
 	);
+
+	// Hardware monitor types
+	private static final Set<String> HARDWARE_MONITOR_TYPES = Stream
+		.of(KnownMonitorType.values())
+		.filter(type -> !EXCLUDED_MONITOR_TYPES.contains(type))
+		.map(KnownMonitorType::getKey)
+		.collect(Collectors.toCollection(() -> new TreeSet<>(String.CASE_INSENSITIVE_ORDER)));
 
 	/**
 	 * Checks if the given monitor is a hardware monitor.
-	 * This method determines if a given monitor is a hardware monitor by
-	 * checking if its type is not included in the {@code EXCLUDED_MONITOR_TYPES} set.
+	 *
 	 * @param monitor the monitor to check
-	 * @return {@code true} if the monitor is a hardware monitor, {@code false} otherwise
+	 * @return {@code true} if the monitor is a hardware monitor, {@code false}
+	 *         otherwise
 	 */
 	private boolean isHardwareMonitor(final Monitor monitor) {
-		return !EXCLUDED_MONITOR_TYPES.contains(monitor.getType());
+		return HARDWARE_MONITOR_TYPES.contains(monitor.getType());
 	}
 
 	/**
@@ -86,53 +101,67 @@ public class MetricNormalizationService implements IPostExecutionService {
 			.stream()
 			.flatMap(monitors -> monitors.values().stream())
 			.filter(this::isHardwareMonitor)
-			.forEach(monitor -> {
-				switch (monitor.getType()) {
-					case "cpu":
-						new CpuMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
-							.normalize(monitor);
+			.flatMap(monitor ->
+				KnownMonitorType.fromString(monitor.getType()).map(type -> new KnownMonitor(monitor, type)).stream()
+			)
+			.forEach(knownMonitor -> {
+				final Monitor monitor = knownMonitor.getMonitor();
+				final String hostname = telemetryManager.getHostname();
+				final Long strategyTime = telemetryManager.getStrategyTime();
+				switch (knownMonitor.getType()) {
+					case CPU:
+						new CpuMetricNormalizer(strategyTime, hostname).normalize(monitor);
 						break;
-					case "fan":
-						new FanMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
-							.normalize(monitor);
+					case FAN:
+						new FanMetricNormalizer(strategyTime, hostname).normalize(monitor);
 						break;
-					case "gpu":
-						new GpuMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
-							.normalize(monitor);
+					case GPU:
+						new GpuMetricNormalizer(strategyTime, hostname).normalize(monitor);
 						break;
-					case "logical_disk":
-						new LogicalDiskMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
-							.normalize(monitor);
+					case LOGICAL_DISK:
+						new LogicalDiskMetricNormalizer(strategyTime, hostname).normalize(monitor);
 						break;
-					case "lun":
-					//TODO
-					case "memory":
-						new MemoryMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
-							.normalize(monitor);
+					case LUN:
+						new LunMetricNormalizer(strategyTime, hostname).normalize(monitor);
 						break;
-					case "network":
-					//TODO
-					case "other_device":
-						new OtherDeviceMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
-							.normalize(monitor);
+					case MEMORY:
+						new MemoryMetricNormalizer(strategyTime, hostname).normalize(monitor);
 						break;
-					case "physical_disk":
-					//TODO
-					case "robotics":
-						new RoboticsMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
-							.normalize(monitor);
+					case NETWORK:
+						new NetworkMetricNormalizer(strategyTime, hostname).normalize(monitor);
 						break;
-					case "tape_drive":
-					//TODO
-					case "temperature":
-						new TemperatureMetricNormalizer(telemetryManager.getStrategyTime(), telemetryManager.getHostname())
-							.normalize(monitor);
+					case OTHER_DEVICE:
+						new OtherDeviceMetricNormalizer(strategyTime, hostname).normalize(monitor);
 						break;
-					case "voltage":
-					//TODO
+					case PHYSICAL_DISK:
+						new PhysicalDiskMetricNormalizer(strategyTime, hostname).normalize(monitor);
+						break;
+					case ROBOTICS:
+						new RoboticsMetricNormalizer(strategyTime, hostname).normalize(monitor);
+						break;
+					case TAPE_DRIVE:
+						new TapeDriveMetricNormalizer(strategyTime, hostname).normalize(monitor);
+						break;
+					case TEMPERATURE:
+						new TemperatureMetricNormalizer(strategyTime, hostname).normalize(monitor);
+						break;
+					case VOLTAGE:
+						new VoltageMetricNormalizer(strategyTime, hostname).normalize(monitor);
+						break;
 					default:
-					//TODO other hardware monitor types
+						break;
 				}
 			});
+	}
+
+	/**
+	 * Stores a monitor and its type.
+	 */
+	@Data
+	@AllArgsConstructor
+	class KnownMonitor {
+
+		private Monitor monitor;
+		private KnownMonitorType type;
 	}
 }

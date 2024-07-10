@@ -21,15 +21,20 @@ package org.sentrysoftware.metricshub.hardware.threshold;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.Map;
+import java.util.Optional;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
+import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 
 /**
- * TODO: Complete the Javadoc for this Class.
+ * The VoltageMetricNormalizer class is responsible for normalizing voltage metrics.
+ * It extends the AbstractMetricNormalizer class to provide specific
+ * normalization logic for voltage monitor hardware metrics.
  */
 public class VoltageMetricNormalizer extends AbstractMetricNormalizer {
 
 	/**
-	 * Constructs a new instance with the specified strategy time.
+	 * Constructs new instance of VoltageMetricNormalizer with the specified strategy time.
 	 * @param strategyTime The strategy time in milliseconds
 	 * @param hostname     The hostname of the monitor
 	 */
@@ -38,8 +43,68 @@ public class VoltageMetricNormalizer extends AbstractMetricNormalizer {
 	}
 
 	/**
-	 * TODO: Complete the Javadoc for this method.
+	 * Normalizes the metrics of the given monitor.
+	 * @param monitor The monitor containing the metrics to be normalized
 	 */
 	@Override
-	public void normalize(Monitor monitor) {}
+	public void normalize(Monitor monitor) {
+		normalizeVoltageLimitMetric(monitor, "hw.voltage");
+	}
+
+	/**
+	 * Normalizes the speed limit metrics.
+	 * @param monitor The monitor to normalize
+	 * @param metricNamePrefix The prefix of the metric name.
+	 */
+	private void normalizeVoltageLimitMetric(final Monitor monitor, final String metricNamePrefix) {
+		if (!isMetricCollected(monitor, metricNamePrefix)) {
+			return;
+		}
+
+		// Get the high critical metric
+		final Optional<NumberMetric> maybeHighCriticaldMetric = findMetricByNamePrefixAndAttributes(
+			monitor,
+			String.format("%s.limit", metricNamePrefix),
+			Map.of("limit_type", "high.critical")
+		);
+
+		// Get the low critical metric
+		final Optional<NumberMetric> maybeLowCriticalMetric = findMetricByNamePrefixAndAttributes(
+			monitor,
+			String.format("%s.limit", metricNamePrefix),
+			Map.of("limit_type", "low.critical")
+		);
+
+		if (maybeHighCriticaldMetric.isPresent() && maybeLowCriticalMetric.isPresent()) {
+			// Adjust values if both metrics are present
+			adjustMetricsIfNecessary(maybeHighCriticaldMetric.get(), maybeLowCriticalMetric.get());
+		} else if (maybeHighCriticaldMetric.isPresent()) {
+			// Create low critical metric if only high critical is present
+			final NumberMetric highCriticalMetric = maybeHighCriticaldMetric.get();
+			final Double lowCriticalMetricValue = highCriticalMetric.getValue();
+			final String lowCriticalMetricName = highCriticalMetric.getName().replace("high", "low");
+			collectMetric(monitor, lowCriticalMetricName, lowCriticalMetricValue);
+
+			highCriticalMetric.setValue(lowCriticalMetricValue * 1.1);
+			final Double highCriticalValue = highCriticalMetric.getValue();
+			if (lowCriticalMetricValue <= 0) {
+				highCriticalMetric.setValue(lowCriticalMetricValue);
+				collectMetric(monitor, lowCriticalMetricName, highCriticalValue);
+			}
+		} else if (maybeLowCriticalMetric.isPresent()) {
+			// Create high critical metric if only low critical is present
+			final NumberMetric lowCriticalMetric = maybeLowCriticalMetric.get();
+			final Double highCriticalMetricValue = lowCriticalMetric.getValue();
+			final String highCriticalMetricName = lowCriticalMetric.getName().replace("low", "high");
+
+			collectMetric(monitor, highCriticalMetricName, highCriticalMetricValue);
+			lowCriticalMetric.setValue(highCriticalMetricValue * 0.9);
+			final Double lowCriticalMetricValue = lowCriticalMetric.getValue();
+
+			if (highCriticalMetricValue <= 0) {
+				lowCriticalMetric.setValue(highCriticalMetricValue);
+				collectMetric(monitor, highCriticalMetricName, lowCriticalMetricValue);
+			}
+		}
+	}
 }
