@@ -73,7 +73,7 @@ public class NetworkMetricNormalizer extends AbstractMetricNormalizer {
 			collectMetric(monitor, "hw.network.error_ratio.limit{limit_type=\"degraded\", hw.type=\"network\"}", 0.2);
 			collectMetric(monitor, "hw.network.error_ratio.limit{limit_type=\"critical\", hw.type=\"network\"}", 0.3);
 		} else if (maybeCriticalMetric.isPresent() && maybeDegradedMetric.isPresent()) {
-			adjustMetricsIfNecessary(maybeCriticalMetric.get(), maybeDegradedMetric.get());
+			swapIfFirstLessThanSecond(maybeCriticalMetric.get(), maybeDegradedMetric.get());
 		}
 	}
 

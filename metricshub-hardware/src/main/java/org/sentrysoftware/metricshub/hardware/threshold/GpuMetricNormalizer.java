@@ -86,7 +86,7 @@ public class GpuMetricNormalizer extends AbstractMetricNormalizer {
 			collectMetric(monitor, metricNamePrefixWithLimit + "{limit_type=\"degraded\"}", defaultDegradedValue);
 		} else if (maybeDegradedMetric.isPresent() && maybeCriticalMetric.isPresent()) {
 			// If both the degraded and critical metrics are available, adjust the values if necessary
-			adjustMetricsIfNecessary(maybeCriticalMetric.get(), maybeDegradedMetric.get());
+			swapIfFirstLessThanSecond(maybeCriticalMetric.get(), maybeDegradedMetric.get());
 		} else if (maybeDegradedMetric.isEmpty()) {
 			// If the degraded metric is absent, create and collect a new degraded metric
 			collectMetric(

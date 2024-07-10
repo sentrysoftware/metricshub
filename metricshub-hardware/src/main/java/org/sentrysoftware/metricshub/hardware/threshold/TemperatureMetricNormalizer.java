@@ -21,15 +21,20 @@ package org.sentrysoftware.metricshub.hardware.threshold;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.Map;
+import java.util.Optional;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
+import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 
 /**
- * TODO: Complete the Javadoc for this Class.
+ * The TemperatureMetricNormalizer class is responsible for normalizing temperature metrics.
+ * It extends the AbstractMetricNormalizer class to provide specific
+ * normalization logic for temperature monitor hardware metrics.
  */
 public class TemperatureMetricNormalizer extends AbstractMetricNormalizer {
 
 	/**
-	 * Constructs a new instance with the specified strategy time.
+	 * Constructs new instance of TemperatureMetricNormalizer with the specified strategy time.
 	 * @param strategyTime The strategy time in milliseconds
 	 * @param hostname     The hostname of the monitor
 	 */
@@ -38,8 +43,49 @@ public class TemperatureMetricNormalizer extends AbstractMetricNormalizer {
 	}
 
 	/**
-	 * TODO: Complete the Javadoc for this method.
+	 * Normalizes the metrics of the given monitor.
+	 * @param monitor The monitor containing the metrics to be normalized
 	 */
 	@Override
-	public void normalize(Monitor monitor) {}
+	public void normalize(Monitor monitor) {
+		normalizeTemperatureLimitMetric(monitor, "hw.temperature");
+	}
+
+	/**
+	 * Normalizes the speed limit metrics.
+	 * @param monitor The monitor to normalize
+	 * @param metricNamePrefix The prefix of the metric name.
+	 */
+	private void normalizeTemperatureLimitMetric(final Monitor monitor, final String metricNamePrefix) {
+		if (!isMetricCollected(monitor, metricNamePrefix)) {
+			return;
+		}
+
+		// Get the high degraded metric
+		final Optional<NumberMetric> maybeHighDegradedMetric = findMetricByNamePrefixAndAttributes(
+			monitor,
+			String.format("%s.limit", metricNamePrefix),
+			Map.of("limit_type", "high.degraded")
+		);
+
+		// Get the high critical metric
+		final Optional<NumberMetric> maybeHighCriticalMetric = findMetricByNamePrefixAndAttributes(
+			monitor,
+			String.format("%s.limit", metricNamePrefix),
+			Map.of("limit_type", "high.critical")
+		);
+
+		if (maybeHighDegradedMetric.isPresent() && maybeHighCriticalMetric.isPresent()) {
+			// Adjust values if both metrics are present
+			swapIfFirstLessThanSecond(maybeHighCriticalMetric.get(), maybeHighDegradedMetric.get());
+		} else if (maybeHighCriticalMetric.isPresent()) {
+			// Create high degraded metric if only high critical is present
+			final NumberMetric criticalMetric = maybeHighCriticalMetric.get();
+			collectMetric(monitor, criticalMetric.getName().replace("critical", "degraded"), criticalMetric.getValue() * 0.9);
+		} else if (maybeHighDegradedMetric.isPresent()) {
+			// Create high critical metric if only high degraded is present
+			final NumberMetric degradedMetric = maybeHighDegradedMetric.get();
+			collectMetric(monitor, degradedMetric.getName().replace("degraded", "critical"), degradedMetric.getValue() * 1.1);
+		}
+	}
 }
