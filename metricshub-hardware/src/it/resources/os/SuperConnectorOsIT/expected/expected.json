@@ -60091,6 +60091,20 @@
         "type" : "NumberMetric",
         "updated" : true
       },
+      "hw.errors.limit{limit_type=\"critical\", hw.type=\"tape_drive\"}" : {
+        "name" : "hw.errors.limit{limit_type=\"critical\", hw.type=\"tape_drive\"}",
+        "collectTime" : 1720615548812,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "limit_type" : "critical",
+          "hw.type" : "tape_drive"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
       "hw.status{hw.type=\"tape_drive\", state=\"needs_cleaning\"}" : {
         "name" : "hw.status{hw.type=\"tape_drive\", state=\"needs_cleaning\"}",
         "collectTime" : 1715961673910,
@@ -60212,6 +60226,20 @@
         "type" : "NumberMetric",
         "updated" : true
       },
+      "hw.errors.limit{limit_type=\"critical\", hw.type=\"tape_drive\"}" : {
+        "name" : "hw.errors.limit{limit_type=\"critical\", hw.type=\"tape_drive\"}",
+        "collectTime" : 1720615548812,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "limit_type" : "critical",
+          "hw.type" : "tape_drive"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
       "hw.status{hw.type=\"tape_drive\", state=\"needs_cleaning\"}" : {
         "name" : "hw.status{hw.type=\"tape_drive\", state=\"needs_cleaning\"}",
         "collectTime" : 1715961673910,
@@ -60329,6 +60357,20 @@
         },
         "resetMetricTime" : false,
         "value" : 15.0,
+        "previousValue" : null,
+        "type" : "NumberMetric",
+        "updated" : true
+      },
+      "hw.errors.limit{limit_type=\"critical\", hw.type=\"tape_drive\"}" : {
+        "name" : "hw.errors.limit{limit_type=\"critical\", hw.type=\"tape_drive\"}",
+        "collectTime" : 1720615548812,
+        "previousCollectTime" : null,
+        "attributes" : {
+          "limit_type" : "critical",
+          "hw.type" : "tape_drive"
+        },
+        "resetMetricTime" : false,
+        "value" : 1.0,
         "previousValue" : null,
         "type" : "NumberMetric",
         "updated" : true
