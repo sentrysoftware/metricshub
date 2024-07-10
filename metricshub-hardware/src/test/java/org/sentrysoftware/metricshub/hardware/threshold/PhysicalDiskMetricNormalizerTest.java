@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 
-public class PhysicalDiskMetricNormalizerTest {
+class PhysicalDiskMetricNormalizerTest {
 
 	private static final long STRATEGY_TIME = System.currentTimeMillis();
 	private static final String HOSTNAME = "hostname";
