@@ -114,13 +114,13 @@ public class FanMetricNormalizer extends AbstractMetricNormalizer {
 			collectMetric(monitor, lowCriticaldMetricName, defaultLowCriticalValueMetric);
 		} else if (maybeLowDegradedMetric.isPresent() && maybeLowCriticalMetric.isPresent()) {
 			// Adjust values if both metrics are present
-			adjustFanMetricsIfNecessary(maybeLowDegradedMetric.get(), maybeLowCriticalMetric.get());
+			adjustMetricsIfNecessary(maybeLowDegradedMetric.get(), maybeLowCriticalMetric.get());
 		} else if (maybeLowDegradedMetric.isEmpty()) {
 			// Create degraded metric if only critical is present
 			final NumberMetric lowCriticalMetric = maybeLowCriticalMetric.get();
 			collectMetric(
 				monitor,
-				lowCriticalMetric.getName().replace("low.critical", "low.degraded"),
+				lowCriticalMetric.getName().replace("critical", "degraded"),
 				lowCriticalMetric.getValue() * 1.1
 			);
 		} else {
@@ -128,26 +128,9 @@ public class FanMetricNormalizer extends AbstractMetricNormalizer {
 			final NumberMetric lowDegradedMetric = maybeLowDegradedMetric.get();
 			collectMetric(
 				monitor,
-				lowDegradedMetric.getName().replace("low.degraded", "low.critical"),
+				lowDegradedMetric.getName().replace("degraded", "critical"),
 				lowDegradedMetric.getValue() * 0.9
 			);
-		}
-	}
-
-	/**
-	 * Adjusts the values of low degraded and low critical metrics if necessary.
-	 * If the low degraded value is smaller than the low critical value, their values are swapped.
-	 *
-	 * @param lowDegradedMetric The low degraded metric
-	 * @param lowCriticalMetric The low critical metric
-	 */
-	private void adjustFanMetricsIfNecessary(final NumberMetric lowDegradedMetric, final NumberMetric lowCriticalMetric) {
-		final Double lowDegradedValue = lowDegradedMetric.getValue();
-		final Double lowCriticalValue = lowCriticalMetric.getValue();
-
-		if (lowDegradedValue < lowCriticalValue) {
-			lowDegradedMetric.setValue(lowCriticalValue);
-			lowCriticalMetric.setValue(lowDegradedValue);
 		}
 	}
 }
