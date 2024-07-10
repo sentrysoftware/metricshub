@@ -24,7 +24,9 @@ package org.sentrysoftware.metricshub.hardware.threshold;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 
 /**
- * TODO: Complete the Javadoc for this Class
+ * The TapeDriveMetricNormalizer class is responsible for normalizing TAPE DRIVE metrics.
+ * It extends the AbstractMetricNormalizer class to provide specific
+ * normalization logic for TAPE DRIVE monitor hardware metrics.
  */
 public class TapeDriveMetricNormalizer extends AbstractMetricNormalizer {
 
@@ -38,8 +40,11 @@ public class TapeDriveMetricNormalizer extends AbstractMetricNormalizer {
 	}
 
 	/**
-	 * TODO: Complete the Javadoc for this method.
+	 * Normalizes tape drive limit metrics
+	 * @param monitor A given {@link Monitor}
 	 */
 	@Override
-	public void normalize(Monitor monitor) {}
+	public void normalize(Monitor monitor) {
+		normalizeErrorsLimitMetric(monitor);
+	}
 }
