@@ -24,7 +24,9 @@ package org.sentrysoftware.metricshub.hardware.threshold;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 
 /**
- * TODO: Complete the Javadoc for this Class.
+ * The PhysicalDiskMetricNormalizer class is responsible for normalizing Physical disk metrics.
+ * It extends the AbstractMetricNormalizer class to provide specific
+ * normalization logic for Physical disk monitor hardware metrics.
  */
 public class PhysicalDiskMetricNormalizer extends AbstractMetricNormalizer {
 
@@ -38,8 +40,11 @@ public class PhysicalDiskMetricNormalizer extends AbstractMetricNormalizer {
 	}
 
 	/**
-	 * TODO: Complete the Javadoc for this method.
+	 * Normalizes physical disk limit metrics
+	 * @param monitor A given {@link Monitor}
 	 */
 	@Override
-	public void normalize(Monitor monitor) {}
+	public void normalize(final Monitor monitor) {
+		normalizeErrorsLimitMetric(monitor);
+	}
 }

@@ -80,10 +80,12 @@
 
 		<menu name="Getting Started">
 			<item name="Overview" href="index.html" />
-			<item name="Getting Started - Windows" href="getting-started-windows.html "/>
-			<item name="Getting Started - Linux" href="getting-started-linux.html "/>
-			<item name="General Concepts" href="concepts.html "/>
 			<item name="Installation" href="install.html" />
+		</menu>
+
+		<menu name="Quick Start (Community Edition)">
+			<item name="Quick Start - Windows" href="quick-start-community-prometheus-windows.html "/>
+			<item name="Quick Start - Linux" href="quick-start-community-prometheus-linux.html "/>
 		</menu>
 
 		<menu name="Configuration">
@@ -156,8 +158,8 @@
 		</menu>
 
 		<menu name="Appendix">
-			<item name="Community Connectors Reference" href="metricshub-connector-reference.html" />
-			<item name="Community Connector Platforms" href="platform-requirements.html" />
+			<item name="Connectors Reference" href="metricshub-connector-reference.html" />
+			<item name="Connector Platforms" href="platform-requirements.html" />
 		</menu>
 
 		<menu ref="reports" />

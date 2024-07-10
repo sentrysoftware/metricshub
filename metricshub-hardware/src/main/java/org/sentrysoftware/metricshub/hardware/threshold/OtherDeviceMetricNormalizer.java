@@ -78,7 +78,7 @@ public class OtherDeviceMetricNormalizer extends AbstractMetricNormalizer {
 
 		if (maybeDegradedMetric.isPresent() && maybeCriticalMetric.isPresent()) {
 			// Adjust values if both metrics are present
-			adjustOtherDeviceMetricsIfNecessary(maybeDegradedMetric.get(), maybeCriticalMetric.get());
+			swapIfFirstLessThanSecond(maybeDegradedMetric.get(), maybeCriticalMetric.get());
 		} else if (maybeCriticalMetric.isPresent()) {
 			// Create degraded metric if only critical is present
 			final NumberMetric criticalMetric = maybeCriticalMetric.get();
@@ -87,26 +87,6 @@ public class OtherDeviceMetricNormalizer extends AbstractMetricNormalizer {
 			// Create critical metric if only degraded is present
 			final NumberMetric degradedMetric = maybeDegradedMetric.get();
 			collectMetric(monitor, degradedMetric.getName().replace("degraded", "critical"), degradedMetric.getValue() * 1.1);
-		}
-	}
-
-	/**
-	 * Adjusts the values of degraded and critical metrics if necessary.
-	 * If the degraded value is smaller than the critical value, their values are swapped.
-	 *
-	 * @param degradedMetric The degraded metric
-	 * @param criticalMetric The critical metric
-	 */
-	private void adjustOtherDeviceMetricsIfNecessary(
-		final NumberMetric degradedMetric,
-		final NumberMetric criticalMetric
-	) {
-		final Double degradedValue = degradedMetric.getValue();
-		final Double criticalValue = criticalMetric.getValue();
-
-		if (degradedValue < criticalValue) {
-			degradedMetric.setValue(criticalValue);
-			criticalMetric.setValue(degradedValue);
 		}
 	}
 }

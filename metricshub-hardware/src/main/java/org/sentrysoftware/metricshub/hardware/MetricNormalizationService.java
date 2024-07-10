@@ -45,6 +45,7 @@ import org.sentrysoftware.metricshub.hardware.threshold.PhysicalDiskMetricNormal
 import org.sentrysoftware.metricshub.hardware.threshold.RoboticsMetricNormalizer;
 import org.sentrysoftware.metricshub.hardware.threshold.TapeDriveMetricNormalizer;
 import org.sentrysoftware.metricshub.hardware.threshold.TemperatureMetricNormalizer;
+import org.sentrysoftware.metricshub.hardware.threshold.VoltageMetricNormalizer;
 
 /**
  * Service class for normalizing hardware monitor metrics.
