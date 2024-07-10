@@ -41,6 +41,7 @@ import org.sentrysoftware.metricshub.hardware.threshold.LunMetricNormalizer;
 import org.sentrysoftware.metricshub.hardware.threshold.MemoryMetricNormalizer;
 import org.sentrysoftware.metricshub.hardware.threshold.NetworkMetricNormalizer;
 import org.sentrysoftware.metricshub.hardware.threshold.OtherDeviceMetricNormalizer;
+import org.sentrysoftware.metricshub.hardware.threshold.PhysicalDiskMetricNormalizer;
 import org.sentrysoftware.metricshub.hardware.threshold.RoboticsMetricNormalizer;
 
 /**
@@ -131,7 +132,7 @@ public class MetricNormalizationService implements IPostExecutionService {
 						new OtherDeviceMetricNormalizer(strategyTime, hostname).normalize(monitor);
 						break;
 					case PHYSICAL_DISK:
-						//TODO
+						new PhysicalDiskMetricNormalizer(strategyTime, hostname).normalize(monitor);
 						break;
 					case ROBOTICS:
 						new RoboticsMetricNormalizer(strategyTime, hostname).normalize(monitor);
