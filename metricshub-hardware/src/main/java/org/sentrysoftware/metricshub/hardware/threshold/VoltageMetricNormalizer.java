@@ -83,12 +83,12 @@ public class VoltageMetricNormalizer extends AbstractMetricNormalizer {
 			final NumberMetric highCriticalMetric = maybeHighCriticaldMetric.get();
 			final Double lowCriticalMetricValue = highCriticalMetric.getValue();
 			final String lowCriticalMetricName = highCriticalMetric.getName().replace("high", "low");
-			
+
 			collectMetric(monitor, lowCriticalMetricName, lowCriticalMetricValue);
-			
+
 			highCriticalMetric.setValue(lowCriticalMetricValue * 1.1);
 			final Double highCriticalValue = highCriticalMetric.getValue();
-			
+
 			if (lowCriticalMetricValue <= 0) {
 				highCriticalMetric.setValue(lowCriticalMetricValue);
 				collectMetric(monitor, lowCriticalMetricName, highCriticalValue);
@@ -98,12 +98,12 @@ public class VoltageMetricNormalizer extends AbstractMetricNormalizer {
 			final NumberMetric lowCriticalMetric = maybeLowCriticalMetric.get();
 			final Double highCriticalMetricValue = lowCriticalMetric.getValue();
 			final String highCriticalMetricName = lowCriticalMetric.getName().replace("low", "high");
-			
+
 			collectMetric(monitor, highCriticalMetricName, highCriticalMetricValue);
-			
+
 			lowCriticalMetric.setValue(highCriticalMetricValue * 0.9);
 			final Double lowCriticalMetricValue = lowCriticalMetric.getValue();
-			
+
 			if (highCriticalMetricValue <= 0) {
 				lowCriticalMetric.setValue(highCriticalMetricValue);
 				collectMetric(monitor, highCriticalMetricName, lowCriticalMetricValue);
