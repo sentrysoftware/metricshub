@@ -42,6 +42,7 @@ import org.sentrysoftware.metricshub.hardware.threshold.MemoryMetricNormalizer;
 import org.sentrysoftware.metricshub.hardware.threshold.NetworkMetricNormalizer;
 import org.sentrysoftware.metricshub.hardware.threshold.OtherDeviceMetricNormalizer;
 import org.sentrysoftware.metricshub.hardware.threshold.RoboticsMetricNormalizer;
+import org.sentrysoftware.metricshub.hardware.threshold.TemperatureMetricNormalizer;
 
 /**
  * Service class for normalizing hardware monitor metrics.
@@ -140,7 +141,7 @@ public class MetricNormalizationService implements IPostExecutionService {
 						//TODO
 						break;
 					case TEMPERATURE:
-						//TODO
+						new TemperatureMetricNormalizer(strategyTime, hostname).normalize(monitor);
 						break;
 					case VOLTAGE:
 						//TODO

@@ -184,19 +184,19 @@ public abstract class AbstractMetricNormalizer {
 	}
 
 	/**
-	 * Adjusts the values of degraded and critical metrics if necessary.
-	 * If the critical value is smaller than the degraded value, their values are swapped.
+	 * Adjusts the values of two metrics if necessary.
+	 * If the value of the first metric is smaller than the value of the second metric, their values are swapped.
 	 *
-	 * @param criticalMetric The critical metric
-	 * @param degradedMetric The degraded metric
+	 * @param firstMetric  The first metric
+	 * @param secondMetric The second metric
 	 */
-	protected void adjustMetricsIfNecessary(final NumberMetric criticalMetric, final NumberMetric degradedMetric) {
-		final Double degradedValue = degradedMetric.getValue();
-		final Double criticalValue = criticalMetric.getValue();
+	protected void adjustMetricsIfNecessary(final NumberMetric firstMetric, final NumberMetric secondMetric) {
+		final Double firstMetricValue = firstMetric.getValue();
+		final Double secondMetricValue = secondMetric.getValue();
 
-		if (criticalValue < degradedValue) {
-			degradedMetric.setValue(criticalValue);
-			criticalMetric.setValue(degradedValue);
+		if (firstMetricValue < secondMetricValue) {
+			firstMetric.setValue(secondMetricValue);
+			secondMetric.setValue(firstMetricValue);
 		}
 	}
 
