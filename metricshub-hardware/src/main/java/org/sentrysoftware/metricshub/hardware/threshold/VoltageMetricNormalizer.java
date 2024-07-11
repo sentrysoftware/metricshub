@@ -81,33 +81,37 @@ public class VoltageMetricNormalizer extends AbstractMetricNormalizer {
 		} else if (maybeHighCriticaldMetric.isPresent()) {
 			// Create low critical metric if only high critical is present
 			final NumberMetric highCriticalMetric = maybeHighCriticaldMetric.get();
-			final Double lowCriticalMetricValue = highCriticalMetric.getValue();
+			final Double maybeLowCriticalMetricValue = highCriticalMetric.getValue();
 			final String lowCriticalMetricName = highCriticalMetric.getName().replace("high", "low");
 
-			collectMetric(monitor, lowCriticalMetricName, lowCriticalMetricValue);
+			Double lowCriticalMetricValue = maybeLowCriticalMetricValue;
+			final Double maybeHighCriticalMetricValue = maybeLowCriticalMetricValue * 1.1;
+			Double highCriticalMetricValue = maybeHighCriticalMetricValue;
 
-			highCriticalMetric.setValue(lowCriticalMetricValue * 1.1);
-			final Double highCriticalValue = highCriticalMetric.getValue();
-
-			if (lowCriticalMetricValue <= 0) {
-				highCriticalMetric.setValue(lowCriticalMetricValue);
-				collectMetric(monitor, lowCriticalMetricName, highCriticalValue);
+			if (maybeLowCriticalMetricValue <= 0) {
+				highCriticalMetricValue = maybeLowCriticalMetricValue;
+				lowCriticalMetricValue = maybeHighCriticalMetricValue;
 			}
+
+			highCriticalMetric.setValue(highCriticalMetricValue);
+			collectMetric(monitor, lowCriticalMetricName, lowCriticalMetricValue);
 		} else if (maybeLowCriticalMetric.isPresent()) {
 			// Create high critical metric if only low critical is present
 			final NumberMetric lowCriticalMetric = maybeLowCriticalMetric.get();
-			final Double highCriticalMetricValue = lowCriticalMetric.getValue();
+			final Double maybeHighCriticalMetricValue = lowCriticalMetric.getValue();
 			final String highCriticalMetricName = lowCriticalMetric.getName().replace("low", "high");
 
-			collectMetric(monitor, highCriticalMetricName, highCriticalMetricValue);
-
-			lowCriticalMetric.setValue(highCriticalMetricValue * 0.9);
-			final Double lowCriticalMetricValue = lowCriticalMetric.getValue();
+			Double highCriticalMetricValue = maybeHighCriticalMetricValue;
+			final Double maybeLowCriticalMetricValue = maybeHighCriticalMetricValue * 0.9;
+			Double lowCriticalMetricValue = maybeLowCriticalMetricValue;
 
 			if (highCriticalMetricValue <= 0) {
-				lowCriticalMetric.setValue(highCriticalMetricValue);
-				collectMetric(monitor, highCriticalMetricName, lowCriticalMetricValue);
+				highCriticalMetricValue = maybeLowCriticalMetricValue;
+				lowCriticalMetricValue = maybeHighCriticalMetricValue;
 			}
+
+			lowCriticalMetric.setValue(lowCriticalMetricValue);
+			collectMetric(monitor, highCriticalMetricName, highCriticalMetricValue);
 		}
 	}
 }
