@@ -10,7 +10,7 @@
 
 	<artifactId>metricshub-doc</artifactId>
 
-	<name>Documentation</name>
+	<name>MetricsHub</name>
 	<description>MetricsHub Documentation (site)</description>
 	<url>https://metricshub.com/docs/latest/</url>
 
