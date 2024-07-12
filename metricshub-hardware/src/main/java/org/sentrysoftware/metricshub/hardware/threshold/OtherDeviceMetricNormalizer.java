@@ -82,11 +82,13 @@ public class OtherDeviceMetricNormalizer extends AbstractMetricNormalizer {
 		} else if (maybeCriticalMetric.isPresent()) {
 			// Create degraded metric if only critical is present
 			final NumberMetric criticalMetric = maybeCriticalMetric.get();
-			collectMetric(monitor, criticalMetric.getName().replace("critical", "degraded"), criticalMetric.getValue() * 0.9);
+			final String degradedMetricName = replaceLimitType(criticalMetric.getName(), "limit_type=\"degraded\"");
+			collectMetric(monitor, degradedMetricName, criticalMetric.getValue() * 0.9);
 		} else if (maybeDegradedMetric.isPresent()) {
 			// Create critical metric if only degraded is present
 			final NumberMetric degradedMetric = maybeDegradedMetric.get();
-			collectMetric(monitor, degradedMetric.getName().replace("degraded", "critical"), degradedMetric.getValue() * 1.1);
+			final String criticalMetricName = replaceLimitType(degradedMetric.getName(), "limit_type=\"critical\"");
+			collectMetric(monitor, criticalMetricName, degradedMetric.getValue() * 1.1);
 		}
 	}
 }

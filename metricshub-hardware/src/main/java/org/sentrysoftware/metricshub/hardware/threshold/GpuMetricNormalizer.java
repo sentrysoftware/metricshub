@@ -89,18 +89,14 @@ public class GpuMetricNormalizer extends AbstractMetricNormalizer {
 			swapIfFirstLessThanSecond(maybeCriticalMetric.get(), maybeDegradedMetric.get());
 		} else if (maybeDegradedMetric.isEmpty()) {
 			// If the degraded metric is absent, create and collect a new degraded metric
-			collectMetric(
-				monitor,
-				maybeCriticalMetric.get().getName().replace("critical", "degraded"),
-				maybeCriticalMetric.get().getValue() * 0.9
-			);
+			final NumberMetric criticalMetric = maybeCriticalMetric.get();
+			final String degradedMetricName = replaceLimitType(criticalMetric.getName(), "limit_type=\"degraded\"");
+			collectMetric(monitor, degradedMetricName, maybeCriticalMetric.get().getValue() * 0.9);
 		} else {
 			// If the critical metric is absent, create and collect a new critical metric
-			collectMetric(
-				monitor,
-				maybeDegradedMetric.get().getName().replace("degraded", "critical"),
-				100 - ((100 - maybeDegradedMetric.get().getValue()) * 0.5)
-			);
+			final NumberMetric degradedMetric = maybeDegradedMetric.get();
+			final String criticalMetricName = replaceLimitType(degradedMetric.getName(), "limit_type=\"critical\"");
+			collectMetric(monitor, criticalMetricName, 100 - ((100 - maybeDegradedMetric.get().getValue()) * 0.5));
 		}
 	}
 

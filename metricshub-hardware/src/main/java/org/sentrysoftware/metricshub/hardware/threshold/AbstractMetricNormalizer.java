@@ -24,6 +24,8 @@ package org.sentrysoftware.metricshub.hardware.threshold;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +44,7 @@ public abstract class AbstractMetricNormalizer {
 
 	protected long strategyTime;
 	protected String hostname;
+	private static final Pattern LIMIT_TYPE_PATTERN = Pattern.compile("limit_type\s*=\s*\"([^\"]+)\"");
 
 	/**
 	 * Checks if all entries of the second map are contained in the first map.
@@ -209,5 +212,19 @@ public abstract class AbstractMetricNormalizer {
 	protected void collectMetric(final Monitor monitor, final String metricName, final Double value) {
 		final MetricFactory metricFactory = new MetricFactory(hostname);
 		metricFactory.collectNumberMetric(monitor, metricName, value, strategyTime);
+	}
+
+	/**
+	 * Replaces the limit type in the metric name using a regular expression pattern.
+	 * This method searches for the pattern defined by {@code LIMIT_TYPE_PATTERN} in the
+	 * given {@code metricName} and replaces the old limit type with the new limit type.
+	 *
+	 * @param metricName    the original metric name which contains the limit type to be replaced
+	 * @param newLimitType  the new limit type that will replace the old limit type in the metric name
+	 * @return              the modified metric name with the new limit type
+	 */
+	protected String replaceLimitType(final String metricName, final String newLimitType) {
+		final Matcher matcher = LIMIT_TYPE_PATTERN.matcher(metricName);
+		return matcher.replaceAll(newLimitType);
 	}
 }

@@ -80,12 +80,20 @@ public class TemperatureMetricNormalizer extends AbstractMetricNormalizer {
 			swapIfFirstLessThanSecond(maybeHighCriticalMetric.get(), maybeHighDegradedMetric.get());
 		} else if (maybeHighCriticalMetric.isPresent()) {
 			// Create high degraded metric if only high critical is present
-			final NumberMetric criticalMetric = maybeHighCriticalMetric.get();
-			collectMetric(monitor, criticalMetric.getName().replace("critical", "degraded"), criticalMetric.getValue() * 0.9);
+			final NumberMetric highCriticalMetric = maybeHighCriticalMetric.get();
+			final String highDegradedMetricName = replaceLimitType(
+				highCriticalMetric.getName(),
+				"limit_type=\"high.degraded\""
+			);
+			collectMetric(monitor, highDegradedMetricName, highCriticalMetric.getValue() * 0.9);
 		} else if (maybeHighDegradedMetric.isPresent()) {
 			// Create high critical metric if only high degraded is present
-			final NumberMetric degradedMetric = maybeHighDegradedMetric.get();
-			collectMetric(monitor, degradedMetric.getName().replace("degraded", "critical"), degradedMetric.getValue() * 1.1);
+			final NumberMetric highDegradedMetric = maybeHighDegradedMetric.get();
+			final String highCriticaldMetricName = replaceLimitType(
+				highDegradedMetric.getName(),
+				"limit_type=\"high.critical\""
+			);
+			collectMetric(monitor, highCriticaldMetricName, highDegradedMetric.getValue() * 1.1);
 		}
 	}
 }
