@@ -11,7 +11,7 @@
 	<artifactId>metricshub-doc</artifactId>
 	<packaging>pom</packaging>
 
-	<name>Documentation</name>
+	<name>MetricsHub</name>
 	<description>MetricsHub Documentation (site)</description>
 	<url>https://metricshub.com/docs/latest/</url>
 

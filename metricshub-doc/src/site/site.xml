@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="${project.name}">
+<project name="Documentation">
 
 	<skin>
 		<groupId>org.sentrysoftware.maven</groupId>
@@ -158,8 +158,8 @@
 		</menu>
 
 		<menu name="Appendix">
-			<item name="Community Connectors Reference" href="metricshub-connector-reference.html" />
-			<item name="Community Connector Platforms" href="platform-requirements.html" />
+			<item name="Connectors Directory" href="metricshub-connector-reference.html" />
+			<item name="Connector Platforms" href="platform-requirements.html" />
 		</menu>
 
 		<menu ref="reports" />

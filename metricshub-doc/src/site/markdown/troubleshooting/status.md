@@ -10,7 +10,7 @@ description: There are several ways to easily assess the status of ${solutionNam
 Verify that both processes are running:
 
 * `otelcol-contrib`
-* `hmetricshub/bin/enterprise-service` 
+* `metricshub/bin/enterprise-service` 
 
 On Windows, you will need to verify the status of the **MetricsHub Enterprise** service.
 
