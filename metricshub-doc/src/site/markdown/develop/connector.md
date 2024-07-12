@@ -27,7 +27,7 @@ connector:
   platforms: # <string>
   reliesOn: # <string>
   version:  # <string>
-  projectVersion: # <string> | default: ${project.version}
+  projectVersion: # <string> | default: {esc.d}${project.version}
   information: # <string>
   detection: # <object>
 ```
@@ -98,7 +98,7 @@ connector:
   platforms: # <string>
   reliesOn: # <string>
   version:  # <string>
-  projectVersion: # <string> | default: ${project.version}
+  projectVersion: # <string> | default: {esc.d}${project.version}
   information: # <string>
 
   detection: # <object>

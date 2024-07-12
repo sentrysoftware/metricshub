@@ -15,16 +15,16 @@ After completing this quick start, you will have:
 
 ## Step 1: Install MetricsHub
 
-1. Download the latest package `metricshub-linux-${project.version}.tar.gz` using `wget` and save it under `/tmp`:
+1. Download the latest package `metricshub-linux-${communityVersion}.tar.gz` using `wget` and save it under `/tmp`:
    
    ```shell
-   sudo wget -O /tmp/metricshub-linux-${project.version}.tar.gz https://github.com/sentrysoftware/metricshub/releases/download/v${project.version}/metricshub-linux-${project.version}.tar.gz
+   sudo wget -O /tmp/metricshub-linux-${communityVersion}.tar.gz https://github.com/sentrysoftware/metricshub/releases/download/v${communityVersion}/metricshub-linux-${communityVersion}.tar.gz
    ```
 
-2. Run the below command to unzip `/tmp/metricshub-linux-${project.version}.tar.gz` under `/opt`:
+2. Run the below command to unzip `/tmp/metricshub-linux-${communityVersion}.tar.gz` under `/opt`:
 
    ```shell
-   sudo tar -xzvf /tmp/metricshub-linux-${project.version}.tar.gz -C /opt/
+   sudo tar -xzvf /tmp/metricshub-linux-${communityVersion}.tar.gz -C /opt/
    ```
 
 There is no need to create a specific subdirectory for `metricshub` as the archive already contains a `metricshub` directory.

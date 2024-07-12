@@ -11,15 +11,15 @@ You can install **MetricsHub** on the operating system of your choice as they ar
 
 ### Download
 
-Download the Linux package, `metricshub-linux-${project.version}.tar.gz`, from the [MetricsHub Release v${project.version}](https://github.com/sentrysoftware/metricshub/releases/tag/v${project.version}) page.
+Download the Linux package, `metricshub-linux-${communityVersion}.tar.gz`, from the [MetricsHub Release v${communityVersion}](https://github.com/sentrysoftware/metricshub/releases/tag/v${communityVersion}) page.
 
 ### Install
 
-Unzip and untar the content of `metricshub-linux-${project.version}.tar.gz` into a program directory, like `/opt`. There is no need to create a specific subdirectory for `metricshub` as the archive already contains a `metricshub` directory.
+Unzip and untar the content of `metricshub-linux-${communityVersion}.tar.gz` into a program directory, like `/opt`. There is no need to create a specific subdirectory for `metricshub` as the archive already contains a `metricshub` directory.
 
 ```shell-session
 / $ cd /opt
-/opt $ sudo tar xzf /tmp/metricshub-linux-${project.version}.tar.gz
+/opt $ sudo tar xzf /tmp/metricshub-linux-${communityVersion}.tar.gz
 ```
 
 ### Configure
@@ -154,11 +154,11 @@ If the **MetricsHub Service** was set up as a **Linux Service**, delete the file
 
 ### Download
 
-Download the Windows package, `metricshub-windows-${project.version}.zip`, from the [MetricsHub Release v${project.version}](https://github.com/sentrysoftware/metricshub/releases/tag/v${project.version}) page.
+Download the Windows package, `metricshub-windows-${communityVersion}.zip`, from the [MetricsHub Release v${communityVersion}](https://github.com/sentrysoftware/metricshub/releases/tag/v${communityVersion}) page.
 
 ### Install
 
-Unzip the content of `metricshub-windows-${project.version}.zip` into a program folder, like `C:\Program Files`. There is no need to create a specific subdirectory for `MetricsHub` as the zip archive already contains a `MetricsHub` directory.
+Unzip the content of `metricshub-windows-${communityVersion}.zip` into a program folder, like `C:\Program Files`. There is no need to create a specific subdirectory for `MetricsHub` as the zip archive already contains a `MetricsHub` directory.
 
 > Note: You will need administrative privileges to unzip into `C:\Program Files`.
 
@@ -248,15 +248,15 @@ If the **MetricsHub Service** was set up as a **Windows Service**, run the follo
 
 ### Download
 
-Download the Docker package, `metricshub-linux-${project.version}-docker.tar.gz`, from the [MetricsHub Release v${project.version}](https://github.com/sentrysoftware/metricshub/releases/tag/v${project.version}) page.
+Download the Docker package, `metricshub-linux-${communityVersion}-docker.tar.gz`, from the [MetricsHub Release v${communityVersion}](https://github.com/sentrysoftware/metricshub/releases/tag/v${communityVersion}) page.
 
 ### Install
 
-Unzip and untar the content of `metricshub-linux-${project.version}-docker.tar.gz` into a directory, like `/docker`.
+Unzip and untar the content of `metricshub-linux-${communityVersion}-docker.tar.gz` into a directory, like `/docker`.
 
 ```shell-session
 / $ cd /docker
-/docker $ sudo tar xzf /tmp/metricshub-linux-${project.version}-docker.tar.gz
+/docker $ sudo tar xzf /tmp/metricshub-linux-${communityVersion}-docker.tar.gz
 ```
 
 ### Configure
