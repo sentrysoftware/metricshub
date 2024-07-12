@@ -9,7 +9,6 @@
 	</parent>
 
 	<artifactId>metricshub-doc</artifactId>
-	<packaging>pom</packaging>
 
 	<name>MetricsHub</name>
 	<description>MetricsHub Documentation (site)</description>
@@ -25,6 +24,7 @@
 	</dependencies>
 
 	<build>
+		<sourceDirectory>${project.basedir}/src/site</sourceDirectory>
 		<plugins>
 
 			<!-- site -->
@@ -78,6 +78,17 @@
 				</configuration>
 			</plugin>
 
+			<plugin>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 

@@ -14,124 +14,141 @@ description: How to configure the MetricsHub Agent to collect metrics from a var
 
 ## Configure resources
 
-The structure of the `config/metricshub.yaml` file allows you to organize and manage your resources in a methodical manner:
+The structure of the `config/metricshub.yaml` file allows you to organize and manage your resources methodically. Refer to the sections below to learn how to configure your resources effectively.
+
+### General structure
+
+The `config/metricshub.yaml` file is organized in a hierarchical manner to facilitate the management of various resources:
 
 ```yaml
 resourceGroups:
   <resource-group-name>:
     attributes:
       site: <site-name>
-```
-
-* `resourceGroups` is the highest hierarchical level grouping of all the different resource groups
-* a `resource group` is a container that holds the site to be monitored
-* a `site` is the data center, the server room, or any other location hosting the resources to be monitored.
-
-If you have:
-
-* **a highly distributed infrastructure**, you can set each of your `sites` as a `resource group` containing the different `resources` to be monitored as follows:
-
-    ```yaml
-    resourceGroups:
-      <resource-group-name>:
-        resources:
-          <resource-id>:
-            attributes:
-              host.name: <hostname>
-              host.type: <type>
-            <protocol-configuration>
-    ```
-
-  **Example:**
-
-    ```yaml
-      resourceGroups:
-        boston:
-          resources:
-            myBostonHost1:
-              attributes:
-                host.name: my-boston-host-01
-                host.type: storage
-              <protocol-configuration>
-
-            myBostonHost2:
-              attributes:
-                host.name: my-boston-host-02
-                host.type: storage
-              <protocol-configuration>
-
-        chicago:
-          resources:
-            myChicagoHost1:
-              attributes:
-                host.name: my-chicago-host-01
-                host.type: storage
-              <protocol-configuration>
-
-            myChicagoHost2:
-              attributes:
-                host.name: my-chicago-host-02
-                host.type: storage
-              <protocol-configuration>
-    ```
-
-* **a centralized infrastructure**, you can configure your resource directly under the `resources` section located at the top of the `config/metricshub.yaml` file. In that case, the `resourceGroups` attribute is not required:
-
-    ```yaml
     resources:
       <resource-id>:
         attributes:
           host.name: <hostname>
           host.type: <type>
         <protocol-configuration>
-    # resourceGroups: #
-    ```
-
-If your resources have:
-
-* **unique characteristics**, use the syntax below for each resource:
-
-  ```yaml
-  resources:
-    <resource-id>:
-      attributes:
-        host.name: <hostname>
-        host.type: <type>
-      <protocol-configuration>
-    ```
-
-* share the **same characteristics** (device type, protocols, credentials, etc.), use the syntax below:
-
-  ```yaml
-  resourceGroups:
-    <resource-group-name>:
-      resources:
-        <resource-id>:
-          attributes:
-            host.names: [<hostname1>,<hostname2>, etc.]
-            host.type: <type>
-          <protocol-configuration>
-  ```
+```
 
 where
 
-* `<resource-id>` is the unique id of your resource. It can for example be the id of a host, an application, or a service
-* `<hostname>` is the name or IP address of the resource. `<hostname1>,<hostname2>, etc.` is a comma-delimited list of resources to be monitored. Provide their hostname or IP address.
-* `<type>` is the type of the resource to be monitored. Possible values are:
-  * `win` for Microsoft Windows systems
-  * `linux` for Linux systems
-  * `network` for network devices
-  * `oob` for Out-of-band management cards
-  * `storage` for storage systems
-  * `aix` for IBM AIX systems
-  * `hpux` for HP UX systems
-  * `solaris` for Oracle Solaris systems
-  * `tru64` for HP Tru64 systems
-  * `vms` for HP Open VMS systems.
+* `resourceGroups` is the top-level grouping for all resource groups
+  * `<resource-group-name>` is a container that holds the site to be monitored
+    * `site` is an attribute to specify where resources are hosted. Replace  `<site-name>`with a unique site name. It can either be a logical or a physical location (a data center or server room).
+  * `resources` is a container that holds the resources to be monitored within the resource group
+    * `<resource-id>` is the unique ID of your resource. It can for example be the ID of a host, an application, or a service
+      * `host.name` is an attribute to specify the hostname or IP address of the resource. Replace `<hostname>` with the actual hostname or IP address of the resource. Use a comma-delimited list to specify several resources (`<hostname1>,<hostname2>, etc.`).
+      * `host.type`  is an attribute to specify the type of resource to be monitored. Replace `<type>` with one of the possible values:
+        * `win` for Microsoft Windows systems
+        * `linux` for Linux systems
+        * `network` for network devices
+        * `oob` for Out-of-band management cards
+        * `storage` for storage systems
+        * `aix` for IBM AIX systems
+        * `hpux` for HP UX systems
+        * `solaris` for Oracle Solaris systems
+        * `tru64` for HP Tru64 systems
+        * `vms` for HP Open VMS systems.
 
-* `<protocol-configuration>` is the protocol(s) **MetricsHub** will use to communicate with the resources: `http`, `ipmi`, `oscommand`, `ping`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`.
+    * `<protocol-configuration>` is the protocol(s) **MetricsHub** will use to communicate with the resources: `http`, `ipmi`, `oscommand`, `ping`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and Credentials](./configure-monitoring.html#protocols-and-credentials) for more details.
 
 > Note: You can use the `${esc.d}{env::ENV_VARIABLE_NAME}` syntax in the `config/metricshub.yaml` file to call your environment variables.
+
+
+### Highly distributed infrastructure
+
+For infrastructures with multiple distributed locations, each site can be configured as a separate `resource group` containing the different `resources` to be monitored as follows:
+
+```yaml
+resourceGroups:
+  <resource-group-name>:
+    attributes:
+      site: <site-name>
+    resources:
+      <resource-id>:
+        attributes:
+          host.name: <hostname>
+          host.type: <type>
+        <protocol-configuration>
+```
+
+**Example:**
+
+```yaml
+resourceGroups:
+  boston:
+    attributes:
+      site: boston
+    resources:
+      myBostonHost1:
+        attributes:
+          host.name: my-boston-host-01
+          host.type: storage
+        <protocol-configuration>
+      myBostonHost2:
+        attributes:
+          host.name: my-boston-host-02
+          host.type: storage
+        <protocol-configuration>
+  chicago:
+    attributes:
+      site: chicago
+    resources:
+      myChicagoHost1:
+        attributes:
+          host.name: my-chicago-host-01
+          host.type: storage
+        <protocol-configuration>
+      myChicagoHost2:
+        attributes:
+          host.name: my-chicago-host-02
+          host.type: storage
+        <protocol-configuration>
+```
+
+### Centralized infrastructure
+
+For centralized infrastructures, resources can be configured directly under the `resources` section located at the top of the `config/metricshub.yaml` file, without `resourceGroups`:
+
+```yaml
+resources:
+  <resource-id>:
+    attributes:
+      host.name: <hostname>
+      host.type: <type>
+    <protocol-configuration>
+```
+
+### Unique vs. shared characteristics
+
+#### Unique characteristics
+
+If each resource has unique characteristics, use the following syntax for individual configuration:
+
+```yaml
+resources:
+  <resource-id>:
+    attributes:
+      host.name: <hostname>
+      host.type: <type>
+    <protocol-configuration>
+```
+
+#### Shared characteristics
+
+If multiple resources share the same characteristics, such as device type, protocols, and credentials, they can be grouped together under a single configuration:
+
+```yaml
+resources:
+  <resource-id>:
+    attributes:
+      host.names: [<hostname1>, <hostname2>, etc.]
+      host.type: <type>
+    <protocol-configuration>
+```
 
 ### Protocols and credentials
 
@@ -153,6 +170,8 @@ Use the parameters below to configure the HTTP protocol:
 ```yaml
 resourceGroups:
   boston:
+    attributes:
+      site: boston
     resources:
       myHost1:
         attributes:
@@ -182,6 +201,8 @@ Use the parameters below to configure the ICMP ping protocol:
 ```yaml
 resourceGroups:
   boston:
+    attributes:
+      site: boston
     resources:
       myHost1:
         attributes:
@@ -208,6 +229,8 @@ Use the parameters below to configure the IPMI protocol:
 ```yaml
 resourceGroups:
   boston:
+    attributes:
+      site: boston
     resources:
       myHost1:
         attributes:
@@ -237,6 +260,8 @@ Use the parameters below to configure OS Commands that are executed locally:
 ```yaml
 resourceGroups:
   boston:
+    attributes:
+      site: boston
     resources:
       myHost1:
         attributes:
@@ -271,6 +296,8 @@ Use the parameters below to configure the SSH protocol:
 ```yaml
 resourceGroups:
   boston:
+    attributes:
+      site: boston
     resources:
       myHost1:
         attributes:
@@ -306,6 +333,8 @@ Use the parameters below to configure the SNMP protocol:
 ```yaml
 resourceGroups:
   boston:
+    attributes:
+      site: boston
     resources:
       myHost1:
         attributes:
@@ -353,6 +382,8 @@ Use the parameters below to configure the SNMP version 3 protocol:
 ```yaml
 resourceGroups:
   boston:
+    attributes:
+      site: boston
     resources:
       myHost3:
         attributes:
@@ -391,6 +422,8 @@ Use the parameters below to configure the WBEM protocol:
 ```yaml
 resourceGroups:
   boston:
+    attributes:
+      site: boston
     resources:
       myHost1:
         attributes:
@@ -422,6 +455,8 @@ Use the parameters below to configure the WMI protocol:
 ```yaml
 resourceGroups:
   boston:
+    attributes:
+      site: boston
     resources:
       myHost1:
         attributes:
@@ -454,6 +489,8 @@ Use the parameters below to configure the WinRM protocol:
 ```yaml
 resourceGroups:
   boston:
+    attributes:
+      site: boston
     resources:
       myHost1:
         attributes:
@@ -579,9 +616,35 @@ service-group:
 
 ## (Optional) Additional settings
 
-### Authentication settings
+### Basic Authentication settings
 
-#### Basic authentication header
+#### Enterprise Edition authentication
+
+In the Enterprise Edition, the **MetricsHub**'s internal `OTLP Exporter` authenticates itself with the _OpenTelemetry Collector_'s [OTLP gRPC Receiver](send-data.md#OTLP_gRPC) by including the HTTP `Authorization` request header with the credentials. 
+
+These settings are already configured in the `config/metricshub.yaml` file of **MetricsHub Enterprise Edition**. Changing them is **not recommended** unless you are familiar with managing communication between the **MetricsHub** `OTLP Exporter` and the _OpenTelemetry Collector_'s `OTLP Receiver`.
+
+To override the default value of the *Basic Authentication Header*, configure the `otel.exporter.otlp.metrics.headers` and `otel.exporter.otlp.logs.headers` parameters under the `otel` section:
+
+```yaml
+# Internal OpenTelemetry SDK configuration
+otel:
+  # OpenTelemetry SDK Autoconfigure properties
+  # https://github.com/open-telemetry/opentelemetry-java/tree/main/sdk-extensions/autoconfigure
+  # MetricsHub Default configuration
+  otel.metrics.exporter: otlp
+  otel.exporter.otlp.metrics.endpoint: https://localhost:4317
+  otel.exporter.otlp.metrics.protocol: grpc
+  otel.exporter.otlp.metrics.headers: Authorization=Basic <base64-username-password>
+  otel.exporter.otlp.logs.headers: Authorization=Basic <base64-username-password>
+resourceGroups: # ...
+```
+
+where `<base64-username-password>` credentials are built by first joining your username and password with a colon (`myUsername:myPassword`) and then encoding the value in `base64`.
+
+> **Warning**: If you update the *Basic Authentication Header*, you must generate a new `.htpasswd` file for the [OpenTelemetry Collector Basic Authenticator](send-data.md#Basic_Authenticator).
+
+#### Community Edition authentication
 
 If your `OTLP Receiver` requires authentication headers, configure the `otel.exporter.otlp.metrics.headers` and `otel.exporter.otlp.logs.headers` parameters under the `otel` section:
 
@@ -612,6 +675,8 @@ By default, **MetricsHub** collects metrics from the monitored resources every m
     ```yaml
     resourceGroups:
       boston:
+        attributes:
+          site: boston
         resources:
           myHost1:
             attributes:
@@ -637,6 +702,8 @@ The `connectors` parameter allows you to force, select, or exclude specific conn
 ```yaml
 resourceGroups:
   boston:
+    attributes:
+      site: boston
     resources:
       myHost1:
         attributes:
@@ -754,6 +821,8 @@ For more information about the `metricshub` command, refer to [MetricsHub CLI (m
     ```yaml
     resourceGroups:
       boston:
+        attributes:
+          site: boston
         resources:
           myHost1:
             attributes:
@@ -779,6 +848,8 @@ In the example below, we added a new `app` attribute and indicated that this is 
 ```yaml
 resourceGroups:
   boston:
+    attributes:
+      site: boston
     resources:
       myHost1:
         attributes:
@@ -835,6 +906,8 @@ To force all the network calls to be executed in sequential order:
     ```yaml
     resourceGroups:
       boston:
+        attributes:
+          site: boston
         resources:
           myHost1:
             attributes:
