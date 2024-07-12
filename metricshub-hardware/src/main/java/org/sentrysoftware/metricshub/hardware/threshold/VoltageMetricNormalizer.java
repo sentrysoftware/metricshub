@@ -91,7 +91,7 @@ public class VoltageMetricNormalizer extends AbstractMetricNormalizer {
 			final Double maybeHighCriticalMetricValue = maybeLowCriticalMetricValue * 1.1;
 			Double highCriticalMetricValue = maybeHighCriticalMetricValue;
 
-			if (maybeLowCriticalMetricValue <= 0) {
+			if (lowCriticalMetricValue <= 0) {
 				highCriticalMetricValue = maybeLowCriticalMetricValue;
 				lowCriticalMetricValue = maybeHighCriticalMetricValue;
 			}

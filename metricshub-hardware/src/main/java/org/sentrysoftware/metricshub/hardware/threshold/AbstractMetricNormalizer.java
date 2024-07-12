@@ -225,6 +225,6 @@ public abstract class AbstractMetricNormalizer {
 	 */
 	protected String replaceLimitType(String metricName, String newLimitType) {
 		final Matcher matcher = LIMIT_TYPE_PATTERN.matcher(metricName);
-		return matcher.replaceFirst(newLimitType);
+		return matcher.replaceAll(newLimitType);
 	}
 }
