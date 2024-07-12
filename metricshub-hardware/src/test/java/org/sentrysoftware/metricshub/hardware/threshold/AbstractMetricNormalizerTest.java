@@ -286,4 +286,14 @@ class AbstractMetricNormalizerTest {
 			);
 		}
 	}
+
+	// Test if replaceLimitType correctly replaces the old limit type with the new limit type in the metric name.
+	@Test
+	void testReplaceLimitType() {
+		final String metricName = "hw.fan.speed.limit{limit_type=\"low.oldLimitType\", low=\"some_state\"}";
+		final String newLimitType = "limit_type=\"high.newLimitType\"";
+		final String expected = "hw.fan.speed.limit{limit_type=\"high.newLimitType\", low=\"some_state\"}";
+		final String result = new FanMetricNormalizer(STRATEGY_TIME, HOSTNAME).replaceLimitType(metricName, newLimitType);
+		assertEquals(expected, result);
+	}
 }

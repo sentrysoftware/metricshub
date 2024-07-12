@@ -223,7 +223,7 @@ public abstract class AbstractMetricNormalizer {
 	 * @param newLimitType  the new limit type that will replace the old limit type in the metric name
 	 * @return              the modified metric name with the new limit type
 	 */
-	protected String replaceLimitType(String metricName, String newLimitType) {
+	protected String replaceLimitType(final String metricName, final String newLimitType) {
 		final Matcher matcher = LIMIT_TYPE_PATTERN.matcher(metricName);
 		return matcher.replaceAll(newLimitType);
 	}

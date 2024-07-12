@@ -118,14 +118,12 @@ public class FanMetricNormalizer extends AbstractMetricNormalizer {
 		} else if (maybeLowDegradedMetric.isEmpty()) {
 			// Create low degraded metric if only low critical is present
 			final NumberMetric lowCriticalMetric = maybeLowCriticalMetric.get();
-			final String lowDegradedMetricLimitType = "limit_type=\"low.degraded\"";
-			final String lowDegradedMetricName = replaceLimitType(lowCriticalMetric.getName(), lowDegradedMetricLimitType);
+			final String lowDegradedMetricName = replaceLimitType(lowCriticalMetric.getName(), "limit_type=\"low.degraded\"");
 			collectMetric(monitor, lowDegradedMetricName, lowCriticalMetric.getValue() * 1.1);
 		} else {
 			// Create low critical metric if only low degraded is present
 			final NumberMetric lowDegradedMetric = maybeLowDegradedMetric.get();
-			final String lowCriticalMetricLimitType = "limit_type=\"low.critical\"";
-			final String lowCriticalMetricName = replaceLimitType(lowDegradedMetric.getName(), lowCriticalMetricLimitType);
+			final String lowCriticalMetricName = replaceLimitType(lowDegradedMetric.getName(), "limit_type=\"low.critical\"");
 			collectMetric(monitor, lowCriticalMetricName, lowDegradedMetric.getValue() * 0.9);
 		}
 	}
