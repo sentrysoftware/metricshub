@@ -82,8 +82,11 @@ public class VoltageMetricNormalizer extends AbstractMetricNormalizer {
 			// Create low critical metric if only high critical is present
 			final NumberMetric highCriticalMetric = maybeHighCriticaldMetric.get();
 			final Double maybeLowCriticalMetricValue = highCriticalMetric.getValue();
-			final String lowCriticalMetricName = highCriticalMetric.getName().replace("high", "low");
-
+			final String lowCriticalLimitTypeReplacement = "limit_type=\"low.critical\"";
+			final String lowCriticalMetricName = replaceLimitType(
+				highCriticalMetric.getName(),
+				lowCriticalLimitTypeReplacement
+			);
 			Double lowCriticalMetricValue = maybeLowCriticalMetricValue;
 			final Double maybeHighCriticalMetricValue = maybeLowCriticalMetricValue * 1.1;
 			Double highCriticalMetricValue = maybeHighCriticalMetricValue;
@@ -99,8 +102,11 @@ public class VoltageMetricNormalizer extends AbstractMetricNormalizer {
 			// Create high critical metric if only low critical is present
 			final NumberMetric lowCriticalMetric = maybeLowCriticalMetric.get();
 			final Double maybeHighCriticalMetricValue = lowCriticalMetric.getValue();
-			final String highCriticalMetricName = lowCriticalMetric.getName().replace("low", "high");
-
+			final String highCriticalLimitTypeReplacement = "limit_type=\"high.critical\"";
+			final String highCriticalMetricName = replaceLimitType(
+				lowCriticalMetric.getName(),
+				highCriticalLimitTypeReplacement
+			);
 			Double highCriticalMetricValue = maybeHighCriticalMetricValue;
 			final Double maybeLowCriticalMetricValue = maybeHighCriticalMetricValue * 0.9;
 			Double lowCriticalMetricValue = maybeLowCriticalMetricValue;

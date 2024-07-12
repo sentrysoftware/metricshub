@@ -116,21 +116,17 @@ public class FanMetricNormalizer extends AbstractMetricNormalizer {
 			// Adjust values if both metrics are present
 			swapIfFirstLessThanSecond(maybeLowDegradedMetric.get(), maybeLowCriticalMetric.get());
 		} else if (maybeLowDegradedMetric.isEmpty()) {
-			// Create degraded metric if only critical is present
+			// Create low degraded metric if only low critical is present
 			final NumberMetric lowCriticalMetric = maybeLowCriticalMetric.get();
-			collectMetric(
-				monitor,
-				lowCriticalMetric.getName().replace("critical", "degraded"),
-				lowCriticalMetric.getValue() * 1.1
-			);
+			final String lowDegradedMetricLimitType = "limit_type=\"low.degraded\"";
+			final String lowDegradedMetricName = replaceLimitType(lowCriticalMetric.getName(), lowDegradedMetricLimitType);
+			collectMetric(monitor, lowDegradedMetricName, lowCriticalMetric.getValue() * 1.1);
 		} else {
-			// Create critical metric if only degraded is present
+			// Create low critical metric if only low degraded is present
 			final NumberMetric lowDegradedMetric = maybeLowDegradedMetric.get();
-			collectMetric(
-				monitor,
-				lowDegradedMetric.getName().replace("degraded", "critical"),
-				lowDegradedMetric.getValue() * 0.9
-			);
+			final String lowCriticalMetricLimitType = "limit_type=\"low.critical\"";
+			final String lowCriticalMetricName = replaceLimitType(lowDegradedMetric.getName(), lowCriticalMetricLimitType);
+			collectMetric(monitor, lowCriticalMetricName, lowDegradedMetric.getValue() * 0.9);
 		}
 	}
 }
