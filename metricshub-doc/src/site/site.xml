@@ -87,11 +87,13 @@
 		</menu>
 
 		<menu name="Configuration">
-			<item name="MetricsHub Agent" href="configuration/configure-agent.html" />
+			<item name="Monitoring Configuration" href="configuration/configure-monitoring.html" />
+			<item name="Data export" href="configuration/send-data.html" />
 			<item name="Password Encryption" href="security/passwords.html" />
 		</menu>
 
 		<menu name="Troubleshooting">
+			<item name="Health Check (Enterprise Edition)" href="troubleshooting/status.html" />
 			<item name="Debugging" href="troubleshooting/debug.html" />
 			<item name="MetricsHub CLI (&lt;code&gt;metricshub&lt;/code&gt;)" href="troubleshooting/cli.html" />
 		</menu>
