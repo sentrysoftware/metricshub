@@ -38,11 +38,11 @@ After completing this quick start, you will have:
 1. Before creating your configuration file (`metricshub.yaml`), ensure that the required directories exist. If they do not, open a Command Prompt and run the following commands to create them:
 
    ```shell
-   mkdir C:\ProgramData\metricshub
-   mkdir C:\ProgramData\metricshub\config
+   mkdir C:\ProgramData\MetricsHub
+   mkdir C:\ProgramData\MetricsHub\config
    ```
 
-2. Copy the configuration example `metricshub-example.yaml` available in `C:\Program Files\MetricsHub\config\`, paste it into `C:\ProgramData\metricshub\config\` and rename the file to `metricshub.yaml`.
+2. Copy the configuration example `metricshub-example.yaml` available in `C:\Program Files\MetricsHub\config\`, paste it into `C:\ProgramData\MetricsHub\config\` and rename the file to `metricshub.yaml`.
 
 ### Configure localhost monitoring
 
@@ -60,13 +60,13 @@ resources:
 ```
 
 
-Open the `C:\ProgramData\metricshub\config\metricshub.yaml` file and search for the above section to verify that the configuration is active. 
+Open the `C:\ProgramData\MetricsHub\config\metricshub.yaml` file and search for the above section to verify that the configuration is active. 
 
-If you wish to use a protocol other than `WMI` (such as `HTTP`, `PING`, `SNMP`, `SSH`, `IPMI`, `WBEM`, or `WinRM`), refer to the configuration examples provided in `C:\ProgramData\metricshub\config\metricshub.yaml`.
+If you wish to use a protocol other than `WMI` (such as `HTTP`, `PING`, `SNMP`, `SSH`, `IPMI`, `WBEM`, or `WinRM`), refer to the configuration examples provided in `C:\ProgramData\MetricsHub\config\metricshub.yaml`.
 
 ### Configure Prometheus to receive MetricsHub data
 
-In the same configuration file (`C:\ProgramData\metricshub\config\metricshub.yaml`), add the below configuration under the `otel` section to push metrics to Prometheus:
+In the same configuration file (`C:\ProgramData\MetricsHub\config\metricshub.yaml`), add the below configuration under the `otel` section to push metrics to Prometheus:
 
 ```yaml
 otel:
@@ -115,7 +115,7 @@ Several log files are created under `C:\Users\{Username}\AppData\Local\metricshu
 * a global `MetricsHub` log file
 * one log file per configured host. 
 
-You can configure the log level in the `C:\ProgramData\metricshub\config\metricshub.yaml` file by setting the `loggerLevel` parameter to:
+You can configure the log level in the `C:\ProgramData\MetricsHub\config\metricshub.yaml` file by setting the `loggerLevel` parameter to:
 
 * `info` for high level information
 * `warn` for logging warning messages that indicate potential issues which are not immediately critical

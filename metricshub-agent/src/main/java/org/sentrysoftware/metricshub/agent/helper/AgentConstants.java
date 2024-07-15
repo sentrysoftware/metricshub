@@ -47,6 +47,10 @@ public class AgentConstants {
 	 */
 	public static final String PRODUCT_CODE = "metricshub";
 	/**
+	 * Product directory name in PascalCase
+	 */
+	public static final String PRODUCT_WIN_DIR_NAME = "MetricsHub";
+	/**
 	 * Configuration example filename
 	 */
 	public static final String CONFIG_EXAMPLE_FILENAME = PRODUCT_CODE + "-example.yaml";
