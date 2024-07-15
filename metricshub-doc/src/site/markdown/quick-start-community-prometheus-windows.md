@@ -15,7 +15,7 @@ After completing this quick start, you will have:
 
 ## Step 1: Install MetricsHub
 
-1. Download the latest package, `metricshub-windows-${project.version}.zip`, from the [MetricsHub Releases](https://github.com/sentrysoftware/metricshub/releases/) page
+1. Download the latest package, `metricshub-windows-${communityVersion}.zip`, from the [MetricsHub Releases](https://github.com/sentrysoftware/metricshub/releases/) page
 
 2. Right-click on the archive, select **Extract All...**, enter `C:\Program Files\`, and click **Extract**. This will place the `MetricsHub` directory in `C:\Program Files\`.
 

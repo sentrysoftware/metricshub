@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="${project.name}">
+<project name="Documentation">
 
 	<skin>
 		<groupId>org.sentrysoftware.maven</groupId>
@@ -93,12 +93,19 @@
 			<item name="On Windows" href="install/windows.html "/>
 		</menu>
 
+		<menu name="Quick Start (Community Edition)">
+			<item name="Quick Start - Windows" href="quick-start-community-prometheus-windows.html "/>
+			<item name="Quick Start - Linux" href="quick-start-community-prometheus-linux.html "/>
+		</menu>
+
 		<menu name="Configuration">
-			<item name="MetricsHub Agent" href="configuration/configure-agent.html" />
+			<item name="Monitoring Configuration" href="configuration/configure-monitoring.html" />
+			<item name="Data export" href="configuration/send-data.html" />
 			<item name="Password Encryption" href="security/passwords.html" />
 		</menu>
 
 		<menu name="Troubleshooting">
+			<item name="Health Check (Enterprise Edition)" href="troubleshooting/status.html" />
 			<item name="Debugging" href="troubleshooting/debug.html" />
 			<item name="MetricsHub CLI (&lt;code&gt;metricshub&lt;/code&gt;)" href="troubleshooting/cli.html" />
 		</menu>
@@ -163,8 +170,8 @@
 		</menu>
 
 		<menu name="Appendix">
-			<item name="Community Connectors Reference" href="metricshub-connector-reference.html" />
-			<item name="Community Connector Platforms" href="platform-requirements.html" />
+			<item name="Connectors Directory" href="metricshub-connector-reference.html" />
+			<item name="Connector Platforms" href="platform-requirements.html" />
 		</menu>
 
 		<menu ref="reports" />

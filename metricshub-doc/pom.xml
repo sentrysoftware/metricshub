@@ -9,11 +9,16 @@
 	</parent>
 
 	<artifactId>metricshub-doc</artifactId>
-	<packaging>pom</packaging>
 
-	<name>Documentation</name>
+	<name>MetricsHub</name>
 	<description>MetricsHub Documentation (site)</description>
 	<url>https://metricshub.com/docs/latest/</url>
+
+	<properties>
+		<communityVersion>${project.version}</communityVersion>
+		<enterpriseVersion>1.0.00</enterpriseVersion>
+		<otelVersion>0.102.0</otelVersion>
+	</properties>
 
 	<dependencies>
 		<dependency>
@@ -25,6 +30,7 @@
 	</dependencies>
 
 	<build>
+		<sourceDirectory>${project.basedir}/src/site</sourceDirectory>
 		<plugins>
 
 			<!-- site -->
@@ -78,6 +84,17 @@
 				</configuration>
 			</plugin>
 
+			<plugin>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 
