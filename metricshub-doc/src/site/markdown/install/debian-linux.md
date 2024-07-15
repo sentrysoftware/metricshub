@@ -9,27 +9,28 @@ description: How to install MetricsHub on Debian Linux.
 
 ### Download
 
-From [MetricsHub's Web site](https://metricshub.com), download **metricshub-enterprise-debian-1.0.00-amd64.deb**.
+From [MetricsHub's Web site](https://metricshub.com), download **metricshub-enterprise-debian-${enterpriseVersion}-amd64.deb** and copy into `/usr/local`.
 
 #### Install
 
 Once you have downloaded the Debian package, run the following `dpkg` command:
 
 ```shell-session
-/ $ cd /usr/local
-/usr/local $ sudo dpkg -i metricshub-enterprise-debian-1.0.00-amd64.deb
+cd /usr/local
+sudo dpkg -i metricshub-enterprise-debian-${enterpriseVersion}-amd64.deb
 ```
 
 When complete, the **MetricsHub**'s files are deployed in `/opt/metricshub` and the **MetricsHub Enterprise Agent** is started as a service.
 
 ### Configure
 
-In the `./lib/config/metricshub.yaml` file, located under the `./metricshub` installation directory, configure:
+* In the [**./lib/config/metricshub.yaml**](configuration/configure-agent.md) file, located under the `/opt/metricshub` installation directory, configure the [resources to be monitored](./configuration/configure-agent.html#configure-monitored-resources)
+* In the [**./lib/otel/otel-config.yaml**](configuration/configure-otel.md) file, located under the `/opt/metricshub` installation directory, specify where the _OpenTelemetry Collector_ should send the collected data.
 
-* the [resources to be monitored](./configuration/configure-agent.html#configure-monitored-resources)
-* the [OpenTelemetry Protocol endpoint](configuration/configure-agent.md#otlp-endpoint) that will receive the MetricsHub signals.
+To assist with the setup process, two configuration examples are provided for guidance in the installation directory (`./metricshub`):
 
-To assist with the setup process, the configuration example `./lib/config/metricshub-example.yaml` is provided for guidance in the installation directory (`./metricshub`).
+* `./lib/config/metricshub-config-example.yaml`, a configuration example of the MetricsHub agent.
+* `./lib/otel/otel-config-example.yaml`, a configuration example of the OpenTelemetry Collector.
 
 ### Start
 
@@ -38,7 +39,7 @@ To start the **MetricsHub Enterprise** service, run the command below:
 ```shell-session
 systemctl start metricshub-enterprise-service
 ```
-This will start **MetricsHub** with the default **MetricsHub Enterprise Agent** configuration file, **./config/metricshub.yaml**.
+This will start **MetricsHub** with the default **MetricsHub Enterprise Agent** configuration file, **./lib/config/metricshub.yaml**.
 
 ### Stop
 
@@ -53,22 +54,26 @@ systemctl stop metricshub-enterprise-service
 To uninstall **MetricsHub Enterprise**, run the command below:
 
 ```shell-session
-sudo dpkg -r metricshub-enterprise-debian-1.0.00-amd64.deb
+sudo dpkg -r metricshub-enterprise-debian-${enterpriseVersion}-amd64.deb
 ```
 
 ## Community Edition
 
 ### Download
 
-Download the Linux package, `metricshub-linux-${project.version}.tar.gz`, from the [MetricsHub Release v${project.version}](https://github.com/sentrysoftware/metricshub/releases/tag/v${project.version}) page.
+Download the Linux package, `metricshub-linux-${communityVersion}.tar.gz`, from the [MetricsHub Release v${communityVersion}](https://github.com/sentrysoftware/metricshub/releases/tag/v${communityVersion}) page using the following command:
+
+```shell-session
+wget -P /tmp https://github.com/sentrysoftware/metricshub/releases/download/v${communityVersion}/metricshub-linux-${communityVersion}.tar.gz
+```
 
 ### Install
 
-Unzip and untar the content of `metricshub-linux-${project.version}.tar.gz` into a program directory, like `/opt`. There is no need to create a specific subdirectory for `metricshub` as the archive already contains a `metricshub` directory.
+Unzip and untar the content of `metricshub-linux-${communityVersion}.tar.gz` into a program directory, like `/opt`. There is no need to create a specific subdirectory for `metricshub` as the archive already contains a `metricshub` directory.
 
 ```shell-session
-/ $ cd /opt
-/opt $ sudo tar xzf /tmp/metricshub-linux-${project.version}.tar.gz
+cd /opt
+sudo tar xzf /tmp/metricshub-linux-${communityVersion}.tar.gz
 ```
 
 ### Configure
@@ -85,22 +90,22 @@ To assist with the setup process, the configuration example `./lib/config/metric
 To start **MetricsHub** in an interactive terminal with the default configuration file `./lib/config/metricshub.yaml`, run the command below:
 
 ```shell-session
-/ $ cd /opt/metricshub/bin
-/opt/metricshub/bin $ ./service
+cd /opt/metricshub/bin
+./service
 ```
 
 To start **MetricsHub** with an alternate configuration file, run the command below:
 
 ```shell-session
-/ $ cd /opt/metricshub/bin
-/opt/metricshub/bin $ ./service --config <PATH>
+cd /opt/metricshub/bin
+./service --config <PATH>
 ```
 
 Example:
 
 ```shell-session
-/ $ cd /opt/metricshub/bin
-/opt/metricshub/bin $ ./service --config config/my-metricshub.yaml
+cd /opt/metricshub/bin
+./service --config config/my-metricshub.yaml
 ```
 
 To start **MetricsHub** as a **Linux service**, follow the steps below:
@@ -186,12 +191,11 @@ where `<metricshub-service>` should be replaced with the actual service name. Fo
 ### Uninstall
 
 1. Stop the **MetricsHub Service**.
-2. Navigate to the directory where **MetricsHub** is located (e.g., `/opt`) and remove the entire `metricshub` directory.
+2. Remove the entire `metricshub` directory.
 
-  ```shell-session
-  / $ cd /opt
-  /opt $ rm -rf metricshub
-  ```
+   ```shell-session
+   rm -rf /opt/metricshub
+   ```
 
 If the **MetricsHub Service** was set up as a **Linux Service**, delete the file `/etc/systemd/system/metricshub-service.service` and run the below command to reload `systemd`:
 
