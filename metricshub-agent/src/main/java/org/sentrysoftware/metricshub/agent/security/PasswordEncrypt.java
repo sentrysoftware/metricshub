@@ -73,7 +73,7 @@ public class PasswordEncrypt {
 		return ConfigHelper
 			.getProgramDataPath()
 			.stream()
-			.map(path -> Paths.get(path, AgentConstants.PRODUCT_CODE, AgentConstants.SECURITY_DIRECTORY_NAME))
+			.map(path -> Paths.get(path, AgentConstants.PRODUCT_WIN_DIR_NAME, AgentConstants.SECURITY_DIRECTORY_NAME))
 			.findFirst()
 			.orElseGet(PasswordEncrypt::getSecurityFolderFromInstallDir);
 	}
