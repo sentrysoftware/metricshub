@@ -28,8 +28,9 @@ sudo docker build -t metricshub:latest .
 ```
 ### Configure
 
-*  In the [**./lib/config/metricshub.yaml**](configuration/configure-agent.md) file, located under the `/docker/metricshub` installation directory, configure the [resources to be monitored](./configuration/configure-agent.html#configure-monitored-resources)
-* In the [**./lib/otel/otel-config.yaml**](configuration/configure-otel.md) file, located under the `/docker/metricshub` installation directory, specify where the _OpenTelemetry Collector_ should send the collected data.
+*  In the **./lib/config/metricshub.yaml** file, located under the `/docker/metricshub` installation directory, configure the [resources to be monitored](../configuration/configure-monitoring.html#configure-resources).
+* In the **./lib/otel/otel-config.yaml** file, located under the `/docker/metricshub` installation directory, specify where the _OpenTelemetry Collector_ should [send the collected data](../configuration/send-data.html#configure-the-otel-collector-28enterprise-edition-29).
+
 
 To assist with the setup process, two configuration examples are provided for guidance in the installation directory (`./metricshub`):
 
@@ -77,10 +78,10 @@ services:
 
 ### Download
 
-Download the Docker package, `metricshub-linux-${communityVersion}-docker.tar.gz`, from the [MetricsHub Release v${communityVersion}](https://github.com/sentrysoftware/metricshub/releases/tag/v${project.version}) page using the following command:
+Download the Docker package, `metricshub-linux-${communityVersion}-docker.tar.gz`, from the [MetricsHub Release v${communityVersion}](https://github.com/sentrysoftware/metricshub/releases/tag/v${communityVersion}) page using the following command:
 
 ```shell-session
-wget -P /tmp https://github.com/sentrysoftware/metricshub/releases/download/v$version/metricshub-linux-${communityVersion}-docker.tar.gz
+wget -P /tmp https://github.com/sentrysoftware/metricshub/releases/download/v${communityVersion}/metricshub-linux-${communityVersion}-docker.tar.gz
 ```
 
 ### Install
@@ -96,8 +97,8 @@ sudo tar xzf /tmp/metricshub-linux-${communityVersion}-docker.tar.gz -C /docker
 
 In the `./lib/config/metricshub.yaml` file, locally under the `./metricshub` installation directory, configure:
 
-* the [resources to be monitored](./configuration/configure-agent.html#configure-monitored-resources)
-* the [OpenTelemetry Protocol endpoint](configuration/configure-agent.md#otlp-endpoint) that will receive the MetricsHub signals.
+* the [resources to be monitored.](../configuration/configure-monitoring.md#configure-resources)
+* the [OpenTelemetry Protocol endpoint](../configuration/send-data.html#configure-the-otlp-receiver-28community-edition-29) that will receive the MetricsHub signals.
 
 To assist with the setup process, the configuration example `./lib/config/metricshub-example.yaml` is provided for guidance in the installation directory (`./metricshub`).
 

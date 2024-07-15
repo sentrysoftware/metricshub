@@ -80,9 +80,6 @@
 
 		<menu name="Getting Started">
 			<item name="Overview" href="index.html" />
-			<item name="Getting Started - Windows" href="getting-started-windows.html "/>
-			<item name="Getting Started - Linux" href="getting-started-linux.html "/>
-			<item name="General Concepts" href="concepts.html "/>
 		</menu>
 
 		<menu name="Install">
@@ -94,8 +91,8 @@
 		</menu>
 
 		<menu name="Quick Start (Community Edition)">
-			<item name="Quick Start - Windows" href="quick-start-community-prometheus-windows.html "/>
-			<item name="Quick Start - Linux" href="quick-start-community-prometheus-linux.html "/>
+			<item name="Quick Start - Windows" href="quick-start-community-prometheus-windows.html"/>
+			<item name="Quick Start - Linux" href="quick-start-community-prometheus-linux.html"/>
 		</menu>
 
 		<menu name="Configuration">

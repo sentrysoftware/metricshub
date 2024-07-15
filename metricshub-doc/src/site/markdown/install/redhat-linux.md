@@ -23,8 +23,8 @@ When complete, the **MetricsHub**'s files are deployed in `/opt/metricshub` and 
 
 ### Configure
 
-* In the [**./lib/config/metricshub.yaml**](configuration/configure-agent.md) file, located under the `/opt/metricshub` installation directory, configure the [resources to be monitored](./configuration/configure-agent.html#configure-monitored-resources)
-* In the [**./lib/otel/otel-config.yaml**](configuration/configure-otel.md) file, located under the `/opt/metricshub` installation directory, specify where the _OpenTelemetry Collector_ should send the collected data.
+* In the **./lib/config/metricshub.yaml** file, located under the `/opt/metricshub` installation directory, configure the [resources to be monitored.](../configuration/configure-monitoring.html#configure-resources)
+* In the **./lib/otel/otel-config.yaml** file, located under the `/opt/metricshub` installation directory, specify where the _OpenTelemetry Collector_ should [send the collected data.](../configuration/send-data.html#configure-the-otel-collector-28enterprise-edition-29)
 
 To assist with the setup process, two configuration examples are provided for guidance in the installation directory (`./metricshub`):
 
@@ -76,7 +76,7 @@ sudo rpm -e metricshub-${enterpriseVersion}-1.x86_64
 Download the Linux package, `metricshub-linux-${communityVersion}.tar.gz`, from the [MetricsHub Release v${communityVersion}](https://github.com/sentrysoftware/metricshub/releases/tag/v${communityVersion}) page using the following command:
 
 ```shell-session
-wget -P /tmp https://github.com/sentrysoftware/metricshub/releases/download/v{communityVersion}/metricshub-linux-{communityVersion}.tar.gz
+wget -P /tmp https://github.com/sentrysoftware/metricshub/releases/download/v${communityVersion}/metricshub-linux-${communityVersion}.tar.gz
 ```
 
 ### Install
@@ -92,8 +92,8 @@ sudo tar xzf /tmp/metricshub-linux-${communityVersion}.tar.gz
 
 In the `./lib/config/metricshub.yaml` file, located under the `./metricshub` installation directory, configure:
 
-* the [resources to be monitored](./configuration/configure-agent.html#configure-monitored-resources)
-* the [OpenTelemetry Protocol endpoint](configuration/configure-agent.md#otlp-endpoint) that will receive the MetricsHub signals.
+* the [resources to be monitored.](../configuration/configure-monitoring.html#configure-resources)
+* the [OpenTelemetry Protocol endpoint](../configuration/send-data.html#configure-the-otlp-receiver-28community-edition-29) that will receive the MetricsHub signals.
 
 To assist with the setup process, the configuration example `./lib/config/metricshub-example.yaml` is provided for guidance in the installation directory (`./metricshub`).
 
