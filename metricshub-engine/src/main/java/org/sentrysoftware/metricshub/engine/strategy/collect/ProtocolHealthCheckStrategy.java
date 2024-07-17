@@ -29,6 +29,7 @@ import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
+import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
@@ -89,20 +90,22 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 				.ifPresent(isUp -> {
 					// Calculate the response time of each protocol check.
 					final Double responseTime = (System.currentTimeMillis() - startTime) / 1000.0;
+					final Monitor endpointHostMonitor = telemetryManager.getEndpointHostMonitor();
+					final Long strategyTime = telemetryManager.getStrategyTime();
 					MetricFactory metricFactory = new MetricFactory();
 					// Collect protocol check metric
 					metricFactory.collectNumberMetric(
-						telemetryManager.getEndpointHostMonitor(),
+						endpointHostMonitor,
 						"metricshub.host.up{protocol=\"" + protocolExtension.getIdentifier() + "\"}",
 						isUp ? UP : DOWN,
-						telemetryManager.getStrategyTime()
+						strategyTime
 					);
 					// Collect protocol check response time metric
 					metricFactory.collectNumberMetric(
-						telemetryManager.getEndpointHostMonitor(),
+						endpointHostMonitor,
 						"metricshub.host.up.response_time{protocol=\"" + protocolExtension.getIdentifier() + "\"}",
 						responseTime,
-						telemetryManager.getStrategyTime()
+						strategyTime
 					);
 				});
 		});
