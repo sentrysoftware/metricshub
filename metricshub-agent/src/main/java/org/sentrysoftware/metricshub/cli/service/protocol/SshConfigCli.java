@@ -47,7 +47,7 @@ public class SshConfigCli implements IProtocolConfigCli {
 	 * Default timeout in seconds to execute an SSH operation
 	 */
 	public static final int DEFAULT_TIMEOUT = 30;
-	
+
 	/**
 	 * Default SSH port number.
 	 */
@@ -154,13 +154,13 @@ public class SshConfigCli implements IProtocolConfigCli {
 			.buildConfigurationFromJsonNode("ssh", configuration, value -> value)
 			.orElseThrow();
 	}
-	
+
 	/**
 	 * Returns the port number for the SSH connection, defaulting to 22 if not set.
 	 *
 	 * @return the port number or 22 if null.
 	 */
 	public int getPort() {
-	    return port != null ? port : DEFAULT_PORT;
+		return port != null ? port : DEFAULT_PORT;
 	}
 }

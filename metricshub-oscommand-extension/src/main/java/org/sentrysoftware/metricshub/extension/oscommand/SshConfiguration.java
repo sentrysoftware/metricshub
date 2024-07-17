@@ -29,7 +29,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 
@@ -127,5 +126,5 @@ public class SshConfiguration extends OsCommandConfiguration {
 			desc = desc + " as " + username;
 		}
 		return desc;
-	}	
+	}
 }
