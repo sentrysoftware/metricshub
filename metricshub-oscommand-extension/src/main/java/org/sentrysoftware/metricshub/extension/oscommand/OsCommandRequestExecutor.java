@@ -57,6 +57,7 @@ public class OsCommandRequestExecutor {
 	 * @param keyFilePath      The path to the SSH key file.
 	 * @param command          The SSH command to execute.
 	 * @param timeout          The timeout for the command execution in seconds.
+	 * @param port             The SSH port number.
 	 * @param localFiles       List of local files to be transferred to the remote host.
 	 * @param noPasswordCommand The command to execute without password.
 	 * @return The result of the SSH command.
@@ -70,6 +71,7 @@ public class OsCommandRequestExecutor {
 		@SpanAttribute("ssh.key_file_path") final File keyFilePath,
 		final String command,
 		@SpanAttribute("ssh.timeout") final long timeout,
+		@SpanAttribute("ssh.port") final Integer port,
 		@SpanAttribute("ssh.local_files") final List<File> localFiles,
 		@SpanAttribute("ssh.command") final String noPasswordCommand
 	) throws ClientException {
@@ -82,6 +84,7 @@ public class OsCommandRequestExecutor {
 				keyFilePath,
 				command,
 				timeout,
+				port,
 				localFiles
 			)
 		);
@@ -105,7 +108,7 @@ public class OsCommandRequestExecutor {
 			sshClient = createSshClientInstance(hostname);
 
 			// Connect to the SSH server
-			sshClient.connect((int) timeoutInMilliseconds);
+			sshClient.connect((int) timeoutInMilliseconds, port);
 
 			if (password == null) {
 				log.warn("Hostname {} - Password could not be read. Using an empty password instead.", hostname);

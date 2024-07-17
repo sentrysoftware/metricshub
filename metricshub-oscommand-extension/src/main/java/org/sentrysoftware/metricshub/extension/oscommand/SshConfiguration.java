@@ -21,6 +21,9 @@ package org.sentrysoftware.metricshub.extension.oscommand;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
+
+import com.fasterxml.jackson.annotation.JsonSetter;
 import java.util.Set;
 import lombok.Builder;
 import lombok.Data;
@@ -39,9 +42,17 @@ import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 @NoArgsConstructor
 public class SshConfiguration extends OsCommandConfiguration {
 
+	/**
+	 * Default SSH port number.
+	 */
+	public static final Integer DEFAULT_PORT = 22;
+
 	private String username;
 	private char[] password;
 	private String privateKey;
+
+	@JsonSetter(nulls = SKIP)
+	private Integer port;
 
 	/**
 	 * Constructs an SshConfiguration with specific settings for SSH operations.
@@ -50,6 +61,7 @@ public class SshConfiguration extends OsCommandConfiguration {
 	 * @param useSudoCommands A set of commands that should be executed with sudo.
 	 * @param sudoCommand The sudo command to use.
 	 * @param timeout The default timeout for SSH operations.
+	 * @param port The SSH port number. Defaults to 22 if not specified.
 	 * @param username The SSH username.
 	 * @param password The SSH password.
 	 * @param privateKey The path to the SSH private key file.
@@ -60,12 +72,14 @@ public class SshConfiguration extends OsCommandConfiguration {
 		Set<String> useSudoCommands,
 		String sudoCommand,
 		Long timeout,
+		Integer port,
 		String username,
 		char[] password,
 		String privateKey,
 		String hostname
 	) {
 		super(useSudo, useSudoCommands, sudoCommand, timeout, hostname);
+		this.port = port == null ? DEFAULT_PORT : port;
 		this.username = username;
 		this.password = password;
 		this.privateKey = privateKey;
@@ -95,6 +109,19 @@ public class SshConfiguration extends OsCommandConfiguration {
 					resourceKey,
 					"SSH",
 					timeout
+				)
+		);
+
+		StringHelper.validateConfigurationAttribute(
+			port,
+			attr -> attr == null || attr < 0 || attr > 65535,
+			() ->
+				String.format(
+					"Resource %s - Port value is invalid for protocol %s." +
+					" Port value returned: %s. This resource will not be monitored. Please verify the configured port value.",
+					resourceKey,
+					"SSH",
+					port
 				)
 		);
 	}

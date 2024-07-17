@@ -23,6 +23,7 @@ package org.sentrysoftware.metricshub.cli.service.protocol;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.BooleanNode;
+import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -84,8 +85,17 @@ public class SshConfigCli implements IProtocolConfigCli {
 	private String timeout;
 
 	@Option(
-		names = "--ssh-usesudo-commands",
+		names = "--ssh-port",
 		order = 6,
+		paramLabel = "PORT",
+		defaultValue = "22",
+		description = "Port number for SSH connection (default: ${DEFAULT-VALUE})"
+	)
+	private Integer port;
+
+	@Option(
+		names = "--ssh-usesudo-commands",
+		order = 7,
 		paramLabel = "COMMAND",
 		description = "List of commands that requires @|italic sudo|@",
 		split = ","
@@ -94,7 +104,7 @@ public class SshConfigCli implements IProtocolConfigCli {
 
 	@Option(
 		names = "--ssh-sudo-command",
-		order = 7,
+		order = 8,
 		paramLabel = "SUDO",
 		description = "@|italic sudo|@ command (default: ${DEFAULT-VALUE})",
 		defaultValue = "sudo"
@@ -132,6 +142,7 @@ public class SshConfigCli implements IProtocolConfigCli {
 		configuration.set("useSudo", BooleanNode.TRUE);
 		configuration.set("sudoCommand", new TextNode(sudoCommand));
 		configuration.set("timeout", new TextNode(timeout));
+		configuration.set("port", new IntNode(port));
 
 		return CliExtensionManager
 			.getExtensionManagerSingleton()

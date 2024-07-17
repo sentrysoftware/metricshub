@@ -24,6 +24,7 @@ class SshConfigCliTest {
 		sshConfigCli.setPassword(password);
 		sshConfigCli.setUsername(username);
 		sshConfigCli.setTimeout("120");
+		sshConfigCli.setPort(22);
 		sshConfigCli.setPrivateKey("privateKey");
 		sshConfigCli.setSudoCommand("sudoCommand");
 		sshConfigCli.setUseSudoCommands(Set.of("command1", "command2"));

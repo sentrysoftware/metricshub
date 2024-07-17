@@ -14,6 +14,7 @@ import static org.mockito.Mockito.mockStatic;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 
 import com.fasterxml.jackson.databind.node.BooleanNode;
+import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -191,6 +192,7 @@ class OsCommandExtensionTest {
 		sshConfiguration.set("username", new TextNode("username"));
 		sshConfiguration.set("password", new TextNode("password"));
 		sshConfiguration.set("timeout", new TextNode("120"));
+		sshConfiguration.set("port", new IntNode(2222));
 		sshConfiguration.set("privateKey", new TextNode("privateKey"));
 		sshConfiguration.set("useSudoCommands", JsonNodeFactory.instance.arrayNode().add("sudo"));
 		sshConfiguration.set("useSudo", BooleanNode.TRUE);
@@ -203,6 +205,7 @@ class OsCommandExtensionTest {
 				.username("username")
 				.password("password".toCharArray())
 				.timeout(120L)
+				.port(2222)
 				.privateKey("privateKey")
 				.useSudoCommands(Set.of("sudo"))
 				.useSudo(true)
@@ -217,6 +220,7 @@ class OsCommandExtensionTest {
 				.username("username")
 				.password("password".toCharArray())
 				.timeout(120L)
+				.port(2222)
 				.privateKey("privateKey")
 				.useSudoCommands(Set.of("sudo"))
 				.useSudo(true)

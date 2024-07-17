@@ -192,6 +192,8 @@ class OsCommandHelperTest {
 
 	public static final String RESULT = "result";
 
+	public static final Integer PORT = 2222;
+
 	/****************************************/
 
 	@TempDir
@@ -500,6 +502,7 @@ class OsCommandHelperTest {
 		) {
 			when(sshConfiguration.getUsername()).thenReturn(USERNAME);
 			when(sshConfiguration.getPassword()).thenReturn(PASSWORD.toCharArray());
+			when(sshConfiguration.getPort()).thenReturn(PORT);
 
 			mockedClientsExecutor
 				.when(() ->
@@ -510,6 +513,7 @@ class OsCommandHelperTest {
 						null,
 						CMD,
 						timeout,
+						PORT,
 						null,
 						null
 					)
