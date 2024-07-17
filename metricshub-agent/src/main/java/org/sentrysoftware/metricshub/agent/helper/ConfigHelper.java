@@ -26,7 +26,7 @@ import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.CONFIG_E
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.DEFAULT_CONFIG_FILENAME;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.FILE_PATH_FORMAT;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.LOG_DIRECTORY_NAME;
-import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.PRODUCT_CODE;
+import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.PRODUCT_WIN_DIR_NAME;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -113,7 +113,7 @@ public class ConfigHelper {
 
 			// Make sure the LOCALAPPDATA path is valid
 			if (localAppDataPath != null && !localAppDataPath.isBlank()) {
-				return createDirectories(Paths.get(localAppDataPath, PRODUCT_CODE, "logs"));
+				return createDirectories(Paths.get(localAppDataPath, PRODUCT_WIN_DIR_NAME, "logs"));
 			}
 		}
 
@@ -227,7 +227,7 @@ public class ConfigHelper {
 			.stream()
 			.map(path ->
 				Paths.get(
-					createDirectories(Paths.get(path, PRODUCT_CODE, directory)).toAbsolutePath().toString(),
+					createDirectories(Paths.get(path, PRODUCT_WIN_DIR_NAME, directory)).toAbsolutePath().toString(),
 					configFilename
 				)
 			)

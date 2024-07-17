@@ -284,6 +284,7 @@ Use the parameters below to configure the SSH protocol:
 | ssh             | Protocol used to access the host.                                                                 |
 | hostname        | The name or IP address of the resource. If not specified, the `host.name` attribute will be used. |
 | timeout         | How long until the command times out (Default: 120s).                                             |
+| port            | The SSH port number to use for the SSH connection (Default: 22).                                  |
 | useSudo         | Whether sudo is used or not for the SSH Command (true or false).                                  |
 | useSudoCommands | List of commands for which sudo is required.                                                      |
 | sudoCommand     | Sudo command to be used (Default: sudo).                                                          |
@@ -306,6 +307,7 @@ resourceGroups:
         protocols:
           ssh:
             timeout: 120
+            port: 22
             useSudo: true
             useSudoCommands: [ cmd1, cmd2 ]
             sudoCommand: sudo

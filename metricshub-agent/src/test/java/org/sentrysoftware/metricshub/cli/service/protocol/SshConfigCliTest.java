@@ -24,6 +24,7 @@ class SshConfigCliTest {
 		sshConfigCli.setPassword(password);
 		sshConfigCli.setUsername(username);
 		sshConfigCli.setTimeout("120");
+		sshConfigCli.setPort(22);
 		sshConfigCli.setPrivateKey("privateKey");
 		sshConfigCli.setSudoCommand("sudoCommand");
 		sshConfigCli.setUseSudoCommands(Set.of("command1", "command2"));
@@ -47,5 +48,15 @@ class SshConfigCliTest {
 			assertEquals(username, sshConfiguration.getUsername());
 			assertEquals(String.valueOf(password), String.valueOf(sshConfiguration.getPassword()));
 		}
+	}
+
+	@Test
+	void testPortNumber() {
+		final SshConfigCli sshConfigCli = new SshConfigCli();
+		final int expectedPortNumber = 2222;
+		sshConfigCli.setPort(expectedPortNumber);
+		assertEquals(expectedPortNumber, sshConfigCli.getPort());
+		sshConfigCli.setPort(null);
+		assertEquals(22, sshConfigCli.getPort());
 	}
 }
