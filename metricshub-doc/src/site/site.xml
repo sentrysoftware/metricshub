@@ -101,6 +101,10 @@
 			<item name="Password Encryption" href="security/passwords.html" />
 		</menu>
 
+		<menu name="Sustainability (Community Edition)">
+			<item name="Sustainability Metrics" href="sustainability/configure-hardware-extension.html" />
+		</menu>
+
 		<menu name="Troubleshooting">
 			<item name="Health Check (Enterprise Edition)" href="troubleshooting/status.html" />
 			<item name="Debugging" href="troubleshooting/debug.html" />
