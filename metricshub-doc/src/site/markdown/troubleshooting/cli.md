@@ -147,7 +147,7 @@ This command will connect to the `MGMT06` out-of-band `management` card (typical
 $ metricshub SOLAR08 -t sol --ssh -u USER --sudo-command-list /usr/sbin/dladm,/usr/sbin/ndd
 ```
 
-This command will connect to the `SOLAR08` `Solaris` system using the `SSH` protocol to execute commands as `USER`. `sudo` will be used to execute the `/usr/sbin/dladm` and `/usr/sbin/ndd` commands, as they require root privileges.
+This command will connect to the `SOLAR08` `Solaris` system using the `SSH` protocol (port 22 by default) to execute commands as `USER`. `sudo` will be used to execute the `/usr/sbin/dladm` and `/usr/sbin/ndd` commands, as they require root privileges.
 
 > Note: The system must have been configured to allow `USER` to execute these commands with `sudo`.
 

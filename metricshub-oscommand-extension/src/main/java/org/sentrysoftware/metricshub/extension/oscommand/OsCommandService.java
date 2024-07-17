@@ -252,6 +252,7 @@ public class OsCommandService {
 							sshConfiguration.getPrivateKey() == null ? null : new File(sshConfiguration.getPrivateKey()),
 							command,
 							timeout,
+							sshConfiguration.getPort(),
 							localFiles,
 							noPasswordCommand
 						);

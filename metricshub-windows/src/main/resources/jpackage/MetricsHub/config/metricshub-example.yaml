@@ -192,6 +192,7 @@ resourceGroups:
       #   protocols:
       #     ssh:
       #       timeout: 120
+      #       port: 22
       #       useSudo: true
       #       useSudoCommands: [ isi, isi_for_array ]
       #       sudoCommand: sudo
