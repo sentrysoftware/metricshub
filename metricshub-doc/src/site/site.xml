@@ -80,12 +80,19 @@
 
 		<menu name="Getting Started">
 			<item name="Overview" href="index.html" />
-			<item name="Installation" href="install.html" />
+		</menu>
+
+		<menu name="Install">
+			<item name="Overview" href="install/index.html "/>
+			<item name="On Debian Linux" href="install/debian-linux.html "/>
+			<item name="On Docker" href="install/docker.html "/>
+			<item name="On Red Hat Enteprise Linux" href="install/redhat-linux.html "/>
+			<item name="On Windows" href="install/windows.html "/>
 		</menu>
 
 		<menu name="Quick Start (Community Edition)">
-			<item name="Quick Start - Windows" href="quick-start-community-prometheus-windows.html "/>
-			<item name="Quick Start - Linux" href="quick-start-community-prometheus-linux.html "/>
+			<item name="Quick Start - Windows" href="quick-start-community-prometheus-windows.html"/>
+			<item name="Quick Start - Linux" href="quick-start-community-prometheus-linux.html"/>
 		</menu>
 
 		<menu name="Configuration">
