@@ -11,7 +11,6 @@ To ensure dashboards are properly populated, you must configure the **Hardware E
 
 To obtain the electricity costs and carbon footprint of your resource, configure the `Metrics` section of the `config/metricshub.yaml` file as follows:
 
-
 ```yaml
     # Adds additional static metrics to all the resources in the group.
     metrics:
