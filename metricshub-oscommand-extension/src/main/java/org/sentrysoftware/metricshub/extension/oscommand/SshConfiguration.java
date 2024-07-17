@@ -29,6 +29,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 
@@ -45,14 +46,14 @@ public class SshConfiguration extends OsCommandConfiguration {
 	/**
 	 * Default SSH port number.
 	 */
-	public static final Integer DEFAULT_PORT = 22;
+	public static final int DEFAULT_PORT = 22;
 
 	private String username;
 	private char[] password;
 	private String privateKey;
 
 	@JsonSetter(nulls = SKIP)
-	private Integer port;
+	private Integer port = DEFAULT_PORT;
 
 	/**
 	 * Constructs an SshConfiguration with specific settings for SSH operations.
@@ -115,14 +116,7 @@ public class SshConfiguration extends OsCommandConfiguration {
 		StringHelper.validateConfigurationAttribute(
 			port,
 			attr -> attr == null || attr < 0 || attr > 65535,
-			() ->
-				String.format(
-					"Resource %s - Port value is invalid for protocol %s." +
-					" Port value returned: %s. This resource will not be monitored. Please verify the configured port value.",
-					resourceKey,
-					"SSH",
-					port
-				)
+			() -> String.format("Resource %s - Port value is invalid for SSH protocol.", port)
 		);
 	}
 
@@ -133,5 +127,5 @@ public class SshConfiguration extends OsCommandConfiguration {
 			desc = desc + " as " + username;
 		}
 		return desc;
-	}
+	}	
 }

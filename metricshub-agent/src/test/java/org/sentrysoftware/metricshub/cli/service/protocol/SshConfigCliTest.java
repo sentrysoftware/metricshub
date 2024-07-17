@@ -49,4 +49,14 @@ class SshConfigCliTest {
 			assertEquals(String.valueOf(password), String.valueOf(sshConfiguration.getPassword()));
 		}
 	}
+	
+	@Test
+	void testPortNumber() {
+		final SshConfigCli sshConfigCli = new SshConfigCli();
+		final int expectedPortNumber = 2222;
+		sshConfigCli.setPort(expectedPortNumber);
+		assertEquals(expectedPortNumber, sshConfigCli.getPort());
+		sshConfigCli.setPort(null);
+		assertEquals(22, sshConfigCli.getPort());
+	}
 }

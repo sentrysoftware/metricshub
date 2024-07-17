@@ -192,7 +192,7 @@ class OsCommandHelperTest {
 
 	public static final String RESULT = "result";
 
-	public static final Integer PORT = 2222;
+	public static final int PORT = 2222;
 
 	/****************************************/
 
