@@ -865,14 +865,22 @@ public class ComputeProcessor implements IComputeProcessor {
 	@WithSpan("Compute Json2Csv Exec")
 	public void process(@SpanAttribute("compute.definition") final Json2Csv json2csv) {
 		if (json2csv == null) {
-			log.warn("Hostname {} - Compute Operation (Json2CSV) is null, the table remains unchanged.", hostname);
+			log.warn("Hostname {} - Json2CSV compute is null. As a result, the table remains unchanged.", hostname);
+			return;
+		}
+
+		final String properties = json2csv.getProperties();
+		if (properties == null) {
+			log.warn(
+				"Hostname {} - Json2CSV processor encountered null properties. As a result, the table remains unchanged.",
+				hostname
+			);
 			return;
 		}
 
 		try {
-			final List<String> jsonToCsvProperties = new ArrayList<>(
-				Arrays.asList(json2csv.getProperties().split(SEMICOLON))
-			);
+			final List<String> jsonToCsvProperties = SourceTable.lineToList(properties, SEMICOLON);
+
 			final String json2csvResult = clientsExecutor.executeJson2Csv(
 				sourceTable.getRawData(),
 				json2csv.getEntryKey(),

@@ -27,7 +27,6 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -355,14 +354,12 @@ public class SourceProcessor implements ISourceProcessor {
 			hostname
 		);
 
-		String defaultRightLine = tableJoinSource.getDefaultRightLine();
-
 		final List<List<String>> executeTableJoin = clientsExecutor.executeTableJoin(
 			leftTable.getTable(),
 			rightTable.getTable(),
 			tableJoinSource.getLeftKeyColumn(),
 			tableJoinSource.getRightKeyColumn(),
-			defaultRightLine != null ? Arrays.asList(defaultRightLine.split(";")) : null,
+			SourceTable.lineToList(tableJoinSource.getDefaultRightLine(), SEMICOLON),
 			"wbem".equalsIgnoreCase(tableJoinSource.getKeyType()),
 			true
 		);

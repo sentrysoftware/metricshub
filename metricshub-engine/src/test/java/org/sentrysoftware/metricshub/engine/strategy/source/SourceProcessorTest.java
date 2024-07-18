@@ -412,7 +412,7 @@ class SourceProcessorTest {
 		expectedResult = SourceTable.builder().table(expectedJoin).build();
 		doReturn(expectedJoin)
 			.when(clientsExecutorMock)
-			.executeTableJoin(tabl1.getTable(), tabl2.getTable(), 1, 1, null, false, true);
+			.executeTableJoin(tabl1.getTable(), tabl2.getTable(), 1, 1, new ArrayList<>(), false, true);
 		tableJoinExample =
 			TableJoinSource
 				.builder()
@@ -439,12 +439,11 @@ class SourceProcessorTest {
 			)
 			.build();
 		mapSources.put(TAB3_REF, tabl3);
-		connectorNamespace = ConnectorNamespace.builder().sourceTables(mapSources).build();
 		expectedJoin = Arrays.asList(Arrays.asList(LOWERCASE_A, LOWERCASE_B, LOWERCASE_C));
 		expectedResult = SourceTable.builder().table(expectedJoin).build();
 		doReturn(expectedJoin)
 			.when(clientsExecutorMock)
-			.executeTableJoin(tabl1.getTable(), tabl3.getTable(), 1, 1, null, false, true);
+			.executeTableJoin(tabl1.getTable(), tabl3.getTable(), 1, 1, new ArrayList<>(), false, true);
 		tableJoinExample =
 			TableJoinSource
 				.builder()
@@ -469,7 +468,6 @@ class SourceProcessorTest {
 				)
 				.build();
 		mapSources.put(TAB3_REF, tabl3);
-		connectorNamespace = ConnectorNamespace.builder().sourceTables(mapSources).build();
 		tableJoinExample =
 			TableJoinSource
 				.builder()
