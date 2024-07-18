@@ -137,7 +137,11 @@ public class SnmpGetNextCriterionProcessor {
 	 * @param result   The result of the SNMP GetNext operation.
 	 * @return {@link TestResult} wrapping the message and the success status.
 	 */
-	static CriterionTestResult checkSNMPGetNextValue(final String hostname, final String oid, final String result) {
+	private static CriterionTestResult checkSNMPGetNextValue(
+		final String hostname,
+		final String oid,
+		final String result
+	) {
 		String message;
 		boolean success = false;
 		if (result == null) {

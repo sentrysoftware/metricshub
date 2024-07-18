@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.function.Function;
 import org.junit.jupiter.api.BeforeEach;
@@ -142,14 +143,26 @@ public class SnmpGetNextCriterionProcessorTest {
 	}
 
 	@Test
-	void testCheckSNMPGetNextValue_NullResult() {
+	void testCheckSNMPGetNextExpectedValue_NullResult() throws Exception {
 		String hostname = "hostname";
 		String oid = "1.3.6.1.2.1.1.1.0";
+		String expectedResult = "expectedResult";
 		String result = null;
 
-		CriterionTestResult criterionTestResult = SnmpGetNextCriterionProcessor.checkSNMPGetNextValue(
+		Method method =
+			SnmpGetNextCriterionProcessor.class.getDeclaredMethod(
+					"checkSNMPGetNextExpectedValue",
+					String.class,
+					String.class,
+					String.class,
+					String.class
+				);
+		method.setAccessible(true);
+		CriterionTestResult criterionTestResult = (CriterionTestResult) method.invoke(
+			null,
 			hostname,
 			oid,
+			expectedResult,
 			result
 		);
 
@@ -165,14 +178,26 @@ public class SnmpGetNextCriterionProcessorTest {
 	}
 
 	@Test
-	void testCheckSNMPGetNextValue_EmptyResult() {
+	void testCheckSNMPGetNextExpectedValue_EmptyResult() throws Exception {
 		String hostname = "hostname";
 		String oid = "1.3.6.1.2.1.1.1.0";
+		String expectedResult = "expectedResult";
 		String result = "";
 
-		CriterionTestResult criterionTestResult = SnmpGetNextCriterionProcessor.checkSNMPGetNextValue(
+		Method method =
+			SnmpGetNextCriterionProcessor.class.getDeclaredMethod(
+					"checkSNMPGetNextExpectedValue",
+					String.class,
+					String.class,
+					String.class,
+					String.class
+				);
+		method.setAccessible(true);
+		CriterionTestResult criterionTestResult = (CriterionTestResult) method.invoke(
+			null,
 			hostname,
 			oid,
+			expectedResult,
 			result
 		);
 
