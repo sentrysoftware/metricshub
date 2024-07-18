@@ -195,7 +195,6 @@ public class SnmpGetNextCriterionProcessor {
 	) {
 		String message;
 		boolean success = true;
-
 		if (result == null) {
 			message =
 				String.format(
