@@ -8,7 +8,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.function.Function;
 import org.junit.jupiter.api.BeforeEach;
@@ -143,23 +142,13 @@ public class SnmpGetNextCriterionProcessorTest {
 	}
 
 	@Test
-	void testCheckSNMPGetNextExpectedValue_NullResult() throws Exception {
+	void testCheckSNMPGetNextValue_NullResult() {
 		String hostname = "hostname";
 		String oid = "1.3.6.1.2.1.1.1.0";
-		String expectedResult = "expectedResult";
 		String result = null;
+		String expectedResult = "expectedResult";
 
-		Method method =
-			SnmpGetNextCriterionProcessor.class.getDeclaredMethod(
-					"checkSNMPGetNextExpectedValue",
-					String.class,
-					String.class,
-					String.class,
-					String.class
-				);
-		method.setAccessible(true);
-		CriterionTestResult criterionTestResult = (CriterionTestResult) method.invoke(
-			null,
+		CriterionTestResult criterionTestResult = SnmpGetNextCriterionProcessor.checkSNMPGetNextExpectedValue(
 			hostname,
 			oid,
 			expectedResult,
@@ -173,41 +162,6 @@ public class SnmpGetNextCriterionProcessorTest {
 			" - SNMP test failed - SNMP GetNext of " +
 			oid +
 			" was unsuccessful due to a null result.",
-			criterionTestResult.getMessage()
-		);
-	}
-
-	@Test
-	void testCheckSNMPGetNextExpectedValue_EmptyResult() throws Exception {
-		String hostname = "hostname";
-		String oid = "1.3.6.1.2.1.1.1.0";
-		String expectedResult = "expectedResult";
-		String result = "";
-
-		Method method =
-			SnmpGetNextCriterionProcessor.class.getDeclaredMethod(
-					"checkSNMPGetNextExpectedValue",
-					String.class,
-					String.class,
-					String.class,
-					String.class
-				);
-		method.setAccessible(true);
-		CriterionTestResult criterionTestResult = (CriterionTestResult) method.invoke(
-			null,
-			hostname,
-			oid,
-			expectedResult,
-			result
-		);
-
-		assertFalse(criterionTestResult.isSuccess());
-		assertEquals(
-			"Hostname " +
-			hostname +
-			" - SNMP test failed - SNMP GetNext of " +
-			oid +
-			" was unsuccessful due to an empty result.",
 			criterionTestResult.getMessage()
 		);
 	}

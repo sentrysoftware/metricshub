@@ -187,7 +187,7 @@ public class SnmpGetNextCriterionProcessor {
 	 * @param result    The result of the SNMP GetNext operation.
 	 * @return {@link TestResult} wrapping the message and the success status.
 	 */
-	private static CriterionTestResult checkSNMPGetNextExpectedValue(
+	static CriterionTestResult checkSNMPGetNextExpectedValue(
 		final String hostname,
 		final String oid,
 		final String expected,
@@ -199,14 +199,6 @@ public class SnmpGetNextCriterionProcessor {
 			message =
 				String.format(
 					"Hostname %s - SNMP test failed - SNMP GetNext of %s was unsuccessful due to a null result.",
-					hostname,
-					oid
-				);
-			success = false;
-		} else if (result.isBlank()) {
-			message =
-				String.format(
-					"Hostname %s - SNMP test failed - SNMP GetNext of %s was unsuccessful due to an empty result.",
 					hostname,
 					oid
 				);
