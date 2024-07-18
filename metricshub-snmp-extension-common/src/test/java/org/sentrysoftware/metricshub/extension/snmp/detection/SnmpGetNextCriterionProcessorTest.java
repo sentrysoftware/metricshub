@@ -140,4 +140,50 @@ public class SnmpGetNextCriterionProcessorTest {
 
 		assertFalse(result.isSuccess());
 	}
+
+	@Test
+	void testCheckSNMPGetNextValue_NullResult() {
+		String hostname = "hostname";
+		String oid = "1.3.6.1.2.1.1.1.0";
+		String result = null;
+
+		CriterionTestResult criterionTestResult = SnmpGetNextCriterionProcessor.checkSNMPGetNextValue(
+			hostname,
+			oid,
+			result
+		);
+
+		assertFalse(criterionTestResult.isSuccess());
+		assertEquals(
+			"Hostname " +
+			hostname +
+			" - SNMP test failed - SNMP GetNext of " +
+			oid +
+			" was unsuccessful due to a null result.",
+			criterionTestResult.getMessage()
+		);
+	}
+
+	@Test
+	void testCheckSNMPGetNextValue_EmptyResult() {
+		String hostname = "hostname";
+		String oid = "1.3.6.1.2.1.1.1.0";
+		String result = "";
+
+		CriterionTestResult criterionTestResult = SnmpGetNextCriterionProcessor.checkSNMPGetNextValue(
+			hostname,
+			oid,
+			result
+		);
+
+		assertFalse(criterionTestResult.isSuccess());
+		assertEquals(
+			"Hostname " +
+			hostname +
+			" - SNMP test failed - SNMP GetNext of " +
+			oid +
+			" was unsuccessful due to an empty result.",
+			criterionTestResult.getMessage()
+		);
+	}
 }
