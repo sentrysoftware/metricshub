@@ -869,10 +869,18 @@ public class ComputeProcessor implements IComputeProcessor {
 			return;
 		}
 
-		try {
-			final List<String> jsonToCsvProperties = new ArrayList<>(
-				Arrays.asList(json2csv.getProperties().split(SEMICOLON))
+		final String properties = json2csv.getProperties();
+		if (properties == null) {
+			log.warn(
+				"Hostname {} - Compute Operation (Json2CSV) properties are null, the table remains unchanged.",
+				hostname
 			);
+			return;
+		}
+
+		try {
+			final List<String> jsonToCsvProperties = SourceTable.lineToList(properties, SEMICOLON);
+
 			final String json2csvResult = clientsExecutor.executeJson2Csv(
 				sourceTable.getRawData(),
 				json2csv.getEntryKey(),
