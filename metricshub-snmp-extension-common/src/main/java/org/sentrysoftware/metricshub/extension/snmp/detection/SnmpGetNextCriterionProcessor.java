@@ -187,7 +187,7 @@ public class SnmpGetNextCriterionProcessor {
 	 * @param result    The result of the SNMP GetNext operation.
 	 * @return {@link TestResult} wrapping the message and the success status.
 	 */
-	private static CriterionTestResult checkSNMPGetNextExpectedValue(
+	static CriterionTestResult checkSNMPGetNextExpectedValue(
 		final String hostname,
 		final String oid,
 		final String expected,
@@ -195,36 +195,46 @@ public class SnmpGetNextCriterionProcessor {
 	) {
 		String message;
 		boolean success = true;
-		final Matcher matcher = SNMP_GET_NEXT_VALUE_PATTERN.matcher(result);
-		if (matcher.find()) {
-			final String value = matcher.group(1);
-			final Pattern pattern = Pattern.compile(
-				PslUtils.psl2JavaRegex(expected),
-				Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
-			);
-			if (!pattern.matcher(value).find()) {
-				message =
-					String.format(
-						"Hostname %s - SNMP test failed - SNMP GetNext of %s was successful but the value of the returned OID did not match" +
-						" with the expected result. ",
-						hostname,
-						oid
-					);
-				message += String.format("Expected value: %s - returned value %s.", expected, value);
-				success = false;
-			} else {
-				message =
-					String.format("Hostname %s - Successful SNMP GetNext of %s. Returned result: %s.", hostname, oid, result);
-			}
-		} else {
+		if (result == null) {
 			message =
 				String.format(
-					"Hostname %s - SNMP test failed - SNMP GetNext of %s was successful but the value cannot be extracted. ",
+					"Hostname %s - SNMP test failed - SNMP GetNext of %s was unsuccessful due to a null result.",
 					hostname,
 					oid
 				);
-			message += String.format("Returned result: %s.", result);
 			success = false;
+		} else {
+			final Matcher matcher = SNMP_GET_NEXT_VALUE_PATTERN.matcher(result);
+			if (matcher.find()) {
+				final String value = matcher.group(1);
+				final Pattern pattern = Pattern.compile(
+					PslUtils.psl2JavaRegex(expected),
+					Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
+				);
+				if (!pattern.matcher(value).find()) {
+					message =
+						String.format(
+							"Hostname %s - SNMP test failed - SNMP GetNext of %s was successful but the value of the returned OID did not match" +
+							" with the expected result. ",
+							hostname,
+							oid
+						);
+					message += String.format("Expected value: %s - returned value %s.", expected, value);
+					success = false;
+				} else {
+					message =
+						String.format("Hostname %s - Successful SNMP GetNext of %s. Returned result: %s.", hostname, oid, result);
+				}
+			} else {
+				message =
+					String.format(
+						"Hostname %s - SNMP test failed - SNMP GetNext of %s was successful but the value cannot be extracted. ",
+						hostname,
+						oid
+					);
+				message += String.format("Returned result: %s.", result);
+				success = false;
+			}
 		}
 
 		log.debug(message);
