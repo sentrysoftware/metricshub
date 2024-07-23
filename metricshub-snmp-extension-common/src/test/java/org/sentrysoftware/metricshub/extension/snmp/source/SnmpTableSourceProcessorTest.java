@@ -18,14 +18,14 @@ import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.extension.snmp.AbstractSnmpRequestExecutor;
 import org.sentrysoftware.metricshub.extension.snmp.ISnmpConfiguration;
-import org.sentrysoftware.metricshub.extension.snmp.ISnmpRequestExecutor;
 
 @ExtendWith(MockitoExtension.class)
 public class SnmpTableSourceProcessorTest {
 
 	@Mock
-	private ISnmpRequestExecutor snmpRequestExecutor;
+	private AbstractSnmpRequestExecutor snmpRequestExecutor;
 
 	@Mock
 	private Function<TelemetryManager, ISnmpConfiguration> configurationRetriever;

@@ -31,8 +31,8 @@ import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.S
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.utils.PslUtils;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.extension.snmp.AbstractSnmpRequestExecutor;
 import org.sentrysoftware.metricshub.extension.snmp.ISnmpConfiguration;
-import org.sentrysoftware.metricshub.extension.snmp.ISnmpRequestExecutor;
 
 /**
  * A class responsible for processing SNMP Get criteria to evaluate SNMP queries against specified criteria.
@@ -44,7 +44,7 @@ import org.sentrysoftware.metricshub.extension.snmp.ISnmpRequestExecutor;
 public class SnmpGetCriterionProcessor {
 
 	@NonNull
-	private ISnmpRequestExecutor snmpRequestExecutor;
+	private AbstractSnmpRequestExecutor snmpRequestExecutor;
 
 	@NonNull
 	private Function<TelemetryManager, ISnmpConfiguration> configurationRetriever;
@@ -131,7 +131,7 @@ public class SnmpGetCriterionProcessor {
 	 * @param result   The result of the SNMP Get operation.
 	 * @return {@link CriterionTestResult} wrapping the message and the success status.
 	 */
-	private static CriterionTestResult checkSNMPGetValue(final String hostname, final String oid, final String result) {
+	static CriterionTestResult checkSNMPGetValue(final String hostname, final String oid, final String result) {
 		String message;
 		boolean success = false;
 		if (result == null) {
@@ -169,7 +169,7 @@ public class SnmpGetCriterionProcessor {
 	 * @param result   The result of the SNMP Get operation.
 	 * @return {@link CriterionTestResult} wrapping the success status and the message.
 	 */
-	private static CriterionTestResult checkSNMPGetResult(
+	static CriterionTestResult checkSNMPGetResult(
 		final String hostname,
 		final String oid,
 		final String expected,
@@ -190,7 +190,7 @@ public class SnmpGetCriterionProcessor {
 	 * @param result   The result of the SNMP Get operation.
 	 * @return {@link CriterionTestResult} wrapping the message and the success status.
 	 */
-	private static CriterionTestResult checkSNMPGetExpectedValue(
+	static CriterionTestResult checkSNMPGetExpectedValue(
 		final String hostname,
 		final String oid,
 		final String expected,
