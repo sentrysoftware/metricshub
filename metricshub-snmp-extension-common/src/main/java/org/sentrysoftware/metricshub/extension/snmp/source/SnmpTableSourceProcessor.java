@@ -31,8 +31,8 @@ import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.extension.snmp.AbstractSnmpRequestExecutor;
 import org.sentrysoftware.metricshub.extension.snmp.ISnmpConfiguration;
-import org.sentrysoftware.metricshub.extension.snmp.ISnmpRequestExecutor;
 
 /**
  * A utility class for processing SNMP table sources.
@@ -44,7 +44,7 @@ import org.sentrysoftware.metricshub.extension.snmp.ISnmpRequestExecutor;
 public class SnmpTableSourceProcessor {
 
 	@NonNull
-	private ISnmpRequestExecutor snmpRequestExecutor;
+	private AbstractSnmpRequestExecutor snmpRequestExecutor;
 
 	@NonNull
 	private Function<TelemetryManager, ISnmpConfiguration> configurationRetriever;

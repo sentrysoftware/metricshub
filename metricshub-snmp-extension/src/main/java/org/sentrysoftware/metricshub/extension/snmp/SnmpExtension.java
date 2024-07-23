@@ -21,45 +21,24 @@ package org.sentrysoftware.metricshub.extension.snmp;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
-import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
-import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetCriterion;
-import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetNextCriterion;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpGetSource;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
-import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
-import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
-import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
-import org.sentrysoftware.metricshub.extension.snmp.detection.SnmpGetCriterionProcessor;
-import org.sentrysoftware.metricshub.extension.snmp.detection.SnmpGetNextCriterionProcessor;
-import org.sentrysoftware.metricshub.extension.snmp.source.SnmpGetSourceProcessor;
-import org.sentrysoftware.metricshub.extension.snmp.source.SnmpTableSourceProcessor;
 
 /**
- * This class implements the {@link IProtocolExtension} contract, reports the supported features,
- * processes SNMP sources and criteria.
+ * This class extends {@link AbstractSnmpExtension}, reports the supported features,
+ * and processes SNMP sources and criteria.
  */
 @Slf4j
 @AllArgsConstructor
-public class SnmpExtension implements IProtocolExtension {
+public class SnmpExtension extends AbstractSnmpExtension {
 
 	@NonNull
 	private SnmpRequestExecutor snmpRequestExecutor;
@@ -87,13 +66,8 @@ public class SnmpExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public Set<Class<? extends Source>> getSupportedSources() {
-		return Set.of(SnmpTableSource.class, SnmpGetSource.class);
-	}
-
-	@Override
-	public Set<Class<? extends Criterion>> getSupportedCriteria() {
-		return Set.of(SnmpGetCriterion.class, SnmpGetNextCriterion.class);
+	protected Class<SnmpConfiguration> getConfigurationClass() {
+		return SnmpConfiguration.class;
 	}
 
 	@Override
@@ -133,62 +107,6 @@ public class SnmpExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public SourceTable processSource(Source source, String connectorId, TelemetryManager telemetryManager) {
-		final Function<TelemetryManager, ISnmpConfiguration> configurationRetriever = manager ->
-			(ISnmpConfiguration) manager.getHostConfiguration().getConfigurations().get(SnmpConfiguration.class);
-
-		if (source instanceof SnmpTableSource snmpTableSource) {
-			return new SnmpTableSourceProcessor(snmpRequestExecutor, configurationRetriever)
-				.process(snmpTableSource, connectorId, telemetryManager);
-		} else if (source instanceof SnmpGetSource snmpGetSource) {
-			return new SnmpGetSourceProcessor(snmpRequestExecutor, configurationRetriever)
-				.process(snmpGetSource, connectorId, telemetryManager);
-		}
-		throw new IllegalArgumentException(
-			String.format(
-				"Hostname %s - Cannot process source %s.",
-				telemetryManager.getHostname(),
-				source != null ? source.getClass().getSimpleName() : "<null>"
-			)
-		);
-	}
-
-	@Override
-	public CriterionTestResult processCriterion(
-		Criterion criterion,
-		String connectorId,
-		TelemetryManager telemetryManager
-	) {
-		final Function<TelemetryManager, ISnmpConfiguration> configurationRetriever = manager ->
-			(ISnmpConfiguration) manager.getHostConfiguration().getConfigurations().get(SnmpConfiguration.class);
-
-		if (criterion instanceof SnmpGetCriterion snmpGetCriterion) {
-			return new SnmpGetCriterionProcessor(snmpRequestExecutor, configurationRetriever)
-				.process(snmpGetCriterion, connectorId, telemetryManager);
-		} else if (criterion instanceof SnmpGetNextCriterion snmpGetNextCriterion) {
-			return new SnmpGetNextCriterionProcessor(snmpRequestExecutor, configurationRetriever)
-				.process(snmpGetNextCriterion, connectorId, telemetryManager);
-		}
-		throw new IllegalArgumentException(
-			String.format(
-				"Hostname %s - Cannot process criterion %s.",
-				telemetryManager.getHostname(),
-				criterion != null ? criterion.getClass().getSimpleName() : "<null>"
-			)
-		);
-	}
-
-	@Override
-	public Map<Class<? extends IConfiguration>, Set<Class<? extends Source>>> getConfigurationToSourceMapping() {
-		return Map.of(SnmpConfiguration.class, Set.of(SnmpTableSource.class, SnmpGetSource.class));
-	}
-
-	@Override
-	public boolean isSupportedConfigurationType(String configurationType) {
-		return IDENTIFIER.equalsIgnoreCase(configurationType);
-	}
-
-	@Override
 	public IConfiguration buildConfiguration(
 		@NonNull String configurationType,
 		@NonNull JsonNode jsonNode,
@@ -218,24 +136,13 @@ public class SnmpExtension implements IProtocolExtension {
 		}
 	}
 
-	/**
-	 * Creates and configures a new instance of the Jackson ObjectMapper for handling YAML data.
-	 *
-	 * @return A configured ObjectMapper instance.
-	 */
-	public static JsonMapper newObjectMapper() {
-		return JsonMapper
-			.builder(new YAMLFactory())
-			.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
-			.enable(SerializationFeature.INDENT_OUTPUT)
-			.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
-			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-			.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false)
-			.build();
-	}
-
 	@Override
 	public String getIdentifier() {
 		return IDENTIFIER;
+	}
+
+	@Override
+	protected AbstractSnmpRequestExecutor getRequestExecutor() {
+		return snmpRequestExecutor;
 	}
 }
