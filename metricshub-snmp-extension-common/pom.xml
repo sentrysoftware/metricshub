@@ -132,7 +132,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<excludes>
+					<excludes>ù
 					</excludes>
 				</configuration>
 			</plugin>
