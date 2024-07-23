@@ -22,15 +22,12 @@ package org.sentrysoftware.metricshub.extension.snmp;
  */
 
 import com.fasterxml.jackson.databind.JsonNode;
-import java.util.List;
-import java.util.Optional;
 import java.util.function.UnaryOperator;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
-import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
  * This class extends {@link AbstractSnmpExtension}, reports the supported features,
@@ -39,6 +36,11 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 @Slf4j
 @AllArgsConstructor
 public class SnmpExtension extends AbstractSnmpExtension {
+
+	/**
+	 * The identifier for the Snmp protocol.
+	 */
+	private static final String IDENTIFIER = "snmp";
 
 	@NonNull
 	private SnmpRequestExecutor snmpRequestExecutor;
@@ -50,16 +52,6 @@ public class SnmpExtension extends AbstractSnmpExtension {
 		snmpRequestExecutor = new SnmpRequestExecutor();
 	}
 
-	/**
-	 * The SNMP OID value to use in the health check test
-	 */
-	public static final String SNMP_OID = "1.3.6.1";
-
-	/**
-	 * The identifier for the Snmp protocol.
-	 */
-	private static final String IDENTIFIER = "snmp";
-
 	@Override
 	public boolean isValidConfiguration(IConfiguration configuration) {
 		return configuration instanceof SnmpConfiguration;
@@ -68,42 +60,6 @@ public class SnmpExtension extends AbstractSnmpExtension {
 	@Override
 	protected Class<SnmpConfiguration> getConfigurationClass() {
 		return SnmpConfiguration.class;
-	}
-
-	@Override
-	public Optional<Boolean> checkProtocol(TelemetryManager telemetryManager) {
-		// Retrieve the hostname from the SnmpConfiguration, otherwise from the telemetryManager
-		final String hostname = telemetryManager.getHostname(List.of(SnmpConfiguration.class));
-
-		// Create and set the SNMP result to null
-		String snmpResult = null;
-
-		// Retrieve SNMP Configuration from the telemetry manager host configuration
-		final SnmpConfiguration snmpConfiguration = (SnmpConfiguration) telemetryManager
-			.getHostConfiguration()
-			.getConfigurations()
-			.get(SnmpConfiguration.class);
-
-		// Stop the SNMP health check if there is not an SNMP configuration
-		if (snmpConfiguration == null) {
-			return Optional.empty();
-		}
-
-		log.info("Hostname {} - Performing {} protocol health check.", hostname, getIdentifier());
-		log.info("Hostname {} - Checking SNMP protocol status. Sending Get Next request on {}.", hostname, SNMP_OID);
-
-		// Execute SNMP test command
-		try {
-			snmpResult = snmpRequestExecutor.executeSNMPGetNext(SNMP_OID, snmpConfiguration, hostname, true);
-		} catch (Exception e) {
-			log.debug(
-				"Hostname {} - Checking SNMP protocol status. SNMP exception when performing a SNMP Get Next query on {}: ",
-				hostname,
-				SNMP_OID,
-				e
-			);
-		}
-		return Optional.of(snmpResult != null);
 	}
 
 	@Override

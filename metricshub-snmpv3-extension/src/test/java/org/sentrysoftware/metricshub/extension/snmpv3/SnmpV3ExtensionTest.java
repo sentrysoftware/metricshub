@@ -485,7 +485,7 @@ class SnmpV3ExtensionTest {
 		// Mock SNMP protocol health check response
 		doReturn("success")
 			.when(snmpv3RequestExecutorMock)
-			.executeSNMPGetNext(eq(SnmpV3Extension.SNMPV3_OID), any(SnmpV3Configuration.class), anyString(), anyBoolean());
+			.executeSNMPGetNext(eq(SnmpV3Extension.SNMP_OID), any(SnmpV3Configuration.class), anyString(), anyBoolean());
 
 		// Start the SNMP protocol check
 		Optional<Boolean> result = snmpV3Extension.checkProtocol(telemetryManager);
@@ -501,7 +501,7 @@ class SnmpV3ExtensionTest {
 		// Mock SNMP protocol health check response
 		doReturn(null)
 			.when(snmpv3RequestExecutorMock)
-			.executeSNMPGetNext(eq(SnmpV3Extension.SNMPV3_OID), any(SnmpV3Configuration.class), anyString(), anyBoolean());
+			.executeSNMPGetNext(eq(SnmpV3Extension.SNMP_OID), any(SnmpV3Configuration.class), anyString(), anyBoolean());
 
 		// Start the SNMP protocol check
 		Optional<Boolean> result = snmpV3Extension.checkProtocol(telemetryManager);

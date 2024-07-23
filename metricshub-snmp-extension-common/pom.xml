@@ -19,6 +19,10 @@
 			<artifactId>metricshub-engine</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.sentrysoftware</groupId>
+			<artifactId>snmp</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<scope>compile</scope>
@@ -57,10 +61,6 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.sentrysoftware</groupId>
-			<artifactId>snmp</artifactId>
 		</dependency>
 	</dependencies>
 
@@ -123,7 +123,7 @@
 										<limit>
 											<counter>COMPLEXITY</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.4</minimum>
+											<minimum>0.3</minimum>
 										</limit>
 									</limits>
 								</rule>

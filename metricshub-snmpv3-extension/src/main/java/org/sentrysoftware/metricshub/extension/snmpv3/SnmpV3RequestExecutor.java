@@ -34,7 +34,11 @@ public class SnmpV3RequestExecutor extends AbstractSnmpRequestExecutor {
 
 	@Override
 	protected SnmpClient createSnmpClient(ISnmpConfiguration protocol, String hostname) throws IOException {
-		SnmpV3Configuration snmpConfig = (SnmpV3Configuration) protocol;
+		final SnmpV3Configuration snmpConfig = (SnmpV3Configuration) protocol;
+		final String password = snmpConfig.getPassword() != null ? String.valueOf((snmpConfig.getPassword())) : null;
+		final String privacyPassword = snmpConfig.getPrivacyPassword() != null
+			? String.valueOf(snmpConfig.getPrivacyPassword())
+			: null;
 		return new SnmpClient(
 			hostname,
 			snmpConfig.getPort(),
@@ -43,9 +47,9 @@ public class SnmpV3RequestExecutor extends AbstractSnmpRequestExecutor {
 			null,
 			snmpConfig.getAuthType().toString(),
 			snmpConfig.getUsername(),
-			new String(snmpConfig.getPassword()),
+			password,
 			snmpConfig.getPrivacy().toString(),
-			new String(snmpConfig.getPrivacyPassword()),
+			privacyPassword,
 			snmpConfig.getContextName(),
 			null
 		);

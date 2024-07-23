@@ -22,14 +22,11 @@ package org.sentrysoftware.metricshub.extension.snmpv3;
  */
 
 import com.fasterxml.jackson.databind.JsonNode;
-import java.util.List;
-import java.util.Optional;
 import java.util.function.UnaryOperator;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
-import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.extension.snmp.AbstractSnmpExtension;
 import org.sentrysoftware.metricshub.extension.snmp.AbstractSnmpRequestExecutor;
 
@@ -39,11 +36,6 @@ import org.sentrysoftware.metricshub.extension.snmp.AbstractSnmpRequestExecutor;
  */
 @Slf4j
 public class SnmpV3Extension extends AbstractSnmpExtension {
-
-	/**
-	 * The SNMP V3 OID value to use in the health check test
-	 */
-	public static final String SNMPV3_OID = "1.3.6.1";
 
 	/**
 	 * The identifier for the Snmp version 3  protocol.
@@ -62,42 +54,6 @@ public class SnmpV3Extension extends AbstractSnmpExtension {
 	@Override
 	public boolean isValidConfiguration(IConfiguration configuration) {
 		return configuration instanceof SnmpV3Configuration;
-	}
-
-	@Override
-	public Optional<Boolean> checkProtocol(TelemetryManager telemetryManager) {
-		// Retrieve the hostname from the SnmpV3Configuration, otherwise from the telemetryManager
-		final String hostname = telemetryManager.getHostname(List.of(SnmpV3Configuration.class));
-
-		// Create and set the SNMP V3 result to null
-		String snmpV3Result = null;
-
-		// Retrieve SNMP V3 Configuration from the telemetry manager host configuration
-		final SnmpV3Configuration snmpV3Configuration = (SnmpV3Configuration) telemetryManager
-			.getHostConfiguration()
-			.getConfigurations()
-			.get(SnmpV3Configuration.class);
-
-		// Stop the SNMP V3 health check if there is not an SNMP V3 configuration
-		if (snmpV3Configuration == null) {
-			return Optional.empty();
-		}
-
-		log.info("Hostname {} - Performing {} protocol health check.", hostname, getIdentifier());
-		log.info("Hostname {} - Checking SNMP V3 protocol status. Sending Get Next request on {}.", hostname, SNMPV3_OID);
-
-		// Execute SNMP test command
-		try {
-			snmpV3Result = snmpV3RequestExecutor.executeSNMPGetNext(SNMPV3_OID, snmpV3Configuration, hostname, true);
-		} catch (Exception e) {
-			log.debug(
-				"Hostname {} - Checking SNMP V3 protocol status. SNMP V3 exception when performing a SNMP Get Next query on {}: ",
-				hostname,
-				SNMPV3_OID,
-				e
-			);
-		}
-		return Optional.of(snmpV3Result != null);
 	}
 
 	@Override

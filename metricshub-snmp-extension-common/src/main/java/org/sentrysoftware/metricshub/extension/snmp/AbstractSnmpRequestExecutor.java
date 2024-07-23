@@ -35,6 +35,10 @@ import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.ThreadHelper;
 import org.sentrysoftware.snmp.client.SnmpClient;
 
+/**
+ * Abstract class for executing SNMP (Simple Network Management Protocol) requests
+ * on a specified host.
+ */
 @Slf4j
 public abstract class AbstractSnmpRequestExecutor {
 

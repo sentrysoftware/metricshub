@@ -32,14 +32,14 @@ public class SnmpRequestExecutor extends AbstractSnmpRequestExecutor {
 
 	@Override
 	protected SnmpClient createSnmpClient(ISnmpConfiguration protocol, String hostname) throws IOException {
-		SnmpConfiguration snmpConfig = (SnmpConfiguration) protocol;
+		final SnmpConfiguration snmpConfig = (SnmpConfiguration) protocol;
 
 		return new SnmpClient(
 			hostname,
 			snmpConfig.getPort(),
 			snmpConfig.getIntVersion(),
 			null,
-			new String(snmpConfig.getCommunity()),
+			String.valueOf(snmpConfig.getCommunity()),
 			null,
 			null,
 			null,
