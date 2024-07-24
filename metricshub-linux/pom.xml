@@ -185,7 +185,7 @@
 								</artifactItem>
 								<artifactItem>
 									<groupId>${project.groupId}</groupId>
-									<artifactId>metricshub-sql-h2-source-extension</artifactId>
+									<artifactId>metricshub-sql-source-extension</artifactId>
 									<version>${project.version}</version>
 								</artifactItem>
 							</artifactItems>
