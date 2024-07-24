@@ -1,5 +1,6 @@
 package org.sentrysoftware.metricshub.extension.snmp.detection;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -18,14 +19,14 @@ import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetCriterion;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.extension.snmp.AbstractSnmpRequestExecutor;
 import org.sentrysoftware.metricshub.extension.snmp.ISnmpConfiguration;
-import org.sentrysoftware.metricshub.extension.snmp.ISnmpRequestExecutor;
 
 @ExtendWith(MockitoExtension.class)
 public class SnmpGetCriterionProcessorTest {
 
 	@Mock
-	private ISnmpRequestExecutor snmpRequestExecutor;
+	private AbstractSnmpRequestExecutor snmpRequestExecutor;
 
 	@Mock
 	private Function<TelemetryManager, ISnmpConfiguration> configurationRetriever;
@@ -129,5 +130,111 @@ public class SnmpGetCriterionProcessorTest {
 		CriterionTestResult result = snmpGetCriterionProcessor.process(snmpGetCriterion, "connectorId", telemetryManager);
 
 		assertFalse(result.isSuccess());
+	}
+
+	@Test
+	void testCheckSNMPGetNextValue_NullResult() {
+		String hostname = "hostname";
+		String oid = "1.3.6.1.2.1.1.1.0";
+		String result = null;
+		String expectedResult = "expectedResult";
+
+		CriterionTestResult criterionTestResult = SnmpGetNextCriterionProcessor.checkSNMPGetNextExpectedValue(
+			hostname,
+			oid,
+			expectedResult,
+			result
+		);
+
+		assertFalse(criterionTestResult.isSuccess());
+		assertEquals(
+			"Hostname " +
+			hostname +
+			" - SNMP test failed - SNMP GetNext of " +
+			oid +
+			" was unsuccessful due to a null result.",
+			criterionTestResult.getMessage()
+		);
+	}
+
+	@Test
+	public void testCheckSNMPGetValue_ValidResult() {
+		String hostname = "hostname";
+		String oid = "1.3.6.1.2.1.1.1.0";
+		String result = "ValidResult";
+
+		CriterionTestResult criterionTestResult = SnmpGetCriterionProcessor.checkSNMPGetValue(hostname, oid, result);
+
+		assertTrue(criterionTestResult.isSuccess());
+		assertEquals(
+			"Hostname hostname - Successful SNMP Get of 1.3.6.1.2.1.1.1.0. Returned result: ValidResult.",
+			criterionTestResult.getMessage()
+		);
+	}
+
+	@Test
+	public void testCheckSNMPGetResult_ExpectedNull_ValidResult() {
+		String hostname = "hostname";
+		String oid = "1.3.6.1.2.1.1.1.0";
+		String result = "ValidResult";
+
+		CriterionTestResult criterionTestResult = SnmpGetCriterionProcessor.checkSNMPGetResult(hostname, oid, null, result);
+
+		assertTrue(criterionTestResult.isSuccess());
+		assertEquals(
+			"Hostname hostname - Successful SNMP Get of 1.3.6.1.2.1.1.1.0. Returned result: ValidResult.",
+			criterionTestResult.getMessage()
+		);
+	}
+
+	@Test
+	public void testCheckSNMPGetResult_ResultDoesNotMatchExpected() {
+		String hostname = "hostname";
+		String oid = "1.3.6.1.2.1.1.1.0";
+		String expected = "ExpectedValue";
+		String result = "ActualValue";
+
+		CriterionTestResult criterionTestResult = SnmpGetCriterionProcessor.checkSNMPGetResult(
+			hostname,
+			oid,
+			expected,
+			result
+		);
+
+		assertFalse(criterionTestResult.isSuccess());
+		assertEquals(
+			"Hostname hostname - SNMP test failed - SNMP Get of 1.3.6.1.2.1.1.1.0 was successful but the value of the returned OID did not match with the expected result. Expected value: ExpectedValue - returned value ActualValue.",
+			criterionTestResult.getMessage()
+		);
+	}
+
+	@Test
+	public void testCheckSNMPGetValue_NullResult() {
+		String hostname = "hostname";
+		String oid = "1.3.6.1.2.1.1.1.0";
+		String result = null;
+
+		CriterionTestResult criterionTestResult = SnmpGetCriterionProcessor.checkSNMPGetValue(hostname, oid, result);
+
+		assertFalse(criterionTestResult.isSuccess());
+		assertEquals(
+			"Hostname hostname - SNMP test failed - SNMP Get of 1.3.6.1.2.1.1.1.0 was unsuccessful due to a null result",
+			criterionTestResult.getMessage()
+		);
+	}
+
+	@Test
+	public void testCheckSNMPGetValue_EmptyResult() {
+		String hostname = "hostname";
+		String oid = "1.3.6.1.2.1.1.1.0";
+		String result = "";
+
+		CriterionTestResult criterionTestResult = SnmpGetCriterionProcessor.checkSNMPGetValue(hostname, oid, result);
+
+		assertFalse(criterionTestResult.isSuccess());
+		assertEquals(
+			"Hostname hostname - SNMP test failed - SNMP Get of 1.3.6.1.2.1.1.1.0 was unsuccessful due to an empty result.",
+			criterionTestResult.getMessage()
+		);
 	}
 }

@@ -19,14 +19,14 @@ import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetNextCriterion;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.extension.snmp.AbstractSnmpRequestExecutor;
 import org.sentrysoftware.metricshub.extension.snmp.ISnmpConfiguration;
-import org.sentrysoftware.metricshub.extension.snmp.ISnmpRequestExecutor;
 
 @ExtendWith(MockitoExtension.class)
 public class SnmpGetNextCriterionProcessorTest {
 
 	@Mock
-	private ISnmpRequestExecutor snmpRequestExecutor;
+	private AbstractSnmpRequestExecutor snmpRequestExecutor;
 
 	@Mock
 	private Function<TelemetryManager, ISnmpConfiguration> configurationRetriever;
@@ -164,5 +164,90 @@ public class SnmpGetNextCriterionProcessorTest {
 			" was unsuccessful due to a null result.",
 			criterionTestResult.getMessage()
 		);
+	}
+
+	@Test
+	void testCheckSNMPGetNextValue_EmptyResult() {
+		String hostname = "hostname";
+		String oid = "1.3.6.1.2.1.1.1.0";
+		String result = "";
+
+		CriterionTestResult criterionTestResult = SnmpGetNextCriterionProcessor.checkSNMPGetNextValue(
+			hostname,
+			oid,
+			result
+		);
+
+		assertFalse(criterionTestResult.isSuccess());
+		assertEquals(
+			"Hostname " +
+			hostname +
+			" - SNMP test failed - SNMP GetNext of " +
+			oid +
+			" was unsuccessful due to an empty result.",
+			criterionTestResult.getMessage()
+		);
+	}
+
+	@Test
+	void testCheckSNMPGetNextValue_InvalidOid() {
+		String hostname = "hostname";
+		String oid = "1.3.6.1.2.1.1.1.0";
+		String result = "1.4.6.1.0.0.1.2.0 Value";
+
+		CriterionTestResult criterionTestResult = SnmpGetNextCriterionProcessor.checkSNMPGetNextValue(
+			hostname,
+			oid,
+			result
+		);
+
+		assertFalse(criterionTestResult.isSuccess());
+		assertEquals(
+			"Hostname " +
+			hostname +
+			" - SNMP test failed - SNMP GetNext of " +
+			oid +
+			" was successful but the returned OID is not under the same tree. Returned OID: 1.4.6.1.0.0.1.2.0.",
+			criterionTestResult.getMessage()
+		);
+	}
+
+	@Test
+	void testCheckSNMPGetNextValue_ValidResult() {
+		String hostname = "hostname";
+		String oid = "1.3.6.1.2.1.1.1.0";
+		String result = "1.3.6.1.2.1.1.1.0 Value";
+
+		CriterionTestResult criterionTestResult = SnmpGetNextCriterionProcessor.checkSNMPGetNextValue(
+			hostname,
+			oid,
+			result
+		);
+		assertTrue(criterionTestResult.isSuccess());
+		assertEquals(
+			"Hostname " + hostname + " - Successful SNMP GetNext of " + oid + ". Returned result: " + result + ".",
+			criterionTestResult.getMessage()
+		);
+	}
+
+	@Test
+	void testCheckSNMPGetNextResult_ExpectedValueNull_ValidResult() {
+		String hostname = "hostname";
+		String oid = "1.3.6.1.2.1.1.1.0";
+		String expected = null;
+		String result = "1.3.6.1.2.1.1.1.0 Value";
+
+		CriterionTestResult criterionTestResult = SnmpGetNextCriterionProcessor.checkSNMPGetNextResult(
+			hostname,
+			oid,
+			expected,
+			result
+		);
+
+		assertEquals(
+			"Hostname hostname - Successful SNMP GetNext of 1.3.6.1.2.1.1.1.0. Returned result: 1.3.6.1.2.1.1.1.0 Value.",
+			criterionTestResult.getMessage()
+		);
+		assertTrue(criterionTestResult.isSuccess());
 	}
 }

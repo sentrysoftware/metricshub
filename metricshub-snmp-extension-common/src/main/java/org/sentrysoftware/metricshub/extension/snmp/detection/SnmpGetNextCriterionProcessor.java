@@ -32,8 +32,8 @@ import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.S
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.utils.PslUtils;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.extension.snmp.AbstractSnmpRequestExecutor;
 import org.sentrysoftware.metricshub.extension.snmp.ISnmpConfiguration;
-import org.sentrysoftware.metricshub.extension.snmp.ISnmpRequestExecutor;
 
 /**
  * A class responsible for processing SNMP GetNext criteria to evaluate SNMP queries against specified criteria.
@@ -45,7 +45,7 @@ import org.sentrysoftware.metricshub.extension.snmp.ISnmpRequestExecutor;
 public class SnmpGetNextCriterionProcessor {
 
 	@NonNull
-	private ISnmpRequestExecutor snmpRequestExecutor;
+	private AbstractSnmpRequestExecutor snmpRequestExecutor;
 
 	@NonNull
 	private Function<TelemetryManager, ISnmpConfiguration> configurationRetriever;
@@ -137,11 +137,7 @@ public class SnmpGetNextCriterionProcessor {
 	 * @param result   The result of the SNMP GetNext operation.
 	 * @return {@link TestResult} wrapping the message and the success status.
 	 */
-	private static CriterionTestResult checkSNMPGetNextValue(
-		final String hostname,
-		final String oid,
-		final String result
-	) {
+	static CriterionTestResult checkSNMPGetNextValue(final String hostname, final String oid, final String result) {
 		String message;
 		boolean success = false;
 		if (result == null) {
@@ -253,7 +249,7 @@ public class SnmpGetNextCriterionProcessor {
 	 * @param result   The result of the SNMP GetNext operation.
 	 * @return {@link TestResult} wrapping the success status and the message
 	 */
-	private static CriterionTestResult checkSNMPGetNextResult(
+	static CriterionTestResult checkSNMPGetNextResult(
 		final String hostname,
 		final String oid,
 		final String expected,
