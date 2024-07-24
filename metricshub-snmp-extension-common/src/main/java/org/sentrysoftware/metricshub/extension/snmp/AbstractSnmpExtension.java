@@ -84,8 +84,11 @@ public abstract class AbstractSnmpExtension implements IProtocolExtension {
 
 	@Override
 	public Optional<Boolean> checkProtocol(TelemetryManager telemetryManager) {
+		// Retrieve the SNMP configuration class type
+		final Class<? extends ISnmpConfiguration> configurationClass = getConfigurationClass();
+
 		// Retrieve the hostname from the Snmp Configuration, otherwise from the telemetryManager
-		final String hostname = telemetryManager.getHostname(List.of(getConfigurationClass()));
+		final String hostname = telemetryManager.getHostname(List.of(configurationClass));
 
 		// Create and set the SNMP result to null
 		String result = null;
@@ -94,7 +97,7 @@ public abstract class AbstractSnmpExtension implements IProtocolExtension {
 		final ISnmpConfiguration configuration = (ISnmpConfiguration) telemetryManager
 			.getHostConfiguration()
 			.getConfigurations()
-			.get(getConfigurationClass());
+			.get(configurationClass);
 
 		// Stop the SNMP health check if there is not an SNMP configuration
 		if (configuration == null) {
