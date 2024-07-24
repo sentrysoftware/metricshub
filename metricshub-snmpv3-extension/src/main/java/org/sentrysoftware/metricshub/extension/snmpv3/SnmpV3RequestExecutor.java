@@ -22,6 +22,7 @@ package org.sentrysoftware.metricshub.extension.snmpv3;
  */
 
 import java.io.IOException;
+import java.util.Optional;
 import org.sentrysoftware.metricshub.extension.snmp.AbstractSnmpRequestExecutor;
 import org.sentrysoftware.metricshub.extension.snmp.ISnmpConfiguration;
 import org.sentrysoftware.snmp.client.SnmpClient;
@@ -35,10 +36,11 @@ public class SnmpV3RequestExecutor extends AbstractSnmpRequestExecutor {
 	@Override
 	protected SnmpClient createSnmpClient(ISnmpConfiguration protocol, String hostname) throws IOException {
 		final SnmpV3Configuration snmpConfig = (SnmpV3Configuration) protocol;
-		final String password = snmpConfig.getPassword() != null ? String.valueOf((snmpConfig.getPassword())) : null;
-		final String privacyPassword = snmpConfig.getPrivacyPassword() != null
-			? String.valueOf(snmpConfig.getPrivacyPassword())
-			: null;
+		final String password = Optional.ofNullable(snmpConfig.getPassword()).map(String::valueOf).orElse(null);
+		final String privacyPassword = Optional
+			.ofNullable(snmpConfig.getPrivacyPassword())
+			.map(String::valueOf)
+			.orElse(null);
 		return new SnmpClient(
 			hostname,
 			snmpConfig.getPort(),
