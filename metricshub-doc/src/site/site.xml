@@ -102,7 +102,7 @@
 		</menu>
 
 		<menu name="Sustainability (Community Edition)">
-			<item name="Sustainability Metrics" href="sustainability/configure-hardware-extension.html" />
+			<item name="Sustainability Metrics" href="sustainability/configure-sustainability-metrics.html" />
 		</menu>
 
 		<menu name="Troubleshooting">
