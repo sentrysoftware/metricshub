@@ -1,13 +1,13 @@
-keywords: configuration, hardware extension, sustainability, dashboards, Grafana, Datadog
-description: How to configure the hardware extension and ensure Datadog and Grafana dashboards are populated.
+keywords: configuration, sustainability, dashboards, Grafana, Datadog
+description: How to Configure MetricsHub for Sustainability Metrics Reporting and ensure Datadog and Grafana dashboards are populated.
 
 # Sustainability Metrics
 
 **MetricsHub** enriches hardware data with **energy usage metrics**, such as `hw.host.energy`, `hw.host.heating_margin`, `hw.host.power`, to deliver an accurate assessment of a resource's carbon footprint. Visualized in user-friendly dashboards, these sustainability metrics offer a comprehensive understanding of the environmental impact of the IT infrastructure.
 
-To ensure dashboards are properly populated, you must configure the **Hardware Extension** in the `config/metricshub.yaml` configuration file. 
+To ensure dashboards are properly populated, you must configure MetricsHub in the `config/metricshub.yaml` configuration file. 
 
-## Configure the Hardware Extension
+## Configure MetricsHub for Sustainability Metrics Reporting
 
 To obtain the electricity costs and carbon footprint of your resource, configure the `Metrics` section of the `config/metricshub.yaml` file as follows:
 
