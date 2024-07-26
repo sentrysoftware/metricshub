@@ -112,7 +112,7 @@ public class CriterionProcessor {
 		if (deviceTypeCriterion == null) {
 			log.error(
 				"Hostname {} - Malformed DeviceType criterion {}. Cannot process DeviceType criterion detection.",
-				telemetryManager.getHostConfiguration().getHostname(),
+				telemetryManager.getHostname(),
 				deviceTypeCriterion
 			);
 			return CriterionTestResult.empty();
@@ -198,7 +198,7 @@ public class CriterionProcessor {
 			.message(
 				String.format(
 					"Hostname %s - Failed to perform IPMI detection. %s is an unsupported OS for IPMI.",
-					telemetryManager.getHostConfiguration().getHostname(),
+					telemetryManager.getHostname(),
 					hostType.name()
 				)
 			)
@@ -225,7 +225,7 @@ public class CriterionProcessor {
 	 */
 	@WithSpan("Criterion Process Exec")
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") ProcessCriterion processCriterion) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final String hostname = telemetryManager.getHostname();
 
 		if (processCriterion == null) {
 			log.error(

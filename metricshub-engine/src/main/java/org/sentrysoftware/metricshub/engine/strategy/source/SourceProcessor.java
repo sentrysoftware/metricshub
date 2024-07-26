@@ -77,7 +77,7 @@ public class SourceProcessor implements ISourceProcessor {
 	@WithSpan("Source Copy Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final CopySource copySource) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final String hostname = telemetryManager.getHostname();
 
 		if (copySource == null) {
 			log.error(
@@ -170,7 +170,7 @@ public class SourceProcessor implements ISourceProcessor {
 	@WithSpan("Source IPMI Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final IpmiSource ipmiSource) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final String hostname = telemetryManager.getHostname();
 
 		if (ipmiSource == null) {
 			log.error("Hostname {} - IPMI Source cannot be null, the IPMI operation will return an empty result.", hostname);
@@ -218,7 +218,7 @@ public class SourceProcessor implements ISourceProcessor {
 	@WithSpan("Source Static Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final StaticSource staticSource) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final String hostname = telemetryManager.getHostname();
 
 		if (staticSource == null) {
 			log.error(
@@ -277,7 +277,7 @@ public class SourceProcessor implements ISourceProcessor {
 	@WithSpan("Source TableJoin Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final TableJoinSource tableJoinSource) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final String hostname = telemetryManager.getHostname();
 
 		if (tableJoinSource == null) {
 			log.error(
@@ -407,7 +407,7 @@ public class SourceProcessor implements ISourceProcessor {
 	@WithSpan("Source TableUnion Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final TableUnionSource tableUnionSource) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final String hostname = telemetryManager.getHostname();
 
 		if (tableUnionSource == null) {
 			log.warn(

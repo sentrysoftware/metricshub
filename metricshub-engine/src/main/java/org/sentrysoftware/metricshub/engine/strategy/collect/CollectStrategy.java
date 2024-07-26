@@ -518,7 +518,7 @@ public class CollectStrategy extends AbstractStrategy {
 	@Override
 	public void run() {
 		// Get the host name from telemetry manager
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final String hostname = telemetryManager.getHostname();
 
 		//Retrieve connector Monitor instances from TelemetryManager
 		final Map<String, Monitor> connectorMonitors = telemetryManager

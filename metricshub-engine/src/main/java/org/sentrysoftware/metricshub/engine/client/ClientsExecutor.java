@@ -154,7 +154,7 @@ public class ClientsExecutor {
 			)
 		);
 
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final String hostname = telemetryManager.getHostname();
 
 		final Callable<String> jflatToCSV = () -> {
 			try {
