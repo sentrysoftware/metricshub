@@ -135,13 +135,11 @@ resources:
     attributes:
       host.name: my-central-host-01
       host.type: storage
-      site: central
     <protocol-configuration>
   myCentralHost2:
     attributes:
       host.name: my-central-host-02
       host.type: storage
-      site: central
     <protocol-configuration>
 ```
 
