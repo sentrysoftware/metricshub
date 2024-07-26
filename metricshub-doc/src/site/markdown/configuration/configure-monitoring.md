@@ -109,7 +109,7 @@ resourceGroups:
         <protocol-configuration>
 ```
 
-> Note: Please refer to the [sustainability metrics page](../sustainability/configure-sustainability-metrics.md#example-for-distributed-infrastructure) to configure MetricsHub for Sustainability Metrics Reporting.
+> Note: Refer to the [sustainability metrics page](../sustainability/configure-sustainability-metrics.md#example-for-distributed-infrastructure) to configure MetricsHub for sustainability metrics reporting.
 
 ### Centralized infrastructure
 
@@ -127,7 +127,7 @@ resources:
     <protocol-configuration>
 ```
 
-> Note: Refer to the [sustainability metrics page](../sustainability/configure-sustainability-metrics.md#example-for-centralized-infrastructure) to configure MetricsHub for Sustainability Metrics Reporting.
+> Note: Refer to the [sustainability metrics page](../sustainability/configure-sustainability-metrics.md#example-for-centralized-infrastructure) to configure MetricsHub for sustainability metrics reporting.
 
 ### Unique vs. shared characteristics
 
