@@ -70,7 +70,7 @@ public class ForceSerializationHelper {
 		@NonNull final T defaultValue
 	) {
 		final ReentrantLock forceSerializationLock = getForceSerializationLock(telemetryManager, connectorId);
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final String hostname = telemetryManager.getHostname();
 
 		final boolean isLockAcquired;
 		try {

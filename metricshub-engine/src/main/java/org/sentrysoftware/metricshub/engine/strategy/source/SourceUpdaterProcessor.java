@@ -201,7 +201,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 			telemetryManager
 		);
 
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final String hostname = telemetryManager.getHostname();
 		if (maybeSourceTable.isEmpty()) {
 			log.error(
 				"Hostname {} - Could not extract the foreign source table identified by {} and defined in original source {} to set the {} field.",
@@ -403,7 +403,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 			.get(sourceRefKey);
 
 		// Hostname used for the debug messages
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final String hostname = telemetryManager.getHostname();
 
 		if (sourceTable == null) {
 			log.error(
@@ -484,7 +484,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 			connectorId,
 			telemetryManager
 		);
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final String hostname = telemetryManager.getHostname();
 		if (maybeSourceTable.isEmpty()) {
 			log.error(
 				"Hostname {} - The SourceTable referenced in the ExecuteForEachEntryOf field cannot be found : {}.",

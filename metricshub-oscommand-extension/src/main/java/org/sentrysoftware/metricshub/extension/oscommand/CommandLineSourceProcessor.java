@@ -55,7 +55,7 @@ public class CommandLineSourceProcessor {
 		String connectorId,
 		TelemetryManager telemetryManager
 	) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final String hostname = telemetryManager.getHostname();
 
 		if (
 			commandLineSource == null ||

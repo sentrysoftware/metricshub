@@ -76,7 +76,7 @@ public class HwCollectHelper {
 		final String energyMetricName,
 		final Long collectTime
 	) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final String hostname = telemetryManager.getHostname();
 
 		final Double collectTimePrevious = CollectHelper.getNumberMetricCollectTime(monitor, powerMetricName, true);
 

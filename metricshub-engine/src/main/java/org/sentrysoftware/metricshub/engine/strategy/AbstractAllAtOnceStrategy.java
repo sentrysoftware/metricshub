@@ -388,7 +388,7 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 	 */
 	public void run() {
 		// Get the host name from telemetry manager
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final String hostname = telemetryManager.getHostname();
 
 		// Get the endpoint host monitor
 		final Monitor endpointHost = telemetryManager.getEndpointHostMonitor();
