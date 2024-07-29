@@ -109,11 +109,16 @@ resourceGroups:
         <protocol-configuration>
 ```
 
+> Note: Refer to the [sustainability metrics page](../sustainability/configure-sustainability-metrics.md#example-for-distributed-infrastructure) to configure MetricsHub for sustainability metrics reporting.
+
 ### Centralized infrastructure
 
 For centralized infrastructures, resources can be configured directly under the `resources` section located at the top of the `config/metricshub.yaml` file, without `resourceGroups`:
 
 ```yaml
+attribute:
+  site: <central-site>
+
 resources:
   <resource-id>:
     attributes:
@@ -121,6 +126,8 @@ resources:
       host.type: <type>
     <protocol-configuration>
 ```
+
+> Note: Refer to the [sustainability metrics page](../sustainability/configure-sustainability-metrics.md#example-for-centralized-infrastructure) to configure MetricsHub for sustainability metrics reporting.
 
 ### Unique vs. shared characteristics
 
