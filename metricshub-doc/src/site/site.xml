@@ -171,11 +171,7 @@
 		</menu>
 
 		<menu name="Appendix">
-			<item name="Connectors Directory" href="metricshub-connector-reference.html" />
-			<item name="Connector Platforms" href="platform-requirements.html" />
+			<item name="Connectors Directory" href="metricshub-connectors-directory.html" />
 		</menu>
-
-		<menu ref="reports" />
-
 	</body>
 </project>

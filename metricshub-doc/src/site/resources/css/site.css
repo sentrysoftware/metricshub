@@ -115,3 +115,9 @@ body.metricshub.dark code[class*=language-js] .token.punctuation {
 	background: var(--banner-bgcolor);
 	color: var(--banner-fgcolor);
 }
+
+.metricshub .metricshub-tag a {
+	color: white;
+	text-decoration: none;
+	font-size: small;
+}
