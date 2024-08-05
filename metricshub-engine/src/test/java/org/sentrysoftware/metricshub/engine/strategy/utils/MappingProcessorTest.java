@@ -238,13 +238,15 @@ class MappingProcessorTest {
 			.telemetryManager(new TelemetryManager())
 			.mapping(Mapping.builder().source(HARDCODED_SOURCE).build())
 			.row(row)
+			.indexCounter(1)
 			.build();
 
 		// Test case for replacement of each column reference with the actual value of the corresponding column
 		final Map<String, String> keyValuePairs = new HashMap<>();
 		keyValuePairs.put("type", "$1");
-		keyValuePairs.put("name", "cpu $2");
+		keyValuePairs.put("name", "cpu $2 $index");
 		keyValuePairs.put("id", "$1_$2_$3");
+		keyValuePairs.put("__display_id", "$index");
 		keyValuePairs.put("vendor", "$4");
 		keyValuePairs.put("serial", "$5 $6");
 		keyValuePairs.put("microcode", "$7");
@@ -253,13 +255,14 @@ class MappingProcessorTest {
 
 		final Map<String, String> result = mappingProcessor.interpretNonContextMapping(keyValuePairs);
 		assertEquals("cpu", result.get("type"));
-		assertEquals("cpu DellOpenManage", result.get("name"));
+		assertEquals("cpu DellOpenManage 1", result.get("name"));
 		assertEquals("cpu_DellOpenManage_1.1", result.get("id"));
 		assertEquals("Dell $1", result.get("vendor"));
 		assertEquals(" ", result.get("serial"));
 		assertEquals("", result.get("microcode"));
 		assertEquals("Dell ", result.get("firmware"));
 		assertEquals("", result.get("info"));
+		assertEquals("1", result.get("__display_id"));
 	}
 
 	@Test

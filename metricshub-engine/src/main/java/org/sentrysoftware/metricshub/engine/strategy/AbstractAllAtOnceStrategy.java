@@ -289,7 +289,7 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 		}
 
 		// If the source table is not empty, loop over the source table rows
-		final SourceTable sourceTable = maybeSourceTable.get();
+		final List<List<String>> table = maybeSourceTable.get().getTable();
 
 		log.debug(
 			"Hostname {} - Start {} {} mapping with source {}, attributes {}, metrics {}, conditional collection {}, legacy text parameters {} " +
@@ -306,7 +306,8 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 			connectorId
 		);
 
-		for (final List<String> row : sourceTable.getTable()) {
+		for (int i = 0; i < table.size(); i++) {
+			final List<String> row = table.get(i);
 			// Init mapping processor
 			final MappingProcessor mappingProcessor = MappingProcessor
 				.builder()
@@ -323,6 +324,7 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 				)
 				.collectTime(strategyTime)
 				.row(row)
+				.indexCounter(i + 1)
 				.build();
 
 			// Use the mapping processor to extract attributes and resource
