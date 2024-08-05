@@ -1138,16 +1138,18 @@ public class MappingProcessor {
 	}
 
 	/**
-	 * Replaces in the given value each column reference (E.g. $1) with the corresponding column value from the current row.
+	 * Replaces in the given value each column reference (E.g. $1) with the corresponding column value from the current row
+	 * and replaces $index with the current index counter, if present.
 	 *
 	 * @param value The input string containing placeholder notations.
 	 * @param key   A key of the attribute.
-	 * @return The modified string after replacing column references with actual values.
+	 * @return The modified string after replacing column references with actual values and $index with the current
+	 * index counter, if present.
 	 */
 	private String replaceColumnReferences(final String value, final String key) {
 		String replacedValue = getColumnReferenceMatcher(value).replaceAll(match -> getColumnValue(match, key));
 		if (replacedValue.contains("$index")) {
-			replacedValue = replacedValue.replace("$index", String.valueOf(indexCounter));
+			replacedValue = replaceIndexReferences(replacedValue);
 		}
 		return replacedValue;
 	}
