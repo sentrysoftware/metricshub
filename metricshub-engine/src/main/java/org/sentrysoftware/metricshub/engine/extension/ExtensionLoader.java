@@ -124,6 +124,10 @@ public class ExtensionLoader {
 			log.info("Loaded source computation extension {}.", extension.getClass().getSimpleName())
 		);
 
+		// Load Jawk extensions
+		final ServiceLoader<IJawkExtension> jawkExtensions = ServiceLoader.load(IJawkExtension.class, classLoader);
+		jawkExtensions.forEach(extension -> log.info("Loaded Jawk extension {}.", extension.getClass().getSimpleName()));
+
 		// Build the extension manager
 		extensionManager =
 			ExtensionManager
@@ -132,6 +136,7 @@ public class ExtensionLoader {
 				.withStrategyProviderExtensions(convertProviderStreamToList(strategyProviderExtensions.stream()))
 				.withConnectorStoreProviderExtensions(convertProviderStreamToList(connectorStoreProviderExtensions.stream()))
 				.withSourceComputationExtensions(convertProviderStreamToList(sourceComputationExtensions.stream()))
+				.withJawkExtensions(convertProviderStreamToList(jawkExtensions.stream()))
 				.build();
 
 		return extensionManager;
