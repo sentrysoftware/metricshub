@@ -72,7 +72,7 @@ monitors:
         source: "${source::monitors.lun.discovery.sources.source(1)}"
         attributes:
           id: $4
-          __display_id: $2
+          __display_id: $index
           array_name: $3
           local_device_name: $9
           remote_device_name: $10

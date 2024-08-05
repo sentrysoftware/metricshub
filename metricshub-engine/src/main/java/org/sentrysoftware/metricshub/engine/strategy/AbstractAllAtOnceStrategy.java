@@ -305,7 +305,7 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 			mapping.getResource(),
 			connectorId
 		);
-
+		int indexCounter = 1;
 		for (final List<String> row : sourceTable.getTable()) {
 			// Init mapping processor
 			final MappingProcessor mappingProcessor = MappingProcessor
@@ -323,7 +323,10 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 				)
 				.collectTime(strategyTime)
 				.row(row)
+				.indexCounter(indexCounter)
 				.build();
+
+			indexCounter++;
 
 			// Use the mapping processor to extract attributes and resource
 			final Map<String, String> noContextAttributeInterpretedValues =

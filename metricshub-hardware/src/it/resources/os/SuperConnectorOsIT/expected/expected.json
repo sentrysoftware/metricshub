@@ -2669,7 +2669,7 @@
       }
     },
     "attributes" : {
-      "__display_id" : "LunOnline",
+      "__display_id" : "1",
       "hw.parent.type" : "enclosure",
       "hw.parent.id" : "1",
       "local_device_name" : "localhost",
@@ -2736,7 +2736,7 @@
       }
     },
     "attributes" : {
-      "__display_id" : "LunUnknown",
+      "__display_id" : "2",
       "hw.parent.type" : "enclosure",
       "hw.parent.id" : "1",
       "local_device_name" : "bacon",
@@ -2803,7 +2803,7 @@
       }
     },
     "attributes" : {
-      "__display_id" : "LunOffline",
+      "__display_id" : "3",
       "hw.parent.type" : "enclosure",
       "hw.parent.id" : "1",
       "local_device_name" : "pc-hds",
@@ -2870,7 +2870,7 @@
       }
     },
     "attributes" : {
-      "__display_id" : "LunNoPath",
+      "__display_id" : "4",
       "hw.parent.type" : "enclosure",
       "hw.parent.id" : "1",
       "local_device_name" : "",

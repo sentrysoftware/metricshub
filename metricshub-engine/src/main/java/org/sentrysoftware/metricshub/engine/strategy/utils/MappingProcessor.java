@@ -154,6 +154,7 @@ public class MappingProcessor {
 	private long collectTime;
 	private List<String> row;
 	private JobInfo jobInfo;
+	private int indexCounter;
 
 	@Default
 	private Map<String, BiFunction<KeyValuePair, Monitor, String>> computationFunctions = new HashMap<>();
@@ -271,6 +272,8 @@ public class MappingProcessor {
 			computationFunctions.put(key, this::rate);
 		} else if (containsColumnReferences(value)) {
 			result.put(key, replaceColumnReferences(value, key));
+		} else if (value.contains("$index")) {
+			result.put(key, replaceIndexReferences(value));
 		} else {
 			result.put(key, value);
 		}
@@ -1142,7 +1145,21 @@ public class MappingProcessor {
 	 * @return The modified string after replacing column references with actual values.
 	 */
 	private String replaceColumnReferences(final String value, final String key) {
-		return getColumnReferenceMatcher(value).replaceAll(match -> getColumnValue(match, key));
+		String replacedValue = getColumnReferenceMatcher(value).replaceAll(match -> getColumnValue(match, key));
+		if (replacedValue.contains("$index")) {
+			replacedValue = replacedValue.replace("$index", String.valueOf(indexCounter));
+		}
+		return replacedValue;
+	}
+
+	/**
+	 * Replaces all occurrences of "$index" in the given string with the current value of indexCounter.
+	 *
+	 * @param value The input string containing "$index".
+	 * @return The modified string with all occurrences of "$index" replaced by the indexCounter value.
+	 */
+	private String replaceIndexReferences(final String value) {
+		return value.replace("$index", String.valueOf(indexCounter));
 	}
 
 	/**
@@ -1328,7 +1345,6 @@ public class MappingProcessor {
 			.forEach(entry -> {
 				final String attributeKey = entry.getKey();
 				final String value = keyValuePairs.get(attributeKey);
-
 				final String attributeValue = SourceUpdaterProcessor.replaceSourceReferenceContent(
 					value,
 					telemetryManager,
