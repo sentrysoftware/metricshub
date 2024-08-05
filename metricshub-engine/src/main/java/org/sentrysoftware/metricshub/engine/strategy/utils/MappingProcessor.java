@@ -1345,6 +1345,7 @@ public class MappingProcessor {
 			.forEach(entry -> {
 				final String attributeKey = entry.getKey();
 				final String value = keyValuePairs.get(attributeKey);
+
 				final String attributeValue = SourceUpdaterProcessor.replaceSourceReferenceContent(
 					value,
 					telemetryManager,

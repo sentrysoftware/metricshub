@@ -37,7 +37,7 @@ This is a multi-module project:
 
 ### Requirements
 
-* Have [Maven 3.x properly installed and configured](http://alpha.internal.sentrysoftware.net/lecloud/x/TwJn), with access to Sentry's repository.
+* Have [Maven 3.x properly installed and configured](https://maven.apache.org/download.cgi).
 * Latest LTS Release of [JDK 21](https://adoptium.net).
 
 ### Build
