@@ -289,7 +289,7 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 		}
 
 		// If the source table is not empty, loop over the source table rows
-		List<List<String>> table = maybeSourceTable.get().getTable();
+		final List<List<String>> table = maybeSourceTable.get().getTable();
 
 		log.debug(
 			"Hostname {} - Start {} {} mapping with source {}, attributes {}, metrics {}, conditional collection {}, legacy text parameters {} " +
