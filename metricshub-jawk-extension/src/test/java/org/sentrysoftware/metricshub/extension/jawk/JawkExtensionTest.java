@@ -21,7 +21,7 @@ class JawkExtensionTest {
 		final JawkSourceExtension jawkExtension = new JawkSourceExtension();
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
-			.hostConfiguration(HostConfiguration.builder().hostname("test-host").build())
+			.hostConfiguration(HostConfiguration.builder().hostname("test-host").hostId("test-host").build())
 			.build();
 		final Source source = JawkSource
 			.builder()
