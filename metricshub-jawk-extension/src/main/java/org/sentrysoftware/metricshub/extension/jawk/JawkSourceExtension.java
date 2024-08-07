@@ -135,16 +135,19 @@ public class JawkSourceExtension implements ICompositeSourceScriptExtension {
 		// we're passing Java strings, where end of lines are simple \n
 		settings.setDefaultRS("\n");
 
-		final MetricsHubExtensionForJawk metricsHubExtensionForJawk = MetricsHubExtensionForJawk
-			.builder()
-			.telemetryManager(telemetryManager)
-			.connectorId(connectorId)
-			.sourceProcessor(sourceProcessor)
-			.build();
-
-		final Map<String, JawkExtension> extensions = Arrays
-			.stream(metricsHubExtensionForJawk.extensionKeywords())
-			.collect(Collectors.toMap(key -> key, key -> metricsHubExtensionForJawk));
+		final String hostId = telemetryManager.getHostConfiguration().getHostId();
+		final Map<String, JawkExtension> extensions = extensionsMap.computeIfAbsent(
+			hostId,
+			id ->
+				Arrays
+					.stream(MetricsHubExtensionForJawk.KEYWORDS)
+					.collect(
+						Collectors.toMap(
+							key -> key,
+							key -> MetricsHubExtensionForJawk.builder().sourceProcessor(sourceProcessor).build()
+						)
+					)
+		);
 
 		// Interpret
 		final AVM avm = new AVM(settings, extensions);

@@ -67,7 +67,7 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 	/**
 	 * The list of keywords supported by this extension.
 	 */
-	private static final String[] KEYWORDS = {
+	protected static final String[] KEYWORDS = {
 		GET_SOURCE,
 		EXECUTE_HTTP_REQUEST,
 		EXECUTE_IPMI_REQUEST,
