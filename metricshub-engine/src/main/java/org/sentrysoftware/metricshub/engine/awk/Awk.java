@@ -33,7 +33,6 @@ import java.util.Collections;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.sentrysoftware.jawk.ExitException;
 import org.sentrysoftware.jawk.backend.AVM;
 import org.sentrysoftware.jawk.frontend.AwkParser;
 import org.sentrysoftware.jawk.frontend.AwkSyntaxTree;
@@ -68,11 +67,10 @@ public class Awk {
 		// Awk Setup
 		final AwkSettings settings = new AwkSettings();
 		settings.setCatchIllegalFormatExceptions(false);
-		settings.setUseStdIn(false);
 
 		// Parse the Awk script
 		final AwkTuples tuples = new AwkTuples();
-		final AwkParser parser = new AwkParser(false, false, false, Collections.emptyMap());
+		final AwkParser parser = new AwkParser(false, false, Collections.emptyMap());
 		final AwkSyntaxTree ast;
 		try {
 			ast = parser.parse(sourceList);
@@ -85,7 +83,7 @@ public class Awk {
 				// 2nd pass to tie actual parameters to forward-referenced formal parameters
 				ast.semanticAnalysis();
 				if (ast.populateTuples(tuples) != 0) {
-					throw new ParseException("Syntax problem with the Awk script", 0);
+					throw new RuntimeException("Syntax problem with the Awk script");
 				}
 				tuples.postProcess();
 				parser.populateGlobalVariableNameToOffsetMappings(tuples);
@@ -128,7 +126,7 @@ public class Awk {
 		final AVM avm = new AVM(settings, Collections.emptyMap());
 		try {
 			avm.interpret(intermediateCode);
-		} catch (ExitException e) {
+		} catch (Exception e) {
 			throw new RuntimeException(e.getMessage());
 		}
 

@@ -26,7 +26,11 @@ import org.sentrysoftware.metricshub.engine.strategy.source.SourceProcessor;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
-public interface IJawkExtension {
+/**
+ * Contract for composite source script extensions.<br>
+ * Implementations of this interface are responsible for processing sources using scripts such as AWK.
+ */
+public interface ICompositeSourceScriptExtension {
 	/**
 	 * Executes a source operation based on the given source and configuration within the telemetry manager.
 	 *

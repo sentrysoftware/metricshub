@@ -139,7 +139,7 @@ public class ClientsExecutor {
 	 * @return The CSV representation of the JSON.
 	 * @throws TimeoutException       If the execution times out.
 	 * @throws ExecutionException     If an execution exception occurs.
-	 * @throws InterruptedException  If the execution is interrupted.
+	 * @throws InterruptedException   If the execution is interrupted.
 	 */
 	public String executeJson2Csv(String jsonSource, String jsonEntryKey, List<String> propertyList, String separator)
 		throws InterruptedException, ExecutionException, TimeoutException {

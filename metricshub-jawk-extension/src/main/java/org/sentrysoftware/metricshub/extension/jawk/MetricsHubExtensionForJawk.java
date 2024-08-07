@@ -35,8 +35,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.jawk.NotImplementedError;
 import org.sentrysoftware.jawk.ext.AbstractExtension;
@@ -56,12 +55,28 @@ import org.sentrysoftware.metricshub.engine.strategy.source.SourceProcessor;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
+/**
+ * This class implements the {@link JawkExtension} contract, reports the supported features, processes sources and computes.
+ */
 @Slf4j
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
-public class MetricsHubAwk extends AbstractExtension implements JawkExtension {
+@EqualsAndHashCode(callSuper = false)
+@AllArgsConstructor
+public class MetricsHubExtensionForJawk extends AbstractExtension implements JawkExtension {
+
+	/**
+	 * The list of keywords supported by this extension.
+	 */
+	private static final String[] KEYWORDS = {
+		GET_SOURCE,
+		EXECUTE_HTTP_REQUEST,
+		EXECUTE_IPMI_REQUEST,
+		EXECUTE_SNMP_GET,
+		EXECUTE_SNMP_TABLE,
+		EXECUTE_WBEM_REQUEST,
+		EXECUTE_WMI_REQUEST,
+		JSON_2CSV
+	};
 
 	private TelemetryManager telemetryManager;
 
@@ -71,23 +86,12 @@ public class MetricsHubAwk extends AbstractExtension implements JawkExtension {
 
 	@Override
 	public String getExtensionName() {
-		return "MetricsHubAwk";
+		return "MetricsHubExtensionForJawk";
 	}
 
 	@Override
 	public String[] extensionKeywords() {
-		String[] extensionKeywords = {
-			GET_SOURCE,
-			EXECUTE_HTTP_REQUEST,
-			EXECUTE_IPMI_REQUEST,
-			EXECUTE_SNMP_GET,
-			EXECUTE_SNMP_TABLE,
-			EXECUTE_WBEM_REQUEST,
-			EXECUTE_WMI_REQUEST,
-			JSON_2CSV
-		};
-
-		return extensionKeywords;
+		return KEYWORDS;
 	}
 
 	@Override
@@ -95,12 +99,12 @@ public class MetricsHubAwk extends AbstractExtension implements JawkExtension {
 		log.error("getAssocArrayParameterPositions");
 
 		if (extensionKeyword.equals(GET_SOURCE) || extensionKeyword.equals(EXECUTE_IPMI_REQUEST)) {
-			return new int[] { 1 };
+			return new int[] {};
 		} else if (extensionKeyword.equals(EXECUTE_SNMP_GET)) {
 			return new int[] { 2 };
 		} else if (
 			extensionKeyword.equals(EXECUTE_SNMP_TABLE) ||
-			extensionKeyword.equals(EXECUTE_SNMP_TABLE) ||
+			extensionKeyword.equals(EXECUTE_WBEM_REQUEST) ||
 			extensionKeyword.equals(EXECUTE_WMI_REQUEST) ||
 			extensionKeyword.equals(JSON_2CSV)
 		) {
@@ -151,7 +155,11 @@ public class MetricsHubAwk extends AbstractExtension implements JawkExtension {
 	 * @return The Source table.
 	 */
 	private List<List<String>> getSource(final String sourceName) {
-		Optional<SourceTable> maybeSourceTable = SourceTable.lookupSourceTable(sourceName, connectorId, telemetryManager);
+		final Optional<SourceTable> maybeSourceTable = SourceTable.lookupSourceTable(
+			sourceName,
+			connectorId,
+			telemetryManager
+		);
 		return maybeSourceTable.isEmpty() ? null : maybeSourceTable.get().getTable();
 	}
 

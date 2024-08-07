@@ -125,8 +125,13 @@ public class ExtensionLoader {
 		);
 
 		// Load Jawk extensions
-		final ServiceLoader<IJawkExtension> jawkExtensions = ServiceLoader.load(IJawkExtension.class, classLoader);
-		jawkExtensions.forEach(extension -> log.info("Loaded Jawk extension {}.", extension.getClass().getSimpleName()));
+		final ServiceLoader<ICompositeSourceScriptExtension> compositeSourceScriptExtensions = ServiceLoader.load(
+			ICompositeSourceScriptExtension.class,
+			classLoader
+		);
+		compositeSourceScriptExtensions.forEach(extension ->
+			log.info("Loaded composite source script extension {}.", extension.getClass().getSimpleName())
+		);
 
 		// Build the extension manager
 		extensionManager =
@@ -136,7 +141,7 @@ public class ExtensionLoader {
 				.withStrategyProviderExtensions(convertProviderStreamToList(strategyProviderExtensions.stream()))
 				.withConnectorStoreProviderExtensions(convertProviderStreamToList(connectorStoreProviderExtensions.stream()))
 				.withSourceComputationExtensions(convertProviderStreamToList(sourceComputationExtensions.stream()))
-				.withJawkExtensions(convertProviderStreamToList(jawkExtensions.stream()))
+				.withCompositeSourceScriptExtensions(convertProviderStreamToList(compositeSourceScriptExtensions.stream()))
 				.build();
 
 		return extensionManager;

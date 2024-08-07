@@ -21,26 +21,33 @@ package org.sentrysoftware.metricshub.extension.jawk;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-
 /**
- * This class contains the keywords used in the Jawk extension.
+ * An exception class for handling runtime exceptions in the JawkSoruce extension.
  */
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class KeyWords {
+public class JawkSourceExtensionRuntimeException extends RuntimeException {
 
-	// General useful functions
-	public static final String GET_SOURCE = "getSource";
+	/**
+	 * Default serial version UID
+	 */
+	private static final long serialVersionUID = 1L;
 
-	// Protocol commands and requests
-	public static final String EXECUTE_HTTP_REQUEST = "executeHttpRequest";
-	public static final String EXECUTE_IPMI_REQUEST = "executeIpmiRequest";
-	public static final String EXECUTE_SNMP_GET = "executeSnmpGet";
-	public static final String EXECUTE_SNMP_TABLE = "executeSnmpTable";
-	public static final String EXECUTE_WBEM_REQUEST = "executeWbemRequest";
-	public static final String EXECUTE_WMI_REQUEST = "executeWmiRequest";
+	/**
+	 * Constructs a new {@link JawkSourceExtensionRuntimeException} with the specified message.
+	 *
+	 * @param message the message
+	 */
+	public JawkSourceExtensionRuntimeException(final String message) {
+		super(message);
+	}
 
-	// Computes
-	public static final String JSON_2CSV = "json2csv";
+	/**
+	 * Constructs a new {@link JawkSourceExtensionRuntimeException} with the specified message and
+	 * cause.
+	 *
+	 * @param message the message
+	 * @param cause   the cause
+	 */
+	public JawkSourceExtensionRuntimeException(final String message, final Throwable cause) {
+		super(message, cause);
+	}
 }

@@ -75,7 +75,7 @@ public class ExtensionManager {
 	private List<ISourceComputationExtension> sourceComputationExtensions = new ArrayList<>();
 
 	@Default
-	private List<IJawkExtension> jawkExtensions = new ArrayList<>();
+	private List<ICompositeSourceScriptExtension> compositeSourceScriptExtensions = new ArrayList<>();
 
 	/**
 	 * Create a new empty instance of the Extension Manager.
@@ -309,9 +309,9 @@ public class ExtensionManager {
 	 * Find the extension which satisfies the processing of the given source according to its type.
 	 *
 	 * @param source Any {@link Source} implementation
-	 * @return an {@link Optional} of an {@link IJawkExtension} instance.
+	 * @return an {@link Optional} of an {@link ICompositeSourceScriptExtension} instance.
 	 */
-	public Optional<IJawkExtension> findJawkExtension(final Source source) {
-		return jawkExtensions.stream().filter(extension -> extension.isValidSource(source)).findFirst();
+	public Optional<ICompositeSourceScriptExtension> findCompositeSourceScriptExtension(final Source source) {
+		return compositeSourceScriptExtensions.stream().filter(extension -> extension.isValidSource(source)).findFirst();
 	}
 }
