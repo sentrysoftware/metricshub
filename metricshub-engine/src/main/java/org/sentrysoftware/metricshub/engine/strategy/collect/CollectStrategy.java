@@ -411,6 +411,7 @@ public class CollectStrategy extends AbstractStrategy {
 				)
 				.collectTime(strategyTime)
 				.row(row)
+				.indexCounter(i + 1)
 				.build();
 
 			// In case of multi-instance, maybeMonitor is empty. So, we try to find it by type, connector id and attribute keys
