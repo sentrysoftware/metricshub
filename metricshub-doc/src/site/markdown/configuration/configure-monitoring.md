@@ -813,6 +813,26 @@ $ metricshub -l
 
 For more information about the `metricshub` command, refer to [MetricsHub CLI (metricshub)](../troubleshooting/cli.md).
 
+#### Configure Connector Variables
+
+In **MetricsHub**, the connector variables can be configured in the `metricshub.yaml` file under the `variables` section. These variables are specified  under the name of the connector to which they belong and contain key-value pairs. The key of each variable corresponds to a variable already configured in the connector, allowing you to customize and centralize the values used in your configuration.
+
+* Example :
+Below is a configuration using the WindowsProcess connector. The processName variable, defined in the variables section, specifies a list of process names (msedge.exe and metricshub.exe)
+
+```yaml
+resources:
+  localhost:
+    attributes:
+      host.name: localhost
+      host.type: windows
+    protocols:
+      wmi:
+        timeout: 120
+    variables:
+      windowsProcess:
+        processName: "('msedge.exe', 'metricshub.exe')"
+```
 #### Discovery cycle
 
 **MetricsHub** periodically performs discoveries to detect new components in your monitored environment. By default, **MetricsHub** runs a discovery after 30 collects. To change this default discovery cycle:
