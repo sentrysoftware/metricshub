@@ -42,7 +42,6 @@ class HardwareEnergyPostExecutionServiceTest {
 	@BeforeEach
 	void init() {
 		final Path yamlTestPath = Paths.get("src", "test", "resources", "strategy", "collect");
-
 		final ConnectorStore connectorStore = new ConnectorStore(yamlTestPath);
 		telemetryManager =
 			TelemetryManager

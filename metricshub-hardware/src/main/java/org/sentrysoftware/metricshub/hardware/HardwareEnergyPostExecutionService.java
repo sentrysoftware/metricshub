@@ -371,39 +371,48 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 		}
 		final ConnectorStore telemetryManagerConnectorStore = telemetryManager.getConnectorStore();
 		if (telemetryManagerConnectorStore == null) {
-			log.error("No connectorStore found. Stopping detection operation.");
+			log.error(
+				"Hardware Energy and Sustainability Module: Host {} has no connectorStore found.",
+				telemetryManager.getHostname()
+			);
 			return false;
 		}
 
 		final Map<String, Connector> connectorStore = telemetryManagerConnectorStore.getStore();
 
 		if (connectorStore == null) {
-			log.error("No connectorStore found. Stopping detection operation.");
+			log.error(
+				"Hardware Energy and Sustainability Module: Host {} has no connectorStore found.",
+				telemetryManager.getHostname()
+			);
 			return false;
 		}
 
 		final String connectorId = monitor.getAttribute(MONITOR_ATTRIBUTE_CONNECTOR_ID);
 
 		if (connectorId == null) {
+			log.error(
+				"Hardware Energy and Sustainability Module: Host {}. Monitor {} connector_id attribute does not exist.",
+				telemetryManager.getHostname(),
+				monitor.getId()
+			);
 			return false;
 		}
-
-		log.warn("CONNECTOR_ID= #" + connectorId);
 
 		final Connector connector = connectorStore.get(connectorId);
 
 		if (connector == null) {
-			log.warn("CONNECTOR is NULL");
-
+			log.error(
+				"Hardware Energy and Sustainability Module: Host {}. Monitor {} connector_id attribute does not correspond to any valid connector id.",
+				telemetryManager.getHostname(),
+				monitor.getId()
+			);
 			return false;
 		}
 
 		final ConnectorIdentity connectorIdentity = connector.getConnectorIdentity();
-		log.warn("CONNECTOR_IDEN= #" + connectorIdentity);
 		final Detection detection = (connectorIdentity != null) ? connectorIdentity.getDetection() : null;
-		log.warn("CONNECTOR_DET= #" + connectorIdentity);
 		final Set<String> connectorTags = (detection != null) ? detection.getTags() : null;
-		log.warn("CONNECTOR_tags #" + connectorTags.toString());
 		return connectorTags != null && connectorTags.stream().anyMatch(tag -> tag.equalsIgnoreCase("hardware"));
 	}
 }
