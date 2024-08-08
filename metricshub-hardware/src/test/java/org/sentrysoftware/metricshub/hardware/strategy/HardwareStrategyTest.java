@@ -8,15 +8,17 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import static org.sentrysoftware.metricshub.hardware.common.Constants.FAN_ENERGY_METRIC;
 import static org.sentrysoftware.metricshub.hardware.common.Constants.FAN_POWER_METRIC;
 import static org.sentrysoftware.metricshub.hardware.common.Constants.FAN_SPEED_METRIC;
-import static org.sentrysoftware.metricshub.hardware.common.Constants.HW_CONNECTOR;
 import static org.sentrysoftware.metricshub.hardware.common.Constants.LOCALHOST;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
+import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.strategy.IStrategy;
 import org.sentrysoftware.metricshub.engine.telemetry.ConnectorNamespace;
 import org.sentrysoftware.metricshub.engine.telemetry.HostProperties;
@@ -32,19 +34,27 @@ class HardwareStrategyTest {
 	private static final String FAN = KnownMonitorType.FAN.getKey();
 	private static final String HOST = KnownMonitorType.HOST.getKey();
 	private static final String CONNECTOR = KnownMonitorType.CONNECTOR.getKey();
+	private static final String TEST_CONNECTOR = "TestConnector";
 
 	private TelemetryManager telemetryManager;
 
 	@BeforeEach
 	void init() {
+		final Path yamlTestPath = Paths.get("src", "test", "resources", "strategy", "collect");
+		final ConnectorStore connectorStore = new ConnectorStore(yamlTestPath);
 		telemetryManager =
-			TelemetryManager.builder().hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).build()).build();
+			TelemetryManager
+				.builder()
+				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).build())
+				.strategyTime(STRATEGY_TIME)
+				.connectorStore(connectorStore)
+				.build();
 
 		// Set the status ok in the host properties
 		final ConnectorNamespace connectorNamespace = ConnectorNamespace.builder().isStatusOk(true).build();
 		final HostProperties hostProperties = HostProperties
 			.builder()
-			.connectorNamespaces(new HashMap<>(Map.of(HW_CONNECTOR, connectorNamespace)))
+			.connectorNamespaces(new HashMap<>(Map.of(TEST_CONNECTOR, connectorNamespace)))
 			.build();
 		telemetryManager.setHostProperties(hostProperties);
 	}
@@ -56,7 +66,7 @@ class HardwareStrategyTest {
 			.builder()
 			.type(FAN)
 			.metrics(new HashMap<>(Map.of(FAN_SPEED_METRIC, NumberMetric.builder().value(0.7).build())))
-			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, TEST_CONNECTOR)))
 			.build();
 
 		// Set the previously created fan monitor in telemetryManager

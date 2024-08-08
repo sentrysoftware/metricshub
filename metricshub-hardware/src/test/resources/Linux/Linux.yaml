@@ -1,0 +1,255 @@
+extends:
+- ../System/System
+metrics:
+  system.service.status:
+    description: Service Status
+    type:
+      stateSet:
+        - running
+        - dead
+        - exited
+connector:
+  displayName: LinuxOS
+  platform: Any platform with LinuxOS
+  reliesOn: Linux OsCommands
+  information: Gives OS specific information and metrics
+  detection:
+    connectionTypes:
+    - remote
+    - local
+    appliesTo:
+    - linux
+    criteria:
+    - type: commandLine
+      commandLine: /usr/bin/uname -o || /bin/uname -o
+      expectedResult: GNU/Linux
+      errorMessage: Not a valid Linux host.
+    tags: [ system ]
+monitors:
+  cpu:
+    simple:
+      type: multiInstance
+      sources:
+        cpuInfo:
+          # cpuId;user;nice;system;idle;iowait
+          type: commandLine
+          commandLine: cat /proc/stat
+          computes:
+          - type: awk
+            script: |
+              /cpu[0-9]/ {
+                sub("cpu","");
+                print $1 ";" $2 / 100 ";" $3 / 100 ";" $4 / 100 ";" $5 / 100 ";" $6 / 100
+              }
+      mapping:
+        source: ${source::cpuInfo}
+        attributes:
+          id: $1
+          name: ${awk::sprintf("%s %s", "cpu", $1)}
+          system.cpu.logical_number: $1
+        metrics:
+          system.cpu.utilization{system.cpu.state="user"}: rate($2)
+          system.cpu.utilization{system.cpu.state="nice"}: rate($3)
+          system.cpu.utilization{system.cpu.state="system"}: rate($4)
+          system.cpu.utilization{system.cpu.state="idle"}: rate($5)
+          system.cpu.utilization{system.cpu.state="io_wait"}: rate($6)
+          system.cpu.time{system.cpu.state="user"}: $2
+          system.cpu.time{system.cpu.state="nice"}: $3
+          system.cpu.time{system.cpu.state="system"}: $4
+          system.cpu.time{system.cpu.state="idle"}: $5
+          system.cpu.time{system.cpu.state="io_wait"}: $6
+  process:
+    simple:
+      sources:
+        procrb:
+          type: commandLine  
+          commandLine: (cat /proc/stat)
+          computes:
+          - type: awk
+            script: |
+             /procs_/ {s = s ";" $2}
+             END {print s}
+      mapping:
+        source: ${source::procrb}
+        attributes:
+          id: $1
+          name: $2
+        metrics:
+          system.cpu.process{system.cpu.process="running"}: $2
+          system.cpu.process{system.cpu.process="blocked"}: $3           
+  memory:
+    simple:
+      sources:
+        memorySys:
+          # memSystem
+          type: commandLine  
+          commandLine: /usr/bin/lsmem -b || /usr/bin/free -b
+          computes:
+          - type: awk
+            script: |
+              /^Mem:/ { print $2 }
+              /^Total online memory:/ { print $4 }
+        memoryInfo:
+          # memTotal;memFree;memUsed;memBuffers;memCached;memFreeUtilization;memUsedUtilization;memBuffersUtilization;memCachedUtilization
+          type: commandLine
+          commandLine: cat /proc/meminfo
+          computes:
+          - type: awk
+            script: ${file::memory.awk}
+          - type: prepend
+            column: 1
+            value: ;
+          - type: append
+            column: 1
+            value: ${source::memorySys}
+      mapping:
+        source: ${source::memoryInfo}
+        attributes:
+          id: memory_usage
+        metrics:
+          system.memory.limit: $1
+          system.memory.usage{system.memory.state="free"}: $3
+          system.memory.usage{system.memory.state="used"}: $4
+          system.memory.usage{system.memory.state="buffers"}: $5
+          system.memory.usage{system.memory.state="cached"}: $6
+          system.memory.utilization{system.memory.state="free"}: $7
+          system.memory.utilization{system.memory.state="used"}: $8
+          system.memory.utilization{system.memory.state="buffers"}: $9
+          system.memory.utilization{system.memory.state="cached"}: $10    
+  network:
+    simple:
+      sources:
+        networkInformation:
+          # Interface;MTU;State;RX_bytes;RX_packets;RX_errors;RX_dropped;RX_missed;RX_mcast;TX_bytes;TX_packets;TX_errors;TX_dropped;TX_carrier;TX_collsns";
+          type: commandLine
+          commandLine: /usr/sbin/ip -s link
+          computes:
+          - type: awk
+            script: ${file::network.awk}
+      mapping:
+        source: ${source::networkInformation}
+        attributes:
+          id: $1
+        metrics:
+          system.network.dropped{network.io.direction="transmit"}: $13
+          system.network.dropped{network.io.direction="receive"}: $7
+          system.network.packets{network.io.direction="transmit"}: $11
+          system.network.packets{network.io.direction="receive"}: $5
+          system.network.errors{network.io.direction="transmit"}: $12
+          system.network.errors{network.io.direction="receive"}: $6
+          system.network.io{network.io.direction="transmit"}: $10
+          system.network.io{network.io.direction="receive"}: $4
+  physical_disk:
+    simple:
+      type: multiInstance
+      sources:
+        physicalDiskInformation:
+          # id;reads;readsMerged;readTime;writes;writesMerged;writeTime;ioTime
+          type: commandLine
+          commandLine: cat /proc/diskstats
+          selectColumns: 3,4,5,7,8,9,11,13
+          computes:
+          - type: divide
+            column: 2
+            value: 1000
+          - type: divide
+            column: 5
+            value: 1000
+          - type: divide
+            column: 8
+            value: 1000
+      mapping:
+        source: ${source::physicalDiskInformation}
+        attributes:
+          id: $1
+          system.disk.device: $1
+        metrics:
+          system.disk.operations{direction:read}: $2
+          system.disk.merged{direction:read}: $3
+          system.disk.operation_time{direction:read}: $4
+          system.disk.operations{direction:write}: $5
+          system.disk.merged{direction:write}: $6
+          system.disk.operation_time{direction:write}: $7
+          system.disk.io_time: $8
+  service:
+    simple:
+      type: multiInstance
+      sources:
+        serviceInfo:
+          # serviceName;load;active;sub;description
+          type: commandLine
+          commandLine: /usr/bin/systemctl list-units --type=service --all | sed 's/^[^a-zA-Z0-9]*//'
+          computes:
+          - type: awk
+            script: |
+              /\.service/ {
+                sub("\.service", "");
+                printf($1 ";" $2 ";" $3 ";" $4 ";")
+                for (i=5; i<=NF; i++) {
+                  printf("%s ", $i)
+                }
+                printf("\n")
+              }
+          - type: translate
+            column: 2
+            translationTable: ${translation::serviceLoadedTranslationTable}
+          - type: translate
+            column: 3
+            translationTable: ${translation::serviceActiveTranslationTable}
+      mapping:
+        source: ${source::serviceInfo}
+        attributes:
+          id: $1
+          description: $5
+        metrics:
+          system.service.status{state="loaded"}: $2
+          system.service.status{state="active"}: $3
+          system.service.status: $4
+  file_system:
+    simple:
+      type: multiInstance
+      sources:
+        fileSystemInfo:
+          # filesystem;mountpoint;type;used;available
+          type: commandLine
+          commandLine: /usr/bin/df -B1 --output=source,target,fstype,used,avail,size
+          computes:
+          - type: awk
+            script: NR > 1 {print $1 "(" $2 ")" ";" $2 ";" $3 ";" $4 ";" $5 ";" $4 / $6 ";" $5 / $6}
+      mapping:
+        source: ${source::fileSystemInfo}
+        attributes:
+          id: $1
+          system.filesystem.device: $1
+          system.filesystem.mountpoint: $2
+          system.filesystem.type: $3
+        metrics:
+          system.filesystem.usage{system.filesystem.state=used}: $4
+          system.filesystem.usage{system.filesystem.state=free}: $5
+          system.filesystem.utilization{system.filesystem.state=used}: $6
+          system.filesystem.utilization{system.filesystem.state=free}: $7
+  system:
+    simple:
+      sources:
+        # Distribution;Version;Kernel
+        osInformation:
+          type: commandLine
+          commandLine: |
+            . /etc/os-release
+            echo "$NAME;$VERSION;`uname -r`;`cut -d. -f1 /proc/uptime`"
+      mapping:
+        source: ${source::osInformation}
+        attributes:
+          id: $3
+          name: $1
+          version: $2
+          os_version: $3
+        metrics:
+          system.uptime: $4
+translations:
+  serviceLoadedTranslationTable:
+    not-found: "0"
+    loaded: "1"
+  serviceActiveTranslationTable:
+    inactive: "0"
+    active: "1"
