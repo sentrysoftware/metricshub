@@ -372,7 +372,7 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 		final ConnectorStore telemetryManagerConnectorStore = telemetryManager.getConnectorStore();
 		if (telemetryManagerConnectorStore == null) {
 			log.error(
-				"Hardware Energy and Sustainability Module: Host {} connectorStore does not exist.",
+				"Hostname {} - ConnectorStore does not exist.",
 				telemetryManager.getHostname()
 			);
 			return false;
@@ -382,7 +382,7 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 
 		if (store == null) {
 			log.error(
-				"Hardware Energy and Sustainability Module: Host {} connectorStore store does not exist.",
+				"Hostname {} - ConnectorStore store does not exist.",
 				telemetryManager.getHostname()
 			);
 			return false;
@@ -392,7 +392,7 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 
 		if (connectorId == null) {
 			log.error(
-				"Hardware Energy and Sustainability Module: Host {}. Monitor {} connector_id attribute does not exist.",
+				"Hostname {} - Monitor {} connector_id attribute does not exist.",
 				telemetryManager.getHostname(),
 				monitor.getId()
 			);
@@ -403,7 +403,7 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 
 		if (connector == null) {
 			log.error(
-				"Hardware Energy and Sustainability Module: Host {}. Monitor {} connector_id attribute does not correspond to any valid connector id.",
+				"Hostname {} - Monitor {} connector_id attribute does not correspond to any valid connector id.",
 				telemetryManager.getHostname(),
 				monitor.getId()
 			);
@@ -411,8 +411,8 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 		}
 
 		final ConnectorIdentity connectorIdentity = connector.getConnectorIdentity();
-		final Detection detection = (connectorIdentity != null) ? connectorIdentity.getDetection() : null;
-		final Set<String> connectorTags = (detection != null) ? detection.getTags() : null;
+		final Detection detection = connectorIdentity != null ? connectorIdentity.getDetection() : null;
+		final Set<String> connectorTags = detection != null ? detection.getTags() : null;
 		return connectorTags != null && connectorTags.stream().anyMatch(tag -> tag.equalsIgnoreCase("hardware"));
 	}
 }
