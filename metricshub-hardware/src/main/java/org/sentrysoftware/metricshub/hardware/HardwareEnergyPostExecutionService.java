@@ -371,20 +371,14 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 		}
 		final ConnectorStore telemetryManagerConnectorStore = telemetryManager.getConnectorStore();
 		if (telemetryManagerConnectorStore == null) {
-			log.error(
-				"Hostname {} - ConnectorStore does not exist.",
-				telemetryManager.getHostname()
-			);
+			log.error("Hostname {} - ConnectorStore does not exist.", telemetryManager.getHostname());
 			return false;
 		}
 
 		final Map<String, Connector> store = telemetryManagerConnectorStore.getStore();
 
 		if (store == null) {
-			log.error(
-				"Hostname {} - ConnectorStore store does not exist.",
-				telemetryManager.getHostname()
-			);
+			log.error("Hostname {} - ConnectorStore store does not exist.", telemetryManager.getHostname());
 			return false;
 		}
 
