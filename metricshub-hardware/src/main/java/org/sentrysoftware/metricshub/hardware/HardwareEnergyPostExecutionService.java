@@ -372,17 +372,17 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 		final ConnectorStore telemetryManagerConnectorStore = telemetryManager.getConnectorStore();
 		if (telemetryManagerConnectorStore == null) {
 			log.error(
-				"Hardware Energy and Sustainability Module: Host {} has no connectorStore found.",
+				"Hardware Energy and Sustainability Module: Host {} connectorStore does not exist.",
 				telemetryManager.getHostname()
 			);
 			return false;
 		}
 
-		final Map<String, Connector> connectorStore = telemetryManagerConnectorStore.getStore();
+		final Map<String, Connector> store = telemetryManagerConnectorStore.getStore();
 
-		if (connectorStore == null) {
+		if (store == null) {
 			log.error(
-				"Hardware Energy and Sustainability Module: Host {} has no connectorStore found.",
+				"Hardware Energy and Sustainability Module: Host {} connectorStore store does not exist.",
 				telemetryManager.getHostname()
 			);
 			return false;
@@ -399,7 +399,7 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 			return false;
 		}
 
-		final Connector connector = connectorStore.get(connectorId);
+		final Connector connector = store.get(connectorId);
 
 		if (connector == null) {
 			log.error(
