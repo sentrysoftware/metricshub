@@ -21,6 +21,7 @@ package org.sentrysoftware.metricshub.hardware;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_CPU_METRIC;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_DISK_CONTROLLER_METRIC;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_FAN_METRIC;
@@ -42,6 +43,7 @@ import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_V
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.POWER_SOURCE_ID_ATTRIBUTE;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -50,6 +52,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
+import org.sentrysoftware.metricshub.engine.connector.model.Connector;
+import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.ConnectorIdentity;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.Detection;
 import org.sentrysoftware.metricshub.engine.delegate.IPostExecutionService;
 import org.sentrysoftware.metricshub.engine.strategy.utils.CollectHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
@@ -111,6 +117,7 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 			.stream()
 			.filter(monitor -> !HwCollectHelper.isMissing(monitor))
 			.filter(monitor -> telemetryManager.isConnectorStatusOk(monitor))
+			.filter(monitor -> connectorHasHardwareTag(monitor, telemetryManager))
 			.forEach(monitor ->
 				PowerAndEnergyCollectHelper.collectPowerAndEnergy(
 					monitor,
@@ -146,6 +153,7 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 			.stream()
 			.filter(monitor -> !HwCollectHelper.isMissing(monitor))
 			.filter(monitor -> telemetryManager.isConnectorStatusOk(monitor))
+			.filter(monitor -> connectorHasHardwareTag(monitor, telemetryManager))
 			.forEach(monitor ->
 				PowerAndEnergyCollectHelper.collectPowerAndEnergy(
 					monitor,
@@ -339,12 +347,66 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 			}
 		}
 
-		PowerAndEnergyCollectHelper.collectPowerAndEnergy(
-			monitor,
-			HW_POWER_NETWORK_METRIC,
-			HW_ENERGY_NETWORK_METRIC,
-			telemetryManager,
-			new NetworkPowerAndEnergyEstimator(monitor, telemetryManager)
-		);
+		if (connectorHasHardwareTag(monitor, telemetryManager)) {
+			PowerAndEnergyCollectHelper.collectPowerAndEnergy(
+				monitor,
+				HW_POWER_NETWORK_METRIC,
+				HW_ENERGY_NETWORK_METRIC,
+				telemetryManager,
+				new NetworkPowerAndEnergyEstimator(monitor, telemetryManager)
+			);
+		}
+	}
+
+	/**
+	 * Checks if the connector associated with the provided monitor has a "hardware" tag.
+	 *
+	 * @param monitor the monitor containing the connector ID attribute
+	 * @param telemetryManager the telemetry manager containing the connector store
+	 * @return true if the connector has a "hardware" tag, false otherwise
+	 */
+	private boolean connectorHasHardwareTag(final Monitor monitor, final TelemetryManager telemetryManager) {
+		if (monitor == null) {
+			return false;
+		}
+		final ConnectorStore telemetryManagerConnectorStore = telemetryManager.getConnectorStore();
+		if (telemetryManagerConnectorStore == null) {
+			log.error("Hostname {} - ConnectorStore does not exist.", telemetryManager.getHostname());
+			return false;
+		}
+
+		final Map<String, Connector> store = telemetryManagerConnectorStore.getStore();
+
+		if (store == null) {
+			log.error("Hostname {} - ConnectorStore store does not exist.", telemetryManager.getHostname());
+			return false;
+		}
+
+		final String connectorId = monitor.getAttribute(MONITOR_ATTRIBUTE_CONNECTOR_ID);
+
+		if (connectorId == null) {
+			log.error(
+				"Hostname {} - Monitor {} connector_id attribute does not exist.",
+				telemetryManager.getHostname(),
+				monitor.getId()
+			);
+			return false;
+		}
+
+		final Connector connector = store.get(connectorId);
+
+		if (connector == null) {
+			log.error(
+				"Hostname {} - Monitor {} connector_id attribute does not correspond to any valid connector id.",
+				telemetryManager.getHostname(),
+				monitor.getId()
+			);
+			return false;
+		}
+
+		final ConnectorIdentity connectorIdentity = connector.getConnectorIdentity();
+		final Detection detection = connectorIdentity != null ? connectorIdentity.getDetection() : null;
+		final Set<String> connectorTags = detection != null ? detection.getTags() : null;
+		return connectorTags != null && connectorTags.stream().anyMatch(tag -> tag.equalsIgnoreCase("hardware"));
 	}
 }
