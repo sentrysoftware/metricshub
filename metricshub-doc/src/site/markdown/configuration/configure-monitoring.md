@@ -815,11 +815,11 @@ For more information about the `metricshub` command, refer to [MetricsHub CLI (m
 
 #### Configure Connector Variables
 
-In **MetricsHub**, the connector variables can be configured in the `metricshub.yaml` file under the `variables` section. These variables are specified  under the name of the connector to which they belong and contain key-value pairs. The key of each variable corresponds to a variable already configured in the connector, allowing you to customize and centralize the values used in your configuration.
+In **MetricsHub**, connector variables are essential for customizing the behavior of data collection. The connector variables are configured in the `metricshub.yaml` file under the `variables` section of your configured resource. These variables are specified under the name of the connector to which they belong and contain key-value pairs. The key of each variable corresponds to a variable already configured in the connector.
 
 * Example :
 
-  Below is a configuration using the WindowsProcess connector. The processName variable, defined in the variables section, specifies a list of process names (msedge.exe and metricshub.exe)
+  Below is a configuration using the `WindowsProcess` connector. The `processName` variable, defined in the variables section, specifies a list of process names (msedge.exe and metricshub.exe) to monitor:
 
 ```yaml
 resources:
