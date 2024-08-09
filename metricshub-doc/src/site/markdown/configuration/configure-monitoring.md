@@ -831,9 +831,10 @@ resources:
       wmi:
         timeout: 120
     variables:
-      windowsProcess:
+      windowsProcess: # Connector ID
         processName: "('msedge.exe', 'metricshub.exe')"
 ```
+
 #### Discovery cycle
 
 **MetricsHub** periodically performs discoveries to detect new components in your monitored environment. By default, **MetricsHub** runs a discovery after 30 collects. To change this default discovery cycle:
