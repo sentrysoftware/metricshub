@@ -108,7 +108,12 @@ public class SnmpConfiguration implements ISnmpConfiguration {
 				return V1;
 			}
 
-			if ("2".equals(lowerCaseVersion) || "v2".equals(lowerCaseVersion) || "v2c".equals(lowerCaseVersion)) {
+			if (
+				"2".equals(lowerCaseVersion) ||
+				"v2".equals(lowerCaseVersion) ||
+				"v2c".equals(lowerCaseVersion) ||
+				"2c".equals(lowerCaseVersion)
+			) {
 				return V2C;
 			}
 
