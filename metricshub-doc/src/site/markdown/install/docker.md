@@ -43,7 +43,7 @@ You can start **MetricsHub** with the command below:
 
 ```shell-session
 cd /docker/metricshub
-sudo docker run -d --name=metricshub -p 24375:24375 -p 13133:13133 -v /docker/metricshub/lib/config:/opt/metricshub/lib/config -v /docker/metricshub/lib/otel:/opt/metricshub/lib/otel -v /docker/metricshub/lib/logs:/opt/metricshub/lib/logs metricshub:latest
+sudo docker run -d --name=metricshub -p 24375:24375 -p 13133:13133 -v /docker/metricshub/lib/config:/opt/metricshub/lib/config -v /docker/metricshub/lib/otel:/opt/metricshub/lib/otel -v /docker/metricshub/lib/logs:/opt/metricshub/lib/logs -v /docker/metricshub/lib/security:/opt/metricshub/lib/security metricshub:latest
 ```
 
 This will start **MetricsHub** with the default **MetricsHub Enterprise Agent** configuration file, **./lib/config/metricshub.yaml**.
@@ -71,6 +71,7 @@ services:
       - ./lib/logs:/opt/metricshub/lib/logs                # Mount the volume ./lib/logs into /opt/metricshub/lib/logs in the container
       - ./lib/config:/opt/metricshub/lib/config            # Mount the volume ./lib/config into /opt/metricshub/lib/config in the container
       - ./lib/otel:/opt/metricshub/lib/otel                # Mount the volume ./lib/otel into /opt/metricshub/lib/otel in the container
+      - ./lib/security:/opt/metricshub/lib/security        # Mount the volume ./lib/security into /opt/metricshub/lib/security in the container
     restart: unless-stopped
 ```
 

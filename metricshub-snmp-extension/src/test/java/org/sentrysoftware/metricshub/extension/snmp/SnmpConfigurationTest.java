@@ -1,5 +1,6 @@
 package org.sentrysoftware.metricshub.extension.snmp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
@@ -98,5 +99,15 @@ class SnmpConfigurationTest {
 
 			assertThrows(InvalidConfigurationException.class, () -> snmpConfig.validateConfiguration(resourceKey));
 		}
+	}
+
+	@Test
+	void testSnmpVersionInterpretValueOf() {
+		assertEquals(SnmpVersion.V1, SnmpVersion.interpretValueOf("1"));
+		assertEquals(SnmpVersion.V1, SnmpVersion.interpretValueOf("v1"));
+		assertEquals(SnmpVersion.V2C, SnmpVersion.interpretValueOf("2"));
+		assertEquals(SnmpVersion.V2C, SnmpVersion.interpretValueOf("v2"));
+		assertEquals(SnmpVersion.V2C, SnmpVersion.interpretValueOf("v2c"));
+		assertEquals(SnmpVersion.V2C, SnmpVersion.interpretValueOf("2c"));
 	}
 }

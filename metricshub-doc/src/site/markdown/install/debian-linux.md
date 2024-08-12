@@ -54,7 +54,7 @@ systemctl stop metricshub-enterprise-service
 To uninstall **MetricsHub Enterprise**, run the command below:
 
 ```shell-session
-sudo dpkg -r metricshub-enterprise-debian-${enterpriseVersion}-amd64.deb
+sudo dpkg -r metricshub
 ```
 
 ## Community Edition
