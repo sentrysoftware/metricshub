@@ -78,6 +78,14 @@ public class WmiRequestExecutor implements IWinRequestExecutor {
 		@SpanAttribute("wmi.query") @NonNull final String wbemQuery,
 		@SpanAttribute("wmi.namespace") @NonNull final String namespace
 	) throws ClientException {
+		final String username = wmiConfig.getUsername();
+		// If the username is not provided, null will be used instead of the provided password.
+		final char[] password = username == null ? null : wmiConfig.getPassword();
+
+		if (username == null) {
+			log.warn("Hostname {}. Username not provided.", hostname);
+		}
+
 		// Where to connect to?
 		// Local: namespace
 		// Remote: hostname\namespace
@@ -91,7 +99,7 @@ public class WmiRequestExecutor implements IWinRequestExecutor {
 				"- Namespace: {}\n- Timeout: {} s\n",
 				hostname,
 				networkResource,
-				wmiConfig.getUsername(),
+				username,
 				wbemQuery,
 				namespace,
 				wmiConfig.getTimeout()
@@ -99,13 +107,7 @@ public class WmiRequestExecutor implements IWinRequestExecutor {
 		);
 
 		// Go!
-		try (
-			WmiWbemServices wbemServices = WmiWbemServices.getInstance(
-				networkResource,
-				wmiConfig.getUsername(),
-				wmiConfig.getPassword()
-			)
-		) {
+		try (WmiWbemServices wbemServices = WmiWbemServices.getInstance(networkResource, username, password)) {
 			final long startTime = System.currentTimeMillis();
 
 			// Execute the WQL and get the result
@@ -125,7 +127,7 @@ public class WmiRequestExecutor implements IWinRequestExecutor {
 					"- Namespace: {}\n- Timeout: {} s\n- Result:\n{}\n- response-time: {}\n",
 					hostname,
 					networkResource,
-					wmiConfig.getUsername(),
+					username,
 					wbemQuery,
 					namespace,
 					wmiConfig.getTimeout(),
@@ -270,11 +272,18 @@ public class WmiRequestExecutor implements IWinRequestExecutor {
 		String command,
 		List<String> embeddedFiles
 	) throws ClientException {
+		final String username = winConfiguration.getUsername();
+		// If the username is not provided, null will be used instead of the provided password.
+		final char[] password = username == null ? null : winConfiguration.getPassword();
+
+		if (username == null) {
+			log.warn("Hostname {}. Username not provided.", hostname);
+		}
 		return executeWmiRemoteCommand(
 			command,
 			hostname,
-			winConfiguration.getUsername(),
-			winConfiguration.getPassword(),
+			username,
+			password,
 			winConfiguration.getTimeout().intValue(),
 			embeddedFiles
 		);
