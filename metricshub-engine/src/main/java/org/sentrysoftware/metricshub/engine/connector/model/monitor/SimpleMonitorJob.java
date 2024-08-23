@@ -21,6 +21,7 @@ package org.sentrysoftware.metricshub.engine.connector.model.monitor;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -47,4 +48,5 @@ public class SimpleMonitorJob implements MonitorJob {
 	 * The simple task associated with this monitor job.
 	 */
 	private Simple simple;
+	private Set<String> keys;
 }

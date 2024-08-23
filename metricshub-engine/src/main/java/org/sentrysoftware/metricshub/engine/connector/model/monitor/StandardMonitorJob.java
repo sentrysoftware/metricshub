@@ -21,6 +21,7 @@ package org.sentrysoftware.metricshub.engine.connector.model.monitor;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -52,4 +53,6 @@ public class StandardMonitorJob implements MonitorJob {
 	 * The collection task associated with this standard monitor job.
 	 */
 	private AbstractCollect collect;
+
+	private Set<String> keys;
 }

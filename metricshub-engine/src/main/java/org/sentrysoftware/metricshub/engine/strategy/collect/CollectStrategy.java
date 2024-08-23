@@ -21,6 +21,7 @@ package org.sentrysoftware.metricshub.engine.strategy.collect;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DEFAULT_KEYS;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MAX_THREADS_COUNT;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
@@ -242,12 +243,14 @@ public class CollectStrategy extends AbstractStrategy {
 				// Create the sources and the computes for a connector
 				processSourcesAndComputes(orderedSources.getSources(), jobInfo);
 
+				// Retrieve monitor job keys
+				final Set<String> monitorJobKeys = ((StandardMonitorJob) (monitorJob.getValue())).getKeys();
 				processMonitors(
 					monitorType,
 					multiInstanceCollect.getMapping(),
 					currentConnector,
 					hostname,
-					multiInstanceCollect.getKeys()
+					monitorJobKeys != null ? monitorJobKeys : DEFAULT_KEYS
 				);
 			} else {
 				// Get monitors by type and connectorId (connector id attribute)

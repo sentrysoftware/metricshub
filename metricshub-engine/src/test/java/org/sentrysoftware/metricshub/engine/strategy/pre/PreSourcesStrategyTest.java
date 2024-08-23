@@ -96,6 +96,7 @@ class PreSourcesStrategyTest {
 			TelemetryManager
 				.builder()
 				.monitors(monitors)
+				.connectorStore(new ConnectorStore(TEST_CONNECTOR_PATH))
 				.hostConfiguration(
 					HostConfiguration
 						.builder()
@@ -132,10 +133,6 @@ class PreSourcesStrategyTest {
 		hostMonitor.addAttribute(IS_ENDPOINT, "true");
 
 		connectorMonitor.addAttribute(ID, "preSource");
-
-		// Create the connector store
-		final ConnectorStore connectorStore = new ConnectorStore(TEST_CONNECTOR_PATH);
-		telemetryManager.setConnectorStore(connectorStore);
 	}
 
 	@Test
