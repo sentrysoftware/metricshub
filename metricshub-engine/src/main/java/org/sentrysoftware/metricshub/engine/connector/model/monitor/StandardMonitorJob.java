@@ -20,8 +20,12 @@ package org.sentrysoftware.metricshub.engine.connector.model.monitor;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
+import static com.fasterxml.jackson.annotation.Nulls.SKIP;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DEFAULT_KEYS;
 
-import java.util.Set;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import java.util.LinkedHashSet;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -46,6 +50,13 @@ public class StandardMonitorJob implements MonitorJob {
 	private static final long serialVersionUID = 1L;
 
 	/**
+	 * The monitor job keys needed to build the monitor id
+	 */
+	@JsonProperty("keys")
+	@JsonSetter(nulls = SKIP)
+	private LinkedHashSet<String> keys = new LinkedHashSet<>(DEFAULT_KEYS);
+
+	/**
 	 * The discovery task associated with this standard monitor job.
 	 */
 	private Discovery discovery;
@@ -53,6 +64,4 @@ public class StandardMonitorJob implements MonitorJob {
 	 * The collection task associated with this standard monitor job.
 	 */
 	private AbstractCollect collect;
-
-	private Set<String> keys;
 }

@@ -1,6 +1,7 @@
 package org.sentrysoftware.metricshub.engine.strategy.collect;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -124,9 +125,7 @@ class CollectStrategyTest {
 				.monitorType(DISK_CONTROLLER)
 				.telemetryManager(telemetryManager)
 				.connectorId(TEST_CONNECTOR_ID)
-				.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "1",
-						"controller_number", "2",
-						"model", "healthy")))
+				.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "1", "controller_number", "2", "model", "healthy")))
 				.discoveryTime(strategyTime - 30 * 60 * 1000)
 				.build();
 		final Monitor diskController = monitorFactory.createOrUpdateMonitor();
@@ -195,6 +194,12 @@ class CollectStrategyTest {
 			.processSource(eq(diskControllerSource), anyString(), any(TelemetryManager.class));
 
 		collectStrategy.run();
+
+		// Check monitor id generation using 'keys' field under the monitor section in the connector file
+		assertNotNull(telemetryManager.getMonitors().get("enclosure").get("TestConnector_enclosure_enclosure-1"));
+		assertNotNull(
+			telemetryManager.getMonitors().get("disk_controller").get("TestConnector_disk_controller_1_healthy_2")
+		);
 
 		// Check metrics
 		assertEquals(

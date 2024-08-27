@@ -37,6 +37,7 @@ monitors:
           hw.parent.type: enclosure
           name: "${awk::sprintf(\"Disk Controller: %s (%s)\", $2, $3)}"
   physical_disk:
+    keys: [ id, vendor ]
     discovery:
       sources:
         source(1):
@@ -108,6 +109,7 @@ monitors:
         legacyTextParameters:
           StatusInformation: $3
   logical_disk:
+    keys: [ id, raid_level, name ]
     discovery:
       sources:
         source(1):

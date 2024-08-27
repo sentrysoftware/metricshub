@@ -1,6 +1,7 @@
 package org.sentrysoftware.metricshub.engine.strategy.simple;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -167,6 +168,10 @@ class SimpleStrategyTest {
 		// Check processed monitors metrics
 		final Monitor enclosure = enclosureMonitors.get("TestConnectorWithSimple_enclosure_enclosure-1");
 		final Monitor diskController = diskControllerMonitors.get("TestConnectorWithSimple_disk_controller_1_healthy");
+
+		// Check monitor id generation using 'keys' field under the monitor section in the connector file
+		assertNotNull(enclosure);
+		assertNotNull(diskController);
 
 		assertEquals(1.0, enclosure.getMetric("hw.status{hw.type=\"enclosure\"}", NumberMetric.class).getValue());
 		assertEquals(

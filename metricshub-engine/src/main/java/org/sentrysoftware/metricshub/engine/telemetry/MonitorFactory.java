@@ -32,9 +32,9 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.UNDERSCORE;
 
 import java.net.InetAddress;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -103,34 +103,32 @@ public class MonitorFactory {
 	 *
 	 * @return a set of monitor job keys, or null if unavailable.
 	 */
-	private Set<String> getMonitorJobKeys() {
+	private LinkedHashSet<String> getMonitorJobKeys() {
 		final ConnectorStore telemetryManagerConnectorStore = telemetryManager.getConnectorStore();
 		if (telemetryManagerConnectorStore == null) {
 			log.error("Hostname {} - ConnectorStore does not exist.", telemetryManager.getHostname());
-			return DEFAULT_KEYS;
+			return new LinkedHashSet<>(DEFAULT_KEYS);
 		}
 
 		final Map<String, Connector> store = telemetryManagerConnectorStore.getStore();
 
 		if (store == null) {
 			log.error("Hostname {} - ConnectorStore store does not exist.", telemetryManager.getHostname());
-			return DEFAULT_KEYS;
+			return new LinkedHashSet<>(DEFAULT_KEYS);
 		}
 		final Connector connector = store.get(connectorId);
 		if (connector == null) {
 			log.error("Hostname {} - Connector with ID {} does not exist.", telemetryManager.getHostname(), connectorId);
-			return DEFAULT_KEYS;
+			return new LinkedHashSet<>(DEFAULT_KEYS);
 		}
 		final MonitorJob monitorJob = connector.getMonitors().get(monitorType);
 		if (monitorJob != null) {
 			if (monitorJob instanceof StandardMonitorJob standardMonitorJob) {
-				return standardMonitorJob.getKeys() != null ? standardMonitorJob.getKeys() : DEFAULT_KEYS;
+				return standardMonitorJob.getKeys();
 			}
-			return ((SimpleMonitorJob) monitorJob).getKeys() != null
-				? ((SimpleMonitorJob) monitorJob).getKeys()
-				: DEFAULT_KEYS;
+			return ((SimpleMonitorJob) monitorJob).getKeys();
 		}
-		return DEFAULT_KEYS;
+		return new LinkedHashSet<>(DEFAULT_KEYS);
 	}
 
 	/**
@@ -143,8 +141,11 @@ public class MonitorFactory {
 	 * @return a string of joined key values, or an empty string if no keys are available.
 	 */
 	private String getMonitorKeysValuesString() {
-		final Set<String> monitorJobKeys = getMonitorJobKeys();
-		final Set<String> monitorJobKeysValues = monitorJobKeys.stream().map(attributes::get).collect(Collectors.toSet());
+		final LinkedHashSet<String> monitorJobKeys = getMonitorJobKeys();
+		final LinkedHashSet<String> monitorJobKeysValues = monitorJobKeys
+			.stream()
+			.map(attributes::get)
+			.collect(Collectors.toCollection(LinkedHashSet::new));
 		return String.join("_", monitorJobKeysValues);
 	}
 

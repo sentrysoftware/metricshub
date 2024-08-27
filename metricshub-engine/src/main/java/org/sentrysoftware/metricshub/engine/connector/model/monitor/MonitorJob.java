@@ -34,5 +34,5 @@ import java.io.Serializable;
  * </p>
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION, defaultImpl = StandardMonitorJob.class)
-@JsonSubTypes(@JsonSubTypes.Type(value = SimpleMonitorJob.class))
+@JsonSubTypes({ @JsonSubTypes.Type(SimpleMonitorJob.class), @JsonSubTypes.Type(StandardMonitorJob.class) })
 public interface MonitorJob extends Serializable {}
