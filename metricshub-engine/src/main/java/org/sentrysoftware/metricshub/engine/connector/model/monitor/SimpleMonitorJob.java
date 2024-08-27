@@ -28,6 +28,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import java.util.LinkedHashSet;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Simple;
@@ -51,6 +52,7 @@ public class SimpleMonitorJob implements MonitorJob {
 	/**
 	 * The monitor job keys needed to build the monitor id
 	 */
+	@Default
 	@JsonProperty("keys")
 	@JsonSetter(nulls = SKIP)
 	private LinkedHashSet<String> keys = new LinkedHashSet<>(DEFAULT_KEYS);
