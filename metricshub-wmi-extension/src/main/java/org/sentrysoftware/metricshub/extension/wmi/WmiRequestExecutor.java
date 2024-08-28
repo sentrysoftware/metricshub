@@ -83,7 +83,7 @@ public class WmiRequestExecutor implements IWinRequestExecutor {
 		// If the username is not provided, null will be used instead of the provided password.
 		if (username == null) {
 			password = null;
-			log.warn("Hostname {}. Username not provided.", hostname);
+			log.debug("Hostname {}. Username not provided.", hostname);
 		}
 
 		// Where to connect to?
@@ -277,7 +277,7 @@ public class WmiRequestExecutor implements IWinRequestExecutor {
 		// If the username is not provided, null will be used instead of the provided password.
 		if (username == null) {
 			password = null;
-			log.warn("Hostname {}. Username not provided.", hostname);
+			log.debug("Hostname {}. Username not provided.", hostname);
 		}
 
 		return executeWmiRemoteCommand(
