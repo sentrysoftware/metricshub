@@ -28,6 +28,7 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.StringHelper.a
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
@@ -38,6 +39,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.NonBlankDeserializer;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ExecuteForEachEntryOf;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Compute;
 import org.sentrysoftware.metricshub.engine.strategy.source.ISourceProcessor;
@@ -63,7 +65,15 @@ public class JawkSource extends Source {
 	private String script;
 
 	/**
-	 * The separators parameter for the AWK task.
+	 * The input on which to execute the JAWK task.
+	 */
+	@NonNull
+	@JsonSetter(nulls = FAIL)
+	@JsonDeserialize(using = NonBlankDeserializer.class)
+	private String input;
+
+	/**
+	 * The separators parameter for the JAWK task.
 	 */
 	private String separators;
 
@@ -76,6 +86,7 @@ public class JawkSource extends Source {
 	 * @param key                   The key associated with the source.
 	 * @param executeForEachEntryOf The execution context for each entry of the source.
 	 * @param script                The script to execute.
+	 * @param input                 The input on which to execute the JAWK task.
 	 * @param separators            The separators parameter for the JAWK task.
 	 */
 	@Builder
@@ -87,10 +98,12 @@ public class JawkSource extends Source {
 		@JsonProperty(value = "key") String key,
 		@JsonProperty(value = "executeForEachEntryOf") ExecuteForEachEntryOf executeForEachEntryOf,
 		@JsonProperty(value = "script") String script,
+		@JsonProperty(value = "input") final String input,
 		@JsonProperty(value = "separators") final String separators
 	) {
 		super(type, computes, forceSerialization, key, executeForEachEntryOf);
 		this.script = script;
+		this.input = input;
 		this.separators = separators;
 	}
 
@@ -104,6 +117,7 @@ public class JawkSource extends Source {
 			.computes(getComputes() != null ? new ArrayList<>(getComputes()) : null)
 			.executeForEachEntryOf(executeForEachEntryOf != null ? executeForEachEntryOf.copy() : null)
 			.script(script)
+			.input(input)
 			.separators(separators)
 			.build();
 	}
@@ -125,6 +139,7 @@ public class JawkSource extends Source {
 		stringJoiner.add(super.toString());
 
 		addNonNull(stringJoiner, "- script=", script);
+		addNonNull(stringJoiner, "- input=", input);
 		addNonNull(stringJoiner, "- separators=", separators);
 
 		return stringJoiner.toString();

@@ -11,7 +11,6 @@
 --app-content metricshub\connectors,metricshub\config,metricshub\LICENSE,metricshub\site,metricshub\service-installer.exe,metricshub\extensions
 --win-console
 --main-class org.sentrysoftware.metricshub.cli.MetricsHubCliApplication
---java-options -Djawk.extensions=org.sentrysoftware.metricshub.extension.jawk.MetricsHubAwk
 --java-options --add-exports
 --java-options java.xml/com.sun.org.apache.xerces.internal.parsers=ALL-UNNAMED
 --java-options --add-opens

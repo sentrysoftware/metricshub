@@ -30,9 +30,6 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class KeyWords {
 
-	// General useful functions
-	public static final String GET_SOURCE = "getSource";
-
 	// Protocol commands and requests
 	public static final String EXECUTE_HTTP_REQUEST = "executeHttpRequest";
 	public static final String EXECUTE_IPMI_REQUEST = "executeIpmiRequest";

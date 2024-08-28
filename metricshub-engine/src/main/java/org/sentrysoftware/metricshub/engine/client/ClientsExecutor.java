@@ -143,6 +143,29 @@ public class ClientsExecutor {
 	 */
 	public String executeJson2Csv(String jsonSource, String jsonEntryKey, List<String> propertyList, String separator)
 		throws InterruptedException, ExecutionException, TimeoutException {
+		return executeJson2Csv(jsonSource, jsonEntryKey, propertyList, separator, telemetryManager.getHostname());
+	}
+
+	/**
+	 * Execute JSON to CSV operation.
+	 *
+	 * @param jsonSource    The JSON source string.
+	 * @param jsonEntryKey  The JSON entry key.
+	 * @param propertyList  The list of properties.
+	 * @param separator     The separator for CSV.
+	 * @param hostname      The hostname, for logging purpose.
+	 * @return The CSV representation of the JSON.
+	 * @throws TimeoutException       If the execution times out.
+	 * @throws ExecutionException     If an execution exception occurs.
+	 * @throws InterruptedException   If the execution is interrupted.
+	 */
+	public static String executeJson2Csv(
+		String jsonSource,
+		String jsonEntryKey,
+		List<String> propertyList,
+		String separator,
+		String hostname
+	) throws InterruptedException, ExecutionException, TimeoutException {
 		LoggingHelper.trace(() ->
 			log.trace(
 				"Executing JSON to CSV conversion:\n- Json-source:\n{}\n- Json-entry-key: {}\n" + // NOSONAR
@@ -153,8 +176,6 @@ public class ClientsExecutor {
 				separator
 			)
 		);
-
-		final String hostname = telemetryManager.getHostname();
 
 		final Callable<String> jflatToCSV = () -> {
 			try {

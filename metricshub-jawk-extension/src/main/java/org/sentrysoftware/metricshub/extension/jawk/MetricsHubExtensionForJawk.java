@@ -27,12 +27,10 @@ import static org.sentrysoftware.metricshub.extension.jawk.KeyWords.EXECUTE_SNMP
 import static org.sentrysoftware.metricshub.extension.jawk.KeyWords.EXECUTE_SNMP_TABLE;
 import static org.sentrysoftware.metricshub.extension.jawk.KeyWords.EXECUTE_WBEM_REQUEST;
 import static org.sentrysoftware.metricshub.extension.jawk.KeyWords.EXECUTE_WMI_REQUEST;
-import static org.sentrysoftware.metricshub.extension.jawk.KeyWords.GET_SOURCE;
 import static org.sentrysoftware.metricshub.extension.jawk.KeyWords.JSON_2CSV;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -40,6 +38,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.jawk.NotImplementedError;
 import org.sentrysoftware.jawk.ext.AbstractExtension;
 import org.sentrysoftware.jawk.ext.JawkExtension;
+import org.sentrysoftware.jawk.jrt.AssocArray;
+import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
+import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.connector.model.common.HttpMethod;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
@@ -49,11 +50,9 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WbemSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WmiSource;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Compute;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Json2Csv;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceProcessor;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
-import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
  * This class implements the {@link JawkExtension} contract, reports the supported features, processes sources and computes.
@@ -68,7 +67,6 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 	 * The list of keywords supported by this extension.
 	 */
 	protected static final String[] KEYWORDS = {
-		GET_SOURCE,
 		EXECUTE_HTTP_REQUEST,
 		EXECUTE_IPMI_REQUEST,
 		EXECUTE_SNMP_GET,
@@ -78,11 +76,8 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 		JSON_2CSV
 	};
 
-	private TelemetryManager telemetryManager;
-
-	private String connectorId;
-
 	private SourceProcessor sourceProcessor;
+	private String hostname;
 
 	@Override
 	public String getExtensionName() {
@@ -96,21 +91,16 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 
 	@Override
 	public int[] getAssocArrayParameterPositions(final String extensionKeyword, final int numArgs) {
-		log.error("getAssocArrayParameterPositions");
-
-		if (extensionKeyword.equals(GET_SOURCE) || extensionKeyword.equals(EXECUTE_IPMI_REQUEST)) {
-			return new int[] {};
-		} else if (extensionKeyword.equals(EXECUTE_SNMP_GET)) {
-			return new int[] { 2 };
-		} else if (
+		if (
+			extensionKeyword.equals(EXECUTE_IPMI_REQUEST) ||
+			extensionKeyword.equals(EXECUTE_SNMP_GET) ||
 			extensionKeyword.equals(EXECUTE_SNMP_TABLE) ||
 			extensionKeyword.equals(EXECUTE_WBEM_REQUEST) ||
 			extensionKeyword.equals(EXECUTE_WMI_REQUEST) ||
+			extensionKeyword.equals(EXECUTE_HTTP_REQUEST) ||
 			extensionKeyword.equals(JSON_2CSV)
 		) {
-			return new int[] { 3 };
-		} else if (extensionKeyword.equals(EXECUTE_HTTP_REQUEST)) {
-			return new int[] { 7 };
+			return new int[] { 0 };
 		} else {
 			return super.getAssocArrayParameterPositions(extensionKeyword, numArgs);
 		}
@@ -118,31 +108,26 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 
 	@Override
 	public Object invoke(String keyword, Object[] args) {
-		log.error("invoke");
-
-		if (keyword.equals(GET_SOURCE)) {
+		if (keyword.equals(EXECUTE_HTTP_REQUEST)) {
 			checkNumArgs(args, 1);
-			return getSource(toAwkString(args[0]));
-		} else if (keyword.equals(EXECUTE_HTTP_REQUEST)) {
-			checkNumArgs(args, 7);
 			return executeHttpRequest(args);
 		} else if (keyword.equals(EXECUTE_IPMI_REQUEST)) {
 			checkNumArgs(args, 1);
 			return executeIpmiRequest(args);
 		} else if (keyword.equals(EXECUTE_SNMP_GET)) {
-			checkNumArgs(args, 2);
+			checkNumArgs(args, 1);
 			return executeSnmpGetRequest(args);
 		} else if (keyword.equals(EXECUTE_SNMP_TABLE)) {
-			checkNumArgs(args, 3);
+			checkNumArgs(args, 1);
 			return executeSnmpTableRequest(args);
 		} else if (keyword.equals(EXECUTE_WBEM_REQUEST)) {
-			checkNumArgs(args, 3);
+			checkNumArgs(args, 1);
 			return executeWbemRequest(args);
 		} else if (keyword.equals(EXECUTE_WMI_REQUEST)) {
-			checkNumArgs(args, 3);
+			checkNumArgs(args, 1);
 			return executeWmiRequest(args);
 		} else if (keyword.equals(JSON_2CSV)) {
-			checkNumArgs(args, 3);
+			checkNumArgs(args, 1);
 			return executeJson2csv(args);
 		} else {
 			throw new NotImplementedError(keyword);
@@ -150,37 +135,31 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 	}
 
 	/**
-	 * Use the {@link Source} name to retrieve its table from the context.
-	 * @param sourceName The Source name.
-	 * @return The Source table.
-	 */
-	private List<List<String>> getSource(final String sourceName) {
-		final Optional<SourceTable> maybeSourceTable = SourceTable.lookupSourceTable(
-			sourceName,
-			connectorId,
-			telemetryManager
-		);
-		return maybeSourceTable.isEmpty() ? null : maybeSourceTable.get().getTable();
-	}
-
-	/**
 	 * Execute a HTTP request through the context.
 	 * @param args The array of arguments to use to create the {@link HttpSource}.
 	 * @return The table result from the execution of the {@link HttpSource}.
 	 */
-	private List<List<String>> executeHttpRequest(final Object[] args) {
-		return executeSource(
-			HttpSource
-				.builder()
-				.method(HttpMethod.valueOf(toAwkString(args[0])))
-				.path(toAwkString(args[1]))
-				.header(toAwkString(args[2]))
-				.body(toAwkString(args[3]))
-				.authenticationToken(toAwkString(args[4]))
-				.resultContent(ResultContent.detect(toAwkString(args[5])))
-				.forceSerialization(toAwkString(args[6]).equals("true"))
-				.build()
-		);
+	private String executeHttpRequest(final Object[] args) {
+		if ((args[0] instanceof AssocArray argsAssocArray)) {
+			return executeSource(
+				HttpSource
+					.builder()
+					.method(HttpMethod.valueOf(toAwkString(argsAssocArray.get("method")).toUpperCase()))
+					.path(toAwkString(argsAssocArray.get("path")))
+					.header(toAwkString(argsAssocArray.get("header")))
+					.body(toAwkString(argsAssocArray.get("body")))
+					.authenticationToken(toAwkString(argsAssocArray.get("authenticationToken")))
+					.resultContent(ResultContent.detect(toAwkString(argsAssocArray.get("resultContent"))))
+					.forceSerialization(toAwkString(argsAssocArray.get("forceSerialization")).equals("true"))
+					.build()
+			);
+		} else {
+			log.warn(
+				"Hostname {} - Jawk Source is invalid, The HTTP request arguments must be provided through an Association array. The Jawk operation will return an empty result",
+				hostname
+			);
+			return "";
+		}
 	}
 
 	/**
@@ -188,8 +167,17 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 	 * @param args The array of arguments to use to create the {@link IpmiSource}.
 	 * @return The table result from the execution of the {@link IpmiSource}.
 	 */
-	private List<List<String>> executeIpmiRequest(Object[] args) {
-		return executeSource(IpmiSource.builder().forceSerialization(toAwkString(args[0]).equals("true")).build());
+	private String executeIpmiRequest(Object[] args) {
+		if ((args[0] instanceof AssocArray argsAssocArray)) {
+			return executeSource(
+				IpmiSource
+					.builder()
+					.forceSerialization(toAwkString(argsAssocArray.get("forceSerialization")).equals("true"))
+					.build()
+			);
+		} else {
+			return executeSource(IpmiSource.builder().forceSerialization(false).build());
+		}
 	}
 
 	/**
@@ -197,10 +185,22 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 	 * @param args The array of arguments to use to create the {@link SnmpGetSource}.
 	 * @return The table result from the execution of the {@link SnmpGetSource}.
 	 */
-	private List<List<String>> executeSnmpGetRequest(final Object[] args) {
-		return executeSource(
-			SnmpGetSource.builder().oid(toAwkString(args[0])).forceSerialization(toAwkString(args[1]).equals("true")).build()
-		);
+	private String executeSnmpGetRequest(final Object[] args) {
+		if ((args[0] instanceof AssocArray argsAssocArray)) {
+			return executeSource(
+				SnmpGetSource
+					.builder()
+					.oid(toAwkString(argsAssocArray.get("oid")))
+					.forceSerialization(toAwkString(argsAssocArray.get("forceSerialization")).equals("true"))
+					.build()
+			);
+		} else {
+			log.warn(
+				"Hostname {} - Jawk Source is invalid, The SNMP Get request arguments must be provided through an Association array. The Jawk operation will return an empty result",
+				hostname
+			);
+			return "";
+		}
 	}
 
 	/**
@@ -208,15 +208,23 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 	 * @param args The array of arguments to use to create the {@link SnmpTableSource}.
 	 * @return The table result from the execution of the {@link SnmpTableSource}.
 	 */
-	private List<List<String>> executeSnmpTableRequest(final Object[] args) {
-		return executeSource(
-			SnmpTableSource
-				.builder()
-				.oid(toAwkString(args[0]))
-				.selectColumns(toAwkString(args[1]))
-				.forceSerialization(toAwkString(args[2]).equals("true"))
-				.build()
-		);
+	private String executeSnmpTableRequest(final Object[] args) {
+		if ((args[0] instanceof AssocArray argsAssocArray)) {
+			return executeSource(
+				SnmpTableSource
+					.builder()
+					.oid(toAwkString(argsAssocArray.get("oid")))
+					.selectColumns(toAwkString(argsAssocArray.get("selectColumns")))
+					.forceSerialization(toAwkString(argsAssocArray.get("forceSerialization")).equals("true"))
+					.build()
+			);
+		} else {
+			log.warn(
+				"Hostname {} - Jawk Source is invalid, The SNMP Table request arguments must be provided through an Association array. The Jawk operation will return an empty result",
+				hostname
+			);
+			return "";
+		}
 	}
 
 	/**
@@ -224,15 +232,23 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 	 * @param args The array of arguments to use to create the {@link WbemSource}.
 	 * @return The table result from the execution of the {@link WbemSource}.
 	 */
-	private List<List<String>> executeWbemRequest(final Object[] args) {
-		return executeSource(
-			WbemSource
-				.builder()
-				.query(toAwkString(args[0]))
-				.namespace(toAwkString(args[1]))
-				.forceSerialization(toAwkString(args[2]).equals("true"))
-				.build()
-		);
+	private String executeWbemRequest(final Object[] args) {
+		if ((args[0] instanceof AssocArray argsAssocArray)) {
+			return executeSource(
+				WbemSource
+					.builder()
+					.query(toAwkString(argsAssocArray.get("query")))
+					.namespace(toAwkString(argsAssocArray.get("namespace")))
+					.forceSerialization(toAwkString(argsAssocArray.get("forceSerialization")).equals("true"))
+					.build()
+			);
+		} else {
+			log.warn(
+				"Hostname {} - Jawk Source is invalid, The WBEM query arguments must be provided through an Association array. The Jawk operation will return an empty result",
+				hostname
+			);
+			return "";
+		}
 	}
 
 	/**
@@ -240,15 +256,23 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 	 * @param args The array of arguments to use to create the {@link WmiSource}.
 	 * @return The table result from the execution of the {@link WmiSource}.
 	 */
-	private List<List<String>> executeWmiRequest(final Object[] args) {
-		return executeSource(
-			WmiSource
-				.builder()
-				.query(toAwkString(args[0]))
-				.namespace(toAwkString(args[1]))
-				.forceSerialization(toAwkString(args[2]).equals("true"))
-				.build()
-		);
+	private String executeWmiRequest(final Object[] args) {
+		if ((args[0] instanceof AssocArray argsAssocArray)) {
+			return executeSource(
+				WmiSource
+					.builder()
+					.query(toAwkString(argsAssocArray.get("query")))
+					.namespace(toAwkString(argsAssocArray.get("namespace")))
+					.forceSerialization(toAwkString(argsAssocArray.get("forceSerialization")).equals("true"))
+					.build()
+			);
+		} else {
+			log.warn(
+				"Hostname {} - Jawk Source is invalid, The WMI query arguments must be provided through an Association array. The Jawk operation will return an empty result",
+				hostname
+			);
+			return "";
+		}
 	}
 
 	/**
@@ -256,10 +280,10 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 	 * @param source The {@link Source} to execute.
 	 * @return The table result from the execution of the {@link Source}.
 	 */
-	private List<List<String>> executeSource(final Source source) {
+	private String executeSource(final Source source) {
 		final SourceTable sourceTableResult = source.accept(sourceProcessor);
 
-		return sourceTableResult != null && !sourceTableResult.isEmpty() ? sourceTableResult.getTable() : new ArrayList<>();
+		return sourceTableResult != null && !sourceTableResult.isEmpty() ? sourceTableResult.getRawData() : "";
 	}
 
 	/**
@@ -267,26 +291,43 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 	 * @param args The array of arguments to use to create the {@link Json2Csv} compute.
 	 * @return The table result from the execution of the compute.
 	 */
-	private List<List<String>> executeJson2csv(final Object[] args) {
-		final SourceTable sourceTable = SourceTable.builder().rawData(toAwkString(args[0])).build();
-		// computeProcessor.setSourceTable(sourceTable); TODO
-		executeCompute(
-			Json2Csv
-				.builder()
-				.entryKey(toAwkString(args[1]))
-				.properties(toAwkString(args[2]))
-				.separator(toAwkString(args[3]))
-				.build()
-		);
-		return sourceTable.getTable();
+	private String executeJson2csv(final Object[] args) {
+		if ((args[0] instanceof AssocArray argsAssocArray)) {
+			try {
+				return ClientsExecutor
+					.executeJson2Csv(
+						toAwkString(argsAssocArray.get("jsonSource")),
+						toAwkString(argsAssocArray.get("entryKey")),
+						toAwkListString(argsAssocArray.get("properties")),
+						toAwkString(argsAssocArray.get("separator")),
+						hostname
+					)
+					.strip();
+			} catch (Exception exception) {
+				log.error(
+					"Hostname {} - Json2Csv Operation has failed. Errors:\n{}\n",
+					hostname,
+					StringHelper.getStackMessages(exception)
+				);
+				return "";
+			}
+		} else {
+			log.warn(
+				"Hostname {} - Jawk Source is invalid, The JSON2CSV arguments must be provided through an Association array. The Jawk operation will return an empty result",
+				hostname
+			);
+			return "";
+		}
 	}
 
 	/**
-	 * Execute a {@link Compute} through the context.
-	 * @param compute The {@link Compute} to execute.
-	 * @return The table result from the execution of the {@link Compute}.
+	 * Convert a Jawk variable to a {@link List} of {@link String}, assuming the Jawk variable contains a list of parameters separated by ';'.
+	 *
+	 * @param arg The Jawk variable to convert.
+	 * @return The Jawk variable converted to a {@link List} of {@link String}.
 	 */
-	private void executeCompute(final Compute compute) {
-		//		compute.accept(computeProcessor);
+	private List<String> toAwkListString(final Object arg) {
+		final String stringArg = toAwkString(arg);
+		return Arrays.asList(stringArg.split(";"));
 	}
 }

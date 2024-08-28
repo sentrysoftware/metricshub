@@ -22,9 +22,12 @@ package org.sentrysoftware.metricshub.extension.jawk;
  */
 
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.FILE_PATTERN;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.TABLE_SEP;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,6 +52,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.extension.ICompositeSourceScriptExtension;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceProcessor;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
+import org.sentrysoftware.metricshub.engine.strategy.source.SourceUpdaterProcessor;
 import org.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
@@ -60,13 +64,13 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 public class JawkSourceExtension implements ICompositeSourceScriptExtension {
 
 	// script to AwkTuple
-	static Map<String, AwkTuples> awkCodeMap = new ConcurrentHashMap<>();
+	static final Map<String, AwkTuples> awkCodeMap = new ConcurrentHashMap<>();
 
 	// host to Map<String, JawkExtension>
-	static Map<String, Map<String, JawkExtension>> extensionsMap = new ConcurrentHashMap<>();
+	static final Map<String, Map<String, JawkExtension>> extensionsMap = new ConcurrentHashMap<>();
 
 	@Override
-	public boolean isValidSource(Source source) {
+	public boolean isValidSource(final Source source) {
 		return source instanceof JawkSource;
 	}
 
@@ -121,7 +125,19 @@ public class JawkSourceExtension implements ICompositeSourceScriptExtension {
 
 		log.debug("Hostname {} - Jawk Operation. AWK Script:\n{}\n", hostname, awkScript);
 
+		final String input = jawkSource.getInput();
+		final String inputContent = SourceUpdaterProcessor.replaceSourceReferenceContent(
+			input,
+			telemetryManager,
+			connectorId,
+			"Jawk",
+			source.getKey()
+		);
+
 		final AwkSettings settings = new AwkSettings();
+		if (inputContent != null && !inputContent.isEmpty()) {
+			settings.setInput(new ByteArrayInputStream(inputContent.getBytes(StandardCharsets.UTF_8)));
+		}
 
 		// Create the OutputStream
 		final ByteArrayOutputStream resultBytesStream = new ByteArrayOutputStream();
@@ -144,7 +160,12 @@ public class JawkSourceExtension implements ICompositeSourceScriptExtension {
 					.collect(
 						Collectors.toMap(
 							key -> key,
-							key -> MetricsHubExtensionForJawk.builder().sourceProcessor(sourceProcessor).build()
+							key ->
+								MetricsHubExtensionForJawk
+									.builder()
+									.sourceProcessor(sourceProcessor)
+									.hostname(telemetryManager.getHostname())
+									.build()
 						)
 					)
 		);
@@ -159,7 +180,7 @@ public class JawkSourceExtension implements ICompositeSourceScriptExtension {
 			// Result
 			final SourceTable sourceTable = new SourceTable();
 			sourceTable.setRawData(resultBytesStream.toString());
-			sourceTable.setTable(SourceTable.csvToTable(resultBytesStream.toString(), ";"));
+			sourceTable.setTable(SourceTable.csvToTable(sourceTable.getRawData(), TABLE_SEP));
 			return sourceTable;
 		} catch (Exception e) {
 			LoggingHelper.logSourceError(connectorId, source.getKey(), "JAwkSource script", hostname, e);
