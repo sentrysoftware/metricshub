@@ -79,10 +79,10 @@ public class WmiRequestExecutor implements IWinRequestExecutor {
 		@SpanAttribute("wmi.namespace") @NonNull final String namespace
 	) throws ClientException {
 		final String username = wmiConfig.getUsername();
+		char[] password = wmiConfig.getPassword();
 		// If the username is not provided, null will be used instead of the provided password.
-		final char[] password = username == null ? null : wmiConfig.getPassword();
-
 		if (username == null) {
+			password = null;
 			log.warn("Hostname {}. Username not provided.", hostname);
 		}
 
@@ -273,12 +273,13 @@ public class WmiRequestExecutor implements IWinRequestExecutor {
 		List<String> embeddedFiles
 	) throws ClientException {
 		final String username = winConfiguration.getUsername();
+		char[] password = winConfiguration.getPassword();
 		// If the username is not provided, null will be used instead of the provided password.
-		final char[] password = username == null ? null : winConfiguration.getPassword();
-
 		if (username == null) {
+			password = null;
 			log.warn("Hostname {}. Username not provided.", hostname);
 		}
+
 		return executeWmiRemoteCommand(
 			command,
 			hostname,
