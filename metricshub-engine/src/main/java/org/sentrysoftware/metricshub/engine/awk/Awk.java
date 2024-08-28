@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.sentrysoftware.jawk.ExitException;
 import org.sentrysoftware.jawk.backend.AVM;
 import org.sentrysoftware.jawk.frontend.AwkParser;
 import org.sentrysoftware.jawk.frontend.AwkSyntaxTree;
@@ -58,7 +59,7 @@ public class Awk {
 		// All scripts need to be prefixed with an extra statement that sets the Record Separator (RS)
 		// to the "normal" end-of-line (\n), because Jawk uses line.separator System property, which
 		// is \r\n on Windows, thus preventing it from splitting lines properly.
-		final ScriptSource awkHeader = new ScriptSource("Header", new StringReader("BEGIN { RS = \"\\n\"; }"), false);
+		final ScriptSource awkHeader = new ScriptSource("Header", new StringReader("BEGIN { ORS = RS = \"\\n\"; }"), false);
 		final ScriptSource awkSource = new ScriptSource("Body", new StringReader(script), false);
 		final List<ScriptSource> sourceList = new ArrayList<>();
 		sourceList.add(awkHeader);
@@ -126,6 +127,11 @@ public class Awk {
 		final AVM avm = new AVM(settings, Collections.emptyMap());
 		try {
 			avm.interpret(intermediateCode);
+		} catch (ExitException e) {
+			// ExitException code 0 means exit OK
+			if (e.getCode() != 0) {
+				throw new RuntimeException(e.getMessage());
+			}
 		} catch (Exception e) {
 			throw new RuntimeException(e.getMessage());
 		}

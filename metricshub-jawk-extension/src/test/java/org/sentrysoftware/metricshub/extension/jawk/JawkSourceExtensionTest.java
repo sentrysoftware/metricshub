@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -62,7 +61,9 @@ class JawkSourceExtensionTest {
 
 		final HostProperties hostProperties = HostProperties.builder().build();
 
-		hostProperties.getConnectorNamespace("connectorId").addSourceTable("${source::monitors.system.discovery.sources.source_one}", sourceTableOne);
+		hostProperties
+			.getConnectorNamespace("connectorId")
+			.addSourceTable("${source::monitors.system.discovery.sources.source_one}", sourceTableOne);
 
 		telemetryManager.setHostProperties(hostProperties);
 
@@ -77,7 +78,7 @@ class JawkSourceExtensionTest {
 					    FS=";"
 					    OFS=";"
 				    }
-				    
+
 				    {
 					    requestArguments["method"] = "get"
 					    requestArguments["path"] = "/ConfigurationManager/v1/objects/storages/" $1
@@ -96,7 +97,8 @@ class JawkSourceExtensionTest {
 		final SourceTable sourceTableResult2 = SourceTable.builder().rawData(RAW_DATA_RESULT_2).build();
 		final SourceTable sourceTableResult3 = SourceTable.builder().rawData(RAW_DATA_RESULT_3).build();
 
-		when(sourceProcessorMock.process(any(HttpSource.class))).thenReturn(sourceTableResult1, sourceTableResult2, sourceTableResult3);
+		when(sourceProcessorMock.process(any(HttpSource.class)))
+			.thenReturn(sourceTableResult1, sourceTableResult2, sourceTableResult3);
 
 		assertEquals(
 			Arrays.asList(
@@ -104,92 +106,109 @@ class JawkSourceExtensionTest {
 				Arrays.asList("/", DATA_RESULT_2),
 				Arrays.asList("/", DATA_RESULT_3)
 			),
-			jawkExtension.processSource(source, "connectorId", telemetryManager, sourceProcessorMock).getTable());
+			jawkExtension.processSource(source, "connectorId", telemetryManager, sourceProcessorMock).getTable()
+		);
 
 		// WBEM Request
 		((JawkSource) source).setScript(
-			"""
-				BEGIN {
-				    FS=";"
-				    OFS=";"
-			    }
-			    
-			    {
-			    	requestArguments["query"] = "myQuery"
-			    	requestArguments["namespace"] = "myNamespace"
-				    print executeWbemRequest(requestArguments)
-				}
-			""");
+				"""
+					BEGIN {
+					    FS=";"
+					    OFS=";"
+				    }
+
+				    {
+				    	requestArguments["query"] = "myQuery"
+				    	requestArguments["namespace"] = "myNamespace"
+					    print executeWbemRequest(requestArguments)
+					}
+				"""
+			);
 		((JawkSource) source).setInput("input test");
-		doReturn(SourceTable.builder().rawData("result1;result2").table(SourceTable.csvToTable("result1;result2", ";")).build())
+		doReturn(
+			SourceTable.builder().rawData("result1;result2").table(SourceTable.csvToTable("result1;result2", ";")).build()
+		)
 			.when(sourceProcessorMock)
 			.process(any(WbemSource.class));
 		assertEquals(
 			Collections.singletonList(Arrays.asList("result1", "result2")),
-			jawkExtension.processSource(source, "connectorId", telemetryManager, sourceProcessorMock).getTable());
+			jawkExtension.processSource(source, "connectorId", telemetryManager, sourceProcessorMock).getTable()
+		);
 
 		// WMI Request
 		((JawkSource) source).setScript(
-			"""
-				BEGIN {
-				    FS=";"
-				    OFS=";"
-			    }
-			    
-			    {
-			    	requestArguments["query"] = "myQuery"
-			    	requestArguments["namespace"] = "myNamespace"
-				    print executeWmiRequest(requestArguments)
-				}
-			""");
-		doReturn(SourceTable.builder().rawData("result1;result2").table(SourceTable.csvToTable("result1;result2", ";")).build())
+				"""
+					BEGIN {
+					    FS=";"
+					    OFS=";"
+				    }
+
+				    {
+				    	requestArguments["query"] = "myQuery"
+				    	requestArguments["namespace"] = "myNamespace"
+					    print executeWmiRequest(requestArguments)
+					}
+				"""
+			);
+		doReturn(
+			SourceTable.builder().rawData("result1;result2").table(SourceTable.csvToTable("result1;result2", ";")).build()
+		)
 			.when(sourceProcessorMock)
 			.process(any(WmiSource.class));
 		assertEquals(
 			Collections.singletonList(Arrays.asList("result1", "result2")),
-			jawkExtension.processSource(source, "connectorId", telemetryManager, sourceProcessorMock).getTable());
+			jawkExtension.processSource(source, "connectorId", telemetryManager, sourceProcessorMock).getTable()
+		);
 
 		// SNMP Get Request
 		((JawkSource) source).setScript(
-			"""
-				BEGIN {
-				    FS=";"
-				    OFS=";"
-			    }
-			    
-			    {
-			    	requestArguments["oid"] = "1.2.3.4.5.6"
-				    print executeSnmpGet(requestArguments)
-				}
-			""");
-		doReturn(SourceTable.builder().rawData("result1;result2").table(SourceTable.csvToTable("result1;result2", ";")).build())
+				"""
+					BEGIN {
+					    FS=";"
+					    OFS=";"
+				    }
+
+				    {
+				    	requestArguments["oid"] = "1.2.3.4.5.6"
+					    print executeSnmpGet(requestArguments)
+					}
+				"""
+			);
+		doReturn(
+			SourceTable.builder().rawData("result1;result2").table(SourceTable.csvToTable("result1;result2", ";")).build()
+		)
 			.when(sourceProcessorMock)
 			.process(any(SnmpGetSource.class));
-		
+
 		assertEquals(
 			Collections.singletonList(Arrays.asList("result1", "result2")),
-			jawkExtension.processSource(source, "connectorId", telemetryManager, sourceProcessorMock).getTable());
+			jawkExtension.processSource(source, "connectorId", telemetryManager, sourceProcessorMock).getTable()
+		);
 
 		// SNMP Table Request
 		((JawkSource) source).setScript(
-			"""
-				BEGIN {
-				    FS=";"
-				    OFS=";"
-			    }
-			    
-			    {
-			    	requestArguments["oid"] = "1.2.3.4.5.6"
-			    	requestArguments["selectColumns"] = "1"
-				    print executeSnmpTable(requestArguments)
-				}
-			""");
-		doReturn(SourceTable.builder().rawData("result1;result2").table(SourceTable.csvToTable("result1;result2", ";")).build())
+				"""
+					BEGIN {
+					    FS=";"
+					    OFS=";"
+				    }
+
+				    {
+				    	requestArguments["oid"] = "1.2.3.4.5.6"
+				    	requestArguments["selectColumns"] = "1"
+					    print executeSnmpTable(requestArguments)
+					}
+				"""
+			);
+		doReturn(
+			SourceTable.builder().rawData("result1;result2").table(SourceTable.csvToTable("result1;result2", ";")).build()
+		)
 			.when(sourceProcessorMock)
 			.process(any(SnmpTableSource.class));
 		assertEquals(
 			Collections.singletonList(Arrays.asList("result1", "result2")),
-			jawkExtension.processSource(source, "connectorId", telemetryManager, sourceProcessorMock).getTable());
+			jawkExtension.processSource(source, "connectorId", telemetryManager, sourceProcessorMock).getTable()
+		);
 	}
 
 	@Test

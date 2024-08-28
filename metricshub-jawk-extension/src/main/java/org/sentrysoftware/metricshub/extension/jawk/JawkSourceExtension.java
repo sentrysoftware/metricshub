@@ -64,10 +64,10 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 public class JawkSourceExtension implements ICompositeSourceScriptExtension {
 
 	// script to AwkTuple
-	static final Map<String, AwkTuples> awkCodeMap = new ConcurrentHashMap<>();
+	static final Map<String, AwkTuples> AWK_CODE_MAP = new ConcurrentHashMap<>();
 
 	// host to Map<String, JawkExtension>
-	static final Map<String, Map<String, JawkExtension>> extensionsMap = new ConcurrentHashMap<>();
+	static final Map<String, Map<String, JawkExtension>> EXTENSIONS_MAP = new ConcurrentHashMap<>();
 
 	@Override
 	public boolean isValidSource(final Source source) {
@@ -152,7 +152,7 @@ public class JawkSourceExtension implements ICompositeSourceScriptExtension {
 		settings.setDefaultRS("\n");
 
 		final String hostId = telemetryManager.getHostConfiguration().getHostId();
-		final Map<String, JawkExtension> extensions = extensionsMap.computeIfAbsent(
+		final Map<String, JawkExtension> extensions = EXTENSIONS_MAP.computeIfAbsent(
 			hostId,
 			id ->
 				Arrays
@@ -174,7 +174,7 @@ public class JawkSourceExtension implements ICompositeSourceScriptExtension {
 		final AVM avm = new AVM(settings, extensions);
 
 		try {
-			final AwkTuples tuple = awkCodeMap.computeIfAbsent(awkScript, code -> getIntermediateCode(code, extensions));
+			final AwkTuples tuple = AWK_CODE_MAP.computeIfAbsent(awkScript, code -> getIntermediateCode(code, extensions));
 			avm.interpret(tuple);
 
 			// Result
@@ -202,7 +202,7 @@ public class JawkSourceExtension implements ICompositeSourceScriptExtension {
 		// All scripts need to be prefixed with an extra statement that sets the Record Separator (RS)
 		// to the "normal" end-of-line (\n), because Jawk uses line.separator System property, which
 		// is \r\n on Windows, thus preventing it from splitting lines properly.
-		final ScriptSource awkHeader = new ScriptSource("Header", new StringReader("BEGIN { RS = \"\\n\"; }"), false);
+		final ScriptSource awkHeader = new ScriptSource("Header", new StringReader("BEGIN { ORS = RS = \"\\n\"; }"), false);
 		final ScriptSource awkSource = new ScriptSource("Body", new StringReader(script), false);
 		final List<ScriptSource> sourceList = new ArrayList<>();
 		sourceList.add(awkHeader);
