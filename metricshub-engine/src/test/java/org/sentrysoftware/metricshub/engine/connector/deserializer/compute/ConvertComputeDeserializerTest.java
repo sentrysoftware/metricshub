@@ -33,10 +33,10 @@ class ConvertComputeDeserializerTest extends DeserializerTest {
 		final Map<String, Source> expected = new LinkedHashMap<>(
 			Map.of(
 				"testCompute",
-				HttpSource.builder().key("${source::pre.testCompute}").type("http").url("/testUrl/").computes(computes).build()
+				HttpSource.builder().key("${source::beforeAll.testCompute}").type("http").url("/testUrl/").computes(computes).build()
 			)
 		);
 
-		assertEquals(expected, connector.getPre());
+		assertEquals(expected, connector.getBeforeAll());
 	}
 }

@@ -104,7 +104,15 @@ public class Connector implements Serializable {
 	@Default
 	@JsonDeserialize(using = SourcesDeserializer.class)
 	@JsonSetter(nulls = SKIP)
-	private Map<String, Source> pre = new HashMap<>();
+	private Map<String, Source> beforeAll = new HashMap<>();
+
+	/**
+	 * Map of post-sources, where each key is the name of the pre-source and the value is its definition.
+	 */
+	@Default
+	@JsonDeserialize(using = SourcesDeserializer.class)
+	@JsonSetter(nulls = SKIP)
+	private Map<String, Source> afterAll = new HashMap<>();
 
 	/**
 	 * Map of monitor jobs, where each key is the name of the monitor job and the value is its definition.

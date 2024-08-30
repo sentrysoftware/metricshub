@@ -37,6 +37,6 @@ class SnmpTableSourceDeserializerTest extends DeserializerTest {
 				.build()
 		);
 
-		assertEquals(expected, connector.getPre());
+		assertEquals(expected, connector.getBeforeAll());
 	}
 }

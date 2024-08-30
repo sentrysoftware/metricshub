@@ -75,7 +75,7 @@ monitors:
           hw.status{hw.type="disk_controller"}: $2
         legacyTextParameters:
           StatusInformation: $3
-pre:
+beforeAll:
   snmpSource:
     type: snmpTable
     oid: 1.3.6.1.4.1.795.10.1.1.4.5

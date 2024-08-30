@@ -82,19 +82,34 @@ public class SourceKeyProcessor extends AbstractNodeProcessor {
 
 	@Override
 	protected JsonNode processNode(JsonNode node) throws IOException {
-		// Get the "pre" JSON node
-		final JsonNode preNode = node.get("pre");
+		// Get the "beforeAll" JSON node
+		final JsonNode beforeAllNode = node.get("beforeAll");
 		// Make sure the node is available
-		if (preNode != null && !preNode.isNull()) {
+		if (beforeAllNode != null && !beforeAllNode.isNull()) {
 			// Loop over the source nodes and set the key property on each source node
-			preNode
+			beforeAllNode
 				.fields()
 				.forEachRemaining(sourceNodeEntry -> {
 					final String sourceName = sourceNodeEntry.getKey();
 					final JsonNode sourceNode = sourceNodeEntry.getValue();
 					final ObjectNode sourceObjectNode = (ObjectNode) sourceNode;
-					sourceObjectNode.set(SOURCE_KEY_PROPERTY, new TextNode(String.format("${source::pre.%s}", sourceName)));
+					sourceObjectNode.set(SOURCE_KEY_PROPERTY, new TextNode(String.format("${source::beforeAll.%s}", sourceName)));
 				});
+		}
+
+		// Get the "afterAll" JSON node
+		final JsonNode afterAllNode = node.get("afterAll");
+		// Make sure the node is available
+		if (afterAllNode != null && !afterAllNode.isNull()) {
+			// Loop over the source nodes and set the key property on each source node
+			afterAllNode
+					.fields()
+					.forEachRemaining(sourceNodeEntry -> {
+						final String sourceName = sourceNodeEntry.getKey();
+						final JsonNode sourceNode = sourceNodeEntry.getValue();
+						final ObjectNode sourceObjectNode = (ObjectNode) sourceNode;
+						sourceObjectNode.set(SOURCE_KEY_PROPERTY, new TextNode(String.format("${source::afterAll.%s}", sourceName)));
+					});
 		}
 
 		// Attempt to get the "monitors" node

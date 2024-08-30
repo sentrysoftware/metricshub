@@ -2,7 +2,7 @@
 connector:
   detection:
     appliesTo: [ linux ]
-pre:
+beforeAll:
   testCopySource:
     type: copy
     from: ${source::pre.anotherSource}

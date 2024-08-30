@@ -208,7 +208,7 @@ class PreSourcesStrategyTest {
 			.oid("1.3.6.1.4.1.795.10.1.1.4.5")
 			.selectColumns("ID,1,3,7,8")
 			.type("snmpTable")
-			.key("${source::pre.snmpSource}")
+			.key("${source::beforeAll.snmpSource}")
 			.build();
 		// Mock source table information for the snmp pre source
 		doReturn(
@@ -236,7 +236,7 @@ class PreSourcesStrategyTest {
 			.getHostProperties()
 			.getConnectorNamespace("preSource");
 		assertNotNull(connectorNamespace);
-		final SourceTable sourceTable = connectorNamespace.getSourceTables().get("${source::pre.snmpSource}");
+		final SourceTable sourceTable = connectorNamespace.getSourceTables().get("${source::beforeAll.snmpSource}");
 		assertNotNull(sourceTable);
 		List<String> sourceTableLine = sourceTable.getTable().get(0);
 		assertEquals("preSource-1", sourceTableLine.get(0));
@@ -330,7 +330,7 @@ class PreSourcesStrategyTest {
 			.oid("1.3.6.1.4.1.795.10.1.1.4.5")
 			.selectColumns("ID,1,3,7,8")
 			.type("snmpTable")
-			.key("${source::pre.snmpSource}")
+			.key("${source::beforeAll.snmpSource}")
 			.build();
 		// Mock source table information for the snmp pre source
 		doReturn(
@@ -349,7 +349,7 @@ class PreSourcesStrategyTest {
 			.getHostProperties()
 			.getConnectorNamespace("preSource");
 		assertNotNull(connectorNamespace);
-		final SourceTable sourceTable = connectorNamespace.getSourceTables().get("${source::pre.snmpSource}");
+		final SourceTable sourceTable = connectorNamespace.getSourceTables().get("${source::beforeAll.snmpSource}");
 		assertNotNull(sourceTable);
 		assertEquals("preSource-1", sourceTable.getTable().get(0).get(0));
 		assertEquals("1", sourceTable.getTable().get(0).get(1));

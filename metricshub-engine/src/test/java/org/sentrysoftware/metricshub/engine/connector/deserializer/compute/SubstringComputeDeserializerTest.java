@@ -36,6 +36,6 @@ class SubstringComputeDeserializerTest extends DeserializerTest {
 			)
 		);
 
-		assertEquals(expected, connector.getPre());
+		assertEquals(expected, connector.getBeforeAll());
 	}
 }

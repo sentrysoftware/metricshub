@@ -27,6 +27,6 @@ class IpmiSourceDeserializerTest extends DeserializerTest {
 			Map.of("testIpmiSource", IpmiSource.builder().key("${source::pre.testIpmiSource}").type("ipmi").build())
 		);
 
-		assertEquals(expected, connector.getPre());
+		assertEquals(expected, connector.getBeforeAll());
 	}
 }

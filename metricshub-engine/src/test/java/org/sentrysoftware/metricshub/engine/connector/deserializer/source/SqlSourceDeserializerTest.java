@@ -55,7 +55,7 @@ public class SqlSourceDeserializerTest extends DeserializerTest {
 			.build();
 		expected.setKey("${source::pre.testSqlSource}");
 
-		final Source sourceResult = connector.getPre().get("testSqlSource");
+		final Source sourceResult = connector.getBeforeAll().get("testSqlSource");
 
 		assertTrue(sourceResult instanceof SqlSource);
 

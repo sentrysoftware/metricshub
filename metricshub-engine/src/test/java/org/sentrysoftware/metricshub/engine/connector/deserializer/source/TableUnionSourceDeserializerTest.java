@@ -36,6 +36,6 @@ class TableUnionSourceDeserializerTest extends DeserializerTest {
 			TableUnionSource.builder().key("${source::pre.testTableUnionSource}").type("tableUnion").tables(tables).build()
 		);
 
-		assertEquals(expected, connector.getPre());
+		assertEquals(expected, connector.getBeforeAll());
 	}
 }

@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.engine.strategy.pre;
+package org.sentrysoftware.metricshub.engine.strategy.beforeAll;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
@@ -21,23 +21,20 @@ package org.sentrysoftware.metricshub.engine.strategy.pre;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import java.util.ArrayList;
-import java.util.Map;
 import lombok.Builder;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
-import org.sentrysoftware.metricshub.engine.common.JobInfo;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
-import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
-import org.sentrysoftware.metricshub.engine.strategy.source.OrderedSources;
+import org.sentrysoftware.metricshub.engine.strategy.SurroundingStrategy;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
- * Implements pre-sources processing strategy extending the functionality of {@code AbstractStrategy}.
+ * Implements pre-sources processing strategy extending the functionality of {@code SurroundingStrategy}.
  * This strategy is specifically designed to handle pre-sources using a specified connector. Pre-sources
  * are defined by a connector to facilitate factorization and convenience, allowing these sources to be processed
  * at the beginning of all jobs. This early processing ensures that any necessary setup or preliminary data manipulation
@@ -45,12 +42,10 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
  */
 @Slf4j
 @EqualsAndHashCode(callSuper = true)
-public class PreSourcesStrategy extends AbstractStrategy {
-
-	private Connector connector;
+public class BeforeAllStrategy extends SurroundingStrategy {
 
 	/**
-	 * Initializes a new instance of {@code PreSourcesStrategy} with the necessary components for executing the strategy.
+	 * Initializes a new instance of {@code BeforeAllStrategy} with the necessary components for executing the strategy.
 	 * This constructor sets up the strategy with a telemetry manager, strategy execution time, a clients executor,
 	 * and a specific connector to process pre-sources.
 	 *
@@ -60,54 +55,8 @@ public class PreSourcesStrategy extends AbstractStrategy {
 	 * @param connector        The specific connector instance where the pre-sources are defined.
 	 * @param extensionManager The extension manager where all the required extensions are handled.
 	 */
-	@Builder
-	public PreSourcesStrategy(
-		@NonNull final TelemetryManager telemetryManager,
-		@NonNull final Long strategyTime,
-		@NonNull final ClientsExecutor clientsExecutor,
-		@NonNull final Connector connector,
-		@NonNull final ExtensionManager extensionManager
-	) {
-		super(telemetryManager, strategyTime, clientsExecutor, extensionManager);
-		this.connector = connector;
-	}
-
-	/**
-	 * Executes the strategy's core logic, processing pre-sources associated with the connector.
-	 */
-	@Override
-	public void run() {
-		// Retrieve the connector's identifier and hostname for logging and processing.
-		final String connectorId = connector.getCompiledFilename();
-		final String hostname = telemetryManager.getHostname();
-
-		// Fetch pre-sources from the connector.
-		final Map<String, Source> preSources = connector.getPre();
-		if (preSources == null || preSources.isEmpty()) {
-			log.debug(
-				"Hostname {} - Attempted to process pre-sources, but none are available for connector {}.",
-				hostname,
-				connectorId
-			);
-			return;
-		}
-
-		// Construct job information including job name, connector identifier, hostname and monitor type.
-		final JobInfo jobInfo = JobInfo
-			.builder()
-			.hostname(hostname)
-			.connectorId(connectorId)
-			.jobName("pre")
-			.monitorType("none")
-			.build();
-
-		// Build and order sources based on dependencies.
-		final OrderedSources orderedSources = OrderedSources
-			.builder()
-			.sources(preSources, new ArrayList<>(), connector.getPreSourceDep(), jobInfo)
-			.build();
-
-		// Process the ordered sources along with computes, based on the constructed job information.
-		processSourcesAndComputes(orderedSources.getSources(), jobInfo);
+	@Builder(builderMethodName = "beforeAllBuilder")
+	public BeforeAllStrategy(@NonNull TelemetryManager telemetryManager, @NonNull Long strategyTime, @NonNull ClientsExecutor clientsExecutor, @NonNull Connector connector, @NonNull ExtensionManager extensionManager) {
+		super(telemetryManager, strategyTime, clientsExecutor, connector, extensionManager);
 	}
 }

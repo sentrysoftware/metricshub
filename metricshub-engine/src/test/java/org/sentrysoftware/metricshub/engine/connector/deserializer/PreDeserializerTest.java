@@ -28,7 +28,7 @@ class PreDeserializerTest extends DeserializerTest {
 
 		assertNotNull(connector);
 
-		var pre = connector.getPre();
+		var pre = connector.getBeforeAll();
 
 		assertTrue(pre instanceof LinkedHashMap, "pre are expected to be a LinkedHashMap.");
 
@@ -52,6 +52,6 @@ class PreDeserializerTest extends DeserializerTest {
 
 	@Test
 	void testPreNull() throws IOException {
-		assertEquals(Collections.emptyMap(), getConnector("preNull").getPre());
+		assertEquals(Collections.emptyMap(), getConnector("preNull").getBeforeAll());
 	}
 }

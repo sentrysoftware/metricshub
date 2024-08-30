@@ -43,6 +43,6 @@ class ExtractPropertyFromWbemPathComputeDeserializerTest extends DeserializerTes
 			)
 		);
 
-		assertEquals(expected, connector.getPre());
+		assertEquals(expected, connector.getBeforeAll());
 	}
 }

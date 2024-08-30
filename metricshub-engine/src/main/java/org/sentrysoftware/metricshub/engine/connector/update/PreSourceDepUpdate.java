@@ -33,13 +33,13 @@ public class PreSourceDepUpdate extends SourceConnectorUpdateChain {
 
 	@Override
 	void doUpdate(Connector connector) {
-		final Map<String, Source> sources = connector.getPre();
+		final Map<String, Source> sources = connector.getBeforeAll();
 		if (sources != null) {
 			connector.setPreSourceDep(
 				updateSourceDependency(
 					sources,
 					Pattern.compile(
-						String.format("\\s*(\\$\\{source::((?i)pre)\\.(%s)\\})\\s*", getSourceIdentifiersRegex(sources)),
+						String.format("\\s*(\\$\\{source::((?i)beforeAll)\\.(%s)\\})\\s*", getSourceIdentifiersRegex(sources)),
 						Pattern.MULTILINE
 					),
 					3

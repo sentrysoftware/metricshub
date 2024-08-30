@@ -43,7 +43,7 @@ public class ReferenceResolverProcessor extends AbstractNodeProcessor {
 		"\\$\\{source::(?!((?i)monitors\\.([\\w()\\.-]+)\\.(discovery|collect|simple)\\.sources\\.([\\w()\\.-]+)\\}|(?i)pre\\.([\\w()\\.-]+)\\}))([\\w()\\.-]+)\\}"
 	);
 	private static final Pattern REGEX_SOURCE_REF_PRE = Pattern.compile(
-		"\\$\\{source::(?!((?i)pre\\.([\\w()\\.-]+)\\}))([\\w()\\.-]+)\\}"
+		"\\$\\{source::(?!((?i)beforeAll\\.([\\w()\\.-]+)\\}))([\\w()\\.-]+)\\}"
 	);
 
 	@Builder
@@ -94,7 +94,7 @@ public class ReferenceResolverProcessor extends AbstractNodeProcessor {
 		return REGEX_SOURCE_REF_PRE
 			.matcher(valueToUpdate)
 			.replaceAll(match -> {
-				if (parts.length >= 2 && parts[0].equals("pre")) {
+				if (parts.length >= 2 && parts[0].equals("beforeAll")) {
 					return Matcher.quoteReplacement(
 						String.format(SOURCE_REF_FORMAT, Stream.of(parts[0], match.group(3)).collect(Collectors.joining(".")))
 					);

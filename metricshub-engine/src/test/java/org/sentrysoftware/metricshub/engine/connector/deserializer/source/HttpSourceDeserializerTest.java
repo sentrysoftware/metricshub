@@ -40,7 +40,7 @@ class HttpSourceDeserializerTest extends DeserializerTest {
 			)
 		);
 
-		assertEquals(expected, connector.getPre());
+		assertEquals(expected, connector.getBeforeAll());
 	}
 
 	@Test
@@ -61,7 +61,7 @@ class HttpSourceDeserializerTest extends DeserializerTest {
 			)
 		);
 
-		assertEquals(expected, connector.getPre());
+		assertEquals(expected, connector.getBeforeAll());
 	}
 
 	@Test
@@ -83,7 +83,7 @@ class HttpSourceDeserializerTest extends DeserializerTest {
 			)
 		);
 
-		assertEquals(expected, connector.getPre());
+		assertEquals(expected, connector.getBeforeAll());
 	}
 
 	@Test
@@ -97,7 +97,7 @@ class HttpSourceDeserializerTest extends DeserializerTest {
 			)
 		);
 
-		assertEquals(expected, connector.getPre());
+		assertEquals(expected, connector.getBeforeAll());
 	}
 
 	@Test
@@ -120,6 +120,6 @@ class HttpSourceDeserializerTest extends DeserializerTest {
 			)
 		);
 
-		assertEquals(expected, connector.getPre());
+		assertEquals(expected, connector.getBeforeAll());
 	}
 }

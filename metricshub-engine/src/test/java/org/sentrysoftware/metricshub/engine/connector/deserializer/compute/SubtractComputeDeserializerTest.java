@@ -36,6 +36,6 @@ class SubtractComputeDeserializerTest extends DeserializerTest {
 			)
 		);
 
-		assertEquals(expected, connector.getPre());
+		assertEquals(expected, connector.getBeforeAll());
 	}
 }

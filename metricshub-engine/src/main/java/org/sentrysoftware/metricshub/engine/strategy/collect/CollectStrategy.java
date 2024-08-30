@@ -56,7 +56,8 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Mapping
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.MultiInstanceCollect;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
-import org.sentrysoftware.metricshub.engine.strategy.pre.PreSourcesStrategy;
+import org.sentrysoftware.metricshub.engine.strategy.afterAll.AfterAllStrategy;
+import org.sentrysoftware.metricshub.engine.strategy.beforeAll.BeforeAllStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.source.OrderedSources;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.strategy.utils.MappingProcessor;
@@ -118,9 +119,9 @@ public class CollectStrategy extends AbstractStrategy {
 			return;
 		}
 
-		// Run PreSourcesStrategy that executes pre sources
-		final PreSourcesStrategy preSourcesStrategy = PreSourcesStrategy
-			.builder()
+		// Run BeforeAllStrategy that executes pre sources
+		final BeforeAllStrategy beforeAllStrategy = BeforeAllStrategy
+			.beforeAllBuilder()
 			.clientsExecutor(clientsExecutor)
 			.strategyTime(strategyTime)
 			.telemetryManager(telemetryManager)
@@ -128,7 +129,7 @@ public class CollectStrategy extends AbstractStrategy {
 			.extensionManager(extensionManager)
 			.build();
 
-		preSourcesStrategy.run();
+		beforeAllStrategy.run();
 
 		// Sort the connector monitor jobs according to the priority map
 		final Map<String, MonitorJob> connectorMonitorJobs = currentConnector
@@ -195,6 +196,17 @@ public class CollectStrategy extends AbstractStrategy {
 				log.debug("Hostname {} - Waiting for threads' termination aborted with an error.", hostname, e);
 			}
 		}
+		// Run AfterAllStrategy that executes post sources
+		final AfterAllStrategy afterAllStrategy = AfterAllStrategy
+				.afterAllBuilder()
+				.clientsExecutor(clientsExecutor)
+				.strategyTime(strategyTime)
+				.telemetryManager(telemetryManager)
+				.connector(currentConnector)
+				.extensionManager(extensionManager)
+				.build();
+
+		afterAllStrategy.run();
 	}
 
 	/**
