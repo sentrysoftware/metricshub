@@ -143,7 +143,7 @@ public class EmbeddedFilesResolver {
 						fileName,
 						name -> {
 							try {
-								EmbeddedFile newEmbeddedFile = processFile(name, connectorDirectory);
+								final EmbeddedFile newEmbeddedFile = processFile(name, connectorDirectory);
 								newEmbeddedFiles.add(newEmbeddedFile);
 								return newEmbeddedFile;
 							} catch (Exception e) {

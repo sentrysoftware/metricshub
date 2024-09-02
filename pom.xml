@@ -362,7 +362,7 @@
 			<dependency>
 				<groupId>org.sentrysoftware</groupId>
 				<artifactId>jawk</artifactId>
-				<version>3.3.02</version>
+				<version>3.3.03</version>
 			</dependency>
 			<dependency>
 				<groupId>info.picocli</groupId>

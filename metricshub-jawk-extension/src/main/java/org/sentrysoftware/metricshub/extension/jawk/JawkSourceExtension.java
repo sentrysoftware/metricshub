@@ -64,10 +64,10 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 public class JawkSourceExtension implements ICompositeSourceScriptExtension {
 
 	// script to AwkTuple
-	static final Map<String, AwkTuples> AWK_CODE_MAP = new ConcurrentHashMap<>();
+	private static final Map<String, AwkTuples> AWK_CODE_MAP = new ConcurrentHashMap<>();
 
 	// host to Map<String, JawkExtension>
-	static final Map<String, Map<String, JawkExtension>> EXTENSIONS_MAP = new ConcurrentHashMap<>();
+	private static final Map<String, Map<String, JawkExtension>> EXTENSIONS_MAP = new ConcurrentHashMap<>();
 
 	@Override
 	public boolean isValidSource(final Source source) {
