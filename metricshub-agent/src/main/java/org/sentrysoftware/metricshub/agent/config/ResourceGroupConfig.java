@@ -74,4 +74,6 @@ public class ResourceGroupConfig {
 	@Default
 	@JsonSetter(nulls = SKIP)
 	private Map<String, ResourceConfig> resources = new HashMap<>();
+
+	private String stateSetCompression;
 }

@@ -30,7 +30,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
  * Observer for a counter state metric, extending {@link AbstractStateMetricObserver}.
  * This observer initializes the metric and provides a callback for observing state changes.
  */
-public class CounterStateMetricObserver extends AbstractStateMetricObserver {
+public class CounterStateMetricObserver extends AbstractNotCompressedStateMetricObserver {
 
 	/**
 	 * Constructs a {@code CounterStateMetricObserver} with the specified parameters.

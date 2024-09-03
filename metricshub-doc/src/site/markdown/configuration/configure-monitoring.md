@@ -955,6 +955,78 @@ To force all the network calls to be executed in sequential order:
 
 > **Warning**: Sending requests in sequential mode slows down the monitoring significantly. Instead of using the sequential mode, you can increase the maximum number of allowed concurrent requests in the monitored system, if the manufacturer allows it.
 
+#### StateSet metrics compression
+
+By default, **MetricsHub** compresses StateSet metrics to reduce unnecessary reporting of zero values and to avoid high cardinality in time series databases. This compression can be configured at various levels: globally, per resource group, or for a specific resource.
+
+##### Compression configuration `stateSetCompression`
+
+This configuration controls how StateSet metrics are reported, specifically whether zero values should be suppressed or not.
+
+- **Supported values:**
+  - `none`: No compression is applied. All StateSet metrics, including zero values, are reported on every collection cycle.
+  - `suppressZeros` (default): **MetricsHub** compresses StateSet metrics by reporting the zero value only the first time a state transitions to zero. Subsequent reports will include only the non-zero state values.
+
+To configure the StateSet compression level, you can apply the `stateSetCompression` setting in the following scopes:
+
+1. **Global configuration** (applies to all resources):
+
+   Add `stateSetCompression` to the root of the `config/metricshub.yaml` file:
+
+   ```yaml
+   stateSetCompression: suppressZeros # set to "none" to disable the StateSet compression
+   resourceGroups: ...
+   ```
+
+2. **Per resource group** (applies to all resources within a specific group):
+
+   Add `stateSetCompression` within a specific `resourceGroup` in `config/metricshub.yaml`:
+
+   ```yaml
+   resourceGroups:
+     <resource-group-name>:
+       stateSetCompression: suppressZeros # set to "none" to disable the StateSet compression
+       resources: ...
+   ```
+
+3. **Per resource** (applies to a specific resource):
+
+   Add `stateSetCompression` for an individual resource in `config/metricshub.yaml`:
+
+   ```yaml
+   resourceGroups:
+     <resource-group-name>:
+       resources:
+         <resource-id>:
+           stateSetCompression: suppressZeros # set to "none" to disable the StateSet compression
+   ```
+
+##### How it works
+
+By default, with `suppressZeros` enabled, **MetricsHub** optimizes metric reporting by suppressing repeated zero values after the initial transition. Only non-zero state metrics will continue to be reported.
+
+**Example: Monitoring the health status of a resource**
+
+Let’s say **MetricsHub** monitors the health status of a specific resource, which can be in one of three states: `ok`, `degraded`, or `failed`.
+
+When compression is **disabled** (`stateSetCompression: none`), **MetricsHub** will report all states, including zeros, during each collection cycle. For example:
+
+```yaml
+hw.status{state="ok"} 0
+hw.status{state="degraded"} 1
+hw.status{state="failed"} 0
+```
+
+Here, the resource is in the `degraded` state, but the metrics for the `ok` and `failed` states are also reported with values of `0`. This leads to unnecessary data being sent.
+
+When compression is **enabled** (`stateSetCompression: suppressZeros`), **MetricsHub** will only report the non-zero state, significantly reducing the amount of data collected. For the same scenario, the report would look like this:
+
+```yaml
+hw.status{state="degraded"} 1
+```
+
+In this case, only the `degraded` state is reported, and the zero values for `ok` and `failed` are suppressed after the initial state transition.
+
 #### Timeout, duration and period format
 
 Timeouts, durations and periods are specified with the below format:

@@ -24,32 +24,27 @@ package org.sentrysoftware.metricshub.agent.service.signal;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.metrics.Meter;
 import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
 
 /**
- * A metric observer for gauge state metrics.
+ * Observer for UpDownCounter state metrics with suppression of zero values.
+ * Extends {@link AbstractSuppressZerosStateMetricObserver}.
  */
-@Data
-@EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
-public class GaugeStateMetricObserver extends AbstractNotCompressedStateMetricObserver {
+public class UpDownCounterSuppressZerosStateMetricObserver extends AbstractSuppressZerosStateMetricObserver {
 
 	/**
-	 * Constructs a new {@code GaugeStateMetricObserver} with the specified parameters.
+	 * Constructs a new {@code UpDownCounterSuppressZerosStateMetricObserver} with the specified parameters.
 	 *
-	 * @param meter       the meter to which the metric belongs
-	 * @param attributes  the attributes associated with the metric
-	 * @param metricName  the name of the metric
-	 * @param unit        the unit of the metric
-	 * @param description the description of the metric
-	 * @param state       the state of the metric
-	 * @param metric      the gauge state metric to observe
+	 * @param meter       The OpenTelemetry meter to use for creating the metric.
+	 * @param attributes  The attributes to associate with the metric.
+	 * @param metricName  The name of the metric.
+	 * @param unit        The unit of the metric.
+	 * @param description The description of the metric.
+	 * @param state       The state used to observe the metric. E.g. "ok".
+	 * @param metric      The StateSetMetric to observe.
 	 */
 	@Builder(setterPrefix = "with")
-	public GaugeStateMetricObserver(
+	public UpDownCounterSuppressZerosStateMetricObserver(
 		final Meter meter,
 		final Attributes attributes,
 		final String metricName,
@@ -63,6 +58,6 @@ public class GaugeStateMetricObserver extends AbstractNotCompressedStateMetricOb
 
 	@Override
 	public void init() {
-		newDoubleGaugeBuilder().buildWithCallback(super::observeStateMetric);
+		newDoubleUpDownCounterBuilder().buildWithCallback(super::observeStateMetric);
 	}
 }
