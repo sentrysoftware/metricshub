@@ -29,21 +29,35 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 /**
  * Implementation of {@link SourceConnectorUpdateChain} for updating pre-source dependencies in the connector.
  */
-public class PreSourceDepUpdate extends SourceConnectorUpdateChain {
+public class SurroundingSourceDepUpdate extends SourceConnectorUpdateChain {
 
 	@Override
 	void doUpdate(Connector connector) {
-		final Map<String, Source> sources = connector.getBeforeAll();
-		if (sources != null) {
-			connector.setPreSourceDep(
+		final Map<String, Source> beforeAll = connector.getBeforeAll();
+		if (beforeAll != null) {
+			connector.setBeforeAllSourceDep(
 				updateSourceDependency(
-					sources,
+					beforeAll,
 					Pattern.compile(
-						String.format("\\s*(\\$\\{source::((?i)beforeAll)\\.(%s)\\})\\s*", getSourceIdentifiersRegex(sources)),
+						String.format("\\s*(\\$\\{source::((?i)beforeAll)\\.(%s)\\})\\s*", getSourceIdentifiersRegex(beforeAll)),
 						Pattern.MULTILINE
 					),
 					3
 				)
+			);
+		}
+
+		final Map<String, Source> afterAllSources = connector.getBeforeAll();
+		if (afterAllSources != null) {
+			connector.setBeforeAllSourceDep(
+					updateSourceDependency(
+							afterAllSources,
+							Pattern.compile(
+									String.format("\\s*(\\$\\{source::((?i)afterAll)\\.(%s)\\})\\s*", getSourceIdentifiersRegex(afterAllSources)),
+									Pattern.MULTILINE
+							),
+							3
+					)
 			);
 		}
 	}

@@ -69,7 +69,7 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 		final Map<Integer, Set<String>> mapLevels = new LinkedHashMap<>();
 
 		// Build a key-value pairs where the key is the source id and the values are the dependency identifiers
-		// of the current current context. Thus, dependencies can be retrieved easily when looping over the sources.
+		// of the current context. Thus, dependencies can be retrieved easily when looping over the sources.
 		// E.g:
 		// source1 -> []
 		// source2 -> []

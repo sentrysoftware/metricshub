@@ -271,7 +271,7 @@ class ConnectorParserTest {
 
 		final List<Set<String>> expected = buildUseCase1Dependency();
 
-		assertEquals(expected, connector.getPreSourceDep());
+		assertEquals(expected, connector.getBeforeAllSourceDep());
 	}
 
 	@Test
@@ -281,7 +281,7 @@ class ConnectorParserTest {
 
 		final List<Set<String>> expected = buildUseCase2Dependency();
 
-		assertEquals(expected, connector.getPreSourceDep());
+		assertEquals(expected, connector.getBeforeAllSourceDep());
 	}
 
 	@Test
@@ -290,7 +290,7 @@ class ConnectorParserTest {
 			.parse("sourceDep");
 
 		final List<Set<String>> expected = buildUseCase3Dependency();
-		assertEquals(expected, connector.getPreSourceDep());
+		assertEquals(expected, connector.getBeforeAllSourceDep());
 	}
 
 	@Test
@@ -310,7 +310,7 @@ class ConnectorParserTest {
 		expected.add(level1);
 		expected.add(level2);
 
-		assertEquals(expected, connector.getPreSourceDep());
+		assertEquals(expected, connector.getBeforeAllSourceDep());
 	}
 
 	private List<Set<String>> buildUseCase1Dependency() {

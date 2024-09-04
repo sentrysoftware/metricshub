@@ -134,10 +134,16 @@ public class Connector implements Serializable {
 	private Set<Class<? extends Source>> sourceTypes = new HashSet<>();
 
 	/**
-	 * List of source dependencies specified as sets of source names.
+	 * List of beforeAll source dependencies specified as sets of source names.
 	 */
 	@Default
-	private List<Set<String>> preSourceDep = new ArrayList<>();
+	private List<Set<String>> beforeAllSourceDep = new ArrayList<>();
+
+	/**
+	 * List of afterAll source dependencies specified as sets of source names.
+	 */
+	@Default
+	private List<Set<String>> afterAllSourceDep = new ArrayList<>();
 
 	/**
 	 * Mapping of embedded files where each embedded file is associated with a unique identifier.
