@@ -126,6 +126,8 @@ public class EmbeddedFilesResolver {
 			return;
 		}
 
+		final List<EmbeddedFile> embeddedFilesWithEmbeddedFiles = new ArrayList<>();
+
 		// Parse the embedded files to find eventual new embedded files within them.
 		Collection<EmbeddedFile> temporaryEmbeddedFilesList = new ArrayList<>(processedEmbeddedFiles.values());
 		while (!temporaryEmbeddedFilesList.isEmpty()) {
@@ -136,6 +138,7 @@ public class EmbeddedFilesResolver {
 				final Matcher fileMatcher = FILE_PATTERN.matcher(processedEmbeddedFile.getContentAsString());
 				while (fileMatcher.find()) {
 					final String fileName = fileMatcher.group(1);
+					embeddedFilesWithEmbeddedFiles.add(processedEmbeddedFile);
 
 					// If we encounter a new embedded file we process it, add it to the map of processed files
 					// and add it to the temporary list to process in the next loop iteration.
@@ -171,7 +174,7 @@ public class EmbeddedFilesResolver {
 			.update();
 
 		// Update the embedded files that are referencing other embedded files.
-		for (EmbeddedFile processedEmbeddedFile : processedEmbeddedFiles.values()) {
+		for (EmbeddedFile processedEmbeddedFile : embeddedFilesWithEmbeddedFiles) {
 			processedEmbeddedFile.setContent(
 				performFileRefReplacements(processedEmbeddedFile.getContentAsString()).getBytes(StandardCharsets.UTF_8)
 			);

@@ -152,22 +152,17 @@ public class JawkSourceExtension implements ICompositeSourceScriptExtension {
 		settings.setDefaultRS("\n");
 
 		final String hostId = telemetryManager.getHostConfiguration().getHostId();
+		final MetricsHubExtensionForJawk metricsHubExtensionForJawk = MetricsHubExtensionForJawk
+			.builder()
+			.sourceProcessor(sourceProcessor)
+			.hostname(telemetryManager.getHostname())
+			.build();
 		final Map<String, JawkExtension> extensions = EXTENSIONS_MAP.computeIfAbsent(
 			hostId,
 			id ->
 				Arrays
-					.stream(MetricsHubExtensionForJawk.KEYWORDS)
-					.collect(
-						Collectors.toMap(
-							key -> key,
-							key ->
-								MetricsHubExtensionForJawk
-									.builder()
-									.sourceProcessor(sourceProcessor)
-									.hostname(telemetryManager.getHostname())
-									.build()
-						)
-					)
+					.stream(metricsHubExtensionForJawk.extensionKeywords())
+					.collect(Collectors.toMap(key -> key, key -> metricsHubExtensionForJawk))
 		);
 
 		// Interpret

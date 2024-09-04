@@ -63,19 +63,6 @@ import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 @AllArgsConstructor
 public class MetricsHubExtensionForJawk extends AbstractExtension implements JawkExtension {
 
-	/**
-	 * The list of keywords supported by this extension.
-	 */
-	protected static final String[] KEYWORDS = {
-		EXECUTE_HTTP_REQUEST,
-		EXECUTE_IPMI_REQUEST,
-		EXECUTE_SNMP_GET,
-		EXECUTE_SNMP_TABLE,
-		EXECUTE_WBEM_REQUEST,
-		EXECUTE_WMI_REQUEST,
-		JSON_2CSV
-	};
-
 	private SourceProcessor sourceProcessor;
 	private String hostname;
 
@@ -86,7 +73,15 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 
 	@Override
 	public String[] extensionKeywords() {
-		return KEYWORDS;
+		return new String[] {
+			EXECUTE_HTTP_REQUEST,
+			EXECUTE_IPMI_REQUEST,
+			EXECUTE_SNMP_GET,
+			EXECUTE_SNMP_TABLE,
+			EXECUTE_WBEM_REQUEST,
+			EXECUTE_WMI_REQUEST,
+			JSON_2CSV
+		};
 	}
 
 	@Override
@@ -102,7 +97,7 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 		) {
 			return new int[] { 0 };
 		} else {
-			return super.getAssocArrayParameterPositions(extensionKeyword, numArgs);
+			throw new NotImplementedError(extensionKeyword);
 		}
 	}
 
@@ -154,10 +149,7 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 					.build()
 			);
 		} else {
-			log.warn(
-				"Hostname {} - Jawk Source is invalid, The HTTP request arguments must be provided through an Association array. The Jawk operation will return an empty result",
-				hostname
-			);
+			log.warn("Hostname {} - Jawk: executeHttpRequest(): expected Association array.", hostname);
 			return "";
 		}
 	}
@@ -195,10 +187,7 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 					.build()
 			);
 		} else {
-			log.warn(
-				"Hostname {} - Jawk Source is invalid, The SNMP Get request arguments must be provided through an Association array. The Jawk operation will return an empty result",
-				hostname
-			);
+			log.warn("Hostname {} - Jawk: executeSnmpGetRequest(): expected Association array.", hostname);
 			return "";
 		}
 	}
@@ -219,10 +208,7 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 					.build()
 			);
 		} else {
-			log.warn(
-				"Hostname {} - Jawk Source is invalid, The SNMP Table request arguments must be provided through an Association array. The Jawk operation will return an empty result",
-				hostname
-			);
+			log.warn("Hostname {} - Jawk: executeSnmpTableRequest(): expected Association array.", hostname);
 			return "";
 		}
 	}
@@ -243,10 +229,7 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 					.build()
 			);
 		} else {
-			log.warn(
-				"Hostname {} - Jawk Source is invalid, The WBEM query arguments must be provided through an Association array. The Jawk operation will return an empty result",
-				hostname
-			);
+			log.warn("Hostname {} - Jawk: executeWbemRequest(): expected Association array.", hostname);
 			return "";
 		}
 	}
@@ -267,10 +250,7 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 					.build()
 			);
 		} else {
-			log.warn(
-				"Hostname {} - Jawk Source is invalid, The WMI query arguments must be provided through an Association array. The Jawk operation will return an empty result",
-				hostname
-			);
+			log.warn("Hostname {} - Jawk: executeWmiRequest(): expected Association array.", hostname);
 			return "";
 		}
 	}
@@ -312,10 +292,7 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 				return "";
 			}
 		} else {
-			log.warn(
-				"Hostname {} - Jawk Source is invalid, The JSON2CSV arguments must be provided through an Association array. The Jawk operation will return an empty result",
-				hostname
-			);
+			log.warn("Hostname {} - Jawk: executeJson2csv(): expected Association array.", hostname);
 			return "";
 		}
 	}
