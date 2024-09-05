@@ -40,4 +40,7 @@ public class KeyWords {
 
 	// Computes
 	public static final String JSON_2CSV = "json2csv";
+
+	// General functions
+	public static final String GET_VARIABLE = "getVariable";
 }

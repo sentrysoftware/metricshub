@@ -27,6 +27,7 @@ import static org.sentrysoftware.metricshub.extension.jawk.KeyWords.EXECUTE_SNMP
 import static org.sentrysoftware.metricshub.extension.jawk.KeyWords.EXECUTE_SNMP_TABLE;
 import static org.sentrysoftware.metricshub.extension.jawk.KeyWords.EXECUTE_WBEM_REQUEST;
 import static org.sentrysoftware.metricshub.extension.jawk.KeyWords.EXECUTE_WMI_REQUEST;
+import static org.sentrysoftware.metricshub.extension.jawk.KeyWords.GET_VARIABLE;
 import static org.sentrysoftware.metricshub.extension.jawk.KeyWords.JSON_2CSV;
 
 import java.util.Arrays;
@@ -80,7 +81,8 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 			EXECUTE_SNMP_TABLE,
 			EXECUTE_WBEM_REQUEST,
 			EXECUTE_WMI_REQUEST,
-			JSON_2CSV
+			JSON_2CSV,
+			GET_VARIABLE
 		};
 	}
 
@@ -96,6 +98,8 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 			extensionKeyword.equals(JSON_2CSV)
 		) {
 			return new int[] { 0 };
+		} else if (extensionKeyword.equals(GET_VARIABLE)) {
+			return new int[] {};
 		} else {
 			throw new NotImplementedError(extensionKeyword);
 		}
@@ -124,6 +128,9 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 		} else if (keyword.equals(JSON_2CSV)) {
 			checkNumArgs(args, 1);
 			return executeJson2csv(args);
+		} else if (keyword.equals(GET_VARIABLE)) {
+			checkNumArgs(args, 1);
+			return getVariable(args);
 		} else {
 			throw new NotImplementedError(keyword);
 		}
@@ -139,6 +146,7 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 			return executeSource(
 				HttpSource
 					.builder()
+					.type("http")
 					.method(HttpMethod.valueOf(toAwkString(argsAssocArray.get("method")).toUpperCase()))
 					.path(toAwkString(argsAssocArray.get("path")))
 					.header(toAwkString(argsAssocArray.get("header")))
@@ -164,6 +172,7 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 			return executeSource(
 				IpmiSource
 					.builder()
+					.type("ipmi")
 					.forceSerialization(toAwkString(argsAssocArray.get("forceSerialization")).equals("true"))
 					.build()
 			);
@@ -182,6 +191,7 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 			return executeSource(
 				SnmpGetSource
 					.builder()
+					.type("snmpGet")
 					.oid(toAwkString(argsAssocArray.get("oid")))
 					.forceSerialization(toAwkString(argsAssocArray.get("forceSerialization")).equals("true"))
 					.build()
@@ -202,6 +212,7 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 			return executeSource(
 				SnmpTableSource
 					.builder()
+					.type("snmpTable")
 					.oid(toAwkString(argsAssocArray.get("oid")))
 					.selectColumns(toAwkString(argsAssocArray.get("selectColumns")))
 					.forceSerialization(toAwkString(argsAssocArray.get("forceSerialization")).equals("true"))
@@ -223,6 +234,7 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 			return executeSource(
 				WbemSource
 					.builder()
+					.type("wbem")
 					.query(toAwkString(argsAssocArray.get("query")))
 					.namespace(toAwkString(argsAssocArray.get("namespace")))
 					.forceSerialization(toAwkString(argsAssocArray.get("forceSerialization")).equals("true"))
@@ -244,6 +256,7 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 			return executeSource(
 				WmiSource
 					.builder()
+					.type("wmi")
 					.query(toAwkString(argsAssocArray.get("query")))
 					.namespace(toAwkString(argsAssocArray.get("namespace")))
 					.forceSerialization(toAwkString(argsAssocArray.get("forceSerialization")).equals("true"))
@@ -306,5 +319,16 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 	private List<String> toAwkListString(final Object arg) {
 		final String stringArg = toAwkString(arg);
 		return Arrays.asList(stringArg.split(";"));
+	}
+
+	/**
+	 * Return the value of the variable in parameter if it exists.
+	 * @param arg The name of the variable to retrieve.
+	 * @return The value of the variable.
+	 */
+	private String getVariable(final Object[] args) {
+		final String var = toAwkString(args[0]);
+		final String res = sourceProcessor.getTelemetryManager().getHostConfiguration().getConnectorVariables().get(var);
+		return res;
 	}
 }

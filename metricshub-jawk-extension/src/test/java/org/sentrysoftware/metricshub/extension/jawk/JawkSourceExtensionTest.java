@@ -2,19 +2,26 @@ package org.sentrysoftware.metricshub.extension.jawk;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
+import org.sentrysoftware.metricshub.engine.connector.model.common.HttpMethod;
+import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.JawkSource;
@@ -43,10 +50,18 @@ class JawkSourceExtensionTest {
 
 	@Test
 	void testProcessSource() {
+		final Map<String, String> connectorVariables = Map.of("myVariable", "myVariableValue");
 		final JawkSourceExtension jawkExtension = new JawkSourceExtension();
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
-			.hostConfiguration(HostConfiguration.builder().hostname("test-host").hostId("test-host").build())
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostname("test-host")
+					.hostId("test-host")
+					.connectorVariables(connectorVariables)
+					.build()
+			)
 			.build();
 
 		final List<String> line1 = Arrays.asList("FOO", "1", "2", "3");
@@ -83,6 +98,7 @@ class JawkSourceExtensionTest {
 					    requestArguments["method"] = "get"
 					    requestArguments["path"] = "/ConfigurationManager/v1/objects/storages/" $1
 					    requestArguments["resultContent"] = "body"
+					    requestArguments["header"] = getVariable("myVariable")
 					    json2csvArguments["jsonSource"] = executeHttpRequest(requestArguments)
 					    json2csvArguments["entryKey"] = "/"
 					    json2csvArguments["properties"] = "myResult"
@@ -97,8 +113,38 @@ class JawkSourceExtensionTest {
 		final SourceTable sourceTableResult2 = SourceTable.builder().rawData(RAW_DATA_RESULT_2).build();
 		final SourceTable sourceTableResult3 = SourceTable.builder().rawData(RAW_DATA_RESULT_3).build();
 
+		final HttpSource httpSourceFoo = HttpSource
+			.builder()
+			.type("http")
+			.method(HttpMethod.GET)
+			.path("/ConfigurationManager/v1/objects/storages/FOO")
+			.resultContent(ResultContent.BODY)
+			.header("myVariableValue")
+			.build();
+		final HttpSource httpSourceBar = HttpSource
+			.builder()
+			.type("http")
+			.method(HttpMethod.GET)
+			.path("/ConfigurationManager/v1/objects/storages/BAR")
+			.resultContent(ResultContent.BODY)
+			.header("myVariableValue")
+			.build();
+		final HttpSource httpSourceBaz = HttpSource
+			.builder()
+			.type("http")
+			.method(HttpMethod.GET)
+			.path("/ConfigurationManager/v1/objects/storages/BAZ")
+			.resultContent(ResultContent.BODY)
+			.header("myVariableValue")
+			.build();
+
+		doReturn(telemetryManager).when(sourceProcessorMock).getTelemetryManager();
+
 		when(sourceProcessorMock.process(any(HttpSource.class)))
 			.thenReturn(sourceTableResult1, sourceTableResult2, sourceTableResult3);
+
+		// Create an ArgumentCaptor for capturing HttpSource arguments
+		ArgumentCaptor<HttpSource> httpCaptor = ArgumentCaptor.forClass(HttpSource.class);
 
 		assertEquals(
 			Arrays.asList(
@@ -108,6 +154,30 @@ class JawkSourceExtensionTest {
 			),
 			jawkExtension.processSource(source, "connectorId", telemetryManager, sourceProcessorMock).getTable()
 		);
+
+		// Verify and capture the arguments
+		verify(sourceProcessorMock, times(3)).process(httpCaptor.capture());
+
+		// Retrieve the captured arguments
+		List<HttpSource> capturedHttpSources = httpCaptor.getAllValues();
+
+		assertNotNull(capturedHttpSources);
+		assertEquals(3, capturedHttpSources.size());
+
+		assertEquals(httpSourceFoo.getMethod(), capturedHttpSources.get(0).getMethod());
+		assertEquals(httpSourceFoo.getPath(), capturedHttpSources.get(0).getPath());
+		assertEquals(httpSourceFoo.getHeader(), capturedHttpSources.get(0).getHeader());
+		assertEquals(httpSourceFoo.getResultContent(), capturedHttpSources.get(0).getResultContent());
+
+		assertEquals(httpSourceBar.getMethod(), capturedHttpSources.get(1).getMethod());
+		assertEquals(httpSourceBar.getPath(), capturedHttpSources.get(1).getPath());
+		assertEquals(httpSourceBar.getHeader(), capturedHttpSources.get(1).getHeader());
+		assertEquals(httpSourceBar.getResultContent(), capturedHttpSources.get(1).getResultContent());
+
+		assertEquals(httpSourceBaz.getMethod(), capturedHttpSources.get(2).getMethod());
+		assertEquals(httpSourceBaz.getPath(), capturedHttpSources.get(2).getPath());
+		assertEquals(httpSourceBaz.getHeader(), capturedHttpSources.get(2).getHeader());
+		assertEquals(httpSourceBaz.getResultContent(), capturedHttpSources.get(2).getResultContent());
 
 		// WBEM Request
 		((JawkSource) source).setScript(
@@ -130,10 +200,26 @@ class JawkSourceExtensionTest {
 		)
 			.when(sourceProcessorMock)
 			.process(any(WbemSource.class));
+
+		// Create an ArgumentCaptor for capturing HttpSource arguments
+		ArgumentCaptor<WbemSource> wbemCaptor = ArgumentCaptor.forClass(WbemSource.class);
+
 		assertEquals(
 			Collections.singletonList(Arrays.asList("result1", "result2")),
 			jawkExtension.processSource(source, "connectorId", telemetryManager, sourceProcessorMock).getTable()
 		);
+
+		// Verify and capture the arguments
+		verify(sourceProcessorMock).process(wbemCaptor.capture());
+
+		// Retrieve the captured arguments
+		List<WbemSource> capturedWbemSources = wbemCaptor.getAllValues();
+
+		assertNotNull(capturedWbemSources);
+		assertEquals(1, capturedWbemSources.size());
+
+		assertEquals("myQuery", wbemCaptor.getValue().getQuery());
+		assertEquals("myNamespace", wbemCaptor.getValue().getNamespace());
 
 		// WMI Request
 		((JawkSource) source).setScript(
@@ -155,10 +241,26 @@ class JawkSourceExtensionTest {
 		)
 			.when(sourceProcessorMock)
 			.process(any(WmiSource.class));
+
+		// Create an ArgumentCaptor for capturing HttpSource arguments
+		ArgumentCaptor<WmiSource> wmiCaptor = ArgumentCaptor.forClass(WmiSource.class);
+
 		assertEquals(
 			Collections.singletonList(Arrays.asList("result1", "result2")),
 			jawkExtension.processSource(source, "connectorId", telemetryManager, sourceProcessorMock).getTable()
 		);
+
+		// Verify and capture the arguments
+		verify(sourceProcessorMock).process(wmiCaptor.capture());
+
+		// Retrieve the captured arguments
+		List<WmiSource> capturedWmiSources = wmiCaptor.getAllValues();
+
+		assertNotNull(capturedWmiSources);
+		assertEquals(1, capturedWmiSources.size());
+
+		assertEquals("myQuery", wmiCaptor.getValue().getQuery());
+		assertEquals("myNamespace", wmiCaptor.getValue().getNamespace());
 
 		// SNMP Get Request
 		((JawkSource) source).setScript(
@@ -174,16 +276,31 @@ class JawkSourceExtensionTest {
 					}
 				"""
 			);
+
 		doReturn(
 			SourceTable.builder().rawData("result1;result2").table(SourceTable.csvToTable("result1;result2", ";")).build()
 		)
 			.when(sourceProcessorMock)
 			.process(any(SnmpGetSource.class));
 
+		// Create an ArgumentCaptor for capturing HttpSource arguments
+		final ArgumentCaptor<SnmpGetSource> snmpGetCaptor = ArgumentCaptor.forClass(SnmpGetSource.class);
+
 		assertEquals(
 			Collections.singletonList(Arrays.asList("result1", "result2")),
 			jawkExtension.processSource(source, "connectorId", telemetryManager, sourceProcessorMock).getTable()
 		);
+
+		// Verify and capture the arguments
+		verify(sourceProcessorMock).process(snmpGetCaptor.capture());
+
+		// Retrieve the captured arguments
+		List<SnmpGetSource> capturedSnmpGetSources = snmpGetCaptor.getAllValues();
+
+		assertNotNull(capturedSnmpGetSources);
+		assertEquals(1, capturedSnmpGetSources.size());
+
+		assertEquals("1.2.3.4.5.6", snmpGetCaptor.getValue().getOid());
 
 		// SNMP Table Request
 		((JawkSource) source).setScript(
@@ -205,10 +322,26 @@ class JawkSourceExtensionTest {
 		)
 			.when(sourceProcessorMock)
 			.process(any(SnmpTableSource.class));
+
+		// Create an ArgumentCaptor for capturing HttpSource arguments
+		final ArgumentCaptor<SnmpTableSource> snmpTableCaptor = ArgumentCaptor.forClass(SnmpTableSource.class);
+
 		assertEquals(
 			Collections.singletonList(Arrays.asList("result1", "result2")),
 			jawkExtension.processSource(source, "connectorId", telemetryManager, sourceProcessorMock).getTable()
 		);
+
+		// Verify and capture the arguments
+		verify(sourceProcessorMock).process(snmpTableCaptor.capture());
+
+		// Retrieve the captured arguments
+		List<SnmpTableSource> capturedSnmpTableSources = snmpTableCaptor.getAllValues();
+
+		assertNotNull(capturedSnmpTableSources);
+		assertEquals(1, capturedSnmpTableSources.size());
+
+		assertEquals("1.2.3.4.5.6", snmpTableCaptor.getValue().getOid());
+		assertEquals("1", snmpTableCaptor.getValue().getSelectColumns());
 	}
 
 	@Test
