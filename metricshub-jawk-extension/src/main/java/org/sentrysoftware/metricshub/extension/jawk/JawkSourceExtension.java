@@ -67,7 +67,7 @@ public class JawkSourceExtension implements ICompositeSourceScriptExtension {
 	private static final Map<String, AwkTuples> AWK_CODE_MAP = new ConcurrentHashMap<>();
 
 	// host to Map<String, JawkExtension>
-	private static final Map<String, Map<String, JawkExtension>> EXTENSIONS_MAP = new ConcurrentHashMap<>();
+	private static final Map<String, Map<String, Map<String, JawkExtension>>> EXTENSIONS_MAP = new ConcurrentHashMap<>();
 
 	@Override
 	public boolean isValidSource(final Source source) {
@@ -158,8 +158,14 @@ public class JawkSourceExtension implements ICompositeSourceScriptExtension {
 			.hostname(telemetryManager.getHostname())
 			.connectorId(connectorId)
 			.build();
-		final Map<String, JawkExtension> extensions = EXTENSIONS_MAP.computeIfAbsent(
+
+		final Map<String, Map<String, JawkExtension>> connectorMap = EXTENSIONS_MAP.computeIfAbsent(
 			hostId,
+			id -> new ConcurrentHashMap<>()
+		);
+
+		final Map<String, JawkExtension> extensions = connectorMap.computeIfAbsent(
+			connectorId,
 			id ->
 				Arrays
 					.stream(metricsHubExtensionForJawk.extensionKeywords())

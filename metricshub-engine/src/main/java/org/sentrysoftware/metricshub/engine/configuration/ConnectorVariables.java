@@ -2,7 +2,7 @@ package org.sentrysoftware.metricshub.engine.configuration;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
- * MetricsHub Agent
+ * MetricsHub Engine
  * ჻჻჻჻჻჻
  * Copyright 2023 - 2024 Sentry Software
  * ჻჻჻჻჻჻
