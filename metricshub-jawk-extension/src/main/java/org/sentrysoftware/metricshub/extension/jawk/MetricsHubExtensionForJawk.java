@@ -42,6 +42,7 @@ import org.sentrysoftware.jawk.ext.JawkExtension;
 import org.sentrysoftware.jawk.jrt.AssocArray;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
+import org.sentrysoftware.metricshub.engine.configuration.ConnectorVariables;
 import org.sentrysoftware.metricshub.engine.connector.model.common.HttpMethod;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
@@ -66,6 +67,7 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 
 	private SourceProcessor sourceProcessor;
 	private String hostname;
+	private String connectorId;
 
 	@Override
 	public String getExtensionName() {
@@ -327,8 +329,15 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 	 * @return The value of the variable.
 	 */
 	private String getVariable(final Object[] args) {
-		final String var = toAwkString(args[0]);
-		final String res = sourceProcessor.getTelemetryManager().getHostConfiguration().getConnectorVariables().get(var);
-		return res;
+		final String variableName = toAwkString(args[0]);
+		final ConnectorVariables connectorVariables = sourceProcessor
+			.getTelemetryManager()
+			.getHostConfiguration()
+			.getConnectorVariables()
+			.get(connectorId);
+		if (connectorVariables != null) {
+			return connectorVariables.getVariableValues().get(variableName);
+		}
+		return null;
 	}
 }

@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.agent.config;
+package org.sentrysoftware.metricshub.engine.configuration;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲

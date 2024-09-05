@@ -156,6 +156,7 @@ public class JawkSourceExtension implements ICompositeSourceScriptExtension {
 			.builder()
 			.sourceProcessor(sourceProcessor)
 			.hostname(telemetryManager.getHostname())
+			.connectorId(connectorId)
 			.build();
 		final Map<String, JawkExtension> extensions = EXTENSIONS_MAP.computeIfAbsent(
 			hostId,
