@@ -704,14 +704,14 @@ class ConnectorParserTest {
 
 		// Check enclosure keys
 		final StandardMonitorJob enclosureJob = (StandardMonitorJob) connector.getMonitors().get("enclosure");
-		assertEquals(Set.of("id", "model"), enclosureJob.getKeys());
+		assertEquals(List.of("id", "model"), new ArrayList<>(enclosureJob.getKeys()));
 
 		// Check disk controller keys
 		final StandardMonitorJob diskControllerJob = (StandardMonitorJob) connector.getMonitors().get("disk_controller");
-		assertEquals(Set.of("id", "model", "controller_number"), diskControllerJob.getKeys());
+		assertEquals(List.of("id", "model", "controller_number"), new ArrayList<>(diskControllerJob.getKeys()));
 
 		// Check physical disk keys
 		final StandardMonitorJob physicalDiskJob = (StandardMonitorJob) connector.getMonitors().get("physical_disk");
-		assertEquals(Set.of("id"), physicalDiskJob.getKeys());
+		assertEquals(List.of("id"), new ArrayList<>(physicalDiskJob.getKeys()));
 	}
 }

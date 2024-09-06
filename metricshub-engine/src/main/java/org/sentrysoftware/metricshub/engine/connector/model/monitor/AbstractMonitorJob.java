@@ -24,10 +24,12 @@ import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DEFAULT_KEYS;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.NonBlankInLinkedHashSetDeserializer;
 
 @Data
 @NoArgsConstructor
@@ -39,12 +41,13 @@ public class AbstractMonitorJob implements MonitorJob {
 	 * @param keys The set of keys for the monitor job. It will be stored in a {@link LinkedHashSet} to preserve order.
 	 */
 	public AbstractMonitorJob(final Set<String> keys) {
-		this.keys = new LinkedHashSet<>(keys);
+		this.keys = keys;
 	}
 
 	/**
 	 * The monitor job keys needed to build the monitor id
 	 */
 	@JsonSetter(nulls = SKIP)
-	private LinkedHashSet<String> keys = DEFAULT_KEYS;
+	@JsonDeserialize(using = NonBlankInLinkedHashSetDeserializer.class)
+	private Set<String> keys = DEFAULT_KEYS;
 }
