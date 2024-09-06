@@ -128,6 +128,10 @@ public class AgentConfig {
 	@JsonSetter(nulls = SKIP)
 	private Map<String, ResourceGroupConfig> resourceGroups = new HashMap<>();
 
+	@Default
+	@JsonSetter(nulls = SKIP)
+	private String stateSetCompression = StateSetMetricCompression.SUPPRESS_ZEROS;
+
 	/**
 	 * Build a new empty instance
 	 *
