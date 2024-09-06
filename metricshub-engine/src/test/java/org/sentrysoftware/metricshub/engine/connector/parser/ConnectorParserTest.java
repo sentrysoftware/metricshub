@@ -697,4 +697,21 @@ class ConnectorParserTest {
 				ConstantsProcessor.class.getSimpleName()
 		);
 	}
+
+	@Test
+	void testMonitorKeys() throws IOException {
+		final Connector connector = new ConnectorParserUpdateManagement("connector/management/keys").parse("monitorKeys");
+
+		// Check enclosure keys
+		final StandardMonitorJob enclosureJob = (StandardMonitorJob) connector.getMonitors().get("enclosure");
+		assertEquals(Set.of("id", "model"), enclosureJob.getKeys());
+
+		// Check disk controller keys
+		final StandardMonitorJob diskControllerJob = (StandardMonitorJob) connector.getMonitors().get("disk_controller");
+		assertEquals(Set.of("id", "model", "controller_number"), diskControllerJob.getKeys());
+
+		// Check physical disk keys
+		final StandardMonitorJob physicalDiskJob = (StandardMonitorJob) connector.getMonitors().get("physical_disk");
+		assertEquals(Set.of("id"), physicalDiskJob.getKeys());
+	}
 }

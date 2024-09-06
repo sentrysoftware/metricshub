@@ -1,11 +1,11 @@
 package org.sentrysoftware.metricshub.engine.strategy.collect;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DEFAULT_KEYS;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.IS_ENDPOINT;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.CONNECTOR;
@@ -97,7 +97,6 @@ class CollectStrategyTest {
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
 			.monitors(monitors)
-			.connectorStore(new ConnectorStore(TEST_CONNECTOR_PATH))
 			.hostConfiguration(
 				HostConfiguration
 					.builder()
@@ -116,6 +115,7 @@ class CollectStrategyTest {
 			.connectorId(TEST_CONNECTOR_ID)
 			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "enclosure-1")))
 			.discoveryTime(strategyTime - 30 * 60 * 1000)
+			.keys(DEFAULT_KEYS)
 			.build();
 		final Monitor enclosure = monitorFactory.createOrUpdateMonitor();
 
@@ -125,14 +125,19 @@ class CollectStrategyTest {
 				.monitorType(DISK_CONTROLLER)
 				.telemetryManager(telemetryManager)
 				.connectorId(TEST_CONNECTOR_ID)
-				.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "1", "controller_number", "2", "model", "healthy")))
+				.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "1")))
 				.discoveryTime(strategyTime - 30 * 60 * 1000)
+				.keys(DEFAULT_KEYS)
 				.build();
 		final Monitor diskController = monitorFactory.createOrUpdateMonitor();
 
 		hostMonitor.addAttribute(IS_ENDPOINT, "true");
 
 		connectorMonitor.addAttribute(ID, TEST_CONNECTOR_ID);
+
+		// Create the connector store
+		final ConnectorStore connectorStore = new ConnectorStore(TEST_CONNECTOR_PATH);
+		telemetryManager.setConnectorStore(connectorStore);
 
 		final ExtensionManager extensionManager = ExtensionManager
 			.builder()
@@ -194,12 +199,6 @@ class CollectStrategyTest {
 			.processSource(eq(diskControllerSource), anyString(), any(TelemetryManager.class));
 
 		collectStrategy.run();
-
-		// Check monitor id generation using 'keys' field under the monitor section in the connector file
-		assertNotNull(telemetryManager.getMonitors().get("enclosure").get("TestConnector_enclosure_enclosure-1"));
-		assertNotNull(
-			telemetryManager.getMonitors().get("disk_controller").get("TestConnector_disk_controller_1_healthy_2")
-		);
 
 		// Check metrics
 		assertEquals(

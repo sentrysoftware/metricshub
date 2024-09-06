@@ -22,7 +22,6 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLParser;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -117,9 +116,9 @@ class MonitorJobsDeserializerTest {
 		simple.setSourceDep(List.of(Set.of(GRAFANA_HEALTH_SOURCE_KEY), Set.of(COPY_SOURCE_KEY)));
 
 		final SimpleMonitorJob simpleMonitorJobExpected = SimpleMonitorJob
-			.builder()
+			.simpleBuilder()
+			.keys(Set.of("id"))
 			.simple(simple)
-			.keys(new LinkedHashSet<>(Collections.singleton("id")))
 			.build();
 		final Map<String, SimpleMonitorJob> expected = Map.of(GRAFANA_MONITOR_JOB_KEY, simpleMonitorJobExpected);
 

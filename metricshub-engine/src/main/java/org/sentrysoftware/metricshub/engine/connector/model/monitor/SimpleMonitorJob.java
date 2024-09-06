@@ -20,16 +20,10 @@ package org.sentrysoftware.metricshub.engine.connector.model.monitor;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
-import static com.fasterxml.jackson.annotation.Nulls.SKIP;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DEFAULT_KEYS;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import java.util.LinkedHashSet;
-import lombok.AllArgsConstructor;
+import java.util.Set;
 import lombok.Builder;
-import lombok.Builder.Default;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Simple;
 
@@ -42,20 +36,23 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Simple;
  * </p>
  */
 @Data
-@Builder
-@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-public class SimpleMonitorJob implements MonitorJob {
-
-	private static final long serialVersionUID = 1L;
+public class SimpleMonitorJob extends AbstractMonitorJob {
 
 	/**
-	 * The monitor job keys needed to build the monitor id
+	 * Constructs a {@code SimpleMonitorJob} with the specified keys and simple instance.
+	 *
+	 * @param keys The set of keys for the monitor job.
+	 * @param simple The {@link Simple} instance for the monitor job.
 	 */
-	@Default
-	@JsonProperty("keys")
-	@JsonSetter(nulls = SKIP)
-	private LinkedHashSet<String> keys = new LinkedHashSet<>(DEFAULT_KEYS);
+	@Builder(builderMethodName = "simpleBuilder")
+	public SimpleMonitorJob(final Set<String> keys, final Simple simple) {
+		super(keys);
+		this.simple = simple;
+	}
+
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * The simple task associated with this monitor job.

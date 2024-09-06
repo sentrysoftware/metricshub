@@ -30,6 +30,8 @@ import static org.sentrysoftware.metricshub.engine.connector.model.common.Device
 import static org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind.VMS;
 import static org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind.WINDOWS;
 
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -407,5 +409,7 @@ public class MetricsHubConstants {
 	/**
 	 * Default keys for monitor jobs
 	 */
-	public static final Set<String> DEFAULT_KEYS = Set.of(MetricsHubConstants.MONITOR_ATTRIBUTE_ID);
+	public static final LinkedHashSet<String> DEFAULT_KEYS = new LinkedHashSet<>(
+		List.of(MetricsHubConstants.MONITOR_ATTRIBUTE_ID)
+	);
 }

@@ -21,7 +21,6 @@ package org.sentrysoftware.metricshub.engine.telemetry;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DEFAULT_KEYS;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HOST_NAME;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HOST_TYPE_TO_OTEL_HOST_TYPE;
@@ -32,9 +31,9 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.UNDERSCORE;
 
 import java.net.InetAddress;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -49,12 +48,7 @@ import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.common.helpers.NetworkHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
-import org.sentrysoftware.metricshub.engine.connector.model.Connector;
-import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.MonitorJob;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.SimpleMonitorJob;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.StandardMonitorJob;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
 
 /**
@@ -84,6 +78,9 @@ public class MonitorFactory {
 	@NonNull
 	private Long discoveryTime;
 
+	// Monitor job keys
+	private Set<String> keys;
+
 	/**
 	 * This method creates or updates the monitor
 	 *
@@ -95,61 +92,6 @@ public class MonitorFactory {
 	}
 
 	/**
-	 * Retrieves monitor job keys from the telemetry manager's connector store.
-	 *
-	 * <p>Returns the keys from a monitor job associated with the given `connectorId`
-	 * and `monitorType`.
-	 * Logs an error and returns null if the connector store or monitor job is missing.
-	 *
-	 * @return a set of monitor job keys, or null if unavailable.
-	 */
-	private LinkedHashSet<String> getMonitorJobKeys() {
-		final ConnectorStore telemetryManagerConnectorStore = telemetryManager.getConnectorStore();
-		if (telemetryManagerConnectorStore == null) {
-			log.error("Hostname {} - ConnectorStore does not exist.", telemetryManager.getHostname());
-			return new LinkedHashSet<>(DEFAULT_KEYS);
-		}
-
-		final Map<String, Connector> store = telemetryManagerConnectorStore.getStore();
-
-		if (store == null) {
-			log.error("Hostname {} - ConnectorStore store does not exist.", telemetryManager.getHostname());
-			return new LinkedHashSet<>(DEFAULT_KEYS);
-		}
-		final Connector connector = store.get(connectorId);
-		if (connector == null) {
-			log.error("Hostname {} - Connector with ID {} does not exist.", telemetryManager.getHostname(), connectorId);
-			return new LinkedHashSet<>(DEFAULT_KEYS);
-		}
-		final MonitorJob monitorJob = connector.getMonitors().get(monitorType);
-		if (monitorJob != null) {
-			if (monitorJob instanceof StandardMonitorJob standardMonitorJob) {
-				return standardMonitorJob.getKeys();
-			}
-			return ((SimpleMonitorJob) monitorJob).getKeys();
-		}
-		return new LinkedHashSet<>(DEFAULT_KEYS);
-	}
-
-	/**
-	 * Joins monitor job key values into a single string separated by underscores.
-	 *
-	 * <p>Fetches the monitor job keys, retrieves their corresponding values
-	 * from the `attributes` map, and joins them into a string.
-	 * Returns an empty string if no keys are found.
-	 *
-	 * @return a string of joined key values, or an empty string if no keys are available.
-	 */
-	private String getMonitorKeysValuesString() {
-		final LinkedHashSet<String> monitorJobKeys = getMonitorJobKeys();
-		final LinkedHashSet<String> monitorJobKeysValues = monitorJobKeys
-			.stream()
-			.map(attributes::get)
-			.collect(Collectors.toCollection(LinkedHashSet::new));
-		return String.join("_", monitorJobKeysValues);
-	}
-
-	/**
 	 * This method creates or updates the monitor
 	 *
 	 * @return created or updated {@link Monitor} instance
@@ -157,7 +99,7 @@ public class MonitorFactory {
 	public Monitor createOrUpdateMonitor() {
 		// Retrieve the keys values. The keys are located under the corresponding
 		// monitor section in the connector file
-		final String keysString = getMonitorKeysValuesString();
+		final String keysString = keys.stream().map(attributes::get).collect(Collectors.joining("_"));
 		// Build the monitor unique identifier
 		final String id = buildMonitorId(connectorId, monitorType, keysString);
 		return createOrUpdateMonitor(attributes, resource, monitorType, id);

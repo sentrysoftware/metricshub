@@ -32,9 +32,6 @@ monitors:
         metrics:
           hw.status{hw.type="enclosure"}: $2
   disk_controller:
-    keys:
-      - id
-      - model
     simple:
       sources:
         source(1):

@@ -22,7 +22,6 @@ package org.sentrysoftware.metricshub.engine.connector.model.monitor.task;
  */
 
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DEFAULT_KEYS;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import java.util.Map;
@@ -32,6 +31,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 
 /**
@@ -43,11 +43,14 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 @ToString(callSuper = true)
 public class MultiInstanceCollect extends AbstractCollect {
 
+	private static final Set<String> DEFAULT_KEYS = Set.of(MetricsHubConstants.MONITOR_ATTRIBUTE_ID);
+
 	private static final long serialVersionUID = 1L;
 
 	/**
 	 * The set of keys used for collecting metrics from multiple instances.
 	 */
+	@Deprecated
 	@JsonSetter(nulls = SKIP)
 	private Set<String> keys = DEFAULT_KEYS;
 

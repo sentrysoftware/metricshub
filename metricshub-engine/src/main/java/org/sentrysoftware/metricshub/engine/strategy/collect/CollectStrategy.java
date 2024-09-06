@@ -21,7 +21,6 @@ package org.sentrysoftware.metricshub.engine.strategy.collect;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DEFAULT_KEYS;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MAX_THREADS_COUNT;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
@@ -50,6 +49,7 @@ import org.sentrysoftware.metricshub.engine.common.JobInfo;
 import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.AbstractMonitorJob;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.MonitorJob;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.StandardMonitorJob;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.AbstractCollect;
@@ -244,14 +244,8 @@ public class CollectStrategy extends AbstractStrategy {
 				processSourcesAndComputes(orderedSources.getSources(), jobInfo);
 
 				// Retrieve monitor job keys
-				final Set<String> monitorJobKeys = ((StandardMonitorJob) (monitorJob.getValue())).getKeys();
-				processMonitors(
-					monitorType,
-					multiInstanceCollect.getMapping(),
-					currentConnector,
-					hostname,
-					monitorJobKeys != null ? monitorJobKeys : DEFAULT_KEYS
-				);
+				final Set<String> monitorJobKeys = ((AbstractMonitorJob) (monitorJob.getValue())).getKeys();
+				processMonitors(monitorType, multiInstanceCollect.getMapping(), currentConnector, hostname, monitorJobKeys);
 			} else {
 				// Get monitors by type and connectorId (connector id attribute)
 				final Map<String, Monitor> sameTypeMonitors = telemetryManager.findMonitorsByType(monitorType);

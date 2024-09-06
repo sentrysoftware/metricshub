@@ -48,6 +48,7 @@ import org.sentrysoftware.metricshub.engine.common.JobInfo;
 import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.AbstractMonitorJob;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.MonitorJob;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.AbstractMonitorTask;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Discovery;
@@ -192,7 +193,7 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 		final String hostname,
 		final Map.Entry<String, MonitorJob> monitorJobEntry
 	) {
-		final MonitorJob monitorJob = monitorJobEntry.getValue();
+		final AbstractMonitorJob monitorJob = (AbstractMonitorJob) (monitorJobEntry.getValue());
 
 		// Get the monitor task
 		AbstractMonitorTask monitorTask = retrieveTask(monitorJob);
@@ -228,7 +229,7 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 		// Create the monitors
 		final Mapping mapping = monitorTask.getMapping();
 
-		processSameTypeMonitors(currentConnector, mapping, monitorType, hostname);
+		processSameTypeMonitors(currentConnector, mapping, monitorType, hostname, monitorJob);
 	}
 
 	/**
@@ -243,7 +244,8 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 		final Connector connector,
 		final Mapping mapping,
 		final String monitorType,
-		final String hostname
+		final String hostname,
+		final AbstractMonitorJob monitorJob
 	) {
 		final String connectorId = connector.getCompiledFilename();
 
@@ -343,6 +345,7 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 				.resource(resource)
 				.connectorId(connectorId)
 				.discoveryTime(strategyTime)
+				.keys(monitorJob.getKeys())
 				.build();
 
 			// The attribute id is mandatory

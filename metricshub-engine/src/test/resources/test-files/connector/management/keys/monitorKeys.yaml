@@ -1,0 +1,148 @@
+connector:
+  displayName: ConnectorTest
+  platforms: Test platform
+  reliesOn: SomeWebService
+  version: 1.0
+  information: This is a test connector
+  detection:
+    connectionTypes:
+      - remote
+      - local
+    appliesTo:
+      - NT
+      - Linux
+    criteria:
+      - type: snmpGetNext
+        oid: 1.3.6.1.4.1.795.10.1.1.3.1.1
+monitors:
+  enclosure:
+    keys: [id, model]
+    discovery:
+      sources:
+        source(1):
+          type: snmpTable
+          oid: 1.3.6.1.4.1.795.10.1.1.3.1
+          selectColumns: "ID,1,3,7,8"
+      mapping:
+        source: "${source::monitors.enclosure.discovery.sources.source(1)}"
+        attributes:
+          id: $1
+          model: $3
+          serial_number: $2
+          name: "${awk::sprintf(\"Enclosure: %s (%s)\", $2, $3)}"
+    collect:
+      type: multiInstance
+      sources:
+        source(1):
+          type: snmpTable
+          oid: 1.3.6.1.4.1.795.10.1.1.30.1
+          selectColumns: "ID,1,2"
+      mapping:
+        source: "${source::monitors.enclosure.collect.sources.source(1)}"
+        attributes:
+          id: $1
+        metrics:
+          hw.status{hw.type="enclosure"}: $2
+        legacyTextParameters:
+          StatusInformation: $3
+  disk_controller:
+    keys: [id, model, controller_number]
+    discovery:
+      sources:
+        source(1):
+          type: snmpTable
+          oid: 1.3.6.1.4.1.795.10.1.1.4.1
+          selectColumns: "ID,1,3,7,8"
+      mapping:
+        source: "${source::monitors.disk_controller.discovery.sources.source(1)}"
+        attributes:
+          id: $1
+          controller_number: $2
+          model: $3
+          firmware_version: $5
+          bios_version: $4
+          hw.parent.type: enclosure
+          name: "${awk::sprintf(\"Disk Controller: %s (%s)\", $2, $3)}"
+    collect:
+      type: monoInstance
+      sources:
+        source(1):
+          type: snmpTable
+          oid: 1.3.6.1.4.1.795.10.1.1.31.${attribute::id}
+          selectColumns: "ID,1,2"
+      mapping:
+        source: "${source::monitors.disk_controller.collect.sources.source(1)}"
+        metrics:
+          hw.status{hw.type="disk_controller"}: $2
+        legacyTextParameters:
+          StatusInformation: $3
+  physical_disk:
+    discovery:
+      sources:
+        source(1):
+          # Source(1) = adaptecArrayControllerDeviceTable SNMP table
+          # ID;devAdapterIndex;devType;devVendor;devProduct;devBlocks;devBytesPerBlock
+          type: snmpTable
+          oid: 1.3.6.1.4.1.795.10.1.1.5.1
+          selectColumns: "ID,2,6,7,8,10,11"
+          computes:
+            # Keep only device type = 1 (disk)
+            - type: keepOnlyMatchingLines
+              column: 3
+              valueList: 0
+              # Multiply the number of blocks by the number of bytes per block to obtain the size in bytes
+              # ID;devAdapterIndex;devType;devVendor;devProduct;devSizeInBytes;devBytesPerBlock
+            - type: multiply
+              column: 6
+              value: $7
+      mapping:
+        # Instance Table = Source(1)
+        source: "${source::monitors.physical_disk.discovery.sources.source(1)}"
+        attributes:
+          id: $1
+          vendor: $4
+          hw.parent.type: disk_controller
+          hw.parent.id: "lookup(\"disk_controller\", \"id\", \"controller_number\", $2)"
+          name: "${awk::sprintf(\"%s (%s - %s)\", $1, $4, bytes2HumanFormatBase10($6))}"
+        metrics:
+          hw.physical_disk.size: $6
+    collect:
+      # Collect type is: multi-instance
+      type: multiInstance
+      sources:
+        source(1):
+          # Source(1) = the adaptecArrayControllerDeviceExtensionTable SNMP table
+          # DeviceID;Status;SmartStatus
+          type: snmpTable
+          oid: 1.3.6.1.4.1.795.10.1.1.30.1
+          selectColumns: "ID,1,3"
+          computes:
+            # Duplicate the Status column
+            # DeviceID;Status;Status;SMARTStatus
+            - type: duplicateColumn
+              column: 2
+              # Translate the first status value into a PATROL Status
+              # DeviceID;PATROLStatus;Status;SMARTStatus
+            - type: translate
+              column: 2
+              translationTable: "${translation::PhysicalDiskStatusTranslationTable}"
+              # Translate the second status value into a more readable information
+              # DeviceID;PATROLStatus;InformationStatus;SMARTStatus
+            - type: translate
+              column: 3
+              translationTable: "${translation::PhysicalDiskStatusInformationTranslationTable}"
+              # Translate the original SMARTStatus into a true/false value that says if a failure is predicted
+              # DeviceID;PATROLStatus;InformationStatus;PredictedFailure
+            - type: translate
+              column: 4
+              translationTable: "${translation::PhysicalDiskSMARTTranslationTable}"
+      mapping:
+        # The collect table = Source(1)
+        source: "${source::monitors.physical_disk.collect.sources.source(1)}"
+        attributes:
+          id: $1
+        metrics:
+          hw.status{hw.type="physical_disk"}: $2
+          hw.status{hw.type="physical_disk", state="predicted_failure"}: boolean($4)
+        legacyTextParameters:
+          StatusInformation: $3

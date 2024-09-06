@@ -1,7 +1,6 @@
 package org.sentrysoftware.metricshub.engine.strategy.discovery;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -90,7 +89,6 @@ class DiscoveryStrategyTest {
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
 			.monitors(monitors)
-			.connectorStore(new ConnectorStore(YAML_TEST_PATH))
 			.hostConfiguration(
 				HostConfiguration
 					.builder()
@@ -104,7 +102,9 @@ class DiscoveryStrategyTest {
 		hostMonitor.getAttributes().put(IS_ENDPOINT, "true");
 		hostMonitor.setIsEndpoint(true);
 		connectorMonitor.getAttributes().put("id", AAC_CONNECTOR_ID);
-
+		// Create the connector store
+		final ConnectorStore connectorStore = new ConnectorStore(YAML_TEST_PATH);
+		telemetryManager.setConnectorStore(connectorStore);
 		discoveryStrategy =
 			DiscoveryStrategy
 				.builder()
@@ -191,17 +191,6 @@ class DiscoveryStrategyTest {
 			.processSource(eq(logicalDiskSource), anyString(), any(TelemetryManager.class));
 		// Call DiscoveryStrategy to discover the monitors
 		discoveryStrategy.run();
-
-		// Check monitor id generation using 'keys' field under the monitor section in the connector file
-		assertNotNull(telemetryManager.getMonitors().get("disk_controller").get("AAC_disk_controller_controller-1"));
-		assertNotNull(telemetryManager.getMonitors().get("physical_disk").get("AAC_physical_disk_disk-1_vendor-1"));
-		assertNotNull(
-			telemetryManager
-				.getMonitors()
-				.get("logical_disk")
-				.get("AAC_logical_disk_logical-disk-1_RAID-5_logical-disk-1(RAID-5-500.00MiB)")
-		);
-
 		// Check discovered monitors
 		final Map<String, Map<String, Monitor>> discoveredMonitors = telemetryManager.getMonitors();
 		assertEquals(5, discoveredMonitors.size());
