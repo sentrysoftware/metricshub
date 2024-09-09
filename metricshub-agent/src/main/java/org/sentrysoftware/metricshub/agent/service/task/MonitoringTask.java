@@ -326,6 +326,7 @@ public class MonitoringTask implements Runnable {
 					.withMonitorId(monitor.getId())
 					.withResourceGroupKey(monitoringTaskInfo.getResourceGroupKey())
 					.withResourceKey(monitoringTaskInfo.getResourceKey())
+					.withStateSetCompression(monitoringTaskInfo.getResourceConfig().getStateSetCompression())
 					.build()
 			);
 

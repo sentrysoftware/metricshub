@@ -105,6 +105,8 @@ public class ResourceConfig {
 	@JsonIgnore
 	private Connector connector;
 
+	private String stateSetCompression;
+
 	/**
 	 * Creates and returns a shallow copy of all the fields in this
 	 * ResourceConfig object except the attributes map which is deeply copied.
@@ -135,6 +137,7 @@ public class ResourceConfig {
 			.variables(variables)
 			.connectors(connectors)
 			.connector(connector)
+			.stateSetCompression(stateSetCompression)
 			.build();
 	}
 }

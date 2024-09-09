@@ -520,6 +520,11 @@ public class ConfigHelper {
 			resourceConfig.setJobTimeout(agentConfig.getJobTimeout());
 		}
 
+		// Set the state set compression
+		if (resourceConfig.getStateSetCompression() == null) {
+			resourceConfig.setStateSetCompression(agentConfig.getStateSetCompression());
+		}
+
 		// Set agent attributes in the agent configuration attributes map
 		final Map<String, String> attributes = new HashMap<>();
 		mergeAttributes(agentConfig.getAttributes(), attributes);
@@ -598,6 +603,11 @@ public class ConfigHelper {
 			resourceConfig.setJobTimeout(resourceGroupConfig.getJobTimeout());
 		}
 
+		// Set the state set compression
+		if (resourceConfig.getStateSetCompression() == null) {
+			resourceConfig.setStateSetCompression(resourceGroupConfig.getStateSetCompression());
+		}
+
 		// Set agent attributes in the resource group attributes map
 		final Map<String, String> attributes = new HashMap<>();
 		mergeAttributes(resourceGroupConfig.getAttributes(), attributes);
@@ -670,6 +680,11 @@ public class ConfigHelper {
 		// Set the job timeout value
 		if (resourceGroupConfig.getJobTimeout() == null) {
 			resourceGroupConfig.setJobTimeout(agentConfig.getJobTimeout());
+		}
+
+		// Set the state set compression
+		if (resourceGroupConfig.getStateSetCompression() == null) {
+			resourceGroupConfig.setStateSetCompression(agentConfig.getStateSetCompression());
 		}
 
 		// Set agent attributes in the resource group attributes map
