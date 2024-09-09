@@ -106,7 +106,7 @@ public class SourceTable {
 	public static List<List<String>> csvToTable(final String csvTable, final String separator) {
 		if (csvTable != null) {
 			return Stream
-				.of(csvTable.split("\n|\r"))
+				.of(csvTable.split("\n"))
 				.map(line -> lineToList(line, separator))
 				.filter(line -> !line.isEmpty())
 				.collect(Collectors.toList()); //NOSONAR
