@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.engine.strategy.pre;
+package org.sentrysoftware.metricshub.engine.strategy.beforeAll;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -56,10 +56,10 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 
 @ExtendWith(MockitoExtension.class)
-class PreSourcesStrategyTest {
+class BeforeAllStrategyTest {
 
 	// Connector path
-	public static final Path TEST_CONNECTOR_PATH = Paths.get("src", "test", "resources", "test-files", "strategy", "pre");
+	public static final Path TEST_CONNECTOR_PATH = Paths.get("src", "test", "resources", "test-files", "strategy", "beforeAll");
 
 	@Mock
 	private ClientsExecutor clientsExecutorMock;
@@ -86,7 +86,7 @@ class PreSourcesStrategyTest {
 				HOST,
 				Map.of(MONITOR_ID_ATTRIBUTE_VALUE, hostMonitor),
 				CONNECTOR,
-				Map.of(String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), "preSource"), connectorMonitor)
+				Map.of(String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), "beforeAllSource"), connectorMonitor)
 			)
 		);
 
@@ -112,7 +112,7 @@ class PreSourcesStrategyTest {
 			.builder()
 			.monitorType(ENCLOSURE)
 			.telemetryManager(telemetryManager)
-			.connectorId("preSource")
+			.connectorId("beforeAllSource")
 			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "enclosure-1")))
 			.discoveryTime(strategyTime - 30 * 60 * 1000)
 			.build();
@@ -123,7 +123,7 @@ class PreSourcesStrategyTest {
 				.builder()
 				.monitorType(DISK_CONTROLLER)
 				.telemetryManager(telemetryManager)
-				.connectorId("preSource")
+				.connectorId("beforeAllSource")
 				.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "1")))
 				.discoveryTime(strategyTime - 30 * 60 * 1000)
 				.build();
@@ -131,7 +131,7 @@ class PreSourcesStrategyTest {
 
 		hostMonitor.addAttribute(IS_ENDPOINT, "true");
 
-		connectorMonitor.addAttribute(ID, "preSource");
+		connectorMonitor.addAttribute(ID, "beforeAllSource");
 
 		// Create the connector store
 		final ConnectorStore connectorStore = new ConnectorStore(TEST_CONNECTOR_PATH);
@@ -234,12 +234,12 @@ class PreSourcesStrategyTest {
 		// Check the successful execution of PreSourceStrategy
 		final ConnectorNamespace connectorNamespace = telemetryManager
 			.getHostProperties()
-			.getConnectorNamespace("preSource");
+			.getConnectorNamespace("beforeAllSource");
 		assertNotNull(connectorNamespace);
 		final SourceTable sourceTable = connectorNamespace.getSourceTables().get("${source::beforeAll.snmpSource}");
 		assertNotNull(sourceTable);
 		List<String> sourceTableLine = sourceTable.getTable().get(0);
-		assertEquals("preSource-1", sourceTableLine.get(0));
+		assertEquals("beforeAllSource-1", sourceTableLine.get(0));
 		assertEquals("1", sourceTableLine.get(1));
 		assertEquals("2", sourceTableLine.get(2));
 		assertEquals("3", sourceTableLine.get(3));

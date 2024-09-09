@@ -58,13 +58,13 @@ public class ReferenceResolverProcessor extends AbstractNodeProcessor {
 	private static final Set<String> JOBS = Set.of("discovery", "collect", "simple");
 
 	/**
-	 * Replaces relative source references with the full source references
+	 * Replaces relative source references for beforeAll sources with the full source references
 	 *
 	 * @param valueToUpdate The value to be replaced
 	 * @param context The path in the JSON tree from the starting JsonNode having the key "monitors" or "pre"
 	 * @return A string representing the updated value
 	 */
-	private String updateSourceReferences(String valueToUpdate, final String context) {
+	private String updateBeforeAllSourceReferences(String valueToUpdate, final String context) {
 		if (valueToUpdate == null || valueToUpdate.isEmpty() || context == null || context.isEmpty()) {
 			return valueToUpdate;
 		}
@@ -95,7 +95,7 @@ public class ReferenceResolverProcessor extends AbstractNodeProcessor {
 					return Matcher.quoteReplacement(match.group());
 				});
 
-		final String updatedValue =  REGEX_SOURCE_REF_BEFORE_ALL
+		return REGEX_SOURCE_REF_BEFORE_ALL
 			.matcher(valueToUpdate)
 			.replaceAll(match -> {
 				if (parts.length >= 2 && parts[0].equals("beforeAll")) {
@@ -106,6 +106,46 @@ public class ReferenceResolverProcessor extends AbstractNodeProcessor {
 
 				return Matcher.quoteReplacement(match.group());
 			});
+	}
+
+	/**
+	 * Replaces relative source references for afterAll sources with the full source references
+	 *
+	 * @param valueToUpdate The value to be replaced
+	 * @param context The path in the JSON tree from the starting JsonNode having the key "monitors" or "pre"
+	 * @return A string representing the updated value
+	 */
+	private String updateAfterAllSourceReferences(String valueToUpdate, final String context) {
+		if (valueToUpdate == null || valueToUpdate.isEmpty() || context == null || context.isEmpty()) {
+			return valueToUpdate;
+		}
+
+		final var parts = context.split("\\.");
+
+		valueToUpdate =
+				REGEX_SOURCE_REF_MONITORS
+						.matcher(valueToUpdate)
+						.replaceAll(match -> {
+							// If the context starts with the string "monitors", perform the corresponding replacement
+							if (
+								// CHECKSTYLE:OFF
+									parts.length >= 4 &&
+											parts[0].equals("monitors") &&
+											JOBS.contains(parts[2]) &&
+											(parts[3].equals("sources") || parts[3].equals("mapping"))
+								// CHECKSTYLE:ON
+							) {
+								return Matcher.quoteReplacement(
+										String.format(
+												SOURCE_REF_FORMAT,
+												Stream.of(parts[0], parts[1], parts[2], "sources", match.group(6)).collect(Collectors.joining("."))
+										)
+								);
+							}
+
+							return Matcher.quoteReplacement(match.group());
+						});
+
 		return REGEX_SOURCE_REF_AFTER_ALL
 				.matcher(valueToUpdate)
 				.replaceAll(match -> {
@@ -132,7 +172,8 @@ public class ReferenceResolverProcessor extends AbstractNodeProcessor {
 			.jsonNodeContextUpdaterBuilder()
 			.withJsonNode(node)
 			.withPredicate(Objects::nonNull)
-			.withUpdater(this::updateSourceReferences)
+			.withUpdater(this::updateBeforeAllSourceReferences)
+			.withUpdater(this::updateAfterAllSourceReferences)
 			.build()
 			.update();
 		return node;

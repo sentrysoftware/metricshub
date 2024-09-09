@@ -96,13 +96,20 @@ public class SurroundingStrategy extends AbstractStrategy {
                 .monitorType("none")
                 .build();
 
-        // Build and order sources based on dependencies.
-        final OrderedSources orderedSources = OrderedSources
+        // Build and order beforeAll sources based on dependencies.
+        final OrderedSources beforeAllOrderedSources = OrderedSources
                 .builder()
                 .sources(preSources, new ArrayList<>(), connector.getBeforeAllSourceDep(), jobInfo)
                 .build();
 
+        // Build and order afterAll sources based on dependencies.
+        final OrderedSources afterAllOrderedSources = OrderedSources
+                .builder()
+                .sources(preSources, new ArrayList<>(), connector.getAfterAllSourceDep(), jobInfo)
+                .build();
+
         // Process the ordered sources along with computes, based on the constructed job information.
-        processSourcesAndComputes(orderedSources.getSources(), jobInfo);
+        processSourcesAndComputes(beforeAllOrderedSources.getSources(), jobInfo);
+        processSourcesAndComputes(afterAllOrderedSources.getSources(), jobInfo);
     }
 }
