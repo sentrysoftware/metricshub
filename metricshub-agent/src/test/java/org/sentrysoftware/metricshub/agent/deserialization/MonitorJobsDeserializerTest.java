@@ -15,6 +15,7 @@ import static org.sentrysoftware.metricshub.agent.helper.TestConstants.HTTP_KEY_
 import static org.sentrysoftware.metricshub.agent.helper.TestConstants.HTTP_SERVICE_URL;
 import static org.sentrysoftware.metricshub.agent.helper.TestConstants.ID_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.TestConstants.SERVICE_VERSION;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DEFAULT_KEYS;
 
 import com.fasterxml.jackson.core.json.JsonReadContext;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -115,7 +116,11 @@ class MonitorJobsDeserializerTest {
 
 		simple.setSourceDep(List.of(Set.of(GRAFANA_HEALTH_SOURCE_KEY), Set.of(COPY_SOURCE_KEY)));
 
-		final SimpleMonitorJob simpleMonitorJobExpected = SimpleMonitorJob.builder().simple(simple).build();
+		final SimpleMonitorJob simpleMonitorJobExpected = SimpleMonitorJob
+			.simpleBuilder()
+			.keys(DEFAULT_KEYS)
+			.simple(simple)
+			.build();
 		final Map<String, SimpleMonitorJob> expected = Map.of(GRAFANA_MONITOR_JOB_KEY, simpleMonitorJobExpected);
 
 		final Map<String, MonitorJob> result = new MonitorJobsDeserializer().deserialize(yamlParserMock, null);

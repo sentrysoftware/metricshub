@@ -20,10 +20,10 @@ package org.sentrysoftware.metricshub.engine.connector.model.monitor;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
-
-import lombok.AllArgsConstructor;
+import java.util.Set;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Simple;
 
@@ -36,10 +36,21 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Simple;
  * </p>
  */
 @Data
-@Builder
-@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-public class SimpleMonitorJob implements MonitorJob {
+public class SimpleMonitorJob extends AbstractMonitorJob {
+
+	/**
+	 * Constructs a {@code SimpleMonitorJob} with the specified keys and simple instance.
+	 *
+	 * @param keys The set of keys for the monitor job.
+	 * @param simple The {@link Simple} instance for the monitor job.
+	 */
+	@Builder(builderMethodName = "simpleBuilder")
+	public SimpleMonitorJob(final Set<String> keys, final Simple simple) {
+		super(keys);
+		this.simple = simple;
+	}
 
 	private static final long serialVersionUID = 1L;
 

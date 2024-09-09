@@ -403,4 +403,9 @@ public class MetricsHubConstants {
 	 * Default
 	 **/
 	public static final String DEFAULT = "default";
+
+	/**
+	 * Default keys for monitor jobs
+	 */
+	public static final Set<String> DEFAULT_KEYS = Set.of(MetricsHubConstants.MONITOR_ATTRIBUTE_ID);
 }

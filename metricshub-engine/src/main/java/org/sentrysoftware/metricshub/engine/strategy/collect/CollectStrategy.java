@@ -242,13 +242,9 @@ public class CollectStrategy extends AbstractStrategy {
 				// Create the sources and the computes for a connector
 				processSourcesAndComputes(orderedSources.getSources(), jobInfo);
 
-				processMonitors(
-					monitorType,
-					multiInstanceCollect.getMapping(),
-					currentConnector,
-					hostname,
-					multiInstanceCollect.getKeys()
-				);
+				// Retrieve monitor job keys
+				final Set<String> monitorJobKeys = monitorJob.getValue().getKeys();
+				processMonitors(monitorType, multiInstanceCollect.getMapping(), currentConnector, hostname, monitorJobKeys);
 			} else {
 				// Get monitors by type and connectorId (connector id attribute)
 				final Map<String, Monitor> sameTypeMonitors = telemetryManager.findMonitorsByType(monitorType);
