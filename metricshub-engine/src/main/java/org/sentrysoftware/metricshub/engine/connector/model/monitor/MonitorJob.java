@@ -37,5 +37,9 @@ import java.util.Set;
 @JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION, defaultImpl = StandardMonitorJob.class)
 @JsonSubTypes({ @JsonSubTypes.Type(SimpleMonitorJob.class), @JsonSubTypes.Type(StandardMonitorJob.class) })
 public interface MonitorJob extends Serializable {
+	/**
+	 * Returns the monitor job keys used to create the monitor id
+	 * @return A set of String representing the monitor job keys
+	 */
 	Set<String> getKeys();
 }
