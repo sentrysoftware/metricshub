@@ -38,6 +38,17 @@ import org.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
 @ToString(callSuper = true)
 public abstract class AbstractStateMetricObserver extends AbstractMetricObserver {
 
+	/**
+	 * Constructs a new {@code AbstractStateMetricObserver} with the specified parameters.
+	 *
+	 * @param meter       The OpenTelemetry meter to use for creating the metric.
+	 * @param attributes  The attributes to associate with the metric.
+	 * @param metricName  The name of the metric.
+	 * @param unit        The unit of the metric.
+	 * @param description The description of the metric.
+	 * @param state       The state used to observe the metric. E.g. "ok"
+	 * @param metric      The StateSetMetric to observe.
+	 */
 	protected AbstractStateMetricObserver(
 		final Meter meter,
 		final Attributes attributes,
@@ -56,20 +67,28 @@ public abstract class AbstractStateMetricObserver extends AbstractMetricObserver
 	protected StateSetMetric metric;
 
 	/**
-	 * Observe the given state metric value
+	 * Observe the given state metric value.
 	 *
 	 * @param recorder An interface for observing measurements with double values.
 	 */
 	protected void observeStateMetric(final ObservableDoubleMeasurement recorder) {
-		getMetricValue().ifPresent(value -> recorder.record(value.equalsIgnoreCase(state) ? 1 : 0, attributes));
+		getMetricValue().ifPresent(value -> recordMetricValue(recorder, value));
 	}
+
+	/**
+	 * Record the metric value using the given recorder.
+	 *
+	 * @param recorder The recorder to record the metric value.
+	 * @param value    The value as String to be recorded as a double value.
+	 */
+	protected abstract void recordMetricValue(ObservableDoubleMeasurement recorder, String value);
 
 	/**
 	 * Get the metric value
 	 *
 	 * @return Optional of a {@link String} value
 	 */
-	public Optional<String> getMetricValue() {
+	protected Optional<String> getMetricValue() {
 		if (metric != null && metric.isUpdated()) {
 			return Optional.ofNullable(metric.getValue());
 		}

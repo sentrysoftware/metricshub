@@ -25,9 +25,11 @@ import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.metrics.Meter;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
+import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import org.sentrysoftware.metricshub.agent.config.StateSetMetricCompression;
 import org.sentrysoftware.metricshub.agent.helper.OtelHelper;
 import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;
 import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricType.Counter;
@@ -40,6 +42,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
 
 /**
  * Visitor implementation for handling different metric types and initializing appropriate observers for each.
+ * The visitor initializes the metric observers for the OTEL SDK based the configured compression level for the state set metrics.
  */
 @Data
 @AllArgsConstructor
@@ -56,6 +59,7 @@ public class MetricTypeVisitor implements IMetricTypeVisitor {
 	private String resourceGroupKey;
 	private String metricName;
 	private Attributes attributes;
+	private String stateSetCompression;
 
 	@Override
 	public void visit(Gauge gauge) {
@@ -73,18 +77,35 @@ public class MetricTypeVisitor implements IMetricTypeVisitor {
 				.build()
 				.init();
 		} else if (metric instanceof StateSetMetric stateSetMetric) {
+			final Consumer<String> observerInitializer = StateSetMetricCompression.SUPPRESS_ZEROS.equalsIgnoreCase(
+					stateSetCompression
+				)
+				? state ->
+					GaugeSuppressZerosStateMetricObserver
+						.builder()
+						.withAttributes(addStateAttribute(attributes, state))
+						.withDescription(metricDefinition.getDescription())
+						.withUnit(metricDefinition.getUnit())
+						.withMeter(getStateSetMetricMeter(metricKey, state))
+						.withMetric(stateSetMetric)
+						.withMetricName(metricName)
+						.withState(state)
+						.build()
+						.init()
+				: state ->
+					GaugeStateMetricObserver
+						.builder()
+						.withAttributes(addStateAttribute(attributes, state))
+						.withDescription(metricDefinition.getDescription())
+						.withUnit(metricDefinition.getUnit())
+						.withMeter(getStateSetMetricMeter(metricKey, state))
+						.withMetric(stateSetMetric)
+						.withMetricName(metricName)
+						.withState(state)
+						.build()
+						.init();
 			for (final String state : stateSetMetric.getStateSet()) {
-				GaugeStateMetricObserver
-					.builder()
-					.withAttributes(addStateAttribute(attributes, state))
-					.withDescription(metricDefinition.getDescription())
-					.withUnit(metricDefinition.getUnit())
-					.withMeter(getStateSetMetricMeter(metricKey, state))
-					.withMetric(stateSetMetric)
-					.withMetricName(metricName)
-					.withState(state)
-					.build()
-					.init();
+				observerInitializer.accept(state);
 			}
 		}
 	}
@@ -128,18 +149,35 @@ public class MetricTypeVisitor implements IMetricTypeVisitor {
 				.build()
 				.init();
 		} else if (metric instanceof StateSetMetric stateSetMetric) {
+			final Consumer<String> observerInitializer = StateSetMetricCompression.SUPPRESS_ZEROS.equalsIgnoreCase(
+					stateSetCompression
+				)
+				? state ->
+					CounterSuppressZerosStateMetricObserver
+						.builder()
+						.withAttributes(addStateAttribute(attributes, state))
+						.withDescription(metricDefinition.getDescription())
+						.withUnit(metricDefinition.getUnit())
+						.withMeter(getStateSetMetricMeter(metricKey, state))
+						.withMetric(stateSetMetric)
+						.withMetricName(metricName)
+						.withState(state)
+						.build()
+						.init()
+				: state ->
+					CounterStateMetricObserver
+						.builder()
+						.withAttributes(addStateAttribute(attributes, state))
+						.withDescription(metricDefinition.getDescription())
+						.withUnit(metricDefinition.getUnit())
+						.withMeter(getStateSetMetricMeter(metricKey, state))
+						.withMetric(stateSetMetric)
+						.withMetricName(metricName)
+						.withState(state)
+						.build()
+						.init();
 			for (final String state : stateSetMetric.getStateSet()) {
-				CounterStateMetricObserver
-					.builder()
-					.withAttributes(addStateAttribute(attributes, state))
-					.withDescription(metricDefinition.getDescription())
-					.withUnit(metricDefinition.getUnit())
-					.withMeter(getStateSetMetricMeter(metricKey, state))
-					.withMetric(stateSetMetric)
-					.withMetricName(metricName)
-					.withState(state)
-					.build()
-					.init();
+				observerInitializer.accept(state);
 			}
 		}
 	}
@@ -160,18 +198,35 @@ public class MetricTypeVisitor implements IMetricTypeVisitor {
 				.build()
 				.init();
 		} else if (metric instanceof StateSetMetric stateSetMetric) {
+			final Consumer<String> observerInitializer = StateSetMetricCompression.SUPPRESS_ZEROS.equalsIgnoreCase(
+					stateSetCompression
+				)
+				? state ->
+					UpDownCounterSuppressZerosStateMetricObserver
+						.builder()
+						.withAttributes(addStateAttribute(attributes, state))
+						.withDescription(metricDefinition.getDescription())
+						.withUnit(metricDefinition.getUnit())
+						.withMeter(getStateSetMetricMeter(metricKey, state))
+						.withMetric(stateSetMetric)
+						.withMetricName(metricName)
+						.withState(state)
+						.build()
+						.init()
+				: state ->
+					UpDownCounterStateMetricObserver
+						.builder()
+						.withAttributes(addStateAttribute(attributes, state))
+						.withDescription(metricDefinition.getDescription())
+						.withUnit(metricDefinition.getUnit())
+						.withMeter(getStateSetMetricMeter(metricKey, state))
+						.withMetric(stateSetMetric)
+						.withMetricName(metricName)
+						.withState(state)
+						.build()
+						.init();
 			for (final String state : stateSetMetric.getStateSet()) {
-				UpDownCounterStateMetricObserver
-					.builder()
-					.withAttributes(addStateAttribute(attributes, state))
-					.withDescription(metricDefinition.getDescription())
-					.withUnit(metricDefinition.getUnit())
-					.withMeter(getStateSetMetricMeter(metricKey, state))
-					.withMetric(stateSetMetric)
-					.withMetricName(metricName)
-					.withState(state)
-					.build()
-					.init();
+				observerInitializer.accept(state);
 			}
 		}
 	}

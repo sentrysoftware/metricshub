@@ -41,6 +41,7 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
+import org.sentrysoftware.metricshub.agent.config.StateSetMetricCompression;
 import org.sentrysoftware.metricshub.agent.helper.OtelHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
@@ -115,6 +116,7 @@ class MonitoringTaskTest {
 				.attributes(Map.of(HOST_NAME, HOSTNAME, HOST_TYPE_ATTRIBUTE_KEY, OS_LINUX))
 				.discoveryCycle(4)
 				.resolveHostnameToFqdn(true)
+				.stateSetCompression(StateSetMetricCompression.SUPPRESS_ZEROS)
 				.build()
 		)
 			.when(monitoringTaskInfoMock)
@@ -172,7 +174,11 @@ class MonitoringTaskTest {
 	@Test
 	void testInitMetricObserver() {
 		// Create a new MonitoringTask using the mocked monitoringTaskInfo instance
-		final MonitoringTask monitoringTask = new MonitoringTask(monitoringTaskInfoMock);
+		final MonitoringTask newMonitoringTask = new MonitoringTask(monitoringTaskInfoMock);
+
+		doReturn(ResourceConfig.builder().stateSetCompression(StateSetMetricCompression.SUPPRESS_ZEROS).build())
+			.when(monitoringTaskInfoMock)
+			.getResourceConfig();
 
 		// Create an in-memory metric reader for testing, this instance will be used later to collect
 		// and get the metric value
@@ -213,7 +219,7 @@ class MonitoringTaskTest {
 			doReturn(new Monitor()).when(telemetryManagerMock).getEndpointHostMonitor();
 
 			// Initialize the OpenTelemetry SDK with specific resource configurations
-			monitoringTask.initOtelSdk(
+			newMonitoringTask.initOtelSdk(
 				telemetryManagerMock,
 				ResourceConfig
 					.builder()
@@ -251,7 +257,7 @@ class MonitoringTaskTest {
 			);
 
 			// Initialize the metric observer
-			monitoringTask.initMetricObserver(monitor, metricDefinitionMap, metricEntry);
+			newMonitoringTask.initMetricObserver(monitor, metricDefinitionMap, metricEntry);
 
 			// Collect metrics from the in-memory reader and perform assertions
 			final Collection<MetricData> metrics = inMemoryReader.collectAllMetrics();
