@@ -31,9 +31,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.NonBlankInLinkedHashSetDeserializer;
 
+/**
+ * Abstract base class implementing {@link MonitorJob}, holding a set of keys to build a monitor ID.
+ */
 @Data
 @NoArgsConstructor
 public class AbstractMonitorJob implements MonitorJob {
+
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Initializes an {@code AbstractMonitorJob} with the specified set of keys.

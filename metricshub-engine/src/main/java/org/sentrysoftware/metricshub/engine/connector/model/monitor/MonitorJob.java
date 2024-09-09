@@ -24,6 +24,7 @@ package org.sentrysoftware.metricshub.engine.connector.model.monitor;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.io.Serializable;
+import java.util.Set;
 
 /**
  * Represents an interface for monitor jobs.
@@ -35,4 +36,6 @@ import java.io.Serializable;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION, defaultImpl = StandardMonitorJob.class)
 @JsonSubTypes({ @JsonSubTypes.Type(SimpleMonitorJob.class), @JsonSubTypes.Type(StandardMonitorJob.class) })
-public interface MonitorJob extends Serializable {}
+public interface MonitorJob extends Serializable {
+	Set<String> getKeys();
+}

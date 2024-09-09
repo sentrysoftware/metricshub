@@ -33,6 +33,7 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import java.net.InetAddress;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -99,7 +100,11 @@ public class MonitorFactory {
 	public Monitor createOrUpdateMonitor() {
 		// Retrieve the keys values. The keys are located under the corresponding
 		// monitor section in the connector file
-		final String keysString = keys.stream().map(attributes::get).collect(Collectors.joining("_"));
+		final String keysString = keys
+			.stream()
+			.map(key -> Optional.ofNullable(attributes.get(key)).orElse(""))
+			.collect(Collectors.joining("_"));
+
 		// Build the monitor unique identifier
 		final String id = buildMonitorId(connectorId, monitorType, keysString);
 		return createOrUpdateMonitor(attributes, resource, monitorType, id);

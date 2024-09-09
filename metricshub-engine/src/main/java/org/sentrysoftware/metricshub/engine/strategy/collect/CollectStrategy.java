@@ -49,7 +49,6 @@ import org.sentrysoftware.metricshub.engine.common.JobInfo;
 import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.AbstractMonitorJob;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.MonitorJob;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.StandardMonitorJob;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.AbstractCollect;
@@ -244,7 +243,7 @@ public class CollectStrategy extends AbstractStrategy {
 				processSourcesAndComputes(orderedSources.getSources(), jobInfo);
 
 				// Retrieve monitor job keys
-				final Set<String> monitorJobKeys = ((AbstractMonitorJob) (monitorJob.getValue())).getKeys();
+				final Set<String> monitorJobKeys = monitorJob.getValue().getKeys();
 				processMonitors(monitorType, multiInstanceCollect.getMapping(), currentConnector, hostname, monitorJobKeys);
 			} else {
 				// Get monitors by type and connectorId (connector id attribute)
