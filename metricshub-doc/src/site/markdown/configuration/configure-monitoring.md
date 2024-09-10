@@ -813,6 +813,19 @@ $ metricshub -l
 
 For more information about the `metricshub` command, refer to [MetricsHub CLI (metricshub)](../troubleshooting/cli.md).
 
+#### Patch Connectors
+
+By default, **MetricsHub** loads connectors from the `connectors` subdirectory within its installation directory. However, you can extend this functionality by adding a custom directory for additional connectors. This can be done by specifying a `patchDirectory` in the `metricshub.yaml` configuration file. 
+
+To configure an additional connector directory, add set `patchDirectory` to the path of your custom connectors directory, as shown in the example below:
+
+```yaml
+
+patchDirectory: /opt/patch/connectors # Replace with the path to your patch connectors directory.
+
+loggerLevel: ...
+```
+
 #### Configure Connector Variables
 
 In **MetricsHub**, connector variables are essential for customizing the behavior of data collection. The connector variables are configured in the `metricshub.yaml` file under the `variables` section of your configured resource. These variables are specified under the name of the connector to which they belong and contain key-value pairs. The key of each variable corresponds to a variable already configured in the connector.

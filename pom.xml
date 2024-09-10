@@ -92,7 +92,7 @@
 	</developers>
 
 	<properties>
-		<community-connectors.version>1.0.04</community-connectors.version>
+		<community-connectors.version>1.0.05</community-connectors.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.release>17</maven.compiler.release>
 		<hwgraf.version>4</hwgraf.version>
