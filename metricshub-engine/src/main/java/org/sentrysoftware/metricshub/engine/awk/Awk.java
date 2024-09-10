@@ -59,7 +59,7 @@ public class Awk {
 		// All scripts need to be prefixed with an extra statement that sets the Record Separator (RS)
 		// to the "normal" end-of-line (\n), because Jawk uses line.separator System property, which
 		// is \r\n on Windows, thus preventing it from splitting lines properly.
-		final ScriptSource awkHeader = new ScriptSource("Header", new StringReader("BEGIN { RS = \"\\n\"; }"), false);
+		final ScriptSource awkHeader = new ScriptSource("Header", new StringReader("BEGIN { ORS = RS = \"\\n\"; }"), false);
 		final ScriptSource awkSource = new ScriptSource("Body", new StringReader(script), false);
 		final List<ScriptSource> sourceList = new ArrayList<>();
 		sourceList.add(awkHeader);
@@ -68,11 +68,10 @@ public class Awk {
 		// Awk Setup
 		final AwkSettings settings = new AwkSettings();
 		settings.setCatchIllegalFormatExceptions(false);
-		settings.setUseStdIn(false);
 
 		// Parse the Awk script
 		final AwkTuples tuples = new AwkTuples();
-		final AwkParser parser = new AwkParser(false, false, false, Collections.emptyMap());
+		final AwkParser parser = new AwkParser(false, false, Collections.emptyMap());
 		final AwkSyntaxTree ast;
 		try {
 			ast = parser.parse(sourceList);
@@ -85,7 +84,7 @@ public class Awk {
 				// 2nd pass to tie actual parameters to forward-referenced formal parameters
 				ast.semanticAnalysis();
 				if (ast.populateTuples(tuples) != 0) {
-					throw new ParseException("Syntax problem with the Awk script", 0);
+					throw new RuntimeException("Syntax problem with the Awk script");
 				}
 				tuples.postProcess();
 				parser.populateGlobalVariableNameToOffsetMappings(tuples);
@@ -129,6 +128,11 @@ public class Awk {
 		try {
 			avm.interpret(intermediateCode);
 		} catch (ExitException e) {
+			// ExitException code 0 means exit OK
+			if (e.getCode() != 0) {
+				throw new RuntimeException(e.getMessage());
+			}
+		} catch (Exception e) {
 			throw new RuntimeException(e.getMessage());
 		}
 

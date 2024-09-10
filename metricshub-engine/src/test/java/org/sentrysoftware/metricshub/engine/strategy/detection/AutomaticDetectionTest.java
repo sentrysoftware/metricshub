@@ -3,6 +3,7 @@ package org.sentrysoftware.metricshub.engine.strategy.detection;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DEFAULT_KEYS;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.CONNECTOR;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.DETECTION_FOLDER;
@@ -437,13 +438,14 @@ class AutomaticDetectionTest {
 			final Map<String, MonitorJob> enclosureMonitorJobs = Map.of(
 				KnownMonitorType.ENCLOSURE.getKey(),
 				StandardMonitorJob
-					.builder()
+					.standardBuilder()
 					.discovery(
 						Discovery
 							.builder()
 							.mapping(Mapping.builder().attributes(Map.of(MONITOR_ATTRIBUTE_ID, COLUMN_1_REF)).build())
 							.build()
 					)
+					.keys(DEFAULT_KEYS)
 					.build()
 			);
 			// Test with two connectors: the last resort and a regular one with a matching
@@ -503,13 +505,14 @@ class AutomaticDetectionTest {
 			final Map<String, MonitorJob> monitorJobs = Map.of(
 				KnownMonitorType.ENCLOSURE.getKey(),
 				StandardMonitorJob
-					.builder()
+					.standardBuilder()
 					.discovery(
 						Discovery
 							.builder()
 							.mapping(Mapping.builder().attributes(Map.of(MONITOR_ATTRIBUTE_ID, COLUMN_1_REF)).build())
 							.build()
 					)
+					.keys(DEFAULT_KEYS)
 					.build()
 			);
 			final Connector regularConnector = Connector
@@ -551,13 +554,14 @@ class AutomaticDetectionTest {
 			final Map<String, MonitorJob> enclosureMonitorJobs = Map.of(
 				KnownMonitorType.ENCLOSURE.getKey(),
 				StandardMonitorJob
-					.builder()
+					.standardBuilder()
 					.discovery(
 						Discovery
 							.builder()
 							.mapping(Mapping.builder().attributes(Map.of(MONITOR_ATTRIBUTE_ID, COLUMN_1_REF)).build())
 							.build()
 					)
+					.keys(DEFAULT_KEYS)
 					.build()
 			);
 			final Connector regularConnector = Connector
@@ -580,13 +584,14 @@ class AutomaticDetectionTest {
 			final Map<String, MonitorJob> diskControllerMonitorJobs = Map.of(
 				KnownMonitorType.DISK_CONTROLLER.getKey(),
 				StandardMonitorJob
-					.builder()
+					.standardBuilder()
 					.discovery(
 						Discovery
 							.builder()
 							.mapping(Mapping.builder().attributes(Map.of(MONITOR_ATTRIBUTE_ID, COLUMN_1_REF)).build())
 							.build()
 					)
+					.keys(DEFAULT_KEYS)
 					.build()
 			);
 			final Connector lastResortConnector1 = Connector
@@ -659,13 +664,14 @@ class AutomaticDetectionTest {
 			final Map<String, MonitorJob> enclosureMonitorJobs = Map.of(
 				KnownMonitorType.ENCLOSURE.getKey(),
 				StandardMonitorJob
-					.builder()
+					.standardBuilder()
 					.discovery(
 						Discovery
 							.builder()
 							.mapping(Mapping.builder().attributes(Map.of(MONITOR_ATTRIBUTE_ID, COLUMN_1_REF)).build())
 							.build()
 					)
+					.keys(DEFAULT_KEYS)
 					.build()
 			);
 			final Connector regularConnector = Connector
@@ -688,13 +694,14 @@ class AutomaticDetectionTest {
 			final Map<String, MonitorJob> diskControllerMonitorJobs = Map.of(
 				KnownMonitorType.DISK_CONTROLLER.getKey(),
 				StandardMonitorJob
-					.builder()
+					.standardBuilder()
 					.discovery(
 						Discovery
 							.builder()
 							.mapping(Mapping.builder().attributes(Map.of(MONITOR_ATTRIBUTE_ID, COLUMN_1_REF)).build())
 							.build()
 					)
+					.keys(DEFAULT_KEYS)
 					.build()
 			);
 			final Connector lastResortConnectorDiskController = Connector
@@ -717,13 +724,14 @@ class AutomaticDetectionTest {
 			final Map<String, MonitorJob> gpuMonitorJobs = Map.of(
 				KnownMonitorType.GPU.getKey(),
 				StandardMonitorJob
-					.builder()
+					.standardBuilder()
 					.discovery(
 						Discovery
 							.builder()
 							.mapping(Mapping.builder().attributes(Map.of(MONITOR_ATTRIBUTE_ID, COLUMN_1_REF)).build())
 							.build()
 					)
+					.keys(DEFAULT_KEYS)
 					.build()
 			);
 
