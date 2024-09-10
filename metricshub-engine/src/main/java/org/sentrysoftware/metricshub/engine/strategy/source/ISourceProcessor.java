@@ -25,6 +25,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CopySource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.JawkSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpGetSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SqlSource;
@@ -134,4 +135,12 @@ public interface ISourceProcessor {
 	 * @return The SourceTable result.
 	 */
 	SourceTable process(SqlSource sqlSource);
+
+	/**
+	 * Process the {@link JawkSource} and return a SourceTable.
+	 *
+	 * @param jawkSource The {@link JawkSource} to process.
+	 * @return The SourceTable result.
+	 */
+	SourceTable process(JawkSource jawkSource);
 }
