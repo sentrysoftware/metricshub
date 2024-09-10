@@ -98,7 +98,7 @@
 
 		<menu name="Configuration">
 			<item name="Monitoring Configuration" href="configuration/configure-monitoring.html" />
-			<item name="Data export" href="configuration/send-data.html" />
+			<item name="Sending Telemetry" href="configuration/send-telemetry.html" />
 			<item name="Password Encryption" href="security/passwords.html" />
 		</menu>
 
