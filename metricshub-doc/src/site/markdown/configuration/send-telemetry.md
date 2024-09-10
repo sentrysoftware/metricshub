@@ -35,9 +35,9 @@ To configure the OpenTelemetry Collector of **MetricsHub Enterprise**, edit the 
 > **Warning**: Only update this section if you customized the [MetricsHub Agent settings](configure-monitoring.html#a-28optional-29-additional-settings).
 The **MetricsHub Agent** pushes the collected data to the [`OTLP Receiver`](https://github.com/open-telemetry/opentelemetry-collector/tree/main/receiver/otlpreceiver) via [gRPC](https://grpc.io/) on port **TCP/4317**.
 
-The `OTLP Receiver` is configured by default with the self-signed certificate `security/otel.crt` and the private key `security/otel.key` to enable the TLS protocol. If you wish to set your own certificate file, configure the **MetricsHub Agent** with the correct [Trusted Certificates File](send-data.html#trusted-certificates-file). Because the `OTLP Exporter` of the **MetricsHub Agent** performs hostname verification, you will also have to add the `localhost` entry (`DNS:localhost,IP:127.0.0.1`) to the `Subject Alternative Name (SAN)` extension of the new generated certificate.
+The `OTLP Receiver` is configured by default with the self-signed certificate `security/otel.crt` and the private key `security/otel.key` to enable the TLS protocol. If you wish to set your own certificate file, configure the **MetricsHub Agent** with the correct [Trusted Certificates File](send-telemetry.html#trusted-certificates-file). Because the `OTLP Exporter` of the **MetricsHub Agent** performs hostname verification, you will also have to add the `localhost` entry (`DNS:localhost,IP:127.0.0.1`) to the `Subject Alternative Name (SAN)` extension of the new generated certificate.
 
-Clients requests are authenticated with the [Basic Authenticator extension](configure-monitoring.html#basic-authentication-header).
+Clients requests are authenticated with the [Basic Authenticator extension](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/basicauthextension).
 
 ```yaml
   otlp:
@@ -106,7 +106,7 @@ You can configure several exporters in the same instance of the *OpenTelemetry C
 
 The [healthcheck](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/healthcheckextension) extension checks the status of **MetricsHub Enterprise** . It is activated by default and runs on port 13133 ([`http://localhost:13133`](http://localhost:13133)).
 
-Refer to [Check the collector is up and running](../troubleshooting/status.html#Check_collector_is_up_and_running) for more details.
+Refer to [Check the collector is up and running](../guides/status.html#check-the-collector-is-up-and-running) for more details.
 
 #### zpages
 
@@ -116,7 +116,7 @@ The **zpages** extension provides debug information about all the different comp
 * details about the active pipeline
 * activity details of each receiver and exporter configured in the pipeline.
 
-Refer to [Check the pipelines status](../troubleshooting/status.html#check-the-pipelines-status) for more details.
+Refer to [Check the pipelines status](../guides/status.html#check-the-pipelines-status) for more details.
 
 #### Basic Authenticator
 
@@ -131,7 +131,7 @@ Refer to the [Apache htpasswd](https://httpd.apache.org/docs/2.4/programs/htpass
 
 The `.htpasswd` file is stored in the `security` directory.
 
-> **Warning**: If a different password is specified in the `.htpasswd` file, update the [Basic Authentication Header](configure-monitoring.html#basic-authentication-header) of the **MetricsHub Agent**.
+> **Warning**: If a different password is specified in the `.htpasswd` file, update the [Basic Authentication Header](configure-monitoring.html#enterprise-edition-authentication) of the **MetricsHub Agent**.
 
 ### The Pipeline
 
@@ -188,7 +188,7 @@ otel:
 where `<prom-server-host>` should be replaced with the hostname or IP address of the server where *Prometheus* is running.
 
 > **Note:**
-> For specific configuration details, refer to the [OpenTelemetry Auto-Configure documentation](https://github.com/open-telemetry/opentelemetry-java/tree/main/sdk-extensions/autoconfigure). This resource provides information about the properties to be configured depending on your deployment requirements.
+> For specific configuration details, refer to the [OpenTelemetry Auto-Configure documentation](https://opentelemetry.io/docs/languages/java/configuration/). This resource provides information about the properties to be configured depending on your deployment requirements.
 
 #### Trusted certificates file
 

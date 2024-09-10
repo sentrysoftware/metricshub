@@ -76,7 +76,7 @@ Open the `/opt/metricshub/lib/config/metricshub.yaml` file and search for the ab
 
 If you wish to use a protocol other than `osCommand` (such as `HTTP`, `PING`, `SNMP`, `SSH`, `IPMI`, `WBEM` or `WinRM`), refer to the configuration examples provided in `/opt/metricshub/lib/config/metricshub.yaml`.
 
-### Configure Prometheus to receive MetricsHub data
+### Configure Metrics Exporter
 
 Add the below configuration under the `otel` section to push metrics to Prometheus:
 
@@ -103,7 +103,7 @@ otel:
 
 4. Type [localhost:9090](http://localhost:9090) in your Web browser.
 
-### Start the Metricshub Agent
+### Start the MetricsHub Agent
 
 Run the below command to start the **MetricsHub Agent**:
 
@@ -165,4 +165,4 @@ Feb 27, 2024 1:24:26 PM io.opentelemetry.sdk.internal.ThrottlingLogger doLog WAR
 Server responded with gRPC status code 2. Error message: Failed to connect to localhost/[0:0:0:0:0:0:0:1]:4317
 ```
 
-To solve this problem, ensure that the `OTLP` receiver and more specifically the `otel.exporter.otlp.metrics.endpoint` and `otel.exporter.otlp.logs.endpoint` parameters are [correctly set](../configuration/configure-agent.html#configure-the-otlp-receiver) in the `metricshub.yaml` configuration file.
+To solve this problem, ensure that the `OTLP` receiver and more specifically the `otel.exporter.otlp.metrics.endpoint` and `otel.exporter.otlp.logs.endpoint` parameters are [correctly set](#configure-metrics-exporter) in the `metricshub.yaml` configuration file.
