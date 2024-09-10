@@ -111,65 +111,6 @@
 			<item name="MetricsHub CLI (&lt;code&gt;metricshub&lt;/code&gt;)" href="troubleshooting/cli.html" />
 		</menu>
 
-		<menu name="Connector Design Guide &lt;span class='fa-solid fa-person-digging'&gt;&lt;/span&gt;">
-			<item name="Introduction" href="develop/index.html" />
-			<item name="Connector" href="develop/connector.html" />
-			<item name="Detection" href="develop/detection/index.html">
-				<item name="Engine Requirements" href="develop/detection/engine-requirements.html" />
-				<item name="Resource Type" href="develop/detection/resource-type.html" />
-				<item name="HTTP" href="develop/detection/http.html" />
-				<item name="IPMI" href="develop/detection/ipmi.html" />
-				<item name="Command Line" href="develop/detection/command-line.html" />
-				<item name="Process" href="develop/detection/process.html" />
-				<item name="Service" href="develop/detection/service.html" />
-				<item name="SNMP GetNext" href="develop/detection/snmp-getnext.html" />
-				<item name="SNMP Get" href="develop/detection/snmp-get.html" />
-				<item name="WBEM" href="develop/detection/wbem.html" />
-				<item name="WMI (WQL)" href="develop/detection/wmi.html" />
-			</item>
-			<item name="Monitors" href="develop/monitors.html" />
-			<item name="Sources" href="develop/sources/index.html" >
-				<item name="Command Line" href="develop/sources/command-line.html" />
-				<item name="HTTP" href="develop/sources/http.html" />
-				<item name="IPMI" href="develop/sources/ipmi.html" />
-				<item name="SNMP Get" href="develop/sources/snmp-get.html" />
-				<item name="SNMP Table" href="develop/sources/snmp-table.html" />
-				<item name="Table Join" href="develop/sources/table-join.html" />
-				<item name="Table Union" href="develop/sources/table-union.html" />
-				<item name="WBEM" href="develop/sources/wbem.html" />
-				<item name="WMI" href="develop/sources/wmi.html" />
-				<item name="Static (Constant)" href="develop/sources/static.html" />
-				<item name="Copy (Duplicate)" href="develop/sources/copy.html" />
-				<item name="SQL" href="develop/sources/sql.html" />
-				<item name="Pre-Sources" href="develop/sources/pre.html" />
-			</item>
-			<item name="Computes" href="develop/computes/index.html" >
-				<item name="Add" href="develop/computes/add.html" />
-				<item name="And" href="develop/computes/and.html" />
-				<item name="Array Translate" href="develop/computes/array-translate.html" />
-				<item name="AWK" href="develop/computes/awk.html" />
-				<item name="Convert" href="develop/computes/convert.html" />
-				<item name="Divide" href="develop/computes/divide.html" />
-				<item name="Duplicate Column" href="develop/computes/duplicate-column.html" />
-				<item name="Exclude Matching Lines" href="develop/computes/exclude-matching-lines.html" />
-				<item name="Extract WBEM Property" href="develop/computes/extract-wbem-property.html" />
-				<item name="Extract" href="develop/computes/extract.html" />
-				<item name="JSON to CSV" href="develop/computes/json2csv.html" />
-				<item name="Keep Columns" href="develop/computes/keep-columns.html" />
-				<item name="Keep Only Matching Lines" href="develop/computes/keep-only-matching-lines.html" />
-				<item name="Left Concat" href="develop/computes/left-concat.html" />
-				<item name="Multiply" href="develop/computes/multiply.html" />
-				<item name="Replace" href="develop/computes/replace.html" />
-				<item name="Right Concat" href="develop/computes/right-concat.html" />
-				<item name="Substring" href="develop/computes/substring.html" />
-				<item name="Subtract" href="develop/computes/subtract.html" />
-				<item name="Translate per Bit" href="develop/computes/translate-per-bit.html" />
-				<item name="Translate" href="develop/computes/translate.html" />
-				<item name="XML to CSV" href="develop/computes/xml2csv.html" />
-			</item>
-			<item name="References" href="develop/references.html" />
-		</menu>
-
 		<menu name="Appendix">
 			<item name="Connectors Directory" href="metricshub-connectors-directory.html" />
 		</menu>
