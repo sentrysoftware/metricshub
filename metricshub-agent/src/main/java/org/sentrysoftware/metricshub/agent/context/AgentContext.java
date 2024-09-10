@@ -101,12 +101,13 @@ public class AgentContext {
 		// Find the configuration file
 		configFile = ConfigHelper.findConfigFile(alternateConfigFile);
 
-		// Load the logging configuration before starting any processing
-		// because we want to log any potential error at the start up of the application.
-		final LoggingConfig loggingConfig = loadLoggingConfig();
+		// Load the pre configuration (logging configuration & connectors patch path)
+		// before starting any processing because we want to log any potential error
+		// at the start up of the application.
+		final PreConfig preConfig = loadPreConfig();
 
 		// Configure the global logger
-		ConfigHelper.configureGlobalLogger(loggingConfig.getLoggerLevel(), loggingConfig.getOutputDirectory());
+		ConfigHelper.configureGlobalLogger(preConfig.getLoggerLevel(), preConfig.getOutputDirectory());
 
 		log.info("Starting MetricsHub Agent...");
 
@@ -114,7 +115,7 @@ public class AgentContext {
 		pid = findPid();
 
 		if (createConnectorStore) {
-			connectorStore = ConfigHelper.buildConnectorStore(extensionManager);
+			connectorStore = ConfigHelper.buildConnectorStore(extensionManager, preConfig.getPatchDirectory());
 		}
 
 		// Initialize agent information
@@ -162,13 +163,13 @@ public class AgentContext {
 	}
 
 	/**
-	 * Load the {@link LoggingConfig} instance
-	 * @return new {@link LoggingConfig} instance.
+	 * Load the {@link PreConfig} instance
+	 * @return new {@link PreConfig} instance.
 	 * @throws IOException  If an I/O error occurs during the initial reading of the YAML file.
 	 */
-	private LoggingConfig loadLoggingConfig() throws IOException {
+	private PreConfig loadPreConfig() throws IOException {
 		final ObjectMapper objectMapper = ConfigHelper.newObjectMapper();
-		return JsonHelper.deserialize(objectMapper, new FileInputStream(configFile), LoggingConfig.class);
+		return JsonHelper.deserialize(objectMapper, new FileInputStream(configFile), PreConfig.class);
 	}
 
 	/**
@@ -273,7 +274,7 @@ public class AgentContext {
 	@Builder
 	@NoArgsConstructor
 	@AllArgsConstructor
-	public static class LoggingConfig {
+	public static class PreConfig {
 
 		@Default
 		@JsonSetter(nulls = SKIP)
@@ -282,5 +283,8 @@ public class AgentContext {
 		@Default
 		@JsonSetter(nulls = SKIP)
 		private String outputDirectory = AgentConstants.DEFAULT_OUTPUT_DIRECTORY.toString();
+
+		@JsonSetter(nulls = SKIP)
+		private String patchDirectory;
 	}
 }

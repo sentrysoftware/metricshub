@@ -1131,17 +1131,26 @@ public class ConfigHelper {
 	 * aggregates all extension-based connector stores into one central store and
 	 * then adds additional connectors found in a designated subdirectory.
 	 *
-	 * @param extensionManager The manager responsible for handling all
-	 *                         extension-based connector stores.
+	 * @param extensionManager       The manager responsible for handling all
+	 *                               extension-based connector stores.
+	 * @param connectorsPatchPath    The connectors Patch Path.
 	 * @return A fully populated {@link ConnectorStore} containing connectors from
 	 *         various sources.
 	 */
-	public static ConnectorStore buildConnectorStore(final ExtensionManager extensionManager) {
+	public static ConnectorStore buildConnectorStore(
+		final ExtensionManager extensionManager,
+		final String connectorsPatchPath
+	) {
 		// Get extension connector stores
 		final ConnectorStore connectorStore = extensionManager.aggregateExtensionConnectorStores();
 
 		// Parse and add connectors from a specific subdirectory
 		connectorStore.addMany(new ConnectorStore(getSubDirectory("connectors", false)).getStore());
+
+		// Add user's connectors if the connectors patch path is specified.
+		if (connectorsPatchPath != null) {
+			connectorStore.addMany(new ConnectorStore(Path.of(connectorsPatchPath)).getStore());
+		}
 
 		return connectorStore;
 	}
