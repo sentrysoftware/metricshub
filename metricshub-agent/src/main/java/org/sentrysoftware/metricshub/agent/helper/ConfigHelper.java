@@ -63,7 +63,6 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.ThreadContext;
 import org.sentrysoftware.metricshub.agent.config.AgentConfig;
 import org.sentrysoftware.metricshub.agent.config.AlertingSystemConfig;
-import org.sentrysoftware.metricshub.agent.config.ConnectorVariables;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
 import org.sentrysoftware.metricshub.agent.context.MetricDefinitions;
@@ -73,6 +72,7 @@ import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.common.helpers.ResourceHelper;
+import org.sentrysoftware.metricshub.engine.configuration.ConnectorVariables;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
@@ -1015,6 +1015,7 @@ public class ConfigHelper {
 			.hostType(hostType)
 			.sequential(Boolean.TRUE.equals(resourceConfig.getSequential()))
 			.configuredConnectorId(configuredConnectorId)
+			.connectorVariables(resourceConfig.getVariables())
 			.build();
 	}
 

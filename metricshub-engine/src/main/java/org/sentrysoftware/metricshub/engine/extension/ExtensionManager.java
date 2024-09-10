@@ -74,6 +74,9 @@ public class ExtensionManager {
 	@Default
 	private List<ISourceComputationExtension> sourceComputationExtensions = new ArrayList<>();
 
+	@Default
+	private List<ICompositeSourceScriptExtension> compositeSourceScriptExtensions = new ArrayList<>();
+
 	/**
 	 * Create a new empty instance of the Extension Manager.
 	 * @return a new instance of {@link ExtensionManager}.
@@ -300,5 +303,15 @@ public class ExtensionManager {
 	 */
 	public Optional<ISourceComputationExtension> findSourceComputationExtension(final Source source) {
 		return sourceComputationExtensions.stream().filter(extension -> extension.isValidSource(source)).findFirst();
+	}
+
+	/**
+	 * Find the extension which satisfies the processing of the given source according to its type.
+	 *
+	 * @param source Any {@link Source} implementation
+	 * @return an {@link Optional} of an {@link ICompositeSourceScriptExtension} instance.
+	 */
+	public Optional<ICompositeSourceScriptExtension> findCompositeSourceScriptExtension(final Source source) {
+		return compositeSourceScriptExtensions.stream().filter(extension -> extension.isValidSource(source)).findFirst();
 	}
 }
