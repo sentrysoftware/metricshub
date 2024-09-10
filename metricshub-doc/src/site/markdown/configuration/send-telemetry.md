@@ -1,7 +1,7 @@
 keywords: prometheus, exporter
-description: How to configure MetricsHub to send data to an observability back-end.
+description: How to configure MetricsHub to send telemetry to an observability back-end.
 
-# Sending Data to Observability Platforms
+# Sending Telemetry to Observability Platforms
 
 <!-- MACRO{toc|fromDepth=1|toDepth=1|id=toc} -->
 
@@ -159,7 +159,7 @@ service:
     #   exporters: [logging] # List here the platform of your choice
 ```
 
-## Configure the OTLP Receiver (Community Edition)
+## Configure the OTLP Exporter (Community Edition)
 
 By default, the **MetricsHub Agent** pushes the collected metrics to the [`OTLP Receiver`](https://github.com/open-telemetry/opentelemetry-collector/tree/main/receiver/otlpreceiver) through gRPC on port **TCP/4317**. To push data to the OTLP receiver of your choice:
 
