@@ -91,25 +91,19 @@
 			<item name="On Windows" href="install/windows.html "/>
 		</menu>
 
-		<menu name="Quick Start (Community Edition)">
-			<item name="Quick Start - Windows" href="quick-start-community-prometheus-windows.html"/>
-			<item name="Quick Start - Linux" href="quick-start-community-prometheus-linux.html"/>
-		</menu>
-
 		<menu name="Configuration">
 			<item name="Monitoring Configuration" href="configuration/configure-monitoring.html" />
 			<item name="Sending Telemetry" href="configuration/send-telemetry.html" />
 			<item name="Password Encryption" href="security/passwords.html" />
 		</menu>
 
-		<menu name="Sustainability (Community Edition)">
-			<item name="Sustainability Metrics" href="sustainability/configure-sustainability-metrics.html" />
-		</menu>
-
-		<menu name="Troubleshooting">
-			<item name="Health Check (Enterprise Edition)" href="troubleshooting/status.html" />
-			<item name="Debugging" href="troubleshooting/debug.html" />
-			<item name="MetricsHub CLI (&lt;code&gt;metricshub&lt;/code&gt;)" href="troubleshooting/cli.html" />
+		<menu name="Guides">
+			<item name="Quick Start - Windows" href="guides/quick-start-community-prometheus-windows.html"/>
+			<item name="Quick Start - Linux" href="guides/quick-start-community-prometheus-linux.html"/>
+			<item name="Sustainability" href="guides/configure-sustainability-metrics.html" />
+			<item name="Health Check (Enterprise Edition)" href="guides/status.html" />
+			<item name="Debugging" href="guides/debug.html" />
+			<item name="MetricsHub CLI (&lt;code&gt;metricshub&lt;/code&gt;)" href="guides/cli.html" />
 		</menu>
 	</body>
 </project>
