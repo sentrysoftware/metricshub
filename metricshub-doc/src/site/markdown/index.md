@@ -21,7 +21,7 @@ Because it is recommended to use an OpenTelemetry Collector in production enviro
 
 ## Monitoring Coverage
 
-**MetricsHub Enterprise** provides out-of-the box support for hundreds of  [servers, storage systems, network devices, and databases]((https://metricshub.com/docs/latest/metricshub-connector-reference.html)) through its built-in library of connectors.
+**MetricsHub Enterprise** provides out-of-the box support for hundreds of  [servers, storage systems, network devices, and databases](metricshub-connectors-directory.html) through its built-in library of connectors.
 
 Fully customizable, **MetricsHub** can also be configured to **cover new use cases in no time**, such as the monitoring of systems or applications not covered out-of-the-box through protocols like `HTTP`, `IPMI`, `PING`, `SNMP`, `SSH`, `WBEM`, `WinRM` or `WMI`.
 
