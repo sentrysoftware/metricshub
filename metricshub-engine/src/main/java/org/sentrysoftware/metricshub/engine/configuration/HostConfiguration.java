@@ -60,7 +60,9 @@ public class HostConfiguration {
 	private boolean sequential;
 	private Consumer<AlertInfo> alertTrigger;
 	private long retryDelay;
-	private Map<String, String> connectorVariables;
+
+	// The map of connector variables. The key is the connector ID.
+	private Map<String, ConnectorVariables> connectorVariables;
 
 	@Default
 	private Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();

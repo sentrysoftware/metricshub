@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
-import org.sentrysoftware.metricshub.agent.config.ConnectorVariables;
+import org.sentrysoftware.metricshub.engine.configuration.ConnectorVariables;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 
 class ConnectorTemplateLibraryParserTest {

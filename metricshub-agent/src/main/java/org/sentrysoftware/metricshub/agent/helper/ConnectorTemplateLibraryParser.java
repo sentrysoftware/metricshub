@@ -34,7 +34,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.sentrysoftware.metricshub.agent.config.ConnectorVariables;
+import org.sentrysoftware.metricshub.engine.configuration.ConnectorVariables;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.parser.ConnectorParser;
 

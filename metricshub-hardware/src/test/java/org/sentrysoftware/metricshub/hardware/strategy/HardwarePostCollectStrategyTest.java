@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DEFAULT_KEYS;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.IS_ENDPOINT;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
 import static org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy.CONNECTOR_ID_FORMAT;
@@ -95,6 +96,7 @@ class HardwarePostCollectStrategyTest {
 			.connectorId(connectorId)
 			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "enclosure-1")))
 			.discoveryTime(discoveryTime)
+			.keys(DEFAULT_KEYS)
 			.build();
 		final Monitor enclosure = monitorFactory.createOrUpdateMonitor();
 
@@ -106,6 +108,7 @@ class HardwarePostCollectStrategyTest {
 				.connectorId(connectorId)
 				.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "1")))
 				.discoveryTime(discoveryTime)
+				.keys(DEFAULT_KEYS)
 				.build();
 		final Monitor diskController = monitorFactory.createOrUpdateMonitor();
 

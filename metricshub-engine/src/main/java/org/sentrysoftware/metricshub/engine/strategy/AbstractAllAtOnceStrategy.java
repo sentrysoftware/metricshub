@@ -228,7 +228,7 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 		// Create the monitors
 		final Mapping mapping = monitorTask.getMapping();
 
-		processSameTypeMonitors(currentConnector, mapping, monitorType, hostname);
+		processSameTypeMonitors(currentConnector, mapping, monitorType, hostname, monitorJob);
 	}
 
 	/**
@@ -243,7 +243,8 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 		final Connector connector,
 		final Mapping mapping,
 		final String monitorType,
-		final String hostname
+		final String hostname,
+		final MonitorJob monitorJob
 	) {
 		final String connectorId = connector.getCompiledFilename();
 
@@ -343,6 +344,7 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 				.resource(resource)
 				.connectorId(connectorId)
 				.discoveryTime(strategyTime)
+				.keys(monitorJob.getKeys())
 				.build();
 
 			// The attribute id is mandatory

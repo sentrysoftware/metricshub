@@ -1,6 +1,7 @@
 package org.sentrysoftware.metricshub.engine.strategy.collect;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DEFAULT_KEYS;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_NAME;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.CONNECTOR;
@@ -59,6 +60,7 @@ class PrepareCollectStrategyTest {
 			.connectorId(CONNECTOR)
 			.telemetryManager(telemetryManager)
 			.monitorType(ENCLOSURE)
+			.keys(DEFAULT_KEYS)
 			.build();
 
 		final Monitor monitor = monitorFactory.createOrUpdateMonitor();

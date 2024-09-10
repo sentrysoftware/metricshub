@@ -124,6 +124,15 @@ public class ExtensionLoader {
 			log.info("Loaded source computation extension {}.", extension.getClass().getSimpleName())
 		);
 
+		// Load Jawk extensions
+		final ServiceLoader<ICompositeSourceScriptExtension> compositeSourceScriptExtensions = ServiceLoader.load(
+			ICompositeSourceScriptExtension.class,
+			classLoader
+		);
+		compositeSourceScriptExtensions.forEach(extension ->
+			log.info("Loaded composite source script extension {}.", extension.getClass().getSimpleName())
+		);
+
 		// Build the extension manager
 		extensionManager =
 			ExtensionManager
@@ -132,6 +141,7 @@ public class ExtensionLoader {
 				.withStrategyProviderExtensions(convertProviderStreamToList(strategyProviderExtensions.stream()))
 				.withConnectorStoreProviderExtensions(convertProviderStreamToList(connectorStoreProviderExtensions.stream()))
 				.withSourceComputationExtensions(convertProviderStreamToList(sourceComputationExtensions.stream()))
+				.withCompositeSourceScriptExtensions(convertProviderStreamToList(compositeSourceScriptExtensions.stream()))
 				.build();
 
 		return extensionManager;

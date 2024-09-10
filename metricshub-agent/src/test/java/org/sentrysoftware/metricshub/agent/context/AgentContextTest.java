@@ -20,6 +20,7 @@ import static org.sentrysoftware.metricshub.agent.helper.TestConstants.SERVER_1_
 import static org.sentrysoftware.metricshub.agent.helper.TestConstants.SERVICE_VERSION_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.TestConstants.SITE_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.TestConstants.TEST_CONFIG_FILE_PATH;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DEFAULT_KEYS;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HOST_NAME;
 
 import java.io.IOException;
@@ -30,11 +31,11 @@ import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.agent.config.AgentConfig;
-import org.sentrysoftware.metricshub.agent.config.ConnectorVariables;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
 import org.sentrysoftware.metricshub.agent.helper.OtelSdkConfigConstants;
 import org.sentrysoftware.metricshub.engine.common.helpers.MapHelper;
+import org.sentrysoftware.metricshub.engine.configuration.ConnectorVariables;
 import org.sentrysoftware.metricshub.engine.connector.model.common.HttpMethod;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.SimpleMonitorJob;
@@ -111,7 +112,11 @@ class AgentContextTest {
 
 		simple.setSourceDep(List.of(Set.of(GRAFANA_HEALTH_SOURCE_KEY)));
 
-		final SimpleMonitorJob simpleMonitorJobExpected = SimpleMonitorJob.builder().simple(simple).build();
+		final SimpleMonitorJob simpleMonitorJobExpected = SimpleMonitorJob
+			.simpleBuilder()
+			.keys(DEFAULT_KEYS)
+			.simple(simple)
+			.build();
 		final Map<String, SimpleMonitorJob> expectedMonitors = Map.of(GRAFANA_MONITOR_JOB_KEY, simpleMonitorJobExpected);
 		assertEquals(expectedMonitors, grafanaServiceResourceConfig.getMonitors());
 

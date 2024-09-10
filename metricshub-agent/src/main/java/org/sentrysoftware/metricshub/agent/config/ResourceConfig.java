@@ -41,6 +41,7 @@ import org.sentrysoftware.metricshub.agent.deserialization.AttributesDeserialize
 import org.sentrysoftware.metricshub.agent.deserialization.ConnectorVariablesDeserializer;
 import org.sentrysoftware.metricshub.agent.deserialization.ExtensionProtocolsDeserializer;
 import org.sentrysoftware.metricshub.agent.deserialization.MonitorJobsDeserializer;
+import org.sentrysoftware.metricshub.engine.configuration.ConnectorVariables;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.MonitorJob;
