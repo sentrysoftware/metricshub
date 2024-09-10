@@ -10,7 +10,7 @@ connector:
       errorMessage: testErrorMessage
       forceSerialization: true
 
-pre:
+beforeAll:
   source(1):
     type: wmi
     query: SELECT EMCSerialNumber FROM Win32_SystemChassis

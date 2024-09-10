@@ -76,40 +76,69 @@ public class SurroundingStrategy extends AbstractStrategy {
         final String connectorId = connector.getCompiledFilename();
         final String hostname = telemetryManager.getHostname();
 
-        // Fetch pre-sources from the connector.
-        final Map<String, Source> preSources = connector.getBeforeAll();
-        if (preSources == null || preSources.isEmpty()) {
+        // Fetch beforeAll sources and afterAll sources from the connector.
+        final Map<String, Source> beforeAllSources = connector.getBeforeAll();
+        final Map<String, Source> afterAllSources = connector.getAfterAll();
+
+        if ((beforeAllSources == null || beforeAllSources.isEmpty()) && (afterAllSources == null || afterAllSources.isEmpty())) {
             log.debug(
-                    "Hostname {} - Attempted to process pre-sources, but none are available for connector {}.",
+                    "Hostname {} - Attempted to process beforeAll and afterAll sources, but none are available for connector {}.",
                     hostname,
                     connectorId
             );
             return;
         }
 
-        // Construct job information including job name, connector identifier, hostname and monitor type.
-        final JobInfo jobInfo = JobInfo
-                .builder()
-                .hostname(hostname)
-                .connectorId(connectorId)
-                .jobName("pre")
-                .monitorType("none")
-                .build();
+        if(beforeAllSources == null || beforeAllSources.isEmpty()) {
+            log.debug(
+                    "Hostname {} - Attempted to process beforeAll sources, but none are available for connector {}.",
+                    hostname,
+                    connectorId
+            );
+        } else {
+            // Construct beforeAll job information including job name, connector identifier, hostname and monitor type.
+            final JobInfo beforeAllJobInfo = JobInfo
+                    .builder()
+                    .hostname(hostname)
+                    .connectorId(connectorId)
+                    .jobName("beforeAll")
+                    .monitorType("none")
+                    .build();
+            // Build and order beforeAll sources based on dependencies.
+            final OrderedSources beforeAllOrderedSources = OrderedSources
+                    .builder()
+                    .sources(beforeAllSources, new ArrayList<>(), connector.getBeforeAllSourceDep(), beforeAllJobInfo)
+                    .build();
+            // Process the ordered sources along with computes, based on the constructed job information.
+            processSourcesAndComputes(beforeAllOrderedSources.getSources(), beforeAllJobInfo);
 
-        // Build and order beforeAll sources based on dependencies.
-        final OrderedSources beforeAllOrderedSources = OrderedSources
-                .builder()
-                .sources(preSources, new ArrayList<>(), connector.getBeforeAllSourceDep(), jobInfo)
-                .build();
+        }
 
-        // Build and order afterAll sources based on dependencies.
-        final OrderedSources afterAllOrderedSources = OrderedSources
-                .builder()
-                .sources(preSources, new ArrayList<>(), connector.getAfterAllSourceDep(), jobInfo)
-                .build();
+        if(afterAllSources == null || afterAllSources.isEmpty()) {
+            log.debug(
+                    "Hostname {} - Attempted to process afterAll sources, but none are available for connector {}.",
+                    hostname,
+                    connectorId
+            );
+        } else {
+            // Construct beforeAll job information including job name, connector identifier, hostname and monitor type.
+            final JobInfo afterAllJobInfo = JobInfo
+                    .builder()
+                    .hostname(hostname)
+                    .connectorId(connectorId)
+                    .jobName("afterAll")
+                    .monitorType("none")
+                    .build();
 
-        // Process the ordered sources along with computes, based on the constructed job information.
-        processSourcesAndComputes(beforeAllOrderedSources.getSources(), jobInfo);
-        processSourcesAndComputes(afterAllOrderedSources.getSources(), jobInfo);
+
+            // Build and order afterAll sources based on dependencies.
+            final OrderedSources afterAllOrderedSources = OrderedSources
+                    .builder()
+                    .sources(afterAllSources, new ArrayList<>(), connector.getAfterAllSourceDep(), afterAllJobInfo)
+                    .build();
+
+            // Process the ordered sources along with computes, based on the constructed job information.
+            processSourcesAndComputes(afterAllOrderedSources.getSources(), afterAllJobInfo);
+        }
     }
 }

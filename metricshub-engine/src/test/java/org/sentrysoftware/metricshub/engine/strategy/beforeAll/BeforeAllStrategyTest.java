@@ -206,22 +206,22 @@ class BeforeAllStrategyTest {
 			.when(protocolExtensionMock)
 			.processSource(eq(diskControllerSource), anyString(), any(TelemetryManager.class));
 
-		final SnmpTableSource preSource = SnmpTableSource
+		final SnmpTableSource beforeSource = SnmpTableSource
 			.builder()
 			.oid("1.3.6.1.4.1.795.10.1.1.4.5")
 			.selectColumns("ID,1,3,7,8")
 			.type("snmpTable")
 			.key("${source::beforeAll.snmpSource}")
 			.build();
-		// Mock source table information for the snmp pre source
+		// Mock source table information for the snmp beforeAll source
 		doReturn(
 			SourceTable
 				.builder()
-				.table(SourceTable.csvToTable("preSource-1;1;2;3;4;5;6;7;healthy;health-ok", MetricsHubConstants.TABLE_SEP))
+				.table(SourceTable.csvToTable("beforeAllSource-1;1;2;3;4;5;6;7;healthy;health-ok", MetricsHubConstants.TABLE_SEP))
 				.build()
 		)
 			.when(protocolExtensionMock)
-			.processSource(eq(preSource), anyString(), any(TelemetryManager.class));
+			.processSource(eq(beforeSource), anyString(), any(TelemetryManager.class));
 
 		collectStrategy.run();
 
@@ -234,7 +234,7 @@ class BeforeAllStrategyTest {
 		assertEquals(1.0, enclosure.getMetric("hw.status{hw.type=\"enclosure\"}", NumberMetric.class).getValue());
 		assertEquals(HEALTHY, enclosure.getLegacyTextParameters().get(STATUS_INFORMATION));
 
-		// Check the successful execution of PreSourceStrategy
+		// Check the successful execution of BeforeAllStrategy
 		final ConnectorNamespace connectorNamespace = telemetryManager
 			.getHostProperties()
 			.getConnectorNamespace("beforeAllSource");
@@ -327,34 +327,34 @@ class BeforeAllStrategyTest {
 			.when(protocolExtensionMock)
 			.processSource(eq(diskControllerSource), anyString(), any(TelemetryManager.class));
 
-		// Mock source table information for the snmp pre source
-		final SnmpTableSource preSource = SnmpTableSource
+		// Mock source table information for the snmp beforeAll source
+		final SnmpTableSource beforeAllSource = SnmpTableSource
 			.builder()
 			.oid("1.3.6.1.4.1.795.10.1.1.4.5")
 			.selectColumns("ID,1,3,7,8")
 			.type("snmpTable")
 			.key("${source::beforeAll.snmpSource}")
 			.build();
-		// Mock source table information for the snmp pre source
+		// Mock source table information for the snmp beforeAll source
 		doReturn(
 			SourceTable
 				.builder()
-				.table(SourceTable.csvToTable("preSource-1;1;2;3;4;5;6;7;healthy;health-ok", MetricsHubConstants.TABLE_SEP))
+				.table(SourceTable.csvToTable("beforeAllSource-1;1;2;3;4;5;6;7;healthy;health-ok", MetricsHubConstants.TABLE_SEP))
 				.build()
 		)
 			.when(protocolExtensionMock)
-			.processSource(eq(preSource), anyString(), any(TelemetryManager.class));
+			.processSource(eq(beforeAllSource), anyString(), any(TelemetryManager.class));
 
 		discoveryStrategy.run();
 
-		// Check the successful execution of PreSourceStrategy
+		// Check the successful execution of BeforeAllStrategy
 		final ConnectorNamespace connectorNamespace = telemetryManager
 			.getHostProperties()
-			.getConnectorNamespace("preSource");
+			.getConnectorNamespace("beforeAllSource");
 		assertNotNull(connectorNamespace);
 		final SourceTable sourceTable = connectorNamespace.getSourceTables().get("${source::beforeAll.snmpSource}");
 		assertNotNull(sourceTable);
-		assertEquals("preSource-1", sourceTable.getTable().get(0).get(0));
+		assertEquals("beforeAllSource-1", sourceTable.getTable().get(0).get(0));
 		assertEquals("1", sourceTable.getTable().get(0).get(1));
 		assertEquals("2", sourceTable.getTable().get(0).get(2));
 		assertEquals("3", sourceTable.getTable().get(0).get(3));

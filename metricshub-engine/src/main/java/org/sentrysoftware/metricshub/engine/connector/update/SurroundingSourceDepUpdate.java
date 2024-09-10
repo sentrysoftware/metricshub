@@ -47,9 +47,9 @@ public class SurroundingSourceDepUpdate extends SourceConnectorUpdateChain {
 			);
 		}
 
-		final Map<String, Source> afterAllSources = connector.getBeforeAll();
+		final Map<String, Source> afterAllSources = connector.getAfterAll();
 		if (afterAllSources != null) {
-			connector.setBeforeAllSourceDep(
+			connector.setAfterAllSourceDep(
 					updateSourceDependency(
 							afterAllSources,
 							Pattern.compile(
