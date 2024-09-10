@@ -578,7 +578,7 @@ Follow the structure below to declare your monitor:
               # <metrics-mapping...>
 ```
 
-Refer to [Monitors](../develop/monitors.md) for more information on how to configure custom resource monitoring.
+Refer to [Monitors](https://sentrysoftware.org/metricshub-community-connectors/develop/monitors.html) for more information on how to configure custom resource monitoring.
 
 ### Example: Monitoring a Grafana Service
 
