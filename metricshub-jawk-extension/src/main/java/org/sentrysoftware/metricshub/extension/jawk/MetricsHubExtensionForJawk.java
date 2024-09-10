@@ -159,7 +159,7 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 					.build()
 			);
 		} else {
-			log.warn("Hostname {} - Jawk: executeHttpRequest(): expected Association array.", hostname);
+			log.warn("Hostname {} - Awk: executeHttpRequest(): expected Association array.", hostname);
 			return "";
 		}
 	}
@@ -199,7 +199,7 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 					.build()
 			);
 		} else {
-			log.warn("Hostname {} - Jawk: executeSnmpGetRequest(): expected Association array.", hostname);
+			log.warn("Hostname {} - Awk: executeSnmpGetRequest(): expected Association array.", hostname);
 			return "";
 		}
 	}
@@ -221,7 +221,7 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 					.build()
 			);
 		} else {
-			log.warn("Hostname {} - Jawk: executeSnmpTableRequest(): expected Association array.", hostname);
+			log.warn("Hostname {} - Awk: executeSnmpTableRequest(): expected Association array.", hostname);
 			return "";
 		}
 	}
@@ -243,7 +243,7 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 					.build()
 			);
 		} else {
-			log.warn("Hostname {} - Jawk: executeWbemRequest(): expected Association array.", hostname);
+			log.warn("Hostname {} - Awk: executeWbemRequest(): expected Association array.", hostname);
 			return "";
 		}
 	}
@@ -265,7 +265,7 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 					.build()
 			);
 		} else {
-			log.warn("Hostname {} - Jawk: executeWmiRequest(): expected Association array.", hostname);
+			log.warn("Hostname {} - Awk: executeWmiRequest(): expected Association array.", hostname);
 			return "";
 		}
 	}
@@ -307,7 +307,7 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 				return "";
 			}
 		} else {
-			log.warn("Hostname {} - Jawk: executeJson2csv(): expected Association array.", hostname);
+			log.warn("Hostname {} - Awk: executeJson2csv(): expected Association array.", hostname);
 			return "";
 		}
 	}
