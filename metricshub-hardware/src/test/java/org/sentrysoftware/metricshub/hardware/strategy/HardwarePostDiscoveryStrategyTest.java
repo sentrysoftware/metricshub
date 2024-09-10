@@ -1,6 +1,7 @@
 package org.sentrysoftware.metricshub.hardware.strategy;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DEFAULT_KEYS;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_NAME;
 import static org.sentrysoftware.metricshub.hardware.common.Constants.ENCLOSURE_PRESENT_METRIC;
@@ -52,6 +53,7 @@ class HardwarePostDiscoveryStrategyTest {
 			.connectorId(CONNECTOR)
 			.telemetryManager(telemetryManager)
 			.monitorType(ENCLOSURE)
+			.keys(DEFAULT_KEYS)
 			.build();
 
 		final Monitor monitor = monitorFactory.createOrUpdateMonitor();

@@ -20,10 +20,10 @@ package org.sentrysoftware.metricshub.engine.connector.model.monitor;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
-
-import lombok.AllArgsConstructor;
+import java.util.Set;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.AbstractCollect;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Discovery;
@@ -37,10 +37,23 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Discove
  * </p>
  */
 @Data
-@Builder
-@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-public class StandardMonitorJob implements MonitorJob {
+public class StandardMonitorJob extends AbstractMonitorJob {
+
+	/**
+	 * Creates a {@code StandardMonitorJob} with the specified keys, discovery, and collect instances.
+	 *
+	 * @param keys The set of keys for the monitor job.
+	 * @param discovery The discovery instance for the monitor job.
+	 * @param collect The collect instance for the monitor job.
+	 */
+	@Builder(builderMethodName = "standardBuilder")
+	public StandardMonitorJob(final Set<String> keys, final Discovery discovery, final AbstractCollect collect) {
+		super(keys);
+		this.discovery = discovery;
+		this.collect = collect;
+	}
 
 	private static final long serialVersionUID = 1L;
 

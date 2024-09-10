@@ -50,6 +50,7 @@ public class MultiInstanceCollect extends AbstractCollect {
 	/**
 	 * The set of keys used for collecting metrics from multiple instances.
 	 */
+	@Deprecated(since = "0.9.05")
 	@JsonSetter(nulls = SKIP)
 	private Set<String> keys = DEFAULT_KEYS;
 

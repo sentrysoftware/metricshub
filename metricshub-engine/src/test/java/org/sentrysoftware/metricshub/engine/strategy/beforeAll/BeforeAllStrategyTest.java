@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DEFAULT_KEYS;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.IS_ENDPOINT;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.CONNECTOR;
@@ -115,6 +116,7 @@ class BeforeAllStrategyTest {
 			.connectorId("beforeAllSource")
 			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "enclosure-1")))
 			.discoveryTime(strategyTime - 30 * 60 * 1000)
+			.keys(DEFAULT_KEYS)
 			.build();
 		enclosure = monitorFactory.createOrUpdateMonitor();
 
@@ -126,6 +128,7 @@ class BeforeAllStrategyTest {
 				.connectorId("beforeAllSource")
 				.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "1")))
 				.discoveryTime(strategyTime - 30 * 60 * 1000)
+				.keys(DEFAULT_KEYS)
 				.build();
 		diskController = monitorFactory.createOrUpdateMonitor();
 

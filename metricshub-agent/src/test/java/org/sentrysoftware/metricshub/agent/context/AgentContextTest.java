@@ -20,6 +20,7 @@ import static org.sentrysoftware.metricshub.agent.helper.TestConstants.SERVER_1_
 import static org.sentrysoftware.metricshub.agent.helper.TestConstants.SERVICE_VERSION_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.TestConstants.SITE_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.TestConstants.TEST_CONFIG_FILE_PATH;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DEFAULT_KEYS;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HOST_NAME;
 
 import java.io.IOException;
@@ -111,7 +112,11 @@ class AgentContextTest {
 
 		simple.setSourceDep(List.of(Set.of(GRAFANA_HEALTH_SOURCE_KEY)));
 
-		final SimpleMonitorJob simpleMonitorJobExpected = SimpleMonitorJob.builder().simple(simple).build();
+		final SimpleMonitorJob simpleMonitorJobExpected = SimpleMonitorJob
+			.simpleBuilder()
+			.keys(DEFAULT_KEYS)
+			.simple(simple)
+			.build();
 		final Map<String, SimpleMonitorJob> expectedMonitors = Map.of(GRAFANA_MONITOR_JOB_KEY, simpleMonitorJobExpected);
 		assertEquals(expectedMonitors, grafanaServiceResourceConfig.getMonitors());
 
