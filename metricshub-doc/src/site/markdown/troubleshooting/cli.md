@@ -253,6 +253,14 @@ This will provide a list as below:
 
 This list displays the internal name (**id**) of each connector, its applicable system types and its display name.
 
+### Patch Connectors
+
+By default, **MetricsHub** loads connectors from the `connectors` subdirectory within its installation directory. However, you can extend this functionality by configuring a custom directory for additional connectors. This can be done by specifying the `--patch-directory` option as bellow:
+
+```batch
+$ metricshub SERVER01 -t linux --snmp v2c --community public --patch-directory /opt/patch/connectors
+```
+
 ## Sequential Mode
 
 By default, the *MetricsHub Engine* sends the queries simultaneously to the host resource. Although the parallel transmission is faster than the sequential one, too many requests at the same time can lead to the failure of the targeted host resource.

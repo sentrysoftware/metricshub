@@ -179,6 +179,9 @@ public class MetricsHubCliService implements Callable<Integer> {
 	)
 	char[] password;
 
+	@Option(names = { "-pd", "--patch-directory" }, order = 5, description = "Patch path to the connectors directory")
+	String patchDirectory;
+
 	@Option(
 		names = { "-c", "--connectors" },
 		order = 4,
@@ -249,7 +252,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		// First, process special "list" option
 		if (listConnectors) {
 			return listAllConnectors(
-				ConfigHelper.buildConnectorStore(CliExtensionManager.getExtensionManagerSingleton()),
+				ConfigHelper.buildConnectorStore(CliExtensionManager.getExtensionManagerSingleton(), patchDirectory),
 				spec.commandLine().getOut()
 			);
 		}
@@ -282,7 +285,9 @@ public class MetricsHubCliService implements Callable<Integer> {
 		// Create the TelemetryManager using the connector store and the host configuration created above.
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
-			.connectorStore(ConfigHelper.buildConnectorStore(CliExtensionManager.getExtensionManagerSingleton()))
+			.connectorStore(
+				ConfigHelper.buildConnectorStore(CliExtensionManager.getExtensionManagerSingleton(), patchDirectory)
+			)
 			.hostConfiguration(hostConfiguration)
 			.build();
 
