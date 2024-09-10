@@ -255,7 +255,7 @@ This list displays the internal name (**id**) of each connector, its applicable 
 
 ### Patch Connectors
 
-By default, **MetricsHub** loads connectors from the `connectors` subdirectory within its installation directory. However, you can extend this functionality by configuring a custom directory for additional connectors. This can be done by specifying a `--patch-directory` option as bellow:
+By default, **MetricsHub** loads connectors from the `connectors` subdirectory within its installation directory. However, you can extend this functionality by configuring a custom directory for additional connectors. This can be done by specifying the `--patch-directory` option as bellow:
 
 ```batch
 $ metricshub SERVER01 -t linux --snmp v2c --community public --patch-directory /opt/patch/connectors

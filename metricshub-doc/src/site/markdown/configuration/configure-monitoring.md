@@ -815,9 +815,9 @@ For more information about the `metricshub` command, refer to [MetricsHub CLI (m
 
 #### Patch Connectors
 
-By default, **MetricsHub** loads connectors from the `connectors` subdirectory within its installation directory. However, you can extend this functionality by adding a custom directory for additional connectors. This can be done by specifying a `patchDirectory` in the `metricshub.yaml` configuration file. 
+By default, **MetricsHub** loads connectors from the `connectors` subdirectory within its installation directory. However, you can extend this functionality by adding a custom directory for additional connectors. This can be done by specifying a patch directory in the `metricshub.yaml` configuration file.
 
-To configure an additional connector directory, add set `patchDirectory` to the path of your custom connectors directory, as shown in the example below:
+To configure an additional connector directory, set the `patchDirectory` property to the path of your custom connectors directory, as shown in the example below:
 
 ```yaml
 
