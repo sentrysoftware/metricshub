@@ -266,12 +266,12 @@ public class ConnectorParser {
 	 */
 	public static ConnectorUpdateChain createUpdateChain() {
 		final ConnectorUpdateChain availableSource = new AvailableSourceUpdate();
-		final ConnectorUpdateChain preSourceDepUpdate = new SurroundingSourceDepUpdate();
+		final ConnectorUpdateChain surroundingSourceDepUpdate = new SurroundingSourceDepUpdate();
 		final ConnectorUpdateChain monitorTaskSourceDepUpdate = new MonitorTaskSourceDepUpdate();
 
 		// Create the chain
-		availableSource.setNextUpdateChain(preSourceDepUpdate);
-		preSourceDepUpdate.setNextUpdateChain(monitorTaskSourceDepUpdate);
+		availableSource.setNextUpdateChain(surroundingSourceDepUpdate);
+		surroundingSourceDepUpdate.setNextUpdateChain(monitorTaskSourceDepUpdate);
 		return availableSource;
 	}
 

@@ -295,7 +295,7 @@ class ConnectorParserTest {
 
 	@Test
 	void testPreSourceDepUpdateUseCase4() throws IOException {
-		final Connector connector = new ConnectorParserUpdateManagement("connector/management/preSourceDep/useCase4")
+		final Connector connector = new ConnectorParserUpdateManagement("connector/management/beforeAllSourceDep/useCase4")
 			.parse("sourceDep");
 
 		final List<Set<String>> expected = new ArrayList<>();

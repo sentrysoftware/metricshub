@@ -20,14 +20,14 @@ beforeAll:
     query: SELECT __PATH,ElementName,Description,OtherIdentifyingInfo,OperationalStatus FROM Win32_StorageSystem WHERE ElementName IS $entry.column(1)
     namespace: root/emc
     executeForEachEntryOf:
-      source: ${source::pre.source(1)}
+      source: ${source::beforeAll.source(1)}
       concatMethod: list
 
 monitors:
   enclosure:
     discovery:
       mapping:
-        source: ${source::pre.source(2)}
+        source: ${source::beforeAll.source(2)}
         attributes:
           id: $1
           parent: ""
