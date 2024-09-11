@@ -28,6 +28,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.strategy.utils.CollectHelper;
+import org.sentrysoftware.metricshub.engine.strategy.utils.MathOperationsHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.hardware.util.HwCollectHelper;
@@ -60,7 +61,12 @@ public class NetworkPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstima
 			return 1.0;
 		}
 
-		final Double linkSpeed = CollectHelper.getNumberMetricValue(monitor, "hw.network.bandwidth.limit", false);
+		final Double linkSpeedMegaBit = MathOperationsHelper.divide(
+			"hw.network.bandwidth.limit",
+			CollectHelper.getNumberMetricValue(monitor, "hw.network.bandwidth.limit", false),
+			(1024 * 1024) / 8.0,
+			telemetryManager.getHostname()
+		);
 
 		final Double transmittedBandwidthUtilization = CollectHelper.getNumberMetricValue(
 			monitor,
@@ -74,8 +80,8 @@ public class NetworkPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstima
 		 * Default: (0.5 + 0.5 * bandwidth Utilization) * 5
 		 */
 		if (HwCollectHelper.isValidRatio(transmittedBandwidthUtilization)) {
-			if (HwCollectHelper.isValidPositive(linkSpeed) && linkSpeed > 10) {
-				return (0.5 + 0.5 * transmittedBandwidthUtilization) * 5 * Math.log10(linkSpeed);
+			if (HwCollectHelper.isValidPositive(linkSpeedMegaBit) && linkSpeedMegaBit > 10) {
+				return (0.5 + 0.5 * transmittedBandwidthUtilization) * 5 * Math.log10(linkSpeedMegaBit);
 			} else {
 				return (0.5 + 0.5 * transmittedBandwidthUtilization) * 5;
 			}
@@ -86,9 +92,9 @@ public class NetworkPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstima
 		 * Link Speed > 10: 0.75 * 5 * log10(linkSpeed)
 		 * Default: 2
 		 */
-		if (linkSpeed != null) {
-			if (linkSpeed > 10) {
-				return 0.75 * 5 * Math.log10(linkSpeed);
+		if (linkSpeedMegaBit != null) {
+			if (linkSpeedMegaBit > 10) {
+				return 0.75 * 5 * Math.log10(linkSpeedMegaBit);
 			} else {
 				return 2.0;
 			}

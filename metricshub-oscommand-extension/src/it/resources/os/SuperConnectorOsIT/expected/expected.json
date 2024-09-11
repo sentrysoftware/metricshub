@@ -2247,7 +2247,7 @@
         "previousCollectTime" : null,
         "attributes" : { },
         "resetMetricTime" : false,
-        "value" : 1.0E9,
+        "value" : 1.25E8,
         "previousValue" : null,
         "type" : "NumberMetric",
         "updated" : true
@@ -2351,7 +2351,7 @@
         "previousCollectTime" : null,
         "attributes" : { },
         "resetMetricTime" : false,
-        "value" : 1.0E9,
+        "value" : 1.25E8,
         "previousValue" : null,
         "type" : "NumberMetric",
         "updated" : true
@@ -2468,7 +2468,7 @@
         "previousCollectTime" : null,
         "attributes" : { },
         "resetMetricTime" : false,
-        "value" : 1.0E9,
+        "value" : 1.25E8,
         "previousValue" : null,
         "type" : "NumberMetric",
         "updated" : true
@@ -2623,7 +2623,7 @@
         "previousCollectTime" : null,
         "attributes" : { },
         "resetMetricTime" : false,
-        "value" : 5.6E10,
+        "value" : 7.0E9,
         "previousValue" : null,
         "type" : "NumberMetric",
         "updated" : true

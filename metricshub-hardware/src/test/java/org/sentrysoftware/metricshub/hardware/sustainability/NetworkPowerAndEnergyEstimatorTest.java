@@ -45,25 +45,25 @@ class NetworkPowerAndEnergyEstimatorTest {
 		monitor.addMetric(NETWORK_LINK_STATUS_METRIC, NumberMetric.builder().value(0.0).build());
 		assertEquals(10.0, networkPowerAndEnergyEstimator.estimatePower());
 
-		// linkStatus is up, bandwidthUtilization is null and linkSpeed = 100.0
+		// linkStatus is up, bandwidthUtilization is null and linkSpeed = 100.0 MegaBit
 		// estimated power consumption is 7.5
-		monitor.addMetric(NETWORK_LINK_SPEED_ATTRIBUTE, NumberMetric.builder().value(100.0).build());
+		monitor.addMetric(NETWORK_LINK_SPEED_ATTRIBUTE, NumberMetric.builder().value((100.0 / 8) * 1024 * 1024).build());
 		assertEquals(7.5, networkPowerAndEnergyEstimator.estimatePower());
 
-		// linkStatus is up, bandwidthUtilization is null and linkSpeed = 5.0
+		// linkStatus is up, bandwidthUtilization is null and linkSpeed = 5.0 MegaBit
 		// estimated power consumption is 2.0
-		monitor.addMetric(NETWORK_LINK_SPEED_ATTRIBUTE, NumberMetric.builder().value(5.0).build());
+		monitor.addMetric(NETWORK_LINK_SPEED_ATTRIBUTE, NumberMetric.builder().value((5.0 / 8) * 1024 * 1024).build());
 		assertEquals(2.0, networkPowerAndEnergyEstimator.estimatePower());
 
-		// linkStatus is up, bandwidthUtilization = 0.5, linkSpeed = 100.0
+		// linkStatus is up, bandwidthUtilization = 0.5, linkSpeed = 100.0 MegaBit
 		// estimated power consumption is 7.5
 		monitor.addMetric(NETWORK_TRANSMITTED_BANDWIDTH_UTILIZATION_METRIC, NumberMetric.builder().value(0.5).build());
-		monitor.addMetric(NETWORK_LINK_SPEED_ATTRIBUTE, NumberMetric.builder().value(100.0).build());
+		monitor.addMetric(NETWORK_LINK_SPEED_ATTRIBUTE, NumberMetric.builder().value((100.0 / 8) * 1024 * 1024).build());
 		assertEquals(7.5, networkPowerAndEnergyEstimator.estimatePower());
 
-		// linkStatus is up, bandwidthUtilization = 0.5, linkSpeed = 5.0
+		// linkStatus is up, bandwidthUtilization = 0.5, linkSpeed = 5.0 MegaBit
 		// estimated power consumption is 2.75
-		monitor.addMetric(NETWORK_LINK_SPEED_ATTRIBUTE, NumberMetric.builder().value(5.0).build());
+		monitor.addMetric(NETWORK_LINK_SPEED_ATTRIBUTE, NumberMetric.builder().value((5.0 / 8) * 1024 * 1024).build());
 		assertEquals(3.75, networkPowerAndEnergyEstimator.estimatePower());
 	}
 
@@ -71,7 +71,7 @@ class NetworkPowerAndEnergyEstimatorTest {
 	void testEstimateEnergy() {
 		Monitor monitor = Monitor
 			.builder()
-			.attributes(new HashMap<>(Map.of("name", "real_network_card", NETWORK_LINK_SPEED_ATTRIBUTE, "100.0")))
+			.attributes(new HashMap<>(Map.of("name", "real_network_card")))
 			.metrics(
 				new HashMap<>(
 					Map.of(
