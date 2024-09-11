@@ -237,7 +237,7 @@ public class MappingProcessor {
 		} else if (isAwkScript(value)) {
 			result.put(key, executeAwkScript(value, key));
 		} else if (isMegaBit2Bit(value)) { // TODO Update this check when the connector references megaBit2byte function instead of megaBit2bit
-			result.put(key, megaBit2byte(value, key));
+			result.put(key, megaBit2Byte(value, key));
 		} else if (isPercentToRatioFunction(value)) {
 			result.put(key, percent2Ratio(value, key));
 		} else if (isMegaHertz2HertzFunction(value)) {
@@ -625,11 +625,11 @@ public class MappingProcessor {
 	/**
 	 * Converts megabit values to byte values.
 	 *
-	 * @param value		String representing a megaBit2byte function with a value in megabits.
-	 * @param key		The attribute key.
-	 * @return			String representing a double value in bytes.
+	 * @param value String representing a megaBit2byte function with a value in megabits.
+	 * @param key   The attribute key.
+	 * @return String representing a double value in bytes.
 	 */
-	private String megaBit2byte(final String value, final String key) {
+	private String megaBit2Byte(final String value, final String key) {
 		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
 
 		final Optional<Double> maybeDoubleValue = extractDoubleValue(functionArguments.get(0), key);
