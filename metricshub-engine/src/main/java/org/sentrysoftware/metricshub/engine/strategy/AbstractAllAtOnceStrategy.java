@@ -101,7 +101,7 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 			return;
 		}
 
-		// Run BeforeAllStrategy that executes pre sources
+		// Run BeforeAllStrategy that executes beforeAll sources
 		final BeforeAllStrategy beforeAllStrategy = BeforeAllStrategy
 				.beforeAllBuilder()
 				.clientsExecutor(clientsExecutor)
