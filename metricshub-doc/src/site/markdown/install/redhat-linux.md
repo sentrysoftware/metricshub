@@ -3,13 +3,13 @@ description: How to install MetricsHub on RedHat Enterprise Linux.
 
 # Installation
 
-<!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
+<!-- MACRO{toc|fromDepth=1|toDepth=1|id=toc} -->
 
 ## Enterprise Edition
 
 ### Download
 
-From [MetricsHub's Web site](https://metricshub.com), download **metricshub-enterprise-rhel-${enterpriseVersion}.x86_64.rpm** and copy into `/usr/local`.
+From [MetricsHub's Web site](https://metricshub.com/downloads), download **metricshub-enterprise-rhel-${enterpriseVersion}.x86_64.rpm** and copy into `/usr/local`.
 
 ### Install
 

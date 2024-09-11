@@ -27,6 +27,7 @@ Only a few options are required to run the `metricshub` command:
   * SNMPV3
   * WBEM
   * WMI (on Windows only)
+  * WinRM
 * Credentials
 
 ![Usage of MetricsHub](../images/metricshub-usage.png)

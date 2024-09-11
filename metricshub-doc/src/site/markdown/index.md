@@ -17,7 +17,7 @@ description: MetricsHub is a universal metrics collection agent for OpenTelemetr
 
 **MetricsHub**  uses the OTLP protocol to send metrics to observability platforms that support OpenTelemetry natively like Datadog, New Relic, Prometheus, and Splunk.
 
-Because it is recommended to use an OpenTelemetry Collector in production environment, **MetricsHub Enterprise** is bundled with OpenTelemetry Collector Contrib to facilitate connections to over [30 different observability platforms](https://opentelemetry.io/ecosystem/registry/?component=exporter).
+Because it is recommended to use an OpenTelemetry Collector in a production environment, **MetricsHub Enterprise** is bundled with OpenTelemetry Collector Contrib to facilitate connections to over [30 different observability platforms](https://opentelemetry.io/ecosystem/registry/?component=exporter).
 
 ## Monitoring Coverage
 
