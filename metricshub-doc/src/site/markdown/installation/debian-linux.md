@@ -11,7 +11,7 @@ description: How to install MetricsHub on Debian Linux.
 
 From [MetricsHub's Web site](https://metricshub.com/downloads), download **metricshub-enterprise-debian-${enterpriseVersion}-amd64.deb** and copy into `/usr/local`.
 
-#### Install
+### Install
 
 Once you have downloaded the Debian package, run the following `dpkg` command:
 

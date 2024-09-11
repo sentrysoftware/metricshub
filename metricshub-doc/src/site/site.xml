@@ -83,12 +83,12 @@
 			<item name="Connectors Directory" href="metricshub-connectors-directory.html" />
 		</menu>
 
-		<menu name="Install">
-			<item name="Overview" href="install/index.html "/>
-			<item name="On Debian Linux" href="install/debian-linux.html "/>
-			<item name="On Docker" href="install/docker.html "/>
-			<item name="On Red Hat Enteprise Linux" href="install/redhat-linux.html "/>
-			<item name="On Windows" href="install/windows.html "/>
+		<menu name="Installation">
+			<item name="Overview" href="installation/index.html "/>
+			<item name="On Debian Linux" href="installation/debian-linux.html "/>
+			<item name="On Docker" href="installation/docker.html "/>
+			<item name="On Red Hat Enteprise Linux" href="installation/redhat-linux.html "/>
+			<item name="On Windows" href="installation/windows.html "/>
 		</menu>
 
 		<menu name="Configuration">
