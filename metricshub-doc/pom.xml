@@ -105,7 +105,22 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-project-info-reports-plugin</artifactId>
-				<version>3.4.5</version>
+				<version>3.5.0</version>
+				<reportSets>
+					<reportSet>
+						<reports>
+							<report>ci-management</report>
+							<report>dependencies</report>
+							<report>dependency-info</report>
+							<report>distribution-management</report>
+							<report>issue-management</report>
+							<report>licenses</report>
+							<report>plugins</report>
+							<report>scm</report>
+							<report>summary</report>
+						</reports>
+					</reportSet>
+				</reportSets>
 			</plugin>
 
 			<!-- Generate reference through the MetricsHub Connector Maven Plugin -->

@@ -21,7 +21,7 @@ MetricsHub operates using the configuration located in the `ProgramData\MetricsH
 ### Configure
 
 * In the **C:\ProgramData\MetricsHub\config\metricshub.yaml** file, configure the [resources to be monitored.](../configuration/configure-monitoring.html#configure-resources)
-* In the **C:\ProgramData\MetricsHub\otel\otel-config.yaml** file, specify where the _OpenTelemetry Collector_ should [send the collected data.](../configuration/send-data.html#configure-the-otel-collector-28enterprise-edition-29)
+* In the **C:\ProgramData\MetricsHub\otel\otel-config.yaml** file, specify where the _OpenTelemetry Collector_ should [send the collected data.](../configuration/send-telemetry.html#configure-the-otel-collector-28enterprise-edition-29)
 
 To assist with the setup process, two configuration examples are provided for guidance in the installation directory (`C:\Program Files\MetricsHub`):
 
@@ -53,7 +53,7 @@ Unzip the content of `metricshub-windows-${communityVersion}.zip` into a program
 In the `C:\ProgramData\MetricsHub\config\metricshub.yaml` file, configure:
 
 * the [resources to be monitored.](../configuration/configure-monitoring.html#configure-resources)
-* the [OpenTelemetry Protocol endpoint](../configuration/send-data.html#configure-the-otlp-receiver-28community-edition-29) that will receive the MetricsHub signals.
+* the [OpenTelemetry Protocol endpoint](../configuration/send-telemetry.html#configure-the-otlp-exporter-28community-edition-29) that will receive the MetricsHub signals.
 
 To assist with the setup process, the configuration example `.\config\metricshub-example.yaml` is provided for guidance in the installation directory (typically, `C:\Program Files\MetricsHub`).
 

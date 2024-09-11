@@ -83,7 +83,7 @@ otelcol_process_runtime_total_sys_memory_bytes{service_instance_id="xxxxxxxxx-xx
 
 The above processor time utilization and memory consumption metrics pertain to the `otelcol-contrib` process only, and do not represent the activity of the internal **MetricsHub Agent**.
 
-You can choose to integrate these internal metrics in the pipeline of the *OpenTelemetry Collector* to push them to the platform of your choice. To do so, [edit the otel/otel-config.yaml configuration file](../configuration/configure-otel.md) to add `prometheus/internal` in the list of receivers:
+You can choose to integrate these internal metrics in the pipeline of the *OpenTelemetry Collector* to push them to the platform of your choice. To do so, [edit the otel/otel-config.yaml configuration file](../configuration/send-telemetry.md) to add `prometheus/internal` in the list of receivers:
 
 ```yaml
 # [...]
@@ -101,4 +101,4 @@ service:
       exporters: [...] # List here the platform of your choice
 ```
 
-> Additional troubleshooting information is available in the [OpenTelemetry Collector's Troubleshooting Guide](https://github.com/open-telemetry/opentelemetry-collector/blob/main/docs/troubleshooting.md).
+> Additional troubleshooting information is available in the [OpenTelemetry Collector's Troubleshooting Guide](https://opentelemetry.io/docs/collector/troubleshooting/).
