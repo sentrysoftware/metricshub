@@ -5,4 +5,4 @@ connector:
 beforeAll:
   testCopySource:
     type: copy
-    from: ${source::pre.anotherSource}
+    from: ${source::beforeAll.anotherSource}

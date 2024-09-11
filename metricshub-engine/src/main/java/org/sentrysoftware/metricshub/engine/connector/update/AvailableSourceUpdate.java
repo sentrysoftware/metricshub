@@ -54,7 +54,7 @@ public class AvailableSourceUpdate extends AbstractConnectorUpdateChain {
 				processSimpleSources(sourceTypes, simple);
 			}
 
-			// Add pre-sources and post-sources to sourcesTypes
+			// Add beforeAll sources and afterAll sources types to sourcesTypes
 
 			final Map<String, Source> beforeAll = connector.getBeforeAll();
 			if (beforeAll != null) {

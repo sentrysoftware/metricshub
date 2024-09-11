@@ -7,7 +7,7 @@ constants:
   query: SELECT Name FROM EMC_StorageSystem
   namespace: root/emc
 
-pre:
+beforeAll:
   wbemSource:
     type: wbem
     query: ${constant::query}

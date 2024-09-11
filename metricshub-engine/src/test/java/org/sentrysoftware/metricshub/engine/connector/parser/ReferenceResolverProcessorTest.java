@@ -14,13 +14,13 @@ class ReferenceResolverProcessorTest {
 	void testProcessNode() throws IOException {
 		final String json =
 			"""
-			pre:
+			beforeAll:
 			  source1:
 			    type: http
-			    leftTable: ${source::pre.source4} # ${source::pre.source4}
+			    leftTable: ${source::beforeAll.source4} # ${source::beforeAll.source4}
 			  source2:
 			    type: tableJoin
-			    rightTable: ${source::source(1)} # ${source::pre.source(1)}
+			    rightTable: ${source::source(1)} # ${source::beforeAll.source(1)}
 			monitors:
 			  enclosure: # <object>
 			    discovery: # <object> | <job> key possible values [ discovery, collect, simple ]
@@ -52,7 +52,7 @@ class ReferenceResolverProcessorTest {
 			          method: get
 			          resultContent: body
 			          executeForEachEntryOf:
-			            source: ${source::pre.systemId}
+			            source: ${source::beforeAll.systemId}
 			      mapping:
 			        source1: ${source::httpSource2} # ${source::monitors.enclosure.discovery.sources.httpSource2}
 			    collect: # <object> | <job> key possible values [ discovery, collect, simple]
@@ -87,9 +87,15 @@ class ReferenceResolverProcessorTest {
 			.build()
 			.processNode(rootNode);
 
-		// Check that the relative source references are correctly replaced under the "pre" section
-		assertEquals("${source::pre.source4}", processedNode.get("pre").get("source1").get("leftTable").asText());
-		assertEquals("${source::pre.source(1)}", processedNode.get("pre").get("source2").get("rightTable").asText());
+		// Check that the relative source references are correctly replaced under the "beforeAll" section
+		assertEquals(
+			"${source::beforeAll.source4}",
+			processedNode.get("beforeAll").get("source1").get("leftTable").asText()
+		);
+		assertEquals(
+			"${source::beforeAll.source(1)}",
+			processedNode.get("beforeAll").get("source2").get("rightTable").asText()
+		);
 
 		// Check that the relative source references are correctly replaced under the "enclosure" monitor section
 		assertEquals(
@@ -169,7 +175,7 @@ class ReferenceResolverProcessorTest {
 		);
 
 		assertEquals(
-			"${source::pre.systemId}",
+			"${source::beforeAll.systemId}",
 			processedNode
 				.get("monitors")
 				.get("enclosure")

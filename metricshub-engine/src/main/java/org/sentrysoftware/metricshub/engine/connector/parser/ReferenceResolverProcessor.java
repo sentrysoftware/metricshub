@@ -40,14 +40,14 @@ public class ReferenceResolverProcessor extends AbstractNodeProcessor {
 	private static final String SOURCE_REF_FORMAT = "${source::%s}";
 
 	private static final Pattern REGEX_SOURCE_REF_MONITORS = Pattern.compile(
-		"\\$\\{source::(?!((?i)monitors\\.([\\w()\\.-]+)\\.(discovery|collect|simple)\\.sources\\.([\\w()\\.-]+)\\}|(?i)pre\\.([\\w()\\.-]+)\\}))([\\w()\\.-]+)\\}"
+		"\\$\\{source::(?!((?i)monitors\\.([\\w()\\.-]+)\\.(discovery|collect|simple)\\.sources\\.([\\w()\\.-]+)\\}|(?i)beforeAll|afterAll\\.([\\w()\\.-]+)\\}))([\\w()\\.-]+)\\}"
 	);
 	private static final Pattern REGEX_SOURCE_REF_BEFORE_ALL = Pattern.compile(
 		"\\$\\{source::(?!((?i)beforeAll\\.([\\w()\\.-]+)\\}))([\\w()\\.-]+)\\}"
 	);
 
 	private static final Pattern REGEX_SOURCE_REF_AFTER_ALL = Pattern.compile(
-			"\\$\\{source::(?!((?i)afterAll\\.([\\w()\\.-]+)\\}))([\\w()\\.-]+)\\}"
+		"\\$\\{source::(?!((?i)afterAll\\.([\\w()\\.-]+)\\}))([\\w()\\.-]+)\\}"
 	);
 
 	@Builder
@@ -61,7 +61,7 @@ public class ReferenceResolverProcessor extends AbstractNodeProcessor {
 	 * Replaces relative source references for beforeAll sources with the full source references
 	 *
 	 * @param valueToUpdate The value to be replaced
-	 * @param context The path in the JSON tree from the starting JsonNode having the key "monitors" or "pre"
+	 * @param context The path in the JSON tree from the starting JsonNode having the key "monitors" or "beforeAll"
 	 * @return A string representing the updated value
 	 */
 	private String updateBeforeAllSourceReferences(String valueToUpdate, final String context) {
@@ -112,7 +112,7 @@ public class ReferenceResolverProcessor extends AbstractNodeProcessor {
 	 * Replaces relative source references for afterAll sources with the full source references
 	 *
 	 * @param valueToUpdate The value to be replaced
-	 * @param context The path in the JSON tree from the starting JsonNode having the key "monitors" or "pre"
+	 * @param context The path in the JSON tree from the starting JsonNode having the key "monitors" or "afterAll"
 	 * @return A string representing the updated value
 	 */
 	private String updateAfterAllSourceReferences(String valueToUpdate, final String context) {
@@ -123,40 +123,45 @@ public class ReferenceResolverProcessor extends AbstractNodeProcessor {
 		final var parts = context.split("\\.");
 
 		valueToUpdate =
-				REGEX_SOURCE_REF_MONITORS
-						.matcher(valueToUpdate)
-						.replaceAll(match -> {
-							// If the context starts with the string "monitors", perform the corresponding replacement
-							if (
-								// CHECKSTYLE:OFF
-									parts.length >= 4 &&
-											parts[0].equals("monitors") &&
-											JOBS.contains(parts[2]) &&
-											(parts[3].equals("sources") || parts[3].equals("mapping"))
-								// CHECKSTYLE:ON
-							) {
-								return Matcher.quoteReplacement(
-										String.format(
-												SOURCE_REF_FORMAT,
-												Stream.of(parts[0], parts[1], parts[2], "sources", match.group(6)).collect(Collectors.joining("."))
-										)
-								);
-							}
-
-							return Matcher.quoteReplacement(match.group());
-						});
-
-		return REGEX_SOURCE_REF_AFTER_ALL
+			REGEX_SOURCE_REF_MONITORS
 				.matcher(valueToUpdate)
 				.replaceAll(match -> {
-					if (parts.length >= 2 && parts[0].equals("afterAll")) {
+					// If the context starts with the string "monitors", perform the corresponding replacement
+					if (
+						// CHECKSTYLE:OFF
+						parts.length >= 4 &&
+						parts[0].equals("monitors") &&
+						JOBS.contains(parts[2]) &&
+						(parts[3].equals("sources") || parts[3].equals("mapping"))
+						// CHECKSTYLE:ON
+					) {
 						return Matcher.quoteReplacement(
-								String.format(SOURCE_REF_FORMAT, Stream.of(parts[0], match.group(3)).collect(Collectors.joining(".")))
+							String.format(
+								SOURCE_REF_FORMAT,
+								Stream.of(parts[0], parts[1], parts[2], "sources", match.group(6)).collect(Collectors.joining("."))
+							)
 						);
 					}
 
 					return Matcher.quoteReplacement(match.group());
 				});
+
+		return REGEX_SOURCE_REF_AFTER_ALL
+			.matcher(valueToUpdate)
+			.replaceAll(match -> {
+				if (parts.length >= 2 && parts[0].equals("afterAll")) {
+					return Matcher.quoteReplacement(
+						String.format(SOURCE_REF_FORMAT, Stream.of(parts[0], match.group(3)).collect(Collectors.joining(".")))
+					);
+				}
+
+				return Matcher.quoteReplacement(match.group());
+			});
+	}
+
+	private String updateSourceReferences(String valueToUpdate, final String context) {
+		final String updatedValue = updateBeforeAllSourceReferences(valueToUpdate, context);
+		return updateAfterAllSourceReferences(updatedValue, context);
 	}
 
 	/**
@@ -172,8 +177,7 @@ public class ReferenceResolverProcessor extends AbstractNodeProcessor {
 			.jsonNodeContextUpdaterBuilder()
 			.withJsonNode(node)
 			.withPredicate(Objects::nonNull)
-			.withUpdater(this::updateBeforeAllSourceReferences)
-			.withUpdater(this::updateAfterAllSourceReferences)
+			.withUpdater(this::updateSourceReferences)
 			.build()
 			.update();
 		return node;

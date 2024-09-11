@@ -18,10 +18,10 @@ import org.sentrysoftware.metricshub.engine.connector.model.common.ExecuteForEac
 
 class EntryConcatMethodDeserializerTest {
 
-	private static final String SOURCE_REF = "${source::pre.source1}";
+	private static final String SOURCE_REF = "${source::beforeAll.source1}";
 	private static final String EXECUTE_FOR_EACH_ENTRY_OF_YAML =
 		"""
-		source: ${source::pre.source1}
+		source: ${source::beforeAll.source1}
 		concatMethod: ReplaceMe
 		""";
 

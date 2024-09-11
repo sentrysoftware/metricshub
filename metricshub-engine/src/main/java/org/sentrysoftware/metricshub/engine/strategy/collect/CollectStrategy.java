@@ -196,15 +196,15 @@ public class CollectStrategy extends AbstractStrategy {
 				log.debug("Hostname {} - Waiting for threads' termination aborted with an error.", hostname, e);
 			}
 		}
-		// Run AfterAllStrategy that executes post sources
+		// Run AfterAllStrategy that executes afterAll sources
 		final AfterAllStrategy afterAllStrategy = AfterAllStrategy
-				.afterAllBuilder()
-				.clientsExecutor(clientsExecutor)
-				.strategyTime(strategyTime)
-				.telemetryManager(telemetryManager)
-				.connector(currentConnector)
-				.extensionManager(extensionManager)
-				.build();
+			.afterAllBuilder()
+			.clientsExecutor(clientsExecutor)
+			.strategyTime(strategyTime)
+			.telemetryManager(telemetryManager)
+			.connector(currentConnector)
+			.extensionManager(extensionManager)
+			.build();
 
 		afterAllStrategy.run();
 	}

@@ -3,7 +3,7 @@ connector:
   detection:
     appliesTo: [ windows ]
 
-pre:
+beforeAll:
   testTableUnionSource:
     type: tableUnion
     tables: [ testTable4, testTable5, testTable6 ]

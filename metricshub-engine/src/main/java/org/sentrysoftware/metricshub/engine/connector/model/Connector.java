@@ -99,7 +99,7 @@ public class Connector implements Serializable {
 	private Set<String> sudoCommands = new HashSet<>();
 
 	/**
-	 * Map of pre-sources, where each key is the name of the pre-source and the value is its definition.
+	 * Map of beforeAll sources, where each key is the name of the beforeAll source and the value is its definition.
 	 */
 	@Default
 	@JsonDeserialize(using = SourcesDeserializer.class)
@@ -107,7 +107,7 @@ public class Connector implements Serializable {
 	private Map<String, Source> beforeAll = new HashMap<>();
 
 	/**
-	 * Map of post-sources, where each key is the name of the pre-source and the value is its definition.
+	 * Map of afterAll sources, where each key is the name of the afterAll source and the value is its definition.
 	 */
 	@Default
 	@JsonDeserialize(using = SourcesDeserializer.class)

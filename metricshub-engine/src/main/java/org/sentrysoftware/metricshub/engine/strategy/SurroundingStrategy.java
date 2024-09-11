@@ -20,7 +20,8 @@ package org.sentrysoftware.metricshub.engine.strategy;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
-
+import java.util.ArrayList;
+import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -34,111 +35,118 @@ import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.strategy.source.OrderedSources;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
-import java.util.ArrayList;
-import java.util.Map;
-
+/**
+ * Strategy for executing tasks that surround the core processing of sources, such as "beforeAll"
+ * and "afterAll" operations. Inherits from {@link AbstractStrategy} and manages source execution
+ * for a given {@link Connector}.
+ * <p>
+ * Leverages Lombok's {@link Slf4j} for logging, {@link Data} for auto-generating getters and setters,
+ * and {@link EqualsAndHashCode} to ensure proper equality and hash code generation.
+ */
 @Slf4j
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class SurroundingStrategy extends AbstractStrategy {
 
-    private Connector connector;
+	private Connector connector;
 
-    /**
-     * Initializes a new instance of {@code PreSourcesStrategy} with the necessary components for executing the strategy.
-     * This constructor sets up the strategy with a telemetry manager, strategy execution time, a clients executor,
-     * and a specific connector to process pre-sources.
-     *
-     * @param telemetryManager The telemetry manager responsible for managing telemetry data (monitors and metrics).
-     * @param strategyTime     The execution time of the strategy, used for timing purpose.
-     * @param clientsExecutor  An executor service for handling client operations within the pre-sources.
-     * @param connector        The specific connector instance where the pre-sources are defined.
-     * @param extensionManager The extension manager where all the required extensions are handled.
-     */
-    @Builder
-    public SurroundingStrategy(
-            @NonNull final TelemetryManager telemetryManager,
-            @NonNull final Long strategyTime,
-            @NonNull final ClientsExecutor clientsExecutor,
-            @NonNull final Connector connector,
-            @NonNull final ExtensionManager extensionManager
-    ) {
-        super(telemetryManager, strategyTime, clientsExecutor, extensionManager);
-        this.connector = connector;
-    }
+	/**
+	 * Constructs a {@code SurroundingStrategy} with the necessary components for handling
+	 * "beforeAll" and "afterAll" source processing.
+	 *
+	 * @param telemetryManager  The manager responsible for telemetry (monitors and metrics).
+	 * @param strategyTime      The time allocated for strategy execution.
+	 * @param clientsExecutor   Executor service for managing client-related tasks.
+	 * @param connector         The connector defining sources and their dependencies.
+	 * @param extensionManager  The manager handling various extensions for strategy execution.
+	 */
+	@Builder
+	public SurroundingStrategy(
+		@NonNull final TelemetryManager telemetryManager,
+		@NonNull final Long strategyTime,
+		@NonNull final ClientsExecutor clientsExecutor,
+		@NonNull final Connector connector,
+		@NonNull final ExtensionManager extensionManager
+	) {
+		super(telemetryManager, strategyTime, clientsExecutor, extensionManager);
+		this.connector = connector;
+	}
 
-    /**
-     * Executes the strategy's core logic, processing pre-sources associated with the connector.
-     */
-    @Override
-    public void run() {
-        // Retrieve the connector's identifier and hostname for logging and processing.
-        final String connectorId = connector.getCompiledFilename();
-        final String hostname = telemetryManager.getHostname();
+	/**
+	 * Executes the "beforeAll" and "afterAll" source processing for the configured connector.
+	 * This method logs relevant information and processes sources in a specific order based on their dependencies.
+	 * <p>
+	 * If no sources are available for processing, the method logs this information and returns early.
+	 */
+	@Override
+	public void run() {
+		// Retrieve the connector's identifier and hostname for logging and processing.
+		final String connectorId = connector.getCompiledFilename();
+		final String hostname = telemetryManager.getHostname();
 
-        // Fetch beforeAll sources and afterAll sources from the connector.
-        final Map<String, Source> beforeAllSources = connector.getBeforeAll();
-        final Map<String, Source> afterAllSources = connector.getAfterAll();
+		// Fetch beforeAll sources and afterAll sources from the connector.
+		final Map<String, Source> beforeAllSources = connector.getBeforeAll();
+		final Map<String, Source> afterAllSources = connector.getAfterAll();
 
-        if ((beforeAllSources == null || beforeAllSources.isEmpty()) && (afterAllSources == null || afterAllSources.isEmpty())) {
-            log.debug(
-                    "Hostname {} - Attempted to process beforeAll and afterAll sources, but none are available for connector {}.",
-                    hostname,
-                    connectorId
-            );
-            return;
-        }
+		if (
+			(beforeAllSources == null || beforeAllSources.isEmpty()) && (afterAllSources == null || afterAllSources.isEmpty())
+		) {
+			log.debug(
+				"Hostname {} - Attempted to process beforeAll and afterAll sources, but none are available for connector {}.",
+				hostname,
+				connectorId
+			);
+			return;
+		}
 
-        if(beforeAllSources == null || beforeAllSources.isEmpty()) {
-            log.debug(
-                    "Hostname {} - Attempted to process beforeAll sources, but none are available for connector {}.",
-                    hostname,
-                    connectorId
-            );
-        } else {
-            // Construct beforeAll job information including job name, connector identifier, hostname and monitor type.
-            final JobInfo beforeAllJobInfo = JobInfo
-                    .builder()
-                    .hostname(hostname)
-                    .connectorId(connectorId)
-                    .jobName("beforeAll")
-                    .monitorType("none")
-                    .build();
-            // Build and order beforeAll sources based on dependencies.
-            final OrderedSources beforeAllOrderedSources = OrderedSources
-                    .builder()
-                    .sources(beforeAllSources, new ArrayList<>(), connector.getBeforeAllSourceDep(), beforeAllJobInfo)
-                    .build();
-            // Process the ordered sources along with computes, based on the constructed job information.
-            processSourcesAndComputes(beforeAllOrderedSources.getSources(), beforeAllJobInfo);
+		if (beforeAllSources == null || beforeAllSources.isEmpty()) {
+			log.debug(
+				"Hostname {} - Attempted to process beforeAll sources, but none are available for connector {}.",
+				hostname,
+				connectorId
+			);
+		} else {
+			// Construct beforeAll job information including job name, connector identifier, hostname and monitor type.
+			final JobInfo beforeAllJobInfo = JobInfo
+				.builder()
+				.hostname(hostname)
+				.connectorId(connectorId)
+				.jobName("beforeAll")
+				.monitorType("none")
+				.build();
+			// Build and order beforeAll sources based on dependencies.
+			final OrderedSources beforeAllOrderedSources = OrderedSources
+				.builder()
+				.sources(beforeAllSources, new ArrayList<>(), connector.getBeforeAllSourceDep(), beforeAllJobInfo)
+				.build();
+			// Process the ordered sources along with computes, based on the constructed job information.
+			processSourcesAndComputes(beforeAllOrderedSources.getSources(), beforeAllJobInfo);
+		}
 
-        }
+		if (afterAllSources == null || afterAllSources.isEmpty()) {
+			log.debug(
+				"Hostname {} - Attempted to process afterAll sources, but none are available for connector {}.",
+				hostname,
+				connectorId
+			);
+		} else {
+			// Construct beforeAll job information including job name, connector identifier, hostname and monitor type.
+			final JobInfo afterAllJobInfo = JobInfo
+				.builder()
+				.hostname(hostname)
+				.connectorId(connectorId)
+				.jobName("afterAll")
+				.monitorType("none")
+				.build();
 
-        if(afterAllSources == null || afterAllSources.isEmpty()) {
-            log.debug(
-                    "Hostname {} - Attempted to process afterAll sources, but none are available for connector {}.",
-                    hostname,
-                    connectorId
-            );
-        } else {
-            // Construct beforeAll job information including job name, connector identifier, hostname and monitor type.
-            final JobInfo afterAllJobInfo = JobInfo
-                    .builder()
-                    .hostname(hostname)
-                    .connectorId(connectorId)
-                    .jobName("afterAll")
-                    .monitorType("none")
-                    .build();
+			// Build and order afterAll sources based on dependencies.
+			final OrderedSources afterAllOrderedSources = OrderedSources
+				.builder()
+				.sources(afterAllSources, new ArrayList<>(), connector.getAfterAllSourceDep(), afterAllJobInfo)
+				.build();
 
-
-            // Build and order afterAll sources based on dependencies.
-            final OrderedSources afterAllOrderedSources = OrderedSources
-                    .builder()
-                    .sources(afterAllSources, new ArrayList<>(), connector.getAfterAllSourceDep(), afterAllJobInfo)
-                    .build();
-
-            // Process the ordered sources along with computes, based on the constructed job information.
-            processSourcesAndComputes(afterAllOrderedSources.getSources(), afterAllJobInfo);
-        }
-    }
+			// Process the ordered sources along with computes, based on the constructed job information.
+			processSourcesAndComputes(afterAllOrderedSources.getSources(), afterAllJobInfo);
+		}
+	}
 }

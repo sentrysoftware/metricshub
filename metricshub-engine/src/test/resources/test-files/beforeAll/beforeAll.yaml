@@ -2,4 +2,6 @@
 connector:
   detection:
     appliesTo: [ linux ]
-pre:
+beforeAll:
+  ipmiSource:
+    type: ipmi

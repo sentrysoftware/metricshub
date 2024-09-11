@@ -50,14 +50,17 @@ public class SurroundingSourceDepUpdate extends SourceConnectorUpdateChain {
 		final Map<String, Source> afterAllSources = connector.getAfterAll();
 		if (afterAllSources != null) {
 			connector.setAfterAllSourceDep(
-					updateSourceDependency(
-							afterAllSources,
-							Pattern.compile(
-									String.format("\\s*(\\$\\{source::((?i)afterAll)\\.(%s)\\})\\s*", getSourceIdentifiersRegex(afterAllSources)),
-									Pattern.MULTILINE
-							),
-							3
-					)
+				updateSourceDependency(
+					afterAllSources,
+					Pattern.compile(
+						String.format(
+							"\\s*(\\$\\{source::((?i)afterAll)\\.(%s)\\})\\s*",
+							getSourceIdentifiersRegex(afterAllSources)
+						),
+						Pattern.MULTILINE
+					),
+					3
+				)
 			);
 		}
 	}

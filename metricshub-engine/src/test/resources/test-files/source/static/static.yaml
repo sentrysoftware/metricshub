@@ -2,7 +2,7 @@
 connector:
   detection:
     appliesTo: [ linux ]
-pre:
+beforeAll:
   testStaticSource:
     type: static
     value: testValue

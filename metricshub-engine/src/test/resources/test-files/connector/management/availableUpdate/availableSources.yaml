@@ -10,7 +10,7 @@ connector:
       errorMessage: testErrorMessage
       forceSerialization: true
 
-pre: 
+beforeAll:
   wmiSource:
     type: wmi
     query: SELECT __PATH,DeviceID,OperationalStatus FROM CIM_Battery

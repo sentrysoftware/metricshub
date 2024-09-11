@@ -12,7 +12,7 @@ import org.sentrysoftware.metricshub.engine.connector.deserializer.PostDeseriali
 
 class SourceTest {
 
-	private static final String SOURCE_REF0 = "${source::pre.source1}";
+	private static final String SOURCE_REF0 = "${source::beforeAll.source1}";
 	private static final String SOURCE_REF1 = "${source::monitors.cpu.discovery.sources.source1}";
 	private static final String SOURCE_REF2 = "${source::monitors.cpu.discovery.sources.source2}";
 
@@ -38,7 +38,7 @@ class SourceTest {
 			"""
 			type: http
 			url: url/$entry.column(1)$
-			header: ${source::pre.source1}
+			header: ${source::beforeAll.source1}
 			body: body1
 			authenticationToken: authToken
 			resultContent: body

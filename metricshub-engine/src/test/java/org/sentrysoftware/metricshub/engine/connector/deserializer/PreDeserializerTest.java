@@ -19,39 +19,42 @@ class PreDeserializerTest extends DeserializerTest {
 
 	@Override
 	public String getResourcePath() {
-		return "src/test/resources/test-files/pre/";
+		return "src/test/resources/test-files/beforeAll/";
 	}
 
 	@Test
-	void testDeserializePre() throws IOException {
-		final Connector connector = getConnector("pre");
+	void testDeserializeBeforeAll() throws IOException {
+		final Connector connector = getConnector("beforeAll");
 
 		assertNotNull(connector);
 
-		var pre = connector.getBeforeAll();
+		var beforeAll = connector.getBeforeAll();
 
-		assertTrue(pre instanceof LinkedHashMap, "pre are expected to be a LinkedHashMap.");
+		assertTrue(beforeAll instanceof LinkedHashMap, "beforeAll are expected to be a LinkedHashMap.");
 
 		final Map<String, Source> expected = new LinkedHashMap<String, Source>(
-			Map.of("ipmiSource", new IpmiSource("ipmi", Collections.emptyList(), false, "${source::pre.ipmiSource}", null))
+			Map.of(
+				"ipmiSource",
+				new IpmiSource("ipmi", Collections.emptyList(), false, "${source::beforeAll.ipmiSource}", null)
+			)
 		);
 
-		assertEquals(expected, pre);
+		assertEquals(expected, beforeAll);
 	}
 
 	@Test
-	void testPreBlankSource() throws IOException {
+	void testBeforeAllBlankSource() throws IOException {
 		try {
-			getConnector("preBlankSource");
+			getConnector("beforeAllBlankSource");
 			Assertions.fail(IO_EXCEPTION_MSG);
 		} catch (InvalidFormatException e) {
-			final String message = "The source key referenced by 'pre' cannot be empty.";
+			final String message = "The source key referenced by 'beforeAll' cannot be empty.";
 			checkMessage(e, message);
 		}
 	}
 
 	@Test
-	void testPreNull() throws IOException {
-		assertEquals(Collections.emptyMap(), getConnector("preNull").getBeforeAll());
+	void testBeforeAllNull() throws IOException {
+		assertEquals(Collections.emptyMap(), getConnector("beforeAllNull").getBeforeAll());
 	}
 }

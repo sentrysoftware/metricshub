@@ -6,6 +6,6 @@ connector:
 extends:
 - Connector1
 
-pre:
+beforeAll:
   testHttpSource:
     method: POST

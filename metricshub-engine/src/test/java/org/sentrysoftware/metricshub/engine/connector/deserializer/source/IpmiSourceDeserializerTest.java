@@ -24,7 +24,7 @@ class IpmiSourceDeserializerTest extends DeserializerTest {
 		final Connector connector = getConnector(testResource);
 
 		final Map<String, Source> expected = new LinkedHashMap<String, Source>(
-			Map.of("testIpmiSource", IpmiSource.builder().key("${source::pre.testIpmiSource}").type("ipmi").build())
+			Map.of("testIpmiSource", IpmiSource.builder().key("${source::beforeAll.testIpmiSource}").type("ipmi").build())
 		);
 
 		assertEquals(expected, connector.getBeforeAll());

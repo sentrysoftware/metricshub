@@ -29,7 +29,7 @@ class SnmpGetSourceDeserializerTest extends DeserializerTest {
 			"testSnmpGetSource",
 			SnmpGetSource
 				.builder()
-				.key("${source::pre.testSnmpGetSource}")
+				.key("${source::beforeAll.testSnmpGetSource}")
 				.type("snmpGet")
 				.oid("testOidString")
 				.forceSerialization(true)

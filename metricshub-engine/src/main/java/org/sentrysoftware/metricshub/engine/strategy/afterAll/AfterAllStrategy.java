@@ -31,22 +31,33 @@ import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.strategy.SurroundingStrategy;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
+/**
+ * Defines a strategy for executing tasks after all source references have been processed.
+ * Inherits behavior from {@link SurroundingStrategy} and provides a custom builder.
+ */
 @Slf4j
 @EqualsAndHashCode(callSuper = true)
-public class AfterAllStrategy extends SurroundingStrategy  {
-    /**
-     * Initializes a new instance of {@code AfterAllStrategy} with the necessary components for executing the strategy.
-     * This constructor sets up the strategy with a telemetry manager, strategy execution time, a clients executor,
-     * and a specific connector to process post-sources.
-     *
-     * @param telemetryManager The telemetry manager responsible for managing telemetry data (monitors and metrics).
-     * @param strategyTime     The execution time of the strategy, used for timing purpose.
-     * @param clientsExecutor  An executor service for handling client operations within the pre-sources.
-     * @param connector        The specific connector instance where the pre-sources are defined.
-     * @param extensionManager The extension manager where all the required extensions are handled.
-     */
-    @Builder(builderMethodName = "afterAllBuilder")
-    public AfterAllStrategy(@NonNull TelemetryManager telemetryManager, @NonNull Long strategyTime, @NonNull ClientsExecutor clientsExecutor, @NonNull Connector connector, @NonNull ExtensionManager extensionManager) {
-        super(telemetryManager, strategyTime, clientsExecutor, connector, extensionManager);
-    }
+public class AfterAllStrategy extends SurroundingStrategy {
+
+	/**
+	 * Initializes a new instance of {@code AfterAllStrategy} with the necessary components for executing the strategy.
+	 * This constructor sets up the strategy with a telemetry manager, strategy execution time, a clients executor,
+	 * and a specific connector to process afterAll sources.
+	 *
+	 * @param telemetryManager The telemetry manager responsible for managing telemetry data (monitors and metrics).
+	 * @param strategyTime     The execution time of the strategy, used for timing purpose.
+	 * @param clientsExecutor  An executor service for handling client operations within the afterAll sources.
+	 * @param connector        The specific connector instance where the afterAll sources are defined.
+	 * @param extensionManager The extension manager where all the required extensions are handled.
+	 */
+	@Builder(builderMethodName = "afterAllBuilder")
+	public AfterAllStrategy(
+		@NonNull TelemetryManager telemetryManager,
+		@NonNull Long strategyTime,
+		@NonNull ClientsExecutor clientsExecutor,
+		@NonNull Connector connector,
+		@NonNull ExtensionManager extensionManager
+	) {
+		super(telemetryManager, strategyTime, clientsExecutor, connector, extensionManager);
+	}
 }

@@ -60,7 +60,14 @@ import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 class BeforeAllStrategyTest {
 
 	// Connector path
-	public static final Path TEST_CONNECTOR_PATH = Paths.get("src", "test", "resources", "test-files", "strategy", "beforeAll");
+	public static final Path TEST_CONNECTOR_PATH = Paths.get(
+		"src",
+		"test",
+		"resources",
+		"test-files",
+		"strategy",
+		"beforeAll"
+	);
 
 	@Mock
 	private ClientsExecutor clientsExecutorMock;
@@ -87,7 +94,10 @@ class BeforeAllStrategyTest {
 				HOST,
 				Map.of(MONITOR_ID_ATTRIBUTE_VALUE, hostMonitor),
 				CONNECTOR,
-				Map.of(String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), "beforeAllSource"), connectorMonitor)
+				Map.of(
+					String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), "beforeAllSource"),
+					connectorMonitor
+				)
 			)
 		);
 
@@ -217,7 +227,9 @@ class BeforeAllStrategyTest {
 		doReturn(
 			SourceTable
 				.builder()
-				.table(SourceTable.csvToTable("beforeAllSource-1;1;2;3;4;5;6;7;healthy;health-ok", MetricsHubConstants.TABLE_SEP))
+				.table(
+					SourceTable.csvToTable("beforeAllSource-1;1;2;3;4;5;6;7;healthy;health-ok", MetricsHubConstants.TABLE_SEP)
+				)
 				.build()
 		)
 			.when(protocolExtensionMock)
@@ -339,7 +351,9 @@ class BeforeAllStrategyTest {
 		doReturn(
 			SourceTable
 				.builder()
-				.table(SourceTable.csvToTable("beforeAllSource-1;1;2;3;4;5;6;7;healthy;health-ok", MetricsHubConstants.TABLE_SEP))
+				.table(
+					SourceTable.csvToTable("beforeAllSource-1;1;2;3;4;5;6;7;healthy;health-ok", MetricsHubConstants.TABLE_SEP)
+				)
 				.build()
 		)
 			.when(protocolExtensionMock)

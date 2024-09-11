@@ -2,7 +2,7 @@ connector:
   detection:
     appliesTo: [ Linux ]
 
-pre:
+beforeAll:
   testCompute:
     type: http
     url: /testUrl/

@@ -37,7 +37,7 @@ import java.util.Set;
  * <ul>
  *   <li>
  *    Pre-nodes: Adds a "key" to each source node under "pre" based on the source name.
- *    E.g. <strong>${source::pre.source_1}</strong>.
+ *    E.g. <strong>${source::beforeAll.source_1}</strong>.
  *   </li>
  *   <li>
  *    Monitor nodes: For specified monitor job types ("discovery", "collect", "simple"), adds a "key" to
@@ -103,13 +103,13 @@ public class SourceKeyProcessor extends AbstractNodeProcessor {
 		if (afterAllNode != null && !afterAllNode.isNull()) {
 			// Loop over the source nodes and set the key property on each source node
 			afterAllNode
-					.fields()
-					.forEachRemaining(sourceNodeEntry -> {
-						final String sourceName = sourceNodeEntry.getKey();
-						final JsonNode sourceNode = sourceNodeEntry.getValue();
-						final ObjectNode sourceObjectNode = (ObjectNode) sourceNode;
-						sourceObjectNode.set(SOURCE_KEY_PROPERTY, new TextNode(String.format("${source::afterAll.%s}", sourceName)));
-					});
+				.fields()
+				.forEachRemaining(sourceNodeEntry -> {
+					final String sourceName = sourceNodeEntry.getKey();
+					final JsonNode sourceNode = sourceNodeEntry.getValue();
+					final ObjectNode sourceObjectNode = (ObjectNode) sourceNode;
+					sourceObjectNode.set(SOURCE_KEY_PROPERTY, new TextNode(String.format("${source::afterAll.%s}", sourceName)));
+				});
 		}
 
 		// Attempt to get the "monitors" node
