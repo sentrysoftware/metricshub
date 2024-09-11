@@ -132,6 +132,9 @@ public class AgentConfig {
 	@JsonSetter(nulls = SKIP)
 	private String stateSetCompression = StateSetMetricCompression.SUPPRESS_ZEROS;
 
+	@JsonSetter(nulls = SKIP)
+	private String patchDirectory;
+
 	/**
 	 * Build a new empty instance
 	 *

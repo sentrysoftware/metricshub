@@ -109,7 +109,7 @@ resourceGroups:
         <protocol-configuration>
 ```
 
-> Note: Refer to the [sustainability metrics page](../sustainability/configure-sustainability-metrics.md#example-for-distributed-infrastructure) to configure MetricsHub for sustainability metrics reporting.
+> Note: Refer to the [sustainability metrics page](../guides/configure-sustainability-metrics.md#example-for-distributed-infrastructure) to configure MetricsHub for sustainability metrics reporting.
 
 ### Centralized infrastructure
 
@@ -127,7 +127,7 @@ resources:
     <protocol-configuration>
 ```
 
-> Note: Refer to the [sustainability metrics page](../sustainability/configure-sustainability-metrics.md#example-for-centralized-infrastructure) to configure MetricsHub for sustainability metrics reporting.
+> Note: Refer to the [sustainability metrics page](../guides/configure-sustainability-metrics.md#example-for-centralized-infrastructure) to configure MetricsHub for sustainability metrics reporting.
 
 ### Unique vs. shared characteristics
 
@@ -578,7 +578,7 @@ Follow the structure below to declare your monitor:
               # <metrics-mapping...>
 ```
 
-Refer to [Monitors](../develop/monitors.md) for more information on how to configure custom resource monitoring.
+Refer to [Monitors](https://sentrysoftware.org/metricshub-community-connectors/develop/monitors.html) for more information on how to configure custom resource monitoring.
 
 ### Example: Monitoring a Grafana Service
 
@@ -629,7 +629,7 @@ service-group:
 
 #### Enterprise Edition authentication
 
-In the Enterprise Edition, the **MetricsHub**'s internal `OTLP Exporter` authenticates itself with the _OpenTelemetry Collector_'s [OTLP gRPC Receiver](send-data.md#OTLP_gRPC) by including the HTTP `Authorization` request header with the credentials. 
+In the Enterprise Edition, the **MetricsHub**'s internal `OTLP Exporter` authenticates itself with the _OpenTelemetry Collector_'s [OTLP gRPC Receiver](send-telemetry.md#otlp-grpc) by including the HTTP `Authorization` request header with the credentials. 
 
 These settings are already configured in the `config/metricshub.yaml` file of **MetricsHub Enterprise Edition**. Changing them is **not recommended** unless you are familiar with managing communication between the **MetricsHub** `OTLP Exporter` and the _OpenTelemetry Collector_'s `OTLP Receiver`.
 
@@ -651,7 +651,7 @@ resourceGroups: # ...
 
 where `<base64-username-password>` credentials are built by first joining your username and password with a colon (`myUsername:myPassword`) and then encoding the value in `base64`.
 
-> **Warning**: If you update the *Basic Authentication Header*, you must generate a new `.htpasswd` file for the [OpenTelemetry Collector Basic Authenticator](send-data.md#Basic_Authenticator).
+> **Warning**: If you update the *Basic Authentication Header*, you must generate a new `.htpasswd` file for the [OpenTelemetry Collector Basic Authenticator](send-telemetry.md#basic-authenticator).
 
 #### Community Edition authentication
 
@@ -803,7 +803,7 @@ resourceGroups:
 
   The core engine will perform automatic detection on connectors categorized under `hardware`, excluding the `MIB2` connector.
 
-To know which connectors are available, refer to [Community Connector Platforms](../platform-requirements.html#!).
+To know which connectors are available, refer to [Connectors Directory](../metricshub-connectors-directory.html).
 
 Otherwise, you can list the available connectors using the below command:
 
@@ -811,7 +811,20 @@ Otherwise, you can list the available connectors using the below command:
 $ metricshub -l
 ```
 
-For more information about the `metricshub` command, refer to [MetricsHub CLI (metricshub)](../troubleshooting/cli.md).
+For more information about the `metricshub` command, refer to [MetricsHub CLI (metricshub)](../guides/cli.md).
+
+#### Patch Connectors
+
+By default, **MetricsHub** loads connectors from the `connectors` subdirectory within its installation directory. However, you can extend this functionality by adding a custom directory for additional connectors. This can be done by specifying a patch directory in the `metricshub.yaml` configuration file.
+
+To configure an additional connector directory, set the `patchDirectory` property to the path of your custom connectors directory, as shown in the example below:
+
+```yaml
+
+patchDirectory: /opt/patch/connectors # Replace with the path to your patch connectors directory.
+
+loggerLevel: ...
+```
 
 #### Configure Connector Variables
 

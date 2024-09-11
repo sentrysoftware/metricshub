@@ -24,7 +24,7 @@ When complete, the **MetricsHub**'s files are deployed in `/opt/metricshub` and 
 ### Configure
 
 * In the **./lib/config/metricshub.yaml** file, located under the `/opt/metricshub` installation directory, configure the [resources to be monitored.](../configuration/configure-monitoring.html#configure-resources)
-* In the **./lib/otel/otel-config.yaml** file, located under the `/opt/metricshub` installation directory, specify where the _OpenTelemetry Collector_ should [send the collected data.](../configuration/send-data.html#configure-the-otel-collector-28enterprise-edition-29)
+* In the **./lib/otel/otel-config.yaml** file, located under the `/opt/metricshub` installation directory, specify where the _OpenTelemetry Collector_ should [send the collected data.](../configuration/send-telemetry.html#configure-the-otel-collector-28enterprise-edition-29)
 
 To assist with the setup process, two configuration examples are provided for guidance in the installation directory (`./metricshub`):
 
@@ -93,7 +93,7 @@ sudo tar xzf /tmp/metricshub-linux-${communityVersion}.tar.gz
 In the `./lib/config/metricshub.yaml` file, located under the `./metricshub` installation directory, configure:
 
 * the [resources to be monitored.](../configuration/configure-monitoring.html#configure-resources)
-* the [OpenTelemetry Protocol endpoint](../configuration/send-data.html#configure-the-otlp-receiver-28community-edition-29) that will receive the MetricsHub signals.
+* the [OpenTelemetry Protocol endpoint](../configuration/send-telemetry.html#configure-the-otlp-exporter-28community-edition-29) that will receive the MetricsHub signals.
 
 To assist with the setup process, the configuration example `./lib/config/metricshub-example.yaml` is provided for guidance in the installation directory (`./metricshub`).
 

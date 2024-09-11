@@ -24,6 +24,7 @@ This is a multi-module project:
 * **metricshub-winrm-extension**: Enables the use of Windows Remote Management (WinRM) for remote management and monitoring of Windows-based systems.
 * **metricshub-wbem-extension**: Supports the Web-Based Enterprise Management (WBEM) standard for accessing management information.
 * **metricshub-ping-extension**: Enables testing the reachability of hosts using ICMP-based ping commands.
+* **metricshub-jawk-extension**: Allows execution of Jawk scripts.
 * **metricshub-hardware**: Hardware Energy and Sustainability module, dedicated to managing and monitoring hardware-related metrics, focusing on energy consumption and sustainability aspects.
 * **metricshub-it-common**: Contains common code and utilities used by integration tests across various modules.
 * **metricshub-windows**: Builds the `.zip` package for MetricsHub on Windows platforms.
