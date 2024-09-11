@@ -3,13 +3,13 @@ description: How to install MetricsHub on Windows.
 
 # Installation
 
-<!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
+<!-- MACRO{toc|fromDepth=1|toDepth=1|id=toc} -->
 
 ## Enterprise Edition
 
 ### Download
 
-From [MetricsHub's Web site](https://metricshub.com), download **metricshub-enterprise-windows-${enterpriseVersion}.msi**.
+From [MetricsHub's Web site](https://metricshub.com/downloads), download **metricshub-enterprise-windows-${enterpriseVersion}.msi**.
 
 ### Install
 Double-click the `.msi` file you previously downloaded. The Installation Wizard will automatically start and guide you through the installation process.

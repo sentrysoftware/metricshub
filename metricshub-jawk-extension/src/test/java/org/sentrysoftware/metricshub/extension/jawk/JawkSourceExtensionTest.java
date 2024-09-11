@@ -90,7 +90,7 @@ class JawkSourceExtensionTest {
 		// Http request & Json2CSV
 		final Source source = JawkSource
 			.builder()
-			.type("Jawk")
+			.type("Awk")
 			.input("${source::monitors.system.discovery.sources.source_one}")
 			.script(
 				"""

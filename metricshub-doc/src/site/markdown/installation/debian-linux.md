@@ -1,30 +1,31 @@
 keywords: install, enterprise, community
-description: How to install MetricsHub on RedHat Enterprise Linux.
+description: How to install MetricsHub on Debian Linux.
 
 # Installation
 
-<!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
+<!-- MACRO{toc|fromDepth=1|toDepth=1|id=toc} -->
 
 ## Enterprise Edition
 
 ### Download
 
-From [MetricsHub's Web site](https://metricshub.com), download **metricshub-enterprise-rhel-${enterpriseVersion}.x86_64.rpm** and copy into `/usr/local`.
+From [MetricsHub's Web site](https://metricshub.com/downloads), download **metricshub-enterprise-debian-${enterpriseVersion}-amd64.deb** and copy into `/usr/local`.
 
 ### Install
 
-Once you have downloaded the RPM package, run the following `rpm` command:
+Once you have downloaded the Debian package, run the following `dpkg` command:
 
 ```shell-session
 cd /usr/local
-sudo rpm -i metricshub-enterprise-rhel-${enterpriseVersion}.x86_64.rpm
+sudo dpkg -i metricshub-enterprise-debian-${enterpriseVersion}-amd64.deb
 ```
-When complete, the **MetricsHub**'s files are deployed in `/opt/metricshub` and the **MetricsHubEnterprise Agent** is started as a service.
+
+When complete, the **MetricsHub**'s files are deployed in `/opt/metricshub` and the **MetricsHub Enterprise Agent** is started as a service.
 
 ### Configure
 
 * In the **./lib/config/metricshub.yaml** file, located under the `/opt/metricshub` installation directory, configure the [resources to be monitored.](../configuration/configure-monitoring.html#configure-resources)
-* In the **./lib/otel/otel-config.yaml** file, located under the `/opt/metricshub` installation directory, specify where the _OpenTelemetry Collector_ should [send the collected data.](../configuration/send-telemetry.html#configure-the-otel-collector-28enterprise-edition-29)
+* In the **./lib/otel/otel-config.yaml** file, located under the `/opt/metricshub` installation directory, specify where the _OpenTelemetry Collector_ should [send the collected data](../configuration/send-telemetry.html#configure-the-otel-collector-28enterprise-edition-29).
 
 To assist with the setup process, two configuration examples are provided for guidance in the installation directory (`./metricshub`):
 
@@ -38,20 +39,7 @@ To start the **MetricsHub Enterprise** service, run the command below:
 ```shell-session
 systemctl start metricshub-enterprise-service
 ```
-This will start **MetricsHub** with the default **MetricsHub Enterprise Agent** configuration file, **./config/metricshub.yaml**.
-
-<p id="redhat"> You can start <strong>MetricsHub</strong> in an interactive terminal with an alternate <strong>MetricsHub Agent</strong>'s configuration file with the command below:</p>
-
-```shell-session
-cd /opt/metricshub/bin
-./enterprise-service --config=<PATH>
-```
-Example:
-
-```shell-session
-cd /opt/metricshub/bin
-./enterprise-service --config=config/my-metricshub-config.yaml
-```
+This will start **MetricsHub** with the default **MetricsHub Enterprise Agent** configuration file, **./lib/config/metricshub.yaml**.
 
 ### Stop
 
@@ -66,7 +54,7 @@ systemctl stop metricshub-enterprise-service
 To uninstall **MetricsHub Enterprise**, run the command below:
 
 ```shell-session
-sudo rpm -e metricshub-${enterpriseVersion}-1.x86_64
+sudo dpkg -r metricshub
 ```
 
 ## Community Edition
@@ -203,7 +191,7 @@ where `<metricshub-service>` should be replaced with the actual service name. Fo
 ### Uninstall
 
 1. Stop the **MetricsHub Service**.
-2. Navigate to the directory where **MetricsHub** is located (e.g., `/opt`) and remove the entire `metricshub` directory.
+2. Remove the entire `metricshub` directory.
 
    ```shell-session
    rm -rf /opt/metricshub
