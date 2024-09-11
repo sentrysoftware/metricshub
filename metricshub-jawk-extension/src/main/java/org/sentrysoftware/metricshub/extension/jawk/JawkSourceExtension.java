@@ -84,12 +84,12 @@ public class JawkSourceExtension implements ICompositeSourceScriptExtension {
 		final String hostname = telemetryManager.getHostname();
 
 		if (source == null) {
-			log.warn("Hostname {} - Jawk Source cannot be null, the Jawk operation will return an empty result.", hostname);
+			log.warn("Hostname {} - Awk Source cannot be null, the Awk operation will return an empty result.", hostname);
 			return SourceTable.empty();
 		}
 
 		if (!(source instanceof JawkSource jawkSource)) {
-			log.warn("Hostname {} - Jawk Source is invalid, the Jawk operation will return an empty result.", hostname);
+			log.warn("Hostname {} - Awk Source is invalid, the Awk operation will return an empty result.", hostname);
 			return SourceTable.empty();
 		}
 
@@ -110,27 +110,27 @@ public class JawkSourceExtension implements ICompositeSourceScriptExtension {
 						connectorId
 					);
 			} catch (Exception exception) {
-				log.warn("Hostname {} - Jawk Operation script {} has not been set correctly.", hostname, script);
+				log.warn("Hostname {} - Awk Operation script {} has not been set correctly.", hostname, script);
 				return SourceTable.empty();
 			}
 		}
 
 		if (maybeEmbeddedFile.isEmpty()) {
-			log.warn("Hostname {} - Jawk Operation script {} embedded file can't be found.", hostname, script);
+			log.warn("Hostname {} - Awk Operation script {} embedded file can't be found.", hostname, script);
 			return SourceTable.empty();
 		}
 
 		final EmbeddedFile embeddedFile = maybeEmbeddedFile.get();
 		final String awkScript = embeddedFile.getContentAsString();
 
-		log.debug("Hostname {} - Jawk Operation. AWK Script:\n{}\n", hostname, awkScript);
+		log.debug("Hostname {} - Awk Operation. AWK Script:\n{}\n", hostname, awkScript);
 
 		final String input = jawkSource.getInput();
 		final String inputContent = SourceUpdaterProcessor.replaceSourceReferenceContent(
 			input,
 			telemetryManager,
 			connectorId,
-			"Jawk",
+			"Awk",
 			source.getKey()
 		);
 
@@ -185,7 +185,7 @@ public class JawkSourceExtension implements ICompositeSourceScriptExtension {
 			sourceTable.setTable(SourceTable.csvToTable(sourceTable.getRawData(), TABLE_SEP));
 			return sourceTable;
 		} catch (Exception e) {
-			LoggingHelper.logSourceError(connectorId, source.getKey(), "JAwkSource script", hostname, e);
+			LoggingHelper.logSourceError(connectorId, source.getKey(), "AwkSource script", hostname, e);
 			return SourceTable.empty();
 		}
 	}
