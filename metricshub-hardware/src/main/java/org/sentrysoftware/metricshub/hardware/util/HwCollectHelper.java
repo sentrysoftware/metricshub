@@ -25,6 +25,7 @@ import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_VM_POWE
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_VM_POWER_STATE_METRIC;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.PRESENT_STATUS;
 
+import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -122,14 +123,14 @@ public class HwCollectHelper {
 	}
 
 	/**
-	 * Calculate a rate for the given metric between the current collect and the previous collect
+	 * Calculate a rate per second for the given metric between the current collect and the previous collect
 	 * @param monitor           The monitor from which to retrieve the metric value
 	 * @param counterMetricName The name of the counter metric we want to calculate the rate from
 	 * @param rateMetricName    The name of the rate metric we are caculating
 	 * @param hostname          The hostname
 	 * @return the calculated rate
 	 */
-	public static Double calculateMetricRate(
+	public static Double calculateMetricRatePerSecond(
 		final Monitor monitor,
 		final String counterMetricName,
 		final String rateMetricName,
@@ -140,7 +141,12 @@ public class HwCollectHelper {
 		final Double collectTime = CollectHelper.getNumberMetricCollectTime(monitor, counterMetricName, false);
 		final Double previousCollectTime = CollectHelper.getNumberMetricCollectTime(monitor, counterMetricName, true);
 
-		return MathOperationsHelper.rate(rateMetricName, value, previousValue, collectTime, previousCollectTime, hostname);
+		return Optional
+			.ofNullable(
+				MathOperationsHelper.rate(rateMetricName, value, previousValue, collectTime, previousCollectTime, hostname)
+			)
+			.map(rate -> rate * 1000.0) // Convert rate from per millisecond to per second
+			.orElse(null);
 	}
 
 	/**
