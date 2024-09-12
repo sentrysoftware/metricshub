@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.sentrysoftware</groupId>
 		<artifactId>metricshub-parent</artifactId>
-		<version>0.9.05-SNAPSHOT</version>
+		<version>0.9.06-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>metricshub-doc</artifactId>
@@ -108,17 +108,9 @@
 				<version>3.5.0</version>
 				<reportSets>
 					<reportSet>
-						<reports>
-							<report>ci-management</report>
-							<report>dependencies</report>
-							<report>dependency-info</report>
-							<report>distribution-management</report>
-							<report>issue-management</report>
-							<report>licenses</report>
-							<report>plugins</report>
-							<report>scm</report>
-							<report>summary</report>
-						</reports>
+						<configuration>
+							<skip>true</skip>
+						</configuration>
 					</reportSet>
 				</reportSets>
 			</plugin>

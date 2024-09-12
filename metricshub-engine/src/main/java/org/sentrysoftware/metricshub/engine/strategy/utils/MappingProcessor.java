@@ -77,8 +77,8 @@ public class MappingProcessor {
 
 	private static final String RESULT_MESSAGE = "As a result, {} cannot be updated.";
 	private static final double MEBIBYTE_2_BYTE_FACTOR = 1_048_576.0;
-	private static final double MEGABIT_2_BIT_FACTOR = 1000000.0;
-	private static final double MEGABIT_2_BYTE_FACTOR = 125_000.0;
+	private static final double MEGABIT_2_BIT_FACTOR = 1_000_000.0;
+	public static final double MEGABIT_2_BYTE_FACTOR = MEGABIT_2_BIT_FACTOR / 8.0;
 	private static final double MEGAHERTZ_2_HERTZ_FACTOR = 1_000_000.0;
 	private static final double MILLIVOLT_2_VOLT_FACTOR = 0.001;
 	private static final double PERCENT_2_RATIO_FACTOR = 0.01;
@@ -618,7 +618,7 @@ public class MappingProcessor {
 	 * @param key		The attribute key
 	 * @return			String representing a double value in bits
 	 */
-	private String megaBit2bit(String value, String key) {
+	String megaBit2bit(final String value, final String key) {
 		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
 
 		final Optional<Double> maybeDoubleValue = extractDoubleValue(functionArguments.get(0), key);
@@ -627,6 +627,34 @@ public class MappingProcessor {
 		}
 
 		return EMPTY;
+	}
+
+	/**
+	 * Converts megabit values to byte values.
+	 *
+	 * @param value String representing a megaBit2byte function with a value in megabits.
+	 * @param key   The attribute key.
+	 * @return String representing a double value in bytes.
+	 */
+	private String megaBit2Byte(final String value, final String key) {
+		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
+
+		final Optional<Double> maybeDoubleValue = extractDoubleValue(functionArguments.get(0), key);
+		if (maybeDoubleValue.isPresent()) {
+			return multiplyValueByFactor(maybeDoubleValue.get(), MEGABIT_2_BYTE_FACTOR);
+		}
+
+		return EMPTY;
+	}
+	
+	/**
+	 * Checks to see if the value contains a megabit2byte function "megabit2byte()"
+	 *
+	 * @param value  Value to be parsed
+	 * @return       Returns true if the function is found
+	 */
+	private boolean isMegaBit2ByteFunction(String value) {
+		return MEGABIT_2_BYTE_PATTERN.matcher(value).find();
 	}
 
 	/**
@@ -955,34 +983,6 @@ public class MappingProcessor {
 	 */
 	private boolean isMebiByte2ByteFunction(String value) {
 		return MEBIBYTE_2_BYTE_PATTERN.matcher(value).find();
-	}
-
-	/**
-	 * Converts megabit values to byte values
-	 *
-	 * @param value   String representing a megabit2byte function with a value in megabits
-	 * @param key     The attribute key
-	 * @return        String representing a double value in bytes
-	 */
-	private String megaBit2Byte(String value, String key) {
-		final List<String> functionArguments = FunctionArgumentsExtractor.extractArguments(value);
-
-		final Optional<Double> maybeDoubleValue = extractDoubleValue(functionArguments.get(0), key);
-		if (maybeDoubleValue.isPresent()) {
-			return multiplyValueByFactor(maybeDoubleValue.get(), MEGABIT_2_BYTE_FACTOR);
-		}
-
-		return EMPTY;
-	}
-
-	/**
-	 * Checks to see if the value contains a megabit2byte function "megabit2byte()"
-	 *
-	 * @param value  Value to be parsed
-	 * @return       Returns true if the function is found
-	 */
-	private boolean isMegaBit2ByteFunction(String value) {
-		return MEGABIT_2_BYTE_PATTERN.matcher(value).find();
 	}
 
 	/**
