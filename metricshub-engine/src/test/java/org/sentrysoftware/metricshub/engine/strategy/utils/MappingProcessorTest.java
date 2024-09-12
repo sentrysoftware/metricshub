@@ -64,6 +64,7 @@ class MappingProcessorTest {
 			expected.put("testMegaHertz2Hertz", "1000000.0");
 			expected.put("testMilliVolt2Volt", "0.001");
 			expected.put("testMegaBit2Bit", "1000000.0");
+			expected.put("testMegaBit2Byte", "125000.0");
 			expected.put("testPercent2Ratio", "0.1");
 			expected.put("testValue", "10");
 			expected.put("testSourceReferenceKey", "vendor1");
@@ -78,6 +79,8 @@ class MappingProcessorTest {
 				"milliVolt2Volt(1)",
 				"testMegaBit2Bit",
 				"megabit2bit(1)",
+				"testMegaBit2Byte",
+				"megabit2byte(1)",
 				"testPercent2Ratio",
 				"percent2ratio(10)",
 				"testValue",
@@ -102,6 +105,8 @@ class MappingProcessorTest {
 				"0.001",
 				"testMegaBit2Bit",
 				"1000000.0",
+				"testMegaBit2Byte",
+				"125000.0",
 				"testPercent2Ratio",
 				"0.1",
 				"testValue",
@@ -117,6 +122,8 @@ class MappingProcessorTest {
 				"milliVolt2Volt($2)",
 				"testMegaBit2Bit",
 				"megabit2bit($3)",
+				"testMegaBit2Byte",
+				"megabit2byte($3)",
 				"testPercent2Ratio",
 				"percent2ratio($4)",
 				"testValue",
