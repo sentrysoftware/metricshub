@@ -243,14 +243,14 @@ public class MappingProcessor {
 			result.put(key, executeAwkScript(value, key));
 		} else if (isMegaBit2Bit(value)) {
 			result.put(key, megaBit2bit(value, key));
+		} else if (isMegaBit2Byte(value)) {
+			result.put(key, megaBit2Byte(value, key));
 		} else if (isPercentToRatioFunction(value)) {
 			result.put(key, percent2Ratio(value, key));
 		} else if (isMegaHertz2HertzFunction(value)) {
 			result.put(key, megaHertz2Hertz(value, key));
 		} else if (isMebiByte2ByteFunction(value)) {
 			result.put(key, mebiByte2Byte(value, key));
-		} else if (isMegaBit2ByteFunction(value)) {
-			result.put(key, megaBit2Byte(value, key));
 		} else if (isMilliVolt2VoltFunction(value)) {
 			result.put(key, milliVolt2Volt(value, key));
 		} else if (isBooleanFunction(value)) {
@@ -646,14 +646,14 @@ public class MappingProcessor {
 
 		return EMPTY;
 	}
-	
+
 	/**
 	 * Checks to see if the value contains a megabit2byte function "megabit2byte()"
 	 *
 	 * @param value  Value to be parsed
 	 * @return       Returns true if the function is found
 	 */
-	private boolean isMegaBit2ByteFunction(String value) {
+	private boolean isMegaBit2Byte(String value) {
 		return MEGABIT_2_BYTE_PATTERN.matcher(value).find();
 	}
 
