@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.sentrysoftware</groupId>
 		<artifactId>metricshub-parent</artifactId>
-		<version>0.9.06</version>
+		<version>0.9.07-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>metricshub-doc</artifactId>
