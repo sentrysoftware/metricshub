@@ -40,7 +40,10 @@ public class SurroundingSourceDepUpdate extends SourceConnectorUpdateChain {
 				updateSourceDependency(
 					beforeAllSources,
 					Pattern.compile(
-						String.format("\\s*(\\$\\{source::((?i)beforeAll)\\.(%s)\\})\\s*", getSourceIdentifiersRegex(beforeAllSources)),
+						String.format(
+							"\\s*(\\$\\{source::((?i)beforeAll)\\.(%s)\\})\\s*",
+							getSourceIdentifiersRegex(beforeAllSources)
+						),
 						Pattern.MULTILINE
 					),
 					3
