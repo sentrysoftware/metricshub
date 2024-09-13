@@ -33,20 +33,21 @@ public class SurroundingSourceDepUpdate extends SourceConnectorUpdateChain {
 
 	@Override
 	void doUpdate(Connector connector) {
-		final Map<String, Source> beforeAll = connector.getBeforeAll();
-		if (beforeAll != null) {
+		// Update beforeAll source dependencies
+		final Map<String, Source> beforeAllSources = connector.getBeforeAll();
+		if (beforeAllSources != null) {
 			connector.setBeforeAllSourceDep(
 				updateSourceDependency(
-					beforeAll,
+					beforeAllSources,
 					Pattern.compile(
-						String.format("\\s*(\\$\\{source::((?i)beforeAll)\\.(%s)\\})\\s*", getSourceIdentifiersRegex(beforeAll)),
+						String.format("\\s*(\\$\\{source::((?i)beforeAll)\\.(%s)\\})\\s*", getSourceIdentifiersRegex(beforeAllSources)),
 						Pattern.MULTILINE
 					),
 					3
 				)
 			);
 		}
-
+		// Update afterAll source dependencies
 		final Map<String, Source> afterAllSources = connector.getAfterAll();
 		if (afterAllSources != null) {
 			connector.setAfterAllSourceDep(

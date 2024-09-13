@@ -159,6 +159,16 @@ public class ReferenceResolverProcessor extends AbstractNodeProcessor {
 			});
 	}
 
+	/**
+	 * Updates source references within the given value by applying two sequential update methods.
+	 * First, it updates the value before all source references and then updates it after all
+	 * source references.
+	 *
+	 * @param valueToUpdate The string value that contains the source references to be updated.
+	 * @param context The context used for updating the source references, providing additional
+	 *                information for the update process.
+	 * @return The updated string after applying both update operations on the source references.
+	 */
 	private String updateSourceReferences(String valueToUpdate, final String context) {
 		final String updatedValue = updateBeforeAllSourceReferences(valueToUpdate, context);
 		return updateAfterAllSourceReferences(updatedValue, context);
