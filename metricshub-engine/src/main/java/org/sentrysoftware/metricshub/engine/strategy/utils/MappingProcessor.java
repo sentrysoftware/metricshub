@@ -92,6 +92,10 @@ public class MappingProcessor {
 		"mebibyte2byte\\((.+)\\)",
 		Pattern.CASE_INSENSITIVE
 	);
+	private static final Pattern MEGABIT_2_BYTE_PATTERN = Pattern.compile(
+		"megabit2byte\\((.+)\\)",
+		Pattern.CASE_INSENSITIVE
+	);
 	private static final Pattern MEGABIT_2_BIT_PATTERN = Pattern.compile(
 		"megabit2bit\\((.+)\\)",
 		Pattern.CASE_INSENSITIVE
@@ -237,7 +241,9 @@ public class MappingProcessor {
 			result.put(key, extractColumnValue(value, key));
 		} else if (isAwkScript(value)) {
 			result.put(key, executeAwkScript(value, key));
-		} else if (isMegaBit2Bit(value)) { // TODO Update this check when the connector references megaBit2byte function instead of megaBit2bit
+		} else if (isMegaBit2Bit(value)) {
+			result.put(key, megaBit2bit(value, key));
+		} else if (isMegaBit2Byte(value)) {
 			result.put(key, megaBit2Byte(value, key));
 		} else if (isPercentToRatioFunction(value)) {
 			result.put(key, percent2Ratio(value, key));
@@ -639,6 +645,16 @@ public class MappingProcessor {
 		}
 
 		return EMPTY;
+	}
+
+	/**
+	 * Checks to see if the value contains a megabit2byte function "megabit2byte()"
+	 *
+	 * @param value  Value to be parsed
+	 * @return       Returns true if the function is found
+	 */
+	private boolean isMegaBit2Byte(String value) {
+		return MEGABIT_2_BYTE_PATTERN.matcher(value).find();
 	}
 
 	/**
