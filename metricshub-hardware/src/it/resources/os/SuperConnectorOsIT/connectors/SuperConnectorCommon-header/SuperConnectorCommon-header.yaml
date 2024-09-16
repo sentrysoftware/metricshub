@@ -613,7 +613,7 @@ monitors:
         metrics:
           hw.status{hw.type="network"}: $2
           hw.network.up: legacyLinkStatus($3)
-          hw.network.bandwidth.limit: megaBit2Bit($4)
+          hw.network.bandwidth.limit: megaBit2Byte($4)
           hw.network.full_duplex: legacyFullDuplex($5)
           hw.errors{hw.type="network"}: $6
           hw.network.io{direction="receive"}: $7
