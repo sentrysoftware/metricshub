@@ -69,4 +69,9 @@ public class PingConfiguration implements IConfiguration {
 				)
 		);
 	}
+
+	@Override
+	public IConfiguration copy() {
+		return PingConfiguration.builder().timeout(timeout).build();
+	}
 }

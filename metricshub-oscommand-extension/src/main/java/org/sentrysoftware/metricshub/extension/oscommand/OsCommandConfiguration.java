@@ -105,4 +105,15 @@ public class OsCommandConfiguration implements IConfiguration {
 	public String toString() {
 		return "Local Commands";
 	}
+
+	@Override
+	public IConfiguration copy() {
+		return OsCommandConfiguration
+			.builder()
+			.sudoCommand(sudoCommand)
+			.timeout(timeout)
+			.useSudo(useSudo)
+			.useSudoCommands(useSudoCommands)
+			.build();
+	}
 }

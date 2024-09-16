@@ -1,6 +1,7 @@
 package org.sentrysoftware.metricshub.extension.ping;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
@@ -24,5 +25,12 @@ class PingConfigurationTest {
 			() -> PingConfiguration.builder().timeout(null).build().validateConfiguration(RESOURCE_KEY)
 		);
 		assertDoesNotThrow(() -> PingConfiguration.builder().timeout(60L).build().validateConfiguration(RESOURCE_KEY));
+	}
+
+	@Test
+	void testCopy() {
+		final PingConfiguration pingConfiguration = PingConfiguration.builder().timeout(100L).build();
+
+		assertEquals(pingConfiguration, pingConfiguration.copy());
 	}
 }

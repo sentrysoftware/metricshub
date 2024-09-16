@@ -46,4 +46,16 @@ class WmiConfigurationTest {
 				.toString()
 		);
 	}
+
+	@Test
+	void testCopy() {
+		final WmiConfiguration wmiConfiguration = WmiConfiguration
+			.builder()
+			.namespace("namespace")
+			.password("password".toCharArray())
+			.timeout(100L)
+			.username("username")
+			.build();
+		assertEquals(wmiConfiguration, wmiConfiguration.copy());
+	}
 }

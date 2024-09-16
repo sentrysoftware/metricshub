@@ -146,4 +146,22 @@ class SnmpV3ConfigurationTest {
 	void testPrivacyInterpretValueOf_InvalidValue() {
 		assertThrows(IllegalArgumentException.class, () -> Privacy.interpretValueOf("INVALID_PRIVACY"));
 	}
+
+	@Test
+	void testCopy() {
+		final SnmpV3Configuration snmpV3Configuration = SnmpV3Configuration
+			.builder()
+			.authType(AuthType.MD5)
+			.contextName("context")
+			.password("password".toCharArray())
+			.port(100)
+			.privacy(Privacy.AES)
+			.privacyPassword("privacyPassword".toCharArray())
+			.retryIntervals(new int[] { 10, 10 })
+			.timeout(100L)
+			.username("username")
+			.build();
+
+		assertEquals(snmpV3Configuration, snmpV3Configuration.copy());
+	}
 }

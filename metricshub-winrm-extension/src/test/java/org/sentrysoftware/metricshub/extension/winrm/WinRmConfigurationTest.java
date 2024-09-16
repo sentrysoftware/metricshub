@@ -4,8 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.configuration.TransportProtocols;
+import org.sentrysoftware.winrm.service.client.auth.AuthenticationEnum;
 
 class WinRmConfigurationTest {
 
@@ -47,5 +50,21 @@ class WinRmConfigurationTest {
 				.build()
 				.toString()
 		);
+	}
+
+	@Test
+	void testCopy() {
+		final WinRmConfiguration winRmConfiguration = WinRmConfiguration
+			.builder()
+			.authentications(List.of(AuthenticationEnum.KERBEROS))
+			.namespace("namespace")
+			.password("password".toCharArray())
+			.port(100)
+			.protocol(TransportProtocols.HTTPS)
+			.timeout(100L)
+			.username("username")
+			.build();
+
+		assertEquals(winRmConfiguration, winRmConfiguration.copy());
 	}
 }

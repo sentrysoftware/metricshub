@@ -110,7 +110,7 @@ public class ResourceConfig {
 
 	/**
 	 * Creates and returns a shallow copy of all the fields in this
-	 * ResourceConfig object except the attributes map which is deeply copied.
+	 * ResourceConfig object except the attributes and protocols maps which are deeply copied.
 	 *
 	 * @return A new ResourceConfig object with the same property values as this one.
 	 */
@@ -134,7 +134,10 @@ public class ResourceConfig {
 					)
 			)
 			.metrics(metrics)
-			.protocols(protocols)
+			// Deep copies the IConfigurations
+			.protocols(
+				protocols.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().copy()))
+			)
 			.variables(variables)
 			.connectors(connectors)
 			.connector(connector)

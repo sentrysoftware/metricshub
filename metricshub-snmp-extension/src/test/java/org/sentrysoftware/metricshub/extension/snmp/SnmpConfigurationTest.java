@@ -110,4 +110,17 @@ class SnmpConfigurationTest {
 		assertEquals(SnmpVersion.V2C, SnmpVersion.interpretValueOf("v2c"));
 		assertEquals(SnmpVersion.V2C, SnmpVersion.interpretValueOf("2c"));
 	}
+
+	@Test
+	void testCopy() {
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
+			.builder()
+			.community("public".toCharArray())
+			.port(100)
+			.timeout(100L)
+			.version(SnmpVersion.V2C)
+			.build();
+
+		assertEquals(snmpConfiguration, snmpConfiguration.copy());
+	}
 }

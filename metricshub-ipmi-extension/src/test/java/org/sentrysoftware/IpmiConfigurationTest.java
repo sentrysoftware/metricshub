@@ -61,4 +61,18 @@ class IpmiConfigurationTest {
 			assertThrows(InvalidConfigurationException.class, () -> ipmiConfig.validateConfiguration(resourceKey));
 		}
 	}
+
+	@Test
+	void testCopy() {
+		final IpmiConfiguration ipmiConfiguration = IpmiConfiguration
+			.builder()
+			.bmcKey(BMC_KEY)
+			.password(PASSWORD.toCharArray())
+			.skipAuth(false)
+			.timeout(100L)
+			.username(USERNAME)
+			.build();
+
+		assertEquals(ipmiConfiguration, ipmiConfiguration.copy());
+	}
 }

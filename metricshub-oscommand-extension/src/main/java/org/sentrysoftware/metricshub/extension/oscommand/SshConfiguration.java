@@ -127,4 +127,18 @@ public class SshConfiguration extends OsCommandConfiguration {
 		}
 		return desc;
 	}
+
+	public SshConfiguration copy() {
+		return SshConfiguration
+			.sshConfigurationBuilder()
+			.password(password)
+			.port(port)
+			.privateKey(privateKey)
+			.sudoCommand(sudoCommand)
+			.timeout(timeout)
+			.username(username)
+			.useSudo(useSudo)
+			.useSudoCommands(useSudoCommands)
+			.build();
+	}
 }

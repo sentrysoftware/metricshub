@@ -83,4 +83,21 @@ class SshConfigurationTest {
 		sshConfiguration.setUsername(" ");
 		assertThrows(InvalidConfigurationException.class, () -> sshConfiguration.validateConfiguration(resourceKey));
 	}
+
+	@Test
+	void testCopy() {
+		final SshConfiguration sshConfiguration = SshConfiguration
+			.sshConfigurationBuilder()
+			.password(PASSWORD.toCharArray())
+			.port(100)
+			.privateKey("privateKey")
+			.sudoCommand(SSH_SUDO_COMMAND)
+			.timeout(SSH_CONFIGURATION_TIMEOUT)
+			.username(USERNAME)
+			.useSudo(false)
+			.useSudoCommands(Set.of("sudo"))
+			.build();
+
+		assertEquals(sshConfiguration, sshConfiguration.copy());
+	}
 }

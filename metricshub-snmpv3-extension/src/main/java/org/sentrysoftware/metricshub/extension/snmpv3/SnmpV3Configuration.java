@@ -33,6 +33,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 import org.sentrysoftware.metricshub.extension.snmp.ISnmpConfiguration;
 
@@ -201,5 +202,21 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 	@Override
 	public int getIntVersion() {
 		return V3;
+	}
+
+	@Override
+	public IConfiguration copy() {
+		return SnmpV3Configuration
+			.builder()
+			.authType(authType)
+			.contextName(contextName)
+			.password(password)
+			.port(port)
+			.privacy(privacy)
+			.privacyPassword(privacyPassword)
+			.retryIntervals(retryIntervals)
+			.timeout(timeout)
+			.username(username)
+			.build();
 	}
 }

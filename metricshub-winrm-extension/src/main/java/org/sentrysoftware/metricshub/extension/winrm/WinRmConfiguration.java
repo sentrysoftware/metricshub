@@ -33,6 +33,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.TransportProtocols;
 import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 import org.sentrysoftware.metricshub.extension.win.IWinConfiguration;
@@ -119,5 +120,19 @@ public class WinRmConfiguration implements IWinConfiguration {
 			desc = desc + " as " + username;
 		}
 		return desc;
+	}
+
+	@Override
+	public IConfiguration copy() {
+		return WinRmConfiguration
+			.builder()
+			.authentications(authentications)
+			.namespace(namespace)
+			.password(password)
+			.port(port)
+			.protocol(protocol)
+			.timeout(timeout)
+			.username(username)
+			.build();
 	}
 }

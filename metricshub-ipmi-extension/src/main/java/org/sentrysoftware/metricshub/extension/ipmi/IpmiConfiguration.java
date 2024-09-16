@@ -87,4 +87,16 @@ public class IpmiConfiguration implements IConfiguration {
 				)
 		);
 	}
+
+	@Override
+	public IConfiguration copy() {
+		return IpmiConfiguration
+			.builder()
+			.bmcKey(bmcKey)
+			.password(password)
+			.skipAuth(skipAuth)
+			.timeout(timeout)
+			.username(username)
+			.build();
+	}
 }

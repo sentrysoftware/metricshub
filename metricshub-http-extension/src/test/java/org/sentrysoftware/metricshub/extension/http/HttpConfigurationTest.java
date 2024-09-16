@@ -54,4 +54,18 @@ class HttpConfigurationTest {
 			HttpConfiguration.builder().timeout(60L).port(1234).build().validateConfiguration(RESOURCE_KEY)
 		);
 	}
+
+	@Test
+	void testCopy() {
+		final HttpConfiguration httpConfiguration = HttpConfiguration
+			.builder()
+			.https(true)
+			.password("password".toCharArray())
+			.port(100)
+			.timeout(100L)
+			.username("username")
+			.build();
+
+		assertEquals(httpConfiguration, httpConfiguration.copy());
+	}
 }
