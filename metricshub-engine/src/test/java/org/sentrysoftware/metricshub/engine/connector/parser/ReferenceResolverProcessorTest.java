@@ -76,6 +76,15 @@ class ReferenceResolverProcessorTest {
 			          type1: ${source::monitors.disk.discovery.sources.httpSource1} # ${source::monitors.disk.discovery.sources.httpSource1}
 			      mapping:
 			        source1: ${source::monitors.disk.discovery.sources.httpSource2} # ${source::monitors.disk.discovery.sources.httpSource2}
+			afterAll:
+			  source0:
+			    type: http
+			  source1:
+			    type: tableJoin
+			    leftTable: ${source::afterAll.source0} # ${source::afterAll.source0}
+			  source2:
+			    type: tableJoin
+			    rightTable: ${source::source1} # ${source::afterAll.source1}
 			""";
 
 		final ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
@@ -95,6 +104,12 @@ class ReferenceResolverProcessorTest {
 		assertEquals(
 			"${source::beforeAll.source(1)}",
 			processedNode.get("beforeAll").get("source2").get("rightTable").asText()
+		);
+
+		assertEquals("${source::afterAll.source0}", processedNode.get("afterAll").get("source1").get("leftTable").asText());
+		assertEquals(
+			"${source::afterAll.source1}",
+			processedNode.get("afterAll").get("source2").get("rightTable").asText()
 		);
 
 		// Check that the relative source references are correctly replaced under the "enclosure" monitor section

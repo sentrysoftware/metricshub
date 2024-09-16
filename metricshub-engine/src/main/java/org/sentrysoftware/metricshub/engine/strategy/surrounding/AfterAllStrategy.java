@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.engine.strategy.beforeAll;
+package org.sentrysoftware.metricshub.engine.strategy.surrounding;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
@@ -21,37 +21,38 @@ package org.sentrysoftware.metricshub.engine.strategy.beforeAll;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
-import org.sentrysoftware.metricshub.engine.strategy.SurroundingStrategy;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
- * Defines a strategy for executing tasks before all source references have been processed.
+ * Defines a strategy for executing tasks after all source references have been processed.
  * Inherits behavior from {@link SurroundingStrategy} and provides a custom builder.
  */
-@Slf4j
 @EqualsAndHashCode(callSuper = true)
-public class BeforeAllStrategy extends SurroundingStrategy {
+public class AfterAllStrategy extends SurroundingStrategy {
 
 	/**
-	 * Initializes a new instance of {@code BeforeAllStrategy} with the necessary components for executing the strategy.
+	 * Initializes a new instance of {@code AfterAllStrategy} with the necessary components for executing the strategy.
 	 * This constructor sets up the strategy with a telemetry manager, strategy execution time, a clients executor,
-	 * and a specific connector to process beforeAll sources.
+	 * and a specific connector to process afterAll sources.
 	 *
 	 * @param telemetryManager The telemetry manager responsible for managing telemetry data (monitors and metrics).
 	 * @param strategyTime     The execution time of the strategy, used for timing purpose.
-	 * @param clientsExecutor  An executor service for handling client operations within the beforeAll sources.
-	 * @param connector        The specific connector instance where the beforeAll sources are defined.
+	 * @param clientsExecutor  An executor service for handling client operations within the afterAll sources.
+	 * @param connector        The specific connector instance where the afterAll sources are defined.
 	 * @param extensionManager The extension manager where all the required extensions are handled.
 	 */
-	@Builder(builderMethodName = "beforeAllBuilder")
-	public BeforeAllStrategy(
+	@Builder
+	public AfterAllStrategy(
 		@NonNull TelemetryManager telemetryManager,
 		@NonNull Long strategyTime,
 		@NonNull ClientsExecutor clientsExecutor,
@@ -59,5 +60,20 @@ public class BeforeAllStrategy extends SurroundingStrategy {
 		@NonNull ExtensionManager extensionManager
 	) {
 		super(telemetryManager, strategyTime, clientsExecutor, connector, extensionManager);
+	}
+
+	@Override
+	protected Map<String, Source> getSurroundingSources() {
+		return connector.getAfterAll();
+	}
+
+	@Override
+	protected String getJobName() {
+		return "afterAll";
+	}
+
+	@Override
+	protected List<Set<String>> getSourceDependencies() {
+		return connector.getAfterAllSourceDep();
 	}
 }

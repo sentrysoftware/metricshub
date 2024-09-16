@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.engine.strategy;
+package org.sentrysoftware.metricshub.engine.strategy.surrounding;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
@@ -20,9 +20,11 @@ package org.sentrysoftware.metricshub.engine.strategy;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
+
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import lombok.Builder;
+import java.util.Set;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -32,6 +34,7 @@ import org.sentrysoftware.metricshub.engine.common.JobInfo;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
+import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.source.OrderedSources;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
@@ -42,17 +45,18 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
  * <p>
  * Leverages Lombok's {@link Slf4j} for logging, {@link Data} for auto-generating getters and setters,
  * and {@link EqualsAndHashCode} to ensure proper equality and hash code generation.
+ * </p>
  */
 @Slf4j
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class SurroundingStrategy extends AbstractStrategy {
+public abstract class SurroundingStrategy extends AbstractStrategy {
 
-	private Connector connector;
+	protected Connector connector;
 
 	/**
 	 * Constructs a {@code SurroundingStrategy} with the necessary components for handling
-	 * "beforeAll" and "afterAll" source processing.
+	 * surrounding strategies (E.g. "beforeAll" and "afterAll") source processing.
 	 *
 	 * @param telemetryManager  The manager responsible for telemetry (monitors and metrics).
 	 * @param strategyTime      The time allocated for strategy execution.
@@ -60,8 +64,7 @@ public class SurroundingStrategy extends AbstractStrategy {
 	 * @param connector         The connector defining sources and their dependencies.
 	 * @param extensionManager  The manager handling various extensions for strategy execution.
 	 */
-	@Builder
-	public SurroundingStrategy(
+	protected SurroundingStrategy(
 		@NonNull final TelemetryManager telemetryManager,
 		@NonNull final Long strategyTime,
 		@NonNull final ClientsExecutor clientsExecutor,
@@ -73,80 +76,69 @@ public class SurroundingStrategy extends AbstractStrategy {
 	}
 
 	/**
-	 * Executes the "beforeAll" and "afterAll" source processing for the configured connector.
+	 * Executes the surrounding sources (E.g. beforeAll, afterAll) for the configured connector.
 	 * This method logs relevant information and processes sources in a specific order based on their dependencies.
 	 * <p>
 	 * If no sources are available for processing, the method logs this information and returns early.
+	 * </p>
 	 */
 	@Override
 	public void run() {
 		// Retrieve the connector's identifier and hostname for logging and processing.
 		final String connectorId = connector.getCompiledFilename();
 		final String hostname = telemetryManager.getHostname();
+		final String jobName = getJobName();
 
-		// Fetch beforeAll sources and afterAll sources from the connector.
-		final Map<String, Source> beforeAllSources = connector.getBeforeAll();
-		final Map<String, Source> afterAllSources = connector.getAfterAll();
+		// Fetch surrounding sources for the connector.
+		final Map<String, Source> sources = getSurroundingSources();
 
-		if (
-			(beforeAllSources == null || beforeAllSources.isEmpty()) && (afterAllSources == null || afterAllSources.isEmpty())
-		) {
+		if (sources == null || sources.isEmpty()) {
 			log.debug(
-				"Hostname {} - Attempted to process beforeAll and afterAll sources, but none are available for connector {}.",
+				"Hostname {} - Attempted to process {} sources, but none are available for connector {}.",
 				hostname,
+				jobName,
 				connectorId
 			);
 			return;
 		}
 
-		if (beforeAllSources == null || beforeAllSources.isEmpty()) {
-			log.debug(
-				"Hostname {} - Attempted to process beforeAll sources, but none are available for connector {}.",
-				hostname,
-				connectorId
-			);
-		} else {
-			// Construct beforeAll job information including job name, connector identifier, hostname and monitor type.
-			final JobInfo beforeAllJobInfo = JobInfo
-				.builder()
-				.hostname(hostname)
-				.connectorId(connectorId)
-				.jobName("beforeAll")
-				.monitorType("none")
-				.build();
-			// Build and order beforeAll sources based on dependencies.
-			final OrderedSources beforeAllOrderedSources = OrderedSources
-				.builder()
-				.sources(beforeAllSources, new ArrayList<>(), connector.getBeforeAllSourceDep(), beforeAllJobInfo)
-				.build();
-			// Process the ordered sources along with computes, based on the constructed job information.
-			processSourcesAndComputes(beforeAllOrderedSources.getSources(), beforeAllJobInfo);
-		}
+		// Construct job information including job name, connector identifier, hostname and monitor type.
+		final JobInfo jobInfo = JobInfo
+			.builder()
+			.hostname(hostname)
+			.connectorId(connectorId)
+			.jobName(jobName)
+			.monitorType("none")
+			.build();
 
-		if (afterAllSources == null || afterAllSources.isEmpty()) {
-			log.debug(
-				"Hostname {} - Attempted to process afterAll sources, but none are available for connector {}.",
-				hostname,
-				connectorId
-			);
-		} else {
-			// Construct beforeAll job information including job name, connector identifier, hostname and monitor type.
-			final JobInfo afterAllJobInfo = JobInfo
-				.builder()
-				.hostname(hostname)
-				.connectorId(connectorId)
-				.jobName("afterAll")
-				.monitorType("none")
-				.build();
+		// Build and order sources based on dependencies.
+		final OrderedSources orderedSources = OrderedSources
+			.builder()
+			.sources(sources, new ArrayList<>(), getSourceDependencies(), jobInfo)
+			.build();
 
-			// Build and order afterAll sources based on dependencies.
-			final OrderedSources afterAllOrderedSources = OrderedSources
-				.builder()
-				.sources(afterAllSources, new ArrayList<>(), connector.getAfterAllSourceDep(), afterAllJobInfo)
-				.build();
-
-			// Process the ordered sources along with computes, based on the constructed job information.
-			processSourcesAndComputes(afterAllOrderedSources.getSources(), afterAllJobInfo);
-		}
+		// Process the ordered sources along with computes, based on the constructed job information.
+		processSourcesAndComputes(orderedSources.getSources(), jobInfo);
 	}
+
+	/**
+	 * Retrieves the surrounding sources for the strategy.
+	 *
+	 * @return A map of surrounding sources (E.g. beforeAll, afterAll) for the strategy.
+	 */
+	protected abstract Map<String, Source> getSurroundingSources();
+
+	/**
+	 * Retrieves the job name for the strategy.
+	 *
+	 * @return a string representing the job name for the strategy.
+	 */
+	protected abstract String getJobName();
+
+	/**
+	 * Retrieves the source dependencies for the strategy.
+	 *
+	 * @return a list of sets of strings representing the source dependencies.
+	 */
+	protected abstract List<Set<String>> getSourceDependencies();
 }

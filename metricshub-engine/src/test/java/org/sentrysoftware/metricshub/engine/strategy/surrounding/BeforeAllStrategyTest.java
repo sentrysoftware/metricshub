@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.engine.strategy.afterAll;
+package org.sentrysoftware.metricshub.engine.strategy.surrounding;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -57,7 +57,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 
 @ExtendWith(MockitoExtension.class)
-public class AfterAllStrategyTest {
+class BeforeAllStrategyTest {
 
 	// Connector path
 	public static final Path TEST_CONNECTOR_PATH = Paths.get(
@@ -66,7 +66,7 @@ public class AfterAllStrategyTest {
 		"resources",
 		"test-files",
 		"strategy",
-		"afterAll"
+		"beforeAll"
 	);
 
 	@Mock
@@ -95,7 +95,7 @@ public class AfterAllStrategyTest {
 				Map.of(MONITOR_ID_ATTRIBUTE_VALUE, hostMonitor),
 				CONNECTOR,
 				Map.of(
-					String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), "afterAllSource"),
+					String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), "beforeAllSource"),
 					connectorMonitor
 				)
 			)
@@ -123,7 +123,7 @@ public class AfterAllStrategyTest {
 			.builder()
 			.monitorType(ENCLOSURE)
 			.telemetryManager(telemetryManager)
-			.connectorId("afterAllSource")
+			.connectorId("beforeAllSource")
 			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "enclosure-1")))
 			.discoveryTime(strategyTime - 30 * 60 * 1000)
 			.keys(DEFAULT_KEYS)
@@ -135,7 +135,7 @@ public class AfterAllStrategyTest {
 				.builder()
 				.monitorType(DISK_CONTROLLER)
 				.telemetryManager(telemetryManager)
-				.connectorId("afterAllSource")
+				.connectorId("beforeAllSource")
 				.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "1")))
 				.discoveryTime(strategyTime - 30 * 60 * 1000)
 				.keys(DEFAULT_KEYS)
@@ -144,7 +144,7 @@ public class AfterAllStrategyTest {
 
 		hostMonitor.addAttribute(IS_ENDPOINT, "true");
 
-		connectorMonitor.addAttribute(ID, "afterAllSource");
+		connectorMonitor.addAttribute(ID, "beforeAllSource");
 
 		// Create the connector store
 		final ConnectorStore connectorStore = new ConnectorStore(TEST_CONNECTOR_PATH);
@@ -152,7 +152,7 @@ public class AfterAllStrategyTest {
 	}
 
 	@Test
-	void testRunFromCollect() throws Exception {
+	void testRunFromCollect() {
 		initTest();
 
 		final ExtensionManager extensionManager = ExtensionManager
@@ -216,24 +216,24 @@ public class AfterAllStrategyTest {
 			.when(protocolExtensionMock)
 			.processSource(eq(diskControllerSource), anyString(), any(TelemetryManager.class));
 
-		final SnmpTableSource afterAllSource = SnmpTableSource
+		final SnmpTableSource beforeSource = SnmpTableSource
 			.builder()
 			.oid("1.3.6.1.4.1.795.10.1.1.4.5")
 			.selectColumns("ID,1,3,7,8")
 			.type("snmpTable")
-			.key("${source::afterAll.snmpSource}")
+			.key("${source::beforeAll.snmpSource}")
 			.build();
-		// Mock source table information for the snmp afterAll source
+		// Mock source table information for the snmp beforeAll source
 		doReturn(
 			SourceTable
 				.builder()
 				.table(
-					SourceTable.csvToTable("afterAllSource-1;1;2;3;4;5;6;7;healthy;health-ok", MetricsHubConstants.TABLE_SEP)
+					SourceTable.csvToTable("beforeAllSource-1;1;2;3;4;5;6;7;healthy;health-ok", MetricsHubConstants.TABLE_SEP)
 				)
 				.build()
 		)
 			.when(protocolExtensionMock)
-			.processSource(eq(afterAllSource), anyString(), any(TelemetryManager.class));
+			.processSource(eq(beforeSource), anyString(), any(TelemetryManager.class));
 
 		collectStrategy.run();
 
@@ -246,15 +246,15 @@ public class AfterAllStrategyTest {
 		assertEquals(1.0, enclosure.getMetric("hw.status{hw.type=\"enclosure\"}", NumberMetric.class).getValue());
 		assertEquals(HEALTHY, enclosure.getLegacyTextParameters().get(STATUS_INFORMATION));
 
-		// Check the successful execution of AfterAllSourceStrategy
+		// Check the successful execution of BeforeAllStrategy
 		final ConnectorNamespace connectorNamespace = telemetryManager
 			.getHostProperties()
-			.getConnectorNamespace("afterAllSource");
+			.getConnectorNamespace("beforeAllSource");
 		assertNotNull(connectorNamespace);
-		final SourceTable sourceTable = connectorNamespace.getSourceTables().get("${source::afterAll.snmpSource}");
+		final SourceTable sourceTable = connectorNamespace.getSourceTables().get("${source::beforeAll.snmpSource}");
 		assertNotNull(sourceTable);
 		List<String> sourceTableLine = sourceTable.getTable().get(0);
-		assertEquals("afterAllSource-1", sourceTableLine.get(0));
+		assertEquals("beforeAllSource-1", sourceTableLine.get(0));
 		assertEquals("1", sourceTableLine.get(1));
 		assertEquals("2", sourceTableLine.get(2));
 		assertEquals("3", sourceTableLine.get(3));
@@ -267,7 +267,7 @@ public class AfterAllStrategyTest {
 	}
 
 	@Test
-	void testRunFromDiscovery() throws Exception {
+	void testRunFromDiscovery() {
 		initTest();
 
 		final ExtensionManager extensionManager = ExtensionManager
@@ -339,36 +339,36 @@ public class AfterAllStrategyTest {
 			.when(protocolExtensionMock)
 			.processSource(eq(diskControllerSource), anyString(), any(TelemetryManager.class));
 
-		// Mock source table information for the snmp afterAll source
-		final SnmpTableSource afterAllSource = SnmpTableSource
+		// Mock source table information for the snmp beforeAll source
+		final SnmpTableSource beforeAllSource = SnmpTableSource
 			.builder()
 			.oid("1.3.6.1.4.1.795.10.1.1.4.5")
 			.selectColumns("ID,1,3,7,8")
 			.type("snmpTable")
-			.key("${source::afterAll.snmpSource}")
+			.key("${source::beforeAll.snmpSource}")
 			.build();
-		// Mock source table information for the snmp afterAll source
+		// Mock source table information for the snmp beforeAll source
 		doReturn(
 			SourceTable
 				.builder()
 				.table(
-					SourceTable.csvToTable("afterAllSource-1;1;2;3;4;5;6;7;healthy;health-ok", MetricsHubConstants.TABLE_SEP)
+					SourceTable.csvToTable("beforeAllSource-1;1;2;3;4;5;6;7;healthy;health-ok", MetricsHubConstants.TABLE_SEP)
 				)
 				.build()
 		)
 			.when(protocolExtensionMock)
-			.processSource(eq(afterAllSource), anyString(), any(TelemetryManager.class));
+			.processSource(eq(beforeAllSource), anyString(), any(TelemetryManager.class));
 
 		discoveryStrategy.run();
 
-		// Check the successful execution of AfterAllStrategy
+		// Check the successful execution of BeforeAllStrategy
 		final ConnectorNamespace connectorNamespace = telemetryManager
 			.getHostProperties()
-			.getConnectorNamespace("afterAllSource");
+			.getConnectorNamespace("beforeAllSource");
 		assertNotNull(connectorNamespace);
-		final SourceTable sourceTable = connectorNamespace.getSourceTables().get("${source::afterAll.snmpSource}");
+		final SourceTable sourceTable = connectorNamespace.getSourceTables().get("${source::beforeAll.snmpSource}");
 		assertNotNull(sourceTable);
-		assertEquals("afterAllSource-1", sourceTable.getTable().get(0).get(0));
+		assertEquals("beforeAllSource-1", sourceTable.getTable().get(0).get(0));
 		assertEquals("1", sourceTable.getTable().get(0).get(1));
 		assertEquals("2", sourceTable.getTable().get(0).get(2));
 		assertEquals("3", sourceTable.getTable().get(0).get(3));

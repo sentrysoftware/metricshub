@@ -15,7 +15,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 
-class PreDeserializerTest extends DeserializerTest {
+class BeforeAllDeserializerTest extends DeserializerTest {
 
 	@Override
 	public String getResourcePath() {

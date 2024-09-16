@@ -56,10 +56,10 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Mapping
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.MultiInstanceCollect;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
-import org.sentrysoftware.metricshub.engine.strategy.afterAll.AfterAllStrategy;
-import org.sentrysoftware.metricshub.engine.strategy.beforeAll.BeforeAllStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.source.OrderedSources;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
+import org.sentrysoftware.metricshub.engine.strategy.surrounding.AfterAllStrategy;
+import org.sentrysoftware.metricshub.engine.strategy.surrounding.BeforeAllStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.utils.MappingProcessor;
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
@@ -121,7 +121,7 @@ public class CollectStrategy extends AbstractStrategy {
 
 		// Run BeforeAllStrategy that executes beforeAll sources
 		final BeforeAllStrategy beforeAllStrategy = BeforeAllStrategy
-			.beforeAllBuilder()
+			.builder()
 			.clientsExecutor(clientsExecutor)
 			.strategyTime(strategyTime)
 			.telemetryManager(telemetryManager)
@@ -198,7 +198,7 @@ public class CollectStrategy extends AbstractStrategy {
 		}
 		// Run AfterAllStrategy that executes afterAll sources
 		final AfterAllStrategy afterAllStrategy = AfterAllStrategy
-			.afterAllBuilder()
+			.builder()
 			.clientsExecutor(clientsExecutor)
 			.strategyTime(strategyTime)
 			.telemetryManager(telemetryManager)

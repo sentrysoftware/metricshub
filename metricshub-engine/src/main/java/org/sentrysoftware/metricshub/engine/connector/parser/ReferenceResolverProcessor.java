@@ -40,14 +40,7 @@ public class ReferenceResolverProcessor extends AbstractNodeProcessor {
 	private static final String SOURCE_REF_FORMAT = "${source::%s}";
 
 	private static final Pattern REGEX_SOURCE_REF_MONITORS = Pattern.compile(
-		"\\$\\{source::(?!((?i)monitors\\.([\\w()\\.-]+)\\.(discovery|collect|simple)\\.sources\\.([\\w()\\.-]+)\\}|(?i)beforeAll|afterAll\\.([\\w()\\.-]+)\\}))([\\w()\\.-]+)\\}"
-	);
-	private static final Pattern REGEX_SOURCE_REF_BEFORE_ALL = Pattern.compile(
-		"\\$\\{source::(?!((?i)beforeAll\\.([\\w()\\.-]+)\\}))([\\w()\\.-]+)\\}"
-	);
-
-	private static final Pattern REGEX_SOURCE_REF_AFTER_ALL = Pattern.compile(
-		"\\$\\{source::(?!((?i)afterAll\\.([\\w()\\.-]+)\\}))([\\w()\\.-]+)\\}"
+		"\\$\\{source::(?!((?i)monitors\\.([\\w()\\.-]+)\\.(discovery|collect|simple)\\.sources\\.([\\w()\\.-]+)\\}|(?i)(beforeAll|afterAll)\\.([\\w()\\.-]+)\\}))([\\w()\\.-]+)\\}"
 	);
 
 	@Builder
@@ -58,111 +51,8 @@ public class ReferenceResolverProcessor extends AbstractNodeProcessor {
 	private static final Set<String> JOBS = Set.of("discovery", "collect", "simple");
 
 	/**
-	 * Replaces relative source references for beforeAll sources with the full source references
-	 *
-	 * @param valueToUpdate The value to be replaced
-	 * @param context The path in the JSON tree from the starting JsonNode having the key "monitors" or "beforeAll"
-	 * @return A string representing the updated value
-	 */
-	private String updateBeforeAllSourceReferences(String valueToUpdate, final String context) {
-		if (valueToUpdate == null || valueToUpdate.isEmpty() || context == null || context.isEmpty()) {
-			return valueToUpdate;
-		}
-
-		final var parts = context.split("\\.");
-
-		valueToUpdate =
-			REGEX_SOURCE_REF_MONITORS
-				.matcher(valueToUpdate)
-				.replaceAll(match -> {
-					// If the context starts with the string "monitors", perform the corresponding replacement
-					if (
-						// CHECKSTYLE:OFF
-						parts.length >= 4 &&
-						parts[0].equals("monitors") &&
-						JOBS.contains(parts[2]) &&
-						(parts[3].equals("sources") || parts[3].equals("mapping"))
-						// CHECKSTYLE:ON
-					) {
-						return Matcher.quoteReplacement(
-							String.format(
-								SOURCE_REF_FORMAT,
-								Stream.of(parts[0], parts[1], parts[2], "sources", match.group(6)).collect(Collectors.joining("."))
-							)
-						);
-					}
-
-					return Matcher.quoteReplacement(match.group());
-				});
-
-		return REGEX_SOURCE_REF_BEFORE_ALL
-			.matcher(valueToUpdate)
-			.replaceAll(match -> {
-				if (parts.length >= 2 && parts[0].equals("beforeAll")) {
-					return Matcher.quoteReplacement(
-						String.format(SOURCE_REF_FORMAT, Stream.of(parts[0], match.group(3)).collect(Collectors.joining(".")))
-					);
-				}
-
-				return Matcher.quoteReplacement(match.group());
-			});
-	}
-
-	/**
-	 * Replaces relative source references for afterAll sources with the full source references
-	 *
-	 * @param valueToUpdate The value to be replaced
-	 * @param context The path in the JSON tree from the starting JsonNode having the key "monitors" or "afterAll"
-	 * @return A string representing the updated value
-	 */
-	private String updateAfterAllSourceReferences(String valueToUpdate, final String context) {
-		if (valueToUpdate == null || valueToUpdate.isEmpty() || context == null || context.isEmpty()) {
-			return valueToUpdate;
-		}
-
-		final var parts = context.split("\\.");
-
-		valueToUpdate =
-			REGEX_SOURCE_REF_MONITORS
-				.matcher(valueToUpdate)
-				.replaceAll(match -> {
-					// If the context starts with the string "monitors", perform the corresponding replacement
-					if (
-						// CHECKSTYLE:OFF
-						parts.length >= 4 &&
-						parts[0].equals("monitors") &&
-						JOBS.contains(parts[2]) &&
-						(parts[3].equals("sources") || parts[3].equals("mapping"))
-						// CHECKSTYLE:ON
-					) {
-						return Matcher.quoteReplacement(
-							String.format(
-								SOURCE_REF_FORMAT,
-								Stream.of(parts[0], parts[1], parts[2], "sources", match.group(6)).collect(Collectors.joining("."))
-							)
-						);
-					}
-
-					return Matcher.quoteReplacement(match.group());
-				});
-
-		return REGEX_SOURCE_REF_AFTER_ALL
-			.matcher(valueToUpdate)
-			.replaceAll(match -> {
-				if (parts.length >= 2 && parts[0].equals("afterAll")) {
-					return Matcher.quoteReplacement(
-						String.format(SOURCE_REF_FORMAT, Stream.of(parts[0], match.group(3)).collect(Collectors.joining(".")))
-					);
-				}
-
-				return Matcher.quoteReplacement(match.group());
-			});
-	}
-
-	/**
-	 * Updates source references within the given value by applying two sequential update methods.
-	 * First, it updates the value before all source references and then updates it after all
-	 * source references.
+	 * Updates the source references in the given value based on the context provided.<br>
+	 * This method handles the source references in the monitors, beforeAll, and afterAll sections.
 	 *
 	 * @param valueToUpdate The string value that contains the source references to be updated.
 	 * @param context The context used for updating the source references, providing additional
@@ -170,8 +60,39 @@ public class ReferenceResolverProcessor extends AbstractNodeProcessor {
 	 * @return The updated string after applying both update operations on the source references.
 	 */
 	private String updateSourceReferences(String valueToUpdate, final String context) {
-		final String updatedValue = updateBeforeAllSourceReferences(valueToUpdate, context);
-		return updateAfterAllSourceReferences(updatedValue, context);
+		if (valueToUpdate == null || valueToUpdate.isEmpty() || context == null || context.isEmpty()) {
+			return valueToUpdate;
+		}
+
+		final var parts = context.split("\\.");
+
+		return REGEX_SOURCE_REF_MONITORS
+			.matcher(valueToUpdate)
+			.replaceAll(match -> {
+				// If the context starts with the string "monitors", perform the corresponding replacement
+				if (
+					// CHECKSTYLE:OFF
+					parts.length >= 4 &&
+					"monitors".equals(parts[0]) &&
+					JOBS.contains(parts[2]) &&
+					("sources".equals(parts[3]) || "mapping".equals(parts[3]))
+					// CHECKSTYLE:ON
+				) {
+					return Matcher.quoteReplacement(
+						String.format(
+							SOURCE_REF_FORMAT,
+							Stream.of(parts[0], parts[1], parts[2], "sources", match.group(7)).collect(Collectors.joining("."))
+						)
+					);
+				} else if (parts.length >= 2 && ("beforeAll".equals(parts[0]) || "afterAll".equals(parts[0]))) {
+					// If the context starts with the string "beforeAll" or "afterAll", perform the corresponding replacement
+					return Matcher.quoteReplacement(
+						String.format(SOURCE_REF_FORMAT, Stream.of(parts[0], match.group(7)).collect(Collectors.joining(".")))
+					);
+				}
+
+				return Matcher.quoteReplacement(match.group());
+			});
 	}
 
 	/**
