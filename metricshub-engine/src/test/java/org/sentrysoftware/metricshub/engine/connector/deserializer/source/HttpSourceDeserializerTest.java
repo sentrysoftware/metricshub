@@ -31,7 +31,7 @@ class HttpSourceDeserializerTest extends DeserializerTest {
 				"testHttpSource",
 				HttpSource
 					.builder()
-					.key("${source::pre.testHttpSource}")
+					.key("${source::beforeAll.testHttpSource}")
 					.type("http")
 					.url("http://machine:5985/testUrl/")
 					.method(POST)
@@ -40,7 +40,7 @@ class HttpSourceDeserializerTest extends DeserializerTest {
 			)
 		);
 
-		assertEquals(expected, connector.getPre());
+		assertEquals(expected, connector.getBeforeAll());
 	}
 
 	@Test
@@ -52,7 +52,7 @@ class HttpSourceDeserializerTest extends DeserializerTest {
 				"testHttpSource",
 				HttpSource
 					.builder()
-					.key("${source::pre.testHttpSource}")
+					.key("${source::beforeAll.testHttpSource}")
 					.type("http")
 					.path("/testPath/")
 					.method(POST)
@@ -61,7 +61,7 @@ class HttpSourceDeserializerTest extends DeserializerTest {
 			)
 		);
 
-		assertEquals(expected, connector.getPre());
+		assertEquals(expected, connector.getBeforeAll());
 	}
 
 	@Test
@@ -73,7 +73,7 @@ class HttpSourceDeserializerTest extends DeserializerTest {
 				"testHttpSource",
 				HttpSource
 					.builder()
-					.key("${source::pre.testHttpSource}")
+					.key("${source::beforeAll.testHttpSource}")
 					.type("http")
 					.url("http://machine:5985/path/")
 					.path("/testPath/")
@@ -83,7 +83,7 @@ class HttpSourceDeserializerTest extends DeserializerTest {
 			)
 		);
 
-		assertEquals(expected, connector.getPre());
+		assertEquals(expected, connector.getBeforeAll());
 	}
 
 	@Test
@@ -93,11 +93,17 @@ class HttpSourceDeserializerTest extends DeserializerTest {
 		final Map<String, Source> expected = new LinkedHashMap<>(
 			Map.of(
 				"testHttpSource",
-				HttpSource.builder().key("${source::pre.testHttpSource}").type("http").method(POST).body("test\nbody").build()
+				HttpSource
+					.builder()
+					.key("${source::beforeAll.testHttpSource}")
+					.type("http")
+					.method(POST)
+					.body("test\nbody")
+					.build()
 			)
 		);
 
-		assertEquals(expected, connector.getPre());
+		assertEquals(expected, connector.getBeforeAll());
 	}
 
 	@Test
@@ -107,19 +113,19 @@ class HttpSourceDeserializerTest extends DeserializerTest {
 		final Map<String, Source> expected = new LinkedHashMap<>(
 			Map.of(
 				"devices",
-				HttpSource.builder().key("${source::pre.devices}").type("http").url("/devices").method(GET).build(),
+				HttpSource.builder().key("${source::beforeAll.devices}").type("http").url("/devices").method(GET).build(),
 				"detailsOfEachDevice",
 				HttpSource
 					.builder()
-					.key("${source::pre.detailsOfEachDevice}")
+					.key("${source::beforeAll.detailsOfEachDevice}")
 					.type("http")
 					.url("/device-detail/$entry.column(1)$")
 					.method(GET)
-					.executeForEachEntryOf(new ExecuteForEachEntryOf("${source::pre.devices}", EntryConcatMethod.LIST, 0))
+					.executeForEachEntryOf(new ExecuteForEachEntryOf("${source::beforeAll.devices}", EntryConcatMethod.LIST, 0))
 					.build()
 			)
 		);
 
-		assertEquals(expected, connector.getPre());
+		assertEquals(expected, connector.getBeforeAll());
 	}
 }

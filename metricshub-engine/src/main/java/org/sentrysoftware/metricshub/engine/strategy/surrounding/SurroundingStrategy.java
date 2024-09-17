@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.engine.strategy.pre;
+package org.sentrysoftware.metricshub.engine.strategy.surrounding;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
@@ -22,8 +22,10 @@ package org.sentrysoftware.metricshub.engine.strategy.pre;
  */
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import lombok.Builder;
+import java.util.Set;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -37,31 +39,32 @@ import org.sentrysoftware.metricshub.engine.strategy.source.OrderedSources;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
- * Implements pre-sources processing strategy extending the functionality of {@code AbstractStrategy}.
- * This strategy is specifically designed to handle pre-sources using a specified connector. Pre-sources
- * are defined by a connector to facilitate factorization and convenience, allowing these sources to be processed
- * at the beginning of all jobs. This early processing ensures that any necessary setup or preliminary data manipulation
- * is completed before the main job execution phases.
+ * Strategy for executing tasks that surround the core processing of sources, such as "beforeAll"
+ * and "afterAll" operations. Inherits from {@link AbstractStrategy} and manages source execution
+ * for a given {@link Connector}.
+ * <p>
+ * Leverages Lombok's {@link Slf4j} for logging, {@link Data} for auto-generating getters and setters,
+ * and {@link EqualsAndHashCode} to ensure proper equality and hash code generation.
+ * </p>
  */
 @Slf4j
+@Data
 @EqualsAndHashCode(callSuper = true)
-public class PreSourcesStrategy extends AbstractStrategy {
+public abstract class SurroundingStrategy extends AbstractStrategy {
 
-	private Connector connector;
+	protected Connector connector;
 
 	/**
-	 * Initializes a new instance of {@code PreSourcesStrategy} with the necessary components for executing the strategy.
-	 * This constructor sets up the strategy with a telemetry manager, strategy execution time, a clients executor,
-	 * and a specific connector to process pre-sources.
+	 * Constructs a {@code SurroundingStrategy} with the necessary components for handling
+	 * surrounding strategies (E.g. "beforeAll" and "afterAll") source processing.
 	 *
-	 * @param telemetryManager The telemetry manager responsible for managing telemetry data (monitors and metrics).
-	 * @param strategyTime     The execution time of the strategy, used for timing purpose.
-	 * @param clientsExecutor  An executor service for handling client operations within the pre-sources.
-	 * @param connector        The specific connector instance where the pre-sources are defined.
-	 * @param extensionManager The extension manager where all the required extensions are handled.
+	 * @param telemetryManager  The manager responsible for telemetry (monitors and metrics).
+	 * @param strategyTime      The time allocated for strategy execution.
+	 * @param clientsExecutor   Executor service for managing client-related tasks.
+	 * @param connector         The connector defining sources and their dependencies.
+	 * @param extensionManager  The manager handling various extensions for strategy execution.
 	 */
-	@Builder
-	public PreSourcesStrategy(
+	protected SurroundingStrategy(
 		@NonNull final TelemetryManager telemetryManager,
 		@NonNull final Long strategyTime,
 		@NonNull final ClientsExecutor clientsExecutor,
@@ -73,20 +76,27 @@ public class PreSourcesStrategy extends AbstractStrategy {
 	}
 
 	/**
-	 * Executes the strategy's core logic, processing pre-sources associated with the connector.
+	 * Executes the surrounding sources (E.g. beforeAll, afterAll) for the configured connector.
+	 * This method logs relevant information and processes sources in a specific order based on their dependencies.
+	 * <p>
+	 * If no sources are available for processing, the method logs this information and returns early.
+	 * </p>
 	 */
 	@Override
 	public void run() {
 		// Retrieve the connector's identifier and hostname for logging and processing.
 		final String connectorId = connector.getCompiledFilename();
 		final String hostname = telemetryManager.getHostname();
+		final String jobName = getJobName();
 
-		// Fetch pre-sources from the connector.
-		final Map<String, Source> preSources = connector.getPre();
-		if (preSources == null || preSources.isEmpty()) {
+		// Fetch surrounding sources for the connector.
+		final Map<String, Source> sources = getSurroundingSources();
+
+		if (sources == null || sources.isEmpty()) {
 			log.debug(
-				"Hostname {} - Attempted to process pre-sources, but none are available for connector {}.",
+				"Hostname {} - Attempted to process {} sources, but none are available for connector {}.",
 				hostname,
+				jobName,
 				connectorId
 			);
 			return;
@@ -97,17 +107,38 @@ public class PreSourcesStrategy extends AbstractStrategy {
 			.builder()
 			.hostname(hostname)
 			.connectorId(connectorId)
-			.jobName("pre")
+			.jobName(jobName)
 			.monitorType("none")
 			.build();
 
 		// Build and order sources based on dependencies.
 		final OrderedSources orderedSources = OrderedSources
 			.builder()
-			.sources(preSources, new ArrayList<>(), connector.getPreSourceDep(), jobInfo)
+			.sources(sources, new ArrayList<>(), getSourceDependencies(), jobInfo)
 			.build();
 
 		// Process the ordered sources along with computes, based on the constructed job information.
 		processSourcesAndComputes(orderedSources.getSources(), jobInfo);
 	}
+
+	/**
+	 * Retrieves the surrounding sources for the strategy.
+	 *
+	 * @return A map of surrounding sources (E.g. beforeAll, afterAll) for the strategy.
+	 */
+	protected abstract Map<String, Source> getSurroundingSources();
+
+	/**
+	 * Retrieves the job name for the strategy.
+	 *
+	 * @return a string representing the job name for the strategy.
+	 */
+	protected abstract String getJobName();
+
+	/**
+	 * Retrieves the source dependencies for the strategy.
+	 *
+	 * @return a list of sets of strings representing the source dependencies.
+	 */
+	protected abstract List<Set<String>> getSourceDependencies();
 }

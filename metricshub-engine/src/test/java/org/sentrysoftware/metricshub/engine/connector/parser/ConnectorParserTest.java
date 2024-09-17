@@ -265,37 +265,37 @@ class ConnectorParserTest {
 	}
 
 	@Test
-	void testPreSourceDepUpdateUseCase1() throws IOException {
-		final Connector connector = new ConnectorParserUpdateManagement("connector/management/preSourceDep/useCase1")
+	void testBeforeAllSourceDepUpdateUseCase1() throws IOException {
+		final Connector connector = new ConnectorParserUpdateManagement("connector/management/beforeAllSourceDep/useCase1")
 			.parse("sourceDep");
 
 		final List<Set<String>> expected = buildUseCase1Dependency();
 
-		assertEquals(expected, connector.getPreSourceDep());
+		assertEquals(expected, connector.getBeforeAllSourceDep());
 	}
 
 	@Test
-	void testPreSourceDepUpdateUseCase2() throws IOException {
-		final Connector connector = new ConnectorParserUpdateManagement("connector/management/preSourceDep/useCase2")
+	void testBeforeAllSourceDepUpdateUseCase2() throws IOException {
+		final Connector connector = new ConnectorParserUpdateManagement("connector/management/beforeAllSourceDep/useCase2")
 			.parse("sourceDep");
 
 		final List<Set<String>> expected = buildUseCase2Dependency();
 
-		assertEquals(expected, connector.getPreSourceDep());
+		assertEquals(expected, connector.getBeforeAllSourceDep());
 	}
 
 	@Test
-	void testPreSourceDepUpdateUseCase3() throws IOException {
-		final Connector connector = new ConnectorParserUpdateManagement("connector/management/preSourceDep/useCase3")
+	void testBeforeAllSourceDepUpdateUseCase3() throws IOException {
+		final Connector connector = new ConnectorParserUpdateManagement("connector/management/beforeAllSourceDep/useCase3")
 			.parse("sourceDep");
 
 		final List<Set<String>> expected = buildUseCase3Dependency();
-		assertEquals(expected, connector.getPreSourceDep());
+		assertEquals(expected, connector.getBeforeAllSourceDep());
 	}
 
 	@Test
-	void testPreSourceDepUpdateUseCase4() throws IOException {
-		final Connector connector = new ConnectorParserUpdateManagement("connector/management/preSourceDep/useCase4")
+	void testBeforeAllSourceDepUpdateUseCase4() throws IOException {
+		final Connector connector = new ConnectorParserUpdateManagement("connector/management/beforeAllSourceDep/useCase4")
 			.parse("sourceDep");
 
 		final List<Set<String>> expected = new ArrayList<>();
@@ -310,7 +310,72 @@ class ConnectorParserTest {
 		expected.add(level1);
 		expected.add(level2);
 
-		assertEquals(expected, connector.getPreSourceDep());
+		assertEquals(expected, connector.getBeforeAllSourceDep());
+	}
+
+	@Test
+	void testAfterAllSourceDepUpdateUseCase1() throws IOException {
+		final Connector connector = new ConnectorParserUpdateManagement("connector/management/afterAllSourceDep/useCase1")
+			.parse("sourceDep");
+
+		final List<Set<String>> expected = buildUseCase1Dependency();
+
+		assertEquals(expected, connector.getAfterAllSourceDep());
+	}
+
+	@Test
+	void testAfterAllSourceDepUpdateUseCase2() throws IOException {
+		final Connector connector = new ConnectorParserUpdateManagement("connector/management/afterAllSourceDep/useCase2")
+			.parse("sourceDep");
+
+		final List<Set<String>> expected = buildUseCase2Dependency();
+
+		assertEquals(expected, connector.getAfterAllSourceDep());
+	}
+
+	@Test
+	void testAfterAllSourceDepUpdateUseCase3() throws IOException {
+		final Connector connector = new ConnectorParserUpdateManagement("connector/management/afterAllSourceDep/useCase3")
+			.parse("sourceDep");
+
+		final List<Set<String>> expected = buildUseCase3Dependency();
+		assertEquals(expected, connector.getAfterAllSourceDep());
+	}
+
+	@Test
+	void testAfterAllSourceDepUpdateUseCase4() throws IOException {
+		final Connector connector = new ConnectorParserUpdateManagement("connector/management/afterAllSourceDep/useCase4")
+			.parse("sourceDep");
+
+		final List<Set<String>> expected = new ArrayList<>();
+		final Set<String> level1 = new HashSet<>();
+		// WMI query
+		level1.add("source(1)");
+
+		final Set<String> level2 = new HashSet<>();
+		// WMI query with executeForEachEntryOf source(1)
+		level2.add("source(2)");
+
+		expected.add(level1);
+		expected.add(level2);
+
+		assertEquals(expected, connector.getAfterAllSourceDep());
+	}
+
+	@Test
+	void testSourceDepUpdateWithBeforeAllAndAfterAll() throws IOException {
+		final Connector connector = new ConnectorParserUpdateManagement("connector/management/surroundingSourceDep")
+			.parse("sourceDep");
+
+		final List<Set<String>> expectedAfterAllSourceDeps = buildUseCase1Dependency();
+
+		assertEquals(expectedAfterAllSourceDeps, connector.getAfterAllSourceDep());
+
+		final List<Set<String>> expectedBeforeAllSourceDeps = new ArrayList<>();
+		final Set<String> levelOne = new HashSet<>();
+		levelOne.add("source(10)");
+		expectedBeforeAllSourceDeps.add(levelOne);
+		assertEquals(expectedBeforeAllSourceDeps, connector.getBeforeAllSourceDep());
 	}
 
 	private List<Set<String>> buildUseCase1Dependency() {

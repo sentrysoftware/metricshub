@@ -2,7 +2,7 @@ connector:
   detection:
     appliesTo: [ Linux ]
 
-pre:
+beforeAll:
   testTableJoinSource:
     type: tableJoin
     leftTable: testLeft

@@ -56,9 +56,10 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Mapping
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.MultiInstanceCollect;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
-import org.sentrysoftware.metricshub.engine.strategy.pre.PreSourcesStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.source.OrderedSources;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
+import org.sentrysoftware.metricshub.engine.strategy.surrounding.AfterAllStrategy;
+import org.sentrysoftware.metricshub.engine.strategy.surrounding.BeforeAllStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.utils.MappingProcessor;
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
@@ -118,8 +119,8 @@ public class CollectStrategy extends AbstractStrategy {
 			return;
 		}
 
-		// Run PreSourcesStrategy that executes pre sources
-		final PreSourcesStrategy preSourcesStrategy = PreSourcesStrategy
+		// Run BeforeAllStrategy that executes beforeAll sources
+		final BeforeAllStrategy beforeAllStrategy = BeforeAllStrategy
 			.builder()
 			.clientsExecutor(clientsExecutor)
 			.strategyTime(strategyTime)
@@ -128,7 +129,7 @@ public class CollectStrategy extends AbstractStrategy {
 			.extensionManager(extensionManager)
 			.build();
 
-		preSourcesStrategy.run();
+		beforeAllStrategy.run();
 
 		// Sort the connector monitor jobs according to the priority map
 		final Map<String, MonitorJob> connectorMonitorJobs = currentConnector
@@ -195,6 +196,17 @@ public class CollectStrategy extends AbstractStrategy {
 				log.debug("Hostname {} - Waiting for threads' termination aborted with an error.", hostname, e);
 			}
 		}
+		// Run AfterAllStrategy that executes afterAll sources
+		final AfterAllStrategy afterAllStrategy = AfterAllStrategy
+			.builder()
+			.clientsExecutor(clientsExecutor)
+			.strategyTime(strategyTime)
+			.telemetryManager(telemetryManager)
+			.connector(currentConnector)
+			.extensionManager(extensionManager)
+			.build();
+
+		afterAllStrategy.run();
 	}
 
 	/**

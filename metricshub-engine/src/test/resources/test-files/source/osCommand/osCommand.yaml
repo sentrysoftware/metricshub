@@ -2,7 +2,7 @@ connector:
   detection:
     appliesTo: Windows
 
-pre:
+beforeAll:
   oscommand1:
     type: osCommand
     commandLine: myCommand

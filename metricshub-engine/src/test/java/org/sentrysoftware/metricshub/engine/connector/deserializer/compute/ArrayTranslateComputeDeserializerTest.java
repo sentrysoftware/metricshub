@@ -39,13 +39,13 @@ class ArrayTranslateComputeDeserializerTest extends DeserializerTest {
 				.build()
 		);
 
-		assertNotNull(connector.getPre());
-		assertEquals(1, connector.getPre().size());
+		assertNotNull(connector.getBeforeAll());
+		assertEquals(1, connector.getBeforeAll().size());
 
-		final Source actual = connector.getPre().get("testCompute");
+		final Source actual = connector.getBeforeAll().get("testCompute");
 		assertNotNull(actual);
 		assertInstanceOf(HttpSource.class, actual);
-		assertEquals("${source::pre.testCompute}", actual.getKey());
+		assertEquals("${source::beforeAll.testCompute}", actual.getKey());
 		assertEquals("http", actual.getType());
 		assertEquals("/testUrl/", ((HttpSource) actual).getUrl());
 	}

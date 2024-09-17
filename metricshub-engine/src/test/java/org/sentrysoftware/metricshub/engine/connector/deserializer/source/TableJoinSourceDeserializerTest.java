@@ -36,12 +36,12 @@ class TableJoinSourceDeserializerTest extends DeserializerTest {
 					.leftKeyColumn(2)
 					.rightKeyColumn(3)
 					.defaultRightLine("testdefault;;;")
-					.key("${source::pre.testTableJoinSource}")
+					.key("${source::beforeAll.testTableJoinSource}")
 					.computes(Collections.emptyList())
 					.build()
 			);
 
-			comparePreSource(connector, expected);
+			compareBeforeAllSource(connector, expected);
 		} catch (Exception e) {
 			Assertions.fail(e.getMessage());
 		}

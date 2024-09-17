@@ -3,7 +3,7 @@ connector:
   detection:
     appliesTo: [ linux ]
 
-pre:
+beforeAll:
   testHttpSource:
     type: http
     method: POST

@@ -2,7 +2,7 @@ connector:
   detection:
     appliesTo: Windows
 
-pre:
+beforeAll:
   snmpTable1:
     type: snmpTable
     oid: 1.3.6.1.4.1
