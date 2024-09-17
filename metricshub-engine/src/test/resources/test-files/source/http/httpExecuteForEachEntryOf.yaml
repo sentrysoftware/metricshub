@@ -2,7 +2,7 @@ connector:
   detection:
     appliesTo: [ Linux ]
 
-pre:
+beforeAll:
   devices:
     type: http
     method: GET
@@ -12,5 +12,5 @@ pre:
     method: GET
     url: /device-detail/$entry.column(1)$
     executeForEachEntryOf:
-      source: ${source::pre.devices}
+      source: ${source::beforeAll.devices}
       concatMethod: list

@@ -28,7 +28,7 @@ class SnmpTableSourceDeserializerTest extends DeserializerTest {
 			"snmpTable1",
 			SnmpTableSource
 				.builder()
-				.key("${source::pre.snmpTable1}")
+				.key("${source::beforeAll.snmpTable1}")
 				.type("snmpTable")
 				.oid("1.3.6.1.4.1")
 				.selectColumns("ID,1,2,3,4")
@@ -37,6 +37,6 @@ class SnmpTableSourceDeserializerTest extends DeserializerTest {
 				.build()
 		);
 
-		assertEquals(expected, connector.getPre());
+		assertEquals(expected, connector.getBeforeAll());
 	}
 }

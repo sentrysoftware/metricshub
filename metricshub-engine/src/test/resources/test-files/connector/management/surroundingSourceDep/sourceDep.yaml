@@ -10,7 +10,13 @@ connector:
       errorMessage: testErrorMessage
       forceSerialization: true
 
-pre:
+beforeAll:
+  source(10):
+    type: wbem
+    query: SELECT __PATH,Model,EMCSerialNumber FROM EMC_ArrayChassis
+    namespace: root/emc
+
+afterAll:
   source(1):
     type: wbem
     query: SELECT __PATH,Model,EMCSerialNumber FROM EMC_ArrayChassis
@@ -26,24 +32,24 @@ pre:
   source(4):
     type: tableUnion
     tables: 
-      - ${source::pre.source(2)}
-      - ${source::pre.source(3)}
+      - ${source::afterAll.source(2)}
+      - ${source::afterAll.source(3)}
   source(5):
     type: wbem
     query: SELECT __PATH,ElementName,Description,OtherIdentifyingInfo,OperationalStatus FROM EMC_StorageSystem
     namespace: root/emc
   source(6):
     type: tableJoin
-    leftTable: ${source::pre.source(1)}
-    rightTable: ${source::pre.source(4)}
+    leftTable: ${source::afterAll.source(1)}
+    rightTable: ${source::afterAll.source(4)}
     leftKeyColumn: 1
     rightKeyColumn: 1
     keyType: WBEM
     defaultRightLine: ;;
   source(7):
     type: tableJoin
-    leftTable: ${source::pre.source(6)}
-    rightTable: ${source::pre.source(5)}
+    leftTable: ${source::afterAll.source(6)}
+    rightTable: ${source::afterAll.source(5)}
     leftKeyColumn: 5
     rightKeyColumn: 1
     keyType: WBEM
@@ -53,7 +59,7 @@ monitors:
   enclosure:
     discovery:
       mapping:
-        source: ${source::pre.source(7)}
+        source: ${source::afterAll.source(7)}
         attributes:
           id: $6
           parent: ""

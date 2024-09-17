@@ -3,7 +3,7 @@ connector:
   detection:
     appliesTo: [ linux ]
 
-pre:
+beforeAll:
   wbemSource:
     type: wbem
     query: SELECT Name FROM EMC_StorageSystem

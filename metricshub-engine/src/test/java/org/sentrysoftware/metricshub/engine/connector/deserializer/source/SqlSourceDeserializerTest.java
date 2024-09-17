@@ -53,9 +53,9 @@ public class SqlSourceDeserializerTest extends DeserializerTest {
 			.tables(tables)
 			.query("SELECT T1.COL1, T1.COL2, T2.COL1, T2.COL2 FROM T1 JOIN T2 ON T1.COL1 = T2.COL1;")
 			.build();
-		expected.setKey("${source::pre.testSqlSource}");
+		expected.setKey("${source::beforeAll.testSqlSource}");
 
-		final Source sourceResult = connector.getPre().get("testSqlSource");
+		final Source sourceResult = connector.getBeforeAll().get("testSqlSource");
 
 		assertTrue(sourceResult instanceof SqlSource);
 

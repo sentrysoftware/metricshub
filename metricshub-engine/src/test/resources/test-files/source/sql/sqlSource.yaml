@@ -2,7 +2,7 @@ connector:
   detection:
     appliesTo: [ Linux ]
 
-pre:
+beforeAll:
   testSqlSource:
     type: sql
     tables:

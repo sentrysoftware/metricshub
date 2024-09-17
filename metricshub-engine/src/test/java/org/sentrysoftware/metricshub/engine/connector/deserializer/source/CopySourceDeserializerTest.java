@@ -29,14 +29,14 @@ class CopySourceDeserializerTest extends DeserializerTest {
 				"testCopySource",
 				CopySource
 					.builder()
-					.key("${source::pre.testCopySource}")
+					.key("${source::beforeAll.testCopySource}")
 					.type("copy")
-					.from("${source::pre.anotherSource}")
+					.from("${source::beforeAll.anotherSource}")
 					.computes(Collections.emptyList())
 					.build()
 			)
 		);
 
-		assertEquals(expected, connector.getPre());
+		assertEquals(expected, connector.getBeforeAll());
 	}
 }

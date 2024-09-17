@@ -69,7 +69,7 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 		final Map<Integer, Set<String>> mapLevels = new LinkedHashMap<>();
 
 		// Build a key-value pairs where the key is the source id and the values are the dependency identifiers
-		// of the current current context. Thus, dependencies can be retrieved easily when looping over the sources.
+		// of the current context. Thus, dependencies can be retrieved easily when looping over the sources.
 		// E.g:
 		// source1 -> []
 		// source2 -> []
@@ -208,7 +208,7 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 
 			while (includeMatcher.find()) {
 				// Get source id, example: Source1
-				// Means this source identifier is defined in the current monitor task job or pre sources context.
+				// Means this source identifier is defined in the current monitor task job or beforeAll/afterAll sources context.
 				dependencies.add(includeMatcher.group(sourceGroup));
 			}
 		}
@@ -242,7 +242,7 @@ public abstract class SourceConnectorUpdateChain extends AbstractConnectorUpdate
 	/**
 	 * Return the source identifiers REGEX such as source1|source2|source3
 	 *
-	 * @param sources monitor task sources or pre sources
+	 * @param sources monitor task sources or beforeAll/afterAll sources
 	 * @return String value
 	 */
 	protected String getSourceIdentifiersRegex(final Map<String, Source> sources) {

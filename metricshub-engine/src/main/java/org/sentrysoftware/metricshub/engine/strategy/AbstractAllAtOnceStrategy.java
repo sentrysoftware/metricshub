@@ -54,9 +54,10 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Discove
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Mapping;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Simple;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
-import org.sentrysoftware.metricshub.engine.strategy.pre.PreSourcesStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.source.OrderedSources;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
+import org.sentrysoftware.metricshub.engine.strategy.surrounding.AfterAllStrategy;
+import org.sentrysoftware.metricshub.engine.strategy.surrounding.BeforeAllStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.utils.MappingProcessor;
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
@@ -74,6 +75,13 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 @EqualsAndHashCode(callSuper = true)
 public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 
+	/**
+	 * Initializes a new instance of {@code AbstractAllAtOnceStrategy} with the necessary components for executing the strategy.
+	 * @param telemetryManager The telemetry manager responsible for managing telemetry data (monitors and metrics).
+	 * @param strategyTime     The execution time of the strategy, used for timing purpose.
+	 * @param clientsExecutor  An executor service for handling client operations within the strategy.
+	 * @param extensionManager The extension manager where all the required extensions are handled.
+	 */
 	protected AbstractAllAtOnceStrategy(
 		@NonNull final TelemetryManager telemetryManager,
 		final long strategyTime,
@@ -100,8 +108,8 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 			return;
 		}
 
-		// Run PreSourcesStrategy that executes pre sources
-		final PreSourcesStrategy preSourcesStrategy = PreSourcesStrategy
+		// Run BeforeAllStrategy that executes beforeAll sources
+		final BeforeAllStrategy beforeAllStrategy = BeforeAllStrategy
 			.builder()
 			.clientsExecutor(clientsExecutor)
 			.strategyTime(strategyTime)
@@ -110,7 +118,7 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 			.extensionManager(extensionManager)
 			.build();
 
-		preSourcesStrategy.run();
+		beforeAllStrategy.run();
 
 		// Sort the connector monitor jobs according to the priority map
 		final Map<String, MonitorJob> connectorMonitorJobs = currentConnector
@@ -178,6 +186,17 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 				log.debug("Hostname {} - Waiting for threads' termination aborted with an error.", hostname, e);
 			}
 		}
+		// Run AfterAllStrategy that executes afterAll sources
+		final AfterAllStrategy afterAllStrategy = AfterAllStrategy
+			.builder()
+			.clientsExecutor(clientsExecutor)
+			.strategyTime(strategyTime)
+			.telemetryManager(telemetryManager)
+			.connector(currentConnector)
+			.extensionManager(extensionManager)
+			.build();
+
+		afterAllStrategy.run();
 	}
 
 	/**

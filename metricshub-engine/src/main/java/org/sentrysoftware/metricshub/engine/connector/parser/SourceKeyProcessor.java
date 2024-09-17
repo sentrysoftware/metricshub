@@ -36,8 +36,8 @@ import java.util.Set;
  * <br>The processor handles two specific parts of the node structure:
  * <ul>
  *   <li>
- *    Pre-nodes: Adds a "key" to each source node under "pre" based on the source name.
- *    E.g. <strong>${source::pre.source_1}</strong>.
+ *    Pre-nodes: Adds a "key" to each source node under "beforeAll" or "afterAll" based on the source name.
+ *    E.g. <strong>${source::beforeAll.source_1}</strong> or <strong>${source::afterAll.source_1}</strong>
  *   </li>
  *   <li>
  *    Monitor nodes: For specified monitor job types ("discovery", "collect", "simple"), adds a "key" to
@@ -82,20 +82,8 @@ public class SourceKeyProcessor extends AbstractNodeProcessor {
 
 	@Override
 	protected JsonNode processNode(JsonNode node) throws IOException {
-		// Get the "pre" JSON node
-		final JsonNode preNode = node.get("pre");
-		// Make sure the node is available
-		if (preNode != null && !preNode.isNull()) {
-			// Loop over the source nodes and set the key property on each source node
-			preNode
-				.fields()
-				.forEachRemaining(sourceNodeEntry -> {
-					final String sourceName = sourceNodeEntry.getKey();
-					final JsonNode sourceNode = sourceNodeEntry.getValue();
-					final ObjectNode sourceObjectNode = (ObjectNode) sourceNode;
-					sourceObjectNode.set(SOURCE_KEY_PROPERTY, new TextNode(String.format("${source::pre.%s}", sourceName)));
-				});
-		}
+		processSurroundingNode("beforeAll", node);
+		processSurroundingNode("afterAll", node);
 
 		// Attempt to get the "monitors" node
 		final JsonNode monitorsNode = node.get("monitors");
@@ -135,5 +123,30 @@ public class SourceKeyProcessor extends AbstractNodeProcessor {
 				});
 		}
 		return node;
+	}
+
+	/**
+	 * Processes the surrounding node of the given JSON node e.g. beforeAll and afterAll node, by adding a "key" property.
+	 *
+	 * @param nodeKey The key of the surrounding node
+	 * @param node    The JSON node
+	 */
+	private void processSurroundingNode(final String nodeKey, final JsonNode node) {
+		// Get the surrounding  JSON node e.g. beforeAll or afterAll
+		final JsonNode surroundingNode = node.get(nodeKey);
+		if (surroundingNode != null && !surroundingNode.isNull()) {
+			// Loop over the source nodes and set the key property on each source node
+			surroundingNode
+				.fields()
+				.forEachRemaining(sourceNodeEntry -> {
+					final String sourceName = sourceNodeEntry.getKey();
+					final JsonNode sourceNode = sourceNodeEntry.getValue();
+					final ObjectNode sourceObjectNode = (ObjectNode) sourceNode;
+					sourceObjectNode.set(
+						SOURCE_KEY_PROPERTY,
+						new TextNode(String.format("${source::%s.%s}", nodeKey, sourceName))
+					);
+				});
+		}
 	}
 }
