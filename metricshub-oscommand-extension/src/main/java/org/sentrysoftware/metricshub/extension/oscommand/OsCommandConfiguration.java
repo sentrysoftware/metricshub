@@ -113,7 +113,7 @@ public class OsCommandConfiguration implements IConfiguration {
 			.sudoCommand(sudoCommand)
 			.timeout(timeout)
 			.useSudo(useSudo)
-			.useSudoCommands(useSudoCommands)
+			.useSudoCommands(new HashSet<>(useSudoCommands))
 			.build();
 	}
 }
