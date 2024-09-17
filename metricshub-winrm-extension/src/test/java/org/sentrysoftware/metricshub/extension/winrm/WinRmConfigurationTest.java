@@ -65,6 +65,13 @@ class WinRmConfigurationTest {
 			.username("username")
 			.build();
 
-		assertEquals(winRmConfiguration, winRmConfiguration.copy());
+		final WinRmConfiguration winRmConfigurationCopy = (WinRmConfiguration) winRmConfiguration.copy();
+
+		// Verify that the copied configuration has the same values as the original configuration
+		assertEquals(winRmConfiguration, winRmConfigurationCopy);
+
+		// Ensure that the copied configuration is a distinct object
+		assert (winRmConfiguration != winRmConfigurationCopy);
+		assert (winRmConfiguration.getAuthentications() != winRmConfigurationCopy.getAuthentications());
 	}
 }

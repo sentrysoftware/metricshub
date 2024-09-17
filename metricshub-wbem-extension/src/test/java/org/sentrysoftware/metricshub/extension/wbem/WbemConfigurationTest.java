@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.TransportProtocols;
 
 /**
@@ -94,6 +95,12 @@ class WbemConfigurationTest {
 			.vCenter(WBEM_VCENTER)
 			.build();
 
-		assertEquals(wbemConfiguration, wbemConfiguration.copy());
+		final IConfiguration wbemConfigurationCopy = wbemConfiguration.copy();
+
+		// Verify that the copied configuration has the same values as the original configuration
+		assertEquals(wbemConfiguration, wbemConfigurationCopy);
+
+		// Ensure that the copied configuration is a distinct object
+		assert (wbemConfiguration != wbemConfigurationCopy);
 	}
 }

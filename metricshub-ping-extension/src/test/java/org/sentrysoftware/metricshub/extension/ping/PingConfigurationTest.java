@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 
 /**
  * Test of {@link PingConfiguration}
@@ -31,6 +32,12 @@ class PingConfigurationTest {
 	void testCopy() {
 		final PingConfiguration pingConfiguration = PingConfiguration.builder().timeout(100L).build();
 
-		assertEquals(pingConfiguration, pingConfiguration.copy());
+		final IConfiguration pingConfigurationCopy = pingConfiguration.copy();
+
+		// Verify that the copied configuration has the same values as the original configuration
+		assertEquals(pingConfiguration, pingConfigurationCopy);
+
+		// Ensure that the copied configuration is a distinct object
+		assert (pingConfiguration != pingConfigurationCopy);
 	}
 }

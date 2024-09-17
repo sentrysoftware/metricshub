@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 
 /**
  * Test of {@link OsCommandConfiguration}
@@ -44,6 +45,13 @@ class OsCommandConfigurationTest {
 			.useSudoCommands(Set.of("sudo"))
 			.useSudo(true)
 			.build();
-		assertEquals(osCommandConfiguration, osCommandConfiguration.copy());
+
+		final IConfiguration osCommandConfigurationCopy = osCommandConfiguration.copy();
+
+		// Verify that the copied configuration has the same values as the original configuration
+		assertEquals(osCommandConfiguration, osCommandConfigurationCopy);
+
+		// Ensure that the copied configuration is a distinct object
+		assert (osCommandConfiguration != osCommandConfigurationCopy);
 	}
 }

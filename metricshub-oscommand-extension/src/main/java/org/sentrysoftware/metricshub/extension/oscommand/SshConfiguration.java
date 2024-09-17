@@ -24,6 +24,7 @@ package org.sentrysoftware.metricshub.extension.oscommand;
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
+import java.util.HashSet;
 import java.util.Set;
 import lombok.Builder;
 import lombok.Data;
@@ -128,6 +129,7 @@ public class SshConfiguration extends OsCommandConfiguration {
 		return desc;
 	}
 
+	@Override
 	public SshConfiguration copy() {
 		return SshConfiguration
 			.sshConfigurationBuilder()
@@ -138,7 +140,7 @@ public class SshConfiguration extends OsCommandConfiguration {
 			.timeout(timeout)
 			.username(username)
 			.useSudo(useSudo)
-			.useSudoCommands(useSudoCommands)
+			.useSudoCommands(new HashSet<>(useSudoCommands))
 			.build();
 	}
 }

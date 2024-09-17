@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.extension.snmpv3.SnmpV3Configuration.AuthType;
 import org.sentrysoftware.metricshub.extension.snmpv3.SnmpV3Configuration.Privacy;
 
@@ -162,6 +163,12 @@ class SnmpV3ConfigurationTest {
 			.username("username")
 			.build();
 
-		assertEquals(snmpV3Configuration, snmpV3Configuration.copy());
+		final IConfiguration snmpV3ConfigurationCopy = snmpV3Configuration.copy();
+
+		// Verify that the copied configuration has the same values as the original configuration
+		assertEquals(snmpV3Configuration, snmpV3ConfigurationCopy);
+
+		// Ensure that the copied configuration is a distinct object
+		assert (snmpV3Configuration != snmpV3ConfigurationCopy);
 	}
 }

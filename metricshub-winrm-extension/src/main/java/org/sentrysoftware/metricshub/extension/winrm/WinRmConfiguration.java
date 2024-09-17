@@ -25,6 +25,7 @@ import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -126,7 +127,7 @@ public class WinRmConfiguration implements IWinConfiguration {
 	public IConfiguration copy() {
 		return WinRmConfiguration
 			.builder()
-			.authentications(authentications)
+			.authentications(new ArrayList<>(authentications))
 			.namespace(namespace)
 			.password(password)
 			.port(port)

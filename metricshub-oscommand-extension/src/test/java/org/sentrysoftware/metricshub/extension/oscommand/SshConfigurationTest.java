@@ -98,6 +98,13 @@ class SshConfigurationTest {
 			.useSudoCommands(Set.of("sudo"))
 			.build();
 
-		assertEquals(sshConfiguration, sshConfiguration.copy());
+		final SshConfiguration sshConfigurationCopy = sshConfiguration.copy();
+
+		// Verify that the copied configuration has the same values as the original configuration
+		assertEquals(sshConfiguration, sshConfigurationCopy);
+
+		// Ensure that the copied configuration is a distinct object
+		assert (sshConfiguration != sshConfigurationCopy);
+		assert (sshConfiguration.getUseSudoCommands() != sshConfigurationCopy.getUseSudoCommands());
 	}
 }

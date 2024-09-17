@@ -18,6 +18,7 @@
 		<dependency>
 			<groupId>org.sentrysoftware</groupId>
 			<artifactId>metricshub-engine</artifactId>
+			<version>0.9.07-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>

@@ -2,10 +2,12 @@ package org.sentrysoftware.metricshub.extension.http;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 
 /**
  * Test of {@link HttpConfiguration}
@@ -66,6 +68,11 @@ class HttpConfigurationTest {
 			.username("username")
 			.build();
 
-		assertEquals(httpConfiguration, httpConfiguration.copy());
+		final IConfiguration httpConfigurationCopy = httpConfiguration.copy();
+		// Verify that the copied configuration has the same values as the original configuration
+		assertEquals(httpConfiguration, httpConfigurationCopy);
+
+		// Ensure that the copied configuration is a distinct object
+		assert (httpConfiguration != httpConfigurationCopy);
 	}
 }

@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.extension.ipmi.IpmiConfiguration;
 
 /**
@@ -73,6 +74,12 @@ class IpmiConfigurationTest {
 			.username(USERNAME)
 			.build();
 
-		assertEquals(ipmiConfiguration, ipmiConfiguration.copy());
+		final IConfiguration ipmiConfigurationCopy = ipmiConfiguration.copy();
+
+		// Verify that the copied configuration has the same values as the original configuration
+		assertEquals(ipmiConfiguration, ipmiConfigurationCopy);
+
+		// Ensure that the copied configuration is a distinct object
+		assert (ipmiConfiguration != ipmiConfigurationCopy);
 	}
 }
