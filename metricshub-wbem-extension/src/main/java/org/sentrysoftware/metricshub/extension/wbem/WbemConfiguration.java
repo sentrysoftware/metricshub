@@ -133,4 +133,18 @@ public class WbemConfiguration implements IConfiguration {
 				)
 		);
 	}
+
+	@Override
+	public IConfiguration copy() {
+		return WbemConfiguration
+			.builder()
+			.namespace(namespace)
+			.password(password)
+			.port(port)
+			.protocol(protocol)
+			.timeout(timeout)
+			.username(username)
+			.vCenter(vCenter)
+			.build();
+	}
 }

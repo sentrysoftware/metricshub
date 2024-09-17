@@ -75,4 +75,9 @@ public class OsCommandTestConfiguration implements IConfiguration {
 	public String toString() {
 		return "Local Commands";
 	}
+
+	@Override
+	public IConfiguration copy() {
+		return null;
+	}
 }

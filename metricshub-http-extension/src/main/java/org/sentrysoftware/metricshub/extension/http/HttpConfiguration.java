@@ -100,4 +100,16 @@ public class HttpConfiguration implements IConfiguration {
 				)
 		);
 	}
+
+	@Override
+	public IConfiguration copy() {
+		return HttpConfiguration
+			.builder()
+			.username(username)
+			.password(password)
+			.https(https)
+			.port(port)
+			.timeout(timeout)
+			.build();
+	}
 }

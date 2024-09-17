@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.extension.snmpv3.SnmpV3Configuration.AuthType;
 import org.sentrysoftware.metricshub.extension.snmpv3.SnmpV3Configuration.Privacy;
 
@@ -145,5 +146,29 @@ class SnmpV3ConfigurationTest {
 	@Test
 	void testPrivacyInterpretValueOf_InvalidValue() {
 		assertThrows(IllegalArgumentException.class, () -> Privacy.interpretValueOf("INVALID_PRIVACY"));
+	}
+
+	@Test
+	void testCopy() {
+		final SnmpV3Configuration snmpV3Configuration = SnmpV3Configuration
+			.builder()
+			.authType(AuthType.MD5)
+			.contextName("context")
+			.password("password".toCharArray())
+			.port(100)
+			.privacy(Privacy.AES)
+			.privacyPassword("privacyPassword".toCharArray())
+			.retryIntervals(new int[] { 10, 10 })
+			.timeout(100L)
+			.username("username")
+			.build();
+
+		final IConfiguration snmpV3ConfigurationCopy = snmpV3Configuration.copy();
+
+		// Verify that the copied configuration has the same values as the original configuration
+		assertEquals(snmpV3Configuration, snmpV3ConfigurationCopy);
+
+		// Ensure that the copied configuration is a distinct object
+		assert (snmpV3Configuration != snmpV3ConfigurationCopy);
 	}
 }

@@ -127,6 +127,11 @@ class PingExtensionTest {
 
 					@Override
 					public void setHostname(String hostname) {}
+
+					@Override
+					public IConfiguration copy() {
+						return null;
+					}
 				}
 			)
 		);

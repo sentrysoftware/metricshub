@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.extension.snmp.SnmpConfiguration.SnmpVersion;
 
 class SnmpConfigurationTest {
@@ -109,5 +110,24 @@ class SnmpConfigurationTest {
 		assertEquals(SnmpVersion.V2C, SnmpVersion.interpretValueOf("v2"));
 		assertEquals(SnmpVersion.V2C, SnmpVersion.interpretValueOf("v2c"));
 		assertEquals(SnmpVersion.V2C, SnmpVersion.interpretValueOf("2c"));
+	}
+
+	@Test
+	void testCopy() {
+		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
+			.builder()
+			.community("public".toCharArray())
+			.port(100)
+			.timeout(100L)
+			.version(SnmpVersion.V2C)
+			.build();
+
+		final IConfiguration snmpConfigurationCopy = snmpConfiguration.copy();
+
+		// Verify that the copied configuration has the same values as the original configuration
+		assertEquals(snmpConfiguration, snmpConfigurationCopy);
+
+		// Ensure that the copied configuration is a distinct object
+		assert (snmpConfiguration != snmpConfigurationCopy);
 	}
 }

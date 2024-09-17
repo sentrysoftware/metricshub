@@ -2,10 +2,12 @@ package org.sentrysoftware.metricshub.extension.http;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 
 /**
  * Test of {@link HttpConfiguration}
@@ -53,5 +55,24 @@ class HttpConfigurationTest {
 		assertDoesNotThrow(() ->
 			HttpConfiguration.builder().timeout(60L).port(1234).build().validateConfiguration(RESOURCE_KEY)
 		);
+	}
+
+	@Test
+	void testCopy() {
+		final HttpConfiguration httpConfiguration = HttpConfiguration
+			.builder()
+			.https(true)
+			.password("password".toCharArray())
+			.port(100)
+			.timeout(100L)
+			.username("username")
+			.build();
+
+		final IConfiguration httpConfigurationCopy = httpConfiguration.copy();
+		// Verify that the copied configuration has the same values as the original configuration
+		assertEquals(httpConfiguration, httpConfigurationCopy);
+
+		// Ensure that the copied configuration is a distinct object
+		assert (httpConfiguration != httpConfigurationCopy);
 	}
 }

@@ -53,4 +53,13 @@ public interface IConfiguration {
 	 *         necessary criteria.
 	 */
 	void validateConfiguration(String resourceKey) throws InvalidConfigurationException;
+
+	/**
+	 * Creates and returns a deep copy of the current {@code IConfiguration} instance.
+	 * The returned instance will have the same attribute values as the original,
+	 * but modifications to either instance will not affect the other.
+	 *
+	 * @return a new {@code IConfiguration} instance that is a deep copy of the original.
+	 */
+	IConfiguration copy();
 }

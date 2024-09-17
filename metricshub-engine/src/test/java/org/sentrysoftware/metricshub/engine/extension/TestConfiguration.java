@@ -21,4 +21,9 @@ public class TestConfiguration implements IConfiguration {
 
 	@Override
 	public void setHostname(String hostname) {}
+
+	@Override
+	public IConfiguration copy() {
+		return null;
+	}
 }

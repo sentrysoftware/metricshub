@@ -25,6 +25,7 @@ import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,6 +34,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.TransportProtocols;
 import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 import org.sentrysoftware.metricshub.extension.win.IWinConfiguration;
@@ -119,5 +121,19 @@ public class WinRmConfiguration implements IWinConfiguration {
 			desc = desc + " as " + username;
 		}
 		return desc;
+	}
+
+	@Override
+	public IConfiguration copy() {
+		return WinRmConfiguration
+			.builder()
+			.authentications(new ArrayList<>(authentications))
+			.namespace(namespace)
+			.password(password)
+			.port(port)
+			.protocol(protocol)
+			.timeout(timeout)
+			.username(username)
+			.build();
 	}
 }
