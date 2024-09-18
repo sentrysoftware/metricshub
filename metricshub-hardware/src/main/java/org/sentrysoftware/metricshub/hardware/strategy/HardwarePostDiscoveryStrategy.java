@@ -26,6 +26,7 @@ import static org.sentrysoftware.metricshub.hardware.util.HwConstants.PRESENT_ST
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -40,6 +41,13 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class HardwarePostDiscoveryStrategy extends AbstractStrategy {
+
+	// Those types of monitors belong to the enum {@link KnownMonitorType}.
+	// However, they are not included in the connector tag filtering.
+	private static final Set<String> EXCLUDED_MONITOR_TYPES = Set.of(
+		KnownMonitorType.CONNECTOR.getKey(),
+		KnownMonitorType.HOST.getKey()
+	);
 
 	public HardwarePostDiscoveryStrategy(
 		@NonNull final TelemetryManager telemetryManager,
@@ -96,7 +104,9 @@ public class HardwarePostDiscoveryStrategy extends AbstractStrategy {
 			.map(Map::values)
 			.flatMap(Collection::stream)
 			.filter(monitor -> monitorHasKnownType(monitor.getType()))
-			.filter(monitor -> connectorHasHardwareTag(monitor, telemetryManager))
+			.filter(monitor ->
+				EXCLUDED_MONITOR_TYPES.contains(monitor.getType()) || connectorHasHardwareTag(monitor, telemetryManager)
+			)
 			.forEach(monitor -> {
 				if (!strategyTime.equals(monitor.getDiscoveryTime())) {
 					setAsMissing(monitor, telemetryManager.getHostname(), String.format(PRESENT_STATUS, monitor.getType()));
