@@ -29,7 +29,6 @@ import static org.sentrysoftware.metricshub.hardware.util.HwConstants.PRESENT_ST
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -261,9 +260,9 @@ public class HwCollectHelper {
 
 		if (connectorId == null) {
 			log.error(
-					"Hostname {} - Monitor {} connector_id attribute does not exist.",
-					telemetryManager.getHostname(),
-					monitor.getId()
+				"Hostname {} - Monitor {} connector_id attribute does not exist.",
+				telemetryManager.getHostname(),
+				monitor.getId()
 			);
 			return false;
 		}
@@ -272,9 +271,9 @@ public class HwCollectHelper {
 
 		if (connector == null) {
 			log.error(
-					"Hostname {} - Monitor {} connector_id attribute does not correspond to any valid connector id.",
-					telemetryManager.getHostname(),
-					monitor.getId()
+				"Hostname {} - Monitor {} connector_id attribute does not correspond to any valid connector id.",
+				telemetryManager.getHostname(),
+				monitor.getId()
 			);
 			return false;
 		}

@@ -1,5 +1,19 @@
 package org.sentrysoftware.metricshub.hardware.strategy;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -15,24 +29,8 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.extension.snmp.SnmpExtension;
 import org.sentrysoftware.metricshub.extension.snmp.SnmpRequestExecutor;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID;
-
 @ExtendWith(MockitoExtension.class)
 class HardwarePostDiscoveryStrategyTest {
-
 
 	@Mock
 	private SnmpRequestExecutor snmpRequestExecutorMock;
@@ -51,27 +49,33 @@ class HardwarePostDiscoveryStrategyTest {
 	void testHwStatusPresentMetricWithoutHardwareTag() {
 		final TelemetryManager telemetryManagerMock = mock(TelemetryManager.class);
 		// Create the monitor
-		final Monitor cpuMonitorOnLinuxConnector = Monitor.builder()
-				.type(KnownMonitorType.CPU.getKey())
-				.attributes(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "ConnectorWithoutHardwareTag"))
-				.discoveryTime(STRATEGY_TIME)
-				.build();
+		final Monitor cpuMonitorOnLinuxConnector = Monitor
+			.builder()
+			.type(KnownMonitorType.CPU.getKey())
+			.attributes(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "ConnectorWithoutHardwareTag"))
+			.discoveryTime(STRATEGY_TIME)
+			.build();
 
 		// Mock TelemetryManager.getMonitors
-		doReturn(Map.of(KnownMonitorType.CPU.getKey(), Map.of("cpuOnLinux", cpuMonitorOnLinuxConnector))).when(telemetryManagerMock).getMonitors();
+		doReturn(Map.of(KnownMonitorType.CPU.getKey(), Map.of("cpuOnLinux", cpuMonitorOnLinuxConnector)))
+			.when(telemetryManagerMock)
+			.getMonitors();
 
 		// Build the extension manager
 		final ExtensionManager extensionManager = ExtensionManager
-				.builder()
-				.withProtocolExtensions(List.of(new SnmpExtension(snmpRequestExecutorMock)))
-				.build();
+			.builder()
+			.withProtocolExtensions(List.of(new SnmpExtension(snmpRequestExecutorMock)))
+			.build();
 
 		// Set the connector store
 		final ConnectorStore connectorStore = new ConnectorStore(TEST_CONNECTOR_PATH);
 		doReturn(connectorStore).when(telemetryManagerMock).getConnectorStore();
 
 		// Mock HardwarePostDiscoveryStrategy
-		hardwarePostDiscoveryStrategyMock = Mockito.spy(new HardwarePostDiscoveryStrategy(telemetryManagerMock,  STRATEGY_TIME, new ClientsExecutor(), extensionManager));
+		hardwarePostDiscoveryStrategyMock =
+			Mockito.spy(
+				new HardwarePostDiscoveryStrategy(telemetryManagerMock, STRATEGY_TIME, new ClientsExecutor(), extensionManager)
+			);
 
 		// Run HardwarePostDiscoveryStrategy
 		hardwarePostDiscoveryStrategyMock.run();
@@ -84,20 +88,23 @@ class HardwarePostDiscoveryStrategyTest {
 	void testHwStatusPresentMetricWithHardwareTag() {
 		final TelemetryManager telemetryManagerMock = mock(TelemetryManager.class);
 		// Create the monitor
-		final Monitor cpuMonitorWithHardware = Monitor.builder()
-				.type(KnownMonitorType.CPU.getKey())
-				.attributes(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "ConnectorWithHardwareTag"))
-				.discoveryTime(STRATEGY_TIME)
-				.build();
+		final Monitor cpuMonitorWithHardware = Monitor
+			.builder()
+			.type(KnownMonitorType.CPU.getKey())
+			.attributes(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "ConnectorWithHardwareTag"))
+			.discoveryTime(STRATEGY_TIME)
+			.build();
 
 		// Mock TelemetryManager.getMonitors
-		doReturn(Map.of(KnownMonitorType.CPU.getKey(), Map.of("cpuOnHardware", cpuMonitorWithHardware))).when(telemetryManagerMock).getMonitors();
+		doReturn(Map.of(KnownMonitorType.CPU.getKey(), Map.of("cpuOnHardware", cpuMonitorWithHardware)))
+			.when(telemetryManagerMock)
+			.getMonitors();
 
 		// Build the extension manager
 		final ExtensionManager extensionManager = ExtensionManager
-				.builder()
-				.withProtocolExtensions(List.of(new SnmpExtension(snmpRequestExecutorMock)))
-				.build();
+			.builder()
+			.withProtocolExtensions(List.of(new SnmpExtension(snmpRequestExecutorMock)))
+			.build();
 
 		// Set the connector store
 		final ConnectorStore connectorStore = new ConnectorStore(TEST_CONNECTOR_PATH);
@@ -107,10 +114,15 @@ class HardwarePostDiscoveryStrategyTest {
 		doReturn("localhost").when(telemetryManagerMock).getHostname();
 
 		// Mock HardwarePostDiscoveryStrategy
-		hardwarePostDiscoveryStrategyMock = Mockito.spy(new HardwarePostDiscoveryStrategy(telemetryManagerMock,  STRATEGY_TIME, new ClientsExecutor(), extensionManager));
+		hardwarePostDiscoveryStrategyMock =
+			Mockito.spy(
+				new HardwarePostDiscoveryStrategy(telemetryManagerMock, STRATEGY_TIME, new ClientsExecutor(), extensionManager)
+			);
 
 		// Mock setAsPresent
-		doCallRealMethod().when(hardwarePostDiscoveryStrategyMock).setAsPresent(eq(cpuMonitorWithHardware), anyString(), anyString());
+		doCallRealMethod()
+			.when(hardwarePostDiscoveryStrategyMock)
+			.setAsPresent(eq(cpuMonitorWithHardware), anyString(), anyString());
 
 		// Run HardwarePostDiscoveryStrategy
 		hardwarePostDiscoveryStrategyMock.run();
@@ -124,27 +136,33 @@ class HardwarePostDiscoveryStrategyTest {
 	void testHwStatusMissingMetricWithoutHardwareTag() {
 		final TelemetryManager telemetryManagerMock = mock(TelemetryManager.class);
 		// Create the monitor
-		final Monitor cpuMonitorOnLinuxConnector = Monitor.builder()
-				.type(KnownMonitorType.CPU.getKey())
-				.attributes(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "ConnectorWithoutHardwareTag"))
-				.discoveryTime(STRATEGY_TIME - 6000)
-				.build();
+		final Monitor cpuMonitorOnLinuxConnector = Monitor
+			.builder()
+			.type(KnownMonitorType.CPU.getKey())
+			.attributes(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "ConnectorWithoutHardwareTag"))
+			.discoveryTime(STRATEGY_TIME - 6000)
+			.build();
 
 		// Mock TelemetryManager.getMonitors
-		doReturn(Map.of(KnownMonitorType.CPU.getKey(), Map.of("cpuOnLinux", cpuMonitorOnLinuxConnector))).when(telemetryManagerMock).getMonitors();
+		doReturn(Map.of(KnownMonitorType.CPU.getKey(), Map.of("cpuOnLinux", cpuMonitorOnLinuxConnector)))
+			.when(telemetryManagerMock)
+			.getMonitors();
 
 		// Build the extension manager
 		final ExtensionManager extensionManager = ExtensionManager
-				.builder()
-				.withProtocolExtensions(List.of(new SnmpExtension(snmpRequestExecutorMock)))
-				.build();
+			.builder()
+			.withProtocolExtensions(List.of(new SnmpExtension(snmpRequestExecutorMock)))
+			.build();
 
 		// Set the connector store
 		final ConnectorStore connectorStore = new ConnectorStore(TEST_CONNECTOR_PATH);
 		doReturn(connectorStore).when(telemetryManagerMock).getConnectorStore();
 
 		// Mock HardwarePostDiscoveryStrategy
-		hardwarePostDiscoveryStrategyMock = Mockito.spy(new HardwarePostDiscoveryStrategy(telemetryManagerMock,  STRATEGY_TIME, new ClientsExecutor(), extensionManager));
+		hardwarePostDiscoveryStrategyMock =
+			Mockito.spy(
+				new HardwarePostDiscoveryStrategy(telemetryManagerMock, STRATEGY_TIME, new ClientsExecutor(), extensionManager)
+			);
 
 		// Run HardwarePostDiscoveryStrategy
 		hardwarePostDiscoveryStrategyMock.run();
@@ -157,20 +175,23 @@ class HardwarePostDiscoveryStrategyTest {
 	void testHwStatusMissingMetricWithHardwareTag() {
 		final TelemetryManager telemetryManagerMock = mock(TelemetryManager.class);
 		// Create the monitor
-		final Monitor cpuMonitorWithHardware = Monitor.builder()
-				.type(KnownMonitorType.CPU.getKey())
-				.attributes(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "ConnectorWithHardwareTag"))
-				.discoveryTime(STRATEGY_TIME - 6000)
-				.build();
+		final Monitor cpuMonitorWithHardware = Monitor
+			.builder()
+			.type(KnownMonitorType.CPU.getKey())
+			.attributes(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "ConnectorWithHardwareTag"))
+			.discoveryTime(STRATEGY_TIME - 6000)
+			.build();
 
 		// Mock TelemetryManager.getMonitors
-		doReturn(Map.of(KnownMonitorType.CPU.getKey(), Map.of("cpuOnHardware", cpuMonitorWithHardware))).when(telemetryManagerMock).getMonitors();
+		doReturn(Map.of(KnownMonitorType.CPU.getKey(), Map.of("cpuOnHardware", cpuMonitorWithHardware)))
+			.when(telemetryManagerMock)
+			.getMonitors();
 
 		// Build the extension manager
 		final ExtensionManager extensionManager = ExtensionManager
-				.builder()
-				.withProtocolExtensions(List.of(new SnmpExtension(snmpRequestExecutorMock)))
-				.build();
+			.builder()
+			.withProtocolExtensions(List.of(new SnmpExtension(snmpRequestExecutorMock)))
+			.build();
 
 		// Set the connector store
 		final ConnectorStore connectorStore = new ConnectorStore(TEST_CONNECTOR_PATH);
@@ -180,10 +201,15 @@ class HardwarePostDiscoveryStrategyTest {
 		doReturn("localhost").when(telemetryManagerMock).getHostname();
 
 		// Mock HardwarePostDiscoveryStrategy
-		hardwarePostDiscoveryStrategyMock = Mockito.spy(new HardwarePostDiscoveryStrategy(telemetryManagerMock,  STRATEGY_TIME, new ClientsExecutor(), extensionManager));
+		hardwarePostDiscoveryStrategyMock =
+			Mockito.spy(
+				new HardwarePostDiscoveryStrategy(telemetryManagerMock, STRATEGY_TIME, new ClientsExecutor(), extensionManager)
+			);
 
 		// Mock setAsMissing
-		doCallRealMethod().when(hardwarePostDiscoveryStrategyMock).setAsMissing(eq(cpuMonitorWithHardware), anyString(), anyString());
+		doCallRealMethod()
+			.when(hardwarePostDiscoveryStrategyMock)
+			.setAsMissing(eq(cpuMonitorWithHardware), anyString(), anyString());
 
 		// Run HardwarePostDiscoveryStrategy
 		hardwarePostDiscoveryStrategyMock.run();
