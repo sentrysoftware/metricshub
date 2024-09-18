@@ -1,0 +1,139 @@
+connector:
+  displayName: WMI - Battery
+  platforms: Any system
+  reliesOn: WMI
+  version: 1.0
+  information: This connector enables hardware monitoring for batteries of Windows computers.
+  detection:
+    connectionTypes:
+    - remote
+    - local
+    appliesTo:
+    - NT
+    criteria:
+    - type: deviceType
+      keep:
+      - NT
+    - type: service
+      name: WINMGMT
+    - type: wmi
+      namespace: root\cimv2
+      query: SELECT DeviceID FROM Win32_Battery
+    tags: [ hardware, windows ]
+monitors:
+  battery:
+    discovery:
+      sources:
+        source(1):
+          # Discovery
+          type: wmi
+          namespace: root\cimv2
+          query: SELECT Chemistry, DeviceID, Name FROM Win32_Battery
+          computes:
+          # Translate Chemistry
+          - type: translate
+            column: 1
+            translationTable: ${translation::ChemistryTranslationTable}
+      mapping:
+        # 
+        source: ${source::monitors.battery.discovery.sources.source(1)}
+        attributes:
+          id: $2
+          chemistry: $1
+          vendor: ""
+          model: $3
+          hw.parent.type: enclosure
+          name: ${awk::sprintf("%s (%s %s)", $2, "", $3)}
+    collect:
+      # COLLECT
+      type: multiInstance
+      keys:
+      - id
+      sources:
+        source(1):
+          # BatteryStatus, DeviceID, Charge remaining, time left and status
+          type: wmi
+          namespace: root\cimv2
+          query: SELECT BatteryStatus, DeviceID, EstimatedChargeRemaining, EstimatedRunTime, Status FROM Win32_Battery
+          computes:
+          # Duplicate Status to translate it
+          - type: duplicateColumn
+            column: 5
+          # Translate Status in an OK, WARN, ALARM status
+          - type: translate
+            column: 5
+            translationTable: ${translation::StatusTranslationTable}
+          # Translate Status column 3 into a StatusInformation
+          - type: translate
+            column: 6
+            translationTable: ${translation::StatusInformationTranslationTable}
+          # Translate BatteryStatus into a StatusInformation
+          - type: translate
+            column: 1
+            translationTable: ${translation::BatteryStatusTranslationTable}
+          # Merge Status StatusInformation and BatteryStatus StatusInformation
+          - type: append
+            column: 6
+            value: $1
+          # A time left of 71582788 indicates that it is charging. Ignore it.
+          - type: replace
+            column: 4
+            existingValue: 71582788
+            newValue: ""
+      mapping:
+        # Battery StatusInformation (not used anymore at this point), DeviceID, Charge, Time Left (mins), Status, StatusInformation
+        source: ${source::monitors.battery.collect.sources.source(1)}
+        attributes:
+          id: $2
+        metrics:
+          hw.status{hw.type="battery"}: $5
+          hw.battery.charge: percent2Ratio($3)
+          hw.battery.time_left: $4
+        legacyTextParameters:
+          StatusInformation: $6
+translations:
+  BatteryStatusTranslationTable:
+    "11": Partially Charged
+    "1": Discharging
+    "2": On AC
+    "3": Fully Charged
+    "4": Low Battery
+    "5": Critically Low Battery
+    "6": Charging
+    "7": Charging and High
+    "8": Charging and Low
+    "9": Charging and Critical
+    "10": ""
+  ChemistryTranslationTable:
+    "1": ""
+    "2": ""
+    "3": Lead Acid
+    "4": Nickel Cadmium
+    "5": Nickel Metal Hydride
+    "6": Lithium-ion
+    "7": Zinc Air
+    "8": Lithium Polymer
+  StatusInformationTranslationTable:
+    No Contact: 'No Contact '
+    Stressed: 'Stressed '
+    Degraded: 'Degraded '
+    Starting: ""
+    Error: 'Error '
+    Stopping: ""
+    Service: 'Service '
+    NonRecover: 'Non Recoverable Error '
+    OK: ""
+    Lost Comm: 'Lost Communication '
+    Default: 'Unknown '
+  StatusTranslationTable:
+    No Contact: degraded
+    Stressed: degraded
+    Degraded: degraded
+    Starting: ok
+    Error: failed
+    Stopping: ok
+    Service: degraded
+    NonRecover: failed
+    OK: ok
+    Lost Comm: degraded
+    Default: UNKNOWN

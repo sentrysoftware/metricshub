@@ -21,6 +21,7 @@ package org.sentrysoftware.metricshub.hardware.strategy;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static org.sentrysoftware.metricshub.hardware.util.HwCollectHelper.connectorHasHardwareTag;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.PRESENT_STATUS;
 
 import java.util.Collection;
@@ -95,6 +96,7 @@ public class HardwarePostDiscoveryStrategy extends AbstractStrategy {
 			.map(Map::values)
 			.flatMap(Collection::stream)
 			.filter(monitor -> monitorHasKnownType(monitor.getType()))
+			.filter(monitor -> connectorHasHardwareTag(monitor, telemetryManager))
 			.forEach(monitor -> {
 				if (!strategyTime.equals(monitor.getDiscoveryTime())) {
 					setAsMissing(monitor, telemetryManager.getHostname(), String.format(PRESENT_STATUS, monitor.getType()));
