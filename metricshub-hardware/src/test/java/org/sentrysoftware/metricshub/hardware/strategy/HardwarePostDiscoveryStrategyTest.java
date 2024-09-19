@@ -88,6 +88,7 @@ class HardwarePostDiscoveryStrategyTest {
 			.keys(DEFAULT_KEYS)
 			.build();
 		final Monitor hostMonitor = hostMonitorFactory.createOrUpdateMonitor();
+		hostMonitor.setAsEndpoint();
 
 		// There is no connector monitor having a hardware tag, so the hw.status won't be set on the host monitor
 		new HardwarePostDiscoveryStrategy(telemetryManager, previousDiscoveryTime, clientsExecutor, extensionManager).run();
@@ -207,6 +208,7 @@ class HardwarePostDiscoveryStrategyTest {
 			.keys(DEFAULT_KEYS)
 			.build();
 		final Monitor hostMonitor = hostMonitorFactory.createOrUpdateMonitor();
+		hostMonitor.setAsEndpoint();
 
 		final ExtensionManager extensionManager = ExtensionManager.builder().build();
 

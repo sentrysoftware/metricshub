@@ -85,7 +85,7 @@ public class HardwarePostDiscoveryStrategy extends AbstractStrategy {
 	}
 
 	/**
-	 *  Checks whether any connector monitor in the current host has the hardware tag
+	 * Checks whether any connector monitor in the current host has the hardware tag
 	 * @param telemetryManager The telemetry manager
 	 * @return boolean
 	 */
@@ -114,11 +114,15 @@ public class HardwarePostDiscoveryStrategy extends AbstractStrategy {
 			.map(Map::values)
 			.flatMap(Collection::stream)
 			.filter(monitor -> monitorHasKnownType(monitor.getType()))
-			.filter(monitor ->
-				(!monitor.getType().equals(KnownMonitorType.HOST.getKey()) &&
-					connectorHasHardwareTag(monitor, telemetryManager)) ||
-				(monitor.getType().equals(KnownMonitorType.HOST.getKey()) && hostHasConnectorWithHardwareTag(telemetryManager))
-			)
+			.filter(monitor -> {
+				// @CHECKSTYLE:OFF
+				final boolean isEndpointHost = monitor.isEndpointHost();
+				return (
+					(!isEndpointHost && connectorHasHardwareTag(monitor, telemetryManager)) ||
+					(isEndpointHost && hostHasConnectorWithHardwareTag(telemetryManager))
+				);
+				// @CHECKSTYLE:ON
+			})
 			.forEach(monitor -> {
 				if (!strategyTime.equals(monitor.getDiscoveryTime())) {
 					setAsMissing(monitor, telemetryManager.getHostname(), String.format(PRESENT_STATUS, monitor.getType()));
