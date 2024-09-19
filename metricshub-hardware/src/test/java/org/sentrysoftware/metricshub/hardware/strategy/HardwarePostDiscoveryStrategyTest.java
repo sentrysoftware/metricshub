@@ -1,282 +1,224 @@
 package org.sentrysoftware.metricshub.hardware.strategy;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DEFAULT_KEYS;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_NAME;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.ENCLOSURE_PRESENT_METRIC;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.CONNECTOR;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.ENCLOSURE;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Date;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
+import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
+import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
+import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
+import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.ConnectorIdentity;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.Detection;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
+import org.sentrysoftware.metricshub.engine.telemetry.MonitorFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
-import org.sentrysoftware.metricshub.extension.snmp.SnmpExtension;
-import org.sentrysoftware.metricshub.extension.snmp.SnmpRequestExecutor;
+import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
+import org.sentrysoftware.metricshub.extension.snmp.SnmpConfiguration;
 
-@ExtendWith(MockitoExtension.class)
 class HardwarePostDiscoveryStrategyTest {
 
-	@Mock
-	private SnmpRequestExecutor snmpRequestExecutorMock;
-
-	@Mock
-	private HardwarePostDiscoveryStrategy hardwarePostDiscoveryStrategyMock;
-
-	final long STRATEGY_TIME = new Date().getTime();
-
-	final Path TEST_CONNECTOR_PATH = Paths.get("src", "test", "resources", "strategy", "postDiscovery");
-
 	@Test
-	void testHwStatusPresentMetricWithoutHardwareTag() {
-		final TelemetryManager telemetryManagerMock = mock(TelemetryManager.class);
+	void testRunMissingAndPresentDeviceDetectionWithHardwareTag() {
+		final SnmpConfiguration snmpConfig = SnmpConfiguration.builder().community("public".toCharArray()).build();
+		final ConnectorStore connectorStore = new ConnectorStore();
+		final Connector connector = new Connector();
+		connector.setConnectorIdentity(
+			ConnectorIdentity
+				.builder()
+				.detection(Detection.builder().tags(Set.of("hardware")).appliesTo(Set.of(DeviceKind.WINDOWS)).build())
+				.build()
+		);
+		connectorStore.setStore(Map.of(CONNECTOR, connector));
 
-		// Create the CPU monitor
-		final Monitor cpuMonitorOnLinuxConnector = Monitor
+		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
-			.type(KnownMonitorType.CPU.getKey())
-			.attributes(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "ConnectorWithoutHardwareTag"))
-			.discoveryTime(STRATEGY_TIME)
-			.build();
-
-		// Create the HOST monitor
-		final Monitor hostMonitor = Monitor
-			.builder()
-			.type(KnownMonitorType.HOST.getKey())
-			.discoveryTime(STRATEGY_TIME)
-			.build();
-
-		// Create the CONNECTOR monitor
-		final Monitor connectorMonitor = Monitor
-			.builder()
-			.type(KnownMonitorType.CONNECTOR.getKey())
-			.discoveryTime(STRATEGY_TIME)
-			.build();
-
-		// Mock TelemetryManager.getMonitors
-		doReturn(
-			Map.of(
-				KnownMonitorType.CPU.getKey(),
-				Map.of("cpuOnLinux", cpuMonitorOnLinuxConnector),
-				KnownMonitorType.HOST.getKey(),
-				Map.of("host", hostMonitor),
-				KnownMonitorType.CONNECTOR.getKey(),
-				Map.of("connector", connectorMonitor)
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostId("PC-120")
+					.hostname(MetricsHubConstants.HOST_NAME)
+					.sequential(false)
+					.configurations(Map.of(SnmpConfiguration.class, snmpConfig))
+					.build()
 			)
-		)
-			.when(telemetryManagerMock)
-			.getMonitors();
+			.connectorStore(connectorStore)
+			.build();
+		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
+		final long discoveryTime = System.currentTimeMillis();
+		final long previousDiscoveryTime = discoveryTime - 30 * 60 * 1000;
 
-		// Build the extension manager
-		final ExtensionManager extensionManager = ExtensionManager
+		// Create an enclosure monitor
+		final MonitorFactory enclosureMonitorFactory = MonitorFactory
 			.builder()
-			.withProtocolExtensions(List.of(new SnmpExtension(snmpRequestExecutorMock)))
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "id", MONITOR_ATTRIBUTE_NAME, "name")))
+			.discoveryTime(previousDiscoveryTime)
+			.connectorId(CONNECTOR)
+			.telemetryManager(telemetryManager)
+			.monitorType(ENCLOSURE)
+			.keys(DEFAULT_KEYS)
 			.build();
 
-		// Set the connector store
-		final ConnectorStore connectorStore = new ConnectorStore(TEST_CONNECTOR_PATH);
-		doReturn(connectorStore).when(telemetryManagerMock).getConnectorStore();
+		final Monitor enclosureMonitor = enclosureMonitorFactory.createOrUpdateMonitor();
 
-		// Mock HardwarePostDiscoveryStrategy
-		hardwarePostDiscoveryStrategyMock =
-			Mockito.spy(
-				new HardwarePostDiscoveryStrategy(telemetryManagerMock, STRATEGY_TIME, new ClientsExecutor(), extensionManager)
-			);
+		// Create the extension manager
+		final ExtensionManager extensionManager = ExtensionManager.builder().build();
 
-		// Run HardwarePostDiscoveryStrategy
-		hardwarePostDiscoveryStrategyMock.run();
+		// Create a host Monitor
+		final MonitorFactory hostMonitorFactory = MonitorFactory
+			.builder()
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "host-1", MONITOR_ATTRIBUTE_NAME, "host-1")))
+			.discoveryTime(previousDiscoveryTime)
+			.connectorId(CONNECTOR)
+			.telemetryManager(telemetryManager)
+			.monitorType(KnownMonitorType.HOST.getKey())
+			.keys(DEFAULT_KEYS)
+			.build();
+		final Monitor hostMonitor = hostMonitorFactory.createOrUpdateMonitor();
 
-		// Check that the metric hw.status{hw.type="cpu", state="present"} is absent
-		assertNull(cpuMonitorOnLinuxConnector.getMetric("hw.status{hw.type=\"cpu\", state=\"present\"}"));
+		// There is no connector monitor having a hardware tag, so the hw.status won't be set on the host monitor
+		new HardwarePostDiscoveryStrategy(telemetryManager, previousDiscoveryTime, clientsExecutor, extensionManager).run();
 
-		// Check that the metric hw.status{hw.type="host", state="present"} is present and equals to 1.0
-		assertNotNull(hostMonitor.getMetric("hw.status{hw.type=\"host\", state=\"present\"}"));
-		assertEquals(1.0, hostMonitor.getMetric("hw.status{hw.type=\"host\", state=\"present\"}").getValue());
+		assertEquals(1.0, enclosureMonitor.getMetric(ENCLOSURE_PRESENT_METRIC, NumberMetric.class).getValue());
 
-		// Check that the metric hw.status{hw.type="connector", state="present"} is present and equals to 1.0
-		assertNotNull(connectorMonitor.getMetric("hw.status{hw.type=\"connector\", state=\"present\"}"));
-		assertEquals(1.0, connectorMonitor.getMetric("hw.status{hw.type=\"connector\", state=\"present\"}").getValue());
+		// Check the hw.status metric of the host monitor
+		assertNull(hostMonitor.getMetric("hw.status{hw.type=\"host\", state=\"present\"}", NumberMetric.class));
+
+		// Create a connector Monitor
+		final MonitorFactory connectorMonitorFactory = MonitorFactory
+			.builder()
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "connector-1", MONITOR_ATTRIBUTE_NAME, "conn-1")))
+			.discoveryTime(previousDiscoveryTime)
+			.connectorId(CONNECTOR)
+			.telemetryManager(telemetryManager)
+			.monitorType(CONNECTOR)
+			.keys(DEFAULT_KEYS)
+			.build();
+		final Monitor connectorMonitor = connectorMonitorFactory.createOrUpdateMonitor();
+
+		// There is a connector monitor having a hardware tag, so the hw.status will be set on the host monitor
+		new HardwarePostDiscoveryStrategy(telemetryManager, previousDiscoveryTime, clientsExecutor, extensionManager).run();
+
+		// Check the hw.status metric of the enclosure monitor
+		assertEquals(1.0, enclosureMonitor.getMetric(ENCLOSURE_PRESENT_METRIC, NumberMetric.class).getValue());
+
+		// Check the hw.status metric of the connector monitor
+		assertEquals(
+			1.0,
+			connectorMonitor.getMetric("hw.status{hw.type=\"connector\", state=\"present\"}", NumberMetric.class).getValue()
+		);
+
+		// Check the hw.status metric of the host monitor
+		assertEquals(
+			1.0,
+			hostMonitor.getMetric("hw.status{hw.type=\"host\", state=\"present\"}", NumberMetric.class).getValue()
+		);
+
+		new HardwarePostDiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor, extensionManager).run();
+
+		// Check the hw.status metric of the enclosure monitor
+		assertEquals(0.0, enclosureMonitor.getMetric(ENCLOSURE_PRESENT_METRIC, NumberMetric.class).getValue());
+
+		// Check the hw.status metric of the connector monitor
+		assertEquals(
+			0.0,
+			connectorMonitor.getMetric("hw.status{hw.type=\"connector\", state=\"present\"}", NumberMetric.class).getValue()
+		);
+
+		// Check the hw.status metric of the host monitor
+		assertEquals(
+			0.0,
+			hostMonitor.getMetric("hw.status{hw.type=\"host\", state=\"present\"}", NumberMetric.class).getValue()
+		);
 	}
 
 	@Test
-	void testHwStatusPresentMetricWithHardwareTag() {
-		final TelemetryManager telemetryManagerMock = mock(TelemetryManager.class);
-		// Create the monitor
-		final Monitor cpuMonitorWithHardware = Monitor
+	void testRunPresentDeviceDetectionWithoutHardwareTags() {
+		final SnmpConfiguration snmpConfig = SnmpConfiguration.builder().community("public".toCharArray()).build();
+		final ConnectorStore connectorStore = new ConnectorStore();
+		final Connector connector = new Connector();
+		connector.setConnectorIdentity(
+			ConnectorIdentity.builder().detection(Detection.builder().appliesTo(Set.of(DeviceKind.WINDOWS)).build()).build()
+		);
+		connectorStore.setStore(Map.of(CONNECTOR, connector));
+
+		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
-			.type(KnownMonitorType.CPU.getKey())
-			.attributes(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "ConnectorWithHardwareTag"))
-			.discoveryTime(STRATEGY_TIME)
-			.build();
-
-		// Mock TelemetryManager.getMonitors
-		doReturn(Map.of(KnownMonitorType.CPU.getKey(), Map.of("cpuOnHardware", cpuMonitorWithHardware)))
-			.when(telemetryManagerMock)
-			.getMonitors();
-
-		// Build the extension manager
-		final ExtensionManager extensionManager = ExtensionManager
-			.builder()
-			.withProtocolExtensions(List.of(new SnmpExtension(snmpRequestExecutorMock)))
-			.build();
-
-		// Set the connector store
-		final ConnectorStore connectorStore = new ConnectorStore(TEST_CONNECTOR_PATH);
-		doReturn(connectorStore).when(telemetryManagerMock).getConnectorStore();
-
-		// Mock hostname
-		doReturn("localhost").when(telemetryManagerMock).getHostname();
-
-		// Mock HardwarePostDiscoveryStrategy
-		hardwarePostDiscoveryStrategyMock =
-			Mockito.spy(
-				new HardwarePostDiscoveryStrategy(telemetryManagerMock, STRATEGY_TIME, new ClientsExecutor(), extensionManager)
-			);
-
-		// Mock setAsPresent
-		doCallRealMethod()
-			.when(hardwarePostDiscoveryStrategyMock)
-			.setAsPresent(eq(cpuMonitorWithHardware), anyString(), anyString());
-
-		// Run HardwarePostDiscoveryStrategy
-		hardwarePostDiscoveryStrategyMock.run();
-
-		// Check that the metric hw.status{hw.type="cpu", state="present"} is present
-		// and it's value is correctly set
-		assertEquals(1.0, cpuMonitorWithHardware.getMetric("hw.status{hw.type=\"cpu\", state=\"present\"}").getValue());
-	}
-
-	@Test
-	void testHwStatusMissingMetricWithoutHardwareTag() {
-		final TelemetryManager telemetryManagerMock = mock(TelemetryManager.class);
-
-		// Create the CPU monitor
-		final Monitor cpuMonitorOnLinuxConnector = Monitor
-			.builder()
-			.type(KnownMonitorType.CPU.getKey())
-			.attributes(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "ConnectorWithoutHardwareTag"))
-			.discoveryTime(STRATEGY_TIME - 6000)
-			.build();
-
-		// Create the HOST monitor
-		final Monitor hostMonitor = Monitor
-			.builder()
-			.type(KnownMonitorType.HOST.getKey())
-			.discoveryTime(STRATEGY_TIME - 6000)
-			.build();
-
-		// Create the CONNECTOR monitor
-		final Monitor connectorMonitor = Monitor
-			.builder()
-			.type(KnownMonitorType.CONNECTOR.getKey())
-			.discoveryTime(STRATEGY_TIME - 6000)
-			.build();
-
-		// Mock TelemetryManager.getMonitors
-		doReturn(
-			Map.of(
-				KnownMonitorType.CPU.getKey(),
-				Map.of("cpuOnLinux", cpuMonitorOnLinuxConnector),
-				KnownMonitorType.HOST.getKey(),
-				Map.of("host", hostMonitor),
-				KnownMonitorType.CONNECTOR.getKey(),
-				Map.of("connector", connectorMonitor)
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostId("PC-120")
+					.hostname(MetricsHubConstants.HOST_NAME)
+					.sequential(false)
+					.configurations(Map.of(SnmpConfiguration.class, snmpConfig))
+					.build()
 			)
-		)
-			.when(telemetryManagerMock)
-			.getMonitors();
+			.connectorStore(connectorStore)
+			.build();
+		final ClientsExecutor clientsExecutor = new ClientsExecutor(telemetryManager);
+		final long discoveryTime = System.currentTimeMillis();
 
-		// Build the extension manager
-		final ExtensionManager extensionManager = ExtensionManager
+		// Create an enclosure monitor
+		final MonitorFactory enclosureMonitorFactory = MonitorFactory
 			.builder()
-			.withProtocolExtensions(List.of(new SnmpExtension(snmpRequestExecutorMock)))
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "id", MONITOR_ATTRIBUTE_NAME, "name")))
+			.discoveryTime(discoveryTime)
+			.connectorId(CONNECTOR)
+			.telemetryManager(telemetryManager)
+			.monitorType(ENCLOSURE)
+			.keys(DEFAULT_KEYS)
 			.build();
 
-		// Set the connector store
-		final ConnectorStore connectorStore = new ConnectorStore(TEST_CONNECTOR_PATH);
-		doReturn(connectorStore).when(telemetryManagerMock).getConnectorStore();
+		final Monitor enclosureMonitor = enclosureMonitorFactory.createOrUpdateMonitor();
 
-		// Mock HardwarePostDiscoveryStrategy
-		hardwarePostDiscoveryStrategyMock =
-			Mockito.spy(
-				new HardwarePostDiscoveryStrategy(telemetryManagerMock, STRATEGY_TIME, new ClientsExecutor(), extensionManager)
-			);
-
-		// Run HardwarePostDiscoveryStrategy
-		hardwarePostDiscoveryStrategyMock.run();
-
-		// Check that the metric hw.status{hw.type="cpu", state="present"} is absent
-		assertNull(cpuMonitorOnLinuxConnector.getMetric("hw.status{hw.type=\"cpu\", state=\"present\"}"));
-
-		// Check that the metric hw.status{hw.type="host", state="present"} is present and equals to 0.0
-		assertNotNull(hostMonitor.getMetric("hw.status{hw.type=\"host\", state=\"present\"}"));
-		assertEquals(0.0, hostMonitor.getMetric("hw.status{hw.type=\"host\", state=\"present\"}").getValue());
-
-		// Check that the metric hw.status{hw.type="connector", state="present"} is present and equals to 0.0
-		assertNotNull(connectorMonitor.getMetric("hw.status{hw.type=\"connector\", state=\"present\"}"));
-		assertEquals(0.0, connectorMonitor.getMetric("hw.status{hw.type=\"connector\", state=\"present\"}").getValue());
-	}
-
-	@Test
-	void testHwStatusMissingMetricWithHardwareTag() {
-		final TelemetryManager telemetryManagerMock = mock(TelemetryManager.class);
-		// Create the monitor
-		final Monitor cpuMonitorWithHardware = Monitor
+		// Create a connector Monitor
+		final MonitorFactory connectorMonitorFactory = MonitorFactory
 			.builder()
-			.type(KnownMonitorType.CPU.getKey())
-			.attributes(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "ConnectorWithHardwareTag"))
-			.discoveryTime(STRATEGY_TIME - 6000)
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "connector-1", MONITOR_ATTRIBUTE_NAME, "conn-1")))
+			.discoveryTime(discoveryTime)
+			.connectorId(CONNECTOR)
+			.telemetryManager(telemetryManager)
+			.monitorType(CONNECTOR)
+			.keys(DEFAULT_KEYS)
 			.build();
+		final Monitor connectorMonitor = connectorMonitorFactory.createOrUpdateMonitor();
 
-		// Mock TelemetryManager.getMonitors
-		doReturn(Map.of(KnownMonitorType.CPU.getKey(), Map.of("cpuOnHardware", cpuMonitorWithHardware)))
-			.when(telemetryManagerMock)
-			.getMonitors();
-
-		// Build the extension manager
-		final ExtensionManager extensionManager = ExtensionManager
+		// Create a host Monitor
+		final MonitorFactory hostMonitorFactory = MonitorFactory
 			.builder()
-			.withProtocolExtensions(List.of(new SnmpExtension(snmpRequestExecutorMock)))
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_ID, "host-1", MONITOR_ATTRIBUTE_NAME, "host-1")))
+			.discoveryTime(discoveryTime)
+			.connectorId(CONNECTOR)
+			.telemetryManager(telemetryManager)
+			.monitorType(KnownMonitorType.HOST.getKey())
+			.keys(DEFAULT_KEYS)
 			.build();
+		final Monitor hostMonitor = hostMonitorFactory.createOrUpdateMonitor();
 
-		// Set the connector store
-		final ConnectorStore connectorStore = new ConnectorStore(TEST_CONNECTOR_PATH);
-		doReturn(connectorStore).when(telemetryManagerMock).getConnectorStore();
+		final ExtensionManager extensionManager = ExtensionManager.builder().build();
 
-		// Mock hostname
-		doReturn("localhost").when(telemetryManagerMock).getHostname();
+		new HardwarePostDiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor, extensionManager).run();
 
-		// Mock HardwarePostDiscoveryStrategy
-		hardwarePostDiscoveryStrategyMock =
-			Mockito.spy(
-				new HardwarePostDiscoveryStrategy(telemetryManagerMock, STRATEGY_TIME, new ClientsExecutor(), extensionManager)
-			);
+		// Check the hw.status metric of the enclosure monitor
+		assertNull(enclosureMonitor.getMetric(ENCLOSURE_PRESENT_METRIC, NumberMetric.class));
 
-		// Mock setAsMissing
-		doCallRealMethod()
-			.when(hardwarePostDiscoveryStrategyMock)
-			.setAsMissing(eq(cpuMonitorWithHardware), anyString(), anyString());
+		// Check the hw.status metric of the connector monitor
+		assertNull(connectorMonitor.getMetric("hw.status{hw.type=\"connector\", state=\"present\"}", NumberMetric.class));
 
-		// Run HardwarePostDiscoveryStrategy
-		hardwarePostDiscoveryStrategyMock.run();
-
-		// Check that the metric hw.status{hw.type="cpu", state="present"} is present
-		// and it's value is correctly set
-		assertEquals(0.0, cpuMonitorWithHardware.getMetric("hw.status{hw.type=\"cpu\", state=\"present\"}").getValue());
+		// Check the hw.status metric of the host monitor
+		assertNull(hostMonitor.getMetric("hw.status{hw.type=\"host\", state=\"present\"}", NumberMetric.class));
 	}
 }
