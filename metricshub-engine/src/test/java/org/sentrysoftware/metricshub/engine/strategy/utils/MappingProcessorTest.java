@@ -24,7 +24,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 
 class MappingProcessorTest {
 
-	private static final String HW_VM_POWER_RATIO = "__hw.vm.power_ratio";
+	private static final String HW_VM_POWER_RATIO = "hw.vm.power_ratio";
 	private static final String HW_VM_POWER_RATIO_RAW_POWER_SHARE = "__hw.vm.power_ratio.raw_power_share";
 
 	@Test

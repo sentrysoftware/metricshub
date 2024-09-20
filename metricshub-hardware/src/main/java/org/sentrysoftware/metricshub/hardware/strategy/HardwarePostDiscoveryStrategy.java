@@ -21,6 +21,7 @@ package org.sentrysoftware.metricshub.hardware.strategy;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static org.sentrysoftware.metricshub.hardware.util.HwCollectHelper.connectorHasHardwareTag;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.PRESENT_STATUS;
 
 import java.util.Collection;
@@ -83,6 +84,24 @@ public class HardwarePostDiscoveryStrategy extends AbstractStrategy {
 		return false;
 	}
 
+	/**
+	 * Checks whether any connector monitor in the current host has the hardware tag
+	 * @param telemetryManager The telemetry manager
+	 * @return boolean
+	 */
+	private boolean hostHasConnectorWithHardwareTag(final TelemetryManager telemetryManager) {
+		return telemetryManager
+			.getMonitors()
+			.values()
+			.stream()
+			.map(Map::values)
+			.flatMap(Collection::stream)
+			.anyMatch(monitor ->
+				monitor.getType().equals(KnownMonitorType.CONNECTOR.getKey()) &&
+				connectorHasHardwareTag(monitor, telemetryManager)
+			);
+	}
+
 	@Override
 	public void run() {
 		// Loop over each known monitor from the telemetry manager and
@@ -95,6 +114,15 @@ public class HardwarePostDiscoveryStrategy extends AbstractStrategy {
 			.map(Map::values)
 			.flatMap(Collection::stream)
 			.filter(monitor -> monitorHasKnownType(monitor.getType()))
+			.filter(monitor -> {
+				// @CHECKSTYLE:OFF
+				final boolean isEndpointHost = monitor.isEndpointHost();
+				return (
+					(!isEndpointHost && connectorHasHardwareTag(monitor, telemetryManager)) ||
+					(isEndpointHost && hostHasConnectorWithHardwareTag(telemetryManager))
+				);
+				// @CHECKSTYLE:ON
+			})
 			.forEach(monitor -> {
 				if (!strategyTime.equals(monitor.getDiscoveryTime())) {
 					setAsMissing(monitor, telemetryManager.getHostname(), String.format(PRESENT_STATUS, monitor.getType()));
