@@ -59,7 +59,7 @@ public class HwConstants {
 	public static final String HW_POWER_VM_METRIC = "hw.power{hw.type=\"vm\"}";
 	public static final String POWER_SOURCE_ID_ATTRIBUTE = "__power_source_id";
 	public static final String HW_VM_POWER_SHARE_METRIC = "__hw.vm.power_ratio.raw_power_share";
-	public static final String HW_VM_POWER_STATE_METRIC = "hw.vm.power_state";
+	public static final String HW_VM_POWER_STATE_METRIC = "hw.power_state{hw.type=\"vm\"}";
 
 	public static final String HW_ENCLOSURE_POWER = "hw.enclosure.power";
 	public static final String HW_ENCLOSURE_ENERGY = "hw.enclosure.energy";

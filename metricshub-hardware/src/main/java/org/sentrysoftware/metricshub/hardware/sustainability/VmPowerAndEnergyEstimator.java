@@ -26,7 +26,6 @@ import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_ESTIMATED_POWER;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_MEASURED_POWER;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_VM_METRIC;
-import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_VM_POWER_SHARE_METRIC;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.POWER_SOURCE_ID_ATTRIBUTE;
 
 import java.math.RoundingMode;
@@ -70,16 +69,13 @@ public class VmPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimator {
 	protected Double doPowerEstimation() {
 		// Get the vm power share, always >= 0.0 here
 		final double vmPowerShare = HwCollectHelper.getVmPowerShare(monitor);
-
 		// Getting the VM's power share ratio
 		final String powerSourceId = monitor.getAttribute(POWER_SOURCE_ID_ATTRIBUTE);
 		final Double totalPowerShares = totalPowerSharesByPowerSource.get(powerSourceId);
-
 		// totalPowerShares is never null here because the VM always comes with a powerShare value
 		final double powerShareRatio = totalPowerShares != null && totalPowerShares > 0.0
 			? vmPowerShare / totalPowerShares
 			: 0.0;
-
 		// Getting the power source's power consumption value
 		final Monitor powerSourceMonitor = telemetryManager.findMonitorById(powerSourceId);
 
@@ -112,11 +108,10 @@ public class VmPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimator {
 		if (powerSourcePowerConsumption != null && powerSourcePowerConsumption >= 0.0) {
 			estimatedPower = NumberHelper.round(powerSourcePowerConsumption * powerShareRatio, 2, RoundingMode.HALF_UP);
 		}
-
 		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
 		metricFactory.collectNumberMetric(
 			monitor,
-			HW_VM_POWER_SHARE_METRIC,
+			"hw.vm.power_ratio",
 			powerShareRatio,
 			telemetryManager.getStrategyTime()
 		);

@@ -270,7 +270,7 @@ public class MappingProcessor {
 		} else if (isLookupFunction(value)) {
 			result.put(key, lookup(value, key));
 		} else if (isComputePowerShareRatioFunction(value)) {
-			result.put(String.format("%s.raw_power_share", key), computePowerShareRatio(value, key));
+			result.put(String.format("__%s.raw_power_share", key), computePowerShareRatio(value, key));
 		} else if (isLegacyPowerSupplyUtilization(value)) {
 			computationFunctions.put(key, this::legacyPowerSupplyUtilization);
 		} else if (isFakeCounterFunction(value)) {
