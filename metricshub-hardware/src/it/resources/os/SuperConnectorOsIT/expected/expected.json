@@ -64207,8 +64207,8 @@
     "is_endpoint" : false
   }, {
     "metrics" : {
-      "hw.vm.power_ratio.raw_power_share" : {
-        "name" : "hw.vm.power_ratio.raw_power_share",
+      "__hw.vm.power_ratio.raw_power_share" : {
+        "name" : "__hw.vm.power_ratio.raw_power_share",
         "collectTime" : 1715961673910,
         "previousCollectTime" : null,
         "attributes" : { },
@@ -64268,8 +64268,8 @@
     "is_endpoint" : false
   }, {
     "metrics" : {
-      "hw.vm.power_ratio.raw_power_share" : {
-        "name" : "hw.vm.power_ratio.raw_power_share",
+      "__hw.vm.power_ratio.raw_power_share" : {
+        "name" : "__hw.vm.power_ratio.raw_power_share",
         "collectTime" : 1715961673910,
         "previousCollectTime" : null,
         "attributes" : { },
@@ -64329,8 +64329,8 @@
     "is_endpoint" : false
   }, {
     "metrics" : {
-      "hw.vm.power_ratio.raw_power_share" : {
-        "name" : "hw.vm.power_ratio.raw_power_share",
+      "__hw.vm.power_ratio.raw_power_share" : {
+        "name" : "__hw.vm.power_ratio.raw_power_share",
         "collectTime" : 1715961673910,
         "previousCollectTime" : null,
         "attributes" : { },

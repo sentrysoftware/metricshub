@@ -26,7 +26,6 @@ import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_ESTIMATED_POWER;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_MEASURED_POWER;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_VM_METRIC;
-import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_VM_POWER_SHARE_METRIC;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.POWER_SOURCE_ID_ATTRIBUTE;
 
 import java.math.RoundingMode;
@@ -116,7 +115,7 @@ public class VmPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstimator {
 		final MetricFactory metricFactory = new MetricFactory(telemetryManager.getHostname());
 		metricFactory.collectNumberMetric(
 			monitor,
-			HW_VM_POWER_SHARE_METRIC,
+			"hw.vm.power_ratio",
 			powerShareRatio,
 			telemetryManager.getStrategyTime()
 		);
