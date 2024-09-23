@@ -29,6 +29,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
+import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
@@ -56,6 +57,9 @@ public class HardwarePostCollectStrategy extends AbstractStrategy {
 			.stream()
 			.map(Map::values)
 			.flatMap(Collection::stream)
+			.filter(monitor ->
+				monitor.getType().equals(KnownMonitorType.CONNECTOR.getKey()) || telemetryManager.isConnectorStatusOk(monitor)
+			)
 			.forEach(this::refreshPresentCollectTime);
 	}
 

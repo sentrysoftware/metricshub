@@ -85,9 +85,10 @@ public class HardwarePostDiscoveryStrategy extends AbstractStrategy {
 	}
 
 	/**
-	 * Checks whether any connector monitor in the current host has the hardware tag
-	 * @param telemetryManager The telemetry manager
-	 * @return boolean
+	 * Checks whether any connector monitor in the current {@link TelemetryManager} has the <code>hardware</code> tag.
+	 *
+	 * @param telemetryManager The {@link TelemetryManager} instance wrapping the connector monitors.
+	 * @return boolean value whether any connector monitor in the current {@link TelemetryManager} has the <code>hardware</code> tag.
 	 */
 	private boolean hostHasConnectorWithHardwareTag(final TelemetryManager telemetryManager) {
 		return telemetryManager
@@ -123,6 +124,9 @@ public class HardwarePostDiscoveryStrategy extends AbstractStrategy {
 				);
 				// @CHECKSTYLE:ON
 			})
+			.filter(monitor ->
+				monitor.getType().equals(KnownMonitorType.CONNECTOR.getKey()) || telemetryManager.isConnectorStatusOk(monitor)
+			)
 			.forEach(monitor -> {
 				if (!strategyTime.equals(monitor.getDiscoveryTime())) {
 					setAsMissing(monitor, telemetryManager.getHostname(), String.format(PRESENT_STATUS, monitor.getType()));
