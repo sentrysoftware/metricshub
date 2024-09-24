@@ -30,12 +30,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.configuration.ConnectorVariables;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.ConnectorDefaultVariable;
 import org.sentrysoftware.metricshub.engine.connector.parser.ConnectorParser;
 
 /**
@@ -84,8 +87,26 @@ public class ConnectorTemplateLibraryParser {
 			final String filename = path.getFileName().toString();
 			final String connectorId = filename.substring(0, filename.lastIndexOf('.'));
 
-			if (!connectorVariablesMap.containsKey(connectorId)) {
+			if (!connectorNode.toString().contains("${var::")) {
 				return FileVisitResult.CONTINUE;
+			}
+
+			// Les variables par défaut du connecteur.
+			ConnectorVariables connectorUserVariables = connectorVariablesMap.computeIfAbsent(
+				connectorId,
+				id -> new ConnectorVariables()
+			);
+
+			// Retrieve the default connector variables that have been specified in this connector.
+			Map<String, ConnectorDefaultVariable> connectorDefaultVariables = getConnectorVariables(connectorNode);
+
+			// User didn't configure variables for this connector, and no connector default variables are configured
+			if (connectorUserVariables.getVariableValues().isEmpty() && connectorDefaultVariables.isEmpty()) {
+				return FileVisitResult.CONTINUE;
+			}
+
+			for (final Entry<String, ConnectorDefaultVariable> entry : connectorDefaultVariables.entrySet()) {
+				connectorUserVariables.getVariableValues().putIfAbsent(entry.getKey(), entry.getValue().getDefaultValue());
 			}
 
 			final ConnectorParser connectorParser = ConnectorParser.withNodeProcessorAndUpdateChain(
@@ -123,6 +144,42 @@ public class ConnectorTemplateLibraryParser {
 		 */
 		private boolean isYamlFile(final String name) {
 			return name.toLowerCase().endsWith(".yaml");
+		}
+
+		/**
+		 * Converts the "variables" section of a {@link JsonNode} into a {@link Map} where each entry consists of
+		 * a variable name as the key and a {@link ConnectorDefaultVariable} as the value.
+		 * Each {@link ConnectorDefaultVariable} contains a description and a default value extracted from the JSON node.
+		 *
+		 * @param connectorNode the {@link JsonNode} representing the connector, which includes a "variables" section.
+		 * @return a map where the key is the variable name, and the value is a {@link ConnectorDefaultVariable} object
+		 *         containing the description and defaultValue for that variable. If the "variables" section is not present,
+		 *         an empty map is returned.
+		 */
+		private static Map<String, ConnectorDefaultVariable> getConnectorVariables(JsonNode connectorNode) {
+			final JsonNode variablesNode = connectorNode.get("connector").get("variables");
+			if (variablesNode == null) {
+				return new HashMap<>();
+			}
+
+			Map<String, ConnectorDefaultVariable> connectorVariablesMap = new HashMap<>();
+
+			// Iterate over the variables and extract description and defaultValue
+			variablesNode
+				.fields()
+				.forEachRemaining(entry -> {
+					String variableName = entry.getKey();
+					JsonNode variableValue = entry.getValue();
+
+					String description = variableValue.get("description").asText();
+					String defaultValue = variableValue.get("defaultValue").asText();
+
+					// Create a ConnectorDefaultVariable object and put it into the map
+					ConnectorDefaultVariable connectorDefaultVariable = new ConnectorDefaultVariable(description, defaultValue);
+					connectorVariablesMap.put(variableName, connectorDefaultVariable);
+				});
+
+			return connectorVariablesMap;
 		}
 	}
 

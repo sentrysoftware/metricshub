@@ -828,19 +828,16 @@ public class ConfigHelper {
 			// Retrieve connectors variables map from the resource configuration
 			final Map<String, ConnectorVariables> connectorVariablesMap = resourceConfig.getVariables();
 
-			// If connectors variables exist then merge the existing connector store with a new one containing custom connectors
-			if (connectorVariablesMap != null && !connectorVariablesMap.isEmpty()) {
-				// Call ConnectorTemplateLibraryParser and parse the custom connectors
-				final ConnectorTemplateLibraryParser connectorTemplateLibraryParser = new ConnectorTemplateLibraryParser();
+			// Call ConnectorTemplateLibraryParser and parse the custom connectors
+			final ConnectorTemplateLibraryParser connectorTemplateLibraryParser = new ConnectorTemplateLibraryParser();
 
-				final Map<String, Connector> customConnectors = connectorTemplateLibraryParser.parse(
-					ConfigHelper.getSubDirectory("connectors", false),
-					connectorVariablesMap
-				);
+			final Map<String, Connector> customConnectors = connectorTemplateLibraryParser.parse(
+				ConfigHelper.getSubDirectory("connectors", false),
+				connectorVariablesMap
+			);
 
-				// Overwrite resourceConnectorStore
-				updateConnectorStore(resourceConnectorStore, customConnectors);
-			}
+			// Overwrite resourceConnectorStore
+			updateConnectorStore(resourceConnectorStore, customConnectors);
 
 			resourceGroupTelemetryManagers.putIfAbsent(
 				resourceKey,
