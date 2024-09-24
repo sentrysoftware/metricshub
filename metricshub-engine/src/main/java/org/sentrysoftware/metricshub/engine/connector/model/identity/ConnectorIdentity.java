@@ -22,6 +22,7 @@ package org.sentrysoftware.metricshub.engine.connector.model.identity;
  */
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -82,5 +83,5 @@ public class ConnectorIdentity implements Serializable {
 	/**
 	 * The connector default variables that can be specified.
 	 */
-	private Map<String, ConnectorDefaultVariable> variables;
+	private final Map<String, ConnectorDefaultVariable> variables = new HashMap<>();
 }

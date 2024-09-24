@@ -339,13 +339,13 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 			return connectorVariables.getVariableValues().get(variableName);
 		}
 		return sourceProcessor
-				.getTelemetryManager()
-				.getConnectorStore()
-				.getStore()
-				.get(connectorId)
-				.getConnectorIdentity()
-				.getVariables()
-				.get(variableName)
-				.getDefaultValue();
+			.getTelemetryManager()
+			.getConnectorStore()
+			.getStore()
+			.get(connectorId)
+			.getConnectorIdentity()
+			.getVariables()
+			.get(variableName)
+			.getDefaultValue();
 	}
 }
