@@ -49,7 +49,7 @@ class ConnectorTemplateLibraryParserTest {
 		// User's value set, no default value.
 		assertEquals(Set.of(REMOTE, LOCAL), detection.getConnectionTypes());
 		// User's value not set, default value is set.
-		SnmpGetNextCriterion criterion = (SnmpGetNextCriterion) detection.getCriteria().get(0);
+		final SnmpGetNextCriterion criterion = (SnmpGetNextCriterion) detection.getCriteria().get(0);
 		assertEquals("1.3.6.1.4.1.795.10.1.1.3.1.1", criterion.getOid());
 		// User's value not set, default value not set, variable remains unchanged.
 		assertEquals(

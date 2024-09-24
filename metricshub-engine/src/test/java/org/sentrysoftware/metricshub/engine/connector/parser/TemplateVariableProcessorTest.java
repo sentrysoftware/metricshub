@@ -38,7 +38,7 @@ class TemplateVariableProcessorTest {
 		// Retrieve the json node from the json test file
 		final JsonNode connectorNode = mapper.readTree(jsonTestFilePath.toFile());
 
-		Map<String, String> connectorVariables = new HashMap<>();
+		final Map<String, String> connectorVariables = new HashMap<>();
 		connectorVariables.put("snmp-get-next", "snmpGetNext");
 		connectorVariables.put("local-connection-type", "local");
 

@@ -98,13 +98,14 @@ public class ConnectorTemplateLibraryParser {
 			);
 
 			// Retrieve the default connector variables that have been specified in this connector.
-			Map<String, ConnectorDefaultVariable> connectorDefaultVariables = getConnectorVariables(connectorNode);
+			final Map<String, ConnectorDefaultVariable> connectorDefaultVariables = getConnectorVariables(connectorNode);
 
 			// User didn't configure variables for this connector, and no connector default variables are configured
 			if (connectorUserVariables.getVariableValues().isEmpty() && connectorDefaultVariables.isEmpty()) {
 				return FileVisitResult.CONTINUE;
 			}
 
+			// For each configured default connector variable, if the user didn't specify a value to that variable, user default value.
 			for (final Entry<String, ConnectorDefaultVariable> entry : connectorDefaultVariables.entrySet()) {
 				connectorUserVariables.getVariableValues().putIfAbsent(entry.getKey(), entry.getValue().getDefaultValue());
 			}
