@@ -91,8 +91,8 @@ public class ConnectorTemplateLibraryParser {
 				return FileVisitResult.CONTINUE;
 			}
 
-			// Les variables par défaut du connecteur.
-			ConnectorVariables connectorUserVariables = connectorVariablesMap.computeIfAbsent(
+			// User connector variables
+			final ConnectorVariables connectorUserVariables = connectorVariablesMap.computeIfAbsent(
 				connectorId,
 				id -> new ConnectorVariables()
 			);
@@ -115,7 +115,12 @@ public class ConnectorTemplateLibraryParser {
 			);
 
 			// Put in the custom connectorsMap
-			customConnectorsMap.put(connectorId, connectorParser.parse(path.toFile()));
+			try {
+				customConnectorsMap.put(connectorId, connectorParser.parse(path.toFile()));
+			} catch (Exception e) {
+				log.error("Error while parsing connector with template variables {}: {}", filename, e.getMessage());
+				log.debug("Exception: ", e);
+			}
 
 			return FileVisitResult.CONTINUE;
 		}
@@ -156,26 +161,29 @@ public class ConnectorTemplateLibraryParser {
 		 *         containing the description and defaultValue for that variable. If the "variables" section is not present,
 		 *         an empty map is returned.
 		 */
-		private static Map<String, ConnectorDefaultVariable> getConnectorVariables(JsonNode connectorNode) {
+		private static Map<String, ConnectorDefaultVariable> getConnectorVariables(final JsonNode connectorNode) {
 			final JsonNode variablesNode = connectorNode.get("connector").get("variables");
 			if (variablesNode == null) {
 				return new HashMap<>();
 			}
 
-			Map<String, ConnectorDefaultVariable> connectorVariablesMap = new HashMap<>();
+			final Map<String, ConnectorDefaultVariable> connectorVariablesMap = new HashMap<>();
 
 			// Iterate over the variables and extract description and defaultValue
 			variablesNode
 				.fields()
 				.forEachRemaining(entry -> {
-					String variableName = entry.getKey();
-					JsonNode variableValue = entry.getValue();
+					final String variableName = entry.getKey();
+					final JsonNode variableValue = entry.getValue();
 
-					String description = variableValue.get("description").asText();
-					String defaultValue = variableValue.get("defaultValue").asText();
+					final String description = variableValue.get("description").asText();
+					final String defaultValue = variableValue.get("defaultValue").asText();
 
 					// Create a ConnectorDefaultVariable object and put it into the map
-					ConnectorDefaultVariable connectorDefaultVariable = new ConnectorDefaultVariable(description, defaultValue);
+					final ConnectorDefaultVariable connectorDefaultVariable = new ConnectorDefaultVariable(
+						description,
+						defaultValue
+					);
 					connectorVariablesMap.put(variableName, connectorDefaultVariable);
 				});
 
@@ -198,7 +206,10 @@ public class ConnectorTemplateLibraryParser {
 		final long startTime = System.currentTimeMillis();
 		final ConnectorFileVisitor connectorFileVisitor = new ConnectorFileVisitor(connectorVariablesMap);
 		Files.walkFileTree(yamlParentDirectory, connectorFileVisitor);
-		log.info("Yaml loading duration: {} seconds", (System.currentTimeMillis() - startTime) / 1000);
+		log.info(
+			"Connectors with template variables parsing duration: {} seconds",
+			(System.currentTimeMillis() - startTime) / 1000
+		);
 		return connectorFileVisitor.getCustomConnectorsMap();
 	}
 }

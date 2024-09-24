@@ -823,21 +823,18 @@ public class ConfigHelper {
 			// Validate protocols and update the configuration's hostname if required.
 			validateAndNormalizeProtocols(resourceKey, resourceConfig, hostConfiguration.getHostname());
 
+			// Read the configured connector for the current resource
 			addConfiguredConnector(resourceConnectorStore, resourceConfig.getConnector());
 
-			// Retrieve connectors variables map from the resource configuration
-			final Map<String, ConnectorVariables> connectorVariablesMap = resourceConfig.getVariables();
-
-			// Call ConnectorTemplateLibraryParser and parse the custom connectors
-			final ConnectorTemplateLibraryParser connectorTemplateLibraryParser = new ConnectorTemplateLibraryParser();
-
-			final Map<String, Connector> customConnectors = connectorTemplateLibraryParser.parse(
-				ConfigHelper.getSubDirectory("connectors", false),
-				connectorVariablesMap
+			// Read connectors with configuration variables safely
+			final Map<String, Connector> connectorsWithConfigVariables = readConnectorsWithConfigurationVariablesSafe(
+				resourceGroupKey,
+				resourceKey,
+				resourceConfig
 			);
 
 			// Overwrite resourceConnectorStore
-			updateConnectorStore(resourceConnectorStore, customConnectors);
+			updateConnectorStore(resourceConnectorStore, connectorsWithConfigVariables);
 
 			resourceGroupTelemetryManagers.putIfAbsent(
 				resourceKey,
@@ -852,6 +849,43 @@ public class ConfigHelper {
 				resourceKey,
 				e.getMessage()
 			);
+		}
+	}
+
+	/**
+	 * Parse the connectors having configuration variables.
+	 *
+	 * @param resourceGroupKey The resource group key under which the resource is configured for logging purposes.
+	 * @param resourceKey      The resource key for logging purposes.
+	 * @param resourceConfig   The resource configuration.
+	 * @return Map of connectors with configuration variables
+	 */
+	private static Map<String, Connector> readConnectorsWithConfigurationVariablesSafe(
+		final String resourceGroupKey,
+		final String resourceKey,
+		final ResourceConfig resourceConfig
+	) {
+		// Retrieve connectors variables map from the resource configuration
+		final Map<String, ConnectorVariables> connectorVariablesMap = resourceConfig.getVariables();
+
+		// Call ConnectorTemplateLibraryParser and parse the custom connectors
+		final ConnectorTemplateLibraryParser connectorTemplateLibraryParser = new ConnectorTemplateLibraryParser();
+
+		try {
+			return connectorTemplateLibraryParser.parse(
+				ConfigHelper.getSubDirectory("connectors", false),
+				connectorVariablesMap
+			);
+		} catch (Exception e) {
+			log.warn(
+				"Resource {} - Under the resource group configuration {}, the resource configuration {} will not load connectors with configuration variables." +
+				" Reason: {}.",
+				resourceKey,
+				resourceGroupKey,
+				resourceKey,
+				e.getMessage()
+			);
+			return new HashMap<>();
 		}
 	}
 
