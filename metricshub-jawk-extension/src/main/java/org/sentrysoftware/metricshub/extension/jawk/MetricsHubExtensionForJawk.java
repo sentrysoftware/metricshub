@@ -338,6 +338,14 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 		if (connectorVariables != null) {
 			return connectorVariables.getVariableValues().get(variableName);
 		}
-		return null;
+		return sourceProcessor
+				.getTelemetryManager()
+				.getConnectorStore()
+				.getStore()
+				.get(connectorId)
+				.getConnectorIdentity()
+				.getVariables()
+				.get(variableName)
+				.getDefaultValue();
 	}
 }
