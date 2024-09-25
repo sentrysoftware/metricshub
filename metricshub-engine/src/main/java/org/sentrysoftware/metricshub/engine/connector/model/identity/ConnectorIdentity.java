@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -83,5 +84,6 @@ public class ConnectorIdentity implements Serializable {
 	/**
 	 * The connector default variables that can be specified.
 	 */
-	private final Map<String, ConnectorDefaultVariable> variables = new HashMap<>();
+	@Default
+	private Map<String, ConnectorDefaultVariable> variables = new HashMap<>();
 }
