@@ -8,7 +8,7 @@
     "detection": {
       "connectionTypes": [
         "remote",
-        "local"
+        "${var::local-connection-type}"
       ],
       "appliesTo": [
         "NT",
