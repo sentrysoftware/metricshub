@@ -203,7 +203,7 @@ public class ConnectorLibraryParser {
 		final long startTime = System.currentTimeMillis();
 		final ConnectorFileVisitor fileVisitor = new ConnectorFileVisitor();
 		Files.walkFileTree(yamlParentDirectory, fileVisitor);
-		log.info("Yaml loading duration: {} seconds", (System.currentTimeMillis() - startTime) / 1000);
+		log.info("Connectors parsing duration: {} seconds", (System.currentTimeMillis() - startTime) / 1000);
 		return fileVisitor.getConnectorsMap();
 	}
 }
