@@ -113,34 +113,22 @@ class HardwarePostDiscoveryStrategyTest {
 		// Check the hw.status metric of the enclosure monitor
 		assertEquals(1.0, enclosureMonitor.getMetric(ENCLOSURE_PRESENT_METRIC, NumberMetric.class).getValue());
 
-		// Check the hw.status metric of the connector monitor
-		assertEquals(
-			1.0,
-			connectorMonitor.getMetric("hw.status{hw.type=\"connector\", state=\"present\"}", NumberMetric.class).getValue()
-		);
+		// Check the hw.status metric is not set for the connector monitor (Excluded from the candidates)
+		assertNull(connectorMonitor.getMetric("hw.status{hw.type=\"connector\", state=\"present\"}", NumberMetric.class));
 
-		// Check the hw.status metric of the host monitor
-		assertEquals(
-			1.0,
-			hostMonitor.getMetric("hw.status{hw.type=\"host\", state=\"present\"}", NumberMetric.class).getValue()
-		);
+		// Check the hw.status metric is not set for the host monitor (Excluded from the candidates)
+		assertNull(hostMonitor.getMetric("hw.status{hw.type=\"host\", state=\"present\"}", NumberMetric.class));
 
 		new HardwarePostDiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor, extensionManager).run();
 
 		// Check the hw.status metric of the enclosure monitor
 		assertEquals(0.0, enclosureMonitor.getMetric(ENCLOSURE_PRESENT_METRIC, NumberMetric.class).getValue());
 
-		// Check the hw.status metric of the connector monitor
-		assertEquals(
-			0.0,
-			connectorMonitor.getMetric("hw.status{hw.type=\"connector\", state=\"present\"}", NumberMetric.class).getValue()
-		);
+		// Check the hw.status metric is not set for the connector monitor (Excluded from the candidates)
+		assertNull(connectorMonitor.getMetric("hw.status{hw.type=\"connector\", state=\"present\"}", NumberMetric.class));
 
-		// Check the hw.status metric of the host monitor
-		assertEquals(
-			0.0,
-			hostMonitor.getMetric("hw.status{hw.type=\"host\", state=\"present\"}", NumberMetric.class).getValue()
-		);
+		// Check the hw.status metric is not set for the host monitor (Excluded from the candidates)
+		assertNull(hostMonitor.getMetric("hw.status{hw.type=\"host\", state=\"present\"}", NumberMetric.class));
 	}
 
 	@Test
