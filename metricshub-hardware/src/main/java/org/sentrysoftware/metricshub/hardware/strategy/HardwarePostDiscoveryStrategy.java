@@ -26,6 +26,9 @@ import static org.sentrysoftware.metricshub.hardware.util.HwConstants.PRESENT_ST
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -37,10 +40,47 @@ import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
+/**
+ * Strategy responsible of executing post discovery actions for hardware monitors.<br>
+ * This strategy is responsible for checking the presence of hardware monitors in the {@link TelemetryManager} and should be executed after the discovery phase.
+ */
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class HardwarePostDiscoveryStrategy extends AbstractStrategy {
 
+	/**
+	 * Set of monitor types that should be excluded from hardware missing device detection.
+	 */
+	private static final Set<String> EXCLUDED_MONITOR_TYPES = Stream
+		.of(
+			KnownMonitorType.HOST.getKey(),
+			KnownMonitorType.CONNECTOR.getKey(),
+			KnownMonitorType.LUN.getKey(),
+			KnownMonitorType.LOGICAL_DISK.getKey(),
+			KnownMonitorType.VOLTAGE.getKey(),
+			KnownMonitorType.TEMPERATURE.getKey(),
+			KnownMonitorType.VM.getKey(),
+			KnownMonitorType.LED.getKey()
+		)
+		.collect(Collectors.toSet());
+
+	/**
+	 * Set of monitor types that are candidates for hardware missing device.
+	 */
+	private static final Set<String> MONITOR_TYPE_CANDIDATES = KnownMonitorType.KEYS
+		.stream()
+		.filter(type -> !EXCLUDED_MONITOR_TYPES.contains(type))
+		.collect(Collectors.toSet());
+
+	/**
+	 * Create a new instance of {@link HardwarePostDiscoveryStrategy}.<br>
+	 * This strategy is responsible for checking the presence of hardware monitors in the {@link TelemetryManager} and should be executed after the discovery phase.
+	 *
+	 * @param telemetryManager The {@link TelemetryManager} instance wrapping the connector monitors.
+	 * @param strategyTime     The strategy time (Discovery time).
+	 * @param clientsExecutor  The {@link ClientsExecutor} instance.
+	 * @param extensionManager The {@link ExtensionManager} instance.
+	 */
 	public HardwarePostDiscoveryStrategy(
 		@NonNull final TelemetryManager telemetryManager,
 		@NonNull final Long strategyTime,
@@ -51,7 +91,8 @@ public class HardwarePostDiscoveryStrategy extends AbstractStrategy {
 	}
 
 	/**
-	 * Sets the current monitor as missing
+	 * Sets the current monitor as missing.
+	 *
 	 * @param monitor A given monitor
 	 * @param hostname The host's name
 	 * @param metricName The collected metric name
@@ -71,35 +112,13 @@ public class HardwarePostDiscoveryStrategy extends AbstractStrategy {
 	}
 
 	/**
-	 * Checks whether a monitor has a {@link KnownMonitorType}
+	 * Checks whether a monitor is a candidate for hardware missing device detection.
+	 *
 	 * @param monitorType A given monitor's type
-	 * @return boolean whether a monitor has a {@link KnownMonitorType}
+	 * @return boolean Whether the monitor is a candidate for hardware missing device detection.
 	 */
-	private boolean monitorHasKnownType(final String monitorType) {
-		for (KnownMonitorType type : KnownMonitorType.values()) {
-			if (type.getKey().equals(monitorType)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Checks whether any connector monitor in the current host has the hardware tag
-	 * @param telemetryManager The telemetry manager
-	 * @return boolean
-	 */
-	private boolean hostHasConnectorWithHardwareTag(final TelemetryManager telemetryManager) {
-		return telemetryManager
-			.getMonitors()
-			.values()
-			.stream()
-			.map(Map::values)
-			.flatMap(Collection::stream)
-			.anyMatch(monitor ->
-				monitor.getType().equals(KnownMonitorType.CONNECTOR.getKey()) &&
-				connectorHasHardwareTag(monitor, telemetryManager)
-			);
+	private boolean isCandidateMonitorType(final String monitorType) {
+		return MONITOR_TYPE_CANDIDATES.contains(monitorType);
 	}
 
 	@Override
@@ -113,16 +132,9 @@ public class HardwarePostDiscoveryStrategy extends AbstractStrategy {
 			.stream()
 			.map(Map::values)
 			.flatMap(Collection::stream)
-			.filter(monitor -> monitorHasKnownType(monitor.getType()))
-			.filter(monitor -> {
-				// @CHECKSTYLE:OFF
-				final boolean isEndpointHost = monitor.isEndpointHost();
-				return (
-					(!isEndpointHost && connectorHasHardwareTag(monitor, telemetryManager)) ||
-					(isEndpointHost && hostHasConnectorWithHardwareTag(telemetryManager))
-				);
-				// @CHECKSTYLE:ON
-			})
+			.filter(monitor -> isCandidateMonitorType(monitor.getType()))
+			.filter(telemetryManager::isConnectorStatusOk)
+			.filter(monitor -> connectorHasHardwareTag(monitor, telemetryManager))
 			.forEach(monitor -> {
 				if (!strategyTime.equals(monitor.getDiscoveryTime())) {
 					setAsMissing(monitor, telemetryManager.getHostname(), String.format(PRESENT_STATUS, monitor.getType()));

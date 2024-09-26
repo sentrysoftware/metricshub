@@ -364,20 +364,6 @@
         "stateSet" : [ "ok", "failed" ],
         "type" : "StateSetMetric",
         "updated" : true
-      },
-      "hw.status{hw.type=\"connector\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"connector\", state=\"present\"}",
-        "collectTime" : 1715961673910,
-        "previousCollectTime" : 1715961553910,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "connector"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
       }
     },
     "attributes" : {
@@ -2136,20 +2122,6 @@
         "type" : "NumberMetric",
         "updated" : true
       },
-      "hw.status{hw.type=\"host\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"host\", state=\"present\"}",
-        "collectTime" : 1715961673910,
-        "previousCollectTime" : 1715961553910,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "host"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.host.power{quality=\"measured\"}" : {
         "name" : "hw.host.power{quality=\"measured\"}",
         "collectTime" : 1715961673910,
@@ -2202,20 +2174,6 @@
         "stateSet" : [ "failed", "degraded", "ok" ],
         "type" : "StateSetMetric",
         "updated" : true
-      },
-      "hw.status{hw.type=\"led\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"led\", state=\"present\"}",
-        "collectTime" : 1715961673910,
-        "previousCollectTime" : 1715961553910,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "led"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
       }
     },
     "attributes" : {
@@ -2255,20 +2213,6 @@
         "previousValue" : null,
         "stateSet" : [ "failed", "degraded", "ok" ],
         "type" : "StateSetMetric",
-        "updated" : true
-      },
-      "hw.status{hw.type=\"led\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"led\", state=\"present\"}",
-        "collectTime" : 1715961673910,
-        "previousCollectTime" : 1715961553910,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "led"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
         "updated" : true
       }
     },
@@ -2319,20 +2263,6 @@
         "resetMetricTime" : true,
         "value" : 5.0E9,
         "previousValue" : 5.0E9,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
-      "hw.status{hw.type=\"logical_disk\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"logical_disk\", state=\"present\"}",
-        "collectTime" : 1715961673910,
-        "previousCollectTime" : 1715961553910,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "logical_disk"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
         "type" : "NumberMetric",
         "updated" : true
       },
@@ -2398,20 +2328,6 @@
         "type" : "NumberMetric",
         "updated" : true
       },
-      "hw.status{hw.type=\"logical_disk\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"logical_disk\", state=\"present\"}",
-        "collectTime" : 1715961673910,
-        "previousCollectTime" : 1715961553910,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "logical_disk"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.logical_disk.usage{state=\"free\"}" : {
         "name" : "hw.logical_disk.usage{state=\"free\"}",
         "collectTime" : 1715961673910,
@@ -2474,20 +2390,6 @@
         "type" : "NumberMetric",
         "updated" : true
       },
-      "hw.status{hw.type=\"logical_disk\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"logical_disk\", state=\"present\"}",
-        "collectTime" : 1715961673910,
-        "previousCollectTime" : 1715961553910,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "logical_disk"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.logical_disk.usage{state=\"free\"}" : {
         "name" : "hw.logical_disk.usage{state=\"free\"}",
         "collectTime" : 1715961673910,
@@ -2547,20 +2449,6 @@
         "resetMetricTime" : true,
         "value" : 3.0E10,
         "previousValue" : 3.0E10,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
-      "hw.status{hw.type=\"logical_disk\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"logical_disk\", state=\"present\"}",
-        "collectTime" : 1715961673910,
-        "previousCollectTime" : 1715961553910,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "logical_disk"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
         "type" : "NumberMetric",
         "updated" : true
       },
@@ -2628,20 +2516,6 @@
     "is_endpoint" : false
   }, {
     "metrics" : {
-      "hw.status{hw.type=\"lun\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"lun\", state=\"present\"}",
-        "collectTime" : 1715961673910,
-        "previousCollectTime" : 1715961553910,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "lun"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.status{hw.type=\"lun\"}" : {
         "name" : "hw.status{hw.type=\"lun\"}",
         "collectTime" : 1715961673910,
@@ -2695,20 +2569,6 @@
     "is_endpoint" : false
   }, {
     "metrics" : {
-      "hw.status{hw.type=\"lun\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"lun\", state=\"present\"}",
-        "collectTime" : 1715961673910,
-        "previousCollectTime" : 1715961553910,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "lun"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.status{hw.type=\"lun\"}" : {
         "name" : "hw.status{hw.type=\"lun\"}",
         "collectTime" : 1715961673910,
@@ -2762,20 +2622,6 @@
     "is_endpoint" : false
   }, {
     "metrics" : {
-      "hw.status{hw.type=\"lun\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"lun\", state=\"present\"}",
-        "collectTime" : 1715961673910,
-        "previousCollectTime" : 1715961553910,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "lun"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.status{hw.type=\"lun\"}" : {
         "name" : "hw.status{hw.type=\"lun\"}",
         "collectTime" : 1715961673910,
@@ -2829,20 +2675,6 @@
     "is_endpoint" : false
   }, {
     "metrics" : {
-      "hw.status{hw.type=\"lun\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"lun\", state=\"present\"}",
-        "collectTime" : 1715961673910,
-        "previousCollectTime" : 1715961553910,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "lun"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.status{hw.type=\"lun\"}" : {
         "name" : "hw.status{hw.type=\"lun\"}",
         "collectTime" : 1715961673910,
@@ -64038,20 +63870,6 @@
         "type" : "NumberMetric",
         "updated" : true
       },
-      "hw.status{hw.type=\"temperature\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"temperature\", state=\"present\"}",
-        "collectTime" : 1715961673910,
-        "previousCollectTime" : 1715961553910,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "temperature"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.status{hw.type=\"temperature\"}" : {
         "name" : "hw.status{hw.type=\"temperature\"}",
         "collectTime" : 1715961673910,
@@ -64126,20 +63944,6 @@
         "resetMetricTime" : true,
         "value" : 60.0,
         "previousValue" : 60.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
-      "hw.status{hw.type=\"temperature\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"temperature\", state=\"present\"}",
-        "collectTime" : 1715961673910,
-        "previousCollectTime" : 1715961553910,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "temperature"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
         "type" : "NumberMetric",
         "updated" : true
       },
@@ -64229,20 +64033,6 @@
         "stateSet" : [ "false", "true", "suspended" ],
         "type" : "StateSetMetric",
         "updated" : true
-      },
-      "hw.status{hw.type=\"vm\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"vm\", state=\"present\"}",
-        "collectTime" : 1715961673910,
-        "previousCollectTime" : 1715961553910,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "vm"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
       }
     },
     "attributes" : {
@@ -64289,20 +64079,6 @@
         "previousValue" : null,
         "stateSet" : [ "false", "true", "suspended" ],
         "type" : "StateSetMetric",
-        "updated" : true
-      },
-      "hw.status{hw.type=\"vm\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"vm\", state=\"present\"}",
-        "collectTime" : 1715961673910,
-        "previousCollectTime" : 1715961553910,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "vm"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
         "updated" : true
       }
     },
@@ -64351,20 +64127,6 @@
         "stateSet" : [ "false", "true", "suspended" ],
         "type" : "StateSetMetric",
         "updated" : true
-      },
-      "hw.status{hw.type=\"vm\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"vm\", state=\"present\"}",
-        "collectTime" : 1715961673910,
-        "previousCollectTime" : 1715961553910,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "vm"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
       }
     },
     "attributes" : {
@@ -64398,20 +64160,6 @@
         "resetMetricTime" : false,
         "value" : 2100.0,
         "previousValue" : null,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
-      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
-        "collectTime" : 1715961673910,
-        "previousCollectTime" : 1715961553910,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "voltage"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
         "type" : "NumberMetric",
         "updated" : true
       },
@@ -64462,20 +64210,6 @@
         "resetMetricTime" : false,
         "value" : 54841.0,
         "previousValue" : null,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
-      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
-        "collectTime" : 1715961673910,
-        "previousCollectTime" : 1715961553910,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "voltage"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
         "type" : "NumberMetric",
         "updated" : true
       },

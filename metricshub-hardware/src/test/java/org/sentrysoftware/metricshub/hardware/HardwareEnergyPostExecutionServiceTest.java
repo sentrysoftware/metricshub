@@ -1,21 +1,78 @@
 package org.sentrysoftware.metricshub.hardware;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID;
-import static org.sentrysoftware.metricshub.hardware.common.Constants.*;
-import static org.sentrysoftware.metricshub.hardware.util.HwConstants.*;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.CPU_POWER_METRIC;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.DISK_CONTROLLER_ENERGY_METRIC;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.DISK_CONTROLLER_POWER_METRIC;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.FAN_ENERGY_METRIC;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.FAN_POWER_METRIC;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.FAN_SPEED_METRIC;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.HOST_1;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.HW_CPU_POWER;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.HW_HOST_AMBIENT_TEMPERATURE;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.HW_HOST_AVERAGE_CPU_TEMPERATURE;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.HW_MEMORY_POWER;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.HW_PHYSICAL_DISK_POWER;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.LOCALHOST;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.MEMORY_ENERGY_METRIC;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.MEMORY_POWER_METRIC;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.NETWORK_ENERGY_METRIC;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.NETWORK_LINK_SPEED_ATTRIBUTE;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.NETWORK_LINK_STATUS_METRIC;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.NETWORK_POWER_METRIC;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.NETWORK_TRANSMITTED_BANDWIDTH_UTILIZATION_METRIC;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.ON;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.PHYSICAL_DISK_ENERGY_METRIC;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.PHYSICAL_DISK_POWER_METRIC;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.ROBOTICS_ENERGY_METRIC;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.ROBOTICS_MOVE_COUNT_METRIC;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.ROBOTICS_POWER_METRIC;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.TAPE_DRIVE_ENERGY_METRIC;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.TAPE_DRIVE_MOUNT_COUNT_METRIC;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.TAPE_DRIVE_POWER_METRIC;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.TAPE_DRIVE_UNMOUNT_COUNT_METRIC;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.TEMPERATURE_METRIC;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.VM_1_ONLINE;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.VM_OFFLINE_2;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.VM_ONLINE_3;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.VM_ONLINE_BAD_POWER_SHARE_5;
+import static org.sentrysoftware.metricshub.hardware.common.Constants.VM_ONLINE_NO_POWER_SHARE_4;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_CPU_SPEED_LIMIT_LIMIT_TYPE_MAX;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_CPU_METRIC;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_VM_METRIC;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_CPU_THERMAL_DISSIPATION_RATE;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_ESTIMATED_ENERGY;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_HOST_ESTIMATED_POWER;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_CPU_METRIC;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_POWER_VM_METRIC;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_VM_POWER_SHARE_METRIC;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_VM_POWER_STATE_METRIC;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.POWER_SOURCE_ID_ATTRIBUTE;
+import static org.sentrysoftware.metricshub.hardware.util.HwConstants.PRESENT_STATUS;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
+import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
+import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.ConnectorIdentity;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.Detection;
 import org.sentrysoftware.metricshub.engine.strategy.utils.CollectHelper;
-import org.sentrysoftware.metricshub.engine.telemetry.*;
+import org.sentrysoftware.metricshub.engine.telemetry.ConnectorNamespace;
+import org.sentrysoftware.metricshub.engine.telemetry.HostProperties;
+import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
+import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
+import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
 
@@ -41,8 +98,15 @@ class HardwareEnergyPostExecutionServiceTest {
 
 	@BeforeEach
 	void init() {
-		final Path yamlTestPath = Paths.get("src", "test", "resources", "strategy", "collect");
-		final ConnectorStore connectorStore = new ConnectorStore(yamlTestPath);
+		final ConnectorStore connectorStore = new ConnectorStore();
+		final Connector connector = new Connector();
+		connector.setConnectorIdentity(
+			ConnectorIdentity
+				.builder()
+				.detection(Detection.builder().appliesTo(Set.of(DeviceKind.OOB)).tags(Set.of("hardware")).build())
+				.build()
+		);
+		connectorStore.setStore(new HashMap<>(Map.of(TEST_CONNECTOR, connector)));
 		telemetryManager =
 			TelemetryManager
 				.builder()
