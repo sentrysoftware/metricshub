@@ -152,7 +152,7 @@ public class SourceProcessor implements ISourceProcessor {
 	}
 
 	/**
-	 * Processes a given {@link Source} by using an appropriate {@link ISourceComputation} found through
+	 * Processes a given {@link Source} by using an appropriate {@link ISourceComputationExtension} found through
 	 * an {@link ExtensionManager}. This method delegates the processing of the source to the extension
 	 * if available, or returns an empty {@link SourceTable} if no suitable extension is found.
 	 *

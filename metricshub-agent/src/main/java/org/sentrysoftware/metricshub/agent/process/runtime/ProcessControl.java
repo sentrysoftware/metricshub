@@ -128,7 +128,7 @@ public class ProcessControl {
 	/**
 	 * Close the closable and avoid any null pointer exception if the argument is <code>null</code>
 	 *
-	 * @param closable
+	 * @param closeable
 	 * @throws IOException
 	 */
 	private void close(Closeable closeable) throws IOException {

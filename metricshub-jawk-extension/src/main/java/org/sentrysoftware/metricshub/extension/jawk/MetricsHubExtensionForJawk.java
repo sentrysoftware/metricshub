@@ -325,7 +325,7 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 
 	/**
 	 * Return the value of the variable in parameter if it exists.
-	 * @param arg The name of the variable to retrieve.
+	 * @param args The name of the variable to retrieve.
 	 * @return The value of the variable.
 	 */
 	private String getVariable(final Object[] args) {

@@ -241,7 +241,7 @@ public class WmiCriterionProcessor {
 	 * @param telemetryManager The telemetry manager providing access to host configuration and WMI credentials.
 	 * @param hostname         The hostname of the device
 	 * @param winConfiguration The WMI protocol configuration (credentials, etc.)
-	 * @param wmiCriterion     The WMI criterion with an "Automatic" namespace
+	 * @param wqlCriterion     The WMI criterion with an "Automatic" namespace
 	 * @return A {@link CriterionTestResult} telling whether we found the proper namespace for the specified WQL
 	 */
 	CriterionTestResult findNamespace(

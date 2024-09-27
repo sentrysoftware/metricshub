@@ -59,7 +59,7 @@ public class SqlTableDeserializer extends JsonDeserializer<List<SqlTable>> {
 	}
 
 	/**
-	 * Parse a {@link JsonNode} and try to create a {@link Sqltable} object from it and add it to the sqlTables list.
+	 * Parse a {@link JsonNode} and try to create a {@link SqlTable} object from it and add it to the sqlTables list.
 	 * @param tableNode The JSON node to parse.
 	 * @param sqlTables The list where to add the SQL tables.
 	 */

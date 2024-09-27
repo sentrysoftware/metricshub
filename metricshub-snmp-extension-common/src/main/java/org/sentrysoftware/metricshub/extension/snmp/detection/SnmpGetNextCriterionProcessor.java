@@ -135,7 +135,7 @@ public class SnmpGetNextCriterionProcessor {
 	 * @param hostname The hostname.
 	 * @param oid      The SNMP OID.
 	 * @param result   The result of the SNMP GetNext operation.
-	 * @return {@link TestResult} wrapping the message and the success status.
+	 * @return {@link CriterionTestResult} wrapping the message and the success status.
 	 */
 	static CriterionTestResult checkSNMPGetNextValue(final String hostname, final String oid, final String result) {
 		String message;
@@ -181,7 +181,7 @@ public class SnmpGetNextCriterionProcessor {
 	 * @param oid       The SNMP OID.
 	 * @param expected  The expected value.
 	 * @param result    The result of the SNMP GetNext operation.
-	 * @return {@link TestResult} wrapping the message and the success status.
+	 * @return {@link CriterionTestResult} wrapping the message and the success status.
 	 */
 	static CriterionTestResult checkSNMPGetNextExpectedValue(
 		final String hostname,
@@ -247,7 +247,7 @@ public class SnmpGetNextCriterionProcessor {
 	 * @param oid      The SNMP OID.
 	 * @param expected The expected value.
 	 * @param result   The result of the SNMP GetNext operation.
-	 * @return {@link TestResult} wrapping the success status and the message
+	 * @return {@link CriterionTestResult} wrapping the success status and the message
 	 */
 	static CriterionTestResult checkSNMPGetNextResult(
 		final String hostname,

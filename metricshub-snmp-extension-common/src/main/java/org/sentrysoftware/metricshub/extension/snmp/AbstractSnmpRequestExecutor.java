@@ -182,7 +182,7 @@ public abstract class AbstractSnmpRequestExecutor {
 	 *
 	 * @param request           The type of SNMP request (GET, GETNEXT, TABLE).
 	 * @param oid               The SNMP Object Identifier (OID) for the request.
-	 * @param configuration     The SNMP configuration containing connection details.
+	 * @param protocol     The SNMP configuration containing connection details.
 	 * @param hostname          The hostname or IP address of the SNMP-enabled device.
 	 * @param selectColumnArray An array of column names for TABLE requests.
 	 * @param logMode           Flag indicating whether to log warnings in case of errors.
