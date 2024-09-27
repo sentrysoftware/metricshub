@@ -10,15 +10,18 @@ import static org.sentrysoftware.metricshub.hardware.common.Constants.FAN_POWER_
 import static org.sentrysoftware.metricshub.hardware.common.Constants.FAN_SPEED_METRIC;
 import static org.sentrysoftware.metricshub.hardware.common.Constants.LOCALHOST;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
+import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
+import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.ConnectorIdentity;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.Detection;
 import org.sentrysoftware.metricshub.engine.strategy.IStrategy;
 import org.sentrysoftware.metricshub.engine.telemetry.ConnectorNamespace;
 import org.sentrysoftware.metricshub.engine.telemetry.HostProperties;
@@ -40,8 +43,15 @@ class HardwareStrategyTest {
 
 	@BeforeEach
 	void init() {
-		final Path yamlTestPath = Paths.get("src", "test", "resources", "strategy", "collect");
-		final ConnectorStore connectorStore = new ConnectorStore(yamlTestPath);
+		final ConnectorStore connectorStore = new ConnectorStore();
+		final Connector connector = new Connector();
+		connector.setConnectorIdentity(
+			ConnectorIdentity
+				.builder()
+				.detection(Detection.builder().appliesTo(Set.of(DeviceKind.OOB)).tags(Set.of("hardware")).build())
+				.build()
+		);
+		connectorStore.setStore(new HashMap<>(Map.of(TEST_CONNECTOR, connector)));
 		telemetryManager =
 			TelemetryManager
 				.builder()
@@ -102,47 +112,47 @@ class HardwareStrategyTest {
 		// Scenario 1: the TelemetryManager contains a fan monitor
 		{
 			final HardwareStrategy hardwareStrategy = new HardwareStrategy(telemetryManager, STRATEGY_TIME);
-			final TelemetryManager telemetryManager = new TelemetryManager();
+			final TelemetryManager newTelemetryManager = new TelemetryManager();
 			// Create a fan monitor
 			final Monitor fanMonitor = Monitor.builder().type(FAN).build();
 
 			// Set the previously created fan monitor in telemetryManager
 			final Map<String, Monitor> fanMonitors = new HashMap<>(Map.of(MONITOR_ID, fanMonitor));
-			telemetryManager.setMonitors(new HashMap<>(Map.of(FAN, fanMonitors)));
-			assertTrue(hardwareStrategy.hasHardwareMonitors(telemetryManager));
+			newTelemetryManager.setMonitors(new HashMap<>(Map.of(FAN, fanMonitors)));
+			assertTrue(hardwareStrategy.hasHardwareMonitors(newTelemetryManager));
 		}
 
 		// Scenario 2: the TelemetryManager doesn't define any monitor
 		{
 			final HardwareStrategy hardwareStrategy = new HardwareStrategy(telemetryManager, STRATEGY_TIME);
-			final TelemetryManager telemetryManager = new TelemetryManager();
-			assertFalse(hardwareStrategy.hasHardwareMonitors(telemetryManager));
+			final TelemetryManager newTelemetryManager = new TelemetryManager();
+			assertFalse(hardwareStrategy.hasHardwareMonitors(newTelemetryManager));
 		}
 
 		// Scenario 3: the TelemetryManager contains a host monitor only
 		{
 			final HardwareStrategy hardwareStrategy = new HardwareStrategy(telemetryManager, STRATEGY_TIME);
-			final TelemetryManager telemetryManager = new TelemetryManager();
+			final TelemetryManager newTelemetryManager = new TelemetryManager();
 			// Create a host monitor
 			final Monitor hostMonitor = Monitor.builder().type(HOST).build();
 
 			// Set the previously created host monitor in telemetryManager
 			final Map<String, Monitor> hostMonitors = new HashMap<>(Map.of(MONITOR_ID, hostMonitor));
-			telemetryManager.setMonitors(new HashMap<>(Map.of(HOST, hostMonitors)));
-			assertFalse(hardwareStrategy.hasHardwareMonitors(telemetryManager));
+			newTelemetryManager.setMonitors(new HashMap<>(Map.of(HOST, hostMonitors)));
+			assertFalse(hardwareStrategy.hasHardwareMonitors(newTelemetryManager));
 		}
 
 		// Scenario 4: the TelemetryManager contains a connector monitor only
 		{
 			final HardwareStrategy hardwareStrategy = new HardwareStrategy(telemetryManager, STRATEGY_TIME);
-			final TelemetryManager telemetryManager = new TelemetryManager();
+			final TelemetryManager newTelemetryManager = new TelemetryManager();
 			// Create a connector monitor
 			final Monitor hostMonitor = Monitor.builder().type(CONNECTOR).build();
 
 			// Set the previously created connector monitor in telemetryManager
 			final Map<String, Monitor> connectorMonitors = new HashMap<>(Map.of(MONITOR_ID, hostMonitor));
-			telemetryManager.setMonitors(new HashMap<>(Map.of(CONNECTOR, connectorMonitors)));
-			assertFalse(hardwareStrategy.hasHardwareMonitors(telemetryManager));
+			newTelemetryManager.setMonitors(new HashMap<>(Map.of(CONNECTOR, connectorMonitors)));
+			assertFalse(hardwareStrategy.hasHardwareMonitors(newTelemetryManager));
 		}
 	}
 }

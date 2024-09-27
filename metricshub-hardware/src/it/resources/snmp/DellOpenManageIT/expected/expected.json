@@ -63,20 +63,6 @@
         "stateSet" : [ "ok", "failed" ],
         "type" : "StateSetMetric",
         "updated" : true
-      },
-      "hw.status{hw.type=\"connector\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"connector\", state=\"present\"}",
-        "collectTime" : 1715961290898,
-        "previousCollectTime" : 1715961170898,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "connector"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
       }
     },
     "attributes" : {
@@ -1567,20 +1553,6 @@
         "type" : "NumberMetric",
         "updated" : true
       },
-      "hw.status{hw.type=\"host\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"host\", state=\"present\"}",
-        "collectTime" : 1715961290898,
-        "previousCollectTime" : 1715961170898,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "host"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.host.ambient_temperature" : {
         "name" : "hw.host.ambient_temperature",
         "collectTime" : 1715961290898,
@@ -2951,20 +2923,6 @@
         "type" : "NumberMetric",
         "updated" : true
       },
-      "hw.status{hw.type=\"temperature\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"temperature\", state=\"present\"}",
-        "collectTime" : 1715961290898,
-        "previousCollectTime" : 1715961170898,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "temperature"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.status{hw.type=\"temperature\"}" : {
         "name" : "hw.status{hw.type=\"temperature\"}",
         "collectTime" : 1715961290898,
@@ -3038,20 +2996,6 @@
         "resetMetricTime" : true,
         "value" : 70.0,
         "previousValue" : 70.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
-      "hw.status{hw.type=\"temperature\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"temperature\", state=\"present\"}",
-        "collectTime" : 1715961290898,
-        "previousCollectTime" : 1715961170898,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "temperature"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
         "type" : "NumberMetric",
         "updated" : true
       },
@@ -3131,20 +3075,6 @@
         "type" : "NumberMetric",
         "updated" : true
       },
-      "hw.status{hw.type=\"temperature\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"temperature\", state=\"present\"}",
-        "collectTime" : 1715961290898,
-        "previousCollectTime" : 1715961170898,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "temperature"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.status{hw.type=\"temperature\"}" : {
         "name" : "hw.status{hw.type=\"temperature\"}",
         "collectTime" : 1715961290898,
@@ -3208,20 +3138,6 @@
     "is_endpoint" : false
   }, {
     "metrics" : {
-      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
-        "collectTime" : 1715961290898,
-        "previousCollectTime" : 1715961170898,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "voltage"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.status{hw.type=\"voltage\"}" : {
         "name" : "hw.status{hw.type=\"voltage\"}",
         "collectTime" : 1715961290898,
@@ -3260,20 +3176,6 @@
     "is_endpoint" : false
   }, {
     "metrics" : {
-      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
-        "collectTime" : 1715961290898,
-        "previousCollectTime" : 1715961170898,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "voltage"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.status{hw.type=\"voltage\"}" : {
         "name" : "hw.status{hw.type=\"voltage\"}",
         "collectTime" : 1715961290898,
@@ -3312,20 +3214,6 @@
     "is_endpoint" : false
   }, {
     "metrics" : {
-      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
-        "collectTime" : 1715961290898,
-        "previousCollectTime" : 1715961170898,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "voltage"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.status{hw.type=\"voltage\"}" : {
         "name" : "hw.status{hw.type=\"voltage\"}",
         "collectTime" : 1715961290898,
@@ -3364,20 +3252,6 @@
     "is_endpoint" : false
   }, {
     "metrics" : {
-      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
-        "collectTime" : 1715961290898,
-        "previousCollectTime" : 1715961170898,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "voltage"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.status{hw.type=\"voltage\"}" : {
         "name" : "hw.status{hw.type=\"voltage\"}",
         "collectTime" : 1715961290898,
@@ -3416,20 +3290,6 @@
     "is_endpoint" : false
   }, {
     "metrics" : {
-      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
-        "collectTime" : 1715961290898,
-        "previousCollectTime" : 1715961170898,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "voltage"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.status{hw.type=\"voltage\"}" : {
         "name" : "hw.status{hw.type=\"voltage\"}",
         "collectTime" : 1715961290898,
@@ -3468,20 +3328,6 @@
     "is_endpoint" : false
   }, {
     "metrics" : {
-      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
-        "collectTime" : 1715961290898,
-        "previousCollectTime" : 1715961170898,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "voltage"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.status{hw.type=\"voltage\"}" : {
         "name" : "hw.status{hw.type=\"voltage\"}",
         "collectTime" : 1715961290898,
@@ -3520,20 +3366,6 @@
     "is_endpoint" : false
   }, {
     "metrics" : {
-      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
-        "collectTime" : 1715961290898,
-        "previousCollectTime" : 1715961170898,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "voltage"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.status{hw.type=\"voltage\"}" : {
         "name" : "hw.status{hw.type=\"voltage\"}",
         "collectTime" : 1715961290898,
@@ -3572,20 +3404,6 @@
     "is_endpoint" : false
   }, {
     "metrics" : {
-      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
-        "collectTime" : 1715961290898,
-        "previousCollectTime" : 1715961170898,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "voltage"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.status{hw.type=\"voltage\"}" : {
         "name" : "hw.status{hw.type=\"voltage\"}",
         "collectTime" : 1715961290898,
@@ -3624,20 +3442,6 @@
     "is_endpoint" : false
   }, {
     "metrics" : {
-      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
-        "collectTime" : 1715961290898,
-        "previousCollectTime" : 1715961170898,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "voltage"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.status{hw.type=\"voltage\"}" : {
         "name" : "hw.status{hw.type=\"voltage\"}",
         "collectTime" : 1715961290898,
@@ -3676,20 +3480,6 @@
     "is_endpoint" : false
   }, {
     "metrics" : {
-      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
-        "collectTime" : 1715961290898,
-        "previousCollectTime" : 1715961170898,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "voltage"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.status{hw.type=\"voltage\"}" : {
         "name" : "hw.status{hw.type=\"voltage\"}",
         "collectTime" : 1715961290898,
@@ -3728,20 +3518,6 @@
     "is_endpoint" : false
   }, {
     "metrics" : {
-      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
-        "collectTime" : 1715961290898,
-        "previousCollectTime" : 1715961170898,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "voltage"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.status{hw.type=\"voltage\"}" : {
         "name" : "hw.status{hw.type=\"voltage\"}",
         "collectTime" : 1715961290898,
@@ -3780,20 +3556,6 @@
     "is_endpoint" : false
   }, {
     "metrics" : {
-      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
-        "collectTime" : 1715961290898,
-        "previousCollectTime" : 1715961170898,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "voltage"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.status{hw.type=\"voltage\"}" : {
         "name" : "hw.status{hw.type=\"voltage\"}",
         "collectTime" : 1715961290898,
@@ -3832,20 +3594,6 @@
     "is_endpoint" : false
   }, {
     "metrics" : {
-      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
-        "collectTime" : 1715961290898,
-        "previousCollectTime" : 1715961170898,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "voltage"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.status{hw.type=\"voltage\"}" : {
         "name" : "hw.status{hw.type=\"voltage\"}",
         "collectTime" : 1715961290898,
@@ -3884,20 +3632,6 @@
     "is_endpoint" : false
   }, {
     "metrics" : {
-      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
-        "collectTime" : 1715961290898,
-        "previousCollectTime" : 1715961170898,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "voltage"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.status{hw.type=\"voltage\"}" : {
         "name" : "hw.status{hw.type=\"voltage\"}",
         "collectTime" : 1715961290898,
@@ -3936,20 +3670,6 @@
     "is_endpoint" : false
   }, {
     "metrics" : {
-      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
-        "collectTime" : 1715961290898,
-        "previousCollectTime" : 1715961170898,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "voltage"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.status{hw.type=\"voltage\"}" : {
         "name" : "hw.status{hw.type=\"voltage\"}",
         "collectTime" : 1715961290898,
@@ -3996,20 +3716,6 @@
         "resetMetricTime" : false,
         "value" : 228000.0,
         "previousValue" : null,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
-      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
-        "collectTime" : 1715961290898,
-        "previousCollectTime" : 1715961170898,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "voltage"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
         "type" : "NumberMetric",
         "updated" : true
       },
@@ -4062,20 +3768,6 @@
         "type" : "NumberMetric",
         "updated" : true
       },
-      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
-        "collectTime" : 1715961290898,
-        "previousCollectTime" : 1715961170898,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "voltage"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.status{hw.type=\"voltage\"}" : {
         "name" : "hw.status{hw.type=\"voltage\"}",
         "collectTime" : 1715961290898,
@@ -4114,20 +3806,6 @@
     "is_endpoint" : false
   }, {
     "metrics" : {
-      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
-        "collectTime" : 1715961290898,
-        "previousCollectTime" : 1715961170898,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "voltage"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.status{hw.type=\"voltage\"}" : {
         "name" : "hw.status{hw.type=\"voltage\"}",
         "collectTime" : 1715961290898,
@@ -4166,20 +3844,6 @@
     "is_endpoint" : false
   }, {
     "metrics" : {
-      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
-        "collectTime" : 1715961290898,
-        "previousCollectTime" : 1715961170898,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "voltage"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.status{hw.type=\"voltage\"}" : {
         "name" : "hw.status{hw.type=\"voltage\"}",
         "collectTime" : 1715961290898,
@@ -4218,20 +3882,6 @@
     "is_endpoint" : false
   }, {
     "metrics" : {
-      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
-        "collectTime" : 1715961290898,
-        "previousCollectTime" : 1715961170898,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "voltage"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.status{hw.type=\"voltage\"}" : {
         "name" : "hw.status{hw.type=\"voltage\"}",
         "collectTime" : 1715961290898,
@@ -4270,20 +3920,6 @@
     "is_endpoint" : false
   }, {
     "metrics" : {
-      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
-        "collectTime" : 1715961290898,
-        "previousCollectTime" : 1715961170898,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "voltage"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.status{hw.type=\"voltage\"}" : {
         "name" : "hw.status{hw.type=\"voltage\"}",
         "collectTime" : 1715961290898,
@@ -4322,20 +3958,6 @@
     "is_endpoint" : false
   }, {
     "metrics" : {
-      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
-        "collectTime" : 1715961290898,
-        "previousCollectTime" : 1715961170898,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "voltage"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.status{hw.type=\"voltage\"}" : {
         "name" : "hw.status{hw.type=\"voltage\"}",
         "collectTime" : 1715961290898,
@@ -4374,20 +3996,6 @@
     "is_endpoint" : false
   }, {
     "metrics" : {
-      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
-        "collectTime" : 1715961290898,
-        "previousCollectTime" : 1715961170898,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "voltage"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.status{hw.type=\"voltage\"}" : {
         "name" : "hw.status{hw.type=\"voltage\"}",
         "collectTime" : 1715961290898,
@@ -4426,20 +4034,6 @@
     "is_endpoint" : false
   }, {
     "metrics" : {
-      "hw.status{hw.type=\"voltage\", state=\"present\"}" : {
-        "name" : "hw.status{hw.type=\"voltage\", state=\"present\"}",
-        "collectTime" : 1715961290898,
-        "previousCollectTime" : 1715961170898,
-        "attributes" : {
-          "state" : "present",
-          "hw.type" : "voltage"
-        },
-        "resetMetricTime" : false,
-        "value" : 1.0,
-        "previousValue" : 1.0,
-        "type" : "NumberMetric",
-        "updated" : true
-      },
       "hw.status{hw.type=\"voltage\"}" : {
         "name" : "hw.status{hw.type=\"voltage\"}",
         "collectTime" : 1715961290898,
