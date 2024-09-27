@@ -36,13 +36,13 @@ import org.sentrysoftware.http.HttpClient;
 import org.sentrysoftware.http.HttpResponse;
 import org.sentrysoftware.metricshub.engine.common.exception.RetryableException;
 import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
+import org.sentrysoftware.metricshub.engine.common.helpers.MacrosUpdater;
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
 import org.sentrysoftware.metricshub.engine.strategy.utils.RetryOperation;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.extension.http.utils.Body;
 import org.sentrysoftware.metricshub.extension.http.utils.Header;
-import org.sentrysoftware.metricshub.extension.http.utils.HttpMacrosUpdater;
 import org.sentrysoftware.metricshub.extension.http.utils.HttpRequest;
 import org.sentrysoftware.metricshub.extension.http.utils.UrlHelper;
 
@@ -89,7 +89,7 @@ public class HttpRequestExecutor {
 
 		// Update macros in the authentication token
 		final String httpRequestAuthToken = httpRequest.getAuthenticationToken();
-		final String authenticationToken = HttpMacrosUpdater.update(
+		final String authenticationToken = MacrosUpdater.update(
 			httpRequestAuthToken,
 			username,
 			password,
@@ -135,10 +135,10 @@ public class HttpRequestExecutor {
 		final String httpRequestPath = httpRequest.getPath();
 
 		// Update the known HTTP macros, and return empty if the httpRequestPath is null
-		final String path = HttpMacrosUpdater.update(httpRequestPath, username, password, authenticationToken, hostname);
+		final String path = MacrosUpdater.update(httpRequestPath, username, password, authenticationToken, hostname);
 
 		// Update the known HTTP macros, and return empty if the httpRequestUrl is null
-		final String url = HttpMacrosUpdater.update(httpRequestUrl, username, password, authenticationToken, hostname);
+		final String url = MacrosUpdater.update(httpRequestUrl, username, password, authenticationToken, hostname);
 
 		// Build the full URL
 		final String fullUrl = UrlHelper.format(protocol, hostname, httpConfiguration.getPort(), path, url);

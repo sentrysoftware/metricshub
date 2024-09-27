@@ -28,6 +28,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.UnaryOperator;
+import org.sentrysoftware.metricshub.engine.common.helpers.MacrosUpdater;
 
 /**
  * Represents the header of an HTTP request.
@@ -108,7 +109,7 @@ public interface Header extends Serializable {
 		String authenticationToken,
 		String hostname
 	) {
-		final String resolvedHeader = HttpMacrosUpdater.update(header, username, password, authenticationToken, hostname);
+		final String resolvedHeader = MacrosUpdater.update(header, username, password, authenticationToken, hostname);
 
 		return parseHeader(resolvedHeader);
 	}

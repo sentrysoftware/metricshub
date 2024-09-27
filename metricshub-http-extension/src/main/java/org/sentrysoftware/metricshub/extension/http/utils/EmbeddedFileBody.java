@@ -29,6 +29,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import org.sentrysoftware.metricshub.engine.common.helpers.MacrosUpdater;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 
 /**
@@ -53,7 +54,7 @@ public class EmbeddedFileBody implements Body {
 			return EMPTY;
 		}
 
-		return HttpMacrosUpdater.update(body.getContentAsString(), username, password, authenticationToken, hostname);
+		return MacrosUpdater.update(body.getContentAsString(), username, password, authenticationToken, hostname);
 	}
 
 	@Override
