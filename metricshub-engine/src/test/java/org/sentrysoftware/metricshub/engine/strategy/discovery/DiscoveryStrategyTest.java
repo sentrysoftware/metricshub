@@ -13,6 +13,7 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorTy
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.IS_ENDPOINT;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_ID;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_NAME;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.STATUS_INFORMATION;
 import static org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy.CONNECTOR_ID_FORMAT;
 
 import java.nio.file.Path;
@@ -208,5 +209,12 @@ class DiscoveryStrategyTest {
 			PHYSICAL_DISK.getKey()
 		);
 		assertEquals(expectedOrder, discoveredMonitors.keySet());
+
+		// Check that StatusInformation is collected on the connector monitor
+		assertEquals("Received Result: 1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest. SnmpGetNextCriterion test succeeded:\n" +
+				"SnmpGetNextCriterion(super=SnmpCriterion(super=Criterion(type=snmpGetNext, forceSerialization=false), oid=1.3.6.1.4.1.795.10.1.1.3.1.1, expectedResult=null))\n" +
+				"\n" +
+				"Result: 1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest\n" +
+				"Conclusion: Test on host.name SUCCEEDED", connectorMonitor.getLegacyTextParameters().get(STATUS_INFORMATION));
 	}
 }

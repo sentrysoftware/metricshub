@@ -31,6 +31,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -420,10 +422,44 @@ public abstract class AbstractStrategy implements IStrategy {
 			KnownMonitorType.CONNECTOR.getKey(),
 			String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), connectorId)
 		);
-
 		collectConnectorStatus(connectorTestResult.isSuccess(), connectorId, monitor);
-
+		final String statusInformation = buildStatusInformation(hostname, connectorTestResult);
+		final Map<String, String> legacyTextParameters = monitor.getLegacyTextParameters();
+		legacyTextParameters.put("StatusInformation", statusInformation);
 		return connectorTestResult.isSuccess();
+	}
+
+	/**
+	 * Builds the status information for the connector
+	 * @param hostname   Hostname of the resource being monitored
+	 * @param testResult Test result of the connector
+	 * @return String representing the status information
+	 */
+	protected String buildStatusInformation(final String hostname, final ConnectorTestResult testResult) {
+		final StringBuilder value = new StringBuilder();
+
+		final String builtTestResult = testResult
+				.getCriterionTestResults()
+				.stream()
+				.map(criterionResult -> {
+					final String result = criterionResult.getResult();
+					final String message = criterionResult.getMessage();
+					return String.format(
+							"Received Result: %s. %s",
+							result != null ? result : "N/A",
+							message != null ? message : "N/A"
+					);
+				})
+				.collect(Collectors.joining("\n"));
+		value
+				.append(builtTestResult)
+				.append("\nConclusion: ")
+				.append("Test on ")
+				.append(hostname)
+				.append(" ")
+				.append(testResult.isSuccess() ? "SUCCEEDED" : "FAILED");
+
+		return value.toString();
 	}
 
 	/**

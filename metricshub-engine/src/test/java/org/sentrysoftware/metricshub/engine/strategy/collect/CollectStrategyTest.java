@@ -208,5 +208,12 @@ class CollectStrategyTest {
 		assertEquals(HEALTHY, diskController.getLegacyTextParameters().get(STATUS_INFORMATION));
 		assertEquals(1.0, enclosure.getMetric("hw.status{hw.type=\"enclosure\"}", NumberMetric.class).getValue());
 		assertEquals(HEALTHY, enclosure.getLegacyTextParameters().get(STATUS_INFORMATION));
+
+		// Check that StatusInformation is collected on the connector monitor
+		assertEquals("Received Result: 1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest. SnmpGetNextCriterion test succeeded:\n" +
+				"SnmpGetNextCriterion(super=SnmpCriterion(super=Criterion(type=snmpGetNext, forceSerialization=false), oid=1.3.6.1.4.1.795.10.1.1.3.1.1, expectedResult=null))\n" +
+				"\n" +
+				"Result: 1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest\n" +
+				"Conclusion: Test on host.name SUCCEEDED", connectorMonitor.getLegacyTextParameters().get(STATUS_INFORMATION));
 	}
 }

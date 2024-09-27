@@ -10,6 +10,7 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorTy
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.ENCLOSURE;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.IS_ENDPOINT;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.STATUS_INFORMATION;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -176,5 +177,12 @@ class SimpleStrategyTest {
 			1.0,
 			diskController.getMetric("hw.status{hw.type=\"disk_controller\"}", NumberMetric.class).getValue()
 		);
+
+		// Check that StatusInformation is collected on the connector monitor
+		assertEquals("Received Result: 1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest. SnmpGetNextCriterion test succeeded:\n" +
+				"SnmpGetNextCriterion(super=SnmpCriterion(super=Criterion(type=snmpGetNext, forceSerialization=false), oid=1.3.6.1.4.1.795.10.1.1.3.1.1, expectedResult=null))\n" +
+				"\n" +
+				"Result: 1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest\n" +
+				"Conclusion: Test on ec-02 SUCCEEDED", connectorMonitor.getLegacyTextParameters().get(STATUS_INFORMATION));
 	}
 }
