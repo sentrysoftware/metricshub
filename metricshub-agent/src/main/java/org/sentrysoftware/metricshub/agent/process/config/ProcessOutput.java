@@ -33,7 +33,7 @@ import org.slf4j.Logger;
  * {@link StreamProcessor} of the STDOUT is mandatory, if you don't define the
  * {@link StreamProcessor} of the STDERR, a redirection will take place and
  * the standard error and standard output will be merged. You can change this behavior by overriding
- * the {@link AbstractProcess#onBeforeProcessStart(ProcessBuilder)}.
+ * the onBeforeProcessStart method in the {@link AbstractProcess}.
  */
 @Data
 @Builder
