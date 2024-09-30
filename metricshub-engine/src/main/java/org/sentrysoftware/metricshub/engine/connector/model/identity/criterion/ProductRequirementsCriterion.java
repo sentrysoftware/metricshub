@@ -21,6 +21,9 @@ package org.sentrysoftware.metricshub.engine.connector.model.identity.criterion;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.NEW_LINE;
+
+import java.util.StringJoiner;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -61,5 +64,17 @@ public class ProductRequirementsCriterion extends Criterion {
 		super(type, forceSerialization);
 		this.engineVersion = engineVersion;
 		this.kmVersion = kmVersion;
+	}
+
+	@Override
+	public String toString() {
+		final StringJoiner stringJoiner = new StringJoiner(NEW_LINE);
+		if (engineVersion != null && !engineVersion.isBlank()) {
+			stringJoiner.add(new StringBuilder("- EngineVersion: ").append(engineVersion));
+		}
+		if (kmVersion != null && !kmVersion.isBlank()) {
+			stringJoiner.add(new StringBuilder("- KMVersion: ").append(kmVersion));
+		}
+		return stringJoiner.toString();
 	}
 }

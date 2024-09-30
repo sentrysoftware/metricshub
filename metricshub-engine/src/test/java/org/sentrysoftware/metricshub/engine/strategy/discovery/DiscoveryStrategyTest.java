@@ -213,7 +213,7 @@ class DiscoveryStrategyTest {
 		// Check that StatusInformation is collected on the connector monitor (criterion processing success case)
 		assertEquals(
 			"Received Result: 1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest. SnmpGetNextCriterion test succeeded:\n" +
-			"SnmpGetNextCriterion(super=SnmpCriterion(super=Criterion(type=snmpGetNext, forceSerialization=false), oid=1.3.6.1.4.1.795.10.1.1.3.1.1, expectedResult=null))\n" +
+			"SnmpGetNextCriterion(super=- OID: 1.3.6.1.4.1.795.10.1.1.3.1.1)\n" +
 			"\n" +
 			"Result: 1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest\n" +
 			"Conclusion: Test on host.name SUCCEEDED",
@@ -231,7 +231,7 @@ class DiscoveryStrategyTest {
 		// Check that StatusInformation is collected on the connector monitor (criterion processing failure case)
 		assertEquals(
 			"Received Result: 1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest. SnmpGetNextCriterion test ran but failed:\n" +
-			"SnmpGetNextCriterion(super=SnmpCriterion(super=Criterion(type=snmpGetNext, forceSerialization=false), oid=1.3.6.1.4.1.795.10.1.1.3.1.1, expectedResult=null))\n" +
+			"SnmpGetNextCriterion(super=- OID: 1.3.6.1.4.1.795.10.1.1.3.1.1)\n" +
 			"\n" +
 			"Actual result:\n" +
 			"1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest\n" +
