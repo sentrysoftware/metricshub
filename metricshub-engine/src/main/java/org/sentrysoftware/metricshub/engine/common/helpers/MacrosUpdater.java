@@ -2,7 +2,7 @@ package org.sentrysoftware.metricshub.engine.common.helpers;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
- * MetricsHub HTTP Extension
+ * MetricsHub Engine
  * ჻჻჻჻჻჻
  * Copyright 2023 - 2024 Sentry Software
  * ჻჻჻჻჻჻
@@ -23,13 +23,12 @@ package org.sentrysoftware.metricshub.engine.common.helpers;
 
 import static org.sentrysoftware.metricshub.engine.common.helpers.JUtils.encodeSha256;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HOSTNAME_MACRO;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.PASSWORD_MACRO;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.USERNAME_MACRO;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -37,123 +36,31 @@ import lombok.NonNull;
 
 /**
  * Utility class for updating HTTP macros in a text string.
- * Replaces known HTTP macros with literal target sequences, such as username,
+ * Replaces known HTTP macros with literal target sequences such as username,
  * password, authentication-token, base64-password, base64-auth, and sha256-auth.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MacrosUpdater {
 
-	static final String PASSWORD_BASE64_MACRO = "%{PASSWORD_BASE64}";
-	static final String BASIC_AUTH_BASE64_MACRO = "%{BASIC_AUTH_BASE64}";
-	static final String SHA256_AUTH_MACRO = "%{SHA256_AUTH}";
-
-	// JSON input format macros
-	static final String PASSWORD_ESC_JSON = "%{PASSWORD_ESC_JSON}";
-	static final String USERNAME_ESC_JSON = "%{USERNAME_ESC_JSON}";
-	static final String HOSTNAME_ESC_JSON = "%{HOSTNAME_ESC_JSON}";
-	static final String AUTHENTICATIONTOKEN_ESC_JSON = "%{AUTHENTICATIONTOKEN_ESC_JSON}";
-	static final String BASIC_AUTH_BASE64_ESC_JSON = "%{BASIC_AUTH_BASE64_ESC_JSON}";
-	static final String SHA256_AUTH_ESC_JSON = "%{SHA256_AUTH_ESC_JSON}";
-	static final String PASSWORD_BASE64_ESC_JSON = "%{PASSWORD_BASE64_ESC_JSON}";
-
-	// Regex input format macros
-	static final String PASSWORD_ESC_REGEX = "%{PASSWORD_ESC_REGEX}";
-	static final String USERNAME_ESC_REGEX = "%{USERNAME_ESC_REGEX}";
-	static final String HOSTNAME_ESC_REGEX = "%{HOSTNAME_ESC_REGEX}";
-	static final String AUTHENTICATIONTOKEN_ESC_REGEX = "%{AUTHENTICATIONTOKEN_ESC_REGEX}";
-	static final String BASIC_AUTH_BASE64_ESC_REGEX = "%{BASIC_AUTH_BASE64_ESC_REGEX}";
-	static final String SHA256_AUTH_ESC_REGEX = "%{SHA256_AUTH_ESC_REGEX}";
-	static final String PASSWORD_BASE64_ESC_REGEX = "%{PASSWORD_BASE64_ESC_REGEX}";
-
-	// URL input format macros
-	static final String PASSWORD_ESC_URL = "%{PASSWORD_ESC_URL}";
-	static final String USERNAME_ESC_URL = "%{USERNAME_ESC_URL}";
-	static final String HOSTNAME_ESC_URL = "%{HOSTNAME_ESC_URL}";
-	static final String AUTHENTICATIONTOKEN_ESC_URL = "%{AUTHENTICATIONTOKEN_ESC_URL}";
-	static final String BASIC_AUTH_BASE64_ESC_URL = "%{BASIC_AUTH_BASE64_ESC_URL}";
-	static final String SHA256_AUTH_ESC_URL = "%{SHA256_AUTH_ESC_URL}";
-	static final String PASSWORD_BASE64_ESC_URL = "%{PASSWORD_BASE64_ESC_URL}";
-
-	// XML input format macros
-	static final String PASSWORD_ESC_XML = "%{PASSWORD_ESC_XML}";
-	static final String USERNAME_ESC_XML = "%{USERNAME_ESC_XML}";
-	static final String HOSTNAME_ESC_XML = "%{HOSTNAME_ESC_XML}";
-	static final String AUTHENTICATIONTOKEN_ESC_XML = "%{AUTHENTICATIONTOKEN_ESC_XML}";
-	static final String BASIC_AUTH_BASE64_ESC_XML = "%{BASIC_AUTH_BASE64_ESC_XML}";
-	static final String SHA256_AUTH_ESC_XML = "%{SHA256_AUTH_ESC_XML}";
-	static final String PASSWORD_BASE64_ESC_XML = "%{PASSWORD_BASE64_ESC_XML}";
-
-	// Windows Shell input format macros
-	static final String PASSWORD_ESC_WINDOWS = "%{PASSWORD_ESC_WINDOWS}";
-	static final String USERNAME_ESC_WINDOWS = "%{USERNAME_ESC_WINDOWS}";
-	static final String HOSTNAME_ESC_WINDOWS = "%{HOSTNAME_ESC_WINDOWS}";
-	static final String AUTHENTICATIONTOKEN_ESC_WINDOWS = "%{AUTHENTICATIONTOKEN_ESC_WINDOWS}";
-	static final String BASIC_AUTH_BASE64_ESC_WINDOWS = "%{BASIC_AUTH_BASE64_ESC_WINDOWS}";
-	static final String SHA256_AUTH_ESC_WINDOWS = "%{SHA256_AUTH_ESC_WINDOWS}";
-	static final String PASSWORD_BASE64_ESC_WINDOWS = "%{PASSWORD_BASE64_ESC_WINDOWS}";
-
-	// Windows CMD input format macros
-	static final String PASSWORD_ESC_CMD = "%{PASSWORD_ESC_CMD}";
-	static final String USERNAME_ESC_CMD = "%{USERNAME_ESC_CMD}";
-	static final String HOSTNAME_ESC_CMD = "%{HOSTNAME_ESC_CMD}";
-	static final String AUTHENTICATIONTOKEN_ESC_CMD = "%{AUTHENTICATIONTOKEN_ESC_CMD}";
-	static final String BASIC_AUTH_BASE64_ESC_CMD = "%{BASIC_AUTH_BASE64_ESC_CMD}";
-	static final String SHA256_AUTH_ESC_CMD = "%{SHA256_AUTH_ESC_CMD}";
-	static final String PASSWORD_BASE64_ESC_CMD = "%{PASSWORD_BASE64_ESC_CMD}";
-
-	// Windows Powershell input format macros
-	static final String PASSWORD_ESC_POWERSHELL = "%{PASSWORD_ESC_CMD}";
-	static final String USERNAME_ESC_POWERSHELL = "%{USERNAME_ESC_CMD}";
-	static final String HOSTNAME_ESC_POWERSHELL = "%{HOSTNAME_ESC_CMD}";
-	static final String AUTHENTICATIONTOKEN_ESC_POWERSHELL = "%{AUTHENTICATIONTOKEN_ESC_CMD}";
-	static final String BASIC_AUTH_BASE64_ESC_POWERSHELL = "%{BASIC_AUTH_BASE64_ESC_CMD}";
-	static final String SHA256_AUTH_ESC_POWERSHELL = "%{SHA256_AUTH_ESC_CMD}";
-	static final String PASSWORD_BASE64_ESC_POWERSHELL = "%{PASSWORD_BASE64_ESC_CMD}";
-
-	// Linux Shell input format macros
-	static final String PASSWORD_ESC_LINUX = "%{PASSWORD_ESC_LINUX}";
-	static final String USERNAME_ESC_LINUX = "%{USERNAME_ESC_LINUX}";
-	static final String HOSTNAME_ESC_LINUX = "%{HOSTNAME_ESC_LINUX}";
-	static final String AUTHENTICATIONTOKEN_ESC_LINUX = "%{AUTHENTICATIONTOKEN_ESC_LINUX}";
-	static final String BASIC_AUTH_BASE64_ESC_LINUX = "%{BASIC_AUTH_BASE64_ESC_LINUX}";
-	static final String SHA256_AUTH_ESC_LINUX = "%{SHA256_AUTH_ESC_LINUX}";
-	static final String PASSWORD_BASE64_ESC_LINUX = "%{PASSWORD_BASE64_ESC_LINUX}";
-
-	// Bash input format macros (Linux Shell alias)
-	static final String PASSWORD_ESC_BASH = "%{PASSWORD_ESC_BASH}";
-	static final String USERNAME_ESC_BASH = "%{USERNAME_ESC_BASH}";
-	static final String HOSTNAME_ESC_BASH = "%{HOSTNAME_ESC_BASH}";
-	static final String AUTHENTICATIONTOKEN_ESC_BASH = "%{AUTHENTICATIONTOKEN_ESC_BASH}";
-	static final String BASIC_AUTH_BASE64_ESC_BASH = "%{BASIC_AUTH_BASE64_ESC_BASH}";
-	static final String SHA256_AUTH_ESC_BASH = "%{SHA256_AUTH_ESC_BASH}";
-	static final String PASSWORD_BASE64_ESC_BASH = "%{PASSWORD_BASE64_ESC_BASH}";
-
-	// SQL input format macros
-	static final String PASSWORD_ESC_SQL = "%{PASSWORD_ESC_SQL}";
-	static final String USERNAME_ESC_SQL = "%{USERNAME_ESC_SQL}";
-	static final String HOSTNAME_ESC_SQL = "%{HOSTNAME_ESC_SQL}";
-	static final String AUTHENTICATIONTOKEN_ESC_SQL = "%{AUTHENTICATIONTOKEN_ESC_SQL}";
-	static final String BASIC_AUTH_BASE64_ESC_SQL = "%{BASIC_AUTH_BASE64_ESC_SQL}";
-	static final String SHA256_AUTH_ESC_SQL = "%{SHA256_AUTH_ESC_SQL}";
-	static final String PASSWORD_BASE64_ESC_SQL = "%{PASSWORD_BASE64_ESC_SQL}";
-
 	/**
-	 * Replaces each known HTTP macro in the given text with the literal target sequences:<br>
-	 * username, password, authentication-token, base64-password, base64-auth and sha256-auth
+	 * Replaces each known HTTP macro in the given text with the corresponding values.
 	 *
-	 * @param text                The text we wish to update
-	 * @param username            The HTTP username
-	 * @param password            The HTTP password
-	 * @param authenticationToken The HTTP Authentication Token
-	 * @param hostname            The remote hostname
-	 * @return String value
+	 * Supported macros: %{USERNAME}, %{PASSWORD}, %{HOSTNAME}, %{AUTHENTICATIONTOKEN},
+	 * %{PASSWORD_BASE64}, %{BASIC_AUTH}, %{SHA256}, along with various escape formats like JSON, XML, URL, etc.
+	 *
+	 * @param text                The text with macros to update.
+	 * @param username            The HTTP username.
+	 * @param password            The HTTP password.
+	 * @param authenticationToken The HTTP authentication token.
+	 * @param hostname            The remote hostname.
+	 * @return The updated string with replaced macros.
 	 */
 	public static String update(
 		String text,
 		String username,
 		char[] password,
 		String authenticationToken,
-		@NonNull String hostname
+		@NonNull final String hostname
 	) {
 		if (text == null || text.isEmpty()) {
 			return EMPTY;
@@ -164,272 +71,213 @@ public class MacrosUpdater {
 		username = username != null ? username : EMPTY;
 		authenticationToken = authenticationToken != null ? authenticationToken : EMPTY;
 
-		// Replace provided macros which don't need processing
-		String updatedContent = text
-			.replace(USERNAME_MACRO, username)
-			.replace(HOSTNAME_MACRO, hostname)
-			.replace(PASSWORD_MACRO, passwordAsString)
-			.replace("%{AUTHENTICATIONTOKEN}", authenticationToken)
-			// Escape Json special characters
-			.replace(USERNAME_ESC_JSON, escapeJsonSpecialCharacters(username))
-			.replace(PASSWORD_ESC_JSON, escapeJsonSpecialCharacters(passwordAsString))
-			.replace(HOSTNAME_ESC_JSON, escapeJsonSpecialCharacters(hostname))
-			.replace(AUTHENTICATIONTOKEN_ESC_JSON, escapeJsonSpecialCharacters(authenticationToken))
-			.replace(USERNAME_ESC_URL, escapeUrlSpecialCharacters(username))
-			.replace(PASSWORD_ESC_URL, escapeUrlSpecialCharacters(passwordAsString))
-			.replace(HOSTNAME_ESC_URL, escapeUrlSpecialCharacters(hostname))
-			.replace(AUTHENTICATIONTOKEN_ESC_URL, escapeUrlSpecialCharacters(authenticationToken))
-			// Escape XML special characters
-			.replace(USERNAME_ESC_XML, escapeXmlSpecialCharacters(username))
-			.replace(PASSWORD_ESC_XML, escapeXmlSpecialCharacters(passwordAsString))
-			.replace(HOSTNAME_ESC_XML, escapeXmlSpecialCharacters(hostname))
-			.replace(AUTHENTICATIONTOKEN_ESC_XML, escapeXmlSpecialCharacters(authenticationToken))
-			// Escape Windows CMD special characters
-			.replace(USERNAME_ESC_WINDOWS, escapeWindowsCmdSpecialCharacters(username))
-			.replace(PASSWORD_ESC_WINDOWS, escapeWindowsCmdSpecialCharacters(passwordAsString))
-			.replace(HOSTNAME_ESC_WINDOWS, escapeWindowsCmdSpecialCharacters(hostname))
-			.replace(AUTHENTICATIONTOKEN_ESC_WINDOWS, escapeWindowsCmdSpecialCharacters(authenticationToken))
-			// Escape Windows CMD special characters
-			.replace(USERNAME_ESC_CMD, escapeWindowsCmdSpecialCharacters(username))
-			.replace(PASSWORD_ESC_CMD, escapeWindowsCmdSpecialCharacters(passwordAsString))
-			.replace(HOSTNAME_ESC_CMD, escapeWindowsCmdSpecialCharacters(hostname))
-			.replace(AUTHENTICATIONTOKEN_ESC_CMD, escapeWindowsCmdSpecialCharacters(authenticationToken))
-			// Escape Windows Powershell special characters
-			.replace(USERNAME_ESC_POWERSHELL, escapeWindowsCmdSpecialCharacters(username))
-			.replace(PASSWORD_ESC_POWERSHELL, escapeWindowsCmdSpecialCharacters(passwordAsString))
-			.replace(HOSTNAME_ESC_POWERSHELL, escapeWindowsCmdSpecialCharacters(hostname))
-			.replace(AUTHENTICATIONTOKEN_ESC_POWERSHELL, escapeWindowsCmdSpecialCharacters(authenticationToken))
-			// Escape Linux Bash special characters
-			.replace(USERNAME_ESC_LINUX, escapeBashSpecialCharacters(username))
-			.replace(PASSWORD_ESC_LINUX, escapeBashSpecialCharacters(passwordAsString))
-			.replace(HOSTNAME_ESC_LINUX, escapeBashSpecialCharacters(hostname))
-			.replace(AUTHENTICATIONTOKEN_ESC_LINUX, escapeBashSpecialCharacters(authenticationToken))
-			// Escape Linux Bash special characters
-			.replace(USERNAME_ESC_BASH, escapeBashSpecialCharacters(username))
-			.replace(PASSWORD_ESC_BASH, escapeBashSpecialCharacters(passwordAsString))
-			.replace(HOSTNAME_ESC_BASH, escapeBashSpecialCharacters(hostname))
-			.replace(AUTHENTICATIONTOKEN_ESC_BASH, escapeBashSpecialCharacters(authenticationToken))
-			// Escape SQL special characters
-			.replace(USERNAME_ESC_SQL, escapeSqlSpecialCharacters(username))
-			.replace(PASSWORD_ESC_SQL, escapeSqlSpecialCharacters(passwordAsString))
-			.replace(HOSTNAME_ESC_SQL, escapeSqlSpecialCharacters(hostname))
-			.replace(AUTHENTICATIONTOKEN_ESC_SQL, escapeSqlSpecialCharacters(authenticationToken))
-			// Escape Regex special characters
-			.replace(USERNAME_ESC_REGEX, escapeRegexSpecialCharacters(username))
-			.replace(PASSWORD_ESC_REGEX, escapeRegexSpecialCharacters(passwordAsString))
-			.replace(HOSTNAME_ESC_REGEX, escapeRegexSpecialCharacters(hostname))
-			.replace(AUTHENTICATIONTOKEN_ESC_REGEX, escapeRegexSpecialCharacters(authenticationToken));
+		String updatedContent = text;
+		if (text.contains("%{")) {
+			final Map<String, String> simpleMacroNameToField = Map.of(
+				"USERNAME",
+				username,
+				"PASSWORD",
+				passwordAsString,
+				"HOSTNAME",
+				hostname,
+				"AUTHENTICATIONTOKEN",
+				authenticationToken
+			);
 
-		// Encode the password into a base64 string
-		// then replace the macro with the resulting value
-		if (updatedContent.indexOf(PASSWORD_BASE64_MACRO) != -1) {
-			updatedContent =
-				updatedContent
-					.replace(PASSWORD_BASE64_MACRO, Base64.getEncoder().encodeToString(passwordAsString.getBytes()))
-					// Escape Json special characters
-					.replace(
-						PASSWORD_BASE64_ESC_JSON,
-						Base64.getEncoder().encodeToString(escapeJsonSpecialCharacters(passwordAsString).getBytes())
-					)
-					.replace(
-						PASSWORD_BASE64_ESC_URL,
-						Base64.getEncoder().encodeToString(escapeUrlSpecialCharacters(passwordAsString).getBytes())
-					)
-					.replace(
-						PASSWORD_BASE64_ESC_XML,
-						Base64.getEncoder().encodeToString(escapeXmlSpecialCharacters(passwordAsString).getBytes())
-					)
-					.replace(
-						PASSWORD_BASE64_ESC_WINDOWS,
-						Base64.getEncoder().encodeToString(escapeWindowsCmdSpecialCharacters(passwordAsString).getBytes())
-					)
-					.replace(
-						PASSWORD_BASE64_ESC_CMD,
-						Base64.getEncoder().encodeToString(escapeWindowsCmdSpecialCharacters(passwordAsString).getBytes())
-					)
-					.replace(
-						PASSWORD_BASE64_ESC_LINUX,
-						Base64.getEncoder().encodeToString(escapeBashSpecialCharacters(passwordAsString).getBytes())
-					)
-					.replace(
-						PASSWORD_BASE64_ESC_BASH,
-						Base64.getEncoder().encodeToString(escapeBashSpecialCharacters(passwordAsString).getBytes())
-					)
-					.replace(
-						PASSWORD_BASE64_ESC_SQL,
-						Base64.getEncoder().encodeToString(escapeSqlSpecialCharacters(passwordAsString).getBytes())
-					)
-					.replace(
-						PASSWORD_BASE64_ESC_REGEX,
-						Base64.getEncoder().encodeToString(escapeRegexSpecialCharacters(passwordAsString).getBytes())
-					)
-					.replace(
-						PASSWORD_BASE64_ESC_POWERSHELL,
-						Base64.getEncoder().encodeToString(escapePowershellSpecialCharacters(passwordAsString).getBytes())
+			final Pattern pattern = Pattern.compile("%\\{(\\w+?)(?:_ESC_(\\w+))?\\}");
+			final Matcher matcher = pattern.matcher(text);
+
+			while (matcher.find()) {
+				final String macroName = matcher.group(1);
+				final String escapeType = matcher.group(2);
+				updatedContent =
+					processMacro(
+						updatedContent,
+						matcher.group(0),
+						macroName,
+						escapeType,
+						passwordAsString,
+						username,
+						authenticationToken,
+						simpleMacroNameToField
 					);
-		}
-
-		// Join the username and password with a colon `username:password`
-		// and encode the resulting string in `base64`
-		// then replace the macro with the resulting value
-		if (updatedContent.indexOf(BASIC_AUTH_BASE64_MACRO) != -1) {
-			updatedContent =
-				updatedContent
-					.replace(
-						BASIC_AUTH_BASE64_MACRO,
-						Base64.getEncoder().encodeToString(String.format("%s:%s", username, passwordAsString).getBytes())
-					)
-					// Escape Json special characters
-					.replace(
-						BASIC_AUTH_BASE64_ESC_JSON,
-						Base64
-							.getEncoder()
-							.encodeToString(
-								String
-									.format("%s:%s", escapeJsonSpecialCharacters(username), escapeJsonSpecialCharacters(passwordAsString))
-									.getBytes()
-							)
-					)
-					.replace(
-						BASIC_AUTH_BASE64_ESC_URL,
-						Base64
-							.getEncoder()
-							.encodeToString(
-								String
-									.format("%s:%s", escapeUrlSpecialCharacters(username), escapeUrlSpecialCharacters(passwordAsString))
-									.getBytes()
-							)
-					)
-					.replace(
-						BASIC_AUTH_BASE64_ESC_XML,
-						Base64
-							.getEncoder()
-							.encodeToString(
-								String
-									.format("%s:%s", escapeXmlSpecialCharacters(username), escapeXmlSpecialCharacters(passwordAsString))
-									.getBytes()
-							)
-					)
-					.replace(
-						BASIC_AUTH_BASE64_ESC_WINDOWS,
-						Base64
-							.getEncoder()
-							.encodeToString(
-								String
-									.format(
-										"%s:%s",
-										escapeWindowsCmdSpecialCharacters(username),
-										escapeWindowsCmdSpecialCharacters(passwordAsString)
-									)
-									.getBytes()
-							)
-					)
-					.replace(
-						BASIC_AUTH_BASE64_ESC_CMD,
-						Base64
-							.getEncoder()
-							.encodeToString(
-								String
-									.format(
-										"%s:%s",
-										escapeWindowsCmdSpecialCharacters(username),
-										escapeWindowsCmdSpecialCharacters(passwordAsString)
-									)
-									.getBytes()
-							)
-					)
-					.replace(
-						BASIC_AUTH_BASE64_ESC_LINUX,
-						Base64
-							.getEncoder()
-							.encodeToString(
-								String
-									.format("%s:%s", escapeBashSpecialCharacters(username), escapeBashSpecialCharacters(passwordAsString))
-									.getBytes()
-							)
-					)
-					.replace(
-						BASIC_AUTH_BASE64_ESC_BASH,
-						Base64
-							.getEncoder()
-							.encodeToString(
-								String
-									.format("%s:%s", escapeBashSpecialCharacters(username), escapeBashSpecialCharacters(passwordAsString))
-									.getBytes()
-							)
-					)
-					.replace(
-						BASIC_AUTH_BASE64_ESC_SQL,
-						Base64
-							.getEncoder()
-							.encodeToString(
-								String
-									.format("%s:%s", escapeSqlSpecialCharacters(username), escapeSqlSpecialCharacters(passwordAsString))
-									.getBytes()
-							)
-					)
-					.replace(
-						BASIC_AUTH_BASE64_ESC_REGEX,
-						Base64
-							.getEncoder()
-							.encodeToString(
-								String
-									.format(
-										"%s:%s",
-										escapeRegexSpecialCharacters(username),
-										escapeRegexSpecialCharacters(passwordAsString)
-									)
-									.getBytes()
-							)
-					)
-					.replace(
-						BASIC_AUTH_BASE64_ESC_POWERSHELL,
-						Base64
-							.getEncoder()
-							.encodeToString(
-								String
-									.format(
-										"%s:%s",
-										escapePowershellSpecialCharacters(username),
-										escapePowershellSpecialCharacters(passwordAsString)
-									)
-									.getBytes()
-							)
-					);
-		}
-
-		// Encode the authentication token into SHA256 string
-		// then replace the macro with the resulting value
-		if (updatedContent.indexOf(SHA256_AUTH_MACRO) != -1) {
-			updatedContent =
-				updatedContent
-					.replace(SHA256_AUTH_MACRO, encodeSha256(authenticationToken))
-					// Escape Json special characters
-					.replace(SHA256_AUTH_ESC_JSON, encodeSha256(escapeJsonSpecialCharacters(authenticationToken)))
-					.replace(SHA256_AUTH_ESC_URL, encodeSha256(escapeUrlSpecialCharacters(authenticationToken)))
-					.replace(SHA256_AUTH_ESC_XML, encodeSha256(escapeXmlSpecialCharacters(authenticationToken)))
-					.replace(SHA256_AUTH_ESC_WINDOWS, encodeSha256(escapeWindowsCmdSpecialCharacters(authenticationToken)))
-					.replace(SHA256_AUTH_ESC_CMD, encodeSha256(escapeWindowsCmdSpecialCharacters(authenticationToken)))
-					.replace(SHA256_AUTH_ESC_LINUX, encodeSha256(escapeBashSpecialCharacters(authenticationToken)))
-					.replace(SHA256_AUTH_ESC_BASH, encodeSha256(escapeBashSpecialCharacters(authenticationToken)))
-					.replace(SHA256_AUTH_ESC_SQL, encodeSha256(escapeSqlSpecialCharacters(authenticationToken)))
-					.replace(SHA256_AUTH_ESC_REGEX, encodeSha256(escapeRegexSpecialCharacters(authenticationToken)))
-					.replace(SHA256_AUTH_ESC_POWERSHELL, encodeSha256(escapePowershellSpecialCharacters(authenticationToken)));
+			}
 		}
 
 		return updatedContent;
 	}
 
 	/**
-	 * Escape special characters in a JSON string value (\ " \n \r \t).
+	 * Processes the macro found in the text, replacing it with the corresponding value based on the macro name.
+	 *
+	 * @param content             The content string with macros.
+	 * @param matchedString       The matched macro string.
+	 * @param macroName           The name of the macro to replace.
+	 * @param escapeType          The escape type for the macro value (e.g., JSON, XML).
+	 * @param passwordAsString    The HTTP password as a string.
+	 * @param username            The HTTP username.
+	 * @param authenticationToken  The HTTP authentication token.
+	 * @param macroNameField      A map of macro names and their corresponding values.
+	 * @return The content with the macro replaced by the corresponding value.
+	 */
+	private static String processMacro(
+		final String content,
+		final String matchedString,
+		final String macroName,
+		final String escapeType,
+		final String passwordAsString,
+		final String username,
+		final String authenticationToken,
+		final Map<String, String> macroNameField
+	) {
+		String updatedContent = content;
+		if (macroName.startsWith("PASSWORD_BASE64")) {
+			// PasswordBase64 macros replacement
+			updatedContent = replacePasswordBase64(updatedContent, escapeType, matchedString, passwordAsString);
+		} else if (macroName.startsWith("BASIC_AUTH_BASE64")) {
+			// BasicAuthBase64 macros replacement
+			updatedContent =
+				replaceBasicAuthBase64MacroValue(updatedContent, escapeType, matchedString, username, passwordAsString);
+		} else if (macroName.startsWith("SHA256_AUTH")) {
+			// Sha256 macros replacement
+			updatedContent = replaceSha256MacroValue(updatedContent, escapeType, matchedString, authenticationToken);
+		} else {
+			// Simple macro replacement: username, password, hostname and authenticationToken macros
+			updatedContent = updateSimpleMacro(updatedContent, matchedString, macroName, escapeType, macroNameField);
+		}
+		return updatedContent;
+	}
+
+	/**
+	 * Updates simple macros (e.g., USERNAME, PASSWORD) in the content based on the provided escape type.
+	 * Replaces the macro with the corresponding value from the macroNameField map.
+	 *
+	 * @param content        The content string with macros.
+	 * @param matchedString  The matched macro string.
+	 * @param macroName      The name of the macro to be replaced.
+	 * @param escapeType     The escape type (e.g., JSON, XML) for the macro value.
+	 * @param macroNameField A map of macro names and their corresponding values.
+	 * @return The content with the macro replaced by the corresponding value.
+	 */
+	private static String updateSimpleMacro(
+		final String content,
+		final String matchedString,
+		final String macroName,
+		final String escapeType,
+		final Map<String, String> macroNameField
+	) {
+		final String replacement = macroNameField.getOrDefault(macroName, EMPTY);
+		final String escapedReplacement = escapeType != null ? escapeReplacement(replacement, escapeType) : replacement;
+		return content.replace(matchedString, escapedReplacement);
+	}
+
+	/**
+	 * Escapes special characters in a string based on the provided escape type.
+	 *
+	 * @param replacement The string to escape.
+	 * @param escapeType The type of escape to apply (e.g., JSON, XML, URL).
+	 * @return The escaped string.
+	 */
+	private static String escapeReplacement(final String replacement, final String escapeType) {
+		return switch (escapeType) {
+			case "JSON" -> escapeJsonSpecialCharacters(replacement);
+			case "XML" -> escapeXmlSpecialCharacters(replacement);
+			case "URL" -> escapeUrlSpecialCharacters(replacement);
+			case "REGEX" -> escapeRegexSpecialCharacters(replacement);
+			case "WINDOWS", "CMD" -> escapeWindowsCmdSpecialCharacters(replacement);
+			case "POWERSHELL" -> escapePowershellSpecialCharacters(replacement);
+			case "LINUX", "BASH" -> escapeBashSpecialCharacters(replacement);
+			case "SQL" -> escapeSqlSpecialCharacters(replacement);
+			default -> replacement;
+		};
+	}
+
+	/**
+	 * Replaces the %{BASIC_AUTH} macro with the corresponding base64-encoded username and password.
+	 *
+	 * @param valueToUpdate    The string to update.
+	 * @param escapeType       The escape type to apply (e.g., JSON, XML).
+	 * @param matchedString     The matched macro string.
+	 * @param username         The username for basic authentication.
+	 * @param passwordAsString The password for basic authentication.
+	 * @return The updated string with the %{BASIC_AUTH} macro replaced.
+	 */
+	private static String replaceBasicAuthBase64MacroValue(
+		final String valueToUpdate,
+		final String escapeType,
+		final String matchedString,
+		final String username,
+		final String passwordAsString
+	) {
+		// Join the username and password with a colon `username:password`
+		// and encode the resulting string in `base64`
+		// then replace the macro with the resulting value
+		final String formattedBasicAuthString = String.format(
+			"%s:%s",
+			escapeReplacement(username, escapeType),
+			escapeReplacement(passwordAsString, escapeType)
+		);
+		final String escapedValue = Base64
+			.getEncoder()
+			.encodeToString((formattedBasicAuthString).getBytes(StandardCharsets.UTF_8));
+		return valueToUpdate.replace(matchedString, escapedValue);
+	}
+
+	/**
+	 * Replaces the %{SHA256} macro with the corresponding SHA-256 encoded authentication token.
+	 *
+	 * @param valueToUpdate          The string to update.
+	 * @param escapeType             The escape type to apply (e.g., JSON, XML).
+	 * @param matchedString           The matched macro string.
+	 * @param authenticationToken     The authentication token to encode.
+	 * @return The updated string with the %{SHA256} macro replaced.
+	 */
+	private static String replaceSha256MacroValue(
+		final String valueToUpdate,
+		final String escapeType,
+		final String matchedString,
+		final String authenticationToken
+	) {
+		// Encode the authentication token into SHA256 string
+		// then replace the macro with the resulting value
+		if (authenticationToken == null || authenticationToken.isEmpty()) {
+			return valueToUpdate.replace(matchedString, EMPTY);
+		}
+		final String hashedToken = encodeSha256(authenticationToken);
+		return valueToUpdate.replace(matchedString, escapeReplacement(hashedToken, escapeType));
+	}
+
+	/**
+	 * Replaces the %{PASSWORD_BASE64} macro with the base64-encoded password.
+	 *
+	 * @param valueToUpdate    The string to update.
+	 * @param escapeType       The escape type to apply (e.g., JSON, XML).
+	 * @param matchedString     The matched macro string.
+	 * @param passwordAsString The password to encode.
+	 * @return The updated string with the %{PASSWORD_BASE64} macro replaced.
+	 */
+	private static String replacePasswordBase64(
+		final String valueToUpdate,
+		final String escapeType,
+		final String matchedString,
+		final String passwordAsString
+	) {
+		// Encode the password into a base64 string
+		// then replace the macro with the resulting value
+		final String escapedValue = Base64
+			.getEncoder()
+			.encodeToString(escapeReplacement(passwordAsString, escapeType).getBytes(StandardCharsets.UTF_8));
+		return valueToUpdate.replace(matchedString, escapedValue);
+	}
+
+	/**
+	 * Escape special characters in a JSON string value.
 	 *
 	 * @param value The value to escape.
-	 * @return The escaped value
+	 * @return The escaped JSON string.
 	 */
 	static String escapeJsonSpecialCharacters(final String value) {
-		// Escape common characters
 		return value
-			// Escape characters (\ " \n \r \t)
 			.replace("\\", "\\\\")
 			.replace("\"", "\\\"")
 			.replace("\n", "\\n")
@@ -440,129 +288,89 @@ public class MacrosUpdater {
 	/**
 	 * Escapes special URL characters by replacing them with their percent-encoded equivalents.
 	 *
-	 * @param value the input string that may contain special URL characters
-	 * @return a string where special URL characters have been percent-encoded
+	 * @param value The string to escape.
+	 * @return The URL-encoded string.
 	 */
 	static String escapeUrlSpecialCharacters(final String value) {
-		// Escape common URL characters
-		return URLEncoder.encode(value, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
+		return URLEncoder.encode(value, StandardCharsets.UTF_8);
 	}
 
 	/**
-	 * Escapes special characters used in regular expressions by prepending a backslash.
+	 * Escapes special XML characters by replacing them with their respective escape codes.
 	 *
-	 * @param value the input string that may contain special regex characters
-	 * @return a string where special regex characters have been escaped
-	 */
-	static String escapeRegexSpecialCharacters(final String value) {
-		// Escape special regex characters
-		return Pattern.quote(value);
-	}
-
-	/**
-	 * Escapes special XML characters by replacing them with their corresponding XML entities.
-	 *
-	 * @param value the input string that may contain special XML characters
-	 * @return a string where special XML characters have been replaced with entities
+	 * @param value The string to escape.
+	 * @return The XML-escaped string.
 	 */
 	static String escapeXmlSpecialCharacters(final String value) {
-		// Escape special XML characters
 		return value
 			.replace("&", "&amp;")
-			.replace("<", "&lt;")
-			.replace(">", "&gt;")
 			.replace("\"", "&quot;")
-			.replace("'", "&apos;");
+			.replace("'", "&apos;")
+			.replace("<", "&lt;")
+			.replace(">", "&gt;");
 	}
 
 	/**
-	 * Escapes special Windows CMD characters by prepending a caret symbol.
+	 * Escape regex special characters in a string.
 	 *
-	 * @param value the input string that may contain special CMD characters
-	 * @return a string where special CMD characters have been escaped
+	 * @param value The string to escape.
+	 * @return The escaped string.
 	 */
-	static String escapeWindowsCmdSpecialCharacters(final String value) {
-		// Escape special CMD characters
+	static String escapeRegexSpecialCharacters(final String value) {
 		return value
-			.replace("^", "^^")
-			.replace("&", "^&")
-			.replace("|", "^|")
-			.replace("<", "^<")
-			.replace(">", "^>")
-			.replace("%", "^%")
-			.replace("(", "^(")
-			.replace(")", "^)")
-			.replace("\"", "^\"");
-	}
-
-	/**
-	 * Escape special characters in a PowerShell string value (", $, {, }, (, ), [, ], #, \n, \t, \r, \0).
-	 *
-	 * @param value The value to escape.
-	 * @return The escaped value
-	 */
-	static String escapePowershellSpecialCharacters(final String value) {
-		// Escape special characters for Windows PowerShell
-		return value
-			.replace(".", "`.")
-			.replace("\"", "`\"") // Escape double quote
-			.replace("$", "`$") // Escape variable indicator
-			.replace("{", "`{") // Escape opening curly brace
-			.replace("}", "`}") // Escape closing curly brace
-			.replace("(", "`(") // Escape opening parenthesis
-			.replace(")", "`)") // Escape closing parenthesis
-			.replace("[", "`[") // Escape opening bracket
-			.replace("]", "`]") // Escape closing bracket
-			.replace("#", "`#") // Escape comment indicator
-			.replace("\n", "`\n") // Escape new line
-			.replace("\t", "`\t") // Escape tab
-			.replace("\r", "`\r") // Escape carriage return
-			.replace("\0", "`\0"); // Escape null character
-	}
-
-	/**
-	 * Escapes special Bash characters by prepending a backslash.
-	 *
-	 * @param value the input string that may contain special Bash characters
-	 * @return a string where special Bash characters have been escaped
-	 */
-	static String escapeBashSpecialCharacters(final String value) {
-		// Escape special Bash characters
-		return value
-			.replace("'", "\\'")
-			.replace("\"", "\\\"")
 			.replace("\\", "\\\\")
-			.replace("$", "\\$")
-			.replace("!", "\\!")
 			.replace("*", "\\*")
+			.replace("+", "\\+")
 			.replace("?", "\\?")
+			.replace("|", "\\|")
+			.replace("{", "\\{")
+			.replace("}", "\\}")
 			.replace("[", "\\[")
 			.replace("]", "\\]")
 			.replace("(", "\\(")
 			.replace(")", "\\)")
-			.replace("{", "\\{")
-			.replace("}", "\\}")
-			.replace("|", "\\|")
-			.replace("&", "\\&")
-			.replace("<", "\\<")
-			.replace(">", "\\>")
-			.replace("~", "\\~");
+			.replace("^", "\\^")
+			.replace("$", "\\$")
+			.replace(".", "\\.");
 	}
 
 	/**
-	 * Escapes special SQL characters such as single quotes and optionally backslashes or double quotes, depending on the SQL dialect.
+	 * Escape special characters in a Windows command string.
 	 *
-	 * @param value the input string that may contain special SQL characters
-	 * @return a string where special SQL characters have been escaped
+	 * @param value The string to escape.
+	 * @return The escaped string.
+	 */
+	static String escapeWindowsCmdSpecialCharacters(final String value) {
+		return value.replace("\"", "\\\"");
+	}
+
+	/**
+	 * Escape special characters in a Powershell string.
+	 *
+	 * @param value The string to escape.
+	 * @return The escaped string.
+	 */
+	static String escapePowershellSpecialCharacters(final String value) {
+		return value.replace("'", "''").replace("\"", "`\"");
+	}
+
+	/**
+	 * Escape special characters in a Bash command string.
+	 *
+	 * @param value The string to escape.
+	 * @return The escaped string.
+	 */
+	static String escapeBashSpecialCharacters(final String value) {
+		return value.replace("$", "\\$").replace("`", "\\`").replace("\"", "\\\"");
+	}
+
+	/**
+	 * Escape special characters in a SQL query string.
+	 *
+	 * @param value The string to escape.
+	 * @return The escaped string.
 	 */
 	static String escapeSqlSpecialCharacters(final String value) {
-		// Escape special SQL characters
-		return value
-			.replace("'", "''")
-			.replace("\"", "\\\"") // Only if applicable for the specific SQL dialect
-			.replace("\\", "\\\\") // Only if applicable for the specific SQL dialect
-			.replace("\n", "\\n")
-			.replace("\r", "\\r")
-			.replace("\t", "\\t");
+		return value.replace("'", "''");
 	}
 }

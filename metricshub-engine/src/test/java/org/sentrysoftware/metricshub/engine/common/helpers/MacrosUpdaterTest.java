@@ -9,6 +9,14 @@ import org.junit.jupiter.api.Test;
 
 class MacrosUpdaterTest {
 
+	private static final String PASSWORD_BASE64_MACRO = "%{PASSWORD_BASE64}";
+	private static final String BASIC_AUTH_BASE64_MACRO = "%{BASIC_AUTH_BASE64}";
+	private static final String SHA256_AUTH_MACRO = "%{SHA256_AUTH}";
+
+	// JSON input format macros
+	private static final String PASSWORD_ESC_JSON = "%{PASSWORD_ESC_JSON}";
+	private static final String USERNAME_ESC_JSON = "%{USERNAME_ESC_JSON}";
+
 	@Test
 	void testUpdate() {
 		final String text = String.format(
@@ -25,11 +33,11 @@ class MacrosUpdaterTest {
 			HOSTNAME_MACRO,
 			PASSWORD_MACRO,
 			USERNAME_MACRO,
-			MacrosUpdater.BASIC_AUTH_BASE64_MACRO,
-			MacrosUpdater.SHA256_AUTH_MACRO,
-			MacrosUpdater.PASSWORD_BASE64_MACRO,
-			MacrosUpdater.USERNAME_ESC_JSON,
-			MacrosUpdater.PASSWORD_ESC_JSON
+			BASIC_AUTH_BASE64_MACRO,
+			SHA256_AUTH_MACRO,
+			PASSWORD_BASE64_MACRO,
+			USERNAME_ESC_JSON,
+			PASSWORD_ESC_JSON
 		);
 
 		final String result = MacrosUpdater.update(text, "user", "pwd".toCharArray(), "token", "hostname");
