@@ -4,7 +4,7 @@ connector:
 
 beforeAll:
   testSqlSource:
-    type: sql
+    type: localSql
     tables:
     - source: "${source::source_one}"
       alias: "T1"

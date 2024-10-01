@@ -18,7 +18,7 @@ This is a multi-module project:
 * **metricshub-snmp-extension-common**: Contains common functionalities and utilities used by SNMP-based extensions.
 * **metricshub-snmp-extension**: Enables Simple Network Management Protocol (SNMP) for monitoring and managing network devices.
 * **metricshub-snmpv3-extension**: Adds support for SNMPv3, which includes enhanced security features like authentication and encryption.
-* **metricshub-sql-source-extension**:  Allows execution of SQL queries on already existing sources.
+* **metricshub-localSql-source-extension**:  Allows execution of SQL queries on already existing sources.
 * **metricshub-win-extension-common**: Contains common functionalities and utilities used by Windows-specific extensions.
 * **metricshub-wmi-extension**: Provides support for Windows Management Instrumentation (WMI) to gather detailed information about Windows systems.
 * **metricshub-winrm-extension**: Enables the use of Windows Remote Management (WinRM) for remote management and monitoring of Windows-based systems.

@@ -8,7 +8,7 @@
 		<version>0.9.07-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>metricshub-sql-source-extension</artifactId>
+	<artifactId>metricshub-localSql-source-extension</artifactId>
 	<name>MetricsHub SQL Extension</name>
 	<description>MetricsHub SQL Extension implementation providing a set of functionalities used to process SQL source.</description>
 	<packaging>jar</packaging>
@@ -142,7 +142,7 @@
 							<artifactSet>
 								<includes>
 									<include>com.h2database:h2</include>
-									<include>org.sentrysoftware:metricshub-sql-source-extension</include>
+									<include>org.sentrysoftware:metricshub-localSql-source-extension</include>
 								</includes>
 								<excludes>
 									<exclude>org/slf4j/**</exclude>
