@@ -174,8 +174,8 @@ public class MacrosUpdater {
 	/**
 	 * Escapes special characters in a string based on the provided escape type.
 	 *
-	 * @param replacement The string to escape.
-	 * @param escapeType The type of escape to apply (e.g., JSON, XML, URL).
+	 * @param replacement The string to escape (e.g. username, password)
+	 * @param escapeType The type of escape to apply (e.g. JSON, XML, URL).
 	 * @return The escaped string.
 	 */
 	private static String escapeReplacement(final String replacement, final String escapeType) {
