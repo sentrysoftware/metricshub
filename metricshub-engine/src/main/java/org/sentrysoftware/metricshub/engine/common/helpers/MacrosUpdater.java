@@ -179,6 +179,9 @@ public class MacrosUpdater {
 	 * @return The escaped string.
 	 */
 	private static String escapeReplacement(final String replacement, final String escapeType) {
+		if (escapeType == null) {
+			return replacement;
+		}
 		return switch (escapeType) {
 			case "JSON" -> escapeJsonSpecialCharacters(replacement);
 			case "XML" -> escapeXmlSpecialCharacters(replacement);
@@ -188,7 +191,9 @@ public class MacrosUpdater {
 			case "POWERSHELL" -> escapePowershellSpecialCharacters(replacement);
 			case "LINUX", "BASH" -> escapeBashSpecialCharacters(replacement);
 			case "SQL" -> escapeSqlSpecialCharacters(replacement);
-			default -> replacement;
+			default -> throw new IllegalStateException(
+				String.format("Unexpected escape type %s for value %s ", escapeType, replacement)
+			);
 		};
 	}
 
@@ -271,13 +276,15 @@ public class MacrosUpdater {
 	}
 
 	/**
-	 * Escape special characters in a JSON string value.
+	 * Escape special characters in a JSON string value (\ " \n \r \t).
 	 *
 	 * @param value The value to escape.
-	 * @return The escaped JSON string.
+	 * @return The escaped value
 	 */
 	static String escapeJsonSpecialCharacters(final String value) {
+		// Escape common characters
 		return value
+			// Escape characters (\ " \n \r \t)
 			.replace("\\", "\\\\")
 			.replace("\"", "\\\"")
 			.replace("\n", "\\n")
@@ -288,89 +295,129 @@ public class MacrosUpdater {
 	/**
 	 * Escapes special URL characters by replacing them with their percent-encoded equivalents.
 	 *
-	 * @param value The string to escape.
-	 * @return The URL-encoded string.
+	 * @param value the input string that may contain special URL characters
+	 * @return a string where special URL characters have been percent-encoded
 	 */
 	static String escapeUrlSpecialCharacters(final String value) {
-		return URLEncoder.encode(value, StandardCharsets.UTF_8);
+		// Escape common URL characters
+		return URLEncoder.encode(value, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
 	}
 
 	/**
-	 * Escapes special XML characters by replacing them with their respective escape codes.
+	 * Escapes special characters used in regular expressions by prepending a backslash.
 	 *
-	 * @param value The string to escape.
-	 * @return The XML-escaped string.
-	 */
-	static String escapeXmlSpecialCharacters(final String value) {
-		return value
-			.replace("&", "&amp;")
-			.replace("\"", "&quot;")
-			.replace("'", "&apos;")
-			.replace("<", "&lt;")
-			.replace(">", "&gt;");
-	}
-
-	/**
-	 * Escape regex special characters in a string.
-	 *
-	 * @param value The string to escape.
-	 * @return The escaped string.
+	 * @param value the input string that may contain special regex characters
+	 * @return a string where special regex characters have been escaped
 	 */
 	static String escapeRegexSpecialCharacters(final String value) {
+		// Escape special regex characters
+		return Pattern.quote(value);
+	}
+
+	/**
+	 * Escapes special XML characters by replacing them with their corresponding XML entities.
+	 *
+	 * @param value the input string that may contain special XML characters
+	 * @return a string where special XML characters have been replaced with entities
+	 */
+	static String escapeXmlSpecialCharacters(final String value) {
+		// Escape special XML characters
 		return value
+			.replace("&", "&amp;")
+			.replace("<", "&lt;")
+			.replace(">", "&gt;")
+			.replace("\"", "&quot;")
+			.replace("'", "&apos;");
+	}
+
+	/**
+	 * Escapes special Windows CMD characters by prepending a caret symbol.
+	 *
+	 * @param value the input string that may contain special CMD characters
+	 * @return a string where special CMD characters have been escaped
+	 */
+	static String escapeWindowsCmdSpecialCharacters(final String value) {
+		// Escape special CMD characters
+		return value
+			.replace("^", "^^")
+			.replace("&", "^&")
+			.replace("|", "^|")
+			.replace("<", "^<")
+			.replace(">", "^>")
+			.replace("%", "^%")
+			.replace("(", "^(")
+			.replace(")", "^)")
+			.replace("\"", "^\"");
+	}
+
+	/**
+	 * Escape special characters in a PowerShell string value (", $, {, }, (, ), [, ], #, \n, \t, \r, \0).
+	 *
+	 * @param value The value to escape.
+	 * @return The escaped value
+	 */
+	static String escapePowershellSpecialCharacters(final String value) {
+		// Escape special characters for Windows PowerShell
+		return value
+			.replace(".", "`.")
+			.replace("\"", "`\"") // Escape double quote
+			.replace("$", "`$") // Escape variable indicator
+			.replace("{", "`{") // Escape opening curly brace
+			.replace("}", "`}") // Escape closing curly brace
+			.replace("(", "`(") // Escape opening parenthesis
+			.replace(")", "`)") // Escape closing parenthesis
+			.replace("[", "`[") // Escape opening bracket
+			.replace("]", "`]") // Escape closing bracket
+			.replace("#", "`#") // Escape comment indicator
+			.replace("\n", "`\n") // Escape new line
+			.replace("\t", "`\t") // Escape tab
+			.replace("\r", "`\r") // Escape carriage return
+			.replace("\0", "`\0"); // Escape null character
+	}
+
+	/**
+	 * Escapes special Bash characters by prepending a backslash.
+	 *
+	 * @param value the input string that may contain special Bash characters
+	 * @return a string where special Bash characters have been escaped
+	 */
+	static String escapeBashSpecialCharacters(final String value) {
+		// Escape special Bash characters
+		return value
+			.replace("'", "\\'")
+			.replace("\"", "\\\"")
 			.replace("\\", "\\\\")
+			.replace("$", "\\$")
+			.replace("!", "\\!")
 			.replace("*", "\\*")
-			.replace("+", "\\+")
 			.replace("?", "\\?")
-			.replace("|", "\\|")
-			.replace("{", "\\{")
-			.replace("}", "\\}")
 			.replace("[", "\\[")
 			.replace("]", "\\]")
 			.replace("(", "\\(")
 			.replace(")", "\\)")
-			.replace("^", "\\^")
-			.replace("$", "\\$")
-			.replace(".", "\\.");
+			.replace("{", "\\{")
+			.replace("}", "\\}")
+			.replace("|", "\\|")
+			.replace("&", "\\&")
+			.replace("<", "\\<")
+			.replace(">", "\\>")
+			.replace("~", "\\~");
 	}
 
 	/**
-	 * Escape special characters in a Windows command string.
+	 * Escapes special SQL characters such as single quotes and optionally backslashes or double quotes, depending on the SQL dialect.
 	 *
-	 * @param value The string to escape.
-	 * @return The escaped string.
-	 */
-	static String escapeWindowsCmdSpecialCharacters(final String value) {
-		return value.replace("\"", "\\\"");
-	}
-
-	/**
-	 * Escape special characters in a Powershell string.
-	 *
-	 * @param value The string to escape.
-	 * @return The escaped string.
-	 */
-	static String escapePowershellSpecialCharacters(final String value) {
-		return value.replace("'", "''").replace("\"", "`\"");
-	}
-
-	/**
-	 * Escape special characters in a Bash command string.
-	 *
-	 * @param value The string to escape.
-	 * @return The escaped string.
-	 */
-	static String escapeBashSpecialCharacters(final String value) {
-		return value.replace("$", "\\$").replace("`", "\\`").replace("\"", "\\\"");
-	}
-
-	/**
-	 * Escape special characters in a SQL query string.
-	 *
-	 * @param value The string to escape.
-	 * @return The escaped string.
+	 * @param value the input string that may contain special SQL characters
+	 * @return a string where special SQL characters have been escaped
 	 */
 	static String escapeSqlSpecialCharacters(final String value) {
-		return value.replace("'", "''");
+		// Escape special SQL characters
+		return value
+			.replace("'", "''")
+			.replace("\"", "\\\"") // Only if applicable for the specific SQL dialect
+			.replace("\\", "\\\\") // Only if applicable for the specific SQL dialect
+			.replace("\n", "\\n")
+			.replace("\r", "\\r")
+			.replace("\t", "\\t");
 	}
 }
