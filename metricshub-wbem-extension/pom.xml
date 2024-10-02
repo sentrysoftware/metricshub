@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.sentrysoftware</groupId>
 		<artifactId>metricshub-parent</artifactId>
-		<version>0.9.03-SNAPSHOT</version>
+		<version>0.9.07-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>metricshub-wbem-extension</artifactId>
@@ -51,6 +51,10 @@
 					<artifactId>slf4j-simple</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.sentrysoftware</groupId>
+			<artifactId>vcenter</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
@@ -144,7 +148,7 @@
 										<limit>
 											<counter>COMPLEXITY</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.2</minimum>
+											<minimum>0.54</minimum>
 										</limit>
 									</limits>
 								</rule>
@@ -173,6 +177,8 @@
 							<artifactSet>
 								<includes>
 									<include>org.sentrysoftware:wbem</include>
+									<include>org.sentrysoftware:vcenter</include>
+									<include>com.vmware:vijava</include>
 									<include>org.sentrysoftware:metricshub-wbem-extension</include>
 								</includes>
 								<excludes>

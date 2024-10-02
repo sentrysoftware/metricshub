@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="${project.name}">
+<project name="Documentation">
 
 	<skin>
 		<groupId>org.sentrysoftware.maven</groupId>
@@ -70,7 +70,7 @@
 
 		<links>
 			<item name="Open Sentry" href="https://sentrysoftware.org" />
-			<item name="&lt;i class='fa-brands fa-github'&gt;&lt;/i&gt; GitHub" href="${project.scm.url}" />
+			<item name="&lt;i class='fa-brands fa-github'&gt;&lt;/i&gt; GitHub" href="https://github.com/sentrysoftware/metricshub" />
 			<item name="OpenTelemetry" href="https://opentelemetry.io" />
 		</links>
 
@@ -78,88 +78,32 @@
 			<item name="MetricsHub&lt;sup&gt;&reg;&lt;/sup&gt;" href="https://metricshub.com" />
 		</breadcrumbs>
 
-		<menu name="Getting Started">
+		<menu name="Introduction">
 			<item name="Overview" href="index.html" />
-			<item name="Quick Start" href="start.html "/>
-			<item name="General Concepts" href="concepts.html "/>
-			<item name="Installation" href="install.html" />
+			<item name="Connectors Directory" href="metricshub-connectors-directory.html" />
+		</menu>
+
+		<menu name="Installation">
+			<item name="Overview" href="installation/index.html "/>
+			<item name="On Debian Linux" href="installation/debian-linux.html "/>
+			<item name="On Docker" href="installation/docker.html "/>
+			<item name="On Red Hat Enteprise Linux" href="installation/redhat-linux.html "/>
+			<item name="On Windows" href="installation/windows.html "/>
 		</menu>
 
 		<menu name="Configuration">
-			<item name="MetricsHub Agent" href="configuration/configure-agent.html" />
+			<item name="Monitoring Configuration" href="configuration/configure-monitoring.html" />
+			<item name="Sending Telemetry" href="configuration/send-telemetry.html" />
 			<item name="Password Encryption" href="security/passwords.html" />
 		</menu>
 
-		<menu name="Troubleshooting">
-			<item name="Debugging" href="troubleshooting/debug.html" />
-			<item name="Solving Minor Setbacks" href="troubleshooting/solving.html" />
-			<item name="MetricsHub CLI (&lt;code&gt;metricshub&lt;/code&gt;)" href="troubleshooting/cli.html" />
+		<menu name="Guides">
+			<item name="Quick Start - Windows" href="guides/quick-start-community-prometheus-windows.html"/>
+			<item name="Quick Start - Linux" href="guides/quick-start-community-prometheus-linux.html"/>
+			<item name="Sustainability" href="guides/configure-sustainability-metrics.html" />
+			<item name="Health Check (Enterprise Edition)" href="guides/status.html" />
+			<item name="Debugging" href="guides/debug.html" />
+			<item name="MetricsHub CLI (&lt;code&gt;metricshub&lt;/code&gt;)" href="guides/cli.html" />
 		</menu>
-
-		<menu name="Connector Design Guide &lt;span class='fa-solid fa-person-digging'&gt;&lt;/span&gt;">
-			<item name="Introduction" href="develop/index.html" />
-			<item name="Connector" href="develop/connector.html" />
-			<item name="Detection" href="develop/detection/index.html">
-				<item name="Engine Requirements" href="develop/detection/engine-requirements.html" />
-				<item name="Resource Type" href="develop/detection/resource-type.html" />
-				<item name="HTTP" href="develop/detection/http.html" />
-				<item name="IPMI" href="develop/detection/ipmi.html" />
-				<item name="Command Line" href="develop/detection/command-line.html" />
-				<item name="Process" href="develop/detection/process.html" />
-				<item name="Service" href="develop/detection/service.html" />
-				<item name="SNMP GetNext" href="develop/detection/snmp-getnext.html" />
-				<item name="SNMP Get" href="develop/detection/snmp-get.html" />
-				<item name="WBEM" href="develop/detection/wbem.html" />
-				<item name="WMI (WQL)" href="develop/detection/wmi.html" />
-			</item>
-			<item name="Monitors" href="develop/monitors.html" />
-			<item name="Sources" href="develop/sources/index.html" >
-				<item name="Command Line" href="develop/sources/command-line.html" />
-				<item name="HTTP" href="develop/sources/http.html" />
-				<item name="IPMI" href="develop/sources/ipmi.html" />
-				<item name="SNMP Get" href="develop/sources/snmp-get.html" />
-				<item name="SNMP Table" href="develop/sources/snmp-table.html" />
-				<item name="Table Join" href="develop/sources/table-join.html" />
-				<item name="Table Union" href="develop/sources/table-union.html" />
-				<item name="WBEM" href="develop/sources/wbem.html" />
-				<item name="WMI" href="develop/sources/wmi.html" />
-				<item name="Static (Constant)" href="develop/sources/static.html" />
-				<item name="Copy (Duplicate)" href="develop/sources/copy.html" />
-				<item name="Pre-Sources" href="develop/sources/pre.html" />
-			</item>
-			<item name="Computes" href="develop/computes/index.html" >
-				<item name="Add" href="develop/computes/add.html" />
-				<item name="And" href="develop/computes/and.html" />
-				<item name="Array Translate" href="develop/computes/array-translate.html" />
-				<item name="AWK" href="develop/computes/awk.html" />
-				<item name="Convert" href="develop/computes/convert.html" />
-				<item name="Divide" href="develop/computes/divide.html" />
-				<item name="Duplicate Column" href="develop/computes/duplicate-column.html" />
-				<item name="Exclude Matching Lines" href="develop/computes/exclude-matching-lines.html" />
-				<item name="Extract WBEM Property" href="develop/computes/extract-wbem-property.html" />
-				<item name="Extract" href="develop/computes/extract.html" />
-				<item name="JSON to CSV" href="develop/computes/json2csv.html" />
-				<item name="Keep Columns" href="develop/computes/keep-columns.html" />
-				<item name="Keep Only Matching Lines" href="develop/computes/keep-only-matching-lines.html" />
-				<item name="Left Concat" href="develop/computes/left-concat.html" />
-				<item name="Multiply" href="develop/computes/multiply.html" />
-				<item name="Replace" href="develop/computes/replace.html" />
-				<item name="Right Concat" href="develop/computes/right-concat.html" />
-				<item name="Substring" href="develop/computes/substring.html" />
-				<item name="Subtract" href="develop/computes/subtract.html" />
-				<item name="Translate per Bit" href="develop/computes/translate-per-bit.html" />
-				<item name="Translate" href="develop/computes/translate.html" />
-				<item name="XML to CSV" href="develop/computes/xml2csv.html" />
-			</item>
-			<item name="References" href="develop/references.html" />
-		</menu>
-
-		<menu name="Appendix">
-			<item name="Community Connectors Reference" href="metricshub-connector-reference.html" />
-			<item name="Community Connector Platforms" href="platform-requirements.html" />
-		</menu>
-
-		<menu ref="reports" />
-
 	</body>
 </project>

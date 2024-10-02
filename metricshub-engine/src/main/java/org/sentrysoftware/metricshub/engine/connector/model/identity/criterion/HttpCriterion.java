@@ -34,8 +34,6 @@ import lombok.NonNull;
 import lombok.ToString;
 import org.sentrysoftware.metricshub.engine.connector.model.common.HttpMethod;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
-import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
-import org.sentrysoftware.metricshub.engine.strategy.detection.ICriterionProcessor;
 
 /**
  * Connector detection criterion using HTTP protocol.
@@ -139,16 +137,5 @@ public class HttpCriterion extends Criterion {
 		this.errorMessage = errorMessage;
 		this.resultContent = resultContent == null ? ResultContent.BODY : resultContent;
 		this.authenticationToken = authenticationToken;
-	}
-
-	/**
-	 * Accepts the given criterion processor for evaluation.
-	 *
-	 * @param criterionProcessor The criterion processor to accept.
-	 * @return The result of the criterion detection.
-	 */
-	@Override
-	public CriterionTestResult accept(ICriterionProcessor criterionProcessor) {
-		return criterionProcessor.process(this);
 	}
 }

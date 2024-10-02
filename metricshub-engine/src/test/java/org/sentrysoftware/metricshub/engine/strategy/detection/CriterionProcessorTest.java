@@ -377,7 +377,7 @@ class CriterionProcessorTest {
 		final ProcessCriterion processCriterion = new ProcessCriterion();
 		processCriterion.setCommandLine(PROCESS_CRITERION_COMMAND_LINE);
 
-		doReturn(HostConfiguration.builder().hostname(HOST_ID).build()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(HOST_ID).when(telemetryManagerMock).getHostname();
 		doReturn(HostProperties.builder().isLocalhost(true).build()).when(telemetryManagerMock).getHostProperties();
 
 		final IProtocolExtension protocolExtensionMock = spy(IProtocolExtension.class);
@@ -444,14 +444,6 @@ class CriterionProcessorTest {
 	void testProcessProcessProcessNull() {
 		final ProcessCriterion processCriterion = null;
 
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(
-				HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build()
-			)
-			.build();
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-
 		assertEquals(CriterionTestResult.empty(), criterionProcessor.process(processCriterion));
 	}
 
@@ -459,14 +451,6 @@ class CriterionProcessorTest {
 	void testProcessProcessCommandLineEmpty() {
 		final ProcessCriterion processCriterion = new ProcessCriterion();
 		processCriterion.setCommandLine("");
-
-		final TelemetryManager telemetryManager = TelemetryManager
-			.builder()
-			.hostConfiguration(
-				HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build()
-			)
-			.build();
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(processCriterion);
 
@@ -487,7 +471,6 @@ class CriterionProcessorTest {
 				HostConfiguration.builder().hostname(LOCALHOST).hostId(LOCALHOST).hostType(DeviceKind.LINUX).build()
 			)
 			.build();
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 		doReturn(telemetryManager.getHostProperties()).when(telemetryManagerMock).getHostProperties();
 
 		final CriterionTestResult criterionTestResult = criterionProcessor.process(processCriterion);
@@ -510,7 +493,6 @@ class CriterionProcessorTest {
 			)
 			.hostProperties(HostProperties.builder().isLocalhost(true).build())
 			.build();
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 		doReturn(telemetryManager.getHostProperties()).when(telemetryManagerMock).getHostProperties();
 
 		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class)) {
@@ -537,7 +519,7 @@ class CriterionProcessorTest {
 			)
 			.hostProperties(HostProperties.builder().isLocalhost(true).build())
 			.build();
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(telemetryManager.getHostname()).when(telemetryManagerMock).getHostname();
 		doReturn(telemetryManager.getHostProperties()).when(telemetryManagerMock).getHostProperties();
 
 		try (
@@ -572,7 +554,7 @@ class CriterionProcessorTest {
 			)
 			.hostProperties(HostProperties.builder().isLocalhost(true).build())
 			.build();
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(telemetryManager.getHostname()).when(telemetryManagerMock).getHostname();
 		doReturn(telemetryManager.getHostProperties()).when(telemetryManagerMock).getHostProperties();
 
 		try (
@@ -607,7 +589,7 @@ class CriterionProcessorTest {
 			)
 			.hostProperties(HostProperties.builder().isLocalhost(true).build())
 			.build();
-		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
+		doReturn(telemetryManager.getHostname()).when(telemetryManagerMock).getHostname();
 		doReturn(telemetryManager.getHostProperties()).when(telemetryManagerMock).getHostProperties();
 
 		try (final MockedStatic<LocalOsHandler> mockedLocalOSHandler = mockStatic(LocalOsHandler.class)) {

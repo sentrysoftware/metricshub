@@ -99,12 +99,20 @@ public class Connector implements Serializable {
 	private Set<String> sudoCommands = new HashSet<>();
 
 	/**
-	 * Map of pre-sources, where each key is the name of the pre-source and the value is its definition.
+	 * Map of beforeAll sources, where each key is the name of the beforeAll source and the value is its definition.
 	 */
 	@Default
 	@JsonDeserialize(using = SourcesDeserializer.class)
 	@JsonSetter(nulls = SKIP)
-	private Map<String, Source> pre = new HashMap<>();
+	private Map<String, Source> beforeAll = new HashMap<>();
+
+	/**
+	 * Map of afterAll sources, where each key is the name of the afterAll source and the value is its definition.
+	 */
+	@Default
+	@JsonDeserialize(using = SourcesDeserializer.class)
+	@JsonSetter(nulls = SKIP)
+	private Map<String, Source> afterAll = new HashMap<>();
 
 	/**
 	 * Map of monitor jobs, where each key is the name of the monitor job and the value is its definition.
@@ -126,10 +134,16 @@ public class Connector implements Serializable {
 	private Set<Class<? extends Source>> sourceTypes = new HashSet<>();
 
 	/**
-	 * List of source dependencies specified as sets of source names.
+	 * List of beforeAll source dependencies specified as sets of source names.
 	 */
 	@Default
-	private List<Set<String>> preSourceDep = new ArrayList<>();
+	private List<Set<String>> beforeAllSourceDep = new ArrayList<>();
+
+	/**
+	 * List of afterAll source dependencies specified as sets of source names.
+	 */
+	@Default
+	private List<Set<String>> afterAllSourceDep = new ArrayList<>();
 
 	/**
 	 * Mapping of embedded files where each embedded file is associated with a unique identifier.

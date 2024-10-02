@@ -8,13 +8,20 @@ connector:
   detection:
     connectionTypes:
     - remote
-    - local
+    - ${var::local-variable}
     appliesTo:
     - NT
     - Linux
     criteria:
     - type: ${var::snmp-get-next}
-      oid: 1.3.6.1.4.1.795.10.1.1.3.1.1
+      oid: ${var::oid}
+  variables:
+    oid:
+      description: ${var::oid-description}
+      defaultValue: 1.3.6.1.4.1.795.10.1.1.3.1.1
+    snmp-get-next:
+      description: the detection SNMP operation, for the sake of testing, it is different from the user's specified value in the test. The purpose is to ensure that the user's values are more of a priority than the default values.
+      defaultValue: wrongSnmpGetNextValue
 monitors:
   disk_controller:
     discovery:

@@ -30,7 +30,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
  * Observer for UpDownCounter state metrics.
  * Extends {@link AbstractStateMetricObserver}.
  */
-public class UpDownCounterStateMetricObserver extends AbstractStateMetricObserver {
+public class UpDownCounterStateMetricObserver extends AbstractNotCompressedStateMetricObserver {
 
 	/**
 	 * Constructs a new {@code UpDownCounterStateMetricObserver} with the specified parameters.

@@ -3,7 +3,6 @@ package org.sentrysoftware.metricshub.extension.snmpv3;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -11,7 +10,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 
 import com.fasterxml.jackson.databind.node.IntNode;
@@ -20,6 +18,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -34,13 +33,9 @@ import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetNextCriterion;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
-import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
-import org.sentrysoftware.metricshub.extension.snmp.source.SnmpTableSourceProcessor;
 import org.sentrysoftware.metricshub.extension.snmpv3.SnmpV3Configuration.AuthType;
 import org.sentrysoftware.metricshub.extension.snmpv3.SnmpV3Configuration.Privacy;
 
@@ -75,7 +70,6 @@ class SnmpV3ExtensionTest {
 
 		final SnmpV3Configuration snmpV3Configuration = SnmpV3Configuration
 			.builder()
-			.community("public".toCharArray())
 			.port(161)
 			.timeout(120L)
 			.username("username")
@@ -491,15 +485,12 @@ class SnmpV3ExtensionTest {
 		// Mock SNMP protocol health check response
 		doReturn("success")
 			.when(snmpv3RequestExecutorMock)
-			.executeSNMPGetNext(eq(SnmpV3Extension.SNMPV3_OID), any(SnmpV3Configuration.class), anyString(), anyBoolean());
+			.executeSNMPGetNext(eq(SnmpV3Extension.SNMP_OID), any(SnmpV3Configuration.class), anyString(), anyBoolean());
 
 		// Start the SNMP protocol check
-		snmpV3Extension.checkProtocol(telemetryManager);
+		Optional<Boolean> result = snmpV3Extension.checkProtocol(telemetryManager);
 
-		assertEquals(
-			SnmpV3Extension.UP,
-			telemetryManager.getEndpointHostMonitor().getMetric(SnmpV3Extension.SNMPV3_UP_METRIC).getValue()
-		);
+		assertTrue(result.get());
 	}
 
 	@Test
@@ -510,15 +501,12 @@ class SnmpV3ExtensionTest {
 		// Mock SNMP protocol health check response
 		doReturn(null)
 			.when(snmpv3RequestExecutorMock)
-			.executeSNMPGetNext(eq(SnmpV3Extension.SNMPV3_OID), any(SnmpV3Configuration.class), anyString(), anyBoolean());
+			.executeSNMPGetNext(eq(SnmpV3Extension.SNMP_OID), any(SnmpV3Configuration.class), anyString(), anyBoolean());
 
 		// Start the SNMP protocol check
-		snmpV3Extension.checkProtocol(telemetryManager);
+		Optional<Boolean> result = snmpV3Extension.checkProtocol(telemetryManager);
 
-		assertEquals(
-			SnmpV3Extension.DOWN,
-			telemetryManager.getEndpointHostMonitor().getMetric(SnmpV3Extension.SNMPV3_UP_METRIC).getValue()
-		);
+		assertFalse(result.get());
 	}
 
 	@Test
@@ -529,6 +517,19 @@ class SnmpV3ExtensionTest {
 				new IConfiguration() {
 					@Override
 					public void validateConfiguration(String resourceKey) throws InvalidConfigurationException {}
+
+					@Override
+					public String getHostname() {
+						return null;
+					}
+
+					@Override
+					public void setHostname(String hostname) {}
+
+					@Override
+					public IConfiguration copy() {
+						return null;
+					}
 				}
 			)
 		);
@@ -567,7 +568,6 @@ class SnmpV3ExtensionTest {
 		assertEquals(
 			SnmpV3Configuration
 				.builder()
-				.community("public".toCharArray())
 				.password("passwordTest".toCharArray())
 				.privacyPassword("privacyPasswordTest".toCharArray())
 				.port(161)
@@ -579,7 +579,6 @@ class SnmpV3ExtensionTest {
 		assertEquals(
 			SnmpV3Configuration
 				.builder()
-				.community("public".toCharArray())
 				.password("passwordTest".toCharArray())
 				.privacyPassword("privacyPasswordTest".toCharArray())
 				.port(161)

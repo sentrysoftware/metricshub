@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
@@ -49,8 +50,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
-import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
-import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.extension.win.IWinConfiguration;
 import org.sentrysoftware.metricshub.extension.win.WinCommandService;
@@ -72,21 +71,6 @@ import org.sentrysoftware.metricshub.extension.win.source.WmiSourceProcessor;
 public class WmiExtension implements IProtocolExtension {
 
 	/**
-	 * Protocol up status value '1.0'
-	 */
-	public static final Double UP = 1.0;
-
-	/**
-	 * Protocol down status value '0.0'
-	 */
-	public static final Double DOWN = 0.0;
-
-	/**
-	 * Up metric name format that will be saved by the metric factory
-	 */
-	public static final String WMI_UP_METRIC = "metricshub.host.up{protocol=\"wmi\"}";
-
-	/**
 	 * WMI namespace
 	 */
 	public static final String WMI_TEST_NAMESPACE = "root\\cimv2";
@@ -95,6 +79,11 @@ public class WmiExtension implements IProtocolExtension {
 	 * WMI Query used by the protocol health check
 	 */
 	public static final String WMI_TEST_QUERY = "SELECT Name FROM Win32_ComputerSystem";
+
+	/**
+	 * The identifier for the Wmi protocol.
+	 */
+	private static final String IDENTIFIER = "wmi";
 
 	private WmiRequestExecutor wmiRequestExecutor;
 	private WmiDetectionService wmiDetectionService;
@@ -130,12 +119,9 @@ public class WmiExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public void checkProtocol(TelemetryManager telemetryManager) {
+	public Optional<Boolean> checkProtocol(TelemetryManager telemetryManager) {
 		// Create and set the WMI result to null
 		List<List<String>> wmiResult = null;
-
-		// Retrieve the hostname
-		final String hostname = telemetryManager.getHostname();
 
 		// Retrieve WMI Configuration from the telemetry manager host configuration
 		final WmiConfiguration wmiConfiguration = (WmiConfiguration) telemetryManager
@@ -143,33 +129,26 @@ public class WmiExtension implements IProtocolExtension {
 			.getConfigurations()
 			.get(WmiConfiguration.class);
 
-		// Retrieve the host endpoint monitor
-		final Monitor hostMonitor = telemetryManager.getEndpointHostMonitor();
-
 		// Stop the health check if there is not an WMI configuration
 		if (wmiConfiguration == null) {
-			return;
+			return Optional.empty();
 		}
 
+		// Retrieve the hostname from the WmiConfiguration, otherwise from the telemetryManager
+		final String hostname = telemetryManager.getHostname(List.of(WmiConfiguration.class));
+
+		log.info("Hostname {} - Performing {} protocol health check.", hostname, getIdentifier());
 		log.info(
 			"Hostname {} - Checking WMI protocol status. Sending a WQL SELECT request on {} namespace.",
 			hostname,
 			WMI_TEST_NAMESPACE
 		);
 
-		// Create the MetricFactory in order to collect the up metric
-		final MetricFactory metricFactory = new MetricFactory();
-
-		// Get the strategy time which represents the collect time of the up metric
-		final Long strategyTime = telemetryManager.getStrategyTime();
-
 		try {
 			wmiResult = wmiRequestExecutor.executeWmi(hostname, wmiConfiguration, WMI_TEST_QUERY, WMI_TEST_NAMESPACE);
 		} catch (Exception e) {
 			if (wmiRequestExecutor.isAcceptableException(e)) {
-				// Generate a metric from the WMI result
-				metricFactory.collectNumberMetric(hostMonitor, WMI_UP_METRIC, UP, strategyTime);
-				return;
+				return Optional.of(true);
 			}
 			log.debug(
 				"Hostname {} - Checking WMI protocol status. WMI exception when performing a WQL SELECT request on {} namespace: ",
@@ -178,9 +157,7 @@ public class WmiExtension implements IProtocolExtension {
 				e
 			);
 		}
-
-		// Generate a metric from the WMI result
-		metricFactory.collectNumberMetric(hostMonitor, WMI_UP_METRIC, wmiResult != null ? UP : DOWN, strategyTime);
+		return Optional.of(wmiResult != null);
 	}
 
 	@Override
@@ -245,7 +222,7 @@ public class WmiExtension implements IProtocolExtension {
 
 	@Override
 	public boolean isSupportedConfigurationType(String configurationType) {
-		return "wmi".equalsIgnoreCase(configurationType);
+		return IDENTIFIER.equalsIgnoreCase(configurationType);
 	}
 
 	@Override
@@ -292,5 +269,10 @@ public class WmiExtension implements IProtocolExtension {
 			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 			.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false)
 			.build();
+	}
+
+	@Override
+	public String getIdentifier() {
+		return IDENTIFIER;
 	}
 }

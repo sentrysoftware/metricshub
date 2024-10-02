@@ -26,6 +26,7 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.STATE_SET_METRIC_FAILED;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.STATE_SET_METRIC_OK;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -140,7 +141,7 @@ public abstract class AbstractStrategy implements IStrategy {
 
 			// Execute the source and retry the operation
 			// in case the source fails but the previous source table didn't fail
-			final SourceTable sourceTable = RetryOperation
+			SourceTable sourceTable = RetryOperation
 				.<SourceTable>builder()
 				.withDefaultValue(SourceTable.empty())
 				.withMaxRetries(1)
@@ -150,15 +151,18 @@ public abstract class AbstractStrategy implements IStrategy {
 				.build()
 				.run(() -> runSource(connectorId, attributes, source, previousSourceTable));
 
-			if (sourceTable == null) {
+			final boolean isNullSourceTable = sourceTable == null;
+			if (isNullSourceTable || sourceTable.isEmpty()) {
 				log.warn(
-					"Hostname {} - Received null source table for Source key {} - Connector {} - Monitor {}.",
+					"Hostname {} - Received {} source table for Source key {} - Connector {} - Monitor {}. The source table is set to empty.",
 					hostname,
+					isNullSourceTable ? "null" : "empty",
 					sourceKey,
 					connectorId,
 					monitorType
 				);
-				continue;
+				// This ensures that the internal table (List<List<String>>) is not null and rawData integrity is maintained
+				sourceTable = SourceTable.builder().rawData(sourceTable.getRawData()).table(new ArrayList<>()).build();
 			}
 
 			// log the source table

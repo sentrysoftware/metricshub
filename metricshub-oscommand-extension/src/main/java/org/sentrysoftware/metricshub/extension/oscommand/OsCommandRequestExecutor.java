@@ -26,8 +26,8 @@ import static org.springframework.util.Assert.isTrue;
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -57,6 +57,7 @@ public class OsCommandRequestExecutor {
 	 * @param keyFilePath      The path to the SSH key file.
 	 * @param command          The SSH command to execute.
 	 * @param timeout          The timeout for the command execution in seconds.
+	 * @param port             The SSH port number.
 	 * @param localFiles       List of local files to be transferred to the remote host.
 	 * @param noPasswordCommand The command to execute without password.
 	 * @return The result of the SSH command.
@@ -70,6 +71,7 @@ public class OsCommandRequestExecutor {
 		@SpanAttribute("ssh.key_file_path") final File keyFilePath,
 		final String command,
 		@SpanAttribute("ssh.timeout") final long timeout,
+		@SpanAttribute("ssh.port") final Integer port,
 		@SpanAttribute("ssh.local_files") final List<File> localFiles,
 		@SpanAttribute("ssh.command") final String noPasswordCommand
 	) throws ClientException {
@@ -82,6 +84,7 @@ public class OsCommandRequestExecutor {
 				keyFilePath,
 				command,
 				timeout,
+				port,
 				localFiles
 			)
 		);
@@ -96,20 +99,32 @@ public class OsCommandRequestExecutor {
 			? updatedCommand
 			: updateCommandWithLocalList(noPasswordCommand, localFiles);
 
-		// We have a command: execute it
-		try (SshClient sshClient = createSshClientInstance(hostname)) {
-			sshClient.connect((int) timeoutInMilliseconds);
+		// Create the collection that will store the paths of remote files that need to be removed
+		final List<String> remoteFilePaths = new ArrayList<>();
+
+		SshClient sshClient = null;
+		try {
+			// Create an SSH client instance
+			sshClient = createSshClientInstance(hostname);
+
+			// Connect to the SSH server
+			sshClient.connect((int) timeoutInMilliseconds, port);
 
 			if (password == null) {
 				log.warn("Hostname {} - Password could not be read. Using an empty password instead.", hostname);
 			}
 
+			// Authenticate the SSH client
 			authenticateSsh(sshClient, hostname, username, password, keyFilePath);
 
 			if (localFiles != null && !localFiles.isEmpty()) {
 				// copy all local files using SCP
 				for (final File file : localFiles) {
-					sshClient.scp(file.getAbsolutePath(), file.getName(), SSH_REMOTE_DIRECTORY, SSH_FILE_MODE);
+					final String filename = file.getName();
+					sshClient.scp(file.getAbsolutePath(), filename, SSH_REMOTE_DIRECTORY, SSH_FILE_MODE);
+
+					// Add the remote file path to the list
+					remoteFilePaths.add(SSH_REMOTE_DIRECTORY + filename);
 				}
 			}
 
@@ -154,13 +169,74 @@ public class OsCommandRequestExecutor {
 			throw e;
 		} catch (final Exception e) {
 			final String message = String.format(
-				"Failed to run SSH command \"%s\" as %s on %s.",
+				"Failed to run SSH command '%s' as %s on %s.",
 				noPasswordUpdatedCommand,
 				username,
 				hostname
 			);
-			log.error("Hostname {} - {}. Exception : {}.", hostname, message, e.getMessage());
+			log.error("Hostname {} - {}. Exception message: {}.", hostname, message, e.getMessage());
 			throw new ClientException(message, (Exception) e.getCause());
+		} finally {
+			release(sshClient, remoteFilePaths, hostname, username);
+		}
+	}
+
+	/**
+	 * Removes all remote files that were copied to the remote host
+	 * and disconnects the SSH client.
+	 *
+	 * @param sshClient       The SSH client to close before removing the copied files.
+	 * @param remoteFilePaths The paths of remote files to be removed.
+	 * @param hostname        The hostname or IP address used for logging.
+	 * @param username        The username used for logging.
+	 */
+	private static void release(
+		final SshClient sshClient,
+		final List<String> remoteFilePaths,
+		final String hostname,
+		final String username
+	) {
+		if (sshClient != null) {
+			removeCopiedRemoteFiles(sshClient, remoteFilePaths, hostname, username);
+
+			log.debug("Hostname {} - Disconnecting SSH client.", hostname);
+			sshClient.close();
+		}
+	}
+
+	/**
+	 * Removes all remote files that were copied to the remote host.
+	 *
+	 * @param sshClient       The SSH client to close before removing the copied files.
+	 * @param remoteFilePaths The paths of remote files to be removed.
+	 * @param hostname        The hostname or IP address used for logging.
+	 * @param username        The username used for logging.
+	 */
+	private static void removeCopiedRemoteFiles(
+		final SshClient sshClient,
+		final List<String> remoteFilePaths,
+		final String hostname,
+		final String username
+	) {
+		if (remoteFilePaths.isEmpty()) {
+			return;
+		}
+
+		// Removes all remote files
+		log.debug("Hostname {} - Removing remote files {}.", hostname, remoteFilePaths);
+		try {
+			// Removes the specified files on the remote system
+			sshClient.removeFile(remoteFilePaths.toArray(new String[remoteFilePaths.size()]));
+		} catch (Exception e) {
+			log.error(
+				"Hostname {} - Failed to remove remote files {} as {} on {}. Exception message: {}.",
+				hostname,
+				remoteFilePaths,
+				username,
+				hostname,
+				e.getMessage()
+			);
+			log.debug("Hostname {} - Exception: ", hostname, e);
 		}
 	}
 
@@ -249,49 +325,5 @@ public class OsCommandRequestExecutor {
 	 */
 	public static SshClient createSshClientInstance(final String hostname) {
 		return new SshClient(hostname, StandardCharsets.UTF_8);
-	}
-
-	/**
-	 * Connect to the SSH terminal. For that:
-	 * <ul>
-	 * 	<li>Create an SSH Client instance.</li>
-	 * 	<li>Connect to SSH.</li>
-	 * 	<li>Open a SSH session.</li>
-	 * 	<li>Open a terminal.</li>
-	 * </ul>
-	 *
-	 * @param hostname   The hostname (mandatory)
-	 * @param username   The username (mandatory)
-	 * @param password   The password
-	 * @param privateKey The private key file
-	 * @param timeout    The timeout (>0) in seconds
-	 * @return The SSH client
-	 * @throws ClientException If a Client error occurred.
-	 */
-	public static SshClient connectSshClientTerminal(
-		@NonNull final String hostname,
-		@NonNull final String username,
-		final char[] password,
-		final File privateKey,
-		final int timeout
-	) throws ClientException {
-		isTrue(timeout > 0, "timeout must be > 0");
-
-		final SshClient sshClient = createSshClientInstance(hostname);
-
-		try {
-			sshClient.connect(timeout * 1000);
-
-			authenticateSsh(sshClient, hostname, username, password, privateKey);
-
-			sshClient.openSession();
-
-			sshClient.openTerminal();
-
-			return sshClient;
-		} catch (final IOException e) {
-			sshClient.close();
-			throw new ClientException(e);
-		}
 	}
 }

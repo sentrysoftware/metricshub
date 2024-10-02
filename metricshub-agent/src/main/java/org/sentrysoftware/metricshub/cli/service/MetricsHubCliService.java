@@ -152,7 +152,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 	SnmpConfigCli snmpConfigCli;
 
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline SNMP V3 Options|@:%n")
-	SnmpV3ConfigCli snmpv3ConfigCli;
+	SnmpV3ConfigCli snmpV3ConfigCli;
 
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline HTTP Options|@:%n")
 	HttpConfigCli httpConfigCli;
@@ -179,6 +179,9 @@ public class MetricsHubCliService implements Callable<Integer> {
 	)
 	char[] password;
 
+	@Option(names = { "-pd", "--patch-directory" }, order = 5, description = "Patch path to the connectors directory")
+	String patchDirectory;
+
 	@Option(
 		names = { "-c", "--connectors" },
 		order = 4,
@@ -186,10 +189,10 @@ public class MetricsHubCliService implements Callable<Integer> {
 		paramLabel = "CONNECTOR",
 		description = "Specifies the setup of connectors to connect to the host.%n" +
 		" To force a connector, precede the connector identifier with a plus sign (+), as in +MIB2%n." +
-		" To exclude a connector from automatic detection, precede the connector identifier with a minus sign (-), like -MIB2.%n" +
+		" To exclude a connector from automatic detection, precede the connector identifier with an exclamation mark (!), like !MIB2.%n" +
 		" To stage a connector for processing by automatic detection, configure the connector identifier, for instance, MIB2.%n" +
 		" To stage a category of connectors for processing by automatic detection, precede the category tag with a hash (#), such as #hardware.%n" +
-		" To exclude a category of connectors from automatic detection, precede the category tag to be excluded with a minus and a hash sign (-#), such as -#system.%n" +
+		" To exclude a category of connectors from automatic detection, precede the category tag to be excluded with an exclamation mark and a hash sign (!#), such as !#system.%n" +
 		" Use @|bold ${ROOT-COMMAND-NAME} -l|@ to get the list of connectors)."
 	)
 	Set<String> connectors;
@@ -232,6 +235,15 @@ public class MetricsHubCliService implements Callable<Integer> {
 	)
 	long sleepIteration;
 
+	@Option(
+		names = { "-m", "--monitors" },
+		order = 10,
+		paramLabel = "MONITOR",
+		split = ",",
+		description = "Comma-separated list of monitor types to filter. %nExamples: +disk,+file_system,!memory"
+	)
+	Set<String> monitorTypes;
+
 	@Override
 	public Integer call() throws Exception {
 		// Check whether iterations is greater than 0. If it's not the case, throw a ParameterException
@@ -240,7 +252,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		// First, process special "list" option
 		if (listConnectors) {
 			return listAllConnectors(
-				ConfigHelper.buildConnectorStore(CliExtensionManager.getExtensionManagerSingleton()),
+				ConfigHelper.buildConnectorStore(CliExtensionManager.getExtensionManagerSingleton(), patchDirectory),
 				spec.commandLine().getOut()
 			);
 		}
@@ -266,12 +278,16 @@ public class MetricsHubCliService implements Callable<Integer> {
 
 		// Set the configurations
 		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = buildConfigurations();
+		// Duplicate the main hostname on each configuration. By design, the extensions retrieve the hostname from the configuration.
+		configurations.values().forEach(configuration -> configuration.setHostname(hostname));
 		hostConfiguration.setConfigurations(configurations);
 
 		// Create the TelemetryManager using the connector store and the host configuration created above.
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
-			.connectorStore(ConfigHelper.buildConnectorStore(CliExtensionManager.getExtensionManagerSingleton()))
+			.connectorStore(
+				ConfigHelper.buildConnectorStore(CliExtensionManager.getExtensionManagerSingleton(), patchDirectory)
+			)
 			.hostConfiguration(hostConfiguration)
 			.build();
 
@@ -422,7 +438,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		}
 
 		// Print the result
-		new PrettyPrinterService(telemetryManager, printWriter).print();
+		new PrettyPrinterService(telemetryManager, printWriter).print(monitorTypes);
 
 		return CommandLine.ExitCode.OK;
 	}
@@ -445,7 +461,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 			.of(
 				ipmiConfigCli,
 				snmpConfigCli,
-				snmpv3ConfigCli,
+				snmpV3ConfigCli,
 				sshConfigCli,
 				httpConfigCli,
 				wmiConfigCli,
@@ -482,7 +498,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 			.of(
 				ipmiConfigCli,
 				snmpConfigCli,
-				snmpv3ConfigCli,
+				snmpV3ConfigCli,
 				sshConfigCli,
 				httpConfigCli,
 				wmiConfigCli,
@@ -554,6 +570,8 @@ public class MetricsHubCliService implements Callable<Integer> {
 		tryInteractiveWbemPassword(passwordReader);
 
 		tryInteractiveWinRmPassword(passwordReader);
+
+		tryInteractiveSnmpV3Password(passwordReader);
 	}
 
 	/**
@@ -630,6 +648,17 @@ public class MetricsHubCliService implements Callable<Integer> {
 	void tryInteractiveWinRmPassword(final CliPasswordReader<char[]> passwordReader) {
 		if (winRmConfigCli != null && winRmConfigCli.getUsername() != null && winRmConfigCli.getPassword() == null) {
 			winRmConfigCli.setPassword(passwordReader.read("%s password for WinRM: ", winRmConfigCli.getUsername()));
+		}
+	}
+
+	/**
+	 * Try to start the interactive mode to request and set SNMP V3 password
+	 *
+	 * @param passwordReader password reader which displays the prompt text and wait for user's input
+	 */
+	void tryInteractiveSnmpV3Password(final CliPasswordReader<char[]> passwordReader) {
+		if (snmpV3ConfigCli != null && snmpV3ConfigCli.getUsername() != null && snmpV3ConfigCli.getPassword() == null) {
+			snmpV3ConfigCli.setPassword(passwordReader.read("%s password for SNMP V3: ", snmpV3ConfigCli.getUsername()));
 		}
 	}
 

@@ -28,7 +28,7 @@ class CommandLineSourceDeserializerTest extends DeserializerTest {
 			"oscommand1",
 			CommandLineSource
 				.builder()
-				.key("${source::pre.oscommand1}")
+				.key("${source::beforeAll.oscommand1}")
 				.type("osCommand")
 				.timeout((long) 30)
 				.exclude("excludeRegExp")
@@ -44,6 +44,6 @@ class CommandLineSourceDeserializerTest extends DeserializerTest {
 				.build()
 		);
 
-		assertEquals(expected, connector.getPre());
+		assertEquals(expected, connector.getBeforeAll());
 	}
 }

@@ -24,11 +24,12 @@ package org.sentrysoftware.metricshub.engine.strategy.collect;
 import java.util.List;
 import lombok.Builder;
 import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
+import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
+import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
@@ -42,7 +43,6 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
  * responding or not.
  * </p>
  */
-@Slf4j
 public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 
 	/**
@@ -78,14 +78,38 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 
 	@Override
 	public void run() {
-		// Retrieve the hostname
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		log.info("Hostname {} - Performing protocol health check.", hostname);
-
 		// Call the extensions to check the protocol health
 		final List<IProtocolExtension> protocolExtensions = extensionManager.findProtocolCheckExtensions(telemetryManager);
-		protocolExtensions.forEach(protocolExtension -> protocolExtension.checkProtocol(telemetryManager));
+
+		// CHECKSTYLE:OFF
+		protocolExtensions.forEach(protocolExtension -> {
+			// Record the start time before launching protocol checks
+			final long startTime = System.currentTimeMillis();
+			protocolExtension
+				.checkProtocol(telemetryManager)
+				.ifPresent(isUp -> {
+					// Calculate the response time of each protocol check.
+					final Double responseTime = (System.currentTimeMillis() - startTime) / 1000.0;
+					final Monitor endpointHostMonitor = telemetryManager.getEndpointHostMonitor();
+					final Long strategyTime = telemetryManager.getStrategyTime();
+					MetricFactory metricFactory = new MetricFactory();
+					// Collect protocol check metric
+					metricFactory.collectNumberMetric(
+						endpointHostMonitor,
+						"metricshub.host.up{protocol=\"" + protocolExtension.getIdentifier() + "\"}",
+						isUp ? UP : DOWN,
+						strategyTime
+					);
+					// Collect protocol check response time metric
+					metricFactory.collectNumberMetric(
+						endpointHostMonitor,
+						"metricshub.host.up.response_time{protocol=\"" + protocolExtension.getIdentifier() + "\"}",
+						responseTime,
+						strategyTime
+					);
+				});
+		});
+		// CHECKSTYLE:ON
 	}
 
 	@Override

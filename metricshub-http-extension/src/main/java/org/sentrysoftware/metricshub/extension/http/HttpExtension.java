@@ -27,7 +27,9 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 import lombok.extern.slf4j.Slf4j;
@@ -41,8 +43,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
-import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
-import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.extension.http.utils.HttpRequest;
 
@@ -53,6 +53,11 @@ import org.sentrysoftware.metricshub.extension.http.utils.HttpRequest;
 @Slf4j
 public class HttpExtension implements IProtocolExtension {
 
+	/**
+	 * The identifier for the Http protocol.
+	 */
+	private static final String IDENTIFIER = "http";
+
 	private HttpRequestExecutor httpRequestExecutor;
 
 	/**
@@ -61,21 +66,6 @@ public class HttpExtension implements IProtocolExtension {
 	public HttpExtension() {
 		httpRequestExecutor = new HttpRequestExecutor();
 	}
-
-	/**
-	 * Protocol up status value '1.0'
-	 */
-	public static final Double UP = 1.0;
-
-	/**
-	 * Protocol down status value '0.0'
-	 */
-	public static final Double DOWN = 0.0;
-
-	/**
-	 * Up metric name format that will be saved by the metric factory
-	 */
-	public static final String HTTP_UP_METRIC = "metricshub.host.up{protocol=\"http\"}";
 
 	@Override
 	public boolean isValidConfiguration(IConfiguration configuration) {
@@ -98,16 +88,7 @@ public class HttpExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public void checkProtocol(TelemetryManager telemetryManager) {
-		// Retrieve the hostname
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		// Retrieve the host endpoint monitor
-		final Monitor hostMonitor = telemetryManager.getEndpointHostMonitor();
-
-		// Create and set the HTTP result to null
-		String httpResult = null;
-
+	public Optional<Boolean> checkProtocol(TelemetryManager telemetryManager) {
 		// Retrieve HTTP configuration from the telemetry manager
 		final HttpConfiguration httpConfiguration = (HttpConfiguration) telemetryManager
 			.getHostConfiguration()
@@ -116,9 +97,16 @@ public class HttpExtension implements IProtocolExtension {
 
 		// Stop the HTTP health check if there is not an HTTP configuration
 		if (httpConfiguration == null) {
-			return;
+			return Optional.empty();
 		}
 
+		// Retrieve the hostname from the HttpConfiguration, otherwise from the telemetryManager
+		final String hostname = telemetryManager.getHostname(List.of(HttpConfiguration.class));
+
+		// Create and set the HTTP result to null
+		String httpResult = null;
+
+		log.info("Hostname {} - Performing {} protocol health check.", hostname, getIdentifier());
 		log.info("Hostname {} - Checking HTTP protocol status. Sending GET request to '/'.", hostname);
 
 		// Execute HTTP test request
@@ -142,16 +130,7 @@ public class HttpExtension implements IProtocolExtension {
 			);
 		}
 
-		// Generate a metric from the Http result
-		// CHECKSTYLE:OFF
-		new MetricFactory()
-			.collectNumberMetric(
-				hostMonitor,
-				HTTP_UP_METRIC,
-				httpResult != null ? UP : DOWN,
-				telemetryManager.getStrategyTime()
-			);
-		// CHECKSTYLE:ON
+		return Optional.of(httpResult != null);
 	}
 
 	@Override
@@ -188,7 +167,7 @@ public class HttpExtension implements IProtocolExtension {
 
 	@Override
 	public boolean isSupportedConfigurationType(String configurationType) {
-		return "http".equalsIgnoreCase(configurationType);
+		return IDENTIFIER.equalsIgnoreCase(configurationType);
 	}
 
 	@Override
@@ -232,5 +211,10 @@ public class HttpExtension implements IProtocolExtension {
 			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 			.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false)
 			.build();
+	}
+
+	@Override
+	public String getIdentifier() {
+		return IDENTIFIER;
 	}
 }

@@ -1,0 +1,27 @@
+connector:
+  detection:
+    appliesTo: [ Linux ]
+
+beforeAll:
+  testSqlSource:
+    type: sql
+    tables:
+    - source: "${source::source_one}"
+      alias: "T1"
+      columns:
+      - name: "COL1"
+        number: 1
+        type: "VARCHAR(255)"
+      - name: "COL2"
+        number: 3
+        type: "BOOLEAN"
+    - source: "${source::source_two}"
+      alias: "T2"
+      columns:
+      - name: "COL1"
+        number: 2
+        type: "VARCHAR(255)"
+      - name: "COL2"
+        number: 4
+        type: "BOOLEAN"
+    query: "SELECT T1.COL1, T1.COL2, T2.COL1, T2.COL2 FROM T1 JOIN T2 ON T1.COL1 = T2.COL1;"

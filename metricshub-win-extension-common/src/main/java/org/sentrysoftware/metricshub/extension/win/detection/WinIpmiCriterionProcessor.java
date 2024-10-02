@@ -21,6 +21,7 @@ package org.sentrysoftware.metricshub.extension.win.detection;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.List;
 import java.util.function.Function;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -70,6 +71,10 @@ public class WinIpmiCriterionProcessor {
 			.namespace("root\\hardware")
 			.build();
 
-		return wmiDetectionService.performDetectionTest(telemetryManager.getHostname(), winConfiguration, ipmiWmiCriterion);
+		return wmiDetectionService.performDetectionTest(
+			telemetryManager.getHostname(List.of(winConfiguration.getClass())),
+			winConfiguration,
+			ipmiWmiCriterion
+		);
 	}
 }

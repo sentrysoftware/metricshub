@@ -27,7 +27,6 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -45,16 +44,20 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CopySource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.JawkSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpGetSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SqlSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.StaticSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.TableJoinSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.TableUnionSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WbemSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WmiSource;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
+import org.sentrysoftware.metricshub.engine.extension.ICompositeSourceScriptExtension;
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
+import org.sentrysoftware.metricshub.engine.extension.ISourceComputationExtension;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
@@ -76,7 +79,7 @@ public class SourceProcessor implements ISourceProcessor {
 	@WithSpan("Source Copy Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final CopySource copySource) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final String hostname = telemetryManager.getHostname();
 
 		if (copySource == null) {
 			log.error(
@@ -148,10 +151,45 @@ public class SourceProcessor implements ISourceProcessor {
 			.orElseGet(SourceTable::empty);
 	}
 
+	/**
+	 * Processes a given {@link Source} by using an appropriate {@link ISourceComputationExtension} found through
+	 * an {@link ExtensionManager}. This method delegates the processing of the source to the extension
+	 * if available, or returns an empty {@link SourceTable} if no suitable extension is found.
+	 *
+	 * @param source The source data to be processed.
+	 * @return A {@link SourceTable} containing the results from processing the source through the extension,
+	 *         or an empty table if no extension can process the source.
+	 */
+	private SourceTable processSourceComputationThroughExtension(final Source source) {
+		final Optional<ISourceComputationExtension> maybeExtension = extensionManager.findSourceComputationExtension(
+			source
+		);
+		return maybeExtension
+			.map(extension -> extension.processSource(source, connectorId, telemetryManager))
+			.orElseGet(SourceTable::empty);
+	}
+
+	/**
+	 * Processes a given {@link Source} by using an appropriate {@link ICompositeSourceScriptExtension} found through
+	 * an {@link ExtensionManager}. This method delegates the processing of the source to the extension
+	 * if available, or returns an empty {@link SourceTable} if no suitable extension is found.
+	 *
+	 * @param source The source data to be processed.
+	 * @return A {@link SourceTable} containing the results from processing the source through the extension,
+	 *         or an empty table if no extension can process the source.
+	 */
+	private SourceTable processCompositeSourceScriptThroughExtension(final Source source) {
+		final Optional<ICompositeSourceScriptExtension> maybeExtension =
+			extensionManager.findCompositeSourceScriptExtension(source);
+		return maybeExtension
+			.map(extension -> extension.processSource(source, connectorId, telemetryManager, this))
+			.orElseGet(SourceTable::empty);
+	}
+
 	@WithSpan("Source IPMI Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final IpmiSource ipmiSource) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final String hostname = telemetryManager.getHostname();
 
 		if (ipmiSource == null) {
 			log.error("Hostname {} - IPMI Source cannot be null, the IPMI operation will return an empty result.", hostname);
@@ -199,7 +237,7 @@ public class SourceProcessor implements ISourceProcessor {
 	@WithSpan("Source Static Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final StaticSource staticSource) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final String hostname = telemetryManager.getHostname();
 
 		if (staticSource == null) {
 			log.error(
@@ -258,7 +296,7 @@ public class SourceProcessor implements ISourceProcessor {
 	@WithSpan("Source TableJoin Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final TableJoinSource tableJoinSource) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final String hostname = telemetryManager.getHostname();
 
 		if (tableJoinSource == null) {
 			log.error(
@@ -335,14 +373,12 @@ public class SourceProcessor implements ISourceProcessor {
 			hostname
 		);
 
-		String defaultRightLine = tableJoinSource.getDefaultRightLine();
-
 		final List<List<String>> executeTableJoin = clientsExecutor.executeTableJoin(
 			leftTable.getTable(),
 			rightTable.getTable(),
 			tableJoinSource.getLeftKeyColumn(),
 			tableJoinSource.getRightKeyColumn(),
-			defaultRightLine != null ? Arrays.asList(defaultRightLine.split(";")) : null,
+			SourceTable.lineToList(tableJoinSource.getDefaultRightLine(), SEMICOLON),
 			"wbem".equalsIgnoreCase(tableJoinSource.getKeyType()),
 			true
 		);
@@ -390,7 +426,7 @@ public class SourceProcessor implements ISourceProcessor {
 	@WithSpan("Source TableUnion Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final TableUnionSource tableUnionSource) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final String hostname = telemetryManager.getHostname();
 
 		if (tableUnionSource == null) {
 			log.warn(
@@ -515,5 +551,17 @@ public class SourceProcessor implements ISourceProcessor {
 			sourceTable.getRawData(),
 			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable())
 		);
+	}
+
+	@WithSpan("Source SqlSource Exec")
+	@Override
+	public SourceTable process(@SpanAttribute("source.definition") final SqlSource sqlSource) {
+		return processSourceComputationThroughExtension(sqlSource);
+	}
+
+	@WithSpan("Source JawkSource Exec")
+	@Override
+	public SourceTable process(@SpanAttribute("source.definition") final JawkSource jawkSource) {
+		return processCompositeSourceScriptThroughExtension(jawkSource);
 	}
 }

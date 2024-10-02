@@ -21,13 +21,21 @@ package org.sentrysoftware.metricshub.hardware.util;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_VM_POWER_SHARE_METRIC;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_VM_POWER_STATE_METRIC;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.PRESENT_STATUS;
 
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.sentrysoftware.metricshub.engine.connector.model.Connector;
+import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.ConnectorIdentity;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.Detection;
 import org.sentrysoftware.metricshub.engine.strategy.utils.CollectHelper;
 import org.sentrysoftware.metricshub.engine.strategy.utils.MathOperationsHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
@@ -76,7 +84,7 @@ public class HwCollectHelper {
 		final String energyMetricName,
 		final Long collectTime
 	) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final String hostname = telemetryManager.getHostname();
 
 		final Double collectTimePrevious = CollectHelper.getNumberMetricCollectTime(monitor, powerMetricName, true);
 
@@ -122,14 +130,14 @@ public class HwCollectHelper {
 	}
 
 	/**
-	 * Calculate a rate for the given metric between the current collect and the previous collect
+	 * Calculate a rate per second for the given metric between the current collect and the previous collect
 	 * @param monitor           The monitor from which to retrieve the metric value
 	 * @param counterMetricName The name of the counter metric we want to calculate the rate from
 	 * @param rateMetricName    The name of the rate metric we are caculating
 	 * @param hostname          The hostname
 	 * @return the calculated rate
 	 */
-	public static Double calculateMetricRate(
+	public static Double calculateMetricRatePerSecond(
 		final Monitor monitor,
 		final String counterMetricName,
 		final String rateMetricName,
@@ -140,7 +148,12 @@ public class HwCollectHelper {
 		final Double collectTime = CollectHelper.getNumberMetricCollectTime(monitor, counterMetricName, false);
 		final Double previousCollectTime = CollectHelper.getNumberMetricCollectTime(monitor, counterMetricName, true);
 
-		return MathOperationsHelper.rate(rateMetricName, value, previousValue, collectTime, previousCollectTime, hostname);
+		return Optional
+			.ofNullable(
+				MathOperationsHelper.rate(rateMetricName, value, previousValue, collectTime, previousCollectTime, hostname)
+			)
+			.map(rate -> rate * 1000.0) // Convert rate from per millisecond to per second
+			.orElse(null);
 	}
 
 	/**
@@ -217,5 +230,57 @@ public class HwCollectHelper {
 		final Double present = presentMetric != null ? presentMetric.getValue() : null;
 
 		return Double.valueOf(0).equals(present);
+	}
+
+	/**
+	 * Checks if the connector associated with the provided monitor has a "hardware" tag.
+	 *
+	 * @param monitor the monitor containing the connector ID attribute
+	 * @param telemetryManager the telemetry manager containing the connector store
+	 * @return true if the connector has a "hardware" tag, false otherwise
+	 */
+	public static boolean connectorHasHardwareTag(final Monitor monitor, final TelemetryManager telemetryManager) {
+		if (monitor == null) {
+			return false;
+		}
+		final ConnectorStore telemetryManagerConnectorStore = telemetryManager.getConnectorStore();
+		if (telemetryManagerConnectorStore == null) {
+			log.error("Hostname {} - ConnectorStore does not exist.", telemetryManager.getHostname());
+			return false;
+		}
+
+		final Map<String, Connector> store = telemetryManagerConnectorStore.getStore();
+
+		if (store == null) {
+			log.error("Hostname {} - ConnectorStore store does not exist.", telemetryManager.getHostname());
+			return false;
+		}
+
+		final String connectorId = monitor.getAttribute(MONITOR_ATTRIBUTE_CONNECTOR_ID);
+
+		if (connectorId == null) {
+			log.error(
+				"Hostname {} - Monitor {} connector_id attribute does not exist.",
+				telemetryManager.getHostname(),
+				monitor.getId()
+			);
+			return false;
+		}
+
+		final Connector connector = store.get(connectorId);
+
+		if (connector == null) {
+			log.error(
+				"Hostname {} - Monitor {} connector_id attribute does not correspond to any valid connector id.",
+				telemetryManager.getHostname(),
+				monitor.getId()
+			);
+			return false;
+		}
+
+		final ConnectorIdentity connectorIdentity = connector.getConnectorIdentity();
+		final Detection detection = connectorIdentity != null ? connectorIdentity.getDetection() : null;
+		final Set<String> connectorTags = detection != null ? detection.getTags() : null;
+		return connectorTags != null && connectorTags.stream().anyMatch(tag -> tag.equalsIgnoreCase("hardware"));
 	}
 }

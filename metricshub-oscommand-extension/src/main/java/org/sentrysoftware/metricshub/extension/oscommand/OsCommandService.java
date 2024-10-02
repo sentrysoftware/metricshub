@@ -77,6 +77,8 @@ public class OsCommandService {
 
 	private static final String NEGATIVE_TIMEOUT = "timeout mustn't be negative nor zero.";
 
+	private static final String[] LOCAL_SHELL_COMMAND = buildShellCommand();
+
 	/**
 	 * Run the given command on the localhost machine.
 	 *
@@ -96,9 +98,10 @@ public class OsCommandService {
 	) throws InterruptedException, IOException, TimeoutException {
 		isTrue(timeout > 0, NEGATIVE_TIMEOUT);
 
-		final String cmd = LocalOsHandler.isWindows() ? "CMD.EXE /C " + command : command;
+		final ProcessBuilder builder = createProcessBuilder(command);
 
-		final Process process = Runtime.getRuntime().exec(cmd);
+		final Process process = builder.start();
+
 		if (process == null) {
 			throw new IllegalStateException("Local command Process is null.");
 		}
@@ -145,6 +148,77 @@ public class OsCommandService {
 	}
 
 	/**
+	 * Create a process builder for the given command. The start method of the
+	 * builder should be called to execute the command.
+	 *
+	 * @param command The command to be executed.
+	 * @return The process builder for the given command.
+	 */
+	static ProcessBuilder createProcessBuilder(final String command) {
+		return new ProcessBuilder().command(LOCAL_SHELL_COMMAND[0], LOCAL_SHELL_COMMAND[1], command);
+	}
+
+	/**
+	 * Build the shell to be used for the local command execution based on the operating system.
+	 *
+	 * @return The shell command to be used.
+	 */
+	private static String[] buildShellCommand() {
+		if (LocalOsHandler.isWindows()) {
+			return new String[] { getComSpecEnvVar(), "/C" };
+		} else {
+			return new String[] { getShellEnvVar(), "-c" };
+		}
+	}
+
+	/**
+	 * Get the shell environment variable for Linux/Unix systems.
+	 *
+	 * @return The shell environment variable or /bin/sh if not found.
+	 */
+	private static String getShellEnvVar() {
+		var shell = System.getenv("SHELL");
+		if (shell == null || shell.isBlank()) {
+			// List of common shells to check
+			final String[] commonShells = {
+				"/bin/bash",
+				"/usr/bin/bash",
+				"/bin/sh",
+				"/usr/bin/sh",
+				"/bin/zsh",
+				"/usr/bin/zsh",
+				"/bin/ksh",
+				"/usr/bin/ksh"
+			};
+
+			// Find the first common shell that exists
+			for (String s : commonShells) {
+				if (new File(s).exists()) {
+					shell = s;
+					break;
+				}
+			}
+			// Fallback if no common shell is found
+			if (shell == null || shell.isBlank()) {
+				shell = "/bin/sh"; // Minimal fallback
+			}
+		}
+		return shell;
+	}
+
+	/**
+	 * Get the ComSpec environment variable for Windows systems.
+	 * @return The ComSpec environment variable or cmd.exe if not found.
+	 */
+	private static String getComSpecEnvVar() {
+		var comSpec = System.getenv("ComSpec");
+		if (comSpec == null || comSpec.isBlank()) {
+			comSpec = "cmd.exe";
+		}
+		return comSpec;
+	}
+
+	/**
 	 * Run an SSH command, checking if it can be executed on localhost or remotely.
 	 *
 	 * @param command           The SSH command to be executed.
@@ -178,6 +252,7 @@ public class OsCommandService {
 							sshConfiguration.getPrivateKey() == null ? null : new File(sshConfiguration.getPrivateKey()),
 							command,
 							timeout,
+							sshConfiguration.getPort(),
 							localFiles,
 							noPasswordCommand
 						);
@@ -235,14 +310,14 @@ public class OsCommandService {
 	 *
 	 * @param commandTimeout         The OS command timeout in seconds.
 	 * @param osCommandConfiguration The configuration specific to OS command execution.
-	 * @param configuration          The general {@link SshConfiguration} configuration.
+	 * @param sshConfiguration          The general {@link SshConfiguration} configuration.
 	 * @param defaultTimeout         The default timeout in seconds.
 	 * @return The timeout in seconds.
 	 */
 	public static long getTimeout(
 		final Long commandTimeout,
 		final OsCommandConfiguration osCommandConfiguration,
-		final IConfiguration configuration,
+		final IConfiguration sshConfiguration,
 		final long defaultTimeout
 	) {
 		if (commandTimeout != null) {
@@ -253,11 +328,11 @@ public class OsCommandService {
 			return osCommandConfiguration.getTimeout().intValue();
 		}
 
-		if (configuration == null) {
+		if (sshConfiguration == null) {
 			return defaultTimeout;
 		}
 
-		final Long timeout = ((SshConfiguration) configuration).getTimeout();
+		final Long timeout = ((SshConfiguration) sshConfiguration).getTimeout();
 
 		return timeout != null ? timeout : defaultTimeout;
 	}
@@ -326,20 +401,19 @@ public class OsCommandService {
 		@NonNull final Map<Integer, EmbeddedFile> connectorEmbeddedFiles
 	)
 		throws IOException, ClientException, InterruptedException, TimeoutException, NoCredentialProvidedException, ControlledSshException {
-		final IConfiguration configuration;
+		final IConfiguration sshConfiguration = telemetryManager
+			.getHostConfiguration()
+			.getConfigurations()
+			.get(SshConfiguration.class);
 
-		configuration = telemetryManager.getHostConfiguration().getConfigurations().get(SshConfiguration.class);
-
-		final Optional<String> maybeUsername = getUsername(configuration);
+		final Optional<String> maybeUsername = getUsername(sshConfiguration);
 
 		// If remote command and no username
 		if ((maybeUsername.isEmpty() || maybeUsername.get().isBlank()) && !isExecuteLocally && !isLocalhost) {
 			throw new NoCredentialProvidedException();
 		}
 
-		final Optional<char[]> maybePassword = getPassword(configuration);
-
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final Optional<char[]> maybePassword = getPassword(sshConfiguration);
 
 		final OsCommandConfiguration osCommandConfiguration = (OsCommandConfiguration) telemetryManager
 			.getHostConfiguration()
@@ -366,6 +440,9 @@ public class OsCommandService {
 		final String updatedUserCommand = maybeUsername
 			.map(username -> commandLine.replaceAll(toCaseInsensitiveRegex(USERNAME_MACRO), username))
 			.orElse(commandLine);
+
+		// Retrieve the hostname from the configurations, otherwise from the telemetryManager.
+		final String hostname = telemetryManager.getHostname(List.of(SshConfiguration.class, OsCommandConfiguration.class));
 
 		final String updatedHostnameCommand = updatedUserCommand.replaceAll(
 			toCaseInsensitiveRegex(HOSTNAME_MACRO),
@@ -401,7 +478,7 @@ public class OsCommandService {
 			final long timeout = getTimeout(
 				commandTimeout,
 				osCommandConfiguration,
-				configuration,
+				sshConfiguration,
 				telemetryManager.getHostConfiguration().getStrategyTimeout()
 			);
 
@@ -417,7 +494,7 @@ public class OsCommandService {
 					runSshCommand(
 						command,
 						hostname,
-						(SshConfiguration) configuration,
+						(SshConfiguration) sshConfiguration,
 						timeout,
 						new ArrayList<>(embeddedTempFiles.values()),
 						noPasswordCommand

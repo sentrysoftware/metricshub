@@ -1,4 +1,4 @@
-pre:
+beforeAll:
   testHttpSource:
     type: http
     url: /testUrl/

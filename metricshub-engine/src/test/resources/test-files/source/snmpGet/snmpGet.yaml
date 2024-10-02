@@ -3,7 +3,7 @@ connector:
   detection:
     appliesTo: [ Linux ]
 
-pre:
+beforeAll:
   testSnmpGetSource:
     type: snmpGet
     oid: testOidString

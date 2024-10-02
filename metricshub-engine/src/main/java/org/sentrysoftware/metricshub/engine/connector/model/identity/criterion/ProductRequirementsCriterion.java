@@ -26,8 +26,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
-import org.sentrysoftware.metricshub.engine.strategy.detection.ICriterionProcessor;
 
 /**
  * Represents a detection criterion based on product requirements, including engine and Knowledge Module (KM) versions.
@@ -63,10 +61,5 @@ public class ProductRequirementsCriterion extends Criterion {
 		super(type, forceSerialization);
 		this.engineVersion = engineVersion;
 		this.kmVersion = kmVersion;
-	}
-
-	@Override
-	public CriterionTestResult accept(ICriterionProcessor criterionProcessor) {
-		return criterionProcessor.process(this);
 	}
 }

@@ -43,6 +43,8 @@ public class OsCommandTestConfiguration implements IConfiguration {
 
 	private boolean useSudo;
 
+	private String hostname;
+
 	@Default
 	private Set<String> useSudoCommands = new HashSet<>();
 
@@ -72,5 +74,10 @@ public class OsCommandTestConfiguration implements IConfiguration {
 	@Override
 	public String toString() {
 		return "Local Commands";
+	}
+
+	@Override
+	public IConfiguration copy() {
+		return null;
 	}
 }

@@ -1,0 +1,61 @@
+---
+connector:
+  detection:
+    appliesTo: [ linux ]
+    criteria:
+    - type: wmi
+      query: testQuery
+      namespace: testNamespace
+      expectedResult: testExpectedResult
+      errorMessage: testErrorMessage
+      forceSerialization: true
+
+beforeAll:
+  source(1):
+    type: wmi
+    query: SELECT EMCSerialNumber FROM Win32_SystemChassis
+    namespace: root/emc
+  source(2):
+    type: wmi
+    query: SELECT __PATH,ElementName,Description,OtherIdentifyingInfo,OperationalStatus FROM Win32_StorageSystem WHERE ElementName IS $entry.column(1)
+    namespace: root/emc
+    executeForEachEntryOf:
+      source: ${source::beforeAll.source(1)}
+      concatMethod: list
+
+monitors:
+  enclosure:
+    discovery:
+      mapping:
+        source: ${source::beforeAll.source(2)}
+        attributes:
+          id: $1
+          parent: ""
+          name: buildName(Storage, EMC, $2, (, $4, ))
+          vendor: EMC
+          model: $2
+          serial_number: $5
+          type: Storage
+        conditionalCollection:
+          hw.status: $5
+    collect:
+      type: multiInstance
+      keys: [ id ]
+      sources:
+        source(1):
+          type: wmi
+          query: SELECT EMCSerialNumber FROM Win32_SystemChassis
+          namespace: root/emc
+        source(2):
+          type: wmi
+          query: SELECT __PATH, OperationalStatus FROM Win32_StorageSystem WHERE ElementName IS $entry.column(1)
+          namespace: root/emc
+          executeForEachEntryOf:
+            source: ${source::monitors.enclosure.collect.sources.source(1)}
+            concatMethod: list
+      mapping:
+        attributes:
+          id: $1 
+        source: ${source::monitors.enclosure.collect.sources.source(2)}
+        metrics:
+          hw.status: $2

@@ -21,6 +21,7 @@ package org.sentrysoftware.metricshub.extension.http;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
@@ -67,7 +68,8 @@ public class HttpCriterionProcessor {
 			return CriterionTestResult.empty();
 		}
 
-		final String hostname = hostConfiguration.getHostname();
+		// Retrieve the hostname from the HttpConfiguration, otherwise from the telemetryManager
+		final String hostname = telemetryManager.getHostname(List.of(HttpConfiguration.class));
 
 		if (httpCriterion == null) {
 			log.error(

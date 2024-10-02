@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import org.fusesource.jansi.Ansi;
@@ -200,9 +201,14 @@ class PrettyPrinterServiceTest {
 		// Create the PrintWriter that will be passed to the PrettyPrinterService
 		final PrintWriter printWriter = new PrintWriter(writer);
 
+		HashSet<String> monitorTypes = new HashSet<>();
+		monitorTypes.add("+" + battery2.getType());
+		monitorTypes.add("+" + battery1.getType());
+		monitorTypes.add("+" + enclosure.getType());
+
 		// Create a new PrettyPrinterService using the TelemetryManager and PrintWriter
 		// and call the print method
-		new PrettyPrinterService(telemetryManager, printWriter).print();
+		new PrettyPrinterService(telemetryManager, printWriter).print(monitorTypes);
 
 		final String result = builder.toString();
 

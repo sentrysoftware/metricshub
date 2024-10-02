@@ -46,6 +46,8 @@ import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 @Slf4j
 public class ConnectorLibraryParser {
 
+	public static final String CONNECTOR_PARSING_ERROR = "Error while parsing connector {}: {}";
+
 	/**
 	 * The ObjectMapper instance for handling YAML files.
 	 */
@@ -82,8 +84,13 @@ public class ConnectorLibraryParser {
 			}
 			final ConnectorParser connectorParser = ConnectorParser.withNodeProcessorAndUpdateChain(file.getParent());
 
-			final Connector connector = connectorParser.parse(file.toFile());
-			connectorsMap.put(filename.substring(0, filename.lastIndexOf('.')), connector);
+			try {
+				final Connector connector = connectorParser.parse(file.toFile());
+				connectorsMap.put(filename.substring(0, filename.lastIndexOf('.')), connector);
+			} catch (Exception e) {
+				log.error(CONNECTOR_PARSING_ERROR, filename, e.getMessage());
+				log.debug("Exception: ", e);
+			}
 
 			return FileVisitResult.CONTINUE;
 		}
@@ -127,10 +134,11 @@ public class ConnectorLibraryParser {
 									final Connector connector;
 									try {
 										connector = connectorParser.parse(Files.newInputStream(path), connectorFolderUri, fileName);
-									} catch (IOException e) {
-										throw new IllegalStateException(e);
+										connectorsMap.put(fileName.substring(0, fileName.lastIndexOf('.')), connector);
+									} catch (Exception e) {
+										log.error(CONNECTOR_PARSING_ERROR, fileName, e.getMessage());
+										log.debug("Exception: ", e);
 									}
-									connectorsMap.put(fileName.substring(0, fileName.lastIndexOf('.')), connector);
 								}
 							);
 
@@ -195,7 +203,7 @@ public class ConnectorLibraryParser {
 		final long startTime = System.currentTimeMillis();
 		final ConnectorFileVisitor fileVisitor = new ConnectorFileVisitor();
 		Files.walkFileTree(yamlParentDirectory, fileVisitor);
-		log.info("Yaml loading duration: {} seconds", (System.currentTimeMillis() - startTime) / 1000);
+		log.info("Connectors parsing duration: {} seconds", (System.currentTimeMillis() - startTime) / 1000);
 		return fileVisitor.getConnectorsMap();
 	}
 }

@@ -21,6 +21,7 @@ package org.sentrysoftware.metricshub.extension.win.detection;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -99,10 +100,18 @@ public class WinCommandLineCriterionProcessor {
 			);
 		}
 
+		// Find the configured protocol (WinRM or WMI)
+		final IWinConfiguration winConfiguration = configurationRetriever.apply(telemetryManager);
+
+		// Retrieve the hostname from the IWinConfiguration, otherwise from the telemetryManager
+		final String hostname = winConfiguration == null
+			? telemetryManager.getHostname()
+			: telemetryManager.getHostname(List.of(winConfiguration.getClass()));
+
 		try {
 			final OsCommandResult osCommandResult = winCommandService.runOsCommand(
 				commandLineCriterion.getCommandLine(),
-				telemetryManager.getHostname(),
+				hostname,
 				configurationRetriever.apply(telemetryManager),
 				telemetryManager.getEmbeddedFiles(connectorId)
 			);

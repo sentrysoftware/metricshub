@@ -1,40 +1,33 @@
 keywords: about
-description: MetricsHub is a universal metrics collector for OpenTelemetry which extracts metrics from any resource and pushes them to any observability back-end.
+description: MetricsHub is a universal metrics collection agent for OpenTelemetry, which extracts metrics from any resource and pushes them to any observability back-end.
 
 # Overview
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-## What is **MetricsHub**?
+**MetricsHub®** is a universal metrics collection solution for [OpenTelemetry](https://opentelemetry.io/docs) which **extracts metrics from any local or remote resource** - such as a host, service, or application - and **pushes the collected data to any observability back-end** supporting OpenTelemetry like Prometheus, New Relic, ServiceNow, and Splunk.
 
-**MetricsHub** is a universal metrics collector for [OpenTelemetry](https://opentelemetry.io/docs) which **extracts metrics from any resource** - either **locally** or **remotely** - and **pushes the collected data to any observability back-end** supporting OpenTelemetry like Prometheus, New Relic, ServiceNow, Splunk, etc.
+## Operating Principle
 
-## What is **MetricsHub** for?
+**MetricsHub** acts as an agent within the infrastructure. It pulls data from systems and applications using various protocols like `SNMP`, `WMI`, `REST APIs`, or `SSH`.
 
-**MetricsHub** natively collects metrics about:
+![](./images/otel-metricshub.png)
 
-* Operating systems (typically Windows and Linux)
-* A variety of platforms (VMware ESX, HyperV, MIB2, LibreHardwareMonitor, and more).
+**MetricsHub**  includes a library of YAML files - called **connectors** - which describe how to collect metrics about [operating systems and a variety of platforms.](metricshub-connectors-directory.html)
 
-Fully customizable, **MetricsHub**  can also be configured to **cover new use cases in no time**, such as the monitoring of systems or applications not covered out-of-the-box through protocols like `HTTP`, `IPMI`, `SNMP`,`SSH`, `WBEM`, `WinRM`, `WMI`.
+**MetricsHub**  uses the OTLP protocol to send metrics to observability platforms that support OpenTelemetry natively like Datadog, New Relic, Prometheus, and Splunk.
 
-Refer to [Community Connector Platforms](../metricshub-connector-reference.html) for the exhaustive list of supported platforms.
+Because it is recommended to use an OpenTelemetry Collector in a production environment, **MetricsHub Enterprise** is bundled with OpenTelemetry Collector Contrib to facilitate connections to over [30 different observability platforms](https://opentelemetry.io/ecosystem/registry/?component=exporter).
 
-## How does **MetricsHub** work?
+## Monitoring Coverage
 
-**MetricsHub** comes with the **MetricsHub Agent**, also called the engine, which performs the monitoring of all the configured resources. It collects and sends metrics to the OTLP receiver of your observability back-end.
+**MetricsHub Enterprise** provides out-of-the box support for hundreds of  [servers, storage systems, network devices, and databases](metricshub-connectors-directory.html) through its built-in library of connectors.
 
-**MetricsHub** also comes with a **CLI** (`metricshub`) you can invoke in a shell for troubleshooting the monitoring of a system, protocols, and credentials.
+Fully customizable, **MetricsHub** can also be configured to **cover new use cases in no time**, such as the monitoring of systems or applications not covered out-of-the-box through protocols like `HTTP`, `IPMI`, `PING`, `SNMP`, `SSH`, `WBEM`, `WinRM` or `WMI`.
 
-## How will **MetricsHub** be licensed?
+## Main Features
 
-**MetricsHub** will be available in two editions: the **Community** and **Enterprise** editions.
-
-The **Community Edition** will be **open-source** and come with **basic monitoring features**. With this edition, you will be able to:
-
-* submit enhancement requests on the [MetricsHub Community Connectors Repository](https://github.com/sentrysoftware/metricshub-community-connectors)
-* contribute to the project by [creating new connectors](./develop/index.html).
-
-The **Enterprise Edition** will grant access to a library of 250+ connectors which allows **monitoring the hardware of hundreds of systems** from any manufacturer (**Cisco**, **Dell**, **EMC**, **Fujitsu**, **Hitachi**, **HP**, **IBM**, **Lenovo**, **NetApp**, **Oracle**, etc.) through `HTTP`, `IPMI`, `SSH`, `SNMP`, `WBEM`, `WMI`, or `WINRM`.
-
-This impressive library is the result of 20+ years of a development effort led by [Sentry Software](https://sentrysoftware.com). This library is used in production on hundreds of thousands of systems around the world.
+* **Remote Monitoring**: Gathers metrics from remote systems using various protocols like `HTTP`, `IPMI`, `PING`, `SNMP`, `SSH`, `WBEM`, `WinRM` or `WMI`.
+* **OpenTelemetry native**: Pulls metrics from diverse systems and applications while strictly adhering to OpenTelemetry's semantic conventions.
+* **Out-of-the-box support for 200+ systems and apps**.
+* **Extensible**: Adds support for new systems, platforms, or applications with just a few lines of YAML.

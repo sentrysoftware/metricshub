@@ -51,6 +51,7 @@ class DellOpenManageIT {
 	static void setUp() throws Exception {
 		final SnmpConfiguration snmpConfiguration = SnmpConfiguration
 			.builder()
+			.hostname(LOCALHOST)
 			.community("public".toCharArray())
 			.version(SnmpVersion.V1)
 			.timeout(120L)

@@ -70,7 +70,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 @Slf4j
 @Data
 @NoArgsConstructor
-public class CriterionProcessor implements ICriterionProcessor {
+public class CriterionProcessor {
 
 	private static final String CONFIGURE_OS_TYPE_MESSAGE = "Configured OS type : ";
 
@@ -112,7 +112,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 		if (deviceTypeCriterion == null) {
 			log.error(
 				"Hostname {} - Malformed DeviceType criterion {}. Cannot process DeviceType criterion detection.",
-				telemetryManager.getHostConfiguration().getHostname(),
+				telemetryManager.getHostname(),
 				deviceTypeCriterion
 			);
 			return CriterionTestResult.empty();
@@ -198,7 +198,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 			.message(
 				String.format(
 					"Hostname %s - Failed to perform IPMI detection. %s is an unsupported OS for IPMI.",
-					telemetryManager.getHostConfiguration().getHostname(),
+					telemetryManager.getHostname(),
 					hostType.name()
 				)
 			)
@@ -225,7 +225,7 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 */
 	@WithSpan("Criterion Process Exec")
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") ProcessCriterion processCriterion) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final String hostname = telemetryManager.getHostname();
 
 		if (processCriterion == null) {
 			log.error(
@@ -346,7 +346,10 @@ public class CriterionProcessor implements ICriterionProcessor {
 	 * @param criterion The criterion to be evaluated.
 	 * @return A {@link CriterionTestResult} containing the outcome of the criterion processing, or an empty result if no suitable extension is found.
 	 */
-	private CriterionTestResult processCriterionThroughExtension(Criterion criterion) {
+	@WithSpan("Criterion Exec Through Extension")
+	public CriterionTestResult processCriterionThroughExtension(
+		@SpanAttribute("criterion.definition") Criterion criterion
+	) {
 		final Optional<IProtocolExtension> maybeExtension = extensionManager.findCriterionExtension(
 			criterion,
 			telemetryManager
@@ -387,5 +390,15 @@ public class CriterionProcessor implements ICriterionProcessor {
 	@WithSpan("Criterion WBEM Exec")
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") WbemCriterion wbemCriterion) {
 		return processCriterionThroughExtension(wbemCriterion);
+	}
+
+	/**
+	 * Test the given criterion and return the result.
+	 *
+	 * @param criterion The criterion to test.
+	 * @return The result of the criterion test.
+	 */
+	public CriterionTestResult test(final Criterion criterion) {
+		return CriterionProcessorRegistry.getProcessor(criterion).apply(criterion, this);
 	}
 }

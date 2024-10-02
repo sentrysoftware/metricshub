@@ -8,9 +8,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
-import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.DOWN;
-import static org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheckStrategy.UP;
-import static org.sentrysoftware.metricshub.extension.ipmi.IpmiExtension.IPMI_UP_METRIC;
 
 import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -18,6 +15,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -106,9 +104,9 @@ class IpmiExtensionTest {
 				.thenReturn(SUCCESS_RESPONSE);
 
 			// Start the IPMI Health Check strategy
-			ipmiExtension.checkProtocol(telemetryManager);
+			Optional<Boolean> result = ipmiExtension.checkProtocol(telemetryManager);
 
-			assertEquals(UP, telemetryManager.getEndpointHostMonitor().getMetric(IPMI_UP_METRIC).getValue());
+			assertTrue(result.get());
 		}
 	}
 
@@ -123,9 +121,9 @@ class IpmiExtensionTest {
 				.thenReturn(null);
 
 			// Start the IPMI Health Check strategy
-			ipmiExtension.checkProtocol(telemetryManager);
+			Optional<Boolean> result = ipmiExtension.checkProtocol(telemetryManager);
 
-			assertEquals(DOWN, telemetryManager.getEndpointHostMonitor().getMetric(IPMI_UP_METRIC).getValue());
+			assertFalse(result.get());
 		}
 	}
 
@@ -137,6 +135,19 @@ class IpmiExtensionTest {
 				new IConfiguration() {
 					@Override
 					public void validateConfiguration(String resourceKey) throws InvalidConfigurationException {}
+
+					@Override
+					public String getHostname() {
+						return null;
+					}
+
+					@Override
+					public void setHostname(String hostname) {}
+
+					@Override
+					public IConfiguration copy() {
+						return null;
+					}
 				}
 			)
 		);

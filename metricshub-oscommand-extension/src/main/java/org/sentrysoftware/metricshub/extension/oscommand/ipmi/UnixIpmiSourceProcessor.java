@@ -21,6 +21,7 @@ package org.sentrysoftware.metricshub.extension.oscommand.ipmi;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
@@ -52,7 +53,18 @@ public class UnixIpmiSourceProcessor {
 		final String connectorId,
 		final TelemetryManager telemetryManager
 	) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final SshConfiguration sshConfiguration = (SshConfiguration) telemetryManager
+			.getHostConfiguration()
+			.getConfigurations()
+			.get(SshConfiguration.class);
+
+		final OsCommandConfiguration osCommandConfiguration = (OsCommandConfiguration) telemetryManager
+			.getHostConfiguration()
+			.getConfigurations()
+			.get(OsCommandConfiguration.class);
+
+		// Retrieve the hostname from the configurations, otherwise from telemetryManager.
+		final String hostname = telemetryManager.getHostname(List.of(SshConfiguration.class, OsCommandConfiguration.class));
 
 		// get the ipmiTool command to execute
 		String ipmitoolCommand = telemetryManager.getHostProperties().getIpmitoolCommand();
@@ -66,16 +78,6 @@ public class UnixIpmiSourceProcessor {
 		}
 
 		final boolean isLocalHost = telemetryManager.getHostProperties().isLocalhost();
-
-		final SshConfiguration sshConfiguration = (SshConfiguration) telemetryManager
-			.getHostConfiguration()
-			.getConfigurations()
-			.get(SshConfiguration.class);
-
-		final OsCommandConfiguration osCommandConfiguration = (OsCommandConfiguration) telemetryManager
-			.getHostConfiguration()
-			.getConfigurations()
-			.get(OsCommandConfiguration.class);
 
 		final long defaultTimeout = osCommandConfiguration != null
 			? osCommandConfiguration.getTimeout()

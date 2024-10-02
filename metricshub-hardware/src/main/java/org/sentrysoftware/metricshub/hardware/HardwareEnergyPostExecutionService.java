@@ -21,6 +21,7 @@ package org.sentrysoftware.metricshub.hardware;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static org.sentrysoftware.metricshub.hardware.util.HwCollectHelper.connectorHasHardwareTag;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_CPU_METRIC;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_DISK_CONTROLLER_METRIC;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_ENERGY_FAN_METRIC;
@@ -111,6 +112,7 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 			.stream()
 			.filter(monitor -> !HwCollectHelper.isMissing(monitor))
 			.filter(monitor -> telemetryManager.isConnectorStatusOk(monitor))
+			.filter(monitor -> connectorHasHardwareTag(monitor, telemetryManager))
 			.forEach(monitor ->
 				PowerAndEnergyCollectHelper.collectPowerAndEnergy(
 					monitor,
@@ -146,6 +148,7 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 			.stream()
 			.filter(monitor -> !HwCollectHelper.isMissing(monitor))
 			.filter(monitor -> telemetryManager.isConnectorStatusOk(monitor))
+			.filter(monitor -> connectorHasHardwareTag(monitor, telemetryManager))
 			.forEach(monitor ->
 				PowerAndEnergyCollectHelper.collectPowerAndEnergy(
 					monitor,
@@ -296,26 +299,26 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 
 		// If we don't have the linkSpeed, we can't compute the bandwidth Utilization
 		if (linkSpeed != null && linkSpeed != 0) {
-			final Double transmittedByteRate = HwCollectHelper.calculateMetricRate(
+			final Double transmittedByteRate = HwCollectHelper.calculateMetricRatePerSecond(
 				monitor,
 				"hw.network.io{direction=\"transmit\"}",
 				"__hw.network.io.rate{direction=\"transmit\"}",
 				hostname
 			);
 
-			final Double receivedByteRate = HwCollectHelper.calculateMetricRate(
+			final Double receivedByteRate = HwCollectHelper.calculateMetricRatePerSecond(
 				monitor,
 				"hw.network.io{direction=\"receive\"}",
 				"__hw.network.io.rate{direction=\"receive\"}",
 				hostname
 			);
 
-			// The bandwidths are 'byteRate * 8 / linkSpeed (in Bit/s)'
+			// The bandwidths are 'byteRate / linkSpeed (in Byte/s)'
 			final Double bandwidthUtilizationTransmitted = HwCollectHelper.isValidPositive(transmittedByteRate)
-				? (transmittedByteRate * 8) / linkSpeed
+				? transmittedByteRate / linkSpeed
 				: null;
 			final Double bandwidthUtilizationReceived = HwCollectHelper.isValidPositive(receivedByteRate)
-				? (receivedByteRate * 8) / linkSpeed
+				? receivedByteRate / linkSpeed
 				: null;
 
 			final MetricFactory metricFactory = new MetricFactory(hostname);
@@ -339,12 +342,14 @@ public class HardwareEnergyPostExecutionService implements IPostExecutionService
 			}
 		}
 
-		PowerAndEnergyCollectHelper.collectPowerAndEnergy(
-			monitor,
-			HW_POWER_NETWORK_METRIC,
-			HW_ENERGY_NETWORK_METRIC,
-			telemetryManager,
-			new NetworkPowerAndEnergyEstimator(monitor, telemetryManager)
-		);
+		if (connectorHasHardwareTag(monitor, telemetryManager)) {
+			PowerAndEnergyCollectHelper.collectPowerAndEnergy(
+				monitor,
+				HW_POWER_NETWORK_METRIC,
+				HW_ENERGY_NETWORK_METRIC,
+				telemetryManager,
+				new NetworkPowerAndEnergyEstimator(monitor, telemetryManager)
+			);
+		}
 	}
 }

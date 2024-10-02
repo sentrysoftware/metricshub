@@ -26,7 +26,7 @@ import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.CONFIG_E
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.DEFAULT_CONFIG_FILENAME;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.FILE_PATH_FORMAT;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.LOG_DIRECTORY_NAME;
-import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.PRODUCT_CODE;
+import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.PRODUCT_WIN_DIR_NAME;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -54,9 +54,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -65,10 +63,8 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.ThreadContext;
 import org.sentrysoftware.metricshub.agent.config.AgentConfig;
 import org.sentrysoftware.metricshub.agent.config.AlertingSystemConfig;
-import org.sentrysoftware.metricshub.agent.config.ConnectorVariables;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
-import org.sentrysoftware.metricshub.agent.config.protocols.ProtocolsConfig;
 import org.sentrysoftware.metricshub.agent.context.MetricDefinitions;
 import org.sentrysoftware.metricshub.agent.security.PasswordEncrypt;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
@@ -76,7 +72,7 @@ import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.common.helpers.ResourceHelper;
-import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
+import org.sentrysoftware.metricshub.engine.configuration.ConnectorVariables;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
@@ -101,20 +97,6 @@ import org.springframework.core.io.ClassPathResource;
 @Slf4j
 public class ConfigHelper {
 
-	private static final String WBEM_PROTOCOL = "WBEM";
-	private static final String TIMEOUT_ERROR =
-		"Resource %s - Timeout value is invalid for protocol %s." +
-		" Timeout value returned: %s. This resource will not be monitored. Please verify the configured timeout value.";
-	private static final String PORT_ERROR =
-		"Resource %s - Invalid port configured for protocol %s. Port value returned: %s." +
-		" This resource will not be monitored. Please verify the configured port value.";
-	private static final String USERNAME_ERROR =
-		"Resource %s - No username configured for protocol %s." +
-		" This resource will not be monitored. Please verify the configured username.";
-	private static final Predicate<String> INVALID_STRING_CHECKER = attr -> attr == null || attr.isBlank();
-	private static final Predicate<Integer> INVALID_PORT_CHECKER = attr -> attr == null || attr < 1 || attr > 65535;
-	private static final Predicate<Long> INVALID_TIMEOUT_CHECKER = attr -> attr == null || attr < 0L;
-	private static final Predicate<String> EMPTY_STRING_CHECKER = attr -> attr != null && attr.isBlank();
 	public static final String TOP_LEVEL_VIRTUAL_RESOURCE_GROUP_KEY = "metricshub-top-level-rg";
 
 	/**
@@ -131,7 +113,7 @@ public class ConfigHelper {
 
 			// Make sure the LOCALAPPDATA path is valid
 			if (localAppDataPath != null && !localAppDataPath.isBlank()) {
-				return createDirectories(Paths.get(localAppDataPath, PRODUCT_CODE, "logs"));
+				return createDirectories(Paths.get(localAppDataPath, PRODUCT_WIN_DIR_NAME, "logs"));
 			}
 		}
 
@@ -245,7 +227,7 @@ public class ConfigHelper {
 			.stream()
 			.map(path ->
 				Paths.get(
-					createDirectories(Paths.get(path, PRODUCT_CODE, directory)).toAbsolutePath().toString(),
+					createDirectories(Paths.get(path, PRODUCT_WIN_DIR_NAME, directory)).toAbsolutePath().toString(),
 					configFilename
 				)
 			)
@@ -538,8 +520,16 @@ public class ConfigHelper {
 			resourceConfig.setJobTimeout(agentConfig.getJobTimeout());
 		}
 
+		// Set the state set compression
+		if (resourceConfig.getStateSetCompression() == null) {
+			resourceConfig.setStateSetCompression(agentConfig.getStateSetCompression());
+		}
+
 		// Set agent attributes in the agent configuration attributes map
-		mergeAttributes(agentConfig.getAttributes(), resourceConfig.getAttributes());
+		final Map<String, String> attributes = new HashMap<>();
+		mergeAttributes(agentConfig.getAttributes(), attributes);
+		mergeAttributes(resourceConfig.getAttributes(), attributes);
+		resourceConfig.setAttributes(attributes);
 
 		// Create an identity for the configured connector
 		normalizeConfiguredConnector(
@@ -613,8 +603,16 @@ public class ConfigHelper {
 			resourceConfig.setJobTimeout(resourceGroupConfig.getJobTimeout());
 		}
 
+		// Set the state set compression
+		if (resourceConfig.getStateSetCompression() == null) {
+			resourceConfig.setStateSetCompression(resourceGroupConfig.getStateSetCompression());
+		}
+
 		// Set agent attributes in the resource group attributes map
-		mergeAttributes(resourceGroupConfig.getAttributes(), resourceConfig.getAttributes());
+		final Map<String, String> attributes = new HashMap<>();
+		mergeAttributes(resourceGroupConfig.getAttributes(), attributes);
+		mergeAttributes(resourceConfig.getAttributes(), attributes);
+		resourceConfig.setAttributes(attributes);
 
 		// Create an identity for the configured connector
 		normalizeConfiguredConnector(
@@ -684,8 +682,16 @@ public class ConfigHelper {
 			resourceGroupConfig.setJobTimeout(agentConfig.getJobTimeout());
 		}
 
+		// Set the state set compression
+		if (resourceGroupConfig.getStateSetCompression() == null) {
+			resourceGroupConfig.setStateSetCompression(agentConfig.getStateSetCompression());
+		}
+
 		// Set agent attributes in the resource group attributes map
-		mergeAttributes(agentConfig.getAttributes(), resourceGroupConfig.getAttributes());
+		final Map<String, String> attributes = new HashMap<>();
+		mergeAttributes(agentConfig.getAttributes(), attributes);
+		mergeAttributes(resourceGroupConfig.getAttributes(), attributes);
+		resourceGroupConfig.setAttributes(attributes);
 	}
 
 	/**
@@ -808,33 +814,27 @@ public class ConfigHelper {
 			// Create a new connector store for this resource configuration
 			final ConnectorStore resourceConnectorStore = connectorStore.newConnectorStore();
 
-			// Validate protocols
-			validateProtocols(resourceKey, resourceConfig);
-
 			final HostConfiguration hostConfiguration = buildHostConfiguration(
 				resourceConfig,
 				resourceConfig.getConnectors(),
 				resourceKey
 			);
 
+			// Validate protocols and update the configuration's hostname if required.
+			validateAndNormalizeProtocols(resourceKey, resourceConfig, hostConfiguration.getHostname());
+
+			// Read the configured connector for the current resource
 			addConfiguredConnector(resourceConnectorStore, resourceConfig.getConnector());
 
-			// Retrieve connectors variables map from the resource configuration
-			final Map<String, ConnectorVariables> connectorVariablesMap = resourceConfig.getVariables();
+			// Read connectors with configuration variables safely
+			final Map<String, Connector> connectorsWithConfigVariables = readConnectorsWithConfigurationVariablesSafe(
+				resourceGroupKey,
+				resourceKey,
+				resourceConfig
+			);
 
-			// If connectors variables exist then merge the existing connector store with a new one containing custom connectors
-			if (connectorVariablesMap != null && !connectorVariablesMap.isEmpty()) {
-				// Call ConnectorTemplateLibraryParser and parse the custom connectors
-				final ConnectorTemplateLibraryParser connectorTemplateLibraryParser = new ConnectorTemplateLibraryParser();
-
-				final Map<String, Connector> customConnectors = connectorTemplateLibraryParser.parse(
-					ConfigHelper.getSubDirectory("connectors", false),
-					connectorVariablesMap
-				);
-
-				// Overwrite resourceConnectorStore
-				updateConnectorStore(resourceConnectorStore, customConnectors);
-			}
+			// Overwrite resourceConnectorStore
+			updateConnectorStore(resourceConnectorStore, connectorsWithConfigVariables);
 
 			resourceGroupTelemetryManagers.putIfAbsent(
 				resourceKey,
@@ -849,6 +849,43 @@ public class ConfigHelper {
 				resourceKey,
 				e.getMessage()
 			);
+		}
+	}
+
+	/**
+	 * Parse the connectors having configuration variables.
+	 *
+	 * @param resourceGroupKey The resource group key under which the resource is configured for logging purposes.
+	 * @param resourceKey      The resource key for logging purposes.
+	 * @param resourceConfig   The resource configuration.
+	 * @return Map of connectors with configuration variables
+	 */
+	private static Map<String, Connector> readConnectorsWithConfigurationVariablesSafe(
+		final String resourceGroupKey,
+		final String resourceKey,
+		final ResourceConfig resourceConfig
+	) {
+		// Retrieve connectors variables map from the resource configuration
+		final Map<String, ConnectorVariables> connectorVariablesMap = resourceConfig.getVariables();
+
+		// Call ConnectorTemplateLibraryParser and parse the custom connectors
+		final ConnectorTemplateLibraryParser connectorTemplateLibraryParser = new ConnectorTemplateLibraryParser();
+
+		try {
+			return connectorTemplateLibraryParser.parse(
+				ConfigHelper.getSubDirectory("connectors", false),
+				connectorVariablesMap
+			);
+		} catch (Exception e) {
+			log.warn(
+				"Resource {} - Under the resource group configuration {}, the resource configuration {} will not load connectors with configuration variables." +
+				" Reason: {}.",
+				resourceKey,
+				resourceGroupKey,
+				resourceKey,
+				e.getMessage()
+			);
+			return new HashMap<>();
 		}
 	}
 
@@ -884,9 +921,16 @@ public class ConfigHelper {
 			// Create a unique connector identifier based on resource keys
 			final ConnectorIdentity identity = configuredConnector.getOrCreateConnectorIdentity();
 			final String connectorId = String.format("MetricsHub-Configured-Connector-%s-%s", resourceGroupKey, resourceKey);
+			final String connectorName = String.format(
+				"Configured Connector on resource %s (Group %s)",
+				resourceKey,
+				resourceGroupKey
+			);
 
 			// Set the compiled filename of the connector to the unique identifier
 			identity.setCompiledFilename(connectorId);
+			// Set the display name of the connector
+			identity.setDisplayName(connectorName);
 		}
 	}
 
@@ -908,127 +952,34 @@ public class ConfigHelper {
 	}
 
 	/**
-	 * Validate the protocols configured under the given {@link ResourceConfig} instance
+	 * Validates the protocols configured under the given {@link ResourceConfig} instance.
+	 * Also, it normalizes the configuration's hostname by duplicating the hostname attribute on each configuration.
+	 * This duplication is done only if the configuration's hostname is null.
 	 *
 	 * @param resourceKey    Resource unique identifier
-	 * @param resourceConfig {@link ResourceConfig} instance configured by the user
-	 * @throws InvalidConfigurationException thrown if a configuration validation fails
+	 * @param resourceConfig {@link ResourceConfig} instance configured by the user.
+	 * @param hostname       The hostname that will be duplicated on each configuration if required.
+	 * @throws InvalidConfigurationException thrown if a configuration validation fails.
 	 */
-	private static void validateProtocols(@NonNull final String resourceKey, final ResourceConfig resourceConfig)
-		throws InvalidConfigurationException {
-		final ProtocolsConfig protocolsConfig = resourceConfig.getProtocols();
-		if (protocolsConfig == null) {
+	private static void validateAndNormalizeProtocols(
+		@NonNull final String resourceKey,
+		final ResourceConfig resourceConfig,
+		final String hostname
+	) throws InvalidConfigurationException {
+		final Map<String, IConfiguration> protocols = resourceConfig.getProtocols();
+		if (protocols == null) {
 			return;
 		}
 
-		final IConfiguration winRmConfig = protocolsConfig.getWinrm();
-		if (winRmConfig != null) {
-			winRmConfig.validateConfiguration(resourceKey);
+		for (Map.Entry<String, IConfiguration> entry : protocols.entrySet()) {
+			IConfiguration protocolConfig = entry.getValue();
+			if (protocolConfig != null) {
+				protocolConfig.validateConfiguration(resourceKey);
+				if (protocolConfig.getHostname() == null) {
+					protocolConfig.setHostname(hostname);
+				}
+			}
 		}
-
-		final IConfiguration snmpConfig = protocolsConfig.getSnmp();
-		if (snmpConfig != null) {
-			snmpConfig.validateConfiguration(resourceKey);
-		}
-
-		final IConfiguration snmpV3Config = protocolsConfig.getSnmpv3();
-		if (snmpV3Config != null) {
-			snmpV3Config.validateConfiguration(resourceKey);
-		}
-
-		final IConfiguration ipmiConfig = protocolsConfig.getIpmi();
-		if (ipmiConfig != null) {
-			ipmiConfig.validateConfiguration(resourceKey);
-		}
-
-		final IConfiguration sshConfig = protocolsConfig.getSsh();
-		if (sshConfig != null) {
-			sshConfig.validateConfiguration(resourceKey);
-		}
-
-		final IConfiguration wbemConfig = protocolsConfig.getWbem();
-		if (wbemConfig != null) {
-			wbemConfig.validateConfiguration(resourceKey);
-		}
-
-		final IConfiguration wmiConfig = protocolsConfig.getWmi();
-		if (wmiConfig != null) {
-			wmiConfig.validateConfiguration(resourceKey);
-		}
-
-		final IConfiguration httpConfig = protocolsConfig.getHttp();
-		if (httpConfig != null) {
-			httpConfig.validateConfiguration(resourceKey);
-		}
-
-		final IConfiguration osCommandConfig = protocolsConfig.getOsCommand();
-		if (osCommandConfig != null) {
-			osCommandConfig.validateConfiguration(resourceKey);
-		}
-	}
-
-	/**
-	 * Validate the given WinRM information (port, timeout, username and command)
-	 *
-	 * @param resourceKey  Resource unique identifier
-	 * @param port         The port number used to perform WQL queries and commands
-	 * @param timeout      How long until the WinRM request times out
-	 * @param username	   Name used to establish the connection with the host via the WinRM protocol
-	 * @throws InvalidConfigurationException thrown if a configuration validation fails
-	 */
-	static void validateWinRmInfo(
-		final String resourceKey,
-		final Integer port,
-		final Long timeout,
-		final String username
-	) throws InvalidConfigurationException {}
-
-	/**
-	 * Validate the given WBEM information (username, timeout, port and vCenter)
-	 *
-	 * @param resourceKey Resource unique identifier
-	 * @param username    Name used to establish the connection with the host via the WBEM protocol
-	 * @param timeout     How long until the WBEM request times out
-	 * @param port        The HTTP/HTTPS port number used to perform WBEM queries
-	 * @param vCenter     vCenter hostname providing the authentication ticket, if applicable
-	 * @throws InvalidConfigurationException thrown if a configuration validation fails
-	 */
-	static void validateWbemInfo(
-		final String resourceKey,
-		final String username,
-		final Long timeout,
-		final Integer port,
-		final String vCenter
-	) throws InvalidConfigurationException {
-		StringHelper.validateConfigurationAttribute(
-			timeout,
-			INVALID_TIMEOUT_CHECKER,
-			() -> String.format(TIMEOUT_ERROR, resourceKey, WBEM_PROTOCOL, timeout)
-		);
-
-		StringHelper.validateConfigurationAttribute(
-			port,
-			INVALID_PORT_CHECKER,
-			() -> String.format(PORT_ERROR, resourceKey, WBEM_PROTOCOL, port)
-		);
-
-		StringHelper.validateConfigurationAttribute(
-			username,
-			INVALID_STRING_CHECKER,
-			() -> String.format(USERNAME_ERROR, resourceKey, WBEM_PROTOCOL)
-		);
-
-		StringHelper.validateConfigurationAttribute(
-			vCenter,
-			EMPTY_STRING_CHECKER,
-			() ->
-				String.format(
-					"Resource %s - Empty vCenter hostname configured for protocol %s." +
-					" This resource will not be monitored. Please verify the configured vCenter hostname.",
-					resourceKey,
-					WBEM_PROTOCOL
-				)
-		);
 	}
 
 	/**
@@ -1044,25 +995,14 @@ public class ConfigHelper {
 		final Set<String> connectorsConfiguration,
 		final String resourceKey
 	) {
-		final ProtocolsConfig protocols = resourceConfig.getProtocols();
+		final Map<String, IConfiguration> protocols = resourceConfig.getProtocols();
 		final Map<Class<? extends IConfiguration>, IConfiguration> protocolConfigurations = protocols == null
 			? new HashMap<>()
-			: new HashMap<>(
-				Stream
-					.of(
-						protocols.getSnmp(),
-						protocols.getSnmpv3(),
-						protocols.getHttp(),
-						protocols.getIpmi(),
-						protocols.getOsCommand(),
-						protocols.getSsh(),
-						protocols.getWmi(),
-						protocols.getWbem(),
-						protocols.getWinrm()
-					)
-					.filter(Objects::nonNull)
-					.collect(Collectors.toMap(IConfiguration::getClass, Function.identity()))
-			);
+			: protocols
+				.values()
+				.stream()
+				.filter(Objects::nonNull)
+				.collect(Collectors.toMap(IConfiguration::getClass, Function.identity()));
 
 		final Map<String, String> attributes = resourceConfig.getAttributes();
 
@@ -1106,6 +1046,7 @@ public class ConfigHelper {
 			.hostType(hostType)
 			.sequential(Boolean.TRUE.equals(resourceConfig.getSequential()))
 			.configuredConnectorId(configuredConnectorId)
+			.connectorVariables(resourceConfig.getVariables())
 			.build();
 	}
 
@@ -1221,17 +1162,26 @@ public class ConfigHelper {
 	 * aggregates all extension-based connector stores into one central store and
 	 * then adds additional connectors found in a designated subdirectory.
 	 *
-	 * @param extensionManager The manager responsible for handling all
-	 *                         extension-based connector stores.
+	 * @param extensionManager       The manager responsible for handling all
+	 *                               extension-based connector stores.
+	 * @param connectorsPatchPath    The connectors Patch Path.
 	 * @return A fully populated {@link ConnectorStore} containing connectors from
 	 *         various sources.
 	 */
-	public static ConnectorStore buildConnectorStore(final ExtensionManager extensionManager) {
+	public static ConnectorStore buildConnectorStore(
+		final ExtensionManager extensionManager,
+		final String connectorsPatchPath
+	) {
 		// Get extension connector stores
 		final ConnectorStore connectorStore = extensionManager.aggregateExtensionConnectorStores();
 
 		// Parse and add connectors from a specific subdirectory
 		connectorStore.addMany(new ConnectorStore(getSubDirectory("connectors", false)).getStore());
+
+		// Add user's connectors if the connectors patch path is specified.
+		if (connectorsPatchPath != null) {
+			connectorStore.addMany(new ConnectorStore(Path.of(connectorsPatchPath)).getStore());
+		}
 
 		return connectorStore;
 	}

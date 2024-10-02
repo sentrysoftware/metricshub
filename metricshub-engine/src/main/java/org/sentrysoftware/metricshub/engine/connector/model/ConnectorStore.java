@@ -22,6 +22,7 @@ package org.sentrysoftware.metricshub.engine.connector.model;
  */
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,12 +41,14 @@ import org.sentrysoftware.metricshub.engine.connector.parser.ConnectorLibraryPar
 @Slf4j
 @NoArgsConstructor
 @Data
-public class ConnectorStore {
+public class ConnectorStore implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private Map<String, Connector> store;
 
 	@Getter
-	private Path connectorDirectory;
+	private transient Path connectorDirectory;
 
 	/**
 	 * Constructs a {@link ConnectorStore} using the specified connector directory.

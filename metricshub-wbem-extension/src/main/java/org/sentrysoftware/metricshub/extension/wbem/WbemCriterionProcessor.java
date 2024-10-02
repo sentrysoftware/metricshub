@@ -79,7 +79,7 @@ public class WbemCriterionProcessor {
 	 * @param wbemCriterion     The WQL criterion with an "Automatic" namespace
 	 * @return A {@link CriterionTestResult} telling whether we found the proper namespace for the specified WQL
 	 */
-	CriterionTestResult findNamespace(
+	private CriterionTestResult findNamespace(
 		final String hostname,
 		final WbemConfiguration wbemConfiguration,
 		final WbemCriterion wbemCriterion,
@@ -144,7 +144,7 @@ public class WbemCriterionProcessor {
 	 * @return A {@link NamespaceResult} wrapping the detected namespace
 	 * and the error message if the detection fails.
 	 */
-	public NamespaceResult detectNamespace(
+	private NamespaceResult detectNamespace(
 		final String hostname,
 		final WbemConfiguration configuration,
 		final WqlCriterion criterion,
@@ -228,7 +228,7 @@ public class WbemCriterionProcessor {
 	 * @return A {@link PossibleNamespacesResult} wrapping the success state, the message in case of errors
 	 * and the possibleWbemNamespaces {@link Set}.
 	 */
-	public PossibleNamespacesResult findPossibleNamespaces(
+	private PossibleNamespacesResult findPossibleNamespaces(
 		final String hostname,
 		final WbemConfiguration configuration,
 		final TelemetryManager telemetryManager
@@ -311,7 +311,7 @@ public class WbemCriterionProcessor {
 	 * @param criterion     WQL detection properties (WQL, namespace, expected result)
 	 * @return {@link CriterionTestResult} which indicates if the check has succeeded or not.
 	 */
-	public CriterionTestResult performDetectionTest(
+	private CriterionTestResult performDetectionTest(
 		final String hostname,
 		@NonNull final WbemConfiguration configuration,
 		@NonNull final WqlCriterion criterion,
@@ -373,8 +373,6 @@ public class WbemCriterionProcessor {
 		}
 
 		// Gather the necessary info on the test that needs to be performed
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
 		final WbemConfiguration wbemConfiguration = (WbemConfiguration) telemetryManager
 			.getHostConfiguration()
 			.getConfigurations()
@@ -382,6 +380,9 @@ public class WbemCriterionProcessor {
 		if (wbemConfiguration == null) {
 			return CriterionTestResult.error(wbemCriterion, "The WBEM credentials are not configured for this host.");
 		}
+
+		// Retrieve the hostname from the WbemConfiguration, otherwise from the telemetryManager
+		final String hostname = telemetryManager.getHostname(List.of(WbemConfiguration.class));
 
 		// If namespace is specified as "Automatic"
 		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(wbemCriterion.getNamespace())) {

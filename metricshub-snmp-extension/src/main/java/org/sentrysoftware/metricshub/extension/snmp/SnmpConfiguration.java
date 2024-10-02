@@ -34,6 +34,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 
 /**
@@ -50,8 +51,8 @@ public class SnmpConfiguration implements ISnmpConfiguration {
 	private static final String INVALID_SNMP_VERSION_EXCEPTION_MESSAGE = "Invalid SNMP version: ";
 
 	@Default
-	@JsonDeserialize(using = SnmpVersionDeserializer.class)
 	@JsonSetter(nulls = SKIP)
+	@JsonDeserialize(using = SnmpVersionDeserializer.class)
 	private final SnmpVersion version = SnmpVersion.V1;
 
 	@Default
@@ -66,6 +67,8 @@ public class SnmpConfiguration implements ISnmpConfiguration {
 	@JsonSetter(nulls = SKIP)
 	@JsonDeserialize(using = TimeDeserializer.class)
 	private final Long timeout = 120L;
+
+	private String hostname;
 
 	@Override
 	public String toString() {
@@ -106,7 +109,12 @@ public class SnmpConfiguration implements ISnmpConfiguration {
 				return V1;
 			}
 
-			if ("2".equals(lowerCaseVersion) || "v2".equals(lowerCaseVersion) || "v2c".equals(lowerCaseVersion)) {
+			if (
+				"2".equals(lowerCaseVersion) ||
+				"v2".equals(lowerCaseVersion) ||
+				"v2c".equals(lowerCaseVersion) ||
+				"2c".equals(lowerCaseVersion)
+			) {
 				return V2C;
 			}
 
@@ -161,5 +169,10 @@ public class SnmpConfiguration implements ISnmpConfiguration {
 	@Override
 	public int getIntVersion() {
 		return version.intVersion;
+	}
+
+	@Override
+	public IConfiguration copy() {
+		return SnmpConfiguration.builder().community(community).port(port).timeout(timeout).version(version).build();
 	}
 }

@@ -43,6 +43,8 @@ public class HttpMacrosUpdater {
 	static final String PASSWORD_BASE64_MACRO = "%{PASSWORD_BASE64}";
 	static final String BASIC_AUTH_BASE64_MACRO = "%{BASIC_AUTH_BASE64}";
 	static final String SHA256_AUTH_MACRO = "%{SHA256_AUTH}";
+	static final String PASSWORD_JSON = "%{PASSWORD_JSON}";
+	static final String USERNAME_JSON = "%{USERNAME_JSON}";
 
 	/**
 	 * Replaces each known HTTP macro in the given text with the literal target sequences:<br>
@@ -76,6 +78,8 @@ public class HttpMacrosUpdater {
 			.replace(USERNAME_MACRO, username)
 			.replace(HOSTNAME_MACRO, hostname)
 			.replace(PASSWORD_MACRO, passwordAsString)
+			.replace(USERNAME_JSON, jsonValueEscape(username))
+			.replace(PASSWORD_JSON, jsonValueEscape(passwordAsString))
 			.replace("%{AUTHENTICATIONTOKEN}", authenticationToken);
 
 		// Encode the password into a base64 string
@@ -103,5 +107,22 @@ public class HttpMacrosUpdater {
 		}
 
 		return updatedContent;
+	}
+
+	/**
+	 * Escape special characters in a JSON string value (\ " \n \r \t).
+	 *
+	 * @param value The value to escape.
+	 * @return The escaped value
+	 */
+	static String jsonValueEscape(final String value) {
+		// Escape common characters
+		return value
+			// Escape characters (\ " \n \r \t)
+			.replace("\\", "\\\\")
+			.replace("\"", "\\\"")
+			.replace("\n", "\\n")
+			.replace("\r", "\\r")
+			.replace("\t", "\\t");
 	}
 }

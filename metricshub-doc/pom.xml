@@ -5,15 +5,20 @@
 	<parent>
 		<groupId>org.sentrysoftware</groupId>
 		<artifactId>metricshub-parent</artifactId>
-		<version>0.9.03-SNAPSHOT</version>
+		<version>0.9.07-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>metricshub-doc</artifactId>
-	<packaging>pom</packaging>
 
-	<name>Documentation</name>
+	<name>MetricsHub</name>
 	<description>MetricsHub Documentation (site)</description>
 	<url>https://metricshub.com/docs/latest/</url>
+
+	<properties>
+		<communityVersion>${project.version}</communityVersion>
+		<enterpriseVersion>1.0.00</enterpriseVersion>
+		<otelVersion>0.102.0</otelVersion>
+	</properties>
 
 	<dependencies>
 		<dependency>
@@ -25,6 +30,7 @@
 	</dependencies>
 
 	<build>
+		<sourceDirectory>${project.basedir}/src/site</sourceDirectory>
 		<plugins>
 
 			<!-- site -->
@@ -78,6 +84,17 @@
 				</configuration>
 			</plugin>
 
+			<plugin>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 
@@ -88,14 +105,21 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-project-info-reports-plugin</artifactId>
-				<version>3.4.5</version>
+				<version>3.5.0</version>
+				<reportSets>
+					<reportSet>
+						<configuration>
+							<skip>true</skip>
+						</configuration>
+					</reportSet>
+				</reportSets>
 			</plugin>
 
 			<!-- Generate reference through the MetricsHub Connector Maven Plugin -->
 			<plugin>
 				<groupId>org.sentrysoftware.maven</groupId>
 				<artifactId>metricshub-connector-maven-plugin</artifactId>
-				<version>1.0.00</version>
+				<version>1.0.05</version>
 				<configuration>
 					<sourceDirectory>${project.basedir}/../metricshub-agent/target/connectors</sourceDirectory>
 				</configuration>

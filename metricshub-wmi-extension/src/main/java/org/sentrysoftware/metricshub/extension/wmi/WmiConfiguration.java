@@ -32,6 +32,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 import org.sentrysoftware.metricshub.extension.win.IWinConfiguration;
 
@@ -48,6 +49,8 @@ public class WmiConfiguration implements IWinConfiguration {
 	private String username;
 	private char[] password;
 	private String namespace;
+
+	private String hostname;
 
 	@Default
 	@JsonSetter(nulls = SKIP)
@@ -77,5 +80,16 @@ public class WmiConfiguration implements IWinConfiguration {
 					timeout
 				)
 		);
+	}
+
+	@Override
+	public IConfiguration copy() {
+		return WmiConfiguration
+			.builder()
+			.namespace(namespace)
+			.password(password)
+			.timeout(timeout)
+			.username(username)
+			.build();
 	}
 }

@@ -27,18 +27,20 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 import org.sentrysoftware.metricshub.extension.snmp.ISnmpConfiguration;
 
 /**
  * The SnmpV3Configuration class represents the configuration for SNMP v3 in the
  * MetricsHub engine. It implements the ISnmpConfiguration interface and
- * includes settings such as SNMP version, community, port, timeout, context
+ * includes settings such as SNMP version, port, timeout, context
  * name, authentication type, privacy, privacy password, username, and password.
  */
 @Data
@@ -51,15 +53,11 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 	private static final String INVALID_AUTH_TYPE_EXCEPTION_MESSAGE = "Invalid authentication type: ";
 	private static final String INVALID_PRIVACY_VALUE_EXCEPTION_MESSAGE = "Invalid privacy value: ";
 
-	@Builder.Default
-	@JsonSetter(nulls = SKIP)
-	private char[] community = new char[] { 'p', 'u', 'b', 'l', 'i', 'c' };
-
-	@Builder.Default
+	@Default
 	@JsonSetter(nulls = SKIP)
 	private Integer port = 161;
 
-	@Builder.Default
+	@Default
 	@JsonSetter(nulls = SKIP)
 	@JsonDeserialize(using = TimeDeserializer.class)
 	private Long timeout = 120L;
@@ -77,6 +75,8 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 	private char[] password;
 	private int[] retryIntervals;
 
+	private String hostname;
+
 	@Override
 	public String toString() {
 		String description = "SNMP V3";
@@ -91,17 +91,6 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 
 	@Override
 	public void validateConfiguration(final String resourceKey) throws InvalidConfigurationException {
-		StringHelper.validateConfigurationAttribute(
-			community,
-			attr -> attr == null || attr.length == 0,
-			() ->
-				String.format(
-					"Resource %s - No community string configured for %s. This resource will not be monitored.",
-					resourceKey,
-					community
-				)
-		);
-
 		StringHelper.validateConfigurationAttribute(
 			port,
 			attr -> attr == null || attr < 1 || attr > 65535,
@@ -213,5 +202,21 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 	@Override
 	public int getIntVersion() {
 		return V3;
+	}
+
+	@Override
+	public IConfiguration copy() {
+		return SnmpV3Configuration
+			.builder()
+			.authType(authType)
+			.contextName(contextName)
+			.password(password)
+			.port(port)
+			.privacy(privacy)
+			.privacyPassword(privacyPassword)
+			.retryIntervals(retryIntervals)
+			.timeout(timeout)
+			.username(username)
+			.build();
 	}
 }

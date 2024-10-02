@@ -24,6 +24,7 @@ package org.sentrysoftware.metricshub.extension.win.detection;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.AUTOMATIC_NAMESPACE;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -113,15 +114,15 @@ public class WmiCriterionProcessor {
 		if (wmiCriterion == null) {
 			return CriterionTestResult.error(wmiCriterion, "Malformed criterion. Cannot perform detection.");
 		}
-
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
 		// Find the configured Windows protocol (WMI or WinRM)
 		final IWinConfiguration winConfiguration = configurationRetriever.apply(telemetryManager);
 
 		if (winConfiguration == null) {
 			return CriterionTestResult.error(wmiCriterion, "Neither WMI nor WinRM credentials are configured for this host.");
 		}
+
+		// Retrieve the hostname from the IWinConfiguration, otherwise from the telemetryManager
+		final String hostname = telemetryManager.getHostname(List.of(winConfiguration.getClass()));
 
 		// If namespace is specified as "Automatic"
 		if (AUTOMATIC_NAMESPACE.equalsIgnoreCase(wmiCriterion.getNamespace())) {
@@ -192,7 +193,7 @@ public class WmiCriterionProcessor {
 					// This error indicates that the CIM server will probably never respond to anything
 					// (timeout, or bad credentials), so there's no point in pursuing our efforts here.
 					log.debug(
-						"Hostname %s - Does not respond to %s requests. %s: %s\nCancelling namespace detection.",
+						"Hostname {} - Does not respond to {} requests. {}: {}\nCancelling namespace detection.",
 						hostname,
 						wmiCriterion.getClass().getSimpleName(),
 						e.getClass().getSimpleName(),
@@ -240,7 +241,7 @@ public class WmiCriterionProcessor {
 	 * @param telemetryManager The telemetry manager providing access to host configuration and WMI credentials.
 	 * @param hostname         The hostname of the device
 	 * @param winConfiguration The WMI protocol configuration (credentials, etc.)
-	 * @param wmiCriterion     The WMI criterion with an "Automatic" namespace
+	 * @param wqlCriterion     The WMI criterion with an "Automatic" namespace
 	 * @return A {@link CriterionTestResult} telling whether we found the proper namespace for the specified WQL
 	 */
 	CriterionTestResult findNamespace(

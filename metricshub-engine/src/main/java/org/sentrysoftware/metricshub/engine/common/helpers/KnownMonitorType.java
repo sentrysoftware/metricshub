@@ -21,6 +21,10 @@ package org.sentrysoftware.metricshub.engine.common.helpers;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -121,4 +125,23 @@ public enum KnownMonitorType {
 	VOLTAGE("voltage");
 
 	private String key;
+
+	/**
+	 * Set of all known monitor type keys.
+	 */
+	public static final Set<String> KEYS = Stream
+		.of(KnownMonitorType.values())
+		.map(KnownMonitorType::getKey)
+		.collect(Collectors.toSet());
+
+	/**
+	 * Retrieves the {@code KnownMonitorType} enum constant that matches the given string representation,
+	 * ignoring case.
+	 *
+	 * @param monitorType the string representation to match against enum constants.
+	 * @return the matching value which is an Optional of {@code KnownMonitorType}.
+	 */
+	public static Optional<KnownMonitorType> fromString(final String monitorType) {
+		return Stream.of(KnownMonitorType.values()).filter(type -> type.key.equalsIgnoreCase(monitorType)).findFirst();
+	}
 }

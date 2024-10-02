@@ -48,8 +48,8 @@ public abstract class DeserializerTest implements IDeserializerTest {
 		assertEquals(expected, detection.getCriteria());
 	}
 
-	protected void comparePreSource(final Connector connector, Map<String, Source> expected) {
+	protected void compareBeforeAllSource(final Connector connector, Map<String, Source> expected) {
 		assertNotNull(connector);
-		assertEquals(expected, connector.getPre());
+		assertEquals(expected, connector.getBeforeAll());
 	}
 }

@@ -11,7 +11,6 @@ import static org.sentrysoftware.metricshub.hardware.common.Constants.FAN_ENERGY
 import static org.sentrysoftware.metricshub.hardware.common.Constants.FAN_POWER_METRIC;
 import static org.sentrysoftware.metricshub.hardware.common.Constants.FAN_SPEED_METRIC;
 import static org.sentrysoftware.metricshub.hardware.common.Constants.HOST_1;
-import static org.sentrysoftware.metricshub.hardware.common.Constants.HW_CONNECTOR;
 import static org.sentrysoftware.metricshub.hardware.common.Constants.HW_CPU_POWER;
 import static org.sentrysoftware.metricshub.hardware.common.Constants.HW_HOST_AMBIENT_TEMPERATURE;
 import static org.sentrysoftware.metricshub.hardware.common.Constants.HW_HOST_AVERAGE_CPU_TEMPERATURE;
@@ -54,12 +53,20 @@ import static org.sentrysoftware.metricshub.hardware.util.HwConstants.HW_VM_POWE
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.POWER_SOURCE_ID_ATTRIBUTE;
 import static org.sentrysoftware.metricshub.hardware.util.HwConstants.PRESENT_STATUS;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
+import org.sentrysoftware.metricshub.engine.connector.model.Connector;
+import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
+import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.ConnectorIdentity;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.Detection;
 import org.sentrysoftware.metricshub.engine.strategy.utils.CollectHelper;
 import org.sentrysoftware.metricshub.engine.telemetry.ConnectorNamespace;
 import org.sentrysoftware.metricshub.engine.telemetry.HostProperties;
@@ -73,6 +80,7 @@ class HardwareEnergyPostExecutionServiceTest {
 
 	private static final Long STRATEGY_TIME = 1696597422644L;
 	private static final Long NEXT_STRATEGY_TIME = STRATEGY_TIME + 2 * 60 * 1000;
+	private static final String TEST_CONNECTOR = "TestConnector";
 
 	private HardwareEnergyPostExecutionService hardwareEnergyPostExecutionService;
 
@@ -90,18 +98,28 @@ class HardwareEnergyPostExecutionServiceTest {
 
 	@BeforeEach
 	void init() {
+		final ConnectorStore connectorStore = new ConnectorStore();
+		final Connector connector = new Connector();
+		connector.setConnectorIdentity(
+			ConnectorIdentity
+				.builder()
+				.detection(Detection.builder().appliesTo(Set.of(DeviceKind.OOB)).tags(Set.of("hardware")).build())
+				.build()
+		);
+		connectorStore.setStore(new HashMap<>(Map.of(TEST_CONNECTOR, connector)));
 		telemetryManager =
 			TelemetryManager
 				.builder()
 				.hostConfiguration(HostConfiguration.builder().hostname(LOCALHOST).build())
 				.strategyTime(STRATEGY_TIME)
+				.connectorStore(connectorStore)
 				.build();
 
 		// Set the status ok in the host properties
 		final ConnectorNamespace connectorNamespace = ConnectorNamespace.builder().isStatusOk(true).build();
 		final HostProperties hostProperties = HostProperties
 			.builder()
-			.connectorNamespaces(new HashMap<>(Map.of(HW_CONNECTOR, connectorNamespace)))
+			.connectorNamespaces(new HashMap<>(Map.of("TestConnector", connectorNamespace)))
 			.build();
 		telemetryManager.setHostProperties(hostProperties);
 	}
@@ -113,7 +131,7 @@ class HardwareEnergyPostExecutionServiceTest {
 			.builder()
 			.type(FAN)
 			.metrics(new HashMap<>(Map.of(FAN_SPEED_METRIC, NumberMetric.builder().value(0.7).build())))
-			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "TestConnector")))
 			.build();
 
 		// Set the previously created fan monitor in telemetryManager
@@ -147,7 +165,7 @@ class HardwareEnergyPostExecutionServiceTest {
 			.builder()
 			.type(FAN)
 			.metrics(new HashMap<>(Map.of(FAN_SPEED_METRIC, NumberMetric.builder().value(0.7).build())))
-			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, TEST_CONNECTOR)))
 			.build();
 
 		// Set Fan monitor as missing
@@ -182,7 +200,7 @@ class HardwareEnergyPostExecutionServiceTest {
 		final Monitor roboticsMonitor = Monitor
 			.builder()
 			.type(ROBOTICS)
-			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "TestConnector")))
 			.metrics(new HashMap<>(Map.of(ROBOTICS_MOVE_COUNT_METRIC, NumberMetric.builder().value(0.7).build())))
 			.build();
 
@@ -226,7 +244,7 @@ class HardwareEnergyPostExecutionServiceTest {
 					)
 				)
 			)
-			.attributes(new HashMap<>(Map.of("name", "lto123", MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.attributes(new HashMap<>(Map.of("name", "lto123", MONITOR_ATTRIBUTE_CONNECTOR_ID, "TestConnector")))
 			.build();
 
 		// Set the previously created tape drive monitor in telemetryManager
@@ -258,7 +276,7 @@ class HardwareEnergyPostExecutionServiceTest {
 		// Create a disk controller monitor
 		final Monitor diskControllerMonitor = Monitor
 			.builder()
-			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "TestConnector")))
 			.type(DISK_CONTROLLER)
 			.build();
 
@@ -292,7 +310,7 @@ class HardwareEnergyPostExecutionServiceTest {
 		final Monitor memoryMonitor = Monitor
 			.builder()
 			.type(MEMORY)
-			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "TestConnector")))
 			.build();
 
 		// Set the previously created monitor in telemetryManager
@@ -325,7 +343,7 @@ class HardwareEnergyPostExecutionServiceTest {
 		final Monitor physicalDiskMonitor = Monitor
 			.builder()
 			.type(PHYSICAL_DISK)
-			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "TestConnector")))
 			.build();
 
 		// Set the previously created physical disk monitor in telemetryManager
@@ -366,7 +384,7 @@ class HardwareEnergyPostExecutionServiceTest {
 						NETWORK_LINK_SPEED_ATTRIBUTE,
 						"100.0",
 						MONITOR_ATTRIBUTE_CONNECTOR_ID,
-						HW_CONNECTOR
+						"TestConnector"
 					)
 				)
 			)
@@ -440,7 +458,7 @@ class HardwareEnergyPostExecutionServiceTest {
 			.builder()
 			.id(KnownMonitorType.HOST.getKey())
 			.type(KnownMonitorType.HOST.getKey())
-			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "TestConnector")))
 			.build();
 		host.setAsEndpoint();
 
@@ -458,14 +476,14 @@ class HardwareEnergyPostExecutionServiceTest {
 			.builder()
 			.id(KnownMonitorType.ENCLOSURE.getKey())
 			.type(KnownMonitorType.ENCLOSURE.getKey())
-			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "TestConnector")))
 			.build();
 
 		final Monitor cpu = Monitor
 			.builder()
 			.id("cpu1")
 			.type(KnownMonitorType.CPU.getKey())
-			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "TestConnector")))
 			.build();
 		metricFactory.collectNumberMetric(cpu, HW_CPU_POWER, 60.0, telemetryManager.getStrategyTime());
 		metricFactory.collectNumberMetric(
@@ -479,7 +497,7 @@ class HardwareEnergyPostExecutionServiceTest {
 			.builder()
 			.id("memory1")
 			.type(KnownMonitorType.MEMORY.getKey())
-			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "TestConnector")))
 			.build();
 		metricFactory.collectNumberMetric(
 			memory,
@@ -494,7 +512,7 @@ class HardwareEnergyPostExecutionServiceTest {
 			.builder()
 			.id("disk_nvm_1")
 			.type(KnownMonitorType.PHYSICAL_DISK.getKey())
-			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "TestConnector")))
 			.build();
 
 		metricFactory.collectNumberMetric(disk, HW_PHYSICAL_DISK_POWER, 6.0, telemetryManager.getStrategyTime());
@@ -503,14 +521,14 @@ class HardwareEnergyPostExecutionServiceTest {
 			.builder()
 			.id("disk_noPower")
 			.type(KnownMonitorType.PHYSICAL_DISK.getKey())
-			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "TestConnector")))
 			.build();
 
 		final Monitor missingDisk = Monitor
 			.builder()
 			.id("disk_nvm_2")
 			.type(KnownMonitorType.PHYSICAL_DISK.getKey())
-			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "TestConnector")))
 			.build();
 
 		// Add the previously created monitors to telemetry manager
@@ -558,7 +576,7 @@ class HardwareEnergyPostExecutionServiceTest {
 			.builder()
 			.id(KnownMonitorType.HOST.getKey())
 			.type(KnownMonitorType.HOST.getKey())
-			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "TestConnector")))
 			.build();
 		host.setAsEndpoint();
 
@@ -576,14 +594,14 @@ class HardwareEnergyPostExecutionServiceTest {
 			.builder()
 			.id(KnownMonitorType.ENCLOSURE.getKey())
 			.type(KnownMonitorType.ENCLOSURE.getKey())
-			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "TestConnector")))
 			.build();
 
 		final Monitor cpu = Monitor
 			.builder()
 			.id("cpu1")
 			.type(KnownMonitorType.CPU.getKey())
-			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "TestConnector")))
 			.build();
 		metricFactory.collectNumberMetric(cpu, HW_CPU_POWER, 60.0, telemetryManager.getStrategyTime());
 
@@ -591,7 +609,7 @@ class HardwareEnergyPostExecutionServiceTest {
 			.builder()
 			.id("memory1")
 			.type(KnownMonitorType.MEMORY.getKey())
-			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "TestConnector")))
 			.build();
 
 		metricFactory.collectNumberMetric(memory, HW_MEMORY_POWER, 4.0, telemetryManager.getStrategyTime());
@@ -600,7 +618,7 @@ class HardwareEnergyPostExecutionServiceTest {
 			.builder()
 			.id("disk_nvm_1")
 			.type(KnownMonitorType.PHYSICAL_DISK.getKey())
-			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "TestConnector")))
 			.build();
 
 		metricFactory.collectNumberMetric(disk, HW_PHYSICAL_DISK_POWER, 6.0, telemetryManager.getStrategyTime());
@@ -609,14 +627,14 @@ class HardwareEnergyPostExecutionServiceTest {
 			.builder()
 			.id("disk_noPower")
 			.type(KnownMonitorType.PHYSICAL_DISK.getKey())
-			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "TestConnector")))
 			.build();
 
 		final Monitor missingDisk = Monitor
 			.builder()
 			.id("disk_nvm_2")
 			.type(KnownMonitorType.PHYSICAL_DISK.getKey())
-			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "TestConnector")))
 			.build();
 
 		// Add the previously created monitors to telemetry manager
@@ -643,7 +661,7 @@ class HardwareEnergyPostExecutionServiceTest {
 		return Monitor
 			.builder()
 			.id(id)
-			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, HW_CONNECTOR)))
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "TestConnector")))
 			.type(monitorType)
 			.build();
 	}
@@ -930,5 +948,32 @@ class HardwareEnergyPostExecutionServiceTest {
 		// Check the collected CPU power and energy metrics
 		assertEquals(19.0, cpuMonitor.getMetric(HW_POWER_CPU_METRIC, NumberMetric.class).getValue());
 		assertEquals(2280.0, cpuMonitor.getMetric(HW_ENERGY_CPU_METRIC, NumberMetric.class).getValue());
+	}
+
+	@Test
+	void testRunWithNonHardwareConnector() {
+		final Path yamlTestPath = Paths.get("src", "test", "resources", "Linux");
+
+		final ConnectorStore connectorStore = new ConnectorStore(yamlTestPath);
+		telemetryManager.setConnectorStore(connectorStore);
+
+		// Create a physical disk monitor
+		final Monitor physicalDiskMonitor = Monitor
+			.builder()
+			.type(PHYSICAL_DISK)
+			.attributes(new HashMap<>(Map.of(MONITOR_ATTRIBUTE_CONNECTOR_ID, "Linux")))
+			.build();
+
+		// Set the previously created physical disk monitor in telemetryManager
+		final Map<String, Monitor> physicalDiskMonitors = new HashMap<>(Map.of("monitor5", physicalDiskMonitor));
+		telemetryManager.setMonitors(new HashMap<>(Map.of(PHYSICAL_DISK, physicalDiskMonitors)));
+
+		// Call run method in HardwareEnergyPostExecutionService
+		hardwareEnergyPostExecutionService = new HardwareEnergyPostExecutionService(telemetryManager);
+		hardwareEnergyPostExecutionService.run();
+
+		// Check the computed and collected power metric
+		final NumberMetric power = physicalDiskMonitor.getMetric(PHYSICAL_DISK_POWER_METRIC, NumberMetric.class);
+		assertNull(power);
 	}
 }

@@ -11,7 +11,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
-import static org.sentrysoftware.metricshub.extension.http.HttpExtension.HTTP_UP_METRIC;
 
 import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.IntNode;
@@ -21,6 +20,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -108,9 +108,10 @@ class HttpExtensionTest {
 			.when(httpRequestExecutorMock)
 			.executeHttp(any(HttpRequest.class), anyBoolean(), any(TelemetryManager.class));
 
-		httpExtension.checkProtocol(telemetryManager);
+		Optional<Boolean> result = httpExtension.checkProtocol(telemetryManager);
 
-		assertEquals(HttpExtension.DOWN, telemetryManager.getEndpointHostMonitor().getMetric(HTTP_UP_METRIC).getValue());
+		// Assert the result
+		assertFalse(result.get());
 	}
 
 	@Test
@@ -122,9 +123,10 @@ class HttpExtensionTest {
 			.when(httpRequestExecutorMock)
 			.executeHttp(any(HttpRequest.class), anyBoolean(), any(TelemetryManager.class));
 
-		httpExtension.checkProtocol(telemetryManager);
+		Optional<Boolean> result = httpExtension.checkProtocol(telemetryManager);
 
-		assertEquals(HttpExtension.UP, telemetryManager.getEndpointHostMonitor().getMetric(HTTP_UP_METRIC).getValue());
+		// Assert the result
+		assertTrue(result.get());
 	}
 
 	@Test
@@ -135,6 +137,19 @@ class HttpExtensionTest {
 				new IConfiguration() {
 					@Override
 					public void validateConfiguration(String resourceKey) throws InvalidConfigurationException {}
+
+					@Override
+					public String getHostname() {
+						return null;
+					}
+
+					@Override
+					public void setHostname(String hostname) {}
+
+					@Override
+					public IConfiguration copy() {
+						return null;
+					}
 				}
 			)
 		);

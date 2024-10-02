@@ -24,7 +24,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 
 class MappingProcessorTest {
 
-	private static final String HW_VM_POWER_RATIO = "__hw.vm.power_ratio";
+	private static final String HW_VM_POWER_RATIO = "hw.vm.power_ratio";
 	private static final String HW_VM_POWER_RATIO_RAW_POWER_SHARE = "__hw.vm.power_ratio.raw_power_share";
 
 	@Test
@@ -64,6 +64,7 @@ class MappingProcessorTest {
 			expected.put("testMegaHertz2Hertz", "1000000.0");
 			expected.put("testMilliVolt2Volt", "0.001");
 			expected.put("testMegaBit2Bit", "1000000.0");
+			expected.put("testMegaBit2Byte", "125000.0");
 			expected.put("testPercent2Ratio", "0.1");
 			expected.put("testValue", "10");
 			expected.put("testSourceReferenceKey", "vendor1");
@@ -78,6 +79,8 @@ class MappingProcessorTest {
 				"milliVolt2Volt(1)",
 				"testMegaBit2Bit",
 				"megabit2bit(1)",
+				"testMegaBit2Byte",
+				"megabit2byte(1)",
 				"testPercent2Ratio",
 				"percent2ratio(10)",
 				"testValue",
@@ -102,6 +105,8 @@ class MappingProcessorTest {
 				"0.001",
 				"testMegaBit2Bit",
 				"1000000.0",
+				"testMegaBit2Byte",
+				"125000.0",
 				"testPercent2Ratio",
 				"0.1",
 				"testValue",
@@ -117,6 +122,8 @@ class MappingProcessorTest {
 				"milliVolt2Volt($2)",
 				"testMegaBit2Bit",
 				"megabit2bit($3)",
+				"testMegaBit2Byte",
+				"megabit2byte($3)",
 				"testPercent2Ratio",
 				"percent2ratio($4)",
 				"testValue",
@@ -238,13 +245,15 @@ class MappingProcessorTest {
 			.telemetryManager(new TelemetryManager())
 			.mapping(Mapping.builder().source(HARDCODED_SOURCE).build())
 			.row(row)
+			.indexCounter(1)
 			.build();
 
 		// Test case for replacement of each column reference with the actual value of the corresponding column
 		final Map<String, String> keyValuePairs = new HashMap<>();
 		keyValuePairs.put("type", "$1");
-		keyValuePairs.put("name", "cpu $2");
+		keyValuePairs.put("name", "cpu $2 $index");
 		keyValuePairs.put("id", "$1_$2_$3");
+		keyValuePairs.put("__display_id", "$index");
 		keyValuePairs.put("vendor", "$4");
 		keyValuePairs.put("serial", "$5 $6");
 		keyValuePairs.put("microcode", "$7");
@@ -253,13 +262,14 @@ class MappingProcessorTest {
 
 		final Map<String, String> result = mappingProcessor.interpretNonContextMapping(keyValuePairs);
 		assertEquals("cpu", result.get("type"));
-		assertEquals("cpu DellOpenManage", result.get("name"));
+		assertEquals("cpu DellOpenManage 1", result.get("name"));
 		assertEquals("cpu_DellOpenManage_1.1", result.get("id"));
 		assertEquals("Dell $1", result.get("vendor"));
 		assertEquals(" ", result.get("serial"));
 		assertEquals("", result.get("microcode"));
 		assertEquals("Dell ", result.get("firmware"));
 		assertEquals("", result.get("info"));
+		assertEquals("1", result.get("__display_id"));
 	}
 
 	@Test

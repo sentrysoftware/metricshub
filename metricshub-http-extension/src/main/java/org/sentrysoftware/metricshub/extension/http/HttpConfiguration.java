@@ -60,6 +60,8 @@ public class HttpConfiguration implements IConfiguration {
 	private String username;
 	private char[] password;
 
+	private String hostname;
+
 	@Override
 	public String toString() {
 		return String.format(
@@ -97,5 +99,17 @@ public class HttpConfiguration implements IConfiguration {
 					port
 				)
 		);
+	}
+
+	@Override
+	public IConfiguration copy() {
+		return HttpConfiguration
+			.builder()
+			.username(username)
+			.password(password)
+			.https(https)
+			.port(port)
+			.timeout(timeout)
+			.build();
 	}
 }

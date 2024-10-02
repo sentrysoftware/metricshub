@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,14 +18,14 @@ import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.extension.snmp.AbstractSnmpRequestExecutor;
 import org.sentrysoftware.metricshub.extension.snmp.ISnmpConfiguration;
-import org.sentrysoftware.metricshub.extension.snmp.ISnmpRequestExecutor;
 
 @ExtendWith(MockitoExtension.class)
 public class SnmpTableSourceProcessorTest {
 
 	@Mock
-	private ISnmpRequestExecutor snmpRequestExecutor;
+	private AbstractSnmpRequestExecutor snmpRequestExecutor;
 
 	@Mock
 	private Function<TelemetryManager, ISnmpConfiguration> configurationRetriever;
@@ -40,7 +41,7 @@ public class SnmpTableSourceProcessorTest {
 	@Test
 	public void testProcess_WhenSourceIsNull_ReturnsEmptySourceTable() {
 		SnmpTableSource snmpTableSource = null;
-		TelemetryManager telemetryManager = mockTelemetryManager();
+		TelemetryManager telemetryManager = createTelemetryManagerWithHostConfiguration();
 
 		SourceTable result = snmpTableSourceProcessor.process(snmpTableSource, "connectorId", telemetryManager);
 
@@ -55,7 +56,7 @@ public class SnmpTableSourceProcessorTest {
 			.oid("test_oid")
 			.selectColumns("column1, column2")
 			.build();
-		TelemetryManager telemetryManager = mockTelemetryManager();
+		TelemetryManager telemetryManager = createTelemetryManagerWithHostConfiguration();
 		when(configurationRetriever.apply(telemetryManager)).thenReturn(null);
 
 		SourceTable result = snmpTableSourceProcessor.process(snmpTableSource, "connectorId", telemetryManager);
@@ -67,7 +68,7 @@ public class SnmpTableSourceProcessorTest {
 	@Test
 	public void testProcess_WhenSelectedColumnsAreBlank_ReturnsEmptySourceTable() {
 		SnmpTableSource snmpTableSource = SnmpTableSource.builder().oid("test_oid").selectColumns("").build();
-		TelemetryManager telemetryManager = mockTelemetryManager();
+		TelemetryManager telemetryManager = createTelemetryManagerWithHostConfiguration();
 
 		SourceTable result = snmpTableSourceProcessor.process(snmpTableSource, "connectorId", telemetryManager);
 
@@ -82,7 +83,7 @@ public class SnmpTableSourceProcessorTest {
 			.oid("test_oid")
 			.selectColumns("column1, column2")
 			.build();
-		TelemetryManager telemetryManager = mockTelemetryManager();
+		TelemetryManager telemetryManager = createTelemetryManagerWithHostConfiguration();
 		ISnmpConfiguration snmpConfiguration = mock(ISnmpConfiguration.class);
 		when(configurationRetriever.apply(telemetryManager)).thenReturn(snmpConfiguration);
 
@@ -103,7 +104,7 @@ public class SnmpTableSourceProcessorTest {
 			.oid("test_oid")
 			.selectColumns("column1, column2")
 			.build();
-		TelemetryManager telemetryManager = mockTelemetryManager();
+		TelemetryManager telemetryManager = createTelemetryManagerWithHostConfiguration();
 		ISnmpConfiguration snmpConfiguration = mock(ISnmpConfiguration.class);
 		when(configurationRetriever.apply(telemetryManager)).thenReturn(snmpConfiguration);
 		List<List<String>> expectedResult = Arrays.asList(
@@ -126,12 +127,18 @@ public class SnmpTableSourceProcessorTest {
 		assertEquals(expectedResult, result.getTable());
 	}
 
-	// Utility method to simulate a TelemetryManager
-	private TelemetryManager mockTelemetryManager() {
-		TelemetryManager telemetryManager = mock(TelemetryManager.class);
-		HostConfiguration hostConfigurationMock = mock(HostConfiguration.class);
-		when(telemetryManager.getHostConfiguration()).thenReturn(hostConfigurationMock);
-		when(hostConfigurationMock.getHostname()).thenReturn("hostname");
+	/**
+	 * Utility method to create a telemetryManager
+	 *
+	 * @return a configured telemetryManager instance
+	 */
+	private TelemetryManager createTelemetryManagerWithHostConfiguration() {
+		HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.hostname("hostname")
+			.configurations(Map.of())
+			.build();
+		TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 		return telemetryManager;
 	}
 }

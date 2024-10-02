@@ -49,9 +49,11 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CopySource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.JawkSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpGetSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SqlSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.StaticSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.TableJoinSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.TableUnionSource;
@@ -140,6 +142,16 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 		return processSource(wbemSource.copy());
 	}
 
+	@Override
+	public SourceTable process(final SqlSource sqlSource) {
+		return processSource(sqlSource.copy());
+	}
+
+	@Override
+	public SourceTable process(final JawkSource jawkSource) {
+		return processSource(jawkSource.copy());
+	}
+
 	/**
 	 * This method processes {@link WmiSource} source
 	 * @param wmiSource {@link WmiSource} instance
@@ -195,7 +207,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 			telemetryManager
 		);
 
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final String hostname = telemetryManager.getHostname();
 		if (maybeSourceTable.isEmpty()) {
 			log.error(
 				"Hostname {} - Could not extract the foreign source table identified by {} and defined in original source {} to set the {} field.",
@@ -397,7 +409,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 			.get(sourceRefKey);
 
 		// Hostname used for the debug messages
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final String hostname = telemetryManager.getHostname();
 
 		if (sourceTable == null) {
 			log.error(
@@ -478,7 +490,7 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 			connectorId,
 			telemetryManager
 		);
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final String hostname = telemetryManager.getHostname();
 		if (maybeSourceTable.isEmpty()) {
 			log.error(
 				"Hostname {} - The SourceTable referenced in the ExecuteForEachEntryOf field cannot be found : {}.",

@@ -27,3 +27,16 @@ metrics:
   metricshub.host.up:
     description: Whether the configured protocol (http, ipmi, snmp, ssh, wbem, winrm and wmi) is up (1) or not (0).	
     type: UpDownCounter
+
+  hw.status:
+    description: 'Operational status: 1 (true) or 0 (false) for each of the possible states.'
+    type:
+      stateSet:
+      - degraded
+      - failed
+      - ok
+
+  metricshub.host.up.response_time:
+    description: Response time for protocol check.
+    type: Gauge
+    unit: s

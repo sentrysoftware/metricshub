@@ -23,6 +23,7 @@ package org.sentrysoftware.metricshub.cli.service.protocol;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.BooleanNode;
+import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -46,6 +47,11 @@ public class SshConfigCli implements IProtocolConfigCli {
 	 * Default timeout in seconds to execute an SSH operation
 	 */
 	public static final int DEFAULT_TIMEOUT = 30;
+
+	/**
+	 * Default SSH port number.
+	 */
+	public static final int DEFAULT_PORT = 22;
 
 	@Spec
 	CommandSpec spec;
@@ -84,8 +90,17 @@ public class SshConfigCli implements IProtocolConfigCli {
 	private String timeout;
 
 	@Option(
-		names = "--ssh-usesudo-commands",
+		names = "--ssh-port",
 		order = 6,
+		paramLabel = "PORT",
+		defaultValue = "" + DEFAULT_PORT,
+		description = "Port number for SSH connection (default: ${DEFAULT-VALUE})"
+	)
+	private Integer port;
+
+	@Option(
+		names = "--ssh-usesudo-commands",
+		order = 7,
 		paramLabel = "COMMAND",
 		description = "List of commands that requires @|italic sudo|@",
 		split = ","
@@ -94,7 +109,7 @@ public class SshConfigCli implements IProtocolConfigCli {
 
 	@Option(
 		names = "--ssh-sudo-command",
-		order = 7,
+		order = 8,
 		paramLabel = "SUDO",
 		description = "@|italic sudo|@ command (default: ${DEFAULT-VALUE})",
 		defaultValue = "sudo"
@@ -132,10 +147,20 @@ public class SshConfigCli implements IProtocolConfigCli {
 		configuration.set("useSudo", BooleanNode.TRUE);
 		configuration.set("sudoCommand", new TextNode(sudoCommand));
 		configuration.set("timeout", new TextNode(timeout));
+		configuration.set("port", new IntNode(getPort()));
 
 		return CliExtensionManager
 			.getExtensionManagerSingleton()
 			.buildConfigurationFromJsonNode("ssh", configuration, value -> value)
 			.orElseThrow();
+	}
+
+	/**
+	 * Returns the port number for the SSH connection, defaulting to 22 if not set.
+	 *
+	 * @return the port number or 22 if null.
+	 */
+	public int getPort() {
+		return port != null ? port : DEFAULT_PORT;
 	}
 }

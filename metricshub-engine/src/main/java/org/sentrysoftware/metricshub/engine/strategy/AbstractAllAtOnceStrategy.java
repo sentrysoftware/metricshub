@@ -54,9 +54,10 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Discove
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Mapping;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Simple;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
-import org.sentrysoftware.metricshub.engine.strategy.pre.PreSourcesStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.source.OrderedSources;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
+import org.sentrysoftware.metricshub.engine.strategy.surrounding.AfterAllStrategy;
+import org.sentrysoftware.metricshub.engine.strategy.surrounding.BeforeAllStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.utils.MappingProcessor;
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
@@ -74,6 +75,13 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 @EqualsAndHashCode(callSuper = true)
 public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 
+	/**
+	 * Initializes a new instance of {@code AbstractAllAtOnceStrategy} with the necessary components for executing the strategy.
+	 * @param telemetryManager The telemetry manager responsible for managing telemetry data (monitors and metrics).
+	 * @param strategyTime     The execution time of the strategy, used for timing purpose.
+	 * @param clientsExecutor  An executor service for handling client operations within the strategy.
+	 * @param extensionManager The extension manager where all the required extensions are handled.
+	 */
 	protected AbstractAllAtOnceStrategy(
 		@NonNull final TelemetryManager telemetryManager,
 		final long strategyTime,
@@ -100,8 +108,8 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 			return;
 		}
 
-		// Run PreSourcesStrategy that executes pre sources
-		final PreSourcesStrategy preSourcesStrategy = PreSourcesStrategy
+		// Run BeforeAllStrategy that executes beforeAll sources
+		final BeforeAllStrategy beforeAllStrategy = BeforeAllStrategy
 			.builder()
 			.clientsExecutor(clientsExecutor)
 			.strategyTime(strategyTime)
@@ -110,7 +118,7 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 			.extensionManager(extensionManager)
 			.build();
 
-		preSourcesStrategy.run();
+		beforeAllStrategy.run();
 
 		// Sort the connector monitor jobs according to the priority map
 		final Map<String, MonitorJob> connectorMonitorJobs = currentConnector
@@ -178,6 +186,17 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 				log.debug("Hostname {} - Waiting for threads' termination aborted with an error.", hostname, e);
 			}
 		}
+		// Run AfterAllStrategy that executes afterAll sources
+		final AfterAllStrategy afterAllStrategy = AfterAllStrategy
+			.builder()
+			.clientsExecutor(clientsExecutor)
+			.strategyTime(strategyTime)
+			.telemetryManager(telemetryManager)
+			.connector(currentConnector)
+			.extensionManager(extensionManager)
+			.build();
+
+		afterAllStrategy.run();
 	}
 
 	/**
@@ -228,7 +247,7 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 		// Create the monitors
 		final Mapping mapping = monitorTask.getMapping();
 
-		processSameTypeMonitors(currentConnector, mapping, monitorType, hostname);
+		processSameTypeMonitors(currentConnector, mapping, monitorType, hostname, monitorJob);
 	}
 
 	/**
@@ -243,7 +262,8 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 		final Connector connector,
 		final Mapping mapping,
 		final String monitorType,
-		final String hostname
+		final String hostname,
+		final MonitorJob monitorJob
 	) {
 		final String connectorId = connector.getCompiledFilename();
 
@@ -289,7 +309,7 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 		}
 
 		// If the source table is not empty, loop over the source table rows
-		final SourceTable sourceTable = maybeSourceTable.get();
+		final List<List<String>> table = maybeSourceTable.get().getTable();
 
 		log.debug(
 			"Hostname {} - Start {} {} mapping with source {}, attributes {}, metrics {}, conditional collection {}, legacy text parameters {} " +
@@ -306,7 +326,8 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 			connectorId
 		);
 
-		for (final List<String> row : sourceTable.getTable()) {
+		for (int i = 0; i < table.size(); i++) {
+			final List<String> row = table.get(i);
 			// Init mapping processor
 			final MappingProcessor mappingProcessor = MappingProcessor
 				.builder()
@@ -323,6 +344,7 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 				)
 				.collectTime(strategyTime)
 				.row(row)
+				.indexCounter(i + 1)
 				.build();
 
 			// Use the mapping processor to extract attributes and resource
@@ -341,6 +363,7 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 				.resource(resource)
 				.connectorId(connectorId)
 				.discoveryTime(strategyTime)
+				.keys(monitorJob.getKeys())
 				.build();
 
 			// The attribute id is mandatory
@@ -388,7 +411,7 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 	 */
 	public void run() {
 		// Get the host name from telemetry manager
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final String hostname = telemetryManager.getHostname();
 
 		// Get the endpoint host monitor
 		final Monitor endpointHost = telemetryManager.getEndpointHostMonitor();

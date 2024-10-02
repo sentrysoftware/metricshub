@@ -21,6 +21,7 @@ package org.sentrysoftware.metricshub.extension.snmp.detection;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
@@ -30,8 +31,8 @@ import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.S
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.utils.PslUtils;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.extension.snmp.AbstractSnmpRequestExecutor;
 import org.sentrysoftware.metricshub.extension.snmp.ISnmpConfiguration;
-import org.sentrysoftware.metricshub.extension.snmp.ISnmpRequestExecutor;
 
 /**
  * A class responsible for processing SNMP Get criteria to evaluate SNMP queries against specified criteria.
@@ -43,7 +44,7 @@ import org.sentrysoftware.metricshub.extension.snmp.ISnmpRequestExecutor;
 public class SnmpGetCriterionProcessor {
 
 	@NonNull
-	private ISnmpRequestExecutor snmpRequestExecutor;
+	private AbstractSnmpRequestExecutor snmpRequestExecutor;
 
 	@NonNull
 	private Function<TelemetryManager, ISnmpConfiguration> configurationRetriever;
@@ -64,11 +65,10 @@ public class SnmpGetCriterionProcessor {
 		final String connectorId,
 		final TelemetryManager telemetryManager
 	) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
 		if (snmpGetCriterion == null) {
 			log.error(
 				"Hostname {} - Malformed SNMP Get criterion {}. Cannot process SNMP Get detection. Connector ID: {}.",
-				hostname,
+				telemetryManager.getHostname(),
 				snmpGetCriterion,
 				connectorId
 			);
@@ -81,12 +81,15 @@ public class SnmpGetCriterionProcessor {
 		if (snmpConfiguration == null) {
 			log.debug(
 				"Hostname {} - The SNMP credentials are not configured. Cannot process SNMP Get criterion {}. Connector ID: {}.",
-				hostname,
+				telemetryManager.getHostname(),
 				snmpGetCriterion,
 				connectorId
 			);
 			return CriterionTestResult.empty();
 		}
+
+		// Retrieve the hostname from the ISnmpConfiguration, otherwise from the telemetryManager
+		final String hostname = telemetryManager.getHostname(List.of(snmpConfiguration.getClass()));
 
 		try {
 			final String result = snmpRequestExecutor.executeSNMPGet(
@@ -128,7 +131,7 @@ public class SnmpGetCriterionProcessor {
 	 * @param result   The result of the SNMP Get operation.
 	 * @return {@link CriterionTestResult} wrapping the message and the success status.
 	 */
-	private static CriterionTestResult checkSNMPGetValue(final String hostname, final String oid, final String result) {
+	static CriterionTestResult checkSNMPGetValue(final String hostname, final String oid, final String result) {
 		String message;
 		boolean success = false;
 		if (result == null) {
@@ -166,7 +169,7 @@ public class SnmpGetCriterionProcessor {
 	 * @param result   The result of the SNMP Get operation.
 	 * @return {@link CriterionTestResult} wrapping the success status and the message.
 	 */
-	private static CriterionTestResult checkSNMPGetResult(
+	static CriterionTestResult checkSNMPGetResult(
 		final String hostname,
 		final String oid,
 		final String expected,
@@ -187,7 +190,7 @@ public class SnmpGetCriterionProcessor {
 	 * @param result   The result of the SNMP Get operation.
 	 * @return {@link CriterionTestResult} wrapping the message and the success status.
 	 */
-	private static CriterionTestResult checkSNMPGetExpectedValue(
+	static CriterionTestResult checkSNMPGetExpectedValue(
 		final String hostname,
 		final String oid,
 		final String expected,

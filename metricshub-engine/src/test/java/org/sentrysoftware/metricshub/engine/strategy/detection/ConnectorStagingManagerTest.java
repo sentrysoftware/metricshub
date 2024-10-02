@@ -93,7 +93,7 @@ class ConnectorStagingManagerTest {
 		// We force connector1
 		// We exclude storageConnector1 from the automatic detection
 		// We stage storage connectors for the automatic detection
-		final Set<String> connectorsConfig = Set.of("+connector1", "-storageConnector1", "#storage");
+		final Set<String> connectorsConfig = Set.of("+connector1", "!storageConnector1", "#storage");
 
 		final Connector connector1 = Connector
 			.builder()
@@ -142,7 +142,7 @@ class ConnectorStagingManagerTest {
 		// We select connector1 to be executed by the automatic detection
 		// We exclude storage connectors from the automatic detection
 		// We stage hardware connectors for the automatic detection
-		final Set<String> connectorsConfig = Set.of("connector1", "-#storage", "#hardware");
+		final Set<String> connectorsConfig = Set.of("connector1", "!#storage", "#hardware");
 
 		final Connector connector1 = Connector
 			.builder()
@@ -192,7 +192,7 @@ class ConnectorStagingManagerTest {
 		// We exclude storage connectors from the automatic detection
 		// We stage hardware connectors for the automatic detection
 		// The hardwareAndStorageConnector will be excluded
-		final Set<String> connectorsConfig = Set.of("connector1", "#hardware", "-#storage");
+		final Set<String> connectorsConfig = Set.of("connector1", "#hardware", "!#storage");
 
 		final Connector connector1 = Connector
 			.builder()
@@ -333,7 +333,7 @@ class ConnectorStagingManagerTest {
 	@Test
 	void testStagingUseCase7() {
 		// We stage all the connectors except the storage ones
-		final Set<String> connectorsConfig = Set.of("-#storage");
+		final Set<String> connectorsConfig = Set.of("!#storage");
 
 		final Connector connector1 = Connector
 			.builder()
@@ -648,7 +648,7 @@ class ConnectorStagingManagerTest {
 	@Test
 	void testStagingUseCase11() {
 		// We stage all the connectors except hardwareAndStorageConnector
-		final Set<String> connectorsConfig = Set.of("-hardwareAndStorageConnector");
+		final Set<String> connectorsConfig = Set.of("!hardwareAndStorageConnector");
 
 		final Connector connector1 = Connector
 			.builder()

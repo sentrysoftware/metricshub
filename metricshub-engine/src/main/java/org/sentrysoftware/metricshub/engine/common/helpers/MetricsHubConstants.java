@@ -170,7 +170,7 @@ public class MetricsHubConstants {
 	/**
 	 * Thread Timeout
 	 */
-	public static final long THREAD_TIMEOUT = 15 * 60L; // 15 minutes
+	public static final long THREAD_TIMEOUT = 2 * 60L; // 2 minutes
 
 	// MetricsHub / OpenTelemetry mappings
 
@@ -403,4 +403,9 @@ public class MetricsHubConstants {
 	 * Default
 	 **/
 	public static final String DEFAULT = "default";
+
+	/**
+	 * Default keys for monitor jobs
+	 */
+	public static final Set<String> DEFAULT_KEYS = Set.of(MetricsHubConstants.MONITOR_ATTRIBUTE_ID);
 }

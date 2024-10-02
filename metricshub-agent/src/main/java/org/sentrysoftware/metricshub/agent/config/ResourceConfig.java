@@ -37,10 +37,12 @@ import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.sentrysoftware.metricshub.agent.config.protocols.ProtocolsConfig;
 import org.sentrysoftware.metricshub.agent.deserialization.AttributesDeserializer;
 import org.sentrysoftware.metricshub.agent.deserialization.ConnectorVariablesDeserializer;
+import org.sentrysoftware.metricshub.agent.deserialization.ExtensionProtocolsDeserializer;
 import org.sentrysoftware.metricshub.agent.deserialization.MonitorJobsDeserializer;
+import org.sentrysoftware.metricshub.engine.configuration.ConnectorVariables;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.MonitorJob;
 import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
@@ -82,7 +84,10 @@ public class ResourceConfig {
 	@JsonSetter(nulls = SKIP)
 	private Map<String, Double> metrics = new HashMap<>();
 
-	private ProtocolsConfig protocols;
+	@Default
+	@JsonSetter(nulls = SKIP)
+	@JsonDeserialize(using = ExtensionProtocolsDeserializer.class)
+	private Map<String, IConfiguration> protocols = new HashMap<>();
 
 	@Default
 	@JsonSetter(nulls = SKIP)
@@ -101,9 +106,11 @@ public class ResourceConfig {
 	@JsonIgnore
 	private Connector connector;
 
+	private String stateSetCompression;
+
 	/**
 	 * Creates and returns a shallow copy of all the fields in this
-	 * ResourceConfig object except the attributes map which is deeply copied.
+	 * ResourceConfig object except the attributes and protocols maps which are deeply copied.
 	 *
 	 * @return A new ResourceConfig object with the same property values as this one.
 	 */
@@ -127,10 +134,14 @@ public class ResourceConfig {
 					)
 			)
 			.metrics(metrics)
-			.protocols(protocols)
+			// Deep copies the IConfigurations
+			.protocols(
+				protocols.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().copy()))
+			)
 			.variables(variables)
 			.connectors(connectors)
 			.connector(connector)
+			.stateSetCompression(stateSetCompression)
 			.build();
 	}
 }

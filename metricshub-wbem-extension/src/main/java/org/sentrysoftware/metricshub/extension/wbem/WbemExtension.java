@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 import lombok.extern.slf4j.Slf4j;
@@ -41,8 +42,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
-import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
-import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 @Slf4j
@@ -52,21 +51,6 @@ public class WbemExtension implements IProtocolExtension {
 	 * INTEROP WBEM namespace
 	 */
 	private static final String INTEROP_LOWER_CASE = "interop";
-
-	/**
-	 * Protocol up status value '1.0'
-	 */
-	public static final Double UP = 1.0;
-
-	/**
-	 * Protocol down status value '0.0'
-	 */
-	public static final Double DOWN = 0.0;
-
-	/**
-	 * WBEM Up metric
-	 */
-	public static final String WBEM_UP_METRIC = "metricshub.host.up{protocol=\"wbem\"}";
 
 	/**
 	 * List of WBEM protocol health check test Namespaces
@@ -82,6 +66,11 @@ public class WbemExtension implements IProtocolExtension {
 	 * WQL Query to test WBEM protocol health check
 	 */
 	public static final String WBEM_TEST_QUERY = "SELECT Name FROM CIM_NameSpace";
+
+	/**
+	 * The identifier for the Wbem protocol.
+	 */
+	private static final String IDENTIFIER = "wbem";
 
 	private WbemRequestExecutor wbemRequestExecutor;
 
@@ -113,15 +102,12 @@ public class WbemExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public void checkProtocol(TelemetryManager telemetryManager) {
-		// Retrieve the hostname
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		// Retrieve the host endpoint monitor
-		final Monitor hostMonitor = telemetryManager.getEndpointHostMonitor();
+	public Optional<Boolean> checkProtocol(TelemetryManager telemetryManager) {
+		// Retrieve the hostname from the WbemConfiguration, otherwise from the telemetryManager.
+		final String hostname = telemetryManager.getHostname(List.of(WbemConfiguration.class));
 
 		// Create and set the WBEM result to null
-		String wbemResult = null;
+		List<List<String>> wbemResult = null;
 
 		// Retrieve WBEM configuration from the telemetry manager
 		final WbemConfiguration wbemConfiguration = (WbemConfiguration) telemetryManager
@@ -131,16 +117,14 @@ public class WbemExtension implements IProtocolExtension {
 
 		// Stop the WBEM health check if there is not an WBEM configuration
 		if (wbemConfiguration == null) {
-			return;
+			return Optional.empty();
 		}
 
+		log.info("Hostname {} - Performing {} protocol health check.", hostname, getIdentifier());
 		log.info(
 			"Hostname {} - Checking WBEM protocol status. Sending a WQL SELECT request on different namespaces.",
 			hostname
 		);
-
-		final Long strategyTime = telemetryManager.getStrategyTime();
-		final MetricFactory metricFactory = new MetricFactory();
 
 		for (final String wbemNamespace : WBEM_UP_TEST_NAMESPACES) {
 			try {
@@ -149,29 +133,18 @@ public class WbemExtension implements IProtocolExtension {
 					hostname,
 					wbemNamespace
 				);
-
 				// The query on the WBEM namespace returned a result
-				//CHECKSTYLE:OFF
-				if (
+				wbemResult =
 					wbemRequestExecutor.executeWbem(
 						hostname,
 						wbemConfiguration,
 						WBEM_TEST_QUERY,
 						wbemNamespace,
 						telemetryManager
-					) !=
-					null
-					//CHECKSTYLE:OFF
-				) {
-					// Collect the metric with a '1.0' value and stop the test
-					metricFactory.collectNumberMetric(hostMonitor, WBEM_UP_METRIC, UP, strategyTime);
-					return;
-				}
+					);
 			} catch (Exception e) {
 				if (wbemRequestExecutor.isAcceptableException(e)) {
-					// Collect the WBEM metric with a '1.0' value and stop the test as the thrown exception is acceptable
-					metricFactory.collectNumberMetric(hostMonitor, WBEM_UP_METRIC, UP, strategyTime);
-					return;
+					return Optional.of(true);
 				}
 				log.debug(
 					"Hostname {} - Checking WBEM protocol status. WBEM exception when performing a WQL SELECT query on '{}' namespace: ",
@@ -181,11 +154,7 @@ public class WbemExtension implements IProtocolExtension {
 				);
 			}
 		}
-
-		// Generate a metric from the WBEM result
-		// CHECKSTYLE:OFF
-		metricFactory.collectNumberMetric(hostMonitor, WBEM_UP_METRIC, wbemResult != null ? UP : DOWN, strategyTime);
-		// CHECKSTYLE:ON
+		return Optional.of(wbemResult != null);
 	}
 
 	@Override
@@ -222,7 +191,7 @@ public class WbemExtension implements IProtocolExtension {
 
 	@Override
 	public boolean isSupportedConfigurationType(String configurationType) {
-		return "wbem".equalsIgnoreCase(configurationType);
+		return IDENTIFIER.equalsIgnoreCase(configurationType);
 	}
 
 	@Override
@@ -264,5 +233,10 @@ public class WbemExtension implements IProtocolExtension {
 			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 			.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false)
 			.build();
+	}
+
+	@Override
+	public String getIdentifier() {
+		return IDENTIFIER;
 	}
 }

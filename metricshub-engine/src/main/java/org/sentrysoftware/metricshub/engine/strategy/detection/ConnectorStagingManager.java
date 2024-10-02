@@ -47,12 +47,12 @@ public class ConnectorStagingManager {
 	/**
 	 * Regular expression pattern for parsing configured connector directives.
 	 */
-	private static final Pattern CONFIGURED_CONNECTOR_PATTERN = Pattern.compile("^((?!-#)([#\\+-]?)|((-#)?))(.+)$");
+	private static final Pattern CONFIGURED_CONNECTOR_PATTERN = Pattern.compile("^((?!!#)([#\\+!]?)|((!#)?))(.+)$");
 
 	/**
 	 * Regular expression pattern for matching included connectors for automatic detection.
 	 */
-	private static final Pattern INCLUDED_CONNECTORS_PATTERN = Pattern.compile("^(?![+-])(#?)(.+)$");
+	private static final Pattern INCLUDED_CONNECTORS_PATTERN = Pattern.compile("^(?![+!])(#?)(.+)$");
 
 	/**
 	 * The host name of the resource we currently monitor
@@ -159,7 +159,7 @@ public class ConnectorStagingManager {
 	 * @param store                       The map containing connectors, keyed by identifier.
 	 * @param autoDetectionConnectorIds   Set for automatic detection connector identifiers.
 	 * @param forcedConnectorIds          Set for forced inclusion connector identifiers.
-	 * @param prefix                      Prefix indicating the type of directive (#, -#, +, -).
+	 * @param prefix                      Prefix indicating the type of directive (#, !#, +, !).
 	 * @param configuredConnectorIdOrTag  Connector identifier or tag from configured directives.
 	 * @param isIncludedConnectors        Whether existing directives include a tag or some connectors.
 	 * @return Connector identifiers to be removed from the automatic detection connector identifiers set.
@@ -186,7 +186,7 @@ public class ConnectorStagingManager {
 					connectorEntry -> connectorEntry.getValue().hasTag(configuredConnectorIdOrTag)
 				)
 			);
-		} else if ("-#".equals(prefix)) {
+		} else if ("!#".equals(prefix)) {
 			// No tags or connectors to be included?
 			if (!isIncludedConnectors) {
 				// Keep all the connectors except those having the current tag
@@ -210,7 +210,7 @@ public class ConnectorStagingManager {
 
 			// Make sure this connector id is removed from the automatic detection connector identifiers set
 			return Set.of(configuredConnectorIdOrTag);
-		} else if ("-".equals(prefix)) {
+		} else if ("!".equals(prefix)) {
 			// No tags or connectors to be included?
 			if (!isIncludedConnectors) {
 				// Keep all the connectors except the excluded connector

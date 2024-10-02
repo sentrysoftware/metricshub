@@ -21,6 +21,7 @@ package org.sentrysoftware.metricshub.extension.http;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,8 +60,6 @@ public class HttpSourceProcessor {
 		final String connectorId,
 		final TelemetryManager telemetryManager
 	) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
 		final HttpConfiguration httpConfiguration = (HttpConfiguration) telemetryManager
 			.getHostConfiguration()
 			.getConfigurations()
@@ -69,12 +68,15 @@ public class HttpSourceProcessor {
 		if (httpConfiguration == null) {
 			log.debug(
 				"Hostname {} - The HTTP credentials are not configured. Returning an empty table for HttpSource {}.",
-				hostname,
+				telemetryManager.getHostname(),
 				httpSource
 			);
 
 			return SourceTable.empty();
 		}
+
+		// Retrieve the hostname from the HttpConfiguration, otherwise from the telemetryManager
+		final String hostname = telemetryManager.getHostname(List.of(HttpConfiguration.class));
 
 		final Map<Integer, EmbeddedFile> connectorEmbeddedFiles = telemetryManager.getEmbeddedFiles(connectorId);
 

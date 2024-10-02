@@ -28,7 +28,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
-import org.sentrysoftware.metricshub.agent.config.ConnectorVariables;
+import org.sentrysoftware.metricshub.engine.configuration.ConnectorVariables;
 
 /**
  * Custom JSON deserializer for deserializing a JSON object into a TreeMap with

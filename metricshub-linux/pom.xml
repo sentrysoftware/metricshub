@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.sentrysoftware</groupId>
 		<artifactId>metricshub-parent</artifactId>
-		<version>0.9.03-SNAPSHOT</version>
+		<version>0.9.07-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>metricshub-linux</artifactId>
@@ -60,6 +60,11 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>metricshub-ping-extension</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.sentrysoftware</groupId>
 			<artifactId>metricshub-jre-linux</artifactId>
 			<version>${metricshub-jre.version}</version>
@@ -70,6 +75,16 @@
 			<artifactId>metricshub-doc</artifactId>
 			<version>${project.version}</version>
 			<classifier>site</classifier>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>metricshub-sql-source-extension</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>metricshub-jawk-extension</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 
@@ -165,7 +180,22 @@
 								</artifactItem>
 								<artifactItem>
 									<groupId>${project.groupId}</groupId>
+									<artifactId>metricshub-ping-extension</artifactId>
+									<version>${project.version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>${project.groupId}</groupId>
 									<artifactId>metricshub-classloader-agent</artifactId>
+									<version>${project.version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>metricshub-sql-source-extension</artifactId>
+									<version>${project.version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>metricshub-jawk-extension</artifactId>
 									<version>${project.version}</version>
 								</artifactItem>
 							</artifactItems>

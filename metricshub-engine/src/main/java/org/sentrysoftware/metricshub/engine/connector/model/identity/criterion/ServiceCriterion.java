@@ -33,8 +33,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.NonBlankDeserializer;
-import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
-import org.sentrysoftware.metricshub.engine.strategy.detection.ICriterionProcessor;
 
 /**
  * Represents a detection criterion based on a service. This criterion checks whether the specified service is present.
@@ -75,10 +73,5 @@ public class ServiceCriterion extends Criterion {
 	@Override
 	public String toString() {
 		return "- Service: " + name;
-	}
-
-	@Override
-	public CriterionTestResult accept(ICriterionProcessor criterionProcessor) {
-		return criterionProcessor.process(this);
 	}
 }

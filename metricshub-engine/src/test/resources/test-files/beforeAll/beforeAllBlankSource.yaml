@@ -1,0 +1,8 @@
+---
+connector:
+  detection:
+    appliesTo: [ linux ]
+beforeAll:
+  " ":
+    type: copy
+    from: ${source::beforeAll.anotherSource}

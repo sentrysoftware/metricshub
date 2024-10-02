@@ -35,7 +35,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class GaugeStateMetricObserver extends AbstractStateMetricObserver {
+public class GaugeStateMetricObserver extends AbstractNotCompressedStateMetricObserver {
 
 	/**
 	 * Constructs a new {@code GaugeStateMetricObserver} with the specified parameters.

@@ -14,13 +14,13 @@ class ReferenceResolverProcessorTest {
 	void testProcessNode() throws IOException {
 		final String json =
 			"""
-			pre:
+			beforeAll:
 			  source1:
 			    type: http
-			    leftTable: ${source::pre.source4} # ${source::pre.source4}
+			    leftTable: ${source::beforeAll.source4} # ${source::beforeAll.source4}
 			  source2:
 			    type: tableJoin
-			    rightTable: ${source::source(1)} # ${source::pre.source(1)}
+			    rightTable: ${source::source(1)} # ${source::beforeAll.source(1)}
 			monitors:
 			  enclosure: # <object>
 			    discovery: # <object> | <job> key possible values [ discovery, collect, simple ]
@@ -47,6 +47,12 @@ class ReferenceResolverProcessorTest {
 			        http.source7: # <source-object>
 			          # ${source::monitors.enclosure.discovery.sources.http.source6}/${source::monitors.enclosure.discovery.sources.http-source4}
 			          type1: ${source::http.source6}/${source::http-source4}
+			        http.source8:
+			          type: http
+			          method: get
+			          resultContent: body
+			          executeForEachEntryOf:
+			            source: ${source::beforeAll.systemId}
 			      mapping:
 			        source1: ${source::httpSource2} # ${source::monitors.enclosure.discovery.sources.httpSource2}
 			    collect: # <object> | <job> key possible values [ discovery, collect, simple]
@@ -70,6 +76,15 @@ class ReferenceResolverProcessorTest {
 			          type1: ${source::monitors.disk.discovery.sources.httpSource1} # ${source::monitors.disk.discovery.sources.httpSource1}
 			      mapping:
 			        source1: ${source::monitors.disk.discovery.sources.httpSource2} # ${source::monitors.disk.discovery.sources.httpSource2}
+			afterAll:
+			  source0:
+			    type: http
+			  source1:
+			    type: tableJoin
+			    leftTable: ${source::afterAll.source0} # ${source::afterAll.source0}
+			  source2:
+			    type: tableJoin
+			    rightTable: ${source::source1} # ${source::afterAll.source1}
 			""";
 
 		final ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
@@ -81,9 +96,21 @@ class ReferenceResolverProcessorTest {
 			.build()
 			.processNode(rootNode);
 
-		// Check that the relative source references are correctly replaced under the "pre" section
-		assertEquals("${source::pre.source4}", processedNode.get("pre").get("source1").get("leftTable").asText());
-		assertEquals("${source::pre.source(1)}", processedNode.get("pre").get("source2").get("rightTable").asText());
+		// Check that the relative source references are correctly replaced under the "beforeAll" section
+		assertEquals(
+			"${source::beforeAll.source4}",
+			processedNode.get("beforeAll").get("source1").get("leftTable").asText()
+		);
+		assertEquals(
+			"${source::beforeAll.source(1)}",
+			processedNode.get("beforeAll").get("source2").get("rightTable").asText()
+		);
+
+		assertEquals("${source::afterAll.source0}", processedNode.get("afterAll").get("source1").get("leftTable").asText());
+		assertEquals(
+			"${source::afterAll.source1}",
+			processedNode.get("afterAll").get("source2").get("rightTable").asText()
+		);
 
 		// Check that the relative source references are correctly replaced under the "enclosure" monitor section
 		assertEquals(
@@ -159,6 +186,19 @@ class ReferenceResolverProcessorTest {
 				.get("sources")
 				.get("http.source7")
 				.get("type1")
+				.asText()
+		);
+
+		assertEquals(
+			"${source::beforeAll.systemId}",
+			processedNode
+				.get("monitors")
+				.get("enclosure")
+				.get("discovery")
+				.get("sources")
+				.get("http.source8")
+				.get("executeForEachEntryOf")
+				.get("source")
 				.asText()
 		);
 

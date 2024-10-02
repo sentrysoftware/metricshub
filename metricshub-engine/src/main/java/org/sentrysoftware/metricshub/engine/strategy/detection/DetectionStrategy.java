@@ -112,7 +112,15 @@ public class DetectionStrategy extends AbstractStrategy {
 		}
 
 		// Detect if we monitor localhost then set the localhost property in the HostProperties instance
-		hostProperties.setLocalhost(NetworkHelper.isLocalhost(hostname));
+		// If one configuration's hostname is not localhost, then we are dealing with a remote host for sure!
+		// This means that remote support connector will be staged for the automatic detection.
+		hostProperties.setLocalhost(
+			hostConfiguration
+				.getConfigurations()
+				.values()
+				.stream()
+				.allMatch(config -> NetworkHelper.isLocalhost(config.getHostname()))
+		);
 
 		// Get the configured connector
 		final String configuredConnectorId = hostConfiguration.getConfiguredConnectorId();
@@ -174,7 +182,7 @@ public class DetectionStrategy extends AbstractStrategy {
 	/**
 	 * Create a new connector monitor for the configured connector
 	 *
-	 * @param configuredConnectorId unique identifier of the connector
+	 * @param configuredConnectorId the unique identifier of the connector
 	 */
 	void createConfiguredConnectorMonitor(final String configuredConnectorId) {
 		if (configuredConnectorId == null) {
@@ -186,7 +194,10 @@ public class DetectionStrategy extends AbstractStrategy {
 		// Set monitor attributes
 		final Map<String, String> monitorAttributes = new HashMap<>();
 		monitorAttributes.put(MONITOR_ATTRIBUTE_ID, configuredConnectorId);
-		monitorAttributes.put(MONITOR_ATTRIBUTE_NAME, configuredConnectorId);
+		monitorAttributes.put(
+			MONITOR_ATTRIBUTE_NAME,
+			telemetryManager.getConnectorStore().getStore().get(configuredConnectorId).getConnectorIdentity().getDisplayName()
+		);
 		monitorAttributes.put(MONITOR_ATTRIBUTE_PARENT_ID, hostId);
 
 		// Create the monitor factory
@@ -235,9 +246,11 @@ public class DetectionStrategy extends AbstractStrategy {
 		final Map<String, String> monitorAttributes = new HashMap<>();
 		final String hostId = telemetryManager.getHostConfiguration().getHostId();
 		final String connectorId = connector.getCompiledFilename();
+		final String connectorName = connector.getConnectorIdentity().getDisplayName();
 
 		monitorAttributes.put(MONITOR_ATTRIBUTE_ID, connectorId);
-		monitorAttributes.put(MONITOR_ATTRIBUTE_NAME, connectorId);
+		monitorAttributes.put(MONITOR_ATTRIBUTE_NAME, connectorName);
+		monitorAttributes.put("filename", connectorId + ".yaml");
 
 		monitorAttributes.put(
 			MONITOR_ATTRIBUTE_APPLIES_TO_OS,

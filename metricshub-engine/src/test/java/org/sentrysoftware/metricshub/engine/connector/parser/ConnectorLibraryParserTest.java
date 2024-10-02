@@ -306,14 +306,14 @@ class ConnectorLibraryParserTest {
 		assertEquals(TRANSLATE, monitorJob.getCollect().getSources().get(SOURCE).getComputes().get(3).getType());
 
 		// Check relative source references replacement under the "pre" section
-		final Map<String, Source> pre = connectors.get(AAC_CONNECTOR_ID).getPre();
-		final HttpSource preSource = (HttpSource) (pre.get("source2"));
-		assertEquals("${source::pre.source(1)}", preSource.getUrl());
-		assertEquals("${source::pre.source(1)}", preSource.getHeader());
+		final Map<String, Source> pre = connectors.get(AAC_CONNECTOR_ID).getBeforeAll();
+		final HttpSource beforeAllSource = (HttpSource) (pre.get("source2"));
+		assertEquals("${source::beforeAll.source(1)}", beforeAllSource.getUrl());
+		assertEquals("${source::beforeAll.source(1)}", beforeAllSource.getHeader());
 
-		final HttpSource secondPreSource = (HttpSource) (pre.get("source3"));
-		assertEquals("${source::pre.source(2)}", secondPreSource.getUrl());
-		assertEquals("${source::pre.source(2)}", secondPreSource.getHeader());
+		final HttpSource secondBeforeAllSource = (HttpSource) (pre.get("source3"));
+		assertEquals("${source::beforeAll.source(2)}", secondBeforeAllSource.getUrl());
+		assertEquals("${source::beforeAll.source(2)}", secondBeforeAllSource.getHeader());
 
 		// Check relative source references replacement under the "monitors" section
 		final Map<String, MonitorJob> monitorJobs = connectors.get(AAC_CONNECTOR_ID).getMonitors();

@@ -28,7 +28,7 @@ class WbemSourceDeserializerTest extends DeserializerTest {
 				"testWbemSource",
 				WbemSource
 					.builder()
-					.key("${source::pre.testWbemSource}")
+					.key("${source::beforeAll.testWbemSource}")
 					.type("wbem")
 					.query("testQuery")
 					.namespace("testNamespace")
@@ -36,6 +36,6 @@ class WbemSourceDeserializerTest extends DeserializerTest {
 			)
 		);
 
-		assertEquals(expected, connector.getPre());
+		assertEquals(expected, connector.getBeforeAll());
 	}
 }

@@ -89,8 +89,9 @@ public interface IProtocolExtension {
 	 * telemetry manager.
 	 *
 	 * @param telemetryManager The telemetry manager to use for monitoring.
+	 * @return Optional.of(true) if the protocol check succeeds, Optional.of(false) otherwise.
 	 */
-	void checkProtocol(TelemetryManager telemetryManager);
+	Optional<Boolean> checkProtocol(TelemetryManager telemetryManager);
 
 	/**
 	 * Executes a source operation based on the given source and configuration within the telemetry manager.
@@ -141,4 +142,11 @@ public interface IProtocolExtension {
 	 */
 	IConfiguration buildConfiguration(String configurationType, JsonNode jsonNode, UnaryOperator<char[]> decrypt)
 		throws InvalidConfigurationException;
+
+	/**
+	 * Returns the identifier for protocol extension.
+	 *
+	 * @return The protocol identifier as a string.
+	 */
+	String getIdentifier();
 }

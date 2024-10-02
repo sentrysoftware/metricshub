@@ -1,5 +1,0 @@
----
-connector:
-  detection:
-    appliesTo: [ linux ]
-pre:

@@ -36,17 +36,21 @@ import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.common.HttpMethod;
+import org.sentrysoftware.metricshub.engine.connector.model.common.SqlColumn;
+import org.sentrysoftware.metricshub.engine.connector.model.common.SqlTable;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CopySource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpGetSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SqlSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.StaticSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.TableJoinSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.TableUnionSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WmiSource;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
+import org.sentrysoftware.metricshub.engine.extension.ISourceComputationExtension;
 import org.sentrysoftware.metricshub.engine.extension.TestConfiguration;
 import org.sentrysoftware.metricshub.engine.telemetry.ConnectorNamespace;
 import org.sentrysoftware.metricshub.engine.telemetry.HostProperties;
@@ -61,9 +65,13 @@ class SourceProcessorTest {
 	@Mock
 	private IProtocolExtension protocolExtensionMock;
 
+	@Mock
+	private ISourceComputationExtension sourceComputationExtensionMock;
+
 	private static final String LOWERCASE_A = "a";
 	private static final String LOWERCASE_B = "b";
 	private static final String LOWERCASE_C = "c";
+	private static final String LOWERCASE_D = "d";
 	private static final String LOWERCASE_A1 = "a1";
 	private static final String LOWERCASE_B1 = "b1";
 	private static final String LOWERCASE_C1 = "c1";
@@ -78,9 +86,11 @@ class SourceProcessorTest {
 	private static final String LOWERCASE_V1 = "v1";
 	private static final String LOWERCASE_V2 = "v2";
 	private static final String LOWERCASE_V3 = "v3";
+	private static final String LOWERCASE_V4 = "v4";
 	private static final String UPPERCASE_V1 = "V1";
 	private static final String UPPERCASE_V2 = "V2";
 	private static final String UPPERCASE_V3 = "V3";
+	private static final String UPPERCASE_V4 = "V4";
 	private static final String LOWERCASE_V10 = "v10";
 	private static final String LOWERCASE_V20 = "v20";
 	private static final String LOWERCASE_V30 = "v30";
@@ -90,6 +100,12 @@ class SourceProcessorTest {
 	private static final String TAB2_REF = "${source::monitors.cpu.discovery.sources.tab2}";
 	private static final String TAB3_REF = "${source::monitors.cpu.discovery.sources.tab3}";
 	private static final String VALUE_LIST = "a1;b1;c1";
+	private static final String ONE = "1";
+	private static final String TWO = "2";
+	private static final String THREE = "3";
+	private static final String FOUR = "4";
+	private static final String TRUE = "TRUE";
+	private static final String FALSE = "FALSE";
 
 	private static final String CAMELCASE_NOT_WBEM = "notWbem";
 	private static final String CONNECTOR_ID = "myConnector";
@@ -396,7 +412,7 @@ class SourceProcessorTest {
 		expectedResult = SourceTable.builder().table(expectedJoin).build();
 		doReturn(expectedJoin)
 			.when(clientsExecutorMock)
-			.executeTableJoin(tabl1.getTable(), tabl2.getTable(), 1, 1, null, false, true);
+			.executeTableJoin(tabl1.getTable(), tabl2.getTable(), 1, 1, new ArrayList<>(), false, true);
 		tableJoinExample =
 			TableJoinSource
 				.builder()
@@ -423,12 +439,11 @@ class SourceProcessorTest {
 			)
 			.build();
 		mapSources.put(TAB3_REF, tabl3);
-		connectorNamespace = ConnectorNamespace.builder().sourceTables(mapSources).build();
 		expectedJoin = Arrays.asList(Arrays.asList(LOWERCASE_A, LOWERCASE_B, LOWERCASE_C));
 		expectedResult = SourceTable.builder().table(expectedJoin).build();
 		doReturn(expectedJoin)
 			.when(clientsExecutorMock)
-			.executeTableJoin(tabl1.getTable(), tabl3.getTable(), 1, 1, null, false, true);
+			.executeTableJoin(tabl1.getTable(), tabl3.getTable(), 1, 1, new ArrayList<>(), false, true);
 		tableJoinExample =
 			TableJoinSource
 				.builder()
@@ -453,7 +468,6 @@ class SourceProcessorTest {
 				)
 				.build();
 		mapSources.put(TAB3_REF, tabl3);
-		connectorNamespace = ConnectorNamespace.builder().sourceTables(mapSources).build();
 		tableJoinExample =
 			TableJoinSource
 				.builder()
@@ -741,5 +755,109 @@ class SourceProcessorTest {
 			.clientsExecutor(clientsExecutorMock)
 			.build();
 		assertEquals(SourceTable.empty(), sourceProcessor.process(new IpmiSource()));
+	}
+
+	@Test
+	void testSqlQuery() {
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.hostname("localhost")
+			.hostId("localhost")
+			.hostType(DeviceKind.LINUX)
+			.build();
+
+		final Map<String, SourceTable> mapSources = new HashMap<>();
+		final SourceTable tabl1 = SourceTable
+			.builder()
+			.table(
+				Arrays.asList(
+					Arrays.asList(LOWERCASE_A, LOWERCASE_V1, TRUE, ONE),
+					Arrays.asList(LOWERCASE_B, LOWERCASE_V2, TRUE, TWO),
+					Arrays.asList(LOWERCASE_C, LOWERCASE_V3, FALSE, THREE),
+					Arrays.asList(LOWERCASE_D, LOWERCASE_V4, FALSE, FOUR)
+				)
+			)
+			.build();
+		final SourceTable tabl2 = SourceTable
+			.builder()
+			.table(
+				Arrays.asList(
+					Arrays.asList(ONE, LOWERCASE_A, UPPERCASE_V1, TRUE),
+					Arrays.asList(ONE, LOWERCASE_B, UPPERCASE_V2, FALSE),
+					Arrays.asList(ONE, LOWERCASE_C, UPPERCASE_V3, TRUE),
+					Arrays.asList(TWO, LOWERCASE_D, UPPERCASE_V4, FALSE)
+				)
+			)
+			.build();
+		mapSources.put(TAB1_REF, tabl1);
+		mapSources.put(TAB2_REF, tabl2);
+		final ConnectorNamespace connectorNamespace = ConnectorNamespace.builder().sourceTables(mapSources).build();
+		final Map<String, ConnectorNamespace> connectorNamespaces = new HashMap<>();
+		connectorNamespaces.put(CONNECTOR_ID, connectorNamespace);
+
+		final HostProperties hostProperties = HostProperties
+			.builder()
+			.connectorNamespaces(connectorNamespaces)
+			.isLocalhost(true)
+			.build();
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(hostConfiguration)
+			.hostProperties(hostProperties)
+			.build();
+		final ExtensionManager extensionManager = ExtensionManager
+			.builder()
+			.withSourceComputationExtensions(List.of(sourceComputationExtensionMock))
+			.build();
+		final SourceProcessor sourceProcessor = SourceProcessor
+			.builder()
+			.telemetryManager(telemetryManager)
+			.clientsExecutor(clientsExecutorMock)
+			.connectorId(CONNECTOR_ID)
+			.extensionManager(extensionManager)
+			.build();
+
+		// SqlSource with empty tables
+		final List<SqlColumn> columnsTable1 = new ArrayList<>();
+		final List<SqlColumn> columnsTable2 = new ArrayList<>();
+
+		final List<SqlTable> sqlTables = Arrays.asList(
+			SqlTable.builder().alias("T1").columns(columnsTable1).source(TAB1_REF).build(),
+			SqlTable.builder().alias("T2").columns(columnsTable2).source(TAB2_REF).build()
+		);
+		final SqlSource sqlSource = SqlSource.builder().tables(sqlTables).query("SQL QUERY;").build();
+
+		doReturn(true).when(sourceComputationExtensionMock).isValidSource(sqlSource);
+		doReturn(SourceTable.empty())
+			.when(sourceComputationExtensionMock)
+			.processSource(sqlSource, CONNECTOR_ID, telemetryManager);
+
+		assertEquals(SourceTable.empty(), sourceProcessor.process(sqlSource));
+
+		// SqlSource well formed
+		columnsTable1.add(SqlColumn.builder().name("COL1_1").number(1).type("VARCHAR(255)").build());
+		columnsTable1.add(SqlColumn.builder().name("COL2_1").number(3).type("BOOLEAN").build());
+
+		columnsTable2.add(SqlColumn.builder().name("COL1_2").number(2).type("VARCHAR(255)").build());
+		columnsTable2.add(SqlColumn.builder().name("COL2_2").number(4).type("BOOLEAN").build());
+
+		sqlSource.setQuery("SELECT COL1_1, COL2_1, COL1_2, COL2_2 FROM T1 JOIN T2 ON COL1_1 = COL1_2;");
+
+		List<List<String>> result = Arrays.asList(
+			Arrays.asList(LOWERCASE_A, TRUE, LOWERCASE_A, TRUE),
+			Arrays.asList(LOWERCASE_B, TRUE, LOWERCASE_B, FALSE),
+			Arrays.asList(LOWERCASE_C, FALSE, LOWERCASE_C, TRUE),
+			Arrays.asList(LOWERCASE_D, FALSE, LOWERCASE_D, FALSE)
+		);
+
+		final SourceTable sourceTableExpected = new SourceTable();
+		sourceTableExpected.setTable(result);
+
+		doReturn(true).when(sourceComputationExtensionMock).isValidSource(sqlSource);
+		doReturn(sourceTableExpected)
+			.when(sourceComputationExtensionMock)
+			.processSource(sqlSource, CONNECTOR_ID, telemetryManager);
+
+		assertEquals(result, sourceProcessor.process(sqlSource).getTable());
 	}
 }

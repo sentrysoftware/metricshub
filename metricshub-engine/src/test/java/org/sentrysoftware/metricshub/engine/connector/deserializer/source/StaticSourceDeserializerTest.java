@@ -26,10 +26,10 @@ class StaticSourceDeserializerTest extends DeserializerTest {
 		final Map<String, Source> expected = new LinkedHashMap<>(
 			Map.of(
 				"testStaticSource",
-				StaticSource.builder().key("${source::pre.testStaticSource}").type("static").value("testValue").build()
+				StaticSource.builder().key("${source::beforeAll.testStaticSource}").type("static").value("testValue").build()
 			)
 		);
 
-		assertEquals(expected, connector.getPre());
+		assertEquals(expected, connector.getBeforeAll());
 	}
 }

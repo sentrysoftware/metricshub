@@ -51,7 +51,7 @@ import org.sentrysoftware.metricshub.engine.connector.update.AvailableSourceUpda
 import org.sentrysoftware.metricshub.engine.connector.update.CompiledFilenameUpdater;
 import org.sentrysoftware.metricshub.engine.connector.update.ConnectorUpdateChain;
 import org.sentrysoftware.metricshub.engine.connector.update.MonitorTaskSourceDepUpdate;
-import org.sentrysoftware.metricshub.engine.connector.update.PreSourceDepUpdate;
+import org.sentrysoftware.metricshub.engine.connector.update.SurroundingSourceDepUpdate;
 
 /**
  * Utility class for parsing connector files and creating Connector objects.
@@ -266,12 +266,12 @@ public class ConnectorParser {
 	 */
 	public static ConnectorUpdateChain createUpdateChain() {
 		final ConnectorUpdateChain availableSource = new AvailableSourceUpdate();
-		final ConnectorUpdateChain preSourceDepUpdate = new PreSourceDepUpdate();
+		final ConnectorUpdateChain surroundingSourceDepUpdate = new SurroundingSourceDepUpdate();
 		final ConnectorUpdateChain monitorTaskSourceDepUpdate = new MonitorTaskSourceDepUpdate();
 
 		// Create the chain
-		availableSource.setNextUpdateChain(preSourceDepUpdate);
-		preSourceDepUpdate.setNextUpdateChain(monitorTaskSourceDepUpdate);
+		availableSource.setNextUpdateChain(surroundingSourceDepUpdate);
+		surroundingSourceDepUpdate.setNextUpdateChain(monitorTaskSourceDepUpdate);
 		return availableSource;
 	}
 

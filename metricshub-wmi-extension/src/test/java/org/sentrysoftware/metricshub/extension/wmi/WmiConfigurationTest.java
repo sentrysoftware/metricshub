@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 
 class WmiConfigurationTest {
 
@@ -45,5 +46,24 @@ class WmiConfigurationTest {
 				.build()
 				.toString()
 		);
+	}
+
+	@Test
+	void testCopy() {
+		final WmiConfiguration wmiConfiguration = WmiConfiguration
+			.builder()
+			.namespace("namespace")
+			.password("password".toCharArray())
+			.timeout(100L)
+			.username("username")
+			.build();
+
+		final IConfiguration wmiConfigurationCopy = wmiConfiguration.copy();
+
+		// Verify that the copied configuration has the same values as the original configuration
+		assertEquals(wmiConfiguration, wmiConfigurationCopy);
+
+		// Ensure that the copied configuration is a distinct object
+		assert (wmiConfiguration != wmiConfigurationCopy);
 	}
 }

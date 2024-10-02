@@ -68,7 +68,8 @@ public class WbemSourceProcessor {
 	 * @return {@link SourceTable} instance
 	 */
 	public SourceTable process(WbemSource wbemSource, TelemetryManager telemetryManager) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		// Retrieve the hostname from the WbemConfiguration, otherwise from the telemetryManager
+		final String hostname = telemetryManager.getHostname(List.of(WbemConfiguration.class));
 
 		if (wbemSource == null) {
 			log.error("Hostname {} - Malformed WBEM Source {}. Returning an empty table.", hostname, wbemSource);

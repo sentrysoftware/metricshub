@@ -7,6 +7,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Map;
 import java.util.function.Function;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,14 +18,14 @@ import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpGetSource;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.extension.snmp.AbstractSnmpRequestExecutor;
 import org.sentrysoftware.metricshub.extension.snmp.ISnmpConfiguration;
-import org.sentrysoftware.metricshub.extension.snmp.ISnmpRequestExecutor;
 
 @ExtendWith(MockitoExtension.class)
-public class SnmpGetSourceProcessorTest {
+class SnmpGetSourceProcessorTest {
 
 	@Mock
-	private ISnmpRequestExecutor snmpRequestExecutor;
+	private AbstractSnmpRequestExecutor snmpRequestExecutor;
 
 	@Mock
 	private Function<TelemetryManager, ISnmpConfiguration> configurationRetriever;
@@ -38,9 +39,9 @@ public class SnmpGetSourceProcessorTest {
 
 	// Test case when snmpGetSource is null.
 	@Test
-	public void testProcess_WhenSourceIsNull_ReturnsEmptySourceTable() {
+	void testProcess_WhenSourceIsNull_ReturnsEmptySourceTable() {
 		SnmpGetSource snmpGetSource = null;
-		TelemetryManager telemetryManager = mockTelemetryManager();
+		TelemetryManager telemetryManager = createTelemetryManagerWithHostConfiguration();
 
 		SourceTable result = snmpGetSourceProcessor.process(snmpGetSource, "connectorId", telemetryManager);
 		assertEquals(SourceTable.empty(), result);
@@ -48,9 +49,9 @@ public class SnmpGetSourceProcessorTest {
 
 	// Test case for when snmpconfiguration is null."
 	@Test
-	public void testProcess_WhenConfigurationIsNull_ReturnsEmptySourceTable() {
+	void testProcess_WhenConfigurationIsNull_ReturnsEmptySourceTable() {
 		SnmpGetSource snmpGetSource = SnmpGetSource.builder().oid("test_oid").build();
-		TelemetryManager telemetryManager = mockTelemetryManager();
+		TelemetryManager telemetryManager = createTelemetryManagerWithHostConfiguration();
 		when(configurationRetriever.apply(telemetryManager)).thenReturn(null);
 
 		SourceTable result = snmpGetSourceProcessor.process(snmpGetSource, "connectorId", telemetryManager);
@@ -59,9 +60,9 @@ public class SnmpGetSourceProcessorTest {
 
 	// Test case when the requestExecutor throws an exception.
 	@Test
-	public void testProcess_WhenRequestExecutorThrowsException_ReturnsEmptySourceTable() throws Exception {
+	void testProcess_WhenRequestExecutorThrowsException_ReturnsEmptySourceTable() throws Exception {
 		SnmpGetSource snmpGetSource = SnmpGetSource.builder().oid("test_oid").build();
-		TelemetryManager telemetryManager = mockTelemetryManager();
+		TelemetryManager telemetryManager = createTelemetryManagerWithHostConfiguration();
 		ISnmpConfiguration snmpConfiguration = mock(ISnmpConfiguration.class);
 		when(configurationRetriever.apply(telemetryManager)).thenReturn(snmpConfiguration);
 		doThrow(new InterruptedException("Test exception"))
@@ -74,9 +75,9 @@ public class SnmpGetSourceProcessorTest {
 
 	//Test case when requestExecutor returns a valid result.
 	@Test
-	public void testProcess_WhenRequestExecutorReturnsValidResult_ReturnsSourceTableWithResult() throws Exception {
+	void testProcess_WhenRequestExecutorReturnsValidResult_ReturnsSourceTableWithResult() throws Exception {
 		SnmpGetSource snmpGetSource = SnmpGetSource.builder().oid("test_oid").build();
-		TelemetryManager telemetryManager = mockTelemetryManager();
+		TelemetryManager telemetryManager = createTelemetryManagerWithHostConfiguration();
 		ISnmpConfiguration snmpConfiguration = mock(ISnmpConfiguration.class);
 		when(configurationRetriever.apply(telemetryManager)).thenReturn(snmpConfiguration);
 		when(snmpRequestExecutor.executeSNMPGet("test_oid", snmpConfiguration, "hostname", true)).thenReturn("result");
@@ -88,12 +89,18 @@ public class SnmpGetSourceProcessorTest {
 		assertEquals("result", result.getTable().get(0).get(0));
 	}
 
-	//Utility method to create a simulated TelemetryManager
-	private TelemetryManager mockTelemetryManager() {
-		TelemetryManager telemetryManager = mock(TelemetryManager.class);
-		HostConfiguration hostConfigurationMock = mock(HostConfiguration.class);
-		when(telemetryManager.getHostConfiguration()).thenReturn(hostConfigurationMock);
-		when(hostConfigurationMock.getHostname()).thenReturn("hostname");
+	/**
+	 * Utility method to create a telemetryManager
+	 *
+	 * @return a configured telemetryManager instance
+	 */
+	private TelemetryManager createTelemetryManagerWithHostConfiguration() {
+		HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.hostname("hostname")
+			.configurations(Map.of())
+			.build();
+		TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 		return telemetryManager;
 	}
 }

@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -145,12 +146,9 @@ class WmiExtensionTest {
 				);
 
 			// Start the WMI Health Check strategy
-			wmiExtension.checkProtocol(telemetryManager);
+			Optional<Boolean> result = wmiExtension.checkProtocol(telemetryManager);
 
-			assertEquals(
-				WmiExtension.UP,
-				telemetryManager.getEndpointHostMonitor().getMetric(WmiExtension.WMI_UP_METRIC).getValue()
-			);
+			assertTrue(result.get());
 		}
 
 		{
@@ -167,12 +165,9 @@ class WmiExtensionTest {
 			doCallRealMethod().when(wmiRequestExecutorMock).isAcceptableException(any());
 
 			// Start the WMI Health Check
-			wmiExtension.checkProtocol(telemetryManager);
+			Optional<Boolean> result = wmiExtension.checkProtocol(telemetryManager);
 
-			assertEquals(
-				WmiExtension.UP,
-				telemetryManager.getEndpointHostMonitor().getMetric(WmiExtension.WMI_UP_METRIC).getValue()
-			);
+			assertTrue(result.get());
 		}
 	}
 
@@ -192,12 +187,9 @@ class WmiExtensionTest {
 			);
 
 		// Start the WMI Health Check
-		wmiExtension.checkProtocol(telemetryManager);
+		Optional<Boolean> result = wmiExtension.checkProtocol(telemetryManager);
 
-		assertEquals(
-			WmiExtension.DOWN,
-			telemetryManager.getEndpointHostMonitor().getMetric(WmiExtension.WMI_UP_METRIC).getValue()
-		);
+		assertFalse(result.get());
 	}
 
 	@Test
@@ -208,6 +200,19 @@ class WmiExtensionTest {
 				new IConfiguration() {
 					@Override
 					public void validateConfiguration(String resourceKey) throws InvalidConfigurationException {}
+
+					@Override
+					public String getHostname() {
+						return null;
+					}
+
+					@Override
+					public void setHostname(String hostname) {}
+
+					@Override
+					public IConfiguration copy() {
+						return null;
+					}
 				}
 			)
 		);
@@ -486,5 +491,12 @@ class WmiExtensionTest {
 			null
 		);
 		assertNull(wmiConfiguration.getNamespace());
+	}
+
+	@Test
+	void testGetIdentifier() {
+		String identifier = wmiExtension.getIdentifier();
+
+		assertEquals("wmi", identifier);
 	}
 }

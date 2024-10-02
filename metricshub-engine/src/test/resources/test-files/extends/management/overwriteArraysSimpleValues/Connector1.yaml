@@ -1,4 +1,4 @@
-pre:
+beforeAll:
   testTableUnionSource:
     type: tableUnion
     tables: [ testTable1, testTable2, testTable3 ]

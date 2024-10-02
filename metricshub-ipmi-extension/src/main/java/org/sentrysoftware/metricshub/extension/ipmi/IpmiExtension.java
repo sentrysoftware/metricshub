@@ -27,7 +27,9 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 import lombok.extern.slf4j.Slf4j;
@@ -44,29 +46,17 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
-import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
-import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 @Slf4j
 public class IpmiExtension implements IProtocolExtension {
 
+	/**
+	 * The identifier for the Ipmi protocol.
+	 */
+	private static final String IDENTIFIER = "ipmi";
+
 	private IpmiRequestExecutor ipmiRequestExecutor = new IpmiRequestExecutor();
-
-	/**
-	 * Protocol up status value '1.0'
-	 */
-	public static final Double UP = 1.0;
-
-	/**
-	 * Protocol down status value '0.0'
-	 */
-	public static final Double DOWN = 0.0;
-
-	/**
-	 * IPMI Up metric
-	 */
-	public static final String IPMI_UP_METRIC = "metricshub.host.up{protocol=\"ipmi\"}";
 
 	@Override
 	public boolean isValidConfiguration(IConfiguration configuration) {
@@ -89,12 +79,9 @@ public class IpmiExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public void checkProtocol(TelemetryManager telemetryManager) {
-		// Retrieve the hostname
-		String hostname = telemetryManager.getHostConfiguration().getHostname();
-
-		// Retrieve the host endpoint monitor
-		final Monitor hostMonitor = telemetryManager.getEndpointHostMonitor();
+	public Optional<Boolean> checkProtocol(TelemetryManager telemetryManager) {
+		// Retrieve the hostname from the IpmiConfiguration, otherwise from the telemetryManager
+		String hostname = telemetryManager.getHostname(List.of(IpmiConfiguration.class));
 
 		// Create and set the IPMI result to null
 		String ipmiResult = null;
@@ -107,9 +94,10 @@ public class IpmiExtension implements IProtocolExtension {
 
 		// Stop the IPMI health check if there is not an IPMI configuration
 		if (ipmiConfiguration == null) {
-			return;
+			return Optional.empty();
 		}
 
+		log.info("Hostname {} - Performing {} protocol health check.", hostname, getIdentifier());
 		log.info(
 			"Hostname {} - Checking IPMI protocol status. Sending a IPMI 'Get Chassis Status As String Result' request.",
 			hostname
@@ -135,17 +123,7 @@ public class IpmiExtension implements IProtocolExtension {
 				e
 			);
 		}
-
-		// Generate a metric from the IPMI result
-		// CHECKSTYLE:OFF
-		new MetricFactory()
-			.collectNumberMetric(
-				hostMonitor,
-				IPMI_UP_METRIC,
-				ipmiResult != null ? UP : DOWN,
-				telemetryManager.getStrategyTime()
-			);
-		// CHECKSTYLE:ON
+		return Optional.of(ipmiResult != null);
 	}
 
 	@Override
@@ -155,12 +133,16 @@ public class IpmiExtension implements IProtocolExtension {
 			.getConfigurations()
 			.get(IpmiConfiguration.class);
 
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
 		if (ipmiConfiguration == null) {
-			log.warn("Hostname {} - The IPMI credentials are not configured. Cannot process IPMI-over-LAN source.", hostname);
+			log.warn(
+				"Hostname {} - The IPMI credentials are not configured. Cannot process IPMI-over-LAN source.",
+				telemetryManager.getHostname()
+			);
 			return SourceTable.empty();
 		}
+
+		// Retrieve the hostname from the IpmiConfiguration, otherwise from the telemetryManager
+		final String hostname = telemetryManager.getHostname(List.of(IpmiConfiguration.class));
 
 		try {
 			final String result = ipmiRequestExecutor.executeIpmiGetSensors(hostname, ipmiConfiguration);
@@ -188,15 +170,16 @@ public class IpmiExtension implements IProtocolExtension {
 			.getConfigurations()
 			.get(IpmiConfiguration.class);
 
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
 		if (configuration == null) {
 			log.debug(
 				"Hostname {} - The IPMI credentials are not configured for this host. Cannot process IPMI-over-LAN detection.",
-				hostname
+				telemetryManager.getHostname()
 			);
 			return CriterionTestResult.empty();
 		}
+
+		// Retrieve the hostname from the IpmiConfiguration, otherwise from the telemetryManager
+		final String hostname = telemetryManager.getHostname(List.of(IpmiConfiguration.class));
 
 		try {
 			final String result = ipmiRequestExecutor.executeIpmiDetection(hostname, configuration);
@@ -226,7 +209,7 @@ public class IpmiExtension implements IProtocolExtension {
 
 	@Override
 	public boolean isSupportedConfigurationType(String configurationType) {
-		return "ipmi".equalsIgnoreCase(configurationType);
+		return IDENTIFIER.equalsIgnoreCase(configurationType);
 	}
 
 	@Override
@@ -270,5 +253,10 @@ public class IpmiExtension implements IProtocolExtension {
 			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 			.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false)
 			.build();
+	}
+
+	@Override
+	public String getIdentifier() {
+		return IDENTIFIER;
 	}
 }

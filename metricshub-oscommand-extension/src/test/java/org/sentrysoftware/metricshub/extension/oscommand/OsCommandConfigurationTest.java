@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 
@@ -32,5 +33,25 @@ class OsCommandConfigurationTest {
 
 		osConfiguration.setTimeout(-1L);
 		assertThrows(InvalidConfigurationException.class, () -> osConfiguration.validateConfiguration(resourceKey));
+	}
+
+	@Test
+	void testCopy() {
+		final OsCommandConfiguration osCommandConfiguration = OsCommandConfiguration
+			.builder()
+			.sudoCommand("sudoCommand")
+			.timeout(100L)
+			.useSudoCommands(Set.of("sudo"))
+			.useSudo(true)
+			.build();
+
+		final OsCommandConfiguration osCommandConfigurationCopy = (OsCommandConfiguration) osCommandConfiguration.copy();
+
+		// Verify that the copied configuration has the same values as the original configuration
+		assertEquals(osCommandConfiguration, osCommandConfigurationCopy);
+
+		// Ensure that the copied configuration is a distinct object
+		assert (osCommandConfiguration != osCommandConfigurationCopy);
+		assert (osCommandConfiguration.getUseSudoCommands() != osCommandConfigurationCopy.getUseSudoCommands());
 	}
 }

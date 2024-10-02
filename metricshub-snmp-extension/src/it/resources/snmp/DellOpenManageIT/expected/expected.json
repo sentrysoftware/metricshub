@@ -52,7 +52,7 @@
       }
     },
     "attributes" : {
-      "name" : "DellOpenManage",
+      "name" : "Dell OpenManage Server Administrator",
       "connector_id" : "DellOpenManage",
       "applies_to_os" : "linux,windows",
       "parent.id" : "localhost",

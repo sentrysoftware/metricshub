@@ -21,6 +21,7 @@ package org.sentrysoftware.metricshub.extension.snmp.detection;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,8 +32,8 @@ import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.S
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.utils.PslUtils;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.extension.snmp.AbstractSnmpRequestExecutor;
 import org.sentrysoftware.metricshub.extension.snmp.ISnmpConfiguration;
-import org.sentrysoftware.metricshub.extension.snmp.ISnmpRequestExecutor;
 
 /**
  * A class responsible for processing SNMP GetNext criteria to evaluate SNMP queries against specified criteria.
@@ -44,7 +45,7 @@ import org.sentrysoftware.metricshub.extension.snmp.ISnmpRequestExecutor;
 public class SnmpGetNextCriterionProcessor {
 
 	@NonNull
-	private ISnmpRequestExecutor snmpRequestExecutor;
+	private AbstractSnmpRequestExecutor snmpRequestExecutor;
 
 	@NonNull
 	private Function<TelemetryManager, ISnmpConfiguration> configurationRetriever;
@@ -70,12 +71,10 @@ public class SnmpGetNextCriterionProcessor {
 		final String connectorId,
 		final TelemetryManager telemetryManager
 	) {
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
-
 		if (snmpGetNextCriterion == null) {
 			log.error(
 				"Hostname {} - Malformed SNMP GetNext criterion {}. Cannot process SNMP GetNext detection. Connector ID: {}.",
-				hostname,
+				telemetryManager.getHostname(),
 				snmpGetNextCriterion,
 				connectorId
 			);
@@ -88,12 +87,15 @@ public class SnmpGetNextCriterionProcessor {
 		if (snmpConfiguration == null) {
 			log.debug(
 				"Hostname {} - The SNMP credentials are not configured. Cannot process SNMP GetNext criterion {}. Connector ID: {}.",
-				hostname,
+				telemetryManager.getHostname(),
 				snmpGetNextCriterion,
 				connectorId
 			);
 			return CriterionTestResult.empty();
 		}
+
+		// Retrieve the hostname from the ISnmpConfiguration, otherwise from the telemetryManager
+		final String hostname = telemetryManager.getHostname(List.of(snmpConfiguration.getClass()));
 
 		try {
 			final String result = snmpRequestExecutor.executeSNMPGetNext(
@@ -133,13 +135,9 @@ public class SnmpGetNextCriterionProcessor {
 	 * @param hostname The hostname.
 	 * @param oid      The SNMP OID.
 	 * @param result   The result of the SNMP GetNext operation.
-	 * @return {@link TestResult} wrapping the message and the success status.
+	 * @return {@link CriterionTestResult} wrapping the message and the success status.
 	 */
-	private static CriterionTestResult checkSNMPGetNextValue(
-		final String hostname,
-		final String oid,
-		final String result
-	) {
+	static CriterionTestResult checkSNMPGetNextValue(final String hostname, final String oid, final String result) {
 		String message;
 		boolean success = false;
 		if (result == null) {
@@ -183,9 +181,9 @@ public class SnmpGetNextCriterionProcessor {
 	 * @param oid       The SNMP OID.
 	 * @param expected  The expected value.
 	 * @param result    The result of the SNMP GetNext operation.
-	 * @return {@link TestResult} wrapping the message and the success status.
+	 * @return {@link CriterionTestResult} wrapping the message and the success status.
 	 */
-	private static CriterionTestResult checkSNMPGetNextExpectedValue(
+	static CriterionTestResult checkSNMPGetNextExpectedValue(
 		final String hostname,
 		final String oid,
 		final String expected,
@@ -193,36 +191,46 @@ public class SnmpGetNextCriterionProcessor {
 	) {
 		String message;
 		boolean success = true;
-		final Matcher matcher = SNMP_GET_NEXT_VALUE_PATTERN.matcher(result);
-		if (matcher.find()) {
-			final String value = matcher.group(1);
-			final Pattern pattern = Pattern.compile(
-				PslUtils.psl2JavaRegex(expected),
-				Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
-			);
-			if (!pattern.matcher(value).find()) {
-				message =
-					String.format(
-						"Hostname %s - SNMP test failed - SNMP GetNext of %s was successful but the value of the returned OID did not match" +
-						" with the expected result. ",
-						hostname,
-						oid
-					);
-				message += String.format("Expected value: %s - returned value %s.", expected, value);
-				success = false;
-			} else {
-				message =
-					String.format("Hostname %s - Successful SNMP GetNext of %s. Returned result: %s.", hostname, oid, result);
-			}
-		} else {
+		if (result == null) {
 			message =
 				String.format(
-					"Hostname %s - SNMP test failed - SNMP GetNext of %s was successful but the value cannot be extracted. ",
+					"Hostname %s - SNMP test failed - SNMP GetNext of %s was unsuccessful due to a null result.",
 					hostname,
 					oid
 				);
-			message += String.format("Returned result: %s.", result);
 			success = false;
+		} else {
+			final Matcher matcher = SNMP_GET_NEXT_VALUE_PATTERN.matcher(result);
+			if (matcher.find()) {
+				final String value = matcher.group(1);
+				final Pattern pattern = Pattern.compile(
+					PslUtils.psl2JavaRegex(expected),
+					Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
+				);
+				if (!pattern.matcher(value).find()) {
+					message =
+						String.format(
+							"Hostname %s - SNMP test failed - SNMP GetNext of %s was successful but the value of the returned OID did not match" +
+							" with the expected result. ",
+							hostname,
+							oid
+						);
+					message += String.format("Expected value: %s - returned value %s.", expected, value);
+					success = false;
+				} else {
+					message =
+						String.format("Hostname %s - Successful SNMP GetNext of %s. Returned result: %s.", hostname, oid, result);
+				}
+			} else {
+				message =
+					String.format(
+						"Hostname %s - SNMP test failed - SNMP GetNext of %s was successful but the value cannot be extracted. ",
+						hostname,
+						oid
+					);
+				message += String.format("Returned result: %s.", result);
+				success = false;
+			}
 		}
 
 		log.debug(message);
@@ -239,9 +247,9 @@ public class SnmpGetNextCriterionProcessor {
 	 * @param oid      The SNMP OID.
 	 * @param expected The expected value.
 	 * @param result   The result of the SNMP GetNext operation.
-	 * @return {@link TestResult} wrapping the success status and the message
+	 * @return {@link CriterionTestResult} wrapping the success status and the message
 	 */
-	private static CriterionTestResult checkSNMPGetNextResult(
+	static CriterionTestResult checkSNMPGetNextResult(
 		final String hostname,
 		final String oid,
 		final String expected,

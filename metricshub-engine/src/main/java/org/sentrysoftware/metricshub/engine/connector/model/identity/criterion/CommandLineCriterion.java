@@ -38,8 +38,6 @@ import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.BooleanDeserializer;
 import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.NonBlankDeserializer;
 import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.TimeoutDeserializer;
-import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
-import org.sentrysoftware.metricshub.engine.strategy.detection.ICriterionProcessor;
 
 /**
  * Represents an operating system command detection criterion.
@@ -131,10 +129,5 @@ public class CommandLineCriterion extends Criterion {
 		}
 
 		return stringJoiner.toString();
-	}
-
-	@Override
-	public CriterionTestResult accept(ICriterionProcessor criterionProcessor) {
-		return criterionProcessor.process(this);
 	}
 }

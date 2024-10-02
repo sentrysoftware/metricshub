@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -70,6 +71,7 @@ class SnmpExtensionTest {
 			.builder()
 			.community("public".toCharArray())
 			.version(SnmpConfiguration.SnmpVersion.V1)
+			.hostname(HOST_NAME)
 			.port(161)
 			.timeout(120L)
 			.build();
@@ -482,12 +484,9 @@ class SnmpExtensionTest {
 			.executeSNMPGetNext(eq(SnmpExtension.SNMP_OID), any(SnmpConfiguration.class), anyString(), anyBoolean());
 
 		// Start the SNMP protocol check
-		snmpExtension.checkProtocol(telemetryManager);
+		Optional<Boolean> result = snmpExtension.checkProtocol(telemetryManager);
 
-		assertEquals(
-			SnmpExtension.UP,
-			telemetryManager.getEndpointHostMonitor().getMetric(SnmpExtension.SNMP_UP_METRIC).getValue()
-		);
+		assertTrue(result.get());
 	}
 
 	@Test
@@ -501,12 +500,9 @@ class SnmpExtensionTest {
 			.executeSNMPGetNext(eq(SnmpExtension.SNMP_OID), any(SnmpConfiguration.class), anyString(), anyBoolean());
 
 		// Start the SNMP protocol check
-		snmpExtension.checkProtocol(telemetryManager);
+		Optional<Boolean> result = snmpExtension.checkProtocol(telemetryManager);
 
-		assertEquals(
-			SnmpExtension.DOWN,
-			telemetryManager.getEndpointHostMonitor().getMetric(SnmpExtension.SNMP_UP_METRIC).getValue()
-		);
+		assertFalse(result.get());
 	}
 
 	@Test
@@ -517,6 +513,19 @@ class SnmpExtensionTest {
 				new IConfiguration() {
 					@Override
 					public void validateConfiguration(String resourceKey) throws InvalidConfigurationException {}
+
+					@Override
+					public String getHostname() {
+						return null;
+					}
+
+					@Override
+					public void setHostname(String hostname) {}
+
+					@Override
+					public IConfiguration copy() {
+						return null;
+					}
 				}
 			)
 		);

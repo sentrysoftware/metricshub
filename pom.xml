@@ -6,7 +6,7 @@
 
 	<groupId>org.sentrysoftware</groupId>
 	<artifactId>metricshub-parent</artifactId>
-	<version>0.9.03-SNAPSHOT</version>
+	<version>0.9.07-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
 
@@ -92,12 +92,12 @@
 	</developers>
 
 	<properties>
-		<community-connectors.version>1.0.00</community-connectors.version>
+		<community-connectors.version>1.0.06-SNAPSHOT</community-connectors.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.release>17</maven.compiler.release>
 		<hwgraf.version>4</hwgraf.version>
 		<metricshub-jre.version>1.0.01</metricshub-jre.version>
-		<project.build.outputTimestamp>2024-03-28T15:07:12Z</project.build.outputTimestamp>
+		<project.build.outputTimestamp>2024-09-12T10:18:18Z</project.build.outputTimestamp>
 
 	</properties>
 
@@ -115,9 +115,12 @@
 		<module>metricshub-wbem-extension</module>
 		<module>metricshub-wmi-extension</module>
 		<module>metricshub-winrm-extension</module>
+		<module>metricshub-ping-extension</module>
+		<module>metricshub-sql-source-extension</module>
 		<module>metricshub-hardware</module>
 		<module>metricshub-agent</module>
 		<module>metricshub-doc</module>
+		<module>metricshub-jawk-extension</module>
 	</modules>
 
 	<profiles>
@@ -319,7 +322,7 @@
 			<dependency>
 				<groupId>org.sentrysoftware</groupId>
 				<artifactId>wmi</artifactId>
-				<version>1.0.01</version>
+				<version>1.0.02</version>
 			</dependency>
 			<dependency>
 				<groupId>org.sentrysoftware</groupId>
@@ -334,12 +337,12 @@
 			<dependency>
 				<groupId>org.sentrysoftware</groupId>
 				<artifactId>ipmi</artifactId>
-				<version>1.0.01</version>
+				<version>1.1.00</version>
 			</dependency>
 			<dependency>
 				<groupId>org.sentrysoftware</groupId>
 				<artifactId>ssh</artifactId>
-				<version>1.0.01</version>
+				<version>1.0.02</version>
 			</dependency>
 			<dependency>
 				<groupId>org.sentrysoftware</groupId>
@@ -359,7 +362,7 @@
 			<dependency>
 				<groupId>org.sentrysoftware</groupId>
 				<artifactId>jawk</artifactId>
-				<version>3.0.01</version>
+				<version>3.3.03</version>
 			</dependency>
 			<dependency>
 				<groupId>info.picocli</groupId>
@@ -456,6 +459,11 @@
 				<groupId>io.opentelemetry.instrumentation</groupId>
 				<artifactId>opentelemetry-instrumentation-annotations</artifactId>
 				<version>2.0.0</version>
+			</dependency>
+			<dependency>
+				<groupId>com.h2database</groupId>
+				<artifactId>h2</artifactId>
+				<version>2.2.224</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
