@@ -1047,6 +1047,7 @@ public class ConfigHelper {
 			.sequential(Boolean.TRUE.equals(resourceConfig.getSequential()))
 			.configuredConnectorId(configuredConnectorId)
 			.connectorVariables(resourceConfig.getVariables())
+			.resolveHostnameToFqdn(resourceConfig.getResolveHostnameToFqdn())
 			.build();
 	}
 

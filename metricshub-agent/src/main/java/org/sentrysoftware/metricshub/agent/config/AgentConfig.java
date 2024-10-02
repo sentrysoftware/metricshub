@@ -94,8 +94,7 @@ public class AgentConfig {
 
 	private boolean sequential;
 
-	@Default
-	private boolean resolveHostnameToFqdn = true;
+	private boolean resolveHostnameToFqdn;
 
 	@Default
 	@JsonSetter(nulls = SKIP)
