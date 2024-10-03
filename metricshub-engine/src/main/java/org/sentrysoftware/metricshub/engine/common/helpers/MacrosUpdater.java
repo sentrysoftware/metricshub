@@ -22,6 +22,12 @@ package org.sentrysoftware.metricshub.engine.common.helpers;
  */
 
 import static org.sentrysoftware.metricshub.engine.common.helpers.JUtils.encodeSha256;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MacroType.AUTHENTICATIONTOKEN;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MacroType.BASIC_AUTH_BASE64;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MacroType.HOSTNAME;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MacroType.PASSWORD;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MacroType.PASSWORD_BASE64;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MacroType.USERNAME;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
 
 import java.net.URLEncoder;
@@ -42,9 +48,13 @@ import lombok.NonNull;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MacrosUpdater {
 
+	// Set the macros regex
+	private static final Pattern MACRO_PATTERN = Pattern.compile(
+		"[$%]\\{(esc\\(([a-zA-Z0-9]+)\\))?(::)?([A-Z0-9_-]+)\\}"
+	);
+
 	/**
 	 * Replaces each known HTTP macro in the given text with the corresponding values.
-	 *
 	 * Supported macros: %{USERNAME}, %{PASSWORD}, %{HOSTNAME}, %{AUTHENTICATIONTOKEN},
 	 * %{PASSWORD_BASE64}, %{BASIC_AUTH}, %{SHA256}, along with various escape formats like JSON, XML, URL, etc.
 	 *
@@ -72,24 +82,23 @@ public class MacrosUpdater {
 		authenticationToken = authenticationToken != null ? authenticationToken : EMPTY;
 
 		String updatedContent = text;
-		if (text.contains("%{")) {
+		if (updatedContent.contains("%{") || updatedContent.contains("${")) {
 			final Map<String, String> simpleMacroNameToField = Map.of(
-				"USERNAME",
+				USERNAME.name(),
 				username,
-				"PASSWORD",
+				PASSWORD.name(),
 				passwordAsString,
-				"HOSTNAME",
+				HOSTNAME.name(),
 				hostname,
-				"AUTHENTICATIONTOKEN",
+				AUTHENTICATIONTOKEN.name(),
 				authenticationToken
 			);
 
-			final Pattern pattern = Pattern.compile("%\\{(\\w+?)(?:_ESC_(\\w+))?\\}");
-			final Matcher matcher = pattern.matcher(text);
+			final Matcher matcher = MACRO_PATTERN.matcher(text);
 
 			while (matcher.find()) {
-				final String macroName = matcher.group(1);
 				final String escapeType = matcher.group(2);
+				final String macroName = matcher.group(4);
 				updatedContent =
 					processMacro(
 						updatedContent,
@@ -131,14 +140,14 @@ public class MacrosUpdater {
 		final Map<String, String> macroNameField
 	) {
 		String updatedContent = content;
-		if (macroName.startsWith("PASSWORD_BASE64")) {
+		if (macroName.startsWith(PASSWORD_BASE64.name())) {
 			// PasswordBase64 macros replacement
 			updatedContent = replacePasswordBase64(updatedContent, escapeType, matchedString, passwordAsString);
-		} else if (macroName.startsWith("BASIC_AUTH_BASE64")) {
+		} else if (macroName.startsWith(BASIC_AUTH_BASE64.name())) {
 			// BasicAuthBase64 macros replacement
 			updatedContent =
 				replaceBasicAuthBase64MacroValue(updatedContent, escapeType, matchedString, username, passwordAsString);
-		} else if (macroName.startsWith("SHA256_AUTH")) {
+		} else if (macroName.startsWith(MacroType.SHA256_AUTH.name())) {
 			// Sha256 macros replacement
 			updatedContent = replaceSha256MacroValue(updatedContent, escapeType, matchedString, authenticationToken);
 		} else {
@@ -179,22 +188,20 @@ public class MacrosUpdater {
 	 * @return The escaped string.
 	 */
 	private static String escapeReplacement(final String replacement, final String escapeType) {
+		// If no escape type is provided, return the original replacement
 		if (escapeType == null) {
 			return replacement;
 		}
-		return switch (escapeType) {
-			case "JSON" -> escapeJsonSpecialCharacters(replacement);
-			case "XML" -> escapeXmlSpecialCharacters(replacement);
-			case "URL" -> escapeUrlSpecialCharacters(replacement);
-			case "REGEX" -> escapeRegexSpecialCharacters(replacement);
-			case "WINDOWS", "CMD" -> escapeWindowsCmdSpecialCharacters(replacement);
-			case "POWERSHELL" -> escapePowershellSpecialCharacters(replacement);
-			case "LINUX", "BASH" -> escapeBashSpecialCharacters(replacement);
-			case "SQL" -> escapeSqlSpecialCharacters(replacement);
-			default -> throw new IllegalStateException(
-				String.format("Unexpected escape type %s for value %s ", escapeType, replacement)
-			);
-		};
+
+		// Attempt to retrieve the EscapeType from the provided escapeType string
+		final EscapeType type = EscapeType.fromString(escapeType);
+
+		// If a valid EscapeType is found, use it to escape the replacement
+		if (type != null) {
+			return type.escape(replacement);
+		}
+
+		return replacement;
 	}
 
 	/**
@@ -359,20 +366,21 @@ public class MacrosUpdater {
 	static String escapePowershellSpecialCharacters(final String value) {
 		// Escape special characters for Windows PowerShell
 		return value
-			.replace(".", "`.")
-			.replace("\"", "`\"") // Escape double quote
-			.replace("$", "`$") // Escape variable indicator
-			.replace("{", "`{") // Escape opening curly brace
-			.replace("}", "`}") // Escape closing curly brace
-			.replace("(", "`(") // Escape opening parenthesis
-			.replace(")", "`)") // Escape closing parenthesis
+			.replace("0", "`0") // Escape null character first
+			.replace("`n", "``n") // Escape new line
+			.replace("`t", "``t") // Escape tab
+			.replace("`r", "``r") // Escape carriage return
+			.replace("#", "`#") // Escape comment indicator
 			.replace("[", "`[") // Escape opening bracket
 			.replace("]", "`]") // Escape closing bracket
-			.replace("#", "`#") // Escape comment indicator
-			.replace("\n", "`\n") // Escape new line
-			.replace("\t", "`\t") // Escape tab
-			.replace("\r", "`\r") // Escape carriage return
-			.replace("\0", "`\0"); // Escape null character
+			.replace("(", "`(") // Escape opening parenthesis
+			.replace(")", "`)") // Escape closing parenthesis
+			.replace("{", "`{") // Escape opening curly brace
+			.replace("}", "`}") // Escape closing curly brace
+			.replace("$", "`$") // Escape variable indicator
+			.replace("'", "''") // Escape single quote
+			.replace("\"", "`\"") // Escape double quote
+			.replace(".", "`."); // Escape dot at the end
 	}
 
 	/**
@@ -384,24 +392,26 @@ public class MacrosUpdater {
 	static String escapeBashSpecialCharacters(final String value) {
 		// Escape special Bash characters
 		return value
-			.replace("'", "\\'")
-			.replace("\"", "\\\"")
-			.replace("\\", "\\\\")
-			.replace("$", "\\$")
-			.replace("!", "\\!")
-			.replace("*", "\\*")
-			.replace("?", "\\?")
-			.replace("[", "\\[")
-			.replace("]", "\\]")
-			.replace("(", "\\(")
-			.replace(")", "\\)")
-			.replace("{", "\\{")
-			.replace("}", "\\}")
-			.replace("|", "\\|")
-			.replace("&", "\\&")
-			.replace("<", "\\<")
-			.replace(">", "\\>")
-			.replace("~", "\\~");
+			.replace("'", "\\'") // Escape single quote
+			.replace("\"", "\\\"") // Escape double quote
+			.replace("\\", "\\\\") // Escape backslash
+			.replace("$", "\\$") // Escape variable indicator
+			.replace("!", "\\!") // Escape history expansion
+			.replace("*", "\\*") // Escape wildcard
+			.replace("?", "\\?") // Escape wildcard
+			.replace("[", "\\[") // Escape opening bracket
+			.replace("]", "\\]") // Escape closing bracket
+			.replace("(", "\\(") // Escape opening parenthesis
+			.replace(")", "\\)") // Escape closing parenthesis
+			.replace("{", "\\{") // Escape opening brace
+			.replace("}", "\\}") // Escape closing brace
+			.replace("|", "\\|") // Escape pipe
+			.replace("&", "\\&") // Escape background process indicator
+			.replace("<", "\\<") // Escape input redirection
+			.replace(">", "\\>") // Escape output redirection
+			.replace("~", "\\~") // Escape tilde
+			.replace(";", "\\;") // Escape semicolon
+			.replace("\n", "\\n"); // Escape newline
 	}
 
 	/**

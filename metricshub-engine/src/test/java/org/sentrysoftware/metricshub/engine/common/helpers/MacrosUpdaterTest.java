@@ -21,20 +21,20 @@ class MacrosUpdaterTest {
 	private static final String SHA256_AUTH_MACRO = "%{SHA256_AUTH}";
 
 	// Escaped macros
-	private static final String USERNAME_ESC_JSON = "%{USERNAME_ESC_JSON}";
-	private static final String PASSWORD_ESC_JSON = "%{PASSWORD_ESC_JSON}";
-	private static final String USERNAME_ESC_XML = "%{USERNAME_ESC_XML}";
-	private static final String PASSWORD_ESC_SQL = "%{PASSWORD_ESC_SQL}";
-	private static final String USERNAME_ESC_URL = "%{USERNAME_ESC_URL}";
-	private static final String PASSWORD_ESC_URL = "%{PASSWORD_ESC_URL}";
-	private static final String USERNAME_ESC_REGEX = "%{USERNAME_ESC_REGEX}";
-	private static final String PASSWORD_ESC_REGEX = "%{PASSWORD_ESC_REGEX}";
-	private static final String USERNAME_ESC_WINDOWS_CMD = "%{USERNAME_ESC_WINDOWS}";
-	private static final String PASSWORD_ESC_WINDOWS_CMD = "%{PASSWORD_ESC_WINDOWS}";
-	private static final String USERNAME_ESC_POWERSHELL = "%{USERNAME_ESC_POWERSHELL}";
-	private static final String PASSWORD_ESC_POWERSHELL = "%{PASSWORD_ESC_POWERSHELL}";
-	private static final String USERNAME_ESC_BASH = "%{USERNAME_ESC_BASH}";
-	private static final String PASSWORD_ESC_BASH = "%{PASSWORD_ESC_BASH}";
+	private static final String USERNAME_ESC_JSON = "%{esc(json)::USERNAME}";
+	private static final String PASSWORD_ESC_JSON = "%{esc(json)::PASSWORD}";
+	private static final String USERNAME_ESC_XML = "%{esc(xml)::USERNAME}";
+	private static final String PASSWORD_ESC_SQL = "%{esc(sql)::PASSWORD}";
+	private static final String USERNAME_ESC_URL = "${esc(url)::USERNAME}";
+	private static final String PASSWORD_ESC_URL = "%{esc(url)::PASSWORD}";
+	private static final String USERNAME_ESC_REGEX = "%{esc(regex)::USERNAME}";
+	private static final String PASSWORD_ESC_REGEX = "%{esc(regex)::PASSWORD}";
+	private static final String USERNAME_ESC_WINDOWS_CMD = "%{esc(windows)::USERNAME}";
+	private static final String PASSWORD_ESC_WINDOWS_CMD = "%{esc(windows)::PASSWORD}";
+	private static final String USERNAME_ESC_POWERSHELL = "%{esc(powershell)::USERNAME}";
+	private static final String PASSWORD_ESC_POWERSHELL = "%{esc(powershell)::PASSWORD}";
+	private static final String USERNAME_ESC_BASH = "%{esc(bash)::USERNAME}";
+	private static final String PASSWORD_ESC_BASH = "%{esc(bash)::PASSWORD}";
 
 	/**
 	 * Tests the primary macro replacement functionality, including basic macros and some escaped macros.
@@ -42,38 +42,38 @@ class MacrosUpdaterTest {
 	@Test
 	void testUpdate() {
 		final String text = String.format(
-				"""
-				%s
-				%s
-				%s
-				%s
-				%s
-				%s
-				%s
-				%s
-				""",
-				HOSTNAME_MACRO,
-				PASSWORD_MACRO,
-				USERNAME_MACRO,
-				BASIC_AUTH_BASE64_MACRO,
-				SHA256_AUTH_MACRO,
-				PASSWORD_BASE64_MACRO,
-				USERNAME_ESC_JSON,
-				PASSWORD_ESC_JSON
+			"""
+			%s
+			%s
+			%s
+			%s
+			%s
+			%s
+			%s
+			%s
+			""",
+			HOSTNAME_MACRO,
+			PASSWORD_MACRO,
+			USERNAME_MACRO,
+			BASIC_AUTH_BASE64_MACRO,
+			SHA256_AUTH_MACRO,
+			PASSWORD_BASE64_MACRO,
+			USERNAME_ESC_JSON,
+			PASSWORD_ESC_JSON
 		);
 
 		final String result = MacrosUpdater.update(text, "user", "pwd".toCharArray(), "token", "hostname");
 		final String expected =
-				"""
-				hostname
-				pwd
-				user
-				dXNlcjpwd2Q=
-				3c469e9d6c5875d37a43f353d4f88e61fcf812c66eee3457465a40b0da4153e0
-				cHdk
-				user
-				pwd
-				""";
+			"""
+			hostname
+			pwd
+			user
+			dXNlcjpwd2Q=
+			3c469e9d6c5875d37a43f353d4f88e61fcf812c66eee3457465a40b0da4153e0
+			cHdk
+			user
+			pwd
+			""";
 		assertEquals(expected, result);
 	}
 
@@ -164,16 +164,16 @@ class MacrosUpdaterTest {
 	@Test
 	public void testEscapePowershellSpecialCharacters() {
 		assertEquals(
-				"This is a test with `\"double quotes`\" and `$variables`.",
-				MacrosUpdater.escapePowershellSpecialCharacters("This is a test with \"double quotes\" and $variables.")
+			"This is a test with `\"double quotes`\" and `$variables`.",
+			MacrosUpdater.escapePowershellSpecialCharacters("This is a test with \"double quotes\" and $variables.")
 		);
 		assertEquals(
-				"Escaped characters: `\n, `\t, `\r, `$, `{, `}, `[, `], `#, and `\0`.",
-				MacrosUpdater.escapePowershellSpecialCharacters("Escaped characters: \n, \t, \r, $, {, }, [, ], #, and \0.")
+			"Escaped characters: ``n, ``t, ``r, `$, `{, `}, `[, `], `#, and ``0`.",
+			MacrosUpdater.escapePowershellSpecialCharacters("Escaped characters: `n, `t, `r, $, {, }, [, ], #, and `0.")
 		);
 		assertEquals(
-				"No special characters here",
-				MacrosUpdater.escapePowershellSpecialCharacters("No special characters here")
+			"No special characters here",
+			MacrosUpdater.escapePowershellSpecialCharacters("No special characters here")
 		);
 	}
 
@@ -331,10 +331,10 @@ class MacrosUpdaterTest {
 	@Test
 	void testUpdateWithEscapedPasswordPowershell() {
 		final String text = PASSWORD_ESC_POWERSHELL;
-		final String password = "p@ss`word$";
+		final String password = "p@ss$word$";
 
 		final String result = MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname");
-		final String expected = "p@ss`\\word`$";
+		final String expected = "p@ss`$word`$";
 
 		assertEquals(expected, result);
 	}
@@ -345,10 +345,10 @@ class MacrosUpdaterTest {
 	@Test
 	void testUpdateWithEscapedUsernameBash() {
 		final String text = USERNAME_ESC_BASH;
-		final String username = "user'name\"$var";
+		final String username = "user'name$var";
 
 		final String result = MacrosUpdater.update(text, username, "pwd".toCharArray(), "token", "hostname");
-		final String expected = "\\'user\\'name\\\"\\$var\\\"";
+		final String expected = "user\\\\'name\\$var";
 
 		assertEquals(expected, result);
 	}
@@ -359,10 +359,10 @@ class MacrosUpdaterTest {
 	@Test
 	void testUpdateWithEscapedPasswordBash() {
 		final String text = PASSWORD_ESC_BASH;
-		final String password = "p@ss*word&";
+		final String password = "p$ss[]word&";
 
 		final String result = MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname");
-		final String expected = "p@ss\\*word\\&";
+		final String expected = "p\\$ss\\[\\]word\\&";
 
 		assertEquals(expected, result);
 	}
