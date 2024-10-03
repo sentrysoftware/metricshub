@@ -29,9 +29,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.common.HostLocation;
 import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
+import org.sentrysoftware.metricshub.engine.common.helpers.NetworkHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
@@ -252,11 +255,16 @@ class MonitorFactoryTest {
 	@Test
 	void testCreateEndpointHostMonitor() {
 		// Create a telemetry manager instance with necessary information in host configuration and host properties
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.hostId(HOST_ID)
+			.hostname(HOST_NAME)
+			.hostType(DeviceKind.LINUX)
+			.resolveHostnameToFqdn(false)
+			.build();
 		final TelemetryManager telemetryManager = TelemetryManager
 			.builder()
-			.hostConfiguration(
-				HostConfiguration.builder().hostId(HOST_ID).hostname(HOST_NAME).hostType(DeviceKind.LINUX).build()
-			)
+			.hostConfiguration(hostConfiguration)
 			.hostProperties(HostProperties.builder().isLocalhost(Boolean.TRUE).build())
 			.build();
 
@@ -290,6 +298,18 @@ class MonitorFactoryTest {
 
 		// Check that the monitor is an endpoint host monitor
 		assertTrue(hostMonitor.isEndpointHost());
+
+		// Validate hostname to FQDN resolution
+		hostConfiguration.setResolveHostnameToFqdn(true);
+
+		try (MockedStatic<NetworkHelper> networkHelperMock = Mockito.mockStatic(NetworkHelper.class)) {
+			final String expectedHostname = "host.name.resolved";
+			networkHelperMock.when(() -> NetworkHelper.getFqdn(HOST_NAME)).thenReturn(expectedHostname);
+
+			final Monitor fqdnHostMonitor = monitorFactory.createEndpointHostMonitor(Boolean.TRUE);
+
+			assertEquals(expectedHostname, fqdnHostMonitor.getResource().getAttributes().get(HOST_NAME));
+		}
 	}
 
 	@Test

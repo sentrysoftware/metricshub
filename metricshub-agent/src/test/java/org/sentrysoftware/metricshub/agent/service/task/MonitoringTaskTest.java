@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
@@ -128,9 +127,7 @@ class MonitoringTaskTest {
 		doReturn(ExtensionManager.empty()).when(monitoringTaskInfoMock).getExtensionManager();
 
 		try (MockedStatic<OtelHelper> otelHelperMockedStatic = mockStatic(OtelHelper.class)) {
-			otelHelperMockedStatic
-				.when(() -> OtelHelper.createHostResource(anyMap(), anyMap(), anyBoolean()))
-				.thenCallRealMethod();
+			otelHelperMockedStatic.when(() -> OtelHelper.createHostResource(anyMap(), anyMap())).thenCallRealMethod();
 			otelHelperMockedStatic.when(() -> OtelHelper.createOpenTelemetryResource(anyMap())).thenCallRealMethod();
 			otelHelperMockedStatic.when(() -> OtelHelper.buildOtelAttributesFromMap(anyMap())).thenCallRealMethod();
 
@@ -203,11 +200,17 @@ class MonitoringTaskTest {
 			// Mock other OtelHelper methods to ensure that the behavior correctly initializes intermediate objects
 			otelHelperMockedStatic.when(() -> OtelHelper.createOpenTelemetryResource(anyMap())).thenCallRealMethod();
 			otelHelperMockedStatic
-				.when(() -> OtelHelper.createHostResource(anyMap(), anyMap(), anyBoolean()))
-				.thenReturn(Resource.create(Attributes.of(AttributeKey.stringKey(OS_TYPE_ATTRIBUTE_KEY), OS_LINUX)));
-			otelHelperMockedStatic
-				.when(() -> OtelHelper.resolveResourceHostname(anyString(), anyString(), anyBoolean(), anyString()))
-				.thenReturn(HOST_NAME);
+				.when(() -> OtelHelper.createHostResource(anyMap(), anyMap()))
+				.thenReturn(
+					Resource.create(
+						Attributes.of(
+							AttributeKey.stringKey(OS_TYPE_ATTRIBUTE_KEY),
+							OS_LINUX,
+							AttributeKey.stringKey(HOST_NAME),
+							HOSTNAME
+						)
+					)
+				);
 			otelHelperMockedStatic
 				.when(() -> OtelHelper.mergeOtelAttributes(any(Attributes.class), any(Attributes.class)))
 				.thenCallRealMethod();

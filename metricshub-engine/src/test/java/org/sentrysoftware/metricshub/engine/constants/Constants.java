@@ -127,15 +127,9 @@ public class Constants {
 	public static final String HOSTNAME = "hostname";
 	public static final String HOST_CAMEL_CASE = "Host";
 
-	// Configuration toString output
-	public static final String HOST_CONFIGURATION_TO_STRING =
-		"HostConfiguration(hostname=localhost, hostId=localhost," +
-		" hostType=LINUX, strategyTimeout=100, connectors=null," +
-		" sequential=false, alertTrigger=null," +
-		" retryDelay=30, connectorVariables=null, configurations={}, configuredConnectorId=null)";
+	// IPMI message
 	public static final String IPMI_CONNECTION_SUCCESS_WITH_IMPI_OVER_LAN_MESSAGE =
 		"Successfully connected to the IPMI BMC chip with the IPMI-over-LAN " + "interface.";
-	public static final String TWGIPC = "TWGIPC";
 
 	// Exception messages
 	public static final String SYSTEM_POWER_UP_MESSAGE = "System power state is up";
