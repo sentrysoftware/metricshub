@@ -36,7 +36,6 @@ import static org.sentrysoftware.metricshub.engine.constants.Constants.SUCCESSFU
 import static org.sentrysoftware.metricshub.engine.constants.Constants.SYSTEM_POWER_UP_MESSAGE;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.TEST;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.TEST_BODY;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.TWGIPC;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_QUERY;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.WEBM_CRITERION_SUCCESS_EXPECTED_RESULT;
 
@@ -286,7 +285,7 @@ class CriterionProcessorTest {
 
 		doReturn(Set.of(ServiceCriterion.class)).when(protocolExtensionMock).getSupportedCriteria();
 
-		final ServiceCriterion serviceCriterion = ServiceCriterion.builder().name(TWGIPC).build();
+		final ServiceCriterion serviceCriterion = ServiceCriterion.builder().name("TWGIPC").build();
 
 		final CriterionTestResult expected = CriterionTestResult.builder().success(true).message("success").build();
 
