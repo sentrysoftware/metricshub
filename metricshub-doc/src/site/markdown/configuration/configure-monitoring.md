@@ -898,7 +898,7 @@ resourceGroups:
       myHost1:
         attributes:
           host.name: my-host-01
-          host.type: other
+          host.type: windows
           app: Jenkins
         protocols:
           http:
@@ -911,13 +911,50 @@ resourceGroups:
 
 #### Hostname resolution
 
-By default, **MetricsHub** resolves the `hostname` of the resource to a Fully Qualified Domain Name (FQDN) and displays this value in the [Host Resource](https://opentelemetry.io/docs/specs/semconv/resource/host/) attribute `host.name`. To display the configured hostname instead, set `resolveHostnameToFqdn` to `false`:
+By default, **MetricsHub** uses the configured `host.name` value as-is to populate the [Host Resource](https://opentelemetry.io/docs/specs/semconv/resource/host/) attributes. This ensures that the `host.name` remains consistent with what is configured.
+
+To resolve the `host.name` to its Fully Qualified Domain Name (FQDN), set the `resolveHostnameToFqdn` configuration property to `true` as shown below:
 
 ```yaml
-resolveHostnameToFqdn: false
+resolveHostnameToFqdn: true
 
 resourceGroups:
 ```
+
+This ensures that each configured resource will resolve its `host.name` to FQDN.
+
+To enable FQDN resolution for a specific resource group, set the `resolveHostnameToFqdn` property to `true` under the desired resource group configuration as shown below:
+
+```yaml
+resourceGroups:
+  boston:
+    resolveHostnameToFqdn: true
+    attributes:
+      site: boston
+    resources:
+      # ...
+```
+
+This ensures that all resources within the `boston` resource group will resolve their `host.name` to FQDN.
+
+To enable FQDN resolution for an individual resource within a resource group, set the `resolveHostnameToFqdn` under the resource configuration as shown below:
+
+```yaml
+resourceGroups:
+  boston:
+    attributes:
+      site: boston
+    resources:
+      my-host-01:
+        resolveHostnameToFqdn: true
+        attributes:
+          host.name: my-host-01
+          host.type: linux
+```
+
+In this case, only `my-host-01` will resolve its `host.name` to FQDN, while other resources in the `boston` group will retain their original `host.name` values.
+
+> **Warning**: If there is an issue during the resolution, it may result in a different `host.name` value, potentially impacting metric identity.
 
 #### Job pool size
 

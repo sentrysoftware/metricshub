@@ -21,8 +21,6 @@ package org.sentrysoftware.metricshub.agent.helper;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HOST_NAME;
-
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.sdk.autoconfigure.AutoConfiguredOpenTelemetrySdk;
@@ -39,11 +37,6 @@ import lombok.NonNull;
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OtelHelper {
-
-	/**
-	 * Fully Qualified Domain Name (FQDN) attribute key
-	 */
-	public static final String FQDN_ATTRIBUTE_KEY = "fqdn";
 
 	/**
 	 * Create an OTEL Resource
@@ -106,73 +99,34 @@ public class OtelHelper {
 	}
 
 	/**
-	 * Create the host resource based on the given attributes
+	 * Create the host resource based on the given attributes.
 	 *
-	 * @param hostAttributes        Host attributes: host.id, host.name, os.type, host.type, etc
-	 *                              collected by the engine
-	 * @param userAttributes        User configured attributes
-	 * @param resolveHostnameToFqdn Whether we must resolve the hostname of the host to a
-	 *                              Fully Qualified Domain Name (FQDN)
-	 * @return OTEL {@link Resource} instance
+	 * @param computedHostResourceAttributes Host Resource attributes: host.id, host.name, os.type, host.type, etc
+	 *                                       collected by the engine.
+	 * @param userAttributes                 User configured attributes.
+	 * @return OTEL {@link Resource} instance representing the host.
 	 */
 	public static Resource createHostResource(
-		@NonNull final Map<String, String> hostAttributes,
-		@NonNull final Map<String, String> userAttributes,
-		final boolean resolveHostnameToFqdn
+		@NonNull final Map<String, String> computedHostResourceAttributes,
+		@NonNull final Map<String, String> userAttributes
 	) {
-		// Get the resource host.name attribute value
-		final String hostname = resolveResourceHostname(
-			hostAttributes.get(HOST_NAME),
-			userAttributes.get(HOST_NAME),
-			resolveHostnameToFqdn,
-			userAttributes.get(FQDN_ATTRIBUTE_KEY)
-		);
-
 		// Prepare the resource attributes
-		final Map<String, String> attributes = new HashMap<>();
-		attributes.putAll(hostAttributes);
-		attributes.put(HOST_NAME, hostname);
+		final Map<String, String> attributes = new HashMap<>(computedHostResourceAttributes);
 
-		// Add user attributes
-		userAttributes.entrySet().stream().forEach(entry -> attributes.putIfAbsent(entry.getKey(), entry.getValue()));
+		// Add user attributes to the resource attributes
+		// host.name is managed by the engine based on the resolveHostnameToFqdn flag, so we shouldn't override it here.
+		// host.type is managed by the engine using a set of rules to determine the host.type in OTEL format so we shouldn't override it here.
+		// The other attributes are user-defined so we can override them.
+		userAttributes
+			.entrySet()
+			.stream()
+			.filter(keyValue -> {
+				final String key = keyValue.getKey();
+				return !key.equals("host.name") && !key.equals("host.type");
+			})
+			.forEach(entry -> attributes.put(entry.getKey(), entry.getValue()));
 
 		return createOpenTelemetryResource(attributes);
-	}
-
-	/**
-	 * Resolve the resource hostname.
-	 *
-	 * Priority
-	 * <ol>
-	 *   <li>User's attribute <code>fqdn</code> with <code>resolveHostnameToFqdn=true</code></li>
-	 *   <li>Collected <code>fqdn</code> when the <code>resolveHostnameToFqdn=true</code></li>
-	 *   <li>Configured host name attribute <code>host.name</code></li>
-	 * </ol>
-	 *
-	 * @param collectedFqdn         Collected fqdn
-	 * @param configuredHostname    Configured host's host.name
-	 * @param resolveHostnameToFqdn Whether we must resolve host.name value to a fully qualified domain name.
-	 * @param userFqdn              FQDN attribute value
-	 * @return String value
-	 */
-	public static String resolveResourceHostname(
-		final String collectedFqdn,
-		final String configuredHostname,
-		final boolean resolveHostnameToFqdn,
-		final String userFqdn
-	) {
-		if (resolveHostnameToFqdn) {
-			// User's Fqdn?
-			if (userFqdn != null) {
-				return userFqdn;
-			} else {
-				// Collected Fqdn
-				return collectedFqdn;
-			}
-		}
-
-		// Finally we keep the configured host.name
-		return configuredHostname;
 	}
 
 	/**

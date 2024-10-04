@@ -52,6 +52,7 @@ public class HostConfiguration {
 	private String hostname;
 	private String hostId;
 	private DeviceKind hostType;
+	private boolean resolveHostnameToFqdn;
 
 	@Default
 	private long strategyTimeout = DEFAULT_JOB_TIMEOUT;

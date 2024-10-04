@@ -386,11 +386,7 @@ public class MonitoringTask implements Runnable {
 				hostMonitorResourceAttributes = Map.of();
 			}
 
-			final Resource resource = OtelHelper.createHostResource(
-				hostMonitorResourceAttributes,
-				userAttributes,
-				resourceConfig.getResolveHostnameToFqdn()
-			);
+			final Resource resource = OtelHelper.createHostResource(hostMonitorResourceAttributes, userAttributes);
 
 			// Store the host monitor attributes for future use
 			mainResourceAttributes =
