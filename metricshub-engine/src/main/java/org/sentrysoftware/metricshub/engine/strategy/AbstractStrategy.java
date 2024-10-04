@@ -443,6 +443,9 @@ public abstract class AbstractStrategy implements IStrategy {
 		final String builtTestResult = testResult
 			.getCriterionTestResults()
 			.stream()
+			.filter(criterionTestResult ->
+				!(criterionTestResult.getResult() == null && criterionTestResult.getMessage() == null)
+			)
 			.map(criterionResult -> {
 				final String result = criterionResult.getResult();
 				final String message = criterionResult.getMessage();
