@@ -528,7 +528,7 @@ class MacrosUpdaterTest {
 		// Base64 encoding of "user@name#1!:p@ssw0rd$%^&*"
 		final String encodedAuthCommon = "dXNlckBuYW1lIzEhOnBAc3N3MHJkJCVeJio=";
 		final String encodedAuthUrl = "dXNlckBuYW1lIzEhOnBAc3N3MHJkJCVeJio%3D"; // URL
-		final String encodedAuthRegex = "\\QdXNlckBuYW1lIzEhOnBAc3N3MHJkJCVeJio=\\E"; // Regex// Bash
+		final String encodedAuthRegex = "\\QdXNlckBuYW1lIzEhOnBAc3N3MHJkJCVeJio=\\E"; // Regex
 
 		// Test JSON escape
 		{
@@ -601,23 +601,20 @@ class MacrosUpdaterTest {
 	}
 
 	/**
-	 * Tests the replacement of the SHA256_AUTH macro with escapes.
-	 */
-	/**
 	 * Tests the replacement of the SHA256_AUTH macros with various escaped authentication tokens.
 	 */
 	@Test
 	void testUpdateWithSHA256AuthEscapes() {
 		// SHA-256 hash of "user:pwd" combined with different tokens
 		// Ensure you compute these hashes based on the token and value combinations
-		final String expectedHashJson = "c24b4519c83a68714a4c85baeb68630383509e72e0f714eaea6a284a6cc2fbf6"; // Hash of "user:pwd" + "token\"with\\escape"
-		final String expectedHashXml = "5198903ab25ebf2ac9849c2675bfc0d4df8bdd3f2807d92290535472603f351a"; // Hash of "user:pwd" + "token&with<escape>"
-		final String expectedHashSql = "45fc026109bd45cfa34b581a3a96786661c9bced00ebc88536f3dc1a345c4702"; // Hash of "user:pwd" + "token'with;escape"
-		final String expectedHashUrl = "92e01c2bb93fd79ca9f9896385c5424649d72ac8e41c471b75bee4030803cf8f"; // Hash of "user:pwd" + "token with space%20and%40symbol"
-		final String expectedHashRegex = "\\Q75cfb6ae1cc1b638813786a573f09fbebe509917e9d5fb35e7fb1e022ce57bbc\\E"; // Hash of "user:pwd" + "token.with*regex"
-		final String expectedHashWindowsCmd = "449903eccd092b2295e06f904e7ca4c451d9874af9602f77773390316ba86a86"; // Hash of "user:pwd" + "token&with|cmd<>"
-		final String expectedHashPowershell = "2b46bf`08`0e1e518659bad5ae7b9cbc`0f61e3`0ee45aeebf8f1c`0e5132fcf3b213"; // Hash of "user:pwd" + "token\"with$var"
-		final String expectedHashBash = "8f38b1a5f493c82e329273b32483c15a79738bb221bfb47c83b6639e55bc41dc"; // Hash of "user:pwd" + "token'with$var"
+		final String expectedHashJson = "c24b4519c83a68714a4c85baeb68630383509e72e0f714eaea6a284a6cc2fbf6";
+		final String expectedHashXml = "5198903ab25ebf2ac9849c2675bfc0d4df8bdd3f2807d92290535472603f351a";
+		final String expectedHashSql = "45fc026109bd45cfa34b581a3a96786661c9bced00ebc88536f3dc1a345c4702";
+		final String expectedHashUrl = "92e01c2bb93fd79ca9f9896385c5424649d72ac8e41c471b75bee4030803cf8f";
+		final String expectedHashRegex = "\\Q75cfb6ae1cc1b638813786a573f09fbebe509917e9d5fb35e7fb1e022ce57bbc\\E";
+		final String expectedHashWindowsCmd = "449903eccd092b2295e06f904e7ca4c451d9874af9602f77773390316ba86a86";
+		final String expectedHashPowershell = "2b46bf`08`0e1e518659bad5ae7b9cbc`0f61e3`0ee45aeebf8f1c`0e5132fcf3b213";
+		final String expectedHashBash = "8f38b1a5f493c82e329273b32483c15a79738bb221bfb47c83b6639e55bc41dc";
 
 		// Test JSON escape
 		{
