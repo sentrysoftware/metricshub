@@ -35,6 +35,38 @@ class MacrosUpdaterTest {
 	private static final String PASSWORD_ESC_POWERSHELL = "%{esc(powershell)::PASSWORD}";
 	private static final String USERNAME_ESC_BASH = "%{esc(bash)::USERNAME}";
 	private static final String PASSWORD_ESC_BASH = "%{esc(bash)::PASSWORD}";
+	private static final String PASSWORD_BASE64_JSON = "%{esc(json)::PASSWORD_BASE64}";
+	private static final String PASSWORD_BASE64_XML = "%{esc(xml)::PASSWORD_BASE64}";
+	private static final String PASSWORD_BASE64_SQL = "%{esc(sql)::PASSWORD_BASE64}";
+	private static final String PASSWORD_BASE64_URL = "%{esc(url)::PASSWORD_BASE64}";
+	private static final String PASSWORD_BASE64_REGEX = "%{esc(regex)::PASSWORD_BASE64}";
+	private static final String PASSWORD_BASE64_WINDOWS_CMD = "%{esc(windows)::PASSWORD_BASE64}";
+	private static final String PASSWORD_BASE64_POWERSHELL = "%{esc(powershell)::PASSWORD_BASE64}";
+	private static final String PASSWORD_BASE64_BASH = "%{esc(bash)::PASSWORD_BASE64}";
+	private static final String BASIC_AUTH_BASE64_JSON = "%{esc(json)::BASIC_AUTH_BASE64}";
+	private static final String BASIC_AUTH_BASE64_XML = "%{esc(xml)::BASIC_AUTH_BASE64}";
+	private static final String BASIC_AUTH_BASE64_SQL = "%{esc(sql)::BASIC_AUTH_BASE64}";
+	private static final String BASIC_AUTH_BASE64_URL = "%{esc(url)::BASIC_AUTH_BASE64}";
+	private static final String BASIC_AUTH_BASE64_REGEX = "%{esc(regex)::BASIC_AUTH_BASE64}";
+	private static final String BASIC_AUTH_BASE64_WINDOWS_CMD = "%{esc(windows)::BASIC_AUTH_BASE64}";
+	private static final String BASIC_AUTH_BASE64_POWERSHELL = "%{esc(powershell)::BASIC_AUTH_BASE64}";
+	private static final String BASIC_AUTH_BASE64_BASH = "%{esc(bash)::BASIC_AUTH_BASE64}";
+	private static final String SHA256_AUTH_JSON = "%{esc(json)::SHA256_AUTH}";
+	private static final String SHA256_AUTH_XML = "%{esc(xml)::SHA256_AUTH}";
+	private static final String SHA256_AUTH_SQL = "%{esc(sql)::SHA256_AUTH}";
+	private static final String SHA256_AUTH_URL = "%{esc(url)::SHA256_AUTH}";
+	private static final String SHA256_AUTH_REGEX = "%{esc(regex)::SHA256_AUTH}";
+	private static final String SHA256_AUTH_WINDOWS_CMD = "%{esc(windows)::SHA256_AUTH}";
+	private static final String SHA256_AUTH_POWERSHELL = "%{esc(powershell)::SHA256_AUTH}";
+	private static final String SHA256_AUTH_BASH = "%{esc(bash)::SHA256_AUTH}";
+	private static final String AUTHENTICATION_TOKEN_JSON = "%{esc(json)::AUTHENTICATIONTOKEN}";
+	private static final String AUTHENTICATION_TOKEN_XML = "%{esc(xml)::AUTHENTICATIONTOKEN}";
+	private static final String AUTHENTICATION_TOKEN_SQL = "%{esc(sql)::AUTHENTICATIONTOKEN}";
+	private static final String AUTHENTICATION_TOKEN_URL = "%{esc(url)::AUTHENTICATIONTOKEN}";
+	private static final String AUTHENTICATION_TOKEN_REGEX = "%{esc(regex)::AUTHENTICATIONTOKEN}";
+	private static final String AUTHENTICATION_TOKEN_WINDOWS_CMD = "%{esc(windows)::AUTHENTICATIONTOKEN}";
+	private static final String AUTHENTICATION_TOKEN_POWERSHELL = "%{esc(powershell)::AUTHENTICATIONTOKEN}";
+	private static final String AUTHENTICATION_TOKEN_BASH = "%{esc(bash)::AUTHENTICATIONTOKEN}";
 
 	/**
 	 * Tests the primary macro replacement functionality, including basic macros and some escaped macros.
@@ -200,170 +232,447 @@ class MacrosUpdaterTest {
 	}
 
 	/**
-	 * Tests the replacement of the USERNAME_ESC_XML macro with an XML-escaped username.
+	 * Tests the replacement of the AUTHENTICATION_TOKEN macros with various escape types.
 	 */
 	@Test
-	void testUpdateWithEscapedUsernameXml() {
-		final String text = USERNAME_ESC_XML;
-		final String username = "user&name<test>";
+	void testUpdateWithAuthenticationTokenEscapes() {
+		// Complex authentication token example
+		final String authToken = "auth@token#123$%^&*()_+|~`";
 
-		final String result = MacrosUpdater.update(text, username, "pwd".toCharArray(), "token", "hostname");
-		final String expected = "user&amp;name&lt;test&gt;";
+		// Expected values for different escape types
+		final String expectedJson = "auth@token#123$%^&*()_+|~`"; // JSON escape
+		final String expectedXml = "auth@token#123$%^&amp;*()_+|~`"; // XML escape
+		final String expectedSql = "auth@token#123$%^&*()_+|~`"; // SQL escape (no change needed)
+		final String expectedUrl = "auth%40token%23123%24%25%5E%26*%28%29_%2B%7C%7E%60"; // URL-encoded
+		final String expectedRegex = "\\Qauth@token#123$%^&*()_+|~`\\E"; // Regex escape
+		final String expectedWindowsCmd = "auth@token#123$^%^^^&*^(^)_+^|~`"; // Windows CMD escape
+		final String expectedPowershell = "auth@token`#123`$%^&*`(`)_+|~`"; // PowerShell escape
+		final String expectedBash = "auth@token#123\\$%^\\&\\*\\(\\)_+\\|\\~`"; // Bash escape
 
-		assertEquals(expected, result);
+		// Test JSON escape
+		{
+			final String text = AUTHENTICATION_TOKEN_JSON;
+			assertEquals(expectedJson, MacrosUpdater.update(text, "user", "pwd".toCharArray(), authToken, "hostname"));
+		}
+
+		// Test XML escape
+		{
+			final String text = AUTHENTICATION_TOKEN_XML;
+			assertEquals(expectedXml, MacrosUpdater.update(text, "user", "pwd".toCharArray(), authToken, "hostname"));
+		}
+
+		// Test SQL escape
+		{
+			final String text = AUTHENTICATION_TOKEN_SQL;
+			assertEquals(expectedSql, MacrosUpdater.update(text, "user", "pwd".toCharArray(), authToken, "hostname"));
+		}
+
+		// Test URL escape
+		{
+			final String text = AUTHENTICATION_TOKEN_URL;
+			assertEquals(expectedUrl, MacrosUpdater.update(text, "user", "pwd".toCharArray(), authToken, "hostname"));
+		}
+
+		// Test Regex escape
+		{
+			final String text = AUTHENTICATION_TOKEN_REGEX;
+			assertEquals(expectedRegex, MacrosUpdater.update(text, "user", "pwd".toCharArray(), authToken, "hostname"));
+		}
+
+		// Test Windows CMD escape
+		{
+			final String text = AUTHENTICATION_TOKEN_WINDOWS_CMD;
+			assertEquals(expectedWindowsCmd, MacrosUpdater.update(text, "user", "pwd".toCharArray(), authToken, "hostname"));
+		}
+
+		// Test PowerShell escape
+		{
+			final String text = AUTHENTICATION_TOKEN_POWERSHELL;
+			assertEquals(expectedPowershell, MacrosUpdater.update(text, "user", "pwd".toCharArray(), authToken, "hostname"));
+		}
+
+		// Test Bash escape
+		{
+			final String text = AUTHENTICATION_TOKEN_BASH;
+			assertEquals(expectedBash, MacrosUpdater.update(text, "user", "pwd".toCharArray(), authToken, "hostname"));
+		}
 	}
 
 	/**
-	 * Tests the replacement of the PASSWORD_ESC_SQL macro with an SQL-escaped password.
+	 * Tests the replacement of the USERNAME_ESC macros with various escaped usernames.
 	 */
 	@Test
-	void testUpdateWithEscapedPasswordSql() {
-		final String text = PASSWORD_ESC_SQL;
-		final String password = "p@ss'word";
+	void testUpdateWithEscapedUsername() {
+		// Test XML escape
+		{
+			final String text = USERNAME_ESC_XML;
+			final String username = "user&name<test>";
+			final String expected = "user&amp;name&lt;test&gt;";
+			final String result = MacrosUpdater.update(text, username, "pwd".toCharArray(), "token", "hostname");
+			assertEquals(expected, result);
+		}
 
-		final String result = MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname");
-		final String expected = "p@ss''word";
+		// Test JSON escape
+		{
+			final String text = USERNAME_ESC_JSON;
+			final String username = "user\"name";
+			final String expected = "user\\\"name";
+			final String result = MacrosUpdater.update(text, username, "pwd".toCharArray(), "token", "hostname");
+			assertEquals(expected, result);
+		}
 
-		assertEquals(expected, result);
+		// Test URL escape
+		{
+			final String text = USERNAME_ESC_URL;
+			final String username = "user name@example.com";
+			final String expected = "user%20name%40example.com";
+			final String result = MacrosUpdater.update(text, username, "pwd".toCharArray(), "token", "hostname");
+			assertEquals(expected, result);
+		}
+
+		// Test Regex escape
+		{
+			final String text = USERNAME_ESC_REGEX;
+			final String username = "user.name*";
+			final String expected = "\\Quser.name*\\E";
+			final String result = MacrosUpdater.update(text, username, "pwd".toCharArray(), "token", "hostname");
+			assertEquals(expected, result);
+		}
+
+		// Test Windows CMD escape
+		{
+			final String text = USERNAME_ESC_WINDOWS_CMD;
+			final String username = "user&name|cmd<>";
+			final String expected = "user^&name^|cmd^<^>";
+			final String result = MacrosUpdater.update(text, username, "pwd".toCharArray(), "token", "hostname");
+			assertEquals(expected, result);
+		}
+
+		// Test PowerShell escape
+		{
+			final String text = USERNAME_ESC_POWERSHELL;
+			final String username = "user\"name$var";
+			final String expected = "user`\"name`$var";
+			final String result = MacrosUpdater.update(text, username, "pwd".toCharArray(), "token", "hostname");
+			assertEquals(expected, result);
+		}
+
+		// Test Bash escape
+		{
+			final String text = USERNAME_ESC_BASH;
+			final String username = "user'name$var";
+			final String expected = "user\\\\'name\\$var";
+			final String result = MacrosUpdater.update(text, username, "pwd".toCharArray(), "token", "hostname");
+			assertEquals(expected, result);
+		}
 	}
 
 	/**
-	 * Tests the replacement of the USERNAME_ESC_URL macro with a URL-escaped username.
+	 * Tests the replacement of the PASSWORD_ESC macros with various escaped passwords.
 	 */
 	@Test
-	void testUpdateWithEscapedUsernameUrl() {
-		final String text = USERNAME_ESC_URL;
-		final String username = "user name@example.com";
+	void testUpdateWithEscapedPassword() {
+		// Test SQL escape
+		{
+			final String text = PASSWORD_ESC_SQL;
+			final String password = "p@ss'word";
+			final String expected = "p@ss''word";
+			final String result = MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname");
+			assertEquals(expected, result);
+		}
 
-		final String result = MacrosUpdater.update(text, username, "pwd".toCharArray(), "token", "hostname");
-		final String expected = "user%20name%40example.com";
+		// Test URL escape
+		{
+			final String text = PASSWORD_ESC_URL;
+			final String password = "p@ss word/?";
+			final String expected = "p%40ss%20word%2F%3F";
+			final String result = MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname");
+			assertEquals(expected, result);
+		}
 
-		assertEquals(expected, result);
+		// Test Regex escape
+		{
+			final String text = PASSWORD_ESC_REGEX;
+			final String password = "p@ss^word$";
+			final String expected = "\\Qp@ss^word$\\E";
+			final String result = MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname");
+			assertEquals(expected, result);
+		}
+
+		// Test Windows CMD escape
+		{
+			final String text = PASSWORD_ESC_WINDOWS_CMD;
+			final String password = "p^wd&cmd|";
+			final String expected = "p^^wd^&cmd^|";
+			final String result = MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname");
+			assertEquals(expected, result);
+		}
+
+		// Test PowerShell escape
+		{
+			final String text = PASSWORD_ESC_POWERSHELL;
+			final String password = "p@ss$word$";
+			final String expected = "p@ss`$word`$";
+			final String result = MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname");
+			assertEquals(expected, result);
+		}
+
+		// Test Bash escape
+		{
+			final String text = PASSWORD_ESC_BASH;
+			final String password = "p$ss[]word&";
+			final String expected = "p\\$ss\\[\\]word\\&";
+			final String result = MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname");
+			assertEquals(expected, result);
+		}
 	}
 
 	/**
-	 * Tests the replacement of the PASSWORD_ESC_URL macro with a URL-escaped password.
+	 * Tests the replacement of the PASSWORD_BASE64 macros with various escaped passwords.
 	 */
 	@Test
-	void testUpdateWithEscapedPasswordUrl() {
-		final String text = PASSWORD_ESC_URL;
-		final String password = "p@ss word/?";
+	void testUpdateWithPasswordBase64Escapes() {
+		// Base64 encoding of "p@55w0rd!#^&*()_+|~`"
+		final String encodedPasswordCommon = "cEA1NXcwcmQhI14mKigpXyt8fmA=";
+		final String encodedPasswordUrl = "cEA1NXcwcmQhI14mKigpXyt8fmA%3D"; // Base64 encoding for URL context remains the same
+		final String encodedPasswordRegex = "\\QcEA1NXcwcmQhI14mKigpXyt8fmA=\\E"; // Base64 encoding for Regex context remains the sam
 
-		final String result = MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname");
-		final String expected = "p%40ss%20word%2F%3F";
+		// Test JSON escape
+		{
+			final String text = PASSWORD_BASE64_JSON;
+			final String password = "p@55w0rd!#^&*()_+|~`";
+			assertEquals(
+				encodedPasswordCommon,
+				MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname")
+			);
+		}
 
-		assertEquals(expected, result);
+		// Test XML escape
+		{
+			final String text = PASSWORD_BASE64_XML;
+			final String password = "p@55w0rd!#^&*()_+|~`";
+			assertEquals(
+				encodedPasswordCommon,
+				MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname")
+			);
+		}
+
+		// Test SQL escape
+		{
+			final String text = PASSWORD_BASE64_SQL;
+			final String password = "p@55w0rd!#^&*()_+|~`";
+			assertEquals(
+				encodedPasswordCommon,
+				MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname")
+			);
+		}
+
+		// Test URL escape
+		{
+			final String text = PASSWORD_BASE64_URL;
+			final String password = "p@55w0rd!#^&*()_+|~`";
+			assertEquals(encodedPasswordUrl, MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname"));
+		}
+
+		// Test Regex escape
+		{
+			final String text = PASSWORD_BASE64_REGEX;
+			final String password = "p@55w0rd!#^&*()_+|~`";
+			assertEquals(
+				encodedPasswordRegex,
+				MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname")
+			);
+		}
+
+		// Test Windows CMD escape
+		{
+			final String text = PASSWORD_BASE64_WINDOWS_CMD;
+			final String password = "p@55w0rd!#^&*()_+|~`";
+			assertEquals(
+				encodedPasswordCommon,
+				MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname")
+			);
+		}
+
+		// Test PowerShell escape
+		{
+			final String text = PASSWORD_BASE64_POWERSHELL;
+			final String password = "p@55w0rd!#^&*()_+|~`";
+			assertEquals(
+				encodedPasswordCommon,
+				MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname")
+			);
+		}
+
+		// Test Bash escape
+		{
+			final String text = PASSWORD_BASE64_BASH;
+			final String password = "p@55w0rd!#^&*()_+|~`";
+			assertEquals(
+				encodedPasswordCommon,
+				MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname")
+			);
+		}
 	}
 
 	/**
-	 * Tests the replacement of the USERNAME_ESC_REGEX macro with a regex-escaped username.
+	 * Tests the replacement of the BASIC_AUTH_BASE64 macros with various escaped authentication tokens.
 	 */
 	@Test
-	void testUpdateWithEscapedUsernameRegex() {
-		final String text = USERNAME_ESC_REGEX;
-		final String username = "user.name*";
+	void testUpdateWithBasicAuthBase64Escapes() {
+		// More complex username and password with special characters
+		final String username = "user@name#1!"; // Including '@', '#', and '!'
+		final String password = "p@ssw0rd$%^&*"; // Including special characters like '$', '%', '^', and '*'
+		final String authToken = username + ":" + password;
 
-		final String result = MacrosUpdater.update(text, username, "pwd".toCharArray(), "token", "hostname");
-		final String expected = "\\Quser.name*\\E";
+		// Base64 encoding of "user@name#1!:p@ssw0rd$%^&*"
+		final String encodedAuthCommon = "dXNlckBuYW1lIzEhOnBAc3N3MHJkJCVeJio=";
+		final String encodedAuthUrl = "dXNlckBuYW1lIzEhOnBAc3N3MHJkJCVeJio%3D"; // URL
+		final String encodedAuthRegex = "\\QdXNlckBuYW1lIzEhOnBAc3N3MHJkJCVeJio=\\E"; // Regex// Bash
 
-		assertEquals(expected, result);
+		// Test JSON escape
+		{
+			final String text = BASIC_AUTH_BASE64_JSON;
+			assertEquals(
+				encodedAuthCommon,
+				MacrosUpdater.update(text, username, password.toCharArray(), authToken, "hostname")
+			);
+		}
+
+		// Test XML escape
+		{
+			final String text = BASIC_AUTH_BASE64_XML;
+			assertEquals(
+				encodedAuthCommon,
+				MacrosUpdater.update(text, username, password.toCharArray(), authToken, "hostname")
+			);
+		}
+
+		// Test SQL escape
+		{
+			final String text = BASIC_AUTH_BASE64_SQL;
+			assertEquals(
+				encodedAuthCommon,
+				MacrosUpdater.update(text, username, password.toCharArray(), authToken, "hostname")
+			);
+		}
+
+		// Test URL escape
+		{
+			final String text = BASIC_AUTH_BASE64_URL;
+			assertEquals(encodedAuthUrl, MacrosUpdater.update(text, username, password.toCharArray(), authToken, "hostname"));
+		}
+
+		// Test Regex escape
+		{
+			final String text = BASIC_AUTH_BASE64_REGEX;
+			assertEquals(
+				encodedAuthRegex,
+				MacrosUpdater.update(text, username, password.toCharArray(), authToken, "hostname")
+			);
+		}
+
+		// Test Windows CMD escape
+		{
+			final String text = BASIC_AUTH_BASE64_WINDOWS_CMD;
+			assertEquals(
+				encodedAuthCommon,
+				MacrosUpdater.update(text, username, password.toCharArray(), authToken, "hostname")
+			);
+		}
+
+		// Test PowerShell escape
+		{
+			final String text = BASIC_AUTH_BASE64_POWERSHELL;
+			assertEquals(
+				encodedAuthCommon,
+				MacrosUpdater.update(text, username, password.toCharArray(), authToken, "hostname")
+			);
+		}
+
+		// Test Bash escape
+		{
+			final String text = BASIC_AUTH_BASE64_BASH;
+			assertEquals(
+				encodedAuthCommon,
+				MacrosUpdater.update(text, username, password.toCharArray(), authToken, "hostname")
+			);
+		}
 	}
 
 	/**
-	 * Tests the replacement of the PASSWORD_ESC_REGEX macro with a regex-escaped password.
+	 * Tests the replacement of the SHA256_AUTH macro with escapes.
 	 */
-	@Test
-	void testUpdateWithEscapedPasswordRegex() {
-		final String text = PASSWORD_ESC_REGEX;
-		final String password = "p@ss^word$";
-
-		final String result = MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname");
-		final String expected = "\\Qp@ss^word$\\E";
-
-		assertEquals(expected, result);
-	}
-
 	/**
-	 * Tests the replacement of the USERNAME_ESC_WINDOWS_CMD macro with a Windows CMD-escaped username.
+	 * Tests the replacement of the SHA256_AUTH macros with various escaped authentication tokens.
 	 */
 	@Test
-	void testUpdateWithEscapedUsernameWindowsCmd() {
-		final String text = USERNAME_ESC_WINDOWS_CMD;
-		final String username = "user&name|cmd<>";
+	void testUpdateWithSHA256AuthEscapes() {
+		// SHA-256 hash of "user:pwd" combined with different tokens
+		// Ensure you compute these hashes based on the token and value combinations
+		final String expectedHashJson = "c24b4519c83a68714a4c85baeb68630383509e72e0f714eaea6a284a6cc2fbf6"; // Hash of "user:pwd" + "token\"with\\escape"
+		final String expectedHashXml = "5198903ab25ebf2ac9849c2675bfc0d4df8bdd3f2807d92290535472603f351a"; // Hash of "user:pwd" + "token&with<escape>"
+		final String expectedHashSql = "45fc026109bd45cfa34b581a3a96786661c9bced00ebc88536f3dc1a345c4702"; // Hash of "user:pwd" + "token'with;escape"
+		final String expectedHashUrl = "92e01c2bb93fd79ca9f9896385c5424649d72ac8e41c471b75bee4030803cf8f"; // Hash of "user:pwd" + "token with space%20and%40symbol"
+		final String expectedHashRegex = "\\Q75cfb6ae1cc1b638813786a573f09fbebe509917e9d5fb35e7fb1e022ce57bbc\\E"; // Hash of "user:pwd" + "token.with*regex"
+		final String expectedHashWindowsCmd = "449903eccd092b2295e06f904e7ca4c451d9874af9602f77773390316ba86a86"; // Hash of "user:pwd" + "token&with|cmd<>"
+		final String expectedHashPowershell = "2b46bf`08`0e1e518659bad5ae7b9cbc`0f61e3`0ee45aeebf8f1c`0e5132fcf3b213"; // Hash of "user:pwd" + "token\"with$var"
+		final String expectedHashBash = "8f38b1a5f493c82e329273b32483c15a79738bb221bfb47c83b6639e55bc41dc"; // Hash of "user:pwd" + "token'with$var"
 
-		final String result = MacrosUpdater.update(text, username, "pwd".toCharArray(), "token", "hostname");
-		final String expected = "user^&name^|cmd^<^>";
+		// Test JSON escape
+		{
+			final String text = SHA256_AUTH_JSON;
+			final String token = "token\"with\\escape";
+			assertEquals(expectedHashJson, MacrosUpdater.update(text, "user", "pwd".toCharArray(), token, "hostname"));
+		}
 
-		assertEquals(expected, result);
-	}
+		// Test XML escape
+		{
+			final String text = SHA256_AUTH_XML;
+			final String token = "token&with<escape>";
+			assertEquals(expectedHashXml, MacrosUpdater.update(text, "user", "pwd".toCharArray(), token, "hostname"));
+		}
 
-	/**
-	 * Tests the replacement of the PASSWORD_ESC_WINDOWS_CMD macro with a Windows CMD-escaped password.
-	 */
-	@Test
-	void testUpdateWithEscapedPasswordWindowsCmd() {
-		final String text = PASSWORD_ESC_WINDOWS_CMD;
-		final String password = "p^wd&cmd|";
+		// Test SQL escape
+		{
+			final String text = SHA256_AUTH_SQL;
+			final String token = "token'with;escape";
+			assertEquals(expectedHashSql, MacrosUpdater.update(text, "user", "pwd".toCharArray(), token, "hostname"));
+		}
 
-		final String result = MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname");
-		final String expected = "p^^wd^&cmd^|";
+		// Test URL escape
+		{
+			final String text = SHA256_AUTH_URL;
+			final String token = "token with space%20and%40symbol";
+			assertEquals(expectedHashUrl, MacrosUpdater.update(text, "user", "pwd".toCharArray(), token, "hostname"));
+		}
 
-		assertEquals(expected, result);
-	}
+		// Test Regex escape
+		{
+			final String text = SHA256_AUTH_REGEX;
+			final String token = "token.with*regex";
+			assertEquals(expectedHashRegex, MacrosUpdater.update(text, "user", "pwd".toCharArray(), token, "hostname"));
+		}
 
-	/**
-	 * Tests the replacement of the USERNAME_ESC_POWERSHELL macro with a PowerShell-escaped username.
-	 */
-	@Test
-	void testUpdateWithEscapedUsernamePowershell() {
-		final String text = USERNAME_ESC_POWERSHELL;
-		final String username = "user\"name$var";
+		// Test Windows CMD escape
+		{
+			final String text = SHA256_AUTH_WINDOWS_CMD;
+			final String token = "token&with|cmd<>";
+			assertEquals(expectedHashWindowsCmd, MacrosUpdater.update(text, "user", "pwd".toCharArray(), token, "hostname"));
+		}
 
-		final String result = MacrosUpdater.update(text, username, "pwd".toCharArray(), "token", "hostname");
-		final String expected = "user`\"name`$var";
+		// Test PowerShell escape
+		{
+			final String text = SHA256_AUTH_POWERSHELL;
+			final String token = "token\"with$var";
+			assertEquals(expectedHashPowershell, MacrosUpdater.update(text, "user", "pwd".toCharArray(), token, "hostname"));
+		}
 
-		assertEquals(expected, result);
-	}
-
-	/**
-	 * Tests the replacement of the PASSWORD_ESC_POWERSHELL macro with a PowerShell-escaped password.
-	 */
-	@Test
-	void testUpdateWithEscapedPasswordPowershell() {
-		final String text = PASSWORD_ESC_POWERSHELL;
-		final String password = "p@ss$word$";
-
-		final String result = MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname");
-		final String expected = "p@ss`$word`$";
-
-		assertEquals(expected, result);
-	}
-
-	/**
-	 * Tests the replacement of the USERNAME_ESC_BASH macro with a Bash-escaped username.
-	 */
-	@Test
-	void testUpdateWithEscapedUsernameBash() {
-		final String text = USERNAME_ESC_BASH;
-		final String username = "user'name$var";
-
-		final String result = MacrosUpdater.update(text, username, "pwd".toCharArray(), "token", "hostname");
-		final String expected = "user\\\\'name\\$var";
-
-		assertEquals(expected, result);
-	}
-
-	/**
-	 * Tests the replacement of the PASSWORD_ESC_BASH macro with a Bash-escaped password.
-	 */
-	@Test
-	void testUpdateWithEscapedPasswordBash() {
-		final String text = PASSWORD_ESC_BASH;
-		final String password = "p$ss[]word&";
-
-		final String result = MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname");
-		final String expected = "p\\$ss\\[\\]word\\&";
-
-		assertEquals(expected, result);
+		// Test Bash escape
+		{
+			final String text = SHA256_AUTH_BASH;
+			final String token = "token'with$var";
+			assertEquals(expectedHashBash, MacrosUpdater.update(text, "user", "pwd".toCharArray(), token, "hostname"));
+		}
 	}
 }

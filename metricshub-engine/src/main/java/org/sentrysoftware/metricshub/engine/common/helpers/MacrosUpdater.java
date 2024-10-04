@@ -27,6 +27,7 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.MacroType.BASI
 import static org.sentrysoftware.metricshub.engine.common.helpers.MacroType.HOSTNAME;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MacroType.PASSWORD;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MacroType.PASSWORD_BASE64;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MacroType.SHA256_AUTH;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MacroType.USERNAME;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
 
@@ -34,6 +35,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.AccessLevel;
@@ -99,17 +101,7 @@ public class MacrosUpdater {
 			while (matcher.find()) {
 				final String escapeType = matcher.group(2);
 				final String macroName = matcher.group(4);
-				updatedContent =
-					processMacro(
-						updatedContent,
-						matcher.group(0),
-						macroName,
-						escapeType,
-						passwordAsString,
-						username,
-						authenticationToken,
-						simpleMacroNameToField
-					);
+				updatedContent = processMacro(updatedContent, matcher.group(0), macroName, escapeType, simpleMacroNameToField);
 			}
 		}
 
@@ -123,9 +115,6 @@ public class MacrosUpdater {
 	 * @param matchedString       The matched macro string.
 	 * @param macroName           The name of the macro to replace.
 	 * @param escapeType          The escape type for the macro value (e.g., JSON, XML).
-	 * @param passwordAsString    The HTTP password as a string.
-	 * @param username            The HTTP username.
-	 * @param authenticationToken  The HTTP authentication token.
 	 * @param macroNameField      A map of macro names and their corresponding values.
 	 * @return The content with the macro replaced by the corresponding value.
 	 */
@@ -134,22 +123,18 @@ public class MacrosUpdater {
 		final String matchedString,
 		final String macroName,
 		final String escapeType,
-		final String passwordAsString,
-		final String username,
-		final String authenticationToken,
 		final Map<String, String> macroNameField
 	) {
 		String updatedContent = content;
 		if (macroName.startsWith(PASSWORD_BASE64.name())) {
 			// PasswordBase64 macros replacement
-			updatedContent = replacePasswordBase64(updatedContent, escapeType, matchedString, passwordAsString);
+			updatedContent = replacePasswordBase64(updatedContent, escapeType, matchedString, macroNameField);
 		} else if (macroName.startsWith(BASIC_AUTH_BASE64.name())) {
 			// BasicAuthBase64 macros replacement
-			updatedContent =
-				replaceBasicAuthBase64MacroValue(updatedContent, escapeType, matchedString, username, passwordAsString);
-		} else if (macroName.startsWith(MacroType.SHA256_AUTH.name())) {
+			updatedContent = replaceBasicAuthBase64MacroValue(updatedContent, escapeType, matchedString, macroNameField);
+		} else if (macroName.startsWith(SHA256_AUTH.name())) {
 			// Sha256 macros replacement
-			updatedContent = replaceSha256MacroValue(updatedContent, escapeType, matchedString, authenticationToken);
+			updatedContent = replaceSha256MacroValue(updatedContent, escapeType, matchedString, macroNameField);
 		} else {
 			// Simple macro replacement: username, password, hostname and authenticationToken macros
 			updatedContent = updateSimpleMacro(updatedContent, matchedString, macroName, escapeType, macroNameField);
@@ -176,8 +161,10 @@ public class MacrosUpdater {
 		final Map<String, String> macroNameField
 	) {
 		final String replacement = macroNameField.getOrDefault(macroName, EMPTY);
-		final String escapedReplacement = escapeType != null ? escapeReplacement(replacement, escapeType) : replacement;
-		return content.replace(matchedString, escapedReplacement);
+		final String maybeEscapedReplacement = escapeType != null
+			? escapeReplacement(replacement, escapeType)
+			: replacement;
+		return content.replace(matchedString, maybeEscapedReplacement);
 	}
 
 	/**
@@ -188,20 +175,10 @@ public class MacrosUpdater {
 	 * @return The escaped string.
 	 */
 	private static String escapeReplacement(final String replacement, final String escapeType) {
-		// If no escape type is provided, return the original replacement
-		if (escapeType == null) {
-			return replacement;
-		}
-
-		// Attempt to retrieve the EscapeType from the provided escapeType string
-		final EscapeType type = EscapeType.fromString(escapeType);
-
-		// If a valid EscapeType is found, use it to escape the replacement
-		if (type != null) {
-			return type.escape(replacement);
-		}
-
-		return replacement;
+		return Optional
+			.ofNullable(EscapeType.fromString(escapeType))
+			.map(type -> type.escape(replacement))
+			.orElse(replacement);
 	}
 
 	/**
@@ -209,29 +186,28 @@ public class MacrosUpdater {
 	 *
 	 * @param valueToUpdate    The string to update.
 	 * @param escapeType       The escape type to apply (e.g., JSON, XML).
-	 * @param matchedString     The matched macro string.
-	 * @param username         The username for basic authentication.
-	 * @param passwordAsString The password for basic authentication.
+	 * @param matchedString    The matched macro string.
+	 * @param macroNameField  A map of macro names and their corresponding values.
 	 * @return The updated string with the %{BASIC_AUTH} macro replaced.
 	 */
 	private static String replaceBasicAuthBase64MacroValue(
 		final String valueToUpdate,
 		final String escapeType,
 		final String matchedString,
-		final String username,
-		final String passwordAsString
+		final Map<String, String> macroNameField
 	) {
 		// Join the username and password with a colon `username:password`
 		// and encode the resulting string in `base64`
 		// then replace the macro with the resulting value
 		final String formattedBasicAuthString = String.format(
 			"%s:%s",
-			escapeReplacement(username, escapeType),
-			escapeReplacement(passwordAsString, escapeType)
+			macroNameField.get(USERNAME.name()),
+			macroNameField.get(PASSWORD.name())
 		);
-		final String escapedValue = Base64
-			.getEncoder()
-			.encodeToString((formattedBasicAuthString).getBytes(StandardCharsets.UTF_8));
+		final String escapedValue = escapeReplacement(
+			Base64.getEncoder().encodeToString((formattedBasicAuthString).getBytes(StandardCharsets.UTF_8)),
+			escapeType
+		);
 		return valueToUpdate.replace(matchedString, escapedValue);
 	}
 
@@ -240,23 +216,24 @@ public class MacrosUpdater {
 	 *
 	 * @param valueToUpdate          The string to update.
 	 * @param escapeType             The escape type to apply (e.g., JSON, XML).
-	 * @param matchedString           The matched macro string.
-	 * @param authenticationToken     The authentication token to encode.
+	 * @param matchedString          The matched macro string.
+	 * @param macroNameField  		 A map of macro names and their corresponding values.
 	 * @return The updated string with the %{SHA256} macro replaced.
 	 */
 	private static String replaceSha256MacroValue(
 		final String valueToUpdate,
 		final String escapeType,
 		final String matchedString,
-		final String authenticationToken
+		final Map<String, String> macroNameField
 	) {
 		// Encode the authentication token into SHA256 string
 		// then replace the macro with the resulting value
+		final String authenticationToken = macroNameField.get(AUTHENTICATIONTOKEN.name());
 		if (authenticationToken == null || authenticationToken.isEmpty()) {
 			return valueToUpdate.replace(matchedString, EMPTY);
 		}
-		final String hashedToken = encodeSha256(authenticationToken);
-		return valueToUpdate.replace(matchedString, escapeReplacement(hashedToken, escapeType));
+		final String escapedHashedToken = escapeReplacement(encodeSha256(authenticationToken), escapeType);
+		return valueToUpdate.replace(matchedString, escapedHashedToken);
 	}
 
 	/**
@@ -264,21 +241,22 @@ public class MacrosUpdater {
 	 *
 	 * @param valueToUpdate    The string to update.
 	 * @param escapeType       The escape type to apply (e.g., JSON, XML).
-	 * @param matchedString     The matched macro string.
-	 * @param passwordAsString The password to encode.
+	 * @param matchedString    The matched macro string.
+	 * @param macroNameField   A map of macro names and their corresponding values.
 	 * @return The updated string with the %{PASSWORD_BASE64} macro replaced.
 	 */
 	private static String replacePasswordBase64(
 		final String valueToUpdate,
 		final String escapeType,
 		final String matchedString,
-		final String passwordAsString
+		final Map<String, String> macroNameField
 	) {
 		// Encode the password into a base64 string
 		// then replace the macro with the resulting value
-		final String escapedValue = Base64
-			.getEncoder()
-			.encodeToString(escapeReplacement(passwordAsString, escapeType).getBytes(StandardCharsets.UTF_8));
+		final String escapedValue = escapeReplacement(
+			Base64.getEncoder().encodeToString(macroNameField.get(PASSWORD.name()).getBytes(StandardCharsets.UTF_8)),
+			escapeType
+		);
 		return valueToUpdate.replace(matchedString, escapedValue);
 	}
 
@@ -307,7 +285,7 @@ public class MacrosUpdater {
 	 */
 	static String escapeUrlSpecialCharacters(final String value) {
 		// Escape common URL characters
-		return URLEncoder.encode(value, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
+		return URLEncoder.encode(value, StandardCharsets.UTF_8).replace("+", "%20");
 	}
 
 	/**

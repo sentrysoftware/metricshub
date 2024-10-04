@@ -21,7 +21,8 @@ package org.sentrysoftware.metricshub.engine.common.helpers;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
+import lombok.AllArgsConstructor;
 
 /**
  * Enum representing various escape types, each associated with
@@ -29,6 +30,7 @@ import java.util.function.Function;
  * 	of special characters for that type. Each constant references a method
  * 	that takes a String input and returns an escaped String output
  */
+@AllArgsConstructor
 public enum EscapeType {
 	JSON(MacrosUpdater::escapeJsonSpecialCharacters),
 	XML(MacrosUpdater::escapeXmlSpecialCharacters),
@@ -41,18 +43,7 @@ public enum EscapeType {
 	BASH(MacrosUpdater::escapeBashSpecialCharacters),
 	SQL(MacrosUpdater::escapeSqlSpecialCharacters);
 
-	private final Function<String, String> escapeMethod;
-
-	/**
-	 * Represents different types of escape methods for various contexts.
-	 * Each escape type is associated with a specific escape method.
-	 *
-	 * @param escapeMethod A functional interface representing the escape method
-	 * to be applied for this escape type.
-	 */
-	EscapeType(Function<String, String> escapeMethod) {
-		this.escapeMethod = escapeMethod;
-	}
+	private final UnaryOperator<String> escapeFunction;
 
 	/**
 	 * Applies the associated escape method to the provided input string.
@@ -61,7 +52,7 @@ public enum EscapeType {
 	 * @return the escaped string
 	 */
 	public String escape(String input) {
-		return escapeMethod.apply(input);
+		return escapeFunction.apply(input);
 	}
 
 	/**
@@ -72,13 +63,11 @@ public enum EscapeType {
 	 * @throws IllegalStateException if the provided string does not match any escape type
 	 */
 	public static EscapeType fromString(String escapeType) {
-		if (escapeType == null) {
-			return null;
+		for (EscapeType type : values()) {
+			if (type.name().equalsIgnoreCase(escapeType)) {
+				return type;
+			}
 		}
-		try {
-			return EscapeType.valueOf(escapeType.toUpperCase());
-		} catch (IllegalArgumentException e) {
-			throw new IllegalStateException(String.format("Unexpected escape type %s", escapeType), e);
-		}
+		return null;
 	}
 }

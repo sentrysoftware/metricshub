@@ -33,20 +33,5 @@ public enum MacroType {
 	AUTHENTICATIONTOKEN,
 	PASSWORD_BASE64,
 	BASIC_AUTH_BASE64,
-	SHA256_AUTH;
-
-	/**
-	 * Finds the MacroType corresponding to the provided string key.
-	 *
-	 * @param key The string representation of the macro type (e.g. "USERNAME", "PASSWORD")
-	 * @return The corresponding MacroType, or null if not found.
-	 */
-	public static MacroType fromString(String key) {
-		for (MacroType type : values()) {
-			if (type.name().equalsIgnoreCase(key)) {
-				return type;
-			}
-		}
-		return null;
-	}
+	SHA256_AUTH
 }
