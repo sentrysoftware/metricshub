@@ -115,13 +115,13 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 
 		StringHelper.validateConfigurationAttribute(
 			username,
-			attr -> attr == null || attr.isEmpty(),
+			attr -> attr == null || attr.isBlank(),
 			() ->
 				String.format(
 					"Resource %s - No username configured for protocol %s." +
 					" This resource will not be monitored. Please verify the configured username.",
 					resourceKey,
-					username
+					"SNMP V3"
 				)
 		);
 
@@ -133,7 +133,7 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 					"Resource %s - No username configured for protocol %s." +
 					" This resource will not be monitored. Please verify the configured authtype.",
 					resourceKey,
-					authType
+					"SNMP V3"
 				)
 		);
 	}

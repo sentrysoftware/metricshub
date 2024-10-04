@@ -101,6 +101,8 @@ public class HttpConfigCli extends AbstractTransportProtocolCli {
 	private String timeout;
 
 	/**
+	 * This method creates an {@link IConfiguration} for a given username and a given password.
+	 *
 	 * @param defaultUsername Username specified at the top level of the CLI (with the --username option)
 	 * @param defaultPassword Password specified at the top level of the CLI (with the --password option)
 	 * @return an HttpProtocol instance corresponding to the options specified by the user in the CLI

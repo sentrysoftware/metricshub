@@ -65,7 +65,8 @@ import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 		@JsonSubTypes.Type(value = TableJoinSource.class, name = "tableJoin"),
 		@JsonSubTypes.Type(value = TableUnionSource.class, name = "tableUnion"),
 		@JsonSubTypes.Type(value = WbemSource.class, name = "wbem"),
-		@JsonSubTypes.Type(value = WmiSource.class, name = "wmi")
+		@JsonSubTypes.Type(value = WmiSource.class, name = "wmi"),
+		@JsonSubTypes.Type(value = SqlSource.class, name = "sql")
 	}
 )
 @Data

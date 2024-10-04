@@ -1,0 +1,144 @@
+package org.sentrysoftware.metricshub.extension.sql;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
+import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SqlCriterion;
+import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
+import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+
+@ExtendWith(MockitoExtension.class)
+public class SqlCriterionProcessorTest {
+
+	@Mock
+	private SqlRequestExecutor sqlRequestExecutor;
+
+	@Mock
+	private SqlConfiguration sqlConfiguration;
+
+	private SqlCriterionProcessor sqlCriterionProcessor;
+
+	@BeforeEach
+	public void setUp() {
+		sqlCriterionProcessor = new SqlCriterionProcessor(sqlRequestExecutor);
+	}
+
+	/**
+	 * Utility method to create a telemetryManager
+	 *
+	 * @return a configured telemetryManager instance
+	 */
+	private TelemetryManager createTelemetryManagerWithHostConfiguration() {
+		HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.hostname("hostname")
+			.configurations(Map.of(SqlConfiguration.class, sqlConfiguration))
+			.build();
+		return TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
+	}
+
+	// Test case for successful SQL query execution and returning success.
+	@Test
+	public void testProcessSuccess() throws Exception {
+		TelemetryManager telemetryManager = createTelemetryManagerWithHostConfiguration();
+		String query = "SELECT * FROM test_table";
+		SqlCriterion sqlCriterion = SqlCriterion.builder().query(query).build();
+
+		when(
+			sqlRequestExecutor.executeSql(
+				any(String.class),
+				any(SqlConfiguration.class),
+				any(String.class),
+				any(Boolean.class)
+			)
+		)
+			.thenReturn(List.of(List.of("row1_col1", "row1_col2")));
+
+		CriterionTestResult criterionTestResult = sqlCriterionProcessor.process(sqlCriterion, telemetryManager);
+
+		assertNotNull(criterionTestResult);
+		assertTrue(criterionTestResult.isSuccess());
+	}
+
+	// Test case when the SqlCriterion is null
+	@Test
+	public void testProcess_NullCriterion() {
+		TelemetryManager telemetryManager = createTelemetryManagerWithHostConfiguration();
+		CriterionTestResult result = sqlCriterionProcessor.process(null, telemetryManager);
+		assertFalse(result.isSuccess());
+	}
+
+	// Test case when the SqlConfiguration is null
+	@Test
+	public void testProcessNullSqlConfiguration() {
+		Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
+		configurations.put(SqlConfiguration.class, null);
+		HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.hostname("test-host")
+			.configurations(configurations)
+			.build();
+		TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
+
+		SqlCriterion sqlCriterion = SqlCriterion.builder().query("SELECT * FROM test_table").build();
+		CriterionTestResult result = sqlCriterionProcessor.process(sqlCriterion, telemetryManager);
+
+		assertFalse(result.isSuccess());
+	}
+
+	// Test case when SQL execution throws an exception,
+	@Test
+	public void testProcessSqlRequestException() throws Exception {
+		TelemetryManager telemetryManager = createTelemetryManagerWithHostConfiguration();
+
+		when(
+			sqlRequestExecutor.executeSql(
+				any(String.class),
+				any(SqlConfiguration.class),
+				any(String.class),
+				any(Boolean.class)
+			)
+		)
+			.thenThrow(new RuntimeException("Test exception"));
+
+		SqlCriterion sqlCriterion = SqlCriterion.builder().query("SELECT * FROM test_table").build();
+
+		CriterionTestResult result = sqlCriterionProcessor.process(sqlCriterion, telemetryManager);
+
+		assertFalse(result.isSuccess());
+	}
+
+	// Test case when SQL query returns null result
+	@Test
+	public void testProcessNullResult() throws Exception {
+		TelemetryManager telemetryManager = createTelemetryManagerWithHostConfiguration();
+		SqlCriterion sqlCriterion = SqlCriterion.builder().query("SELECT * FROM test_table").build();
+
+		when(
+			sqlRequestExecutor.executeSql(
+				any(String.class),
+				any(SqlConfiguration.class),
+				any(String.class),
+				any(Boolean.class)
+			)
+		)
+			.thenReturn(null);
+
+		CriterionTestResult result = sqlCriterionProcessor.process(sqlCriterion, telemetryManager);
+
+		assertFalse(result.isSuccess());
+	}
+}

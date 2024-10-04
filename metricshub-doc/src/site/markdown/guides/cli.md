@@ -28,6 +28,7 @@ Only a few options are required to run the `metricshub` command:
   * WBEM
   * WMI (on Windows only)
   * WinRM
+  * SQL
 * Credentials
 
 ![Usage of MetricsHub](../images/metricshub-usage.png)

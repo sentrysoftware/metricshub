@@ -185,6 +185,12 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
+			<artifactId>metricshub-sql-extension</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>metricshub-jawk-extension</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
@@ -224,6 +230,11 @@
 			<artifactId>picocli</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>org.sentrysoftware</groupId>
+			<artifactId>metricshub-sql-extension</artifactId>
+			<version>0.9.07-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<build>

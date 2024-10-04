@@ -513,7 +513,48 @@ resourceGroups:
             password: mypwd
             timeout: 120s
             authentications: [ntlm]
+```  
+
+#### SQL
+
+Use the parameters below to configure the SQL protocol:
+
+| Parameter       | Description                                                                                          |
+| --------------- | ---------------------------------------------------------------------------------------------------- |
+| sql             | Protocol used to access the host.                                                                    |
+| hostname        | The name or IP address of the resource. If not specified, the `host.name` attribute will be used.    |
+| timeout         | The time in seconds before a connection attempt times out. (Default: 120s)                           |
+| username        | The username used to authenticate with the database.                                                 |
+| password        | The password used for authentication.                                                                |
+| url             | The connection URL for the database.                                                                 |
+| type            | The type of database engine (e.g., oracle, postgresql, mariadb, mssql, informix, derby, h2, etc.).   | 
+| port            | The port number used to connect to the database.                                                     |
+| database        | The database name to connect to.                                                                     |
+
+**Example**
+
+```yaml
+resourceGroups:
+  boston:
+    attributes:
+      site: boston
+    resources:
+      db-host:
+        attributes:
+          host.name: db-host-01
+          host.type: database
+        protocols:
+          sql:
+            hostname: db-host-01
+            username: dbuser
+            password: dbpassword
+            url: jdbc:postgresql://db-host-01:5432/mydatabase
+            timeout: 120s
+            type: postgresql
+            port: 5432
+            database: mydatabase
 ```
+
 
 ## (Optional) Customize the hostname
 

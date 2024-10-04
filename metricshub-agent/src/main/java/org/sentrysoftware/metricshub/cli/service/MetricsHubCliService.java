@@ -166,6 +166,9 @@ public class MetricsHubCliService implements Callable<Integer> {
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline WinRM Options|@:%n")
 	WinRmConfigCli winRmConfigCli;
 
+	@ArgGroup(exclusive = false, heading = "%n@|bold,underline WinRM Options|@:%n")
+	WinRmConfigCli sqlConfigCli;
+
 	@Option(names = { "-u", "--username" }, order = 2, paramLabel = "USER", description = "Username for authentication")
 	String username;
 
@@ -466,7 +469,8 @@ public class MetricsHubCliService implements Callable<Integer> {
 				httpConfigCli,
 				wmiConfigCli,
 				winRmConfigCli,
-				wbemConfigCli
+				wbemConfigCli,
+				sqlConfigCli
 			)
 			.filter(Objects::nonNull)
 			.map(protocolConfig -> {
@@ -503,14 +507,15 @@ public class MetricsHubCliService implements Callable<Integer> {
 				httpConfigCli,
 				wmiConfigCli,
 				winRmConfigCli,
-				wbemConfigCli
+				wbemConfigCli,
+				sqlConfigCli
 			)
 			.allMatch(Objects::isNull);
 
 		if (protocolsNotConfigured) {
 			throw new ParameterException(
 				spec.commandLine(),
-				"At least one protocol must be specified: --http[s], --ipmi, --snmp,--snmpv3,--ssh, --wbem, --wmi, --winrm."
+				"At least one protocol must be specified: --http[s], --ipmi, --snmp, --snmpv3, --ssh, --wbem, --wmi, --winrm, --sql."
 			);
 		}
 	}
@@ -572,6 +577,8 @@ public class MetricsHubCliService implements Callable<Integer> {
 		tryInteractiveWinRmPassword(passwordReader);
 
 		tryInteractiveSnmpV3Password(passwordReader);
+
+		tryInteractiveSqlPassword(passwordReader);
 	}
 
 	/**
@@ -659,6 +666,17 @@ public class MetricsHubCliService implements Callable<Integer> {
 	void tryInteractiveSnmpV3Password(final CliPasswordReader<char[]> passwordReader) {
 		if (snmpV3ConfigCli != null && snmpV3ConfigCli.getUsername() != null && snmpV3ConfigCli.getPassword() == null) {
 			snmpV3ConfigCli.setPassword(passwordReader.read("%s password for SNMP V3: ", snmpV3ConfigCli.getUsername()));
+		}
+	}
+
+	/**
+	 * Try to start the interactive mode to request and set Sql password
+	 *
+	 * @param passwordReader password reader which displays the prompt text and wait for user's input
+	 */
+	void tryInteractiveSqlPassword(final CliPasswordReader<char[]> passwordReader) {
+		if (sqlConfigCli != null && sqlConfigCli.getUsername() != null && sqlConfigCli.getPassword() == null) {
+			sqlConfigCli.setPassword(passwordReader.read("%s password for SQL database: ", sqlConfigCli.getUsername()));
 		}
 	}
 

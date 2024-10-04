@@ -29,6 +29,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.LocalSqlSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpGetSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SqlSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.StaticSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.TableJoinSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.TableUnionSource;
@@ -143,4 +144,11 @@ public interface ISourceProcessor {
 	 * @return The SourceTable result.
 	 */
 	SourceTable process(JawkSource jawkSource);
+
+	/**
+	 * This method processes {@link SqlSource} source
+	 * @param sqlSource {@link SqlSource} source instance
+	 * @return {@link SourceTable} instance
+	 */
+	SourceTable process(SqlSource sqlSource);
 }
