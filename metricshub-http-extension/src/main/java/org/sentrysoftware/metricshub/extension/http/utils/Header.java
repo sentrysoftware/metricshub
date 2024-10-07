@@ -109,7 +109,14 @@ public interface Header extends Serializable {
 		String authenticationToken,
 		String hostname
 	) {
-		final String resolvedHeader = MacrosUpdater.update(header, username, password, authenticationToken, hostname);
+		final String resolvedHeader = MacrosUpdater.update(
+			header,
+			username,
+			password,
+			authenticationToken,
+			hostname,
+			false
+		);
 
 		return parseHeader(resolvedHeader);
 	}

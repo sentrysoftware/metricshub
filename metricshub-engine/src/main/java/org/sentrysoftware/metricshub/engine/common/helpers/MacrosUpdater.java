@@ -65,6 +65,7 @@ public class MacrosUpdater {
 	 * @param password            The HTTP password.
 	 * @param authenticationToken The HTTP authentication token.
 	 * @param hostname            The remote hostname.
+	 * @param maskPasswords       Whether to mask passwords with "********".
 	 * @return The updated string with replaced macros.
 	 */
 	public static String update(
@@ -72,7 +73,8 @@ public class MacrosUpdater {
 		String username,
 		char[] password,
 		String authenticationToken,
-		@NonNull final String hostname
+		@NonNull final String hostname,
+		final boolean maskPasswords
 	) {
 		if (text == null || text.isEmpty()) {
 			return EMPTY;
@@ -89,7 +91,7 @@ public class MacrosUpdater {
 				USERNAME.name(),
 				username,
 				PASSWORD.name(),
-				passwordAsString,
+				maskPasswords ? "********" : passwordAsString,
 				HOSTNAME.name(),
 				hostname,
 				AUTHENTICATIONTOKEN.name(),

@@ -21,10 +21,6 @@ package org.sentrysoftware.metricshub.extension.win;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HOSTNAME_MACRO;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.PASSWORD_MACRO;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.USERNAME_MACRO;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -35,6 +31,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
+import org.sentrysoftware.metricshub.engine.common.helpers.MacrosUpdater;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 import org.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
@@ -113,13 +110,10 @@ public class WinCommandService {
 		);
 
 		final String updatedUserCommand = maybeUsername
-			.map(username -> commandLine.replaceAll(OsCommandHelper.toCaseInsensitiveRegex(USERNAME_MACRO), username))
+			.map(username -> MacrosUpdater.update(commandLine, username, null, null, hostname, false))
 			.orElse(commandLine);
 
-		final String updatedHostnameCommand = updatedUserCommand.replaceAll(
-			OsCommandHelper.toCaseInsensitiveRegex(HOSTNAME_MACRO),
-			hostname
-		);
+		final String updatedHostnameCommand = MacrosUpdater.update(updatedUserCommand, null, null, null, hostname, false);
 
 		final String updatedSudoCommand = OsCommandHelper.replaceSudo(updatedHostnameCommand, null);
 
@@ -137,18 +131,11 @@ public class WinCommandService {
 			);
 
 		final String command = maybePassword
-			.map(password ->
-				updatedEmbeddedFilesCommand.replaceAll(
-					OsCommandHelper.toCaseInsensitiveRegex(PASSWORD_MACRO),
-					String.valueOf(password)
-				)
-			)
+			.map(password -> MacrosUpdater.update(updatedEmbeddedFilesCommand, null, password, null, hostname, false))
 			.orElse(updatedEmbeddedFilesCommand);
 
 		final String noPasswordCommand = maybePassword
-			.map(password ->
-				updatedEmbeddedFilesCommand.replaceAll(OsCommandHelper.toCaseInsensitiveRegex(PASSWORD_MACRO), "********")
-			)
+			.map(password -> MacrosUpdater.update(updatedEmbeddedFilesCommand, null, password, null, hostname, true))
 			.orElse(updatedEmbeddedFilesCommand);
 
 		try {

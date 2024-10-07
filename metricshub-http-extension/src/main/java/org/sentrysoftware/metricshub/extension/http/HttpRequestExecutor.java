@@ -94,7 +94,8 @@ public class HttpRequestExecutor {
 			username,
 			password,
 			httpRequestAuthToken,
-			hostname
+			hostname,
+			false
 		);
 
 		// Get the header to send
@@ -135,10 +136,10 @@ public class HttpRequestExecutor {
 		final String httpRequestPath = httpRequest.getPath();
 
 		// Update the known HTTP macros, and return empty if the httpRequestPath is null
-		final String path = MacrosUpdater.update(httpRequestPath, username, password, authenticationToken, hostname);
+		final String path = MacrosUpdater.update(httpRequestPath, username, password, authenticationToken, hostname, false);
 
 		// Update the known HTTP macros, and return empty if the httpRequestUrl is null
-		final String url = MacrosUpdater.update(httpRequestUrl, username, password, authenticationToken, hostname);
+		final String url = MacrosUpdater.update(httpRequestUrl, username, password, authenticationToken, hostname, false);
 
 		// Build the full URL
 		final String fullUrl = UrlHelper.format(protocol, hostname, httpConfiguration.getPort(), path, url);

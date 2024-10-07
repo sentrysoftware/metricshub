@@ -61,6 +61,7 @@ import org.sentrysoftware.metricshub.engine.common.exception.ClientRuntimeExcept
 import org.sentrysoftware.metricshub.engine.common.exception.ControlledSshException;
 import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
+import org.sentrysoftware.metricshub.engine.common.helpers.MacrosUpdater;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 import org.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
@@ -471,7 +472,7 @@ public class OsCommandService {
 			.orElse(updatedEmbeddedFilesCommand);
 
 		final String noPasswordCommand = maybePassword
-			.map(password -> updatedEmbeddedFilesCommand.replaceAll(toCaseInsensitiveRegex(PASSWORD_MACRO), "********"))
+			.map(password -> MacrosUpdater.update(updatedEmbeddedFilesCommand, null, password, null, hostname, true))
 			.orElse(updatedEmbeddedFilesCommand);
 
 		try {
