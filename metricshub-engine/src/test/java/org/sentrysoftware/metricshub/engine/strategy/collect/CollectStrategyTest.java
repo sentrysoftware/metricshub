@@ -213,11 +213,10 @@ class CollectStrategyTest {
 
 		// Check that StatusInformation is collected on the connector monitor
 		assertEquals(
-			"\nMessage: SnmpGetNextCriterion test succeeded:\n" +
-			"SnmpGetNextCriterion(super=- OID: 1.3.6.1.4.1.795.10.1.1.3.1.1)\n" +
+			"Received Result: 1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest. SnmpGetNextCriterion test succeeded:\n" +
+			"- OID: 1.3.6.1.4.1.795.10.1.1.3.1.1\n" +
 			"\n" +
 			"Result: 1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest\n" +
-			"Received Result: 1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest\n" +
 			"Conclusion: Test on host.name SUCCEEDED",
 			connectorMonitor.getLegacyTextParameters().get(STATUS_INFORMATION)
 		);
@@ -232,12 +231,11 @@ class CollectStrategyTest {
 
 		// Check that StatusInformation is collected on the connector monitor (criterion processing failure case)
 		assertEquals(
-			"\nMessage: SnmpGetNextCriterion test ran but failed:\n" +
-			"SnmpGetNextCriterion(super=- OID: 1.3.6.1.4.1.795.10.1.1.3.1.1)\n" +
+			"Received Result: 1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest. SnmpGetNextCriterion test ran but failed:\n" +
+			"- OID: 1.3.6.1.4.1.795.10.1.1.3.1.1\n" +
 			"\n" +
 			"Actual result:\n" +
 			"1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest\n" +
-			"Received Result: 1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest\n" +
 			"Conclusion: Test on host.name FAILED",
 			connectorMonitor.getLegacyTextParameters().get(STATUS_INFORMATION)
 		);
