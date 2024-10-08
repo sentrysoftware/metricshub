@@ -1,10 +1,5 @@
 package org.sentrysoftware.metricshub.engine.connector.model.identity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
  * MetricsHub Engine
@@ -26,6 +21,12 @@ import lombok.NoArgsConstructor;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.io.Serializable;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
  * Represents the connector default variables that can be defined on a Connector Template.
  */
@@ -33,7 +34,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @Builder
-public class ConnectorDefaultVariable {
+public class ConnectorDefaultVariable implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * The default connector variable description.
