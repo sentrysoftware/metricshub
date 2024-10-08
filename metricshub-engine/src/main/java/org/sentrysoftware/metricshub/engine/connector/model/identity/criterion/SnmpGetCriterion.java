@@ -59,4 +59,9 @@ public class SnmpGetCriterion extends SnmpCriterion {
 	) {
 		super(type, forceSerialization, oid, expectedResult);
 	}
+
+	@Override
+	public String toString() {
+		return super.toString();
+	}
 }

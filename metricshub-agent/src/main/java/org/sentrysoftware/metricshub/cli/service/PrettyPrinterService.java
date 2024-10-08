@@ -427,9 +427,17 @@ public class PrettyPrinterService {
 			.filter(entry -> entry.getValue() != null && !entry.getValue().isBlank())
 			.sorted((entry1, entry2) -> entry1.getKey().compareToIgnoreCase(entry2.getKey()))
 			.forEach(e -> {
-				addMargin(indentation);
+				addMargin(indentation + 2);
 				printWriter.println(
-					Ansi.ansi().a(Attribute.INTENSITY_FAINT).a(e.getKey()).a(": ").reset().a(e.getValue().trim()).toString()
+					Ansi
+						.ansi()
+						.a(Attribute.INTENSITY_FAINT)
+						.a(e.getKey())
+						.a(": ")
+						.reset()
+						.a("\n")
+						.a(e.getValue().trim().indent(indentation + 2))
+						.toString()
 				);
 			});
 	}

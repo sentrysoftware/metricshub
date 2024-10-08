@@ -13,6 +13,7 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorTy
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.IS_ENDPOINT;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_ID;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_NAME;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.STATUS_INFORMATION;
 import static org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy.CONNECTOR_ID_FORMAT;
 
 import java.nio.file.Path;
@@ -22,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -208,5 +210,34 @@ class DiscoveryStrategyTest {
 			PHYSICAL_DISK.getKey()
 		);
 		assertEquals(expectedOrder, discoveredMonitors.keySet());
+
+		// Check that StatusInformation is collected on the connector monitor (criterion processing success case)
+		assertEquals(
+			"Received Result: 1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest. SnmpGetNextCriterion test succeeded:\n" +
+			"- OID: 1.3.6.1.4.1.795.10.1.1.3.1.1\n" +
+			"\n" +
+			"Result: 1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest\n" +
+			"Conclusion: Test on host.name SUCCEEDED",
+			connectorMonitor.getLegacyTextParameters().get(STATUS_INFORMATION)
+		);
+
+		// Mock detection criteria result to switch to a failing criterion processing case
+		doReturn(CriterionTestResult.failure(snmpCriterion, "1.3.6.1.4.1.795.10.1.1.3.1.1.0	ASN_OCTET_STR	Test"))
+			.when(protocolExtensionMock)
+			.processCriterion(eq(snmpCriterion), anyString(), any(TelemetryManager.class));
+
+		// Call DiscoveryStrategy to discover the monitors
+		discoveryStrategy.run();
+
+		// Check that StatusInformation is collected on the connector monitor (criterion processing failure case)
+		assertEquals(
+			"Received Result: 1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest. SnmpGetNextCriterion test ran but failed:\n" +
+			"- OID: 1.3.6.1.4.1.795.10.1.1.3.1.1\n" +
+			"\n" +
+			"Actual result:\n" +
+			"1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest\n" +
+			"Conclusion: Test on host.name FAILED",
+			connectorMonitor.getLegacyTextParameters().get(STATUS_INFORMATION)
+		);
 	}
 }
