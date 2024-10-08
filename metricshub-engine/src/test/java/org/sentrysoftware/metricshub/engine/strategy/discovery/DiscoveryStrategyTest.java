@@ -48,7 +48,6 @@ import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 @ExtendWith(MockitoExtension.class)
-@Disabled
 class DiscoveryStrategyTest {
 
 	private static final Path YAML_TEST_PATH = Paths.get(

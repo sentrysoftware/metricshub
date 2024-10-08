@@ -54,7 +54,6 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 
 @ExtendWith(MockitoExtension.class)
-@Disabled
 class CollectStrategyTest {
 
 	// Connector path
