@@ -97,7 +97,7 @@ service:
   pipelines:
     metrics:
       receivers: [otlp, prometheus/internal]
-      processors: [memory_limiter, batch, resourcedetection, metricstransform]
+      processors: [memory_limiter, batch, metricstransform]
       exporters: [...] # List here the platform of your choice
 ```
 

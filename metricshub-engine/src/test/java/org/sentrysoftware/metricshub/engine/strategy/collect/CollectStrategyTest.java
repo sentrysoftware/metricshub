@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -208,5 +209,34 @@ class CollectStrategyTest {
 		assertEquals(HEALTHY, diskController.getLegacyTextParameters().get(STATUS_INFORMATION));
 		assertEquals(1.0, enclosure.getMetric("hw.status{hw.type=\"enclosure\"}", NumberMetric.class).getValue());
 		assertEquals(HEALTHY, enclosure.getLegacyTextParameters().get(STATUS_INFORMATION));
+
+		// Check that StatusInformation is collected on the connector monitor
+		assertEquals(
+			"Received Result: 1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest. SnmpGetNextCriterion test succeeded:\n" +
+			"- OID: 1.3.6.1.4.1.795.10.1.1.3.1.1\n" +
+			"\n" +
+			"Result: 1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest\n" +
+			"Conclusion: Test on host.name SUCCEEDED",
+			connectorMonitor.getLegacyTextParameters().get(STATUS_INFORMATION)
+		);
+
+		// Mock detection criteria result to switch to a failing criterion processing case
+		doReturn(CriterionTestResult.failure(snmpGetNextCriterion, "1.3.6.1.4.1.795.10.1.1.3.1.1.0	ASN_OCTET_STR	Test"))
+			.when(protocolExtensionMock)
+			.processCriterion(eq(snmpGetNextCriterion), anyString(), any(TelemetryManager.class));
+
+		// Call DiscoveryStrategy to discover the monitors
+		collectStrategy.run();
+
+		// Check that StatusInformation is collected on the connector monitor (criterion processing failure case)
+		assertEquals(
+			"Received Result: 1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest. SnmpGetNextCriterion test ran but failed:\n" +
+			"- OID: 1.3.6.1.4.1.795.10.1.1.3.1.1\n" +
+			"\n" +
+			"Actual result:\n" +
+			"1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest\n" +
+			"Conclusion: Test on host.name FAILED",
+			connectorMonitor.getLegacyTextParameters().get(STATUS_INFORMATION)
+		);
 	}
 }
