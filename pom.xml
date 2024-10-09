@@ -1,16 +1,22 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
 	<modelVersion>4.0.0</modelVersion>
+
 	<groupId>org.sentrysoftware</groupId>
 	<artifactId>metricshub-parent</artifactId>
 	<version>0.9.07-SNAPSHOT</version>
+
 	<packaging>pom</packaging>
+
 	<name>MetricsHub</name>
+
 	<description>Universal Metrics Collection for OpenTelemetry</description>
+
 	<url>https://metricshub.com</url>
 	<inceptionYear>2023</inceptionYear>
+
 	<distributionManagement>
 		<snapshotRepository>
 			<id>ossrh</id>
@@ -21,14 +27,17 @@
 			<url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
 	</distributionManagement>
+
 	<scm>
 		<connection>scm:git:https://github.com/sentrysoftware/metricshub.git</connection>
 		<url>https://github.com/sentrysoftware/metricshub</url>
 	</scm>
+
 	<organization>
 		<name>Sentry Software</name>
 		<url>https://sentrysoftware.com</url>
 	</organization>
+
 	<licenses>
 		<license>
 			<name>AGPL-3.0</name>
@@ -36,6 +45,7 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
+
 	<developers>
 		<developer>
 			<name>Bertrand Martin (@bertysentry)</name>
@@ -80,6 +90,7 @@
 			</roles>
 		</developer>
 	</developers>
+
 	<properties>
 		<community-connectors.version>1.0.06-SNAPSHOT</community-connectors.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -87,7 +98,9 @@
 		<hwgraf.version>4</hwgraf.version>
 		<metricshub-jre.version>1.0.01</metricshub-jre.version>
 		<project.build.outputTimestamp>2024-09-12T10:18:18Z</project.build.outputTimestamp>
+
 	</properties>
+
 	<modules>
 		<module>metricshub-classloader-agent</module>
 		<module>metricshub-engine</module>
@@ -109,6 +122,7 @@
 		<module>metricshub-doc</module>
 		<module>metricshub-jawk-extension</module>
 	</modules>
+
 	<profiles>
 		<profile>
 			<id>windows</id>
@@ -154,6 +168,7 @@
 			<id>release</id>
 			<build>
 				<plugins>
+
 					<!-- gpg to sign the released artifacts -->
 					<plugin>
 						<artifactId>maven-gpg-plugin</artifactId>
@@ -175,6 +190,7 @@
 							</execution>
 						</executions>
 					</plugin>
+
 					<!-- nexus-staging (Sonatype) -->
 					<plugin>
 						<groupId>org.sonatype.plugins</groupId>
@@ -190,6 +206,7 @@
 			</build>
 		</profile>
 	</profiles>
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -450,6 +467,7 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+
 	<build>
 		<pluginManagement>
 			<plugins>
@@ -567,7 +585,9 @@
 				</plugin>
 			</plugins>
 		</pluginManagement>
+
 		<plugins>
+
 			<!-- license -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -600,6 +620,7 @@
 					</execution>
 				</executions>
 			</plugin>
+
 			<!-- artifact (Reproducible Build) -->
 			<plugin>
 				<artifactId>maven-artifact-plugin</artifactId>
@@ -617,11 +638,13 @@
 					</execution>
 				</executions>
 			</plugin>
+
 			<!-- buildnumber -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>buildnumber-maven-plugin</artifactId>
 				<executions>
+
 					<!-- initialize -->
 					<!-- Create ${buildNumber} based on the last commit ID -->
 					<execution>
@@ -640,8 +663,10 @@
 							<timestampFormat>{0,date,medium} at {0,time,medium}</timestampFormat>
 						</configuration>
 					</execution>
+
 				</executions>
 			</plugin>
+
 			<!-- build-helper -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -750,6 +775,7 @@
 					<formatIncremental>%02d</formatIncremental>
 				</configuration>
 			</plugin>
+
 			<plugin>
 				<artifactId>maven-checkstyle-plugin</artifactId>
 				<version>3.3.0</version>
@@ -768,6 +794,7 @@
 					</execution>
 				</executions>
 			</plugin>
+
 			<plugin>
 				<groupId>com.hubspot.maven.plugins</groupId>
 				<artifactId>prettier-maven-plugin</artifactId>
@@ -789,6 +816,7 @@
 					</inputGlobs>
 				</configuration>
 			</plugin>
+
 			<!-- javadoc -->
 			<plugin>
 				<artifactId>maven-javadoc-plugin</artifactId>
@@ -801,10 +829,12 @@
 					</execution>
 				</executions>
 			</plugin>
+
 			<!-- Maven Deploy Plugin-->
 			<plugin>
 				<artifactId>maven-deploy-plugin</artifactId>
 			</plugin>
+
 			<!-- Maven Source Plugin -->
 			<plugin>
 				<artifactId>maven-source-plugin</artifactId>
@@ -818,8 +848,10 @@
 					</execution>
 				</executions>
 			</plugin>
+
 		</plugins>
 	</build>
+
 	<reporting>
 		<plugins>
 			<plugin>
@@ -834,4 +866,6 @@
 			</plugin>
 		</plugins>
 	</reporting>
+
+
 </project>
