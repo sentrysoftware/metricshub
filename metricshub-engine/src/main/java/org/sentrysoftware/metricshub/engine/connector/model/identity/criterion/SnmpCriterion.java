@@ -22,9 +22,11 @@ package org.sentrysoftware.metricshub.engine.connector.model.identity.criterion;
  */
 
 import static com.fasterxml.jackson.annotation.Nulls.FAIL;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.NEW_LINE;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.util.StringJoiner;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -72,5 +74,17 @@ public abstract class SnmpCriterion extends Criterion {
 		super(type, forceSerialization);
 		this.oid = oid;
 		this.expectedResult = expectedResult;
+	}
+
+	@Override
+	public String toString() {
+		final StringJoiner stringJoiner = new StringJoiner(NEW_LINE);
+		if (!oid.isBlank()) {
+			stringJoiner.add(new StringBuilder("- OID: ").append(oid));
+		}
+		if (expectedResult != null && !expectedResult.isBlank()) {
+			stringJoiner.add(new StringBuilder("- ExpectedResult: ").append(expectedResult));
+		}
+		return stringJoiner.toString();
 	}
 }

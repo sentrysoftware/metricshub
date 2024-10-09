@@ -22,11 +22,13 @@ package org.sentrysoftware.metricshub.engine.connector.model.identity.criterion;
  */
 
 import static com.fasterxml.jackson.annotation.Nulls.FAIL;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.NEW_LINE;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.util.StringJoiner;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -71,5 +73,14 @@ public class ProcessCriterion extends Criterion {
 	) {
 		super(type, forceSerialization);
 		this.commandLine = commandLine;
+	}
+
+	@Override
+	public String toString() {
+		final StringJoiner stringJoiner = new StringJoiner(NEW_LINE);
+		if (!commandLine.isBlank()) {
+			stringJoiner.add(new StringBuilder("- CommandLine: ").append(commandLine));
+		}
+		return stringJoiner.toString();
 	}
 }
