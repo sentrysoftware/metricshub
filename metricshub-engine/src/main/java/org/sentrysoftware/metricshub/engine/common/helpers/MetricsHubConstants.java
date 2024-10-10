@@ -408,4 +408,14 @@ public class MetricsHubConstants {
 	 * Default keys for monitor jobs
 	 */
 	public static final Set<String> DEFAULT_KEYS = Set.of(MetricsHubConstants.MONITOR_ATTRIBUTE_ID);
+
+	/**
+	 * Include Monitors Filter Pattern
+	 */
+	public static final Pattern INCLUDE_MONITORS_PATTERN = Pattern.compile("(?<=\\+)[^+!]+");
+
+	/**
+	 * Exclude Monitors Filter Pattern
+	 */
+	public static final Pattern EXCLUDE_MONITORS_PATTERN = Pattern.compile("(?<=\\!)[^+!]+");
 }

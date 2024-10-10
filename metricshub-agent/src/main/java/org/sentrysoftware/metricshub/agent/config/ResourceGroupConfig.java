@@ -59,6 +59,9 @@ public class ResourceGroupConfig {
 	private Boolean sequential;
 	private Boolean resolveHostnameToFqdn;
 
+	@JsonSetter(nulls = SKIP)
+	private String monitorsFilter;
+
 	@JsonDeserialize(using = TimeDeserializer.class)
 	private Long jobTimeout;
 

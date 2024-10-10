@@ -96,6 +96,9 @@ public class AgentConfig {
 
 	private boolean resolveHostnameToFqdn;
 
+	@JsonSetter(nulls = SKIP)
+	private String monitorsFilter;
+
 	@Default
 	@JsonSetter(nulls = SKIP)
 	@JsonDeserialize(using = TimeDeserializer.class)
