@@ -30,6 +30,7 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.MacroType.PASS
 import static org.sentrysoftware.metricshub.engine.common.helpers.MacroType.SHA256_AUTH;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MacroType.USERNAME;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
+import static org.sentrysoftware.metricshub.engine.common.helpers.StringHelper.protectCaseInsensitiveRegex;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -56,7 +57,25 @@ public class MacrosUpdater {
 	);
 
 	/**
-	 * Replaces each known HTTP macro in the given text with the corresponding values.
+	 * Returns a default map where all macros are set to be updated.
+	 *
+	 * @return a map with macro names as keys and {@code true} as values, indicating all macros should be updated by default
+	 */
+	private static Map<String, Boolean> getDefaultMacrosToUpdate() {
+		return Map.of(
+			USERNAME.name(),
+			true,
+			PASSWORD.name(),
+			true,
+			HOSTNAME.name(),
+			true,
+			AUTHENTICATIONTOKEN.name(),
+			true
+		);
+	}
+
+	/**
+	 * Replaces each known macro in the given text with the corresponding values.
 	 * Supported macros: %{USERNAME}, %{PASSWORD}, %{HOSTNAME}, %{AUTHENTICATIONTOKEN},
 	 * %{PASSWORD_BASE64}, %{BASIC_AUTH}, %{SHA256}, along with various escape formats like JSON, XML, URL, etc.
 	 *
@@ -66,6 +85,7 @@ public class MacrosUpdater {
 	 * @param authenticationToken The HTTP authentication token.
 	 * @param hostname            The remote hostname.
 	 * @param maskPasswords       Whether to mask passwords with "********".
+	 * @param macrosToUpdate 	  A map that associates macro names with boolean values, indicating whether each macro should be updated (true) or not (false)
 	 * @return The updated string with replaced macros.
 	 */
 	public static String update(
@@ -74,10 +94,16 @@ public class MacrosUpdater {
 		char[] password,
 		String authenticationToken,
 		@NonNull final String hostname,
-		final boolean maskPasswords
+		final boolean maskPasswords,
+		Map<String, Boolean> macrosToUpdate
 	) {
 		if (text == null || text.isEmpty()) {
 			return EMPTY;
+		}
+
+		// Assign default map if macrosToUpdate is null or empty
+		if (macrosToUpdate == null || macrosToUpdate.isEmpty()) {
+			macrosToUpdate = getDefaultMacrosToUpdate();
 		}
 
 		// Null values control
@@ -103,7 +129,13 @@ public class MacrosUpdater {
 			while (matcher.find()) {
 				final String escapeType = matcher.group(2);
 				final String macroName = matcher.group(4);
-				updatedContent = processMacro(updatedContent, matcher.group(0), macroName, escapeType, simpleMacroNameToField);
+
+				// Check if the macro should be updated, default to true if not specified in the map
+				boolean shouldUpdate = macrosToUpdate.getOrDefault(macroName, true);
+				if (shouldUpdate) {
+					updatedContent =
+						processMacro(updatedContent, matcher.group(0), macroName, escapeType, simpleMacroNameToField);
+				}
 			}
 		}
 
@@ -166,7 +198,27 @@ public class MacrosUpdater {
 		final String maybeEscapedReplacement = escapeType != null
 			? escapeReplacement(replacement, escapeType)
 			: replacement;
-		return content.replace(matchedString, maybeEscapedReplacement);
+		return protectAndReplaceMatchedString(content, matchedString, maybeEscapedReplacement);
+	}
+
+	private static String protectAndReplaceMatchedString(
+		String content,
+		final String matchedString,
+		final String maybeEscapedReplacement
+	) {
+		// Call the protectCaseInsensitiveRegex to protect the matched string for case-insensitive matching
+		final String protectedMatchedString = protectCaseInsensitiveRegex(matchedString);
+
+		// Escape backslashes and dollar signs in the replacement string
+		final String escapedReplacement = maybeEscapedReplacement
+			.replace("\\", "\\\\") // Escape backslashes
+			.replace("$", "\\$"); // Escape dollar signs
+
+		// Now replace the original matched string in the content using replaceAll.
+		// We need to ensure that the `protectedMatchedString` is not used for replacement, but for matching.
+
+		// Use a case-insensitive pattern to match the content, and replace it with the literal replacement
+		return content.replaceAll(protectedMatchedString, escapedReplacement);
 	}
 
 	/**
@@ -210,7 +262,7 @@ public class MacrosUpdater {
 			Base64.getEncoder().encodeToString((formattedBasicAuthString).getBytes(StandardCharsets.UTF_8)),
 			escapeType
 		);
-		return valueToUpdate.replace(matchedString, escapedValue);
+		return protectAndReplaceMatchedString(valueToUpdate, matchedString, escapedValue);
 	}
 
 	/**
@@ -232,10 +284,10 @@ public class MacrosUpdater {
 		// then replace the macro with the resulting value
 		final String authenticationToken = macroNameField.get(AUTHENTICATIONTOKEN.name());
 		if (authenticationToken == null || authenticationToken.isEmpty()) {
-			return valueToUpdate.replace(matchedString, EMPTY);
+			return protectAndReplaceMatchedString(valueToUpdate, matchedString, EMPTY);
 		}
 		final String escapedHashedToken = escapeReplacement(encodeSha256(authenticationToken), escapeType);
-		return valueToUpdate.replace(matchedString, escapedHashedToken);
+		return protectAndReplaceMatchedString(valueToUpdate, matchedString, escapedHashedToken);
 	}
 
 	/**
@@ -259,7 +311,7 @@ public class MacrosUpdater {
 			Base64.getEncoder().encodeToString(macroNameField.get(PASSWORD.name()).getBytes(StandardCharsets.UTF_8)),
 			escapeType
 		);
-		return valueToUpdate.replace(matchedString, escapedValue);
+		return protectAndReplaceMatchedString(valueToUpdate, matchedString, escapedValue);
 	}
 
 	/**

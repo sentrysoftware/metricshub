@@ -21,12 +21,18 @@ package org.sentrysoftware.metricshub.extension.http.utils;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HOSTNAME_MACRO;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MacroType.AUTHENTICATIONTOKEN;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MacroType.HOSTNAME;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MacroType.PASSWORD;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MacroType.USERNAME;
 import static org.sentrysoftware.metricshub.engine.common.helpers.StringHelper.nonNullNonBlank;
 
+import java.util.HashMap;
+import java.util.Map;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import org.sentrysoftware.metricshub.engine.common.helpers.MacrosUpdater;
 
 /**
  * Utility class for formatting URLs.
@@ -58,7 +64,12 @@ public class UrlHelper {
 			requestPath
 		);
 
-		return fullUrl.replace(HOSTNAME_MACRO, hostname);
+		// Configure the macrosToUpdate map to update only the hostname macro
+		final Map<String, Boolean> macrosToUpdate = new HashMap<>(
+			Map.of(USERNAME.name(), false, PASSWORD.name(), false, HOSTNAME.name(), true, AUTHENTICATIONTOKEN.name(), false)
+		);
+
+		return MacrosUpdater.update(fullUrl, null, null, null, hostname, false, macrosToUpdate);
 	}
 
 	/**

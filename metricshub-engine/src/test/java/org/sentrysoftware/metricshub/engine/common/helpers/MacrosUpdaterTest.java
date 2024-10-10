@@ -1,9 +1,6 @@
 package org.sentrysoftware.metricshub.engine.common.helpers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HOSTNAME_MACRO;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.PASSWORD_MACRO;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.USERNAME_MACRO;
 
 import org.junit.jupiter.api.Test;
 
@@ -68,6 +65,21 @@ class MacrosUpdaterTest {
 	private static final String AUTHENTICATION_TOKEN_POWERSHELL = "%{esc(powershell)::AUTHENTICATIONTOKEN}";
 	private static final String AUTHENTICATION_TOKEN_BASH = "%{esc(bash)::AUTHENTICATIONTOKEN}";
 
+	// Macros
+
+	/**
+	 * Username macro
+	 */
+	public static final String USERNAME_MACRO = "%{USERNAME}";
+	/**
+	 * Password macro
+	 */
+	public static final String PASSWORD_MACRO = "%{PASSWORD}";
+	/**
+	 * Hostname macro
+	 */
+	public static final String HOSTNAME_MACRO = "%{HOSTNAME}";
+
 	/**
 	 * Tests the primary macro replacement functionality, including basic macros and some escaped macros.
 	 */
@@ -94,7 +106,7 @@ class MacrosUpdaterTest {
 			PASSWORD_ESC_JSON
 		);
 
-		final String result = MacrosUpdater.update(text, "user", "pwd".toCharArray(), "token", "hostname", false);
+		final String result = MacrosUpdater.update(text, "user", "pwd".toCharArray(), "token", "hostname", false, null);
 		final String expected =
 			"""
 			hostname
@@ -252,25 +264,37 @@ class MacrosUpdaterTest {
 		// Test JSON escape
 		{
 			final String text = AUTHENTICATION_TOKEN_JSON;
-			assertEquals(expectedJson, MacrosUpdater.update(text, "user", "pwd".toCharArray(), authToken, "hostname", false));
+			assertEquals(
+				expectedJson,
+				MacrosUpdater.update(text, "user", "pwd".toCharArray(), authToken, "hostname", false, null)
+			);
 		}
 
 		// Test XML escape
 		{
 			final String text = AUTHENTICATION_TOKEN_XML;
-			assertEquals(expectedXml, MacrosUpdater.update(text, "user", "pwd".toCharArray(), authToken, "hostname", false));
+			assertEquals(
+				expectedXml,
+				MacrosUpdater.update(text, "user", "pwd".toCharArray(), authToken, "hostname", false, null)
+			);
 		}
 
 		// Test SQL escape
 		{
 			final String text = AUTHENTICATION_TOKEN_SQL;
-			assertEquals(expectedSql, MacrosUpdater.update(text, "user", "pwd".toCharArray(), authToken, "hostname", false));
+			assertEquals(
+				expectedSql,
+				MacrosUpdater.update(text, "user", "pwd".toCharArray(), authToken, "hostname", false, null)
+			);
 		}
 
 		// Test URL escape
 		{
 			final String text = AUTHENTICATION_TOKEN_URL;
-			assertEquals(expectedUrl, MacrosUpdater.update(text, "user", "pwd".toCharArray(), authToken, "hostname", false));
+			assertEquals(
+				expectedUrl,
+				MacrosUpdater.update(text, "user", "pwd".toCharArray(), authToken, "hostname", false, null)
+			);
 		}
 
 		// Test Regex escape
@@ -278,7 +302,7 @@ class MacrosUpdaterTest {
 			final String text = AUTHENTICATION_TOKEN_REGEX;
 			assertEquals(
 				expectedRegex,
-				MacrosUpdater.update(text, "user", "pwd".toCharArray(), authToken, "hostname", false)
+				MacrosUpdater.update(text, "user", "pwd".toCharArray(), authToken, "hostname", false, null)
 			);
 		}
 
@@ -287,7 +311,7 @@ class MacrosUpdaterTest {
 			final String text = AUTHENTICATION_TOKEN_WINDOWS_CMD;
 			assertEquals(
 				expectedWindowsCmd,
-				MacrosUpdater.update(text, "user", "pwd".toCharArray(), authToken, "hostname", false)
+				MacrosUpdater.update(text, "user", "pwd".toCharArray(), authToken, "hostname", false, null)
 			);
 		}
 
@@ -296,14 +320,17 @@ class MacrosUpdaterTest {
 			final String text = AUTHENTICATION_TOKEN_POWERSHELL;
 			assertEquals(
 				expectedPowershell,
-				MacrosUpdater.update(text, "user", "pwd".toCharArray(), authToken, "hostname", false)
+				MacrosUpdater.update(text, "user", "pwd".toCharArray(), authToken, "hostname", false, null)
 			);
 		}
 
 		// Test Bash escape
 		{
 			final String text = AUTHENTICATION_TOKEN_BASH;
-			assertEquals(expectedBash, MacrosUpdater.update(text, "user", "pwd".toCharArray(), authToken, "hostname", false));
+			assertEquals(
+				expectedBash,
+				MacrosUpdater.update(text, "user", "pwd".toCharArray(), authToken, "hostname", false, null)
+			);
 		}
 	}
 
@@ -317,7 +344,7 @@ class MacrosUpdaterTest {
 			final String text = USERNAME_ESC_XML;
 			final String username = "user&name<test>";
 			final String expected = "user&amp;name&lt;test&gt;";
-			final String result = MacrosUpdater.update(text, username, "pwd".toCharArray(), "token", "hostname", false);
+			final String result = MacrosUpdater.update(text, username, "pwd".toCharArray(), "token", "hostname", false, null);
 			assertEquals(expected, result);
 		}
 
@@ -326,7 +353,7 @@ class MacrosUpdaterTest {
 			final String text = USERNAME_ESC_JSON;
 			final String username = "user\"name";
 			final String expected = "user\\\"name";
-			final String result = MacrosUpdater.update(text, username, "pwd".toCharArray(), "token", "hostname", false);
+			final String result = MacrosUpdater.update(text, username, "pwd".toCharArray(), "token", "hostname", false, null);
 			assertEquals(expected, result);
 		}
 
@@ -335,7 +362,7 @@ class MacrosUpdaterTest {
 			final String text = USERNAME_ESC_URL;
 			final String username = "user name@example.com";
 			final String expected = "user%20name%40example.com";
-			final String result = MacrosUpdater.update(text, username, "pwd".toCharArray(), "token", "hostname", false);
+			final String result = MacrosUpdater.update(text, username, "pwd".toCharArray(), "token", "hostname", false, null);
 			assertEquals(expected, result);
 		}
 
@@ -344,7 +371,7 @@ class MacrosUpdaterTest {
 			final String text = USERNAME_ESC_REGEX;
 			final String username = "user.name*";
 			final String expected = "\\Quser.name*\\E";
-			final String result = MacrosUpdater.update(text, username, "pwd".toCharArray(), "token", "hostname", false);
+			final String result = MacrosUpdater.update(text, username, "pwd".toCharArray(), "token", "hostname", false, null);
 			assertEquals(expected, result);
 		}
 
@@ -353,7 +380,7 @@ class MacrosUpdaterTest {
 			final String text = USERNAME_ESC_WINDOWS_CMD;
 			final String username = "user&name|cmd<>";
 			final String expected = "user^&name^|cmd^<^>";
-			final String result = MacrosUpdater.update(text, username, "pwd".toCharArray(), "token", "hostname", false);
+			final String result = MacrosUpdater.update(text, username, "pwd".toCharArray(), "token", "hostname", false, null);
 			assertEquals(expected, result);
 		}
 
@@ -362,7 +389,7 @@ class MacrosUpdaterTest {
 			final String text = USERNAME_ESC_POWERSHELL;
 			final String username = "user\"name$var";
 			final String expected = "user`\"name`$var";
-			final String result = MacrosUpdater.update(text, username, "pwd".toCharArray(), "token", "hostname", false);
+			final String result = MacrosUpdater.update(text, username, "pwd".toCharArray(), "token", "hostname", false, null);
 			assertEquals(expected, result);
 		}
 
@@ -371,7 +398,7 @@ class MacrosUpdaterTest {
 			final String text = USERNAME_ESC_BASH;
 			final String username = "user'name$var";
 			final String expected = "user\\\\'name\\$var";
-			final String result = MacrosUpdater.update(text, username, "pwd".toCharArray(), "token", "hostname", false);
+			final String result = MacrosUpdater.update(text, username, "pwd".toCharArray(), "token", "hostname", false, null);
 			assertEquals(expected, result);
 		}
 	}
@@ -386,7 +413,15 @@ class MacrosUpdaterTest {
 			final String text = PASSWORD_ESC_SQL;
 			final String password = "p@ss'word";
 			final String expected = "p@ss''word";
-			final String result = MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname", false);
+			final String result = MacrosUpdater.update(
+				text,
+				"user",
+				password.toCharArray(),
+				"token",
+				"hostname",
+				false,
+				null
+			);
 			assertEquals(expected, result);
 		}
 
@@ -395,7 +430,15 @@ class MacrosUpdaterTest {
 			final String text = PASSWORD_ESC_URL;
 			final String password = "p@ss word/?";
 			final String expected = "p%40ss%20word%2F%3F";
-			final String result = MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname", false);
+			final String result = MacrosUpdater.update(
+				text,
+				"user",
+				password.toCharArray(),
+				"token",
+				"hostname",
+				false,
+				null
+			);
 			assertEquals(expected, result);
 		}
 
@@ -404,7 +447,15 @@ class MacrosUpdaterTest {
 			final String text = PASSWORD_ESC_REGEX;
 			final String password = "p@ss^word$";
 			final String expected = "\\Qp@ss^word$\\E";
-			final String result = MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname", false);
+			final String result = MacrosUpdater.update(
+				text,
+				"user",
+				password.toCharArray(),
+				"token",
+				"hostname",
+				false,
+				null
+			);
 			assertEquals(expected, result);
 		}
 
@@ -413,7 +464,15 @@ class MacrosUpdaterTest {
 			final String text = PASSWORD_ESC_WINDOWS_CMD;
 			final String password = "p^wd&cmd|";
 			final String expected = "p^^wd^&cmd^|";
-			final String result = MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname", false);
+			final String result = MacrosUpdater.update(
+				text,
+				"user",
+				password.toCharArray(),
+				"token",
+				"hostname",
+				false,
+				null
+			);
 			assertEquals(expected, result);
 		}
 
@@ -422,7 +481,15 @@ class MacrosUpdaterTest {
 			final String text = PASSWORD_ESC_POWERSHELL;
 			final String password = "p@ss$word$";
 			final String expected = "p@ss`$word`$";
-			final String result = MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname", false);
+			final String result = MacrosUpdater.update(
+				text,
+				"user",
+				password.toCharArray(),
+				"token",
+				"hostname",
+				false,
+				null
+			);
 			assertEquals(expected, result);
 		}
 
@@ -431,7 +498,15 @@ class MacrosUpdaterTest {
 			final String text = PASSWORD_ESC_BASH;
 			final String password = "p$ss[]word&";
 			final String expected = "p\\$ss\\[\\]word\\&";
-			final String result = MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname", false);
+			final String result = MacrosUpdater.update(
+				text,
+				"user",
+				password.toCharArray(),
+				"token",
+				"hostname",
+				false,
+				null
+			);
 			assertEquals(expected, result);
 		}
 	}
@@ -452,7 +527,7 @@ class MacrosUpdaterTest {
 			final String password = "p@55w0rd!#^&*()_+|~`";
 			assertEquals(
 				encodedPasswordCommon,
-				MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname", false)
+				MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname", false, null)
 			);
 		}
 
@@ -462,7 +537,7 @@ class MacrosUpdaterTest {
 			final String password = "p@55w0rd!#^&*()_+|~`";
 			assertEquals(
 				encodedPasswordCommon,
-				MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname", false)
+				MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname", false, null)
 			);
 		}
 
@@ -472,7 +547,7 @@ class MacrosUpdaterTest {
 			final String password = "p@55w0rd!#^&*()_+|~`";
 			assertEquals(
 				encodedPasswordCommon,
-				MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname", false)
+				MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname", false, null)
 			);
 		}
 
@@ -482,7 +557,7 @@ class MacrosUpdaterTest {
 			final String password = "p@55w0rd!#^&*()_+|~`";
 			assertEquals(
 				encodedPasswordUrl,
-				MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname", false)
+				MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname", false, null)
 			);
 		}
 
@@ -492,7 +567,7 @@ class MacrosUpdaterTest {
 			final String password = "p@55w0rd!#^&*()_+|~`";
 			assertEquals(
 				encodedPasswordRegex,
-				MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname", false)
+				MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname", false, null)
 			);
 		}
 
@@ -502,7 +577,7 @@ class MacrosUpdaterTest {
 			final String password = "p@55w0rd!#^&*()_+|~`";
 			assertEquals(
 				encodedPasswordCommon,
-				MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname", false)
+				MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname", false, null)
 			);
 		}
 
@@ -512,7 +587,7 @@ class MacrosUpdaterTest {
 			final String password = "p@55w0rd!#^&*()_+|~`";
 			assertEquals(
 				encodedPasswordCommon,
-				MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname", false)
+				MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname", false, null)
 			);
 		}
 
@@ -522,7 +597,7 @@ class MacrosUpdaterTest {
 			final String password = "p@55w0rd!#^&*()_+|~`";
 			assertEquals(
 				encodedPasswordCommon,
-				MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname", false)
+				MacrosUpdater.update(text, "user", password.toCharArray(), "token", "hostname", false, null)
 			);
 		}
 	}
@@ -547,7 +622,7 @@ class MacrosUpdaterTest {
 			final String text = BASIC_AUTH_BASE64_JSON;
 			assertEquals(
 				encodedAuthCommon,
-				MacrosUpdater.update(text, username, password.toCharArray(), authToken, "hostname", false)
+				MacrosUpdater.update(text, username, password.toCharArray(), authToken, "hostname", false, null)
 			);
 		}
 
@@ -556,7 +631,7 @@ class MacrosUpdaterTest {
 			final String text = BASIC_AUTH_BASE64_XML;
 			assertEquals(
 				encodedAuthCommon,
-				MacrosUpdater.update(text, username, password.toCharArray(), authToken, "hostname", false)
+				MacrosUpdater.update(text, username, password.toCharArray(), authToken, "hostname", false, null)
 			);
 		}
 
@@ -565,7 +640,7 @@ class MacrosUpdaterTest {
 			final String text = BASIC_AUTH_BASE64_SQL;
 			assertEquals(
 				encodedAuthCommon,
-				MacrosUpdater.update(text, username, password.toCharArray(), authToken, "hostname", false)
+				MacrosUpdater.update(text, username, password.toCharArray(), authToken, "hostname", false, null)
 			);
 		}
 
@@ -574,7 +649,7 @@ class MacrosUpdaterTest {
 			final String text = BASIC_AUTH_BASE64_URL;
 			assertEquals(
 				encodedAuthUrl,
-				MacrosUpdater.update(text, username, password.toCharArray(), authToken, "hostname", false)
+				MacrosUpdater.update(text, username, password.toCharArray(), authToken, "hostname", false, null)
 			);
 		}
 
@@ -583,7 +658,7 @@ class MacrosUpdaterTest {
 			final String text = BASIC_AUTH_BASE64_REGEX;
 			assertEquals(
 				encodedAuthRegex,
-				MacrosUpdater.update(text, username, password.toCharArray(), authToken, "hostname", false)
+				MacrosUpdater.update(text, username, password.toCharArray(), authToken, "hostname", false, null)
 			);
 		}
 
@@ -592,7 +667,7 @@ class MacrosUpdaterTest {
 			final String text = BASIC_AUTH_BASE64_WINDOWS_CMD;
 			assertEquals(
 				encodedAuthCommon,
-				MacrosUpdater.update(text, username, password.toCharArray(), authToken, "hostname", false)
+				MacrosUpdater.update(text, username, password.toCharArray(), authToken, "hostname", false, null)
 			);
 		}
 
@@ -601,7 +676,7 @@ class MacrosUpdaterTest {
 			final String text = BASIC_AUTH_BASE64_POWERSHELL;
 			assertEquals(
 				encodedAuthCommon,
-				MacrosUpdater.update(text, username, password.toCharArray(), authToken, "hostname", false)
+				MacrosUpdater.update(text, username, password.toCharArray(), authToken, "hostname", false, null)
 			);
 		}
 
@@ -610,7 +685,7 @@ class MacrosUpdaterTest {
 			final String text = BASIC_AUTH_BASE64_BASH;
 			assertEquals(
 				encodedAuthCommon,
-				MacrosUpdater.update(text, username, password.toCharArray(), authToken, "hostname", false)
+				MacrosUpdater.update(text, username, password.toCharArray(), authToken, "hostname", false, null)
 			);
 		}
 	}
@@ -635,28 +710,40 @@ class MacrosUpdaterTest {
 		{
 			final String text = SHA256_AUTH_JSON;
 			final String token = "token\"with\\escape";
-			assertEquals(expectedHashJson, MacrosUpdater.update(text, "user", "pwd".toCharArray(), token, "hostname", false));
+			assertEquals(
+				expectedHashJson,
+				MacrosUpdater.update(text, "user", "pwd".toCharArray(), token, "hostname", false, null)
+			);
 		}
 
 		// Test XML escape
 		{
 			final String text = SHA256_AUTH_XML;
 			final String token = "token&with<escape>";
-			assertEquals(expectedHashXml, MacrosUpdater.update(text, "user", "pwd".toCharArray(), token, "hostname", false));
+			assertEquals(
+				expectedHashXml,
+				MacrosUpdater.update(text, "user", "pwd".toCharArray(), token, "hostname", false, null)
+			);
 		}
 
 		// Test SQL escape
 		{
 			final String text = SHA256_AUTH_SQL;
 			final String token = "token'with;escape";
-			assertEquals(expectedHashSql, MacrosUpdater.update(text, "user", "pwd".toCharArray(), token, "hostname", false));
+			assertEquals(
+				expectedHashSql,
+				MacrosUpdater.update(text, "user", "pwd".toCharArray(), token, "hostname", false, null)
+			);
 		}
 
 		// Test URL escape
 		{
 			final String text = SHA256_AUTH_URL;
 			final String token = "token with space%20and%40symbol";
-			assertEquals(expectedHashUrl, MacrosUpdater.update(text, "user", "pwd".toCharArray(), token, "hostname", false));
+			assertEquals(
+				expectedHashUrl,
+				MacrosUpdater.update(text, "user", "pwd".toCharArray(), token, "hostname", false, null)
+			);
 		}
 
 		// Test Regex escape
@@ -665,7 +752,7 @@ class MacrosUpdaterTest {
 			final String token = "token.with*regex";
 			assertEquals(
 				expectedHashRegex,
-				MacrosUpdater.update(text, "user", "pwd".toCharArray(), token, "hostname", false)
+				MacrosUpdater.update(text, "user", "pwd".toCharArray(), token, "hostname", false, null)
 			);
 		}
 
@@ -675,7 +762,7 @@ class MacrosUpdaterTest {
 			final String token = "token&with|cmd<>";
 			assertEquals(
 				expectedHashWindowsCmd,
-				MacrosUpdater.update(text, "user", "pwd".toCharArray(), token, "hostname", false)
+				MacrosUpdater.update(text, "user", "pwd".toCharArray(), token, "hostname", false, null)
 			);
 		}
 
@@ -685,7 +772,7 @@ class MacrosUpdaterTest {
 			final String token = "token\"with$var";
 			assertEquals(
 				expectedHashPowershell,
-				MacrosUpdater.update(text, "user", "pwd".toCharArray(), token, "hostname", false)
+				MacrosUpdater.update(text, "user", "pwd".toCharArray(), token, "hostname", false, null)
 			);
 		}
 
@@ -693,7 +780,10 @@ class MacrosUpdaterTest {
 		{
 			final String text = SHA256_AUTH_BASH;
 			final String token = "token'with$var";
-			assertEquals(expectedHashBash, MacrosUpdater.update(text, "user", "pwd".toCharArray(), token, "hostname", false));
+			assertEquals(
+				expectedHashBash,
+				MacrosUpdater.update(text, "user", "pwd".toCharArray(), token, "hostname", false, null)
+			);
 		}
 	}
 }

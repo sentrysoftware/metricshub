@@ -115,7 +115,8 @@ public interface Header extends Serializable {
 			password,
 			authenticationToken,
 			hostname,
-			false
+			false,
+			null
 		);
 
 		return parseHeader(resolvedHeader);

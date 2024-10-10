@@ -21,16 +21,17 @@ package org.sentrysoftware.metricshub.extension.oscommand;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static org.sentrysoftware.metricshub.engine.common.helpers.MacroType.AUTHENTICATIONTOKEN;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MacroType.HOSTNAME;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MacroType.PASSWORD;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MacroType.USERNAME;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DEFAULT_LOCK_TIMEOUT;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HOSTNAME_MACRO;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.NEW_LINE;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.PASSWORD_MACRO;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.USERNAME_MACRO;
+import static org.sentrysoftware.metricshub.engine.common.helpers.StringHelper.protectCaseInsensitiveRegex;
 import static org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper.TEMP_FILE_CREATOR;
 import static org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper.createOsCommandEmbeddedFiles;
 import static org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper.replaceSudo;
-import static org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper.toCaseInsensitiveRegex;
 import static org.springframework.util.Assert.isTrue;
 
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
@@ -40,6 +41,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -438,16 +440,30 @@ public class OsCommandService {
 			TEMP_FILE_CREATOR
 		);
 
-		final String updatedUserCommand = maybeUsername
-			.map(username -> commandLine.replaceAll(toCaseInsensitiveRegex(USERNAME_MACRO), username))
-			.orElse(commandLine);
-
 		// Retrieve the hostname from the configurations, otherwise from the telemetryManager.
 		final String hostname = telemetryManager.getHostname(List.of(SshConfiguration.class, OsCommandConfiguration.class));
 
-		final String updatedHostnameCommand = updatedUserCommand.replaceAll(
-			toCaseInsensitiveRegex(HOSTNAME_MACRO),
-			hostname
+		// Create the macrosToUpdate map and configure it to update only the username macro
+		final Map<String, Boolean> macrosToUpdate = new HashMap<>(
+			Map.of(USERNAME.name(), true, PASSWORD.name(), false, HOSTNAME.name(), false, AUTHENTICATIONTOKEN.name(), false)
+		);
+
+		final String updatedUserCommand = maybeUsername
+			.map(username -> MacrosUpdater.update(commandLine, username, null, null, hostname, false, macrosToUpdate))
+			.orElse(commandLine);
+
+		// Modify macrosToUpdate map to update only the host name macro
+		macrosToUpdate.put(USERNAME.name(), false);
+		macrosToUpdate.put(HOSTNAME.name(), true);
+
+		final String updatedHostnameCommand = MacrosUpdater.update(
+			updatedUserCommand,
+			hostname,
+			null,
+			null,
+			hostname,
+			false,
+			macrosToUpdate
 		);
 
 		final String updatedSudoCommand = replaceSudo(updatedHostnameCommand, sudoInformation);
@@ -459,20 +475,26 @@ public class OsCommandService {
 				updatedSudoCommand,
 				(s, entry) ->
 					s.replaceAll(
-						toCaseInsensitiveRegex(entry.getKey()),
+						protectCaseInsensitiveRegex(entry.getKey()),
 						Matcher.quoteReplacement(entry.getValue().getAbsolutePath())
 					),
 				(s1, s2) -> null
 			);
 
+		// Modify macrosToUpdate map to update only the password macro
+		macrosToUpdate.put(PASSWORD.name(), true);
+		macrosToUpdate.put(HOSTNAME.name(), false);
+
 		final String command = maybePassword
 			.map(password ->
-				updatedEmbeddedFilesCommand.replaceAll(toCaseInsensitiveRegex(PASSWORD_MACRO), String.valueOf(password))
+				MacrosUpdater.update(updatedEmbeddedFilesCommand, null, password, null, hostname, false, macrosToUpdate)
 			)
 			.orElse(updatedEmbeddedFilesCommand);
 
 		final String noPasswordCommand = maybePassword
-			.map(password -> MacrosUpdater.update(updatedEmbeddedFilesCommand, null, password, null, hostname, true))
+			.map(password ->
+				MacrosUpdater.update(updatedEmbeddedFilesCommand, null, password, null, hostname, true, macrosToUpdate)
+			)
 			.orElse(updatedEmbeddedFilesCommand);
 
 		try {

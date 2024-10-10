@@ -136,21 +136,6 @@ public class MetricsHubConstants {
 	 */
 	public static final String LOG_COMPUTE_KEY_SUFFIX_TEMPLATE = "%s -> computes[%d]";
 
-	// Macros
-
-	/**
-	 * Username macro
-	 */
-	public static final String USERNAME_MACRO = "%{USERNAME}";
-	/**
-	 * Password macro
-	 */
-	public static final String PASSWORD_MACRO = "%{PASSWORD}";
-	/**
-	 * Hostname macro
-	 */
-	public static final String HOSTNAME_MACRO = "%{HOSTNAME}";
-
 	/**
 	 * Threads and timeout
 	 **/
