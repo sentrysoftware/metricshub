@@ -20,12 +20,17 @@ package org.sentrysoftware.metricshub.engine.configuration;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
+
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DEFAULT_JOB_TIMEOUT;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EXCLUDE_MONITORS_PATTERN;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.INCLUDE_MONITORS_PATTERN;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -61,6 +66,14 @@ public class HostConfiguration {
 	private boolean sequential;
 	private Consumer<AlertInfo> alertTrigger;
 	private long retryDelay;
+
+	private String monitorsFilter;
+
+	@Default
+	private Set<String> includeMonitors = new HashSet<>();
+
+	@Default
+	private Set<String> excludeMonitors = new HashSet<>();
 
 	// The map of connector variables. The key is the connector ID.
 	private Map<String, ConnectorVariables> connectorVariables;
@@ -133,5 +146,37 @@ public class HostConfiguration {
 		}
 
 		return sources;
+	}
+
+	/**
+	 * Builds the includeMonitors from the monitorsFilter if it's null, and then returns it.
+	 * @return the includeMonitors
+	 */
+	public Set<String> getIncludeMonitors() {
+		if (includeMonitors == null || includeMonitors.isEmpty()) {
+			if (monitorsFilter != null) {
+				final Matcher matcher = INCLUDE_MONITORS_PATTERN.matcher(monitorsFilter);
+				while (matcher.find()) {
+					includeMonitors.add(matcher.group());
+				}
+			}
+		}
+		return includeMonitors;
+	}
+
+	/**
+	 * Builds the excludeMonitors from the monitorsFilter if it's null, and then returns it.
+	 * @return the excludeMonitors
+	 */
+	public Set<String> getExcludeMonitors() {
+		if (excludeMonitors == null || excludeMonitors.isEmpty()) {
+			if (monitorsFilter != null) {
+				final Matcher matcher = EXCLUDE_MONITORS_PATTERN.matcher(monitorsFilter);
+				while (matcher.find()) {
+					excludeMonitors.add(matcher.group());
+				}
+			}
+		}
+		return excludeMonitors;
 	}
 }

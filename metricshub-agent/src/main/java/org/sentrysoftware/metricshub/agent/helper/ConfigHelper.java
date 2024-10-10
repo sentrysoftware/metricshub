@@ -496,6 +496,11 @@ public class ConfigHelper {
 			resourceConfig.setSequential(agentConfig.isSequential());
 		}
 
+		// Set agent configuration's monitors filter in the resource configuration
+		if (resourceConfig.getMonitorsFilter() == null) {
+			resourceConfig.setMonitorsFilter(agentConfig.getMonitorsFilter());
+		}
+
 		final AlertingSystemConfig resourceGroupAlertingSystemConfig = agentConfig.getAlertingSystemConfig();
 
 		final AlertingSystemConfig alertingSystemConfig = resourceConfig.getAlertingSystemConfig();
@@ -579,6 +584,11 @@ public class ConfigHelper {
 			resourceConfig.setSequential(resourceGroupConfig.getSequential());
 		}
 
+		// Set resource group configuration's monitors filter in the resource configuration
+		if (resourceConfig.getMonitorsFilter() == null) {
+			resourceConfig.setMonitorsFilter(resourceGroupConfig.getMonitorsFilter());
+		}
+
 		final AlertingSystemConfig resourceGroupAlertingSystemConfig = resourceGroupConfig.getAlertingSystemConfig();
 
 		final AlertingSystemConfig alertingSystemConfig = resourceConfig.getAlertingSystemConfig();
@@ -656,6 +666,11 @@ public class ConfigHelper {
 		// Set global sequential flag in the resource group configuration
 		if (resourceGroupConfig.getSequential() == null) {
 			resourceGroupConfig.setSequential(agentConfig.isSequential());
+		}
+
+		// Set global configuration's monitors filter in the resource group configuration
+		if (resourceGroupConfig.getMonitorsFilter() == null) {
+			resourceGroupConfig.setMonitorsFilter(agentConfig.getMonitorsFilter());
 		}
 
 		final AlertingSystemConfig alertingSystemConfig = resourceGroupConfig.getAlertingSystemConfig();
@@ -1045,6 +1060,7 @@ public class ConfigHelper {
 			.hostId(hostId)
 			.hostType(hostType)
 			.sequential(Boolean.TRUE.equals(resourceConfig.getSequential()))
+			.monitorsFilter(resourceConfig.getMonitorsFilter())
 			.configuredConnectorId(configuredConnectorId)
 			.connectorVariables(resourceConfig.getVariables())
 			.resolveHostnameToFqdn(resourceConfig.getResolveHostnameToFqdn())
