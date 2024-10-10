@@ -21,12 +21,15 @@ package org.sentrysoftware.metricshub.extension.win;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HOSTNAME_MACRO;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.PASSWORD_MACRO;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.USERNAME_MACRO;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MacroType.AUTHENTICATIONTOKEN;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MacroType.HOSTNAME;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MacroType.PASSWORD;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MacroType.USERNAME;
+import static org.sentrysoftware.metricshub.engine.common.helpers.StringHelper.protectCaseInsensitiveRegex;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -35,6 +38,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
+import org.sentrysoftware.metricshub.engine.common.helpers.MacrosUpdater;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 import org.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
@@ -112,13 +116,27 @@ public class WinCommandService {
 			OsCommandHelper.TEMP_FILE_CREATOR
 		);
 
+		// Create the macrosToUpdate map and configure it to update only the username macro
+		final Map<String, Boolean> macrosToUpdate = new HashMap<>(
+			Map.of(USERNAME.name(), true, PASSWORD.name(), false, HOSTNAME.name(), false, AUTHENTICATIONTOKEN.name(), false)
+		);
+
 		final String updatedUserCommand = maybeUsername
-			.map(username -> commandLine.replaceAll(OsCommandHelper.toCaseInsensitiveRegex(USERNAME_MACRO), username))
+			.map(username -> MacrosUpdater.update(commandLine, username, null, null, hostname, false, macrosToUpdate))
 			.orElse(commandLine);
 
-		final String updatedHostnameCommand = updatedUserCommand.replaceAll(
-			OsCommandHelper.toCaseInsensitiveRegex(HOSTNAME_MACRO),
-			hostname
+		// Modify macrosToUpdate map to update only the host name macro
+		macrosToUpdate.put(USERNAME.name(), false);
+		macrosToUpdate.put(HOSTNAME.name(), true);
+
+		final String updatedHostnameCommand = MacrosUpdater.update(
+			updatedUserCommand,
+			null,
+			null,
+			null,
+			hostname,
+			false,
+			macrosToUpdate
 		);
 
 		final String updatedSudoCommand = OsCommandHelper.replaceSudo(updatedHostnameCommand, null);
@@ -130,24 +148,25 @@ public class WinCommandService {
 				updatedSudoCommand,
 				(s, entry) ->
 					s.replaceAll(
-						OsCommandHelper.toCaseInsensitiveRegex(entry.getKey()),
+						protectCaseInsensitiveRegex(entry.getKey()),
 						Matcher.quoteReplacement(entry.getValue().getAbsolutePath())
 					),
 				(s1, s2) -> null
 			);
 
+		// Modify macrosToUpdate map to update only the password macro
+		macrosToUpdate.put(PASSWORD.name(), true);
+		macrosToUpdate.put(HOSTNAME.name(), false);
+
 		final String command = maybePassword
 			.map(password ->
-				updatedEmbeddedFilesCommand.replaceAll(
-					OsCommandHelper.toCaseInsensitiveRegex(PASSWORD_MACRO),
-					String.valueOf(password)
-				)
+				MacrosUpdater.update(updatedEmbeddedFilesCommand, null, password, null, hostname, false, macrosToUpdate)
 			)
 			.orElse(updatedEmbeddedFilesCommand);
 
 		final String noPasswordCommand = maybePassword
 			.map(password ->
-				updatedEmbeddedFilesCommand.replaceAll(OsCommandHelper.toCaseInsensitiveRegex(PASSWORD_MACRO), "********")
+				MacrosUpdater.update(updatedEmbeddedFilesCommand, null, password, null, hostname, true, macrosToUpdate)
 			)
 			.orElse(updatedEmbeddedFilesCommand);
 

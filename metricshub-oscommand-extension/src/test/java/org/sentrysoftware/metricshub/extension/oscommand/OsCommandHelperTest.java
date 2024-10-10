@@ -44,6 +44,7 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.common.exception.ControlledSshException;
 import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
+import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
@@ -66,7 +67,6 @@ class OsCommandHelperTest {
 	public static final String PASSWORD = "testPassword";
 	public static final String EMPTY = "";
 	public static final String SINGLE_SPACE = " ";
-	public static final String HOSTNAME_MACRO = "%{HOSTNAME}";
 	public static final String CMD = "cmd";
 	public static final String ID = "id";
 	public static final String BAT = "bat";
@@ -92,17 +92,9 @@ class OsCommandHelperTest {
 	public static final String ECHO_TEST_LOWER_CASE = "echo Test";
 	public static final String TEST_RESULT = "Test";
 	public static final String RAIDCTL_PATH = "/usr/sbin/raidctl";
-	public static final String Q_HOST = "(?i)\\QHost\\E";
-	public static final String Q_USERNAME = "(?i)\\Q%{UserName}\\E";
-	public static final String Q_HOSTNAME = "(?i)\\Q%{HOSTNAME}\\E";
-	public static final String PERCENT_USERNAME = "%{UserName}";
 	public static final String HARD_DRIVE = "Hard drive";
-	public static final String TAB1_REF = "${source::monitors.cpu.discovery.sources.tab1}";
-	public static final String TABLE_SEP = ";";
 
 	// Embedded files
-	public static final String TEMP_EMBEDDED_1 = "/tmp/metricshub_embedded_1.bat";
-	public static final String TEMP_EMBEDDED_2 = "/tmp/metricshub_embedded_2";
 	public static final String AWK_EMBEDDED_CONTENT_PERCENT_SUDO =
 		"# Awk (or nawk)\n" +
 		"if [ -f /usr/xpg4/bin/awk ]; then\n" +
@@ -152,7 +144,6 @@ class OsCommandHelperTest {
 	public static final Integer EMBEDDED_FILE_2_REF = 2;
 	public static final String EMBEDDED_FILE_1_COPY_COMMAND_LINE =
 		"copy ${file::1} ${file::1}.bat > NUL & ${file::1}.bat %{USERNAME} %{PASSWORD} %{HOSTNAME} & del /F /Q ${file::1}.bat & del /F /Q ${file::2}.bat ";
-	public static final String CMD_COMMAND = "CMD.EXE /C cmd";
 	public static final String NO_PASSWORD_COMMAND =
 		" naviseccli -User testUser -Password ******** -Address host -Scope 1 getagent";
 	public static final String CLEAR_PASSWORD_COMMAND =
@@ -163,12 +154,6 @@ class OsCommandHelperTest {
 		" & ${file::2}.bat" +
 		" & del /F /Q ${file::1}" +
 		" & del /F /Q ${file::2}.bat";
-	public static final String UPDATED_COMMAND =
-		"copy /tmp/metricshub_embedded_2 /tmp/metricshub_embedded_2.bat > NUL" +
-		" & /tmp/metricshub_embedded_1.bat" +
-		" & /tmp/metricshub_embedded_2.bat" +
-		" & del /F /Q /tmp/metricshub_embedded_1.bat" +
-		" & del /F /Q /tmp/metricshub_embedded_2.bat";
 	public static final String RAIDCTL_COMMAND = "/usr/sbin/raidctl -S";
 	public static final String SUDO_RAIDCTL_COMMAND = "%{SUDO:/usr/sbin/raidctl} /usr/sbin/raidctl -S";
 	public static final String SUDO_NAVISECCLI_COMMAND =
@@ -183,7 +168,6 @@ class OsCommandHelperTest {
 	// Host information
 	public static final String HOST = "host";
 	public static final String HOSTNAME = "hostname";
-	public static final String HOST_CAMEL_CASE = "Host";
 
 	public static final String SUDO_KEYWORD = "sudo";
 
@@ -536,16 +520,6 @@ class OsCommandHelperTest {
 	}
 
 	@Test
-	void testToCaseInsensitiveRegex() {
-		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper.toCaseInsensitiveRegex(null));
-		assertThrows(IllegalArgumentException.class, () -> OsCommandHelper.toCaseInsensitiveRegex(EMPTY));
-		assertEquals(SINGLE_SPACE, OsCommandHelper.toCaseInsensitiveRegex(SINGLE_SPACE));
-		assertEquals(Q_HOST, OsCommandHelper.toCaseInsensitiveRegex(HOST_CAMEL_CASE));
-		assertEquals(Q_USERNAME, OsCommandHelper.toCaseInsensitiveRegex(PERCENT_USERNAME));
-		assertEquals(Q_HOSTNAME, OsCommandHelper.toCaseInsensitiveRegex(HOSTNAME_MACRO));
-	}
-
-	@Test
 	void testGetTimeout() {
 		final OsCommandConfiguration osCommandConfig = new OsCommandConfiguration();
 		osCommandConfig.setTimeout(2L);
@@ -858,6 +832,7 @@ class OsCommandHelperTest {
 		try (
 			final MockedStatic<OsCommandService> mockedOsCommandService = mockStatic(OsCommandService.class);
 			final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class);
+			final MockedStatic<StringHelper> mockedStringHelper = mockStatic(StringHelper.class)
 		) {
 			mockedOsCommandService.when(() -> OsCommandService.getUsername(sshConfiguration)).thenCallRealMethod();
 			mockedOsCommandService
@@ -866,7 +841,7 @@ class OsCommandHelperTest {
 			mockedOsCommandService.when(() -> OsCommandService.getPassword(sshConfiguration)).thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.replaceSudo(anyString(), isNull())).thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
-			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
+			mockedStringHelper.when(() -> StringHelper.protectCaseInsensitiveRegex(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper
 				.when(() ->
 					OsCommandHelper.createOsCommandEmbeddedFiles(
@@ -935,6 +910,7 @@ class OsCommandHelperTest {
 		try (
 			final MockedStatic<OsCommandService> mockedOsCommandService = mockStatic(OsCommandService.class);
 			final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class);
+			final MockedStatic<StringHelper> mockedStringHelper = mockStatic(StringHelper.class)
 		) {
 			mockedOsCommandService.when(() -> OsCommandService.getUsername(sshConfiguration)).thenCallRealMethod();
 			mockedOsCommandService
@@ -945,7 +921,7 @@ class OsCommandHelperTest {
 				.when(() -> OsCommandHelper.replaceSudo(anyString(), eq(sudoInformation)))
 				.thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
-			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
+			mockedStringHelper.when(() -> StringHelper.protectCaseInsensitiveRegex(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper
 				.when(() ->
 					OsCommandHelper.createOsCommandEmbeddedFiles(
@@ -1014,7 +990,8 @@ class OsCommandHelperTest {
 
 		try (
 			final MockedStatic<OsCommandService> mockedOsCommandService = mockStatic(OsCommandService.class);
-			final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class)
+			final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class);
+			final MockedStatic<StringHelper> mockedStringHelper = mockStatic(StringHelper.class)
 		) {
 			mockedOsCommandService.when(() -> OsCommandService.getUsername(sshConfiguration)).thenCallRealMethod();
 			mockedOsCommandService
@@ -1025,7 +1002,7 @@ class OsCommandHelperTest {
 				.when(() -> OsCommandHelper.replaceSudo(anyString(), eq(sudoInformation)))
 				.thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
-			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
+			mockedStringHelper.when(() -> StringHelper.protectCaseInsensitiveRegex(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper
 				.when(() ->
 					OsCommandHelper.createOsCommandEmbeddedFiles(
@@ -1095,6 +1072,7 @@ class OsCommandHelperTest {
 		try (
 			final MockedStatic<OsCommandService> mockedOsCommandService = mockStatic(OsCommandService.class);
 			final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class);
+			final MockedStatic<StringHelper> mockedStringHelper = mockStatic(StringHelper.class)
 		) {
 			mockedOsCommandService.when(() -> OsCommandService.getUsername(sshConfiguration)).thenCallRealMethod();
 			mockedOsCommandService
@@ -1105,7 +1083,7 @@ class OsCommandHelperTest {
 				.when(() -> OsCommandHelper.replaceSudo(anyString(), eq(sudoInformation)))
 				.thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
-			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
+			mockedStringHelper.when(() -> StringHelper.protectCaseInsensitiveRegex(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper
 				.when(() ->
 					OsCommandHelper.createOsCommandEmbeddedFiles(
@@ -1186,14 +1164,15 @@ class OsCommandHelperTest {
 		try (
 			final MockedStatic<OsCommandService> mockedOsCommandService = mockStatic(OsCommandService.class);
 			final MockedStatic<OsCommandHelper> mockedOsCommandHelper = mockStatic(OsCommandHelper.class);
-			final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class)
+			final MockedStatic<EmbeddedFileHelper> mockedEmbeddedFileHelper = mockStatic(EmbeddedFileHelper.class);
+			final MockedStatic<StringHelper> mockedStringHelper = mockStatic(StringHelper.class)
 		) {
 			mockedOsCommandService.when(() -> OsCommandService.getUsername(sshConfiguration)).thenCallRealMethod();
 			mockedOsCommandService
 				.when(() -> OsCommandService.getTimeout(120L, osCommandConfiguration, sshConfiguration, 300))
 				.thenCallRealMethod();
 			mockedOsCommandService.when(() -> OsCommandService.getPassword(sshConfiguration)).thenCallRealMethod();
-			mockedOsCommandHelper.when(() -> OsCommandHelper.toCaseInsensitiveRegex(anyString())).thenCallRealMethod();
+			mockedStringHelper.when(() -> StringHelper.protectCaseInsensitiveRegex(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper.when(() -> OsCommandHelper.getFileNameFromSudoCommand(anyString())).thenCallRealMethod();
 			mockedOsCommandHelper
 				.when(() -> OsCommandHelper.replaceSudo(anyString(), eq(sudoInformation)))
