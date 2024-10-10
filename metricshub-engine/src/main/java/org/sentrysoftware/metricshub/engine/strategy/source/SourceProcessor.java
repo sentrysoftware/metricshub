@@ -45,10 +45,10 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.JawkSource;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.LocalSqlSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpGetSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SqlSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.StaticSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.TableJoinSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.TableUnionSource;
@@ -553,10 +553,10 @@ public class SourceProcessor implements ISourceProcessor {
 		);
 	}
 
-	@WithSpan("Source SqlSource Exec")
+	@WithSpan("Source LocalSqlSource Exec")
 	@Override
-	public SourceTable process(@SpanAttribute("source.definition") final SqlSource sqlSource) {
-		return processSourceComputationThroughExtension(sqlSource);
+	public SourceTable process(@SpanAttribute("source.definition") final LocalSqlSource localSqlSource) {
+		return processSourceComputationThroughExtension(localSqlSource);
 	}
 
 	@WithSpan("Source JawkSource Exec")

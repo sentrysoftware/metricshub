@@ -116,7 +116,7 @@
 		<module>metricshub-wmi-extension</module>
 		<module>metricshub-winrm-extension</module>
 		<module>metricshub-ping-extension</module>
-		<module>metricshub-sql-source-extension</module>
+		<module>metricshub-localsql-source-extension</module>
 		<module>metricshub-hardware</module>
 		<module>metricshub-agent</module>
 		<module>metricshub-doc</module>
@@ -858,12 +858,12 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<reportSets>
 					<reportSet>
-					<reports>
-						<report>javadoc</report>
-					</reports>
-				</reportSet>
-			</reportSets>
-		</plugin>
+						<reports>
+							<report>javadoc</report>
+						</reports>
+					</reportSet>
+				</reportSets>
+			</plugin>
 		</plugins>
 	</reporting>
 
