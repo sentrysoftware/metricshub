@@ -11,10 +11,10 @@ import org.sentrysoftware.metricshub.engine.connector.deserializer.DeserializerT
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.common.SqlColumn;
 import org.sentrysoftware.metricshub.engine.connector.model.common.SqlTable;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.LocalSqlSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SqlSource;
 
-public class SqlSourceDeserializerTest extends DeserializerTest {
+public class LocalSqlSourceDeserializerTest extends DeserializerTest {
 
 	@Override
 	public String getResourcePath() {
@@ -23,7 +23,7 @@ public class SqlSourceDeserializerTest extends DeserializerTest {
 
 	@Test
 	void testDeserializeStatic() throws IOException {
-		final String testResource = "sqlSource";
+		final String testResource = "localSqlSource";
 		final Connector connector = getConnector(testResource);
 
 		final SqlColumn sqlColumn1 = SqlColumn.builder().name("COL1").type("VARCHAR(255)").number(1).build();
@@ -47,9 +47,9 @@ public class SqlSourceDeserializerTest extends DeserializerTest {
 		tables.add(table1);
 		tables.add(table2);
 
-		final SqlSource expected = SqlSource
+		final LocalSqlSource expected = LocalSqlSource
 			.builder()
-			.type("sql")
+			.type("localSql")
 			.tables(tables)
 			.query("SELECT T1.COL1, T1.COL2, T2.COL1, T2.COL2 FROM T1 JOIN T2 ON T1.COL1 = T2.COL1;")
 			.build();
@@ -57,8 +57,8 @@ public class SqlSourceDeserializerTest extends DeserializerTest {
 
 		final Source sourceResult = connector.getBeforeAll().get("testSqlSource");
 
-		assertTrue(sourceResult instanceof SqlSource);
+		assertTrue(sourceResult instanceof LocalSqlSource);
 
-		assertEquals(expected.toString(), ((SqlSource) sourceResult).toString());
+		assertEquals(expected.toString(), ((LocalSqlSource) sourceResult).toString());
 	}
 }

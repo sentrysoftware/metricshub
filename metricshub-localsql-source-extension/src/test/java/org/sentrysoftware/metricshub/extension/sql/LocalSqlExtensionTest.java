@@ -16,13 +16,13 @@ import org.sentrysoftware.metricshub.engine.connector.model.common.SqlColumn;
 import org.sentrysoftware.metricshub.engine.connector.model.common.SqlTable;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SqlSource;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.LocalSqlSource;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.telemetry.ConnectorNamespace;
 import org.sentrysoftware.metricshub.engine.telemetry.HostProperties;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
-class SqlExtensionTest {
+class LocalSqlExtensionTest {
 
 	private static final String LOWERCASE_A = "a";
 	private static final String LOWERCASE_B = "b";
@@ -47,9 +47,9 @@ class SqlExtensionTest {
 
 	@Test
 	void testIsValidSource() {
-		final SqlExtension sqlExtension = new SqlExtension();
+		final LocalSqlExtension sqlExtension = new LocalSqlExtension();
 		assertFalse(sqlExtension.isValidSource(new IpmiSource()));
-		assertTrue(sqlExtension.isValidSource(new SqlSource()));
+		assertTrue(sqlExtension.isValidSource(new LocalSqlSource()));
 	}
 
 	@Test
@@ -104,15 +104,15 @@ class SqlExtensionTest {
 			.build();
 
 		// Source null
-		SourceTable sourceTableResult = new SqlExtension().processSource(null, connectorId, telemetryManager);
+		SourceTable sourceTableResult = new LocalSqlExtension().processSource(null, connectorId, telemetryManager);
 		assertEquals(new ArrayList<>(), sourceTableResult.getTable());
 
 		// Source is not a SQL Source
-		sourceTableResult = new SqlExtension().processSource(new HttpSource(), connectorId, telemetryManager);
+		sourceTableResult = new LocalSqlExtension().processSource(new HttpSource(), connectorId, telemetryManager);
 		assertEquals(new ArrayList<>(), sourceTableResult.getTable());
 
 		// Empty SQL Source
-		sourceTableResult = new SqlExtension().processSource(new SqlSource(), connectorId, telemetryManager);
+		sourceTableResult = new LocalSqlExtension().processSource(new LocalSqlSource(), connectorId, telemetryManager);
 		assertEquals(new ArrayList<>(), sourceTableResult.getTable());
 
 		final List<SqlColumn> columnsTable1 = new ArrayList<>();
@@ -129,7 +129,7 @@ class SqlExtensionTest {
 			SqlTable.builder().alias("T2").columns(columnsTable2).source(TAB2_REF).build()
 		);
 
-		final SqlSource sqlSource = SqlSource
+		final LocalSqlSource localSqlSource = LocalSqlSource
 			.builder()
 			.query("SELECT COL1_1, COL2_1, COL1_2, COL2_2 FROM T1 JOIN T2 ON COL1_1 = COL1_2;")
 			.tables(sqlTables)
@@ -142,7 +142,7 @@ class SqlExtensionTest {
 			Arrays.asList(LOWERCASE_D, FALSE, LOWERCASE_D, FALSE)
 		);
 
-		sourceTableResult = new SqlExtension().processSource(sqlSource, connectorId, telemetryManager);
+		sourceTableResult = new LocalSqlExtension().processSource(localSqlSource, connectorId, telemetryManager);
 		assertEquals(expectedResult, sourceTableResult.getTable());
 	}
 }
