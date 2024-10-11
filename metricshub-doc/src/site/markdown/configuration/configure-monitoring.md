@@ -848,6 +848,87 @@ resources:
         processName: "('msedge.exe', 'metricshub.exe')"
 ```
 
+#### Filter monitors
+
+A monitor refers to any entity monitored by **MetricsHub** within the scope of the main configured resource. This could represent both logical entities, such as processes or services running on a system, volumes or storage pools on storage systems, or physical devices like physical disks.
+
+When dealing with large volumes of data, such as concerns about metrics cost or the amount of data stored over time, **MetricsHub** offers a way to control which monitors are included or excluded during data collection, helping to limit the amount of data collected based on customer needs.
+
+You can configure monitor filters using the `+` character to include specific monitors and the `!` character to exclude them, providing flexibility in managing the data being collected.
+
+To identify the specific monitor type you wish to include or exclude, refer to the [`Connector`](../metricshub-connectors-directory.html) responsible for reporting the monitors. The monitor type is listed in the `Type` column of the table that details the collected metrics. For example, see the [WindowsOS Metrics](../connectors/windows.html#metrics) page.
+
+However, it is not recommended to disable the monitoring of critical devices such as batteries, power supplies, CPUs, Fans, and memories, as doing so could result in missing essential health or performance data.
+
+##### Monitor filters configuration `monitorFilters`
+
+This configuration controls which monitors are included or excluded from a resource.
+
+- **Supported values:**
+  - `+<monitor_name>`: Include the specified monitor in data collection.
+  - `!<monitor_name>`: Exclude the specified monitor from data collection.
+
+To configure monitor filters, apply the `monitorFilters` setting in the following scopes:
+
+1. **Global configuration** (applies to all resources):
+
+   Add `monitorFilters` to the root of the `config/metricshub.yaml` file:
+
+   ```yaml
+   monitorFilters: [ +enclosure, +fan, +power_supply, +cpu, +memory ] # Include specific monitors globally
+   resourceGroups: ...
+   ```
+
+   To exclude monitors globally:
+
+   ```yaml
+   monitorFilters: [ "!volume" ] # Exclude specific monitors globally
+   ```
+
+2. **Per resource group** (applies to all resources within a specific group):
+
+   A resource group is a container that holds resources to be monitored and generally refers to the a site or a specific location. You can configure monitor filters for all resources in a resource group by adding `monitorFilters` within a specific `resourceGroup` in `config/metricshub.yaml`:
+
+   ```yaml
+   resourceGroups:
+     <resource-group-name>:
+       monitorFilters: [ +enclosure, +fan, +power_supply, +cpu, +memory ] # Include specific monitors for this group
+       resources: ...
+   ```
+
+   To exclude monitors for a resource group:
+
+   ```yaml
+   resourceGroups:
+     <resource-group-name>:
+       monitorFilters: [ "!volume" ] # Exclude specific monitors for this group
+       resources: ...
+   ```
+
+3. **Per resource** (applies to a specific resource):
+
+   Add `monitorFilters` for an individual resource in `config/metricshub.yaml`:
+
+   ```yaml
+   resourceGroups:
+     <resource-group-name>:
+       resources:
+         <resource-id>:
+           monitorFilters: [ +enclosure, +fan, +power_supply, +cpu, +memory ] # Include specific monitors for this resource
+   ```
+
+   To exclude monitors for a specific resource:
+
+   ```yaml
+   resourceGroups:
+     <resource-group-name>:
+       resources:
+         <resource-id>:
+           monitorFilters: [ "!volume" ] # Exclude specific monitors for this resource
+   ```
+
+> **Warning**: Configuring monitor filters can help optimize data collection by including only relevant monitors and excluding unnecessary ones. However, excluding certain monitors may result in missed outage detection or inconsistencies in collected data, such as inaccurate overall power consumption estimates or other metrics calculated by the engine. Use exclusions carefully to avoid missing important information.
+
 #### Discovery cycle
 
 **MetricsHub** periodically performs discoveries to detect new components in your monitored environment. By default, **MetricsHub** runs a discovery after 30 collects. To change this default discovery cycle:
