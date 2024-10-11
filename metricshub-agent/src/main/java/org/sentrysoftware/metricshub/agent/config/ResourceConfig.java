@@ -72,9 +72,8 @@ public class ResourceConfig {
 	private Boolean sequential;
 	private Boolean resolveHostnameToFqdn;
 
-	@Default
 	@JsonSetter(nulls = SKIP)
-	private Set<String> monitorFilters = null;
+	private Set<String> monitorFilters;
 
 	@JsonDeserialize(using = TimeDeserializer.class)
 	private Long jobTimeout;

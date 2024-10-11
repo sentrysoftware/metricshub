@@ -98,7 +98,7 @@ public class AgentConfig {
 	private boolean resolveHostnameToFqdn;
 
 	@JsonSetter(nulls = SKIP)
-	private Set<String> monitorFilters = null;
+	private Set<String> monitorFilters;
 
 	@Default
 	@JsonSetter(nulls = SKIP)
