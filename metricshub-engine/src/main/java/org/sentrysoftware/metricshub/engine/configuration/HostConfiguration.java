@@ -63,11 +63,8 @@ public class HostConfiguration {
 	private Consumer<AlertInfo> alertTrigger;
 	private long retryDelay;
 
-	@Default
-	private Set<String> includedMonitors = null;
-
-	@Default
-	private Set<String> excludedMonitors = null;
+	private Set<String> includedMonitors;
+	private Set<String> excludedMonitors;
 
 	// The map of connector variables. The key is the connector ID.
 	private Map<String, ConnectorVariables> connectorVariables;
