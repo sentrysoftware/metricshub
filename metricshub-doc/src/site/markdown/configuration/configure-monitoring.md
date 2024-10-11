@@ -848,6 +848,79 @@ resources:
         processName: "('msedge.exe', 'metricshub.exe')"
 ```
 
+#### Filter monitors
+
+**MetricsHub** allows you to filter which monitors are included or excluded during data collection. Configure monitor filters using the `+` character for inclusion and the `!` character for exclusion.
+
+##### Monitor filters configuration `monitorFilters`
+
+This configuration controls which monitors are included or excluded from a resource.
+
+- **Supported values:**
+  - `+<monitor_name>`: Include the specified monitor in data collection.
+  - `!<monitor_name>`: Exclude the specified monitor from data collection.
+
+To configure monitor filters, apply the `monitorFilters` setting in the following scopes:
+
+1. **Global configuration** (applies to all resources):
+
+   Add `monitorFilters` to the root of the `config/metricshub.yaml` file:
+
+   ```yaml
+   monitorFilters: [ +enclosure, +fan, +power_supply ] # Include specific monitors globally
+   resourceGroups: ...
+   ```
+
+   To exclude monitors globally:
+
+   ```yaml
+   monitorFilters: [ !voltage ] # Exclude specific monitors globally
+   ```
+
+2. **Per resource group** (applies to all resources within a specific group):
+
+   Add `monitorFilters` within a specific `resourceGroup` in `config/metricshub.yaml`:
+
+   ```yaml
+   resourceGroups:
+     <resource-group-name>:
+       monitorFilters: [ +enclosure, +fan, +power_supply ] # Include specific monitors for this group
+       resources: ...
+   ```
+
+   To exclude monitors for a resource group:
+
+   ```yaml
+   resourceGroups:
+     <resource-group-name>:
+       monitorFilters: [ !voltage ] # Exclude specific monitors for this group
+       resources: ...
+   ```
+
+3. **Per resource** (applies to a specific resource):
+
+   Add `monitorFilters` for an individual resource in `config/metricshub.yaml`:
+
+   ```yaml
+   resourceGroups:
+     <resource-group-name>:
+       resources:
+         <resource-id>:
+           monitorFilters: [ +enclosure, +fan, +power_supply ] # Include specific monitors for this resource
+   ```
+
+   To exclude monitors for a specific resource:
+
+   ```yaml
+   resourceGroups:
+     <resource-group-name>:
+       resources:
+         <resource-id>:
+           monitorFilters: [ !voltage ] # Exclude specific monitors for this resource
+   ```
+
+> **Warning**: Configuring monitor filters can help optimize data collection by including only relevant monitors and excluding unnecessary ones. However, excluding certain monitors may result in missed outage detection or inconsistencies in collected data, such as inaccurate overall power consumption estimates or other metrics calculated by the engine. Use exclusions carefully to avoid missing important information.
+
 #### Discovery cycle
 
 **MetricsHub** periodically performs discoveries to detect new components in your monitored environment. By default, **MetricsHub** runs a discovery after 30 collects. To change this default discovery cycle:
