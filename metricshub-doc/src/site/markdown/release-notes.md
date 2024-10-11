@@ -41,6 +41,7 @@ description: Learn more about the new features, changes and improvements, and bu
 | **[\#383](https://github.com/sentrysoftware/metricshub/issues/383)** | Implemented a new engine method \`megaBit2Byte\` to align with OpenTelemetry unit standards                                |
 | **[\#374](https://github.com/sentrysoftware/metricshub/issues/374)** | Default connector variables can now be specified in YAML connector files                                                   |
 | **[\#302](https://github.com/sentrysoftware/metricshub/issues/302)** | Defined \`afterAll\` and \`beforeAll\` jobs in YAML connectors                                                             |
+| **[\#423](https://github.com/sentrysoftware/metricshub/issues/423)** | Added the ability to filter monitors                                                                                       |
 
 #### Fixed issues
 
