@@ -47,7 +47,6 @@ import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.ConnectorMonitorTypeComparator;
 import org.sentrysoftware.metricshub.engine.common.JobInfo;
 import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
-import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.MonitorJob;
@@ -232,15 +231,7 @@ public class CollectStrategy extends AbstractStrategy {
 
 			final String monitorType = monitorJob.getKey();
 
-			final HostConfiguration hostConfiguration = telemetryManager.getHostConfiguration();
-			final Set<String> includeMonitors = hostConfiguration.getIncludeMonitors();
-			final Set<String> excludeMonitors = hostConfiguration.getExcludeMonitors();
-			if (
-				// CHECKSTYLE:OFF
-				(!includeMonitors.isEmpty() && !includeMonitors.contains(monitorType)) ||
-				(!excludeMonitors.isEmpty() && excludeMonitors.contains(monitorType))
-				// CHECKSTYLE:ON
-			) {
+			if (isMonitorFiltered(monitorType)) {
 				return;
 			}
 

@@ -27,6 +27,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -59,8 +60,9 @@ public class ResourceGroupConfig {
 	private Boolean sequential;
 	private Boolean resolveHostnameToFqdn;
 
+	@Default
 	@JsonSetter(nulls = SKIP)
-	private String monitorsFilter;
+	private Set<String> monitorFilters = null;
 
 	@JsonDeserialize(using = TimeDeserializer.class)
 	private Long jobTimeout;

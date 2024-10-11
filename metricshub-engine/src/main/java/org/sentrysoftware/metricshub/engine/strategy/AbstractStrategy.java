@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -42,6 +43,7 @@ import org.sentrysoftware.metricshub.engine.common.JobInfo;
 import org.sentrysoftware.metricshub.engine.common.exception.RetryableException;
 import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
+import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Compute;
@@ -498,5 +500,22 @@ public abstract class AbstractStrategy implements IStrategy {
 
 		// Set isStatusOk to true in ConnectorNamespace
 		connectorNamespace.setStatusOk(isSuccessCriteria);
+	}
+
+	/**
+	 * Return true if the monitor type is to be filtered and not processed.
+	 * @param monitorType The monitor type to check.
+	 * @return boolean value.
+	 */
+	public boolean isMonitorFiltered(final String monitorType) {
+		final HostConfiguration hostConfiguration = telemetryManager.getHostConfiguration();
+		final Set<String> includedMonitors = hostConfiguration.getIncludedMonitors();
+		final Set<String> excludedMonitors = hostConfiguration.getExcludedMonitors();
+		// CHECKSTYLE:OFF
+		return (
+			(includedMonitors != null && !includedMonitors.contains(monitorType)) ||
+			(excludedMonitors != null && excludedMonitors.contains(monitorType))
+		);
+		// CHECKSTYLE:ON
 	}
 }

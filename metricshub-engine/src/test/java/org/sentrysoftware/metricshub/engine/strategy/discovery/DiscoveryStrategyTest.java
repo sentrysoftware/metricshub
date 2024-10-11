@@ -273,7 +273,7 @@ class DiscoveryStrategyTest {
 					.hostname(HOST_NAME)
 					.sequential(false)
 					.configurations(Map.of(TestConfiguration.class, snmpConfig))
-					.monitorsFilter("+" + DISK_CONTROLLER.getKey())
+					.includedMonitors(Set.of(DISK_CONTROLLER.getKey()))
 					.build()
 			)
 			.build();
@@ -367,7 +367,7 @@ class DiscoveryStrategyTest {
 					.hostname(HOST_NAME)
 					.sequential(false)
 					.configurations(Map.of(TestConfiguration.class, snmpConfig))
-					.monitorsFilter("!" + DISK_CONTROLLER.getKey())
+					.excludedMonitors(Set.of(DISK_CONTROLLER.getKey()))
 					.build()
 			)
 			.build();
