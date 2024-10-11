@@ -68,7 +68,7 @@ public class MacrosUpdater {
 	 * @param authenticationToken The HTTP authentication token.
 	 * @param hostname            The remote hostname.
 	 * @param maskPasswords       Whether to mask passwords with "********".
-	 * @return 					  The updated string with replaced macros.
+	 * @return The updated string with replaced macros.
 	 */
 	public static String update(
 		String text,
@@ -115,11 +115,11 @@ public class MacrosUpdater {
 	/**
 	 * Processes the macro found in the text, replacing it with the corresponding value based on the macro name.
 	 *
-	 * @param content             The content string with macros.
-	 * @param matchedMacro       The matched macro string.
-	 * @param macroName           The name of the macro to replace.
-	 * @param escapeType          The escape type for the macro value (e.g., JSON, XML).
-	 * @param macroNameField      A map of macro names and their corresponding values.
+	 * @param content        The content string with macros.
+	 * @param matchedMacro   The matched macro string.
+	 * @param macroName      The name of the macro to replace.
+	 * @param escapeType     The escape type for the macro value (e.g., JSON, XML).
+	 * @param macroNameField A map of macro names and their corresponding values.
 	 * @return The content with the macro replaced by the corresponding value.
 	 */
 	private static String processMacro(
@@ -151,7 +151,7 @@ public class MacrosUpdater {
 	 * Replaces the macro with the corresponding value from the macroNameField map.
 	 *
 	 * @param content        The content string with macros.
-	 * @param matchedMacro  The matched macro string.
+	 * @param matchedMacro   The matched macro string.
 	 * @param macroName      The name of the macro to be replaced.
 	 * @param escapeType     The escape type (e.g., JSON, XML) for the macro value.
 	 * @param macroNameField A map of macro names and their corresponding values.
@@ -175,10 +175,10 @@ public class MacrosUpdater {
 	 * Replaces all occurrences of a matched macro in the given content using case-insensitive matching.
 	 * The macro is escaped for regex safety, and the replacement is treated as a literal.
 	 *
-	 * @param content 					The original content where the macro will be replaced
-	 * @param matchedMacro  			The macro to be replaced, matched case-insensitively
-	 * @param maybeEscapedReplacement 	The literal replacement string for the macro
-	 * @return 							The content with the macro replaced by the provided replacement
+	 * @param content                 The original content where the macro will be replaced
+	 * @param matchedMacro            The macro to be replaced, matched case-insensitively
+	 * @param maybeEscapedReplacement The literal replacement string for the macro
+	 * @return The content with the macro replaced by the provided replacement
 	 */
 	protected static String protectAndReplaceMatchedMacro(
 		String content,
@@ -196,7 +196,7 @@ public class MacrosUpdater {
 	 * Escapes special characters in a string based on the provided escape type.
 	 *
 	 * @param replacement The string to escape (e.g. username, password)
-	 * @param escapeType The type of escape to apply (e.g. JSON, XML, URL).
+	 * @param escapeType  The type of escape to apply (e.g. JSON, XML, URL).
 	 * @return The escaped string.
 	 */
 	private static String escapeReplacement(final String replacement, final String escapeType) {
@@ -209,10 +209,10 @@ public class MacrosUpdater {
 	/**
 	 * Replaces the %{BASIC_AUTH} macro with the corresponding base64-encoded username and password.
 	 *
-	 * @param valueToUpdate    The string to update.
-	 * @param escapeType       The escape type to apply (e.g., JSON, XML).
-	 * @param matchedMacro    The matched macro string.
-	 * @param macroNameField  A map of macro names and their corresponding values.
+	 * @param valueToUpdate  The string to update.
+	 * @param escapeType     The escape type to apply (e.g., JSON, XML).
+	 * @param matchedMacro   The matched macro string.
+	 * @param macroNameField A map of macro names and their corresponding values.
 	 * @return The updated string with the %{BASIC_AUTH} macro replaced.
 	 */
 	private static String replaceBasicAuthBase64MacroValue(
@@ -239,10 +239,10 @@ public class MacrosUpdater {
 	/**
 	 * Replaces the %{SHA256} macro with the corresponding SHA-256 encoded authentication token.
 	 *
-	 * @param valueToUpdate          The string to update.
-	 * @param escapeType             The escape type to apply (e.g., JSON, XML).
-	 * @param matchedMacro          The matched macro string.
-	 * @param macroNameField  		 A map of macro names and their corresponding values.
+	 * @param valueToUpdate  The string to update.
+	 * @param escapeType     The escape type to apply (e.g., JSON, XML).
+	 * @param matchedMacro   The matched macro string.
+	 * @param macroNameField A map of macro names and their corresponding values.
 	 * @return The updated string with the %{SHA256} macro replaced.
 	 */
 	private static String replaceSha256MacroValue(
@@ -264,10 +264,10 @@ public class MacrosUpdater {
 	/**
 	 * Replaces the %{PASSWORD_BASE64} macro with the base64-encoded password.
 	 *
-	 * @param valueToUpdate    The string to update.
-	 * @param escapeType       The escape type to apply (e.g., JSON, XML).
-	 * @param matchedMacro    The matched macro string.
-	 * @param macroNameField   A map of macro names and their corresponding values.
+	 * @param valueToUpdate  The string to update.
+	 * @param escapeType     The escape type to apply (e.g., JSON, XML).
+	 * @param matchedMacro   The matched macro string.
+	 * @param macroNameField A map of macro names and their corresponding values.
 	 * @return The updated string with the %{PASSWORD_BASE64} macro replaced.
 	 */
 	private static String replacePasswordBase64(
