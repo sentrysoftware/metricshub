@@ -21,15 +21,11 @@ package org.sentrysoftware.metricshub.extension.win;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import static org.sentrysoftware.metricshub.engine.common.helpers.MacroType.AUTHENTICATIONTOKEN;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MacroType.HOSTNAME;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MacroType.PASSWORD;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MacroType.USERNAME;
 import static org.sentrysoftware.metricshub.engine.common.helpers.StringHelper.protectCaseInsensitiveRegex;
+import static org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper.replaceSudo;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -116,32 +112,27 @@ public class WinCommandService {
 			OsCommandHelper.TEMP_FILE_CREATOR
 		);
 
-		// Create the macrosToUpdate map and configure it to update only the username macro
-		final Map<String, Boolean> macrosToUpdate = new HashMap<>(
-			Map.of(USERNAME.name(), true, PASSWORD.name(), false, HOSTNAME.name(), false, AUTHENTICATIONTOKEN.name(), false)
-		);
-
-		final String updatedUserCommand = maybeUsername
-			.map(username -> MacrosUpdater.update(commandLine, username, null, null, hostname, false, macrosToUpdate))
-			.orElse(commandLine);
-
-		// Modify macrosToUpdate map to update only the host name macro
-		macrosToUpdate.put(USERNAME.name(), false);
-		macrosToUpdate.put(HOSTNAME.name(), true);
-
-		final String updatedHostnameCommand = MacrosUpdater.update(
-			updatedUserCommand,
-			null,
-			null,
+		// Replace the macros by their corresponding values
+		final String updatedCommand = MacrosUpdater.update(
+			commandLine,
+			maybeUsername.orElse(null),
+			maybePassword.orElse(null),
 			null,
 			hostname,
-			false,
-			macrosToUpdate
+			false
 		);
+		final String updatedCommandNoPassword = MacrosUpdater.update(
+			commandLine,
+			maybeUsername.orElse(null),
+			maybePassword.orElse(null),
+			null,
+			hostname,
+			true
+		);
+		final String updatedSudoCommand = replaceSudo(updatedCommand, null);
+		final String updatedSudoCommandNoPassword = replaceSudo(updatedCommandNoPassword, null);
 
-		final String updatedSudoCommand = OsCommandHelper.replaceSudo(updatedHostnameCommand, null);
-
-		final String updatedEmbeddedFilesCommand = embeddedTempFiles
+		final String command = embeddedTempFiles
 			.entrySet()
 			.stream()
 			.reduce(
@@ -154,21 +145,18 @@ public class WinCommandService {
 				(s1, s2) -> null
 			);
 
-		// Modify macrosToUpdate map to update only the password macro
-		macrosToUpdate.put(PASSWORD.name(), true);
-		macrosToUpdate.put(HOSTNAME.name(), false);
-
-		final String command = maybePassword
-			.map(password ->
-				MacrosUpdater.update(updatedEmbeddedFilesCommand, null, password, null, hostname, false, macrosToUpdate)
-			)
-			.orElse(updatedEmbeddedFilesCommand);
-
-		final String noPasswordCommand = maybePassword
-			.map(password ->
-				MacrosUpdater.update(updatedEmbeddedFilesCommand, null, password, null, hostname, true, macrosToUpdate)
-			)
-			.orElse(updatedEmbeddedFilesCommand);
+		final String commandNoPassword = embeddedTempFiles
+			.entrySet()
+			.stream()
+			.reduce(
+				updatedSudoCommandNoPassword,
+				(s, entry) ->
+					s.replaceAll(
+						protectCaseInsensitiveRegex(entry.getKey()),
+						Matcher.quoteReplacement(entry.getValue().getAbsolutePath())
+					),
+				(s1, s2) -> null
+			);
 
 		try {
 			final String commandResult = winRequestExecutor.executeWinRemoteCommand(
@@ -178,7 +166,7 @@ public class WinCommandService {
 				embeddedTempFiles.values().stream().map(File::getAbsolutePath).collect(Collectors.toList()) // NOSONAR
 			);
 
-			return new OsCommandResult(commandResult, noPasswordCommand);
+			return new OsCommandResult(commandResult, commandNoPassword);
 		} finally {
 			//noinspection ResultOfMethodCallIgnored
 			embeddedTempFiles.values().forEach(File::delete);

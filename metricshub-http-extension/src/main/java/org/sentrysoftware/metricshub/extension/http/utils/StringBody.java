@@ -47,7 +47,7 @@ public class StringBody implements Body {
 
 	@Override
 	public String getContent(String username, char[] password, String authenticationToken, @NonNull String hostname) {
-		return MacrosUpdater.update(body, username, password, authenticationToken, hostname, false, null);
+		return MacrosUpdater.update(body, username, password, authenticationToken, hostname, false);
 	}
 
 	@Override

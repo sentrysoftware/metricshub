@@ -54,15 +54,7 @@ public class EmbeddedFileBody implements Body {
 			return EMPTY;
 		}
 
-		return MacrosUpdater.update(
-			body.getContentAsString(),
-			username,
-			password,
-			authenticationToken,
-			hostname,
-			false,
-			null
-		);
+		return MacrosUpdater.update(body.getContentAsString(), username, password, authenticationToken, hostname, false);
 	}
 
 	@Override

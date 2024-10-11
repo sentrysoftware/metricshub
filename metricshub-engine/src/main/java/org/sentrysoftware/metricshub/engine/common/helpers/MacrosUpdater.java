@@ -44,9 +44,10 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 /**
- * Utility class for updating HTTP macros in a text string.
- * Replaces known HTTP macros with literal target sequences such as username,
- * password, authentication-token, base64-password, base64-auth, and sha256-auth.
+ * Utility class for updating and replacing HTTP macros in a text string.
+ * This class handles various HTTP macros like username, password, authentication token, etc.,
+ * and supports different encoding formats (e.g., base64, SHA256).
+ * Macros are case-insensitive and can be escaped using different types such as JSON, XML, URL, etc.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MacrosUpdater {
@@ -55,24 +56,6 @@ public class MacrosUpdater {
 	private static final Pattern MACRO_PATTERN = Pattern.compile(
 		"[$%]\\{(esc\\(([a-zA-Z0-9]+)\\))?(::)?([A-Z0-9_-]+)\\}"
 	);
-
-	/**
-	 * Returns a default map where all macros are set to be updated.
-	 *
-	 * @return a map with macro names as keys and {@code true} as values, indicating all macros should be updated by default
-	 */
-	private static Map<String, Boolean> getDefaultMacrosToUpdate() {
-		return Map.of(
-			USERNAME.name(),
-			true,
-			PASSWORD.name(),
-			true,
-			HOSTNAME.name(),
-			true,
-			AUTHENTICATIONTOKEN.name(),
-			true
-		);
-	}
 
 	/**
 	 * Replaces each known macro in the given text with the corresponding values.
@@ -85,8 +68,7 @@ public class MacrosUpdater {
 	 * @param authenticationToken The HTTP authentication token.
 	 * @param hostname            The remote hostname.
 	 * @param maskPasswords       Whether to mask passwords with "********".
-	 * @param macrosToUpdate 	  A map that associates macro names with boolean values, indicating whether each macro should be updated (true) or not (false)
-	 * @return The updated string with replaced macros.
+	 * @return 					  The updated string with replaced macros.
 	 */
 	public static String update(
 		String text,
@@ -94,16 +76,10 @@ public class MacrosUpdater {
 		char[] password,
 		String authenticationToken,
 		@NonNull final String hostname,
-		final boolean maskPasswords,
-		Map<String, Boolean> macrosToUpdate
+		final boolean maskPasswords
 	) {
 		if (text == null || text.isEmpty()) {
 			return EMPTY;
-		}
-
-		// Assign default map if macrosToUpdate is null or empty
-		if (macrosToUpdate == null || macrosToUpdate.isEmpty()) {
-			macrosToUpdate = getDefaultMacrosToUpdate();
 		}
 
 		// Null values control
@@ -129,13 +105,7 @@ public class MacrosUpdater {
 			while (matcher.find()) {
 				final String escapeType = matcher.group(2);
 				final String macroName = matcher.group(4);
-
-				// Check if the macro should be updated, default to true if not specified in the map
-				boolean shouldUpdate = macrosToUpdate.getOrDefault(macroName, true);
-				if (shouldUpdate) {
-					updatedContent =
-						processMacro(updatedContent, matcher.group(0), macroName, escapeType, simpleMacroNameToField);
-				}
+				updatedContent = processMacro(updatedContent, matcher.group(0), macroName, escapeType, simpleMacroNameToField);
 			}
 		}
 
@@ -146,7 +116,7 @@ public class MacrosUpdater {
 	 * Processes the macro found in the text, replacing it with the corresponding value based on the macro name.
 	 *
 	 * @param content             The content string with macros.
-	 * @param matchedString       The matched macro string.
+	 * @param matchedMacro       The matched macro string.
 	 * @param macroName           The name of the macro to replace.
 	 * @param escapeType          The escape type for the macro value (e.g., JSON, XML).
 	 * @param macroNameField      A map of macro names and their corresponding values.
@@ -154,7 +124,7 @@ public class MacrosUpdater {
 	 */
 	private static String processMacro(
 		final String content,
-		final String matchedString,
+		final String matchedMacro,
 		final String macroName,
 		final String escapeType,
 		final Map<String, String> macroNameField
@@ -162,16 +132,16 @@ public class MacrosUpdater {
 		String updatedContent = content;
 		if (macroName.startsWith(PASSWORD_BASE64.name())) {
 			// PasswordBase64 macros replacement
-			updatedContent = replacePasswordBase64(updatedContent, escapeType, matchedString, macroNameField);
+			updatedContent = replacePasswordBase64(updatedContent, escapeType, matchedMacro, macroNameField);
 		} else if (macroName.startsWith(BASIC_AUTH_BASE64.name())) {
 			// BasicAuthBase64 macros replacement
-			updatedContent = replaceBasicAuthBase64MacroValue(updatedContent, escapeType, matchedString, macroNameField);
+			updatedContent = replaceBasicAuthBase64MacroValue(updatedContent, escapeType, matchedMacro, macroNameField);
 		} else if (macroName.startsWith(SHA256_AUTH.name())) {
 			// Sha256 macros replacement
-			updatedContent = replaceSha256MacroValue(updatedContent, escapeType, matchedString, macroNameField);
+			updatedContent = replaceSha256MacroValue(updatedContent, escapeType, matchedMacro, macroNameField);
 		} else {
 			// Simple macro replacement: username, password, hostname and authenticationToken macros
-			updatedContent = updateSimpleMacro(updatedContent, matchedString, macroName, escapeType, macroNameField);
+			updatedContent = updateSimpleMacro(updatedContent, matchedMacro, macroName, escapeType, macroNameField);
 		}
 		return updatedContent;
 	}
@@ -181,7 +151,7 @@ public class MacrosUpdater {
 	 * Replaces the macro with the corresponding value from the macroNameField map.
 	 *
 	 * @param content        The content string with macros.
-	 * @param matchedString  The matched macro string.
+	 * @param matchedMacro  The matched macro string.
 	 * @param macroName      The name of the macro to be replaced.
 	 * @param escapeType     The escape type (e.g., JSON, XML) for the macro value.
 	 * @param macroNameField A map of macro names and their corresponding values.
@@ -189,7 +159,7 @@ public class MacrosUpdater {
 	 */
 	private static String updateSimpleMacro(
 		final String content,
-		final String matchedString,
+		final String matchedMacro,
 		final String macroName,
 		final String escapeType,
 		final Map<String, String> macroNameField
@@ -198,27 +168,28 @@ public class MacrosUpdater {
 		final String maybeEscapedReplacement = escapeType != null
 			? escapeReplacement(replacement, escapeType)
 			: replacement;
-		return protectAndReplaceMatchedString(content, matchedString, maybeEscapedReplacement);
+		return protectAndReplaceMatchedMacro(content, matchedMacro, maybeEscapedReplacement);
 	}
 
-	private static String protectAndReplaceMatchedString(
+	/**
+	 * Replaces all occurrences of a matched macro in the given content using case-insensitive matching.
+	 * The macro is escaped for regex safety, and the replacement is treated as a literal.
+	 *
+	 * @param content 					The original content where the macro will be replaced
+	 * @param matchedMacro  			The macro to be replaced, matched case-insensitively
+	 * @param maybeEscapedReplacement 	The literal replacement string for the macro
+	 * @return 							The content with the macro replaced by the provided replacement
+	 */
+	protected static String protectAndReplaceMatchedMacro(
 		String content,
-		final String matchedString,
+		final String matchedMacro,
 		final String maybeEscapedReplacement
 	) {
-		// Call the protectCaseInsensitiveRegex to protect the matched string for case-insensitive matching
-		final String protectedMatchedString = protectCaseInsensitiveRegex(matchedString);
-
-		// Escape backslashes and dollar signs in the replacement string
-		final String escapedReplacement = maybeEscapedReplacement
-			.replace("\\", "\\\\") // Escape backslashes
-			.replace("$", "\\$"); // Escape dollar signs
-
-		// Now replace the original matched string in the content using replaceAll.
-		// We need to ensure that the `protectedMatchedString` is not used for replacement, but for matching.
+		// Call the protectCaseInsensitiveRegex to protect the matched macro string for case-insensitive matching
+		final String protectedMatchedMacro = protectCaseInsensitiveRegex(matchedMacro);
 
 		// Use a case-insensitive pattern to match the content, and replace it with the literal replacement
-		return content.replaceAll(protectedMatchedString, escapedReplacement);
+		return content.replaceAll(protectedMatchedMacro, Matcher.quoteReplacement(maybeEscapedReplacement));
 	}
 
 	/**
@@ -240,14 +211,14 @@ public class MacrosUpdater {
 	 *
 	 * @param valueToUpdate    The string to update.
 	 * @param escapeType       The escape type to apply (e.g., JSON, XML).
-	 * @param matchedString    The matched macro string.
+	 * @param matchedMacro    The matched macro string.
 	 * @param macroNameField  A map of macro names and their corresponding values.
 	 * @return The updated string with the %{BASIC_AUTH} macro replaced.
 	 */
 	private static String replaceBasicAuthBase64MacroValue(
 		final String valueToUpdate,
 		final String escapeType,
-		final String matchedString,
+		final String matchedMacro,
 		final Map<String, String> macroNameField
 	) {
 		// Join the username and password with a colon `username:password`
@@ -262,7 +233,7 @@ public class MacrosUpdater {
 			Base64.getEncoder().encodeToString((formattedBasicAuthString).getBytes(StandardCharsets.UTF_8)),
 			escapeType
 		);
-		return protectAndReplaceMatchedString(valueToUpdate, matchedString, escapedValue);
+		return protectAndReplaceMatchedMacro(valueToUpdate, matchedMacro, escapedValue);
 	}
 
 	/**
@@ -270,24 +241,24 @@ public class MacrosUpdater {
 	 *
 	 * @param valueToUpdate          The string to update.
 	 * @param escapeType             The escape type to apply (e.g., JSON, XML).
-	 * @param matchedString          The matched macro string.
+	 * @param matchedMacro          The matched macro string.
 	 * @param macroNameField  		 A map of macro names and their corresponding values.
 	 * @return The updated string with the %{SHA256} macro replaced.
 	 */
 	private static String replaceSha256MacroValue(
 		final String valueToUpdate,
 		final String escapeType,
-		final String matchedString,
+		final String matchedMacro,
 		final Map<String, String> macroNameField
 	) {
 		// Encode the authentication token into SHA256 string
 		// then replace the macro with the resulting value
 		final String authenticationToken = macroNameField.get(AUTHENTICATIONTOKEN.name());
 		if (authenticationToken == null || authenticationToken.isEmpty()) {
-			return protectAndReplaceMatchedString(valueToUpdate, matchedString, EMPTY);
+			return protectAndReplaceMatchedMacro(valueToUpdate, matchedMacro, EMPTY);
 		}
 		final String escapedHashedToken = escapeReplacement(encodeSha256(authenticationToken), escapeType);
-		return protectAndReplaceMatchedString(valueToUpdate, matchedString, escapedHashedToken);
+		return protectAndReplaceMatchedMacro(valueToUpdate, matchedMacro, escapedHashedToken);
 	}
 
 	/**
@@ -295,14 +266,14 @@ public class MacrosUpdater {
 	 *
 	 * @param valueToUpdate    The string to update.
 	 * @param escapeType       The escape type to apply (e.g., JSON, XML).
-	 * @param matchedString    The matched macro string.
+	 * @param matchedMacro    The matched macro string.
 	 * @param macroNameField   A map of macro names and their corresponding values.
 	 * @return The updated string with the %{PASSWORD_BASE64} macro replaced.
 	 */
 	private static String replacePasswordBase64(
 		final String valueToUpdate,
 		final String escapeType,
-		final String matchedString,
+		final String matchedMacro,
 		final Map<String, String> macroNameField
 	) {
 		// Encode the password into a base64 string
@@ -311,7 +282,7 @@ public class MacrosUpdater {
 			Base64.getEncoder().encodeToString(macroNameField.get(PASSWORD.name()).getBytes(StandardCharsets.UTF_8)),
 			escapeType
 		);
-		return protectAndReplaceMatchedString(valueToUpdate, matchedString, escapedValue);
+		return protectAndReplaceMatchedMacro(valueToUpdate, matchedMacro, escapedValue);
 	}
 
 	/**
