@@ -850,84 +850,83 @@ resources:
 
 #### Filter monitors
 
-A monitor refers to any entity monitored by **MetricsHub** within the scope of the main configured resource. This could represent both logical entities, such as processes or services running on a system, volumes or storage pools on storage systems, or physical devices like physical disks.
+To manage the volume of telemetry data sent to your observability platform and therefore reduce costs and optimize performance, you can specify which monitors to include or exclude.
 
-When dealing with large volumes of data, such as concerns about metrics cost or the amount of data stored over time, **MetricsHub** offers a way to control which monitors are included or excluded during data collection, helping to limit the amount of data collected based on customer needs.
+You can apply monitor inclusion or exclusion in data collection for the following scopes:
 
-You can configure monitor filters using the `+` character to include specific monitors and the `!` character to exclude them, providing flexibility in managing the data being collected.
+* All resources
+* All the resources within a specific resource group
+* A specific resource
 
-To identify the specific monitor type you wish to include or exclude, refer to the [`Connector`](../metricshub-connectors-directory.html) responsible for reporting the monitors. The monitor type is listed in the `Type` column of the table that details the collected metrics. For example, see the [WindowsOS Metrics](../connectors/windows.html#metrics) page.
+This is done by  adding the `monitorFilters` parameter in the relevant section of the `config/metricshub.yaml` file as described below: 
 
-However, it is not recommended to disable the monitoring of critical devices such as batteries, power supplies, CPUs, Fans, and memories, as doing so could result in missing essential health or performance data.
+| Filter monitors                                    | Add monitorFilters |
+|----------------------------------------------------|---|
+| For all resources                                  |In the global section (top of the file)   |
+| For all the resources of a specific resource group | Under the corresponding `<resource-group-name>` section |
+| For a specific resource                            |Under the corresponding `<resource-id>`  section|
 
-##### Monitor filters configuration `monitorFilters`
+The `monitorFilters` parameter accepts the following values:
 
-This configuration controls which monitors are included or excluded from a resource.
+* `+<monitor_name>` for inclusion
+* `!<monitor_name>` for exclusion.
 
-- **Supported values:**
-  - `+<monitor_name>`: Include the specified monitor in data collection.
-  - `!<monitor_name>`: Exclude the specified monitor from data collection.
+To obtain the monitor name:
 
-To configure monitor filters, apply the `monitorFilters` setting in the following scopes:
+1. Refer to the [`MetricsHub Connector Library`](../metricshub-connectors-directory.html)
+2. Click the connector of your choice (e.g.: [WindowsOS Metrics](../connectors/windows.html))
+3. Scroll-down to the **Metrics** section and note down the relevant monitor **Type**.
 
-1. **Global configuration** (applies to all resources):
+> **Warning**: Excluding monitors may lead to missed outage detection or inconsistencies in collected data, such as inaccurate power consumption estimates or other metrics calculated by the engine. Use exclusions carefully to avoid overlooking important information. 
+The monitoring of critical devices such as batteries, power supplies, CPUs, fans, and memories should not be disabled. 
 
-   Add `monitorFilters` to the root of the `config/metricshub.yaml` file:
+##### Example 1: Including monitors for all resources
+
 
    ```yaml
-   monitorFilters: [ +enclosure, +fan, +power_supply, +cpu, +memory ] # Include specific monitors globally
+   monitorFilters: [ +enclosure, +fan, +power_supply ] # Include specific monitors globally
    resourceGroups: ...
    ```
 
-   To exclude monitors globally:
-
+##### Example 2: Excluding monitors for all resources 
    ```yaml
-   monitorFilters: [ "!volume" ] # Exclude specific monitors globally
+   monitorFilters: [ !voltage ] # Exclude specific monitors globally
    ```
-
-2. **Per resource group** (applies to all resources within a specific group):
-
-   A resource group is a container that holds resources to be monitored and generally refers to the a site or a specific location. You can configure monitor filters for all resources in a resource group by adding `monitorFilters` within a specific `resourceGroup` in `config/metricshub.yaml`:
+##### Example 3: Including monitors for all resources within a specific resource group
 
    ```yaml
    resourceGroups:
      <resource-group-name>:
-       monitorFilters: [ +enclosure, +fan, +power_supply, +cpu, +memory ] # Include specific monitors for this group
+       monitorFilters: [ +enclosure, +fan, +power_supply ] # Include specific monitors for this group
        resources: ...
    ```
-
-   To exclude monitors for a resource group:
+##### Example 4: Excluding monitors for all resources within a specific resource group
 
    ```yaml
    resourceGroups:
      <resource-group-name>:
-       monitorFilters: [ "!volume" ] # Exclude specific monitors for this group
+       monitorFilters: [ !voltage ] # Exclude specific monitors for this group
        resources: ...
    ```
-
-3. **Per resource** (applies to a specific resource):
-
-   Add `monitorFilters` for an individual resource in `config/metricshub.yaml`:
+##### Example 5: Including monitors for a specific resource
 
    ```yaml
    resourceGroups:
      <resource-group-name>:
        resources:
          <resource-id>:
-           monitorFilters: [ +enclosure, +fan, +power_supply, +cpu, +memory ] # Include specific monitors for this resource
+           monitorFilters: [ +enclosure, +fan, +power_supply ] # Include specific monitors for this resource
    ```
 
-   To exclude monitors for a specific resource:
+##### Example 6: Excluding monitors for a specific resource
 
    ```yaml
    resourceGroups:
      <resource-group-name>:
        resources:
          <resource-id>:
-           monitorFilters: [ "!volume" ] # Exclude specific monitors for this resource
-   ```
-
-> **Warning**: Configuring monitor filters can help optimize data collection by including only relevant monitors and excluding unnecessary ones. However, excluding certain monitors may result in missed outage detection or inconsistencies in collected data, such as inaccurate overall power consumption estimates or other metrics calculated by the engine. Use exclusions carefully to avoid missing important information.
+           monitorFilters: [ !voltage ] # Exclude specific monitors for this resource
+   ``` 
 
 #### Discovery cycle
 
