@@ -42,7 +42,7 @@ If you have installed a previous version of **MetricsHub Enterprise** and want t
 
 1. From [MetricsHub's Web site](https://metricshub.com/downloads), download **metricshub-enterprise-windows-${enterpriseVersion}.msi**.
 2. Open **services.msc** and stop the **MetricsHub Enterprise** service.
-3. Double-click the `.msi` file you previously downloaded. The Installation Wizard will automatically start and guide you through the installation process.
+3. Double-click the `.msi` file you previously downloaded. The Installation Wizard will automatically start and guide you through the upgrade process.
 
 ## Community Edition
 
