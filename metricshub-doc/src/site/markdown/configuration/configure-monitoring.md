@@ -828,7 +828,9 @@ loggerLevel: ...
 
 #### Configure Connector Variables
 
-In **MetricsHub**, connector variables are essential for customizing the behavior of data collection. The connector variables are configured in the `metricshub.yaml` file under the `variables` section of your configured resource. These variables are specified under the name of the connector to which they belong and contain key-value pairs. The key of each variable corresponds to a variable already configured in the connector.
+In **MetricsHub**, connector variables are essential for customizing the behavior of data collection. These variables are configured in the `additionalConnectors` section of your `metricshub.yaml` file. When configuring variables for connectors with variables, the connector becomes an additional connector, which is forced by default and will use the variables configured by the user.
+
+Each additional connector is identified by its ID, and the variables are specified under this ID in the additionalConnectors section. The variables consist of key-value pairs, where the key corresponds to a variable already defined in the connector.
 
 * Example :
 
@@ -843,10 +845,18 @@ resources:
     protocols:
       wmi:
         timeout: 120
-    variables:
-      windowsProcess: # Connector ID
-        processName: "('msedge.exe', 'metricshub.exe')"
+    additionalConnectors:
+      metricshubWindowsProcess: # Additional Connector ID
+        uses: WindowsProcess # ID of the connector to customize.
+        force: true # true by default
+        variables:
+          processName: 'metricshub.exe'
+
 ```
+
+If a connector with variables is forced or configured under `additionalConnectors` section but without variables, this latter will still be used with default connector variables that are defined in the connector under `defaultVariables` section.
+
+If `uses` is not specified, MetricsHub will deduce that the additional connectorId is the connectorId.
 
 #### Discovery cycle
 

@@ -66,13 +66,13 @@ import org.sentrysoftware.metricshub.agent.config.AlertingSystemConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
 import org.sentrysoftware.metricshub.agent.context.MetricDefinitions;
+import org.sentrysoftware.metricshub.agent.deserialization.AdditionalConnectorsParsingResult;
 import org.sentrysoftware.metricshub.agent.security.PasswordEncrypt;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.common.helpers.ResourceHelper;
-import org.sentrysoftware.metricshub.engine.configuration.ConnectorVariables;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
@@ -827,14 +827,14 @@ public class ConfigHelper {
 			addConfiguredConnector(resourceConnectorStore, resourceConfig.getConnector());
 
 			// Read connectors with configuration variables safely
-			final Map<String, Connector> connectorsWithConfigVariables = readConnectorsWithConfigurationVariablesSafe(
-				resourceGroupKey,
-				resourceKey,
-				resourceConfig
-			);
+			final AdditionalConnectorsParsingResult additionalConnectorsParsingResult =
+				readConnectorsWithConfigurationVariablesSafe(resourceGroupKey, resourceKey, resourceConfig);
 
 			// Overwrite resourceConnectorStore
-			updateConnectorStore(resourceConnectorStore, connectorsWithConfigVariables);
+			updateConnectorStore(resourceConnectorStore, additionalConnectorsParsingResult.getCustomConnectorsMap());
+
+			// Add custom connectors to the host configuration.
+			hostConfiguration.getConnectors().addAll(additionalConnectorsParsingResult.getHostConnectors());
 
 			resourceGroupTelemetryManagers.putIfAbsent(
 				resourceKey,
@@ -858,23 +858,20 @@ public class ConfigHelper {
 	 * @param resourceGroupKey The resource group key under which the resource is configured for logging purposes.
 	 * @param resourceKey      The resource key for logging purposes.
 	 * @param resourceConfig   The resource configuration.
-	 * @return Map of connectors with configuration variables
+	 * @return an AdditionalConnectorsParserResult which contains a map of connectors to force and a map of custom connectors.
 	 */
-	private static Map<String, Connector> readConnectorsWithConfigurationVariablesSafe(
+	private static AdditionalConnectorsParsingResult readConnectorsWithConfigurationVariablesSafe(
 		final String resourceGroupKey,
 		final String resourceKey,
 		final ResourceConfig resourceConfig
 	) {
-		// Retrieve connectors variables map from the resource configuration
-		final Map<String, ConnectorVariables> connectorVariablesMap = resourceConfig.getVariables();
-
-		// Call ConnectorTemplateLibraryParser and parse the custom connectors
-		final ConnectorTemplateLibraryParser connectorTemplateLibraryParser = new ConnectorTemplateLibraryParser();
+		// Call ConnectorVariablesLibraryParser and parse the additional connectors
+		final ConnectorVariablesLibraryParser connectorVariablesLibraryParser = new ConnectorVariablesLibraryParser();
 
 		try {
-			return connectorTemplateLibraryParser.parse(
+			return connectorVariablesLibraryParser.parse(
 				ConfigHelper.getSubDirectory("connectors", false),
-				connectorVariablesMap
+				resourceConfig.getAdditionalConnectors()
 			);
 		} catch (Exception e) {
 			log.warn(
@@ -885,7 +882,7 @@ public class ConfigHelper {
 				resourceKey,
 				e.getMessage()
 			);
-			return new HashMap<>();
+			return new AdditionalConnectorsParsingResult();
 		}
 	}
 
@@ -1046,7 +1043,7 @@ public class ConfigHelper {
 			.hostType(hostType)
 			.sequential(Boolean.TRUE.equals(resourceConfig.getSequential()))
 			.configuredConnectorId(configuredConnectorId)
-			.connectorVariables(resourceConfig.getVariables())
+			.connectorVariables(resourceConfig.getConnectorVariables())
 			.resolveHostnameToFqdn(resourceConfig.getResolveHostnameToFqdn())
 			.build();
 	}
