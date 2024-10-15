@@ -12,6 +12,7 @@ description: Learn more about the new features, changes and improvements, and bu
 | ID           | Description                                                                                                              |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------ |
 | **M8BEE-29** | Removed Otel collector resourcedetection processor to prevent localhost system resource attributes from being overridden |
+| **M8BEE-32** | Moved the localhost resource configuration to the `data center 1` resource group in `metricshub-example.yaml`            |
 
 ### MetricsHub Enterprise Connectors v101
 
