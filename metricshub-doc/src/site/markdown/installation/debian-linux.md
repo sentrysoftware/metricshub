@@ -57,6 +57,25 @@ To uninstall **MetricsHub Enterprise**, run the command below:
 sudo dpkg -r metricshub
 ```
 
+### Upgrade
+
+If you have installed a previous version of **MetricsHub Enterprise** and want to upgrade to the latest version **${enterpriseVersion}**, follow these steps:
+
+1. From [MetricsHub's Web site](https://metricshub.com/downloads), download **metricshub-enterprise-debian-${enterpriseVersion}-amd64.deb** and copy the file into the `/usr/local` directory.
+
+2. Run the following command to stop the **MetricsHub Enterprise** service:
+
+   ```shell-session
+   systemctl stop metricshub-enterprise-service
+   ```
+
+3. Run the following `dpkg` command:
+
+   ```shell-session
+   cd /usr/local
+   sudo dpkg -i metricshub-enterprise-debian-${enterpriseVersion}-amd64.deb
+   ```
+
 ## Community Edition
 
 ### Download
