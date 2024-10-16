@@ -23,14 +23,11 @@ package org.sentrysoftware.metricshub.extension.oscommand;
 
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DEFAULT_LOCK_TIMEOUT;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HOSTNAME_MACRO;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.NEW_LINE;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.PASSWORD_MACRO;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.USERNAME_MACRO;
+import static org.sentrysoftware.metricshub.engine.common.helpers.StringHelper.protectCaseInsensitiveRegex;
 import static org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper.TEMP_FILE_CREATOR;
 import static org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper.createOsCommandEmbeddedFiles;
 import static org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper.replaceSudo;
-import static org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper.toCaseInsensitiveRegex;
 import static org.springframework.util.Assert.isTrue;
 
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
@@ -61,6 +58,7 @@ import org.sentrysoftware.metricshub.engine.common.exception.ClientRuntimeExcept
 import org.sentrysoftware.metricshub.engine.common.exception.ControlledSshException;
 import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
+import org.sentrysoftware.metricshub.engine.common.helpers.MacrosUpdater;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 import org.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
@@ -437,42 +435,54 @@ public class OsCommandService {
 			TEMP_FILE_CREATOR
 		);
 
-		final String updatedUserCommand = maybeUsername
-			.map(username -> commandLine.replaceAll(toCaseInsensitiveRegex(USERNAME_MACRO), username))
-			.orElse(commandLine);
-
 		// Retrieve the hostname from the configurations, otherwise from the telemetryManager.
 		final String hostname = telemetryManager.getHostname(List.of(SshConfiguration.class, OsCommandConfiguration.class));
 
-		final String updatedHostnameCommand = updatedUserCommand.replaceAll(
-			toCaseInsensitiveRegex(HOSTNAME_MACRO),
-			hostname
+		// Replace the macros by their corresponding values
+		final String updatedCommand = MacrosUpdater.update(
+			commandLine,
+			maybeUsername.orElse(null),
+			maybePassword.orElse(null),
+			null,
+			hostname,
+			false
 		);
+		final String updatedCommandNoPassword = MacrosUpdater.update(
+			commandLine,
+			maybeUsername.orElse(null),
+			maybePassword.orElse(null),
+			null,
+			hostname,
+			true
+		);
+		final String updatedSudoCommand = replaceSudo(updatedCommand, sudoInformation);
+		final String updatedSudoCommandNoPassword = replaceSudo(updatedCommandNoPassword, sudoInformation);
 
-		final String updatedSudoCommand = replaceSudo(updatedHostnameCommand, sudoInformation);
-
-		final String updatedEmbeddedFilesCommand = embeddedTempFiles
+		final String command = embeddedTempFiles
 			.entrySet()
 			.stream()
 			.reduce(
 				updatedSudoCommand,
 				(s, entry) ->
 					s.replaceAll(
-						toCaseInsensitiveRegex(entry.getKey()),
+						protectCaseInsensitiveRegex(entry.getKey()),
 						Matcher.quoteReplacement(entry.getValue().getAbsolutePath())
 					),
 				(s1, s2) -> null
 			);
 
-		final String command = maybePassword
-			.map(password ->
-				updatedEmbeddedFilesCommand.replaceAll(toCaseInsensitiveRegex(PASSWORD_MACRO), String.valueOf(password))
-			)
-			.orElse(updatedEmbeddedFilesCommand);
-
-		final String noPasswordCommand = maybePassword
-			.map(password -> updatedEmbeddedFilesCommand.replaceAll(toCaseInsensitiveRegex(PASSWORD_MACRO), "********"))
-			.orElse(updatedEmbeddedFilesCommand);
+		final String commandNoPassword = embeddedTempFiles
+			.entrySet()
+			.stream()
+			.reduce(
+				updatedSudoCommandNoPassword,
+				(s, entry) ->
+					s.replaceAll(
+						protectCaseInsensitiveRegex(entry.getKey()),
+						Matcher.quoteReplacement(entry.getValue().getAbsolutePath())
+					),
+				(s1, s2) -> null
+			);
 
 		try {
 			final long timeout = getTimeout(
@@ -486,7 +496,7 @@ public class OsCommandService {
 
 			// Case local execution or command intended for a remote host but executed locally
 			if (isLocalhost || isExecuteLocally) {
-				final String localCommandResult = runLocalCommand(command, timeout, noPasswordCommand);
+				final String localCommandResult = runLocalCommand(command, timeout, commandNoPassword);
 				commandResult = localCommandResult != null ? localCommandResult : EMPTY;
 			} else {
 				// Case others (Linux) Remote
@@ -497,11 +507,11 @@ public class OsCommandService {
 						(SshConfiguration) sshConfiguration,
 						timeout,
 						new ArrayList<>(embeddedTempFiles.values()),
-						noPasswordCommand
+						commandNoPassword
 					);
 			}
 
-			return new OsCommandResult(commandResult, noPasswordCommand);
+			return new OsCommandResult(commandResult, commandNoPassword);
 		} finally {
 			//noinspection ResultOfMethodCallIgnored
 			embeddedTempFiles.values().forEach(File::delete);

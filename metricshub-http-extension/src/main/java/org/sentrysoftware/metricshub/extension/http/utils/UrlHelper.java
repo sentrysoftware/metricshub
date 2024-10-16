@@ -21,12 +21,12 @@ package org.sentrysoftware.metricshub.extension.http.utils;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HOSTNAME_MACRO;
 import static org.sentrysoftware.metricshub.engine.common.helpers.StringHelper.nonNullNonBlank;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import org.sentrysoftware.metricshub.engine.common.helpers.MacrosUpdater;
 
 /**
  * Utility class for formatting URLs.
@@ -57,8 +57,7 @@ public class UrlHelper {
 			requestPath.startsWith("/") ? "" : "/",
 			requestPath
 		);
-
-		return fullUrl.replace(HOSTNAME_MACRO, hostname);
+		return MacrosUpdater.update(fullUrl, null, null, null, hostname, false);
 	}
 
 	/**
