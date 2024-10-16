@@ -26,6 +26,7 @@ Then, build the docker image using the following command:
 cd /docker/metricshub
 sudo docker build -t metricshub:latest .
 ```
+
 ### Configure
 
 *  In the **./lib/config/metricshub.yaml** file, located under the `/docker/metricshub` installation directory, configure the [resources to be monitored](../configuration/configure-monitoring.html#configure-resources).
@@ -74,6 +75,51 @@ services:
       - ./lib/security:/opt/metricshub/lib/security        # Mount the volume ./lib/security into /opt/metricshub/lib/security in the container
     restart: unless-stopped
 ```
+
+### Upgrade
+
+If you have installed a previous version of **MetricsHub Enterprise** and want to upgrade to the latest version **${enterpriseVersion}**, follow these steps:
+
+1. From [MetricsHub's website](https://metricshub.com/downloads), download **metricshub-enterprise-debian-${enterpriseVersion}-docker.tar.gz** and copy it into the `/tmp` directory.
+
+2. Stop and remove the currently running **MetricsHub** container:
+
+   ```shell-session
+   sudo docker stop metricshub
+   sudo docker rm metricshub
+   ```
+
+3. Before upgrading, rename the current **metricshub** directory to **metricshub-previous** to backup your configuration files and preserve any custom settings. Ensure that there isn't already a directory named **metricshub-previous**; if there is, you may need to choose a different name:
+
+   ```shell-session
+   sudo mv /docker/metricshub /docker/metricshub-previous
+   ```
+
+4. Unzip the new version into the same directory where the previous version was installed:
+
+   ```shell-session
+   sudo tar xzf /tmp/metricshub-enterprise-debian-${enterpriseVersion}-docker.tar.gz -C /docker
+   ```
+
+5. Rebuild the **MetricsHub** Docker image with the latest version:
+
+   ```shell-session
+   cd /docker/metricshub
+   sudo docker build -t metricshub:latest .
+   ```
+
+6. Restore the configuration files to the correct locations:
+
+   ```shell-session
+   sudo cp /docker/metricshub-previous/lib/config/metricshub.yaml /docker/metricshub/lib/config/metricshub.yaml
+   sudo cp /docker/metricshub-previous/lib/otel/otel-config.yaml /docker/metricshub/lib/otel/otel-config.yaml
+   ```
+
+7. Start the **MetricsHub** container using the upgraded image:
+
+   ```shell-session
+   sudo docker run -d --name=metricshub -p 24375:24375 -p 13133:13133 -v /docker/metricshub/lib/config:/opt/metricshub/lib/config -v /docker/metricshub/lib/otel:/opt/metricshub/lib/otel -v /docker/metricshub/lib/logs:/opt/metricshub/lib/logs -v /docker/metricshub/lib/security:/opt/metricshub/lib/security metricshub:latest
+   ```
 
 ## Community Edition
 

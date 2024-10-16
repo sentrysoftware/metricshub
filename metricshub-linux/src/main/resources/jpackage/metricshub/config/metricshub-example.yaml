@@ -20,13 +20,6 @@ otel:
   
 # Simple resource configuration
 resources:
-  localhost:
-    attributes:
-      host.name: localhost
-      host.type: linux
-    protocols:
-      osCommand:
-        timeout: 120
 
   #═══════════════════════════════════════════════════
   # SNMP v1 protocol configuration
@@ -76,6 +69,13 @@ resourceGroups:
 
     # Some resource templates can be found below:
     resources:
+      localhost:
+        attributes:
+          host.name: localhost
+          host.type: linux
+        protocols:
+          osCommand:
+            timeout: 120
 
       #═══════════════════════════════════════════════════
       # IPMI protocol configuration    
