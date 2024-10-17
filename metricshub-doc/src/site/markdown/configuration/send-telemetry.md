@@ -82,7 +82,6 @@ By default, the collected metrics go through 5 processors:
 * [`memory_limiter`](https://github.com/open-telemetry/opentelemetry-collector/tree/main/processor/memorylimiterprocessor) to limit the memory consumed by the *OpenTelemetry Collector* process (configurable)
 * [`filter`](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/filterprocessor) to include or exclude metrics
 * [`batch`](https://github.com/open-telemetry/opentelemetry-collector/tree/main/processor/batchprocessor) to process data in batches of 10 seconds (configurable).
-* [`resourcedetection`](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/resourcedetectionprocessor) to find out the actual host name of the system monitored
 * [`metricstransform`](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/metricstransformprocessor) to enrich the collected metrics, typically with labels required by the observability platforms. The `metricstransform` processor has [many options to add, rename, delete labels and metrics](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/metricstransformprocessor).
 
 
@@ -149,13 +148,13 @@ service:
   pipelines:
     metrics:
       receivers: [otlp, prometheus/internal]
-      processors: [memory_limiter, batch, resourcedetection, metricstransform]
+      processors: [memory_limiter, batch, metricstransform]
       exporters: [prometheusremotewrite/your-server] # List here the platform of your choice
 
     # Uncomment the section below to enable logging of hardware alerts.
     # logs:
     #   receivers: [otlp]
-    #   processors: [memory_limiter, batch, resourcedetection]
+    #   processors: [memory_limiter, batch]
     #   exporters: [logging] # List here the platform of your choice
 ```
 

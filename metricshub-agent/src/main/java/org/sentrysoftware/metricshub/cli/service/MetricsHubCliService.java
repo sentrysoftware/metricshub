@@ -182,9 +182,6 @@ public class MetricsHubCliService implements Callable<Integer> {
 	)
 	char[] password;
 
-	@Option(names = { "-pd", "--patch-directory" }, order = 5, description = "Patch path to the connectors directory")
-	String patchDirectory;
-
 	@Option(
 		names = { "-c", "--connectors" },
 		order = 4,
@@ -199,6 +196,9 @@ public class MetricsHubCliService implements Callable<Integer> {
 		" Use @|bold ${ROOT-COMMAND-NAME} -l|@ to get the list of connectors)."
 	)
 	Set<String> connectors;
+
+	@Option(names = { "-pd", "--patch-directory" }, order = 5, description = "Patch path to the connectors directory")
+	String patchDirectory;
 
 	@Option(
 		names = { "-s", "--sequential" },
@@ -215,7 +215,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 	@Option(
 		names = { "-l", "--list" },
 		help = true,
-		order = 7,
+		order = 8,
 		description = "Lists all connectors bundled in the engine that can be selected or excluded"
 	)
 	boolean listConnectors;
@@ -223,7 +223,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 	@Option(
 		names = { "-i", "--iterations" },
 		help = true,
-		order = 8,
+		order = 9,
 		defaultValue = "1",
 		description = "Executes the collect strategies N times, where N is the number of iterations"
 	)
@@ -232,7 +232,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 	@Option(
 		names = { "-si", "--sleep-iteration" },
 		help = true,
-		order = 9,
+		order = 10,
 		defaultValue = "5",
 		description = "Adds a sleep period in seconds between collect iterations"
 	)
@@ -240,12 +240,21 @@ public class MetricsHubCliService implements Callable<Integer> {
 
 	@Option(
 		names = { "-m", "--monitors" },
-		order = 10,
+		order = 11,
 		paramLabel = "MONITOR",
 		split = ",",
 		description = "Comma-separated list of monitor types to filter. %nExamples: +disk,+file_system,!memory"
 	)
 	Set<String> monitorTypes;
+
+	@Option(
+		names = { "-r", "--resolve-fqdn" },
+		order = 12,
+		defaultValue = "false",
+		description = "Resolves the provided HOSTNAME to its Fully Qualified Domain Name (FQDN)",
+		help = true
+	)
+	boolean resolveHostnameToFqdn;
 
 	@Override
 	public Integer call() throws Exception {
@@ -272,6 +281,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 			.hostname(hostname)
 			.hostType(deviceType)
 			.sequential(sequential)
+			.resolveHostnameToFqdn(resolveHostnameToFqdn)
 			.build();
 
 		// Connectors

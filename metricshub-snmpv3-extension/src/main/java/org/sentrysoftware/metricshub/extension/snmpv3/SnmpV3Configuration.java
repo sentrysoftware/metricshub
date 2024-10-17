@@ -96,8 +96,10 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 			attr -> attr == null || attr < 1 || attr > 65535,
 			() ->
 				String.format(
-					"Resource %s - Invalid port configured: %s. Please verify the configured port value.",
+					"Resource %s - Invalid port configured for protocol %s. Port value returned: %s." +
+					" This resource will not be monitored. Please verify the configured port value.",
 					resourceKey,
+					"SNMP V3",
 					port
 				)
 		);
@@ -107,8 +109,10 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 			attr -> attr == null || attr < 0L,
 			() ->
 				String.format(
-					"Resource %s - Timeout value is invalid: %s. Please verify the configured timeout value.",
+					"Resource %s - Timeout value is invalid for protocol %s." +
+					" Timeout value returned: %s. This resource will not be monitored. Please verify the configured timeout value.",
 					resourceKey,
+					"SNMP V3",
 					timeout
 				)
 		);
@@ -121,7 +125,7 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 					"Resource %s - No username configured for protocol %s." +
 					" This resource will not be monitored. Please verify the configured username.",
 					resourceKey,
-					"SNMP V3"
+					"SNNP V3"
 				)
 		);
 
@@ -133,7 +137,7 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 					"Resource %s - No username configured for protocol %s." +
 					" This resource will not be monitored. Please verify the configured authtype.",
 					resourceKey,
-					"SNMP V3"
+					"SNNP V3"
 				)
 		);
 	}

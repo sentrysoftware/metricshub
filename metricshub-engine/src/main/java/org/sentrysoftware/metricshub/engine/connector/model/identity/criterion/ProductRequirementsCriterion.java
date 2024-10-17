@@ -21,11 +21,13 @@ package org.sentrysoftware.metricshub.engine.connector.model.identity.criterion;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.NEW_LINE;
+
+import java.util.StringJoiner;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 /**
  * Represents a detection criterion based on product requirements, including engine and Knowledge Module (KM) versions.
@@ -34,7 +36,6 @@ import lombok.ToString;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 public class ProductRequirementsCriterion extends Criterion {
 
 	private static final long serialVersionUID = 1L;
@@ -61,5 +62,17 @@ public class ProductRequirementsCriterion extends Criterion {
 		super(type, forceSerialization);
 		this.engineVersion = engineVersion;
 		this.kmVersion = kmVersion;
+	}
+
+	@Override
+	public String toString() {
+		final StringJoiner stringJoiner = new StringJoiner(NEW_LINE);
+		if (engineVersion != null && !engineVersion.isBlank()) {
+			stringJoiner.add(new StringBuilder("- EngineVersion: ").append(engineVersion));
+		}
+		if (kmVersion != null && !kmVersion.isBlank()) {
+			stringJoiner.add(new StringBuilder("- KMVersion: ").append(kmVersion));
+		}
+		return stringJoiner.toString();
 	}
 }

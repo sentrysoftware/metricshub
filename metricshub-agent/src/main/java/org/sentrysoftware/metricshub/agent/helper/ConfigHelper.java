@@ -47,6 +47,7 @@ import java.nio.file.attribute.AclFileAttributeView;
 import java.nio.file.attribute.GroupPrincipal;
 import java.security.MessageDigest;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -496,6 +497,11 @@ public class ConfigHelper {
 			resourceConfig.setSequential(agentConfig.isSequential());
 		}
 
+		// Set agent configuration's monitors filter in the resource configuration
+		if (resourceConfig.getMonitorFilters() == null) {
+			resourceConfig.setMonitorFilters(agentConfig.getMonitorFilters());
+		}
+
 		final AlertingSystemConfig resourceGroupAlertingSystemConfig = agentConfig.getAlertingSystemConfig();
 
 		final AlertingSystemConfig alertingSystemConfig = resourceConfig.getAlertingSystemConfig();
@@ -579,6 +585,11 @@ public class ConfigHelper {
 			resourceConfig.setSequential(resourceGroupConfig.getSequential());
 		}
 
+		// Set resource group configuration's monitors filter in the resource configuration
+		if (resourceConfig.getMonitorFilters() == null) {
+			resourceConfig.setMonitorFilters(resourceGroupConfig.getMonitorFilters());
+		}
+
 		final AlertingSystemConfig resourceGroupAlertingSystemConfig = resourceGroupConfig.getAlertingSystemConfig();
 
 		final AlertingSystemConfig alertingSystemConfig = resourceConfig.getAlertingSystemConfig();
@@ -656,6 +667,11 @@ public class ConfigHelper {
 		// Set global sequential flag in the resource group configuration
 		if (resourceGroupConfig.getSequential() == null) {
 			resourceGroupConfig.setSequential(agentConfig.isSequential());
+		}
+
+		// Set global configuration's monitors filter in the resource group configuration
+		if (resourceGroupConfig.getMonitorFilters() == null) {
+			resourceGroupConfig.setMonitorFilters(agentConfig.getMonitorFilters());
 		}
 
 		final AlertingSystemConfig alertingSystemConfig = resourceGroupConfig.getAlertingSystemConfig();
@@ -1036,6 +1052,28 @@ public class ConfigHelper {
 			configuredConnectorId = configuredConnector.getCompiledFilename();
 		}
 
+		Set<String> includedMonitors = null;
+		Set<String> excludedMonitors = null;
+		final Set<String> monitorFilters = resourceConfig.getMonitorFilters();
+
+		if (monitorFilters != null && !monitorFilters.isEmpty()) {
+			for (final String monitorFilter : monitorFilters) {
+				if (monitorFilter != null && monitorFilter.length() > 1) {
+					if (monitorFilter.startsWith("+")) {
+						if (includedMonitors == null) {
+							includedMonitors = new HashSet<>();
+						}
+						includedMonitors.add(monitorFilter.substring(1));
+					} else if (monitorFilter.startsWith("!")) {
+						if (excludedMonitors == null) {
+							excludedMonitors = new HashSet<>();
+						}
+						excludedMonitors.add(monitorFilter.substring(1));
+					}
+				}
+			}
+		}
+
 		return HostConfiguration
 			.builder()
 			.strategyTimeout(resourceConfig.getJobTimeout())
@@ -1045,8 +1083,11 @@ public class ConfigHelper {
 			.hostId(hostId)
 			.hostType(hostType)
 			.sequential(Boolean.TRUE.equals(resourceConfig.getSequential()))
+			.includedMonitors(includedMonitors)
+			.excludedMonitors(excludedMonitors)
 			.configuredConnectorId(configuredConnectorId)
 			.connectorVariables(resourceConfig.getVariables())
+			.resolveHostnameToFqdn(resourceConfig.getResolveHostnameToFqdn())
 			.build();
 	}
 

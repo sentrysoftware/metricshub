@@ -28,7 +28,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.ToString;
 
 /**
  * Represents an SNMP GET criterion used for detection.
@@ -36,7 +35,6 @@ import lombok.ToString;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 public class SnmpGetCriterion extends SnmpCriterion {
 
 	private static final long serialVersionUID = 1L;
@@ -58,5 +56,10 @@ public class SnmpGetCriterion extends SnmpCriterion {
 		@JsonProperty("expectedResult") String expectedResult
 	) {
 		super(type, forceSerialization, oid, expectedResult);
+	}
+
+	@Override
+	public String toString() {
+		return super.toString();
 	}
 }

@@ -53,6 +53,7 @@ import org.sentrysoftware.metricshub.engine.common.helpers.NumberHelper;
 import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
+import org.sentrysoftware.metricshub.engine.telemetry.Resource;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
@@ -68,6 +69,15 @@ import org.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
  */
 @Data
 public class PrettyPrinterService {
+
+	/**
+	 * The header for the resource section
+	 */
+	static final String RESOURCE_HEADER = "Resource:";
+	/**
+	 * The header for the attributes section
+	 */
+	static final String ATTRIBUTES_HEADER = "Attributes:";
 
 	// @formatter:off
 	/**
@@ -162,7 +172,13 @@ public class PrettyPrinterService {
 		printWriter.println(Ansi.ansi().fgCyan().a(getMonitorDisplayName(monitor)).reset().toString());
 
 		// Attributes
-		printAttributes(monitor, indentation + 2);
+		printAttributes(monitor.getAttributes(), indentation + 2, ATTRIBUTES_HEADER);
+
+		final Resource resource = monitor.getResource();
+		if (resource != null) {
+			// Resource
+			printAttributes(resource.getAttributes(), indentation + 2, RESOURCE_HEADER);
+		}
 
 		// Metrics
 		printMetrics(monitor, indentation + 2);
@@ -199,10 +215,10 @@ public class PrettyPrinterService {
 	}
 
 	/**
-	 * Print the metrics associated to the given monitor
+	 * Print the metrics associated to the given monitor.
 	 *
-	 * @param monitor     Monitor instance whose metrics must be printed
-	 * @param indentation How much indentation to use
+	 * @param monitor     Monitor instance whose metrics must be printed.
+	 * @param indentation How much indentation to use.
 	 */
 	void printMetrics(final Monitor monitor, final int indentation) {
 		// Get the metrics
@@ -351,12 +367,13 @@ public class PrettyPrinterService {
 	}
 
 	/**
-	 * Print the attributes associated to the given monitor
+	 * Print the given attributes.
 	 *
-	 * @param monitor     The monitor whose attributes must be printed
-	 * @param indentation How much indentation to use
+	 * @param attributes  The attributes to be printed.
+	 * @param indentation How much indentation to use.
+	 * @param header      The header to be printed.
 	 */
-	void printAttributes(final Monitor monitor, final int indentation) {
+	void printAttributes(final Map<String, String> attributes, final int indentation, final String header) {
 		// Print a new line
 		printWriter.println();
 
@@ -364,11 +381,10 @@ public class PrettyPrinterService {
 		addMargin(indentation);
 
 		// Add the header
-		printWriter.println("Attributes:");
+		printWriter.println(header);
 
 		// Iterate through the attributes, printing each attribute name along with its corresponding value
-		monitor
-			.getAttributes()
+		attributes
 			.entrySet()
 			.stream()
 			.filter(entry -> shouldDisplayKey(entry.getKey()))
@@ -411,9 +427,17 @@ public class PrettyPrinterService {
 			.filter(entry -> entry.getValue() != null && !entry.getValue().isBlank())
 			.sorted((entry1, entry2) -> entry1.getKey().compareToIgnoreCase(entry2.getKey()))
 			.forEach(e -> {
-				addMargin(indentation);
+				addMargin(indentation + 2);
 				printWriter.println(
-					Ansi.ansi().a(Attribute.INTENSITY_FAINT).a(e.getKey()).a(": ").reset().a(e.getValue().trim()).toString()
+					Ansi
+						.ansi()
+						.a(Attribute.INTENSITY_FAINT)
+						.a(e.getKey())
+						.a(": ")
+						.reset()
+						.a("\n")
+						.a(e.getValue().trim().indent(indentation + 2))
+						.toString()
 				);
 			});
 	}

@@ -83,7 +83,7 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>metricshub-localSql-source-extension</artifactId>
+			<artifactId>metricshub-localsql-source-extension</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -195,7 +195,7 @@
 								</artifactItem>
 								<artifactItem>
 									<groupId>${project.groupId}</groupId>
-									<artifactId>metricshub-localSql-source-extension</artifactId>
+									<artifactId>metricshub-localsql-source-extension</artifactId>
 									<version>${project.version}</version>
 								</artifactItem>
 								<artifactItem>

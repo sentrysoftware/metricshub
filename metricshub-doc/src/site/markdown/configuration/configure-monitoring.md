@@ -889,6 +889,88 @@ resources:
         processName: "('msedge.exe', 'metricshub.exe')"
 ```
 
+#### Filter monitors
+
+A monitor is any entity tracked by **MetricsHub** within the main resource, such as processes, services, storage volumes, or physical devices like disks.
+
+To manage the volume of telemetry data sent to your observability platform and therefore reduce costs and optimize performance, you can specify which monitors to include or exclude.
+
+You can apply monitor inclusion or exclusion in data collection for the following scopes:
+
+* All resources
+* All the resources within a specific resource group. A resource group is a container that holds resources to be monitored and generally refers to a site or a specific location. 
+* A specific resource
+
+This is done by  adding the `monitorFilters` parameter in the relevant section of the `config/metricshub.yaml` file as described below: 
+
+| Filter monitors                                    | Add monitorFilters |
+|----------------------------------------------------|---|
+| For all resources                                  |In the global section (top of the file)   |
+| For all the resources of a specific resource group | Under the corresponding `<resource-group-name>` section |
+| For a specific resource                            |Under the corresponding `<resource-id>`  section|
+
+The `monitorFilters` parameter accepts the following values:
+
+* `+<monitor_name>` for inclusion
+* `"!<monitor_name>"` for exclusion.
+
+To obtain the monitor name:
+
+1. Refer to the [`MetricsHub Connector Library`](../metricshub-connectors-directory.html)
+2. Click the connector of your choice (e.g.: [WindowsOS Metrics](../connectors/windows.html))
+3. Scroll-down to the **Metrics** section and note down the relevant monitor **Type**.
+
+> **Warning**: Excluding monitors may lead to missed outage detection or inconsistencies in collected data, such as inaccurate power consumption estimates or other metrics calculated by the engine. Use exclusions carefully to avoid overlooking important information. 
+The monitoring of critical devices such as batteries, power supplies, CPUs, fans, and memories should not be disabled. 
+
+##### Example 1: Including monitors for all resources
+
+
+   ```yaml
+   monitorFilters: [ +enclosure, +fan, +power_supply ] # Include specific monitors globally
+   resourceGroups: ...
+   ```
+
+##### Example 2: Excluding monitors for all resources 
+   ```yaml
+   monitorFilters: [ "!volume" ] # Exclude specific monitors globally
+   ```
+##### Example 3: Including monitors for all resources within a specific resource group
+
+   ```yaml
+   resourceGroups:
+     <resource-group-name>:
+       monitorFilters: [ +enclosure, +fan, +power_supply ] # Include specific monitors for this group
+       resources: ...
+   ```
+##### Example 4: Excluding monitors for all resources within a specific resource group
+
+   ```yaml
+   resourceGroups:
+     <resource-group-name>:
+       monitorFilters: [ "!volume" ] # Exclude specific monitors for this group
+       resources: ...
+   ```
+##### Example 5: Including monitors for a specific resource
+
+   ```yaml
+   resourceGroups:
+     <resource-group-name>:
+       resources:
+         <resource-id>:
+           monitorFilters: [ +enclosure, +fan, +power_supply ] # Include specific monitors for this resource
+   ```
+
+##### Example 6: Excluding monitors for a specific resource
+
+   ```yaml
+   resourceGroups:
+     <resource-group-name>:
+       resources:
+         <resource-id>:
+           monitorFilters: [ "!volume" ] # Exclude specific monitors for this resource
+   ``` 
+
 #### Discovery cycle
 
 **MetricsHub** periodically performs discoveries to detect new components in your monitored environment. By default, **MetricsHub** runs a discovery after 30 collects. To change this default discovery cycle:
@@ -939,7 +1021,7 @@ resourceGroups:
       myHost1:
         attributes:
           host.name: my-host-01
-          host.type: other
+          host.type: windows
           app: Jenkins
         protocols:
           http:
@@ -952,13 +1034,50 @@ resourceGroups:
 
 #### Hostname resolution
 
-By default, **MetricsHub** resolves the `hostname` of the resource to a Fully Qualified Domain Name (FQDN) and displays this value in the [Host Resource](https://opentelemetry.io/docs/specs/semconv/resource/host/) attribute `host.name`. To display the configured hostname instead, set `resolveHostnameToFqdn` to `false`:
+By default, **MetricsHub** uses the configured `host.name` value as-is to populate the [Host Resource](https://opentelemetry.io/docs/specs/semconv/resource/host/) attributes. This ensures that the `host.name` remains consistent with what is configured.
+
+To resolve the `host.name` to its Fully Qualified Domain Name (FQDN), set the `resolveHostnameToFqdn` configuration property to `true` as shown below:
 
 ```yaml
-resolveHostnameToFqdn: false
+resolveHostnameToFqdn: true
 
 resourceGroups:
 ```
+
+This ensures that each configured resource will resolve its `host.name` to FQDN.
+
+To enable FQDN resolution for a specific resource group, set the `resolveHostnameToFqdn` property to `true` under the desired resource group configuration as shown below:
+
+```yaml
+resourceGroups:
+  boston:
+    resolveHostnameToFqdn: true
+    attributes:
+      site: boston
+    resources:
+      # ...
+```
+
+This ensures that all resources within the `boston` resource group will resolve their `host.name` to FQDN.
+
+To enable FQDN resolution for an individual resource within a resource group, set the `resolveHostnameToFqdn` under the resource configuration as shown below:
+
+```yaml
+resourceGroups:
+  boston:
+    attributes:
+      site: boston
+    resources:
+      my-host-01:
+        resolveHostnameToFqdn: true
+        attributes:
+          host.name: my-host-01
+          host.type: linux
+```
+
+In this case, only `my-host-01` will resolve its `host.name` to FQDN, while other resources in the `boston` group will retain their original `host.name` values.
+
+> **Warning**: If there is an issue during the resolution, it may result in a different `host.name` value, potentially impacting metric identity.
 
 #### Job pool size
 

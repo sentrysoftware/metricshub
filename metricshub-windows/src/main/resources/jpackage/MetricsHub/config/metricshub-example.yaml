@@ -20,13 +20,6 @@ otel:
   
 # Simple resource configuration
 resources:
-  localhost:
-    attributes:
-      host.name: localhost
-      host.type: windows
-    protocols:
-      wmi:
-        timeout: 120
 
   #═══════════════════════════════════════════════════
   # SNMP v1 protocol configuration
@@ -76,6 +69,13 @@ resourceGroups:
 
     # Some resource templates can be found below:
     resources:
+      localhost:
+        attributes:
+          host.name: localhost
+          host.type: windows
+        protocols:
+          wmi:
+            timeout: 120
 
       #═══════════════════════════════════════════════════
       # IPMI protocol configuration    
@@ -233,7 +233,9 @@ resourceGroups:
       #       authentications: [ntlm, kerberos]
 
       #═══════════════════════════════════════════════════
-      # vCenter WBEM configuration            
+      # ESXi Host Configuration through WBEM service
+      # Authentication certificate will be requested
+      # from the specified VMware vCenter server
       #═══════════════════════════════════════════════════
 
       # server-11:
@@ -247,7 +249,7 @@ resourceGroups:
       #       timeout: 120
       #       username: admin
       #       password: password
-      #       vcenter: server-vcenter
+      #       vcenter: vcenter-server # Optional, for multi-tier authentication only
 
       #═══════════════════════════════════════════════════
       # ICMP Ping protocol configuration    

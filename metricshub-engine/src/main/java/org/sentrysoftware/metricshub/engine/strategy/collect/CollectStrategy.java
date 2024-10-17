@@ -231,6 +231,10 @@ public class CollectStrategy extends AbstractStrategy {
 
 			final String monitorType = monitorJob.getKey();
 
+			if (isMonitorFiltered(monitorType)) {
+				return;
+			}
+
 			final JobInfo jobInfo = JobInfo
 				.builder()
 				.hostname(hostname)

@@ -222,6 +222,10 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 
 		final String monitorType = monitorJobEntry.getKey();
 
+		if (isMonitorFiltered(monitorType)) {
+			return;
+		}
+
 		final JobInfo jobInfo = JobInfo
 			.builder()
 			.hostname(hostname)

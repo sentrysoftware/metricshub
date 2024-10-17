@@ -129,7 +129,7 @@ class LocalSqlExtensionTest {
 			SqlTable.builder().alias("T2").columns(columnsTable2).source(TAB2_REF).build()
 		);
 
-		final LocalSqlSource localsqlSource = LocalSqlSource
+		final LocalSqlSource localSqlSource = LocalSqlSource
 			.builder()
 			.query("SELECT COL1_1, COL2_1, COL1_2, COL2_2 FROM T1 JOIN T2 ON COL1_1 = COL1_2;")
 			.tables(sqlTables)
@@ -142,7 +142,7 @@ class LocalSqlExtensionTest {
 			Arrays.asList(LOWERCASE_D, FALSE, LOWERCASE_D, FALSE)
 		);
 
-		sourceTableResult = new LocalSqlExtension().processSource(localsqlSource, connectorId, telemetryManager);
+		sourceTableResult = new LocalSqlExtension().processSource(localSqlSource, connectorId, telemetryManager);
 		assertEquals(expectedResult, sourceTableResult.getTable());
 	}
 }
