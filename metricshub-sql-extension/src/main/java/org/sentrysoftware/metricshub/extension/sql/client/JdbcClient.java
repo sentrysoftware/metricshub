@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.extension.jdbc;
+package org.sentrysoftware.metricshub.extension.sql.client;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
@@ -147,7 +147,7 @@ public class JdbcClient {
 				for (int i = 1; i < numberOfColumns + 1; i++) {
 					row.add(queryRecordSet.getString(i));
 				}
-				sqlResult.getResults().add(row);
+				sqlResult.addRow(row);
 			}
 		}
 	}

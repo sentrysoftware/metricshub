@@ -63,7 +63,7 @@ public class SqlConfigCli implements IProtocolConfigCli {
 		defaultValue = "" + DEFAULT_TIMEOUT,
 		description = "Timeout in seconds for SQL operations (default: ${DEFAULT-VALUE} s)"
 	)
-	private int timeout;
+	private String timeout;
 
 	@Option(names = "--sql-port", order = 6, paramLabel = "PORT", description = "Port for SQL connection")
 	private int port;
@@ -80,8 +80,7 @@ public class SqlConfigCli implements IProtocolConfigCli {
 		names = "--sql-type",
 		order = 8,
 		paramLabel = "TYPE",
-		description = "Type of SQL database (e.g., MySQL, PostgreSQL, SQLServer)",
-		required = true
+		description = "Type of SQL database (e.g., MySQL, PostgreSQL, SQLServer)"
 	)
 	private String type;
 
@@ -105,9 +104,11 @@ public class SqlConfigCli implements IProtocolConfigCli {
 		if (finalPassword != null) {
 			configuration.set("password", new TextNode(String.valueOf(finalPassword)));
 		}
-
-		configuration.set("url", new TextNode(String.valueOf(url)));
-		configuration.set("timeout", new IntNode(timeout));
+		
+		if (url != null && url.length > 0) {
+			configuration.set("url", new TextNode(String.valueOf(url)));
+		}
+		configuration.set("timeout", new TextNode(timeout));
 		configuration.set("port", new IntNode(port));
 		configuration.set("database", new TextNode(database));
 		configuration.set("type", new TextNode(type));
@@ -115,6 +116,6 @@ public class SqlConfigCli implements IProtocolConfigCli {
 		return CliExtensionManager
 			.getExtensionManagerSingleton()
 			.buildConfigurationFromJsonNode("sql", configuration, value -> value)
-			.orElseThrow(() -> new InvalidConfigurationException("Invalid SQL configuration"));
+			.orElseThrow();
 	}
 }

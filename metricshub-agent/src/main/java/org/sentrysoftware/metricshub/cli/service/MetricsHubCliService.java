@@ -47,6 +47,7 @@ import org.sentrysoftware.metricshub.cli.service.protocol.HttpConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.IpmiConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.SnmpConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.SnmpV3ConfigCli;
+import org.sentrysoftware.metricshub.cli.service.protocol.SqlConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.SshConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.WbemConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.WinRmConfigCli;
@@ -102,7 +103,8 @@ import picocli.CommandLine.Spec;
 		"@|bold ${ROOT-COMMAND-NAME}|@ " +
 		"@|yellow HOSTNAME|@ " +
 		"@|yellow -t|@=@|italic TYPE|@ " +
-		"<@|yellow --http|@|@|yellow --https|@|@|yellow --ipmi|@|@|yellow --snmp|@=@|italic VERSION|@|@|yellow --ssh|@|@|yellow --wbem|@|@|yellow --wmi|@|@|yellow --winrm|@> " +
+		"<@|yellow --http|@|@|yellow --https|@|@|yellow --ipmi|@|@|yellow --sql|@|@|yellow " +
+		"--snmp|@=@|italic VERSION|@|@|yellow --ssh|@|@|yellow --wbem|@|@|yellow --wmi|@|@|yellow --winrm|@> " +
 		"[@|yellow -u|@=@|italic USER|@ [@|yellow -p|@=@|italic P4SSW0RD|@]] [OPTIONS]..."
 	}
 )
@@ -166,8 +168,8 @@ public class MetricsHubCliService implements Callable<Integer> {
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline WinRM Options|@:%n")
 	WinRmConfigCli winRmConfigCli;
 
-	@ArgGroup(exclusive = false, heading = "%n@|bold,underline WinRM Options|@:%n")
-	WinRmConfigCli sqlConfigCli;
+	@ArgGroup(exclusive = false, heading = "%n@|bold,underline SQL Options|@:%n")
+	SqlConfigCli sqlConfigCli;
 
 	@Option(names = { "-u", "--username" }, order = 2, paramLabel = "USER", description = "Username for authentication")
 	String username;

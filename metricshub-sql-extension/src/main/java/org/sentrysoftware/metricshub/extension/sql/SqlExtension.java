@@ -101,8 +101,8 @@ public class SqlExtension implements IProtocolExtension {
 			return Optional.empty();
 		}
 
-		// Retrieve the hostname from the SqlConfiguration, otherwise from the telemetryManager
-		final String hostname = telemetryManager.getHostname(List.of(SqlConfiguration.class));
+		// Retrieve the hostname from the SqlConfiguration
+		final String hostname = sqlConfiguration.getHostname();
 		log.info("Hostname {} - Performing {} protocol health check.", hostname, getIdentifier());
 
 		try {

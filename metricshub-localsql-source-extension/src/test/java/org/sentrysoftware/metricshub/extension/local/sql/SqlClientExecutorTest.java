@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.extension.sql;
+package org.sentrysoftware.metricshub.extension.local.sql;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -16,6 +16,7 @@ import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.telemetry.ConnectorNamespace;
 import org.sentrysoftware.metricshub.engine.telemetry.HostProperties;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.extension.local.sql.SqlClientExecutor;
 
 class SqlClientExecutorTest {
 

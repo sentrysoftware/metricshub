@@ -22,11 +22,13 @@ package org.sentrysoftware.metricshub.engine.connector.model.identity.criterion;
  */
 
 import static com.fasterxml.jackson.annotation.Nulls.FAIL;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.NEW_LINE;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.util.StringJoiner;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -54,6 +56,16 @@ public class SqlCriterion extends Criterion {
 	private String query;
 
 	/**
+	 * Expected result for the SQL criterion.
+	 */
+	private String expectedResult;
+
+	/**
+	 * Error message for the SQL criterion.
+	 */
+	private String errorMessage;
+
+	/**
 	 * Builder for creating instances of {@code SqlCriterion}.
 	 *
 	 * @param type               The type of the criterion (should be "sql").
@@ -65,14 +77,28 @@ public class SqlCriterion extends Criterion {
 	public SqlCriterion(
 		@JsonProperty("type") String type,
 		@JsonProperty("forceSerialization") boolean forceSerialization,
-		@JsonProperty("query") @NonNull String query
+		@JsonProperty("query") @NonNull String query,
+		@JsonProperty("expectedResult") String expectedResult,
+		@JsonProperty("errorMessage") String errorMessage
 	) {
 		super(type, forceSerialization);
 		this.query = query;
+		this.expectedResult = expectedResult;
+		this.errorMessage = errorMessage;
 	}
 
 	@Override
 	public String toString() {
-		return super.toString() + " - query=" + query;
+		final StringJoiner stringJoiner = new StringJoiner(NEW_LINE);
+		stringJoiner.add(new StringBuilder("- Query ").append(query));
+
+		if (expectedResult != null && !expectedResult.isBlank()) {
+			stringJoiner.add(new StringBuilder("- ExpectedResult: ").append(expectedResult));
+		}
+		if (errorMessage != null && !errorMessage.isBlank()) {
+			stringJoiner.add(new StringBuilder("- ErrorMessage: ").append(errorMessage));
+		}
+
+		return stringJoiner.toString();
 	}
 }

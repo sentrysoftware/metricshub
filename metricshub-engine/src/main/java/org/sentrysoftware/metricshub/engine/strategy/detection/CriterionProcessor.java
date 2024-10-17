@@ -46,6 +46,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.P
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.ServiceCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetNextCriterion;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SqlCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WbemCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WmiCriterion;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
@@ -390,6 +391,17 @@ public class CriterionProcessor {
 	@WithSpan("Criterion WBEM Exec")
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") WbemCriterion wbemCriterion) {
 		return processCriterionThroughExtension(wbemCriterion);
+	}
+
+	/**
+	 * Process the given {@link SqlCriterion} through Client and return the {@link CriterionTestResult}
+	 *
+	 * @param sqlCriterion The SQL criterion to process.
+	 * @return The result of the criterion test processing.
+	 */
+	@WithSpan("Criterion SQL Exec")
+	public CriterionTestResult process(@SpanAttribute("criterion.definition") SqlCriterion sqlCriterion) {
+		return processCriterionThroughExtension(sqlCriterion);
 	}
 
 	/**

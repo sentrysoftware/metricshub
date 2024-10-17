@@ -59,7 +59,6 @@ public class SqlSourceProcessor {
 			return SourceTable.empty();
 		}
 
-		final String hostname = telemetryManager.getHostname();
 		final SqlConfiguration sqlConfiguration = (SqlConfiguration) telemetryManager
 			.getHostConfiguration()
 			.getConfigurations()
@@ -69,13 +68,14 @@ public class SqlSourceProcessor {
 			log.debug(
 				"Hostname {} - The SQL database credentials are not configured. " +
 				"Returning an empty table for SQL source {}. ",
-				hostname,
+				telemetryManager.getHostname(),
 				sqlSource.getKey()
 			);
 
 			return SourceTable.empty();
 		}
 
+		final String hostname = sqlConfiguration.getHostname();
 		try {
 			final List<List<String>> results = sqlRequestExecutor.executeSql(
 				hostname,

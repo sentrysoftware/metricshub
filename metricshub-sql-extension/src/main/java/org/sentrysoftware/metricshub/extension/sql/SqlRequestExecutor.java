@@ -28,8 +28,8 @@ import java.util.Optional;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
-import org.sentrysoftware.metricshub.extension.jdbc.JdbcClient;
-import org.sentrysoftware.metricshub.extension.jdbc.SqlResult;
+import org.sentrysoftware.metricshub.extension.sql.client.JdbcClient;
+import org.sentrysoftware.metricshub.extension.sql.client.SqlResult;
 
 /**
  * Provides functionality to execute SQL queries via JDBC.

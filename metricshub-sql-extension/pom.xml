@@ -51,11 +51,6 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-params</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
 			<scope>test</scope>
@@ -71,35 +66,26 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-simple</artifactId>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.sentrysoftware</groupId>
-			<artifactId>metricshub-it-common</artifactId>
-			<classifier>tests</classifier>
-			<scope>test</scope>
-			<version>${project.version}</version>
-		</dependency>	
+		
 		<dependency>
 			<groupId>net.sourceforge.jtds</groupId>
 			<artifactId>jtds</artifactId>
 			<version>1.3.1</version>
 		</dependency>
-
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 			<version>8.0.30</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<version>42.5.0</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.oracle.database.jdbc</groupId>
 			<artifactId>ojdbc8</artifactId>
@@ -161,22 +147,11 @@
 			<artifactId>mssql-jdbc</artifactId>
 			<version>9.2.1.jre8</version>
 		</dependency>
-
+		
 		<dependency>
 			<groupId>com.ibm.informix</groupId>
 			<artifactId>jdbc</artifactId>
 			<version>4.10.14</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.derby</groupId>
-			<artifactId>derby</artifactId>
-			<version>10.14.2.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<version>2.2.224</version>
 		</dependency>
 	</dependencies>
 
@@ -265,12 +240,36 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
-							<artifactSet>
+						<artifactSet>
 								<includes>
 									<include>org.sentrysoftware:metricshub-sql-extension</include>
+								 	<include>mysql:mysql-connector-java</include>
+									<include>org.postgresql:postgresql</include>
+			                   		<include>com.oracle.database.jdbc:*</include>
+			                        <include>com.oracle.database.security:*</include>
+			                        <include>com.oracle.database.ha:*</include>
+			                        <include>com.oracle.database.nls:*</include>
+			                        <include>com.oracle.database.xml:*</include>
+			                        <include>com.microsoft.sqlserver:*</include>
+			                        <include>net.sourceforge.jtds:jtds</include>
+			                        <include>com.ibm.informix:*</include>
+			                        <include>com.h2database:*</include>
 								</includes>
 							</artifactSet>
+							<filters>
+								<filter>
+									<artifact>*:*</artifact>
+									<excludes>
+										<!-- <exclude>META-INF/services/java.sql.Driver</exclude> !-->
+										<exclude>META-INF/*.SF</exclude>
+										<exclude>META-INF/*.DSA</exclude>
+										<exclude>META-INF/*.RSA</exclude>
+										<exclude>META-INF/signature.bin</exclude>
+									</excludes>
+								</filter>
+							</filters>
 							<transformers>
+								 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<manifestEntries>

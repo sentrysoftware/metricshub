@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.extension.jdbc;
+package org.sentrysoftware.metricshub.extension.sql.client;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲

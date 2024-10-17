@@ -1,1 +1,1 @@
-org.sentrysoftware.metricshub.extension.sql.LocalSqlExtension
+org.sentrysoftware.metricshub.extension.local.sql.LocalSqlExtension

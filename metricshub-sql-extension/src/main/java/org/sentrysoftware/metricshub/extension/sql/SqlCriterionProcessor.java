@@ -24,12 +24,14 @@ package org.sentrysoftware.metricshub.extension.sql;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.TABLE_SEP;
 
 import java.util.List;
+import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SqlCriterion;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
+import org.sentrysoftware.metricshub.engine.strategy.utils.PslUtils;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
@@ -39,6 +41,8 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 @Slf4j
 @AllArgsConstructor
 public class SqlCriterionProcessor {
+
+	private static final String SQL_TEST_SUCCESS = "Hostname %s - SQL test succeeded. Returned result: %s.";
 
 	@NonNull
 	private SqlRequestExecutor sqlRequestExecutor;
@@ -64,7 +68,7 @@ public class SqlCriterionProcessor {
 			return CriterionTestResult.error(sqlCriterion, "The SQL database credentials are not configured for this host.");
 		}
 
-		final String hostname = telemetryManager.getHostConfiguration().getHostname();
+		final String hostname = sqlConfiguration.getHostname();
 		final List<List<String>> queryResult;
 		try {
 			queryResult = sqlRequestExecutor.executeSql(hostname, sqlConfiguration, sqlCriterion.getQuery(), false);
@@ -74,12 +78,50 @@ public class SqlCriterionProcessor {
 		}
 
 		// Serialize the result as a CSV
-		String result = SourceTable.tableToCsv(queryResult, TABLE_SEP, true);
+		final String result = SourceTable.tableToCsv(queryResult, TABLE_SEP, true);
 
-		if (result == null || result.isEmpty()) {
-			return CriterionTestResult.failure(sqlCriterion, "No results returned by the query.");
+		return checkSqlResult(hostname, result, sqlCriterion.getExpectedResult());
+	}
+
+	/**
+	 * Checks the result of an SQL test against the expected result.
+	 *
+	 * @param hostname       The hostname against which the SQL test has been carried out.
+	 * @param result         The actual result of the SQL test.
+	 * @param expectedResult The expected result of the SQL test.
+	 * @return A {@link CriterionTestResult} summarizing the outcome of the SQL test.
+	 */
+	private CriterionTestResult checkSqlResult(final String hostname, final String result, final String expectedResult) {
+		String message;
+		boolean success = false;
+
+		if (expectedResult == null) {
+			if (result == null || result.isEmpty()) {
+				message = String.format("Hostname %s - SQL test failed - The SQL test did not return any result.", hostname);
+			} else {
+				message = String.format(SQL_TEST_SUCCESS, hostname, result);
+				success = true;
+			}
+		} else {
+			// We convert the PSL regex from the expected result into a Java regex to be able to compile and test it
+			final Pattern pattern = Pattern.compile(PslUtils.psl2JavaRegex(expectedResult), Pattern.CASE_INSENSITIVE);
+			if (result != null && pattern.matcher(result).find()) {
+				message = String.format(SQL_TEST_SUCCESS, hostname, result);
+				success = true;
+			} else {
+				message =
+					String.format(
+						"Hostname %s - SQL test failed - The result (%s) returned by the SQL test did not match the expected result (%s).",
+						hostname,
+						result,
+						expectedResult
+					);
+				message += String.format("Expected value: %s - returned value %s.", expectedResult, result);
+			}
 		}
 
-		return CriterionTestResult.success(sqlCriterion, result);
+		log.debug(message);
+
+		return CriterionTestResult.builder().result(result).message(message).success(success).build();
 	}
 }

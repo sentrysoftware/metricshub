@@ -10,8 +10,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -22,8 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.UnaryOperator;
-import org.apache.derby.tools.sysinfo;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -35,10 +31,8 @@ import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
-import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SqlCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WbemCriterion;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SqlSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WbemSource;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
@@ -73,6 +67,7 @@ class SqlExtensionTest {
 
 		SqlConfiguration sqlConfiguration = SqlConfiguration
 			.builder()
+			.hostname("hostname")
 			.username(USERNAME)
 			.password(PASSWORD)
 			.timeout(30L)
@@ -121,9 +116,7 @@ class SqlExtensionTest {
 			.when(sqlRequestExecutorMock)
 			.executeSql(anyString(), any(SqlConfiguration.class), eq(SQL_QUERY), anyBoolean());
 
-		// Start the SQL protocol check
 		Optional<Boolean> result = sqlExtension.checkProtocol(telemetryManager);
-
 		assertFalse(result.get());
 	}
 
@@ -190,7 +183,7 @@ class SqlExtensionTest {
 		CriterionTestResult result = sqlExtension.processCriterion(sqlCriterion, CONNECTOR_ID, telemetryManager);
 
 		assertFalse(result.isSuccess());
-		assertEquals("No results returned by the query.", result.getResult());
+		assertEquals("Hostname hostname - SQL test failed - The SQL test did not return any result.", result.getMessage());
 	}
 
 	@Test

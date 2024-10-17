@@ -491,7 +491,7 @@ Use the parameters below to configure the WinRM protocol:
 | password        | Password used to establish the connection with the host via the WinRM protocol.                      |
 | protocol        | The protocol used to access the host: HTTP or HTTPS (Default: HTTP).                                 |
 | port            | The port number used to perform WQL queries and commands (Default: 5985 for HTTP or 5986 for HTTPS). |
-| authentications | Ordered list of authentication schemes: NTLM, KERBEROS (Default: NTLM).                              |
+| authentications | Ordered list of authentication schemes: NTLM, KERBEROS (Default: NTLM).     |
 
 **Example**
 
@@ -523,13 +523,13 @@ Use the parameters below to configure the SQL protocol:
 | --------------- | ---------------------------------------------------------------------------------------------------- |
 | sql             | Protocol used to access the host.                                                                    |
 | hostname        | The name or IP address of the resource. If not specified, the `host.name` attribute will be used.    |
-| timeout         | The time in seconds before a connection attempt times out. (Default: 120s)                           |
-| username        | The username used to authenticate with the database.                                                 |
-| password        | The password used for authentication.                                                                |
+| timeout         | How long until the SQL request times out (Default: 120s).                                            |
+| username        | Name used to authenticate against the database.                                                      |
+| password        | Password used to authenticate against the database.                                                  |
 | url             | The connection URL for the database.                                                                 |
-| type            | The type of database engine (e.g., oracle, postgresql, mariadb, mssql, informix, derby, h2, etc.).   | 
+| type            | The type of database (e.g., Oracle, PostgreSQL, MSSQL, Informix, Derby, H2).                         |
 | port            | The port number used to connect to the database.                                                     |
-| database        | The database name to connect to.                                                                     |
+| database        | The name of the database instance to connect to on the server.                                       |
 
 **Example**
 

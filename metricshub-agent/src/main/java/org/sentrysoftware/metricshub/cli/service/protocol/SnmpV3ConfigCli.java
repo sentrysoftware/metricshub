@@ -42,7 +42,7 @@ import picocli.CommandLine.Option;
 public class SnmpV3ConfigCli implements IProtocolConfigCli {
 
 	/**
-	 * Default timeout in seconds for an SNMP operation
+	 * Default timeout ingit seconds for an SNMP operation
 	 */
 	public static final int DEFAULT_TIMEOUT = 30;
 

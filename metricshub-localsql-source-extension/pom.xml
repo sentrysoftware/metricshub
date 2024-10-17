@@ -9,8 +9,8 @@
 	</parent>
 
 	<artifactId>metricshub-localsql-source-extension</artifactId>
-	<name>MetricsHub SQL Extension</name>
-	<description>MetricsHub SQL Extension implementation providing a set of functionalities used to process SQL source.</description>
+	<name>MetricsHub Local SQL Extension</name>
+	<description>MetricsHub Local SQL Extension implementation providing a set of functionalities used to process Local SQL source.</description>
 	<packaging>jar</packaging>
 
 	<url>http://maven.apache.org</url>

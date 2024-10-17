@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.extension.sql;
+package org.sentrysoftware.metricshub.extension.local.sql;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲

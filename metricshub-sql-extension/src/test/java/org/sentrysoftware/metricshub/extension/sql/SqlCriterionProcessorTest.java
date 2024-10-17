@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
@@ -32,7 +33,7 @@ public class SqlCriterionProcessorTest {
 	private SqlCriterionProcessor sqlCriterionProcessor;
 
 	@BeforeEach
-	public void setUp() {
+	void setUp() {
 		sqlCriterionProcessor = new SqlCriterionProcessor(sqlRequestExecutor);
 	}
 
@@ -52,30 +53,24 @@ public class SqlCriterionProcessorTest {
 
 	// Test case for successful SQL query execution and returning success.
 	@Test
-	public void testProcessSuccess() throws Exception {
+	void testProcessSuccess() throws Exception {
 		TelemetryManager telemetryManager = createTelemetryManagerWithHostConfiguration();
 		String query = "SELECT * FROM test_table";
-		SqlCriterion sqlCriterion = SqlCriterion.builder().query(query).build();
 
-		when(
-			sqlRequestExecutor.executeSql(
-				any(String.class),
-				any(SqlConfiguration.class),
-				any(String.class),
-				any(Boolean.class)
-			)
-		)
+		String expectedResult = List.of(List.of("row1_col1", "row1_col2")).toString();
+		SqlCriterion sqlCriterion = SqlCriterion.builder().query(query).expectedResult(expectedResult).build();
+
+		when(sqlRequestExecutor.executeSql(any(), eq(sqlConfiguration), eq(query), eq(false)))
 			.thenReturn(List.of(List.of("row1_col1", "row1_col2")));
 
 		CriterionTestResult criterionTestResult = sqlCriterionProcessor.process(sqlCriterion, telemetryManager);
-
 		assertNotNull(criterionTestResult);
 		assertTrue(criterionTestResult.isSuccess());
 	}
 
 	// Test case when the SqlCriterion is null
 	@Test
-	public void testProcess_NullCriterion() {
+	void testProcess_NullCriterion() {
 		TelemetryManager telemetryManager = createTelemetryManagerWithHostConfiguration();
 		CriterionTestResult result = sqlCriterionProcessor.process(null, telemetryManager);
 		assertFalse(result.isSuccess());
@@ -83,7 +78,7 @@ public class SqlCriterionProcessorTest {
 
 	// Test case when the SqlConfiguration is null
 	@Test
-	public void testProcessNullSqlConfiguration() {
+	void testProcessNullSqlConfiguration() {
 		Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
 		configurations.put(SqlConfiguration.class, null);
 		HostConfiguration hostConfiguration = HostConfiguration
@@ -101,7 +96,7 @@ public class SqlCriterionProcessorTest {
 
 	// Test case when SQL execution throws an exception,
 	@Test
-	public void testProcessSqlRequestException() throws Exception {
+	void testProcessSqlRequestException() throws Exception {
 		TelemetryManager telemetryManager = createTelemetryManagerWithHostConfiguration();
 
 		when(
@@ -123,7 +118,7 @@ public class SqlCriterionProcessorTest {
 
 	// Test case when SQL query returns null result
 	@Test
-	public void testProcessNullResult() throws Exception {
+	void testProcessNullResult() throws Exception {
 		TelemetryManager telemetryManager = createTelemetryManagerWithHostConfiguration();
 		SqlCriterion sqlCriterion = SqlCriterion.builder().query("SELECT * FROM test_table").build();
 

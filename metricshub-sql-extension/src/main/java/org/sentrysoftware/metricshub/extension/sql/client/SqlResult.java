@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.extension.jdbc;
+package org.sentrysoftware.metricshub.extension.sql.client;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
@@ -75,5 +75,14 @@ public class SqlResult {
 	 */
 	public boolean hasWarnings() {
 		return warnings.length() > 0;
+	}
+
+	/**
+	 * Adds a row of data to the results.
+	 *
+	 * @param row the list of data to add.
+	 */
+	public void addRow(final List<String> row) {
+		results.add(row);
 	}
 }

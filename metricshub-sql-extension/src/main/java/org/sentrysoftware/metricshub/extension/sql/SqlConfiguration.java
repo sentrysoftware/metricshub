@@ -70,11 +70,7 @@ public class SqlConfiguration implements IConfiguration {
 
 	@Override
 	public String toString() {
-		String description = "SQL";
-		if (username != null) {
-			description = description + " as " + username;
-		}
-		return description;
+		return username != null ? "SQL as " + username : "SQL";
 	}
 
 	@Override
@@ -84,7 +80,9 @@ public class SqlConfiguration implements IConfiguration {
 			attr -> attr == null || attr.isBlank(),
 			() ->
 				String.format(
-					"Resource %s - No username configured for %s. " + "This resource will not be monitored.",
+					"Resource %s - No username configured for %s." +
+					" This resource will not be monitored." +
+					" Please verify the configured username value.",
 					resourceKey,
 					"SQL"
 				)
@@ -96,70 +94,71 @@ public class SqlConfiguration implements IConfiguration {
 			() ->
 				String.format(
 					"Resource %s - Timeout value is invalid for protocol %s." +
-					" Timeout value returned: %s. This resource will not be monitored. " +
-					"Please verify the configured timeout value.",
+					" Timeout value returned: %s. This resource will not be monitored." +
+					" Please verify the configured timeout value.",
 					resourceKey,
 					"SQL",
 					timeout
 				)
 		);
 
-		StringHelper.validateConfigurationAttribute(
-			database,
-			attr -> attr == null || attr.isBlank(),
-			() ->
-				String.format(
-					"Resource %s - No database name configured for protocol %s." +
-					" Database value returned: %s. This resource will not be monitored. " +
-					"Please verify the configured database value.",
-					resourceKey,
-					"SQL",
-					database
-				)
-		);
-
-		StringHelper.validateConfigurationAttribute(
-			type,
-			attr -> attr == null || attr.isBlank(),
-			() ->
-				String.format(
-					"Resource %s - Invalid Type generated for protocol %s. " +
-					"Type value returned: %s. This resource will not be monitored.",
-					resourceKey,
-					"SQL",
-					type
-				)
-		);
-
-		if (port == null) {
-			port = getDefaultPort(type);
-		}
-
-		StringHelper.validateConfigurationAttribute(
-			port,
-			attr -> attr == null || attr < 1 || attr > 65535,
-			() ->
-				String.format(
-					"Resource %s - Invalid port configured for protocol %s." +
-					" Port value returned: %s. This resource will not be monitored. " +
-					"Please verify the configured port value.",
-					resourceKey,
-					"SQL",
-					port
-				)
-		);
-
 		if (url == null || url.length == 0) {
+			StringHelper.validateConfigurationAttribute(
+				database,
+				attr -> attr == null || attr.isBlank(),
+				() ->
+					String.format(
+						"Resource %s - No database name configured for protocol %s." +
+						" Database value returned: %s. This resource will not be monitored." +
+						" Please verify the configured database value.",
+						resourceKey,
+						"SQL",
+						database
+					)
+			);
+
+			StringHelper.validateConfigurationAttribute(
+				type,
+				attr -> attr == null || attr.isBlank(),
+				() ->
+					String.format(
+						"Resource %s - Invalid Type configured for protocol %s." +
+						" Type value returned: %s. This resource will not be monitored.",
+						" Please verify the configured type value.",
+						resourceKey,
+						"SQL",
+						type
+					)
+			);
+
+			if (port == null) {
+				port = getDefaultPort(type);
+			}
+
+			StringHelper.validateConfigurationAttribute(
+				port,
+				attr -> attr < 1 || attr > 65535,
+				() ->
+					String.format(
+						"Resource %s - Invalid port configured for protocol %s." +
+						" Port value returned: %s. This resource will not be monitored." +
+						" Please verify the configured port value.",
+						resourceKey,
+						"SQL",
+						port
+					)
+			);
 			url = generateUrl();
 		}
 
 		StringHelper.validateConfigurationAttribute(
 			url,
-			attr -> attr == null || attr.length == 0,
+			attr -> attr.length == 0,
 			() ->
 				String.format(
-					"Resource %s - Invalid URL generated for protocol %s. " +
-					"URL value returned: %s. This resource will not be monitored.",
+					"Resource %s - Invalid url configured for protocol %s. " +
+					"Url value returned: %s. This resource will not be monitored." +
+					" Please verify the configured url value.",
 					resourceKey,
 					"SQL",
 					new String(url)
@@ -195,7 +194,6 @@ public class SqlConfiguration implements IConfiguration {
 			case "mssql" -> DEFAULT_MSSQL_PORT;
 			case "informix" -> DEFAULT_INFORMIX_PORT;
 			case "h2" -> DEFAULT_H2_PORT;
-			case "jtds" -> 1433;
 			default -> INVALID_PORT;
 		};
 	}
@@ -206,14 +204,11 @@ public class SqlConfiguration implements IConfiguration {
 	 */
 	public char[] generateUrl() {
 		return switch (type.toLowerCase()) {
-			case "postgresql" -> ("jdbc:postgresql://" + hostname + ":" + port + "/" + database).toCharArray();
-			case "mysql" -> ("jdbc:mysql://" + hostname + ":" + port + "/" + database).toCharArray();
-			case "mssql" -> ("jdbc:sqlserver://" +
-				hostname +
-				":" +
-				port +
-				";instanceName=SQLEXPRESS;databaseName=" +
-				database).toCharArray();
+			case "postgresql" -> String.format("jdbc:%s://%s:%d/%s", type, hostname, port, database).toCharArray();
+			case "mysql" -> String.format("jdbc:%s://%s:%d/%s", type, hostname, port, database).toCharArray();
+			case "sqlserver" -> String
+				.format("jdbc:%s://%s:%d;databaseName=%s", type, hostname, port, database)
+				.toCharArray();
 			default -> new char[0];
 		};
 	}

@@ -13,7 +13,7 @@ import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 public class SqlConfigurationTest {
 
 	@Test
-	public void testGenerateUrl() {
+	void testGenerateUrl() {
 		SqlConfiguration sqlConfiguration = SqlConfiguration
 			.builder()
 			.type("mysql")
@@ -27,7 +27,7 @@ public class SqlConfigurationTest {
 	}
 
 	@Test
-	public void testValidateConfigurationMissingUsername() {
+	void testValidateConfigurationMissingUsername() {
 		SqlConfiguration sqlConfiguration = SqlConfiguration
 			.builder()
 			.type("mysql")
@@ -41,13 +41,14 @@ public class SqlConfigurationTest {
 		);
 
 		assertEquals(
-			"Resource resourceKey - No username configured for SQL. " + "This resource will not be monitored.",
+			"Resource resourceKey - No username configured for SQL. " +
+			"This resource will not be monitored. Please verify the configured username value.",
 			exception.getMessage()
 		);
 	}
 
 	@Test
-	public void testValidateConfigurationInvalidTimeout() {
+	void testValidateConfigurationInvalidTimeout() {
 		SqlConfiguration sqlConfiguration = SqlConfiguration
 			.builder()
 			.username("testUser")
@@ -71,7 +72,7 @@ public class SqlConfigurationTest {
 	}
 
 	@Test
-	public void testValidateConfigurationInvalidPort() {
+	void testValidateConfigurationInvalidPort() {
 		SqlConfiguration sqlConfiguration = SqlConfiguration
 			.builder()
 			.username("testUser")
@@ -95,7 +96,7 @@ public class SqlConfigurationTest {
 	}
 
 	@Test
-	public void testValidateConfigurationGeneratesUrlWhenNull() {
+	void testValidateConfigurationGeneratesUrlWhenNull() {
 		SqlConfiguration sqlConfiguration = SqlConfiguration
 			.builder()
 			.username("testUser")
@@ -112,7 +113,7 @@ public class SqlConfigurationTest {
 	}
 
 	@Test
-	public void testValidateConfigurationWithEmptyUrl() {
+	void testValidateConfigurationWithEmptyUrl() {
 		SqlConfiguration sqlConfiguration = SqlConfiguration
 			.builder()
 			.username("testUser")
@@ -128,14 +129,15 @@ public class SqlConfigurationTest {
 		);
 
 		assertEquals(
-			"Resource resourceKey - Invalid URL generated for protocol SQL. " +
-			"URL value returned: . This resource will not be monitored.",
+			"Resource resourceKey - Invalid url configured for protocol SQL." +
+			" Url value returned: . This resource will not be monitored." +
+			" Please verify the configured url value.",
 			exception.getMessage()
 		);
 	}
 
 	@Test
-	public void testValidateConfigurationWithPredefinedUrl() {
+	void testValidateConfigurationWithPredefinedUrl() {
 		SqlConfiguration sqlConfiguration = SqlConfiguration
 			.builder()
 			.username("testUser")
@@ -151,7 +153,7 @@ public class SqlConfigurationTest {
 	}
 
 	@Test
-	public void testValidateConfigurationGeneratesUrlWhenEmpty() {
+	void testValidateConfigurationGeneratesUrlWhenEmpty() {
 		SqlConfiguration sqlConfiguration = SqlConfiguration
 			.builder()
 			.username("testUser")
@@ -168,7 +170,7 @@ public class SqlConfigurationTest {
 	}
 
 	@Test
-	public void testValidateConfigurationAssignsDefaultPort() {
+	void testValidateConfigurationAssignsDefaultPort() {
 		SqlConfiguration sqlConfiguration = SqlConfiguration
 			.builder()
 			.username("testUser")
@@ -183,7 +185,7 @@ public class SqlConfigurationTest {
 	}
 
 	@Test
-	public void testCopyConfigurationWithAllFields() {
+	void testCopyConfigurationWithAllFields() {
 		SqlConfiguration sqlConfiguration = SqlConfiguration
 			.builder()
 			.username("testUser")

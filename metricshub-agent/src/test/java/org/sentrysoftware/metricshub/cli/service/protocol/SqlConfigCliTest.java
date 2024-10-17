@@ -21,7 +21,7 @@ class SqlConfigCliTest {
 		sqlConfigCli.setUsername("testUser");
 		final char[] password = "testPassword".toCharArray();
 		sqlConfigCli.setPassword(password);
-		sqlConfigCli.setTimeout(60);
+		sqlConfigCli.setTimeout("60");
 		sqlConfigCli.setPort(3306);
 		sqlConfigCli.setDatabase("mydatabase");
 		sqlConfigCli.setType("MySQL");

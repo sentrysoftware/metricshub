@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
@@ -33,7 +32,7 @@ class SqlSourceProcessorTest {
 	private SqlConfiguration sqlConfiguration;
 
 	@BeforeEach
-	public void setUp() {
+	void setUp() {
 		sqlSourceProcessor = new SqlSourceProcessor(sqlRequestExecutor, "connectorId");
 	}
 
@@ -47,18 +46,14 @@ class SqlSourceProcessorTest {
 		assertEquals(SourceTable.empty(), result);
 	}
 
-	// Test case for when sqlConfiguration is null
+	// Test case when sqlConfiguration is null
 	@Test
 	void testProcessWhenConfigurationIsNullReturnsEmptySourceTable() {
 		Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
 		configurations.put(SqlConfiguration.class, null);
 		SqlSource sqlSource = SqlSource.builder().query("SELECT * FROM test_table").build();
-		HostConfiguration hostConfiguration = HostConfiguration
-			.builder()
-			.hostname("test-host")
-			.configurations(configurations)
-			.build();
-		TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
+
+		TelemetryManager telemetryManager = createTelemetryManagerWithHostConfiguration();
 		SourceTable result = sqlSourceProcessor.process(sqlSource, telemetryManager);
 		assertEquals(SourceTable.empty(), result);
 	}
@@ -68,7 +63,6 @@ class SqlSourceProcessorTest {
 	void testProcessWhenRequestExecutorThrowsExceptionReturnsEmptySourceTable() throws Exception {
 		SqlSource sqlSource = SqlSource.builder().query("SELECT * FROM test_table").build();
 		TelemetryManager telemetryManager = createTelemetryManagerWithHostConfiguration();
-		SqlConfiguration sqlConfiguration = mock(SqlConfiguration.class);
 
 		doThrow(new RuntimeException("SQL execution error"))
 			.when(sqlRequestExecutor)
@@ -80,17 +74,15 @@ class SqlSourceProcessorTest {
 
 	// Test case when requestExecutor returns a valid result
 	@Test
-	void testProcessWhenRequestExecutorReturnsValidResultReturnsSourceTableWithResult() throws Exception {
+	void testProcessWhenReturnsSourceTableWithResult() throws Exception {
 		SqlSource sqlSource = SqlSource.builder().query("SELECT * FROM test_table").build();
 		TelemetryManager telemetryManager = createTelemetryManagerWithHostConfiguration();
-		//SqlConfiguration sqlConfiguration = mock(SqlConfiguration.class);
 
-		List<List<String>> mockResults = List.of(List.of("row1_col1", "row1_col2"));
+		List<List<String>> ExpectedResults = List.of(List.of("row1_col1", "row1_col2"));
 		when(sqlRequestExecutor.executeSql("hostname", sqlConfiguration, "SELECT * FROM test_table", false))
-			.thenReturn(mockResults);
-
+			.thenReturn(ExpectedResults);
+		when(sqlConfiguration.getHostname()).thenReturn("hostname");
 		SourceTable result = sqlSourceProcessor.process(sqlSource, telemetryManager);
-		System.out.println("Table size: " + result.getTable().size());
 
 		assertNotNull(result);
 		assertTrue(result.getTable().size() == 1);
