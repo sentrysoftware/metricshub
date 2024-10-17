@@ -80,6 +80,7 @@
 
 		<menu name="Introduction">
 			<item name="Overview" href="index.html" />
+			<item name="Release Notes" href="release-notes.html" />
 			<item name="Connectors Directory" href="metricshub-connectors-directory.html" />
 		</menu>
 
