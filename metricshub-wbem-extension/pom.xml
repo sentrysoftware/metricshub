@@ -179,6 +179,7 @@
 									<include>org.sentrysoftware:wbem</include>
 									<include>org.sentrysoftware:vcenter</include>
 									<include>com.vmware:vijava</include>
+									<include>dom4j:dom4j</include>
 									<include>org.sentrysoftware:metricshub-wbem-extension</include>
 								</includes>
 								<excludes>
