@@ -850,12 +850,14 @@ resources:
 
 #### Filter monitors
 
+A monitor is any entity tracked by **MetricsHub** within the main resource, such as processes, services, storage volumes, or physical devices like disks.
+
 To manage the volume of telemetry data sent to your observability platform and therefore reduce costs and optimize performance, you can specify which monitors to include or exclude.
 
 You can apply monitor inclusion or exclusion in data collection for the following scopes:
 
 * All resources
-* All the resources within a specific resource group
+* All the resources within a specific resource group. A resource group is a container that holds resources to be monitored and generally refers to a site or a specific location. 
 * A specific resource
 
 This is done by  adding the `monitorFilters` parameter in the relevant section of the `config/metricshub.yaml` file as described below: 
@@ -869,7 +871,7 @@ This is done by  adding the `monitorFilters` parameter in the relevant section o
 The `monitorFilters` parameter accepts the following values:
 
 * `+<monitor_name>` for inclusion
-* `!<monitor_name>` for exclusion.
+* `"!<monitor_name>"` for exclusion.
 
 To obtain the monitor name:
 
@@ -890,7 +892,7 @@ The monitoring of critical devices such as batteries, power supplies, CPUs, fans
 
 ##### Example 2: Excluding monitors for all resources 
    ```yaml
-   monitorFilters: [ !voltage ] # Exclude specific monitors globally.
+   monitorFilters: [ "!volume" ] # Exclude specific monitors globally
    ```
 ##### Example 3: Including monitors for all resources within a specific resource group
 
@@ -905,7 +907,7 @@ The monitoring of critical devices such as batteries, power supplies, CPUs, fans
    ```yaml
    resourceGroups:
      <resource-group-name>:
-       monitorFilters: [ !voltage ] # Exclude specific monitors for this group
+       monitorFilters: [ "!volume" ] # Exclude specific monitors for this group
        resources: ...
    ```
 ##### Example 5: Including monitors for a specific resource
@@ -925,7 +927,7 @@ The monitoring of critical devices such as batteries, power supplies, CPUs, fans
      <resource-group-name>:
        resources:
          <resource-id>:
-           monitorFilters: [ !voltage ] # Exclude specific monitors for this resource
+           monitorFilters: [ "!volume" ] # Exclude specific monitors for this resource
    ``` 
 
 #### Discovery cycle
