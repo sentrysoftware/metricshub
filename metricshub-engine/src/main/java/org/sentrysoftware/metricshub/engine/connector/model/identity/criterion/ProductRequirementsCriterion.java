@@ -28,7 +28,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 /**
  * Represents a detection criterion based on product requirements, including engine and Knowledge Module (KM) versions.
@@ -37,7 +36,6 @@ import lombok.ToString;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 public class ProductRequirementsCriterion extends Criterion {
 
 	private static final long serialVersionUID = 1L;

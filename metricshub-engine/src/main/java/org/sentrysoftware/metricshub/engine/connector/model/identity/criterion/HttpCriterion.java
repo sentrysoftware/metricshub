@@ -33,7 +33,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.ToString;
 import org.sentrysoftware.metricshub.engine.connector.model.common.HttpMethod;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
 
@@ -43,7 +42,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 public class HttpCriterion extends Criterion {
 
 	private static final long serialVersionUID = 1L;

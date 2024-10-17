@@ -31,7 +31,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.DeviceKindSetDeserializer;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 
@@ -41,7 +40,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 public class DeviceTypeCriterion extends Criterion {
 
 	private static final long serialVersionUID = 1L;

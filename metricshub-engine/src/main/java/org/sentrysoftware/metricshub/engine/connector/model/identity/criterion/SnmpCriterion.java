@@ -31,7 +31,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.ToString;
 import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.NonBlankDeserializer;
 
 /**
@@ -44,7 +43,6 @@ import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.NonBla
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 public abstract class SnmpCriterion extends Criterion {
 
 	private static final long serialVersionUID = 1L;
