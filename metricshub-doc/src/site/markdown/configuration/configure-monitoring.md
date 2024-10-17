@@ -890,7 +890,7 @@ The monitoring of critical devices such as batteries, power supplies, CPUs, fans
 
 ##### Example 2: Excluding monitors for all resources 
    ```yaml
-   monitorFilters: [ !voltage ] # Exclude specific monitors globally
+   monitorFilters: [ !voltage ] # Exclude specific monitors globally.
    ```
 ##### Example 3: Including monitors for all resources within a specific resource group
 
