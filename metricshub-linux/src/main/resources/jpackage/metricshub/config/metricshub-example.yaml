@@ -249,7 +249,7 @@ resourceGroups:
       #       timeout: 120
       #       username: admin
       #       password: password
-      #       vcenter: server-vcenter
+      #       vcenter: vcenter-server # Optional, for multi-tier authentication only
 
       #═══════════════════════════════════════════════════
       # ICMP Ping protocol configuration    
