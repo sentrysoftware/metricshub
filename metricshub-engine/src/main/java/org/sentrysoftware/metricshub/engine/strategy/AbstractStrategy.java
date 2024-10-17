@@ -50,6 +50,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.strategy.detection.ConnectorSelection;
 import org.sentrysoftware.metricshub.engine.strategy.detection.ConnectorTestResult;
+import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.source.ISourceProcessor;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceProcessor;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
@@ -441,31 +442,18 @@ public abstract class AbstractStrategy implements IStrategy {
 	 */
 	protected String buildStatusInformation(final String hostname, final ConnectorTestResult testResult) {
 		final StringBuilder value = new StringBuilder();
-
 		final String builtTestResult = testResult
 			.getCriterionTestResults()
 			.stream()
 			.filter(criterionTestResult ->
 				!(criterionTestResult.getResult() == null && criterionTestResult.getMessage() == null)
 			)
-			.map(criterionResult -> {
-				final String result = criterionResult.getResult();
-				final String message = criterionResult.getMessage();
-				return String.format(
-					"Received Result: %s. %s",
-					result != null ? result : "N/A",
-					message != null ? message : "N/A"
-				);
-			})
+			.map(CriterionTestResult::displayCriterionMessage)
 			.collect(Collectors.joining("\n"));
 		value
 			.append(builtTestResult)
-			.append("\nConclusion: ")
-			.append("Test on ")
-			.append(hostname)
-			.append(" ")
-			.append(testResult.isSuccess() ? "SUCCEEDED" : "FAILED");
-
+			.append("Conclusion:\n")
+			.append(String.format("Test on %s %s", hostname, testResult.isSuccess() ? "SUCCEEDED" : "FAILED"));
 		return value.toString();
 	}
 
