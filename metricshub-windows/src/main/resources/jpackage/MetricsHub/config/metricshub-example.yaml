@@ -233,7 +233,9 @@ resourceGroups:
       #       authentications: [ntlm, kerberos]
 
       #═══════════════════════════════════════════════════
-      # vCenter WBEM configuration            
+      # ESXi Host Configuration through WBEM service
+      # Authentication certificate will be requested
+      # from the specified VMware vCenter server
       #═══════════════════════════════════════════════════
 
       # server-11:
