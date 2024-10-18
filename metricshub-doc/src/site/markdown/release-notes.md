@@ -53,6 +53,7 @@ description: Learn more about the new features, changes and improvements, and bu
 | [**\#417**](https://github.com/sentrysoftware/metricshub/issues/417) | JavaDoc references are incorrect                                                 |
 | [**\#410**](https://github.com/sentrysoftware/metricshub/issues/410) | Protocol definition is applied to only one host in a multiple-host configuration |
 | [**\#368**](https://github.com/sentrysoftware/metricshub/issues/368) | The \`hw.power{hw.type="vm"}\` metric is erroneously set to 0                    |
+| [**\#456**](https://github.com/sentrysoftware/metricshub/issues/456) | An exception occurs when monitoring ESXi through vCenter authentication          |
 
 ### MetricsHub Community Connectors v1.0.06
 
