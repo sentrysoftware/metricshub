@@ -6,6 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
+import static org.sentrysoftware.metricshub.engine.common.helpers.StringHelper.protectCaseInsensitiveRegex;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_CAMEL_CASE;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.SINGLE_SPACE;
 
 import java.util.Collections;
 import java.util.List;
@@ -91,5 +94,15 @@ class StringHelperTest {
 		assertFalse(StringHelper.nonNullNonBlank(EMPTY));
 		assertFalse(StringHelper.nonNullNonBlank(null));
 		assertTrue(StringHelper.nonNullNonBlank("text"));
+	}
+
+	@Test
+	void testProtectCaseInsensitiveRegex() {
+		assertThrows(IllegalArgumentException.class, () -> protectCaseInsensitiveRegex(null));
+		assertThrows(IllegalArgumentException.class, () -> protectCaseInsensitiveRegex(EMPTY));
+		assertEquals(SINGLE_SPACE, protectCaseInsensitiveRegex(SINGLE_SPACE));
+		assertEquals("(?i)\\QHost\\E", protectCaseInsensitiveRegex(HOST_CAMEL_CASE));
+		assertEquals("(?i)\\Q%{UserName}\\E", protectCaseInsensitiveRegex("%{UserName}"));
+		assertEquals("(?i)\\Q%{HOSTNAME}\\E", protectCaseInsensitiveRegex("%{HOSTNAME}"));
 	}
 }

@@ -27,6 +27,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import org.sentrysoftware.metricshub.engine.common.helpers.MacrosUpdater;
 
 /**
  * Represents an HTTP request body with a string content.
@@ -46,7 +47,7 @@ public class StringBody implements Body {
 
 	@Override
 	public String getContent(String username, char[] password, String authenticationToken, @NonNull String hostname) {
-		return HttpMacrosUpdater.update(body, username, password, authenticationToken, hostname);
+		return MacrosUpdater.update(body, username, password, authenticationToken, hostname, false);
 	}
 
 	@Override
