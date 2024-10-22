@@ -828,7 +828,7 @@ loggerLevel: ...
 
 #### Configure Connector Variables
 
-In **MetricsHub**, connector variables are essential for customizing the behavior of data collection. These variables are configured in the `additionalConnectors` section of your `metricshub.yaml` file. When configuring variables for connectors with variables, the connector becomes an additional connector, which is forced by default and will use the variables configured by the user.
+In **MetricsHub**, connector variables are essential for customizing the behavior of data collection. These variables are configured in the `additionalConnectors` section of your `metricshub.yaml` file. When configuring variables for connectors with variables, the connector becomes an additional connector, which is by default forced, and uses the variables configured by the user.
 
 Each additional connector is identified by its ID, and the variables are specified under this ID in the additionalConnectors section. The variables consist of key-value pairs, where the key corresponds to a variable already defined in the connector.
 
@@ -846,17 +846,96 @@ resources:
       wmi:
         timeout: 120
     additionalConnectors:
-      metricshubWindowsProcess: # Additional Connector ID
-        uses: WindowsProcess # ID of the connector to customize.
-        force: true # true by default
+      metricshubWindowsProcess: #  Unique ID. Use 'uses' if different from the original connector ID
+        uses: WindowsProcess # Optional - Original ID if not in key
+        force: true # Optional (default: true); false for auto-detection only
         variables:
-          processName: 'metricshub.exe'
-
+          processName: "('msedge.exe', 'metricshub.exe')"
 ```
 
-If a connector with variables is forced or configured under `additionalConnectors` section but without variables, this latter will still be used with default connector variables that are defined in the connector under `defaultVariables` section.
+If a connector with variables is forced or configured under the `additionalConnectors` section, but some or all of its variables are not specified, the missing variables will be automatically replaced with the default values defined in the `defaultVariables` section of the connector.
 
-If `uses` is not specified, MetricsHub will deduce that the additional connectorId is the connectorId.
+#### Filter monitors
+
+A monitor is any entity tracked by **MetricsHub** within the main resource, such as processes, services, storage volumes, or physical devices like disks.
+
+To manage the volume of telemetry data sent to your observability platform and therefore reduce costs and optimize performance, you can specify which monitors to include or exclude.
+
+You can apply monitor inclusion or exclusion in data collection for the following scopes:
+
+* All resources
+* All the resources within a specific resource group. A resource group is a container that holds resources to be monitored and generally refers to a site or a specific location. 
+* A specific resource
+
+This is done by  adding the `monitorFilters` parameter in the relevant section of the `config/metricshub.yaml` file as described below: 
+
+| Filter monitors                                    | Add monitorFilters |
+|----------------------------------------------------|---|
+| For all resources                                  |In the global section (top of the file)   |
+| For all the resources of a specific resource group | Under the corresponding `<resource-group-name>` section |
+| For a specific resource                            |Under the corresponding `<resource-id>`  section|
+
+The `monitorFilters` parameter accepts the following values:
+
+* `+<monitor_name>` for inclusion
+* `"!<monitor_name>"` for exclusion.
+
+To obtain the monitor name:
+
+1. Refer to the [`MetricsHub Connector Library`](../metricshub-connectors-directory.html)
+2. Click the connector of your choice (e.g.: [WindowsOS Metrics](../connectors/windows.html))
+3. Scroll-down to the **Metrics** section and note down the relevant monitor **Type**.
+
+> **Warning**: Excluding monitors may lead to missed outage detection or inconsistencies in collected data, such as inaccurate power consumption estimates or other metrics calculated by the engine. Use exclusions carefully to avoid overlooking important information. 
+The monitoring of critical devices such as batteries, power supplies, CPUs, fans, and memories should not be disabled. 
+
+##### Example 1: Including monitors for all resources
+
+
+   ```yaml
+   monitorFilters: [ +enclosure, +fan, +power_supply ] # Include specific monitors globally
+   resourceGroups: ...
+   ```
+
+##### Example 2: Excluding monitors for all resources 
+   ```yaml
+   monitorFilters: [ "!volume" ] # Exclude specific monitors globally
+   ```
+##### Example 3: Including monitors for all resources within a specific resource group
+
+   ```yaml
+   resourceGroups:
+     <resource-group-name>:
+       monitorFilters: [ +enclosure, +fan, +power_supply ] # Include specific monitors for this group
+       resources: ...
+   ```
+##### Example 4: Excluding monitors for all resources within a specific resource group
+
+   ```yaml
+   resourceGroups:
+     <resource-group-name>:
+       monitorFilters: [ "!volume" ] # Exclude specific monitors for this group
+       resources: ...
+   ```
+##### Example 5: Including monitors for a specific resource
+
+   ```yaml
+   resourceGroups:
+     <resource-group-name>:
+       resources:
+         <resource-id>:
+           monitorFilters: [ +enclosure, +fan, +power_supply ] # Include specific monitors for this resource
+   ```
+
+##### Example 6: Excluding monitors for a specific resource
+
+   ```yaml
+   resourceGroups:
+     <resource-group-name>:
+       resources:
+         <resource-id>:
+           monitorFilters: [ "!volume" ] # Exclude specific monitors for this resource
+   ``` 
 
 #### Discovery cycle
 

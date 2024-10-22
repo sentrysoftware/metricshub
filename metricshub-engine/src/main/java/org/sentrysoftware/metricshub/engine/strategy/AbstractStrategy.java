@@ -30,7 +30,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -41,6 +43,7 @@ import org.sentrysoftware.metricshub.engine.common.JobInfo;
 import org.sentrysoftware.metricshub.engine.common.exception.RetryableException;
 import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
+import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Compute;
@@ -421,9 +424,49 @@ public abstract class AbstractStrategy implements IStrategy {
 			String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), connectorId)
 		);
 
-		collectConnectorStatus(connectorTestResult.isSuccess(), connectorId, monitor);
+		// Add statusInformation to legacyTextParameters attribute of the connector monitor
+		final String statusInformation = buildStatusInformation(hostname, connectorTestResult);
+		final Map<String, String> legacyTextParameters = monitor.getLegacyTextParameters();
+		legacyTextParameters.put("StatusInformation", statusInformation);
 
+		collectConnectorStatus(connectorTestResult.isSuccess(), connectorId, monitor);
 		return connectorTestResult.isSuccess();
+	}
+
+	/**
+	 * Builds the status information for the connector
+	 * @param hostname   Hostname of the resource being monitored
+	 * @param testResult Test result of the connector
+	 * @return String representing the status information
+	 */
+	protected String buildStatusInformation(final String hostname, final ConnectorTestResult testResult) {
+		final StringBuilder value = new StringBuilder();
+
+		final String builtTestResult = testResult
+			.getCriterionTestResults()
+			.stream()
+			.filter(criterionTestResult ->
+				!(criterionTestResult.getResult() == null && criterionTestResult.getMessage() == null)
+			)
+			.map(criterionResult -> {
+				final String result = criterionResult.getResult();
+				final String message = criterionResult.getMessage();
+				return String.format(
+					"Received Result: %s. %s",
+					result != null ? result : "N/A",
+					message != null ? message : "N/A"
+				);
+			})
+			.collect(Collectors.joining("\n"));
+		value
+			.append(builtTestResult)
+			.append("\nConclusion: ")
+			.append("Test on ")
+			.append(hostname)
+			.append(" ")
+			.append(testResult.isSuccess() ? "SUCCEEDED" : "FAILED");
+
+		return value.toString();
 	}
 
 	/**
@@ -457,5 +500,22 @@ public abstract class AbstractStrategy implements IStrategy {
 
 		// Set isStatusOk to true in ConnectorNamespace
 		connectorNamespace.setStatusOk(isSuccessCriteria);
+	}
+
+	/**
+	 * Return true if the monitor type is to be filtered and not processed.
+	 * @param monitorType The monitor type to check.
+	 * @return boolean value.
+	 */
+	public boolean isMonitorFiltered(final String monitorType) {
+		final HostConfiguration hostConfiguration = telemetryManager.getHostConfiguration();
+		final Set<String> includedMonitors = hostConfiguration.getIncludedMonitors();
+		final Set<String> excludedMonitors = hostConfiguration.getExcludedMonitors();
+		// CHECKSTYLE:OFF
+		return (
+			(includedMonitors != null && !includedMonitors.contains(monitorType)) ||
+			(excludedMonitors != null && excludedMonitors.contains(monitorType))
+		);
+		// CHECKSTYLE:ON
 	}
 }

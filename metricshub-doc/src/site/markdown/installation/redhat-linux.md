@@ -69,6 +69,25 @@ To uninstall **MetricsHub Enterprise**, run the command below:
 sudo rpm -e metricshub-${enterpriseVersion}-1.x86_64
 ```
 
+### Upgrade
+
+If you have installed a previous version of **MetricsHub Enterprise** and want to upgrade to the latest version **${enterpriseVersion}**, follow these steps:
+
+1. From [MetricsHub's Web site](https://metricshub.com/downloads), download **metricshub-enterprise-rhel-${enterpriseVersion}-1.x86_64.rpm** and copy the file into the `/usr/local` directory.
+
+2. Run the following command to stop the **MetricsHub Enterprise** service:
+
+   ```shell-session
+   systemctl stop metricshub-enterprise-service
+   ```
+
+3. Run the following `rpm` command:
+
+   ```shell-session
+   cd /usr/local
+   sudo rpm -U metricshub-enterprise-rhel-${enterpriseVersion}-1.x86_64.rpm
+   ```
+
 ## Community Edition
 
 ### Download

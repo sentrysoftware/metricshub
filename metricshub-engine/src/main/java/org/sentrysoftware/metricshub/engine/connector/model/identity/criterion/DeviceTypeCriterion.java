@@ -21,14 +21,16 @@ package org.sentrysoftware.metricshub.engine.connector.model.identity.criterion;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.NEW_LINE;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.StringJoiner;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.DeviceKindSetDeserializer;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 
@@ -38,7 +40,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 public class DeviceTypeCriterion extends Criterion {
 
 	private static final long serialVersionUID = 1L;
@@ -68,5 +69,13 @@ public class DeviceTypeCriterion extends Criterion {
 		super(type, forceSerialization);
 		this.keep = keep == null ? new HashSet<>() : keep;
 		this.exclude = exclude == null ? new HashSet<>() : exclude;
+	}
+
+	@Override
+	public String toString() {
+		final StringJoiner stringJoiner = new StringJoiner(NEW_LINE);
+		stringJoiner.add(new StringBuilder("- Keep: ").append(keep));
+		stringJoiner.add(new StringBuilder("- Exclude: ").append(exclude));
+		return stringJoiner.toString();
 	}
 }

@@ -73,6 +73,9 @@ public class ResourceConfig {
 	private Boolean sequential;
 	private Boolean resolveHostnameToFqdn;
 
+	@JsonSetter(nulls = SKIP)
+	private Set<String> monitorFilters;
+
 	@JsonDeserialize(using = TimeDeserializer.class)
 	private Long jobTimeout;
 
@@ -123,6 +126,7 @@ public class ResourceConfig {
 			.discoveryCycle(discoveryCycle)
 			.alertingSystemConfig(alertingSystemConfig)
 			.sequential(sequential)
+			.monitorFilters(monitorFilters)
 			.resolveHostnameToFqdn(resolveHostnameToFqdn)
 			.jobTimeout(jobTimeout)
 			.attributes(

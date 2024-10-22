@@ -26,8 +26,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.connector.model.common.SqlTable;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.LocalSqlSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SqlSource;
 import org.sentrysoftware.metricshub.engine.extension.ISourceComputationExtension;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -37,7 +37,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
  * processes Sql sources.
  */
 @Slf4j
-public class SqlExtension implements ISourceComputationExtension {
+public class LocalSqlExtension implements ISourceComputationExtension {
 
 	@Override
 	public SourceTable processSource(Source source, String connectorId, TelemetryManager telemetryManager) {
@@ -48,27 +48,27 @@ public class SqlExtension implements ISourceComputationExtension {
 			return SourceTable.empty();
 		}
 
-		if (!(source instanceof SqlSource sqlSource)) {
+		if (!(source instanceof LocalSqlSource localSqlSource)) {
 			log.warn("Hostname {} - SQL Source is invalid, the SQL operation will return an empty result.", hostname);
 			return SourceTable.empty();
 		}
 
-		final List<SqlTable> sqlTables = sqlSource.getTables();
+		final List<SqlTable> sqlTables = localSqlSource.getTables();
 		if (sqlTables == null) {
 			log.debug(
 				"Hostname {} - Table list in the SQL Source cannot be null, the SQL operation {} will return an empty result.",
 				hostname,
-				sqlSource
+				localSqlSource
 			);
 			return SourceTable.empty();
 		}
 
-		final String query = sqlSource.getQuery();
+		final String query = localSqlSource.getQuery();
 		if (query == null || query.isBlank()) {
 			log.debug(
 				"Hostname {} - Query in the SQL Source cannot be null, the SQL operation {} will return an empty result.",
 				hostname,
-				sqlSource
+				localSqlSource
 			);
 			return SourceTable.empty();
 		}
@@ -91,6 +91,6 @@ public class SqlExtension implements ISourceComputationExtension {
 
 	@Override
 	public boolean isValidSource(Source source) {
-		return source instanceof SqlSource;
+		return source instanceof LocalSqlSource;
 	}
 }

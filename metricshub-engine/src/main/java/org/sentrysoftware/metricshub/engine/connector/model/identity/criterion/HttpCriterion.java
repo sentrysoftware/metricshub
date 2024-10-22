@@ -22,16 +22,17 @@ package org.sentrysoftware.metricshub.engine.connector.model.identity.criterion;
  */
 
 import static com.fasterxml.jackson.annotation.Nulls.SKIP;
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.NEW_LINE;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import java.util.StringJoiner;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.ToString;
 import org.sentrysoftware.metricshub.engine.connector.model.common.HttpMethod;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
 
@@ -41,7 +42,6 @@ import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 public class HttpCriterion extends Criterion {
 
 	private static final long serialVersionUID = 1L;
@@ -137,5 +137,38 @@ public class HttpCriterion extends Criterion {
 		this.errorMessage = errorMessage;
 		this.resultContent = resultContent == null ? ResultContent.BODY : resultContent;
 		this.authenticationToken = authenticationToken;
+	}
+
+	@Override
+	public String toString() {
+		final StringJoiner stringJoiner = new StringJoiner(NEW_LINE);
+		if (method != null) {
+			stringJoiner.add(new StringBuilder("- Method: ").append(method));
+		}
+		if (!url.isBlank()) {
+			stringJoiner.add(new StringBuilder("- URL: ").append(url));
+		}
+		if (!path.isBlank()) {
+			stringJoiner.add(new StringBuilder("- Path: ").append(path));
+		}
+		if (header != null && !header.isBlank()) {
+			stringJoiner.add(new StringBuilder("- Header: ").append(header));
+		}
+		if (body != null && !body.isBlank()) {
+			stringJoiner.add(new StringBuilder("- Body: ").append(body));
+		}
+		if (expectedResult != null && !expectedResult.isBlank()) {
+			stringJoiner.add(new StringBuilder("- ExpectedResult: ").append(expectedResult));
+		}
+		if (errorMessage != null && !errorMessage.isBlank()) {
+			stringJoiner.add(new StringBuilder("- ErrorMessage: ").append(errorMessage));
+		}
+		if (resultContent != null) {
+			stringJoiner.add(new StringBuilder("- ResultContent: ").append(resultContent));
+		}
+		if (authenticationToken != null && !authenticationToken.isBlank()) {
+			stringJoiner.add(new StringBuilder("- AuthenticationToken: ").append(authenticationToken));
+		}
+		return stringJoiner.toString();
 	}
 }
