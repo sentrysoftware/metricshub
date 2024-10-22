@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
  * <p>This test class verifies that macros within a text string are correctly
  * replaced with their corresponding values, including proper escaping for various contexts
  * such as JSON, XML, SQL, etc.
+ * </p>
  */
 class MacrosUpdaterTest {
 
@@ -138,7 +139,7 @@ class MacrosUpdaterTest {
 	 * Tests the escaping of special characters in URLs.
 	 */
 	@Test
-	public void testEscapeUrlSpecialCharacters() {
+	void testEscapeUrlSpecialCharacters() {
 		assertEquals("Hello%20World", MacrosUpdater.escapeUrlSpecialCharacters("Hello World"));
 		assertEquals("test%40example.com", MacrosUpdater.escapeUrlSpecialCharacters("test@example.com"));
 		assertEquals("%24%26%2F%3F", MacrosUpdater.escapeUrlSpecialCharacters("$&/?"));
@@ -150,7 +151,7 @@ class MacrosUpdaterTest {
 	 * Tests the escaping of special characters in regular expressions.
 	 */
 	@Test
-	public void testEscapeRegexSpecialCharacters() {
+	void testEscapeRegexSpecialCharacters() {
 		// Test escaping of common regex characters
 		assertEquals("\\Q.\\E", MacrosUpdater.escapeRegexSpecialCharacters("."));
 		assertEquals("\\Q^\\E", MacrosUpdater.escapeRegexSpecialCharacters("^"));
@@ -185,7 +186,7 @@ class MacrosUpdaterTest {
 	 * Tests the escaping of special characters in XML strings.
 	 */
 	@Test
-	public void testEscapeXmlSpecialCharacters() {
+	void testEscapeXmlSpecialCharacters() {
 		assertEquals("&lt;tag&gt;", MacrosUpdater.escapeXmlSpecialCharacters("<tag>"));
 		assertEquals("Fish &amp; Chips", MacrosUpdater.escapeXmlSpecialCharacters("Fish & Chips"));
 		assertEquals("&quot;Hello&quot;", MacrosUpdater.escapeXmlSpecialCharacters("\"Hello\""));
@@ -196,7 +197,7 @@ class MacrosUpdaterTest {
 	 * Tests the escaping of special characters in Windows CMD strings.
 	 */
 	@Test
-	public void testEscapeWindowsCmdSpecialCharacters() {
+	void testEscapeWindowsCmdSpecialCharacters() {
 		assertEquals("^&^|^<^>", MacrosUpdater.escapeWindowsCmdSpecialCharacters("&|<>"));
 		assertEquals("Hello ^^World", MacrosUpdater.escapeWindowsCmdSpecialCharacters("Hello ^World"));
 		assertEquals("foo^(bar^)", MacrosUpdater.escapeWindowsCmdSpecialCharacters("foo(bar)"));
@@ -207,7 +208,7 @@ class MacrosUpdaterTest {
 	 * Tests the escaping of special characters in PowerShell strings.
 	 */
 	@Test
-	public void testEscapePowershellSpecialCharacters() {
+	void testEscapePowershellSpecialCharacters() {
 		assertEquals(
 			"This is a test with `\"double quotes`\" and `$variables`.",
 			MacrosUpdater.escapePowershellSpecialCharacters("This is a test with \"double quotes\" and $variables.")
@@ -226,7 +227,7 @@ class MacrosUpdaterTest {
 	 * Tests the escaping of special characters in Bash strings.
 	 */
 	@Test
-	public void testEscapeBashSpecialCharacters() {
+	void testEscapeBashSpecialCharacters() {
 		assertEquals("\\$\\!\\*", MacrosUpdater.escapeBashSpecialCharacters("$!*"));
 		assertEquals("\\&\\|\\<\\>", MacrosUpdater.escapeBashSpecialCharacters("&|<>"));
 		assertEquals("\\\\'Hello\\\\'", MacrosUpdater.escapeBashSpecialCharacters("'Hello'"));
@@ -237,7 +238,7 @@ class MacrosUpdaterTest {
 	 * Tests the escaping of special characters in SQL strings.
 	 */
 	@Test
-	public void testEscapeSqlSpecialCharacters() {
+	void testEscapeSqlSpecialCharacters() {
 		assertEquals("O''Reilly", MacrosUpdater.escapeSqlSpecialCharacters("O'Reilly"));
 		assertEquals("Line\\nBreak", MacrosUpdater.escapeSqlSpecialCharacters("Line\nBreak"));
 		assertEquals("Column\\tTab", MacrosUpdater.escapeSqlSpecialCharacters("Column\tTab"));
