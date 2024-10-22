@@ -153,6 +153,12 @@ public class CriterionTestResult {
 		return CriterionTestResult.builder().success(true).message(message).result(result).criterion(criterion).build();
 	}
 
+	/**
+	 * Formats and displays the criterion message in a structured, readable format.
+	 * The output includes information about the executed criterion, its details, 
+	 * the result, and an additional message, each presented in distinct sections.
+	 * @return a formatted string that displays the criterion name, details, result, and message.
+	 */
 	public String displayCriterionMessage() {
 		return String.format(
 			"Executed %s Criterion:\n" +
@@ -171,10 +177,5 @@ public class CriterionTestResult {
 			result != null ? result : "N/A",
 			message != null ? message : "N/A"
 		);
-	}
-
-	public CriterionTestResult setCriterion(final Criterion criterion) {
-		this.criterion = criterion;
-		return this;
 	}
 }

@@ -282,7 +282,8 @@ public class CriterionProcessor {
 		final CriterionTestResult result = localOSVisitor.getCriterionTestResult();
 
 		if (result != null) {
-			return result.setCriterion(processCriterion);
+			result.setCriterion(processCriterion);
+			return result;
 		} else {
 			return CriterionTestResult.error(
 				processCriterion,
@@ -363,7 +364,10 @@ public class CriterionProcessor {
 		return maybeExtension
 			.map(extension -> {
 				CriterionTestResult result = extension.processCriterion(criterion, connectorId, telemetryManager);
-				return result != null ? result.setCriterion(criterion) : null;
+				if (result != null) {
+					result.setCriterion(criterion);
+				}
+				return result;
 			})
 			.orElseGet(CriterionTestResult::empty);
 	}
