@@ -186,7 +186,8 @@ public class WbemRequestExecutor {
 			if (e instanceof InterruptedException) {
 				Thread.currentThread().interrupt();
 			}
-			log.error("Hostname {} - Vcenter ticket refresh query failed. Exception: {}", e);
+			log.error("Hostname {} - vCenter ticket refresh query failed. Error message: {}", hostname, e.getMessage());
+			log.debug("Hostname {} - vCenter ticket refresh query failed.", hostname, e);
 			throw new ClientException("vCenter refresh ticket query failed on " + hostname + ".", e);
 		}
 	}
