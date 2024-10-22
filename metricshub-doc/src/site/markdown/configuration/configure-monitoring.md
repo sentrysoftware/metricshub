@@ -3,79 +3,131 @@ description: How to configure the MetricsHub Agent to collect metrics from a var
 
 # Monitoring Configuration
 
-<!-- MACRO{toc|fromDepth=1|toDepth=1|id=toc} -->
+<!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-**MetricsHub** extracts metrics from any resource configured in the `config/metricshub.yaml` file located under:
+**MetricsHub** extracts metrics from the resources configured in the `config/metricshub.yaml` file.
+These **resources** can be hosts, applications, or other components running in your IT infrastructure.
+Each **resource** is typically associated with a physical location, such as a data center or server room, or a logical location, like a business unit.
+In **MetricsHub**, these locations are referred to as **sites**. 
+In highly distributed infrastructures, multiple resources can be organized into **resource groups** to simplify management and monitoring.
+
+To reflect this organization, you are asked to define your **resource group** first, followed by your **site** and its corresponding **resources** in the `config/metricshub.yaml` file stored in:
 
 > * `C:\ProgramData\MetricsHub\config` on Windows systems
-> * `./metricshub/lib/config` on Linux systems.
+> * `./metricshub/lib/config` on Linux systems
 
-> **Important**: We recommend using an editor supporting the [Schemastore](https://www.schemastore.org/json#editors) to edit **MetricsHub**'s configuration YAML files (Example: [Visual Studio Code](https://code.visualstudio.com/download) and [vscode.dev](https://vscode.dev), with [RedHat's YAML extension](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml)).
+> **Important**: We recommend using an editor supporting the 
+[Schemastore](https://www.schemastore.org/json#editors) to edit **MetricsHub**'s configuration YAML
+ files (Example: [Visual Studio Code](https://code.visualstudio.com/download) and 
+ [vscode.dev](https://vscode.dev), 
+ with [RedHat's YAML extension](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml)).
 
-## Configure resources
+## Step 1: Configure resource groups
 
-The structure of the `config/metricshub.yaml` file allows you to organize and manage your resources methodically. Refer to the sections below to learn how to configure your resources effectively.
+> Note: For centralized infrastructures, `resourceGroups` are not required.
+ Simply configure resources as explained in [Step 2](./configure-monitoring.html#step-2-configure-resources). 
 
-### General structure
-
-The `config/metricshub.yaml` file is organized in a hierarchical manner to facilitate the management of various resources:
+Create a resource group for each site to be monitored under the `resourceGroups:` section:
 
 ```yaml
 resourceGroups:
-  <resource-group-name>:
+  <resource-group-name>: 
     attributes:
-      site: <site-name>
+      site: <site-name> # Specify where resources are hosted
+```
+Replace:
+
+* `<resource-group-name>` with the actual name of your resource group
+* `<site-name>` with the name of a logical or physical location. This value must be unique.
+
+**Example:**
+
+```yaml
+resourceGroups:
+  boston:
+    attributes:
+      site: boston
+```
+
+At this stage, you can configure sustainability metrics reporting. For more details, refer to the [Sustainability](configure-sustainability-metrics.html) page.
+
+## Step 2: Configure resources
+
+**Resources** can either be configured:
+
+* under the `resources` section located at the top of the `config/metricshub.yaml` file *(recommended for centralized infrastructures)*
+
+    ```yaml
+    attribute:
+      site: <central-site>
+
     resources:
       <resource-id>:
         attributes:
           host.name: <hostname>
           host.type: <type>
         <protocol-configuration>
+    ```
+* or under the resource group you previously specified *(recommended for highly distributed infrastructures)*
+
+  ```yaml
+  resourceGroups: 
+    <resource-group-name>: 
+      attributes:
+        site: <site-name> 
+      resources:
+        <resource-id>:
+          attributes:
+            host.name: <hostname>
+            host.type: <type>
+          <protocol-configuration>
+  ```
+
+The syntax to adopt for configuring your resources will differ whether your resources have unique 
+or similar characteristics (such as device type, protocols, and credentials).
+
+### Syntax for unique resources
+
+```yaml
+resources:
+  <resource-id>:
+    attributes:
+      host.name: <hostname> 
+      host.type: <type>  
+    <protocol-configuration> 
 ```
 
-where
+### Syntax for resources sharing similar characteristics
 
-* `resourceGroups` is the top-level grouping for all resource groups
-  * `<resource-group-name>` is a container that holds the site to be monitored
-    * `site` is an attribute to specify where resources are hosted. Replace  `<site-name>`with a unique site name. It can either be a logical or a physical location (a data center or server room).
-  * `resources` is a container that holds the resources to be monitored within the resource group
-    * `<resource-id>` is the unique ID of your resource. It can for example be the ID of a host, an application, or a service
-      * `host.name` is an attribute to specify the hostname or IP address of the resource. Replace `<hostname>` with the actual hostname or IP address of the resource. Use a comma-delimited list to specify several resources (`<hostname1>,<hostname2>, etc.`).
-      * `host.type`  is an attribute to specify the type of resource to be monitored. Replace `<type>` with one of the possible values:
-        * `win` for Microsoft Windows systems
-        * `linux` for Linux systems
-        * `network` for network devices
-        * `oob` for Out-of-band management cards
-        * `storage` for storage systems
-        * `aix` for IBM AIX systems
-        * `hpux` for HP UX systems
-        * `solaris` for Oracle Solaris systems
-        * `tru64` for HP Tru64 systems
-        * `vms` for HP Open VMS systems.
-
-    * `<protocol-configuration>` is the protocol(s) **MetricsHub** will use to communicate with the resources: `http`, `ipmi`, `oscommand`, `ping`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and Credentials](./configure-monitoring.html#protocols-and-credentials) for more details.
+```yaml
+resources:
+  <resource-id>:
+    attributes:
+      host.names: [<hostname1>, <hostname2>, etc.]
+      host.type: <type> 
+    <protocol-configuration>
+```
+Whatever the syntax adopted, replace:
+* `<hostname>` with the actual hostname or IP address of the resource
+* `<type>` with the type of resource to be monitored. Possible values are:
+  * `win` for Microsoft Windows systems
+  * `linux` for Linux systems
+  * `network` for network devices
+  * `oob` for Out-of-band management cards
+  * `storage` for storage systems
+  * `aix` for IBM AIX systems
+  * `hpux` for HP UX systems
+  * `solaris` for Oracle Solaris systems
+  * `tru64` for HP Tru64 systems
+  * `vms` for HP Open VMS systems.
+  Check out the [Connector Directory](metricshub-connectors-directory.html) to find out which type corresponds to your system.
+* `<protocol-configuration>` with the protocol(s) **MetricsHub** will use to communicate with the resources:
+ `http`, `ipmi`, `oscommand`, `ping`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. 
+ Refer to [Protocols and Credentials](./configure-monitoring.html#protocols-and-credentials) for more details.
 
 > Note: You can use the `${esc.d}{env::ENV_VARIABLE_NAME}` syntax in the `config/metricshub.yaml` file to call your environment variables.
 
-
-### Highly distributed infrastructure
-
-For infrastructures with multiple distributed locations, each site can be configured as a separate `resource group` containing the different `resources` to be monitored as follows:
-
-```yaml
-resourceGroups:
-  <resource-group-name>:
-    attributes:
-      site: <site-name>
-    resources:
-      <resource-id>:
-        attributes:
-          host.name: <hostname>
-          host.type: <type>
-        <protocol-configuration>
-```
-
-**Example:**
+**Example**
 
 ```yaml
 resourceGroups:
@@ -109,53 +161,7 @@ resourceGroups:
         <protocol-configuration>
 ```
 
-> Note: Refer to the [sustainability metrics page](../guides/configure-sustainability-metrics.md#example-for-distributed-infrastructure) to configure MetricsHub for sustainability metrics reporting.
 
-### Centralized infrastructure
-
-For centralized infrastructures, resources can be configured directly under the `resources` section located at the top of the `config/metricshub.yaml` file, without `resourceGroups`:
-
-```yaml
-attribute:
-  site: <central-site>
-
-resources:
-  <resource-id>:
-    attributes:
-      host.name: <hostname>
-      host.type: <type>
-    <protocol-configuration>
-```
-
-> Note: Refer to the [sustainability metrics page](../guides/configure-sustainability-metrics.md#example-for-centralized-infrastructure) to configure MetricsHub for sustainability metrics reporting.
-
-### Unique vs. shared characteristics
-
-#### Unique characteristics
-
-If each resource has unique characteristics, use the following syntax for individual configuration:
-
-```yaml
-resources:
-  <resource-id>:
-    attributes:
-      host.name: <hostname>
-      host.type: <type>
-    <protocol-configuration>
-```
-
-#### Shared characteristics
-
-If multiple resources share the same characteristics, such as device type, protocols, and credentials, they can be grouped together under a single configuration:
-
-```yaml
-resources:
-  <resource-id>:
-    attributes:
-      host.names: [<hostname1>, <hostname2>, etc.]
-      host.type: <type>
-    <protocol-configuration>
-```
 
 ### Protocols and credentials
 
@@ -515,13 +521,15 @@ resourceGroups:
             authentications: [ntlm]
 ```
 
-## (Optional) Customize the hostname
+## Step 3: Configure additional settings
+
+### Customize the hostname
 
 By default, the `host.name` attribute is used for both the hostname or IP address of the resource and as the hostname of each OpenTelemetry metric attached to the host resource.
 
 If the `hostname` parameter is specified in the protocol configuration, it overrides the `host.name` attribute for client requests. In this case, the `host.name` will only be used as a metric attribute.
 
-### Example
+#### Example
 ```yaml
 resources:
   myHost1:
@@ -542,7 +550,7 @@ In the example above:
 * `my-host-01` will be used to send requests to the host
 * `custom-hostname` will be used as the hostname in the metrics.
 
-## (Optional) Customize resource monitoring
+### Customize resource monitoring
 
 If the connectors included in **MetricsHub** do not collect the metrics you need, you can configure one or several monitors to obtain this data from your resource and specify its corresponding attributes and metrics in **MetricsHub**.
 
@@ -553,7 +561,7 @@ A monitor defines how **MetricsHub** collects and processes data for the resourc
 * the data sources from which metrics are collected
 * how the collected metrics are mapped to **MetricsHub**'s monitoring model.
 
-### Configuration
+#### Configuration
 
 Follow the structure below to declare your monitor:
 
@@ -580,7 +588,7 @@ Follow the structure below to declare your monitor:
 
 Refer to [Monitors](https://sentrysoftware.org/metricshub-community-connectors/develop/monitors.html) for more information on how to configure custom resource monitoring.
 
-### Example: Monitoring a Grafana Service
+#### Example: Monitoring a Grafana Service
 
 In the example below, we configured a monitor for a Grafana service. This monitor collects data from the Grafana health API and maps the response to the most relevant attributes and metrics in **MetricsHub**.
 
@@ -622,8 +630,6 @@ service-group:
             metrics:
               grafana.db.state: $3
 ```
-
-## (Optional) Additional settings
 
 ### Basic Authentication settings
 
