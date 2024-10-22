@@ -21,9 +21,8 @@ package org.sentrysoftware.metricshub.extension.win;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HOSTNAME_MACRO;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.PASSWORD_MACRO;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.USERNAME_MACRO;
+import static org.sentrysoftware.metricshub.engine.common.helpers.StringHelper.protectCaseInsensitiveRegex;
+import static org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper.replaceSudo;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +34,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
+import org.sentrysoftware.metricshub.engine.common.helpers.MacrosUpdater;
 import org.sentrysoftware.metricshub.engine.connector.model.common.EmbeddedFile;
 import org.sentrysoftware.metricshub.engine.strategy.utils.EmbeddedFileHelper;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandHelper;
@@ -112,44 +112,51 @@ public class WinCommandService {
 			OsCommandHelper.TEMP_FILE_CREATOR
 		);
 
-		final String updatedUserCommand = maybeUsername
-			.map(username -> commandLine.replaceAll(OsCommandHelper.toCaseInsensitiveRegex(USERNAME_MACRO), username))
-			.orElse(commandLine);
-
-		final String updatedHostnameCommand = updatedUserCommand.replaceAll(
-			OsCommandHelper.toCaseInsensitiveRegex(HOSTNAME_MACRO),
-			hostname
+		// Replace the macros by their corresponding values
+		final String updatedCommand = MacrosUpdater.update(
+			commandLine,
+			maybeUsername.orElse(null),
+			maybePassword.orElse(null),
+			null,
+			hostname,
+			false
 		);
+		final String updatedCommandNoPassword = MacrosUpdater.update(
+			commandLine,
+			maybeUsername.orElse(null),
+			maybePassword.orElse(null),
+			null,
+			hostname,
+			true
+		);
+		final String updatedSudoCommand = replaceSudo(updatedCommand, null);
+		final String updatedSudoCommandNoPassword = replaceSudo(updatedCommandNoPassword, null);
 
-		final String updatedSudoCommand = OsCommandHelper.replaceSudo(updatedHostnameCommand, null);
-
-		final String updatedEmbeddedFilesCommand = embeddedTempFiles
+		final String command = embeddedTempFiles
 			.entrySet()
 			.stream()
 			.reduce(
 				updatedSudoCommand,
 				(s, entry) ->
 					s.replaceAll(
-						OsCommandHelper.toCaseInsensitiveRegex(entry.getKey()),
+						protectCaseInsensitiveRegex(entry.getKey()),
 						Matcher.quoteReplacement(entry.getValue().getAbsolutePath())
 					),
 				(s1, s2) -> null
 			);
 
-		final String command = maybePassword
-			.map(password ->
-				updatedEmbeddedFilesCommand.replaceAll(
-					OsCommandHelper.toCaseInsensitiveRegex(PASSWORD_MACRO),
-					String.valueOf(password)
-				)
-			)
-			.orElse(updatedEmbeddedFilesCommand);
-
-		final String noPasswordCommand = maybePassword
-			.map(password ->
-				updatedEmbeddedFilesCommand.replaceAll(OsCommandHelper.toCaseInsensitiveRegex(PASSWORD_MACRO), "********")
-			)
-			.orElse(updatedEmbeddedFilesCommand);
+		final String commandNoPassword = embeddedTempFiles
+			.entrySet()
+			.stream()
+			.reduce(
+				updatedSudoCommandNoPassword,
+				(s, entry) ->
+					s.replaceAll(
+						protectCaseInsensitiveRegex(entry.getKey()),
+						Matcher.quoteReplacement(entry.getValue().getAbsolutePath())
+					),
+				(s1, s2) -> null
+			);
 
 		try {
 			final String commandResult = winRequestExecutor.executeWinRemoteCommand(
@@ -159,7 +166,7 @@ public class WinCommandService {
 				embeddedTempFiles.values().stream().map(File::getAbsolutePath).collect(Collectors.toList()) // NOSONAR
 			);
 
-			return new OsCommandResult(commandResult, noPasswordCommand);
+			return new OsCommandResult(commandResult, commandNoPassword);
 		} finally {
 			//noinspection ResultOfMethodCallIgnored
 			embeddedTempFiles.values().forEach(File::delete);

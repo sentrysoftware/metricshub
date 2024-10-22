@@ -23,6 +23,7 @@ package org.sentrysoftware.metricshub.engine.common.helpers;
 
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.COMMA;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
+import static org.springframework.util.Assert.isTrue;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,6 +33,7 @@ import java.util.StringJoiner;
 import java.util.concurrent.Callable;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.AccessLevel;
@@ -236,5 +238,16 @@ public class StringHelper {
 			log.error(messageSupplier.get());
 			throw new InvalidConfigurationException(messageSupplier.get());
 		}
+	}
+
+	/**
+	 * Convert a string to be searched in a case-insensitive regex.
+	 *
+	 * @param value The string to search. (mandatory)
+	 * @return The case-insensitive regex for the given string.
+	 */
+	public static String protectCaseInsensitiveRegex(final String value) {
+		isTrue(value != null && !value.isEmpty(), "Input string must not be null or empty.");
+		return value.isBlank() ? value : "(?i)" + Pattern.quote(value);
 	}
 }
