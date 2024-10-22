@@ -155,7 +155,7 @@ public class CriterionTestResult {
 
 	/**
 	 * Formats and displays the criterion message in a structured, readable format.
-	 * The output includes information about the executed criterion, its details, 
+	 * The output includes information about the executed criterion, its details,
 	 * the result, and an additional message, each presented in distinct sections.
 	 * @return a formatted string that displays the criterion name, details, result, and message.
 	 */
