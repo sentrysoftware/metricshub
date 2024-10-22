@@ -104,7 +104,10 @@
 			<item name="Sustainability" href="guides/configure-sustainability-metrics.html" />
 			<item name="Health Check (Enterprise Edition)" href="guides/status.html" />
 			<item name="Debugging" href="guides/debug.html" />
-			<item name="MetricsHub CLI (&lt;code&gt;metricshub&lt;/code&gt;)" href="guides/cli.html" />
+		</menu>
+
+		<menu name="Appendix">
+			<item name="MetricsHub CLI (&lt;code&gt;metricshub&lt;/code&gt;)" href="appendix/cli.html" />
 		</menu>
 	</body>
 </project>
