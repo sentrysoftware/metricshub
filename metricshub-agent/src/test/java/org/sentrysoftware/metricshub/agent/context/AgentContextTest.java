@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+import org.sentrysoftware.metricshub.agent.config.AdditionalConnector;
 import org.sentrysoftware.metricshub.agent.config.AgentConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
@@ -205,14 +206,43 @@ class AgentContextTest {
 			.get(SENTRY_PARIS_RESOURCE_GROUP_KEY)
 			.getResources()
 			.get(SERVER_1_RESOURCE_GROUP_KEY);
-		final Map<String, ConnectorVariables> variables = resourceConfig.getVariables();
-		final ConnectorVariables expectedConnectorVariables = ConnectorVariables
+
+		final Map<String, AdditionalConnector> additionalConnectors = resourceConfig.getAdditionalConnectors();
+		// Check the number of additional connectors
+		assertEquals(5, additionalConnectors.size());
+
+		final Map<String, ConnectorVariables> variables = resourceConfig.getConnectorVariables();
+		// Check the number of configured ConnectorVariables
+		assertEquals(3, variables.size());
+
+		AdditionalConnector pureStorageREST = AdditionalConnector
 			.builder()
-			.variableValues(Map.of("restQueryPath", "/pure/api/v2"))
+			.uses("PureStorageREST")
+			.variables(Map.of("restQueryPath", "/pure/api/v2"))
+			.force(false)
 			.build();
-		assertEquals(Map.of("PureStorageREST", expectedConnectorVariables), variables);
-		// Case insensitive check
-		assertEquals(expectedConnectorVariables, variables.get("purestoragerest"));
+		assertEquals(pureStorageREST, additionalConnectors.get("PureStorageREST"));
+		AdditionalConnector windows = AdditionalConnector
+			.builder()
+			.variables(Map.of("osType", "windows"))
+			.force(true)
+			.build();
+		AdditionalConnector linux = AdditionalConnector.builder().uses("Linux").variables(null).force(true).build();
+		AdditionalConnector ipmiTool = AdditionalConnector
+			.builder()
+			.uses("IpmiTool")
+			.variables(Map.of())
+			.force(true)
+			.build();
+
+		final Map<String, AdditionalConnector> expectedAdditionalConnectors = new LinkedHashMap<>();
+
+		expectedAdditionalConnectors.put("PureStorageREST", pureStorageREST);
+		expectedAdditionalConnectors.put("Windows", windows);
+		expectedAdditionalConnectors.put("Linux", linux);
+		expectedAdditionalConnectors.put("IpmiTool", ipmiTool);
+		expectedAdditionalConnectors.put("LinuxProcess", null);
+		assertEquals(expectedAdditionalConnectors, additionalConnectors);
 	}
 
 	@Test

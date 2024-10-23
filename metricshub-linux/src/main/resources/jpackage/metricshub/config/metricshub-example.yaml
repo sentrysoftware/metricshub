@@ -199,6 +199,13 @@ resourceGroups:
       #       username: myusername
       #       password: mypwd
       #       privateKey: /tmp/ssh-key.txt
+      #   additionalConnectors:
+      #     ConnectorId:
+      #       uses: LinuxProcess
+      #       force: true
+      #       variables:
+      #         var1: value1
+      #         var2: value2
 
       #═══════════════════════════════════════════════════
       # OSCommand configuration        

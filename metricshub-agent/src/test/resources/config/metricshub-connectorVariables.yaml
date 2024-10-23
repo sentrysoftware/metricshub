@@ -56,10 +56,28 @@ resourceGroups:
             port: 443
             username: username
             password: password
-        variables:
-          PureStorageREST:
-            restQueryPath: /pure/api/v2
-            nullValue:
-          OtherNull:
         connectors:
         - +PureStorageREST
+        additionalConnectors:
+        # With an empty variable value and false force
+          PureStorageREST:
+            uses: PureStorageREST
+            force: false
+            variables:
+              restQueryPath: /pure/api/v2
+              nullValue:
+        # Without uses and force
+          Windows:
+            variables:
+              osType: windows
+        # With an empty variables map      
+          Linux:
+            uses: Linux
+            force: true
+            variables:
+        # Without variables
+          IpmiTool:
+            uses: IpmiTool
+            force: true
+        # Without uses, force, & variables
+          LinuxProcess:
