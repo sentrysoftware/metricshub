@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.agent.helper;
+package org.sentrysoftware.metricshub.agent.connector;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
@@ -38,7 +38,6 @@ import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.agent.config.AdditionalConnector;
-import org.sentrysoftware.metricshub.agent.deserialization.AdditionalConnectorsParsingResult;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.ConnectorDefaultVariable;
 import org.sentrysoftware.metricshub.engine.connector.parser.ConnectorParser;
@@ -111,44 +110,15 @@ public class ConnectorVariablesLibraryParser {
 			// Construct a variables map from the default connector variables.
 			final Map<String, String> defaultVariables = new HashMap<>(getDefaultConnectorVariables(connectorNode));
 
-			// Parse the connector even if it is not configured as an additional connector.
-			// This ensures that the connector will function with the default variables if the user forces it.
 			if (filteredConnectors.isEmpty()) {
+				// Parse the connector even if it is not configured as an additional connector.
+				// This ensures that the connector will function with the default variables if the user forces it.
 				parseConnectorWithModifier(path, defaultVariables, connectorId, filename, connector -> {});
+			} else {
+				// Parse and generate connectors that have been added and configured.
+				generateNewConnectors(path, filename, filteredConnectors, defaultVariables);
 			}
 
-			// For each configuration, we create a new custom connector and a new variables map to be used in the connector update.
-			for (final Entry<String, AdditionalConnector> connectorConfigurationEntry : filteredConnectors.entrySet()) {
-				final String additionalConnectorId = connectorConfigurationEntry.getKey();
-				final AdditionalConnector additionalConnectorValue = connectorConfigurationEntry.getValue();
-
-				// Add the connector to the host connectors set.
-				connectorsParsingResult
-					.getHostConnectors()
-					.add(additionalConnectorValue.isForce() ? "+" + additionalConnectorId : additionalConnectorId);
-
-				// Retrieve and use default connector variables on this connector for this configuration.
-				final Map<String, String> connectorVariables = new HashMap<>(defaultVariables);
-
-				// Override the default connector variables by the connector variables that the user configured.
-				final Map<String, String> configuredVariables = additionalConnectorValue.getVariables();
-				if (configuredVariables != null) {
-					connectorVariables.putAll(configuredVariables);
-				}
-				// There are at least two additional connectors that use the current connector.
-				// This means that the compiled filename of these connectors needs to be modified.
-				if (filteredConnectors.size() > 1) {
-					parseConnectorWithModifier(
-						path,
-						connectorVariables,
-						additionalConnectorId,
-						filename,
-						connector -> connector.getConnectorIdentity().setCompiledFilename(additionalConnectorId)
-					);
-					continue;
-				}
-				parseConnectorWithModifier(path, connectorVariables, connectorId, filename, connector -> {});
-			}
 			return FileVisitResult.CONTINUE;
 		}
 
@@ -203,10 +173,61 @@ public class ConnectorVariablesLibraryParser {
 					final String variableName = entry.getKey();
 					final JsonNode variableValue = entry.getValue();
 
-					connectorVariablesMap.put(variableName, variableValue.get("defaultValue").asText());
+					final JsonNode defaultValue = variableValue.get("defaultValue");
+					if (defaultValue != null && !defaultValue.isNull()) {
+						connectorVariablesMap.put(variableName, variableValue.get("defaultValue").asText());
+					}
 				});
 
 			return connectorVariablesMap;
+		}
+
+		/**
+		 * Generates custom connectors for each additional connector configuration.
+		 *
+		 * <p>This method iterates over the provided map of filtered connectors, generating a new {@link Connector}
+		 * object for each. It handles the default and user-configured variables, ensuring that any forced connectors
+		 * are correctly identified. The method can modify the compiled filename of connectors when needed.</p>
+		 *
+		 * @param path The path to the directory containing the connector files.
+		 * @param filename The filename of the connector file.
+		 * @param filteredConnectors A map of filtered additional connectors, with their configurations.
+		 * @param defaultVariables A map of default variables to be used during connector generation.
+		 */
+		private void generateNewConnectors(
+				final Path path,
+				final String filename,
+				final Map<String, AdditionalConnector> filteredConnectors, 
+				final Map<String, String> defaultVariables
+			) {
+			// For each configuration, we create a new custom connector and a new variables map to be used in the connector update.
+			for (final Entry<String, AdditionalConnector> connectorConfigurationEntry : filteredConnectors.entrySet()) {
+				final String additionalConnectorId = connectorConfigurationEntry.getKey();
+				final AdditionalConnector additionalConnectorValue = connectorConfigurationEntry.getValue();
+
+				// Add the connector to the host connectors set.
+				connectorsParsingResult
+					.getHostConnectors()
+					.add(additionalConnectorValue.isForce() ? "+" + additionalConnectorId : additionalConnectorId);
+
+				// Retrieve and use default connector variables on this connector for this configuration.
+				final Map<String, String> connectorVariables = new HashMap<>(defaultVariables);
+
+				// Override the default connector variables by the connector variables that the user configured.
+				final Map<String, String> configuredVariables = additionalConnectorValue.getVariables();
+				if (configuredVariables != null) {
+					connectorVariables.putAll(configuredVariables);
+				}
+				// There are at least two additional connectors that use the current connector.
+				// This means that the compiled filename of these connectors needs to be modified.
+				parseConnectorWithModifier(
+					path,
+					connectorVariables,
+					additionalConnectorId,
+					filename,
+					connector -> connector.getConnectorIdentity().setCompiledFilename(additionalConnectorId)
+				);
+			}
 		}
 
 		/**
