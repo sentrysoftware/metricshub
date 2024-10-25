@@ -874,7 +874,7 @@ To obtain the connectors that work with variables:
 
 1. Refer to the [`MetricsHub parameterized connectors page`](../connectors/tags/parameterized.html)
 2. Click on the connector you want to use (e.g.: [WindowsProcess](../connectors/windowsprocess.html))
-3. Scroll-down to the **variables** section under `Prerequesites` and note down the relevant variables (e.g.: [WindowsProcess Prerequesites](../connectors/linuxprocess.html#prerequisites)).
+3. Scroll-down to the **variables** section under `Prerequesites` and note down the relevant variables (e.g.: [WindowsProcess Prerequesites](../connectors/windowsprocess.html#prerequisites)).
 
 ##### Example 1:
 
