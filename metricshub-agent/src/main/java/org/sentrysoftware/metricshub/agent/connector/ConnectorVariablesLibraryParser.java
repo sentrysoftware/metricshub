@@ -195,11 +195,11 @@ public class ConnectorVariablesLibraryParser {
 		 * @param defaultVariables A map of default variables to be used during connector generation.
 		 */
 		private void generateNewConnectors(
-				final Path path,
-				final String filename,
-				final Map<String, AdditionalConnector> filteredConnectors, 
-				final Map<String, String> defaultVariables
-			) {
+			final Path path,
+			final String filename,
+			final Map<String, AdditionalConnector> filteredConnectors,
+			final Map<String, String> defaultVariables
+		) {
 			// For each configuration, we create a new custom connector and a new variables map to be used in the connector update.
 			for (final Entry<String, AdditionalConnector> connectorConfigurationEntry : filteredConnectors.entrySet()) {
 				final String additionalConnectorId = connectorConfigurationEntry.getKey();
