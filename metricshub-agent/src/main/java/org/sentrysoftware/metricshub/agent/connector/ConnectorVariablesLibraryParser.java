@@ -95,7 +95,7 @@ public class ConnectorVariablesLibraryParser {
 			// Normalize additionalConnectors
 			normalizeAdditionalConnectors();
 
-			// Removing all the configurations that are not using this connector.
+			// Filtering all the configurations that are not using this connector.
 			final Map<String, AdditionalConnector> filteredConnectors = additionalConnectorConfig
 				.entrySet()
 				.stream()

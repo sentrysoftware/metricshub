@@ -826,15 +826,53 @@ patchDirectory: /opt/patch/connectors # Replace with the path to your patch conn
 loggerLevel: ...
 ```
 
-#### Configure Connector Variables
+#### Configure connector variables
 
-In **MetricsHub**, connector variables are essential for customizing the behavior of data collection. These variables are configured in the `additionalConnectors` section of your `metricshub.yaml` file. When configuring variables for connectors with variables, the connector becomes an additional connector, which is by default forced, and uses the variables configured by the user.
+In **MetricsHub**, connector variables are essential for customizing the behavior of data collection. These variables allow you to adapt connectors to different scenarios by providing specific configurations tailored to their needs.
 
-Each additional connector is identified by its ID, and the variables are specified under this ID in the additionalConnectors section. The variables consist of key-value pairs, where the key corresponds to a variable already defined in the connector.
+##### Definition
 
-* Example :
+A variable in a connector represents a configurable parameter that controls specific aspects of the connector’s functionality. By defining these variables, you can customize the behavior of connectors.
 
-  Below is a configuration using the `WindowsProcess` connector. The `processName` variable, defined in the variables section, specifies a list of process names (msedge.exe and metricshub.exe) to monitor:
+##### Use cases
+
+Configuring variables enables you to tailor connectors to their specific requirements. For instance:
+- **Example 1**: You want to monitor specific processes on a Windows server, so you configure the `matchName` variable to specify which processes to include.
+- **Example 2**: You want to monitor specific services on a Linux machine, so you configure the `serviceNames` variable to specify which services to include.
+
+##### Configuration Process
+
+To configure variables, you need to specify them under the `variables` section for each connector in the `additionalConnectors` section of the configured resource. Each variable should be defined as a key-value pair, where the key is the variable name specifying a desired value.
+
+```yaml
+resources:
+  <host-id>:
+    attributes:
+      host.name: <hostname>
+      host.type: <type>
+    additionalConnectors:
+      <connector-custom-id>: # Unique ID. Use 'uses' if different from the original connector ID
+        uses: <connector-original-id> # Optional - Original ID if not in key
+        force: true # Optional (default: true); false for auto-detection only
+        variables:
+          <variable-name>: <value>
+```
+
+| Property               | Description                                                                                                                                     |
+|------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| `uses`                 | Optional. Specifies the original connector ID to refer to. If not specified, the ID of the key is used.                                         |
+| `force`                | Optional. Defaults to `true`. When set to `true`, the connector is always activated. If `false`, the connector is only activated when detected. |
+| `variables`            | Key-value pairs defining the variables for customizing the connector behavior.                                                                  |
+
+To obtain the connectors that work with variables:
+
+1. Refer to the [`MetricsHub parameterized connectors page`](../connectors/tags/parameterized.html)
+2. Click on the connector you want to use (e.g.: [WindowsProcess](../connectors/windowsprocess.html))
+3. Scroll-down to the **variables** section under `Prerequesites` and note down the relevant variables (e.g.: [WindowsProcess Prerequesites](../connectors/linuxprocess.html#prerequisites)).
+
+##### Example 1:
+
+Below is a configuration using the `WindowsProcess` connector. The `matchCommand` variable, defined in the `variables` section, specifies a list of process command lines `metricshub` to monitor:
 
 ```yaml
 resources:
@@ -846,14 +884,39 @@ resources:
       wmi:
         timeout: 120
     additionalConnectors:
-      metricshubWindowsProcess: #  Unique ID. Use 'uses' if different from the original connector ID
+      metricshubWindowsProcess: # Unique ID. Use 'uses' if different from the original connector ID
         uses: WindowsProcess # Optional - Original ID if not in key
         force: true # Optional (default: true); false for auto-detection only
         variables:
-          processName: "('msedge.exe', 'metricshub.exe')"
+          matchCommand: metricshub
+```
+
+##### Example 2:
+
+Below is a configuration using the `LinuxService` connector. The `serviceNames` variable, defined in the `variables` section, specifies a list of Linux services named `metricshub` to monitor:
+
+```yaml
+resources:
+  localhost:
+    attributes:
+      host.name: localhost
+      host.type: linux
+    protocols:
+      ssh:
+        timeout: 120
+    additionalConnectors:
+      metricshubLinuxService: # Unique ID. Use 'uses' if different from the original connector ID
+        uses: LinuxService # Optional - Original ID if not in key
+        force: true # Optional (default: true); false for auto-detection only
+        variables:
+          serviceNames: metricshub
 ```
 
 If a connector with variables is forced or configured under the `additionalConnectors` section, but some or all of its variables are not specified, the missing variables will be automatically replaced with the default values defined in the `defaultVariables` section of the connector.
+
+##### Locating Variables for Configuration
+
+The variables that can be configured are defined in the connector's documentation or the `defaultVariables` section within the connector's definition. Users should refer to these sections to identify the available variables and their default values.
 
 #### Filter monitors
 
