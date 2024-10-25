@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+import org.sentrysoftware.metricshub.agent.config.AgentConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
 
@@ -76,6 +77,11 @@ public class PostConfigDeserializer extends DelegatingDeserializer {
 			resolveMultiHostResourceConfigurations(resourceGroupConfig);
 		}
 
+		// Manage ResourceConfig instances that define multiple hosts sharing the same configuration under the AgentConfig
+		if (deserializedObject instanceof AgentConfig agentConfig) {
+			resolveResources(agentConfig.getResources());
+		}
+
 		return deserializedObject;
 	}
 
@@ -86,10 +92,17 @@ public class PostConfigDeserializer extends DelegatingDeserializer {
 	 *                            the {@link ResourceConfig} instances belong
 	 */
 	private void resolveMultiHostResourceConfigurations(final ResourceGroupConfig resourceGroupConfig) {
+		resolveResources(resourceGroupConfig.getResources());
+	}
+
+	/**
+	 * Resolves the multiple host configurations of the given {@link ResourceConfig} map.
+	 * <br>It creates new {@link ResourceConfig} instances for each host and updates the map accordingly.
+	 * @param existingResourceConfigMap Map containing the existing {@link ResourceConfig} instances
+	 */
+	private void resolveResources(final Map<String, ResourceConfig> existingResourceConfigMap) {
 		final Set<String> resolvedMultiResourceConfigKeys = new HashSet<>();
 		final Map<String, ResourceConfig> newResourceConfigMap = new HashMap<>();
-		final Map<String, ResourceConfig> existingResourceConfigMap = resourceGroupConfig.getResources();
-
 		// Loop over each multiple host configuration and resolve it
 		existingResourceConfigMap
 			.entrySet()
