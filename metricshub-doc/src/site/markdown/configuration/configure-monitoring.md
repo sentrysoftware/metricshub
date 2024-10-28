@@ -832,23 +832,23 @@ patchDirectory: /opt/patch/connectors # Replace with the path to your patch conn
 loggerLevel: ...
 ```
 
-#### Configure connector variables
+#### Customize data collection 
 
-In **MetricsHub**, connector variables are essential for customizing the behavior of data collection. These variables allow you to adapt connectors to different scenarios by providing specific configurations tailored to their needs.
+**MetricsHub** allows you to customize data collection on your Windows or Linux servers, specifying exactly which processes or services to monitor. This customization is achieved by configuring the following connector variables: 
 
-##### Definition
+|  Connector Variable | Available for  |  Usage |
+|---|---|---|
+| `matchCommand`  | [Linux - Processes (ps)](https://sentrysoftware.org/metricshub-community-connectors/connectors/linuxprocess.html#linux---processes-28ps-29) <br/> [Windows - Processes (WMI)](https://sentrysoftware.org/metricshub-community-connectors/connectors/windowsprocess.html)| Used to specify the command lines to monitor on a Linux or Windows server.   |
+| `matchName`  | [Linux - Processes (ps)](https://sentrysoftware.org/metricshub-community-connectors/connectors/linuxprocess.html#linux---processes-28ps-29) <br/>[Windows - Processes (WMI)](https://sentrysoftware.org/metricshub-community-connectors/connectors/windowsprocess.html) | Used to specify the processes to monitor on a Linux or Windows server.  |
+| `matchUser`  | [Linux - Processes (ps)](https://sentrysoftware.org/metricshub-community-connectors/connectors/linuxprocess.html#linux---processes-28ps-29)  |  Used to specify the users to include.  |
+|`serviceNames`  | [Linux - Service (systemctl)](https://sentrysoftware.org/metricshub-community-connectors/connectors/linuxservice.html) <br/> [Windows - Services (WMI)](https://sentrysoftware.org/metricshub-community-connectors/connectors/windowsservice.html#!#windows---services-28wmi-29) | Used to specify the services to monitor on a Linux or Windows server. |
 
-A variable in a connector represents a configurable parameter that controls specific aspects of the connector’s functionality. By defining these variables, you can customize the behavior of connectors.
+Refer to the [Connectors directory](https://sentrysoftware.org/metricshub-community-connectors/metricshub-connectors-directory.html#) and more especially to the `Variables` section of the connector to know the supported variables and their accepted values. 
 
-##### Use cases
 
-Configuring variables enables you to tailor connectors to their specific requirements. For instance:
-- **Example 1**: You want to monitor specific processes on a Windows server, so you configure the `matchName` variable to specify which processes to include.
-- **Example 2**: You want to monitor specific services on a Linux machine, so you configure the `serviceNames` variable to specify which services to include.
+##### Procedure
 
-##### Configuration Process
-
-To configure variables, you need to specify them under the `variables` section for each connector in the `additionalConnectors` section of the configured resource. Each variable should be defined as a key-value pair, where the key is the variable name specifying a desired value.
+In the `config/metricshub.yaml` file, locate the resource for which you wish to customize data collection and specify the `variables` attribute available under the `additionalConnectors` section: 
 
 ```yaml
 resources:
@@ -866,19 +866,16 @@ resources:
 
 | Property               | Description                                                                                                                                     |
 |------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
-| `uses`                 | Optional. Specifies the original connector ID to refer to. If not specified, the ID of the key is used.                                         |
-| `force`                | Optional. Defaults to `true`. When set to `true`, the connector is always activated. If `false`, the connector is only activated when detected. |
-| `variables`            | Key-value pairs defining the variables for customizing the connector behavior.                                                                  |
+| ` <connector-custom-id>`                 | Custom ID for this additional connector.                                         |
+| `uses`                 | *(Optional)* Provide an ID for this additional connector. If not specified, the key ID will be used.                                         |
+| `force`                | *(Optional)* Set to `false` if you want the connector to only be activated when detected (Default: `true` - always activated).|
+| `variables`            | Specify the connector variable to be used and its value (Format: `<variable-name>: <value>`).|
 
-To obtain the connectors that work with variables:
+> Note: If a connector is added under the `additionalConnectors` section with missing or unspecified variables, those variables will automatically be populated with default values defined in the connector’s `defaultVariables` section.
 
-1. Refer to the [`MetricsHub parameterized connectors page`](../connectors/tags/parameterized.html)
-2. Click on the connector you want to use (e.g.: [WindowsProcess](../connectors/windowsprocess.html))
-3. Scroll-down to the **variables** section under `Prerequesites` and note down the relevant variables (e.g.: [WindowsProcess Prerequesites](../connectors/windowsprocess.html#prerequisites)).
+##### Example 1: Collecting data for the metricshub process command line on a Windows server
 
-##### Example 1:
-
-Below is a configuration using the `WindowsProcess` connector. The `matchCommand` variable, defined in the `variables` section, specifies a list of process command lines `metricshub` to monitor:
+In this example, we created a `metricshubWindowsProcess` additional connector using the `WindowsProcess` connector. This connector will always be actived and monitor the `metricshub` process command lines: 
 
 ```yaml
 resources:
@@ -897,9 +894,9 @@ resources:
           matchCommand: metricshub
 ```
 
-##### Example 2:
+##### Example 2: Collecting data for the metricshub service running on a Linux server
 
-Below is a configuration using the `LinuxService` connector. The `serviceNames` variable, defined in the `variables` section, specifies a list of Linux services named `metricshub` to monitor:
+In this example, we created a `metricshubLinuxService` additional connector using the `LinuxService` connector. This connector will always be actived and  monitor the `metricshub` service running on our Linux server:
 
 ```yaml
 resources:
@@ -917,12 +914,6 @@ resources:
         variables:
           serviceNames: metricshub
 ```
-
-If a connector with variables is forced or configured under the `additionalConnectors` section, but some or all of its variables are not specified, the missing variables will be automatically replaced with the default values defined in the `defaultVariables` section of the connector.
-
-##### Locating Variables for Configuration
-
-The variables that can be configured are defined in the connector's documentation or the `defaultVariables` section within the connector's definition. Users should refer to these sections to identify the available variables and their default values.
 
 #### Filter monitors
 
