@@ -99,8 +99,7 @@
 		</menu>
 
 		<menu name="Guides">
-			<item name="Quick Start - Windows" href="guides/quick-start-community-prometheus-windows.html"/>
-			<item name="Quick Start - Linux" href="guides/quick-start-community-prometheus-linux.html"/>
+			<item name="Quick Start - Prometheus" href="guides/quick-start-community-prometheus.html"/>
 			<item name="Sustainability" href="guides/configure-sustainability-metrics.html" />
 			<item name="Health Check (Enterprise Edition)" href="guides/status.html" />
 			<item name="Debugging" href="guides/debug.html" />
