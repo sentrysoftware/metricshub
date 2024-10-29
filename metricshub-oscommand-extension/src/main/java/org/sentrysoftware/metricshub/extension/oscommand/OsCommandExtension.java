@@ -192,13 +192,9 @@ public class OsCommandExtension implements IProtocolExtension {
 
 				return sshConfiguration;
 			} catch (Exception e) {
-				final String errorMessage = String.format(
-					"Error while reading SSH Configuration: %s. Error: %s",
-					jsonNode,
-					e.getMessage()
-				);
+				final String errorMessage = String.format("Error while reading SSH Configuration. Error: %s", e.getMessage());
 				log.error(errorMessage);
-				log.debug("Error while reading SSH Configuration: {}. Stack trace:", jsonNode, e);
+				log.debug("Error while reading SSH Configuration. Stack trace:", e);
 				throw new InvalidConfigurationException(errorMessage, e);
 			}
 		} else if (configurationType.equalsIgnoreCase("oscommand")) {
@@ -206,12 +202,11 @@ public class OsCommandExtension implements IProtocolExtension {
 				return newObjectMapper().treeToValue(jsonNode, OsCommandConfiguration.class);
 			} catch (Exception e) {
 				final String errorMessage = String.format(
-					"Error while reading OsCommand Configuration: %s. Error: %s",
-					jsonNode,
+					"Error while reading OsCommand Configuration. Error: %s",
 					e.getMessage()
 				);
 				log.error(errorMessage);
-				log.debug("Error while reading OsCommand Configuration: {}. Stack trace:", jsonNode, e);
+				log.debug("Error while reading OsCommand Configuration. Stack trace:", e);
 				throw new InvalidConfigurationException(errorMessage, e);
 			}
 		}

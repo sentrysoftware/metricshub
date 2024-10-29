@@ -81,13 +81,9 @@ public class SnmpV3Extension extends AbstractSnmpExtension {
 
 			return snmpV3Configuration;
 		} catch (Exception e) {
-			final String errorMessage = String.format(
-				"Error while reading SNMP V3 Configuration: %s. Error: %s",
-				jsonNode,
-				e.getMessage()
-			);
+			final String errorMessage = String.format("Error while reading SNMP V3 Configuration. Error: %s", e.getMessage());
 			log.error(errorMessage);
-			log.debug("Error while reading SNMP V3 Configuration: {}. Stack trace:", jsonNode, e);
+			log.debug("Error while reading SNMP V3 Configuration. Stack trace:", e);
 			throw new InvalidConfigurationException(errorMessage, e);
 		}
 	}
