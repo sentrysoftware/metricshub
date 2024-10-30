@@ -875,7 +875,7 @@ resources:
 
 ##### Example 1: Collecting data for the metricshub process command line on a Windows server
 
-In this example, we created a `metricshubWindowsProcess` additional connector using the `WindowsProcess` connector. This connector will always be actived and monitor the `metricshub` process command lines: 
+In this example, we created a `metricshubWindowsProcess` additional connector using the `WindowsProcess` connector. This connector will always be activated and monitor the `metricshub` process command lines: 
 
 ```yaml
 resources:
@@ -896,7 +896,7 @@ resources:
 
 ##### Example 2: Collecting data for the metricshub service running on a Linux server
 
-In this example, we created a `metricshubLinuxService` additional connector using the `LinuxService` connector. This connector will always be actived and  monitor the `metricshub` service running on our Linux server:
+In this example, we created a `metricshubLinuxService` additional connector using the `LinuxService` connector. This connector will always be activated and  monitor the `metricshub` service running on our Linux server:
 
 ```yaml
 resources:
