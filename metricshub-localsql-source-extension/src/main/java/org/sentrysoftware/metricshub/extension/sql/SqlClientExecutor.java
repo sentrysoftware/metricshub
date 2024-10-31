@@ -280,7 +280,7 @@ public class SqlClientExecutor {
 			for (final SqlColumn sqlColumn : sqlColumns) {
 				final String separator = sqlColumn.getType().contains("CHAR") ? "'" : "";
 				final String value = row.get(sqlColumn.getNumber() - 1);
-				rowValues.add(value != null && !value.isEmpty() ? (separator + value + separator) : "NULL");
+				rowValues.add(value != null && !value.isBlank() ? (separator + value + separator) : "NULL");
 			}
 			columnValues.add("(" + String.join(",", rowValues) + ")");
 		}
