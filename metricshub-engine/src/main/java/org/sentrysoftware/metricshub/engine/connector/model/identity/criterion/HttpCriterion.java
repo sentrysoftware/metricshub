@@ -32,7 +32,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.connector.model.common.HttpMethod;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
 
@@ -55,15 +54,12 @@ public class HttpCriterion extends Criterion {
 	/**
 	 * URL for the HTTP criterion.
 	 */
-
-	@NonNull
 	@JsonSetter(nulls = SKIP)
 	private String url;
 
 	/**
 	 * Path for the HTTP criterion.
 	 */
-	@NonNull
 	@JsonSetter(nulls = SKIP)
 	private String path;
 
@@ -145,28 +141,28 @@ public class HttpCriterion extends Criterion {
 		if (method != null) {
 			stringJoiner.add(new StringBuilder("- Method: ").append(method));
 		}
-		if (!url.isBlank()) {
+		if (url != null) {
 			stringJoiner.add(new StringBuilder("- URL: ").append(url));
 		}
-		if (!path.isBlank()) {
+		if (path != null) {
 			stringJoiner.add(new StringBuilder("- Path: ").append(path));
 		}
-		if (header != null && !header.isBlank()) {
+		if (header != null) {
 			stringJoiner.add(new StringBuilder("- Header: ").append(header));
 		}
-		if (body != null && !body.isBlank()) {
+		if (body != null) {
 			stringJoiner.add(new StringBuilder("- Body: ").append(body));
 		}
-		if (expectedResult != null && !expectedResult.isBlank()) {
+		if (expectedResult != null) {
 			stringJoiner.add(new StringBuilder("- ExpectedResult: ").append(expectedResult));
 		}
-		if (errorMessage != null && !errorMessage.isBlank()) {
+		if (errorMessage != null) {
 			stringJoiner.add(new StringBuilder("- ErrorMessage: ").append(errorMessage));
 		}
 		if (resultContent != null) {
 			stringJoiner.add(new StringBuilder("- ResultContent: ").append(resultContent));
 		}
-		if (authenticationToken != null && !authenticationToken.isBlank()) {
+		if (authenticationToken != null) {
 			stringJoiner.add(new StringBuilder("- AuthenticationToken: ").append(authenticationToken));
 		}
 		return stringJoiner.toString();
