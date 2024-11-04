@@ -836,15 +836,14 @@ loggerLevel: ...
 
 **MetricsHub** allows you to customize data collection on your Windows or Linux servers, specifying exactly which processes or services to monitor. This customization is achieved by configuring the following connector variables: 
 
-|  Connector Variable | Available for  |  Usage |
-|---|---|---|
-| `matchCommand`  | [Linux - Processes (ps)](https://sentrysoftware.org/metricshub-community-connectors/connectors/linuxprocess.html#linux---processes-28ps-29) <br/> [Windows - Processes (WMI)](https://sentrysoftware.org/metricshub-community-connectors/connectors/windowsprocess.html)| Used to specify the command lines to monitor on a Linux or Windows server.   |
-| `matchName`  | [Linux - Processes (ps)](https://sentrysoftware.org/metricshub-community-connectors/connectors/linuxprocess.html#linux---processes-28ps-29) <br/>[Windows - Processes (WMI)](https://sentrysoftware.org/metricshub-community-connectors/connectors/windowsprocess.html) | Used to specify the processes to monitor on a Linux or Windows server.  |
-| `matchUser`  | [Linux - Processes (ps)](https://sentrysoftware.org/metricshub-community-connectors/connectors/linuxprocess.html#linux---processes-28ps-29)  |  Used to specify the users to include.  |
-|`serviceNames`  | [Linux - Service (systemctl)](https://sentrysoftware.org/metricshub-community-connectors/connectors/linuxservice.html) <br/> [Windows - Services (WMI)](https://sentrysoftware.org/metricshub-community-connectors/connectors/windowsservice.html#!#windows---services-28wmi-29) | Used to specify the services to monitor on a Linux or Windows server. |
+| Connector Variable | Available for                                                                                                                                                    | Usage                                                                      |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `matchCommand`     | [Linux - Processes (ps)](../connectors/linuxprocess.html#linux---processes-28ps-29) <br/> [Windows - Processes (WMI)](../connectors/windowsprocess.html)         | Used to specify the command lines to monitor on a Linux or Windows server. |
+| `matchName`        | [Linux - Processes (ps)](../connectors/linuxprocess.html#linux---processes-28ps-29) <br/>[Windows - Processes (WMI)](../connectors/windowsprocess.html)          | Used to specify the processes to monitor on a Linux or Windows server.     |
+| `matchUser`        | [Linux - Processes (ps)](../connectors/linuxprocess.html#linux---processes-28ps-29)                                                                              | Used to specify the users to include.                                      |
+| `serviceNames`     | [Linux - Service (systemctl)](../connectors/linuxservice.html) <br/> [Windows - Services (WMI)](../connectors/windowsservice.html#!#windows---services-28wmi-29) | Used to specify the services to monitor on a Linux or Windows server.      |
 
-Refer to the [Connectors directory](https://sentrysoftware.org/metricshub-community-connectors/metricshub-connectors-directory.html#) and more especially to the `Variables` section of the connector to know the supported variables and their accepted values. 
-
+Refer to the [Connectors directory](../metricshub-connectors-directory.html#) and more especially to the `Variables` section of the connector to know the supported variables and their accepted values.
 
 ##### Procedure
 
@@ -864,14 +863,14 @@ resources:
           <variable-name>: <value>
 ```
 
-| Property               | Description                                                                                                                                     |
-|------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
-| ` <connector-custom-id>`                 | Custom ID for this additional connector.                                         |
-| `uses`                 | *(Optional)* Provide an ID for this additional connector. If not specified, the key ID will be used.                                         |
-| `force`                | *(Optional)* Set to `false` if you want the connector to only be activated when detected (Default: `true` - always activated).|
-| `variables`            | Specify the connector variable to be used and its value (Format: `<variable-name>: <value>`).|
+| Property                 | Description                                                                                                                    |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| ` <connector-custom-id>` | Custom ID for this additional connector.                                                                                       |
+| `uses`                   | _(Optional)_ Provide an ID for this additional connector. If not specified, the key ID will be used.                           |
+| `force`                  | _(Optional)_ Set to `false` if you want the connector to only be activated when detected (Default: `true` - always activated). |
+| `variables`              | Specify the connector variable to be used and its value (Format: `<variable-name>: <value>`).                                  |
 
-> Note: If a connector is added under the `additionalConnectors` section with missing or unspecified variables, those variables will automatically be populated with default values defined in the connector’s `defaultVariables` section.
+> Note: If a connector is added under the `additionalConnectors` section with missing or unspecified variables, those variables will automatically be populated with default values defined by the connector itself.
 
 ##### Example 1: Collecting data for the metricshub process command line on a Windows server
 
@@ -929,11 +928,11 @@ You can apply monitor inclusion or exclusion in data collection for the followin
 
 This is done by  adding the `monitorFilters` parameter in the relevant section of the `config/metricshub.yaml` file as described below: 
 
-| Filter monitors                                    | Add monitorFilters |
-|----------------------------------------------------|---|
-| For all resources                                  |In the global section (top of the file)   |
+| Filter monitors                                    | Add monitorFilters                                      |
+| -------------------------------------------------- | ------------------------------------------------------- |
+| For all resources                                  | In the global section (top of the file)                 |
 | For all the resources of a specific resource group | Under the corresponding `<resource-group-name>` section |
-| For a specific resource                            |Under the corresponding `<resource-id>`  section|
+| For a specific resource                            | Under the corresponding `<resource-id>` section         |
 
 The `monitorFilters` parameter accepts the following values:
 
