@@ -277,7 +277,7 @@ class SqlClientExecutorTest {
 
 		assertEquals(expectedResult, result);
 
-		expectedResult = Arrays.asList(Arrays.asList(LOWERCASE_D, ""));
+		expectedResult = Arrays.asList(Arrays.asList(LOWERCASE_B, ""), Arrays.asList(LOWERCASE_D, ""));
 
 		tabl1 =
 			SourceTable
