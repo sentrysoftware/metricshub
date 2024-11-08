@@ -1,19 +1,22 @@
 keywords: quick start, getting started
-description: Short step-by-step instructions to follow for installing and configuring MetricsHub in a Linux environment.
+description: Short step-by-step instructions to follow for installing and configuring MetricsHub in a Windows and Linux environment. 
 
-# Quick Start - Linux
+# Quick Start - Prometheus
 
-<!-- MACRO{toc|fromDepth=1|toDepth=1|id=toc} -->
+<!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-This quick start guide provides step-by-step instructions for operating MetricsHub and Prometheus in a Linux environment, ensuring you can efficiently monitor your systems.
+This quick start guide provides step-by-step instructions for operating **MetricsHub Community Edition** and **Prometheus** in your environment, ensuring you can efficiently monitor your systems.
 
 After completing this quick start, you will have:
-* MetricsHub and Prometheus installed on your machine
+* **MetricsHub** and **Prometheus** installed on your machine
 * The **MetricsHub Agent** configured to collect hardware metrics from your local host and push data to Prometheus
-* MetricsHub and Prometheus up and running
-* Hardware metrics available in Prometheus.
+* **MetricsHub** and **Prometheus** up and running
+* Hardware metrics available in **Prometheus**.
+
 
 ## Step 1: Install MetricsHub
+
+### On Linux
 
 1. Download the latest package `metricshub-linux-${communityVersion}.tar.gz` using `wget` and save it under `/tmp`:
    
@@ -29,7 +32,17 @@ After completing this quick start, you will have:
 
 There is no need to create a specific subdirectory for `metricshub` as the archive already contains a `metricshub` directory.
 
+### On Windows
+
+1. Download the latest package, `metricshub-windows-${communityVersion}.zip`, from the [MetricsHub Releases](https://github.com/sentrysoftware/metricshub/releases/) page
+
+2. Right-click on the archive, select **Extract All...**, enter `C:\Program Files\`, and click **Extract**. This will place the `MetricsHub` directory in `C:\Program Files\`.
+
+> Note: You will need administrative privileges to unzip into `C:\Program Files`.
+
 ## Step 2: Install Prometheus
+
+### On Linux
 
 1. Run the below command to download Prometheus:
 
@@ -47,9 +60,21 @@ There is no need to create a specific subdirectory for `metricshub` as the archi
 
 > Note: Make sure to use the corresponding Prometheus version and CPU architecture for `{version}` and `{architecture}`. For example, `prometheus-2.52.0.linux-amd64` for version `2.52.0` and `amd64` architecture. Refer to the [Prometheus download site](https://prometheus.io/download/) to find the right Prometheus package.
 
+### On Windows
+
+1. Download [prometheus-{version}.windows-{architecture}.zip](https://prometheus.io/download/)
+
+2. Right-click the archive, select **Extract All...**", enter `C:\Program Files\`, and click **Extract**. This will place the `prometheus-{version}.windows-{architecture}` directory in `C:\Program Files\`
+
+3. Under `C:\Program Files\`, rename the `prometheus-{version}.windows-{architecture}` directory to `Prometheus`.
+
+> Note: Make sure to use the corresponding Prometheus version and CPU architecture for `{version}` and `{architecture}`. For example, `prometheus-2.52.0.windows-amd64` for version `2.52.0` and `amd64` architecture.
+
 ## Step 3: Configure the MetricsHub Agent
 
 ### Create your configuration file
+
+#### On Linux
 
 Run the below command to create your configuration file: 
 
@@ -57,9 +82,22 @@ Run the below command to create your configuration file:
    sudo cp /opt/metricshub/lib/config/metricshub-example.yaml /opt/metricshub/lib/config/metricshub.yaml
    ```
 
+#### On Windows
+
+1. Before creating your configuration file (`metricshub.yaml`), ensure that the required directories exist. If they do not, open a Command Prompt and run the following commands to create them:
+
+   ```shell
+   mkdir C:\ProgramData\MetricsHub
+   mkdir C:\ProgramData\MetricsHub\config
+   ```
+
+2. Copy the configuration example `metricshub-example.yaml` available in `C:\Program Files\MetricsHub\config\`, paste it into `C:\ProgramData\MetricsHub\config\` and rename the file to `metricshub.yaml`.
+
 ### Configure localhost monitoring
 
-The `metricshub-example.yaml` file you copied already contains the necessary configuration to monitor your localhost through OS Command. The relevant section should look like this:
+The `metricshub-example.yaml` file you copied already contains the necessary configuration to monitor your localhost through WMI. The relevant section should look like this:
+
+#### On Linux
 
 ```yaml
 resources:
@@ -72,9 +110,23 @@ resources:
         timeout: 120
 ```
 
-Open the `/opt/metricshub/lib/config/metricshub.yaml` file and search for the above section to verify that this configuration is active.
+#### On Windows
 
-If you wish to use a protocol other than `osCommand` (such as `HTTP`, `PING`, `SNMP`, `SSH`, `IPMI`, `WBEM` or `WinRM`), refer to the configuration examples provided in `/opt/metricshub/lib/config/metricshub.yaml`.
+```yaml
+resources:
+  localhost:
+    attributes:
+      host.name: localhost
+      host.type: windows
+    protocols:
+      wmi:
+        timeout: 120
+```
+
+
+Open the `/opt/metricshub/lib/config/metricshub.yaml` or `C:\ProgramData\MetricsHub\config\metricshub.yaml` file and search for the above section to verify that the configuration is active. 
+
+If you wish to use a protocol other than `WMI` (such as `HTTP`, `PING`, `SNMP`, `SSH`, `IPMI`, `WBEM`, or `WinRM`), refer to the configuration examples provided in `C:\ProgramData\MetricsHub\config\metricshub.yaml`.
 
 ### Configure Metrics Exporter
 
@@ -90,6 +142,8 @@ otel:
 
 ### Start Prometheus
 
+#### On Linux
+
 1. Run the below command to access the directory where Prometheus is installed:
 
     ```shell
@@ -103,7 +157,25 @@ otel:
 
 4. Type [localhost:9090](http://localhost:9090) in your Web browser.
 
+#### On Windows
+
+1. Run the below command **as administrator** to access the directory where Prometheus is installed:
+
+    ```shell
+    cd "C:\Program Files\Prometheus"
+    ```
+
+2. Run the below command to start Prometheus:
+
+    ```shell
+    prometheus.exe --config.file=prometheus.yml --web.console.templates=consoles --web.console.libraries=console_libraries --storage.tsdb.retention.time=2h --web.enable-lifecycle --web.enable-remote-write-receiver --web.route-prefix=/ --enable-feature=exemplar-storage --enable-feature=otlp-write-receiver
+    ```
+
+3. Type [localhost:9090](http://localhost:9090) in your Web browser.
+
 ### Start the MetricsHub Agent
+
+#### On Linux
 
 Run the below command to start the **MetricsHub Agent**:
 
@@ -112,38 +184,54 @@ cd /opt/metricsHub/bin
 sudo ./service
 ```
 
+#### On Windows
+
+Run the below command **as administrator** to start the MetricsHub Agent: 
+
+```shell
+cd "C:\Program Files\MetricsHub"
+MetricsHubServiceManager.exe
+```
+
 ## Step 5: Perform Last Checks
 
 ### Verify that metrics are sent to Prometheus
 
-In [Prometheus](http://localhost:9090), search for any metrics starting with `metricshub_` or `hw_` to confirm that data is actually received.
+In [Prometheus](http://localhost:9090), search for any metrics starting with `metricshub_` or `hw_` to confirm that data is actually received. 
+
 
 ### Check Logs
 
-Several logs are created as soon as the **MetricsHub Agent** is started:
+Several log files are created as soon as the MetricsHub Agent is started:
 
 * a global `MetricsHub` log file
 * one log file per configured host.
 
-They are stored in `makefile /opt/metricshub/lib/logs`.
+They are stored under:
+* `makefile /opt/metricshub/lib/logs` (Linux environments)
+* or `C:\Users\{Username}\AppData\Local\metricshub\logs` (Windows environments). 
 
-You can configure the log level in the `/opt/metricsHub/lib/config/metricshub.yaml` file by setting the `loggerLevel` parameter to:
+You can configure the log level in the `metricshub.yaml` file by setting the `loggerLevel` parameter to:
 
 * `info` for high level information
 * `warn` for logging warning messages that indicate potential issues which are not immediately critical
 * `all`, `trace`, or `debug` for more comprehensive details
 * `error` or `fatal` for identifying critical issues.
 
+`metricshub.yaml` is stored in:
+*  `/opt/metricsHub/lib/config/`(Linux environments)
+* or `C:\ProgramData\MetricsHub\config\` (Windows environments).
+
 The most common errors you may encounter are:
 
 1. **Incorrect Indentation**
 
-    An incorrect indentation in the `metricshub.yaml` file prevents the **MetricsHub Agent** from starting and  generates the following exception in the `metricshub-agent-global-error-{timestamp}.log` file:
+    An incorrect indentation in the `metricshub.yaml` file prevents the MetricsHub Agent from starting and  generates the following exception in the `metricshub-agent-global-error-{timestamp}.log` file:
 
     ```
     [2024-04-30T15:56:16,944][ERROR][o.s.m.a.MetricsHubAgentApplication] Failed to start MetricsHub Agent.
     com.fasterxml.jackson.dataformat.yaml.snakeyaml.error.MarkedYAMLException: mapping values are not allowed here in 'reader', line 29, column 16:
-        host.type:linux
+        host.type:windows
     ```
 
 2. **Wrong Host Configuration**
