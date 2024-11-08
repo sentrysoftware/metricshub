@@ -5,7 +5,7 @@ description: Short step-by-step instructions to follow for installing and config
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-This quick start guide provides step-by-step instructions for operating **MetricsHub** and **Prometheus** in your environment, ensuring you can efficiently monitor your systems.
+This quick start guide provides step-by-step instructions for operating **MetricsHub Community Edition** and **Prometheus** in your environment, ensuring you can efficiently monitor your systems.
 
 After completing this quick start, you will have:
 * **MetricsHub** and **Prometheus** installed on your machine
