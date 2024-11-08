@@ -791,13 +791,49 @@ patchDirectory: /opt/patch/connectors # Replace with the path to your patch conn
 loggerLevel: ...
 ```
 
-#### Configure Connector Variables
+#### Customize data collection 
 
-In **MetricsHub**, connector variables are essential for customizing the behavior of data collection. The connector variables are configured in the `metricshub.yaml` file under the `variables` section of your configured resource. These variables are specified under the name of the connector to which they belong and contain key-value pairs. The key of each variable corresponds to a variable already configured in the connector.
+**MetricsHub** allows you to customize data collection on your Windows or Linux servers, specifying exactly which processes or services to monitor. This customization is achieved by configuring the following connector variables: 
 
-* Example :
+| Connector Variable | Available for                                                                                                                                                    | Usage                                                                      |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `matchCommand`     | [Linux - Processes (ps)](../connectors/linuxprocess.html#linux---processes-28ps-29) <br/> [Windows - Processes (WMI)](../connectors/windowsprocess.html)         | Used to specify the command lines to monitor on a Linux or Windows server. |
+| `matchName`        | [Linux - Processes (ps)](../connectors/linuxprocess.html#linux---processes-28ps-29) <br/>[Windows - Processes (WMI)](../connectors/windowsprocess.html)          | Used to specify the processes to monitor on a Linux or Windows server.     |
+| `matchUser`        | [Linux - Processes (ps)](../connectors/linuxprocess.html#linux---processes-28ps-29)                                                                              | Used to specify the users to include.                                      |
+| `serviceNames`     | [Linux - Service (systemctl)](../connectors/linuxservice.html) <br/> [Windows - Services (WMI)](../connectors/windowsservice.html#!#windows---services-28wmi-29) | Used to specify the services to monitor on a Linux or Windows server.      |
 
-  Below is a configuration using the `WindowsProcess` connector. The `processName` variable, defined in the variables section, specifies a list of process names (msedge.exe and metricshub.exe) to monitor:
+Refer to the [Connectors directory](../metricshub-connectors-directory.html#) and more especially to the `Variables` section of the connector to know the supported variables and their accepted values.
+
+##### Procedure
+
+In the `config/metricshub.yaml` file, locate the resource for which you wish to customize data collection and specify the `variables` attribute available under the `additionalConnectors` section: 
+
+```yaml
+resources:
+  <host-id>:
+    attributes:
+      host.name: <hostname>
+      host.type: <type>
+    additionalConnectors:
+      <connector-custom-id>: # Unique ID. Use 'uses' if different from the original connector ID
+        uses: <connector-original-id> # Optional - Original ID if not in key
+        force: true # Optional (default: true); false for auto-detection only
+        variables:
+          <variable-name>: <value>
+```
+
+| Property                 | Description                                                                                                                    |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| ` <connector-custom-id>` | Custom ID for this additional connector.                                                                                       |
+| `uses`                   | _(Optional)_ Provide an ID for this additional connector. If not specified, the key ID will be used.                           |
+| `force`                  | _(Optional)_ Set to `false` if you want the connector to only be activated when detected (Default: `true` - always activated). |
+| `variables`              | Specify the connector variable to be used and its value (Format: `<variable-name>: <value>`).                                  |
+
+> Note: If a connector is added under the `additionalConnectors` section with missing or unspecified variables, those variables will automatically be populated with default values defined by the connector itself.
+
+##### Example 1: Collecting data for the metricshub process command line on a Windows server
+
+In this example, we created a `metricshubWindowsProcess` additional connector using the `WindowsProcess` connector. This connector will always be activated and monitor the `metricshub` process command lines: 
 
 ```yaml
 resources:
@@ -808,9 +844,33 @@ resources:
     protocols:
       wmi:
         timeout: 120
-    variables:
-      windowsProcess: # Connector ID
-        processName: "('msedge.exe', 'metricshub.exe')"
+    additionalConnectors:
+      metricshubWindowsProcess: # Unique ID. Use 'uses' if different from the original connector ID
+        uses: WindowsProcess # Optional - Original ID if not in key
+        force: true # Optional (default: true); false for auto-detection only
+        variables:
+          matchCommand: metricshub
+```
+
+##### Example 2: Collecting data for the metricshub service running on a Linux server
+
+In this example, we created a `metricshubLinuxService` additional connector using the `LinuxService` connector. This connector will always be activated and  monitor the `metricshub` service running on our Linux server:
+
+```yaml
+resources:
+  localhost:
+    attributes:
+      host.name: localhost
+      host.type: linux
+    protocols:
+      ssh:
+        timeout: 120
+    additionalConnectors:
+      metricshubLinuxService: # Unique ID. Use 'uses' if different from the original connector ID
+        uses: LinuxService # Optional - Original ID if not in key
+        force: true # Optional (default: true); false for auto-detection only
+        variables:
+          serviceNames: metricshub
 ```
 
 #### Filter monitors
@@ -827,11 +887,11 @@ You can apply monitor inclusion or exclusion in data collection for the followin
 
 This is done by  adding the `monitorFilters` parameter in the relevant section of the `config/metricshub.yaml` file as described below: 
 
-| Filter monitors                                    | Add monitorFilters |
-|----------------------------------------------------|---|
-| For all resources                                  |In the global section (top of the file)   |
+| Filter monitors                                    | Add monitorFilters                                      |
+| -------------------------------------------------- | ------------------------------------------------------- |
+| For all resources                                  | In the global section (top of the file)                 |
 | For all the resources of a specific resource group | Under the corresponding `<resource-group-name>` section |
-| For a specific resource                            |Under the corresponding `<resource-id>`  section|
+| For a specific resource                            | Under the corresponding `<resource-id>` section         |
 
 The `monitorFilters` parameter accepts the following values:
 
