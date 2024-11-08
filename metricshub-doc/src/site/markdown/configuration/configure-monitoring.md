@@ -406,7 +406,6 @@ resourceGroups:
           host.type: linux
         protocols:
           snmpv3:
-            version: 3
             port: 161
             timeout: 120s
             contextName: myContext
@@ -586,50 +585,10 @@ Follow the structure below to declare your monitor:
               # <metrics-mapping...>
 ```
 
-Refer to [Monitors](https://sentrysoftware.org/metricshub-community-connectors/develop/monitors.html) for more information on how to configure custom resource monitoring.
+Refer to:
+- [Monitors](https://sentrysoftware.org/metricshub-community-connectors/develop/monitors.html) for more information on how to configure custom resource monitoring.
+- the example [Monitoring a Grafana Service](../usecases/grafana-service.md) to learn how to configure a monitor to collect data from the Grafana health API.
 
-#### Example: Monitoring a Grafana Service
-
-In the example below, we configured a monitor for a Grafana service. This monitor collects data from the Grafana health API and maps the response to the most relevant attributes and metrics in **MetricsHub**.
-
-```yaml
-service-group:  
-  grafana-service:
-    attributes:
-      service.name: Grafana
-      host.name: hws-demo.sentrysoftware.com
-    protocols:
-      http:
-        https: true
-        port: 443
-    monitors:
-      grafana:
-        simple: # "simple" job type. Creates monitors and collects associated metrics. 
-          sources:
-            grafanaHealth:
-              type: http
-              path: /api/health
-              method: get
-              header: "Accept: application/json"
-              computes:
-              - type: json2Csv
-                entryKey: /
-                properties: commit;database;version
-                separator: ;
-              - type: translate
-                column: 3
-                translationTable:
-                  ok: 1
-                  default: 0
-          mapping:
-            source: ${esc.d}{source::grafanaHealth}
-            attributes:
-              id: $2
-              service.instance.id: $2
-              service.version: $4
-            metrics:
-              grafana.db.state: $3
-```
 
 ### Basic Authentication settings
 

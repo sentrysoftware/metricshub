@@ -106,6 +106,13 @@
 			<item name="Debugging" href="guides/debug.html" />
 		</menu>
 
+		<menu name="Use Cases">
+			
+			<item name="Monitoring a Grafana Service (Custom Monitor)" href="usecases/grafana-service.html" />
+			<item name="Monitoring Network Interfaces (SNMP)" href="usecases/network-interfaces.html" />
+			<item name="Pinging Resources" href="usecases/ping.html" />
+		</menu>
+
 		<menu name="Appendix">
 			<item name="MetricsHub CLI (&lt;code&gt;metricshub&lt;/code&gt;)" href="appendix/cli.html" />
 		</menu>
