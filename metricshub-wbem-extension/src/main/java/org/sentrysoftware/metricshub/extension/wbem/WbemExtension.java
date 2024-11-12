@@ -208,13 +208,9 @@ public class WbemExtension implements IProtocolExtension {
 
 			return wbemConfiguration;
 		} catch (Exception e) {
-			final String errorMessage = String.format(
-				"Error while reading WBEM Configuration: %s. Error: %s",
-				jsonNode,
-				e.getMessage()
-			);
+			final String errorMessage = String.format("Error while reading WBEM Configuration. Error: %s", e.getMessage());
 			log.error(errorMessage);
-			log.debug("Error while reading WBEM Configuration: {}. Stack trace:", jsonNode, e);
+			log.debug("Error while reading WBEM Configuration. Stack trace:", e);
 			throw new InvalidConfigurationException(errorMessage, e);
 		}
 	}

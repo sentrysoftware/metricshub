@@ -26,9 +26,11 @@ import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -38,7 +40,6 @@ import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.agent.deserialization.AttributesDeserializer;
-import org.sentrysoftware.metricshub.agent.deserialization.ConnectorVariablesDeserializer;
 import org.sentrysoftware.metricshub.agent.deserialization.ExtensionProtocolsDeserializer;
 import org.sentrysoftware.metricshub.agent.deserialization.MonitorJobsDeserializer;
 import org.sentrysoftware.metricshub.engine.configuration.ConnectorVariables;
@@ -94,17 +95,16 @@ public class ResourceConfig {
 
 	@Default
 	@JsonSetter(nulls = SKIP)
-	@JsonDeserialize(using = ConnectorVariablesDeserializer.class)
-	private Map<String, ConnectorVariables> variables = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-
-	@Default
-	@JsonSetter(nulls = SKIP)
 	private Set<String> connectors = new HashSet<>();
 
 	@JsonSetter(nulls = SKIP)
 	@JsonDeserialize(using = MonitorJobsDeserializer.class)
 	@Default
 	private Map<String, MonitorJob> monitors = new HashMap<>();
+
+	@Default
+	@JsonSetter(nulls = SKIP)
+	private Map<String, AdditionalConnector> additionalConnectors = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 	@JsonIgnore
 	private Connector connector;
@@ -142,10 +142,32 @@ public class ResourceConfig {
 			.protocols(
 				protocols.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().copy()))
 			)
-			.variables(variables)
+			.additionalConnectors(additionalConnectors)
 			.connectors(connectors)
 			.connector(connector)
 			.stateSetCompression(stateSetCompression)
 			.build();
+	}
+
+	/**
+	 * Retrieves the set of connector variables where map keys are connectorIds and values are connectorVariables.
+	 * @return the map of connectorIds and their variables values.
+	 */
+	public Map<String, ConnectorVariables> getConnectorVariables() {
+		return Optional
+			.ofNullable(additionalConnectors)
+			.map(map ->
+				map
+					.entrySet()
+					.stream()
+					.filter(entry -> entry.getValue() != null && entry.getValue().getVariables() != null) // Filter out null values
+					.collect(
+						Collectors.toMap(
+							Map.Entry::getKey,
+							entry -> new ConnectorVariables(new HashMap<>(entry.getValue().getVariables())) // Create new object with copied map
+						)
+					)
+			)
+			.orElseGet(Collections::emptyMap); // Return an empty map if additionalConnectors is null
 	}
 }

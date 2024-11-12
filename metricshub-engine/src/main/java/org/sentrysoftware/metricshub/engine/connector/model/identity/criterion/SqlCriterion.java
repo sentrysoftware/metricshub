@@ -37,7 +37,7 @@ import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.NonBlankDeserializer;
 
 /**
- * Represents a SQL detection criterion.
+ * Represents an SQL detection criterion.
  * This class defines a criterion based on SQL queries.
  */
 @Data

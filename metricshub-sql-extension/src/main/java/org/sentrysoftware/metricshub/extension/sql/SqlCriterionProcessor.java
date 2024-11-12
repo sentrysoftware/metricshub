@@ -36,7 +36,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
  * A class responsible for processing SQL criteria to evaluate SQL queries.
- * and generates criterion test results accordingly.
+ * and generate criterion test results accordingly.
  */
 @Slf4j
 @AllArgsConstructor

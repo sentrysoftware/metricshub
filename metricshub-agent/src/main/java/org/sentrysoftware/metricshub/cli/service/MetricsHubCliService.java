@@ -682,7 +682,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 	}
 
 	/**
-	 * Try to start the interactive mode to request and set Sql password
+	 * Try to start the interactive mode to request and set SQL password
 	 *
 	 * @param passwordReader password reader which displays the prompt text and wait for user's input
 	 */

@@ -48,7 +48,7 @@ import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 /**
- * Represents a source that retrieves data using an SQL query via JDBC.
+ * Represents a source that retrieves data using an SQL query.
  */
 public class SqlSource extends Source {
 

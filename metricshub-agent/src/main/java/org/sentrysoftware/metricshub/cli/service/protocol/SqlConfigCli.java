@@ -34,7 +34,7 @@ import picocli.CommandLine.Option;
 /**
  * This class is used by MetricsHubCliService to configure SQL protocol when using the MetricsHub CLI.
  * It creates the engine's {@link IConfiguration}
- * for SQL that is used to monitor a specific resource.
+ * for SQL object that is used to monitor a specific resource.
  */
 @Data
 public class SqlConfigCli implements IProtocolConfigCli {
@@ -104,7 +104,7 @@ public class SqlConfigCli implements IProtocolConfigCli {
 		if (finalPassword != null) {
 			configuration.set("password", new TextNode(String.valueOf(finalPassword)));
 		}
-		
+
 		if (url != null && url.length > 0) {
 			configuration.set("url", new TextNode(String.valueOf(url)));
 		}

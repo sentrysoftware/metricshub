@@ -18,7 +18,7 @@ To obtain the electricity costs and carbon footprint of your sites and the resou
 
 ### Step 1: Configure the site
 
-Start by configuring the `site` attribute for your infrastructure. Having the `site` property allows dashboards to report the electricity costs and carbon footprint per site (e.g., per data center). This can be done differently depending on whether you have a [highly distributed](../configuration/configure-monitoring.md#highly-distributed-infrastructure) or [centralized](../configuration/configure-monitoring.md#centralized-infrastructure) infrastructure.
+Start by configuring the `site` attribute for your infrastructure. Having the `site` property allows dashboards to report the electricity costs and carbon footprint per site (e.g., per data center). This can be done differently depending on whether you have a highly distributed or centralized infrastructure.
 
 #### Highly distributed infrastructure
 
@@ -95,7 +95,7 @@ resources:
 
 ### Step 2: Configure the sustainability metrics
 
-Next, configure the sustainability `metrics` section. Place this section either within each `resource group` for [distributed infrastructures](../configuration/configure-monitoring.md#highly-distributed-infrastructure) or directly in the main `metrics` section for [centralized infrastructure](../configuration/configure-monitoring.md#centralized-infrastructure).
+Next, configure the sustainability `metrics` section. Place this section either within each `resource group` for distributed infrastructures or directly in the main `metrics` section for centralized infrastructure.
 
 #### Example for distributed infrastructure
 

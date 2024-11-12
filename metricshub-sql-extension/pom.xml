@@ -9,14 +9,14 @@
 		<version>0.9.07-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>metricshub-sql-extension</artifactId>   
+	<artifactId>metricshub-sql-extension</artifactId>
 
 	<name>MetricsHub SQL Extension</name>
 	<description>MetricsHub SQL Extension implementation providing a set of functionalities used to process SQL criteria and sources.</description>
 
 	<dependencies>
 		<dependency>
-			<groupId>org.sentrysoftware</groupId> 
+			<groupId>org.sentrysoftware</groupId>
 			<artifactId>metricshub-engine</artifactId>
 		</dependency>
 		<dependency>
@@ -141,13 +141,11 @@
 			<artifactId>xmlparserv2</artifactId>
 			<version>21.1.0.0</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.microsoft.sqlserver</groupId>
 			<artifactId>mssql-jdbc</artifactId>
 			<version>9.2.1.jre8</version>
 		</dependency>
-		
 		<dependency>
 			<groupId>com.ibm.informix</groupId>
 			<artifactId>jdbc</artifactId>
@@ -241,19 +239,19 @@
 						</goals>
 						<configuration>
 						<artifactSet>
-								<includes>
+							<includes>
 									<include>org.sentrysoftware:metricshub-sql-extension</include>
-								 	<include>mysql:mysql-connector-java</include>
+									<include>mysql:mysql-connector-java</include>
 									<include>org.postgresql:postgresql</include>
-			                   		<include>com.oracle.database.jdbc:*</include>
-			                        <include>com.oracle.database.security:*</include>
-			                        <include>com.oracle.database.ha:*</include>
-			                        <include>com.oracle.database.nls:*</include>
-			                        <include>com.oracle.database.xml:*</include>
-			                        <include>com.microsoft.sqlserver:*</include>
-			                        <include>net.sourceforge.jtds:jtds</include>
-			                        <include>com.ibm.informix:*</include>
-			                        <include>com.h2database:*</include>
+									<include>com.oracle.database.jdbc:*</include>
+									<include>com.oracle.database.security:*</include>
+									<include>com.oracle.database.ha:*</include>
+									<include>com.oracle.database.nls:*</include>
+									<include>com.oracle.database.xml:*</include>
+									<include>com.microsoft.sqlserver:*</include>
+									<include>net.sourceforge.jtds:jtds</include>
+									<include>com.ibm.informix:*</include>
+									<include>com.h2database:*</include>
 								</includes>
 							</artifactSet>
 							<filters>
@@ -268,7 +266,7 @@
 								</filter>
 							</filters>
 							<transformers>
-								 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<manifestEntries>

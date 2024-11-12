@@ -32,7 +32,6 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
  * A class responsible for processing SQL sources and returning the result as a {@link SourceTable}.
- * It provides methods to run SQL queries via JDBC and generate a table with the results.
  */
 @RequiredArgsConstructor
 @Slf4j

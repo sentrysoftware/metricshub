@@ -127,6 +127,7 @@ public class CriterionProcessor {
 				.message("Failed OS detection operation")
 				.result(CONFIGURE_OS_TYPE_MESSAGE + deviceKind.name())
 				.success(false)
+				.criterion(deviceTypeCriterion)
 				.build();
 		}
 
@@ -135,6 +136,7 @@ public class CriterionProcessor {
 			.message(SUCCESSFUL_OS_DETECTION_MESSAGE)
 			.result(CONFIGURE_OS_TYPE_MESSAGE + deviceKind.name())
 			.success(true)
+			.criterion(deviceTypeCriterion)
 			.build();
 	}
 
@@ -244,6 +246,7 @@ public class CriterionProcessor {
 				.success(true)
 				.message("Process presence check: No test will be performed.")
 				.result(null)
+				.criterion(processCriterion)
 				.build();
 		}
 
@@ -254,6 +257,7 @@ public class CriterionProcessor {
 				.success(true)
 				.message("Process presence check: No test will be performed remotely.")
 				.result(null)
+				.criterion(processCriterion)
 				.build();
 		}
 
@@ -265,6 +269,7 @@ public class CriterionProcessor {
 				.success(true)
 				.message("Process presence check: OS unknown, no test will be performed.")
 				.result(null)
+				.criterion(processCriterion)
 				.build();
 		}
 
@@ -278,6 +283,7 @@ public class CriterionProcessor {
 		final CriterionTestResult result = localOSVisitor.getCriterionTestResult();
 
 		if (result != null) {
+			result.setCriterion(processCriterion);
 			return result;
 		} else {
 			return CriterionTestResult.error(
@@ -303,7 +309,7 @@ public class CriterionProcessor {
 			productRequirementsCriterion.getEngineVersion() == null ||
 			productRequirementsCriterion.getEngineVersion().isBlank()
 		) {
-			return CriterionTestResult.builder().success(true).build();
+			return CriterionTestResult.builder().success(true).criterion(productRequirementsCriterion).build();
 		}
 
 		return CriterionTestResult
@@ -314,6 +320,7 @@ public class CriterionProcessor {
 					VersionHelper.getClassVersion()
 				)
 			)
+			.criterion(productRequirementsCriterion)
 			.build();
 	}
 
@@ -356,7 +363,13 @@ public class CriterionProcessor {
 			telemetryManager
 		);
 		return maybeExtension
-			.map(extension -> extension.processCriterion(criterion, connectorId, telemetryManager))
+			.map(extension -> {
+				CriterionTestResult result = extension.processCriterion(criterion, connectorId, telemetryManager);
+				if (result != null) {
+					result.setCriterion(criterion);
+				}
+				return result;
+			})
 			.orElseGet(CriterionTestResult::empty);
 	}
 

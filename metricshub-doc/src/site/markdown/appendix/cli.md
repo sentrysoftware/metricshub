@@ -164,10 +164,10 @@ This command will connect to the `WIN09` system using the `WinRM` protocol to ex
 ### Windows, SQL
 
 ```batch
-$ metricshub WIN06 -t win --sql --sql-username USERA --sql-password MYSECRET --sql-port 3306 --sql-database MyDB --sql-url MyURL --sql-type mysql -c +MySQL
+$ metricshub WIN06 -t win --sql --sql-username USERA --sql-password MYSECRET --sql-port 3306 --sql-database MyDB --sql-url MyURL --sql-type mysql -c +MySql
 ```
 
-This command will connect to the `WIN06` `Win`dows system using the `SQL` protocol to access the database and execute SQL queries as `USERA`.
+This command will connect to the `WIN06` `Win`dows system using the `SQL` protocol to access the database as `USERA`.
 
 ## Automatic Detection vs Manual Selection
 

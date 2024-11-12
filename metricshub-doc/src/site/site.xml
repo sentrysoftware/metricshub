@@ -80,6 +80,7 @@
 
 		<menu name="Introduction">
 			<item name="Overview" href="index.html" />
+			<item name="Release Notes" href="release-notes.html" />
 			<item name="Connectors Directory" href="metricshub-connectors-directory.html" />
 		</menu>
 
@@ -98,12 +99,14 @@
 		</menu>
 
 		<menu name="Guides">
-			<item name="Quick Start - Windows" href="guides/quick-start-community-prometheus-windows.html"/>
-			<item name="Quick Start - Linux" href="guides/quick-start-community-prometheus-linux.html"/>
+			<item name="Quick Start - Prometheus" href="guides/quick-start-community-prometheus.html"/>
 			<item name="Sustainability" href="guides/configure-sustainability-metrics.html" />
 			<item name="Health Check (Enterprise Edition)" href="guides/status.html" />
 			<item name="Debugging" href="guides/debug.html" />
-			<item name="MetricsHub CLI (&lt;code&gt;metricshub&lt;/code&gt;)" href="guides/cli.html" />
+		</menu>
+
+		<menu name="Appendix">
+			<item name="MetricsHub CLI (&lt;code&gt;metricshub&lt;/code&gt;)" href="appendix/cli.html" />
 		</menu>
 	</body>
 </project>
