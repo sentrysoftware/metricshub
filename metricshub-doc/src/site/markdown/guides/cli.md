@@ -161,6 +161,14 @@ $ metricshub WIN09 -t mgmt --winrm --winrm-username USER --winrm-password MYSECR
 
 This command will connect to the `WIN09` system using the `WinRM` protocol to execute commands as `USER`.
 
+### Windows, SQL
+
+```batch
+$ metricshub WIN06 -t win --sql --sql-username USERA --sql-password MYSECRET --sql-port 3306 --sql-database MyDB --sql-url MyURL --sql-type mysql -c +MySql
+```
+
+This command will connect to the `WIN06` `Win`dows system using the `SQL` protocol to access the database as `USERA`.
+
 ## Automatic Detection vs Manual Selection
 
 **MetricsHub** is bundled with **Community Connector Library**, a library which consists of a list of *connectors*  that describe how to discover resource components (such as hardware, service and application components) and detect failures in a given system, with a specific instrumentation stack.
