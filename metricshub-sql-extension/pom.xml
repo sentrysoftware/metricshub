@@ -240,7 +240,7 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
-						<artifactSet>
+							<artifactSet>
 								<includes>
 									<include>org.sentrysoftware:metricshub-sql-extension</include>
 									<include>mysql:mysql-connector-java</include>
@@ -269,8 +269,7 @@
 							</filters>
 							<transformers>
 								<transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-								<transformer
-									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<manifestEntries>
 										<Multi-Release>true</Multi-Release>
 									</manifestEntries>

@@ -122,7 +122,7 @@ Whatever the syntax adopted, replace:
   * `vms` for HP Open VMS systems.
   Check out the [Connector Directory](metricshub-connectors-directory.html) to find out which type corresponds to your system.
 * `<protocol-configuration>` with the protocol(s) **MetricsHub** will use to communicate with the resources:
- `http`, `ipmi`, `oscommand`, `ping`, `ssh`, `snmp`, `wmi`, `wbem`, `sql` or `winrm`.
+ `http`, `ipmi`, `oscommand`, `ping`, `ssh`, `snmp`, `wmi`, `wbem`, `winrm` or `sql`.
  Refer to [Protocols and Credentials](./configure-monitoring.html#protocols-and-credentials) for more details.
 
 > Note: You can use the `${esc.d}{env::ENV_VARIABLE_NAME}` syntax in the `config/metricshub.yaml` file to call your environment variables.

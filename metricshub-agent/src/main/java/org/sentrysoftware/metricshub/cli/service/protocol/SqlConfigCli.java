@@ -61,7 +61,7 @@ public class SqlConfigCli implements IProtocolConfigCli {
 		order = 5,
 		paramLabel = "TIMEOUT",
 		defaultValue = "" + DEFAULT_TIMEOUT,
-		description = "Timeout in seconds for SQL operations (default: ${DEFAULT-VALUE} s)"
+		description = "Timeout in seconds for SQL queries(default: ${DEFAULT-VALUE} s)"
 	)
 	private String timeout;
 
@@ -72,7 +72,7 @@ public class SqlConfigCli implements IProtocolConfigCli {
 		names = "--sql-database",
 		order = 7,
 		paramLabel = "DATABASE",
-		description = "Name of the SQL database to connect to"
+		description = "Name of the SQL database"
 	)
 	private String database;
 
