@@ -640,7 +640,7 @@ class OsCommandExtensionTest {
 		final CriterionTestResult expected = CriterionTestResult
 			.builder()
 			.success(false)
-			.message("ipmiCommand")
+			.message("ipmiCommand bmc info")
 			.result("")
 			.build();
 
@@ -829,7 +829,7 @@ class OsCommandExtensionTest {
 		// Mock OsCommandHelper.runLocalCommand if local
 		try (MockedStatic<OsCommandService> oscmd = mockStatic(OsCommandService.class)) {
 			oscmd
-				.when(() -> OsCommandService.runSshCommand(eq("PATH= command"), any(), any(), anyLong(), any(), any()))
+				.when(() -> OsCommandService.runSshCommand(eq("PATH= command bmc info"), any(), any(), anyLong(), any(), any()))
 				.thenReturn("IPMI Version");
 
 			final CriterionTestResult expected = CriterionTestResult
@@ -883,14 +883,14 @@ class OsCommandExtensionTest {
 		// Mock OsCommandHelper.runLocalCommand if local
 		try (MockedStatic<OsCommandService> oscmd = mockStatic(OsCommandService.class)) {
 			oscmd
-				.when(() -> OsCommandService.runSshCommand(eq("PATH= command"), any(), any(), anyLong(), any(), any()))
+				.when(() -> OsCommandService.runSshCommand(eq("PATH= command bmc info"), any(), any(), anyLong(), any(), any()))
 				.thenThrow(ClientRuntimeException.class);
 
 			final CriterionTestResult expected = CriterionTestResult
 				.builder()
 				.success(false)
 				.result(null)
-				.message("Hostname localhost - Cannot execute the IPMI tool command PATH= command. Exception: null.")
+				.message("Hostname localhost - Cannot execute the IPMI tool command PATH= command bmc info. Exception: null.")
 				.build();
 
 			assertEquals(expected, osCommandExtension.processCriterion(ipmiCriterion, MY_CONNECTOR_1_NAME, telemetryManager));
