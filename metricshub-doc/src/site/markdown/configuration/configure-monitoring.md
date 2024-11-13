@@ -103,8 +103,9 @@ resources:
 resources:
   <resource-id>:
     attributes:
-      host.names: [<hostname1>, <hostname2>, etc.]
-      host.type: <type> 
+      host.name: [ <hostname1>, <hostname2>, etc. ]
+      host.type: <type>
+      host.extra.attribute: [ <extra-attribute-for-hostname1>, <extra-attribute-for-hostname2>, etc. ]
     <protocol-configuration>
 ```
 Whatever the syntax adopted, replace:
@@ -569,6 +570,7 @@ By default, the `host.name` attribute is used for both the hostname or IP addres
 If the `hostname` parameter is specified in the protocol configuration, it overrides the `host.name` attribute for client requests. In this case, the `host.name` will only be used as a metric attribute.
 
 #### Example
+
 ```yaml
 resources:
   myHost1:
@@ -585,9 +587,39 @@ resources:
         port: 161
         timeout: 1m
 ```
+
 In the example above:
 * `my-host-01` will be used to send requests to the host
 * `custom-hostname` will be used as the hostname in the metrics.
+
+### Customize Hostnames for shared configurations
+
+When working with configurations that share characteristics across multiple resources, you can define multiple hostnames and metric attributes using lists for `host.name` and `hostname`.
+
+#### Example (Resources sharing similar characteristics)
+
+```yaml
+resources:
+  shared-characteristic-hosts:
+    attributes:
+      # `custom-hostname1` and `custom-hostname2` will set the host.name attribute in the collected metrics.
+      host.name: [ custom-hostname1, custom-hostname2 ]
+      host.type: linux
+    protocols:
+      snmp:
+        # my-host-01 and my-host-02 will be used to send requests to the hosts.
+        hostname: [ my-host-01, my-host-02 ]
+        version: v1
+        community: public
+        port: 161
+        timeout: 1m
+```
+
+In this example:
+* `my-host-01` and `my-host-02` will be used to send requests to the hosts.
+* `custom-hostname1` and `custom-hostname2` will set the `host.name` attribute in the metrics.
+
+> **Note**: The order of values in `host.name` must align exactly with the order in `hostname`. Each entry in `host.name` corresponds to the entry at the same position in `hostname`. Misalignment between these lists will result in mismatched data, causing inconsistencies in the metrics collected for each resource.
 
 ### Customize resource monitoring
 

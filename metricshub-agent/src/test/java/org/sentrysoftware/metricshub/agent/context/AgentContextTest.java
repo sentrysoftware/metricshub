@@ -122,10 +122,10 @@ class AgentContextTest {
 		assertEquals(expectedMonitors, grafanaServiceResourceConfig.getMonitors());
 
 		// Multi-hosts checks
-		final ResourceConfig server2ResourceConfig = resourcesConfigInTheGroup.get("snmp-resources-server-2");
+		final ResourceConfig server2ResourceConfig = resourcesConfigInTheGroup.get("snmp-resources-1-server-2");
 		assertNotNull(server2ResourceConfig);
 		assertEquals("server-2", server2ResourceConfig.getAttributes().get(HOST_NAME));
-		final ResourceConfig server3ResourceConfig = resourcesConfigInTheGroup.get("snmp-resources-server-3");
+		final ResourceConfig server3ResourceConfig = resourcesConfigInTheGroup.get("snmp-resources-2-server-3");
 		assertEquals("server-3", server3ResourceConfig.getAttributes().get(HOST_NAME));
 		assertNotNull(server3ResourceConfig);
 

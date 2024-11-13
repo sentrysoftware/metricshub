@@ -21,6 +21,8 @@ package org.sentrysoftware.metricshub.agent.deserialization;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MULTI_VALUE_SEPARATOR;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -60,7 +62,7 @@ public class AttributesDeserializer extends JsonDeserializer<Map<String, String>
 			.collect(
 				Collectors.toMap(
 					Map.Entry::getKey,
-					value -> StringHelper.stringify(value.getValue()),
+					value -> StringHelper.stringify(value.getValue(), MULTI_VALUE_SEPARATOR),
 					(oldValue, newValue) -> oldValue,
 					LinkedHashMap::new
 				)
