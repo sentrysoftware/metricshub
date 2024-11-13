@@ -107,9 +107,10 @@
 		</menu>
 
 		<menu name="Use Cases">
-			
-			<item name="Monitoring a Grafana Service (Custom Monitor)" href="usecases/grafana-service.html" />
 			<item name="Monitoring Network Interfaces (SNMP)" href="usecases/network-interfaces.html" />
+			<item name="Monitoring a Process Commande Line" href="usecases/process-command-line.html" />
+			<item name="Monitoring a Service Running on Linux" href="usecases/service-linux.html" />
+			<item name="Monitoring a Service Health" href="usecases/service-health.html" />
 			<item name="Pinging Resources" href="usecases/ping.html" />
 		</menu>
 

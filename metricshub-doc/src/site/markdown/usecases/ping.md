@@ -5,11 +5,18 @@ description: How to ping resources with MetricsHub
 
 ## Overview
 
-With **MetricsHub**, you can ping your resources through ICMP (Internet Control Message Protocol) to verify that they can be reached within an acceptable response time. To achieve this, you just need to configure in the `config/metricshub.yaml` file:
+With **MetricsHub**, you can ping your resources through ICMP (Internet Control Message Protocol) to verify that they can be reached within an acceptable response time. To achieve this, you only need to configure in the `config/metricshub.yaml` file:
 * the resources to be monitored 
-* the ICMP Ping protocol for each of your resource.
+* the `ping` protocol for each of your resource.
 
-In the example below, we ping 9 resources that belong to the  `baie9` resource group using the **ICMP protocol**. A timeout of 3 seconds is configured and the result (OK, KO status) is displayed in a Grafana Dashboard.
+Once the monitoring is in place, **MetricsHub** will push the following metrics for each resource (host):
+
+* `metricshub.host.up{protocol="ping"}` (1 for successful ping, 0 for no response)
+* `metricshub.host.up.response_time{protocol="ping"}` (response time in seconds)
+
+  > Note: In Prometheus, these metrics will be renamed `metricshub_host_up` and `metricshub_host_up_response_time_seconds` respectively, to align with Prometheus naming conventions.
+
+In the example below, we ping 11 resources using the **ICMP protocol**. A timeout of 3 seconds is configured. The status (OK, KO) and response times are displayed in a Grafana Dashboard.
 
 ![MetricsHub - Pinging resources](../images/metricshub-ping-check-feature.png)
 
@@ -17,27 +24,19 @@ In the example below, we ping 9 resources that belong to the  `baie9` resource g
 
 To configure the **Ping Check** feature: 
 
-1. In the `config/metricshub.yaml` file, we created the `baie9` resource group. The site, which corresponds to the physical location, is `baie9` as well:
+1. In the `config/metricshub.yaml` file, we configure the 11 resources as follows:
 
     ```yaml
-    resourceGroups:
-
-      baie9:
-
         attributes:
-          site: baie9
-    ```
+          site: bay4
 
-2. We configured our resources as follows:
-
-    ```yaml
         resources:
-          host-service:
+          host-ping:
             attributes:
-              host.names: [ tallinn, bacon, powerscale, purex-san, purem-san, xtremio, oracle-zfs-7320, pure-san, vm-users-01]
+              host.name: [ euclide, ibm-v7k, carnap, dev-nvidia-01, babbage, morgan, toland, ibm-fs900, hmc-ds-1, hmc-ds-2, sup-fuji-01 ]
     ```
 
-3. We configured the ICMP protocol as follows:
+2. We configure the ICMP protocol as follows:
 
     ```yaml
             protocols:
@@ -45,20 +44,16 @@ To configure the **Ping Check** feature:
                 timeout: 3  
     ```
 
-We came up to this version of the `config/metricshub.yaml` configuration file:
+Here is the complete YAML configuration to be added to `config/metricshub.yaml` to ping resources:
 
    ```yaml
-    resourceGroups:
-
-      baie9:
-
         attributes:
-          site: baie9
+          site: bay9
 
         resources:
-          host-service:
+          host-ping:
             attributes:
-              host.names: [ tallinn, bacon, powerscale, purex-san, purem-san, xtremio, oracle-zfs-7320, pure-san, vm-users-01]
+              host.name: [ euclide, ibm-v7k, carnap, dev-nvidia-01, babbage, morgan, toland, ibm-fs900, hmc-ds-1, hmc-ds-2, sup-fuji-01 ]
             protocols:
               ping:
                 timeout:  3  

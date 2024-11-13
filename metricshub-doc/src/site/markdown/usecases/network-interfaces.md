@@ -7,55 +7,57 @@ description: How to configure MetricsHub to monitor network interfaces using the
 
 **MetricsHub** can leverage the SNMP protocol (v1, v2c, or v3) to monitor network devices such as [Ethernet switches, UPS, or network interfaces](../metricshub-connectors-directory.html), provided that an SNMP agent is installed on the resource and the connection is configured.
 
-In the example below, we configured **MetricsHub** to monitor Lenovo xSeries systems using:
-* SNMP v2
-* the community connector [MIB-2 Standard SNMP Agent - Network Interfaces](https://sentrysoftware.org/metricshub-community-connectors/connectors/mib2.html)
-* the Enterprise Connector [LenovoIMM (SNMP)](https://metricshub.com/docs/latest/connectors/lenovoimm.html).
+In the example below:
+* we configured **MetricsHub** to monitor a switch using:
+  * SNMP v2c
+  * the community connector [MIB-2 Standard SNMP Agent - Network Interfaces](https://sentrysoftware.org/metricshub-community-connectors/connectors/mib2.html)
+* we displayed the total traffic in bytes/s in a Grafana Dashboard:
+
+![MetricsHub - Monitoring network interfaces using SNMP](../images/metricshub-network-monitoring-snmp.png)
 
 
 ## Procedure
 
-To monitor our Lenoxo xSeries systems:
+To monitor our switch:
 
-1. In the `config/metricshub.yaml` file, we created the resource `Lenovo-xSeries-SNMPv2` with the following attributes:
+1. In the `config/metricshub.yaml` file, we create the resource `alcatel-switch` with the following attributes:
 
-   * hostname: `lenonoxSeries.domain.com`
+   * hostname: `alcatel-switch`
    * host type: `oob`
 
     ```yaml
-        Lenovo-xSeries-SNMPv2:
-            attributes: 
-            host.name: lenonoxSeries.domain.com 
-            host.type: oob
+    alcatel-switch:
+        attributes: 
+          host.name: alcatel-switch
+          host.type: oob
     ```
-2.  We forced **MetricsHub** to use the `LenovoIMM` and `MIB2` connectors
+2.  We force **MetricsHub** to use the `MIB2` connector
 
     ```yaml
-            connectors: [LenovoIMM, MIB2]
+        connectors: [MIB2]
     ```
 
-3. We configured **MetricsHub** to leverage the SNMP v2c protocol using the `public` community
+3. We configure **MetricsHub** to connect to the iLO management card with the IP address `10.0.1.206` using the SNMP `v2c` protocol and the `public` community
 
-    ```yaml
-
-            protocols:
-            snmp:
-                hostname:  <hostname or IP address of IMM>
-                version: v2c
-                community: public
+   ```yaml
+        protocols:
+          snmp:
+            hostname:  10.0.1.206 # IP address of IMM
+            version: v2c 
+            community: public 
     ```
 
-We came up to this version of the `config/metricshub.yaml` configuration file:
+Here is the complete YAML configuration to be added to `config/metricshub.yaml` to monitor the switch:
 
- ```yaml
-        Lenovo-xSeries-SNMPv2:
-            attributes: 
-            host.name: lenonoxSeries.domain.com 
-            host.type: mgmt
-            connectors: [LenovoIMM, MIB2]
-            protocols:
-            snmp:
-                hostname:  <hostname or IP address of IMM>
-                version: v2c
-                community: public
-```
+   ```yaml
+    alcatel-switch:
+        attributes: 
+          host.name: alcatel-switch
+          host.type: oob
+        connectors: [ MIB2 ]
+        protocols:
+          snmp:
+            hostname:  10.0.1.206 
+            version: v2c 
+            community: public 
+  ```
