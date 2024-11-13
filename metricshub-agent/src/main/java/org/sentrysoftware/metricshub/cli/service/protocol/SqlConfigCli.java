@@ -68,12 +68,7 @@ public class SqlConfigCli implements IProtocolConfigCli {
 	@Option(names = "--sql-port", order = 6, paramLabel = "PORT", description = "Port for SQL connection")
 	private int port;
 
-	@Option(
-		names = "--sql-database",
-		order = 7,
-		paramLabel = "DATABASE",
-		description = "Name of the SQL database"
-	)
+	@Option(names = "--sql-database", order = 7, paramLabel = "DATABASE", description = "Name of the SQL database")
 	private String database;
 
 	@Option(
