@@ -27,9 +27,6 @@ To configure the **Ping Check** feature:
 1. In the `config/metricshub.yaml` file, we configure the 11 resources as follows:
 
     ```yaml
-        attributes:
-          site: bay4
-
         resources:
           host-ping:
             attributes:
@@ -47,9 +44,6 @@ To configure the **Ping Check** feature:
 Here is the complete YAML configuration to be added to `config/metricshub.yaml` to ping resources:
 
    ```yaml
-        attributes:
-          site: bay9
-
         resources:
           host-ping:
             attributes:
