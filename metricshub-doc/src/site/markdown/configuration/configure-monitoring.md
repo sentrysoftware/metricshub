@@ -524,63 +524,53 @@ resourceGroups:
 
 ## Step 3: Configure additional settings
 
-### Customize the hostname
+### Customize resource hostname
 
-By default, the `host.name` attribute is used for both the hostname or IP address of the resource and as the hostname of each OpenTelemetry metric attached to the host resource.
+By default, the `host.name` attribute specified for a resource determines both:
+* the hostname used to execute requests against the resource for collecting metrics
+* the hostname associated with each OpenTelemetry metric collected for the resource.
 
-If the `hostname` parameter is specified in the protocol configuration, it overrides the `host.name` attribute for client requests. In this case, the `host.name` will only be used as a metric attribute.
+If your resource requires different hostnames for these purposes, you can customize the configuration as follows.
 
-#### Example
+#### Example for unique resources
+
+Here’s an example of customizing the hostname for a unique resource:
 
 ```yaml
 resources:
   myHost1:
     attributes:
-      # `custom-hostname` will be the hostname value in the collected metrics.
-      host.name: custom-hostname
+      host.name: custom-hostname # Hostname applied to the collected metrics 
       host.type: linux
     protocols:
       snmp:
-        # my-host-01 will be used to send requests to the host.
-        hostname: my-host-01
+        hostname: my-host-01 # Hostname used for the SNMP requests
         version: v1
         community: public
         port: 161
         timeout: 1m
 ```
 
-In the example above:
-* `my-host-01` will be used to send requests to the host
-* `custom-hostname` will be used as the hostname in the metrics.
+#### Example for resources sharing similar characteristics
 
-### Customize Hostnames for shared configurations
-
-When working with configurations that share characteristics across multiple resources, you can define multiple hostnames and metric attributes using lists for `host.name` and `hostname`.
-
-#### Example (Resources sharing similar characteristics)
+For resources with shared characteristics, you can define multiple hostnames in the configuration: 
 
 ```yaml
 resources:
   shared-characteristic-hosts:
     attributes:
-      # `custom-hostname1` and `custom-hostname2` will set the host.name attribute in the collected metrics.
-      host.name: [ custom-hostname1, custom-hostname2 ]
+      host.name: [ custom-hostname1, custom-hostname2 ] # Hostnames applied to the collected metrics 
       host.type: linux
     protocols:
       snmp:
-        # my-host-01 and my-host-02 will be used to send requests to the hosts.
-        hostname: [ my-host-01, my-host-02 ]
+        hostname: [ my-host-01, my-host-02 ] # Hostnames used for the SNMP requests
         version: v1
         community: public
         port: 161
         timeout: 1m
 ```
 
-In this example:
-* `my-host-01` and `my-host-02` will be used to send requests to the hosts.
-* `custom-hostname1` and `custom-hostname2` will set the `host.name` attribute in the metrics.
-
-> **Note**: The order of values in `host.name` must align exactly with the order in `hostname`. Each entry in `host.name` corresponds to the entry at the same position in `hostname`. Misalignment between these lists will result in mismatched data, causing inconsistencies in the metrics collected for each resource.
+> **Important**: Ensure the values of `host.name` are listed in the exact same order as those in `hostname`. Each value listed in `host.name` must correspond to the value at the same position in `hostname`. Misaligned orders will result in mismatched data and inconsistencies in the collected metrics for each resource.
 
 ### Customize resource monitoring
 
