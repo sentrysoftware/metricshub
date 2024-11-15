@@ -46,13 +46,15 @@ Here is the complete YAML configuration to be added to `config/metricshub.yaml` 
 
 ```yaml
 resources:
-  localhost:
-    attributes:
-      host.name: localhost
-      host.type: linux
-    protocols:
-      ssh:
-        timeout: 120
+      prod-web:
+        attributes:
+          host.name: [prod-web-01, prod-web-02]
+          host.type: linux
+        protocols:
+          ssh:
+            username: monagent
+            password: REDACTED
+            timeout: 30
     additionalConnectors:
       httpd:
         uses: LinuxService
