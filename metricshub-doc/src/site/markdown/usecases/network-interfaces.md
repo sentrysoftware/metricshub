@@ -36,7 +36,7 @@ To monitor our switch:
           snmp:
             version: v2c 
             community: public 
-  ```
+    ```
 
 Here is the complete YAML configuration to be added to `config/metricshub.yaml` to monitor the switch:
 
