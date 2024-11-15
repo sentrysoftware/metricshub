@@ -5,11 +5,12 @@ description: How to push the metrics collected by MetricsHub to Prometheus
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
+> Note: This integration procedure is intended for the MetricsHub Enterprise Edition. If you are using the Community Edition, please refer to [Quick Start](../guides/quick-start-community-prometheus.md).
+
 **MetricsHub** sends the collected metrics to a Prometheus server using the *Remote Write Protocol*.
 
-<!-- ![MetricsHub pushes the collected metrics to Prometheus]()-->
+![MetricsHub pushes the collected metrics to Prometheus and Grafana](../images/metricshub-prometheus-diagram.png)
 
-> Note: This procedure is intended to the MetricsHub Enterprise Edition. If you are using the Community Edition, please refer to [Quick Start](../guides/quick-start-community-prometheus.md).
 
 ## Prerequisites
 
