@@ -312,7 +312,7 @@ resourceGroups:
 
       # group-1:
       #   attributes:
-      #     host.names: [server-15, server-16, server-17]
+      #     host.name: [server-15, server-16, server-17]
       #     host.type: linux
       #   protocols:
       #     snmp:
