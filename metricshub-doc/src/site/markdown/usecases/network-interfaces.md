@@ -31,7 +31,7 @@ To monitor our switch:
     ```
 2.  We configure **MetricsHub** to connect to the network switch using the SNMP `v2c` protocol and the `public` community
 
-   ```yaml
+    ```yaml
         protocols:
           snmp:
             version: v2c 
