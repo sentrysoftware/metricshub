@@ -290,12 +290,29 @@ resourceGroups:
       #       password: <auth-password>
 
       #═══════════════════════════════════════════════════
+      # JDBC Configuration
+      #═══════════════════════════════════════════════════
+      # server-14:
+      #   attributes:
+      #     host.name: server-14
+      #     host.type: win
+      #   protocols:
+      #     jdbc:
+      #       username: dbuser
+      #       password: dbpassword
+      #       url: jdbc:mysql://server-14:3306/mydatabase
+      #       timeout: 120s
+      #       port: 3306
+      #       type: mysql
+      #       database: mydatabase
+
+      #═══════════════════════════════════════════════════
       # Host Group SNMP v1 protocol configuration
       #═══════════════════════════════════════════════════
 
       # group-1:
       #   attributes:
-      #     host.names: [server-14, server-15, server-16]
+      #     host.names: [server-15, server-16, server-17]
       #     host.type: linux
       #   protocols:
       #     snmp:

@@ -301,7 +301,7 @@ class SqlExtensionTest {
 
 	@Test
 	void testGetIdentifier() {
-		assertEquals("sql", sqlExtension.getIdentifier());
+		assertEquals("jdbc", sqlExtension.getIdentifier());
 	}
 
 	@Test

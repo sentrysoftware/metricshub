@@ -122,7 +122,7 @@ Whatever the syntax adopted, replace:
   * `vms` for HP Open VMS systems.
   Check out the [Connector Directory](metricshub-connectors-directory.html) to find out which type corresponds to your system.
 * `<protocol-configuration>` with the protocol(s) **MetricsHub** will use to communicate with the resources:
- `http`, `ipmi`, `oscommand`, `ping`, `ssh`, `snmp`, `wmi`, `wbem`, `winrm` or `sql`.
+ `http`, `ipmi`, `oscommand`, `ping`, `ssh`, `snmp`, `wmi`, `wbem`, `winrm` or `jdbc`.
  Refer to [Protocols and Credentials](./configure-monitoring.html#protocols-and-credentials) for more details.
 
 > Note: You can use the `${esc.d}{env::ENV_VARIABLE_NAME}` syntax in the `config/metricshub.yaml` file to call your environment variables.
@@ -521,18 +521,18 @@ resourceGroups:
             authentications: [ntlm]
 ```
 
-#### SQL
+#### JDBC
 
 Use the parameters below to configure the SQL protocol:
 
 | Parameter       | Description                                                                                       |
 | --------------- | --------------------------------------------------------------------------------------------------|
-| sql             | Protocol used to access the host.                                                                 |
+| jdbc            | JDBC configuration used to connect to a database on the host                                      |
 | hostname        | The name or IP address of the resource. If not specified, the `host.name` attribute will be used. |
 | timeout         | How long until the SQL query times out (Default: 120s).                                           |
 | username        | Name used to authenticate against the database.                                                   |
 | password        | Password used to authenticate against the database.                                               |
-| url             | The connection URL for the database.                                                              |
+| url             | The JDBC connection URL for the database.                                                         |
 | type            | The type of database (e.g., Oracle, PostgreSQL, MSSQL, Informix, Derby, H2).                      |
 | port            | The port number used to connect to the database.                                                  |
 | database        | The name of the database instance to connect to on the server.                                    |
@@ -550,14 +550,14 @@ resourceGroups:
           host.name: my-host-02
           host.type: win
         protocols:
-          sql:
+          jdbc:
             hostname: my-host-02
             username: dbuser
             password: dbpassword
-            url: jdbc:postgresql://my-host-02:5432/mydatabase
+            url: jdbc:mysql://my-host-02:3306/mydatabase
             timeout: 120s
-            type: postgresql
-            port: 5432
+            type: mysql
+            port: 3306
             database: mydatabase
 ```
 

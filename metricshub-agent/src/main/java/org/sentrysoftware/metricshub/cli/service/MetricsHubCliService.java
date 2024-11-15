@@ -104,7 +104,7 @@ import picocli.CommandLine.Spec;
 		"@|yellow HOSTNAME|@ " +
 		"@|yellow -t|@=@|italic TYPE|@ " +
 		"<@|yellow --http|@|@|yellow --https|@|@|yellow --ipmi|@|@|yellow " +
-		"--snmp|@=@|italic VERSION|@|@|yellow --ssh|@|@|yellow --wbem|@|@|yellow --wmi|@|@|yellow --winrm|@|@|yellow --sql|@> " +
+		"--snmp|@=@|italic VERSION|@|@|yellow --ssh|@|@|yellow --wbem|@|@|yellow --wmi|@|@|yellow --winrm|@|@|yellow --jdbc|@> " +
 		"[@|yellow -u|@=@|italic USER|@ [@|yellow -p|@=@|italic P4SSW0RD|@]] [OPTIONS]..."
 	}
 )
@@ -527,7 +527,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		if (protocolsNotConfigured) {
 			throw new ParameterException(
 				spec.commandLine(),
-				"At least one protocol must be specified: --http[s], --ipmi, --snmp, --snmpv3, --ssh, --wbem, --wmi, --winrm, --sql."
+				"At least one protocol must be specified: --http[s], --ipmi, --snmp, --snmpv3, --ssh, --wbem, --wmi, --winrm, --jdbc."
 			);
 		}
 	}

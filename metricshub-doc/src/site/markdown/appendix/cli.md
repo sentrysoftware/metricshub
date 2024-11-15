@@ -161,13 +161,13 @@ $ metricshub WIN09 -t mgmt --winrm --winrm-username USER --winrm-password MYSECR
 
 This command will connect to the `WIN09` system using the `WinRM` protocol to execute commands as `USER`.
 
-### Windows, SQL
+### Windows, JDBC (MySQL)
 
 ```batch
-$ metricshub WIN06 -t win --sql --sql-username USERA --sql-password MYSECRET --sql-port 3306 --sql-database MyDB --sql-url MyURL --sql-type mysql -c +MySql
+$ metricshub WIN06 -t win --jdbc --jdbc-username USERA --jdbc-password MYSECRET --jdbc-port 3306 --jdbc-database MyDB --jdbc-type mysql --jdbc-url jdbc:mysql://WIN06:3306/MyDB -c +MySql
 ```
 
-This command will connect to the `WIN06` `Win`dows system using the `SQL` protocol to access the database and execute SQL queries as `USERA`.
+This command will connect to the `WIN06` `Win`dows system using the `JDBC` configuration to access the database and execute SQL queries as `USERA`.
 
 ## Automatic Detection vs Manual Selection
 

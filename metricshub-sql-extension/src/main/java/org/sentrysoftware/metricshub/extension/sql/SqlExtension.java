@@ -52,9 +52,9 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 public class SqlExtension implements IProtocolExtension {
 
 	/**
-	 * The identifier for sql.
+	 * The identifier for jdbc.
 	 */
-	private static final String IDENTIFIER = "sql";
+	private static final String IDENTIFIER = "jdbc";
 
 	private SqlRequestExecutor sqlRequestExecutor;
 

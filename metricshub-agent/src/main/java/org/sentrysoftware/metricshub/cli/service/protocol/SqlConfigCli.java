@@ -44,20 +44,30 @@ public class SqlConfigCli implements IProtocolConfigCli {
 	 */
 	public static final int DEFAULT_TIMEOUT = 30;
 
-	@Option(names = "--sql", order = 1, description = "Enables SQL")
+	@Option(names = "--jdbc", order = 1, description = "Enables JDBC")
 	private boolean useSQL;
 
-	@Option(names = "--sql-url", order = 2, paramLabel = "URL", description = "JDBC URL for SQL connection")
+	@Option(names = "--jdbc-url", order = 2, paramLabel = "URL", description = "JDBC URL")
 	private char[] url;
 
-	@Option(names = "--sql-username", order = 3, paramLabel = "USERNAME", description = "Username for SQL authentication")
+	@Option(
+		names = "--jdbc-username",
+		order = 3,
+		paramLabel = "USERNAME",
+		description = "Username for JDBC authentication"
+	)
 	private String username;
 
-	@Option(names = "--sql-password", order = 4, paramLabel = "PASSWORD", description = "Password for SQL authentication")
+	@Option(
+		names = "--jdbc-password",
+		order = 4,
+		paramLabel = "PASSWORD",
+		description = "Password for JDBC authentication"
+	)
 	private char[] password;
 
 	@Option(
-		names = "--sql-timeout",
+		names = "--jdbc-timeout",
 		order = 5,
 		paramLabel = "TIMEOUT",
 		defaultValue = "" + DEFAULT_TIMEOUT,
@@ -65,17 +75,17 @@ public class SqlConfigCli implements IProtocolConfigCli {
 	)
 	private String timeout;
 
-	@Option(names = "--sql-port", order = 6, paramLabel = "PORT", description = "Port for SQL connection")
+	@Option(names = "--jdbc-port", order = 6, paramLabel = "PORT", description = "Port for JDBC connection")
 	private int port;
 
-	@Option(names = "--sql-database", order = 7, paramLabel = "DATABASE", description = "Name of the SQL database")
+	@Option(names = "--jdbc-database", order = 7, paramLabel = "DATABASE", description = "Name of the database")
 	private String database;
 
 	@Option(
-		names = "--sql-type",
+		names = "--jdbc-type",
 		order = 8,
 		paramLabel = "TYPE",
-		description = "Type of SQL database (e.g., MySQL, PostgreSQL, SQLServer)"
+		description = "Type of JDBC database (e.g., MySQL, PostgreSQL, SQLServer)"
 	)
 	private String type;
 
@@ -110,7 +120,7 @@ public class SqlConfigCli implements IProtocolConfigCli {
 
 		return CliExtensionManager
 			.getExtensionManagerSingleton()
-			.buildConfigurationFromJsonNode("sql", configuration, value -> value)
+			.buildConfigurationFromJsonNode("jdbc", configuration, value -> value)
 			.orElseThrow();
 	}
 }
