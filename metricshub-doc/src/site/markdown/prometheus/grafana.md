@@ -27,7 +27,7 @@ Before importing the **MetricsHub** dashboards in Grafana, ensure that you have:
 ## Importing the MetricsHub dashboards
 
 1. Log on to Grafana
-2. [Import](https://grafana.com/docs/grafana/latest/dashboards/manage-dashboards/#export-and-import-dashboards) the dashboard(s)
+2. [Import](https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/import-dashboards/) the dashboard(s)
 3. Enter the dashboard ID:
    
    - `22053` for the **[Hardware Main (MetricsHub)](https://grafana.com/grafana/dashboards/22053-hardware-main-metricshub/)** dashboard
@@ -42,8 +42,8 @@ Before importing the **MetricsHub** dashboards in Grafana, ensure that you have:
 
 The **MetricsHub** dashboards are now loaded in Grafana:
 
-| Dashboard                  | Description                                                                                 |
-| -------------------------- | ------------------------------------------------------------------------------------------- |
+| Dashboard                      | Description                                                                                 |
+| ------------------------------ | ------------------------------------------------------------------------------------------- |
 | **Hardware Main (MetricsHub)** | Overview of all monitored _sites_                                                           |
 | **Hardware Site (MetricsHub)** | Metrics associated to one _site_ (a data center or a server room) and its monitored _hosts_ |
-| **Hardware Host (MetricsHub)** | Metrics associated to one _host_ and its internal components                           
+| **Hardware Host (MetricsHub)** | Metrics associated to one _host_ and its internal components                                |

@@ -36,7 +36,7 @@ Before you can start viewing the metrics collected by **MetricsHub** in Promethe
         resource_to_telemetry_conversion:
           enabled: true
     ```
-3. Finally, declare the exporter in the pipeline section of **otel/otel-config.yaml**:
+3. Declare the exporter in the pipeline section of **otel/otel-config.yaml**:
 
     ```yaml
     service:
@@ -47,3 +47,4 @@ Before you can start viewing the metrics collected by **MetricsHub** in Promethe
           processors: [memory_limiter, batch, resourcedetection, metricstransform]
           exporters: [prometheusremotewrite/your-prom-server] # Declare your prometheus prometheusremotewrite exporter
     ```
+4. Finally, restart Prometheus then MetricsHub to ensure that the configuration changes take effect.
