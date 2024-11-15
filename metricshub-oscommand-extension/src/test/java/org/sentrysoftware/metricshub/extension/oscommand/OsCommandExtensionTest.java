@@ -929,10 +929,10 @@ class OsCommandExtensionTest {
 		// local
 		try (MockedStatic<OsCommandService> oscmd = mockStatic(OsCommandService.class)) {
 			oscmd
-				.when(() -> OsCommandService.runLocalCommand(eq("ipmiCommandfru"), anyLong(), eq(null)))
+				.when(() -> OsCommandService.runLocalCommand(eq("ipmiCommand fru"), anyLong(), eq(null)))
 				.thenReturn("impiResultFru");
 			oscmd
-				.when(() -> OsCommandService.runLocalCommand(eq("ipmiCommand-v sdr elist all"), anyLong(), eq(null)))
+				.when(() -> OsCommandService.runLocalCommand(eq("ipmiCommand -v sdr elist all"), anyLong(), eq(null)))
 				.thenReturn("impiResultSdr");
 			final SourceTable ipmiResult = osCommandExtension.processSource(
 				new IpmiSource(),
@@ -949,11 +949,9 @@ class OsCommandExtensionTest {
 		String sensorResult = ResourceHelper.getResourceAsString(sensor, this.getClass());
 
 		try (MockedStatic<OsCommandService> oscmd = mockStatic(OsCommandService.class)) {
+			oscmd.when(() -> OsCommandService.runLocalCommand(eq("ipmiCommand fru"), anyLong(), any())).thenReturn(fruResult);
 			oscmd
-				.when(() -> OsCommandService.runLocalCommand(eq("ipmiCommand" + "fru"), anyLong(), any()))
-				.thenReturn(fruResult);
-			oscmd
-				.when(() -> OsCommandService.runLocalCommand(eq("ipmiCommand" + "-v sdr elist all"), anyLong(), any()))
+				.when(() -> OsCommandService.runLocalCommand(eq("ipmiCommand -v sdr elist all"), anyLong(), any()))
 				.thenReturn(sensorResult);
 			final SourceTable ipmiResult = osCommandExtension.processSource(
 				new IpmiSource(),
@@ -971,11 +969,11 @@ class OsCommandExtensionTest {
 
 		try (MockedStatic<OsCommandService> oscmd = mockStatic(OsCommandService.class)) {
 			oscmd
-				.when(() -> OsCommandService.runSshCommand(eq("ipmiCommand" + "fru"), any(), any(), anyLong(), any(), any()))
+				.when(() -> OsCommandService.runSshCommand(eq("ipmiCommand fru"), any(), any(), anyLong(), any(), any()))
 				.thenReturn("impiResultFru");
 			oscmd
 				.when(() ->
-					OsCommandService.runSshCommand(eq("ipmiCommand" + "-v sdr elist all"), any(), any(), anyLong(), any(), any())
+					OsCommandService.runSshCommand(eq("ipmiCommand -v sdr elist all"), any(), any(), anyLong(), any(), any())
 				)
 				.thenReturn("impiResultSdr");
 			final SourceTable ipmiResult = osCommandExtension.processSource(
