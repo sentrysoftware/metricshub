@@ -5,7 +5,7 @@ description: How to ping resources with MetricsHub
 
 ## Overview
 
-With **MetricsHub**, you can ping your resources through ICMP (Internet Control Message Protocol) to verify that they can be reached within an acceptable response time. To achieve this, you only need to configure in the `config/metricshub.yaml` file:
+With **MetricsHub**, you can ping any system on the network through ICMP (Internet Control Message Protocol) to verify that it can be reached within an acceptable response time. To achieve this, you only need to configure in the `config/metricshub.yaml` file:
 * the resources to be monitored 
 * the `ping` protocol for each of your resource.
 
@@ -16,7 +16,7 @@ Once the monitoring is in place, **MetricsHub** will push the following metrics 
 
   > Note: In Prometheus, these metrics will be renamed `metricshub_host_up` and `metricshub_host_up_response_time_seconds` respectively, to align with Prometheus naming conventions.
 
-In the example below, we ping 11 resources using the **ICMP protocol**. A timeout of 3 seconds is configured. The status (OK, KO) and response times are displayed in a Grafana Dashboard.
+In the example below, we ping 11 devices on the network using the **ICMP protocol**. A timeout of 3 seconds is configured. The status (OK, KO) and response times are displayed in a Grafana Dashboard.
 
 ![MetricsHub - Pinging resources](../images/metricshub-ping-check-feature.png)
 
@@ -24,7 +24,7 @@ In the example below, we ping 11 resources using the **ICMP protocol**. A timeou
 
 To configure the **Ping Check** feature: 
 
-1. In the `config/metricshub.yaml` file, we configure the 11 resources as follows:
+1. In the `config/metricshub.yaml` file, we configure the 11 devices as follows:
 
     ```yaml
         resources:

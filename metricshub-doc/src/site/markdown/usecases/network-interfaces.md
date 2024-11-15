@@ -19,14 +19,14 @@ To monitor our switch:
 
 1. In the `config/metricshub.yaml` file, we create the resource `alcatel-switch` with the following attributes:
 
-   * hostname: `alcatel-switch`
-   * host type: `oob`
+   * hostname: `alcatel-switch-01`
+   * host type: `network`
 
     ```yaml
     alcatel-switch:
         attributes: 
-          host.name: alcatel-switch
-          host.type: oob
+          host.name: alcatel-switch-01
+          host.type: network
     ```
 2.  We configure **MetricsHub** to connect to the network switch using the SNMP `v2c` protocol and the `public` community
 
@@ -42,8 +42,8 @@ Here is the complete YAML configuration to be added to `config/metricshub.yaml` 
    ```yaml
     alcatel-switch:
         attributes: 
-          host.name: alcatel-switch
-          host.type: oob
+          host.name: alcatel-switch-01
+          host.type: network
         protocols:
           snmp:
             version: v2c 

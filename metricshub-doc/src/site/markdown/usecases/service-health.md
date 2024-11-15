@@ -13,7 +13,7 @@ The `/health` endpoint is a common pattern, especially in systems adhering to mi
 2. **Standard Protocols**: Some use the OpenAPI or JSON API specifications to define response formats, though many simply return `200 OK` or JSON objects with basic health information.
 3. **Cloud-Native Standards**: Some standards like Kubernetes probes (e.g., liveness and readiness probes) use these endpoints to automate health checks and load balancing decisions.
 
-In the example below, we create a monitor in **MetricsHub** that collects data from the [Grafana health API](https://grafana.com/docs/grafana/latest/developers/http_api/other/#returns-health-information-about-grafana) and map the result to OpenTelemetry attributes and metrics.
+In the example below, we create a monitor in **MetricsHub** that collects data from the [Grafana health API](https://grafana.com/docs/grafana/latest/developers/http_api/other/#returns-health-information-about-grafana) running on our demo system (`m8b-demo.metricshub.com`) and map the result to OpenTelemetry attributes and metrics.
 
 ## Procedure
 

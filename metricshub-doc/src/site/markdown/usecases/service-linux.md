@@ -3,7 +3,7 @@ description: How to monitor a service running on Linux
 
 # Monitoring a service running on Linux
 
-**MetricsHub** makes it easy to monitor your services through its name or command line. To set up monitoring, we only need to specify a dedicated instance of the [Linux - Service (systemctl)](../connectors/linuxservice.html) connector in the `config/metricshub.yaml` configuration file. Under this instance, we specify the name or the command line of the process to be monitored.
+**MetricsHub** makes it easy to monitor your services managed by [systemd](https://systemd.io/). To set up monitoring, we only need to specify a dedicated instance of the [Linux - Service (systemctl)](../connectors/linuxservice.html) connector in the `config/metricshub.yaml` configuration file. Under this instance, we specify the name or the command line of the service to be monitored.
 
 In the example below, we specify a dedicated instance of the  `metricshubLinuxService` connector (`LinuxService`) to monitor the `metricshub` service running on a Linux server.
 
@@ -13,23 +13,25 @@ In the example below, we specify a dedicated instance of the  `metricshubLinuxSe
 
 To monitor the `metricshub` service running on Linux: 
 
-1. In the `config/metricshub.yaml` file, we configure the monitoring on a local Linux machine through `SSH`: 
+1. In the `config/metricshub.yaml` file, we configure the monitoring on a Linux machine through `SSH`: 
 
     ```yaml
     resources:
-      localhost:
+      prod-web:
         attributes:
-          host.name: localhost
+          host.name: [prod-web-01, prod-web-02]
           host.type: linux
         protocols:
           ssh:
-            timeout: 120
+            username: monagent
+            password: REDACTED
+            timeout: 30
     ```
-2. We specify the `metricshubLinuxService` dedicated instance of the [Linux - Service (systemctl)](../connectors/linuxservice.html) connector:
+2. We specify the `httpd` dedicated instance of the [Linux - Service (systemctl)](../connectors/linuxservice.html) connector:
 
     ```yaml
         additionalConnectors:
-          metricshubLinuxService: 
+          httpd: 
             uses: LinuxService # Connector used
     ```
 
@@ -37,7 +39,7 @@ To monitor the `metricshub` service running on Linux:
 
     ```yaml
             variables:
-              serviceNames: metricshub
+              serviceNames: httpd
     ```
 
 Here is the complete YAML configuration to be added to `config/metricshub.yaml` to monitor the `metricshub` service running on Linux:
@@ -52,8 +54,8 @@ resources:
       ssh:
         timeout: 120
     additionalConnectors:
-      metricshubLinuxService:
+      httpd:
         uses: LinuxService
         variables:
-          serviceNames: metricshub
+          serviceNames: httpd
 ```
