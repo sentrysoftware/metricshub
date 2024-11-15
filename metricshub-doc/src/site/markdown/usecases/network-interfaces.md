@@ -13,7 +13,6 @@ In the example below:
 
 ![MetricsHub - Monitoring network interfaces using SNMP](../images/metricshub-network-monitoring-snmp.png)
 
-
 ## Procedure
 
 To monitor our switch:

@@ -39,7 +39,7 @@ To collect data from the Grafana health API:
         grafana-health:
           simple: 
     ```
-3. We specify the  Grafana health API as a data source as follows:
+3. We specify the Grafana health API as a data source as follows:
 
     ```yaml
               sources:

@@ -3,9 +3,9 @@ description: How to monitor a service running on Linux
 
 # Monitoring a service running on Linux
 
-**MetricsHub** makes it easy to monitor your services running on Linux. To set up monitoring, you only need to create a connector based on the [Linux - Service (systemctl)](../connectors/linuxservice.html) connector and specify the service to be monitored in the `config/metricshub.yaml` configuration file.
+**MetricsHub** makes it easy to monitor your services through its name or command line. To set up monitoring, we only need to specify a dedicated instance of the [Linux - Service (systemctl)](../connectors/linuxservice.html) connector in the `config/metricshub.yaml` configuration file. Under this instance, we specify the name or the command line of the process to be monitored.
 
-In the example below, we created a `metricshubLinuxService` connector based on the `LinuxService` connector. This connector is always activated and monitors the `metricshub` service running on a Linux server.
+In the example below, we specify a dedicated instance of the  `metricshubLinuxService` connector (`LinuxService`) to monitor the `metricshub` service running on a Linux server.
 
   > Note: This page provides just one example of the data collection feature available in **MetricsHub**. For more information, refer to [Customize Data Collection](../configuration/configure-monitoring.md#customize-data-collection).
 
@@ -25,13 +25,12 @@ To monitor the `metricshub` service running on Linux:
           ssh:
             timeout: 120
     ```
-2. We create the `metricshubLinuxService` connector based on the [Linux - Service (systemctl)](../connectors/linuxservice.html) connector:
+2. We specify the `metricshubLinuxService` dedicated instance of the [Linux - Service (systemctl)](../connectors/linuxservice.html) connector:
 
     ```yaml
         additionalConnectors:
           metricshubLinuxService: 
             uses: LinuxService # Connector used
-            force: true # Connector is always activated
     ```
 
 3. We specify the service to be monitored:
@@ -55,7 +54,6 @@ resources:
     additionalConnectors:
       metricshubLinuxService:
         uses: LinuxService
-        force: true 
         variables:
           serviceNames: metricshub
 ```
