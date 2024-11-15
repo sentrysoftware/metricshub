@@ -130,7 +130,7 @@ public class OsCommandExtension implements IProtocolExtension {
 			sshResult = remoteSshTest(hostname, sshResult, sshConfiguration);
 		}
 
-		return Optional.of(sshResult == UP);
+		return Optional.of(UP.equals(sshResult));
 	}
 
 	@Override
