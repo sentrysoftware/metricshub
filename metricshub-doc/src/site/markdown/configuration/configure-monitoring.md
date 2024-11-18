@@ -257,7 +257,7 @@ resourceGroups:
 
 #### JDBC
 
-Use the parameters below to configure the SQL protocol:
+Use the parameters below to configure JDBC to connect to a database:
 
 | Parameter | Description                                                                                       |
 |-----------|---------------------------------------------------------------------------------------------------|
