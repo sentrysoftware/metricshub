@@ -192,19 +192,34 @@ public class StringHelper {
 	 * @return The string representation of the value, or a CSV string if the value is a collection or an array.
 	 */
 	public static String stringify(final Object value) {
+		return stringify(value, COMMA);
+	}
+
+	/**
+	 * Convert the given value to a string representation. If the value is a collection or an array, it is transformed into a string
+	 * using the specified separator.
+	 *
+	 * @param value     The value to be converted to a string.
+	 * @param separator The separator to be used when converting a collection or an array to a string.
+	 * @return The string representation of the value, or a string using the specified separator if the value is a collection
+	 */
+	public static String stringify(final Object value, final String separator) {
 		if (value == null) {
 			// Handle null input
 			return EMPTY;
 		} else if (value instanceof Collection<?> collection) {
 			// If the input is a List, convert it to a CSV string
-			return collection.stream().map(item -> item != null ? item.toString() : EMPTY).collect(Collectors.joining(COMMA));
+			return collection
+				.stream()
+				.map(item -> item != null ? item.toString() : EMPTY)
+				.collect(Collectors.joining(separator));
 		} else if (value.getClass().isArray()) {
 			// If the input is an array, convert it to a CSV string
 			Object[] array = (Object[]) value;
 			return Arrays
 				.stream(array)
 				.map(item -> item != null ? item.toString() : EMPTY)
-				.collect(Collectors.joining(COMMA));
+				.collect(Collectors.joining(separator));
 		} else {
 			// For any other type of value, simply convert it to a string
 			return value.toString();
