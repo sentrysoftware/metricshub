@@ -393,4 +393,9 @@ public class MetricsHubConstants {
 	 * Default keys for monitor jobs
 	 */
 	public static final Set<String> DEFAULT_KEYS = Set.of(MetricsHubConstants.MONITOR_ATTRIBUTE_ID);
+
+	/**
+	 * MetricsHub multi value attribute separator
+	 */
+	public static final String MULTI_VALUE_SEPARATOR = "_@M8B_MULTI_VALUE_SEP@_";
 }

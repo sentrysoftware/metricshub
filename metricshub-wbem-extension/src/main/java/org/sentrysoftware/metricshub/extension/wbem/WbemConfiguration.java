@@ -34,6 +34,7 @@ import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfiguratio
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.TransportProtocols;
+import org.sentrysoftware.metricshub.engine.deserialization.MultiValueDeserializer;
 import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 
 /**
@@ -64,6 +65,8 @@ public class WbemConfiguration implements IConfiguration {
 	char[] password;
 	String vCenter;
 
+	@JsonSetter(nulls = SKIP)
+	@JsonDeserialize(using = MultiValueDeserializer.class)
 	private String hostname;
 
 	@Override
@@ -145,6 +148,7 @@ public class WbemConfiguration implements IConfiguration {
 			.timeout(timeout)
 			.username(username)
 			.vCenter(vCenter)
+			.hostname(hostname)
 			.build();
 	}
 }

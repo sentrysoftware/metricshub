@@ -33,6 +33,7 @@ import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
+import org.sentrysoftware.metricshub.engine.deserialization.MultiValueDeserializer;
 import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 
 /**
@@ -52,6 +53,8 @@ public class PingConfiguration implements IConfiguration {
 	@JsonDeserialize(using = TimeDeserializer.class)
 	private final Long timeout = 5L;
 
+	@JsonSetter(nulls = SKIP)
+	@JsonDeserialize(using = MultiValueDeserializer.class)
 	private String hostname;
 
 	@Override
@@ -72,6 +75,6 @@ public class PingConfiguration implements IConfiguration {
 
 	@Override
 	public IConfiguration copy() {
-		return PingConfiguration.builder().timeout(timeout).build();
+		return PingConfiguration.builder().timeout(timeout).hostname(hostname).build();
 	}
 }
