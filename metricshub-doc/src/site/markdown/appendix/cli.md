@@ -79,14 +79,6 @@ To get additional details about the operations performed by the *MetricsHub Engi
 
 ## Examples
 
-### Storage System, REST API
-
-```batch
-$ metricshub STOR01 -t storage --https -u USER
-```
-
-This command will connect to the `STOR01` `storage` system in `HTTPS` (port 443 by default) and check whether a known REST API responds with the `USER` credentials. The password will be asked for interactively. Use the `-p P4SSW0RD` option to specify the password directly in the command line (**not secure!**).
-
 ### Linux, SNMP v1
 
 ```batch
@@ -96,6 +88,32 @@ $ metricshub HOST02 -t linux --snmp 1 --community COMM02
 This command will connect to the `HOST02` `Linux` system using `SNMP` version `1` and the `COMM02` community. If a known SNMP agent is running on this host, `metricshub` will leverage it to discover the physical components of the system and collect various metrics.
 
 > Note: If no SNMP community is specified, **public** is assumed by default.
+
+### Ouf-of-band Management Card, IPMI-over-LAN
+
+```batch
+$ metricshub MGMT06 -t oob --ipmi -u USER
+```
+
+This command will connect to the `MGMT06` out-of-band `management` card (typically a BMC chip) using the `IPMI`-over-LAN protocol as `USER`.
+
+### Solaris, SSH
+
+```batch
+$ metricshub SOLAR08 -t sol --ssh -u USER --sudo-command-list /usr/sbin/dladm,/usr/sbin/ndd
+```
+
+This command will connect to the `SOLAR08` `Solaris` system using the `SSH` protocol (port 22 by default) to execute commands as `USER`. `sudo` will be used to execute the `/usr/sbin/dladm` and `/usr/sbin/ndd` commands, as they require root privileges.
+
+> Note: The system must have been configured to allow `USER` to execute these commands with `sudo`.
+
+### Storage System, REST API
+
+```batch
+$ metricshub STOR01 -t storage --https -u USER
+```
+
+This command will connect to the `STOR01` `storage` system in `HTTPS` (port 443 by default) and check whether a known REST API responds with the `USER` credentials. The password will be asked for interactively. Use the `-p P4SSW0RD` option to specify the password directly in the command line (**not secure!**).
 
 ### Storage System, SNMP v2c
 
@@ -114,6 +132,14 @@ $ metricshub STOR02 -t storage --snmpv3 --snmpv3-auth SHA --snmpv3-username USER
 ```
 
 This command will connect to the `STOR02` storage system (`storage`) using `SNMP` version `3`.
+
+### Windows, JDBC (MySQL)
+
+```batch
+$ metricshub WIN06 -t win --jdbc --jdbc-username USERA --jdbc-password MYSECRET --jdbc-port 3306 --jdbc-database MyDB --jdbc-type mysql --jdbc-url jdbc:mysql://WIN06:3306/MyDB -c +MySql
+```
+
+This command will connect to the `WIN06` `Win`dows system using the `JDBC` configuration to access the database and execute SQL queries as `USERA`.
 
 ### Windows, WMI and SNMP v2c
 
@@ -135,24 +161,6 @@ This command will connect to the `WIN05` `Win`dows system using `WBEM` as `USERA
 
 > Note: Instead of using the common `-u` or `--username` options, we had to use the `--wbem-username` and `--wmi-username` options to specify different credentials for WBEM and WMI.
 
-### Ouf-of-band Management Card, IPMI-over-LAN
-
-```batch
-$ metricshub MGMT06 -t oob --ipmi -u USER
-```
-
-This command will connect to the `MGMT06` out-of-band `management` card (typically a BMC chip) using the `IPMI`-over-LAN protocol as `USER`.
-
-### Solaris, SSH
-
-```batch
-$ metricshub SOLAR08 -t sol --ssh -u USER --sudo-command-list /usr/sbin/dladm,/usr/sbin/ndd
-```
-
-This command will connect to the `SOLAR08` `Solaris` system using the `SSH` protocol (port 22 by default) to execute commands as `USER`. `sudo` will be used to execute the `/usr/sbin/dladm` and `/usr/sbin/ndd` commands, as they require root privileges.
-
-> Note: The system must have been configured to allow `USER` to execute these commands with `sudo`.
-
 ### WinRM
 
 ```batch
@@ -160,14 +168,6 @@ $ metricshub WIN09 -t mgmt --winrm --winrm-username USER --winrm-password MYSECR
 ```
 
 This command will connect to the `WIN09` system using the `WinRM` protocol to execute commands as `USER`.
-
-### Windows, JDBC (MySQL)
-
-```batch
-$ metricshub WIN06 -t win --jdbc --jdbc-username USERA --jdbc-password MYSECRET --jdbc-port 3306 --jdbc-database MyDB --jdbc-type mysql --jdbc-url jdbc:mysql://WIN06:3306/MyDB -c +MySql
-```
-
-This command will connect to the `WIN06` `Win`dows system using the `JDBC` configuration to access the database and execute SQL queries as `USERA`.
 
 ## Automatic Detection vs Manual Selection
 

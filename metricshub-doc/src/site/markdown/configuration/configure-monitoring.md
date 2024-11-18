@@ -110,19 +110,19 @@ resources:
 Whatever the syntax adopted, replace:
 * `<hostname>` with the actual hostname or IP address of the resource
 * `<type>` with the type of resource to be monitored. Possible values are:
-  * `win` for Microsoft Windows systems
-  * `linux` for Linux systems
-  * `network` for network devices
+  * [`win`](https://metricshub.com/docs/latest/connectors/tags/windows.html) for Microsoft Windows systems
+  * [`linux`](https://metricshub.com/docs/latest/connectors/tags/linux.html) for Linux systems
+  * [`network`](https://metricshub.com/docs/latest/connectors/tags/network.html) for network devices
   * `oob` for Out-of-band management cards
-  * `storage` for storage systems
-  * `aix` for IBM AIX systems
-  * `hpux` for HP UX systems
-  * `solaris` for Oracle Solaris systems
-  * `tru64` for HP Tru64 systems
-  * `vms` for HP Open VMS systems.
-  Check out the [Connector Directory](metricshub-connectors-directory.html) to find out which type corresponds to your system.
+  * [`storage`](https://metricshub.com/docs/latest/connectors/tags/storage.html) for storage systems
+  * [`aix`](https://metricshub.com/docs/latest/connectors/tags/aix.html) for IBM AIX systems
+  * [`hpux`](https://metricshub.com/docs/latest/connectors/tags/hp-ux.html) for HP UX systems
+  * [`solaris`](https://metricshub.com/docs/latest/connectors/tags/solaris.html) for Oracle Solaris systems
+  * [`tru64`](https://metricshub.com/docs/latest/connectors/tags/hpe.html) for HP Tru64 systems
+  * [`vms`](https://metricshub.com/docs/latest/connectors/tags/hpe.html) for HP Open VMS systems.
+  Check out the [Connector Directory](https://metricshub.com/docs/latest/metricshub-connectors-directory.html) to find out which type corresponds to your system.
 * `<protocol-configuration>` with the protocol(s) **MetricsHub** will use to communicate with the resources:
- `http`, `ipmi`, `oscommand`, `ping`, `ssh`, `snmp`, `wmi`, `wbem`, `winrm` or `jdbc`.
+ [`http`](./configure-monitoring.md#http), [`ipmi`](./configure-monitoring.md#ipmi), [`jdbc`](./configure-monitoring.md#jdbc), [`oscommand`](./configure-monitoring.md#os-commands), [`ping`](./configure-monitoring.md#icmp-ping), [`ssh`](./configure-monitoring.md#ssh), [`snmp`](./configure-monitoring.md#snmp), [`wbem`](./configure-monitoring.md#wbem),[`wmi`](./configure-monitoring.md#wmi),  or [`winrm`](./configure-monitoring.md#winrm).
  Refer to [Protocols and Credentials](./configure-monitoring.html#protocols-and-credentials) for more details.
 
 > Note: You can use the `${esc.d}{env::ENV_VARIABLE_NAME}` syntax in the `config/metricshub.yaml` file to call your environment variables.
@@ -169,14 +169,14 @@ resourceGroups:
 
 Use the parameters below to configure the HTTP protocol:
 
-| Parameter  | Description                                                                                       |
-|------------|-------------------------------------------------------------------------------------------------- |
-| http       | Protocol used to access the host.                                                                 |
-| hostname   | The name or IP address of the resource. If not specified, the `host.name` attribute will be used. |
-| port       | The HTTPS port number used to perform HTTP requests (Default: 443).                               |
-| username   | Name used to establish the connection with the host via the HTTP protocol.                        |
-| password   | Password used to establish the connection with the host via the HTTP protocol.                    |
-| timeout    | How long until the HTTP request times out (Default: 60s).                                         |
+| Parameter | Description                                                                                       |
+|-----------|---------------------------------------------------------------------------------------------------|
+| http      | Protocol used to access the host.                                                                 |
+| hostname  | The name or IP address of the resource. If not specified, the `host.name` attribute will be used. |
+| port      | The HTTPS port number used to perform HTTP requests (Default: 443).                               |
+| username  | Name used to establish the connection with the host via the HTTP protocol.                        |
+| password  | Password used to establish the connection with the host via the HTTP protocol.                    |
+| timeout   | How long until the HTTP request times out (Default: 60s).                                         |
 
 **Example**
 
@@ -203,11 +203,11 @@ resourceGroups:
 
 Use the parameters below to configure the ICMP ping protocol:
 
-| Parameter       | Description                                                                                       |
-| --------------- | ------------------------------------------------------------------------------------------------- |
-| hostname        | The name or IP address of the resource. If not specified, the `host.name` attribute will be used. |
-| ping            | Protocol used to test the host reachability through ICMP.                                         |
-| timeout         | How long until the ping command times out (Default: 5s).                                          |
+| Parameter | Description                                                                                       |
+|-----------|---------------------------------------------------------------------------------------------------|
+| hostname  | The name or IP address of the resource. If not specified, the `host.name` attribute will be used. |
+| ping      | Protocol used to test the host reachability through ICMP.                                         |
+| timeout   | How long until the ping command times out (Default: 5s).                                          |
 
 **Example**
 
@@ -231,7 +231,7 @@ resourceGroups:
 Use the parameters below to configure the IPMI protocol:
 
 | Parameter | Description                                                                                       |
-| --------- | ------------------------------------------------------------------------------------------------- |
+|-----------|---------------------------------------------------------------------------------------------------|
 | ipmi      | Protocol used to access the host.                                                                 |
 | hostname  | The name or IP address of the resource. If not specified, the `host.name` attribute will be used. |
 | username  | Name used to establish the connection with the host via the IPMI protocol.                        |
@@ -255,12 +255,52 @@ resourceGroups:
             password: mypwd
 ```
 
+#### JDBC
+
+Use the parameters below to configure the SQL protocol:
+
+| Parameter | Description                                                                                       |
+|-----------|---------------------------------------------------------------------------------------------------|
+| jdbc      | JDBC configuration used to connect to a database on the host                                      |
+| hostname  | The name or IP address of the resource. If not specified, the `host.name` attribute will be used. |
+| timeout   | How long until the SQL query times out (Default: 120s).                                           |
+| username  | Name used to authenticate against the database.                                                   |
+| password  | Password used to authenticate against the database.                                               |
+| url       | The JDBC connection URL to access the database.                                                   |
+| type      | The type of database (e.g., Oracle, PostgreSQL, MSSQL, Informix, Derby, H2).                      |
+| port      | The port number used to connect to the database.                                                  |
+| database  | The name of the database instance to connect to on the server.                                    |
+
+**Example**
+
+```yaml
+resourceGroups:
+  boston:
+    attributes:
+      site: boston
+    resources:
+      db-host:
+        attributes:
+          host.name: my-host-02
+          host.type: win
+        protocols:
+          jdbc:
+            hostname: my-host-02
+            username: dbuser
+            password: dbpassword
+            url: jdbc:mysql://my-host-02:3306/mydatabase
+            timeout: 120s
+            type: mysql
+            port: 3306
+            database: mydatabase
+```
+
 #### OS commands
 
 Use the parameters below to configure OS Commands that are executed locally:
 
 | Parameter       | Description                                                                                       |
-| --------------- | ------------------------------------------------------------------------------------------------- |
+|-----------------|---------------------------------------------------------------------------------------------------|
 | osCommand       | Protocol used to access the host.                                                                 |
 | hostname        | The name or IP address of the resource. If not specified, the `host.name` attribute will be used. |
 | timeout         | How long until the local OS Commands time out (Default: 120s).                                    |
@@ -293,7 +333,7 @@ resourceGroups:
 Use the parameters below to configure the SSH protocol:
 
 | Parameter       | Description                                                                                       |
-| --------------- | ------------------------------------------------------------------------------------------------- |
+|-----------------|---------------------------------------------------------------------------------------------------|
 | ssh             | Protocol used to access the host.                                                                 |
 | hostname        | The name or IP address of the resource. If not specified, the `host.name` attribute will be used. |
 | timeout         | How long until the command times out (Default: 120s).                                             |
@@ -334,14 +374,14 @@ resourceGroups:
 
 Use the parameters below to configure the SNMP protocol:
 
-| Parameter        | Description                                                                                       |
-| ---------------- | ------------------------------------------------------------------------------------------------- |
-| snmp             | Protocol used to access the host.                                                                 |
-| hostname         | The name or IP address of the resource. If not specified, the `host.name` attribute will be used. |
-| version          | The version of the SNMP protocol (v1, v2c).                                                       |
-| community        | The SNMP Community string to use to perform SNMP v1 queries (Default: public).                    |
-| port             | The SNMP port number used to perform SNMP queries (Default: 161).                                 |
-| timeout          | How long until the SNMP request times out (Default: 120s).                                        |
+| Parameter | Description                                                                                       |
+|-----------|---------------------------------------------------------------------------------------------------|
+| snmp      | Protocol used to access the host.                                                                 |
+| hostname  | The name or IP address of the resource. If not specified, the `host.name` attribute will be used. |
+| version   | The version of the SNMP protocol (v1, v2c).                                                       |
+| community | The SNMP Community string to use to perform SNMP v1 queries (Default: public).                    |
+| port      | The SNMP port number used to perform SNMP queries (Default: 161).                                 |
+| timeout   | How long until the SNMP request times out (Default: 120s).                                        |
 
 **Example**
 
@@ -378,19 +418,19 @@ resourceGroups:
 
 Use the parameters below to configure the SNMP version 3 protocol:
 
-| Parameter        | Description                                                                                          |
-| ---------------- | ---------------------------------------------------------------------------------------------------- |
-| snmpv3           | Protocol used to access the host using SNMP version 3.                                               |
-| hostname         | The name or IP address of the resource. If not specified, the `host.name` attribute will be used.    |
-| timeout          | How long until the SNMP request times out (Default: 120s).                                           |
-| port             | The SNMP port number used to perform SNMP version 3 queries (Default: 161).                          |
-| contextName      | The name of the SNMP version 3 context, used to identify the collection of management information.   |
-| authType         | The SNMP version 3 authentication protocol (MD5, SHA or NoAuth) to ensure message authenticity.      |
-| privacy          | The SNMP version 3 privacy protocol (DES, AES or NONE) used to encrypt messages for confidentiality. |
-| username         | The username used for SNMP version 3 authentication.                                                 |
-| privacyPassword  | The password used to encrypt SNMP version 3 messages for confidentiality.                            |
-| password         | The password used for SNMP version 3 authentication.                                                 |
-| retryIntervals   | The intervals (in milliseconds) between SNMP request retries.                                        |
+| Parameter       | Description                                                                                          |
+|-----------------|------------------------------------------------------------------------------------------------------|
+| snmpv3          | Protocol used to access the host using SNMP version 3.                                               |
+| hostname        | The name or IP address of the resource. If not specified, the `host.name` attribute will be used.    |
+| timeout         | How long until the SNMP request times out (Default: 120s).                                           |
+| port            | The SNMP port number used to perform SNMP version 3 queries (Default: 161).                          |
+| contextName     | The name of the SNMP version 3 context, used to identify the collection of management information.   |
+| authType        | The SNMP version 3 authentication protocol (MD5, SHA or NoAuth) to ensure message authenticity.      |
+| privacy         | The SNMP version 3 privacy protocol (DES, AES or NONE) used to encrypt messages for confidentiality. |
+| username        | The username used for SNMP version 3 authentication.                                                 |
+| privacyPassword | The password used to encrypt SNMP version 3 messages for confidentiality.                            |
+| password        | The password used for SNMP version 3 authentication.                                                 |
+| retryIntervals  | The intervals (in milliseconds) between SNMP request retries.                                        |
 
 **Example**
 
@@ -421,7 +461,7 @@ resourceGroups:
 Use the parameters below to configure the WBEM protocol:
 
 | Parameter | Description                                                                                       |
-| --------- | ------------------------------------------------------------------------------------------------- |
+|-----------|---------------------------------------------------------------------------------------------------|
 | wbem      | Protocol used to access the host.                                                                 |
 | hostname  | The name or IP address of the resource. If not specified, the `host.name` attribute will be used. |
 | protocol  | The protocol used to access the host.                                                             |
@@ -457,7 +497,7 @@ resourceGroups:
 Use the parameters below to configure the WMI protocol:
 
 | Parameter | Description                                                                                       |
-| --------- | ------------------------------------------------------------------------------------------------- |
+|-----------|---------------------------------------------------------------------------------------------------|
 | wmi       | Protocol used to access the host.                                                                 |
 | hostname  | The name or IP address of the resource. If not specified, the `host.name` attribute will be used. |
 | timeout   | How long until the WMI request times out (Default: 120s).                                         |
@@ -488,7 +528,7 @@ resourceGroups:
 Use the parameters below to configure the WinRM protocol:
 
 | Parameter       | Description                                                                                          |
-| --------------- | ---------------------------------------------------------------------------------------------------- |
+|-----------------|------------------------------------------------------------------------------------------------------|
 | winrm           | Protocol used to access the host.                                                                    |
 | hostname        | The name or IP address of the resource. If not specified, the `host.name` attribute will be used.    |
 | timeout         | How long until the WinRM request times out (Default: 120s).                                          |
@@ -518,46 +558,6 @@ resourceGroups:
             password: mypwd
             timeout: 120s
             authentications: [ntlm]
-```
-
-#### JDBC
-
-Use the parameters below to configure the SQL protocol:
-
-| Parameter       | Description                                                                                       |
-| --------------- | --------------------------------------------------------------------------------------------------|
-| jdbc            | JDBC configuration used to connect to a database on the host                                      |
-| hostname        | The name or IP address of the resource. If not specified, the `host.name` attribute will be used. |
-| timeout         | How long until the SQL query times out (Default: 120s).                                           |
-| username        | Name used to authenticate against the database.                                                   |
-| password        | Password used to authenticate against the database.                                               |
-| url             | The JDBC connection URL for the database.                                                         |
-| type            | The type of database (e.g., Oracle, PostgreSQL, MSSQL, Informix, Derby, H2).                      |
-| port            | The port number used to connect to the database.                                                  |
-| database        | The name of the database instance to connect to on the server.                                    |
-
-**Example**
-
-```yaml
-resourceGroups:
-  boston:
-    attributes:
-      site: boston
-    resources:
-      db-host:
-        attributes:
-          host.name: my-host-02
-          host.type: win
-        protocols:
-          jdbc:
-            hostname: my-host-02
-            username: dbuser
-            password: dbpassword
-            url: jdbc:mysql://my-host-02:3306/mydatabase
-            timeout: 120s
-            type: mysql
-            port: 3306
-            database: mydatabase
 ```
 
 ## Step 3: Configure additional settings
@@ -836,7 +836,7 @@ loggerLevel: ...
 **MetricsHub** allows you to customize data collection on your Windows or Linux servers, specifying exactly which processes or services to monitor. This customization is achieved by configuring the following connector variables: 
 
 | Connector Variable | Available for                                                                                                                                                    | Usage                                                                      |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+|--------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
 | `matchCommand`     | [Linux - Processes (ps)](../connectors/linuxprocess.html#linux---processes-28ps-29) <br/> [Windows - Processes (WMI)](../connectors/windowsprocess.html)         | Used to specify the command lines to monitor on a Linux or Windows server. |
 | `matchName`        | [Linux - Processes (ps)](../connectors/linuxprocess.html#linux---processes-28ps-29) <br/>[Windows - Processes (WMI)](../connectors/windowsprocess.html)          | Used to specify the processes to monitor on a Linux or Windows server.     |
 | `matchUser`        | [Linux - Processes (ps)](../connectors/linuxprocess.html#linux---processes-28ps-29)                                                                              | Used to specify the users to include.                                      |
@@ -863,7 +863,7 @@ resources:
 ```
 
 | Property                 | Description                                                                                                                    |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+|--------------------------|--------------------------------------------------------------------------------------------------------------------------------|
 | ` <connector-custom-id>` | Custom ID for this additional connector.                                                                                       |
 | `uses`                   | _(Optional)_ Provide an ID for this additional connector. If not specified, the key ID will be used.                           |
 | `force`                  | _(Optional)_ Set to `false` if you want the connector to only be activated when detected (Default: `true` - always activated). |
@@ -891,7 +891,7 @@ You can apply monitor inclusion or exclusion in data collection for the followin
 This is done by  adding the `monitorFilters` parameter in the relevant section of the `config/metricshub.yaml` file as described below: 
 
 | Filter monitors                                    | Add monitorFilters                                      |
-| -------------------------------------------------- | ------------------------------------------------------- |
+|----------------------------------------------------|---------------------------------------------------------|
 | For all resources                                  | In the global section (top of the file)                 |
 | For all the resources of a specific resource group | Under the corresponding `<resource-group-name>` section |
 | For a specific resource                            | Under the corresponding `<resource-id>` section         |
@@ -1191,9 +1191,9 @@ In this case, only the `degraded` state is reported, and the zero values for `ok
 
 Timeouts, durations and periods are specified with the below format:
 
-| Unit | Description                     | Examples         |
-| ---- | ------------------------------- | ---------------- |
-| s    | seconds                         | 120s             |
-| m    | minutes                         | 90m, 1m15s       |
-| h    | hours                           | 1h, 1h30m        |
-| d    | days (based on a 24-hour day)   | 1d               |
+| Unit | Description                   | Examples   |
+|------|-------------------------------|------------|
+| s    | seconds                       | 120s       |
+| m    | minutes                       | 90m, 1m15s |
+| h    | hours                         | 1h, 1h30m  |
+| d    | days (based on a 24-hour day) | 1d         |
