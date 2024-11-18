@@ -5,10 +5,21 @@ description: How to install MetricsHub on Linux, Windows, Docker.
 
 <!-- MACRO{toc|fromDepth=1|toDepth=1|id=toc} -->
 
-Two editions are available for **MetricsHub**: the **Community Edition** and the **Enterprise Edition**. The installation procedures differ depending on which edition you are using.
+The installation procedure varies depending on your edition of **MetricsHub**:
 
-The **Enterprise Edition** is delivered with installable packages, making the installation process smoother. In contrast, the **Community Edition** comes with archives that need to be unzipped in a specific directory, and additional commands may need to be run.
+* The **Enterprise Edition**: Delivered with installable packages, this edition provides a smoother installation experience. It also includes a 30-day trial period, during which you can obtain assistance via the [MetricsHub Slack Channel](https://join.slack.com/t/metricshub/shared_invite/zt-2acx4uglx-Gl4pQZYvoVedDXGF3~C5NQ). 
+* The **Community Edition**: Requires manual setup by unzipping archives into a specific directory and running additional commands.
 
-The **Enterprise Edition** includes a 30-day trial period. During this time, you can obtain assistance from [MetricsHub's Slack Channel](https://join.slack.com/t/metricshub/shared_invite/zt-2acx4uglx-Gl4pQZYvoVedDXGF3~C5NQ).
+To proceed, click the link for your **MetricsHub Edition** and operating system:
 
-No license is required for the trial period. If, after the 30-day trial period, you wish to purchase **MetricsHub**, you can contact Sentry Software directly or through a specific partner. Once the purchase is complete, Sentry Software will provide you with a license key that needs to be copied into the `metricshub.yaml` file.
+  * **Enterprise Edition**
+    * [Debian Linux](../installation/debian-linux.md#enterprise-edition)
+    * [Docker](../installation/docker.md#enterprise-edition) 
+    * [Red Hat Enterprise Linux](../installation/redhat-linux.md#enterprise-edition) 
+    * [Windows](../installation/windows.md#enterprise-edition) 
+
+  * **Community Edition**
+    * [Debian Linux](../installation/debian-linux.md#community-edition)
+    * [Docker](../installation/docker.md#community-edition) 
+    * [Red Hat Enterprise Linux](../installation/redhat-linux.md#community-edition) 
+    * [Windows](../installation/windows.md#community-edition) 
