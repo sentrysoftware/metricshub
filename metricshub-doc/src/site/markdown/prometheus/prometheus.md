@@ -39,12 +39,12 @@ Before you can start viewing the metrics collected by **MetricsHub** in Promethe
 3. Declare the exporter in the pipeline section of **otel/otel-config.yaml**:
 
     ```yaml
-    service:
-      extensions: [health_check]
-      pipelines:
-        metrics:
-          receivers: [otlp, prometheus/internal]
-          processors: [memory_limiter, batch, resourcedetection, metricstransform]
-          exporters: [prometheusremotewrite/your-prom-server] # Declare your prometheus prometheusremotewrite exporter
+      service:
+        extensions: [health_check, basicauth]
+        pipelines:
+          metrics:
+            receivers: [otlp, prometheus/internal]
+            processors: [memory_limiter, batch, metricstransform]
+            exporters: [prometheusremotewrite/com-mh, prometheus] # List here the platform of your choice
     ```
 4. Finally, restart Prometheus then MetricsHub to ensure that the configuration changes take effect.

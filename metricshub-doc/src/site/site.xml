@@ -102,6 +102,7 @@
 			<item name="Prometheus" href="prometheus/prometheus.html" />
 				<item name="Prometheus AlertManager" href="prometheus/alertmanager.html" />
 				<item name="Grafana Dashboards" href="prometheus/grafana.html" />
+			<item name="Splunk" href="integration/splunk.html" />
 		</menu>
 
 		<menu name="Guides">
