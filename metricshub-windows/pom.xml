@@ -67,7 +67,7 @@
 		</dependency>
 				<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>metricshub-sql-extension</artifactId>
+			<artifactId>metricshub-jdbc-extension</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -89,7 +89,7 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>metricshub-localsql-source-extension</artifactId>
+			<artifactId>metricshub-internaldb-extension</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -201,7 +201,7 @@
 								</artifactItem>
 								<artifactItem>
 									<groupId>${project.groupId}</groupId>
-									<artifactId>metricshub-localsql-source-extension</artifactId>
+									<artifactId>metricshub-internaldb-extension</artifactId>
 									<version>${project.version}</version>
 								</artifactItem>
 								<artifactItem>
@@ -211,7 +211,7 @@
 								</artifactItem>
 								<artifactItem>
 									<groupId>${project.groupId}</groupId>
-									<artifactId>metricshub-sql-extension</artifactId>
+									<artifactId>metricshub-jdbc-extension</artifactId>
 									<version>${project.version}</version>
 								</artifactItem>
 							</artifactItems>

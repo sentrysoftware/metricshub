@@ -191,7 +191,7 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>metricshub-sql-extension</artifactId>
+			<artifactId>metricshub-jdbc-extension</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>

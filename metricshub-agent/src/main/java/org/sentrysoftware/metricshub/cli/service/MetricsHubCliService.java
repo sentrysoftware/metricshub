@@ -45,9 +45,9 @@ import org.sentrysoftware.metricshub.agent.helper.ConfigHelper;
 import org.sentrysoftware.metricshub.cli.service.converter.DeviceKindConverter;
 import org.sentrysoftware.metricshub.cli.service.protocol.HttpConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.IpmiConfigCli;
+import org.sentrysoftware.metricshub.cli.service.protocol.JdbcConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.SnmpConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.SnmpV3ConfigCli;
-import org.sentrysoftware.metricshub.cli.service.protocol.SqlConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.SshConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.WbemConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.WinRmConfigCli;
@@ -103,7 +103,7 @@ import picocli.CommandLine.Spec;
 		"@|bold ${ROOT-COMMAND-NAME}|@ " +
 		"@|yellow HOSTNAME|@ " +
 		"@|yellow -t|@=@|italic TYPE|@ " +
-		"<@|yellow --http|@|@|yellow --https|@|@|yellow --ipmi|@|@|yellow " +
+		"<@|yellow --http|@|@|yellow --https|@|@|yellow --ipmi|@|@|yellow --jdbc|@|@|yellow " +
 		"--snmp|@=@|italic VERSION|@|@|yellow --ssh|@|@|yellow --wbem|@|@|yellow --wmi|@|@|yellow --winrm|@|@|yellow --jdbc|@> " +
 		"[@|yellow -u|@=@|italic USER|@ [@|yellow -p|@=@|italic P4SSW0RD|@]] [OPTIONS]..."
 	}
@@ -168,8 +168,8 @@ public class MetricsHubCliService implements Callable<Integer> {
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline WinRM Options|@:%n")
 	WinRmConfigCli winRmConfigCli;
 
-	@ArgGroup(exclusive = false, heading = "%n@|bold,underline SQL Options|@:%n")
-	SqlConfigCli sqlConfigCli;
+	@ArgGroup(exclusive = false, heading = "%n@|bold,underline JDBC Options|@:%n")
+	JdbcConfigCli jdbcConfigCli;
 
 	@Option(names = { "-u", "--username" }, order = 2, paramLabel = "USER", description = "Username for authentication")
 	String username;
@@ -482,7 +482,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 				wmiConfigCli,
 				winRmConfigCli,
 				wbemConfigCli,
-				sqlConfigCli
+				jdbcConfigCli
 			)
 			.filter(Objects::nonNull)
 			.map(protocolConfig -> {
@@ -520,7 +520,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 				wmiConfigCli,
 				winRmConfigCli,
 				wbemConfigCli,
-				sqlConfigCli
+				jdbcConfigCli
 			)
 			.allMatch(Objects::isNull);
 
@@ -590,7 +590,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 
 		tryInteractiveSnmpV3Password(passwordReader);
 
-		tryInteractiveSqlPassword(passwordReader);
+		tryInteractiveJdbcPassword(passwordReader);
 	}
 
 	/**
@@ -682,13 +682,13 @@ public class MetricsHubCliService implements Callable<Integer> {
 	}
 
 	/**
-	 * Try to start the interactive mode to request and set SQL password
+	 * Try to start the interactive mode to request and set JDBC password
 	 *
 	 * @param passwordReader password reader which displays the prompt text and wait for user's input
 	 */
-	void tryInteractiveSqlPassword(final CliPasswordReader<char[]> passwordReader) {
-		if (sqlConfigCli != null && sqlConfigCli.getUsername() != null && sqlConfigCli.getPassword() == null) {
-			sqlConfigCli.setPassword(passwordReader.read("%s password for SQL database: ", sqlConfigCli.getUsername()));
+	void tryInteractiveJdbcPassword(final CliPasswordReader<char[]> passwordReader) {
+		if (jdbcConfigCli != null && jdbcConfigCli.getUsername() != null && jdbcConfigCli.getPassword() == null) {
+			jdbcConfigCli.setPassword(passwordReader.read("%s password for SQL database: ", jdbcConfigCli.getUsername()));
 		}
 	}
 
