@@ -104,7 +104,7 @@ import picocli.CommandLine.Spec;
 		"@|yellow HOSTNAME|@ " +
 		"@|yellow -t|@=@|italic TYPE|@ " +
 		"<@|yellow --http|@|@|yellow --https|@|@|yellow --ipmi|@|@|yellow --jdbc|@|@|yellow " +
-		"--snmp|@=@|italic VERSION|@|@|yellow --ssh|@|@|yellow --wbem|@|@|yellow --wmi|@|@|yellow --winrm|@|@|yellow --jdbc|@> " +
+		"--snmp|@=@|italic VERSION|@|@|yellow --ssh|@|@|yellow --wbem|@|@|yellow --wmi|@|@|yellow --winrm|@> " +
 		"[@|yellow -u|@=@|italic USER|@ [@|yellow -p|@=@|italic P4SSW0RD|@]] [OPTIONS]..."
 	}
 )
