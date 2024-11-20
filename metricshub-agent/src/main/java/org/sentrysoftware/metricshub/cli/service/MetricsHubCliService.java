@@ -527,7 +527,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		if (protocolsNotConfigured) {
 			throw new ParameterException(
 				spec.commandLine(),
-				"At least one protocol must be specified: --http[s], --ipmi, --snmp, --snmpv3, --ssh, --wbem, --wmi, --winrm, --jdbc."
+				"At least one protocol must be specified: --http[s], --ipmi, --jdbc, --snmp, --snmpv3, --ssh, --wbem, --winrm, --wmi."
 			);
 		}
 	}
