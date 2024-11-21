@@ -65,7 +65,7 @@
 			<artifactId>metricshub-ping-extension</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-				<dependency>
+		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>metricshub-jdbc-extension</artifactId>
 			<version>${project.version}</version>
