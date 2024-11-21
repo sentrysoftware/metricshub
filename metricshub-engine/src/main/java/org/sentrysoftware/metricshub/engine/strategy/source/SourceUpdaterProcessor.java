@@ -48,9 +48,9 @@ import org.sentrysoftware.metricshub.engine.connector.model.common.IEntryConcatM
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CommandLineSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CopySource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.InternalDbQuerySource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.JawkSource;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.LocalSqlSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpGetSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
@@ -144,8 +144,8 @@ public class SourceUpdaterProcessor implements ISourceProcessor {
 	}
 
 	@Override
-	public SourceTable process(final LocalSqlSource localSqlSource) {
-		return processSource(localSqlSource.copy());
+	public SourceTable process(final InternalDbQuerySource internalDbQuery) {
+		return processSource(internalDbQuery.copy());
 	}
 
 	@Override

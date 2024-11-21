@@ -70,88 +70,16 @@
 			<artifactId>h2</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
-			<groupId>net.sourceforge.jtds</groupId>
-			<artifactId>jtds</artifactId>
-			<version>1.3.1</version>
-		</dependency>
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>8.0.30</version>
+			<groupId>com.mysql</groupId>
+			<artifactId>mysql-connector-j</artifactId>
+			<version>8.0.33</version>
 		</dependency>
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.5.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.oracle.database.jdbc</groupId>
-			<artifactId>ojdbc8</artifactId>
-			<version>21.1.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.oracle.database.jdbc</groupId>
-			<artifactId>ucp</artifactId>
-			<version>21.1.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.oracle.database.jdbc</groupId>
-			<artifactId>rsi</artifactId>
-			<version>21.1.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.oracle.database.security</groupId>
-			<artifactId>oraclepki</artifactId>
-			<version>21.1.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.oracle.database.security</groupId>
-			<artifactId>osdt_core</artifactId>
-			<version>21.1.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.oracle.database.security</groupId>
-			<artifactId>osdt_cert</artifactId>
-			<version>21.1.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.oracle.database.ha</groupId>
-			<artifactId>simplefan</artifactId>
-			<version>21.1.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.oracle.database.ha</groupId>
-			<artifactId>ons</artifactId>
-			<version>21.1.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.oracle.database.nls</groupId>
-			<artifactId>orai18n</artifactId>
-			<version>21.1.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.oracle.database.xml</groupId>
-			<artifactId>xdb</artifactId>
-			<version>21.1.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.oracle.database.xml</groupId>
-			<artifactId>xmlparserv2</artifactId>
-			<version>21.1.0.0</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.microsoft.sqlserver</groupId>
-			<artifactId>mssql-jdbc</artifactId>
-			<version>9.2.1.jre8</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>com.ibm.informix</groupId>
-			<artifactId>jdbc</artifactId>
-			<version>4.10.14</version>
+			<version>42.7.4</version>
 		</dependency>
 	</dependencies>
 
@@ -243,16 +171,8 @@
 							<artifactSet>
 								<includes>
 									<include>org.sentrysoftware:metricshub-jdbc-extension</include>
-									<include>mysql:mysql-connector-java</include>
+									<include>com.mysql:mysql-connector-j</include>
 									<include>org.postgresql:postgresql</include>
-									<include>com.oracle.database.jdbc:*</include>
-									<include>com.oracle.database.security:*</include>
-									<include>com.oracle.database.ha:*</include>
-									<include>com.oracle.database.nls:*</include>
-									<include>com.oracle.database.xml:*</include>
-									<include>com.microsoft.sqlserver:*</include>
-									<include>net.sourceforge.jtds:jtds</include>
-									<include>com.ibm.informix:*</include>
 									<include>com.h2database:*</include>
 								</includes>
 							</artifactSet>

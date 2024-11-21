@@ -24,9 +24,9 @@ package org.sentrysoftware.metricshub.engine.strategy.source;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CommandLineSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CopySource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.InternalDbQuerySource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.JawkSource;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.LocalSqlSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpGetSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SqlSource;
@@ -130,12 +130,12 @@ public interface ISourceProcessor {
 	SourceTable process(WmiSource wmiSource);
 
 	/**
-	 * Process the {@link LocalSqlSource} and return a SourceTable.
+	 * Process the {@link InternalDbQuerySource} and return a SourceTable.
 	 *
-	 * @param localSqlSource The {@link LocalSqlSource} to process.
+	 * @param internalDbQuery The {@link InternalDbQuerySource} to process.
 	 * @return The SourceTable result.
 	 */
-	SourceTable process(LocalSqlSource localSqlSource);
+	SourceTable process(InternalDbQuerySource internalDbQuery);
 
 	/**
 	 * Process the {@link JawkSource} and return a SourceTable.

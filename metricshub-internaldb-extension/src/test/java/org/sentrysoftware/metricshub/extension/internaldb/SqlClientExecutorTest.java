@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.extension.internal.db;
+package org.sentrysoftware.metricshub.extension.internaldb;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

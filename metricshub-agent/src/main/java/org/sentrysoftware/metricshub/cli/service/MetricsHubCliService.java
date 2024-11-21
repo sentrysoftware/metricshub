@@ -688,7 +688,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 	 */
 	void tryInteractiveJdbcPassword(final CliPasswordReader<char[]> passwordReader) {
 		if (jdbcConfigCli != null && jdbcConfigCli.getUsername() != null && jdbcConfigCli.getPassword() == null) {
-			jdbcConfigCli.setPassword(passwordReader.read("%s password for SQL database: ", jdbcConfigCli.getUsername()));
+			jdbcConfigCli.setPassword(passwordReader.read("%s password for JDBC connection: ", jdbcConfigCli.getUsername()));
 		}
 	}
 

@@ -10,7 +10,7 @@
 
 	<artifactId>metricshub-internaldb-extension</artifactId>
 	<name>MetricsHub Internal DB Extension</name>
-	<description>MetricsHub Internal DB Extension implementation providing a set of functionalities used to process Local SQL source.</description>
+	<description>MetricsHub Internal DB Extension implementation providing a set of functionalities used to process InternalDbQuery source.</description>
 	<packaging>jar</packaging>
 
 	<url>http://maven.apache.org</url>

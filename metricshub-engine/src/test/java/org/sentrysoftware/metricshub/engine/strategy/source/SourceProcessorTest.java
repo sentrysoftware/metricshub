@@ -40,8 +40,8 @@ import org.sentrysoftware.metricshub.engine.connector.model.common.SqlColumn;
 import org.sentrysoftware.metricshub.engine.connector.model.common.SqlTable;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CopySource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.InternalDbQuerySource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.LocalSqlSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpGetSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.StaticSource;
@@ -817,7 +817,7 @@ class SourceProcessorTest {
 			.extensionManager(extensionManager)
 			.build();
 
-		// LocalSqlSource with empty tables
+		// InternalDbQuerySource with empty tables
 		final List<SqlColumn> columnsTable1 = new ArrayList<>();
 		final List<SqlColumn> columnsTable2 = new ArrayList<>();
 
@@ -825,23 +825,27 @@ class SourceProcessorTest {
 			SqlTable.builder().alias("T1").columns(columnsTable1).source(TAB1_REF).build(),
 			SqlTable.builder().alias("T2").columns(columnsTable2).source(TAB2_REF).build()
 		);
-		final LocalSqlSource localSqlSource = LocalSqlSource.builder().tables(sqlTables).query("SQL QUERY;").build();
+		final InternalDbQuerySource internalDbQuery = InternalDbQuerySource
+			.builder()
+			.tables(sqlTables)
+			.query("SQL QUERY;")
+			.build();
 
-		doReturn(true).when(sourceComputationExtensionMock).isValidSource(localSqlSource);
+		doReturn(true).when(sourceComputationExtensionMock).isValidSource(internalDbQuery);
 		doReturn(SourceTable.empty())
 			.when(sourceComputationExtensionMock)
-			.processSource(localSqlSource, CONNECTOR_ID, telemetryManager);
+			.processSource(internalDbQuery, CONNECTOR_ID, telemetryManager);
 
-		assertEquals(SourceTable.empty(), sourceProcessor.process(localSqlSource));
+		assertEquals(SourceTable.empty(), sourceProcessor.process(internalDbQuery));
 
-		// LocalSqlSource well formed
+		// InternalDbQuerySource well formed
 		columnsTable1.add(SqlColumn.builder().name("COL1_1").number(1).type("VARCHAR(255)").build());
 		columnsTable1.add(SqlColumn.builder().name("COL2_1").number(3).type("BOOLEAN").build());
 
 		columnsTable2.add(SqlColumn.builder().name("COL1_2").number(2).type("VARCHAR(255)").build());
 		columnsTable2.add(SqlColumn.builder().name("COL2_2").number(4).type("BOOLEAN").build());
 
-		localSqlSource.setQuery("SELECT COL1_1, COL2_1, COL1_2, COL2_2 FROM T1 JOIN T2 ON COL1_1 = COL1_2;");
+		internalDbQuery.setQuery("SELECT COL1_1, COL2_1, COL1_2, COL2_2 FROM T1 JOIN T2 ON COL1_1 = COL1_2;");
 
 		List<List<String>> result = Arrays.asList(
 			Arrays.asList(LOWERCASE_A, TRUE, LOWERCASE_A, TRUE),
@@ -853,11 +857,11 @@ class SourceProcessorTest {
 		final SourceTable sourceTableExpected = new SourceTable();
 		sourceTableExpected.setTable(result);
 
-		doReturn(true).when(sourceComputationExtensionMock).isValidSource(localSqlSource);
+		doReturn(true).when(sourceComputationExtensionMock).isValidSource(internalDbQuery);
 		doReturn(sourceTableExpected)
 			.when(sourceComputationExtensionMock)
-			.processSource(localSqlSource, CONNECTOR_ID, telemetryManager);
+			.processSource(internalDbQuery, CONNECTOR_ID, telemetryManager);
 
-		assertEquals(result, sourceProcessor.process(localSqlSource).getTable());
+		assertEquals(result, sourceProcessor.process(internalDbQuery).getTable());
 	}
 }

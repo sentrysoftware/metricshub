@@ -56,7 +56,7 @@ import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Builder
-public class LocalSqlSource extends Source {
+public class InternalDbQuerySource extends Source {
 
 	private static final long serialVersionUID = 1L;
 
@@ -76,7 +76,7 @@ public class LocalSqlSource extends Source {
 	private String query;
 
 	/**
-	 * Builder for creating instances of {@code LocalSqlSource}.
+	 * Builder for creating instances of {@code InternalDbQuerySource}.
 	 *
 	 * @param type                  The type of the source.
 	 * @param computes              List of computations to be applied to the source.
@@ -88,7 +88,7 @@ public class LocalSqlSource extends Source {
 	 */
 	@Builder
 	@JsonCreator
-	public LocalSqlSource(
+	public InternalDbQuerySource(
 		@JsonProperty(value = "type") String type,
 		@JsonProperty(value = "computes") List<Compute> computes,
 		@JsonProperty(value = "forceSerialization") boolean forceSerialization,
@@ -103,8 +103,8 @@ public class LocalSqlSource extends Source {
 	}
 
 	@Override
-	public LocalSqlSource copy() {
-		return LocalSqlSource
+	public InternalDbQuerySource copy() {
+		return InternalDbQuerySource
 			.builder()
 			.type(type)
 			.key(key)

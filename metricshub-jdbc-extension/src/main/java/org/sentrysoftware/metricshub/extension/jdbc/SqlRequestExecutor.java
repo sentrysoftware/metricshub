@@ -47,7 +47,7 @@ public class SqlRequestExecutor {
 	 * @return A {@link List} of {@link List} of {@link String}s representing the result table.
 	 * @throws ClientException when anything goes wrong (details in cause)
 	 */
-	@WithSpan("JDBC SQL Request")
+	@WithSpan("JDBC SQL Query")
 	public List<List<String>> executeSql(
 		@SpanAttribute("host.hostname") final String hostname,
 		@SpanAttribute("jdbc.config") @NonNull final JdbcConfiguration jdbcConfig,

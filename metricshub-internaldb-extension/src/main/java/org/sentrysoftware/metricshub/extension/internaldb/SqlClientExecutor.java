@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.extension.internal.db;
+package org.sentrysoftware.metricshub.extension.internaldb;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
@@ -64,12 +64,12 @@ public class SqlClientExecutor {
 	 */
 	public List<List<String>> executeQuery(final List<SqlTable> sqlTables, final String query) {
 		if (sqlTables == null) {
-			log.error("Malformed Local SQL Source, no SQL Table is provided.");
+			log.error("Malformed Internal DB Query Source, no SQL Table is provided.");
 			return new ArrayList<>();
 		}
 
 		if (query == null) {
-			log.error("Malformed Local SQL Source, no SQL Query is provided.");
+			log.error("Malformed Internal DB Query Source, no SQL Query is provided.");
 			return new ArrayList<>();
 		}
 
@@ -85,7 +85,7 @@ public class SqlClientExecutor {
 
 			return executeQuery(query, connection);
 		} catch (SQLException exception) {
-			log.error("Error when creating the Local SQL database: {}", exception.getMessage());
+			log.error("Error when creating the database for the Internal DB Query: {}", exception.getMessage());
 			log.debug("SQL Exception: ", exception);
 			return new ArrayList<>();
 		}
@@ -104,7 +104,7 @@ public class SqlClientExecutor {
 
 		try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(query)) {
 			if (resultSet == null) {
-				log.error("The Local SQL query {} returned a null result.", query);
+				log.error("The Internal DB Query {} returned a null result.", query);
 				return result;
 			}
 
@@ -121,7 +121,7 @@ public class SqlClientExecutor {
 				result.add(row);
 			}
 		} catch (SQLException exception) {
-			log.error("Error when executing Local SQL query {}: {}", query, exception.getMessage());
+			log.error("Error when executing Internal DB Query {}: {}", query, exception.getMessage());
 			log.debug("SQL Exception: ", exception);
 		}
 
@@ -136,7 +136,7 @@ public class SqlClientExecutor {
 	private void createAndInsert(final SqlTable sqlTable, final Connection connection) {
 		final String createTableQuery = createTableQuery(sqlTable);
 		if (createTableQuery == null) {
-			log.debug("Error when creating Local SQL CREATE TABLE query for source {}", sqlTable.getSource());
+			log.debug("Error when creating Internal DB Query CREATE TABLE query for source {}", sqlTable.getSource());
 			return;
 		}
 
@@ -261,7 +261,7 @@ public class SqlClientExecutor {
 
 		if (sourceTable == null) {
 			log.error(
-				"The source table {} is not found during the Local SQL Query job. Skip processing.",
+				"The source table {} is not found during the Internal DB Query job. Skip processing.",
 				sqlTable.getSource()
 			);
 			return null;
@@ -270,7 +270,7 @@ public class SqlClientExecutor {
 		List<List<String>> table = sourceTable.getTable();
 
 		if (table == null || table.isEmpty()) {
-			log.error("The source table {} is empty. Skip Local SQL job processing.", sqlTable.getSource());
+			log.error("The source table {} is empty. Skip Internal DB Query job processing.", sqlTable.getSource());
 			return null;
 		}
 

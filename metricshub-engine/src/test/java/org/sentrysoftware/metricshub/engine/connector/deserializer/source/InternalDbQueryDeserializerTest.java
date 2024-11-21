@@ -1,7 +1,6 @@
 package org.sentrysoftware.metricshub.engine.connector.deserializer.source;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,19 +10,18 @@ import org.sentrysoftware.metricshub.engine.connector.deserializer.DeserializerT
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.connector.model.common.SqlColumn;
 import org.sentrysoftware.metricshub.engine.connector.model.common.SqlTable;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.LocalSqlSource;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.InternalDbQuerySource;
 
-public class LocalSqlSourceDeserializerTest extends DeserializerTest {
+class InternalDbQueryDeserializerTest extends DeserializerTest {
 
 	@Override
 	public String getResourcePath() {
-		return "src/test/resources/test-files/source/sql/";
+		return "src/test/resources/test-files/source/internalDbQuery/";
 	}
 
 	@Test
 	void testDeserializeStatic() throws IOException {
-		final String testResource = "localSqlSource";
+		final String testResource = "internalDbQuerySource";
 		final Connector connector = getConnector(testResource);
 
 		final SqlColumn sqlColumn1 = SqlColumn.builder().name("COL1").type("VARCHAR(255)").number(1).build();
@@ -47,18 +45,18 @@ public class LocalSqlSourceDeserializerTest extends DeserializerTest {
 		tables.add(table1);
 		tables.add(table2);
 
-		final LocalSqlSource expected = LocalSqlSource
+		final InternalDbQuerySource expected = InternalDbQuerySource
 			.builder()
-			.type("localSql")
+			.type("internalDbQuery")
 			.tables(tables)
 			.query("SELECT T1.COL1, T1.COL2, T2.COL1, T2.COL2 FROM T1 JOIN T2 ON T1.COL1 = T2.COL1;")
 			.build();
-		expected.setKey("${source::beforeAll.testSqlSource}");
+		expected.setKey("${source::beforeAll.testInternalDbQuerySource}");
 
-		final Source sourceResult = connector.getBeforeAll().get("testSqlSource");
+		final InternalDbQuerySource internalDbQuerySource = (InternalDbQuerySource) connector
+			.getBeforeAll()
+			.get("testInternalDbQuerySource");
 
-		assertTrue(sourceResult instanceof LocalSqlSource);
-
-		assertEquals(expected.toString(), ((LocalSqlSource) sourceResult).toString());
+		assertEquals(expected.toString(), internalDbQuerySource.toString());
 	}
 }

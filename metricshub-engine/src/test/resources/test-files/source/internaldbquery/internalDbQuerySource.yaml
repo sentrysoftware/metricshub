@@ -3,8 +3,8 @@ connector:
     appliesTo: [ Linux ]
 
 beforeAll:
-  testSqlSource:
-    type: localSql
+  testInternalDbQuerySource:
+    type: internalDbQuery
     tables:
     - source: "${source::source_one}"
       alias: "T1"

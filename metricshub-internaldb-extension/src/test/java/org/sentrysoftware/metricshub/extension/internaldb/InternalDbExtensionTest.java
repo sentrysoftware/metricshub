@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.extension.internal.db;
+package org.sentrysoftware.metricshub.extension.internaldb;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -15,8 +15,8 @@ import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.common.SqlColumn;
 import org.sentrysoftware.metricshub.engine.connector.model.common.SqlTable;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.InternalDbQuerySource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.LocalSqlSource;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.telemetry.ConnectorNamespace;
 import org.sentrysoftware.metricshub.engine.telemetry.HostProperties;
@@ -49,7 +49,7 @@ class InternalDbExtensionTest {
 	void testIsValidSource() {
 		final InternalDbExtension internalDbExtension = new InternalDbExtension();
 		assertFalse(internalDbExtension.isValidSource(new IpmiSource()));
-		assertTrue(internalDbExtension.isValidSource(new LocalSqlSource()));
+		assertTrue(internalDbExtension.isValidSource(new InternalDbQuerySource()));
 	}
 
 	@Test
@@ -114,7 +114,7 @@ class InternalDbExtensionTest {
 		assertEquals(new ArrayList<>(), sourceTableResult.getTable());
 
 		// Empty SQL Source
-		sourceTableResult = internalDbExtension.processSource(new LocalSqlSource(), connectorId, telemetryManager);
+		sourceTableResult = internalDbExtension.processSource(new InternalDbQuerySource(), connectorId, telemetryManager);
 		assertEquals(new ArrayList<>(), sourceTableResult.getTable());
 
 		final List<SqlColumn> columnsTable1 = new ArrayList<>();
@@ -131,7 +131,7 @@ class InternalDbExtensionTest {
 			SqlTable.builder().alias("T2").columns(columnsTable2).source(TAB2_REF).build()
 		);
 
-		final LocalSqlSource localSqlSource = LocalSqlSource
+		final InternalDbQuerySource internalDbQuery = InternalDbQuerySource
 			.builder()
 			.query("SELECT COL1_1, COL2_1, COL1_2, COL2_2 FROM T1 JOIN T2 ON COL1_1 = COL1_2;")
 			.tables(sqlTables)
@@ -144,7 +144,7 @@ class InternalDbExtensionTest {
 			Arrays.asList(LOWERCASE_D, FALSE, LOWERCASE_D, FALSE)
 		);
 
-		sourceTableResult = internalDbExtension.processSource(localSqlSource, connectorId, telemetryManager);
+		sourceTableResult = internalDbExtension.processSource(internalDbQuery, connectorId, telemetryManager);
 		assertEquals(expectedResult, sourceTableResult.getTable());
 	}
 }

@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.extension.internal.db;
+package org.sentrysoftware.metricshub.extension.internaldb;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.helpers.LoggingHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.connector.model.common.SqlTable;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.LocalSqlSource;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.InternalDbQuerySource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 import org.sentrysoftware.metricshub.engine.extension.ISourceComputationExtension;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
@@ -34,7 +34,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
  * This class implements the {@link ISourceComputationExtension} contract, reports the supported features,
- * processes LocalSql sources.
+ * processes {@link InternalDbQuerySource}.
  */
 @Slf4j
 public class InternalDbExtension implements ISourceComputationExtension {
@@ -45,33 +45,36 @@ public class InternalDbExtension implements ISourceComputationExtension {
 
 		if (source == null) {
 			log.warn(
-				"Hostname {} - Local SQL Source cannot be null, the SQL operation will return an empty result.",
+				"Hostname {} - Internal DB Query Source cannot be null, the SQL operation will return an empty result.",
 				hostname
 			);
 			return SourceTable.empty();
 		}
 
-		if (!(source instanceof LocalSqlSource localSqlSource)) {
-			log.warn("Hostname {} - Local SQL Source is invalid, the SQL operation will return an empty result.", hostname);
-			return SourceTable.empty();
-		}
-
-		final List<SqlTable> sqlTables = localSqlSource.getTables();
-		if (sqlTables == null) {
-			log.debug(
-				"Hostname {} - Table list in the Local SQL Source cannot be null, the SQL operation {} will return an empty result.",
-				hostname,
-				localSqlSource
+		if (!(source instanceof InternalDbQuerySource internalDbQuery)) {
+			log.warn(
+				"Hostname {} - Internal DB Query Source is invalid, the SQL operation will return an empty result.",
+				hostname
 			);
 			return SourceTable.empty();
 		}
 
-		final String query = localSqlSource.getQuery();
+		final List<SqlTable> sqlTables = internalDbQuery.getTables();
+		if (sqlTables == null) {
+			log.debug(
+				"Hostname {} - Table list in the Internal DB Query Source cannot be null, the SQL operation {} will return an empty result.",
+				hostname,
+				internalDbQuery
+			);
+			return SourceTable.empty();
+		}
+
+		final String query = internalDbQuery.getQuery();
 		if (query == null || query.isBlank()) {
 			log.debug(
-				"Hostname {} - Query in the Local SQL Source cannot be null, the SQL operation {} will return an empty result.",
+				"Hostname {} - Query in the Internal DB Query Source cannot be null, the SQL operation {} will return an empty result.",
 				hostname,
-				localSqlSource
+				internalDbQuery
 			);
 			return SourceTable.empty();
 		}
@@ -87,7 +90,7 @@ public class InternalDbExtension implements ISourceComputationExtension {
 
 		LoggingHelper.debug(() ->
 			log.trace(
-				"Executed Local SQL request:{}\n- Result:\n{}\n",
+				"Executed Internal DB Query request:{}\n- Result:\n{}\n",
 				query,
 				TextTableHelper.generateTextTable(executeSqlQuery)
 			)
@@ -98,6 +101,6 @@ public class InternalDbExtension implements ISourceComputationExtension {
 
 	@Override
 	public boolean isValidSource(Source source) {
-		return source instanceof LocalSqlSource;
+		return source instanceof InternalDbQuerySource;
 	}
 }
