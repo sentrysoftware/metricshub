@@ -56,6 +56,6 @@ To monitor a MySQL database with **MetricsHub**:
     ```
 3. Finally we configure the [Prometheus integration](../prometheus/prometheus.md). 
 
-After completing the configuration, we restart **MetricsHub** and check the logs or your Prometheus dashboard to confirm that the MySQL metrics are being collected and exported successfully.
+After completing the configuration, we restart **MetricsHub** and check the logs and Prometheus to confirm that the MySQL metrics are being collected and exported successfully.
 
 ![MetricsHub pushes MySQL metrics to Prometheus](../images/mysql-linux-metrics.png)
