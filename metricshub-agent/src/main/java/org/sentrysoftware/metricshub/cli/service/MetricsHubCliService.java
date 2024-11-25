@@ -487,7 +487,9 @@ public class MetricsHubCliService implements Callable<Integer> {
 			.filter(Objects::nonNull)
 			.map(protocolConfig -> {
 				try {
-					return protocolConfig.toProtocol(username, password);
+					final IConfiguration protocol = protocolConfig.toConfiguration(username, password);
+					protocol.validateConfiguration(hostname);
+					return protocol;
 				} catch (InvalidConfigurationException e) {
 					throw new IllegalStateException("Invalid configuration detected.", e);
 				}

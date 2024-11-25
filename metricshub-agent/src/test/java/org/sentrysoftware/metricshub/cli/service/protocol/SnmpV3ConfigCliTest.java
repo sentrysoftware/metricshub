@@ -44,7 +44,7 @@ class SnmpV3ConfigCliTest {
 				.thenReturn(extensionManager);
 
 			// Create an Snmpv3TestConfiguration and call method toProtocol
-			final SnmpV3Configuration snmpV3Configuration = (SnmpV3Configuration) snmpV3ConfigCli.toProtocol(
+			final SnmpV3Configuration snmpV3Configuration = (SnmpV3Configuration) snmpV3ConfigCli.toConfiguration(
 				username,
 				password
 			);

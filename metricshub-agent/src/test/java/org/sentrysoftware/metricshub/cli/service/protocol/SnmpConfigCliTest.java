@@ -38,7 +38,7 @@ class SnmpConfigCliTest {
 				.thenReturn(extensionManager);
 
 			// Create an SnmpTestConfiguration and call method toProtocol
-			final SnmpConfiguration snmpConfiguration = (SnmpConfiguration) snmpConfigCli.toProtocol(
+			final SnmpConfiguration snmpConfiguration = (SnmpConfiguration) snmpConfigCli.toConfiguration(
 				"user1",
 				password.toCharArray()
 			);

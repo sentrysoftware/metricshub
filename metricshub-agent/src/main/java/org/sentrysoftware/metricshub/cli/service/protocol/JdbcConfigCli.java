@@ -97,7 +97,7 @@ public class JdbcConfigCli implements IProtocolConfigCli {
 	 * @throws InvalidConfigurationException If the SQL extension is unable to parse SQL configuration inputs.
 	 */
 	@Override
-	public IConfiguration toProtocol(final String defaultUsername, final char[] defaultPassword)
+	public IConfiguration toConfiguration(final String defaultUsername, final char[] defaultPassword)
 		throws InvalidConfigurationException {
 		final ObjectNode configuration = JsonNodeFactory.instance.objectNode();
 

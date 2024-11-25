@@ -51,7 +51,7 @@ class HttpConfigCliTest {
 				.https(false)
 				.build();
 
-			HttpConfiguration result = (HttpConfiguration) httpConfigCli.toProtocol(null, null);
+			HttpConfiguration result = (HttpConfiguration) httpConfigCli.toConfiguration(null, null);
 
 			assertNotNull(result);
 			assertEquals(expected, result);
@@ -60,7 +60,7 @@ class HttpConfigCliTest {
 			httpConfigCli.setTimeout(timeout);
 			httpConfigCli.setHttpOrHttps(httpOrHttps);
 
-			result = (HttpConfiguration) httpConfigCli.toProtocol(username, password);
+			result = (HttpConfiguration) httpConfigCli.toConfiguration(username, password);
 			assertNotNull(result);
 			assertEquals(expected, result);
 		}

@@ -109,7 +109,7 @@ public class HttpConfigCli extends AbstractTransportProtocolCli {
 	 * @throws InvalidConfigurationException
 	 */
 	@Override
-	public IConfiguration toProtocol(String defaultUsername, char[] defaultPassword)
+	public IConfiguration toConfiguration(String defaultUsername, char[] defaultPassword)
 		throws InvalidConfigurationException {
 		final ObjectNode configuration = JsonNodeFactory.instance.objectNode();
 

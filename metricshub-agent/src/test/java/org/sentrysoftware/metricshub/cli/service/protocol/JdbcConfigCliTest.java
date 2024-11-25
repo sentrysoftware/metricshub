@@ -38,7 +38,7 @@ class JdbcConfigCliTest {
 				.thenReturn(extensionManager);
 
 			// Call the toProtocol method
-			final JdbcConfiguration jdbcConfiguration = (JdbcConfiguration) jdbcConfigCli.toProtocol(
+			final JdbcConfiguration jdbcConfiguration = (JdbcConfiguration) jdbcConfigCli.toConfiguration(
 				"defaultUser",
 				"defaultPassword".toCharArray()
 			);

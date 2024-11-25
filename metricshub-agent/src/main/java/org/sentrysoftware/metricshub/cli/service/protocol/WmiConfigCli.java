@@ -96,7 +96,7 @@ public class WmiConfigCli implements IProtocolConfigCli {
 	 * @throws InvalidConfigurationException If the WMI extension is unable to parse WMI configuration inputs.
 	 */
 	@Override
-	public IConfiguration toProtocol(String defaultUsername, char[] defaultPassword)
+	public IConfiguration toConfiguration(String defaultUsername, char[] defaultPassword)
 		throws InvalidConfigurationException {
 		final ObjectNode configuration = JsonNodeFactory.instance.objectNode();
 
