@@ -26,7 +26,7 @@ To monitor a remote machine running on Linux:
               host.name: dev-nvidia-01
               host.type: linux
     ```
-2. Then, we configure the SSL protocol
+2. Then, we configure the SSH protocol
 
     ```yaml
           protocols:
