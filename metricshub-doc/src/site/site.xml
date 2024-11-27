@@ -114,6 +114,7 @@
 		<menu name="Use Cases">
 			<item name="Monitoring Network Interfaces (SNMP)" href="usecases/network-interfaces.html" />
 			<item name="Monitoring a Process on Windows" href="usecases/process-windows.html" />
+			<item name="Monitoring a Remote Linux Machine" href="usecases/remote-linux.html" />
 			<item name="Monitoring a Service Running on Linux" href="usecases/service-linux.html" />
 			<item name="Monitoring a Service Health" href="usecases/service-health.html" />
 			<item name="Pinging Resources" href="usecases/ping.html" />
