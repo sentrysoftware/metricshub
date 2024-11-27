@@ -79,25 +79,22 @@ public class JdbcConfiguration implements IConfiguration {
 			username,
 			attr -> attr == null || attr.isBlank(),
 			() ->
-				String.format(
-					"Resource %s - No username configured for JDBC." +
-					" This resource will not be monitored." +
-					" Please verify the configured username value.",
-					resourceKey
-				)
+				"""
+				Resource %s - No username configured for JDBC. \
+				This resource will not be monitored. \
+				Please verify the configured username value.\
+				""".formatted(resourceKey)
 		);
 
 		StringHelper.validateConfigurationAttribute(
 			timeout,
 			attr -> attr == null || attr < 0L,
 			() ->
-				String.format(
-					"Resource %s - Timeout value is invalid for JDBC." +
-					" Timeout value returned: %s. This resource will not be monitored." +
-					" Please verify the configured timeout value.",
-					resourceKey,
-					timeout
-				)
+				"""
+				Resource %s - Timeout value is invalid for JDBC. \
+				Timeout value returned: %s. This resource will not be monitored. \
+				Please verify the configured timeout value.\
+				""".formatted(resourceKey, timeout)
 		);
 
 		if (url == null || url.length == 0) {
@@ -105,26 +102,22 @@ public class JdbcConfiguration implements IConfiguration {
 				database,
 				attr -> attr == null || attr.isBlank(),
 				() ->
-					String.format(
-						"Resource %s - No database name configured for JDBC." +
-						" Database value returned: %s. This resource will not be monitored." +
-						" Please verify the configured database value.",
-						resourceKey,
-						database
-					)
+					"""
+					Resource %s - No database name configured for JDBC. \
+					Database value returned: %s. This resource will not be monitored. \
+					Please verify the configured database value.\
+					""".formatted(resourceKey, database)
 			);
 
 			StringHelper.validateConfigurationAttribute(
 				type,
 				attr -> attr == null || attr.isBlank(),
 				() ->
-					String.format(
-						"Resource %s - Invalid database type configured for JDBC." +
-						" Type value returned: %s. This resource will not be monitored.",
-						" Please verify the configured type value.",
-						resourceKey,
-						type
-					)
+					"""
+					Resource %s - Invalid database type configured for JDBC. \
+					Type value returned: %s. This resource will not be monitored. \
+					Please verify the configured type value.\
+					""".formatted(resourceKey, type)
 			);
 
 			if (port == null) {
@@ -135,13 +128,11 @@ public class JdbcConfiguration implements IConfiguration {
 				port,
 				attr -> attr < 1 || attr > 65535,
 				() ->
-					String.format(
-						"Resource %s - Invalid port configured for JDBC." +
-						" Port value returned: %s. This resource will not be monitored." +
-						" Please verify the configured port value.",
-						resourceKey,
-						port
-					)
+					"""
+					Resource %s - Invalid port configured for JDBC. \
+					Port value returned: %s. This resource will not be monitored. \
+					Please verify the configured port value.\
+					""".formatted(resourceKey, port)
 			);
 			url = generateUrl();
 		}
@@ -150,11 +141,10 @@ public class JdbcConfiguration implements IConfiguration {
 			url,
 			attr -> attr.length == 0,
 			() ->
-				String.format(
-					"Resource %s - Invalid url configured for JDBC. This resource will not be monitored." +
-					" Please verify the configured url value.",
-					resourceKey
-				)
+				"""
+				Resource %s - Invalid url configured for JDBC. This resource will not be monitored. \
+				Please verify the configured url value.\
+				""".formatted(resourceKey)
 		);
 	}
 
@@ -179,7 +169,7 @@ public class JdbcConfiguration implements IConfiguration {
 	 * @param databaseType The type of the database.
 	 * @return The default port number for the given database type, or -1 if the type is not recognized.
 	 */
-	public static Integer getDefaultPort(String databaseType) {
+	static Integer getDefaultPort(String databaseType) {
 		return switch (databaseType.toLowerCase()) {
 			case "postgresql" -> DEFAULT_POSTGRESQL_PORT;
 			case "mysql" -> DEFAULT_MYSQL_PORT;
@@ -195,7 +185,7 @@ public class JdbcConfiguration implements IConfiguration {
 	 * Generates a JDBC URL based on the database type, hostname, database name, and port
 	 * @return The generated JDBC URL.
 	 */
-	public char[] generateUrl() {
+	char[] generateUrl() {
 		return switch (type.toLowerCase()) {
 			case "postgresql" -> String.format("jdbc:postgresql://%s:%d/%s", hostname, port, database).toCharArray();
 			case "mysql" -> String.format("jdbc:mysql://%s:%d/%s", hostname, port, database).toCharArray();
