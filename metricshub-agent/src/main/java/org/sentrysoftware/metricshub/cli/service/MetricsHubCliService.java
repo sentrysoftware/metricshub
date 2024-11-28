@@ -270,7 +270,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		validate();
 
 		// Setup Log4j
-		setLogLevel();
+		setLogLevel(verbose);
 
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
@@ -527,8 +527,10 @@ public class MetricsHubCliService implements Callable<Integer> {
 
 	/**
 	 * Set Log4j logging level according to the verbose flags
+	 *
+	 * @param verbose array of boolean values specifying logger level.
 	 */
-	void setLogLevel() {
+	public static void setLogLevel(final boolean[] verbose) {
 		// Disable ANSI in the logging if we don't have a console
 		ThreadContext.put("disableAnsi", Boolean.toString(!ConsoleService.hasConsole()));
 

@@ -22,6 +22,7 @@ package org.sentrysoftware.metricshub.extension.snmp;
  */
 
 import com.fasterxml.jackson.databind.JsonNode;
+import java.io.PrintWriter;
 import java.util.function.UnaryOperator;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -41,6 +42,10 @@ public class SnmpExtension extends AbstractSnmpExtension {
 	 * The identifier for the Snmp protocol.
 	 */
 	private static final String IDENTIFIER = "snmp";
+
+	public static final String GET = "get";
+	public static final String GET_NEXT = "getNext";
+	public static final String WALK = "walk";
 
 	@NonNull
 	private SnmpRequestExecutor snmpRequestExecutor;
@@ -100,5 +105,63 @@ public class SnmpExtension extends AbstractSnmpExtension {
 	@Override
 	protected AbstractSnmpRequestExecutor getRequestExecutor() {
 		return snmpRequestExecutor;
+	}
+
+	@Override
+	public String executeQuery(IConfiguration configuration, JsonNode query, PrintWriter printWriter) throws Exception {
+		final SnmpConfiguration snmpConfiguration = (SnmpConfiguration) configuration;
+		final String hostname = configuration.getHostname();
+		String result = "Failed Executing SNMP query";
+		final String action = query.get("action").asText();
+
+		final String oId = query.get("oid").asText();
+		final String exceptionMessage = "Hostname {} - Error while executing SNMP {} query. Message: {}";
+
+		printWriter.println("Executing query from SNMP Extension");
+		printWriter.flush();
+
+		switch (action) {
+			case GET:
+				try {
+					displayQuery(printWriter, hostname, GET, oId);
+					result = snmpRequestExecutor.executeSNMPGet(oId, snmpConfiguration, hostname, false);
+					displayQueryResult(printWriter, result);
+				} catch (Exception e) {
+					log.debug(exceptionMessage, hostname, GET, e);
+				}
+				break;
+			case GET_NEXT:
+				try {
+					displayQuery(printWriter, hostname, GET_NEXT, oId);
+					result = snmpRequestExecutor.executeSNMPGetNext(oId, snmpConfiguration, hostname, false);
+					displayQueryResult(printWriter, result);
+				} catch (Exception e) {
+					log.debug(exceptionMessage, hostname, GET_NEXT, e);
+				}
+				break;
+			case WALK:
+				try {
+					displayQuery(printWriter, hostname, WALK, oId);
+					result = snmpRequestExecutor.executeSNMPWalk(oId, snmpConfiguration, hostname, false);
+					displayQueryResult(printWriter, result);
+				} catch (Exception e) {
+					log.debug(exceptionMessage, hostname, WALK, e);
+				}
+				break;
+			default:
+				throw new IllegalArgumentException("Hostname {} - Invalid SNMP Operation");
+		}
+		return result;
+	}
+
+	public void displayQuery(final PrintWriter printWriter, final String hostname, final String query, final String oId) {
+		printWriter.println(String.format("Hostname %s - Executing SNMP %s query:\n", hostname, query));
+		printWriter.println(String.format("OID: %s", oId));
+		printWriter.flush();
+	}
+
+	public void displayQueryResult(final PrintWriter printWriter, final String result) {
+		printWriter.println(String.format("Result: %s", result));
+		printWriter.flush();
 	}
 }

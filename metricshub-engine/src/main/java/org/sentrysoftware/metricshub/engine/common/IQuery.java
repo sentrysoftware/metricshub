@@ -1,8 +1,8 @@
-package org.sentrysoftware.metricshub.extension.snmp;
+package org.sentrysoftware.metricshub.engine.common;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
- * MetricsHub SNMP Extension
+ * MetricsHub Engine
  * ჻჻჻჻჻჻
  * Copyright 2023 - 2024 Sentry Software
  * ჻჻჻჻჻჻
@@ -20,33 +20,4 @@ package org.sentrysoftware.metricshub.extension.snmp;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
-
-import java.io.IOException;
-import org.sentrysoftware.snmp.client.SnmpClient;
-
-/**
- * The SnmpRequestExecutor class extends {@link AbstractSnmpRequestExecutor} and provides utility methods
- * for executing various SNMP requests on local or remote hosts.
- */
-public class SnmpRequestExecutor extends AbstractSnmpRequestExecutor {
-
-	@Override
-	protected SnmpClient createSnmpClient(ISnmpConfiguration protocol, String hostname) throws IOException {
-		final SnmpConfiguration snmpConfig = (SnmpConfiguration) protocol;
-
-		return new SnmpClient(
-			hostname,
-			snmpConfig.getPort(),
-			snmpConfig.getIntVersion(),
-			snmpConfig.getRetryIntervals(),
-			String.valueOf(snmpConfig.getCommunity()),
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null
-		);
-	}
-}
+public interface IQuery {}

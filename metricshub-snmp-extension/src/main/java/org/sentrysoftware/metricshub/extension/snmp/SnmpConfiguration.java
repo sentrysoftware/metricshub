@@ -25,6 +25,7 @@ import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.util.Arrays;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -69,6 +70,10 @@ public class SnmpConfiguration implements ISnmpConfiguration {
 	private final Long timeout = 120L;
 
 	private String hostname;
+
+	@Default
+	@JsonSetter(nulls = SKIP)
+	private int[] retryIntervals = new int[] { 500, 1000, 2000, 5000, 5000 };
 
 	@Override
 	public String toString() {
@@ -164,6 +169,19 @@ public class SnmpConfiguration implements ISnmpConfiguration {
 					timeout
 				)
 		);
+
+		StringHelper.validateConfigurationAttribute(
+			retryIntervals,
+			attr -> Arrays.stream(attr).allMatch(value -> value < 1),
+			() ->
+				String.format(
+					"Resource %s - retryIntervals value is invalid for protocol %s." +
+					" retryIntervals value returned: %s. This resource will not be monitored. Please verify the configured retryIntervals value.",
+					resourceKey,
+					displayName,
+					retryIntervals
+				)
+		);
 	}
 
 	@Override
@@ -173,6 +191,13 @@ public class SnmpConfiguration implements ISnmpConfiguration {
 
 	@Override
 	public IConfiguration copy() {
-		return SnmpConfiguration.builder().community(community).port(port).timeout(timeout).version(version).build();
+		return SnmpConfiguration
+			.builder()
+			.community(community)
+			.port(port)
+			.timeout(timeout)
+			.retryIntervals(retryIntervals)
+			.version(version)
+			.build();
 	}
 }

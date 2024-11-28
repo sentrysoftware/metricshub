@@ -22,6 +22,7 @@ package org.sentrysoftware.metricshub.extension.snmpv3;
  */
 
 import com.fasterxml.jackson.databind.JsonNode;
+import java.io.PrintWriter;
 import java.util.function.UnaryOperator;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -105,5 +106,11 @@ public class SnmpV3Extension extends AbstractSnmpExtension {
 	@Override
 	protected Class<SnmpV3Configuration> getConfigurationClass() {
 		return SnmpV3Configuration.class;
+	}
+
+	@Override
+	public String executeQuery(IConfiguration configuration, JsonNode query, PrintWriter printWriter) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

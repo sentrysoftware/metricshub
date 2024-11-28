@@ -3,6 +3,7 @@ package org.sentrysoftware.metricshub.extension.snmp;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -11,11 +12,16 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
+import static org.sentrysoftware.metricshub.extension.snmp.SnmpExtension.GET;
+import static org.sentrysoftware.metricshub.extension.snmp.SnmpExtension.GET_NEXT;
+import static org.sentrysoftware.metricshub.extension.snmp.SnmpExtension.WALK;
 
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -49,6 +55,7 @@ class SnmpExtensionTest {
 	public static final String SNMP_GET_NEXT_FOURTH_RESULT = "1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT";
 	public static final String EXECUTE_SNMP_GET_RESULT = "CMC DELL";
 	public static final String SNMP_VERSION = "2.4.6";
+	public static final String SUCCESSFUL_SNMP_QUERY_RESULT = "Successful SNMP %s Query";
 
 	@Mock
 	private SnmpRequestExecutor snmpRequestExecutorMock;
@@ -579,6 +586,96 @@ class SnmpExtensionTest {
 				.version(SnmpVersion.V1)
 				.build(),
 			snmpExtension.buildConfiguration("snmp", configuration, null)
+		);
+	}
+
+	@Test
+	void testExecuteGetQuery() throws Exception {
+		final String message = String.format(SUCCESSFUL_SNMP_QUERY_RESULT, GET);
+		initSnmp();
+		doReturn(message)
+			.when(snmpRequestExecutorMock)
+			.executeSNMPGet(anyString(), any(SnmpConfiguration.class), anyString(), eq(false));
+
+		SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().hostname(HOST_NAME).build();
+		ObjectNode snmpQueryConfiguration = JsonNodeFactory.instance.objectNode();
+		snmpQueryConfiguration.set("action", new TextNode(GET));
+		snmpQueryConfiguration.set("oid", new TextNode(SnmpExtension.SNMP_OID));
+
+		assertEquals(
+			message,
+			snmpExtension.executeQuery(snmpConfiguration, snmpQueryConfiguration, new PrintWriter(new StringWriter()))
+		);
+	}
+
+	@Test
+	void testExecuteGetNextQuery() throws Exception {
+		final String message = String.format(SUCCESSFUL_SNMP_QUERY_RESULT, GET_NEXT);
+		initSnmp();
+		doReturn(message)
+			.when(snmpRequestExecutorMock)
+			.executeSNMPGetNext(anyString(), any(SnmpConfiguration.class), anyString(), eq(false));
+
+		SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().hostname(HOST_NAME).build();
+		ObjectNode snmpQueryConfiguration = JsonNodeFactory.instance.objectNode();
+		snmpQueryConfiguration.set("action", new TextNode(GET_NEXT));
+		snmpQueryConfiguration.set("oid", new TextNode(SnmpExtension.SNMP_OID));
+
+		assertEquals(
+			message,
+			snmpExtension.executeQuery(snmpConfiguration, snmpQueryConfiguration, new PrintWriter(new StringWriter()))
+		);
+	}
+
+	@Test
+	void testExecuteWalkQuery() throws Exception {
+		final String message = String.format(SUCCESSFUL_SNMP_QUERY_RESULT, WALK);
+		initSnmp();
+		doReturn(message)
+			.when(snmpRequestExecutorMock)
+			.executeSNMPWalk(anyString(), any(SnmpConfiguration.class), anyString(), eq(false));
+
+		SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().hostname(HOST_NAME).build();
+		ObjectNode snmpQueryConfiguration = JsonNodeFactory.instance.objectNode();
+		snmpQueryConfiguration.set("action", new TextNode(WALK));
+		snmpQueryConfiguration.set("oid", new TextNode(SnmpExtension.SNMP_OID));
+
+		assertEquals(
+			message,
+			snmpExtension.executeQuery(snmpConfiguration, snmpQueryConfiguration, new PrintWriter(new StringWriter()))
+		);
+	}
+
+	@Test
+	void testThrowsExceptionWithQuery() throws Exception {
+		initSnmp();
+		doThrow(new InterruptedException())
+			.when(snmpRequestExecutorMock)
+			.executeSNMPWalk(anyString(), any(SnmpConfiguration.class), anyString(), eq(false));
+
+		SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().hostname(HOST_NAME).build();
+		ObjectNode snmpQueryConfiguration = JsonNodeFactory.instance.objectNode();
+		snmpQueryConfiguration.set("action", new TextNode(WALK));
+		snmpQueryConfiguration.set("oid", new TextNode(SnmpExtension.SNMP_OID));
+
+		assertEquals(
+			"Failed Executing SNMP query",
+			snmpExtension.executeQuery(snmpConfiguration, snmpQueryConfiguration, new PrintWriter(new StringWriter()))
+		);
+	}
+
+	@Test
+	void testThrowsExceptionQuery() throws Exception {
+		initSnmp();
+
+		SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().hostname(HOST_NAME).build();
+		ObjectNode snmpQueryConfiguration = JsonNodeFactory.instance.objectNode();
+		snmpQueryConfiguration.set("action", new TextNode(""));
+		snmpQueryConfiguration.set("oid", new TextNode(SnmpExtension.SNMP_OID));
+
+		assertThrows(
+			Exception.class,
+			() -> snmpExtension.executeQuery(snmpConfiguration, snmpQueryConfiguration, new PrintWriter(new StringWriter()))
 		);
 	}
 }
