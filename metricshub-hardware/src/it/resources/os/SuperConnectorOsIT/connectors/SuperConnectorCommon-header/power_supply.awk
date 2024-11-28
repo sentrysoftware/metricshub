@@ -9,7 +9,7 @@ BEGIN {
 
     # PowerSupply  Collect
     # PowerSupply  COLLECT;PsId;PsStatus;UsedWatt;UsedPercent
-    print "COLLECT;1;OK;300;20;"
-    print "COLLECT;2;WARN;400;30;"
-    print "COLLECT;3;ALARM;450;;" #checks that engine will calculate if not specified
+    print "COLLECT;1;ok;300;20;"
+    print "COLLECT;2;degraded;400;30;"
+    print "COLLECT;3;failed;450;;" #checks that engine will calculate if not specified
 }

@@ -9,7 +9,7 @@ BEGIN {
 
     # OtherDevice  Collect
     # OtherDevice  COLLECT;OdId;OdStatus;OdStatusInformation;OdUsageCount;OdPowerConsumption;Value
-    print "COLLECT;1;OK;Working fine;2300;15;99999;"
-    print "COLLECT;2;WARN;Atention ralentissements;50;10;777;"
-    print "COLLECT;3;ALARM;Les commandes ne repondent plus;120;50;;"
+    print "COLLECT;1;ok;Working fine;2300;15;99999;"
+    print "COLLECT;2;degraded;Atention ralentissements;50;10;777;"
+    print "COLLECT;3;failed;Les commandes ne repondent plus;120;50;;"
 }

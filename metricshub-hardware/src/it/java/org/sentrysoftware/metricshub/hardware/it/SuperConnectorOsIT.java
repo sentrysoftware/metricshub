@@ -47,7 +47,7 @@ class SuperConnectorOsIT {
 	private static ExtensionManager extensionManager;
 
 	@BeforeAll
-	static void setUp() throws Exception {
+	static void setUp() {
 		final OsCommandConfiguration osCommandConfiguration = OsCommandConfiguration.builder().timeout(120L).build();
 
 		final HostConfiguration hostConfiguration = HostConfiguration

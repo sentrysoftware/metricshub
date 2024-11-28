@@ -9,6 +9,6 @@ BEGIN {
 
     # FAN Collect
     # FAN COLLECT;FanID;FanStatus;FanSpeed;SpeedPercent
-    print "COLLECT;1;OK;15000;5;"
-    print "COLLECT;2;OK;5411;98;"
+    print "COLLECT;1;ok;15000;5;"
+    print "COLLECT;2;ok;5411;98;"
 }

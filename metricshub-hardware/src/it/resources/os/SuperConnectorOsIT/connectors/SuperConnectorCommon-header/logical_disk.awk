@@ -10,9 +10,9 @@ BEGIN {
 
     # LogicalDisk  Collect
     # LogicalDisk  COLLECT;LDid;LDstatus;UnallocatedSpace;ErrorCount
-    print "COLLECT;1;OK;30000000000000000"
-    print "COLLECT;2;OK;5000000000000000"
-    print "COLLECT;3;OK;20000000000000000"
-    print "COLLECT;4;OK;20000000000000000;5"
+    print "COLLECT;1;ok;30000000000000000"
+    print "COLLECT;2;ok;5000000000000000"
+    print "COLLECT;3;ok;20000000000000000"
+    print "COLLECT;4;ok;20000000000000000;5"
 
 }

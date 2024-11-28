@@ -9,7 +9,7 @@ BEGIN {
 
     # BLADE Collect
     # BLADE COLLECT;BladeID;BladeStatus;PowerState
-    print "COLLECT;1;OK;ON;"
-    print "COLLECT;2;ALARM;SUSPENDED;"
-    print "COLLECT;3;WARN;OFF;"
+    print "COLLECT;1;ok;ON;"
+    print "COLLECT;2;failed;SUSPENDED;"
+    print "COLLECT;3;degraded;OFF;"
 }
