@@ -212,6 +212,8 @@ public abstract class AbstractSnmpRequestExecutor {
 							return snmpClient.getNext(oid);
 						case TABLE:
 							return snmpClient.table(oid, selectColumnArray);
+						case WALK:
+							return snmpClient.walk(oid);
 						default:
 							throw new IllegalArgumentException("Not implemented.");
 					}
@@ -254,6 +256,37 @@ public abstract class AbstractSnmpRequestExecutor {
 		 * Represents an SNMP TABLE request.
 		 * Used to retrieve a table of SNMP objects.
 		 */
-		TABLE
+		TABLE,
+		/**
+		 *
+		 */
+		WALK
+	}
+
+	@WithSpan("SNMP Walk")
+	public String executeSNMPWalk(
+		@NonNull @SpanAttribute("snmp.oid") final String oid,
+		@NonNull @SpanAttribute("snmp.config") final ISnmpConfiguration configuration,
+		@NonNull @SpanAttribute("host.hostname") final String hostname,
+		final boolean logMode
+	) throws InterruptedException, ExecutionException, TimeoutException {
+		LoggingHelper.trace(() -> log.trace("Executing SNMP Walk request:\n- OID: {}\n", oid));
+
+		final long startTime = System.currentTimeMillis();
+
+		String result = executeSnmpGetRequest(SnmpGetRequest.WALK, oid, configuration, hostname, null, logMode);
+
+		final long responseTime = System.currentTimeMillis() - startTime;
+
+		LoggingHelper.trace(() ->
+			log.trace(
+				"Executed SNMP Walk request:\n- OID: {}\n- Result: {}\n- response-time: {}\n",
+				oid,
+				result,
+				responseTime
+			)
+		);
+
+		return result;
 	}
 }
