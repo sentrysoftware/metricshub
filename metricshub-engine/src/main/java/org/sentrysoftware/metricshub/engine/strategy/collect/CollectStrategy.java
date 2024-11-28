@@ -266,25 +266,12 @@ public class CollectStrategy extends AbstractStrategy {
 				final Map<String, Monitor> sameTypeMonitors = telemetryManager.findMonitorsByType(monitorType);
 
 				if (sameTypeMonitors != null && !sameTypeMonitors.isEmpty()) {
-					final Map<String, Monitor> sameTypeSameConnectorMonitors = sameTypeMonitors
+					sameTypeMonitors
 						.values()
 						.stream()
 						.filter(monitor ->
 							currentConnector.getCompiledFilename().equals(monitor.getAttribute(MONITOR_ATTRIBUTE_CONNECTOR_ID))
 						)
-						.collect(
-							Collectors.toMap(
-								monitorEntry -> monitorEntry.getAttribute(MONITOR_ATTRIBUTE_CONNECTOR_ID),
-								monitorEntry -> monitorEntry,
-								(oldValue, newValue) -> oldValue,
-								LinkedHashMap::new
-							)
-						);
-
-					// Loop on each monitor
-					sameTypeSameConnectorMonitors
-						.values()
-						.stream()
 						.forEach(monitor -> {
 							processSourcesAndComputes(orderedSources.getSources(), monitor.getAttributes(), jobInfo);
 							processMonitors(monitorType, collect.getMapping(), currentConnector, hostname, monitor);
