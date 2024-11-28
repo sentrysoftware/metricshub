@@ -211,6 +211,8 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 		final String hostname,
 		final Map.Entry<String, MonitorJob> monitorJobEntry
 	) {
+		long jobStartTime = System.currentTimeMillis();
+
 		final MonitorJob monitorJob = monitorJobEntry.getValue();
 
 		// Get the monitor task
@@ -252,6 +254,14 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 		final Mapping mapping = monitorTask.getMapping();
 
 		processSameTypeMonitors(currentConnector, mapping, monitorType, hostname, monitorJob);
+		long jobEndTime = System.currentTimeMillis();
+		setJobDurationMetricInHostMonitor(
+			getJobName(),
+			monitorType,
+			currentConnector.getCompiledFilename(),
+			jobStartTime,
+			jobEndTime
+		);
 	}
 
 	/**

@@ -1,6 +1,7 @@
 package org.sentrysoftware.metricshub.engine.strategy.discovery;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -72,7 +73,7 @@ class DiscoveryStrategyTest {
 	@Test
 	void testRun() throws Exception {
 		// Create host and connector monitors and set them in the telemetry manager
-		final Monitor hostMonitor = Monitor.builder().type(HOST.getKey()).build();
+		final Monitor hostMonitor = Monitor.builder().type(HOST.getKey()).isEndpoint(true).build();
 		final Monitor connectorMonitor = Monitor.builder().type(CONNECTOR.getKey()).build();
 		final Map<String, Map<String, Monitor>> monitors = new HashMap<>(
 			Map.of(
@@ -260,6 +261,38 @@ class DiscoveryStrategyTest {
 			"Conclusion:\n" +
 			"Test on host.name FAILED",
 			connectorMonitor.getLegacyTextParameters().get(STATUS_INFORMATION)
+		);
+
+		// Check job duration metrics values
+		assertNotNull(
+			telemetryManager
+				.getMonitors()
+				.get("host")
+				.get("anyMonitorId")
+				.getMetric(
+					"metricshub.job.duration{job.type=\"discovery\"," + " monitor.type=\"logical_disk, connector_id=\"AAC\"}"
+				)
+				.getValue()
+		);
+		assertNotNull(
+			telemetryManager
+				.getMonitors()
+				.get("host")
+				.get("anyMonitorId")
+				.getMetric(
+					"metricshub.job.duration{job.type=\"discovery\"," + " monitor.type=\"disk_controller, connector_id=\"AAC\"}"
+				)
+				.getValue()
+		);
+		assertNotNull(
+			telemetryManager
+				.getMonitors()
+				.get("host")
+				.get("anyMonitorId")
+				.getMetric(
+					"metricshub.job.duration{job.type=\"discovery\"," + " monitor.type=\"physical_disk, connector_id=\"AAC\"}"
+				)
+				.getValue()
 		);
 	}
 

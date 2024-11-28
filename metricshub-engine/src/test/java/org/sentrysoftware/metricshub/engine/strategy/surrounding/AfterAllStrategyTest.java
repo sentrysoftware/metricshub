@@ -87,7 +87,7 @@ class AfterAllStrategyTest {
 
 	void initTest() {
 		// Create host and connector monitors and set them in the telemetry manager
-		final Monitor hostMonitor = Monitor.builder().type(KnownMonitorType.HOST.getKey()).build();
+		final Monitor hostMonitor = Monitor.builder().type(KnownMonitorType.HOST.getKey()).isEndpoint(true).build();
 		final Monitor connectorMonitor = Monitor.builder().type(KnownMonitorType.CONNECTOR.getKey()).build();
 		final Map<String, Map<String, Monitor>> monitors = new HashMap<>(
 			Map.of(
@@ -264,6 +264,41 @@ class AfterAllStrategyTest {
 		assertEquals("7", sourceTableLine.get(7));
 		assertEquals("healthy", sourceTableLine.get(8));
 		assertEquals("health-ok", sourceTableLine.get(9));
+
+		// Check job duration metrics values
+		assertNotNull(
+			telemetryManager
+				.getMonitors()
+				.get("host")
+				.get("anyMonitorId")
+				.getMetric(
+					"metricshub.job.duration{job.type=\"collect\"," +
+					" monitor.type=\"disk_controller," +
+					" connector_id=\"afterAllSource\"}"
+				)
+				.getValue()
+		);
+		assertNotNull(
+			telemetryManager
+				.getMonitors()
+				.get("host")
+				.get("anyMonitorId")
+				.getMetric(
+					"metricshub.job.duration{job.type=\"afterAll\"," + " monitor.type=\"none, connector_id=\"afterAllSource\"}"
+				)
+				.getValue()
+		);
+		assertNotNull(
+			telemetryManager
+				.getMonitors()
+				.get("host")
+				.get("anyMonitorId")
+				.getMetric(
+					"metricshub.job.duration{job.type=\"collect\"," +
+					" monitor.type=\"enclosure, connector_id=\"afterAllSource\"}"
+				)
+				.getValue()
+		);
 	}
 
 	@Test

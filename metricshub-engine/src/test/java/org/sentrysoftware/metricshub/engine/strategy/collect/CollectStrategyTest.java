@@ -1,6 +1,7 @@
 package org.sentrysoftware.metricshub.engine.strategy.collect;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -78,7 +79,7 @@ class CollectStrategyTest {
 	@Test
 	void testRun() throws Exception {
 		// Create host and connector monitors and set them in the telemetry manager
-		final Monitor hostMonitor = Monitor.builder().type(KnownMonitorType.HOST.getKey()).build();
+		final Monitor hostMonitor = Monitor.builder().type(KnownMonitorType.HOST.getKey()).isEndpoint(true).build();
 		final Monitor connectorMonitor = Monitor.builder().type(KnownMonitorType.CONNECTOR.getKey()).build();
 		final Map<String, Map<String, Monitor>> monitors = new HashMap<>(
 			Map.of(
@@ -235,7 +236,7 @@ class CollectStrategyTest {
 			.when(protocolExtensionMock)
 			.processCriterion(eq(snmpGetNextCriterion), anyString(), any(TelemetryManager.class));
 
-		// Call DiscoveryStrategy to discover the monitors
+		// Call CollectStrategy to collect the monitors
 		collectStrategy.run();
 
 		// Check that StatusInformation is collected on the connector monitor (criterion processing failure case)
@@ -258,6 +259,29 @@ class CollectStrategyTest {
 			"Conclusion:\n" +
 			"Test on host.name FAILED",
 			connectorMonitor.getLegacyTextParameters().get(STATUS_INFORMATION)
+		);
+
+		// Check job duration metrics values
+		assertNotNull(
+			telemetryManager
+				.getMonitors()
+				.get("host")
+				.get("anyMonitorId")
+				.getMetric(
+					"metricshub.job.duration{job.type=\"collect\"," +
+					" monitor.type=\"disk_controller, connector_id=\"TestConnector\"}"
+				)
+				.getValue()
+		);
+		assertNotNull(
+			telemetryManager
+				.getMonitors()
+				.get("host")
+				.get("anyMonitorId")
+				.getMetric(
+					"metricshub.job.duration{job.type=\"collect\"," + " monitor.type=\"enclosure, connector_id=\"TestConnector\"}"
+				)
+				.getValue()
 		);
 	}
 }

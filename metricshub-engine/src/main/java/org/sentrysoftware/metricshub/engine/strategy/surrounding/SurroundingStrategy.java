@@ -84,6 +84,7 @@ public abstract class SurroundingStrategy extends AbstractStrategy {
 	 */
 	@Override
 	public void run() {
+		long jobStartTime = System.currentTimeMillis();
 		// Retrieve the connector's identifier and hostname for logging and processing.
 		final String connectorId = connector.getCompiledFilename();
 		final String hostname = telemetryManager.getHostname();
@@ -119,6 +120,9 @@ public abstract class SurroundingStrategy extends AbstractStrategy {
 
 		// Process the ordered sources along with computes, based on the constructed job information.
 		processSourcesAndComputes(orderedSources.getSources(), jobInfo);
+
+		long jobEndTime = System.currentTimeMillis();
+		setJobDurationMetricInHostMonitor(jobName, "none", connectorId, jobStartTime, jobEndTime);
 	}
 
 	/**

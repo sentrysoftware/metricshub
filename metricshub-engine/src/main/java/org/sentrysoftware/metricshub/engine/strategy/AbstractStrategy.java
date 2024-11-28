@@ -506,4 +506,39 @@ public abstract class AbstractStrategy implements IStrategy {
 		);
 		// CHECKSTYLE:ON
 	}
+
+	/**
+	 * Sets the job duration metric in the host monitor.
+	 *
+	 * @param jobName      the name of the job
+	 * @param monitorType  the type of monitor
+	 * @param connectorId  the ID of the connector
+	 * @param startTime the start time of the job in milliseconds
+	 * @param endTime   the end time of the job in milliseconds
+	 */
+	protected void setJobDurationMetricInHostMonitor(
+		final String jobName,
+		final String monitorType,
+		final String connectorId,
+		final long startTime,
+		final long endTime
+	) {
+		final Monitor endpointHostMonitor = telemetryManager.getEndpointHostMonitor();
+		MetricFactory metricFactory = new MetricFactory();
+		// Collect protocol check metric
+		final String jobDurationMetricKey =
+			"metricshub.job.duration{job.type=\"" +
+			jobName +
+			"\", monitor.type=\"" +
+			monitorType +
+			", connector_id=\"" +
+			connectorId +
+			"\"}";
+		metricFactory.collectNumberMetric(
+			endpointHostMonitor,
+			jobDurationMetricKey,
+			(double) (endTime - startTime) / 1000,
+			strategyTime
+		);
+	}
 }
