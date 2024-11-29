@@ -63,6 +63,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.ConnectorNamespace;
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 
 /**
  * Abstract class representing a strategy for handling connectors and their sources and computes.
@@ -531,10 +532,10 @@ public abstract class AbstractStrategy implements IStrategy {
 			jobName +
 			"\", monitor.type=\"" +
 			monitorType +
-			", connector_id=\"" +
+			"\", connector_id=\"" +
 			connectorId +
 			"\"}";
-		metricFactory.collectNumberMetric(
+		final NumberMetric durationMetric = metricFactory.collectNumberMetric(
 			endpointHostMonitor,
 			jobDurationMetricKey,
 			(double) (endTime - startTime) / 1000,

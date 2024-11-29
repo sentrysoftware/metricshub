@@ -238,7 +238,7 @@ class SimpleStrategyTest {
 				.get("monitor1")
 				.getMetric(
 					"metricshub.job.duration{job.type=\"simple\"," +
-					" monitor.type=\"disk_controller, connector_id=\"TestConnectorWithSimple\"}"
+					" monitor.type=\"disk_controller\", connector_id=\"TestConnectorWithSimple\"}"
 				)
 				.getValue()
 		);
@@ -249,7 +249,7 @@ class SimpleStrategyTest {
 				.get("monitor1")
 				.getMetric(
 					"metricshub.job.duration{job.type=\"simple\"," +
-					" monitor.type=\"enclosure, connector_id=\"TestConnectorWithSimple\"}"
+					" monitor.type=\"enclosure\", connector_id=\"TestConnectorWithSimple\"}"
 				)
 				.getValue()
 		);

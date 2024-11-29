@@ -273,7 +273,7 @@ class BeforeAllStrategyTest {
 				.get("anyMonitorId")
 				.getMetric(
 					"metricshub.job.duration{job.type=\"collect\"," +
-					" monitor.type=\"disk_controller," +
+					" monitor.type=\"disk_controller\"," +
 					" connector_id=\"beforeAllSource\"}"
 				)
 				.getValue()
@@ -284,7 +284,8 @@ class BeforeAllStrategyTest {
 				.get("host")
 				.get("anyMonitorId")
 				.getMetric(
-					"metricshub.job.duration{job.type=\"beforeAll\"," + " monitor.type=\"none, connector_id=\"beforeAllSource\"}"
+					"metricshub.job.duration{job.type=\"beforeAll\"," +
+					" monitor.type=\"none\", connector_id=\"beforeAllSource\"}"
 				)
 				.getValue()
 		);
@@ -295,7 +296,7 @@ class BeforeAllStrategyTest {
 				.get("anyMonitorId")
 				.getMetric(
 					"metricshub.job.duration{job.type=\"collect\"," +
-					" monitor.type=\"enclosure, connector_id=\"beforeAllSource\"}"
+					" monitor.type=\"enclosure\", connector_id=\"beforeAllSource\"}"
 				)
 				.getValue()
 		);

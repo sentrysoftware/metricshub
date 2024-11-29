@@ -282,7 +282,7 @@ public class CollectStrategy extends AbstractStrategy {
 			long jobEndTime = System.currentTimeMillis();
 			setJobDurationMetricInHostMonitor(
 				"collect",
-				monitorJob.getKey(),
+				monitorType,
 				currentConnector.getCompiledFilename(),
 				jobStartTime,
 				jobEndTime

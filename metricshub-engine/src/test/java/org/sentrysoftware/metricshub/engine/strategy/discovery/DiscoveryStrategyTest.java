@@ -270,7 +270,7 @@ class DiscoveryStrategyTest {
 				.get("host")
 				.get("anyMonitorId")
 				.getMetric(
-					"metricshub.job.duration{job.type=\"discovery\"," + " monitor.type=\"logical_disk, connector_id=\"AAC\"}"
+					"metricshub.job.duration{job.type=\"discovery\"," + " monitor.type=\"logical_disk\", connector_id=\"AAC\"}"
 				)
 				.getValue()
 		);
@@ -280,7 +280,7 @@ class DiscoveryStrategyTest {
 				.get("host")
 				.get("anyMonitorId")
 				.getMetric(
-					"metricshub.job.duration{job.type=\"discovery\"," + " monitor.type=\"disk_controller, connector_id=\"AAC\"}"
+					"metricshub.job.duration{job.type=\"discovery\"," + " monitor.type=\"disk_controller\", connector_id=\"AAC\"}"
 				)
 				.getValue()
 		);
@@ -290,7 +290,7 @@ class DiscoveryStrategyTest {
 				.get("host")
 				.get("anyMonitorId")
 				.getMetric(
-					"metricshub.job.duration{job.type=\"discovery\"," + " monitor.type=\"physical_disk, connector_id=\"AAC\"}"
+					"metricshub.job.duration{job.type=\"discovery\"," + " monitor.type=\"physical_disk\", connector_id=\"AAC\"}"
 				)
 				.getValue()
 		);
@@ -506,5 +506,26 @@ class DiscoveryStrategyTest {
 		assertNull(discoveredMonitors.get(DISK_CONTROLLER.getKey()));
 		assertEquals(1, discoveredMonitors.get(PHYSICAL_DISK.getKey()).size());
 		assertEquals(1, discoveredMonitors.get(LOGICAL_DISK.getKey()).size());
+		// Check job duration metrics values
+		assertNotNull(
+			telemetryManager
+				.getMonitors()
+				.get("host")
+				.get("anyMonitorId")
+				.getMetric(
+					"metricshub.job.duration{job.type=\"discovery\", monitor.type=\"logical_disk\", connector_id=\"AAC\"}"
+				)
+				.getValue()
+		);
+		assertNotNull(
+			telemetryManager
+				.getMonitors()
+				.get("host")
+				.get("anyMonitorId")
+				.getMetric(
+					"metricshub.job.duration{job.type=\"discovery\", monitor.type=\"physical_disk\", connector_id=\"AAC\"}"
+				)
+				.getValue()
+		);
 	}
 }
