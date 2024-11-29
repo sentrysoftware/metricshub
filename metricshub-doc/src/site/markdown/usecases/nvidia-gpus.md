@@ -15,12 +15,12 @@ By configuring monitoring, you can track:
 
 For the complete list of available metrics, refer to the [Nvidi Smi connector documentation](https://www.metricshub.com/docs/latest/connectors/nvidiasmi.html#!#metrics).
 
-The example below demonstrates how to configure **MetricsHub** to monitor the NVIDIA GPUs available on a Linux machine. 
+In the example below, we configure **MetricsHub** to connect to the management card of a Linux server to monitor its NVIDIA GPUs. 
 
 
 ## Procedure
 
-To monitor Nvidia GPUs:
+To monitor the NVIDIA GPUs:
 
 1. In the `config/metricshub.yaml` file, we create the resource `dev-nvidia-01` with the following attributes:
 
@@ -35,7 +35,7 @@ To monitor Nvidia GPUs:
           host.type: linux
     ```
 
-2. We configure **MetricsHub** to connect to the management card of the machine using the `HTTPS` protocol:
+2. We configure **MetricsHub** to connect to the management card of the server using the `http` protocol:
 
     ```yaml
         protocols:
@@ -43,8 +43,8 @@ To monitor Nvidia GPUs:
                 hostname: mgt-dev-nvidia-01
                 https: true
                 port: 443
-                username: myusername
-                password: mypassword
+                username: myusername # Update with the actual username
+                password: mypassword # Update with the actual password
     ```
 
 Here is the complete YAML configuration to be added to `config/metricshub.yaml` to monitor NVIDIA GPUs:
@@ -60,6 +60,6 @@ Here is the complete YAML configuration to be added to `config/metricshub.yaml` 
             hostname: mgt-dev-nvidia-01
             https: true
             port: 443
-            username: myusername
-            password: mypassword
+            username: myusername # Update with the actual username
+            password: mypassword # Update with the actual password
 ```
