@@ -10,7 +10,7 @@ BEGIN {
 
     # DiskController Collect
     # COLLECT;DiskControllerID;DiskControllerStatus;BatteryStatus
-    print "COLLECT;1;OK;OK"
-    print "COLLECT;2;ALARM;WARN"
-    print "COLLECT;3;WARN;ALARM"
+    print "COLLECT;1;ok;ok"
+    print "COLLECT;2;failed;degraded"
+    print "COLLECT;3;degraded;failed"
 }

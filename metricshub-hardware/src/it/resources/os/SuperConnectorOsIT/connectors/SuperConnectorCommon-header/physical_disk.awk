@@ -40,20 +40,20 @@ BEGIN {
         diskendurancefunction = int(i * (100 / maxdisk));
         if ( i > (maxdisk/2) )
         {
-            physicaldisks[$i]="COLLECT;"i";OK;Disk OK;True;1;1;1;41;1;1;1;1;"diskendurancefunction
+            physicaldisks[$i]="COLLECT;"i";ok;Disk OK;True;1;1;1;41;1;1;1;1;"diskendurancefunction
         }
         else
         {
-            physicaldisks[$i]="COLLECT;"i";OK;Disk OK;False;1;1;1;41;1;1;1;1;"diskendurancefunction
+            physicaldisks[$i]="COLLECT;"i";ok;Disk OK;False;1;1;1;41;1;1;1;1;"diskendurancefunction
         }
 
         print physicaldisks[$i]
         i=i+1;
     }
     # FOR UNIT TEST
-    print "COLLECT;"500";OK;Disk OK;False;1;1;1;41;1;1;1;1;"1
-    print "COLLECT;"501";OK;Disk OK;False;1;1;1;41;1;1;1;1;"5
-    print "COLLECT;"502";OK;Disk OK;False;1;1;1;41;1;1;1;1;"10
-      print "COLLECT;"503";OK;Disk OK;False;15;20;30;40;50;60;70;80;"1
+    print "COLLECT;"500";ok;Disk OK;False;1;1;1;41;1;1;1;1;"1
+    print "COLLECT;"501";ok;Disk OK;False;1;1;1;41;1;1;1;1;"5
+    print "COLLECT;"502";ok;Disk OK;False;1;1;1;41;1;1;1;1;"10
+    print "COLLECT;"503";ok;Disk OK;False;15;20;30;40;50;60;70;80;"1
 
 }

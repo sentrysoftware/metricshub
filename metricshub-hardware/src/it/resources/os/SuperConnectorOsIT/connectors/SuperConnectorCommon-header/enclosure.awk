@@ -9,6 +9,6 @@ BEGIN {
 
     # Enclosure Collect
     # Enclosure COLLECT;EnclosureeID;EnclosureStatus;EnclosureConsumption;EnergyUsage;IntrusionStatus
-    print "COLLECT;1;OK;210;;OK"
-    print "COLLECT;2;WARN;9999;;ALARM"
+    print "COLLECT;1;ok;210;;ok"
+    print "COLLECT;2;degraded;9999;;failed"
 }
