@@ -56,9 +56,9 @@ public class NetworkPowerAndEnergyEstimator extends HardwarePowerAndEnergyEstima
 			return 0.0;
 		}
 
-		// If the Link Status value is '1' (unplugged), the power consumption is 1 Watt.
+		// If the Link Status value is '0' (unplugged), the power consumption is 1 Watt.
 		final Double linkStatus = CollectHelper.getNumberMetricValue(monitor, "hw.network.up", false);
-		if (linkStatus != null && linkStatus == 1.0) {
+		if (linkStatus != null && linkStatus == 0.0) {
 			return 1.0;
 		}
 

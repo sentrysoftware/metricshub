@@ -9,7 +9,7 @@ BEGIN {
 
     # TapeDrive  Collect
     # TapeDrive  COLLECT;TdId;TdStatus;StatusInformation;MountCount;UnmountCount;ErrorCount;NeedsCleaning
-    print "COLLECT;1;OK;All good;2;2;2;1;"
-    print "COLLECT;2;ALARM;Critical failure;0;0;0;0;"
+    print "COLLECT;1;ok;All good;2;2;2;1;"
+    print "COLLECT;2;failed;Critical failure;0;0;0;0;"
     print "COLLECT;3;UNKNOWN;;5;10;15;2;"
 }

@@ -9,7 +9,7 @@ BEGIN {
 
     # CPU Collect
     # CPU COLLECT;CPUid;CPUstatus;CPUcurrSpeed;CorrectedErrorCount;PredictedFailure
-    print "COLLECT;1;OK;1800;5;0"
-    print "COLLECT;2;ALARM;3000;10;1"
-    print "COLLECT;3;WARN;2200;15;"
+    print "COLLECT;1;ok;1800;5;0"
+    print "COLLECT;2;failed;3000;10;1"
+    print "COLLECT;3;degraded;2200;15;"
 }

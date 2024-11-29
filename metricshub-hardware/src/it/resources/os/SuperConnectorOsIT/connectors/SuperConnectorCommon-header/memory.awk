@@ -9,7 +9,7 @@ BEGIN {
 
     # Memory  Collect
     # Memory  COLLECT;MemoryID;MemStatus;PredictedFailure;ErrorStatus;LastError;ErrorCount
-  print "COLLECT;1;OK;0;OK;Memory OK;0;"
-  print "COLLECT;2;WARN;0;WARN;;;"
-  print "COLLECT;3;ALARM;1;ALARM;Memory fail to retrieve status;5;"
+  print "COLLECT;1;ok;0;ok;Memory ok;0;"
+  print "COLLECT;2;degraded;0;degraded;;;"
+  print "COLLECT;3;failed;1;failed;Memory fail to retrieve status;5;"
 }
