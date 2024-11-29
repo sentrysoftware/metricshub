@@ -221,7 +221,7 @@ public class CollectStrategy extends AbstractStrategy {
 		final String hostname,
 		final Map.Entry<String, MonitorJob> monitorJob
 	) {
-		long jobStartTime = System.currentTimeMillis();
+		final long jobStartTime = System.currentTimeMillis();
 		if (monitorJob.getValue() instanceof StandardMonitorJob standardMonitorJob) {
 			final AbstractCollect collect = standardMonitorJob.getCollect();
 
@@ -279,7 +279,7 @@ public class CollectStrategy extends AbstractStrategy {
 						});
 				}
 			}
-			long jobEndTime = System.currentTimeMillis();
+			final long jobEndTime = System.currentTimeMillis();
 			setJobDurationMetricInHostMonitor(
 				"collect",
 				monitorType,
