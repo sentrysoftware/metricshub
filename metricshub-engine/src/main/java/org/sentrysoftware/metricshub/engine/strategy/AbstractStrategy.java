@@ -63,7 +63,6 @@ import org.sentrysoftware.metricshub.engine.telemetry.ConnectorNamespace;
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
-import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 
 /**
  * Abstract class representing a strategy for handling connectors and their sources and computes.
@@ -526,7 +525,7 @@ public abstract class AbstractStrategy implements IStrategy {
 	) {
 		final Monitor endpointHostMonitor = telemetryManager.getEndpointHostMonitor();
 		final MetricFactory metricFactory = new MetricFactory();
-		// Collect protocol check metric
+		// Collect the job duration metric
 		final String jobDurationMetricKey = new StringBuilder()
 			.append("metricshub.job.duration{job.type=\"")
 			.append(jobName)
@@ -536,10 +535,10 @@ public abstract class AbstractStrategy implements IStrategy {
 			.append(connectorId)
 			.append("\"}")
 			.toString();
-		final NumberMetric durationMetric = metricFactory.collectNumberMetric(
+		metricFactory.collectNumberMetric(
 			endpointHostMonitor,
 			jobDurationMetricKey,
-			(double) (endTime - startTime) / 1000,
+			(double) (endTime - startTime) / 1000, // Job duration in seconds
 			strategyTime
 		);
 	}
