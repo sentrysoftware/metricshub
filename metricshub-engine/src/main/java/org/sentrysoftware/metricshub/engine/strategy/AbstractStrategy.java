@@ -527,14 +527,15 @@ public abstract class AbstractStrategy implements IStrategy {
 		final Monitor endpointHostMonitor = telemetryManager.getEndpointHostMonitor();
 		final MetricFactory metricFactory = new MetricFactory();
 		// Collect protocol check metric
-		final String jobDurationMetricKey =
-			"metricshub.job.duration{job.type=\"" +
-			jobName +
-			"\", monitor.type=\"" +
-			monitorType +
-			"\", connector_id=\"" +
-			connectorId +
-			"\"}";
+		final String jobDurationMetricKey = new StringBuilder()
+			.append("metricshub.job.duration{job.type=\"")
+			.append(jobName)
+			.append("\", monitor.type=\"")
+			.append(monitorType)
+			.append("\", connector_id=\"")
+			.append(connectorId)
+			.append("\"}")
+			.toString();
 		final NumberMetric durationMetric = metricFactory.collectNumberMetric(
 			endpointHostMonitor,
 			jobDurationMetricKey,
