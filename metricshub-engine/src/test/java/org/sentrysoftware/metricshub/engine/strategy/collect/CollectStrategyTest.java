@@ -268,8 +268,7 @@ class CollectStrategyTest {
 				.get("host")
 				.get("anyMonitorId")
 				.getMetric(
-					"metricshub.job.duration{job.type=\"collect\"," +
-					" monitor.type=\"disk_controller\", connector_id=\"TestConnector\"}"
+					"metricshub.job.duration{job.type=\"collect\", monitor.type=\"disk_controller\", connector_id=\"TestConnector\"}"
 				)
 				.getValue()
 		);
@@ -279,8 +278,7 @@ class CollectStrategyTest {
 				.get("host")
 				.get("anyMonitorId")
 				.getMetric(
-					"metricshub.job.duration{job.type=\"collect\"," +
-					" monitor.type=\"enclosure\", connector_id=\"TestConnector\"}"
+					"metricshub.job.duration{job.type=\"collect\", monitor.type=\"enclosure\", connector_id=\"TestConnector\"}"
 				)
 				.getValue()
 		);

@@ -538,7 +538,7 @@ public abstract class AbstractStrategy implements IStrategy {
 		metricFactory.collectNumberMetric(
 			endpointHostMonitor,
 			jobDurationMetricKey,
-			(double) (endTime - startTime) / 1000, // Job duration in seconds
+			(endTime - startTime) / 1000.0, // Job duration in seconds
 			strategyTime
 		);
 	}

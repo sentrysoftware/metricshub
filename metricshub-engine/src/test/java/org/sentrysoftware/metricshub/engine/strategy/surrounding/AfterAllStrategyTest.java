@@ -272,9 +272,7 @@ class AfterAllStrategyTest {
 				.get("host")
 				.get("anyMonitorId")
 				.getMetric(
-					"metricshub.job.duration{job.type=\"collect\"," +
-					" monitor.type=\"disk_controller\"," +
-					" connector_id=\"afterAllSource\"}"
+					"metricshub.job.duration{job.type=\"collect\", monitor.type=\"disk_controller\", connector_id=\"afterAllSource\"}"
 				)
 				.getValue()
 		);
@@ -284,7 +282,7 @@ class AfterAllStrategyTest {
 				.get("host")
 				.get("anyMonitorId")
 				.getMetric(
-					"metricshub.job.duration{job.type=\"afterAll\"," + " monitor.type=\"none\", connector_id=\"afterAllSource\"}"
+					"metricshub.job.duration{job.type=\"afterAll\", monitor.type=\"none\", connector_id=\"afterAllSource\"}"
 				)
 				.getValue()
 		);
@@ -294,8 +292,7 @@ class AfterAllStrategyTest {
 				.get("host")
 				.get("anyMonitorId")
 				.getMetric(
-					"metricshub.job.duration{job.type=\"collect\"," +
-					" monitor.type=\"enclosure\", connector_id=\"afterAllSource\"}"
+					"metricshub.job.duration{job.type=\"collect\", monitor.type=\"enclosure\", connector_id=\"afterAllSource\"}"
 				)
 				.getValue()
 		);

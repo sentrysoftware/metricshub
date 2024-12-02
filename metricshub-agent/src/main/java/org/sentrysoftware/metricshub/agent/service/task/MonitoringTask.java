@@ -114,6 +114,13 @@ public class MonitoringTask implements Runnable {
 				new HardwarePostDiscoveryStrategy(telemetryManager, discoveryTime, clientsExecutor, extensionManager)
 			);
 
+			/*
+			 * Metrics are flushed after each collection and are only refreshed when they are explicitly updated.
+			 * During the collection cycle, the discovery-related metrics may expire due to the "collect time".
+			 * To prevent this expiration, send the metrics at the moment of discovery, ensuring they have the correct "collect time".
+			 * This guarantees that the metrics remain valid and are not prematurely expired.
+			 */
+
 			// Initialize the OpenTelemetry observers and LogEmitter after the discovery
 			// as at this time we should have what we want to observe
 			initOtelSdk(telemetryManager, resourceConfig);
