@@ -117,6 +117,12 @@ public class MonitoringTask implements Runnable {
 			// Initialize the OpenTelemetry observers and LogEmitter after the discovery
 			// as at this time we should have what we want to observe
 			initOtelSdk(telemetryManager, resourceConfig);
+
+			// Initialize metric observers
+			initAllObservers(telemetryManager);
+
+			// Call the flush of all the metric readers associated with this meter provider
+			autoConfiguredOpenTelemetrySdk.getOpenTelemetrySdk().getSdkMeterProvider().forceFlush();
 		}
 
 		log.info("Calling the engine to collect resource: {}.", hostId);
