@@ -36,6 +36,7 @@ import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
+import org.sentrysoftware.metricshub.engine.deserialization.MultiValueDeserializer;
 import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 
 /**
@@ -69,6 +70,8 @@ public class SnmpConfiguration implements ISnmpConfiguration {
 	@JsonDeserialize(using = TimeDeserializer.class)
 	private final Long timeout = 120L;
 
+	@JsonSetter(nulls = SKIP)
+	@JsonDeserialize(using = MultiValueDeserializer.class)
 	private String hostname;
 
 	@Default
@@ -198,6 +201,7 @@ public class SnmpConfiguration implements ISnmpConfiguration {
 			.timeout(timeout)
 			.retryIntervals(retryIntervals)
 			.version(version)
+			.hostname(hostname)
 			.build();
 	}
 }

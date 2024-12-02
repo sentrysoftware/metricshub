@@ -141,6 +141,7 @@ public class SshConfiguration extends OsCommandConfiguration {
 			.username(username)
 			.useSudo(useSudo)
 			.useSudoCommands(new HashSet<>(useSudoCommands))
+			.hostname(hostname)
 			.build();
 	}
 }

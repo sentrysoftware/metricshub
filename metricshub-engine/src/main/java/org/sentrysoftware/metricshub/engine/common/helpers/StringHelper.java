@@ -23,6 +23,7 @@ package org.sentrysoftware.metricshub.engine.common.helpers;
 
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.COMMA;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
+import static org.springframework.util.Assert.isTrue;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,6 +33,7 @@ import java.util.StringJoiner;
 import java.util.concurrent.Callable;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.AccessLevel;
@@ -190,19 +192,34 @@ public class StringHelper {
 	 * @return The string representation of the value, or a CSV string if the value is a collection or an array.
 	 */
 	public static String stringify(final Object value) {
+		return stringify(value, COMMA);
+	}
+
+	/**
+	 * Convert the given value to a string representation. If the value is a collection or an array, it is transformed into a string
+	 * using the specified separator.
+	 *
+	 * @param value     The value to be converted to a string.
+	 * @param separator The separator to be used when converting a collection or an array to a string.
+	 * @return The string representation of the value, or a string using the specified separator if the value is a collection
+	 */
+	public static String stringify(final Object value, final String separator) {
 		if (value == null) {
 			// Handle null input
 			return EMPTY;
 		} else if (value instanceof Collection<?> collection) {
 			// If the input is a List, convert it to a CSV string
-			return collection.stream().map(item -> item != null ? item.toString() : EMPTY).collect(Collectors.joining(COMMA));
+			return collection
+				.stream()
+				.map(item -> item != null ? item.toString() : EMPTY)
+				.collect(Collectors.joining(separator));
 		} else if (value.getClass().isArray()) {
 			// If the input is an array, convert it to a CSV string
 			Object[] array = (Object[]) value;
 			return Arrays
 				.stream(array)
 				.map(item -> item != null ? item.toString() : EMPTY)
-				.collect(Collectors.joining(COMMA));
+				.collect(Collectors.joining(separator));
 		} else {
 			// For any other type of value, simply convert it to a string
 			return value.toString();
@@ -236,5 +253,16 @@ public class StringHelper {
 			log.error(messageSupplier.get());
 			throw new InvalidConfigurationException(messageSupplier.get());
 		}
+	}
+
+	/**
+	 * Convert a string to be searched in a case-insensitive regex.
+	 *
+	 * @param value The string to search. (mandatory)
+	 * @return The case-insensitive regex for the given string.
+	 */
+	public static String protectCaseInsensitiveRegex(final String value) {
+		isTrue(value != null && !value.isEmpty(), "Input string must not be null or empty.");
+		return value.isBlank() ? value : "(?i)" + Pattern.quote(value);
 	}
 }

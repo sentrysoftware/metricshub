@@ -33,6 +33,7 @@ import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
+import org.sentrysoftware.metricshub.engine.deserialization.MultiValueDeserializer;
 import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 
 /**
@@ -60,7 +61,9 @@ public class OsCommandConfiguration implements IConfiguration {
 	@JsonDeserialize(using = TimeDeserializer.class)
 	Long timeout = DEFAULT_TIMEOUT;
 
-	private String hostname;
+	@JsonSetter(nulls = SKIP)
+	@JsonDeserialize(using = MultiValueDeserializer.class)
+	String hostname;
 
 	/**
 	 * Creates a new instance of OsCommandConfiguration using the provided parameters.
@@ -114,6 +117,7 @@ public class OsCommandConfiguration implements IConfiguration {
 			.timeout(timeout)
 			.useSudo(useSudo)
 			.useSudoCommands(new HashSet<>(useSudoCommands))
+			.hostname(hostname)
 			.build();
 	}
 }

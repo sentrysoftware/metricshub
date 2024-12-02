@@ -90,7 +90,13 @@ public class UnixIpmiCriterionProcessor {
 					defaultTimeout,
 					telemetryManager
 				);
+
+			// Save the ipmitool command in the telemetry manager
+			telemetryManager.getHostProperties().setIpmitoolCommand(ipmitoolCommand);
 		}
+
+		// At the very end of the command line, the actual IPMI command
+		ipmitoolCommand = ipmitoolCommand + " bmc info";
 
 		// buildIpmiCommand method can either return the actual result of the built command or an error. If it is an error we display it in the error message
 		if (!ipmitoolCommand.startsWith("PATH=")) {
@@ -160,7 +166,7 @@ public class UnixIpmiCriterionProcessor {
 		String ipmitoolCommand; // Sonar don't agree with modifying arguments
 		if (doesIpmitoolRequireSudo(osCommandConfiguration)) {
 			ipmitoolCommand =
-				"PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;%{SUDO:ipmitool}ipmitool -I ".replace(
+				"PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;%{SUDO:ipmitool} ipmitool -I ".replace(
 						"%{SUDO:ipmitool}",
 						osCommandConfiguration.getSudoCommand()
 					);
@@ -206,10 +212,6 @@ public class UnixIpmiCriterionProcessor {
 			// On Linux, the IPMI interface driver is always 'open'
 			ipmitoolCommand = ipmitoolCommand + "open";
 		}
-		telemetryManager.getHostProperties().setIpmitoolCommand(ipmitoolCommand);
-
-		// At the very end of the command line, the actual IPMI command
-		ipmitoolCommand = ipmitoolCommand + " bmc info";
 		return ipmitoolCommand;
 	}
 

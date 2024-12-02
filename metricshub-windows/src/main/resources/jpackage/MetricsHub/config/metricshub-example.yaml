@@ -116,6 +116,13 @@ resourceGroups:
       #       username: server-3\username
       #       password: password
       #       timeout: 120
+      #   additionalConnectors:
+      #     ConnectorId:
+      #       uses: WindowsService
+      #       force: true
+      #       variables:
+      #         var1: value1
+      #         var2: value2
 
       #═══════════════════════════════════════════════════
       # SNMP v1 protocol configuration
@@ -288,7 +295,7 @@ resourceGroups:
 
       # group-1:
       #   attributes:
-      #     host.names: [server-14, server-15, server-16]
+      #     host.name: [server-14, server-15, server-16]
       #     host.type: linux
       #   protocols:
       #     snmp:

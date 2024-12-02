@@ -245,13 +245,9 @@ public class WmiExtension implements IProtocolExtension {
 
 			return wmiConfiguration;
 		} catch (Exception e) {
-			final String errorMessage = String.format(
-				"Error while reading WMI Configuration: %s. Error: %s",
-				jsonNode,
-				e.getMessage()
-			);
+			final String errorMessage = String.format("Error while reading WMI Configuration. Error: %s", e.getMessage());
 			log.error(errorMessage);
-			log.debug("Error while reading WMI Configuration: {}. Stack trace:", jsonNode, e);
+			log.debug("Error while reading WMI Configuration. Stack trace:", e);
 			throw new InvalidConfigurationException(errorMessage, e);
 		}
 	}

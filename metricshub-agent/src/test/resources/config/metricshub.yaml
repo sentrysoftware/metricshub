@@ -60,7 +60,7 @@ resourceGroups:
       snmp-resources: 
         # Adds additional static attributes to the resource.
         attributes:
-          host.names: [ server-2, server-3 ]
+          host.names: [ server-2, server-3 ] # Deprecated, change to host.name in the future
           host.type: storage
         metrics:
           hw.host.configured: 1
