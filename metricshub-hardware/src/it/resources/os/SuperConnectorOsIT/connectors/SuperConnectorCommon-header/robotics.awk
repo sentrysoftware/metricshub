@@ -9,7 +9,7 @@ BEGIN {
 
     # Robotic  Collect
     # Robotic  COLLECT;RoboId;RoboStatus;RobotStatusInformation;MoveCount;ErrorCount
-    print "COLLECT;1;OK;;50;2"
-    print "COLLECT;2;ALARM;Cassette blocked;250;30"
-    print "COLLECT;3;OK;;1;10;"
+    print "COLLECT;1;ok;;50;2"
+    print "COLLECT;2;failed;Cassette blocked;250;30"
+    print "COLLECT;3;ok;;1;10;"
 }

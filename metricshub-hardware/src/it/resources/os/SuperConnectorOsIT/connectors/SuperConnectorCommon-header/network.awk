@@ -10,8 +10,8 @@ BEGIN {
 
     # NetworkCard  Collect
     # NetworkCard  COLLECT;NCid;NCstatus;NSlinkStatus;NClinkSpeed;DuplexMode;ErrorCount;ReceivedBytes;TransmittedBytes;ReceivedPackets;TransmittedPackets;ZeroBufferCreditCount
-    print "COLLECT;1;OK;OK;1000;1000;5;5222;4111"
-    print "COLLECT;2;OK;OK;1000;1000;5;5222;4111"
-    print "COLLECT;3;OK;OK;1000;1000;5;5222;4111;0;0;0;"
-      print "COLLECT;4;OK;OK;56000;1;10;10000000;40000000;10;40;95"
+    print "COLLECT;1;ok;ok;1000;1000;5;5222;4111"
+    print "COLLECT;2;ok;ok;1000;1000;5;5222;4111"
+    print "COLLECT;3;ok;ok;1000;1000;5;5222;4111;0;0;0;"
+      print "COLLECT;4;ok;ok;56000;1;10;10000000;40000000;10;40;95"
 }

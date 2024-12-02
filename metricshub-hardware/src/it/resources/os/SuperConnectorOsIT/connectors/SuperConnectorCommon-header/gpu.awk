@@ -8,8 +8,8 @@ BEGIN {
 
   # GPU  COLLECT
   # UsedTime;DecoderUsedTime;EncoderUsedTime;ReceivedBytes;TransmittedBytes
-  print "COLLECT;GPUNvidia;OK;Normal;0;10;122;10;60;50;55;15000;37500;800;"
-  print "COLLECT;GPUAMD150;ALARM;Overheat;1;13;154;150;150;150;18;"";"";654;"
-  print "COLLECT;GPUINTEL;WARN;Idle;;1;1;;;;1000;;;0;15;20;25;30000000;40000000"
+  print "COLLECT;GPUNvidia;ok;Normal;0;10;122;10;60;50;55;15000;37500;800;"
+  print "COLLECT;GPUAMD150;failed;Overheat;1;13;154;150;150;150;18;"";"";654;"
+  print "COLLECT;GPUINTEL;degraded;Idle;;1;1;;;;1000;;;0;15;20;25;30000000;40000000"
 
 }

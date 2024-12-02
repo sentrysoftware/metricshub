@@ -8,6 +8,6 @@ BEGIN {
 
     # Temperature  Collect
     # Temperature  COLLECT;TempId;TempStatus;TempStatusInformation;Temperature
-    print "COLLECT;1;OK;Temp ok;38"
-    print "COLLECT;2;OK;Temp ok;98"
+    print "COLLECT;1;ok;Temp ok;38"
+    print "COLLECT;2;ok;Temp ok;98"
 }

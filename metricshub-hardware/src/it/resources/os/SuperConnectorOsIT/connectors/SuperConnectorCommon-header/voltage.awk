@@ -8,6 +8,6 @@ BEGIN {
 
     # Voltage  Collect
     # Voltage  COLLECT;VoltId;VoltStatus;VoltStatusInformation;Voltage
-    print "COLLECT;1;OK;;2100"
-    print "COLLECT;2;OK;;54841"
+    print "COLLECT;1;ok;;2100"
+    print "COLLECT;2;ok;;54841"
 }
