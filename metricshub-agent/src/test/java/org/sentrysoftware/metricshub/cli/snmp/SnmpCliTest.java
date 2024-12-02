@@ -4,10 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.cli.service.protocol.SnmpConfigCli;
-
-import com.fasterxml.jackson.databind.JsonNode;
 import picocli.CommandLine;
 import picocli.CommandLine.ParameterException;
 
@@ -78,6 +77,7 @@ class SnmpCliTest {
 			"6000"
 		);
 	}
+
 	@Test
 	void testExecute() {
 		initSnmpGet();
@@ -113,11 +113,17 @@ class SnmpCliTest {
 		assertEquals("SNMP protocol must be configured: --snmp.", snmpConfigException.getMessage());
 		snmpCli.setSnmpConfigCli(new SnmpConfigCli());
 		ParameterException noQueriesException = assertThrows(ParameterException.class, () -> snmpCli.validate());
-		assertEquals("At least one SNMP query must be specified: --snmp-get, --snmp-getnext, --snmp-walk.", noQueriesException.getMessage());
+		assertEquals(
+			"At least one SNMP query must be specified: --snmp-get, --snmp-getnext, --snmp-walk.",
+			noQueriesException.getMessage()
+		);
 		snmpCli.setGet(SNMP_OID);
 		assertDoesNotThrow(() -> snmpCli.validate());
 		snmpCli.setGetNext(SNMP_OID);
 		ParameterException manyQueriesException = assertThrows(ParameterException.class, () -> snmpCli.validate());
-		assertEquals("Only one SNMP query can be specified at a time: --snmp-get, --snmp-getnext, --snmp-walk.", manyQueriesException.getMessage());
+		assertEquals(
+			"Only one SNMP query can be specified at a time: --snmp-get, --snmp-getnext, --snmp-walk.",
+			manyQueriesException.getMessage()
+		);
 	}
 }

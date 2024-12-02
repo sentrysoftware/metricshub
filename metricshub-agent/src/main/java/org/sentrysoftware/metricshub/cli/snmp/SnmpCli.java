@@ -25,13 +25,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-
-import lombok.Data;
-
 import java.io.PrintWriter;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.stream.Stream;
+import lombok.Data;
 import org.fusesource.jansi.AnsiConsole;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
 import org.sentrysoftware.metricshub.cli.service.PrintExceptionMessageHandlerService;
@@ -100,7 +98,8 @@ public class SnmpCli implements IQuery, Callable<Integer> {
 			throw new ParameterException(spec.commandLine(), "SNMP protocol must be configured: --snmp.");
 		}
 
-		Stream.of(get, getNext, walk)
+		Stream
+			.of(get, getNext, walk)
 			.filter(Objects::nonNull)
 			.reduce((a, b) -> {
 				throw new ParameterException(
@@ -108,10 +107,12 @@ public class SnmpCli implements IQuery, Callable<Integer> {
 					"Only one SNMP query can be specified at a time: --snmp-get, --snmp-getnext, --snmp-walk."
 				);
 			})
-			.orElseThrow(() -> new ParameterException(
-				spec.commandLine(),
-				"At least one SNMP query must be specified: --snmp-get, --snmp-getnext, --snmp-walk."
-			));
+			.orElseThrow(() ->
+				new ParameterException(
+					spec.commandLine(),
+					"At least one SNMP query must be specified: --snmp-get, --snmp-getnext, --snmp-walk."
+				)
+			);
 	}
 
 	public static void main(String[] args) {
