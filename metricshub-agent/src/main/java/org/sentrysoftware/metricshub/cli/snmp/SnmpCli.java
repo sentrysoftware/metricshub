@@ -29,6 +29,7 @@ import java.io.PrintWriter;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.stream.Stream;
+import lombok.Data;
 import org.fusesource.jansi.AnsiConsole;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
 import org.sentrysoftware.metricshub.cli.service.PrintExceptionMessageHandlerService;
@@ -43,6 +44,7 @@ import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 
+@Data
 public class SnmpCli implements IQuery, Callable<Integer> {
 
 	@Parameters(index = "0", paramLabel = "HOSTNAME", description = "Hostname or IP address of the host to monitor")
@@ -52,13 +54,13 @@ public class SnmpCli implements IQuery, Callable<Integer> {
 	CommandSpec spec;
 
 	@Option(names = "--snmp-get", order = 1, paramLabel = "OID", description = "SNMP Get request")
-	private String get;
+	String get;
 
 	@Option(names = "--snmp-getnext", order = 2, paramLabel = "OID", description = "SNMP Get Next request")
-	private String getNext;
+	String getNext;
 
 	@Option(names = "--snmp-walk", order = 3, paramLabel = "OID", description = "SNMP Walk request")
-	private String walk;
+	String walk;
 
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline SNMP Options|@:%n")
 	SnmpConfigCli snmpConfigCli;
@@ -69,6 +71,7 @@ public class SnmpCli implements IQuery, Callable<Integer> {
 	@Option(names = "-v", order = 7, description = "Verbose mode (repeat the option to increase verbosity)")
 	boolean[] verbose;
 
+	@Override
 	public JsonNode getQuery() {
 		final ObjectNode queryNode = JsonNodeFactory.instance.objectNode();
 		String action;
@@ -91,23 +94,31 @@ public class SnmpCli implements IQuery, Callable<Integer> {
 		return queryNode;
 	}
 
+	/**
+	 * Validates SNMP configuration and ensures exactly one query type (--snmp-get, --snmp-getnext, or --snmp-walk) is specified.
+	 *
+	 * @throws ParameterException if SNMP is not configured, no query is specified, or multiple queries are specified.
+	 */
 	void validate() throws ParameterException {
-
 		if (snmpConfigCli == null) {
-			throw new ParameterException(
-				spec.commandLine(),
-				"SNMP protocol must be configured: --snmp."
-			);
+			throw new ParameterException(spec.commandLine(), "SNMP protocol must be configured: --snmp.");
 		}
-		
-		final boolean queriesNotConfigured = Stream.of(get, getNext, walk).allMatch(Objects::isNull);
 
-		if (queriesNotConfigured) {
-			throw new ParameterException(
-				spec.commandLine(),
-				"At least one SNMP query must be specified: --snmp-get, --snmp-getnext, --snmp-walk."
+		Stream
+			.of(get, getNext, walk)
+			.filter(Objects::nonNull)
+			.reduce((a, b) -> {
+				throw new ParameterException(
+					spec.commandLine(),
+					"Only one SNMP query can be specified at a time: --snmp-get, --snmp-getnext, --snmp-walk."
+				);
+			})
+			.orElseThrow(() ->
+				new ParameterException(
+					spec.commandLine(),
+					"At least one SNMP query must be specified: --snmp-get, --snmp-getnext, --snmp-walk."
+				)
 			);
-		}
 	}
 
 	public static void main(String[] args) {

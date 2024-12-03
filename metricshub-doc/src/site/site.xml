@@ -80,6 +80,7 @@
 
 		<menu name="Introduction">
 			<item name="Overview" href="index.html" />
+			<item name="Release Notes" href="release-notes.html" />
 			<item name="Connectors Directory" href="metricshub-connectors-directory.html" />
 		</menu>
 
@@ -93,17 +94,34 @@
 
 		<menu name="Configuration">
 			<item name="Monitoring Configuration" href="configuration/configure-monitoring.html" />
-			<item name="Sending Telemetry" href="configuration/send-telemetry.html" />
+			<item name="Sending Telemetry Data" href="configuration/send-telemetry.html" />
 			<item name="Password Encryption" href="security/passwords.html" />
 		</menu>
 
+		<menu name="Integration">
+			<item name="Prometheus" href="prometheus/prometheus.html" />
+				<item name="Prometheus AlertManager" href="prometheus/alertmanager.html" />
+				<item name="Grafana Dashboards" href="prometheus/grafana.html" />
+		</menu>
+
 		<menu name="Guides">
-			<item name="Quick Start - Windows" href="guides/quick-start-community-prometheus-windows.html"/>
-			<item name="Quick Start - Linux" href="guides/quick-start-community-prometheus-linux.html"/>
-			<item name="Sustainability" href="guides/configure-sustainability-metrics.html" />
+			<item name="Quick Start (Community Edition)" href="guides/quick-start-community-prometheus.html"/>
+			<item name="Sustainability (Community Edition)" href="guides/configure-sustainability-metrics.html" />
 			<item name="Health Check (Enterprise Edition)" href="guides/status.html" />
 			<item name="Debugging" href="guides/debug.html" />
-			<item name="MetricsHub CLI (&lt;code&gt;metricshub&lt;/code&gt;)" href="guides/cli.html" />
+		</menu>
+
+		<menu name="Use Cases">
+			<item name="Monitoring Network Interfaces (SNMP)" href="usecases/network-interfaces.html" />
+			<item name="Monitoring a Process on Windows" href="usecases/process-windows.html" />
+			<item name="Monitoring a Remote Linux Machine" href="usecases/remote-linux.html" />
+			<item name="Monitoring a Service Running on Linux" href="usecases/service-linux.html" />
+			<item name="Monitoring a Service Health" href="usecases/service-health.html" />
+			<item name="Pinging Resources" href="usecases/ping.html" />
+		</menu>
+
+		<menu name="Appendix">
+			<item name="MetricsHub CLI (&lt;code&gt;metricshub&lt;/code&gt;)" href="appendix/cli.html" />
 		</menu>
 	</body>
 </project>

@@ -242,13 +242,9 @@ public class WinRmExtension implements IProtocolExtension {
 
 			return winRmConfiguration;
 		} catch (Exception e) {
-			final String errorMessage = String.format(
-				"Error while reading WinRm Configuration: %s. Error: %s",
-				jsonNode,
-				e.getMessage()
-			);
+			final String errorMessage = String.format("Error while reading WinRm Configuration. Error: %s", e.getMessage());
 			log.error(errorMessage);
-			log.debug("Error while reading WinRm Configuration: {}. Stack trace:", jsonNode, e);
+			log.debug("Error while reading WinRm Configuration. Stack trace:", e);
 			throw new InvalidConfigurationException(errorMessage, e);
 		}
 	}

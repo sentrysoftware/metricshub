@@ -137,13 +137,9 @@ public class PingExtension implements IProtocolExtension {
 		try {
 			return newObjectMapper().treeToValue(jsonNode, PingConfiguration.class);
 		} catch (Exception e) {
-			final String errorMessage = String.format(
-				"Error while reading Ping Configuration: %s. Error: %s",
-				jsonNode,
-				e.getMessage()
-			);
+			final String errorMessage = String.format("Error while reading Ping Configuration. Error: %s", e.getMessage());
 			log.error(errorMessage);
-			log.debug("Error while reading Ping Configuration: {}. Stack trace:", jsonNode, e);
+			log.debug("Error while reading Ping Configuration. Stack trace:", e);
 			throw new InvalidConfigurationException(errorMessage, e);
 		}
 	}

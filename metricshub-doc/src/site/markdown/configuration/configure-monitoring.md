@@ -3,79 +3,132 @@ description: How to configure the MetricsHub Agent to collect metrics from a var
 
 # Monitoring Configuration
 
-<!-- MACRO{toc|fromDepth=1|toDepth=1|id=toc} -->
+<!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-**MetricsHub** extracts metrics from any resource configured in the `config/metricshub.yaml` file located under:
+**MetricsHub** extracts metrics from the resources configured in the `config/metricshub.yaml` file.
+These **resources** can be hosts, applications, or other components running in your IT infrastructure.
+Each **resource** is typically associated with a physical location, such as a data center or server room, or a logical location, like a business unit.
+In **MetricsHub**, these locations are referred to as **sites**. 
+In highly distributed infrastructures, multiple resources can be organized into **resource groups** to simplify management and monitoring.
+
+To reflect this organization, you are asked to define your **resource group** first, followed by your **site** and its corresponding **resources** in the `config/metricshub.yaml` file stored in:
 
 > * `C:\ProgramData\MetricsHub\config` on Windows systems
-> * `./metricshub/lib/config` on Linux systems.
+> * `./metricshub/lib/config` on Linux systems
 
-> **Important**: We recommend using an editor supporting the [Schemastore](https://www.schemastore.org/json#editors) to edit **MetricsHub**'s configuration YAML files (Example: [Visual Studio Code](https://code.visualstudio.com/download) and [vscode.dev](https://vscode.dev), with [RedHat's YAML extension](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml)).
+> **Important**: We recommend using an editor supporting the 
+[Schemastore](https://www.schemastore.org/json#editors) to edit **MetricsHub**'s configuration YAML
+ files (Example: [Visual Studio Code](https://code.visualstudio.com/download) and 
+ [vscode.dev](https://vscode.dev), 
+ with [RedHat's YAML extension](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml)).
 
-## Configure resources
+## Step 1: Configure resource groups
 
-The structure of the `config/metricshub.yaml` file allows you to organize and manage your resources methodically. Refer to the sections below to learn how to configure your resources effectively.
+> Note: For centralized infrastructures, `resourceGroups` are not required.
+ Simply configure resources as explained in [Step 2](./configure-monitoring.html#step-2-configure-resources). 
 
-### General structure
-
-The `config/metricshub.yaml` file is organized in a hierarchical manner to facilitate the management of various resources:
+Create a resource group for each site to be monitored under the `resourceGroups:` section:
 
 ```yaml
 resourceGroups:
-  <resource-group-name>:
+  <resource-group-name>: 
     attributes:
-      site: <site-name>
+      site: <site-name> # Specify where resources are hosted
+```
+Replace:
+
+* `<resource-group-name>` with the actual name of your resource group
+* `<site-name>` with the name of a logical or physical location. This value must be unique.
+
+**Example:**
+
+```yaml
+resourceGroups:
+  boston:
+    attributes:
+      site: boston
+```
+
+At this stage, you can configure sustainability metrics reporting. For more details, refer to the [Sustainability](configure-sustainability-metrics.html) page.
+
+## Step 2: Configure resources
+
+**Resources** can either be configured:
+
+* under the `resources` section located at the top of the `config/metricshub.yaml` file *(recommended for centralized infrastructures)*
+
+    ```yaml
+    attribute:
+      site: <central-site>
+
     resources:
       <resource-id>:
         attributes:
           host.name: <hostname>
           host.type: <type>
         <protocol-configuration>
+    ```
+* or under the resource group you previously specified *(recommended for highly distributed infrastructures)*
+
+  ```yaml
+  resourceGroups: 
+    <resource-group-name>: 
+      attributes:
+        site: <site-name> 
+      resources:
+        <resource-id>:
+          attributes:
+            host.name: <hostname>
+            host.type: <type>
+          <protocol-configuration>
+  ```
+
+The syntax to adopt for configuring your resources will differ whether your resources have unique 
+or similar characteristics (such as device type, protocols, and credentials).
+
+### Syntax for unique resources
+
+```yaml
+resources:
+  <resource-id>:
+    attributes:
+      host.name: <hostname> 
+      host.type: <type>  
+    <protocol-configuration> 
 ```
 
-where
+### Syntax for resources sharing similar characteristics
 
-* `resourceGroups` is the top-level grouping for all resource groups
-  * `<resource-group-name>` is a container that holds the site to be monitored
-    * `site` is an attribute to specify where resources are hosted. Replace  `<site-name>`with a unique site name. It can either be a logical or a physical location (a data center or server room).
-  * `resources` is a container that holds the resources to be monitored within the resource group
-    * `<resource-id>` is the unique ID of your resource. It can for example be the ID of a host, an application, or a service
-      * `host.name` is an attribute to specify the hostname or IP address of the resource. Replace `<hostname>` with the actual hostname or IP address of the resource. Use a comma-delimited list to specify several resources (`<hostname1>,<hostname2>, etc.`).
-      * `host.type`  is an attribute to specify the type of resource to be monitored. Replace `<type>` with one of the possible values:
-        * `win` for Microsoft Windows systems
-        * `linux` for Linux systems
-        * `network` for network devices
-        * `oob` for Out-of-band management cards
-        * `storage` for storage systems
-        * `aix` for IBM AIX systems
-        * `hpux` for HP UX systems
-        * `solaris` for Oracle Solaris systems
-        * `tru64` for HP Tru64 systems
-        * `vms` for HP Open VMS systems.
-
-    * `<protocol-configuration>` is the protocol(s) **MetricsHub** will use to communicate with the resources: `http`, `ipmi`, `oscommand`, `ping`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. Refer to [Protocols and Credentials](./configure-monitoring.html#protocols-and-credentials) for more details.
+```yaml
+resources:
+  <resource-id>:
+    attributes:
+      host.name: [ <hostname1>, <hostname2>, etc. ]
+      host.type: <type>
+      host.extra.attribute: [ <extra-attribute-for-hostname1>, <extra-attribute-for-hostname2>, etc. ]
+    <protocol-configuration>
+```
+Whatever the syntax adopted, replace:
+* `<hostname>` with the actual hostname or IP address of the resource
+* `<type>` with the type of resource to be monitored. Possible values are:
+  * `win` for Microsoft Windows systems
+  * `linux` for Linux systems
+  * `network` for network devices
+  * `oob` for Out-of-band management cards
+  * `storage` for storage systems
+  * `aix` for IBM AIX systems
+  * `hpux` for HP UX systems
+  * `solaris` for Oracle Solaris systems
+  * `tru64` for HP Tru64 systems
+  * `vms` for HP Open VMS systems.
+  Check out the [Connector Directory](metricshub-connectors-directory.html) to find out which type corresponds to your system.
+* `<protocol-configuration>` with the protocol(s) **MetricsHub** will use to communicate with the resources:
+ `http`, `ipmi`, `oscommand`, `ping`, `ssh`, `snmp`, `wmi`, `wbem` or `winrm`. 
+ Refer to [Protocols and Credentials](./configure-monitoring.html#protocols-and-credentials) for more details.
 
 > Note: You can use the `${esc.d}{env::ENV_VARIABLE_NAME}` syntax in the `config/metricshub.yaml` file to call your environment variables.
 
-
-### Highly distributed infrastructure
-
-For infrastructures with multiple distributed locations, each site can be configured as a separate `resource group` containing the different `resources` to be monitored as follows:
-
-```yaml
-resourceGroups:
-  <resource-group-name>:
-    attributes:
-      site: <site-name>
-    resources:
-      <resource-id>:
-        attributes:
-          host.name: <hostname>
-          host.type: <type>
-        <protocol-configuration>
-```
-
-**Example:**
+**Example**
 
 ```yaml
 resourceGroups:
@@ -109,53 +162,7 @@ resourceGroups:
         <protocol-configuration>
 ```
 
-> Note: Refer to the [sustainability metrics page](../guides/configure-sustainability-metrics.md#example-for-distributed-infrastructure) to configure MetricsHub for sustainability metrics reporting.
 
-### Centralized infrastructure
-
-For centralized infrastructures, resources can be configured directly under the `resources` section located at the top of the `config/metricshub.yaml` file, without `resourceGroups`:
-
-```yaml
-attribute:
-  site: <central-site>
-
-resources:
-  <resource-id>:
-    attributes:
-      host.name: <hostname>
-      host.type: <type>
-    <protocol-configuration>
-```
-
-> Note: Refer to the [sustainability metrics page](../guides/configure-sustainability-metrics.md#example-for-centralized-infrastructure) to configure MetricsHub for sustainability metrics reporting.
-
-### Unique vs. shared characteristics
-
-#### Unique characteristics
-
-If each resource has unique characteristics, use the following syntax for individual configuration:
-
-```yaml
-resources:
-  <resource-id>:
-    attributes:
-      host.name: <hostname>
-      host.type: <type>
-    <protocol-configuration>
-```
-
-#### Shared characteristics
-
-If multiple resources share the same characteristics, such as device type, protocols, and credentials, they can be grouped together under a single configuration:
-
-```yaml
-resources:
-  <resource-id>:
-    attributes:
-      host.names: [<hostname1>, <hostname2>, etc.]
-      host.type: <type>
-    <protocol-configuration>
-```
 
 ### Protocols and credentials
 
@@ -400,7 +407,6 @@ resourceGroups:
           host.type: linux
         protocols:
           snmpv3:
-            version: 3
             port: 161
             timeout: 120s
             contextName: myContext
@@ -515,34 +521,57 @@ resourceGroups:
             authentications: [ntlm]
 ```
 
-## (Optional) Customize the hostname
+## Step 3: Configure additional settings
 
-By default, the `host.name` attribute is used for both the hostname or IP address of the resource and as the hostname of each OpenTelemetry metric attached to the host resource.
+### Customize resource hostname
 
-If the `hostname` parameter is specified in the protocol configuration, it overrides the `host.name` attribute for client requests. In this case, the `host.name` will only be used as a metric attribute.
+By default, the `host.name` attribute specified for a resource determines both:
+* the hostname used to execute requests against the resource for collecting metrics
+* the hostname associated with each OpenTelemetry metric collected for the resource.
 
-### Example
+If your resource requires different hostnames for these purposes, you can customize the configuration as follows.
+
+#### Example for unique resources
+
+Here’s an example of customizing the hostname for a unique resource:
+
 ```yaml
 resources:
   myHost1:
     attributes:
-      # `custom-hostname` will be the hostname value in the collected metrics.
-      host.name: custom-hostname
+      host.name: custom-hostname # Hostname applied to the collected metrics 
       host.type: linux
     protocols:
       snmp:
-        # my-host-01 will be used to send requests to the host.
-        hostname: my-host-01
+        hostname: my-host-01 # Hostname used for the SNMP requests
         version: v1
         community: public
         port: 161
         timeout: 1m
 ```
-In the example above:
-* `my-host-01` will be used to send requests to the host
-* `custom-hostname` will be used as the hostname in the metrics.
 
-## (Optional) Customize resource monitoring
+#### Example for resources sharing similar characteristics
+
+For resources with shared characteristics, you can define multiple hostnames in the configuration: 
+
+```yaml
+resources:
+  shared-characteristic-hosts:
+    attributes:
+      host.name: [ custom-hostname1, custom-hostname2 ] # Hostnames applied to the collected metrics 
+      host.type: linux
+    protocols:
+      snmp:
+        hostname: [ my-host-01, my-host-02 ] # Hostnames used for the SNMP requests
+        version: v1
+        community: public
+        port: 161
+        timeout: 1m
+```
+
+> **Important**: Ensure the values of `host.name` are listed in the exact same order as those in `hostname`. Each value listed in `host.name` must correspond to the value at the same position in `hostname`. Misaligned orders will result in mismatched data and inconsistencies in the collected metrics for each resource.
+
+### Customize resource monitoring
 
 If the connectors included in **MetricsHub** do not collect the metrics you need, you can configure one or several monitors to obtain this data from your resource and specify its corresponding attributes and metrics in **MetricsHub**.
 
@@ -553,7 +582,7 @@ A monitor defines how **MetricsHub** collects and processes data for the resourc
 * the data sources from which metrics are collected
 * how the collected metrics are mapped to **MetricsHub**'s monitoring model.
 
-### Configuration
+#### Configuration
 
 Follow the structure below to declare your monitor:
 
@@ -578,52 +607,10 @@ Follow the structure below to declare your monitor:
               # <metrics-mapping...>
 ```
 
-Refer to [Monitors](https://sentrysoftware.org/metricshub-community-connectors/develop/monitors.html) for more information on how to configure custom resource monitoring.
+Refer to:
+- [Monitors](https://sentrysoftware.org/metricshub-community-connectors/develop/monitors.html) for more information on how to configure custom resource monitoring.
+- [Monitoring the health of a service](../usecases/service-health.md) for a practical example that demonstrates how to use this feature effectively.
 
-### Example: Monitoring a Grafana Service
-
-In the example below, we configured a monitor for a Grafana service. This monitor collects data from the Grafana health API and maps the response to the most relevant attributes and metrics in **MetricsHub**.
-
-```yaml
-service-group:  
-  grafana-service:
-    attributes:
-      service.name: Grafana
-      host.name: hws-demo.sentrysoftware.com
-    protocols:
-      http:
-        https: true
-        port: 443
-    monitors:
-      grafana:
-        simple: # "simple" job type. Creates monitors and collects associated metrics. 
-          sources:
-            grafanaHealth:
-              type: http
-              path: /api/health
-              method: get
-              header: "Accept: application/json"
-              computes:
-              - type: json2Csv
-                entryKey: /
-                properties: commit;database;version
-                separator: ;
-              - type: translate
-                column: 3
-                translationTable:
-                  ok: 1
-                  default: 0
-          mapping:
-            source: ${esc.d}{source::grafanaHealth}
-            attributes:
-              id: $2
-              service.instance.id: $2
-              service.version: $4
-            metrics:
-              grafana.db.state: $3
-```
-
-## (Optional) Additional settings
 
 ### Basic Authentication settings
 
@@ -826,27 +813,50 @@ patchDirectory: /opt/patch/connectors # Replace with the path to your patch conn
 loggerLevel: ...
 ```
 
-#### Configure Connector Variables
+#### Customize data collection 
 
-In **MetricsHub**, connector variables are essential for customizing the behavior of data collection. The connector variables are configured in the `metricshub.yaml` file under the `variables` section of your configured resource. These variables are specified under the name of the connector to which they belong and contain key-value pairs. The key of each variable corresponds to a variable already configured in the connector.
+**MetricsHub** allows you to customize data collection on your Windows or Linux servers, specifying exactly which processes or services to monitor. This customization is achieved by configuring the following connector variables: 
 
-* Example :
+| Connector Variable | Available for                                                                                                                                                    | Usage                                                                      |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `matchCommand`     | [Linux - Processes (ps)](../connectors/linuxprocess.html#linux---processes-28ps-29) <br/> [Windows - Processes (WMI)](../connectors/windowsprocess.html)         | Used to specify the command lines to monitor on a Linux or Windows server. |
+| `matchName`        | [Linux - Processes (ps)](../connectors/linuxprocess.html#linux---processes-28ps-29) <br/>[Windows - Processes (WMI)](../connectors/windowsprocess.html)          | Used to specify the processes to monitor on a Linux or Windows server.     |
+| `matchUser`        | [Linux - Processes (ps)](../connectors/linuxprocess.html#linux---processes-28ps-29)                                                                              | Used to specify the users to include.                                      |
+| `serviceNames`     | [Linux - Service (systemctl)](../connectors/linuxservice.html) <br/> [Windows - Services (WMI)](../connectors/windowsservice.html#!#windows---services-28wmi-29) | Used to specify the services to monitor on a Linux or Windows server.      |
 
-  Below is a configuration using the `WindowsProcess` connector. The `processName` variable, defined in the variables section, specifies a list of process names (msedge.exe and metricshub.exe) to monitor:
+Refer to the [Connectors directory](../metricshub-connectors-directory.html#) and more especially to the `Variables` section of the connector to know the supported variables and their accepted values.
+
+##### Procedure
+
+In the `config/metricshub.yaml` file, locate the resource for which you wish to customize data collection and specify the `variables` attribute available under the `additionalConnectors` section: 
 
 ```yaml
 resources:
-  localhost:
+  <host-id>:
     attributes:
-      host.name: localhost
-      host.type: windows
-    protocols:
-      wmi:
-        timeout: 120
-    variables:
-      windowsProcess: # Connector ID
-        processName: "('msedge.exe', 'metricshub.exe')"
+      host.name: <hostname>
+      host.type: <type>
+    additionalConnectors:
+      <connector-custom-id>: # Unique ID. Use 'uses' if different from the original connector ID
+        uses: <connector-original-id> # Optional - Original ID if not in key
+        force: true # Optional (default: true); false for auto-detection only
+        variables:
+          <variable-name>: <value>
 ```
+
+| Property                 | Description                                                                                                                    |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| ` <connector-custom-id>` | Custom ID for this additional connector.                                                                                       |
+| `uses`                   | _(Optional)_ Provide an ID for this additional connector. If not specified, the key ID will be used.                           |
+| `force`                  | _(Optional)_ Set to `false` if you want the connector to only be activated when detected (Default: `true` - always activated). |
+| `variables`              | Specify the connector variable to be used and its value (Format: `<variable-name>: <value>`).                                  |
+
+> Note: If a connector is added under the `additionalConnectors` section with missing or unspecified variables, those variables will automatically be populated with default values defined by the connector itself.
+
+For practical examples demonstrating effective use of this feature, refer to the following pages:
+- [Monitoring a process command line](../usecases/process-command-line.md)
+- [Monitoring a service running on Linux](../usecases/service-linux.md).
+
 
 #### Filter monitors
 
@@ -862,11 +872,11 @@ You can apply monitor inclusion or exclusion in data collection for the followin
 
 This is done by  adding the `monitorFilters` parameter in the relevant section of the `config/metricshub.yaml` file as described below: 
 
-| Filter monitors                                    | Add monitorFilters |
-|----------------------------------------------------|---|
-| For all resources                                  |In the global section (top of the file)   |
+| Filter monitors                                    | Add monitorFilters                                      |
+| -------------------------------------------------- | ------------------------------------------------------- |
+| For all resources                                  | In the global section (top of the file)                 |
 | For all the resources of a specific resource group | Under the corresponding `<resource-group-name>` section |
-| For a specific resource                            |Under the corresponding `<resource-id>`  section|
+| For a specific resource                            | Under the corresponding `<resource-id>` section         |
 
 The `monitorFilters` parameter accepts the following values:
 

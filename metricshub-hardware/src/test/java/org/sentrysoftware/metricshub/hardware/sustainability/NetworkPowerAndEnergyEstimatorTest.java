@@ -38,12 +38,12 @@ class NetworkPowerAndEnergyEstimatorTest {
 
 		// Not virtual network card, linkStatus == 0.0 -> estimated power consumption is 1.0
 		monitor.addAttribute("name", "real_network_card");
-		monitor.addMetric(NETWORK_LINK_STATUS_METRIC, NumberMetric.builder().value(1.0).build());
+		monitor.addMetric(NETWORK_LINK_STATUS_METRIC, NumberMetric.builder().value(0.0).build());
 		assertEquals(1.0, networkPowerAndEnergyEstimator.estimatePower());
 
 		// linkStatus is up, bandwidthUtilization and linkSpeed are null
 		// estimated power consumption is 10.0
-		monitor.addMetric(NETWORK_LINK_STATUS_METRIC, NumberMetric.builder().value(0.0).build());
+		monitor.addMetric(NETWORK_LINK_STATUS_METRIC, NumberMetric.builder().value(1.0).build());
 		assertEquals(10.0, networkPowerAndEnergyEstimator.estimatePower());
 
 		// linkStatus is up, bandwidthUtilization is null and linkSpeed = 100.0 MegaBit
@@ -139,7 +139,7 @@ class NetworkPowerAndEnergyEstimatorTest {
 
 		// Estimate the energy
 		estimatedEnergy = networkPowerAndEnergyEstimator.estimateEnergy();
-		assertEquals(120.0, estimatedEnergy);
+		assertEquals(330.0, estimatedEnergy);
 		final NumberMetric collectedEnergyMetric = metricFactory.collectNumberMetric(
 			monitor,
 			NETWORK_ENERGY_METRIC,
@@ -163,6 +163,6 @@ class NetworkPowerAndEnergyEstimatorTest {
 		);
 
 		// Estimate the energy
-		assertEquals(240.0, networkPowerAndEnergyEstimator.estimateEnergy());
+		assertEquals(660.0, networkPowerAndEnergyEstimator.estimateEnergy());
 	}
 }

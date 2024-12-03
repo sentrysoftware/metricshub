@@ -673,9 +673,9 @@ class SnmpExtensionTest {
 		snmpQueryConfiguration.set("action", new TextNode(""));
 		snmpQueryConfiguration.set("oid", new TextNode(SnmpExtension.SNMP_OID));
 
-		assertThrows(
-			Exception.class,
-			() -> snmpExtension.executeQuery(snmpConfiguration, snmpQueryConfiguration, new PrintWriter(new StringWriter()))
+		assertEquals(
+			"Failed Executing SNMP query",
+			snmpExtension.executeQuery(snmpConfiguration, snmpQueryConfiguration, new PrintWriter(new StringWriter()))
 		);
 	}
 }

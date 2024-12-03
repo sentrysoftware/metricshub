@@ -199,6 +199,13 @@ resourceGroups:
       #       username: myusername
       #       password: mypwd
       #       privateKey: /tmp/ssh-key.txt
+      #   additionalConnectors:
+      #     ConnectorId:
+      #       uses: LinuxProcess
+      #       force: true
+      #       variables:
+      #         var1: value1
+      #         var2: value2
 
       #═══════════════════════════════════════════════════
       # OSCommand configuration        
@@ -288,7 +295,7 @@ resourceGroups:
 
       # group-1:
       #   attributes:
-      #     host.names: [server-14, server-15, server-16]
+      #     host.name: [server-14, server-15, server-16]
       #     host.type: linux
       #   protocols:
       #     snmp:

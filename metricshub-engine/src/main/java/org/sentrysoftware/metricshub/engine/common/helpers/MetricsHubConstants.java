@@ -136,21 +136,6 @@ public class MetricsHubConstants {
 	 */
 	public static final String LOG_COMPUTE_KEY_SUFFIX_TEMPLATE = "%s -> computes[%d]";
 
-	// Macros
-
-	/**
-	 * Username macro
-	 */
-	public static final String USERNAME_MACRO = "%{USERNAME}";
-	/**
-	 * Password macro
-	 */
-	public static final String PASSWORD_MACRO = "%{PASSWORD}";
-	/**
-	 * Hostname macro
-	 */
-	public static final String HOSTNAME_MACRO = "%{HOSTNAME}";
-
 	/**
 	 * Threads and timeout
 	 **/
@@ -408,4 +393,9 @@ public class MetricsHubConstants {
 	 * Default keys for monitor jobs
 	 */
 	public static final Set<String> DEFAULT_KEYS = Set.of(MetricsHubConstants.MONITOR_ATTRIBUTE_ID);
+
+	/**
+	 * MetricsHub multi value attribute separator
+	 */
+	public static final String MULTI_VALUE_SEPARATOR = "_@M8B_MULTI_VALUE_SEP@_";
 }

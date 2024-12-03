@@ -21,10 +21,12 @@ package org.sentrysoftware.metricshub.cli.service.protocol;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import java.util.Arrays;
 import lombok.Data;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
@@ -79,6 +81,14 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 	)
 	String timeout;
 
+	@Option(
+		names = { "--snmp-retry-intervals", "--retry" },
+		order = 2,
+		paramLabel = "RETRYINTERVALS",
+		description = "Timeout in milliseconds after which the elementary operations will be retried"
+	)
+	int[] retryIntervals;
+
 	/**
 	 * This method creates an {@link IConfiguration} for a given username and a given password
 	 *
@@ -97,6 +107,10 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 		}
 		configuration.set("port", new IntNode(port));
 		configuration.set("timeout", new TextNode(timeout));
+		if (retryIntervals != null) {
+			final ArrayNode retryIntervalsArrayNode = configuration.putArray("retryIntervals");
+			Arrays.stream(retryIntervals).forEach(retryIntervalsArrayNode::add);
+		}
 
 		return CliExtensionManager
 			.getExtensionManagerSingleton()

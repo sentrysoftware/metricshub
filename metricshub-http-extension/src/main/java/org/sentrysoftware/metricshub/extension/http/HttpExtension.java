@@ -188,13 +188,9 @@ public class HttpExtension implements IProtocolExtension {
 
 			return httpConfiguration;
 		} catch (Exception e) {
-			final String errorMessage = String.format(
-				"Error while reading HTTP Configuration: %s. Error: %s",
-				jsonNode,
-				e.getMessage()
-			);
+			final String errorMessage = String.format("Error while reading HTTP Configuration. Error: %s", e.getMessage());
 			log.error(errorMessage);
-			log.debug("Error while reading HTTP Configuration: {}. Stack trace:", jsonNode, e);
+			log.debug("Error while reading HTTP Configuration. Stack trace:", e);
 			throw new InvalidConfigurationException(errorMessage, e);
 		}
 	}

@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -212,11 +211,22 @@ class CollectStrategyTest {
 
 		// Check that StatusInformation is collected on the connector monitor
 		assertEquals(
-			"Received Result: 1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest. SnmpGetNextCriterion test succeeded:\n" +
+			"Executed SnmpGetNextCriterion Criterion:\n" +
+			"- OID: 1.3.6.1.4.1.795.10.1.1.3.1.1\n" +
+			"\n" +
+			"Result:\n" +
+			"1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest\n" +
+			"\n" +
+			"Message:\n" +
+			"====================================\n" +
+			"SnmpGetNextCriterion test succeeded:\n" +
 			"- OID: 1.3.6.1.4.1.795.10.1.1.3.1.1\n" +
 			"\n" +
 			"Result: 1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest\n" +
-			"Conclusion: Test on host.name SUCCEEDED",
+			"====================================\n" +
+			"\n" +
+			"Conclusion:\n" +
+			"Test on host.name SUCCEEDED",
 			connectorMonitor.getLegacyTextParameters().get(STATUS_INFORMATION)
 		);
 
@@ -230,12 +240,23 @@ class CollectStrategyTest {
 
 		// Check that StatusInformation is collected on the connector monitor (criterion processing failure case)
 		assertEquals(
-			"Received Result: 1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest. SnmpGetNextCriterion test ran but failed:\n" +
+			"Executed SnmpGetNextCriterion Criterion:\n" +
+			"- OID: 1.3.6.1.4.1.795.10.1.1.3.1.1\n" +
+			"\n" +
+			"Result:\n" +
+			"1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest\n" +
+			"\n" +
+			"Message:\n" +
+			"====================================\n" +
+			"SnmpGetNextCriterion test ran but failed:\n" +
 			"- OID: 1.3.6.1.4.1.795.10.1.1.3.1.1\n" +
 			"\n" +
 			"Actual result:\n" +
 			"1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest\n" +
-			"Conclusion: Test on host.name FAILED",
+			"====================================\n" +
+			"\n" +
+			"Conclusion:\n" +
+			"Test on host.name FAILED",
 			connectorMonitor.getLegacyTextParameters().get(STATUS_INFORMATION)
 		);
 	}

@@ -86,13 +86,9 @@ public class SnmpExtension extends AbstractSnmpExtension {
 
 			return snmpConfiguration;
 		} catch (Exception e) {
-			final String errorMessage = String.format(
-				"Error while reading SNMP Configuration: %s. Error: %s",
-				jsonNode,
-				e.getMessage()
-			);
+			final String errorMessage = String.format("Error while reading SNMP Configuration. Error: %s", e.getMessage());
 			log.error(errorMessage);
-			log.debug("Error while reading SNMP Configuration: {}. Stack trace:", jsonNode, e);
+			log.debug("Error while reading SNMP Configuration. Stack trace:", e);
 			throw new InvalidConfigurationException(errorMessage, e);
 		}
 	}
@@ -113,55 +109,34 @@ public class SnmpExtension extends AbstractSnmpExtension {
 		final String hostname = configuration.getHostname();
 		String result = "Failed Executing SNMP query";
 		final String action = query.get("action").asText();
-
 		final String oId = query.get("oid").asText();
-		final String exceptionMessage = "Hostname {} - Error while executing SNMP {} query. Message: {}";
 
-		printWriter.println("Executing query from SNMP Extension");
-		printWriter.flush();
-
-		switch (action) {
-			case GET:
-				try {
-					displayQuery(printWriter, hostname, GET, oId);
-					result = snmpRequestExecutor.executeSNMPGet(oId, snmpConfiguration, hostname, false);
-					displayQueryResult(printWriter, result);
-				} catch (Exception e) {
-					log.debug(exceptionMessage, hostname, GET, e);
-				}
-				break;
-			case GET_NEXT:
-				try {
-					displayQuery(printWriter, hostname, GET_NEXT, oId);
-					result = snmpRequestExecutor.executeSNMPGetNext(oId, snmpConfiguration, hostname, false);
-					displayQueryResult(printWriter, result);
-				} catch (Exception e) {
-					log.debug(exceptionMessage, hostname, GET_NEXT, e);
-				}
-				break;
-			case WALK:
-				try {
-					displayQuery(printWriter, hostname, WALK, oId);
-					result = snmpRequestExecutor.executeSNMPWalk(oId, snmpConfiguration, hostname, false);
-					displayQueryResult(printWriter, result);
-				} catch (Exception e) {
-					log.debug(exceptionMessage, hostname, WALK, e);
-				}
-				break;
-			default:
-				throw new IllegalArgumentException("Hostname {} - Invalid SNMP Operation");
-		}
-		return result;
-	}
-
-	public void displayQuery(final PrintWriter printWriter, final String hostname, final String query, final String oId) {
-		printWriter.println(String.format("Hostname %s - Executing SNMP %s query:\n", hostname, query));
+		// Printing the SNMP request
+		printWriter.println(String.format("Hostname %s - Executing SNMP %s query:", hostname, action));
 		printWriter.println(String.format("OID: %s", oId));
 		printWriter.flush();
-	}
 
-	public void displayQueryResult(final PrintWriter printWriter, final String result) {
-		printWriter.println(String.format("Result: %s", result));
-		printWriter.flush();
+		try {
+			if (action.equals(GET)) {
+				result = snmpRequestExecutor.executeSNMPGet(oId, snmpConfiguration, hostname, false);
+			} else if (action.equals(GET_NEXT)) {
+				result = snmpRequestExecutor.executeSNMPGetNext(oId, snmpConfiguration, hostname, false);
+			} else if (action.equals(WALK)) {
+				result = snmpRequestExecutor.executeSNMPWalk(oId, snmpConfiguration, hostname, false);
+			} else {
+				throw new IllegalArgumentException(String.format("Hostname %s - Invalid SNMP Operation", hostname));
+			}
+
+			// Printing the result on the CLI
+			printWriter.print("\n\u001B[34m");
+			printWriter.print("Result: ");
+			printWriter.print("\u001B[0m");
+			printWriter.print(result);
+			printWriter.flush();
+		} catch (Exception e) {
+			log.debug("Hostname {} - Error while executing SNMP {} query. Message: {}", hostname, action, e);
+		}
+
+		return result;
 	}
 }

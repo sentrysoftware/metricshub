@@ -36,6 +36,7 @@ import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfiguratio
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.TransportProtocols;
+import org.sentrysoftware.metricshub.engine.deserialization.MultiValueDeserializer;
 import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 import org.sentrysoftware.metricshub.extension.win.IWinConfiguration;
 import org.sentrysoftware.winrm.service.client.auth.AuthenticationEnum;
@@ -50,12 +51,16 @@ import org.sentrysoftware.winrm.service.client.auth.AuthenticationEnum;
 @NoArgsConstructor
 public class WinRmConfiguration implements IWinConfiguration {
 
+	private static final String WINRM_DESCRIPTION = "WinRm";
+
 	private String username;
 
 	private char[] password;
 
 	private String namespace;
 
+	@JsonSetter(nulls = SKIP)
+	@JsonDeserialize(using = MultiValueDeserializer.class)
 	private String hostname;
 
 	@Default
@@ -83,7 +88,7 @@ public class WinRmConfiguration implements IWinConfiguration {
 					"Resource %s - Invalid port configured for protocol %s. Port value returned: %s." +
 					" This resource will not be monitored. Please verify the configured port value.",
 					resourceKey,
-					"WinRm",
+					WINRM_DESCRIPTION,
 					port
 				)
 		);
@@ -96,7 +101,7 @@ public class WinRmConfiguration implements IWinConfiguration {
 					"Resource %s - Timeout value is invalid for protocol %s." +
 					" Timeout value returned: %s. This resource will not be monitored. Please verify the configured timeout value.",
 					resourceKey,
-					"WinRm",
+					WINRM_DESCRIPTION,
 					timeout
 				)
 		);
@@ -109,14 +114,14 @@ public class WinRmConfiguration implements IWinConfiguration {
 					"Resource %s - No username configured for protocol %s." +
 					" This resource will not be monitored. Please verify the configured username.",
 					resourceKey,
-					"WinRm"
+					WINRM_DESCRIPTION
 				)
 		);
 	}
 
 	@Override
 	public String toString() {
-		String desc = "WinRm";
+		String desc = WINRM_DESCRIPTION;
 		if (username != null) {
 			desc = desc + " as " + username;
 		}
@@ -134,6 +139,7 @@ public class WinRmConfiguration implements IWinConfiguration {
 			.protocol(protocol)
 			.timeout(timeout)
 			.username(username)
+			.hostname(hostname)
 			.build();
 	}
 }

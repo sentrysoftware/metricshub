@@ -21,6 +21,7 @@ package org.sentrysoftware.metricshub.extension.jawk;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.TABLE_SEP;
 import static org.sentrysoftware.metricshub.extension.jawk.KeyWords.EXECUTE_HTTP_REQUEST;
 import static org.sentrysoftware.metricshub.extension.jawk.KeyWords.EXECUTE_IPMI_REQUEST;
 import static org.sentrysoftware.metricshub.extension.jawk.KeyWords.EXECUTE_SNMP_GET;
@@ -278,7 +279,13 @@ public class MetricsHubExtensionForJawk extends AbstractExtension implements Jaw
 	private String executeSource(final Source source) {
 		final SourceTable sourceTableResult = source.accept(sourceProcessor);
 
-		return sourceTableResult != null && !sourceTableResult.isEmpty() ? sourceTableResult.getRawData() : "";
+		if (sourceTableResult != null && !sourceTableResult.isEmpty()) {
+			return sourceTableResult.getRawData() != null
+				? sourceTableResult.getRawData()
+				: SourceTable.tableToCsv(sourceTableResult.getTable(), TABLE_SEP, false);
+		} else {
+			return "";
+		}
 	}
 
 	/**

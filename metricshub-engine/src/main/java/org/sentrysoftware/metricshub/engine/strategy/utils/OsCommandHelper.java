@@ -23,7 +23,7 @@ package org.sentrysoftware.metricshub.engine.strategy.utils;
 
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.FILE_PATTERN;
-import static org.springframework.util.Assert.isTrue;
+import static org.sentrysoftware.metricshub.engine.common.helpers.StringHelper.protectCaseInsensitiveRegex;
 import static org.springframework.util.Assert.state;
 
 import java.io.BufferedWriter;
@@ -193,7 +193,8 @@ public class OsCommandHelper {
 			: EMPTY;
 
 		return maybeSudoFile
-			.map(fileName -> text.replaceAll(toCaseInsensitiveRegex(String.format("%%{SUDO:%s}", fileName)), sudoReplace))
+			.map(fileName -> text.replaceAll(protectCaseInsensitiveRegex(String.format("%%{SUDO:%s}", fileName)), sudoReplace)
+			)
 			.orElse(text);
 	}
 
@@ -207,17 +208,6 @@ public class OsCommandHelper {
 	public static Optional<String> getFileNameFromSudoCommand(@NonNull final String command) {
 		final Matcher matcher = SUDO_COMMAND_PATTERN.matcher(command);
 		return matcher.find() ? Optional.ofNullable(matcher.group(1)) : Optional.empty();
-	}
-
-	/**
-	 * Convert a string to be searched in a case insensitive regex.
-	 *
-	 * @param host The string to searched. (mandatory)
-	 * @return The case insensitive regex for this string.
-	 */
-	public static String toCaseInsensitiveRegex(final String host) {
-		isTrue(host != null && !host.isEmpty(), "host cannot be null nor empty.");
-		return host.isBlank() ? host : "(?i)" + Pattern.quote(host);
 	}
 
 	/**
