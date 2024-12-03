@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.function.UnaryOperator;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
@@ -221,7 +222,56 @@ public class HttpExtension implements IProtocolExtension {
 
 	@Override
 	public String executeQuery(IConfiguration configuration, JsonNode query, PrintWriter printWriter) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+
+		final String hostname = configuration.getHostname();
+		final JsonNode url = query.get("url");
+		final JsonNode path = query.get("path");
+		final JsonNode header = query.get("header");
+		final JsonNode body = query.get("body");
+		final JsonNode resultContent = query.get("resultContent");
+		final JsonNode authenticationToken = query.get("authenticationToken");
+
+		final HttpRequest httpRequest = HttpRequest
+			.builder()
+			.hostname(hostname)
+			.httpConfiguration((HttpConfiguration) configuration)
+			.method(query.get("method").asText())
+			.url(notNull(url) ? url.asText() : null)
+			.path(notNull(path) ? path.asText() : null)
+			.header(notNull(header) ? header.asText() : null, Map.of(), "", hostname)
+			.body(notNull(body) ? body.asText() : null, Map.of(), "", hostname)
+			.resultContent(notNull(resultContent) ? ResultContent.detect(resultContent.asText()) : ResultContent.ALL)
+			.authenticationToken(notNull(authenticationToken) ? authenticationToken.asText() : null)
+			.build();
+
+		displayRequest(httpRequest, printWriter);
+
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.configurations(Map.of(HttpConfiguration.class, configuration))
+			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
+		final String result = httpRequestExecutor.executeHttp(httpRequest, false, telemetryManager);
+		printWriter.print("\n\u001B[34m");
+		printWriter.println(String.format("Result: %s", result));
+		printWriter.print("\u001B[0m");
+		printWriter.flush();
+		return result;
+	}
+
+	boolean notNull(final JsonNode jsonNode) {
+		return jsonNode != null && !jsonNode.isNull();
+	}
+
+	void displayRequest(final HttpRequest httpRequest, final PrintWriter printWriter) {
+		final String template = "%s: %s%n";
+		printWriter.println(String.format("Hostname %s - Executing HTTP %s request:", httpRequest.getHostname(), httpRequest.getMethod()));
+		printWriter.println(String.format(template, "Url", httpRequest.getUrl()));
+		printWriter.println(String.format(template, "Path", httpRequest.getPath()));
+		printWriter.println(String.format(template, "Header", httpRequest.getHeader()));
+		printWriter.println(String.format(template, "Body", httpRequest.getBody()));
+		printWriter.println(String.format(template, "ResultContent", httpRequest.getResultContent()));
+		printWriter.println(String.format(template, "AuthenticationToken", httpRequest.getAuthenticationToken()));
+		printWriter.flush();
 	}
 }
