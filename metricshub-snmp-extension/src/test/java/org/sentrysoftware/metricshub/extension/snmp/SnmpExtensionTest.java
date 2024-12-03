@@ -3,7 +3,6 @@ package org.sentrysoftware.metricshub.extension.snmp;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -673,9 +672,9 @@ class SnmpExtensionTest {
 		snmpQueryConfiguration.set("action", new TextNode(""));
 		snmpQueryConfiguration.set("oid", new TextNode(SnmpExtension.SNMP_OID));
 
-		assertThrows(
-			Exception.class,
-			() -> snmpExtension.executeQuery(snmpConfiguration, snmpQueryConfiguration, new PrintWriter(new StringWriter()))
+		assertEquals(
+			"Failed Executing SNMP query",
+			snmpExtension.executeQuery(snmpConfiguration, snmpQueryConfiguration, new PrintWriter(new StringWriter()))
 		);
 	}
 }

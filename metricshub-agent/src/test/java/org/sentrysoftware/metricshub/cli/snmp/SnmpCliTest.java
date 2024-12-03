@@ -15,7 +15,7 @@ class SnmpCliTest {
 	SnmpCli snmpCli;
 	CommandLine commandLine;
 
-	static String SNMP_OID = "1.3.6.1.4.1.674.10892.5.5.1.20.130.4";
+	static String SNMP_OID = "1.3.6.1.4.1.64.58.5.5.1.20.10.4";
 	static String SNMP_VERSION = "v2c";
 	static String SNMP_COMMUNITY = "public";
 
@@ -24,48 +24,10 @@ class SnmpCliTest {
 		commandLine = new CommandLine(snmpCli);
 	}
 
-	void initSnmpGet() {
-		initCli();
-
+	void execute(String snmpMethod) {
 		commandLine.execute(
 			"hostname",
-			"--snmp-get",
-			SNMP_OID,
-			"--snmp",
-			SNMP_VERSION,
-			"--community",
-			SNMP_COMMUNITY,
-			"--retry",
-			"1000",
-			"--retry",
-			"6000"
-		);
-	}
-
-	void initSnmpGetNext() {
-		initCli();
-
-		commandLine.execute(
-			"hostname",
-			"--snmp-getnext",
-			SNMP_OID,
-			"--snmp",
-			SNMP_VERSION,
-			"--community",
-			SNMP_COMMUNITY,
-			"--retry",
-			"1000",
-			"--retry",
-			"6000"
-		);
-	}
-
-	void initSnmpWalk() {
-		initCli();
-
-		commandLine.execute(
-			"hostname",
-			"--snmp-walk",
+			snmpMethod,
 			SNMP_OID,
 			"--snmp",
 			SNMP_VERSION,
@@ -80,27 +42,29 @@ class SnmpCliTest {
 
 	@Test
 	void testExecute() {
-		initSnmpGet();
+		initCli();
+		execute("--snmp-get");
 		assertEquals(SNMP_OID, snmpCli.get);
-		initSnmpGetNext();
+		execute("--snmp-getnext");
 		assertEquals(SNMP_OID, snmpCli.getNext);
-		initSnmpWalk();
+		execute("--snmp-walk");
 		assertEquals(SNMP_OID, snmpCli.walk);
 	}
 
 	@Test
 	void testGetQuery() {
-		initSnmpGet();
+		initCli();
+		execute("--snmp-get");
 		JsonNode snmpQuery = snmpCli.getQuery();
 		assertEquals("get", snmpQuery.get("action").asText());
 		assertEquals(SNMP_OID, snmpQuery.get("oid").asText());
 
-		initSnmpGetNext();
+		execute("--snmp-getnext");
 		snmpQuery = snmpCli.getQuery();
 		assertEquals("getNext", snmpQuery.get("action").asText());
 		assertEquals(SNMP_OID, snmpQuery.get("oid").asText());
 
-		initSnmpWalk();
+		execute("--snmp-walk");
 		snmpQuery = snmpCli.getQuery();
 		assertEquals("walk", snmpQuery.get("action").asText());
 		assertEquals(SNMP_OID, snmpQuery.get("oid").asText());
