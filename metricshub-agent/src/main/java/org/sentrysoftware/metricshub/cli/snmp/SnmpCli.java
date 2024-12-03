@@ -71,6 +71,7 @@ public class SnmpCli implements IQuery, Callable<Integer> {
 	@Option(names = "-v", order = 7, description = "Verbose mode (repeat the option to increase verbosity)")
 	boolean[] verbose;
 
+	@Override
 	public JsonNode getQuery() {
 		final ObjectNode queryNode = JsonNodeFactory.instance.objectNode();
 		String action;
@@ -93,6 +94,11 @@ public class SnmpCli implements IQuery, Callable<Integer> {
 		return queryNode;
 	}
 
+	/**
+	 * Validates SNMP configuration and ensures exactly one query type (--snmp-get, --snmp-getnext, or --snmp-walk) is specified.
+	 *
+	 * @throws ParameterException if SNMP is not configured, no query is specified, or multiple queries are specified.
+	 */
 	void validate() throws ParameterException {
 		if (snmpConfigCli == null) {
 			throw new ParameterException(spec.commandLine(), "SNMP protocol must be configured: --snmp.");

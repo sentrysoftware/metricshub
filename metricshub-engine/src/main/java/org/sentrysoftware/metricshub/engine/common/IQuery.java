@@ -1,5 +1,7 @@
 package org.sentrysoftware.metricshub.engine.common;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
  * MetricsHub Engine
@@ -20,4 +22,15 @@ package org.sentrysoftware.metricshub.engine.common;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
-public interface IQuery {}
+
+/**
+ * Represents a query to be executed by an extension.
+ */
+public interface IQuery {
+	/**
+	 * Builds and returns the query as a JSON object.
+	 *
+	 * @return the query as a {@link JsonNode}.
+	 */
+	JsonNode getQuery();
+}
