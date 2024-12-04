@@ -91,7 +91,7 @@ The `exporters` section defines the destination of the collected metrics. **Metr
 
 * [Prometheus Remote Write Exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/prometheusremotewriteexporter)
 * [Datadog Exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/datadogexporter)
-* [Logging Exporter](https://github.com/open-telemetry/opentelemetry-collector/tree/main/exporter/loggingexporter)
+* [Debug Exporter](https://github.com/open-telemetry/opentelemetry-collector/tree/main/exporter/debugexporter)
 * [New Relic (OTLP exporter)](https://github.com/open-telemetry/opentelemetry-collector/tree/main/exporter/otlpexporter)
 * [Prometheus Exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/prometheusexporter)
 * [Splunk SignalFx](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/signalfxexporter)
@@ -155,7 +155,7 @@ service:
     # logs:
     #   receivers: [otlp]
     #   processors: [memory_limiter, batch]
-    #   exporters: [logging] # List here the platform of your choice
+    #   exporters: [debug] # List here the platform of your choice
 ```
 
 ## Configure the OTLP Exporter (Community Edition)
