@@ -44,6 +44,17 @@ import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 
+/**
+ * A command-line interface (CLI) for executing SNMP queries.
+ * <p>
+ * This class supports SNMP operations such as Get, Get Next, and Walk. 
+ * It provides validation for configurations and query parameters 
+ * and integrates with the CLI extension framework to execute SNMP queries.
+ * </p>
+ * 
+ * Implements {@link IQuery} to generate SNMP-specific query JSON 
+ * and {@link Callable} to support execution via a command-line tool.
+ */
 @Data
 public class SnmpCli implements IQuery, Callable<Integer> {
 
@@ -52,6 +63,9 @@ public class SnmpCli implements IQuery, Callable<Integer> {
 
 	@Spec
 	CommandSpec spec;
+
+	@ArgGroup(exclusive = false, heading = "%n@|bold,underline SNMP Options|@:%n")
+	SnmpConfigCli snmpConfigCli;
 
 	@Option(names = "--snmp-get", order = 1, paramLabel = "OID", description = "SNMP Get request")
 	String get;
@@ -62,13 +76,10 @@ public class SnmpCli implements IQuery, Callable<Integer> {
 	@Option(names = "--snmp-walk", order = 3, paramLabel = "OID", description = "SNMP Walk request")
 	String walk;
 
-	@ArgGroup(exclusive = false, heading = "%n@|bold,underline SNMP Options|@:%n")
-	SnmpConfigCli snmpConfigCli;
-
-	@Option(names = { "-h", "-?", "--help" }, usageHelp = true, description = "Shows this help message and exits")
+	@Option(names = { "-h", "-?", "--help" }, order = 4, usageHelp = true, description = "Shows this help message and exits")
 	boolean usageHelpRequested;
 
-	@Option(names = "-v", order = 7, description = "Verbose mode (repeat the option to increase verbosity)")
+	@Option(names = "-v", order = 5, description = "Verbose mode (repeat the option to increase verbosity)")
 	boolean[] verbose;
 
 	@Override
