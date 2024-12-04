@@ -40,3 +40,8 @@ metrics:
     description: Response time for protocol check.
     type: Gauge
     unit: s
+
+  metricshub.job.duration:
+    description: Reports the time taken to complete a monitor job in MetricsHub.
+    type: Gauge
+    unit: s

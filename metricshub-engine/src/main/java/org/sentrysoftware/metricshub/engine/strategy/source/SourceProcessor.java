@@ -43,12 +43,13 @@ import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CommandLineSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CopySource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.InternalDbQuerySource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.JawkSource;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.LocalSqlSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpGetSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpTableSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SqlSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.StaticSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.TableJoinSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.TableUnionSource;
@@ -553,15 +554,26 @@ public class SourceProcessor implements ISourceProcessor {
 		);
 	}
 
-	@WithSpan("Source LocalSqlSource Exec")
+	@WithSpan("Source InternalDbQuerySource Exec")
 	@Override
-	public SourceTable process(@SpanAttribute("source.definition") final LocalSqlSource localSqlSource) {
-		return processSourceComputationThroughExtension(localSqlSource);
+	public SourceTable process(@SpanAttribute("source.definition") final InternalDbQuerySource internalDbQuery) {
+		return processSourceComputationThroughExtension(internalDbQuery);
 	}
 
 	@WithSpan("Source JawkSource Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final JawkSource jawkSource) {
 		return processCompositeSourceScriptThroughExtension(jawkSource);
+	}
+
+	/**
+	 * This method processes {@link SqlSource} source
+	 * @param sqlSource {@link SqlSource} source instance
+	 * @return {@link SourceTable} instance
+	 */
+	@WithSpan("Source SQL Exec")
+	@Override
+	public SourceTable process(@SpanAttribute("source.definition") final SqlSource sqlSource) {
+		return processSourceThroughExtension(sqlSource);
 	}
 }

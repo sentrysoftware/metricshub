@@ -18,13 +18,14 @@ This is a multi-module project:
 * **metricshub-snmp-extension-common**: Contains common functionalities and utilities used by SNMP-based extensions.
 * **metricshub-snmp-extension**: Enables Simple Network Management Protocol (SNMP) for monitoring and managing network devices.
 * **metricshub-snmpv3-extension**: Adds support for SNMPv3, which includes enhanced security features like authentication and encryption.
-* **metricshub-localsql-source-extension**:  Allows execution of SQL queries on already existing sources.
+* **metricshub-internaldb-extension**: Executes internal database queries using MetricsHub's internal database engine.
 * **metricshub-win-extension-common**: Contains common functionalities and utilities used by Windows-specific extensions.
 * **metricshub-wmi-extension**: Provides support for Windows Management Instrumentation (WMI) to gather detailed information about Windows systems.
 * **metricshub-winrm-extension**: Enables the use of Windows Remote Management (WinRM) for remote management and monitoring of Windows-based systems.
 * **metricshub-wbem-extension**: Supports the Web-Based Enterprise Management (WBEM) standard for accessing management information.
 * **metricshub-ping-extension**: Enables testing the reachability of hosts using ICMP-based ping commands.
 * **metricshub-jawk-extension**: Allows execution of Jawk scripts.
+* **metricshub-jdbc-extension**: Provides support for monitoring SQL databases.
 * **metricshub-hardware**: Hardware Energy and Sustainability module, dedicated to managing and monitoring hardware-related metrics, focusing on energy consumption and sustainability aspects.
 * **metricshub-it-common**: Contains common code and utilities used by integration tests across various modules.
 * **metricshub-windows**: Builds the `.zip` package for MetricsHub on Windows platforms.

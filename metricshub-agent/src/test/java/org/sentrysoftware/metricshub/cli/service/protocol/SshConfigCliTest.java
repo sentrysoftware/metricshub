@@ -41,7 +41,7 @@ class SshConfigCliTest {
 				.thenReturn(extensionManager);
 
 			// Create an SshTestConfiguration and call method toProtocol
-			final SshConfiguration sshConfiguration = (SshConfiguration) sshConfigCli.toProtocol(username, password);
+			final SshConfiguration sshConfiguration = (SshConfiguration) sshConfigCli.toConfiguration(username, password);
 
 			// Check the resulting ssh configuration
 			assertNotNull(sshConfiguration);

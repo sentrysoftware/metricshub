@@ -50,7 +50,7 @@ class WinRmConfigCliTest {
 				.thenReturn(extensionManager);
 
 			// Create a WinRmTestConfiguration and call method toProtocol
-			WinRmConfiguration winRmConfiguration = (WinRmConfiguration) winRmConfigCli.toProtocol(null, null);
+			WinRmConfiguration winRmConfiguration = (WinRmConfiguration) winRmConfigCli.toConfiguration(null, null);
 			final WinRmConfiguration expected = WinRmConfiguration
 				.builder()
 				.username(username)
@@ -67,7 +67,7 @@ class WinRmConfigCliTest {
 			// Check null password and null username
 			winRmConfigCli.setPassword(null);
 			winRmConfigCli.setUsername(null);
-			winRmConfiguration = (WinRmConfiguration) winRmConfigCli.toProtocol(null, null);
+			winRmConfiguration = (WinRmConfiguration) winRmConfigCli.toConfiguration(null, null);
 
 			assertNull(winRmConfiguration.getPassword());
 			assertNull(winRmConfiguration.getUsername());

@@ -102,7 +102,7 @@ public class IpmiConfigCli implements IProtocolConfigCli {
 	 * @return an {@link IConfiguration} instance corresponding to the options specified by the user in the CLI
 	 */
 	@Override
-	public IConfiguration toProtocol(final String defaultUsername, final char[] defaultPassword)
+	public IConfiguration toConfiguration(final String defaultUsername, final char[] defaultPassword)
 		throws InvalidConfigurationException {
 		final ObjectNode configuration = JsonNodeFactory.instance.objectNode();
 
